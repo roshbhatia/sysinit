@@ -1,0 +1,101 @@
+#       ___                       ___           ___           ___           ___                       ___   
+#      /  /\          ___        /  /\         /  /\         /  /\         /__/\        ___          /  /\  
+#     /  /:/_        /  /\      /  /::\       /  /::\       /  /:/_        \  \:\      /  /\        /  /::\ 
+#    /  /:/ /\      /  /:/     /  /:/\:\     /  /:/\:\     /  /:/ /\        \__\:\    /  /:/       /  /:/\:\
+#   /  /:/ /::\    /  /:/     /  /:/~/::\   /  /:/~/:/    /  /:/ /::\   ___ /  /::\  /__/::\      /  /:/~/:/
+#  /__/:/ /:/\:\  /  /::\    /__/:/ /:/\:\ /__/:/ /:/___ /__/:/ /:/\:\ /__/\  /:/\:\ \__\/\:\__  /__/:/ /:/ 
+#  \  \:\/:/~/:/ /__/:/\:\   \  \:\/:/__\/ \  \:\/:::::/ \  \:\/:/~/:/ \  \:\/:/__\/    \  \:\/\ \  \:\/:/  
+#   \  \::/ /:/  \__\/  \:\   \  \::/       \  \::/~~~~   \  \::/ /:/   \  \::/          \__\::/  \  \::/   
+#    \__\/ /:/        \  \:\   \  \:\        \  \:\        \__\/ /:/     \  \:\          /__/:/    \  \:\   
+#      /__/:/          \__\/    \  \:\        \  \:\         /__/:/       \  \:\         \__\/      \  \:\  
+#      \__\/                     \__\/         \__\/         \__\/         \__\/                     \__\/  
+
+
+command_timeout = 300
+
+add_newline = false
+format = """$all"""  # Add custom formatting before other stuff
+
+# Drop ugly default prompt characters
+[character]
+success_symbol = "[➜](bold green)"
+error_symbol = "[➜](bold red)"
+
+
+[aws]
+format = 'on [$symbol($profile )(\($region\) )]($style) ($expiration_symbol)'
+symbol =  '🌩️ '
+expiration_symbol = '☃ '
+
+# CShows current git user
+[custom.gh_user]
+command = 'gh api user | jq -r .login'
+symbol =  '🙆🏾'
+style = 'bold yellow'
+format = ' transcending [$output]($style)'
+
+# Shows current git branch
+[git_branch]
+symbol = "🌿 "
+format = "via [$symbol$branch]($style) "
+truncation_length = 24
+truncation_symbol = "…/"
+style = "bold green"
+
+[git_state]
+disabled = true
+
+# Shows current git status
+[git_status]
+disabled = true
+
+[kubernetes]
+format = '[connected to $symbol $context(within \($namespace\) ) ]($style)'
+disabled = false
+[kubernetes.context_aliases]
+'arn:aws:eks:[^:]+:[^:]+:cluster/(?P<cluster_name>[^:]+)' = '$cluster_name'
+
+[golang]
+format = '(via [$symbol($version )]($style))'
+
+[helm]
+format = '(via [$symbol($version )]($style))'
+
+[nodejs]
+format = '(via [$symbol($version )]($style))'
+
+[python]
+format = '(via [${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style))'
+
+[rust]
+format = '(via [$symbol($version )]($style))'
+
+[swift]
+format = '(via [$symbol($version )]($style))'
+
+[vagrant]
+format = '(via [$symbol($version )]($style))'
+
+[c]
+format = '(via [$symbol($version(-$name) )]($style))'
+
+[deno]
+format = '(via [$symbol($version )]($style))'
+
+[dotnet]
+format = '(via [$symbol($version )(🎯 $tfm )]($style))'
+
+[rlang]
+disabled = true
+
+[ruby]
+disabled = true
+
+[perl]
+disabled = true
+
+[haskell]
+disabled = true
+
+[java]
+disabled = true
