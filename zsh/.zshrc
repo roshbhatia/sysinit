@@ -126,6 +126,7 @@ eval "$(cod init $$ zsh)" # @install-gen darwin::* go install github.com/dim-an/
 
 # GH Cli
 eval "$(gh completion -s zsh)" # @install-gen darwin::* brew install gh
+eval "$(gh copilot alias -- zsh)" # @install-gen darwin::* gh extension install github/gh-copilot
 
 # Extra configuration
 [ -f ~/.zshextras ] && source ~/.zshextras
