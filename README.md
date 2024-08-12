@@ -18,3 +18,9 @@
 # sysinit
 
 My dotfiles and configs.
+
+To install:
+
+```bash
+home-manager switch -f ./home.nix
+```
