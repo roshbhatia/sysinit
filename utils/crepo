@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 # shellcheck disable=all
 REPO_BASE=~/github
 

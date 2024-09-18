@@ -1,4 +1,6 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
+# shellcheck disable=all
+
 set -e
 
 # Function to generate Zsh completion script

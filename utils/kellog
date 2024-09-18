@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
+# shellcheck disable=all
 
 function kellog() {
   function show_help() {
