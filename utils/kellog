@@ -30,19 +30,19 @@ function kellog() {
         return 0
         ;;
       -i|--include-container)
-        include_container="--container \"$2\""
+        include_container="$2"
         shift 2
         ;;
       -e|--exclude-container)
-        exclude_container="--exclude-container \"$2\""
+        exclude_container="$2"
         shift 2
         ;;
       -I|--include-log)
-        include_log="--include \"$2\""
+        include_log="$2"
         shift 2
         ;;
       -E|--exclude-log)
-        exclude_log="--exclude \"$2\""
+        exclude_log="$2"
         shift 2
         ;;
       -n|--namespace)
@@ -60,9 +60,25 @@ function kellog() {
     esac
   done
 
+  if [[ -n "$include_container" ]]; then
+    args+=("-c" "$include_container")
+  fi
+
+  if [[ -n "$exclude_container" ]]; then
+    args+=("-E" "$exclude_container")
+  fi
+
+  if [[ -n "$include_log" ]]; then
+    args+=("--include" "$include_log")
+  fi
+
+  if [[ -n "$exclude_log" ]]; then
+    args+=("--exclude" "$exclude_log")
+  fi
+
   if $minimal; then
     args+=("--template=| {{color .PodColor .PodName}} | {{.Message}} {{\"\n\"}}")
   fi
 
-  stern -n "${namespace}" "${include_container}" "${exclude_container}" "${include_log}" "${exclude_log}" "${args[@]}" "${pod_query}"
+  stern -n "${namespace}" "${args[@]}" --no-follow "${pod_query}" | bat --theme="Visual Studio Dark+" -l log --paging=never --style=grid,numbers
 }

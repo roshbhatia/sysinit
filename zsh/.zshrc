@@ -1,26 +1,25 @@
-#       ___           ___           ___           ___           ___     
-#      /  /\         /  /\         /__/\         /  /\         /  /\    
-#     /  /::|       /  /:/_        \  \:\       /  /::\       /  /:/    
-#    /  /:/:|      /  /:/ /\        \__\:\     /  /:/\:\     /  /:/     
-#   /  /:/|:|__   /  /:/ /::\   ___ /  /::\   /  /:/~/:/    /  /:/  ___ 
+#       ___           ___           ___           ___           ___
+#      /  /\         /  /\         /__/\         /  /\         /  /\
+#     /  /::|       /  /:/_        \  \:\       /  /::\       /  /:/
+#    /  /:/:|      /  /:/ /\        \__\:\     /  /:/\:\     /  /:/
+#   /  /:/|:|__   /  /:/ /::\   ___ /  /::\   /  /:/~/:/    /  /:/  ___
 #  /__/:/ |:| /\ /__/:/ /:/\:\ /__/\  /:/\:\ /__/:/ /:/___ /__/:/  /  /\
 #  \__\/  |:|/:/ \  \:\/:/~/:/ \  \:\/:/__\/ \  \:\/:::::/ \  \:\ /  /:/
-#      |  |:/:/   \  \::/ /:/   \  \::/       \  \::/~~~~   \  \:\  /:/ 
-#      |  |::/     \__\/ /:/     \  \:\        \  \:\        \  \:\/:/  
-#      |  |:/        /__/:/       \  \:\        \  \:\        \  \::/   
-#      |__|/         \__\/         \__\/         \__\/         \__\/    
+#      |  |:/:/   \  \::/ /:/   \  \::/       \  \::/~~~~   \  \:\  /:/
+#      |  |::/     \__\/ /:/     \  \:\        \  \:\        \  \:\/:/
+#      |  |:/        /__/:/       \  \:\        \  \:\        \  \::/
+#      |__|/         \__\/         \__\/         \__\/         \__\/
 
-# Mail
+# general
 unset MAILCHECK
 
-# Locale settings
 export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
 autoload -Uz compinit
 compinit
 
-# Zsh plugins
+# zsh plugins
 export ZSH_CUSTOM=$HOME/.zshcustom # @install-gen darwin::* mkdir -p $HOME/.zshcustom
 export ZSH_CUSTOM_PLUGINS=$ZSH_CUSTOM/plugins
 
@@ -29,6 +28,7 @@ export FZF_DEFAULT_OPTS='
   --color=fg:-1,bg:-1,hl:6,fg+:15,bg+:0,hl+:6
   --color=info:2,prompt:2,spinner:2,pointer:2,marker:1
 '
+
 source $ZSH_CUSTOM_PLUGINS/fzf-tab/fzf-tab.zsh # @install-gen darwin::* git clone https://github.com/Aloxaf/fzf-tab $ZSH_CUSTOM_PLUGINS/fzf-tab
 source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh # @install-gen darwin::* brew install zsh-syntax-highlighting
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh # @install-gen darwin::* brew install zsh-autosuggestions
@@ -70,10 +70,11 @@ bindkey '^L' clear-scrollback-buffer
 eval "$(direnv hook zsh)"
 
 # Git configuration
-git config --global alias.short-log 'log --pretty=format:"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]" --decorate --date=short'
-git config --global alias.latest-commit-sha 'rev-parse --short HEAD'
-git config --global alias.branches '!git --no-pager branch -a'
-git config --global core.editor "code --wait"
+(git config --global alias.short-log 'log --pretty=format:"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]" --decorate --date=short' &>/dev/null &)
+(git config --global alias.current-commit-sha 'rev-parse --short HEAD' &>/dev/null &)
+(git config --global alias.current-branch 'rev-parse --abbrev-ref HEAD' &>/dev/null &)
+(git config --global alias.branches '!git --no-pager branch -a' &>/dev/null &)
+(git config --global core.editor "code --wait" &>/dev/null &)
 
 # Terraform
 alias tf=terraform # @install-gen darwin::* brew install tfenv && tfenv install latest
@@ -102,7 +103,7 @@ eval "$(docker completion zsh)"
 # GoEnv configuration
 export GOENV_ROOT="$HOME/.goenv"
 export PATH="$GOENV_ROOT/bin:$PATH"
-eval "$(goenv init -)"
+(eval "$(goenv init -)")
 export PATH="$GOROOT/bin:$PATH"
 export PATH="$PATH:$GOPATH/bin"
 
@@ -123,7 +124,7 @@ eval "$(atuin init zsh --disable-up-arrow)"
 
 # GH Cli
 eval "$(gh completion -s zsh)" # @install-gen darwin::* brew install gh
-eval "$(gh copilot alias -- zsh)" # @install-gen darwin::* gh extension install github/gh-copilot
+eval "$(gh copilot alias -- zsh)"  # @install-gen darwin::* gh extension install github/gh-copilot
 
 # Source all completion scripts in ~/.completions
 if [ -d "$HOME/.completions" ]; then
@@ -131,10 +132,6 @@ if [ -d "$HOME/.completions" ]; then
     [ -r "$completion_script" ] && source "$completion_script"
   done
 fi
-
-# Extra configuration
-[ -f ~/.zshextras ] && source ~/.zshextras
-alias l="ls -l"
 
 # pnpm
 export PNPM_HOME="/Users/rshnbhatia/Library/pnpm"
@@ -144,7 +141,22 @@ case ":$PATH:" in
 esac
 # pnpm end
 
+# bat
+alias bathelp='bat --plain --language=help'
+# wrap help functions to use bat when available
+help() {
+    "$@" --help 2>&1 | bathelp
+}
+
+[ -f ~/.zshextras ] && source ~/.zshextras
+alias l="ls -l"
+
 # Startup commands
 export MACCHINA_THEME=${MACCHINA_THEME:-"rosh"}
-macchina --theme $MACCHINA_THEME # @install-gen darwin::* brew install macchina
+
+# Run macchina only if the tab number in ITERM_SESSION_ID is 0
+if [[ "$ITERM_SESSION_ID" =~ ^w[0-9]+t0p[0-9]+: ]]; then
+  macchina --theme $MACCHINA_THEME # @install-gen darwin::* brew install macchina
+fi
+
 eval "$(starship init zsh)"  # @install-gen darwin::* brew install starship
