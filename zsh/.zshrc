@@ -29,6 +29,9 @@ export FZF_DEFAULT_OPTS='
   --color=info:2,prompt:2,spinner:2,pointer:2,marker:1
 '
 
+# Homebrew
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
 source $ZSH_CUSTOM_PLUGINS/fzf-tab/fzf-tab.zsh # @install-gen darwin::* git clone https://github.com/Aloxaf/fzf-tab $ZSH_CUSTOM_PLUGINS/fzf-tab
 source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh # @install-gen darwin::* brew install zsh-syntax-highlighting
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh # @install-gen darwin::* brew install zsh-autosuggestions
@@ -84,9 +87,6 @@ export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 
 # Python
 export PATH="/usr/local/opt/cython/bin:$PATH"
-
-# Homebrew
-eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # Ruby
 export PATH="$HOME/.rvm/bin:$PATH"
