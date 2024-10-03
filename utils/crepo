@@ -53,7 +53,7 @@ crepo() {
             show_help
             ;;
         *)
-            show_help
+            list_repos
             ;;
     esac
 }

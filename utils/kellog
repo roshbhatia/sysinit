@@ -81,5 +81,5 @@ function kellog() {
     args+=("--template=| {{color .PodColor .PodName}} | {{.Message}} {{\"\n\"}}")
   fi
 
-  stern -n "${namespace}" "${args[@]}" --no-follow "${pod_query}" | bat --theme="Visual Studio Dark+" -l log --paging=never --style=grid,numbers
+  stern -n "${namespace}" "${args[@]}" "${pod_query}"
 }
