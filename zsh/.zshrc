@@ -69,10 +69,7 @@ function clear-scrollback-buffer {
 zle -N clear-scrollback-buffer
 bindkey '^L' clear-scrollback-buffer
 
-# Direnv
-eval "$(direnv hook zsh)"
-
-# Git configuration
+# # Git configuration
 (git config --global alias.short-log 'log --pretty=format:"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]" --decorate --date=short' &>/dev/null &)
 (git config --global alias.current-commit-sha 'rev-parse --short HEAD' &>/dev/null &)
 (git config --global alias.current-branch 'rev-parse --abbrev-ref HEAD' &>/dev/null &)
@@ -94,9 +91,6 @@ export PATH="$HOME/.rvm/bin:$PATH"
 # Rust
 . "$HOME/.cargo/env"
 
-# 1Password
-eval "$(op completion zsh)"; compdef _op op
-
 # Docker
 eval "$(docker completion zsh)"
 
@@ -108,48 +102,32 @@ export PATH="$GOROOT/bin:$PATH"
 export PATH="$PATH:$GOPATH/bin"
 
 # Kubernetes configuration
-source <(kubectl completion zsh)
 [[ ! -f ~/.kubecm ]] || source ~/.kubecm
 export PATH="$HOME/.krew/bin:$PATH"
-[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases
+
 alias kubectl=kubecolor
+source <(kubectl completion zsh)
+compdef kubecolor=kubectl
+compdef k=kubectl
+[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases
 
 # Various editors
 alias vim="nvim"
-export EDITOR="code -w"
-
-# Atuin
-. "$HOME/.atuin/bin/env"
-eval "$(atuin init zsh --disable-up-arrow)"
+export EDITOR="code --wait"
 
 # GH Cli
 eval "$(gh completion -s zsh)" # @install-gen darwin::* brew install gh
 eval "$(gh copilot alias -- zsh)"  # @install-gen darwin::* gh extension install github/gh-copilot
 
-# Source all completion scripts in ~/.completions
-if [ -d "$HOME/.completions" ]; then
-  for completion_script in "$HOME/.completions"/*; do
-    [ -r "$completion_script" ] && source "$completion_script"
-  done
-fi
-
-# pnpm
-export PNPM_HOME="/Users/rshnbhatia/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
-
-# bat
-alias bathelp='bat --plain --language=help'
-# wrap help functions to use bat when available
-help() {
-    "$@" --help 2>&1 | bathelp
-}
+alias l="ls -l"
+alias ..="cd .."
+alias ...="cd ../.."
 
 [ -f ~/.zshextras ] && source ~/.zshextras
-alias l="ls -l"
+
+# Atuin
+. "$HOME/.atuin/bin/env"
+eval "$(atuin init zsh --disable-up-arrow)"
 
 # Startup commands
 export MACCHINA_THEME=${MACCHINA_THEME:-"rosh"}
