@@ -17,10 +17,13 @@ export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
 autoload -Uz compinit
-compinit
+for dump in $HOME/.zcompdump(N.mh+24); do
+  compinit
+done
+compinit -C
 
 # zsh plugins
-export ZSH_CUSTOM=$HOME/.zshcustom # @install-gen darwin::* mkdir -p $HOME/.zshcustom
+export ZSH_CUSTOM=$HOME/.zshcustom
 export ZSH_CUSTOM_PLUGINS=$ZSH_CUSTOM/plugins
 
 # Inherit iTerm colors for fzf
@@ -32,9 +35,10 @@ export FZF_DEFAULT_OPTS='
 # Homebrew
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-source $ZSH_CUSTOM_PLUGINS/fzf-tab/fzf-tab.zsh # @install-gen darwin::* git clone https://github.com/Aloxaf/fzf-tab $ZSH_CUSTOM_PLUGINS/fzf-tab
-source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh # @install-gen darwin::* brew install zsh-syntax-highlighting
-source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh # @install-gen darwin::* brew install zsh-autosuggestions
+# Zsh plugins
+source $ZSH_CUSTOM_PLUGINS/fzf-tab/fzf-tab.zsh
+source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 zstyle ':completion:*:descriptions' format '[%d]'
 zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
@@ -47,7 +51,65 @@ zstyle ':completion:*' squeeze-slashes true
 zstyle ':completion:*' verbose yes
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
 
-# word navigation
+# # Git configuration
+(git config --global alias.short-log 'log --pretty=format:"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]" --decorate --date=short' &>/dev/null &)
+(git config --global alias.current-commit-sha 'rev-parse --short HEAD' &>/dev/null &)
+(git config --global alias.current-branch 'rev-parse --abbrev-ref HEAD' &>/dev/null &)
+(git config --global alias.branches '!git --no-pager branch -a' &>/dev/null &)
+(git config --global core.editor "code --wait" &>/dev/null &)
+
+# Terraform
+alias tf=terraform
+
+# Node tooling
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+
+# Python
+export PATH="/usr/local/opt/cython/bin:$PATH"
+
+# Ruby
+export PATH="$HOME/.rvm/bin:$PATH"
+
+# Rust
+. "$HOME/.cargo/env"
+export PATH="$HOME/.cargo/bin:$PATH"
+
+# Docker
+eval "$(docker completion zsh)"
+
+# GoEnv configuration
+export GOENV_ROOT="$HOME/.goenv"
+export PATH="$GOENV_ROOT/bin:$PATH"
+(eval "$(goenv init -)")
+export PATH="$GOROOT/bin:$PATH"
+export PATH="$PATH:$GOPATH/bin"
+
+# Kubernetes configuration
+[[ ! -f ~/.kubecm ]] || source ~/.kubecm
+export PATH="$HOME/.krew/bin:$PATH"
+
+alias kubectl=kubecolor
+source <(kubectl completion zsh)
+compdef kubecolor=kubectl
+compdef k=kubectl
+
+# Various editors
+alias vim="nvim"
+export EDITOR="code --wait"
+
+# GH Cli
+eval "$(gh completion -s zsh)"
+eval "$(gh copilot alias -- zsh)"
+
+# Atuin
+. "$HOME/.atuin/bin/env"
+eval "$(atuin init zsh --disable-up-arrow)"
+
+# Navigation
+alias l="ls -l"
+alias ..="cd .."
+alias ...="cd ../.."
+
 bindkey "^[^[[C" forward-word
 bindkey "^[^[[D" backward-word
 bindkey "^[^[[B" beginning-of-line
@@ -69,72 +131,16 @@ function clear-scrollback-buffer {
 zle -N clear-scrollback-buffer
 bindkey '^L' clear-scrollback-buffer
 
-# # Git configuration
-(git config --global alias.short-log 'log --pretty=format:"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]" --decorate --date=short' &>/dev/null &)
-(git config --global alias.current-commit-sha 'rev-parse --short HEAD' &>/dev/null &)
-(git config --global alias.current-branch 'rev-parse --abbrev-ref HEAD' &>/dev/null &)
-(git config --global alias.branches '!git --no-pager branch -a' &>/dev/null &)
-(git config --global core.editor "code --wait" &>/dev/null &)
 
-# Terraform
-alias tf=terraform # @install-gen darwin::* brew install tfenv && tfenv install latest
-
-# Node tooling
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-
-# Python
-export PATH="/usr/local/opt/cython/bin:$PATH"
-
-# Ruby
-export PATH="$HOME/.rvm/bin:$PATH"
-
-# Rust
-. "$HOME/.cargo/env"
-
-# Docker
-eval "$(docker completion zsh)"
-
-# GoEnv configuration
-export GOENV_ROOT="$HOME/.goenv"
-export PATH="$GOENV_ROOT/bin:$PATH"
-(eval "$(goenv init -)")
-export PATH="$GOROOT/bin:$PATH"
-export PATH="$PATH:$GOPATH/bin"
-
-# Kubernetes configuration
-[[ ! -f ~/.kubecm ]] || source ~/.kubecm
-export PATH="$HOME/.krew/bin:$PATH"
-
-alias kubectl=kubecolor
-source <(kubectl completion zsh)
-compdef kubecolor=kubectl
-compdef k=kubectl
-[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases
-
-# Various editors
-alias vim="nvim"
-export EDITOR="code --wait"
-
-# GH Cli
-eval "$(gh completion -s zsh)" # @install-gen darwin::* brew install gh
-eval "$(gh copilot alias -- zsh)"  # @install-gen darwin::* gh extension install github/gh-copilot
-
-alias l="ls -l"
-alias ..="cd .."
-alias ...="cd ../.."
-
+# Extras
 [ -f ~/.zshextras ] && source ~/.zshextras
-
-# Atuin
-. "$HOME/.atuin/bin/env"
-eval "$(atuin init zsh --disable-up-arrow)"
 
 # Startup commands
 export MACCHINA_THEME=${MACCHINA_THEME:-"rosh"}
 
 # Run macchina only if the tab number in ITERM_SESSION_ID is 0
 if [[ "$ITERM_SESSION_ID" =~ ^w[0-9]+t0p[0-9]+: ]]; then
-  macchina --theme $MACCHINA_THEME # @install-gen darwin::* brew install macchina
+  macchina --theme $MACCHINA_THEME
 fi
 
-eval "$(starship init zsh)"  # @install-gen darwin::* brew install starship
+eval "$(starship init zsh)"
