@@ -12,15 +12,10 @@
 
 
 command_timeout = 300
+continuation_prompt = '|> '
 
 add_newline = false
-format = """$all"""  # Add custom formatting before other stuff
-
-# Drop ugly default prompt characters
-[character]
-success_symbol = "[➜](bold green)"
-error_symbol = "[➜](bold red)"
-
+format = """${custom.gh-user}$all"""  # Add custom formatting before other stuff
 
 [aws]
 format = 'on [$symbol($profile )(\($region\) )]($style) ($expiration_symbol)'
@@ -28,8 +23,8 @@ symbol =  '🌩️ '
 expiration_symbol = '☃ '
 
 # CShows current git user
-[custom.gh_user]
-command = 'gh api user | jq -r .login'
+[custom.gh-user]
+command = "gh auth status -a | grep 'Logged in to github.com account' | awk '{print $7}'"
 symbol =  '🙆🏾'
 style = 'bold yellow'
 format = ' transcending [$output]($style)'
@@ -42,16 +37,9 @@ truncation_length = 24
 truncation_symbol = "…/"
 style = "bold green"
 
-[git_state]
-disabled = true
-
-# Shows current git status
-[git_status]
-disabled = true
-
 [kubernetes]
 format = '[connected to $symbol $context(within \($namespace\) ) ]($style)'
-disabled = false
+
 [kubernetes.context_aliases]
 'arn:aws:eks:[^:]+:[^:]+:cluster/(?P<cluster_name>[^:]+)' = '$cluster_name'
 
@@ -70,9 +58,6 @@ format = '(via [${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)
 [rust]
 format = '(via [$symbol($version )]($style))'
 
-[swift]
-format = '(via [$symbol($version )]($style))'
-
 [vagrant]
 format = '(via [$symbol($version )]($style))'
 
@@ -83,7 +68,7 @@ format = '(via [$symbol($version(-$name) )]($style))'
 format = '(via [$symbol($version )]($style))'
 
 [dotnet]
-format = '(via [$symbol($version )(🎯 $tfm )]($style))'
+disabled = true
 
 [rlang]
 disabled = true
@@ -98,4 +83,16 @@ disabled = true
 disabled = true
 
 [java]
+disabled = true
+
+[swift]
+disabled = true
+
+[git_state]
+disabled = true
+
+[git_status]
+disabled = true
+
+[git_commit]
 disabled = true
