@@ -35,6 +35,9 @@ export FZF_DEFAULT_OPTS='
 # Homebrew
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
+export CPATH="$(brew --prefix)/include:$CPATH"
+export LIBRARY_PATH="$(brew --prefix)/lib:$LIBRARY_PATH"
+
 # Zsh plugins
 source $ZSH_CUSTOM_PLUGINS/fzf-tab/fzf-tab.zsh
 source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
