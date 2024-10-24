@@ -16,6 +16,8 @@ unset MAILCHECK
 export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
+export XDG_CONFIG_HOME=$HOME/.config
+
 autoload -Uz compinit
 for dump in $HOME/.zcompdump(N.mh+24); do
   compinit
@@ -31,6 +33,9 @@ export FZF_DEFAULT_OPTS='
   --color=fg:-1,bg:-1,hl:6,fg+:15,bg+:0,hl+:6
   --color=info:2,prompt:2,spinner:2,pointer:2,marker:1
 '
+
+# iTerm
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh" || true
 
 # Homebrew
 eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -81,22 +86,21 @@ export PATH="$HOME/.cargo/bin:$PATH"
 eval "$(docker completion zsh)"
 
 # GoEnv configuration
-export GOENV_ROOT="$HOME/.goenv"
-export PATH="$GOENV_ROOT/bin:$PATH"
-(eval "$(goenv init -)")
-export PATH="$GOROOT/bin:$PATH"
-export PATH="$PATH:$GOPATH/bin"
+eval "$(goenv init -)"
 
 # Kubernetes configuration
 [[ ! -f ~/.kubecm ]] || source ~/.kubecm
 export PATH="$HOME/.krew/bin:$PATH"
 
-alias kubectl=kubecolor
 source <(kubectl completion zsh)
+
+alias kubectl=kubecolor
 compdef kubecolor=kubectl
+
+alias k=kubectl
 compdef k=kubectl
 
-# Various editors
+# Editors
 alias vim="nvim"
 export EDITOR="code --wait"
 
@@ -134,6 +138,8 @@ function clear-scrollback-buffer {
 zle -N clear-scrollback-buffer
 bindkey '^L' clear-scrollback-buffer
 
+# Direnv
+eval "$(direnv hook zsh)"
 
 # Extras
 [ -f ~/.zshextras ] && source ~/.zshextras
@@ -147,3 +153,7 @@ if [[ "$ITERM_SESSION_ID" =~ ^w[0-9]+t0p[0-9]+: ]]; then
 fi
 
 eval "$(starship init zsh)"
+
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+export PATH="/Users/rbha27/.rd/bin:$PATH"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
