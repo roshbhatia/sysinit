@@ -22,7 +22,7 @@ autoload -Uz compinit
 for dump in $HOME/.zcompdump(N.mh+24); do
   compinit
 done
-compinit -C
+compinit -Ci
 
 # zsh plugins
 export ZSH_CUSTOM=$HOME/.zshcustom
@@ -32,6 +32,9 @@ export ZSH_CUSTOM_PLUGINS=$ZSH_CUSTOM/plugins
 export FZF_DEFAULT_OPTS='
   --color=fg:-1,bg:-1,hl:6,fg+:15,bg+:0,hl+:6
   --color=info:2,prompt:2,spinner:2,pointer:2,marker:1
+  --layout=reverse
+  --cycle
+  --tmux
 '
 
 # iTerm
@@ -44,6 +47,7 @@ export CPATH="$(brew --prefix)/include:$CPATH"
 export LIBRARY_PATH="$(brew --prefix)/lib:$LIBRARY_PATH"
 
 # Zsh plugins
+source $ZSH_CUSTOM_PLUGINS/evalcache/evalcache.plugin.zsh
 source $ZSH_CUSTOM_PLUGINS/fzf-tab/fzf-tab.zsh
 source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
@@ -83,16 +87,16 @@ export PATH="$HOME/.rvm/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
 
 # Docker
-eval "$(docker completion zsh)"
+_evalcache docker completion zsh
 
 # GoEnv configuration
-eval "$(goenv init -)"
+_evalcache goenv init -
 
 # Kubernetes configuration
 [[ ! -f ~/.kubecm ]] || source ~/.kubecm
 export PATH="$HOME/.krew/bin:$PATH"
 
-source <(kubectl completion zsh)
+_evalcache kubectl completion zsh
 
 alias kubectl=kubecolor
 compdef kubecolor=kubectl
@@ -105,12 +109,12 @@ alias vim="nvim"
 export EDITOR="code --wait"
 
 # GH Cli
-eval "$(gh completion -s zsh)"
-eval "$(gh copilot alias -- zsh)"
+_evalcache gh completion -s zsh
+_evalcache gh copilot alias -- zsh
 
 # Atuin
 . "$HOME/.atuin/bin/env"
-eval "$(atuin init zsh --disable-up-arrow)"
+_evalcache atuin init zsh --disable-up-arrow
 
 # Navigation
 alias l="ls -l"
@@ -139,7 +143,7 @@ zle -N clear-scrollback-buffer
 bindkey '^L' clear-scrollback-buffer
 
 # Direnv
-eval "$(direnv hook zsh)"
+_evalcache direnv hook zsh
 
 # Extras
 [ -f ~/.zshextras ] && source ~/.zshextras
@@ -152,8 +156,4 @@ if [[ "$ITERM_SESSION_ID" =~ ^w[0-9]+t0p[0-9]+: ]]; then
   macchina --theme $MACCHINA_THEME
 fi
 
-eval "$(starship init zsh)"
-
-### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
-export PATH="/Users/rbha27/.rd/bin:$PATH"
-### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
+_evalcache starship init zsh

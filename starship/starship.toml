@@ -9,13 +9,16 @@
 #    \__\/ /:/        \  \:\   \  \:\        \  \:\        \__\/ /:/     \  \:\          /__/:/    \  \:\   
 #      /__/:/          \__\/    \  \:\        \  \:\         /__/:/       \  \:\         \__\/      \  \:\  
 #      \__\/                     \__\/         \__\/         \__\/         \__\/                     \__\/  
-
+"$schema" = 'https://starship.rs/config-schema.json'
 
 command_timeout = 300
-continuation_prompt = '|> '
+continuation_prompt = '| '
 
 add_newline = false
-format = """${custom.gh-user}$all"""  # Add custom formatting before other stuff
+format = """
+${custom.gh-user}\
+$all
+"""
 
 [aws]
 format = 'on [$symbol($profile )(\($region\) )]($style) ($expiration_symbol)'
