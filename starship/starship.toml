@@ -15,22 +15,11 @@ command_timeout = 300
 continuation_prompt = '| '
 
 add_newline = false
-format = """
-${custom.gh-user}\
-$all
-"""
 
 [aws]
 format = 'on [$symbol($profile )(\($region\) )]($style) ($expiration_symbol)'
 symbol =  '🌩️ '
 expiration_symbol = '☃ '
-
-# CShows current git user
-[custom.gh-user]
-command = "gh auth status -a | grep 'Logged in to github.com account' | awk '{print $7}'"
-symbol =  '🙆🏾'
-style = 'bold yellow'
-format = ' transcending [$output]($style)'
 
 # Shows current git branch
 [git_branch]

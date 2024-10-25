@@ -146,6 +146,10 @@ bindkey '^L' clear-scrollback-buffer
 _evalcache direnv hook zsh
 
 # Extras
+source $HOME/github/roshbhatia/sysinit/utils/crepo.sh
+source $HOME/github/roshbhatia/sysinit/utils/ghwhoami.sh
+source $HOME/github/roshbhatia/sysinit/utils/kellog.sh
+
 [ -f ~/.zshextras ] && source ~/.zshextras
 
 # Startup commands
