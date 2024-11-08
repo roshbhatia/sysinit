@@ -90,7 +90,12 @@ export PATH="$HOME/.cargo/bin:$PATH"
 _evalcache docker completion zsh
 
 # GoEnv configuration
+export GOENV_ROOT="$HOME/.goenv"
+export PATH="$GOENV_ROOT/bin:$PATH"
 _evalcache goenv init -
+export PATH="$GOROOT/bin:$PATH"
+export PATH="$PATH:$GOPATH/bin"
+export PATH=$PATH:$(go env GOPATH)/bin
 
 # Kubernetes configuration
 [[ ! -f ~/.kubecm ]] || source ~/.kubecm
@@ -161,3 +166,7 @@ if [[ "$ITERM_SESSION_ID" =~ ^w[0-9]+t0p[0-9]+: ]]; then
 fi
 
 _evalcache starship init zsh
+
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+export PATH="/Users/rbha27/.rd/bin:$PATH"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)

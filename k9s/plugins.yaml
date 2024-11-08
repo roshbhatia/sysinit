@@ -66,3 +66,15 @@ plugins:
                 print $0
               }
             }'"'"''
+
+  view-resource-in-vscode:
+    shortCut: v
+    description: "View resource in VSCode"
+    scopes:
+      - all
+    command: "sh"
+    background: false
+    args:
+      - "-c"
+      - |
+        kubectl get $RESOURCE_NAME/$NAME --namespace $NAMESPACE --context $CONTEXT -o yaml | code -
