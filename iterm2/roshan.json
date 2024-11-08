@@ -1,15 +1,11 @@
 {
-  "Non-ASCII Anti Aliased" : true,
+  "Close Sessions On End" : true,
   "Ansi 15 Color (Dark)" : {
     "Green Component" : 1,
     "Blue Component" : 1,
     "Red Component" : 1
   },
-  "Foreground Color (Dark)" : {
-    "Green Component" : 0.73333334922790527,
-    "Blue Component" : 0.73333334922790527,
-    "Red Component" : 0.73333334922790527
-  },
+  "Non-ASCII Anti Aliased" : true,
   "Session Close Undo Timeout" : 30,
   "Cursor Text Color" : {
     "Red Component" : 1,
@@ -50,7 +46,7 @@
     "Blue Component" : 0,
     "Red Component" : 0
   },
-  "Guid" : "485381C4-151C-47D2-B013-1F8F482B4D83",
+  "Guid" : "30E6F440-71A1-4D12-849D-791FE3421006",
   "Cursor Color (Dark)" : {
     "Green Component" : 0.64705880000000005,
     "Blue Component" : 0.37647059999999999,
@@ -234,7 +230,7 @@
     "slogin",
     "telnet"
   ],
-  "Use Non-ASCII Font" : false,
+  "Use Non-ASCII Font" : true,
   "Custom Directory" : "Recycle",
   "Enable Triggers in Interactive Apps" : false,
   "Bold Color (Light)" : {
@@ -311,22 +307,9 @@
     "Blue Component" : 0.67277030000000004,
     "Red Component" : 0.80941479999999999
   },
-  "Normal Font" : "FiraMonoForPowerline-Regular 12",
+  "Normal Font" : "MesloLGSForPowerline-Regular 12",
   "Triggers" : [
-    {
-      "action" : "SendTextTrigger",
-      "partial" : true,
-      "parameter" : "0\\n",
-      "regex" : "Pick\\sa\\sfactor:",
-      "disabled" : false
-    },
-    {
-      "action" : "ScriptTrigger",
-      "partial" : true,
-      "parameter" : "(\/opt\/homebrew\/bin\/op read \"op:\/\/Nike\/nOkta\/one-time password?attribute=otp\" | pbcopy) && (\/usr\/local\/bin\/terminal-notifier -message \"Successfully executed npe-auth -e $environment!\" -title \"\/usr\/local\/bin\/npe-auto-auth\")",
-      "regex" : "Enter\\sverification\\scode:",
-      "disabled" : false
-    }
+
   ],
   "Foreground Color" : {
     "Red Component" : 0.062745101749896975,
@@ -368,7 +351,7 @@
     "Green Component" : 0.92047786712646484
   },
   "Flashing Bell" : false,
-  "Non Ascii Font" : "Menlo-Regular 11",
+  "Non Ascii Font" : "HackNFM-Regular 11",
   "Ansi 7 Color (Dark)" : {
     "Green Component" : 0.93353169999999996,
     "Blue Component" : 0.93353169999999996,
@@ -734,12 +717,16 @@
     "Blue Component" : 0.9982605,
     "Red Component" : 0.71165029999999996
   },
-  "Close Sessions On End" : true,
   "Ansi 0 Color" : {
     "Red Component" : 0.078431375324726105,
     "Color Space" : "sRGB",
     "Blue Component" : 0.11764705926179886,
     "Alpha Component" : 1,
     "Green Component" : 0.098039217293262454
+  },
+  "Foreground Color (Dark)" : {
+    "Green Component" : 0.73333334922790527,
+    "Blue Component" : 0.73333334922790527,
+    "Red Component" : 0.73333334922790527
   }
 }

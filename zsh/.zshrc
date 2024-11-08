@@ -150,6 +150,9 @@ bindkey '^L' clear-scrollback-buffer
 # Direnv
 _evalcache direnv hook zsh
 
+# yazi
+alias y="yazi"
+
 # Extras
 source $HOME/github/roshbhatia/sysinit/utils/crepo.sh
 source $HOME/github/roshbhatia/sysinit/utils/ghwhoami.sh
