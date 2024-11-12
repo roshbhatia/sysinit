@@ -3,26 +3,35 @@
 
 function kellog() {
   function show_help() {
-    echo "Usage: kellog [-h|--help] [-i|--include-container CONTAINER] [-e|--exclude-container CONTAINER] [-I|--include-log LOG_PATTERN] [-E|--exclude-log LOG_PATTERN] [-n|--namespace NAMESPACE] [-m|--minimal] [POD_QUERY]"
+    echo "Usage: kellog [-h|--help] [-n|--namespace NAMESPACE] [-m|--minimal]"
     echo "Tail logs from a Kubernetes pod using stern."
     echo "  -h, --help                Show this help message."
-    echo "  -i, --include-container   Specify the container name regex to include."
-    echo "  -e, --exclude-container   Specify the container name regex to exclude."
-    echo "  -I, --include-log         Specify the log pattern regex to include."
-    echo "  -E, --exclude-log         Specify the log pattern regex to exclude."
-    echo "  -n, --namespace           Specify the namespace."
-    echo "  -m, --minimal             Print pod name and message only"
-    echo "  POD_QUERY                 Specify the pod query regex (default: '.*')."
+  }
+
+  function list_deployments() {
+    local deployments
+    deployments=$(kubectl get deployments --all-namespaces -o custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace --no-headers | sort)
+    selected_deployment=$(echo "$deployments" | while read -r deployment; do
+        name=$(echo "$deployment" | awk '{print $1}')
+        namespace=$(echo "$deployment" | awk '{print $2}')
+        echo -e "$name ($namespace)"
+    done | fzf --ansi --height=20)
+
+    if [[ -n "$selected_deployment" ]]; then
+        deployment_name=$(echo "$selected_deployment" | awk '{print $1}')
+        namespace=$(echo "$selected_deployment" | awk -F '[()]' '{print $2}')
+        stern -n "$namespace" "$deployment_name" "${args[@]}"
+    fi
   }
 
   local namespace="default"
-  local include_container=""
-  local exclude_container=""
-  local include_log=""
-  local exclude_log=""
-  local pod_query=".*"
   local minimal=false
   local args=()
+
+  if [[ "$#" -eq 0 ]]; then
+    list_deployments
+    return 0
+  fi
 
   while [[ "$#" -gt 0 ]]; do
     case "$1" in
@@ -30,56 +39,10 @@ function kellog() {
         show_help
         return 0
         ;;
-      -i|--include-container)
-        include_container="$2"
-        shift 2
-        ;;
-      -e|--exclude-container)
-        exclude_container="$2"
-        shift 2
-        ;;
-      -I|--include-log)
-        include_log="$2"
-        shift 2
-        ;;
-      -E|--exclude-log)
-        exclude_log="$2"
-        shift 2
-        ;;
-      -n|--namespace)
-        namespace="$2"
-        shift 2
-        ;;
-      -m|--minimal)
-        minimal=true
-        shift
-        ;;
       *)
-        pod_query="$1"
-        shift
+        show_help
+        return 1
         ;;
     esac
   done
-
-  if [[ -n "$include_container" ]]; then
-    args+=("-c" "$include_container")
-  fi
-
-  if [[ -n "$exclude_container" ]]; then
-    args+=("-E" "$exclude_container")
-  fi
-
-  if [[ -n "$include_log" ]]; then
-    args+=("--include" "$include_log")
-  fi
-
-  if [[ -n "$exclude_log" ]]; then
-    args+=("--exclude" "$exclude_log")
-  fi
-
-  if $minimal; then
-    args+=("--template=| {{color .PodColor .PodName}} | {{.Message}} {{\"\n\"}}")
-  fi
-
-  stern -n "${namespace}" "${args[@]}" "${pod_query}"
 }

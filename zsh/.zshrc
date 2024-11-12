@@ -102,6 +102,7 @@ export PATH=$PATH:$(go env GOPATH)/bin
 export PATH="$HOME/.krew/bin:$PATH"
 
 _evalcache kubectl completion zsh
+_evalcache stern --completion zsh
 
 alias kubectl=kubecolor
 compdef kubecolor=kubectl
