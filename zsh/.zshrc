@@ -28,7 +28,7 @@ compinit -Ci
 export ZSH_CUSTOM=$HOME/.zshcustom
 export ZSH_CUSTOM_PLUGINS=$ZSH_CUSTOM/plugins
 
-# Inherit iTerm colors for fzf
+# Inherit term colors for fzf
 export FZF_DEFAULT_OPTS='
   --color=fg:-1,bg:-1,hl:6,fg+:15,bg+:0,hl+:6
   --color=info:2,prompt:2,spinner:2,pointer:2,marker:1
@@ -36,9 +36,6 @@ export FZF_DEFAULT_OPTS='
   --cycle
   --tmux
 '
-
-# iTerm
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh" || true
 
 # Homebrew
 eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -164,10 +161,7 @@ source $HOME/github/roshbhatia/sysinit/utils/kellog.sh
 # Startup commands
 export MACCHINA_THEME=${MACCHINA_THEME:-"rosh"}
 
-# Run macchina only if the tab number in ITERM_SESSION_ID is 0
-if [[ "$ITERM_SESSION_ID" =~ ^w[0-9]+t0p[0-9]+: ]]; then
-  macchina --theme $MACCHINA_THEME
-fi
+macchina --theme $MACCHINA_THEME
 
 _evalcache starship init zsh
 
