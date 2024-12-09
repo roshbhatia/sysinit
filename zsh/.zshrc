@@ -107,6 +107,11 @@ compdef kubecolor=kubectl
 alias k=kubectl
 compdef k=kubectl
 
+function kube.ctx.clean() {
+  echo "Cleaning up Kubernetes contexts"
+  kubectl config get-contexts -o name | xargs -I {} kubectl config delete-context {}
+}
+
 # Editors
 alias vim="nvim"
 export EDITOR="code --wait"
@@ -121,6 +126,7 @@ _evalcache atuin init zsh --disable-up-arrow
 
 # Navigation
 alias l="ls -l"
+alias ll="ls -la"
 alias ..="cd .."
 alias ...="cd ../.."
 
@@ -155,6 +161,11 @@ alias y="yazi"
 source $HOME/github/roshbhatia/sysinit/utils/crepo.sh
 source $HOME/github/roshbhatia/sysinit/utils/ghwhoami.sh
 source $HOME/github/roshbhatia/sysinit/utils/kellog.sh
+source $HOME/github/roshbhatia/sysinit/utils/kfzf.sh
+
+function portkill () {
+  kill -9 $(lsof -t -i:$1)
+}
 
 [ -f ~/.zshextras ] && source ~/.zshextras
 
