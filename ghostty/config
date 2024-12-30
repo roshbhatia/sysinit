@@ -20,7 +20,7 @@ theme = Apple System Colors
 background-opacity = .85
 background-blur-radius = 20
 cursor-style = underline 
-window-padding-x = 15
+window-padding-x = 20
 window-padding-y = 15
 macos-titlebar-style = tabs
 
