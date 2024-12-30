@@ -1,5 +1,6 @@
 # system 
 auto-update-channel = tip
+quick-terminal-position = right
 
 # shell
 shell-integration = zsh
@@ -8,13 +9,14 @@ shell-integration-features = no-cursor
 # macos icon
 macos-icon = custom-style
 macos-icon-frame = beige
-macos-icon-ghost-color = red
+macos-icon-ghost-color = black
+macos-icon-screen-color = black,green
 
 # security
 macos-auto-secure-input = true
 
 # themes
-theme = Brogrammer
+theme = Apple System Colors
 background-opacity = .85
 background-blur-radius = 20
 cursor-style = underline 
@@ -26,3 +28,6 @@ macos-titlebar-style = tabs
 bold-is-bright = true
 font-family = "Lilex Nerd Font Mono"
 font-family = "Hack Nerd Font Mono"
+
+# keybindings
+keybind=global:cmd+`=toggle_quick_terminal
