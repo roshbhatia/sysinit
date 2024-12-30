@@ -28,13 +28,15 @@ compinit -Ci
 export ZSH_CUSTOM=$HOME/.zshcustom
 export ZSH_CUSTOM_PLUGINS=$ZSH_CUSTOM/plugins
 
-# Inherit term colors for fzf
 export FZF_DEFAULT_OPTS='
-  --color=fg:-1,bg:-1,hl:6,fg+:15,bg+:0,hl+:6
-  --color=info:2,prompt:2,spinner:2,pointer:2,marker:1
   --layout=reverse
   --cycle
   --tmux
+	--multi
+	--delimiter :
+  --ansi
+  --preview-window "right,50%,border-left,+{2}+3/3,~3"
+  --height "100%"
 '
 
 # Homebrew
@@ -45,6 +47,7 @@ export LIBRARY_PATH="$(brew --prefix)/lib:$LIBRARY_PATH"
 
 # Zsh plugins
 source $ZSH_CUSTOM_PLUGINS/evalcache/evalcache.plugin.zsh
+_evalcache fzf --zsh
 source $ZSH_CUSTOM_PLUGINS/fzf-tab/fzf-tab.zsh
 source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
@@ -58,7 +61,8 @@ zstyle ':completion:*' file-list all
 zstyle ':completion:*' menu no
 zstyle ':completion:*' squeeze-slashes true
 zstyle ':completion:*' verbose yes
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+zstyle ':fzf-tab:complete:*' fzf-preview 'bat --color=always --style=header,grid --line-range :300 {}'
+zstyle ':fzf-tab:*' use-fzf-default-opts yes
 
 # # Git configuration
 (git config --global alias.short-log 'log --pretty=format:"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]" --decorate --date=short' &>/dev/null &)
@@ -107,11 +111,6 @@ compdef kubecolor=kubectl
 alias k=kubectl
 compdef k=kubectl
 
-function kube.ctx.clean() {
-  echo "Cleaning up Kubernetes contexts"
-  kubectl config get-contexts -o name | xargs -I {} kubectl config delete-context {}
-}
-
 # Editors
 alias vim="nvim"
 export EDITOR="code --wait"
@@ -126,14 +125,14 @@ _evalcache atuin init zsh --disable-up-arrow
 
 # Navigation
 alias l="ls -l"
-alias ll="ls -la"
 alias ..="cd .."
 alias ...="cd ../.."
 
-bindkey "^[^[[C" forward-word
-bindkey "^[^[[D" backward-word
-bindkey "^[^[[B" beginning-of-line
-bindkey "^[^[[A" end-of-line
+# Bind Ctrl + Alt + Arrow keys for word and line navigation
+bindkey "^[[1;7C" forward-word
+bindkey "^[[1;7D" backward-word
+bindkey "^[[1;7B" beginning-of-line
+bindkey "^[[1;7A" end-of-line
 
 function clear-scrollback-buffer {
   # clear screen
@@ -163,19 +162,6 @@ source $HOME/github/roshbhatia/sysinit/utils/ghwhoami.sh
 source $HOME/github/roshbhatia/sysinit/utils/kellog.sh
 source $HOME/github/roshbhatia/sysinit/utils/kfzf.sh
 
-function portkill () {
-  kill -9 $(lsof -t -i:$1)
-}
-
 [ -f ~/.zshextras ] && source ~/.zshextras
 
-# Startup commands
-export MACCHINA_THEME=${MACCHINA_THEME:-"rosh"}
-
-macchina --theme $MACCHINA_THEME
-
 _evalcache starship init zsh
-
-### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
-export PATH="/Users/rbha27/.rd/bin:$PATH"
-### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
