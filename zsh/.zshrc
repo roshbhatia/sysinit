@@ -79,6 +79,10 @@ export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 # Python configuration
 export PATH="/usr/local/opt/cython/bin:$PATH"
 
+# Created by `pipx`
+export PATH="$PATH:/Users/$USER/.local/bin"
+
+
 # Ruby configuration
 export PATH="$HOME/.rvm/bin:$PATH"
 
@@ -158,6 +162,3 @@ source $HOME/github/roshbhatia/sysinit/utils/kfzf.sh
 
 # Starship prompt initialization
 _evalcache starship init zsh
-
-# Amazon Q post block. Keep at the bottom of this file.
-[[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh"
