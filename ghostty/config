@@ -16,7 +16,7 @@ macos-icon-screen-color = black,green
 macos-auto-secure-input = true
 
 # themes
-theme = Apple System Colors
+theme = Builtin Dark
 background-opacity = .85
 background-blur-radius = 20
 cursor-style = underline 
