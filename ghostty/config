@@ -30,4 +30,9 @@ font-family = "Lilex Nerd Font Mono"
 font-family = "Hack Nerd Font Mono"
 
 # keybindings
-keybind=global:cmd+`=toggle_quick_terminal
+keybind= super+`=toggle_quick_terminal
+
+# very hacky way of doing search
+keybind= super+g=text:> nvim -M 
+
+keybind= super+f=write_screen_file:open
