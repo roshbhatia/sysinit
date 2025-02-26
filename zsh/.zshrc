@@ -151,6 +151,7 @@ source $HOME/github/roshbhatia/sysinit/utils/crepo.sh
 source $HOME/github/roshbhatia/sysinit/utils/ghwhoami.sh
 source $HOME/github/roshbhatia/sysinit/utils/kellog.sh
 source $HOME/github/roshbhatia/sysinit/utils/kfzf.sh
+source $HOME/github/roshbhatia/sysinit/utils/kfwd.sh
 
 [ -f ~/.zshextras ] && source ~/.zshextras
 
