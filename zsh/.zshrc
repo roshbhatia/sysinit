@@ -1,5 +1,3 @@
-# Amazon Q pre block. Keep at the top of this file.
-[[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh"
 #       ___           ___           ___           ___           ___
 #      /  /\         /  /\         /__/\         /  /\         /  /\
 #     /  /::|       /  /:/_        \  \:\       /  /::\       /  /:/
@@ -157,6 +155,7 @@ source $HOME/github/roshbhatia/sysinit/utils/crepo.sh
 source $HOME/github/roshbhatia/sysinit/utils/ghwhoami.sh
 source $HOME/github/roshbhatia/sysinit/utils/kellog.sh
 source $HOME/github/roshbhatia/sysinit/utils/kfzf.sh
+source $HOME/github/roshbhatia/sysinit/utils/kfwd.sh
 
 [ -f ~/.zshextras ] && source ~/.zshextras
 
