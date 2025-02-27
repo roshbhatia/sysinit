@@ -1,2 +1,13 @@
+# Mac
 .DS_Store
+
+# Atuin
 atuin/atuin-receipt.json
+
+# Claude code
+CLAUDE.md
+
+# Aider
+.aider.input.history
+.aider.chat.history.md
+.aider*
