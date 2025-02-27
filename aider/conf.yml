@@ -311,7 +311,7 @@ auto-lint: true
 #analytics-log: xxx
 
 ## Permanently disable analytics
-analytics-disable: true
+# analytics-disable: true
 
 ############
 # Upgrading:
