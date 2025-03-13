@@ -27,17 +27,14 @@ export ZSH_CUSTOM_PLUGINS="$ZSH_CUSTOM/plugins"
 # Create plugin directories if they don't exist
 mkdir -p $ZSH_CUSTOM_PLUGINS
 
-# Source evalcache first as other plugins depend on it
-source $ZSH_CUSTOM_PLUGINS/evalcache/evalcache.plugin.zsh 2>/dev/null || {
-    git clone https://github.com/mroth/evalcache $ZSH_CUSTOM_PLUGINS/evalcache
-    source $ZSH_CUSTOM_PLUGINS/evalcache/evalcache.plugin.zsh
-}
+# Source plugins if they exist
+if [ -f "$ZSH_CUSTOM_PLUGINS/evalcache/evalcache.plugin.zsh" ]; then
+    source "$ZSH_CUSTOM_PLUGINS/evalcache/evalcache.plugin.zsh"
+fi
 
-# Source fzf-tab
-source $ZSH_CUSTOM_PLUGINS/fzf-tab/fzf-tab.zsh 2>/dev/null || {
-    git clone https://github.com/Aloxaf/fzf-tab $ZSH_CUSTOM_PLUGINS/fzf-tab
-    source $ZSH_CUSTOM_PLUGINS/fzf-tab/fzf-tab.zsh
-}
+if [ -f "$ZSH_CUSTOM_PLUGINS/fzf-tab/fzf-tab.zsh" ]; then
+    source "$ZSH_CUSTOM_PLUGINS/fzf-tab/fzf-tab.zsh"
+fi
 
 # Initialize completions before aliases
 autoload -Uz compinit
