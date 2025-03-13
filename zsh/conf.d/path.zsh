@@ -8,10 +8,6 @@ export PATH="$PATH:/Users/$USER/.local/bin"
 # Ruby
 export PATH="$HOME/.rvm/bin:$PATH"
 
-# Rust
-. "$HOME/.cargo/env"
-export PATH="$HOME/.cargo/bin:$PATH"
-
 # Go
 export GOENV_ROOT="$HOME/.goenv"
 export PATH="$GOENV_ROOT/bin:$PATH"
