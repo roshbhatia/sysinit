@@ -80,9 +80,9 @@ _evalcache gh copilot alias -- zsh
 _evalcache starship init zsh
 
 # Source extras if they exist
+[ -f ~/.zshenv ] && source ~/.zshenv
 [ -f ~/.zshextras ] && source ~/.zshextras
-[[ ! -f ~/.kubecm ]] || source ~/.kubecm
-source $HOME/.config/utils/*.sh
+[ -f ~/.zshutils ] && source ~/.zshutils
 
 # Key bindings
 bindkey "^[[1;7C" forward-word
