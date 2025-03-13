@@ -1,1 +1,28 @@
-/Users/rbha27/github/roshbhatia/sysinit/ghostty/config
+font-family = "Hack Nerd Font"
+font-size = 12
+font-feature = "zero" 1
+font-feature = "ss01" 1
+font-feature = "liga" 1
+
+window-padding-x = 15
+window-padding-y = 15
+window-decoration = true
+window-theme = "dark"
+macos-option-as-alt = true
+macos-titlebar-style = transparent
+theme = catppuccin-macchiato
+
+mouse-hide-while-typing = true
+mouse-scroll-multiplier = 0.5
+
+cursor-style = underline
+cursor-style-blink = true
+
+shell-integration = "zsh"
+
+keybind = cmd+t=unbind
+keybind = cmd+n=unbind
+keybind = cmd+c=unbind
+keybind = cmd+w=unbind
+keybind = cmd+opt+left=unbind
+keybind = cmd+opt+right=unbind
