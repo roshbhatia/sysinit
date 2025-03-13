@@ -26,8 +26,8 @@ log_step() {
     printf "${BOLD}${BLUE}[STEP]${NC} $1\n"
 }
 
-sources=(
-    "$PWD/ghostty/config"
+# Define arrays for links and copies
+link_sources=(
     "$PWD/starship/starship.toml"
     "$PWD/k9s"
     "$PWD/nvim"
@@ -38,10 +38,10 @@ sources=(
     "$PWD/zsh/.zshrc"
     "$PWD/zsh/conf.d"
     "$PWD/git/.gitconfig"
+    "$PWD/git/.gitconfig.personal"
 )
 
-destinations=(
-    "$HOME/.config/ghostty/config"
+link_destinations=(
     "$HOME/.config/starship.toml"
     "$HOME/.config/k9s"
     "$HOME/.config/nvim"
@@ -52,23 +52,47 @@ destinations=(
     "$HOME/.zshrc"
     "$HOME/.config/zsh/conf.d"
     "$HOME/.gitconfig"
+    "$HOME/.gitconfig.personal"
+)
+
+copy_sources=(
+    "$PWD/ghostty/config"
+)
+
+copy_destinations=(
+    "$HOME/.config/ghostty/config"
 )
 
 create_symlink() {
     local src=$1
     local dest=$2
     
+    # Helper function to get relative path using Python
+    get_relative_path() {
+        python3 -c "import os.path; print(os.path.relpath('$1', os.path.dirname('$2')))"
+    }
+    
+    # Get absolute path of source
+    src=$(python3 -c "import os.path; print(os.path.abspath('$src'))")
+    
     # Create parent directory if it doesn't exist
     mkdir -p "$(dirname "$dest")"
     
-    # Check if destination already exists
+    # Check if destination is a symlink
     if [ -L "$dest" ]; then
         local current_target=$(readlink "$dest")
-        if [ "$current_target" = "$src" ]; then
+        local desired_target=$(get_relative_path "$src" "$dest")
+        
+        if [ "$current_target" = "$desired_target" ]; then
             log_info "Symlink already exists and points to correct location: $dest"
             return 0
         else
             log_warn "Symlink exists but points to different location: $dest -> $current_target"
+            if [ -f "$dest" ] && [ ! -L "$dest" ]; then
+                local backup="${dest}.backup.$(date +%Y%m%d_%H%M%S)"
+                log_info "Creating backup: $backup"
+                cp -L "$dest" "$backup"
+            fi
         fi
     elif [ -e "$dest" ]; then
         log_warn "File/directory already exists: $dest"
@@ -82,15 +106,33 @@ create_symlink() {
             log_info "Skipping $dest"
             return 0
         fi
-        rm -rf "$dest"
+        # Remove the symlink or file
+        rm -f "$dest"
     fi
     
-    # Create symlink
-    ln -s "$src" "$dest"
+    # Create symlink using relative path
+    local relative_src=$(get_relative_path "$src" "$dest")
+    ln -s "$relative_src" "$dest"
     if [ $? -eq 0 ]; then
-        log_info "Created symlink: $dest -> $src"
+        log_info "Created symlink: $dest -> $relative_src"
     else
         log_error "Failed to create symlink for $dest"
+    fi
+}
+
+# Add a new function for copying files
+copy_file() {
+    local src=$1
+    local dest=$2
+    
+    # Create parent directory if it doesn't exist
+    mkdir -p "$(dirname "$dest")"
+
+    cp -f "$src" "$dest"
+    if [ $? -eq 0 ]; then
+        log_info "Copied file: $src -> $dest"
+    else
+        log_warn "Failed to copy file from $src to $dest"
     fi
 }
 
@@ -123,14 +165,22 @@ install_dependencies() {
     fi
 }
 
+# Modify main() to handle both operations
 main() {
     log_step "Starting sysinit configuration installation..."
     
     install_dependencies
     
-    local len=${#sources[@]}
-    for (( i=0; i<$len; i++ )); do
-        create_symlink "${sources[$i]}" "${destinations[$i]}"
+    # Handle symlinks
+    local link_len=${#link_sources[@]}
+    for (( i=0; i<$link_len; i++ )); do
+        create_symlink "${link_sources[$i]}" "${link_destinations[$i]}"
+    done
+    
+    # Handle copies
+    local copy_len=${#copy_sources[@]}
+    for (( i=0; i<$copy_len; i++ )); do
+        copy_file "${copy_sources[$i]}" "${copy_destinations[$i]}"
     done
     
     log_step "Installation complete! 🎉"

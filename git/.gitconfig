@@ -4,5 +4,11 @@
     current-branch = rev-parse --abbrev-ref HEAD
     branches = !git --no-pager branch -a
 
+[pull]
+    rebase = true
+
 [core]
     editor = code --wait
+
+[includeIf "gitdir:~/github/roshbhatia/"]
+    path = ~/.gitconfig.personal
