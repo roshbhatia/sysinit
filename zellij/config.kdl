@@ -52,18 +52,12 @@ keybinds clear-defaults=true {
 }
 
 plugins {
-    strider location="zellij:strider"
-    session-manager location="zellij:session-manager"
-    filepicker location="zellij:strider" {
-        cwd "/"
-    }
-}
-
-load_plugins {
-    "file:~/.config/bin/zjframes.wasm" {
-        hide_frame_for_single_pane       "true"
-        hide_frame_except_for_search     "true"
-        hide_frame_except_for_scroll     "true"
+    zjstatus { path "file:~/.config/zellij/bin/zjstatus.wasm"; }
+    zjframes { 
+        path "file:~/.config/zellij/bin/zjframes.wasm"
+        hide_frame_for_single_pane "true"
+        hide_frame_except_for_search "true"
+        hide_frame_except_for_scroll "true"
         hide_frame_except_for_fullscreen "true"
     }
 }

@@ -4,7 +4,6 @@ layout {
         pane size=1 borderless=false{
             plugin location="file:~/.config/zellij/bin/zjstatus.wasm" {
                 format_left   "{mode} #[fg=#89B4FA,bold]{session}"
-                format_center "{tabs}"
                 format_right  "{command_git_branch} {datetime}"
                 format_space  ""
 
@@ -28,7 +27,7 @@ layout {
 
                 datetime        "#[fg=#6C7086,bold] {format} "
                 datetime_format "%A, %d %b %Y %H:%M"
-                datetime_timezone "Europe/Berlin"
+                datetime_timezone "America/Los_Angeles"
             }
         }
     }
