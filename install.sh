@@ -56,11 +56,11 @@ link_destinations=(
 )
 
 copy_sources=(
-    "$PWD/ghostty/config"
+    "$PWD/rio/config.toml"
 )
 
 copy_destinations=(
-    "$HOME/.config/ghostty/config"
+    "$HOME/.config/rio/config.toml"
 )
 
 create_symlink() {
@@ -199,7 +199,6 @@ main() {
     done
     
     log_step "Installation complete! 🎉"
-    log_info "Remember to restart your terminal for changes to take effect"
 }
 
 main

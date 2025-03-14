@@ -2,29 +2,10 @@
 keybinds clear-defaults=true {
     normal {
         // Search
-        bind "Super s" { SwitchToMode "EnterSearch"; SearchInput 0; }
+        bind "Super s" { EditScrollback; SwitchToMode "Normal"; }
         
         // Floating window
         bind "Super p" { ToggleFloatingPanes; }
-    }
-
-    search {
-        bind "Enter" { SwitchToMode "Normal"; }
-        bind "Esc" { SwitchToMode "Normal"; }
-        bind "Ctrl c" { SwitchToMode "Normal"; }
-
-        bind "c" { SearchToggleOption "CaseSensitivity"; }
-        bind "w" { SearchToggleOption "Wrap"; }
-        bind "o" { SearchToggleOption "WholeWord"; }
-
-        bind "Down" { Search "down"; }
-        bind "Up" { Search "up"; }
-    }
-
-    entersearch {
-        bind "Enter" { SwitchToMode "Search"; }
-        bind "Esc" { SwitchToMode "Normal"; }
-        bind "Ctrl c" { SwitchToMode "Normal"; }
     }
 }
 
@@ -179,7 +160,7 @@ copy_command "pbcopy"                     // osx
 // Path to the default editor to use to edit pane scrollbuffer
 // Default: $EDITOR or $VISUAL
 //
-// scrollback_editor "/usr/bin/vim"
+scrollback_editor "/opt/homebrew/bin/nvim"
 
 // When attaching to an existing session with other users,
 // should the session be mirrored (true)

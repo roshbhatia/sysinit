@@ -8,12 +8,12 @@ layout {
                 format_right  "{command_git_branch} {datetime}"
                 format_space  ""
 
-                border_enabled  "false"
+                border_enabled  "true"
                 border_char     "─"
                 border_format   "#[fg=#6C7086]{char}"
                 border_position "top"
 
-                hide_frame_for_single_pane "false"
+                hide_frame_for_single_pane "true"
 
                 mode_normal  "#[bg=blue] "
                 mode_tmux    "#[bg=#ffc387] "
@@ -29,6 +29,8 @@ layout {
                 datetime        "#[fg=#6C7086,bold] {format} "
                 datetime_format "%A, %d %b %Y %H:%M"
                 datetime_timezone "America/Los_Angeles"
+
+                name "--"
             }
         }
     }
