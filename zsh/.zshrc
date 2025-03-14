@@ -20,17 +20,17 @@ export ZSH_DISABLE_COMPFIX="true"
 # Source pre-path
 source $HOME/.config/zsh/conf.d/path.pre.zsh
 
-# # Zellij configuration
-# if [[ -z "$ZELLIJ" ]]; then
-#     if command -v zellij >/dev/null 2>&1; then
-#         if [[ -z "$ZELLIJ_AUTO_START" && ! "$TERM_PROGRAM" == "vscode" ]]; then
-#             export ZELLIJ_AUTO_START=true
-#             exec zellij
-#         fi
-#     else
-#         echo "Zellij not found. Please install it first."
-#     fi
-# fi
+# Zellij configuration
+if [[ -z "$ZELLIJ" ]]; then
+    if command -v zellij >/dev/null 2>&1; then
+        if [[ -z "$ZELLIJ_AUTO_START" && ! "$TERM_PROGRAM" == "vscode" ]]; then
+            export ZELLIJ_AUTO_START=true
+            exec zellij
+        fi
+    else
+        echo "Zellij not found. Please install it first."
+    fi
+fi
 
 export EDITOR="code --wait"
 
