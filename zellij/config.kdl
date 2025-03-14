@@ -24,7 +24,11 @@ keybinds clear-defaults=true {
 }
 
 plugins {
-    zjstatus { path "file:~/.config/zellij/bin/zjstatus.wasm"; }
+    zjstatus location="file:~/.config/zellij/bin/zjstatus.wasm"{ 
+    }
+}
+
+load_plugins {
     zjframes { 
         path "file:~/.config/zellij/bin/zjframes.wasm"
         hide_frame_for_single_pane "true"

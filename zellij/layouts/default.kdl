@@ -1,7 +1,8 @@
 layout {
     default_tab_template hide_floating_panes=true {
         children
-        pane size=1 borderless=false{
+        pane size=1 borderless=true{
+            name "--" 
             plugin location="file:~/.config/zellij/bin/zjstatus.wasm" {
                 format_left   "{mode} #[fg=#89B4FA,bold]{session}"
                 format_right  "{command_git_branch} {datetime}"
@@ -12,7 +13,7 @@ layout {
                 border_format   "#[fg=#6C7086]{char}"
                 border_position "top"
 
-                hide_frame_for_single_pane "true"
+                hide_frame_for_single_pane "false"
 
                 mode_normal  "#[bg=blue] "
                 mode_tmux    "#[bg=#ffc387] "
