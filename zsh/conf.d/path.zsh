@@ -9,12 +9,6 @@ export PATH="$PATH:/Users/$USER/.local/bin"
 export PATH="$HOME/.rvm/bin:$PATH"
 
 # Go
-export GOENV_ROOT="$HOME/.goenv"
-export PATH="$GOENV_ROOT/bin:$PATH"
-
-
-export GOPATH="$(go env GOPATH 2>/dev/null || echo "$HOME/go")"
-export GOROOT="$(go env GOROOT 2>/dev/null || echo "$(brew --prefix golang)/libexec")"
 export PATH="$GOROOT/bin:$PATH"
 export PATH="$GOPATH/bin:$PATH"
 

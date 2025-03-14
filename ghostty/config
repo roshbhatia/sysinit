@@ -1,27 +1,46 @@
-font-family = "Hack Nerd Font"
+# Fonts
+font-family = "Lilex Nerd Font Mono"
+font-family = "Hack Nerd Font Mono"
 font-size = 12
 font-feature = "zero" 1
 font-feature = "ss01" 1
 font-feature = "liga" 1
 
-window-padding-x = 15
+# Security
+shell-integration = "zsh"
+shell-integration-features = no-cursor
+macos-auto-secure-input = true
+macos-icon = custom-style
+macos-icon-frame = beige
+macos-icon-ghost-color = black
+macos-icon-screen-color = black,green
+
+# Window settings
+window-padding-x = 20
 window-padding-y = 15
 window-decoration = true
 window-theme = "dark"
 macos-option-as-alt = true
-macos-titlebar-style = transparent
-theme = catppuccin-macchiato
-background-opacity = 0.89
-background-blur = true
+macos-titlebar-style = tabs
+quick-terminal-position = right
 
+# Theme
+theme = 0x96f
+background-opacity = 0.85
+background-blur-radius = 20
+background-blur = true
+bold-is-bright = true
+
+# Mouse settings
 mouse-hide-while-typing = true
 mouse-scroll-multiplier = 0.5
 
+# Cursor
 cursor-style = underline
 cursor-style-blink = true
 
-shell-integration = "zsh"
-
+# Keybindings
+keybind = super+`=toggle_quick_terminal
 keybind = super+left=unbind
 keybind = super+right=unbind
 keybind = super+up=unbind
