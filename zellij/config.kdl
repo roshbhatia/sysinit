@@ -3,39 +3,11 @@ keybinds clear-defaults=true {
     normal {
         // Search
         bind "Super s" { SwitchToMode "EnterSearch"; SearchInput 0; }
-        
-        // Tab management
-        bind "Super t" { NewTab; }
-        bind "Super W" { CloseTab; }
-        bind "Super w" { CloseFocus; }
-        
-        // Pane splitting
-        bind "Super d" { NewPane "Right"; }
-        bind "Super Shift d" { NewPane "Down"; }
-        
-        // Pane movement
-        bind "Super Left" { MoveFocus "Left"; }
-        bind "Super Right" { MoveFocus "Right"; }
-        bind "Super Down" { MoveFocus "Down"; }
-        bind "Super Up" { MoveFocus "Up"; }
-        
-        // Pane resizing
-        bind "Super Shift Left" { Resize "Increase Left"; }
-        bind "Super Shift Right" { Resize "Increase Right"; }
-        bind "Super Shift Down" { Resize "Increase Down"; }
-        bind "Super Shift Up" { Resize "Increase Up"; }
-        
-        // Tab switching
-        bind "Super 1" { GoToTab 1; }
-        bind "Super 2" { GoToTab 2; }
-        bind "Super 3" { GoToTab 3; }
-        bind "Super 4" { GoToTab 4; }
-        bind "Super 5" { GoToTab 5; }
-        bind "Super 6" { GoToTab 6; }
-        bind "Super 7" { GoToTab 7; }
-        bind "Super 8" { GoToTab 8; }
-        bind "Super 9" { GoToTab 9; }
-        
+        bind "Down" { Search "down"; }
+        bind "Up" { Search "up"; }
+        bind "c" { SearchToggleOption "CaseSensitivity"; }
+        bind "w" { SearchToggleOption "Wrap"; }
+        bind "o" { SearchToggleOption "WholeWord"; }
         // Floating window
         bind "Super p" { ToggleFloatingPanes; }
     }

@@ -41,32 +41,6 @@ cursor-style-blink = true
 
 # Keybindings
 keybind = super+`=toggle_quick_terminal
-keybind = super+left=unbind
-keybind = super+right=unbind
-keybind = super+up=unbind
-keybind = super+down=unbind
-
-keybind = super+d=unbind
-keybind = super+shift+d=unbind
-
-keybind = super+shift+left=unbind
-keybind = super+shift+right=unbind
-keybind = super+shift+up=unbind
-keybind = super+shift+down=unbind
-
-keybind = super+1=unbind
-keybind = super+2=unbind
-keybind = super+3=unbind
-keybind = super+4=unbind
-keybind = super+5=unbind
-keybind = super+6=unbind
-keybind = super+7=unbind
-keybind = super+8=unbind
-keybind = super+9=unbind
-
-keybind = super+t=unbind
-keybind = super+w=unbind
-keybind = super+shift+w=unbind
 
 keybind = super+s=unbind
 
