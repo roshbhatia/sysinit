@@ -3,11 +3,7 @@ keybinds clear-defaults=true {
     normal {
         // Search
         bind "Super s" { SwitchToMode "EnterSearch"; SearchInput 0; }
-        bind "Down" { Search "down"; }
-        bind "Up" { Search "up"; }
-        bind "c" { SearchToggleOption "CaseSensitivity"; }
-        bind "w" { SearchToggleOption "Wrap"; }
-        bind "o" { SearchToggleOption "WholeWord"; }
+        
         // Floating window
         bind "Super p" { ToggleFloatingPanes; }
     }
@@ -15,11 +11,20 @@ keybinds clear-defaults=true {
     search {
         bind "Enter" { SwitchToMode "Normal"; }
         bind "Esc" { SwitchToMode "Normal"; }
+        bind "Ctrl c" { SwitchToMode "Normal"; }
+
+        bind "c" { SearchToggleOption "CaseSensitivity"; }
+        bind "w" { SearchToggleOption "Wrap"; }
+        bind "o" { SearchToggleOption "WholeWord"; }
+
+        bind "Down" { Search "down"; }
+        bind "Up" { Search "up"; }
     }
 
     entersearch {
         bind "Enter" { SwitchToMode "Search"; }
         bind "Esc" { SwitchToMode "Normal"; }
+        bind "Ctrl c" { SwitchToMode "Normal"; }
     }
 }
 

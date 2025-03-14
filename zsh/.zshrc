@@ -79,6 +79,7 @@ source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 _evalcache direnv hook zsh
 _evalcache gh copilot alias -- zsh
 _evalcache starship init zsh
+_evalcache atuin init zsh
 
 # Source extras if they exist
 [ -f ~/.zshenv ] && source ~/.zshenv
