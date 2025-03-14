@@ -2,8 +2,9 @@ layout {
     default_tab_template {
         children
         pane size=1 borderless=false{
-            plugin location="$HOME/.config/zellij/bin/zjstatus.wasm" {
+            plugin location="file:~/.config/zellij/bin/zjstatus.wasm" {
                 format_left   "{mode} #[fg=#89B4FA,bold]{session}"
+                format_center "{tabs}"
                 format_right  "{command_git_branch} {datetime}"
                 format_space  ""
 
@@ -12,7 +13,7 @@ layout {
                 border_format   "#[fg=#6C7086]{char}"
                 border_position "top"
 
-                hide_frame_for_single_pane "false"
+                hide_frame_for_single_pane "true"
 
                 mode_normal  "#[bg=blue] "
                 mode_tmux    "#[bg=#ffc387] "
@@ -27,7 +28,7 @@ layout {
 
                 datetime        "#[fg=#6C7086,bold] {format} "
                 datetime_format "%A, %d %b %Y %H:%M"
-                datetime_timezone "UTC"
+                datetime_timezone "Europe/Berlin"
             }
         }
     }

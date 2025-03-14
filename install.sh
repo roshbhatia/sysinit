@@ -171,8 +171,13 @@ install_dependencies() {
     curl -L "https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm" \
         -o "$HOME/.config/zellij/bin/zjstatus.wasm"
 
-    # Make it executable (optional but recommended)
+    # Download latest zjframes.wasm
+    curl -L "https://github.com/dj95/zjstatus/releases/latest/download/zjframes.wasm" \
+        -o "$HOME/.config/zellij/bin/zjframes.wasm"
+
+    # Make plugins executable
     chmod +x "$HOME/.config/zellij/bin/zjstatus.wasm"
+    chmod +x "$HOME/.config/zellij/bin/zjframes.wasm"
 }
 
 # Modify main() to handle both operations
