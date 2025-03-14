@@ -12,38 +12,6 @@ export PATH="$HOME/.rvm/bin:$PATH"
 export GOENV_ROOT="$HOME/.goenv"
 export PATH="$GOENV_ROOT/bin:$PATH"
 
-export GOENV_SHELL=zsh
-export GOENV_ROOT=/Users/$USER/.goenv
-if [ -z ${GOENV_RC_FILE} ]; then
-  GOENV_RC_FILE=${HOME}/.goenvrc
-fi
-if [ -e ${GOENV_RC_FILE} ]; then
-  source ${GOENV_RC_FILE}
-fi
-if [ "${PATH#*$GOENV_ROOT/shims}" = "${PATH}" ]; then
-  if [ "${GOENV_PATH_ORDER}" = "front" ] ; then
-    export PATH="${GOENV_ROOT}/shims:${PATH}"
-  else
-    export PATH="${PATH}:${GOENV_ROOT}/shims"
-  fi
-fi
-source "/Users/${USER}/.goenv/libexec/../completions/goenv.zsh"
-(command goenv rehash 2>/dev/null &)
-goenv() {
-  local command
-  command="$1"
-  if [ "$#" -gt 0 ]; then
-    shift
-  fi
-
-  case "$command" in
-  rehash|shell)
-    eval "$(goenv "sh-$command" "$@")";;
-  *)
-    command goenv "$command" "$@";;
-  esac
-}
-(goenv rehash --only-manage-paths &)
 
 export GOPATH="$(go env GOPATH 2>/dev/null || echo "$HOME/go")"
 export GOROOT="$(go env GOROOT 2>/dev/null || echo "$(brew --prefix golang)/libexec")"

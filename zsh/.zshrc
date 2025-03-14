@@ -65,6 +65,7 @@ _evalcache kubectl completion zsh
 _evalcache docker completion zsh
 _evalcache stern --completion zsh
 _evalcache gh completion -s zsh
+_evalcache "$(goenv init -)"
 
 # Source configurations after completions are loaded
 for conf in $HOME/.config/zsh/conf.d/*.zsh; do
