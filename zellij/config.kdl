@@ -150,7 +150,7 @@ theme "catppuccin-frappe"
 // The name of the default layout to load on startup
 // Default: "default"
 //
-default_layout "compact"
+// default_layout "compact"
 
 // Choose the mode that zellij uses when starting up.
 // Default: normal
@@ -222,7 +222,7 @@ copy_command "pbcopy"                     // osx
 // May need to be disabled for certain unsupported terminals
 // Default: true
 //
-styled_underlines false
+// styled_underlines true
 
 // Enable or disable writing of session metadata to disk (if disabled, other sessions might not know
 // metadata info on this session)
