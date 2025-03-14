@@ -15,6 +15,7 @@ unset MAILCHECK
 export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export XDG_CONFIG_HOME=$HOME/.config
+export ZSH_DISABLE_COMPFIX="true"
 
 # Source pre-path
 source $HOME/.config/zsh/conf.d/path.pre.zsh
@@ -55,7 +56,7 @@ fi
 # Initialize completions before aliases
 autoload -Uz compinit
 for dump in $HOME/.zcompdump(N.mh+24); do
-  compinit
+  compinit -Ci
 done
 compinit -Ci
 

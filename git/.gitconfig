@@ -12,3 +12,6 @@
 
 [includeIf "gitdir:~/github/roshbhatia/"]
     path = ~/.gitconfig.personal
+
+[includeIf "gitdir:/"]
+    path = ~/.gitconfig.work

@@ -11,6 +11,8 @@ window-theme = "dark"
 macos-option-as-alt = true
 macos-titlebar-style = transparent
 theme = catppuccin-macchiato
+background-opacity = 0.89
+background-blur = true
 
 mouse-hide-while-typing = true
 mouse-scroll-multiplier = 0.5
@@ -20,9 +22,33 @@ cursor-style-blink = true
 
 shell-integration = "zsh"
 
-keybind = cmd+t=unbind
-keybind = cmd+n=unbind
-keybind = cmd+c=unbind
-keybind = cmd+w=unbind
-keybind = cmd+opt+left=unbind
-keybind = cmd+opt+right=unbind
+keybind = super+left=unbind
+keybind = super+right=unbind
+keybind = super+up=unbind
+keybind = super+down=unbind
+
+keybind = super+d=unbind
+keybind = super+shift+d=unbind
+
+keybind = super+shift+left=unbind
+keybind = super+shift+right=unbind
+keybind = super+shift+up=unbind
+keybind = super+shift+down=unbind
+
+keybind = super+1=unbind
+keybind = super+2=unbind
+keybind = super+3=unbind
+keybind = super+4=unbind
+keybind = super+5=unbind
+keybind = super+6=unbind
+keybind = super+7=unbind
+keybind = super+8=unbind
+keybind = super+9=unbind
+
+keybind = super+t=unbind
+keybind = super+w=unbind
+keybind = super+shift+w=unbind
+
+keybind = super+s=unbind
+
+keybind = super+p=unbind
