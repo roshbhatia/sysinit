@@ -264,9 +264,9 @@ features = ["zero", "ss01", "liga"]
 #
 # Example:
 [navigation]
-mode = "NativeTab"
+mode = "Bookmark"
 clickable = true
-hide-if-single = true
+hide-if-single = false
 use-current-path = true
 color-automation = []
 
@@ -363,4 +363,3 @@ color-automation = []
 # [developer]
 # log-level = "OFF"
 # enable-log-file = false
-

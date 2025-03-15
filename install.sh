@@ -28,7 +28,7 @@ log_step() {
 
 # Define arrays for links and copies
 link_sources=(
-    "$PWD/starship/starship.toml"
+    "$PWD/starship"
     "$PWD/k9s"
     "$PWD/nvim"
     "$PWD/atuin"
@@ -39,10 +39,11 @@ link_sources=(
     "$PWD/zsh/conf.d"
     "$PWD/git/.gitconfig"
     "$PWD/git/.gitconfig.personal"
+    "$PWD/rio"
 )
 
 link_destinations=(
-    "$HOME/.config/starship.toml"
+    "$HOME/.config/starship"
     "$HOME/.config/k9s"
     "$HOME/.config/nvim"
     "$HOME/.config/atuin"
@@ -53,14 +54,13 @@ link_destinations=(
     "$HOME/.config/zsh/conf.d"
     "$HOME/.gitconfig"
     "$HOME/.gitconfig.personal"
+    "$HOME/.config/rio"
 )
 
 copy_sources=(
-    "$PWD/rio/config.toml"
 )
 
 copy_destinations=(
-    "$HOME/.config/rio/config.toml"
 )
 
 create_symlink() {
