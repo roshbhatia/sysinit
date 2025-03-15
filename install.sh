@@ -163,21 +163,6 @@ install_dependencies() {
     if [ ! -d "$HOME/.config/zsh/plugins/fzf-tab" ]; then
         git clone https://github.com/Aloxaf/fzf-tab "$HOME/.config/zsh/plugins/fzf-tab"
     fi
-
-    # Create directory for Zellij plugins
-    mkdir -p "$HOME/.config/zellij/bin"
-
-    # Download latest zjstatus.wasm
-    curl -L "https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm" \
-        -o "$HOME/.config/zellij/bin/zjstatus.wasm"
-
-    # Download latest zjframes.wasm
-    curl -L "https://github.com/dj95/zjstatus/releases/latest/download/zjframes.wasm" \
-        -o "$HOME/.config/zellij/bin/zjframes.wasm"
-
-    # Make plugins executable
-    chmod +x "$HOME/.config/zellij/bin/zjstatus.wasm"
-    chmod +x "$HOME/.config/zellij/bin/zjframes.wasm"
 }
 
 # Modify main() to handle both operations
