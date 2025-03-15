@@ -40,6 +40,7 @@ link_sources=(
     "$PWD/git/.gitconfig"
     "$PWD/git/.gitconfig.personal"
     "$PWD/rio"
+    "$PWD/sketchybar"
 )
 
 link_destinations=(
@@ -55,6 +56,7 @@ link_destinations=(
     "$HOME/.gitconfig"
     "$HOME/.gitconfig.personal"
     "$HOME/.config/rio"
+    "$HOME/.config/sketchybar"
 )
 
 copy_sources=(
@@ -151,6 +153,11 @@ install_dependencies() {
         direnv \
         starship
     
+    # Install sketchybar
+    log_info "Installing sketchybar..."
+    brew tap FelixKratz/formulae
+    brew install sketchybar
+    
     # Create plugin directories
     mkdir -p "$HOME/.config/zsh/plugins"
     
@@ -162,6 +169,17 @@ install_dependencies() {
     # Install fzf-tab if not exists
     if [ ! -d "$HOME/.config/zsh/plugins/fzf-tab" ]; then
         git clone https://github.com/Aloxaf/fzf-tab "$HOME/.config/zsh/plugins/fzf-tab"
+    fi
+}
+
+# Start sketchybar as a service
+start_sketchybar() {
+    log_step "Starting sketchybar service..."
+    brew services start sketchybar
+    if [ $? -eq 0 ]; then
+        log_info "SketchyBar service started successfully"
+    else
+        log_warn "Failed to start SketchyBar service. You can start it manually with: brew services start sketchybar"
     fi
 }
 
@@ -183,7 +201,11 @@ main() {
         copy_file "${copy_sources[$i]}" "${copy_destinations[$i]}"
     done
     
+    # Start sketchybar service
+    start_sketchybar
+    
     log_step "Installation complete! 🎉"
+    log_info "Note: For SketchyBar to work properly, make sure 'Displays have separate Spaces' is enabled in System Settings -> Desktop & Dock"
 }
 
 main
