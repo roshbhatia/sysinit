@@ -14,3 +14,18 @@ CLAUDE.md
 
 # Zellij
 zellij/bin/
+
+# Go binaries
+/sysinit
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Go specific
+*.o
+*.a
+*.test
+*.out
+*.prof
+vendor/
