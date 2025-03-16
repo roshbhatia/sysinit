@@ -10,8 +10,8 @@
 [core]
     editor = code --wait
 
+[includeIf "gitdir:~/github/"]
+    path = ~/.gitconfig.work
+
 [includeIf "gitdir:~/github/roshbhatia/"]
     path = ~/.gitconfig.personal
-
-[includeIf "gitdir:/"]
-    path = ~/.gitconfig.work
