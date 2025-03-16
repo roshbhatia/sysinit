@@ -79,3 +79,4 @@ bindkey "^[[1;7C" forward-word
 bindkey "^[[1;7D" backward-word
 bindkey "^[[1;7B" beginning-of-line
 bindkey "^[[1;7A" end-of-line
+export PATH="$HOME/bin:$PATH"

@@ -30,33 +30,27 @@ log_step() {
 link_sources=(
     "$PWD/starship"
     "$PWD/k9s"
-    "$PWD/nvim"
     "$PWD/atuin"
     "$PWD/macchina"
-    "$PWD/zellij"
     "$PWD/zsh/.zshrc"
     "$PWD/zsh/.zshutils"
     "$PWD/zsh/conf.d"
     "$PWD/git/.gitconfig"
     "$PWD/git/.gitconfig.personal"
     "$PWD/rio"
-    "$PWD/sketchybar"
 )
 
 link_destinations=(
     "$HOME/.config/starship"
     "$HOME/.config/k9s"
-    "$HOME/.config/nvim"
     "$HOME/.config/atuin"
     "$HOME/.config/macchina"
-    "$HOME/.config/zellij"
     "$HOME/.zshrc"
     "$HOME/.zshutils"
     "$HOME/.config/zsh/conf.d"
     "$HOME/.gitconfig"
     "$HOME/.gitconfig.personal"
     "$HOME/.config/rio"
-    "$HOME/.config/sketchybar"
 )
 
 copy_sources=(
@@ -153,11 +147,6 @@ install_dependencies() {
         direnv \
         starship
     
-    # Install sketchybar
-    log_info "Installing sketchybar..."
-    brew tap FelixKratz/formulae
-    brew install sketchybar
-    
     # Create plugin directories
     mkdir -p "$HOME/.config/zsh/plugins"
     
@@ -172,14 +161,34 @@ install_dependencies() {
     fi
 }
 
-# Start sketchybar as a service
-start_sketchybar() {
-    log_step "Starting sketchybar service..."
-    brew services start sketchybar
-    if [ $? -eq 0 ]; then
-        log_info "SketchyBar service started successfully"
+# Install and configure grugnvim
+install_grugnvim() {
+    log_step "Setting up grugnvim..."
+    
+    # Run the link script in the grugnvim directory
+    if [ -d "$PWD/grugnvim" ]; then
+        log_info "Running grugnvim installation script"
+        (cd "$PWD/grugnvim" && bash ./link-nvimconfig.sh)
+        
+        # Create bin directory if it doesn't exist
+        mkdir -p "$HOME/bin"
+        
+        # Create a symlink to kv in the bin directory
+        if [ -f "$HOME/bin/kv" ]; then
+            log_info "kv command already exists in $HOME/bin"
+        else
+            ln -sf "$HOME/.config/kv/bin/kv" "$HOME/bin/kv"
+            chmod +x "$HOME/bin/kv"
+            log_info "Created kv command in $HOME/bin"
+        fi
+        
+        # Ensure bin directory is in PATH
+        if [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
+            log_warn "$HOME/bin is not in your PATH. Adding it to ~/.zshrc"
+            echo 'export PATH="$HOME/bin:$PATH"' >> "$HOME/.zshrc"
+        fi
     else
-        log_warn "Failed to start SketchyBar service. You can start it manually with: brew services start sketchybar"
+        log_error "grugnvim directory not found at $PWD/grugnvim"
     fi
 }
 
@@ -201,11 +210,11 @@ main() {
         copy_file "${copy_sources[$i]}" "${copy_destinations[$i]}"
     done
     
-    # Start sketchybar service
-    start_sketchybar
+    # Install grugnvim
+    install_grugnvim
     
     log_step "Installation complete! 🎉"
-    log_info "Note: For SketchyBar to work properly, make sure 'Displays have separate Spaces' is enabled in System Settings -> Desktop & Dock"
+    log_info "You can now use 'grugnvim' to start Neovim or 'kv' for the kubectl-integrated version"
 }
 
 main
