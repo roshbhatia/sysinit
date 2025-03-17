@@ -1,6 +1,7 @@
 # Navigation
 alias l="eza --icons=always -1"
 alias ll="eza --icons=always -1 -a"
+alias lt="eza --icons=always -1 -a -T"
 alias ..="cd .."
 alias ...="cd ../.."
 alias ~="cd ~"
