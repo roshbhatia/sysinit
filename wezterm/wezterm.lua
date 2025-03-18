@@ -2,17 +2,23 @@ local wezterm = require('wezterm')
 local act = wezterm.action
 local config = wezterm.config_builder()
 
--- Load tabline plugin from local path
-local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
-
 -- Window settings
 config.window_padding = {
     left = 20,
-    right = 20,
+    right = 0,
     top = 20,
     bottom = 20
 }
+
 config.enable_scroll_bar = true
+config.scrollback_lines = 20000
+
+config.visual_bell = {
+    fade_in_function = 'EaseIn',
+    fade_in_duration_ms = 25,
+    fade_out_function = 'EaseOut',
+    fade_out_duration_ms = 25
+}
 
 config.color_scheme = "Catppuccin Macchiato"
 
@@ -84,43 +90,5 @@ config.keys = {{
     mods = 'CMD|SHIFT',
     action = act.ActivateCommandPalette
 }}
-
--- Shell configuration
-config.default_prog = {'/bin/zsh', '--login'}
-
--- Configure tabline
-tabline.setup({
-  options = {
-    icons_enabled = true,
-    theme = 'Catppuccin Macchiato',
-    section_separators = {
-      left = wezterm.nerdfonts.pl_left_hard_divider,
-      right = wezterm.nerdfonts.pl_right_hard_divider,
-    },
-    component_separators = {
-      left = wezterm.nerdfonts.pl_left_soft_divider,
-      right = wezterm.nerdfonts.pl_right_soft_divider,
-    },
-  },
-  sections = {
-    tabline_a = { 'mode' },
-    tabline_b = { 'workspace' },
-    tabline_c = { ' ' },
-    tab_active = {
-      'index',
-      { 'parent', padding = 0 },
-      '/',
-      { 'cwd', padding = { left = 0, right = 1 } },
-      { 'zoomed', padding = 0 },
-    },
-    tab_inactive = { 'index', { 'process', padding = { left = 0, right = 1 } } },
-    tabline_x = { 'ram', 'cpu' },
-    tabline_y = { 'datetime', 'battery' },
-    tabline_z = { 'domain' },
-  },
-})
-
--- Apply tabline config
-tabline.apply_to_config(config)
 
 return config
