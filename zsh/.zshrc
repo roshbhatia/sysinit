@@ -69,6 +69,14 @@ _evalcache gh copilot alias -- zsh
 _evalcache starship init zsh
 _evalcache atuin init zsh
 
+# Fzf
+export FZF_DEFAULT_OPTS="
+  --height 8
+  --layout=reverse
+  --border
+  --inline-info
+"
+
 # Source extras if they exist
 [ -f ~/.zshenv ] && source ~/.zshenv
 [ -f ~/.zshextras ] && source ~/.zshextras
