@@ -120,6 +120,22 @@ config.keys = { -- Word navigation
     key = 'p',
     mods = 'CMD|SHIFT',
     action = act.ActivateCommandPalette
+}, {
+    key = 'LeftArrow',
+    mods = 'CMD|SHIFT',
+    action = act.ActivatePaneDirection 'Left'
+}, {
+    key = 'RightArrow',
+    mods = 'CMD|SHIFT',
+    action = act.ActivatePaneDirection 'Right'
+}, {
+    key = 'UpArrow',
+    mods = 'CMD|SHIFT',
+    action = act.ActivatePaneDirection 'Up'
+}, {
+    key = 'DownArrow',
+    mods = 'CMD|SHIFT',
+    action = act.ActivatePaneDirection 'Down'
 }}
 
 return config
