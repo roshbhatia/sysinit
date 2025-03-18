@@ -45,7 +45,38 @@ config.hide_tab_bar_if_only_one_tab = false
 config.use_fancy_tab_bar = false
 
 -- Keybindings
-config.keys = {{
+config.keys = { -- Word navigation
+{
+    key = 'LeftArrow',
+    mods = 'ALT',
+    action = act.SendKey {
+        key = 'b',
+        mods = 'ALT'
+    }
+}, {
+    key = 'RightArrow',
+    mods = 'ALT',
+    action = act.SendKey {
+        key = 'f',
+        mods = 'ALT'
+    }
+}, -- Line navigation
+{
+    key = 'LeftArrow',
+    mods = 'SHIFT|ALT',
+    action = act.SendKey {
+        key = 'a',
+        mods = 'CTRL'
+    }
+}, {
+    key = 'RightArrow',
+    mods = 'SHIFT|ALT',
+    action = act.SendKey {
+        key = 'e',
+        mods = 'CTRL'
+    }
+}, -- Existing keybindings
+{
     key = 'd',
     mods = 'CMD|SHIFT',
     action = act.SplitVertical {
