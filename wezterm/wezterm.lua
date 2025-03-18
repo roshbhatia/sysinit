@@ -20,7 +20,7 @@ config.visual_bell = {
     fade_out_duration_ms = 25
 }
 
-config.color_scheme = "Catppuccin Macchiato"
+config.color_scheme = "Apple System Colors"
 
 config.window_decorations = 'RESIZE|INTEGRATED_BUTTONS'
 config.window_background_opacity = 0.8
