@@ -29,3 +29,7 @@ zellij/bin/
 *.out
 *.prof
 vendor/
+
+# Wezterm plugins
+wezterm/plugins/
+wezterm/plugins

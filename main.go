@@ -49,6 +49,10 @@ var specialComponents = map[string][]struct {
 	src  string
 	dest string
 }{
+	"wezterm": {
+		{src: "wezterm", dest: "~/.config/wezterm"},
+		{src: "wezterm/plugins", dest: "~/.config/wezterm/plugins"},
+	},
 	"zsh": {
 		{src: "zsh/.zshrc", dest: "~/.zshrc"},
 		{src: "zsh/.zshutils", dest: "~/.zshutils"},
@@ -116,6 +120,15 @@ func main() {
 	}
 }
 
+func fetchPlugin() error {
+	// Clone plugin repository
+	cmd := exec.Command("git", "clone", "--depth=1", "https://github.com/michaelbrusegard/tabline.wez.git", "~/.config/wezterm/plugins")
+	if output, err := cmd.CombinedOutput(); err != nil {
+		return fmt.Errorf("failed to clone plugin: %w\n%s", err, output)
+	}
+	return nil
+}
+
 func runInstall(cmd *cobra.Command, args []string) {
 	if !allFlag && len(components) == 0 {
 		// Default to all components if none specified
@@ -147,6 +160,36 @@ func runInstall(cmd *cobra.Command, args []string) {
 		fmt.Printf("Installing %s...\n", component)
 
 		switch component {
+		case "wezterm":
+			// Ensure plugin directory exists
+			pluginDir := filepath.Join(home, ".config", "wezterm", "plugins")
+			if err := os.MkdirAll(pluginDir, 0755); err != nil {
+				fmt.Printf("❌ Failed to create plugin directory: %v\n", err)
+				continue
+			}
+
+			if err := fetchPlugin(); err != nil {
+				fmt.Printf("❌ Failed to fetch tabline plugin: %v\n", err)
+				continue
+			}
+
+			// Continue with normal wezterm installation
+			if specialPaths, ok := specialComponents[component]; ok {
+				componentSuccess := true
+				for _, path := range specialPaths {
+					src := filepath.Join(pwd, path.src)
+					dest := strings.Replace(path.dest, "~", home, 1)
+					if err := createSymlink(src, dest); err != nil {
+						fmt.Printf("❌ Failed to install %s part (%s): %v\n", component, path.src, err)
+						componentSuccess = false
+					}
+				}
+				if componentSuccess {
+					fmt.Printf("✅ Successfully installed %s\n", component)
+					successCount++
+				}
+			}
+
 		case "grugnvim":
 			if err := installGrugnvim(pwd, home); err != nil {
 				fmt.Printf("❌ Failed to install grugnvim: %v\n", err)
@@ -236,7 +279,7 @@ func installGrugnvim(pwd, home string) error {
 	}
 	defer os.Chdir(currentDir) // Ensure we change back when done
 
-	cmd := exec.Command("bash", "rm", "-rf", "~/.config/nvim")
+	cmd := exec.Command("bash", "-c", "rm", "-rf", "~/.config/nvim")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("deleting nvim config failed %w - %s", err, string(output))
