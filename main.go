@@ -120,15 +120,6 @@ func main() {
 	}
 }
 
-func fetchPlugin() error {
-	// Clone plugin repository
-	cmd := exec.Command("git", "clone", "--depth=1", "https://github.com/michaelbrusegard/tabline.wez.git", "~/.config/wezterm/plugins")
-	if output, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("failed to clone plugin: %w\n%s", err, output)
-	}
-	return nil
-}
-
 func runInstall(cmd *cobra.Command, args []string) {
 	if !allFlag && len(components) == 0 {
 		// Default to all components if none specified
@@ -163,13 +154,8 @@ func runInstall(cmd *cobra.Command, args []string) {
 		case "wezterm":
 			// Ensure plugin directory exists
 			pluginDir := filepath.Join(home, ".config", "wezterm", "plugins")
-			if err := os.MkdirAll(pluginDir, 0755); err != nil {
+			if err := os.MkdirAll(pluginDir, 0755); err != nil && !os.IsExist(err) {
 				fmt.Printf("❌ Failed to create plugin directory: %v\n", err)
-				continue
-			}
-
-			if err := fetchPlugin(); err != nil {
-				fmt.Printf("❌ Failed to fetch tabline plugin: %v\n", err)
 				continue
 			}
 
@@ -279,7 +265,8 @@ func installGrugnvim(pwd, home string) error {
 	}
 	defer os.Chdir(currentDir) // Ensure we change back when done
 
-	cmd := exec.Command("bash", "-c", "rm", "-rf", "~/.config/nvim")
+	nvimConfig := filepath.Join(home, ".config", "nvim")
+	cmd := exec.Command("rm", "-rf", nvimConfig)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("deleting nvim config failed %w - %s", err, string(output))

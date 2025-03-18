@@ -3,7 +3,7 @@ local act = wezterm.action
 local config = wezterm.config_builder()
 
 -- Load tabline plugin from local path
-local tabline = wezterm.plugin.require("file://~/.config/wezterm/plugins/tabline.wez")
+local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
 
 -- Window settings
 config.window_padding = {
