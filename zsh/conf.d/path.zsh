@@ -9,8 +9,7 @@ export PATH="$PATH:/Users/$USER/.local/bin"
 export PATH="$HOME/.rvm/bin:$PATH"
 
 # Go
-export PATH="$GOROOT/bin:$PATH"
-export PATH="$GOPATH/bin:$PATH"
+export PATH="$HOME/.govm/shim:$PATH"
 
 # Kubernetes
 export PATH="$HOME/.krew/bin:$PATH"

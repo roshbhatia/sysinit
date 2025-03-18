@@ -41,7 +41,7 @@ var componentPaths = map[string]struct {
 	"k9s":      {src: "k9s", dest: "~/.config/k9s"},
 	"atuin":    {src: "atuin", dest: "~/.config/atuin"},
 	"macchina": {src: "macchina", dest: "~/.config/macchina"},
-	"rio":      {src: "rio", dest: "~/.config/rio"},
+	"wezterm":  {src: "wezterm", dest: "~/.config/wezterm"},
 }
 
 // Special components with multiple paths
@@ -97,14 +97,14 @@ PowerShell:
 
 func init() {
 	// Install command setup
-	installCmd.Flags().StringSliceVarP(&components, "components", "c", []string{}, "Comma-separated list of components to install (starship,k9s,atuin,macchina,zsh,git,rio,grugnvim)")
+	installCmd.Flags().StringSliceVarP(&components, "components", "c", []string{}, "Comma-separated list of components to install (starship,k9s,atuin,macchina,zsh,git,wezterm,grugnvim)")
 	installCmd.Flags().BoolVarP(&allFlag, "all", "a", false, "Install all components")
-	
+
 	// Add commands to root
 	rootCmd.AddCommand(installCmd)
 	rootCmd.AddCommand(listCmd)
 	rootCmd.AddCommand(completionCmd)
-	
+
 	// Set version
 	rootCmd.Version = "0.1.0"
 }
@@ -123,7 +123,7 @@ func runInstall(cmd *cobra.Command, args []string) {
 	}
 
 	if allFlag {
-		components = []string{"starship", "k9s", "atuin", "macchina", "zsh", "git", "rio", "grugnvim"}
+		components = []string{"starship", "k9s", "atuin", "macchina", "zsh", "git", "wezterm", "grugnvim"}
 	}
 
 	// Get working directory
@@ -229,19 +229,26 @@ func installGrugnvim(pwd, home string) error {
 	if err != nil {
 		return fmt.Errorf("failed to get current directory: %w", err)
 	}
-	
+
 	// Run the link script
 	if err := os.Chdir(grugnvimDir); err != nil {
 		return fmt.Errorf("failed to change to grugnvim directory: %w", err)
 	}
 	defer os.Chdir(currentDir) // Ensure we change back when done
-	
-	cmd := exec.Command("bash", "./link-nvimconfig.sh")
+
+	cmd := exec.Command("bash", "rm", "-rf", "~/.config/nvim")
 	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("deleting nvim config failed %w - %s", err, string(output))
+	}
+	fmt.Printf("  %s\n", string(output))
+
+	cmd = exec.Command("bash", "./link-nvimconfig.sh")
+	output, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("linking script failed: %w - %s", err, string(output))
 	}
-	
+
 	fmt.Printf("  %s\n", string(output))
 	return nil
 }
@@ -255,24 +262,24 @@ func runList(cmd *cobra.Command, args []string) {
 		"macchina": "System info",
 		"zsh":      "ZSH configs",
 		"git":      "Git configs",
-		"rio":      "Terminal emulator",
+		"wezterm":  "Terminal emulator",
 		"grugnvim": "Neovim setup",
 	}
-	
+
 	fmt.Println("Available components:")
 	fmt.Println("=====================")
-	
+
 	// List all components
 	availableComponents := []string{
-		"starship", "k9s", "atuin", "macchina", 
-		"zsh", "git", "rio", "grugnvim",
+		"starship", "k9s", "atuin", "macchina",
+		"zsh", "git", "wezterm", "grugnvim",
 	}
-	
+
 	for _, component := range availableComponents {
 		description := componentDescriptions[component]
 		fmt.Printf("- %-10s %s\n", component, description)
 	}
-	
+
 	fmt.Println()
 	fmt.Println("Usage: sysinit install --components component1,component2")
 	fmt.Println("   or: sysinit install --all")
