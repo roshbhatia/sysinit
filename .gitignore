@@ -33,3 +33,7 @@ vendor/
 # Wezterm plugins
 wezterm/plugins/
 wezterm/plugins
+
+# Zsh plugins
+zsh/plugins/
+zsh/plugins
