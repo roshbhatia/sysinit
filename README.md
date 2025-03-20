@@ -16,18 +16,4 @@ sysinit install
 
 # Install specific components
 sysinit install --components starship,k9s,zsh
-
-# Legacy script installation (bash)
-./install.sh
 ```
-
-## Available Components
-
-- starship - Cross-shell prompt
-- k9s - Kubernetes CLI
-- atuin - Shell history
-- macchina - System info
-- zsh - ZSH configs
-- git - Git configs
-- rio - Terminal emulator
-- grugnvim - Neovim setup
