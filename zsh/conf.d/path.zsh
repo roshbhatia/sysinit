@@ -10,6 +10,7 @@ export PATH="$HOME/.rvm/bin:$PATH"
 
 # Go
 export PATH="$HOME/.govm/shim:$PATH"
+export PATH="$PATH:$(go env GOPATH)"
 
 # Kubernetes
 export PATH="$HOME/.krew/bin:$PATH"
