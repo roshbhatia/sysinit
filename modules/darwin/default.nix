@@ -2,6 +2,6 @@
   # Import darwin-specific configs
   imports = [
     ./system.nix
-    ./apps.nix
+    ./homebrew/default.nix
   ];
 }

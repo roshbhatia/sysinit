@@ -1,8 +1,8 @@
 { config, pkgs, lib, inputs, ... }: {
-  # Import home-manager configs
+  # Import packages and program configurations from pkg directory
   imports = [
+    ../../pkg
     ./packages.nix
-    ./programs/default.nix
   ];
 
   # Home Manager needs a bit of information about you and the paths it should manage
