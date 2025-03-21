@@ -15,20 +15,15 @@ CLAUDE.md
 # Zellij
 zellij/bin/
 
-# Go binaries
-/sysinit
-*.exe
-*.dll
-*.so
-*.dylib
+# Nix build outputs
+result
+result-*
 
-# Go specific
-*.o
-*.a
-*.test
-*.out
-*.prof
-vendor/
+# Flake lockfile
+flake.lock
+
+# Flake outputs
+.direnv/
 
 # Wezterm plugins
 wezterm/plugins/
@@ -37,3 +32,18 @@ wezterm/plugins
 # Zsh plugins
 zsh/plugins/
 zsh/plugins
+
+# Go files (no longer used)
+/sysinit
+go.mod
+go.sum
+*.exe
+*.dll
+*.so
+*.dylib
+*.o
+*.a
+*.test
+*.out
+*.prof
+vendor/
