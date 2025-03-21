@@ -1,25 +1,28 @@
 { pkgs, lib, ... }: {
-  # Since we're managing most packages via homebrew, we'll keep this minimal
-  # and only include packages that are better managed through Nix
+  # Let Nix properly manage core packages across various language ecosystems
   home.packages = with pkgs; [
-    # CLI tools
+    # Core CLI utilities
     bat
-    bottom # better top/htop
-    direnv
-    eza # better ls
-    fd # better find
-    ripgrep # better grep
+    eza 
+    fd
+    ripgrep
+    jq
+    
+    # Languages & Runtimes
+    python311
+    nodejs
+    go
     
     # Development tools
-    nodejs
-    yarn
-    
-    # System tools
-    htop
-    
-    # Other utilities
+    git
+    gh  # GitHub CLI
     gnupg
-    jq
-    yq
+    openssh
+    
+    # Core development packages
+    nodePackages.typescript
+    
+    # Go packages
+    gopls
   ];
 }
