@@ -2,99 +2,92 @@
 
 A Nix flake-based system configuration for macOS, using nix-darwin and home-manager.
 
-Assumes I'm running on Arm64
-
 ## Installation
 
-### Prerequisites
+### 1. Install Prerequisites
 
-- Xcode Command Line Tools (`xcode-select --install`)
+Run the `install-deps.sh` script to install the required dependencies:
 
-### Manual Installation
+This will install:
 
-1. Install Nix using the Determinate Systems installer:
+- Xcode Command Line Tools
+- Nix package manager
+- Nix Flakes configuration
+- Prepare system files for nix-darwin
 
-```bash
-curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
-```
-
-2. Enable Nix Flakes:
-
-```bash
-mkdir -p ~/.config/nix
-echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
-```
-
-3. Install nix-darwin:
+### 2. Clone and Build
 
 ```bash
-# Install nix-darwin bootstrap
-nix-build https://github.com/LnL7/nix-darwin/archive/master.tar.gz -A installer
-./result/bin/darwin-installer
-
-# Reload shell environment
-source /etc/static/zshrc
-```
-
-4. Clone this repository:
-
-```bash
+# Clone the repository
 git clone https://github.com/roshbhatia/sysinit.git
 cd sysinit
-```
 
-5. Build and activate the configuration:
+# For personal machines (with all apps)
+darwin-rebuild switch --flake .#default
 
-```bash
-# For personal machines (includes all apps):
-nix build .#darwinConfigurations.default.system
-./result/sw/bin/darwin-rebuild switch --flake .#default
-
-# For work machines (excludes personal apps):
-nix build .#darwinConfigurations.work.system
-./result/sw/bin/darwin-rebuild switch --flake .#work
-```
-
-## Structure
-
-```
-.
-├── flake.nix                # Main flake configuration
-├── modules/                 # Configuration modules
-│   ├── darwin/              # macOS-specific settings
-│   │   ├── default.nix
-│   │   ├── system.nix       # System settings
-│   │   └── homebrew/        # Homebrew applications
-│   │       ├── default.nix  # Main homebrew config
-│   │       ├── global.nix   # Work-appropriate packages
-│   │       └── personal.nix # Personal-only packages
-│   └── home/                # Home Manager configuration
-│       ├── default.nix
-│       └── packages.nix     # User packages
-└── pkg/                     # Program configurations
-    ├── default.nix          # Main package import file
-    ├── atuin/               # Atuin configuration
-    ├── git/                 # Git configuration
-    ├── k9s/                 # K9s configuration
-    ├── macchina/            # Macchina configuration
-    ├── nvim/                # Neovim configuration
-    │   ├── default.nix
-    │   └── config/          # Neovim lua config files
-    ├── starship/            # Starship configuration
-    ├── wezterm/             # WezTerm configuration
-    └── zsh/                 # Zsh configuration
+# OR for work machines (without personal apps)
+darwin-rebuild switch --flake .#work
 ```
 
 ## Updating
 
-To update the system after making changes:
+After making changes to the configuration:
 
 ```bash
-# For personal machines:
-nix build .#darwinConfigurations.default.system
-./result/sw/bin/darwin-rebuild switch --flake .#default
+# For personal configuration
+darwin-rebuild switch --flake .#default
 
-# For work machines:
-nix build .#darwinConfigurations.work.system
-./result/sw/bin/darwin-rebuild switch --flake .#work
+# For work configuration
+darwin-rebuild switch --flake .#work
+```
+
+## Rebuilding from URL
+
+If you want to build directly from the GitHub repository:
+
+```bash
+# For personal configuration
+darwin-rebuild switch --flake github:roshbhatia/sysinit#default
+
+# For work configuration
+darwin-rebuild switch --flake github:roshbhatia/sysinit#work
+```
+
+## Maintenance
+
+### Garbage Collection
+
+To clean up old generations and free disk space:
+
+```bash
+nix-collect-garbage -d
+```
+
+### Updating Flake Inputs
+
+To update all flake inputs:
+
+```bash
+nix flake update
+```
+
+To update a specific input:
+
+```bash
+nix flake lock --update-input nixpkgs
+```
+
+### Cleaning Up Backup Files
+
+To remove any backup files created during nix-darwin installation or updates:
+
+```bash
+# Remove system backup files
+sudo rm -f /etc/*.before-nix-darwin
+
+# Remove home directory backup files
+rm -f $HOME/.*.backup* $HOME/.*.bak
+
+# Remove XDG config backup files
+find $HOME/.config -name "*.backup" -o -name "*.bak" -exec rm -f {} \;
 ```

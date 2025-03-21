@@ -1,0 +1,10 @@
+[user]
+    name = Roshan Bhatia
+    email = rshnbhatia@gmail.com
+
+[credential]
+    helper = store
+    username = roshbhatia
+
+[github]
+    user = roshbhatia

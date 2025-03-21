@@ -7,20 +7,9 @@ atuin/atuin-receipt.json
 # Claude code
 CLAUDE.md
 
-# Aider
-.aider.input.history
-.aider.chat.history.md
-.aider*
-
-# Zellij
-zellij/bin/
-
 # Nix build outputs
 result
 result-*
-
-# Flake lockfile
-flake.lock
 
 # Flake outputs
 .direnv/
