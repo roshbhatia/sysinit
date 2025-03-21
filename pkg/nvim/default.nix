@@ -46,11 +46,9 @@
     ];
   };
   
-  # Copy the custom Neovim configuration files
-  xdg.configFile = {
-    "nvim" = {
-      source = ../../../nvim;
-      recursive = true;
-    };
+  # Link the Neovim configuration
+  xdg.configFile."nvim" = {
+    source = ./config;
+    recursive = true;
   };
 }

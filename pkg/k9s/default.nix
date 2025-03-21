@@ -60,7 +60,7 @@
     };
     
     "k9s/skins/monokai.yaml" = {
-      source = ../../../k9s/skins/monokai.yaml;
+      source = ./skins/monokai.yaml;
     };
   };
 }

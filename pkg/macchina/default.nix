@@ -60,7 +60,7 @@
     };
     
     "macchina/themes/rosh.ascii" = {
-      source = ../../../macchina/themes/rosh.ascii;
+      source = ./rosh.ascii;
     };
   };
 }

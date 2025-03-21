@@ -46,11 +46,43 @@ cd sysinit
 5. Build and activate the configuration:
 
 ```bash
-# Build the system configuration
+# For personal machines (includes all apps):
 nix build .#darwinConfigurations.default.system
-
-# Switch to the new configuration
 ./result/sw/bin/darwin-rebuild switch --flake .#default
+
+# For work machines (excludes personal apps):
+nix build .#darwinConfigurations.work.system
+./result/sw/bin/darwin-rebuild switch --flake .#work
+```
+
+## Structure
+
+```
+.
+├── flake.nix                # Main flake configuration
+├── modules/                 # Configuration modules
+│   ├── darwin/              # macOS-specific settings
+│   │   ├── default.nix
+│   │   ├── system.nix       # System settings
+│   │   └── homebrew/        # Homebrew applications
+│   │       ├── default.nix  # Main homebrew config
+│   │       ├── global.nix   # Work-appropriate packages
+│   │       └── personal.nix # Personal-only packages
+│   └── home/                # Home Manager configuration
+│       ├── default.nix
+│       └── packages.nix     # User packages
+└── pkg/                     # Program configurations
+    ├── default.nix          # Main package import file
+    ├── atuin/               # Atuin configuration
+    ├── git/                 # Git configuration
+    ├── k9s/                 # K9s configuration
+    ├── macchina/            # Macchina configuration
+    ├── nvim/                # Neovim configuration
+    │   ├── default.nix
+    │   └── config/          # Neovim lua config files
+    ├── starship/            # Starship configuration
+    ├── wezterm/             # WezTerm configuration
+    └── zsh/                 # Zsh configuration
 ```
 
 ## Updating
@@ -58,7 +90,11 @@ nix build .#darwinConfigurations.default.system
 To update the system after making changes:
 
 ```bash
-# Rebuild and switch to the new configuration
+# For personal machines:
 nix build .#darwinConfigurations.default.system
 ./result/sw/bin/darwin-rebuild switch --flake .#default
+
+# For work machines:
+nix build .#darwinConfigurations.work.system
+./result/sw/bin/darwin-rebuild switch --flake .#work
 ```

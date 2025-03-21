@@ -31,11 +31,16 @@
   outputs = { self, nixpkgs, darwin, home-manager, nix-homebrew, homebrew-bundle, ... }@inputs:
   let
     system = "aarch64-darwin"; # For Apple Silicon
-  in {
-    darwinConfigurations.default = darwin.lib.darwinSystem {
+    
+    # Common darwin configuration function with a personal flag
+    mkDarwinConfig = { includePersonal ? true }: darwin.lib.darwinSystem {
       inherit system;
       specialArgs = { inherit inputs; };
       modules = [
+        # System config with personal flag
+        {
+          sysinit.includePersonal = includePersonal;
+        }
         ./modules/darwin
         home-manager.darwinModules.home-manager {
           home-manager.useGlobalPkgs = true;
@@ -54,6 +59,16 @@
           };
         }
       ];
+    };
+  in {
+    # Default configuration with personal applications
+    darwinConfigurations.default = mkDarwinConfig { 
+      includePersonal = true; 
+    };
+    
+    # Work configuration without personal applications
+    darwinConfigurations.work = mkDarwinConfig { 
+      includePersonal = false; 
     };
   };
 }
