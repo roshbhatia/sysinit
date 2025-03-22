@@ -31,7 +31,6 @@ in {
         _FXShowPosixPathInTitle = true; # Use proper option name
       };
       LaunchServices.LSQuarantine = false;
-      wallpaper.file = wallpaperPath;
     };
 
     # Required for nix-darwin
@@ -59,5 +58,9 @@ in {
 
   system.activationScripts.postUserActivation.text = ''  
     /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
+    
+    # Set wallpaper
+    echo "Setting desktop wallpaper..."
+    /usr/bin/osascript -e "tell application \"Finder\" to set desktop picture to POSIX file \"${wallpaperPath}\""
   '';
 }
