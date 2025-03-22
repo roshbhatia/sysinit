@@ -24,9 +24,12 @@ config.scrollback_lines = 20000
 
 config.visual_bell = {
     fade_in_function = 'EaseIn',
-    fade_in_duration_ms = 25,
+    fade_in_duration_ms = 35,
     fade_out_function = 'EaseOut',
-    fade_out_duration_ms = 25
+    fade_out_duration_ms = 50
+}
+config.colors = {
+    visual_bell = '#202020',
 }
 
 config.color_scheme = "Apple System Colors"
