@@ -30,22 +30,11 @@ key_color       = false
 separator_color = false
 
 [palette]
-type            = "Dark"
-visible         = true
-glyph           = "   "
+visible         = false
 
 [keys]
-host            = "  host"
-kernel          = "󰌽  kernel"
-battery         = "󰁹  battery"
-os              = "  os"
-de              = "  de"
-wm              = "  wm"
-distro          = "  distro"
-terminal        = "  terminal"
-shell           = "  shell"
-packages        = "  packages"
-uptime          = "󰥔  uptime"
-memory          = "  memory"
-machine         = "󰇅  machine"
-local_ip        = "󰱓  ip"
+host            = " host"
+kernel          = "󰌽 kernel"
+shell           = " shell"
+packages        = " packages"
+machine         = "󰇅 machine"
