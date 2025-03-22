@@ -39,7 +39,6 @@
       # Utilities
       gitsigns-nvim
       nvim-autopairs
-      indent-blankline-nvim
       nvim-comment
       toggleterm-nvim
       symbols-outline-nvim
