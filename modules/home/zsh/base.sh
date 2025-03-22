@@ -17,11 +17,6 @@ export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export ZSH_DISABLE_COMPFIX="true"
 
-# Key bindings
-bindkey "^[[1;7C" forward-word
-bindkey "^[[1;7D" backward-word
-bindkey "^[[1;7B" beginning-of-line
-bindkey "^[[1;7A" end-of-line
 
 if [ -f "/opt/homebrew/bin/brew" ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -73,9 +68,10 @@ autoload -Uz compinit
 # shellcheck disable=SC1036
 # shellcheck disable=SC1058
 # shellcheck disable=SC1072
+# shellcheck disable=SC1073
 for dump in $HOME/.zcompdump(N.mh+24); do
   compinit -Ci
-done
+dones
 compinit -Ci
 
 # Source logging library first (ensure it's available to all scripts)
