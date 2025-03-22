@@ -7,7 +7,6 @@
     ./macchina/macchina.nix
     ./neovim/neovim.nix
     ./starship/starship.nix
-    ./wallpaper/wallpaper.nix
     ./wezterm/wezterm.nix
     ./zsh/zsh.nix
     ./packages.nix
