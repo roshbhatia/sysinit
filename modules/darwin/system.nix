@@ -1,7 +1,8 @@
 { pkgs, lib, username, homeDirectory, ... }:
 
 let
-  wallpaperPath = toString ../../../wall/mvp2.jpg;
+  # Use absolute path for better reliability
+  wallpaperPath = "${homeDirectory}/github/roshbhatia/sysinit/wall/mvp2.jpg";
 in {
   environment.variables.EDITOR = "code --wait";
 
@@ -59,8 +60,13 @@ in {
   system.activationScripts.postUserActivation.text = ''  
     /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
     
-    # Set wallpaper
+    # Set wallpaper with better error handling
     echo "Setting desktop wallpaper..."
-    /usr/bin/osascript -e "tell application \"Finder\" to set desktop picture to POSIX file \"${wallpaperPath}\""
+    if [ -f "${wallpaperPath}" ]; then
+      /usr/bin/sqlite3 ~/Library/Application\ Support/Dock/desktoppicture.db "update data set value = '${wallpaperPath}'" && killall Dock
+      echo "Wallpaper set successfully!"
+    else
+      echo "Wallpaper file not found: ${wallpaperPath}"
+    fi
   '';
 }
