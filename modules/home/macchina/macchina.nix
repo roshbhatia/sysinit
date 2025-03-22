@@ -9,5 +9,13 @@
     "macchina/themes/rosh.ascii" = {
       source = ./themes/rosh.ascii;
     };
+
+    "macchina/themes/nix.toml" = {
+      source = ./themes/nix.toml;
+    };
+    
+    "macchina/themes/nix.ascii" = {
+      source = ./themes/nix.ascii;
+    };
   };
 }
