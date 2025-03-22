@@ -71,7 +71,7 @@ autoload -Uz compinit
 # shellcheck disable=SC1073
 for dump in $HOME/.zcompdump(N.mh+24); do
   compinit -Ci
-dones
+done
 compinit -Ci
 
 # Source logging library first (ensure it's available to all scripts)
