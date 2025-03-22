@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }: {
+{ pkgs, lib, username, homeDirectory, ... }: {
   environment.variables.EDITOR = "code --wait";
 
   system = {
@@ -47,7 +47,7 @@
   nixpkgs.hostPlatform = "aarch64-darwin";
 
   # Required to avoid sandbox build issues
-  users.users.${builtins.getEnv "USER"}.home = builtins.getEnv "HOME";
+  users.users.${username}.home = homeDirectory;
   
   # Enable Touch ID for sudo authentication
   security.pam.services.sudo_local.touchIdAuth = true;

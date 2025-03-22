@@ -22,14 +22,31 @@ This will install:
 git clone https://github.com/roshbhatia/sysinit.git
 cd sysinit
 
-# For personal machines (with all apps)
+# For personal machines (username: rshnbhatia)
 darwin-rebuild switch --flake .#default
 
-# OR for work machines (without personal apps)
-darwin-rebuild switch --flake .#work
+# For machines with a different username
+darwin-rebuild switch --flake ".#$(nix eval --impure --expr '(import ./flake.nix).mkConfig "your-username"')"
 
 # For minimal setup without Homebrew
-darwin-rebuild switch --flake .#default no-homebrew
+darwin-rebuild switch --flake .#minimal
+```
+
+You can customize configurations in the flake.nix file:
+
+```nix
+# Examples in flake.nix
+darwinConfigurations.work = mkDarwinConfig { username = "your-work-username"; };
+darwinConfigurations.work-minimal = mkDarwinConfig { username = "your-work-username"; enableHomebrew = false; };
+```
+
+Or use the provided helper functions:
+```bash
+# For custom username
+darwin-rebuild switch --flake ".#$(nix eval --impure --expr '(import ./flake.nix).mkConfig "your-username"')"
+
+# For custom username without Homebrew
+darwin-rebuild switch --flake ".#$(nix eval --impure --expr '(import ./flake.nix).mkMinimalConfig "your-username"')"
 ```
 
 ## Updating
@@ -40,11 +57,11 @@ After making changes to the configuration:
 # For personal configuration
 darwin-rebuild switch --flake .#default
 
+# For personal configuration without Homebrew
+darwin-rebuild switch --flake .#minimal
+
 # For work configuration
 darwin-rebuild switch --flake .#work
-
-# For minimal setup without Homebrew
-darwin-rebuild switch --flake .#default no-homebrew
 ```
 
 ## Rebuilding from URL
@@ -55,11 +72,11 @@ If you want to build directly from the GitHub repository:
 # For personal configuration
 darwin-rebuild switch --flake github:roshbhatia/sysinit#default
 
+# For personal configuration without Homebrew
+darwin-rebuild switch --flake github:roshbhatia/sysinit#minimal
+
 # For work configuration
 darwin-rebuild switch --flake github:roshbhatia/sysinit#work
-
-# For minimal setup without Homebrew
-darwin-rebuild switch --flake github:roshbhatia/sysinit#default no-homebrew
 ```
 
 ## Maintenance

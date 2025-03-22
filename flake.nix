@@ -18,14 +18,19 @@
   outputs = { self, nixpkgs, darwin, home-manager, ... }@inputs:
   let
     system = "aarch64-darwin"; # For Apple Silicon
-    # Hard-code the username since environment variables are not reliable during Nix evaluation
-    username = "rshnbhatia"; # Change this if needed for your system
-    homeDirectory = "/Users/${username}";
+    defaultUsername = "rshnbhatia";
     
     # Common darwin configuration function
-    mkDarwinConfig = {}: darwin.lib.darwinSystem {
+    mkDarwinConfig = { 
+      username ? defaultUsername,
+      enableHomebrew ? true
+    }: 
+    let
+      homeDirectory = "/Users/${username}";
+    in
+    darwin.lib.darwinSystem {
       inherit system;
-      specialArgs = { inherit inputs username homeDirectory; };
+      specialArgs = { inherit inputs username homeDirectory enableHomebrew; };
       modules = [
         ./modules/darwin/darwin.nix
         home-manager.darwinModules.home-manager {
@@ -48,15 +53,23 @@
     };
     
     # Simple bootstrap configuration for initial nix-darwin installation
-    bootstrapConfig = darwin.lib.darwinSystem {
+    bootstrapConfig = 
+    let
+      bootstrapUsername = defaultUsername;
+      bootstrapHomeDirectory = "/Users/${bootstrapUsername}";
+    in
+    darwin.lib.darwinSystem {
       inherit system;
-      specialArgs = { inherit username; };
+      specialArgs = { 
+        username = bootstrapUsername;
+        homeDirectory = bootstrapHomeDirectory;
+      };
       modules = [{
         # Minimal configuration
         system.stateVersion = 4;
         
         # Use dynamic user home directory
-        users.users.${username}.home = homeDirectory;
+        users.users.${bootstrapUsername}.home = bootstrapHomeDirectory;
         
         # Disable nix management for Determinate Nix compatibility
         nix.enable = false;
@@ -79,11 +92,18 @@
       }];
     };
   in {
-    # Default configuration
+    # Default configuration (personal, with Homebrew)
     darwinConfigurations.default = mkDarwinConfig {};
     
-    # We can create different configurations if needed in the future
-    # darwinConfigurations.work = mkDarwinConfig {};
+    # Default configuration without Homebrew
+    darwinConfigurations.minimal = mkDarwinConfig { enableHomebrew = false; };
+    
+    # Example of custom username configuration
+    darwinConfigurations.work = mkDarwinConfig { username = "your-work-username"; };
+    
+    # Functions to create configurations with custom parameters
+    mkConfig = username: mkDarwinConfig { inherit username; };
+    mkMinimalConfig = username: mkDarwinConfig { inherit username; enableHomebrew = false; };
     
     # Bootstrap configuration for initial setup
     darwinConfigurations.bootstrap = bootstrapConfig;
