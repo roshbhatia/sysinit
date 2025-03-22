@@ -1,5 +1,28 @@
 # SysInit
 
+```ascii
+          ▗▄▄▄       ▗▄▄▄▄    ▄▄▄▖
+          ▜███▙       ▜███▙  ▟███▛
+           ▜███▙       ▜███▙▟███▛
+            ▜███▙       ▜██████▛
+     ▟█████████████████▙ ▜████▛     ▟▙
+    ▟███████████████████▙ ▜███▙    ▟██▙
+           ▄▄▄▄▖           ▜███▙  ▟███▛
+          ▟███▛             ▜██▛ ▟███▛
+         ▟███▛               ▜▛ ▟███▛
+▟███████████▛                  ▟██████████▙
+▜██████████▛                  ▟███████████▛
+      ▟███▛ ▟▙               ▟███▛
+     ▟███▛ ▟██▙             ▟███▛
+    ▟███▛  ▜███▙           ▝▀▀▀▀
+    ▜██▛    ▜███▙ ▜██████████████████▛
+     ▜▛     ▟████▙ ▜████████████████▛
+           ▟██████▙       ▜███▙
+          ▟███▛▜███▙       ▜███▙
+         ▟███▛  ▜███▙       ▜███▙
+         ▝▀▀▀    ▀▀▀▀▘       ▀▀▀▘
+```
+
 A Nix flake-based system configuration for macOS, using nix-darwin and home-manager.
 
 ## Installation
@@ -41,6 +64,7 @@ darwinConfigurations.work-minimal = mkDarwinConfig { username = "your-work-usern
 ```
 
 Or use the provided helper functions:
+
 ```bash
 # For custom username
 darwin-rebuild switch --flake ".#$(nix eval --impure --expr '(import ./flake.nix).mkConfig "your-username"')"
@@ -123,11 +147,13 @@ find $HOME/.config -name "*.backup" -o -name "*.bak" -exec rm -f {} \;
 If you've deleted the `result` directory and need to reinstall:
 
 1. Use the `no-homebrew` flag to reinstall without Homebrew dependencies:
+
    ```bash
    darwin-rebuild switch --flake .#default no-homebrew
    ```
 
 2. This will reinstall all configuration files with the comment:
+
    ```
    # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
    ```
