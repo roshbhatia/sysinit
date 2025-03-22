@@ -78,9 +78,17 @@ for dump in $HOME/.zcompdump(N.mh+24); do
 done
 compinit -Ci
 
-# Load all utility modules from extras directory
+# Source logging library first (ensure it's available to all scripts)
+[ -f "$HOME/.config/zsh/loglib.sh" ] && source "$HOME/.config/zsh/loglib.sh"
+
+# Load loglib in extras first if it exists
+if [[ -f "$HOME/.config/zsh/extras/loglib.sh" ]]; then
+  source "$HOME/.config/zsh/extras/loglib.sh"
+fi
+
+# Then load all other utility modules from extras directory
 for module in $HOME/.config/zsh/extras/*.sh; do
-  if [[ -f "$module" ]]; then
+  if [[ -f "$module" && "$module" != "$HOME/.config/zsh/extras/loglib.sh" ]]; then
     source "$module"
   fi
 done
@@ -112,22 +120,6 @@ export FZF_DEFAULT_OPTS="
 
 # Source path configurations
 [ -f "$HOME/.config/zsh/paths.sh" ] && source "$HOME/.config/zsh/paths.sh"
-
-# GitHub username functions
-function ghwhoami() {
-  if command -v gh &> /dev/null; then
-    gh api user --jq '.login' 2>/dev/null || echo 'Not logged in'
-  else
-    echo 'gh not installed'
-  fi
-}
-
-function update_github_user() {
-  export GITHUB_USER=$(ghwhoami)
-}
-
-# Update GitHub user on shell startup
-update_github_user
 
 # Disable ctrl+s to freeze terminal
 stty stop undef

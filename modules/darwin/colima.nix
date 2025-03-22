@@ -11,10 +11,8 @@
       fi
       
       # Create symlink for Colima Docker socket
-      mkdir -p $HOME/.docker
-      if [ -S $HOME/.config/colima/default/docker.sock ]; then
-        ln -sf $HOME/.config/colima/default/docker.sock $HOME/.docker/docker.sock
-      fi
+      ln -sf $HOME/.colima/default/docker.sock $HOME/.config/colima/default/docker.sock
+      sudo ln -sf $HOME/.colima/default/docker.sock /var/run/docker.sock
     '';
   };
 }

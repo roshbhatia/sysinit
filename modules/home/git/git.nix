@@ -12,6 +12,7 @@
       push.autoSetupRemote = true;
       fetch.prune = true;
       core.editor = "code --wait";
+      core.excludesFile = "~/.gitignore.global";
       credential.helper = "store";
       credential.username = "roshbhatia";
       github.user = "roshbhatia";
@@ -47,5 +48,9 @@
   
   home.file.".gitconfig.personal" = {
     source = ./gitconfig.personal;
+  };
+  
+  home.file.".gitignore.global" = {
+    source = ./gitignore.global;
   };
 }

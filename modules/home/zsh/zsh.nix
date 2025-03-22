@@ -27,7 +27,6 @@
       "~" = "cd ~";
       
       tf = "terraform";
-      vim = "nvim";
       y = "yazi";
       
       kubectl = "kubecolor";
@@ -59,12 +58,21 @@
   };
   
   xdg.configFile = {
+    # Core files
     "zsh/base.sh".source = ./base.sh;
     "zsh/paths.sh".source = ./paths.sh;
+    "zsh/loglib.sh".source = ./loglib.sh;
+    
+    # Make loglib available in extras directory too
+    "zsh/extras/loglib.sh".source = ./loglib.sh;
+    
+    # Other extras
     "zsh/extras/kfzf.sh".source = ./kfzf.sh;
     "zsh/extras/kfwd.sh".source = ./kfwd.sh;
     "zsh/extras/kellog.sh".source = ./kellog.sh;
     "zsh/extras/crepo.sh".source = ./crepo.sh;
+    "zsh/extras/github.sh".source = ./github.sh;
+    "zsh/extras/devenv.sh".source = ./devenv.sh;
     "zsh/extras/zshutils.zsh".source = ./zshutils.zsh;
   };
 }

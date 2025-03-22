@@ -8,14 +8,14 @@ let
     hide_ascii = false;
     spacing = 1;
     padding = 0;
-    separator = "";
+    separator = "|";
     
     bar = {
-      glyph = " ";
+      glyph = "~";
       symbol_open = "(";
       symbol_close = ")";
       hide_delimiters = false;
-      visible = false;
+      visible = true;
     };
     
     box = {
@@ -34,14 +34,6 @@ let
     
     palette = {
       visible = false;
-    };
-    
-    keys = {
-      host = " host";
-      kernel = "󰌽 kernel";
-      shell = " shell";
-      packages = " packages";
-      machine = "󰇅 machine";
     };
   };
   

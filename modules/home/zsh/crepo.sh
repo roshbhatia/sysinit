@@ -14,33 +14,71 @@
 #                       888              
 #                       888
 
+# Ensure logging library is loaded
+[ -f "$HOME/.config/zsh/loglib.sh" ] && source "$HOME/.config/zsh/loglib.sh"
+
 # crepo - Navigate git repositories
 function crepo() {
     REPO_BASE=~/github
 
     function list_repos() {
+        log_debug "Listing repositories" base_dir="$REPO_BASE"
         repos=$(find "$REPO_BASE" -mindepth 2 -maxdepth 2 -type d ! -name ".*" | sort)
         selected_repo=$(echo "$repos" | while read -r repo; do
             org=$(basename "$(dirname "$repo")")
             name=$(basename "$repo")
-            echo -e "$name ($org)"
-        done | fzf --ansi --height=20)
+            # Store the full path as hidden data that can be parsed later
+            echo -e "$name ($org)\t$repo"
+        done | column -t -s $'\t' | fzf --ansi --height=20)
 
         if [[ -n "$selected_repo" ]]; then
-            repo_name=$(echo "$selected_repo" | awk '{print $1}')
-            change_dir "$repo_name"
+            # Extract the full path from the selected entry
+            target_path=$(echo "$selected_repo" | awk '{print $NF}')
+            if [[ -d "$target_path" ]]; then
+                log_debug "Selected repository" path="$target_path"
+                pushd "$target_path" || return
+                log_success "Changed directory to repository" path="$target_path" org="$(basename "$(dirname "$target_path")")" repo="$(basename "$target_path")"
+            else
+                log_error "Selected directory does not exist" path="$target_path"
+            fi
+        else
+            log_debug "No repository selected"
         fi
     }
 
     function change_dir() {
         target_repo=$1
+        # If an exact repo name is provided, check if there are multiple matches
+        log_debug "Searching for repository" name="$target_repo" base_dir="$REPO_BASE"
         repos=$(find "$REPO_BASE" -mindepth 2 -maxdepth 2 -type d -name "$target_repo" ! -name ".*")
-        target_path=$(echo "$repos" | head -n 1)
+        repo_count=$(echo "$repos" | wc -l | tr -d ' ')
+        
+        if [[ "$repo_count" -gt 1 ]]; then
+            log_info "Multiple repositories found with the same name" count="$repo_count" name="$target_repo"
+            # Multiple repos with the same name found - let the user choose
+            selected_repo=$(echo "$repos" | while read -r repo; do
+                org=$(basename "$(dirname "$repo")")
+                name=$(basename "$repo")
+                echo -e "$name ($org)\t$repo"
+            done | column -t -s $'\t' | fzf --ansi --height=20)
+            
+            if [[ -n "$selected_repo" ]]; then
+                target_path=$(echo "$selected_repo" | awk '{print $NF}')
+                log_debug "User selected repository" path="$target_path"
+            else
+                log_warn "Selection cancelled by user"
+                return
+            fi
+        else
+            target_path=$(echo "$repos" | head -n 1)
+            log_debug "Single repository match found" path="$target_path"
+        fi
+        
         if [[ -d "$target_path" ]]; then
             pushd "$target_path" || return
-            echo "Changed directory to $target_path"
+            log_success "Changed directory to repository" path="$target_path" org="$(basename "$(dirname "$target_path")")" repo="$(basename "$target_path")"
         else
-            echo "Repository $target_repo not found."
+            log_error "Repository not found" name="$target_repo"
         fi
     }
 
@@ -71,6 +109,7 @@ function crepo() {
             ;;
         d|cd)
             if [[ -z "$2" ]]; then
+                log_error "Missing repository name"
                 echo "Please provide a repository name."
             else
                 change_dir "$2"
