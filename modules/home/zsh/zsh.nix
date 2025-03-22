@@ -60,6 +60,7 @@
   
   xdg.configFile = {
     "zsh/base.sh".source = ./base.sh;
+    "zsh/paths.sh".source = ./paths.sh;
     "zsh/extras/kfzf.sh".source = ./kfzf.sh;
     "zsh/extras/kfwd.sh".source = ./kfwd.sh;
     "zsh/extras/kellog.sh".source = ./kellog.sh;

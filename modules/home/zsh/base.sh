@@ -15,17 +15,12 @@
 unset MAILCHECK
 export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
-export XDG_CONFIG_HOME=$HOME/.config
 export ZSH_DISABLE_COMPFIX="true"
 
-# Set editor
-export EDITOR="code --wait"
 
-# Load essential plugins and completions first
 if [ -f "/opt/homebrew/bin/brew" ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
   
-  # Load completions first
   if command -v kubectl &> /dev/null; then
     _evalcache kubectl completion zsh
   fi
@@ -70,6 +65,9 @@ fi
 
 # Initialize completions before aliases
 autoload -Uz compinit
+# shellcheck disable=SC1036
+# shellcheck disable=SC1058
+# shellcheck disable=SC1072
 for dump in $HOME/.zcompdump(N.mh+24); do
   compinit -Ci
 done
@@ -107,30 +105,8 @@ export FZF_DEFAULT_OPTS="
   --inline-info
 "
 
-# Path settings
-# Rust
-[ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
-export PATH="$HOME/.cargo/bin:$PATH"
-
-# Node.js
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-
-# Python
-export PATH="/usr/local/opt/cython/bin:$PATH"
-export PATH="$PATH:$HOME/.local/bin"
-
-# Ruby
-export PATH="$HOME/.rvm/bin:$PATH"
-
-# Go
-export PATH="$HOME/.govm/shim:$PATH"
-if command -v go &> /dev/null; then
-  export PATH="$PATH:$(go env GOPATH)/bin"
-fi
-
-# Kubernetes
-export PATH="$HOME/.krew/bin:$PATH"
-export PATH="$HOME/bin:$PATH"
+# Source path configurations
+[ -f "$HOME/.config/zsh/paths.sh" ] && source "$HOME/.config/zsh/paths.sh"
 
 # GitHub username functions
 function ghwhoami() {

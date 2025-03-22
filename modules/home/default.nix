@@ -1,4 +1,4 @@
-{ config, pkgs, lib, inputs, username, homeDirectory ? "/Users/rshnbhatia", ... }: {
+{ config, pkgs, lib, inputs, username, homeDirectory, ... }: {
   imports = [
     ./atuin/atuin.nix
     ./colima/colima.nix
@@ -15,13 +15,27 @@
   # Home Manager needs a bit of information about you and the paths it should manage
   home = {
     # Values passed from flake.nix will override these defaults
-    username = username  ? ${builtins.getEnv "USER"};
+    username = username;
     homeDirectory = homeDirectory;
     
     # This value determines the Home Manager release that your configuration is
     # compatible with. This helps avoid breakage when a new Home Manager release
     # introduces backwards incompatible changes.
     stateVersion = "23.11";
+    
+    # Set PATH environment variables
+    sessionVariables = {
+      # Append all the required PATH directories
+      PATH = "$HOME/.cargo/bin:$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:/usr/local/opt/cython/bin:$HOME/.local/bin:$HOME/.rvm/bin:$HOME/.govm/shim:$HOME/.krew/bin:$HOME/bin:$PATH";
+    };
+  };
+  
+  # Set XDG directories
+  xdg = {
+    enable = true;
+    configHome = "${homeDirectory}/.config";
+    dataHome = "${homeDirectory}/.local/share";
+    cacheHome = "${homeDirectory}/.cache";
   };
   
   # Handle brewing completions through standard home-manager

@@ -1,14 +1,9 @@
-{ pkgs, lib, config, ... }:
+{ pkgs, lib, config, enableHomebrew ? true, ... }:
 
-let
-  # Check for no-homebrew argument
-  homebrewArg = builtins.getEnv "SYSINIT_NO_HOMEBREW";
-  skipHomebrew = homebrewArg == "1";
-in
 {
-  # If SYSINIT_NO_HOMEBREW is set to 1, disable Homebrew to skip installation
+  # Homebrew configuration with optional enabling
   homebrew = {
-    enable = !skipHomebrew;
+    enable = enableHomebrew;
     onActivation = {
       autoUpdate = true;
       upgrade = true;
