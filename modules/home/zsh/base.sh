@@ -17,6 +17,11 @@ export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export ZSH_DISABLE_COMPFIX="true"
 
+# Key bindings
+bindkey "^[[1;7C" forward-word
+bindkey "^[[1;7D" backward-word
+bindkey "^[[1;7B" beginning-of-line
+bindkey "^[[1;7A" end-of-line
 
 if [ -f "/opt/homebrew/bin/brew" ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -145,8 +150,11 @@ fi
 [ -f ~/.zshextras ] && source ~/.zshextras
 [ -f ~/.zshutils ] && source ~/.zshutils
 
-# Key bindings
-bindkey "^[[1;7C" forward-word
-bindkey "^[[1;7D" backward-word
-bindkey "^[[1;7B" beginning-of-line
-bindkey "^[[1;7A" end-of-line
+# Run macchina in WezTerm's main pane
+if [ "$WEZTERM_PANE" = "0" ]; then
+  if [ -n "$MACCHINA_THEME" ]; then
+    macchina --theme "$MACCHINA_THEME"
+  else
+    macchina --theme rosh
+  fi
+fi

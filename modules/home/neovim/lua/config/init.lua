@@ -50,13 +50,6 @@ require('lazy').setup({
             vim.o.timeoutlen = 300
         end
     }, 'windwp/nvim-autopairs', -- Auto pairing brackets
-    {
-        'lukas-reineke/indent-blankline.nvim',
-        main = 'ibl',
-        ---@module "ibl"
-        ---@type ibl.config
-        opts = {}
-    }, -- Indent guide lines
     'terrortylor/nvim-comment', -- Easy commenting
     {
         'akinsho/toggleterm.nvim', -- Better terminal
@@ -131,10 +124,6 @@ require('nvim-autopairs').setup({})
 require('nvim_comment').setup()
 require('symbols-outline').setup()
 require('trouble').setup()
-require('indent_blankline').setup({
-    show_current_context = true,
-    show_current_context_start = true
-})
 require('toggleterm').setup({open_mapping = [[<c-\>]], direction = 'float'})
 
 -- Kubectl setup
