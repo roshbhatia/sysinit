@@ -1,4 +1,14 @@
-{ config, lib, pkgs, username, ... }:
+{ config, lib, pkgs, ... }:
+# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
+
+#                888d8b                      
+#                888Y8P                      
+#                888                         
+# .d8888b .d88b. 88888888888b.d88b.  8888b.  
+# d88P"   d88""88b888888888 "888 "88b    "88b 
+# 888     888  888888888888  888  888.d888888 
+# Y88b.   Y88..88P888888888  888  888888  888 
+#  "Y8888P "Y88P" 888888888  888  888"Y888888
 
 let
   colimaConfig = {
@@ -42,23 +52,8 @@ let
   colimaYaml = pkgs.writeText "colima.yaml" (lib.generators.toYAML {} colimaConfig);
 in
 {
-  home-manager.users.${username}.home.file = {
+  # Colima configuration file
+  home.file = {
     ".config/colima/default/colima.yaml".source = colimaYaml;
   };
-
-  # Add the Colima service configuration to activationScripts
-  system.activationScripts.colima.text = ''
-    # Set up Colima to respect XDG_CONFIG_HOME
-    COLIMA_SERVICE="/opt/homebrew/Cellar/colima/*/homebrew.colima.service"
-    if [ -f $COLIMA_SERVICE ]; then
-      echo "Configuring Colima service to respect XDG_CONFIG_HOME..."
-      sed -i.bak '/^Environment="PATH=/a\\Environment="XDG_CONFIG_HOME=~/.config"\n\\Environment="COLIMA_HOME=~/.config/colima/.colima"' $COLIMA_SERVICE
-    fi
-    
-    # Create symlink for Colima Docker socket
-    mkdir -p $HOME/.docker
-    if [ -S $HOME/.config/colima/default/docker.sock ]; then
-      ln -sf $HOME/.config/colima/default/docker.sock $HOME/.docker/docker.sock
-    fi
-  '';
 }
