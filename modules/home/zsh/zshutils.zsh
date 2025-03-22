@@ -11,10 +11,8 @@
 #  d88P        X88888  888Y88b 888Y88b. 888888     X88 
 # 88888888 88888P'888  888 "Y88888 "Y888888888 88888P'
 
-# Load all utility scripts from the extras directory
 ZSH_UTILS_DIR="$HOME/.config/zsh/extras"
 
-# Show help for zshutils
 function zshutils_help() {
   echo "                888             888   d8b888         "
   echo "                888             888   Y8P888         "

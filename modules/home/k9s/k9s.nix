@@ -1,7 +1,6 @@
 { config, lib, pkgs, ... }:
 
 let
-  # K9s config
   k9sConfig = {
     k9s = {
       liveViewAutoRefresh = true;
@@ -42,7 +41,6 @@ let
     };
   };
 
-  # K9s aliases
   k9sAliases = {
     aliases = {
       dp = "deployments";
@@ -60,7 +58,6 @@ let
     };
   };
 
-  # K9s plugins
   k9sPlugins = {
     plugins = {
       "xplane-beta-trace" = {
@@ -124,7 +121,6 @@ let
     };
   };
 in {
-  # K9s configuration
   xdg.configFile = {
     "k9s/config.yaml" = {
       text = lib.generators.toYAML {} k9sConfig;

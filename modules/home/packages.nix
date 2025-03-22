@@ -1,28 +1,23 @@
 { pkgs, lib, ... }: {
-  # Let Nix properly manage core packages across various language ecosystems
+  # Anything installed here and not in modules/darwin is platform-agnostic
   home.packages = with pkgs; [
-    # Core CLI utilities
     bat
     eza 
     fd
     ripgrep
     jq
     
-    # Languages & Runtimes
     python311
     nodejs
     go
     
-    # Development tools
     git
-    gh  # GitHub CLI
+    gh
     gnupg
     openssh
     
-    # Core development packages
     nodePackages.typescript
     
-    # Go packages
     gopls
   ];
 }

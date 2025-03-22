@@ -1,6 +1,5 @@
 { config, lib, pkgs, ... }:
 {
-  # Add the Colima service configuration to activationScripts
   system.activationScripts.colima = {
     enable = true;
     text = ''

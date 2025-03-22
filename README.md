@@ -27,6 +27,9 @@ darwin-rebuild switch --flake .#default
 
 # OR for work machines (without personal apps)
 darwin-rebuild switch --flake .#work
+
+# For minimal setup without Homebrew
+darwin-rebuild switch --flake .#default no-homebrew
 ```
 
 ## Updating
@@ -39,6 +42,9 @@ darwin-rebuild switch --flake .#default
 
 # For work configuration
 darwin-rebuild switch --flake .#work
+
+# For minimal setup without Homebrew
+darwin-rebuild switch --flake .#default no-homebrew
 ```
 
 ## Rebuilding from URL
@@ -51,6 +57,9 @@ darwin-rebuild switch --flake github:roshbhatia/sysinit#default
 
 # For work configuration
 darwin-rebuild switch --flake github:roshbhatia/sysinit#work
+
+# For minimal setup without Homebrew
+darwin-rebuild switch --flake github:roshbhatia/sysinit#default no-homebrew
 ```
 
 ## Maintenance
@@ -91,3 +100,17 @@ rm -f $HOME/.*.backup* $HOME/.*.bak
 # Remove XDG config backup files
 find $HOME/.config -name "*.backup" -o -name "*.bak" -exec rm -f {} \;
 ```
+
+### Reinstalling After Deleting 'result' Directory
+
+If you've deleted the `result` directory and need to reinstall:
+
+1. Use the `no-homebrew` flag to reinstall without Homebrew dependencies:
+   ```bash
+   darwin-rebuild switch --flake .#default no-homebrew
+   ```
+
+2. This will reinstall all configuration files with the comment:
+   ```
+   # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
+   ```

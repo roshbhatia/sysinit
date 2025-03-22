@@ -1,4 +1,4 @@
-{ config, pkgs, lib, inputs, username ? "rshnbhatia", homeDirectory ? "/Users/rshnbhatia", ... }: {
+{ config, pkgs, lib, inputs, username, homeDirectory ? "/Users/rshnbhatia", ... }: {
   imports = [
     ./atuin/atuin.nix
     ./colima/colima.nix
@@ -15,7 +15,7 @@
   # Home Manager needs a bit of information about you and the paths it should manage
   home = {
     # Values passed from flake.nix will override these defaults
-    username = username;
+    username = username  ? ${builtins.getEnv "USER"};
     homeDirectory = homeDirectory;
     
     # This value determines the Home Manager release that your configuration is
