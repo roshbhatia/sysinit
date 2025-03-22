@@ -1,7 +1,7 @@
 { config, pkgs, lib, inputs, username ? "rshnbhatia", homeDirectory ? "/Users/rshnbhatia", ... }: {
-  # Import packages and program configurations
   imports = [
     ./atuin/atuin.nix
+    ./colima/colima.nix
     ./git/git.nix
     ./k9s/k9s.nix
     ./macchina/macchina.nix

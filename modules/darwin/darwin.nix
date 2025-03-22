@@ -2,6 +2,5 @@
   imports = [
     ./system.nix
     ./homebrew.nix
-    ./colima.nix
   ];
 }

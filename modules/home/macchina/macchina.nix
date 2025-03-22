@@ -10,9 +10,5 @@
     "macchina/themes/rosh.ascii" = {
       source = ./rosh.ascii;
     };
-    
-    "macchina/macchina.toml" = {
-      source = ./macchina.toml;
-    };
   };
 }
