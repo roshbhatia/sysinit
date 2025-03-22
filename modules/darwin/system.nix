@@ -60,10 +60,16 @@ in {
   system.activationScripts.postUserActivation.text = ''  
     /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
     
-    # Set wallpaper with better error handling
+    # Set wallpaper with simple osascript approach
     echo "Setting desktop wallpaper..."
     if [ -f "${wallpaperPath}" ]; then
-      /usr/bin/sqlite3 ~/Library/Application\ Support/Dock/desktoppicture.db "update data set value = '${wallpaperPath}'" && killall Dock
+      /usr/bin/osascript <<EOF
+        tell application "System Events"
+          tell every desktop
+            set picture to "${wallpaperPath}"
+          end tell
+        end tell
+EOF
       echo "Wallpaper set successfully!"
     else
       echo "Wallpaper file not found: ${wallpaperPath}"
