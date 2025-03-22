@@ -1,4 +1,8 @@
-{ pkgs, lib, username, homeDirectory, ... }: {
+{ pkgs, lib, username, homeDirectory, ... }:
+
+let
+  wallpaperPath = toString ../../../wall/mvp2.jpg;
+in {
   environment.variables.EDITOR = "code --wait";
 
   system = {
@@ -27,6 +31,7 @@
         _FXShowPosixPathInTitle = true; # Use proper option name
       };
       LaunchServices.LSQuarantine = false;
+      wallpaper.file = wallpaperPath;
     };
 
     # Required for nix-darwin
