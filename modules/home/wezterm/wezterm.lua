@@ -1,3 +1,14 @@
+-- THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
+
+--                             888                                
+--                             888                                
+--                             888                                
+-- 888  888  888 .d88b. 88888888888888 .d88b. 888d88888888b.d88b.  
+-- 888  888  888d8P  Y8b   d88P 888   d8P  Y8b888P"  888 "888 "88b 
+-- 888  888  88888888888  d88P  888   88888888888    888  888  888 
+-- Y88b 888 d88PY8b.     d88P   Y88b. Y8b.    888    888  888  888 
+--  "Y8888888P"  "Y8888 88888888 "Y888 "Y8888 888    888  888  888
+
 local wezterm = require('wezterm')
 local act = wezterm.action
 local config = wezterm.config_builder()

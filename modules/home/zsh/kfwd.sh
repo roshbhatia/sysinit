@@ -1,5 +1,15 @@
 #!/usr/bin/env zsh
+# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
+
+# 888      .d888                  888 
+# 888     d88P"                   888 
+# 888     888                     888 
+# 888  888888888888  888  888 .d88888 
+# 888 .88P888   888  888  888d88" 888 
+# 888888K 888   888  888  888888  888 
+# 888 "88b888   Y88b 888 d88PY88b 888 
+# 888  888888    "Y8888888P"  "Y88888
 
 # kfwd - Forward k8s service ports
 function kfwd() {
@@ -81,6 +91,15 @@ function kfwd() {
     }
 
     function show_help() {
+        echo "888      .d888                  888 "
+        echo "888     d88P\"                   888 "
+        echo "888     888                     888 "
+        echo "888  888888888888  888  888 .d88888 "
+        echo "888 .88P888   888  888  888d88\" 888 "
+        echo "888888K 888   888  888  888888  888 "
+        echo "888 \"88b888   Y88b 888 d88PY88b 888 "
+        echo "888  888888    \"Y8888888P\"  \"Y88888 "
+        echo
         echo "Usage: kfwd {list|l|f|forward|h|help} [OPTIONS]"
         echo
         echo "Commands:"

@@ -1,4 +1,7 @@
 { pkgs, lib, ... }: {
+  # Default editor configuration
+  environment.variables.EDITOR = "code --wait";
+
   system = {
     defaults = {
       NSGlobalDomain = {
