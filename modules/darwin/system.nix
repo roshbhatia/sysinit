@@ -27,7 +27,6 @@
         _FXShowPosixPathInTitle = true; # Use proper option name
       };
       LaunchServices.LSQuarantine = false;
-      desktopPicture = ../../../wall/mvp2.jpg;
     };
 
     # Required for nix-darwin
