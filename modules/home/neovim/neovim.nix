@@ -1,10 +1,10 @@
 { config, lib, pkgs, ... }:
 
 {
-  # Neovim configuration
   programs.neovim = {
     enable = true;
-    defaultEditor = true;
+    # This is set in modules/darwin/system.nix to be VsCode
+    defaultEditor = false;
     viAlias = true;
     vimAlias = true;
     

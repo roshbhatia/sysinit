@@ -1,7 +1,6 @@
 { config, lib, pkgs, ... }:
 
 {
-  # Git configuration
   programs.git = {
     enable = true;
     userName = lib.mkDefault "Roshan Bhatia";
@@ -46,7 +45,6 @@
     };
   };
   
-  # Create personal gitconfig
   home.file.".gitconfig.personal" = {
     source = ./gitconfig.personal;
   };
