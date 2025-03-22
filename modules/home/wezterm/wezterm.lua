@@ -1,5 +1,4 @@
 -- THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
-
 --                             888                                
 --                             888                                
 --                             888                                
@@ -8,7 +7,6 @@
 -- 888  888  88888888888  d88P  888   88888888888    888  888  888 
 -- Y88b 888 d88PY8b.     d88P   Y88b. Y8b.    888    888  888  888 
 --  "Y8888888P"  "Y8888 88888888 "Y888 "Y8888 888    888  888  888
-
 local wezterm = require('wezterm')
 local act = wezterm.action
 local config = wezterm.config_builder()
@@ -36,18 +34,6 @@ config.color_scheme = "Apple System Colors"
 config.window_decorations = 'RESIZE|INTEGRATED_BUTTONS'
 config.window_background_opacity = 0.8
 config.macos_window_background_blur = 20
-
--- Run macchina with rosh theme on startup and when creating new tabs
--- Event handler for when a new pane is created
-wezterm.on('pane-created', function(window, pane)
-  -- Check if this is the first pane in the tab (WEZTERM_PANE=0)
-  if pane:pane_id() == 0 then
-    -- Use a slight delay to ensure the shell is ready
-    window:set_timeout(100, function()
-      pane:send_text('macchina --theme rosh\n')
-    end)
-  end
-end)
 
 -- Font configuration
 config.font = wezterm.font_with_fallback {{
@@ -160,5 +146,10 @@ config.keys = { -- Word navigation
     mods = 'CMD|SHIFT',
     action = act.ActivatePaneDirection 'Down'
 }}
+
+wezterm.on("gui-startup", function()
+    local tab, pane, window = wezterm.mux.spawn_window {}
+    window:gui_window():maximize()
+end)
 
 return config
