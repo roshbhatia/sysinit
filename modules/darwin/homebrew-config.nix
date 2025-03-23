@@ -8,9 +8,13 @@
       autoUpdate = true;
       upgrade = true;
       cleanup = "zap";
+      # Explicitly run install on activation
+      install = true;
     };
     global = {
       brewfile = true;
+      # Auto-update Brewfile
+      autoUpdate = true;
     };
     
     taps = [
@@ -43,5 +47,8 @@
       "visual-studio-code@insiders"
       "wezterm"
     ];
+    
+    # Make Homebrew install packages directly in darwin-rebuild
+    masApps = {};
   };
 }

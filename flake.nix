@@ -46,24 +46,45 @@
       inherit system;
       specialArgs = { inherit inputs username homeDirectory enableHomebrew; };
       modules = [
+        # Main system configuration
         ./modules/darwin/darwin.nix
+        
+        # Home Manager configuration
         home-manager.darwinModules.home-manager {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.extraSpecialArgs = { inherit inputs username homeDirectory; };
-          # Set backup file extension to backup existing files automatically
-          home-manager.backupFileExtension = "backup";
-          home-manager.users.${username} = { pkgs, ... }: {
-            imports = [ ./modules/home ];
-            # These settings override any null values from imported modules
-            home.username = pkgs.lib.mkForce username;
-            home.homeDirectory = pkgs.lib.mkForce homeDirectory;
-            
-            # Remove warning about overlays with useGlobalPkgs
-            nixpkgs = {};
+          home-manager = {
+            useGlobalPkgs = true;
+            useUserPackages = true;
+            extraSpecialArgs = { inherit inputs username homeDirectory; };
+            backupFileExtension = "backup";
+            users.${username} = { pkgs, ... }: {
+              imports = [ ./modules/home ];
+              home.username = pkgs.lib.mkForce username;
+              home.homeDirectory = pkgs.lib.mkForce homeDirectory;
+              nixpkgs = {};
+            };
           };
         }
       ];
+    };
+    
+    # Helper module for including in other flakes
+    darwinModules = {
+      default = { username, homeDirectory ? "/Users/${username}", enableHomebrew ? true, ... }: {
+        imports = [
+          ./modules/darwin/darwin.nix
+        ];
+        
+        # Pass the required parameters
+        _module.args = {
+          inherit username homeDirectory enableHomebrew inputs;
+        };
+      };
+      
+      home = { username, homeDirectory ? "/Users/${username}", ... }: {
+        imports = [ ./modules/home ];
+        home.username = username;
+        home.homeDirectory = homeDirectory;
+      };
     };
     
     # Simple bootstrap configuration for initial nix-darwin installation
@@ -81,45 +102,41 @@
       modules = [{
         # Minimal configuration
         system.stateVersion = 4;
-        
-        # Use dynamic user home directory
         users.users.${bootstrapUsername}.home = bootstrapHomeDirectory;
-        
-        # Disable nix management for Determinate Nix compatibility
         nix.enable = false;
-        
-        # Nix configuration
         nix.settings.experimental-features = [ "nix-command" "flakes" ];
-        
-        # Basic packages
         environment.systemPackages = with nixpkgs.legacyPackages.${system}; [
           git
           curl
         ];
-        
-        # MacOS configuration
         system.defaults.NSGlobalDomain.AppleShowAllExtensions = true;
         system.defaults.finder.AppleShowAllExtensions = true;
-        
-        # Touch ID for sudo
         security.pam.services.sudo_local.touchIdAuth = true;
       }];
     };
   in {
-    # Default configuration (personal, with Homebrew)
-    darwinConfigurations.default = mkDarwinConfig {};
+    # Named configurations
+    darwinConfigurations = {
+      # Main configuration for personal setup
+      default = mkDarwinConfig {};
+      
+      # Minimal configuration without Homebrew
+      minimal = mkDarwinConfig { enableHomebrew = false; };
+      
+      # Example work configuration
+      work = mkDarwinConfig { username = "your-work-username"; };
+      
+      # Bootstrap configuration for initial setup
+      bootstrap = bootstrapConfig;
+    };
     
-    # Default configuration without Homebrew
-    darwinConfigurations.minimal = mkDarwinConfig { enableHomebrew = false; };
+    # Helper functions for creating configurations dynamically
+    lib = {
+      mkConfig = username: mkDarwinConfig { inherit username; };
+      mkMinimalConfig = username: mkDarwinConfig { inherit username; enableHomebrew = false; };
+    };
     
-    # Example of custom username configuration
-    darwinConfigurations.work = mkDarwinConfig { username = "your-work-username"; };
-    
-    # Functions to create configurations with custom parameters
-    mkConfig = username: mkDarwinConfig { inherit username; };
-    mkMinimalConfig = username: mkDarwinConfig { inherit username; enableHomebrew = false; };
-    
-    # Bootstrap configuration for initial setup
-    darwinConfigurations.bootstrap = bootstrapConfig;
+    # Modules for use in other flakes
+    inherit darwinModules;
   };
 }
