@@ -1,5 +1,15 @@
 {
   description = "Roshan's OSX DevEnv System Config";
+  
+  # Add GitHub API token if available
+  nixConfig = {
+    extra-substituters = [
+      "https://cache.nixos.org/"
+    ];
+    extra-trusted-public-keys = [
+      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+    ];
+  };
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";

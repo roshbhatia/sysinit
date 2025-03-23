@@ -19,18 +19,10 @@
     # Auto-migrate existing Homebrew installations
     autoMigrate = true;
     
-    # Declarative tap management
-    taps = {
-      "homebrew/homebrew-core" = inputs.homebrew-core;
-      "homebrew/homebrew-cask" = inputs.homebrew-cask;
-      "homebrew/bundle" = null;
-      "homebrew/cask-fonts" = null;
-      "homebrew/services" = null;
-      "noahgorstein/tap" = null;
-      "nikitabobko/tap" = null;
-    };
+    # Skip declarative tap management for now
+    # to avoid GitHub API rate limits
     
-    # Allow mutable taps for maximum flexibility
+    # Keep taps fully mutable
     mutableTaps = true;
   };
 }
