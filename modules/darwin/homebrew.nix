@@ -14,16 +14,16 @@
     };
     
     taps = [
-      "homebrew/core"
       "homebrew/bundle"
-      "homebrew/cask"
-      "homebrew/services"
       "homebrew/cask-fonts"
+      "homebrew/cask"
+      "homebrew/core"
+      "homebrew/services"
       "noahgorstein/tap"
+      "nikitabobko/tap"
     ];
     
     brews = [
-      "jordanbaird-ice"
       "atuin"
       "awscli"
       "bat"
@@ -40,6 +40,7 @@
       "helm"
       "htop"
       "imagemagick"
+      "jordanbaird-ice"
       "jq"
       "jqp"
       "k9s"
@@ -60,31 +61,26 @@
       "yazi"
       "yq"
       "zoxide"
-      "zsh"
       "zsh-autocomplete"
       "zsh-autosuggestions"
       "zsh-history-substring-search"
       "zsh-syntax-highlighting"
+      "zsh"
     ];
     
     casks = [
-      "wezterm"
+      "1password-cli"
+      "discord"
+      "docker"
+      "firefox"
       "font-hack-nerd-font"
       "font-symbols-only-nerd-font"
-      "docker"
-      "postman"
-      "firefox"
-      "slack"
-      "rectangle"
-      "1password-cli"
-      "visual-studio-code-insiders"
+      "aerospace"
       "obsidian"
-      "notion"
-      "tailscale"
-      "the-unarchiver"
-      "transmission"
-      "soulseek"
-      "discord"
+      "postman"
+      "slack"
+      "visual-studio-code-insiders"
+      "wezterm"
     ];
   };
 }
