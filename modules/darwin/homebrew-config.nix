@@ -8,13 +8,10 @@
       autoUpdate = true;
       upgrade = true;
       cleanup = "zap";
-      # Explicitly run install on activation
-      install = true;
     };
     global = {
       brewfile = true;
-      # Auto-update Brewfile
-      autoUpdate = true;
+      noLock = false;
     };
     
     taps = [
@@ -47,8 +44,19 @@
       "visual-studio-code@insiders"
       "wezterm"
     ];
-    
-    # Make Homebrew install packages directly in darwin-rebuild
-    masApps = {};
   };
+  
+  # Add activation script to force Homebrew to install packages
+  system.activationScripts.extraActivation.text = ''
+    echo "Running additional homebrew installations..."
+    if [ -f /opt/homebrew/bin/brew ]; then
+      PATH=$PATH:/opt/homebrew/bin
+      # Force brew to install packages listed above
+      brew bundle --no-lock --file=/dev/stdin <<EOF
+      ${lib.concatStrings (map (tap: "tap \"${tap}\"\n") config.homebrew.taps)}
+      ${lib.concatStrings (map (brew: "brew \"${brew}\"\n") config.homebrew.brews)}
+      ${lib.concatStrings (map (cask: "cask \"${cask}\"\n") config.homebrew.casks)}
+      EOF
+    fi
+  '';
 }

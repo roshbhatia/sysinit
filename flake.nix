@@ -120,6 +120,9 @@
       # Main configuration for personal setup
       default = mkDarwinConfig {};
       
+      # Also set as hostname-based configuration for simplified commands
+      "${builtins.readFile "/etc/hostname" or "MacBook-Pro"}" = mkDarwinConfig {};
+      
       # Minimal configuration without Homebrew
       minimal = mkDarwinConfig { enableHomebrew = false; };
       
