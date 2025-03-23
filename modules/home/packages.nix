@@ -14,7 +14,7 @@
     fzf
     gh
     go
-    grep
+    gnugrep
     helm
     htop
     imagemagick
