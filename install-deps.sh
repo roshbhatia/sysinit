@@ -94,14 +94,34 @@ else
     log_success "Nix already installed"
 fi
 
-log_info "Step 3: Enabling Nix Flakes"
+log_info "Step 3: Enabling Nix Flakes and Setting Permissions"
 mkdir -p ~/.config/nix
 FLAKES_CONFIG="experimental-features = nix-command flakes"
+TRUSTED_USERS="trusted-users = root $(whoami)"
+USE_CASE_SENSITIVE="use-case-sensitive-fs = false"
+
+# Add flakes configuration if not present
 if ! grep -q "$FLAKES_CONFIG" ~/.config/nix/nix.conf 2>/dev/null; then
     echo "$FLAKES_CONFIG" >> ~/.config/nix/nix.conf
     log_success "Nix Flakes enabled"
 else
     log_success "Nix Flakes already enabled"
+fi
+
+# Add trusted users if not present
+if ! grep -q "trusted-users" ~/.config/nix/nix.conf 2>/dev/null; then
+    echo "$TRUSTED_USERS" >> ~/.config/nix/nix.conf
+    log_success "Trusted users configured"
+else
+    log_success "Trusted users already configured"
+fi
+
+# Add case sensitivity fix if not present
+if ! grep -q "use-case-sensitive-fs" ~/.config/nix/nix.conf 2>/dev/null; then
+    echo "$USE_CASE_SENSITIVE" >> ~/.config/nix/nix.conf
+    log_success "Case sensitivity fix added"
+else
+    log_success "Case sensitivity fix already added"
 fi
 
 log_info "Step 4: Preparing System Files"
@@ -151,8 +171,15 @@ if ! command -v darwin-rebuild &>/dev/null; then
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  # Auto upgrade nix package and the daemon service.
-  services.nix-daemon.enable = true;
+  # IMPORTANT: Disable nix management for Determinate Nix compatibility
+  nix.enable = false;
+  
+  # Fix for permission denied issues
+  nix.settings = {
+    trusted-users = [ "root" "$(whoami)" ];
+    use-case-sensitive-fs = false;
+    experimental-features = [ "nix-command" "flakes" ];
+  };
 
   # Create /etc/zshrc that loads the nix-darwin environment.
   programs.zsh.enable = true;
@@ -161,13 +188,26 @@ if ! command -v darwin-rebuild &>/dev/null; then
   environment.systemPackages = with pkgs; [
     git
     curl
+    libgit2  # Add libgit2 to system packages
   ];
+  
+  # Enable Touch ID for sudo authentication
+  security.pam.services.sudo_local.touchIdAuth = true;
 }
 EOF
     fi
     
     # Use the nix command to create a bootstrap configuration
     log_warning "Installing nix-darwin using the nix command..."
+    
+    # Add libgit2 symlink if needed
+    if [ -f "/opt/homebrew/opt/libgit2/lib/libgit2.1.9.0.dylib" ] && [ ! -f "/opt/homebrew/opt/libgit2/lib/libgit2.1.8.dylib" ]; then
+        log_warning "Creating libgit2 compatibility symlink..."
+        sudo ln -s /opt/homebrew/opt/libgit2/lib/libgit2.1.9.0.dylib /opt/homebrew/opt/libgit2/lib/libgit2.1.8.dylib
+        log_success "libgit2 symlink created"
+    elif [ -f "/opt/homebrew/opt/libgit2/lib/libgit2.1.8.dylib" ]; then
+        log_success "libgit2 compatibility symlink already exists"
+    fi
     
     # Get current username
     CURRENT_USER=$(whoami)
@@ -264,6 +304,13 @@ echo "   darwin-rebuild switch --flake .#work"
 echo ""
 echo "   # For minimal setup without Homebrew (if 'result' directory was deleted):"
 echo "   SYSINIT_NO_HOMEBREW=1 darwin-rebuild switch --flake .#default"
+echo ""
+echo "   # If you encounter libgit2 version mismatch errors with eza or git tools:"
+echo "   sudo ln -s /opt/homebrew/opt/libgit2/lib/libgit2.1.9.0.dylib /opt/homebrew/opt/libgit2/lib/libgit2.1.8.dylib"
+echo ""
+echo "   # If you have permission denied issues with Nix store, update your nix settings:"
+echo "   echo 'trusted-users = root \$USER' >> ~/.config/nix/nix.conf"
+echo "   echo 'use-case-sensitive-fs = false' >> ~/.config/nix/nix.conf"
 echo ""
 echo "   # If you encounter any issues, you can completely uninstall Nix with:"
 echo "   ./uninstall-nix.sh"
