@@ -36,6 +36,7 @@
       "firefox"
       "font-hack-nerd-font"
       "font-symbols-only-nerd-font"
+      "aerospace"
       "obsidian"
       "slack"
       "visual-studio-code-insiders"
