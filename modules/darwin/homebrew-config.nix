@@ -52,11 +52,11 @@
     if [ -f /opt/homebrew/bin/brew ]; then
       PATH=$PATH:/opt/homebrew/bin
       # Force brew to install packages listed above
-      brew bundle --file=/dev/stdin <<EOF
-      ${lib.concatStrings (map (tap: "tap \"${tap}\"\n") config.homebrew.taps)}
-      ${lib.concatStrings (map (brew: "brew \"${brew}\"\n") config.homebrew.brews)}
-      ${lib.concatStrings (map (cask: "cask \"${cask}\"\n") config.homebrew.casks)}
-      EOF
+      brew bundle --file=/dev/stdin <<-EOF
+    ${lib.concatMapStrings (tap: let tapName = if builtins.isString tap then tap else tap.name; in "tap \"${tapName}\"\n") config.homebrew.taps}
+    ${lib.concatMapStrings (brew: let brewName = if builtins.isString brew then brew else brew.name; in "brew \"${brewName}\"\n") config.homebrew.brews}
+    ${lib.concatMapStrings (cask: let caskName = if builtins.isString cask then cask else cask.name; in "cask \"${caskName}\"\n") config.homebrew.casks}
+    EOF
     fi
   '';
 }
