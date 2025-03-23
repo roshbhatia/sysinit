@@ -21,12 +21,14 @@
       "homebrew/services"
       "noahgorstein/tap"
       "nikitabobko/tap"
+      "FelixKratz/formulae"
     ];
     
     brews = [
       "jordanbaird-ice"
       "tfenv"
       "zsh"
+      "borders"
     ];
     
     casks = [
