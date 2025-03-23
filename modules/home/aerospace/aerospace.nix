@@ -139,19 +139,19 @@ let
       # 'service' binding mode declaration
       service = {
         binding = {
-          "esc" = ["reload-config", "mode main"];
-          "r" = ["flatten-workspace-tree", "mode main"]; # reset layout
-          "f" = ["layout floating tiling", "mode main"]; # Toggle between floating and tiling layout
-          "backspace" = ["close-all-windows-but-current", "mode main"];
+          "esc" = ["reload-config" "mode main"];
+          "r" = ["flatten-workspace-tree" "mode main"]; # reset layout
+          "f" = ["layout floating tiling" "mode main"]; # Toggle between floating and tiling layout
+          "backspace" = ["close-all-windows-but-current" "mode main"];
           
-          "cmd-shift-h" = ["join-with left", "mode main"];
-          "cmd-shift-j" = ["join-with down", "mode main"];
-          "cmd-shift-k" = ["join-with up", "mode main"];
-          "cmd-shift-l" = ["join-with right", "mode main"];
+          "cmd-shift-h" = ["join-with left" "mode main"];
+          "cmd-shift-j" = ["join-with down" "mode main"];
+          "cmd-shift-k" = ["join-with up" "mode main"];
+          "cmd-shift-l" = ["join-with right" "mode main"];
           
           "down" = "volume down";
           "up" = "volume up";
-          "shift-down" = ["volume set 0", "mode main"];
+          "shift-down" = ["volume set 0" "mode main"];
         };
       };
     };
