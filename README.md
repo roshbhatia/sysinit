@@ -46,8 +46,7 @@ git clone https://github.com/roshbhatia/sysinit.git
 cd sysinit
 
 # For personal machines (using default configuration)
-# Simply run:
-darwin-rebuild switch
+darwin-rebuild switch --flake .
 
 # For a specific configuration profile (default, minimal, work)
 darwin-rebuild switch --flake .#default
