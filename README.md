@@ -45,19 +45,14 @@ This will install:
 git clone https://github.com/roshbhatia/sysinit.git
 cd sysinit
 
-# Build the configuration
-darwin-rebuild build --flake .#default
-
-# Then apply your changes
-sudo ./result/activate
+# Build and activate in one step
+darwin-rebuild switch --flake .#default
 
 # You can also use the hostname (if you've added it to the flake)
-darwin-rebuild build --flake .#lv426
-sudo ./result/activate
+darwin-rebuild switch --flake .#lv426
 
 # For machines with a different username
-darwin-rebuild build --flake ".#$(nix eval --impure --expr '(import ./flake.nix).lib.mkConfig "your-username"')"
-sudo ./result/activate
+darwin-rebuild switch --flake ".#$(nix eval --impure --expr '(import ./flake.nix).lib.mkConfig "your-username"')"
 ```
 
 You can customize configurations in the flake.nix file:
@@ -80,11 +75,8 @@ sudo ./result/activate
 After making changes to the configuration:
 
 ```bash
-# Build the updated configuration
-darwin-rebuild build --flake .#default
-
-# Apply your changes
-sudo ./result/activate
+# Build and activate the updated configuration
+darwin-rebuild switch --flake .#default
 ```
 
 ## Rebuilding from URL
@@ -93,12 +85,10 @@ If you want to build directly from the GitHub repository:
 
 ```bash
 # Using the default configuration
-darwin-rebuild build --flake github:roshbhatia/sysinit#default
-sudo ./result/activate
+darwin-rebuild switch --flake github:roshbhatia/sysinit#default
 
 # Or with the hostname configuration
-darwin-rebuild build --flake github:roshbhatia/sysinit#lv426
-sudo ./result/activate
+darwin-rebuild switch --flake github:roshbhatia/sysinit#lv426
 ```
 
 ## Using in Another Flake
@@ -207,8 +197,7 @@ Here's an example of a work-specific flake that uses this configuration:
 With this setup, you can build and activate from your work flake:
 
 ```bash
-darwin-rebuild build --flake .
-sudo ./result/activate
+darwin-rebuild switch --flake .
 ```
 
 ## Maintenance
