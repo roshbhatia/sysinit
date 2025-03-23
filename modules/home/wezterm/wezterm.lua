@@ -54,7 +54,7 @@ config.cursor_blink_rate = 800
 -- Tab bar
 config.enable_tab_bar = true
 config.hide_tab_bar_if_only_one_tab = false
-config.use_fancy_tab_bar = true
+config.use_fancy_tab_bar = false
 
 -- Keybindings
 config.keys = { -- Word navigation
@@ -155,8 +155,60 @@ wezterm.on("gui-startup", function()
     window:gui_window():maximize()
 end)
 
+-- Function to get GitHub username using gh CLI
+local function get_github_username()
+    local success, stdout, stderr = wezterm.run_child_process({"sh", "-c", "gh api user --jq '.login' 2>/dev/null"})
+    if success and stdout ~= "" then
+        return stdout:gsub("%s+$", "") -- Trim whitespace
+    end
+    return nil
+end
+
+-- Function to get current Docker context
+local function get_docker_context()
+    local success, stdout, stderr = wezterm.run_child_process({"sh", "-c", "docker context show 2>/dev/null"})
+    if success and stdout ~= "" then
+        return stdout:gsub("%s+$", "") -- Trim whitespace
+    end
+    return nil
+end
+
+-- Function to get current Kubernetes context
+local function get_k8s_context()
+    local success, stdout, stderr = wezterm.run_child_process({"sh", "-c", "kubectl config current-context 2>/dev/null"})
+    if success and stdout ~= "" then
+        return stdout:gsub("%s+$", "") -- Trim whitespace
+    end
+    return nil
+end
+
 local function segments_for_right_status(window)
-    return {window:active_workspace(), wezterm.strftime('%a %b %-d %H:%M'), wezterm.hostname()}
+    local segments = {}
+    
+    -- Add GitHub username if available
+    local github_user = get_github_username()
+    if github_user then
+        table.insert(segments, "gh:" .. github_user)
+    end
+    
+    -- Add Docker context if available
+    local docker_ctx = get_docker_context()
+    if docker_ctx then
+        table.insert(segments, "🐳:" .. docker_ctx)
+    end
+    
+    -- Add Kubernetes context if available
+    local k8s_ctx = get_k8s_context()
+    if k8s_ctx then
+        table.insert(segments, "☸️:" .. k8s_ctx)
+    end
+    
+    -- Add standard info
+    table.insert(segments, window:active_workspace())
+    table.insert(segments, wezterm.strftime('%a %b %-d %H:%M'))
+    table.insert(segments, wezterm.hostname())
+    
+    return segments
 end
 
 wezterm.on('update-status', function(window, _)
@@ -174,6 +226,16 @@ wezterm.on('update-status', function(window, _)
     -- darker/lighter depending on whether we're on a dark/light colour
     -- scheme. Let's establish the "from" and "to" bounds of our gradient.
     local gradient_to, gradient_from = bg
+    
+    -- Defined appearance module
+    local appearance = {}
+    appearance.is_dark = function()
+        -- Check if background color is dark (simplified)
+        local r, g, b = bg:rgb8()
+        local brightness = (r * 299 + g * 587 + b * 114) / 1000
+        return brightness < 128
+    end
+    
     if appearance.is_dark() then
         gradient_from = gradient_to:lighten(0.2)
     else
