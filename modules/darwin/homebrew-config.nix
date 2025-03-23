@@ -28,6 +28,7 @@
     brews = [
       "borders"
       "direnv"
+      "libgit2"
     ];
     
     casks = [
@@ -37,7 +38,6 @@
       "font-hack-nerd-font"
       "font-symbols-only-nerd-font"
       "jordanbaird-ice"
-      "libgit2"
       "obsidian"
       "rectangle"
       "slack"
