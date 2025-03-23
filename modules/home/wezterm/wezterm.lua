@@ -34,7 +34,7 @@ config.colors = {
 
 config.color_scheme = "Apple System Colors"
 
-config.window_decorations = 'RESIZE|INTEGRATED_BUTTONS'
+config.window_decorations = 'RESIZE'
 config.window_background_opacity = 0.8
 config.macos_window_background_blur = 20
 
@@ -54,7 +54,7 @@ config.cursor_blink_rate = 800
 -- Tab bar
 config.enable_tab_bar = true
 config.hide_tab_bar_if_only_one_tab = false
-config.use_fancy_tab_bar = false
+config.use_fancy_tab_bar = true
 
 -- Keybindings
 config.keys = { -- Word navigation
