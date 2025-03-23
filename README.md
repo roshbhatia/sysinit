@@ -238,19 +238,3 @@ rm -f $HOME/.*.backup* $HOME/.*.bak
 # Remove XDG config backup files
 find $HOME/.config -name "*.backup" -o -name "*.bak" -exec rm -f {} \;
 ```
-
-### Reinstalling After Deleting 'result' Directory
-
-If you've deleted the `result` directory and need to reinstall:
-
-1. Use the `no-homebrew` flag to reinstall without Homebrew dependencies:
-
-   ```bash
-   darwin-rebuild switch --flake .#default no-homebrew
-   ```
-
-2. This will reinstall all configuration files with the comment:
-
-   ```
-   # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
-   ```

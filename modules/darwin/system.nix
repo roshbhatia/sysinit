@@ -17,7 +17,7 @@ in {
         InitialKeyRepeat = 15;
       };
       dock = {
-        autohide = false;
+        autohide = true;
         launchanim = true;
         mru-spaces = false;
         orientation = "bottom";
