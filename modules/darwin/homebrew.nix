@@ -40,7 +40,6 @@
       "firefox"
       "font-hack-nerd-font"
       "font-symbols-only-nerd-font"
-      "aerospace" # Now managed by home-manager aerospace module
       "obsidian"
       "postman"
       "slack"
