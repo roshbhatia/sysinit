@@ -34,17 +34,18 @@
     system = "aarch64-darwin"; # For Apple Silicon
     defaultUsername = "rshnbhatia";
     
-    # Common darwin configuration function
-    mkDarwinConfig = { 
-      username ? defaultUsername,
-      enableHomebrew ? true
-    }: 
+    # Main darwin configuration function
+    mkDarwinConfig = { username ? defaultUsername }: 
     let
       homeDirectory = "/Users/${username}";
     in
     darwin.lib.darwinSystem {
       inherit system;
-      specialArgs = { inherit inputs username homeDirectory enableHomebrew; };
+      specialArgs = { 
+        inherit inputs username homeDirectory; 
+        # Always enable homebrew
+        enableHomebrew = true;
+      };
       modules = [
         # Main system configuration
         ./modules/darwin/darwin.nix
@@ -69,17 +70,20 @@
     
     # Helper module for including in other flakes
     darwinModules = {
-      default = { username, homeDirectory ? "/Users/${username}", enableHomebrew ? true, ... }: {
+      # Core system module for use in other flakes
+      default = { username, homeDirectory ? "/Users/${username}", ... }: {
         imports = [
           ./modules/darwin/darwin.nix
         ];
         
         # Pass the required parameters
         _module.args = {
-          inherit username homeDirectory enableHomebrew inputs;
+          inherit username homeDirectory inputs;
+          enableHomebrew = true;
         };
       };
       
+      # Home manager module for use in other flakes
       home = { username, homeDirectory ? "/Users/${username}", ... }: {
         imports = [ ./modules/home ];
         home.username = username;
@@ -115,31 +119,27 @@
       }];
     };
   in {
-    # Named configurations
+    # Main usable configurations
     darwinConfigurations = {
-      # Main configuration for personal setup
+      # Default personal configuration
       default = mkDarwinConfig {};
       
       # Also set as hostname-based configuration for simplified commands
-      "${builtins.readFile "/etc/hostname" or "MacBook-Pro"}" = mkDarwinConfig {};
-      
-      # Minimal configuration without Homebrew
-      minimal = mkDarwinConfig { enableHomebrew = false; };
-      
-      # Example work configuration
-      work = mkDarwinConfig { username = "your-work-username"; };
+      "rshnbhatias-MacBook-Pro" = mkDarwinConfig {};
       
       # Bootstrap configuration for initial setup
       bootstrap = bootstrapConfig;
     };
     
-    # Helper functions for creating configurations dynamically
+    # Helper function for creating configurations with custom username
     lib = {
       mkConfig = username: mkDarwinConfig { inherit username; };
-      mkMinimalConfig = username: mkDarwinConfig { inherit username; enableHomebrew = false; };
     };
     
     # Modules for use in other flakes
     inherit darwinModules;
+    
+    # Default configuration for simpler commands
+    defaultPackage.${system} = self.darwinConfigurations.default.system;
   };
 }
