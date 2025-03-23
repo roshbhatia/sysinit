@@ -7,7 +7,6 @@
     coreutils
     direnv
     docker
-    eza 
     fd
     fzf
     gh
@@ -23,6 +22,7 @@
     kind
     kubecolor
     kustomize
+    libgit2
     nodejs
     nodePackages.typescript
     openssh
