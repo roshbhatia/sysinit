@@ -30,7 +30,6 @@
     p7zip
     starship
     stern
-    tfenv
     tmux
     tree
     watch
