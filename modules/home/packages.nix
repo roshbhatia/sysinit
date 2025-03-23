@@ -27,7 +27,7 @@
     neovim
     poppler
     ripgrep
-    sevenzip
+    p7zip
     starship
     stern
     tfenv
