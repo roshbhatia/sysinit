@@ -31,12 +31,34 @@ A Nix flake-based system configuration for macOS, using nix-darwin and home-mana
 
 Run the `install-deps.sh` script to install the required dependencies:
 
+```bash
+# Make the script executable
+chmod +x install-deps.sh
+
+# Run the script
+./install-deps.sh
+```
+
 This will install:
 
 - Xcode Command Line Tools
-- Nix package manager
+- Nix package manager (via Determinate Systems installer)
+- Nix-Darwin
 - Nix Flakes configuration
-- Prepare system files for nix-darwin
+- Prepare system files for darwin configuration
+
+**Note:** If you encounter any issues with a broken Nix installation, use the included uninstall script before retrying:
+
+```bash
+# Make the script executable
+chmod +x uninstall-nix.sh
+
+# Completely remove Nix and related components
+./uninstall-nix.sh
+
+# Reinstall everything
+./install-deps.sh
+```
 
 ### 2. Clone and Build
 
@@ -238,3 +260,23 @@ rm -f $HOME/.*.backup* $HOME/.*.bak
 # Remove XDG config backup files
 find $HOME/.config -name "*.backup" -o -name "*.bak" -exec rm -f {} \;
 ```
+
+### Completely Uninstalling Nix
+
+If you need to completely remove Nix and all related configurations from your system:
+
+```bash
+# Run the included uninstall script
+./uninstall-nix.sh
+```
+
+This will:
+- Stop all Nix services
+- Remove Nix configuration files
+- Remove nix-darwin configurations
+- Delete the Nix store
+- Remove launch daemons
+- Clean up backup files
+- Remove Nix users and groups
+
+After running this script, your system will be in a clean state, allowing you to reinstall Nix if needed.

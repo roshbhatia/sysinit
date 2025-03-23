@@ -36,3 +36,5 @@ go.sum
 *.out
 *.prof
 vendor/
+
+**/nix-darwin-master/

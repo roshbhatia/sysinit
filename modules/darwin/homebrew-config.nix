@@ -29,6 +29,9 @@
       "borders"
       "direnv"
       "libgit2"
+      "eza"
+      "fd"
+      "yazi"
     ];
     
     casks = [

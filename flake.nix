@@ -105,8 +105,12 @@
       };
       modules = [{
         # Minimal configuration
+        # Set Git commit hash for darwin-version.
+        system.configurationRevision = self.rev or self.dirtyRev or null;
+        # Don't change this
         system.stateVersion = 4;
         users.users.${bootstrapUsername}.home = bootstrapHomeDirectory;
+        # Determinate systems installer should manage nix install
         nix.enable = false;
         nix.settings.experimental-features = [ "nix-command" "flakes" ];
         environment.systemPackages = with nixpkgs.legacyPackages.${system}; [
