@@ -43,6 +43,8 @@ in {
     settings = {
       experimental-features = ["nix-command" "flakes"];
       substituters = ["https://cache.nixos.org/"];
+      trusted-users = ["root" username];
+      use-case-sensitive-fs = false;
     };
     # Disable internal nix-daemon management since Determinate Nix manages it
     enable = false;
