@@ -1,7 +1,5 @@
 { pkgs, lib, ... }: {
-  # Anything installed here and not in modules/darwin is platform-agnostic
   home.packages = with pkgs; [
-    # Core utilities
     atuin
     awscli
     bat
@@ -10,13 +8,14 @@
     direnv
     eza 
     fd
-    ffmpeg
     fzf
     gh
-    go
+    git
     gnugrep
+    gnupg
+    go
+    gopls
     htop
-    imagemagick
     jq
     jqp
     k9s
@@ -24,26 +23,16 @@
     kubecolor
     kustomize
     neovim
-    poppler
-    ripgrep
-    p7zip
+    nodejs
+    nodePackages.typescript
+    openssh
+    python311
     starship
     stern
-    tmux
     tree
     watch
     wget
     yazi
     yq
-    zoxide
-    
-    # Development
-    python311
-    nodejs
-    git
-    gnupg
-    openssh
-    nodePackages.typescript
-    gopls
   ];
 }
