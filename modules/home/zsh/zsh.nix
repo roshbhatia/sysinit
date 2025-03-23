@@ -19,18 +19,17 @@
     };
     
     shellAliases = {
+      "..." = "cd ../..";
+      ".." = "cd ..";
+      "~" = "cd ~";
+      code = "code-insiders";
+      k = "kubectl";
+      kubectl = "kubecolor";
       l = "eza --icons=always -1";
       ll = "eza --icons=always -1 -a";
       lt = "eza --icons=always -1 -a -T";
-      ".." = "cd ..";
-      "..." = "cd ../..";
-      "~" = "cd ~";
-      
       tf = "terraform";
       y = "yazi";
-      
-      kubectl = "kubecolor";
-      k = "kubectl";
     };
     
     plugins = [

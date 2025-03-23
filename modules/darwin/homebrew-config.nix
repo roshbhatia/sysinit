@@ -26,10 +26,8 @@
     ];
     
     brews = [
-      "jordanbaird-ice"
-      "tfenv"
-      "zsh"
       "borders"
+      "direnv"
     ];
     
     casks = [
@@ -38,6 +36,7 @@
       "firefox"
       "font-hack-nerd-font"
       "font-symbols-only-nerd-font"
+      "jordanbaird-ice"
       "rectangle"
       "obsidian"
       "slack"
@@ -45,18 +44,4 @@
       "wezterm"
     ];
   };
-  
-  # Add activation script to force Homebrew to install packages
-  system.activationScripts.extraActivation.text = ''
-    echo "Running additional homebrew installations..."
-    if [ -f /opt/homebrew/bin/brew ]; then
-      PATH=$PATH:/opt/homebrew/bin
-      # Force brew to install packages listed above
-      brew bundle --file=/dev/stdin <<-EOF
-    ${lib.concatMapStrings (tap: let tapName = if builtins.isString tap then tap else tap.name; in "tap \"${tapName}\"\n") config.homebrew.taps}
-    ${lib.concatMapStrings (brew: let brewName = if builtins.isString brew then brew else brew.name; in "brew \"${brewName}\"\n") config.homebrew.brews}
-    ${lib.concatMapStrings (cask: let caskName = if builtins.isString cask then cask else cask.name; in "cask \"${caskName}\"\n") config.homebrew.casks}
-    EOF
-    fi
-  '';
 }
