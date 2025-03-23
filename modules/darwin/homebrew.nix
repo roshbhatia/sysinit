@@ -1,50 +1,36 @@
-{ pkgs, lib, config, enableHomebrew ? true, ... }:
+{ pkgs, lib, config, enableHomebrew ? true, username, inputs, ... }:
 
 {
-  # Homebrew configuration with optional enabling
-  homebrew = {
+  # Disable the built-in nix-darwin homebrew module
+  homebrew.enable = false;
+  
+  # nix-homebrew is imported via flake inputs in the main darwin.nix module
+  
+  nix-homebrew = {
+    # Only enable if the main config has homebrew enabled
     enable = enableHomebrew;
-    onActivation = {
-      autoUpdate = true;
-      upgrade = true;
-      cleanup = "zap";
+    
+    # Apple Silicon: Also install Homebrew under the default Intel prefix for Rosetta 2
+    enableRosetta = true;
+    
+    # User owning the Homebrew prefix
+    user = username;
+    
+    # Auto-migrate existing Homebrew installations
+    autoMigrate = true;
+    
+    # Declarative tap management
+    taps = {
+      "homebrew/homebrew-core" = inputs.homebrew-core;
+      "homebrew/homebrew-cask" = inputs.homebrew-cask;
+      "homebrew/bundle" = null;
+      "homebrew/cask-fonts" = null;
+      "homebrew/services" = null;
+      "noahgorstein/tap" = null;
+      "nikitabobko/tap" = null;
     };
-    global = {
-      brewfile = false;
-    };
     
-    taps = [
-      "homebrew/bundle"
-      "homebrew/cask-fonts"
-      "homebrew/cask"
-      "homebrew/core"
-      "homebrew/services"
-      "noahgorstein/tap"
-      "nikitabobko/tap"
-    ];
-    
-    # ZSH completions and plugins still managed by homebrew
-    brews = [
-      "jordanbaird-ice"
-      "zsh-autocomplete"
-      "zsh-autosuggestions"
-      "zsh-history-substring-search"
-      "zsh-syntax-highlighting"
-      "zsh"
-    ];
-    
-    casks = [
-      "1password-cli"
-      "discord"
-      "docker"
-      "firefox"
-      "font-hack-nerd-font"
-      "font-symbols-only-nerd-font"
-      "obsidian"
-      "postman"
-      "slack"
-      "visual-studio-code-insiders"
-      "wezterm"
-    ];
+    # Allow mutable taps for maximum flexibility
+    mutableTaps = true;
   };
 }
