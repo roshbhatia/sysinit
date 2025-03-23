@@ -46,13 +46,13 @@ git clone https://github.com/roshbhatia/sysinit.git
 cd sysinit
 
 # Build the configuration
-darwin-rebuild build --flake .
+darwin-rebuild build --flake .#default
 
 # Then apply your changes
 sudo ./result/activate
 
-# For a specific named configuration (if needed)
-darwin-rebuild build --flake .#default
+# You can also use the hostname (if you've added it to the flake)
+darwin-rebuild build --flake .#lv426
 sudo ./result/activate
 
 # For machines with a different username
@@ -81,7 +81,7 @@ After making changes to the configuration:
 
 ```bash
 # Build the updated configuration
-darwin-rebuild build --flake .
+darwin-rebuild build --flake .#default
 
 # Apply your changes
 sudo ./result/activate
@@ -93,11 +93,11 @@ If you want to build directly from the GitHub repository:
 
 ```bash
 # Using the default configuration
-darwin-rebuild build --flake github:roshbhatia/sysinit
+darwin-rebuild build --flake github:roshbhatia/sysinit#default
 sudo ./result/activate
 
-# Or with a specific configuration
-darwin-rebuild build --flake github:roshbhatia/sysinit#default
+# Or with the hostname configuration
+darwin-rebuild build --flake github:roshbhatia/sysinit#lv426
 sudo ./result/activate
 ```
 

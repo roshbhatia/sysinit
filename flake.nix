@@ -125,7 +125,7 @@
       default = mkDarwinConfig {};
       
       # Also set as hostname-based configuration for simplified commands
-      "rshnbhatias-MacBook-Pro" = mkDarwinConfig {};
+      "lv426" = mkDarwinConfig {};
       
       # Bootstrap configuration for initial setup
       bootstrap = bootstrapConfig;
@@ -139,7 +139,7 @@
     # Modules for use in other flakes
     inherit darwinModules;
     
-    # Default configuration for simpler commands
-    defaultPackage.${system} = self.darwinConfigurations.default.system;
+    # For simpler commands
+    packages.${system}.default = self.darwinConfigurations.default.system;
   };
 }
