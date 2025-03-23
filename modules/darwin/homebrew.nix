@@ -10,7 +10,7 @@
       cleanup = "zap";
     };
     global = {
-      brewfile = true;
+      brewfile = false;
     };
     
     taps = [
