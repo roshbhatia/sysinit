@@ -11,7 +11,7 @@
     };
     global = {
       brewfile = true;
-      noLock = false;
+      lockfiles = true;
     };
     
     taps = [
@@ -52,7 +52,7 @@
     if [ -f /opt/homebrew/bin/brew ]; then
       PATH=$PATH:/opt/homebrew/bin
       # Force brew to install packages listed above
-      brew bundle --no-lock --file=/dev/stdin <<EOF
+      brew bundle --file=/dev/stdin <<EOF
       ${lib.concatStrings (map (tap: "tap \"${tap}\"\n") config.homebrew.taps)}
       ${lib.concatStrings (map (brew: "brew \"${brew}\"\n") config.homebrew.brews)}
       ${lib.concatStrings (map (cask: "cask \"${cask}\"\n") config.homebrew.casks)}
