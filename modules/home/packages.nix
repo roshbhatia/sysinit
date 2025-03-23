@@ -6,6 +6,7 @@
     colima
     coreutils
     direnv
+    docker
     eza 
     fd
     fzf
@@ -22,7 +23,6 @@
     kind
     kubecolor
     kustomize
-    neovim
     nodejs
     nodePackages.typescript
     openssh

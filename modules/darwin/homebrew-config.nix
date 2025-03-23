@@ -24,7 +24,7 @@
     ];
     
     brews = [
-      # No jordanbaird-ice formula available
+      "jordanbaird-ice"
       "tfenv"
       "zsh"
     ];
@@ -32,11 +32,10 @@
     casks = [
       "1password-cli"
       "discord"
-      # Docker conflicts with rancher
       "firefox"
       "font-hack-nerd-font"
       "font-symbols-only-nerd-font"
-      "aerospace"
+      "rectangle"
       "obsidian"
       "slack"
       "visual-studio-code@insiders"
