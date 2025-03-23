@@ -1,11 +1,7 @@
 { pkgs, lib, config, enableHomebrew ? true, username, inputs, ... }:
 
 {
-  # Disable the built-in nix-darwin homebrew module
-  homebrew.enable = false;
-  
-  # nix-homebrew is imported via flake inputs in the main darwin.nix module
-  
+  # nix-homebrew configuration to manage the Homebrew installation itself
   nix-homebrew = {
     # Only enable if the main config has homebrew enabled
     enable = enableHomebrew;
@@ -19,8 +15,11 @@
     # Auto-migrate existing Homebrew installations
     autoMigrate = true;
     
-    # Skip declarative tap management for now
-    # to avoid GitHub API rate limits
+    # Declarative tap management
+    taps = {
+      "homebrew/homebrew-core" = inputs.homebrew-core;
+      "homebrew/homebrew-cask" = inputs.homebrew-cask;
+    };
     
     # Keep taps fully mutable
     mutableTaps = true;
