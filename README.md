@@ -45,11 +45,15 @@ This will install:
 git clone https://github.com/roshbhatia/sysinit.git
 cd sysinit
 
-# For personal machines (username: rshnbhatia)
+# For personal machines (using default configuration)
+# Simply run:
+darwin-rebuild switch
+
+# For a specific configuration profile (default, minimal, work)
 darwin-rebuild switch --flake .#default
 
 # For machines with a different username
-darwin-rebuild switch --flake ".#$(nix eval --impure --expr '(import ./flake.nix).mkConfig "your-username"')"
+darwin-rebuild switch --flake ".#$(nix eval --impure --expr '(import ./flake.nix).lib.mkConfig "your-username"')"
 
 # For minimal setup without Homebrew
 darwin-rebuild switch --flake .#minimal
@@ -67,10 +71,10 @@ Or use the provided helper functions:
 
 ```bash
 # For custom username
-darwin-rebuild switch --flake ".#$(nix eval --impure --expr '(import ./flake.nix).mkConfig "your-username"')"
+darwin-rebuild switch --flake ".#$(nix eval --impure --expr '(import ./flake.nix).lib.mkConfig "your-username"')"
 
 # For custom username without Homebrew
-darwin-rebuild switch --flake ".#$(nix eval --impure --expr '(import ./flake.nix).mkMinimalConfig "your-username"')"
+darwin-rebuild switch --flake ".#$(nix eval --impure --expr '(import ./flake.nix).lib.mkMinimalConfig "your-username"')"
 ```
 
 ## Updating
@@ -101,6 +105,117 @@ darwin-rebuild switch --flake github:roshbhatia/sysinit#minimal
 
 # For work configuration
 darwin-rebuild switch --flake github:roshbhatia/sysinit#work
+```
+
+## Using in Another Flake
+
+You can use this configuration in another flake (e.g., for your work machine) by importing it as a dependency.
+
+### Sample Work Flake
+
+Here's an example of how to create a work-specific flake that uses this configuration:
+
+```nix
+{
+  description = "Work System Configuration";
+
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    
+    darwin = {
+      url = "github:lnl7/nix-darwin/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
+    # Import the base configuration from sysinit
+    sysinit = {
+      url = "github:roshbhatia/sysinit";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        darwin.follows = "darwin";
+        home-manager.follows = "home-manager";
+      };
+    };
+  };
+
+  outputs = { self, nixpkgs, darwin, home-manager, sysinit, ... }@inputs:
+  let
+    system = "aarch64-darwin"; # For Apple Silicon
+    username = "your-work-username";
+    homeDirectory = "/Users/${username}";
+  in {
+    # Create a simpler named configuration so you can just run:
+    # darwin-rebuild switch --flake .
+    darwinConfigurations.${username} = darwin.lib.darwinSystem {
+      inherit system;
+      specialArgs = { inherit inputs username homeDirectory; };
+      modules = [
+        # Import the base configuration module from sysinit
+        sysinit.darwinModules.default {
+          inherit username homeDirectory;
+          # You can override parameters here
+          enableHomebrew = true;
+        }
+        
+        # Add your work-specific configuration
+        ({ pkgs, ... }: {
+          # Add work-specific packages
+          environment.systemPackages = with pkgs; [
+            # Add work-specific packages here
+          ];
+          
+          # Work-specific Homebrew packages
+          homebrew.brews = [
+            "work-specific-package"
+          ];
+          
+          homebrew.casks = [
+            "work-specific-app"
+          ];
+        })
+        
+        # Import the Home Manager configuration 
+        home-manager.darwinModules.home-manager {
+          home-manager = {
+            useGlobalPkgs = true;
+            useUserPackages = true;
+            extraSpecialArgs = { inherit inputs username homeDirectory; };
+            backupFileExtension = "backup";
+            users.${username} = { pkgs, ... }: {
+              imports = [ 
+                # Import the base home configuration
+                sysinit.darwinModules.home
+                
+                # Add your work-specific home configuration
+                ({ ... }: {
+                  # Work-specific home configuration here
+                })
+              ];
+              
+              # Override username and home directory
+              home.username = username;
+              home.homeDirectory = homeDirectory;
+            };
+          };
+        }
+      ];
+    };
+    
+    # This allows you to run: darwin-rebuild switch --flake .
+    darwinConfigurations.default = self.darwinConfigurations.${username};
+  };
+}
+```
+
+With this setup, you can simply run:
+
+```bash
+darwin-rebuild switch --flake .
 ```
 
 ## Maintenance
