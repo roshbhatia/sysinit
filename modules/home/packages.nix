@@ -15,7 +15,6 @@
     gh
     go
     gnugrep
-    helm
     htop
     imagemagick
     jq
