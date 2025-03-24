@@ -98,7 +98,6 @@ log_info "Step 3: Enabling Nix Flakes and Setting Permissions"
 mkdir -p ~/.config/nix
 FLAKES_CONFIG="experimental-features = nix-command flakes"
 TRUSTED_USERS="trusted-users = root $(whoami)"
-USE_CASE_SENSITIVE="use-case-sensitive-fs = false"
 
 # Add flakes configuration if not present
 if ! grep -q "$FLAKES_CONFIG" ~/.config/nix/nix.conf 2>/dev/null; then
@@ -114,14 +113,6 @@ if ! grep -q "trusted-users" ~/.config/nix/nix.conf 2>/dev/null; then
     log_success "Trusted users configured"
 else
     log_success "Trusted users already configured"
-fi
-
-# Add case sensitivity fix if not present
-if ! grep -q "use-case-sensitive-fs" ~/.config/nix/nix.conf 2>/dev/null; then
-    echo "$USE_CASE_SENSITIVE" >> ~/.config/nix/nix.conf
-    log_success "Case sensitivity fix added"
-else
-    log_success "Case sensitivity fix already added"
 fi
 
 log_info "Step 4: Preparing System Files"
@@ -177,7 +168,6 @@ if ! command -v darwin-rebuild &>/dev/null; then
   # Fix for permission denied issues
   nix.settings = {
     trusted-users = [ "root" "$(whoami)" ];
-    use-case-sensitive-fs = false;
     experimental-features = [ "nix-command" "flakes" ];
   };
 
@@ -310,7 +300,6 @@ echo "   sudo ln -s /opt/homebrew/opt/libgit2/lib/libgit2.1.9.0.dylib /opt/homeb
 echo ""
 echo "   # If you have permission denied issues with Nix store, update your nix settings:"
 echo "   echo 'trusted-users = root \$USER' >> ~/.config/nix/nix.conf"
-echo "   echo 'use-case-sensitive-fs = false' >> ~/.config/nix/nix.conf"
 echo ""
 echo "   # If you encounter any issues, you can completely uninstall Nix with:"
 echo "   ./uninstall-nix.sh"
