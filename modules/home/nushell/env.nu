@@ -39,7 +39,9 @@ if (which brew | length) > 0 {
 }
 
 $env.config = {
-    prompt = "create_left_prompt"
+    show_banner: false
 }
+
+$env.PROMPT_COMMAND = {|| create_left_prompt }
 
 $env.FZF_DEFAULT_OPTS = "--height 8 --layout=reverse --border --inline-info"
