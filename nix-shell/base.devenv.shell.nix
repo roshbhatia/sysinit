@@ -10,23 +10,28 @@
       # Show system info
       macchina --theme nix
       
-      # Source all zsh utility scripts from extras directory
-      if [[ -d "$HOME/.config/zsh/extras" ]]; then
-        # First, ensure loglib.sh is loaded
-        if [[ -f "$HOME/.config/zsh/extras/loglib.sh" ]]; then
-          source "$HOME/.config/zsh/extras/loglib.sh"
+      # Function to safely source a file if it exists
+      source_if_exists() {
+        if [ -f "$1" ]; then
+          source "$1"
         fi
+      }
+      
+      # Source all zsh utility scripts from extras directory
+      if [ -d "$HOME/.config/zsh/extras" ]; then
+        # First, ensure loglib.sh is loaded
+        source_if_exists "$HOME/.config/zsh/extras/loglib.sh"
         
         # Then load all other utility modules
-        for module in $HOME/.config/zsh/extras/*.sh; do
-          if [[ -f "$module" && "$module" != "$HOME/.config/zsh/extras/loglib.sh" ]]; then
+        for module in "$HOME/.config/zsh/extras/"*.sh; do
+          if [ -f "$module" ] && [ "$module" != "$HOME/.config/zsh/extras/loglib.sh" ]; then
             source "$module"
           fi
         done
         
         # Source zsh-specific utility files
-        for module in $HOME/.config/zsh/extras/*.zsh; do
-          if [[ -f "$module" ]]; then
+        for module in "$HOME/.config/zsh/extras/"*.zsh; do
+          if [ -f "$module" ]; then
             source "$module"
           fi
         done
