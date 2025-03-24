@@ -60,9 +60,23 @@ function devenv.nix-shell() {
     return 1
   fi
   
+  # Check for shell availability and set up run command
+  local run_cmd=""
+  if command -v nu &> /dev/null; then
+    run_cmd="--run nu"
+    log_debug "Using nushell for interactive shell"
+  elif command -v zsh &> /dev/null; then
+    run_cmd="--run zsh"
+    log_debug "Using zsh as fallback interactive shell"
+  fi
+  
   # Run nix-shell with the specified file and pass all arguments
   log_info "Running nix-shell with devenv file" file="$shell_file" args="$*"
-  nix-shell --run nu "$shell_file" "$@"
+  if [[ -n "$run_cmd" ]]; then
+    nix-shell $run_cmd "$shell_file" "$@"
+  else
+    nix-shell "$shell_file" "$@"
+  fi
   exit_code=$?
   
   if [[ $exit_code -eq 0 ]]; then
@@ -85,9 +99,14 @@ _devenv_autoload() {
   fi
 }
 
-# Register the chpwd hook to check for devenv.shell.nix when changing directories
-autoload -U add-zsh-hook
-add-zsh-hook chpwd _devenv_autoload
+# Only set up hooks when running in zsh
+if [[ -n "$ZSH_VERSION" ]]; then
+  # Register the chpwd hook to check for devenv.shell.nix when changing directories
+  typeset -ga chpwd_functions
+  if [[ -z "${chpwd_functions[(r)_devenv_autoload]}" ]]; then
+    chpwd_functions+=(_devenv_autoload)
+  fi
+fi
 
 # Display help when called without arguments from the command line
 if [[ $# -eq 0 && "${BASH_SOURCE[0]}" == "${0}" ]]; then
