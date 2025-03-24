@@ -38,18 +38,8 @@ if (which brew | length) > 0 {
     )
 }
 
-# Set starship for nushell if available
-if (which starship | length) > 0 {
-    $env.config = {
-        # Use starship prompt if available
-        prompt = { starship prompt | str trim }
-    }
-} else {
-    # Fallback to our own custom prompt
-    $env.config = {
-        prompt = "create_left_prompt"
-    }
+$env.config = {
+    prompt = "create_left_prompt"
 }
 
-# Set up FZF default options
 $env.FZF_DEFAULT_OPTS = "--height 8 --layout=reverse --border --inline-info"
