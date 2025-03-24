@@ -83,14 +83,7 @@ if (which yazi | length) > 0 {
 def nuopen [arg, --raw (-r)] { if $raw { open -r $arg } else { open $arg } }
 def nuhelp [] { help commands | sort-by name | grid -c }
 
-# Show macchina in main shell window (similar to the zsh config)
-if "WEZTERM_PANE" in $env and $env.WEZTERM_PANE == "0" {
-    if "MACCHINA_THEME" in $env {
-        (macchina --theme $env.MACCHINA_THEME)
-    } else {
-        (macchina --theme nix)
-    }
-}
+macchina --theme nix
 
 # ------------------------------
 # Devenv Integration
@@ -156,12 +149,9 @@ def check_devenv_shell [pwd: string] {
 
 # Set up the hook to activate on directory change
 $env.config = ($env.config | upsert hooks {
-    env_change: [
-        {
-            name: "PWD"
-            code: "let pwd = $env.PWD; check_devenv_shell $pwd"
-        }
-    ]
+    env_change: {
+        PWD: "let pwd = $env.PWD; check_devenv_shell $pwd"
+    }
 })
 
 # Set up the prompt to show active status
