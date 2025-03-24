@@ -62,7 +62,7 @@ function devenv.nix-shell() {
   
   # Run nix-shell with the specified file and pass all arguments
   log_info "Running nix-shell with devenv file" file="$shell_file" args="$*"
-  nix-shell "$shell_file" "$@"
+  nix-shell --run nu "$shell_file" "$@"
   exit_code=$?
   
   if [[ $exit_code -eq 0 ]]; then
@@ -73,6 +73,21 @@ function devenv.nix-shell() {
   
   return $exit_code
 }
+
+# Auto-load function - automatically run devenv.nix-shell when entering a directory with devenv.shell.nix
+_devenv_autoload() {
+  local shell_file="devenv.shell.nix"
+  
+  # Check if we're in a real terminal and if the file exists
+  if [[ -t 1 && -f "$shell_file" ]]; then
+    log_debug "Found devenv.shell.nix in $(pwd), auto-loading environment"
+    devenv.nix-shell
+  fi
+}
+
+# Register the chpwd hook to check for devenv.shell.nix when changing directories
+autoload -U add-zsh-hook
+add-zsh-hook chpwd _devenv_autoload
 
 # Display help when called without arguments from the command line
 if [[ $# -eq 0 && "${BASH_SOURCE[0]}" == "${0}" ]]; then

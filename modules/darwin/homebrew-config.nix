@@ -28,9 +28,10 @@
     brews = [
       "borders"
       "direnv"
-      "libgit2"
       "eza"
       "fd"
+      "libgit2"
+      "nushell"
       "yazi"
     ];
     
