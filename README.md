@@ -25,101 +25,49 @@
 
 A Nix flake-based system configuration for macOS, using nix-darwin and home-manager.
 
-## Installation
+Sysinit includes a direnv-like feature for automatically loading development environments:
 
-### 1. Install Prerequisites
+1. Place a `devenv.shell.nix` file in your project directory
+2. When you `cd` into that directory, the environment activates automatically
+3. The environment stays active in subdirectories and deactivates when you leave
 
-Run the `install-deps.sh` script to install the required dependencies:
+### Usage
 
 ```bash
-# Make the script executable
-chmod +x install-deps.sh
+# Initialize a new devenv.shell.nix file in your project
+devenv.init
 
-# Run the script
-./install-deps.sh
+# Manually activate a devenv.shell.nix in current directory
+devenv.nix.shell
+
+# Get help
+devenv.nix.shell --help
 ```
 
-This will install:
+Shell integration works with Nushell first, but falls back to ZSH if `nu` isn't present.
 
-- Xcode Command Line Tools
-- Nix package manager (via Determinate Systems installer)
-- Nix-Darwin
-- Nix Flakes configuration
-- Prepare system files for darwin configuration
-
-**Note:** If you encounter any issues with a broken Nix installation, use the included uninstall script before retrying:
+## Quick Install
 
 ```bash
-# Make the script executable
-chmod +x uninstall-nix.sh
+# Install dependencies
+./install-deps.sh
 
-# Completely remove Nix and related components
+# Build and activate
+darwin-rebuild switch --flake .#default
+
+# Remove everything
 ./uninstall-nix.sh
 
-# Reinstall everything
-./install-deps.sh
+# Update all flake inputs
+nix flake update
+
+# Cleanup old generations
+nix-collect-garbage -d
 ```
 
-### 2. Clone and Build
+## Custom Work Setup Example
 
-```bash
-# Clone the repository
-git clone https://github.com/roshbhatia/sysinit.git
-cd sysinit
-
-# Build and activate in one step
-darwin-rebuild switch --flake .#default
-
-# You can also use the hostname (if you've added it to the flake)
-darwin-rebuild switch --flake .#lv426
-
-# For machines with a different username
-darwin-rebuild switch --flake ".#$(nix eval --impure --expr '(import ./flake.nix).lib.mkConfig "your-username"')"
-```
-
-You can customize configurations in the flake.nix file:
-
-```nix
-# Example in flake.nix for custom username
-darwinConfigurations.custom = mkDarwinConfig { username = "your-custom-username"; };
-```
-
-Or use the provided helper function:
-
-```bash
-# For custom username
-darwin-rebuild build --flake ".#$(nix eval --impure --expr '(import ./flake.nix).lib.mkConfig "your-username"')"
-sudo ./result/activate
-```
-
-## Updating
-
-After making changes to the configuration:
-
-```bash
-# Build and activate the updated configuration
-darwin-rebuild switch --flake .#default
-```
-
-## Rebuilding from URL
-
-If you want to build directly from the GitHub repository:
-
-```bash
-# Using the default configuration
-darwin-rebuild switch --flake github:roshbhatia/sysinit#default
-
-# Or with the hostname configuration
-darwin-rebuild switch --flake github:roshbhatia/sysinit#lv426
-```
-
-## Using in Another Flake
-
-You can use this configuration in another flake (e.g., for your work machine) by importing it as a dependency.
-
-### Sample Work Flake
-
-Here's an example of a work-specific flake that uses this configuration:
+Create a work-specific flake that inherits from sysinit:
 
 ```nix
 {
@@ -127,78 +75,61 @@ Here's an example of a work-specific flake that uses this configuration:
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    
-    darwin = {
-      url = "github:lnl7/nix-darwin/master";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    
-    # Import sysinit base configuration
-    sysinit = {
-      url = "github:roshbhatia/sysinit";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        darwin.follows = "darwin";
-        home-manager.follows = "home-manager";
-      };
+    darwin.url = "github:lnl7/nix-darwin/master";
+    darwin.inputs.nixpkgs.follows = "nixpkgs";
+    home-manager.url = "github:nix-community/home-manager";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    sysinit.url = "github:roshbhatia/sysinit";
+    sysinit.inputs = {
+      nixpkgs.follows = "nixpkgs";
+      darwin.follows = "darwin";
+      home-manager.follows = "home-manager";
     };
   };
 
   outputs = { self, nixpkgs, darwin, home-manager, sysinit, ... }@inputs:
   let
     system = "aarch64-darwin";
-    username = "your-work-username";
+    username = "roshanatwork";  # Change this
     homeDirectory = "/Users/${username}";
   in {
-    # Main configuration
-    darwinConfigurations.${username} = darwin.lib.darwinSystem {
+    darwinConfigurations.work = darwin.lib.darwinSystem {
       inherit system;
       specialArgs = { inherit inputs username homeDirectory; };
       modules = [
-        # Import base system configuration
+        # Import sysinit base config
         sysinit.darwinModules.default {
           inherit username homeDirectory;
         }
         
-        # Work-specific system configuration
+        # Work-specific Homebrew packages
         ({ pkgs, ... }: {
-          environment.systemPackages = with pkgs; [
-            # Work packages here
-          ];
-          
-          # Work-specific Homebrew packages
+          homebrew.taps = []
+
           homebrew.brews = [
-            "work-specific-package"
+            "work-specific-tool"
           ];
           
           homebrew.casks = [
-            "work-specific-app"
+            "company-chat-app"
+            "company-vpn"
           ];
         })
         
-        # Home Manager configuration
+        # Home Manager config
         home-manager.darwinModules.home-manager {
           home-manager = {
             useGlobalPkgs = true;
             useUserPackages = true;
             extraSpecialArgs = { inherit inputs username homeDirectory; };
-            backupFileExtension = "backup";
             users.${username} = { pkgs, ... }: {
               imports = [ 
-                # Import base home configuration
                 sysinit.darwinModules.home
-                
-                # Work-specific home configuration
+                # Work Git Config
                 ({ ... }: {
                   programs.git = {
-                    userEmail = "your-work-email@company.com";
+                    userEmail = "roshan@work.com";
                   };
-                  # Other work-specific config here
                 })
               ];
               
@@ -210,73 +141,8 @@ Here's an example of a work-specific flake that uses this configuration:
       ];
     };
     
-    # Set as default configuration
-    darwinConfigurations.default = self.darwinConfigurations.${username};
+    # Set as default
+    darwinConfigurations.default = self.darwinConfigurations.work;
   };
 }
 ```
-
-With this setup, you can build and activate from your work flake:
-
-```bash
-darwin-rebuild switch --flake .
-```
-
-## Maintenance
-
-### Garbage Collection
-
-To clean up old generations and free disk space:
-
-```bash
-nix-collect-garbage -d
-```
-
-### Updating Flake Inputs
-
-To update all flake inputs:
-
-```bash
-nix flake update
-```
-
-To update a specific input:
-
-```bash
-nix flake lock --update-input nixpkgs
-```
-
-### Cleaning Up Backup Files
-
-To remove any backup files created during nix-darwin installation or updates:
-
-```bash
-# Remove system backup files
-sudo rm -f /etc/*.before-nix-darwin
-
-# Remove home directory backup files
-rm -f $HOME/.*.backup* $HOME/.*.bak
-
-# Remove XDG config backup files
-find $HOME/.config -name "*.backup" -o -name "*.bak" -exec rm -f {} \;
-```
-
-### Completely Uninstalling Nix
-
-If you need to completely remove Nix and all related configurations from your system:
-
-```bash
-# Run the included uninstall script
-./uninstall-nix.sh
-```
-
-This will:
-- Stop all Nix services
-- Remove Nix configuration files
-- Remove nix-darwin configurations
-- Delete the Nix store
-- Remove launch daemons
-- Clean up backup files
-- Remove Nix users and groups
-
-After running this script, your system will be in a clean state, allowing you to reinstall Nix if needed.
