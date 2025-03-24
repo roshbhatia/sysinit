@@ -53,7 +53,9 @@
     darwin.lib.darwinSystem {
       inherit system;
       specialArgs = { 
-        inherit inputs username homeDirectory config; 
+        inherit inputs username homeDirectory; 
+        # Pass user config as userConfig to avoid collisions with module config
+        userConfig = config;
         # Always enable homebrew
         enableHomebrew = true;
       };
@@ -66,7 +68,7 @@
           home-manager = {
             useGlobalPkgs = true;
             useUserPackages = true;
-            extraSpecialArgs = { inherit inputs username homeDirectory config; };
+            extraSpecialArgs = { inherit inputs username homeDirectory; userConfig = config; };
             backupFileExtension = "backup";
             users.${username} = { pkgs, ... }: {
               imports = [ ./modules/home ];
@@ -94,7 +96,8 @@
         
         # Pass the required parameters
         _module.args = {
-          inherit username homeDirectory inputs config;
+          inherit username homeDirectory inputs;
+          userConfig = config;
           enableHomebrew = true;
         };
       };
@@ -104,7 +107,7 @@
         imports = [ ./modules/home ];
         home.username = username;
         home.homeDirectory = homeDirectory;
-        _module.args.config = config;
+        _module.args.userConfig = config;
       };
     };
     
@@ -121,7 +124,7 @@
       specialArgs = { 
         username = bootstrapUsername;
         homeDirectory = bootstrapHomeDirectory;
-        inherit config;
+        userConfig = config;
       };
       modules = [{
         # Minimal configuration
@@ -144,12 +147,15 @@
     };
   in {
     # Main usable configurations
-    darwinConfigurations = {
+    darwinConfigurations = let
+      # Load default config for configurations
+      defaultConfig = import ./config.nix;
+    in {
       # Default personal configuration with default config file
       default = mkDarwinConfig {};
       
       # Also set as hostname-based configuration for simplified commands
-      "${config.user.hostname}" = mkDarwinConfig {};
+      "${defaultConfig.user.hostname}" = mkDarwinConfig {};
       
       # Bootstrap configuration for initial setup
       bootstrap = bootstrapConfig;
