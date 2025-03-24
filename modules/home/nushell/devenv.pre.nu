@@ -34,9 +34,19 @@ def check_devenv_shell [pwd: string] {
         return
     }
     
+    # Check if we moved to a parent directory of an active environment
+    if ($active_path != "") and ($active_path | str starts-with $pwd) {
+        # We moved up out of an active environment
+        print $"(ansi yellow)Exiting devenv.nix.shell environment from ($active_path)(ansi reset)"
+        $env.DEVENV_ACTIVE_PATH = ""
+        $env.DEVENV_NIX_SHELL = false
+        return
+    }
+    
     # Check if the current directory has a devenv.shell.nix file
     if (ls | where name == "devenv.shell.nix" | length) > 0 {
-        # Found a new devenv.shell.nix, activate it
+        # If we're not already in a devenv shell, activate it
+        # If DEVENV_NIX_SHELL is true, we're already in a shell and should do nothing
         if ($env | get -i DEVENV_NIX_SHELL | default false) == false {
             print $"(ansi green)Found devenv.shell.nix, activating environment...(ansi reset)"
             $env.DEVENV_ACTIVE_PATH = $pwd
@@ -50,9 +60,10 @@ def check_devenv_shell [pwd: string] {
             }
         }
     } else {
-        # No devenv.shell.nix in current directory
+        # No devenv.shell.nix in current directory, and not a parent of active environment
+        # (parent case is handled above)
         if ($active_path != "") {
-            # We had an active path but moved out of it
+            # We had an active path but moved to an unrelated directory
             print $"(ansi yellow)Exiting devenv.nix.shell environment from ($active_path)(ansi reset)"
             $env.DEVENV_ACTIVE_PATH = ""
             $env.DEVENV_NIX_SHELL = false
