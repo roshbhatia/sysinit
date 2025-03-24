@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -e
-
+# shellcheck disable=all
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -76,7 +76,7 @@ fi
 # Remove user-specific Nix configuration
 if [ -d ~/.config/nix ]; then
     log_warning "Removing ~/.config/nix..."
-    rm -rf ~/.config/nix
+    sudo rm -rf ~/.config/nix
     log_success "Removed ~/.config/nix"
 fi
 
@@ -96,20 +96,20 @@ done
 # Remove nix-darwin profiles
 if [ -d ~/.nix-defexpr ]; then
     log_warning "Removing ~/.nix-defexpr..."
-    rm -rf ~/.nix-defexpr
+    sudo rm -rf ~/.nix-defexpr
     log_success "Removed ~/.nix-defexpr"
 fi
 
 if [ -L ~/.nix-profile ]; then
     log_warning "Removing ~/.nix-profile..."
-    rm -f ~/.nix-profile
+    sudo rm -f ~/.nix-profile
     log_success "Removed ~/.nix-profile"
 fi
 
 # Remove nix-darwin state folders
 if [ -d ~/.local/state/nix ]; then
     log_warning "Removing ~/.local/state/nix..."
-    rm -rf ~/.local/state/nix
+    sudo rm -rf ~/.local/state/nix
     log_success "Removed ~/.local/state/nix"
 fi
 
@@ -131,7 +131,6 @@ for dir in /nix /var/root/.nix-profile /var/root/.nix-defexpr /var/root/.nix-cha
         # Handle .Trashes directory with special permissions
         if [ "$dir" = "/nix" ] && [ -d "/nix/.Trashes" ]; then
             log_warning "Removing /nix/.Trashes directory with special permissions..."
-            sudo chflags -R nouchg /nix/.Trashes 2>/dev/null || true
             sudo rm -rf /nix/.Trashes 2>/dev/null || true
         fi
         sudo rm -rf "$dir" || log_warning "Warning: Could not fully remove $dir, continuing anyway"
@@ -160,12 +159,12 @@ log_success "Removed system backup files"
 
 # Remove home directory backup files
 log_warning "Removing home directory backup files..."
-rm -f $HOME/.*.backup* $HOME/.*.bak || true
+sudo rm -f "$HOME/.*.backup""*"" """"$HO"M"E"/.*.bak || true
 log_success "Removed home directory backup files"
 
 # Remove XDG config backup files
 log_warning "Removing XDG config backup files..."
-find $HOME/.config -name "*.backup" -o -name "*.bak" -exec rm -f {} \; || true
+find "$HOME"/.config -name "*.backup" -o -name "*.bak" -exec sudo rm -f {} \; || true
 log_success "Removed XDG config backup files"
 
 # Clean up /etc entries that might have been created
@@ -181,7 +180,7 @@ for file in "$HOME/.bash_profile" "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile
     if [ -f "$file" ]; then
         log_warning "Removing Nix references from $file..."
         sed -i.bak '/nix/d' "$file" || true
-        rm -f "${file}.bak" || true
+        sudo rm -f "${file}.bak" || true
         log_success "Cleaned up $file"
     fi
 done
