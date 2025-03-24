@@ -31,7 +31,8 @@
       modules = [
         # Import sysinit base config
         sysinit.darwinModules.default {
-          inherit username homeDirectory config;
+          inherit username homeDirectory;
+          config = config;  # This will be passed as userConfig internally
         }
         
         # Home Manager config
@@ -43,7 +44,8 @@
             users.${username} = { pkgs, ... }: {
               imports = [ 
                 sysinit.darwinModules.home {
-                  inherit username homeDirectory config;
+                  inherit username homeDirectory;
+                  config = config;  # This will be passed as userConfig internally
                 }
                 
                 # Additional work-specific configurations
