@@ -65,9 +65,115 @@ nix flake update
 nix-collect-garbage -d
 ```
 
+## Configuration System
+
+SysInit now supports a customizable configuration system through a `config.nix` file. This allows you to easily customize various aspects of your setup without modifying the core files.
+
+### Default Config Structure
+
+The default `config.nix` file looks like this:
+
+```nix
+{
+  # User and system configuration
+  user = {
+    username = "rshnbhatia";  # Default username
+    hostname = "lv426";       # Default hostname
+  };
+
+  # Additional Homebrew packages to install
+  homebrew = {
+    additionalPackages = {
+      taps = [
+        # Add additional taps here
+        # Example: "user/repo"
+      ];
+
+      brews = [
+        # Add additional brew packages here
+        # Example: "package-name"
+      ];
+
+      casks = [
+        # Add additional cask applications here
+        # Example: "app-name"
+      ];
+    };
+  };
+
+  # Wallpaper configuration
+  wallpaper = {
+    path = "./wall/mvp2.jpg";  # Default wallpaper path
+  };
+
+  # Files to install in home directory
+  install = [
+    # Example file installation
+    # {
+    #   source = "./path/to/source/file";
+    #   destination = ".config/destination/file";
+    # }
+  ];
+}
+```
+
 ## Custom Work Setup Example
 
-Create a work-specific flake that inherits from sysinit:
+There are two ways to use SysInit for a custom work setup:
+
+### Option 1: Create a Custom Config File
+
+This is the simplest approach - just create a custom config file and reference it when building:
+
+1. Create a work-specific config file:
+
+```nix
+# work-config.nix
+{
+  user = {
+    username = "roshanatwork";
+    hostname = "work-macbook"; 
+  };
+
+  homebrew = {
+    additionalPackages = {
+      taps = [
+        "company/internal"
+      ];
+
+      brews = [
+        "work-specific-tool"
+      ];
+
+      casks = [
+        "company-chat-app"
+        "company-vpn"
+      ];
+    };
+  };
+
+  wallpaper = {
+    path = "./wall/company-logo.jpg";
+  };
+
+  install = [
+    {
+      source = "./work-configs/vpn-config";
+      destination = ".config/vpn/config";
+    }
+  ];
+}
+```
+
+2. Build using the custom config:
+
+```bash
+darwin-rebuild switch --flake .#lib.mkConfigWithFile ./work-config.nix
+```
+
+### Option 2: Create a separate flake that imports SysInit
+
+For more advanced customization, create a separate flake that imports SysInit:
 
 ```nix
 {
@@ -90,51 +196,54 @@ Create a work-specific flake that inherits from sysinit:
   outputs = { self, nixpkgs, darwin, home-manager, sysinit, ... }@inputs:
   let
     system = "aarch64-darwin";
-    username = "roshanatwork";  # Change this
+    config = {
+      user = {
+        username = "roshanatwork";
+        hostname = "work-macbook";
+      };
+      
+      homebrew = {
+        additionalPackages = {
+          brews = [ "work-specific-tool" ];
+          casks = [ "company-chat-app" "company-vpn" ];
+        };
+      };
+      
+      wallpaper = {
+        path = "./wall/company-logo.jpg";
+      };
+    };
+    username = config.user.username;
     homeDirectory = "/Users/${username}";
   in {
     darwinConfigurations.work = darwin.lib.darwinSystem {
       inherit system;
-      specialArgs = { inherit inputs username homeDirectory; };
+      specialArgs = { inherit inputs username homeDirectory config; };
       modules = [
         # Import sysinit base config
         sysinit.darwinModules.default {
-          inherit username homeDirectory;
+          inherit username homeDirectory config;
         }
-        
-        # Work-specific Homebrew packages
-        ({ pkgs, ... }: {
-          homebrew.taps = []
-
-          homebrew.brews = [
-            "work-specific-tool"
-          ];
-          
-          homebrew.casks = [
-            "company-chat-app"
-            "company-vpn"
-          ];
-        })
         
         # Home Manager config
         home-manager.darwinModules.home-manager {
           home-manager = {
             useGlobalPkgs = true;
             useUserPackages = true;
-            extraSpecialArgs = { inherit inputs username homeDirectory; };
+            extraSpecialArgs = { inherit inputs username homeDirectory config; };
             users.${username} = { pkgs, ... }: {
               imports = [ 
-                sysinit.darwinModules.home
-                # Work Git Config
+                sysinit.darwinModules.home {
+                  inherit username homeDirectory config;
+                }
+                
+                # Additional work-specific configurations
                 ({ ... }: {
                   programs.git = {
                     userEmail = "roshan@work.com";
                   };
                 })
               ];
-              
-              home.username = username;
-              home.homeDirectory = homeDirectory;
             };
           };
         }
@@ -146,3 +255,9 @@ Create a work-specific flake that inherits from sysinit:
   };
 }
 ```
+
+### Example Files
+
+Check out the `examples/` directory for:
+- `work-config.nix`: An example configuration file for a work setup
+- `work-flake.nix`: An example flake file for a separate repository that imports SysInit
