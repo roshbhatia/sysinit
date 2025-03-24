@@ -1,10 +1,20 @@
-{ config, lib, pkgs, username, homeDirectory, userConfig ? {}, ... }:
+{ config, lib, pkgs, username, homeDirectory, userConfig ? {}, inputs, ... }:
 
 let
+  # Function to resolve a possibly relative path to an absolute path
+  # If path is already absolute, return it as is
+  # If path is relative, resolve it relative to the flake root
+  resolvePath = path:
+    if lib.strings.hasPrefix "/" path
+    then path
+    else toString (inputs.self + "/${path}");
+
   # Get wallpaper path from userConfig or use default
-  wallpaperPath = if userConfig ? wallpaper && userConfig.wallpaper ? path 
-                 then userConfig.wallpaper.path
-                 else "./wall/mvp2.jpg";
+  wallpaperPath = resolvePath (
+    if userConfig ? wallpaper && userConfig.wallpaper ? path 
+    then userConfig.wallpaper.path
+    else "./wall/mvp2.jpg"
+  );
                  
   # Get files to install from userConfig or use empty list
   filesToInstall = if userConfig ? install
@@ -15,7 +25,7 @@ let
   installFile = { source, destination }:
     {
       target = destination;
-      source = source;
+      source = resolvePath source;
     };
     
   # Map the install configurations to home-manager file objects
