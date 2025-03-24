@@ -4,19 +4,12 @@
   programs.nushell = {
     enable = true;
     
+    # Use the consolidated config file for both config and environment settings
     configFile.source = ./config.nu;
-    envFile.source = ./env.nu;
-
+    
+    # The env settings are now included in config.nu
     extraConfig = ''
-      # Load devenv hook if it exists
-      if ($env | columns | any { |it| $it == "DEVENV_NIX_SHELL" }) {
-        print "Already in a devenv.nix.shell environment"
-      }
+      # We're now using a consolidated config file
     '';
-  };
-
-  # Create devenv.pre.nu file for direnv-like functionality
-  xdg.configFile = {
-    "nushell/devenv.pre.nu".source = ./devenv.pre.nu;
   };
 }
