@@ -61,21 +61,16 @@ function devenv.nix.shell() {
     return 1
   fi
   
-  # Check for shell availability and set up run command
-  local shell_cmd=""
-  if command -v nu &> /dev/null; then
-    shell_cmd="nu"
-    log_debug "Using nushell for interactive shell"
-  elif command -v zsh &> /dev/null; then
-    shell_cmd="zsh"
-    log_debug "Using zsh as fallback interactive shell"
-  fi
-  
   # Run nix-shell with the specified file and pass all arguments
   log_info "Running nix-shell with devenv file" file="$shell_file" args="$*"
-  if [[ -n "$shell_cmd" ]]; then
-    nix-shell --run "$shell_cmd" "$shell_file" "$@"
+  
+  # We want to run nushell inside the nix-shell environment
+  # Using --command nu is more reliable than --run nu
+  if command -v nu &> /dev/null; then
+    log_debug "Using nushell for interactive shell"
+    nix-shell "$shell_file" --command "nu" "$@"
   else
+    log_debug "Nushell not found, using default shell"
     nix-shell "$shell_file" "$@"
   fi
   exit_code=$?
