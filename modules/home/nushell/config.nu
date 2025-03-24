@@ -150,7 +150,9 @@ def check_devenv_shell [pwd: string] {
 # Set up the hook to activate on directory change
 $env.config = ($env.config | upsert hooks {
     env_change: {
-        PWD: "let pwd = $env.PWD; check_devenv_shell $pwd"
+        PWD: [
+            "let pwd = $env.PWD; check_devenv_shell $pwd"
+        ]
     }
 })
 
