@@ -35,21 +35,6 @@ if (which yazi | length) > 0 {
     alias y = yazi
 }
 
-# Colored prompt
-def create_left_prompt [] {
-    # Check if we're in a devenv.nix.shell
-    let in_nix_shell = ($env | get -i DEVENV_NIX_SHELL | default false)
-    
-    # Show different prompt based on environment
-    if $in_nix_shell {
-        let pwd = ($env.PWD | str replace $env.HOME "~")
-        $"(ansi green)nix-shell(ansi reset):(ansi cyan)($pwd)(ansi reset)> "
-    } else {
-        let pwd = ($env.PWD | str replace $env.HOME "~")
-        $"(ansi cyan)($pwd)(ansi reset)> "
-    }
-}
-
 # Use nushell functions to create command-line utilities
 def nuopen [arg, --raw (-r)] { if $raw { open -r $arg } else { open $arg } }
 def nuhelp [] { help commands | sort-by name | grid -c }
