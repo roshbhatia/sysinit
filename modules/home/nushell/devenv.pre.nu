@@ -47,18 +47,6 @@ def check_devenv_shell [pwd: string] {
     if (ls | where name == "devenv.shell.nix" | length) > 0 {
         # If we're not already in a devenv shell, activate it
         # If DEVENV_NIX_SHELL is true, we're already in a shell and should do nothing
-        if ($env | get -i DEVENV_NIX_SHELL | default false) == false {
-            print $"(ansi green)Found devenv.shell.nix, activating environment...(ansi reset)"
-            $env.DEVENV_ACTIVE_PATH = $pwd
-            $env.DEVENV_NIX_SHELL = true
-            
-            # Allow nix-shell to run with nushell
-            if (which nu | length) > 0 {
-                nix-shell --run nu devenv.shell.nix
-            } else {
-                nix-shell devenv.shell.nix
-            }
-        }
     } else {
         # No devenv.shell.nix in current directory, and not a parent of active environment
         # (parent case is handled above)
