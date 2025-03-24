@@ -26,11 +26,11 @@ let
         value = installFile fileConfig;
       }) 
       filesToInstall);
+      
+  # Add wallpaper to the file map
+  allFiles = homeManagerFiles // { ".wallpaper" = { source = wallpaperPath; }; };
 in
 {
-  # Set wallpaper if defined
-  home.file.".wallpaper".source = wallpaperPath;
-  
-  # Install additional files
-  home.file = homeManagerFiles;
+  # Install all files including wallpaper
+  home.file = allFiles;
 }
