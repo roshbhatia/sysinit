@@ -6,6 +6,7 @@
     ./k9s/k9s.nix
     ./macchina/macchina.nix
     ./neovim/neovim.nix
+    ./nushell/nushell.nix
     ./starship/starship.nix
     ./wezterm/wezterm.nix
     ./zsh/zsh.nix

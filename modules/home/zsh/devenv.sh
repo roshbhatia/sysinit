@@ -33,8 +33,9 @@ devenv_help() {
   echo "                                        \"Y88P\"       "
   echo
   echo "Development Environment Commands:"
-  echo "  devenv.nix-shell [args]    - Run nix-shell with devenv.shell.nix"
-  echo "  devenv.nix-shell --help    - Show this help message"
+  echo "  devenv.nix.shell [args]    - Run nix-shell with devenv.shell.nix"
+  echo "  devenv.init                - Initialize a new devenv.shell.nix in the current directory"
+  echo "  devenv.nix.shell --help    - Show this help message"
   echo 
   echo "This function looks for a 'devenv.shell.nix' file in the current"
   echo "directory and runs nix-shell with it. All arguments are passed"
@@ -42,7 +43,7 @@ devenv_help() {
 }
 
 # Function for nix-shell with explicit devenv.shell.nix file
-function devenv.nix-shell() {
+function devenv.nix.shell() {
   local shell_file="devenv.shell.nix"
   
   # Parse arguments
@@ -88,14 +89,51 @@ function devenv.nix-shell() {
   return $exit_code
 }
 
-# Auto-load function - automatically run devenv.nix-shell when entering a directory with devenv.shell.nix
+# Initialize a new devenv.shell.nix in the current directory
+function devenv.init() {
+  local shell_file="devenv.shell.nix"
+  local base_template="/Users/rshnbhatia/github/roshbhatia/sysinit/development/ephemeral-shells/base.devenv.shell.nix"
+  
+  # Check if file already exists
+  if [[ -f "$shell_file" ]]; then
+    log_error "Shell file already exists" file="$shell_file" pwd="$(pwd)"
+    echo "Error: $shell_file already exists in the current directory."
+    echo "Use a different name or remove the existing file before initializing a new one."
+    return 1
+  fi
+  
+  # Check if base template exists
+  if [[ ! -f "$base_template" ]]; then
+    log_error "Base template not found" file="$base_template"
+    echo "Error: Base template not found at $base_template"
+    return 1
+  fi
+  
+  # Copy the base template to the current directory
+  log_info "Initializing devenv.shell.nix from template" template="$base_template"
+  cp "$base_template" "$shell_file"
+  exit_code=$?
+  
+  if [[ $exit_code -eq 0 ]]; then
+    log_success "devenv.shell.nix initialized successfully"
+    echo "✅ Created $shell_file in $(pwd)"
+    echo "You can now run 'devenv.nix.shell' to enter the environment"
+    return 0
+  else
+    log_error "Failed to initialize devenv.shell.nix" exit_code="$exit_code"
+    echo "Error: Failed to create $shell_file"
+    return 1
+  fi
+}
+
+# Auto-load function - automatically run devenv.nix.shell when entering a directory with devenv.shell.nix
 _devenv_autoload() {
   local shell_file="devenv.shell.nix"
   
   # Check if we're in a real terminal and if the file exists
   if [[ -t 1 && -f "$shell_file" ]]; then
     log_debug "Found devenv.shell.nix in $(pwd), auto-loading environment"
-    devenv.nix-shell
+    devenv.nix.shell
   fi
 }
 
@@ -110,5 +148,5 @@ fi
 
 # Display help when called without arguments from the command line
 if [[ $# -eq 0 && "${BASH_SOURCE[0]}" == "${0}" ]]; then
-  devenv.nix-shell --help
+  devenv.nix.shell --help
 fi
