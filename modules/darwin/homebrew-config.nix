@@ -1,17 +1,17 @@
-{ pkgs, lib, enableHomebrew ? true, username, config ? {}, ... }:
+{ pkgs, lib, config, enableHomebrew ? true, username, userConfig ? {}, ... }:
 
 let
-  # Get additional homebrew packages from config or use empty lists if not defined
-  additionalTaps = if config ? homebrew && config.homebrew ? additionalPackages && config.homebrew.additionalPackages ? taps 
-                  then config.homebrew.additionalPackages.taps 
+  # Get additional homebrew packages from userConfig or use empty lists if not defined
+  additionalTaps = if userConfig ? homebrew && userConfig.homebrew ? additionalPackages && userConfig.homebrew.additionalPackages ? taps 
+                  then userConfig.homebrew.additionalPackages.taps 
                   else [];
                   
-  additionalBrews = if config ? homebrew && config.homebrew ? additionalPackages && config.homebrew.additionalPackages ? brews 
-                   then config.homebrew.additionalPackages.brews 
+  additionalBrews = if userConfig ? homebrew && userConfig.homebrew ? additionalPackages && userConfig.homebrew.additionalPackages ? brews 
+                   then userConfig.homebrew.additionalPackages.brews 
                    else [];
                    
-  additionalCasks = if config ? homebrew && config.homebrew ? additionalPackages && config.homebrew.additionalPackages ? casks 
-                   then config.homebrew.additionalPackages.casks 
+  additionalCasks = if userConfig ? homebrew && userConfig.homebrew ? additionalPackages && userConfig.homebrew.additionalPackages ? casks 
+                   then userConfig.homebrew.additionalPackages.casks 
                    else [];
                    
   # Base packages

@@ -1,14 +1,14 @@
-{ lib, pkgs, username, homeDirectory, config ? {}, ... }:
+{ config, lib, pkgs, username, homeDirectory, userConfig ? {}, ... }:
 
 let
-  # Get wallpaper path from config or use default
-  wallpaperPath = if config ? wallpaper && config.wallpaper ? path 
-                 then config.wallpaper.path
+  # Get wallpaper path from userConfig or use default
+  wallpaperPath = if userConfig ? wallpaper && userConfig.wallpaper ? path 
+                 then userConfig.wallpaper.path
                  else "./wall/mvp2.jpg";
                  
-  # Get files to install from config or use empty list
-  filesToInstall = if config ? install
-                  then config.install
+  # Get files to install from userConfig or use empty list
+  filesToInstall = if userConfig ? install
+                  then userConfig.install
                   else [];
                   
   # Function to install a file

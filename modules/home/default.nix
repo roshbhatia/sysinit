@@ -1,4 +1,4 @@
-{ pkgs, lib, inputs, username, homeDirectory, config ? {}, ... }: {
+{ config, pkgs, lib, inputs, username, homeDirectory, userConfig ? {}, ... }: {
   imports = [
     ./atuin/atuin.nix
     ./colima/colima.nix
