@@ -32,17 +32,28 @@
   outputs = { self, nixpkgs, darwin, home-manager, nix-homebrew, homebrew-core, homebrew-cask, ... }@inputs:
   let
     system = "aarch64-darwin"; # For Apple Silicon
-    defaultUsername = "rshnbhatia";
+    
+    # Load the config file with defaults
+    loadConfig = configPath:
+      let
+        defaultConfig = import ./config.nix;
+        customConfig = if builtins.pathExists configPath 
+                      then import configPath 
+                      else {};
+      in nixpkgs.lib.recursiveUpdate defaultConfig customConfig;
     
     # Main darwin configuration function
-    mkDarwinConfig = { username ? defaultUsername }: 
+    mkDarwinConfig = { configPath ? ./config.nix }: 
     let
+      config = loadConfig configPath;
+      username = config.user.username;
+      hostname = config.user.hostname;
       homeDirectory = "/Users/${username}";
     in
     darwin.lib.darwinSystem {
       inherit system;
       specialArgs = { 
-        inherit inputs username homeDirectory; 
+        inherit inputs username homeDirectory config; 
         # Always enable homebrew
         enableHomebrew = true;
       };
@@ -55,7 +66,7 @@
           home-manager = {
             useGlobalPkgs = true;
             useUserPackages = true;
-            extraSpecialArgs = { inherit inputs username homeDirectory; };
+            extraSpecialArgs = { inherit inputs username homeDirectory config; };
             backupFileExtension = "backup";
             users.${username} = { pkgs, ... }: {
               imports = [ ./modules/home ];
@@ -65,36 +76,44 @@
             };
           };
         }
+        
+        # Set the hostname
+        {
+          networking.hostName = hostname;
+        }
       ];
     };
     
     # Helper module for including in other flakes
     darwinModules = {
       # Core system module for use in other flakes
-      default = { username, homeDirectory ? "/Users/${username}", ... }: {
+      default = { username, homeDirectory ? "/Users/${username}", config ? {}, ... }: {
         imports = [
           ./modules/darwin/darwin.nix
         ];
         
         # Pass the required parameters
         _module.args = {
-          inherit username homeDirectory inputs;
+          inherit username homeDirectory inputs config;
           enableHomebrew = true;
         };
       };
       
       # Home manager module for use in other flakes
-      home = { username, homeDirectory ? "/Users/${username}", ... }: {
+      home = { username, homeDirectory ? "/Users/${username}", config ? {}, ... }: {
         imports = [ ./modules/home ];
         home.username = username;
         home.homeDirectory = homeDirectory;
+        _module.args.config = config;
       };
     };
     
     # Simple bootstrap configuration for initial nix-darwin installation
     bootstrapConfig = 
     let
-      bootstrapUsername = defaultUsername;
+      # Load default config for bootstrap
+      config = import ./config.nix;
+      bootstrapUsername = config.user.username;
       bootstrapHomeDirectory = "/Users/${bootstrapUsername}";
     in
     darwin.lib.darwinSystem {
@@ -102,6 +121,7 @@
       specialArgs = { 
         username = bootstrapUsername;
         homeDirectory = bootstrapHomeDirectory;
+        inherit config;
       };
       modules = [{
         # Minimal configuration
@@ -125,19 +145,23 @@
   in {
     # Main usable configurations
     darwinConfigurations = {
-      # Default personal configuration
+      # Default personal configuration with default config file
       default = mkDarwinConfig {};
       
       # Also set as hostname-based configuration for simplified commands
-      "lv426" = mkDarwinConfig {};
+      "${config.user.hostname}" = mkDarwinConfig {};
       
       # Bootstrap configuration for initial setup
       bootstrap = bootstrapConfig;
     };
     
-    # Helper function for creating configurations with custom username
+    # Helper functions for creating configurations
     lib = {
-      mkConfig = username: mkDarwinConfig { inherit username; };
+      # Create a configuration with custom config file
+      mkConfigWithFile = configPath: mkDarwinConfig { inherit configPath; };
+      
+      # The default config file path
+      defaultConfigPath = ./config.nix;
     };
     
     # Modules for use in other flakes

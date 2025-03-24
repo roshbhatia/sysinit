@@ -1,0 +1,18 @@
+# Example VPN configuration file
+# This would contain your company's VPN settings
+
+[connection]
+name = Company VPN
+type = vpn
+autoconnect = false
+
+[vpn]
+service-type = org.freedesktop.NetworkManager.openvpn
+connection-type = password
+username = roshanatwork
+
+[vpn-secrets]
+password = YOUR_PASSWORD_HERE
+
+[ipv4]
+method = auto

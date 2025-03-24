@@ -1,4 +1,4 @@
-{ config, pkgs, lib, inputs, username, homeDirectory, ... }: {
+{ pkgs, lib, inputs, username, homeDirectory, config ? {}, ... }: {
   imports = [
     ./atuin/atuin.nix
     ./colima/colima.nix
@@ -11,6 +11,7 @@
     ./wezterm/wezterm.nix
     ./zsh/zsh.nix
     ./packages.nix
+    ./config-extras.nix
   ];
 
   # Home Manager needs a bit of information about you and the paths it should manage
