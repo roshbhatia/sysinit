@@ -9,19 +9,19 @@ let
   # This shouldn't happen due to flake.nix validation, but provides a helpful error
   missingProps = lib.filter
     (prop: !(cfg ? ${prop}))
-    ["userName" "userEmail" "credentialUsername" "githubUser"];
+    ["userName" "userEmail" "githubUser"];
   
   # Show warning if any props are missing (shouldn't happen due to flake.nix validation)
   _ = lib.warnIf (missingProps != [])
     "Git configuration in module is missing properties: ${toString missingProps}";
     
   # Get specific email addresses (defaulting to the global one if not specified)
-  personalEmail = cfg.personalEmail or cfg.userEmail;
-  workEmail = cfg.workEmail or cfg.userEmail;
+  personalEmail = if (cfg ? personalEmail) then cfg.personalEmail else cfg.userEmail;
+  workEmail = if (cfg ? workEmail) then cfg.workEmail else cfg.userEmail;
   
   # Assume credentialUsername is same as githubUser if not specified separately
-  personalGithubUser = cfg.personalGithubUser or cfg.githubUser;
-  workGithubUser = cfg.workGithubUser or cfg.githubUser;
+  personalGithubUser = if (cfg ? personalGithubUser) then cfg.personalGithubUser else cfg.githubUser;
+  workGithubUser = if (cfg ? workGithubUser) then cfg.workGithubUser else cfg.githubUser;
 in
 {
   # We're disabling the built-in git module and managing our own config

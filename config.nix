@@ -9,7 +9,6 @@
   git = {
     userName = "Roshan Bhatia";
     userEmail = "rshnbhatia@gmail.com";
-    credentialUsername = "roshbhatia";
     githubUser = "roshbhatia";
   };
 
