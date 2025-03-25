@@ -32,6 +32,7 @@ let
     "fd"
     "libgit2"
     "nushell"
+    "tailscale"
     "yazi"
   ];
   
