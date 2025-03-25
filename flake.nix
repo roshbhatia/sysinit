@@ -40,7 +40,30 @@
         customConfig = if builtins.pathExists configPath 
                       then import configPath 
                       else {};
-      in nixpkgs.lib.recursiveUpdate defaultConfig customConfig;
+        mergedConfig = nixpkgs.lib.recursiveUpdate defaultConfig customConfig;
+        
+        # Validate essential configuration
+        _ = nixpkgs.lib.assertMsg 
+            (mergedConfig ? user && mergedConfig.user ? username && mergedConfig.user ? hostname)
+            "Config is missing required user.username or user.hostname properties";
+            
+        # Validate git configuration
+        __ = nixpkgs.lib.assertMsg
+             (mergedConfig ? git && 
+              builtins.all (prop: mergedConfig.git ? ${prop}) 
+              ["userName" "userEmail" "credentialUsername" "githubUser"])
+             "Config is missing required git properties (userName, userEmail, credentialUsername, githubUser)";
+             
+        # Log optional git properties that could be set
+        ___ = let 
+          optionalGitProps = ["personalEmail" "workEmail" "personalGithubUser" "workGithubUser"];
+          missingOptionalProps = nixpkgs.lib.filter (prop: !(mergedConfig.git ? ${prop})) optionalGitProps;
+        in
+        if missingOptionalProps != [] then
+          builtins.trace "Note: Optional git properties not set: ${toString missingOptionalProps}" 
+          true
+        else true;
+      in mergedConfig;
     
     # Main darwin configuration function
     mkDarwinConfig = { configPath ? ./config.nix }: 

@@ -2,12 +2,26 @@
 
 let
   # Get git configuration from userConfig passed from flake.nix
-  cfg = userConfig.git or {
-    userName = "Roshan Bhatia";
-    userEmail = "rshnbhatia@gmail.com";
-    credentialUsername = "roshbhatia";
-    githubUser = "roshbhatia";
-  };
+  # Since validation happens in flake.nix, we can be confident these values exist
+  cfg = userConfig.git;
+  
+  # For additional safety, log warning if any properties are missing
+  # This shouldn't happen due to flake.nix validation, but provides a helpful error
+  missingProps = lib.filter
+    (prop: !(cfg ? ${prop}))
+    ["userName" "userEmail" "credentialUsername" "githubUser"];
+  
+  # Show warning if any props are missing (shouldn't happen due to flake.nix validation)
+  _ = lib.warnIf (missingProps != [])
+    "Git configuration in module is missing properties: ${toString missingProps}";
+    
+  # Get specific email addresses (defaulting to the global one if not specified)
+  personalEmail = cfg.personalEmail or cfg.userEmail;
+  workEmail = cfg.workEmail or cfg.userEmail;
+  
+  # Assume credentialUsername is same as githubUser if not specified separately
+  personalGithubUser = cfg.personalGithubUser or cfg.githubUser;
+  workGithubUser = cfg.workGithubUser or cfg.githubUser;
 in
 {
   # We're disabling the built-in git module and managing our own config
@@ -25,7 +39,7 @@ in
 
 [credential]
     helper = store
-    username = ${cfg.credentialUsername}
+    username = ${cfg.githubUser}
 
 [github]
     user = ${cfg.githubUser}
@@ -69,8 +83,39 @@ in
 '';
   };
 
+  # Generate the personal gitconfig dynamically
   home.file.".gitconfig.personal" = {
-    source = ./gitconfig.personal;
+    text = ''
+# Personal-specific Git configuration
+# This file is included when in ~/github/personal/ directories
+
+[user]
+    email = ${personalEmail}
+
+[credential]
+    username = ${personalGithubUser}
+
+[github]
+    user = ${personalGithubUser}
+'';
+  };
+  
+  # Add work-specific Git configuration
+  home.file.".gitconfig.work" = {
+    # Use a text content that we generate instead of a static file
+    text = ''
+# Work-specific Git configuration
+# This file is included when in ~/github/work/ directories
+
+[user]
+    email = ${workEmail}
+
+[credential]
+    username = ${workGithubUser}
+
+[github]
+    user = ${workGithubUser}
+'';
   };
   
   home.file.".gitignore.global" = {

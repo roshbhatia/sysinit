@@ -5,6 +5,23 @@
     username = "roshanatwork";  # Work username
     hostname = "work-macbook";  # Work hostname
   };
+  
+  # Git configuration
+  git = {
+    # Global Git settings (required)
+    userName = "Roshan Bhatia";
+    userEmail = "roshan@work-domain.com";
+    credentialUsername = "rbhatia";
+    githubUser = "work-rbhatia";
+    
+    # Work-specific overrides (optional)
+    workEmail = "roshan@work-domain.com";
+    workGithubUser = "work-rbhatia";
+    
+    # Personal-specific overrides (optional)
+    personalEmail = "personal@gmail.com";
+    personalGithubUser = "personal-github";
+  };
 
   # Additional Homebrew packages to install
   homebrew = {
