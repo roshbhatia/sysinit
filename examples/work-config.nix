@@ -6,6 +6,14 @@
     hostname = "work-macbook";  # Work hostname
   };
 
+  # Git configuration
+  git = {
+    userName = "Roshan Bhatia";
+    userEmail = "roshan@company.com";
+    credentialUsername = "roshanatwork";
+    githubUser = "company-roshan";
+  };
+
   # Additional Homebrew packages to install
   homebrew = {
     additionalPackages = {

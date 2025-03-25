@@ -1,10 +1,18 @@
 { config, lib, pkgs, ... }:
 
+let
+  cfg = config.sysinit.git or {
+    userName = "Roshan Bhatia";
+    userEmail = "rshnbhatia@gmail.com";
+    credentialUsername = "roshbhatia";
+    githubUser = "roshbhatia";
+  };
+in
 {
   programs.git = {
     enable = true;
-    userName = lib.mkDefault "Roshan Bhatia";
-    userEmail = lib.mkDefault "rshnbhatia@gmail.com";
+    userName = lib.mkDefault cfg.userName;
+    userEmail = lib.mkDefault cfg.userEmail;
     
     extraConfig = {
       pull.rebase = true;
@@ -14,17 +22,17 @@
       core.editor = "code --wait";
       core.excludesFile = "~/.gitignore.global";
       credential.helper = "store";
-      credential.username = "roshbhatia";
-      github.user = "roshbhatia";
+      credential.username = cfg.credentialUsername;
+      github.user = cfg.githubUser;
     };
     
     includes = [
       {
-        condition = "gitdir:~/github/";
+        condition = "gitdir:~/github/work/";
         path = "~/.gitconfig.work";
       }
       {
-        condition = "gitdir:~/github/roshbhatia/";
+        condition = "gitdir:~/github/personal/";
         path = "~/.gitconfig.personal";
       }
     ];

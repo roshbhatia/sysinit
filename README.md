@@ -80,6 +80,14 @@ The default `config.nix` file looks like this:
     username = "rshnbhatia";  # Default username
     hostname = "lv426";       # Default hostname
   };
+  
+  # Git configuration
+  git = {
+    userName = "Roshan Bhatia";
+    userEmail = "rshnbhatia@gmail.com";
+    credentialUsername = "roshbhatia";
+    githubUser = "roshbhatia";
+  };
 
   # Additional Homebrew packages to install
   homebrew = {
@@ -133,6 +141,13 @@ This is the simplest approach - just create a custom config file and reference i
   user = {
     username = "roshanatwork";
     hostname = "work-macbook"; 
+  };
+  
+  git = {
+    userName = "Roshan Bhatia";
+    userEmail = "roshan@company.com";
+    credentialUsername = "roshanatwork";
+    githubUser = "company-roshan";
   };
 
   homebrew = {
@@ -239,9 +254,7 @@ For more advanced customization, create a separate flake that imports SysInit:
                 
                 # Additional work-specific configurations
                 ({ ... }: {
-                  programs.git = {
-                    userEmail = "roshan@work.com";
-                  };
+                  # Any additional work-specific configurations
                 })
               ];
             };
@@ -259,5 +272,6 @@ For more advanced customization, create a separate flake that imports SysInit:
 ### Example Files
 
 Check out the `examples/` directory for:
+
 - `work-config.nix`: An example configuration file for a work setup
 - `work-flake.nix`: An example flake file for a separate repository that imports SysInit
