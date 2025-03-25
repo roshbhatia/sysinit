@@ -5,6 +5,14 @@
     hostname = "lv426";      # Default hostname
   };
 
+  # Git configuration
+  git = {
+    userName = "Roshan Bhatia";
+    userEmail = "rshnbhatia@gmail.com";
+    credentialUsername = "roshbhatia";
+    githubUser = "roshbhatia";
+  };
+
   # Additional Homebrew packages to install
   homebrew = {
     additionalPackages = {
