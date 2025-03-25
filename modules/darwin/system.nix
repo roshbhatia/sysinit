@@ -17,13 +17,13 @@ in {
         InitialKeyRepeat = 15;
       };
       dock = {
-        autohide = true;
+        autohide = false;
         launchanim = true;
         mru-spaces = false;
         orientation = "bottom";
         persistent-others = [];
         show-recents = false;
-        tilesize = 20;
+        tilesize = 30;
       };
       finder = {
         AppleShowAllExtensions = true;
