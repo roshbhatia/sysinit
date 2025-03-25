@@ -1,7 +1,8 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, userConfig, ... }:
 
 let
-  cfg = config.sysinit.git or {
+  # Get git configuration from userConfig passed from flake.nix
+  cfg = userConfig.git or {
     userName = "Roshan Bhatia";
     userEmail = "rshnbhatia@gmail.com";
     credentialUsername = "roshbhatia";
