@@ -40,7 +40,10 @@ compinit -Ci
 if [ -f "/opt/homebrew/bin/brew" ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 
-  # Initialize atuin first
+  if command -v fzf &> /dev/null; then
+    source <(fzf --zsh)
+  fi
+
   if command -v atuin &> /dev/null; then
     eval "$(atuin init zsh --disable-up-arrow)"
   fi
