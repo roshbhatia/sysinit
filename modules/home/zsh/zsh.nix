@@ -7,7 +7,7 @@
     enableCompletion = true;
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
-    historySubstringSearch.enable = false;
+    historySubstringSearch.enable = true;
     
     history = {
       size = 50000;

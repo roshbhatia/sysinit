@@ -19,21 +19,7 @@
 # Helper functions defined outside the main function to avoid nesting
 function _crepo_list_repos() {
     local REPO_BASE="$1"
-    local CACHE_FILE="/tmp/crepo_cache"
-    local CACHE_TIMEOUT=3600  # 1 hour in seconds
-
-    # More reliable cache check for macOS
-    if [[ -f "$CACHE_FILE" ]]; then
-        local cache_time=$(stat -f %m "$CACHE_FILE" 2>/dev/null || echo 0)
-        local current_time=$(date +%s)
-        if (( current_time - cache_time < CACHE_TIMEOUT )); then
-            cat "$CACHE_FILE"
-            return
-        fi
-    fi
-
-    find "$REPO_BASE" -mindepth 3 -maxdepth 3 -type d ! -name ".*" -exec test -d "{}/.git" \; -print 2>/dev/null | sort > "$CACHE_FILE"
-    cat "$CACHE_FILE"
+    find "$REPO_BASE" -mindepth 3 -maxdepth 3 -type d ! -name ".*" -exec test -d "{}/.git" \; -print 2>/dev/null | sort
 }
 
 function _crepo_list_interactive() {
@@ -65,7 +51,7 @@ function _crepo_change_dir() {
     if [[ -z "$target_repo" ]]; then
         target_path=$(_crepo_list_interactive "$REPO_BASE")
     else
-        local repos=$(_crepo_list_repos "$REPO_BASE" | grep "/$target_repo$" || echo "")
+        local repos=$(_crepo_list_repos "$REPO_BASE" | grep -i "/$target_repo[^/]*$" || echo "")
         local repo_count=$(echo "$repos" | grep -c .)
         
         if [[ "$repo_count" -eq 0 ]]; then
@@ -74,12 +60,12 @@ function _crepo_change_dir() {
         elif [[ "$repo_count" -eq 1 ]]; then
             target_path="$repos"
         else
-            target_path=$(echo "$repos" | _crepo_list_interactive "$REPO_BASE")
+            target_path=$(echo "$repos" | fzf --ansi --preview='eza -l --icons --git --color=always {}')
         fi
     fi
     
-    [[ -d "$target_path" ]] && {
-        cd "$target_path" || return
+    if [[ -d "$target_path" ]]; then
+        \cd "$target_path" || return
         local scope=$(basename "$(dirname "$(dirname "$target_path")")")
         local org=$(basename "$(dirname "$target_path")")
         local name=$(basename "$target_path")
@@ -88,7 +74,7 @@ function _crepo_change_dir() {
             --align center --width 50 --margin "1 2" --padding "1 2" \
             "Changed to repository:" \
             "$(gum style --foreground 99 "$scope/$org/$name")"
-    }
+    fi
 }
 
 function _crepo_show_help() {
@@ -113,7 +99,8 @@ function crepo() {
             _crepo_list_interactive "$REPO_BASE"
             ;;
         d|cd)
-            _crepo_change_dir "$REPO_BASE" "$2"
+            shift
+            _crepo_change_dir "$REPO_BASE" "$1"
             ;;
         h|help)
             _crepo_show_help
