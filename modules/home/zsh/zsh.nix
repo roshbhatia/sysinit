@@ -5,7 +5,10 @@
     enable = true;
     autocd = true;
     enableCompletion = true;
-    autosuggestion.enable = true;
+    autosuggestion = {
+      enable = true;
+      color = "#B4A7D6";  # Pastel purple
+    };
     syntaxHighlighting.enable = true;
     historySubstringSearch.enable = true;
     
