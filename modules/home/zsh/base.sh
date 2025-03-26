@@ -20,6 +20,12 @@ export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export ZSH_DISABLE_COMPFIX="true"
 
+# Zsh autosuggestions configuration
+export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#B4A7D6"
+export ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+export ZSH_AUTOSUGGEST_USE_ASYNC=1
+export ZSH_AUTOSUGGEST_MANUAL_REBIND=1
+
 # Set up completion paths
 fpath=(/opt/homebrew/share/zsh/site-functions $fpath)
 
