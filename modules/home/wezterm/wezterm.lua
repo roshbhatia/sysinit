@@ -29,11 +29,11 @@ config.visual_bell = {
     fade_out_duration_ms = 50
 }
 
+config.color_scheme = "OneDark (base16)"
+
 config.colors = {
     visual_bell = '#242529',
 }
-
-config.color_scheme = 'base16'
 
 config.window_background_opacity = 0.8
 config.macos_window_background_blur = 20
