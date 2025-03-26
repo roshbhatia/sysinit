@@ -19,7 +19,8 @@
 # Helper functions defined outside the main function to avoid nesting
 function _crepo_list_repos() {
     local REPO_BASE="$1"
-    find "$REPO_BASE" -mindepth 3 -maxdepth 3 -type d ! -name ".*" -exec test -d "{}/.git" \; -print 2>/dev/null | sort
+    rg --hidden --no-ignore --files --null -g '!.git' -g '*/.git' "$REPO_BASE" 2>/dev/null | 
+        xargs -0 -n1 dirname | sort -u
 }
 
 function _crepo_list_interactive() {
