@@ -40,12 +40,13 @@ function _crepo_list_interactive() {
         local org=$(basename "$(dirname "$repo")")
         printf "%s|%s %s\n" "$repo" "$(gum style --foreground 35 "$name")" "$(gum style --foreground 212 "($org)")"
     done | fzf --ansi \
-        --preview='eza -l --icons --git --group-directories-first --color=always $(echo {} | cut -d"|" -f1)' \
+        --preview='eza --icons=always --no-permissions --no-user --no-time $(echo {} | cut -d"|" -f1)' \
         --preview-window=right:40%:wrap:border-rounded \
         --height=40% \
         --border=rounded \
         --header="$(gum style --foreground 212 'Select a repository')" \
         --bind="ctrl-/:toggle-preview" \
+        --bind="resize:refresh-preview" \
         --with-nth=2.. \
         --delimiter="|" | cut -d"|" -f1
 }
@@ -58,7 +59,7 @@ function _crepo_change_dir() {
     if [[ -z "$target_repo" ]]; then
         target_path=$(_crepo_list_interactive "$REPO_BASE")
     else
-        local repos=$(_crepo_list_repos "$REPO_BASE" | grep -i "/$target_repo[^/]*$" || echo "")
+        local repos=$(_crepo_list_repos "$REPO_BASE" | grep -i "/${target_repo}[^/]*$" || echo "")
         local repo_count=$(echo "$repos" | grep -c .)
         
         if [[ "$repo_count" -eq 0 ]]; then
@@ -67,7 +68,9 @@ function _crepo_change_dir() {
         elif [[ "$repo_count" -eq 1 ]]; then
             target_path="$repos"
         else
-            target_path=$(echo "$repos" | fzf --ansi --preview='eza -l --icons --git --color=always {}')
+            target_path=$(echo "$repos" | fzf --ansi \
+                --preview='eza --icons=always --no-permissions --no-user --no-time {}' \
+                --bind="resize:refresh-preview")
         fi
     fi
     
