@@ -220,7 +220,7 @@ end)
 
 wezterm.on('window-resized', function(window, pane)
     window:perform_action(
-        act.SendKey { key = 'r', mods = 'CTRL' },
+        wezterm.action.SendString '\x1b[?7l\x1b[?7h',
         pane
     )
 end)

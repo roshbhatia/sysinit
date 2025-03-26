@@ -124,12 +124,15 @@ fi
 
 # Fzf
 export FZF_DEFAULT_OPTS="
-  --height 8
+  --preview-window=right:40%:wrap:border-rounded
+  --height=40%
   --layout=reverse
-  --border
-  --inline-info
-  --bind 'ctrl-r:refresh-preview'
-"
+  --border=rounded
+  --info=inline
+  --pointer='○'
+  --marker='⏺'
+  --color=header:italic
+  --bind resize:refresh-preview"
 
 # Source path configurations
 [ -f "$HOME/.config/zsh/paths.sh" ] && source "$HOME/.config/zsh/paths.sh"
