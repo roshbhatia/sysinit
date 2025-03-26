@@ -4,9 +4,34 @@ let
   settings = {
     "$schema" = "https://starship.rs/config-schema.json";
     
-    format = ''
-    [](#242529)$os$username[](bg:#414045 fg:#242529)$directory[](fg:#414045 bg:#303136)$git_branch$git_status[](fg:#303136 bg:#403f44)$c$golang$java$nodejs$rust[](fg:#403f44 bg:#4f4e53)$docker_context[](fg:#4f4e53 bg:#303136)$time[ ](fg:#303136)
-    '';
+  format = """
+  [](#9A348E)\
+  $os\
+  $username\
+  [](bg:#DA627D fg:#9A348E)\
+  $directory\
+  [](fg:#DA627D bg:#FCA17D)\
+  $git_branch\
+  $git_status\
+  [](fg:#FCA17D bg:#86BBD8)\
+  $c\
+  $elixir\
+  $elm\
+  $golang\
+  $gradle\
+  $haskell\
+  $java\
+  $julia\
+  $nodejs\
+  $nim\
+  $rust\
+  $scala\
+  [](fg:#86BBD8 bg:#06969A)\
+  $docker_context\
+  [](fg:#06969A bg:#33658A)\
+  $time\
+  [ ](fg:#33658A)\
+  """
 
     # Disable the blank line at the start of the prompt
     # add_newline = false
@@ -15,8 +40,8 @@ let
     # and use the os module below
     username = {
       show_always = true;
-      style_user = "bg:#242529";
-      style_root = "bg:#242529";
+      style_user = "bg:#f0f4f8 fg:#1e293b";
+      style_root = "bg:#f0f4f8 fg:#dc2626";
       format = "[$user ]($style)";
       disabled = false;
     };
@@ -24,12 +49,12 @@ let
     # An alternative to the username module which displays a symbol that
     # represents the current operating system
     os = {
-      style = "bg:#9A348E";
+      style = "bg:#d8bfd8";
       disabled = true; # Disabled by default
     };
     
     directory = {
-      style = "bg:#414045";
+      style = "bg:#e2e8f0 fg:#1e293b";
       format = "[ $path ]($style)";
       truncation_length = 3;
       truncation_symbol = "…/";
@@ -43,13 +68,13 @@ let
     
     c = {
       symbol = " ";
-      style = "bg:#86BBD8";
+      style = "bg:#94a3b8 fg:#1e293b";
       format = "[ $symbol ($version) ]($style)";
     };
     
     docker_context = {
       symbol = "";
-      style = "bg:#4f4e53";
+      style = "bg:#64748b fg:#f8fafc";
       format = "[ $symbol $context ]($style)";
     };
     
@@ -67,18 +92,18 @@ let
     
     git_branch = {
       symbol = "";
-      style = "bg:#303136";
+      style = "bg:#cbd5e1 fg:#1e293b";
       format = "[ $symbol $branch ]($style)";
     };
     
     git_status = {
-      style = "bg:#303136";
+      style = "bg:#cbd5e1 fg:#1e293b";
       format = "[$all_status$ahead_behind ]($style)";
     };
     
     golang = {
       symbol = "";
-      style = "bg:#403f44";
+      style = "bg:#94a3b8 fg:#1e293b";
       format = "[ $symbol ($version) ]($style)";
     };
     
@@ -107,7 +132,7 @@ let
     
     nodejs = {
       symbol = "";
-      style = "bg:#403f44";
+      style = "bg:#94a3b8 fg:#1e293b";
       format = "[ $symbol ($version) ]($style)";
     };
     
@@ -119,7 +144,7 @@ let
     
     rust = {
       symbol = "";
-      style = "bg:#403f44";
+      style = "bg:#94a3b8 fg:#1e293b";
       format = "[ $symbol ($version) ]($style)";
     };
     
@@ -132,7 +157,7 @@ let
     time = {
       disabled = false;
       time_format = "%R"; # Hour:Minute Format
-      style = "bg:#303136";
+      style = "bg:#475569 fg:#f8fafc";
       format = "[ ♥ $time ]($style)";
     };
   };

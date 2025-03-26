@@ -85,6 +85,9 @@ if [[ -f "$HOME/.config/zsh/extras/loglib.sh" ]]; then
   source "$HOME/.config/zsh/extras/loglib.sh"
 fi
 
+# Then, source zshextras
+[ -f ~/.zshextras ] && source ~/.zshextras
+
 # Then load all other utility modules from extras directory
 for module in $HOME/.config/zsh/extras/*.sh; do
   if [[ -f "$module" && "$module" != "$HOME/.config/zsh/extras/loglib.sh" ]]; then
@@ -138,7 +141,6 @@ fi
 
 # Source extras if they exist
 [ -f ~/.zshenv ] && source ~/.zshenv
-[ -f ~/.zshextras ] && source ~/.zshextras
 [ -f ~/.zshutils ] && source ~/.zshutils
 
 # Run macchina in WezTerm's main pane
