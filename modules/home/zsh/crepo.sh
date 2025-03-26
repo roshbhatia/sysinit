@@ -19,21 +19,10 @@
 # Helper functions defined outside the main function to avoid nesting
 crepo_list_repos() {
     local REPO_BASE="$1"
-    local CACHE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/crepo"
-    local CACHE_FILE="$CACHE_DIR/cache"
-    
-    # Create cache directory if it doesn't exist
-    mkdir -p "$CACHE_DIR"
+    log_debug "Listing repositories" base_dir="$REPO_BASE"
 
-    # Check if cache needs to be refreshed (older than 1 hour)
-    if [[ ! -f "$CACHE_FILE" ]] || [[ $(find "$CACHE_FILE" -mmin +60 -print) ]]; then
-        gum spin --spinner dot --title "$(gum style --foreground 212 'Scanning repositories...')" -- bash -c "
-            find \"$REPO_BASE\" -mindepth 3 -maxdepth 3 -type d ! -name '.*' 2>/dev/null | sort > \"$CACHE_FILE\"
-        "
-    fi
-
-    # Read from cache
-    local repos=$(cat "$CACHE_FILE")
+    # Find all repositories
+    local repos=$(find "$REPO_BASE" -mindepth 3 -maxdepth 3 -type d ! -name ".*" 2>/dev/null | sort)
 
     if [[ -z "$repos" ]]; then
         gum style --foreground 196 "No repositories found in $REPO_BASE"
@@ -43,37 +32,31 @@ crepo_list_repos() {
     # Get total repo count
     local repo_count=$(echo "$repos" | wc -l | tr -d '[:space:]')
     
+    # Process repository list before fzf to improve performance
+    local processed_repos=$(echo "$repos" | while read -r repo; do
+        local scope=$(basename "$(dirname "$(dirname "$repo")")")
+        local org=$(basename "$(dirname "$repo")")
+        local name=$(basename "$repo")
+        printf "%s|%s|%s|%s\n" "$name" "$scope" "$org" "$repo"
+    done)
+
     # Create a preview function for fzf that uses eza
     preview_cmd='
-        repo_path={}
-        echo "$(gum style --foreground 212 --bold "Repository Details:")"
-        echo "$(gum style --foreground 212 "===================")"
-        echo "$(gum style --foreground 99 "Path:") $repo_path"
-        echo
-        if [ -d "$repo_path/.git" ]; then
-            echo "$(gum style --foreground 99 --bold "Files:")"
-            eza -la --icons --git --color=always "$repo_path"
-            echo
-            echo "$(gum style --foreground 99 --bold "Git Status:")"
-            echo "$(gum style --foreground 99 "===========")"
-            git -C "$repo_path" status -s
-            echo
-            echo "$(gum style --foreground 99 --bold "Recent Commits:")"
-            echo "$(gum style --foreground 99 "==============")"
-            git -C "$repo_path" log --oneline -n 5
-        fi
+        repo_path=$(echo {} | cut -d"|" -f4)
+        eza -la --icons --git --color=always "$repo_path"
     '
 
     # Display repositories with enhanced fzf interface
     local header="$(gum style --foreground 212 "Found $repo_count repositories") - $(gum style --foreground 99 "Select a repository") (Use / to filter, CTRL-/ to toggle preview)"
-    local selected_repo=$(echo "$repos" | while read -r repo; do
-        local scope=$(basename "$(dirname "$(dirname "$repo")")")
-        local org=$(basename "$(dirname "$repo")")
-        local name=$(basename "$repo")
-        printf "%s\n" "$(gum style --foreground 255 "$name") $(gum style --foreground 212 "[$scope/") $(gum style --foreground 99 "$org]") $(gum style --foreground 240 "$repo")"
+    local selected_repo=$(echo "$processed_repos" | while read -r line; do
+        local name=$(echo "$line" | cut -d"|" -f1)
+        local scope=$(echo "$line" | cut -d"|" -f2)
+        local org=$(echo "$line" | cut -d"|" -f3)
+        local path=$(echo "$line" | cut -d"|" -f4)
+        printf "%s\n" "$(gum style --foreground 255 "$name") $(gum style --foreground 212 "[$scope/") $(gum style --foreground 99 "$org]") $(gum style --foreground 240 "$path")"
     done | column -t | fzf --ansi \
         --preview="$preview_cmd" \
-        --preview-window=right:25%:wrap \
+        --preview-window=right:25%:wrap:border-rounded \
         --height=80% \
         --border=rounded \
         --header="$header" \
@@ -102,36 +85,8 @@ crepo_change_dir() {
     local target_repo="$2"
     log_debug "Searching for repository" name="$target_repo" base_dir="$REPO_BASE"
     
-    # Find repositories in both personal and work directories
-    local personal_path="$REPO_BASE/personal"
-    local work_path="$REPO_BASE/work"
-    
-    # Check if the personal and work directories exist
-    local personal_exists=0
-    local work_exists=0
-    [[ -d "$personal_path" ]] && personal_exists=1
-    [[ -d "$work_path" ]] && work_exists=1
-    
-    # Find matching repositories
-    local repos=""
-    if [[ $personal_exists -eq 1 ]]; then
-        local personal_repos=$(find "$personal_path" -mindepth 3 -maxdepth 3 -type d -name "$target_repo" ! -name ".*")
-        repos="$personal_repos"
-    fi
-    
-    if [[ $work_exists -eq 1 ]]; then
-        local work_repos=$(find "$work_path" -mindepth 3 -maxdepth 3 -type d -name "$target_repo" ! -name ".*")
-        if [[ -n "$repos" && -n "$work_repos" ]]; then
-            repos=$(printf "%s\n%s" "$repos" "$work_repos")
-        elif [[ -n "$work_repos" ]]; then
-            repos="$work_repos"
-        fi
-    fi
-    
-    # If neither personal nor work directories exist, fall back to old structure
-    if [[ -z "$repos" ]]; then
-        repos=$(find "$REPO_BASE" -mindepth 3 -maxdepth 3 -type d -name "$target_repo" ! -name ".*")
-    fi
+    # Find all matching repositories
+    local repos=$(find "$REPO_BASE" -mindepth 3 -maxdepth 3 -type d -name "$target_repo" ! -name ".*" 2>/dev/null | sort)
     
     if [[ -z "$repos" ]]; then
         gum style --foreground 196 "No repositories found matching '$target_repo'"
@@ -143,14 +98,30 @@ crepo_change_dir() {
     
     if [[ "$repo_count" -gt 1 ]]; then
         gum style --foreground 212 "Multiple repositories found with the same name: $repo_count matches"
-        local selected_repo=$(echo "$repos" | while read -r repo; do
+        
+        # Process repository list before fzf
+        local processed_repos=$(echo "$repos" | while read -r repo; do
             local scope=$(basename "$(dirname "$(dirname "$repo")")")
             local org=$(basename "$(dirname "$repo")")
             local name=$(basename "$repo")
-            printf "%s\n" "$(gum style --foreground 255 "$name") $(gum style --foreground 212 "[$scope/") $(gum style --foreground 99 "$org]") $(gum style --foreground 240 "$repo")"
+            printf "%s|%s|%s|%s\n" "$name" "$scope" "$org" "$repo"
+        done)
+
+        # Create preview command
+        preview_cmd='
+            repo_path=$(echo {} | cut -d"|" -f4)
+            eza -la --icons --git --color=always "$repo_path"
+        '
+
+        local selected_repo=$(echo "$processed_repos" | while read -r line; do
+            local name=$(echo "$line" | cut -d"|" -f1)
+            local scope=$(echo "$line" | cut -d"|" -f2)
+            local org=$(echo "$line" | cut -d"|" -f3)
+            local path=$(echo "$line" | cut -d"|" -f4)
+            printf "%s\n" "$(gum style --foreground 255 "$name") $(gum style --foreground 212 "[$scope/") $(gum style --foreground 99 "$org]") $(gum style --foreground 240 "$path")"
         done | column -t | fzf --ansi \
             --preview="$preview_cmd" \
-            --preview-window=right:25%:wrap \
+            --preview-window=right:25%:wrap:border-rounded \
             --height=20 \
             --border=rounded \
             --header="$(gum style --foreground 212 "Select a repository")")
