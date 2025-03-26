@@ -28,15 +28,43 @@ config.visual_bell = {
     fade_out_function = 'EaseOut',
     fade_out_duration_ms = 50
 }
+
 config.colors = {
-    visual_bell = '#202020'
+    visual_bell = '#242529',
+    tab_bar = {
+        background = '#242529',
+        active_tab = {
+            bg_color = '#414045',
+            fg_color = '#f7f7f7',
+            intensity = 'Bold',
+            underline = 'None',
+            italic = false,
+            strikethrough = false,
+        },
+        inactive_tab = {
+            bg_color = '#303136',
+            fg_color = '#b7b7b7',
+        },
+        inactive_tab_hover = {
+            bg_color = '#403f44',
+            fg_color = '#ffffff',
+            italic = true,
+        },
+        new_tab = {
+            bg_color = '#303136',
+            fg_color = '#b7b7b7',
+        },
+        new_tab_hover = {
+            bg_color = '#403f44',
+            fg_color = '#ffffff',
+            italic = true,
+        },
+    }
 }
 
-config.color_scheme = "Apple System Colors"
-
-config.window_decorations = 'RESIZE'
 config.window_background_opacity = 0.8
 config.macos_window_background_blur = 20
+config.window_decorations = 'RESIZE'
 
 -- Font configuration
 config.font = wezterm.font_with_fallback {{
@@ -159,72 +187,40 @@ local function segments_for_right_status(window)
     return {window:active_workspace(), wezterm.hostname()}
 end
 
+local function get_appearance()
+    if wezterm.gui then
+        return wezterm.gui.get_appearance()
+    end
+    return 'Dark'
+end
+
+local function is_dark()
+    return get_appearance():find 'Dark'
+end
+
 wezterm.on('update-status', function(window, _)
     local SOLID_LEFT_ARROW = utf8.char(0xe0b2)
     local segments = segments_for_right_status(window)
 
-    local color_scheme = window:effective_config().resolved_palette
-    -- Note the use of wezterm.color.parse here, this returns
-    -- a Color object, which comes with functionality for lightening
-    -- or darkening the colour (amongst other things).
-    local bg = wezterm.color.parse(color_scheme.background)
-    local fg = color_scheme.foreground
+    local bg = '#303136'
+    local fg = '#ffffff'
 
-    -- Each powerline segment is going to be coloured progressively
-    -- darker/lighter depending on whether we're on a dark/light colour
-    -- scheme. Let's establish the "from" and "to" bounds of our gradient.
-    local gradient_to, gradient_from = bg
-    if appearance.is_dark() then
-        gradient_from = gradient_to:lighten(0.2)
-    else
-        gradient_from = gradient_to:darken(0.2)
-    end
+    local gradient_from = is_dark() and '#414045' or '#303136'
+    local gradient_to = bg
 
-    -- Yes, WezTerm supports creating gradients, because why not?! Although
-    -- they'd usually be used for setting high fidelity gradients on your terminal's
-    -- background, we'll use them here to give us a sample of the powerline segment
-    -- colours we need.
-    local gradient = wezterm.color.gradient({
-        orientation = 'Horizontal',
-        colors = {gradient_from, gradient_to}
-    }, #segments -- only gives us as many colours as we have segments.
-    )
-
-    -- We'll build up the elements to send to wezterm.format in this table.
     local elements = {}
 
     for i, seg in ipairs(segments) do
         local is_first = i == 1
 
         if is_first then
-            table.insert(elements, {
-                Background = {
-                    Color = 'none'
-                }
-            })
+            table.insert(elements, {Background = {Color = 'none'}})
         end
-        table.insert(elements, {
-            Foreground = {
-                Color = gradient[i]
-            }
-        })
-        table.insert(elements, {
-            Text = SOLID_LEFT_ARROW
-        })
-
-        table.insert(elements, {
-            Foreground = {
-                Color = fg
-            }
-        })
-        table.insert(elements, {
-            Background = {
-                Color = gradient[i]
-            }
-        })
-        table.insert(elements, {
-            Text = ' ' .. seg .. ' '
-        })
+        table.insert(elements, {Foreground = {Color = gradient_from}})
+        table.insert(elements, {Text = SOLID_LEFT_ARROW})
+        table.insert(elements, {Foreground = {Color = fg}})
+        table.insert(elements, {Background = {Color = gradient_from}})
+        table.insert(elements, {Text = ' ' .. seg .. ' '})
     end
 
     window:set_right_status(wezterm.format(elements))
