@@ -42,17 +42,17 @@ crepo_list_repos() {
 
     # Create a preview function for fzf that uses eza
     preview_cmd='
-        repo_path=$(echo {} | cut -d"|" -f4)
+        repo_path=$(echo {} | awk -F"|" "{print \$4}")
         eza -l --icons --git --group-directories-first --color=always "$repo_path"
     '
 
     # Display repositories with enhanced fzf interface
     local header="$(gum style --foreground 212 "Found $repo_count repositories") - $(gum style --foreground 99 "Select a repository") (Use / to filter, CTRL-/ to toggle preview)"
     local selected_repo=$(echo "$processed_repos" | while read -r line; do
-        local name=$(echo "$line" | cut -d"|" -f1)
-        local scope=$(echo "$line" | cut -d"|" -f2)
-        local org=$(echo "$line" | cut -d"|" -f3)
-        local path=$(echo "$line" | cut -d"|" -f4)
+        local name=$(echo "$line" | awk -F"|" "{print \$1}")
+        local scope=$(echo "$line" | awk -F"|" "{print \$2}")
+        local org=$(echo "$line" | awk -F"|" "{print \$3}")
+        local path=$(echo "$line" | awk -F"|" "{print \$4}")
         printf "%s\n" "$(gum style --foreground 255 "$name") $(gum style --foreground 212 "[$scope/") $(gum style --foreground 99 "$org]") $(gum style --foreground 240 "$path")"
     done | column -t | fzf --ansi \
         --preview="$preview_cmd" \
@@ -109,15 +109,15 @@ crepo_change_dir() {
 
         # Create preview command
         preview_cmd='
-            repo_path=$(echo {} | cut -d"|" -f4)
+            repo_path=$(echo {} | awk -F"|" "{print \$4}")
             eza -l --icons --git --group-directories-first --color=always "$repo_path"
         '
 
         local selected_repo=$(echo "$processed_repos" | while read -r line; do
-            local name=$(echo "$line" | cut -d"|" -f1)
-            local scope=$(echo "$line" | cut -d"|" -f2)
-            local org=$(echo "$line" | cut -d"|" -f3)
-            local path=$(echo "$line" | cut -d"|" -f4)
+            local name=$(echo "$line" | awk -F"|" "{print \$1}")
+            local scope=$(echo "$line" | awk -F"|" "{print \$2}")
+            local org=$(echo "$line" | awk -F"|" "{print \$3}")
+            local path=$(echo "$line" | awk -F"|" "{print \$4}")
             printf "%s\n" "$(gum style --foreground 255 "$name") $(gum style --foreground 212 "[$scope/") $(gum style --foreground 99 "$org]") $(gum style --foreground 240 "$path")"
         done | column -t | fzf --ansi \
             --preview="$preview_cmd" \
