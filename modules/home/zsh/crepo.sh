@@ -69,68 +69,52 @@ crepo_change_dir() {
     local target_repo="$2"
     log_debug "Searching for repository" name="$target_repo" base_dir="$REPO_BASE"
     
-    # Find all matching repositories
-    local repos=$(find "$REPO_BASE" -mindepth 3 -maxdepth 3 -type d -name "$target_repo" ! -name ".*" 2>/dev/null | sort)
-    
-    if [[ -z "$repos" ]]; then
-        gum style --foreground 196 "No repositories found matching '$target_repo'"
-        return 1
+    # Use cache if available
+    local CACHE_FILE="/tmp/crepo_cache"
+    if [[ -f "$CACHE_FILE" ]]; then
+        local repos=$(grep "/$target_repo$" "$CACHE_FILE")
+    else
+        local repos=$(find "$REPO_BASE" -mindepth 3 -maxdepth 3 -type d -name "$target_repo" ! -name ".*" -exec test -d "{}/.git" \; -print 2>/dev/null | sort)
     fi
+    
+    [[ -z "$repos" ]] && { gum style --foreground 196 "No repositories found matching '$target_repo'"; return 1; }
 
     local repo_count=$(echo "$repos" | wc -l | tr -d '[:space:]')
     local target_path=""
     
     if [[ "$repo_count" -gt 1 ]]; then
-        gum style --foreground 212 "Multiple repositories found with the same name: $repo_count matches"
+        gum style --foreground 212 "Multiple matches found:"
         
-        # Process repository list before fzf
-        local processed_repos=$(echo "$repos" | while read -r repo; do
+        # Simplified preview command
+        local preview_cmd='eza -l --git --color=always $(echo {} | awk "{print \$NF}")'
+
+        target_path=$(echo "$repos" | while read -r repo; do
             local scope=$(basename "$(dirname "$(dirname "$repo")")")
             local org=$(basename "$(dirname "$repo")")
             local name=$(basename "$repo")
-            printf "%s|%s|%s|%s\n" "$name" "$scope" "$org" "$repo"
-        done)
-
-        # Create preview command
-        preview_cmd='
-            repo_path=$(echo {} | awk -F"|" "{print \$4}")
-            eza -l --icons --git --group-directories-first --color=always "$repo_path"
-        '
-
-        local selected_repo=$(echo "$processed_repos" | while read -r line; do
-            local name=$(echo "$line" | awk -F"|" "{print \$1}")
-            local scope=$(echo "$line" | awk -F"|" "{print \$2}")
-            local org=$(echo "$line" | awk -F"|" "{print \$3}")
-            local path=$(echo "$line" | awk -F"|" "{print \$4}")
-            printf "%s\n" "$(gum style --foreground 255 "$name") $(gum style --foreground 212 "[$scope/") $(gum style --foreground 99 "$org]") $(gum style --foreground 240 "$path")"
-        done | column -t | fzf --ansi \
+            printf "%s %s/%s %s\n" "$name" "$scope" "$org" "$repo"
+        done | fzf --ansi \
             --preview="$preview_cmd" \
-            --preview-window=right:25%:wrap:border-rounded \
-            --height=20 \
+            --preview-window=right:40%:wrap:border-rounded \
+            --height=40% \
             --border=rounded \
-            --header="$(gum style --foreground 212 "Select a repository")")
-        
-        if [[ -n "$selected_repo" ]]; then
-            target_path=$(echo "$selected_repo" | awk '{print $NF}')
-            log_debug "User selected repository" path="$target_path"
-        fi
+            --header="$(gum style --foreground 212 'Select a repository')" \
+            | awk '{print $NF}')
     else
         target_path=$(echo "$repos" | head -n1)
     fi
     
-    if [[ -d "$target_path" ]]; then
-        pushd "$target_path" || return
+    [[ -d "$target_path" ]] && {
+        pushd "$target_path" >/dev/null || return
         local scope=$(basename "$(dirname "$(dirname "$target_path")")")
         local org=$(basename "$(dirname "$target_path")")
-        local repo_name=$(basename "$target_path")
+        local name=$(basename "$target_path")
         gum style \
             --foreground 212 --border-foreground 212 --border double \
             --align center --width 50 --margin "1 2" --padding "1 2" \
             "Changed to repository:" \
-            "$(gum style --foreground 99 "$scope/$org/$repo_name")"
-    else
-        gum style --foreground 196 "Repository not found: $target_repo"
-    fi
+            "$(gum style --foreground 99 "$scope/$org/$name")"
+    }
 }
 
 crepo_show_help() {
