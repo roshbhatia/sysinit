@@ -30,6 +30,8 @@ let
     "direnv"
     "eza"
     "fd"
+    "glow"
+    "gum"
     "libgit2"
     "nushell"
     "tailscale"
