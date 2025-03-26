@@ -17,25 +17,28 @@
 [ -f "$HOME/.config/zsh/loglib.sh" ] && source "$HOME/.config/zsh/loglib.sh"
 
 # Helper functions defined outside the main function to avoid nesting
-crepo_list_repos() {
+function _crepo_list_repos() {
     local REPO_BASE="$1"
     local CACHE_FILE="/tmp/crepo_cache"
     local CACHE_TIMEOUT=3600  # 1 hour in seconds
 
-    local repos=""
     # More reliable cache check for macOS
     if [[ -f "$CACHE_FILE" ]]; then
         local cache_time=$(stat -f %m "$CACHE_FILE" 2>/dev/null || echo 0)
         local current_time=$(date +%s)
-        if (( current_time - ${cache_time:-0} < CACHE_TIMEOUT )); then
-            repos="$(cat "$CACHE_FILE")"
+        if (( current_time - cache_time < CACHE_TIMEOUT )); then
+            cat "$CACHE_FILE"
+            return
         fi
     fi
 
-    if [[ -z "$repos" ]]; then
-        repos="$(find "$REPO_BASE" -mindepth 3 -maxdepth 3 -type d ! -name ".*" -exec test -d "{}/.git" \; -print 2>/dev/null | sort)"
-        echo "$repos" > "$CACHE_FILE"
-    fi
+    find "$REPO_BASE" -mindepth 3 -maxdepth 3 -type d ! -name ".*" -exec test -d "{}/.git" \; -print 2>/dev/null | sort > "$CACHE_FILE"
+    cat "$CACHE_FILE"
+}
+
+function _crepo_list_interactive() {
+    local REPO_BASE="$1"
+    local repos=$(_crepo_list_repos "$REPO_BASE")
 
     [[ -z "$repos" ]] && { gum style --foreground 196 "No repositories found in $REPO_BASE"; return 1; }
 
@@ -51,64 +54,32 @@ crepo_list_repos() {
         --header="$(gum style --foreground 212 'Select a repository')" \
         --bind="ctrl-/:toggle-preview" \
         --with-nth=2.. \
-        --delimiter="|" | cut -d"|" -f1 | while read -r path; do
-        [[ -d "$path" ]] && {
-            cd "$path" || return
-            local scope=$(basename "$(dirname "$(dirname "$path")")")
-            local org=$(basename "$(dirname "$path")")
-            local name=$(basename "$path")
-            gum style \
-                --foreground 212 --border-foreground 212 --border double \
-                --align center --width 50 --margin "1 2" --padding "1 2" \
-                "Changed to repository:" \
-                "$(gum style --foreground 99 "$scope/$org/$name")"
-        }
-    done
+        --delimiter="|" | cut -d"|" -f1
 }
 
-crepo_change_dir() {
+function _crepo_change_dir() {
     local REPO_BASE="$1"
     local target_repo="$2"
-    log_debug "Searching for repository" name="$target_repo" base_dir="$REPO_BASE"
-    
-    # Use cache if available
-    local CACHE_FILE="/tmp/crepo_cache"
-    if [[ -f "$CACHE_FILE" ]]; then
-        local repos=$(grep "/$target_repo$" "$CACHE_FILE")
-    else
-        local repos=$(find "$REPO_BASE" -mindepth 3 -maxdepth 3 -type d -name "$target_repo" ! -name ".*" -exec test -d "{}/.git" \; -print 2>/dev/null | sort)
-    fi
-    
-    [[ -z "$repos" ]] && { gum style --foreground 196 "No repositories found matching '$target_repo'"; return 1; }
-
-    local repo_count=$(echo "$repos" | wc -l | tr -d '[:space:]')
     local target_path=""
     
-    if [[ "$repo_count" -gt 1 ]]; then
-        gum style --foreground 212 "Multiple matches found:"
-        
-        # Simplified preview command
-        preview_cmd='eza -l --icons --git --group-directories-first --color=always $(echo {} | cut -d"|" -f1)'
-
-        target_path=$(echo "$repos" | while read -r repo; do
-            local name=$(basename "$repo")
-            local org=$(basename "$(dirname "$repo")")
-            printf "%s|%s\n" "$repo" "$(gum style --foreground 35 "$name") $(gum style --foreground 212 "($org)")"
-        done | fzf --ansi \
-            --preview="$preview_cmd" \
-            --preview-window=right:40%:wrap:border-rounded \
-            --height=40% \
-            --border=rounded \
-            --header="$(gum style --foreground 212 'Select a repository')" \
-            --bind="ctrl-/:toggle-preview" \
-            --with-nth=2 \
-            --delimiter="|" | cut -d'|' -f1)
+    if [[ -z "$target_repo" ]]; then
+        target_path=$(_crepo_list_interactive "$REPO_BASE")
     else
-        target_path=$(echo "$repos" | head -n1)
+        local repos=$(_crepo_list_repos "$REPO_BASE" | grep "/$target_repo$" || echo "")
+        local repo_count=$(echo "$repos" | grep -c .)
+        
+        if [[ "$repo_count" -eq 0 ]]; then
+            gum style --foreground 196 "No repositories found matching '$target_repo'"
+            return 1
+        elif [[ "$repo_count" -eq 1 ]]; then
+            target_path="$repos"
+        else
+            target_path=$(echo "$repos" | _crepo_list_interactive "$REPO_BASE")
+        fi
     fi
     
     [[ -d "$target_path" ]] && {
-        pushd "$target_path" >/dev/null || return
+        cd "$target_path" || return
         local scope=$(basename "$(dirname "$(dirname "$target_path")")")
         local org=$(basename "$(dirname "$target_path")")
         local name=$(basename "$target_path")
@@ -120,18 +91,8 @@ crepo_change_dir() {
     }
 }
 
-crepo_show_help() {
-    gum style --foreground 212 "                                        
-                                        
-                                        
- .d8888b888d888 .d88b. 88888b.  .d88b.  
- d88P\"   888P\"  d8P  Y8b888 \"88bd88\"\"88b 
- 888     888    88888888888  888888  888 
- Y88b.   888    Y8b.    888 d88PY88..88P 
- \"Y8888P888     \"Y8888 88888P\"  \"Y88P\"  
-                       888              
-                       888              
-                       888              "
+function _crepo_show_help() {
+    gum style --foreground 212 "Crepo - Repository Navigation Tool"
     echo
     gum style --foreground 99 --bold "Usage:" && gum style "crepo {list|l|d|cd|h|help} [REPO_NAME]"
     echo
@@ -141,33 +102,24 @@ crepo_show_help() {
     echo "$(gum style --foreground 212 "  h, help")          $(gum style "Show this help message")"
 }
 
-# crepo - Navigate git repositories
+# Main crepo function
 function crepo() {
     local REPO_BASE=~/github
 
-    # Check if REPO_BASE exists
-    if [[ ! -d "$REPO_BASE" ]]; then
-        log_error "Repository base directory does not exist" path="$REPO_BASE"
-        return 1
-    fi
+    [[ ! -d "$REPO_BASE" ]] && { log_error "Repository base directory does not exist" path="$REPO_BASE"; return 1; }
 
     case "$1" in
         list|l)
-            crepo_list_repos "$REPO_BASE"
+            _crepo_list_interactive "$REPO_BASE"
             ;;
         d|cd)
-            if [[ -z "$2" ]]; then
-                log_error "Missing repository name"
-                echo "Please provide a repository name."
-            else
-                crepo_change_dir "$REPO_BASE" "$2"
-            fi
+            _crepo_change_dir "$REPO_BASE" "$2"
             ;;
         h|help)
-            crepo_show_help
+            _crepo_show_help
             ;;
         *)
-            crepo_list_repos "$REPO_BASE"
+            _crepo_list_interactive "$REPO_BASE"
             ;;
     esac
 }

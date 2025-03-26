@@ -20,27 +20,40 @@ export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export ZSH_DISABLE_COMPFIX="true"
 
+# Set up completion paths
+fpath=(/opt/homebrew/share/zsh/site-functions $fpath)
+
+# Initialize completions before anything else
+autoload -Uz compinit
+zstyle ':completion:*' menu select
+for dump in $HOME/.zcompdump(N.mh+24); do
+  compinit -Ci
+done
+compinit -Ci
+
 if [ -f "/opt/homebrew/bin/brew" ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 
+  # Initialize atuin first
   if command -v atuin &> /dev/null; then
-    _evalcache atuin init zsh
+    eval "$(atuin init zsh --disable-up-arrow)"
   fi
   
+  # Then load other completions
   if command -v kubectl &> /dev/null; then
-    _evalcache kubectl completion zsh
+    source <(kubectl completion zsh)
   fi
   
   if command -v docker &> /dev/null; then
-    _evalcache docker completion zsh
+    source <(docker completion zsh)
   fi
   
   if command -v stern &> /dev/null; then
-    _evalcache stern --completion zsh
+    source <(stern --completion zsh)
   fi
   
   if command -v gh &> /dev/null; then
-    _evalcache gh completion -s zsh
+    source <(gh completion -s zsh)
   fi
   
   # Source other plugins
@@ -68,17 +81,6 @@ fi
 if [ -f "$ZSH_CUSTOM_PLUGINS/fzf-tab/fzf-tab.zsh" ]; then
     source "$ZSH_CUSTOM_PLUGINS/fzf-tab/fzf-tab.zsh"
 fi
-
-# Initialize completions before aliases
-autoload -Uz compinit
-# shellcheck disable=SC1036
-# shellcheck disable=SC1058
-# shellcheck disable=SC1072
-# shellcheck disable=SC1073
-for dump in $HOME/.zcompdump(N.mh+24); do
-  compinit -Ci
-done
-compinit -Ci
 
 # Source logging library first (ensure it's available to all scripts)
 [ -f "$HOME/.config/zsh/loglib.sh" ] && source "$HOME/.config/zsh/loglib.sh"
