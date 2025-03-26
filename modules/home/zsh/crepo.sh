@@ -19,8 +19,16 @@
 # Helper functions defined outside the main function to avoid nesting
 function _crepo_list_repos() {
     local REPO_BASE="$1"
-    rg --hidden --no-ignore --files --null -g '!.git' -g '*/.git' "$REPO_BASE" 2>/dev/null | 
-        xargs -0 -n1 dirname | sort -u
+    rg --files \
+       --hidden \
+       --no-ignore \
+       --no-ignore-vcs \
+       --follow \
+       --max-depth 3 \
+       --glob '.git/HEAD' \
+       "$REPO_BASE" 2>/dev/null | 
+        sed 's/\/\.git\/HEAD$//' | 
+        sort -u
 }
 
 function _crepo_list_interactive() {
