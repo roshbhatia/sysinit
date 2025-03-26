@@ -34,6 +34,7 @@ let
     "gum"
     "libgit2"
     "nushell"
+    "ripgrep"
     "tailscale"
     "yazi"
   ];
