@@ -22,8 +22,7 @@ crepo_list_repos() {
     local CACHE_FILE="/tmp/crepo_cache"
     local CACHE_TIMEOUT=3600  # 1 hour in seconds
 
-    # Use cached results if available and fresh
-    if [[ -f "$CACHE_FILE" ]] && [[ $(($(date +%s) - $(stat -f %m "$CACHE_FILE"))) -lt $CACHE_TIMEOUT ]]; then
+    if [[ -f "$CACHE_FILE" ]] && (( $(date +%s) - $(stat -f %m "$CACHE_FILE") < CACHE_TIMEOUT )); then
         local repos=$(<"$CACHE_FILE")
     else
         local repos=$(find "$REPO_BASE" -mindepth 3 -maxdepth 3 -type d ! -name ".*" -exec test -d "{}/.git" \; -print 2>/dev/null | sort)
@@ -32,29 +31,24 @@ crepo_list_repos() {
 
     [[ -z "$repos" ]] && { gum style --foreground 196 "No repositories found in $REPO_BASE"; return 1; }
 
-    # Create a preview function for fzf that uses eza
-    preview_cmd='
-        repo_path=$(echo {} | awk -F"|" "{print \$4}")
-        eza -l --icons --git --group-directories-first --color=always "$repo_path"
-    '
-
     echo "$repos" | while read -r repo; do
-        local scope=$(basename "$(dirname "$(dirname "$repo")")")
-        local org=$(basename "$(dirname "$repo")")
         local name=$(basename "$repo")
-        printf "%s|%s|%s|%s\n" "$name" "$scope" "$org" "$repo"
+        local org=$(basename "$(dirname "$repo")")
+        printf "%s|%s %s\n" "$repo" "$(gum style --foreground 35 "$name")" "$(gum style --foreground 212 "($org)")"
     done | fzf --ansi \
-        --preview="$preview_cmd" \
+        --preview='eza -l --icons --git --group-directories-first --color=always $(echo {} | cut -d"|" -f1)' \
         --preview-window=right:40%:wrap:border-rounded \
         --height=40% \
         --border=rounded \
         --header="$(gum style --foreground 212 'Select a repository')" \
         --bind="ctrl-/:toggle-preview" \
-        --with-nth=.. \
-        --delimiter="|" | \
-    while IFS="|" read -r name scope org path; do
+        --with-nth=2.. \
+        --delimiter="|" | cut -d"|" -f1 | while read -r path; do
         [[ -d "$path" ]] && {
-            pushd "$path" >/dev/null || return
+            cd "$path" || return
+            local scope=$(basename "$(dirname "$(dirname "$path")")")
+            local org=$(basename "$(dirname "$path")")
+            local name=$(basename "$path")
             gum style \
                 --foreground 212 --border-foreground 212 --border double \
                 --align center --width 50 --margin "1 2" --padding "1 2" \
@@ -86,20 +80,21 @@ crepo_change_dir() {
         gum style --foreground 212 "Multiple matches found:"
         
         # Simplified preview command
-        local preview_cmd='eza -l --git --color=always $(echo {} | awk "{print \$NF}")'
+        preview_cmd='eza -l --icons --git --group-directories-first --color=always $(echo {} | cut -d"|" -f1)'
 
         target_path=$(echo "$repos" | while read -r repo; do
-            local scope=$(basename "$(dirname "$(dirname "$repo")")")
-            local org=$(basename "$(dirname "$repo")")
             local name=$(basename "$repo")
-            printf "%s %s/%s %s\n" "$name" "$scope" "$org" "$repo"
+            local org=$(basename "$(dirname "$repo")")
+            printf "%s|%s\n" "$repo" "$(gum style --foreground 35 "$name") $(gum style --foreground 212 "($org)")"
         done | fzf --ansi \
             --preview="$preview_cmd" \
             --preview-window=right:40%:wrap:border-rounded \
             --height=40% \
             --border=rounded \
             --header="$(gum style --foreground 212 'Select a repository')" \
-            | awk '{print $NF}')
+            --bind="ctrl-/:toggle-preview" \
+            --with-nth=2 \
+            --delimiter="|" | cut -d'|' -f1)
     else
         target_path=$(echo "$repos" | head -n1)
     fi
