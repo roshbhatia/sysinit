@@ -35,7 +35,7 @@ function _crepo_list_interactive() {
 
     [[ -z "$repos" ]] && { gum style --foreground 196 "No repositories found in $REPO_BASE"; return 1; }
 
-    echo "$repos" | while read -r repo; do
+    local target_path=$(echo "$repos" | while read -r repo; do
         local name=$(basename "$repo")
         local org=$(basename "$(dirname "$repo")")
         printf "%s|%s %s\n" "$repo" "$(gum style --foreground 35 "$name")" "$(gum style --foreground 212 "($org)")"
@@ -48,7 +48,19 @@ function _crepo_list_interactive() {
         --bind="ctrl-/:toggle-preview" \
         --with-nth=2.. \
         --bind 'ctrl-r:refresh-preview' \
-        --delimiter="|" | cut -d"|" -f1
+        --delimiter="|" | cut -d"|" -f1)
+
+    if [[ -d "$target_path" ]]; then
+        \pushd "$target_path" || return
+        local scope=$(basename "$(dirname "$(dirname "$target_path")")")
+        local org=$(basename "$(dirname "$target_path")")
+        local name=$(basename "$target_path")
+        gum style \
+            --foreground 212 --border-foreground 212 --border double \
+            --align center --width 50 --margin "1 2" --padding "1 2" \
+            "Changed to repository:" \
+            "$(gum style --foreground 99 "$scope/$org/$name")"
+    fi
 }
 
 function _crepo_change_dir() {
@@ -77,7 +89,7 @@ function _crepo_change_dir() {
     fi
     
     if [[ -d "$target_path" ]]; then
-        \cd "$target_path" || return
+        \pushd "$target_path" || return
         local scope=$(basename "$(dirname "$(dirname "$target_path")")")
         local org=$(basename "$(dirname "$target_path")")
         local name=$(basename "$target_path")
