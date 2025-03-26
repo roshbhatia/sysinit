@@ -40,14 +40,14 @@ function _crepo_list_interactive() {
         local org=$(basename "$(dirname "$repo")")
         printf "%s|%s %s\n" "$repo" "$(gum style --foreground 35 "$name")" "$(gum style --foreground 212 "($org)")"
     done | fzf --ansi \
-        --preview='eza --icons=always --no-permissions --no-user --no-time $(echo {} | cut -d"|" -f1)' \
+        --preview='eza --color=always --icons=always --long --no-permissions --no-user --no-time $(echo {} | cut -d"|" -f1)' \
         --preview-window=right:40%:wrap:border-rounded \
         --height=40% \
         --border=rounded \
         --header="$(gum style --foreground 212 'Select a repository')" \
         --bind="ctrl-/:toggle-preview" \
-        --bind="resize:refresh-preview" \
         --with-nth=2.. \
+        --bind 'ctrl-r:refresh-preview' \
         --delimiter="|" | cut -d"|" -f1
 }
 
@@ -68,9 +68,11 @@ function _crepo_change_dir() {
         elif [[ "$repo_count" -eq 1 ]]; then
             target_path="$repos"
         else
-            target_path=$(echo "$repos" | fzf --ansi \
+            target_path=$(echo "$repos" |  fzf --ansi \
                 --preview='eza --icons=always --no-permissions --no-user --no-time {}' \
-                --bind="resize:refresh-preview")
+                --preview-window=right:40%:wrap:border-rounded \
+                --bind 'ctrl-r:refresh-preview' \
+            )
         fi
     fi
     
