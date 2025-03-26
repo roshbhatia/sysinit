@@ -43,7 +43,7 @@ crepo_list_repos() {
     # Create a preview function for fzf that uses eza
     preview_cmd='
         repo_path=$(echo {} | cut -d"|" -f4)
-        eza -la --icons --git --color=always "$repo_path"
+        eza -l --icons --git --group-directories-first --color=always "$repo_path"
     '
 
     # Display repositories with enhanced fzf interface
@@ -110,7 +110,7 @@ crepo_change_dir() {
         # Create preview command
         preview_cmd='
             repo_path=$(echo {} | cut -d"|" -f4)
-            eza -la --icons --git --color=always "$repo_path"
+            eza -l --icons --git --group-directories-first --color=always "$repo_path"
         '
 
         local selected_repo=$(echo "$processed_repos" | while read -r line; do
