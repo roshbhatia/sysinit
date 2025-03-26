@@ -125,6 +125,7 @@ export FZF_DEFAULT_OPTS="
   --layout=reverse
   --border
   --inline-info
+  --bind 'ctrl-r:refresh-preview'
 "
 
 # Source path configurations
