@@ -44,12 +44,7 @@
         file = "evalcache.plugin.zsh";
       }
     ];
-    
-    initExtraFirst = ''
-      # Ensure config directories exist
-      mkdir -p $HOME/.config/zsh/extras
-    '';
-    
+
     # This is akin to our normal .zshrc
     initExtra = ''
       source $HOME/.config/zsh/base.sh
