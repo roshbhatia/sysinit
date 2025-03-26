@@ -34,12 +34,12 @@ crepo_list_repos() {
     # Find all repositories
     local repos=""
     if [[ $personal_exists -eq 1 ]]; then
-        local personal_repos=$(find "$personal_path" -mindepth 2 -maxdepth 2 -type d ! -name ".*" | sort)
-        repos="$personal_repos"
+        local personal_repos=$(find "$personal_path" -mindepth 2 -maxdepth 2 -type d ! -name ".*" 2>/dev/null | sort)
+        [[ -n "$personal_repos" ]] && repos="$personal_repos"
     fi
     
     if [[ $work_exists -eq 1 ]]; then
-        local work_repos=$(find "$work_path" -mindepth 2 -maxdepth 2 -type d ! -name ".*" | sort)
+        local work_repos=$(find "$work_path" -mindepth 2 -maxdepth 2 -type d ! -name ".*" 2>/dev/null | sort)
         if [[ -n "$repos" && -n "$work_repos" ]]; then
             repos=$(printf "%s\n%s" "$repos" "$work_repos")
         elif [[ -n "$work_repos" ]]; then
@@ -47,18 +47,51 @@ crepo_list_repos() {
         fi
     fi
     
-    # If neither personal nor work directories exist, fall back to old structure
-    if [[ $personal_exists -eq 0 && $work_exists -eq 0 ]]; then
-        repos=$(find "$REPO_BASE" -mindepth 2 -maxdepth 2 -type d ! -name ".*" | sort)
+    # If neither personal nor work directories exist or no repos found, fall back to old structure
+    if [[ -z "$repos" ]]; then
+        repos=$(find "$REPO_BASE" -mindepth 2 -maxdepth 2 -type d ! -name ".*" 2>/dev/null | sort)
     fi
+
+    if [[ -z "$repos" ]]; then
+        log_warn "No repositories found in $REPO_BASE"
+        return 1
+    fi
+
+    # Get total repo count (properly trimmed)
+    local repo_count=$(echo "$repos" | wc -l | tr -d '[:space:]')
     
-    # Display repositories
+    # Create a preview function for fzf
+    preview_cmd='
+        repo_path={}
+        echo "Repository Details:"
+        echo "==================="
+        echo "Path: $repo_path"
+        echo
+        if [ -d "$repo_path/.git" ]; then
+            echo "Git Status:"
+            echo "==========="
+            git -C "$repo_path" status -s
+            echo
+            echo "Recent Commits:"
+            echo "=============="
+            git -C "$repo_path" log --oneline -n 5
+        fi
+    '
+
+    # Display repositories with enhanced fzf interface
+    local header="Found $repo_count repositories - Select a repository (Use / to filter, CTRL-/ to toggle preview)"
     local selected_repo=$(echo "$repos" | while read -r repo; do
         local scope=$(basename "$(dirname "$(dirname "$repo")")")
         local org=$(basename "$(dirname "$repo")")
         local name=$(basename "$repo")
-        echo -e "$name ($scope/$org)\t$repo"
-    done | column -t -s $'\t' | fzf --ansi --height=20)
+        printf "\x1b[1m%s\x1b[0m [\x1b[36m%s\x1b[0m/\x1b[35m%s\x1b[0m]\t%s\n" "$name" "$scope" "$org" "$repo"
+    done | column -t -s $'\t' | fzf --ansi \
+        --preview="$preview_cmd" \
+        --preview-window=right:50%:wrap \
+        --height=80% \
+        --border=rounded \
+        --header="$header" \
+        --bind="ctrl-/:toggle-preview")
 
     if [[ -n "$selected_repo" ]]; then
         local target_path=$(echo "$selected_repo" | awk '{print $NF}')
@@ -109,11 +142,16 @@ crepo_change_dir() {
     fi
     
     # If neither personal nor work directories exist, fall back to old structure
-    if [[ $personal_exists -eq 0 && $work_exists -eq 0 ]]; then
+    if [[ -z "$repos" ]]; then
         repos=$(find "$REPO_BASE" -mindepth 2 -maxdepth 2 -type d -name "$target_repo" ! -name ".*")
     fi
     
-    local repo_count=$(echo "$repos" | wc -l | tr -d ' ')
+    if [[ -z "$repos" ]]; then
+        log_error "No repositories found matching '$target_repo'"
+        return 1
+    fi
+
+    local repo_count=$(echo "$repos" | wc -l | tr -d '[:space:]')
     
     if [[ "$repo_count" -gt 1 ]]; then
         log_info "Multiple repositories found with the same name" count="$repo_count" name="$target_repo"
@@ -171,6 +209,12 @@ crepo_show_help() {
 # crepo - Navigate git repositories
 function crepo() {
     local REPO_BASE=~/github
+
+    # Check if REPO_BASE exists
+    if [[ ! -d "$REPO_BASE" ]]; then
+        log_error "Repository base directory does not exist" path="$REPO_BASE"
+        return 1
+    fi
 
     case "$1" in
         list|l)
