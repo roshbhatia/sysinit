@@ -34,12 +34,12 @@ crepo_list_repos() {
     # Find all repositories
     local repos=""
     if [[ $personal_exists -eq 1 ]]; then
-        local personal_repos=$(find "$personal_path" -mindepth 2 -maxdepth 2 -type d ! -name ".*" 2>/dev/null | sort)
+        local personal_repos=$(find "$personal_path" -mindepth 3 -maxdepth 3 -type d ! -name ".*" 2>/dev/null | sort)
         [[ -n "$personal_repos" ]] && repos="$personal_repos"
     fi
     
     if [[ $work_exists -eq 1 ]]; then
-        local work_repos=$(find "$work_path" -mindepth 2 -maxdepth 2 -type d ! -name ".*" 2>/dev/null | sort)
+        local work_repos=$(find "$work_path" -mindepth 3 -maxdepth 3 -type d ! -name ".*" 2>/dev/null | sort)
         if [[ -n "$repos" && -n "$work_repos" ]]; then
             repos=$(printf "%s\n%s" "$repos" "$work_repos")
         elif [[ -n "$work_repos" ]]; then
@@ -49,7 +49,7 @@ crepo_list_repos() {
     
     # If neither personal nor work directories exist or no repos found, fall back to old structure
     if [[ -z "$repos" ]]; then
-        repos=$(find "$REPO_BASE" -mindepth 2 -maxdepth 2 -type d ! -name ".*" 2>/dev/null | sort)
+        repos=$(find "$REPO_BASE" -mindepth 3 -maxdepth 3 -type d ! -name ".*" 2>/dev/null | sort)
     fi
 
     if [[ -z "$repos" ]]; then
@@ -128,12 +128,12 @@ crepo_change_dir() {
     # Find matching repositories
     local repos=""
     if [[ $personal_exists -eq 1 ]]; then
-        local personal_repos=$(find "$personal_path" -mindepth 2 -maxdepth 2 -type d -name "$target_repo" ! -name ".*")
+        local personal_repos=$(find "$personal_path" -mindepth 3 -maxdepth 3 -type d -name "$target_repo" ! -name ".*")
         repos="$personal_repos"
     fi
     
     if [[ $work_exists -eq 1 ]]; then
-        local work_repos=$(find "$work_path" -mindepth 2 -maxdepth 2 -type d -name "$target_repo" ! -name ".*")
+        local work_repos=$(find "$work_path" -mindepth 3 -maxdepth 3 -type d -name "$target_repo" ! -name ".*")
         if [[ -n "$repos" && -n "$work_repos" ]]; then
             repos=$(printf "%s\n%s" "$repos" "$work_repos")
         elif [[ -n "$work_repos" ]]; then
@@ -143,7 +143,7 @@ crepo_change_dir() {
     
     # If neither personal nor work directories exist, fall back to old structure
     if [[ -z "$repos" ]]; then
-        repos=$(find "$REPO_BASE" -mindepth 2 -maxdepth 2 -type d -name "$target_repo" ! -name ".*")
+        repos=$(find "$REPO_BASE" -mindepth 3 -maxdepth 3 -type d -name "$target_repo" ! -name ".*")
     fi
     
     if [[ -z "$repos" ]]; then
@@ -152,6 +152,7 @@ crepo_change_dir() {
     fi
 
     local repo_count=$(echo "$repos" | wc -l | tr -d '[:space:]')
+    local target_path=""
     
     if [[ "$repo_count" -gt 1 ]]; then
         log_info "Multiple repositories found with the same name" count="$repo_count" name="$target_repo"
@@ -163,15 +164,11 @@ crepo_change_dir() {
         done | column -t -s $'\t' | fzf --ansi --height=20)
         
         if [[ -n "$selected_repo" ]]; then
-            local target_path=$(echo "$selected_repo" | awk '{print $NF}')
+            target_path=$(echo "$selected_repo" | awk '{print $NF}')
             log_debug "User selected repository" path="$target_path"
-        else
-            log_warn "Selection cancelled by user"
-            return
         fi
     else
-        local target_path=$(echo "$repos" | head -n 1)
-        log_debug "Single repository match found" path="$target_path"
+        target_path=$(echo "$repos" | head -n1)
     fi
     
     if [[ -d "$target_path" ]]; then
