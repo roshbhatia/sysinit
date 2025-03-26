@@ -5,9 +5,9 @@ let
     "$schema" = "https://starship.rs/config-schema.json";
     
     format = ''
-    [](#9A348E)$os$username[](bg:#DA627D fg:#9A348E)$directory[](fg:#DA627D bg:#FCA17D)$git_branch$git_status[](fg:#FCA17D bg:#86BBD8)$c$golang$java$nodejs$rust[](fg:#86BBD8 bg:#06969A)$docker_context[](fg:#06969A bg:#33658A)$time[ ](fg:#33658A)
+    [](#242529)$os$username[](bg:#414045 fg:#242529)$directory[](fg:#414045 bg:#303136)$git_branch$git_status[](fg:#303136 bg:#403f44)$c$golang$java$nodejs$rust[](fg:#403f44 bg:#4f4e53)$docker_context[](fg:#4f4e53 bg:#303136)$time[ ](fg:#303136)
     '';
-    
+
     # Disable the blank line at the start of the prompt
     # add_newline = false
     
@@ -15,8 +15,8 @@ let
     # and use the os module below
     username = {
       show_always = true;
-      style_user = "bg:#9A348E";
-      style_root = "bg:#9A348E";
+      style_user = "bg:#242529";
+      style_root = "bg:#242529";
       format = "[$user ]($style)";
       disabled = false;
     };
@@ -29,7 +29,7 @@ let
     };
     
     directory = {
-      style = "bg:#DA627D";
+      style = "bg:#414045";
       format = "[ $path ]($style)";
       truncation_length = 3;
       truncation_symbol = "…/";
@@ -48,8 +48,8 @@ let
     };
     
     docker_context = {
-      symbol = " ";
-      style = "bg:#06969A";
+      symbol = "";
+      style = "bg:#4f4e53";
       format = "[ $symbol $context ]($style)";
     };
     
@@ -67,18 +67,18 @@ let
     
     git_branch = {
       symbol = "";
-      style = "bg:#FCA17D";
+      style = "bg:#303136";
       format = "[ $symbol $branch ]($style)";
     };
     
     git_status = {
-      style = "bg:#FCA17D";
+      style = "bg:#303136";
       format = "[$all_status$ahead_behind ]($style)";
     };
     
     golang = {
-      symbol = " ";
-      style = "bg:#86BBD8";
+      symbol = "";
+      style = "bg:#403f44";
       format = "[ $symbol ($version) ]($style)";
     };
     
@@ -107,7 +107,7 @@ let
     
     nodejs = {
       symbol = "";
-      style = "bg:#86BBD8";
+      style = "bg:#403f44";
       format = "[ $symbol ($version) ]($style)";
     };
     
@@ -119,7 +119,7 @@ let
     
     rust = {
       symbol = "";
-      style = "bg:#86BBD8";
+      style = "bg:#403f44";
       format = "[ $symbol ($version) ]($style)";
     };
     
@@ -132,7 +132,7 @@ let
     time = {
       disabled = false;
       time_format = "%R"; # Hour:Minute Format
-      style = "bg:#33658A";
+      style = "bg:#303136";
       format = "[ ♥ $time ]($style)";
     };
   };
