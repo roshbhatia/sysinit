@@ -20,6 +20,10 @@ export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export ZSH_DISABLE_COMPFIX="true"
 
+# Initialize atuin first to prevent conflicts
+if command -v atuin &> /dev/null; then
+  eval "$(atuin init zsh)"
+fi
 
 if [ -f "/opt/homebrew/bin/brew" ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -106,10 +110,6 @@ fi
 
 if command -v starship &> /dev/null; then
   _evalcache starship init zsh
-fi
-
-if command -v atuin &> /dev/null; then
-  _evalcache atuin init zsh
 fi
 
 # Fzf

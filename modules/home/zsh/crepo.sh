@@ -22,8 +22,18 @@ crepo_list_repos() {
     local CACHE_FILE="/tmp/crepo_cache"
     local CACHE_TIMEOUT=3600  # 1 hour in seconds
 
-    if [[ -f "$CACHE_FILE" ]] && (( $(date +%s) - $(stat -f %m "$CACHE_FILE") < CACHE_TIMEOUT )); then
-        local repos=$(<"$CACHE_FILE")
+    # More reliable cache check for macOS
+    if [[ -f "$CACHE_FILE" ]]; then
+        local cache_time
+        cache_time=$(stat -f %m "$CACHE_FILE" 2>/dev/null)
+        local current_time
+        current_time=$(date +%s)
+        if (( current_time - cache_time < CACHE_TIMEOUT )); then
+            local repos=$(<"$CACHE_FILE")
+        else
+            local repos=$(find "$REPO_BASE" -mindepth 3 -maxdepth 3 -type d ! -name ".*" -exec test -d "{}/.git" \; -print 2>/dev/null | sort)
+            echo "$repos" > "$CACHE_FILE"
+        fi
     else
         local repos=$(find "$REPO_BASE" -mindepth 3 -maxdepth 3 -type d ! -name ".*" -exec test -d "{}/.git" \; -print 2>/dev/null | sort)
         echo "$repos" > "$CACHE_FILE"
