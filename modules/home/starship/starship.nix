@@ -4,34 +4,7 @@ let
   settings = {
     "$schema" = "https://starship.rs/config-schema.json";
     
-  format = """
-  [](#9A348E)\
-  $os\
-  $username\
-  [](bg:#DA627D fg:#9A348E)\
-  $directory\
-  [](fg:#DA627D bg:#FCA17D)\
-  $git_branch\
-  $git_status\
-  [](fg:#FCA17D bg:#86BBD8)\
-  $c\
-  $elixir\
-  $elm\
-  $golang\
-  $gradle\
-  $haskell\
-  $java\
-  $julia\
-  $nodejs\
-  $nim\
-  $rust\
-  $scala\
-  [](fg:#86BBD8 bg:#06969A)\
-  $docker_context\
-  [](fg:#06969A bg:#33658A)\
-  $time\
-  [ ](fg:#33658A)\
-  """
+  format = "[░▒▓](#a3aed2)[  ](bg:#a3aed2 fg:#090c0c)[](bg:#769ff0 fg:#a3aed2)$directory[](fg:#769ff0 bg:#394260)$git_branch$git_status[](fg:#394260 bg:#212736)$nodejs$rust$golang$php[](fg:#212736 bg:#1d2230)$time[ ](fg:#1d2230)\n$character"
 
     # Disable the blank line at the start of the prompt
     # add_newline = false
