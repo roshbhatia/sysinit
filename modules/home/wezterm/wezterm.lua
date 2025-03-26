@@ -11,6 +11,13 @@ local wezterm = require('wezterm')
 local act = wezterm.action
 local config = wezterm.config_builder()
 
+-- Shell configuration
+config.default_prog = { '/bin/zsh', '-l' }
+config.set_environment_variables = {
+    SHELL = '/bin/zsh',
+    TERM = 'wezterm'
+}
+
 -- Window settings
 config.window_padding = {
     left = 20,
