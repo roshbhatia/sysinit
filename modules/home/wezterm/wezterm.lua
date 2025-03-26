@@ -31,36 +31,9 @@ config.visual_bell = {
 
 config.colors = {
     visual_bell = '#242529',
-    tab_bar = {
-        background = '#242529',
-        active_tab = {
-            bg_color = '#414045',
-            fg_color = '#f7f7f7',
-            intensity = 'Bold',
-            underline = 'None',
-            italic = false,
-            strikethrough = false,
-        },
-        inactive_tab = {
-            bg_color = '#303136',
-            fg_color = '#b7b7b7',
-        },
-        inactive_tab_hover = {
-            bg_color = '#403f44',
-            fg_color = '#ffffff',
-            italic = true,
-        },
-        new_tab = {
-            bg_color = '#303136',
-            fg_color = '#b7b7b7',
-        },
-        new_tab_hover = {
-            bg_color = '#403f44',
-            fg_color = '#ffffff',
-            italic = true,
-        },
-    }
 }
+
+config.color_scheme = 'base16'
 
 config.window_background_opacity = 0.8
 config.macos_window_background_blur = 20
