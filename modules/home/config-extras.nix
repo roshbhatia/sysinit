@@ -6,9 +6,7 @@ let
     let
       resolvedPath = if lib.strings.hasPrefix "/" path
         then path
-        else if inputs ? sysinit  # Check if sysinit input exists
-        then toString (inputs.sysinit + "/${path}")
-        else toString (inputs.self + "/${path}");
+        else toString (inputs.sysinit + "/${path}");
     in
     builtins.trace "Resolving ${path} to ${resolvedPath}" resolvedPath;
 
