@@ -4,11 +4,14 @@ let
   # Function to resolve a possibly relative path to an absolute path
   resolvePath = path:
     let
+      # When used as a dependency, files should be resolved from the sysinit flake
+      flakeRoot = if inputs ? sysinit 
+                 then inputs.sysinit
+                 else inputs.self;
+
       resolvedPath = if lib.strings.hasPrefix "/" path
         then path
-        else if inputs ? sysinit  # When used as a dependency
-        then toString (inputs.sysinit + "/${path}")
-        else toString (inputs.self + "/${path}");  # When used directly
+        else toString (flakeRoot + "/${path}");
     in
     builtins.trace "Resolving ${path} to ${resolvedPath}" resolvedPath;
 
