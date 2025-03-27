@@ -3,32 +3,36 @@
 let
   # Function to resolve a possibly relative path to an absolute path
   resolvePath = path:
-    if lib.strings.hasPrefix "/" path
-    then path
-    else if inputs ? ${baseNameOf path} 
-    then "${inputs.${baseNameOf path}}/${path}"
-    else "${inputs.self}/${path}";
+    let
+      resolvedPath = if lib.strings.hasPrefix "/" path
+        then path
+        else toString (inputs.self + "/${path}");
+    in
+    builtins.trace "Resolving ${path} to ${resolvedPath}" resolvedPath;
 
   # Get wallpaper path from userConfig or use default
   wallpaperPath = resolvePath (
     if userConfig ? wallpaper && userConfig.wallpaper ? path 
     then userConfig.wallpaper.path
-    else "./wall/mvp2.jpg"
+    else "./wall/pain.jpeg"
   );
-                 
+
   # Get files to install from userConfig or use empty list
   filesToInstall = if userConfig ? install
-                  then userConfig.install
+                  then builtins.trace "Installing files: ${toString (map (x: x.source) userConfig.install)}" userConfig.install
                   else [];
-                  
+
   # Function to install a file
   installFile = { source, destination }:
-    {
-      target = destination;
-      source = resolvePath source;
-      force = true;
-    };
-    
+    let
+      result = {
+        target = destination;
+        source = resolvePath source;
+        force = true;
+      };
+    in
+    builtins.trace "Installing ${source} to ${destination}" result;
+
   # Map the install configurations to home-manager file objects
   homeManagerFiles = builtins.listToAttrs 
     (map 
@@ -37,9 +41,10 @@ let
         value = installFile fileConfig;
       }) 
       filesToInstall);
-      
-  # Add wallpaper to the file map
-  allFiles = homeManagerFiles // { ".wallpaper" = { source = wallpaperPath; force = true; }; };
+
+  # Add wallpaper to the file map with debug
+  allFiles = builtins.trace "Final files to install: ${toString (builtins.attrNames homeManagerFiles)}"
+    (homeManagerFiles // { ".wallpaper" = { source = wallpaperPath; force = true; }; });
 in
 {
   # Install all files including wallpaper
