@@ -2,7 +2,7 @@
 
 let
   # Use absolute path for better reliability
-  wallpaperPath = "${homeDirectory}/github/roshbhatia/sysinit/wall/mvp2.jpg";
+  wallpaperPath = "${homeDirectory}/github/personal/roshbhatia/sysinit/wall/mvp2.jpg";
 in {
   environment.variables.EDITOR = "code --wait";
 
