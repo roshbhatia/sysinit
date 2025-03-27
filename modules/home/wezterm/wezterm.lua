@@ -218,11 +218,4 @@ wezterm.on('update-status', function(window, _)
     window:set_right_status(wezterm.format(elements))
 end)
 
-wezterm.on('window-resized', function(window, pane)
-    window:perform_action(
-        wezterm.action.SendString '\x1b[?7l\x1b[?7h',
-        pane
-    )
-end)
-
 return config

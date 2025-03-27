@@ -26,15 +26,14 @@
       ];
 
       casks = [
-        # Add additional cask applications here
-        # Example: "app-name"
+        "notion"
       ];
     };
   };
 
   # Wallpaper configuration
   wallpaper = {
-    path = "./wall/mvp2.jpg";  # Default wallpaper path
+    path = "./wall/pain.jpg";  # Default wallpaper path
   };
 
   # Files to install in home directory
