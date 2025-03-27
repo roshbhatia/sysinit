@@ -26,6 +26,7 @@ let
     {
       target = destination;
       source = resolvePath source;
+      force = true;
     };
     
   # Map the install configurations to home-manager file objects
@@ -38,7 +39,7 @@ let
       filesToInstall);
       
   # Add wallpaper to the file map
-  allFiles = homeManagerFiles // { ".wallpaper" = { source = wallpaperPath; }; };
+  allFiles = homeManagerFiles // { ".wallpaper" = { source = wallpaperPath; force = true; }; };
 in
 {
   # Install all files including wallpaper
