@@ -97,6 +97,8 @@
               imports = [ ./modules/home ];
               home.username = pkgs.lib.mkForce username;
               home.homeDirectory = pkgs.lib.mkForce homeDirectory;
+              home.enableNixpkgsReleaseCheck = false;
+              home.file = pkgs.lib.mkForce {};  # Start with empty file declarations
               nixpkgs = {};
             };
           };
