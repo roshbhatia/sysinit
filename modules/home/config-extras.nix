@@ -6,6 +6,8 @@ let
     let
       resolvedPath = if lib.strings.hasPrefix "/" path
         then path
+        else if inputs ? sysinit  # Check if sysinit input exists
+        then toString (inputs.sysinit + "/${path}")
         else toString (inputs.self + "/${path}");
     in
     builtins.trace "Resolving ${path} to ${resolvedPath}" resolvedPath;
@@ -14,7 +16,7 @@ let
   wallpaperPath = resolvePath (
     if userConfig ? wallpaper && userConfig.wallpaper ? path 
     then userConfig.wallpaper.path
-    else "./wall/pain.jpeg"
+    else "wall/pain.jpeg"
   );
 
   # Get files to install from userConfig or use empty list
@@ -25,13 +27,14 @@ let
   # Function to install a file
   installFile = { source, destination }:
     let
+      resolvedSource = resolvePath source;
       result = {
         target = destination;
-        source = resolvePath source;
+        source = resolvedSource;
         force = true;
       };
     in
-    builtins.trace "Installing ${source} to ${destination}" result;
+    builtins.trace "Installing ${source} (${resolvedSource}) to ${destination}" result;
 
   # Map the install configurations to home-manager file objects
   homeManagerFiles = builtins.listToAttrs 
@@ -42,9 +45,8 @@ let
       }) 
       filesToInstall);
 
-  # Add wallpaper to the file map with debug
-  allFiles = builtins.trace "Final files to install: ${toString (builtins.attrNames homeManagerFiles)}"
-    (homeManagerFiles // { ".wallpaper" = { source = wallpaperPath; force = true; }; });
+  # Add wallpaper to the file map
+  allFiles = homeManagerFiles // { ".wallpaper" = { source = wallpaperPath; force = true; }; };
 in
 {
   # Install all files including wallpaper
