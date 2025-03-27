@@ -2,12 +2,12 @@
 
 let
   # Function to resolve a possibly relative path to an absolute path
-  # If path is already absolute, return it as is
-  # If path is relative, resolve it relative to the flake root
   resolvePath = path:
     if lib.strings.hasPrefix "/" path
     then path
-    else toString (inputs.self + "/${path}");
+    else if inputs ? ${baseNameOf path} 
+    then "${inputs.${baseNameOf path}}/${path}"
+    else "${inputs.self}/${path}";
 
   # Get wallpaper path from userConfig or use default
   wallpaperPath = resolvePath (
