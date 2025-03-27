@@ -1,8 +1,8 @@
-{ pkgs, lib, username, homeDirectory, ... }:
+{ pkgs, lib, username, homeDirectory, userConfig ? {}, ... }:
 
 let
-  # Use absolute path for better reliability
-  wallpaperPath = "${homeDirectory}/github/personal/roshbhatia/sysinit/wall/mvp2.jpg";
+  # Use wallpaper from userConfig
+  wallpaperPath = "${homeDirectory}/.wallpaper";
 in {
   environment.variables.EDITOR = "code --wait";
 

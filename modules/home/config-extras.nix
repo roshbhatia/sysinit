@@ -69,7 +69,6 @@
   # Additional home-manager settings
   programs.home-manager = {
     enable = true;
-    backupFileExtension = null;  # Disable backup files
   };
 
   # Remove old symlinks before creating new ones
