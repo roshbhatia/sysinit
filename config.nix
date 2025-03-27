@@ -1,29 +1,20 @@
 {
-  # User and system configuration
   user = {
-    username = "rshnbhatia";  # Default username
-    hostname = "lv426";      # Default hostname
+    username = "rshnbhatia";
+    hostname = "lv426";
   };
 
-  # Git configuration
   git = {
     userName = "Roshan Bhatia";
     userEmail = "rshnbhatia@gmail.com";
     githubUser = "roshbhatia";
   };
 
-  # Additional Homebrew packages to install
   homebrew = {
     additionalPackages = {
-      taps = [
-        # Add additional taps here
-        # Example: "user/repo"
-      ];
+      taps = [];
 
-      brews = [
-        # Add additional brew packages here
-        # Example: "package-name"
-      ];
+      brews = [];
 
       casks = [
         "notion"
@@ -31,17 +22,9 @@
     };
   };
 
-  # Wallpaper configuration
   wallpaper = {
-    path = "./wall/pain.jpg";  # Default wallpaper path
+    path = "./wall/pain.jpeg";
   };
 
-  # Files to install in home directory
-  install = [
-    # Example file installation
-    # {
-    #   source = "./path/to/source/file";
-    #   destination = ".config/destination/file";
-    # }
-  ];
+  install = [];
 }

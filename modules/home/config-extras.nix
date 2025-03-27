@@ -19,7 +19,7 @@ let
   wallpaperPath = resolvePath (
     if userConfig ? wallpaper && userConfig.wallpaper ? path 
     then userConfig.wallpaper.path
-    else "wall/pain.jpeg"
+    else "wall/mvp2.jpeg"
   );
 
   # Get files to install from userConfig or use empty list
