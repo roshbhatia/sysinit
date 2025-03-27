@@ -4,11 +4,9 @@ let
   # Function to resolve a possibly relative path to an absolute path
   resolvePath = path:
     let
-      # When used as a dependency, files should be resolved from the sysinit flake
       flakeRoot = if inputs ? sysinit 
                  then inputs.sysinit
                  else inputs.self;
-
       resolvedPath = if lib.strings.hasPrefix "/" path
         then path
         else toString (flakeRoot + "/${path}");
@@ -24,20 +22,41 @@ let
 
   # Get files to install from userConfig or use empty list
   filesToInstall = if userConfig ? install
-                  then builtins.trace "Installing files: ${toString (map (x: x.source) userConfig.install)}" userConfig.install
+                  then userConfig.install
                   else [];
 
-  # Function to install a file
+  # Function to install a file with verification
   installFile = { source, destination }:
     let
       resolvedSource = resolvePath source;
-      result = {
-        target = destination;
-        source = resolvedSource;
-        force = true;
-      };
+      targetPath = "${homeDirectory}/${destination}";
+      verifyScript = ''
+        echo "Verifying ${targetPath}..."
+        if [ -L "${targetPath}" ]; then
+          echo "✓ Symlink exists: ${targetPath}"
+          if [ -f "${targetPath}" ]; then
+            echo "✓ Target file exists and is accessible"
+            if [ -s "${targetPath}" ]; then
+              echo "✓ File has content: $(ls -l ${targetPath})"
+              echo "First few lines of content:"
+              head -n 3 "${targetPath}" || true
+            else
+              echo "✗ Warning: File is empty: ${targetPath}"
+            fi
+          else
+            echo "✗ Error: Target file does not exist or is not accessible"
+          fi
+        else
+          echo "✗ Error: Symlink does not exist: ${targetPath}"
+        fi
+      '';
     in
-    builtins.trace "Installing ${source} (${resolvedSource}) to ${destination}" result;
+    {
+      target = destination;
+      source = resolvedSource;
+      force = true;
+      onChange = verifyScript;
+    };
 
   # Map the install configurations to home-manager file objects
   homeManagerFiles = builtins.listToAttrs 
@@ -49,7 +68,22 @@ let
       filesToInstall);
 
   # Add wallpaper to the file map
-  allFiles = homeManagerFiles // { ".wallpaper" = { source = wallpaperPath; force = true; }; };
+  allFiles = homeManagerFiles // { 
+    ".wallpaper" = { 
+      source = wallpaperPath; 
+      force = true;
+      onChange = ''
+        echo "Verifying wallpaper..."
+        if [ -L "${homeDirectory}/.wallpaper" ] && [ -f "${homeDirectory}/.wallpaper" ]; then
+          echo "✓ Wallpaper installed successfully"
+          ls -l "${homeDirectory}/.wallpaper"
+        else
+          echo "✗ Wallpaper installation failed"
+        fi
+      '';
+    }; 
+  };
+
 in
 {
   # Install all files including wallpaper
