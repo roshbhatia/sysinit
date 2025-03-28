@@ -92,30 +92,7 @@
         filesToInstall);
 
   in
-    # Merge with wallpaper config
-    homeManagerFiles // { 
-      ".wallpaper" = { 
-        source = resolvePath wallpaperPath; 
-        force = true;
-        onChange = ''
-          # Backup existing wallpaper if it exists and isn't already a symlink
-          if [ -e "$HOME/.wallpaper" ] && [ ! -L "$HOME/.wallpaper" ]; then
-            echo "Creating backup of existing wallpaper"
-            cp -f "$HOME/.wallpaper" "$HOME/.wallpaper.backup-$(date +%Y%m%d-%H%M%S)"
-          fi
-          
-          # Verify the wallpaper was installed correctly
-          if [ -e "$HOME/.wallpaper" ]; then
-            echo "✓ Wallpaper installed successfully"
-            ls -la "$HOME/.wallpaper"
-            echo "  └─ Symlink target: $(readlink "$HOME/.wallpaper")"
-          else
-            echo "✗ ERROR: Wallpaper installation failed"
-            exit 1 # Force activation to fail if wallpaper installation fails
-          fi
-        '';
-      }; 
-    };
+    homeManagerFiles;
 
   # Additional home-manager settings
   programs.home-manager = {
@@ -162,6 +139,27 @@
           rm "$file"
         fi
       done
+    '';
+    
+    # Set wallpaper using osascript
+    setWallpaper = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      echo "🖼️ Setting wallpaper..."
+      
+      WALLPAPER_PATH="${resolvePath wallpaperPath}"
+      if [ -f "$WALLPAPER_PATH" ]; then
+        echo "Using wallpaper: $WALLPAPER_PATH"
+        
+        # Use osascript to set the desktop wallpaper properly
+        osascript -e "tell application \"System Events\" to tell every desktop to set picture to \"$WALLPAPER_PATH\""
+        
+        if [ $? -eq 0 ]; then
+          echo "✅ Wallpaper set successfully!"
+        else
+          echo "⚠️ Warning: Wallpaper could not be set with osascript"
+        fi
+      else
+        echo "❌ ERROR: Wallpaper file not found at $WALLPAPER_PATH"
+      fi
     '';
     
     # Add rollback instructions after activation completes
