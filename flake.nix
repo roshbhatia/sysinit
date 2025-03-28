@@ -46,19 +46,20 @@
             
         # Try to import the config file with better error handling
         customConfig = 
-          let
-            result = tryImport:
-              if tryImport then import configPath else {};
-          in
-            nixpkgs.lib.trivial.tryEval (result configExists);
+          if configExists then
+            import configPath
+          else {};
             
-        # Display clear error if config file couldn't be imported
-        __ = if !customConfig.success then
-               throw "ERROR: Failed to import configuration file at ${toString configPath}. Check for syntax errors."
-             else true;
+        # Try to catch import errors
+        __ = let
+               importTest = builtins.tryEval (if configExists then import configPath else {});
+             in
+               if !importTest.success then
+                 throw "ERROR: Failed to import configuration file at ${toString configPath}. Check for syntax errors."
+               else true;
              
         # Merge configurations with careful update strategy
-        mergedConfig = nixpkgs.lib.recursiveUpdate defaultConfig customConfig.value;
+        mergedConfig = nixpkgs.lib.recursiveUpdate defaultConfig customConfig;
         
         # Validate essential user configuration with detailed error messages
         ___ = if !(mergedConfig ? user) then
