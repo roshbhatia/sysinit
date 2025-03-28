@@ -1,49 +1,53 @@
 { config, lib, pkgs, username, homeDirectory, userConfig ? {}, inputs, ... }:
 
+let
+  # Function to resolve a possibly relative path to an absolute path with strict validation
+  resolvePath = path:
+    let
+      flakeRoot = if inputs ? sysinit 
+                 then inputs.sysinit
+                 else inputs.self;
+      resolvedPath = if lib.strings.hasPrefix "/" path
+                    then path
+                    else toString (flakeRoot + "/${path}");
+      
+      # Check if the path exists with better error reporting
+      pathExists = builtins.pathExists resolvedPath;
+      
+      errorMsg = "ERROR: File not found at ${resolvedPath}";
+    in
+      if pathExists
+      then resolvedPath
+      else 
+        # Add fallback for work configs using this as imported flake
+        let 
+          workConfigPath = toString (../../../${path});
+          workPathExists = builtins.pathExists workConfigPath;
+        in
+          if workPathExists 
+          then workConfigPath
+          else throw errorMsg; # Use throw instead of trace to stop the build on missing files
+
+  # Validate user configuration with safer fallbacks
+  validateConfig = config: required: default:
+    if config ? ${required} then config.${required} else
+      lib.warn "WARNING: Missing ${required} in configuration, using default" default;
+      
+  # Get wallpaper path with strict validation
+  wallpaperPath = 
+    if userConfig ? wallpaper && userConfig.wallpaper ? path then
+      let 
+        path = userConfig.wallpaper.path;
+        # Verify wallpaper exists before attempting to use it
+        _ = resolvePath path; # This will throw if path doesn't exist
+      in path
+    else "wall/mvp2.jpeg";
+    
+  # Get the fully resolved wallpaper path
+  resolvedWallpaperPath = resolvePath wallpaperPath;
+in
 {
   home.file = let
-    # Function to resolve a possibly relative path to an absolute path with strict validation
-    resolvePath = path:
-      let
-        flakeRoot = if inputs ? sysinit 
-                   then inputs.sysinit
-                   else inputs.self;
-        resolvedPath = if lib.strings.hasPrefix "/" path
-                      then path
-                      else toString (flakeRoot + "/${path}");
-        
-        # Check if the path exists with better error reporting
-        pathExists = builtins.pathExists resolvedPath;
-        
-        errorMsg = "ERROR: File not found at ${resolvedPath}";
-      in
-        if pathExists
-        then resolvedPath
-        else 
-          # Add fallback for work configs using this as imported flake
-          let 
-            workConfigPath = toString (../../../${path});
-            workPathExists = builtins.pathExists workConfigPath;
-          in
-            if workPathExists 
-            then workConfigPath
-            else throw errorMsg; # Use throw instead of trace to stop the build on missing files
-
-    # Validate user configuration with safer fallbacks
-    validateConfig = config: required: default:
-      if config ? ${required} then config.${required} else
-        lib.warn "WARNING: Missing ${required} in configuration, using default" default;
-        
-    # Get wallpaper path with strict validation
-    wallpaperPath = 
-      if userConfig ? wallpaper && userConfig.wallpaper ? path then
-        let 
-          path = userConfig.wallpaper.path;
-          # Verify wallpaper exists before attempting to use it
-          _ = resolvePath path; # This will throw if path doesn't exist
-        in path
-      else "wall/mvp2.jpeg";
-
     # Get files to install with validation
     filesToInstall = if userConfig ? install
                     then userConfig.install
@@ -145,7 +149,7 @@
     setWallpaper = lib.hm.dag.entryAfter ["writeBoundary"] ''
       echo "🖼️ Setting wallpaper..."
       
-      WALLPAPER_PATH="${resolvePath wallpaperPath}"
+      WALLPAPER_PATH="${resolvedWallpaperPath}"
       if [ -f "$WALLPAPER_PATH" ]; then
         echo "Using wallpaper: $WALLPAPER_PATH"
         
