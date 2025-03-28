@@ -156,7 +156,7 @@
               home.username = pkgs.lib.mkForce username;
               home.homeDirectory = pkgs.lib.mkForce homeDirectory;
               home.enableNixpkgsReleaseCheck = false;
-              home.file = pkgs.lib.mkForce {};  # Start with empty file declarations
+              # Don't reset home.file so modules can define files to install
               nixpkgs = {};
             };
           };
