@@ -27,6 +27,7 @@ let
   
   baseBrews = [
     "borders"
+    "colima"
     "direnv"
     "eza"
     "fd"
