@@ -155,8 +155,13 @@
                   in
                   ''
                     echo "Installing ${file.source} to ${file.destination}"
-                    mkdir -p "$(dirname "${file.destination}")"
+                    dest_dir="$(dirname "${file.destination}")"
+                    mkdir -p "$dest_dir"
+                    # Ensure directory is writable 
+                    chmod 755 "$dest_dir"
+                    # Copy file and ensure it has appropriate permissions
                     cp "${sourcePath}" "${file.destination}"
+                    chmod 644 "${file.destination}"
                   ''
                 ) installFiles
               );
