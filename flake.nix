@@ -33,29 +33,56 @@
   let
     system = "aarch64-darwin"; # For Apple Silicon
     
-    # Load the config file with defaults
+    # Load the config file with defaults and comprehensive validation
     loadConfig = configPath:
       let
         defaultConfig = import ./config.nix;
-        customConfig = if builtins.pathExists configPath 
-                      then import configPath 
-                      else {};
-        mergedConfig = nixpkgs.lib.recursiveUpdate defaultConfig customConfig;
         
-        # Validate essential configuration
-        _ = nixpkgs.lib.assertMsg 
-            (mergedConfig ? user && mergedConfig.user ? username && mergedConfig.user ? hostname)
-            "Config is missing required user.username or user.hostname properties";
+        # First verify that the config file exists
+        configExists = builtins.pathExists configPath;
+        _ = if !configExists then
+              throw "ERROR: Configuration file not found at ${toString configPath}"
+            else true;
             
-        # Validate git configuration
-        __ = nixpkgs.lib.assertMsg
-             (mergedConfig ? git && 
-              builtins.all (prop: mergedConfig.git ? ${prop}) 
-              ["userName" "userEmail" "credentialUsername" "githubUser"])
-             "Config is missing required git properties (userName, userEmail, credentialUsername, githubUser)";
+        # Try to import the config file with better error handling
+        customConfig = 
+          let
+            result = tryImport:
+              if tryImport then import configPath else {};
+          in
+            nixpkgs.lib.trivial.tryEval (result configExists);
+            
+        # Display clear error if config file couldn't be imported
+        __ = if !customConfig.success then
+               throw "ERROR: Failed to import configuration file at ${toString configPath}. Check for syntax errors."
+             else true;
+             
+        # Merge configurations with careful update strategy
+        mergedConfig = nixpkgs.lib.recursiveUpdate defaultConfig customConfig.value;
+        
+        # Validate essential user configuration with detailed error messages
+        ___ = if !(mergedConfig ? user) then
+                throw "ERROR: Configuration is missing required 'user' section"
+              else if !(mergedConfig.user ? username) then
+                throw "ERROR: Configuration is missing required user.username property"
+              else if !(mergedConfig.user ? hostname) then
+                throw "ERROR: Configuration is missing required user.hostname property"
+              else true;
+            
+        # Validate git configuration with detailed error messages
+        ____ = if !(mergedConfig ? git) then
+                 throw "ERROR: Configuration is missing required 'git' section"
+               else
+                 let
+                   requiredGitProps = ["userName" "userEmail" "credentialUsername" "githubUser"];
+                   missingProps = nixpkgs.lib.filter (prop: !(mergedConfig.git ? ${prop})) requiredGitProps;
+                 in
+                 if missingProps != [] then
+                   throw "ERROR: Git configuration is missing required properties: ${toString missingProps}"
+                 else true;
              
         # Log optional git properties that could be set
-        ___ = let 
+        _____ = let 
           optionalGitProps = ["personalEmail" "workEmail" "personalGithubUser" "workGithubUser"];
           missingOptionalProps = nixpkgs.lib.filter (prop: !(mergedConfig.git ? ${prop})) optionalGitProps;
         in
@@ -63,6 +90,36 @@
           builtins.trace "Note: Optional git properties not set: ${toString missingOptionalProps}" 
           true
         else true;
+        
+        # Validate wallpaper configuration if it exists
+        ______ = if (mergedConfig ? wallpaper && mergedConfig.wallpaper ? path) then
+                  let 
+                    path = mergedConfig.wallpaper.path;
+                    flakeRoot = inputs.self;
+                    resolvedPath = if nixpkgs.lib.strings.hasPrefix "/" path
+                                  then path
+                                  else toString (flakeRoot + "/${path}");
+                    pathExists = builtins.pathExists resolvedPath;
+                  in
+                  if !pathExists then
+                    builtins.trace "WARNING: Wallpaper file not found at ${resolvedPath}, this may cause build failures" true
+                  else true
+                else true;
+        
+        # Validate installation files if defined
+        _______ = if (mergedConfig ? install && builtins.isList mergedConfig.install) then
+                   let
+                     validateFile = file:
+                       if !(file ? source && file ? destination) then
+                         builtins.trace "WARNING: Invalid file config in install list, missing source or destination" false
+                       else true;
+                     
+                     validFiles = builtins.all (file: validateFile file) mergedConfig.install;
+                   in
+                   if !validFiles then
+                     builtins.trace "WARNING: Some install files are improperly configured and may fail during activation" true
+                   else true
+                 else true;
       in mergedConfig;
     
     # Main darwin configuration function
