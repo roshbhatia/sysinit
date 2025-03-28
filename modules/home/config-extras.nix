@@ -162,7 +162,7 @@ in
       if [ -f "$WALLPAPER_PATH" ]; then
         # Copy image to a stable location in the home directory
         mkdir -p "$HOME/.config/wallpaper"
-        cp "$WALLPAPER_PATH" "$HOME/.config/wallpaper/current"
+        cp "$WALLPAPER_PATH" "$HOME/.config/wallpaper/current" &>/dev/null
         
         # Use the defaults command to set the wallpaper
         /usr/bin/defaults write com.apple.desktopservices DSDontWriteNetworkStores true
