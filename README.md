@@ -1,4 +1,4 @@
-# SysInit - Robust macOS Configuration System
+# SysInit - Refined macOS Configuration System
 
 ```ascii
           ▗▄▄▄       ▗▄▄▄▄    ▄▄▄▖
@@ -23,14 +23,15 @@
          ▝▀▀▀    ▀▀▀▀▘       ▀▀▀▘
 ```
 
-A comprehensive Nix flake-based system configuration for macOS, using nix-darwin and home-manager, with robust validation and rollback capabilities.
+A streamlined Nix flake-based system configuration for macOS, using nix-darwin and home-manager with simplified structure.
 
 ## Features
 
-- **Comprehensive Validation**: At every step of the configuration and installation process
-- **Automated Rollback**: Multiple levels of rollback capability, from file-level to complete system reset
-- **Flexible Configuration**: Support for both personal and work environments
-- **Auto-activating Development Environments**: Like direnv, but integrated with your shell
+- **Simplified Configuration**: Clean and maintainable flake structure
+- **Robust Validation**: Configuration validation with clear error messages
+- **Custom File Installation**: Easy installation of dotfiles and configurations
+- **Integrated Homebrew**: Seamless integration with Homebrew packages
+- **Modular Design**: Easily add or remove components
 
 ## Quick Install
 
@@ -48,105 +49,99 @@ nix flake update
 nix-collect-garbage -d
 ```
 
-## Validation System
-
-Sysinit includes a robust validation system at multiple levels:
-
-1. **Configuration Validation**:
-   - Checks for required configuration properties
-   - Validates file paths before attempting to use them
-   - Ensures configuration syntax is correct
-
-2. **Build-time Validation**:
-   - Verifies all source files exist
-   - Checks for proper file permissions
-   - Validates environment variables
-
-3. **Post-installation Validation**:
-   - Verifies files were installed correctly
-   - Validates symlinks point to correct targets
-   - Reports success/failure of each action
-
-## Rollback Capabilities
-
-If anything goes wrong, Sysinit provides multiple ways to roll back changes:
-
-1. **Generation-based Rollback**:
-   ```bash
-   # System level
-   darwin-rebuild switch --rollback
-   
-   # Home-manager level
-   home-manager switch --generation 123
-   ```
-
-2. **File-level Rollback**:
-   All replaced files are automatically backed up with timestamped extensions:
-   ```bash
-   # Find backups
-   find ~ -name "*.backup-*" | grep config
-   
-   # Restore a specific file
-   cp ~/.config/app/config.backup-20230101-120000 ~/.config/app/config
-   ```
-
-3. **Complete Reset**:
-   If you need to start fresh, use the included uninstall script:
-   ```bash
-   ./uninstall-nix.sh
-   ```
-
-## Development Environment Feature
-
-Sysinit includes a direnv-like feature for automatically loading development environments:
-
-1. Place a `devenv.shell.nix` file in your project directory
-2. When you `cd` into that directory, the environment activates automatically
-3. The environment stays active in subdirectories and deactivates when you leave
-
-### Usage
-
-```bash
-# Initialize a new devenv.shell.nix file in your project
-devenv.init
-
-# Manually activate a devenv.shell.nix in current directory
-devenv.nix.shell
-
-# Get help
-devenv.nix.shell --help
-```
-
-Shell integration works with Nushell first, but falls back to ZSH if `nu` isn't present.
-
 ## Configuration System
 
-SysInit supports a customizable configuration system through a `config.nix` file. This allows you to easily customize various aspects of your setup without modifying the core files.
+SysInit uses a `config.nix` file for customization. This allows you to easily customize various aspects of your setup without modifying the core files.
+
+### Configuration Structure
+
+The `config.nix` file contains the following sections:
+
+```nix
+{
+  # User information
+  user = {
+    username = "yourusername";
+    hostname = "yourhostname";
+  };
+
+  # Git configuration
+  git = {
+    userName = "Your Name";
+    userEmail = "your.email@example.com";
+    githubUser = "yourgithubuser";
+    credentialUsername = "yourgithubuser";
+  };
+
+  # Homebrew packages (optional)
+  homebrew = {
+    additionalPackages = {
+      taps = [];
+      brews = [];
+      casks = ["app1" "app2"];
+    };
+  };
+
+  # Wallpaper (optional)
+  wallpaper = {
+    path = "wall/image.jpeg";  # Path relative to flake root
+  };
+
+  # Files to install (optional)
+  install = [
+    # Test file for validation
+    {
+      source = "modules/test/nix-install-test.yaml";
+      destination = "/Users/yourusername/.config/nix-test/nix-test.yaml";
+    }
+    
+    # Custom file installation
+    {
+      source = "examples/work-configs/ssh-config";
+      destination = "/Users/yourusername/.ssh/config";
+    }
+  ];
+}
+```
+
+### File Installation
+
+SysInit allows you to automatically install files during system activation:
+
+1. Add entries to the `install` list in your `config.nix` file
+2. Each entry must have `source` (relative to flake or absolute) and `destination` paths
+3. Files are copied during system activation
+
+The test file `modules/test/nix-install-test.yaml` is included in the default config.nix and installed to `~/.config/nix-test/nix-test.yaml` to validate the installation process.
+
+## Structure Overview
+
+- **flake.nix**: The main entry point, simplified and streamlined
+- **config.nix**: User configuration with validation
+- **modules/darwin/**: System-level macOS configuration modules
+- **modules/home/**: Home-manager user environment configuration
+- **modules/test/**: Test files for validation
+
+## Development
+
+### Adding New Modules
+
+1. Create a new module file in `modules/darwin/` or `modules/home/`
+2. Import it in the appropriate `default.nix` file
+3. Add any necessary configuration options to `config.nix`
 
 ### Using with Work Configurations
 
-Sysinit can be used as a source for work-specific configurations:
-
-1. Copy the examples directory to your work repo:
-   ```bash
-   cp -r ./examples /path/to/work-config
-   ```
-
+1. Copy the examples directory to your work repo
 2. Customize the `config.nix` file with your work-specific settings
-3. Add your work-specific files to the `work-configs` directory
-4. Build and apply the configuration:
-   ```bash
-   cd /path/to/work-config
-   darwin-rebuild switch --flake .#default
-   ```
-
-See the [examples/README.md](examples/README.md) for detailed instructions on setting up a work configuration.
+3. Add your work-specific files to be installed via the `install` list
+4. Build and apply the configuration
 
 ## Troubleshooting
 
 If you encounter issues:
 
-1. Check the validation error messages for specific problems
-2. Review the installation logs for details on what failed
-3. Follow the rollback instructions to return to a working state
-4. Check the [install-deps.sh](install-deps.sh) script for detailed troubleshooting guidance
+1. Check error messages for validation failures
+2. Verify that all paths in the configuration exist
+3. Check that required fields are properly set in `config.nix`
+4. Use `darwin-rebuild switch --rollback` to revert to previous configuration

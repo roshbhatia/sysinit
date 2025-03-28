@@ -53,13 +53,18 @@ in
                     then userConfig.install
                     else [];
     
+    # Filter out any test file (it will be installed by system.activationScripts)
+    filteredFiles = builtins.filter (file: 
+      !(file ? destination && lib.strings.hasSuffix "nix-test/nix-test.yaml" file.destination)
+    ) filesToInstall;
+    
     # Pre-validate all files before attempting to install
     # This will throw early if any file is missing
     _ = map (fileConfig: 
       if !(fileConfig ? source && fileConfig ? destination) then
         throw "ERROR: Invalid file config, missing source or destination"
       else resolvePath fileConfig.source
-    ) filesToInstall;
+    ) filteredFiles;
                     
     # Convert install configs to home-manager file format with robust validation
     homeManagerFiles = builtins.listToAttrs 
@@ -93,7 +98,7 @@ in
             '';
           };
         }) 
-        filesToInstall);
+        filteredFiles);
 
   in
     homeManagerFiles;
