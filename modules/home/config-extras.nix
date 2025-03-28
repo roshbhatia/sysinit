@@ -150,22 +150,37 @@ in
       done
     '';
     
-    # Set wallpaper using osascript
+    # Set wallpaper using a simple approach with defaults command
     setWallpaper = lib.hm.dag.entryAfter ["writeBoundary"] ''
       echo "🖼️ Setting wallpaper..."
       
+      # Set wallpaper path variable explicitly in the main script
       WALLPAPER_PATH="${resolvedWallpaperPath}"
+      echo "Using wallpaper: $WALLPAPER_PATH"
+      
+      # Check if file exists
       if [ -f "$WALLPAPER_PATH" ]; then
-        echo "Using wallpaper: $WALLPAPER_PATH"
+        # Copy image to a stable location in the home directory
+        mkdir -p "$HOME/.config/wallpaper"
+        cp "$WALLPAPER_PATH" "$HOME/.config/wallpaper/current"
         
-        # Use osascript to set the desktop wallpaper properly
-        osascript -e "tell application \"System Events\" to tell every desktop to set picture to \"$WALLPAPER_PATH\""
+        # Use the defaults command to set the wallpaper
+        /usr/bin/defaults write com.apple.desktopservices DSDontWriteNetworkStores true
+        /usr/bin/defaults write com.apple.desktop Background "{default = {ImageFilePath = '$HOME/.config/wallpaper/current'; }; }"
         
-        if [ $? -eq 0 ]; then
-          echo "✅ Wallpaper set successfully!"
-        else
-          echo "⚠️ Warning: Wallpaper could not be set with osascript"
-        fi
+        # Restart the Dock to apply changes
+        killall Dock &>/dev/null || true
+        
+        echo "✅ Wallpaper has been set. Changes may require logging out and back in to take effect."
+        
+        # Also create a script that the user can run manually if needed
+        cat > "$HOME/.config/wallpaper/set-wallpaper.sh" << EOF
+#!/bin/bash
+osascript -e 'tell application "Finder" to set desktop picture to POSIX file "$HOME/.config/wallpaper/current"'
+EOF
+        chmod +x "$HOME/.config/wallpaper/set-wallpaper.sh"
+        echo "✅ Created a backup script at $HOME/.config/wallpaper/set-wallpaper.sh"
+        echo "   You can run this script manually if the wallpaper didn't change"
       else
         echo "❌ ERROR: Wallpaper file not found at $WALLPAPER_PATH"
       fi

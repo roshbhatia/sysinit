@@ -29,6 +29,7 @@
     python311
     starship
     stern
+    swift
     tree
     watch
     wget
