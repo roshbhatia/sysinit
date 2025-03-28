@@ -15,7 +15,6 @@ in {
         AppleShowScrollBars = "Always";
         KeyRepeat = 2;
         InitialKeyRepeat = 15;
-        _HIHideMenuBar = true;
       };
       dock = {
         autohide = false;
@@ -64,12 +63,6 @@ in {
     if ! brew services start colima 2>/dev/null; then
       echo "Restarting Colima service..."
       brew services restart colima
-    fi
-
-    # Check and manage Sketchybar service
-    if ! brew services start sketchybar 2>/dev/null; then
-      echo "Restarting Sketchybar service..."
-      brew services restart sketchybar
     fi
 
     /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
