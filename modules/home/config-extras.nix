@@ -19,7 +19,15 @@
       in
         if pathExists
         then resolvedPath
-        else throw errorMsg; # Use throw instead of trace to stop the build on missing files
+        else 
+          # Add fallback for work configs using this as imported flake
+          let 
+            workConfigPath = toString (../../../${path});
+            workPathExists = builtins.pathExists workConfigPath;
+          in
+            if workPathExists 
+            then workConfigPath
+            else throw errorMsg; # Use throw instead of trace to stop the build on missing files
 
     # Validate user configuration with safer fallbacks
     validateConfig = config: required: default:
