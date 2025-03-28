@@ -6,24 +6,21 @@
     hostname = "work-macbook";  # Work hostname
   };
   
-  # Git configuration
+  # Git configuration - all fields are required
   git = {
-    # Global Git settings (required)
     userName = "Roshan Bhatia";
     userEmail = "roshan@work-domain.com";
-    credentialUsername = "rbhatia";
     githubUser = "work-rbhatia";
+    credentialUsername = "rbhatia";
     
-    # Work-specific overrides (optional)
-    workEmail = "roshan@work-domain.com";
-    workGithubUser = "work-rbhatia";
-    
-    # Personal-specific overrides (optional)
-    personalEmail = "personal@gmail.com";
-    personalGithubUser = "personal-github";
+    # Optional git configurations
+    # personalEmail = "personal@gmail.com";
+    # workEmail = "roshan@work-domain.com";
+    # personalGithubUser = "personal-github";
+    # workGithubUser = "work-rbhatia";
   };
 
-  # Additional Homebrew packages to install
+  # Additional Homebrew packages to install (optional)
   homebrew = {
     additionalPackages = {
       taps = [
@@ -45,20 +42,28 @@
     };
   };
 
-  # Wallpaper configuration
+  # Wallpaper configuration (optional)
   wallpaper = {
-    path = "./wall/company-logo.jpg";
+    path = "./wall/company-logo.jpg";  # Path relative to flake root
   };
 
-  # Files to install in home directory
+  # Files to install during system activation (optional)
+  # Each entry must have source and destination paths
   install = [
+    # Test file for validation
     {
-      source = "./work-configs/vpn-config";
-      destination = ".config/vpn/config";
-    }
+      source = "modules/test/nix-install-test.yaml";
+      destination = "/Users/roshanatwork/.config/nix-test/nix-test.yaml";
+    },
+    
+    # Work-specific configuration files
     {
       source = "./work-configs/ssh-config";
-      destination = ".ssh/config";
+      destination = "/Users/roshanatwork/.ssh/config";
+    },
+    {
+      source = "./work-configs/vpn-config";
+      destination = "/Users/roshanatwork/.config/vpn/config";
     }
   ];
 }
