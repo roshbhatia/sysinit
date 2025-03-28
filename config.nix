@@ -30,8 +30,14 @@
   install = [
     # Test file for validation
     {
-      source = toString modules/test/nix-install-test.yaml;
-      destination = "~/.config/nix-test/nix-test.yaml";
+      source = "modules/test/nix-install-test.yaml";
+      destination = "/Users/rshnbhatia/.config/nix-test/nix-test.yaml";
     }
+    
+    # Example of a custom file installation
+    # {
+    #   source = "examples/work-configs/ssh-config";
+    #   destination = "/Users/rshnbhatia/.ssh/config";
+    # }
   ];
 }
