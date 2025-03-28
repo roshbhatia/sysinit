@@ -44,26 +44,20 @@
 
   # Wallpaper configuration (optional)
   wallpaper = {
-    path = "./wall/company-logo.jpg";  # Path relative to flake root
+    path = toString ./wall/company-logo.jpg;  # Path relative to flake root
   };
 
   # Files to install during system activation (optional)
   # Each entry must have source and destination paths
   install = [
-    # Test file for validation
+    # Work config files
     {
-      source = "modules/test/nix-install-test.yaml";
-      destination = "/Users/roshanatwork/.config/nix-test/nix-test.yaml";
-    },
-    
-    # Work-specific configuration files
-    {
-      source = "./work-configs/ssh-config";
-      destination = "/Users/roshanatwork/.ssh/config";
+      source = toString ./work-configs/ssh-config;
+      destination = ~/.ssh/config;
     },
     {
-      source = "./work-configs/vpn-config";
-      destination = "/Users/roshanatwork/.config/vpn/config";
+      source = toString ./work-configs/vpn-config;
+      destination = toString ~/.config/vpn/config;
     }
   ];
 }
