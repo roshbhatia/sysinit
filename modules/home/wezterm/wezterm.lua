@@ -1,12 +1,3 @@
--- THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
---                             888                                
---                             888                                
---                             888                                
--- 888  888  888 .d88b. 88888888888888 .d88b. 888d88888888b.d88b.  
--- 888  888  888d8P  Y8b   d88P 888   d8P  Y8b888P"  888 "888 "88b 
--- 888  888  88888888888  d88P  888   88888888888    888  888  888 
--- Y88b 888 d88PY8b.     d88P   Y88b. Y8b.    888    888  888  888 
---  "Y8888888P"  "Y8888 88888888 "Y888 "Y8888 888    888  888  888
 local wezterm = require('wezterm')
 local act = wezterm.action
 local config = wezterm.config_builder()
@@ -163,10 +154,7 @@ wezterm.on("gui-startup", function()
     window:gui_window():maximize()
 end)
 
-local function segments_for_right_status(window)
-    return {window:active_workspace(), wezterm.hostname()}
-end
-
+-- Enhanced powerline configuration
 local function get_appearance()
     if wezterm.gui then
         return wezterm.gui.get_appearance()
@@ -174,48 +162,115 @@ local function get_appearance()
     return 'Dark'
 end
 
-local function is_dark()
-    return get_appearance():find 'Dark'
+local function is_dark_mode()
+    return get_appearance():find('Dark') and true or false
+end
+
+-- Define powerline characters
+local SOLID_LEFT_ARROW = utf8.char(0xe0b2)
+local SOLID_RIGHT_ARROW = utf8.char(0xe0b0)
+
+-- Function to create powerline segments for right status
+local function segments_for_right_status(window)
+    local date = wezterm.strftime("%H:%M")
+    local battery = ""
+    
+    -- Add battery info if available
+    for _, b in ipairs(wezterm.battery_info() or {}) do
+        local charging = b.state == "Charging"
+        local charge = b.state_of_charge * 100
+        
+        -- Battery icon based on charge level
+        local icon = "󱊣"  -- Default medium battery
+        if charge > 80 then
+            icon = "󱊢"  -- Full battery
+        elseif charge < 30 then
+            icon = "󱊡"  -- Low battery
+        end
+        
+        -- Add + symbol if charging
+        if charging then
+            icon = icon .. "+"
+        end
+        
+        battery = string.format("%s %.0f%%", icon, charge)
+        break  -- Only show the first battery
+    end
+    
+    -- Return segments in order
+    return {
+        { text = window:active_workspace(), foreground = "#50fa7b", background = "#282c34" },
+        { text = wezterm.hostname(), foreground = "#8be9fd", background = "#3b4048" },
+        { text = date, foreground = "#ffb86c", background = "#282c34" },
+        { text = battery, foreground = "#ff79c6", background = "#3b4048" },
+    }
 end
 
 wezterm.on('update-status', function(window, _)
-    local SOLID_LEFT_ARROW = utf8.char(0xe0b2)
     local segments = segments_for_right_status(window)
-
-    local color_scheme = window:effective_config().resolved_palette
-    -- Note the use of wezterm.color.parse here, this returns
-    -- a Color object, which comes with functionality for lightening
-    -- or darkening the colour (amongst other things).
-    local bg = wezterm.color.parse(color_scheme.background)
-    local fg = color_scheme.foreground
-  
-    -- Each powerline segment is going to be coloured progressively
-    -- darker/lighter depending on whether we're on a dark/light colour
-    -- scheme. Let's establish the "from" and "to" bounds of our gradient.
-    local gradient_to = bg
-    local gradient_from = bg
-    if appearance.is_dark() then
-        gradient_from = gradient_to:lighten(0.2)
-    else
-        gradient_from = gradient_to:darken(0.2)
-    end
-
     local elements = {}
-
-    for i, seg in ipairs(segments) do
-        local is_first = i == 1
-
-        if is_first then
-            table.insert(elements, {Background = {Color = 'none'}})
+    
+    -- Build the right status elements with powerline separators
+    for i, segment in ipairs(segments) do
+        local is_last = i == #segments
+        
+        if i > 1 then
+            -- Add powerline arrow between segments
+            table.insert(elements, {Foreground = {Color = segment.background}})
+            table.insert(elements, {Background = {Color = segments[i-1].background}})
+            table.insert(elements, {Text = SOLID_LEFT_ARROW})
         end
-        table.insert(elements, {Foreground = {Color = gradient_from}})
-        table.insert(elements, {Text = SOLID_LEFT_ARROW})
-        table.insert(elements, {Foreground = {Color = fg}})
-        table.insert(elements, {Background = {Color = gradient_from}})
-        table.insert(elements, {Text = ' ' .. seg .. ' '})
+        
+        -- Add the segment text
+        table.insert(elements, {Foreground = {Color = segment.foreground}})
+        table.insert(elements, {Background = {Color = segment.background}})
+        table.insert(elements, {Text = " " .. segment.text .. " "})
+        
+        -- Add final arrow for the last segment
+        if is_last then
+            table.insert(elements, {Foreground = {Color = "background"}})
+            table.insert(elements, {Background = {Color = segment.background}})
+            table.insert(elements, {Text = SOLID_LEFT_ARROW})
+        end
     end
-
+    
+    -- Set right status
     window:set_right_status(wezterm.format(elements))
+    
+    -- Also enhance the left status (optional)
+    local left_elements = {}
+    
+    -- Get current working directory
+    local cwd = ""
+    local success, cwd_uri, cwd_domain = pcall(window.active_pane.get_current_working_dir, window:active_pane())
+    if success then
+        cwd = cwd_uri.file_path
+        -- Shorten home directory
+        cwd = cwd:gsub(os.getenv("HOME"), "~")
+        -- Get just the last part of the path
+        if cwd ~= "~" then
+            local parts = {}
+            for part in cwd:gmatch("[^/]+") do
+                table.insert(parts, part)
+            end
+            if #parts > 0 then
+                cwd = parts[#parts]
+            end
+        end
+    end
+    
+    -- Add directory to left status
+    if cwd ~= "" then
+        table.insert(left_elements, {Foreground = {Color = "#bd93f9"}})
+        table.insert(left_elements, {Background = {Color = "#282c34"}})
+        table.insert(left_elements, {Text = " 󰉋 " .. cwd .. " "})
+        
+        table.insert(left_elements, {Foreground = {Color = "#282c34"}})
+        table.insert(left_elements, {Background = {Color = "background"}})
+        table.insert(left_elements, {Text = SOLID_RIGHT_ARROW})
+    end
+    
+    window:set_left_status(wezterm.format(left_elements))
 end)
 
 return config
