@@ -1,4 +1,4 @@
-# SysInit - Refined macOS Configuration System
+# SysInit - (Dotfiles)
 
 ```ascii
           ▗▄▄▄       ▗▄▄▄▄    ▄▄▄▖
@@ -22,8 +22,6 @@
          ▟███▛  ▜███▙       ▜███▙
          ▝▀▀▀    ▀▀▀▀▘       ▀▀▀▘
 ```
-
-A streamlined Nix flake-based system configuration for macOS, using nix-darwin and home-manager with simplified structure.
 
 ## Install
 
