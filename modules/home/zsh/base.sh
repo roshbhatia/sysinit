@@ -43,6 +43,7 @@ for dump in $HOME/.zcompdump(N.mh+24); do
 done
 compinit -Ci
 
+# Configure standard fzf integration
 export FZF_DEFAULT_OPTS="
   --preview-window=right:55%:wrap:border-rounded
   --height=60%
@@ -69,7 +70,7 @@ export FZF_DEFAULT_OPTS="
   --bind 'resize:refresh-preview'
 "
 
-export FZF_CTRL_R_OPTS="--height 60 --layout reverse --border rounded --preview-window hidden"
+export FZF_CTRL_R_OPTS="--height=60% --layout=reverse --border=rounded --preview-window=hidden"
 
 # Smart notifications for long-running commands
 function notify_when_done() {
@@ -104,24 +105,25 @@ preexec_functions+=(preexec_notify)
 if [ -f "/opt/homebrew/bin/brew" ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 
+  # Load standard fzf integration (no fzf-tab)
   if command -v fzf &> /dev/null; then
     source <(fzf --zsh)
   fi
 
   # Modern Atuin styling with advanced search capabilities
   export ATUIN_OPTS="
-    --height 60
-    --layout reverse
-    --border rounded
-    --margin 10%,5%
-    --padding 1
-    --prompt 'Search History ❯ '
-    --pointer '➤'
-    --color border:#5F5F87,bg:-1,fg:-1
-    --color fg+:#FFFFFF,bg+:#333355,hl+:#5FD7FF
-    --color info:#AFAF87,prompt:#D7005F,pointer:#AF5FFF
-    --color marker:#87FF00,spinner:#AF5FFF,header:#87AFAF
-    --header 'Ctrl-R: by command | Ctrl-T: by directory | Ctrl-G: by exit code'
+    --height=60%
+    --layout=reverse
+    --border=rounded
+    --margin=10%,5%
+    --padding=1
+    --prompt='Search History ❯ '
+    --pointer='➤'
+    --color=border:#5F5F87,bg:-1,fg:-1
+    --color=fg+:#FFFFFF,bg+:#333355,hl+:#5FD7FF
+    --color=info:#AFAF87,prompt:#D7005F,pointer:#AF5FFF
+    --color=marker:#87FF00,spinner:#AF5FFF,header:#87AFAF
+    --header='Ctrl-R: by command | Ctrl-T: by directory | Ctrl-G: by exit code'
     --bind 'ctrl-r:reload(atuin search -i --format \"{command}\")'
     --bind 'ctrl-t:reload(atuin search -i --format \"{command}\" --cwd-only)'
     --bind 'ctrl-g:reload(atuin search -i --format \"{command}\" --exit)'
@@ -165,39 +167,6 @@ if [ -f "/opt/homebrew/bin/brew" ]; then
     source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
   fi
 fi
-
-# ----- FZF-TAB CONFIGURATION (FIXED) -----
-# Reset any existing fzf-tab styles to avoid conflicts
-zstyle -d ':fzf-tab:*'
-
-# Basic fzf-tab settings - FIXED to avoid "not a valid integer" error
-# Using spaces instead of = and removing complex values
-zstyle ':fzf-tab:*' fzf-command fzf
-zstyle ':fzf-tab:*' fzf-flags '--height 50 --layout reverse'
-
-# Non-numeric settings (these should be safe)
-zstyle ':fzf-tab:*' continuous-trigger 'tab'
-zstyle ':fzf-tab:*' switch-group ',' '.'
-zstyle ':fzf-tab:*' prefix '·'
-zstyle ':completion:*:descriptions' format '%F{yellow}── %d ──%f'
-
-# Enhanced previews with simpler syntax
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls -la $realpath'
-zstyle ':fzf-tab:complete:*:*' fzf-preview 'if [[ -d $realpath ]]; then
-    ls -la $realpath
-  elif [[ -f $realpath ]]; then
-    cat $realpath || echo $realpath
-  else
-    echo $realpath
-  fi'
-
-# Command-specific groups and styling
-zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' fzf-preview 'echo ${(P)word}'
-
-# Disable fzf-tab for specific commands to avoid conflicts
-zstyle ':fzf-tab:complete:atuin:*' disabled-on '*'
-zstyle ':fzf-tab:complete:git-*:*' disabled-on '*'
-zstyle ':fzf-tab:complete:kill:argument-rest' disabled-on '*'
 
 # Source logging library first (ensure it's available to all scripts)
 [ -f "$XDG_CONFIG_HOME/zsh/loglib.sh" ] && source "$XDG_CONFIG_HOME/zsh/loglib.sh"
