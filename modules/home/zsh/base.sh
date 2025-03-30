@@ -57,11 +57,11 @@ export FZF_DEFAULT_OPTS="
   --color=fg+:-1,bg+:-1,hl+:12
   --color=info:7,prompt:1,pointer:5
   --color=marker:2,spinner:5,header:4
-  --preview=\"if [[ -f {} ]]; then case {} in *.md) glow -s dark {};; *.json) jq -C . {};; *.{js,jsx,ts,tsx,html,css,yml,yaml,toml,sh,zsh,bash}) bat --color=always --style=numbers,header {};; *.{jpg,jpeg,png,gif}) imgcat {} 2>/dev/null || echo 'Image preview not available';; *) bat --color=always --style=numbers,header {} || cat {};; esac elif [[ -d {} ]]; then eza -T --color=always --icons --git-ignore --git {} | head -200 else echo {} fi\"
+  --preview='if [[ -f {} ]]; then case {} in *.md) glow -s dark {};; *.json) jq -C . {};; *.{js,jsx,ts,tsx,html,css,yml,yaml,toml,sh,zsh,bash}) bat --color=always --style=numbers,header {};; *.{jpg,jpeg,png,gif}) imgcat {} 2>/dev/null || echo \"Image preview not available\";; *) bat --color=always --style=numbers,header {} || cat {};; esac elif [[ -d {} ]]; then eza -T --color=always --icons --git-ignore --git {} | head -200 else echo {} fi'
   --bind 'ctrl-p:toggle-preview'
   --bind 'ctrl-s:toggle-sort'
   --bind 'ctrl-y:execute-silent(echo -n {} | pbcopy)'
-  --bind 'ctrl-e:execute(\${EDITOR:-nvim} {} < /dev/tty > /dev/tty)'
+  --bind 'ctrl-e:execute(${EDITOR:-nvim} {} < /dev/tty > /dev/tty)'
   --bind 'tab:half-page-down'
   --bind 'btab:half-page-up'
   --bind 'alt-j:preview-down'
@@ -69,7 +69,7 @@ export FZF_DEFAULT_OPTS="
   --bind 'resize:refresh-preview'
 "
 
-export FZF_CTRL_R_OPTS="--height=60% --layout=reverse --border=rounded --preview-window=hidden"
+export FZF_CTRL_R_OPTS="--height 60 --layout reverse --border rounded --preview-window hidden"
 
 # Smart notifications for long-running commands
 function notify_when_done() {
@@ -110,18 +110,18 @@ if [ -f "/opt/homebrew/bin/brew" ]; then
 
   # Modern Atuin styling with advanced search capabilities
   export ATUIN_OPTS="
-    --height=60%
-    --layout=reverse
-    --border=rounded
-    --margin=10%,5%
-    --padding=1
-    --prompt='Search History ❯ '
-    --pointer='➤'
-    --color=border:#5F5F87,bg:-1,fg:-1
-    --color=fg+:#FFFFFF,bg+:#333355,hl+:#5FD7FF
-    --color=info:#AFAF87,prompt:#D7005F,pointer:#AF5FFF
-    --color=marker:#87FF00,spinner:#AF5FFF,header:#87AFAF
-    --header='Ctrl-R: by command | Ctrl-T: by directory | Ctrl-G: by exit code'
+    --height 60
+    --layout reverse
+    --border rounded
+    --margin 10%,5%
+    --padding 1
+    --prompt 'Search History ❯ '
+    --pointer '➤'
+    --color border:#5F5F87,bg:-1,fg:-1
+    --color fg+:#FFFFFF,bg+:#333355,hl+:#5FD7FF
+    --color info:#AFAF87,prompt:#D7005F,pointer:#AF5FFF
+    --color marker:#87FF00,spinner:#AF5FFF,header:#87AFAF
+    --header 'Ctrl-R: by command | Ctrl-T: by directory | Ctrl-G: by exit code'
     --bind 'ctrl-r:reload(atuin search -i --format \"{command}\")'
     --bind 'ctrl-t:reload(atuin search -i --format \"{command}\" --cwd-only)'
     --bind 'ctrl-g:reload(atuin search -i --format \"{command}\" --exit)'
@@ -166,41 +166,38 @@ if [ -f "/opt/homebrew/bin/brew" ]; then
   fi
 fi
 
+# ----- FZF-TAB CONFIGURATION (FIXED) -----
+# Reset any existing fzf-tab styles to avoid conflicts
+zstyle -d ':fzf-tab:*'
+
+# Basic fzf-tab settings - FIXED to avoid "not a valid integer" error
+# Using spaces instead of = and removing complex values
 zstyle ':fzf-tab:*' fzf-command fzf
-zstyle ':fzf-tab:*' fzf-flags '--height=50% --layout=reverse --border=rounded --margin=0,1,0,1 --padding=1'
-zstyle ':fzf-tab:*' fzf-pad 10
-zstyle ':fzf-tab:*' popup-pad 30 0
-zstyle ':fzf-tab:*' popup-min-size 80% 15
+zstyle ':fzf-tab:*' fzf-flags '--height 50 --layout reverse'
 
-# Fancy group headers
+# Non-numeric settings (these should be safe)
+zstyle ':fzf-tab:*' continuous-trigger 'tab'
+zstyle ':fzf-tab:*' switch-group ',' '.'
 zstyle ':fzf-tab:*' prefix '·'
-zstyle ':completion:*:descriptions' format '  %F{yellow}── %d ──%f'
+zstyle ':completion:*:descriptions' format '%F{yellow}── %d ──%f'
 
-# Enhanced previews with icons and tree structure
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -T --color=always --icons --git-ignore $realpath'
+# Enhanced previews with simpler syntax
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls -la $realpath'
 zstyle ':fzf-tab:complete:*:*' fzf-preview 'if [[ -d $realpath ]]; then
-    eza -T --color=always --icons --git-ignore $realpath
+    ls -la $realpath
   elif [[ -f $realpath ]]; then
-    bat --style=numbers,header --color=always $realpath
+    cat $realpath || echo $realpath
   else
     echo $realpath
   fi'
 
-# Floating experience
-zstyle ':fzf-tab:*' continuous-trigger 'tab'
-zstyle ':fzf-tab:*' switch-group ',' '.'
-zstyle ':fzf-tab:*' accept-line enter
-
 # Command-specific groups and styling
 zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' fzf-preview 'echo ${(P)word}'
 
-# Disable fzf-tab for specific commands
+# Disable fzf-tab for specific commands to avoid conflicts
 zstyle ':fzf-tab:complete:atuin:*' disabled-on '*'
 zstyle ':fzf-tab:complete:git-*:*' disabled-on '*'
 zstyle ':fzf-tab:complete:kill:argument-rest' disabled-on '*'
-
-zstyle ':fzf-tab:*' fzf-pad 0
-zstyle ':fzf-tab:*' popup-pad 30 2
 
 # Source logging library first (ensure it's available to all scripts)
 [ -f "$XDG_CONFIG_HOME/zsh/loglib.sh" ] && source "$XDG_CONFIG_HOME/zsh/loglib.sh"
