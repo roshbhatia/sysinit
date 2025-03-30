@@ -71,7 +71,7 @@ export FZF_DEFAULT_OPTS="
   --color=fg+:-1,bg+:-1,hl+:12
   --color=info:7,prompt:1,pointer:5
   --color=marker:2,spinner:5,header:4
-  --preview='$FZF_PREVIEW_COMMAND'
+  --preview="$FZF_PREVIEW_COMMAND"
   --bind 'ctrl-p:toggle-preview'
   --bind 'ctrl-s:toggle-sort'
   --bind 'ctrl-y:execute-silent(echo -n {} | pbcopy)'
