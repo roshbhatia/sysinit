@@ -172,37 +172,10 @@ local SOLID_RIGHT_ARROW = utf8.char(0xe0b0)
 
 -- Function to create powerline segments for right status
 local function segments_for_right_status(window)
-    local date = wezterm.strftime("%H:%M")
-    local battery = ""
-    
-    -- Add battery info if available
-    for _, b in ipairs(wezterm.battery_info() or {}) do
-        local charging = b.state == "Charging"
-        local charge = b.state_of_charge * 100
-        
-        -- Battery icon based on charge level
-        local icon = "󱊣"  -- Default medium battery
-        if charge > 80 then
-            icon = "󱊢"  -- Full battery
-        elseif charge < 30 then
-            icon = "󱊡"  -- Low battery
-        end
-        
-        -- Add + symbol if charging
-        if charging then
-            icon = icon .. "+"
-        end
-        
-        battery = string.format("%s %.0f%%", icon, charge)
-        break  -- Only show the first battery
-    end
-    
     -- Return segments in order
     return {
         { text = window:active_workspace(), foreground = "#50fa7b", background = "#282c34" },
         { text = wezterm.hostname(), foreground = "#8be9fd", background = "#3b4048" },
-        { text = date, foreground = "#ffb86c", background = "#282c34" },
-        { text = battery, foreground = "#ff79c6", background = "#3b4048" },
     }
 end
 
