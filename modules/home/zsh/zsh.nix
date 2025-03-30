@@ -43,7 +43,7 @@
           sha256 = "sha256-qzpnGTrLnq5mNaLlsjSA6VESA88XBdN3Ku/YIgLCb28=";
         };
         file = "evalcache.plugin.zsh";
-      },
+      }
       {
         name = "fzf-tab";
         src = pkgs.fetchFromGitHub {
