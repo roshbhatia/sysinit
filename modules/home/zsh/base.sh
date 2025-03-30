@@ -134,11 +134,11 @@ export FZF_DEFAULT_OPTS="
   --prompt='❯ '
   --pointer='▶'
   --marker='✓'
-  --color=fg:#d0d0d0,bg:#121212,hl:#5f87af
-  --color=fg+:#d0d0d0,bg+:#262626,hl+:#5fd7ff
-  --color=info:#afaf87,prompt:#d7005f,pointer:#af5fff
-  --color=marker:#87ff00,spinner:#af5fff,header:#87afaf
-  --color=border:#5f5f87
+  --color=border:-1
+  --color=fg:-1,bg:-1,hl:6
+  --color=fg+:-1,bg+:-1,hl+:12
+  --color=info:7,prompt:1,pointer:5
+  --color=marker:2,spinner:5,header:4
   --preview '[ -d {} ] && eza --tree --color=always {} || bat --style=numbers --color=always {}'
   --bind 'ctrl-p:toggle-preview'
   --bind 'ctrl-s:toggle-sort'
