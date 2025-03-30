@@ -139,11 +139,8 @@ export FZF_DEFAULT_OPTS="
   --color=info:#afaf87,prompt:#d7005f,pointer:#af5fff
   --color=marker:#87ff00,spinner:#af5fff,header:#87afaf
   --color=border:#5f5f87
-  --bind 'ctrl-/:toggle-preview'
-  --bind 'ctrl-y:execute-silent(echo {+} | pbcopy)'
-  --bind 'ctrl-v:execute(less -f {})' 
-  --bind 'alt-j:preview-down,alt-k:preview-up'
-  --bind 'ctrl-f:page-down,ctrl-b:page-up'
+  --preview '[ -d {} ] && eza --tree --color=always {} || bat --style=numbers --color=always {}'
+  --bind 'ctrl-p:toggle-preview'
   --bind 'ctrl-s:toggle-sort'
   --bind resize:refresh-preview"
 
