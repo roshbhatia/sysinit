@@ -90,16 +90,6 @@ export FZF_DEFAULT_OPTS="
 # Specific options for FZF history search
 export FZF_CTRL_R_OPTS="--height=60% --layout=reverse --border=rounded --preview-window=hidden"
 
-# WezTerm integration - intelligent title and notifications
-function set_wezterm_title() {
-  emulate -L zsh
-  local title="${PWD/#$HOME/~}"
-  if [[ -n $1 ]]; then
-    title="$1 - $title"
-  fi
-  printf "\033]0;%s\007" "$title"
-}
-
 # Smart notifications for long-running commands
 function notify_when_done() {
   local cmd=$1
@@ -127,8 +117,8 @@ function precmd_notify() {
 }
 
 # Register hooks for title and notifications
-precmd_functions+=(set_wezterm_title precmd_notify)
-preexec_functions+=(set_wezterm_title preexec_notify)
+precmd_functions+=(precmd_notify)
+preexec_functions+=(preexec_notify)
 
 if [ -f "/opt/homebrew/bin/brew" ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
