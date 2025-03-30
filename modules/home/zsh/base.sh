@@ -43,20 +43,6 @@ for dump in $HOME/.zcompdump(N.mh+24); do
 done
 compinit -Ci
 
-FZF_PREVIEW_COMMAND="if [[ -f {} ]]; then
-    case {} in
-        *.md) glow -s dark {};;
-        *.json) jq -C . {};;
-        *.{js,jsx,ts,tsx,html,css,yml,yaml,toml,sh,zsh,bash}) bat --color=always --style=numbers,header {};;
-        *.{jpg,jpeg,png,gif}) imgcat {} 2>/dev/null || echo 'Image preview not available';;
-        *) bat --color=always --style=numbers,header {} || cat {};;
-    esac
-elif [[ -d {} ]]; then
-    eza -T --color=always --icons --git-ignore --git {} | head -200
-else
-    echo {}
-fi"
-
 export FZF_DEFAULT_OPTS="
   --preview-window=right:55%:wrap:border-rounded
   --height=60%
@@ -71,16 +57,17 @@ export FZF_DEFAULT_OPTS="
   --color=fg+:-1,bg+:-1,hl+:12
   --color=info:7,prompt:1,pointer:5
   --color=marker:2,spinner:5,header:4
-  --preview="$FZF_PREVIEW_COMMAND"
+  --preview=\"if [[ -f {} ]]; then case {} in *.md) glow -s dark {};; *.json) jq -C . {};; *.{js,jsx,ts,tsx,html,css,yml,yaml,toml,sh,zsh,bash}) bat --color=always --style=numbers,header {};; *.{jpg,jpeg,png,gif}) imgcat {} 2>/dev/null || echo 'Image preview not available';; *) bat --color=always --style=numbers,header {} || cat {};; esac elif [[ -d {} ]]; then eza -T --color=always --icons --git-ignore --git {} | head -200 else echo {} fi\"
   --bind 'ctrl-p:toggle-preview'
   --bind 'ctrl-s:toggle-sort'
   --bind 'ctrl-y:execute-silent(echo -n {} | pbcopy)'
-  --bind 'ctrl-e:execute(${EDITOR:-nvim} {} < /dev/tty > /dev/tty)'
+  --bind 'ctrl-e:execute(\${EDITOR:-nvim} {} < /dev/tty > /dev/tty)'
   --bind 'tab:half-page-down'
   --bind 'btab:half-page-up'
   --bind 'alt-j:preview-down'
   --bind 'alt-k:preview-up'
-  --bind resize:refresh-preview"
+  --bind 'resize:refresh-preview'
+"
 
 export FZF_CTRL_R_OPTS="--height=60% --layout=reverse --border=rounded --preview-window=hidden"
 
