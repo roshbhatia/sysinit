@@ -27,6 +27,7 @@
       kubectl = "kubecolor";
       l = "eza --icons=always -1";
       ll = "eza --icons=always -1 -a";
+      ls = "eza"
       lt = "eza --icons=always -1 -a -T";
       tf = "terraform";
       y = "yazi";
