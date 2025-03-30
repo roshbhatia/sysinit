@@ -126,14 +126,25 @@ fi
 
 # Fzf
 export FZF_DEFAULT_OPTS="
-  --preview-window=right:40%:wrap:border-rounded
-  --height=40%
+  --preview-window=right:45%:wrap:border-rounded
+  --height=50%
   --layout=reverse
   --border=rounded
-  --info=inline
-  --pointer='○'
-  --marker='⏺'
-  --color=header:italic
+  --info=inline-right
+  --prompt='❯ '
+  --pointer='▶'
+  --marker='✓'
+  --color=fg:#d0d0d0,bg:#121212,hl:#5f87af
+  --color=fg+:#d0d0d0,bg+:#262626,hl+:#5fd7ff
+  --color=info:#afaf87,prompt:#d7005f,pointer:#af5fff
+  --color=marker:#87ff00,spinner:#af5fff,header:#87afaf
+  --color=border:#5f5f87
+  --bind 'ctrl-/:toggle-preview'
+  --bind 'ctrl-y:execute-silent(echo {+} | pbcopy)'
+  --bind 'ctrl-v:execute(less -f {})' 
+  --bind 'alt-j:preview-down,alt-k:preview-up'
+  --bind 'ctrl-f:page-down,ctrl-b:page-up'
+  --bind 'ctrl-s:toggle-sort'
   --bind resize:refresh-preview"
 
 # Disable ctrl+s to freeze terminal
