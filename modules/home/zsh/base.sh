@@ -46,8 +46,29 @@ if [ -f "/opt/homebrew/bin/brew" ]; then
     source <(fzf --zsh)
   fi
 
+  # Configure Atuin with fzf styling
+  export ATUIN_OPTS="
+    --height=40%
+    --layout=reverse
+    --border=rounded 
+    --color=border:-1
+    --color=fg:-1,bg:-1,hl:6
+    --color=fg+:-1,bg+:-1,hl+:12
+    --color=info:7,prompt:1,pointer:5
+    --color=marker:2,spinner:5,header:4"
+
   if command -v atuin &> /dev/null; then
     eval "$(atuin init zsh --disable-up-arrow)"
+    
+    # Set up custom keybindings for atuin using fzf-style
+    bindkey '^r' _atuin_search_widget
+    
+    # Override atuin search keybinding to use your custom style
+    _atuin_search_widget() {
+      BUFFER="atuin search -i --format '{command}' $ATUIN_OPTS -- $BUFFER"
+      zle accept-line
+    }
+    zle -N _atuin_search_widget
   fi
   
   # Then load other completions
@@ -91,6 +112,35 @@ fi
 
 if [ -f "$ZSH_CUSTOM_PLUGINS/fzf-tab/fzf-tab.zsh" ]; then
     source "$ZSH_CUSTOM_PLUGINS/fzf-tab/fzf-tab.zsh"
+    
+    # Configure fzf-tab for dropdown-style completions
+    zstyle ':fzf-tab:*' fzf-command fzf
+    zstyle ':fzf-tab:*' fzf-flags '--height=40% --layout=reverse --border=rounded'
+    zstyle ':fzf-tab:*' popup-pad 0 0 0 0
+    zstyle ':fzf-tab:*' popup-min-size 60% 12
+    zstyle ':fzf-tab:*' switch-group ',' '.'
+    zstyle ':fzf-tab:*' fzf-pad 4
+    
+    # Enhance completion descriptions
+    zstyle ':completion:*:descriptions' format '[%d]'
+    
+    # Custom preview for different file types
+    zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --tree --color=always $realpath'
+    zstyle ':fzf-tab:complete:*:*' fzf-preview 'if [[ -d $realpath ]]; then
+        eza --tree --color=always $realpath
+      elif [[ -f $realpath ]]; then
+        bat --style=numbers --color=always $realpath
+      else
+        echo $realpath
+      fi'
+    
+    # Set continuous trigger for a smoother experience
+    zstyle ':fzf-tab:*' continuous-trigger 'tab'
+    
+    # Disable fzf-tab for certain commands
+    zstyle ':fzf-tab:complete:atuin:*' disabled-on '*'
+    zstyle ':fzf-tab:complete:git-*:*' disabled-on '*'
+    zstyle ':fzf-tab:complete:kill:argument-rest' disabled-on '*'
 fi
 
 # Source logging library first (ensure it's available to all scripts)
@@ -143,6 +193,9 @@ export FZF_DEFAULT_OPTS="
   --bind 'ctrl-p:toggle-preview'
   --bind 'ctrl-s:toggle-sort'
   --bind resize:refresh-preview"
+
+# Specific options for history search
+export FZF_CTRL_R_OPTS="--height=40% --layout=reverse --border=rounded --preview-window=hidden"
 
 # Disable ctrl+s to freeze terminal
 stty stop undef
