@@ -170,73 +170,40 @@ end
 local SOLID_LEFT_ARROW = utf8.char(0xe0b2)
 local SOLID_RIGHT_ARROW = utf8.char(0xe0b0)
 
--- Function to get Kubernetes context
-local function get_k8s_context()
-    local success, stdout, stderr = wezterm.run_child_process({"kubectl", "config", "current-context"})
-    if success and stdout then
-        -- Trim whitespace
-        return stdout:gsub("^%s*(.-)%s*$", "%1")
-    end
-    return nil
-end
-
--- Function to get GitHub username (inlined implementation of ghwhoami)
-local function get_github_username()
-    -- First check if gh CLI is installed
-    local check_gh, _, _ = wezterm.run_child_process({"which", "gh"})
-    if not check_gh then
-        return nil
-    end
-    
-    -- Run gh api to get username directly
-    local success, stdout, stderr = wezterm.run_child_process({"gh", "api", "user", "--jq", ".login"})
-    if success and stdout and stdout ~= "" then
-        -- Trim whitespace
-        return stdout:gsub("^%s*(.-)%s*$", "%1")
-    end
-    
-    return nil
-end
-
 -- Function to create powerline segments for right status
 local function segments_for_right_status(window)
-    local segments = {}
+    local date = wezterm.strftime("%H:%M")
+    local battery = ""
     
-    -- Add workspace
-    table.insert(segments, { 
-        text = window:active_workspace(), 
-        foreground = "#50fa7b", 
-        background = "#282c34" 
-    })
-    
-    -- Add hostname
-    table.insert(segments, { 
-        text = wezterm.hostname(), 
-        foreground = "#8be9fd", 
-        background = "#3b4048" 
-    })
-    
-    -- Add K8s context if available
-    local k8s_context = get_k8s_context()
-    if k8s_context then
-        table.insert(segments, { 
-            text = "󱃾 " .. k8s_context, -- Kubernetes icon
-            foreground = "#4db5ff", 
-            background = "#282c34" 
-        })
+    -- Add battery info if available
+    for _, b in ipairs(wezterm.battery_info() or {}) do
+        local charging = b.state == "Charging"
+        local charge = b.state_of_charge * 100
+        
+        -- Battery icon based on charge level
+        local icon = "󱊣"  -- Default medium battery
+        if charge > 80 then
+            icon = "󱊢"  -- Full battery
+        elseif charge < 30 then
+            icon = "󱊡"  -- Low battery
+        end
+        
+        -- Add + symbol if charging
+        if charging then
+            icon = icon .. "+"
+        end
+        
+        battery = string.format("%s %.0f%%", icon, charge)
+        break  -- Only show the first battery
     end
     
-    -- Add GitHub username if available
-    local github_username = get_github_username()
-    if github_username then
-        table.insert(segments, { 
-            text = " " .. github_username, -- GitHub icon
-            foreground = "#f8f8f2", 
-            background = "#3b4048" 
-        })
-    end
-    
-    return segments
+    -- Return segments in order
+    return {
+        { text = window:active_workspace(), foreground = "#50fa7b", background = "#282c34" },
+        { text = wezterm.hostname(), foreground = "#8be9fd", background = "#3b4048" },
+        { text = date, foreground = "#ffb86c", background = "#282c34" },
+        { text = battery, foreground = "#ff79c6", background = "#3b4048" },
+    }
 end
 
 wezterm.on('update-status', function(window, _)
