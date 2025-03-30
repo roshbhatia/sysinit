@@ -35,3 +35,4 @@ fi
 # Kubernetes
 export PATH="$HOME/.krew/bin:$PATH"
 export PATH="$HOME/bin:$PATH"
+export PATH="$XDG_CONFIG_HOME/zsh/extras/bin:$PATH"

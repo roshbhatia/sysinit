@@ -60,11 +60,13 @@
     
     # Make loglib available in extras directory too
     "zsh/extras/loglib.sh".source = ./loglib.sh;
+
+    # Custom kubectl commands
+    "zsh/extras/bin/kubectl-klog.sh".source = ./kubectl-klog.sh;
+    "zsh/extras/bin/kubectl-kdesc.sh".source = ./kubectl-kdesc.sh;
+    "zsh/extras/kubectl-kproxy.sh".source = ./kubectl-kproxy.sh;
     
     # Other extras
-    "zsh/extras/kfzf.sh".source = ./kfzf.sh;
-    "zsh/extras/kfwd.sh".source = ./kfwd.sh;
-    "zsh/extras/kellog.sh".source = ./kellog.sh;
     "zsh/extras/crepo.sh".source = ./crepo.sh;
     "zsh/extras/github.sh".source = ./github.sh;
     "zsh/extras/devenv.sh".source = ./devenv.sh;
