@@ -70,6 +70,7 @@ if (which kubecolor | length) > 0 {
 }
 
 if (which eza | length) > 0 {
+    alias ls = eza
     alias l = eza --icons=always -1
     alias ll = eza --icons=always -1 -a
     alias lt = eza --icons=always -1 -a -T
