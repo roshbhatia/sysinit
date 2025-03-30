@@ -43,11 +43,6 @@ for dump in $HOME/.zcompdump(N.mh+24); do
 done
 compinit -Ci
 
-###############################################################
-# ULTIMATE SHELL EXPERIENCE CONFIGURATION
-###############################################################
-
-# Enhanced FZF configuration with smart preview and modern aesthetics
 FZF_PREVIEW_COMMAND="if [[ -f {} ]]; then
     case {} in
         *.md) glow -s dark {};;
@@ -87,7 +82,6 @@ export FZF_DEFAULT_OPTS="
   --bind 'alt-k:preview-up'
   --bind resize:refresh-preview"
 
-# Specific options for FZF history search
 export FZF_CTRL_R_OPTS="--height=60% --layout=reverse --border=rounded --preview-window=hidden"
 
 # Smart notifications for long-running commands
