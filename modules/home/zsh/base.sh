@@ -179,61 +179,41 @@ if [ -f "/opt/homebrew/bin/brew" ]; then
   fi
 fi
 
-# Ensure plugin directories exist
-export ZSH_CUSTOM="$XDG_CONFIG_HOME/zsh"
-export ZSH_CUSTOM_PLUGINS="$ZSH_CUSTOM/plugins"
+zstyle ':fzf-tab:*' fzf-command fzf
+zstyle ':fzf-tab:*' fzf-flags '--height=50% --layout=reverse --border=rounded --margin=0,1,0,1 --padding=1'
+zstyle ':fzf-tab:*' fzf-pad 10
+zstyle ':fzf-tab:*' popup-pad 30 0
+zstyle ':fzf-tab:*' popup-min-size 80% 15
 
-# Create plugin directories if they don't exist
-mkdir -p $ZSH_CUSTOM_PLUGINS
+# Fancy group headers
+zstyle ':fzf-tab:*' prefix '·'
+zstyle ':completion:*:descriptions' format '  %F{yellow}── %d ──%f'
 
-# Source plugins if they exist
-if [ -f "$ZSH_CUSTOM_PLUGINS/evalcache/evalcache.plugin.zsh" ]; then
-    source "$ZSH_CUSTOM_PLUGINS/evalcache/evalcache.plugin.zsh"
-fi
+# Enhanced previews with icons and tree structure
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -T --color=always --icons --git-ignore $realpath'
+zstyle ':fzf-tab:complete:*:*' fzf-preview 'if [[ -d $realpath ]]; then
+    eza -T --color=always --icons --git-ignore $realpath
+  elif [[ -f $realpath ]]; then
+    bat --style=numbers,header --color=always $realpath
+  else
+    echo $realpath
+  fi'
 
-if [ -f "$ZSH_CUSTOM_PLUGINS/fzf-tab/fzf-tab.plugin.zsh" ]; then
-    source "$ZSH_CUSTOM_PLUGINS/fzf-tab/fzf-tab.plugin.zsh"
-    
-    # 🔥 Super-charged fzf-tab for modern dropdown-style completions
-    zstyle ':fzf-tab:*' fzf-command fzf
-    zstyle ':fzf-tab:*' fzf-flags '--height=50% --layout=reverse --border=rounded --margin=0,1,0,1 --padding=1'
-    zstyle ':fzf-tab:*' fzf-pad 10
-    zstyle ':fzf-tab:*' popup-pad 30 0
-    zstyle ':fzf-tab:*' popup-min-size 80% 15
-    
-    # Fancy group headers
-    zstyle ':fzf-tab:*' prefix '·'
-    zstyle ':completion:*:descriptions' format '  %F{yellow}── %d ──%f'
-    
-    # Enhanced previews with icons and tree structure
-    zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -T --color=always --icons --git-ignore $realpath'
-    zstyle ':fzf-tab:complete:*:*' fzf-preview 'if [[ -d $realpath ]]; then
-        eza -T --color=always --icons --git-ignore $realpath
-      elif [[ -f $realpath ]]; then
-        bat --style=numbers,header --color=always $realpath
-      else
-        echo $realpath
-      fi'
-    
-    # Floating experience
-    zstyle ':fzf-tab:*' continuous-trigger 'tab'
-    zstyle ':fzf-tab:*' switch-group ',' '.'
-    zstyle ':fzf-tab:*' accept-line enter
-    
-    # Command-specific groups and styling
-    zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' fzf-preview 'echo ${(P)word}'
-    
-    # Disable fzf-tab for specific commands
-    zstyle ':fzf-tab:complete:atuin:*' disabled-on '*'
-    zstyle ':fzf-tab:complete:git-*:*' disabled-on '*'
-    zstyle ':fzf-tab:complete:kill:argument-rest' disabled-on '*'
-    
-    # WezTerm specific adjustments
-    if [[ $TERM_PROGRAM == "WezTerm" ]]; then
-      zstyle ':fzf-tab:*' fzf-pad 0
-      zstyle ':fzf-tab:*' popup-pad 30 2
-    fi
-fi
+# Floating experience
+zstyle ':fzf-tab:*' continuous-trigger 'tab'
+zstyle ':fzf-tab:*' switch-group ',' '.'
+zstyle ':fzf-tab:*' accept-line enter
+
+# Command-specific groups and styling
+zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' fzf-preview 'echo ${(P)word}'
+
+# Disable fzf-tab for specific commands
+zstyle ':fzf-tab:complete:atuin:*' disabled-on '*'
+zstyle ':fzf-tab:complete:git-*:*' disabled-on '*'
+zstyle ':fzf-tab:complete:kill:argument-rest' disabled-on '*'
+
+zstyle ':fzf-tab:*' fzf-pad 0
+zstyle ':fzf-tab:*' popup-pad 30 2
 
 # Source logging library first (ensure it's available to all scripts)
 [ -f "$XDG_CONFIG_HOME/zsh/loglib.sh" ] && source "$XDG_CONFIG_HOME/zsh/loglib.sh"
