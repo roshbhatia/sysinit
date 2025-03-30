@@ -15,6 +15,8 @@
 #      |__|/         \__\/         \__\/         \__\/         \__\/
 
 # General settings
+[ -f "$XDG_CONFIG_HOME/zsh/paths.sh" ] && source "$XDG_CONFIG_HOME/zsh/paths.sh"
+
 unset MAILCHECK
 export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
@@ -76,7 +78,7 @@ if [ -f "/opt/homebrew/bin/brew" ]; then
 fi
 
 # Ensure plugin directories exist
-export ZSH_CUSTOM="$HOME/.config/zsh"
+export ZSH_CUSTOM="$XDG_CONFIG_HOME/zsh"
 export ZSH_CUSTOM_PLUGINS="$ZSH_CUSTOM/plugins"
 
 # Create plugin directories if they don't exist
@@ -92,19 +94,19 @@ if [ -f "$ZSH_CUSTOM_PLUGINS/fzf-tab/fzf-tab.zsh" ]; then
 fi
 
 # Source logging library first (ensure it's available to all scripts)
-[ -f "$HOME/.config/zsh/loglib.sh" ] && source "$HOME/.config/zsh/loglib.sh"
+[ -f "$XDG_CONFIG_HOME/zsh/loglib.sh" ] && source "$XDG_CONFIG_HOME/zsh/loglib.sh"
 
 # Load loglib in extras first if it exists
-if [[ -f "$HOME/.config/zsh/extras/loglib.sh" ]]; then
-  source "$HOME/.config/zsh/extras/loglib.sh"
+if [[ -f "$XDG_CONFIG_HOME/zsh/extras/loglib.sh" ]]; then
+  source "$XDG_CONFIG_HOME/zsh/extras/loglib.sh"
 fi
 
 # Then, source zshextras
 [ -f ~/.zshextras ] && source ~/.zshextras
 
 # Then load all other utility modules from extras directory
-for module in $HOME/.config/zsh/extras/*.sh; do
-  if [[ -f "$module" && "$module" != "$HOME/.config/zsh/extras/loglib.sh" ]]; then
+for module in $XDG_CONFIG_HOME/zsh/extras/*.sh; do
+  if [[ -f "$module" && "$module" != "$XDG_CONFIG_HOME/zsh/extras/loglib.sh" ]]; then
     source "$module"
   fi
 done
@@ -133,9 +135,6 @@ export FZF_DEFAULT_OPTS="
   --marker='⏺'
   --color=header:italic
   --bind resize:refresh-preview"
-
-# Source path configurations
-[ -f "$HOME/.config/zsh/paths.sh" ] && source "$HOME/.config/zsh/paths.sh"
 
 # Disable ctrl+s to freeze terminal
 stty stop undef
