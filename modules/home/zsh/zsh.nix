@@ -50,6 +50,7 @@
           owner = "Aloxaf";
           repo = "fzf-tab";
           rev = "v1.2.0"; # Use the latest stable release
+          sha256 = "sha256-q26XVS/LcyZPRqDNwKKA9exgBByE0muyuNb0Bbar2lY=";
         };
         file = "fzf-tab.plugin.zsh";
       }
