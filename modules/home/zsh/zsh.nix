@@ -44,6 +44,15 @@
         };
         file = "evalcache.plugin.zsh";
       }
+      {
+        name = "fzf-tab";
+        src = pkgs.fetchFromGitHub {
+          owner = "Aloxaf";
+          repo = "fzf-tab";
+          rev = "v1.2.0"; # Use the latest stable release
+        };
+        file = "fzf-tab.plugin.zsh";
+      }
     ];
 
     # This is akin to our normal .zshrc
