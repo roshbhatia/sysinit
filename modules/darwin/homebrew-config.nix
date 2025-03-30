@@ -33,6 +33,8 @@ let
     "fd"
     "glow"
     "gum"
+    "kubectl"
+    "kubecolor"
     "libgit2"
     "nushell"
     "ripgrep"
