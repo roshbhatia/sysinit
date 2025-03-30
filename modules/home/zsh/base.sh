@@ -43,7 +43,6 @@ for dump in $HOME/.zcompdump(N.mh+24); do
 done
 compinit -Ci
 
-# Configure standard fzf integration
 export FZF_DEFAULT_OPTS="
   --preview-window=right:55%:wrap:border-rounded
   --height=60%
@@ -105,40 +104,13 @@ preexec_functions+=(preexec_notify)
 if [ -f "/opt/homebrew/bin/brew" ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 
-  # Load standard fzf integration (no fzf-tab)
   if command -v fzf &> /dev/null; then
     source <(fzf --zsh)
   fi
 
-  # Modern Atuin styling with advanced search capabilities
-  export ATUIN_OPTS="
-    --height=60%
-    --layout=reverse
-    --border=rounded
-    --margin=10%,5%
-    --padding=1
-    --prompt='Search History ❯ '
-    --pointer='➤'
-    --color=border:#5F5F87,bg:-1,fg:-1
-    --color=fg+:#FFFFFF,bg+:#333355,hl+:#5FD7FF
-    --color=info:#AFAF87,prompt:#D7005F,pointer:#AF5FFF
-    --color=marker:#87FF00,spinner:#AF5FFF,header:#87AFAF
-    --header='Ctrl-R: by command | Ctrl-T: by directory | Ctrl-G: by exit code'
-    --bind 'ctrl-r:reload(atuin search -i --format \"{command}\")'
-    --bind 'ctrl-t:reload(atuin search -i --format \"{command}\" --cwd-only)'
-    --bind 'ctrl-g:reload(atuin search -i --format \"{command}\" --exit)'
-    --bind 'ctrl-y:execute-silent(echo -n {2} | pbcopy)+abort'"
-
+  # Initialize atuin with evalcache
   if command -v atuin &> /dev/null; then
-    eval "$(atuin init zsh --disable-up-arrow)"
-    
-    # Enhanced Atuin search widget
-    _atuin_search_widget() {
-      BUFFER="atuin search -i --format '{command}' $ATUIN_OPTS -- $BUFFER"
-      zle accept-line
-    }
-    zle -N _atuin_search_widget
-    bindkey '^r' _atuin_search_widget
+    _evalcache atuin init zsh --disable-up-arrow
   fi
   
   # Then load other completions
@@ -167,6 +139,32 @@ if [ -f "/opt/homebrew/bin/brew" ]; then
     source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
   fi
 fi
+
+# Function to list directories with eza
+function _eza_ls_for_completion() {
+  # Check if eza is installed
+  if command -v eza &> /dev/null; then
+    eza --icons --git-ignore --color=always -1 "$@"
+  else
+    # Fallback to ls if eza is not available
+    ls -la "$@"
+  fi
+}
+
+# Set up eza for file/directory listing during completion
+zstyle ':completion:*' file-list-rows-first true
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+
+# Use the function for directory listings in completions
+zstyle ':completion:*' file-list-display _eza_ls_for_completion
+
+# Configure list-dirs-first for better organization
+zstyle ':completion:*' list-dirs-first true
+
+# Improve the appearance of completion menus
+zstyle ':completion:*:descriptions' format '%F{yellow}%d%f'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*:default' list-prompt '%S%M matches%s'
 
 # Source logging library first (ensure it's available to all scripts)
 [ -f "$XDG_CONFIG_HOME/zsh/loglib.sh" ] && source "$XDG_CONFIG_HOME/zsh/loglib.sh"
