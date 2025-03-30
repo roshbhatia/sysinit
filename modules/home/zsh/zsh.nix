@@ -43,6 +43,16 @@
           sha256 = "sha256-qzpnGTrLnq5mNaLlsjSA6VESA88XBdN3Ku/YIgLCb28=";
         };
         file = "evalcache.plugin.zsh";
+      },
+      {
+        name = "fzf-tab";
+        src = pkgs.fetchFromGitHub {
+          owner = "Aloxaf";
+          repo = "fzf-tab";
+          rev = "01dad759c4466600b639b442ca24aebd5178e799";
+          sha256 = "1b4pksrc573aklk71dn2zikiymsvq19bgvamrdffpf7azpq6kxl2";
+        };
+        file = "fzf-tab.plugin.zsh";
       }
     ];
 
