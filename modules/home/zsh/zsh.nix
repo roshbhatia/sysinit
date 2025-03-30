@@ -62,10 +62,11 @@
     "zsh/extras/loglib.sh".source = ./loglib.sh;
 
     # Custom kubectl commands
-    "zsh/extras/bin/kubectl-klog.sh".source = ./kubectl-klog.sh;
-    "zsh/extras/bin/kubectl-kdesc.sh".source = ./kubectl-kdesc.sh;
-    "zsh/extras/kubectl-kproxy.sh".source = ./kubectl-kproxy.sh;
-    
+    "zsh/extras/bin/kubectl-kdesc".source = ./kubectl-kdesc.sh;
+    "zsh/extras/bin/kubectl-kexec".source = ./kubectl-kexec.sh;
+    "zsh/extras/bin/kubectl-klog".source = ./kubectl-klog.sh;
+    "zsh/extras/bin/kubectl-kproxy".source = ./kubectl-kproxy.sh;
+
     # Other extras
     "zsh/extras/crepo.sh".source = ./crepo.sh;
     "zsh/extras/github.sh".source = ./github.sh;
