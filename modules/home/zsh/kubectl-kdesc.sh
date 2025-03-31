@@ -12,21 +12,7 @@
 # 888  888888   88888888888
 
 # Default options
-NAMESPACE=""
-NAMESPACE_OPTION=""
-RESOURCE_TYPE=""
-RESOURCE_TYPES="pods,deployments,statefulsets,services,configmaps,secrets,jobs,cronjobs,daemonsets,persistentvolumeclaims"
-OUTPUT_FORMAT="describe"
-KUBECONFIG=""
-KUBECONFIG_OPTION=""
-CONTEXT=""
-CONTEXT_OPTION=""
-LABEL_SELECTOR=""
-LABEL_SELECTOR_OPTION=""
-FIELD_SELECTOR=""
-FIELD_SELECTOR_OPTION=""
-OUTPUT_OPTION=""
-INTERACTIVE=true
+CACHE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/kdesc"
 DEBUG=false
 VERSION="1.0.0"
 
@@ -311,18 +297,15 @@ show_version() {
 
 # Check dependencies
 check_dependencies() {
-    if ! command -v fzf >/dev/null 2>&1; then
-        if [[ "$USE_GUM" == "false" ]]; then
-            styled_error "fzf is required but not installed."
-            styled_info "Please install fzf: https://github.com/junegunn/fzf"
+    for cmd in kubectl jq gum bat fzf; do
+        if ! command -v $cmd >/dev/null 2>&1; then
+            styled_error "$cmd is required but not installed."
             exit 1
         fi
-    fi
+    done
     
-    if [[ "$USE_BAT" == "false" ]]; then
-        styled_warning "bat is not installed. Output will not be syntax highlighted."
-        styled_info "Install bat for syntax highlighting: https://github.com/sharkdp/bat"
-    fi
+    # Create cache directory if needed
+    mkdir -p "$CACHE_DIR"
 }
 
 # Parse command line arguments
@@ -442,7 +425,7 @@ get_namespaces() {
         namespaces=$(eval "$cmd")
     fi
     
-    echo $namespaces
+    echo "$namespaces"
 }
 
 # Interactive namespace selection
@@ -489,7 +472,7 @@ get_resource_types() {
         resource_types=$(eval "$cmd")
     fi
     
-    echo $resource_types
+    echo "$resource_types"
 }
 
 # Interactive resource type selection
@@ -606,7 +589,7 @@ display_resource() {
     fi
     
     if [[ "$USE_BAT" == "true" ]]; then
-        eval "$cmd" | bat --style=plain --color=always --language=${OUTPUT_FORMAT} --paging=always
+        eval "$cmd" | bat --style=plain --color=always --language="${OUTPUT_FORMAT}" --paging=always
     else
         eval "$cmd" | less -R
     fi

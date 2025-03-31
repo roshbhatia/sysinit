@@ -13,7 +13,7 @@
 
 # Default options
 VERSION="1.0.0"
-CACHE_DIR="$HOME/.kexec"
+CACHE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/kexec"
 HISTORY_FILE="$CACHE_DIR/history.json"
 MOUNT_DIR="/tmp/kexec-mounts"
 DEFAULT_EDITOR="${EDITOR:-vi}"
@@ -281,25 +281,15 @@ show_version() {
 
 # Check dependencies
 check_dependencies() {
-    if ! command -v kubectl >/dev/null 2>&1; then
-        styled_error "kubectl is required but not installed."
-        exit 1
-    fi
-    
-    if ! command -v fzf >/dev/null 2>&1 && [[ "$USE_GUM" == "false" ]]; then
-        styled_warning "fzf is not installed. This tool works best with fzf for interactive selection."
-        styled_info "Please install fzf: https://github.com/junegunn/fzf"
-    fi
-    
-    if [[ "$USE_JQ" == "false" ]]; then
-        styled_warning "jq is not installed. Some features may not work correctly."
-        styled_info "Please install jq: https://stedolan.github.io/jq/download/"
-    fi
+    for cmd in kubectl jq gum socat fzf; do
+        if ! command -v $cmd >/dev/null 2>&1; then
+            styled_error "$cmd is required but not installed."
+            exit 1
+        fi
+    done
     
     # Create cache directory
-    if [[ ! -d "$CACHE_DIR" ]]; then
-        mkdir -p "$CACHE_DIR"
-    fi
+    mkdir -p "$CACHE_DIR"
     
     # Initialize history file
     if [[ ! -f "$HISTORY_FILE" ]]; then
@@ -444,7 +434,7 @@ get_containers() {
         containers=$(eval "$cmd")
     fi
     
-    echo $containers
+    echo "$containers"
 }
 
 # Select container from a pod
@@ -630,21 +620,21 @@ copy_to_pod() {
             local port=$(shuf -i 10000-65000 -n 1)
             
             # Start socat in the container
-            kubectl exec -n "$namespace" "$pod" -c "$container" -- socat TCP-LISTEN:$port,fork OPEN:"$remote_path",creat &
+            kubectl exec -n "$namespace" "$pod" -c "$container" -- socat TCP-LISTEN:"$port",fork OPEN:"$remote_path",creat &
             local socat_pid=$!
             
             # Sleep to let socat start
             sleep 1
             
             # Port forward to the socat port
-            kubectl port-forward -n "$namespace" "$pod" $port:$port &
+            kubectl port-forward -n "$namespace" "$pod" "$port":"$port" &
             local portfwd_pid=$!
             
             # Sleep to let port forwarding start
             sleep 1
             
             # Send the file using cat
-            cat "$local_file" > /dev/tcp/localhost/$port
+            cat "$local_file" > /dev/tcp/localhost/"$port"
             
             # Kill the port forward
             kill $portfwd_pid
@@ -742,21 +732,21 @@ copy_from_pod() {
             local port=$(shuf -i 10000-65000 -n 1)
             
             # Start socat in the container to send the file
-            kubectl exec -n "$namespace" "$pod" -c "$container" -- socat TCP-LISTEN:$port,fork OPEN:"$remote_file" &
+            kubectl exec -n "$namespace" "$pod" -c "$container" -- socat TCP-LISTEN:"$port",fork OPEN:"$remote_file" &
             local socat_pid=$!
             
             # Sleep to let socat start
             sleep 1
             
             # Port forward to the socat port
-            kubectl port-forward -n "$namespace" "$pod" $port:$port &
+            kubectl port-forward -n "$namespace" "$pod" "$port":"$port" &
             local portfwd_pid=$!
             
             # Sleep to let port forwarding start
             sleep 1
             
             # Receive the file using cat
-            cat < /dev/tcp/localhost/$port > "$local_path"
+            cat < /dev/tcp/localhost/"$port" > "$local_path"
             
             # Kill the port forward
             kill $portfwd_pid
@@ -1437,4 +1427,31 @@ main "$@" "$container" -- which socat &>/dev/null; then
     styled_info "Trying tar transfer..."
     
     # Check if tar is available in the container
-    if kubectl exec -n "$namespace" "$pod" -c
+    if kubectl exec -n "$namespace" "$pod" -c "$container" -- which tar &>/dev/null; then
+        # Create a temporary directory
+        local temp_dir=$(mktemp -d)
+        local file_name=$(basename "$remote_file")
+        
+        # Create a command to create a tar archive
+        local tar_cmd="cd $(dirname "$remote_file") && tar -cf - $file_name | base64 -w 0"
+        
+        # Execute the command
+        local encoded_tar=$(kubectl exec -n "$namespace" "$pod" -c "$container" -- sh -c "$tar_cmd")
+        
+        # Decode and extract the tar archive
+        echo "$encoded_tar" | base64 -d > "$temp_dir/archive.tar"
+        tar -xf "$temp_dir/archive.tar" -C "$temp_dir"
+        
+        # Copy the file to the destination
+        cp -f "$temp_dir/$file_name" "$local_path"
+        
+        # Clean up
+        rm -rf "$temp_dir"
+        
+        styled_success "Successfully copied file using tar+base64 encoding"
+        return 0
+    fi
+    
+    styled_error "All file transfer methods failed"
+    return 1
+}

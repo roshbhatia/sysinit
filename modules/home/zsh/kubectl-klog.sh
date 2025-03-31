@@ -18,6 +18,7 @@
 export TERM=xterm-256color
 
 # Default options
+VERSION="1.0.0"
 NAMESPACE=""
 NAMESPACE_OPTION=""
 CONTAINER=""
@@ -41,7 +42,22 @@ KUBECONFIG_OPTION=""
 INTERACTIVE=false
 MINIMAL=false
 DEBUG=false
-VERSION="1.0.0"
+
+# Cache directory
+CACHE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/klog"
+
+# Check dependencies
+check_dependencies() {
+    for cmd in stern kubectl jq gum fzf; do
+        if ! command -v "$cmd" >/dev/null 2>&1; then
+            styled_error "$cmd is required but not installed."
+            exit 1
+        fi
+    done
+    
+    # Create cache directory if needed
+    mkdir -p "$CACHE_DIR"
+}
 
 # Color definitions (fallback if gum not available)
 BOLD='\033[1m'
@@ -451,7 +467,7 @@ get_namespaces() {
         namespaces=$(eval "$cmd")
     fi
     
-    echo $namespaces
+    echo "$namespaces"
 }
 
 # Interactive namespace selection
@@ -661,7 +677,7 @@ main() {
     fi
     
     # Execute
-    eval $STERN_CMD
+    eval "$STERN_CMD"
 }
 
 # Execute main
