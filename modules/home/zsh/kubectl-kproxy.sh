@@ -305,90 +305,124 @@ check_dependencies() {
     fi
 }
 
-# Get all services from all namespaces
-get_services() {
-    local cmd="kubectl get services --all-namespaces -o json"
-    local services
+# Get all services and pods from all namespaces
+get_resources() {
+    local cmd_services="kubectl get services --all-namespaces -o json"
+    local cmd_pods="kubectl get pods --all-namespaces -o json"
+    local services_json=""
+    local pods_json=""
     
     if [[ "$USE_GUM" == "true" ]]; then
-        services=$(gum spin --spinner dot --title "Fetching services..." -- bash -c "$cmd")
+        services_json=$(gum spin --spinner dot --title "Fetching services..." -- bash -c "$cmd_services") || return 1
+        pods_json=$(gum spin --spinner dot --title "Fetching pods..." -- bash -c "$cmd_pods") || return 1
     else
-        styled_info "Fetching services..."
-        services=$(eval "$cmd")
+        styled_info "Fetching resources..."
+        services_json=$(eval "$cmd_services") || return 1
+        pods_json=$(eval "$cmd_pods") || return 1
     fi
     
-    echo "$services"
+    echo '{"services": '"$services_json"', "pods": '"$pods_json"'}'
 }
 
-# Format services for display
-format_services() {
-    local services="$1"
-    local formatted_services=""
+# Format resources for display
+format_resources() {
+    local resources="$1"
+    local formatted=""
     
     if [[ "$USE_JQ" == "true" ]]; then
-        formatted_services=$(echo "$services" | jq -r '.items[] | select(.spec.type != "ExternalName") | "\(.metadata.namespace)|\(.metadata.name)|\(.spec.ports[0].port)|\(.spec.ports[0].targetPort)|\(.spec.type)"' | while IFS="|" read -r namespace name port targetPort type; do
+        # Format services
+        local services=$(echo "$resources" | jq -r '.services.items[] | select(.spec.type != "ExternalName") | "service|\(.metadata.namespace)|\(.metadata.name)|\(.spec.ports[0].port)|\(.spec.ports[0].targetPort)|\(.spec.type)"')
+        
+        # Format pods
+        local pods=$(echo "$resources" | jq -r '.pods.items[] | select(.status.phase == "Running") | "pod|\(.metadata.namespace)|\(.metadata.name)|-|-|\(.status.phase)"')
+        
+        # Combine and format both
+        formatted=$(echo -e "${services}\n${pods}" | while IFS="|" read -r type namespace name port targetPort status; do
             if [[ "$USE_GUM" == "true" ]]; then
-                echo "$namespace|$name|$port|$targetPort|$type"
+                if [[ "$type" == "service" ]]; then
+                    echo "Service|$namespace|$name|$port|$targetPort|$status"
+                else
+                    echo "Pod|$namespace|$name|-|-|$status"
+                fi
             else
-                echo -e "${BLUE}$namespace${RESET} | ${GREEN}$name${RESET} | ${YELLOW}$port${RESET} | $targetPort | ${MAGENTA}$type${RESET}"
+                if [[ "$type" == "service" ]]; then
+                    echo -e "${BLUE}Service${RESET}|${GREEN}$namespace${RESET}|${YELLOW}$name${RESET}|$port|$targetPort|${MAGENTA}$status${RESET}"
+                else
+                    echo -e "${BLUE}Pod${RESET}|${GREEN}$namespace${RESET}|${YELLOW}$name${RESET}|-|-|${MAGENTA}$status${RESET}"
+                fi
             fi
         done)
     else
         styled_warning "jq is not installed, falling back to basic output."
-        formatted_services=$(kubectl get services --all-namespaces -o custom-columns=NAMESPACE:.metadata.namespace,NAME:.metadata.name,PORT:.spec.ports[0].port,TARGET:.spec.ports[0].targetPort,TYPE:.spec.type)
+        formatted=$(kubectl get services,pods --all-namespaces -o custom-columns=TYPE:.kind,NAMESPACE:.metadata.namespace,NAME:.metadata.name,PORT:.spec.ports[0].port,TARGET:.spec.ports[0].targetPort,STATUS:.status.phase)
     fi
     
-    echo "$formatted_services"
+    echo "$formatted"
 }
 
-# List all services and select one to forward
+# List all resources and select one to forward
 list_services() {
-    local services=$(get_services)
+    local resources=$(get_resources)
     
-    if [[ -z "$services" ]]; then
-        styled_error "No services found or error fetching services."
-        exit 1
+    if [[ $? -ne 0 || -z "$resources" ]]; then
+        styled_error "Error fetching resources. Please check your cluster connection."
+        return 1
     fi
     
-    styled_header "Select a Service to Forward"
+    styled_header "Select a Resource to Forward"
     
-    local formatted_services=$(format_services "$services")
+    local formatted_resources=$(format_resources "$resources")
     local selection=""
     
     if [[ "$USE_GUM" == "true" ]]; then
-        selection=$(echo "$formatted_services" | column -t -s "|" | styled_filter "Select a service to forward:")
+        selection=$(echo "$formatted_resources" | column -t -s "|" | styled_filter "Select a resource to forward:")
     else
-        selection=$(echo "$formatted_services" | styled_filter "Select a service to forward:")
+        selection=$(echo "$formatted_resources" | styled_filter "Select a resource to forward:")
     fi
     
     if [[ -z "$selection" ]]; then
-        styled_warning "No service selected."
-        exit 0
+        styled_warning "No resource selected."
+        return 0
     fi
     
     # Parse selection
+    local type=""
     local namespace=""
-    local service=""
+    local name=""
     local port=""
     
     if [[ "$USE_JQ" == "true" ]]; then
-        namespace=$(echo "$selection" | awk -F'|' '{print $1}')
-        service=$(echo "$selection" | awk -F'|' '{print $2}')
-        port=$(echo "$selection" | awk -F'|' '{print $3}')
+        type=$(echo "$selection" | awk -F'|' '{print $1}' | tr '[:upper:]' '[:lower:]')
+        namespace=$(echo "$selection" | awk -F'|' '{print $2}')
+        name=$(echo "$selection" | awk -F'|' '{print $3}')
+        port=$(echo "$selection" | awk -F'|' '{print $4}')
     else
-        namespace=$(echo "$selection" | awk '{print $1}')
-        service=$(echo "$selection" | awk '{print $2}')
-        port=$(echo "$selection" | awk '{print $3}')
+        type=$(echo "$selection" | awk '{print $1}' | tr '[:upper:]' '[:lower:]')
+        namespace=$(echo "$selection" | awk '{print $2}')
+        name=$(echo "$selection" | awk '{print $3}')
+        port=$(echo "$selection" | awk '{print $4}')
     fi
     
     # Trim whitespace
+    type=$(echo "$type" | xargs)
     namespace=$(echo "$namespace" | xargs)
-    service=$(echo "$service" | xargs)
+    name=$(echo "$name" | xargs)
     port=$(echo "$port" | xargs)
+    
+    if [[ "$type" == "pod" ]]; then
+        # For pods, ask for the port
+        if [[ -z "$port" ]]; then
+            port=$(styled_input "Enter port to forward for pod:")
+            if [[ -z "$port" ]]; then
+                styled_error "Port is required for pod forwarding."
+                return 1
+            fi
+        fi
+    fi
     
     # Ask for custom domain (optional)
     local domain=""
-    if styled_confirm "Do you want to use a custom domain for this service?"; then
+    if styled_confirm "Do you want to use a custom domain for this resource?"; then
         domain=$(styled_input "Enter domain (e.g., myapp.local):")
     fi
     
@@ -398,225 +432,26 @@ list_services() {
         local_port=$(styled_input "Enter local port:")
     fi
     
-    # Forward the service
-    forward_service "$namespace" "$service" "$port" "$local_port" "$domain"
-}
-
-# Find available local port
-find_available_port() {
-    local start_port=${1:-$PROXY_PORT_START}
-    local port=$start_port
-    
-    while netstat -tuln | grep -q ":$port "; do
-        port=$((port + 1))
-    done
-    
-    echo $port
-}
-
-# Generate Caddyfile
-generate_caddyfile() {
-    if [[ "$USE_CADDY" == "false" ]]; then
-        return
-    fi
-    
-    if [[ ! -f "$FORWARDED_SERVICES_FILE" ]]; then
-        echo "[]" > "$FORWARDED_SERVICES_FILE"
-    fi
-    
-    local services=$(cat "$FORWARDED_SERVICES_FILE")
-    
-    # Start with empty Caddyfile
-    echo "# Generated by kubectl-kproxy" > "$CADDY_FILE"
-    echo "{" >> "$CADDY_FILE"
-    echo "  admin off" >> "$CADDY_FILE"
-    echo "  local_certs" >> "$CADDY_FILE"
-    echo "}" >> "$CADDY_FILE"
-    echo "" >> "$CADDY_FILE"
-    
-    # Add each service to the Caddyfile
-    if [[ "$USE_JQ" == "true" ]]; then
-        echo "$services" | jq -c '.[]' | while read -r service_json; do
-            local namespace=$(echo "$service_json" | jq -r '.namespace')
-            local service_name=$(echo "$service_json" | jq -r '.service')
-            local port=$(echo "$service_json" | jq -r '.port')
-            local local_port=$(echo "$service_json" | jq -r '.localPort')
-            local domain=$(echo "$service_json" | jq -r '.domain')
-            local use_https=$(echo "$service_json" | jq -r '.useHttps')
-            
-            if [[ -n "$domain" && "$domain" != "null" && "$use_https" == "true" ]]; then
-                # Domain with HTTPS
-                echo "$domain {" >> "$CADDY_FILE"
-                echo "  reverse_proxy localhost:$local_port" >> "$CADDY_FILE"
-                echo "}" >> "$CADDY_FILE"
-                echo "" >> "$CADDY_FILE"
-            fi
-            
-            # Always add HTTP version at specific port
-            echo "http://localhost:$local_port {" >> "$CADDY_FILE"
-            echo "  respond \"kubectl-kproxy: $service_name.$namespace is available at this URL without a reverse proxy\"" >> "$CADDY_FILE"
-            echo "}" >> "$CADDY_FILE"
-            echo "" >> "$CADDY_FILE"
-        done
+    # Forward the resource
+    if [[ "$type" == "pod" ]]; then
+        forward_pod "$namespace" "$name" "$port" "$local_port" "$domain"
     else
-        styled_warning "jq is not installed. Caddyfile generation relies on jq. Install jq for full functionality."
+        forward_service "$namespace" "$name" "$port" "$local_port" "$domain"
     fi
 }
 
-# Start or restart Caddy
-start_caddy() {
-    if [[ "$USE_CADDY" == "false" ]]; then
-        return
-    fi
-    
-    # Stop existing Caddy process if running
-    if [[ -f "$CADDY_PID_FILE" ]]; then
-        local pid=$(cat "$CADDY_PID_FILE")
-        if ps -p $pid > /dev/null; then
-            kill $pid 2>/dev/null || true
-        fi
-        rm "$CADDY_PID_FILE"
-    fi
-    
-    # Start Caddy if we have a Caddyfile
-    if [[ -f "$CADDY_FILE" ]]; then
-        caddy run --config "$CADDY_FILE" --adapter caddyfile &>/dev/null &
-        echo $! > "$CADDY_PID_FILE"
-        styled_success "Caddy proxy server started"
-    fi
-}
-
-# Add service to forwarded services
-add_forwarded_service() {
+# Forward a Kubernetes pod
+forward_pod() {
     local namespace="$1"
-    local service="$2"
-    local port="$3"
-    local local_port="$4"
-    local domain="$5"
-    local use_https="${6:-true}"
-    local pid="$7"
-    
-    if [[ "$USE_JQ" == "true" ]]; then
-        # Check if service already exists
-        local existing=$(cat "$FORWARDED_SERVICES_FILE" | jq -r --arg ns "$namespace" --arg svc "$service" '.[] | select(.namespace == $ns and .service == $svc) | .service')
-        
-        if [[ -n "$existing" ]]; then
-            # Update existing service
-            cat "$FORWARDED_SERVICES_FILE" | jq --arg ns "$namespace" --arg svc "$service" --arg port "$port" --arg lport "$local_port" --arg domain "$domain" --arg https "$use_https" --arg pid "$pid" '
-                map(if .namespace == $ns and .service == $svc then
-                    {
-                        "namespace": $ns,
-                        "service": $svc,
-                        "port": $port,
-                        "localPort": $lport,
-                        "domain": $domain,
-                        "useHttps": $https,
-                        "pid": $pid
-                    }
-                else
-                    .
-                end)
-            ' > "$FORWARDED_SERVICES_FILE.tmp"
-        else
-            # Add new service
-            cat "$FORWARDED_SERVICES_FILE" | jq --arg ns "$namespace" --arg svc "$service" --arg port "$port" --arg lport "$local_port" --arg domain "$domain" --arg https "$use_https" --arg pid "$pid" '. + [
-                {
-                    "namespace": $ns,
-                    "service": $svc,
-                    "port": $port,
-                    "localPort": $lport,
-                    "domain": $domain,
-                    "useHttps": $https,
-                    "pid": $pid
-                }
-            ]' > "$FORWARDED_SERVICES_FILE.tmp"
-        fi
-        
-        mv "$FORWARDED_SERVICES_FILE.tmp" "$FORWARDED_SERVICES_FILE"
-    else
-        styled_warning "jq is not installed. Service status tracking is limited."
-    fi
-}
-
-# Remove service from forwarded services
-remove_forwarded_service() {
-    local service="$1"
-    
-    if [[ "$USE_JQ" == "true" ]]; then
-        # Find PIDs to kill
-        local pids=$(cat "$FORWARDED_SERVICES_FILE" | jq -r --arg svc "$service" '.[] | select(.service == $svc) | .pid')
-        
-        # Kill processes
-        for pid in $pids; do
-            if [[ -n "$pid" && "$pid" != "null" ]]; then
-                kill $pid 2>/dev/null || true
-            fi
-        done
-        
-        # Remove service from JSON
-        cat "$FORWARDED_SERVICES_FILE" | jq --arg svc "$service" '. | map(select(.service != $svc))' > "$FORWARDED_SERVICES_FILE.tmp"
-        mv "$FORWARDED_SERVICES_FILE.tmp" "$FORWARDED_SERVICES_FILE"
-    else
-        styled_warning "jq is not installed. Cannot remove forwarded service from list."
-        # Try to kill process based on port-forward pattern
-        pkill -f "kubectl port-forward.*service/$service" || true
-    fi
-}
-
-# Show status of forwarded services
-show_status() {
-    styled_header "Forwarded Services"
-    
-    if [[ "$USE_JQ" == "true" ]]; then
-        local services=$(cat "$FORWARDED_SERVICES_FILE")
-        local count=$(echo "$services" | jq 'length')
-        
-        if [[ "$count" -eq 0 ]]; then
-            styled_info "No services are currently being forwarded."
-            return
-        fi
-        
-        local formatted_status=$(echo "$services" | jq -r '.[] | "\(.namespace)|\(.service)|\(.port)|\(.localPort)|\(.domain // "-")|\(.useHttps)"' | while IFS="|" read -r namespace service port local_port domain use_https; do
-            local https_text="HTTP Only"
-            if [[ "$use_https" == "true" && -n "$domain" && "$domain" != "-" ]]; then
-                https_text="HTTPS Enabled"
-            fi
-            
-            local urls=""
-            if [[ -n "$domain" && "$domain" != "-" && "$use_https" == "true" ]]; then
-                urls="https://$domain"
-            else
-                urls="http://localhost:$local_port"
-            fi
-            
-            echo "$namespace|$service|$port|$local_port|$urls|$https_text"
-        done)
-        
-        if [[ "$USE_GUM" == "true" ]]; then
-            echo "$formatted_status" | column -t -s "|" | gum table
-        else
-            echo -e "${BOLD}NAMESPACE | SERVICE | PORT | LOCAL PORT | URLS | HTTPS${RESET}"
-            echo "$formatted_status" | column -t -s "|"
-        fi
-    else
-        styled_warning "jq is not installed. Cannot show detailed status."
-        styled_info "Current port-forwards:"
-        ps aux | grep "kubectl port-forward" | grep -v grep
-    fi
-}
-
-# Forward a Kubernetes service
-forward_service() {
-    local namespace="$1"
-    local service="$2"
+    local pod="$2"
     local port="$3"
     local local_port="$4"
     local domain="$5"
     local use_https="true"
     
     # Check required parameters
-    if [[ -z "$namespace" || -z "$service" || -z "$port" ]]; then
-        styled_error "Missing required parameters. Namespace, service, and port are required."
+    if [[ -z "$namespace" || -z "$pod" || -z "$port" ]]; then
+        styled_error "Missing required parameters. Namespace, pod, and port are required."
         show_help
         exit 1
     fi
@@ -626,8 +461,8 @@ forward_service() {
         local_port=$(find_available_port)
     fi
     
-    styled_header "Forwarding Service: $service.$namespace"
-    styled_info "Service: $service"
+    styled_header "Forwarding Pod: $pod.$namespace"
+    styled_info "Pod: $pod"
     styled_info "Namespace: $namespace"
     styled_info "Port: $port → $local_port"
     
@@ -635,20 +470,20 @@ forward_service() {
         styled_info "Domain: $domain"
     fi
     
-    # Kill existing forwarding for this service if any
+    # Kill existing forwarding for this pod if any
     if [[ "$USE_JQ" == "true" ]]; then
-        local existing_pid=$(cat "$FORWARDED_SERVICES_FILE" | jq -r --arg ns "$namespace" --arg svc "$service" '.[] | select(.namespace == $ns and .service == $svc) | .pid')
+        local existing_pid=$(cat "$FORWARDED_SERVICES_FILE" | jq -r --arg ns "$namespace" --arg pod "$pod" '.[] | select(.namespace == $ns and .pod == $pod) | .pid')
         
         if [[ -n "$existing_pid" && "$existing_pid" != "null" ]]; then
-            kill $existing_pid 2>/dev/null || true
-            styled_info "Stopped existing port-forward for $service.$namespace"
+            kill "$existing_pid" 2>/dev/null || true
+            styled_info "Stopped existing port-forward for $pod.$namespace"
         fi
     else
-        pkill -f "kubectl port-forward.*service/$service.*namespace=$namespace" || true
+        pkill -f "kubectl port-forward.*pod/$pod.*namespace=$namespace" || true
     fi
     
     # Start port-forward
-    styled_spinner "Starting port-forward..." "kubectl port-forward service/$service -n $namespace $local_port:$port &"
+    styled_spinner "Starting port-forward..." "kubectl port-forward pod/$pod -n $namespace $local_port:$port &"
     local port_forward_pid=$!
     
     if [[ "$?" -ne 0 ]]; then
@@ -656,11 +491,11 @@ forward_service() {
         return 1
     fi
     
-    # Add service to tracked services
-    add_forwarded_service "$namespace" "$service" "$port" "$local_port" "$domain" "$use_https" "$port_forward_pid"
+    # Add pod to tracked services
+    add_forwarded_service "$namespace" "$pod" "$port" "$local_port" "$domain" "$use_https" "$port_forward_pid" "pod"
     
     # Setup monitor to detect if port-forward dies
-    setup_monitor "$namespace" "$service" "$port" "$local_port" "$port_forward_pid"
+    setup_monitor "$namespace" "$pod" "$port" "$local_port" "$port_forward_pid" "pod"
     
     # Generate Caddyfile and restart Caddy if needed
     if [[ "$USE_CADDY" == "true" ]]; then
@@ -669,7 +504,7 @@ forward_service() {
     fi
     
     # Display access URLs
-    styled_header "Service Access URLs"
+    styled_header "Pod Access URLs"
     
     if [[ -n "$domain" && "$USE_CADDY" == "true" ]]; then
         styled_success "HTTPS URL: https://$domain"
@@ -696,7 +531,7 @@ stop_all() {
         
         for pid in $pids; do
             if [[ -n "$pid" && "$pid" != "null" ]]; then
-                kill $pid 2>/dev/null || true
+                kill "$pid" 2>/dev/null || true
             fi
         done
         
@@ -709,8 +544,8 @@ stop_all() {
     # Stop Caddy
     if [[ -f "$CADDY_PID_FILE" ]]; then
         local pid=$(cat "$CADDY_PID_FILE")
-        if ps -p $pid > /dev/null; then
-            kill $pid 2>/dev/null || true
+        if ps -p "$pid" > /dev/null; then
+            kill "$pid" 2>/dev/null || true
         fi
         rm "$CADDY_PID_FILE"
     fi
@@ -797,7 +632,7 @@ setup_monitor() {
     (
         while true; do
             # Check if port-forward process is still running
-            if ! ps -p $pid > /dev/null; then
+            if ! ps -p "$pid" > /dev/null; then
                 # Send notification about process termination
                 send_notification "kubectl-kproxy" "Port forward for $service.$namespace stopped unexpectedly" "kubectl kproxy fwd -n $namespace -s $service -p $port -l $local_port"
                 
@@ -825,22 +660,13 @@ setup_monitor() {
 
 # Main function to parse arguments and handle commands
 main() {
-    # Parse command line arguments
-    local command=""
-    local namespace=""
-    local service=""
-    local port=""
-    local local_port=""
-    local domain=""
-    local use_https=true
-    
     # Check dependencies first
     check_dependencies
     
     # If no arguments, run list_services
     if [[ $# -eq 0 ]]; then
         list_services
-        exit 0
+        exit $?
     fi
     
     # Parse command
