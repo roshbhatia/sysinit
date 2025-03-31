@@ -13,7 +13,7 @@
 
 # Default options
 VERSION="1.0.0"
-CACHE_DIR="$HOME/.kproxy"
+CACHE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/kproxy"
 CADDY_FILE="$CACHE_DIR/Caddyfile"
 FORWARDED_SERVICES_FILE="$CACHE_DIR/forwarded_services.json"
 CADDY_PID_FILE="$CACHE_DIR/caddy.pid"
@@ -274,30 +274,15 @@ EOF
 
 # Check dependencies
 check_dependencies() {
-    if ! command -v kubectl >/dev/null 2>&1; then
-        styled_error "kubectl is required but not installed."
-        exit 1
-    fi
-    
-    if ! command -v fzf >/dev/null 2>&1; then
-        styled_warning "fzf is not installed. This tool works best with fzf for interactive selection."
-        styled_info "Please install fzf: https://github.com/junegunn/fzf"
-    fi
-    
-    if [[ "$USE_JQ" == "false" ]]; then
-        styled_warning "jq is not installed. Some features may not work correctly."
-        styled_info "Please install jq: https://stedolan.github.io/jq/download/"
-    fi
-    
-    if [[ "$USE_CADDY" == "false" ]]; then
-        styled_warning "Caddy is not installed. HTTPS features will be disabled."
-        styled_info "Please install Caddy for HTTPS with auto TLS: https://caddyserver.com/docs/install"
-    fi
+    for cmd in kubectl jq gum caddy fzf; do
+        if ! command -v $cmd >/dev/null 2>&1; then
+            styled_error "$cmd is required but not installed."
+            exit 1
+        fi
+    done
     
     # Create cache directory
-    if [[ ! -d "$CACHE_DIR" ]]; then
-        mkdir -p "$CACHE_DIR"
-    fi
+    mkdir -p "$CACHE_DIR"
     
     # Initialize forwarded services file
     if [[ ! -f "$FORWARDED_SERVICES_FILE" ]]; then
@@ -520,6 +505,115 @@ forward_pod() {
             xdg-open "http://localhost:$local_port" 2>/dev/null || open "http://localhost:$local_port" 2>/dev/null || start "http://localhost:$local_port" 2>/dev/null
         fi
     fi
+}
+
+# Forward a Kubernetes service
+forward_service() {
+    local namespace="$1"
+    local service="$2"
+    local port="$3"
+    local local_port="$4"
+    local domain="$5"
+    local use_https="true"
+    
+    # Check required parameters
+    if [[ -z "$namespace" || -z "$service" || -z "$port" ]]; then
+        styled_error "Missing required parameters. Namespace, service, and port are required."
+        show_help
+        exit 1
+    fi
+    
+    # Find available local port if not specified
+    if [[ -z "$local_port" ]]; then
+        local_port=$(find_available_port)
+    fi
+    
+    styled_header "Forwarding Service: $service.$namespace"
+    styled_info "Service: $service"
+    styled_info "Namespace: $namespace"
+    styled_info "Port: $port → $local_port"
+    
+    if [[ -n "$domain" ]]; then
+        styled_info "Domain: $domain"
+    fi
+    
+    # Kill existing forwarding for this service if any
+    local existing_pid=$(cat "$FORWARDED_SERVICES_FILE" | jq -r --arg ns "$namespace" --arg svc "$service" '.[] | select(.namespace == $ns and .service == $svc) | .pid')
+    
+    if [[ -n "$existing_pid" && "$existing_pid" != "null" ]]; then
+        kill "$existing_pid" 2>/dev/null || true
+        styled_info "Stopped existing port-forward for $service.$namespace"
+    fi
+    
+    # Start port-forward
+    styled_spinner "Starting port-forward..." "kubectl port-forward service/$service -n $namespace $local_port:$port &"
+    local port_forward_pid=$!
+    
+    if [[ "$?" -ne 0 ]]; then
+        styled_error "Failed to start port-forward."
+        return 1
+    fi
+    
+    # Add service to tracked services
+    add_forwarded_service "$namespace" "$service" "$port" "$local_port" "$domain" "$use_https" "$port_forward_pid" "service"
+    
+    # Setup monitor to detect if port-forward dies
+    setup_monitor "$namespace" "$service" "$port" "$local_port" "$port_forward_pid" "service"
+    
+    # Generate Caddyfile and restart Caddy if needed
+    generate_caddyfile
+    start_caddy
+    
+    # Display access URLs
+    styled_header "Service Access URLs"
+    
+    if [[ -n "$domain" ]]; then
+        styled_success "HTTPS URL: https://$domain"
+    fi
+    
+    styled_success "HTTP URL: http://localhost:$local_port"
+    
+    # Offer to open browser
+    if styled_confirm "Open in browser now?"; then
+        if [[ -n "$domain" ]]; then
+            xdg-open "https://$domain" 2>/dev/null || open "https://$domain" 2>/dev/null || start "https://$domain" 2>/dev/null
+        else
+            xdg-open "http://localhost:$local_port" 2>/dev/null || open "http://localhost:$local_port" 2>/dev/null || start "http://localhost:$local_port" 2>/dev/null
+        fi
+    fi
+}
+
+# Add a forwarded service to the tracking file
+add_forwarded_service() {
+    local namespace="$1"
+    local name="$2"
+    local port="$3"
+    local local_port="$4"
+    local domain="$5"
+    local use_https="$6"
+    local pid="$7"
+    local type="$8"
+    
+    cat "$FORWARDED_SERVICES_FILE" | jq --arg ns "$namespace" \
+        --arg name "$name" \
+        --arg port "$port" \
+        --arg lport "$local_port" \
+        --arg domain "$domain" \
+        --arg https "$use_https" \
+        --arg pid "$pid" \
+        --arg type "$type" \
+        '. + [{
+            "namespace": $ns,
+            "service": $name,
+            "port": $port,
+            "local_port": $lport,
+            "domain": $domain,
+            "use_https": $https,
+            "pid": $pid,
+            "type": $type
+        }]' > "$FORWARDED_SERVICES_FILE.tmp"
+    
+    mv "$FORWARDED_SERVICES_FILE.tmp" "$FORWARDED_SERVICES_FILE"
 }
 
 # Stop all port forwards

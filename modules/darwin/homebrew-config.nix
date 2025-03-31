@@ -28,6 +28,7 @@ let
   baseBrews = [
     "ansible"
     "borders"
+    "caddy"
     "colima"
     "direnv"
     "eza"
