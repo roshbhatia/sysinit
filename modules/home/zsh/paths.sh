@@ -14,7 +14,7 @@
 #      |__|/         \__\/         \__\/         \__\/         \__\/
 
 path.print() {
-  echo "$PATH" | tr ':' '\n' | bat --style=numbers,grid --language=plaintext
+  echo "$PATH" | tr ':' '\n' | bat --style=numbers,grid
 }
 
 # Path settings
