@@ -26,6 +26,7 @@ let
   ];
   
   baseBrews = [
+    "ansible"
     "borders"
     "colima"
     "direnv"
@@ -38,6 +39,7 @@ let
     "libgit2"
     "nushell"
     "ripgrep"
+    "sshpass"
     "tailscale"
     "yazi"
   ];
