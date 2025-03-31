@@ -1,3 +1,5 @@
+#!/usr/bin/env zsh
+
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 #       ___           ___           ___           ___           ___
 #      /  /\         /  /\         /__/\         /  /\         /  /\
@@ -10,6 +12,10 @@
 #      |  |::/     \__\/ /:/     \  \:\        \  \:\        \  \:\/:/
 #      |  |:/        /__/:/       \  \:\        \  \:\        \  \::/
 #      |__|/         \__\/         \__\/         \__\/         \__\/
+
+path.print() {
+  echo "$PATH" | tr ':' '\n' | bat --style=numbers,grid --language=plaintext
+}
 
 # Path settings
 # Rust
