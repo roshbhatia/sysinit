@@ -187,7 +187,7 @@ EOF
     '';
 
     makeZshBinExecutable = lib.hm.dag.entryAfter ["writeBoundary"] ''
-      chmod +x $HOME/.config/zsh/extras/bin/*
+      sudo chmod +x $HOME/.config/zsh/extras/bin/*
     '';
 
     revertToPython311 = lib.hm.dag.entryAfter ["writeBoundary"] ''
