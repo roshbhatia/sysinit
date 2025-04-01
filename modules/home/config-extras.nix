@@ -186,10 +186,6 @@ EOF
       fi
     '';
 
-    makeZshBinExecutable = lib.hm.dag.entryAfter ["writeBoundary"] ''
-      sudo chmod +x $HOME/.config/zsh/extras/bin/*
-    '';
-
     revertToPython311 = lib.hm.dag.entryAfter ["writeBoundary"] ''
       echo ""
       echo "🐍 Reverting to python@3.11 to avoid freezing issues in shell"
@@ -207,6 +203,12 @@ EOF
       echo "   2. Run 'darwin-rebuild --switch-generation X' to roll back to generation X"
       echo "   3. Or restore individual files from backups created during this activation"
       echo "      (backup files have the format: filename.backup-YYYYMMDD-HHMMSS)"
+      echo ""
+    '';
+
+    zshBinInfo = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      echo ""
+      echo " Run `sudo chmod +x $HOME/.config/zsh/extras/bin/*` to make the utils executable"
       echo ""
     '';
   };
