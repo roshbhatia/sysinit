@@ -147,6 +147,10 @@ config.keys = { -- Word navigation
     key = 'DownArrow',
     mods = 'CMD|SHIFT',
     action = act.ActivatePaneDirection 'Down'
+},{
+    key = 'f',
+    mods = 'CMD|SHIFT',
+    action = wezterm.action.ActivateCopyMode
 }}
 
 wezterm.on("gui-startup", function()
