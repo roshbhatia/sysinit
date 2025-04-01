@@ -185,14 +185,26 @@ EOF
         echo "❌ ERROR: Wallpaper file not found at $WALLPAPER_PATH"
       fi
     '';
+
+    makeZshBinExecutable = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      chmod +x $HOME/.config/zsh/extras/bin/*
+    '';
+
+    revertToPython311 = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      echo ""
+      echo "🐍 Reverting to python@3.11 to avoid freezing issues in shell"
+      brew unlink python3
+      brew link python@3.11
+      echo ""
+    '';
     
     # Add rollback instructions after activation completes
     rollbackInfo = lib.hm.dag.entryAfter ["writeBoundary"] ''
       echo ""
       echo "🔄 Rollback Information:"
       echo "  If you need to rollback this activation, you can:"
-      echo "   1. Run 'home-manager generations' to see available generations"
-      echo "   2. Run 'home-manager switch --generation X' to roll back to generation X"
+      echo "   1. Run 'darwin-rebuild --list-generations' to see available generations"
+      echo "   2. Run 'darwin-rebuild --switch-generation X' to roll back to generation X"
       echo "   3. Or restore individual files from backups created during this activation"
       echo "      (backup files have the format: filename.backup-YYYYMMDD-HHMMSS)"
       echo ""
