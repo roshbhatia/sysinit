@@ -72,5 +72,6 @@
     "zsh/extras/github.sh".source = ./github.sh;
     "zsh/extras/devenv.sh".source = ./devenv.sh;
     "zsh/extras/zshutils.zsh".source = ./zshutils.zsh;
+    "zsh/extras/bin/crdbrowse".source = ./crdbrowse.sh;
   };
 }
