@@ -13,8 +13,12 @@
 
   homebrew = {
     additionalPackages = {
-      taps = [];
-      brews = [];
+      taps = [
+        "hashicorp/tap"
+      ];
+      brews = [
+        "hashicorp/tap/packer"
+      ];
       casks = [
         "iterm2"
         "notion"
