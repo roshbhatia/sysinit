@@ -186,14 +186,6 @@ EOF
       fi
     '';
 
-    revertToPython311 = lib.hm.dag.entryAfter ["writeBoundary"] ''
-      echo ""
-      echo "🐍 Reverting to python@3.11 to avoid freezing issues in shell"
-      brew unlink python3
-      brew link python@3.11
-      echo ""
-    '';
-    
     # Add rollback instructions after activation completes
     rollbackInfo = lib.hm.dag.entryAfter ["writeBoundary"] ''
       echo ""
@@ -204,11 +196,14 @@ EOF
       echo "   3. Or restore individual files from backups created during this activation"
       echo "      (backup files have the format: filename.backup-YYYYMMDD-HHMMSS)"
       echo ""
-    '';
-
-    zshBinInfo = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      echo "📝 Next Steps:"
+      echo "  Run these commands in your terminal to complete the setup:"
+      echo "   1. Make utils executable:"
+      echo "      sudo chmod +x $HOME/.config/zsh/extras/bin/*"
       echo ""
-      echo " Run `sudo chmod +x $HOME/.config/zsh/extras/bin/*` to make the utils executable"
+      echo "   2. Fix Python linking to avoid freezing issues:"
+      echo "      brew unlink python3"
+      echo "      brew link python@3.11"
       echo ""
     '';
   };
