@@ -78,7 +78,7 @@ function notify_when_done() {
   local end_time=$(date +%s)
   local elapsed=$((end_time - start_time))
   
-  if [[ $elapsed -gt 10 ]]; then
+  if [[ $elapsed -gt 1800 ]]; then
     if command -v terminal-notifier &> /dev/null; then
       terminal-notifier -title "Task Complete" -message "Finished: $cmd (took ${elapsed}s)" -sound default
     fi
