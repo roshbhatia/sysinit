@@ -41,6 +41,7 @@ let
     "libgit2"
     "nushell"
     "pipx"
+    "python@3.11"
     "ripgrep"
     "socat"
     "sshpass"
