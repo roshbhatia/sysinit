@@ -15,8 +15,10 @@
 CACHE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/kdesc"
 DEBUG=false
 VERSION="1.0.0"
+OUTPUT_FORMAT="yaml"
+OUTPUT_OPTION="-oyaml"
 
-# Color definitions (fallback if gum not available)
+# Color definitions
 BOLD='\033[1m'
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -30,6 +32,34 @@ RESET='\033[0m'
 # Resource emoji mappings for visual identification
 declare -A RESOURCE_EMOJIS
 RESOURCE_EMOJIS=(
+  ["pod"]="🔮"
+  ["deployment"]="🚀"
+  ["statefulset"]="📊"
+  ["service"]="🔌"
+  ["configmap"]="⚙️"
+  ["secret"]="🔒"
+  ["job"]="📋"
+  ["cronjob"]="🕒"
+  ["daemonset"]="👾"
+  ["persistentvolumeclaim"]="💾"
+  ["ingress"]="🌐"
+  ["namespace"]="🏠"
+  ["node"]="💻"
+  ["replicaset"]="📦"
+  ["endpoints"]="🔚"
+  ["horizontalpodautoscaler"]="⚖️"
+  ["role"]="👑"
+  ["rolebinding"]="🔗"
+  ["clusterrole"]="👑"
+  ["clusterrolebinding"]="🔗"
+  ["serviceaccount"]="🧩"
+  ["persistentvolume"]="📀"
+  ["storageclass"]="💿"
+  ["networkpolicy"]="🕸️"
+  ["poddisruptionbudget"]="🛡️"
+  ["resourcequota"]="📏"
+  
+  # Also include capitalized versions for compatibility
   ["Pod"]="🔮"
   ["Deployment"]="🚀"
   ["StatefulSet"]="📊"
@@ -58,155 +88,69 @@ RESOURCE_EMOJIS=(
   ["ResourceQuota"]="📏"
 )
 
-# Check for gum and set USE_GUM flag
-if command -v gum >/dev/null 2>&1; then
-    USE_GUM=true
-else
-    USE_GUM=false
-fi
-
-# Check for bat and set USE_BAT flag
-if command -v bat >/dev/null 2>&1; then
-    USE_BAT=true
-else
-    USE_BAT=false
-fi
+# This script requires kubectl, jq, and fzf to be installed
 
 # Styled output functions
 styled_print() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --foreground "$1" "${@:2}"
-    else
-        local color
-        case "$1" in
-            "1") color=$RED ;;
-            "2") color=$GREEN ;;
-            "3") color=$YELLOW ;;
-            "4") color=$BLUE ;;
-            "5") color=$MAGENTA ;;
-            "6") color=$CYAN ;;
-            "7") color=$WHITE ;;
-            *) color=$RESET ;;
-        esac
-        echo -e "${color}${*:2}${RESET}"
-    fi
+    echo -e "${!1}$2${RESET}"
 }
 
 styled_header() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --border normal --margin "1" --padding "1 2" --border-foreground 6 "$@"
-    else
-        echo -e "${CYAN}╭───────────────────────────────────────────────╮${RESET}"
-        echo -e "${CYAN}│${RESET} $* ${CYAN}│${RESET}"
-        echo -e "${CYAN}╰───────────────────────────────────────────────╯${RESET}"
-    fi
+    echo -e "\n${CYAN}=== $* ===${RESET}\n"
 }
 
 styled_error() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --foreground 1 --bold "❌ $*"
-    else
-        echo -e "${RED}❌ $*${RESET}"
-    fi
+    echo -e "${RED}❌ $*${RESET}"
 }
 
 styled_success() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --foreground 2 --bold "✅ $*"
-    else
-        echo -e "${GREEN}✅ $*${RESET}"
-    fi
+    echo -e "${GREEN}✅ $*${RESET}"
 }
 
 styled_warning() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --foreground 3 --bold "⚠️ $*"
-    else
-        echo -e "${YELLOW}⚠️ $*${RESET}"
-    fi
+    echo -e "${YELLOW}⚠️ $*${RESET}"
 }
 
 styled_info() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --foreground 4 --bold "ℹ️ $*"
-    else
-        echo -e "${BLUE}ℹ️ $*${RESET}"
-    fi
+    echo -e "${BLUE}ℹ️ $*${RESET}"
 }
 
 styled_spinner() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum spin --spinner dot --title "$*" -- "$2"
-    else
-        echo -e "${BLUE}⏳ $*${RESET}"
-        eval "$2"
-    fi
+    echo -e "${CYAN}$1...${RESET}"
+    eval "$2"
 }
 
 styled_confirm() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum confirm "$*"
-        return $?
-    else
-        read -p "$* (y/n) " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            return 0
-        else
-            return 1
-        fi
-    fi
+    echo -e "${YELLOW}$* (y/n)${RESET}"
+    read -r answer
+    [[ "$answer" =~ ^[Yy] ]]
+    return $?
 }
 
 styled_choose() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum choose --height 20 "$@"
-    else
-        if command -v fzf >/dev/null 2>&1; then
-            fzf --height 20 --ansi --header "Select one:" <<< "$(printf '%s\n' "$@")"
-        else
-            select opt in "$@"; do
-                echo "$opt"
-                break
-            done
-        fi
-    fi
+    select opt in "$@"; do
+        echo "$opt"
+        break
+    done
 }
 
 styled_filter() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum filter --placeholder "$1" --height 20
+    echo -e "${CYAN}$1${RESET}"
+    if command -v fzf >/dev/null 2>&1; then
+        fzf
     else
-        if command -v fzf >/dev/null 2>&1; then
-            fzf --height 20 --ansi --header "$1"
-        else
-            cat
-        fi
+        cat | head -20
     fi
 }
 
 styled_input() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum input --placeholder "$*"
-    else
-        read -p "$* " input
-        echo "$input"
-    fi
+    echo -e "${CYAN}$*${RESET}"
+    read -r input
+    echo "$input"
 }
 
 styled_logo() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --foreground 6 --bold "
-888      .d888         .d888 
-888     d88P\"         d88P\"  
-888     888           888    
-888  88888888888888888888888 
-888 .88P888      d88P 888    
-888888K 888     d88P  888    
-888 \"88b888    d88P   888    
-888  888888   88888888888    "
-    else
-        echo -e "${CYAN}
+    echo -e "${CYAN}
 888      .d888         .d888 
 888     d88P\"         d88P\"  
 888     888           888    
@@ -215,89 +159,51 @@ styled_logo() {
 888888K 888     d88P  888    
 888 \"88b888    d88P   888    
 888  888888   88888888888    ${RESET}"
-    fi
 }
 
 # Helper functions
 show_help() {
     styled_logo
     
-    if [[ "$USE_GUM" == "true" ]]; then
-        echo
-        gum style --bold "kubectl-kdesc v${VERSION}" -- "Advanced Kubernetes Resource Browser"
-        echo
-        gum style --bold "Usage:"
-        echo "  kubectl kdesc [options] [RESOURCE_TYPES] [NAMESPACE]"
-        echo
-        gum style --bold "Options:"
-        gum style "  -h, --help               Show this help message"
-        gum style "  -n, --namespace NAME     Specify namespace (default: current namespace)"
-        gum style "  -A, --all-namespaces     Search in all namespaces"
-        gum style "  -o, --output FORMAT      Output format (describe, yaml, json)"
-        gum style "  -l, --selector SELECTOR  Label selector"
-        gum style "  -f, --field SELECTOR     Field selector"
-        gum style "  -C, --context NAME       Kubernetes context to use"
-        gum style "  -k, --kubeconfig FILE    Path to kubeconfig file"
-        gum style "  -d, --debug              Enable debug mode"
-        gum style "  -v, --version            Show version information"
-        echo
-        gum style --bold "Examples:"
-        gum style "  kubectl kdesc                          # Interactive resource browser"
-        gum style "  kubectl kdesc -n kube-system           # Browse resources in kube-system namespace"
-        gum style "  kubectl kdesc pods -n default -o yaml  # Browse pods in default namespace with YAML output"
-        gum style "  kubectl kdesc services,configmaps      # Browse only services and configmaps"
-        echo
-        gum style --bold "Notes:"
-        gum style "  * Requires either fzf for basic usage, or"
-        gum style "  * Gum + Bat for enhanced interactive experience"
-        if [[ "$USE_GUM" == "true" ]]; then
-            gum style "  * Gum is installed, enabling enhanced UI features"
-        else
-            gum style "  * Gum is not installed. Install for enhanced UI: https://github.com/charmbracelet/gum"
-        fi
-    else
-        cat <<EOF
-${BOLD}kubectl-kdesc v${VERSION}${RESET} - Advanced Kubernetes Resource Browser
-
-${BOLD}Usage:${RESET}
-  kubectl kdesc [options] [RESOURCE_TYPES] [NAMESPACE]
-
-${BOLD}Options:${RESET}
-  -h, --help               Show this help message
-  -n, --namespace NAME     Specify namespace (default: current namespace)
-  -A, --all-namespaces     Search in all namespaces
-  -o, --output FORMAT      Output format (describe, yaml, json)
-  -l, --selector SELECTOR  Label selector
-  -f, --field SELECTOR     Field selector
-  -C, --context NAME       Kubernetes context to use
-  -k, --kubeconfig FILE    Path to kubeconfig file
-  -d, --debug              Enable debug mode
-  -v, --version            Show version information
-
-${BOLD}Examples:${RESET}
-  kubectl kdesc                          # Interactive resource browser
-  kubectl kdesc -n kube-system           # Browse resources in kube-system namespace
-  kubectl kdesc pods -n default -o yaml  # Browse pods in default namespace with YAML output
-  kubectl kdesc services,configmaps      # Browse only services and configmaps
-
-${BOLD}Notes:${RESET}
-  * Requires either fzf for basic usage, or
-  * Gum + Bat for enhanced interactive experience
-EOF
-    fi
+    echo
+    echo -e "${BOLD}kubectl-kdesc v${VERSION}${RESET} - Advanced Kubernetes Resource Browser"
+    echo
+    echo -e "${BOLD}Usage:${RESET}"
+    echo "  kubectl kdesc [options] [RESOURCE_TYPES] [NAMESPACE]"
+    echo
+    echo -e "${BOLD}Options:${RESET}"
+    echo "  -h, --help               Show this help message"
+    echo "  -n, --namespace NAME     Specify namespace (default: current namespace)"
+    echo "  -A, --all-namespaces     Search in all namespaces"
+    echo "  -o, --output FORMAT      Output format (describe, yaml, json, wide) - Default: yaml"
+    echo "  --kind KIND              Filter resources by kind (e.g. pod, deployment)"
+    echo "  -l, --selector SELECTOR  Label selector"
+    echo "  -f, --field SELECTOR     Field selector"
+    echo "  -C, --context NAME       Kubernetes context to use"
+    echo "  -k, --kubeconfig FILE    Path to kubeconfig file"
+    echo "  -d, --debug              Enable debug mode"
+    echo "  -v, --version            Show version information"
+    echo
+    echo -e "${BOLD}Examples:${RESET}"
+    echo "  kubectl kdesc                          # Interactive resource browser"
+    echo "  kubectl kdesc -n kube-system           # Browse resources in kube-system namespace"
+    echo "  kubectl kdesc pods -n default -o yaml  # Browse pods in default namespace with YAML output"
+    echo "  kubectl kdesc services,configmaps      # Browse only services and configmaps"
+    echo "  kubectl kdesc --kind Deployment        # Browse only deployments"
+    echo "  kubectl kdesc -A --kind Pod -o yaml    # Browse pods in all namespaces with YAML output"
+    echo
+    echo -e "${BOLD}Notes:${RESET}"
+    echo "  * Requires fzf for basic usage"
 }
 
 show_version() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --bold --foreground 6 "kubectl-kdesc v${VERSION}"
-    else
-        echo -e "${CYAN}kubectl-kdesc v${VERSION}${RESET}"
-    fi
+    echo -e "${CYAN}kubectl-kdesc v${VERSION}${RESET}"
 }
 
 # Check dependencies
 check_dependencies() {
-    for cmd in kubectl jq gum bat fzf; do
+    # Required dependencies
+    for cmd in kubectl jq fzf; do
         if ! command -v $cmd >/dev/null 2>&1; then
             styled_error "$cmd is required but not installed."
             exit 1
@@ -360,6 +266,11 @@ parse_args() {
                 esac
                 shift 2
                 ;;
+            --kind)
+                # Filter by specific kind
+                RESOURCE_KIND_FILTER="$2"
+                shift 2
+                ;;
             -l|--selector)
                 LABEL_SELECTOR="$2"
                 LABEL_SELECTOR_OPTION="--selector $2"
@@ -416,14 +327,9 @@ parse_args() {
 # Get available namespaces
 get_namespaces() {
     local cmd="kubectl get namespaces -o jsonpath='{.items[*].metadata.name}'"
-    local namespaces
     
-    if [[ "$USE_GUM" == "true" ]]; then
-        namespaces=$(gum spin --spinner dot --title "Fetching namespaces..." -- bash -c "$cmd")
-    else
-        styled_info "Fetching namespaces..."
-        namespaces=$(eval "$cmd")
-    fi
+    styled_info "Fetching namespaces..."
+    local namespaces=$(eval "$cmd")
     
     echo "$namespaces"
 }
@@ -438,11 +344,7 @@ select_namespace() {
     
     styled_header "Select Namespace"
     
-    if [[ "$USE_GUM" == "true" ]]; then
-        NAMESPACE=$(gum choose --height 20 "${ns_array[@]}")
-    else
-        NAMESPACE=$(printf '%s\n' "${ns_array[@]}" | styled_filter "Select namespace:")
-    fi
+    NAMESPACE=$(printf '%s\n' "${ns_array[@]}" | styled_filter "Select namespace:")
     
     if [[ -n "$NAMESPACE" ]]; then
         if [[ "$NAMESPACE" == "All Namespaces" ]]; then
@@ -462,34 +364,77 @@ select_namespace() {
 
 # Get available resource types
 get_resource_types() {
-    local cmd="kubectl api-resources --verbs=get -o name | sort | uniq"
-    local resource_types
-    
-    if [[ "$USE_GUM" == "true" ]]; then
-        resource_types=$(gum spin --spinner dot --title "Fetching resource types..." -- bash -c "$cmd")
-    else
-        styled_info "Fetching resource types..."
-        resource_types=$(eval "$cmd")
+    # Try to get from API first
+    if kubectl api-resources --verbs=get -o name &>/dev/null; then
+        local cmd="kubectl api-resources --verbs=get -o name | sort | uniq"
+        styled_info "Fetching resource types from API..."
+        local api_resources=$(eval "$cmd" 2>/dev/null)
+        
+        if [[ -n "$api_resources" ]]; then
+            echo "$api_resources"
+            return
+        fi
     fi
     
-    echo "$resource_types"
+    # Fallback to predefined list if API method fails
+    styled_info "Using predefined resource types list..."
+    local resource_types=(
+        "pods"
+        "deployments"
+        "services"
+        "statefulsets"
+        "replicasets"
+        "daemonsets"
+        "jobs"
+        "cronjobs"
+        "configmaps"
+        "secrets"
+        "persistentvolumeclaims"
+        "persistentvolumes"
+        "ingresses"
+        "endpoints"
+        "namespaces"
+        "nodes"
+        "serviceaccounts"
+        "roles"
+        "rolebindings"
+        "clusterroles"
+        "clusterrolebindings"
+        "horizontalpodautoscalers"
+        "poddisruptionbudgets"
+        "networkpolicies"
+        "resourcequotas"
+        "customresourcedefinitions"
+    )
+    
+    echo "${resource_types[@]}"
 }
 
 # Interactive resource type selection
 select_resource_type() {
-    local resource_types=$(get_resource_types)
-    local rt_array=($resource_types)
+    # Common resource combinations and individual resources
+    local rt_array=(
+        "All Common Resources" 
+        "pods,deployments,services,configmaps" 
+        "pods" 
+        "deployments" 
+        "services" 
+        "configmaps" 
+        "secrets"
+    )
     
-    # Add common resource combinations
-    rt_array=("All Common Resources" "pods,deployments,services,configmaps" "pods" "deployments" "services" "configmaps" "secrets" "${rt_array[@]}")
+    # Add individual resource types from the predefined list
+    local individual_types=$(get_resource_types)
+    for type in $individual_types; do
+        # Check if this type is already in the array to avoid duplicates
+        if ! [[ " ${rt_array[@]} " =~ " $type " ]]; then
+            rt_array+=("$type")
+        fi
+    done
     
     styled_header "Select Resource Type"
     
-    if [[ "$USE_GUM" == "true" ]]; then
-        RESOURCE_TYPE=$(gum choose --height 20 "${rt_array[@]}")
-    else
-        RESOURCE_TYPE=$(printf '%s\n' "${rt_array[@]}" | styled_filter "Select resource type:")
-    fi
+    RESOURCE_TYPE=$(printf '%s\n' "${rt_array[@]}" | styled_filter "Select resource type:")
     
     if [[ -n "$RESOURCE_TYPE" ]]; then
         if [[ "$RESOURCE_TYPE" == "All Common Resources" ]]; then
@@ -508,11 +453,7 @@ select_output_format() {
     
     styled_header "Select Output Format"
     
-    if [[ "$USE_GUM" == "true" ]]; then
-        OUTPUT_FORMAT=$(gum choose --height 10 "${formats[@]}")
-    else
-        OUTPUT_FORMAT=$(printf '%s\n' "${formats[@]}" | styled_filter "Select output format:")
-    fi
+    OUTPUT_FORMAT=$(printf '%s\n' "${formats[@]}" | styled_filter "Select output format:")
     
     if [[ -n "$OUTPUT_FORMAT" ]]; then
         case "$OUTPUT_FORMAT" in
@@ -552,12 +493,8 @@ get_resources() {
         styled_info "Debug: Command = $cmd"
     fi
     
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum spin --spinner dot --title "Fetching resources..." -- bash -c "$cmd"
-    else
-        styled_info "Fetching resources..."
-        eval "$cmd"
-    fi
+    styled_info "Fetching resources..."
+    eval "$cmd"
 }
 
 # Display resource details
@@ -588,11 +525,7 @@ display_resource() {
         styled_info "Debug: Command = $cmd"
     fi
     
-    if [[ "$USE_BAT" == "true" ]]; then
-        eval "$cmd" | bat --style=plain --color=always --language="${OUTPUT_FORMAT}" --paging=always
-    else
-        eval "$cmd" | less -R
-    fi
+    eval "$cmd" | less -R
 }
 
 # Interactive resource browser
@@ -605,7 +538,7 @@ browse_resources() {
         exit 0
     fi
     
-    # Format resources for display with emojis
+    # Format resources for display with emojis and apply kind filter if specified
     local formatted_resources=$(echo "$resources" | while read -r line; do
         if [[ -z "$line" ]]; then
             continue
@@ -614,34 +547,55 @@ browse_resources() {
         local namespace=$(echo "$line" | awk '{print $1}')
         local kind=$(echo "$line" | awk '{print $2}')
         local name=$(echo "$line" | awk '{print $3}')
-        local emoji="${RESOURCE_EMOJIS[$kind]:-❓}"
         
-        echo "$emoji $name | $kind | $namespace"
+        # Apply kind filter if specified
+        if [[ -n "$RESOURCE_KIND_FILTER" ]]; then
+            local kind_lower=$(echo "$kind" | tr '[:upper:]' '[:lower:]')
+            local filter_lower=$(echo "$RESOURCE_KIND_FILTER" | tr '[:upper:]' '[:lower:]')
+            
+            # Skip if doesn't match filter
+            if [[ "$kind_lower" != "$filter_lower" && "$kind" != "$RESOURCE_KIND_FILTER" ]]; then
+                continue
+            fi
+        fi
+        
+        local kind_lower=$(echo "$kind" | tr '[:upper:]' '[:lower:]')
+        local emoji="${RESOURCE_EMOJIS[$kind_lower]:-${RESOURCE_EMOJIS[$kind]:-❓}}"
+        
+        echo "$name | $kind | $namespace | $emoji"
     done)
     
     # Show resource selection menu
     styled_header "Select Resource to View"
     
-    local preview_cmd="echo {} | awk -F ' [|] ' '{print \$3, \$2, \$1}' | sed 's/^[^ ]* //' | xargs -n 3 bash -c 'kubectl describe \$1 \$2 -n \$0 $CONTEXT_OPTION $KUBECONFIG_OPTION'"
-    if [[ "$OUTPUT_FORMAT" != "describe" ]]; then
-        preview_cmd="echo {} | awk -F ' [|] ' '{print \$3, \$2, \$1}' | sed 's/^[^ ]* //' | xargs -n 3 bash -c 'kubectl get \$1 \$2 -n \$0 $OUTPUT_OPTION $CONTEXT_OPTION $KUBECONFIG_OPTION'"
+    # Define preview command with optional syntax highlighting using bat if available
+    local bat_cmd=""
+    if command -v bat >/dev/null 2>&1; then
+        bat_cmd="| bat --color=always --language=yaml --style=plain"
     fi
     
-    if [[ "$USE_BAT" == "true" ]]; then
-        preview_cmd="$preview_cmd | bat --style=plain --color=always"
+    # For describe output
+    local preview_cmd="echo {} | awk -F ' [|] ' '{print \$3, \$2, \$1}' | xargs -n 3 bash -c 'kubectl describe \$1 \$2 -n \$0 $CONTEXT_OPTION $KUBECONFIG_OPTION'"
+    
+    # For YAML, JSON, etc. outputs
+    if [[ "$OUTPUT_FORMAT" != "describe" ]]; then
+        preview_cmd="echo {} | awk -F ' [|] ' '{print \$3, \$2, \$1}' | xargs -n 3 bash -c 'kubectl get \$1 \$2 -n \$0 $OUTPUT_OPTION $CONTEXT_OPTION $KUBECONFIG_OPTION $bat_cmd'"
     fi
     
     local selection
-    if command -v fzf >/dev/null 2>&1; then
-        selection=$(echo "$formatted_resources" | fzf --ansi --height=60% \
-            --preview "$preview_cmd" \
-            --preview-window=right:70% \
-            --header="Arrow keys to navigate, Enter to select, ? for help" \
-            --bind="ctrl-r:reload(kubectl get $RESOURCE_TYPE $NAMESPACE_OPTION -o custom-columns=NAMESPACE:.metadata.namespace,KIND:.kind,NAME:.metadata.name --no-headers | sed 's/^//')" \
-            --bind="?:toggle-preview")
-    else
-        selection=$(echo "$formatted_resources" | styled_filter "Select resource:")
-    fi
+    selection=$(echo "$formatted_resources" | fzf --ansi --height=60% \
+        --preview "$preview_cmd" \
+        --preview-window=right:70% \
+        --header="Arrow keys to navigate, Enter to select, ? for help, Ctrl-C to exit" \
+        --bind="ctrl-r:reload(kubectl get $RESOURCE_TYPE $NAMESPACE_OPTION -o custom-columns=NAMESPACE:.metadata.namespace,KIND:.kind,NAME:.metadata.name --no-headers | while read -r line; do
+            if [[ -z \"\$line\" ]]; then continue; fi
+            namespace=\$(echo \"\$line\" | awk '{print \$1}');
+            kind=\$(echo \"\$line\" | awk '{print \$2}');
+            name=\$(echo \"\$line\" | awk '{print \$3}');
+            echo \"\$name | \$kind | \$namespace\";
+        done)" \
+        --bind="?:toggle-preview" \
+        --no-info)
     
     if [[ -z "$selection" ]]; then
         styled_warning "No resource selected."
@@ -649,17 +603,15 @@ browse_resources() {
     fi
     
     # Parse selection to get resource details
-    local sel_name=$(echo "$selection" | awk -F ' [|] ' '{print $1}' | sed 's/^[^ ]* //')
+    local sel_name=$(echo "$selection" | awk -F ' [|] ' '{print $1}' | sed 's/^ *//' | sed 's/ *$//')
     local sel_kind=$(echo "$selection" | awk -F ' [|] ' '{print $2}' | sed 's/^ *//' | sed 's/ *$//')
     local sel_namespace=$(echo "$selection" | awk -F ' [|] ' '{print $3}' | sed 's/^ *//' | sed 's/ *$//')
     
     # Display resource details
     display_resource "$sel_namespace" "$sel_kind" "$sel_name"
     
-    # Ask if user wants to browse more resources
-    if styled_confirm "View another resource?"; then
-        browse_resources
-    fi
+    # Return to browse mode automatically
+    browse_resources
 }
 
 # Main function
@@ -687,12 +639,8 @@ main() {
         fi
     fi
     
-    # Interactive output format selection if needed
-    if [[ -z "$OUTPUT_OPTION" ]]; then
-        if styled_confirm "Select output format?"; then
-            select_output_format
-        fi
-    fi
+    # Output format selection is now handled by command-line flags (-o/--output)
+    # No interactive prompt for output format
     
     # Debug info
     if [[ "$DEBUG" == "true" ]]; then

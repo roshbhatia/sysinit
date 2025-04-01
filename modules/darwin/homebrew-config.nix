@@ -40,6 +40,7 @@ let
     "libgit2"
     "nushell"
     "ripgrep"
+    "socat"
     "sshpass"
     "tailscale"
     "yazi"

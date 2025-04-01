@@ -30,147 +30,62 @@ CYAN='\033[0;36m'
 WHITE='\033[0;37m'
 RESET='\033[0m'
 
-# Check for gum and set USE_GUM flag
-if command -v gum >/dev/null 2>&1; then
-    USE_GUM=true
-else
-    USE_GUM=false
-fi
-
-# Check for jq and set USE_JQ flag
-if command -v jq >/dev/null 2>&1; then
-    USE_JQ=true
-else
-    USE_JQ=false
-fi
-
-# Check for socat and set USE_SOCAT flag (used for file transfers)
-if command -v socat >/dev/null 2>&1; then
-    USE_SOCAT=true
-else
-    USE_SOCAT=false
-fi
+# This script requires kubectl, jq, socat, and fzf to be installed
 
 # Styled output functions
 styled_print() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --foreground "$1" "${@:2}"
-    else
-        local color
-        case "$1" in
-            "1") color=$RED ;;
-            "2") color=$GREEN ;;
-            "3") color=$YELLOW ;;
-            "4") color=$BLUE ;;
-            "5") color=$MAGENTA ;;
-            "6") color=$CYAN ;;
-            "7") color=$WHITE ;;
-            *) color=$RESET ;;
-        esac
-        echo -e "${color}${*:2}${RESET}"
-    fi
+    echo -e "${!1}$2${RESET}"
 }
 
 styled_header() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --border normal --margin "1" --padding "1 2" --border-foreground 6 "$@"
-    else
-        echo -e "${CYAN}╭───────────────────────────────────────────────╮${RESET}"
-        echo -e "${CYAN}│${RESET} $* ${CYAN}│${RESET}"
-        echo -e "${CYAN}╰───────────────────────────────────────────────╯${RESET}"
-    fi
+    echo -e "\n${CYAN}=== $* ===${RESET}\n"
 }
 
 styled_error() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --foreground 1 --bold "❌ $*"
-    else
-        echo -e "${RED}❌ $*${RESET}"
-    fi
+    echo -e "${RED}❌ $*${RESET}"
 }
 
 styled_success() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --foreground 2 --bold "✅ $*"
-    else
-        echo -e "${GREEN}✅ $*${RESET}"
-    fi
+    echo -e "${GREEN}✅ $*${RESET}"
 }
 
 styled_warning() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --foreground 3 --bold "⚠️ $*"
-    else
-        echo -e "${YELLOW}⚠️ $*${RESET}"
-    fi
+    echo -e "${YELLOW}⚠️ $*${RESET}"
 }
 
 styled_info() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --foreground 4 --bold "ℹ️ $*"
-    else
-        echo -e "${BLUE}ℹ️ $*${RESET}"
-    fi
+    echo -e "${BLUE}ℹ️ $*${RESET}"
 }
 
 styled_spinner() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum spin --spinner dot --title "$1" -- bash -c "$2"
-    else
-        echo -e "${BLUE}⏳ $1${RESET}"
-        eval "$2"
-    fi
+    echo -e "${CYAN}$1...${RESET}"
+    eval "$2"
 }
 
 styled_confirm() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum confirm "$*"
-        return $?
-    else
-        read -p "$* (y/n) " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            return 0
-        else
-            return 1
-        fi
-    fi
+    echo -e "${YELLOW}$* (y/n)${RESET}"
+    read -r answer
+    [[ "$answer" =~ ^[Yy] ]]
+    return $?
 }
 
 styled_filter() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum filter --placeholder "$1" --height 20
+    echo -e "${CYAN}$1${RESET}"
+    if command -v fzf >/dev/null 2>&1; then
+        fzf
     else
-        if command -v fzf >/dev/null 2>&1; then
-            fzf --height 20 --ansi --header "$1"
-        else
-            cat
-        fi
+        cat | head -20
     fi
 }
 
 styled_input() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum input --placeholder "$*"
-    else
-        read -p "$* " input
-        echo "$input"
-    fi
+    echo -e "${CYAN}$*${RESET}"
+    read -r input
+    echo "$input"
 }
 
 styled_logo() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --foreground 6 --bold "
-888                                      
-888                                      
-888                                      
-888  888  .d88b.  888  888  .d88b.   .d8888b 
-888 .88P d8P  Y8b \`Y8bd8P' d8P  Y8b d88P\"    
-888888K  88888888   X88K   88888888 888      
-888 \"88b Y8b.     .d8\"\"8b. Y8b.     Y88b.    
-888  888  \"Y8888  888  888  \"Y8888   \"Y8888P "
-    else
-        echo -e "${CYAN}
+    echo -e "${CYAN}
 888                                      
 888                                      
 888                                      
@@ -179,109 +94,61 @@ styled_logo() {
 888888K  88888888   X88K   88888888 888      
 888 \"88b Y8b.     .d8\"\"8b. Y8b.     Y88b.    
 888  888  \"Y8888  888  888  \"Y8888   \"Y8888P ${RESET}"
-    fi
 }
 
 show_help() {
     styled_logo
     
-    if [[ "$USE_GUM" == "true" ]]; then
-        echo
-        gum style --bold "kubectl-kexec v${VERSION}" -- "Advanced Kubernetes Pod Shell Access"
-        echo
-        gum style --bold "Usage:"
-        echo "  kubectl kexec [options] [POD] [CONTAINER]"
-        echo
-        gum style --bold "Options:"
-        gum style "  -n, --namespace NAME     Specify namespace (default: current namespace)"
-        gum style "  -c, --container NAME     Specify container name (default: first container)"
-        gum style "  -s, --shell SHELL        Specify shell to use (default: auto-detect)"
-        gum style "  -f, --file PATH          Local file to upload to the pod"
-        gum style "  -r, --remote-path PATH   Remote path to upload the file to"
-        gum style "  -m, --mount DIR          Local directory to mount in the pod"
-        gum style "  -p, --remote-mount PATH  Remote path to mount the directory to"
-        gum style "  -e, --edit PATH          Edit a file on the pod"
-        gum style "  -h, --help               Show this help message"
-        gum style "  -v, --version            Show version information"
-        gum style "  -d, --debug              Enable debug output"
-        echo
-        gum style --bold "Commands:"
-        gum style "  ls, list                 List pods and select one to exec into"
-        gum style "  push, cp                 Copy a local file to a pod"
-        gum style "  pull, get                Copy a file from a pod to local system"
-        gum style "  edit                     Edit a file directly on a pod"
-        gum style "  mount                    Mount a local directory to a pod"
-        echo
-        gum style --bold "Examples:"
-        gum style "  kubectl kexec                      # Interactive pod selection"
-        gum style "  kubectl kexec my-pod              # Exec into specific pod"
-        gum style "  kubectl kexec -n monitoring my-pod # Exec into pod in different namespace"
-        gum style "  kubectl kexec -c sidecar my-pod   # Exec into specific container"
-        gum style "  kubectl kexec -s zsh my-pod       # Use specific shell"
-        gum style "  kubectl kexec push my-file.txt my-pod:/tmp/ # Upload a file"
-        gum style "  kubectl kexec pull my-pod:/etc/config.yaml ./ # Download a file"
-        gum style "  kubectl kexec edit my-pod:/etc/nginx/nginx.conf # Edit remote file"
-        echo
-        gum style --bold "Notes:"
-        gum style "  * Shell access automatically tries bash, then falls back to sh"
-        gum style "  * File transfers require socat or tar to be available in the pod"
-        gum style "  * For mounting, kubectl cp is used under the hood"
-    else
-        cat <<EOF
-${BOLD}kubectl-kexec v${VERSION}${RESET} - Advanced Kubernetes Pod Shell Access
-
-${BOLD}Usage:${RESET}
-  kubectl kexec [options] [POD] [CONTAINER]
-
-${BOLD}Options:${RESET}
-  -n, --namespace NAME     Specify namespace (default: current namespace)
-  -c, --container NAME     Specify container name (default: first container)
-  -s, --shell SHELL        Specify shell to use (default: auto-detect)
-  -f, --file PATH          Local file to upload to the pod
-  -r, --remote-path PATH   Remote path to upload the file to
-  -m, --mount DIR          Local directory to mount in the pod
-  -p, --remote-mount PATH  Remote path to mount the directory to
-  -e, --edit PATH          Edit a file on the pod
-  -h, --help               Show this help message
-  -v, --version            Show version information
-  -d, --debug              Enable debug output
-
-${BOLD}Commands:${RESET}
-  ls, list                 List pods and select one to exec into
-  push, cp                 Copy a local file to a pod
-  pull, get                Copy a file from a pod to local system
-  edit                     Edit a file directly on a pod
-  mount                    Mount a local directory to a pod
-
-${BOLD}Examples:${RESET}
-  kubectl kexec                      # Interactive pod selection
-  kubectl kexec my-pod              # Exec into specific pod
-  kubectl kexec -n monitoring my-pod # Exec into pod in different namespace
-  kubectl kexec -c sidecar my-pod   # Exec into specific container
-  kubectl kexec -s zsh my-pod       # Use specific shell
-  kubectl kexec push my-file.txt my-pod:/tmp/ # Upload a file
-  kubectl kexec pull my-pod:/etc/config.yaml ./ # Download a file
-  kubectl kexec edit my-pod:/etc/nginx/nginx.conf # Edit remote file
-
-${BOLD}Notes:${RESET}
-  * Shell access automatically tries bash, then falls back to sh
-  * File transfers require socat or tar to be available in the pod
-  * For mounting, kubectl cp is used under the hood
-EOF
-    fi
+    echo
+    echo -e "${BOLD}kubectl-kexec v${VERSION}${RESET} - Advanced Kubernetes Pod Shell Access"
+    echo
+    echo -e "${BOLD}Usage:${RESET}"
+    echo "  kubectl kexec [options] [POD] [CONTAINER]"
+    echo
+    echo -e "${BOLD}Options:${RESET}"
+    echo "  -n, --namespace NAME     Specify namespace (default: current namespace)"
+    echo "  -c, --container NAME     Specify container name (default: first container)"
+    echo "  -s, --shell SHELL        Specify shell to use (default: auto-detect)"
+    echo "  -f, --file PATH          Local file to upload to the pod"
+    echo "  -r, --remote-path PATH   Remote path to upload the file to"
+    echo "  -m, --mount DIR          Local directory to mount in the pod"
+    echo "  -p, --remote-mount PATH  Remote path to mount the directory to"
+    echo "  -e, --edit PATH          Edit a file on the pod"
+    echo "  -h, --help               Show this help message"
+    echo "  -v, --version            Show version information"
+    echo "  -d, --debug              Enable debug output"
+    echo
+    echo -e "${BOLD}Commands:${RESET}"
+    echo "  ls, list                 List pods and select one to exec into"
+    echo "  push, cp                 Copy a local file to a pod"
+    echo "  pull, get                Copy a file from a pod to local system"
+    echo "  edit                     Edit a file directly on a pod"
+    echo "  mount                    Mount a local directory to a pod"
+    echo
+    echo -e "${BOLD}Examples:${RESET}"
+    echo "  kubectl kexec                      # Interactive pod selection"
+    echo "  kubectl kexec my-pod              # Exec into specific pod"
+    echo "  kubectl kexec -n monitoring my-pod # Exec into pod in different namespace"
+    echo "  kubectl kexec -c sidecar my-pod   # Exec into specific container"
+    echo "  kubectl kexec -s zsh my-pod       # Use specific shell"
+    echo "  kubectl kexec push my-file.txt my-pod:/tmp/ # Upload a file"
+    echo "  kubectl kexec pull my-pod:/etc/config.yaml ./ # Download a file"
+    echo "  kubectl kexec edit my-pod:/etc/nginx/nginx.conf # Edit remote file"
+    echo
+    echo -e "${BOLD}Notes:${RESET}"
+    echo "  * Shell access automatically tries bash, then falls back to sh"
+    echo "  * File transfers require socat or tar to be available in the pod"
+    echo "  * For mounting, kubectl cp is used under the hood"
 }
 
 show_version() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --bold --foreground 6 "kubectl-kexec v${VERSION}"
-    else
-        echo -e "${CYAN}kubectl-kexec v${VERSION}${RESET}"
-    fi
+    echo -e "${CYAN}kubectl-kexec v${VERSION}${RESET}"
 }
 
 # Check dependencies
 check_dependencies() {
-    for cmd in kubectl jq gum socat fzf; do
+    # Required dependencies
+    for cmd in kubectl jq socat fzf; do
         if ! command -v $cmd >/dev/null 2>&1; then
             styled_error "$cmd is required but not installed."
             exit 1
@@ -313,12 +180,8 @@ get_pods() {
         cmd="kubectl get pods --all-namespaces -o json"
     fi
     
-    if [[ "$USE_GUM" == "true" ]]; then
-        pods=$(gum spin --spinner dot --title "Fetching pods..." -- bash -c "$cmd")
-    else
-        styled_info "Fetching pods..."
-        pods=$(eval "$cmd")
-    fi
+    styled_info "Fetching pods..."
+    pods=$(eval "$cmd")
     
     echo "$pods"
 }
@@ -328,36 +191,24 @@ format_pods() {
     local pods="$1"
     local formatted_pods=""
     
-    if [[ "$USE_JQ" == "true" ]]; then
+    if command -v jq >/dev/null 2>&1; then
         formatted_pods=$(echo "$pods" | jq -r '.items[] | "\(.metadata.namespace)|\(.metadata.name)|\(.status.phase)|\(.spec.containers[0].name)"' | while IFS="|" read -r namespace name phase container; do
-            local status_color
+            local color
             case "$phase" in
                 "Running")
-                    status_color="2"  # Green
+                    color=$GREEN
                     ;;
                 "Pending")
-                    status_color="3"  # Yellow
+                    color=$YELLOW
                     ;;
                 "Failed")
-                    status_color="1"  # Red
+                    color=$RED
                     ;;
                 *)
-                    status_color="7"  # White
+                    color=$WHITE
                     ;;
             esac
-            
-            if [[ "$USE_GUM" == "true" ]]; then
-                echo "$namespace|$name|$phase|$container|$status_color"
-            else
-                local color
-                case "$status_color" in
-                    "1") color=$RED ;;
-                    "2") color=$GREEN ;;
-                    "3") color=$YELLOW ;;
-                    *) color=$WHITE ;;
-                esac
-                echo -e "${BLUE}$namespace${RESET} | ${GREEN}$name${RESET} | ${color}$phase${RESET} | ${MAGENTA}$container${RESET}"
-            fi
+            echo -e "${BLUE}$namespace${RESET} | ${GREEN}$name${RESET} | ${color}$phase${RESET} | ${MAGENTA}$container${RESET}"
         done)
     else
         styled_warning "jq is not installed, falling back to basic output."
@@ -382,18 +233,7 @@ list_pods() {
     local formatted_pods=$(format_pods "$pods")
     local selection=""
     
-    if [[ "$USE_GUM" == "true" ]]; then
-        if [[ "$USE_JQ" == "true" ]]; then
-            # Use colored output with gum
-            selection=$(echo "$formatted_pods" | while IFS="|" read -r namespace name phase container color; do
-                echo "$(gum style --foreground "$color" "$phase") | $(gum style --foreground 4 "$namespace") | $(gum style --foreground 2 "$name") | $(gum style --foreground 5 "$container")"
-            done | gum filter --placeholder "Select a pod")
-        else
-            selection=$(echo "$formatted_pods" | column -t | gum filter --placeholder "Select a pod")
-        fi
-    else
-        selection=$(echo "$formatted_pods" | styled_filter "Select a pod")
-    fi
+    selection=$(echo "$formatted_pods" | styled_filter "Select a pod")
     
     if [[ -z "$selection" ]]; then
         styled_warning "No pod selected."
@@ -404,13 +244,8 @@ list_pods() {
     local pod_namespace=""
     local pod_name=""
     
-    if [[ "$USE_JQ" == "true" ]]; then
-        pod_namespace=$(echo "$selection" | awk '{print $3}' | tr -d '|')
-        pod_name=$(echo "$selection" | awk '{print $5}' | tr -d '|')
-    else
-        pod_namespace=$(echo "$selection" | awk '{print $1}')
-        pod_name=$(echo "$selection" | awk '{print $3}')
-    fi
+    pod_namespace=$(echo "$selection" | awk '{print $1}')
+    pod_name=$(echo "$selection" | awk '{print $3}')
     
     # Trim whitespace
     pod_namespace=$(echo "$pod_namespace" | xargs)
@@ -427,12 +262,8 @@ get_containers() {
     local cmd="kubectl get pod $pod -n $namespace -o jsonpath='{.spec.containers[*].name}'"
     local containers
     
-    if [[ "$USE_GUM" == "true" ]]; then
-        containers=$(gum spin --spinner dot --title "Fetching containers..." -- bash -c "$cmd")
-    else
-        styled_info "Fetching containers..."
-        containers=$(eval "$cmd")
-    fi
+    styled_info "Fetching containers..."
+    containers=$(eval "$cmd")
     
     echo "$containers"
 }
@@ -460,11 +291,7 @@ select_container() {
     local container_array=($containers)
     local selection
     
-    if [[ "$USE_GUM" == "true" ]]; then
-        selection=$(gum choose --height 10 "${container_array[@]}")
-    else
-        selection=$(printf '%s\n' "${container_array[@]}" | styled_filter "Select a container:")
-    fi
+    selection=$(printf '%s\n' "${container_array[@]}" | styled_filter "Select a container:")
     
     if [[ -z "$selection" ]]; then
         styled_warning "No container selected, using the first one."
@@ -513,7 +340,7 @@ add_to_history() {
     local pod="$2"
     local container="$3"
     
-    if [[ "$USE_JQ" == "true" ]]; then
+    if command -v jq >/dev/null 2>&1; then
         local timestamp=$(date +%s)
         
         # Check if entry already exists
@@ -1371,87 +1198,4 @@ main() {
 }
 
 # Execute main function
-main "$@" "$container" -- which socat &>/dev/null; then
-            # Create a random port for the transfer
-            local port=$(shuf -i 10000-65000 -n 1)
-            
-            # Start socat in the container to send the file
-            kubectl exec -n "$namespace" "$pod" -c "$container" -- socat TCP-LISTEN:$port,fork OPEN:"$remote_file" &
-            local socat_pid=$!
-            
-            # Sleep to let socat start
-            sleep 1
-            
-            # Port forward to the socat port
-            kubectl port-forward -n "$namespace" "$pod" $port:$port &
-            local portfwd_pid=$!
-            
-            # Sleep to let port forwarding start
-            sleep 1
-            
-            # Receive the file using cat
-            cat < /dev/tcp/localhost/$port > "$local_path"
-            
-            # Kill the port forward
-            kill $portfwd_pid
-            
-            # Kill socat
-            kill $socat_pid
-            
-            styled_success "Successfully copied file using socat"
-            return 0
-        fi
-    fi
-    
-    # 3. Try base64 encoding/decoding
-    styled_info "Trying base64 transfer..."
-    
-    # Check if base64 is available in the container
-    if kubectl exec -n "$namespace" "$pod" -c "$container" -- which base64 &>/dev/null; then
-        # Create a command to read and encode the file
-        local encode_cmd="cat $remote_file | base64 -w 0"
-        
-        # Execute the command and decode the output
-        local encoded_content=$(kubectl exec -n "$namespace" "$pod" -c "$container" -- sh -c "$encode_cmd")
-        
-        # Write the decoded content to the local file
-        echo "$encoded_content" | base64 -d > "$local_path"
-        
-        if [[ $? -eq 0 ]]; then
-            styled_success "Successfully copied file using base64 encoding"
-            return 0
-        fi
-    fi
-    
-    # 4. Try using tar
-    styled_info "Trying tar transfer..."
-    
-    # Check if tar is available in the container
-    if kubectl exec -n "$namespace" "$pod" -c "$container" -- which tar &>/dev/null; then
-        # Create a temporary directory
-        local temp_dir=$(mktemp -d)
-        local file_name=$(basename "$remote_file")
-        
-        # Create a command to create a tar archive
-        local tar_cmd="cd $(dirname "$remote_file") && tar -cf - $file_name | base64 -w 0"
-        
-        # Execute the command
-        local encoded_tar=$(kubectl exec -n "$namespace" "$pod" -c "$container" -- sh -c "$tar_cmd")
-        
-        # Decode and extract the tar archive
-        echo "$encoded_tar" | base64 -d > "$temp_dir/archive.tar"
-        tar -xf "$temp_dir/archive.tar" -C "$temp_dir"
-        
-        # Copy the file to the destination
-        cp -f "$temp_dir/$file_name" "$local_path"
-        
-        # Clean up
-        rm -rf "$temp_dir"
-        
-        styled_success "Successfully copied file using tar+base64 encoding"
-        return 0
-    fi
-    
-    styled_error "All file transfer methods failed"
-    return 1
-}
+main "$@"
