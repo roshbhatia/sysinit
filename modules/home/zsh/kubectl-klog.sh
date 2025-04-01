@@ -402,9 +402,14 @@ interactive_select() {
     local patterns=""
     local first_ns=""
     
-    echo "$selection" | while read -r line; do
-        local name=$(echo "$line" | awk -F ' \\(' '{print $1}')
-        local ns=$(echo "$line" | awk -F '[()]' '{print $2}')
+    while read -r line; do
+        # Extract name (everything before the first space)
+        local name=$(echo "$line" | sed -E 's/^([^ ]+).*/\1/')
+        # Extract namespace (content between parentheses)
+        local ns=$(echo "$line" | sed -E 's/.*\(([^)]+)\).*/\1/')
+        
+        # Remove ANSI color codes from name
+        name=$(echo "$name" | sed 's/\x1b\[[0-9;]*m//g')
         
         # Store first namespace for consistent use
         if [[ -z "$first_ns" ]]; then
@@ -419,7 +424,7 @@ interactive_select() {
         else
             patterns="$name"
         fi
-    done
+    done <<< "$selection"
     
     PATTERN="$patterns"
     
