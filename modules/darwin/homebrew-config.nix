@@ -57,6 +57,7 @@ let
     "rectangle"
     "slack"
     "visual-studio-code@insiders"
+    "vnc-viewer"
     "wezterm"
   ];
   
