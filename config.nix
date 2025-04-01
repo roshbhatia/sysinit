@@ -16,6 +16,7 @@
       taps = [];
       brews = [];
       casks = [
+        "iterm2"
         "notion"
       ];
     };
