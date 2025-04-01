@@ -20,12 +20,7 @@ CADDY_PID_FILE="$CACHE_DIR/caddy.pid"
 PROXY_PORT_START=10000
 DEBUG=false
 
-# Set flags since dependencies are required
-USE_GUM=true
-USE_JQ=true
-USE_CADDY=true
-
-# Color definitions (fallback if gum not available)
+# Color definitions
 BOLD='\033[1m'
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -36,50 +31,69 @@ CYAN='\033[0;36m'
 WHITE='\033[0;37m'
 RESET='\033[0m'
 
+# This script requires kubectl, jq, caddy, and fzf to be installed
+
 # Styled output functions
 styled_print() {
-    gum style --foreground "$1" "${@:2}"
+    echo -e "${!1}$2${RESET}"
 }
 
 styled_header() {
-    gum style --border normal --margin "1" --padding "1 2" --border-foreground 6 "$@"
+    echo -e "\n${CYAN}=== $* ===${RESET}\n"
 }
 
 styled_error() {
-    gum style --foreground 1 --bold "❌ $*"
+    echo -e "${RED}❌ $*${RESET}"
 }
 
 styled_success() {
-    gum style --foreground 2 --bold "✅ $*"
+    echo -e "${GREEN}✅ $*${RESET}"
 }
 
 styled_warning() {
-    gum style --foreground 3 --bold "⚠️ $*"
+    echo -e "${YELLOW}⚠️ $*${RESET}"
 }
 
 styled_info() {
-    gum style --foreground 4 --bold "ℹ️ $*"
+    echo -e "${BLUE}ℹ️ $*${RESET}"
 }
 
 styled_spinner() {
-    gum spin --spinner dot --title "$1" -- bash -c "$2"
+    echo -e "${CYAN}$1...${RESET}"
+    eval "$2"
 }
 
 styled_confirm() {
-    gum confirm "$*"
+    echo -e "${YELLOW}$* (y/n)${RESET}"
+    read -r answer
+    [[ "$answer" =~ ^[Yy] ]]
     return $?
 }
 
 styled_filter() {
-    gum filter --placeholder "$1" --height 20
+    echo -e "${CYAN}$1${RESET}"
+    if command -v fzf >/dev/null 2>&1; then
+        fzf
+    else
+        cat | head -20
+    fi
+}
+
+styled_choose() {
+    select opt in "$@"; do
+        echo "$opt"
+        break
+    done
 }
 
 styled_input() {
-    gum input --placeholder "$*"
+    echo -e "${CYAN}$*${RESET}"
+    read -r input
+    echo "$input"
 }
 
 styled_logo() {
-    gum style --foreground 6 --bold "
+    echo -e "${CYAN}
 888      .d888                  888 
 888     d88P\"                   888 
 888     888                     888 
@@ -87,51 +101,56 @@ styled_logo() {
 888 .88P888   888  888  888d88\" 888 
 888888K 888   888  888  888888  888 
 888 \"88b888   Y88b 888 d88PY88b 888 
-888  888888    \"Y8888888P\"  \"Y88888 "
+888  888888    \"Y8888888P\"  \"Y88888 ${RESET}"
+}
+
+show_version() {
+    echo -e "${CYAN}kubectl-kproxy v${VERSION}${RESET}"
 }
 
 show_help() {
     styled_logo
     
     echo
-    gum style --bold "kubectl-kproxy v${VERSION}" -- "Advanced Kubernetes Service Port Forwarding with Caddy"
+    echo -e "${BOLD}kubectl-kproxy v${VERSION}${RESET} - Advanced Kubernetes Service Port Forwarding with Caddy"
     echo
-    gum style --bold "Usage:"
+    echo -e "${BOLD}Usage:${RESET}"
     echo "  kubectl kproxy [command] [options]"
     echo
-    gum style --bold "Commands:"
-    gum style "  list, ls            List all services and select one to forward"
-    gum style "  forward, fwd        Forward a specific service"
-    gum style "  status, st          Show status of currently forwarded services"
-    gum style "  stop                Stop a specific port forward"
-    gum style "  stopall             Stop all port forwards"
-    gum style "  restart             Restart Caddy proxy server"
-    gum style "  help                Show this help message"
+    echo -e "${BOLD}Commands:${RESET}"
+    echo "  list, ls            List all services and select one to forward"
+    echo "  forward, fwd        Forward a specific service"
+    echo "  status, st          Show status of currently forwarded services"
+    echo "  stop                Stop a specific port forward"
+    echo "  stopall             Stop all port forwards"
+    echo "  restart             Restart Caddy proxy server"
+    echo "  help                Show this help message"
     echo
-    gum style --bold "Options:"
-    gum style "  -n, --namespace     Namespace of the service (for forward command)"
-    gum style "  -s, --service       Service name (for forward command)"
-    gum style "  -p, --port          Service port (for forward command)"
-    gum style "  -l, --local-port    Local port to use (default: auto-assigned)"
-    gum style "  -d, --domain        Custom domain for HTTPS access"
-    gum style "  --no-https          Disable HTTPS (use HTTP only)"
-    gum style "  --debug             Enable debug output"
+    echo -e "${BOLD}Options:${RESET}"
+    echo "  -n, --namespace     Namespace of the service (for forward command)"
+    echo "  -s, --service       Service name (for forward command)"
+    echo "  -p, --port          Service port (for forward command)"
+    echo "  -l, --local-port    Local port to use (default: auto-assigned)"
+    echo "  -d, --domain        Custom domain for HTTPS access"
+    echo "  --no-https          Disable HTTPS (use HTTP only)"
+    echo "  --debug             Enable debug output"
     echo
-    gum style --bold "Examples:"
-    gum style "  kubectl kproxy                    # Interactive service selection"
-    gum style "  kubectl kproxy list               # List services and select one"
-    gum style "  kubectl kproxy fwd -n default -s my-service -p 8080  # Forward specific service"
-    gum style "  kubectl kproxy fwd -n default -s my-pod -p 8080 --type pod  # Forward specific pod"
-    gum style "  kubectl kproxy status             # Show forwarded services"
-    gum style "  kubectl kproxy stop my-service    # Stop forwarding my-service"
+    echo -e "${BOLD}Examples:${RESET}"
+    echo "  kubectl kproxy                    # Interactive service selection"
+    echo "  kubectl kproxy list               # List services and select one"
+    echo "  kubectl kproxy fwd -n default -s my-service -p 8080  # Forward specific service"
+    echo "  kubectl kproxy fwd -n default -s my-pod -p 8080 --type pod  # Forward specific pod"
+    echo "  kubectl kproxy status             # Show forwarded services"
+    echo "  kubectl kproxy stop my-service    # Stop forwarding my-service"
     echo
-    gum style --bold "Notes:"
-    gum style "  * Caddy is installed for HTTPS proxy with auto TLS"
+    echo -e "${BOLD}Notes:${RESET}"
+    echo "  * Caddy is installed for HTTPS proxy with auto TLS"
 }
 
 # Check dependencies
 check_dependencies() {
-    for cmd in kubectl jq gum caddy fzf; do
+    # Required dependencies
+    for cmd in kubectl jq caddy fzf; do
         if ! command -v $cmd >/dev/null 2>&1; then
             styled_error "$cmd is required but not installed."
             exit 1
@@ -147,6 +166,172 @@ check_dependencies() {
     fi
 }
 
+# Find an available port starting from PROXY_PORT_START
+find_available_port() {
+    local port=$PROXY_PORT_START
+    
+    while nc -z localhost $port 2>/dev/null; do
+        port=$((port + 1))
+    done
+    
+    echo $port
+}
+
+# Generate a Caddyfile based on forwarded services
+generate_caddyfile() {
+    if command -v jq >/dev/null 2>&1; then
+        # Start with an empty Caddyfile
+        echo "" > "$CADDY_FILE"
+        
+        # Add an entry for each forwarded service with a domain
+        jq -c '.[]' "$FORWARDED_SERVICES_FILE" | while read -r service; do
+            local domain=$(echo "$service" | jq -r '.domain')
+            local local_port=$(echo "$service" | jq -r '.local_port')
+            local service_name=$(echo "$service" | jq -r '.service')
+            
+            if [[ -n "$domain" && "$domain" != "null" ]]; then
+                echo "$domain {" >> "$CADDY_FILE"
+                echo "  reverse_proxy localhost:$local_port" >> "$CADDY_FILE"
+                echo "  log {" >> "$CADDY_FILE"
+                echo "    output file $CACHE_DIR/$service_name.log" >> "$CADDY_FILE"
+                echo "  }" >> "$CADDY_FILE"
+                echo "}" >> "$CADDY_FILE"
+                echo "" >> "$CADDY_FILE"
+            fi
+        done
+    fi
+}
+
+# Start or restart Caddy
+start_caddy() {
+    # Only start Caddy if there's content in the Caddyfile
+    if [[ -s "$CADDY_FILE" ]]; then
+        # Stop existing Caddy if running
+        if [[ -f "$CADDY_PID_FILE" ]]; then
+            local pid=$(cat "$CADDY_PID_FILE")
+            if ps -p "$pid" > /dev/null; then
+                kill "$pid" 2>/dev/null || true
+            fi
+        fi
+        
+        # Start Caddy
+        caddy run --config "$CADDY_FILE" --watch &
+        local caddy_pid=$!
+        
+        # Save the PID
+        echo "$caddy_pid" > "$CADDY_PID_FILE"
+        
+        styled_success "Caddy proxy server started"
+    fi
+}
+
+# Show status of forwarded services
+show_status() {
+    styled_header "Current Port Forwards"
+    
+    if command -v jq >/dev/null 2>&1; then
+        if [[ "$(jq 'length' "$FORWARDED_SERVICES_FILE")" == "0" ]]; then
+            styled_info "No active port forwards."
+            return 0
+        fi
+        
+        echo -e "${BOLD}Service${RESET}\t${BOLD}Namespace${RESET}\t${BOLD}Type${RESET}\t${BOLD}Port${RESET}\t${BOLD}Local Port${RESET}\t${BOLD}Domain${RESET}\t${BOLD}Status${RESET}"
+        
+        jq -c '.[]' "$FORWARDED_SERVICES_FILE" | while read -r service; do
+            local service_name=$(echo "$service" | jq -r '.service')
+            local namespace=$(echo "$service" | jq -r '.namespace')
+            local port=$(echo "$service" | jq -r '.port')
+            local local_port=$(echo "$service" | jq -r '.local_port')
+            local domain=$(echo "$service" | jq -r '.domain')
+            local pid=$(echo "$service" | jq -r '.pid')
+            local type=$(echo "$service" | jq -r '.type // "service"')
+            
+            # Check if the port-forward is still running
+            local status="Running"
+            if ! ps -p "$pid" > /dev/null; then
+                status="Stopped"
+            fi
+            
+            # Format for output
+            domain=${domain:-"-"}
+            
+            echo -e "${GREEN}$service_name${RESET}\t${BLUE}$namespace${RESET}\t${YELLOW}$type${RESET}\t$port\t$local_port\t$domain\t$(status_color "$status")"
+        done | column -t
+    else
+        styled_warning "jq is not installed, cannot show detailed status."
+        styled_info "Running kubectl port-forwards:"
+        ps aux | grep "kubectl port-forward" | grep -v grep
+    fi
+}
+
+# Color status based on state
+status_color() {
+    local status="$1"
+    
+    if [[ "$status" == "Running" ]]; then
+        echo -e "${GREEN}$status${RESET}"
+    else
+        echo -e "${RED}$status${RESET}"
+    fi
+}
+
+# Remove a service from the forwarded services file
+remove_forwarded_service() {
+    local service="$1"
+    
+    if command -v jq >/dev/null 2>&1; then
+        # Find the service PID to kill it
+        local pid=$(jq -r --arg svc "$service" '.[] | select(.service == $svc) | .pid' "$FORWARDED_SERVICES_FILE")
+        
+        if [[ -n "$pid" && "$pid" != "null" ]]; then
+            # Kill the port-forward process
+            kill "$pid" 2>/dev/null || true
+            styled_success "Stopped port-forward for $service"
+        fi
+        
+        # Remove the service from the tracking file
+        jq --arg svc "$service" 'map(select(.service != $svc))' "$FORWARDED_SERVICES_FILE" > "$FORWARDED_SERVICES_FILE.tmp"
+        mv "$FORWARDED_SERVICES_FILE.tmp" "$FORWARDED_SERVICES_FILE"
+    else
+        styled_warning "jq is not installed, trying generic process killing."
+        pkill -f "kubectl port-forward (service|pod)/$service" || true
+    fi
+}
+
+# Stop a specific service
+stop_service() {
+    local service="$1"
+    
+    if [[ -z "$service" ]]; then
+        styled_error "No service specified."
+        show_help
+        exit 1
+    fi
+    
+    styled_header "Stopping Port Forward for: $service"
+    
+    remove_forwarded_service "$service"
+    
+    # Regenerate Caddyfile and restart Caddy
+    generate_caddyfile
+    start_caddy
+    
+    styled_success "Port forward for $service stopped."
+}
+
+# Restart Caddy
+restart_caddy() {
+    styled_header "Restarting Caddy Proxy Server"
+    
+    # Regenerate Caddyfile
+    generate_caddyfile
+    
+    # Restart Caddy
+    start_caddy
+    
+    styled_success "Caddy proxy server restarted."
+}
+
 # Get all services and pods from all namespaces
 get_resources() {
     local cmd_services="kubectl get services --all-namespaces -o json"
@@ -154,14 +339,11 @@ get_resources() {
     local services_json=""
     local pods_json=""
     
-    if [[ "$USE_GUM" == "true" ]]; then
-        services_json=$(gum spin --spinner dot --title "Fetching services..." -- bash -c "$cmd_services") || return 1
-        pods_json=$(gum spin --spinner dot --title "Fetching pods..." -- bash -c "$cmd_pods") || return 1
-    else
-        styled_info "Fetching resources..."
-        services_json=$(eval "$cmd_services") || return 1
-        pods_json=$(eval "$cmd_pods") || return 1
-    fi
+    styled_info "Fetching services..."
+    services_json=$(eval "$cmd_services") || return 1
+    
+    styled_info "Fetching pods..."
+    pods_json=$(eval "$cmd_pods") || return 1
     
     echo '{"services": '"$services_json"', "pods": '"$pods_json"'}'
 }
@@ -171,7 +353,7 @@ format_resources() {
     local resources="$1"
     local formatted=""
     
-    if [[ "$USE_JQ" == "true" ]]; then
+    if command -v jq >/dev/null 2>&1; then
         # Format services
         local services=$(echo "$resources" | jq -r '.services.items[] | select(.spec.type != "ExternalName") | "service|\(.metadata.namespace)|\(.metadata.name)|\(.spec.ports[0].port)|\(.spec.ports[0].targetPort)|\(.spec.type)"')
         
@@ -180,18 +362,10 @@ format_resources() {
         
         # Combine and format both
         formatted=$(echo -e "${services}\n${pods}" | while IFS="|" read -r type namespace name port targetPort status; do
-            if [[ "$USE_GUM" == "true" ]]; then
-                if [[ "$type" == "service" ]]; then
-                    echo "Service|$namespace|$name|$port|$targetPort|$status"
-                else
-                    echo "Pod|$namespace|$name|-|-|$status"
-                fi
+            if [[ "$type" == "service" ]]; then
+                echo -e "${BLUE}Service${RESET}|${GREEN}$namespace${RESET}|${YELLOW}$name${RESET}|$port|$targetPort|${MAGENTA}$status${RESET}"
             else
-                if [[ "$type" == "service" ]]; then
-                    echo -e "${BLUE}Service${RESET}|${GREEN}$namespace${RESET}|${YELLOW}$name${RESET}|$port|$targetPort|${MAGENTA}$status${RESET}"
-                else
-                    echo -e "${BLUE}Pod${RESET}|${GREEN}$namespace${RESET}|${YELLOW}$name${RESET}|-|-|${MAGENTA}$status${RESET}"
-                fi
+                echo -e "${BLUE}Pod${RESET}|${GREEN}$namespace${RESET}|${YELLOW}$name${RESET}|-|-|${MAGENTA}$status${RESET}"
             fi
         done)
     else
@@ -214,13 +388,7 @@ list_services() {
     styled_header "Select a Resource to Forward"
     
     local formatted_resources=$(format_resources "$resources")
-    local selection=""
-    
-    if [[ "$USE_GUM" == "true" ]]; then
-        selection=$(echo "$formatted_resources" | column -t -s "|" | styled_filter "Select a resource to forward:")
-    else
-        selection=$(echo "$formatted_resources" | styled_filter "Select a resource to forward:")
-    fi
+    local selection=$(echo "$formatted_resources" | column -t -s "|" | styled_filter "Select a resource to forward:")
     
     if [[ -z "$selection" ]]; then
         styled_warning "No resource selected."
@@ -233,17 +401,10 @@ list_services() {
     local name=""
     local port=""
     
-    if [[ "$USE_JQ" == "true" ]]; then
-        type=$(echo "$selection" | awk -F'|' '{print $1}' | tr '[:upper:]' '[:lower:]')
-        namespace=$(echo "$selection" | awk -F'|' '{print $2}')
-        name=$(echo "$selection" | awk -F'|' '{print $3}')
-        port=$(echo "$selection" | awk -F'|' '{print $4}')
-    else
-        type=$(echo "$selection" | awk '{print $1}' | tr '[:upper:]' '[:lower:]')
-        namespace=$(echo "$selection" | awk '{print $2}')
-        name=$(echo "$selection" | awk '{print $3}')
-        port=$(echo "$selection" | awk '{print $4}')
-    fi
+    type=$(echo "$selection" | awk '{print $1}' | tr '[:upper:]' '[:lower:]')
+    namespace=$(echo "$selection" | awk '{print $2}')
+    name=$(echo "$selection" | awk '{print $3}')
+    port=$(echo "$selection" | awk '{print $4}')
     
     # Trim whitespace
     type=$(echo "$type" | xargs)
@@ -253,7 +414,7 @@ list_services() {
     
     if [[ "$type" == "pod" ]]; then
         # For pods, ask for the port
-        if [[ -z "$port" ]]; then
+        if [[ -z "$port" || "$port" == "-" ]]; then
             port=$(styled_input "Enter port to forward for pod:")
             if [[ -z "$port" ]]; then
                 styled_error "Port is required for pod forwarding."
@@ -409,7 +570,7 @@ forward_service() {
     add_forwarded_service "$namespace" "$service" "$port" "$local_port" "$domain" "$use_https" "$port_forward_pid" "service"
     
     # Setup monitor to detect if port-forward dies
-    setup_monitor "$namespace" "$service" "$port" "$local_port" "$port_forward_pid"
+    setup_monitor "$namespace" "$service" "$port" "$local_port" "$port_forward_pid" "service"
     
     # Generate Caddyfile and restart Caddy if needed
     generate_caddyfile
@@ -471,7 +632,7 @@ add_forwarded_service() {
 stop_all() {
     styled_header "Stopping All Port Forwards"
     
-    if [[ "$USE_JQ" == "true" ]]; then
+    if command -v jq >/dev/null 2>&1; then
         local pids=$(cat "$FORWARDED_SERVICES_FILE" | jq -r '.[].pid')
         
         for pid in $pids; do
@@ -496,47 +657,6 @@ stop_all() {
     fi
     
     styled_success "All port forwards stopped."
-}
-
-# Stop port forward for a specific service
-stop_service() {
-    local service="$1"
-    
-    if [[ -z "$service" ]]; then
-        styled_error "No service specified."
-        show_help
-        exit 1
-    fi
-    
-    styled_header "Stopping Port Forward for: $service"
-    
-    remove_forwarded_service "$service"
-    
-    # Regenerate Caddyfile and restart Caddy
-    if [[ "$USE_CADDY" == "true" ]]; then
-        generate_caddyfile
-        start_caddy
-    fi
-    
-    styled_success "Port forward for $service stopped."
-}
-
-# Restart Caddy
-restart_caddy() {
-    if [[ "$USE_CADDY" == "false" ]]; then
-        styled_error "Caddy is not installed."
-        return 1
-    fi
-    
-    styled_header "Restarting Caddy Proxy Server"
-    
-    # Regenerate Caddyfile
-    generate_caddyfile
-    
-    # Restart Caddy
-    start_caddy
-    
-    styled_success "Caddy proxy server restarted."
 }
 
 # Check if terminal-notifier is available
@@ -572,6 +692,7 @@ setup_monitor() {
     local port="$3"
     local local_port="$4"
     local pid="$5"
+    local type="${6:-service}" # Default to service if not provided
     
     # Start a background monitor process
     (
@@ -582,7 +703,7 @@ setup_monitor() {
                 send_notification "kubectl-kproxy" "Port forward for $service.$namespace stopped unexpectedly" "kubectl kproxy fwd -n $namespace -s $service -p $port -l $local_port"
                 
                 # Update service status
-                if [[ "$USE_JQ" == "true" ]]; then
+                if command -v jq >/dev/null 2>&1; then
                     # Mark service as stopped
                     cat "$FORWARDED_SERVICES_FILE" | jq --arg ns "$namespace" --arg svc "$service" '
                         map(if .namespace == $ns and .service == $svc then
@@ -669,6 +790,9 @@ main() {
     
     # Execute command
     case "$command" in
+        list|ls)
+            list_services
+            ;;
         forward|fwd)
             if [[ "$resource_type" == "pod" ]]; then
                 forward_pod "$namespace" "$service" "$port" "$local_port" "$domain"
@@ -690,6 +814,9 @@ main() {
             ;;
         help)
             show_help
+            ;;
+        version|-v|--version)
+            show_version
             ;;
         *)
             styled_error "Unknown command: $command"

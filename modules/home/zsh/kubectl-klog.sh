@@ -46,18 +46,7 @@ DEBUG=false
 # Cache directory
 CACHE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/klog"
 
-# Check dependencies
-check_dependencies() {
-    for cmd in stern kubectl jq gum fzf; do
-        if ! command -v "$cmd" >/dev/null 2>&1; then
-            styled_error "$cmd is required but not installed."
-            exit 1
-        fi
-    done
-    
-    # Create cache directory if needed
-    mkdir -p "$CACHE_DIR"
-}
+# Check dependencies (defined below)
 
 # Color definitions (fallback if gum not available)
 BOLD='\033[1m'
@@ -70,151 +59,69 @@ CYAN='\033[0;36m'
 WHITE='\033[0;37m'
 RESET='\033[0m'
 
-# Check for gum and set USE_GUM flag
-if command -v gum >/dev/null 2>&1; then
-    USE_GUM=true
-else
-    USE_GUM=false
-fi
+# This script requires kubectl, stern, jq, and fzf to be installed
 
 # Styled output functions
 styled_print() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --foreground "$1" "${@:2}"
-    else
-        local color
-        case "$1" in
-            "1") color=$RED ;;
-            "2") color=$GREEN ;;
-            "3") color=$YELLOW ;;
-            "4") color=$BLUE ;;
-            "5") color=$MAGENTA ;;
-            "6") color=$CYAN ;;
-            "7") color=$WHITE ;;
-            *) color=$RESET ;;
-        esac
-        echo -e "${color}${*:2}${RESET}"
-    fi
+    echo -e "${!1}$2${RESET}"
 }
 
 styled_header() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --border normal --margin "1" --padding "1 2" --border-foreground 6 "$@"
-    else
-        echo -e "${CYAN}╭───────────────────────────────────────────────╮${RESET}"
-        echo -e "${CYAN}│${RESET} $* ${CYAN}│${RESET}"
-        echo -e "${CYAN}╰───────────────────────────────────────────────╯${RESET}"
-    fi
+    echo -e "\n${CYAN}=== $* ===${RESET}\n"
 }
 
 styled_error() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --foreground 1 --bold "❌ $*"
-    else
-        echo -e "${RED}❌ $*${RESET}"
-    fi
+    echo -e "${RED}❌ $*${RESET}"
 }
 
 styled_success() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --foreground 2 --bold "✅ $*"
-    else
-        echo -e "${GREEN}✅ $*${RESET}"
-    fi
+    echo -e "${GREEN}✅ $*${RESET}"
 }
 
 styled_warning() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --foreground 3 --bold "⚠️ $*"
-    else
-        echo -e "${YELLOW}⚠️ $*${RESET}"
-    fi
+    echo -e "${YELLOW}⚠️ $*${RESET}"
 }
 
 styled_info() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --foreground 4 --bold "ℹ️ $*"
-    else
-        echo -e "${BLUE}ℹ️ $*${RESET}"
-    fi
+    echo -e "${BLUE}ℹ️ $*${RESET}"
 }
 
 styled_spinner() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum spin --spinner dot --title "$*" -- "$2"
-    else
-        echo -e "${BLUE}⏳ $*${RESET}"
-        eval "$2"
-    fi
+    echo -e "${CYAN}$1...${RESET}"
+    eval "$2"
 }
 
 styled_confirm() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum confirm "$*"
-        return $?
-    else
-        read -p "$* (y/n) " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            return 0
-        else
-            return 1
-        fi
-    fi
+    echo -e "${YELLOW}$* (y/n)${RESET}"
+    read -r answer
+    [[ "$answer" =~ ^[Yy] ]]
+    return $?
 }
 
 styled_choose() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum choose --height 20 "$@"
-    else
-        if command -v fzf >/dev/null 2>&1; then
-            fzf --height 20 --ansi --header "Select one:" <<< "$(printf '%s\n' "$@")"
-        else
-            select opt in "$@"; do
-                echo "$opt"
-                break
-            done
-        fi
-    fi
+    select opt in "$@"; do
+        echo "$opt"
+        break
+    done
 }
 
 styled_filter() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum filter --placeholder "$1" --height 20
+    echo -e "${CYAN}$1${RESET}"
+    if command -v fzf >/dev/null 2>&1; then
+        fzf
     else
-        if command -v fzf >/dev/null 2>&1; then
-            fzf --height 20 --ansi --header "$1"
-        else
-            cat
-        fi
+        cat | head -20
     fi
 }
 
 styled_input() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum input --placeholder "$*"
-    else
-        read -p "$* " input
-        echo "$input"
-    fi
+    echo -e "${CYAN}$*${RESET}"
+    read -r input
+    echo "$input"
 }
 
 styled_logo() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --foreground 6 --bold "
-888             888                   
-888             888                   
-888             888                   
-888  888 888    888 .d88b.   .d88b.   
-888 .88P 888    888d88\"\"88b d88P\"88b  
-888888K  888    888888  888 888  888  
-888 \"88b Y88b.  888Y88..88P Y88b 888  
-888  888  \"Y888 888 \"Y88P\"   \"Y88888  
-                                  888  
-                             Y8b d88P  
-                              \"Y88P\"   "
-    else
-        echo -e "${CYAN}
+    echo -e "${CYAN}
 888             888                   
 888             888                   
 888             888                   
@@ -226,139 +133,74 @@ styled_logo() {
                                   888  
                              Y8b d88P  
                               \"Y88P\"   ${RESET}"
-    fi
 }
 
 # Helper functions
 show_help() {
     styled_logo
     
-    if [[ "$USE_GUM" == "true" ]]; then
-        echo
-        gum style --bold "kubectl-klog v${VERSION}" -- "Advanced Kubernetes log viewer"
-        echo
-        gum style --bold "Usage:"
-        echo "  kubectl klog [options] [PATTERN]"
-        echo
-        gum style --bold "Arguments:"
-        echo "  PATTERN                  Log selector pattern (glob/regex supported)"
-        echo "                          Examples: "
-        echo "                          - \"provider-nrf\" (exact match)"
-        echo "                          - \"provider-nrf*\" (all pods starting with provider-nrf)"
-        echo "                          - \"provider-nrf-[^r]\" (all provider-nrf- pods except those with 'r')"
-        echo
-        gum style --bold "Options:"
-        gum style "  -h, --help               Show this help message"
-        gum style "  -n, --namespace NAME     Specify namespace (default: current namespace)"
-        gum style "  -A, --all-namespaces     Search in all namespaces"
-        gum style "  -c, --container NAME     Specify container name"
-        gum style "  -l, --selector SELECTOR  Kubernetes selector"
-        gum style "  -t, --tail LINES         Number of lines to show (default: ${TAIL})"
-        gum style "  -s, --since DURATION     Show logs since duration (default: ${SINCE})"
-        gum style "  -p, --previous           Show logs from previous container instance"
-        gum style "  -T, --timestamps         Show timestamps in logs"
-        gum style "  -H, --highlight PATTERN  Highlight pattern in logs (regexp supported)"
-        gum style "  -x, --exclude PATTERN    Exclude pattern from logs (regexp supported)"
-        gum style "  -C, --context NAME       Kubernetes context to use"
-        gum style "  -k, --kubeconfig FILE    Path to kubeconfig file"
-        gum style "  -i, --interactive        Interactive pod/deployment selection with gum/fzf"
-        gum style "  -m, --minimal            Minimal output (no pod/container prefix)"
-        gum style "  -d, --debug              Enable debug mode"
-        gum style "  -v, --version            Show version information"
-        echo
-        gum style --bold "Examples:"
-        gum style "  kubectl klog                          # Interactive pod selection"
-        gum style "  kubectl klog provider-nrf             # Logs from provider-nrf pods"
-        gum style "  kubectl klog \"provider-nrf*\"          # Logs from all pods starting with provider-nrf"
-        gum style "  kubectl klog -n crossplane-system     # All logs in crossplane-system namespace"
-        gum style "  kubectl klog -n kube-system \"coredns\" # CoreDNS logs in kube-system"
-        gum style "  kubectl klog -H \"error|Error|ERROR\"   # All logs, highlighting errors"
-        gum style "  kubectl klog -x \"health|liveness\"     # All logs, excluding health checks"
-        echo
-        gum style --bold "Notes:"
-        gum style "  * Wildcards must be quoted to prevent shell expansion"
-        gum style "  * Requires stern to be installed (https://github.com/stern/stern)"
-        if [[ "$USE_GUM" == "true" ]]; then
-            gum style "  * Gum is installed, enabling enhanced UI features"
-        else
-            gum style "  * Gum is not installed. Install for enhanced UI: https://github.com/charmbracelet/gum"
-        fi
-    else
-        cat <<EOF
-${BOLD}kubectl-klog v${VERSION}${RESET} - Advanced Kubernetes log viewer
-
-${BOLD}Usage:${RESET}
-  kubectl klog [options] [PATTERN]
-
-${BOLD}Arguments:${RESET}
-  PATTERN                  Log selector pattern (glob/regex supported)
-                          Examples: 
-                          - "provider-nrf" (exact match)
-                          - "provider-nrf*" (all pods starting with provider-nrf)
-                          - "provider-nrf-[^r]" (all provider-nrf- pods except those with 'r')
-
-${BOLD}Options:${RESET}
-  -h, --help               Show this help message
-  -n, --namespace NAME     Specify namespace (default: current namespace)
-  -A, --all-namespaces     Search in all namespaces
-  -c, --container NAME     Specify container name
-  -l, --selector SELECTOR  Kubernetes selector
-  -t, --tail LINES         Number of lines to show (default: ${TAIL})
-  -s, --since DURATION     Show logs since duration (default: ${SINCE})
-  -p, --previous           Show logs from previous container instance
-  -T, --timestamps         Show timestamps in logs
-  -H, --highlight PATTERN  Highlight pattern in logs (regexp supported)
-  -x, --exclude PATTERN    Exclude pattern from logs (regexp supported)
-  -C, --context NAME       Kubernetes context to use
-  -k, --kubeconfig FILE    Path to kubeconfig file
-  -i, --interactive        Interactive pod/deployment selection with fzf
-  -m, --minimal            Minimal output (no pod/container prefix)
-  -d, --debug              Enable debug mode
-  -v, --version            Show version information
-
-${BOLD}Examples:${RESET}
-  kubectl klog                          # Interactive pod selection
-  kubectl klog provider-nrf             # Logs from provider-nrf pods
-  kubectl klog "provider-nrf*"          # Logs from all pods starting with provider-nrf
-  kubectl klog -n crossplane-system     # All logs in crossplane-system namespace
-  kubectl klog -n kube-system "coredns" # CoreDNS logs in kube-system
-  kubectl klog -H "error|Error|ERROR"   # All logs, highlighting errors
-  kubectl klog -x "health|liveness"     # All logs, excluding health checks
-
-${BOLD}Notes:${RESET}
-  * Wildcards must be quoted to prevent shell expansion
-  * Requires stern to be installed (https://github.com/stern/stern)
-  * Gum is not installed. Install for enhanced UI: https://github.com/charmbracelet/gum
-EOF
-    fi
+    echo
+    echo -e "${BOLD}kubectl-klog v${VERSION}${RESET} - Advanced Kubernetes log viewer"
+    echo
+    echo -e "${BOLD}Usage:${RESET}"
+    echo "  kubectl klog [options] [PATTERN]"
+    echo
+    echo -e "${BOLD}Arguments:${RESET}"
+    echo "  PATTERN                  Log selector pattern (glob/regex supported)"
+    echo "                          Examples: "
+    echo "                          - \"provider-nrf\" (exact match)"
+    echo "                          - \"provider-nrf*\" (all pods starting with provider-nrf)"
+    echo "                          - \"provider-nrf-[^r]\" (all provider-nrf- pods except those with 'r')"
+    echo
+    echo -e "${BOLD}Options:${RESET}"
+    echo "  -h, --help               Show this help message"
+    echo "  -n, --namespace NAME     Specify namespace (default: current namespace)"
+    echo "  -A, --all-namespaces     Search in all namespaces"
+    echo "  -c, --container NAME     Specify container name"
+    echo "  -l, --selector SELECTOR  Kubernetes selector"
+    echo "  -t, --tail LINES         Number of lines to show (default: ${TAIL})"
+    echo "  -s, --since DURATION     Show logs since duration (default: ${SINCE})"
+    echo "  -p, --previous           Show logs from previous container instance"
+    echo "  -T, --timestamps         Show timestamps in logs"
+    echo "  -H, --highlight PATTERN  Highlight pattern in logs (regexp supported)"
+    echo "  -x, --exclude PATTERN    Exclude pattern from logs (regexp supported)"
+    echo "  -C, --context NAME       Kubernetes context to use"
+    echo "  -k, --kubeconfig FILE    Path to kubeconfig file"
+    echo "  -i, --interactive        Interactive pod/deployment selection"
+    echo "  -m, --minimal            Minimal output (no pod/container prefix)"
+    echo "  -d, --debug              Enable debug mode"
+    echo "  -v, --version            Show version information"
+    echo
+    echo -e "${BOLD}Examples:${RESET}"
+    echo "  kubectl klog                          # Interactive pod selection"
+    echo "  kubectl klog provider-nrf             # Logs from provider-nrf pods"
+    echo "  kubectl klog \"provider-nrf*\"          # Logs from all pods starting with provider-nrf"
+    echo "  kubectl klog -n crossplane-system     # All logs in crossplane-system namespace"
+    echo "  kubectl klog -n kube-system \"coredns\" # CoreDNS logs in kube-system"
+    echo "  kubectl klog -H \"error|Error|ERROR\"   # All logs, highlighting errors"
+    echo "  kubectl klog -x \"health|liveness\"     # All logs, excluding health checks"
+    echo
+    echo -e "${BOLD}Notes:${RESET}"
+    echo "  * Wildcards must be quoted to prevent shell expansion"
+    echo "  * Requires stern to be installed (https://github.com/stern/stern)"
 }
 
 show_version() {
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --bold --foreground 6 "kubectl-klog v${VERSION}"
-    else
-        echo -e "${CYAN}kubectl-klog v${VERSION}${RESET}"
-    fi
+    echo -e "${CYAN}kubectl-klog v${VERSION}${RESET}"
 }
 
 # Check dependencies
 check_dependencies() {
-    # Check for stern
-    if ! command -v stern >/dev/null 2>&1; then
-        styled_error "stern is required but not installed."
-        styled_info "Please install stern: https://github.com/stern/stern"
-        exit 1
-    fi
-    
-    # Check for fzf if gum is not available and interactive mode is enabled
-    if [[ "$USE_GUM" == "false" && "$INTERACTIVE" == "true" ]]; then
-        if ! command -v fzf >/dev/null 2>&1; then
-            styled_warning "fzf is required for interactive mode when gum is not available."
-            styled_info "Please install fzf: https://github.com/junegunn/fzf"
-            styled_info "Or install gum: https://github.com/charmbracelet/gum"
-            INTERACTIVE=false
+    # Required dependencies
+    for cmd in kubectl stern jq fzf; do
+        if ! command -v $cmd >/dev/null 2>&1; then
+            styled_error "$cmd is required but not installed."
+            exit 1
         fi
-    fi
+    done
+    
+    # Create cache directory if needed
+    mkdir -p "$CACHE_DIR"
 }
 
 # Parse command line arguments
@@ -460,12 +302,8 @@ get_namespaces() {
     local cmd="kubectl get namespaces -o jsonpath='{.items[*].metadata.name}'"
     local namespaces
     
-    if [[ "$USE_GUM" == "true" ]]; then
-        namespaces=$(gum spin --spinner dot --title "Fetching namespaces..." -- bash -c "$cmd")
-    else
-        styled_info "Fetching namespaces..."
-        namespaces=$(eval "$cmd")
-    fi
+    styled_info "Fetching namespaces..."
+    namespaces=$(eval "$cmd")
     
     echo "$namespaces"
 }
@@ -480,11 +318,7 @@ select_namespace() {
     
     styled_header "Select Namespace"
     
-    if [[ "$USE_GUM" == "true" ]]; then
-        NAMESPACE=$(gum choose --height 20 "${ns_array[@]}")
-    else
-        NAMESPACE=$(printf '%s\n' "${ns_array[@]}" | styled_filter "Select namespace:")
-    fi
+    NAMESPACE=$(printf '%s\n' "${ns_array[@]}" | styled_filter "Select namespace:")
     
     if [[ -n "$NAMESPACE" ]]; then
         if [[ "$NAMESPACE" == "All Namespaces" ]]; then
@@ -512,12 +346,8 @@ get_resources() {
         cmd="kubectl get pods,deployments --all-namespaces -o custom-columns=KIND:.kind,NAME:.metadata.name,NAMESPACE:.metadata.namespace --no-headers"
     fi
     
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum spin --spinner dot --title "Fetching resources..." -- bash -c "$cmd"
-    else
-        styled_info "Fetching resources..."
-        eval "$cmd"
-    fi
+    styled_info "Fetching resources..."
+    eval "$cmd"
 }
 
 # List and select pods/deployments interactively
@@ -552,24 +382,16 @@ interactive_select() {
         local name=$(echo "$line" | awk '{print $2}')
         local ns=$(echo "$line" | awk '{print $3}')
         
-        if [[ "$USE_GUM" == "true" ]]; then
-            echo "$name ($ns) - $kind"
+        if [[ "$kind" == "Pod" ]]; then
+            echo -e "${GREEN}$name${RESET} (${BLUE}$ns${RESET}) - ${YELLOW}$kind${RESET}"
         else
-            if [[ "$kind" == "Pod" ]]; then
-                echo -e "${GREEN}$name${RESET} (${BLUE}$ns${RESET}) - ${YELLOW}$kind${RESET}"
-            else
-                echo -e "${MAGENTA}$name${RESET} (${BLUE}$ns${RESET}) - ${YELLOW}$kind${RESET}"
-            fi
+            echo -e "${MAGENTA}$name${RESET} (${BLUE}$ns${RESET}) - ${YELLOW}$kind${RESET}"
         fi
     done)
     
     # Let user select resources
     local selection
-    if [[ "$USE_GUM" == "true" ]]; then
-        selection=$(echo "$formatted_resources" | gum choose --no-limit --height 20 --header "Select resources (space to select, enter to confirm)")
-    else
-        selection=$(echo "$formatted_resources" | fzf --ansi --multi --height=40% --border --header="Select resources (tab to multi-select)")
-    fi
+    selection=$(echo "$formatted_resources" | fzf --ansi --multi --height=40% --border --header="Select resources (tab to multi-select)")
     
     if [[ -z "$selection" ]]; then
         styled_warning "No resources selected."
@@ -613,13 +435,13 @@ main() {
     # Check dependencies
     check_dependencies
     
-    # If no args and not interactive, show interactive mode
-    if [[ -z "$PATTERN" && "$INTERACTIVE" == "false" ]]; then
+    # Always use interactive mode if no pattern is provided
+    if [[ -z "$PATTERN" ]]; then
         INTERACTIVE=true
     fi
     
-    # Interactive selection
-    if [[ "$INTERACTIVE" == "true" ]]; then
+    # Use interactive selection by default if pattern not specified
+    if [[ -z "$PATTERN" ]]; then
         interactive_select
     fi
     
@@ -670,11 +492,7 @@ main() {
     fi
     
     # Add a nice info message before executing
-    if [[ "$USE_GUM" == "true" ]]; then
-        gum style --foreground 6 --border normal --padding "0 1" "🔍 Tailing logs for: $PATTERN"
-    else
-        echo -e "${CYAN}🔍 Tailing logs for: $PATTERN${RESET}"
-    fi
+    echo -e "${CYAN}🔍 Tailing logs for: $PATTERN${RESET}"
     
     # Execute
     eval "$STERN_CMD"
