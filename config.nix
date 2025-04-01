@@ -18,6 +18,7 @@
       ];
       brews = [
         "hashicorp/tap/packer"
+        "qemu"
       ];
       casks = [
         "iterm2"
