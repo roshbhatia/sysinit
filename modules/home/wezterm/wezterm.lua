@@ -71,23 +71,52 @@ config.keys = { -- Word navigation
         key = 'f',
         mods = 'ALT'
     }
-}, -- Line navigation
-{
+}, {
+    -- Character selection with Shift
     key = 'LeftArrow',
-    mods = 'SHIFT|ALT',
+    mods = 'SHIFT',
     action = act.SendKey {
-        key = 'a',
-        mods = 'CTRL'
+        key = 'LeftArrow',
+        mods = 'SHIFT',
     }
 }, {
     key = 'RightArrow',
-    mods = 'SHIFT|ALT',
+    mods = 'SHIFT',
+    action = act.SendKey {
+        key = 'RightArrow',
+        mods = 'SHIFT',
+    }
+}, {
+    -- Word selection with CMD+SHIFT
+    key = 'LeftArrow',
+    mods = 'CMD|SHIFT',
+    action = act.SendKey {
+        key = 'LeftArrow',
+        mods = 'ALT|SHIFT',
+    }
+}, {
+    key = 'RightArrow',
+    mods = 'CMD|SHIFT',
+    action = act.SendKey {
+        key = 'RightArrow',
+        mods = 'ALT|SHIFT',
+    }
+}, {
+    -- Line selection with CMD+SHIFT Up/Down
+    key = 'UpArrow',
+    mods = 'CMD|SHIFT',
     action = act.SendKey {
         key = 'e',
-        mods = 'CTRL'
+        mods = 'CTRL|SHIFT',
     }
-}, -- Existing keybindings
-{
+}, {
+    key = 'DownArrow',
+    mods = 'CMD|SHIFT',
+    action = act.SendKey {
+        key = 'a',
+        mods = 'CTRL|SHIFT',
+    }
+}, {
     key = 'd',
     mods = 'CMD|SHIFT',
     action = act.SplitVertical {
@@ -116,38 +145,27 @@ config.keys = { -- Word navigation
         confirm = false
     }
 }, {
+    -- Pane navigation with ALT+SHIFT
     key = 'LeftArrow',
-    mods = 'CMD',
-    action = act.SendKey {
-        key = 'Home'
-    }
+    mods = 'ALT|SHIFT',
+    action = act.ActivatePaneDirection 'Left'
 }, {
     key = 'RightArrow',
-    mods = 'CMD',
-    action = act.SendKey {
-        key = 'End'
-    }
+    mods = 'ALT|SHIFT',
+    action = act.ActivatePaneDirection 'Right'
+}, {
+    key = 'UpArrow',
+    mods = 'ALT|SHIFT',
+    action = act.ActivatePaneDirection 'Up'
+}, {
+    key = 'DownArrow',
+    mods = 'ALT|SHIFT',
+    action = act.ActivatePaneDirection 'Down'
 }, {
     key = 'p',
     mods = 'CMD|SHIFT',
     action = act.ActivateCommandPalette
 }, {
-    key = 'LeftArrow',
-    mods = 'CMD|SHIFT',
-    action = act.ActivatePaneDirection 'Left'
-}, {
-    key = 'RightArrow',
-    mods = 'CMD|SHIFT',
-    action = act.ActivatePaneDirection 'Right'
-}, {
-    key = 'UpArrow',
-    mods = 'CMD|SHIFT',
-    action = act.ActivatePaneDirection 'Up'
-}, {
-    key = 'DownArrow',
-    mods = 'CMD|SHIFT',
-    action = act.ActivatePaneDirection 'Down'
-},{
     key = 'f',
     mods = 'CMD|SHIFT',
     action = wezterm.action.ActivateCopyMode
