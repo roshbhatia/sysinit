@@ -26,13 +26,24 @@ in
     after = [ "writeBoundary" ];
     before = [];
     data = ''
+      # Source user profile to ensure npm is available
+      . /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh || true
+      . /etc/profile
+      
+      echo "📦 Setting up NPM packages..."
       mkdir -p ${npmGlobalDir}
       
       # Install npm packages globally
       for package in ${lib.escapeShellArgs allPackages}; do
         if ! npm list -g "$package" &>/dev/null; then
-          echo "Installing $package globally..."
-          npm install -g "$package"
+          echo "🚀 Installing $package globally..."
+          if npm install -g "$package"; then
+            echo "✅ Successfully installed $package"
+          else
+            echo "❌ Failed to install $package"
+          fi
+        else
+          echo "✨ $package is already installed"
         fi
       done
     '';
