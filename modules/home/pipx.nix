@@ -28,25 +28,25 @@ in
       
       set -u
       
-      echo "📦 Setting up PIPX packages..."
+      echo "📦 Setting up PipX packages..."
       
       # Get list of currently installed packages
       echo "🔍 Checking for unmanaged packages..."
-      INSTALLED_PACKAGES=$(pipx list --json | jq -r '.venvs | keys[]' 2>/dev/null)
+      INSTALLED_PACKAGES=$(/opt/homebrew/bin/pipx list --json | jq -r '.venvs | keys[]' 2>/dev/null)
       
       # Uninstall packages not in our managed list
       for package in $INSTALLED_PACKAGES; do
         if ! echo ${lib.escapeShellArgs allPackages} | grep -q "$package"; then
           echo "🗑️  Uninstalling unmanaged package $package..."
-          pipx uninstall "$package"
+          /opt/homebrew/bin/pipx uninstall "$package"
         fi
       done
       
       # Install our managed packages
       for package in ${lib.escapeShellArgs allPackages}; do
-        if ! pipx list | grep -q "$package"; then
+        if ! /opt/homebrew/bin/pipx list | grep -q "$package"; then
           echo "🚀 Installing $package with pipx..."
-          if pipx install "$package"; then
+          if /opt/homebrew/bin/pipx install "$package"; then
             echo "✅ Successfully installed $package"
           else
             echo "❌ Failed to install $package"
