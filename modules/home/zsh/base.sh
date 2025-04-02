@@ -193,6 +193,10 @@ if command -v gh &> /dev/null; then
   _evalcache gh copilot alias -- zsh
 fi
 
+if command -v is &> /dev/null; then
+  _evalcache is init zsh
+fi
+
 if command -v starship &> /dev/null; then
   _evalcache starship init zsh
 fi
