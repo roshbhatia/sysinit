@@ -57,17 +57,11 @@ config.use_fancy_tab_bar = false
 
 -- Keybindings
 config.keys = {
-    -- Word navigation
+    -- Word/Line navigation
     { key = 'LeftArrow', mods = 'ALT', action = act.SendKey { key = 'b', mods = 'ALT' } },
     { key = 'RightArrow', mods = 'ALT', action = act.SendKey { key = 'f', mods = 'ALT' } },
-
-    -- Text selection
-    { key = 'LeftArrow', mods = 'ALT|SHIFT', action = act.SelectTextAtMouseCursor 'Word' },
-    { key = 'RightArrow', mods = 'ALT|SHIFT', action = act.SelectTextAtMouseCursor 'Word' },
-    { key = 'h', mods = 'ALT|SHIFT', action = act.SelectTextAtMouseCursor 'Word' },
-    { key = 'l', mods = 'ALT|SHIFT', action = act.SelectTextAtMouseCursor 'Word' },
-    { key = 'k', mods = 'ALT|SHIFT', action = act.SelectTextAtMouseCursor 'Line' },
-    { key = 'j', mods = 'ALT|SHIFT', action = act.SelectTextAtMouseCursor 'Line' },
+    { key = 'UpArrow', mods = 'ALT', action = act.SendKey { key = 'e', mods = 'CTRL' } },
+    { key = 'DownArrow', mods = 'ALT', action = act.SendKey { key = 'a', mods = 'CTRL' } },
 
     -- Pane management
     { key = 'd', mods = 'CMD|SHIFT', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },

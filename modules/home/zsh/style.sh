@@ -21,9 +21,6 @@ export ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=50
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#B4A7D6,bold"
 export ZSH_AUTOSUGGEST_MANUAL_REBIND=1
 
-# Add key binding to accept suggestion and execute immediately
-bindkey '^X' autosuggest-execute
-
 # Set up eza for file/directory listing during completion
 zstyle ':completion:*' file-list-rows-first true
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
