@@ -66,21 +66,26 @@ function _crepo_list_interactive() {
 function _crepo_change_dir() {
     local REPO_BASE="$1"
     local target_repo="$2"
+    local workspace="$3"
     local target_path=""
     
     if [[ -z "$target_repo" ]]; then
         target_path=$(_crepo_list_interactive "$REPO_BASE")
     else
         local repos=$(_crepo_list_repos "$REPO_BASE" | grep -i "/${target_repo}[^/]*$" || echo "")
+        if [[ -n "$workspace" ]]; then
+            repos=$(echo "$repos" | grep "/$workspace/" || echo "")
+        fi
         local repo_count=$(echo "$repos" | grep -c .)
         
         if [[ "$repo_count" -eq 0 ]]; then
             gum style --foreground 196 "No repositories found matching '$target_repo'"
+            [[ -n "$workspace" ]] && gum style --foreground 196 "in workspace '$workspace'"
             return 1
         elif [[ "$repo_count" -eq 1 ]]; then
             target_path="$repos"
         else
-            target_path=$(echo "$repos" |  fzf --ansi \
+            target_path=$(echo "$repos" | fzf --ansi \
                 --preview='eza --icons=always --no-permissions --no-user --no-time {}' \
                 --preview-window=right:40%:wrap:border-rounded \
                 --bind 'ctrl-r:refresh-preview' \
@@ -104,7 +109,10 @@ function _crepo_change_dir() {
 function _crepo_show_help() {
     gum style --foreground 212 "Crepo - Repository Navigation Tool"
     echo
-    gum style --foreground 99 --bold "Usage:" && gum style "crepo {list|l|d|cd|h|help} [REPO_NAME]"
+    gum style --foreground 99 --bold "Usage:" && gum style "crepo [-w WORKSPACE] {list|l|d|cd|h|help} [REPO_NAME]"
+    echo
+    gum style --foreground 99 --bold "Options:"
+    echo "$(gum style --foreground 212 "  -w WORKSPACE")     $(gum style "Filter repositories by workspace (e.g., personal, work)")"
     echo
     gum style --foreground 99 --bold "Commands:"
     echo "$(gum style --foreground 212 "  list, l")          $(gum style "List all repositories and their organizations")"
@@ -115,6 +123,27 @@ function _crepo_show_help() {
 # Main crepo function
 function crepo() {
     local REPO_BASE=~/github
+    local workspace=""
+
+    # Parse options
+    while getopts ":w:" opt; do
+        case ${opt} in
+            w)
+                workspace=$OPTARG
+                ;;
+            \?)
+                gum style --foreground 196 "Invalid option: -$OPTARG"
+                _crepo_show_help
+                return 1
+                ;;
+            :)
+                gum style --foreground 196 "Option -$OPTARG requires an argument"
+                _crepo_show_help
+                return 1
+                ;;
+        esac
+    done
+    shift $((OPTIND -1))
 
     [[ ! -d "$REPO_BASE" ]] && { log_error "Repository base directory does not exist" path="$REPO_BASE"; return 1; }
 
@@ -124,13 +153,17 @@ function crepo() {
             ;;
         d|cd)
             shift
-            _crepo_change_dir "$REPO_BASE" "$1"
+            _crepo_change_dir "$REPO_BASE" "$1" "$workspace"
             ;;
         h|help)
             _crepo_show_help
             ;;
         *)
-            _crepo_list_interactive "$REPO_BASE"
+            if [[ -n "$1" ]]; then
+                _crepo_change_dir "$REPO_BASE" "$1" "$workspace"
+            else
+                _crepo_list_interactive "$REPO_BASE"
+            fi
             ;;
     esac
 }
