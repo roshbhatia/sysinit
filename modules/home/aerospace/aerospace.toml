@@ -112,11 +112,18 @@ automatically-unhide-macos-hidden-apps = false
     alt-k = 'focus up'
     alt-l = 'focus right'
 
-    # See: https://nikitabobko.github.io/AeroSpace/commands#resize
+    # Window resizing
+    alt-shift-h = 'resize width -50'
+    alt-shift-l = 'resize width +50'
+    alt-shift-j = 'resize height +50'
+    alt-shift-k = 'resize height -50'
+    alt-f = 'fullscreen'
+
+    # Base resize commands
     alt-minus = 'resize smart -50'
     alt-equal = 'resize smart +50'
 
-    # See: https://nikitabobko.github.io/AeroSpace/commands#workspace
+    # Workspace management
     alt-1 = 'workspace 1'
     alt-2 = 'workspace 2'
     alt-3 = 'workspace 3'
@@ -145,12 +152,6 @@ automatically-unhide-macos-hidden-apps = false
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#mode
     alt-shift-semicolon = 'mode service'
-
-    # Cycling window resize (50/50 -> 67/33 -> 75/25 -> 25/75 -> 50/50)
-    alt-shift-h = 'exec ~/.config/aerospace/cycle-resize left'
-    alt-shift-l = 'exec ~/.config/aerospace/cycle-resize right'
-    alt-shift-j = 'exec ~/.config/aerospace/cycle-resize top'
-    alt-shift-k = 'exec ~/.config/aerospace/cycle-resize bottom'
 
 # 'service' binding mode declaration.
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes

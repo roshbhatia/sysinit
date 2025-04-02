@@ -11,16 +11,15 @@ print_navigation() {
 
 print_window_management() {
     echo "Window Management:"
-    echo "  alt + ctrl + h     Move window left"
-    echo "  alt + ctrl + j     Move window down"
-    echo "  alt + ctrl + k     Move window up"
-    echo "  alt + ctrl + l     Move window right"
-    echo "  alt + minus        Resize window smaller"
-    echo "  alt + equal        Resize window larger"
-    echo "  alt + shift + h    Cycle resize from left (50-67-75-25-50)"
-    echo "  alt + shift + l    Cycle resize from right (50-67-75-25-50)"
-    echo "  alt + shift + j    Cycle resize from top (50-67-75-25-50)"
-    echo "  alt + shift + k    Cycle resize from bottom (50-67-75-25-50)"
+    echo "  alt + ctrl + h/j/k/l   Move window"
+    echo "  alt + h/j/k/l          Focus window"
+    echo "  alt + shift + h        Decrease width by 50"
+    echo "  alt + shift + l        Increase width by 50"
+    echo "  alt + shift + j        Increase height by 50"
+    echo "  alt + shift + k        Decrease height by 50"
+    echo "  alt + f                Toggle fullscreen"
+    echo "  alt + minus            Decrease window size (smart)"
+    echo "  alt + equal            Increase window size (smart)"
 }
 
 print_layout() {
