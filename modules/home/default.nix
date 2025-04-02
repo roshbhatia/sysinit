@@ -13,6 +13,7 @@
     ./packages.nix
     ./npm.nix
     ./pipx.nix
+    ./aerospace/aerospace.nix
     ./config-extras.nix
   ];
 
