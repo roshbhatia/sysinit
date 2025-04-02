@@ -186,6 +186,38 @@ EOF
       fi
     '';
 
+    postInstall = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      # Source profiles to ensure environment is available
+      [ -f /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh ] && \
+        . /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh
+      [ -f /etc/profile ] && . /etc/profile
+      
+      # Make utils executable
+      echo "1️⃣ Making utils executable..."
+      if [ -d "$HOME/.config/zsh/extras/bin" ]; then
+        sudo chmod +x $HOME/.config/zsh/extras/bin/* && \
+          echo "✅ Utils are now executable"
+      else
+        echo "⚠️  Utils directory not found, skipping..."
+      fi
+
+      # Fix Python linking
+      echo "2️⃣ Fixing Python linking..."
+      if command -v brew >/dev/null 2>&1; then
+        brew unlink python3 2>/dev/null || true
+        if brew link python@3.11; then
+          echo "✅ Python linking fixed"
+        else
+          echo "⚠️  Failed to link python@3.11"
+        fi
+      else
+        echo "⚠️  Homebrew not found, skipping Python linking..."
+      fi
+      
+      echo ""
+      echo "🎉 Setup complete!"
+    '';
+
     # Add rollback instructions after activation completes
     rollbackInfo = lib.hm.dag.entryAfter ["writeBoundary"] ''
       echo ""
@@ -195,15 +227,6 @@ EOF
       echo "   2. Run 'darwin-rebuild --switch-generation X' to roll back to generation X"
       echo "   3. Or restore individual files from backups created during this activation"
       echo "      (backup files have the format: filename.backup-YYYYMMDD-HHMMSS)"
-      echo ""
-      echo "📝 Next Steps:"
-      echo "  Run these commands in your terminal to complete the setup:"
-      echo "   1. Make utils executable:"
-      echo "      sudo chmod +x $HOME/.config/zsh/extras/bin/*"
-      echo ""
-      echo "   2. Fix Python linking to avoid freezing issues:"
-      echo "      brew unlink python3"
-      echo "      brew link python@3.11"
       echo ""
     '';
   };
