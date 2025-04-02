@@ -23,7 +23,7 @@ export LC_ALL=en_US.UTF-8
 export ZSH_DISABLE_COMPFIX="true"
 
 # Source core configurations
-for config in "$XDG_CONFIG_HOME/zsh"/{style,fzf,completions,notifications,homebrew}.sh; do
+for config in "$XDG_CONFIG_HOME/zsh"/{style,fzf,completions,notifications,homebrew,shift-select}.sh; do
   [ -f "$config" ] && source "$config"
 done
 

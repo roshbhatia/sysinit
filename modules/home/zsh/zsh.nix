@@ -66,6 +66,7 @@
     "zsh/notifications.sh".source = ./notifications.sh;
     "zsh/homebrew.sh".source = ./homebrew.sh;
     "zsh/style.sh".source = ./style.sh;
+    "zsh/shift-select.sh".source = ./shift-select.sh;
 
     # Make loglib available in extras directory too
     "zsh/extras/loglib.sh".source = ./loglib.sh;
