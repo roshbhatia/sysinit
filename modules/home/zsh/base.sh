@@ -14,72 +14,52 @@
 #      |  |:/        /__/:/       \  \:\        \  \:\        \  \::/
 #      |__|/         \__\/         \__\/         \__\/         \__\/
 
-# Skip all initialization for non-interactive shells
-[[ ! -o interactive ]] && return
-
 # General settings
+[ -f "$XDG_CONFIG_HOME/zsh/paths.sh" ] && source "$XDG_CONFIG_HOME/zsh/paths.sh"
+
+unset MAILCHECK
 export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export ZSH_DISABLE_COMPFIX="true"
-unset MAILCHECK
 
-# Fast compinit with cached completions
-autoload -Uz compinit
-if [[ -n ${ZDOTDIR}/.zcompdump(#qN.mh+24) ]]; then
-  # Only check cache once per day
-  compinit -i -C
-else
-  compinit -i
-fi
+# Source core configurations
+for config in "$XDG_CONFIG_HOME/zsh"/{style,fzf,completions,notifications,homebrew}.sh; do
+  [ -f "$config" ] && source "$config"
+done
 
-# Async load tool initializations
-async_init() {
-  # Source paths first since other configs might need them
-  [ -f "$XDG_CONFIG_HOME/zsh/paths.sh" ] && source "$XDG_CONFIG_HOME/zsh/paths.sh"
+# Source logging library first
+[ -f "$XDG_CONFIG_HOME/zsh/loglib.sh" ] && source "$XDG_CONFIG_HOME/zsh/loglib.sh"
 
-  # Load core configs asynchronously
-  {
-    for config in "$XDG_CONFIG_HOME/zsh"/{style,fzf,notifications,homebrew}.sh; do
-      [ -f "$config" ] && source "$config"
-    done
-    
-    # Source additional configs
-    [ -f ~/.zshenv ] && source ~/.zshenv
-    [ -f ~/.zshutils ] && source ~/.zshutils
-  } &!
-}
+# Load loglib in extras if it exists
+[ -f "$XDG_CONFIG_HOME/zsh/extras/loglib.sh" ] && source "$XDG_CONFIG_HOME/zsh/extras/loglib.sh"
 
-# Lazy load function
-function lazy_load() {
-  local cmd="$1"
-  shift
-  if command -v "$cmd" &> /dev/null; then
-    eval "$("$cmd" "$@")"
+# Source zshextras
+[ -f ~/.zshextras ] && source ~/.zshextras
+
+# Load utility modules from extras directory
+for module in $XDG_CONFIG_HOME/zsh/extras/*.sh; do
+  if [[ -f "$module" && "$module" != "$XDG_CONFIG_HOME/zsh/extras/loglib.sh" ]]; then
+    source "$module"
   fi
-}
+done
 
-# Lazy load tools on first use
-direnv() { unfunction direnv && lazy_load direnv hook zsh; direnv "$@" }
-gh() { unfunction gh && lazy_load gh copilot alias -- zsh; gh "$@" }
-is() { unfunction is && lazy_load is init zsh; is "$@" }
+# Tool initializations
+command -v direnv &> /dev/null && _evalcache direnv hook zsh
+command -v gh &> /dev/null && _evalcache gh copilot alias -- zsh
+command -v starship &> /dev/null && _evalcache starship init zsh
 
-# Critical UI elements load immediately
-command -v starship &> /dev/null && eval "$(starship init zsh)"
-
-# Disable ctrl+s freeze
+# Disable ctrl+s to freeze terminal
 stty stop undef
 
-# Run macchina only in main pane and after prompt
-if [ "$WEZTERM_PANE" = "0" ]; then
-  function precmd() {
-    if [ -n "$MACCHINA_THEME" ]; then
-      macchina --theme "$MACCHINA_THEME"
-    else
-      macchina --theme rosh
-    fi
-    unfunction precmd
-  }
-fi
+# Source additional configs if they exist
+[ -f ~/.zshenv ] && source ~/.zshenv
+[ -f ~/.zshutils ] && source ~/.zshutils
 
-# Initialize async loading
-async_init
+# Run macchina in WezTerm's main pane
+if [ "$WEZTERM_PANE" = "0" ]; then
+  if [ -n "$MACCHINA_THEME" ]; then
+    macchina --theme "$MACCHINA_THEME"
+  else
+    macchina --theme rosh
+  fi
+fi
