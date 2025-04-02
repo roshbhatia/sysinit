@@ -8,4 +8,8 @@
   xdg.configFile."zsh/extras/bin/aerospace-help" = {
     source = ./aerospace-help.sh;
   };
+
+  xdg.configFile."aerospace/cycle-resize" = {
+    source = ./cycle-resize.sh;
+  };
 }
