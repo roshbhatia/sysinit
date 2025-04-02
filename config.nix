@@ -31,8 +31,14 @@
     path = "wall/pain.jpeg";
   };
 
-  # Files to install during system activation
-  # Each entry must have a source and destination
+  pipx = {
+    additionalPackages = [];
+  };
+
+  npm = {
+    additionalPackages = [];
+  };
+
   install = [
     # Test file for validation
     {
