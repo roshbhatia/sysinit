@@ -35,6 +35,7 @@ let
     "fd"
     "glow"
     "gum"
+    "gettext"
     "helm"
     "kubectl"
     "kubecolor"

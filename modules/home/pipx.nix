@@ -5,11 +5,7 @@ let
                       then userConfig.pipx.additionalPackages
                       else [];
 
-  basePackages = [
-    "black"
-    "flake8"
-    "poetry"
-  ];
+  basePackages = [];
 
   allPackages = basePackages ++ additionalPackages;
 in
