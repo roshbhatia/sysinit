@@ -91,14 +91,14 @@ config.keys = { -- Word navigation
     key = 'LeftArrow',
     mods = 'CMD|SHIFT',
     action = act.SendKey {
-        key = 'LeftArrow',
+        key = 'b',
         mods = 'ALT|SHIFT',
     }
 }, {
     key = 'RightArrow',
     mods = 'CMD|SHIFT',
     action = act.SendKey {
-        key = 'RightArrow',
+        key = 'f',
         mods = 'ALT|SHIFT',
     }
 }, {
@@ -106,15 +106,15 @@ config.keys = { -- Word navigation
     key = 'UpArrow',
     mods = 'CMD|SHIFT',
     action = act.SendKey {
-        key = 'e',
-        mods = 'CTRL|SHIFT',
+        key = 'Home',
+        mods = 'SHIFT',
     }
 }, {
     key = 'DownArrow',
     mods = 'CMD|SHIFT',
     action = act.SendKey {
-        key = 'a',
-        mods = 'CTRL|SHIFT',
+        key = 'End',
+        mods = 'SHIFT',
     }
 }, {
     key = 'd',
