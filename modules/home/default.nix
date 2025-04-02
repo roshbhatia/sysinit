@@ -11,6 +11,8 @@
     ./wezterm/wezterm.nix
     ./zsh/zsh.nix
     ./packages.nix
+    ./npm.nix
+    ./pipx.nix
     ./config-extras.nix
   ];
 
