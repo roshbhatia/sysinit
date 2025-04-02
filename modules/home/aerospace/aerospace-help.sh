@@ -11,12 +11,12 @@ print_navigation() {
 
 print_window_management() {
     echo "Window Management:"
-    echo "  alt + shift + h     Move window left"
-    echo "  alt + shift + j     Move window down"
-    echo "  alt + shift + k     Move window up"
-    echo "  alt + shift + l     Move window right"
-    echo "  alt + minus         Resize window smaller"
-    echo "  alt + equal         Resize window larger"
+    echo "  alt + ctrl + h     Move window left"
+    echo "  alt + ctrl + j     Move window down"
+    echo "  alt + ctrl + k     Move window up"
+    echo "  alt + ctrl + l     Move window right"
+    echo "  alt + minus        Resize window smaller"
+    echo "  alt + equal        Resize window larger"
 }
 
 print_layout() {

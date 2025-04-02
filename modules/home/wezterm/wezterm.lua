@@ -56,120 +56,36 @@ config.hide_tab_bar_if_only_one_tab = false
 config.use_fancy_tab_bar = false
 
 -- Keybindings
-config.keys = { -- Word navigation
-{
-    key = 'LeftArrow',
-    mods = 'ALT',
-    action = act.SendKey {
-        key = 'b',
-        mods = 'ALT'
-    }
-}, {
-    key = 'RightArrow',
-    mods = 'ALT',
-    action = act.SendKey {
-        key = 'f',
-        mods = 'ALT'
-    }
-}, {
-    -- Character selection with Shift
-    key = 'LeftArrow',
-    mods = 'SHIFT',
-    action = act.SendKey {
-        key = 'LeftArrow',
-        mods = 'SHIFT',
-    }
-}, {
-    key = 'RightArrow',
-    mods = 'SHIFT',
-    action = act.SendKey {
-        key = 'RightArrow',
-        mods = 'SHIFT',
-    }
-}, {
-    -- Word selection with CMD+SHIFT
-    key = 'LeftArrow',
-    mods = 'CMD|SHIFT',
-    action = act.SendKey {
-        key = 'b',
-        mods = 'ALT|SHIFT',
-    }
-}, {
-    key = 'RightArrow',
-    mods = 'CMD|SHIFT',
-    action = act.SendKey {
-        key = 'f',
-        mods = 'ALT|SHIFT',
-    }
-}, {
-    -- Line selection with CMD+SHIFT Up/Down
-    key = 'UpArrow',
-    mods = 'CMD|SHIFT',
-    action = act.SendKey {
-        key = 'Home',
-        mods = 'SHIFT',
-    }
-}, {
-    key = 'DownArrow',
-    mods = 'CMD|SHIFT',
-    action = act.SendKey {
-        key = 'End',
-        mods = 'SHIFT',
-    }
-}, {
-    key = 'd',
-    mods = 'CMD|SHIFT',
-    action = act.SplitVertical {
-        domain = 'CurrentPaneDomain'
-    }
-}, {
-    key = 'd',
-    mods = 'CMD',
-    action = act.SplitHorizontal {
-        domain = 'CurrentPaneDomain'
-    }
-}, {
-    key = 'k',
-    mods = 'CMD',
-    action = act.ClearScrollback 'ScrollbackAndViewport'
-}, {
-    key = 'w',
-    mods = 'CMD',
-    action = act.CloseCurrentPane {
-        confirm = false
-    }
-}, {
-    key = 'w',
-    mods = 'CMD|SHIFT',
-    action = act.CloseCurrentTab {
-        confirm = false
-    }
-}, {
-    -- Pane navigation with ALT+SHIFT
-    key = 'LeftArrow',
-    mods = 'ALT|SHIFT',
-    action = act.ActivatePaneDirection 'Left'
-}, {
-    key = 'RightArrow',
-    mods = 'ALT|SHIFT',
-    action = act.ActivatePaneDirection 'Right'
-}, {
-    key = 'UpArrow',
-    mods = 'ALT|SHIFT',
-    action = act.ActivatePaneDirection 'Up'
-}, {
-    key = 'DownArrow',
-    mods = 'ALT|SHIFT',
-    action = act.ActivatePaneDirection 'Down'
-}, {
-    key = 'p',
-    mods = 'CMD|SHIFT',
-    action = act.ActivateCommandPalette
-}, {
-    key = 'f',
-    mods = 'CMD|SHIFT',
-    action = wezterm.action.ActivateCopyMode
-}}
+config.keys = {
+    -- Word navigation
+    { key = 'LeftArrow', mods = 'ALT', action = act.SendKey { key = 'b', mods = 'ALT' } },
+    { key = 'RightArrow', mods = 'ALT', action = act.SendKey { key = 'f', mods = 'ALT' } },
+
+    -- Text selection with ALT+SHIFT
+    { key = 'LeftArrow', mods = 'ALT|SHIFT', action = act.SendKey { key = 'LeftArrow', mods = 'SHIFT|ALT' } },
+    { key = 'RightArrow', mods = 'ALT|SHIFT', action = act.SendKey { key = 'RightArrow', mods = 'SHIFT|ALT' } },
+    { key = 'h', mods = 'ALT|SHIFT', action = act.SendKey { key = 'LeftArrow', mods = 'SHIFT' } },
+    { key = 'l', mods = 'ALT|SHIFT', action = act.SendKey { key = 'RightArrow', mods = 'SHIFT' } },
+    { key = 'k', mods = 'ALT|SHIFT', action = act.SendKey { key = 'UpArrow', mods = 'SHIFT' } },
+    { key = 'j', mods = 'ALT|SHIFT', action = act.SendKey { key = 'DownArrow', mods = 'SHIFT' } },
+
+    -- Pane management
+    { key = 'd', mods = 'CMD|SHIFT', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
+    { key = 'd', mods = 'CMD', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
+    { key = 'k', mods = 'CMD', action = act.ClearScrollback 'ScrollbackAndViewport' },
+    { key = 'w', mods = 'CMD', action = act.CloseCurrentPane { confirm = false } },
+    { key = 'w', mods = 'CMD|SHIFT', action = act.CloseCurrentTab { confirm = false } },
+
+    -- Pane navigation with CMD+arrows
+    { key = 'LeftArrow', mods = 'CMD', action = act.ActivatePaneDirection 'Left' },
+    { key = 'RightArrow', mods = 'CMD', action = act.ActivatePaneDirection 'Right' },
+    { key = 'UpArrow', mods = 'CMD', action = act.ActivatePaneDirection 'Up' },
+    { key = 'DownArrow', mods = 'CMD', action = act.ActivatePaneDirection 'Down' },
+
+    -- Special commands
+    { key = 'p', mods = 'CMD|SHIFT', action = act.ActivateCommandPalette },
+    { key = 'f', mods = 'CMD|SHIFT', action = wezterm.action.ActivateCopyMode }
+}
 
 wezterm.on("gui-startup", function()
     local tab, pane, window = wezterm.mux.spawn_window {}
