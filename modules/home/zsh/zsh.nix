@@ -7,7 +7,7 @@
     enableCompletion = true;
     syntaxHighlighting.enable = true;
     historySubstringSearch.enable = true;
-    enableAutosuggestions = true;
+    autosuggestion.enable = true;
 
     history = {
       size = 50000;
@@ -19,6 +19,8 @@
     };
     
     shellAliases = {
+      "....." = "cd ../../../..";
+      "...." = "cd ../../..";
       "..." = "cd ../..";
       ".." = "cd ..";
       "~" = "cd ~";
