@@ -56,6 +56,11 @@
     "zsh/base.sh".source = ./base.sh;
     "zsh/paths.sh".source = ./paths.sh;
     "zsh/loglib.sh".source = ./loglib.sh;
+    "zsh/completions.sh".source = ./completions.sh;
+    "zsh/fzf.sh".source = ./fzf.sh;
+    "zsh/notifications.sh".source = ./notifications.sh;
+    "zsh/homebrew.sh".source = ./homebrew.sh;
+    "zsh/style.sh".source = ./style.sh;
     
     # Make loglib available in extras directory too
     "zsh/extras/loglib.sh".source = ./loglib.sh;
