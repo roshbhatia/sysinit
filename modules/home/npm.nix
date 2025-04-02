@@ -26,9 +26,15 @@ in
     after = [ "writeBoundary" ];
     before = [];
     data = ''
+      # Handle unbound variables
+      set +u
+      
       # Source user profile to ensure npm is available
-      . /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh || true
-      . /etc/profile
+      [ -f /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh ] && \
+        . /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh
+      [ -f /etc/profile ] && . /etc/profile
+      
+      set -u
       
       echo "📦 Setting up NPM packages..."
       mkdir -p ${npmGlobalDir}

@@ -14,9 +14,15 @@ in
     after = [ "writeBoundary" ];
     before = [];
     data = ''
+      # Handle unbound variables
+      set +u
+      
       # Source Homebrew and user profile
-      eval "$(/opt/homebrew/bin/brew shellenv)"
-      . /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh || true
+      [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+      [ -f /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh ] && \
+        . /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh
+      
+      set -u
       
       echo "🐍 Setting up Pipx packages..."
       
