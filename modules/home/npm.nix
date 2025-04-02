@@ -38,7 +38,19 @@ in
       echo "📦 Setting up NPM packages..."
       mkdir -p ${npmGlobalDir}
       
-      # Install npm packages globally
+      # Get list of currently installed packages
+      echo "🔍 Checking for unmanaged packages..."
+      INSTALLED_PACKAGES=$(npm list -g --depth=0 --json | jq -r '.dependencies | keys[]' 2>/dev/null)
+      
+      # Uninstall packages not in our managed list
+      for package in $INSTALLED_PACKAGES; do
+        if ! echo ${lib.escapeShellArgs allPackages} | grep -q "$package"; then
+          echo "🗑️  Uninstalling unmanaged package $package..."
+          npm uninstall -g "$package"
+        fi
+      done
+      
+      # Install our managed packages
       for package in ${lib.escapeShellArgs allPackages}; do
         if ! npm list -g "$package" &>/dev/null; then
           echo "🚀 Installing $package globally..."
