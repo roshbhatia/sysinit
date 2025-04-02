@@ -4,8 +4,6 @@ let
   # Use wallpaper from userConfig
   wallpaperPath = "${homeDirectory}/.wallpaper";
 in {
-  environment.variables.EDITOR = "code --wait";
-
   system = {
     defaults = {
       NSGlobalDomain = {

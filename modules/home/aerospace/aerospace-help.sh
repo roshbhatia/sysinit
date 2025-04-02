@@ -43,7 +43,7 @@ print_mode() {
 
 print_service() {
     echo "Service Mode Commands:"
-    echo "  backspace           Close all windows except current"
+    echo "  backspace          Close all windows except current"
     echo "  up/down            Volume control"
     echo "  shift + down       Mute volume"
 }

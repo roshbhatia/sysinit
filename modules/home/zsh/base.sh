@@ -22,6 +22,7 @@ export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export ZSH_DISABLE_COMPFIX="true"
 export PAGER="bat --pager=always --color=always"
+export EDITOR="nvim"
 
 # Source core configurations
 for config in "$XDG_CONFIG_HOME/zsh"/{style,fzf,completions,notifications,homebrew,shift-select}.sh; do
