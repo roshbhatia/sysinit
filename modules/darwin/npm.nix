@@ -5,29 +5,36 @@ let
                       then userConfig.npm.additionalPackages
                       else [];
 
-  basePackages = with pkgs; [
-    nodePackages.typescript-language-server
-    nodePackages.yaml-language-server
-    nodePackages.prettier
-    nodePackages.typescript
-    nodePackages."@microsoft/inshellisense"
+  basePackages = [
+    "@microsoft/inshellisense"
+    "typescript-language-server"
+    "prettier"
+    "typescript"
   ];
 
   allPackages = basePackages ++ additionalPackages;
-
-  # Use $HOME instead of config.home.homeDirectory
   npmGlobalDir = "$HOME/.npm-global";
 in
 {
-  home.packages = allPackages;
+  home.file.".npmrc".text = ''
+    prefix=${npmGlobalDir}
+  '';
 
   home.sessionVariables.NPM_CONFIG_PREFIX = npmGlobalDir;
   
-  home.activation.createNpmGlobalDir = {
+  home.activation.npmPackages = {
     after = [ "writeBoundary" ];
     before = [];
     data = ''
       mkdir -p ${npmGlobalDir}
+      
+      # Install npm packages globally
+      for package in ${lib.escapeShellArgs allPackages}; do
+        if ! npm list -g "$package" &>/dev/null; then
+          echo "Installing $package globally..."
+          npm install -g "$package"
+        fi
+      done
     '';
   };
 }
