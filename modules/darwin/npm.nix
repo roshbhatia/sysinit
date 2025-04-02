@@ -1,4 +1,4 @@
-{pkgs, lib, config, userConfig ? {}, ...}:
+{ pkgs, lib, config, userConfig ? {}, ... }:
 
 let
   additionalPackages = if userConfig ? npm && userConfig.npm ? additionalPackages
@@ -20,7 +20,12 @@ in
 
   home.sessionVariables.NPM_CONFIG_PREFIX = "${config.home.homeDirectory}/.npm-global";
   
-  home.activation.createNpmGlobalDir = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.npm-global
-  '';
+  # Use plain home.activation without lib.hm
+  home.activation.createNpmGlobalDir = {
+    after = [ "writeBoundary" ];
+    before = [];
+    data = ''
+      $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.npm-global
+    '';
+  };
 }
