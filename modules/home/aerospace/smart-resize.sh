@@ -31,15 +31,15 @@ target_size=$(awk "BEGIN {printf \"%.0f\", $BASE_SIZE * $new_size/100}")
 
 case $direction in
     "left")
-        aerospace-command "resize smart-opposite $target_size"
+        aerospace resize smart-opposite "$target_size"
         ;;
     "right")
-        aerospace-command "resize smart-opposite $target_size"
+        aerospace resize smart-opposite "$target_size"
         ;;
     "up")
-        aerospace-command "resize smart $target_size"
+        aerospace resize smart "$target_size"
         ;;
     "down")
-        aerospace-command "resize smart $target_size"
+        aerospace resize smart "$target_size"
         ;;
 esac
