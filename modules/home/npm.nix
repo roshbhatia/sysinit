@@ -6,7 +6,6 @@ let
                       else [];
 
   basePackages = [
-    "@microsoft/inshellisense"
     "typescript-language-server"
     "prettier"
     "typescript"
