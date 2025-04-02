@@ -25,24 +25,21 @@ esac
 # Save new size for next time
 echo "$new_size" > "$LAST_RESIZE_FILE"
 
-# Convert percentage to decimal
-size_decimal=$(echo "scale=3; $new_size/100" | bc)
+# Use 1000 pixels as base size and calculate the target size
+BASE_SIZE=1000
+target_size=$(awk "BEGIN {printf \"%.0f\", $BASE_SIZE * $new_size/100}")
 
 case $direction in
     "left")
-        aerospace move left
-        aerospace resize width relative "$size_decimal"
+        aerospace-command "resize smart-opposite $target_size"
         ;;
     "right")
-        aerospace move right
-        aerospace-command resize width relative "$size_decimal"
+        aerospace-command "resize smart-opposite $target_size"
         ;;
     "up")
-        aerospace-command move up
-        aerospace-command resize height relative "$size_decimal"
+        aerospace-command "resize smart $target_size"
         ;;
     "down")
-        aerospace-command move down
-        aerospace-command resize height relative "$size_decimal"
+        aerospace-command "resize smart $target_size"
         ;;
 esac
