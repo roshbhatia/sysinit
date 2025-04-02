@@ -28,7 +28,7 @@ in {
       };
       spaces = {
         spans-displays = false;
-      }
+      };
       finder = {
         AppleShowAllExtensions = true;
         QuitMenuItem = true;
