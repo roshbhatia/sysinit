@@ -27,7 +27,7 @@ path.add.safe() {
       log_debug "Added $dir to PATH"
     fi
   else
-    log_warn "Directory $dir does not exist, skipping PATH addition"
+    log_debug "Directory $dir does not exist, skipping PATH addition"
   fi
 }
 
