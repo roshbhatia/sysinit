@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=all
 
-LOGO='       ,___          .-;\n       `"-.`\_...._/`.\`\n    ,      \        /\n .-'\'' '',    / ()   ()\\\n`'\''._   \  /()    .  (|\n    > .'\'' ;,     -'\''- /\n   / <   |;,     __;;\n   '\''-.'\''.-.|  , \    , \\\n      `>.|;, \_)    \_)\n       `-;     ,    /\n          \    /   <\n           '\''. <`'\'''-,_)\n            '\''._)'
-
 show_help() {
-    echo -e "$LOGO"
     echo -e "\nCRD Browser - Interactive Kubernetes CRD Explorer"
     echo "Usage: crdbrowse <crd-url>"
     echo -e "\nKeys:"
