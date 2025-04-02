@@ -147,10 +147,10 @@ automatically-unhide-macos-hidden-apps = false
     alt-shift-semicolon = 'mode service'
 
     # Cycling window resize (50/50 -> 67/33 -> 75/25 -> 25/75 -> 50/50)
-    alt-shift-h = 'exec-and-emit-stdout ~/.config/aerospace/cycle-resize left'
-    alt-shift-l = 'exec-and-emit-stdout ~/.config/aerospace/cycle-resize right'
-    alt-shift-j = 'exec-and-emit-stdout ~/.config/aerospace/cycle-resize top'
-    alt-shift-k = 'exec-and-emit-stdout ~/.config/aerospace/cycle-resize bottom'
+    alt-shift-h = 'exec ~/.config/aerospace/cycle-resize left'
+    alt-shift-l = 'exec ~/.config/aerospace/cycle-resize right'
+    alt-shift-j = 'exec ~/.config/aerospace/cycle-resize top'
+    alt-shift-k = 'exec ~/.config/aerospace/cycle-resize bottom'
 
 # 'service' binding mode declaration.
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes

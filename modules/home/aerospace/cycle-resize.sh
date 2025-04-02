@@ -37,15 +37,15 @@ opposite_decimal=$(echo "scale=2; 1-$size_decimal" | bc)
 
 case $direction in
     "left")
-        echo "resize_window_relative { width = $size_decimal, x = 0 }"
+        echo "resize_window_relative { width = $size_decimal, x = 0 }" | aerospace-command
         ;;
     "right")
-        echo "resize_window_relative { width = $size_decimal, x = $opposite_decimal }"
+        echo "resize_window_relative { width = $size_decimal, x = $opposite_decimal }" | aerospace-command
         ;;
     "top")
-        echo "resize_window_relative { height = $size_decimal, y = 0 }"
+        echo "resize_window_relative { height = $size_decimal, y = 0 }" | aerospace-command
         ;;
     "bottom")
-        echo "resize_window_relative { height = $size_decimal, y = $opposite_decimal }"
+        echo "resize_window_relative { height = $size_decimal, y = $opposite_decimal }" | aerospace-command
         ;;
 esac
