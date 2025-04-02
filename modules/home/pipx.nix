@@ -10,8 +10,18 @@ let
   allPackages = basePackages ++ additionalPackages;
 in
 {
-  programs.pipx = {
-    enable = true;
-    packages = allPackages;
+  # Instead of using home-manager's pipx module, create an activation script
+  home.activation.pipxPackages = {
+    after = [ "writeBoundary" ];
+    before = [];
+    data = ''
+      # Install packages using pipx if they're not already installed
+      for package in ${lib.escapeShellArgs allPackages}; do
+        if ! pipx list | grep -q "$package"; then
+          echo "Installing $package with pipx..."
+          pipx install "$package"
+        fi
+      done
+    '';
   };
 }
