@@ -17,6 +17,10 @@ print_window_management() {
     echo "  alt + ctrl + l     Move window right"
     echo "  alt + minus        Resize window smaller"
     echo "  alt + equal        Resize window larger"
+    echo "  alt + shift + h    Cycle resize from left (50-67-75-25-50)"
+    echo "  alt + shift + l    Cycle resize from right (50-67-75-25-50)"
+    echo "  alt + shift + j    Cycle resize from top (50-67-75-25-50)"
+    echo "  alt + shift + k    Cycle resize from bottom (50-67-75-25-50)"
 }
 
 print_layout() {
