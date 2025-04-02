@@ -14,18 +14,20 @@ let
   ];
 
   allPackages = basePackages ++ additionalPackages;
+
+  # Use $HOME instead of config.home.homeDirectory
+  npmGlobalDir = "$HOME/.npm-global";
 in
 {
   home.packages = allPackages;
 
-  home.sessionVariables.NPM_CONFIG_PREFIX = "${config.home.homeDirectory}/.npm-global";
+  home.sessionVariables.NPM_CONFIG_PREFIX = npmGlobalDir;
   
-  # Use plain home.activation without lib.hm
   home.activation.createNpmGlobalDir = {
     after = [ "writeBoundary" ];
     before = [];
     data = ''
-      $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.npm-global
+      $DRY_RUN_CMD mkdir -p ${npmGlobalDir}
     '';
   };
 }
