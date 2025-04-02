@@ -30,19 +30,19 @@ size_decimal=$(echo "scale=3; $new_size/100" | bc)
 
 case $direction in
     "left")
-        aerospace-command "move left"
-        aerospace-command "resize width relative $size_decimal"
+        aerospace move left
+        aerospace resize width relative "$size_decimal"
         ;;
     "right")
-        aerospace-command "move right"
-        aerospace-command "resize width relative $size_decimal"
+        aerospace move right
+        aerospace-command resize width relative "$size_decimal"
         ;;
     "up")
-        aerospace-command "move up"
-        aerospace-command "resize height relative $size_decimal"
+        aerospace-command move up
+        aerospace-command resize height relative "$size_decimal"
         ;;
     "down")
-        aerospace-command "move down"
-        aerospace-command "resize height relative $size_decimal"
+        aerospace-command move down
+        aerospace-command resize height relative "$size_decimal"
         ;;
 esac
