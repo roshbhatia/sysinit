@@ -14,6 +14,7 @@
     ./npm.nix
     ./pipx.nix
     ./aerospace/aerospace.nix
+    ./cron/default.nix
     ./config-extras.nix
   ];
 

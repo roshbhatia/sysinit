@@ -5,7 +5,15 @@
     source = ./aerospace.toml;
   };
 
-  xdg.configFile."zsh/extras/bin/aerospace-help" = {
+  xdg.configFile."aerospace/aerospace-help" = {
     source = ./aerospace-help.sh;
+  };
+
+  xdg.configFile."aerospace/smart-resize" = {
+    source = ./smart-resize.sh;
+  };
+
+  xdg.configFile."aerospace/update-display-cache" = {
+    source = ./update-display-cache.sh;
   };
 }

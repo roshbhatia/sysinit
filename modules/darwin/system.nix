@@ -18,6 +18,7 @@ in {
       };
       dock = {
         autohide = true;
+        expose-group-apps = true;
         launchanim = true;
         mru-spaces = false;
         orientation = "bottom";
@@ -25,6 +26,9 @@ in {
         show-recents = false;
         tilesize = 30;
       };
+      spaces = {
+        spans-displays = false;
+      }
       finder = {
         AppleShowAllExtensions = true;
         QuitMenuItem = true;

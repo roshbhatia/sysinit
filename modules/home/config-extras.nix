@@ -192,6 +192,8 @@ EOF
         . /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh
       [ -f /etc/profile ] && . /etc/profile
       
+      killall Dock
+
       # Make utils executable
       echo "1️⃣ Making utils executable..."
       if [ -d "$HOME/.config/zsh/extras/bin" ]; then
