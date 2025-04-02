@@ -27,7 +27,7 @@ in
     after = [ "writeBoundary" ];
     before = [];
     data = ''
-      $DRY_RUN_CMD mkdir -p ${npmGlobalDir}
+      mkdir -p ${npmGlobalDir}
     '';
   };
 }
