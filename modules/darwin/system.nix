@@ -15,7 +15,7 @@ in {
         InitialKeyRepeat = 15;
       };
       dock = {
-        autohide = true;
+        autohide = false;
         expose-group-apps = true;
         launchanim = true;
         mru-spaces = false;
