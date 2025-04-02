@@ -3,19 +3,15 @@
 CACHE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/aerospace"
 LAST_RESIZE_FILE="$CACHE_DIR/last_resize"
 DISPLAY_INFO="$CACHE_DIR/display_info"
-mkdir -p "$CACHE_DIR"
+TIMEOUT=5  # Seconds before sequence expires
 
-# Initialize or read last size
-if [ ! -f "$LAST_RESIZE_FILE" ]; then
-    echo "25" > "$LAST_RESIZE_FILE"
-fi
+mkdir -p "$CACHE_DIR"
 
 direction=$1
 
-# Get current monitor and encode it
+# Get current monitor width
 current_monitor=$(aerospace list-monitors | grep "$(aerospace list-workspaces --focused)" | cut -d'|' -f2 | tr -d ' ' | base64)
 
-# Get monitor resolution from CSV using base64 encoded name
 if [ -f "$DISPLAY_INFO" ]; then
     while IFS=, read -r name width height; do
         name=$(echo "$name" | tr -d '"')
@@ -25,36 +21,47 @@ if [ -f "$DISPLAY_INFO" ]; then
             break
         fi
     done < "$DISPLAY_INFO"
-    [ -z "$BASE_SIZE" ] && BASE_SIZE=1000
+    [ -z "$BASE_SIZE" ] && BASE_SIZE=3840  # Default to 4K width
 else
-    BASE_SIZE=1000
+    BASE_SIZE=3840
 fi
 
-# Read current size and calculate delta as percentage of BASE_SIZE
-last_size=$(cat "$LAST_RESIZE_FILE")
+# Check if we should start a new sequence
+current_time=$(date +%s)
+if [ -f "$LAST_RESIZE_FILE" ]; then
+    read -r last_size last_time < "$LAST_RESIZE_FILE" 2>/dev/null
+    if [ -z "$last_time" ] || [ $((current_time - last_time)) -gt $TIMEOUT ]; then
+        aerospace balance-sizes
+        last_size="balance"
+    fi
+else
+    aerospace balance-sizes
+    last_size="balance"
+fi
+
+# Calculate next width based on current size
 case $last_size in
-    "25") new_size="33"; delta="+$(awk "BEGIN {printf \"%.0f\", $BASE_SIZE * 0.08}")" ;;
-    "33") new_size="50"; delta="+$(awk "BEGIN {printf \"%.0f\", $BASE_SIZE * 0.17}")" ;;
-    "50") new_size="67"; delta="+$(awk "BEGIN {printf \"%.0f\", $BASE_SIZE * 0.17}")" ;;
-    "67") new_size="75"; delta="+$(awk "BEGIN {printf \"%.0f\", $BASE_SIZE * 0.08}")" ;;
-    "75") new_size="25"; delta="-$(awk "BEGIN {printf \"%.0f\", $BASE_SIZE * 0.50}")" ;;
-    *) new_size="25"; delta="-$(awk "BEGIN {printf \"%.0f\", $BASE_SIZE * 0.50}")" ;;
+    "balance") new_size="25"; target_width=$((BASE_SIZE * 25 / 100)) ;;
+    "25") new_size="33"; target_width=$((BASE_SIZE * 33 / 100)) ;;
+    "33") new_size="50"; target_width=$((BASE_SIZE * 50 / 100)) ;;
+    "50") new_size="67"; target_width=$((BASE_SIZE * 67 / 100)) ;;
+    "67") new_size="75"; target_width=$((BASE_SIZE * 75 / 100)) ;;
+    "75") new_size="balance"; target_width=0 ;;
+    *) new_size="balance"; target_width=0 ;;
 esac
 
-# Save new size for next time
-echo "$new_size" > "$LAST_RESIZE_FILE"
+# Save new size and timestamp
+echo "$new_size $current_time" > "$LAST_RESIZE_FILE"
 
-case $direction in
-    "left")
-        aerospace resize smart-opposite "$delta"
-        ;;
-    "right")
-        aerospace resize smart-opposite "$delta"
-        ;;
-    "up")
-        aerospace resize smart "$delta"
-        ;;
-    "down")
-        aerospace resize smart "$delta"
-        ;;
-esac
+if [ "$new_size" = "balance" ]; then
+    aerospace balance-sizes
+else
+    case $direction in
+        "left"|"right")
+            aerospace resize width "$target_width"
+            ;;
+        "up"|"down")
+            aerospace resize width "$target_width"
+            ;;
+    esac
+fi

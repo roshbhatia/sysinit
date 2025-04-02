@@ -18,5 +18,5 @@ if [ $? -eq 0 ] && [ ! -z "$display_info" ]; then
     echo "$display_info" > "$DISPLAY_CACHE"
 fi
 
-# Get detailed display information using system_profiler, normalize names, and output as CSV
-system_profiler SPDisplaysDataType -json | jq -r '.SPDisplaysDataType[0].spdisplays_ndrvs[] | [(.["_name"] | gsub("\\s+"; "") | @base64), (.["_spdisplays_pixels"] | split(" x ") | .[0]), (.["_spdisplays_pixels"] | split(" x ") | .[1])] | @csv' > "$DISPLAY_INFO"
+# Get display width information and store with base64 encoded names
+system_profiler SPDisplaysDataType -json | jq -r '.SPDisplaysDataType[0].spdisplays_ndrvs[] | [(.["_name"] | gsub("\\s+"; "") | @base64), (.["_spdisplays_pixels"] | split(" x ") | .[0])] | @csv' > "$DISPLAY_INFO"
