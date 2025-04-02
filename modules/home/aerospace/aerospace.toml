@@ -115,8 +115,6 @@ automatically-unhide-macos-hidden-apps = false
     # Window resizing with smart cycling (1/4 -> 1/3 -> 1/2 -> 2/3 -> 3/4)
     alt-shift-h = 'exec-and-forget ~/.config/aerospace/smart-resize left'
     alt-shift-l = 'exec-and-forget ~/.config/aerospace/smart-resize right'
-    alt-shift-k = 'exec-and-forget ~/.config/aerospace/smart-resize up'
-    alt-shift-j = 'exec-and-forget ~/.config/aerospace/smart-resize down'
 
     # Base resize commands
     alt-minus = 'resize smart -50'
