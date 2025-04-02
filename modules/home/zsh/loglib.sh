@@ -1,7 +1,6 @@
 #!/usr/bin/env zsh
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-
 #  888                                                     888 d8b 888      
 #  888                                                     888 Y8P 888      
 #  888                                                     888     888      
