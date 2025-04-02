@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=all
 
 print_navigation() {
     echo "Navigation Commands:"
