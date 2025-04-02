@@ -2,7 +2,6 @@
 
 CACHE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/aerospace"
 LAST_RESIZE_FILE="$CACHE_DIR/last_resize"
-DISPLAY_CACHE="$CACHE_DIR/displaycache"
 mkdir -p "$CACHE_DIR"
 
 # Initialize or read last size
