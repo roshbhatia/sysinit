@@ -24,13 +24,15 @@
       "..." = "cd ../..";
       ".." = "cd ..";
       "~" = "cd ~";
+      
       code = "code-insiders";
-      k = "kubectl";
       kubectl = "kubecolor";
+
       l = "eza --icons=always -1";
       ll = "eza --icons=always -1 -a";
       ls = "eza";
       lt = "eza --icons=always -1 -a -T";
+
       tf = "terraform";
       y = "yazi";
     };
@@ -64,9 +66,10 @@
     "zsh/notifications.sh".source = ./notifications.sh;
     "zsh/homebrew.sh".source = ./homebrew.sh;
     "zsh/style.sh".source = ./style.sh;
-    
+
     # Make loglib available in extras directory too
     "zsh/extras/loglib.sh".source = ./loglib.sh;
+    "zsh/extras/kubectl-aliases.sh".source = ./kubectl-aliases.sh;
 
     # Custom kubectl commands
     "zsh/extras/bin/kubectl-kdesc".source = ./kubectl-kdesc.sh;
