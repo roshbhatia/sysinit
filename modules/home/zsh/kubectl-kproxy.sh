@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
+# shellcheck disable=all
 # kubectl-kproxy: Advanced Kubernetes Service Port Forwarding with Caddy
-# Install in PATH as 'kubectl-kproxy' to use as 'kubectl kproxy'
-
 # 888      .d888                  888 
 # 888     d88P"                   888 
 # 888     888                     888 
