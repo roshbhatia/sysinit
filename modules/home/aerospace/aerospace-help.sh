@@ -13,11 +13,8 @@ print_window_management() {
     echo "Window Management:"
     echo "  alt + ctrl + h/j/k/l   Move window"
     echo "  alt + h/j/k/l          Focus window"
-    echo "  alt + shift + h        Decrease width by 50"
-    echo "  alt + shift + l        Increase width by 50"
-    echo "  alt + shift + j        Increase height by 50"
-    echo "  alt + shift + k        Decrease height by 50"
-    echo "  alt + f                Toggle fullscreen"
+    echo "  alt + shift + h/l      Cycle width (1/4 -> 1/3 -> 1/2 -> 2/3 -> 3/4)"
+    echo "  alt + shift + j/k      Cycle height (1/4 -> 1/3 -> 1/2 -> 2/3 -> 3/4)"
     echo "  alt + minus            Decrease window size (smart)"
     echo "  alt + equal            Increase window size (smart)"
 }

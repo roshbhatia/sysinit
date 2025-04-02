@@ -21,6 +21,7 @@ unset MAILCHECK
 export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export ZSH_DISABLE_COMPFIX="true"
+export PAGER="bat --pager=always --color=always"
 
 # Source core configurations
 for config in "$XDG_CONFIG_HOME/zsh"/{style,fzf,completions,notifications,homebrew,shift-select}.sh; do
