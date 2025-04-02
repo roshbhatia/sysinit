@@ -61,13 +61,13 @@ config.keys = {
     { key = 'LeftArrow', mods = 'ALT', action = act.SendKey { key = 'b', mods = 'ALT' } },
     { key = 'RightArrow', mods = 'ALT', action = act.SendKey { key = 'f', mods = 'ALT' } },
 
-    -- Text selection with ALT+SHIFT
-    { key = 'LeftArrow', mods = 'ALT|SHIFT', action = act.SendKey { key = 'LeftArrow', mods = 'SHIFT|ALT' } },
-    { key = 'RightArrow', mods = 'ALT|SHIFT', action = act.SendKey { key = 'RightArrow', mods = 'SHIFT|ALT' } },
-    { key = 'h', mods = 'ALT|SHIFT', action = act.SendKey { key = 'LeftArrow', mods = 'SHIFT' } },
-    { key = 'l', mods = 'ALT|SHIFT', action = act.SendKey { key = 'RightArrow', mods = 'SHIFT' } },
-    { key = 'k', mods = 'ALT|SHIFT', action = act.SendKey { key = 'UpArrow', mods = 'SHIFT' } },
-    { key = 'j', mods = 'ALT|SHIFT', action = act.SendKey { key = 'DownArrow', mods = 'SHIFT' } },
+    -- Text selection
+    { key = 'LeftArrow', mods = 'ALT|SHIFT', action = act.SelectTextAtMouseCursor 'Word' },
+    { key = 'RightArrow', mods = 'ALT|SHIFT', action = act.SelectTextAtMouseCursor 'Word' },
+    { key = 'h', mods = 'ALT|SHIFT', action = act.SelectTextAtMouseCursor 'Word' },
+    { key = 'l', mods = 'ALT|SHIFT', action = act.SelectTextAtMouseCursor 'Word' },
+    { key = 'k', mods = 'ALT|SHIFT', action = act.SelectTextAtMouseCursor 'Line' },
+    { key = 'j', mods = 'ALT|SHIFT', action = act.SelectTextAtMouseCursor 'Line' },
 
     -- Pane management
     { key = 'd', mods = 'CMD|SHIFT', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
@@ -84,7 +84,8 @@ config.keys = {
 
     -- Special commands
     { key = 'p', mods = 'CMD|SHIFT', action = act.ActivateCommandPalette },
-    { key = 'f', mods = 'CMD|SHIFT', action = wezterm.action.ActivateCopyMode }
+    { key = 'f', mods = 'CMD|SHIFT', action = wezterm.action.ActivateCopyMode },
+    { key = 'r', mods = 'CMD', action = act.ReloadConfiguration }
 }
 
 wezterm.on("gui-startup", function()

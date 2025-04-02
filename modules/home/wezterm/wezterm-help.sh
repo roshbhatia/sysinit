@@ -28,6 +28,7 @@ print_special() {
     echo "  cmd + k           Clear scrollback"
     echo "  cmd + shift + p   Command palette"
     echo "  cmd + shift + f   Copy mode"
+    echo "  cmd + r           Reload configuration"
 }
 
 print_all() {
