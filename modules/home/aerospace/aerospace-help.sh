@@ -13,8 +13,8 @@ print_window_management() {
     echo "Window Management:"
     echo "  alt + ctrl + h/j/k/l   Move window"
     echo "  alt + h/j/k/l          Focus window"
-    echo "  alt + shift + h/l      Cycle width (1/4 -> 1/3 -> 1/2 -> 2/3 -> 3/4)"
-    echo "  alt + shift + j/k      Cycle height (1/4 -> 1/3 -> 1/2 -> 2/3 -> 3/4)"
+    echo "  alt + shift + h/l      Smart-opposite resize (25-33-50-67-75%)"
+    echo "  alt + shift + j/k      Smart resize (25-33-50-67-75%)"
     echo "  alt + minus            Decrease window size (smart)"
     echo "  alt + equal            Increase window size (smart)"
 }
