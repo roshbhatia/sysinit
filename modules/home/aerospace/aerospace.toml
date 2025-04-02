@@ -112,12 +112,11 @@ automatically-unhide-macos-hidden-apps = false
     alt-k = 'focus up'
     alt-l = 'focus right'
 
-    # Window resizing
-    alt-shift-h = 'resize width -50'
-    alt-shift-l = 'resize width +50'
-    alt-shift-j = 'resize height +50'
-    alt-shift-k = 'resize height -50'
-    alt-f = 'fullscreen'
+    # Window resizing with smart cycling (1/4 -> 1/3 -> 1/2 -> 2/3 -> 3/4)
+    alt-shift-h = 'exec-and-forget ~/.config/aerospace/smart-resize.sh left'
+    alt-shift-l = 'exec-and-forget ~/.config/aerospace/smart-resize.sh right'
+    alt-shift-k = 'exec-and-forget ~/.config/aerospace/smart-resize.sh up'
+    alt-shift-j = 'exec-and-forget ~/.config/aerospace/smart-resize.sh down'
 
     # Base resize commands
     alt-minus = 'resize smart -50'
