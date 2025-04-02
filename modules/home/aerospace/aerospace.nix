@@ -5,7 +5,7 @@
     source = ./aerospace.toml;
   };
 
-  xdg.configFile."zsh/extras/bin/aerospace-help.sh" = {
+  xdg.configFile."zsh/extras/bin/aerospace-help" = {
     source = ./aerospace-help.sh;
   };
 }
