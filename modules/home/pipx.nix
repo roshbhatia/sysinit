@@ -1,11 +1,15 @@
-{pkgs, lib, config, userConfig ? {}, ...}:
+{ pkgs, lib, config, userConfig ? {}, ... }:
 
 let
   additionalPackages = if userConfig ? pipx && userConfig.pipx ? additionalPackages
                       then userConfig.pipx.additionalPackages
                       else [];
 
-  basePackages = [];
+  basePackages = [
+    "black"
+    "flake8"
+    "poetry"
+  ];
 
   allPackages = basePackages ++ additionalPackages;
 in
@@ -17,16 +21,28 @@ in
       # Handle unbound variables
       set +u
       
-      # Source Homebrew and user profile
-      [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+      # Source user profile to ensure pipx is available
       [ -f /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh ] && \
         . /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh
+      [ -f /etc/profile ] && . /etc/profile
       
       set -u
       
-      echo "🐍 Setting up Pipx packages..."
+      echo "📦 Setting up PIPX packages..."
       
-      # Install packages using pipx if they're not already installed
+      # Get list of currently installed packages
+      echo "🔍 Checking for unmanaged packages..."
+      INSTALLED_PACKAGES=$(pipx list --json | jq -r '.venvs | keys[]' 2>/dev/null)
+      
+      # Uninstall packages not in our managed list
+      for package in $INSTALLED_PACKAGES; do
+        if ! echo ${lib.escapeShellArgs allPackages} | grep -q "$package"; then
+          echo "🗑️  Uninstalling unmanaged package $package..."
+          pipx uninstall "$package"
+        fi
+      done
+      
+      # Install our managed packages
       for package in ${lib.escapeShellArgs allPackages}; do
         if ! pipx list | grep -q "$package"; then
           echo "🚀 Installing $package with pipx..."
