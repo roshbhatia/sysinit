@@ -71,7 +71,6 @@ require('lazy').setup({
         'nvim-telescope/telescope-fzf-native.nvim',
         build = 'make'
     },
-    { 'jose-elias-alvarez/null-ls.nvim' }, -- For formatting and linting
     { 
         'zbirenbaum/copilot.lua', -- GitHub Copilot integration
         event = 'InsertEnter',

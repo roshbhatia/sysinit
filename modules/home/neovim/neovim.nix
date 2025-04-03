@@ -49,7 +49,6 @@
       copilot-lua
       copilot-cmp
       neoformat
-      null-ls-nvim
       vim-visual-multi
       nvim-treesitter-context
       todo-comments-nvim
