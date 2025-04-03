@@ -59,7 +59,43 @@ require('lazy').setup({
     {
         'Ramilito/kubectl.nvim', -- Kubectl integration
         dependencies = {'nvim-lua/plenary.nvim'}
-    }
+    },
+    -- New plugins for enhanced IDE functionality
+    {
+        'stevearc/aerial.nvim', -- Code outline with LSP symbols
+        dependencies = {'nvim-treesitter/nvim-treesitter'}
+    },
+    { 'nvim-treesitter/nvim-treesitter-textobjects' }, -- Enhanced text objects
+    { 'mhartington/formatter.nvim' }, -- Code formatting
+    { 
+        'nvim-telescope/telescope-fzf-native.nvim',
+        build = 'make'
+    },
+    { 'jose-elias-alvarez/null-ls.nvim' }, -- For formatting and linting
+    { 
+        'zbirenbaum/copilot.lua', -- GitHub Copilot integration
+        event = 'InsertEnter',
+        config = function()
+            require('copilot').setup({
+                suggestion = { enabled = false },
+                panel = { enabled = false },
+            })
+        end
+    },
+    { 
+        'zbirenbaum/copilot-cmp',
+        config = function()
+            require('copilot_cmp').setup()
+        end
+    },
+    { 'f-person/git-blame.nvim' }, -- Git blame integration
+    { 'mg979/vim-visual-multi' }, -- Multiple cursors
+    { 'nvim-treesitter/nvim-treesitter-context' }, -- Show context at top of buffer
+    { 
+        'folke/todo-comments.nvim', -- Highlight and list TODO comments
+        dependencies = {'nvim-lua/plenary.nvim'}
+    },
+    { 'sbdchd/neoformat' } -- Alternative formatter
 }, {lazy = false, version = false})
 
 -- Load configuration modules
@@ -111,7 +147,10 @@ cmp.setup({
         end, {'i', 's'})
     }),
     sources = cmp.config.sources({
-        {name = 'nvim_lsp'}, {name = 'luasnip'}, {name = 'buffer'},
+        {name = 'copilot'},
+        {name = 'nvim_lsp'},
+        {name = 'luasnip'},
+        {name = 'buffer'},
         {name = 'path'}
     }),
     formatting = {
@@ -126,6 +165,102 @@ require('symbols-outline').setup()
 require('trouble').setup()
 require('toggleterm').setup({open_mapping = [[<c-\>]], direction = 'float'})
 
+-- Treesitter setup
+require('nvim-treesitter.configs').setup({
+    ensure_installed = "all",
+    highlight = { enable = true },
+    incremental_selection = { enable = true },
+    indent = { enable = true },
+    textobjects = {
+        select = {
+            enable = true,
+            lookahead = true,
+            keymaps = {
+                ["af"] = "@function.outer",
+                ["if"] = "@function.inner",
+                ["ac"] = "@class.outer",
+                ["ic"] = "@class.inner",
+            },
+        },
+    },
+})
+
+-- Aerial setup (Code outline)
+require('aerial').setup({
+    layout = {
+        default_direction = "right",
+        placement = "edge",
+        width = 30,
+    },
+    keymaps = {
+        ["<leader>to"] = "toggle",
+    },
+})
+
+-- Formatting setup
+require('formatter').setup({
+    filetype = {
+        javascript = {
+            function()
+                return {
+                    exe = "prettier",
+                    args = {"--stdin-filepath", vim.fn.fnameescape(vim.api.nvim_buf_get_name(0))},
+                    stdin = true
+                }
+            end
+        },
+        typescript = {
+            function()
+                return {
+                    exe = "prettier",
+                    args = {"--stdin-filepath", vim.fn.fnameescape(vim.api.nvim_buf_get_name(0))},
+                    stdin = true
+                }
+            end
+        },
+        python = {
+            function()
+                return {
+                    exe = "black",
+                    args = {"-"},
+                    stdin = true
+                }
+            end
+        },
+        rust = {
+            function()
+                return {
+                    exe = "rustfmt",
+                    args = {"--emit=stdout"},
+                    stdin = true
+                }
+            end
+        },
+        go = {
+            function()
+                return {
+                    exe = "gofmt",
+                    stdin = true
+                }
+            end
+        },
+    }
+})
+
+-- Format on save
+vim.cmd([[augroup FormatAutogroup
+  autocmd!
+  autocmd BufWritePost * FormatWrite
+augroup END]])
+
+-- Git blame setup
+require('gitblame').setup({
+    enabled = false,
+})
+
+-- Todo comments
+require('todo-comments').setup()
+
 -- Kubectl setup
 require('kubectl').setup({
     -- Your kubectl config here
@@ -137,6 +272,41 @@ vim.cmd([[
   function StartifyStart()
     execute 'Startify'
   endfunction
+]])
+
+-- Helper to add a newline
+vim.cmd([[
+  function! AddNewLine()
+    let save_cursor = getcurpos()
+    call append(line('.'), '')
+    call setpos('.', save_cursor)
+  endfunction
+
+  function! RemoveNewLine()
+    let current_line = line('.')
+    if current_line < line('$')
+      execute 'normal! J'
+    endif
+  endfunction
+]])
+
+-- Neovim help command
+vim.cmd([[
+  command! NvimHelp !sh ~/.config/nvim/nvim-help.sh
+  command! NvimHelpNav !sh ~/.config/nvim/nvim-help.sh nav
+  command! NvimHelpCode !sh ~/.config/nvim/nvim-help.sh code
+  command! NvimHelpEditor !sh ~/.config/nvim/nvim-help.sh editor
+  command! NvimHelpGit !sh ~/.config/nvim/nvim-help.sh git
+  command! NvimHelpCopilot !sh ~/.config/nvim/nvim-help.sh copilot
+  command! NvimHelpK8s !sh ~/.config/nvim/nvim-help.sh k8s
+]])
+
+-- Define a command palette function
+vim.cmd([[
+  function! CommandPalette()
+    call wilder#start_search()
+  endfunction
+  command! CommandPalette call CommandPalette()
 ]])
 
 -- Keybindings
@@ -179,6 +349,34 @@ vim.api.nvim_set_keymap('n', '<leader>tt', ':TroubleToggle<CR>',
 vim.api.nvim_set_keymap('n', '<leader>so', ':SymbolsOutline<CR>',
                         {noremap = true, silent = true})
 
+-- Format keybindings
+vim.api.nvim_set_keymap('n', '<leader>fm', ':Format<CR>',
+                        {noremap = true, silent = true})
+
+-- Add/remove newline keybindings
+vim.api.nvim_set_keymap('n', '<leader>nl', ':call AddNewLine()<CR>',
+                        {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', '<leader>nld', ':call RemoveNewLine()<CR>',
+                        {noremap = true, silent = true})
+
+-- Git blame keybindings
+vim.api.nvim_set_keymap('n', '<leader>gb', ':GitBlameToggle<CR>',
+                        {noremap = true, silent = true})
+
+-- Command palette
+vim.api.nvim_set_keymap('n', '<leader>p', ':CommandPalette<CR>',
+                        {noremap = true, silent = true})
+
+-- Copilot keybindings
+vim.api.nvim_set_keymap('n', '<leader>cc', ':Copilot toggle<CR>',
+                        {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', '<leader>cs', ':Copilot suggestion<CR>',
+                        {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', '<leader>cd', ':Copilot panel<CR>',
+                        {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', '<leader>cr', ':Copilot chat<CR>',
+                        {noremap = true, silent = true})
+
 -- Kubectl keybindings
 vim.api.nvim_set_keymap('n', '<leader>kl',
                         ':lua require("kubectl").get_logs()<CR>',
@@ -190,6 +388,9 @@ vim.api.nvim_set_keymap('n', '<leader>kd',
                         ':lua require("kubectl").describe()<CR>',
                         {noremap = true, silent = true})
 
--- Default settings
+-- NvimHelp keybindings
+vim.api.nvim_set_keymap('n', '<leader>h', ':NvimHelp<CR>',
+                        {noremap = true, silent = false})
 
+-- Default settings
 if vim.v.argv == 0 then vim.cmd('autocmd VimEnter * StartifyStart') end
