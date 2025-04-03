@@ -27,7 +27,7 @@ config.visual_bell = {
     fade_out_duration_ms = 50
 }
 
-config.color_scheme = "VibrantInk"
+config.color_scheme = "apprentice-bright"
 
 config.colors = {
     visual_bell = '#242529',
