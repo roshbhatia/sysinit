@@ -7,45 +7,30 @@
 
   xdg.configFile."aerospace/aerospace-help" = {
     source = ./aerospace-help.sh;
+    executable = true;
   };
 
   xdg.configFile."aerospace/smart-resize" = {
     source = ./smart-resize.sh;
+    executable = true;
   };
 
   xdg.configFile."aerospace/update-display-cache" = {
     source = ./update-display-cache.sh;
+    executable = true;
   };
   
-  # Register aerospace display cache update in activation script
-  home.activation.aerospaceCron = {
+  # Create aerospace data directory in activation script
+  home.activation.aerospaceSetup = {
     after = [ "writeBoundary" ];
     before = [];
     data = ''
-      # Create cron directory if needed
-      mkdir -p $HOME/.cron
+      # Create aerospace data directory
+      mkdir -p "$HOME/.local/share/aerospace"
+      chmod 755 "$HOME/.local/share/aerospace"
       
-      # Create aerospace cron file
-      echo "*/5 * * * * $HOME/.config/aerospace/update-display-cache" > $HOME/.cron/aerospace-display-cache
-      
-      # Make the cron file executable
-      chmod +x $HOME/.cron/aerospace-display-cache
-      
-      # Apply crontab if file exists
-      if [ -f $HOME/.cron/aerospace-display-cache ]; then
-        echo "📋 Installing aerospace display cache cron job..."
-        crontab $HOME/.cron/aerospace-display-cache
-        
-        # Run update-display-cache once to ensure we have fresh display data
-        $HOME/.config/aerospace/update-display-cache
-        
-        # Verify crontab installation
-        if crontab -l | grep -q "update-display-cache"; then
-          echo "✅ Aerospace cron job installed successfully"
-        else
-          echo "❌ Failed to install aerospace cron job"
-        fi
-      fi
+      # Ensure we have the directory for last resize state
+      echo "🚀 Aerospace configuration is ready"
     '';
   };
 }
