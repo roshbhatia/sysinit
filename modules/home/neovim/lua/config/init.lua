@@ -11,7 +11,8 @@ vim.opt.rtp:prepend(lazypath)
 -- Install external plugins
 require('lazy').setup({
     {'kepano/flexoki-neovim', name = 'flexoki'}, 'lewis6991/gitsigns.nvim',
-    'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons', {
+    -- 'nvim-treesitter/nvim-treesitter',
+     'nvim-tree/nvim-web-devicons', {
         'nvim-tree/nvim-tree.lua',
         version = '*',
         lazy = false,
@@ -61,11 +62,11 @@ require('lazy').setup({
         dependencies = {'nvim-lua/plenary.nvim'}
     },
     -- New plugins for enhanced IDE functionality
-    {
-        'stevearc/aerial.nvim', -- Code outline with LSP symbols
-        dependencies = {'nvim-treesitter/nvim-treesitter'}
-    },
-    { 'nvim-treesitter/nvim-treesitter-textobjects' }, -- Enhanced text objects
+    -- {
+    --     'stevearc/aerial.nvim', -- Code outline with LSP symbols
+    --     dependencies = {'nvim-treesitter/nvim-treesitter'}
+    -- },
+    -- { 'nvim-treesitter/nvim-treesitter-textobjects' }, -- Enhanced text objects
     { 'mhartington/formatter.nvim' }, -- Code formatting
     { 
         'nvim-telescope/telescope-fzf-native.nvim',
@@ -89,7 +90,7 @@ require('lazy').setup({
     },
     { 'f-person/git-blame.nvim' }, -- Git blame integration
     { 'mg979/vim-visual-multi' }, -- Multiple cursors
-    { 'nvim-treesitter/nvim-treesitter-context' }, -- Show context at top of buffer
+    -- { 'nvim-treesitter/nvim-treesitter-context' }, -- Show context at top of buffer
     { 
         'folke/todo-comments.nvim', -- Highlight and list TODO comments
         dependencies = {'nvim-lua/plenary.nvim'}
@@ -165,24 +166,24 @@ require('trouble').setup()
 require('toggleterm').setup({open_mapping = [[<c-\>]], direction = 'float'})
 
 -- Treesitter setup
-require('nvim-treesitter.configs').setup({
-    ensure_installed = "all",
-    highlight = { enable = true },
-    incremental_selection = { enable = true },
-    indent = { enable = true },
-    textobjects = {
-        select = {
-            enable = true,
-            lookahead = true,
-            keymaps = {
-                ["af"] = "@function.outer",
-                ["if"] = "@function.inner",
-                ["ac"] = "@class.outer",
-                ["ic"] = "@class.inner",
-            },
-        },
-    },
-})
+-- require('nvim-treesitter.configs').setup({
+--     ensure_installed = "all",
+--     highlight = { enable = true },
+--     incremental_selection = { enable = true },
+--     indent = { enable = true },
+--     textobjects = {
+--         select = {
+--             enable = true,
+--             lookahead = true,
+--             keymaps = {
+--                 ["af"] = "@function.outer",
+--                 ["if"] = "@function.inner",
+--                 ["ac"] = "@class.outer",
+--                 ["ic"] = "@class.inner",
+--             },
+--         },
+--     },
+-- })
 
 -- Aerial setup (Code outline)
 require('aerial').setup({
