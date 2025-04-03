@@ -21,16 +21,17 @@ if [ -f "$DISPLAY_INFO" ]; then
             break
         fi
     done < "$DISPLAY_INFO"
-    [ -z "$BASE_SIZE" ] && BASE_SIZE=3840  # Default to 4K width
+    [ -z "$BASE_SIZE" ] && BASE_SIZE=3440  # Default to realistic width if no match
 else
-    BASE_SIZE=3840
+    BASE_SIZE=3440
 fi
 
 # Check if we should start a new sequence
 current_time=$(date +%s)
 if [ -f "$LAST_RESIZE_FILE" ]; then
-    read -r last_size last_time < "$LAST_RESIZE_FILE" 2>/dev/null
-    if [ -z "$last_time" ] || [ $((current_time - last_time)) -gt $TIMEOUT ]; then
+    read -r last_size last_time last_dir < "$LAST_RESIZE_FILE" 2>/dev/null
+    # Reset the sequence if timeout passed or direction changed
+    if [ -z "$last_time" ] || [ $((current_time - last_time)) -gt $TIMEOUT ] || [ "$last_dir" != "$direction" ]; then
         aerospace balance-sizes
         last_size="balance"
     fi
@@ -50,18 +51,25 @@ case $last_size in
     *) new_size="balance"; target_width=0 ;;
 esac
 
-# Save new size and timestamp
-echo "$new_size $current_time" > "$LAST_RESIZE_FILE"
+# Save new size, timestamp, and direction
+echo "$new_size $current_time $direction" > "$LAST_RESIZE_FILE"
 
 if [ "$new_size" = "balance" ]; then
     aerospace balance-sizes
 else
     case $direction in
-        "left"|"right")
+        "left")
+            # For left, we resize the window to the left
+            aerospace resize width-from-start "$target_width"
+            ;;
+        "right")
+            # For right, we resize the window to the right
             aerospace resize width "$target_width"
             ;;
         "up"|"down")
-            aerospace resize width "$target_width"
+            # For vertical resizing, use height instead of width
+            # This case matches the current keybindings for horizontal only
+            aerospace resize height "$target_width"
             ;;
     esac
 fi
