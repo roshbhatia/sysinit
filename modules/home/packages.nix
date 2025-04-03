@@ -9,6 +9,7 @@
     docker
     fd
     fzf
+    gettext
     gh
     git
     gnugrep
