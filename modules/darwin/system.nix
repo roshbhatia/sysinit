@@ -84,4 +84,12 @@ EOF
       echo "Wallpaper file not found: ${wallpaperPath}"
     fi
   '';
+  
+  # Fix TERM_PROGRAM unbound variable in shell init files
+  environment.etc.zshrc.text = lib.mkAfter ''
+    # Fix TERM_PROGRAM unbound variable issue
+    if [ -z "$TERM_PROGRAM" ]; then
+      export TERM_PROGRAM=""
+    fi
+  '';
 }
