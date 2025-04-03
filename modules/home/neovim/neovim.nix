@@ -25,6 +25,7 @@
       telescope-nvim
       plenary-nvim
       nvim-treesitter
+      nvim-treesitter-textobjects
       
       # UI enhancements
       nvim-web-devicons
@@ -35,6 +36,7 @@
       wilder-nvim
       trouble-nvim
       which-key-nvim
+      aerial-nvim
       
       # Utilities
       gitsigns-nvim
@@ -42,6 +44,16 @@
       nvim-comment
       toggleterm-nvim
       symbols-outline-nvim
+      formatter-nvim
+      telescope-fzf-native-nvim
+      copilot-lua
+      copilot-cmp
+      neoformat
+      null-ls-nvim
+      vim-visual-multi
+      nvim-treesitter-context
+      todo-comments-nvim
+      git-blame-nvim
     ];
   };
   
