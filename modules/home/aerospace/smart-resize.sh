@@ -9,38 +9,95 @@ mkdir -p "$CACHE_DIR"
 
 direction=$1
 
-# Get current monitor width
-current_monitor=$(aerospace list-monitors | grep "$(aerospace list-workspaces --focused)" | cut -d'|' -f2 | tr -d ' ' | base64)
+# First check if display info exists, if not update it
+if [ ! -s "$DISPLAY_INFO" ]; then
+    echo "Display info missing or empty, running update script" >&2
+    bash "$(dirname "$0")/update-display-cache.sh"
+fi
 
-# Debugging: dump monitor name
-echo "Current monitor encoded: $current_monitor" >&2
-
-if [ -f "$DISPLAY_INFO" ]; then
-    # Debug: Show display info content
-    echo "Display info content:" >&2
-    cat "$DISPLAY_INFO" >&2
+# Function to get current screen resolution using screenresolution tool
+get_current_resolution() {
+    # Get focused monitor from aerospace
+    local FOCUSED_INFO=$(aerospace list-monitors --focused --json 2>/dev/null)
+    local FOCUSED_ID=$(echo "$FOCUSED_INFO" | jq -r '.[0]["monitor-id"]' 2>/dev/null)
     
-    # For built-in display, hardcode values if needed
-    if [[ "$(aerospace list-monitors | grep "$(aerospace list-workspaces --focused)" | cut -d'|' -f2)" == *"Built-in Retina Display"* ]]; then
-        # Use hardcoded value for MacBook Pro with Retina Display
-        BASE_SIZE=3456  # Width for M1 Pro MacBook
-        echo "Using hardcoded value for Built-in Retina Display: $BASE_SIZE" >&2
-    else
-        # Try to find in display info as before
-        while IFS=, read -r name width height; do
-            name=$(echo "$name" | tr -d '"')
-            if [ "$name" = "$current_monitor" ]; then
-                width=$(echo "$width" | tr -d '"')
-                BASE_SIZE=$width
-                break
+    if [ ! -z "$FOCUSED_ID" ] && [ "$FOCUSED_ID" != "null" ]; then
+        # Adjust for index difference
+        local SCREEN_INDEX=$((FOCUSED_ID - 1))
+        
+        if command -v screenresolution &> /dev/null; then
+            local RESOLUTION=$(screenresolution get 2>/dev/null | grep "Display $SCREEN_INDEX:" | sed -E 's/.*Display [0-9]+: ([0-9]+)x([0-9]+)x.*/\1/')
+            if [ ! -z "$RESOLUTION" ]; then
+                echo "$RESOLUTION"
+                return 0
             fi
-        done < "$DISPLAY_INFO"
+        fi
     fi
-    
-    [ -z "$BASE_SIZE" ] && { echo "Error: Could not determine monitor width for $current_monitor" >&2; exit 1; }
+    return 1
+}
+
+# First try to get current resolution directly
+CURRENT_RES=$(get_current_resolution)
+if [ ! -z "$CURRENT_RES" ]; then
+    echo "Using active screen resolution: $CURRENT_RES" >&2
+    BASE_SIZE=$CURRENT_RES
 else
-    echo "Error: Display info file not found. Run update-display-cache.sh first." >&2
-    exit 1
+    # Fall back to cached display info
+    if [ -f "$DISPLAY_INFO" ]; then
+        # Debug: Show display info content
+        echo "Display info content:" >&2
+        cat "$DISPLAY_INFO" >&2
+        
+        # Get display width from cache file
+        BASE_SIZE=$(head -1 "$DISPLAY_INFO" | cut -d',' -f2 | tr -d '"')
+        
+        # If we still couldn't get a base size or it's the generic 2560 value, try device detection
+        if [ -z "$BASE_SIZE" ] || [ "$BASE_SIZE" = "2560" ]; then
+            # Use sysctl to detect device
+            DEVICE_MODEL=$(sysctl -n hw.model 2>/dev/null)
+            
+            # Determine screen width based on model
+            case "$DEVICE_MODEL" in
+                *"MacBookPro18"*) BASE_SIZE=3456 ;; # 16-inch MacBook Pro 2021+
+                *"MacBookPro16"*) BASE_SIZE=3072 ;; # Previous generation 16-inch MacBook Pro
+                *"MacBookPro14"*|*"MacBookPro17"*) BASE_SIZE=3024 ;; # 14-inch MacBook Pro
+                *) BASE_SIZE=3456 ;; # Default to 16-inch M1/M2 Pro MacBook size
+            esac
+            
+            echo "Using model-based screen width: $BASE_SIZE (Model: $DEVICE_MODEL)" >&2
+        else
+            echo "Using display width from cache: $BASE_SIZE" >&2
+        fi
+    else
+        echo "Error: Display info file not found. Running update-display-cache.sh..." >&2
+        bash "$(dirname "$0")/update-display-cache.sh"
+        
+        # Try again after running the update script
+        if [ -f "$DISPLAY_INFO" ]; then
+            BASE_SIZE=$(head -1 "$DISPLAY_INFO" | cut -d',' -f2 | tr -d '"')
+            if [ -z "$BASE_SIZE" ] || [ "$BASE_SIZE" = "2560" ]; then
+                # Use sysctl for device model detection as fallback
+                DEVICE_MODEL=$(sysctl -n hw.model 2>/dev/null)
+                case "$DEVICE_MODEL" in
+                    *"MacBookPro18"*) BASE_SIZE=3456 ;; # 16-inch MacBook Pro 2021+
+                    *"MacBookPro16"*) BASE_SIZE=3072 ;; # Previous generation 16-inch
+                    *"MacBookPro14"*|*"MacBookPro17"*) BASE_SIZE=3024 ;; # 14-inch
+                    *) BASE_SIZE=3456 ;; # Default fallback
+                esac
+                echo "Using model-based screen width after update: $BASE_SIZE (Model: $DEVICE_MODEL)" >&2
+            fi
+        else
+            # Last resort fallback based on model detection
+            DEVICE_MODEL=$(sysctl -n hw.model 2>/dev/null)
+            case "$DEVICE_MODEL" in
+                *"MacBookPro18"*) BASE_SIZE=3456 ;;
+                *"MacBookPro16"*) BASE_SIZE=3072 ;;
+                *"MacBookPro14"*|*"MacBookPro17"*) BASE_SIZE=3024 ;;
+                *) BASE_SIZE=3456 ;;
+            esac
+            echo "Using last resort model-based width: $BASE_SIZE (Model: $DEVICE_MODEL)" >&2
+        fi
+    fi
 fi
 
 # Check if we should start a new sequence
@@ -74,18 +131,29 @@ echo "$new_size $current_time $direction" > "$LAST_RESIZE_FILE"
 if [ "$new_size" = "balance" ]; then
     aerospace balance-sizes
 else
+    # Get available resize options for verification
+    resize_options=$(aerospace resize --help 2>&1 | grep -o '(width|height|smart|smart-opposite)' || echo "width height smart smart-opposite")
+    echo "Available resize options: $resize_options" >&2
+    
     case $direction in
         "left")
-            # For left, we resize the window to the left
-            aerospace resize width-from-start "$target_width"
+            # For left, resize to a specific width
+            if [[ "$resize_options" == *"width"* ]]; then
+                echo "Resizing width to $target_width" >&2
+                aerospace resize width "$target_width"
+            else
+                echo "Fallback to smart resize" >&2
+                aerospace resize smart "$target_width"
+            fi
             ;;
         "right")
-            # For right, we resize the window to the right
+            # For right, resize width
+            echo "Resizing width to $target_width" >&2
             aerospace resize width "$target_width"
             ;;
         "up"|"down")
-            # For vertical resizing, use height instead of width
-            # This case matches the current keybindings for horizontal only
+            # For vertical resizing, use height
+            echo "Resizing height to $target_width" >&2
             aerospace resize height "$target_width"
             ;;
     esac

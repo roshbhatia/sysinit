@@ -92,4 +92,11 @@ EOF
       export TERM_PROGRAM=""
     fi
   '';
+  
+  environment.etc.bashrc.text = lib.mkAfter ''
+    # Fix TERM_PROGRAM unbound variable issue
+    if [ -z "$TERM_PROGRAM" ]; then
+      export TERM_PROGRAM=""
+    fi
+  '';
 }
