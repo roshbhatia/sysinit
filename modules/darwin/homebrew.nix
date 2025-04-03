@@ -44,6 +44,7 @@ let
     "pipx"
     "python@3.11"
     "ripgrep"
+    "screenresolution"
     "socat"
     "sshpass"
     "tailscale"
