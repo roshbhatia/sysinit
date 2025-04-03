@@ -28,6 +28,9 @@
       # Create aerospace cron file
       echo "*/5 * * * * $HOME/.config/aerospace/update-display-cache" > $HOME/.cron/aerospace-display-cache
       
+      # Make the cron file executable
+      chmod +x $HOME/.cron/aerospace-display-cache
+      
       # Apply crontab if file exists
       if [ -f $HOME/.cron/aerospace-display-cache ]; then
         echo "📋 Installing aerospace display cache cron job..."
