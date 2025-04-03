@@ -12,18 +12,35 @@ direction=$1
 # Get current monitor width
 current_monitor=$(aerospace list-monitors | grep "$(aerospace list-workspaces --focused)" | cut -d'|' -f2 | tr -d ' ' | base64)
 
+# Debugging: dump monitor name
+echo "Current monitor encoded: $current_monitor" >&2
+
 if [ -f "$DISPLAY_INFO" ]; then
-    while IFS=, read -r name width height; do
-        name=$(echo "$name" | tr -d '"')
-        if [ "$name" = "$current_monitor" ]; then
-            width=$(echo "$width" | tr -d '"')
-            BASE_SIZE=$width
-            break
-        fi
-    done < "$DISPLAY_INFO"
-    [ -z "$BASE_SIZE" ] && BASE_SIZE=3440  # Default to realistic width if no match
+    # Debug: Show display info content
+    echo "Display info content:" >&2
+    cat "$DISPLAY_INFO" >&2
+    
+    # For built-in display, hardcode values if needed
+    if [[ "$(aerospace list-monitors | grep "$(aerospace list-workspaces --focused)" | cut -d'|' -f2)" == *"Built-in Retina Display"* ]]; then
+        # Use hardcoded value for MacBook Pro with Retina Display
+        BASE_SIZE=3456  # Width for M1 Pro MacBook
+        echo "Using hardcoded value for Built-in Retina Display: $BASE_SIZE" >&2
+    else
+        # Try to find in display info as before
+        while IFS=, read -r name width height; do
+            name=$(echo "$name" | tr -d '"')
+            if [ "$name" = "$current_monitor" ]; then
+                width=$(echo "$width" | tr -d '"')
+                BASE_SIZE=$width
+                break
+            fi
+        done < "$DISPLAY_INFO"
+    fi
+    
+    [ -z "$BASE_SIZE" ] && { echo "Error: Could not determine monitor width for $current_monitor" >&2; exit 1; }
 else
-    BASE_SIZE=3440
+    echo "Error: Display info file not found. Run update-display-cache.sh first." >&2
+    exit 1
 fi
 
 # Check if we should start a new sequence
