@@ -23,7 +23,7 @@ in {
         persistent-others = [];
         show-recents = false;
         tilesize = 30;
-        mineffect = "scale"
+        mineffect = "scale";
       };
       spaces = {
         spans-displays = false;
