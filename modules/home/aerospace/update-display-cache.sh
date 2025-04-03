@@ -10,11 +10,16 @@ mkdir -p "$CACHE_DIR"
 rm -f "$DISPLAY_INFO" "$DISPLAY_CACHE"
 
 # Get display information from aerospace and encode monitor name
-display_info=$(aerospace list-monitors | while read -r line; do
-    id=$(echo "$line" | cut -d'|' -f1)
-    name=$(echo "$line" | cut -d'|' -f2 | tr -d ' ' | base64)
-    echo "$id | $name"
-done)
+if command -v aerospace >/dev/null 2>&1; then
+    display_info=$(aerospace list-monitors | while read -r line; do
+        id=$(echo "$line" | cut -d'|' -f1)
+        name=$(echo "$line" | cut -d'|' -f2 | tr -d ' ' | base64)
+        echo "$id | $name"
+    done)
+else
+    echo "Aerospace command not found, using fallback" >&2
+    display_info=""
+fi
 
 # Only update if we got valid information
 if [ $? -eq 0 ] && [ ! -z "$display_info" ]; then
@@ -48,16 +53,31 @@ fi
 
 # Fallback to system_profiler if screenresolution fails
 echo "Falling back to system_profiler for display information" >&2
-system_profiler SPDisplaysDataType -json | jq -r '.SPDisplaysDataType[0].spdisplays_ndrvs[] | [(.["_name"] | gsub("\\s+"; "") | @base64), (.["_spdisplays_pixels"] | split(" x ") | .[0])] | @csv' > "$DISPLAY_INFO"
+if command -v system_profiler >/dev/null 2>&1; then
+    system_profiler SPDisplaysDataType -json | jq -r '.SPDisplaysDataType[0].spdisplays_ndrvs[] | [(.["_name"] | gsub("\\s+"; "") | @base64), (.["_spdisplays_pixels"] | split(" x ") | .[0])] | @csv' > "$DISPLAY_INFO"
+else
+    echo "system_profiler command not found, using device detection fallback" >&2
+fi
 
 # If still empty, use device detection
 if [ ! -s "$DISPLAY_INFO" ]; then
     echo "Fallback: Using device detection for display" >&2
-    monitor_name=$(aerospace list-monitors | head -1 | cut -d'|' -f2 | tr -d ' ' | base64)
+    # Try to get monitor name from aerospace if available
+    if command -v aerospace >/dev/null 2>&1; then
+        monitor_name=$(aerospace list-monitors | head -1 | cut -d'|' -f2 | tr -d ' ' | base64)
+    else
+        # Fallback to a generic name if aerospace isn't available
+        monitor_name=$(echo "BuiltInDisplay" | base64)
+    fi
     
-    # Use sysctl to detect device
-    DEVICE_MODEL=$(sysctl -n hw.model)
-    echo "Detected device model: $DEVICE_MODEL" >&2
+    # Use sysctl to detect device if available
+    if command -v sysctl &> /dev/null; then
+        DEVICE_MODEL=$(sysctl -n hw.model)
+        echo "Detected device model: $DEVICE_MODEL" >&2
+    else
+        DEVICE_MODEL=""
+        echo "sysctl not available, using generic defaults" >&2
+    fi
     
     # Check for common MacBook models and assign appropriate resolutions
     if [[ "$DEVICE_MODEL" == *"MacBookPro18"* ]]; then
@@ -72,7 +92,7 @@ if [ ! -s "$DISPLAY_INFO" ]; then
         # 14-inch MacBook Pro
         echo "\"$monitor_name\",\"3024\"" > "$DISPLAY_INFO"
         echo "Added hardcoded value for 14-inch MacBook Pro (3024)" >&2
-    elif [[ "$(aerospace list-monitors | head -1 | cut -d'|' -f2)" == *"Built-in Retina Display"* ]]; then
+    elif command -v aerospace &> /dev/null && [[ "$(aerospace list-monitors | head -1 | cut -d'|' -f2)" == *"Built-in Retina Display"* ]]; then
         # Generic fallback for any MacBook with Retina display
         echo "\"$monitor_name\",\"3456\"" > "$DISPLAY_INFO"
         echo "Added fallback value for Built-in Retina Display (3456)" >&2
