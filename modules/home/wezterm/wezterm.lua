@@ -107,7 +107,6 @@ local SOLID_RIGHT_ARROW = utf8.char(0xe0b0)
 local function segments_for_right_status(window)
     -- Return segments in order
     return {
-        { text = window:active_workspace(), foreground = "#50fa7b", background = "#282c34" },
         { text = wezterm.hostname(), foreground = "#8be9fd", background = "#3b4048" },
     }
 end
