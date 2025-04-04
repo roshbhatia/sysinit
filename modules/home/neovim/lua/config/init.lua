@@ -530,7 +530,7 @@ require('lazy').setup({
         
         -- Add more server configurations as needed
         lspconfig.pyright.setup({})
-        lspconfig.tsserver.setup({})
+        lspconfig.ts_ls.setup({})
         lspconfig.gopls.setup({})
         lspconfig.rust_analyzer.setup({})
       end,
@@ -1274,30 +1274,17 @@ end
 local lspconfig = require('lspconfig')
 
 -- Add your language servers here
--- Use ts_ls instead of tsserver (which is deprecated)
-if lspconfig.ts_ls then
-    lspconfig.ts_ls.setup{}
-else
-    -- Fall back to tsserver if ts_ls is not available
-    pcall(function() lspconfig.tsserver.setup{} end)
-end
+lspconfig.ts_ls.setup{}
 
 -- Other common language servers
-pcall(function() lspconfig.pyright.setup{} end)
-pcall(function() lspconfig.rust_analyzer.setup{} end)
-pcall(function() lspconfig.gopls.setup{} end)
+lspconfig.pyright.setup{}
+lspconfig.rust_analyzer.setup{}
+lspconfig.gopls.setup{}
 
 -- Autocompletion setup
-local cmp_ok, cmp = pcall(require, 'cmp')
-local luasnip_ok, luasnip = pcall(require, 'luasnip')
-local lspkind_ok, lspkind = pcall(require, 'lspkind')
-
--- Only proceed if all required modules are available
-if not (cmp_ok and luasnip_ok and lspkind_ok) then
-    print("Warning: Some autocompletion modules could not be loaded")
-    print("cmp: " .. tostring(cmp_ok) .. ", luasnip: " .. tostring(luasnip_ok) .. ", lspkind: " .. tostring(lspkind_ok))
-    return  -- Exit early
-end
+local cmp = require('cmp')
+local luasnip = require('luasnip')
+local lspkind = require('lspkind')
 
 require('luasnip.loaders.from_vscode').lazy_load()
 
@@ -1338,20 +1325,11 @@ cmp.setup({
 })
 
 -- Set up other IDE features
-local ok1, autopairs = pcall(require, 'nvim-autopairs')
-if ok1 then autopairs.setup({}) end
-
-local ok2, comment = pcall(require, 'Comment') -- Fix: Changed 'nvim_comment' to 'Comment'
-if ok2 then comment.setup() end
-
-local ok3, symbols = pcall(require, 'symbols-outline')
-if ok3 then symbols.setup() end
-
-local ok4, trouble = pcall(require, 'trouble')
-if ok4 then trouble.setup() end
-
-local ok5, toggleterm = pcall(require, 'toggleterm')
-if ok5 then toggleterm.setup({open_mapping = [[<c-\>]], direction = 'float'}) end
+require('nvim-autopairs').setup({})
+require('Comment').setup()
+require('symbols-outline').setup()
+require('trouble').setup()
+require('toggleterm').setup({open_mapping = [[<c-\>]], direction = 'float'})
 
 -- Treesitter setup
 -- require('nvim-treesitter.configs').setup({
@@ -1389,9 +1367,7 @@ if ok_aerial then
 end
 
 -- Formatting setup
-local ok_formatter, formatter = pcall(require, 'formatter')
-if ok_formatter then
-    formatter.setup({
+require('formatter').setup({
         filetype = {
             javascript = {
                 function()
@@ -1439,35 +1415,23 @@ if ok_formatter then
             },
         }
     })
-end
 
--- Format on save (only if formatter is available)
-if ok_formatter then
-  vim.cmd([[augroup FormatAutogroup
-    autocmd!
-    autocmd BufWritePost * FormatWrite
-  augroup END]])
-end
+-- Format on save
+vim.cmd([[augroup FormatAutogroup
+  autocmd!
+  autocmd BufWritePost * FormatWrite
+augroup END]])
 
 -- Git blame setup
-local ok_blame, gitblame = pcall(require, 'gitblame')
-if ok_blame then 
-    gitblame.setup({
-        enabled = false,
-    })
-end
+require('git-blame').setup({
+    enabled = false,
+})
 
 -- Todo comments
-local ok_todo, todocomments = pcall(require, 'todo-comments')
-if ok_todo then todocomments.setup() end
+require('todo-comments').setup()
 
 -- Kubectl setup
-local ok_kubectl, kubectl = pcall(require, 'kubectl')
-if ok_kubectl then
-    kubectl.setup({
-        -- Your kubectl config here
-    })
-end
+require('kubectl').setup({})
 
 -- Define a custom command to open Startify
 vim.cmd([[
