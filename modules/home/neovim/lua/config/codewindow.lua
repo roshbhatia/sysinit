@@ -1,6 +1,6 @@
 -- Check if code preview should be enabled
 if vim.g.code_preview_enabled == nil then
-    vim.g.code_preview_enabled = true -- default to true
+    vim.g.code_preview_enabled = false -- default to false (hidden when no file open)
 end
 
 -- Safely setup codewindow - it requires treesitter
@@ -20,7 +20,7 @@ end
 -- Finally set up codewindow
 if vim.g.code_preview_enabled then
     codewindow.setup({
-        auto_enable = true,
+        auto_enable = false,
         use_treesitter = true,
         exclude_filetypes = {
             'help', 'dashboard', 'NvimTree', 'Trouble', 
