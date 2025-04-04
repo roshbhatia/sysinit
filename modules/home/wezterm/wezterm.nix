@@ -5,7 +5,5 @@
     source = ./wezterm.lua;
   };
 
-  xdg.configFile."zsh/extras/bin/wezterm-help" = {
-    source = ./wezterm-help.sh;
-  };
+  # Help script now consolidated into sysinit-help.sh
 }

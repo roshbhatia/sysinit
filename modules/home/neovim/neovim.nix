@@ -20,4 +20,14 @@
     source = ./.;
     recursive = true;
   };
+  
+  # Install additional packages needed for neovim plugins
+  home.packages = with pkgs; [
+    # For keystroke visualization plugin (noice.nvim)
+    ripgrep
+    fd
+    MunifTanjim-nui-nvim
+    rcarriga-nvim-notify
+    folke-noice-nvim
+  ];
 }
