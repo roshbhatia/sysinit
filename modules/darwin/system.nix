@@ -62,6 +62,12 @@ in {
   security.pam.services.sudo_local.touchIdAuth = true;
 
   system.activationScripts.postUserActivation.text = ''  
+    # Install Rosetta 2 for M1/M2 Mac compatibility
+    if [[ "$(uname -m)" == "arm64" ]] && ! /usr/bin/pgrep -q "oahd"; then
+      echo "Installing Rosetta 2 for Intel app compatibility..."
+      /usr/sbin/softwareupdate --install-rosetta --agree-to-license
+    fi
+
     # Check and manage Colima service
     if ! brew services start colima 2>/dev/null; then
       echo "Restarting Colima service..."
@@ -77,11 +83,8 @@ export TERM_PROGRAM=""
 return 0' | sudo tee /etc/bashrc > /dev/null
     sudo chmod 644 /etc/bashrc
 
-    # Make sure gettext is properly linked
-    if [ -d "/opt/homebrew/opt/gettext/bin" ]; then
-      echo "Creating gettext symlinks..."
-      sudo ln -sf /opt/homebrew/opt/gettext/bin/gettext /usr/local/bin/gettext 2>/dev/null || true
-    fi
+    # No need for manual symlink creation
+    # Python and gettext will be handled by Homebrew directly
 
     /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
     
