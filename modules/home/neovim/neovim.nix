@@ -9,6 +9,17 @@
     
     plugins = with pkgs.vimPlugins; [
       lazy-nvim
+      tokyonight-nvim
+      github-nvim-theme
+      telescope-nvim
+      plenary-nvim
+      nvim-treesitter
+      nvim-tree-lua
+      nvim-web-devicons
+      mason-nvim
+      mason-lspconfig-nvim
+      nvim-lspconfig
+      vim-startify
     ];
   };
   
