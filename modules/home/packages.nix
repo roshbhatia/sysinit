@@ -16,6 +16,7 @@
     htop
     jq
     jqp
+    keycastr
     kind
     kustomize
     nodejs

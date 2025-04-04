@@ -44,7 +44,28 @@ require('lazy').setup({
     
     -- Colorschemes
     {'kepano/flexoki-neovim', name = 'flexoki', priority = 1000},
-    {'catppuccin/nvim', name = 'catppuccin', priority = 1000},
+    {'catppuccin/nvim', name = 'catppuccin', priority = 1000, config = function()
+        require('catppuccin').setup({
+            flavour = 'mocha', -- Choose: latte, frappe, macchiato, mocha
+            term_colors = true,
+            transparent_background = false,
+            dim_inactive = {
+                enabled = true,
+                percentage = 0.15,
+            },
+            integrations = {
+                aerial = true,
+                cmp = true,
+                gitsigns = true,
+                mason = true,
+                nvimtree = true,
+                telescope = true,
+                treesitter = true,
+                treesitter_context = true,
+                which_key = true,
+            },
+        })
+    end},
     {'folke/tokyonight.nvim', priority = 1000},
     
     -- Keystroke display
@@ -434,7 +455,10 @@ require('lazy').setup({
               width = 0.95,
               height = 0.85,
               preview_width = 0.55,
+              preview_cutoff = 120, -- Only show preview when window width is larger than this
             },
+            -- Default to using the right side for previews when they are shown
+            mirror = false,
             sorting_strategy = 'ascending',
             winblend = 0,
             mappings = {
@@ -452,10 +476,12 @@ require('lazy').setup({
           pickers = {
             find_files = {
               hidden = true,
+              previewer = false, -- Disable preview for find_files by default
             },
             buffers = {
               show_all_buffers = true,
               sort_lastused = true,
+              previewer = false, -- Disable preview for buffers by default
               mappings = {
                 i = {
                   ["<c-d>"] = actions.delete_buffer,
@@ -1397,7 +1423,7 @@ if ok_term then
     toggleterm.setup({open_mapping = [[<c-\>]], direction = 'float'})
 end
 
--- Aerial setup (Code outline)
+-- Aerial setup (Code outline for VSCode-like structure view)
 local ok_aerial, aerial = pcall(require, 'aerial')
 if ok_aerial then
     aerial.setup({
@@ -1406,10 +1432,31 @@ if ok_aerial then
             placement = "edge",
             width = 30,
         },
+        -- Show outline on right side by default
+        open_automatic = true,
+        -- Filter out certain symbols for cleaner view
+        filter_kind = {
+            "Class", "Constructor", "Enum", "Function", "Interface", "Method", 
+            "Module", "Namespace", "Package", "Property", "Struct", "Unit"
+        },
+        -- Icons for different symbol kinds
+        icons = {
+            Class = "󰠱 ",
+            Constructor = "󰆧 ",
+            Function = "󰊕 ",
+            Method = "ƒ ",
+            Module = "󰏗 ",
+        },
         keymaps = {
             ["<leader>to"] = "toggle",
+            ["{<CR>"] = "actions.jump",
+            ["["] = "actions.prev",
+            ["]"] = "actions.next",
         },
     })
+    
+    -- Hotkey for toggle (F7 as additional shortcut)
+    vim.keymap.set('n', '<F7>', '<cmd>AerialToggle!<CR>', { desc = "Toggle Code Outline" })
 end
 
 -- Formatting setup

@@ -28,9 +28,9 @@ vim.o.shiftwidth = 2
 vim.o.autoindent = true
 vim.o.smartindent = true
 
--- Enable relative line numbers with current line showing actual number
+-- Enable absolute line numbers (no relative numbers)
 vim.wo.number = true
-vim.wo.relativenumber = true
+vim.wo.relativenumber = false
 
 -- Improve command-line completion (similar to VSCode's command palette)
 vim.o.wildmode = 'longest:full,full'
@@ -87,8 +87,17 @@ vim.o.showtabline = 2
 -- Override default fillchars for cleaner UI
 vim.opt.fillchars = {eob = ' ', vert = '│', fold = '─'}
 
--- Set colorscheme - using flexoki-dark
-vim.cmd('colorscheme flexoki-dark')
+-- Set font with ligatures for GUI
+vim.o.guifont = "Hack Nerd Font:h12:w-0.8:b:l"
+vim.o.linespace = 1
+
+-- Enable font ligatures if GUI supports it
+if vim.fn.has("gui") == 1 or vim.g.neovide or vim.g.GuiLoaded then
+    vim.o.guiligatures = "!\"#$%&()*+-./:<=>?@[]^_|~"
+end
+
+-- Set colorscheme to a textured, rich option
+vim.cmd('colorscheme catppuccin')
 
 -- Configure cursor - block in normal, line in insert (VSCode-like)
 vim.o.guicursor = 'n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50'
