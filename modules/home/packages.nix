@@ -6,6 +6,7 @@
     coreutils
     docker
     fzf
+    gettext
     gh
     git
     gnugrep
@@ -26,5 +27,10 @@
     watch
     wget
     yq
+  ];
+  
+  home.sessionPath = [
+    "/opt/homebrew/bin"
+    "/opt/homebrew/sbin"
   ];
 }

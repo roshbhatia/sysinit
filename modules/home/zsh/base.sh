@@ -45,6 +45,16 @@ for module in $XDG_CONFIG_HOME/zsh/extras/*.sh; do
   fi
 done
 
+# Fix TERM_PROGRAM unbound variable issue
+if [ -z "$TERM_PROGRAM" ]; then
+  export TERM_PROGRAM=""
+fi
+
+# Ensure gettext is in the PATH
+if [ -d "/opt/homebrew/opt/gettext/bin" ]; then
+  export PATH="/opt/homebrew/opt/gettext/bin:$PATH"
+fi
+
 # Tool initializations
 command -v direnv &> /dev/null && _evalcache direnv hook zsh
 command -v gh &> /dev/null && _evalcache gh copilot alias -- zsh
