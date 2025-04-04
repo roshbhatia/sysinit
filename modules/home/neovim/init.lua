@@ -8,104 +8,174 @@ vim.opt.viminfo:remove({'!'})
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
-local function setup_split_keybindings()
-  -- VS Code-like split keybindings
-  vim.keymap.set('n', '<leader>\\', ':vsplit<CR>', {noremap = true, silent = true, desc = "Split vertically"})
-  vim.keymap.set('n', '<leader>-', ':split<CR>', {noremap = true, silent = true, desc = "Split horizontally"})
-  
-  -- Navigate between splits (VS Code-like)
-  vim.keymap.set('n', '<C-h>', '<C-w>h', {noremap = true, desc = "Move to left split"})
-  vim.keymap.set('n', '<C-j>', '<C-w>j', {noremap = true, desc = "Move to split below"})
-  vim.keymap.set('n', '<C-k>', '<C-w>k', {noremap = true, desc = "Move to split above"})
-  vim.keymap.set('n', '<C-l>', '<C-w>l', {noremap = true, desc = "Move to right split"})
-  
-  -- Resize splits (VS Code-like)
-  vim.keymap.set('n', '<C-Left>', ':vertical resize -2<CR>', {noremap = true, silent = true, desc = "Shrink split width"})
-  vim.keymap.set('n', '<C-Right>', ':vertical resize +2<CR>', {noremap = true, silent = true, desc = "Increase split width"})
-  vim.keymap.set('n', '<C-Up>', ':resize -2<CR>', {noremap = true, silent = true, desc = "Shrink split height"})
-  vim.keymap.set('n', '<C-Down>', ':resize +2<CR>', {noremap = true, silent = true, desc = "Increase split height"})
-end
+-- Disable netrw
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
 
--- VS Code-like editing keybindings
-local function setup_editing_keybindings()
-  -- Multi-cursor key bindings 
-  vim.cmd([[
-    let g:VM_maps = {}
-    let g:VM_maps['Find Under'] = '<C-d>'           " start selecting down
-    let g:VM_maps['Find Subword Under'] = '<C-d>'   " select exact word
-    let g:VM_maps["Select All"] = '<C-S-l>'         " select all occurrences
-    let g:VM_maps["Start Regex Search"] = 'g/'      " start regex search
-    let g:VM_maps["Add Cursor At Pos"] = '<C-Space>' " add cursor at position
-  ]])
-  
-  -- VS Code-like select line
-  vim.keymap.set('n', '<C-a>', '0v$', {noremap = true, desc = "Select line"})
-  
-  -- Move lines up and down (using Leader instead of Alt to avoid conflict with Aerospace)
-  vim.keymap.set('n', '<leader>j', ':m .+1<CR>==', {noremap = true, desc = "Move line down"})
-  vim.keymap.set('n', '<leader>k', ':m .-2<CR>==', {noremap = true, desc = "Move line up"})
-  vim.keymap.set('v', '<leader>j', ":m '>+1<CR>gv=gv", {noremap = true, desc = "Move selection down"})
-  vim.keymap.set('v', '<leader>k', ":m '<-2<CR>gv=gv", {noremap = true, desc = "Move selection up"})
-  
-  -- Duplicate line (using Leader+Shift instead of Shift+Alt to avoid conflicts)
-  vim.keymap.set('n', '<leader>J', 'yyp', {noremap = true, desc = "Duplicate line down"})
-  vim.keymap.set('n', '<leader>K', 'yyP', {noremap = true, desc = "Duplicate line up"})
-  
-  -- Save with Ctrl+S
-  vim.keymap.set('n', '<C-s>', ':w<CR>', {noremap = true, desc = "Save file"})
-  vim.keymap.set('i', '<C-s>', '<Esc>:w<CR>a', {noremap = true, desc = "Save file"})
-end
+-- Line numbers
+vim.opt.nu = true
 
--- Bootstrap initial setup
-local function bootstrap_config()
-  -- Set up the split and editing keybindings for VS Code-like experience
-  setup_split_keybindings()
-  setup_editing_keybindings()
-  
-  -- Create a directory for undo files if it doesn't exist
-  local undodir = vim.fn.expand('~/.vim/undodir')
-  if vim.fn.isdirectory(undodir) == 0 then
-    vim.fn.mkdir(undodir, "p")
-  end
-  
-  -- Load the main configuration - no fallbacks
-  require('config')
-end
-
--- Add package path to find modules in lua directory
-local config_path = vim.fn.stdpath('config')
-package.path = package.path .. ';' .. config_path .. '/lua/?.lua;' .. config_path .. '/lua/?/init.lua'
-
--- Force Startify to show on empty buffer (even if the config has issues)
-vim.api.nvim_create_autocmd({"VimEnter"}, {
-  pattern = "*",
-  callback = function()
-    -- Replace deprecated vim.lsp.buf_get_clients with vim.lsp.get_active_clients
-    if vim.lsp and vim.lsp.buf_get_clients then
-      vim.lsp.buf_get_clients = function(bufnr)
-        return vim.lsp.get_active_clients({buffer = bufnr})
-      end
+-- Initialize lazy.nvim (package manager)
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+    local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+    local out = vim.fn.system({"git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath})
+    if vim.v.shell_error ~= 0 then
+        vim.api.nvim_echo({{"Failed to clone lazy.nvim:\n", "ErrorMsg"}, {out, "WarningMsg"},
+                         {"\nPress any key to exit..."}}, true, {})
+        vim.fn.getchar()
+        os.exit(1)
     end
-    
-    -- Disable vertical line numbers in Startify
-    vim.cmd([[
-      augroup StartifyCustom
-        autocmd!
-        autocmd User Startified setlocal nonumber norelativenumber signcolumn=no 
-        autocmd FileType startify setlocal nonumber norelativenumber signcolumn=no 
-      augroup END
-    ]])
-    
-    -- Show startify on empty buffer
-    if vim.fn.argc() == 0 then
-      local startify_loaded = pcall(vim.cmd, "Startify")
-      if not startify_loaded then
-        print("Warning: Could not load Startify on startup")
-      end
-    end
-  end,
-  group = vim.api.nvim_create_augroup("StartifyForceStart", { clear = true }),
+end
+
+vim.opt.rtp:prepend(lazypath)
+
+-- Setup window navigation
+vim.api.nvim_set_keymap('n', '<C-h>', '<C-w>h', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-j>', '<C-w>j', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-k>', '<C-w>k', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-l>', '<C-w>l', { noremap = true, silent = true })
+
+-- Plugin setup
+require("lazy").setup({
+    spec = {
+        {"williamboman/mason.nvim"},
+        {"williamboman/mason-lspconfig.nvim"},  
+        {"neovim/nvim-lspconfig"},
+        
+        {
+            'nvim-telescope/telescope.nvim',
+            tag = '0.1.8',
+            dependencies = {'nvim-lua/plenary.nvim'}
+        },
+        
+        {
+            "nvim-treesitter/nvim-treesitter",
+            build = ":TSUpdate"
+        },
+        
+        {
+            'projekt0n/github-nvim-theme',
+            lazy = false,
+            priority = 1000,
+            config = function()
+                require('github-theme').setup({})
+                vim.cmd('colorscheme github_dark')
+            end
+        },
+        
+        {
+            "folke/tokyonight.nvim",
+            lazy = false,
+            priority = 1000,
+            config = function()
+                require("tokyonight").setup({
+                    style = "night",
+                    transparent = false,
+                    terminal_colors = true,
+                    styles = {
+                        comments = { italic = true },
+                        keywords = { italic = true },
+                        functions = {},
+                        variables = {}
+                    }
+                })
+                vim.cmd("colorscheme tokyonight")
+            end
+        },
+        
+        {
+            "nvim-tree/nvim-tree.lua",
+            dependencies = {"nvim-tree/nvim-web-devicons"}
+        },
+        
+        {
+            "mhinz/vim-startify"
+        }
+    },
+    checker = {
+        enabled = true
+    }
 })
 
--- Start the bootstrap process
-bootstrap_config()
+-- Setup LSP
+require("mason").setup()
+require("mason-lspconfig").setup({
+    ensure_installed = {
+        "pyright", "clangd", "awk_ls", "bashls", "dockerls", 
+        "eslint", "gopls", "jsonls", "marksman", "pylsp", 
+        "tflint", "yamlls", "lua_ls"
+    }
+})
+
+-- Configure LSP servers
+local lspconfig = require("lspconfig")
+lspconfig.pyright.setup{}
+lspconfig.gopls.setup{}
+lspconfig.lua_ls.setup{}
+
+-- Setup NvimTree
+require("nvim-tree").setup({
+    sort = {
+        sorter = "case_sensitive"
+    },
+    view = {
+        width = 30
+    },
+    renderer = {
+        group_empty = true
+    },
+    update_focused_file = {
+        enable = true
+    }
+})
+
+-- Setup web devicons
+require'nvim-web-devicons'.setup {
+    override = {
+        zsh = {
+            icon = "",
+            color = "#428850",
+            cterm_color = "65",
+            name = "Zsh"
+        }
+    },
+    color_icons = true,
+    default = true,
+    strict = true,
+    override_by_filename = {
+        [".gitignore"] = {
+            icon = "",
+            color = "#f1502f",
+            name = "Gitignore"
+        }
+    },
+    override_by_extension = {
+        ["log"] = {
+            icon = "",
+            color = "#81e043",
+            name = "Log"
+        }
+    },
+    override_by_operating_system = {
+        ["apple"] = {
+            icon = "",
+            color = "#A2AAAD", 
+            cterm_color = "248",
+            name = "Apple"
+        }
+    }
+}
+
+-- Telescope keybindings
+local builtin = require('telescope.builtin')
+vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
+vim.keymap.set('n', '<leader>fg', builtin.live_grep, {})
+vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
+vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
+
+-- Set colorscheme with vibrant colors
+vim.cmd [[colorscheme tokyonight-night]]
+
+-- Load Startify config
+require('config.startify')
