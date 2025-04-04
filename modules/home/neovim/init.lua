@@ -149,14 +149,18 @@ require("lazy").setup({
                         b = { name = '+buffer' },
                         w = { name = '+workspace' },
                         c = { name = '+code/copilot' },
+                        e = { name = '+explorer' },
                         g = { name = '+git' },
                         h = { name = '+hunks' },
                         l = { name = '+lsp' },
+                        o = { name = '+outline/structure' },
                         s = { name = '+session' },
                         t = { name = '+toggle' },
                         x = { name = '+trouble/diagnostics' },
                         p = { name = '+project/file' },
                         n = { name = '+newline' },
+                        m = { name = '+minimap/view' },
+                        r = { name = '+rename/refactor' },
                     },
                 })
             end,
@@ -167,21 +171,34 @@ require("lazy").setup({
     }
 })
 
--- Setup LSP
-require("mason").setup()
-require("mason-lspconfig").setup({
-    ensure_installed = {
-        "pyright", "clangd", "awk_ls", "bashls", "dockerls", 
-        "eslint", "gopls", "jsonls", "marksman", "pylsp", 
-        "tflint", "yamlls", "lua_ls"
-    }
+-- Setup Mason for LSP
+require('mason').setup({})
+require('mason-lspconfig').setup({
+  ensure_installed = {
+    "pyright", "clangd", "awk_ls", "bashls", "dockerls", 
+    "eslint", "gopls", "jsonls", "marksman", "pylsp", 
+    "tflint", "yamlls", "lua_ls"
+  }
 })
 
 -- Configure LSP servers
-local lspconfig = require("lspconfig")
+local lspconfig = require('lspconfig')
 lspconfig.pyright.setup{}
 lspconfig.gopls.setup{}
-lspconfig.lua_ls.setup{}
+lspconfig.lua_ls.setup{
+  settings = {
+    Lua = {
+      diagnostics = {
+        globals = { 'vim' }
+      }
+    }
+  }
+}
+
+-- Configure other LSP servers
+lspconfig.clangd.setup{}
+lspconfig.bashls.setup{}
+lspconfig.dockerls.setup{}
 
 -- Setup NvimTree
 require("nvim-tree").setup({
@@ -246,8 +263,157 @@ vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
 -- Set colorscheme with vibrant colors
 vim.cmd [[colorscheme tokyonight-night]]
 
+-- Add file operation keybindings
+vim.keymap.set("n", "<leader>rn", function() vim.lsp.buf.rename() end, { desc = "Rename symbol under cursor" })
+vim.keymap.set("n", "<leader>rf", function() vim.ui.input({ prompt = "New filename: " }, function(new_name)
+    if new_name then
+        local old_name = vim.fn.expand("%")
+        vim.cmd("saveas " .. new_name)
+        vim.cmd("silent !rm " .. old_name)
+        vim.cmd("redraw!")
+    end
+end) end, { desc = "Rename current file" })
+
+-- Add more file operations
+vim.keymap.set("n", "<leader>pn", function() 
+    vim.ui.input({ prompt = "New file: " }, function(name)
+        if name then
+            vim.cmd("edit " .. name)
+        end
+    end)
+end, { desc = "Create new file" })
+
+vim.keymap.set("n", "<leader>pd", function()
+    local filename = vim.fn.expand("%")
+    vim.ui.input({ prompt = "Delete file " .. filename .. "? (y/n): " }, function(input)
+        if input and input:lower() == "y" then
+            vim.cmd("bdelete!")
+            vim.cmd("silent !rm " .. filename)
+            vim.cmd("redraw!")
+            vim.notify("File deleted: " .. filename, vim.log.levels.INFO)
+        end
+    end)
+end, { desc = "Delete current file" })
+
+vim.keymap.set("n", "<leader>pm", function()
+    local old_path = vim.fn.expand("%")
+    vim.ui.input({ prompt = "Move/rename file to: ", default = old_path }, function(new_path)
+        if new_path and new_path ~= old_path then
+            -- Create directory if it doesn't exist
+            local dir = vim.fn.fnamemodify(new_path, ":h")
+            if vim.fn.isdirectory(dir) == 0 then
+                vim.fn.mkdir(dir, "p")
+            end
+            -- Move file
+            vim.cmd("saveas " .. new_path)
+            vim.cmd("silent !rm " .. old_path)
+            vim.cmd("bdelete! #")
+            vim.cmd("redraw!")
+            vim.notify("File moved to " .. new_path, vim.log.levels.INFO)
+        end
+    end)
+end, { desc = "Move/rename current file" })
+
+vim.keymap.set("n", "<leader>pc", function()
+    local source = vim.fn.expand("%")
+    vim.ui.input({ prompt = "Copy file to: ", default = source }, function(target)
+        if target and target ~= source then
+            -- Create directory if it doesn't exist
+            local dir = vim.fn.fnamemodify(target, ":h")
+            if vim.fn.isdirectory(dir) == 0 then
+                vim.fn.mkdir(dir, "p")
+            end
+            -- Copy file
+            vim.cmd("silent !cp " .. source .. " " .. target)
+            vim.cmd("edit " .. target)
+            vim.cmd("redraw!")
+            vim.notify("File copied to " .. target, vim.log.levels.INFO)
+        end
+    end)
+end, { desc = "Copy current file to..." })
+
+-- Add outline and minimap commands
+vim.keymap.set("n", "<leader>ot", ":SymbolsOutline<CR>", { desc = "Toggle symbols outline", silent = true, noremap = true })
+vim.keymap.set("n", "<leader>os", ":AerialToggle<CR>", { desc = "Toggle aerial outline", silent = true, noremap = true })
+vim.keymap.set("n", "<leader>mt", function()
+    local ok, codewindow = pcall(require, "codewindow")
+    if ok then 
+        codewindow.toggle_minimap()
+    else
+        vim.notify("Codewindow not available", vim.log.levels.WARN)
+    end
+end, { desc = "Toggle minimap" })
+
+-- File merge functionality
+vim.keymap.set("n", "<leader>pj", function()
+    vim.ui.input({ prompt = "Merge file: " }, function(file_to_merge)
+        if file_to_merge and vim.fn.filereadable(file_to_merge) == 1 then
+            local current_file = vim.fn.expand("%")
+            local merge_content = vim.fn.readfile(file_to_merge)
+            
+            -- Find line count of current file
+            local line_count = vim.fn.line("$")
+            
+            -- Create a separator
+            local separator = "-- Merged content from " .. file_to_merge .. " --"
+            
+            -- Append separator and content from the other file
+            vim.fn.append(line_count, "")
+            vim.fn.append(line_count + 1, separator) 
+            vim.fn.append(line_count + 2, "")
+            vim.fn.append(line_count + 3, merge_content)
+            
+            vim.notify("Merged content from " .. file_to_merge, vim.log.levels.INFO)
+        else
+            vim.notify("File not found or not readable", vim.log.levels.ERROR)
+        end
+    end)
+end, { desc = "Merge another file into current file" })
+
 -- Load Startify config
 require('config.startify')
+
+-- Add vim-plug for plugins we can't install through Nix
+local plug_vim_path = vim.fn.stdpath('data') .. '/site/autoload/plug.vim'
+
+-- Check if vim-plug is installed, and install it if not
+if vim.fn.empty(vim.fn.glob(plug_vim_path)) > 0 then
+  vim.fn.system({
+    'curl', '-fLo', plug_vim_path, '--create-dirs',
+    'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  })
+  vim.cmd('autocmd VimEnter * PlugInstall --sync | source $MYVIMRC')
+end
+
+-- Define plugin directory
+local plugged_path = vim.fn.stdpath('data') .. '/plugged'
+
+-- Setup vim-plug with our plugins
+vim.cmd([[
+call plug#begin(']] .. plugged_path .. [[')
+  " LSP Zero for easier LSP setup
+  Plug 'VonHeikemen/lsp-zero.nvim', {'branch': 'v2.x'}
+  
+  " Session management
+  Plug 'rmagatti/auto-session'
+  Plug 'rmagatti/session-lens'
+call plug#end()
+]])
+
+-- Create an autocmd to set up auto-session after it's loaded
+vim.cmd([[
+  augroup AutoSessionSetup
+    autocmd!
+    autocmd VimEnter * lua if package.loaded['auto-session'] then require('auto-session').setup({ log_level = 'error', auto_session_enable_last_session = true, auto_session_root_dir = vim.fn.stdpath('data') .. "/sessions/", auto_session_enabled = true, auto_save_enabled = true, auto_restore_enabled = true, auto_session_use_git_branch = true }) end
+    autocmd VimEnter * lua if package.loaded['session-lens'] and package.loaded['telescope'] then require('telescope').load_extension('session-lens') end
+    autocmd VimEnter * lua if package.loaded['auto-session'] and package.loaded['session-lens'] then vim.keymap.set("n", "<leader>ss", require("auto-session.session-lens").search_session, { desc = "Search sessions" }) end
+  augroup END
+]])
+
+-- Setup placeholder for sessions until vim-plug loads them
+vim.keymap.set("n", "<leader>ss", function()
+  vim.notify("Auto-session will be available after first restart", vim.log.levels.INFO)
+end, { desc = "Search sessions" })
 
 -- Create IBLDisable and IBLEnable commands that are guaranteed to exist
 vim.api.nvim_create_user_command('IBLDisable', function()
@@ -325,6 +491,7 @@ end)
 
 -- Setup NvimTree toggle keybinding
 vim.keymap.set('n', '<F2>', ':NvimTreeToggle<CR>', {noremap = true, silent = true})
+vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>', {noremap = true, silent = true})
 
 -- Initialize heirline
 pcall(function()

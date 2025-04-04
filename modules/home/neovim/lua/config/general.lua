@@ -88,8 +88,8 @@ vim.o.showtabline = 2
 vim.opt.fillchars = {eob = ' ', vert = '│', fold = '─'}
 
 -- Set font with ligatures for GUI
-vim.o.guifont = "Hack Nerd Font:h12:w-0.8:b:l"
-vim.o.linespace = 1
+vim.o.guifont = "MesloLGS NF:h12,Hack Nerd Font:h12:w-0.8:b:l"
+vim.o.linespace = 2
 
 -- Enable font ligatures if GUI supports it
 if vim.fn.has("gui") == 1 or vim.g.neovide or vim.g.GuiLoaded then
@@ -97,7 +97,7 @@ if vim.fn.has("gui") == 1 or vim.g.neovide or vim.g.GuiLoaded then
 end
 
 -- Set colorscheme to a textured, rich option
-vim.cmd('colorscheme catppuccin')
+vim.cmd('colorscheme tokyonight')
 
 -- Configure cursor - block in normal, line in insert (VSCode-like)
 vim.o.guicursor = 'n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50'
