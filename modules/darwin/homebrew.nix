@@ -59,6 +59,7 @@ let
     "font-hack-nerd-font"
     "font-symbols-only-nerd-font"
     "jordanbaird-ice"
+    "keycastr"
     "nikitabobko/tap/aerospace"
     "obsidian"
     "slack"
