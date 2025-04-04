@@ -1,3 +1,7 @@
+-- Set leader key before lazy setup
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+
 -- Init lazy plugin manager
 local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
@@ -10,93 +14,1239 @@ vim.opt.rtp:prepend(lazypath)
 
 -- Install external plugins
 require('lazy').setup({
-    {'kepano/flexoki-neovim', name = 'flexoki'}, 'lewis6991/gitsigns.nvim',
-    -- 'nvim-treesitter/nvim-treesitter',
-     'nvim-tree/nvim-web-devicons', {
-        'nvim-tree/nvim-tree.lua',
-        version = '*',
-        lazy = false,
-        after = {'nvim-tree/nvim-web-devicons'},
-        dependencies = {'nvim-tree/nvim-web-devicons'},
-        config = function() require('nvim-tree').setup {} end
-    }, {
-        'romgrk/barbar.nvim',
-        dependencies = {
-            'lewis6991/gitsigns.nvim', 'nvim-tree/nvim-web-devicons'
+    -- Colorschemes
+    {'kepano/flexoki-neovim', name = 'flexoki', priority = 1000},
+    {'catppuccin/nvim', name = 'catppuccin', priority = 1000},
+    {'folke/tokyonight.nvim', priority = 1000},
+    
+    -- Git integration
+    {'lewis6991/gitsigns.nvim',
+      opts = {
+        signs = {
+          add = { text = "│" },
+          change = { text = "│" },
+          delete = { text = "_" },
+          topdelete = { text = "‾" },
+          changedelete = { text = "~" },
+          untracked = { text = "┆" },
         },
-        init = function() vim.g.barbar_auto_setup = false end,
-        opts = {}
-    }, 'jackguo380/vim-lsp-cxx-highlight', 'liuchengxu/vim-which-key',
-    'mhinz/vim-startify', 'gorbit99/codewindow.nvim', 'gelguy/wilder.nvim',
-    'bluz71/nvim-linefly', -- VSCode-like IDE features
-    'neovim/nvim-lspconfig', -- LSP support
-    'hrsh7th/nvim-cmp', -- Autocompletion
-    'hrsh7th/cmp-nvim-lsp', -- LSP source for nvim-cmp
-    'hrsh7th/cmp-buffer', -- Buffer source for nvim-cmp
-    'hrsh7th/cmp-path', -- Path source for nvim-cmp
-    'L3MON4D3/LuaSnip', -- Snippets engine
-    'saadparwaiz1/cmp_luasnip', -- Snippets source for nvim-cmp
-    'rafamadriz/friendly-snippets', -- Predefined snippets
-    'onsails/lspkind.nvim', -- Add VS Code-like pictograms to completion menu
-    'folke/trouble.nvim', -- Pretty diagnostics
-    {
-        'nvim-telescope/telescope.nvim', -- Fuzzy finder
-        dependencies = {'nvim-lua/plenary.nvim'}
-    }, 'simrat39/symbols-outline.nvim', -- Code outline/structure view
-    {
-        'folke/which-key.nvim', -- Better keybindings display
-        event = 'VeryLazy',
-        init = function()
-            vim.o.timeout = true
-            vim.o.timeoutlen = 300
+        on_attach = function(bufnr)
+          local gs = package.loaded.gitsigns
+          
+          local function map(mode, l, r, opts)
+            opts = opts or {}
+            opts.buffer = bufnr
+            vim.keymap.set(mode, l, r, opts)
+          end
+          
+          -- Navigation
+          map('n', ']c', function()
+            if vim.wo.diff then return ']c' end
+            vim.schedule(function() gs.next_hunk() end)
+            return '<Ignore>'
+          end, {expr=true})
+          
+          map('n', '[c', function()
+            if vim.wo.diff then return '[c' end
+            vim.schedule(function() gs.prev_hunk() end)
+            return '<Ignore>'
+          end, {expr=true})
+          
+          -- Actions
+          map('n', '<leader>hs', gs.stage_hunk)
+          map('n', '<leader>hr', gs.reset_hunk)
+          map('v', '<leader>hs', function() gs.stage_hunk {vim.fn.line('.'), vim.fn.line('v')} end)
+          map('v', '<leader>hr', function() gs.reset_hunk {vim.fn.line('.'), vim.fn.line('v')} end)
+          map('n', '<leader>hS', gs.stage_buffer)
+          map('n', '<leader>hu', gs.undo_stage_hunk)
+          map('n', '<leader>hR', gs.reset_buffer)
+          map('n', '<leader>hp', gs.preview_hunk)
+          map('n', '<leader>hb', function() gs.blame_line{full=true} end)
+          map('n', '<leader>tb', gs.toggle_current_line_blame)
+          map('n', '<leader>hd', gs.diffthis)
+          map('n', '<leader>hD', function() gs.diffthis('~') end)
+          map('n', '<leader>td', gs.toggle_deleted)
         end
-    }, 'windwp/nvim-autopairs', -- Auto pairing brackets
-    'terrortylor/nvim-comment', -- Easy commenting
-    {
-        'akinsho/toggleterm.nvim', -- Better terminal
-        version = '*',
-        config = true
-    }, -- Kubectl support
-    {
-        'Ramilito/kubectl.nvim', -- Kubectl integration
-        dependencies = {'nvim-lua/plenary.nvim'}
+      }
     },
-    -- New plugins for enhanced IDE functionality
-    -- {
-    --     'stevearc/aerial.nvim', -- Code outline with LSP symbols
-    --     dependencies = {'nvim-treesitter/nvim-treesitter'}
-    -- },
-    -- { 'nvim-treesitter/nvim-treesitter-textobjects' }, -- Enhanced text objects
-    { 'mhartington/formatter.nvim' }, -- Code formatting
-    { 
-        'nvim-telescope/telescope-fzf-native.nvim',
-        build = 'make'
+    
+    -- File explorer
+    {'nvim-tree/nvim-web-devicons', lazy = true},
+    {'nvim-tree/nvim-tree.lua',
+      version = '*',
+      lazy = false,
+      dependencies = {'nvim-tree/nvim-web-devicons'},
+      keys = {
+        { "<F2>", "<cmd>NvimTreeToggle<CR>", desc = "Toggle file explorer" },
+        { "<leader>pv", "<cmd>NvimTreeToggle<CR>", desc = "Toggle file explorer" },
+        { "<leader>pf", "<cmd>NvimTreeFindFile<CR>", desc = "Find file in explorer" },
+      },
+      opts = {
+        on_attach = function(bufnr)
+          local api = require('nvim-tree.api')
+          
+          local function opts(desc)
+            return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+          end
+          
+          -- Default mappings
+          api.config.mappings.default_on_attach(bufnr)
+          
+          -- Custom mappings
+          vim.keymap.set('n', 'l', api.node.open.edit, opts('Open'))
+          vim.keymap.set('n', 'h', api.node.navigate.parent_close, opts('Close Directory'))
+          vim.keymap.set('n', 'v', api.node.open.vertical, opts('Open: Vertical Split'))
+          vim.keymap.set('n', 's', api.node.open.horizontal, opts('Open: Horizontal Split'))
+        end,
+        filters = {
+          dotfiles = false,
+        },
+        renderer = {
+          group_empty = true,
+          highlight_git = true,
+          icons = {
+            git_placement = "after",
+            show = {
+              file = true,
+              folder = true,
+              folder_arrow = true,
+              git = true,
+            },
+          },
+        },
+        update_focused_file = {
+          enable = true,
+        },
+        view = {
+          width = 35,
+        },
+      },
     },
-    { 
-        'zbirenbaum/copilot.lua', -- GitHub Copilot integration
-        event = 'InsertEnter',
-        config = function()
-            require('copilot').setup({
-                suggestion = { enabled = false },
-                panel = { enabled = false },
-            })
+    
+    -- Buffer management like VS Code tabs
+    {'romgrk/barbar.nvim',
+      dependencies = {
+        'lewis6991/gitsigns.nvim',
+        'nvim-tree/nvim-web-devicons'
+      },
+      init = function() vim.g.barbar_auto_setup = false end,
+      opts = {
+        animation = true,
+        clickable = true,
+        icons = {
+          buffer_index = true,
+          button = '',
+          modified = {button = '●'},
+          pinned = {button = '', filename = true},
+          separator = {left = '▎', right = ''},
+          inactive = {separator = {left = '▎', right = ''}},
+        },
+      },
+      keys = {
+        { '<leader>bp', '<Cmd>BufferPrevious<CR>', desc = 'Previous buffer' },
+        { '<leader>bn', '<Cmd>BufferNext<CR>', desc = 'Next buffer' },
+        { '<leader>bc', '<Cmd>BufferClose<CR>', desc = 'Close buffer' },
+        { '<C-s>', '<Cmd>BufferPick<CR>', desc = 'Pick buffer' },
+        { '<A-1>', '<Cmd>BufferGoto 1<CR>', desc = 'Go to buffer 1' },
+        { '<A-2>', '<Cmd>BufferGoto 2<CR>', desc = 'Go to buffer 2' },
+        { '<A-3>', '<Cmd>BufferGoto 3<CR>', desc = 'Go to buffer 3' },
+        { '<A-4>', '<Cmd>BufferGoto 4<CR>', desc = 'Go to buffer 4' },
+        { '<A-5>', '<Cmd>BufferGoto 5<CR>', desc = 'Go to buffer 5' },
+        { '<A-6>', '<Cmd>BufferGoto 6<CR>', desc = 'Go to buffer 6' },
+        { '<A-7>', '<Cmd>BufferGoto 7<CR>', desc = 'Go to buffer 7' },
+        { '<A-8>', '<Cmd>BufferGoto 8<CR>', desc = 'Go to buffer 8' },
+        { '<A-9>', '<Cmd>BufferGoto 9<CR>', desc = 'Go to buffer 9' },
+        { '<leader>bb', '<Cmd>BufferOrderByBufferNumber<CR>', desc = 'Order by buffer number' },
+        { '<leader>bd', '<Cmd>BufferOrderByDirectory<CR>', desc = 'Order by directory' },
+        { '<leader>bl', '<Cmd>BufferOrderByLanguage<CR>', desc = 'Order by language' },
+      },
+    },
+    
+    -- Syntax highlighting and text objects
+    {'nvim-treesitter/nvim-treesitter',
+      build = ':TSUpdate',
+      event = {'BufReadPost', 'BufNewFile'},
+      cmd = {'TSUpdateSync', 'TSUpdate', 'TSInstall'},
+      keys = {
+        { '<leader>ts', '<cmd>TSModuleInfo<cr>', desc = 'Treesitter info' },
+      },
+      opts = {
+        ensure_installed = {
+          "bash", "c", "cpp", "go", "javascript", "json", "lua", "markdown", 
+          "python", "rust", "typescript", "vim", "vimdoc", "yaml"
+        },
+        auto_install = true,
+        highlight = { enable = true },
+        indent = { enable = true },
+        incremental_selection = {
+          enable = true,
+          keymaps = {
+            init_selection = '<CR>',
+            node_incremental = '<CR>',
+            scope_incremental = '<S-CR>',
+            node_decremental = '<BS>',
+          },
+        },
+      },
+      config = function(_, opts)
+        require('nvim-treesitter.configs').setup(opts)
+      end,
+    },
+    {'nvim-treesitter/nvim-treesitter-textobjects',
+      dependencies = {'nvim-treesitter/nvim-treesitter'},
+      config = function()
+        require('nvim-treesitter.configs').setup({
+          textobjects = {
+            select = {
+              enable = true,
+              lookahead = true,
+              keymaps = {
+                ["af"] = "@function.outer",
+                ["if"] = "@function.inner",
+                ["ac"] = "@class.outer",
+                ["ic"] = "@class.inner",
+                ["aa"] = "@parameter.outer",
+                ["ia"] = "@parameter.inner",
+              },
+            },
+            move = {
+              enable = true,
+              set_jumps = true,
+              goto_next_start = {
+                ["]f"] = "@function.outer",
+                ["]c"] = "@class.outer",
+              },
+              goto_next_end = {
+                ["]F"] = "@function.outer",
+                ["]C"] = "@class.outer",
+              },
+              goto_previous_start = {
+                ["[f"] = "@function.outer",
+                ["[c"] = "@class.outer",
+              },
+              goto_previous_end = {
+                ["[F"] = "@function.outer",
+                ["[C"] = "@class.outer",
+              },
+            },
+          },
+        })
+      end,
+    },
+    {'nvim-treesitter/nvim-treesitter-context',
+      dependencies = {'nvim-treesitter/nvim-treesitter'},
+      enabled = true,
+      opts = {
+        enable = true,
+        max_lines = 3,
+        min_window_height = 15,
+        line_numbers = true,
+        multiline_threshold = 5,
+        trim_scope = 'outer',
+        mode = 'topline',
+      },
+    },
+    
+    -- Session management like VS Code workspaces
+    {'mhinz/vim-startify',
+      init = function()
+        vim.g.startify_session_autoload = 1
+        vim.g.startify_session_persistence = 1
+        vim.g.startify_session_delete_buffers = 1
+        vim.g.startify_change_to_vcs_root = 1
+        vim.g.startify_fortune_use_unicode = 1
+        vim.g.startify_session_dir = '~/.config/nvim/sessions'
+        vim.g.startify_lists = {
+          { type = 'sessions',  header = {'   Sessions'} },
+          { type = 'files',     header = {'   Recent Files'} },
+          { type = 'dir',       header = {'   Current Directory: '..vim.fn.getcwd()} },
+          { type = 'bookmarks', header = {'   Bookmarks'} },
+          { type = 'commands',  header = {'   Commands'} },
+        }
+        vim.g.startify_commands = {
+          { t = {'Open Terminal', 'ToggleTerm'} },
+          { f = {'Find File', 'Telescope find_files'} },
+          { g = {'Find Word', 'Telescope live_grep'} },
+          { s = {'New Session', 'Startify'} },
+        }
+        vim.g.startify_bookmarks = {
+          { c = '~/.config/nvim/init.lua' },
+          { z = '~/.zshrc' },
+        }
+      end,
+      keys = {
+        { '<F1>', '<cmd>Startify<CR>', desc = 'Open Startify' },
+        { '<leader>ss', '<cmd>SSave<CR>', desc = 'Save session' },
+        { '<leader>sl', '<cmd>SLoad<CR>', desc = 'Load session' },
+        { '<leader>sd', '<cmd>SDelete<CR>', desc = 'Delete session' },
+        { '<leader>sc', '<cmd>SClose<CR>', desc = 'Close session' },
+      },
+    },
+    
+    -- Mini-map / code preview
+    {'gorbit99/codewindow.nvim',
+      enabled = true,
+      config = function()
+        local has_treesitter = pcall(require, 'nvim-treesitter')
+        if has_treesitter then
+          require('codewindow').setup({
+            auto_enable = true,
+            use_treesitter = true,
+            exclude_filetypes = {
+              'help', 'dashboard', 'NvimTree', 'Trouble', 'TelescopePrompt', 'Float',
+            },
+          })
+          vim.keymap.set('n', '<leader>mm', function()
+            require('codewindow').toggle_minimap()
+          end, { desc = 'Toggle minimap' })
         end
+      end,
+      dependencies = {'nvim-treesitter/nvim-treesitter'},
     },
-    { 
+    
+    -- Command palette and search like VS Code
+    {'gelguy/wilder.nvim',
+      config = function()
+        local wilder = require('wilder')
+        wilder.setup({modes = {':', '/', '?'}})
+        
+        wilder.set_option('renderer', wilder.popupmenu_renderer(
+          wilder.popupmenu_border_theme({
+            highlights = {
+              border = 'Normal', -- highlight to use for the border
+            },
+            border = 'rounded',
+            max_height = '30%',
+            min_width = '30%',
+            prompt_position = 'top',
+            reverse = 0,
+          })
+        ))
+        
+        wilder.set_option('pipeline', {
+          wilder.branch(
+            wilder.cmdline_pipeline(),
+            wilder.search_pipeline()
+          ),
+        })
+        
+        -- Enable fuzzy matching for commands and files
+        wilder.set_option('renderer', wilder.popupmenu_renderer(
+          wilder.popupmenu_border_theme({
+            highlights = {
+              border = 'Normal',
+              accent = wilder.make_hl('WilderAccent', 'Pmenu', {{a = 1}, {a = 1}, {foreground = '#f4468f'}}),
+            },
+            border = 'rounded',
+            highlighter = wilder.basic_highlighter(),
+            left = {' ', wilder.popupmenu_devicons()},
+            right = {' ', wilder.popupmenu_scrollbar()},
+          })
+        ))
+      end,
+      dependencies = {'nvim-tree/nvim-web-devicons'},
+    },
+    
+    -- Fuzzy finder and its extensions
+    {'nvim-telescope/telescope.nvim',
+      dependencies = {
+        'nvim-lua/plenary.nvim',
+        {'nvim-telescope/telescope-fzf-native.nvim', build = 'make'},
+        'nvim-telescope/telescope-file-browser.nvim',
+        'nvim-telescope/telescope-project.nvim',
+        'nvim-telescope/telescope-ui-select.nvim',
+        'nvim-tree/nvim-web-devicons',
+      },
+      cmd = 'Telescope',
+      keys = {
+        { '<leader>ff', '<cmd>Telescope find_files<cr>', desc = 'Find files' },
+        { '<leader>fg', '<cmd>Telescope live_grep<cr>', desc = 'Find word' },
+        { '<leader>fb', '<cmd>Telescope buffers<cr>', desc = 'Find buffers' },
+        { '<leader>fh', '<cmd>Telescope help_tags<cr>', desc = 'Find help' },
+        { '<leader>fc', '<cmd>Telescope commands<cr>', desc = 'Find commands' },
+        { '<leader>fs', '<cmd>Telescope lsp_document_symbols<cr>', desc = 'Find symbols' },
+        { '<leader>fr', '<cmd>Telescope oldfiles<cr>', desc = 'Recent files' },
+        { '<leader>fp', '<cmd>Telescope projects<cr>', desc = 'Projects' },
+        { '<leader>fd', '<cmd>Telescope diagnostics<cr>', desc = 'Diagnostics' },
+        { '<leader>ft', '<cmd>TodoTelescope<cr>', desc = 'Find TODOs' },
+        { '<leader>p', '<cmd>Telescope commands<cr>', desc = 'Command palette' },
+        { '<C-p>', '<cmd>Telescope find_files<cr>', desc = 'Find files (Ctrl+P)' },
+      },
+      config = function()
+        local telescope = require('telescope')
+        local actions = require('telescope.actions')
+        
+        telescope.setup({
+          defaults = {
+            layout_strategy = 'horizontal',
+            layout_config = {
+              width = 0.95,
+              height = 0.85,
+              preview_width = 0.55,
+            },
+            sorting_strategy = 'ascending',
+            winblend = 0,
+            mappings = {
+              i = {
+                ['<C-j>'] = actions.move_selection_next,
+                ['<C-k>'] = actions.move_selection_previous,
+                ['<esc>'] = actions.close,
+                ['<C-u>'] = false,
+                ['<C-d>'] = false,
+              },
+            },
+            file_ignore_patterns = { "node_modules", ".git", "dist", "build" },
+            path_display = { "truncate" },
+          },
+          pickers = {
+            find_files = {
+              hidden = true,
+            },
+            buffers = {
+              show_all_buffers = true,
+              sort_lastused = true,
+              mappings = {
+                i = {
+                  ["<c-d>"] = actions.delete_buffer,
+                },
+              },
+            },
+          },
+          extensions = {
+            fzf = {
+              fuzzy = true,
+              override_generic_sorter = true,
+              override_file_sorter = true,
+              case_mode = "smart_case",
+            },
+            ["ui-select"] = {
+              require("telescope.themes").get_dropdown({}),
+            },
+          },
+        })
+        
+        telescope.load_extension('fzf')
+        telescope.load_extension('file_browser')
+        telescope.load_extension('project')
+        telescope.load_extension('ui-select')
+      end,
+    },
+    
+    -- LSP setup (VSCode-like)
+    {'neovim/nvim-lspconfig',
+      dependencies = {
+        'williamboman/mason.nvim',
+        'williamboman/mason-lspconfig.nvim',
+        'WhoIsSethDaniel/mason-tool-installer.nvim',
+        {'j-hui/fidget.nvim', opts = {}},
+        {'folke/neodev.nvim', opts = {}},
+      },
+      config = function()
+        -- Setup Mason first
+        require('mason').setup({
+          ui = {
+            border = "rounded",
+            icons = {
+              package_installed = "✓",
+              package_pending = "➜",
+              package_uninstalled = "✗"
+            }
+          }
+        })
+        
+        require('mason-lspconfig').setup({
+          ensure_installed = {
+            "lua_ls", "pyright", "tsserver", "gopls", "rust_analyzer"
+          },
+          automatic_installation = true,
+        })
+        
+        require('mason-tool-installer').setup({
+          ensure_installed = {
+            "prettier", "stylua", "isort", "black", "eslint_d"
+          }
+        })
+        
+        -- LSP setup
+        local lspconfig = require('lspconfig')
+        
+        -- Global mappings
+        vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open diagnostic float' })
+        vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Previous diagnostic' })
+        vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Next diagnostic' })
+        vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Add diagnostics to location list' })
+        
+        -- Use LspAttach autocommand to set up mappings
+        vim.api.nvim_create_autocmd('LspAttach', {
+          group = vim.api.nvim_create_augroup('UserLspConfig', {}),
+          callback = function(ev)
+            local client = vim.lsp.get_client_by_id(ev.data.client_id)
+            local opts = { buffer = ev.buf, silent = true }
+            
+            vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+            vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+            vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+            vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+            vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
+            vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, opts)
+            vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, opts)
+            vim.keymap.set('n', '<leader>wl', function()
+              print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+            end, opts)
+            vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, opts)
+            vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
+            vim.keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, opts)
+            vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+            vim.keymap.set('n', '<leader>fm', function()
+              vim.lsp.buf.format { async = true }
+            end, opts)
+          end,
+        })
+        
+        -- Configure specific LSPs
+        lspconfig.lua_ls.setup({
+          settings = {
+            Lua = {
+              diagnostics = {
+                globals = { 'vim' }
+              },
+              workspace = {
+                library = vim.api.nvim_get_runtime_file("", true),
+                checkThirdParty = false,
+              },
+              telemetry = { enable = false },
+            }
+          }
+        })
+        
+        -- Add more server configurations as needed
+        lspconfig.pyright.setup({})
+        lspconfig.tsserver.setup({})
+        lspconfig.gopls.setup({})
+        lspconfig.rust_analyzer.setup({})
+      end,
+    },
+    
+    -- Autocompletion system similar to VS Code
+    {'hrsh7th/nvim-cmp',
+      dependencies = {
+        'hrsh7th/cmp-nvim-lsp',
+        'hrsh7th/cmp-buffer',
+        'hrsh7th/cmp-path',
+        'hrsh7th/cmp-cmdline',
+        'L3MON4D3/LuaSnip',
+        'saadparwaiz1/cmp_luasnip',
+        'rafamadriz/friendly-snippets',
+        'onsails/lspkind.nvim',
         'zbirenbaum/copilot-cmp',
-        config = function()
-            require('copilot_cmp').setup()
-        end
+      },
+      config = function()
+        local cmp = require('cmp')
+        local luasnip = require('luasnip')
+        local lspkind = require('lspkind')
+        
+        -- Load snippets
+        require("luasnip.loaders.from_vscode").lazy_load()
+        
+        cmp.setup({
+          snippet = {
+            expand = function(args)
+              luasnip.lsp_expand(args.body)
+            end,
+          },
+          window = {
+            completion = cmp.config.window.bordered(),
+            documentation = cmp.config.window.bordered(),
+          },
+          mapping = cmp.mapping.preset.insert({
+            ['<C-Space>'] = cmp.mapping.complete(),
+            ['<C-e>'] = cmp.mapping.abort(),
+            ['<CR>'] = cmp.mapping.confirm({ select = true }),
+            ['<Tab>'] = cmp.mapping(function(fallback)
+              if cmp.visible() then
+                cmp.select_next_item()
+              elseif luasnip.expand_or_jumpable() then
+                luasnip.expand_or_jump()
+              else
+                fallback()
+              end
+            end, { 'i', 's' }),
+            ['<S-Tab>'] = cmp.mapping(function(fallback)
+              if cmp.visible() then
+                cmp.select_prev_item()
+              elseif luasnip.jumpable(-1) then
+                luasnip.jump(-1)
+              else
+                fallback()
+              end
+            end, { 'i', 's' }),
+          }),
+          sources = cmp.config.sources({
+            { name = 'copilot', group_index = 2 },
+            { name = 'nvim_lsp', group_index = 2 },
+            { name = 'luasnip', group_index = 2 },
+            { name = 'buffer', group_index = 3 },
+            { name = 'path', group_index = 3 },
+          }),
+          formatting = {
+            format = lspkind.cmp_format({
+              mode = 'symbol_text',
+              maxwidth = 50,
+              ellipsis_char = '...',
+              symbol_map = { Copilot = "" }
+            })
+          },
+          experimental = {
+            ghost_text = true,
+          },
+        })
+        
+        -- Set up cmdline completion
+        cmp.setup.cmdline('/', {
+          mapping = cmp.mapping.preset.cmdline(),
+          sources = {
+            { name = 'buffer' }
+          }
+        })
+        
+        cmp.setup.cmdline(':', {
+          mapping = cmp.mapping.preset.cmdline(),
+          sources = cmp.config.sources({
+            { name = 'path' }
+          }, {
+            { name = 'cmdline' }
+          })
+        })
+      end,
     },
-    { 'f-person/git-blame.nvim' }, -- Git blame integration
-    { 'mg979/vim-visual-multi' }, -- Multiple cursors
-    -- { 'nvim-treesitter/nvim-treesitter-context' }, -- Show context at top of buffer
-    { 
-        'folke/todo-comments.nvim', -- Highlight and list TODO comments
-        dependencies = {'nvim-lua/plenary.nvim'}
+    
+    -- GitHub Copilot integration (VS Code's most popular extension)
+    {'zbirenbaum/copilot.lua',
+      cmd = "Copilot",
+      event = "InsertEnter",
+      config = function()
+        require('copilot').setup({
+          panel = {
+            enabled = true,
+            auto_refresh = true,
+            keymap = {
+              jump_prev = "[[",
+              jump_next = "]]",
+              accept = "<CR>",
+              refresh = "gr",
+              open = "<M-CR>"
+            },
+            layout = {
+              position = "bottom",
+              ratio = 0.4
+            },
+          },
+          suggestion = {
+            enabled = true,
+            auto_trigger = true,
+            debounce = 75,
+            keymap = {
+              accept = "<M-l>",
+              accept_word = "<M-w>",
+              accept_line = "<M-j>",
+              next = "<M-]>",
+              prev = "<M-[>",
+              dismiss = "<C-]>",
+            },
+          },
+          filetypes = {
+            yaml = false,
+            markdown = false,
+            help = false,
+            gitcommit = false,
+            gitrebase = false,
+            hgcommit = false,
+            svn = false,
+            cvs = false,
+            ["."] = false,
+          },
+          copilot_node_command = 'node',
+          server_opts_overrides = {},
+        })
+      end,
     },
-    { 'sbdchd/neoformat' } -- Alternative formatter
-}, {lazy = false, version = false})
+    {'zbirenbaum/copilot-cmp',
+      dependencies = {'zbirenbaum/copilot.lua'},
+      config = function()
+        require('copilot_cmp').setup()
+      end,
+    },
+    
+    -- VS Code-like diagnostic list
+    {'folke/trouble.nvim',
+      dependencies = {'nvim-tree/nvim-web-devicons'},
+      keys = {
+        { '<leader>xx', '<cmd>TroubleToggle<cr>', desc = 'Toggle trouble' },
+        { '<leader>xw', '<cmd>TroubleToggle workspace_diagnostics<cr>', desc = 'Workspace diagnostics' },
+        { '<leader>xd', '<cmd>TroubleToggle document_diagnostics<cr>', desc = 'Document diagnostics' },
+        { '<leader>xq', '<cmd>TroubleToggle quickfix<cr>', desc = 'Quickfix' },
+        { '<leader>xl', '<cmd>TroubleToggle loclist<cr>', desc = 'Location list' },
+        { '<leader>tt', '<cmd>TroubleToggle<cr>', desc = 'Toggle trouble' },
+      },
+      opts = {
+        position = "bottom",
+        height = 10,
+        width = 50,
+        icons = true,
+        mode = "workspace_diagnostics",
+        fold_open = "",
+        fold_closed = "",
+        group = true,
+        padding = true,
+        action_keys = {
+          close = "q", 
+          cancel = "<esc>", 
+          refresh = "r",
+          jump = {"<cr>", "<tab>"},
+          open_split = {"<c-s>"},
+          open_vsplit = {"<c-v>"},
+          open_tab = {"<c-t>"},
+          jump_close = {"o"},
+          toggle_mode = "m",
+          toggle_preview = "P",
+          hover = "K",
+          preview = "p",
+          close_folds = {"zM", "zm"},
+          open_folds = {"zR", "zr"},
+          toggle_fold = {"zA", "za"},
+          previous = "k",
+          next = "j"
+        },
+        indent_lines = true,
+        auto_open = false,
+        auto_close = false,
+        auto_preview = true,
+        auto_fold = false,
+        auto_jump = {"lsp_definitions"},
+        signs = {
+          error = "",
+          warning = "",
+          hint = "",
+          information = "",
+          other = ""
+        },
+        use_diagnostic_signs = false
+      },
+    },
+    
+    -- Symbol outline similar to VS Code
+    {'simrat39/symbols-outline.nvim',
+      keys = {
+        { '<leader>so', '<cmd>SymbolsOutline<cr>', desc = 'Toggle Symbols Outline' },
+      },
+      config = function() 
+        require('symbols-outline').setup({
+          highlight_hovered_item = true,
+          show_guides = true,
+          auto_preview = false,
+          position = 'right',
+          width = 25,
+          keymaps = {
+            close = {"<Esc>", "q"},
+            goto_location = "<Cr>",
+            focus_location = "o",
+            hover_symbol = "<C-space>",
+            rename_symbol = "r",
+            code_actions = "a",
+            fold = "h",
+            unfold = "l",
+            fold_all = "W",
+            unfold_all = "E",
+            fold_reset = "R",
+          },
+          symbols = {
+            File = {icon = "", hl = "@text.uri"},
+            Module = {icon = "", hl = "@namespace"},
+            Namespace = {icon = "", hl = "@namespace"},
+            Package = {icon = "", hl = "@namespace"},
+            Class = {icon = "𝓒", hl = "@type"},
+            Method = {icon = "ƒ", hl = "@method"},
+            Property = {icon = "", hl = "@method"},
+            Field = {icon = "", hl = "@field"},
+            Constructor = {icon = "", hl = "@constructor"},
+            Enum = {icon = "ℰ", hl = "@type"},
+            Interface = {icon = "ﰮ", hl = "@type"},
+            Function = {icon = "", hl = "@function"},
+            Variable = {icon = "", hl = "@constant"},
+            Constant = {icon = "", hl = "@constant"},
+            String = {icon = "𝓐", hl = "@string"},
+            Number = {icon = "#", hl = "@number"},
+            Boolean = {icon = "⊨", hl = "@boolean"},
+            Array = {icon = "", hl = "@constant"},
+            Object = {icon = "⦿", hl = "@type"},
+            Key = {icon = "🔐", hl = "@type"},
+            Null = {icon = "NULL", hl = "@type"},
+            EnumMember = {icon = "", hl = "@field"},
+            Struct = {icon = "𝓢", hl = "@type"},
+            Event = {icon = "🗲", hl = "@type"},
+            Operator = {icon = "+", hl = "@operator"},
+            TypeParameter = {icon = "𝙏", hl = "@parameter"}
+          }
+        })
+      end
+    },
+    {'stevearc/aerial.nvim',
+      keys = {
+        { '<leader>to', '<cmd>AerialToggle<cr>', desc = 'Toggle Aerial (Code Outline)' },
+      },
+      opts = {
+        layout = {
+          default_direction = "right",
+          placement = "edge",
+          width = 30,
+        },
+        on_attach = function(bufnr)
+          vim.keymap.set('n', '{', '<cmd>AerialPrev<CR>', {buffer = bufnr})
+          vim.keymap.set('n', '}', '<cmd>AerialNext<CR>', {buffer = bufnr})
+        end,
+      },
+    },
+    
+    -- VS Code-like key binding hints
+    {'folke/which-key.nvim',
+      event = "VeryLazy",
+      config = function()
+        vim.o.timeout = true
+        vim.o.timeoutlen = 300
+        
+        local which_key = require('which-key')
+        which_key.setup({
+          plugins = {
+            marks = true,
+            registers = true,
+            spelling = {
+              enabled = false,
+            },
+            presets = {
+              operators = true,
+              motions = true,
+              text_objects = true,
+              windows = true,
+              nav = true,
+              z = true,
+              g = true,
+            },
+          },
+          window = {
+            border = "single",
+            position = "bottom",
+            margin = { 1, 0, 1, 0 },
+            padding = { 2, 2, 2, 2 },
+            winblend = 0,
+          },
+          layout = {
+            height = { min = 4, max = 25 },
+            width = { min = 20, max = 50 },
+            spacing = 3,
+            align = "left",
+          },
+          ignore_missing = false,
+          hidden = { "<silent>", "<cmd>", "<Cmd>", "<CR>", "^:", "^ ", "^call ", "^lua " },
+          show_help = true,
+          triggers = "auto",
+          triggers_blacklist = {
+            i = { "j", "k" },
+            v = { "j", "k" },
+          },
+        })
+        
+        -- Register key group labels
+        which_key.register({
+          ['<leader>'] = {
+            f = { name = '+find' },
+            b = { name = '+buffer' },
+            w = { name = '+workspace' },
+            c = { name = '+code/copilot' },
+            g = { name = '+git' },
+            h = { name = '+hunks' },
+            l = { name = '+lsp' },
+            s = { name = '+session' },
+            t = { name = '+toggle' },
+            x = { name = '+trouble/diagnostics' },
+            p = { name = '+project/file' },
+            n = { name = '+newline' },
+          },
+        })
+      end,
+    },
+    
+    -- Terminal integration
+    {'akinsho/toggleterm.nvim',
+      version = "*",
+      keys = {
+        { '<C-\\>', '<cmd>ToggleTerm<cr>', desc = 'Toggle Terminal' },
+        { '<leader>tf', '<cmd>ToggleTerm direction=float<cr>', desc = 'Float Terminal' },
+        { '<leader>th', '<cmd>ToggleTerm size=10 direction=horizontal<cr>', desc = 'Horizontal Terminal' },
+        { '<leader>tv', '<cmd>ToggleTerm size=80 direction=vertical<cr>', desc = 'Vertical Terminal' },
+      },
+      opts = {
+        size = function(term)
+          if term.direction == "horizontal" then
+            return 15
+          elseif term.direction == "vertical" then
+            return vim.o.columns * 0.4
+          end
+        end,
+        open_mapping = [[<c-\>]],
+        hide_numbers = true,
+        shade_filetypes = {},
+        shade_terminals = true,
+        shading_factor = 2,
+        start_in_insert = true,
+        insert_mappings = true,
+        persist_size = true,
+        direction = "float",
+        close_on_exit = true,
+        shell = vim.o.shell,
+        float_opts = {
+          border = "curved",
+          winblend = 0,
+          highlights = {
+            border = "Normal",
+            background = "Normal",
+          },
+        },
+      },
+    },
+    
+    -- Commenting support (like VS Code)
+    {'numToStr/Comment.nvim',
+      opts = {
+        padding = true,
+        sticky = true,
+        ignore = nil,
+        toggler = {
+          line = 'gcc',
+          block = 'gbc',
+        },
+        opleader = {
+          line = 'gc',
+          block = 'gb',
+        },
+        extra = {
+          above = 'gcO',
+          below = 'gco',
+          eol = 'gcA',
+        },
+        mappings = {
+          basic = true,
+          extra = true,
+        },
+      },
+    },
+    
+    -- Auto-pairing (like VS Code)
+    {'windwp/nvim-autopairs',
+      event = "InsertEnter",
+      opts = {
+        check_ts = true,
+        ts_config = {
+          lua = {'string'},
+          javascript = {'template_string'},
+        },
+        disable_filetype = {'TelescopePrompt', 'vim'},
+        fast_wrap = {
+          map = '<M-e>',
+          chars = {'{', '[', '(', '"', "'"},
+          pattern = [=[[%'%"%)%>%]%)%}%,]]=],
+          end_key = '$',
+          keys = 'qwertyuiopzxcvbnmasdfghjkl',
+          check_comma = true,
+          highlight = 'Search',
+          highlight_grey = 'Comment',
+        },
+      },
+    },
+    
+    -- Highlight and list TODOs (like VS Code's todo-highlight)
+    {'folke/todo-comments.nvim',
+      dependencies = {'nvim-lua/plenary.nvim'},
+      keys = {
+        { '<leader>ft', '<cmd>TodoTelescope<cr>', desc = 'Find TODOs' },
+        { '<leader>xt', '<cmd>TroubleToggle todo<cr>', desc = 'TODOs (Trouble)' },
+        { ']t', function() require('todo-comments').jump_next() end, desc = 'Next TODO' },
+        { '[t', function() require('todo-comments').jump_prev() end, desc = 'Previous TODO' },
+      },
+      opts = {
+        signs = true,
+        sign_priority = 8,
+        keywords = {
+          FIX = {
+            icon = " ",
+            color = "error", 
+            alt = { "FIXME", "BUG", "FIXIT", "ISSUE" },
+          },
+          TODO = { icon = " ", color = "info" },
+          HACK = { icon = " ", color = "warning" },
+          WARN = { icon = " ", color = "warning", alt = { "WARNING", "XXX" } },
+          PERF = { icon = " ", alt = { "OPTIM", "PERFORMANCE", "OPTIMIZE" } },
+          NOTE = { icon = " ", color = "hint", alt = { "INFO" } },
+          TEST = { icon = "⏲ ", color = "test", alt = { "TESTING", "PASSED", "FAILED" } },
+        },
+        gui_style = {
+          fg = "NONE",
+          bg = "BOLD",
+        },
+        merge_keywords = true,
+        highlight = {
+          multiline = true,
+          multiline_pattern = "^.",
+          multiline_context = 10,
+          before = "",
+          keyword = "wide",
+          after = "fg",
+          pattern = [[.*<(KEYWORDS)\s*:]],
+          comments_only = true,
+          max_line_len = 400,
+          exclude = {},
+        },
+        colors = {
+          error = { "DiagnosticError", "ErrorMsg", "#DC2626" },
+          warning = { "DiagnosticWarning", "WarningMsg", "#FBBF24" },
+          info = { "DiagnosticInfo", "#2563EB" },
+          hint = { "DiagnosticHint", "#10B981" },
+          default = { "Identifier", "#7C3AED" },
+          test = { "Identifier", "#FF00FF" }
+        },
+        search = {
+          command = "rg",
+          args = {
+            "--color=never",
+            "--no-heading",
+            "--with-filename",
+            "--line-number",
+            "--column",
+          },
+          pattern = [[\b(KEYWORDS):]],
+        },
+      },
+    },
+    
+    -- Status line (like VS Code)
+    {'nvim-lualine/lualine.nvim',
+      event = "VeryLazy",
+      dependencies = {'nvim-tree/nvim-web-devicons'},
+      opts = {
+        options = {
+          icons_enabled = true,
+          theme = 'auto',
+          component_separators = { left = '', right = ''},
+          section_separators = { left = '', right = ''},
+          disabled_filetypes = {
+            statusline = {'NvimTree', 'Trouble', 'Outline', 'Startify'},
+            winbar = {},
+          },
+          ignore_focus = {},
+          always_divide_middle = true,
+          globalstatus = true,
+          refresh = {
+            statusline = 1000,
+            tabline = 1000,
+            winbar = 1000,
+          }
+        },
+        sections = {
+          lualine_a = {'mode'},
+          lualine_b = {
+            'branch', 
+            'diff', 
+            {
+              'diagnostics',
+              sources = {'nvim_diagnostic'},
+              symbols = {error = ' ', warn = ' ', info = ' ', hint = ' '},
+            }
+          },
+          lualine_c = {
+            {
+              'filename',
+              path = 1, -- Show relative path
+              symbols = {
+                modified = '●',
+                readonly = '',
+                unnamed = '[No Name]',
+                newfile = '[New]',
+              }
+            }
+          },
+          lualine_x = {
+            {
+              function()
+                local ok, copilot = pcall(require, "copilot.client")
+                if ok then
+                  local clients = copilot.get_clients()
+                  if #clients > 0 then
+                    return " " .. (clients[1].stats.show_spinner and "⋯" or "")
+                  end
+                end
+                return ""
+              end,
+            },
+            'encoding',
+            'fileformat',
+            'filetype'
+          },
+          lualine_y = {'progress'},
+          lualine_z = {'location'}
+        },
+        inactive_sections = {
+          lualine_a = {},
+          lualine_b = {},
+          lualine_c = {'filename'},
+          lualine_x = {'location'},
+          lualine_y = {},
+          lualine_z = {}
+        },
+        tabline = {},
+        winbar = {},
+        inactive_winbar = {},
+        extensions = {'nvim-tree', 'toggleterm', 'symbols-outline', 'trouble'}
+      },
+    },
+    
+    -- Multiple cursors (like VS Code)
+    {'mg979/vim-visual-multi', 
+      branch = 'master',
+    },
+    
+    -- Git blame (like VS Code GitLens)
+    {'f-person/git-blame.nvim',
+      opts = {
+        enabled = false,
+        date_format = '%Y-%m-%d',
+        message_template = '  <author> • <date> • <summary>',
+        message_when_not_committed = 'Not committed yet',
+        highlight_group = 'Comment',
+        display_virtual_text = true,
+        delay = 1000,
+      },
+      keys = {
+        { '<leader>gb', '<cmd>GitBlameToggle<cr>', desc = 'Toggle Git Blame' },
+      },
+    },
+    
+    -- Formatter
+    {'mhartington/formatter.nvim',
+      keys = {
+        { '<leader>fm', '<cmd>FormatWrite<cr>', desc = 'Format file' },
+      },
+      config = function()
+        require('formatter').setup({
+          logging = true,
+          log_level = vim.log.levels.WARN,
+          filetype = {
+            lua = {
+              require('formatter.filetypes.lua').stylua,
+            },
+            javascript = {
+              require('formatter.filetypes.javascript').prettier,
+            },
+            typescript = {
+              require('formatter.filetypes.typescript').prettier,
+            },
+            javascriptreact = {
+              require('formatter.filetypes.javascriptreact').prettier,
+            },
+            typescriptreact = {
+              require('formatter.filetypes.typescriptreact').prettier,
+            },
+            json = {
+              require('formatter.filetypes.json').prettier,
+            },
+            html = {
+              require('formatter.filetypes.html').prettier,
+            },
+            css = {
+              require('formatter.filetypes.css').prettier,
+            },
+            python = {
+              require('formatter.filetypes.python').black,
+            },
+            go = {
+              require('formatter.filetypes.go').gofmt,
+            },
+            rust = {
+              require('formatter.filetypes.rust').rustfmt,
+            },
+            ["*"] = {
+              require('formatter.filetypes.any').remove_trailing_whitespace,
+            }
+          }
+        })
+      end,
+    },
+    
+    -- Indentation guides
+    {'lukas-reineke/indent-blankline.nvim',
+      main = "ibl",
+      opts = {
+        indent = {
+          char = "│",
+        },
+        scope = {
+          enabled = true,
+          show_start = true,
+          show_end = true,
+        },
+      },
+    },
+    
+    -- Smooth scrolling like VS Code
+    {'karb94/neoscroll.nvim',
+      opts = {
+        mappings = {'<C-u>', '<C-d>', '<C-b>', '<C-f>', 'zt', 'zz', 'zb'},
+        hide_cursor = true,
+        stop_eof = true,
+        respect_scrolloff = false,
+        cursor_scrolls_alone = true,
+        easing_function = "cubic",
+        pre_hook = nil,
+        post_hook = nil,
+      },
+    },
+    
+    -- Neoformat (alternative formatter)
+    {'sbdchd/neoformat'},
+    
+}, {
+  ui = {
+    border = "rounded",
+    icons = {
+      cmd = "⌘",
+      config = "🛠",
+      event = "📅",
+      ft = "📂",
+      init = "⚙",
+      keys = "🔑",
+      plugin = "🔌",
+      runtime = "💻",
+      source = "📄",
+      start = "🚀",
+      task = "📌",
+      lazy = "💤 ",
+    },
+  },
+  performance = {
+    rtp = {
+      disabled_plugins = {
+        "gzip",
+        "matchit",
+        "matchparen",
+        "netrwPlugin",
+        "tarPlugin",
+        "tohtml",
+        "tutor",
+        "zipPlugin",
+      },
+    },
+  },
+  checker = { enabled = false },
+  change_detection = { enabled = true, notify = false },
+})
 
 -- Load configuration modules
 local config_modules = {
