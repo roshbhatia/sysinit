@@ -57,7 +57,7 @@ vim.g.startify_lists = {
 -- Enable Startify session autoload.
 vim.g.startify_session_autoload = 1
 
--- Modify Startify session to toggle code preview
+-- Modify Startify session to toggle code preview and disable indent guides
 vim.api.nvim_create_autocmd('User', {
     pattern = 'StartifyBufferOpened',
     callback = function()

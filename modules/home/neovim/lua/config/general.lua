@@ -55,13 +55,13 @@ vim.o.undodir = vim.fn.expand('~/.vim/undodir')
 vim.o.directory = '/tmp'
 
 -- Faster update time for better UX (like VSCode's responsiveness)
-vim.o.updatetime = 300
+vim.o.updatetime = 100
 
 -- Shorter timeoutlen for faster command response
-vim.o.timeoutlen = 500
+vim.o.timeoutlen = 300
 
 -- More space for displaying messages
-vim.o.cmdheight = 2
+vim.o.cmdheight = 1
 
 -- Show sign column always (like VSCode gutter)
 vim.o.signcolumn = 'yes'
@@ -101,3 +101,26 @@ vim.cmd('colorscheme catppuccin')
 
 -- Configure cursor - block in normal, line in insert (VSCode-like)
 vim.o.guicursor = 'n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50'
+
+-- Disable mode display since we have a status line
+vim.o.showmode = false
+
+-- Enable cursorline for better visual tracking
+vim.o.cursorline = true
+
+-- Better completion experience
+vim.o.completeopt = 'menu,menuone,noselect'
+
+-- VSCode-like fold settings
+vim.o.foldmethod = 'expr'
+vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
+-- Don't fold by default
+vim.o.foldenable = false
+vim.o.foldlevel = 99
+
+-- Hide command line when not in use (cleaner UI)
+vim.o.cmdheight = 1
+vim.o.laststatus = 3 -- Global statusline
+
+-- Add visual indicator for line length
+vim.wo.colorcolumn = '100'

@@ -1268,30 +1268,103 @@ require('lazy').setup({
     -- Indentation guides
     {'lukas-reineke/indent-blankline.nvim',
       main = "ibl",
-      opts = {
-        indent = {
-          char = "│",
-        },
-        scope = {
-          enabled = true,
-          show_start = true,
-          show_end = true,
-        },
-      },
+      config = function()
+        local highlight = {
+          "RainbowRed",
+          "RainbowYellow",
+          "RainbowBlue",
+          "RainbowOrange",
+          "RainbowGreen",
+          "RainbowViolet",
+          "RainbowCyan",
+        }
+        
+        local hooks = require "ibl.hooks"
+        -- Create the highlight groups in the highlight setup hook
+        -- so they are reset whenever the colorscheme changes
+        hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
+          vim.api.nvim_set_hl(0, "RainbowRed", { fg = "#E06C75" })
+          vim.api.nvim_set_hl(0, "RainbowYellow", { fg = "#E5C07B" })
+          vim.api.nvim_set_hl(0, "RainbowBlue", { fg = "#61AFEF" })
+          vim.api.nvim_set_hl(0, "RainbowOrange", { fg = "#D19A66" })
+          vim.api.nvim_set_hl(0, "RainbowGreen", { fg = "#98C379" })
+          vim.api.nvim_set_hl(0, "RainbowViolet", { fg = "#C678DD" })
+          vim.api.nvim_set_hl(0, "RainbowCyan", { fg = "#56B6C2" })
+        end)
+
+        -- Enable scope highlighting with rainbow delimiters integration
+        vim.g.rainbow_delimiters = { highlight = highlight }
+        
+        require("ibl").setup {
+          indent = {
+            char = "│",
+            highlight = highlight,
+          },
+          scope = {
+            enabled = true,
+            show_start = true,
+            show_end = true,
+            highlight = highlight,
+          },
+        }
+        
+        -- Handle special buffers like startify
+        vim.api.nvim_create_autocmd("FileType", {
+          pattern = "startify",
+          callback = function(args)
+            require("ibl").setup_buffer(args.buf, { enabled = false })
+          end,
+        })
+        
+        -- Add IBL commands for Neovim 0.7+ compatibility
+        -- These commands are redefined in init.lua to ensure they're available early
+        vim.api.nvim_create_user_command('IBLDisable', function()
+          require('ibl').setup_buffer(0, { enabled = false })
+        end, {})
+        
+        vim.api.nvim_create_user_command('IBLEnable', function()
+          require('ibl').setup_buffer(0, { enabled = true })
+        end, {})
+        
+        -- Link scope highlighting to rainbow delimiters
+        hooks.register(hooks.type.SCOPE_HIGHLIGHT, hooks.builtin.scope_highlight_from_extmark)
+      end,
     },
     
-    -- Smooth scrolling like VS Code
-    {'karb94/neoscroll.nvim',
-      opts = {
-        mappings = {'<C-u>', '<C-d>', '<C-b>', '<C-f>', 'zt', 'zz', 'zb'},
-        hide_cursor = true,
-        stop_eof = true,
-        respect_scrolloff = false,
-        cursor_scrolls_alone = true,
-        easing_function = "cubic",
-        pre_hook = nil,
-        post_hook = nil,
-      },
+    -- Animation with mini.animate (replaces neoscroll)
+    {'echasnovski/mini.nvim',
+      version = false,
+      config = function()
+        require('mini.animate').setup({
+          cursor = {
+            enable = true,
+            timing = function(_, n) return 150 / n end,
+            path = require('mini.animate').gen_path.line(),
+          },
+          scroll = {
+            enable = true,
+            timing = function(_, n) return 200 / n end,
+            subscroll = require('mini.animate').gen_subscroll.cubic({ easing = 'in-out' }),
+          },
+          resize = {
+            enable = true,
+            timing = function(_, n) return 100 / n end,
+          },
+          open = {
+            enable = true,
+            timing = function(_, n) return 250 / n end,
+          },
+          close = {
+            enable = true,
+            timing = function(_, n) return 250 / n end,
+          },
+          -- Set minimum window width to prevent layout shift on smaller windows
+          win_config = {
+            width = math.floor(0.8 * vim.o.columns),
+            height = math.floor(0.8 * vim.o.lines),
+          },
+        })
+      end,
     },
     
     -- Neoformat (alternative formatter)
