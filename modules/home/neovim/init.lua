@@ -70,9 +70,19 @@ local function bootstrap_config()
   end
   
   -- Try to load the main configuration
-  local ok, _ = pcall(require, 'config')
+  local ok, err = pcall(require, 'config')
   if not ok then
-    vim.notify("Error loading configuration, falling back to basics", vim.log.levels.WARN)
+    -- Use print instead of vim.notify for error messages
+    print("Error loading configuration, falling back to basics")
+    print("Error details: " .. err)
+    
+    -- Try to load individual config modules directly
+    for _, module in ipairs({'general', 'barline', 'startify', 'nvim-tree', 'codewindow', 'wilder', 'keystroke'}) do
+      local mod_ok, mod_err = pcall(require, 'config.' .. module)
+      if not mod_ok then
+        print('Failed to load ' .. module .. ': ' .. mod_err)
+      end
+    end
     
     -- Setup basic keymaps if config fails to load
     vim.keymap.set('n', '<leader>ff', ':find ', {noremap = true})
@@ -105,6 +115,18 @@ local function bootstrap_config()
     -- VS Code-like cursor behavior
     vim.o.guicursor = 'n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50'
   end
+end
+
+-- Add package path to find modules in lua directory
+local config_path = vim.fn.stdpath('config')
+package.path = package.path .. ';' .. config_path .. '/lua/?.lua;' .. config_path .. '/lua/?/init.lua'
+
+-- Try to load the fixes module first to address common issues
+local fixes_loaded, _ = pcall(dofile, config_path .. '/fix-neovim-errors.lua')
+if fixes_loaded then
+  print("Applied error fixes from fix-neovim-errors.lua")
+else
+  print("Could not apply error fixes - file may not exist")
 end
 
 -- Start the bootstrap process
