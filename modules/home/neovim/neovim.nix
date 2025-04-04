@@ -20,6 +20,7 @@
       mason-lspconfig-nvim
       nvim-lspconfig
       vim-startify
+      indent-blankline-nvim
     ];
   };
   
