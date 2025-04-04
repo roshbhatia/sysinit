@@ -136,6 +136,10 @@ require("lazy").setup({
                     hidden = { "<silent>", "<cmd>", "<Cmd>", "<CR>", "^:", "^ ", "^call ", "^lua " },
                     show_help = true,
                     triggers = "auto",
+                    triggers_blacklist = {
+                        i = { "j", "k" },
+                        v = { "j", "k" },
+                    },
                 })
                 
                 -- Register key group labels
