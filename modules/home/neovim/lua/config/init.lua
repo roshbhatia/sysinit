@@ -465,7 +465,7 @@ require('lazy').setup({
         
         require('mason-lspconfig').setup({
           ensure_installed = {
-            "lua_ls", "pyright", "tsserver", "gopls", "rust_analyzer"
+            "lua_ls", "pyright", "typescript-language-server", "gopls", "rust_analyzer"
           },
           automatic_installation = true,
         })
@@ -1262,22 +1262,42 @@ local config_modules = {
     'general', 'barline', 'startify', 'nvim-tree', 'codewindow', 'wilder', 'keystroke'
 }
 
-for _, module in ipairs(config_modules) do require('config.' .. module) end
+-- Use pcall for each module to avoid breaking if one fails
+for _, module in ipairs(config_modules) do 
+    local ok, err = pcall(require, 'config.' .. module)
+    if not ok then
+        print('Error loading module ' .. module .. ': ' .. err)
+    end
+end
 
 -- LSP setup
 local lspconfig = require('lspconfig')
 
 -- Add your language servers here
--- Example for common languages:
--- lspconfig.tsserver.setup{}
--- lspconfig.pyright.setup{}
--- lspconfig.rust_analyzer.setup{}
--- lspconfig.gopls.setup{}
+-- Use ts_ls instead of tsserver (which is deprecated)
+if lspconfig.ts_ls then
+    lspconfig.ts_ls.setup{}
+else
+    -- Fall back to tsserver if ts_ls is not available
+    pcall(function() lspconfig.tsserver.setup{} end)
+end
+
+-- Other common language servers
+pcall(function() lspconfig.pyright.setup{} end)
+pcall(function() lspconfig.rust_analyzer.setup{} end)
+pcall(function() lspconfig.gopls.setup{} end)
 
 -- Autocompletion setup
-local cmp = require('cmp')
-local luasnip = require('luasnip')
-local lspkind = require('lspkind')
+local cmp_ok, cmp = pcall(require, 'cmp')
+local luasnip_ok, luasnip = pcall(require, 'luasnip')
+local lspkind_ok, lspkind = pcall(require, 'lspkind')
+
+-- Only proceed if all required modules are available
+if not (cmp_ok and luasnip_ok and lspkind_ok) then
+    print("Warning: Some autocompletion modules could not be loaded")
+    print("cmp: " .. tostring(cmp_ok) .. ", luasnip: " .. tostring(luasnip_ok) .. ", lspkind: " .. tostring(lspkind_ok))
+    return  -- Exit early
+end
 
 require('luasnip.loaders.from_vscode').lazy_load()
 
@@ -1318,11 +1338,20 @@ cmp.setup({
 })
 
 -- Set up other IDE features
-require('nvim-autopairs').setup({})
-require('nvim_comment').setup()
-require('symbols-outline').setup()
-require('trouble').setup()
-require('toggleterm').setup({open_mapping = [[<c-\>]], direction = 'float'})
+local ok1, autopairs = pcall(require, 'nvim-autopairs')
+if ok1 then autopairs.setup({}) end
+
+local ok2, comment = pcall(require, 'Comment') -- Fix: Changed 'nvim_comment' to 'Comment'
+if ok2 then comment.setup() end
+
+local ok3, symbols = pcall(require, 'symbols-outline')
+if ok3 then symbols.setup() end
+
+local ok4, trouble = pcall(require, 'trouble')
+if ok4 then trouble.setup() end
+
+local ok5, toggleterm = pcall(require, 'toggleterm')
+if ok5 then toggleterm.setup({open_mapping = [[<c-\>]], direction = 'float'}) end
 
 -- Treesitter setup
 -- require('nvim-treesitter.configs').setup({
@@ -1345,85 +1374,100 @@ require('toggleterm').setup({open_mapping = [[<c-\>]], direction = 'float'})
 -- })
 
 -- Aerial setup (Code outline)
-require('aerial').setup({
-    layout = {
-        default_direction = "right",
-        placement = "edge",
-        width = 30,
-    },
-    keymaps = {
-        ["<leader>to"] = "toggle",
-    },
-})
+local ok_aerial, aerial = pcall(require, 'aerial')
+if ok_aerial then
+    aerial.setup({
+        layout = {
+            default_direction = "right",
+            placement = "edge",
+            width = 30,
+        },
+        keymaps = {
+            ["<leader>to"] = "toggle",
+        },
+    })
+end
 
 -- Formatting setup
-require('formatter').setup({
-    filetype = {
-        javascript = {
-            function()
-                return {
-                    exe = "prettier",
-                    args = {"--stdin-filepath", vim.fn.fnameescape(vim.api.nvim_buf_get_name(0))},
-                    stdin = true
-                }
-            end
-        },
-        typescript = {
-            function()
-                return {
-                    exe = "prettier",
-                    args = {"--stdin-filepath", vim.fn.fnameescape(vim.api.nvim_buf_get_name(0))},
-                    stdin = true
-                }
-            end
-        },
-        python = {
-            function()
-                return {
-                    exe = "black",
-                    args = {"-"},
-                    stdin = true
-                }
-            end
-        },
-        rust = {
-            function()
-                return {
-                    exe = "rustfmt",
-                    args = {"--emit=stdout"},
-                    stdin = true
-                }
-            end
-        },
-        go = {
-            function()
-                return {
-                    exe = "gofmt",
-                    stdin = true
-                }
-            end
-        },
-    }
-})
+local ok_formatter, formatter = pcall(require, 'formatter')
+if ok_formatter then
+    formatter.setup({
+        filetype = {
+            javascript = {
+                function()
+                    return {
+                        exe = "prettier",
+                        args = {"--stdin-filepath", vim.fn.fnameescape(vim.api.nvim_buf_get_name(0))},
+                        stdin = true
+                    }
+                end
+            },
+            typescript = {
+                function()
+                    return {
+                        exe = "prettier",
+                        args = {"--stdin-filepath", vim.fn.fnameescape(vim.api.nvim_buf_get_name(0))},
+                        stdin = true
+                    }
+                end
+            },
+            python = {
+                function()
+                    return {
+                        exe = "black",
+                        args = {"-"},
+                        stdin = true
+                    }
+                end
+            },
+            rust = {
+                function()
+                    return {
+                        exe = "rustfmt",
+                        args = {"--emit=stdout"},
+                        stdin = true
+                    }
+                end
+            },
+            go = {
+                function()
+                    return {
+                        exe = "gofmt",
+                        stdin = true
+                    }
+                end
+            },
+        }
+    })
+end
 
--- Format on save
-vim.cmd([[augroup FormatAutogroup
-  autocmd!
-  autocmd BufWritePost * FormatWrite
-augroup END]])
+-- Format on save (only if formatter is available)
+if ok_formatter then
+  vim.cmd([[augroup FormatAutogroup
+    autocmd!
+    autocmd BufWritePost * FormatWrite
+  augroup END]])
+end
 
 -- Git blame setup
-require('gitblame').setup({
-    enabled = false,
-})
+local ok_blame, gitblame = pcall(require, 'gitblame')
+if ok_blame then 
+    gitblame.setup({
+        enabled = false,
+    })
+end
 
 -- Todo comments
-require('todo-comments').setup()
+local ok_todo, todocomments = pcall(require, 'todo-comments')
+if ok_todo then todocomments.setup() end
 
 -- Kubectl setup
-require('kubectl').setup({
-    -- Your kubectl config here
-})
+local ok_kubectl, kubectl = pcall(require, 'kubectl')
+if ok_kubectl then
+    kubectl.setup({
+        -- Your kubectl config here
+    })
+end
 
 -- Define a custom command to open Startify
 vim.cmd([[
