@@ -8,12 +8,6 @@ function center_startify(header_lines)
     return header
 end
 
--- Define a function to open NERDTree with the selected repository
-function startify_open_nerdtree()
-    local selected = vim.fn.input('Choose a repo: ')
-    vim.cmd('NERDTree ' .. selected)
-end
-
 -- A function that takes a command and returns a function that can be used as the type for a Startify list.
 -- The returned function will run the given command and return a table of file paths to display in Startify.
 function command_to_startify_table(command)
@@ -63,18 +57,15 @@ vim.g.startify_lists = {
 -- Enable Startify session autoload.
 vim.g.startify_session_autoload = 1
 
--- Function to disable code preview
-local function disable_code_preview() vim.g.code_preview_enabled = false end
-
--- Function to enable code preview
-local function enable_code_preview() vim.g.code_preview_enabled = true end
-
 -- Modify Startify session to toggle code preview
 vim.api.nvim_create_autocmd('User', {
     pattern = 'StartifyBufferOpened',
     callback = function()
         vim.g.code_preview_enabled = false
-        require('codewindow').setup({auto_enable = false})
+        local ok, codewindow = pcall(require, 'codewindow')
+        if ok then
+            codewindow.setup({auto_enable = false})
+        end
     end
 })
 
@@ -82,7 +73,10 @@ vim.api.nvim_create_autocmd('User', {
     pattern = 'StartifyBufferClosed',
     callback = function()
         vim.g.code_preview_enabled = true
-        require('codewindow').setup({auto_enable = true})
+        local ok, codewindow = pcall(require, 'codewindow')
+        if ok then
+            codewindow.setup({auto_enable = true})
+        end
     end
 })
 

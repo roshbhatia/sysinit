@@ -1,6 +1,3 @@
--- Set leader key before lazy setup
-vim.g.mapleader = " "
-vim.g.maplocalleader = " "
 
 -- Init lazy plugin manager
 local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
@@ -14,6 +11,37 @@ vim.opt.rtp:prepend(lazypath)
 
 -- Install external plugins
 require('lazy').setup({
+    -- File explorer/navigator
+    {'stevearc/oil.nvim',
+      opts = {
+        default_file_explorer = true,
+        view_options = {
+          show_hidden = true,
+        },
+        keymaps = {
+          ["g?"] = "actions.show_help",
+          ["<CR>"] = "actions.select",
+          ["<C-v>"] = "actions.select_vsplit",
+          ["<C-s>"] = "actions.select_split",
+          ["<C-t>"] = "actions.select_tab",
+          ["<C-p>"] = "actions.preview",
+          ["<C-c>"] = "actions.close",
+          ["<C-r>"] = "actions.refresh",
+          ["-"] = "actions.parent",
+          ["_"] = "actions.open_cwd",
+          ["`"] = "actions.cd",
+          ["~"] = "actions.tcd",
+          ["gs"] = "actions.change_sort",
+          ["gx"] = "actions.open_external",
+          ["g."] = "actions.toggle_hidden",
+        },
+        use_default_keymaps = true,
+      },
+      keys = {
+        { "-", "<cmd>Oil<cr>", desc = "Open parent directory with Oil" },
+      },
+    },
+    
     -- Colorschemes
     {'kepano/flexoki-neovim', name = 'flexoki', priority = 1000},
     {'catppuccin/nvim', name = 'catppuccin', priority = 1000},
@@ -182,7 +210,8 @@ require('lazy').setup({
       opts = {
         ensure_installed = {
           "bash", "c", "cpp", "go", "javascript", "json", "lua", "markdown", 
-          "python", "rust", "typescript", "vim", "vimdoc", "yaml"
+          "python", "rust", "terraform", "vim", "vimdoc", "yaml", "nix", "dockerfile",
+          "hcl", "make", "toml"
         },
         auto_install = true,
         highlight = { enable = true },
@@ -258,7 +287,14 @@ require('lazy').setup({
     
     -- Session management like VS Code workspaces
     {'mhinz/vim-startify',
+      lazy = false, -- Important! Don't load lazily
+      priority = 9000, -- Load with extremely high priority
       init = function()
+        -- Add these settings before plugin loads
+        vim.g.startify_disable_at_vimenter = 0
+        vim.g.startify_custom_header_quotes = {}
+      end,
+      config = function()
         vim.g.startify_session_autoload = 1
         vim.g.startify_session_persistence = 1
         vim.g.startify_session_delete_buffers = 1
@@ -282,6 +318,11 @@ require('lazy').setup({
           { c = '~/.config/nvim/init.lua' },
           { z = '~/.zshrc' },
         }
+        
+        -- Disable line numbers and sign column in Startify for clean ASCII art
+        vim.g.startify_custom_indices = {}
+        
+        -- Let the init.lua handle Startify launch with proper number settings
       end,
       keys = {
         { '<F1>', '<cmd>Startify<CR>', desc = 'Open Startify' },
@@ -364,6 +405,7 @@ require('lazy').setup({
         'nvim-telescope/telescope-file-browser.nvim',
         'nvim-telescope/telescope-project.nvim',
         'nvim-telescope/telescope-ui-select.nvim',
+        'Piotr1215/telescope-crossplane.nvim',
         'nvim-tree/nvim-web-devicons',
       },
       cmd = 'Telescope',
@@ -438,6 +480,7 @@ require('lazy').setup({
         telescope.load_extension('file_browser')
         telescope.load_extension('project')
         telescope.load_extension('ui-select')
+        telescope.load_extension('crossplane')
       end,
     },
     
@@ -465,7 +508,8 @@ require('lazy').setup({
         
         require('mason-lspconfig').setup({
           ensure_installed = {
-            "lua_ls", "pyright", "typescript-language-server", "gopls", "rust_analyzer"
+            "lua_ls", "pyright", "gopls", "rust_analyzer", "terraformls", "bashls",
+            "nixls", "dockerls", "yamlls", "kubernetes_ls"
           },
           automatic_installation = true,
         })
@@ -530,9 +574,15 @@ require('lazy').setup({
         
         -- Add more server configurations as needed
         lspconfig.pyright.setup({})
-        lspconfig.ts_ls.setup({})
+        
         lspconfig.gopls.setup({})
         lspconfig.rust_analyzer.setup({})
+        lspconfig.terraformls.setup({})
+        lspconfig.bashls.setup({})
+        lspconfig.nixls.setup({})
+        lspconfig.dockerls.setup({})
+        lspconfig.yamlls.setup({})
+        lspconfig.kubernetes_ls.setup({})
       end,
     },
     
@@ -1273,13 +1323,16 @@ end
 -- LSP setup
 local lspconfig = require('lspconfig')
 
--- Add your language servers here
-lspconfig.ts_ls.setup{}
-
--- Other common language servers
+-- Configure language servers
 lspconfig.pyright.setup{}
 lspconfig.rust_analyzer.setup{}
 lspconfig.gopls.setup{}
+lspconfig.terraformls.setup{}
+lspconfig.bashls.setup{}
+lspconfig.nixls.setup{}
+lspconfig.dockerls.setup{}
+lspconfig.yamlls.setup{}
+lspconfig.kubernetes_ls.setup{}
 
 -- Autocompletion setup
 local cmp = require('cmp')
@@ -1324,32 +1377,25 @@ cmp.setup({
     }
 })
 
--- Set up other IDE features
-require('nvim-autopairs').setup({})
-require('Comment').setup()
-require('symbols-outline').setup()
-require('trouble').setup()
-require('toggleterm').setup({open_mapping = [[<c-\>]], direction = 'float'})
+-- Set up other IDE features with safety checks
+local function safe_setup(module_name)
+    local ok, module = pcall(require, module_name)
+    if ok then
+        module.setup({})
+        return true
+    end
+    return false
+end
 
--- Treesitter setup
--- require('nvim-treesitter.configs').setup({
---     ensure_installed = "all",
---     highlight = { enable = true },
---     incremental_selection = { enable = true },
---     indent = { enable = true },
---     textobjects = {
---         select = {
---             enable = true,
---             lookahead = true,
---             keymaps = {
---                 ["af"] = "@function.outer",
---                 ["if"] = "@function.inner",
---                 ["ac"] = "@class.outer",
---                 ["ic"] = "@class.inner",
---             },
---         },
---     },
--- })
+safe_setup('nvim-autopairs')
+safe_setup('Comment')
+safe_setup('symbols-outline')
+safe_setup('trouble')
+
+local ok_term, toggleterm = pcall(require, 'toggleterm')
+if ok_term then
+    toggleterm.setup({open_mapping = [[<c-\>]], direction = 'float'})
+end
 
 -- Aerial setup (Code outline)
 local ok_aerial, aerial = pcall(require, 'aerial')
@@ -1422,16 +1468,30 @@ vim.cmd([[augroup FormatAutogroup
   autocmd BufWritePost * FormatWrite
 augroup END]])
 
--- Git blame setup
-require('git-blame').setup({
-    enabled = false,
-})
+-- Git blame setup (wrapped in pcall for safety)
+local ok_gitblame, gitblame = pcall(require, 'git-blame')
+if not ok_gitblame then
+    -- Try alternative module name
+    ok_gitblame, gitblame = pcall(require, 'gitblame')
+end
+
+if ok_gitblame then
+    gitblame.setup({
+        enabled = false,
+    })
+end
 
 -- Todo comments
-require('todo-comments').setup()
+local ok_todo, todo_comments = pcall(require, 'todo-comments')
+if ok_todo then
+    todo_comments.setup()
+end
 
 -- Kubectl setup
-require('kubectl').setup({})
+local ok_kubectl, kubectl = pcall(require, 'kubectl')
+if ok_kubectl then
+    kubectl.setup({})
+end
 
 -- Define a custom command to open Startify
 vim.cmd([[
@@ -1478,7 +1538,7 @@ vim.cmd([[
 
 -- Keybindings
 -- Map <F1> to open or close Startify
-vim.api.nvim_set_keymap('n', '<F1>', ':StartifyStart<CR>',
+vim.api.nvim_set_keymap('n', '<F1>', ':Startify<CR>',
                         {noremap = true, silent = true})
 
 -- Map <F2> to open or close nvim-tree
@@ -1559,5 +1619,4 @@ vim.api.nvim_set_keymap('n', '<leader>kd',
 vim.api.nvim_set_keymap('n', '<leader>h', ':NvimHelp<CR>',
                         {noremap = true, silent = false})
 
--- Default settings
-if vim.v.argv == 0 then vim.cmd('autocmd VimEnter * StartifyStart') end
+-- Startify will be auto-launched via init.lua
