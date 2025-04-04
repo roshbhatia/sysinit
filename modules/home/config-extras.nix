@@ -150,8 +150,11 @@ in
       done
     '';
     
-    # Set wallpaper using a simple approach with defaults command
+    # Set wallpaper using a simple approach with osascript
     setWallpaper = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      # Don't let this script fail the entire build
+      set +e
+      
       echo "🖼️ Setting wallpaper..."
       
       # Set wallpaper path variable explicitly in the main script
@@ -160,33 +163,35 @@ in
       
       # Check if file exists
       if [ -f "$WALLPAPER_PATH" ]; then
-        # Copy image to a stable location in the home directory
+        # Create a simple script to set the wallpaper
         mkdir -p "$HOME/.config/wallpaper"
-        cp "$WALLPAPER_PATH" "$HOME/.config/wallpaper/current" &>/dev/null
         
-        # Use the defaults command to set the wallpaper
-        /usr/bin/defaults write com.apple.desktopservices DSDontWriteNetworkStores true
-        /usr/bin/defaults write com.apple.desktop Background "{default = {ImageFilePath = '$HOME/.config/wallpaper/current'; }; }"
+        # Create a symlink to the wallpaper
+        ln -sf "$WALLPAPER_PATH" "$HOME/.wallpaper"
         
-        # Restart the Dock to apply changes
-        killall Dock &>/dev/null || true
-        
-        echo "✅ Wallpaper has been set. Changes may require logging out and back in to take effect."
-        
-        # Also create a script that the user can run manually if needed
-        cat > "$HOME/.config/wallpaper/set-wallpaper.sh" << EOF
+        # Create a simple script for setting the wallpaper
+        cat > "$HOME/.config/wallpaper/set-wallpaper.sh" << 'EOF'
 #!/bin/bash
-osascript -e 'tell application "Finder" to set desktop picture to POSIX file "$HOME/.config/wallpaper/current"'
+osascript -e 'tell application "Finder" to set desktop picture to POSIX file "'"$HOME/.wallpaper"'"'
 EOF
         chmod +x "$HOME/.config/wallpaper/set-wallpaper.sh"
-        echo "✅ Created a backup script at $HOME/.config/wallpaper/set-wallpaper.sh"
-        echo "   You can run this script manually if the wallpaper didn't change"
+        
+        # Set the wallpaper with osascript
+        osascript -e 'tell application "Finder" to set desktop picture to POSIX file "'"$WALLPAPER_PATH"'"'
+        
+        echo "✅ Wallpaper set with osascript. If it doesn't appear, run $HOME/.config/wallpaper/set-wallpaper.sh manually."
       else
-        echo "❌ ERROR: Wallpaper file not found at $WALLPAPER_PATH"
+        echo "⚠️  Wallpaper file not found at $WALLPAPER_PATH"
       fi
+      
+      # Always exit successfully
+      exit 0
     '';
 
-    postInstall = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    postInstall = lib.hm.dag.entryAfter ["fixVariables"] ''
+      # Fix TERM_PROGRAM and BASH_SILENCE_DEPRECATION_WARNING
+      export TERM_PROGRAM=""
+      export BASH_SILENCE_DEPRECATION_WARNING=1
       # Source profiles to ensure environment is available
       [ -f /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh ] && \
         . /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh
@@ -206,11 +211,30 @@ EOF
       # Fix Python linking
       echo "2️⃣ Fixing Python linking..."
       if command -v brew >/dev/null 2>&1; then
+        # Check if python@3.11 is installed
+        if ! brew list python@3.11 &>/dev/null; then
+          echo "Installing python@3.11 with Homebrew..."
+          brew install python@3.11 || true
+        fi
+        
+        # Unlink any existing Python versions
         brew unlink python3 2>/dev/null || true
-        if brew link python@3.11; then
+        brew unlink python@3.11 2>/dev/null || true
+        
+        # Link python@3.11
+        if brew link --force python@3.11; then
           echo "✅ Python linking fixed"
+          # Make sure pip is working
+          python3 -m pip install --upgrade pip
         else
-          echo "⚠️  Failed to link python@3.11"
+          echo "⚠️  Failed to link python@3.11, trying alternative approach..."
+          # Try symlinking manually
+          if [ -d "/opt/homebrew/opt/python@3.11/bin" ]; then
+            for file in /opt/homebrew/opt/python@3.11/bin/*; do
+              ln -sf "$file" "/opt/homebrew/bin/$(basename $file)" 2>/dev/null || true
+            done
+            echo "✅ Manual Python symlinks created"
+          fi
         fi
       else
         echo "⚠️  Homebrew not found, skipping Python linking..."
