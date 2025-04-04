@@ -1,13 +1,15 @@
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
+-- VSCode-like editor settings
 -- Show matching brackets and parentheses
 vim.o.showmatch = true
 
--- Enable case-insensitive search
+-- Smart case search - case insensitive unless Capital letter is used
 vim.o.ignorecase = true
+vim.o.smartcase = true
 
--- Enable mouse click
+-- Enable mouse in all modes (VSCode-like)
 vim.o.mouse = 'a'
 
 -- Highlight search results
@@ -16,63 +18,77 @@ vim.o.hlsearch = true
 -- Enable incremental search
 vim.o.incsearch = true
 
--- Set number of columns occupied by a tab
-vim.o.tabstop = 4
-
--- Treat multiple spaces as tabstops for backspace
-vim.o.softtabstop = 4
-
--- Convert tabs to spaces
+-- Tab settings - 2 spaces to match typical VSCode defaults
+vim.o.tabstop = 2
+vim.o.softtabstop = 2
 vim.o.expandtab = true
-
--- Set width for automatic indents
-vim.o.shiftwidth = 4
+vim.o.shiftwidth = 2
 
 -- Enable automatic indentation
 vim.o.autoindent = true
+vim.o.smartindent = true
 
--- Show line numbers
+-- Enable relative line numbers with current line showing actual number
 vim.wo.number = true
+vim.wo.relativenumber = true
 
--- Configure bash-like tab completions
-vim.o.wildmode = 'longest,list'
-
--- Set an 80 column border for good coding style
-vim.o.colorcolumn = '80'
-
--- Use system clipboard
-vim.o.clipboard = 'unnamedplus'
-
--- Speed up scrolling in Vim
-vim.o.ttyfast = true
-
--- Enable wildmenu for completion menu
+-- Improve command-line completion (similar to VSCode's command palette)
+vim.o.wildmode = 'longest:full,full'
 vim.o.wildmenu = true
 
--- Enable termguicolors
+-- Remove the annoying bell sounds
+vim.o.errorbells = false
+vim.o.visualbell = false
+
+-- Use system clipboard for seamless copy/paste like VSCode
+vim.o.clipboard = 'unnamedplus'
+
+-- Enable termguicolors for full color support
 vim.opt.termguicolors = true
 
--- Configure undofile settings for unlimited undo history
+-- Configure history and undo
+vim.o.history = 1000
 vim.o.undofile = true
 vim.o.undodir = vim.fn.expand('~/.vim/undodir')
 
 -- Set temporary directory for swap files
 vim.o.directory = '/tmp'
 
--- Remove the red vertical bar
-vim.o.colorcolumn = '0'
+-- Faster update time for better UX (like VSCode's responsiveness)
+vim.o.updatetime = 300
 
--- Enable auto-indenting based on file type
+-- Shorter timeoutlen for faster command response
+vim.o.timeoutlen = 500
+
+-- More space for displaying messages
+vim.o.cmdheight = 2
+
+-- Show sign column always (like VSCode gutter)
+vim.o.signcolumn = 'yes'
+
+-- Better splits (like VSCode's panel positioning)
+vim.o.splitright = true
+vim.o.splitbelow = true
+
+-- Don't wrap lines (like VSCode default)
+vim.o.wrap = false
+
+-- Set minimum visible lines above/below cursor
+vim.o.scrolloff = 8
+vim.o.sidescrolloff = 8
+
+-- Enable filetype detection and syntax highlighting
 vim.cmd('filetype plugin indent on')
-
--- Enable syntax highlighting
 vim.cmd('syntax on')
 
 -- Always show the tabline
 vim.o.showtabline = 2
 
--- Override default fillchars
-vim.opt.fillchars = {eob = ' '}
+-- Override default fillchars for cleaner UI
+vim.opt.fillchars = {eob = ' ', vert = '│', fold = '─'}
 
--- Set colorscheme
+-- Set colorscheme - using flexoki-dark
 vim.cmd('colorscheme flexoki-dark')
+
+-- Configure cursor - block in normal, line in insert (VSCode-like)
+vim.o.guicursor = 'n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50'
