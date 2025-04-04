@@ -208,36 +208,20 @@ EOF
         echo "⚠️  Utils directory not found, skipping..."
       fi
 
-      # Fix Python linking
-      echo "2️⃣ Fixing Python linking..."
-      if command -v brew >/dev/null 2>&1; then
-        # Check if python@3.11 is installed
-        if ! brew list python@3.11 &>/dev/null; then
-          echo "Installing python@3.11 with Homebrew..."
-          brew install python@3.11 || true
-        fi
+      # Remove Python post-install steps, handled by Homebrew directly
+      echo "2️⃣ Checking Python setup..."
+      if command -v python3 >/dev/null 2>&1; then
+        PYTHON_VERSION=$(python3 --version 2>&1)
+        echo "✅ Python is working: $PYTHON_VERSION"
         
-        # Unlink any existing Python versions
-        brew unlink python3 2>/dev/null || true
-        brew unlink python@3.11 2>/dev/null || true
-        
-        # Link python@3.11
-        if brew link --force python@3.11; then
-          echo "✅ Python linking fixed"
-          # Make sure pip is working
-          python3 -m pip install --upgrade pip
+        if command -v pip3 >/dev/null 2>&1; then
+          PIP_VERSION=$(pip3 --version 2>&1)
+          echo "✅ Pip is working: $PIP_VERSION"
         else
-          echo "⚠️  Failed to link python@3.11, trying alternative approach..."
-          # Try symlinking manually
-          if [ -d "/opt/homebrew/opt/python@3.11/bin" ]; then
-            for file in /opt/homebrew/opt/python@3.11/bin/*; do
-              ln -sf "$file" "/opt/homebrew/bin/$(basename $file)" 2>/dev/null || true
-            done
-            echo "✅ Manual Python symlinks created"
-          fi
+          echo "⚠️ Pip not found"
         fi
       else
-        echo "⚠️  Homebrew not found, skipping Python linking..."
+        echo "⚠️ Python not found in PATH"
       fi
       
       echo ""
