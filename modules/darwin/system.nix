@@ -68,13 +68,10 @@ in {
       brew services restart colima
     fi
 
-    # Fix the bashrc TERM_PROGRAM issue
-    echo "Fixing /etc/bashrc..."
-    if [ -f /etc/bashrc ] && [ ! -f /etc/bashrc_original ]; then
-      sudo cp /etc/bashrc /etc/bashrc_original
-      sudo cp ${./bashrc-fix.sh} /etc/bashrc
-      sudo chmod 644 /etc/bashrc
-    fi
+    # Replace the bashrc with our fixed version
+    echo "Replacing /etc/bashrc..."
+    sudo cp ${./bashrc-fix.sh} /etc/bashrc
+    sudo chmod 644 /etc/bashrc
 
     # Make sure gettext is properly linked
     if [ -d "/opt/homebrew/opt/gettext/bin" ]; then
