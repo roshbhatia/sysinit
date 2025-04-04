@@ -1,7 +1,7 @@
 .PHONY: switch build update-flake clean
 
 switch:
-	darwin-rebuild switch --flake .
+	darwin-rebuild switch --flake . --show-trace
 
 build:
 	darwin-rebuild build --flake .

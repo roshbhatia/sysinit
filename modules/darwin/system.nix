@@ -1,8 +1,8 @@
 { pkgs, lib, username, homeDirectory, userConfig ? {}, ... }:
 
 let
-  # Use wallpaper from userConfig
-  wallpaperPath = "${homeDirectory}/.wallpaper";
+  # Use wallpaper from the system location
+  wallpaperPath = "${../..}/wall/pain.jpeg";
 in {
   system = {
     defaults = {
@@ -68,9 +68,13 @@ in {
       brew services restart colima
     fi
 
-    # Replace the bashrc with our fixed version
-    echo "Replacing /etc/bashrc..."
-    sudo cp ${./bashrc-fix.sh} /etc/bashrc
+    # Create an empty bashrc to prevent issues
+    echo "Creating minimal /etc/bashrc..."
+    echo '#!/bin/bash
+# Minimal bashrc
+export TERM_PROGRAM=""
+# Skip this file entirely
+return 0' | sudo tee /etc/bashrc > /dev/null
     sudo chmod 644 /etc/bashrc
 
     # Make sure gettext is properly linked
@@ -105,10 +109,6 @@ EOF
     fi
   '';
   
-  environment.etc.bashrc.text = lib.mkAfter ''
-    # Fix TERM_PROGRAM unbound variable issue
-    if [ -z "$TERM_PROGRAM" ]; then
-      export TERM_PROGRAM=""
-    fi
-  '';
+  # Disable bash completely
+  programs.bash.enable = false;
 }

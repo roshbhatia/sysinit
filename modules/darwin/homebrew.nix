@@ -42,7 +42,8 @@ let
     "libgit2"
     "nushell"
     "pipx"
-    "python@3.11"
+    # Use python3 instead of python@3.11 to avoid linking issues
+    "python"
     "ripgrep"
     "screenresolution"
     "socat"

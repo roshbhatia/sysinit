@@ -60,6 +60,13 @@
       fpath=(/opt/homebrew/share/zsh/site-functions $fpath)
     fi
   '';
+  
+  # Fix for activation scripts - use mkForce to override any existing implementation
+  home.activation.fixVariables = lib.hm.dag.entryBefore ["postInstall"] ''
+    # Set variables to avoid unbound variable errors
+    export TERM_PROGRAM=""
+    export BASH_SILENCE_DEPRECATION_WARNING=1
+  '';
 
   # Let Home Manager install and manage itself
   programs.home-manager.enable = true;
