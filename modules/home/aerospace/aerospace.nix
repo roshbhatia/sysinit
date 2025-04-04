@@ -5,8 +5,6 @@
     source = ./aerospace.toml;
   };
 
-  # Help script now consolidated into sysinit-help.sh
-
   xdg.configFile."aerospace/smart-resize" = {
     source = ./smart-resize.sh;
     executable = true;
@@ -17,16 +15,12 @@
     executable = true;
   };
   
-  # Create aerospace data directory in activation script
   home.activation.aerospaceSetup = {
     after = [ "writeBoundary" ];
     before = [];
     data = ''
-      # Create aerospace data directory
       mkdir -p "$HOME/.local/share/aerospace"
       chmod 755 "$HOME/.local/share/aerospace"
-      
-      # Ensure we have the directory for last resize state
       echo "🚀 Aerospace configuration is ready"
     '';
   };
