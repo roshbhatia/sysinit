@@ -68,6 +68,20 @@ in {
       brew services restart colima
     fi
 
+    # Fix the bashrc TERM_PROGRAM issue
+    echo "Fixing /etc/bashrc..."
+    if [ -f /etc/bashrc ] && [ ! -f /etc/bashrc_original ]; then
+      sudo cp /etc/bashrc /etc/bashrc_original
+      sudo cp ${./bashrc-fix.sh} /etc/bashrc
+      sudo chmod 644 /etc/bashrc
+    fi
+
+    # Make sure gettext is properly linked
+    if [ -d "/opt/homebrew/opt/gettext/bin" ]; then
+      echo "Creating gettext symlinks..."
+      sudo ln -sf /opt/homebrew/opt/gettext/bin/gettext /usr/local/bin/gettext 2>/dev/null || true
+    fi
+
     /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
     
     # Set wallpaper with simple osascript approach
