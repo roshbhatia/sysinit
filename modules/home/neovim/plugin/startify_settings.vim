@@ -5,9 +5,6 @@ augroup StartifyCustomSettings
   autocmd FileType startify setlocal nonumber norelativenumber signcolumn=no colorcolumn=0
 augroup END
 
-" Hide indentation and other vertical line artifacts
-autocmd FileType startify IndentBlanklineDisable
-
 " Clear cursor line in Startify buffers
 autocmd FileType startify setlocal nocursorline
 
