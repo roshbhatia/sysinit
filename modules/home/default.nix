@@ -41,6 +41,14 @@
     configHome = "${homeDirectory}/.config";
     dataHome = "${homeDirectory}/.local/share";
     cacheHome = "${homeDirectory}/.cache";
+    
+    # Link sysinit-help command
+    configFile = {
+      "sysinit/sysinit-help.sh" = {
+        source = ./sysinit-help.sh;
+        executable = true;
+      };
+    };
   };
   
   # Handle brewing completions through standard home-manager

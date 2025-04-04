@@ -5,10 +5,7 @@
     source = ./aerospace.toml;
   };
 
-  xdg.configFile."aerospace/aerospace-help" = {
-    source = ./aerospace-help.sh;
-    executable = true;
-  };
+  # Help script now consolidated into sysinit-help.sh
 
   xdg.configFile."aerospace/smart-resize" = {
     source = ./smart-resize.sh;

@@ -35,6 +35,9 @@
 
       tf = "terraform";
       y = "yazi";
+      
+      # Help command
+      "sysinit-help" = "$HOME/.config/sysinit/sysinit-help.sh";
     };
     
     plugins = [

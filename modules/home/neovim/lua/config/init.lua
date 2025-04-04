@@ -19,6 +19,15 @@ require('lazy').setup({
     {'catppuccin/nvim', name = 'catppuccin', priority = 1000},
     {'folke/tokyonight.nvim', priority = 1000},
     
+    -- Keystroke display
+    {'folke/noice.nvim',
+      event = "VeryLazy",
+      dependencies = {
+        'MunifTanjim/nui.nvim',
+        'rcarriga/nvim-notify',
+      },
+    },
+    
     -- Git integration
     {'lewis6991/gitsigns.nvim',
       opts = {
@@ -147,15 +156,15 @@ require('lazy').setup({
         { '<leader>bn', '<Cmd>BufferNext<CR>', desc = 'Next buffer' },
         { '<leader>bc', '<Cmd>BufferClose<CR>', desc = 'Close buffer' },
         { '<C-s>', '<Cmd>BufferPick<CR>', desc = 'Pick buffer' },
-        { '<A-1>', '<Cmd>BufferGoto 1<CR>', desc = 'Go to buffer 1' },
-        { '<A-2>', '<Cmd>BufferGoto 2<CR>', desc = 'Go to buffer 2' },
-        { '<A-3>', '<Cmd>BufferGoto 3<CR>', desc = 'Go to buffer 3' },
-        { '<A-4>', '<Cmd>BufferGoto 4<CR>', desc = 'Go to buffer 4' },
-        { '<A-5>', '<Cmd>BufferGoto 5<CR>', desc = 'Go to buffer 5' },
-        { '<A-6>', '<Cmd>BufferGoto 6<CR>', desc = 'Go to buffer 6' },
-        { '<A-7>', '<Cmd>BufferGoto 7<CR>', desc = 'Go to buffer 7' },
-        { '<A-8>', '<Cmd>BufferGoto 8<CR>', desc = 'Go to buffer 8' },
-        { '<A-9>', '<Cmd>BufferGoto 9<CR>', desc = 'Go to buffer 9' },
+        { '<leader>1', '<Cmd>BufferGoto 1<CR>', desc = 'Go to buffer 1' },
+        { '<leader>2', '<Cmd>BufferGoto 2<CR>', desc = 'Go to buffer 2' },
+        { '<leader>3', '<Cmd>BufferGoto 3<CR>', desc = 'Go to buffer 3' },
+        { '<leader>4', '<Cmd>BufferGoto 4<CR>', desc = 'Go to buffer 4' },
+        { '<leader>5', '<Cmd>BufferGoto 5<CR>', desc = 'Go to buffer 5' },
+        { '<leader>6', '<Cmd>BufferGoto 6<CR>', desc = 'Go to buffer 6' },
+        { '<leader>7', '<Cmd>BufferGoto 7<CR>', desc = 'Go to buffer 7' },
+        { '<leader>8', '<Cmd>BufferGoto 8<CR>', desc = 'Go to buffer 8' },
+        { '<leader>9', '<Cmd>BufferGoto 9<CR>', desc = 'Go to buffer 9' },
         { '<leader>bb', '<Cmd>BufferOrderByBufferNumber<CR>', desc = 'Order by buffer number' },
         { '<leader>bd', '<Cmd>BufferOrderByDirectory<CR>', desc = 'Order by directory' },
         { '<leader>bl', '<Cmd>BufferOrderByLanguage<CR>', desc = 'Order by language' },
@@ -1250,7 +1259,7 @@ require('lazy').setup({
 
 -- Load configuration modules
 local config_modules = {
-    'general', 'barline', 'startify', 'nvim-tree', 'codewindow', 'wilder'
+    'general', 'barline', 'startify', 'nvim-tree', 'codewindow', 'wilder', 'keystroke'
 }
 
 for _, module in ipairs(config_modules) do require('config.' .. module) end

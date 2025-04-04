@@ -42,15 +42,15 @@ local function setup_editing_keybindings()
   -- VS Code-like select line
   vim.keymap.set('n', '<C-a>', '0v$', {noremap = true, desc = "Select line"})
   
-  -- Move lines up and down (Alt+Up/Down in VS Code)
-  vim.keymap.set('n', '<A-j>', ':m .+1<CR>==', {noremap = true, desc = "Move line down"})
-  vim.keymap.set('n', '<A-k>', ':m .-2<CR>==', {noremap = true, desc = "Move line up"})
-  vim.keymap.set('v', '<A-j>', ":m '>+1<CR>gv=gv", {noremap = true, desc = "Move selection down"})
-  vim.keymap.set('v', '<A-k>', ":m '<-2<CR>gv=gv", {noremap = true, desc = "Move selection up"})
+  -- Move lines up and down (using Leader instead of Alt to avoid conflict with Aerospace)
+  vim.keymap.set('n', '<leader>j', ':m .+1<CR>==', {noremap = true, desc = "Move line down"})
+  vim.keymap.set('n', '<leader>k', ':m .-2<CR>==', {noremap = true, desc = "Move line up"})
+  vim.keymap.set('v', '<leader>j', ":m '>+1<CR>gv=gv", {noremap = true, desc = "Move selection down"})
+  vim.keymap.set('v', '<leader>k', ":m '<-2<CR>gv=gv", {noremap = true, desc = "Move selection up"})
   
-  -- Duplicate line (Shift+Alt+Down in VS Code)
-  vim.keymap.set('n', '<S-A-j>', 'yyp', {noremap = true, desc = "Duplicate line down"})
-  vim.keymap.set('n', '<S-A-k>', 'yyP', {noremap = true, desc = "Duplicate line up"})
+  -- Duplicate line (using Leader+Shift instead of Shift+Alt to avoid conflicts)
+  vim.keymap.set('n', '<leader>J', 'yyp', {noremap = true, desc = "Duplicate line down"})
+  vim.keymap.set('n', '<leader>K', 'yyP', {noremap = true, desc = "Duplicate line up"})
   
   -- Save with Ctrl+S
   vim.keymap.set('n', '<C-s>', ':w<CR>', {noremap = true, desc = "Save file"})
