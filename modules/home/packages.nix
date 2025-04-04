@@ -3,13 +3,9 @@
     atuin
     awscli
     bat
-    colima
     coreutils
-    direnv
     docker
-    fd
     fzf
-    gettext
     gh
     git
     gnugrep
@@ -19,22 +15,16 @@
     htop
     jq
     jqp
-    k9s
     kind
-    kubecolor
     kustomize
-    libgit2
     nodejs
     nodePackages.typescript
     openssh
-    python311
-    starship
     stern
     swift
     tree
     watch
     wget
-    yazi
     yq
   ];
 }
