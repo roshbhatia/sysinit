@@ -8,7 +8,6 @@ vim.opt.viminfo:remove({'!'})
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
--- VS Code-like split keybindings
 local function setup_split_keybindings()
   -- VS Code-like split keybindings
   vim.keymap.set('n', '<leader>\\', ':vsplit<CR>', {noremap = true, silent = true, desc = "Split vertically"})
@@ -69,48 +68,44 @@ local function bootstrap_config()
     vim.fn.mkdir(undodir, "p")
   end
   
-  -- Try to load the main configuration
-  local ok, err = pcall(require, 'config')
-  if not ok then
-    -- Use print instead of vim.notify for error messages
-    print("Error loading configuration, falling back to basics")
-    
-    -- Setup basic keymaps if config fails to load
-    vim.keymap.set('n', '<leader>ff', ':find ', {noremap = true})
-    vim.keymap.set('n', '<leader>h', ':h ', {noremap = true})
-    vim.keymap.set('n', '<Esc>', ':noh<CR>', {silent = true, noremap = true})
-    
-    -- Set basic appearance
-    vim.o.number = true
-    vim.o.relativenumber = true
-    vim.o.cursorline = true
-    vim.o.wrap = false
-    vim.o.showmode = true
-    vim.o.showcmd = true
-    vim.o.signcolumn = 'yes'
-    vim.o.termguicolors = true
-    
-    -- Spaces > Tabs
-    vim.o.expandtab = true
-    vim.o.tabstop = 2
-    vim.o.shiftwidth = 2
-    vim.o.smartindent = true
-    
-    -- Use system clipboard
-    vim.o.clipboard = 'unnamedplus'
-    
-    -- Better undo
-    vim.o.undofile = true
-    vim.o.undodir = undodir
-    
-    -- VS Code-like cursor behavior
-    vim.o.guicursor = 'n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50'
-  end
+  -- Load the main configuration - no fallbacks
+  require('config')
 end
 
 -- Add package path to find modules in lua directory
 local config_path = vim.fn.stdpath('config')
 package.path = package.path .. ';' .. config_path .. '/lua/?.lua;' .. config_path .. '/lua/?/init.lua'
+
+-- Force Startify to show on empty buffer (even if the config has issues)
+vim.api.nvim_create_autocmd({"VimEnter"}, {
+  pattern = "*",
+  callback = function()
+    -- Replace deprecated vim.lsp.buf_get_clients with vim.lsp.get_active_clients
+    if vim.lsp and vim.lsp.buf_get_clients then
+      vim.lsp.buf_get_clients = function(bufnr)
+        return vim.lsp.get_active_clients({buffer = bufnr})
+      end
+    end
+    
+    -- Disable vertical line numbers in Startify
+    vim.cmd([[
+      augroup StartifyCustom
+        autocmd!
+        autocmd User Startified setlocal nonumber norelativenumber signcolumn=no 
+        autocmd FileType startify setlocal nonumber norelativenumber signcolumn=no 
+      augroup END
+    ]])
+    
+    -- Show startify on empty buffer
+    if vim.fn.argc() == 0 then
+      local startify_loaded = pcall(vim.cmd, "Startify")
+      if not startify_loaded then
+        print("Warning: Could not load Startify on startup")
+      end
+    end
+  end,
+  group = vim.api.nvim_create_augroup("StartifyForceStart", { clear = true }),
+})
 
 -- Start the bootstrap process
 bootstrap_config()
