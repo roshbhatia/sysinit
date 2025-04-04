@@ -47,6 +47,8 @@
             sha256 = "sha256-KP/mS6HfVbPA5javQdj/x8qnYYk0G6oT0RZaPTAPseM="; # Updated hash
           };
         };
+        # We'll build these from source instead of using fetchFromGitHub
+        # lsp-zero-nvim and related plugins will be installed directly through vim-plug
       };
     in with pkgs.vimPlugins // customVimPlugins; [
       # Core plugins and UI
@@ -62,6 +64,7 @@
       nvim-notify
       noice-nvim
       nui-nvim
+      codewindow-nvim # Minimap/code preview
       
       # LSP and completion
       nvim-lspconfig
@@ -69,6 +72,7 @@
       mason-lspconfig-nvim
       mason-tool-installer-nvim  # This exists in nixpkgs
       neodev-nvim  # This exists in nixpkgs
+      # lsp-zero-nvim will be loaded through vim-plug
       fidget-nvim
       nvim-cmp
       cmp-nvim-lsp
@@ -110,9 +114,12 @@
       
       # Sessions and startup
       vim-startify
+      # auto-session and session-lens-nvim will be loaded through vim-plug
+      telescope-ui-select-nvim # For UI selection with Telescope
       
       # Symbol outline and navigation
       aerial-nvim  # Better maintained than symbols-outline
+      symbols-outline-nvim # Alternative outline view
       
       # Command line enhancements
       wilder-nvim
@@ -122,7 +129,7 @@
       # Diagnostics
       trouble-nvim  # This exists in nixpkgs
       
-      # GitHub Copilot
+      # GitHub Copilot with improved integration
       copilot-lua  # This exists in nixpkgs
       copilot-cmp  # This exists in nixpkgs
     ];

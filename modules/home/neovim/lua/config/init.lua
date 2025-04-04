@@ -1650,13 +1650,19 @@ vim.api.nvim_set_keymap('n', '<leader>p', ':CommandPalette<CR>',
 
 -- Copilot keybindings
 vim.api.nvim_set_keymap('n', '<leader>cc', ':Copilot toggle<CR>',
-                        {noremap = true, silent = true})
+                        {noremap = true, silent = true, desc = "Toggle Copilot"})
 vim.api.nvim_set_keymap('n', '<leader>cs', ':Copilot suggestion<CR>',
-                        {noremap = true, silent = true})
+                        {noremap = true, silent = true, desc = "Copilot suggestion"})
 vim.api.nvim_set_keymap('n', '<leader>cd', ':Copilot panel<CR>',
-                        {noremap = true, silent = true})
+                        {noremap = true, silent = true, desc = "Copilot panel"})
 vim.api.nvim_set_keymap('n', '<leader>cr', ':Copilot chat<CR>',
-                        {noremap = true, silent = true})
+                        {noremap = true, silent = true, desc = "Copilot chat"})
+
+-- Enhanced Copilot setup
+vim.g.copilot_no_tab_map = true
+vim.api.nvim_set_keymap("i", "<C-j>", 'copilot#Accept("<CR>")', { silent = true, expr = true })
+vim.api.nvim_set_keymap("i", "<M-l>", '<Plug>(copilot-accept-line)', {})
+vim.api.nvim_set_keymap("i", "<M-w>", '<Plug>(copilot-accept-word)', {})
 
 -- Kubectl keybindings
 vim.api.nvim_set_keymap('n', '<leader>kl',

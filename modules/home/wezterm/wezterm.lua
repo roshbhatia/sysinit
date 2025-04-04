@@ -39,12 +39,15 @@ config.window_decorations = 'RESIZE'
 
 -- Font configuration
 config.font = wezterm.font_with_fallback {{
-    family = 'Hack Nerd Font Mono',
+    family = 'MesloLGS NF',  -- Meslo with Powerline symbols
     weight = 'Medium',
     harfbuzz_features = {'zero', 'ss01', 'liga'}
+}, {
+    family = 'Hack Nerd Font Mono',
+    weight = 'Medium',
 }, 'Symbols Nerd Font'}
 config.font_size = 12.0
-config.line_height = 1.0
+config.line_height = 1.1
 
 -- Cursor settings
 config.default_cursor_style = 'SteadyUnderline'
