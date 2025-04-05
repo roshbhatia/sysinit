@@ -32,7 +32,9 @@
   };
 
   pipx = {
-    additionalPackages = [];
+    additionalPackages = [
+      "mcp-proxy"
+    ];
   };
 
   npm = {
