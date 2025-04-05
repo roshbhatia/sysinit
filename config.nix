@@ -17,6 +17,7 @@
         "hashicorp/tap"
       ];
       brews = [
+        "blueutil"
         "go-task"
         "hashicorp/tap/packer"
         "qemu"
