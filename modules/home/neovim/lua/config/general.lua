@@ -88,7 +88,7 @@ vim.o.showtabline = 2
 vim.opt.fillchars = {eob = ' ', vert = '│', fold = '─'}
 
 -- Set font with ligatures for GUI
-vim.o.guifont = "MesloLGS NF:h12,Hack Nerd Font:h12:w-0.8:b:l"
+vim.o.guifont = "Hack Nerd Font:h12:w-0.8:b:l"
 vim.o.linespace = 2
 
 -- Enable font ligatures if GUI supports it
