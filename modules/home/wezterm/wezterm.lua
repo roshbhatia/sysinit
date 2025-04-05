@@ -39,7 +39,7 @@ config.window_decorations = 'RESIZE'
 
 -- Font configuration
 config.font = wezterm.font_with_fallback {{
-    family = 'MesloLGS NF',  -- Meslo with Powerline symbols
+    family = 'Hack Nerd Font Mono', 
     weight = 'Medium',
     harfbuzz_features = {'zero', 'ss01', 'liga'}
 }, {
