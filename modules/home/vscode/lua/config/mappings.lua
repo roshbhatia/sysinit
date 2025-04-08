@@ -74,6 +74,16 @@ function M.setup()
     vim.keymap.set({'n', 'v'}, '<leader>y', [["+y]], opts)
     vim.keymap.set('n', '<leader>Y', [["+Y]], opts)
 
+    -- Toggle functionality
+    vim.keymap.set('n', '<leader>to', function() vscode.action('outline.focus') end, opts)
+    vim.keymap.set('n', '<leader>tc', function() vscode.action('github.copilot.chat.focus') end, opts)
+    vim.keymap.set('n', '<leader>tm', function() vscode.action('workbench.action.showCommands') end, opts)
+    vim.keymap.set('n', '<leader>tb', function() vscode.action('workbench.action.focusActiveEditorGroup') end, opts)
+    
+    -- Additional quick access without leader key
+    vim.keymap.set('n', '<C-p>', function() vscode.action('workbench.action.showCommands') end, opts)
+    vim.keymap.set('n', '<Esc><Esc>', function() vscode.action('workbench.action.focusActiveEditorGroup') end, opts)
+
     -- Folding
     vim.keymap.set('n', 'za', function() vscode.action('editor.toggleFold') end, opts)
     vim.keymap.set('n', 'zR', function() vscode.action('editor.unfoldAll') end, opts)
