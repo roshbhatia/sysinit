@@ -9,12 +9,106 @@ vim.o.timeoutlen = 300
 -- Enable system clipboard integration
 vim.opt.clipboard:append("unnamedplus")
 
+-- Configure VSCode Vim to use space as menu trigger
+if vim.g.vscode then
+    local vscode = require('vscode')
+    vim.cmd([[
+        let g:WhichKeyDesc_leader = "<leader> Leader key"
+        nnoremap <Space> <Cmd>call VSCodeNotify('whichkey.show')<CR>
+        xnoremap <Space> <Cmd>call VSCodeNotify('whichkey.show')<CR>
+    ]])
+
+    -- Setup which-key with modern configuration
+    local ok, which_key = pcall(require, "which-key")
+    if ok then
+        which_key.setup({
+            plugins = {
+                marks = true,
+                registers = true,
+                spelling = { enabled = false },
+                presets = {
+                    operators = false,
+                    motions = false,
+                    text_objects = false,
+                    windows = false,
+                    nav = false,
+                    z = false,
+                    g = false,
+                },
+            },
+            window = {
+                border = "single",
+                position = "bottom",
+                margin = { 1, 0, 1, 0 },
+                padding = { 1, 1, 1, 1 },
+                winblend = 0
+            },
+            layout = {
+                height = { min = 3, max = 25 },
+                width = { min = 20, max = 50 },
+                spacing = 3,
+                align = "left",
+            },
+            show_help = true,
+            triggers = "auto",
+        })
+
+        -- Register normal WhichKey mappings
+        local mappings = {
+            ["<leader>"] = {
+                f = {
+                    name = "Find/Files",
+                    f = { function() vscode.action("search-preview.quickOpenWithPreview") end, "Find File (Preview)" },
+                    r = { function() vscode.action("search-preview.showAllEditorsByMostRecentlyUsed") end, "Recent Files (Preview)" },
+                    g = { function() vscode.action("workbench.action.findInFiles") end, "Find in Files" },
+                    b = { function() vscode.action("workbench.action.showAllEditors") end, "Show Buffers" },
+                    n = { function() vscode.action("fileutils.renameFile") end, "Rename File" },
+                    s = { function() vscode.action("search-preview.openSearchSettings") end, "Search Settings" },
+                },
+                e = { function() vscode.action("workbench.view.explorer") end, "Explorer" },
+                w = {
+                    name = "Window",
+                    v = { function() vscode.action("workbench.action.splitEditor") end, "Split Vertical" },
+                    h = { function() vscode.action("workbench.action.splitEditorDown") end, "Split Horizontal" },
+                    q = { function() vscode.action("workbench.action.closeActiveEditor") end, "Close Window" },
+                    o = { function() vscode.action("workbench.action.closeOtherEditors") end, "Close Others" },
+                    ["H"] = { function() vscode.action("workbench.action.focusLeftGroup") end, "Focus Left" },
+                    ["L"] = { function() vscode.action("workbench.action.focusRightGroup") end, "Focus Right" },
+                    ["K"] = { function() vscode.action("workbench.action.focusAboveGroup") end, "Focus Up" },
+                    ["J"] = { function() vscode.action("workbench.action.focusBelowGroup") end, "Focus Down" },
+                },
+                t = {
+                    name = "Toggle",
+                    t = { function() vscode.action("workbench.action.terminal.toggleTerminal") end, "Terminal" },
+                    p = { function() vscode.action("workbench.action.togglePanel") end, "Panel" },
+                    s = { function() vscode.action("workbench.action.toggleSidebarVisibility") end, "Sidebar" },
+                    c = { function() vscode.action("workbench.panel.chat.toggle") end, "Copilot Chat" },
+                    o = { function() vscode.action("outline.focus") end, "Outline" },
+                },
+                g = {
+                    name = "Git",
+                    s = { function() vscode.action("workbench.view.scm") end, "Source Control" },
+                    b = { function() vscode.action("git.checkout") end, "Checkout Branch" },
+                    c = { function() 
+                        vscode.action("github.copilot.sourceControl.generateCommitMessage")
+                        vscode.action("workbench.scm.focus", { delay = 100 })
+                    end, "Commit (Copilot)" },
+                    d = { function() vscode.action("git.openChange") end, "View Diff" },
+                },
+            },
+            -- Quick access to recent files with space-space
+            ["<leader><leader>"] = { 
+                function() vscode.action("search-preview.showAllEditorsByMostRecentlyUsed") end, 
+                "Recent Files" 
+            },
+        }
+
+        -- Register all mappings with WhichKey
+        which_key.register(mappings)
+    end
+end
+
 -- Configure enhanced cursor appearance for different modes
--- Uses custom cursor shapes and colors per mode:
--- Normal: Block cursor with orange color
--- Insert: Line cursor with bright green color
--- Visual: Block cursor with purple color
--- Replace: Underline cursor with red color
 vim.opt.guicursor = table.concat({
     "n-c:block-blinkwait700-blinkoff400-blinkon250-Cursor/lCursor",
     "i-ci-ve:ver25-blinkwait400-blinkoff250-blinkon500-CursorIM/lCursor",
@@ -35,156 +129,3 @@ vim.api.nvim_create_autocmd({"ColorScheme", "VimEnter"}, {
         vim.api.nvim_set_hl(0, "CursorRM", { fg = "#282828", bg = "#fb4934" })
     end
 })
-
--- Only load VSCode-specific configurations when running inside VSCode
-if vim.g.vscode then
-    local vscode = require('vscode')
-    
-    -- Setup which-key with modern configuration
-    local ok, which_key = pcall(require, "which-key")
-    if ok then
-        which_key.setup({
-            plugins = {
-                marks = true,
-                registers = true,
-                spelling = { enabled = false },
-                presets = {
-                    operators = false,
-                    motions = false,
-                    text_objects = false,
-                    windows = false,
-                    nav = false,
-                    z = false,
-                    g = false,
-                },
-            },
-            -- Modern options replacing deprecated ones
-            defaults = {
-                mode = { "n", "v" },
-                ["<leader>"] = { prefix = "<leader>" },
-            },
-            icons = {
-                breadcrumb = "»",
-                separator = "➜",
-                group = "+",
-            },
-            -- New window options
-            win = {
-                border = "single",
-                position = "bottom",
-                margin = { 1, 0, 1, 0 },
-                padding = { 1, 1, 1, 1 },
-                winblend = 0
-            },
-            -- New layout options
-            layout = {
-                height = { min = 3, max = 25 },
-                width = { min = 20, max = 50 },
-                spacing = 3,
-                align = "left",
-            },
-            show = {
-                help = true,
-                keys = true,
-            },
-            -- New trigger options
-            triggers = {
-                { mode = "n", keys = { "<leader>" } },
-                { mode = "v", keys = { "<leader>" } },
-            },
-            filter = {
-                exclude = {
-                    buftypes = { "prompt", "popup" },
-                    filetypes = { "TelescopePrompt", "github-actions-workflow" }
-                }
-            }
-        })
-
-        -- Register mappings using the new format
-        local mappings = {
-            { "<leader>e", function() vscode.action('workbench.view.explorer') end, desc = "Explorer" },
-            
-            -- Find/files group
-            { "<leader>f", group = "find/files" },
-            { "<leader>ff", function() vscode.action('workbench.action.quickOpen') end, desc = "Find file" },
-            { "<leader>fg", function() vscode.action('workbench.action.findInFiles') end, desc = "Find in files" },
-            { "<leader>fb", function() vscode.action('workbench.action.showAllEditors') end, desc = "Show buffers" },
-            { "<leader>fr", function() vscode.action('fileutils.renameFile') end, desc = "Rename file" },
-            
-            -- Window group
-            { "<leader>w", group = "window" },
-            { "<leader>wv", function() vscode.action('workbench.action.splitEditor') end, desc = "Split vertical" },
-            { "<leader>wh", function() vscode.action('workbench.action.splitEditorDown') end, desc = "Split horizontal" },
-            { "<leader>wq", function() vscode.action('workbench.action.closeActiveEditor') end, desc = "Close window" },
-            { "<leader>wo", function() vscode.action('workbench.action.closeOtherEditors') end, desc = "Close others" },
-            { "<leader>wH", function() vscode.action('workbench.action.focusLeftGroup') end, desc = "Focus left" },
-            { "<leader>wL", function() vscode.action('workbench.action.focusRightGroup') end, desc = "Focus right" },
-            { "<leader>wK", function() vscode.action('workbench.action.focusAboveGroup') end, desc = "Focus up" },
-            { "<leader>wJ", function() vscode.action('workbench.action.focusBelowGroup') end, desc = "Focus down" },
-            
-            -- Toggle group
-            { "<leader>t", group = "toggle" },
-            { "<leader>tt", function() vscode.action('workbench.action.terminal.toggleTerminal') end, desc = "Terminal" },
-            { "<leader>tp", function() vscode.action('workbench.action.togglePanel') end, desc = "Panel" },
-            { "<leader>ts", function() vscode.action('workbench.action.toggleSidebarVisibility') end, desc = "Sidebar" },
-            { "<leader>tc", function() vscode.action('workbench.panel.chat.toggle') end, desc = "Copilot Chat" },
-            { "<leader>to", function() vscode.action('outline.focus') end, desc = "Outline" },
-            
-            -- Git group
-            { "<leader>g", group = "git" },
-            { "<leader>gs", function() vscode.action('workbench.view.scm') end, desc = "Source control" },
-            { "<leader>gb", function() vscode.action('git.checkout') end, desc = "Checkout branch" },
-            { "<leader>gc", function() 
-                vscode.action('github.copilot.sourceControl.generateCommitMessage')
-                vim.defer_fn(function()
-                    vscode.action('workbench.scm.focus')
-                end, 100)
-            end, desc = "Commit (Copilot)" },
-            { "<leader>gd", function() vscode.action('git.openChange') end, desc = "View diff" },
-            
-            -- Global mappings
-            { "gh", function() vscode.action('editor.action.showHover') end, desc = "Show hover" },
-            { "gk", function() vscode.action('editor.action.showCallHierarchy') end, desc = "Call hierarchy" },
-            { "gi", function() vscode.action('editor.action.goToImplementation') end, desc = "Go to impl" },
-            { "[s", function() vscode.action('editor.action.previousStickyScrollLine') end, desc = "Prev sticky" },
-            { "]s", function() vscode.action('editor.action.nextStickyScrollLine') end, desc = "Next sticky" },
-            { "gs", function() vscode.action('editor.action.focusStickyScroll') end, desc = "Focus sticky" },
-        }
-
-        -- Register all mappings at once with the new format
-        which_key.register(mappings)
-    end
-
-    -- Register direct keymaps that don't need which-key
-    local function set_keymap(mode, lhs, rhs, desc)
-        vim.keymap.set(mode, lhs, rhs, { silent = true, desc = desc })
-    end
-
-    -- Window navigation
-    set_keymap('n', '<C-h>', function() vscode.action('workbench.action.navigateLeft') end, "Navigate left")
-    set_keymap('n', '<C-j>', function() vscode.action('workbench.action.navigateDown') end, "Navigate down")
-    set_keymap('n', '<C-k>', function() vscode.action('workbench.action.navigateUp') end, "Navigate up")
-    set_keymap('n', '<C-l>', function() vscode.action('workbench.action.navigateRight') end, "Navigate right")
-
-    -- Tab navigation
-    set_keymap('n', 'H', function() vscode.action('workbench.action.previousEditor') end, "Previous editor")
-    set_keymap('n', 'L', function() vscode.action('workbench.action.nextEditor') end, "Next editor")
-    
-    -- Multi-cursor and clipboard operations
-    set_keymap('n', '<C-d>', function()
-        vscode.with_insert(function()
-            vscode.action("editor.action.addSelectionToNextFindMatch")
-        end)
-    end, "Add next occurrence")
-
-    -- Enhanced clipboard operations
-    local function copy()
-        if vim.fn.mode() == 'v' or vim.fn.mode() == 'V' then
-            local backup = vim.fn.getreg('a')
-            vim.cmd('normal! "ay')
-            vscode.action('workbench.action.files.save')
-            vim.fn.setreg('a', backup)
-        end
-    end
-    set_keymap('v', '<C-c>', copy, "Copy selection")
-end
