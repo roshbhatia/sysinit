@@ -162,12 +162,33 @@ if vim.g.vscode then
                         d = { function() vscode.action('editor.action.revealDefinition') end, "Go to definition" },
                         r = { function() vscode.action('editor.action.goToReferences') end, "Go to references" },
                         i = { function() vscode.action('editor.action.showHover') end, "Show hover" },
+                        s = { function() vscode.action('editor.action.showCallHierarchy') end, "Show call hierarchy" },
+                        p = { function() vscode.action('editor.action.peekDefinition') end, "Peek definition" },
+                        h = { function() vscode.action('editor.action.triggerParameterHints') end, "Parameter hints" },
+                    },
+                    d = {
+                        name = "+debug",
+                        i = { function() vscode.action('workbench.action.debug.stepInto') end, "Step into" },
+                        o = { function() vscode.action('workbench.action.debug.stepOut') end, "Step out" },
+                        n = { function() vscode.action('workbench.action.debug.stepOver') end, "Step over" },
+                        c = { function() vscode.action('workbench.action.debug.continue') end, "Continue" },
+                        b = { function() vscode.action('editor.debug.action.toggleBreakpoint') end, "Toggle breakpoint" },
+                        s = { function() vscode.action('workbench.action.debug.start') end, "Start debugging" },
+                        x = { function() vscode.action('workbench.action.debug.stop') end, "Stop debugging" },
+                        v = { function() vscode.action('workbench.debug.action.toggleRepl') end, "Toggle debug console" },
                     },
                     t = {
                         name = "+toggle",
                         t = { function() vscode.action('workbench.action.terminal.toggleTerminal') end, "Terminal" },
                         p = { function() vscode.action('workbench.action.togglePanel') end, "Panel" },
                         s = { function() vscode.action('workbench.action.toggleSidebarVisibility') end, "Sidebar" },
+                        c = { function() vscode.action('workbench.panel.chat.toggle') end, "Copilot Chat" },
+                        o = { function() vscode.action('outline.focus') end, "Outline" },
+                        -- Toggle Sticky Scroll
+                        k = { function() 
+                            local current = vscode.get_config("editor.stickyScroll.enabled")
+                            vscode.update_config("editor.stickyScroll.enabled", not current)
+                        end, "Toggle Sticky Scroll" },
                     },
                     x = {
                         name = "+diagnostics",
@@ -242,6 +263,30 @@ if vim.g.vscode then
             ["<M-l>"] = { function() vscode.action('workbench.action.focusRightGroup') end, "Focus right pane" },
             ["<M-k>"] = { function() vscode.action('workbench.action.focusAboveGroup') end, "Focus above pane" },
             ["<M-j>"] = { function() vscode.action('workbench.action.focusBelowGroup') end, "Focus below pane" },
+            -- Enhanced autocomplete and navigation
+            ["<Tab>"] = { function() 
+                if vim.fn.pumvisible() == 1 then
+                    vscode.action('selectNextSuggestion')
+                else
+                    vscode.action('editor.action.triggerSuggest')
+                end
+            end, "Next suggestion" },
+            ["<S-Tab>"] = { function()
+                if vim.fn.pumvisible() == 1 then
+                    vscode.action('selectPrevSuggestion')
+                end
+            end, "Previous suggestion" },
+            ["gi"] = { function() vscode.action('editor.action.goToImplementation') end, "Go to implementation" },
+            ["gh"] = { function() vscode.action('editor.action.showHover') end, "Show hover" },
+            ["gk"] = { function() vscode.action('editor.action.showCallHierarchy') end, "Show call hierarchy" },
+            -- Quick sticky scroll navigation
+            ["[s"] = { function() vscode.action('editor.action.previousStickyScrollLine') end, "Previous sticky" },
+            ["]s"] = { function() vscode.action('editor.action.nextStickyScrollLine') end, "Next sticky" },
+            -- Quick view switching (Copilot Chat <-> Outline)
+            ["<leader>vc"] = { function() vscode.action('workbench.panel.chat.toggle') end, "Toggle Copilot Chat" },
+            ["<leader>vo"] = { function() vscode.action('outline.focus') end, "Toggle Outline" },
+            -- Focus sticky scroll (useful when you want to interact with sticky header)
+            ["gs"] = { function() vscode.action('editor.action.focusStickyScroll') end, "Focus sticky scroll" },
         })
     end
 
