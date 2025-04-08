@@ -14,50 +14,46 @@
         
         echo "🔧 Merging VSCode $config_name..."
         
-        # Ensure target directory exists with proper permissions
+        # Ensure target directory exists
         mkdir -p "$(dirname "$TARGET")"
         
+        # Create target file if it doesn't exist
         if [ ! -f "$TARGET" ]; then
           echo "🔧 Target $config_name doesn't exist, creating new file..."
           cp "$SOURCE" "$TARGET"
-          chmod 644 "$TARGET"
-        else
-          echo "🔧 Merging existing $config_name with new configuration..."
-          # Ensure the target is writable before we start
-          chmod 644 "$TARGET"
+        fi
+
+        # Ensure proper permissions
+        chmod 644 "$TARGET" 2>/dev/null || sudo chmod 644 "$TARGET"
+        
+        echo "🔧 Merging existing $config_name with new configuration..."
+        
+        if [ "$config_name" = "keybindings.json" ]; then
+          # For keybindings.json, ensure both files are valid JSON arrays
+          if ! ${pkgs.jq}/bin/jq -e 'type == "array"' "$TARGET" >/dev/null 2>&1; then
+            echo "[]" > "$TARGET"
+          fi
           
-          if [ "$config_name" = "keybindings.json" ]; then
-            # For keybindings.json, concatenate arrays
-            if ! ${pkgs.yq}/bin/yq -e 'type == "array"' "$TARGET" >/dev/null 2>&1; then
-              echo "🔧 Error: Target $config_name is not a valid JSON array"
-              return 1
-            fi
-            if ! ${pkgs.yq}/bin/yq -e 'type == "array"' "$SOURCE" >/dev/null 2>&1; then
-              echo "🔧 Error: Source $config_name is not a valid JSON array"
-              return 1
-            fi
-            
-            # Merge arrays with yq and preserve comments and formatting
-            if ${pkgs.yq}/bin/yq ea '.[0] + .[1] | unique_by(.)' "$TARGET" "$SOURCE" > "$TARGET.tmp"; then
-              mv -f "$TARGET.tmp" "$TARGET"
-              chmod 644 "$TARGET"
-              echo "🔧 Successfully merged $config_name"
-            else
-              echo "🔧 Error merging $config_name"
-              rm -f "$TARGET.tmp"
-              return 1
-            fi
+          # Merge arrays with jq
+          if ${pkgs.jq}/bin/jq -s '[.[0] + .[1] | unique]' "$TARGET" "$SOURCE" > "$TARGET.tmp"; then
+            mv -f "$TARGET.tmp" "$TARGET"
+            chmod 644 "$TARGET" 2>/dev/null || sudo chmod 644 "$TARGET"
+            echo "🔧 Successfully merged $config_name"
           else
-            # For settings.json, merge objects and preserve comments
-            if ${pkgs.yq}/bin/yq ea '. as $item ireduce ({}; . * $item )' "$TARGET" "$SOURCE" > "$TARGET.tmp"; then
-              mv -f "$TARGET.tmp" "$TARGET"
-              chmod 644 "$TARGET"
-              echo "🔧 Successfully merged $config_name"
-            else
-              echo "🔧 Error merging $config_name"
-              rm -f "$TARGET.tmp"
-              return 1
-            fi
+            echo "🔧 Error merging $config_name"
+            rm -f "$TARGET.tmp"
+            return 1
+          fi
+        else
+          # For settings.json, merge objects with jq
+          if ${pkgs.jq}/bin/jq -s 'reduce .[] as $item ({}; . * $item)' "$TARGET" "$SOURCE" > "$TARGET.tmp"; then
+            mv -f "$TARGET.tmp" "$TARGET"
+            chmod 644 "$TARGET" 2>/dev/null || sudo chmod 644 "$TARGET"
+            echo "🔧 Successfully merged $config_name"
+          else
+            echo "🔧 Error merging $config_name"
+            rm -f "$TARGET.tmp"
+            return 1
           fi
         fi
       }
