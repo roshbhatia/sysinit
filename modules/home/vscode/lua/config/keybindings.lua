@@ -7,27 +7,45 @@ M.keybindings = {
             { key = "f", description = "󰈞 Find Files", action = "workbench.action.quickOpen" },
             { key = "g", description = "󰱽 Live Grep", action = "workbench.action.findInFiles" },
             { key = "b", description = "󰋚 Find Buffers", action = "workbench.action.showAllEditors" },
-            { key = "h", description = "󰋖 Find Help", action = "workbench.action.openHelp" },
             { key = "s", description = "󰥨 Find Symbols", action = "workbench.action.showAllSymbols" },
             { key = "r", description = "󰋚 Recent Files", action = "workbench.action.openRecent" }
         }
     },
-    p = {
-        name = "󰏖 Project/File",
+    w = {
+        name = "󰖮 Window",
         bindings = {
-            { key = "f", description = "󰈞 Find in Project", action = "workbench.action.quickOpen" },
-            { key = "v", description = "󰙅 Explorer Toggle", action = "workbench.view.explorer" },
-            { key = "n", description = "󰎔 New File", action = "workbench.action.files.newUntitledFile" },
-            { key = "s", description = "󰑓 Save File", action = "workbench.action.files.save" }
+            { key = "h", description = "Focus Left", action = "workbench.action.focusLeftGroup" },
+            { key = "j", description = "Focus Down", action = "workbench.action.focusDownGroup" },
+            { key = "k", description = "Focus Up", action = "workbench.action.focusUpGroup" },
+            { key = "l", description = "Focus Right", action = "workbench.action.focusRightGroup" },
+            { key = "=", description = "Equal Width", action = "workbench.action.evenEditorWidths" },
+            { key = "_", description = "Max Width", action = "workbench.action.toggleEditorWidths" },
+            { key = "w", description = "Close Editor", action = "workbench.action.closeActiveEditor" },
+            { key = "o", description = "Close Others", action = "workbench.action.closeOtherEditors" },
+            { key = "H", description = "Move Left", action = "workbench.action.moveEditorToLeftGroup" },
+            { key = "J", description = "Move Down", action = "workbench.action.moveEditorToBelowGroup" },
+            { key = "K", description = "Move Up", action = "workbench.action.moveEditorToAboveGroup" },
+            { key = "L", description = "Move Right", action = "workbench.action.moveEditorToRightGroup" }
+        }
+    },
+    u = {
+        name = "󰘎 UI",
+        bindings = {
+            { key = "a", description = "Toggle Activity Bar", action = "workbench.action.toggleActivityBarVisibility" },
+            { key = "s", description = "Toggle Status Bar", action = "workbench.action.toggleStatusbarVisibility" },
+            { key = "t", description = "Toggle Tab Bar", action = "workbench.action.toggleTabsVisibility" },
+            { key = "b", description = "Toggle Side Bar", action = "workbench.action.toggleSidebarVisibility" },
+            { key = "z", description = "Toggle Zen Mode", action = "workbench.action.toggleZenMode" },
+            { key = "f", description = "Toggle Full Screen", action = "workbench.action.toggleFullScreen" }
         }
     },
     b = {
         name = "󰓩 Buffer",
         bindings = {
-            { key = "p", description = "Previous Buffer", action = "workbench.action.previousEditor" },
             { key = "n", description = "Next Buffer", action = "workbench.action.nextEditor" },
-            { key = "c", description = "Close Buffer", action = "workbench.action.closeActiveEditor" },
-            { key = "b", description = "Buffer List", action = "workbench.action.showAllEditors" }
+            { key = "p", description = "Previous Buffer", action = "workbench.action.previousEditor" },
+            { key = "d", description = "Close Buffer", action = "workbench.action.closeActiveEditor" },
+            { key = "o", description = "Close Others", action = "workbench.action.closeOtherEditors" }
         }
     },
     g = {
@@ -35,16 +53,7 @@ M.keybindings = {
         bindings = {
             { key = "b", description = "󰊢 Git Blame", action = "gitlens.toggleLineBlame" },
             { key = "d", description = "󰧑 Git Diff", action = "git.openChange" },
-            { key = "h", description = "󰊢 Preview Hunk", action = "git.openChange" },
             { key = "s", description = "󰊢 Git Status", action = "workbench.scm.focus" }
-        }
-    },
-    x = {
-        name = "󰃤 Diagnostics/Trouble",
-        bindings = {
-            { key = "x", description = "󰅚 Problems", action = "workbench.actions.view.problems" },
-            { key = "d", description = "󰃤 Document Diagnostics", action = "workbench.actions.view.problems" },
-            { key = "w", description = "󰃤 Workspace Diagnostics", action = "workbench.actions.viewAllProblems" }
         }
     },
     c = {
@@ -53,7 +62,10 @@ M.keybindings = {
             { key = "a", description = "󰌵 Code Actions", action = "editor.action.quickFix" },
             { key = "r", description = "󰑕 Rename Symbol", action = "editor.action.rename" },
             { key = "f", description = "󰉨 Format Document", action = "editor.action.formatDocument" },
-            { key = "d", description = "󰞋 Go to Definition", action = "editor.action.revealDefinition" }
+            { key = "d", description = "󰞋 Go to Definition", action = "editor.action.revealDefinition" },
+            { key = "i", description = "Go to Implementation", action = "editor.action.goToImplementation" },
+            { key = "h", description = "Show Hover", action = "editor.action.showHover" },
+            { key = "]", description = "Start Inline Chat", action = "inlineChat.start" }
         }
     },
     t = {
@@ -65,7 +77,7 @@ M.keybindings = {
             { key = "o", description = "󰙀 Outline", action = "outline.focus" },
             { key = "c", description = "󰚩 Copilot Chat", action = "github.copilot.chat.focus" },
             { key = "b", description = "󰌽 Return to Editor", action = "workbench.action.focusActiveEditorGroup" },
-            { key = "m", description = "⌘ Command Palette", action = "workbench.action.showCommands" },
+            { key = "m", description = "⌘ Command Palette", action = "workbench.action.showCommands" }
         }
     }
 }
