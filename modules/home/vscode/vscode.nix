@@ -2,7 +2,7 @@
 {
   home.file = {
     # Overwrite keybindings.json
-    "Library/Application Support/Code/User/keybindings.json".source = ./config/keybindings.json;
+    "Library/Application Support/Code/User/keybindings.json".source = keybindings.json;
     
     # For settings.json, we'll use a script to merge
     ".local/bin/merge-vscode-settings".source = pkgs.writeShellScript "merge-vscode-settings" ''
