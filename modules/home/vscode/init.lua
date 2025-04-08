@@ -10,34 +10,134 @@ local display_state = {
     last_group = nil
 }
 
--- Enhanced notification system with automatic hiding
-local function show_menu(content)
+-- Create the webview panel for our menu
+local function create_menu_js(content)
+    return vscode.eval([[
+        const panel = vscode.window.createWebviewPanel(
+            'whichkeyMenu',
+            'Key Bindings',
+            { viewColumn: vscode.ViewColumn.One, preserveFocus: true },
+            {
+                enableScripts: true,
+                retainContextWhenHidden: true
+            }
+        );
+
+        // Style the webview
+        panel.webview.html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body {
+                        padding: 0;
+                        margin: 0;
+                        background-color: var(--vscode-editor-background);
+                        color: var(--vscode-editor-foreground);
+                        font-family: var(--vscode-editor-font-family);
+                        font-size: var(--vscode-editor-font-size);
+                    }
+                    .menu-container {
+                        padding: 1rem;
+                        animation: slideDown 0.2s ease-out;
+                    }
+                    .binding {
+                        padding: 0.2rem 0;
+                        display: flex;
+                        align-items: center;
+                    }
+                    .key {
+                        color: var(--vscode-textPreformat-foreground);
+                        margin-right: 1rem;
+                    }
+                    .description {
+                        color: var(--vscode-descriptionForeground);
+                    }
+                    @keyframes slideDown {
+                        from { transform: translateY(-100%); }
+                        to { transform: translateY(0); }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="menu-container">
+                    ${args.content}
+                </div>
+            </body>
+            </html>
+        `;
+
+        // Auto-hide after 3 seconds
+        setTimeout(() => {
+            panel.dispose();
+        }, 3000);
+
+        // Store panel reference globally so we can dispose it later
+        if (globalThis.currentPanel) {
+            globalThis.currentPanel.dispose();
+        }
+        globalThis.currentPanel = panel;
+
+        return panel;
+    ]], { args = { content = content } })
+end
+
+-- Format menu content as HTML
+local function format_menu_html(group, direction)
+    local html = string.format("<h2 style='margin-top: 0;'>%s</h2>", group.name)
+    
+    if direction then
+        local arrow = direction == "next" and "→" or "←"
+        html = html .. string.format("<div style='margin-bottom: 1rem;'>%s Group Navigation %s</div>", arrow, arrow)
+    end
+    
+    for _, binding in ipairs(group.bindings) do
+        local preview_indicator = binding.preview and " 󰄾" or ""
+        html = html .. string.format(
+            "<div class='binding'><span class='key'>%s</span><span class='description'>%s%s</span></div>",
+            binding.key,
+            binding.description,
+            preview_indicator
+        )
+    end
+    
+    html = html .. [[
+        <div style='margin-top: 1rem; color: var(--vscode-descriptionForeground);'>
+            <div>⌨️ Controls:</div>
+            <div>• <span class='key'>esc</span> close menu</div>
+            <div>• <span class='key'>tab</span> next group</div>
+            <div>• <span class='key'>shift+tab</span> previous group</div>
+            <div>• <span class='key'>ctrl+p</span> toggle preview</div>
+        </div>
+    ]]
+    
+    return html
+end
+
+-- Show menu using VSCode webview
+local function show_menu(group, direction)
     if display_state.timer then
         vim.fn.timer_stop(display_state.timer)
     end
     
-    vscode.notify(content)
-    display_state.current_menu = content
+    local html_content = format_menu_html(group, direction)
+    create_menu_js(html_content)
     
-    -- Auto-hide after 3 seconds
+    display_state.current_menu = group.name
     display_state.timer = vim.fn.timer_start(3000, function()
-        if display_state.current_menu == content then
-            vscode.notify("")
-            display_state.current_menu = nil
-        end
+        vscode.eval("if (globalThis.currentPanel) { globalThis.currentPanel.dispose(); }")
+        display_state.current_menu = nil
     end)
 end
 
+-- Hide menu
 local function hide_menu()
     if display_state.timer then
         vim.fn.timer_stop(display_state.timer)
     end
-    vscode.notify("")
+    vscode.eval("if (globalThis.currentPanel) { globalThis.currentPanel.dispose(); }")
     display_state.current_menu = nil
 end
-
--- Override default notify to use our enhanced system
-vim.notify = show_menu
 
 -- Basic setup
 vim.keymap.set("n", "<SPACE>", "<NOP>", opts)
@@ -123,64 +223,12 @@ local keybindings = {
     }
 }
 
--- Add preview-specific functionality
-local function preview_file()
-    if display_state.in_preview then
-        vscode.action("workbench.action.closePreviewEditor")
-        vscode.action("search-preview.quickOpenWithPreview")
-    else
-        vscode.action("search-preview.quickOpenWithPreview")
-    end
-end
-
--- Enhanced keybindings for file preview
-vim.keymap.set("n", "<leader>fp", preview_file, opts)
-vim.keymap.set("n", "<C-w>", function()
-    if display_state.in_preview then
-        vscode.action("workbench.action.closePreviewEditor")
-        display_state.in_preview = false
-    end
-end, opts)
-
--- Quick file operations with preview
-vim.keymap.set("n", "<C-p>", function()
-    preview_file()
-    display_state.in_preview = true
-end, opts)
-
--- Function to format keybinding display with improved styling
-local function format_menu(group, direction)
-    local output = string.format("\n %s %s\n\n", group.name, string.rep("━", 30))
-    
-    -- Add navigation hint based on direction
-    if direction then
-        local arrow = direction == "next" and "→" or "←"
-        output = output .. string.format(" %s Group Navigation %s\n\n", arrow, arrow)
-    end
-    
-    for _, binding in ipairs(group.bindings) do
-        local preview_indicator = binding.preview and " 󰄾" or ""
-        output = output .. string.format("  %s  %s%s\n", binding.key, binding.description, preview_indicator)
-    end
-    
-    -- Add helpful key hints
-    output = output .. "\n ⌨️  Controls:\n"
-    output = output .. "    <esc> - close menu\n"
-    output = output .. "    <tab> - next group\n"
-    output = output .. "    <S-tab> - previous group\n"
-    output = output .. "    <C-p> - toggle preview\n"
-    
-    return output
-end
-
--- Enhanced keybinding handler with menu display
+-- Enhanced keybinding handler with webview menu display
 local function handle_group(prefix, group)
-    -- Show menu on leader key
     vim.keymap.set("n", prefix, function()
-        show_menu(format_menu(group))
+        show_menu(group)
     end, opts)
 
-    -- Set up action bindings
     for _, binding in ipairs(group.bindings) do
         vim.keymap.set("n", prefix .. binding.key, function()
             hide_menu()
@@ -207,7 +255,7 @@ vim.api.nvim_create_autocmd({"CursorHold"}, {
             local prefix = string.sub(key, #"<leader>" + 1, #"<leader>" + 1)
             local group = keybindings[prefix]
             if group then
-                show_menu(format_menu(group))
+                show_menu(group)
             end
         end
     end
@@ -271,7 +319,7 @@ vim.keymap.set("n", "<Tab>", function()
                 next_prefix = next(keybindings)
             end
             
-            show_menu(format_menu(keybindings[next_prefix], "next"))
+            show_menu(keybindings[next_prefix], "next")
         end
     end
 end, opts)
@@ -292,7 +340,7 @@ vim.keymap.set("n", "<S-Tab>", function()
             for prefix, _ in pairs(keybindings) do
                 if prefix == current_prefix then
                     if prev_prefix then
-                        show_menu(format_menu(keybindings[prev_prefix], "previous"))
+                        show_menu(keybindings[prev_prefix], "previous")
                         return
                     end
                 end
@@ -301,7 +349,7 @@ vim.keymap.set("n", "<S-Tab>", function()
             end
             
             -- Wrap around to the last group
-            show_menu(format_menu(keybindings[last_prefix], "previous"))
+            show_menu(keybindings[last_prefix], "previous")
         end
     end
 end, opts)
