@@ -26,6 +26,7 @@ let
   ];
   
   baseBrews = [
+    "argocd"
     "ansible"
     "bcrypt"
     "borders"
