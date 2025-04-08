@@ -27,6 +27,7 @@ let
   
   baseBrews = [
     "ansible"
+    "bcrypt"
     "borders"
     "caddy"
     "colima"
@@ -39,6 +40,7 @@ let
     "helm"
     "kubectl"
     "kubecolor"
+    "k9s"
     "libgit2"
     "nushell"
     "pipx"
