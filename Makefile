@@ -1,78 +1,79 @@
+SHELL := /bin/bash
 # Color definitions
-BLUE := \033[1;34m
-GREEN := \033[1;32m
-RED := \033[1;31m
-YELLOW := \033[1;33m
-NC := \033[0m # No Color
-INFO := @printf "$(BLUE)%s$(NC)\n"
-SUCCESS := @printf "$(GREEN)%s$(NC)\n"
-WARN := @printf "$(YELLOW)%s$(NC)\n"
-ERROR := @printf "$(RED)%s$(NC)\n"
+BLUE := $(shell printf '\033[1;34m')
+GREEN := $(shell printf '\033[1;32m')
+RED := $(shell printf '\033[1;31m')
+YELLOW := $(shell printf '\033[1;33m')
+NC := $(shell printf '\033[0m')
+INFO := $(BLUE)%s$(NC)\n
+SUCCESS := $(GREEN)%s$(NC)\n
+WARN := $(YELLOW)%s$(NC)\n
+ERROR := $(RED)%s$(NC)\n
 
 .PHONY: refresh build update-flake clean test refresh-work help
 
 # System configuration targets
 refresh:
-	$(INFO) "🔄 Applying system configuration..."
+	printf "$(INFO)" "🔄 Applying system configuration..."
 	@darwin-rebuild switch --flake . --show-trace && \
-	$(SUCCESS) "✅ System configuration applied successfully"
+	printf "$(SUCCESS)" "✅ System configuration applied successfully"
 
 build:
-	$(INFO) "🏗️  Building system configuration..."
+	printf "$(INFO)" "🏗️  Building system configuration..."
 	@darwin-rebuild build --flake . && \
-	$(SUCCESS) "✅ Build completed successfully"
+	printf "$(SUCCESS)" "✅ Build completed successfully"
 
 update-flake:
-	$(INFO) "📦 Updating flake inputs..."
+	printf "$(INFO)" "📦 Updating flake inputs..."
 	@nix flake update && \
-	$(SUCCESS) "✅ Flake inputs updated successfully"
+	printf "$(SUCCESS)" "✅ Flake inputs updated successfully"
 
 # Maintenance targets
 clean:
-	$(INFO) "🧹 Running garbage collection..."
+	printf "$(INFO)" "🧹 Running garbage collection..."
 	@sudo nix-collect-garbage -d && \
-	$(SUCCESS) "✅ Garbage collection completed"
+	printf "$(SUCCESS)" "✅ Garbage collection completed"
 
 test:
-	$(INFO) "🧪 Running test suite..."
+	printf "$(INFO)" "🧪 Running test suite..."
 	@./tests/smart-resize-test.sh && \
-	$(SUCCESS) "✅ Tests completed successfully"
+	printf "$(SUCCESS)" "✅ Tests completed successfully"
 
 # Work configuration targets
 refresh-work:
 	@WORK_SYSINIT=$$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1); \
 	if [ -z "$$WORK_SYSINIT" ]; then \
-		$(ERROR) "❌ Could not find work sysinit repository"; \
+		printf "$(ERROR)" "❌ Could not find work sysinit repository"; \
 		exit 1; \
 	fi; \
-	$(INFO) "🔄 Refreshing work sysinit at $$WORK_SYSINIT"; \
+	printf "$(INFO)" "🔄 Refreshing work sysinit at $$WORK_SYSINIT"; \
 	cd "$$WORK_SYSINIT" && \
 	if ! nix flake update; then \
-		$(ERROR) "❌ Failed to update flake"; \
+		printf "$(ERROR)" "❌ Failed to update flake"; \
 		exit 1; \
 	fi && \
 	if ! nix build; then \
-		$(ERROR) "❌ Failed to build configuration"; \
+		printf "$(ERROR)" "❌ Failed to build configuration"; \
 		exit 1; \
 	fi && \
 	if ! ./result/sw/bin/darwin-rebuild switch --flake .#default; then \
-		$(ERROR) "❌ Failed to apply configuration"; \
+		printf "$(ERROR)" "❌ Failed to apply configuration"; \
 		exit 1; \
 	fi && \
-	$(SUCCESS) "✅ Work configuration refreshed successfully"
+	printf "$(SUCCESS)" "✅ Work configuration refreshed successfully"
 
 # Help target
 help:
-	@echo "$(BLUE)SysInit Makefile Commands:$(NC)"
-	@echo ""
-	@echo "$(BLUE)System Configuration:$(NC)"
-	@echo "  $(GREEN)make refresh$(NC)      - Apply the system configuration"
-	@echo "  $(GREEN)make build$(NC)        - Build the configuration without applying"
-	@echo "  $(GREEN)make update-flake$(NC) - Update flake inputs"
-	@echo ""
-	@echo "$(BLUE)Maintenance:$(NC)"
-	@echo "  $(GREEN)make clean$(NC)        - Run garbage collection"
-	@echo "  $(GREEN)make test$(NC)         - Run test suite"
-	@echo ""
-	@echo "$(BLUE)Work Configuration:$(NC)"
-	@echo "  $(GREEN)make refresh-work$(NC) - Update and rebuild work sysinit configuration"
+	printf "$(BLUE)%s$(NC)\n" "SysInit Makefile Commands:"
+	printf "\n"
+	printf "$(BLUE)%s$(NC)\n" "System Configuration:"
+	printf "  $(GREEN)%s$(NC)      - %s\n" "make refresh" "Apply the system configuration"
+	printf "  $(GREEN)%s$(NC)        - %s\n" "make build" "Build the configuration without applying"
+	printf "  $(GREEN)%s$(NC) - %s\n" "make update-flake" "Update flake inputs"
+	printf "\n"
+	printf "$(BLUE)%s$(NC)\n" "Maintenance:"
+	printf "  $(GREEN)%s$(NC)        - %s\n" "make clean" "Run garbage collection"
+	printf "  $(GREEN)%s$(NC)         - %s\n" "make test" "Run test suite"
+	printf "\n"
+	printf "$(BLUE)%s$(NC)\n" "Work Configuration:"
+	printf "  $(GREEN)%s$(NC) - %s\n" "make refresh-work" "Update and rebuild work sysinit configuration"
