@@ -19,13 +19,26 @@
           cp "$SOURCE" "$TARGET"
         else
           echo "🔧 Merging existing $config_name with new configuration..."
-          if ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$TARGET" "$SOURCE" > "$TARGET.tmp"; then
-            mv "$TARGET.tmp" "$TARGET"
-            echo "🔧 Successfully merged $config_name"
+          if [ "$config_name" = "keybindings.json" ]; then
+            # For keybindings.json, concatenate arrays and remove duplicates
+            if ${pkgs.jq}/bin/jq -s '.[0] + .[1] | unique' "$TARGET" "$SOURCE" > "$TARGET.tmp"; then
+              mv "$TARGET.tmp" "$TARGET"
+              echo "🔧 Successfully merged $config_name"
+            else
+              echo "🔧 Error merging $config_name"
+              rm -f "$TARGET.tmp"
+              return 1
+            fi
           else
-            echo "🔧 Error merging $config_name"
-            rm -f "$TARGET.tmp"
-            return 1
+            # For other files like settings.json, merge objects
+            if ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$TARGET" "$SOURCE" > "$TARGET.tmp"; then
+              mv "$TARGET.tmp" "$TARGET"
+              echo "🔧 Successfully merged $config_name"
+            else
+              echo "🔧 Error merging $config_name"
+              rm -f "$TARGET.tmp"
+              return 1
+            fi
           fi
         fi
       }
