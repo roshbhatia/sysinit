@@ -12,16 +12,12 @@ vim.opt.clipboard:append("unnamedplus")
 -- Configure VSCode Vim to use space as menu trigger
 if vim.g.vscode then
     local vscode = require('vscode')
-    vim.cmd([[
-        let g:WhichKeyDesc_leader = "<leader> Leader key"
-        nnoremap <Space> <Cmd>call VSCodeNotify('whichkey.show')<CR>
-        xnoremap <Space> <Cmd>call VSCodeNotify('whichkey.show')<CR>
-    ]])
-
-    -- Setup which-key with modern configuration
-    local ok, which_key = pcall(require, "which-key")
-    if ok then
-        which_key.setup({
+    
+    -- Setup WhichKey with lazy.nvim pattern
+    local whichkey = {
+        "folke/which-key.nvim",
+        event = "VeryLazy",
+        opts = {
             plugins = {
                 marks = true,
                 registers = true,
@@ -51,61 +47,68 @@ if vim.g.vscode then
             },
             show_help = true,
             triggers = "auto",
-        })
+        },
+        keys = {
+            {
+                "<leader>?",
+                function()
+                    require("which-key").show({ global = false })
+                end,
+                desc = " Buffer Local Keymaps",
+            },
+        },
+        config = function(_, opts)
+            local wk = require("which-key")
+            wk.setup(opts)
 
-        -- Register normal WhichKey mappings
-        local mappings = {
-            ["<leader>"] = {
-                f = {
-                    name = "Find/Files",
-                    f = { function() vscode.action("search-preview.quickOpenWithPreview") end, "Find File (Preview)" },
-                    r = { function() vscode.action("search-preview.showAllEditorsByMostRecentlyUsed") end, "Recent Files (Preview)" },
-                    g = { function() vscode.action("workbench.action.findInFiles") end, "Find in Files" },
-                    b = { function() vscode.action("workbench.action.showAllEditors") end, "Show Buffers" },
-                    n = { function() vscode.action("fileutils.renameFile") end, "Rename File" },
-                    s = { function() vscode.action("search-preview.openSearchSettings") end, "Search Settings" },
+            -- Register keybindings with icons
+            wk.register({
+                ["<leader>f"] = {
+                    name = " File",
+                    f = { function() vscode.action("search-preview.quickOpenWithPreview") end, " Find File" },
+                    r = { function() vscode.action("search-preview.showAllEditorsByMostRecentlyUsed") end, "󰋚 Recent Files" },
+                    g = { function() vscode.action("workbench.action.findInFiles") end, " Find in Files" },
+                    b = { function() vscode.action("workbench.action.showAllEditors") end, "󰓩 Show Buffers" },
+                    n = { function() vscode.action("fileutils.renameFile") end, " Rename File" },
+                    s = { function() vscode.action("search-preview.openSearchSettings") end, " Search Settings" },
                 },
-                e = { function() vscode.action("workbench.view.explorer") end, "Explorer" },
-                w = {
-                    name = "Window",
-                    v = { function() vscode.action("workbench.action.splitEditor") end, "Split Vertical" },
-                    h = { function() vscode.action("workbench.action.splitEditorDown") end, "Split Horizontal" },
-                    q = { function() vscode.action("workbench.action.closeActiveEditor") end, "Close Window" },
-                    o = { function() vscode.action("workbench.action.closeOtherEditors") end, "Close Others" },
-                    ["H"] = { function() vscode.action("workbench.action.focusLeftGroup") end, "Focus Left" },
-                    ["L"] = { function() vscode.action("workbench.action.focusRightGroup") end, "Focus Right" },
-                    ["K"] = { function() vscode.action("workbench.action.focusAboveGroup") end, "Focus Up" },
-                    ["J"] = { function() vscode.action("workbench.action.focusBelowGroup") end, "Focus Down" },
+                ["<leader>w"] = {
+                    name = "󱂬 Window",
+                    v = { function() vscode.action("workbench.action.splitEditor") end, "󰤱 Split Vertical" },
+                    h = { function() vscode.action("workbench.action.splitEditorDown") end, "󰤲 Split Horizontal" },
+                    q = { function() vscode.action("workbench.action.closeActiveEditor") end, " Close Window" },
+                    o = { function() vscode.action("workbench.action.closeOtherEditors") end, " Close Others" },
+                    ["H"] = { function() vscode.action("workbench.action.focusLeftGroup") end, " Focus Left" },
+                    ["L"] = { function() vscode.action("workbench.action.focusRightGroup") end, " Focus Right" },
+                    ["K"] = { function() vscode.action("workbench.action.focusAboveGroup") end, " Focus Up" },
+                    ["J"] = { function() vscode.action("workbench.action.focusBelowGroup") end, " Focus Down" },
                 },
-                t = {
-                    name = "Toggle",
-                    t = { function() vscode.action("workbench.action.terminal.toggleTerminal") end, "Terminal" },
-                    p = { function() vscode.action("workbench.action.togglePanel") end, "Panel" },
-                    s = { function() vscode.action("workbench.action.toggleSidebarVisibility") end, "Sidebar" },
-                    c = { function() vscode.action("workbench.panel.chat.toggle") end, "Copilot Chat" },
-                    o = { function() vscode.action("outline.focus") end, "Outline" },
+                ["<leader>t"] = {
+                    name = " Toggle",
+                    t = { function() vscode.action("workbench.action.terminal.toggleTerminal") end, " Terminal" },
+                    p = { function() vscode.action("workbench.action.togglePanel") end, " Panel" },
+                    s = { function() vscode.action("workbench.action.toggleSidebarVisibility") end, " Sidebar" },
+                    c = { function() vscode.action("workbench.panel.chat.toggle") end, "󰚩 Copilot Chat" },
+                    o = { function() vscode.action("outline.focus") end, "󰙴 Outline" },
                 },
-                g = {
-                    name = "Git",
-                    s = { function() vscode.action("workbench.view.scm") end, "Source Control" },
-                    b = { function() vscode.action("git.checkout") end, "Checkout Branch" },
+                ["<leader>g"] = {
+                    name = " Git",
+                    s = { function() vscode.action("workbench.view.scm") end, " Source Control" },
+                    b = { function() vscode.action("git.checkout") end, " Checkout Branch" },
                     c = { function() 
                         vscode.action("github.copilot.sourceControl.generateCommitMessage")
                         vscode.action("workbench.scm.focus", { delay = 100 })
-                    end, "Commit (Copilot)" },
-                    d = { function() vscode.action("git.openChange") end, "View Diff" },
+                    end, " Commit (Copilot)" },
+                    d = { function() vscode.action("git.openChange") end, "󰜄 View Diff" },
                 },
-            },
-            -- Quick access to recent files with space-space
-            ["<leader><leader>"] = { 
-                function() vscode.action("search-preview.showAllEditorsByMostRecentlyUsed") end, 
-                "Recent Files" 
-            },
-        }
+                ["<leader>e"] = { function() vscode.action("workbench.view.explorer") end, " Explorer" },
+                ["<leader><leader>"] = { function() vscode.action("search-preview.showAllEditorsByMostRecentlyUsed") end, "󰋚 Recent Files" },
+            })
+        end,
+    }
 
-        -- Register all mappings with WhichKey
-        which_key.register(mappings)
-    end
+    -- Load WhichKey configuration
+    require("lazy").setup({ whichkey })
 end
 
 -- Configure enhanced cursor appearance for different modes
