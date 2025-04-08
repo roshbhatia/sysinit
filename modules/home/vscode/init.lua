@@ -1,3 +1,13 @@
+-- Get the directory of the current file for module loading
+local function get_current_dir()
+    local str = debug.getinfo(2, "S").source:sub(2)
+    return str:match("(.*/)")
+end
+
+-- Add the current directory to package.path
+local current_dir = get_current_dir() or vim.fn.expand("%:p:h") .. "/"
+package.path = current_dir .. "lua/?.lua;" .. current_dir .. "lua/?/init.lua;" .. package.path
+
 -- Set leader key to space
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
