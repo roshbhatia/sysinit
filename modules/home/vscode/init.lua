@@ -6,22 +6,169 @@ vim.g.maplocalleader = " "
 vim.o.timeout = true
 vim.o.timeoutlen = 300
 
+-- Configure cursor shapes for different modes
+vim.opt.guicursor = "n-v-c:block-blinkon1,i-ci-ve:ver25-blinkon1,r-cr:hor20,o:hor50"
+
+-- Initialize lazy if not already installed
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+    vim.fn.system({
+        "git",
+        "clone",
+        "--filter=blob:none",
+        "--branch=stable",
+        "https://github.com/folke/lazy.nvim.git",
+        lazypath,
+    })
+end
+vim.opt.rtp:prepend(lazypath)
+
+-- Helper function to center Startify header
+local function center_startify(header_lines)
+    local padding = string.rep(' ', math.floor((vim.o.columns - 38) / 2))
+    local header = {}
+    for i, line in ipairs(header_lines) do
+        table.insert(header, padding .. line)
+    end
+    return header
+end
+
+-- Setup lazy.nvim
+require("lazy").setup({
+    {
+        "folke/which-key.nvim",
+        event = "VeryLazy",
+    },
+    {
+        "mhinz/vim-startify",
+        lazy = false,
+        priority = 800,
+        init = function()
+            -- Custom header configuration
+            vim.g.startify_custom_header = center_startify({
+                '⠀⠀⠀⠀⠀⠐⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀',
+                '⠀⠀⠀⠀⠀⠀⠈⣾⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀',
+                '⠀⠀⠀⠀⠀⠀⠀⢸⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀',
+                '⠀⠀⠀⠀⠀⠀⠀⣈⣼⣄⣠⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀',
+                '⠀⠀⠀⠀⠀⠀⠉⠑⢷⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀',
+                '⠀⠀⠀⠀⠀⠀⠀⠀⣼⣐⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀',
+                '⠀⠀⠀⠀⠀⠀⠀⠀⠘⡚⢧⠀⠀⠀⢠⠀⠀⠀⠀⠀⠀⠀⠀⠀',
+                '⠀⠀⠀⠀⠀⠀⠀⠀⠀⢃⢿⡇⠀⠀⡾⡀⠀⠀⠀⠀⠀⠀⠀⠀',
+                '⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠸⣇⠀⠀⠡⣰⠀⠀⠀⠀⠀⠀⠀⠀',
+                '⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠇⣿⠀⢠⣄⢿⠇⠀⠀⠀⠀⠀⠀⠀',
+                '⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⢸⡇⠜⣭⢸⡀⠀⠀⠀⠀⠀⠀⠀',
+                '⠀⠀⠀⠀⠀⠀⠀⠀⣼⠀⡙⣿⣿⠰⢫⠁⣇⠀⠀⠀⠀⠀⠀⠀',
+                '⠀⠀⠀⠀⠀⠀⠀⢰⣽⠱⡈⠋⠋⣤⡤⠳⠉⡆⠀⠀⠀⠀⠀⠀',
+                '⠀⠀⠀⠀⠀⠀⠀⡜⠡⠊⠑⠄⣠⣿⠃⠀⣣⠃⠀⠀⠀⠀⠀⠀',
+                '⠀⠀⠀⠀⠀⠐⣼⡠⠥⠊⡂⣼⢀⣤⠠⡲⢂⡌⡄⠀⠀⠀⠀⠀',
+                '⠀⠀⠀⠀⣀⠝⡛⢁⡴⢉⠗⠛⢰⣶⣯⢠⠺⠀⠈⢥⠰⡀⠀⠀',
+                '⠀⣠⣴⢿⣿⡟⠷⠶⣶⣵⣲⡀⣨⣿⣆⡬⠖⢛⣶⣼⡗⠈⠢⠀',
+                '⢰⣹⠭⠽⢧⠅⢂⣳⠛⢿⡽⣿⢿⡿⢟⣟⡻⢾⣿⣿⡤⢴⣶⡃'
+            })
+            
+            -- Simplified Startify configuration for VSCode (current directory only)
+            vim.g.startify_lists = {{
+                type = 'dir',
+                header = {'   Current Directory:'},
+                path = vim.fn.getcwd()
+            }}
+            
+            -- Disable startify sessions, bookmarks and commands
+            vim.g.startify_session_autoload = 0
+            vim.g.startify_enable_special = 0
+            vim.g.startify_session_persistence = 0
+            vim.g.startify_session_delete_buffers = 0
+        end
+    }
+})
+
 -- VSCode specific keybindings
 local vscode = require('vscode')
 
--- File navigation
-vim.keymap.set('n', '<leader>ff', function() vscode.action('workbench.action.quickOpen') end)
-vim.keymap.set('n', '<leader>fg', function() vscode.action('workbench.action.findInFiles') end)
-vim.keymap.set('n', '<leader>fb', function() vscode.action('workbench.action.showAllEditors') end)
-vim.keymap.set('n', '<leader>e', function() vscode.action('workbench.action.toggleSidebarVisibility') end)
+-- Initialize which-key
+local ok, which_key = pcall(require, "which-key")
+if ok then
+    which_key.setup({
+        plugins = {
+            marks = false,
+            registers = false,
+            spelling = { enabled = false },
+            presets = {
+                operators = false,
+                motions = false,
+                text_objects = false,
+                windows = false,
+                nav = false,
+                z = false,
+                g = false,
+            },
+        },
+        window = {
+            border = "single",
+            position = "bottom",
+            margin = { 1, 0, 1, 0 },
+            padding = { 2, 2, 2, 2 },
+        },
+        show_help = false,
+        show_keys = false,
+        triggers = "auto",
+        triggers_nowait = {
+            -- marks
+            "'", "`", "g'", "g`",
+            -- registers
+            '"', "<c-r>",
+            -- spelling
+            "z=",
+        },
+    })
 
--- LSP bindings
+    -- Register mappings with which-key
+    which_key.register({
+        f = {
+            name = "Find",
+            f = { function() vscode.action('workbench.action.quickOpen') end, "Find File" },
+            g = { function() vscode.action('workbench.action.findInFiles') end, "Find in Files" },
+            b = { function() vscode.action('workbench.action.showAllEditors') end, "Show All Buffers" },
+        },
+        w = {
+            name = "Window",
+            c = { function() vscode.action('workbench.action.closeActiveEditor') end, "Close Window" },
+            o = { function() vscode.action('workbench.action.closeOtherEditors') end, "Close Others" },
+            ["|"] = { function() vscode.action('workbench.action.splitEditor') end, "Split Vertical" },
+            ["-"] = { function() vscode.action('workbench.action.splitEditorDown') end, "Split Horizontal" },
+        },
+        c = {
+            name = "Copilot",
+            c = { function() vscode.action('github.copilot.interactiveEditor.toggle') end, "Toggle Copilot Chat" },
+            a = { function() vscode.action('github.copilot.interactiveSession.setAgent') end, "Switch to Agent Mode" },
+            e = { function() vscode.action('github.copilot.interactiveSession.editMode') end, "Switch to Edit Mode" },
+            q = { function() vscode.action('github.copilot.interactiveSession.askMode') end, "Switch to Ask Mode" },
+            f = { function() vscode.action('github.copilot.interactiveSession.fix') end, "Fix Issue" },
+            x = { function() vscode.action('github.copilot.interactiveSession.explain') end, "Explain Code" },
+            t = { function() vscode.action('github.copilot.interactiveSession.generateTests') end, "Generate Tests" },
+        },
+        h = {
+            name = "Hunks/Git",
+            s = { function() vscode.action('git.stage') end, "Stage Hunk" },
+            u = { function() vscode.action('git.unstage') end, "Unstage Hunk" },
+        },
+        p = {
+            name = "Project",
+            n = { function() vscode.action('workbench.action.files.newUntitledFile') end, "New File" },
+        },
+        e = { function() vscode.action('workbench.action.toggleSidebarVisibility') end, "Toggle Explorer" },
+        r = {
+            name = "Refactor",
+            n = { function() vscode.action('editor.action.rename') end, "Rename Symbol" },
+        },
+    }, { prefix = "<leader>", mode = "n" })
+end
+
+-- Standard LSP bindings (these don't need which-key as they don't use leader)
 vim.keymap.set('n', 'gd', function() vscode.action('editor.action.revealDefinition') end)
 vim.keymap.set('n', 'gr', function() vscode.action('editor.action.goToReferences') end)
 vim.keymap.set('n', 'gi', function() vscode.action('editor.action.goToImplementation') end)
 vim.keymap.set('n', 'K', function() vscode.action('editor.action.showHover') end)
-vim.keymap.set('n', '<leader>rn', function() vscode.action('editor.action.rename') end)
-vim.keymap.set('n', '<leader>ca', function() vscode.action('editor.action.quickFix') end)
 
 -- Window navigation
 vim.keymap.set('n', '<C-h>', function() vscode.action('workbench.action.navigateLeft') end)
@@ -29,29 +176,11 @@ vim.keymap.set('n', '<C-j>', function() vscode.action('workbench.action.navigate
 vim.keymap.set('n', '<C-k>', function() vscode.action('workbench.action.navigateUp') end)
 vim.keymap.set('n', '<C-l>', function() vscode.action('workbench.action.navigateRight') end)
 
--- Window splitting
-vim.keymap.set('n', '<leader>\\', function() vscode.action('workbench.action.splitEditor') end)
-vim.keymap.set('n', '<leader>-', function() vscode.action('workbench.action.splitEditorDown') end)
-
--- Git integration
-vim.keymap.set('n', '<leader>gb', function() vscode.action('gitlens.toggleLineBlame') end)
-vim.keymap.set('n', '<leader>hs', function() vscode.action('git.stage') end)
-vim.keymap.set('n', '<leader>hu', function() vscode.action('git.unstage') end)
-
--- Better window commands
-vim.keymap.set('n', '<leader>wc', function() vscode.action('workbench.action.closeActiveEditor') end)
-vim.keymap.set('n', '<leader>wo', function() vscode.action('workbench.action.closeOtherEditors') end)
-
--- File operations
-vim.keymap.set('n', '<leader>pn', function()
-  vscode.action('workbench.action.files.newUntitledFile')
-end)
-
 -- Multi-cursor support
 vim.keymap.set('n', '<C-d>', function()
-  vscode.with_insert(function()
-    vscode.action("editor.action.addSelectionToNextFindMatch")
-  end)
+    vscode.with_insert(function()
+        vscode.action("editor.action.addSelectionToNextFindMatch")
+    end)
 end)
 
 -- Terminal integration
@@ -61,19 +190,19 @@ vim.keymap.set('n', '<C-\\>', function() vscode.action('workbench.action.termina
 if vim.g.vscode then
     -- VSCode extension
     local function copy()
-      if vim.fn.mode() == 'v' or vim.fn.mode() == 'V' then
-        local backup = vim.fn.getreg('a')
-        vim.cmd('normal! "ay')
-        vscode.action('workbench.action.files.save')
-        vim.fn.setreg('a', backup)
-      end
+        if vim.fn.mode() == 'v' or vim.fn.mode() == 'V' then
+            local backup = vim.fn.getreg('a')
+            vim.cmd('normal! "ay')
+            vscode.action('workbench.action.files.save')
+            vim.fn.setreg('a', backup)
+        end
     end
 
     -- Add copy command
     vim.keymap.set('v', '<C-c>', copy)
 end
 
--- Configure which-key to show on space
+-- Configure which-key to show on first space press
 vim.keymap.set('n', '<Space>', function()
-  vscode.action('whichkey.show')
+    vim.fn.feedkeys(' ', 'n')
 end, { silent = true })
