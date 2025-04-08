@@ -43,6 +43,27 @@ if vim.g.vscode then
     -- Setup which-key
     local ok, which_key = pcall(require, "which-key")
     if ok then
+        -- Function to check if we're in a context where WhichKey should be disabled
+        local function should_disable_whichkey()
+            -- Get the current buffer's filetype
+            local filetype = vim.bo.filetype
+            
+            -- Check if we're in insert mode
+            local in_insert = vim.fn.mode() == 'i'
+            
+            -- Check if we're in specific file types where we don't want WhichKey
+            local blocked_filetypes = {
+                ["github-actions-workflow"] = true,
+                ["yaml.github-actions"] = true,
+                ["TelescopePrompt"] = true,
+            }
+            
+            -- Check if we're in a rename prompt or command palette
+            local in_command = vim.fn.getcmdtype() ~= ''
+            
+            return in_insert or blocked_filetypes[filetype] or in_command
+        end
+
         which_key.setup({
             plugins = {
                 marks = true,
@@ -58,6 +79,20 @@ if vim.g.vscode then
                     g = false,            -- Don't show built-in g operations
                 },
             },
+            disable = {
+                filetypes = { "TelescopePrompt", "github-actions-workflow", "yaml.github-actions" },
+                buftypes = { "prompt", "popup" },
+            },
+            triggers_nowait = {
+                -- These keys will trigger immediately even in insert mode
+                "`",
+                "'",
+                "g`",
+                "g'",
+                '"',
+                "<c-r>",
+                "z=",
+            },
             window = {
                 border = "single",
                 position = "bottom",
@@ -69,6 +104,78 @@ if vim.g.vscode then
                 width = { min = 20, max = 50 },
                 spacing = 3,
                 align = "left",
+            },
+            ignore_missing = true,  -- Don't show errors for undefined mappings
+            hidden = {
+                "<silent>", "<cmd>", "<Cmd>", "<CR>", "^:", "^ ", "^call ", "^lua "
+            },
+            show_help = false,  -- Don't show help message
+            show_keys = false,  -- Don't show key binding in command line
+            timeout = {
+                delay = 200,    -- Faster timeout
+                interrupt = true  -- Allow interrupting the timeout
+            },
+            defaults = {
+                mode = { "n", "v" },
+                ["<leader>"] = {
+                    f = {
+                        name = "+find/files",
+                        f = { function() vscode.action('workbench.action.quickOpen') end, "Find file" },
+                        g = { function() vscode.action('workbench.action.findInFiles') end, "Find in files" },
+                        b = { function() vscode.action('workbench.action.showAllEditors') end, "Show buffers" },
+                        r = { function() vscode.action('fileutils.renameFile') end, "Rename file" },
+                    },
+                    b = {
+                        name = "+buffer",
+                        d = { function() vscode.action('workbench.action.closeActiveEditor') end, "Delete buffer" },
+                        n = { function() vscode.action('workbench.action.nextEditor') end, "Next buffer" },
+                        p = { function() vscode.action('workbench.action.previousEditor') end, "Previous buffer" },
+                    },
+                    w = {
+                        name = "+workspace",
+                        s = { function() vscode.action('workbench.action.splitEditor') end, "Split vertical" },
+                        v = { function() vscode.action('workbench.action.splitEditorDown') end, "Split horizontal" },
+                        q = { function() vscode.action('workbench.action.closeActiveEditor') end, "Close window" },
+                        o = { function() vscode.action('workbench.action.closeOtherEditors') end, "Close others" },
+                    },
+                    c = {
+                        name = "+code/copilot",
+                        a = { function() vscode.action('editor.action.quickFix') end, "Code actions" },
+                        r = { function() vscode.action('editor.action.rename') end, "Rename symbol" },
+                        f = { function() vscode.action('editor.action.formatDocument') end, "Format document" },
+                    },
+                    e = { function() vscode.action('workbench.view.explorer') end, "Explorer" },
+                    g = {
+                        name = "+git",
+                        s = { function() vscode.action('workbench.view.scm') end, "Source control" },
+                        b = { function() vscode.action('git.checkout') end, "Checkout branch" },
+                        c = { function() 
+                            vscode.action('github.copilot.sourceControl.generateCommitMessage')
+                            vim.defer_fn(function()
+                                vscode.action('workbench.scm.focus')
+                            end, 100)
+                        end, "Commit (Copilot)" },
+                        d = { function() vscode.action('git.openChange') end, "View diff" },
+                    },
+                    l = {
+                        name = "+lsp",
+                        d = { function() vscode.action('editor.action.revealDefinition') end, "Go to definition" },
+                        r = { function() vscode.action('editor.action.goToReferences') end, "Go to references" },
+                        i = { function() vscode.action('editor.action.showHover') end, "Show hover" },
+                    },
+                    t = {
+                        name = "+toggle",
+                        t = { function() vscode.action('workbench.action.terminal.toggleTerminal') end, "Terminal" },
+                        p = { function() vscode.action('workbench.action.togglePanel') end, "Panel" },
+                        s = { function() vscode.action('workbench.action.toggleSidebarVisibility') end, "Sidebar" },
+                    },
+                    x = {
+                        name = "+diagnostics",
+                        x = { function() vscode.action('workbench.actions.view.problems') end, "Show problems" },
+                        n = { function() vscode.action('editor.action.marker.next') end, "Next problem" },
+                        p = { function() vscode.action('editor.action.marker.prev') end, "Previous problem" },
+                    },
+                },
             },
         })
 
