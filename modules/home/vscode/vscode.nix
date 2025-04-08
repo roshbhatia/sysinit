@@ -1,5 +1,7 @@
 {config, lib, pkgs, ...}:
 
 {
-  xdg.configFile."vscode/init.lua".source = ./init.lua;
+  xdg.configFile = {
+    "vscode".source = ./;
+  };
 }
