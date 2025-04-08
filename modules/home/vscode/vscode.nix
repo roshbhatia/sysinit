@@ -5,7 +5,12 @@
       merge_config() {
         local config_name="$1"
         TARGET="$HOME/Library/Application Support/Code/User/$config_name"
-        SOURCE="${./config}/$config_name"
+        SOURCE="${toString ./.}/config/$config_name"
+        
+        if [ ! -f "$SOURCE" ]; then
+          echo "🔧 Error: Source file $config_name not found at $SOURCE"
+          return 1
+        fi
         
         echo "🔧 Merging VSCode $config_name..."
         
@@ -25,6 +30,9 @@
         fi
       }
 
+      # Create config directory if it doesn't exist
+      mkdir -p "$HOME/Library/Application Support/Code/User"
+      
       # Merge both configuration files
       merge_config "settings.json"
       merge_config "keybindings.json"
