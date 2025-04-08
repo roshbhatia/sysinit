@@ -62,6 +62,10 @@ M.keybindings = {
             { key = "e", description = "󰏖 Explorer", action = "workbench.view.explorer" },
             { key = "t", description = "󰙅 Terminal", action = "workbench.action.terminal.toggleTerminal" },
             { key = "p", description = "󰏘 Problems", action = "workbench.actions.view.problems" },
+            { key = "o", description = "󰙀 Outline", action = "outline.focus" },
+            { key = "c", description = "󰚩 Copilot Chat", action = "github.copilot.chat.focus" },
+            { key = "b", description = "󰌽 Return to Editor", action = "workbench.action.focusActiveEditorGroup" },
+            { key = "m", description = "⌘ Command Palette", action = "workbench.action.showCommands" },
         }
     }
 }
