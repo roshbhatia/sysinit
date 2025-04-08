@@ -1,26 +1,38 @@
 { pkgs, lib, ... }:
 {
   home.file = {
-    # Overwrite keybindings.json
-    "Library/Application Support/Code/User/keybindings.json".source = keybindings.json;
-    
-    # For settings.json, we'll use a script to merge
-    ".local/bin/merge-vscode-settings".source = pkgs.writeShellScript "merge-vscode-settings" ''
-      TARGET="$HOME/Library/Application Support/Code/User/settings.json"
-      SOURCE="${./config/settings.json}"
-      
-      if [ ! -f "$TARGET" ]; then
-        cp "$SOURCE" "$TARGET"
-      else
-        # Merge settings, preferring target's existing values
-        ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$TARGET" "$SOURCE" > "$TARGET.tmp"
-        mv "$TARGET.tmp" "$TARGET"
-      fi
+    ".local/bin/merge-vscode-configs".source = pkgs.writeShellScript "merge-vscode-configs" ''
+      merge_config() {
+        local config_name="$1"
+        TARGET="$HOME/Library/Application Support/Code/User/$config_name"
+        SOURCE="${./config}/$config_name"
+        
+        echo "🔧 Merging VSCode $config_name..."
+        
+        if [ ! -f "$TARGET" ]; then
+          echo "🔧 Target $config_name doesn't exist, creating new file..."
+          cp "$SOURCE" "$TARGET"
+        else
+          echo "🔧 Merging existing $config_name with new configuration..."
+          if ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$TARGET" "$SOURCE" > "$TARGET.tmp"; then
+            mv "$TARGET.tmp" "$TARGET"
+            echo "🔧 Successfully merged $config_name"
+          else
+            echo "🔧 Error merging $config_name"
+            rm -f "$TARGET.tmp"
+            return 1
+          fi
+        fi
+      }
+
+      # Merge both configuration files
+      merge_config "settings.json"
+      merge_config "keybindings.json"
     '';
   };
 
   # Run the merge script during activation
-  home.activation.mergeVscodeSettings = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    $DRY_RUN_CMD $HOME/.local/bin/merge-vscode-settings
+  home.activation.mergeVscodeConfigs = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    $DRY_RUN_CMD $HOME/.local/bin/merge-vscode-configs
   '';
 }
