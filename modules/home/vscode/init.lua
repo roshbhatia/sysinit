@@ -1,191 +1,151 @@
 -- VSCode specific Neovim configuration
+local opts = { noremap = true, silent = true }
+local vscode = require("vscode")
+
+vim.notify = vscode.notify
+
+vim.keymap.set("n", "<SPACE>", "<NOP>", opts)
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
--- Set timeout for keymaps
-vim.o.timeout = true
-vim.o.timeoutlen = 300
+-- Clipboard interaction
+vim.g.clipboard = vim.g.vscode_clipboard
+vim.opt["clipboard"] = "unnamedplus"
+vim.keymap.set("v", "p", '"_dP', opts)
 
--- Enable system clipboard integration
-vim.opt.clipboard:append("unnamedplus")
+-- Editor keybindings
+vim.keymap.set("n", "<leader>e", function()
+    vscode.action("workbench.action.closeSidebar")
+    vscode.action("workbench.action.closePanel")
+end, opts)
 
-if vim.g.vscode then
-    local vscode = require('vscode')
+vim.keymap.set("n", "<leader>b", function()
+    vscode.action("workbench.action.toggleSidebarVisibility")
+end, opts)
 
-    -- Configure WhichKey bindings
-    local whichkey_bindings = {
+vim.keymap.set("n", "<leader>j", function()
+    vscode.action("workbench.action.togglePanel")
+end, opts)
+
+-- File explorer
+vim.keymap.set("n", "-", function()
+    vscode.action("workbench.files.action.showActiveFileInExplorer")
+end, opts)
+
+-- Window navigation
+vim.keymap.set("n", "<C-h>", function()
+    vscode.action("workbench.action.navigateLeft")
+end, opts)
+vim.keymap.set("n", "<C-j>", function()
+    vscode.action("workbench.action.navigateDown")
+end, opts)
+vim.keymap.set("n", "<C-k>", function()
+    vscode.action("workbench.action.navigateUp")
+end, opts)
+vim.keymap.set("n", "<C-l>", function()
+    vscode.action("workbench.action.navigateRight")
+end, opts)
+
+-- Tab navigation
+vim.keymap.set("n", "<S-h>", function()
+    vscode.action("workbench.action.previousEditorInGroup")
+end, opts)
+vim.keymap.set("n", "<S-l>", function()
+    vscode.action("workbench.action.nextEditorInGroup")
+end, opts)
+
+-- LSP keybindings
+vim.keymap.set("n", "gr", function()
+    vscode.action("editor.action.goToReferences")
+end, opts)
+vim.keymap.set("n", "<C-/>", function()
+    vscode.action("editor.action.quickFix")
+end, opts)
+vim.keymap.set("n", "<S-k>", function()
+    vscode.action("editor.action.showHover")
+end, opts)
+vim.keymap.set("n", "<leader>rr", function()
+    vscode.action("editor.action.rename")
+end, opts)
+
+-- Errors navigation
+vim.keymap.set("n", "]d", function()
+    vscode.action("editor.action.marker.next")
+end, opts)
+vim.keymap.set("n", "[d", function()
+    vscode.action("editor.action.marker.prev")
+end, opts)
+
+-- Source control
+vim.keymap.set("n", "<leader>go", function()
+    vscode.action("workbench.scm.focus")
+end, opts)
+vim.keymap.set("n", "<leader>gp", function()
+    vscode.action("git.pull")
+end, opts)
+vim.keymap.set("n", "<leader>gP", function()
+    vscode.action("git.push")
+end, opts)
+
+-- Finding and searching
+vim.keymap.set("n", "<leader>ff", function()
+    vscode.action("workbench.action.quickOpen")
+end, opts)
+vim.keymap.set("n", "<leader>ft", function()
+    vscode.action("workbench.action.quickTextSearch")
+end, opts)
+
+-- Tasks
+vim.keymap.set("n", "<leader>tr", function()
+    vscode.action("workbench.action.tasks.runTask")
+end, opts)
+
+-- Debugger
+vim.keymap.set("n", "<leader>db", function()
+    vscode.action("editor.debug.action.toggleBreakpoint")
+end, opts)
+vim.keymap.set("n", "<leader>dc", function()
+    vscode.action("workbench.action.debug.continue")
+end, opts)
+
+-- Visual mode enhancements
+vim.keymap.set("v", "<", "<gv^", opts)
+vim.keymap.set("v", ">", ">gv^", opts)
+vim.keymap.set("v", "p", "pgvy", opts)
+
+-- Remove WhichKey integration and replace it with Lua-based keybinding descriptions
+
+-- Define a table for keybinding descriptions
+local keybindings = {
+    f = {
+        name = "File",
         bindings = {
-            {
-                key = "f",
-                name = "󰈔 File...",
-                type = "bindings",
-                bindings = {
-                    {
-                        key = "f",
-                        name = "󰈞 Find File",
-                        type = "command",
-                        command = "workbench.action.quickOpen"
-                    },
-                    {
-                        key = "s",
-                        name = "󰏘 Save",
-                        type = "command",
-                        command = "workbench.action.files.save"
-                    },
-                    {
-                        key = "S",
-                        name = "󰏗 Save All",
-                        type = "command",
-                        command = "workbench.action.files.saveAll"
-                    },
-                    {
-                        key = "r",
-                        name = "󰈢 Recent Files",
-                        type = "command",
-                        command = "workbench.action.openRecent"
-                    },
-                    {
-                        key = "n",
-                        name = "󰎔 New File",
-                        type = "command",
-                        command = "workbench.action.files.newUntitledFile"
-                    }
-                }
-            },
-            {
-                key = "e",
-                name = "󰙅 Explorer",
-                type = "command",
-                command = "workbench.view.explorer"
-            },
-            {
-                key = "s",
-                name = "󰛔 Search...",
-                type = "bindings",
-                bindings = {
-                    {
-                        key = "f",
-                        name = "󰍉 Find in Files",
-                        type = "command",
-                        command = "workbench.action.findInFiles"
-                    },
-                    {
-                        key = "s",
-                        name = "󰱽 Search Symbol",
-                        type = "command",
-                        command = "workbench.action.showAllSymbols"
-                    }
-                }
-            },
-            {
-                key = "g",
-                name = "󰊢 Git...",
-                type = "bindings",
-                bindings = {
-                    {
-                        key = "s",
-                        name = "󰊢 Source Control",
-                        type = "command",
-                        command = "workbench.view.scm"
-                    },
-                    {
-                        key = "b",
-                        name = "󰘬 Branches",
-                        type = "command",
-                        command = "git.branchList"
-                    },
-                    {
-                        key = "c",
-                        name = "󰜘 Commit",
-                        type = "command",
-                        command = "git.commit"
-                    }
-                }
-            },
-            {
-                key = "w",
-                name = "󱂬 Window...",
-                type = "bindings",
-                bindings = {
-                    {
-                        key = "v",
-                        name = "󰤱 Split Vertical",
-                        type = "command",
-                        command = "workbench.action.splitEditor"
-                    },
-                    {
-                        key = "h",
-                        name = "󰤲 Split Horizontal",
-                        type = "command",
-                        command = "workbench.action.splitEditorOrthogonal"
-                    },
-                    {
-                        key = "w",
-                        name = "󰖭 Close Editor",
-                        type = "command",
-                        command = "workbench.action.closeActiveEditor"
-                    }
-                }
-            },
-            {
-                key = "c",
-                name = "󰅩 Code...",
-                type = "bindings",
-                bindings = {
-                    {
-                        key = "a",
-                        name = "󰏢 Actions",
-                        type = "command",
-                        command = "editor.action.quickFix"
-                    },
-                    {
-                        key = "r",
-                        name = "󰑕 Rename",
-                        type = "command",
-                        command = "editor.action.rename"
-                    },
-                    {
-                        key = "f",
-                        name = "󰉨 Format",
-                        type = "command",
-                        command = "editor.action.formatDocument"
-                    }
-                }
-            }
+            { key = "f", description = "Find File", action = "workbench.action.quickOpen" },
+            { key = "t", description = "Text Search", action = "workbench.action.quickTextSearch" }
+        }
+    },
+    g = {
+        name = "Git",
+        bindings = {
+            { key = "p", description = "Pull", action = "git.pull" },
+            { key = "P", description = "Push", action = "git.push" }
         }
     }
+}
 
-    -- Configure VSCode settings for WhichKey
-    vscode.update_config("whichkey.bindings", whichkey_bindings.bindings)
+-- Function to set keybindings based on the table
+local function set_keybindings(prefix, bindings)
+    for _, binding in ipairs(bindings) do
+        local key = prefix .. binding.key
+        vim.keymap.set("n", key, function()
+            vscode.action(binding.action)
+        end, opts)
+    end
+end
 
-    -- Set up the space key to trigger WhichKey in normal and visual modes
-    local vim_settings = {
-        normalModeKeyBindingsNonRecursive = {
-            {
-                before = {"<space>"},
-                commands = {"whichkey.show"}
-            }
-        },
-        visualModeKeyBindingsNonRecursive = {
-            {
-                before = {"<space>"},
-                commands = {"whichkey.show"}
-            }
-        }
-    }
-
-    -- Update VSCode Vim settings
-    vscode.update_config("vim.normalModeKeyBindingsNonRecursive", vim_settings.normalModeKeyBindingsNonRecursive)
-    vscode.update_config("vim.visualModeKeyBindingsNonRecursive", vim_settings.visualModeKeyBindingsNonRecursive)
-
-    -- Map space in normal and visual modes to trigger WhichKey
-    vim.keymap.set("n", "<Space>", function()
-        vscode.action("whichkey.show")
-    end, { silent = true })
-    
-    vim.keymap.set("v", "<Space>", function()
-        vscode.action("whichkey.show")
-    end, { silent = true })
+-- Apply keybindings
+for prefix, group in pairs(keybindings) do
+    set_keybindings("<leader>" .. prefix, group.bindings)
 end
 
 -- Configure enhanced cursor appearance for different modes
