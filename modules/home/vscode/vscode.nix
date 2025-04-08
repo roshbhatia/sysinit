@@ -38,7 +38,7 @@
             fi
             
             # Merge arrays with yq and preserve comments and formatting
-            if ${pkgs.yq}/bin/yq ea '. as $item ireduce ({}; . * $item )' "$TARGET" "$SOURCE" > "$TARGET.tmp"; then
+            if ${pkgs.yq}/bin/yq ea '.[0] + .[1] | unique_by(.)' "$TARGET" "$SOURCE" > "$TARGET.tmp"; then
               mv -f "$TARGET.tmp" "$TARGET"
               chmod 644 "$TARGET"
               echo "🔧 Successfully merged $config_name"
