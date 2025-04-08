@@ -14,15 +14,33 @@
         
         echo "🔧 Merging VSCode $config_name..."
         
+        # Ensure target directory exists with proper permissions
+        mkdir -p "$(dirname "$TARGET")"
+        
         if [ ! -f "$TARGET" ]; then
           echo "🔧 Target $config_name doesn't exist, creating new file..."
           cp "$SOURCE" "$TARGET"
+          chmod 644 "$TARGET"
         else
           echo "🔧 Merging existing $config_name with new configuration..."
+          # Ensure the target is writable before we start
+          chmod 644 "$TARGET"
+          
           if [ "$config_name" = "keybindings.json" ]; then
-            # For keybindings.json, concatenate arrays and remove duplicates
-            if ${pkgs.jq}/bin/jq -s '.[0] + .[1] | unique' "$TARGET" "$SOURCE" > "$TARGET.tmp"; then
-              mv "$TARGET.tmp" "$TARGET"
+            # For keybindings.json, concatenate arrays
+            if ! ${pkgs.yq}/bin/yq -e 'type == "array"' "$TARGET" >/dev/null 2>&1; then
+              echo "🔧 Error: Target $config_name is not a valid JSON array"
+              return 1
+            fi
+            if ! ${pkgs.yq}/bin/yq -e 'type == "array"' "$SOURCE" >/dev/null 2>&1; then
+              echo "🔧 Error: Source $config_name is not a valid JSON array"
+              return 1
+            fi
+            
+            # Merge arrays with yq and preserve comments and formatting
+            if ${pkgs.yq}/bin/yq ea '. as $item ireduce ({}; . * $item )' "$TARGET" "$SOURCE" > "$TARGET.tmp"; then
+              mv -f "$TARGET.tmp" "$TARGET"
+              chmod 644 "$TARGET"
               echo "🔧 Successfully merged $config_name"
             else
               echo "🔧 Error merging $config_name"
@@ -30,9 +48,10 @@
               return 1
             fi
           else
-            # For other files like settings.json, merge objects
-            if ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$TARGET" "$SOURCE" > "$TARGET.tmp"; then
-              mv "$TARGET.tmp" "$TARGET"
+            # For settings.json, merge objects and preserve comments
+            if ${pkgs.yq}/bin/yq ea '. as $item ireduce ({}; . * $item )' "$TARGET" "$SOURCE" > "$TARGET.tmp"; then
+              mv -f "$TARGET.tmp" "$TARGET"
+              chmod 644 "$TARGET"
               echo "🔧 Successfully merged $config_name"
             else
               echo "🔧 Error merging $config_name"
