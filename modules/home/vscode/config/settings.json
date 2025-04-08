@@ -26,7 +26,6 @@
             "commands": ["editor.action.startFindReplaceAction"]
         }
     ],
-    "editor.lineNumbers": "relative",
     "whichkey.sortOrder": "alphabetically",
     "whichkey.delay": 0,
     "editor.inlineSuggest.enabled": true
