@@ -6,6 +6,9 @@ vim.g.maplocalleader = " "
 vim.o.timeout = true
 vim.o.timeoutlen = 300
 
+-- Enable system clipboard integration
+vim.opt.clipboard:append("unnamedplus")
+
 -- Configure enhanced cursor appearance for different modes
 -- Uses custom cursor shapes and colors per mode:
 -- Normal: Block cursor with orange color
