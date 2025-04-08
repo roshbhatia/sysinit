@@ -5,125 +5,10 @@ vim.g.maplocalleader = " "
 local opts = { noremap = true, silent = true }
 local vscode = require("vscode")
 
--- Setup mode display in status bar
-local function update_mode_display()
-    local modes = {
-        ['n'] = { text = 'NORMAL', color = '#98c379' },  -- Green
-        ['i'] = { text = 'INSERT', color = '#61afef' },  -- Blue
-        ['v'] = { text = 'VISUAL', color = '#c678dd' },  -- Purple
-        ['V'] = { text = 'V-LINE', color = '#c678dd' },  -- Purple
-        [''] = { text = 'V-BLOCK', color = '#c678dd' }, -- Purple
-        ['R'] = { text = 'REPLACE', color = '#e06c75' }, -- Red
-        ['s'] = { text = 'SELECT', color = '#e5c07b' },  -- Yellow
-        ['S'] = { text = 'S-LINE', color = '#e5c07b' },  -- Yellow
-        [''] = { text = 'S-BLOCK', color = '#e5c07b' }, -- Yellow
-        ['c'] = { text = 'COMMAND', color = '#56b6c2' }, -- Cyan
-        ['t'] = { text = 'TERMINAL', color = '#98c379' } -- Green
-    }
-    
-    local current_mode = vim.api.nvim_get_mode().mode
-    local mode_data = modes[current_mode] or modes['n']
-    
-    vscode.eval([[
-        const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-        statusBar.text = args.text;
-        statusBar.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
-        statusBar.color = args.color;
-        statusBar.show();
-        
-        // Store the status bar item globally so we can update it
-        if (globalThis.modeStatusBar) {
-            globalThis.modeStatusBar.dispose();
-        }
-        globalThis.modeStatusBar = statusBar;
-    ]], {
-        args = {
-            text = mode_data.text,
-            color = mode_data.color
-        }
-    })
-end
-
--- Create autocmd to update mode display
-vim.api.nvim_create_autocmd({ "ModeChanged" }, {
-    callback = function()
-        update_mode_display()
-    end,
-})
-
--- Initial mode display
-update_mode_display()
-
--- Initialize menu state
-local menu_state = {
-    current_group = nil,
-    quickpick = nil
+-- Cache for menus
+local cache = {
+    menu_items = {}
 }
-
--- Format keybinding items for QuickPick
-local function format_menu_items(group)
-    local items = {}
-    for _, binding in ipairs(group.bindings) do
-        table.insert(items, {
-            label = binding.key,
-            description = binding.description,
-            action = binding.action
-        })
-    end
-    return items
-end
-
--- Show the WhichKey menu using QuickPick
-local function show_menu(group)
-    -- Create QuickPick items
-    local items = format_menu_items(group)
-    
-    -- Use VSCode's showQuickPick API
-    vscode.eval([[
-        const items = args.items;
-        const quickPick = vscode.window.createQuickPick();
-        quickPick.items = items.map(item => ({
-            label: `$(key) ${item.label}`,
-            description: item.description,
-            action: item.action
-        }));
-        quickPick.title = args.title;
-        quickPick.placeholder = 'Select an action or press <Esc> to cancel';
-        
-        // Handle selection
-        quickPick.onDidAccept(() => {
-            const selected = quickPick.selectedItems[0];
-            if (selected) {
-                vscode.commands.executeCommand(selected.action);
-            }
-            quickPick.hide();
-        });
-        
-        // Clean up on hide
-        quickPick.onDidHide(() => {
-            quickPick.dispose();
-        });
-        
-        quickPick.show();
-    ]], { 
-        args = { 
-            items = items,
-            title = group.name
-        } 
-    })
-    
-    menu_state.current_group = group.name
-end
-
--- Hide the WhichKey menu
-local function hide_menu()
-    if menu_state.current_group then
-        vscode.eval([[
-            // No explicit hide needed as the quickpick auto-disposes
-        ]])
-        menu_state.current_group = nil
-    end
-end
 
 -- Keybinding definitions with icons
 local keybindings = {
@@ -180,6 +65,178 @@ local keybindings = {
         }
     }
 }
+
+-- Setup mode display in status bar
+local function update_mode_display()
+    local modes = {
+        ['n'] = { text = 'NORMAL', color = '#98c379' },
+        ['i'] = { text = 'INSERT', color = '#61afef' },
+        ['v'] = { text = 'VISUAL', color = '#c678dd' },
+        ['V'] = { text = 'V-LINE', color = '#c678dd' },
+        [''] = { text = 'V-BLOCK', color = '#c678dd' },
+        ['R'] = { text = 'REPLACE', color = '#e06c75' },
+        ['s'] = { text = 'SELECT', color = '#e5c07b' },
+        ['S'] = { text = 'S-LINE', color = '#e5c07b' },
+        [''] = { text = 'S-BLOCK', color = '#e5c07b' },
+        ['c'] = { text = 'COMMAND', color = '#56b6c2' },
+        ['t'] = { text = 'TERMINAL', color = '#98c379' }
+    }
+    
+    local current_mode = vim.api.nvim_get_mode().mode
+    local mode_data = modes[current_mode] or modes['n']
+    
+    -- Clear existing and create new status bar
+    vscode.eval([[
+        if (globalThis.modeStatusBar) {
+            globalThis.modeStatusBar.dispose();
+        }
+        const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+        statusBar.text = args.text;
+        statusBar.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
+        statusBar.color = args.color;
+        statusBar.show();
+        globalThis.modeStatusBar = statusBar;
+    ]], {
+        timeout = 1000,
+        args = {
+            text = mode_data.text,
+            color = mode_data.color
+        }
+    })
+end
+
+-- Create autocmd to update mode display
+vim.api.nvim_create_autocmd({ "ModeChanged" }, {
+    callback = function()
+        update_mode_display()
+    end,
+})
+
+-- Initial mode display
+update_mode_display()
+
+-- Initialize menu state
+local menu_state = {
+    current_group = nil
+}
+
+-- Format keybinding items for QuickPick
+local function format_menu_items(group)
+    local items = {}
+    for _, binding in ipairs(group.bindings) do
+        table.insert(items, {
+            label = binding.key,
+            description = binding.description,
+            action = binding.action
+        })
+    end
+    return items
+end
+
+-- Format menu items with proper indentation and grouping
+local function format_root_menu_items()
+    if next(cache.menu_items) ~= nil then
+        return cache.menu_items
+    end
+    
+    local items = {}
+    for key, group in pairs(keybindings) do
+        -- Add group header
+        table.insert(items, {
+            label = key,
+            description = group.name,
+            isGroup = true,
+            key = key
+        })
+        
+        -- Add group items indented
+        for _, binding in ipairs(group.bindings) do
+            table.insert(items, {
+                label = key .. binding.key,
+                description = binding.description,
+                action = binding.action,
+                isGroupItem = true
+            })
+        end
+    end
+    
+    cache.menu_items = items
+    return items
+end
+
+-- Show the WhichKey menu using QuickPick
+local function show_menu(group)
+    local items
+    if group then
+        items = format_menu_items(group)
+    else
+        items = format_root_menu_items()
+    end
+    
+    vscode.eval([[
+        if (globalThis.quickPick) {
+            globalThis.quickPick.dispose();
+        }
+        
+        const quickPick = vscode.window.createQuickPick();
+        quickPick.items = args.items.map(item => ({
+            label: item.isGroup 
+                ? `$(chevron-right) ${item.label}` 
+                : item.isGroupItem 
+                    ? `  $(key) ${item.label}` 
+                    : `$(key) ${item.label}`,
+            description: item.description,
+            action: item.action,
+            key: item.key
+        }));
+        
+        quickPick.title = args.title;
+        quickPick.placeholder = args.placeholder;
+        
+        quickPick.onDidAccept(() => {
+            const selected = quickPick.selectedItems[0];
+            if (selected) {
+                if (selected.action) {
+                    vscode.commands.executeCommand(selected.action);
+                }
+            }
+            quickPick.hide();
+            quickPick.dispose();
+        });
+        
+        quickPick.onDidHide(() => {
+            quickPick.dispose();
+        });
+        
+        globalThis.quickPick = quickPick;
+        quickPick.show();
+    ]], { 
+        timeout = 1000,
+        args = { 
+            items = items,
+            title = group and group.name or "WhichKey Menu",
+            placeholder = group 
+                and 'Select an action or press <Esc> to cancel'
+                or 'Select a group or action (groups shown with ▸)'
+        }
+    })
+end
+
+-- Hide the WhichKey menu
+local function hide_menu()
+    vscode.eval([[
+        if (globalThis.quickPick) {
+            globalThis.quickPick.hide();
+            globalThis.quickPick.dispose();
+            globalThis.quickPick = undefined;
+        }
+    ]], { timeout = 1000 })
+end
+
+-- Register root menu for leader key alone
+vim.keymap.set("n", "<leader>", function()
+    show_menu()
+end, opts)
 
 -- Enhanced keybinding handler
 local function handle_group(prefix, group)
