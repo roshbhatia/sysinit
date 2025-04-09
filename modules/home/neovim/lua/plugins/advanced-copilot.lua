@@ -199,4 +199,11 @@ return {
             3. Reducing complexity
             4. Enhancing extensibility and maintainability
             
-            Keep the
+            Keep the same functionality but make the code cleaner and more maintainable.
+            Explain your refactoring approach and the benefits it provides.
+          ]],
+        },
+      },
+    },
+  },
+}
