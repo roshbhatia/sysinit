@@ -74,6 +74,8 @@ print_neovim_basic() {
     echo "  gd                     Go to definition"
     echo "  gr                     Show references"
     echo "  K                      Show hover information"
+    echo "  CTRL + b               Go back in jump list"
+    echo "  CTRL + f               Go forward in jump list"
     echo "  SPACE + ha             Add file to harpoon"
     echo "  SPACE + hh             Harpoon menu"
     echo
@@ -95,6 +97,7 @@ print_neovim_full() {
     echo "  SPACE + cl             Line diagnostics"
     echo "  [d / ]d                Previous/next diagnostic"
     echo "  [g / ]g                Previous/next git hunk"
+    echo "  CTRL + b / CTRL + f    Go back/forward in jump list"
     echo
     echo "  Git Commands:"
     echo "  SPACE + gg             Open LazyGit"

@@ -89,6 +89,10 @@ map("n", "<leader>cl", ":lua vim.diagnostic.open_float()<CR>", { desc = "Line di
 map("n", "[d", ":lua vim.diagnostic.goto_prev()<CR>", { desc = "Previous diagnostic" })
 map("n", "]d", ":lua vim.diagnostic.goto_next()<CR>", { desc = "Next diagnostic" })
 
+-- Go back and forward in jump list
+map("n", "<C-b>", "<C-o>", { desc = "Go back in jump list" })
+map("n", "<C-f>", "<C-i>", { desc = "Go forward in jump list" })
+
 -- Toggle terminal removed
 
 -- Git operations
