@@ -1,6 +1,7 @@
 local M = {}
 local panel = require("core.panel")
 local test = require("core.test")
+local verify = require("core.verify")
 
 M.plugins = {
   {
@@ -37,6 +38,35 @@ M.plugins = {
     },
   },
 }
+
+-- Register verification steps
+verify.register_verification("layout", {
+  {
+    desc = "Check Oil.nvim Integration",
+    command = "<leader>e",
+    expected = "Should open Oil file explorer in the left panel (20% width)",
+  },
+  {
+    desc = "Check Panel Toggling",
+    command = "<leader>e (press again)",
+    expected = "Should close the left panel",
+  },
+  {
+    desc = "Verify Right Panel",
+    command = "<leader>r",
+    expected = "Should open minimap in the right panel (20% width)",
+  },
+  {
+    desc = "Check Panel Persistence",
+    command = ":e somefile.txt",
+    expected = "Panels should maintain their state when switching buffers",
+  },
+  {
+    desc = "Test WezTerm Integration",
+    command = ":WeztermSpawn htop",
+    expected = "Should open htop in a new WezTerm pane",
+  },
+})
 
 function M.setup()
   local wezterm = require("wezterm")
@@ -78,8 +108,9 @@ function M.setup()
     },
   })
 
-  -- Register tests with health checks
+  -- Register tests with health checks and verifications
   test.register_test("layout", {
+    -- Basic functionality tests
     {
       desc = "Left Panel (Oil) Toggle",
       command = "<leader>e",
@@ -96,42 +127,58 @@ function M.setup()
         return vim.fn.exists(":Neominimap") == 2
       end
     },
+    -- WezTerm integration tests
     {
-      desc = "Panel Integration",
-      command = "<leader>e, then <leader>r",
-      expected = "Both panels should be visible and properly sized",
+      desc = "WezTerm Multiplexing",
+      command = ":WeztermSpawn htop",
+      expected = "Should open htop in a new WezTerm pane",
+      verify = function()
+        return pcall(require, "wezterm") and true
+      end
+    },
+    -- Panel state tests
+    {
+      desc = "Panel State Persistence",
+      command = "<leader>e, switch buffers, <leader>e",
+      expected = "Panel should maintain state across buffer switches",
     },
     {
-      desc = "Error Handling",
-      command = "Intentionally cause an error by closing a panel incorrectly",
-      expected = "Should handle error gracefully and maintain panel state",
+      desc = "Multiple Panel Interaction",
+      command = "<leader>e, then <leader>r",
+      expected = "Both panels should coexist without conflicts",
     }
   }, {
     -- Health checks
     function()
-      -- Check WezTerm integration
-      local has_wezterm = pcall(require, "wezterm")
-      if not has_wezterm then
+      -- Verify WezTerm
+      if not pcall(require, "wezterm") then
         return { status = "ERROR", msg = "WezTerm integration not available" }
       end
-      return { status = "OK", msg = "WezTerm integration available" }
+      return { status = "OK", msg = "WezTerm integration ready" }
     end,
     function()
-      -- Check Oil.nvim
-      local has_oil = vim.fn.exists(":Oil") == 2
-      if not has_oil then
+      -- Verify Oil
+      if vim.fn.exists(":Oil") ~= 2 then
         return { status = "ERROR", msg = "Oil.nvim not properly loaded" }
       end
-      return { status = "OK", msg = "Oil.nvim loaded and ready" }
+      return { status = "OK", msg = "Oil.nvim ready" }
     end,
     function()
-      -- Check panel state
-      local panel = require("core.panel")
-      if #panel.get_panel_plugins(panel.PANELS.LEFT) == 0 then
-        return { status = "WARN", msg = "No plugins registered for left panel" }
+      -- Verify Neominimap
+      if vim.fn.exists(":Neominimap") ~= 2 then
+        return { status = "ERROR", msg = "Neominimap not properly loaded" }
       end
-      return { status = "OK", msg = "Panel plugins properly registered" }
+      return { status = "OK", msg = "Neominimap ready" }
     end,
+    function()
+      -- Verify panel registration
+      local left_plugins = panel.get_panel_plugins(panel.PANELS.LEFT)
+      local right_plugins = panel.get_panel_plugins(panel.PANELS.RIGHT)
+      if #left_plugins == 0 or #right_plugins == 0 then
+        return { status = "WARN", msg = "Some panels have no registered plugins" }
+      end
+      return { status = "OK", msg = "All panels have registered plugins" }
+    end
   })
 end
 
