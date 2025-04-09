@@ -20,14 +20,21 @@ vim.opt.rtp:prepend(lazypath)
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
--- Initialize Lazy.nvim
-require("lazy").setup({
-  spec = {
-    -- Import all plugin specifications from the plugins directory
-    { import = "plugins" },
-  },
-  install = { colorscheme = { "carbonfox" } }, -- Set default colorscheme during installation
-  checker = { enabled = true }, -- Enable automatic plugin update checks
+-- Initialize core and collect plugin specs
+local core = require("core").init()
+
+-- Initialize Lazy.nvim with collected plugin specs
+require("lazy").setup(core.get_plugin_specs(), {
+  install = { colorscheme = { "carbonfox" } },
+  checker = { enabled = true },
+})
+
+-- Load modules after plugins are ready
+vim.api.nvim_create_autocmd("User", {
+  pattern = "LazyDone",
+  callback = function()
+    core.load_all()
+  end,
 })
 
 -- Global variable to track Lazy.nvim UI state
