@@ -69,7 +69,6 @@ return {
           r = { name = '󰑕 Refactor' },
           s = { name = '󰑓 Session' },
           p = { name = '󰏗 Project' },
-          x = { name = '󰆍 Terminal' },
           y = { name = '󰒋 YAML' },
         },
       })
@@ -164,16 +163,327 @@ return {
   
   -- Session Management
   {
-    "folke/persistence.nvim",
-    event = "BufReadPre",
-    opts = {
-      dir = vim.fn.expand(vim.fn.stdpath("data") .. "/sessions/"),
-      options = { "buffers", "curdir", "tabpages", "winsize", "globals" },
-    },
+    "rmagatti/auto-session",
+    event = "VimEnter",
+    cmd = { "SessionSave", "SessionRestore", "SessionDelete", "Autosession" },
     keys = {
-      { "<leader>ss", function() require("persistence").load() end, desc = "Load Session" },
-      { "<leader>sl", function() require("persistence").load({ last = true }) end, desc = "Load Last Session" },
-      { "<leader>sd", function() require("persistence").stop() end, desc = "Stop Session Save" },
+      { "<leader>ss", "<cmd>SessionSave<CR>", desc = "Save Session" },
+      { "<leader>sr", "<cmd>SessionRestore<CR>", desc = "Restore Session" },
+      { "<leader>sd", "<cmd>SessionDelete<CR>", desc = "Delete Session" },
+    },
+    config = function()
+      require("auto-session").setup({
+        log_level = 'error',
+        auto_session_enable_last_session = true,
+        auto_session_root_dir = vim.fn.stdpath("data") .. "/sessions/",
+        auto_session_enabled = true,
+        auto_save_enabled = true,
+        auto_restore_enabled = true,
+        auto_session_use_git_branch = true,
+        auto_session_suppress_dirs = nil,
+        auto_session_allowed_dirs = nil,
+        
+        -- Customize session name
+        pre_save_cmds = {
+          function()
+            -- Remove CHADTree before saving session
+            pcall(function() 
+              vim.cmd('CHADclose')
+            end)
+          end,
+        },
+        
+        -- Session lens integration for telescope
+        session_lens = {
+          load_on_setup = true,
+          theme_conf = { border = true },
+          previewer = false,
+        },
+      })
+      
+      -- Use SessionSave explicitly to avoid conflicts
+      vim.keymap.set("n", "<leader>sl", function()
+        require("auto-session.session-lens").search_session()
+      end, { desc = "Search Sessions" })
+    end,
+    dependencies = {
+      { "rmagatti/session-lens", dependencies = { "nvim-telescope/telescope.nvim" } },
+    },
+  },
+  
+  -- Fast treesitter-based highlighting
+  {
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
+    event = { "BufReadPost", "BufNewFile" },
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter-textobjects",
+      "nvim-treesitter/nvim-treesitter-context",
+    },
+    config = function()
+      require("nvim-treesitter.configs").setup({
+        ensure_installed = {
+          "bash", "c", "cpp", "css", "go", "html", "java", "javascript", 
+          "json", "lua", "markdown", "markdown_inline", "python", "regex", 
+          "rust", "tsx", "typescript", "vim", "vimdoc", "yaml",
+        },
+        auto_install = true,
+        highlight = { 
+          enable = true,
+          -- Disable on large files for performance
+          disable = function(_, buf)
+            local max_filesize = 100 * 1024 -- 100 KB
+            local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+            if ok and stats and stats.size > max_filesize then
+              return true
+            end
+          end,
+          additional_vim_regex_highlighting = false,
+        },
+        indent = { enable = true },
+        textobjects = {
+          select = {
+            enable = true,
+            lookahead = true,
+            keymaps = {
+              ["af"] = "@function.outer",
+              ["if"] = "@function.inner",
+              ["ac"] = "@class.outer",
+              ["ic"] = "@class.inner",
+              ["aa"] = "@parameter.outer",
+              ["ia"] = "@parameter.inner",
+            },
+          },
+          move = {
+            enable = true,
+            set_jumps = true,
+            goto_next_start = {
+              ["]f"] = "@function.outer",
+              ["]c"] = "@class.outer",
+              ["]a"] = "@parameter.inner",
+            },
+            goto_next_end = {
+              ["]F"] = "@function.outer",
+              ["]C"] = "@class.outer",
+            },
+            goto_previous_start = {
+              ["[f"] = "@function.outer",
+              ["[c"] = "@class.outer",
+              ["[a"] = "@parameter.inner",
+            },
+            goto_previous_end = {
+              ["[F"] = "@function.outer",
+              ["[C"] = "@class.outer",
+            },
+          },
+        },
+      })
+      
+      -- Setup treesitter context
+      require("treesitter-context").setup({
+        enable = true,
+        max_lines = 3,
+        min_window_height = 15,
+        line_numbers = true,
+        multiline_threshold = 5,
+        trim_scope = 'outer',
+        mode = 'cursor',
+        on_attach = nil,
+      })
+    end,
+  },
+  
+  -- Icons for various plugins
+  {
+    "nvim-tree/nvim-web-devicons",
+    lazy = true,
+    config = function()
+      require("nvim-web-devicons").setup({
+        override = {
+          zsh = {
+            icon = "",
+            color = "#428850",
+            name = "Zsh"
+          },
+          sh = {
+            icon = "",
+            color = "#1DC121",
+            name = "Bash"
+          },
+          [".gitignore"] = {
+            icon = "",
+            color = "#f1502f",
+            name = "GitIgnore"
+          },
+          [".gitattributes"] = {
+            icon = "",
+            color = "#f1502f",
+            name = "GitAttributes"
+          }
+        },
+        color_icons = true,
+        default = true,
+        strict = true,
+      })
+    end,
+  },
+  
+  -- Enhanced UI with noice.nvim
+  {
+    "folke/noice.nvim",
+    event = "VeryLazy",
+    dependencies = {
+      "MunifTanjim/nui.nvim", -- UI components
+      "rcarriga/nvim-notify",  -- Notifications
+    },
+    opts = {
+      lsp = {
+        -- Override markdown rendering so that **cmp** and other plugins use **Treesitter**
+        override = {
+          ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+          ["vim.lsp.util.stylize_markdown"] = true,
+          ["cmp.entry.get_documentation"] = true,
+        },
+        progress = {
+          enabled = true,
+          format = "lsp_progress",
+          format_done = "lsp_progress_done",
+          throttle = 1000 / 30, -- frequency to update lsp progress message
+          view = "mini",
+        },
+        hover = { enabled = false }, -- We use Lspsaga for hover
+        signature = { enabled = false }, -- We use Lspsaga for signature help
+      },
+      -- Use compact pop-up windows for cmdline and search
+      cmdline = {
+        enabled = true,
+        view = "cmdline_popup",
+        format = {
+          cmdline = { pattern = "^:", icon = ":", lang = "vim" },
+          search_down = { kind = "search", pattern = "^/", icon = " ", lang = "regex" },
+          search_up = { kind = "search", pattern = "^%?", icon = " ", lang = "regex" },
+        },
+      },
+      messages = {
+        enabled = true,
+        view = "mini",
+        view_error = "mini",
+        view_warn = "mini",
+        view_history = "messages",
+        view_search = "virtualtext",
+      },
+      popupmenu = {
+        enabled = true,
+        backend = "nui",
+      },
+      redirect = {
+        view = "mini",
+        filter = { event = "msg_show" },
+      },
+      commands = {
+        history = {
+          view = "split",
+          opts = { enter = true, format = "details" },
+          filter = {
+            any = {
+              { event = "notify" },
+              { error = true },
+              { warning = true },
+              { event = "msg_show", kind = { "" } },
+              { event = "lsp", kind = "message" },
+            },
+          },
+        },
+        last = {
+          view = "mini",
+          opts = { enter = true, format = "details" },
+          filter = {
+            any = {
+              { event = "notify" },
+              { error = true },
+              { warning = true },
+              { event = "msg_show", kind = { "" } },
+              { event = "lsp", kind = "message" },
+            },
+          },
+          filter_opts = { count = 1 },
+        },
+      },
+      views = {
+        cmdline_popup = {
+          border = {
+            style = "rounded",
+            padding = { 0, 1 },
+          },
+          position = {
+            row = 5,
+            col = "50%",
+          },
+          size = {
+            width = 60,
+            height = "auto",
+          },
+          win_options = {
+            winhighlight = { Normal = "NormalFloat", FloatBorder = "FloatBorder" },
+          },
+        },
+        mini = {
+          timeout = 3000,
+          max_height = 20,
+          max_width = 80,
+          border = {
+            style = "rounded",
+            padding = { 0, 1 },
+          },
+          win_options = {
+            winblend = 0,
+          },
+        },
+      },
+      routes = {
+        -- Hide useless written messages
+        {
+          filter = {
+            event = "msg_show",
+            kind = "",
+            find = "written",
+          },
+          opts = { skip = true },
+        },
+        -- Clean up some command line messages
+        {
+          filter = {
+            event = "msg_show",
+            find = "%d+L, %d+B",
+          },
+          view = "mini",
+        },
+        -- Clean up search count
+        {
+          filter = {
+            event = "msg_show",
+            kind = "search_count",
+          },
+          opts = { skip = true },
+        },
+      },
+      presets = {
+        bottom_search = true,         -- use a classic bottom cmdline for search
+        command_palette = true,       -- position the cmdline and popupmenu together
+        long_message_to_split = true, -- long messages will be sent to a split
+        inc_rename = false,           -- enables an input dialog for inc-rename.nvim
+        lsp_doc_border = false,       -- add a border to hover docs and signature help
+      },
+      -- Significantly improves performance
+      throttle = 1000 / 120,
+    },
+    -- Additional keys for noice
+    keys = {
+      { "<leader>nl", function() require("noice").cmd("last") end, desc = "Noice Last Message" },
+      { "<leader>nh", function() require("noice").cmd("history") end, desc = "Noice History" },
+      { "<leader>nd", function() require("noice").cmd("dismiss") end, desc = "Dismiss Notifications" },
+      { "<c-f>", function() if not require("noice.lsp").scroll(4) then return "<c-f>" end end, expr = true, desc = "Scroll forward", mode = {"i", "n", "s"} },
+      { "<c-b>", function() if not require("noice.lsp").scroll(-4) then return "<c-b>" end end, expr = true, desc = "Scroll backward", mode = {"i", "n", "s"} },
     },
   },
   

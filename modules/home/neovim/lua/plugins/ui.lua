@@ -1,6 +1,13 @@
 -- UI related plugins
 
+-- Import individual UI components
+local symbols_outline = require("plugins.ui.symbols-outline")
+local bufferline = require("plugins.ui.bufferline")
+
 return {
+  symbols_outline,
+  bufferline,
+  
   -- Colorschemes
   -- Tokyo Night theme
   {
@@ -274,68 +281,7 @@ return {
     end,
   },
   
-  -- Zen mode
-  {
-    "folke/zen-mode.nvim",
-    cmd = "ZenMode",
-    keys = {
-      { "<leader>tz", "<cmd>ZenMode<CR>", desc = "Toggle Zen Mode" },
-    },
-    config = function()
-      require("zen-mode").setup({
-        window = {
-          backdrop = 0.95,
-          width = 0.8,
-          height = 0.9,
-          options = {
-            signcolumn = "no",
-            number = false,
-            relativenumber = false,
-            cursorline = false,
-            cursorcolumn = false,
-            foldcolumn = "0",
-            list = false,
-          },
-        },
-        plugins = {
-          options = {
-            enabled = true,
-            ruler = false,
-            showcmd = false,
-          },
-          twilight = { enabled = true },
-          gitsigns = { enabled = false },
-          tmux = { enabled = false },
-        },
-      })
-    end,
-  },
-  
-  -- Dim inactive code
-  {
-    "folke/twilight.nvim",
-    cmd = { "Twilight", "TwilightEnable", "TwilightDisable" },
-    keys = {
-      { "<leader>tf", "<cmd>Twilight<CR>", desc = "Toggle Focus Mode (Twilight)" },
-    },
-    config = function()
-      require("twilight").setup({
-        dimming = {
-          alpha = 0.5,
-          color = { "Normal", "#ffffff" },
-          inactive = true,
-        },
-        context = 10,
-        treesitter = true,
-        expand = {
-          "function",
-          "method",
-          "table",
-          "if_statement",
-        },
-      })
-    end,
-  },
+  -- (Zen mode and Twilight removed as requested)
   
   -- Heirline for statusline
   {
@@ -671,6 +617,137 @@ return {
         build_position_cb = function(plist, _, _, _)
           require("scrollbar.handlers.search").handler.show(plist.start_pos)
         end,
+      })
+    end,
+  },
+  
+  -- Minimap (for code overview)
+  {
+    "gorbit99/codewindow.nvim",
+    event = "BufReadPre",
+    keys = {
+      { "<leader>tm", "<cmd>lua require('codewindow').toggle_minimap()<CR>", desc = "Toggle Minimap" },
+    },
+    config = function()
+      local codewindow = require('codewindow')
+      codewindow.setup({
+        active_in_terminals = false,
+        auto_enable = false,
+        exclude_filetypes = { 'help', 'startify', 'dashboard', 'lazy' },
+        max_minimap_height = nil,
+        max_lines = nil,
+        minimap_width = 15,
+        use_lsp = true,
+        use_treesitter = true,
+        use_git = true,
+        width_multiplier = 4,
+        z_index = 10,
+        show_cursor = true,
+        window_border = 'single',
+      })
+    end,
+  },
+  
+  -- Scrollbar
+  {
+    "petertriho/nvim-scrollbar",
+    event = "BufReadPost",
+    config = function()
+      require("scrollbar").setup({
+        show = true,
+        show_in_active_only = true,
+        set_highlights = true,
+        folds = 1000, -- handle folds, set to number to disable folds if no. of lines in buffer exceeds this
+        max_lines = false, -- disables if no. of lines in buffer exceeds this
+        hide_if_all_visible = false, -- Hides everything if all lines are visible
+        throttle_ms = 100,
+        handle = {
+          text = " ",
+          color = nil,
+          color_nr = nil, -- cterm
+          highlight = "CursorColumn",
+          hide_if_all_visible = true, -- Hides handle if all lines are visible
+        },
+        marks = {
+          Search = {
+            text = { "-", "=" },
+            priority = 0,
+            color = nil,
+            cterm = nil,
+            highlight = "Search",
+          },
+          Error = {
+            text = { "-", "=" },
+            priority = 1,
+            color = nil,
+            cterm = nil,
+            highlight = "DiagnosticVirtualTextError",
+          },
+          Warn = {
+            text = { "-", "=" },
+            priority = 2,
+            color = nil,
+            cterm = nil,
+            highlight = "DiagnosticVirtualTextWarn",
+          },
+          Info = {
+            text = { "-", "=" },
+            priority = 3,
+            color = nil,
+            cterm = nil,
+            highlight = "DiagnosticVirtualTextInfo",
+          },
+          Hint = {
+            text = { "-", "=" },
+            priority = 4,
+            color = nil,
+            cterm = nil,
+            highlight = "DiagnosticVirtualTextHint",
+          },
+          Misc = {
+            text = { "-", "=" },
+            priority = 5,
+            color = nil,
+            cterm = nil,
+            highlight = "Normal",
+          },
+        },
+        excluded_buftypes = {
+          "terminal",
+          "prompt",
+        },
+        excluded_filetypes = {
+          "prompt",
+          "TelescopePrompt",
+          "noice",
+          "Outline",
+          "CHADTree",
+        },
+        autocmd = {
+          render = {
+            "BufWinEnter",
+            "TabEnter",
+            "TermEnter",
+            "WinEnter",
+            "CmdwinLeave",
+            "TextChanged",
+            "VimResized",
+            "WinScrolled",
+          },
+          clear = {
+            "BufWinLeave",
+            "TabLeave",
+            "TermLeave",
+            "WinLeave",
+          },
+        },
+        handlers = {
+          cursor = true,
+          diagnostic = true,
+          gitsigns = true,
+          handle = true,
+          search = true,
+        },
       })
     end,
   },
