@@ -1,0 +1,8 @@
+[
+    {
+        "key": "space",
+        "command": "vscode-neovim.send",
+        "when": "editorTextFocus && neovim.mode != 'insert'",
+        "args": "<Space>"
+    }
+]
