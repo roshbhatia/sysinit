@@ -12,10 +12,15 @@ return {
         },
       })
 
+      -- Add keybinding groups inline
       wk.add({
-        { "<leader>", group = "Leader" }, 
-        { "<leader>f", group = "Leader" }, 
-        { "<leader>w", group = "Windows" }, 
+        { "<leader>", group = "Leader" },
+        { "<leader>w", group = "Windows" },
+        { "<leader>f", group = "Files" },
+        { "<leader>g", group = "Git" },
+        { "<leader>t", group = "Terminal" },
+        { "<leader>x", group = "Diagnostics" },
+        { "<leader>s", group = "Sessions" }, -- Added session management group
       })
     end,
   },
