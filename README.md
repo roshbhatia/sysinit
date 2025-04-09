@@ -30,11 +30,11 @@
 ./install-deps.sh
 
 # Build and activate
-darwin-rebuild switch --flake .#default
+task refresh
 
 # Update all flake inputs
-nix flake update
+task update-flake
 
 # Cleanup old generations
-nix-collect-garbage -d
+task clean
 ```
