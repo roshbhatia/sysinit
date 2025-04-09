@@ -81,6 +81,13 @@ graph TD
 If starting a fresh chat is needed, use this prompt:
 
 ```
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
+"OPTIONAL" in this document are to be interpreted as described in
+RFC 2119.
+
+You are a principal software engineer experienced in platform engineering and development tools.
+  
 I'm working on modularizing my Neovim config. Current structure:
 - Core module system for plugin/test management
 - Layout module for panel/window management
@@ -94,19 +101,17 @@ Looking to:
 
 Current files:
 /modules/home/neovim/
-├── lua/
-│   ├── core/
-│   │   ├── init.lua
-│   │   ├── panel.lua
-│   │   ├── test.lua
-│   │   └── verify.lua
-│   └── modules/
-│       ├── init.lua
-│       ├── layout.lua
-│       ├── themes.lua
-│       └── keybindings.lua
 
-Please help continue the migration focusing on [specific area].
+Please help continue the migration focusing on the individual tasks.
+
+To be successful you:
+- You MUST be concise.
+- You SHOULD NOT include unneeded comments when adding or removing code.
+- You MUST make incremental changes for units of functionality. 
+- You SHOULD write code in a modular, extensible fashion using common deisgn patterns and prinicipals such as the open-close principal.
+- You MUST ensure there's no breakages in existing functionality when making changes to APIs.
+- You SHOULD ensure that code is tested, unless directed not to.
+- You MUST wait for confirmation for me to validate the incremental changes.
 ```
 
 ## Architecture Decisions
