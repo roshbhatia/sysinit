@@ -1,46 +1,41 @@
--- Performance-focused Neovim options
+vim.opt.shadafile = "NONE"    
+vim.g.loaded_perl_provider = 0
+vim.g.loaded_ruby_provider = 0
+vim.g.loaded_node_provider = 0 
+vim.g.loaded_python_provider = 0
+vim.g.python3_host_prog = vim.fn.exepath("python3")
 
--- Reduce startup time
-vim.opt.shadafile = "NONE"     -- Don't load shada file on startup
-vim.g.loaded_perl_provider = 0 -- Disable Perl provider
-vim.g.loaded_ruby_provider = 0 -- Disable Ruby provider
-vim.g.loaded_node_provider = 0 -- Disable Node provider
-vim.g.loaded_python_provider = 0 -- Disable Python 2 provider
-vim.g.python3_host_prog = vim.fn.exepath("python3") -- Set Python 3 path explicitly
-
--- Only enable Python3 host if available
 if vim.fn.executable('python3') == 0 then
   vim.g.loaded_python3_provider = 0
 end
 
--- General settings for better user experience
-vim.opt.mouse = "a"                                -- Enable mouse support
-vim.opt.clipboard = "unnamedplus"                  -- Use system clipboard
-vim.opt.completeopt = { "menuone", "noselect" }    -- Completion options
-vim.opt.conceallevel = 0                           -- Make `` visible in markdown files
-vim.opt.fileencoding = "utf-8"                     -- File encoding
-vim.opt.ignorecase = true                          -- Ignore case in search
-vim.opt.smartcase = true                           -- Override ignorecase if search has uppercase
-vim.opt.smartindent = true                         -- Smarter indentation
-vim.opt.splitbelow = true                          -- Split below
-vim.opt.splitright = true                          -- Split right
-vim.opt.termguicolors = true                       -- True color support
-vim.opt.timeoutlen = 300                           -- Time to wait for mapped sequence (ms)
-vim.opt.updatetime = 100                           -- Faster completion
-vim.opt.writebackup = false                        -- Not needed with modern editors
-vim.opt.expandtab = true                           -- Convert tabs to spaces
-vim.opt.shiftwidth = 2                             -- Number of spaces for indentation
-vim.opt.tabstop = 2                                -- Number of spaces for tabs
-vim.opt.cursorline = true                          -- Highlight current line
-vim.opt.number = true                              -- Line numbers
-vim.opt.relativenumber = true                      -- Relative line numbers
-vim.opt.signcolumn = "yes"                         -- Always show sign column
-vim.opt.wrap = false                               -- Don't wrap lines
-vim.opt.scrolloff = 8                              -- Minimum lines to keep above/below cursor
-vim.opt.sidescrolloff = 8                          -- Minimum columns to keep left/right of cursor
-vim.opt.laststatus = 3                             -- Global statusline
-vim.opt.showmode = false                           -- Don't show mode as we'll use statusline
-vim.opt.fillchars:append('eob: ')                  -- Hide ~ at end of buffer
+vim.opt.mouse = "a"                              
+vim.opt.clipboard = "unnamedplus"                 
+vim.opt.completeopt = { "menuone", "noselect" }   
+vim.opt.conceallevel = 0                          
+vim.opt.fileencoding = "utf-8"                    
+vim.opt.ignorecase = true                         
+vim.opt.smartcase = true                          
+vim.opt.smartindent = true                        
+vim.opt.splitbelow = true                         
+vim.opt.splitright = true                         
+vim.opt.termguicolors = true                      
+vim.opt.timeoutlen = 300                          
+vim.opt.updatetime = 100                          
+vim.opt.writebackup = false                       
+vim.opt.expandtab = true                          
+vim.opt.shiftwidth = 2                            
+vim.opt.tabstop = 2                               
+vim.opt.cursorline = true                         
+vim.opt.number = true                             
+vim.opt.relativenumber = true                     
+vim.opt.signcolumn = "yes"                        
+vim.opt.wrap = false                              
+vim.opt.scrolloff = 8                             
+vim.opt.sidescrolloff = 8                         
+vim.opt.laststatus = 3                            
+vim.opt.showmode = false                          
+vim.opt.fillchars:append('eob: ')                 
 
 -- For VSCode parity and improved experience
 vim.opt.backup = false                             -- No backup files
