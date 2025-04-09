@@ -56,7 +56,7 @@ tasks:
       - echo "Starting Neovim with local configuration..."
       - >
         cd {{.ROOT_DIR}}/modules/home/neovim && 
-        nvim -u init.lua --cmd "set runtimepath+=${PWD}" 
+        nvim -u init.lua --cmd "set runtimepath+=${PWD}" {{.ROOT_DIR}}
         ; echo ""
       - echo "Neovim session completed"
 
