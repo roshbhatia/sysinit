@@ -289,25 +289,7 @@ return {
     end,
   },
   
-  -- Markdown preview
-  {
-    "iamcco/markdown-preview.nvim",
-    cmd = { "MarkdownPreview", "MarkdownPreviewToggle", "MarkdownPreviewStop" },
-    build = function() vim.fn["mkdp#util#install"]() end,
-    init = function()
-      vim.g.mkdp_auto_start = 0
-      vim.g.mkdp_auto_close = 1
-      vim.g.mkdp_open_to_the_world = 0
-      vim.g.mkdp_browser = ""
-      vim.g.mkdp_echo_preview_url = 1
-      vim.g.mkdp_page_title = "${name}"
-      vim.g.mkdp_filetypes = { "markdown" }
-    end,
-    keys = {
-      { "<leader>mp", "<cmd>MarkdownPreviewToggle<cr>", desc = "Markdown Preview" },
-    },
-    ft = { "markdown" },
-  },
+  -- Markdown preview handled by glow.nvim in editor_enhancements.lua
   
   -- Automatically detect indent settings
   {

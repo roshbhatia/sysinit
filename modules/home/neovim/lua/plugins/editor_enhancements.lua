@@ -52,55 +52,19 @@ return {
     end,
   },
 
-  -- Markdown preview 
+  -- Markdown preview with Glow
   {
-    "iamcco/markdown-preview.nvim",
-    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
-    ft = { "markdown" },
-    build = function() vim.fn["mkdp#util#install"]() end,
+    "ellisonleao/glow.nvim",
+    cmd = "Glow",
     keys = {
-      { "<leader>mp", "<cmd>MarkdownPreviewToggle<CR>", desc = "󰍔 Toggle markdown preview" },
+      { "<leader>mp", "<cmd>Glow<CR>", desc = "󰍔 Toggle markdown preview" },
     },
     config = function()
-      vim.g.mkdp_auto_start = 1  -- Auto-open preview when entering markdown buffer
-      vim.g.mkdp_auto_close = 0  -- Don't auto-close preview when leaving markdown buffer
-      vim.g.mkdp_refresh_slow = 0
-      vim.g.mkdp_command_for_global = 0
-      vim.g.mkdp_open_to_the_world = 0
-      vim.g.mkdp_open_ip = ""
-      vim.g.mkdp_browser = ""
-      vim.g.mkdp_echo_preview_url = 0
-      vim.g.mkdp_browserfunc = ""
-      vim.g.mkdp_preview_options = {
-        mkit = {},
-        katex = {},
-        uml = {},
-        maid = {},
-        disable_sync_scroll = 0,
-        sync_scroll_type = "middle",
-        hide_yaml_meta = 1,
-        sequence_diagrams = {},
-        flowchart_diagrams = {},
-        content_editable = false,
-        disable_filename = 0,
-        toc = {}
-      }
-      vim.g.mkdp_markdown_css = ""
-      vim.g.mkdp_highlight_css = ""
-      vim.g.mkdp_port = ""
-      vim.g.mkdp_page_title = "${name}"
-      vim.g.mkdp_filetypes = {"markdown"}
-      vim.g.mkdp_theme = "dark"
-      vim.g.mkdp_position = "right"  -- Position preview on the right
-      
-      -- Auto-open markdown preview on markdown files
-      vim.api.nvim_create_autocmd({"FileType"}, {
-        pattern = "markdown",
-        callback = function()
-          vim.defer_fn(function()
-            vim.cmd("MarkdownPreview")
-          end, 100)
-        end,
+      require('glow').setup({
+        style = "dark",
+        width = 120,
+        height_ratio = 0.7,
+        border = "rounded",
       })
     end,
   }

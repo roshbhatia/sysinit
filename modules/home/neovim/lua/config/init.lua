@@ -1226,19 +1226,31 @@ require('lazy').setup({
           vim.api.nvim_set_hl(0, "RainbowCyan", { fg = "#56B6C2" })
         end)
 
-        -- Enable scope highlighting with rainbow delimiters integration
-        vim.g.rainbow_delimiters = { highlight = highlight }
-        
         require("ibl").setup {
           indent = {
             char = "│",
             highlight = highlight,
+            tab_char = "│",
           },
           scope = {
             enabled = true,
             show_start = true,
             show_end = true,
             highlight = highlight,
+            priority = 500,
+          },
+          exclude = {
+            filetypes = {
+              "help",
+              "startify",
+              "dashboard",
+              "lazy",
+              "neogitstatus",
+              "NvimTree",
+              "Trouble",
+              "text",
+              "terminal",
+            },
           },
         }
         
