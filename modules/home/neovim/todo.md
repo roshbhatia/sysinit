@@ -41,19 +41,28 @@
 ## Module System Improvements Needed
 
 1. **Dependency Resolution**
-   - Implement proper dependency ordering
-   - Handle circular dependencies
-   - Lazy loading support
+   - [x] Basic module loading
+   - [ ] Module dependency graph implementation
+   - [ ] Topological sort for load order
+   - [ ] Plugin-level dependency tracking
+   - [ ] Conflict detection
 
 2. **State Management**
-   - Module state persistence
-   - Cross-module communication
-   - Event system
+   - [ ] Module state interface
+   - [ ] Global state store
+   - [ ] State persistence layer
+   - [ ] Module communication bus
 
 3. **Testing Infrastructure**
-   - Automated test runs
-   - Coverage reporting
-   - Performance benchmarks
+   - [ ] E2E test harness
+
+## Immediate Tasks (Priority Order)
+
+1. Implement module dependency graph
+2. Add state management interface
+3. Setup basic test framework
+4. Migrate LSP configuration
+5. Add performance monitoring
 
 ## Plugin Analysis & Alternatives
 
@@ -113,27 +122,3 @@ To be successful you:
 - You SHOULD ensure that code is tested, unless directed not to.
 - You MUST wait for confirmation for me to validate the incremental changes.
 ```
-
-## Architecture Decisions
-
-1. **Panel System**
-   - Use WezTerm for native integration
-   - Support both floating and split layouts
-   - Maintain state across buffer switches
-
-2. **Testing Strategy**
-   - Interactive verification
-   - Health checks per module
-   - Automated test cases
-
-3. **Plugin Management**
-   - Lazy loading by default
-   - Module-specific plugin groups
-   - Dependency tracking
-
-## Performance Considerations
-
-- [ ] Implement startup time measurements
-- [ ] Add lazy loading where possible
-- [ ] Profile memory usage per module
-- [ ] Cache frequently used operations
