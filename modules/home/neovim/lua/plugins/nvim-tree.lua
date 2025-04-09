@@ -3,7 +3,10 @@ return {
     "nvim-tree/nvim-tree.lua",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
-      require("nvim-tree").setup({
+      local nvim_tree = require("nvim-tree")
+
+      -- Configure nvim-tree
+      nvim_tree.setup({
         view = {
           width = 30,
           side = "left",
@@ -18,18 +21,34 @@ return {
             },
           },
         },
+        update_focused_file = {
+          enable = true,
+          update_cwd = true,
+        },
         on_attach = function(bufnr)
           local api = require("nvim-tree.api")
           local opts = { noremap = true, silent = true, buffer = bufnr }
 
-          -- Key mappings for nvim-tree
-          vim.keymap.set("n", "<C-e>", api.node.open.edit, opts)
-          vim.keymap.set("n", "<C-r>", api.tree.reload, opts)
+          -- Keybindings for nvim-tree
+          vim.keymap.set("n", "<leader>e", api.tree.toggle, opts) -- Toggle file tree
+          vim.keymap.set("n", "<leader>r", api.tree.reload, opts) -- Reload file tree
+          vim.keymap.set("n", "<leader>n", api.node.open.edit, opts) -- Open file or directory
         end,
       })
 
-      -- Keybinding to toggle nvim-tree
-      vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>", { noremap = true, silent = true, desc = "Toggle File Explorer" })
+      -- Open nvim-tree by default in the current working directory
+      vim.api.nvim_create_autocmd("VimEnter", {
+        callback = function(data)
+          -- If a directory is passed, open nvim-tree
+          if vim.fn.isdirectory(data.file) == 1 then
+            vim.cmd.cd(data.file)
+            require("nvim-tree.api").tree.open()
+          elseif data.file == "" and #vim.fn.getbufinfo({ buflisted = true }) == 0 then
+            -- If no file is passed and no buffers are open, show alpha
+            require("alpha").start()
+          end
+        end,
+      })
     end,
   },
 }

@@ -20,10 +20,41 @@ return {
         vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
       end
 
+      -- Enable mouse support
+      vim.opt.mouse = "a"
+
+      -- Enable system clipboard integration
+      if vim.fn.has("unnamedplus") == 1 then
+        vim.opt.clipboard = "unnamedplus"
+      else
+        vim.opt.clipboard = "unnamed"
+      end
+
       -- Configure language servers
       lspconfig.lua_ls.setup({ on_attach = on_attach })
       lspconfig.pyright.setup({ on_attach = on_attach })
       lspconfig.ts_ls.setup({ on_attach = on_attach }) -- Updated tsserver to ts_ls
+      lspconfig.gopls.setup({})
+      lspconfig.rust_analyzer.setup({})
+      lspconfig.terraformls.setup({})
+      lspconfig.bashls.setup({})
+      lspconfig.dockerls.setup({})
+      lspconfig.yamlls.setup({
+        settings = {
+          yaml = {
+            schemas = {
+              kubernetes = "/*.yaml",
+            },
+          },
+        },
+      })
+
+      -- Custom configuration for nixd (replacement for nixls)
+      lspconfig.nixd.setup({
+        cmd = { "nixd" },
+        filetypes = { "nix" },
+        root_dir = lspconfig.util.root_pattern(".git", "*.nix"),
+      })
     end,
   },
 }

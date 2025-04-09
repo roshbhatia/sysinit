@@ -16,19 +16,25 @@ return {
       -- Set header (ASCII art)
       dashboard.section.header.val = ascii_art
 
-      -- Set menu
-      dashboard.section.buttons.val = {
-        dashboard.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
-        dashboard.button("f", "󰱼  Find file", ":Telescope find_files<CR>"),
-        dashboard.button("r", "󰄉  Recent files", ":Telescope oldfiles<CR>"),
-        dashboard.button("s", "󰒲  Settings", ":e $MYVIMRC<CR>"),
-        dashboard.button("q", "󰗼  Quit", ":qa<CR>"),
-      }
+      -- Remove menu and footer
+      dashboard.section.buttons.val = {}
+      dashboard.section.footer.val = ""
 
-      -- Set footer
-      dashboard.section.footer.val = "Welcome to Neovim!"
+      -- Make the ASCII art transparent
+      vim.cmd([[hi AlphaHeader guibg=NONE]])
 
       alpha.setup(dashboard.opts)
+
+      -- Autocommand to show alpha when no files are open
+      vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
+        callback = function()
+          if #vim.fn.getbufinfo({ buflisted = true }) == 0 then
+            pcall(require("alpha").start)
+          else
+            pcall(require("alpha").close)
+          end
+        end,
+      })
     end,
   },
 }

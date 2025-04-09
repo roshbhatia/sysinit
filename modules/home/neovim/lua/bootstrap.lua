@@ -1,4 +1,8 @@
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+-- Allow dynamic runtime directory configuration
+local runtime_dir = vim.env.NVIM_RUNTIME_DIR or vim.fn.expand("~/.local/share/sysinit-nvim")
+vim.env.XDG_DATA_HOME = runtime_dir
+
+local lazypath = runtime_dir .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
     "git",
