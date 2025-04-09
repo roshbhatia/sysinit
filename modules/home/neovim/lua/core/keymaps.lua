@@ -1,11 +1,6 @@
--- Core keymappings based on keybinding_design.lua
--- This file contains the actual keymapping implementation
-
--- Set leader key to space
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
--- Helper function for mapping
 local function map(mode, lhs, rhs, opts)
   local options = { noremap = true, silent = true }
   if opts then

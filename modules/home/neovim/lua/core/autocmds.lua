@@ -1,12 +1,8 @@
--- Core autocommands
-
 local augroup = vim.api.nvim_create_augroup
 local autocmd = vim.api.nvim_create_autocmd
 
--- General Settings Group
 local general = augroup("General", { clear = true })
 
--- Disable commenting on new line
 autocmd("BufEnter", {
   group = general,
   pattern = "*",
@@ -15,7 +11,6 @@ autocmd("BufEnter", {
   end,
 })
 
--- Highlight on yank
 autocmd("TextYankPost", {
   group = general,
   callback = function()
@@ -23,7 +18,6 @@ autocmd("TextYankPost", {
   end,
 })
 
--- Resize splits when window resized
 autocmd("VimResized", {
   group = general,
   callback = function()
