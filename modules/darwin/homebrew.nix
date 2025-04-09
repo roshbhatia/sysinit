@@ -2,18 +2,18 @@
 
 let
   # Get additional homebrew packages from userConfig or use empty lists if not defined
-  additionalTaps = if userConfig ? homebrew && userConfig.homebrew ? additionalPackages && userConfig.homebrew.additionalPackages ? taps 
-                  then userConfig.homebrew.additionalPackages.taps 
+  additionalTaps = if userConfig ? homebrew && userConfig.homebrew ? additionalPackages && userConfig.homebrew.additionalPackages ? taps
+                  then userConfig.homebrew.additionalPackages.taps
                   else [];
-                  
-  additionalBrews = if userConfig ? homebrew && userConfig.homebrew ? additionalPackages && userConfig.homebrew.additionalPackages ? brews 
-                   then userConfig.homebrew.additionalPackages.brews 
+
+  additionalBrews = if userConfig ? homebrew && userConfig.homebrew ? additionalPackages && userConfig.homebrew.additionalPackages ? brews
+                   then userConfig.homebrew.additionalPackages.brews
                    else [];
-                   
-  additionalCasks = if userConfig ? homebrew && userConfig.homebrew ? additionalPackages && userConfig.homebrew.additionalPackages ? casks 
-                   then userConfig.homebrew.additionalPackages.casks 
+
+  additionalCasks = if userConfig ? homebrew && userConfig.homebrew ? additionalPackages && userConfig.homebrew.additionalPackages ? casks
+                   then userConfig.homebrew.additionalPackages.casks
                    else [];
-                   
+
   # Base packages
   baseTaps = [
     "homebrew/bundle"
@@ -24,7 +24,7 @@ let
     "nikitabobko/tap"
     "FelixKratz/formulae"
   ];
-  
+
   baseBrews = [
     "argocd"
     "ansible"
@@ -55,7 +55,7 @@ let
     "tailscale"
     "yazi"
   ];
-  
+
   baseCasks = [
     "1password-cli"
     "discord"
@@ -67,10 +67,11 @@ let
     "nikitabobko/tap/aerospace"
     "obsidian"
     "slack"
+    "visual-studio-code@insiders"
     "vnc-viewer"
     "wezterm"
   ];
-  
+
   # Combine base and additional packages
   allTaps = baseTaps ++ additionalTaps;
   allBrews = baseBrews ++ additionalBrews;
@@ -102,7 +103,7 @@ in
       brewfile = true;
       lockfiles = true;
     };
-    
+
     taps = allTaps;
     brews = allBrews;
     casks = allCasks;
