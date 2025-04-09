@@ -26,6 +26,11 @@ RUN curl -fLo "Hack.zip" https://github.com/ryanoasis/nerd-fonts/releases/downlo
     rm Hack.zip && \
     fc-cache -fv
 
+# Mount certificates and update CA certificates for Colima and macOS
+RUN mkdir -p /etc/ssl/certs
+COPY /usr/local/share/ca-certificates /etc/ssl/certs/
+RUN update-ca-certificates
+
 # Create a non-root user to run neovim
 RUN adduser -D nvimuser
 USER nvimuser
