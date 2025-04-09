@@ -1,4 +1,3 @@
--- Configure package path
 do
   local config_path = vim.fn.expand('<sfile>:p:h')
   package.path = config_path .. '/lua/?.lua;' .. 
@@ -6,10 +5,8 @@ do
                  package.path
 end
 
--- Load core options and keymaps from modules
 local options_ok, _ = pcall(require, "core.options")
 if not options_ok then
-  -- Fallback options if the module fails to load
   vim.opt.compatible = false
   vim.opt.number = true
   vim.opt.tabstop = 2
@@ -32,17 +29,15 @@ if not options_ok then
   vim.opt.autoread = true
   vim.opt.showmode = true
   vim.opt.hidden = true
+  vim.opt.lazyredraw = false     -- Explicitly disable lazyredraw for noice.nvim compatibility
   
   print("Using fallback options (core.options not loaded)")
 end
 
--- Set leader key
 vim.g.mapleader = " "
 
--- Load keymaps module
 local keymaps_ok, _ = pcall(require, "core.keymaps")
 if not keymaps_ok then
-  -- Fallback basic keymaps if the module fails
   vim.keymap.set('n', '<leader>w', ':w<CR>', { noremap = true, silent = true })
   vim.keymap.set('n', '<leader>q', ':q<CR>', { noremap = true, silent = true })
   vim.keymap.set('n', '<leader>Q', ':qa!<CR>', { noremap = true, silent = true })
@@ -50,13 +45,11 @@ if not keymaps_ok then
   print("Using fallback keymaps (core.keymaps not loaded)")
 end
 
--- Load autocmds module (optional for now)
 local autocmd_ok, _ = pcall(require, "core.autocmds")
 if not autocmd_ok then
   print("Note: core.autocmds not loaded (this is normal for initial testing)")
 end
 
--- PHASE 2: Add Lazy.nvim plugin manager with minimal plugins
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
   print("Installing lazy.nvim...")
@@ -71,12 +64,9 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- Key mapping to show lazy ui
 vim.keymap.set('n', '<leader>l', ':Lazy<CR>', { noremap = true, silent = true, desc = "Open Lazy.nvim" })
 
--- PHASE 4: Add selective plugins from plugins directory
 require("lazy").setup({
-  -- Core plugins
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
@@ -84,12 +74,9 @@ require("lazy").setup({
       vim.o.timeout = true
       vim.o.timeoutlen = 300
     end,
-    opts = {
-      -- Simple Which-Key setup
-    },
+    opts = {},
   },
   
-  -- Theme and transparency management
   {
     "xiyaowong/transparent.nvim",
     lazy = false,
@@ -105,13 +92,11 @@ require("lazy").setup({
         extra_groups = {},
         exclude_groups = {},
       })
-      -- Start with transparency disabled
       require("transparent").clear_prefix("BufferLine")
       vim.g.transparent_enabled = false
     end,
   },
   
-  -- Theme Switcher
   {
     "zaldih/themery.nvim",
     lazy = false,
@@ -119,7 +104,6 @@ require("lazy").setup({
       { "<leader>tt", "<cmd>Themery<CR>", desc = "Switch Theme" },
     },
     config = function()
-      -- Helper function to toggle transparency
       _G.toggle_transparency = function()
         vim.g.transparent_enabled = not vim.g.transparent_enabled
         if vim.g.transparent_enabled then
@@ -131,13 +115,10 @@ require("lazy").setup({
         end
       end
       
-      -- Create transparency toggle mapping
       vim.api.nvim_set_keymap("n", "<leader>tp", [[<cmd>lua toggle_transparency()<CR>]], { noremap = true, silent = true, desc = "Toggle transparency" })
       
-      -- Setup Themery with a variety of vibrant dark themes
       require("themery").setup({
         themes = {
-          -- Classic dark themes with vibrant colors
           {
             name = "Tokyo Night",
             colorscheme = "tokyonight",
@@ -311,9 +292,7 @@ require("lazy").setup({
             ]],
           },
         },
-        themeConfigFile = vim.fn.stdpath("data") .. "/themery.lua",
         livePreview = true,
-        -- Maintain transparency setting when changing themes
         globalAfter = [[
           -- Re-apply transparency setting when changing theme
           if vim.g.transparent_enabled then
@@ -325,12 +304,11 @@ require("lazy").setup({
       })
     end,
     dependencies = {
-      -- Include all the vibrant dark themes
       "folke/tokyonight.nvim",
       "catppuccin/nvim",
       "ellisonleao/gruvbox.nvim",
       "navarasu/onedark.nvim",
-      "EdenEast/nightfox.nvim",  -- Nightfox, Carbonfox, etc.
+      "EdenEast/nightfox.nvim",
       "sainnhe/everforest",
       "rebelot/kanagawa.nvim",
       "bluz71/vim-moonfly-colors",
@@ -350,8 +328,6 @@ require("lazy").setup({
     },
   },
   
-  -- UI plugins
-  -- This helps us avoid the treesitter plugins that have Nix-related issues
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
@@ -374,6 +350,28 @@ require("lazy").setup({
             ["vim.lsp.util.stylize_markdown"] = true,
           },
         },
+        cmdline = {
+          format = {
+            search_down = {
+              view = "cmdline",
+            },
+            search_up = {
+              view = "cmdline",
+            },
+          },
+        },
+        views = {
+          cmdline_popup = {
+            border = {
+              style = "none",
+              padding = { 2, 3 },
+            },
+            filter_options = {},
+            win_options = {
+              winhighlight = "NormalFloat:NormalFloat,FloatBorder:FloatBorder",
+            },
+          },
+        },
         presets = {
           bottom_search = true,
           command_palette = true,
@@ -383,7 +381,6 @@ require("lazy").setup({
     end,
   },
   
-  -- Adding editor plugins
   {
     "nvim-tree/nvim-tree.lua", 
     dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -403,7 +400,6 @@ require("lazy").setup({
     end,
   },
   
-  -- Auto pairs
   {
     "windwp/nvim-autopairs",
     event = "InsertEnter",
@@ -412,7 +408,6 @@ require("lazy").setup({
     end,
   },
   
-  -- Comment.nvim for easy commenting
   {
     "numToStr/Comment.nvim",
     event = "VeryLazy",
@@ -421,7 +416,6 @@ require("lazy").setup({
     end,
   },
   
-  -- Adding basic tool plugins
   {
     "nvim-telescope/telescope.nvim",
     dependencies = { 
@@ -448,7 +442,6 @@ require("lazy").setup({
     end,
   },
 
-  -- Git integration
   {
     "lewis6991/gitsigns.nvim",
     event = "BufReadPre",
@@ -457,7 +450,6 @@ require("lazy").setup({
     end,
   },
 
-  -- Terminal integration
   {
     "akinsho/toggleterm.nvim",
     keys = {
@@ -471,7 +463,112 @@ require("lazy").setup({
     end,
   },
 
-  -- Basic LSP Support
+  {
+    "mhinz/vim-startify",
+    lazy = false,
+    priority = 100,
+    config = function()
+      -- Load the custom Startify configuration
+      local startify_ok, _ = pcall(require, "config.startify")
+      if not startify_ok then
+        -- Basic startify config if custom module fails
+        vim.g.startify_session_dir = vim.fn.stdpath("data") .. "/sessions"
+        vim.g.startify_session_autoload = 1
+        vim.g.startify_session_persistence = 1
+        vim.g.startify_session_delete_buffers = 1
+        vim.g.startify_change_to_dir = 1
+        vim.g.startify_fortune_use_unicode = 1
+        vim.g.startify_files_number = 5
+        vim.g.startify_padding_left = 3
+      
+        -- Use vim commands directly to configure Startify
+        vim.cmd([[
+          function! s:gitModified()
+            let files = systemlist('git ls-files -m 2>/dev/null')
+            return map(files, "{'line': v:val, 'path': v:val}")
+          endfunction
+
+          function! s:gitUntracked()
+            let files = systemlist('git ls-files -o --exclude-standard 2>/dev/null')
+            return map(files, "{'line': v:val, 'path': v:val}")
+          endfunction
+
+          function! s:listRepos()
+            let output = []
+            let repos = systemlist('find ~/github/personal/*/. ~/github/work/*/. -maxdepth 0 -type d 2>/dev/null')
+            for repo in repos
+              let reponame = fnamemodify(repo, ':h:t') . '/' . fnamemodify(repo, ':t')
+              call add(output, {'line': '  ' . reponame, 'path': repo})
+            endfor
+            return output
+          endfunction
+          
+          let g:startify_lists = [
+              \ { 'type': 'dir',       'header': ['   Current Directory:'] },
+              \ { 'type': 'sessions',  'header': ['   Sessions'] },
+              \ { 'type': 'bookmarks', 'header': ['   Bookmarks'] },
+              \ { 'type': 'commands',  'header': ['   Commands'] },
+              \ { 'type': function('s:gitModified'),  'header': ['   Git Modified:'] },
+              \ { 'type': function('s:gitUntracked'), 'header': ['   Git Untracked:'] },
+              \ { 'type': function('s:listRepos'),    'header': ['   Repositories:'] },
+              \ ]
+        ]])
+        
+        -- Custom ASCII art header for Startify
+        vim.g.startify_custom_header = {
+          "⠀⠀⠀⠀⠀⠀⠐⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⠈⣾⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⠀⢸⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⠀⣈⣼⣄⣠⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⠉⠑⢷⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⠀⠀⣼⣐⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⠀⠀⠘⡚⢧⠀⠀⠀⢠⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⠀⠀⠀⢃⢿⡇⠀⠀⡾⡀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠸⣇⠀⠀⠡⣰⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠇⣿⠀⢠⣄⢿⠇⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⢸⡇⠜⣭⢸⡀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⠀⠀⣼⠀⡙⣿⣿⠰⢫⠁⣇⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⠀⢰⣽⠱⡈⠋⠋⣤⡤⠳⠉⡆⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⠀⡜⠡⠊⠑⠄⣠⣿⠃⠀⣣⠃⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⠐⣼⡠⠥⠊⡂⣼⢀⣤⠠⡲⢂⡌⡄⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⣀⠝⡛⢁⡴⢉⠗⠛⢰⣶⣯⢠⠺⠀⠈⢥⠰⡀⠀⠀",
+          "⠀⣠⣴⢿⣿⡟⠷⠶⣶⣵⣲⡀⣨⣿⣆⡬⠖⢛⣶⣼⡗⠈⠢⠀",
+          "⢰⣹⠭⠽⢧⠅⢂⣳⠛⢿⡽⣿⢿⡿⢟⣟⡻⢾⣿⣿⡤⢴⣶⡃",
+        }
+      end
+    end,
+  },
+  
+  -- Add Treesitter for syntax highlighting and code parsing
+  {
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
+    event = { "BufReadPost", "BufNewFile" },
+    config = function()
+      require("nvim-treesitter.configs").setup({
+        ensure_installed = {
+          "bash", "c", "cpp", "css", "go", "html", "java", "javascript", 
+          "json", "lua", "markdown", "markdown_inline", "python", "regex", 
+          "rust", "tsx", "typescript", "vim", "vimdoc", "yaml",
+        },
+        auto_install = true,
+        highlight = { 
+          enable = true,
+          -- Disable on large files for performance
+          disable = function(_, buf)
+            local max_filesize = 100 * 1024 -- 100 KB
+            local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+            if ok and stats and stats.size > max_filesize then
+              return true
+            end
+          end,
+          additional_vim_regex_highlighting = false,
+        },
+        indent = { enable = true },
+      })
+    end,
+  },
+
   {
     "neovim/nvim-lspconfig",
     dependencies = {
@@ -479,7 +576,6 @@ require("lazy").setup({
       "williamboman/mason-lspconfig.nvim",
     },
     config = function()
-      -- Set up Mason first
       require("mason").setup({
         ui = {
           border = "rounded",
@@ -491,20 +587,17 @@ require("lazy").setup({
         }
       })
       
-      -- Configure Mason-LSPConfig
       require("mason-lspconfig").setup({
         ensure_installed = {
-          "lua_ls", -- Only install one basic server for now
+          "lua_ls",
         },
         automatic_installation = true,
       })
       
-      -- Basic key mappings for LSP
       vim.keymap.set('n', 'gd', vim.lsp.buf.definition, {})
       vim.keymap.set('n', 'K', vim.lsp.buf.hover, {})
       vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, {})
       
-      -- Setup specific LSP servers
       local lspconfig = require('lspconfig')
       lspconfig.lua_ls.setup({
         settings = {
@@ -518,7 +611,6 @@ require("lazy").setup({
     end,
   },
   
-  -- Autocompletion
   {
     "hrsh7th/nvim-cmp",
     dependencies = {
@@ -572,7 +664,6 @@ require("lazy").setup({
   }
 }, {
   ui = {
-    -- Make sure the UI shows up
     border = "single",
     icons = {
       cmd = "⌘",
@@ -590,9 +681,8 @@ require("lazy").setup({
       lazy = "💤",
     },
   },
-  -- Simple configuration to minimize errors
-  checker = { enabled = false },     -- Disable update checker
-  change_detection = { enabled = false },  -- Disable change detection
+  checker = { enabled = false },
+  change_detection = { enabled = false },
   performance = {
     rtp = {
       disabled_plugins = {
@@ -602,9 +692,6 @@ require("lazy").setup({
   },
 })
 
--- Status message
 vim.cmd [[
   echo "Neovim loaded with 30+ themes, UI plugins, editor tools, and LSP support"
 ]]
-
--- End of configuration
