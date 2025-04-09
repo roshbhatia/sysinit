@@ -20,7 +20,7 @@ return {
       "               The extensible text editor                  ",
     }
     
-    startify.file_icons.provider = "devicons"
+    startify.file_icons.provider = "require('nvim-web-devicons').get_icon"
     
     -- Customize the top menu items
     local top_buttons = {
@@ -52,11 +52,16 @@ return {
     -- Configure options
     startify.opts.layout[1].val = 8 -- Increase padding at top
     
-    -- Make sure when no files are open, just show the ascii art
-    if vim.fn.argc() == 0 then
-      alpha.setup(startify.config)
-      vim.cmd([[autocmd FileType alpha setlocal nofoldenable]])
-    end
+    -- Setup alpha configuration properly
+    alpha.setup(startify.config)
+    
+    -- Add autocommand to prevent folding in the dashboard
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = "alpha",
+      callback = function()
+        vim.opt_local.foldenable = false
+      end
+    })
     
     -- Enable automatic session loading/saving if available
     if pcall(require, "persistence") then
