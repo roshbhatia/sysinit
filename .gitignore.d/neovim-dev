@@ -1,0 +1,4 @@
+# Neovim development files
+/ROADMAP.md
+/.local/
+/sysinit-nvim/

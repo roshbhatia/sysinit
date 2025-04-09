@@ -370,8 +370,12 @@ vim.keymap.set("n", "<leader>pj", function()
     end)
 end, { desc = "Merge another file into current file" })
 
--- Load Startify config
-require('config.startify')
+-- Load Startify config (using safe_require defined in plugin/init_fixes.lua)
+if _G.safe_require then
+  _G.safe_require('config.startify')
+else
+  pcall(function() require('config.startify') end)
+end
 
 -- Add vim-plug for plugins we can't install through Nix
 local plug_vim_path = vim.fn.stdpath('data') .. '/site/autoload/plug.vim'

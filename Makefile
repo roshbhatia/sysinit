@@ -10,7 +10,7 @@ SUCCESS := $(GREEN)%s$(NC)\n
 WARN := $(YELLOW)%s$(NC)\n
 ERROR := $(RED)%s$(NC)\n
 
-.PHONY: refresh build update-flake clean test refresh-work help
+.PHONY: refresh build update-flake clean test refresh-work test-neovim help
 
 # System configuration targets
 refresh:
@@ -62,6 +62,12 @@ refresh-work:
 	fi && \
 	printf "$(SUCCESS)" "✅ Work configuration refreshed successfully"
 
+# Neovim test target
+test-neovim:
+	@printf "$(INFO)" "🧪 Testing Neovim configuration..."
+	@$(PWD)/modules/home/neovim/scripts/test-config.sh && \
+	printf "$(SUCCESS)" "✅ Neovim test completed"
+
 # Help target
 help:
 	@printf "$(BLUE)%s$(NC)\n" "SysInit Makefile Commands:"
@@ -74,6 +80,9 @@ help:
 	@printf "$(BLUE)%s$(NC)\n" "Maintenance:"
 	@printf "  $(GREEN)%s$(NC)        - %s\n" "make clean" "Run garbage collection"
 	@printf "  $(GREEN)%s$(NC)         - %s\n" "make test" "Run test suite"
+	@printf "\n"
+	@printf "$(BLUE)%s$(NC)\n" "Development:"
+	@printf "  $(GREEN)%s$(NC)   - %s\n" "make test-neovim" "Test Neovim configuration in isolation"
 	@printf "\n"
 	@printf "$(BLUE)%s$(NC)\n" "Work Configuration:"
 	@printf "  $(GREEN)%s$(NC) - %s\n" "make refresh-work" "Update and rebuild work sysinit configuration"
