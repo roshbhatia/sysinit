@@ -94,12 +94,16 @@ return {
     end,
   },
   
-  -- Better quickfix
+  -- Better quickfix with Trouble
   {
     "folke/trouble.nvim",
     cmd = { "TroubleToggle", "Trouble" },
     keys = {
-      { "<leader>qq", "<cmd>TroubleToggle quickfix<cr>", desc = "Quickfix List (Trouble)" },
+      { "<leader>xx", "<cmd>TroubleToggle document_diagnostics<cr>", desc = "Document Diagnostics" },
+      { "<leader>xw", "<cmd>TroubleToggle workspace_diagnostics<cr>", desc = "Workspace Diagnostics" },
+      { "<leader>xq", "<cmd>TroubleToggle quickfix<cr>", desc = "Quickfix List" },
+      { "<leader>xl", "<cmd>TroubleToggle loclist<cr>", desc = "Location List" },
+      { "<leader>xr", "<cmd>TroubleToggle lsp_references<cr>", desc = "LSP References" },
     },
     opts = {
       position = "bottom",
@@ -107,7 +111,6 @@ return {
       width = 50,
       icons = true,
       mode = "workspace_diagnostics",
-      severity = nil,
       fold_open = "",
       fold_closed = "",
       group = true,
@@ -134,16 +137,17 @@ return {
         next = "j",
       },
       indent_lines = true,
-      auto_open = false,
-      auto_close = false,
       auto_preview = true,
-      auto_fold = false,
-      auto_jump = { "lsp_definitions" },
+      signs = {
+        error = "",
+        warning = "",
+        hint = "",
+        information = "",
+        other = "",
+      },
       use_diagnostic_signs = true,
     },
   },
-  
-  -- (Database client and HTTP client removed as requested)
   
   -- Pasting from clipboard with formatting
   {
@@ -157,16 +161,15 @@ return {
     end,
   },
   
-  -- Markdown preview
+  -- Markdown preview configuration
   {
     "iamcco/markdown-preview.nvim",
-    cmd = { "MarkdownPreview", "MarkdownPreviewToggle", "MarkdownPreviewStop" },
-    ft = { "markdown" },
-    build = function() vim.fn["mkdp#util#install"]() end,
+    cmd = { "MarkdownPreview", "MarkdownPreviewStop" },
+    build = "cd app && yarn install",
     keys = {
-      { "<leader>mp", "<cmd>MarkdownPreviewToggle<CR>", desc = "Markdown Preview Toggle" },
+      { "<leader>mp", "<cmd>MarkdownPreview<CR>", desc = "Markdown Preview" },
     },
-    config = function()
+    init = function()
       vim.g.mkdp_auto_start = 0
       vim.g.mkdp_auto_close = 1
       vim.g.mkdp_refresh_slow = 0
@@ -219,7 +222,7 @@ return {
     event = "BufReadPre",
     opts = {
       dir = vim.fn.expand(vim.fn.stdpath("state") .. "/sessions/"),
-      options = { "buffers", "curdir", "tabpages", "winsize", "help" },
+      options = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp" },
       pre_save = nil,
       save_empty = false,
     },
@@ -240,7 +243,6 @@ return {
     },
     opts = {
       lsp = {
-        -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
         override = {
           ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
           ["vim.lsp.util.stylize_markdown"] = true,
@@ -251,23 +253,20 @@ return {
         },
         signature = {
           enabled = true,
+          auto_open = {
+            enabled = true,
+            trigger = true,
+            luasnip = true,
+            throttle = 50,
+          },
         },
       },
       presets = {
         bottom_search = true,
         command_palette = true,
         long_message_to_split = true,
-        inc_rename = false,
-        lsp_doc_border = false,
+        inc_rename = true,
       },
-    },
-    keys = {
-      { "<leader>nl", function() require("noice").cmd("last") end, desc = "Noice Last Message" },
-      { "<leader>nh", function() require("noice").cmd("history") end, desc = "Noice History" },
-      { "<leader>na", function() require("noice").cmd("all") end, desc = "Noice All" },
-      { "<leader>nd", function() require("noice").cmd("dismiss") end, desc = "Dismiss All" },
-      { "<c-f>", function() if not require("noice.lsp").scroll(4) then return "<c-f>" end end, silent = true, expr = true, desc = "Scroll forward", mode = {"i", "n", "s"} },
-      { "<c-b>", function() if not require("noice.lsp").scroll(-4) then return "<c-b>" end end, silent = true, expr = true, desc = "Scroll backward", mode = {"i", "n", "s"}},
     },
   },
   
@@ -302,6 +301,4 @@ return {
       end
     end,
   },
-  
-  -- (Testing framework removed as requested)
 }
