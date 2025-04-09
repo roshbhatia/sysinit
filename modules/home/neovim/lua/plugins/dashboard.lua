@@ -20,8 +20,13 @@ return {
       dashboard.section.buttons.val = {}
       dashboard.section.footer.val = ""
 
-      -- Make the ASCII art transparent
-      vim.cmd([[hi AlphaHeader guibg=NONE]])
+      -- Make the ASCII art transparent and static
+      vim.cmd([[
+        hi AlphaHeader guibg=NONE
+        setlocal noscrollbind
+        setlocal nolist
+        setlocal nowrap
+      ]])
 
       alpha.setup(dashboard.opts)
 
@@ -29,9 +34,29 @@ return {
       vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
         callback = function()
           if #vim.fn.getbufinfo({ buflisted = true }) == 0 then
-            pcall(require("alpha").start)
+            if not vim.tbl_contains(vim.api.nvim_list_wins(), alpha.window) then
+              alpha.start()
+            end
           else
-            pcall(require("alpha").close)
+            pcall(alpha.close)
+          end
+        end,
+      })
+
+      -- Prevent alpha from being scrollable
+      vim.api.nvim_create_autocmd("WinScrolled", {
+        callback = function()
+          if vim.bo.filetype == "alpha" then
+            vim.cmd("normal! gg") -- Reset scroll to the top
+          end
+        end,
+      })
+
+      -- Fix invalid buffer ID error during WinResized
+      vim.api.nvim_create_autocmd("WinResized", {
+        callback = function()
+          if vim.bo.filetype == "alpha" and vim.api.nvim_buf_is_valid(0) then
+            pcall(alpha.redraw)
           end
         end,
       })
