@@ -4,33 +4,37 @@ return {
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
       require("oil").setup({
-        default_file_explorer = true, -- Oil will take over directory buffers
+        default_file_explorer = true,
         view_options = {
-          show_hidden = true, -- Show hidden files
+          show_hidden = true,
         },
         keymaps = {
-          ["<CR>"] = "actions.select", -- Open file or directory
-          ["<C-s>"] = { "actions.select", opts = { vertical = true } }, -- Open in vertical split
-          ["<C-h>"] = { "actions.select", opts = { horizontal = true } }, -- Open in horizontal split
-          ["<C-t>"] = { "actions.select", opts = { tab = true } }, -- Open in new tab
-          ["<C-p>"] = "actions.preview", -- Preview file
-          ["<C-c>"] = "actions.close", -- Close oil buffer
-          ["<C-l>"] = "actions.refresh", -- Refresh oil buffer
-          ["-"] = "actions.parent", -- Go to parent directory
-          ["_"] = "actions.open_cwd", -- Open current working directory
-          ["`"] = "actions.cd", -- Change directory
-          ["~"] = { "actions.cd", opts = { scope = "tab" } }, -- Change directory for tab
-          ["gs"] = "actions.change_sort", -- Change sort order
-          ["gx"] = "actions.open_external", -- Open file externally
-          ["g."] = "actions.toggle_hidden", -- Toggle hidden files
+          ["<CR>"] = "actions.select",
+          ["<C-s>"] = { "actions.select", opts = { vertical = true } },
+          ["<C-h>"] = { "actions.select", opts = { horizontal = true } },
+          ["<C-t>"] = { "actions.select", opts = { tab = true } },
+          ["<C-p>"] = "actions.preview",
+          ["<C-c>"] = "actions.close",
+          ["<C-l>"] = "actions.refresh",
+          ["-"] = "actions.parent",
+          ["_"] = "actions.open_cwd",
+          ["`"] = "actions.cd",
+          ["~"] = { "actions.cd", opts = { scope = "tab" } },
+          ["gs"] = "actions.change_sort",
+          ["gx"] = "actions.open_external",
+          ["g."] = "actions.toggle_hidden",
         },
-        use_default_keymaps = false, -- Disable default keymaps
+        use_default_keymaps = false,
       })
 
-      -- Keybinding to open Oil on the left side
-      vim.keymap.set("n", "-", function()
-        vim.cmd("vsplit | Oil")
-      end, { desc = "Open parent directory with Oil on the left" })
+      -- Keybinding to toggle Oil
+      vim.keymap.set("n", "<leader>e", function()
+        if vim.fn.bufname() == "oil" then
+          vim.cmd("close")
+        else
+          vim.cmd("vsplit | Oil")
+        end
+      end, { desc = "Toggle Oil File Explorer" })
     end,
   },
 }
