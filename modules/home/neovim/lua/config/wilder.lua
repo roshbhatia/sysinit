@@ -1,4 +1,9 @@
-local wilder = require('wilder')
+-- Safely load wilder
+local status_ok, wilder = pcall(require, 'wilder')
+if not status_ok then
+  return
+end
+
 wilder.setup({modes = {':', '/', '?'}})
 
 wilder.set_option('pipeline', {

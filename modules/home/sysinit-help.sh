@@ -166,6 +166,11 @@ print_consistency() {
     echo "  - Neovim: SPACE + p or CTRL + p (files)"
     echo "  - WezTerm: CMD + SHIFT + p"
     echo
+    echo "  Development tasks:"
+    echo "  - task refresh    - Apply system configuration"
+    echo "  - task build      - Build without applying"
+    echo "  - task test       - Run tests"
+    echo
     echo "  Each tool has a consistent LEADER key:"
     echo "  - Neovim: SPACE"
     echo "  - WezTerm: CMD (macOS)"
