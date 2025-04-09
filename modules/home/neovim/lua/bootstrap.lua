@@ -26,6 +26,8 @@ require("lazy").setup({
   { import = "plugins.treesitter" },
   { import = "plugins.lsp" },
   { import = "plugins.smartsplits" }, -- Ensure smartsplits is included
+  { import = "plugins.notify" }, -- Add nvim-notify
+  { import = "plugins.dashboard" }, -- Add alpha-nvim
   { "nvim-tree/nvim-web-devicons" },
   {
     "mrjones2014/smart-splits.nvim", -- Correct plugin name
