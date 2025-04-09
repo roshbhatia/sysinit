@@ -37,7 +37,6 @@ RUN mkdir -p ~/.config/nvim/parser
 # Copy the neovim configuration
 COPY --chown=nvimuser:nvimuser modules/home/neovim/init.lua /home/nvimuser/.config/nvim/
 COPY --chown=nvimuser:nvimuser modules/home/neovim/lua /home/nvimuser/.config/nvim/lua/
-COPY --chown=nvimuser:nvimuser modules/home/neovim/plugin /home/nvimuser/.config/nvim/plugin/
 
 # Update font config
 RUN echo "set guifont=Hack\\ Nerd\\ Font:h10" > ~/.config/nvim/ginit.vim
