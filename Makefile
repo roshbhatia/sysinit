@@ -59,7 +59,7 @@ refresh-work:
 	if ! ./result/sw/bin/darwin-rebuild switch --flake .#default; then \
 		printf "$(ERROR)" "❌ Failed to apply configuration"; \
 		exit 1; \
-	fi && \
+	   "visual-studio-code@insiders"fi && \
 	printf "$(SUCCESS)" "✅ Work configuration refreshed successfully"
 
 # Neovim test target
