@@ -516,5 +516,10 @@ return {
   require("plugins.lazy-close"),
   require("plugins.indent"),
   require("plugins.which-key-fancy"),
-  require("plugins.no-notify"),
+  require("plugins.notifications"),  -- Re-enabled with toggle functionality
+  require("plugins.alpha"),
+  require("plugins.copilot"),
+  require("plugins.diffview"),
+  require("plugins.smart-splits"),
+  require("plugins.telescope"),
 }

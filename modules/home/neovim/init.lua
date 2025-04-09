@@ -1,3 +1,11 @@
+-- Load viminfo fix early
+local viminfo_fix_ok, viminfo_fix = pcall(require, "patches.viminfo-fix")
+if viminfo_fix_ok then
+  viminfo_fix.setup()
+else
+  print("Could not load viminfo fix")
+end
+
 do
   local config_path = vim.fn.expand('<sfile>:p:h')
   package.path = config_path .. '/lua/?.lua;' .. 
@@ -8,7 +16,8 @@ end
 local options_ok, _ = pcall(require, "core.options")
 if not options_ok then
   vim.opt.compatible = false
-  vim.opt.number = true
+  vim.opt.number = true        -- Show absolute line numbers
+  vim.opt.relativenumber = true -- Show relative line numbers (alongside absolute)
   vim.opt.tabstop = 2
   vim.opt.shiftwidth = 2
   vim.opt.expandtab = true
@@ -514,66 +523,7 @@ require("lazy").setup({
 
   {
     "mhinz/vim-startify",
-    lazy = false,
-    priority = 100,
-    config = function()
-      -- Load the custom Startify configuration
-      local startify_ok, startify = pcall(require, "config.startify")
-      if startify_ok then
-        startify.setup()
-      else
-        -- Basic startify config if custom module fails
-        vim.g.startify_session_dir = vim.fn.stdpath("data") .. "/sessions"
-        vim.g.startify_session_autoload = 1
-        vim.g.startify_session_persistence = 1
-        vim.g.startify_session_delete_buffers = 1
-        vim.g.startify_change_to_dir = 1
-        vim.g.startify_fortune_use_unicode = 1
-        vim.g.startify_files_number = 5
-        vim.g.startify_padding_left = 3
-      
-        -- Use vim commands directly to configure Startify
-        vim.cmd([[function! s:gitModified()
-            let files = systemlist('git ls-files -m 2>/dev/null')
-            return map(files, "{'line': v:val, 'path': v:val}")
-          endfunction
-
-          function! s:gitUntracked()
-            let files = systemlist('git ls-files -o --exclude-standard 2>/dev/null')
-            return map(files, "{'line': v:val, 'path': v:val}")
-          endfunction
-
-          function! s:listRepos()
-            let output = []
-            let repos = systemlist('find ~/github/personal/*/. -maxdepth 1 -type d 2>/dev/null')
-            for repo in repos
-              let reponame = fnamemodify(repo, ':h:t') . '/' . fnamemodify(repo, ':t')
-              call add(output, {'line': '  ' . reponame, 'path': repo})
-            endfor
-            return output
-          endfunction
-          
-          let g:startify_lists = [
-              \ { 'type': 'dir',       'header': ['   Current Directory:'] },
-              \ { 'type': 'files',     'header': ['   Recent Files:'] },
-              \ { 'type': 'sessions',  'header': ['   Sessions'] },
-              \ { 'type': 'bookmarks', 'header': ['   Bookmarks'] },
-              \ { 'type': 'commands',  'header': ['   Commands'] },
-              \ { 'type': function('s:gitModified'),  'header': ['   Git Modified:'] },
-              \ { 'type': function('s:gitUntracked'), 'header': ['   Git Untracked:'] },
-              \ { 'type': function('s:listRepos'),    'header': ['   Repositories:'] },
-              \ ]
-        ]])
-        
-        -- Custom ASCII art header for Startify
-        vim.g.startify_custom_header = {
-          "⠀⠀⠀⠀⠀⠀⠐⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
-          "⠀⠀⠀⠀⠀⠀⠈⣾⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
-          "⠀⠀⠀⠀⠀⠀⠀⢸⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
-          "⠀⠀⠀⠀⠀⠀⠀⣈⣼⣄⣠⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
-        }
-      end
-    end,
+    enabled = false, -- Disabled in favor of our custom config in plugins/startify-fix.lua
   },
   
   -- Add Treesitter for syntax highlighting and code parsing
@@ -733,6 +683,22 @@ require("lazy").setup({
 local image_preview_ok, image_preview = pcall(require, "config.image_preview")
 if image_preview_ok then
   image_preview.setup()
+end
+
+-- Setup smooth scrolling
+local smooth_scroll_ok, smooth_scroll = pcall(require, "core.smooth-scroll")
+if smooth_scroll_ok then
+  smooth_scroll.setup()
+else
+  print("Could not load smooth scrolling")
+end
+
+-- Setup jump list navigation
+local jumps_ok, jumps = pcall(require, "core.jumps")
+if jumps_ok then
+  jumps.setup()
+else
+  print("Could not load jump list navigation")
 end
 
 -- Silent startup
