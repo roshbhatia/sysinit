@@ -6,26 +6,7 @@ do
                  package.path
 end
 
--- Set up system-specific configurations
--- Handle Nix-specific settings
-if vim.fn.isdirectory('/nix') == 1 then
-  -- Set up parsers path for treesitter that's writable
-  -- This avoids the permission denied error in Nix store
-  vim.g.nix_system = true
-  -- Create a local directory for parsers that's writable
-  vim.opt.runtimepath:append(vim.fn.stdpath('data') .. '/treesitter')
-  vim.g.treesitter_parsers_path = vim.fn.stdpath('data') .. '/treesitter/parsers'
-  vim.cmd([[set rtp+=]] .. vim.fn.stdpath('data') .. '/treesitter')
-  
-  -- Create the directory if it doesn't exist
-  if vim.fn.isdirectory(vim.fn.stdpath('data') .. '/treesitter/parsers') == 0 then
-    vim.fn.mkdir(vim.fn.stdpath('data') .. '/treesitter/parsers', 'p')
-  end
-end
-
--- PHASE 3: Add core modules
 -- Load core options and keymaps from modules
--- Use pcall to ensure errors don't stop execution
 local options_ok, _ = pcall(require, "core.options")
 if not options_ok then
   -- Fallback options if the module fails to load
@@ -108,20 +89,268 @@ require("lazy").setup({
     },
   },
   
-  -- Colorscheme
+  -- Theme and transparency management
   {
-    "folke/tokyonight.nvim",
+    "xiyaowong/transparent.nvim",
     lazy = false,
-    priority = 1000,
     config = function()
-      vim.cmd[[colorscheme tokyonight]]
+      require("transparent").setup({
+        groups = {
+          'Normal', 'NormalNC', 'Comment', 'Constant', 'Special', 'Identifier',
+          'Statement', 'PreProc', 'Type', 'Underlined', 'Todo', 'String', 'Function',
+          'Conditional', 'Repeat', 'Operator', 'Structure', 'LineNr', 'NonText',
+          'SignColumn', 'CursorLine', 'CursorLineNr', 'StatusLine', 'StatusLineNC',
+          'EndOfBuffer',
+        },
+        extra_groups = {},
+        exclude_groups = {},
+      })
+      -- Start with transparency disabled
+      require("transparent").clear_prefix("BufferLine")
+      vim.g.transparent_enabled = false
     end,
   },
   
-  -- Import selected plugin modules
-  -- Add more imports as we verify each one works
+  -- Theme Switcher
+  {
+    "zaldih/themery.nvim",
+    lazy = false,
+    keys = {
+      { "<leader>tt", "<cmd>Themery<CR>", desc = "Switch Theme" },
+    },
+    config = function()
+      -- Helper function to toggle transparency
+      _G.toggle_transparency = function()
+        vim.g.transparent_enabled = not vim.g.transparent_enabled
+        if vim.g.transparent_enabled then
+          require("transparent").enable()
+          print("Transparency enabled")
+        else
+          require("transparent").disable()
+          print("Transparency disabled")
+        end
+      end
+      
+      -- Create transparency toggle mapping
+      vim.api.nvim_set_keymap("n", "<leader>tp", [[<cmd>lua toggle_transparency()<CR>]], { noremap = true, silent = true, desc = "Toggle transparency" })
+      
+      -- Setup Themery with a variety of vibrant dark themes
+      require("themery").setup({
+        themes = {
+          -- Classic dark themes with vibrant colors
+          {
+            name = "Tokyo Night",
+            colorscheme = "tokyonight",
+            before = [[
+              vim.g.tokyonight_style = "night"
+              vim.g.tokyonight_italic_functions = true
+            ]],
+          },
+          {
+            name = "Tokyo Night Storm",
+            colorscheme = "tokyonight-storm",
+          },
+          {
+            name = "Catppuccin Mocha",
+            colorscheme = "catppuccin-mocha",
+          },
+          {
+            name = "Dracula",
+            colorscheme = "dracula",
+          },
+          {
+            name = "Gruvbox Dark",
+            colorscheme = "gruvbox",
+            before = [[vim.opt.background = "dark"]],
+          },
+          {
+            name = "OneDark Deep",
+            colorscheme = "onedark",
+            before = [[
+              require('onedark').setup {
+                style = 'deep',
+                transparent = vim.g.transparent_enabled,
+                toggle_style_key = nil,
+                code_style = {
+                  comments = 'italic',
+                  functions = 'bold',
+                  strings = 'none',
+                  variables = 'none'
+                },
+              }
+              require('onedark').load()
+            ]],
+          },
+          {
+            name = "Nightfox",
+            colorscheme = "nightfox",
+          },
+          {
+            name = "Carbonfox",
+            colorscheme = "carbonfox",
+          },
+          {
+            name = "Terafox",
+            colorscheme = "terafox",
+          },
+          {
+            name = "Nordfox",
+            colorscheme = "nordfox",
+          },
+          {
+            name = "Duskfox",
+            colorscheme = "duskfox",
+          },
+          {
+            name = "Everforest Dark",
+            colorscheme = "everforest",
+            before = [[
+              vim.g.everforest_background = 'hard'
+              vim.opt.background = "dark"
+            ]],
+          },
+          {
+            name = "Kanagawa Dragon",
+            colorscheme = "kanagawa-dragon",
+          },
+          {
+            name = "Kanagawa Wave",
+            colorscheme = "kanagawa-wave",
+          },
+          {
+            name = "Moonfly",
+            colorscheme = "moonfly",
+          },
+          {
+            name = "Sonokai",
+            colorscheme = "sonokai",
+          },
+          {
+            name = "Material Deep Ocean",
+            colorscheme = "material",
+            before = [[
+              vim.g.material_style = "deep ocean"
+            ]],
+          },
+          {
+            name = "Material Palenight",
+            colorscheme = "material",
+            before = [[
+              vim.g.material_style = "palenight"
+            ]],
+          },
+          {
+            name = "Neosolarized Dark",
+            colorscheme = "NeoSolarized",
+            before = [[
+              vim.opt.background = "dark"
+            ]],
+          },
+          {
+            name = "Melange",
+            colorscheme = "melange",
+          },
+          {
+            name = "Doom One",
+            colorscheme = "doom-one",
+          },
+          {
+            name = "Nightfly",
+            colorscheme = "nightfly",
+          },
+          {
+            name = "VSCode Dark",
+            colorscheme = "vscode",
+          },
+          {
+            name = "Edge Dark",
+            colorscheme = "edge",
+            before = [[
+              vim.g.edge_style = 'neon'
+              vim.opt.background = "dark"
+            ]],
+          },
+          {
+            name = "Ayu Dark",
+            colorscheme = "ayu",
+            before = [[
+              vim.g.ayucolor = "dark"
+            ]],
+          },
+          {
+            name = "Ayu Mirage",
+            colorscheme = "ayu",
+            before = [[
+              vim.g.ayucolor = "mirage"
+            ]],
+          },
+          {
+            name = "Nord",
+            colorscheme = "nord",
+          },
+          {
+            name = "GitHub Dark",
+            colorscheme = "github_dark_default",
+          },
+          {
+            name = "GitHub Dark Dimmed",
+            colorscheme = "github_dark_dimmed",
+          },
+          {
+            name = "Monokai Pro",
+            colorscheme = "monokai-pro",
+            before = [[
+              vim.g.monokai_pro_filter = "spectrum"
+            ]],
+          },
+          {
+            name = "Monokai Ristretto",
+            colorscheme = "monokai-pro",
+            before = [[
+              vim.g.monokai_pro_filter = "ristretto"
+            ]],
+          },
+        },
+        themeConfigFile = vim.fn.stdpath("data") .. "/themery.lua",
+        livePreview = true,
+        -- Maintain transparency setting when changing themes
+        globalAfter = [[
+          -- Re-apply transparency setting when changing theme
+          if vim.g.transparent_enabled then
+            require("transparent").enable()
+          else
+            require("transparent").disable()
+          end
+        ]],
+      })
+    end,
+    dependencies = {
+      -- Include all the vibrant dark themes
+      "folke/tokyonight.nvim",
+      "catppuccin/nvim",
+      "ellisonleao/gruvbox.nvim",
+      "navarasu/onedark.nvim",
+      "EdenEast/nightfox.nvim",  -- Nightfox, Carbonfox, etc.
+      "sainnhe/everforest",
+      "rebelot/kanagawa.nvim",
+      "bluz71/vim-moonfly-colors",
+      "sainnhe/sonokai",
+      "marko-cerovac/material.nvim",
+      "overcache/NeoSolarized",
+      "savq/melange-nvim",
+      "NTBBloodbath/doom-one.nvim",
+      "bluz71/vim-nightfly-colors",
+      "Mofiqul/vscode.nvim",
+      "sainnhe/edge",
+      "Shatur/neovim-ayu",
+      "shaunsingh/nord.nvim",
+      "projekt0n/github-nvim-theme",
+      "loctvl842/monokai-pro.nvim",
+      "Mofiqul/dracula.nvim",
+    },
+  },
   
-  -- Use individual UI plugins instead of importing the whole module
+  -- UI plugins
   -- This helps us avoid the treesitter plugins that have Nix-related issues
   {
     "folke/which-key.nvim",
@@ -375,10 +604,7 @@ require("lazy").setup({
 
 -- Status message
 vim.cmd [[
-  echo "Neovim configuration loaded with UI, editor, tools, and LSP support"
+  echo "Neovim loaded with 30+ themes, UI plugins, editor tools, and LSP support"
 ]]
 
--- Exit automatically in headless mode after config is loaded
-if #vim.api.nvim_list_uis() == 0 then
-  vim.cmd("qa!")
-end
+-- End of configuration
