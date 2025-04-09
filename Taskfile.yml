@@ -57,8 +57,8 @@ tasks:
       - cd {{.ROOT_DIR}}/modules/home/neovim && nvim -u init.lua; echo ""
       - echo "Neovim session completed"
 
-  nvim-test-docker:
-    desc: Test Neovim configuration in a fresh Docker container
+  nvim-run-docker:
+    desc: Run Neovim configuration in a fresh Docker container
     cmds:
       - echo "Building Docker container to test Neovim configuration..."
       - docker build -t neovim-test -f Dockerfile.neovim .
