@@ -54,7 +54,10 @@ tasks:
     desc: Run Neovim with local configuration interactively
     cmds:
       - echo "Starting Neovim with local configuration..."
-      - cd {{.ROOT_DIR}}/modules/home/neovim && nvim -u init.lua; echo ""
+      - >
+        cd {{.ROOT_DIR}}/modules/home/neovim && 
+        nvim -u init.lua --cmd "set runtimepath+=${PWD}" 
+        ; echo ""
       - echo "Neovim session completed"
 
   nvim-run-docker:
