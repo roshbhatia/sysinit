@@ -60,13 +60,16 @@ M.setup = function()
     { type = 'sessions',  header = {'   Sessions:'} },
     { type = 'bookmarks', header = {'   Bookmarks:'} },
     { type = 'commands',  header = {'   Commands:'} },
-    { type = function() return [[ eval(s:gitModified()) ]] end, header = {'   Git Modified:'} },
-    { type = function() return [[ eval(s:gitUntracked()) ]] end, header = {'   Git Untracked:'} },
-    { type = function() return [[ eval(s:listRepos()) ]] end, header = {'   Repositories:'} },
   }
+  
+  -- Disable broken git functions for now
+  vim.g.startify_custom_indices = {'a', 'b', 'c', 'd', 'f', 'g'}
+  vim.g.startify_custom_header_quotes = {{'Code. Build. Ship.'}}
 
-  -- Ensure the viminfo/shada file is correct for Startify
-  vim.opt.shada = "'1000,f1,<500,:100,/100,h"
+  -- Force Startify to not use viminfo/shada
+  vim.g.startify_enable_special = 0
+  vim.g.startify_disable_at_vimenter = 0
+  vim.g.startify_update_oldfiles = 1
 end
 
 return M

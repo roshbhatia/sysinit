@@ -30,7 +30,7 @@ return {
           scroll_down = "<c-d>",
           scroll_up = "<c-u>",
         },
-        window = {
+        win = { -- updated from window to win
           border = "rounded",
           position = "bottom",
           margin = { 1, 0, 1, 0 },
@@ -43,34 +43,38 @@ return {
           spacing = 3,
           align = "center",
         },
+        -- Using new format for triggers
         triggers = { "<leader>", "g", "z", "d", "y", "c", "[", "]" },
         triggers_nowait = { "'" },
-        triggers_blacklist = {
+        -- Using new format for triggers_blacklist
+        triggers_ignore = {
           i = { "j", "k" },
           v = { "j", "k" },
-        }
+        },
+        -- Using new filter option instead of ignore_missing
+        filter = function(client, result)
+          return not (result.desc and result.desc:match("DEBUG"))
+        end
       })
 
-      -- Register categories with beautiful nerd font icons
+      -- Register categories with beautiful nerd font icons using new format
       wk.register({
-        ["<leader>"] = {
-          f = { name = "󰈞 Files/Find" },
-          b = { name = "󰓩 Buffers" },
-          w = { name = "󱂬 Windows" },
-          g = { name = "󰊢 Git" },
-          h = { name = "󰛡 Harpoon" },
-          t = { name = "󰒮 Toggle" },
-          c = { name = "󰅩 Code" },
-          d = { name = "󱃸 Debug" },
-          s = { name = "󰒺 Session" },
-          r = { name = "󰑌 Refactor" },
-          l = { name = "󰒕 LSP" },
-          p = { name = "󰏖 Packages" },
-          m = { name = "󰍉 Markdown" },
-          u = { name = "󰦒 UI" },
-          x = { name = "󰁨 Diagnostics" },
-          z = { name = "󰉖 Notes" },
-        },
+        { "<leader>f", group = "󰈞 Files/Find" },
+        { "<leader>b", group = "󰓩 Buffers" },
+        { "<leader>w", group = "󱂬 Windows" },
+        { "<leader>g", group = "󰊢 Git" },
+        { "<leader>h", group = "󰛡 Harpoon" },
+        { "<leader>t", group = "󰒮 Toggle" },
+        { "<leader>c", group = "󰅩 Code" },
+        { "<leader>d", group = "󱃸 Debug" },
+        { "<leader>s", group = "󰒺 Session" },
+        { "<leader>r", group = "󰑌 Refactor" },
+        { "<leader>l", group = "󰒕 LSP" },
+        { "<leader>p", group = "󰏖 Packages" },
+        { "<leader>m", group = "󰍉 Markdown" },
+        { "<leader>u", group = "󰦒 UI" },
+        { "<leader>x", group = "󰁨 Diagnostics" },
+        { "<leader>o", group = "󰁕 Options" },
       })
     end
   }

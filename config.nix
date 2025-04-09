@@ -29,7 +29,7 @@
   };
 
   wallpaper = {
-    path = "wall/botns.png";
+    path = "wall/pain.jpeg";
   };
 
   pipx = {

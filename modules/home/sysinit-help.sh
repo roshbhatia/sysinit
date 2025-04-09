@@ -112,9 +112,15 @@ print_neovim_full() {
     echo "  SPACE + tw             Toggle word wrap"
     echo
     echo "  Copilot:"
+    echo "  CTRL + y               Accept suggestion"
+    echo "  CTRL + w               Accept word"
+    echo "  CTRL + l               Accept line"
+    echo "  CTRL + n               Next suggestion"
+    echo "  CTRL + p               Previous suggestion"
+    echo "  CTRL + h               Show suggestions panel"
     echo "  SPACE + cc             Copilot Chat"
     echo "  SPACE + ce             Explain code"
-    echo "  SPACE + ct             Generate tests"
+    echo "  SPACE + ct             Toggle Copilot"
     echo "  SPACE + cf             Fix code"
     echo
     echo "  Debugging:"
