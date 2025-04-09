@@ -76,11 +76,9 @@ vim.opt.rtp:prepend(lazypath)
 -- Key mapping to show lazy ui
 vim.keymap.set('n', '<leader>l', ':Lazy<CR>', { noremap = true, silent = true, desc = "Open Lazy.nvim" })
 
--- Configure lazy.nvim with minimal plugins
--- Use a basic setup with clear UI and no colorscheme
+-- PHASE 4: Add selective plugins from plugins directory
 require("lazy").setup({
-  -- Define plugins here
-  -- Intentionally minimal for testing
+  -- Core plugins
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
@@ -91,7 +89,25 @@ require("lazy").setup({
     opts = {
       -- Simple Which-Key setup
     },
-  }
+  },
+  
+  -- Colorscheme
+  {
+    "folke/tokyonight.nvim",
+    lazy = false,
+    priority = 1000,
+    config = function()
+      vim.cmd[[colorscheme tokyonight]]
+    end,
+  },
+  
+  -- Import selected plugin modules
+  -- Add more imports as we verify each one works
+  { import = "plugins.ui" },     -- UI elements
+  -- { import = "plugins.editor" }, -- Uncomment after UI plugins work
+  -- { import = "plugins.tools" },  -- Uncomment later
+  -- { import = "plugins.lsp" },    -- Uncomment later
+  -- { import = "plugins.coding" }, -- Uncomment later
 }, {
   ui = {
     -- Make sure the UI shows up
@@ -126,7 +142,7 @@ require("lazy").setup({
 
 -- Status message
 vim.cmd [[
-  echo "PHASE 3: Neovim with core modules and lazy.nvim loaded"
+  echo "PHASE 4: Neovim with core modules and UI plugins loaded"
 ]]
 
 -- Exit automatically in headless mode after config is loaded
