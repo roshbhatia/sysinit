@@ -4,43 +4,41 @@ if not vim.loop.fs_stat(lazypath) then
     "git",
     "clone",
     "--filter=blob:none",
-    "https://github.com/folke/lazy.nvim.git",
     "--branch=stable",
+    "https://github.com/folke/lazy.nvim.git",
     lazypath,
   })
   print("Lazy.nvim installed at " .. lazypath)
 end
 vim.opt.rtp:prepend(lazypath)
 
--- Bind Lazy.nvim to <leader>0
+-- Set up leader keys
 vim.g.mapleader = " "
-vim.keymap.set("n", "<leader>0", ":Lazy<CR>", { noremap = true, silent = true, desc = "Lazy Package Manager" })
+vim.g.maplocalleader = "\\"
 
 -- Initialize Lazy.nvim
 require("lazy").setup({
-  { import = "plugins.colorscheme" },
-  { import = "plugins.which-key" },
-  { import = "plugins.nvim-tree" },
-  { import = "plugins.lualine" },
-  { import = "plugins.telescope" },
-  { import = "plugins.treesitter" },
-  { import = "plugins.lsp" },
-  { import = "plugins.smartsplits" }, -- Ensure smartsplits is included
-  { import = "plugins.notify" }, -- Add nvim-notify
-  { import = "plugins.dashboard" }, -- Add alpha-nvim
-  { "nvim-tree/nvim-web-devicons" },
-  {
-    "mrjones2014/smart-splits.nvim", -- Correct plugin name
-    -- Removed Kitty-specific build step
+  spec = {
+    -- Import all plugin specifications from the plugins directory
+    { import = "plugins" },
   },
-  -- Add more plugins here as needed
+  install = { colorscheme = { "carbonfox" } }, -- Set default colorscheme during installation
+  checker = { enabled = true }, -- Enable automatic plugin update checks
 })
 
--- Automatically run Lazy sync on startup
-vim.api.nvim_create_autocmd("VimEnter", {
-  callback = function()
-    require("lazy").sync() -- Use Lua function instead of Vim command
-  end,
-})
+-- Global variable to track Lazy.nvim UI state
+vim.g.lazy_ui_state = 0
+
+-- Bind Lazy.nvim to <leader>0
+vim.keymap.set("n", "<leader>0", function()
+  local lazy = require("lazy")
+  if vim.g.lazy_ui_state == 0 then
+    lazy.show() -- Show Lazy.nvim UI
+    vim.g.lazy_ui_state = 1
+  else
+    vim.cmd("q") -- Close Lazy.nvim UI
+    vim.g.lazy_ui_state = 0
+  end
+end, { noremap = true, silent = true, desc = "Toggle Lazy.nvim" })
 
 print("Lazy.nvim setup complete")
