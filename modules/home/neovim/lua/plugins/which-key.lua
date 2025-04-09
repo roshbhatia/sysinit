@@ -14,10 +14,9 @@ return {
 
       -- Update to the new which-key spec format
       wk.add({
-        { "<leader>e", group = "File Tree" },
-        { "<leader>ee", "<cmd>NvimTreeToggle<CR>", desc = "Toggle File Tree" },
-        { "<leader>en", "<cmd>NvimTreeFindFile<CR>", desc = "Find File in Tree" },
-        { "<leader>er", "<cmd>NvimTreeRefresh<CR>", desc = "Refresh File Tree" },
+        { "<leader>e", group = "File Explorer" },
+        { "<leader>ee", "<cmd>Oil<CR>", desc = "Open Oil File Explorer" },
+        { "<leader>en", "<cmd>Oil<CR>", desc = "Open Parent Directory" },
 
         { "<leader>x", group = "Diagnostics" },
         { "<leader>xx", "<cmd>TroubleToggle<CR>", desc = "Toggle Trouble" },
@@ -32,6 +31,31 @@ return {
         { "<leader>x", '"+d', desc = "Cut to Clipboard" },
         { "<leader>v", '"+p', desc = "Paste from Clipboard" },
         { "<leader>9", "<cmd>Themery<CR>", desc = "Switch Theme" }, -- Theme switching
+      })
+
+      -- Add keybindings for legendary.nvim
+      wk.register({
+        ["<leader>"] = {
+          f = {
+            name = "Find",
+            f = { ":Telescope find_files<CR>", "Find files" },
+            g = { ":Telescope live_grep<CR>", "Live grep" },
+            b = { ":Telescope buffers<CR>", "Find buffers" },
+            h = { ":Telescope help_tags<CR>", "Find help" },
+          },
+          l = { ":Legendary<CR>", "Command Palette" },
+        },
+      })
+
+      -- Add keybindings for neominimap.nvim
+      wk.register({
+        ["<leader>n"] = {
+          name = "Neominimap",
+          m = { "<cmd>Neominimap toggle<CR>", "Toggle global minimap" },
+          o = { "<cmd>Neominimap on<CR>", "Enable global minimap" },
+          c = { "<cmd>Neominimap off<CR>", "Disable global minimap" },
+          r = { "<cmd>Neominimap refresh<CR>", "Refresh global minimap" },
+        },
       })
     end,
   },
