@@ -118,7 +118,7 @@ local leader_categories = {
     w = "Switch Window",            -- Switch between windows
     m = "Maximize Window",          -- Maximize current window
     r = "Rotate Windows",           -- Rotate windows
-    "=" = "Equal Width",            -- Make windows equal width
+    ["="] = "Equal Width",          -- Make windows equal width
   },
   
   -- Harpoon for quick navigation
