@@ -43,3 +43,4 @@ go.sum
 vendor/
 
 **/nix-darwin-master/
+**/*.old
