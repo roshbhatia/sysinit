@@ -18,7 +18,6 @@ return {
         { "<leader>w", group = "Windows" },
         { "<leader>f", group = "Files" },
         { "<leader>g", group = "Git" },
-        { "<leader>t", group = "Terminal" },
         { "<leader>x", group = "Diagnostics" },
         { "<leader>s", group = "Sessions" }, -- Added session management group
       })
