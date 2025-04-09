@@ -25,7 +25,12 @@ require("lazy").setup({
   { import = "plugins.telescope" },
   { import = "plugins.treesitter" },
   { import = "plugins.lsp" },
+  { import = "plugins.smartsplits" }, -- Ensure smartsplits is included
   { "nvim-tree/nvim-web-devicons" },
+  {
+    "mrjones2014/smart-splits.nvim", -- Correct plugin name
+    -- Removed Kitty-specific build step
+  },
   -- Add more plugins here as needed
 })
 
