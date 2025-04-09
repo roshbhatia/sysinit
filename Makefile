@@ -65,7 +65,8 @@ refresh-work:
 # Neovim test target
 test-neovim:
 	@printf "$(INFO)" "🧪 Testing Neovim configuration..."
-	@$(PWD)/modules/home/neovim/scripts/test-config.sh && \
+	@cd $(PWD)/modules/home/neovim && \
+	NVIM_APPNAME=sysinit-nvim nvim -u init.lua && \
 	printf "$(SUCCESS)" "✅ Neovim test completed"
 
 # Help target

@@ -1,5 +1,20 @@
+--[[
+Neovim Configuration
+====================
+This configuration supports testing via `make test-neovim`.
+Run :checkhealth to diagnose any issues.
+]]--
+
 -- Disable compatibility with old-time vi
 vim.cmd('set nocompatible')
+
+-- Set up Lua paths for this configuration
+do
+  local config_path = vim.fn.expand('<sfile>:p:h')
+  package.path = config_path .. '/lua/?.lua;' .. 
+                 config_path .. '/lua/?/init.lua;' .. 
+                 package.path
+end
 
 -- Remove viminfo warning
 vim.opt.viminfo:remove({'!'})
@@ -370,12 +385,10 @@ vim.keymap.set("n", "<leader>pj", function()
     end)
 end, { desc = "Merge another file into current file" })
 
--- Load Startify config (using safe_require defined in plugin/init_fixes.lua)
-if _G.safe_require then
-  _G.safe_require('config.startify')
-else
-  pcall(function() require('config.startify') end)
-end
+-- Load Startify config with error handling
+pcall(function() 
+  require('config.startify') 
+end)
 
 -- Add vim-plug for plugins we can't install through Nix
 local plug_vim_path = vim.fn.stdpath('data') .. '/site/autoload/plug.vim'
