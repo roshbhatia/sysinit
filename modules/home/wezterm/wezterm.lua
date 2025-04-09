@@ -20,6 +20,9 @@ config.window_padding = {
 config.enable_scroll_bar = true
 config.scrollback_lines = 20000
 
+-- Smart-splits.nvim integration settings
+config.allow_win32_process_spawning = true
+
 config.visual_bell = {
     fade_in_function = 'EaseIn',
     fade_in_duration_ms = 35,
@@ -73,11 +76,37 @@ config.keys = {
     { key = 'w', mods = 'CMD', action = act.CloseCurrentPane { confirm = false } },
     { key = 'w', mods = 'CMD|SHIFT', action = act.CloseCurrentTab { confirm = false } },
 
-    -- Pane navigation with CMD+arrows
+    -- Pane navigation with CMD+arrows (for fallback)
     { key = 'LeftArrow', mods = 'CMD', action = act.ActivatePaneDirection 'Left' },
     { key = 'RightArrow', mods = 'CMD', action = act.ActivatePaneDirection 'Right' },
     { key = 'UpArrow', mods = 'CMD', action = act.ActivatePaneDirection 'Up' },
     { key = 'DownArrow', mods = 'CMD', action = act.ActivatePaneDirection 'Down' },
+    
+    -- Smart-splits.nvim integration with Ctrl+h/j/k/l
+    { key = 'h', mods = 'CTRL', action = wezterm.action_callback(function(window, pane)
+        window:perform_action(act.SendKey { key = 'h', mods = 'CTRL' }, pane)
+        if window:active_pane():is_alt_screen_active() == false and window:active_pane():get_foreground_process_name():find('n?vim') == nil then
+            window:perform_action(act.ActivatePaneDirection 'Left', pane)
+        end
+    end)},
+    { key = 'j', mods = 'CTRL', action = wezterm.action_callback(function(window, pane)
+        window:perform_action(act.SendKey { key = 'j', mods = 'CTRL' }, pane)
+        if window:active_pane():is_alt_screen_active() == false and window:active_pane():get_foreground_process_name():find('n?vim') == nil then
+            window:perform_action(act.ActivatePaneDirection 'Down', pane)
+        end
+    end)},
+    { key = 'k', mods = 'CTRL', action = wezterm.action_callback(function(window, pane)
+        window:perform_action(act.SendKey { key = 'k', mods = 'CTRL' }, pane)
+        if window:active_pane():is_alt_screen_active() == false and window:active_pane():get_foreground_process_name():find('n?vim') == nil then
+            window:perform_action(act.ActivatePaneDirection 'Up', pane)
+        end
+    end)},
+    { key = 'l', mods = 'CTRL', action = wezterm.action_callback(function(window, pane)
+        window:perform_action(act.SendKey { key = 'l', mods = 'CTRL' }, pane)
+        if window:active_pane():is_alt_screen_active() == false and window:active_pane():get_foreground_process_name():find('n?vim') == nil then
+            window:perform_action(act.ActivatePaneDirection 'Right', pane)
+        end
+    end)},
 
     -- Special commands
     { key = 'p', mods = 'CMD|SHIFT', action = act.ActivateCommandPalette },

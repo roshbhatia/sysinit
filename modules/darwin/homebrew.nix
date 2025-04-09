@@ -66,7 +66,6 @@ let
     "nikitabobko/tap/aerospace"
     "obsidian"
     "slack"
-    "visual-studio-code@insiders"
     "vnc-viewer"
     "wezterm"
   ];
