@@ -6,11 +6,20 @@ local autocmd = vim.api.nvim_create_autocmd
 -- General Settings Group
 local general = augroup("General", { clear = true })
 
+-- Disable commenting on new line
+autocmd("BufEnter", {
+  group = general,
+  pattern = "*",
+  callback = function()
+    vim.opt_local.formatoptions:remove({ "c", "r", "o" })
+  end,
+})
+
 -- Highlight on yank
 autocmd("TextYankPost", {
   group = general,
   callback = function()
-    vim.highlight.on_yank({ higroup = "IncSearch", timeout = 200 })
+    vim.highlight.on_yank({ higroup = "IncSearch", timeout = 300 })
   end,
 })
 
@@ -34,6 +43,42 @@ autocmd("BufWritePre", {
   end,
 })
 
+-- Go to last location when opening a buffer
+autocmd("BufReadPost", {
+  group = general,
+  pattern = "*",
+  callback = function()
+    local exclude = { "gitcommit" }
+    local buf = vim.api.nvim_get_current_buf()
+    if vim.tbl_contains(exclude, vim.bo[buf].filetype) then
+      return
+    end
+    local mark = vim.api.nvim_buf_get_mark(buf, '"')
+    local lcount = vim.api.nvim_buf_line_count(buf)
+    if mark[1] > 0 and mark[1] <= lcount then
+      pcall(vim.api.nvim_win_set_cursor, 0, mark)
+    end
+  end,
+})
+
+-- Close some filetypes with <q>
+autocmd("FileType", {
+  group = general,
+  pattern = {
+    "help",
+    "qf",
+    "startuptime",
+    "lspinfo",
+    "checkhealth",
+    "man",
+    "TelescopePrompt",
+  },
+  callback = function(event)
+    vim.bo[event.buf].buflisted = false
+    vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = event.buf, silent = true })
+  end,
+})
+
 -- Faster window switching
 autocmd("FocusGained", {
   group = general,
@@ -43,14 +88,31 @@ autocmd("FocusGained", {
 -- File Type Settings Group
 local filetype_settings = augroup("FiletypeSettings", { clear = true })
 
+-- Set indentation for specific filetypes
+autocmd("FileType", {
+  group = filetype_settings,
+  pattern = { "lua", "javascript", "typescript", "json", "yaml", "markdown", "html", "css" },
+  callback = function()
+    vim.opt_local.shiftwidth = 2
+    vim.opt_local.tabstop = 2
+  end,
+})
+
+autocmd("FileType", {
+  group = filetype_settings,
+  pattern = { "python", "rust", "go" },
+  callback = function()
+    vim.opt_local.shiftwidth = 4
+    vim.opt_local.tabstop = 4
+  end,
+})
+
 -- Go
 autocmd("FileType", {
   group = filetype_settings,
   pattern = "go",
   callback = function()
     vim.opt_local.expandtab = false
-    vim.opt_local.shiftwidth = 4
-    vim.opt_local.tabstop = 4
   end,
 })
 
@@ -90,12 +152,6 @@ autocmd("TermOpen", {
   end,
 })
 
--- Disable line numbers in terminal
-autocmd("TermOpen", {
-  group = terminal_settings,
-  command = "setlocal nonumber norelativenumber",
-})
-
 -- Startify Settings Group
 local startify_settings = augroup("StartifySettings", { clear = true })
 
@@ -117,10 +173,18 @@ autocmd("FileType", {
   end,
 })
 
--- Git Settings Group
-local git_settings = augroup("GitSettings", { clear = true })
+-- CHADTree Settings
+autocmd("FileType", {
+  group = augroup("CHADTreeSettings", { clear = true }),
+  pattern = "CHADTree",
+  callback = function()
+    vim.opt_local.number = false
+    vim.opt_local.relativenumber = false
+    vim.opt_local.signcolumn = "no"
+  end,
+})
 
--- Auto run formatting on save if formatter is available
+-- Format on save
 local format_on_save = augroup("FormatOnSave", { clear = true })
 
 autocmd("BufWritePre", {
@@ -144,10 +208,3 @@ autocmd("BufWritePre", {
     end
   end,
 })
-
--- Return the module
-return {
-  setup = function()
-    -- Any additional setup needed for autocommands
-  end
-}
