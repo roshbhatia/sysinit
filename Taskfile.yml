@@ -55,10 +55,14 @@ tasks:
     cmds:
       - echo "Starting Neovim with local configuration..."
       - >
-        cd {{.ROOT_DIR}}/modules/home/neovim && 
+        export NVIM_RUNTIME_DIR=$(mktemp -d /tmp/nvim-runtime-XXXXXX) &&
+        cd {{.ROOT_DIR}}/modules/home/neovim &&
         nvim -u init.lua --cmd "set runtimepath+=${PWD}" {{.ROOT_DIR}}
         ; echo ""
       - echo "Neovim session completed"
+      - echo "Cleaning up runtime directory..." &&
+        rm -rf $NVIM_RUNTIME_DIR &&
+        echo "Runtime directory cleaned up"
 
   nvim-run-docker:
     desc: Run Neovim configuration in a fresh Docker container
