@@ -1,0 +1,28 @@
+FROM alpine:latest
+
+# Install dependencies
+RUN apk add --no-cache \
+    neovim \
+    git \
+    nodejs \
+    npm \
+    ripgrep \
+    fd \
+    alpine-sdk \
+    lua-dev
+
+# Create a non-root user to run neovim
+RUN adduser -D nvimuser
+USER nvimuser
+WORKDIR /home/nvimuser
+
+# Setup neovim config dirs
+RUN mkdir -p ~/.config/nvim
+
+# Copy the neovim configuration
+COPY --chown=nvimuser:nvimuser modules/home/neovim/init.lua /home/nvimuser/.config/nvim/
+COPY --chown=nvimuser:nvimuser modules/home/neovim/lua /home/nvimuser/.config/nvim/lua/
+COPY --chown=nvimuser:nvimuser modules/home/neovim/plugin /home/nvimuser/.config/nvim/plugin/
+
+# Entry point
+CMD ["nvim"]
