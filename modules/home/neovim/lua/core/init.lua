@@ -11,6 +11,10 @@ function M.register(name, module)
   -- Add plugins to specs if they exist
   if module.plugins then
     for _, plugin in ipairs(module.plugins) do
+      -- Register panel plugins
+      if plugin.panel then
+        require("core.panel").register_panel_plugin(plugin.panel, plugin)
+      end
       table.insert(M.plugin_specs, plugin)
     end
   end
@@ -41,5 +45,15 @@ function M.load_all()
     end
   end
 end
+
+-- Add verify command
+vim.api.nvim_create_user_command("VerifyModule", function(opts)
+  require("core.verify").verify_module(opts.args)
+end, {
+  nargs = 1,
+  complete = function()
+    return vim.tbl_keys(require("core.verify").verifications)
+  end,
+})
 
 return M

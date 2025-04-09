@@ -1,5 +1,8 @@
 version: '3'
 
+vars:
+  SILENT: true  # Global silence setting
+
 tasks:
   default:
     desc: Show help information
@@ -52,17 +55,35 @@ tasks:
 
   nvim-run-local:
     desc: Run Neovim with local configuration interactively
+    silent: true
+    vars:
+      PERSISTENT_DIR: '/tmp/sysinit-nvim-persistent'
     cmds:
-      - echo "Starting Neovim with local configuration..."
+      - |
+        if [ "{{.REUSE_RUNTIME}}" = "true" ]; then
+          echo "> Using persistent runtime directory"
+          sudo mkdir -p {{.PERSISTENT_DIR}}/nvim/lazy
+          sudo chown -R $(id -u):$(id -g) {{.PERSISTENT_DIR}}
+          sudo chmod -R 755 {{.PERSISTENT_DIR}}
+          RUNTIME_DIR="{{.PERSISTENT_DIR}}"
+        else
+          RUNTIME_DIR=$(mktemp -d /tmp/nvim-runtime-XXXXXX)
+          mkdir -p ${RUNTIME_DIR}/nvim/lazy
+          chmod -R 755 ${RUNTIME_DIR}
+        fi
       - >
-        export NVIM_RUNTIME_DIR=$(mktemp -d /tmp/nvim-runtime-XXXXXX) &&
+        export NVIM_RUNTIME_DIR=${RUNTIME_DIR} &&
         cd {{.ROOT_DIR}}/modules/home/neovim &&
         nvim -u init.lua --cmd "set runtimepath+=${PWD}" {{.ROOT_DIR}}
-        ; echo ""
-      - echo "Neovim session completed"
-      - echo "Cleaning up runtime directory..." &&
-        rm -rf $NVIM_RUNTIME_DIR &&
-        echo "Runtime directory cleaned up"
+      - |
+        if [ "{{.REUSE_RUNTIME}}" != "true" ] && [ -d "${RUNTIME_DIR}" ]; then
+          rm -rf ${RUNTIME_DIR}
+        fi
+    usage: |
+      Run with persistent runtime directory:
+        task nvim-run-local -- REUSE_RUNTIME=true
+      Run with temporary runtime directory:
+        task nvim-run-local
 
   nvim-run-docker:
     desc: Run Neovim configuration in a fresh Docker container
@@ -115,3 +136,43 @@ tasks:
       - echo "Uninstalling Nix..."
       - ./uninstall-nix.sh
       - echo "Nix uninstalled"
+
+  nvim-test-module:
+    desc: Run interactive tests for a specific module
+    silent: true
+    vars:
+      PERSISTENT_DIR: '/tmp/sysinit-nvim-persistent'
+    cmds:
+      - |
+        RUNTIME_DIR=$(mktemp -d /tmp/nvim-runtime-XXXXXX)
+        mkdir -p ${RUNTIME_DIR}/nvim/lazy
+        chmod -R 755 ${RUNTIME_DIR}
+      - echo "Starting interactive module test..."
+      - >
+        export NVIM_RUNTIME_DIR=${RUNTIME_DIR} &&
+        cd {{.ROOT_DIR}}/modules/home/neovim &&
+        nvim --headless -u init.lua --cmd "set runtimepath+=${PWD}" 
+        -c "lua require('core.test').run_interactive_test('{{.CLI_ARGS}}')"
+        -c "echo 'Use :TestPass <num> or :TestFail <num> to mark test results'"
+      - echo "Test completed"
+      - rm -rf $NVIM_RUNTIME_DIR
+
+  nvim-health:
+    desc: Run health checks for all modules
+    silent: true
+    vars:
+      PERSISTENT_DIR: '/tmp/sysinit-nvim-persistent'
+    cmds:
+      - |
+        RUNTIME_DIR=$(mktemp -d /tmp/nvim-runtime-XXXXXX)
+        mkdir -p ${RUNTIME_DIR}/nvim/lazy
+        chmod -R 755 ${RUNTIME_DIR}
+      - echo "Running health checks..."
+      - >
+        export NVIM_RUNTIME_DIR=${RUNTIME_DIR} &&
+        cd {{.ROOT_DIR}}/modules/home/neovim &&
+        nvim --headless -u init.lua --cmd "set runtimepath+=${PWD}" 
+        -c "lua for name in pairs(require('core.test').health_checks) do require('core.test').run_health_check(name) end"
+        -c "checkhealth"
+      - echo "Health checks completed"
+      - rm -rf $NVIM_RUNTIME_DIR
