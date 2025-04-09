@@ -16,8 +16,7 @@
     ./aerospace/aerospace.nix
     ./config-extras.nix
     ./paths.nix
-    # Removed VSCode in favor of enhanced Neovim setup
-    # ./vscode/vscode.nix
+    ./vscode/vscode.nix
   ];
 
   # Home Manager needs a bit of information about you and the paths it should manage
