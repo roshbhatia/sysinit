@@ -9,6 +9,10 @@ if vim.fn.executable('python3') == 0 then
   vim.g.loaded_python3_provider = 0
 end
 
+-- Set a more handy leader key
+vim.g.mapleader = " " -- Space as leader key
+vim.g.maplocalleader = "," -- Comma as local leader
+
 vim.opt.mouse = "a"                              
 vim.opt.clipboard = "unnamedplus"                 
 vim.opt.completeopt = { "menuone", "noselect" }   
