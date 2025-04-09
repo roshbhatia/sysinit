@@ -7,6 +7,11 @@ atuin/atuin-receipt.json
 # Claude code
 CLAUDE.md
 
+# Neovim development 
+ROADMAP.md
+.local/
+sysinit-nvim/
+
 # Nix build outputs
 result
 result-*
