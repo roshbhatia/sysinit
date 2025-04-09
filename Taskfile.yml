@@ -68,7 +68,7 @@ tasks:
     desc: Run Neovim with local configuration in headless mode to check for errors
     cmds:
       - echo -e "{{.BLUE}}🧪 Testing Neovim configuration in headless mode...{{.NC}}"
-      - cd {{.ROOT_DIR}}/modules/home/neovim && nvim --headless -u init.lua
+      - cd {{.ROOT_DIR}}/modules/home/neovim && nvim --headless -u init.lua -c "qa!"
       - echo -e "{{.GREEN}}✅ Neovim headless test completed without errors{{.NC}}"
 
   refresh-work:
