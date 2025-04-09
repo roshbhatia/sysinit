@@ -1,0 +1,111 @@
+version: '3'
+
+vars:
+  BLUE: '\033[1;34m'
+  GREEN: '\033[1;32m'
+  RED: '\033[1;31m'
+  YELLOW: '\033[1;33m'
+  NC: '\033[0m'
+
+tasks:
+  default:
+    desc: Show help information
+    cmds:
+      - task -l
+    silent: true
+
+  refresh:
+    desc: Apply the system configuration
+    cmds:
+      - echo -e "{{.BLUE}}🔄 Applying system configuration...{{.NC}}"
+      - darwin-rebuild switch --flake . --show-trace
+      - echo -e "{{.GREEN}}✅ System configuration applied successfully{{.NC}}"
+
+  build:
+    desc: Build the configuration without applying
+    cmds:
+      - echo -e "{{.BLUE}}🏗️ Building system configuration...{{.NC}}"
+      - darwin-rebuild build --flake .
+      - echo -e "{{.GREEN}}✅ Build completed successfully{{.NC}}"
+
+  update-flake:
+    desc: Update flake inputs
+    cmds:
+      - echo -e "{{.BLUE}}📦 Updating flake inputs...{{.NC}}"
+      - nix flake update
+      - echo -e "{{.GREEN}}✅ Flake inputs updated successfully{{.NC}}"
+
+  clean:
+    desc: Run garbage collection
+    cmds:
+      - echo -e "{{.BLUE}}🧹 Running garbage collection...{{.NC}}"
+      - sudo nix-collect-garbage -d
+      - echo -e "{{.GREEN}}✅ Garbage collection completed{{.NC}}"
+
+  test:
+    desc: Run all tests
+    cmds:
+      - echo -e "{{.BLUE}}🧪 Running test suite...{{.NC}}"
+      - task: test-smart-resize
+      - task: nvim-run-local-headless
+      - echo -e "{{.GREEN}}✅ All tests completed successfully{{.NC}}"
+
+  test-smart-resize:
+    desc: Test the smart-resize functionality
+    cmds:
+      - echo -e "{{.BLUE}}🧪 Testing smart-resize...{{.NC}}"
+      - ./tests/smart-resize-test.sh
+      - echo -e "{{.GREEN}}✅ Smart-resize test completed{{.NC}}"
+
+  nvim-run-local:
+    desc: Run Neovim with local configuration interactively
+    cmds:
+      - echo -e "{{.BLUE}}🧪 Starting Neovim with local configuration...{{.NC}}"
+      - cd {{.ROOT_DIR}}/modules/home/neovim && nvim -u init.lua
+      - echo -e "{{.GREEN}}✅ Neovim session completed{{.NC}}"
+
+  nvim-run-local-headless:
+    desc: Run Neovim with local configuration in headless mode to check for errors
+    cmds:
+      - echo -e "{{.BLUE}}🧪 Testing Neovim configuration in headless mode...{{.NC}}"
+      - cd {{.ROOT_DIR}}/modules/home/neovim && nvim --headless -u init.lua
+      - echo -e "{{.GREEN}}✅ Neovim headless test completed without errors{{.NC}}"
+
+  refresh-work:
+    desc: Update and rebuild work sysinit configuration
+    cmds:
+      - |
+        WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
+        if [ -z "$WORK_SYSINIT" ]; then
+          echo -e "{{.RED}}❌ Could not find work sysinit repository{{.NC}}"
+          exit 1
+        fi
+        echo -e "{{.BLUE}}🔄 Refreshing work sysinit at $WORK_SYSINIT{{.NC}}"
+        cd "$WORK_SYSINIT" && \
+        if ! nix flake update; then
+          echo -e "{{.RED}}❌ Failed to update flake{{.NC}}"
+          exit 1
+        fi && \
+        if ! nix build; then
+          echo -e "{{.RED}}❌ Failed to build configuration{{.NC}}"
+          exit 1
+        fi && \
+        if ! ./result/sw/bin/darwin-rebuild switch --flake .#default; then
+          echo -e "{{.RED}}❌ Failed to apply configuration{{.NC}}"
+          exit 1
+        fi && \
+        echo -e "{{.GREEN}}✅ Work configuration refreshed successfully{{.NC}}"
+
+  setup:
+    desc: Install prerequisites for sysinit
+    cmds:
+      - echo -e "{{.BLUE}}📥 Installing prerequisites...{{.NC}}"
+      - ./install-deps.sh
+      - echo -e "{{.GREEN}}✅ Setup completed{{.NC}}"
+
+  uninstall-nix:
+    desc: Completely uninstall Nix from the system
+    cmds:
+      - echo -e "{{.BLUE}}🗑️ Uninstalling Nix...{{.NC}}"
+      - ./uninstall-nix.sh
+      - echo -e "{{.GREEN}}✅ Nix uninstalled{{.NC}}"

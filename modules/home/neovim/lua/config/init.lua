@@ -1354,7 +1354,11 @@ for _, module in ipairs(config_modules) do
 end
 
 -- LSP setup
-local lspconfig = require('lspconfig')
+local status_ok, lspconfig = pcall(require, 'lspconfig')
+if not status_ok then
+    print('Error loading lspconfig')
+    return
+end
 
 -- Configure language servers
 lspconfig.pyright.setup{}
