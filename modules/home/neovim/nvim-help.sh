@@ -1,18 +1,24 @@
 #!/bin/bash
 
+# Colors
+BLUE='\033[1;34m'
+GREEN='\033[1;32m'
+RED='\033[1;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
 print_navigation() {
-    echo "🧭 Navigation Commands:"
-    echo "  <leader>ff     Find files (Telescope)"
-    echo "  <leader>fg     Find text in files (live grep)"
-    echo "  <leader>fb     Find buffers"
-    echo "  <leader>fh     Find help tags"
-    echo "  <leader>fs     Find symbols in document"
-    echo "  <leader>fr     Find recent files"
-    echo "  <F2>           Toggle file explorer (NvimTree)"
-    echo "  <leader>pv     Toggle file explorer (NvimTree)"
-    echo "  <leader>pf     Find file in explorer"
-    echo "  <C-p>          Quick find files (like VS Code Ctrl+P)"
-    echo "  <leader>p      Open command palette (like VS Code)"
+    echo -e "${BLUE}🧭 Navigation Commands:${NC}"
+    echo -e "  ${GREEN}<leader>ff${NC}     Find files (Telescope)"
+    echo -e "  ${GREEN}<leader>fg${NC}     Find text in files (live grep)"
+    echo -e "  ${GREEN}<leader>fb${NC}     Find buffers"
+    echo -e "  ${GREEN}<leader>fh${NC}     Find help tags"
+    echo -e "  ${GREEN}<leader>fs${NC}     Find symbols in document"
+    echo -e "  ${GREEN}<leader>fr${NC}     Find recent files"
+    echo -e "  ${GREEN}<F2>${NC}           Toggle file explorer (NvimTree)"
+    echo -e "  ${GREEN}<leader>e${NC}      Toggle file explorer (NvimTree)"
+    echo -e "  ${GREEN}<C-p>${NC}          Quick find files (like VS Code Ctrl+P)"
+    echo -e "  ${GREEN}<leader>p${NC}      Open command palette (like VS Code)"
 }
 
 print_code() {
@@ -145,7 +151,16 @@ print_kubernetes() {
     echo "  <leader>kd     Describe resource"
 }
 
+print_test() {
+    echo -e "${BLUE}🧪 Testing and Development:${NC}"
+    echo -e "  ${GREEN}make test-neovim${NC}    Test the Neovim config in isolation"
+    echo -e "  ${GREEN}./scripts/test-config.sh${NC}  Run Neovim with test configuration"
+}
+
 print_all() {
+    echo -e "${BLUE}Neovim Configuration Help${NC}"
+    echo -e "${YELLOW}========================${NC}"
+    echo
     print_navigation
     echo
     print_code
@@ -163,6 +178,8 @@ print_all() {
     print_todo
     echo
     print_kubernetes
+    echo
+    print_test
 }
 
 case "$1" in
@@ -192,6 +209,9 @@ case "$1" in
         ;;
     "k8s")
         print_kubernetes
+        ;;
+    "test")
+        print_test
         ;;
     *)
         print_all
