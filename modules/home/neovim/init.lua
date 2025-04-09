@@ -67,6 +67,9 @@ vim.opt.rtp:prepend(lazypath)
 vim.keymap.set('n', '<leader>l', ':Lazy<CR>', { noremap = true, silent = true, desc = "Open Lazy.nvim" })
 
 require("lazy").setup({
+  -- Add support for loading plugins from the lua/plugins directory
+  { import = "plugins" },
+  
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
@@ -105,12 +108,19 @@ require("lazy").setup({
     },
     config = function()
       _G.toggle_transparency = function()
+        -- Fix the toggle function by ensuring transparent is loaded and available
+        local transparent_ok, transparent = pcall(require, "transparent")
+        if not transparent_ok then
+          print("Transparent plugin not available")
+          return
+        end
+        
         vim.g.transparent_enabled = not vim.g.transparent_enabled
         if vim.g.transparent_enabled then
-          require("transparent").enable()
+          transparent.enable()
           print("Transparency enabled")
         else
-          require("transparent").disable()
+          transparent.disable()
           print("Transparency disabled")
         end
       end
@@ -332,7 +342,55 @@ require("lazy").setup({
     "folke/which-key.nvim",
     event = "VeryLazy",
     config = function()
-      require("which-key").setup({})
+      require("which-key").setup({
+        plugins = {
+          spelling = {
+            enabled = true,
+            suggestions = 20,
+          },
+        },
+        window = {
+          border = "single",
+          padding = { 1, 1, 1, 1 },
+        },
+        layout = {
+          height = { min = 3, max = 25 }, 
+          width = { min = 20, max = 50 },
+          spacing = 3,
+          align = "center",
+        },
+        icons = {
+          breadcrumb = "»",
+          separator = "➜",
+          group = "󰉂 ",
+        },
+        -- Hide keymaps with <Plug> and empty labels
+        ignore_missing = false,
+        hidden = { "<silent>", "<cmd>", "<Cmd>", "<CR>", "call", "lua", "^:", "^ " },
+        show_help = true,
+        show_keys = true,
+        triggers = "auto",
+        -- Add custom labels with icons
+        triggers_blacklist = {
+          i = { "j", "k" },
+          v = { "j", "k" },
+        },
+      })
+
+      -- Add custom groups with icons
+      local wk = require("which-key")
+      wk.register({
+        ["<leader>f"] = { name = "󰈬 Files/Find" },
+        ["<leader>b"] = { name = "󰓥 Buffers" },
+        ["<leader>w"] = { name = "󰘥 Windows" },
+        ["<leader>g"] = { name = "󰑲 Git" },
+        ["<leader>h"] = { name = "󰉧 Harpoon" },
+        ["<leader>t"] = { name = "󰄿 Toggle" },
+        ["<leader>c"] = { name = "󰈨 Code" },
+        ["<leader>d"] = { name = "󰐅 Debug" },
+        ["<leader>s"] = { name = "󰁰 Session" },
+        ["<leader>r"] = { name = "󰒀 Refactor" },
+      })
     end,
   },
   {
@@ -691,6 +749,9 @@ require("lazy").setup({
     },
   },
 })
+
+-- Load additional configurations
+pcall(require, "config.image_preview").setup()
 
 vim.cmd [[
   echo "Neovim loaded with 30+ themes, UI plugins, editor tools, and LSP support"

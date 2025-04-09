@@ -60,6 +60,20 @@ map("n", "<leader>q", ":q<CR>", { desc = "Quit" })
 map("n", "<leader>Q", ":qa!<CR>", { desc = "Force quit all" })
 map("n", "<leader>ba", ":wa<CR>", { desc = "Save all buffers" })
 
+-- Select All / Copy / Cut / Paste
+map("n", "<D-a>", "ggVG", { desc = "Select all text" })
+map("v", "<D-a>", "<Esc>ggVG", { desc = "Select all text" })
+map("i", "<D-a>", "<Esc>ggVG", { desc = "Select all text" })
+
+-- macOS-like copy/cut/paste (with Cmd key)
+map("n", "<D-c>", "\"+y", { desc = "Copy to system clipboard" })
+map("v", "<D-c>", "\"+y", { desc = "Copy to system clipboard" })
+map("n", "<D-x>", "\"+d", { desc = "Cut to system clipboard" })
+map("v", "<D-x>", "\"+d", { desc = "Cut to system clipboard" })
+map("n", "<D-p>", "\"+p", { desc = "Paste from system clipboard" })
+map("v", "<D-p>", "\"+p", { desc = "Paste from system clipboard" })
+map("i", "<D-p>", "<C-r>+", { desc = "Paste from system clipboard" })
+
 -- Telescope
 map("n", "<leader>ff", ":Telescope find_files<CR>", { desc = "Find files" })
 map("n", "<leader>fg", ":Telescope live_grep<CR>", { desc = "Live grep" })

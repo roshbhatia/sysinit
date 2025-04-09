@@ -42,6 +42,7 @@ let
     "kubectl"
     "kubecolor"
     "k9s"
+    "lazygit"
     "libgit2"
     "nushell"
     "pipx"
