@@ -53,6 +53,7 @@ let
     "socat"
     "sshpass"
     "tailscale"
+    "task"
     "yazi"
   ];
 
