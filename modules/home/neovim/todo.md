@@ -42,14 +42,14 @@
 
 1. **Dependency Resolution**
    - [x] Basic module loading
-   - [ ] Module dependency graph implementation
+   - [x] Module dependency graph implementation
    - [ ] Topological sort for load order
    - [ ] Plugin-level dependency tracking
    - [ ] Conflict detection
 
 2. **State Management**
-   - [ ] Module state interface
-   - [ ] Global state store
+   - [x] Module state interface
+   - [x] Global state store
    - [ ] State persistence layer
    - [ ] Module communication bus
 
