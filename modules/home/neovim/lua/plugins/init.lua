@@ -487,10 +487,34 @@ return {
     },
   },
   
+  -- Markdown Preview
+  {
+    "iamcco/markdown-preview.nvim",
+    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+    ft = { "markdown" },
+    build = function() vim.fn["mkdp#util#install"]() end,
+    keys = {
+      { "<leader>mp", "<cmd>MarkdownPreviewToggle<CR>", desc = "Toggle Markdown Preview" },
+    },
+    config = function()
+      vim.g.mkdp_auto_start = 0
+      vim.g.mkdp_auto_close = 1
+      vim.g.mkdp_refresh_slow = 0
+      vim.g.mkdp_open_to_the_world = 0
+      vim.g.mkdp_browser = ''
+      vim.g.mkdp_echo_preview_url = 1
+      vim.g.mkdp_page_title = '${name}'
+    end,
+  },
+  
   -- Import other plugin modules
   require("plugins.ui"),
   require("plugins.editor"),
   require("plugins.lsp"),
   require("plugins.coding"),
   require("plugins.tools"),
+  require("plugins.lazy-close"),
+  require("plugins.indent"),
+  require("plugins.which-key-fancy"),
+  require("plugins.no-notify"),
 }

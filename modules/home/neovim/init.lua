@@ -30,11 +30,34 @@ if not options_ok then
   vim.opt.showmode = true
   vim.opt.hidden = true
   vim.opt.lazyredraw = false     -- Explicitly disable lazyredraw for noice.nvim compatibility
+  vim.opt.shada = "'1000,f1,<500,:100,/100,h"  -- Fix for startify viminfo
   
   print("Using fallback options (core.options not loaded)")
 end
 
 vim.g.mapleader = " "
+
+-- Fix for startify
+vim.g.startify_session_dir = vim.fn.stdpath("data") .. "/sessions"
+vim.g.startify_session_autoload = 1
+vim.g.startify_session_persistence = 1
+vim.g.startify_session_delete_buffers = 1
+vim.g.startify_skiplist = {"COMMIT_EDITMSG"}
+vim.g.startify_enable_special = 0
+vim.g.startify_custom_indices = {'a', 'b', 'c', 'd', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'}
+
+-- Add keymap for toggle modifiable
+vim.keymap.set('n', '<leader>tm', function()
+  vim.opt.modifiable = not vim.opt.modifiable:get()
+  print("Modifiable: " .. (vim.opt.modifiable:get() and "ON" or "OFF"))
+end, { desc = "Toggle modifiable" })
+
+-- For macOS users - fix cmd+a
+if vim.fn.has('mac') == 1 then
+  vim.keymap.set('n', '<D-a>', 'ggVG', { noremap = true, silent = true, desc = "Select all text" })
+  vim.keymap.set('i', '<D-a>', '<Esc>ggVG', { noremap = true, silent = true, desc = "Select all text" })
+  vim.keymap.set('v', '<D-a>', 'ggVG', { noremap = true, silent = true, desc = "Select all text" })
+end
 
 local keymaps_ok, _ = pcall(require, "core.keymaps")
 if not keymaps_ok then
@@ -48,6 +71,15 @@ end
 local autocmd_ok, _ = pcall(require, "core.autocmds")
 if not autocmd_ok then
   print("Note: core.autocmds not loaded (this is normal for initial testing)")
+  
+  -- Add autocmd for lazy.nvim dialog
+  vim.api.nvim_create_autocmd("FileType", {
+    pattern = {"lazy", "help"},
+    callback = function()
+      vim.keymap.set("n", "q", "<cmd>close<CR>", { buffer = true, noremap = true, silent = true })
+      vim.keymap.set("n", "<Esc>", "<cmd>close<CR>", { buffer = true, noremap = true, silent = true })
+    end,
+  })
 end
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -395,48 +427,7 @@ require("lazy").setup({
   },
   {
     "folke/noice.nvim",
-    event = "VeryLazy",
-    dependencies = {
-      "MunifTanjim/nui.nvim",
-      "rcarriga/nvim-notify",
-    },
-    config = function()
-      require("noice").setup({
-        lsp = {
-          override = {
-            ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
-            ["vim.lsp.util.stylize_markdown"] = true,
-          },
-        },
-        cmdline = {
-          format = {
-            search_down = {
-              view = "cmdline",
-            },
-            search_up = {
-              view = "cmdline",
-            },
-          },
-        },
-        views = {
-          cmdline_popup = {
-            border = {
-              style = "none",
-              padding = { 2, 3 },
-            },
-            filter_options = {},
-            win_options = {
-              winhighlight = "NormalFloat:NormalFloat,FloatBorder:FloatBorder",
-            },
-          },
-        },
-        presets = {
-          bottom_search = true,
-          command_palette = true,
-          long_message_to_split = true,
-        },
-      })
-    end,
+    enabled = false, -- Disabled in favor of our custom config in plugins/no-notify.lua
   },
   
   {
@@ -527,8 +518,10 @@ require("lazy").setup({
     priority = 100,
     config = function()
       -- Load the custom Startify configuration
-      local startify_ok, _ = pcall(require, "config.startify")
-      if not startify_ok then
+      local startify_ok, startify = pcall(require, "config.startify")
+      if startify_ok then
+        startify.setup()
+      else
         -- Basic startify config if custom module fails
         vim.g.startify_session_dir = vim.fn.stdpath("data") .. "/sessions"
         vim.g.startify_session_autoload = 1
@@ -540,8 +533,7 @@ require("lazy").setup({
         vim.g.startify_padding_left = 3
       
         -- Use vim commands directly to configure Startify
-        vim.cmd([[
-          function! s:gitModified()
+        vim.cmd([[function! s:gitModified()
             let files = systemlist('git ls-files -m 2>/dev/null')
             return map(files, "{'line': v:val, 'path': v:val}")
           endfunction
@@ -553,7 +545,7 @@ require("lazy").setup({
 
           function! s:listRepos()
             let output = []
-            let repos = systemlist('find ~/github/personal/*/. ~/github/work/*/. -maxdepth 0 -type d 2>/dev/null')
+            let repos = systemlist('find ~/github/personal/*/. -maxdepth 1 -type d 2>/dev/null')
             for repo in repos
               let reponame = fnamemodify(repo, ':h:t') . '/' . fnamemodify(repo, ':t')
               call add(output, {'line': '  ' . reponame, 'path': repo})
@@ -563,6 +555,7 @@ require("lazy").setup({
           
           let g:startify_lists = [
               \ { 'type': 'dir',       'header': ['   Current Directory:'] },
+              \ { 'type': 'files',     'header': ['   Recent Files:'] },
               \ { 'type': 'sessions',  'header': ['   Sessions'] },
               \ { 'type': 'bookmarks', 'header': ['   Bookmarks'] },
               \ { 'type': 'commands',  'header': ['   Commands'] },
@@ -578,20 +571,6 @@ require("lazy").setup({
           "⠀⠀⠀⠀⠀⠀⠈⣾⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
           "⠀⠀⠀⠀⠀⠀⠀⢸⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
           "⠀⠀⠀⠀⠀⠀⠀⣈⣼⣄⣠⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
-          "⠀⠀⠀⠀⠀⠀⠉⠑⢷⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
-          "⠀⠀⠀⠀⠀⠀⠀⠀⣼⣐⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
-          "⠀⠀⠀⠀⠀⠀⠀⠀⠘⡚⢧⠀⠀⠀⢠⠀⠀⠀⠀⠀⠀⠀⠀⠀",
-          "⠀⠀⠀⠀⠀⠀⠀⠀⠀⢃⢿⡇⠀⠀⡾⡀⠀⠀⠀⠀⠀⠀⠀⠀",
-          "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠸⣇⠀⠀⠡⣰⠀⠀⠀⠀⠀⠀⠀⠀",
-          "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠇⣿⠀⢠⣄⢿⠇⠀⠀⠀⠀⠀⠀⠀",
-          "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⢸⡇⠜⣭⢸⡀⠀⠀⠀⠀⠀⠀⠀",
-          "⠀⠀⠀⠀⠀⠀⠀⠀⣼⠀⡙⣿⣿⠰⢫⠁⣇⠀⠀⠀⠀⠀⠀⠀",
-          "⠀⠀⠀⠀⠀⠀⠀⢰⣽⠱⡈⠋⠋⣤⡤⠳⠉⡆⠀⠀⠀⠀⠀⠀",
-          "⠀⠀⠀⠀⠀⠀⠀⡜⠡⠊⠑⠄⣠⣿⠃⠀⣣⠃⠀⠀⠀⠀⠀⠀",
-          "⠀⠀⠀⠀⠀⠐⣼⡠⠥⠊⡂⣼⢀⣤⠠⡲⢂⡌⡄⠀⠀⠀⠀⠀",
-          "⠀⠀⠀⠀⣀⠝⡛⢁⡴⢉⠗⠛⢰⣶⣯⢠⠺⠀⠈⢥⠰⡀⠀⠀",
-          "⠀⣠⣴⢿⣿⡟⠷⠶⣶⣵⣲⡀⣨⣿⣆⡬⠖⢛⣶⣼⡗⠈⠢⠀",
-          "⢰⣹⠭⠽⢧⠅⢂⣳⠛⢿⡽⣿⢿⡿⢟⣟⡻⢾⣿⣿⡤⢴⣶⡃",
         }
       end
     end,
@@ -751,8 +730,10 @@ require("lazy").setup({
 })
 
 -- Load additional configurations
-pcall(require, "config.image_preview").setup()
+local image_preview_ok, image_preview = pcall(require, "config.image_preview")
+if image_preview_ok then
+  image_preview.setup()
+end
 
-vim.cmd [[
-  echo "Neovim loaded with 30+ themes, UI plugins, editor tools, and LSP support"
-]]
+-- Silent startup
+vim.opt.shortmess:append("I")
