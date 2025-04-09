@@ -80,7 +80,7 @@ vim.opt.tabpagemax = 30
 -- Performance optimizations
 vim.opt.redrawtime = 1500                         -- Time in milliseconds for redrawing display
 vim.opt.ttyfast = true                            -- Faster terminal redrawing
-vim.opt.lazyredraw = true                         -- Don't redraw while executing macros
+-- vim.opt.lazyredraw = true                      -- Disabled: Causes issues with noice.nvim
 vim.opt.synmaxcol = 200                           -- Only highlight the first N cols
 vim.g.matchparen_timeout = 10                     -- Reduce matchparen timeout
 vim.g.matchparen_insert_timeout = 10              -- Reduce matchparen timeout in insert

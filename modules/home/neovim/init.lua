@@ -6,6 +6,23 @@ do
                  package.path
 end
 
+-- Set up system-specific configurations
+-- Handle Nix-specific settings
+if vim.fn.isdirectory('/nix') == 1 then
+  -- Set up parsers path for treesitter that's writable
+  -- This avoids the permission denied error in Nix store
+  vim.g.nix_system = true
+  -- Create a local directory for parsers that's writable
+  vim.opt.runtimepath:append(vim.fn.stdpath('data') .. '/treesitter')
+  vim.g.treesitter_parsers_path = vim.fn.stdpath('data') .. '/treesitter/parsers'
+  vim.cmd([[set rtp+=]] .. vim.fn.stdpath('data') .. '/treesitter')
+  
+  -- Create the directory if it doesn't exist
+  if vim.fn.isdirectory(vim.fn.stdpath('data') .. '/treesitter/parsers') == 0 then
+    vim.fn.mkdir(vim.fn.stdpath('data') .. '/treesitter/parsers', 'p')
+  end
+end
+
 -- PHASE 3: Add core modules
 -- Load core options and keymaps from modules
 -- Use pcall to ensure errors don't stop execution
@@ -103,11 +120,227 @@ require("lazy").setup({
   
   -- Import selected plugin modules
   -- Add more imports as we verify each one works
-  { import = "plugins.ui" },     -- UI elements
-  -- { import = "plugins.editor" }, -- Uncomment after UI plugins work
-  -- { import = "plugins.tools" },  -- Uncomment later
-  -- { import = "plugins.lsp" },    -- Uncomment later
-  -- { import = "plugins.coding" }, -- Uncomment later
+  
+  -- Use individual UI plugins instead of importing the whole module
+  -- This helps us avoid the treesitter plugins that have Nix-related issues
+  {
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    config = function()
+      require("which-key").setup({})
+    end,
+  },
+  {
+    "folke/noice.nvim",
+    event = "VeryLazy",
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+      "rcarriga/nvim-notify",
+    },
+    config = function()
+      require("noice").setup({
+        lsp = {
+          override = {
+            ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+            ["vim.lsp.util.stylize_markdown"] = true,
+          },
+        },
+        presets = {
+          bottom_search = true,
+          command_palette = true,
+          long_message_to_split = true,
+        },
+      })
+    end,
+  },
+  
+  -- Adding editor plugins
+  {
+    "nvim-tree/nvim-tree.lua", 
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    keys = {
+      { "<F2>", "<cmd>NvimTreeToggle<CR>", desc = "Toggle file explorer" },
+      { "<leader>e", "<cmd>NvimTreeToggle<CR>", desc = "Toggle file explorer" },
+    },
+    config = function()
+      require("nvim-tree").setup({
+        view = {
+          width = 35,
+        },
+        filters = {
+          dotfiles = false,
+        },
+      })
+    end,
+  },
+  
+  -- Auto pairs
+  {
+    "windwp/nvim-autopairs",
+    event = "InsertEnter",
+    config = function()
+      require("nvim-autopairs").setup({})
+    end,
+  },
+  
+  -- Comment.nvim for easy commenting
+  {
+    "numToStr/Comment.nvim",
+    event = "VeryLazy",
+    config = function()
+      require("Comment").setup()
+    end,
+  },
+  
+  -- Adding basic tool plugins
+  {
+    "nvim-telescope/telescope.nvim",
+    dependencies = { 
+      "nvim-lua/plenary.nvim",
+    },
+    keys = {
+      { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find files" },
+      { "<leader>fg", "<cmd>Telescope live_grep<cr>", desc = "Find text" },
+      { "<leader>fb", "<cmd>Telescope buffers<cr>", desc = "Find buffers" },
+      { "<leader>fh", "<cmd>Telescope help_tags<cr>", desc = "Find help" },
+      { "<C-p>", "<cmd>Telescope find_files<cr>", desc = "Find files (Ctrl+P)" },
+    },
+    config = function()
+      require("telescope").setup({
+        defaults = {
+          mappings = {
+            i = {
+              ["<C-j>"] = "move_selection_next",
+              ["<C-k>"] = "move_selection_previous",
+            },
+          },
+        },
+      })
+    end,
+  },
+
+  -- Git integration
+  {
+    "lewis6991/gitsigns.nvim",
+    event = "BufReadPre",
+    config = function()
+      require("gitsigns").setup()
+    end,
+  },
+
+  -- Terminal integration
+  {
+    "akinsho/toggleterm.nvim",
+    keys = {
+      { "<C-\\>", "<cmd>ToggleTerm<cr>", desc = "Toggle terminal" },
+    },
+    config = function()
+      require("toggleterm").setup({
+        open_mapping = [[<C-\>]],
+        direction = "float",
+      })
+    end,
+  },
+
+  -- Basic LSP Support
+  {
+    "neovim/nvim-lspconfig",
+    dependencies = {
+      "williamboman/mason.nvim",
+      "williamboman/mason-lspconfig.nvim",
+    },
+    config = function()
+      -- Set up Mason first
+      require("mason").setup({
+        ui = {
+          border = "rounded",
+          icons = {
+            package_installed = "✓",
+            package_pending = "➜",
+            package_uninstalled = "✗"
+          }
+        }
+      })
+      
+      -- Configure Mason-LSPConfig
+      require("mason-lspconfig").setup({
+        ensure_installed = {
+          "lua_ls", -- Only install one basic server for now
+        },
+        automatic_installation = true,
+      })
+      
+      -- Basic key mappings for LSP
+      vim.keymap.set('n', 'gd', vim.lsp.buf.definition, {})
+      vim.keymap.set('n', 'K', vim.lsp.buf.hover, {})
+      vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, {})
+      
+      -- Setup specific LSP servers
+      local lspconfig = require('lspconfig')
+      lspconfig.lua_ls.setup({
+        settings = {
+          Lua = {
+            diagnostics = {
+              globals = { 'vim' }
+            }
+          }
+        }
+      })
+    end,
+  },
+  
+  -- Autocompletion
+  {
+    "hrsh7th/nvim-cmp",
+    dependencies = {
+      "hrsh7th/cmp-nvim-lsp",
+      "hrsh7th/cmp-buffer",
+      "hrsh7th/cmp-path",
+      "hrsh7th/cmp-cmdline",
+      "L3MON4D3/LuaSnip",
+      "saadparwaiz1/cmp_luasnip",
+    },
+    config = function()
+      local cmp = require('cmp')
+      local luasnip = require('luasnip')
+      
+      cmp.setup({
+        snippet = {
+          expand = function(args)
+            luasnip.lsp_expand(args.body)
+          end,
+        },
+        mapping = cmp.mapping.preset.insert({
+          ['<C-Space>'] = cmp.mapping.complete(),
+          ['<CR>'] = cmp.mapping.confirm({ select = true }),
+          ['<Tab>'] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_next_item()
+            elseif luasnip.expand_or_jumpable() then
+              luasnip.expand_or_jump()
+            else
+              fallback()
+            end
+          end, { 'i', 's' }),
+          ['<S-Tab>'] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_prev_item()
+            elseif luasnip.jumpable(-1) then
+              luasnip.jump(-1)
+            else
+              fallback()
+            end
+          end, { 'i', 's' }),
+        }),
+        sources = cmp.config.sources({
+          { name = 'nvim_lsp' },
+          { name = 'luasnip' },
+          { name = 'buffer' },
+          { name = 'path' },
+        }),
+      })
+    end,
+  }
 }, {
   ui = {
     -- Make sure the UI shows up
@@ -142,7 +375,7 @@ require("lazy").setup({
 
 -- Status message
 vim.cmd [[
-  echo "PHASE 4: Neovim with core modules and UI plugins loaded"
+  echo "Neovim configuration loaded with UI, editor, tools, and LSP support"
 ]]
 
 -- Exit automatically in headless mode after config is loaded
