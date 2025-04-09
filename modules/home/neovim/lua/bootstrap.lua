@@ -18,11 +18,22 @@ vim.keymap.set("n", "<leader>0", ":Lazy<CR>", { noremap = true, silent = true, d
 
 -- Initialize Lazy.nvim
 require("lazy").setup({
-  -- Example plugin (add your plugins here)
-  {
-    "nvim-treesitter/nvim-treesitter",
-    run = ":TSUpdate",
-  },
+  { import = "plugins.colorscheme" },
+  { import = "plugins.which-key" },
+  { import = "plugins.nvim-tree" },
+  { import = "plugins.lualine" },
+  { import = "plugins.telescope" },
+  { import = "plugins.treesitter" },
+  { import = "plugins.lsp" },
+  { "nvim-tree/nvim-web-devicons" },
+  -- Add more plugins here as needed
+})
+
+-- Automatically run Lazy sync on startup
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = function()
+    require("lazy").sync() -- Use Lua function instead of Vim command
+  end,
 })
 
 print("Lazy.nvim setup complete")
