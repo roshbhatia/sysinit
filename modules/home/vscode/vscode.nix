@@ -7,7 +7,7 @@
   };
 
   home.file = {
-    "Library/Application Support/Code - Insiders/User/keybindings.json".source = ./keybindings.json;
-    "Library/Application Support/Code - Insiders/User/settings.json".source = ./settings.json;
+    "Library/Application Support/Code - Insiders/User/keybindings.json".source = ./config/keybindings.json;
+    "Library/Application Support/Code - Insiders/User/settings.json".source = ./config/settings.json;
   };
 }
