@@ -1,21 +1,25 @@
 { config, pkgs, lib, inputs, username, homeDirectory, userConfig ? {}, ... }: {
   imports = [
-    ./atuin/atuin.nix
-    ./colima/colima.nix
-    ./git/git.nix
-    ./k9s/k9s.nix
-    ./macchina/macchina.nix
-    ./neovim/neovim.nix
-    ./nushell/nushell.nix
-    ./starship/starship.nix
-    ./wezterm/wezterm.nix
-    ./zsh/zsh.nix
+    # initial
     ./packages.nix
     ./npm.nix
     ./pipx.nix
-    ./aerospace/aerospace.nix
+    ./zsh/zsh.nix
     ./config-extras.nix
     ./paths.nix
+    ./git/git.nix
+
+    ./atuin/atuin.nix
+    ./colima/colima.nix
+
+    ./aerospace/aerospace.nix
+    ./k9s/k9s.nix
+    ./macchina/macchina.nix
+    # ./neovim/neovim.nix
+    ./nushell/nushell.nix
+    ./starship/starship.nix
+    ./vscode/vscode.nix
+    ./wezterm/wezterm.nix
   ];
 
   # Home Manager needs a bit of information about you and the paths it should manage

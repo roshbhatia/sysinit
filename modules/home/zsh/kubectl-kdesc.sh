@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # kubectl-kdesc: Advanced Kubernetes Resource Browser
 # Install in PATH as 'kubectl-kdesc' to use as 'kubectl kdesc'
+# shellcheck disable=all
 
 # 888      .d888         .d888 
 # 888     d88P"         d88P"  
@@ -24,9 +25,7 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
-MAGENTA='\033[0;35m'
 CYAN='\033[0;36m'
-WHITE='\033[0;37m'
 RESET='\033[0m'
 
 # Resource emoji mappings for visual identification
