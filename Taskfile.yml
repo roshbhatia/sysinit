@@ -85,19 +85,6 @@ tasks:
       Run with temporary runtime directory:
         task nvim-run-local
 
-  nvim-run-docker:
-    desc: Run Neovim configuration in a fresh Docker container
-    cmds:
-      - echo "Building Docker container to test Neovim configuration..."
-      - docker build -t neovim-test -f Dockerfile.neovim .
-      - echo "Running Neovim in container. Exit with :q"
-      - >
-        docker run --rm -it 
-        -e TERM=xterm-256color 
-        -e COLORTERM=truecolor 
-        neovim-test
-      - echo "Docker test completed"
-
   refresh-work:
     desc: Update and rebuild work sysinit configuration
     cmds:
@@ -136,43 +123,3 @@ tasks:
       - echo "Uninstalling Nix..."
       - ./uninstall-nix.sh
       - echo "Nix uninstalled"
-
-  nvim-test-module:
-    desc: Run interactive tests for a specific module
-    silent: true
-    vars:
-      PERSISTENT_DIR: '/tmp/sysinit-nvim-persistent'
-    cmds:
-      - |
-        RUNTIME_DIR=$(mktemp -d /tmp/nvim-runtime-XXXXXX)
-        mkdir -p ${RUNTIME_DIR}/nvim/lazy
-        chmod -R 755 ${RUNTIME_DIR}
-      - echo "Starting interactive module test..."
-      - >
-        export NVIM_RUNTIME_DIR=${RUNTIME_DIR} &&
-        cd {{.ROOT_DIR}}/modules/home/neovim &&
-        nvim --headless -u init.lua --cmd "set runtimepath+=${PWD}" 
-        -c "lua require('core.test').run_interactive_test('{{.CLI_ARGS}}')"
-        -c "echo 'Use :TestPass <num> or :TestFail <num> to mark test results'"
-      - echo "Test completed"
-      - rm -rf $NVIM_RUNTIME_DIR
-
-  nvim-health:
-    desc: Run health checks for all modules
-    silent: true
-    vars:
-      PERSISTENT_DIR: '/tmp/sysinit-nvim-persistent'
-    cmds:
-      - |
-        RUNTIME_DIR=$(mktemp -d /tmp/nvim-runtime-XXXXXX)
-        mkdir -p ${RUNTIME_DIR}/nvim/lazy
-        chmod -R 755 ${RUNTIME_DIR}
-      - echo "Running health checks..."
-      - >
-        export NVIM_RUNTIME_DIR=${RUNTIME_DIR} &&
-        cd {{.ROOT_DIR}}/modules/home/neovim &&
-        nvim --headless -u init.lua --cmd "set runtimepath+=${PWD}" 
-        -c "lua for name in pairs(require('core.test').health_checks) do require('core.test').run_health_check(name) end"
-        -c "checkhealth"
-      - echo "Health checks completed"
-      - rm -rf $NVIM_RUNTIME_DIR
