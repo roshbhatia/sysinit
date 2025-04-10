@@ -8,6 +8,13 @@
     syntaxHighlighting.enable = true;
     historySubstringSearch.enable = true;
     autosuggestion.enable = true;
+    
+    completionInit = ''
+      # Add Homebrew completions to fpath
+      if [ -d "/opt/homebrew/share/zsh/site-functions" ]; then
+        fpath=(/opt/homebrew/share/zsh/site-functions $fpath)
+      fi
+    '';
 
     history = {
       size = 50000;
