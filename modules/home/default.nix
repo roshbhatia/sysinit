@@ -2,8 +2,8 @@
   imports = [
     # initial
     ./packages.nix
-    ./npm.nix
-    ./pipx.nix
+    ./npm/npm.nix
+    ./pipx/pipx.nix
     ./zsh/zsh.nix
     ./config-extras.nix
     ./paths.nix
