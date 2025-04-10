@@ -14,10 +14,10 @@ vim.g.maplocalleader = " "
 
 -- Import modules
 local vscode = require('vscode')
-local modes = require('config.modes')
-local keybindings = require('config.keybindings')
-local utils = require('config.utils')
-local mappings = require('config.mappings')
+local modes = require('modes')
+local keybindings = require('keybindings')
+local utils = require('utils')
+local mappings = require('mappings')
 
 -- Performance options
 vim.opt.ttimeoutlen = 0
