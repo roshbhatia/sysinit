@@ -1,127 +1,51 @@
-# Neovim Configuration Roadmap
+# Neovim Configuration Todo
 
-## Migration Checklist
+## Remaining Tasks
 
-- [x] Core Module System
-  - [x] Module Registration
-  - [x] Plugin Management
-  - [x] Test Framework
-  - [x] Health Checks
-  - [x] Verification System
+### Module System
+- Add performance monitoring for plugin and module loading
 
-- [x] Layout Module
-  - [x] Panel System
-  - [x] WezTerm Integration
-  - [x] Tests & Verification
+### Keybindings Module
+- Add more specialized Hydra modal interfaces for common operations
+- Consider implementing a command history view
 
-- [x] Theme Module
-  - [x] Theme Management
-  - [x] Tests & Verification
-  - [ ] Color Scheme API
-  - [ ] Theme Preview System
+### Completion & LSP
+- Expand language-specific LSP configurations
+- Add more intelligent snippet suggestions
+- Consider additional LSP servers for specialized languages
+- Add support for automatic symbol documentation
 
-- [ ] Keybindings Module
-  - [x] Legendary Integration
-  - [x] Which-key Integration
-  - [ ] Mode-specific Bindings
-  - [ ] Context-aware Keymaps
+### Editor Features
+- Add specialized project management features
+- Implement workspace-specific settings
+- Consider integrating more language-specific tools
 
-- [ ] Completion & LSP
-  - [ ] LSP Configuration
-  - [ ] Completions Setup
-  - [ ] Snippets Integration
-  - [ ] Tests & Verification
+### Testing
+- Implement E2E test harness
+- Add benchmark tests for core operations
+- Create more comprehensive test coverage
 
-- [ ] Editor Features
-  - [ ] File Navigation
-  - [ ] Search & Replace
-  - [ ] Git Integration
-  - [ ] Tests & Verification
+### UI Enhancements
+- Add more statusline customization options
+- Consider implementing custom notifier with action buttons
+- Add dashboard enhancements and quick action menu
 
-## Module System Improvements Needed
+## Recently Completed
 
-1. **Dependency Resolution**
-   - [x] Basic module loading
-   - [x] Module dependency graph implementation
-   - [ ] Topological sort for load order
-   - [ ] Plugin-level dependency tracking
-   - [ ] Conflict detection
+- ✅ Core Module System with dependency resolution
+- ✅ State Management interface with persistence
+- ✅ Module dependency graph with topological sort
+- ✅ Comprehensive Theme Module with preview system
+- ✅ Keybindings Module with context-aware mappings
+- ✅ LSP Configuration and completion setup
+- ✅ Editor feature module with file navigation, search, and Git integration
+- ✅ Validation tools and health checks
+- ✅ Basic test framework
 
-2. **State Management**
-   - [x] Module state interface
-   - [x] Global state store
-   - [ ] State persistence layer
-   - [ ] Module communication bus
+## Long-term Ideas
 
-3. **Testing Infrastructure**
-   - [ ] E2E test harness
-
-## Immediate Tasks (Priority Order)
-
-1. Implement module dependency graph
-2. Add state management interface
-3. Setup basic test framework
-4. Migrate LSP configuration
-5. Add performance monitoring
-
-## Plugin Analysis & Alternatives
-
-| Current Plugin | Modern Alternative | Justification | Migration Priority |
-|----------------|-------------------|---------------|-------------------|
-| oil.nvim | mini.files | Lighter, faster, better maintained | Low |
-| legendary.nvim | hydra.nvim | More modern approach to keymaps, better modal support | Medium |
-| neominimap.nvim | aerial.nvim | Better code outline support, maintained | High |
-| themery.nvim | appearances.nvim | Real-time preview, better API | Low |
-| which-key.nvim | No change | Still best-in-class | N/A |
-
-## Module Dependencies
-
-```mermaid
-graph TD
-    A[Core] --> B[Keybindings]
-    A --> C[Theme]
-    B --> D[Layout]
-    D --> E[Editor Features]
-    B --> F[Completion/LSP]
-```
-
-## Chat Reset Information
-
-If starting a fresh chat is needed, use this prompt:
-
-```
-
-This project dir is located at: `github/personal/roshbhatia/sysinit`.
-
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
-NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
-"OPTIONAL" in this document are to be interpreted as described in
-RFC 2119.
-
-You are a principal software engineer experienced in platform engineering and development tools.
-  
-I'm working on modularizing my Neovim config. Current structure:
-- Core module system for plugin/test management
-- Layout module for panel/window management
-- Theme module for colorscheme management
-- Keybinding module using legendary.nvim
-
-Looking to:
-1. Migrate remaining plugins to module system
-2. Improve test coverage and verification
-3. Implement proper dependency management
-
-Current files:
-/modules/home/neovim/
-
-Please help continue the migration focusing on the individual tasks.
-
-To be successful you:
-- You MUST be concise.
-- You SHOULD NOT include unneeded comments when adding or removing code.
-- You MUST make incremental changes for units of functionality. 
-- You SHOULD write code in a modular, extensible fashion using common deisgn patterns and prinicipals such as the open-close principal.
-- You MUST ensure there's no breakages in existing functionality when making changes to APIs.
-- You SHOULD ensure that code is tested, unless directed not to.
-- You MUST wait for confirmation for me to validate the incremental changes.
-```
+- Consider creating a system for user-specific configuration overrides
+- Explore ways to make the config more cross-platform friendly
+- Look into profile-based setups (e.g., different configurations for different tasks)
+- Consider creating a UI for configuration management
+- Explore integration with external tools like AI assistants or language servers
