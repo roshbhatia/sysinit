@@ -90,6 +90,9 @@ graph TD
 If starting a fresh chat is needed, use this prompt:
 
 ```
+
+This project dir is located at: `github/personal/roshbhatia/sysinit`.
+
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
 NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
 "OPTIONAL" in this document are to be interpreted as described in
