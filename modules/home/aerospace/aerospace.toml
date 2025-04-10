@@ -157,3 +157,4 @@ automatically-unhide-macos-hidden-apps = false
     r = ['flatten-workspace-tree', 'mode main'] # reset layout
     f = ['layout floating tiling', 'mode main'] # Toggle between floating and tiling layout
     backspace = ['close-all-windows-but-current', 'mode main']
+    R = 'exec-and-forget launchctl kickstart -k bokko.aerospace'
