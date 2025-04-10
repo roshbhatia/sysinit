@@ -3,14 +3,35 @@
 
 local M = {}
 
--- Initialize and load the core system
+-- Initialize the core system and get plugin specs
 function M.init()
-  -- Initialize core module
-  local core = require("core")
-  core.init()
+  -- First require core
+  local ok, core = pcall(require, "core")
+  if not ok then
+    vim.notify("Failed to load core module: " .. core, vim.log.levels.ERROR)
+    return {}
+  end
   
-  -- Return plugin specs for lazy.nvim
+  -- Initialize if available
+  if core and type(core.init) == "function" then
+    core.init()
+  else
+    vim.notify("Core module does not have init function", vim.log.levels.ERROR)
+    return {}
+  end
+  
+  -- Return plugin specs
   return core.get_plugin_specs()
+end
+
+-- Get plugin specs safely
+function M.get_plugin_specs()
+  local ok, specs = pcall(M.init)
+  if not ok then
+    vim.notify("Error getting plugin specs: " .. specs, vim.log.levels.ERROR)
+    return {}
+  end
+  return specs
 end
 
 -- Setup and configure lazy.nvim
@@ -34,7 +55,7 @@ function M.setup_lazy()
   vim.opt.rtp:prepend(lazypath)
   
   -- Configure lazy.nvim
-  require("lazy").setup(M.init(), {
+  require("lazy").setup(M.get_plugin_specs(), {
     install = {
       colorscheme = { "gruvbox", "habamax" },
     },
@@ -249,7 +270,8 @@ function M.bootstrap()
   M.setup_lazy()
   
   -- Setup colorscheme (will be handled by the theme module later)
-  vim.cmd("colorscheme gruvbox")
+  vim.cmd("colorscheme habamax") -- Use a fallback that's always available
+  pcall(vim.cmd, "colorscheme gruvbox") -- Try to load gruvbox
   
   -- Show success message
   vim.notify("Sysinit loaded successfully", vim.log.levels.INFO)
@@ -259,10 +281,15 @@ function M.bootstrap()
     vim.cmd("Lazy profile")
   end, {})
   
-  -- Register SysinitDocs command
+  -- Register SysinitDocs command - with proper error checking
   vim.api.nvim_create_user_command("SysinitDocs", function()
-    local core = require("core")
-    local modules = core.modules
+    local ok, core = pcall(require, "core")
+    if not ok then
+      vim.notify("Failed to load core module for docs", vim.log.levels.ERROR)
+      return
+    end
+    
+    local modules = core.modules or {}
     
     local lines = {"# Sysinit Documentation", "", "## Available Modules"}
     
@@ -292,9 +319,9 @@ function M.bootstrap()
         end
       end
       
-      -- Add module verification steps
-      local verify = require("core.verify")
-      if verify.verifications[name] then
+      -- Add module verification steps with error checking
+      local ok_verify, verify = pcall(require, "core.verify")
+      if ok_verify and verify.verifications and verify.verifications[name] then
         table.insert(lines, "")
         table.insert(lines, "Verification steps:")
         for _, step in ipairs(verify.verifications[name]) do
@@ -320,6 +347,36 @@ function M.bootstrap()
     -- Set mappings
     vim.api.nvim_buf_set_keymap(buf, "n", "q", ":tabclose<CR>", { noremap = true, silent = true })
   end, {})
+  
+  -- Create a fallback version of the core module if it fails to load
+  if not pcall(require, "core") then
+    vim.notify("Core module not found, creating fallback version", vim.log.levels.WARN)
+    
+    -- Create a minimal version of the core module
+    local fallback_core = {
+      modules = {},
+      plugin_specs = {},
+      _initialized = false,
+      
+      register = function(name, module)
+        if fallback_core.modules then
+          fallback_core.modules[name] = module
+        end
+        return fallback_core
+      end,
+      
+      init = function()
+        fallback_core._initialized = true
+        return fallback_core
+      end,
+      
+      get_plugin_specs = function()
+        return fallback_core.plugin_specs
+      end
+    }
+    
+    package.loaded.core = fallback_core
+  end
 end
 
 return M
