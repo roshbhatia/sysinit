@@ -1,64 +1,23 @@
 local M = {}
 
 function M.setup()
-  local wk = require("which-key")
-
-  -- Global which-key configuration
-  wk.setup({
-    -- Delay for showing which-key popup
-    triggers_blacklist = {
-      i = { "j", "k" },
-      v = { "j", "k" },
-    },
-    
-    -- Window configuration
-    window = {
+  require("which-key").setup({
+    win = { 
       border = "rounded",
-      position = "bottom",
-      margin = { 1, 0, 1, 0 },
-      padding = { 2, 2, 2, 2 },
+      width = 0.8,
+      height = 0.6,
     },
-    
-    -- Layout
-    layout = {
-      height = { min = 4, max = 25 },
-      width = { min = 20, max = 50 },
-      spacing = 3,
-      align = "left",
+    icons = {
+      breadcrumb = "»",
+      separator = "➜",
+      group = "+",
     },
-    
-    -- Ignore certain built-in keys
-    ignore_missing = false,
-    
-    -- Show help hint
-    show_help = true,
-    
-    -- Trigger on leader key
-    triggers = { "<leader>" },
-    
-    -- Preset configurations
-    presets = {
-      operators = true,
-      motions = true,
-      text_objects = true,
-      windows = true,
-      nav = true,
-      z = true,
-      g = true,
-    },
-  })
-
-  -- Global leader key groups
-  wk.register({
-    ["<leader>"] = {
-      f = { name = "+Find" },
-      g = { name = "+Git" },
-      w = { name = "+Windows" },
-      t = { name = "+Tabs" },
-      d = { name = "+Diagnostics" },
-      c = { name = "+Code" },
-      s = { name = "+Search" },
-      q = { name = "+Quit/Session" },
+    triggers = {
+      -- Blacklist specific keys in insert and visual modes
+      { mode = "i", keys = "j" },
+      { mode = "i", keys = "k" },
+      { mode = "v", keys = "j" },
+      { mode = "v", keys = "k" },
     }
   })
 end
