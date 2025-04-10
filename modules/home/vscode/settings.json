@@ -1,0 +1,118 @@
+{
+    "[html]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascript]": {
+      "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "[json]": {
+      "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[jsonc]": {
+      "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[python]": {
+      "editor.formatOnType": true
+    },
+    "chat.commandCenter.enabled": false,
+    "debug.javascript.autoAttachFilter": "smart",
+    "debug.onTaskErrors": "abort",
+    "diffEditor.codeLens": true,
+    "editor.accessibilitySupport": "off",
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit"
+    },
+    "editor.cursorBlinking": "phase",
+    "editor.cursorSmoothCaretAnimation": "on",
+    "editor.cursorStyle": "underline",
+    "editor.cursorWidth": 2,
+    "editor.fontFamily": "'Geist Mono', 'Symbols Nerd Font'",
+    "editor.fontLigatures": "'calt', 'liga', 'ss01', 'ss02', 'ss03', 'ss04', 'ss05', 'ss06', 'ss07', 'ss08', 'ss09'",
+    "editor.formatOnType": true,
+    "editor.glyphMargin": true,
+    "editor.inlineSuggest.enabled": true,
+    "editor.lineNumbers": "on",
+    "editor.minimap.autohide": true,
+    "editor.minimap.scale": 2,
+    "editor.minimap.showSlider": "always",
+    "editor.multiCursorModifier": "alt",
+    "editor.stickyScroll.enabled": true,
+    "editor.suggest.localityBonus": true,
+    "editor.suggest.preview": true,
+    "editor.suggestSelection": "first",
+    "extensions.ignoreRecommendations": true,
+    "files.associations": {
+      "*yaml.tmpl": "yaml"
+    },
+    "files.autoGuessEncoding": true,
+    "git.autofetch": true,
+    "git.autofetchPeriod": 15,
+    "git.autoStash": true,
+    "git.closeDiffOnOperation": true,
+    "git.confirmSync": false,
+    "git.enableCommitSigning": false,
+    "git.ignoreRebaseWarning": true,
+    "git.mergeEditor": true,
+    "git.openRepositoryInParentFolders": "always",
+    "git.replaceTagsWhenPull": true,
+    "github.branchProtection": true,
+    "github.copilot.advanced": {
+      "useLanguageServer": true
+    },
+    "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+    "github.copilot.chat.editor.temporalContext.enabled": true,
+    "github.copilot.chat.edits.temporalContext.enabled": true,
+    "github.copilot.chat.search.semanticTextResults": true,
+    "github.copilot.editor.enableAutoCompletions": true,
+    "ipynb.pasteImagesAsAttachments.enabled": false,
+    "javascript.updateImportsOnFileMove.enabled": "always",
+    "js/ts.implicitProjectConfig.experimentalDecorators": true,
+    "markdown.preview.typographer": true,
+    "mergeEditor.diffAlgorithm": "legacy",
+    "notebook.cellToolbarLocation": {
+      "default": "right",
+      "jupyter-notebook": "left"
+    },
+    "security.workspace.trust.untrustedFiles": "open",
+    "terminal.explorerKind": "external",
+    "terminal.external.osxExec": "Warp.app",
+    "terminal.integrated.customGlyphs": false,
+    "terminal.integrated.gpuAcceleration": "off",
+    "typescript.inlayHints.enumMemberValues.enabled": true,
+    "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
+    "typescript.inlayHints.parameterNames.enabled": "literals",
+    "typescript.inlayHints.parameterTypes.enabled": true,
+    "typescript.inlayHints.propertyDeclarationTypes.enabled": true,
+    "typescript.inlayHints.variableTypes.enabled": true,
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "typescript.preferences.includePackageJsonAutoImports": "on",
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "update.mode": "manual",
+    "window.commandCenter": false,
+    "window.titleBarStyle": "custom",
+    "workbench.activityBar.location": "top",
+    "workbench.colorCustomizations": {
+      "terminal.background": "#00000000",
+      "statusBar.background": "#005f5f",
+      "statusBar.noFolderBackground": "#005f5f",
+      "statusBar.debuggingBackground": "#005f5f",
+      "statusBar.foreground": "#ffffff",
+      "statusBar.debuggingForeground": "#ffffff"
+    },
+    "workbench.editor.editorActionsLocation": "titleBar",
+    "workbench.editorAssociations": {
+      "git-rebase-todo": "default"
+    },
+    "workbench.layoutControl.enabled": false,
+    "workbench.settings.applyToAllProfiles": [],
+    "workbench.startupEditor": "none",
+    "zenMode.silentNotifications": false,
+    "vscode_vibrancy.type": "under-window",
+    "vscode_vibrancy.preferedLightTheme": "Default Dark",
+    "extensions.experimental.affinity": {
+      "asvetliakov.vscode-neovim": 1
+    },
+    "vscode-neovim.neovimExecutablePaths.darwin": "nvim",
+    "vscode-neovim.neovimInitVimPaths.darwin": "~/github/personal/roshbhatia/sysinit/modules/home/vscode/init.lua",
+    "vscode-neovim.logOutputToConsole": true,
+  }
