@@ -12,6 +12,9 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-- Add the lua directory to the runtime path
+vim.opt.rtp:prepend(vim.fn.expand("~/github/personal/roshbhatia/sysinit/modules/home/neovim/lua"))
+
 -- Set leader key
 vim.g.mapleader = " "
 vim.g.maplocalleader = ","
@@ -68,12 +71,21 @@ vim.opt.completeopt = { "menuone", "noselect" }
 -- Collect plugin specs from modules
 local function collect_plugin_specs()
   local specs = {
+    -- Icon support
+    {
+      "nvim-tree/nvim-web-devicons",
+      lazy = true,
+    },
+    
     -- Global plugins
     {
       "mrjones2014/legendary.nvim",
       lazy = false,
       priority = 10000,
-      dependencies = { "folke/which-key.nvim" },
+      dependencies = { 
+        "folke/which-key.nvim",
+        "nvim-tree/nvim-web-devicons"
+      },
       config = function()
         require("legendary").setup({
           -- Legendary configuration
@@ -90,11 +102,25 @@ local function collect_plugin_specs()
     },
     {
       "folke/which-key.nvim",
-      lazy = true,
+      lazy = false,
       config = function()
         require("which-key").setup({
-          -- Which-key configuration
-          window = { border = "rounded" }
+          win = { 
+            border = "rounded",
+            width = 0.8,
+            height = 0.6,
+          },
+          icons = {
+            breadcrumb = "»",
+            separator = "➜",
+            group = "+",
+          },
+          triggers = {
+            { mode = "i", keys = "j" },
+            { mode = "i", keys = "k" },
+            { mode = "v", keys = "j" },
+            { mode = "v", keys = "k" },
+          }
         })
       end
     }
@@ -102,6 +128,11 @@ local function collect_plugin_specs()
   
   local modules = {
     "wezterm",
+    "comment",
+    "wilder",
+    "harpoon",
+    "heirline",
+    "hop"
     -- Add other modules as they are created
   }
   
@@ -122,6 +153,11 @@ require("lazy").setup(collect_plugin_specs())
 local function setup_modules()
   local modules = {
     "wezterm",
+    "comment",
+    "wilder",
+    "harpoon",
+    "heirline",
+    "hop"
     -- Add other modules as they are created
   }
   
