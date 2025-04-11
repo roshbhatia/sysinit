@@ -70,61 +70,8 @@ vim.opt.completeopt = { "menuone", "noselect" }
 
 -- Collect plugin specs from modules
 local function collect_plugin_specs()
-  local specs = {
-    -- Icon support
-    {
-      "nvim-tree/nvim-web-devicons",
-      lazy = true,
-    },
-    
-    -- Global plugins
-    {
-      "mrjones2014/legendary.nvim",
-      lazy = false,
-      priority = 10000,
-      dependencies = { 
-        "folke/which-key.nvim",
-        "nvim-tree/nvim-web-devicons"
-      },
-      config = function()
-        require("legendary").setup({
-          -- Legendary configuration
-          keymaps = {},
-          commands = {},
-          autocmds = {},
-          extensions = {
-            which_key = {
-              auto_register = true
-            }
-          }
-        })
-      end
-    },
-    {
-      "folke/which-key.nvim",
-      lazy = false,
-      config = function()
-        require("which-key").setup({
-          win = { 
-            border = "rounded",
-            width = 0.8,
-            height = 0.6,
-          },
-          icons = {
-            breadcrumb = "»",
-            separator = "➜",
-            group = "+",
-          },
-          triggers = {
-            { mode = "i", keys = "j" },
-            { mode = "i", keys = "k" },
-            { mode = "v", keys = "j" },
-            { mode = "v", keys = "k" },
-          }
-        })
-      end
-    }
-  }
+  local specs = {}
+  
   
   local modules = {
     "wezterm",
@@ -132,7 +79,17 @@ local function collect_plugin_specs()
     "wilder",
     "harpoon",
     "heirline",
-    "hop"
+    "hop",
+    "oil",
+    "telescope",
+    "carbonfox",
+    "bufferline",
+    "treesitter",
+    "trouble",
+    "which-key",
+    "legendary",
+    "devicons",
+    "lazy"
     -- Add other modules as they are created
   }
   
@@ -157,7 +114,17 @@ local function setup_modules()
     "wilder",
     "harpoon",
     "heirline",
-    "hop"
+    "hop",
+    "oil",
+    "telescope",
+    "carbonfox",
+    "bufferline",
+    "treesitter",
+    "trouble",
+    "which-key",
+    "legendary",
+    "devicons",
+    "lazy"
     -- Add other modules as they are created
   }
   
