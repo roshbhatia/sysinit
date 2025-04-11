@@ -75,18 +75,18 @@ function M.setup()
   -- Command Palette Commands
   local command_palette_commands = {
     {
+      "TSInstall",
       description = "Treesitter: Install Language",
-      command = "<cmd>TSInstall<CR>",
       category = "Treesitter"
     },
     {
+      "TSUpdate",
       description = "Treesitter: Update Parsers",
-      command = "<cmd>TSUpdate<CR>",
       category = "Treesitter"
     },
     {
+      "TSModuleInfo",
       description = "Treesitter: Show Language Info",
-      command = "<cmd>TSModuleInfo<CR>",
       category = "Treesitter"
     }
   }

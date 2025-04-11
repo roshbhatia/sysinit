@@ -101,38 +101,38 @@ function M.setup()
   -- Command Palette Commands
   local command_palette_commands = {
     {
+      "Telescope find_files",
       description = "Telescope: Find Files",
-      command = "<cmd>Telescope find_files<CR>",
       category = "Telescope"
     },
     {
+      "Telescope live_grep",
       description = "Telescope: Live Grep",
-      command = "<cmd>Telescope live_grep<CR>",
       category = "Telescope"
     },
     {
+      "Telescope buffers",
       description = "Telescope: Buffers",
-      command = "<cmd>Telescope buffers<CR>",
       category = "Telescope"
     },
     {
+      "Telescope help_tags",
       description = "Telescope: Help Tags",
-      command = "<cmd>Telescope help_tags<CR>",
       category = "Telescope"
     },
     {
+      "Telescope oldfiles",
       description = "Telescope: Recent Files",
-      command = "<cmd>Telescope oldfiles<CR>",
       category = "Telescope"
     },
     {
+      "Telescope commands",
       description = "Telescope: Commands",
-      command = "<cmd>Telescope commands<CR>",
       category = "Telescope"
     },
     {
+      "Telescope keymaps",
       description = "Telescope: Keymaps",
-      command = "<cmd>Telescope keymaps<CR>",
       category = "Telescope"
     }
   }

@@ -100,28 +100,28 @@ function M.setup()
   -- Command Palette Commands
   local command_palette_commands = {
     {
+      "TroubleToggle workspace_diagnostics",
       description = "Trouble: Toggle workspace diagnostics",
-      command = "<cmd>TroubleToggle workspace_diagnostics<CR>",
       category = "Diagnostics"
     },
     {
+      "TroubleToggle document_diagnostics",
       description = "Trouble: Toggle document diagnostics",
-      command = "<cmd>TroubleToggle document_diagnostics<CR>",
       category = "Diagnostics"
     },
     {
+      "TroubleToggle quickfix",
       description = "Trouble: Toggle quickfix list",
-      command = "<cmd>TroubleToggle quickfix<CR>",
       category = "Diagnostics"
     },
     {
+      "TroubleToggle loclist",
       description = "Trouble: Toggle location list",
-      command = "<cmd>TroubleToggle loclist<CR>",
       category = "Diagnostics"
     },
     {
+      "TroubleToggle lsp_references",
       description = "Trouble: Toggle LSP references",
-      command = "<cmd>TroubleToggle lsp_references<CR>",
       category = "Diagnostics"
     }
   }

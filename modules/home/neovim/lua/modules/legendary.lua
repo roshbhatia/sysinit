@@ -84,18 +84,18 @@ function M.setup()
   -- Command Palette Commands
   local command_palette_commands = {
     {
+      "Legendary",
       description = "Legendary: Open finder",
-      command = "<cmd>Legendary<CR>",
       category = "Legendary"
     },
     {
+      "Legendary keymaps",
       description = "Legendary: Show keymaps",
-      command = "<cmd>Legendary keymaps<CR>",
       category = "Legendary"
     },
     {
+      "Legendary commands",
       description = "Legendary: Show commands",
-      command = "<cmd>Legendary commands<CR>",
       category = "Legendary"
     }
   }

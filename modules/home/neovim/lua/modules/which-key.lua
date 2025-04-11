@@ -46,8 +46,8 @@ function M.setup()
   -- Command Palette Commands
   local command_palette_commands = {
     {
+      "WhichKey",
       description = "Which-key: Show help",
-      command = "<cmd>WhichKey<CR>",
       category = "Which-key"
     }
   }
