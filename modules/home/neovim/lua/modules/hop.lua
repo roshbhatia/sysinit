@@ -17,22 +17,34 @@ function M.setup()
   local hop = require('hop')
   local directions = require('hop.hint').HintDirection
 
-  -- Example keymaps
-  vim.keymap.set('', 'f', function()
-    hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = true })
-  end, {remap=true, desc = "Hop: Forward to char"})
-
-  vim.keymap.set('', 'F', function()
-    hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true })
-  end, {remap=true, desc = "Hop: Backward to char"})
-
-  vim.keymap.set('', 't', function()
-    hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = true, hint_offset = -1 })
-  end, {remap=true, desc = "Hop: Forward till char"})
-
-  vim.keymap.set('', 'T', function()
-    hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true, hint_offset = 1 })
-  end, {remap=true, desc = "Hop: Backward till char"})
+  -- Which-key bindings using V3 format
+  local wk = require("which-key")
+  wk.add({
+    {
+      "f",
+      function() hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = true }) end,
+      mode = { "n", "v", "o" },
+      desc = "Hop: Forward to char"
+    },
+    {
+      "F",
+      function() hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true }) end,
+      mode = { "n", "v", "o" },
+      desc = "Hop: Backward to char"
+    },
+    {
+      "t",
+      function() hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = true, hint_offset = -1 }) end,
+      mode = { "n", "v", "o" },
+      desc = "Hop: Forward till char"
+    },
+    {
+      "T",
+      function() hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true, hint_offset = 1 }) end,
+      mode = { "n", "v", "o" },
+      desc = "Hop: Backward till char"
+    }
+  })
 end
 
 return M

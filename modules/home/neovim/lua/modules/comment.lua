@@ -35,16 +35,29 @@ M.plugins = {
     config = function(_, opts)
       require("Comment").setup(opts)
 
-      -- Custom keymaps to avoid gc/gcc overlap
-      vim.keymap.set('n', '<leader>c', function()
-        require("Comment.api").toggle.linewise.current()
-      end, { desc = "Toggle comment line" })
-
-      vim.keymap.set('x', '<leader>c', function()
-        local esc = vim.api.nvim_replace_termcodes('<ESC>', true, false, true)
-        vim.api.nvim_feedkeys(esc, 'nx', false)
-        require("Comment.api").toggle.linewise(vim.fn.visualmode())
-      end, { desc = "Toggle comment" })
+      -- Which-key bindings using V3 format
+      local wk = require("which-key")
+      wk.add({
+        { "<leader>c", group = "Comment" },
+        {
+          "<leader>c",
+          function()
+            require("Comment.api").toggle.linewise.current()
+          end,
+          mode = "n",
+          desc = "Toggle comment line"
+        },
+        {
+          "<leader>c",
+          function()
+            local esc = vim.api.nvim_replace_termcodes('<ESC>', true, false, true)
+            vim.api.nvim_feedkeys(esc, 'nx', false)
+            require("Comment.api").toggle.linewise(vim.fn.visualmode())
+          end,
+          mode = "x",
+          desc = "Toggle comment"
+        }
+      })
     end,
   }
 }

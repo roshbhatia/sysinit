@@ -41,24 +41,12 @@ function M.setup()
     },
   })
 
-  -- Which-key bindings
-  local which_key_bindings = {
-    -- Original WezTerm bindings
-    {
-      "<leader>w",
-      group = "+WezTerm",
-      desc = "WezTerm Actions"
-    },
-    {
-      "<leader>wt",
-      "<cmd>WeztermSpawn htop<CR>",
-      desc = "Spawn htop in WezTerm"
-    },
-    {
-      "<leader>ws",
-      "<cmd>WeztermSplitPane<CR>",
-      desc = "Create WezTerm Split Pane"
-    },
+  -- Which-key bindings using V3 format
+  local wk = require("which-key")
+  wk.add({
+    { "<leader>w", group = "WezTerm" },
+    { "<leader>wt", "<cmd>WeztermSpawn htop<CR>", desc = "Spawn htop in WezTerm" },
+    { "<leader>ws", "<cmd>WeztermSplitPane<CR>", desc = "Create WezTerm Split Pane" },
     -- Smart-splits bindings
     {
       "<C-h>",

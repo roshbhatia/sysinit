@@ -19,10 +19,8 @@ vim.opt.rtp:prepend(vim.fn.expand("~/github/personal/roshbhatia/sysinit/modules/
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
-vim.g.have_nerd_font = true
-
--- System clipboard integration
-vim.opt.clipboard = "unnamedplus"
+-- Explicitly register which-key trigger for leader
+vim.keymap.set('n', '<Space>', '<NOP>')
 
 -- Basic editor settings
 vim.opt.number = true

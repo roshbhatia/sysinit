@@ -57,28 +57,13 @@ M.plugins = {
 function M.setup()
   local legendary = require("legendary")
   
-  -- Basic keymaps
-  local which_key_bindings = {
-    {
-      "<leader>l",
-      group = "+Legendary",
-      desc = "Legendary Actions"
-    },
-    {
-      "<leader>lf",
-      "<cmd>Legendary<CR>",
-      desc = "Open Legendary finder"
-    },
-    {
-      "<leader>lk",
-      "<cmd>Legendary keymaps<CR>",
-      desc = "Show all keymaps"
-    },
-    {
-      "<leader>lc",
-      "<cmd>Legendary commands<CR>",
-      desc = "Show all commands"
-    }
+  -- Basic keymaps using V3 format
+  local wk = require("which-key")
+  wk.add({
+    { "<leader>l", group = "Legendary" },
+    { "<leader>lf", "<cmd>Legendary<CR>", desc = "Open Legendary finder" },
+    { "<leader>lk", "<cmd>Legendary keymaps<CR>", desc = "Show all keymaps" },
+    { "<leader>lc", "<cmd>Legendary commands<CR>", desc = "Show all commands" }
   }
   
   -- Command Palette Commands

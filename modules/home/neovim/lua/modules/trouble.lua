@@ -63,38 +63,15 @@ M.plugins = {
 function M.setup()
   local legendary = require("legendary")
 
-  -- Which-key bindings
-  local which_key_bindings = {
-    {
-      "<leader>d",
-      group = "+Diagnostics",
-      desc = "Diagnostics Actions"
-    },
-    {
-      "<leader>dt",
-      "<cmd>TroubleToggle workspace_diagnostics<CR>",
-      desc = "Toggle workspace diagnostics"
-    },
-    {
-      "<leader>dd",
-      "<cmd>TroubleToggle document_diagnostics<CR>",
-      desc = "Toggle document diagnostics"
-    },
-    {
-      "<leader>dq",
-      "<cmd>TroubleToggle quickfix<CR>",
-      desc = "Toggle quickfix list"
-    },
-    {
-      "<leader>dl",
-      "<cmd>TroubleToggle loclist<CR>",
-      desc = "Toggle location list"
-    },
-    {
-      "<leader>dr",
-      "<cmd>TroubleToggle lsp_references<CR>",
-      desc = "Toggle LSP references"
-    }
+  -- Which-key bindings using V3 format
+  local wk = require("which-key")
+  wk.add({
+    { "<leader>d", group = "Diagnostics" },
+    { "<leader>dt", "<cmd>TroubleToggle workspace_diagnostics<CR>", desc = "Toggle workspace diagnostics" },
+    { "<leader>dd", "<cmd>TroubleToggle document_diagnostics<CR>", desc = "Toggle document diagnostics" },
+    { "<leader>dq", "<cmd>TroubleToggle quickfix<CR>", desc = "Toggle quickfix list" },
+    { "<leader>dl", "<cmd>TroubleToggle loclist<CR>", desc = "Toggle location list" },
+    { "<leader>dr", "<cmd>TroubleToggle lsp_references<CR>", desc = "Toggle LSP references" }
   }
 
   -- Command Palette Commands

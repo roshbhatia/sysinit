@@ -66,39 +66,15 @@ M.plugins = {
 function M.setup()
   local legendary = require("legendary")
 
-  -- Which-key bindings
-  local which_key_bindings = {
-    {
-      "<leader>b",
-      group = "+Buffer",
-      desc = "Buffer Operations"
-    },
-    {
-      "<leader>bn",
-      "<cmd>BufferLineCycleNext<CR>",
-      desc = "Next buffer"
-    },
-    {
-      "<leader>bp",
-      "<cmd>BufferLineCyclePrev<CR>",
-      desc = "Previous buffer"
-    },
-    {
-      "<leader>bc",
-      "<cmd>BufferLinePickClose<CR>",
-      desc = "Close selected buffer"
-    },
-    {
-      "<leader>bb",
-      "<cmd>BufferLinePick<CR>",
-      desc = "Pick buffer"
-    },
-    {
-      "<leader>bs",
-      "<cmd>BufferLineSortByDirectory<CR>",
-      desc = "Sort buffers by directory"
-    }
-  }
+  -- Which-key bindings using V3 format
+  wk.add({
+    { "<leader>b", group = "Buffer" },
+    { "<leader>bn", "<cmd>BufferLineCycleNext<CR>", desc = "Next buffer" },
+    { "<leader>bp", "<cmd>BufferLineCyclePrev<CR>", desc = "Previous buffer" },
+    { "<leader>bc", "<cmd>BufferLinePickClose<CR>", desc = "Close selected buffer" },
+    { "<leader>bb", "<cmd>BufferLinePick<CR>", desc = "Pick buffer" },
+    { "<leader>bs", "<cmd>BufferLineSortByDirectory<CR>", desc = "Sort buffers by directory" }
+  })
 
   -- Command Palette Commands
   local command_palette_commands = {
