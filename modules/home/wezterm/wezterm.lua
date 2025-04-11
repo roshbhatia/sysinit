@@ -74,27 +74,11 @@ smart_splits.apply_to_config(config, {
 
 -- Additional keybindings
 local additional_keys = {
-    -- Tab switching
-    { key = '1', mods = 'CMD', action = act.ActivateTab(0) },
-    { key = '2', mods = 'CMD', action = act.ActivateTab(1) },
-    { key = '3', mods = 'CMD', action = act.ActivateTab(2) },
-    { key = '4', mods = 'CMD', action = act.ActivateTab(3) },
-    { key = '5', mods = 'CMD', action = act.ActivateTab(4) },
-    { key = '6', mods = 'CMD', action = act.ActivateTab(5) },
-    { key = '7', mods = 'CMD', action = act.ActivateTab(6) },
-    { key = '8', mods = 'CMD', action = act.ActivateTab(7) },
-    { key = '9', mods = 'CMD', action = act.ActivateTab(8) },
-
-    -- Basic pane operations (CMD only)
     { key = 's', mods = 'CMD', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
     { key = 'v', mods = 'CMD', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
-    { key = 'w', mods = 'CMD', action = act.CloseCurrentPane { confirm = false } },
     { key = 'k', mods = 'CMD', action = act.ClearScrollback 'ScrollbackAndViewport' },
-    
-    -- Advanced operations (CMD+SHIFT)
     { key = 'W', mods = 'CMD|SHIFT', action = act.CloseCurrentTab { confirm = false } },
     
-    -- Special commands
     { key = 'p', mods = 'CMD|SHIFT', action = act.ActivateCommandPalette },
     { key = 'y', mods = 'CMD', action = wezterm.action.ActivateCopyMode },
     { key = 'r', mods = 'CMD', action = act.ReloadConfiguration }
