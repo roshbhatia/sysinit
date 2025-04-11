@@ -1,6 +1,6 @@
 local M = {}
 local vscode = require('vscode')
-local utils = require('config.utils')
+local utils = require('utils')
 
 local opts = { noremap = true, silent = true }
 
