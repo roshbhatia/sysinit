@@ -63,11 +63,11 @@ command -v starship &> /dev/null && _evalcache starship init zsh
 # Disable ctrl+s to freeze terminal
 stty stop undef
 
-# Word/Line navigation using CTRL + SPACE + hjkl
-bindkey '^ h' beginning-of-line    # CTRL + SPACE + h for beginning of line
-bindkey '^ j' backward-word       # CTRL + SPACE + j for back word
-bindkey '^ k' forward-word        # CTRL + SPACE + k for forward word
-bindkey '^ l' end-of-line        # CTRL + SPACE + l for end of line
+# Word/Line navigation using CTRL + hjkl
+bindkey '^h' beginning-of-line    # CTRL + h for beginning of line
+bindkey '^j' backward-word        # CTRL + j for back word
+bindkey '^k' forward-word         # CTRL + k for forward word
+bindkey '^l' end-of-line         # CTRL + l for end of line
 
 # Source additional configs if they exist
 [ -f ~/.zshenv ] && source ~/.zshenv

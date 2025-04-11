@@ -13,20 +13,20 @@ print_header() {
 
 print_wezterm() {
     echo -e "${BLUE}📟 WezTerm Key Bindings:${NC}"
-    echo "  LEADER: CTRL"
-    echo "  CTRL + v                Split vertically (vim-like)"
-    echo "  CTRL + s                Split horizontally (vim-like)"
-    echo "  CTRL + c                Close pane"
-    echo "  CTRL + x                Close tab"
-    echo "  CTRL + SHIFT + h/j/k/l  Navigate between panes"
-    echo "  CTRL + h/j/k/l          Resize panes"
-    echo "  CTRL + L                Clear scrollback"
-    echo "  CTRL + p                Command palette"
-    echo "  CTRL + y                Copy mode"
-    echo "  CTRL + r                Reload configuration"
+    echo "  LEADER: CMD"
+    echo "  CMD + v                Split vertically (vim-like)"
+    echo "  CMD + s                Split horizontally (vim-like)"
+    echo "  CMD + w                Close pane"
+    echo "  CMD + SHIFT + w        Close tab"
+    echo "  CMD + SHIFT + h/j/k/l  Navigate between panes"
+    echo "  CMD + ALT + h/j/k/l    Resize panes"
+    echo "  CMD + k                Clear scrollback"
+    echo "  CMD + SHIFT + p        Command palette"
+    echo "  CMD + y                Copy mode"
+    echo "  CMD + r                Reload configuration"
     echo
     echo "  Tab Navigation:"
-    echo "  CTRL + [1-9]            Switch to tab 1-9"
+    echo "  CMD + [1-9]            Switch to tab 1-9"
 }
 
 print_aerospace() {
@@ -134,17 +134,16 @@ print_neovim_full() {
 
 print_terminal() {
     echo -e "${BLUE}🧑‍💻 Terminal & ZSH Shortcuts:${NC}"
-    echo "  LEADER: CTRL key for most operations"
+    echo "  Navigation:"
+    echo "  CTRL + h               Go to beginning of line"
+    echo "  CTRL + j               Go back one word"
+    echo "  CTRL + k               Go forward one word"
+    echo "  CTRL + l               Go to end of line"
     echo
-    echo "  CTRL + r               Search command history with fzf"
-    echo "  CTRL + t               Find files with fzf"
-    echo "  CTRL + SPACE + h       Go to beginning of line"
-    echo "  CTRL + SPACE + j       Go back one word"
-    echo "  CTRL + SPACE + k       Go forward one word"
-    echo "  CTRL + SPACE + l       Go to end of line"
-    echo "  CTRL + s               Start forward search (with zsh shift-select enabled)"
-    echo "  CTRL + p               Previous command from history"
-    echo "  CTRL + n               Next command from history"
+    echo "  Search:"
+    echo "  CTRL + r               Search command history"
+    echo
+    echo "  General Commands:"
     echo "  crepo                  Change to repository directory"
     echo "  nix-rollback           Rollback nix system to previous generation"
     echo "  sysinit-help           Show this help"
@@ -155,10 +154,13 @@ print_consistency() {
     echo -e "${YELLOW}⚙️ Keystroke Consistency Guide:${NC}"
     echo -e "Each tool has a dedicated leader key and consistent modifier pattern:"
     echo
-    echo -e "WezTerm (Terminal) - CTRL as leader:"
-    echo "  - CTRL alone: Basic operations (navigation, splits, tabs)"
-    echo "  - CTRL+SHIFT: Advanced operations (clear, close tab)"
-    echo "  - CTRL+SPACE: Terminal text navigation (hjkl)"
+    echo -e "WezTerm (Terminal) - CMD as leader:"
+    echo "  - CMD alone: Basic operations (navigation, splits, tabs)"
+    echo "  - CMD+SHIFT: Advanced operations (clear, close tab)"
+    echo
+    echo -e "ZSH (Shell) - CTRL for navigation:"
+    echo "  - CTRL+hjkl: Line/word navigation"
+    echo "  - CTRL+r: History search"
     echo
     echo -e "Neovim (Editor) - SPACE as leader:"
     echo "  - SPACE alone: Most operations"
