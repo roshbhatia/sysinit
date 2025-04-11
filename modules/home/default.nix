@@ -15,7 +15,7 @@
     ./aerospace/aerospace.nix
     ./k9s/k9s.nix
     ./macchina/macchina.nix
-    # ./neovim/neovim.nix
+    ./neovim/neovim.nix
     ./nushell/nushell.nix
     ./starship/starship.nix
     ./vscode/vscode.nix
