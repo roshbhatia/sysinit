@@ -51,23 +51,23 @@ function M.setup()
   -- Command Palette Commands
   local command_palette_commands = {
     {
+      "Lazy",
       description = "Lazy: Show plugin status",
-      command = "<cmd>Lazy<CR>",
       category = "Lazy"
     },
     {
+      "Lazy update",
       description = "Lazy: Update plugins",
-      command = "<cmd>Lazy update<CR>",
       category = "Lazy"
     },
     {
+      "Lazy sync",
       description = "Lazy: Sync plugins",
-      command = "<cmd>Lazy sync<CR>",
       category = "Lazy"
     },
     {
+      "Lazy clean",
       description = "Lazy: Clean plugins",
-      command = "<cmd>Lazy clean<CR>",
       category = "Lazy"
     }
   }

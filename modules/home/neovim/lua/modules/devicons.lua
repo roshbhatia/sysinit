@@ -40,8 +40,8 @@ function M.setup()
   -- Command Palette Commands
   local command_palette_commands = {
     {
+      "lua print(vim.inspect(require('nvim-web-devicons').get_icons()))",
       description = "DevIcons: Show all icons",
-      command = "<cmd>lua print(vim.inspect(require('nvim-web-devicons').get_icons()))<CR>",
       category = "DevIcons"
     }
   }

@@ -37,18 +37,18 @@ function M.setup()
   -- Command Palette Commands
   local command_palette_commands = {
     {
+      "WeztermSpawn",
       description = "WezTerm: Spawn Terminal",
-      command = "<cmd>WeztermSpawn<CR>",
       category = "WezTerm"
     },
     {
+      "WeztermSpawn htop",
       description = "WezTerm: Spawn htop",
-      command = "<cmd>WeztermSpawn htop<CR>",
       category = "WezTerm"
     },
     {
+      "WeztermSplitPane",
       description = "WezTerm: Split Pane",
-      command = "<cmd>WeztermSplitPane<CR>",
       category = "WezTerm"
     }
   }

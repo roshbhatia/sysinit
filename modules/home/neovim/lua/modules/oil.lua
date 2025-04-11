@@ -57,13 +57,13 @@ function M.setup()
   -- Command Palette Commands
   local command_palette_commands = {
     {
+      "Oil",
       description = "Explorer: Open Oil file explorer",
-      command = "<cmd>Oil<CR>",
       category = "Explorer"
     },
     {
+      "Oil --float",
       description = "Explorer: Open Oil in floating window",
-      command = "<cmd>Oil --float<CR>",
       category = "Explorer"
     }
   }

@@ -103,28 +103,28 @@ function M.setup()
   -- Command Palette Commands
   local command_palette_commands = {
     {
+      "BufferLineCycleNext",
       description = "Bufferline: Next buffer",
-      command = "<cmd>BufferLineCycleNext<CR>",
       category = "Bufferline"
     },
     {
+      "BufferLineCyclePrev",
       description = "Bufferline: Previous buffer",
-      command = "<cmd>BufferLineCyclePrev<CR>",
       category = "Bufferline"
     },
     {
+      "BufferLinePick",
       description = "Bufferline: Pick buffer",
-      command = "<cmd>BufferLinePick<CR>",
       category = "Bufferline"
     },
     {
+      "BufferLinePickClose",
       description = "Bufferline: Close selected buffer",
-      command = "<cmd>BufferLinePickClose<CR>",
       category = "Bufferline"
     },
     {
+      "BufferLineSortByDirectory",
       description = "Bufferline: Sort buffers by directory",
-      command = "<cmd>BufferLineSortByDirectory<CR>",
       category = "Bufferline"
     }
   }
