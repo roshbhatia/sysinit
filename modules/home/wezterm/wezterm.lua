@@ -77,7 +77,26 @@ local additional_keys = {
     { key = 's', mods = 'CMD', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
     { key = 'v', mods = 'CMD', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
     { key = 'k', mods = 'CMD', action = act.ClearScrollback 'ScrollbackAndViewport' },
-    { key = 'W', mods = 'CMD|SHIFT', action = act.CloseCurrentTab { confirm = false } },
+    { 
+        key = 'W', 
+        mods = 'CMD', 
+        action = wezterm.action_callback(function(window, pane)
+            -- Get information about the current context
+            local tab = window:active_tab()
+            local tab_panes = tab:panes()
+            
+            -- If there are multiple panes in the tab, close the current pane
+            if #tab_panes > 1 then
+                pane:close()
+            -- If there are multiple tabs, close the current tab
+            elseif #window:mux_window():tabs() > 1 then
+                tab:close()
+            -- Otherwise, close the window
+            else
+                window:perform_action(act.CloseCurrentTab { confirm = false }, pane)
+            end
+        end)
+    },
     
     { key = 'p', mods = 'CMD|SHIFT', action = act.ActivateCommandPalette },
     { key = 'y', mods = 'CMD', action = wezterm.action.ActivateCopyMode },
