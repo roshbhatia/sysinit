@@ -67,37 +67,37 @@ smart_splits.apply_to_config(config, {
     direction_keys = { 'h', 'j', 'k', 'l' },
     -- modifier keys to combine with direction_keys
     modifiers = {
-        move = 'CTRL', -- modifier for pane movement (basic operation)
-        resize = 'CTRL|SHIFT', -- modifier for pane resize (advanced operation)
+        move = 'CMD|SHIFT', -- modifier for pane movement
+        resize = 'CMD|ALT', -- modifier for pane resize
     },
 })
 
 -- Additional keybindings
 local additional_keys = {
-    -- Tab switching (basic operations with CTRL)
-    { key = '1', mods = 'CTRL', action = act.ActivateTab(0) },
-    { key = '2', mods = 'CTRL', action = act.ActivateTab(1) },
-    { key = '3', mods = 'CTRL', action = act.ActivateTab(2) },
-    { key = '4', mods = 'CTRL', action = act.ActivateTab(3) },
-    { key = '5', mods = 'CTRL', action = act.ActivateTab(4) },
-    { key = '6', mods = 'CTRL', action = act.ActivateTab(5) },
-    { key = '7', mods = 'CTRL', action = act.ActivateTab(6) },
-    { key = '8', mods = 'CTRL', action = act.ActivateTab(7) },
-    { key = '9', mods = 'CTRL', action = act.ActivateTab(8) },
+    -- Tab switching
+    { key = '1', mods = 'CMD', action = act.ActivateTab(0) },
+    { key = '2', mods = 'CMD', action = act.ActivateTab(1) },
+    { key = '3', mods = 'CMD', action = act.ActivateTab(2) },
+    { key = '4', mods = 'CMD', action = act.ActivateTab(3) },
+    { key = '5', mods = 'CMD', action = act.ActivateTab(4) },
+    { key = '6', mods = 'CMD', action = act.ActivateTab(5) },
+    { key = '7', mods = 'CMD', action = act.ActivateTab(6) },
+    { key = '8', mods = 'CMD', action = act.ActivateTab(7) },
+    { key = '9', mods = 'CMD', action = act.ActivateTab(8) },
 
-    -- Basic pane operations (CTRL only)
-    { key = 's', mods = 'CTRL', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
-    { key = 'v', mods = 'CTRL', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
-    { key = 'w', mods = 'CTRL', action = act.CloseCurrentPane { confirm = false } },
+    -- Basic pane operations (CMD only)
+    { key = 's', mods = 'CMD', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
+    { key = 'v', mods = 'CMD', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
+    { key = 'w', mods = 'CMD', action = act.CloseCurrentPane { confirm = false } },
+    { key = 'k', mods = 'CMD', action = act.ClearScrollback 'ScrollbackAndViewport' },
     
-    -- Advanced operations (CTRL+SHIFT)
-    { key = 'W', mods = 'CTRL|SHIFT', action = act.CloseCurrentTab { confirm = false } },
-    { key = 'L', mods = 'CTRL|SHIFT', action = act.ClearScrollback 'ScrollbackAndViewport' },
+    -- Advanced operations (CMD+SHIFT)
+    { key = 'W', mods = 'CMD|SHIFT', action = act.CloseCurrentTab { confirm = false } },
     
-    -- Special commands (CTRL for basic, CTRL+SHIFT for advanced)
-    { key = 'p', mods = 'CTRL', action = act.ActivateCommandPalette },
-    { key = 'y', mods = 'CTRL', action = wezterm.action.ActivateCopyMode },
-    { key = 'r', mods = 'CTRL', action = act.ReloadConfiguration }
+    -- Special commands
+    { key = 'p', mods = 'CMD|SHIFT', action = act.ActivateCommandPalette },
+    { key = 'y', mods = 'CMD', action = wezterm.action.ActivateCopyMode },
+    { key = 'r', mods = 'CMD', action = act.ReloadConfiguration }
 }
 
 -- Merge additional keybindings with smart-splits keybindings

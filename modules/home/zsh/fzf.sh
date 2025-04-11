@@ -35,4 +35,6 @@ export FZF_DEFAULT_OPTS="
   --bind 'resize:refresh-preview'
 "
 
-export FZF_CTRL_R_OPTS="--height=60% --layout=reverse --border=rounded --preview-window=hidden"
+export FZF_CTRL_R_OPTS=""
+export FZF_CTRL_T_COMMAND=""
+export FZF_ALT_C_OPTS=""
