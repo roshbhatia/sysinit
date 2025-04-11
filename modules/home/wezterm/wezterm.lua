@@ -1,6 +1,7 @@
 local wezterm = require('wezterm')
 local act = wezterm.action
 local config = wezterm.config_builder()
+local smart_splits = wezterm.plugin.require('https://github.com/mrjones2014/smart-splits.nvim')
 
 -- Shell configuration
 config.default_prog = { '/bin/zsh', '-l' }
@@ -60,8 +61,19 @@ config.use_fancy_tab_bar = false
 
 config.window_close_confirmation = 'NeverPrompt'
 
--- Keybindings
-config.keys = {
+-- Apply smart-splits configuration
+smart_splits.apply_to_config(config, {
+    -- directional keys to use in order of: left, down, up, right
+    direction_keys = { 'h', 'j', 'k', 'l' },
+    -- modifier keys to combine with direction_keys
+    modifiers = {
+        move = 'CTRL', -- modifier for pane movement
+        resize = 'CMD|SHIFT', -- modifier for pane resize
+    },
+})
+
+-- Additional keybindings
+local additional_keys = {
     -- Word/Line navigation (using CMD+SHIFT instead of ALT to avoid conflicts with aerospace)
     { key = 'LeftArrow', mods = 'CMD|SHIFT', action = act.SendKey { key = 'b', mods = 'ALT' } },
     { key = 'RightArrow', mods = 'CMD|SHIFT', action = act.SendKey { key = 'f', mods = 'ALT' } },
@@ -75,77 +87,14 @@ config.keys = {
     { key = 'w', mods = 'CMD', action = act.CloseCurrentPane { confirm = false } },
     { key = 'w', mods = 'CMD|SHIFT', action = act.CloseCurrentTab { confirm = false } },
 
-    -- Pane navigation with CMD+arrows (for fallback)
-    { key = 'LeftArrow', mods = 'CMD', action = act.ActivatePaneDirection 'Left' },
-    { key = 'RightArrow', mods = 'CMD', action = act.ActivatePaneDirection 'Right' },
-    { key = 'UpArrow', mods = 'CMD', action = act.ActivatePaneDirection 'Up' },
-    { key = 'DownArrow', mods = 'CMD', action = act.ActivatePaneDirection 'Down' },
-    
-    -- Smart-splits.nvim integration with Ctrl+h/j/k/l
-    { key = 'h', mods = 'CTRL', action = wezterm.action_callback(function(window, pane)
-        if pane:get_user_vars().IS_NVIM == 'true' then
-            window:perform_action(act.SendKey { key = 'h', mods = 'CTRL' }, pane)
-        else
-            window:perform_action(act.ActivatePaneDirection 'Left', pane)
-        end
-    end)},
-    { key = 'j', mods = 'CTRL', action = wezterm.action_callback(function(window, pane)
-        if pane:get_user_vars().IS_NVIM == 'true' then
-            window:perform_action(act.SendKey { key = 'j', mods = 'CTRL' }, pane)
-        else
-            window:perform_action(act.ActivatePaneDirection 'Down', pane)
-        end
-    end)},
-    { key = 'k', mods = 'CTRL', action = wezterm.action_callback(function(window, pane)
-        if pane:get_user_vars().IS_NVIM == 'true' then
-            window:perform_action(act.SendKey { key = 'k', mods = 'CTRL' }, pane)
-        else
-            window:perform_action(act.ActivatePaneDirection 'Up', pane)
-        end
-    end)},
-    { key = 'l', mods = 'CTRL', action = wezterm.action_callback(function(window, pane)
-        if pane:get_user_vars().IS_NVIM == 'true' then
-            window:perform_action(act.SendKey { key = 'l', mods = 'CTRL' }, pane)
-        else
-            window:perform_action(act.ActivatePaneDirection 'Right', pane)
-        end
-    end)},
-    
-    -- Add resize keybindings for smart-splits.nvim using arrow keys instead of ALT
-    { key = 'LeftArrow', mods = 'CTRL', action = wezterm.action_callback(function(window, pane)
-        if pane:get_user_vars().IS_NVIM == 'true' then
-            window:perform_action(act.SendKey { key = 'LeftArrow', mods = 'CTRL' }, pane)
-        else
-            window:perform_action(act.AdjustPaneSize { 'Left', 3 }, pane)
-        end
-    end)},
-    { key = 'DownArrow', mods = 'CTRL', action = wezterm.action_callback(function(window, pane)
-        if pane:get_user_vars().IS_NVIM == 'true' then
-            window:perform_action(act.SendKey { key = 'DownArrow', mods = 'CTRL' }, pane)
-        else
-            window:perform_action(act.AdjustPaneSize { 'Down', 3 }, pane)
-        end
-    end)},
-    { key = 'UpArrow', mods = 'CTRL', action = wezterm.action_callback(function(window, pane)
-        if pane:get_user_vars().IS_NVIM == 'true' then
-            window:perform_action(act.SendKey { key = 'UpArrow', mods = 'CTRL' }, pane)
-        else
-            window:perform_action(act.AdjustPaneSize { 'Up', 3 }, pane)
-        end
-    end)},
-    { key = 'RightArrow', mods = 'CTRL', action = wezterm.action_callback(function(window, pane)
-        if pane:get_user_vars().IS_NVIM == 'true' then
-            window:perform_action(act.SendKey { key = 'RightArrow', mods = 'CTRL' }, pane)
-        else
-            window:perform_action(act.AdjustPaneSize { 'Right', 3 }, pane)
-        end
-    end)},
-
     -- Special commands
     { key = 'p', mods = 'CMD|SHIFT', action = act.ActivateCommandPalette },
     { key = 'f', mods = 'CMD|SHIFT', action = wezterm.action.ActivateCopyMode },
     { key = 'r', mods = 'CMD', action = act.ReloadConfiguration }
 }
+
+-- Merge additional keybindings with smart-splits keybindings
+config.keys = additional_keys
 
 wezterm.on("gui-startup", function()
     local tab, pane, window = wezterm.mux.spawn_window {}
@@ -170,7 +119,6 @@ local SOLID_RIGHT_ARROW = utf8.char(0xe0b0)
 
 -- Function to create powerline segments for right status
 local function segments_for_right_status(window)
-    -- Return segments in order
     return {
         { text = wezterm.hostname(), foreground = "#8be9fd", background = "#3b4048" },
     }
