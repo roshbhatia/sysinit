@@ -5,10 +5,12 @@
     enable = true;
     autocd = true;
     enableCompletion = true;
-    syntaxHighlighting.enable = true;
     historySubstringSearch.enable = true;
     autosuggestion.enable = true;
-    
+
+    # We instead use fast-syntax-highlighting
+    syntaxHighlighting.enable = false;
+
     completionInit = ''
       # Add Homebrew completions to fpath
       if [ -d "/opt/homebrew/share/zsh/site-functions" ]; then
@@ -53,10 +55,20 @@
         src = pkgs.fetchFromGitHub {
           owner = "mroth";
           repo = "evalcache";
-          rev = "v1.0.2"; # Use the latest stable release
+          rev = "v1.0.2";
           sha256 = "sha256-qzpnGTrLnq5mNaLlsjSA6VESA88XBdN3Ku/YIgLCb28=";
         };
         file = "evalcache.plugin.zsh";
+      }
+      {
+        name = "fast-syntax-highlighting";
+        src = pkgs.fetchFromGitHub {
+          owner = "zdharma-continuum";
+          repo = "fast-syntax-highlighting";
+          rev = "cf318e0";
+          sha256 = "sha256-RVX9ZSzjBW3LpFs2W86lKI6vtcvDWP6EPxzeTcRZua4=";
+        };
+        file = "fast-syntax-highlighting.plugin.zsh";
       }
     ];
 
