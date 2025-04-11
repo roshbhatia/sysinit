@@ -17,18 +17,19 @@ vim.opt.rtp:prepend(vim.fn.expand("~/github/personal/roshbhatia/sysinit/modules/
 
 -- Set leader key
 vim.g.mapleader = " "
-vim.g.maplocalleader = ","
+vim.g.maplocalleader = " "
+
+vim.g.have_nerd_font = true
 
 -- System clipboard integration
 vim.opt.clipboard = "unnamedplus"
 
 -- Basic editor settings
 vim.opt.number = true
-vim.opt.relativenumber = true
 vim.opt.cursorline = true
 vim.opt.signcolumn = "yes"
 vim.opt.termguicolors = true
-vim.opt.showmode = false
+vim.opt.showmode = true
 
 -- Search settings
 vim.opt.hlsearch = true
