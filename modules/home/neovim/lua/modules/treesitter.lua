@@ -72,6 +72,25 @@ M.plugins = {
 function M.setup()
   local legendary = require("legendary")
 
+  -- Which-key bindings using V3 format
+  local wk = require("which-key")
+  wk.add({
+    { "af", desc = "Around function", mode = { "o", "x" } },
+    { "if", desc = "Inside function", mode = { "o", "x" } },
+    { "ac", desc = "Around class", mode = { "o", "x" } },
+    { "ic", desc = "Inside class", mode = { "o", "x" } },
+    { "ab", desc = "Around block", mode = { "o", "x" } },
+    { "ib", desc = "Inside block", mode = { "o", "x" } },
+    { "]f", desc = "Next function start", mode = "n" },
+    { "]c", desc = "Next class start", mode = "n" },
+    { "]F", desc = "Next function end", mode = "n" },
+    { "]C", desc = "Next class end", mode = "n" },
+    { "[f", desc = "Previous function start", mode = "n" },
+    { "[c", desc = "Previous class start", mode = "n" },
+    { "[F", desc = "Previous function end", mode = "n" },
+    { "[C", desc = "Previous class end", mode = "n" }
+  })
+
   -- Command Palette Commands
   local command_palette_commands = {
     {

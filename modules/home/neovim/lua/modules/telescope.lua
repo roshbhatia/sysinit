@@ -54,48 +54,16 @@ M.plugins = {
 function M.setup()
   local legendary = require("legendary")
 
-  -- Which-key bindings
-  local which_key_bindings = {
-    {
-      "<leader>f",
-      group = "+Find",
-      desc = "Telescope Fuzzy Finder"
-    },
-    {
-      "<leader>ff",
-      "<cmd>Telescope find_files<CR>",
-      desc = "Find Files"
-    },
-    {
-      "<leader>fg",
-      "<cmd>Telescope live_grep<CR>",
-      desc = "Live Grep"
-    },
-    {
-      "<leader>fb",
-      "<cmd>Telescope buffers<CR>",
-      desc = "Find Buffers"
-    },
-    {
-      "<leader>fh",
-      "<cmd>Telescope help_tags<CR>",
-      desc = "Help Tags"
-    },
-    {
-      "<leader>fr",
-      "<cmd>Telescope oldfiles<CR>",
-      desc = "Recent Files"
-    },
-    {
-      "<leader>fc",
-      "<cmd>Telescope commands<CR>",
-      desc = "Commands"
-    },
-    {
-      "<leader>fk",
-      "<cmd>Telescope keymaps<CR>",
-      desc = "Keymaps"
-    }
+  -- Which-key bindings using V3 format
+  wk.add({
+    { "<leader>f", group = "Find" },
+    { "<leader>ff", "<cmd>Telescope find_files<CR>", desc = "Find Files" },
+    { "<leader>fg", "<cmd>Telescope live_grep<CR>", desc = "Live Grep" },
+    { "<leader>fb", "<cmd>Telescope buffers<CR>", desc = "Find Buffers" },
+    { "<leader>fh", "<cmd>Telescope help_tags<CR>", desc = "Help Tags" },
+    { "<leader>fr", "<cmd>Telescope oldfiles<CR>", desc = "Recent Files" },
+    { "<leader>fc", "<cmd>Telescope commands<CR>", desc = "Commands" },
+    { "<leader>fk", "<cmd>Telescope keymaps<CR>", desc = "Keymaps" }
   }
 
   -- Command Palette Commands

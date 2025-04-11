@@ -13,12 +13,15 @@ M.plugins = {
 }
 
 function M.setup()
-  -- Setup keymaps or additional configuration
+  -- Which-key bindings using V3 format
   local mark = require("harpoon.mark")
   local ui = require("harpoon.ui")
-
-  vim.keymap.set("n", "<leader>a", mark.add_file, { desc = "Harpoon: Add file" })
-  vim.keymap.set("n", "<C-e>", ui.toggle_quick_menu, { desc = "Harpoon: Toggle quick menu" })
+  local wk = require("which-key")
+  
+  wk.add({
+    { "<leader>a", function() mark.add_file() end, desc = "Harpoon: Add file" },
+    { "<C-e>", function() ui.toggle_quick_menu() end, desc = "Harpoon: Toggle quick menu" }
+  })
 end
 
 return M
