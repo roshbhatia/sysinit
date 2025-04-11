@@ -13,18 +13,20 @@ print_header() {
 
 print_wezterm() {
     echo -e "${BLUE}📟 WezTerm Key Bindings:${NC}"
-    echo "  LEADER: CMD (macOS)"
-    echo "  CMD + d                Split horizontally"
-    echo "  CMD + SHIFT + d        Split vertically"
-    echo "  CMD + w                Close pane"
-    echo "  CMD + SHIFT + w        Close tab"
-    echo "  CTRL + h/j/k/l         Navigate between panes (smart integration with Neovim)"
-    echo "  CMD + arrows           Alternative pane navigation"
-    echo "  CMD + SHIFT + arrows   Navigate words"
-    echo "  CMD + k                Clear scrollback"
-    echo "  CMD + SHIFT + p        Command palette"
-    echo "  CMD + SHIFT + f        Copy mode"
-    echo "  CMD + r                Reload configuration"
+    echo "  LEADER: CTRL"
+    echo "  CTRL + v                Split vertically (vim-like)"
+    echo "  CTRL + s                Split horizontally (vim-like)"
+    echo "  CTRL + c                Close pane"
+    echo "  CTRL + x                Close tab"
+    echo "  CTRL + SHIFT + h/j/k/l  Navigate between panes"
+    echo "  CTRL + h/j/k/l          Resize panes"
+    echo "  CTRL + L                Clear scrollback"
+    echo "  CTRL + p                Command palette"
+    echo "  CTRL + y                Copy mode"
+    echo "  CTRL + r                Reload configuration"
+    echo
+    echo "  Tab Navigation:"
+    echo "  CTRL + [1-9]            Switch to tab 1-9"
 }
 
 print_aerospace() {
@@ -136,8 +138,10 @@ print_terminal() {
     echo
     echo "  CTRL + r               Search command history with fzf"
     echo "  CTRL + t               Find files with fzf"
-    echo "  CTRL + h/j/k/l         Move cursor (consistent with Neovim/WezTerm)"
-    echo "  CTRL + a/e             Start/end of line"
+    echo "  CTRL + SPACE + h       Go to beginning of line"
+    echo "  CTRL + SPACE + j       Go back one word"
+    echo "  CTRL + SPACE + k       Go forward one word"
+    echo "  CTRL + SPACE + l       Go to end of line"
     echo "  CTRL + s               Start forward search (with zsh shift-select enabled)"
     echo "  CTRL + p               Previous command from history"
     echo "  CTRL + n               Next command from history"
@@ -149,36 +153,26 @@ print_terminal() {
 
 print_consistency() {
     echo -e "${YELLOW}⚙️ Keystroke Consistency Guide:${NC}"
-    echo "  This system is configured for consistent keystrokes across tools:"
+    echo -e "Each tool has a dedicated leader key and consistent modifier pattern:"
     echo
-    echo "  Navigation: CTRL + h/j/k/l"
-    echo "  - Works in Neovim for window navigation"
-    echo "  - Works in WezTerm for pane navigation"
-    echo "  - Smart integration: when in Neovim inside WezTerm, keystrokes pass through"
+    echo -e "WezTerm (Terminal) - CTRL as leader:"
+    echo "  - CTRL alone: Basic operations (navigation, splits, tabs)"
+    echo "  - CTRL+SHIFT: Advanced operations (clear, close tab)"
+    echo "  - CTRL+SPACE: Terminal text navigation (hjkl)"
     echo
-    echo "  Window management:"
-    echo "  - Neovim: SPACE (leader) + window commands"
-    echo "  - WezTerm: CMD + split commands"
-    echo "  - Aerospace: ALT + window commands"
+    echo -e "Neovim (Editor) - SPACE as leader:"
+    echo "  - SPACE alone: Most operations"
+    echo "  - CTRL: Universal operations (save, etc)"
     echo
-    echo "  Workspaces & Tabs:"
-    echo "  - Aerospace: ALT + [1-4] for workspaces"
-    echo "  - WezTerm: CMD + [number] for tabs"
+    echo -e "Aerospace (Windows) - ALT as leader:"
+    echo "  - ALT alone: Basic operations (focus, workspaces)"
+    echo "  - ALT+CTRL: Movement operations"
+    echo "  - ALT+SHIFT: Advanced operations (resize, workspace moves)"
     echo
-    echo "  Command palettes:"
-    echo "  - Neovim: SPACE + p or CTRL + p (files)"
-    echo "  - WezTerm: CMD + SHIFT + p"
-    echo
-    echo "  Development tasks:"
-    echo "  - task refresh    - Apply system configuration"
-    echo "  - task build      - Build without applying"
-    echo "  - task test       - Run tests"
-    echo
-    echo "  Each tool has a consistent LEADER key:"
-    echo "  - Neovim: SPACE"
-    echo "  - WezTerm: CMD (macOS)"
-    echo "  - Aerospace: ALT (Option)"
-    echo "  - Terminal: CTRL"
+    echo -e "Common Patterns:"
+    echo "  Navigation: h/j/k/l keys for all directional operations"
+    echo "  Numbers: 1-9 for switching workspaces/tabs"
+    echo "  Advanced ops: Adding SHIFT to basic operations"
 }
 
 print_all() {
