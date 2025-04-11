@@ -31,10 +31,10 @@ M.plugins = {
       -- Register which-key prefixes
       local wk = require("which-key")
       wk.register({
-        ["<leader>"] = { name = "+Leader" },
-        ["g"] = { name = "+Goto" },
-        ["["] = { name = "+Prev" },
-        ["]"] = { name = "+Next" },
+        { "<leader>", group = "Leader" },
+        { "g", group = "Goto" },
+        { "[", group = "Prev" },
+        { "]", group = "Next" },
       })
     end
   }

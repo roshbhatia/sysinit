@@ -12,12 +12,31 @@ function M.setup()
       separator = "➜",
       group = "+",
     },
-    triggers = {
-      -- Blacklist specific keys in insert and visual modes
-      { mode = "i", keys = "j" },
-      { mode = "i", keys = "k" },
-      { mode = "v", keys = "j" },
-      { mode = "v", keys = "k" },
+    plugins = {
+      marks = true,
+      registers = true,
+      spelling = {
+        enabled = false,
+      },
+      presets = {
+        operators = true,
+        motions = true,
+        text_objects = true,
+        windows = true,
+        nav = true,
+        z = true,
+        g = true,
+      },
+    },
+    triggers_nowait = {
+      -- commands
+      "`",
+      "'",
+      "g`",
+      "g'",
+      '"',
+      "<c-r>",
+      "z=",
     }
   })
 end
