@@ -35,23 +35,12 @@ M.plugins = {
 function M.setup()
   local legendary = require("legendary")
 
-  -- Which-key bindings
-  local which_key_bindings = {
-    {
-      "<leader>e",
-      group = "+Explorer",
-      desc = "File Explorer Actions"
-    },
-    {
-      "<leader>ee",
-      "<cmd>Oil<CR>",
-      desc = "Open Oil file explorer"
-    },
-    {
-      "<leader>ef",
-      "<cmd>Oil --float<CR>",
-      desc = "Open Oil in floating window"
-    }
+  -- Which-key bindings using V3 format
+  local wk = require("which-key")
+  wk.add({
+    { "<leader>e", group = "Explorer" },
+    { "<leader>ee", "<cmd>Oil<CR>", desc = "Open Oil file explorer" },
+    { "<leader>ef", "<cmd>Oil --float<CR>", desc = "Open Oil in floating window" }
   }
 
   -- Command Palette Commands
