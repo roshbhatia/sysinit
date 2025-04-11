@@ -28,8 +28,8 @@ function M.setup()
   -- Command Palette Commands
   local command_palette_commands = {
     {
+      "colorscheme carbonfox",
       description = "Theme: Set Carbonfox",
-      command = "<cmd>colorscheme carbonfox<CR>",
       category = "Theme"
     }
   }
