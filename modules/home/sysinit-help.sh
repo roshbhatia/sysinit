@@ -74,8 +74,6 @@ print_neovim_basic() {
     echo "  K                      Show hover information"
     echo "  CTRL + b               Go back in jump list"
     echo "  CTRL + f               Go forward in jump list"
-    echo "  SPACE + ha             Add file to harpoon"
-    echo "  SPACE + hh             Harpoon menu"
     echo
     echo "  Run 'sysinit-help neovim-full' for more advanced features"
 }
