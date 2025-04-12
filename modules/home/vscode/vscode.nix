@@ -4,6 +4,7 @@ let
   extensions = [
     "aaron-bond.better-comments"
     "asvetliakov.vscode-neovim"
+    "bbenoist.nix"
     "bdavs.expect"
     "bierner.markdown-mermaid"
     "carlthome.git-line-blame"
