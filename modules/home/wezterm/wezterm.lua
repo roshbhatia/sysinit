@@ -79,7 +79,8 @@ local additional_keys = {
     { key = 'k', mods = 'CMD', action = act.ClearScrollback 'ScrollbackAndViewport' },
     { key = 'p', mods = 'CMD|SHIFT', action = act.ActivateCommandPalette },
     { key = 'y', mods = 'CMD', action = wezterm.action.ActivateCopyMode },
-    { key = 'r', mods = 'CMD', action = act.ReloadConfiguration }
+    { key = 'r', mods = 'CMD', action = act.ReloadConfiguration },
+    { key = 'w', mods = 'CMD', action = wezterm.action.CloseCurrentPane { confirm = false } }
 }
 
 -- Merge additional keybindings with smart-splits keybindings
