@@ -1,4 +1,7 @@
 local verify = require("core.verify")
+local legendary = require("legendary")
+-- Add this line to require which-key
+local wk = require("which-key")
 
 local M = {}
 
@@ -64,17 +67,18 @@ M.plugins = {
 }
 
 function M.setup()
-  local legendary = require("legendary")
-
-  -- Which-key bindings using V3 format
-  wk.add({
+  -- Create the which_key_bindings variable to match what you're passing to legendary later
+  local which_key_bindings = {
     { "<leader>b", group = "Buffer" },
     { "<leader>bn", "<cmd>BufferLineCycleNext<CR>", desc = "Next buffer" },
     { "<leader>bp", "<cmd>BufferLineCyclePrev<CR>", desc = "Previous buffer" },
     { "<leader>bc", "<cmd>BufferLinePickClose<CR>", desc = "Close selected buffer" },
     { "<leader>bb", "<cmd>BufferLinePick<CR>", desc = "Pick buffer" },
     { "<leader>bs", "<cmd>BufferLineSortByDirectory<CR>", desc = "Sort buffers by directory" }
-  })
+  }
+
+  -- Which-key bindings using V3 format
+  wk.add(which_key_bindings)
 
   -- Command Palette Commands
   local command_palette_commands = {
