@@ -12,8 +12,11 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- Add the lua directory to the runtime path
-vim.opt.rtp:prepend(vim.fn.expand("~/github/personal/roshbhatia/sysinit/modules/home/neovim/lua"))
+-- Add the lua directory to the runtime path using an environment variable
+local xdg_config_home = os.getenv("XDG_CONFIG_HOME") or vim.fn.expand("~/.config")
+local default_lua_dir = xdg_config_home .. "/nvim/lua"
+local lua_dir = os.getenv("NEOVIM_LUA_DIR") or default_lua_dir
+vim.opt.rtp:prepend(lua_dir)
 
 -- Set leader key
 vim.g.mapleader = " "
