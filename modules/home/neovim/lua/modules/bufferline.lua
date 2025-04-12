@@ -41,7 +41,7 @@ M.plugins = {
           end,
           offsets = {
             {
-              filetype = "tree",
+              filetype = "oil",
               text = "File Explorer",
               text_align = "center",
               highlight = "Directory",
