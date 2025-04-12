@@ -90,10 +90,10 @@ local additional_keys = {
                 pane:close()
             -- If there are multiple tabs, close the current tab
             elseif #window:mux_window():tabs() > 1 then
-                tab:close()
+                window:perform_action(wezterm.action.CloseCurrentTab { confirm = false }, pane)
             -- Otherwise, close the window
             else
-                window:perform_action(act.CloseCurrentTab { confirm = false }, pane)
+                window:perform_action(wezterm.action.QuitApplication, pane)
             end
         end)
     },
