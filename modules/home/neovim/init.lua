@@ -12,10 +12,10 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- Add the lua directory to the runtime path using an environment variable
-local xdg_config_home = os.getenv("XDG_CONFIG_HOME") or vim.fn.expand("~/.config")
-local default_lua_dir = xdg_config_home .. "/nvim/lua"
-local lua_dir = os.getenv("NEOVIM_LUA_DIR") or default_lua_dir
+-- Get the directory of the current init.lua file
+local init_dir = vim.fn.fnamemodify(vim.fn.expand("$MYVIMRC"), ":p:h")
+-- Add the lua directory relative to the init.lua location
+local lua_dir = init_dir .. "/lua"
 vim.opt.rtp:prepend(lua_dir)
 
 -- Set leader key
@@ -70,30 +70,25 @@ vim.opt.foldlevel = 99
 vim.opt.mouse = "a"
 vim.opt.completeopt = { "menuone", "noselect" }
 
--- Collect plugin specs from modules
+
+local modules = {
+  "modules/initial/wezterm",
+  "modules/initial/wilder",
+  "modules/initial/heirline",
+  "modules/initial/carbonfox",
+  "modules/initial/bufferline",
+  "modules/initial/devicons",
+
+  "modules/main/telescope",
+  "modules/main/comment",
+  "modules/main/hop",
+  "modules/main/oil",
+  "modules/main/treesitter",
+  "modules/main/trouble",
+}
+
 local function collect_plugin_specs()
   local specs = {}
-  
-  
-  local modules = {
-    "wezterm",
-    "wilder",
-    "legendary",
-    "heirline",
-    "telescope",
-    "comment",
-    "hop",
-    "oil",
-    "carbonfox",
-    "bufferline",
-    "treesitter",
-    "trouble",
-    "which-key",
-    "devicons",
-    "lazy"
-    -- Add other modules as they are created
-  }
-  
   for _, module_name in ipairs(modules) do
     local ok, module = pcall(require, "modules." .. module_name)
     if ok and module.plugins then
@@ -104,30 +99,9 @@ local function collect_plugin_specs()
   return specs
 end
 
--- Setup Lazy.nvim with collected specs
 require("lazy").setup(collect_plugin_specs())
 
--- Setup individual modules
 local function setup_modules()
-  local modules = {
-    "wezterm",
-    "comment",
-    "wilder",
-    "heirline",
-    "hop",
-    "oil",
-    "telescope",
-    "carbonfox",
-    "bufferline",
-    "treesitter",
-    "trouble",
-    "which-key",
-    "legendary",
-    "devicons",
-    "lazy"
-    -- Add other modules as they are created
-  }
-  
   for _, module_name in ipairs(modules) do
     local ok, module = pcall(require, "modules." .. module_name)
     if ok and module.setup then
@@ -136,5 +110,4 @@ local function setup_modules()
   end
 end
 
--- Run module setup
 setup_modules()
