@@ -1,0 +1,17 @@
+version: '3'
+
+tasks:
+  default:
+    desc: Show help information
+    cmds:
+      - task -l
+    silent: true
+    
+  nvim-run-local:
+    desc: Run Neovim with local configuration
+    silent: true
+    cmds:
+      - nvim -u init.lua --cmd "set runtimepath+=$(pwd)"
+    usage: |
+      Run Neovim with the local configuration:
+        task nvim-run-local

@@ -1,13 +1,52 @@
 version: '3'
 
-vars:
-  SILENT: true  # Global silence setting
-
 tasks:
   default:
     desc: Show help information
     cmds:
       - task -l
+    silent: true
+
+  # Boostrap and teardown
+  setup:
+    desc: Install prerequisites for sysinit
+    cmds:
+      - echo "Installing prerequisites..."
+      - ./hack/install-deps.sh
+      - echo "Setup completed"
+    silent: true
+
+  uninstall-nix:
+    desc: Completely uninstall Nix from the system
+    cmds:
+      - echo "Uninstalling Nix..."
+      - ./hack/uninstall-nix.sh
+      - echo "Nix uninstalled"
+    silent: true
+
+ # Installs
+  build:
+    desc: Build the configuration without applying
+    cmds:
+      - echo "Building system configuration..."
+      - darwin-rebuild build --flake .
+      - echo "Build completed successfully"
+    silent: true
+
+  update-flake:
+    desc: Update flake inputs
+    cmds:
+      - echo "Updating flake inputs..."
+      - nix flake update
+      - echo "Flake inputs updated successfully"
+    silent: true
+
+  clean:
+    desc: Run garbage collection
+    cmds:
+      - echo "Running garbage collection..."
+      - sudo nix-collect-garbage -d
+      - echo "Garbage collection completed"
     silent: true
 
   refresh:
@@ -16,74 +55,7 @@ tasks:
       - echo "Applying system configuration..."
       - darwin-rebuild switch --flake . --show-trace
       - echo "System configuration applied successfully"
-
-  build:
-    desc: Build the configuration without applying
-    cmds:
-      - echo "Building system configuration..."
-      - darwin-rebuild build --flake .
-      - echo "Build completed successfully"
-
-  update-flake:
-    desc: Update flake inputs
-    cmds:
-      - echo "Updating flake inputs..."
-      - nix flake update
-      - echo "Flake inputs updated successfully"
-
-  clean:
-    desc: Run garbage collection
-    cmds:
-      - echo "Running garbage collection..."
-      - sudo nix-collect-garbage -d
-      - echo "Garbage collection completed"
-
-  test:
-    desc: Run all tests
-    cmds:
-      - echo "Running test suite..."
-      - task: test-smart-resize
-      - task: nvim-run-local-headless
-      - echo "All tests completed successfully"
-
-  test-smart-resize:
-    desc: Test the smart-resize functionality
-    cmds:
-      - echo "Testing smart-resize..."
-      - ./tests/smart-resize-test.sh
-      - echo "Smart-resize test completed"
-
-  nvim-run-local:
-    desc: Run Neovim with local configuration interactively
     silent: true
-    vars:
-      PERSISTENT_DIR: '/tmp/sysinit-nvim-persistent'
-    cmds:
-      - |
-        if [ "{{.REUSE_RUNTIME}}" = "true" ]; then
-          echo "> Using persistent runtime directory"
-          sudo mkdir -p {{.PERSISTENT_DIR}}/nvim/lazy
-          sudo chown -R $(id -u):$(id -g) {{.PERSISTENT_DIR}}
-          sudo chmod -R 755 {{.PERSISTENT_DIR}}
-          RUNTIME_DIR="{{.PERSISTENT_DIR}}"
-        else
-          RUNTIME_DIR=$(mktemp -d /tmp/nvim-runtime-XXXXXX)
-          mkdir -p ${RUNTIME_DIR}/nvim/lazy
-          chmod -R 755 ${RUNTIME_DIR}
-        fi
-      - >
-        export NVIM_RUNTIME_DIR=${RUNTIME_DIR} &&
-        cd {{.ROOT_DIR}}/modules/home/neovim &&
-        nvim -u init.lua --cmd "set runtimepath+=${PWD}" {{.ROOT_DIR}}
-      - |
-        if [ "{{.REUSE_RUNTIME}}" != "true" ] && [ -d "${RUNTIME_DIR}" ]; then
-          rm -rf ${RUNTIME_DIR}
-        fi
-    usage: |
-      Run with persistent runtime directory:
-        task nvim-run-local -- REUSE_RUNTIME=true
-      Run with temporary runtime directory:
-        task nvim-run-local
 
   refresh-work:
     desc: Update and rebuild work sysinit configuration
@@ -109,17 +81,3 @@ tasks:
           exit 1
         fi && \
         echo "Work configuration refreshed successfully"
-
-  setup:
-    desc: Install prerequisites for sysinit
-    cmds:
-      - echo "Installing prerequisites..."
-      - ./install-deps.sh
-      - echo "Setup completed"
-
-  uninstall-nix:
-    desc: Completely uninstall Nix from the system
-    cmds:
-      - echo "Uninstalling Nix..."
-      - ./uninstall-nix.sh
-      - echo "Nix uninstalled"
