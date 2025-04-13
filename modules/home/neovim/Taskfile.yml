@@ -11,7 +11,7 @@ tasks:
     desc: Run Neovim with local configuration
     silent: true
     cmds:
-      - nvim -u init.lua --cmd "set runtimepath+=$(pwd)"
+      - NEOVIM_LUA_DIR=$(pwd)/lua nvim -u init.lua --cmd "set runtimepath+=$(pwd)"
     usage: |
       Run Neovim with the local configuration:
         task nvim-run-local
