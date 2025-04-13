@@ -7,8 +7,7 @@ M.plugins = {
     "stevearc/oil.nvim",
     lazy = false,
     dependencies = { 
-      "nvim-tree/nvim-web-devicons",
-      "mrjones2014/legendary.nvim"
+      "nvim-tree/nvim-web-devicons"
     },
     config = function()
       require("oil").setup({
@@ -35,49 +34,23 @@ M.plugins = {
 }
 
 function M.setup()
-  local legendary = require("legendary")
-  local wk = require("which-key")
+  local commander = require("commander")
 
-  -- Define legendary keymaps format
-  local which_key_bindings = {
+  -- Register commands with commander
+  commander.add({
     {
-      "<leader>ee",
-      "<cmd>Oil<CR>",
-      description = "Open Oil file explorer",
-      group = "Explorer"
+      desc = "Open Oil File Explorer",
+      cmd = "<cmd>Oil<CR>",
+      keys = { "n", "<leader>ee" },
+      cat = "Explorer"
     },
     {
-      "<leader>ef",
-      "<cmd>Oil --float<CR>",
-      description = "Open Oil in floating window",
-      group = "Explorer"
+      desc = "Open Oil in Floating Window",
+      cmd = "<cmd>Oil --float<CR>",
+      keys = { "n", "<leader>ef" },
+      cat = "Explorer"
     }
-  }
-
-  -- Configure which-key separately
-  wk.add({
-    { "<leader>e", group = "Explorer" },
-    { "<leader>ee", "<cmd>Oil<CR>", desc = "Open Oil file explorer" },
-    { "<leader>ef", "<cmd>Oil --float<CR>", desc = "Open Oil in floating window" }
   })
-
-  -- Command Palette Commands
-  local command_palette_commands = {
-    {
-      "Oil",
-      description = "Explorer: Open Oil file explorer",
-      category = "Explorer"
-    },
-    {
-      "Oil --float",
-      description = "Explorer: Open Oil in floating window",
-      category = "Explorer"
-    }
-  }
-
-  -- Register with Legendary
-  legendary.keymaps(which_key_bindings)
-  legendary.commands(command_palette_commands)
   
   -- Register verification steps
   verify.register_verification("oil", {
@@ -92,14 +65,14 @@ function M.setup()
       expected = "Should open Oil in a floating window"
     },
     {
-      desc = "Legendary Keybindings",
-      command = "Which-key <leader>e",
-      expected = "Should show Oil explorer group"
+      desc = "Commander Keybindings",
+      command = "<leader>ee",
+      expected = "Should open Oil explorer"
     },
     {
-      desc = "Command Palette Commands",
-      command = ":Legendary commands",
-      expected = "Should show Oil commands in Command Palette"
+      desc = "Commander Commands",
+      command = ":Telescope commander filter cat=Explorer",
+      expected = "Should show Oil commands in Commander palette"
     }
   })
 end

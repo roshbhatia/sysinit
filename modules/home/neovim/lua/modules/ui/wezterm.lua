@@ -7,8 +7,7 @@ M.plugins = {
     "willothy/wezterm.nvim",
     lazy = false,
     config = true,
-    dependencies = { 
-      "mrjones2014/legendary.nvim",
+    dependencies = {
       "mrjones2014/smart-splits.nvim"
     }
   }
@@ -16,7 +15,7 @@ M.plugins = {
 
 function M.setup()
   local wezterm = require("wezterm")
-  local legendary = require("legendary")
+  local commander = require("commander")
   local smart_splits = require("smart-splits")
 
   -- Configure smart-splits
@@ -41,77 +40,70 @@ function M.setup()
     },
   })
 
-  -- Which-key bindings using V3 format
-  local wk = require("which-key")
-  wk.add({
-    { "<leader>w", group = "WezTerm" },
-    { "<leader>wt", "<cmd>WeztermSpawn htop<CR>", desc = "Spawn htop in WezTerm" },
-    { "<leader>ws", "<cmd>WeztermSplitPane<CR>", desc = "Create WezTerm Split Pane" },
+  -- Register wezterm commands with commander
+  commander.add({
+    {
+      desc = "Spawn htop in WezTerm",
+      cmd = "<cmd>WeztermSpawn htop<CR>",
+      keys = { "n", "<leader>wt" },
+      cat = "WezTerm"
+    },
+    {
+      desc = "Create WezTerm Split Pane",
+      cmd = "<cmd>WeztermSplitPane<CR>",
+      keys = { "n", "<leader>ws" },
+      cat = "WezTerm"
+    },
     -- Smart-splits bindings
     {
-      "<C-h>",
-      function() smart_splits.move_cursor_left() end,
-      desc = "Move to left split"
+      desc = "Move to left split",
+      cmd = function() smart_splits.move_cursor_left() end,
+      keys = { "n", "<C-h>" },
+      cat = "Navigation"
     },
     {
-      "<C-j>",
-      function() smart_splits.move_cursor_down() end,
-      desc = "Move to split below"
+      desc = "Move to split below",
+      cmd = function() smart_splits.move_cursor_down() end,
+      keys = { "n", "<C-j>" },
+      cat = "Navigation"
     },
     {
-      "<C-k>",
-      function() smart_splits.move_cursor_up() end,
-      desc = "Move to split above"
+      desc = "Move to split above",
+      cmd = function() smart_splits.move_cursor_up() end,
+      keys = { "n", "<C-k>" },
+      cat = "Navigation"
     },
     {
-      "<C-l>",
-      function() smart_splits.move_cursor_right() end,
-      desc = "Move to right split"
+      desc = "Move to right split",
+      cmd = function() smart_splits.move_cursor_right() end,
+      keys = { "n", "<C-l>" },
+      cat = "Navigation"
     },
     {
-      "<D-S-h>",
-      function() smart_splits.resize_left() end,
-      desc = "Resize split left"
+      desc = "Resize split left",
+      cmd = function() smart_splits.resize_left() end,
+      keys = { "n", "<D-S-h>" },
+      cat = "Resize"
     },
     {
-      "<D-S-j>",
-      function() smart_splits.resize_down() end,
-      desc = "Resize split down"
+      desc = "Resize split down",
+      cmd = function() smart_splits.resize_down() end,
+      keys = { "n", "<D-S-j>" },
+      cat = "Resize"
     },
     {
-      "<D-S-k>",
-      function() smart_splits.resize_up() end,
-      desc = "Resize split up"
+      desc = "Resize split up",
+      cmd = function() smart_splits.resize_up() end,
+      keys = { "n", "<D-S-k>" },
+      cat = "Resize"
     },
     {
-      "<D-S-l>",
-      function() smart_splits.resize_right() end,
-      desc = "Resize split right"
+      desc = "Resize split right",
+      cmd = function() smart_splits.resize_right() end,
+      keys = { "n", "<D-S-l>" },
+      cat = "Resize"
     }
-  }
-
-  -- Command Palette Commands
-  local command_palette_commands = {
-    {
-      "WeztermSpawn",
-      description = "WezTerm: Spawn Terminal",
-      category = "WezTerm"
-    },
-    {
-      "WeztermSpawn htop",
-      description = "WezTerm: Spawn htop",
-      category = "WezTerm"
-    },
-    {
-      "WeztermSplitPane",
-      description = "WezTerm: Split Pane",
-      category = "WezTerm"
-    }
-  }
-
-  -- Register with Legendary
-  legendary.keymaps(which_key_bindings)
-  legendary.commands(command_palette_commands)
+  })
   
   -- Verify WezTerm integration
   verify.register_verification("wezterm", {
