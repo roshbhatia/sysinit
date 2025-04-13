@@ -86,13 +86,13 @@ local module_system = {
     "devicons",
     "heirline",
     "wezterm",
+    "nvimtree",
   },
   -- Tool modules that enhance editing experience
   tools = {
     "comment",
     "hop",
     "treesitter",
-    "trouble",
   }
 }
 
