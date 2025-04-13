@@ -9,8 +9,7 @@ M.plugins = {
     lazy = false,
     priority = 900,
     dependencies = {
-      "nvim-treesitter/nvim-treesitter-textobjects",
-      "mrjones2014/legendary.nvim"
+      "nvim-treesitter/nvim-treesitter-textobjects"
     },
     config = function()
       require("nvim-treesitter.configs").setup({
@@ -70,48 +69,115 @@ M.plugins = {
 }
 
 function M.setup()
-  local legendary = require("legendary")
+  local commander = require("commander")
 
-  -- Which-key bindings using V3 format
-  local wk = require("which-key")
-  wk.add({
-    { "af", desc = "Around function", mode = { "o", "x" } },
-    { "if", desc = "Inside function", mode = { "o", "x" } },
-    { "ac", desc = "Around class", mode = { "o", "x" } },
-    { "ic", desc = "Inside class", mode = { "o", "x" } },
-    { "ab", desc = "Around block", mode = { "o", "x" } },
-    { "ib", desc = "Inside block", mode = { "o", "x" } },
-    { "]f", desc = "Next function start", mode = "n" },
-    { "]c", desc = "Next class start", mode = "n" },
-    { "]F", desc = "Next function end", mode = "n" },
-    { "]C", desc = "Next class end", mode = "n" },
-    { "[f", desc = "Previous function start", mode = "n" },
-    { "[c", desc = "Previous class start", mode = "n" },
-    { "[F", desc = "Previous function end", mode = "n" },
-    { "[C", desc = "Previous class end", mode = "n" }
-  })
-
-  -- Command Palette Commands
-  local command_palette_commands = {
+  -- Register treesitter text object descriptions
+  -- (These are already mapped by treesitter config, but we add them to Commander for documentation)
+  commander.add({
     {
-      "TSInstall",
-      description = "Treesitter: Install Language",
-      category = "Treesitter"
+      desc = "Around Function",
+      cmd = "af",
+      keys = { {"o", "x"}, "af" },
+      cat = "Treesitter Textobject"
     },
     {
-      "TSUpdate",
-      description = "Treesitter: Update Parsers",
-      category = "Treesitter"
+      desc = "Inside Function",
+      cmd = "if",
+      keys = { {"o", "x"}, "if" },
+      cat = "Treesitter Textobject"
     },
     {
-      "TSModuleInfo",
-      description = "Treesitter: Show Language Info",
-      category = "Treesitter"
+      desc = "Around Class",
+      cmd = "ac",
+      keys = { {"o", "x"}, "ac" },
+      cat = "Treesitter Textobject"
+    },
+    {
+      desc = "Inside Class",
+      cmd = "ic",
+      keys = { {"o", "x"}, "ic" },
+      cat = "Treesitter Textobject"
+    },
+    {
+      desc = "Around Block",
+      cmd = "ab",
+      keys = { {"o", "x"}, "ab" },
+      cat = "Treesitter Textobject"
+    },
+    {
+      desc = "Inside Block",
+      cmd = "ib",
+      keys = { {"o", "x"}, "ib" },
+      cat = "Treesitter Textobject"
+    },
+    -- Navigation commands
+    {
+      desc = "Next Function Start",
+      cmd = "]f",
+      keys = { "n", "]f" },
+      cat = "Treesitter Navigation"
+    },
+    {
+      desc = "Next Class Start",
+      cmd = "]c",
+      keys = { "n", "]c" },
+      cat = "Treesitter Navigation"
+    },
+    {
+      desc = "Next Function End",
+      cmd = "]F",
+      keys = { "n", "]F" },
+      cat = "Treesitter Navigation"
+    },
+    {
+      desc = "Next Class End",
+      cmd = "]C",
+      keys = { "n", "]C" },
+      cat = "Treesitter Navigation"
+    },
+    {
+      desc = "Previous Function Start",
+      cmd = "[f",
+      keys = { "n", "[f" },
+      cat = "Treesitter Navigation"
+    },
+    {
+      desc = "Previous Class Start",
+      cmd = "[c",
+      keys = { "n", "[c" },
+      cat = "Treesitter Navigation"
+    },
+    {
+      desc = "Previous Function End",
+      cmd = "[F",
+      keys = { "n", "[F" },
+      cat = "Treesitter Navigation"
+    },
+    {
+      desc = "Previous Class End",
+      cmd = "[C",
+      keys = { "n", "[C" },
+      cat = "Treesitter Navigation"
+    },
+    -- Treesitter commands
+    {
+      desc = "Install Treesitter Language",
+      cmd = "<cmd>TSInstall ",
+      cat = "Treesitter"
+    },
+    {
+      desc = "Update Treesitter Parsers",
+      cmd = "<cmd>TSUpdate<CR>",
+      keys = { "n", "<leader>tu" },
+      cat = "Treesitter"
+    },
+    {
+      desc = "Show Treesitter Module Info",
+      cmd = "<cmd>TSModuleInfo<CR>",
+      keys = { "n", "<leader>ti" },
+      cat = "Treesitter"
     }
-  }
-
-  -- Register with Legendary
-  legendary.commands(command_palette_commands)
+  })
 
   -- Register verification steps
   verify.register_verification("treesitter", {
@@ -126,9 +192,14 @@ function M.setup()
       expected = "Should show syntax highlighting"
     },
     {
-      desc = "Command Palette Commands",
-      command = ":Legendary commands",
-      expected = "Should show Treesitter commands in Command Palette"
+      desc = "Commander Commands",
+      command = ":Telescope commander filter cat=Treesitter",
+      expected = "Should show Treesitter commands in Commander palette"
+    },
+    {
+      desc = "Text Objects",
+      command = "vaf in a function",
+      expected = "Should select the entire function"
     }
   })
 end
