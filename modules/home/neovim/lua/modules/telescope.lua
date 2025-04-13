@@ -54,16 +54,15 @@ M.plugins = {
 function M.setup()
   local legendary = require("legendary")
 
-  -- Which-key bindings using V3 format
-  wk.add({
-    { "<leader>f", group = "Find" },
-    { "<leader>ff", "<cmd>Telescope find_files<CR>", desc = "Find Files" },
-    { "<leader>fg", "<cmd>Telescope live_grep<CR>", desc = "Live Grep" },
-    { "<leader>fb", "<cmd>Telescope buffers<CR>", desc = "Find Buffers" },
-    { "<leader>fh", "<cmd>Telescope help_tags<CR>", desc = "Help Tags" },
-    { "<leader>fr", "<cmd>Telescope oldfiles<CR>", desc = "Recent Files" },
-    { "<leader>fc", "<cmd>Telescope commands<CR>", desc = "Commands" },
-    { "<leader>fk", "<cmd>Telescope keymaps<CR>", desc = "Keymaps" }
+  -- Define keymaps in legendary format
+  local telescope_keymaps = {
+    { "<leader>ff", "<cmd>Telescope find_files<CR>", description = "Find Files", group = "Telescope" },
+    { "<leader>fg", "<cmd>Telescope live_grep<CR>", description = "Live Grep", group = "Telescope" },
+    { "<leader>fb", "<cmd>Telescope buffers<CR>", description = "Find Buffers", group = "Telescope" },
+    { "<leader>fh", "<cmd>Telescope help_tags<CR>", description = "Help Tags", group = "Telescope" },
+    { "<leader>fr", "<cmd>Telescope oldfiles<CR>", description = "Recent Files", group = "Telescope" },
+    { "<leader>fc", "<cmd>Telescope commands<CR>", description = "Commands", group = "Telescope" },
+    { "<leader>fk", "<cmd>Telescope keymaps<CR>", description = "Keymaps", group = "Telescope" }
   }
 
   -- Command Palette Commands
@@ -106,7 +105,7 @@ function M.setup()
   }
 
   -- Register with Legendary
-  legendary.keymaps(which_key_bindings)
+  legendary.keymaps(telescope_keymaps)
   legendary.commands(command_palette_commands)
 
   -- Register verification steps

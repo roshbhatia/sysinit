@@ -77,18 +77,18 @@ local function collect_plugin_specs()
   
   local modules = {
     "wezterm",
-    "comment",
     "wilder",
+    "legendary",
     "heirline",
+    "telescope",
+    "comment",
     "hop",
     "oil",
-    "telescope",
     "carbonfox",
     "bufferline",
     "treesitter",
     "trouble",
     "which-key",
-    "legendary",
     "devicons",
     "lazy"
     -- Add other modules as they are created
