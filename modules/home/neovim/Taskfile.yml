@@ -11,8 +11,16 @@ tasks:
     desc: Run Neovim with local configuration (isolated)
     silent: true
     cmds:
-      - >
-        NVIM_APPNAME=nvim-test XDG_CONFIG_HOME=/tmp/nvim-test XDG_DATA_HOME=/tmp/nvim-test XDG_STATE_HOME=/tmp/nvim-test XDG_CACHE_HOME=/tmp/nvim-test nvim -u ./init.lua
+      - |
+        TMP_DIR=$(mktemp -d /tmp/nvim-test-XXXXXX)
+        mkdir -p $TMP_DIR/share $TMP_DIR/config $TMP_DIR/state $TMP_DIR/cache
+        echo "Running Neovim with config from $(pwd)"
+        NVIM_APPNAME=nvim-test \
+        XDG_DATA_HOME=$TMP_DIR/share \
+        XDG_CONFIG_HOME=$TMP_DIR/config \
+        XDG_STATE_HOME=$TMP_DIR/state \
+        XDG_CACHE_HOME=$TMP_DIR/cache \
+        nvim --cmd "set runtimepath^=$(pwd),$(pwd)/lua" -u "$(pwd)/init.lua"
     usage: |
       Run Neovim with the local configuration (isolated environment):
         task nvim-run-local
