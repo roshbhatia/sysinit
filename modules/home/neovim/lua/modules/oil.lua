@@ -41,7 +41,7 @@ function M.setup()
     { "<leader>e", group = "Explorer" },
     { "<leader>ee", "<cmd>Oil<CR>", desc = "Open Oil file explorer" },
     { "<leader>ef", "<cmd>Oil --float<CR>", desc = "Open Oil in floating window" }
-  }
+  })
 
   -- Command Palette Commands
   local command_palette_commands = {
