@@ -1,7 +1,4 @@
 local verify = require("core.verify")
-local legendary = require("legendary")
--- Add this line to require which-key
-local wk = require("which-key")
 
 local M = {}
 
@@ -10,8 +7,7 @@ M.plugins = {
     "akinsho/bufferline.nvim",
     lazy = false,
     dependencies = { 
-      "nvim-tree/nvim-web-devicons",
-      "mrjones2014/legendary.nvim"
+      "nvim-tree/nvim-web-devicons"
     },
     config = function()
       require("bufferline").setup({
@@ -67,51 +63,41 @@ M.plugins = {
 }
 
 function M.setup()
-  -- Create the which_key_bindings variable to match what you're passing to legendary later
-  local which_key_bindings = {
-    { "<leader>b", group = "Buffer" },
-    { "<leader>bn", "<cmd>BufferLineCycleNext<CR>", desc = "Next buffer" },
-    { "<leader>bp", "<cmd>BufferLineCyclePrev<CR>", desc = "Previous buffer" },
-    { "<leader>bc", "<cmd>BufferLinePickClose<CR>", desc = "Close selected buffer" },
-    { "<leader>bb", "<cmd>BufferLinePick<CR>", desc = "Pick buffer" },
-    { "<leader>bs", "<cmd>BufferLineSortByDirectory<CR>", desc = "Sort buffers by directory" }
-  }
-
-  -- Which-key bindings using V3 format
-  wk.add(which_key_bindings)
-
-  -- Command Palette Commands
-  local command_palette_commands = {
+  local commander = require("commander")
+  
+  -- Register bufferline commands with commander
+  commander.add({
     {
-      "BufferLineCycleNext",
-      description = "Bufferline: Next buffer",
-      category = "Bufferline"
+      desc = "Next Buffer",
+      cmd = "<cmd>BufferLineCycleNext<CR>",
+      keys = { "n", "<leader>bn" },
+      cat = "Buffer"
     },
     {
-      "BufferLineCyclePrev",
-      description = "Bufferline: Previous buffer",
-      category = "Bufferline"
+      desc = "Previous Buffer",
+      cmd = "<cmd>BufferLineCyclePrev<CR>",
+      keys = { "n", "<leader>bp" },
+      cat = "Buffer"
     },
     {
-      "BufferLinePick",
-      description = "Bufferline: Pick buffer",
-      category = "Bufferline"
+      desc = "Close Selected Buffer",
+      cmd = "<cmd>BufferLinePickClose<CR>",
+      keys = { "n", "<leader>bc" },
+      cat = "Buffer"
     },
     {
-      "BufferLinePickClose",
-      description = "Bufferline: Close selected buffer",
-      category = "Bufferline"
+      desc = "Pick Buffer",
+      cmd = "<cmd>BufferLinePick<CR>",
+      keys = { "n", "<leader>bb" },
+      cat = "Buffer"
     },
     {
-      "BufferLineSortByDirectory",
-      description = "Bufferline: Sort buffers by directory",
-      category = "Bufferline"
+      desc = "Sort Buffers by Directory",
+      cmd = "<cmd>BufferLineSortByDirectory<CR>",
+      keys = { "n", "<leader>bs" },
+      cat = "Buffer"
     }
-  }
-
-  -- Register with Legendary
-  legendary.keymaps(which_key_bindings)
-  legendary.commands(command_palette_commands)
+  })
 
   -- Register verification steps
   verify.register_verification("bufferline", {
@@ -126,14 +112,14 @@ function M.setup()
       expected = "Should cycle to next buffer"
     },
     {
-      desc = "Legendary Keybindings",
-      command = "Which-key <leader>b",
-      expected = "Should show Bufferline commands"
+      desc = "Commander Keybindings",
+      command = "<leader>bn",
+      expected = "Should cycle to next buffer"
     },
     {
-      desc = "Command Palette Bufferline Commands",
-      command = ":Legendary commands",
-      expected = "Should show Bufferline commands in Command Palette"
+      desc = "Commander Commands",
+      command = ":Telescope commander filter cat=Buffer",
+      expected = "Should show Bufferline commands in Commander palette"
     }
   })
 end

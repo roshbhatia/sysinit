@@ -33,21 +33,19 @@ M.plugins = {
 }
 
 function M.setup()
-  local legendary = require("legendary")
+  local commander = require("commander")
 
-  -- No user-facing keybindings for this module
-  
-  -- Command Palette Commands
-  local command_palette_commands = {
+  -- Register devicons commands with commander
+  commander.add({
     {
-      "lua print(vim.inspect(require('nvim-web-devicons').get_icons()))",
-      description = "DevIcons: Show all icons",
-      category = "DevIcons"
+      desc = "Show All DevIcons",
+      cmd = function()
+        local icons = require('nvim-web-devicons').get_icons()
+        vim.api.nvim_echo({{vim.inspect(icons), "Normal"}}, true, {})
+      end,
+      cat = "DevIcons"
     }
-  }
-
-  -- Register with Legendary
-  legendary.commands(command_palette_commands)
+  })
 
   -- Register verification steps
   verify.register_verification("devicons", {
@@ -55,6 +53,11 @@ function M.setup()
       desc = "DevIcons Loading",
       command = "Check if icons appear in bufferline and other UIs",
       expected = "Should show file type icons in UI components"
+    },
+    {
+      desc = "Commander Commands",
+      command = ":Telescope commander filter cat=DevIcons",
+      expected = "Should show DevIcons commands in Commander palette"
     }
   })
 end
