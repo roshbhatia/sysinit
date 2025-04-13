@@ -72,20 +72,19 @@ vim.opt.completeopt = { "menuone", "noselect" }
 
 -- Define module paths
 local modules = {
-  "initial.commander"
-  -- "initial.wezterm",
-  -- "initial.wilder",
-  -- "initial.heirline",
-  -- "initial.carbonfox",
-  -- "initial.bufferline",
-  -- "initial.devicons",
+  "initial.wezterm",
+  "initial.wilder",
+  "initial.heirline",
+  "initial.carbonfox",
+  "initial.bufferline",
+  "initial.devicons",
   
   "main.telescope",
-  -- "main.comment",
-  -- "main.hop",
-  -- "main.oil",
-  -- "main.treesitter",
-  -- "main.trouble",
+  "main.comment",
+  "main.hop",
+  "main.oil",
+  "main.treesitter",
+  "main.trouble",
 }
 
 -- Collect plugin specs from modules
