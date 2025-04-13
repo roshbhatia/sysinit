@@ -23,19 +23,29 @@ M.plugins = {
 }
 
 function M.setup()
-  local legendary = require("legendary")
+  local commander = require("commander")
 
-  -- Command Palette Commands
-  local command_palette_commands = {
+  -- Register theme commands with commander
+  commander.add({
     {
-      "colorscheme carbonfox",
-      description = "Theme: Set Carbonfox",
-      category = "Theme"
+      desc = "Set Carbonfox Theme",
+      cmd = "<cmd>colorscheme carbonfox<CR>",
+      keys = { "n", "<leader>tc" },
+      cat = "Theme"
+    },
+    {
+      desc = "Toggle Dark/Light Theme",
+      cmd = function()
+        if vim.o.background == "dark" then
+          vim.o.background = "light"
+        else
+          vim.o.background = "dark"
+        end
+      end,
+      keys = { "n", "<leader>tt" },
+      cat = "Theme"
     }
-  }
-
-  -- Register with Legendary
-  legendary.commands(command_palette_commands)
+  })
 
   -- Register verification steps
   verify.register_verification("carbonfox", {
@@ -45,9 +55,9 @@ function M.setup()
       expected = "Should show carbonfox as active colorscheme"
     },
     {
-      desc = "Command Palette Commands",
-      command = ":Legendary commands",
-      expected = "Should show Theme commands in Command Palette"
+      desc = "Commander Commands",
+      command = ":Telescope commander filter cat=Theme",
+      expected = "Should show Theme commands in Commander palette"
     }
   })
 end

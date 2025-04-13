@@ -8,8 +8,7 @@ M.plugins = {
     lazy = false,
     dependencies = { 
       "nvim-lua/plenary.nvim",
-      "nvim-tree/nvim-web-devicons",
-      "mrjones2014/legendary.nvim"
+      "nvim-tree/nvim-web-devicons"
     },
     config = function()
       require("telescope").setup({
@@ -52,62 +51,60 @@ M.plugins = {
 }
 
 function M.setup()
-  local legendary = require("legendary")
+  local commander = require("commander")
 
-  -- Define keymaps in legendary format
-  local telescope_keymaps = {
-    { "<leader>ff", "<cmd>Telescope find_files<CR>", description = "Find Files", group = "Telescope" },
-    { "<leader>fg", "<cmd>Telescope live_grep<CR>", description = "Live Grep", group = "Telescope" },
-    { "<leader>fb", "<cmd>Telescope buffers<CR>", description = "Find Buffers", group = "Telescope" },
-    { "<leader>fh", "<cmd>Telescope help_tags<CR>", description = "Help Tags", group = "Telescope" },
-    { "<leader>fr", "<cmd>Telescope oldfiles<CR>", description = "Recent Files", group = "Telescope" },
-    { "<leader>fc", "<cmd>Telescope commands<CR>", description = "Commands", group = "Telescope" },
-    { "<leader>fk", "<cmd>Telescope keymaps<CR>", description = "Keymaps", group = "Telescope" }
-  }
-
-  -- Command Palette Commands
-  local command_palette_commands = {
+  -- Register telescope commands with commander
+  commander.add({
     {
-      "Telescope find_files",
-      description = "Telescope: Find Files",
-      category = "Telescope"
+      desc = "Find Files",
+      cmd = "<cmd>Telescope find_files<CR>",
+      keys = { "n", "<leader>ff" },
+      cat = "Telescope"
     },
     {
-      "Telescope live_grep",
-      description = "Telescope: Live Grep",
-      category = "Telescope"
+      desc = "Live Grep",
+      cmd = "<cmd>Telescope live_grep<CR>",
+      keys = { "n", "<leader>fg" },
+      cat = "Telescope"
     },
     {
-      "Telescope buffers",
-      description = "Telescope: Buffers",
-      category = "Telescope"
+      desc = "Buffers",
+      cmd = "<cmd>Telescope buffers<CR>",
+      keys = { "n", "<leader>fb" },
+      cat = "Telescope"
     },
     {
-      "Telescope help_tags",
-      description = "Telescope: Help Tags",
-      category = "Telescope"
+      desc = "Help Tags",
+      cmd = "<cmd>Telescope help_tags<CR>",
+      keys = { "n", "<leader>fh" },
+      cat = "Telescope"
     },
     {
-      "Telescope oldfiles",
-      description = "Telescope: Recent Files",
-      category = "Telescope"
+      desc = "Recent Files",
+      cmd = "<cmd>Telescope oldfiles<CR>",
+      keys = { "n", "<leader>fr" },
+      cat = "Telescope"
     },
     {
-      "Telescope commands",
-      description = "Telescope: Commands",
-      category = "Telescope"
+      desc = "Commands",
+      cmd = "<cmd>Telescope commands<CR>",
+      keys = { "n", "<leader>fc" },
+      cat = "Telescope"
     },
     {
-      "Telescope keymaps",
-      description = "Telescope: Keymaps",
-      category = "Telescope"
+      desc = "Keymaps",
+      cmd = "<cmd>Telescope keymaps<CR>",
+      keys = { "n", "<leader>fk" },
+      cat = "Telescope"
+    },
+    {
+      desc = "Current Buffer Fuzzy Find",
+      cmd = "<cmd>Telescope current_buffer_fuzzy_find<CR>",
+      keys = { "n", "<leader>fs" },
+      cat = "Telescope"
     }
-  }
-
-  -- Register with Legendary
-  legendary.keymaps(telescope_keymaps)
-  legendary.commands(command_palette_commands)
-
+  })
+  
   -- Register verification steps
   verify.register_verification("telescope", {
     {
@@ -121,14 +118,14 @@ function M.setup()
       expected = "Should open Telescope grep search"
     },
     {
-      desc = "Legendary Keybindings",
-      command = "Which-key <leader>f",
-      expected = "Should show Telescope finder group"
+      desc = "Commander Keybindings",
+      command = "<leader>ff",
+      expected = "Should open Telescope finder"
     },
     {
-      desc = "Command Palette Commands",
-      command = ":Legendary commands",
-      expected = "Should show Telescope commands in Command Palette"
+      desc = "Commander Commands",
+      command = ":Telescope commander filter cat=Telescope",
+      expected = "Should show Telescope commands in Commander palette"
     }
   })
 end
