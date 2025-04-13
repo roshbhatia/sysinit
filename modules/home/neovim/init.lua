@@ -22,7 +22,7 @@ vim.opt.rtp:prepend(lua_dir)
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
--- Explicitly register which-key trigger for leader
+-- Explicitly register space key to do nothing (prevents default space behavior)
 vim.keymap.set('n', '<Space>', '<NOP>')
 
 -- Basic editor settings
@@ -70,48 +70,68 @@ vim.opt.foldlevel = 99
 vim.opt.mouse = "a"
 vim.opt.completeopt = { "menuone", "noselect" }
 
--- Define module paths
-local modules = {
-  "initial.wezterm",
-  "initial.wilder",
-  "initial.heirline",
-  "initial.carbonfox",
-  "initial.bufferline",
-  "initial.devicons",
-  
-  "main.telescope",
-  "main.comment",
-  "main.hop",
-  "main.oil",
-  "main.treesitter",
-  "main.trouble",
+-- Define module categories and their modules
+local module_system = {
+  -- Core editor functionality - loaded first to ensure dependencies are available
+  editor = {
+    "commander", -- Load commander first as other modules will register commands with it
+    "telescope",
+    "oil",
+    "wilder",
+  },
+  -- UI-related modules
+  ui = {
+    "bufferline",
+    "carbonfox",
+    "devicons",
+    "heirline",
+    "wezterm",
+  },
+  -- Tool modules that enhance editing experience
+  tools = {
+    "comment",
+    "hop",
+    "treesitter",
+    "trouble",
+  }
 }
 
--- Collect plugin specs from modules
+-- Collect plugin specs from all modules
 local function collect_plugin_specs()
   local specs = {}
-  for _, module_name in ipairs(modules) do
-    local ok, module = pcall(require, "modules." .. module_name)
-    if ok and module.plugins then
-      vim.list_extend(specs, module.plugins)
+  
+  -- Process modules in specific order to handle dependencies correctly
+  local categories = {"editor", "ui", "tools"}
+  
+  for _, category in ipairs(categories) do
+    for _, module_name in ipairs(module_system[category]) do
+      local ok, module = pcall(require, "modules." .. category .. "." .. module_name)
+      if ok and module.plugins then
+        vim.list_extend(specs, module.plugins)
+      end
     end
   end
   
   return specs
 end
 
--- Setup Lazy.nvim with collected specs
-require("lazy").setup(collect_plugin_specs())
-
 -- Setup individual modules
 local function setup_modules()
-  for _, module_name in ipairs(modules) do
-    local ok, module = pcall(require, "modules." .. module_name)
-    if ok and module.setup then
-      module.setup()
+  -- Process modules in specific order to handle dependencies correctly
+  local categories = {"editor", "ui", "tools"}
+  
+  for _, category in ipairs(categories) do
+    for _, module_name in ipairs(module_system[category]) do
+      local ok, module = pcall(require, "modules." .. category .. "." .. module_name)
+      if ok and module.setup then
+        module.setup()
+      end
     end
   end
 end
+
+-- Setup Lazy.nvim with collected specs
+require("lazy").setup(collect_plugin_specs())
 
 -- Run module setup
 setup_modules()
