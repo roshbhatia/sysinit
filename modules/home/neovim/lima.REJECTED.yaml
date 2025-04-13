@@ -1,0 +1,17 @@
+# lima.yaml for ephemeral Neovim testing
+images:
+  - location: "https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64.img"
+    arch: "x86_64"
+
+mounts:
+  - location: "$(pwd)"
+    writable: true
+
+provision:
+  - mode: system
+    script: |
+      #!/bin/bash
+      apt-get update
+      apt-get install -y neovim git ripgrep fd-find
+
+ephemeral: true
