@@ -1,3 +1,5 @@
+local verify = require("core.verify")
+
 local M = {}
 
 M.plugins = {
@@ -34,9 +36,25 @@ M.plugins = {
 
 function M.setup()
   local legendary = require("legendary")
-
-  -- Which-key bindings using V3 format
   local wk = require("which-key")
+
+  -- Define legendary keymaps format
+  local which_key_bindings = {
+    {
+      "<leader>ee",
+      "<cmd>Oil<CR>",
+      description = "Open Oil file explorer",
+      group = "Explorer"
+    },
+    {
+      "<leader>ef",
+      "<cmd>Oil --float<CR>",
+      description = "Open Oil in floating window",
+      group = "Explorer"
+    }
+  }
+
+  -- Configure which-key separately
   wk.add({
     { "<leader>e", group = "Explorer" },
     { "<leader>ee", "<cmd>Oil<CR>", desc = "Open Oil file explorer" },
@@ -60,6 +78,30 @@ function M.setup()
   -- Register with Legendary
   legendary.keymaps(which_key_bindings)
   legendary.commands(command_palette_commands)
+  
+  -- Register verification steps
+  verify.register_verification("oil", {
+    {
+      desc = "Oil File Explorer",
+      command = ":Oil",
+      expected = "Should open Oil file explorer"
+    },
+    {
+      desc = "Oil Floating Window",
+      command = ":Oil --float",
+      expected = "Should open Oil in a floating window"
+    },
+    {
+      desc = "Legendary Keybindings",
+      command = "Which-key <leader>e",
+      expected = "Should show Oil explorer group"
+    },
+    {
+      desc = "Command Palette Commands",
+      command = ":Legendary commands",
+      expected = "Should show Oil commands in Command Palette"
+    }
+  })
 end
 
 return M
