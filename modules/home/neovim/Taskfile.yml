@@ -12,6 +12,7 @@ tasks:
     silent: true
     cmds:
       - >
+        rm -rf /tmp/nvim-tmp
         XDG_CONFIG_HOME=/tmp/nvim-tmp XDG_DATA_HOME=/tmp/nvim-tmp nvim -u init.lua
     usage: |
       Run Neovim with the local configuration (isolated environment):
