@@ -20,6 +20,7 @@ let
     "homebrew/cask"
     "homebrew/core"
     "homebrew/services"
+    "mediosz/tap"
     "noahgorstein/tap"
     "nikitabobko/tap"
     "FelixKratz/formulae"
