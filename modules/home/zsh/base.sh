@@ -43,22 +43,27 @@ _load_extras() {
     local extras_dir="$XDG_CONFIG_HOME/zsh/extras"
     [[ ! -d "$extras_dir" ]] && return
 
-    # First load any direct .sh files in extras
-    for module in "$extras_dir"/*.sh; do
-        [[ -f "$module" ]] && source "$module"
-    done
-
-    # Then load any scripts in extras/bin if it exists
-    local bin_dir="$extras_dir/bin"
-    if [[ -d "$bin_dir" ]]; then
-        for script in "$bin_dir"/*; do
-            [[ -f "$script" ]] && source "$script"
+    {
+        # First load any direct .sh files in extras
+        for module in "$extras_dir"/*.sh; do
+            [[ -f "$module" ]] && source "$module"
         done
-    fi
+
+        # Then load any scripts in extras/bin if it exists
+        local bin_dir="$extras_dir/bin"
+        if [[ -d "$bin_dir" ]]; then
+            for script in "$bin_dir"/*; do
+                [[ -f "$script" ]] && source "$script"
+            done
+        fi
+    } &>/dev/null
 }
 
-# Load extras asynchronously
-_load_extras &!
+# Load extras asynchronously and discard output
+{
+    _load_extras
+    kill -SIGUSR1 $$  # Signal completion
+} &>/dev/null &
 
 # Fix TERM_PROGRAM unbound variable issue
 if [ -z "$TERM_PROGRAM" ]; then
