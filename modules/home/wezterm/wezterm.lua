@@ -28,7 +28,7 @@ config.visual_bell = {
     fade_out_duration_ms = 50
 }
 
-config.color_scheme = "apprentice-bright"
+config.color_scheme = "3024 Night (Gogh)"
 
 config.colors = {
     visual_bell = '#242529',
@@ -110,53 +110,13 @@ local SOLID_RIGHT_ARROW = utf8.char(0xe0b0)
 
 -- Function to create powerline segments for right status
 local function segments_for_right_status(window)
-    return {
-        { text = wezterm.hostname(), foreground = "#8be9fd", background = "#3b4048" },
-    }
-end
-
-wezterm.on('update-status', function(window, _)
-    local segments = segments_for_right_status(window)
-    local elements = {}
+    local segments = {}
     
-    -- Build the right status elements with powerline separators
-    for i, segment in ipairs(segments) do
-        local is_last = i == #segments
-        
-        if i > 1 then
-            -- Add powerline arrow between segments
-            table.insert(elements, {Foreground = {Color = segment.background}})
-            table.insert(elements, {Background = {Color = segments[i-1].background}})
-            table.insert(elements, {Text = SOLID_LEFT_ARROW})
-        end
-        
-        -- Add the segment text
-        table.insert(elements, {Foreground = {Color = segment.foreground}})
-        table.insert(elements, {Background = {Color = segment.background}})
-        table.insert(elements, {Text = " " .. segment.text .. " "})
-        
-        -- Add final arrow for the last segment
-        if is_last then
-            table.insert(elements, {Foreground = {Color = "background"}})
-            table.insert(elements, {Background = {Color = segment.background}})
-            table.insert(elements, {Text = SOLID_LEFT_ARROW})
-        end
-    end
-    
-    -- Set right status
-    window:set_right_status(wezterm.format(elements))
-    
-    -- Also enhance the left status (optional)
-    local left_elements = {}
-    
-    -- Get current working directory
+    -- Get current working directory for first segment
     local cwd = ""
-    local success, cwd_uri, cwd_domain = pcall(window.active_pane.get_current_working_dir, window:active_pane())
+    local success, cwd_uri = pcall(window.active_pane.get_current_working_dir, window:active_pane())
     if success then
-        cwd = cwd_uri.file_path
-        -- Shorten home directory
-        cwd = cwd:gsub(os.getenv("HOME"), "~")
-        -- Get just the last part of the path
+        cwd = cwd_uri.file_path:gsub(os.getenv("HOME"), "~")
         if cwd ~= "~" then
             local parts = {}
             for part in cwd:gmatch("[^/]+") do
@@ -168,18 +128,44 @@ wezterm.on('update-status', function(window, _)
         end
     end
     
-    -- Add directory to left status
+    -- Add directory segment
     if cwd ~= "" then
-        table.insert(left_elements, {Foreground = {Color = "#bd93f9"}})
-        table.insert(left_elements, {Background = {Color = "#282c34"}})
-        table.insert(left_elements, {Text = " 󰉋 " .. cwd .. " "})
-        
-        table.insert(left_elements, {Foreground = {Color = "#282c34"}})
-        table.insert(left_elements, {Background = {Color = "background"}})
-        table.insert(left_elements, {Text = SOLID_RIGHT_ARROW})
+        table.insert(segments, { text = "󰉋 " .. cwd, foreground = "#bd93f9", background = "#282c34" })
     end
     
-    window:set_left_status(wezterm.format(left_elements))
+    -- Add hostname segment
+    table.insert(segments, { text = wezterm.hostname(), foreground = "#8be9fd", background = "#3b4048" })
+    
+    return segments
+end
+
+wezterm.on('update-status', function(window, _)
+    local segments = segments_for_right_status(window)
+    local elements = {}
+    
+    -- Build the right status elements with powerline separators
+    for i, segment in ipairs(segments) do
+        local is_last = i == #segments
+        
+        if i > 1 then
+            table.insert(elements, {Foreground = {Color = segment.background}})
+            table.insert(elements, {Background = {Color = segments[i-1].background}})
+            table.insert(elements, {Text = SOLID_LEFT_ARROW})
+        end
+        
+        table.insert(elements, {Foreground = {Color = segment.foreground}})
+        table.insert(elements, {Background = {Color = segment.background}})
+        table.insert(elements, {Text = " " .. segment.text .. " "})
+        
+        if is_last then
+            table.insert(elements, {Foreground = {Color = "background"}})
+            table.insert(elements, {Background = {Color = segment.background}})
+            table.insert(elements, {Text = SOLID_LEFT_ARROW})
+        end
+    end
+    
+    window:set_right_status(wezterm.format(elements))
+    window:set_left_status("") -- Clear left status
 end)
 
 return config
