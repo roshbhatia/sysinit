@@ -46,7 +46,7 @@
       y = "yazi";
 
       vim = "nvim";
-      vi = "nvim"
+      vi = "nvim";
       
       # Help command
       "sysinit-help" = "$HOME/.config/sysinit/sysinit-help.sh";
