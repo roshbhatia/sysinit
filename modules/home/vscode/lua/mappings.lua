@@ -43,6 +43,7 @@ function M.setup()
     vim.keymap.set('n', '<leader>gc', function() vscode.action('git.commitAll') end, opts)
     vim.keymap.set('n', '<leader>gp', function() vscode.action('git.push') end, opts)
     vim.keymap.set('n', '<leader>gm', function() vscode.action('github.copilot.generateCommitMessage') end, opts)
+    vim.keymap.set('n', '<leader>gb', function() vscode.action('toggle.blame') end, opts)
     
     -- File operations
     vim.keymap.set('n', '<leader>fr', function() vscode.action('renameFile') end, opts)
