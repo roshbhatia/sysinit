@@ -23,6 +23,7 @@
         "qemu"
       ];
       casks = [
+        "orbstack"
         "notion"
       ];
     };
