@@ -12,9 +12,12 @@
     syntaxHighlighting.enable = false;
 
     completionInit = ''
-      # Add Homebrew completions to fpath
-      if [ -d "/opt/homebrew/share/zsh/site-functions" ]; then
-        fpath=(/opt/homebrew/share/zsh/site-functions $fpath)
+      # Defer completion initialization
+      autoload -Uz compinit
+      if [[ -n ${ZDOTDIR}/.zcompdump(#qN.mh+24) ]]; then
+        compinit -C;
+      else
+        compinit;
       fi
     '';
 
@@ -75,9 +78,14 @@
       }
     ];
 
-    # This is akin to our normal .zshrc
     initExtra = ''
+      # Initialize base configuration
       source $HOME/.config/zsh/base.sh
+      
+      # Optimize command lookup
+      zstyle ':completion:*' accept-exact '*(N)'
+      zstyle ':completion:*' cache-path ~/.zsh/cache
+      zstyle ':completion:*' use-cache on
     '';
   };
   
@@ -85,7 +93,7 @@
     # Core files
     "zsh/base.sh".source = ./base.sh;
     "zsh/fzf.sh".source = ./fzf.sh;
-    "zsh/homebrew.sh".source = ./homebrew.sh;
+    "zsh/completions.sh".source = ./completions.sh;
     "zsh/loglib.sh".source = ./loglib.sh;
     "zsh/notifications.sh".source = ./notifications.sh;
     "zsh/paths.sh".source = ./paths.sh;

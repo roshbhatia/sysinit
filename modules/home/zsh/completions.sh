@@ -14,13 +14,13 @@
 #      |  |:/        /__/:/       \  \:\        \  \:\        \  \::/
 #      |__|/         \__\/         \__\/         \__\/         \__\/
 
-if [ -f "/opt/homebrew/bin/brew" ]; then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
+eval "$(/opt/homebrew/bin/brew shellenv)"
 
-  # Initialize shell tools and completions with evalcache
-  _evalcache atuin init zsh --disable-up-arrow
-  _evalcache kubectl completion zsh
-  _evalcache docker completion zsh
-  _evalcache stern --completion zsh
-  _evalcache gh completion -s zsh
-fi
+_evalcache \
+  atuin init zsh --disable-up-arrow && \
+  kubectl completion zsh && \
+  docker completion zsh && \
+  stern --completion zsh && \
+  gh completion -s zsh
+  direnv hook zsh && \
+  gh copilot alias -- zsh
