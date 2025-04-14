@@ -39,38 +39,22 @@ source "$XDG_CONFIG_HOME/zsh/notifications.sh" # Load notifications
 source "$XDG_CONFIG_HOME/zsh/shift-select.sh"  # Load shift-select
 
 # Load all extras
-_load_extras() {
+{
+    setopt local_options nullglob
     local extras_dir="$XDG_CONFIG_HOME/zsh/extras"
-    local lock_file="/tmp/zsh_extras_$USER.lock"
-    
-    # Check lock file
-    [[ -f "$lock_file" ]] && return
     [[ ! -d "$extras_dir" ]] && return
-    
-    # Create lock file
-    touch "$lock_file"
-    
-    {
-        # Combine and source extras
-        local tmp_file=$(mktemp)
-        echo "#!/usr/bin/env zsh" > "$tmp_file"
-        
-        # Add extras
-        find "$extras_dir" -type f -name "*.sh" -not -name "loglib.sh" -exec cat {} \; >> "$tmp_file" 2>/dev/null
-        find "$extras_dir/bin" -type f -exec cat {} \; >> "$tmp_file" 2>/dev/null
-        
-        # Source combined file
-        source "$tmp_file" >/dev/null 2>&1
-        rm -f "$tmp_file"
-        rm -f "$lock_file"
-    } >/dev/null 2>&1
-}
 
-# Start async load with proper job management
-(
-    _load_extras
-    disown
-) &>/dev/null &
+    # Load direct .sh files first
+    for f in "$extras_dir"/*.sh; do
+        [[ "$f" != *"loglib.sh" ]] && source "$f"
+    done
+
+    # Load bin scripts if directory exists
+    [[ -d "$extras_dir/bin" ]] && 
+        for f in "$extras_dir/bin"/*; do
+            source "$f"
+        done
+} >/dev/null 2>&1
 
 # Fix TERM_PROGRAM unbound variable issue
 if [ -z "$TERM_PROGRAM" ]; then
