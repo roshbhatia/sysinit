@@ -43,27 +43,32 @@ _load_extras() {
     local extras_dir="$XDG_CONFIG_HOME/zsh/extras"
     [[ ! -d "$extras_dir" ]] && return
 
+    # Create temp file for loading
+    local tmp_file=$(mktemp)
+    
+    # Concatenate all extras into a single temp file
     {
         # First load any direct .sh files in extras
         for module in "$extras_dir"/*.sh; do
-            [[ -f "$module" ]] && source "$module"
+            [[ -f "$module" ]] && cat "$module" >> "$tmp_file"
         done
 
         # Then load any scripts in extras/bin if it exists
         local bin_dir="$extras_dir/bin"
         if [[ -d "$bin_dir" ]]; then
             for script in "$bin_dir"/*; do
-                [[ -f "$script" ]] && source "$script"
+                [[ -f "$script" ]] && cat "$script" >> "$tmp_file"
             done
         fi
-    } &>/dev/null
+    } 2>/dev/null
+
+    # Source the combined file and clean up
+    source "$tmp_file" 2>/dev/null
+    rm -f "$tmp_file"
 }
 
-# Load extras asynchronously and discard output
-{
-    _load_extras
-    kill -SIGUSR1 $$  # Signal completion
-} &>/dev/null &
+# Load extras in background without output
+{ (_load_extras & ) } >/dev/null 2>&1
 
 # Fix TERM_PROGRAM unbound variable issue
 if [ -z "$TERM_PROGRAM" ]; then
