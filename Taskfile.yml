@@ -81,3 +81,4 @@ tasks:
           exit 1
         fi && \
         echo "Work configuration refreshed successfully"
+    silent: true
