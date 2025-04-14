@@ -22,6 +22,9 @@ vim.opt.rtp:prepend(lua_dir)
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
+-- Set Shift+Space as command line trigger
+vim.keymap.set('n', '<S-Space>', ':', { noremap = true })
+
 -- Explicitly register space key to do nothing (prevents default space behavior)
 vim.keymap.set('n', '<Space>', '<NOP>')
 
