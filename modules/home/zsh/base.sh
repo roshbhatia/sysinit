@@ -24,54 +24,56 @@ export ZSH_DISABLE_COMPFIX="true"
 export PAGER="bat --pager=always --color=always"
 export EDITOR="nvim"
 
-# Source core configurations
-for config in "$XDG_CONFIG_HOME/zsh"/{style,fzf,completions,notifications,homebrew,shift-select}.sh; do
-  [ -f "$config" ] && source "$config"
-done
+# Load essential configs first
+source_if_exists() {
+    [[ -f "$1" ]] && source "$1"
+}
 
-# Source logging library first
-[ -f "$XDG_CONFIG_HOME/zsh/loglib.sh" ] && source "$XDG_CONFIG_HOME/zsh/loglib.sh"
+# Source core files in specific order (loglib must be first)
+source "$XDG_CONFIG_HOME/zsh/loglib.sh"    # Load logging first
+source "$XDG_CONFIG_HOME/zsh/paths.sh"      # Load paths
+source "$XDG_CONFIG_HOME/zsh/style.sh"      # Load styling
+source "$XDG_CONFIG_HOME/zsh/fzf.sh"        # Load fzf
+source "$XDG_CONFIG_HOME/zsh/completions.sh"   # Load completions
+source "$XDG_CONFIG_HOME/zsh/notifications.sh" # Load notifications
+source "$XDG_CONFIG_HOME/zsh/shift-select.sh"  # Load shift-select
 
-# Load loglib in extras if it exists
-[ -f "$XDG_CONFIG_HOME/zsh/extras/loglib.sh" ] && source "$XDG_CONFIG_HOME/zsh/extras/loglib.sh"
+# Load all extras
+_load_extras() {
+    local extras_dir="$XDG_CONFIG_HOME/zsh/extras"
+    [[ ! -d "$extras_dir" ]] && return
 
-# Source zshextras
-[ -f ~/.zshextras ] && source ~/.zshextras
+    # First load any direct .sh files in extras
+    for module in "$extras_dir"/*.sh; do
+        [[ -f "$module" ]] && source "$module"
+    done
 
-# Load utility modules from extras directory
-for module in $XDG_CONFIG_HOME/zsh/extras/*.sh; do
-  if [[ -f "$module" && "$module" != "$XDG_CONFIG_HOME/zsh/extras/loglib.sh" ]]; then
-    source "$module"
-  fi
-done
+    # Then load any scripts in extras/bin if it exists
+    local bin_dir="$extras_dir/bin"
+    if [[ -d "$bin_dir" ]]; then
+        for script in "$bin_dir"/*; do
+            [[ -f "$script" ]] && source "$script"
+        done
+    fi
+}
+
+# Load extras asynchronously
+_load_extras &!
 
 # Fix TERM_PROGRAM unbound variable issue
 if [ -z "$TERM_PROGRAM" ]; then
   export TERM_PROGRAM=""
 fi
 
-# Ensure gettext is in the PATH
-if [ -d "/opt/homebrew/opt/gettext/bin" ]; then
-  export PATH="/opt/homebrew/opt/gettext/bin:$PATH"
-fi
-
-# Tool initializations
-command -v direnv &> /dev/null && _evalcache direnv hook zsh
-command -v gh &> /dev/null && _evalcache gh copilot alias -- zsh
-command -v starship &> /dev/null && _evalcache starship init zsh
-
 # Disable ctrl+s to freeze terminal
 stty stop undef
 
-# Word/Line navigation using CTRL + hjkl
+# Word/Line navigation using CTRL + hjk;
 bindkey '^h' beginning-of-line    # CTRL + h for beginning of line
 bindkey '^j' backward-word        # CTRL + j for back word
 bindkey '^k' forward-word         # CTRL + k for forward word
-bindkey '^l' end-of-line         # CTRL + l for end of line
+bindkey '^;' end-of-line         # CTRL + ; for end of line
 
-# Source additional configs if they exist
-[ -f ~/.zshenv ] && source ~/.zshenv
-[ -f ~/.zshutils ] && source ~/.zshutils
 
 # Run macchina in WezTerm's main pane
 if [ "$WEZTERM_PANE" = "0" ]; then
@@ -81,3 +83,5 @@ if [ "$WEZTERM_PANE" = "0" ]; then
     macchina --theme rosh
   fi
 fi
+
+_evalcache starship init zsh
