@@ -17,10 +17,10 @@
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 _evalcache \
-  atuin init zsh --disable-up-arrow && \
+  (atuin init zsh --disable-up-arrow && \
   kubectl completion zsh && \
   docker completion zsh && \
   stern --completion zsh && \
   gh completion -s zsh
   direnv hook zsh && \
-  gh copilot alias -- zsh
+  gh copilot alias -- zsh)

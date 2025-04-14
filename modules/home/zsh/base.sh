@@ -24,11 +24,6 @@ export ZSH_DISABLE_COMPFIX="true"
 export PAGER="bat --pager=always --color=always"
 export EDITOR="nvim"
 
-# Load essential configs first
-source_if_exists() {
-    [[ -f "$1" ]] && source "$1"
-}
-
 # Source core files in specific order (loglib must be first)
 source "$XDG_CONFIG_HOME/zsh/loglib.sh"    # Load logging first
 source "$XDG_CONFIG_HOME/zsh/paths.sh"      # Load paths
