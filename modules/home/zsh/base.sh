@@ -38,23 +38,10 @@ source "$XDG_CONFIG_HOME/zsh/completions.sh"   # Load completions
 source "$XDG_CONFIG_HOME/zsh/notifications.sh" # Load notifications
 source "$XDG_CONFIG_HOME/zsh/shift-select.sh"  # Load shift-select
 
-# Load all extras
-{
-    setopt local_options nullglob
-    local extras_dir="$XDG_CONFIG_HOME/zsh/extras"
-    [[ ! -d "$extras_dir" ]] && return
-
-    # Load direct .sh files first
-    for f in "$extras_dir"/*.sh; do
-        [[ "$f" != *"loglib.sh" ]] && source "$f"
-    done
-
-    # Load bin scripts if directory exists
-    [[ -d "$extras_dir/bin" ]] && 
-        for f in "$extras_dir/bin"/*; do
-            source "$f"
-        done
-} >/dev/null 2>&1
+# Load extras directly
+for extra in "$XDG_CONFIG_HOME/zsh/extras"/*.sh; do
+    [[ -f "$extra" ]] && source "$extra" >/dev/null 2>&1
+done
 
 # Fix TERM_PROGRAM unbound variable issue
 if [ -z "$TERM_PROGRAM" ]; then

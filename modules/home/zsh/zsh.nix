@@ -90,11 +90,9 @@
     "zsh/shift-select.sh".source = ./shift-select.sh;
     "zsh/style.sh".source = ./style.sh;
 
-    # Make loglib available in extras directory too
-    "zsh/extras/kubectl-aliases.sh".source = ./kubectl-aliases.sh;
-    "zsh/extras/loglib.sh".source = ./loglib.sh;
 
     # Custom kubectl commands
+    "zsh/extras/kubectl-aliases.sh".source = ./kubectl-aliases.sh;
     "zsh/extras/bin/kubectl-kdesc".source = ./kubectl-kdesc.sh;
     "zsh/extras/bin/kubectl-kexec".source = ./kubectl-kexec.sh;
     "zsh/extras/bin/kubectl-klog".source = ./kubectl-klog.sh;
