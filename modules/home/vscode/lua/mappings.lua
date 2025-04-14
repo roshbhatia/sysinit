@@ -11,10 +11,13 @@ function M.setup()
     vim.keymap.set("n", "<C-k>", function() vscode.action("workbench.action.focusUpGroup") end, opts)
     vim.keymap.set("n", "<C-l>", function() vscode.action("workbench.action.focusRightGroup") end, opts)
 
-    -- Save operations
-    vim.keymap.set('n', '<leader>w', function() vscode.action('workbench.action.files.save') end, opts)
-    vim.keymap.set('n', '<leader>wa', function() vscode.action('workbench.action.files.saveAll') end, opts)
-    
+    -- Enhanced window management
+    vim.keymap.set('n', '<C-w>v', function() vscode.action('workbench.action.splitEditorRight') end, opts)
+    vim.keymap.set('n', '<C-w>s', function() vscode.action('workbench.action.splitEditorDown') end, opts)
+    vim.keymap.set('n', '<C-w>q', function() vscode.action('workbench.action.closeActiveEditor') end, opts)
+    vim.keymap.set('n', '<C-w>=', function() vscode.action('workbench.action.evenEditorWidths') end, opts)
+    vim.keymap.set('n', '<C-w>_', function() vscode.action('workbench.action.toggleEditorWidths') end, opts)
+
     -- Window splits (Neovim style)
     vim.keymap.set('n', '<leader>\\', function() vscode.action('workbench.action.splitEditorRight') end, opts)
     vim.keymap.set('n', '<leader>-', function() vscode.action('workbench.action.splitEditorDown') end, opts)
@@ -24,10 +27,10 @@ function M.setup()
     vim.keymap.set('n', '<leader>bD', function() vscode.action('workbench.action.closeAllEditors') end, opts)
     vim.keymap.set('n', '<leader>bo', function() vscode.action('workbench.action.closeOtherEditors') end, opts)
     
-    -- Find/Search (preserve VSCode's powerful search)
-    vim.keymap.set('n', '<leader>ff', function() vscode.action('workbench.action.quickOpen') end, opts)
+    -- Find/Search (using Search Preview for Telescope-like experience)
+    vim.keymap.set('n', '<leader>ff', function() vscode.action('search-preview.quickOpenWithPreview') end, opts)
     vim.keymap.set('n', '<leader>fg', function() vscode.action('workbench.action.findInFiles') end, opts)
-    vim.keymap.set('n', '<leader>fr', function() vscode.action('workbench.action.replaceInFiles') end, opts)
+    vim.keymap.set('n', '<leader><leader>', function() vscode.action('search-preview.showAllEditorsByMostRecentlyUsed') end, opts)
 
     -- LSP-like operations (using VSCode's native commands)
     vim.keymap.set('n', 'gd', function() vscode.action('editor.action.revealDefinition') end, opts)
@@ -46,7 +49,7 @@ function M.setup()
     vim.keymap.set('n', '<leader>fd', function() vscode.action('duplicateFile') end, opts)
 
     -- Quick Access Commands (These mirror VSCode's native cmd shortcuts but work in Neovim mode)
-    vim.keymap.set({'n', 'i'}, '<D-p>', function() vscode.action('workbench.action.quickOpen') end, opts)
+    vim.keymap.set({'n', 'i'}, '<D-p>', function() vscode.action('search-preview.quickOpenWithPreview') end, opts)
     vim.keymap.set({'n', 'i'}, '<D-P>', function() vscode.action('workbench.action.showCommands') end, opts)
     
     -- Development tools (mirrors leader-based commands from keybindings.lua)

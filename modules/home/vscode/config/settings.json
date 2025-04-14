@@ -118,4 +118,23 @@
   "workbench.colorTheme": "Base16 Tomorrow Dark",
   "workbench.iconTheme": "catppuccin-latte",
   "workbench.productIconTheme": "macos-modern",
+  "searchPreview.search.excludeDirectories": [
+    "node_modules",
+    ".git",
+    "venv",
+    "env",
+    "dist",
+    "build",
+    "result"
+  ],
+  "searchPreview.search.excludePatterns": [
+    "**/*.min.js",
+    "**/*.log",
+    "**/*.lock",
+    "**/package-lock.json",
+    "**/*.jpeg",
+    "**/*.png",
+    "**/*.jpg"
+  ],
+  "searchPreview.search.maxResults": 100
 }
