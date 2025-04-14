@@ -3,7 +3,7 @@
     {
         "key": "space",
         "command": "vscode-neovim.send",
-        "when": "neovim.mode != 'insert' && !inputFocus && !searchInputBoxFocus && !quickInputFocus && !inQuickOpen && !scmInputFocus"
+        "when": "neovim.mode != 'insert' && !inputFocus && !searchInputBoxFocus && !quickInputFocus && !inQuickOpen && !scmInputFocus && (editorTextFocus || activeEditorGroupEmpty)"
     },
     // Disable tab for copilot suggestions
     {

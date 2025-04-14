@@ -68,6 +68,7 @@ let
     "keycastr"
     "nikitabobko/tap/aerospace"
     "obsidian"
+    "raycast"
     "slack"
     "visual-studio-code@insiders"
     "vnc-viewer"
