@@ -14,8 +14,8 @@ print_header() {
 print_wezterm() {
     echo -e "${BLUE}📟 WezTerm Key Bindings:${NC}"
     echo "  LEADER: CMD"
-    echo "  CMD + v                Split vertically (vim-like)"
-    echo "  CMD + s                Split horizontally (vim-like)"
+    echo "  CMD + SHIFT + v        Split vertically (vim-like)"
+    echo "  CMD + SHIFT + s        Split horizontally (vim-like)"
     echo "  CMD + w                Smart close (closes pane → tab → window)"
     echo "  CMD + SHIFT + h/j/k/l  Navigate between panes"
     echo "  CMD + ALT + h/j/k/l    Resize panes"

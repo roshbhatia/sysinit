@@ -74,8 +74,8 @@ smart_splits.apply_to_config(config, {
 
 -- Additional keybindings
 local additional_keys = {
-    { key = 's', mods = 'CMD', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
-    { key = 'v', mods = 'CMD', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
+    { key = 's', mods = 'CMD|SHIFT', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
+    { key = 'v', mods = 'CMD|SHIFT', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
     { key = 'k', mods = 'CMD', action = act.ClearScrollback 'ScrollbackAndViewport' },
     { key = 'p', mods = 'CMD|SHIFT', action = act.ActivateCommandPalette },
     { key = 'y', mods = 'CMD', action = wezterm.action.ActivateCopyMode },
