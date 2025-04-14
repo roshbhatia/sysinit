@@ -12,6 +12,9 @@ package.path = current_dir .. "lua/?.lua;" .. current_dir .. "lua/?/init.lua;" .
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
+-- Explicitly register space key to do nothing (prevents default space behavior)
+vim.keymap.set('n', '<Space>', '<NOP>')
+
 -- Import modules
 local vscode = require('vscode')
 local modes = require('modes')
@@ -19,13 +22,44 @@ local keybindings = require('keybindings')
 local utils = require('utils')
 local mappings = require('mappings')
 
+-- Basic editor settings
+vim.opt.number = true
+vim.opt.cursorline = true
+vim.opt.showmode = true
+
+-- Search settings
+vim.opt.hlsearch = true
+vim.opt.incsearch = true
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+
+-- Editing experience
+vim.opt.expandtab = true
+vim.opt.shiftwidth = 2
+vim.opt.tabstop = 2
+vim.opt.smartindent = true
+vim.opt.wrap = false
+vim.opt.linebreak = true
+vim.opt.breakindent = true
+
+-- Splits and windows
+vim.opt.splitbelow = true
+vim.opt.splitright = true
+
 -- Performance options
-vim.opt.ttimeoutlen = 0
 vim.opt.updatetime = 100
 vim.opt.timeoutlen = 300
+vim.opt.ttimeoutlen = 0
 vim.opt.virtualedit = "block"
 vim.opt.inccommand = ""
 vim.opt.jumpoptions = "stack"
+
+-- Scrolling
+vim.opt.scrolloff = 8
+vim.opt.sidescrolloff = 8
+
+-- Other options
+vim.opt.mouse = "a"
 
 -- Pre-generate mode strings
 local mode_strings = {}
