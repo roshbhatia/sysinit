@@ -47,6 +47,7 @@ paths=(
   "$HOME/.krew/bin"
   "$HOME/bin"
   "$HOME/.config/zsh/extras/bin"
+  "opt/homebrew/opt/gettext/bin"
 )
 
 for dir in "${paths[@]}"; do
