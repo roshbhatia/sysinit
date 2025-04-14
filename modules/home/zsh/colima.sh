@@ -1,6 +1,9 @@
 #!/usr/bin/env zsh
 # shellcheck disable=all
 
+# Set Docker to always pull multi-architecture images
+export DOCKER_DEFAULT_PLATFORM=linux/amd64,linux/arm64
+
 # Colima recreation with progress indicators
 colima.recreate() {
     # Directory configurations
