@@ -77,6 +77,7 @@ local additional_keys = {
     { key = 's', mods = 'CMD|SHIFT', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
     { key = 'v', mods = 'CMD|SHIFT', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
     { key = 'k', mods = 'CMD', action = act.ClearScrollback 'ScrollbackAndViewport' },
+    { key = 'l', mods = 'CTRL', action = act.ClearScrollback 'ScrollbackAndViewport' },
     { key = 'p', mods = 'CMD|SHIFT', action = act.ActivateCommandPalette },
     { key = 'y', mods = 'CMD', action = wezterm.action.ActivateCopyMode },
     { key = 'r', mods = 'CMD', action = act.ReloadConfiguration },

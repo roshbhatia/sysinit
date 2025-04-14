@@ -66,6 +66,7 @@ let
     "font-symbols-only-nerd-font"
     "jordanbaird-ice"
     "keycastr"
+    "mediosz/tap/swipeaerospace"
     "nikitabobko/tap/aerospace"
     "obsidian"
     "raycast"
