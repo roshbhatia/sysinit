@@ -11,16 +11,6 @@
     # We instead use fast-syntax-highlighting
     syntaxHighlighting.enable = false;
 
-    completionInit = ''
-      # Defer completion initialization
-      autoload -Uz compinit
-      if [[ -n ${ZDOTDIR}/.zcompdump(#qN.mh+24) ]]; then
-        compinit -C;
-      else
-        compinit;
-      fi
-    '';
-
     history = {
       size = 50000;
       save = 50000;
