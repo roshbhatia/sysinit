@@ -15,43 +15,18 @@
 #      |__|/         \__\/         \__\/         \__\/         \__\/
 
 if [ -f "/opt/homebrew/bin/brew" ]; then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
+  _evalcache "$(/opt/homebrew/bin/brew shellenv)"
 
-  if command -v fzf &> /dev/null; then
-    [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh || {
-      [ -f "$(brew --prefix)/opt/fzf/shell/completion.zsh" ] && source "$(brew --prefix)/opt/fzf/shell/completion.zsh"
-      [ -f "$(brew --prefix)/opt/fzf/shell/key-bindings.zsh" ] && source "$(brew --prefix)/opt/fzf/shell/key-bindings.zsh"
-    }
-  fi
+  # Initialize shell tools and completions with evalcache
+  _evalcache "$(brew --prefix)/opt/fzf/shell/completion.zsh"
+  _evalcache "$(brew --prefix)/opt/fzf/shell/key-bindings.zsh"
+  _evalcache atuin init zsh --disable-up-arrow
+  _evalcache kubectl completion zsh
+  _evalcache docker completion zsh
+  _evalcache stern --completion zsh
+  _evalcache gh completion -s zsh
 
-  # Initialize atuin with evalcache
-  if command -v atuin &> /dev/null; then
-    _evalcache atuin init zsh --disable-up-arrow
-  fi
-  
-  # Load completions
-  if command -v kubectl &> /dev/null; then
-    source <(kubectl completion zsh)
-  fi
-  
-  if command -v docker &> /dev/null; then
-    source <(docker completion zsh)
-  fi
-  
-  if command -v stern &> /dev/null; then
-    source <(stern --completion zsh)
-  fi
-  
-  if command -v gh &> /dev/null; then
-    source <(gh completion -s zsh)
-  fi
-  
-  # Source syntax highlighting and autosuggestions
-  if [ -f "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
-    source "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-  fi
-  
-  if [ -f "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
-    source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-  fi
+  # Source syntax highlighting and autosuggestions with evalcache
+  _evalcache "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+  _evalcache "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 fi

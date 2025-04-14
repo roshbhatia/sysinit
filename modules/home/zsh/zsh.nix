@@ -44,6 +44,9 @@
 
       tf = "terraform";
       y = "yazi";
+
+      vim = "nvim";
+      vi = "nvim"
       
       # Help command
       "sysinit-help" = "$HOME/.config/sysinit/sysinit-help.sh";
@@ -81,7 +84,6 @@
   xdg.configFile = {
     # Core files
     "zsh/base.sh".source = ./base.sh;
-    "zsh/completions.sh".source = ./completions.sh;
     "zsh/fzf.sh".source = ./fzf.sh;
     "zsh/homebrew.sh".source = ./homebrew.sh;
     "zsh/loglib.sh".source = ./loglib.sh;
