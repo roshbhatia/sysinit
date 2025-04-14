@@ -12,8 +12,8 @@ package.path = current_dir .. "lua/?.lua;" .. current_dir .. "lua/?/init.lua;" .
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
--- Explicitly register space key to do nothing (prevents default space behavior)
-vim.keymap.set('n', '<Space>', '<NOP>')
+-- Set Space+Enter as command line trigger
+vim.keymap.set('n', '<Space><CR>', ':', { noremap = true })
 
 -- Import modules
 local vscode = require('vscode')
