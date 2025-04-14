@@ -3,13 +3,24 @@
 
 # Set Docker to always pull multi-architecture images
 export DOCKER_DEFAULT_PLATFORM=linux/amd64,linux/arm64
+export COLIMA_HOME="$HOME/.config/colima"
 
 # Colima recreation with progress indicators
 colima.recreate() {
     # Directory configurations
     local CA_CERTS_DIR="/usr/local/share/ca-certificates"
     local DOCKER_CERTS_DIR="$HOME/.docker/certs.d"
-    local COLIMA_CONFIG_DIR="$HOME/.colima"
+    local OLD_COLIMA_DIR="$HOME/.colima"
+    local COLIMA_CONFIG_DIR="$HOME/.config/colima"
+
+    # Handle legacy .colima directory if it exists
+    if [[ -d "$OLD_COLIMA_DIR" ]]; then
+        gum spin --spinner dot --title "Moving legacy Colima config to XDG location..." -- bash -c "
+            if [[ -d '$COLIMA_CONFIG_DIR' ]]; then
+                rm -rf '$COLIMA_CONFIG_DIR'
+            fi
+            mv '$OLD_COLIMA_DIR' '$COLIMA_CONFIG_DIR'"
+    fi
 
     # Check for required commands
     for cmd in colima security openssl sudo; do
