@@ -28,7 +28,7 @@ config.visual_bell = {
     fade_out_duration_ms = 50
 }
 
-config.color_scheme = "3024 Night (Gogh)"
+config.color_scheme = "Muse"
 
 config.colors = {
     visual_bell = '#242529',
