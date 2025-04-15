@@ -1,5 +1,3 @@
-local verify = require("core.verify")
-
 local M = {}
 
 M.plugins = {
@@ -78,33 +76,5 @@ M.plugins = {
     end
   }
 }
-
-function M.setup()
-  local commander = require("commander")
-  
-  -- Register wilder commands with commander
-  commander.add({
-    {
-      desc = "Toggle Wilder Completion",
-      cmd = "<cmd>WilderToggle<CR>",
-      keys = { "n", "<leader>wt" },
-      cat = "Wilder"
-    }
-  })
-  
-  -- Register verification steps
-  verify.register_verification("wilder", {
-    {
-      desc = "Wilder Completion",
-      command = ":",
-      expected = "Should show Wilder completion popup"
-    },
-    {
-      desc = "Wilder Search Completion",
-      command = "/",
-      expected = "Should show Wilder search completion"
-    }
-  })
-end
 
 return M
