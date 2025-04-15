@@ -21,6 +21,24 @@ function M.setup()
     end
   end
   
+  -- Special handling for neoscroll in VSCode
+  local status, neoscroll = pcall(require, "neoscroll")
+  if status then
+    -- Make sure neoscroll uses VSCode-friendly settings
+    neoscroll.setup({
+      hide_cursor = false,         -- Don't hide cursor in VSCode
+      performance_mode = false,    -- VSCode handles this itself
+      easing = 'linear',           -- Simpler easing for VSCode
+      cursor_scrolls_alone = true, 
+      mappings = {                 -- Keep the same mappings
+        '<C-u>', '<C-d>',
+        '<C-b>', '<C-f>',
+        '<C-y>', '<C-e>',
+        'zt', 'zz', 'zb',
+      },
+    })
+  end
+  
   -- Navigation
   vim.keymap.set('n', 'gd', vscode_command('editor.action.revealDefinition'), { silent = true, desc = "Go to Definition" })
   vim.keymap.set('n', 'gr', vscode_command('editor.action.goToReferences'), { silent = true, desc = "Go to References" })

@@ -18,6 +18,7 @@ M.modules = {
   tools = {
     "comment",
     "hop",
+    "neoscroll",
     "treesitter",
   }
 }

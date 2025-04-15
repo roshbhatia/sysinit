@@ -179,6 +179,36 @@ function M.setup()
           h = { "<cmd>split | terminal<CR>", "Terminal in HSplit" },
         },
         
+        -- Neoscroll settings
+        n = {
+          name = "🔄 Neoscroll",
+          t = { function() vim.g.neoscroll_no_mappings = not vim.g.neoscroll_no_mappings end, "Toggle Neoscroll" },
+          e = { function() 
+                 local easing = vim.fn.input("Easing function (linear/quadratic/cubic/quartic/quintic/circular/sine): ")
+                 if easing ~= "" and neoscroll then
+                   neoscroll.setup({ easing = easing })
+                   print("Neoscroll easing set to: " .. easing)
+                 end
+               end, 
+               "Change Easing Function" },
+          d = { function()
+                 local duration = tonumber(vim.fn.input("Duration multiplier: "))
+                 if duration and neoscroll then
+                   neoscroll.setup({ duration_multiplier = duration })
+                   print("Neoscroll duration multiplier set to: " .. duration)
+                 end
+               end,
+               "Change Duration" },
+          p = { function()
+                 if neoscroll then
+                   local mode = not neoscroll.config.performance_mode
+                   neoscroll.setup({ performance_mode = mode })
+                   print("Neoscroll performance mode: " .. (mode and "on" or "off"))
+                 end
+               end,
+               "Toggle Performance Mode" },
+        },
+        
         -- Git operations
         g = {
           name = "🔄 Git",

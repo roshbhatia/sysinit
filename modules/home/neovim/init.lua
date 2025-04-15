@@ -149,6 +149,7 @@ else
     tools = {
       "comment", -- Still useful to have commenting in VSCode
       "hop",     -- Navigation is useful in VSCode too
+      "neoscroll", -- Smooth scrolling works in VSCode too
     }
   }
 end
