@@ -29,7 +29,7 @@ export EDITOR="nvim"
 export PAGER="bat --pager=always --color=always"
 export LC_ALL=en_US.UTF-8
 export LC_CTYPE=en_US.UTF-8
-export ZSH_UTILS_DIR="$XDG_CONFIG_HOME/zsh/extras"
+export ZSH_EXTRAS_DIR="$XDG_CONFIG_HOME/zsh/extras"
 
 for core in "pre" "main"; do
   if [[ -d "$XDG_CONFIG_HOME/zsh/core.$core" ]]; then
@@ -42,14 +42,14 @@ for core in "pre" "main"; do
 done
 
 
-if [[ -d "$ZSH_UTILS_DIR" ]]; then
-  for util_script in "$ZSH_UTILS_DIR"/*.sh; do
+if [[ -d "$ZSH_EXTRAS_DIR" ]]; then
+  for util_script in "$ZSH_EXTRAS_DIR"/*.sh; do
     if [[ -f "$util_script" ]]; then
       source "$util_script"
     fi
   done
 else
-  echo "Warning: $ZSH_UTILS_DIR directory not found"
+  echo "Warning: $ZSH_EXTRAS_DIR directory not found"
 fi
 
 # Disable ctrl+s to freeze terminal
