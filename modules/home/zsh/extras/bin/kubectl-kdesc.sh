@@ -1,16 +1,6 @@
 #!/usr/bin/env bash
-# kubectl-kdesc: Advanced Kubernetes Resource Browser
-# Install in PATH as 'kubectl-kdesc' to use as 'kubectl kdesc'
+# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-
-# 888      .d888         .d888 
-# 888     d88P"         d88P"  
-# 888     888           888    
-# 888  88888888888888888888888 
-# 888 .88P888      d88P 888    
-# 888888K 888     d88P  888    
-# 888 "88b888    d88P   888    
-# 888  888888   88888888888
 
 # Default options
 CACHE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/kdesc"

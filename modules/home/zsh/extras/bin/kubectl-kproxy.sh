@@ -1,14 +1,6 @@
 #!/usr/bin/env bash
+# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-# kubectl-kproxy: Advanced Kubernetes Service Port Forwarding with Caddy
-# 888      .d888                  888 
-# 888     d88P"                   888 
-# 888     888                     888 
-# 888  888888888888  888  888 .d88888 
-# 888 .88P888   888  888  888d88" 888 
-# 888888K 888   888  888  888888  888 
-# 888 "88b888   Y88b 888 d88PY88b 888 
-# 888  888888    "Y8888888P"  "Y88888
 
 # Default options
 VERSION="1.0.0"
