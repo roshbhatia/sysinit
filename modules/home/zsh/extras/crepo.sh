@@ -1,18 +1,6 @@
 #!/usr/bin/env zsh
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-#                                        
-#                                        
-#                                        
-# .d8888b888d888 .d88b. 88888b.  .d88b.  
-# d88P"   888P"  d8P  Y8b888 "88bd88""88b 
-# 888     888    88888888888  888888  888 
-# Y88b.   888    Y8b.    888 d88PY88..88P 
-# "Y8888P888     "Y8888 88888P"  "Y88P"  
-#                       888              
-#                       888              
-#                       888
-
 
 function _crepo_list_repos() {
     local REPO_BASE="$1"

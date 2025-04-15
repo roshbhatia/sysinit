@@ -1,20 +1,7 @@
 #!/usr/bin/env bash
-# kubectl-klog: Advanced Kubernetes log viewer with Gum styling
-# Install in PATH as 'kubectl-klog' to use as 'kubectl klog'
+# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
+# shellcheck disable=all
 
-# 888             888                   
-# 888             888                   
-# 888             888                   
-# 888  888 888    888 .d88b.   .d88b.   
-# 888 .88P 888    888d88""88b d88P"88b  
-# 888888K  888    888888  888 888  888  
-# 888 "88b Y88b.  888Y88..88P Y88b 888  
-# 888  888  "Y888 888 "Y88P"   "Y88888  
-#                                  888  
-#                             Y8b d88P  
-#                              "Y88P"   
-
-# Support for xterm-256color
 export TERM=xterm-256color
 
 # Default options

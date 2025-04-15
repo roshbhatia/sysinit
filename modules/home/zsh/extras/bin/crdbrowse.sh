@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
 
 show_help() {

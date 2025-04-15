@@ -1,15 +1,6 @@
 #!/usr/bin/env bash
-# kubectl-kexec: Advanced Kubernetes Pod Shell Access
-# Install in PATH as 'kubectl-kexec' to use as 'kubectl kexec'
-
-# 888                                      
-# 888                                      
-# 888                                      
-# 888  888  .d88b.  888  888  .d88b.   .d8888b 
-# 888 .88P d8P  Y8b `Y8bd8P' d8P  Y8b d88P"    
-# 888888K  88888888   X88K   88888888 888      
-# 888 "88b Y8b.     .d8""8b. Y8b.     Y88b.    
-# 888  888  "Y8888  888  888  "Y8888   "Y8888P 
+# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
+# shellcheck disable=all
 
 # Default options
 VERSION="1.0.0"

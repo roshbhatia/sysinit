@@ -1,17 +1,6 @@
 #!/usr/bin/env zsh
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-#       ___           ___           ___           ___           ___
-#      /  /\         /  /\         /__/\         /  /\         /  /\
-#     /  /::|       /  /:/_        \  \:\       /  /::\       /  /:/
-#    /  /:/:|      /  /:/ /\        \__\:\     /  /:/\:\     /  /:/
-#   /  /:/|:|__   /  /:/ /::\   ___ /  /::\   /  /:/~/:/    /  /:/  ___
-#  /__/:/ |:| /\ /__/:/ /:/\:\ /__/\  /:/\:\ /__/:/ /:/___ /__/:/  /  /\
-#  \__\/  |:|/:/ \  \:\/:/~/:/ \  \:\/:/__\/ \  \:\/:::::/ \  \:\ /  /:/
-#      |  |:/:/   \  \::/ /:/   \  \::/       \  \::/~~~~   \  \:\  /:/
-#      |  |::/     \__\/ /:/     \  \:\        \  \:\        \  \:\/:/
-#      |  |:/        /__/:/       \  \:\        \  \:\        \  \::/
-#      |__|/         \__\/         \__\/         \__\/         \__\/
 
 # Modified version of https://github.com/jirutka/zsh-shift-select/blob/master/zsh-shift-select.plugin.zsh
 # vim: set ts=4:
