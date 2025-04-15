@@ -14,9 +14,6 @@
 #      |  |:/        /__/:/       \  \:\        \  \:\        \  \::/
 #      |__|/         \__\/         \__\/         \__\/         \__\/
 
-# General settings
-[ -f "$XDG_CONFIG_HOME/zsh/paths.sh" ] && source "$XDG_CONFIG_HOME/zsh/paths.sh"
-
 unset MAILCHECK
 export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
