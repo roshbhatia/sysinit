@@ -205,6 +205,7 @@ if not vim.g.vscode then
       "carbonfox",
       "devicons",
       "lualine",
+      "neominimap",
       "nvimtree",
       "wezterm",
     },
