@@ -6,6 +6,7 @@ M.modules = {
     "carbonfox",
     "devicons",
     "lualine",
+    "neominimap",
     "nvimtree", 
     "wezterm",
   },
