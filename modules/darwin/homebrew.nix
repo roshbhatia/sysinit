@@ -16,6 +16,7 @@ let
 
   # Base packages
   baseTaps = [
+    "jandedobbeleer/oh-my-posh"
     "homebrew/bundle"
     "homebrew/cask"
     "homebrew/core"
