@@ -14,25 +14,13 @@
 #      |  |:/        /__/:/       \  \:\        \  \:\        \  \::/
 #      |__|/         \__\/         \__\/         \__\/         \__\/
 
-export EDITOR="nvim"
-
-export LC_ALL=en_US.UTF-8
-
-export LC_CTYPE=en_US.UTF-8
-
-export PAGER="bat --pager=always --color=always"
-
-export ZSH_AUTOSUGGEST_USE_ASYNC=1
-
-export ZSH_DISABLE_COMPFIX="true"
-
-setopt NO_XTRACE NO_VERBOSE
 unset MAILCHECK
-unsetopt XTRACE VERBOSE
 
-zstyle ':completion:*' accept-exact '*(N)'
-zstyle ':completion:*' cache-path ~/.zsh/cache
-zstyle ':completion:*' use-cache on
+export EDITOR="nvim"
+export PAGER="bat --pager=always --color=always"
+export LC_ALL=en_US.UTF-8
+export LC_CTYPE=en_US.UTF-8
+export ZSH_DISABLE_COMPFIX="true"
 
 # Source core files in specific order (loglib must be first)
 source "$XDG_CONFIG_HOME/zsh/loglib.sh"
@@ -42,11 +30,6 @@ source "$XDG_CONFIG_HOME/zsh/fzf.sh"
 source "$XDG_CONFIG_HOME/zsh/completions.sh"
 source "$XDG_CONFIG_HOME/zsh/notifications.sh"
 source "$XDG_CONFIG_HOME/zsh/shift-select.sh"
-
-# Load extras directly
-for extra in "$XDG_CONFIG_HOME/zsh/extras"/*.sh; do
-    [[ -f "$extra" ]] && _evalcache "$extra" >/dev/null 2>&1
-done
 
 # Disable ctrl+s to freeze terminal
 stty stop undef

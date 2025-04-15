@@ -76,29 +76,17 @@
   xdg.configFile = {
     # Core files
     "zsh/base.sh".source = ./base.sh;
-    "zsh/fzf.sh".source = ./fzf.sh;
+
     "zsh/completions.sh".source = ./completions.sh;
+    "zsh/fzf.sh".source = ./fzf.sh;
     "zsh/loglib.sh".source = ./loglib.sh;
     "zsh/notifications.sh".source = ./notifications.sh;
     "zsh/paths.sh".source = ./paths.sh;
     "zsh/shift-select.sh".source = ./shift-select.sh;
     "zsh/style.sh".source = ./style.sh;
+    "zsh/zshutils.sh".source = ./zshutils.sh;
 
 
-    # Custom kubectl commands
-    "zsh/extras/kubectl-aliases.sh".source = ./kubectl-aliases.sh;
-    "zsh/extras/bin/kubectl-kdesc".source = ./kubectl-kdesc.sh;
-    "zsh/extras/bin/kubectl-kexec".source = ./kubectl-kexec.sh;
-    "zsh/extras/bin/kubectl-klog".source = ./kubectl-klog.sh;
-    "zsh/extras/bin/kubectl-kproxy".source = ./kubectl-kproxy.sh;
-
-    # Other extras
-    "zsh/extras/bin/crdbrowse".source = ./crdbrowse.sh;
-    "zsh/extras/colima.sh".source = ./colima.sh;
-    "zsh/extras/crepo.sh".source = ./crepo.sh;
-    "zsh/extras/devenv.sh".source = ./devenv.sh;
-    "zsh/extras/flushdns.sh".source = ./flushdns.sh;
-    "zsh/extras/github.sh".source = ./github.sh;
-    "zsh/extras/zshutils.zsh".source = ./zshutils.zsh;
+    "zsh/extras".source = ./extras;
   };
 }
