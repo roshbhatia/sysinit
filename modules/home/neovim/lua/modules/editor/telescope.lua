@@ -1,5 +1,3 @@
-local verify = require("core.verify")
-
 local M = {}
 
 M.plugins = {
@@ -46,19 +44,10 @@ M.plugins = {
           },
         },
       })
-
-      -- Set up keymaps
-      local opts = { noremap = true, silent = true }
-      vim.keymap.set('n', '<leader>ff', '<cmd>Telescope find_files<CR>', opts)
-      vim.keymap.set('n', '<leader>fg', '<cmd>Telescope live_grep<CR>', opts)
-      vim.keymap.set('n', '<leader>fb', '<cmd>Telescope buffers<CR>', opts)
-      vim.keymap.set('n', '<leader>fh', '<cmd>Telescope help_tags<CR>', opts)
+      
+      -- Key mappings are now handled by which-key
     end
   }
 }
-
-function M.setup()
-  -- Setup is now handled in the config function
-end
 
 return M

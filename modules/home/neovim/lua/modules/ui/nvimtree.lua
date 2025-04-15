@@ -1,5 +1,3 @@
-local verify = require("core.verify")
-
 local M = {}
 
 M.plugins = {
@@ -93,70 +91,10 @@ M.plugins = {
           end
         end,
       })
+      
+      -- Key mappings are handled by which-key
     end
   }
 }
-
-function M.setup()
-  local commander = require("commander")
-
-  -- Register nvim-tree commands with commander
-  commander.add({
-    {
-      desc = "Toggle NvimTree",
-      cmd = "<cmd>NvimTreeToggle<CR>",
-      keys = { "n", "<leader>e" },
-      cat = "Explorer"
-    },
-    {
-      desc = "Find File in NvimTree",
-      cmd = "<cmd>NvimTreeFindFile<CR>",
-      keys = { "n", "<leader>ef" },
-      cat = "Explorer"
-    },
-    {
-      desc = "Refresh NvimTree",
-      cmd = "<cmd>NvimTreeRefresh<CR>",
-      keys = { "n", "<leader>er" },
-      cat = "Explorer"
-    },
-    {
-      desc = "Collapse NvimTree",
-      cmd = "<cmd>NvimTreeCollapse<CR>",
-      keys = { "n", "<leader>ec" },
-      cat = "Explorer"
-    },
-    {
-      desc = "Focus NvimTree",
-      cmd = "<cmd>NvimTreeFocus<CR>",
-      keys = { "n", "<leader>eo" },
-      cat = "Explorer"
-    }
-  })
-  
-  -- Register verification steps
-  verify.register_verification("nvim-tree", {
-    {
-      desc = "NvimTree Toggle",
-      command = ":NvimTreeToggle",
-      expected = "Should toggle NvimTree file explorer"
-    },
-    {
-      desc = "NvimTree Find File",
-      command = ":NvimTreeFindFile",
-      expected = "Should find and highlight current file in NvimTree"
-    },
-    {
-      desc = "Commander Keybindings",
-      command = "<leader>e",
-      expected = "Should toggle NvimTree explorer"
-    },
-    {
-      desc = "Commander Commands",
-      command = ":Telescope commander filter cat=Explorer",
-      expected = "Should show NvimTree commands in Commander palette"
-    }
-  })
-end
 
 return M
