@@ -3,14 +3,14 @@ local M = {}
 -- List all modules by category
 M.modules = {
   ui = {
-    "bufferline",
     "carbonfox",
     "devicons",
-    "heirline",
+    "lualine",
+    "nvimtree", 
     "wezterm",
   },
   editor = {
-    "commander", -- Load this first since other modules depend on it
+    "which-key", -- Load this first to register keybindings
     "telescope", 
     "oil",
     "wilder",
@@ -19,7 +19,6 @@ M.modules = {
     "comment",
     "hop",
     "treesitter",
-    "trouble",
   }
 }
 
@@ -44,10 +43,10 @@ end
 
 -- Set up all modules
 function M.setup_modules()
-  -- Commander must be set up first since other modules register commands with it
-  local commander_ok, commander = pcall(require, "modules.editor.commander")
-  if commander_ok and commander.setup then
-    commander.setup()
+  -- WhichKey must be set up first since other modules will register keybindings
+  local which_key_ok, which_key = pcall(require, "modules.editor.which-key")
+  if which_key_ok and which_key.setup then
+    which_key.setup()
   end
   
   -- Process other modules
@@ -55,8 +54,8 @@ function M.setup_modules()
   
   for _, category in ipairs(categories) do
     for _, module_name in ipairs(M.modules[category]) do
-      -- Skip commander since we already set it up
-      if module_name ~= "commander" then
+      -- Skip which-key since we already set it up
+      if module_name ~= "which-key" then
         local ok, module = pcall(require, "modules." .. category .. "." .. module_name)
         if ok and module.setup then
           module.setup()
