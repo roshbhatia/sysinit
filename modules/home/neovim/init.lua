@@ -1,3 +1,17 @@
+--[[---------------------------------------
+             Neovim Configuration
+             
+  Author: Rosh Bhatia
+  Repo: github.com/roshbhatia/sysinit
+  
+  This configuration works in:
+  - Regular Neovim
+  - VSCode Neovim extension
+-----------------------------------------]]
+
+-- Detect if we're running under VSCode
+vim.g.vscode = vim.fn.exists('g:vscode') == 1
+
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -28,85 +42,116 @@ vim.keymap.set('n', '<S-Space>', ':', { noremap = true })
 -- Explicitly register space key to do nothing (prevents default space behavior)
 vim.keymap.set('n', '<Space>', '<NOP>')
 
--- Basic editor settings
-vim.opt.number = true
-vim.opt.relativenumber = true
-vim.opt.cursorline = true
-vim.opt.signcolumn = "yes"
-vim.opt.termguicolors = true
-vim.opt.showmode = false  -- Hide mode since we use lualine
+-- Common settings (for both regular Neovim and VSCode)
+local function setup_common_settings()
+  -- Search settings
+  vim.opt.hlsearch = true
+  vim.opt.incsearch = true
+  vim.opt.ignorecase = true
+  vim.opt.smartcase = true
 
--- Search settings
-vim.opt.hlsearch = true
-vim.opt.incsearch = true
-vim.opt.ignorecase = true
-vim.opt.smartcase = true
+  -- Editing experience
+  vim.opt.expandtab = true
+  vim.opt.shiftwidth = 2
+  vim.opt.tabstop = 2
+  vim.opt.smartindent = true
+  vim.opt.wrap = false
+  vim.opt.linebreak = true
+  vim.opt.breakindent = true
 
--- Editing experience
-vim.opt.expandtab = true
-vim.opt.shiftwidth = 2
-vim.opt.tabstop = 2
-vim.opt.smartindent = true
-vim.opt.wrap = false
-vim.opt.linebreak = true
-vim.opt.breakindent = true
+  -- Splits and windows
+  vim.opt.splitbelow = true
+  vim.opt.splitright = true
 
--- Splits and windows
-vim.opt.splitbelow = true
-vim.opt.splitright = true
+  -- Performance options
+  vim.opt.updatetime = 100
+  vim.opt.timeoutlen = 300
 
--- Performance options
-vim.opt.updatetime = 100
-vim.opt.timeoutlen = 300
-vim.opt.lazyredraw = true
+  -- Scrolling
+  vim.opt.scrolloff = 8
+  vim.opt.sidescrolloff = 8
 
--- Scrolling
-vim.opt.scrolloff = 8
-vim.opt.sidescrolloff = 8
+  -- Other options
+  vim.opt.mouse = "a"
+  vim.opt.clipboard = "unnamedplus"  -- Use system clipboard
+end
 
--- Folding
-vim.opt.foldmethod = "expr"
-vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
-vim.opt.foldenable = false
-vim.opt.foldlevel = 99
+-- Regular Neovim-only settings
+local function setup_neovim_settings()
+  -- UI settings
+  vim.opt.number = true
+  vim.opt.relativenumber = true
+  vim.opt.cursorline = true
+  vim.opt.signcolumn = "yes"
+  vim.opt.termguicolors = true
+  vim.opt.showmode = false  -- Hide mode since we use lualine
+  vim.opt.lazyredraw = true
+  
+  -- Folding
+  vim.opt.foldmethod = "expr"
+  vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+  vim.opt.foldenable = false
+  vim.opt.foldlevel = 99
 
--- UI improvements
-vim.opt.pumheight = 10        -- Limit completion menu height
-vim.opt.cmdheight = 1         -- More space for displaying messages
-vim.opt.hidden = true         -- Enable background buffers
-vim.opt.showtabline = 2       -- Always show tabline
-vim.opt.shortmess:append("c") -- Don't show completion messages
+  -- UI improvements
+  vim.opt.pumheight = 10        -- Limit completion menu height
+  vim.opt.cmdheight = 1         -- More space for displaying messages
+  vim.opt.hidden = true         -- Enable background buffers
+  vim.opt.showtabline = 2       -- Always show tabline
+  vim.opt.shortmess:append("c") -- Don't show completion messages
+  vim.opt.completeopt = { "menuone", "noselect" }
+end
 
--- Other options
-vim.opt.mouse = "a"
-vim.opt.completeopt = { "menuone", "noselect" }
-vim.opt.clipboard = "unnamedplus"  -- Use system clipboard
+-- Apply the appropriate settings
+setup_common_settings()
+if not vim.g.vscode then
+  setup_neovim_settings()
+end
 
--- Define module categories and their modules
-local module_system = {
-  -- Core editor functionality - loaded first to ensure dependencies are available
-  editor = {
-    "which-key", -- Load which-key first as it will define key mappings centrally
-    "telescope",
-    "oil",
-    "wilder",
-  },
-  -- UI-related modules
-  ui = {
-    "bufferline",
-    "carbonfox",
-    "devicons",
-    "lualine",
-    "wezterm",
-    "nvimtree",
-  },
-  -- Tool modules that enhance editing experience
-  tools = {
-    "comment",
-    "hop",
-    "treesitter",
+-- Define different module sets for regular Neovim and VSCode
+local module_system
+
+-- Regular Neovim modules
+if not vim.g.vscode then
+  module_system = {
+    -- Core editor functionality - loaded first to ensure dependencies are available
+    editor = {
+      "which-key", -- Load which-key first as it will define key mappings centrally
+      "telescope",
+      "oil",
+      "wilder",
+    },
+    -- UI-related modules
+    ui = {
+      "carbonfox",
+      "devicons",
+      "lualine",
+      "nvimtree",
+      "wezterm",
+    },
+    -- Tool modules that enhance editing experience
+    tools = {
+      "comment",
+      "hop",
+      "treesitter",
+    }
   }
-}
+else
+  -- VSCode-Neovim modules (minimal set)
+  module_system = {
+    -- Core editor functionality
+    editor = {
+      "which-key", -- Still need which-key for VSCode integration
+    },
+    -- We don't need UI modules in VSCode
+    ui = {},
+    -- Minimal tools for VSCode
+    tools = {
+      "comment", -- Still useful to have commenting in VSCode
+      "hop",     -- Navigation is useful in VSCode too
+    }
+  }
+end
 
 -- Collect plugin specs from all modules
 local function collect_plugin_specs()
@@ -261,3 +306,11 @@ end
 
 -- Setup Lazy.nvim with collected specs
 require("lazy").setup(collect_plugin_specs())
+
+-- Initialize VSCode integration if needed
+if vim.g.vscode then
+  local status, vscode = pcall(require, "core.vscode")
+  if status then
+    vscode.setup()
+  end
+end
