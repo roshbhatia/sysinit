@@ -142,7 +142,7 @@ local function collect_plugin_specs()
       -- Configure LSP and autocompletion
       require("mason").setup()
       require("mason-lspconfig").setup({
-        ensure_installed = { "lua_ls", "rust_analyzer", "pyright", "tsserver" },
+        ensure_installed = { "lua_ls", "rust_analyzer", "pyright", "ts_ls" },
         automatic_installation = true,
       })
       
@@ -212,7 +212,7 @@ local function collect_plugin_specs()
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
       
       local lspconfig = require("lspconfig")
-      local servers = { "lua_ls", "rust_analyzer", "pyright", "tsserver" }
+      local servers = { "lua_ls", "rust_analyzer", "pyright", "ts_ls" }
       
       for _, lsp in ipairs(servers) do
         lspconfig[lsp].setup({

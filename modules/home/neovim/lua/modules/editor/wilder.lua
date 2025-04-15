@@ -26,36 +26,21 @@ M.plugins = {
 
       -- Set up proper highlighters
       local highlighters = {
-        wilder.pcre2_highlighter(),
+        wilder.pcre2_highlighter
+        (),
         wilder.lua_fzy_highlighter(),
       }
 
       -- Create a beautiful popupmenu renderer with devicons
       local popupmenu_renderer = wilder.popupmenu_renderer(
-        wilder.popupmenu_border_theme({
+        wilder.popupmenu_palette_theme({
+          -- 'single', 'double', 'rounded' or 'solid'
+          -- can also be a list of 8 characters, see :h wilder#popupmenu_palette_theme() for more details
           border = 'rounded',
-          highlights = {
-            border = 'Normal',
-            default = 'Normal',
-          },
-          empty_message = wilder.popupmenu_empty_message_with_spinner(),
-          highlighter = highlighters,
-          left = {
-            ' ',
-            wilder.popupmenu_devicons(),
-            wilder.popupmenu_buffer_flags({
-              flags = ' a + ',
-              icons = {['+'] = '', a = '', h = ''},
-            }),
-          },
-          right = {
-            ' ',
-            wilder.popupmenu_scrollbar(),
-          },
-          max_height = '50%',
+          max_height = '75%',
           min_height = 0,
           prompt_position = 'top',
-          reverse = false,
+          reverse = 0,
         })
       )
 
