@@ -69,20 +69,7 @@
     ];
 
     initExtra = ''
-      # Disable debug output
-      setopt NO_XTRACE NO_VERBOSE
-      unsetopt XTRACE VERBOSE
-      
-      # Optimize command lookup
-      zstyle ':completion:*' accept-exact '*(N)'
-      zstyle ':completion:*' cache-path ~/.zsh/cache
-      zstyle ':completion:*' use-cache on
-      
-      # Configure autosuggestions
-      ZSH_AUTOSUGGEST_USE_ASYNC=1
-      ZSH_AUTOSUGGEST_MANUAL_REBIND=1
-      ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
-      ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+      source $HOME/.config/zsh/base.sh
     '';
   };
   
