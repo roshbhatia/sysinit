@@ -4,7 +4,7 @@ M.plugins = {
   {
     "willothy/wezterm.nvim",
     lazy = false,
-    config = false, -- We'll configure it ourselves in setup
+    config = false,
     dependencies = {
       "mrjones2014/smart-splits.nvim"
     }
@@ -36,12 +36,8 @@ function M.setup()
     },
   })
 
-  -- Initialize wezterm
-  require("wezterm").setup({
-    -- Default configuration
-  })
+  require("wezterm").setup({})
 
-  -- Define keybindings directly without commander
   -- Smart-splits navigation bindings
   vim.keymap.set('n', '<C-h>', function() smart_splits.move_cursor_left() end, {desc = "Move to left split"})
   vim.keymap.set('n', '<C-j>', function() smart_splits.move_cursor_down() end, {desc = "Move to split below"})
@@ -57,8 +53,6 @@ function M.setup()
   -- WezTerm specific commands
   vim.keymap.set('n', '<leader>zt', '<cmd>WeztermSpawn htop<CR>', {desc = "Spawn htop in WezTerm"})
   vim.keymap.set('n', '<leader>zs', '<cmd>WeztermSplitPane<CR>', {desc = "Create WezTerm Split Pane"})
-  
-  -- The WezTerm keybindings in which-key.lua handle the rest of the keybindings
 end
 
 return M

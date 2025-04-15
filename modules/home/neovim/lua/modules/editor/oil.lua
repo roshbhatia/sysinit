@@ -26,9 +26,7 @@ M.plugins = {
           max_width = 80,
           max_height = 30,
         },
-      })
-      
-      -- The keybindings are now handled by which-key
+      })      
     end
   }
 }
