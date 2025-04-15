@@ -35,7 +35,7 @@ source "$XDG_CONFIG_HOME/zsh/shift-select.sh"
 
 # Load extras directly
 for extra in "$XDG_CONFIG_HOME/zsh/extras"/*.sh; do
-    [[ -f "$extra" ]] && source "$extra" >/dev/null 2>&1
+    [[ -f "$extra" ]] && _evalcache "$extra" >/dev/null 2>&1
 done
 
 # Fix TERM_PROGRAM unbound variable issue
@@ -62,4 +62,4 @@ if [ "$WEZTERM_PANE" = "0" ]; then
   fi
 fi
 
-eval "$(oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/zash.omp.json)"
+_evalcache "$(oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/zash.omp.json)"
