@@ -113,7 +113,7 @@
     "asvetliakov.vscode-neovim": 1
   },
   "vscode-neovim.neovimExecutablePaths.darwin": "nvim",
-  "vscode-neovim.neovimInitVimPaths.darwin": "~/github/personal/roshbhatia/sysinit/modules/home/vscode/init.lua",
+  "vscode-neovim.neovimInitVimPaths.darwin": "~/.config/nvim/init.lua",
   "vscode-neovim.logOutputToConsole": true,
   "workbench.colorTheme": "Base16 Tomorrow Dark",
   "workbench.iconTheme": "catppuccin-latte",
