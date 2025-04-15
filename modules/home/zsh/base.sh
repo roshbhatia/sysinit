@@ -22,14 +22,15 @@ export LC_ALL=en_US.UTF-8
 export LC_CTYPE=en_US.UTF-8
 export ZSH_DISABLE_COMPFIX="true"
 
-# Source core files in specific order (loglib must be first)
-source "$XDG_CONFIG_HOME/zsh/loglib.sh"
-source "$XDG_CONFIG_HOME/zsh/paths.sh" 
-source "$XDG_CONFIG_HOME/zsh/style.sh" 
-source "$XDG_CONFIG_HOME/zsh/fzf.sh"
-source "$XDG_CONFIG_HOME/zsh/completions.sh"
-source "$XDG_CONFIG_HOME/zsh/notifications.sh"
-source "$XDG_CONFIG_HOME/zsh/shift-select.sh"
+for core in "pre" "main"; do
+  if [[ -d "$XDG_CONFIG_HOME/zsh/core.$core" ]]; then
+    for file in "$XDG_CONFIG_HOME/zsh/core.$core"/*.sh(N); do
+      source "$file"
+    done
+  else
+    echo "Warning: $XDG_CONFIG_HOME/zsh/core.$core directory not found"
+  fi
+done
 
 # Disable ctrl+s to freeze terminal
 stty stop undef
