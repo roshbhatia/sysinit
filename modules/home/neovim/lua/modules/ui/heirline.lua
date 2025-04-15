@@ -92,7 +92,7 @@ M.plugins = {
         end,
         hl = function(self)
           local mode = self.mode:sub(1, 1)
-          return { fg = "bright_bg", bg = self[self.mode_colors[mode]], bold = true }
+          return { fg = "bright_bg", bg = colors[self.mode_colors[mode]], bold = true }
         end,
         update = {
           "ModeChanged",
