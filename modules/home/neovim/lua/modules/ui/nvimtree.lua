@@ -8,7 +8,6 @@ M.plugins = {
       "nvim-tree/nvim-web-devicons"
     },
     config = function()
-      -- Recommended settings from nvim-tree documentation
       vim.g.loaded_netrw = 1
       vim.g.loaded_netrwPlugin = 1
       
@@ -85,14 +84,12 @@ M.plugins = {
       -- Auto open NvimTree when Neovim starts
       vim.api.nvim_create_autocmd("VimEnter", {
         callback = function()
-          -- Only open if a directory or no file is specified
           if vim.fn.argc() == 0 or vim.fn.isdirectory(vim.fn.argv(0)) == 1 then
             vim.cmd("NvimTreeOpen")
           end
         end,
       })
       
-      -- Key mappings are handled by which-key
     end
   }
 }

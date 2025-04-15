@@ -3,17 +3,15 @@ local M = {}
 M.plugins = {
   {
     'phaazon/hop.nvim',
-    branch = 'v2', -- Recommended
+    branch = 'v2',
     config = function()
       local hop = require('hop')
       local directions = require('hop.hint').HintDirection
       
       hop.setup({
-        -- Configuration options
         keys = 'etovxqpdygfblzhckisuran'
       })
       
-      -- Set up keymappings directly 
       vim.keymap.set({"n","v","o"}, "f", function()
         hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = true })
       end, { desc = "Hop Forward to Char" })

@@ -1,4 +1,3 @@
--- Integration layer for VSCode Neovim
 local M = {}
 
 function M.setup()
@@ -7,8 +6,6 @@ function M.setup()
     return
   end
   
-  -- Set VSCode-specific options
-  vim.opt.clipboard = "unnamedplus" -- Use system clipboard
 
   -- Basic navigation keybindings - make hjkl work like normal within VSCode
   vim.keymap.set('n', 'j', 'gj', { silent = true })
@@ -38,7 +35,7 @@ function M.setup()
       },
     })
   end
-  
+
   -- Navigation
   vim.keymap.set('n', 'gd', vscode_command('editor.action.revealDefinition'), { silent = true, desc = "Go to Definition" })
   vim.keymap.set('n', 'gr', vscode_command('editor.action.goToReferences'), { silent = true, desc = "Go to References" })

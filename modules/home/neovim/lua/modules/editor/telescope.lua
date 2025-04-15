@@ -43,9 +43,7 @@ M.plugins = {
             case_mode = "smart_case",
           },
         },
-      })
-      
-      -- Key mappings are now handled by which-key
+      })      
     end
   }
 }

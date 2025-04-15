@@ -112,6 +112,11 @@ local function setup_vscode_keymaps()
   
   -- Terminal
   vim.keymap.set('n', '<leader>tt', vscode_command('workbench.action.terminal.toggleTerminal'), { desc = "Toggle Terminal" })
+  
+  -- Session management (using VSCode workspaces)
+  vim.keymap.set('n', '<leader>ss', vscode_command('workbench.action.files.saveWorkspaceAs'), { desc = "Save Workspace" })
+  vim.keymap.set('n', '<leader>sl', vscode_command('workbench.action.openRecent'), { desc = "Load Workspace" })
+  vim.keymap.set('n', '<leader>sd', vscode_command('workbench.action.closeFolder'), { desc = "Close Workspace" })
 end
 
 -- Initialize our VSCode-specific mappings

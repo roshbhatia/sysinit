@@ -1,5 +1,3 @@
-local verify = require("core.verify")
-
 local M = {}
 
 M.plugins = {
@@ -8,22 +6,18 @@ M.plugins = {
     lazy = false,
     config = function()
       require("nvim-web-devicons").setup({
-        -- Override default icons
         override = {
-          -- Example customizations
           default_icon = {
             icon = "",
             color = "#6d8086",
             name = "Default",
           },
-          -- Add custom file types if needed
           nix = {
             icon = "",
             color = "#7ebae4",
             name = "Nix",
           },
         },
-        -- Global icon settings
         default = true,
         strict = true,
         color_icons = true,
@@ -33,33 +27,46 @@ M.plugins = {
 }
 
 function M.setup()
-  local commander = require("commander")
-
-  -- Register devicons commands with commander
-  commander.add({
-    {
-      desc = "Show All DevIcons",
-      cmd = function()
-        local icons = require('nvim-web-devicons').get_icons()
-        vim.api.nvim_echo({{vim.inspect(icons), "Normal"}}, true, {})
-      end,
-      cat = "DevIcons"
-    }
-  })
-
-  -- Register verification steps
-  verify.register_verification("devicons", {
-    {
-      desc = "DevIcons Loading",
-      command = "Check if icons appear in bufferline and other UIs",
-      expected = "Should show file type icons in UI components"
-    },
-    {
-      desc = "Commander Commands",
-      command = ":Telescope commander filter cat=DevIcons",
-      expected = "Should show DevIcons commands in Commander palette"
-    }
-  })
+  local status, wk = pcall(require, "which-key")
+  if status then
+    wk.register({
+      ["<leader>i"] = {
+        name = "🎨 Icons",
+        s = { 
+          function()
+            local icons_status, icons = pcall(require, 'nvim-web-devicons')
+            if not icons_status then
+              vim.notify("nvim-web-devicons not available", vim.log.levels.ERROR)
+              return
+            end
+            
+            local all_icons = icons.get_icons()
+            if all_icons then
+              vim.api.nvim_echo({{vim.inspect(all_icons), "Normal"}}, true, {})
+            else
+              vim.notify("No icons available", vim.log.levels.WARN)
+            end
+          end,
+          "Show All DevIcons"
+        },
+      },
+    })
+  end
+  
+  vim.api.nvim_create_user_command("ShowDevIcons", function()
+    local icons_status, icons = pcall(require, 'nvim-web-devicons')
+    if not icons_status then
+      vim.notify("nvim-web-devicons not available", vim.log.levels.ERROR)
+      return
+    end
+    
+    local all_icons = icons.get_icons()
+    if all_icons then
+      vim.api.nvim_echo({{vim.inspect(all_icons), "Normal"}}, true, {})
+    else
+      vim.notify("No icons available", vim.log.levels.WARN)
+    end
+  end, {})
 end
 
 return M

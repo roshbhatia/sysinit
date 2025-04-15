@@ -10,10 +10,7 @@ M.plugins = {
     config = function()
       local wilder = require('wilder')
       wilder.setup({modes = {':', '/', '?'}})
-      -- Disable Python remote plugin for better performance
-      wilder.set_option('use_python_remote_plugin', 0)
 
-      -- Better pipeline for performance and fuzzy search
       wilder.set_option('pipeline', {
         wilder.branch(
           wilder.cmdline_pipeline({
@@ -24,27 +21,22 @@ M.plugins = {
         )
       })
 
-      -- Set up proper highlighters
       local highlighters = {
         wilder.pcre2_highlighter
         (),
         wilder.lua_fzy_highlighter(),
       }
 
-      -- Create a beautiful popupmenu renderer with devicons
       local popupmenu_renderer = wilder.popupmenu_renderer(
         wilder.popupmenu_palette_theme({
-          -- 'single', 'double', 'rounded' or 'solid'
-          -- can also be a list of 8 characters, see :h wilder#popupmenu_palette_theme() for more details
           border = 'rounded',
           max_height = '75%',
           min_height = 0,
-          prompt_position = 'top',
+          prompt_position = 'bottom',
           reverse = 0,
         })
       )
 
-      -- Create a minimal wildmenu renderer for search
       local wildmenu_renderer = wilder.wildmenu_renderer({
         highlighter = highlighters,
         separator = ' · ',
@@ -52,7 +44,6 @@ M.plugins = {
         right = {' ', wilder.wildmenu_index()},
       })
 
-      -- Use renderer mux to use different renderers for different modes
       wilder.set_option('renderer', wilder.renderer_mux({
         [':'] = popupmenu_renderer,
         ['/'] = wildmenu_renderer,

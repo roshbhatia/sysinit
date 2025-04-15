@@ -230,6 +230,19 @@ function M.setup()
           B = { "<cmd>Telescope git_branches<CR>", "Git Branches" },
         },
         
+        -- Session management
+        s = {
+          name = "🚀 Session",
+          s = { "<cmd>SessionSave<CR>", "Save Session" },
+          l = { "<cmd>SessionRestore<CR>", "Load Session" },
+          d = { "<cmd>SessionDelete<CR>", "Delete Session" },
+          f = { "<cmd>SessionSearch<CR>", "Find Session" },
+          p = { "<cmd>SessionPurgeOrphaned<CR>", "Purge Orphaned Sessions" },
+          t = { "<cmd>SessionToggleAutoSave<CR>", "Toggle Auto Save" },
+          a = { "<cmd>SessionDisableAutoSave<CR>", "Disable Auto Save" },
+          A = { "<cmd>SessionDisableAutoSave!<CR>", "Enable Auto Save" },
+        },
+        
         -- LSP operations
         l = {
           name = "🔧 LSP",

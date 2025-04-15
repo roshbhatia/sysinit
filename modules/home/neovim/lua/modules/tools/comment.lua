@@ -14,7 +14,6 @@ M.plugins = {
         extra = false,
       },
       pre_hook = function(ctx)
-        -- Enable comment strings for treesitter
         local U = require("Comment.utils")
         local location = nil
         if ctx.ctype == U.ctype.block then
@@ -35,7 +34,6 @@ M.plugins = {
     config = function(_, opts)
       require("Comment").setup(opts)
       
-      -- Set up keymappings directly here since we removed commander
       vim.keymap.set('n', '<leader>cc', function()
         require("Comment.api").toggle.linewise.current()
       end, { desc = "Toggle Comment Line" })
