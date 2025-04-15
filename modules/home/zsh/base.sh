@@ -42,17 +42,28 @@ source_shell_files() {
   local name=${2:-$(basename "$dir")}
 
   if [[ ! -d "$dir" ]]; then
-    echo "Warning: Directory $name not found"
+    [[ -n "$SYSINIT_DEBUG" ]] && echo "Warning: Directory $name not found"
     return 1
   fi
 
   local files=("$dir"/*.sh(N))
   if (( ${#files[@]} == 0 )); then
-    echo "Warning: No shell files found in $name"
+    [[ -n "$SYSINIT_DEBUG" ]] && echo "Warning: No shell files found in $name"
     return 0
   fi
 
+  local file
   for file in "${files[@]}"; do
+    # Get compiled file path
+    local compiled="${file}.zwc"
+    
+    # Compile if compiled file doesn't exist or source is newer
+    if [[ ! -f "$compiled" || "$file" -nt "$compiled" ]]; then
+      [[ -n "$SYSINIT_DEBUG" ]] && echo "Compiling: $file"
+      zcompile "$file"
+    fi
+
+    # Source the original file (zsh automatically uses compiled version)
     [[ -n "$SYSINIT_DEBUG" ]] && echo "Sourcing: $file"
     source "$file"
   done
@@ -77,5 +88,5 @@ if [ "$WEZTERM_PANE" = "0" ]; then
   fi
 fi
 
-eval "$(oh-my-posh init zsh --config "$XDG_CONFIG_HOME/oh-my-posh/poshthemes/zash.omp.json")"
+eval "$(oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/zash.omp.json)"
 [[ -n "$SYSINIT_DEBUG" ]] && zprof
