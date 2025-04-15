@@ -42,7 +42,8 @@
   "editor.suggestSelection": "first",
   "extensions.ignoreRecommendations": true,
   "files.associations": {
-    "*yaml.tmpl": "yaml"
+    "*yaml.tmpl": "yaml",
+    "cleanup-orphans.sh": "shellscript"
   },
   "files.autoGuessEncoding": true,
   "git.autofetch": true,
