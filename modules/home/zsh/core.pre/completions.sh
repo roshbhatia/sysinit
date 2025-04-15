@@ -5,8 +5,8 @@
 
 eval $(/opt/homebrew/bin/brew shellenv)
 
-eval $(atuin init zsh --disable-up-arrow)
-eval $(kubectl completion zsh)
-eval $(docker completion zsh)
-eval $(direnv hook zsh)
-eval $(gh copilot alias -- zsh)
+eval "$(atuin init zsh --disable-up-arrow)"
+eval "$(kubectl completion zsh)"
+eval "$(docker completion zsh)"
+eval "$(direnv hook zsh)"
+eval "$(gh copilot alias -- zsh)"
