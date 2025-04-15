@@ -45,7 +45,7 @@ source "$XDG_CONFIG_HOME/zsh/shift-select.sh"
 
 # Load extras directly
 for extra in "$XDG_CONFIG_HOME/zsh/extras"/*.sh; do
-    [[ -f "$extra" ]] && source "$extra" >/dev/null 2>&1
+    [[ -f "$extra" ]] && _evalcache "$extra" >/dev/null 2>&1
 done
 
 # Disable ctrl+s to freeze terminal
