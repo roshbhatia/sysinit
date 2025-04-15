@@ -40,6 +40,7 @@ let
     "gum"
     "gettext"
     "helm"
+    "jandedobbeleer/oh-my-posh/oh-my-posh"
     "kubectl"
     "kubecolor"
     "k9s"
