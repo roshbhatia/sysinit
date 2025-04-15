@@ -8,7 +8,6 @@ M.plugins = {
       local neoscroll = require('neoscroll')
       
       neoscroll.setup({
-        -- These are the default mappings for the scrolling animations
         mappings = {
           '<C-u>', '<C-d>',
           '<C-b>', '<C-f>',
@@ -25,7 +24,6 @@ M.plugins = {
         performance_mode = false,    -- Disable "Performance Mode" on all buffers
       })
       
-      -- Custom keymappings with different durations and easing functions
       local keymap = {
         ["<C-u>"] = function() neoscroll.ctrl_u({ duration = 250 }) end,
         ["<C-d>"] = function() neoscroll.ctrl_d({ duration = 250 }) end,
@@ -47,7 +45,6 @@ M.plugins = {
 }
 
 function M.setup()
-  -- Register with which-key if available
   local status, wk = pcall(require, "which-key")
   if status then
     wk.register({

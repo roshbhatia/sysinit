@@ -16,6 +16,7 @@ M.modules = {
     "wilder",
   },
   tools = {
+    "autosession",
     "comment",
     "hop",
     "neoscroll",

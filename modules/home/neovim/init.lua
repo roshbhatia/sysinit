@@ -1,14 +1,3 @@
---[[---------------------------------------
-             Neovim Configuration
-             
-  Author: Rosh Bhatia
-  Repo: github.com/roshbhatia/sysinit
-  
-  This configuration works in:
-  - Regular Neovim
-  - VSCode Neovim extension
------------------------------------------]]
-
 -- Detect if we're running under VSCode
 vim.g.vscode = vim.fn.exists('g:vscode') == 1
 
@@ -26,15 +15,15 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- Get the directory of the current init.lua file
 local init_dir = vim.fn.fnamemodify(vim.fn.expand("$MYVIMRC"), ":p:h")
--- Add the lua directory relative to the init.lua location
 local lua_dir = init_dir .. "/lua"
 vim.opt.rtp:prepend(lua_dir)
 
 -- Set leader key
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
+
+vim.opt.clipboard = "unnamedplus"
 
 -- Set Shift+Space as command line trigger
 vim.keymap.set('n', '<S-Space>', ':', { noremap = true })
@@ -102,13 +91,11 @@ local function setup_neovim_settings()
   vim.opt.completeopt = { "menuone", "noselect" }
 end
 
--- Apply the appropriate settings
 setup_common_settings()
 if not vim.g.vscode then
   setup_neovim_settings()
 end
 
--- Define different module sets for regular Neovim and VSCode
 local module_system
 
 -- Regular Neovim modules
@@ -147,6 +134,7 @@ else
     ui = {},
     -- Minimal tools for VSCode
     tools = {
+      "autosession", -- Session management works in VSCode too
       "comment", -- Still useful to have commenting in VSCode
       "hop",     -- Navigation is useful in VSCode too
       "neoscroll", -- Smooth scrolling works in VSCode too
@@ -308,7 +296,6 @@ end
 -- Setup Lazy.nvim with collected specs
 require("lazy").setup(collect_plugin_specs())
 
--- Initialize VSCode integration if needed
 if vim.g.vscode then
   local status, vscode = pcall(require, "core.vscode")
   if status then

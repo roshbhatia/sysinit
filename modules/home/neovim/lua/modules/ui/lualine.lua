@@ -75,7 +75,20 @@ M.plugins = {
         sections = {
           lualine_a = { mode },
           lualine_b = { branch, diff },
-          lualine_c = { 'filename' },
+          lualine_c = { 'filename', function()
+            -- Display current session name if auto-session is available
+            local status_ok, auto_session_lib = pcall(require, "auto-session.lib")
+            if not status_ok then
+              return ""
+            end
+            
+            local session_name = auto_session_lib.current_session_name(true)
+            if session_name and session_name ~= "" then
+              return "󱂬 " .. session_name
+            else
+              return ""
+            end
+          end },
           lualine_x = { diagnostics, 'encoding', filetype, spaces },
           lualine_y = { location },
           lualine_z = { 'progress' }
