@@ -1,5 +1,3 @@
-local verify = require("core.verify")
-
 local M = {}
 
 M.plugins = {
@@ -98,41 +96,5 @@ M.plugins = {
     end
   }
 }
-
-function M.setup()
-  local commander = require("commander")
-  
-  -- Register lualine commands with commander
-  commander.add({
-    {
-      desc = "Toggle Statusline",
-      cmd = function()
-        local ls = vim.opt.laststatus:get()
-        if ls == 0 then
-          vim.opt.laststatus = 2
-        elseif ls == 2 then
-          vim.opt.laststatus = 0
-        end
-        vim.cmd("redrawstatus")
-      end,
-      keys = { "n", "<leader>ts" },
-      cat = "UI"
-    }
-  })
-  
-  -- Register verification steps
-  verify.register_verification("lualine", {
-    {
-      desc = "Statusline Display",
-      command = "Check bottom of screen",
-      expected = "Should show a lualine statusline with mode, file info, and other details"
-    },
-    {
-      desc = "Toggle Statusline",
-      command = "<leader>ts",
-      expected = "Should toggle the statusline visibility"
-    }
-  })
-end
 
 return M
