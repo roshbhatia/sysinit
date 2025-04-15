@@ -14,12 +14,25 @@
 #      |  |:/        /__/:/       \  \:\        \  \:\        \  \::/
 #      |__|/         \__\/         \__\/         \__\/         \__\/
 
-unset MAILCHECK
-export LC_CTYPE=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-export ZSH_DISABLE_COMPFIX="true"
-export PAGER="bat --pager=always --color=always"
 export EDITOR="nvim"
+
+export LC_ALL=en_US.UTF-8
+
+export LC_CTYPE=en_US.UTF-8
+
+export PAGER="bat --pager=always --color=always"
+
+export ZSH_AUTOSUGGEST_USE_ASYNC=1
+
+export ZSH_DISABLE_COMPFIX="true"
+
+setopt NO_XTRACE NO_VERBOSE
+unset MAILCHECK
+unsetopt XTRACE VERBOSE
+
+zstyle ':completion:*' accept-exact '*(N)'
+zstyle ':completion:*' cache-path ~/.zsh/cache
+zstyle ':completion:*' use-cache on
 
 # Source core files in specific order (loglib must be first)
 source "$XDG_CONFIG_HOME/zsh/loglib.sh"
