@@ -87,7 +87,7 @@ local module_system = {
     "bufferline",
     "carbonfox",
     "devicons",
-    "heirline",
+    "lualine",
     "wezterm",
     "nvimtree",
   },
