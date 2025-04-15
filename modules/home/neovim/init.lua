@@ -123,22 +123,22 @@ local module_system
 -- Regular Neovim modules
 if not vim.g.vscode then
   module_system = {
+    -- UI-related modules (load first)
+    ui = {
+      "carbonfox",
+      "devicons",
+      "nvimtree",
+      "dropbar",
+      "lualine",
+      "neominimap",
+      "wezterm",
+    },
     -- Core editor functionality
     editor = {
       "which-key",
       "telescope",
       "oil",
       "wilder",
-    },
-    -- UI-related modules
-    ui = {
-      "carbonfox",
-      "devicons",
-      "dropbar",
-      "lualine",
-      "neominimap",
-      "nvimtree",
-      "wezterm",
     },
     -- Tool modules
     tools = {

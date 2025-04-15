@@ -3,94 +3,39 @@ local M = {}
 M.plugins = {
   {
     "nvim-tree/nvim-tree.lua",
-    lazy = false,
-    dependencies = { 
-      "nvim-tree/nvim-web-devicons"
+    dependencies = {
+      "nvim-tree/nvim-web-devicons",
     },
+    cmd = { "NvimTreeToggle", "NvimTreeFocus" },
     config = function()
+      local status_ok, nvim_tree = pcall(require, "nvim-tree")
+      if not status_ok then
+        vim.notify("nvim-tree not found!", vim.log.levels.ERROR)
+        return
+      end
+
+      -- disable netrw at the very start of your init.lua
       vim.g.loaded_netrw = 1
       vim.g.loaded_netrwPlugin = 1
-      
-      require("nvim-tree").setup({
-        sort_by = "case_sensitive",
+
+      nvim_tree.setup({
+        sync_root_with_cwd = true,
+        respect_buf_cwd = true,
+        update_focused_file = {
+          enable = true,
+          update_root = true
+        },
         view = {
           width = 30,
-          adaptive_size = false,
         },
         renderer = {
           group_empty = true,
-          highlight_git = true,
-          icons = {
-            show = {
-              git = true,
-              folder = true,
-              file = true,
-              folder_arrow = true,
-            },
-            glyphs = {
-              default = "",
-              symlink = "",
-              git = {
-                unstaged = "✗",
-                staged = "✓",
-                unmerged = "",
-                renamed = "➜",
-                untracked = "★",
-                deleted = "",
-                ignored = "◌",
-              },
-              folder = {
-                arrow_open = "",
-                arrow_closed = "",
-                default = "",
-                open = "",
-                empty = "",
-                empty_open = "",
-                symlink = "",
-                symlink_open = "",
-              },
-            },
-          },
         },
         filters = {
-          dotfiles = false,
-        },
-        git = {
-          enable = true,
-          ignore = false,
-          timeout = 500,
-        },
-        actions = {
-          open_file = {
-            quit_on_open = false,
-            resize_window = true,
-            window_picker = {
-              enable = true,
-            },
-          },
-        },
-        diagnostics = {
-          enable = true,
-          show_on_dirs = true,
-          icons = {
-            hint = "",
-            info = "",
-            warning = "",
-            error = "",
-          },
+          dotfiles = true,
         },
       })
-      
-      -- Auto open NvimTree when Neovim starts
-      vim.api.nvim_create_autocmd("VimEnter", {
-        callback = function()
-          if vim.fn.argc() == 0 or vim.fn.isdirectory(vim.fn.argv(0)) == 1 then
-            vim.cmd("NvimTreeOpen")
-          end
-        end,
-      })
-      
-    end
+    end,
   }
 }
 
