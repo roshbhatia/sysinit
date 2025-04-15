@@ -5,6 +5,7 @@ M.modules = {
   ui = {
     "carbonfox",
     "devicons",
+    "dropbar",
     "lualine",
     "neominimap",
     "nvimtree", 

@@ -204,6 +204,7 @@ if not vim.g.vscode then
     ui = {
       "carbonfox",
       "devicons",
+      "dropbar",
       "lualine",
       "neominimap",
       "nvimtree",
