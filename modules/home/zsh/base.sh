@@ -14,7 +14,14 @@
 #      |  |:/        /__/:/       \  \:\        \  \:\        \  \::/
 #      |__|/         \__\/         \__\/         \__\/         \__\/
 
-autoload -U compinit && compinit
+ZSH_DISABLE_COMPFIX="true"
+
+autoload -Uz compinit
+if [ "$(date +'%j')" != "$(stat -f '%Sm' -t '%j' ~/.zcompdump 2>/dev/null)" ]; then
+    compinit
+else
+    compinit -C
+fi
 
 unset MAILCHECK
 
@@ -22,7 +29,6 @@ export EDITOR="nvim"
 export PAGER="bat --pager=always --color=always"
 export LC_ALL=en_US.UTF-8
 export LC_CTYPE=en_US.UTF-8
-export ZSH_DISABLE_COMPFIX="true"
 export ZSH_UTILS_DIR="$XDG_CONFIG_HOME/zsh/extras"
 
 for core in "pre" "main"; do

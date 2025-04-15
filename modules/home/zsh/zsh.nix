@@ -47,16 +47,6 @@
     
     plugins = [
       {
-        name = "evalcache";
-        src = pkgs.fetchFromGitHub {
-          owner = "mroth";
-          repo = "evalcache";
-          rev = "v1.0.2";
-          sha256 = "sha256-qzpnGTrLnq5mNaLlsjSA6VESA88XBdN3Ku/YIgLCb28=";
-        };
-        file = "evalcache.plugin.zsh";
-      }
-      {
         name = "fast-syntax-highlighting";
         src = pkgs.fetchFromGitHub {
           owner = "zdharma-continuum";
