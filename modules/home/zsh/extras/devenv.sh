@@ -2,31 +2,8 @@
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
 # sysinit.nix-shell::ignore
-#       888                                               
-#       888                                               
-#       888                                               
-#   .d88888 .d88b. 888  888 .d88b. 88888b. 888  888      
-#  d88" 888d8P  Y8b888  888d8P  Y8b888 "88b888  888      
-#  888  888888888888Y88  88P88888888888  888888  888      
-#  Y88b 888Y8b.     Y8bd8P Y8b.    888  888Y88b 888      
-#   "Y88888 "Y8888   Y88P   "Y8888 888  888 "Y88888      
-#                                             888      
-#                                        Y8b d88P      
-#                                         "Y88P"
 
 devenv_help() {
-  echo "                                              "
-  echo "      888                                               "
-  echo "      888                                               "
-  echo "      888                                               "
-  echo "  .d88888 .d88b. 888  888 .d88b. 88888b. 888  888      "
-  echo " d88\" 888d8P  Y8b888  888d8P  Y8b888 \"88b888  888      "
-  echo " 888  888888888888Y88  88P88888888888  888888  888      "
-  echo " Y88b 888Y8b.     Y8bd8P Y8b.    888  888Y88b 888      "
-  echo "  \"Y88888 \"Y8888   Y88P   \"Y8888 888  888 \"Y88888      "
-  echo "                                            888      "
-  echo "                                       Y8b d88P      "
-  echo "                                        \"Y88P\"       "
   echo
   echo "Development Environment Commands:"
   echo "  devenv.nix.shell [args]    - Run nix-shell with devenv.shell.nix"

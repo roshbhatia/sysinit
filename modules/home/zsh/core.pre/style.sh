@@ -2,17 +2,6 @@
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
 # sysinit.nix-shell::ignore
-#       ___           ___           ___           ___           ___
-#      /  /\         /  /\         /__/\         /  /\         /  /\
-#     /  /::|       /  /:/_        \  \:\       /  /::\       /  /:/
-#    /  /:/:|      /  /:/ /\        \__\:\     /  /:/\:\     /  /:/
-#   /  /:/|:|__   /  /:/ /::\   ___ /  /::\   /  /:/~/:/    /  /:/  ___
-#  /__/:/ |:| /\ /__/:/ /:/\:\ /__/\  /:/\:\ /__/:/ /:/___ /__/:/  /  /\
-#  \__\/  |:|/:/ \  \:\/:/~/:/ \  \:\/:/__\/ \  \:\/:::::/ \  \:\ /  /:/
-#      |  |:/:/   \  \::/ /:/   \  \::/       \  \::/~~~~   \  \:\  /:/
-#      |  |::/     \__\/ /:/     \  \:\        \  \:\        \  \:\/:/
-#      |  |:/        /__/:/       \  \:\        \  \:\        \  \::/
-#      |__|/         \__\/         \__\/         \__\/         \__\/
 
 export ZSH_AUTOSUGGEST_USE_ASYNC=1
 export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
