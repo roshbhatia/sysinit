@@ -37,6 +37,26 @@ export ZSH_CORE_PRE_DIR="$XDG_CONFIG_HOME/zsh/core.pre"
 export ZSH_CORE_MAIN_DIR="$XDG_CONFIG_HOME/zsh/core.main"
 export ZSH_EXTRAS_DIR="$XDG_CONFIG_HOME/zsh/extras"
 
+source_compiled_if_exists() {
+  local source_file=$1
+  local zwc_dir="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/compiled"
+  local rel_path="${source_file#/}"
+  local zwc_file="$zwc_dir/$rel_path.zwc"
+  
+  # Create directory structure if it doesn't exist
+  mkdir -p "$(dirname "$zwc_file")"
+  
+  # Compile if needed
+  if [[ ! -f "$zwc_file" || "$source_file" -nt "$zwc_file" ]]; then
+    [[ -n "$SYSINIT_DEBUG" ]] && echo "Compiling: $source_file"
+    zcompile "$zwc_file" "$source_file"
+  fi
+  
+  # Source the file
+  [[ -n "$SYSINIT_DEBUG" ]] && echo "Sourcing: $source_file"
+  source "$source_file"
+}
+
 source_shell_files() {
   local dir=$1
   local name=${2:-$(basename "$dir")}
@@ -54,18 +74,7 @@ source_shell_files() {
 
   local file
   for file in "${files[@]}"; do
-    # Get compiled file path
-    local compiled="${file}.zwc"
-    
-    # Compile if compiled file doesn't exist or source is newer
-    if [[ ! -f "$compiled" || "$file" -nt "$compiled" ]]; then
-      [[ -n "$SYSINIT_DEBUG" ]] && echo "Compiling: $file"
-      zcompile "$file"
-    fi
-
-    # Source the original file (zsh automatically uses compiled version)
-    [[ -n "$SYSINIT_DEBUG" ]] && echo "Sourcing: $file"
-    source "$file"
+    source_compiled_if_exists "$file"
   done
 }
 
