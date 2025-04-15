@@ -1,12 +1,10 @@
-local verify = require("core.verify")
-
 local M = {}
 
 M.plugins = {
   {
     "willothy/wezterm.nvim",
     lazy = false,
-    config = true,
+    config = false, -- We'll configure it ourselves in setup
     dependencies = {
       "mrjones2014/smart-splits.nvim"
     }
@@ -14,8 +12,6 @@ M.plugins = {
 }
 
 function M.setup()
-  local wezterm = require("wezterm")
-  local commander = require("commander")
   local smart_splits = require("smart-splits")
 
   -- Configure smart-splits
@@ -40,94 +36,29 @@ function M.setup()
     },
   })
 
-  -- Register wezterm commands with commander
-  commander.add({
-    {
-      desc = "Spawn htop in WezTerm",
-      cmd = "<cmd>WeztermSpawn htop<CR>",
-      keys = { "n", "<leader>wt" },
-      cat = "WezTerm"
-    },
-    {
-      desc = "Create WezTerm Split Pane",
-      cmd = "<cmd>WeztermSplitPane<CR>",
-      keys = { "n", "<leader>ws" },
-      cat = "WezTerm"
-    },
-    -- Smart-splits bindings
-    {
-      desc = "Move to left split",
-      cmd = function() smart_splits.move_cursor_left() end,
-      keys = { "n", "<C-h>" },
-      cat = "Navigation"
-    },
-    {
-      desc = "Move to split below",
-      cmd = function() smart_splits.move_cursor_down() end,
-      keys = { "n", "<C-j>" },
-      cat = "Navigation"
-    },
-    {
-      desc = "Move to split above",
-      cmd = function() smart_splits.move_cursor_up() end,
-      keys = { "n", "<C-k>" },
-      cat = "Navigation"
-    },
-    {
-      desc = "Move to right split",
-      cmd = function() smart_splits.move_cursor_right() end,
-      keys = { "n", "<C-l>" },
-      cat = "Navigation"
-    },
-    {
-      desc = "Resize split left",
-      cmd = function() smart_splits.resize_left() end,
-      keys = { "n", "<D-S-h>" },
-      cat = "Resize"
-    },
-    {
-      desc = "Resize split down",
-      cmd = function() smart_splits.resize_down() end,
-      keys = { "n", "<D-S-j>" },
-      cat = "Resize"
-    },
-    {
-      desc = "Resize split up",
-      cmd = function() smart_splits.resize_up() end,
-      keys = { "n", "<D-S-k>" },
-      cat = "Resize"
-    },
-    {
-      desc = "Resize split right",
-      cmd = function() smart_splits.resize_right() end,
-      keys = { "n", "<D-S-l>" },
-      cat = "Resize"
-    }
+  -- Initialize wezterm
+  require("wezterm").setup({
+    -- Default configuration
   })
+
+  -- Define keybindings directly without commander
+  -- Smart-splits navigation bindings
+  vim.keymap.set('n', '<C-h>', function() smart_splits.move_cursor_left() end, {desc = "Move to left split"})
+  vim.keymap.set('n', '<C-j>', function() smart_splits.move_cursor_down() end, {desc = "Move to split below"})
+  vim.keymap.set('n', '<C-k>', function() smart_splits.move_cursor_up() end, {desc = "Move to split above"})
+  vim.keymap.set('n', '<C-l>', function() smart_splits.move_cursor_right() end, {desc = "Move to right split"})
   
-  -- Verify WezTerm integration
-  verify.register_verification("wezterm", {
-    {
-      desc = "WezTerm Terminal Spawn",
-      command = ":WeztermSpawn htop",
-      expected = "Should open htop in a new WezTerm pane"
-    },
-    {
-      desc = "WezTerm Split Pane",
-      command = ":WeztermSplitPane",
-      expected = "Should create a new split pane in WezTerm"
-    },
-    {
-      desc = "Smart Splits Navigation",
-      command = "<C-h>",
-      expected = "Should move to left split or WezTerm pane"
-    },
-    {
-      desc = "Smart Splits Resize",
-      command = "<D-S-h>",
-      expected = "Should resize current split or WezTerm pane"
-    }
-  })
+  -- Smart-splits resize bindings
+  vim.keymap.set('n', '<A-h>', function() smart_splits.resize_left() end, {desc = "Resize split left"})
+  vim.keymap.set('n', '<A-j>', function() smart_splits.resize_down() end, {desc = "Resize split down"})
+  vim.keymap.set('n', '<A-k>', function() smart_splits.resize_up() end, {desc = "Resize split up"})
+  vim.keymap.set('n', '<A-l>', function() smart_splits.resize_right() end, {desc = "Resize split right"})
+  
+  -- WezTerm specific commands
+  vim.keymap.set('n', '<leader>zt', '<cmd>WeztermSpawn htop<CR>', {desc = "Spawn htop in WezTerm"})
+  vim.keymap.set('n', '<leader>zs', '<cmd>WeztermSplitPane<CR>', {desc = "Create WezTerm Split Pane"})
+  
+  -- The WezTerm keybindings in which-key.lua handle the rest of the keybindings
 end
 
 return M
