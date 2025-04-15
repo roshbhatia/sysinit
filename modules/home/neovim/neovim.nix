@@ -7,7 +7,7 @@
     viAlias = true;
     vimAlias = true;
     
-    # Only install lazy.nvim through Nix
+    # Install base plugins through Nix
     plugins = with pkgs.vimPlugins; [
       lazy-nvim
     ];
