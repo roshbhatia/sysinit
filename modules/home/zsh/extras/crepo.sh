@@ -13,10 +13,7 @@
 #                       888              
 #                       888
 
-# Ensure logging library is loaded
-[ -f "$HOME/.config/zsh/loglib.sh" ] && source "$HOME/.config/zsh/loglib.sh"
 
-# Helper functions defined outside the main function to avoid nesting
 function _crepo_list_repos() {
     local REPO_BASE="$1"
     fd --type d \

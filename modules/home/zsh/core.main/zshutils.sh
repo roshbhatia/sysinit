@@ -13,7 +13,6 @@
 
 ZSH_UTILS_DIR="$XDG_CONFIG_HOME/zsh/extras"
 
-# Source all utility scripts
 if [[ -d "$ZSH_UTILS_DIR" ]]; then
   for util_script in "$ZSH_UTILS_DIR"/*.sh; do
     if [[ -f "$util_script" ]]; then
@@ -21,5 +20,5 @@ if [[ -d "$ZSH_UTILS_DIR" ]]; then
     fi
   done
 else
-  echo "ZSH utilities directory not found: $ZSH_UTILS_DIR"
+  log_error "ZSH utilities directory not found: $ZSH_UTILS_DIR"
 fi
