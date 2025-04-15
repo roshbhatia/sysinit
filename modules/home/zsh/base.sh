@@ -14,6 +14,8 @@
 #      |  |:/        /__/:/       \  \:\        \  \:\        \  \::/
 #      |__|/         \__\/         \__\/         \__\/         \__\/
 
+autoload -U compinit && compinit
+
 unset MAILCHECK
 
 export EDITOR="nvim"
