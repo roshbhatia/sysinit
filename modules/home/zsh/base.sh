@@ -77,4 +77,5 @@ if [ "$WEZTERM_PANE" = "0" ]; then
   fi
 fi
 
+eval "$(oh-my-posh init zsh --config "$XDG_CONFIG_HOME/oh-my-posh/poshthemes/zash.omp.json")"
 [[ -n "$SYSINIT_DEBUG" ]] && zprof
