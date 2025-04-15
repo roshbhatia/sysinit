@@ -140,13 +140,12 @@ end
 
 -- Initialize VSCode integration
 function M.setup()
-  -- Only apply in VSCode environment
   if not vim.g.vscode then
     return
   end
-  
+
   -- Add initialization message
-  print("VSCode Neovim integration initializing...")
+  vim.notify("VSCode Neovim integration initializing...", vim.log.levels.INFO)
   
   -- Set up VSCode-specific keybindings
   M.setup_keymaps()
@@ -160,7 +159,7 @@ function M.setup()
     pattern = "VSCodeInitialized",
     group = "VSCodeGroup",
     callback = function()
-      print("VSCode Neovim integration initialized")
+      vim.notify("VSCode Neovim integration initialized", vim.log.levels.INFO)
     end,
   })
 end
