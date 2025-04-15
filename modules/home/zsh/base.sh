@@ -29,7 +29,11 @@ fi
 unset MAILCHECK
 
 export EDITOR="nvim"
+export SUDO_EDITOR="$EDITOR"
+export VISUAL="$EDITOR"
 export PAGER="bat --pager=always --color=always"
+alias sudo='sudo -E'
+
 export LC_ALL=en_US.UTF-8
 export LC_CTYPE=en_US.UTF-8
 
