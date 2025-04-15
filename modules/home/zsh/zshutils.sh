@@ -11,7 +11,7 @@
 #  d88P        X88888  888Y88b 888Y88b. 888888     X88 
 # 88888888 88888P'888  888 "Y88888 "Y888888888 88888P'
 
-ZSH_UTILS_DIR="$HOME/.config/zsh/extras"
+ZSH_UTILS_DIR="$XDG_CONFIG_HOME/zsh/extras"
 
 # Source all utility scripts
 if [[ -d "$ZSH_UTILS_DIR" ]]; then
