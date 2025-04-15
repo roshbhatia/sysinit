@@ -83,6 +83,16 @@ M.plugins = {
           },
         },
       })
+      
+      -- Auto open NvimTree when Neovim starts
+      vim.api.nvim_create_autocmd("VimEnter", {
+        callback = function()
+          -- Only open if a directory or no file is specified
+          if vim.fn.argc() == 0 or vim.fn.isdirectory(vim.fn.argv(0)) == 1 then
+            vim.cmd("NvimTreeOpen")
+          end
+        end,
+      })
     end
   }
 }
