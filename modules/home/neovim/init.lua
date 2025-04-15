@@ -172,6 +172,29 @@ end
 local function collect_plugin_specs()
   local specs = {}
   
+  -- Add which-key configuration
+  table.insert(specs, {
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    config = function()
+      require("which-key").setup({
+        win = {  -- Updated from 'window' to 'win'
+          border = "single",
+          padding = { 2, 2, 2, 2 },
+        },
+        triggers = "auto",  -- Fixed triggers configuration
+        plugins = {
+          marks = true,
+          registers = true,
+          spelling = {
+            enabled = true,
+            suggestions = 20,
+          },
+        },
+      })
+    end
+  })
+
   -- Process modules in specific order
   local categories = {"editor", "ui", "tools"}
   
