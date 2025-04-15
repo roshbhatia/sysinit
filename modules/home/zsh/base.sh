@@ -25,13 +25,13 @@ export PAGER="bat --pager=always --color=always"
 export EDITOR="nvim"
 
 # Source core files in specific order (loglib must be first)
-source "$XDG_CONFIG_HOME/zsh/loglib.sh"    # Load logging first
-source "$XDG_CONFIG_HOME/zsh/paths.sh"      # Load paths
-source "$XDG_CONFIG_HOME/zsh/style.sh"      # Load styling
-source "$XDG_CONFIG_HOME/zsh/fzf.sh"        # Load fzf
-source "$XDG_CONFIG_HOME/zsh/completions.sh"   # Load completions
-source "$XDG_CONFIG_HOME/zsh/notifications.sh" # Load notifications
-source "$XDG_CONFIG_HOME/zsh/shift-select.sh"  # Load shift-select
+source "$XDG_CONFIG_HOME/zsh/loglib.sh"
+source "$XDG_CONFIG_HOME/zsh/paths.sh" 
+source "$XDG_CONFIG_HOME/zsh/style.sh" 
+source "$XDG_CONFIG_HOME/zsh/fzf.sh"
+source "$XDG_CONFIG_HOME/zsh/completions.sh"
+source "$XDG_CONFIG_HOME/zsh/notifications.sh"
+source "$XDG_CONFIG_HOME/zsh/shift-select.sh"
 
 # Load extras directly
 for extra in "$XDG_CONFIG_HOME/zsh/extras"/*.sh; do
