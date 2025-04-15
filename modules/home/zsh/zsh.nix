@@ -74,19 +74,9 @@
   };
   
   xdg.configFile = {
-    # Core files
     "zsh/base.sh".source = ./base.sh;
-
-    "zsh/completions.sh".source = ./completions.sh;
-    "zsh/fzf.sh".source = ./fzf.sh;
-    "zsh/loglib.sh".source = ./loglib.sh;
-    "zsh/notifications.sh".source = ./notifications.sh;
-    "zsh/paths.sh".source = ./paths.sh;
-    "zsh/shift-select.sh".source = ./shift-select.sh;
-    "zsh/style.sh".source = ./style.sh;
-    "zsh/zshutils.sh".source = ./zshutils.sh;
-
-
+    "zsh/core.pre".source = ./core.pre;
+    "zsh/core.main".source = ./core.main;
     "zsh/extras".source = ./extras;
   };
 }
