@@ -69,13 +69,9 @@
   "js/ts.implicitProjectConfig.experimentalDecorators": true,
   "markdown.preview.typographer": true,
   "mergeEditor.diffAlgorithm": "legacy",
-  "notebook.cellToolbarLocation": {
-    "default": "right",
-    "jupyter-notebook": "left"
-  },
   "security.workspace.trust.untrustedFiles": "open",
   "terminal.explorerKind": "external",
-  "terminal.external.osxExec": "Warp.app",
+  "terminal.external.osxExec": "WezTerm.app",
   "terminal.integrated.customGlyphs": false,
   "terminal.integrated.gpuAcceleration": "off",
   "typescript.inlayHints.enumMemberValues.enabled": true,
