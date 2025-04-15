@@ -13,8 +13,6 @@
 #      |  |:/        /__/:/       \  \:\        \  \:\        \  \::/
 #      |__|/         \__\/         \__\/         \__\/         \__\/
 
-source "$HOME/.config/zsh/loglib.sh"
-
 path.print() {
   echo "$PATH" | tr ':' '\n' | bat --style=numbers,grid
 }
@@ -31,30 +29,24 @@ path.add.safe() {
   fi
 }
 
-# Path settings
-[ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
-
 # Add all directories to PATH
 paths=(
-  "$HOME/.cargo/bin"
-  "$HOME/.npm-global/bin"
-  "$HOME/.yarn/bin"
-  "$HOME/.config/yarn/global/node_modules/.bin"
   "/usr/local/opt/cython/bin"
-  "$HOME/.local/bin"
-  "$HOME/.rvm/bin"
+  "$HOME/.cargo/bin"
+  "$HOME/.config/yarn/global/node_modules/.bin"
+  "$HOME/.config/zsh/extras/bin"
   "$HOME/.govm/shim"
   "$HOME/.krew/bin"
+  "$HOME/.local/bin"
+  "$HOME/.npm-global/bin"
+  "$HOME/.rvm/bin"
+  "$HOME/.yarn/bin"
   "$HOME/bin"
-  "$HOME/.config/zsh/extras/bin"
   "opt/homebrew/opt/gettext/bin"
+
+  "$(go env GOPATH)/bin"
 )
 
 for dir in "${paths[@]}"; do
   path.add.safe "$dir"
 done
-
-# Go specific path (requires go to be installed)
-if command -v go &> /dev/null; then
-  path.add.safe "$(go env GOPATH)/bin"
-fi

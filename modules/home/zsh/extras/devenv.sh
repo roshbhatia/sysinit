@@ -14,10 +14,6 @@
 #                                        Y8b d88P      
 #                                         "Y88P"
 
-# Ensure logging library is loaded
-[ -f "$HOME/.config/zsh/loglib.sh" ] && source "$HOME/.config/zsh/loglib.sh"
-
-# Helper function for showing devenv help
 devenv_help() {
   echo "                                              "
   echo "      888                                               "

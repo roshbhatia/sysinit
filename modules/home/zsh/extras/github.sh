@@ -12,10 +12,6 @@
 #      888                                  
 # Y8b d88P                                  
 #  "Y88P"                                   
-                                      
-
-# Ensure logging library is loaded
-[ -f "$HOME/.config/zsh/loglib.sh" ] && source "$HOME/.config/zsh/loglib.sh"
 
 # GitHub username functions
 function ghwhoami() {
