@@ -6,6 +6,8 @@ M.plugins = {
     event = "CmdlineEnter",
     dependencies = {
       "nvim-tree/nvim-web-devicons",
+      "roxma/nvim-yarp",
+      "roxma/vim-hug-neovim-rpc",
     },
     config = function()
       local wilder = require('wilder')
