@@ -62,4 +62,4 @@ if [ "$WEZTERM_PANE" = "0" ]; then
   fi
 fi
 
-_evalcache starship init zsh
+eval "$(oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/zash.omp.json)"
