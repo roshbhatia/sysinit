@@ -14,6 +14,9 @@
 #      |  |:/        /__/:/       \  \:\        \  \:\        \  \::/
 #      |__|/         \__\/         \__\/         \__\/         \__\/
 
+[[ -f "$HOME/.sysinit-debug" ]] && export SYSINIT_DEBUG=1
+[[ -n "$SYSINIT_DEBUG" ]] && zmodload zsh/zprof
+
 ZSH_DISABLE_COMPFIX="true"
 
 autoload -Uz compinit
@@ -29,30 +32,36 @@ export EDITOR="nvim"
 export PAGER="bat --pager=always --color=always"
 export LC_ALL=en_US.UTF-8
 export LC_CTYPE=en_US.UTF-8
+
+export ZSH_CORE_PRE_DIR="$XDG_CONFIG_HOME/zsh/core.pre"
+export ZSH_CORE_MAIN_DIR="$XDG_CONFIG_HOME/zsh/core.main"
 export ZSH_EXTRAS_DIR="$XDG_CONFIG_HOME/zsh/extras"
 
-for core in "pre" "main"; do
-  if [[ -d "$XDG_CONFIG_HOME/zsh/core.$core" ]]; then
-    for file in "$XDG_CONFIG_HOME/zsh/core.$core"/*.sh(N); do
-      source "$file"
-    done
-  else
-    echo "Warning: $XDG_CONFIG_HOME/zsh/core.$core directory not found"
+source_shell_files() {
+  local dir=$1
+  local name=${2:-$(basename "$dir")}
+
+  if [[ ! -d "$dir" ]]; then
+    echo "Warning: Directory $name not found"
+    return 1
   fi
-done
 
+  local files=("$dir"/*.sh(N))
+  if (( ${#files[@]} == 0 )); then
+    echo "Warning: No shell files found in $name"
+    return 0
+  fi
 
-if [[ -d "$ZSH_EXTRAS_DIR" ]]; then
-  for util_script in "$ZSH_EXTRAS_DIR"/*.sh; do
-    if [[ -f "$util_script" ]]; then
-      source "$util_script"
-    fi
+  for file in "${files[@]}"; do
+    [[ -n "$SYSINIT_DEBUG" ]] && echo "Sourcing: $file"
+    source "$file"
   done
-else
-  echo "Warning: $ZSH_EXTRAS_DIR directory not found"
-fi
+}
 
-# Disable ctrl+s to freeze terminal
+source_shell_files "$ZSH_CORE_PRE_DIR" "core.pre"
+source_shell_files "$ZSH_CORE_MAIN_DIR" "core.main"
+source_shell_files "$ZSH_EXTRAS_DIR" "extras"
+
 stty stop undef
 
 bindkey '^h' beginning-of-line    # CTRL + h for beginning of line
@@ -68,4 +77,4 @@ if [ "$WEZTERM_PANE" = "0" ]; then
   fi
 fi
 
-eval "$(oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/zash.omp.json)"
+[[ -n "$SYSINIT_DEBUG" ]] && zprof
