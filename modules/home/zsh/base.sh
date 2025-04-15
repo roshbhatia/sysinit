@@ -49,11 +49,11 @@ zcompare() {
 source_compiled_if_exists() {
     local source_file=$1
     local zwc_dir="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/compiled"
-    local rel_path="${source_file#/}"
-    local zwc_file="$zwc_dir/$rel_path.zwc"
+    local file_hash=$(echo "$source_file" | md5)
+    local zwc_file="$zwc_dir/${file_hash}.zwc"
     
-    # Create directory structure if it doesn't exist
-    mkdir -p "$(dirname "$zwc_file")"
+    # Create directory if it doesn't exist
+    mkdir -p "$zwc_dir"
     
     # Use zcompare for compilation check
     if [[ -s ${source_file} && ( ! -s ${zwc_file} || ${source_file} -nt ${zwc_file}) ]]; then
