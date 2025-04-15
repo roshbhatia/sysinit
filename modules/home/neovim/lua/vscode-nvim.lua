@@ -48,11 +48,11 @@ function M.setup_keymaps()
   vim.keymap.set('n', '<C-w>=', M.command('workbench.action.evenEditorWidths'), opts)
   vim.keymap.set('n', '<C-w>_', M.command('workbench.action.toggleEditorWidths'), opts)
   
-  -- LSP-like operations
-  vim.keymap.set('n', 'gd', M.command('editor.action.revealDefinition'), opts)
-  vim.keymap.set('n', 'gr', M.command('editor.action.goToReferences'), opts)
-  vim.keymap.set('n', 'gi', M.command('editor.action.goToImplementation'), opts)
-  vim.keymap.set('n', 'gt', M.command('editor.action.goToTypeDefinition'), opts)
+  -- LSP-like operations (modified to avoid overlaps)
+  vim.keymap.set('n', '<leader>gd', M.command('editor.action.revealDefinition'), opts)
+  vim.keymap.set('n', '<leader>gr', M.command('editor.action.goToReferences'), opts)
+  vim.keymap.set('n', '<leader>gi', M.command('editor.action.goToImplementation'), opts)
+  vim.keymap.set('n', '<leader>gt', M.command('editor.action.goToTypeDefinition'), opts)
   vim.keymap.set('n', 'K', M.command('editor.action.showHover'), opts)
   
   -- Code actions
@@ -60,9 +60,9 @@ function M.setup_keymaps()
   vim.keymap.set('n', '<leader>rn', M.command('editor.action.rename'), opts)
   vim.keymap.set('n', '<leader>cf', M.command('editor.action.formatDocument'), opts)
   
-  -- Comments
-  vim.keymap.set('n', 'gcc', M.command('editor.action.commentLine'), opts)
-  vim.keymap.set('v', 'gc', M.command('editor.action.commentLine'), opts)
+  -- Comments (modified to avoid overlaps)
+  vim.keymap.set('n', '<leader>/', M.command('editor.action.commentLine'), opts)
+  vim.keymap.set('v', '<leader>/', M.command('editor.action.commentLine'), opts)
   
   -- File/project operations
   vim.keymap.set('n', '<leader>ff', M.command('search-preview.quickOpenWithPreview'), opts)
