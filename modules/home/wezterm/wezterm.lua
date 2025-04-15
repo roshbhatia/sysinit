@@ -28,7 +28,7 @@ config.visual_bell = {
     fade_out_duration_ms = 50
 }
 
-config.color_scheme = "3024 (base16)"
+config.color_scheme = "Abernathy"
 
 config.colors = {
     visual_bell = '#242529',
