@@ -2,6 +2,9 @@
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
 
+compdef _kubectl kubecolor
+compdef _kubectl k
+
 # Basic kubectl commands (as kubecolor)
 alias k='kubecolor'                                               # Basic kubecolor command
 alias ksys='kubecolor --namespace=kube-system'                    # kubecolor commands in kube-system namespace
