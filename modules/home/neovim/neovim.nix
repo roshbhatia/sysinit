@@ -17,4 +17,10 @@
     source = ./.;
     recursive = true;
   };
+
+  home.activation = {
+    nvimPermissions = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      $DRY_RUN_CMD chmod -R a+rw $HOME/.config/nvim
+    '';
+  };
 }
