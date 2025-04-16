@@ -18,7 +18,6 @@
     ./neovim/neovim.nix
     ./nushell/nushell.nix
     ./vscode/vscode.nix
-    ./vscode-neovim/vscode-neovim.nix
     ./wezterm/wezterm.nix
   ];
   programs.home-manager.enable = true;
