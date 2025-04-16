@@ -44,11 +44,12 @@ in
       mkdir -p "$HOME/.config/wallpaper"
       ln -sf "$WALLPAPER_PATH" "$HOME/.wallpaper"
       
-      cat > "$HOME/.config/wallpaper/set-wallpaper.sh" << 'EOF'
-#!/bin/bash
-osascript -e 'tell application "Finder" to set desktop picture to POSIX file "'"$HOME/.wallpaper"'"'
-EOF
-      chmod +x "$HOME/.config/wallpaper/set-wallpaper.sh"
+      OSASCRIPT="/usr/bin/osascript"
+      if [ -x "$OSASCRIPT" ]; then
+        "$OSASCRIPT" -e 'tell application "Finder" to set desktop picture to POSIX file "'"$WALLPAPER_PATH"'"'
+      else
+        echo "osascript not found at $OSASCRIPT"
+      fi
       
       osascript -e 'tell application "Finder" to set desktop picture to POSIX file "'"$WALLPAPER_PATH"'"'
       echo "✅ Wallpaper set successfully"
