@@ -6,6 +6,17 @@ function M.setup()
     root = vim.fn.stdpath("data") .. "/lazy",
     lockfile = vim.fn.stdpath("data") .. "/lazy/lazy-lock.json",
     
+    spec = {
+      {
+        "vhyrro/luarocks.nvim",
+        priority = 1000,
+        config = true,
+        opts = {
+          rocks = {},
+        },
+      },
+    },
+    
     performance = {
       rtp = {
         disabled_plugins = {

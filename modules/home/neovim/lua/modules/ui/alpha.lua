@@ -4,7 +4,6 @@ M.plugins = {
   {
     "goolord/alpha-nvim",
     dependencies = { 
-      "vhyrro/luarocks.nvim",
       "3rd/image.nvim",
       "nvim-telescope/telescope.nvim",
       "nvim-lua/plenary.nvim"
