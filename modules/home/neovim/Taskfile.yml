@@ -24,3 +24,61 @@ tasks:
     usage: |
       Run Neovim with the local configuration (isolated environment):
         task nvim-run-local
+        
+  fetch-readmes:
+    desc: Fetch READMEs for all Neovim plugins
+    silent: true
+    cmds:
+      - |
+        # Set up colors for output
+        RED='\033[0;31m'
+        GREEN='\033[0;32m'
+        YELLOW='\033[0;33m'
+        NC='\033[0m' # No Color
+        
+        # Define directories
+        NEOVIM_DIR="$(pwd)"
+        README_DIR="${NEOVIM_DIR}/dependency-readmes"
+        
+        # Create README directory if it doesn't exist
+        mkdir -p "${README_DIR}"
+        
+        echo -e "${YELLOW}Scanning Lua files for README URLs...${NC}"
+        
+        # Find all Lua files and process them
+        files=$(find "${NEOVIM_DIR}" -type f -name "*.lua")
+        count=0
+        found=0
+        
+        for file in ${files}; do
+          count=$((count + 1))
+          
+          # Extract README URL from file
+          readmes=$(grep -o "-- sysinit.nvim.readme-url=\"[^\"]*\"" "${file}" || true)
+          
+          if [[ -n "${readmes}" ]]; then
+            found=$((found + 1))
+            filename=$(basename "${file}" .lua)
+            
+            echo -e "${GREEN}Found README URL in ${filename}${NC}"
+            
+            # Extract the URL
+            url=$(echo "${readmes}" | sed 's/-- sysinit.nvim.readme-url=\"//g' | sed 's/\"//g')
+            
+            # Download the README
+            echo -e "Downloading README from ${url}"
+            curl -s "${url}" -o "${README_DIR}/${filename}.md"
+            
+            if [[ $? -eq 0 ]]; then
+              echo -e "${GREEN}Successfully downloaded README for ${filename}${NC}"
+            else
+              echo -e "${RED}Failed to download README for ${filename}${NC}"
+            fi
+          fi
+        done
+        
+        echo -e "${YELLOW}Scanned ${count} files, found ${found} README URLs${NC}"
+        echo -e "${GREEN}READMEs saved to ${README_DIR}${NC}"
+    usage: |
+      Fetch READMEs for all Neovim plugins:
+        task fetch-readmes
