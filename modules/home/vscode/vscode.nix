@@ -11,6 +11,7 @@ let
     "catppuccin.catppuccin-vsc-icons"
     "davidanson.vscode-markdownlint"
     "davidbwaters.macos-modern-theme"
+    "drcika.apc-extension"
     "emily-curry.base16-tomorrow-dark-vscode"
     "esbenp.prettier-vscode"
     "evan-buss.font-switcher"
