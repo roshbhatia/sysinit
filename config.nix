@@ -30,7 +30,7 @@
   };
 
   wallpaper = {
-    path = "wall/mvp2.jpeg";
+    path = "wallpaper/images/mvp2.jpeg";
   };
 
   pipx = {

@@ -44,7 +44,7 @@
 
   # Wallpaper configuration (optional)
   wallpaper = {
-    path = toString ./wall/company-logo.jpg;  # Path relative to flake root
+    path = toString ./wallpaper/images/company-logo.jpg;  # Path relative to flake root
   };
 
   # Files to install during system activation (optional)
