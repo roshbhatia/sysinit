@@ -83,8 +83,8 @@ function M.setup_compat_plugins()
     f = {
       name = "🔍 Find",
       bindings = {
-        { key = "f", description = "Find Files", action = "workbench.action.quickOpen" },
-        { key = "g", description = "Live Grep", action = "workbench.action.findInFiles" },
+        { key = "f", description = "Find Files", action = "search-preview.quickOpenWithPreview" },
+        { key = "g", description = "Find in Files", action = "workbench.action.findInFiles" },
         { key = "b", description = "Find Buffers", action = "workbench.action.showAllEditors" },
         { key = "s", description = "Find Symbols", action = "workbench.action.showAllSymbols" },
         { key = "r", description = "Recent Files", action = "workbench.action.openRecent" }
@@ -94,8 +94,8 @@ function M.setup_compat_plugins()
       name = "🪟 Window",
       bindings = {
         { key = "h", description = "Focus Left", action = "workbench.action.focusLeftGroup" },
-        { key = "j", description = "Focus Down", action = "workbench.action.focusDownGroup" },
-        { key = "k", description = "Focus Up", action = "workbench.action.focusUpGroup" },
+        { key = "j", description = "Focus Down", action = "workbench.action.focusBelowGroup" },
+        { key = "k", description = "Focus Up", action = "workbench.action.focusAboveGroup" },
         { key = "l", description = "Focus Right", action = "workbench.action.focusRightGroup" },
         { key = "=", description = "Equal Width", action = "workbench.action.evenEditorWidths" },
         { key = "_", description = "Max Width", action = "workbench.action.toggleEditorWidths" },
@@ -130,46 +130,68 @@ function M.setup_compat_plugins()
     g = {
       name = "🔄 Git",
       bindings = {
-        { key = "b", description = "Git Blame", action = "gitlens.toggleLineBlame" },
-        { key = "d", description = "Git Diff", action = "git.openChange" },
-        { key = "s", description = "Git Status", action = "workbench.scm.focus" },
-        { key = "c", description = "Git Commit", action = "git.commitAll" },
-        { key = "p", description = "Git Push", action = "git.push" },
-        { key = "m", description = "Generate Commit Message", action = "github.copilot.generateCommitMessage" }
+        { key = "s", description = "Stage Changes", action = "git.stage" },
+        { key = "S", description = "Stage All", action = "git.stageAll" },
+        { key = "u", description = "Unstage Changes", action = "git.unstage" },
+        { key = "U", description = "Unstage All", action = "git.unstageAll" },
+        { key = "c", description = "Commit", action = "git.commit" },
+        { key = "C", description = "Commit All", action = "git.commitAll" },
+        { key = "p", description = "Push", action = "git.push" },
+        { key = "P", description = "Pull", action = "git.pull" },
+        { key = "d", description = "Open Change", action = "git.openChange" },
+        { key = "D", description = "Open All Changes", action = "git.openAllChanges" },
+        { key = "b", description = "Checkout Branch", action = "git.checkout" },
+        { key = "f", description = "Fetch", action = "git.fetch" },
+        { key = "r", description = "Revert Change", action = "git.revertChange" },
+        { key = "v", description = "SCM View", action = "workbench.view.scm" },
+        { key = "m", description = "Generate Commit Message", action = "workbench.action.chat.open" }
       }
     },
     c = {
       name = "💻 Code",
       bindings = {
-        { key = "a", description = "Code Actions", action = "editor.action.quickFix" },
+        { key = "a", description = "Quick Fix", action = "editor.action.quickFix" },
         { key = "r", description = "Rename Symbol", action = "editor.action.rename" },
         { key = "f", description = "Format Document", action = "editor.action.formatDocument" },
         { key = "d", description = "Go to Definition", action = "editor.action.revealDefinition" },
         { key = "i", description = "Go to Implementation", action = "editor.action.goToImplementation" },
         { key = "h", description = "Show Hover", action = "editor.action.showHover" },
-        { key = "c", description = "Toggle Comment", action = "editor.action.commentLine" }
+        { key = "c", description = "Toggle Comment", action = "editor.action.commentLine" },
+        { key = "s", description = "Go to Symbol", action = "workbench.action.gotoSymbol" },
+        { key = "R", description = "Find References", action = "editor.action.goToReferences" }
       }
     },
     t = {
       name = "🔧 Toggle",
       bindings = {
-        { key = "e", description = "󰏖 Explorer", action = "workbench.view.explorer" },
-        { key = "t", description = "󰙅 Terminal", action = "workbench.action.terminal.toggleTerminal" },
-        { key = "p", description = "󰏘 Problems", action = "workbench.actions.view.problems" },
-        { key = "o", description = "󰙀 Outline", action = "outline.focus" },
-        { key = "c", description = "󰚩 Copilot Chat", action = "github.copilot.chat.focus" },
-        { key = "b", description = "󰌽 Return to Editor", action = "workbench.action.focusActiveEditorGroup" },
-        { key = "m", description = "⌘ Command Palette", action = "workbench.action.showCommands" }
+        { key = "e", description = "Explorer", action = "workbench.view.explorer" },
+        { key = "t", description = "Terminal", action = "workbench.action.terminal.toggleTerminal" },
+        { key = "p", description = "Problems", action = "workbench.actions.view.problems" },
+        { key = "o", description = "Outline", action = "outline.focus" },
+        { key = "c", description = "Chat", action = "workbench.action.chat.open" },
+        { key = "b", description = "Return to Editor", action = "workbench.action.focusActiveEditorGroup" },
+        { key = "m", description = "Command Palette", action = "workbench.action.showCommands" }
       }
     },
     a = {
-      name = "🛠 AI",
+      name = "🤖 AI",
       bindings = {
-        { key = "c", description = "Start Copilot Chat", action = "github.copilot.chat.focus" },
+        { key = "c", description = "Start Chat", action = "workbench.action.chat.open" },
         { key = "i", description = "Inline Chat", action = "inlineChat.start" },
-        { key = "g", description = "Explain Code", action = "codegpt.explainCodeGPT" },
-        { key = "d", description = "Add Doc Comments", action = "extension.addDocComments" },
-        { key = "t", description = "Toggle Copilot", action = "github.copilot.toggleCopilot" }
+        { key = "v", description = "View in Chat", action = "inlineChat.viewInChat" },
+        { key = "r", description = "Regenerate", action = "inlineChat.regenerate" },
+        { key = "a", description = "Accept Changes", action = "inlineChat.acceptChanges" },
+        { key = "g", description = "Generate Commit", action = "workbench.action.chat.open" }
+      }
+    },
+    s = {
+      name = "✂️ Stage/Split",
+      bindings = {
+        { key = "s", description = "Stage Hunk", action = "git.diff.stageHunk" },
+        { key = "S", description = "Stage Selection", action = "git.diff.stageSelection" },
+        { key = "u", description = "Unstage", action = "git.unstage" },
+        { key = "h", description = "Split Horizontal", action = "workbench.action.splitEditorDown" },
+        { key = "v", description = "Split Vertical", action = "workbench.action.splitEditorRight" }
       }
     }
   }
