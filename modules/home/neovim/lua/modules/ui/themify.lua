@@ -42,10 +42,6 @@ M.plugins = {
             -- Load the last used theme if available
             require("themify").load_saved()
           end)
-          
-          if not success then
-            vim.cmd("colorscheme base16-3024")
-          end
         end
       })
     end
