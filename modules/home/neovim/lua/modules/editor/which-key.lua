@@ -1,3 +1,5 @@
+# sysinit.nvim.readme-url="https://raw.githubusercontent.com/folke/which-key.nvim/main/README.md"
+
 local M = {}
 
 M.plugins = {

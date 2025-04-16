@@ -1,3 +1,5 @@
+# sysinit.nvim.readme-url="https://raw.githubusercontent.com/karb94/neoscroll.nvim/master/README.md"
+
 local M = {}
 
 M.plugins = {
