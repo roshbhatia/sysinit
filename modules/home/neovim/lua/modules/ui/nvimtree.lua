@@ -36,6 +36,25 @@ M.plugins = {
           dotfiles = true,
         },
       })
+      
+      -- Register with which-key
+      local wk = require("which-key")
+      wk.add({
+        { "<leader>e", group = "Explorer", icon = { icon = "🌲", hl = "WhichKeyIconGreen" } },
+        { "<leader>ee", "<cmd>NvimTreeToggle<CR>", desc = "Toggle NvimTree", mode = "n" },
+        { "<leader>ef", "<cmd>NvimTreeFindFile<CR>", desc = "Find Current File", mode = "n" },
+        { "<leader>er", "<cmd>NvimTreeRefresh<CR>", desc = "Refresh NvimTree", mode = "n" },
+        { "<leader>ec", "<cmd>NvimTreeCollapse<CR>", desc = "Collapse NvimTree", mode = "n" },
+        { "<leader>ep", function() 
+            local api = require("nvim-tree.api")
+            local node = api.tree.get_node_under_cursor()
+            local clipboard = require("nvim-tree.actions.clipboard.clipboard")
+            clipboard.copy(node)
+          end, 
+          desc = "Copy Node Path", 
+          mode = "n" 
+        },
+      })
     end,
   }
 }

@@ -138,83 +138,60 @@ M.plugins = {
           )
         })
       end
+      
+      -- Register with which-key
+      local wk = require("which-key")
+      wk.add({
+        { "<leader>m", group = "Minimap", icon = { icon = "🗺️", hl = "WhichKeyIconBlue" } },
+        { "<leader>mm", "<cmd>Neominimap toggle<CR>", desc = "Toggle Minimap", mode = "n" },
+        { "<leader>mo", "<cmd>Neominimap on<CR>", desc = "Enable Minimap", mode = "n" },
+        { "<leader>mc", "<cmd>Neominimap off<CR>", desc = "Disable Minimap", mode = "n" },
+        { "<leader>mr", "<cmd>Neominimap refresh<CR>", desc = "Refresh Minimap", mode = "n" },
+        { "<leader>mf", "<cmd>Neominimap focus<CR>", desc = "Focus Minimap", mode = "n" },
+        { "<leader>mu", "<cmd>Neominimap unfocus<CR>", desc = "Unfocus Minimap", mode = "n" },
+        { "<leader>ms", "<cmd>Neominimap toggleFocus<CR>", desc = "Switch Minimap Focus", mode = "n" },
+        
+        -- Window specific controls
+        { "<leader>mw", group = "Window Controls", mode = "n" },
+        { "<leader>mwt", "<cmd>Neominimap winToggle<CR>", desc = "Toggle for Current Window", mode = "n" },
+        { "<leader>mwr", "<cmd>Neominimap winRefresh<CR>", desc = "Refresh for Current Window", mode = "n" },
+        { "<leader>mwo", "<cmd>Neominimap winOn<CR>", desc = "Enable for Current Window", mode = "n" },
+        { "<leader>mwc", "<cmd>Neominimap winOff<CR>", desc = "Disable for Current Window", mode = "n" },
+        
+        -- Buffer specific controls
+        { "<leader>mb", group = "Buffer Controls", mode = "n" },
+        { "<leader>mbt", "<cmd>Neominimap bufToggle<CR>", desc = "Toggle for Current Buffer", mode = "n" },
+        { "<leader>mbr", "<cmd>Neominimap bufRefresh<CR>", desc = "Refresh for Current Buffer", mode = "n" },
+        { "<leader>mbo", "<cmd>Neominimap bufOn<CR>", desc = "Enable for Current Buffer", mode = "n" },
+        { "<leader>mbc", "<cmd>Neominimap bufOff<CR>", desc = "Disable for Current Buffer", mode = "n" },
+      })
+      
+      -- Set up highlight groups for better integration with your colorscheme
+      vim.api.nvim_create_autocmd("ColorScheme", {
+        pattern = "*",
+        callback = function()
+          -- Basic minimap highlights
+          vim.api.nvim_set_hl(0, "NeominimapBackground", { link = "Normal" })
+          vim.api.nvim_set_hl(0, "NeominimapBorder", { link = "FloatBorder" })
+          vim.api.nvim_set_hl(0, "NeominimapCursorLine", { link = "CursorLine" })
+          
+          -- Diagnostic highlights
+          vim.api.nvim_set_hl(0, "NeominimapErrorLine", { link = "DiagnosticVirtualTextError" })
+          vim.api.nvim_set_hl(0, "NeominimapWarnLine", { link = "DiagnosticVirtualTextWarn" })
+          vim.api.nvim_set_hl(0, "NeominimapInfoLine", { link = "DiagnosticVirtualTextInfo" })
+          vim.api.nvim_set_hl(0, "NeominimapHintLine", { link = "DiagnosticVirtualTextHint" })
+          
+          -- Git highlights
+          vim.api.nvim_set_hl(0, "NeominimapGitAddLine", { link = "DiffAdd" })
+          vim.api.nvim_set_hl(0, "NeominimapGitChangeLine", { link = "DiffChange" })
+          vim.api.nvim_set_hl(0, "NeominimapGitDeleteLine", { link = "DiffDelete" })
+          
+          -- Search highlights
+          vim.api.nvim_set_hl(0, "NeominimapSearchLine", { link = "Search" })
+        end,
+      })
     end
   }
 }
-
-function M.setup()
-  -- Register with which-key if available
-  local status, wk = pcall(require, "which-key")
-  if status then
-    wk.register({
-      ["<leader>m"] = {
-        name = "🗺️ Minimap",
-        ["m"] = { "<cmd>Neominimap toggle<CR>", "Toggle Minimap" },
-        ["o"] = { "<cmd>Neominimap on<CR>", "Enable Minimap" },
-        ["c"] = { "<cmd>Neominimap off<CR>", "Disable Minimap" },
-        ["r"] = { "<cmd>Neominimap refresh<CR>", "Refresh Minimap" },
-        ["f"] = { "<cmd>Neominimap focus<CR>", "Focus Minimap" },
-        ["u"] = { "<cmd>Neominimap unfocus<CR>", "Unfocus Minimap" },
-        ["s"] = { "<cmd>Neominimap toggleFocus<CR>", "Switch Minimap Focus" },
-        
-        -- Window specific controls
-        ["w"] = {
-          name = "Window",
-          ["t"] = { "<cmd>Neominimap winToggle<CR>", "Toggle for Current Window" },
-          ["r"] = { "<cmd>Neominimap winRefresh<CR>", "Refresh for Current Window" },
-          ["o"] = { "<cmd>Neominimap winOn<CR>", "Enable for Current Window" },
-          ["c"] = { "<cmd>Neominimap winOff<CR>", "Disable for Current Window" },
-        },
-        
-        -- Buffer specific controls
-        ["b"] = {
-          name = "Buffer",
-          ["t"] = { "<cmd>Neominimap bufToggle<CR>", "Toggle for Current Buffer" },
-          ["r"] = { "<cmd>Neominimap bufRefresh<CR>", "Refresh for Current Buffer" },
-          ["o"] = { "<cmd>Neominimap bufOn<CR>", "Enable for Current Buffer" },
-          ["c"] = { "<cmd>Neominimap bufOff<CR>", "Disable for Current Buffer" },
-        },
-        
-        -- Tab specific controls
-        ["t"] = {
-          name = "Tab",
-          ["t"] = { "<cmd>Neominimap tabToggle<CR>", "Toggle for Current Tab" },
-          ["r"] = { "<cmd>Neominimap tabRefresh<CR>", "Refresh for Current Tab" },
-          ["o"] = { "<cmd>Neominimap tabOn<CR>", "Enable for Current Tab" },
-          ["c"] = { "<cmd>Neominimap tabOff<CR>", "Disable for Current Tab" },
-        },
-      },
-    })
-  end
-  
-  -- Set up highlight groups for better integration with your colorscheme
-  vim.api.nvim_create_autocmd("ColorScheme", {
-    pattern = "*",
-    callback = function()
-      -- Basic minimap highlights
-      vim.api.nvim_set_hl(0, "NeominimapBackground", { link = "Normal" })
-      vim.api.nvim_set_hl(0, "NeominimapBorder", { link = "FloatBorder" })
-      vim.api.nvim_set_hl(0, "NeominimapCursorLine", { link = "CursorLine" })
-      
-      -- Diagnostic highlights
-      vim.api.nvim_set_hl(0, "NeominimapErrorLine", { link = "DiagnosticVirtualTextError" })
-      vim.api.nvim_set_hl(0, "NeominimapWarnLine", { link = "DiagnosticVirtualTextWarn" })
-      vim.api.nvim_set_hl(0, "NeominimapInfoLine", { link = "DiagnosticVirtualTextInfo" })
-      vim.api.nvim_set_hl(0, "NeominimapHintLine", { link = "DiagnosticVirtualTextHint" })
-      
-      -- Git highlights
-      vim.api.nvim_set_hl(0, "NeominimapGitAddLine", { link = "DiffAdd" })
-      vim.api.nvim_set_hl(0, "NeominimapGitChangeLine", { link = "DiffChange" })
-      vim.api.nvim_set_hl(0, "NeominimapGitDeleteLine", { link = "DiffDelete" })
-      
-      -- Search highlights
-      vim.api.nvim_set_hl(0, "NeominimapSearchLine", { link = "Search" })
-    end,
-  })
-  
-  -- Set recommended options for the minimap
-  vim.opt.wrap = false
-  vim.opt.sidescrolloff = 36 -- Set a large value for better scrolling
-end
 
 return M

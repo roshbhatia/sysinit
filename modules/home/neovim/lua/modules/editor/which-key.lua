@@ -49,13 +49,41 @@ M.plugins = {
         },
       })
       
+      -- Define main leader key groups centrally
       wk.add({
-        { "<leader>f", group = "Files" },
-        { "<leader>b", group = "Buffers" },
-        { "<leader>s", group = "Search" },
-        { "<leader>g", group = "Git" },
-        { "<leader>l", group = "LSP" },
+        -- Main groups
+        { "<leader>f", group = "Find/Files", icon = { icon = "󰍉", hl = "WhichKeyIconPurple" } },
+        { "<leader>b", group = "Buffers", icon = { icon = "󰓩", hl = "WhichKeyIconBlue" } },
+        { "<leader>w", group = "Windows", icon = { icon = "󰖮", hl = "WhichKeyIconCyan" } },
+        { "<leader>g", group = "Git", icon = { icon = "", hl = "WhichKeyIconRed" } },
+        { "<leader>l", group = "LSP", icon = { icon = "󰒕", hl = "WhichKeyIconBlue" } },
+        { "<leader>s", group = "Session", icon = { icon = "󱂬", hl = "WhichKeyIconCyan" } },
+        { "<leader>c", group = "Comment", icon = { icon = "󰅺", hl = "WhichKeyIconGreen" } },
+        { "<leader>o", group = "Oil", icon = { icon = "󰏘", hl = "WhichKeyIconBlue" } },
+        { "<leader>e", group = "Explorer", icon = { icon = "🌲", hl = "WhichKeyIconGreen" } },
+        { "<leader>m", group = "Minimap", icon = { icon = "🗺️", hl = "WhichKeyIconBlue" } },
+        
+        -- Common operations
+        { "<leader>q", "<cmd>q<cr>", desc = "Quit", mode = { "n", "v" } },
+        { "<leader>Q", "<cmd>qa<cr>", desc = "Quit All", mode = { "n", "v" } },
+        { "<leader>w", "<cmd>w<cr>", desc = "Write", mode = { "n", "v" } },
+        
+        -- Buffer operations
+        { "<leader>bd", "<cmd>bdelete<cr>", desc = "Delete Buffer", mode = "n" },
+        { "<leader>bn", "<cmd>bnext<cr>", desc = "Next Buffer", mode = "n" },
+        { "<leader>bp", "<cmd>bprevious<cr>", desc = "Previous Buffer", mode = "n" },
+        { "<leader>bN", "<cmd>enew<cr>", desc = "New Buffer", mode = "n" },
+        { "<leader>bl", "<cmd>Telescope buffers<cr>", desc = "List Buffers", mode = "n" },
       })
+      
+      -- Hydra mode for windows
+      vim.keymap.set("n", "<leader>W", function()
+        require("which-key").show({
+          keys = "<c-w>",
+          mode = "n", 
+          loop = true -- Keep popup open until <esc>
+        })
+      end, { desc = "Window Hydra Mode" })
     end
   }
 }
