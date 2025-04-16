@@ -1,9 +1,6 @@
 { pkgs, lib, username, homeDirectory, userConfig ? {}, ... }:
 
-let
-  # Use wallpaper from the system location
-  wallpaperPath = "${../..}/wall/pain.jpeg";
-in {
+{
   system = {
     defaults = {
       NSGlobalDomain = {
@@ -87,21 +84,6 @@ return 0' | sudo tee /etc/bashrc > /dev/null
     # Python and gettext will be handled by Homebrew directly
 
     /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
-    
-    # Set wallpaper with simple osascript approach
-    echo "Setting desktop wallpaper..."
-    if [ -f "${wallpaperPath}" ]; then
-      /usr/bin/osascript <<EOF
-        tell application "System Events"
-          tell every desktop
-            set picture to "${wallpaperPath}"
-          end tell
-        end tell
-EOF
-      echo "Wallpaper set successfully!"
-    else
-      echo "Wallpaper file not found: ${wallpaperPath}"
-    fi
   '';
   
   # Fix TERM_PROGRAM unbound variable in shell init files
