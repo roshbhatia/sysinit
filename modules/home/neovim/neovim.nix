@@ -17,4 +17,16 @@
     source = ./.;
     recursive = true;
   };
+
+  home.activation.neovimSetup = {
+    after = [ "writeBoundary" ];
+    before = [];
+    data = ''
+      mkdir -p "$HOME/.local/share/nvim"
+      chmod 755 "$HOME/.local/share/nvim"
+      mkdir -p "$HOME/.config/nvim"
+      chmod 755 "$HOME/.config/nvim"
+      echo "🚀 Neovim configuration is ready"
+    '';
+  };
 }
