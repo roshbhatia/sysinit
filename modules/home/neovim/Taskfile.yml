@@ -45,25 +45,19 @@ tasks:
         
         echo -e "${YELLOW}Scanning Lua files for README URLs...${NC}"
         
-        # Find all Lua files and process them
-        files=$(find "${NEOVIM_DIR}" -type f -name "*.lua")
-        count=0
-        found=0
-        
-        for file in ${files}; do
-          count=$((count + 1))
+        # Find all Lua files and process them with awk instead of grep
+        find "${NEOVIM_DIR}" -type f -name "*.lua" | while read file; do
+          # Use awk to find the line with the URL and extract it
+          url=$(awk '/-- sysinit\.nvim\.readme-url=/ { 
+            match($0, /"[^"]+"/); 
+            url = substr($0, RSTART+1, RLENGTH-2); 
+            print url; 
+            exit; 
+          }' "$file")
           
-          # Extract README URL from file
-          readmes=$(grep -o "-- sysinit.nvim.readme-url=\"[^\"]*\"" "${file}" || true)
-          
-          if [[ -n "${readmes}" ]]; then
-            found=$((found + 1))
-            filename=$(basename "${file}" .lua)
-            
-            echo -e "${GREEN}Found README URL in ${filename}${NC}"
-            
-            # Extract the URL
-            url=$(echo "${readmes}" | sed 's/-- sysinit.nvim.readme-url=\"//g' | sed 's/\"//g')
+          if [[ -n "$url" ]]; then
+            filename=$(basename "$file" .lua)
+            echo -e "${GREEN}Found README URL in ${filename}: ${url}${NC}"
             
             # Download the README
             echo -e "Downloading README from ${url}"
@@ -76,6 +70,10 @@ tasks:
             fi
           fi
         done
+        
+        # Count the downloaded files
+        found=$(find "${README_DIR}" -type f -name "*.md" | wc -l)
+        count=$(find "${NEOVIM_DIR}" -type f -name "*.lua" | wc -l)
         
         echo -e "${YELLOW}Scanned ${count} files, found ${found} README URLs${NC}"
         echo -e "${GREEN}READMEs saved to ${README_DIR}${NC}"
