@@ -25,8 +25,9 @@ vim.g.maplocalleader = " "
 
 vim.opt.clipboard = "unnamedplus"
 
--- Set Shift+Space as command line trigger
-vim.keymap.set('n', '<S-Space>', ':', { noremap = true })
+-- Set command line triggers
+vim.keymap.set('n', '<S-Space>', ':', { noremap = true, desc = "Command mode" })
+vim.keymap.set('n', '<leader>;', ':', { noremap = true, desc = "Command mode" })
 
 -- Explicitly register space key to do nothing (prevents default space behavior)
 vim.keymap.set('n', '<Space>', '<NOP>')
