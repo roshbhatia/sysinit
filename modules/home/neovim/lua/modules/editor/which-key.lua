@@ -49,9 +49,7 @@ M.plugins = {
         },
       })
       
-      -- Define main leader key groups centrally
       wk.add({
-        -- Main groups
         { "<leader>f", group = "Find/Files", icon = { icon = "󰍉", hl = "WhichKeyIconPurple" } },
         { "<leader>b", group = "Buffers", icon = { icon = "󰓩", hl = "WhichKeyIconBlue" } },
         { "<leader>w", group = "Windows", icon = { icon = "󰖮", hl = "WhichKeyIconCyan" } },
@@ -63,13 +61,11 @@ M.plugins = {
         { "<leader>e", group = "Explorer", icon = { icon = "🌲", hl = "WhichKeyIconGreen" } },
         { "<leader>m", group = "Minimap", icon = { icon = "🗺️", hl = "WhichKeyIconBlue" } },
         
-        -- Common operations
         { "<leader>q", "<cmd>q<cr>", desc = "Quit", mode = { "n", "v" } },
         { "<leader>Q", "<cmd>qa<cr>", desc = "Quit All", mode = { "n", "v" } },
         { "<leader>w", "<cmd>w<cr>", desc = "Write", mode = { "n", "v" } },
         { "<leader>;", ":", desc = "Command Mode", mode = "n" },
         
-        -- Buffer operations
         { "<leader>bd", "<cmd>bdelete<cr>", desc = "Delete Buffer", mode = "n" },
         { "<leader>bn", "<cmd>bnext<cr>", desc = "Next Buffer", mode = "n" },
         { "<leader>bp", "<cmd>bprevious<cr>", desc = "Previous Buffer", mode = "n" },
@@ -77,7 +73,6 @@ M.plugins = {
         { "<leader>bl", "<cmd>Telescope buffers<cr>", desc = "List Buffers", mode = "n" },
       })
       
-      -- Hydra mode for windows
       vim.keymap.set("n", "<leader>W", function()
         require("which-key").show({
           keys = "<c-w>",

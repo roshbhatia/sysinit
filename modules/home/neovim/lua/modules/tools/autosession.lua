@@ -87,7 +87,6 @@ M.plugins = {
         },
       })
       
-      -- Register with which-key
       local wk = require("which-key")
       wk.add({
         { "<leader>s", group = "Session", icon = { icon = "󱂬", hl = "WhichKeyIconCyan" } },
@@ -99,7 +98,6 @@ M.plugins = {
         { "<leader>st", "<cmd>SessionToggleAutoSave<CR>", desc = "Toggle Auto Save", mode = "n" },
       })
       
-      -- Set the recommended sessionoptions
       vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
     end
   }
