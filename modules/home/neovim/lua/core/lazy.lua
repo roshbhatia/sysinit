@@ -3,6 +3,9 @@ local M = {}
 
 function M.setup()
   require("lazy").setup({
+    root = vim.fn.stdpath("data") .. "/lazy",
+    lockfile = vim.fn.stdpath("data") .. "/lazy/lazy-lock.json",
+    
     performance = {
       rtp = {
         disabled_plugins = {
