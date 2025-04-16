@@ -22,10 +22,7 @@ vim.g.maplocalleader = " "
 
 vim.opt.clipboard = "unnamedplus"
 
-vim.keymap.set('n', '<S-Space>', ':', { noremap = true, desc = "Command mode" })
-vim.keymap.set('n', '<leader>;', ':', { noremap = true, desc = "Command mode" })
-
-vim.keymap.set('n', '<Space>', '<NOP>')
+vim.keymap.set('n', ':', ':', { noremap = true, desc = "Command mode" })
 
 -- Common settings (for both regular Neovim and VSCode)
 local function setup_common_settings()
