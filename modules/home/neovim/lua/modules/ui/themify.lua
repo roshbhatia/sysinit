@@ -43,9 +43,8 @@ M.plugins = {
             require("themify").load_saved()
           end)
           
-          -- If no saved theme, fall back to carbonfox
           if not success then
-            vim.cmd("colorscheme carbonfox")
+            vim.cmd("colorscheme base16-nvim"")
           end
         end
       })
