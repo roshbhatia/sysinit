@@ -1,5 +1,4 @@
--- sysinit.nvim.readme-url="https://raw.githubusercontent.com/nvim-telescope/telescope.nvim/master/README.md"
-
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/nvim-telescope/telescope.nvim/refs/heads/master/doc/telescope.txt"
 local M = {}
 
 M.plugins = {

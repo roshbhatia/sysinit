@@ -1,3 +1,4 @@
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/mrjones2014/smart-splits.nvim/refs/heads/master/doc/smart-splits.txt"
 local M = {}
 
 M.plugins = {

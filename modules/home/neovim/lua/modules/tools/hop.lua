@@ -1,5 +1,4 @@
--- sysinit.nvim.readme-url="https://raw.githubusercontent.com/phaazon/hop.nvim/master/README.md"
-
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/hadronized/hop.nvim/refs/heads/master/doc/hop.txt"
 local M = {}
 
 M.plugins = {

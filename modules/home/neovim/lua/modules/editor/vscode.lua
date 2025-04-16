@@ -1,5 +1,4 @@
--- sysinit.nvim.readme-url="https://raw.githubusercontent.com/asvetliakov/vscode-neovim/master/README.md"
-
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/vscode-neovim/vscode-neovim/refs/heads/master/README.md"
 local M = {}
 
 M.plugins = {
