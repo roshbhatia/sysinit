@@ -46,7 +46,6 @@ M.plugins = {
         },
       })
       
-      -- Register with which-key
       local wk = require("which-key")
       wk.add({
         { "<leader>f", group = "Find", icon = { icon = "󰍉", hl = "WhichKeyIconPurple" } },
@@ -59,13 +58,11 @@ M.plugins = {
         { "<leader>fc", "<cmd>Telescope commands<cr>", desc = "Find Commands", mode = "n" },
         { "<leader>fk", "<cmd>Telescope keymaps<cr>", desc = "Find Keymaps", mode = "n" },
         
-        -- Git-related searches
         { "<leader>g", group = "Git", icon = { icon = "", hl = "WhichKeyIconRed" } },
         { "<leader>gc", "<cmd>Telescope git_commits<cr>", desc = "Git Commits", mode = "n" },
         { "<leader>gb", "<cmd>Telescope git_branches<cr>", desc = "Git Branches", mode = "n" },
         { "<leader>gs", "<cmd>Telescope git_status<cr>", desc = "Git Status", mode = "n" },
         
-        -- LSP-related searches
         { "<leader>l", group = "LSP", icon = { icon = "󰒕", hl = "WhichKeyIconBlue" } },
         { "<leader>ls", "<cmd>Telescope lsp_document_symbols<cr>", desc = "Document Symbols", mode = "n" },
         { "<leader>lS", "<cmd>Telescope lsp_workspace_symbols<cr>", desc = "Workspace Symbols", mode = "n" },
