@@ -27,7 +27,23 @@ M.plugins = {
           max_width = 80,
           max_height = 30,
         },
-      })      
+      })
+      
+      -- Setup key bindings for oil navigation
+      vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+      
+      -- Register with which-key
+      local wk = require("which-key")
+      wk.add({
+        { "<leader>o", group = "Oil", icon = { icon = "󰏘", hl = "WhichKeyIconBlue" } },
+        { "<leader>oo", "<cmd>Oil<CR>", desc = "Open Oil Explorer", mode = "n" },
+        { "<leader>of", "<cmd>Oil --float<CR>", desc = "Open Oil in Float", mode = "n" },
+        { "<leader>oh", function() 
+            require("oil").open(vim.fn.expand("~")) 
+          end, 
+          desc = "Open Home Directory"
+        },
+      })
     end
   }
 }
