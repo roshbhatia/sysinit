@@ -52,14 +52,18 @@ in
     "Library/Application Support/Code - Insiders/User/settings.json".source = ./config/settings.json;
   };
 
-  home.activation.vscodeExtensions = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    if [ -x "$(command -v code-insiders)" ]; then
-      echo "Installing VSCode Insiders extensions..."
-      ${builtins.concatStringsSep "\n" (map (ext: 
-        "code-insiders --install-extension ${ext} --force || echo 'Failed to install ${ext}'"
-      ) extensions)}
-    else
-      echo "Warning: code-insiders command not found. Please ensure VSCode Insiders is installed and in your PATH."
-    fi
-  '';
+  home.activation.vscodeExtensions = {
+    after = [ "writeBoundary" ];
+    before = [];
+    data = ''
+      if [ -x "$(command -v code-insiders)" ]; then
+        echo "🚀 Installing VSCode Insiders extensions..."
+        ${builtins.concatStringsSep "\n" (map (ext: 
+          "code-insiders --install-extension ${ext} --force || echo 'Failed to install ${ext}'"
+        ) extensions)}
+      else
+        echo "Warning: code-insiders command not found. Please ensure VSCode Insiders is installed and in your PATH."
+      fi
+    '';
+  };
 }
