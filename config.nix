@@ -49,15 +49,4 @@
       destination = "/Users/rshnbhatia/.config/nix-test/nix-test.yaml";
     }
   ];
-  
-  modules = {
-    vscode = {
-      enable = true;
-      enableNeovim = true;
-    };
-    
-    vscode-neovim = {
-      enable = true;
-    };
-  };
 }
