@@ -29,10 +29,6 @@
     };
   };
 
-  wallpaper = {
-    path = "wallpaper/images/mvp2.jpeg";
-  };
-
   pipx = {
     additionalPackages = [
       "mcp-proxy"
