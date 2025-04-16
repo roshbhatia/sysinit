@@ -17,6 +17,7 @@ let
     "evan-buss.font-switcher"
     "github.copilot"
     "github.copilot-chat"
+    "github.vscode-pull-request-github"
     "github.vscode-github-actions"
     "golang.go"
     "gziz.snip-notes"
