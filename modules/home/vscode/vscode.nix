@@ -57,10 +57,5 @@ in
     ${builtins.concatStringsSep "\n" (map (ext: 
       "code-insiders --install-extension ${ext} --force"
     ) extensions)}
-
-    # Add MCPs
-    echo "Adding MCPs..."
-    code-insiders --add-mcp '{"name":"filesystem","command":["code-insiders","--ms-enable-electron-run-as-node","--ms-mcp=filesystem"]}'
-    code-insiders --add-mcp '{"name":"fetch","command":["code-insiders","--ms-enable-electron-run-as-node","--ms-mcp=fetch"]}'
   '';
 }
