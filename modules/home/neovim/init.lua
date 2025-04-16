@@ -116,7 +116,7 @@ if not vim.g.vscode then
       "neominimap",
       "wezterm",
       "barbar",
-      "profile",
+      "alpha",
       "themify",
     },
     -- Core editor functionality
