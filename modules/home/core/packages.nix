@@ -54,7 +54,7 @@ in
   home.activation.packageInfo = lib.hm.dag.entryAfter ["writeBoundary"] ''
     echo "📦 Core packages installed:"
     echo "  Base packages: ${toString (map (p: p.name) basePackages)}"
-    if [ ${toString (length additionalPackages)} -gt 0 ]; then
+    if [ ${toString (lib.length additionalPackages)} -gt 0 ]; then
       echo "  Additional packages: ${toString (map (p: p.name) additionalPackages)}"
     fi
   '';
