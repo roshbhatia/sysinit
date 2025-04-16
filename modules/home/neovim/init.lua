@@ -122,6 +122,9 @@ if not vim.g.vscode then
       "lualine",
       "neominimap",
       "wezterm",
+      "barbar",
+      "profile",
+      "themify",
     },
     -- Core editor functionality
     editor = {
