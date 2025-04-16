@@ -47,6 +47,7 @@ let
     "k9s"
     "lazygit"
     "libgit2"
+    "luajit"
     "nushell"
     "pipx"
     "python"
