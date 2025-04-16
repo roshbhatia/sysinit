@@ -30,7 +30,7 @@
   };
 
   wallpaper = {
-    path = "wall/pain.jpeg";
+    path = "wall/mvp2.jpeg";
   };
 
   pipx = {
@@ -45,7 +45,7 @@
 
   install = [
     {
-      source = "modules/test/nix-install-test.yaml";
+      source = "tests/nix-install-test.yaml";
       destination = "/Users/rshnbhatia/.config/nix-test/nix-test.yaml";
     }
   ];
