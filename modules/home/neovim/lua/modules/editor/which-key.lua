@@ -67,6 +67,7 @@ M.plugins = {
         { "<leader>q", "<cmd>q<cr>", desc = "Quit", mode = { "n", "v" } },
         { "<leader>Q", "<cmd>qa<cr>", desc = "Quit All", mode = { "n", "v" } },
         { "<leader>w", "<cmd>w<cr>", desc = "Write", mode = { "n", "v" } },
+        { "<leader>;", ":", desc = "Command Mode", mode = "n" },
         
         -- Buffer operations
         { "<leader>bd", "<cmd>bdelete<cr>", desc = "Delete Buffer", mode = "n" },
