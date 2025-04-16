@@ -1,3 +1,4 @@
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/folke/lazy.nvim/refs/heads/main/doc/lazy.nvim.txt"
 local M = {}
 
 function M.setup()
