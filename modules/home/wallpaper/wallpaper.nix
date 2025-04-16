@@ -47,12 +47,10 @@ in
       OSASCRIPT="/usr/bin/osascript"
       if [ -x "$OSASCRIPT" ]; then
         "$OSASCRIPT" -e 'tell application "Finder" to set desktop picture to POSIX file "'"$WALLPAPER_PATH"'"'
+        echo "✅ Wallpaper set successfully"
       else
-        echo "osascript not found at $OSASCRIPT"
+        echo "⚠️ osascript not found at $OSASCRIPT"
       fi
-      
-      osascript -e 'tell application "Finder" to set desktop picture to POSIX file "'"$WALLPAPER_PATH"'"'
-      echo "✅ Wallpaper set successfully"
     else
       echo "⚠️  Wallpaper file not found at $WALLPAPER_PATH"
     fi
