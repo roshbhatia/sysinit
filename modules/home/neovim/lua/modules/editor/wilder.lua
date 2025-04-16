@@ -1,5 +1,4 @@
-# sysinit.nvim.readme-url="https://raw.githubusercontent.com/gelguy/wilder.nvim/master/README.md"
-
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/gelguy/wilder.nvim/refs/heads/master/doc/wilder.txt"
 local M = {}
 
 M.plugins = {

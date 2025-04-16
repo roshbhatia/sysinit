@@ -1,5 +1,4 @@
-# sysinit.nvim.readme-url="https://raw.githubusercontent.com/Bekaboo/dropbar.nvim/master/README.md"
-
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/Bekaboo/dropbar.nvim/refs/heads/master/doc/dropbar.txt"
 local M = {}
 
 M.plugins = {

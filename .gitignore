@@ -11,7 +11,7 @@ CLAUDE.md
 ROADMAP.md
 .local/
 sysinit-nvim/
-modules/home/neovim/dependency-readmes/
+modules/home/neovim/dependency-docs/
 
 # Nix build outputs
 result

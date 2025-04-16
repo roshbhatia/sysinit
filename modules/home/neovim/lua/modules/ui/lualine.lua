@@ -1,5 +1,4 @@
-# sysinit.nvim.readme-url="https://raw.githubusercontent.com/nvim-lualine/lualine.nvim/master/README.md"
-
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/nvim-lualine/lualine.nvim/refs/heads/master/doc/lualine.txt"
 local M = {}
 
 M.plugins = {

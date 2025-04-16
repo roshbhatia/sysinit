@@ -1,5 +1,4 @@
-# sysinit.nvim.readme-url="https://raw.githubusercontent.com/romgrk/barbar.nvim/master/README.md"
-
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/romgrk/barbar.nvim/refs/heads/master/doc/barbar.txt"
 local M = {}
 
 M.plugins = {
