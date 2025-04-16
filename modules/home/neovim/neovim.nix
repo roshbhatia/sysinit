@@ -16,5 +16,5 @@
   xdg.configFile."nvim" = {
     source = ./.;
     recursive = true;
-  }
+  };
 }
