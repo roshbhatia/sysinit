@@ -86,46 +86,23 @@ M.plugins = {
           end,
         },
       })
+      
+      -- Register with which-key
+      local wk = require("which-key")
+      wk.add({
+        { "<leader>s", group = "Session", icon = { icon = "󱂬", hl = "WhichKeyIconCyan" } },
+        { "<leader>ss", "<cmd>SessionSave<CR>", desc = "Save Session", mode = "n" },
+        { "<leader>sl", "<cmd>SessionRestore<CR>", desc = "Load Session", mode = "n" },
+        { "<leader>sd", "<cmd>SessionDelete<CR>", desc = "Delete Session", mode = "n" },
+        { "<leader>sf", "<cmd>Telescope session-lens search_session<CR>", desc = "Find Session", mode = "n" },
+        { "<leader>sp", "<cmd>SessionPurgeOrphaned<CR>", desc = "Purge Orphaned Sessions", mode = "n" },
+        { "<leader>st", "<cmd>SessionToggleAutoSave<CR>", desc = "Toggle Auto Save", mode = "n" },
+      })
+      
+      -- Set the recommended sessionoptions
+      vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
     end
   }
 }
-
-function M.setup()
-  -- Add which-key integration
-  local status, wk = pcall(require, "which-key")
-  if status then
-    wk.register({
-      ["<leader>s"] = {
-        name = "🪟 Session",
-        s = { "<cmd>SessionSave<CR>", "Save Session" },
-        l = { "<cmd>SessionRestore<CR>", "Load Session" },
-        d = { "<cmd>SessionDelete<CR>", "Delete Session" },
-        f = { "<cmd>SessionSearch<CR>", "Find Session" },
-        p = { "<cmd>SessionPurgeOrphaned<CR>", "Purge Orphaned Sessions" },
-        t = { "<cmd>SessionToggleAutoSave<CR>", "Toggle Auto Save" },
-        a = { "<cmd>SessionDisableAutoSave<CR>", "Disable Auto Save" },
-        A = { "<cmd>SessionDisableAutoSave!<CR>", "Enable Auto Save" },
-      },
-    })
-  end
-  
-  -- Set the recommended sessionoptions
-  vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
-  
-  -- Add statusline integration function (can be called from lualine config)
-  -- Example usage in lualine: require('auto-session-library').current_session_name()
-  M.current_session_name = function(shorten)
-    if not package.loaded['auto-session.lib'] then
-      return ""
-    end
-    
-    local session_name = require('auto-session.lib').current_session_name(shorten or false)
-    if session_name and session_name ~= "" then
-      return "󱂬 " .. session_name
-    else
-      return ""
-    end
-  end
-end
 
 return M

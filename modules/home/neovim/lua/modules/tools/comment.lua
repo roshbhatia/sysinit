@@ -35,25 +35,39 @@ M.plugins = {
     config = function(_, opts)
       require("Comment").setup(opts)
       
-      vim.keymap.set('n', '<leader>cc', function()
-        require("Comment.api").toggle.linewise.current()
-      end, { desc = "Toggle Comment Line" })
-      
-      vim.keymap.set('x', '<leader>cc', function()
-        local esc = vim.api.nvim_replace_termcodes('<ESC>', true, false, true)
-        vim.api.nvim_feedkeys(esc, 'nx', false)
-        require("Comment.api").toggle.linewise(vim.fn.visualmode())
-      end, { desc = "Toggle Comment Selection" })
-      
-      vim.keymap.set('n', '<leader>cb', function()
-        require("Comment.api").toggle.blockwise.current()
-      end, { desc = "Toggle Block Comment" })
-      
-      vim.keymap.set('x', '<leader>cb', function()
-        local esc = vim.api.nvim_replace_termcodes('<ESC>', true, false, true)
-        vim.api.nvim_feedkeys(esc, 'nx', false)
-        require("Comment.api").toggle.blockwise(vim.fn.visualmode())
-      end, { desc = "Toggle Block Comment Selection" })
+      -- Register with which-key
+      local wk = require("which-key")
+      wk.add({
+        { "<leader>c", group = "Comment", icon = { icon = "󰅺", hl = "WhichKeyIconGreen" } },
+        { "<leader>cc", function()
+            require("Comment.api").toggle.linewise.current()
+          end, 
+          desc = "Toggle Line Comment",
+          mode = "n"
+        },
+        { "<leader>cc", function()
+            local esc = vim.api.nvim_replace_termcodes('<ESC>', true, false, true)
+            vim.api.nvim_feedkeys(esc, 'nx', false)
+            require("Comment.api").toggle.linewise(vim.fn.visualmode())
+          end,
+          desc = "Toggle Line Comment",
+          mode = "v"
+        },
+        { "<leader>cb", function()
+            require("Comment.api").toggle.blockwise.current()
+          end,
+          desc = "Toggle Block Comment",
+          mode = "n"
+        },
+        { "<leader>cb", function()
+            local esc = vim.api.nvim_replace_termcodes('<ESC>', true, false, true)
+            vim.api.nvim_feedkeys(esc, 'nx', false)
+            require("Comment.api").toggle.blockwise(vim.fn.visualmode())
+          end,
+          desc = "Toggle Block Comment",
+          mode = "v"
+        },
+      })
     end
   }
 }
