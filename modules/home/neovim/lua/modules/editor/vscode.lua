@@ -48,20 +48,27 @@ function M.setup_compat_plugins()
       if (globalThis.quickPick) { globalThis.quickPick.dispose(); }
       const quickPick = vscode.window.createQuickPick();
       quickPick.items = args.items.map(item => ({
-        label: item.isGroup ? `$(chevron-right) ${item.label}` : item.isGroupItem ? `  $(key) ${item.label}` : `$(key) ${item.label}`,
+        label: item.isGroup ? `$(chevron-right) ${item.label}` : item.isGroupItem ? `  $(key) ${item.label}` : item.label,
         description: item.description,
         action: item.action,
-        key: item.key
+        key: item.key,
+        kind: item.kind
       }));
       quickPick.title = args.title;
       quickPick.placeholder = args.placeholder;
       quickPick.onDidAccept(() => {
         const selected = quickPick.selectedItems[0];
-        if (selected && selected.action) { vscode.commands.executeCommand(selected.action); }
+        if (selected && selected.action) { 
+          vscode.commands.executeCommand(selected.action);
+          vscode.commands.executeCommand('workbench.action.editorLayoutSingleColumn');
+        }
         quickPick.hide();
         quickPick.dispose();
       });
-      quickPick.onDidHide(() => quickPick.dispose());
+      quickPick.onDidHide(() => {
+        quickPick.dispose();
+        vscode.commands.executeCommand('workbench.action.editorLayoutSingleColumn');
+      });
       globalThis.quickPick = quickPick;
       quickPick.show();
     ]],
@@ -233,7 +240,18 @@ function M.setup_compat_plugins()
     end
     
     local items = {}
+    local lastCategory = nil
+    
     for key, group in pairs(M.keybindings) do
+      -- Add a separator before new categories, except the first one
+      if lastCategory then
+        table.insert(items, {
+          label = "──────────────",  -- Visual separator
+          kind = -1  -- QuickPickItemKind.Separator
+        })
+      end
+      
+      -- Add the category header
       table.insert(items, {
         label = key,
         description = group.name,
@@ -241,6 +259,7 @@ function M.setup_compat_plugins()
         key = key
       })
       
+      -- Add all items in this category
       for _, binding in ipairs(group.bindings) do
         table.insert(items, {
           label = key .. binding.key,
@@ -249,6 +268,8 @@ function M.setup_compat_plugins()
           isGroupItem = true
         })
       end
+      
+      lastCategory = key
     end
     
     M.menu_cache.root_items = items
@@ -262,6 +283,9 @@ function M.setup_compat_plugins()
     else
       items = format_root_menu_items()
     end
+
+    -- First adjust editor layout to prevent overlap
+    vscode.action('workbench.action.editorLayoutTwoRows')
     
     vscode.eval(M.EVAL_STRINGS.quickpick_menu, { 
       timeout = 1000,
