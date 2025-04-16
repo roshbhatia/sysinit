@@ -10,17 +10,16 @@ M.plugins = {
       vim.o.timeoutlen = 300
     end,
     config = function()
-      local status_ok, wk = pcall(require, "which-key")
-      if not status_ok then
-        vim.notify("which-key not found!", vim.log.levels.ERROR)
-        return
-      end
-
+      local wk = require("which-key")
+      
       wk.setup({
         plugins = {
           marks = true,
           registers = true,
-          spelling = { enabled = false },
+          spelling = {
+            enabled = true,
+            suggestions = 20,
+          },
           presets = {
             operators = true,
             motions = true,
@@ -31,16 +30,31 @@ M.plugins = {
             g = true,
           },
         },
-        window = {
+        win = {
           border = "rounded",
           padding = { 2, 2, 2, 2 },
         },
         layout = {
-          align = "left",
           spacing = 3,
         },
+        icons = {
+          breadcrumb = "»",
+          separator = "➜",
+          group = "+",
+        },
         show_help = true,
-        triggers = "auto",
+        show_keys = true,
+        triggers = {
+          { "<auto>", mode = "nxsotc" },
+        },
+      })
+      
+      wk.add({
+        { "<leader>f", group = "Files" },
+        { "<leader>b", group = "Buffers" },
+        { "<leader>s", group = "Search" },
+        { "<leader>g", group = "Git" },
+        { "<leader>l", group = "LSP" },
       })
     end
   }

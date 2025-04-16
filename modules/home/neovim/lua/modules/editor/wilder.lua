@@ -14,24 +14,29 @@ M.plugins = {
       local wilder = require('wilder')
       wilder.setup({ modes = { ':', '/', '?' } })
 
-      -- Basic configuration
       wilder.set_option('pipeline', {
         wilder.branch(
-          wilder.cmdline_pipeline(),
-          wilder.search_pipeline()
+          wilder.cmdline_pipeline({
+            language = 'python',
+            fuzzy = 1,
+          }),
+          wilder.search_pipeline({
+            pattern = 'fuzzy',
+          })
         ),
       })
 
-      -- Simple renderer
       wilder.set_option('renderer', wilder.popupmenu_renderer(
         wilder.popupmenu_palette_theme({
-          -- 'single', 'double', 'rounded' or 'solid'
-          -- can also be a list of 8 characters, see :h wilder#popupmenu_palette_theme() for more details
           border = 'rounded',
-          max_height = '75%',      -- max height of the palette
-          min_height = 0,          -- set to the same as 'max_height' for a fixed height window
-          prompt_position = 'top', -- 'top' or 'bottom' to set the location of the prompt
-          reverse = 0,             -- set to 1 to reverse the order of the list, use in combination with 'prompt_position'
+          max_height = '75%',
+          min_height = 0,
+          prompt_position = 'top',
+          reverse = 0,
+          highlighter = wilder.basic_highlighter(),
+          highlights = {
+            accent = wilder.make_hl('WilderAccent', 'Pmenu', {{a = 1}, {a = 1}, {foreground = '#f4468f'}}),
+          },
         })
       ))
     end
