@@ -25,7 +25,7 @@ tasks:
       Run Neovim with the local configuration (isolated environment):
         task nvim-run-local
         
-  fetch-readmes:
+  fetch-docs:
     desc: Fetch documentation for all Neovim plugins
     silent: true
     cmds:
@@ -45,7 +45,7 @@ tasks:
         # Find all Lua files and process them with awk instead of grep
         find "${NEOVIM_DIR}" -type f -name "*.lua" | while read file; do
           # Use awk to find the line with the URL and extract it
-          url=$(awk '/-- sysinit\.nvim\.readme-url=/ { 
+          url=$(awk '/-- sysinit\.nvim\.doc-url=/ { 
             match($0, /"[^"]+"/); 
             url = substr($0, RSTART+1, RLENGTH-2); 
             print url; 
@@ -74,4 +74,4 @@ tasks:
         echo -e "${GREEN}documentation saved to ${DOC_DIR}${NC}"
     usage: |
       Fetch documentation for all Neovim plugins:
-        task fetch-readmes
+        task fetch-docs
