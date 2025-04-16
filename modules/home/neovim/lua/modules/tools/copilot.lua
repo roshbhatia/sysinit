@@ -1,0 +1,1 @@
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/github/copilot.vim/refs/heads/release/doc/copilot.txt"

@@ -1,0 +1,1 @@
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/mfussenegger/nvim-lint/refs/heads/master/doc/lint.txt"
