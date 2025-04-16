@@ -1,14 +1,3 @@
---[[---------------------------------------
-             Neovim Configuration
-             
-  Author: Rosh Bhatia
-  Repo: github.com/roshbhatia/sysinit
-  
-  This configuration works in:
-  - Regular Neovim
-  - VSCode Neovim extension
------------------------------------------]]
-
 -- Detect if we're running under VSCode
 vim.g.vscode = (vim.fn.exists('g:vscode') == 1) or (vim.env.VSCODE_GIT_IPC_HANDLE ~= nil)
 
@@ -103,9 +92,12 @@ end
 
 -- VSCode-specific settings and keybindings
 local function setup_vscode_settings()
-  -- Load and initialize VSCode integration module
-  local vscode = require('vscode-nvim')
-  vscode.setup()
+  -- Apply VSCode-specific settings
+  vim.notify("VSCode Neovim integration detected", vim.log.levels.INFO)
+  
+  -- Configure compatible plugins
+  -- We will handle this through the VSCode module
+  -- to allow proper modularization
 end
 
 -- Apply settings based on environment
@@ -154,6 +146,7 @@ else
     -- Core functionality
     editor = {
       "which-key",
+      "vscode",
     },
     -- No UI modules needed
     ui = {},
@@ -346,3 +339,13 @@ end
 
 -- Setup Lazy.nvim with collected specs
 require("lazy").setup(collect_plugin_specs())
+
+-- Initialize VSCode-specific plugin compatibility settings if needed
+if vim.g.vscode then
+  -- After plugins are loaded, set up VSCode compatibility for plugins
+  -- that need special handling in VSCode environment
+  local vscode_module = require("modules.editor.vscode")
+  if vscode_module and vscode_module.setup_compat_plugins then
+    vscode_module.setup_compat_plugins()
+  end
+end

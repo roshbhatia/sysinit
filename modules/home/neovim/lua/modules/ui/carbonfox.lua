@@ -1,5 +1,7 @@
 local verify = require("core.verify")
 
+-- sysinit.nvim.readme-url="https://raw.githubusercontent.com/EdenEast/nightfox.nvim/main/README.md"
+
 local M = {}
 
 M.plugins = {

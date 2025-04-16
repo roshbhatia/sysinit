@@ -1,3 +1,5 @@
+# sysinit.nvim.readme-url="https://raw.githubusercontent.com/numToStr/Comment.nvim/master/README.md"
+
 local M = {}
 
 M.plugins = {

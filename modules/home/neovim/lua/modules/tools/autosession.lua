@@ -1,3 +1,5 @@
+# sysinit.nvim.readme-url="https://raw.githubusercontent.com/rmagatti/auto-session/main/README.md"
+
 local M = {}
 
 M.plugins = {
