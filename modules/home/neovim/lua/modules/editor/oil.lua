@@ -29,10 +29,8 @@ M.plugins = {
         },
       })
       
-      -- Setup key bindings for oil navigation
       vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
       
-      -- Register with which-key
       local wk = require("which-key")
       wk.add({
         { "<leader>o", group = "Oil", icon = { icon = "󰏘", hl = "WhichKeyIconBlue" } },
