@@ -44,7 +44,7 @@ M.plugins = {
           end)
           
           if not success then
-            vim.cmd("colorscheme base16-nvim")
+            vim.cmd("colorscheme base16-3024")
           end
         end
       })
