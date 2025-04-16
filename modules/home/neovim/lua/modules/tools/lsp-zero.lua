@@ -1,0 +1,1 @@
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/VonHeikemen/lsp-zero.nvim/refs/heads/v4.x/doc/lsp-zero.txt"

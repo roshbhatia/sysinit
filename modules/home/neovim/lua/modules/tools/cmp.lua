@@ -1,0 +1,1 @@
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/hrsh7th/nvim-cmp/refs/heads/main/doc/cmp.txt"

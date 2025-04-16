@@ -1,0 +1,1 @@
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/zbirenbaum/copilot-cmp/refs/heads/master/README.md"
