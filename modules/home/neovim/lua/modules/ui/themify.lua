@@ -1,3 +1,5 @@
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/LmanTW/themify.nvim/refs/heads/main/documents/api.md"
+
 local M = {}
 
 M.plugins = {

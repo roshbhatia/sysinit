@@ -26,24 +26,21 @@ tasks:
         task nvim-run-local
         
   fetch-readmes:
-    desc: Fetch READMEs for all Neovim plugins
+    desc: Fetch documentation for all Neovim plugins
     silent: true
     cmds:
       - |
-        # Set up colors for output
         RED='\033[0;31m'
         GREEN='\033[0;32m'
         YELLOW='\033[0;33m'
         NC='\033[0m' # No Color
         
-        # Define directories
         NEOVIM_DIR="$(pwd)"
-        README_DIR="${NEOVIM_DIR}/dependency-readmes"
+        DOC_DIR="${NEOVIM_DIR}/dependency-docs"
         
-        # Create README directory if it doesn't exist
-        mkdir -p "${README_DIR}"
+        mkdir -p "${DOC_DIR}"
         
-        echo -e "${YELLOW}Scanning Lua files for README URLs...${NC}"
+        echo -e "${YELLOW}Scanning Lua files for documentation URLs...${NC}"
         
         # Find all Lua files and process them with awk instead of grep
         find "${NEOVIM_DIR}" -type f -name "*.lua" | while read file; do
@@ -57,26 +54,24 @@ tasks:
           
           if [[ -n "$url" ]]; then
             filename=$(basename "$file" .lua)
-            echo -e "${GREEN}Found README URL in ${filename}: ${url}${NC}"
+            echo -e "${GREEN}Found documentation URL in ${filename}: ${url}${NC}"
             
-            # Download the README
-            echo -e "Downloading README from ${url}"
-            curl -s "${url}" -o "${README_DIR}/${filename}.md"
+            echo -e "Downloading documentation from ${url}"
+            curl -s "${url}" -o "${DOC_DIR}/${filename}.md"
             
             if [[ $? -eq 0 ]]; then
-              echo -e "${GREEN}Successfully downloaded README for ${filename}${NC}"
+              echo -e "${GREEN}Successfully downloaded documentation for ${filename}${NC}"
             else
-              echo -e "${RED}Failed to download README for ${filename}${NC}"
+              echo -e "${RED}Failed to download documentation for ${filename}${NC}"
             fi
           fi
         done
         
-        # Count the downloaded files
-        found=$(find "${README_DIR}" -type f -name "*.md" | wc -l)
+        found=$(find "${DOC_DIR}" -type f -name "*.md" | wc -l)
         count=$(find "${NEOVIM_DIR}" -type f -name "*.lua" | wc -l)
         
-        echo -e "${YELLOW}Scanned ${count} files, found ${found} README URLs${NC}"
-        echo -e "${GREEN}READMEs saved to ${README_DIR}${NC}"
+        echo -e "${YELLOW}Scanned ${count} files, found ${found} documentation URLs${NC}"
+        echo -e "${GREEN}documentation saved to ${DOC_DIR}${NC}"
     usage: |
-      Fetch READMEs for all Neovim plugins:
+      Fetch documentation for all Neovim plugins:
         task fetch-readmes

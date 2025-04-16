@@ -1,3 +1,4 @@
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/Kurama622/profile.nvim/refs/heads/main/README.md"
 local M = {}
 
 M.plugins = {
