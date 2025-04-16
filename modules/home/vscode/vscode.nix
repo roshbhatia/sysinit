@@ -53,9 +53,13 @@ in
   };
 
   home.activation.vscodeExtensions = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    echo "Installing VSCode Insiders extensions..."
-    ${builtins.concatStringsSep "\n" (map (ext: 
-      "code-insiders --install-extension ${ext} --force"
-    ) extensions)}
+    if [ -x "$(command -v code-insiders)" ]; then
+      echo "Installing VSCode Insiders extensions..."
+      ${builtins.concatStringsSep "\n" (map (ext: 
+        "code-insiders --install-extension ${ext} --force || echo 'Failed to install ${ext}'"
+      ) extensions)}
+    else
+      echo "Warning: code-insiders command not found. Please ensure VSCode Insiders is installed and in your PATH."
+    fi
   '';
 }
