@@ -26,7 +26,6 @@
   let
     system = "aarch64-darwin";
     
-    # Import helper modules
     configValidator = import ./modules/lib/config-validator.nix { inherit nixpkgs self; };
     fileInstaller = import ./modules/lib/file-installer.nix;
     
@@ -47,7 +46,6 @@
       modules = [
         ./modules/darwin/darwin.nix
         
-        # Home Manager configuration
         home-manager.darwinModules.home-manager {
           home-manager = {
             useGlobalPkgs = true;
@@ -61,10 +59,8 @@
           };
         }
         
-        # System configuration
         { networking.hostName = hostname; }
         
-        # File installation module
         (fileInstaller { inherit nixpkgs self config; })
       ];
     };
