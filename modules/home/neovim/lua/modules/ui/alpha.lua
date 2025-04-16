@@ -13,7 +13,6 @@ M.plugins = {
       local dashboard = require("alpha.themes.dashboard")
       local win_width = vim.o.columns
 
-      -- Read ASCII art, similar to your original implementation
       local function read_ascii_art()
         local varre_ascii_path = vim.fn.stdpath("config") .. "/alpha.ascii"
         return vim.fn.readfile(varre_ascii_path)
