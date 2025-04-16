@@ -116,7 +116,6 @@ if not vim.g.vscode then
   module_system = {
     -- UI-related modules (load first)
     ui = {
-      "carbonfox",
       "devicons",
       "nvimtree",
       "dropbar",

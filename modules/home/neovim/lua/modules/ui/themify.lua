@@ -12,14 +12,8 @@ M.plugins = {
       require("themify").setup({
         async = true, -- Enable async loading for faster startup
         activity = true, -- Track colorscheme usage activity
-        
-        -- Keep carbonfox as it's still installed
         "EdenEast/nightfox.nvim",
-        
-        -- Base16 for 3024 theme
         "RRethy/base16-nvim",
-        
-        -- Add additional vibrant dark themes
         "folke/tokyonight.nvim",
         "catppuccin/nvim",
         "Shatur/neovim-ayu",

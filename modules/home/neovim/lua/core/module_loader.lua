@@ -3,7 +3,6 @@ local M = {}
 -- List all modules by category
 M.modules = {
   ui = {
-    "carbonfox",
     "devicons",
     "dropbar",
     "lualine",
