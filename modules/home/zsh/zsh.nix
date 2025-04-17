@@ -145,7 +145,7 @@ in
           rev = "v1.0.2";
           sha256 = "0iqa9j09fwm6nj5rpip87x3hnvbbz9w9ajgm6wkrd5fls8fn8i5g";
         };
-        file = "evalcache.plugin.sh";
+        file = "evalcache.plugin.zsh";
       }
       {
         name = "fzf-tab";
@@ -155,7 +155,7 @@ in
           rev = "v1.2.0";
           sha256 = "0iqa9j09fwm6nj5rpip87x3hnvbbz9w9ajgm6wkrd5fls8fn8i5g";
         };
-        file = "fzf-tab.plugin.sh";
+        file = "fzf-tab.plugin.zsh";
       }
     ];
 
