@@ -91,9 +91,9 @@ function _crepo_change_dir() {
         local repo_count=$(echo "$repos" | grep -c .)
         
         if [[ "$repo_count" -eq 0 ]]; then
-            gum style --foreground 196 "No repositories found matching '$target_repo'"
-            [[ -n "$workspace" ]] && gum style --foreground 196 "in workspace '$workspace'"
-            [[ -n "$owner" ]] && gum style --foreground 196 "owned by '$owner'"
+            gum style --foreground 196 "No repositories found matching '$target_repo'" >&2
+            [[ -n "$workspace" ]] && gum style --foreground 196 "in workspace '$workspace'" >&2
+            [[ -n "$owner" ]] && gum style --foreground 196 "owned by '$owner'" >&2
             return 1
         elif [[ "$repo_count" -eq 1 ]]; then
             target_path="$repos"
@@ -107,19 +107,21 @@ function _crepo_change_dir() {
     fi
     
     if [[ -d "$target_path" ]]; then
-        local scope=$(basename "$(dirname "$(dirname "$target_path")")")
-        local org=$(basename "$(dirname "$target_path")")
-        local name=$(basename "$target_path")
+        # First output just the raw path to stdout for capture by the caller
+        printf '%s\n' "$target_path"
         
-        # First output the path without any styling
-        echo "$target_path"
-        
-        # Then show the styled information
-        gum style \
-            --foreground 212 --border-foreground 212 --border double \
-            --align center --width 50 --margin "1 2" --padding "1 2" \
-            "Repository found:" \
-            "$(gum style --foreground 99 "$scope/$org/$name")" >&2
+        # Then show the styled information on stderr
+        {
+            local scope=$(basename "$(dirname "$(dirname "$target_path")")") 
+            local org=$(basename "$(dirname "$target_path")")
+            local name=$(basename "$target_path")
+            
+            gum style \
+                --foreground 212 --border-foreground 212 --border double \
+                --align center --width 50 --margin "1 2" --padding "1 2" \
+                "Repository found:" \
+                "$(gum style --foreground 99 "$scope/$org/$name")"
+        } >&2
         
         return 0
     fi
@@ -141,13 +143,13 @@ function crepo() {
                 owner=$OPTARG
                 ;;
             \?)
-                gum style --foreground 196 "Invalid option: -$OPTARG"
-                _crepo_show_help
+                gum style --foreground 196 "Invalid option: -$OPTARG" >&2
+                _crepo_show_help >&2
                 return 1
                 ;;
             :)
-                gum style --foreground 196 "Option -$OPTARG requires an argument"
-                _crepo_show_help
+                gum style --foreground 196 "Option -$OPTARG requires an argument" >&2
+                _crepo_show_help >&2
                 return 1
                 ;;
         esac
@@ -166,8 +168,8 @@ function crepo() {
         target_path=$(_crepo_change_dir "$REPO_BASE" "$repo_name" "$workspace" "$owner")
     fi
     
-    if [[ -n "$target_path" ]]; then
-        pushd "$target_path" > /dev/null
+    if [[ -n "$target_path" ]] && [[ -d "$target_path" ]]; then
+        builtin cd "$target_path" || return 1
         return 0
     fi
     return 1
