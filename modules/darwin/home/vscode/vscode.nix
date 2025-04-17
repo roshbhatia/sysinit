@@ -77,6 +77,5 @@ home.activation.installExtensions = {
       install -v $HOME/.config/vscode/keybindings.json "$HOME/.config/Code - Insiders/User/keybindings.json"
       install -v $HOME/.config/vscode/settings.json "$HOME/.config/Code - Insiders/User/settings.json"
     '';
-};
   };
 }
