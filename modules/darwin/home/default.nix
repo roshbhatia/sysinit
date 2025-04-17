@@ -56,7 +56,7 @@ in {
   ];
 
   home.activation.installFiles = lib.mkIf (installFiles != []) (
-    lib.hm.dag.entryAfter ["writeBoundary"] ''
+    lib.hm.dag.entryAfter ["writeBoundary" "makeBinExecutable" "neovimSetup" "aerospaceSetup" "pipxPackages" "npmPackages" "installExtensions"] ''
       echo "Installing config.nix specific files..."
       ${installScript}
     ''
