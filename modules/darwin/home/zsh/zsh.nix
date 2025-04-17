@@ -93,40 +93,50 @@ in
       ];
       ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE = "fg=#808080,bold,underline";
 
-      FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git";
-      FZF_DEFAULT_OPTS=''
-        --preview-window=right:55%:wrap:border-rounded
-        --height=60%
+      ENHANCD_FILTER = "fzf --preview 'eza --tree --level 2 --color=always --icons --git-ignore --git --header --long --no-user --no-time --no-filesize --git-ignore {}' --preview-window=right:60%:wrap:border-rounded --height=80% --reverse --border=rounded --margin='1' --padding='1' --info=inline-right --ansi:fzy:peco";
+
+      FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
+      
+      FZF_DEFAULT_OPTS = ''
+        --preview-window=right:60%:wrap:border-rounded
+        --height=80%
         --layout=reverse
         --border=rounded
+        --margin="1"
+        --padding="1"
         --info=inline-right
-        --prompt='❯ '
-        --pointer='▶'
-        --marker='✓'
-        --color=border:-1
-        --color=fg:-1,bg:-1,hl:6
-        --color=fg+:-1,bg+:-1,hl+:12
-        --color=info:7,prompt:1,pointer:5
-        --color=marker:2,spinner:5,header:4
-        --preview='if [[ -f {} ]]; then case {} in *.md) glow -s dark {};; *.json) jq -C . {};; *.{js,jsx,ts,tsx,html,css,yml,yaml,toml,sh,zsh,bash}) bat --color=always --style=numbers,header {};; *.{jpg,jpeg,png,gif}) imgcat {} 2>/dev/null || echo \"Image preview not available\";; *) bat --color=always --style=numbers,header {} || cat {};; esac elif [[ -d {} ]]; then eza -T --color=always --icons --git-ignore --git {} | head -200 else echo {} fi'
-        --bind 'ctrl-p:toggle-preview'
+        --prompt="❯ "
+        --pointer="▶"
+        --marker="✓"
+        --scrollbar="█"
+        --color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7
+        --color=prompt:1,pointer:5,marker:2,spinner:5,header:4
+        --preview='if [[ -f {} ]]; then
+            case {} in
+              *.md) glow -s dark {};; 
+              *.json) jq -C . {};; 
+              *.{js,jsx,ts,tsx,html,css,yml,yaml,toml,nix,sh,zsh,bash,fish}) 
+                bat --color=always --style=numbers,header {};; 
+              *.{jpg,jpeg,png,gif}) 
+                kitten icat {} 2>/dev/null || imgcat {} 2>/dev/null || echo "Image preview not available";; 
+              *) bat --color=always --style=numbers,header {} || cat {};
+            esac
+          elif [[ -d {} ]]; then
+            eza -T --color=always --icons --git-ignore --git {} | head -200
+          else
+            echo {}
+          fi'
+        --bind 'ctrl-/:toggle-preview'
         --bind 'ctrl-s:toggle-sort'
+        --bind 'ctrl-space:toggle-preview-wrap'
         --bind 'tab:half-page-down'
+        --bind 'btab:half-page-up'
+        --bind 'ctrl-y:preview-up'
+        --bind 'ctrl-e:preview-down'
+        --bind '?:toggle-preview'
+        --bind 'alt-w:toggle-preview-wrap'
+        --bind 'ctrl-u:clear-query'
         --bind 'resize:refresh-preview'
-      '';
-      FZF_CTRL_R_OPTS="";
-      FZF_CTRL_T_COMMAND="";
-      FZF_ALT_C_OPTS="";
-
-      ENHANCD_FILTER=''
-        fzf 
-        --preview 'eza -al --tree --level 1 --group-directories-first --git-ignore --header --git --no-user --no-time --no-filesize --no-permissions {}'
-        --preview-window right,50%
-        --height 35%
-        --reverse
-        --ansi
-        :fzy
-        :peco      
       '';
 
       EDITOR="nvim";
@@ -233,9 +243,56 @@ in
     completionInit = ''
       # fzf-tab configuration
       zstyle ':fzf-tab:*' fzf-command fzf
-      zstyle ':fzf-tab:*' fzf-flags '--color=border:-1'
+      zstyle ':fzf-tab:*' fzf-min-height 50
+      zstyle ':fzf-tab:*' fzf-pad 4
+      
+      # Use the same colors as fzf default
+      zstyle ':fzf-tab:*' fzf-flags --color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7
+      
+      # Show file previews for file/dir completions
+      zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
+      zstyle ':fzf-tab:complete:ls:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
+      zstyle ':fzf-tab:complete:cp:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
+      zstyle ':fzf-tab:complete:mv:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
+      zstyle ':fzf-tab:complete:rm:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
+      
+      # Preview content for text files
+      zstyle ':fzf-tab:complete:cat:*' fzf-preview 'bat --color=always --style=numbers,header {}'
+      zstyle ':fzf-tab:complete:vim:*' fzf-preview 'bat --color=always --style=numbers,header {}'
+      zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'bat --color=always --style=numbers,header {}'
+      
+      # Show systemd unit status
+      zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word'
+      
+      # Environment variables
+      zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' \
+        fzf-preview 'echo ${(P)word}'
+      
+      # Git preview support
+      zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview \
+        'git diff $word | delta'
+      zstyle ':fzf-tab:complete:git-log:*' fzf-preview \
+        'git log --color=always $word'
+      zstyle ':fzf-tab:complete:git-help:*' fzf-preview \
+        'git help $word | bat --color=always --language=man'
+      zstyle ':fzf-tab:complete:git-show:*' fzf-preview \
+        'case "$group" in
+          "commit tag") git show --color=always $word ;;
+          *) git show --color=always $word | delta ;;
+        esac'
+      zstyle ':fzf-tab:complete:git-checkout:*' fzf-preview \
+        'case "$group" in
+          "modified file") git diff $word | delta ;;
+          "remote branch") git log --color=always $word ;;
+          *) git log --color=always $word ;;
+        esac'
+        
+      # General settings
       zstyle ':fzf-tab:*' default-color $'\033[37m'
-      zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+      zstyle ':fzf-tab:*' show-group full
+      zstyle ':fzf-tab:*' prefix ''
+      zstyle ':fzf-tab:*' single-group color header
+      zstyle ':fzf-tab:*' switch-group 'alt-p' 'alt-n'
       
       # Completion configuration
       zstyle ':completion:*' use-cache on
