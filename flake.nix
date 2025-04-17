@@ -50,12 +50,6 @@
           enableHomebrew = true;
         };
       };
-
-      home = { username, homeDirectory ? "/Users/${username}", config ? {}, ... }: {
-        imports = [ ./modules/darwin/home ];
-        home = { inherit username homeDirectory; };
-        _module.args.userConfig = config;
-      };
     };
 
     packages.${system}.default = self.darwinConfigurations.default.system;
