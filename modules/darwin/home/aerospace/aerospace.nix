@@ -19,9 +19,9 @@
     after = [ "writeBoundary" ];
     before = [];
     data = ''
+      echo "Setting permissions for Aerospace directories..."
       mkdir -p "$HOME/.local/share/aerospace"
       chmod 755 "$HOME/.local/share/aerospace"
-      echo "🚀 Aerospace configuration is ready"
     '';
   };
 }

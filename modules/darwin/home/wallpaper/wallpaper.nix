@@ -31,11 +31,10 @@ let
 in
 {
   home.activation.setWallpaper = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    # Don't let this script fail the entire build
+    echo "Setting wallpaper..."
+    
     set +e
-    
-    echo "🖼️ Setting wallpaper..."
-    
+        
     # Set wallpaper path variable explicitly in the main script
     WALLPAPER_PATH="${resolvedWallpaperPath}"
     echo "Using wallpaper: $WALLPAPER_PATH"
