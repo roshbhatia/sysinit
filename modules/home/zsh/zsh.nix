@@ -82,9 +82,12 @@ in
       ZSH_EVALCACHE_DIR = "$XDG_DATA_HOME/zsh/evalcache";
 
       ZSH_AUTOSUGGEST_USE_ASYNC = 1;
-      ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = "20";
+      ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = 20;
       ZSH_AUTOSUGGEST_MANUAL_REBIND = 1;
-      ZSH_AUTOSUGGEST_STRATEGY = "(completion history)";
+      ZSH_AUTOSUGGEST_STRATEGY = [
+        "completion"
+        "history"
+      ];
 
       FZF_DEFAULT_OPTS=''
         --preview-window=right:55%:wrap:border-rounded
