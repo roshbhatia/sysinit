@@ -12,10 +12,19 @@ let
       isConfig = lib.hasPrefix ".config/" relPath;
       configPath = lib.removePrefix ".config/" relPath;
       homePath = relPath;
+      isExecutable = lib.strings.hasInfix "/bin/" entry.destination
+                    || lib.strings.hasInfix "/extras/bin/" entry.destination
+                    || lib.strings.hasSuffix ".sh" entry.source 
+                    || lib.strings.hasSuffix ".expect" entry.source
+                    || !(lib.strings.hasInfix "." entry.source);
+      fileAttrs = {
+        source = srcPath;
+        executable = isExecutable;
+      };
     in
     if isConfig
-    then acc // { xdg.configFiles.${configPath} = { source = srcPath; }; }
-    else acc // { homeFiles.${homePath} = { source = srcPath; }; }
+    then acc // { xdg.configFiles.${configPath} = fileAttrs; }
+    else acc // { homeFiles.${homePath} = fileAttrs; }
   ) { xdg.configFiles = {}; homeFiles = {}; } installFiles;
 in {
   imports = [
