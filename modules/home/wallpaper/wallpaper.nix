@@ -24,7 +24,7 @@ let
         # Verify wallpaper exists before attempting to use it
         _ = resolvePath path;
       in path
-    else "wallpaper/images/mvp2.jpeg";
+    else ./images/eldenring.png;
     
   # Get the fully resolved wallpaper path
   resolvedWallpaperPath = resolvePath wallpaperPath;
