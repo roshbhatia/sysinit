@@ -269,8 +269,8 @@ in
       # Enhance cd completion: use enhancd's interactive filter via Tab, fallback to fzf-tab
       function enhancd_tab_complete() {
         if [[ $LBUFFER == cd* ]]; then
-          local _args=${LBUFFER#cd}
-          _args=${_args## }
+          local _args=''\${LBUFFER#cd}
+          _args=''\${_args## }
           local sel=$(__enhancd::filter::interactive "$_args")
           if [[ -n "$sel" ]]; then
             LBUFFER="cd $sel"
@@ -311,6 +311,4 @@ in
     # Create extras and extras/bin
     mkdir -p -m 755 "$HOME/.config/zsh/extras" "$HOME/.config/zsh/extras/bin"
   '';
-  # Ensure gum is available for interactive tools (crepo, dns-flush, etc.)
-  home.packages = with pkgs; [ gum ];
 }
