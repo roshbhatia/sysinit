@@ -91,6 +91,7 @@ in
         "completion"
         "history"
       ];
+      ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE = "fg=#808080,bold,underline";
 
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git";
       
