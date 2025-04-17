@@ -15,7 +15,10 @@
     };
     users.${username} = { pkgs, ... }: {
       imports = [ ./home ];
-      home = { inherit username homeDirectory; };
+      home = {
+        inherit username homeDirectory;
+        stateVersion = "23.11"; # Keeps home-manager configuration stable
+      };
     };
   };
 }

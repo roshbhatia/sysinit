@@ -43,9 +43,13 @@
       };
       modules = [
         ./modules/darwin/default.nix
-        { networking.hostName = hostname; }
+        { 
+          networking.hostName = hostname;
+          home-manager.users.${username}.home.stateVersion = "23.11";
+        }
       ];
     };
+
   in {
     darwinConfigurations = {
       default = mkDarwinConfig {};
