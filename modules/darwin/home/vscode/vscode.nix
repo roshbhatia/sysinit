@@ -2,6 +2,7 @@
 
 let
   extensions = [
+    "ukoloff.win-ca" # Fixes the issue with self-signed certificates
     "aaron-bond.better-comments"
     "asvetliakov.vscode-neovim"
     "bbenoist.nix"
