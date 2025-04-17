@@ -45,10 +45,6 @@
         ./modules/darwin/default.nix
         { 
           networking.hostName = hostname;
-          home-manager = {
-            useGlobalPkgs = true;
-            useUserPackages = true;
-            users.${username} = {
               home = {
                 stateVersion = "23.11";
                 username = username;
