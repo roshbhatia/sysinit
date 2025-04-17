@@ -89,8 +89,7 @@ in
         "history"
       ];
 
-      # Use fd for fzf if available, falling back to find
-      FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git || find . -type f";
+      FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git";
       
       FZF_DEFAULT_OPTS=''
         --preview-window=right:55%:wrap:border-rounded
@@ -258,5 +257,8 @@ in
 
   home.activation.prepareZshDirs = lib.hm.dag.entryBefore ["checkLinkTargets"] ''
     echo "Preparing zsh directories..."
+    rm -rf "$HOME/.config/zsh/extras" # Clean old symlinks
+    mkdir -p -m 755 "$HOME/.config/zsh/"{bin,extras,extras/bin}
+    chmod -R 755 "$HOME/.config/zsh"
   '';
 }
