@@ -3,6 +3,13 @@
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
 
+# Make sure this script is sourced, not executed
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    echo "This script must be sourced, not executed."
+    echo "Use: source $(basename ${0})"
+    exit 1
+fi
+
 function _crepo_list_repos() {
     local REPO_BASE="$1"
     fd --type d \
@@ -43,24 +50,50 @@ function _crepo_list_interactive() {
     return 1
 }
 
+function _crepo_show_help() {
+    gum style --foreground 212 "Crepo - Repository Navigation Tool"
+    echo
+    gum style --foreground 99 --bold "Usage:" && gum style "crepo [-w WORKSPACE] [-o OWNER] [REPO_NAME]"
+    echo
+    gum style --foreground 99 --bold "Options:"
+    echo "$(gum style --foreground 212 "  -w WORKSPACE")     $(gum style "Filter repositories by workspace (e.g., personal, work)")"
+    echo "$(gum style --foreground 212 "  -o OWNER")        $(gum style "Filter repositories by owner/organization")"
+    echo
+    gum style --foreground 99 --bold "Examples:"
+    echo "$(gum style --foreground 212 "  crepo")            $(gum style "Interactive repository selection")"
+    echo "$(gum style --foreground 212 "  crepo sysinit")    $(gum style "Change to repository named sysinit")"
+    echo "$(gum style --foreground 212 "  crepo -w work sysinit")  $(gum style "Change to sysinit repo in work workspace")"
+    echo "$(gum style --foreground 212 "  crepo -o roshbhatia sysinit")  $(gum style "Change to sysinit repo owned by roshbhatia")"
+}
+
 function _crepo_change_dir() {
     local REPO_BASE="$1"
     local target_repo="$2"
     local workspace="$3"
+    local owner="$4"
     local target_path=""
     
     if [[ -z "$target_repo" ]]; then
         target_path=$(_crepo_list_interactive "$REPO_BASE")
     else
         local repos=$(_crepo_list_repos "$REPO_BASE" | grep -i "/${target_repo}[^/]*$" || echo "")
+        
+        # Apply workspace filter if specified
         if [[ -n "$workspace" ]]; then
             repos=$(echo "$repos" | grep "/$workspace/" || echo "")
         fi
+        
+        # Apply owner filter if specified
+        if [[ -n "$owner" ]]; then
+            repos=$(echo "$repos" | grep "/${owner}/" || echo "")
+        fi
+        
         local repo_count=$(echo "$repos" | grep -c .)
         
         if [[ "$repo_count" -eq 0 ]]; then
             gum style --foreground 196 "No repositories found matching '$target_repo'"
             [[ -n "$workspace" ]] && gum style --foreground 196 "in workspace '$workspace'"
+            [[ -n "$owner" ]] && gum style --foreground 196 "owned by '$owner'"
             return 1
         elif [[ "$repo_count" -eq 1 ]]; then
             target_path="$repos"
@@ -88,34 +121,19 @@ function _crepo_change_dir() {
     return 1
 }
 
-function _crepo_show_help() {
-    gum style --foreground 212 "Crepo - Repository Navigation Tool"
-    echo
-    gum style --foreground 99 --bold "Usage:" && gum style "crepo [-w WORKSPACE] {list|l|d|cd|h|help} [REPO_NAME]"
-    echo
-    gum style --foreground 99 --bold "Options:"
-    echo "$(gum style --foreground 212 "  -w WORKSPACE")     $(gum style "Filter repositories by workspace (e.g., personal, work)")"
-    echo
-    gum style --foreground 99 --bold "Commands:"
-    echo "$(gum style --foreground 212 "  list, l")          $(gum style "List all repositories and their organizations")"
-    echo "$(gum style --foreground 212 "  d, cd [REPO_NAME]") $(gum style "Change directory to the specified repository")"
-    echo "$(gum style --foreground 212 "  h, help")          $(gum style "Show this help message")"
-}
-
-# Main crepo function - modified for use as standalone executable
-function main() {
+function crepo() {
     local REPO_BASE=~/github
     local workspace=""
-    local print_only=0
+    local owner=""
 
     # Parse options
-    while getopts ":w:p" opt; do
+    while getopts ":w:o:" opt; do
         case ${opt} in
             w)
                 workspace=$OPTARG
                 ;;
-            p)
-                print_only=1
+            o)
+                owner=$OPTARG
                 ;;
             \?)
                 gum style --foreground 196 "Invalid option: -$OPTARG"
@@ -133,37 +151,19 @@ function main() {
 
     [[ ! -d "$REPO_BASE" ]] && { echo "Repository base directory does not exist: $REPO_BASE" >&2; return 1; }
 
-    case "$1" in
-        list|l)
-            _crepo_list_interactive "$REPO_BASE"
-            ;;
-        d|cd)
-            shift
-            local target_path=$(_crepo_change_dir "$REPO_BASE" "$1" "$workspace")
-            if [[ $print_only -eq 1 ]]; then
-                echo "$target_path"
-            elif [[ -n "$target_path" ]]; then
-                # When called as a script, we can't cd directly
-                # Instead, print a message about how to use this in shell functions
-                echo "To change directory, use: crepo() { local dir=\$(command crepo -p \"\$@\"); [[ -n \"\$dir\" ]] && pushd \"\$dir\"; }"
-            fi
-            ;;
-        h|help)
-            _crepo_show_help
-            ;;
-        *)
-            if [[ -n "$1" ]]; then
-                local target_path=$(_crepo_change_dir "$REPO_BASE" "$1" "$workspace")
-                if [[ $print_only -eq 1 ]]; then
-                    echo "$target_path"
-                elif [[ -n "$target_path" ]]; then
-                    echo "To change directory, use: crepo() { local dir=\$(command crepo -p \"\$@\"); [[ -n \"\$dir\" ]] && pushd \"\$dir\"; }"
-                fi
-            else
-                _crepo_list_interactive "$REPO_BASE"
-            fi
-            ;;
-    esac
+    # All arguments after options are treated as the repo name
+    local repo_name="$1"
+    local target_path
+    
+    if [[ -z "$repo_name" ]]; then
+        target_path=$(_crepo_list_interactive "$REPO_BASE")
+    else
+        target_path=$(_crepo_change_dir "$REPO_BASE" "$repo_name" "$workspace" "$owner")
+    fi
+    
+    if [[ -n "$target_path" ]]; then
+        pushd "$target_path" > /dev/null
+        return 0
+    fi
+    return 1
 }
-
-main "$@"
