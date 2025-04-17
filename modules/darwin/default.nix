@@ -1,4 +1,4 @@
-{ pkgs, lib, inputs, username, homeDirectory, config, ... }: {
+{ pkgs, lib, inputs, username, homeDirectory, config, userConfig, ... }: {
   imports = [
     ./system.nix
     ./homebrew.nix
