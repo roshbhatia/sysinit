@@ -31,7 +31,7 @@ in
       mkdir -p ${npmGlobalDir}
       chmod -R 755 ${npmGlobalDir}
       
-      NPM="/etc/profiles/per-user/rbha27/bin/npm"
+      NPM="/etc/profiles/per-user/$USER/bin/npm"
       if [ -x "$NPM" ]; then
         for package in ${lib.escapeShellArgs allPackages}; do
           if command -v npm &>/dev/null; then
