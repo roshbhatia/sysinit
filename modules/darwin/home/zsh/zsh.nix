@@ -93,11 +93,6 @@ in
       ];
       ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE = "fg=#808080,bold,underline";
 
-      ENHANCD_FILTER = "fzf --preview 'eza --tree --level 2 --color=always --icons --git-ignore --git --header --long --no-user --no-time --no-filesize --git-ignore {}' --preview-window=right:60%:wrap:border-rounded --height=80% --reverse --border=rounded --margin=1 --padding=1 --info=inline-right --ansi:fzy:peco";
-
-      FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
-      FZF_DEFAULT_OPTS = "--preview-window=right:60%:wrap:border-rounded --height=80% --layout=reverse --border=rounded --margin=1 --padding=1 --info=inline-right --prompt='❯ ' --pointer='▶' --marker='✓' --scrollbar='█' --color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7 --color=prompt:1,pointer:5,marker:2,spinner:5,header:4 --preview='if [[ -f {} ]]; then case {} in *.md) glow -s dark {};; *.json) jq -C . {};; *.{js,jsx,ts,tsx,html,css,yml,yaml,toml,nix,sh,zsh,bash,fish}) bat --color=always --style=numbers,header {};; *.{jpg,jpeg,png,gif}) kitten icat {} 2>/dev/null || imgcat {} 2>/dev/null || echo \"Image preview not available\";; *) bat --color=always --style=numbers,header {} || cat {}; esac elif [[ -d {} ]]; then eza -T --color=always --icons --git-ignore --git {} | head -200 else echo {} fi' --bind='ctrl-/:toggle-preview' --bind='ctrl-s:toggle-sort' --bind='ctrl-space:toggle-preview-wrap' --bind='tab:half-page-down' --bind='btab:half-page-up' --bind='ctrl-y:preview-up' --bind='ctrl-e:preview-down' --bind='?:toggle-preview' --bind='alt-w:toggle-preview-wrap' --bind='ctrl-u:clear-query' --bind='resize:refresh-preview'";
-
       EDITOR="nvim";
       SUDO_EDITOR="$EDITOR";
       VISUAL="$EDITOR";
