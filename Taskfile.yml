@@ -65,9 +65,21 @@ tasks:
   refresh:
     desc: Apply the system configuration
     cmds:
-      - echo "Applying system configuration..."
-      - darwin-rebuild switch --flake . --show-trace
-      - echo "System configuration applied successfully"
+      - |
+        echo "Updating flake inputs..." && \
+        if ! nix flake update; then
+          echo "Failed to update flake"
+          exit 1
+        fi && \
+        git add flake.lock && \
+        git commit -m "chore(lockfile): regenerate lockfile" || true && \
+        git push && \
+        echo "Applying system configuration..." && \
+        if ! darwin-rebuild switch --flake . --show-trace; then
+          echo "Failed to apply configuration"
+          exit 1
+        fi && \
+        echo "System configuration applied successfully"
     silent: true
 
   refresh-work:
@@ -85,6 +97,9 @@ tasks:
           echo "Failed to update flake"
           exit 1
         fi && \
+        git add flake.lock && \
+        git commit -m "chore(lockfile): regenerate lockfile" || true && \
+        git push && \
         if ! nix build; then
           echo "Failed to build configuration"
           exit 1
