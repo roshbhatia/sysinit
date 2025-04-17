@@ -37,8 +37,7 @@ in
   programs.zsh = {
     enable = true;
     autocd = true;
-    # We use fzf-tab
-    enableCompletion = false;
+    enableCompletion = true;
     historySubstringSearch.enable = true;
     autosuggestion = {
       enable = true;
@@ -218,7 +217,6 @@ in
 
       zstyle ':completion:*' menu no
       zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
-      zstyle ':fzf-tab:*' use-fzf-default-opts yes
     '';
     
     dirHashes = {
