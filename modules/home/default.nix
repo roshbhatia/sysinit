@@ -21,9 +21,6 @@
     ./aerospace/aerospace.nix
     ./macchina/macchina.nix
     ./wezterm/wezterm.nix
-    
-    ./help/help.nix
-  ];
 
   programs.home-manager.enable = true;
 
