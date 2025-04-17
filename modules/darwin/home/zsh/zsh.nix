@@ -204,12 +204,14 @@ in
       zstyle ':fzf-tab:*' fzf-flags --color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7
       
       # Show file previews for file/dir completions
-      zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
       zstyle ':fzf-tab:complete:ls:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
       zstyle ':fzf-tab:complete:cp:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
       zstyle ':fzf-tab:complete:mv:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
       zstyle ':fzf-tab:complete:rm:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
       
+      # Use enhancd fzf instead
+      zstyle ':fzf-tab:complete:cd:*' disabled-on any
+
       # Preview content for text files
       zstyle ':fzf-tab:complete:cat:*' fzf-preview 'bat --color=always --style=numbers,header {}'
       zstyle ':fzf-tab:complete:vim:*' fzf-preview 'bat --color=always --style=numbers,header {}'
