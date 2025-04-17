@@ -29,7 +29,7 @@
         AppleShowAllExtensions = true;
         QuitMenuItem = true;
         ShowPathbar = true;
-        _FXShowPosixPathInTitle = true; # Use proper option name
+        _FXShowPosixPathInTitle = true;
       };
       LaunchServices.LSQuarantine = false;
     };
@@ -38,24 +38,19 @@
     stateVersion = 4;
   };
 
-  # Nix configuration - using Determinate Nix
   nix = {
     settings = {
       experimental-features = ["nix-command" "flakes"];
       substituters = ["https://cache.nixos.org/"];
       trusted-users = ["root" username];
     };
-    # Disable internal nix-daemon management since Determinate Nix manages it
     enable = false;
   };
 
-  # Used for backwards compatibility
   nixpkgs.hostPlatform = "aarch64-darwin";
 
-  # Required to avoid sandbox build issues
   users.users.${username}.home = homeDirectory;
   
-  # Enable Touch ID for sudo authentication
   security.pam.services.sudo_local.touchIdAuth = true;
 
   system.activationScripts.postUserActivation.text = ''  
@@ -63,12 +58,6 @@
     if [[ "$(uname -m)" == "arm64" ]] && ! /usr/bin/pgrep -q "oahd"; then
       echo "Installing Rosetta 2 for Intel app compatibility..."
       /usr/sbin/softwareupdate --install-rosetta --agree-to-license
-    fi
-
-    # Check and manage Colima service
-    if ! brew services start colima 2>/dev/null; then
-      echo "Restarting Colima service..."
-      brew services restart colima
     fi
     /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
   '';
