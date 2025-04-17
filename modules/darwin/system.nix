@@ -70,30 +70,6 @@
       echo "Restarting Colima service..."
       brew services restart colima
     fi
-
-    # Create an empty bashrc to prevent issues
-    echo "Creating minimal /etc/bashrc..."
-    echo '#!/bin/bash
-# Minimal bashrc
-export TERM_PROGRAM=""
-# Skip this file entirely
-return 0' | sudo tee /etc/bashrc > /dev/null
-    sudo chmod 644 /etc/bashrc
-
-    # No need for manual symlink creation
-    # Python and gettext will be handled by Homebrew directly
-
     /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
   '';
-  
-  # Fix TERM_PROGRAM unbound variable in shell init files
-  environment.etc.zshrc.text = lib.mkAfter ''
-    # Fix TERM_PROGRAM unbound variable issue
-    if [ -z "$TERM_PROGRAM" ]; then
-      export TERM_PROGRAM=""
-    fi
-  '';
-  
-  # Disable bash completely
-  programs.bash.enable = false;
 }
