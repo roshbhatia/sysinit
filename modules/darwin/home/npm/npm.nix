@@ -25,18 +25,23 @@ in
     after = [ "fixVariables" ];
     before = [];
     data = ''
-      echo "Setting permissions for npm directories..."
+      echo "Installing npm packages..."
       set +u
       
       mkdir -p ${npmGlobalDir}
       chmod -R 755 ${npmGlobalDir}
       
-      for package in ${lib.escapeShellArgs allPackages}; do
-        if command -v npm &>/dev/null; then
-          echo "Installing $package if needed..."
-          npm install -g "$package" || true
-        fi
-      done
+      NPM="/etc/profiles/per-user/rbha27/bin/npm"
+      if [ -x "$NPM" ]; then
+        for package in ${lib.escapeShellArgs allPackages}; do
+          if command -v npm &>/dev/null; then
+            echo "Installing $package if needed..."
+            npm install -g "$package" || true
+          fi
+        done
+      else
+        echo "❌ npm not found at $NPM"
+      fi
     '';
   };
 }
