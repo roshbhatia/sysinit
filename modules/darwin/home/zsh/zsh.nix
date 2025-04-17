@@ -89,6 +89,9 @@ in
         "history"
       ];
 
+      # Use fd for fzf if available, falling back to find
+      FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git || find . -type f";
+      
       FZF_DEFAULT_OPTS=''
         --preview-window=right:55%:wrap:border-rounded
         --height=60%
@@ -216,11 +219,17 @@ in
     '';
     
     completionInit = ''
+      # fzf-tab configuration
+      zstyle ':fzf-tab:*' fzf-command fzf
+      zstyle ':fzf-tab:*' fzf-flags '--color=border:-1'
+      zstyle ':fzf-tab:*' default-color $'\033[37m'
+      zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+      
+      # Completion configuration
       zstyle ':completion:*' use-cache on
       zstyle ':completion:*' cache-path "$HOME/.zcompcache"
       zstyle ':completion:*' list-colors ''\${(s.:.)LS_COLORS}
       zstyle ':completion:*' menu no
-      zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
 
       autoload -Uz compinit
       if [ "$(date +'%j')" != "$(stat -f '%Sm' -t '%j' ~/.zcompdump 2>/dev/null)" ]; then
@@ -249,8 +258,5 @@ in
 
   home.activation.prepareZshDirs = lib.hm.dag.entryBefore ["checkLinkTargets"] ''
     echo "Preparing zsh directories..."
-    rm -rf "$HOME/.config/zsh/extras" # Clean old symlinks
-    mkdir -p -m 755 "$HOME/.config/zsh/"{bin,extras,extras/bin}
-    chmod -R 755 "$HOME/.config/zsh"
   '';
 }
