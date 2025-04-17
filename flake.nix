@@ -57,17 +57,6 @@
       defaultConfigPath = ./config.nix;
     };
 
-    darwinModules = {
-      default = { username, homeDirectory ? "/Users/${username}", config ? {}, ... }: {
-        imports = [ ./modules/darwin/default.nix ];
-        _module.args = {
-          inherit username homeDirectory inputs;
-          userConfig = config;
-          enableHomebrew = true;
-        };
-      };
-    };
-
     packages.${system}.default = self.darwinConfigurations.default.system;
   };
 }
