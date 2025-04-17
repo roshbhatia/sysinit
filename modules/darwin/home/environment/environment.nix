@@ -3,11 +3,7 @@
 
 {
   # Set environment variables
-  home.sessionVariables = {
-    # Default editors
-    EDITOR = "nvim";
-    VISUAL = "code";
-    
+  home.sessionVariables = {    
     # XDG Base Directory
     XDG_CACHE_HOME = "$HOME/.cache";
     XDG_CONFIG_HOME = "$HOME/.config";
