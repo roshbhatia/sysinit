@@ -107,15 +107,20 @@ function _crepo_change_dir() {
     fi
     
     if [[ -d "$target_path" ]]; then
-        echo "$target_path"
         local scope=$(basename "$(dirname "$(dirname "$target_path")")")
         local org=$(basename "$(dirname "$target_path")")
         local name=$(basename "$target_path")
+        
+        # First output the path without any styling
+        echo "$target_path"
+        
+        # Then show the styled information
         gum style \
             --foreground 212 --border-foreground 212 --border double \
             --align center --width 50 --margin "1 2" --padding "1 2" \
             "Repository found:" \
-            "$(gum style --foreground 99 "$scope/$org/$name")"
+            "$(gum style --foreground 99 "$scope/$org/$name")" >&2
+        
         return 0
     fi
     return 1
