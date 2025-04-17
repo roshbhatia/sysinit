@@ -13,6 +13,7 @@ let
 
   logLib = stripHeaders ./core/loglib.sh;
   paths = stripHeaders ./core/paths.sh;
+  wezterm = stripHeaders ./core/wezterm.sh;
   bindings = stripHeaders ./core/bindings.sh;
   completions = stripHeaders ./core/completions.sh;
   kubectl = stripHeaders ./core/kubectl.sh;
@@ -22,6 +23,8 @@ let
     ${logLib}
 
     ${paths}
+
+    ${wezterm}
 
     ${bindings}
                             
