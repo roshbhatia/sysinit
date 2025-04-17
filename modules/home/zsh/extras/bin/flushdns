@@ -1,10 +1,17 @@
 #!/usr/bin/env zsh
+# Converted from core.main/flushdns.sh to standalone executable
+# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
 
 # Flush DNS cache with visual feedback
-flushdns() {
+main() {
     gum spin --spinner dot --title "Flushing DNS cache..." -- \
         sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder
     
     gum style --foreground "#00ff00" "✓ DNS cache flushed successfully"
 }
+
+# If being run directly, execute main function with arguments
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi
