@@ -19,7 +19,7 @@ function M.setup_compat_plugins()
   local vscode = require('vscode')
   local mode_strings = {}
   local last_mode = nil
-  
+
   M.MODE_DISPLAY = {
     n = { text = 'NORMAL', color = '#7aa2f7' },
     i = { text = 'INSERT', color = '#9ece6a' },
@@ -33,7 +33,7 @@ function M.setup_compat_plugins()
     c = { text = 'COMMAND', color = '#7dcfff' },
     t = { text = 'TERMINAL', color = '#73daca' }
   }
-  
+
   M.EVAL_STRINGS = {
     mode_display = [[
       if (globalThis.modeStatusBar) { globalThis.modeStatusBar.dispose(); }
@@ -58,16 +58,14 @@ function M.setup_compat_plugins()
       quickPick.placeholder = args.placeholder;
       quickPick.onDidAccept(() => {
         const selected = quickPick.selectedItems[0];
-        if (selected && selected.action) { 
+        if (selected && selected.action) {
           vscode.commands.executeCommand(selected.action);
-          vscode.commands.executeCommand('workbench.action.editorLayoutSingleColumn');
         }
         quickPick.hide();
         quickPick.dispose();
       });
       quickPick.onDidHide(() => {
         quickPick.dispose();
-        vscode.commands.executeCommand('workbench.action.editorLayoutSingleColumn');
       });
       globalThis.quickPick = quickPick;
       quickPick.show();
@@ -80,129 +78,129 @@ function M.setup_compat_plugins()
       }
     ]]
   }
-  
+
   M.menu_cache = {
     root_items = nil,
     group_items = {}
   }
-  
+
   M.keybindings = {
     f = {
       name = "🔍 Find",
       bindings = {
-        { key = "f", description = "Find Files", action = "search-preview.quickOpenWithPreview" },
+        { key = "f", description = "Find Files",    action = "search-preview.quickOpenWithPreview" },
         { key = "g", description = "Find in Files", action = "workbench.action.findInFiles" },
-        { key = "b", description = "Find Buffers", action = "workbench.action.showAllEditors" },
-        { key = "s", description = "Find Symbols", action = "workbench.action.showAllSymbols" },
-        { key = "r", description = "Recent Files", action = "workbench.action.openRecent" }
+        { key = "b", description = "Find Buffers",  action = "workbench.action.showAllEditors" },
+        { key = "s", description = "Find Symbols",  action = "workbench.action.showAllSymbols" },
+        { key = "r", description = "Recent Files",  action = "workbench.action.openRecent" }
       }
     },
     w = {
       name = "🪟 Window",
       bindings = {
-        { key = "h", description = "Focus Left", action = "workbench.action.focusLeftGroup" },
-        { key = "j", description = "Focus Down", action = "workbench.action.focusBelowGroup" },
-        { key = "k", description = "Focus Up", action = "workbench.action.focusAboveGroup" },
-        { key = "l", description = "Focus Right", action = "workbench.action.focusRightGroup" },
-        { key = "=", description = "Equal Width", action = "workbench.action.evenEditorWidths" },
-        { key = "_", description = "Max Width", action = "workbench.action.toggleEditorWidths" },
+        { key = "h", description = "Focus Left",   action = "workbench.action.focusLeftGroup" },
+        { key = "j", description = "Focus Down",   action = "workbench.action.focusBelowGroup" },
+        { key = "k", description = "Focus Up",     action = "workbench.action.focusAboveGroup" },
+        { key = "l", description = "Focus Right",  action = "workbench.action.focusRightGroup" },
+        { key = "=", description = "Equal Width",  action = "workbench.action.evenEditorWidths" },
+        { key = "_", description = "Max Width",    action = "workbench.action.toggleEditorWidths" },
         { key = "w", description = "Close Editor", action = "workbench.action.closeActiveEditor" },
         { key = "o", description = "Close Others", action = "workbench.action.closeOtherEditors" },
-        { key = "H", description = "Move Left", action = "workbench.action.moveEditorToLeftGroup" },
-        { key = "J", description = "Move Down", action = "workbench.action.moveEditorToBelowGroup" },
-        { key = "K", description = "Move Up", action = "workbench.action.moveEditorToAboveGroup" },
-        { key = "L", description = "Move Right", action = "workbench.action.moveEditorToRightGroup" }
+        { key = "H", description = "Move Left",    action = "workbench.action.moveEditorToLeftGroup" },
+        { key = "J", description = "Move Down",    action = "workbench.action.moveEditorToBelowGroup" },
+        { key = "K", description = "Move Up",      action = "workbench.action.moveEditorToAboveGroup" },
+        { key = "L", description = "Move Right",   action = "workbench.action.moveEditorToRightGroup" }
       }
     },
     u = {
       name = "⚙️ UI",
       bindings = {
         { key = "a", description = "Activity Bar", action = "workbench.action.toggleActivityBarVisibility" },
-        { key = "s", description = "Status Bar", action = "workbench.action.toggleStatusbarVisibility" },
-        { key = "t", description = "Tab Bar", action = "workbench.action.toggleTabsVisibility" },
-        { key = "b", description = "Side Bar", action = "workbench.action.toggleSidebarVisibility" },
-        { key = "z", description = "Zen Mode", action = "workbench.action.toggleZenMode" },
-        { key = "f", description = "Full Screen", action = "workbench.action.toggleFullScreen" }
+        { key = "s", description = "Status Bar",   action = "workbench.action.toggleStatusbarVisibility" },
+        { key = "t", description = "Tab Bar",      action = "workbench.action.toggleTabsVisibility" },
+        { key = "b", description = "Side Bar",     action = "workbench.action.toggleSidebarVisibility" },
+        { key = "z", description = "Zen Mode",     action = "workbench.action.toggleZenMode" },
+        { key = "f", description = "Full Screen",  action = "workbench.action.toggleFullScreen" }
       }
     },
     b = {
       name = "📝 Buffer",
       bindings = {
-        { key = "n", description = "Next Buffer", action = "workbench.action.nextEditor" },
+        { key = "n", description = "Next Buffer",     action = "workbench.action.nextEditor" },
         { key = "p", description = "Previous Buffer", action = "workbench.action.previousEditor" },
-        { key = "d", description = "Close Buffer", action = "workbench.action.closeActiveEditor" },
-        { key = "o", description = "Close Others", action = "workbench.action.closeOtherEditors" }
+        { key = "d", description = "Close Buffer",    action = "workbench.action.closeActiveEditor" },
+        { key = "o", description = "Close Others",    action = "workbench.action.closeOtherEditors" }
       }
     },
     g = {
       name = "🔄 Git",
       bindings = {
-        { key = "s", description = "Stage Changes", action = "git.stage" },
-        { key = "S", description = "Stage All", action = "git.stageAll" },
-        { key = "u", description = "Unstage Changes", action = "git.unstage" },
-        { key = "U", description = "Unstage All", action = "git.unstageAll" },
-        { key = "c", description = "Commit", action = "git.commit" },
-        { key = "C", description = "Commit All", action = "git.commitAll" },
-        { key = "p", description = "Push", action = "git.push" },
-        { key = "P", description = "Pull", action = "git.pull" },
-        { key = "d", description = "Open Change", action = "git.openChange" },
-        { key = "D", description = "Open All Changes", action = "git.openAllChanges" },
-        { key = "b", description = "Checkout Branch", action = "git.checkout" },
-        { key = "f", description = "Fetch", action = "git.fetch" },
-        { key = "r", description = "Revert Change", action = "git.revertChange" },
-        { key = "v", description = "SCM View", action = "workbench.view.scm" },
+        { key = "s", description = "Stage Changes",           action = "git.stage" },
+        { key = "S", description = "Stage All",               action = "git.stageAll" },
+        { key = "u", description = "Unstage Changes",         action = "git.unstage" },
+        { key = "U", description = "Unstage All",             action = "git.unstageAll" },
+        { key = "c", description = "Commit",                  action = "git.commit" },
+        { key = "C", description = "Commit All",              action = "git.commitAll" },
+        { key = "p", description = "Push",                    action = "git.push" },
+        { key = "P", description = "Pull",                    action = "git.pull" },
+        { key = "d", description = "Open Change",             action = "git.openChange" },
+        { key = "D", description = "Open All Changes",        action = "git.openAllChanges" },
+        { key = "b", description = "Checkout Branch",         action = "git.checkout" },
+        { key = "f", description = "Fetch",                   action = "git.fetch" },
+        { key = "r", description = "Revert Change",           action = "git.revertChange" },
+        { key = "v", description = "SCM View",                action = "workbench.view.scm" },
         { key = "m", description = "Generate Commit Message", action = "workbench.action.chat.open" }
       }
     },
     c = {
       name = "💻 Code",
       bindings = {
-        { key = "a", description = "Quick Fix", action = "editor.action.quickFix" },
-        { key = "r", description = "Rename Symbol", action = "editor.action.rename" },
-        { key = "f", description = "Format Document", action = "editor.action.formatDocument" },
-        { key = "d", description = "Go to Definition", action = "editor.action.revealDefinition" },
+        { key = "a", description = "Quick Fix",            action = "editor.action.quickFix" },
+        { key = "r", description = "Rename Symbol",        action = "editor.action.rename" },
+        { key = "f", description = "Format Document",      action = "editor.action.formatDocument" },
+        { key = "d", description = "Go to Definition",     action = "editor.action.revealDefinition" },
         { key = "i", description = "Go to Implementation", action = "editor.action.goToImplementation" },
-        { key = "h", description = "Show Hover", action = "editor.action.showHover" },
-        { key = "c", description = "Toggle Comment", action = "editor.action.commentLine" },
-        { key = "s", description = "Go to Symbol", action = "workbench.action.gotoSymbol" },
-        { key = "R", description = "Find References", action = "editor.action.goToReferences" }
+        { key = "h", description = "Show Hover",           action = "editor.action.showHover" },
+        { key = "c", description = "Toggle Comment",       action = "editor.action.commentLine" },
+        { key = "s", description = "Go to Symbol",         action = "workbench.action.gotoSymbol" },
+        { key = "R", description = "Find References",      action = "editor.action.goToReferences" }
       }
     },
     t = {
       name = "🔧 Toggle",
       bindings = {
-        { key = "e", description = "Explorer", action = "workbench.view.explorer" },
-        { key = "t", description = "Terminal", action = "workbench.action.terminal.toggleTerminal" },
-        { key = "p", description = "Problems", action = "workbench.actions.view.problems" },
-        { key = "o", description = "Outline", action = "outline.focus" },
-        { key = "c", description = "Chat", action = "workbench.action.chat.open" },
+        { key = "e", description = "Explorer",         action = "workbench.view.explorer" },
+        { key = "t", description = "Terminal",         action = "workbench.action.terminal.toggleTerminal" },
+        { key = "p", description = "Problems",         action = "workbench.actions.view.problems" },
+        { key = "o", description = "Outline",          action = "outline.focus" },
+        { key = "c", description = "Chat",             action = "workbench.action.chat.open" },
         { key = "b", description = "Return to Editor", action = "workbench.action.focusActiveEditorGroup" },
-        { key = "m", description = "Command Palette", action = "workbench.action.showCommands" }
+        { key = "m", description = "Command Palette",  action = "workbench.action.showCommands" }
       }
     },
     a = {
       name = "🤖 AI",
       bindings = {
-        { key = "c", description = "Start Chat", action = "workbench.action.chat.open" },
-        { key = "i", description = "Inline Chat", action = "inlineChat.start" },
-        { key = "v", description = "View in Chat", action = "inlineChat.viewInChat" },
-        { key = "r", description = "Regenerate", action = "inlineChat.regenerate" },
-        { key = "a", description = "Accept Changes", action = "inlineChat.acceptChanges" },
+        { key = "c", description = "Start Chat",      action = "workbench.action.chat.open" },
+        { key = "i", description = "Inline Chat",     action = "inlineChat.start" },
+        { key = "v", description = "View in Chat",    action = "inlineChat.viewInChat" },
+        { key = "r", description = "Regenerate",      action = "inlineChat.regenerate" },
+        { key = "a", description = "Accept Changes",  action = "inlineChat.acceptChanges" },
         { key = "g", description = "Generate Commit", action = "workbench.action.chat.open" }
       }
     },
     s = {
       name = "✂️ Stage/Split",
       bindings = {
-        { key = "s", description = "Stage Hunk", action = "git.diff.stageHunk" },
-        { key = "S", description = "Stage Selection", action = "git.diff.stageSelection" },
-        { key = "u", description = "Unstage", action = "git.unstage" },
+        { key = "s", description = "Stage Hunk",       action = "git.diff.stageHunk" },
+        { key = "S", description = "Stage Selection",  action = "git.diff.stageSelection" },
+        { key = "u", description = "Unstage",          action = "git.unstage" },
         { key = "h", description = "Split Horizontal", action = "workbench.action.splitEditorDown" },
-        { key = "v", description = "Split Vertical", action = "workbench.action.splitEditorRight" }
+        { key = "v", description = "Split Vertical",   action = "workbench.action.splitEditorRight" }
       }
     }
   }
-  
+
   for mode, data in pairs(M.MODE_DISPLAY) do
     mode_strings[mode] = string.format("Mode: %s", data.text)
   end
@@ -210,7 +208,7 @@ function M.setup_compat_plugins()
   local function update_mode_display()
     local current_mode = vim.api.nvim_get_mode().mode
     if current_mode == last_mode then return end
-    
+
     local mode_data = M.MODE_DISPLAY[current_mode] or M.MODE_DISPLAY.n
     vscode.eval(M.EVAL_STRINGS.mode_display, {
       timeout = 1000,
@@ -238,19 +236,19 @@ function M.setup_compat_plugins()
     if M.menu_cache.root_items then
       return M.menu_cache.root_items
     end
-    
+
     local items = {}
     local lastCategory = nil
-    
+
     for key, group in pairs(M.keybindings) do
       -- Add a separator before new categories, except the first one
       if lastCategory then
         table.insert(items, {
-          label = "──────────────",  -- Visual separator
-          kind = -1  -- QuickPickItemKind.Separator
+          label = "──────────────", -- Visual separator
+          kind = -1 -- QuickPickItemKind.Separator
         })
       end
-      
+
       -- Add the category header
       table.insert(items, {
         label = key,
@@ -258,7 +256,7 @@ function M.setup_compat_plugins()
         isGroup = true,
         key = key
       })
-      
+
       -- Add all items in this category
       for _, binding in ipairs(group.bindings) do
         table.insert(items, {
@@ -268,10 +266,10 @@ function M.setup_compat_plugins()
           isGroupItem = true
         })
       end
-      
+
       lastCategory = key
     end
-    
+
     M.menu_cache.root_items = items
     return items
   end
@@ -286,15 +284,15 @@ function M.setup_compat_plugins()
 
     -- First adjust editor layout to prevent overlap
     vscode.action('workbench.action.editorLayoutTwoRows')
-    
-    vscode.eval(M.EVAL_STRINGS.quickpick_menu, { 
+
+    vscode.eval(M.EVAL_STRINGS.quickpick_menu, {
       timeout = 1000,
-      args = { 
+      args = {
         items = items,
         title = group and group.name or "Which Key Menu",
-        placeholder = group 
-          and 'Select an action or press <Esc> to cancel'
-          or 'Select a group or action (groups shown with ▸)'
+        placeholder = group
+            and 'Select an action or press <Esc> to cancel'
+            or 'Select a group or action (groups shown with ▸)'
       }
     })
   end
@@ -324,7 +322,7 @@ function M.setup_compat_plugins()
     handle_group("<leader>" .. prefix, group)
   end
 
-  vim.api.nvim_create_autocmd({"ModeChanged", "CursorMoved"}, {
+  vim.api.nvim_create_autocmd({ "ModeChanged", "CursorMoved" }, {
     callback = hide_menu
   })
 
@@ -354,7 +352,7 @@ function M.setup_compat_plugins()
 
   vim.keymap.set('n', '<leader>w', function() vscode.action('workbench.action.files.save') end, opts)
   vim.keymap.set('n', '<leader>wa', function() vscode.action('workbench.action.files.saveAll') end, opts)
-  
+
   vim.keymap.set('n', '<leader>\\', function() vscode.action('workbench.action.splitEditorRight') end, opts)
   vim.keymap.set('n', '<leader>-', function() vscode.action('workbench.action.splitEditorDown') end, opts)
 
@@ -378,3 +376,4 @@ function M.setup_compat_plugins()
 end
 
 return M
+
