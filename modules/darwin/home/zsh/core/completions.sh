@@ -38,15 +38,6 @@ export FZF_DEFAULT_OPTS="$(cat << 'EOF'
 EOF
 )"
 
-export ENHANCD_FILTER="$(cat << 'EOF'
-fzf --preview='([[ -d {} ]] && eza --tree --level 2 --color=always --icons --git-ignore --git --header --long --no-user --no-time --no-filesize {}) || echo {}' \
-    --preview-window=right:60%:wrap:border-rounded \
-    --height=80% \
-    --reverse \
-    --border=rounded \
-    --margin=1 \
-    --padding=1 \
-    --info=inline-right \
-    --ansi:fzy:peco
-EOF
-)"
+export ENHANCD_FILTER="fzf"
+export ENHANCD_ENABLE_DOUBLE_DOT=false
+export ENHANCD_ENABLE_HOME=false
