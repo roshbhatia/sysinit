@@ -54,23 +54,15 @@ in
     "vscode/settings.json".source = ./config/settings.json;
   };
 
-  home.activation = {
-    vscodeConfig = lib.hm.dag.entryAfter ["writeBoundary"] ''
-      echo "📁 Copying VS Code configuration files..."
-      mkdir -p "$HOME/Library/Application Support/Code - Insiders/User"
-      cp -f "$XDG_CONFIG_HOME/vscode/keybindings.json" "$HOME/Library/Application Support/Code - Insiders/User/keybindings.json"
-      cp -f "$XDG_CONFIG_HOME/vscode/settings.json" "$HOME/Library/Application Support/Code - Insiders/User/settings.json"
-    '';
-    
-    vscodeExtensions = {
-      after = [ "writeBoundary" ];
-      before = [];
-      data = ''
-        echo "🚀 Installing VSCode Insiders extensions..."
-        ${builtins.concatStringsSep "\n" (map (ext: 
-          "/opt/homebrew/bin/code-insiders --install-extension ${ext} --force || echo 'Failed to install ${ext}'"
-        ) extensions)}
-      '';
-    };
-  };
+  home.activation.postActivation = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    echo "📁 Copying VS Code configuration files..."
+    mkdir -p "$HOME/Library/Application Support/Code - Insiders/User"
+    cp -f "$XDG_CONFIG_HOME/vscode/keybindings.json" "$HOME/Library/Application Support/Code - Insiders/User/keybindings.json"
+    cp -f "$XDG_CONFIG_HOME/vscode/settings.json" "$HOME/Library/Application Support/Code - Insiders/User/settings.json"
+
+    echo "🚀 Installing VSCode Insiders extensions..."
+    ${builtins.concatStringsSep "\n" (map (ext: 
+      "/opt/homebrew/bin/code-insiders --install-extension ${ext} --force || echo 'Failed to install ${ext}'"
+    ) extensions)}
+  '';
 }
