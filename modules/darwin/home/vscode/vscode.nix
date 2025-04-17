@@ -60,23 +60,23 @@ home.activation.installExtensions = {
     before = [];
     data = ''
       echo "Installing VSCode Insiders extensions..."
-      export NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
-      export NODE_OPTIONS="--use-system-ca"
+      # export NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
+      # export NODE_OPTIONS="--use-system-ca"
       
-      extensions=(${builtins.concatStringsSep " " extensions})
+      # extensions=(${builtins.concatStringsSep " " extensions})
       
-      for ext in "''${extensions[@]}"; do
-        if ! /opt/homebrew/bin/code-insiders --install-extension "$ext" --force; then
-          printf "❌ Failed to install extension: %s\n" "$ext"
-          exit 1
-        else
-          printf "✅ Successfully installed: %s\n" "$ext"
-        fi
-      done
+      # for ext in "''${extensions[@]}"; do
+      #  if ! /opt/homebrew/bin/code-insiders --install-extension "$ext" --force; then
+      #    printf "❌ Failed to install extension: %s\n" "$ext"
+      #    exit 1
+      #  else
+      #    printf "✅ Successfully installed: %s\n" "$ext"
+      #  fi
+      # done
       
       echo "Copying VS Code configuration files..."
-      install -v $HOME/.config/vscode/keybindings.json "$HOME/.config/Code - Insiders/User/keybindings.json"
-      install -v $HOME/.config/vscode/settings.json "$HOME/.config/Code - Insiders/User/settings.json"
+      install -v $HOME/.config/vscode/keybindings.json "$HOME/Library/Application Support/Code - Insiders/User/keybindings.json"
+      install -v $HOME/.config/vscode/settings.json "$HOME/Library/Application Support/Code - Insiders/User/settings.json"
     '';
   };
 }
