@@ -247,8 +247,18 @@ in
     };
   };
 
-  home.activation.makeBinExecutable = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    echo "Making ~/.config/zsh/bin/* executable..."
-    chmod +x ~/.config/zsh/bin/*
+  home.activation.makeZshDirsExecutable = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    echo "Setting up zsh directory permissions..."
+    mkdir -p "$HOME/.config/zsh/extras/bin"
+    chmod 755 "$HOME/.config/zsh/extras"
+    chmod 755 "$HOME/.config/zsh/extras/bin"
+    
+    echo "Making zsh executables executable..."
+    if [ -d "$HOME/.config/zsh/bin" ]; then
+      chmod +x "$HOME/.config/zsh/bin/"*
+    fi
+    if [ -d "$HOME/.config/zsh/extras/bin" ]; then
+      chmod +x "$HOME/.config/zsh/extras/bin/"*
+    fi
   '';
 }
