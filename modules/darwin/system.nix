@@ -48,7 +48,6 @@
   };
 
   launchd.agents.colima = {
-    enable = true;
     serviceConfig = {
       ProgramArguments = [ "${pkgs.colima}/bin/colima" "start" ];
       EnvironmentVariables = {
