@@ -41,15 +41,4 @@ in
   xdg.configFile."colima/default/colima.yaml" = {
     source = colimaYaml;
   };
-
-  home.activation.setupColima = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    # Set up Colima to respect XDG_CONFIG_HOME and match Homebrew service configuration
-    COLIMA_SERVICE="/opt/homebrew/Cellar/colima/*/homebrew.colima.service"
-    if [ -f $COLIMA_SERVICE ]; then
-      echo "Configuring Colima service..."
-      $DRY_RUN_CMD sed -i.bak '
-        s|Environment=HOME=${HOME}|Environment=HOME=${HOME} Environment=XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}|
-      ' $COLIMA_SERVICE
-    fi
-  '';
 }
