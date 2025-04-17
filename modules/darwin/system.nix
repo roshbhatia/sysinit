@@ -49,7 +49,7 @@
 
   launchd.agents.colima = {
     enable = true;
-    config = {
+    serviceConfig = {
       ProgramArguments = [ "${pkgs.colima}/bin/colima" "start" ];
       EnvironmentVariables = {
         HOME = homeDirectory;
