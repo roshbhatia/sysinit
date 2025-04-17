@@ -43,8 +43,10 @@ in {
     ./wezterm/wezterm.nix
   ];
 
-  system.activationScripts.postUserActivation.text = lib.mkIf (installFiles != []) ''
-    echo "Installing configured files..."
-    ${installScript}
-  '';
+  home.activation.installFiles = lib.mkIf (installFiles != []) (
+    lib.hm.dag.entryAfter ["writeBoundary"] ''
+      echo "Installing configured files..."
+      ${installScript}
+    ''
+  );
 }
