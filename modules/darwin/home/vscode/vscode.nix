@@ -62,10 +62,8 @@ home.activation.installExtensions = {
       echo "Installing VSCode Insiders extensions..."
       export NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
       
-      # Convert nix list to bash array
       extensions=(${builtins.concatStringsSep " " extensions})
       
-      # Install extensions using for loop
       for ext in "''${extensions[@]}"; do
         if ! /opt/homebrew/bin/code-insiders --install-extension "$ext" --force; then
           printf "❌ Failed to install extension: %s\n" "$ext"
@@ -76,7 +74,8 @@ home.activation.installExtensions = {
       done
       
       echo "Copying VS Code configuration files..."
-      # ...existing code...
+      install -v $HOME/.config/vscode/keybindings.json "$HOME/.config/Code - Insiders/User/keybindings.json"
+      install -v $HOME/.config/vscode/settings.json "$HOME/.config/Code - Insiders/User/settings.json"
     '';
 };
   };
