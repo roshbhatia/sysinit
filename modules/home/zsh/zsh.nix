@@ -11,19 +11,19 @@ let
     nonHeaderLines = builtins.filter (line: !(isHeaderLine line)) lines;
   in lib.concatStringsSep "\n" nonHeaderLines;
 
+  logLib = stripHeaders ./core/loglib.sh;
   paths = stripHeaders ./core/paths.sh;
   bindings = stripHeaders ./core/bindings.sh;
-  logLib = stripHeaders ./core/loglib.sh;
   completions = stripHeaders ./core/completions.sh;
   kubectl = stripHeaders ./core/kubectl.sh;
   prompt = stripHeaders ./core/prompt.sh;
 
   combinedCoreScripts = ''
+    ${logLib}
+
     ${paths}
 
     ${bindings}
-
-    ${logLib}
                             
     ${kubectl}
     
