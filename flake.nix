@@ -45,13 +45,6 @@
         ./modules/darwin/default.nix
         { 
           networking.hostName = hostname;
-              home = {
-                stateVersion = "23.11";
-                username = username;
-                homeDirectory = homeDirectory;
-              };
-            };
-          };
         }
       ];
     };
