@@ -144,7 +144,7 @@ in
           owner = "zsh-users";
           repo = "zsh-autosuggestions";
           rev = "0e810e5afa27acbd074398eefbe28d13005dbc15";
-          sha256 = "85aw9OM2pQPsWklXjuNOzp9El1MsNb+cIiZQVHUzBnk="
+          sha256 = "85aw9OM2pQPsWklXjuNOzp9El1MsNb+cIiZQVHUzBnk=";
         };
         file = "zsh-autosuggestions.plugin.zsh";
       }
