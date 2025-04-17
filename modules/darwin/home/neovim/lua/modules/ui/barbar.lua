@@ -161,7 +161,6 @@ function M.setup()
         name = "📑 Buffer",
         b = { "<cmd>BufferOrderByBufferNumber<CR>", "Order by Buffer Number" },
         d = { "<cmd>BufferOrderByDirectory<CR>", "Order by Directory" },
-        l = { "<cmd>BufferOrderByLanguage<CR>", "Order by Language" },
         n = { "<cmd>BufferOrderByName<CR>", "Order by Name" },
         w = { "<cmd>BufferOrderByWindowNumber<CR>", "Order by Window Number" },
         p = { "<cmd>BufferPin<CR>", "Pin/Unpin Buffer" },
