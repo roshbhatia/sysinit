@@ -53,7 +53,7 @@
             extraSpecialArgs = { inherit inputs username homeDirectory; userConfig = config; };
             backupFileExtension = "backup";
             users.${username} = { pkgs, ... }: {
-              imports = [ ./modules/home ];
+              imports = [ ./modules/darwin/home ];
               home = { inherit username homeDirectory; };
             };
           };
