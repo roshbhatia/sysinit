@@ -11,7 +11,4 @@ main() {
     gum style --foreground "#00ff00" "✓ DNS cache flushed successfully"
 }
 
-# If being run directly, execute main function with arguments
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    main "$@"
-fi
+main "$@"

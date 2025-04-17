@@ -166,7 +166,4 @@ function main() {
     esac
 }
 
-# If being run directly, execute main function with arguments
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    main "$@"
-fi
+main "$@"
