@@ -1,21 +1,22 @@
 { config, pkgs, lib, inputs, username, homeDirectory, userConfig ? {}, ... }: 
 let
   installFiles = userConfig.install or [];
-  
-  installFile = { source, destination }:
+
+  # Convert install entries to home.file and xdg.configFile attrs
+  fileAttrs = lib.foldl (acc: entry:
     let
-      srcPath = if lib.strings.hasPrefix "/" source
-               then source
-               else toString (inputs.self + "/${source}");
-      destPath = toString destination;
-    in ''
-      echo "Installing file: ${destPath}"
-      mkdir -p -m 755 "$(dirname "${destPath}")"
-      install -v "${srcPath}" "~/${destPath}"
-      chmod 644 "~/${destPath}"
-    '';
-    
-  installScript = lib.concatMapStrings installFile installFiles;
+      srcPath = if lib.strings.hasPrefix "/" entry.source
+                then entry.source
+                else toString (inputs.self + "/${entry.source}");
+      relPath = lib.removePrefix "/Users/${username}/" entry.destination;
+      isConfig = lib.hasPrefix ".config/" relPath;
+      configPath = lib.removePrefix ".config/" relPath;
+      homePath = relPath;
+    in
+    if isConfig
+    then acc // { xdg.configFiles.${configPath} = { source = srcPath; }; }
+    else acc // { homeFiles.${homePath} = { source = srcPath; }; }
+  ) { xdg.configFiles = {}; homeFiles = {}; } installFiles;
 in {
   imports = [
     ./core/packages.nix
@@ -54,10 +55,9 @@ in {
     "$HOME/bin"
   ];
 
-  home.activation.installFiles = lib.mkIf (installFiles != []) (
-    lib.hm.dag.entryAfter ["writeBoundary" "makeBinExecutable" "neovimSetup" "aerospaceSetup" "pipxPackages" "npmPackages" "installExtensions"] ''
-      echo "Installing config.nix specific files..."
-      ${installScript}
-    ''
-  );
-}
+  # Add config files to xdg.configFile
+  xdg.configFile = fileAttrs.xdg.configFiles;
+
+  # Add files to home.file
+  home.file = fileAttrs.homeFiles;
+}code 
