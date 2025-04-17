@@ -9,4 +9,4 @@ if [ "$WEZTERM_PANE" = "0" ]; then
   fi
 fi
 
-eval "$(oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/zash.omp.json)"
+_evalcache oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/zash.omp.json
