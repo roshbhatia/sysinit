@@ -11,35 +11,21 @@ let
     nonHeaderLines = builtins.filter (line: !(isHeaderLine line)) lines;
   in lib.concatStringsSep "\n" nonHeaderLines;
 
+  paths = stripHeaders ./core/paths.sh;
   bindings = stripHeaders ./core/bindings.sh;
   logLib = stripHeaders ./core/loglib.sh;
-  paths = stripHeaders ./core/paths.sh;
-  completion = stripHeaders ./core/completions.sh;
-  fzf = stripHeaders ./core/fzf.sh;
-  notifications = stripHeaders ./core/notifications.sh;
-  shiftSelect = stripHeaders ./core/shift-select.sh;
-  edit = stripHeaders ./core/edit.sh;
-  kubectlAliases = stripHeaders ./core/kubectl-aliases.sh;
+  completions = stripHeaders ./core/completions.sh;
+  kubectl = stripHeaders ./core/kubectl.sh;
   prompt = stripHeaders ./core/prompt.sh;
 
   combinedCoreScripts = ''
+    ${paths}
+
     ${bindings}
 
     ${logLib}
-    
-    ${paths}
-    
-    ${completion}
-        
-    ${fzf}
-    
-    ${notifications}
-    
-    ${shiftSelect}
-    
-    ${edit}
-
-    ${kubectlAliases}
+                            
+    ${kubectl}
     
     ${prompt}
   '';
@@ -52,7 +38,7 @@ in
     historySubstringSearch.enable = true;
     autosuggestion = {
       enable = true;
-      strategy = ["history" "completion"];
+      strategy = ["completion"];
       highlight = "fg=#B4A7D6,bold";
     };
 
@@ -93,9 +79,41 @@ in
     };
 
     sessionVariables = {
+      ZSH_EVALCACHE_DIR = "$XDG_DATA_HOME/zsh/evalcache";
+
       ZSH_AUTOSUGGEST_USE_ASYNC = 1;
       ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = "20";
       ZSH_AUTOSUGGEST_MANUAL_REBIND = 1;
+
+      FZF_DEFAULT_OPTS=''
+        --preview-window=right:55%:wrap:border-rounded
+        --height=60%
+        --layout=reverse
+        --border=rounded
+        --info=inline-right
+        --prompt='❯ '
+        --pointer='▶'
+        --marker='✓'
+        --color=border:-1
+        --color=fg:-1,bg:-1,hl:6
+        --color=fg+:-1,bg+:-1,hl+:12
+        --color=info:7,prompt:1,pointer:5
+        --color=marker:2,spinner:5,header:4
+        --preview='if [[ -f {} ]]; then case {} in *.md) glow -s dark {};; *.json) jq -C . {};; *.{js,jsx,ts,tsx,html,css,yml,yaml,toml,sh,zsh,bash}) bat --color=always --style=numbers,header {};; *.{jpg,jpeg,png,gif}) imgcat {} 2>/dev/null || echo \"Image preview not available\";; *) bat --color=always --style=numbers,header {} || cat {};; esac elif [[ -d {} ]]; then eza -T --color=always --icons --git-ignore --git {} | head -200 else echo {} fi'
+        --bind 'ctrl-p:toggle-preview'
+        --bind 'ctrl-s:toggle-sort'
+        --bind 'tab:half-page-down'
+        --bind 'resize:refresh-preview'
+      '';
+
+      FZF_CTRL_R_OPTS="";
+      FZF_CTRL_T_COMMAND="";
+      FZF_ALT_C_OPTS="";
+
+      EDITOR="nvim";
+      SUDO_EDITOR="$EDITOR";
+      VISUAL="$EDITOR";
+      PAGER="bat --pager=always --color=always";
     };
 
     plugins = [
@@ -111,17 +129,40 @@ in
       }
       {
         name = "enhancd";
-        file = "init.sh";
         src = pkgs.fetchFromGitHub {
-          owner = "b4b4r07";
+          owner = "babarot";
           repo = "enhancd";
-          rev = "v2.2.1";
+          rev = "v2.5.1";
           sha256 = "0iqa9j09fwm6nj5rpip87x3hnvbbz9w9ajgm6wkrd5fls8fn8i5g";
         };
+        file = "enhancd.plugin.zsh";
+      }
+      {
+        name = "evalcache";
+        src = pkgs.fetchFromGitHub {
+          owner = "mroth";
+          repo = "evalcache";
+          rev = "v1.0.2";
+          sha256 = "0iqa9j09fwm6nj5rpip87x3hnvbbz9w9ajgm6wkrd5fls8fn8i5g";
+        };
+        file = "evalcache.plugin.sh";
+      }
+      {
+        name = "fzf-tab";
+        src = pkgs.fetchFromGitHub {
+          owner = "Aloxaf";
+          repo = "fzf-tab";
+          rev = "v1.2.0";
+          sha256 = "0iqa9j09fwm6nj5rpip87x3hnvbbz9w9ajgm6wkrd5fls8fn8i5g";
+        };
+        file = "fzf-tab.plugin.sh";
       }
     ];
 
     initExtraFirst = ''
+      #!/usr/bin/env zsh
+      # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
+      # shellcheck disable=all
       #       ___           ___           ___           ___           ___
       #      /  /\         /  /\         /__/\         /  /\         /  /\
       #     /  /::|       /  /:/_        \  \:\       /  /::\       /  /:/
@@ -134,7 +175,6 @@ in
       #      |  |:/        /__/:/       \  \:\        \  \:\        \  \::/
       #      |__|/         \__\/         \__\/         \__\/         \__\/
 
-      [[ -f "$HOME/.sysinit-debug" ]] && export SYSINIT_DEBUG=1
       [[ -n "$SYSINIT_DEBUG" ]] && zmodload zsh/zprof
       
       typeset -U path cdpath fpath manpath
@@ -172,12 +212,18 @@ in
       
       zstyle ':completion:*' use-cache on
       zstyle ':completion:*' cache-path "$HOME/.zcompcache"
+
+      zstyle ':completion:*' menu no
+      zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+      zstyle ':fzf-tab:*' use-fzf-default-opts yes
     '';
     
     dirHashes = {
       docs = "$HOME/Documents";
       dl = "$HOME/Downloads";
-      dev = "$HOME/github";
+      ghp = "$HOME/github/personal";
+      ghpr = "$HOME/github/personal/roshbhatia";
+      ghw = "$HOME/github/work";
     };
   };
   
