@@ -28,11 +28,13 @@ let
     ${wezterm}
 
     ${bindings}
-                            
+
+    ${completions}
+
     ${kubectl}
 
     ${crepo}
-    
+
     ${prompt}
   '';
 in
@@ -170,6 +172,7 @@ in
       [[ -n "$SYSINIT_DEBUG" ]] && zmodload zsh/zprof
       
       typeset -U path cdpath fpath manpath
+      setopt EXTENDED_GLOB
       
       unset MAILCHECK
       stty stop undef
@@ -283,9 +286,14 @@ in
   };
 
   home.activation.prepareZshDirs = lib.hm.dag.entryBefore ["checkLinkTargets"] ''
-    echo "Preparing zsh directories..."
-    rm -rf "$HOME/.config/zsh/extras" # Clean old symlinks
-    mkdir -p -m 755 "$HOME/.config/zsh/"{bin,extras,extras/bin}
-    chmod -R 755 "$HOME/.config/zsh"
+    echo "Preparing zsh extras directory..."
+    # Ensure base config dir exists
+    mkdir -p -m 755 "$HOME/.config/zsh"
+    # Clean old extras symlinks
+    rm -rf "$HOME/.config/zsh/extras"
+    # Create extras and extras/bin
+    mkdir -p -m 755 "$HOME/.config/zsh/extras" "$HOME/.config/zsh/extras/bin"
   '';
+  # Ensure gum is available for interactive tools (crepo, dns-flush, etc.)
+  home.packages = with pkgs; [ gum ];
 }
