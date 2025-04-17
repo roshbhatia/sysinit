@@ -234,4 +234,9 @@ in
       executable = true;
     };
   };
+
+  home.activation.makeBinExecutable = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    echo "Making ~/.config/zsh/extras/bin/* executable..."
+    chmod +x ~/.config/zsh/extras/bin/*
+  '';
 }
