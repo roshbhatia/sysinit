@@ -11,32 +11,41 @@ let
     nonHeaderLines = builtins.filter (line: !(isHeaderLine line)) lines;
   in lib.concatStringsSep "\n" nonHeaderLines;
 
-  completionsScript = stripHeaders ./core/completions.sh;
-  fzfScript = stripHeaders ./core/fzf.sh;
-  logLibScript = stripHeaders ./core/loglib.sh;
-  notificationsScript = stripHeaders ./core/notifications.sh;
-  pathsScript = stripHeaders ./core/paths.sh;
-  shiftSelectScript = stripHeaders ./core/shift-select.sh;
-  kubectlAliasesScript = stripHeaders ./core/kubectl-aliases.sh;
-  promptScript = stripHeaders ./core/prompt.sh;
+  bindings = stripHeaders ./core/bindings.sh;
+  logLib = stripHeaders ./core/loglib.sh;
+  paths = stripHeaders ./core/paths.sh;
+  completion = stripHeaders ./core/completions.sh;
+  style = stripHeaders ./core/style.sh;
+  fzf = stripHeaders ./core/fzf.sh;
+  notifications = stripHeaders ./core/notifications.sh;
+  shiftSelect = stripHeaders ./core/shift-select.sh;
+  edit = stripHeaders ./core/edit.sh;
+  kubectlAliases = stripHeaders ./core/kubectl-aliases.sh;
+  prompt = stripHeaders ./core/prompt.sh;
 
   combinedCoreScripts = ''
-    ${logLibScript}
-    
-    ${pathsScript}
-    
-    ${completionsScript}
-    
-    ${fzfScript}
-    
-    ${notificationsScript}
-    
-    ${shiftSelectScript}
+    ${bindings}
 
-    ${kubectlAliasesScript}
+    ${logLib}
     
-    ${promptScript}
-  ''; 
+    ${paths}
+    
+    ${completion}
+    
+    ${style}
+    
+    ${fzf}
+    
+    ${notifications}
+    
+    ${shiftSelect}
+    
+    ${edit}
+
+    ${kubectlAliases}
+    
+    ${prompt}
+  '';
 in
 {
   programs.zsh = {
