@@ -17,7 +17,6 @@ let
   notificationsScript = stripHeaders ./core/notifications.sh;
   pathsScript = stripHeaders ./core/paths.sh;
   shiftSelectScript = stripHeaders ./core/shift-select.sh;
-  styleScript = stripHeaders ./core/style.sh;
   kubectlAliasesScript = stripHeaders ./core/kubectl-aliases.sh;
   promptScript = stripHeaders ./core/prompt.sh;
 
@@ -27,8 +26,6 @@ let
     ${pathsScript}
     
     ${completionsScript}
-    
-    ${styleScript}
     
     ${fzfScript}
     
