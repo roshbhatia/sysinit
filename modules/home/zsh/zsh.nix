@@ -39,8 +39,11 @@ in
     autocd = true;
     enableCompletion = true;
     historySubstringSearch.enable = true;
-    autosuggestion = {
-      enable = true;
+    # We need to install this manually due to fzf-tab needing to run first
+    autosuggestion.enable = false;
+    
+     {
+      enable = ;
       strategy = ["completion"];
       highlight = "fg=#B4A7D6,bold";
     };
@@ -87,6 +90,7 @@ in
       ZSH_AUTOSUGGEST_USE_ASYNC = 1;
       ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = "20";
       ZSH_AUTOSUGGEST_MANUAL_REBIND = 1;
+      ZSH_AUTOSUGGEST_STRATEGY = "(completion history)";
 
       FZF_DEFAULT_OPTS=''
         --preview-window=right:55%:wrap:border-rounded
@@ -139,6 +143,15 @@ in
           sha256 = "sha256-RVX9ZSzjBW3LpFs2W86lKI6vtcvDWP6EPxzeTcRZua4=";
         };
         file = "fast-syntax-highlighting.plugin.zsh";
+      }
+      {
+        name = "zsh-autosuggestions";
+        src = pkgs.fetchFromGitHub {
+          owner = "zsh-users";
+          repo = "zsh-autosuggestions";
+          rev = "0e810e5afa27acbd074398eefbe28d13005dbc15";
+        };
+        file = "zsh-autosuggestions.plugin.zsh";
       }
       {
         name = "enhancd";
