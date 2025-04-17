@@ -105,4 +105,4 @@ function {
 bindkey '^h' beginning-of-line    # CTRL + h for beginning of line
 bindkey '^j' backward-word        # CTRL + j for back word
 bindkey '^k' forward-word         # CTRL + k for forward word
-bindkey '^;' end-of-line          # CTRL + ; for end of line
+bindkey '^l' end-of-line          # CTRL + l for end of line
