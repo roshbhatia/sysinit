@@ -15,7 +15,7 @@ inputs.darwin.lib.darwinSystem {
     enableHomebrew = true;
   };
   modules = [
-    ../modules/darwin/default.nix
+    ../../modules/darwin/default.nix
     { networking.hostName = hostname; }
     (fileInstaller { inherit (inputs) nixpkgs; inherit config; })
   ];

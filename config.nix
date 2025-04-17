@@ -41,7 +41,7 @@
 
   install = [
     {
-      source = "tests/nix-install-test.yaml";
+      source = "tests/01-nix-install-test.yaml";
       destination = "/Users/rshnbhatia/.config/nix-test/nix-test.yaml";
     }
   ];

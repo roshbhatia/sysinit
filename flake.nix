@@ -26,9 +26,25 @@
   let
     system = "aarch64-darwin";
     configValidator = import ./modules/lib/config-validator.nix { inherit nixpkgs self; };
-    fileInstaller = import ./modules/lib/file-installer.nix;
-    mkDarwinConfig = import ./modules/lib/make-darwin-system.nix { 
-      inherit inputs configValidator fileInstaller; 
+
+    mkDarwinConfig = { configPath ? ./config.nix }: 
+    let
+      config = configValidator configPath;
+      username = config.user.username;
+      hostname = config.user.hostname;
+      homeDirectory = "/Users/${username}";
+    in
+    darwin.lib.darwinSystem {
+      inherit system;
+      specialArgs = { 
+        inherit inputs username homeDirectory;
+        userConfig = config;
+        enableHomebrew = true;
+      };
+      modules = [
+        ./modules/darwin/default.nix
+        { networking.hostName = hostname; }
+      ];
     };
   in {
     darwinConfigurations = {
