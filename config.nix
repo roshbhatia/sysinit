@@ -36,7 +36,9 @@
   };
 
   npm = {
-    additionalPackages = [];
+    additionalPackages = [
+      "@openai/codex"
+    ];
   };
 
   install = [
