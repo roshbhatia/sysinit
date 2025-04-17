@@ -182,8 +182,8 @@ in
   };
   
   xdg.configFile = {
-    "zsh/extras" = {
-      source = ./extras;
+    "zsh/bin" = {
+      source = ./bin;
       recursive = true;
       executable = true;
     };
