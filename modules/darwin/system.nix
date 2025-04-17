@@ -47,7 +47,24 @@
     enable = false;
   };
 
-  nixpkgs.hostPlatform = "aarch64-darwin";
+  launchd.agents.colima = {
+    enable = true;
+    config = {
+      ProgramArguments = [ "${pkgs.colima}/bin/colima" "start" ];
+      EnvironmentVariables = {
+        HOME = homeDirectory;
+        XDG_CONFIG_HOME = "${homeDirectory}/.config";
+      };
+      RunAtLoad = true;
+      KeepAlive = {
+        Crashed = true;
+        SuccessfulExit = false;
+      };
+      ProcessType = "Interactive";
+      StandardOutPath = "${homeDirectory}/.local/state/colima/daemon.log";
+      StandardErrorPath = "${homeDirectory}/.local/state/colima/daemon.error.log";
+    };
+  };
 
   users.users.${username}.home = homeDirectory;
   
