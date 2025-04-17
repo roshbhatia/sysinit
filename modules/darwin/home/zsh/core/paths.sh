@@ -19,9 +19,9 @@ path.add.safe() {
 
 paths=(
   "/usr/local/opt/cython/bin"
-  "$HOME/.cargo/bin"
-  "$HOME/.config/yarn/global/node_modules/.bin"
-  "$HOME/.config/zsh/bin"
+  "$XDG_CONFIG_HOME/.cargo/bin"
+  "$XDG_CONFIG_HOME/.config/yarn/global/node_modules/.bin"
+  "$XDG_CONFIG_HOME/zsh/bin"
   "$HOME/.govm/shim"
   "$HOME/.krew/bin"
   "$HOME/.npm-global/bin"
