@@ -64,6 +64,7 @@ in
       install -v "$HOME/.config/vscode/settings.json" "$HOME/Library/Application Support/Code - Insiders/User/settings.json"
 
       echo "🚀 Installing VSCode Insiders extensions..."
+      export NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
       ${builtins.concatStringsSep "\n" (map (ext: 
         "/opt/homebrew/bin/code-insiders --install-extension ${ext} --force || echo 'Failed to install ${ext}'"
       ) extensions)}
