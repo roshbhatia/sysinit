@@ -11,9 +11,8 @@ let
     in ''
       echo "Installing file: ${destPath}"
       mkdir -p -m 755 "$(dirname "${destPath}")"
-      rm -f "${destPath}"
-      install -v "${srcPath}" "${destPath}"
-      chmod 644 "${destPath}"
+      install -v "${srcPath}" "~/${destPath}"
+      chmod 644 "~/${destPath}"
     '';
     
   installScript = lib.concatMapStrings installFile installFiles;
