@@ -1,4 +1,24 @@
-{ config, pkgs, lib, inputs, username, homeDirectory, userConfig ? {}, ... }: {
+{ config, pkgs, lib, inputs, username, homeDirectory, userConfig ? {}, ... }: 
+let
+  installFiles = userConfig.install or [];
+  
+  # Function to install a single file
+  installFile = { source, destination }:
+    let
+      srcPath = if lib.strings.hasPrefix "/" source
+               then source
+               else toString (inputs.self + "/${source}");
+      destPath = toString destination;
+    in ''
+      echo "Installing file: ${destPath}"
+      mkdir -p "$(dirname "${destPath}")"
+      cp -f "${srcPath}" "${destPath}"
+      chmod 644 "${destPath}"
+    '';
+    
+  # Generate installation script for all files
+  installScript = lib.concatMapStrings installFile installFiles;
+in {
   imports = [
     inputs.home-manager.darwinModules.home-manager
     ./core/packages.nix
@@ -36,4 +56,9 @@
       home = { inherit username homeDirectory; };
     };
   };
+
+  system.activationScripts.postUserActivation.text = lib.mkIf (installFiles != []) ''
+    echo "Installing configured files..."
+    ${installScript}
+  '';
 }
