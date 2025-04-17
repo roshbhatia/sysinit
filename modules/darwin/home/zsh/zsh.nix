@@ -94,7 +94,6 @@ in
       ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE = "fg=#808080,bold,underline";
 
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git";
-      
       FZF_DEFAULT_OPTS=''
         --preview-window=right:55%:wrap:border-rounded
         --height=60%
@@ -115,10 +114,20 @@ in
         --bind 'tab:half-page-down'
         --bind 'resize:refresh-preview'
       '';
-
       FZF_CTRL_R_OPTS="";
       FZF_CTRL_T_COMMAND="";
       FZF_ALT_C_OPTS="";
+
+      ENHANCD_FILTER=''
+        fzf 
+        --preview 'eza -al --tree --level 1 --group-directories-first --git-ignore --header --git --no-user --no-time --no-filesize --no-permissions {}'
+        --preview-window right,50%
+        --height 35%
+        --reverse
+        --ansi
+        :fzy
+        :peco      
+      '';
 
       EDITOR="nvim";
       SUDO_EDITOR="$EDITOR";
