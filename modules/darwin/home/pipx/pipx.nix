@@ -19,9 +19,6 @@ in
 
       PIPX="/opt/homebrew/bin/pipx"
       if [ -x "$PIPX" ]; then
-        PIPX_OUTPUT=$("$PIPX" list || echo "nothing has been installed with pipx")
-        echo "$PIPX_OUTPUT"
-        
         PACKAGES="${lib.escapeShellArgs allPackages}"
         if [ -n "$PACKAGES" ]; then
           for package in $PACKAGES; do
