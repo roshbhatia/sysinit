@@ -35,6 +35,9 @@ let
             validateEntry = entry:
               if !(entry ? source) then throw "Install entry missing source path"
               else if !(entry ? destination) then throw "Install entry missing destination path"
+              else if builtins.typeOf entry.source != "path" then throw "Install entry source must be a path (e.g., ./path/to/file)"
+              else if !(lib.strings.hasPrefix "/" entry.destination || lib.strings.hasPrefix "." entry.destination) 
+                   then throw "Install entry destination must be an absolute path or start with ./ or .config/"
               else entry;
           in
           config // { install = map validateEntry config.install; }

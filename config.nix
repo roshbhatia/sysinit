@@ -41,8 +41,8 @@
 
   install = [
     {
-      source = "tests/01-nix-install-test.yaml";
-      destination = "/Users/rshnbhatia/.config/nix-test/nix-test.yaml";
+      source = ./tests/01-nix-install-test.yaml;  # Using Nix path syntax
+      destination = ".config/nix-test/nix-test.yaml";  # Using XDG config path
     }
   ];
 }
