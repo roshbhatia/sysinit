@@ -86,7 +86,7 @@
       };
       
       home = { username, homeDirectory ? "/Users/${username}", config ? {}, ... }: {
-        imports = [ ./modules/home ];
+        imports = [ ./modules/darwin/home ];
         home = { inherit username homeDirectory; };
         _module.args.userConfig = config;
       };
