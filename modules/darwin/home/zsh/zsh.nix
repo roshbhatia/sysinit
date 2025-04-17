@@ -218,7 +218,7 @@ in
     completionInit = ''
       zstyle ':completion:*' use-cache on
       zstyle ':completion:*' cache-path "$HOME/.zcompcache"
-
+      zstyle ':completion:*' list-colors $\{(s.:.)LS_COLORS}
       zstyle ':completion:*' menu no
       zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
 
@@ -247,18 +247,10 @@ in
     };
   };
 
-  home.activation.makeZshDirsExecutable = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    echo "Setting up zsh directory permissions..."
-    mkdir -p "$HOME/.config/zsh/extras/bin"
-    chmod 755 "$HOME/.config/zsh/extras"
-    chmod 755 "$HOME/.config/zsh/extras/bin"
-    
-    echo "Making zsh executables executable..."
-    if [ -d "$HOME/.config/zsh/bin" ]; then
-      chmod +x "$HOME/.config/zsh/bin/"*
-    fi
-    if [ -d "$HOME/.config/zsh/extras/bin" ]; then
-      chmod +x "$HOME/.config/zsh/extras/bin/"*
-    fi
+  home.activation.prepareZshDirs = lib.hm.dag.entryBefore ["checkLinkTargets"] ''
+    echo "Preparing zsh directories..."
+    rm -rf "$HOME/.config/zsh/extras" # Clean old symlinks
+    mkdir -p -m 755 "$HOME/.config/zsh/"{bin,extras,extras/bin}
+    chmod -R 755 "$HOME/.config/zsh"
   '';
 }
