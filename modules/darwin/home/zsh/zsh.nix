@@ -135,8 +135,8 @@ in
         src = pkgs.fetchFromGitHub {
           owner = "babarot";
           repo = "enhancd";
-          rev = "sha256-pKQbwiqE0KdmRDbHQcW18WfxyJSsKfymWt/TboY2iic=";
-          sha256 = "sha256-";
+          rev = "v2.5.1";
+          sha256 = "sha256-kaintLXSfLH7zdLtcoZfVNobCJCap0S/Ldq85wd3krI=";
         };
         file = "enhancd.plugin.zsh";
       }
