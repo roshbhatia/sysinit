@@ -15,7 +15,6 @@ let
   logLib = stripHeaders ./core/loglib.sh;
   paths = stripHeaders ./core/paths.sh;
   completion = stripHeaders ./core/completions.sh;
-  style = stripHeaders ./core/style.sh;
   fzf = stripHeaders ./core/fzf.sh;
   notifications = stripHeaders ./core/notifications.sh;
   shiftSelect = stripHeaders ./core/shift-select.sh;
@@ -31,9 +30,7 @@ let
     ${paths}
     
     ${completion}
-    
-    ${style}
-    
+        
     ${fzf}
     
     ${notifications}
