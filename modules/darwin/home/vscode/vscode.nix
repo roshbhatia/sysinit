@@ -65,7 +65,7 @@ in
 
       echo "🚀 Installing VSCode Insiders extensions..."
       ${builtins.concatStringsSep "\n" (map (ext: 
-        "/opt/homebrew/bin/code-insiders --install-extension ${ext} --force --force-node-api-uncaught-exceptions-policy=true || echo 'Failed to install ${ext}'"
+        "/opt/homebrew/bin/code-insiders --install-extension ${ext} --force || echo 'Failed to install ${ext}'"
       ) extensions)}
     '';
   };
