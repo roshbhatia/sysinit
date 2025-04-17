@@ -22,11 +22,11 @@
     after = [ "writeBoundary" ];
     before = [];
     data = ''
+      echo "Setting permissions for Neovim directories..."
       mkdir -p "$HOME/.local/share/nvim"
       chmod 755 "$HOME/.local/share/nvim"
       mkdir -p "$HOME/.config/nvim"
       chmod 755 "$HOME/.config/nvim"
-      echo "🚀 Neovim configuration is ready"
     '';
   };
 }
