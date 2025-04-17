@@ -142,10 +142,9 @@ in
         src = pkgs.fetchFromGitHub {
           owner = "mroth";
           repo = "evalcache";
-          rev = "v1.0.2";
-          sha256 = "0iqa9j09fwm6nj5rpip87x3hnvbbz9w9ajgm6wkrd5fls8fn8i5g";
+          rev = "4c7fb8d5b319ae177fead3ec666e316ff2e13b90";
+          sha256 = "0vvgq8125n7g59vx618prw1i4lg9h0sb5rd26mkax7nb78cnffmb";
         };
-        file = "evalcache.plugin.zsh";
       }
       {
         name = "fzf-tab";
