@@ -61,6 +61,7 @@ home.activation.installExtensions = {
     data = ''
       echo "Installing VSCode Insiders extensions..."
       export NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
+      export NODE_OPTIONS="--use-system-ca"
       
       extensions=(${builtins.concatStringsSep " " extensions})
       
