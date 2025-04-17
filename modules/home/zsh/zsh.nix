@@ -41,12 +41,6 @@ in
     historySubstringSearch.enable = true;
     # We need to install this manually due to fzf-tab needing to run first
     autosuggestion.enable = false;
-    
-     {
-      enable = ;
-      strategy = ["completion"];
-      highlight = "fg=#B4A7D6,bold";
-    };
 
     syntaxHighlighting.enable = false;
 
