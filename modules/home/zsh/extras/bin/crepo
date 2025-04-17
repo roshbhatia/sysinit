@@ -1,4 +1,5 @@
 #!/usr/bin/env zsh
+# Converted from core.main/crepo.sh to standalone executable
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
 
@@ -36,16 +37,10 @@ function _crepo_list_interactive() {
         --delimiter="|" | cut -d"|" -f1)
 
     if [[ -d "$target_path" ]]; then
-        \pushd "$target_path" || return
-        local scope=$(basename "$(dirname "$(dirname "$target_path")")")
-        local org=$(basename "$(dirname "$target_path")")
-        local name=$(basename "$target_path")
-        gum style \
-            --foreground 212 --border-foreground 212 --border double \
-            --align center --width 50 --margin "1 2" --padding "1 2" \
-            "Changed to repository:" \
-            "$(gum style --foreground 99 "$scope/$org/$name")"
+        echo "$target_path"
+        return 0
     fi
+    return 1
 }
 
 function _crepo_change_dir() {
@@ -79,16 +74,18 @@ function _crepo_change_dir() {
     fi
     
     if [[ -d "$target_path" ]]; then
-        \pushd "$target_path" || return
+        echo "$target_path"
         local scope=$(basename "$(dirname "$(dirname "$target_path")")")
         local org=$(basename "$(dirname "$target_path")")
         local name=$(basename "$target_path")
         gum style \
             --foreground 212 --border-foreground 212 --border double \
             --align center --width 50 --margin "1 2" --padding "1 2" \
-            "Changed to repository:" \
+            "Repository found:" \
             "$(gum style --foreground 99 "$scope/$org/$name")"
+        return 0
     fi
+    return 1
 }
 
 function _crepo_show_help() {
@@ -105,16 +102,20 @@ function _crepo_show_help() {
     echo "$(gum style --foreground 212 "  h, help")          $(gum style "Show this help message")"
 }
 
-# Main crepo function
-function crepo() {
+# Main crepo function - modified for use as standalone executable
+function main() {
     local REPO_BASE=~/github
     local workspace=""
+    local print_only=0
 
     # Parse options
-    while getopts ":w:" opt; do
+    while getopts ":w:p" opt; do
         case ${opt} in
             w)
                 workspace=$OPTARG
+                ;;
+            p)
+                print_only=1
                 ;;
             \?)
                 gum style --foreground 196 "Invalid option: -$OPTARG"
@@ -130,7 +131,7 @@ function crepo() {
     done
     shift $((OPTIND -1))
 
-    [[ ! -d "$REPO_BASE" ]] && { log_error "Repository base directory does not exist" path="$REPO_BASE"; return 1; }
+    [[ ! -d "$REPO_BASE" ]] && { echo "Repository base directory does not exist: $REPO_BASE" >&2; return 1; }
 
     case "$1" in
         list|l)
@@ -138,17 +139,34 @@ function crepo() {
             ;;
         d|cd)
             shift
-            _crepo_change_dir "$REPO_BASE" "$1" "$workspace"
+            local target_path=$(_crepo_change_dir "$REPO_BASE" "$1" "$workspace")
+            if [[ $print_only -eq 1 ]]; then
+                echo "$target_path"
+            elif [[ -n "$target_path" ]]; then
+                # When called as a script, we can't cd directly
+                # Instead, print a message about how to use this in shell functions
+                echo "To change directory, use: crepo() { local dir=\$(command crepo -p \"\$@\"); [[ -n \"\$dir\" ]] && pushd \"\$dir\"; }"
+            fi
             ;;
         h|help)
             _crepo_show_help
             ;;
         *)
             if [[ -n "$1" ]]; then
-                _crepo_change_dir "$REPO_BASE" "$1" "$workspace"
+                local target_path=$(_crepo_change_dir "$REPO_BASE" "$1" "$workspace")
+                if [[ $print_only -eq 1 ]]; then
+                    echo "$target_path"
+                elif [[ -n "$target_path" ]]; then
+                    echo "To change directory, use: crepo() { local dir=\$(command crepo -p \"\$@\"); [[ -n \"\$dir\" ]] && pushd \"\$dir\"; }"
+                fi
             else
                 _crepo_list_interactive "$REPO_BASE"
             fi
             ;;
     esac
 }
+
+# If being run directly, execute main function with arguments
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi

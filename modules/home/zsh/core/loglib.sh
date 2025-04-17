@@ -1,18 +1,6 @@
 #!/usr/bin/env zsh
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-#  888                                                     888 d8b 888      
-#  888                                                     888 Y8P 888      
-#  888                                                     888     888      
-#  888      .d88b.   .d88b.   .d88b.  888  888 888d888 .d88888 888 88888b.  
-#  888     d88""88b d88P"88b d88""88b 888  888 888P"  d88" 888 888 888 "88b 
-#  888     888  888 888  888 888  888 888  888 888    888  888 888 888  888 
-#  888     Y88..88P Y88b 888 Y88..88P Y88b 888 888    Y88b 888 888 888 d88P 
-#  88888888 "Y88P"   "Y88888  "Y88P"   "Y88888 888     "Y88888 888 88888P"  
-#                        888                                        888      
-#                   Y8b d88P                                        888      
-#                    "Y88P"                                         888      
-
 # Colors
 COLOR_RESET="\033[0m"
 COLOR_BLACK="\033[0;30m"
