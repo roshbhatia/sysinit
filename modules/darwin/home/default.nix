@@ -32,6 +32,7 @@ in {
     ./git/git.nix
     ./npm/npm.nix
     ./pipx/pipx.nix
+    ./go/go.nix
     ./zsh/zsh.nix
     ./atuin/atuin.nix
     ./colima/colima.nix
