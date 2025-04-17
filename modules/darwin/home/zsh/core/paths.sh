@@ -17,7 +17,6 @@ path.add.safe() {
   fi
 }
 
-# Add all directories to PATH
 paths=(
   "/usr/local/opt/cython/bin"
   "$HOME/.cargo/bin"
@@ -25,11 +24,9 @@ paths=(
   "$HOME/.config/zsh/bin"
   "$HOME/.govm/shim"
   "$HOME/.krew/bin"
-  "$HOME/.local/bin"
   "$HOME/.npm-global/bin"
   "$HOME/.rvm/bin"
   "$HOME/.yarn/bin"
-  "$HOME/bin"
   "$(go env GOPATH)/bin"
 )
 
