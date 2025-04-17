@@ -10,8 +10,7 @@
     useGlobalPkgs = true;
     useUserPackages = true;
     extraSpecialArgs = { 
-      inherit inputs username homeDirectory; 
-      userConfig = config; 
+      inherit inputs username homeDirectory userConfig; 
     };
     users.${username} = { pkgs, ... }: {
       imports = [ ./home ];

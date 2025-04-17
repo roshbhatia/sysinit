@@ -23,19 +23,16 @@ in {
     ./core/packages.nix
     ./environment/environment.nix
     ./wallpaper/wallpaper.nix
-
+    ./git/git.nix
     ./npm/npm.nix
     ./pipx/pipx.nix
-
     ./zsh/zsh.nix
     ./atuin/atuin.nix
-    ./nushell/nushell.nix
+    ./colima/colima.nix  # Added Colima module import
 
-    ./git/git.nix
     ./neovim/neovim.nix
     ./vscode/vscode.nix
     
-    ./colima/colima.nix
     ./k9s/k9s.nix
 
     ./aerospace/aerospace.nix
