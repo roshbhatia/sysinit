@@ -1,4 +1,5 @@
 {
+  "http.proxyStrictSSL": false,
   "[html]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
