@@ -45,11 +45,20 @@
         ./modules/darwin/default.nix
         { 
           networking.hostName = hostname;
-          home-manager.users.${username}.home.stateVersion = "23.11";
+          home-manager = {
+            useGlobalPkgs = true;
+            useUserPackages = true;
+            users.${username} = {
+              home = {
+                stateVersion = "23.11";
+                username = username;
+                homeDirectory = homeDirectory;
+              };
+            };
+          };
         }
       ];
     };
-
   in {
     darwinConfigurations = {
       default = mkDarwinConfig {};
