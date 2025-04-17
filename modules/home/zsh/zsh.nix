@@ -127,6 +127,7 @@ in
           owner = "Aloxaf";
           repo = "fzf-tab";
           rev = "v1.2.0";
+          sha256 = "sha256-q26XVS/LcyZPRqDNwKKA9exgBByE0muyuNb0Bbar2lY=";
         };
         file = "fzf-tab.plugin.zsh";
       }
@@ -136,6 +137,7 @@ in
           owner = "zdharma-continuum";
           repo = "fast-syntax-highlighting";
           rev = "cf318e06a9b7c9f2219d78f41b46fa6e06011fd9";
+          sha256 = "sha256-RVX9ZSzjBW3LpFs2W86lKI6vtcvDWP6EPxzeTcRZua4=";
         };
         file = "fast-syntax-highlighting.plugin.zsh";
       }
@@ -145,6 +147,7 @@ in
           owner = "zsh-users";
           repo = "zsh-autosuggestions";
           rev = "0e810e5afa27acbd074398eefbe28d13005dbc15";
+          sha256 = "sha256-85aw9OM2pQPsWklXjuNOzp9El1MsNb+cIiZQVHUzBnk=";
         };
         file = "zsh-autosuggestions.plugin.zsh";
       }
@@ -154,6 +157,7 @@ in
           owner = "babarot";
           repo = "enhancd";
           rev = "v2.5.1";
+          sha256 = "sha256-kaintLXSfLH7zdLtcoZfVNobCJCap0S/Ldq85wd3krI=";
         };
         file = "enhancd.plugin.zsh";
       }
@@ -163,6 +167,7 @@ in
           owner = "mroth";
           repo = "evalcache";
           rev = "4c7fb8d5b319ae177fead3ec666e316ff2e13b90";
+          sha256 = "sha256-qzpnGTrLnq5mNaLlsjSA6VESA88XBdN3Ku/YIgLCb28=";
         };
       }
     ];
