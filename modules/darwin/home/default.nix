@@ -20,7 +20,6 @@ let
   installScript = lib.concatMapStrings installFile installFiles;
 in {
   imports = [
-    inputs.home-manager.darwinModules.home-manager
     ./core/packages.nix
     ./environment/environment.nix
     ./wallpaper/wallpaper.nix
@@ -43,19 +42,6 @@ in {
     ./macchina/macchina.nix
     ./wezterm/wezterm.nix
   ];
-
-  home-manager = {
-    useGlobalPkgs = true;
-    useUserPackages = true;
-    extraSpecialArgs = { 
-      inherit inputs username homeDirectory; 
-      userConfig = config; 
-    };
-    backupFileExtension = "backup";
-    users.${username} = { 
-      home = { inherit username homeDirectory; };
-    };
-  };
 
   system.activationScripts.postUserActivation.text = lib.mkIf (installFiles != []) ''
     echo "Installing configured files..."
