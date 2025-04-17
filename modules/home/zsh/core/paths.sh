@@ -22,7 +22,7 @@ paths=(
   "/usr/local/opt/cython/bin"
   "$HOME/.cargo/bin"
   "$HOME/.config/yarn/global/node_modules/.bin"
-  "$HOME/.config/zsh/extras/bin"
+  "$HOME/.config/zsh/bin"
   "$HOME/.govm/shim"
   "$HOME/.krew/bin"
   "$HOME/.local/bin"
@@ -30,8 +30,6 @@ paths=(
   "$HOME/.rvm/bin"
   "$HOME/.yarn/bin"
   "$HOME/bin"
-  "opt/homebrew/opt/gettext/bin"
-
   "$(go env GOPATH)/bin"
 )
 
