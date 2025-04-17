@@ -60,4 +60,4 @@ in {
 
   # Add files to home.file
   home.file = fileAttrs.homeFiles;
-}code 
+}
