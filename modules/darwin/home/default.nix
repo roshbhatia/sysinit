@@ -1,5 +1,6 @@
 { config, pkgs, lib, inputs, username, homeDirectory, userConfig ? {}, ... }: {
   imports = [
+    inputs.home-manager.darwinModules.home-manager
     ./core/packages.nix
     ./environment/environment.nix
     ./wallpaper/wallpaper.nix
@@ -23,11 +24,16 @@
     ./wezterm/wezterm.nix
   ];
 
-  programs.home-manager.enable = true;
-
-  home = {
-    username = username;
-    homeDirectory = homeDirectory;
-    stateVersion = "23.11";
+  home-manager = {
+    useGlobalPkgs = true;
+    useUserPackages = true;
+    extraSpecialArgs = { 
+      inherit inputs username homeDirectory; 
+      userConfig = config; 
+    };
+    backupFileExtension = "backup";
+    users.${username} = { 
+      home = { inherit username homeDirectory; };
+    };
   };
 }
