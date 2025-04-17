@@ -44,7 +44,7 @@
         enableHomebrew = true;
       };
       modules = [
-        ./modules/darwin/darwin.nix
+        ./modules/darwin/default.nix
         
         home-manager.darwinModules.home-manager {
           home-manager = {
@@ -77,7 +77,7 @@
     
     darwinModules = {
       default = { username, homeDirectory ? "/Users/${username}", config ? {}, ... }: {
-        imports = [ ./modules/darwin/darwin.nix ];
+        imports = [ ./modules/darwin/default.nix ];
         _module.args = {
           inherit username homeDirectory inputs;
           userConfig = config;
