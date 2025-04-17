@@ -13,7 +13,6 @@ let
       configPath = lib.removePrefix ".config/" relPath;
       homePath = relPath;
       isExecutable = lib.strings.hasInfix "/bin/" entry.destination
-                    || lib.strings.hasInfix "/extras/bin/" entry.destination
                     || lib.strings.hasSuffix ".sh" entry.source 
                     || lib.strings.hasSuffix ".expect" entry.source
                     || !(lib.strings.hasInfix "." entry.source);
