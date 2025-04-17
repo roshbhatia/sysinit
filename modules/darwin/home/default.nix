@@ -2,7 +2,6 @@
 let
   installFiles = userConfig.install or [];
   
-  # Function to install a single file
   installFile = { source, destination }:
     let
       srcPath = if lib.strings.hasPrefix "/" source
@@ -11,11 +10,12 @@ let
       destPath = toString destination;
     in ''
       echo "Installing file: ${destPath}"
-      mkdir -p "$(dirname "${destPath}")"
-      ln -s "${srcPath}" "${destPath}"
+      mkdir -p -m 755 "$(dirname "${destPath}")"
+      rm -f "${destPath}"
+      install -v "${srcPath}" "${destPath}"
+      chmod 644 "${destPath}"
     '';
     
-  # Generate installation script for all files
   installScript = lib.concatMapStrings installFile installFiles;
 in {
   imports = [
@@ -27,13 +27,10 @@ in {
     ./pipx/pipx.nix
     ./zsh/zsh.nix
     ./atuin/atuin.nix
-    ./colima/colima.nix  # Added Colima module import
-
+    ./colima/colima.nix
     ./neovim/neovim.nix
     ./vscode/vscode.nix
-    
     ./k9s/k9s.nix
-
     ./aerospace/aerospace.nix
     ./macchina/macchina.nix
     ./wezterm/wezterm.nix
@@ -41,7 +38,7 @@ in {
 
   home.activation.installFiles = lib.mkIf (installFiles != []) (
     lib.hm.dag.entryAfter ["writeBoundary"] ''
-      echo "Installing configured files..."
+      echo "Installing config.nix specific files..."
       ${installScript}
     ''
   );
