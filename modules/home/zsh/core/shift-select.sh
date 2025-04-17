@@ -1,7 +1,6 @@
 #!/usr/bin/env zsh
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-
 # Modified version of https://github.com/jirutka/zsh-shift-select/blob/master/zsh-shift-select.plugin.zsh
 # vim: set ts=4:
 # Copyright 2022-present Jakub Jirutka <jakub@jirutka.cz>.

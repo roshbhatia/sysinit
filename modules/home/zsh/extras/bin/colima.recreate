@@ -1,4 +1,5 @@
 #!/usr/bin/env zsh
+# Converted from core.main/colima.sh to standalone executable
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
 
@@ -102,3 +103,8 @@ colima.recreate() {
 
     gum style --foreground "#00ff00" "✓ Colima setup completed successfully"
 }
+
+# If being run directly, execute main function with arguments
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    colima.recreate "$@"
+fi
