@@ -60,8 +60,9 @@ in
     before = [];
     data = ''
       echo "🚀 Installing VSCode Insiders extensions..."
+      export NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
       ${builtins.concatStringsSep "\n" (map (ext: 
-        "NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt /opt/homebrew/bin/code-insiders --install-extension ${ext} --force || (echo 'Failed to install ${ext}' && exit 1)"
+        /opt/homebrew/bin/code-insiders --install-extension ${ext} --force || (echo 'Failed to install ${ext}' && exit 1)"
       ) extensions)}
       
       echo "📁 Copying VS Code configuration files..."
