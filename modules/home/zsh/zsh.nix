@@ -37,7 +37,8 @@ in
   programs.zsh = {
     enable = true;
     autocd = true;
-    enableCompletion = true;
+    # We use fzf-tab
+    enableCompletion = false;
     historySubstringSearch.enable = true;
     autosuggestion = {
       enable = true;
