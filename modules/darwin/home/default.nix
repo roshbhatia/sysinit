@@ -11,9 +11,9 @@ let
       destPath = toString destination;
     in ''
       echo "Installing file: ${destPath}"
-      mkdir -p "$(dirname "${destPath}")"
-      cp -f "${srcPath}" "${destPath}"
-      chmod 644 "${destPath}"
+      sudo mkdir -p "$(dirname "${destPath}")"
+      sudo cp -f "${srcPath}" "${destPath}"
+      sudo chmod 644 "${destPath}"
     '';
     
   # Generate installation script for all files
