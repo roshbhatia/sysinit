@@ -27,11 +27,10 @@
 
 ```bash
 # Install dependencies
-./install-deps.sh
+task setup
 
 # Resolve perms issues.
-sudo chown -R $(whoami):staff /nix
-sudo chown -R $(whoami):staff $HOME
+task perms
 
 # Build and activate
 task refresh
