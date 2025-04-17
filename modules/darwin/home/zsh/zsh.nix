@@ -17,6 +17,7 @@ let
   bindings = stripHeaders ./core/bindings.sh;
   completions = stripHeaders ./core/completions.sh;
   kubectl = stripHeaders ./core/kubectl.sh;
+  crepo = stripHeaders ./core/crepo.sh;
   prompt = stripHeaders ./core/prompt.sh;
 
   combinedCoreScripts = ''
@@ -29,6 +30,8 @@ let
     ${bindings}
                             
     ${kubectl}
+
+    ${crepo}
     
     ${prompt}
   '';
@@ -200,7 +203,7 @@ in
     
     initExtra = ''
       ${combinedCoreScripts}
-      
+    
       if [[ -d "$HOME/.config/zsh/extras" ]]; then
         for file in "$HOME/.config/zsh/extras/"*.sh(N); do
           if [[ -f "$file" ]]; then
