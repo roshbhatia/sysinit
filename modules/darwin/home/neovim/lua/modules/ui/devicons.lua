@@ -28,27 +28,6 @@ M.plugins = {
 }
 
 function M.setup()
-  local status, wk = pcall(require, "which-key")
-  -- if status then
-  --   wk.add({
-  --     { "<leader>i", group = "🎨 Icons" },
-  --     { "<leader>is", function()
-  --         local icons_status, icons = pcall(require, 'nvim-web-devicons')
-  --         if not icons_status then
-  --           vim.notify("nvim-web-devicons not available", vim.log.levels.ERROR)
-  --           return
-  --         end
-          
-  --         local all_icons = icons.get_icons()
-  --         if all_icons then
-  --           vim.api.nvim_echo({{vim.inspect(all_icons), "Normal"}}, true, {})
-  --         else
-  --           vim.notify("No icons available", vim.log.levels.WARN)
-  --         end
-  --       end, desc = "Show All DevIcons", mode = "n" },
-  --   })
-  -- end
-  
   vim.api.nvim_create_user_command("ShowDevIcons", function()
     local icons_status, icons = pcall(require, 'nvim-web-devicons')
     if not icons_status then
