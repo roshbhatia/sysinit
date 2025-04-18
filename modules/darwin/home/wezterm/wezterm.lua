@@ -1,7 +1,6 @@
 local wezterm = require('wezterm')
 local act = wezterm.action
 local config = wezterm.config_builder()
-local smart_splits = wezterm.plugin.require('https://github.com/mrjones2014/smart-splits.nvim')
 
 -- Shell configuration
 config.default_prog = { '/bin/zsh', '-l' }
@@ -20,7 +19,12 @@ config.window_padding = {
 
 config.enable_scroll_bar = true
 config.scrollback_lines = 20000
+config.window_background_opacity = 0.85
+config.macos_window_background_blur = 50
+config.window_decorations = 'RESIZE'
+config.window_close_confirmation = 'NeverPrompt'
 
+-- Visual bell
 config.visual_bell = {
     fade_in_function = 'EaseIn',
     fade_in_duration_ms = 35,
@@ -28,23 +32,19 @@ config.visual_bell = {
     fade_out_duration_ms = 50
 }
 
-config.color_scheme = "Abernathy"
-
 config.colors = {
     visual_bell = '#242529',
 }
 
-config.window_background_opacity = 0.85
-config.macos_window_background_blur = 50
-config.window_decorations = 'RESIZE'
+-- Theme
+config.color_scheme = "Abernathy"
 
--- Font configuration: use single primary font with symbol fallback for consistent metrics
+-- Font configuration
 config.font = wezterm.font_with_fallback({
   { family = 'Hack Nerd Font Mono', weight = 'Medium', harfbuzz_features = {'zero', 'ss01', 'liga'} },
   'Symbols Nerd Font',
 })
 config.font_size = 12.0
--- Adjust line height for consistent vertical spacing
 config.line_height = 1.0
 
 -- Cursor settings
@@ -56,25 +56,60 @@ config.enable_tab_bar = true
 config.hide_tab_bar_if_only_one_tab = false
 config.use_fancy_tab_bar = false
 
-config.window_close_confirmation = 'NeverPrompt'
+-- Smart splits implementation
+local function is_vim(pane)
+  return pane:get_user_vars().IS_NVIM == 'true'
+end
 
-smart_splits.apply_to_config(config, {
-    -- directional keys to use in order of: left, down, up, right
-    direction_keys = { 'h', 'j', 'k', 'l' },
-    -- modifier keys to combine with direction_keys
-    modifiers = {
-        move = 'CTRL', -- modifier for pane movement
-        resize = 'CTRL|SHIFT', -- modifier for pane resize
-    },
-})
+local direction_keys = {
+  h = 'Left',
+  j = 'Down',
+  k = 'Up',
+  l = 'Right',
+}
 
--- Disable defaults here
+local function split_nav(resize_or_move, key)
+  return {
+    key = key,
+    mods = resize_or_move == 'resize' and 'CTRL|SHIFT' or 'CTRL',
+    action = wezterm.action_callback(function(win, pane)
+      if is_vim(pane) then
+        win:perform_action({
+          SendKey = { key = key, mods = resize_or_move == 'resize' and 'CTRL|SHIFT' or 'CTRL' },
+        }, pane)
+      else
+        if resize_or_move == 'resize' then
+          win:perform_action({ AdjustPaneSize = { direction_keys[key], 3 } }, pane)
+        else
+          win:perform_action({ ActivatePaneDirection = direction_keys[key] }, pane)
+        end
+      end
+    end),
+  }
+end
+
+-- Disable defaults
 config.disable_default_key_bindings = true
 
+-- Key bindings
 config.keys = {
-    -- Your custom keybindings
+    -- Split navigation
+    split_nav('move', 'h'),
+    split_nav('move', 'j'),
+    split_nav('move', 'k'),
+    split_nav('move', 'l'),
+    
+    -- Resize panes
+    split_nav('resize', 'h'),
+    split_nav('resize', 'j'),
+    split_nav('resize', 'k'),
+    split_nav('resize', 'l'),
+    
+    -- Split creation
     { key = 's', mods = 'CMD|SHIFT', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
     { key = 'v', mods = 'CMD|SHIFT', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
+    
+    -- Common actions
     { key = 'k', mods = 'CMD', action = act.ClearScrollback 'ScrollbackAndViewport' },
     { key = 'p', mods = 'CMD|SHIFT', action = act.ActivateCommandPalette },
     { key = 'y', mods = 'CMD', action = act.ActivateCopyMode },
@@ -113,19 +148,19 @@ config.keys = {
     { key = 'Enter', mods = 'ALT', action = act.ToggleFullScreen },
     { key = 'Space', mods = 'CTRL|SHIFT', action = act.QuickSelect },
 
-    -- Pane navigation
+    -- Alternative pane navigation
     { key = 'LeftArrow', mods = 'CMD|SHIFT', action = act.ActivatePaneDirection 'Left' },
     { key = 'RightArrow', mods = 'CMD|SHIFT', action = act.ActivatePaneDirection 'Right' },
     { key = 'UpArrow', mods = 'CMD|SHIFT', action = act.ActivatePaneDirection 'Up' },
     { key = 'DownArrow', mods = 'CMD|SHIFT', action = act.ActivatePaneDirection 'Down' },
 
-    -- Pane resizing
+    -- Alternative pane resizing
     { key = 'LeftArrow', mods = 'CMD|SHIFT|ALT', action = act.AdjustPaneSize{ 'Left', 1 } },
     { key = 'RightArrow', mods = 'CMD|SHIFT|ALT', action = act.AdjustPaneSize{ 'Right', 1 } },
     { key = 'UpArrow', mods = 'CMD|SHIFT|ALT', action = act.AdjustPaneSize{ 'Up', 1 } },
     { key = 'DownArrow', mods = 'CMD|SHIFT|ALT', action = act.AdjustPaneSize{ 'Down', 1 } },
 
-    -- Pane/viewport scroll
+    -- Viewport scroll
     { key = 'PageUp', mods = 'SHIFT', action = act.ScrollByPage(-1) },
     { key = 'PageDown', mods = 'SHIFT', action = act.ScrollByPage(1) },
 
@@ -133,7 +168,7 @@ config.keys = {
     { key = 'z', mods = 'CMD|SHIFT', action = act.TogglePaneZoomState },
 }
 
--- Keep the copy_mode and search_mode key tables (modified for Mac)
+-- Copy mode and search mode key tables
 config.key_tables = {
     copy_mode = {
         { key = 'Tab', mods = 'NONE', action = act.CopyMode 'MoveForwardWord' },
@@ -188,7 +223,7 @@ config.key_tables = {
         { key = 'RightArrow', mods = 'ALT', action = act.CopyMode 'MoveForwardWord' },
         { key = 'UpArrow', mods = 'NONE', action = act.CopyMode 'MoveUp' },
         { key = 'DownArrow', mods = 'NONE', action = act.CopyMode 'MoveDown' },
-    }
+    },
 
     search_mode = {
         { key = 'Enter', mods = 'NONE', action = act.CopyMode 'PriorMatch' },
@@ -204,6 +239,7 @@ config.key_tables = {
     }
 }
 
+-- Startup behavior
 wezterm.on("gui-startup", function()
     local tab, pane, window = wezterm.mux.spawn_window {}
     window:gui_window():maximize()
@@ -215,10 +251,6 @@ local function get_appearance()
         return wezterm.gui.get_appearance()
     end
     return 'Dark'
-end
-
-local function is_dark_mode()
-    return get_appearance():find('Dark') and true or false
 end
 
 -- Define powerline characters
@@ -256,6 +288,7 @@ local function segments_for_right_status(window)
     return segments
 end
 
+-- Update status event
 wezterm.on('update-status', function(window, _)
     local segments = segments_for_right_status(window)
     local elements = {}
