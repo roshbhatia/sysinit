@@ -116,17 +116,11 @@ M.plugins = {
 
 function M.setup()
   -- Register with which-key if available
-  local status, wk = pcall(require, "which-key")
-  if status then
-    wk.add({
-      { "<leader>P", "<cmd>Alpha<CR>", desc = "Open Homepage" },
-    })
-  else
-    -- Fallback mapping if which-key not available
-    vim.api.nvim_set_keymap("n", "<leader>P", "<cmd>Alpha<CR>", { silent = true })
-  end
+  local wk = pcall(require, "which-key")
+  wk.add({
+    { "<leader>P", "<cmd>Alpha<CR>", desc = "Open Homepage" },
+  })
 
-  -- Define highlight groups for alpha
   vim.api.nvim_create_autocmd("ColorScheme", {
     pattern = "*",
     callback = function()
@@ -145,8 +139,11 @@ function M.setup()
   vim.api.nvim_create_autocmd("FileType", {
     pattern = "alpha",
     callback = function()
-      vim.g.trouble_was_open = require("trouble").is_open()
-      require("trouble").close()
+      local status, tb = pcall(require, "trouble")
+      if status then
+        vim.g.trouble_was_open = tb.is_open()
+        tb.close()
+      end
       vim.opt_local.scrolloff = 0
       vim.opt_local.sidescrolloff = 0
     end,
@@ -155,9 +152,12 @@ function M.setup()
   vim.api.nvim_create_autocmd("BufLeave", {
     pattern = "*",
     callback = function()
-      if vim.bo.filetype == "alpha" and vim.g.trouble_was_open then
-        require("trouble").open()
-        vim.g.trouble_was_open = false
+      local status, tb = pcall(require, "trouble")
+      if status then
+        if vim.bo.filetype == "alpha" and vim.g.trouble_was_open then
+          tb.open()
+          vim.g.trouble_was_open = false
+        end
       end
     end,
   })
