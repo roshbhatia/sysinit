@@ -18,16 +18,42 @@ tasks:
 
   perms:
     desc: Fix permissions for /nix and home directories using parallel processing
+    vars:
+      IGNORE_PATTERNS: &ignore_patterns
+        - ".DS_Store"
+        - "*.lock"
+        - "node_modules"
+        - ".git"
+        - "OrbStack*"
     cmds:
       - |
-        echo "Fixing /nix permissions..."
-        fd . /nix -t f -t d -E ".DS_Store" -E "*.lock" --owner "!$USER" -x sudo chown -v "$USER:staff" {} \;
+        fix_permissions() {
+          local dir="$1"
+          local message="$2"
+          shift 2
+          local ignore_args=()
+          
+          # Add common ignore patterns
+          for pattern in "${IGNORE_PATTERNS[@]}"; do
+            ignore_args+=("-E" "$pattern")
+          done
+          
+          # Add additional patterns if provided
+          for pattern in "$@"; do
+            ignore_args+=("-E" "$pattern")
+          done
+          
+          echo "$message"
+          fd . "$dir" -t f -t d "${ignore_args[@]}" --owner "!$USER" -x sudo chown -v "$USER:staff" {}
+        }
         
-        echo "Fixing /opt/homebrew permissions..."
-        fd . /opt/homebrew -t f -t d -E ".DS_Store" -E "*.lock" --owner "!$USER" -x sudo chown -v "$USER:staff" {} \;
-
-        echo "Fixing home directory permissions..."
-        fd . "$HOME" -t f -t d -E ".DS_Store" -E "node_modules" -E ".git" -E "*.lock" --owner "!$USER" -x sudo chown -v "$USER:staff" {} \;
+        # Define common ignore patterns
+        IGNORE_PATTERNS=({{range .IGNORE_PATTERNS}}"{{.}}" {{end}})
+        
+        # Fix permissions for each directory
+        fix_permissions "/nix" "Fixing /nix permissions..."
+        fix_permissions "/opt/homebrew/opt" "Fixing /opt/homebrew/opt permissions..."
+        fix_permissions "$HOME" "Fixing home directory permissions..." "node_modules" ".git"
     silent: true
 
   uninstall-nix:
