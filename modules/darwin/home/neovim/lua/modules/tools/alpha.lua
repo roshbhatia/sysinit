@@ -115,7 +115,6 @@ M.plugins = {
 }
 
 function M.setup()
-  -- Register with which-key if available
   local wk = require("which-key")
   wk.add({
     { "<leader>P", "<cmd>Alpha<CR>", desc = "Open Homepage" },
@@ -131,34 +130,6 @@ function M.setup()
       vim.api.nvim_set_hl(0, "ProfileGreen", { fg = "#98c379", bold = true })
       vim.api.nvim_set_hl(0, "ProfileYellow", { fg = "#e5c07b", bold = true })
       vim.api.nvim_set_hl(0, "ProfileRed", { fg = "#e06c75", bold = true })
-    end,
-  })
-
-  vim.g.trouble_was_open = false
-
-  vim.api.nvim_create_autocmd("FileType", {
-    pattern = "alpha",
-    callback = function()
-      local status, tb = pcall(require, "trouble")
-      if status then
-        vim.g.trouble_was_open = tb.is_open()
-        tb.close()
-      end
-      vim.opt_local.scrolloff = 0
-      vim.opt_local.sidescrolloff = 0
-    end,
-  })
-
-  vim.api.nvim_create_autocmd("BufLeave", {
-    pattern = "*",
-    callback = function()
-      local status, tb = pcall(require, "trouble")
-      if status then
-        if vim.bo.filetype == "alpha" and vim.g.trouble_was_open then
-          tb.open()
-          vim.g.trouble_was_open = false
-        end
-      end
     end,
   })
 end

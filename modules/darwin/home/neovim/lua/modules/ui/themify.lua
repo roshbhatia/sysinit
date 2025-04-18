@@ -49,7 +49,6 @@ M.plugins = {
 }
 
 function M.setup()
-  -- Register with which-key if available
   local wk = require("which-key")
   wk.add({
     { "<leader>t", group = "🎨 Theme", icon = { icon = "🎨" } },
