@@ -182,7 +182,7 @@ M.plugins = {
 
 function M.setup()
   -- Register keymaps with which-key if available
-  local wk = pcall(require, "which-key")
+  local wk = require("which-key")
   wk.add({
     { "<leader>d", group = "📊 Dropbar" },
     { "<leader>dp", function() require("dropbar.api").pick() end, desc = "Pick Symbols in Winbar", mode = "n" },
