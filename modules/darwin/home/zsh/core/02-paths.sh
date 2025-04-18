@@ -1,5 +1,4 @@
 #!/usr/bin/env zsh
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
 path.print() {
   echo "$PATH" | tr ':' '\n' | bat --style=numbers,grid
@@ -33,3 +32,25 @@ paths=(
 for dir in "${paths[@]}"; do
   path.add.safe "$dir"
 done
+
+if [[ -d "$HOME/.config/zsh/extras" ]]; then
+  for file in "$HOME/.config/zsh/extras/"*.sh(N); do
+    if [[ -f "$file" ]]; then
+      if [[ -n "$SYSINIT_DEBUG" ]]; then
+        log_debug "Sourcing file" path="$file"
+        source "$file"
+      else
+        source "$file"
+      fi
+    fi
+  done
+fi
+
+if [[ -f "$HOME/.zshsecrets" ]]; then
+  if [[ -n "$SYSINIT_DEBUG" ]]; then
+    log_debug "Sourcing secrets file" path="$HOME/.zshsecrets"
+    source "$HOME/.zshsecrets"
+  else
+    source "$HOME/.zshsecrets"
+  fi
+fi

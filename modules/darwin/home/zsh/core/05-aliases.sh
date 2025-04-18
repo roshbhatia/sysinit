@@ -1,6 +1,28 @@
 #!/usr/bin/env zsh
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
+alias "....." = "cd ../../../..";
+alias "...." = "cd ../../..";
+alias "..." = "cd ../..";
+alias ".." = "cd ..";
+alias "~" = "cd ~";
+
+alias code = "code-insiders";
+alias kubectl = "kubecolor";
+
+alias l = "eza --icons=always -1";
+alias la = "eza --icons=always -1 -a";
+alias ll = "eza --icons=always -1 -a";
+alias ls = "eza";
+alias lt = "eza --icons=always -1 -a -T";
+
+alias tf = "terraform";
+alias y = "yazi";
+
+alias vim = "nvim";
+alias vi = "nvim";
+      
+alias sudo = "sudo -E";
+
 compdef _kubectl kubecolor
 compdef _kubectl k
 

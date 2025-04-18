@@ -1,5 +1,4 @@
 #!/usr/bin/env zsh
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
 # This file hooks up shell integration for wezterm.
 # It is suitable for zsh and bash.
