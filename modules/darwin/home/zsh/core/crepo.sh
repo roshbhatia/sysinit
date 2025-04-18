@@ -169,7 +169,7 @@ function crepo() {
     fi
     
     if [[ -n "$target_path" ]] && [[ -d "$target_path" ]]; then
-        builtin cd "$target_path" || return 1
+        builtin pushd "$target_path" > /dev/null || return 1
         return 0
     fi
     return 1
