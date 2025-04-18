@@ -182,20 +182,13 @@ M.plugins = {
 
 function M.setup()
   -- Register keymaps with which-key if available
-  local status, wk = pcall(require, "which-key")
-  if status then
-    wk.add({
-      { "<leader>d", group = "📊 Dropbar" },
-      { "<leader>dp", function() require("dropbar.api").pick() end, desc = "Pick Symbols in Winbar", mode = "n" },
-      { "<leader>dg", function() require("dropbar.api").goto_context_start() end, desc = "Go to Context Start", mode = "n" },
-      { "<leader>dn", function() require("dropbar.api").select_next_context() end, desc = "Select Next Context", mode = "n" },
-    })
-  else
-    -- Default keymaps if which-key is not available
-    vim.keymap.set('n', '<Leader>dp', function() require('dropbar.api').pick() end, { desc = 'Pick symbols in winbar' })
-    vim.keymap.set('n', '<Leader>dg', function() require('dropbar.api').goto_context_start() end, { desc = 'Go to start of current context' })
-    vim.keymap.set('n', '<Leader>dn', function() require('dropbar.api').select_next_context() end, { desc = 'Select next context' })
-  end
+  local wk = pcall(require, "which-key")
+  wk.add({
+    { "<leader>d", group = "📊 Dropbar" },
+    { "<leader>dp", function() require("dropbar.api").pick() end, desc = "Pick Symbols in Winbar", mode = "n" },
+    { "<leader>dg", function() require("dropbar.api").goto_context_start() end, desc = "Go to Context Start", mode = "n" },
+    { "<leader>dn", function() require("dropbar.api").select_next_context() end, desc = "Select Next Context", mode = "n" },
+  })
 
   -- Create highlight link groups to match theme
   vim.api.nvim_create_autocmd("ColorScheme", {

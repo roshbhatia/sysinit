@@ -133,82 +133,18 @@ M.plugins = {
 
 function M.setup()
   -- Register keymaps with which-key if available
-  local status, wk = pcall(require, "which-key")
-  if status then
-    wk.add({
-      { "<A-,>", "<cmd>BufferPrevious<CR>", desc = "Previous Buffer" },
-      { "<A-.>", "<cmd>BufferNext<CR>", desc = "Next Buffer" },
-      
-      { "<A-<>", "<cmd>BufferMovePrevious<CR>", desc = "Move Buffer Left" },
-      { "<A->>", "<cmd>BufferMoveNext<CR>", desc = "Move Buffer Right" },
-      
-      { "<A-1>", "<cmd>BufferGoto 1<CR>", desc = "Buffer 1" },
-      { "<A-2>", "<cmd>BufferGoto 2<CR>", desc = "Buffer 2" },
-      { "<A-3>", "<cmd>BufferGoto 3<CR>", desc = "Buffer 3" },
-      { "<A-4>", "<cmd>BufferGoto 4<CR>", desc = "Buffer 4" },
-      { "<A-5>", "<cmd>BufferGoto 5<CR>", desc = "Buffer 5" },
-      { "<A-6>", "<cmd>BufferGoto 6<CR>", desc = "Buffer 6" },
-      { "<A-7>", "<cmd>BufferGoto 7<CR>", desc = "Buffer 7" },
-      { "<A-8>", "<cmd>BufferGoto 8<CR>", desc = "Buffer 8" },
-      { "<A-9>", "<cmd>BufferGoto 9<CR>", desc = "Buffer 9" },
-      { "<A-0>", "<cmd>BufferLast<CR>", desc = "Last Buffer" },
-      
-      { "<A-p>", "<cmd>BufferPin<CR>", desc = "Pin/Unpin Buffer" },
-      { "<A-c>", "<cmd>BufferClose<CR>", desc = "Close Buffer" },
-      { "<C-p>", "<cmd>BufferPick<CR>", desc = "Pick Buffer" },
-      
-      { "<leader>b", group = "📑 Buffer", icon = { icon = "📑" } },
-      { "<leader>bb", "<cmd>BufferOrderByBufferNumber<CR>", desc = "Order by Buffer Number" },
-      { "<leader>bd", "<cmd>BufferOrderByDirectory<CR>", desc = "Order by Directory" },
-      { "<leader>bn", "<cmd>BufferOrderByName<CR>", desc = "Order by Name" },
-      { "<leader>bw", "<cmd>BufferOrderByWindowNumber<CR>", desc = "Order by Window Number" },
-      { "<leader>bp", "<cmd>BufferPin<CR>", desc = "Pin/Unpin Buffer" },
-      { "<leader>bP", "<cmd>BufferGotoPinned<CR>", desc = "Go to Pinned Buffer" },
-      { "<leader>bU", "<cmd>BufferGotoUnpinned<CR>", desc = "Go to Unpinned Buffer" },
-      { "<leader>bc", "<cmd>BufferClose<CR>", desc = "Close Buffer" },
-      { "<leader>br", "<cmd>BufferRestore<CR>", desc = "Restore Last Closed Buffer" },
-      { "<leader>ba", "<cmd>BufferCloseAllButCurrent<CR>", desc = "Close All But Current" },
-      { "<leader>bv", "<cmd>BufferCloseAllButVisible<CR>", desc = "Close All But Visible" },
-      { "<leader>bh", "<cmd>BufferCloseBuffersLeft<CR>", desc = "Close All to the Left" },
-      { "<leader>bl", "<cmd>BufferCloseBuffersRight<CR>", desc = "Close All to the Right" },
-      { "<leader>bA", "<cmd>BufferCloseAllButPinned<CR>", desc = "Close All But Pinned" },
-      { "<leader>bC", "<cmd>BufferCloseAllButCurrentOrPinned<CR>", desc = "Close All But Current/Pinned" },
-    })
-  else
-    -- Set up normal keymaps if which-key is not available
-    local map = vim.api.nvim_set_keymap
-    local opts = { noremap = true, silent = true }
-    
-    -- Move to previous/next
-    map('n', '<A-,>', '<cmd>BufferPrevious<CR>', opts)
-    map('n', '<A-.>', '<cmd>BufferNext<CR>', opts)
-    
-    -- Re-order to previous/next
-    map('n', '<A-<>', '<cmd>BufferMovePrevious<CR>', opts)
-    map('n', '<A->>', '<cmd>BufferMoveNext<CR>', opts)
-    
-    -- Goto buffer in position...
-    map('n', '<A-1>', '<cmd>BufferGoto 1<CR>', opts)
-    map('n', '<A-2>', '<cmd>BufferGoto 2<CR>', opts)
-    map('n', '<A-3>', '<cmd>BufferGoto 3<CR>', opts)
-    map('n', '<A-4>', '<cmd>BufferGoto 4<CR>', opts)
-    map('n', '<A-5>', '<cmd>BufferGoto 5<CR>', opts)
-    map('n', '<A-6>', '<cmd>BufferGoto 6<CR>', opts)
-    map('n', '<A-7>', '<cmd>BufferGoto 7<CR>', opts)
-    map('n', '<A-8>', '<cmd>BufferGoto 8<CR>', opts)
-    map('n', '<A-9>', '<cmd>BufferGoto 9<CR>', opts)
-    map('n', '<A-0>', '<cmd>BufferLast<CR>', opts)
-    
-    -- Pin/unpin buffer
-    map('n', '<A-p>', '<cmd>BufferPin<CR>', opts)
-    
-    -- Close buffer
-    map('n', '<A-c>', '<cmd>BufferClose<CR>', opts)
-    
-    -- Magic buffer-picking mode
-    map('n', '<C-p>', '<cmd>BufferPick<CR>', opts)
-  end
-  
+  local wk = pcall(require, "which-key")
+  wk.add({
+    { "<leader>b", group = "📑 Buffer", icon = { icon = "📑" } },
+    { "<leader>bc", "<cmd>BufferClose<CR>", desc = "Close Buffer" },
+    { "<leader>ba", "<cmd>BufferCloseAllButCurrent<CR>", desc = "Close All But Current" },
+    { "<leader>bv", "<cmd>BufferCloseAllButVisible<CR>", desc = "Close All But Visible" },
+    { "<leader>b,", "<cmd>BufferPrevious<CR>", desc = "Previous Buffer" },
+    { "<leader>b.", "<cmd>BufferNext<CR>", desc = "Next Buffer" },
+    { "<leader>b<", "<cmd>BufferMovePrevious<CR>", desc = "Move Buffer Left" },
+    { "<leader>b>", "<cmd>BufferMoveNext<CR>", desc = "Move Buffer Right" },
+  })
+
   -- Enable mouse for barbar (optional)
   vim.opt.mouse = "a"
   

@@ -82,13 +82,6 @@ M.plugins = {
       
       -- Create a command to toggle automatic linting
       vim.api.nvim_create_user_command("ToggleAutoLint", toggle_auto_lint, {})
-      
-      -- Register with which-key
-      local wk = require("which-key")
-      wk.add({
-        { "<leader>cl", function() require("lint").try_lint() end, desc = "Lint Current File", mode = "n" },
-        { "<leader>cL", toggle_auto_lint, desc = "Toggle Auto Linting", mode = "n" },
-      })
     end
   }
 }
