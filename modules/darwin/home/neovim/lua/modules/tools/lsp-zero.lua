@@ -75,111 +75,113 @@ M.plugins = {
           -- Markdown
           "marksman",
         },
-        handlers = {
-          lsp_zero.default_setup,
-          
-          -- Lua Configuration
-          lua_ls = function()
-            lspconfig.lua_ls.setup(lsp_zero.nvim_lua_ls())
-          end,
-          
-          -- Go Configuration
-          gopls = function()
-            lspconfig.gopls.setup({
-              settings = {
-                gopls = {
-                  analyses = {
-                    unusedparams = true,
-                    shadow = true,
-                  },
-                  staticcheck = true,
-                  gofumpt = true,
-                  usePlaceholders = true,
-                  completeUnimported = true,
+      })
+
+      -- Setup handlers for LSP configurations
+      mason_lspconfig.setup_handlers({
+        lsp_zero.default_setup,
+
+        -- Lua Configuration
+        lua_ls = function()
+          lspconfig.lua_ls.setup(lsp_zero.nvim_lua_ls())
+        end,
+
+        -- Go Configuration
+        gopls = function()
+          lspconfig.gopls.setup({
+            settings = {
+              gopls = {
+                analyses = {
+                  unusedparams = true,
+                  shadow = true,
+                },
+                staticcheck = true,
+                gofumpt = true,
+                usePlaceholders = true,
+                completeUnimported = true,
+              },
+            },
+            capabilities = lsp_zero.get_capabilities(),
+          })
+        end,
+
+        -- Python Configuration
+        pyright = function()
+          lspconfig.pyright.setup({
+            settings = {
+              python = {
+                analysis = {
+                  autoSearchPaths = true,
+                  diagnosticMode = "workspace",
+                  useLibraryCodeForTypes = true,
                 },
               },
-              capabilities = lsp_zero.get_capabilities(),
-            })
-          end,
-          
-          -- Python Configuration
-          pyright = function()
-            lspconfig.pyright.setup({
-              settings = {
-                python = {
-                  analysis = {
-                    autoSearchPaths = true,
-                    diagnosticMode = "workspace",
-                    useLibraryCodeForTypes = true,
-                  },
+            },
+            capabilities = lsp_zero.get_capabilities(),
+          })
+        end,
+
+        -- TypeScript Configuration
+        tsserver = function()
+          lspconfig.tsserver.setup({
+            settings = {
+              typescript = {
+                inlayHints = {
+                  includeInlayParameterNameHints = "all",
+                  includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+                  includeInlayFunctionParameterTypeHints = true,
+                  includeInlayVariableTypeHints = true,
+                  includeInlayPropertyDeclarationTypeHints = true,
+                  includeInlayFunctionLikeReturnTypeHints = true,
+                  includeInlayEnumMemberValueHints = true,
                 },
               },
-              capabilities = lsp_zero.get_capabilities(),
-            })
-          end,
-          
-          -- TypeScript Configuration
-          tsserver = function()
-            lspconfig.tsserver.setup({
-              settings = {
-                typescript = {
-                  inlayHints = {
-                    includeInlayParameterNameHints = "all",
-                    includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-                    includeInlayFunctionParameterTypeHints = true,
-                    includeInlayVariableTypeHints = true,
-                    includeInlayPropertyDeclarationTypeHints = true,
-                    includeInlayFunctionLikeReturnTypeHints = true,
-                    includeInlayEnumMemberValueHints = true,
-                  },
-                },
-                javascript = {
-                  inlayHints = {
-                    includeInlayParameterNameHints = "all",
-                    includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-                    includeInlayFunctionParameterTypeHints = true,
-                    includeInlayVariableTypeHints = true,
-                    includeInlayPropertyDeclarationTypeHints = true,
-                    includeInlayFunctionLikeReturnTypeHints = true,
-                    includeInlayEnumMemberValueHints = true,
-                  },
+              javascript = {
+                inlayHints = {
+                  includeInlayParameterNameHints = "all",
+                  includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+                  includeInlayFunctionParameterTypeHints = true,
+                  includeInlayVariableTypeHints = true,
+                  includeInlayPropertyDeclarationTypeHints = true,
+                  includeInlayFunctionLikeReturnTypeHints = true,
+                  includeInlayEnumMemberValueHints = true,
                 },
               },
-              capabilities = lsp_zero.get_capabilities(),
-            })
-          end,
-          
-          -- YAML Configuration with schema support
-          yamlls = function()
-            lspconfig.yamlls.setup({
-              settings = {
-                yaml = {
-                  schemaStore = {
-                    enable = false,
-                    url = "",
-                  },
-                  schemas = require('schemastore').yaml.schemas(),
-                  validate = true,
-                  format = { enable = true },
+            },
+            capabilities = lsp_zero.get_capabilities(),
+          })
+        end,
+
+        -- YAML Configuration with schema support
+        yamlls = function()
+          lspconfig.yamlls.setup({
+            settings = {
+              yaml = {
+                schemaStore = {
+                  enable = false,
+                  url = "",
                 },
+                schemas = require('schemastore').yaml.schemas(),
+                validate = true,
+                format = { enable = true },
               },
-              capabilities = lsp_zero.get_capabilities(),
-            })
-          end,
-          
-          -- JSON Configuration with schema support
-          jsonls = function()
-            lspconfig.jsonls.setup({
-              settings = {
-                json = {
-                  schemas = require('schemastore').json.schemas(),
-                  validate = { enable = true },
-                },
+            },
+            capabilities = lsp_zero.get_capabilities(),
+          })
+        end,
+
+        -- JSON Configuration with schema support
+        jsonls = function()
+          lspconfig.jsonls.setup({
+            settings = {
+              json = {
+                schemas = require('schemastore').json.schemas(),
+                validate = { enable = true },
               },
-              capabilities = lsp_zero.get_capabilities(),
-            })
-          end,
-        }
+            },
+            capabilities = lsp_zero.get_capabilities(),
+          })
+        end,
       })
       
       -- Global keymappings
