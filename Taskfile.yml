@@ -20,13 +20,14 @@ tasks:
     desc: Fix permissions for /nix and home directories using parallel processing
     cmds:
       - |
-        echo "🔍 Fixing /nix permissions..."
+        echo "Fixing /nix permissions..."
         fd . /nix -t f -t d -E ".DS_Store" -E "*.lock" --owner "!$USER" -x sudo chown -v "$USER:staff" {} \;
         
-        echo "🏠 Fixing home directory permissions..."
+        echo "Fixing /opt/homebrew permissions..."
+        fd . /opt/homebrew -t f -t d -E ".DS_Store" -E "*.lock" --owner "!$USER" -x sudo chown -v "$USER:staff" {} \;
+
+        echo "Fixing home directory permissions..."
         fd . "$HOME" -t f -t d -E ".DS_Store" -E "node_modules" -E ".git" -E "*.lock" --owner "!$USER" -x sudo chown -v "$USER:staff" {} \;
-        
-        echo "✅ Permissions fixed!"
     silent: true
 
   uninstall-nix:
