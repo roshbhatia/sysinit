@@ -59,22 +59,61 @@ M.plugins = {
         local servers = {
           -- Lua
           "lua_ls",
+          "luacheck",
+          "luaformatter",
+          
           -- Go
           "gopls",
+          "delve",
+          "gotests",
+          "gotestsum",
+          "json-to-struct",
+          
           -- Python
           "pyright",
-          "ruff_lsp",
+          
           -- JS/TS
-          "tsserver",
           "eslint",
+          "typescript-language-server", -- instead of ts_server or ts_ls
+          
           -- Shell
           "bashls",
+          "shellcheck",
+          
           -- Data formats
           "jsonls",
+          "jsonlint",
+          "jsonnet-language-server",
           "yamlls",
+          "yamllint",
+          "yamlfmt",
+          "yamlfix",
           "taplo",
+          "yq",
+          
           -- Markdown
           "marksman",
+          "grammarly-languageserver",
+          
+          -- Nix
+          "nixfmt",
+          "nixpkgs-fmt",
+          
+          -- Terraform
+          "tflint",
+          
+          -- HCL
+          "hclfmt",
+          
+          -- Helm
+          "helm-ls",
+          
+          -- Git
+          "actionlint",
+          "commitlint",
+          
+          -- Other
+          "gospel",
         }
         local to_install = {}
         if mlsp.get_available_servers then
@@ -129,37 +168,6 @@ M.plugins = {
                   autoSearchPaths = true,
                   diagnosticMode = "workspace",
                   useLibraryCodeForTypes = true,
-                },
-              },
-            },
-            capabilities = lsp_zero.get_capabilities(),
-          })
-        end,
-
-        -- TypeScript Configuration
-        tsserver = function()
-          lspconfig.tsserver.setup({
-            settings = {
-              typescript = {
-                inlayHints = {
-                  includeInlayParameterNameHints = "all",
-                  includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-                  includeInlayFunctionParameterTypeHints = true,
-                  includeInlayVariableTypeHints = true,
-                  includeInlayPropertyDeclarationTypeHints = true,
-                  includeInlayFunctionLikeReturnTypeHints = true,
-                  includeInlayEnumMemberValueHints = true,
-                },
-              },
-              javascript = {
-                inlayHints = {
-                  includeInlayParameterNameHints = "all",
-                  includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-                  includeInlayFunctionParameterTypeHints = true,
-                  includeInlayVariableTypeHints = true,
-                  includeInlayPropertyDeclarationTypeHints = true,
-                  includeInlayFunctionLikeReturnTypeHints = true,
-                  includeInlayEnumMemberValueHints = true,
                 },
               },
             },
