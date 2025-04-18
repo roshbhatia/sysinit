@@ -52,13 +52,11 @@ function M.setup()
   -- Register with which-key if available
   local status, wk = pcall(require, "which-key")
   if status then
-    wk.register({
-      ["<leader>t"] = {
-        name = "🎨 Theme",
-        ["t"] = { "<cmd>Themify<CR>", "Open Theme Switcher" },
-        ["r"] = { "<cmd>ThemifyReload<CR>", "Reload Themes" },
-        ["i"] = { "<cmd>ThemifyInstall<CR>", "Install Missing Themes" },
-      },
+    wk.add({
+      { "<leader>t", group = "🎨 Theme", icon = { icon = "🎨" } },
+      { "<leader>tt", "<cmd>Themify<CR>", desc = "Open Theme Switcher" },
+      { "<leader>tr", "<cmd>ThemifyReload<CR>", desc = "Reload Themes" },
+      { "<leader>ti", "<cmd>ThemifyInstall<CR>", desc = "Install Missing Themes" },
     })
   end
   
@@ -92,8 +90,8 @@ function M.setup()
   
   -- Add toggle transparency to which-key
   if status then
-    wk.register({
-      ["<leader>tb"] = { "<cmd>ToggleTransparency<CR>", "Toggle Transparent Background" },
+    wk.add({
+      { "<leader>tb", "<cmd>ToggleTransparency<CR>", desc = "Toggle Transparent Background" },
     })
   end
 end
