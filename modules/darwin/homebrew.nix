@@ -54,6 +54,7 @@ let
     "python@3.11"
     "ripgrep"
     "screenresolution"
+    "shellcheck"
     "socat"
     "sshpass"
     "tailscale"
