@@ -13,16 +13,12 @@ M.plugins = {
       -- Configuration
       ---@type Neominimap.UserConfig
       local config = {
-        -- Enable the plugin by default
-        auto_enable = true,
+        -- Disable auto enable so we can control it manually
+        auto_enable = false,
         
-        -- Log level
+        -- Rest of your existing configuration
         log_level = vim.log.levels.OFF,
-        
-        -- Notification level
         notification_level = vim.log.levels.INFO,
-        
-        -- Exclude certain filetypes
         exclude_filetypes = {
           "help",
           "bigfile",
@@ -36,8 +32,6 @@ M.plugins = {
           "TelescopePrompt",
           "toggleterm",
         },
-        
-        -- Exclude certain buftypes
         exclude_buftypes = {
           "nofile",
           "nowrite",
@@ -45,21 +39,15 @@ M.plugins = {
           "terminal",
           "prompt",
         },
-        
-        -- Size and layout settings
         x_multiplier = 4,
         y_multiplier = 1,
         layout = "float", -- "float" or "split"
-        
-        -- Split window settings (when layout = "split")
         split = {
           minimap_width = 20,
           fix_width = true,
           direction = "right",
           close_if_last_window = true,
         },
-        
-        -- Float window settings (when layout = "float")
         float = {
           minimap_width = 20,
           max_minimap_height = nil,
@@ -71,55 +59,39 @@ M.plugins = {
           z_index = 10,
           window_border = "single",
         },
-        
-        -- Performance settings
         delay = 200,
-        
-        -- Cursor and interaction settings
         sync_cursor = true,
         click = {
           enabled = true,
           auto_switch_focus = false,
         },
-        
-        -- Feature integration
         diagnostic = {
           enabled = true,
           severity = vim.diagnostic.severity.WARN,
           mode = "line",
         },
-        
         git = {
           enabled = true,
           mode = "sign",
         },
-        
         treesitter = {
           enabled = true,
         },
-        
         search = {
           enabled = true,
           mode = "line",
         },
-        
         mark = {
           enabled = true,
           mode = "icon",
           show_builtins = false,
         },
-        
         fold = {
           enabled = true,
         },
-        
-        -- Custom window options
         winopt = function(opt, winid)
-          -- Add any custom window options here
           opt.winblend = 10 -- Semi-transparent minimap
         end,
-        
-        -- Custom buffer options
         bufopt = function(opt, bufnr)
           -- Add any custom buffer options here
         end,
@@ -190,6 +162,82 @@ M.plugins = {
           vim.api.nvim_set_hl(0, "NeominimapSearchLine", { link = "Search" })
         end,
       })
+      
+      -- Function to check if current window is the rightmost one
+      local function is_rightmost_window()
+        local mux = require('smart-splits.mux').get()
+        if mux and mux.current_pane_at_edge then
+          return mux.current_pane_at_edge('right')
+        else
+          -- Fallback when multiplexer is not available
+          local win_id = vim.api.nvim_get_current_win()
+          local wins = vim.api.nvim_tabpage_list_wins(0)
+          
+          -- Get window positions
+          local positions = {}
+          for _, id in ipairs(wins) do
+            local pos = vim.api.nvim_win_get_position(id)
+            local width = vim.api.nvim_win_get_width(id)
+            positions[id] = {
+              col = pos[2],
+              right_edge = pos[2] + width
+            }
+          end
+          
+          -- Check if current window has the rightmost edge
+          local current_right = positions[win_id].right_edge
+          for id, pos in pairs(positions) do
+            if id ~= win_id and pos.right_edge > current_right then
+              return false
+            end
+          end
+          return true
+        end
+      end
+      
+      -- Set up autocommands to toggle minimap based on window position
+      vim.api.nvim_create_augroup("NeominimapRightmost", { clear = true })
+      vim.api.nvim_create_autocmd({"WinEnter", "BufEnter", "VimResized"}, {
+        group = "NeominimapRightmost",
+        callback = function()
+          if is_rightmost_window() and vim.g.minimap_enabled then
+            vim.cmd("Neominimap winOn")
+          else
+            vim.cmd("Neominimap winOff")
+          end
+        end
+      })
+      
+      -- Add a global variable to track minimap state
+      vim.g.minimap_enabled = false
+      
+      -- Modify toggle commands to update the global tracking variable
+      local toggle_minimap = function()
+        vim.g.minimap_enabled = not vim.g.minimap_enabled
+        if is_rightmost_window() and vim.g.minimap_enabled then
+          vim.cmd("Neominimap winOn")
+        else
+          vim.cmd("Neominimap winOff")
+        end
+      end
+      
+      -- Create custom commands
+      vim.api.nvim_create_user_command("RightmostMinimapToggle", toggle_minimap, {})
+      vim.api.nvim_create_user_command("RightmostMinimapOn", function()
+        vim.g.minimap_enabled = true
+        if is_rightmost_window() then
+          vim.cmd("Neominimap winOn")
+        end
+      end, {})
+      vim.api.nvim_create_user_command("RightmostMinimapOff", function()
+        vim.g.minimap_enabled = false
+        vim.cmd("Neominimap winOff")
+      end, {})
+      
+      -- Update keymaps to use our rightmost-only commands
+      vim.keymap.set("n", "<leader>mm", "<cmd>RightmostMinimapToggle<CR>", { desc = "Toggle Rightmost Minimap" })
+      vim.keymap.set("n", "<leader>mo", "<cmd>RightmostMinimapOn<CR>", { desc = "Enable Rightmost Minimap" })
+      vim.keymap.set("n", "<leader>mc", "<cmd>RightmostMinimapOff<CR>", { desc = "Disable Minimap" })
     end
   }
 }
