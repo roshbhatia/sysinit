@@ -38,6 +38,9 @@ M.plugins = {
       vim.keymap.set('n', '<C-S-j>', function() smart_splits.resize_down() end, {desc = "Resize split down"})
       vim.keymap.set('n', '<C-S-k>', function() smart_splits.resize_up() end, {desc = "Resize split up"})
       vim.keymap.set('n', '<C-S-l>', function() smart_splits.resize_right() end, {desc = "Resize split right"})
+        
+      vim.keymap.set('n', '<C-S-s>', vim.cmd.vsplit, {desc = "Split (Vertical)"})
+      vim.keymap.set('n', '<C-S-v>', vim.cmd.split, {desc = "Split (Horizontal)"})
     end
   }
 }
