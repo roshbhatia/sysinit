@@ -10,7 +10,6 @@ M.plugins = {
       smart_splits.setup({
         -- Ignore these filetypes when resizing
         ignored_filetypes = { "NvimTree" },
-        -- Set multiplexer integration (will auto-detect but you can specify)
         multiplexer_integration = "wezterm",
         -- Default resize amount
         default_amount = 3,

@@ -4,7 +4,7 @@ local M = {}
 M.plugins = {
   {
     "folke/which-key.nvim",
-    event = "VeryLazy",
+    lazy = false,
     dependencies = { "echasnovski/mini.icons" },
     init = function()
       vim.o.timeout = true
