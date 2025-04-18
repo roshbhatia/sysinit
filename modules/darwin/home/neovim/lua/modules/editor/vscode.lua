@@ -1,6 +1,36 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/vscode-neovim/vscode-neovim/main/README.md"
 local M = {}
 
+-- map of Neovim commands (without <cmd> and <cr>) to VSCode action names
+M.cmd_map = {
+  w      = 'workbench.action.files.save',
+  wa     = 'workbench.action.files.saveAll',
+  q      = 'workbench.action.closeActiveEditor',
+  qa     = 'workbench.action.quit',
+  enew   = 'workbench.action.files.newUntitledFile',
+  bdelete= 'workbench.action.closeActiveEditor',
+  bn     = 'workbench.action.nextEditor',
+  bp     = 'workbench.action.previousEditor',
+  split  = 'workbench.action.splitEditorDown',
+  vsplit = 'workbench.action.splitEditorRight',
+}
+
+--- Helper: map a Neovim command to a VSCode action or fallback to Neovim command
+---@param mode string|table  Vim mode(s)
+---@param lhs string         Key sequence
+---@param cmd string         Neovim command (no <cmd> or <cr>)
+---@param opts table|nil      Keymap options
+function M.map_cmd(mode, lhs, cmd, opts)
+  opts = opts or { noremap = true, silent = true }
+  local action = M.cmd_map[cmd]
+  if action then
+    local api = require('vscode')
+    vim.keymap.set(mode, lhs, function() api.action(action) end, opts)
+  else
+    vim.keymap.set(mode, lhs, '<cmd>' .. cmd .. '<cr>', opts)
+  end
+end
+
 M.plugins = {
   {
     "vscode-neovim/vscode-neovim",
@@ -350,11 +380,13 @@ function M.setup_compat_plugins()
   vim.keymap.set("n", "<C-k>", function() vscode.action("workbench.action.focusUpGroup") end, opts)
   vim.keymap.set("n", "<C-l>", function() vscode.action("workbench.action.focusRightGroup") end, opts)
 
-  vim.keymap.set('n', '<leader>w', function() vscode.action('workbench.action.files.save') end, opts)
-  vim.keymap.set('n', '<leader>wa', function() vscode.action('workbench.action.files.saveAll') end, opts)
+  -- file save mappings via helper
+  M.map_cmd('n', '<leader>w', 'w', opts)
+  M.map_cmd('n', '<leader>wa', 'wa', opts)
 
-  vim.keymap.set('n', '<leader>\\', function() vscode.action('workbench.action.splitEditorRight') end, opts)
-  vim.keymap.set('n', '<leader>-', function() vscode.action('workbench.action.splitEditorDown') end, opts)
+  -- split mappings via helper
+  M.map_cmd('n', '<leader>\\', 'vsplit', opts)
+  M.map_cmd('n', '<leader>-', 'split', opts)
 
   vim.keymap.set('n', 'gd', function() vscode.action('editor.action.revealDefinition') end, opts)
   vim.keymap.set('n', 'gr', function() vscode.action('editor.action.goToReferences') end, opts)
