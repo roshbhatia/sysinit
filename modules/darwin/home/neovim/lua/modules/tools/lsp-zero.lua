@@ -64,7 +64,7 @@ M.plugins = {
           "pyright",
           "ruff_lsp",
           -- JS/TS
-          "tl_ls",
+          "tsserver",
           "eslint",
           -- Shell
           "bashls",
@@ -119,8 +119,8 @@ M.plugins = {
           end,
           
           -- TypeScript Configuration
-          tl_ls = function()
-            lspconfig.tl_ls.setup({
+          tsserver = function()
+            lspconfig.tsserver.setup({
               settings = {
                 typescript = {
                   inlayHints = {

@@ -7,7 +7,7 @@ tasks:
       - task -l
     silent: true
       
-  nvim-run-local:
+  run-local:
     desc: Run Neovim with local configuration (isolated)
     silent: true
     cmds:
@@ -25,7 +25,7 @@ tasks:
       Run Neovim with the local configuration (isolated environment):
         task nvim-run-local
         
-  fetch-docs:
+  pull-docs:
     desc: Fetch documentation for all Neovim plugins
     silent: true
     cmds:
@@ -74,4 +74,4 @@ tasks:
         echo -e "${GREEN}documentation saved to ${DOC_DIR}${NC}"
     usage: |
       Fetch documentation for all Neovim plugins:
-        task fetch-docs
+        task pull-docs

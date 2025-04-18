@@ -5,6 +5,7 @@ M.plugins = {
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
+    dependencies = { "echasnovski/mini.icons" },
     init = function()
       vim.o.timeout = true
       vim.o.timeoutlen = 300
@@ -45,7 +46,7 @@ M.plugins = {
         show_help = true,
         show_keys = true,
         -- use automatic trigger detection
-        triggers = "auto",
+        triggers = { { "<auto>", mode = "nxsotc" } },
       })
       
       wk.add({
