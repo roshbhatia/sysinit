@@ -12,7 +12,7 @@ M.plugins = {
       local lint = require("lint")
       
       -- Configure linters for different filetypes
-      lint.linters_by_ft = {
+      local linters_by_ft = {
         python = {"pylint", "ruff"},
         javascript = {"eslint"},
         typescript = {"eslint"},
@@ -22,12 +22,18 @@ M.plugins = {
         sh = {"shellcheck"},
         bash = {"shellcheck"},
         zsh = {"shellcheck"},
-        yaml = {"yamllint"},
         json = {"jsonlint"},
         markdown = {"markdownlint"},
         lua = {"luacheck"},
         terraform = {"tflint"},
       }
+      -- Add YAML linter only if 'yamllint' is installed
+      if vim.fn.executable("yamllint") == 1 then
+        linters_by_ft.yaml = {"yamllint"}
+      else
+        vim.notify("yamllint not found: YAML linting disabled", vim.log.levels.WARN)
+      end
+      lint.linters_by_ft = linters_by_ft
       
       -- Configure specific linters
       lint.linters.pylint.args = {
