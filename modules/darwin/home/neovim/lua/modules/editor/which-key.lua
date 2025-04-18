@@ -53,7 +53,7 @@ M.plugins = {
         { "<leader>f", group = "Find/Files", icon = { icon = "󰍉", hl = "WhichKeyIconPurple" } },
         { "<leader>b", group = "Buffers", icon = { icon = "󰓩", hl = "WhichKeyIconBlue" } },
         { "<leader>w", group = "Windows", icon = { icon = "󰖮", hl = "WhichKeyIconCyan" } },
-        { "<leader>g", group = "Git", icon = { icon = "", hl = "WhichKeyIconRed" } },
+        { "<leader>g", group = "Git", icon = { icon = "", hl = "WhichKeyIconRed" } },
         { "<leader>l", group = "LSP", icon = { icon = "󰒕", hl = "WhichKeyIconBlue" } },
         { "<leader>s", group = "Session", icon = { icon = "󱂬", hl = "WhichKeyIconCyan" } },
         { "<leader>c", group = "Comment", icon = { icon = "󰅺", hl = "WhichKeyIconGreen" } },
