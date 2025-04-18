@@ -61,10 +61,6 @@ M.plugins = {
         { "<leader>e", group = "Explorer", icon = { icon = "🌲", hl = "WhichKeyIconGreen" } },
         { "<leader>m", group = "Minimap", icon = { icon = "🗺️", hl = "WhichKeyIconBlue" } },
         
-        { "<leader>q", "<cmd>q<cr>", desc = "Quit", mode = { "n", "v" } },
-        { "<leader>Q", "<cmd>qa<cr>", desc = "Quit All", mode = { "n", "v" } },
-        -- Save file: mapped to <leader>ws to avoid collision with window group (<leader>w)
-        { "<leader>ws", "<cmd>w<cr>", desc = "Save File", mode = "n" },
         { "<leader>;", ":", desc = "Command Mode", mode = "n" },
         
         { "<leader>bd", "<cmd>bdelete<cr>", desc = "Delete Buffer", mode = "n" },

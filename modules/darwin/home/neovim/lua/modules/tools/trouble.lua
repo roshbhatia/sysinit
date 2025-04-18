@@ -12,11 +12,11 @@ M.plugins = {
         fold_open = "",
         fold_closed = "",
         signs = {
-          error = "",
-          warning = "",
-          hint = "",
-          information = "",
-          other = "﫠",
+          error = "E",
+          warning = "W",
+          hint = "H",
+          information = "I",
+          other = "O",
         },
         use_diagnostic_signs = true,
       })

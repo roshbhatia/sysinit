@@ -45,21 +45,4 @@ M.plugins = {
   }
 }
 
-function M.setup()
-  local status, wk = pcall(require, "which-key")
-  if status then
-    wk.add({
-      { "<C-u>", desc = "Scroll half-page up (smooth)" },
-      { "<C-d>", desc = "Scroll half-page down (smooth)" },
-      { "<C-b>", desc = "Scroll page up (smooth)" },
-      { "<C-f>", desc = "Scroll page down (smooth)" },
-      { "<C-y>", desc = "Scroll up slightly (smooth)" },
-      { "<C-e>", desc = "Scroll down slightly (smooth)" },
-      { "zt", desc = "Scroll to top (smooth)" },
-      { "zz", desc = "Scroll to center (smooth)" },
-      { "zb", desc = "Scroll to bottom (smooth)" },
-    })
-  end
-end
-
 return M

@@ -50,50 +50,13 @@ M.plugins = {
 
 function M.setup()
   -- Register with which-key if available
-  local status, wk = pcall(require, "which-key")
-  if status then
-    wk.add({
-      { "<leader>t", group = "🎨 Theme", icon = { icon = "🎨" } },
-      { "<leader>tt", "<cmd>Themify<CR>", desc = "Open Theme Switcher" },
-      { "<leader>tr", "<cmd>ThemifyReload<CR>", desc = "Reload Themes" },
-      { "<leader>ti", "<cmd>ThemifyInstall<CR>", desc = "Install Missing Themes" },
-    })
-  end
-  
-  -- Create autocommand to ensure theme works well with transparent backgrounds
-  vim.api.nvim_create_autocmd("ColorScheme", {
-    pattern = "*",
-    callback = function()
-      -- Check if transparent backgrounds are enabled
-      local transparent_bg = vim.g.transparent_background
-      
-      if transparent_bg then
-        -- Make backgrounds transparent
-        vim.api.nvim_set_hl(0, "Normal", { bg = "NONE" })
-        vim.api.nvim_set_hl(0, "NormalNC", { bg = "NONE" })
-        vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE" })
-        vim.api.nvim_set_hl(0, "SignColumn", { bg = "NONE" })
-        vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "NONE" })
-      end
-    end
+  local wk = pcall(require, "which-key")
+  wk.add({
+    { "<leader>t", group = "🎨 Theme", icon = { icon = "🎨" } },
+    { "<leader>tt", "<cmd>Themify<CR>", desc = "Open Theme Switcher" },
+    { "<leader>tr", "<cmd>ThemifyReload<CR>", desc = "Reload Themes" },
+    { "<leader>ti", "<cmd>ThemifyInstall<CR>", desc = "Install Missing Themes" },
   })
-  
-  -- Initialize the transparency setting (off by default)
-  vim.g.transparent_background = false
-  
-  -- Add a command to toggle transparency
-  vim.api.nvim_create_user_command("ToggleTransparency", function()
-    vim.g.transparent_background = not vim.g.transparent_background
-    -- Trigger the ColorScheme event to apply changes
-    vim.cmd("colorscheme " .. vim.g.colors_name)
-  end, {})
-  
-  -- Add toggle transparency to which-key
-  if status then
-    wk.add({
-      { "<leader>tb", "<cmd>ToggleTransparency<CR>", desc = "Toggle Transparent Background" },
-    })
-  end
 end
 
 return M
