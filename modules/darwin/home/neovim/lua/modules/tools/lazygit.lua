@@ -4,7 +4,7 @@ local M = {}
 M.plugins = {
   {
     "kdheepak/lazygit.nvim",
-    lazy = true,
+    lazy = false,
     cmd = { "LazyGit", "LazyGitConfig", "LazyGitCurrentFile", "LazyGitFilter", "LazyGitFilterCurrentFile" },
     dependencies = { "nvim-lua/plenary.nvim" },
     config = function()
