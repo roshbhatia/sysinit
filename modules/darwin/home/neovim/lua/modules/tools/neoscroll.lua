@@ -48,16 +48,16 @@ M.plugins = {
 function M.setup()
   local status, wk = pcall(require, "which-key")
   if status then
-    wk.register({
-      ["<C-u>"] = { "Scroll half-page up (smooth)" },
-      ["<C-d>"] = { "Scroll half-page down (smooth)" },
-      ["<C-b>"] = { "Scroll page up (smooth)" },
-      ["<C-f>"] = { "Scroll page down (smooth)" },
-      ["<C-y>"] = { "Scroll up slightly (smooth)" },
-      ["<C-e>"] = { "Scroll down slightly (smooth)" },
-      ["zt"] = { "Scroll to top (smooth)" },
-      ["zz"] = { "Scroll to center (smooth)" },
-      ["zb"] = { "Scroll to bottom (smooth)" },
+    wk.add({
+      { "<C-u>", desc = "Scroll half-page up (smooth)" },
+      { "<C-d>", desc = "Scroll half-page down (smooth)" },
+      { "<C-b>", desc = "Scroll page up (smooth)" },
+      { "<C-f>", desc = "Scroll page down (smooth)" },
+      { "<C-y>", desc = "Scroll up slightly (smooth)" },
+      { "<C-e>", desc = "Scroll down slightly (smooth)" },
+      { "zt", desc = "Scroll to top (smooth)" },
+      { "zz", desc = "Scroll to center (smooth)" },
+      { "zb", desc = "Scroll to bottom (smooth)" },
     })
   end
 end
