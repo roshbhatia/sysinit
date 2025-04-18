@@ -68,7 +68,7 @@ zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl
 
 # Environment variables
 zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' \
-fzf-preview 'echo ''\${(P)word}'
+fzf-preview 'echo ${(P)word}'
 
 # Git preview support
 zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview \
@@ -92,16 +92,16 @@ esac'
 # General settings
 zstyle ':fzf-tab:*' default-color $'\033[37m'
 zstyle ':fzf-tab:*' show-group full
-zstyle ':fzf-tab:*' prefix ''\''
+zstyle ':fzf-tab:*' prefix ''
 zstyle ':fzf-tab:*' single-group color header
 zstyle ':fzf-tab:*' switch-group 'alt-p' 'alt-n'
 
 # Completion configuration
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path "$HOME/.zcompcache"
-zstyle ':completion:*' list-colors ''\${(s.:.)LS_COLORS}
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*' menu no
-zstyle ':completion:*' fzf-preview 'echo ''\${(P)word}'
+zstyle ':completion:*' fzf-preview 'echo ${(P)word}'
 
 autoload -Uz compinit
 if [ "$(date +'%j')" != "$(stat -f '%Sm' -t '%j' ~/.zcompdump 2>/dev/null)" ]; then
