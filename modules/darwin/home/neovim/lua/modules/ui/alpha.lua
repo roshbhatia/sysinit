@@ -3,10 +3,10 @@ local M = {}
 M.plugins = {
   {
     "goolord/alpha-nvim",
-    dependencies = { 
+    dependencies = {
       "3rd/image.nvim",
       "nvim-telescope/telescope.nvim",
-      "nvim-lua/plenary.nvim"
+      "nvim-lua/plenary.nvim",
     },
     config = function()
       local alpha = require("alpha")
@@ -52,7 +52,7 @@ M.plugins = {
           "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠿⣵⣶⣿⣻⡿⢤⢁⣾⡏⡟⠇⣏⣉⣡⣤⡿⠃⡜⠁⠀⠀⠀⠀⠀⠀⢸⣟⢣⡇",
           "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣴⣦⣹⣿⣿⡷⣷⣿⣿⣤⣷⠀⢱⣈⣽⡟⢁⡞⠀⠀⠀⠀⠀⠀⠀⠀⣼⣷⣿⡇",
           "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣿⣫⣿⣿⣯⡮⣟⣺⣿⢹⣿⣿⠜⢦⣽⡟⠀⡜⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣢⣾⡇",
-          ""
+          "",
         }
       end
 
@@ -68,7 +68,7 @@ M.plugins = {
         dashboard.button("c", "  Configuration", ":e $MYVIMRC<CR>"),
         dashboard.button("t", "  Change Theme", ":Themify<CR>"),
         dashboard.button("l", "󰒲  Lazy", ":Lazy<CR>"),
-        dashboard.button("q", "  Quit", ":qa<CR>")
+        dashboard.button("q", "  Quit", ":qa<CR>"),
       }
 
       -- Footer with git contributions (simplified)
@@ -78,19 +78,19 @@ M.plugins = {
         for i = 1, 40 do
           table.insert(contributions, math.random(0, 4))
         end
-        
+
         local contribution_str = {}
         for _, level in ipairs(contributions) do
-          local chars = {" ", "▁", "▂", "▃", "▄", "█"}
+          local chars = { " ", "▁", "▂", "▃", "▄", "█" }
           table.insert(contribution_str, chars[level + 1])
         end
-        
+
         return table.concat(contribution_str)
       end
 
       dashboard.section.footer.val = {
         "Git Contributions: " .. get_git_contributions(),
-        "Welcome back, Rosh"
+        "Welcome back, Rosh",
       }
 
       -- Custom configuration
@@ -100,7 +100,7 @@ M.plugins = {
         { type = "padding", val = 2 },
         dashboard.section.buttons,
         { type = "padding", val = 1 },
-        dashboard.section.footer
+        dashboard.section.footer,
       }
 
       -- Disable folding on alpha buffer
@@ -110,8 +110,8 @@ M.plugins = {
 
       -- Setup alpha
       alpha.setup(dashboard.config)
-    end
-  }
+    end,
+  },
 }
 
 function M.setup()
@@ -125,17 +125,43 @@ function M.setup()
     -- Fallback mapping if which-key not available
     vim.api.nvim_set_keymap("n", "<leader>P", "<cmd>Alpha<CR>", { silent = true })
   end
-  
+
   -- Define highlight groups for alpha
   vim.api.nvim_create_autocmd("ColorScheme", {
     pattern = "*",
     callback = function()
+      vim.opt_local.scrolloff = 0
+      vim.opt_local.sidescrolloff = 0
+
       vim.api.nvim_set_hl(0, "ProfileBlue", { fg = "#61afef", bold = true })
       vim.api.nvim_set_hl(0, "ProfileGreen", { fg = "#98c379", bold = true })
       vim.api.nvim_set_hl(0, "ProfileYellow", { fg = "#e5c07b", bold = true })
       vim.api.nvim_set_hl(0, "ProfileRed", { fg = "#e06c75", bold = true })
-    end
+    end,
+  })
+
+  vim.g.trouble_was_open = false
+
+  vim.api.nvim_create_autocmd("FileType", {
+    pattern = "alpha",
+    callback = function()
+      vim.g.trouble_was_open = require("trouble").is_open()
+      require("trouble").close()
+      vim.opt_local.scrolloff = 0
+      vim.opt_local.sidescrolloff = 0
+    end,
+  })
+
+  vim.api.nvim_create_autocmd("BufLeave", {
+    pattern = "*",
+    callback = function()
+      if vim.bo.filetype == "alpha" and vim.g.trouble_was_open then
+        require("trouble").open()
+        vim.g.trouble_was_open = false
+      end
+    end,
   })
 end
 
 return M
+
