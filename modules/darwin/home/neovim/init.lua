@@ -86,6 +86,7 @@ end
 
 local module_loader = require("core.module_loader")
 
+-- determine module loading system
 local module_system
 
 if not vim.g.vscode then
@@ -145,7 +146,6 @@ else
     }
   }
 end
-
 local function collect_plugin_specs()
   local specs = module_loader.get_plugin_specs(module_system)
   
