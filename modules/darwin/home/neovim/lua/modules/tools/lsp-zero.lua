@@ -53,9 +53,10 @@ M.plugins = {
         }
       })
       
-      -- Ensure required servers are installed
-      mason_lspconfig.setup({
-        ensure_installed = {
+      -- Ensure required LSP servers are installed via mason-lspconfig
+      do
+        local mlsp = mason_lspconfig
+        local servers = {
           -- Lua
           "lua_ls",
           -- Go
@@ -74,8 +75,22 @@ M.plugins = {
           "taplo",
           -- Markdown
           "marksman",
-        },
-      })
+        }
+        local to_install = {}
+        if mlsp.get_available_servers then
+          local available = mlsp.get_available_servers()
+          for _, name in ipairs(servers) do
+            if vim.tbl_contains(available, name) then
+              table.insert(to_install, name)
+            else
+              vim.notify("LSP server '" .. name .. "' not available in mason-lspconfig, skipping", vim.log.levels.WARN)
+            end
+          end
+        else
+          to_install = servers
+        end
+        mlsp.setup({ ensure_installed = to_install })
+      end
 
       -- Setup handlers for LSP configurations
       mason_lspconfig.setup_handlers({
