@@ -1,5 +1,4 @@
 #!/usr/bin/env zsh
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
 # Colors
 COLOR_RESET="\033[0m"
