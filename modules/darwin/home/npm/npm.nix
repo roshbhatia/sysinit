@@ -4,8 +4,9 @@ let
     then userConfig.npm.additionalPackages
     else [];
   basePackages = [
-    "typescript-language-server"
+    "jsonlint"
     "prettier"
+    "typescript-language-server"
     "typescript"
   ];
   allPackages = basePackages ++ additionalPackages;
