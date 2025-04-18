@@ -89,9 +89,8 @@ M.plugins = {
       end
 
       dashboard.section.footer.val = {
-        { type = "text", val = "Git Contributions:", opts = { hl = "ProfileBlue" } },
-        { type = "text", val = get_git_contributions(), opts = { hl = "ProfileGreen" } },
-        { type = "text", val = "Welcome back, Rosh", opts = { hl = "ProfileBlue" } }
+        "Git Contributions: " .. get_git_contributions(),
+        "Welcome back, Rosh"
       }
 
       -- Custom configuration
