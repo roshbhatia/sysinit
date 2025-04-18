@@ -68,14 +68,140 @@ smart_splits.apply_to_config(config, {
     },
 })
 
+-- Disable defaults here
+config.disable_default_key_bindings = true
+
 config.keys = {
+    -- Your custom keybindings
     { key = 's', mods = 'CMD|SHIFT', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
     { key = 'v', mods = 'CMD|SHIFT', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
     { key = 'k', mods = 'CMD', action = act.ClearScrollback 'ScrollbackAndViewport' },
     { key = 'p', mods = 'CMD|SHIFT', action = act.ActivateCommandPalette },
-    { key = 'y', mods = 'CMD', action = wezterm.action.ActivateCopyMode },
+    { key = 'y', mods = 'CMD', action = act.ActivateCopyMode },
     { key = 'r', mods = 'CMD', action = act.ReloadConfiguration },
-    { key = 'w', mods = 'CMD', action = wezterm.action.CloseCurrentPane { confirm = false } }
+    { key = 'w', mods = 'CMD', action = act.CloseCurrentPane { confirm = false } },
+
+    -- Standard Mac keybindings
+    { key = 'c', mods = 'CMD', action = act.CopyTo 'Clipboard' },
+    { key = 'v', mods = 'CMD', action = act.PasteFrom 'Clipboard' },
+    { key = 'm', mods = 'CMD', action = act.Hide },
+    { key = 'n', mods = 'CMD', action = act.SpawnWindow },
+    { key = 't', mods = 'CMD', action = act.SpawnTab 'CurrentPaneDomain' },
+    { key = 'f', mods = 'CMD', action = act.Search 'CurrentSelectionOrEmptyString' },
+    { key = 'h', mods = 'CMD', action = act.HideApplication },
+    { key = 'q', mods = 'CMD', action = act.QuitApplication },
+
+    -- Tab navigation
+    { key = '1', mods = 'CMD', action = act.ActivateTab(0) },
+    { key = '2', mods = 'CMD', action = act.ActivateTab(1) },
+    { key = '3', mods = 'CMD', action = act.ActivateTab(2) },
+    { key = '4', mods = 'CMD', action = act.ActivateTab(3) },
+    { key = '5', mods = 'CMD', action = act.ActivateTab(4) },
+    { key = '6', mods = 'CMD', action = act.ActivateTab(5) },
+    { key = '7', mods = 'CMD', action = act.ActivateTab(6) },
+    { key = '8', mods = 'CMD', action = act.ActivateTab(7) },
+    { key = '9', mods = 'CMD', action = act.ActivateTab(-1) },
+    { key = '{', mods = 'CMD|SHIFT', action = act.ActivateTabRelative(-1) },
+    { key = '}', mods = 'CMD|SHIFT', action = act.ActivateTabRelative(1) },
+
+    -- Font size
+    { key = '-', mods = 'CMD', action = act.DecreaseFontSize },
+    { key = '=', mods = 'CMD', action = act.IncreaseFontSize },
+    { key = '0', mods = 'CMD', action = act.ResetFontSize },
+
+    -- Other useful actions
+    { key = 'Enter', mods = 'ALT', action = act.ToggleFullScreen },
+    { key = 'Space', mods = 'CTRL|SHIFT', action = act.QuickSelect },
+
+    -- Pane navigation
+    { key = 'LeftArrow', mods = 'CMD|SHIFT', action = act.ActivatePaneDirection 'Left' },
+    { key = 'RightArrow', mods = 'CMD|SHIFT', action = act.ActivatePaneDirection 'Right' },
+    { key = 'UpArrow', mods = 'CMD|SHIFT', action = act.ActivatePaneDirection 'Up' },
+    { key = 'DownArrow', mods = 'CMD|SHIFT', action = act.ActivatePaneDirection 'Down' },
+
+    -- Pane resizing
+    { key = 'LeftArrow', mods = 'CMD|SHIFT|ALT', action = act.AdjustPaneSize{ 'Left', 1 } },
+    { key = 'RightArrow', mods = 'CMD|SHIFT|ALT', action = act.AdjustPaneSize{ 'Right', 1 } },
+    { key = 'UpArrow', mods = 'CMD|SHIFT|ALT', action = act.AdjustPaneSize{ 'Up', 1 } },
+    { key = 'DownArrow', mods = 'CMD|SHIFT|ALT', action = act.AdjustPaneSize{ 'Down', 1 } },
+
+    -- Pane/viewport scroll
+    { key = 'PageUp', mods = 'SHIFT', action = act.ScrollByPage(-1) },
+    { key = 'PageDown', mods = 'SHIFT', action = act.ScrollByPage(1) },
+
+    -- Pane zooming
+    { key = 'z', mods = 'CMD|SHIFT', action = act.TogglePaneZoomState },
+}
+
+-- Keep the copy_mode and search_mode key tables (modified for Mac)
+config.key_tables = {
+    copy_mode = {
+        { key = 'Tab', mods = 'NONE', action = act.CopyMode 'MoveForwardWord' },
+        { key = 'Tab', mods = 'SHIFT', action = act.CopyMode 'MoveBackwardWord' },
+        { key = 'Enter', mods = 'NONE', action = act.CopyMode 'MoveToStartOfNextLine' },
+        { key = 'Escape', mods = 'NONE', action = act.CopyMode 'Close' },
+        { key = 'Space', mods = 'NONE', action = act.CopyMode{ SetSelectionMode = 'Cell' } },
+        { key = '$', mods = 'NONE', action = act.CopyMode 'MoveToEndOfLineContent' },
+        { key = '0', mods = 'NONE', action = act.CopyMode 'MoveToStartOfLine' },
+        { key = ',', mods = 'NONE', action = act.CopyMode 'JumpReverse' },
+        { key = ';', mods = 'NONE', action = act.CopyMode 'JumpAgain' },
+        { key = 'F', mods = 'NONE', action = act.CopyMode{ JumpBackward = { prev_char = false } } },
+        { key = 'G', mods = 'NONE', action = act.CopyMode 'MoveToScrollbackBottom' },
+        { key = 'H', mods = 'NONE', action = act.CopyMode 'MoveToViewportTop' },
+        { key = 'L', mods = 'NONE', action = act.CopyMode 'MoveToViewportBottom' },
+        { key = 'M', mods = 'NONE', action = act.CopyMode 'MoveToViewportMiddle' },
+        { key = 'O', mods = 'NONE', action = act.CopyMode 'MoveToSelectionOtherEndHoriz' },
+        { key = 'T', mods = 'NONE', action = act.CopyMode{ JumpBackward = { prev_char = true } } },
+        { key = 'V', mods = 'NONE', action = act.CopyMode{ SetSelectionMode = 'Line' } },
+        { key = '^', mods = 'NONE', action = act.CopyMode 'MoveToStartOfLineContent' },
+        { key = 'b', mods = 'NONE', action = act.CopyMode 'MoveBackwardWord' },
+        { key = 'b', mods = 'ALT', action = act.CopyMode 'MoveBackwardWord' },
+        { key = 'b', mods = 'CMD', action = act.CopyMode 'PageUp' },
+        { key = 'c', mods = 'CMD', action = act.CopyMode 'Close' },
+        { key = 'd', mods = 'CMD', action = act.CopyMode{ MoveByPage = (0.5) } },
+        { key = 'e', mods = 'NONE', action = act.CopyMode 'MoveForwardWordEnd' },
+        { key = 'f', mods = 'NONE', action = act.CopyMode{ JumpForward = { prev_char = false } } },
+        { key = 'f', mods = 'ALT', action = act.CopyMode 'MoveForwardWord' },
+        { key = 'f', mods = 'CMD', action = act.CopyMode 'PageDown' },
+        { key = 'g', mods = 'NONE', action = act.CopyMode 'MoveToScrollbackTop' },
+        { key = 'g', mods = 'CMD', action = act.CopyMode 'Close' },
+        { key = 'h', mods = 'NONE', action = act.CopyMode 'MoveLeft' },
+        { key = 'j', mods = 'NONE', action = act.CopyMode 'MoveDown' },
+        { key = 'k', mods = 'NONE', action = act.CopyMode 'MoveUp' },
+        { key = 'l', mods = 'NONE', action = act.CopyMode 'MoveRight' },
+        { key = 'm', mods = 'ALT', action = act.CopyMode 'MoveToStartOfLineContent' },
+        { key = 'o', mods = 'NONE', action = act.CopyMode 'MoveToSelectionOtherEnd' },
+        { key = 'q', mods = 'NONE', action = act.CopyMode 'Close' },
+        { key = 't', mods = 'NONE', action = act.CopyMode{ JumpForward = { prev_char = true } } },
+        { key = 'u', mods = 'CMD', action = act.CopyMode{ MoveByPage = (-0.5) } },
+        { key = 'v', mods = 'NONE', action = act.CopyMode{ SetSelectionMode = 'Cell' } },
+        { key = 'v', mods = 'CMD', action = act.CopyMode{ SetSelectionMode = 'Block' } },
+        { key = 'w', mods = 'NONE', action = act.CopyMode 'MoveForwardWord' },
+        { key = 'y', mods = 'NONE', action = act.Multiple{ { CopyTo = 'ClipboardAndPrimarySelection' }, { CopyMode = 'Close' } } },
+        { key = 'PageUp', mods = 'NONE', action = act.CopyMode 'PageUp' },
+        { key = 'PageDown', mods = 'NONE', action = act.CopyMode 'PageDown' },
+        { key = 'End', mods = 'NONE', action = act.CopyMode 'MoveToEndOfLineContent' },
+        { key = 'Home', mods = 'NONE', action = act.CopyMode 'MoveToStartOfLine' },
+        { key = 'LeftArrow', mods = 'NONE', action = act.CopyMode 'MoveLeft' },
+        { key = 'LeftArrow', mods = 'ALT', action = act.CopyMode 'MoveBackwardWord' },
+        { key = 'RightArrow', mods = 'NONE', action = act.CopyMode 'MoveRight' },
+        { key = 'RightArrow', mods = 'ALT', action = act.CopyMode 'MoveForwardWord' },
+        { key = 'UpArrow', mods = 'NONE', action = act.CopyMode 'MoveUp' },
+        { key = 'DownArrow', mods = 'NONE', action = act.CopyMode 'MoveDown' },
+    }
+
+    search_mode = {
+        { key = 'Enter', mods = 'NONE', action = act.CopyMode 'PriorMatch' },
+        { key = 'Escape', mods = 'NONE', action = act.CopyMode 'Close' },
+        { key = 'n', mods = 'CMD', action = act.CopyMode 'NextMatch' },
+        { key = 'p', mods = 'CMD', action = act.CopyMode 'PriorMatch' },
+        { key = 'r', mods = 'CMD', action = act.CopyMode 'CycleMatchType' },
+        { key = 'u', mods = 'CMD', action = act.CopyMode 'ClearPattern' },
+        { key = 'PageUp', mods = 'NONE', action = act.CopyMode 'PriorMatchPage' },
+        { key = 'PageDown', mods = 'NONE', action = act.CopyMode 'NextMatchPage' },
+        { key = 'UpArrow', mods = 'NONE', action = act.CopyMode 'PriorMatch' },
+        { key = 'DownArrow', mods = 'NONE', action = act.CopyMode 'NextMatch' },
+    }
 }
 
 wezterm.on("gui-startup", function()
