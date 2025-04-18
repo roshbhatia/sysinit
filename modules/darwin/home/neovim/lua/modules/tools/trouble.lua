@@ -6,6 +6,21 @@ M.plugins = {
   {
     "folke/trouble.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function()
+      require("trouble").setup({
+        icons = true,
+        fold_open = "",
+        fold_closed = "",
+        signs = {
+          error = "E",
+          warning = "W",
+          hint = "H",
+          information = "I",
+          other = "O",
+        },
+        use_diagnostic_signs = true,
+      })
+    end,
   },
 }
 
