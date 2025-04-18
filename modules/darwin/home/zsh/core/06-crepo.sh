@@ -1,6 +1,5 @@
 #!/usr/bin/env zsh
 # Converted from core.main/crepo.sh to standalone executable
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
 
 # Make sure this script is sourced, not executed
