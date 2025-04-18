@@ -184,13 +184,11 @@ function M.setup()
   -- Register keymaps with which-key if available
   local status, wk = pcall(require, "which-key")
   if status then
-    wk.register({
-      ["<leader>d"] = {
-        name = "📊 Dropbar",
-        ["p"] = { function() require("dropbar.api").pick() end, "Pick Symbols in Winbar" },
-        ["g"] = { function() require("dropbar.api").goto_context_start() end, "Go to Context Start" },
-        ["n"] = { function() require("dropbar.api").select_next_context() end, "Select Next Context" },
-      },
+    wk.add({
+      { "<leader>d", group = "📊 Dropbar" },
+      { "<leader>dp", function() require("dropbar.api").pick() end, desc = "Pick Symbols in Winbar", mode = "n" },
+      { "<leader>dg", function() require("dropbar.api").goto_context_start() end, desc = "Go to Context Start", mode = "n" },
+      { "<leader>dn", function() require("dropbar.api").select_next_context() end, desc = "Select Next Context", mode = "n" },
     })
   else
     -- Default keymaps if which-key is not available

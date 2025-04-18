@@ -118,8 +118,8 @@ function M.setup()
   -- Register with which-key if available
   local status, wk = pcall(require, "which-key")
   if status then
-    wk.register({
-      ["<leader>P"] = { "<cmd>Alpha<CR>", "Open Homepage" },
+    wk.add({
+      { "<leader>P", "<cmd>Alpha<CR>", desc = "Open Homepage" },
     })
   else
     -- Fallback mapping if which-key not available
