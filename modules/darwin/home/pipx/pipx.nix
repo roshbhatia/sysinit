@@ -5,7 +5,9 @@ let
                       then userConfig.pipx.additionalPackages
                       else [];
 
-  basePackages = [];
+  basePackages = [
+    "yamllint"
+  ];
 
   allPackages = basePackages ++ additionalPackages;
 in
