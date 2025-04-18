@@ -134,25 +134,9 @@ if not vim.g.vscode then
 else
   -- VSCode-Neovim modules (minimal set)
   module_system = {
-    -- Core functionality
-    editor = {
-      "which-key",
-      "vscode",
-      "telescope",
-    },
-    -- No UI modules needed
-    ui = {
-      "devicons",
-      "lualine",
-    },
-    -- Minimal tool modules
-    tools = {
-      "autopairs",
-      "comment",
-      "treesitter",
-      "hop",
-      "alpha",      
-    },
+    editor = { "vscode" },
+    ui = {},
+    tools = {},
   }
 end
 local function collect_plugin_specs()
