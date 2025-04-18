@@ -55,6 +55,17 @@ M.plugins = {
           mode = "n" 
         },
       })
+      -- VSCode-like startup: open NvimTree on left and focus editor on the right
+      vim.api.nvim_create_autocmd("VimEnter", {
+        callback = function()
+          if vim.fn.argc() == 0 then
+            -- open tree
+            require("nvim-tree.api").tree.open()
+            -- move focus to the editor
+            vim.cmd("wincmd l")
+          end
+        end,
+      })
     end,
   }
 }
