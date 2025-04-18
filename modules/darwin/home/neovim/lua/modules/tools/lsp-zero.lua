@@ -59,61 +59,36 @@ M.plugins = {
         local servers = {
           -- Lua
           "lua_ls",
-          "luacheck",
-          "luaformatter",
-          
+
           -- Go
           "gopls",
-          "delve",
-          "gotests",
-          "gotestsum",
-          "json-to-struct",
+          "golangci_lint_ls",
           
           -- Python
-          "pyright",
+          "russ",
           
           -- JS/TS
-          "eslint",
-          "typescript-language-server", -- instead of ts_server or ts_ls
-          
+          "ts_ls"
+
           -- Shell
           "bashls",
-          "shellcheck",
           
           -- Data formats
-          "jsonls",
-          "jsonlint",
-          "jsonnet-language-server",
-          "yamlls",
-          "yamllint",
-          "yamlfmt",
-          "yamlfix",
-          "taplo",
-          "yq",
-          
+          "spectral",
+
           -- Markdown
           "marksman",
-          "grammarly-languageserver",
+          "grammarly",
           
           -- Nix
-          "nixfmt",
-          "nixpkgs-fmt",
+          "nil_ls"
           
           -- Terraform
           "tflint",
-          
-          -- HCL
-          "hclfmt",
+          "terraformls"
           
           -- Helm
           "helm-ls",
-          
-          -- Git
-          "actionlint",
-          "commitlint",
-          
-          -- Other
-          "gospel",
         }
         local to_install = {}
         if mlsp.get_available_servers then
@@ -153,53 +128,6 @@ M.plugins = {
                 gofumpt = true,
                 usePlaceholders = true,
                 completeUnimported = true,
-              },
-            },
-            capabilities = lsp_zero.get_capabilities(),
-          })
-        end,
-
-        -- Python Configuration
-        pyright = function()
-          lspconfig.pyright.setup({
-            settings = {
-              python = {
-                analysis = {
-                  autoSearchPaths = true,
-                  diagnosticMode = "workspace",
-                  useLibraryCodeForTypes = true,
-                },
-              },
-            },
-            capabilities = lsp_zero.get_capabilities(),
-          })
-        end,
-
-        -- YAML Configuration with schema support
-        yamlls = function()
-          lspconfig.yamlls.setup({
-            settings = {
-              yaml = {
-                schemaStore = {
-                  enable = false,
-                  url = "",
-                },
-                schemas = require('schemastore').yaml.schemas(),
-                validate = true,
-                format = { enable = true },
-              },
-            },
-            capabilities = lsp_zero.get_capabilities(),
-          })
-        end,
-
-        -- JSON Configuration with schema support
-        jsonls = function()
-          lspconfig.jsonls.setup({
-            settings = {
-              json = {
-                schemas = require('schemastore').json.schemas(),
-                validate = { enable = true },
               },
             },
             capabilities = lsp_zero.get_capabilities(),
