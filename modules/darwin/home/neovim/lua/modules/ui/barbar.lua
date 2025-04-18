@@ -133,7 +133,7 @@ M.plugins = {
 
 function M.setup()
   -- Register keymaps with which-key if available
-  local wk = pcall(require, "which-key")
+  local wk = require("which-key")
   wk.add({
     { "<leader>b", group = "📑 Buffer", icon = { icon = "📑" } },
     { "<leader>bc", "<cmd>BufferClose<CR>", desc = "Close Buffer" },

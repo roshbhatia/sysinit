@@ -116,7 +116,7 @@ M.plugins = {
 
 function M.setup()
   -- Register with which-key if available
-  local wk = pcall(require, "which-key")
+  local wk = require("which-key")
   wk.add({
     { "<leader>P", "<cmd>Alpha<CR>", desc = "Open Homepage" },
   })
