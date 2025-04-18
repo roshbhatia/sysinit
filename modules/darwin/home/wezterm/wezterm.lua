@@ -38,17 +38,14 @@ config.window_background_opacity = 0.85
 config.macos_window_background_blur = 50
 config.window_decorations = 'RESIZE'
 
--- Font configuration
-config.font = wezterm.font_with_fallback {{
-    family = 'Hack Nerd Font Mono', 
-    weight = 'Medium',
-    harfbuzz_features = {'zero', 'ss01', 'liga'}
-}, {
-    family = 'Hack Nerd Font Mono',
-    weight = 'Medium',
-}, 'Symbols Nerd Font'}
+-- Font configuration: use single primary font with symbol fallback for consistent metrics
+config.font = wezterm.font_with_fallback({
+  { family = 'Hack Nerd Font Mono', weight = 'Medium', harfbuzz_features = {'zero', 'ss01', 'liga'} },
+  'Symbols Nerd Font',
+})
 config.font_size = 12.0
-config.line_height = 1.1
+-- Adjust line height for consistent vertical spacing
+config.line_height = 1.0
 
 -- Cursor settings
 config.default_cursor_style = 'SteadyUnderline'
