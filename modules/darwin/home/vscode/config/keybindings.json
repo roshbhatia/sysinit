@@ -23,7 +23,13 @@
         "command": "workbench.action.toggleSidebarVisibility"
     },
     {
-        "key": "alt+cmd+b", 
+        "key": "alt+cmd+b",
         "command": "workbench.action.toggleAuxiliaryBar"
     },
-]
+    // Reload window (restarts VSCode and Neovim extension)
+    {
+        "key": "ctrl+alt+r",
+        "command": "workbench.action.reloadWindow",
+        "when": "editorTextFocus"
+    }
+]  
