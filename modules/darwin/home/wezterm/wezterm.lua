@@ -63,8 +63,8 @@ smart_splits.apply_to_config(config, {
     direction_keys = { 'h', 'j', 'k', 'l' },
     -- modifier keys to combine with direction_keys
     modifiers = {
-        move = 'CMD|SHIFT', -- modifier for pane movement
-        resize = 'CMD|ALT', -- modifier for pane resize
+        move = 'CTRL', -- modifier for pane movement
+        resize = 'CTRL|SHIFT', -- modifier for pane resize
     },
 })
 

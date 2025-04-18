@@ -102,7 +102,7 @@ function {
 	done
 }
 
-bindkey '^h' beginning-of-line    # CTRL + h for beginning of line
-bindkey '^j' backward-word        # CTRL + j for back word
-bindkey '^k' forward-word         # CTRL + k for forward word
-bindkey '^l' end-of-line          # CTRL + l for end of line
+bindkey '^y' beginning-of-line    # CTRL + y for beginning of line
+bindkey '^u' backward-word        # CTRL + u for back word
+bindkey '^i' forward-word         # CTRL + i for forward word
+bindkey '^o' end-of-line          # CTRL + o for end of line
