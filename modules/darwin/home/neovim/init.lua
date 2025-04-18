@@ -102,7 +102,6 @@ if not vim.g.vscode then
       "neominimap",
       "wezterm",
       "barbar",
-      "alpha",
       "themify",
     },
     -- Core editor functionality
@@ -127,6 +126,7 @@ if not vim.g.vscode then
       "copilot-chat",
       "copilot-cmp",
       "autopairs",
+      "alpha",
     },
   }
 else

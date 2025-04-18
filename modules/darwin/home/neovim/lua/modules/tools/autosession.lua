@@ -95,9 +95,7 @@ M.plugins = {
         { "<leader>ss", "<cmd>SessionSave<CR>", desc = "Save Session", mode = "n" },
         { "<leader>sl", "<cmd>SessionRestore<CR>", desc = "Load Session", mode = "n" },
         { "<leader>sd", "<cmd>SessionDelete<CR>", desc = "Delete Session", mode = "n" },
-        { "<leader>sf", "<cmd>Telescope session-lens search_session<CR>", desc = "Find Session", mode = "n" },
         { "<leader>sp", "<cmd>SessionPurgeOrphaned<CR>", desc = "Purge Orphaned Sessions", mode = "n" },
-        { "<leader>st", "<cmd>SessionToggleAutoSave<CR>", desc = "Toggle Auto Save", mode = "n" },
       })
       
       vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
