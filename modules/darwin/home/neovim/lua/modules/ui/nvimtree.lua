@@ -38,7 +38,6 @@ M.plugins = {
         },
       })
       
-      -- Register with which-key
       local wk = require("which-key")
       wk.add({
         { "<leader>e", group = "Explorer", icon = { icon = "🌲", hl = "WhichKeyIconGreen" } },
@@ -55,15 +54,6 @@ M.plugins = {
           desc = "Copy Node Path", 
           mode = "n" 
         },
-      })
-      -- VSCode-like startup: open NvimTree on left and focus editor on the right
-      vim.api.nvim_create_autocmd("VimEnter", {
-        callback = function()
-          -- open tree
-          require("nvim-tree.api").tree.open()
-          -- move focus to the editor
-          vim.cmd("wincmd l")
-        end,
       })
     end,
   }
