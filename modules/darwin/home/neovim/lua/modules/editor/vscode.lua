@@ -307,23 +307,23 @@ function M.setup_compat_plugins()
   local function show_menu(group)
     local items
     if group then
-      items = format_menu_items(group)
+        items = format_menu_items(group)
     else
-      items = format_root_menu_items()
+        items = format_root_menu_items()
     end
 
-    -- First adjust editor layout to prevent overlap
-    vscode.action('workbench.action.editorLayoutTwoRows')
+    -- Remove this line that creates the unwanted split
+    -- vscode.action('workbench.action.editorLayoutTwoRows')
 
     vscode.eval(M.EVAL_STRINGS.quickpick_menu, {
-      timeout = 1000,
-      args = {
-        items = items,
-        title = group and group.name or "Which Key Menu",
-        placeholder = group
-            and 'Select an action or press <Esc> to cancel'
-            or 'Select a group or action (groups shown with ▸)'
-      }
+        timeout = 1000,
+        args = {
+            items = items,
+            title = group and group.name or "Which Key Menu",
+            placeholder = group
+                and 'Select an action or press <Esc> to cancel'
+                or 'Select a group or action (groups shown with ▸)'
+        }
     })
   end
 
