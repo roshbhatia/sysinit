@@ -113,7 +113,6 @@ if not vim.g.vscode then
     },
     -- Tool modules
     tools = {
-      "autosession",
       "comment",
       "hop",
       "neoscroll",
@@ -129,6 +128,7 @@ if not vim.g.vscode then
       "autopairs",
       "trouble",
       "alpha",
+      "autosession",
     },
   }
 else
