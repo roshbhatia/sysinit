@@ -138,15 +138,20 @@ else
     editor = {
       "which-key",
       "vscode",
+      "telescope",
     },
     -- No UI modules needed
-    ui = {},
+    ui = {
+      "devicons",
+      "lualine",
+    },
     -- Minimal tool modules
     tools = {
-      "autosession",
+      "autopairs",
       "comment",
+      "treesitter",
       "hop",
-      "neoscroll",
+      "alpha",      
     },
   }
 end
