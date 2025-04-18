@@ -15,7 +15,7 @@ let
   paths = stripHeaders ./core/02-paths.sh;
   shellIntegration = stripHeaders ./core/03-shellpintegration.sh;
   bindings = stripHeaders ./core/04-bindings.sh;
-  kubectl = stripHeaders ./core/05-aliases.sh;
+  aliases = stripHeaders ./core/05-aliases.sh;
   crepo = stripHeaders ./core/06-crepo.sh;
   prompt = stripHeaders ./core/07-prompt.sh;
 
