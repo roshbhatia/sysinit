@@ -1,4 +1,4 @@
-vim.g.vscode = (vim.fn.exists('g:vscode') == 1) or (vim.env.VSCODE_GIT_IPC_HANDLE ~= nil)
+vim.g.vscode = (vim.fn.exists("g:vscode") == 1) or (vim.env.VSCODE_GIT_IPC_HANDLE ~= nil)
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -17,12 +17,14 @@ local init_dir = vim.fn.fnamemodify(vim.fn.expand("$MYVIMRC"), ":p:h")
 local lua_dir = init_dir .. "/lua"
 vim.opt.rtp:prepend(lua_dir)
 
+vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { noremap = true, silent = true })
+
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
 vim.opt.clipboard = "unnamedplus"
 
-vim.keymap.set('n', ':', ':', { noremap = true, desc = "Command mode" })
+vim.keymap.set("n", ":", ":", { noremap = true, desc = "Command mode" })
 
 -- Common settings
 local function setup_common_settings()
@@ -57,18 +59,18 @@ local function setup_neovim_settings()
   vim.opt.cursorline = true
   vim.opt.signcolumn = "yes"
   vim.opt.termguicolors = true
-  vim.opt.showmode = false  -- Hide mode since we use lualine
+  vim.opt.showmode = false -- Hide mode since we use lualine
   vim.opt.lazyredraw = true
-  
+
   vim.opt.foldmethod = "expr"
   vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
   vim.opt.foldenable = false
   vim.opt.foldlevel = 99
 
-  vim.opt.pumheight = 10        -- Limit completion menu height
-  vim.opt.cmdheight = 1         -- More space for displaying messages
-  vim.opt.hidden = true         -- Enable background buffers
-  vim.opt.showtabline = 2       -- Always show tabline
+  vim.opt.pumheight = 10 -- Limit completion menu height
+  vim.opt.cmdheight = 1 -- More space for displaying messages
+  vim.opt.hidden = true -- Enable background buffers
+  vim.opt.showtabline = 2 -- Always show tabline
   vim.opt.shortmess:append("c") -- Don't show completion messages
   vim.opt.completeopt = { "menuone", "noselect" }
 end
@@ -125,7 +127,7 @@ if not vim.g.vscode then
       "copilot-chat",
       "copilot-cmp",
       "autopairs",
-    }
+    },
   }
 else
   -- VSCode-Neovim modules (minimal set)
@@ -143,21 +145,21 @@ else
       "comment",
       "hop",
       "neoscroll",
-    }
+    },
   }
 end
 local function collect_plugin_specs()
   local specs = module_loader.get_plugin_specs(module_system)
-  
+
   if not vim.g.vscode then
     table.insert(specs, {
       "lewis6991/gitsigns.nvim",
       config = function()
         require("gitsigns").setup()
-      end
+      end,
     })
   end
-  
+
   return specs
 end
 
