@@ -11,7 +11,7 @@ fi
 
 # If this is a VSCODE terminal, we need to use a tiny prompt.
 if [ "$VSCODE_INJECTION" = "1"]; then
-  eval oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/zash.omp.json
+  eval "$(oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/zash.omp.json)"
 else
   _evalcache oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/catppuccin_mocha.omp.json
 fi
