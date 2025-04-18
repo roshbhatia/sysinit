@@ -1,0 +1,2 @@
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/folke/trouble.nvim/refs/heads/main/docs/examples.md"
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/folke/trouble.nvim/refs/heads/main/README.md"
