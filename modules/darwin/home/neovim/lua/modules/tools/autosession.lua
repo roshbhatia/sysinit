@@ -15,7 +15,7 @@ M.plugins = {
         auto_session_root_dir = vim.fn.stdpath("data") .. "/sessions/",
         auto_session_enabled = true,
         auto_save_enabled = true,
-        auto_restore_enabled = true,
+        auto_restore_enabled = false, -- Disable auto restore by default
         -- Continue restoring even if errors occur (prevent disabling auto save)
         continue_restore_on_error = true,
         auto_session_suppress_dirs = { "~/", "~/Projects", "~/Downloads", "/" },
@@ -99,6 +99,32 @@ M.plugins = {
       })
       
       vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+      
+      -- Auto open Alpha when Neovim starts with no arguments
+      vim.api.nvim_create_autocmd("VimEnter", {
+        callback = function()
+          -- Only show Alpha when:
+          -- 1. No arguments were passed to nvim
+          -- 2. The buffer is empty
+          -- 3. It's not a directory
+          local argc = vim.fn.argc()
+          local bufnr = vim.api.nvim_get_current_buf()
+          local bufname = vim.api.nvim_buf_get_name(bufnr)
+          local buftype = vim.bo[bufnr].ft
+          
+          if argc == 0 and bufname == "" and buftype ~= "directory" then
+            -- Check if Alpha is available before trying to open it
+            local alpha_ok, _ = pcall(require, "alpha")
+            if alpha_ok then
+              -- Close auto-session windows if they were opened
+              vim.cmd("silent! %bd")
+              -- Open Alpha
+              vim.cmd("Alpha")
+            end
+          end
+        end,
+        nested = true,
+      })
     end
   }
 }
