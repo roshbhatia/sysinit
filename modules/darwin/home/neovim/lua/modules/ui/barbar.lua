@@ -5,8 +5,8 @@ M.plugins = {
   {
     "romgrk/barbar.nvim",
     dependencies = {
-      "lewis6991/gitsigns.nvim", -- Optional: for git status
-      "nvim-tree/nvim-web-devicons", -- Optional: for file icons
+      "lewis6991/gitsigns.nvim",
+      "nvim-tree/nvim-web-devicons",
     },
     lazy = false,
     init = function() 
@@ -114,6 +114,9 @@ M.plugins = {
           
           -- Custom for Outline
           Outline = { event = 'BufWinLeave', text = 'symbols-outline' },
+          
+          -- Add alpha-nvim special handling
+          alpha = { event = 'BufWinLeave' },
         },
         
         -- Letters used for buffer-pick mode
@@ -127,12 +130,34 @@ M.plugins = {
         -- Focus previous buffer when closing the current
         focus_on_close = 'left',
       })
+      
+      -- Add this to prevent barbar from running during alpha startup
+      local bufferline_api = require('barbar.api')
+      
+      -- Delay barbar initialization when alpha is active
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "AlphaReady",
+        callback = function()
+          -- Disable barbar's auto-setup while alpha is active
+          vim.g.barbar_auto_setup_events = false
+        end
+      })
+      
+      -- Re-enable barbar when leaving alpha
+      vim.api.nvim_create_autocmd("BufUnload", {
+        pattern = "alpha",
+        callback = function()
+          -- Enable barbar's auto-setup after alpha is closed
+          vim.g.barbar_auto_setup_events = true
+          -- Force refresh
+          bufferline_api.update()
+        end
+      })
     end
   }
 }
 
 function M.setup()
-  -- Register keymaps with which-key if available
   local wk = require("which-key")
   wk.add({
     { "<leader>b", group = "📑 Buffer", icon = { icon = "📑" } },
@@ -144,11 +169,7 @@ function M.setup()
     { "<leader>b<", "<cmd>BufferMovePrevious<CR>", desc = "Move Buffer Left" },
     { "<leader>b>", "<cmd>BufferMoveNext<CR>", desc = "Move Buffer Right" },
   })
-
-  -- Enable mouse for barbar (optional)
-  vim.opt.mouse = "a"
   
-  -- Set up session support for barbar
   vim.opt.sessionoptions:append("globals")
   vim.api.nvim_create_autocmd("User", {
     pattern = "SessionSavePre",
@@ -156,22 +177,6 @@ function M.setup()
       vim.cmd("silent! BarbarSave")
     end
   })
-  
-  -- Configure the experimental popup menu palette as requested
-  -- This will make Command Palette style popup appear in the middle of the screen
-  local wilder_status, wilder = pcall(require, "wilder")
-  if wilder_status then
-    wilder.set_option('renderer', wilder.popupmenu_renderer(
-      wilder.popupmenu_palette_theme({
-        -- 'single', 'double', 'rounded' or 'solid'
-        border = 'rounded',
-        max_height = '75%',      -- max height of the palette
-        min_height = 0,          -- set to the same as 'max_height' for a fixed height window
-        prompt_position = 'top', -- 'top' or 'bottom' to set the location of the prompt
-        reverse = 0,             -- set to 1 to reverse the order of the list
-      })
-    ))
-  end
 end
 
 return M
