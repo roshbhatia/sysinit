@@ -95,12 +95,12 @@ if not vim.g.vscode then
   module_system = {
     -- UI-related modules (load first)
     ui = {
+      "wezterm",
       "devicons",
       "nvimtree",
       "dropbar",
       "lualine",
       "neominimap",
-      "wezterm",
       "barbar",
       "themify",
     },
