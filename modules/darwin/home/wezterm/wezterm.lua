@@ -58,8 +58,7 @@ config.use_fancy_tab_bar = false
 
 config.window_close_confirmation = 'NeverPrompt'
 
- -- Apply smart-splits configuration and collect keybindings
- local smart_keys = smart_splits.apply_to_config(config, {
+smart_splits.apply_to_config(config, {
     -- directional keys to use in order of: left, down, up, right
     direction_keys = { 'h', 'j', 'k', 'l' },
     -- modifier keys to combine with direction_keys
@@ -67,10 +66,9 @@ config.window_close_confirmation = 'NeverPrompt'
         move = 'CMD|SHIFT', -- modifier for pane movement
         resize = 'CMD|ALT', -- modifier for pane resize
     },
- })
+})
 
--- Additional keybindings
-local additional_keys = {
+config.keys = {
     { key = 's', mods = 'CMD|SHIFT', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
     { key = 'v', mods = 'CMD|SHIFT', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
     { key = 'k', mods = 'CMD', action = act.ClearScrollback 'ScrollbackAndViewport' },
@@ -79,9 +77,6 @@ local additional_keys = {
     { key = 'r', mods = 'CMD', action = act.ReloadConfiguration },
     { key = 'w', mods = 'CMD', action = wezterm.action.CloseCurrentPane { confirm = false } }
 }
-
- -- Merge additional keybindings with smart-splits keybindings
- config.keys = wezterm.config_builder.merge_key_tables(smart_keys, additional_keys)
 
 wezterm.on("gui-startup", function()
     local tab, pane, window = wezterm.mux.spawn_window {}
