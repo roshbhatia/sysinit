@@ -44,9 +44,8 @@ M.plugins = {
         },
         show_help = true,
         show_keys = true,
-        triggers = {
-          { "<auto>", mode = "nxsotc" },
-        },
+        -- use automatic trigger detection
+        triggers = "auto",
       })
       
       wk.add({
