@@ -13,7 +13,7 @@ let
   pre = stripHeaders ./core/00-pre.sh;
   logLib = stripHeaders ./core/01-loglib.sh;
   paths = stripHeaders ./core/02-paths.sh;
-  shellIntegration = stripHeaders ./core/03-shellpintegration.sh;
+  shellIntegration = stripHeaders ./core/03-shell-integration.sh;
   bindings = stripHeaders ./core/04-bindings.sh;
   aliases = stripHeaders ./core/05-aliases.sh;
   crepo = stripHeaders ./core/06-crepo.sh;
