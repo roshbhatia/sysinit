@@ -89,10 +89,6 @@ in
       ZSH_AUTOSUGGEST_USE_ASYNC = 1;
       ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = 20;
       ZSH_AUTOSUGGEST_MANUAL_REBIND = 1;
-      ZSH_AUTOSUGGEST_STRATEGY = [
-        "completion"
-        "history"
-      ];
       ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE = "fg=#808080,bold,underline";
 
       EDITOR="nvim";
@@ -266,6 +262,8 @@ in
       else
         compinit -C
       fi
+      
+      export ZSH_AUTOSUGGEST_STRATEGY = (completion history)
     '';
     
     dirHashes = {
