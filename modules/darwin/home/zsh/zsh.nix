@@ -4,11 +4,11 @@ let
   stripHeaders = file: let
     content = builtins.readFile file;
     lines = lib.splitString "\n" content;
-    isHeaderLine = line:
-      lib.hasPrefix "#!/usr/bin/env zsh" line ||
-      lib.hasPrefix "# shellcheck disable" line;
-    nonHeaderLines = builtins.filter (line: !(isHeaderLine line)) lines;
-  in lib.concatStringsSep "\n" nonHeaderLines;
+    nonCommentLines = builtins.filter (line:
+      let trimmed = lib.trimLeftWhitespace line; in
+        !(lib.hasPrefix "#" trimmed)
+    ) lines;
+  in lib.concatStringsSep "\n" nonCommentLines;
 
   pre = stripHeaders ./core/00-pre.sh;
   logLib = stripHeaders ./core/01-loglib.sh;
