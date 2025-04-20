@@ -5,7 +5,11 @@ let
     content = builtins.readFile file;
     lines = lib.splitString "\n" content;
     nonCommentLines = builtins.filter (line:
-      let trimmed = lib.trimLeftWhitespace line; in
+      let 
+        # Manual trim of left whitespace using string operations
+        trimmedLine = builtins.match "[ \t]*(.*)" line;
+        trimmed = if trimmedLine == null then line else builtins.elemAt trimmedLine 0;
+      in
         !(lib.hasPrefix "#" trimmed)
     ) lines;
   in lib.concatStringsSep "\n" nonCommentLines;
