@@ -9,7 +9,10 @@ _evalcache gh copilot alias -- zsh
 
 extras_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zsh/extras"
 if [[ -d $extras_dir ]]; then
+  # Use nullglob to avoid errors when no matches are found
+  setopt +o nomatch
   for f in "$extras_dir"/*.sh; do
     [[ -r $f ]] && source "$f"
   done
+  setopt -o nomatch
 fi

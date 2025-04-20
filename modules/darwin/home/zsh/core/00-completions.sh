@@ -38,12 +38,12 @@ fi
 # Make sure fzf-tab is properly configured after compinit
 if ! typeset -f _fzf_tab_complete >/dev/null 2>&1; then
   echo "Warning: fzf-tab not loaded properly, trying again..."
-  for dir in "${fpath[@]}"; do
-    if [[ -f "$dir/fzf-tab.plugin.zsh" ]]; then
-      source "$dir/fzf-tab.plugin.zsh"
-      break
-    fi
-  done
+  # Try direct paths based on logs
+  if [[ -f "$HOME/.zsh/plugins/fzf-tab/fzf-tab.plugin.zsh" ]]; then
+    source "$HOME/.zsh/plugins/fzf-tab/fzf-tab.plugin.zsh"
+  elif [[ -f "$HOME/.nix-profile/share/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh" ]]; then
+    source "$HOME/.nix-profile/share/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh"
+  fi
 fi
 
 # Base completion configuration
