@@ -41,8 +41,16 @@ if ! typeset -f _fzf_tab_complete >/dev/null 2>&1; then
   # Try direct paths based on logs
   if [[ -f "$HOME/.zsh/plugins/fzf-tab/fzf-tab.plugin.zsh" ]]; then
     source "$HOME/.zsh/plugins/fzf-tab/fzf-tab.plugin.zsh"
+    echo "Attempted to load fzf-tab from ~/.zsh/plugins/"
   elif [[ -f "$HOME/.nix-profile/share/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh" ]]; then
     source "$HOME/.nix-profile/share/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh"
+    echo "Attempted to load fzf-tab from nix profile"
+  fi
+  # Verify if it loaded successfully this time
+  if typeset -f _fzf_tab_complete >/dev/null 2>&1; then
+    echo "fzf-tab loaded successfully in completions"
+  else
+    echo "ERROR: fzf-tab could not be loaded in completions"
   fi
 fi
 

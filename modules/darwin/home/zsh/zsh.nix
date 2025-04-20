@@ -55,57 +55,7 @@ in
       PAGER="bat --pager=always --color=always";
     };
 
-    plugins = [
-      {
-        name = "fzf-tab";
-        src = pkgs.fetchFromGitHub {
-          owner = "Aloxaf";
-          repo = "fzf-tab";
-          rev = "v1.2.0";
-          sha256 = "sha256-q26XVS/LcyZPRqDNwKKA9exgBByE0muyuNb0Bbar2lY=";
-        };
-        file = "fzf-tab.plugin.zsh";
-      }
-      {
-        name = "fast-syntax-highlighting";
-        src = pkgs.fetchFromGitHub {
-          owner = "zdharma-continuum";
-          repo = "fast-syntax-highlighting";
-          rev = "cf318e06a9b7c9f2219d78f41b46fa6e06011fd9";
-          sha256 = "sha256-RVX9ZSzjBW3LpFs2W86lKI6vtcvDWP6EPxzeTcRZua4=";
-        };
-        file = "fast-syntax-highlighting.plugin.zsh";
-      }
-      {
-        name = "zsh-autosuggestions";
-        src = pkgs.fetchFromGitHub {
-          owner = "zsh-users";
-          repo = "zsh-autosuggestions";
-          rev = "0e810e5afa27acbd074398eefbe28d13005dbc15";
-          sha256 = "sha256-85aw9OM2pQPsWklXjuNOzp9El1MsNb+cIiZQVHUzBnk=";
-        };
-        file = "zsh-autosuggestions.plugin.zsh";
-      }
-      {
-        name = "enhancd";
-        src = pkgs.fetchFromGitHub {
-          owner = "babarot";
-          repo = "enhancd";
-          rev = "5afb4eb6ba36c15821de6e39c0a7bb9d6b0ba415";
-          sha256 = "sha256-pKQbwiqE0KdmRDbHQcW18WfxyJSsKfymWt/TboY2iic=";
-        };
-        file = "enhancd.plugin.zsh";
-      }
-      {
-        name = "evalcache";
-        src = pkgs.fetchFromGitHub {
-          owner = "mroth";
-          repo = "evalcache";
-          rev = "4c7fb8d5b319ae177fead3ec666e316ff2e13b90";
-          sha256 = "sha256-qzpnGTrLnq5mNaLlsjSA6VESA88XBdN3Ku/YIgLCb28=";
-        };
-      }
-    ];
+    plugins = [];
 
     initExtraFirst = ''
       # !/usr/bin/env zsh
@@ -146,6 +96,14 @@ in
       [[ -f "$HOME/.zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh" ]] && \
         source "$HOME/.zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"
       
+      # Load evalcache
+      [[ -f "$HOME/.zsh/plugins/evalcache/evalcache.plugin.zsh" ]] && \
+        source "$HOME/.zsh/plugins/evalcache/evalcache.plugin.zsh"
+      
+      # Load enhancd
+      [[ -f "$HOME/.zsh/plugins/enhancd/init.sh" ]] && \
+        source "$HOME/.zsh/plugins/enhancd/init.sh"
+      
       # Verify fzf-tab loaded correctly
       if typeset -f _fzf_tab_complete >/dev/null 2>&1; then
         echo "fzf-tab loaded successfully"
@@ -179,8 +137,8 @@ in
       recursive = true;
       executable = true;
     };
-    "zsh/setup-plugins.sh" = {
-      source = ./setup-plugins.sh;
+    "zsh/reset-zsh.sh" = {
+      source = ./reset-zsh.sh;
       executable = true;
     };
   };
@@ -196,8 +154,51 @@ in
     # Create a placeholder file to avoid "no matches found" error
     touch "$HOME/.config/zsh/extras/placeholder.sh"
     
-    # Ensure the ZSH plugins are installed
+    # Setup ZSH plugins directly in the activation script
     echo "Setting up ZSH plugins..."
-    $HOME/.config/zsh/setup-plugins.sh
+    PLUGIN_DIR="$HOME/.zsh/plugins"
+    mkdir -p "$PLUGIN_DIR"
+    
+    # Install fzf-tab
+    if [[ ! -d "$PLUGIN_DIR/fzf-tab" ]]; then
+      echo "Installing fzf-tab..."
+      git clone --depth 1 https://github.com/Aloxaf/fzf-tab.git "$PLUGIN_DIR/fzf-tab"
+    else
+      echo "fzf-tab already installed"
+    fi
+    
+    # Install zsh-autosuggestions
+    if [[ ! -d "$PLUGIN_DIR/zsh-autosuggestions" ]]; then
+      echo "Installing zsh-autosuggestions..."
+      git clone --depth 1 https://github.com/zsh-users/zsh-autosuggestions.git "$PLUGIN_DIR/zsh-autosuggestions"
+    else
+      echo "zsh-autosuggestions already installed"
+    fi
+    
+    # Install fast-syntax-highlighting
+    if [[ ! -d "$PLUGIN_DIR/fast-syntax-highlighting" ]]; then
+      echo "Installing fast-syntax-highlighting..."
+      git clone --depth 1 https://github.com/zdharma-continuum/fast-syntax-highlighting.git "$PLUGIN_DIR/fast-syntax-highlighting"
+    else
+      echo "fast-syntax-highlighting already installed"
+    fi
+    
+    # Install evalcache
+    if [[ ! -d "$PLUGIN_DIR/evalcache" ]]; then
+      echo "Installing evalcache..."
+      git clone --depth 1 https://github.com/mroth/evalcache.git "$PLUGIN_DIR/evalcache"
+    else
+      echo "evalcache already installed"
+    fi
+    
+    # Install enhancd
+    if [[ ! -d "$PLUGIN_DIR/enhancd" ]]; then
+      echo "Installing enhancd..."
+      git clone --depth 1 https://github.com/babarot/enhancd.git "$PLUGIN_DIR/enhancd"
+    else
+      echo "enhancd already installed"
+    fi
+    
+    echo "Done installing ZSH plugins"
   '';
 }
