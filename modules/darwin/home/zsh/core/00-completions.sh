@@ -1,12 +1,5 @@
 #!/usr/bin/env zsh
 # shellcheck disable=all
-_evalcache /opt/homebrew/bin/brew shellenv
-_evalcache atuin init zsh --disable-up-arrow
-_evalcache kubectl completion zsh
-_evalcache docker completion zsh
-_evalcache direnv hook zsh
-_evalcache gh copilot alias -- zsh
-
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git --exclude node_modules'
 export FZF_DEFAULT_OPTS="$(cat << 'EOF'
 --preview-window=right:60%:wrap:border-rounded
