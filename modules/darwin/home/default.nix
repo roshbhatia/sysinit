@@ -36,7 +36,7 @@ in {
     ./zsh/zsh.nix
     ./atuin/atuin.nix
     ./colima/colima.nix
-    ./neovim/neovim.nix
+    # ./neovim/neovim.nix
     ./k9s/k9s.nix
     ./aerospace/aerospace.nix
     ./macchina/macchina.nix

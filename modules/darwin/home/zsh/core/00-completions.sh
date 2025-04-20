@@ -1,5 +1,6 @@
 #!/usr/bin/env zsh
 # shellcheck disable=all
+# ---------- FZF General Configuration ----------
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git --exclude node_modules'
 export FZF_DEFAULT_OPTS="$(cat << 'EOF'
 --preview-window=right:60%:wrap:border-rounded
@@ -30,75 +31,77 @@ export FZF_DEFAULT_OPTS="$(cat << 'EOF'
 EOF
 )"
 
+# ---------- Enhancd Configuration ----------
 export ENHANCD_FILTER="fzf --ansi --preview 'eza -al --tree --level 1 --group-directories-first --git-ignore --header --git --no-user --no-time --no-filesize --no-permissions {}' --preview-window=right:40%:wrap:border-rounded --height=35% --layout=reverse --border=rounded --margin=1 --padding=1 --info=inline-right --prompt='❯ ' --pointer='▶' --marker='✓' --scrollbar='█' --bind='ctrl-/:toggle-preview' --bind='ctrl-r:refresh-preview'"
 export ENHANCD_ENABLE_DOUBLE_DOT=false
 export ENHANCD_ENABLE_HOME=false
 
-# fzf-tab configuration
+# ---------- General Completion Settings ----------
+# Load completions before fzf-tab to ensure proper initialization
+autoload -Uz compinit 
+if [ "$(date +'%j')" != "$(stat -f '%Sm' -t '%j' ~/.zcompdump 2>/dev/null)" ]; then
+  compinit
+else
+  compinit -C
+fi
+
+# Base completion configuration (these should be loaded before fzf-tab)
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "$HOME/.zcompcache"
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+
+# ---------- FZF-TAB Configuration ----------
+# Make sure fzf-tab is loaded at this point in your .zshrc file
+
+# FZF-TAB basic settings
 zstyle ':fzf-tab:*' fzf-command fzf
 zstyle ':fzf-tab:*' fzf-min-height 50
 zstyle ':fzf-tab:*' fzf-pad 4
-
-# Use the same colors as fzf default
-zstyle ':fzf-tab:*' fzf-flags --color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7
-
-# Show file previews for file/dir completions
-zstyle ':fzf-tab:complete:ls:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
-zstyle ':fzf-tab:complete:cp:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
-zstyle ':fzf-tab:complete:mv:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
-zstyle ':fzf-tab:complete:rm:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
-
-# Use enhancd fzf instead
-zstyle ':fzf-tab:complete:cd:*' disabled-on any
-
-# Preview content for text files
-zstyle ':fzf-tab:complete:cat:*' fzf-preview 'bat --color=always --style=numbers,header {}'
-zstyle ':fzf-tab:complete:vim:*' fzf-preview 'bat --color=always --style=numbers,header {}'
-zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'bat --color=always --style=numbers,header {}'
-
-# Show systemd unit status
-zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word'
-
-# Environment variables
-zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' \
-fzf-preview 'echo ${(P)word}'
-
-# Git preview support
-zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview \
-'git diff $word | delta'
-zstyle ':fzf-tab:complete:git-log:*' fzf-preview \
-'git log --color=always $word'
-zstyle ':fzf-tab:complete:git-help:*' fzf-preview \
-'git help $word | bat --color=always --language=man'
-zstyle ':fzf-tab:complete:git-show:*' fzf-preview \
-'case "$group" in
-    "commit tag") git show --color=always $word ;;
-    *) git show --color=always $word | delta ;;
-esac'
-zstyle ':fzf-tab:complete:git-checkout:*' fzf-preview \
-'case "$group" in
-    "modified file") git diff $word | delta ;;
-    "remote branch") git log --color=always $word ;;
-    *) git log --color=always $word ;;
-esac'
-
-# General settings
 zstyle ':fzf-tab:*' default-color $'\033[37m'
 zstyle ':fzf-tab:*' show-group full
 zstyle ':fzf-tab:*' prefix ''
 zstyle ':fzf-tab:*' single-group color header
 zstyle ':fzf-tab:*' switch-group 'alt-p' 'alt-n'
 
-# Completion configuration
-zstyle ':completion:*' use-cache on
-zstyle ':completion:*' cache-path "$HOME/.zcompcache"
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-zstyle ':completion:*' menu no
-zstyle ':completion:*' fzf-preview 'echo ${(P)word}'
+# Use the same colors as fzf default
+zstyle ':fzf-tab:*' fzf-flags --color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7
 
-autoload -Uz compinit
-if [ "$(date +'%j')" != "$(stat -f '%Sm' -t '%j' ~/.zcompdump 2>/dev/null)" ]; then
-compinit
-else
-compinit -C
-fi
+# File preview configurations
+zstyle ':fzf-tab:complete:ls:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
+zstyle ':fzf-tab:complete:cp:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
+zstyle ':fzf-tab:complete:mv:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
+zstyle ':fzf-tab:complete:rm:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
+
+# Text file preview
+zstyle ':fzf-tab:complete:cat:*' fzf-preview 'bat --color=always --style=numbers,header $realpath'
+zstyle ':fzf-tab:complete:vim:*' fzf-preview 'bat --color=always --style=numbers,header $realpath'
+zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'bat --color=always --style=numbers,header $realpath'
+
+# Environment variables
+zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' \
+  fzf-preview 'echo ${(P)word}'
+
+# Show systemd unit status
+zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word'
+
+# Git preview support
+zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview \
+  'git diff $word | delta'
+zstyle ':fzf-tab:complete:git-log:*' fzf-preview \
+  'git log --color=always $word'
+zstyle ':fzf-tab:complete:git-help:*' fzf-preview \
+  'git help $word | bat --color=always --language=man'
+zstyle ':fzf-tab:complete:git-show:*' fzf-preview \
+  'case "$group" in
+    "commit tag") git show --color=always $word ;;
+    *) git show --color=always $word | delta ;;
+  esac'
+zstyle ':fzf-tab:complete:git-checkout:*' fzf-preview \
+  'case "$group" in
+    "modified file") git diff $word | delta ;;
+    "remote branch") git log --color=always $word ;;
+    *) git log --color=always $word ;;
+  esac'
+
+# Use enhancd fzf instead of fzf-tab for cd
+zstyle ':fzf-tab:complete:cd:*' disabled-on any
