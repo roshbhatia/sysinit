@@ -268,21 +268,6 @@ in
       
       # Add key bindings for fzf-tab and autosuggestions
       bindkey '^I' fzf-tab-complete      # Tab to open fzf-tab
-      bindkey '^[[Z' autosuggest-accept  # Shift-Tab to accept suggestion
-      
-      # Fix for zsh-syntax-highlighting unhandled widget error
-      # This ensures zsh-syntax-highlighting knows about the autosuggest widgets
-      if [[ -n "$ZSH_HIGHLIGHT_VERSION" ]]; then
-        ZSH_HIGHLIGHT_HIGHLIGHTERS+=(main brackets pattern)
-        # Define the autosuggest-accept widget if it doesn't exist
-        [[ -z "$widgets[autosuggest-accept]" ]] && zle -N autosuggest-accept
-      fi
-      
-      # Ensure proper plugin loading order - add this to your Nix configuration
-      # that loads the plugins, ensure they're loaded in this order:
-      # 1. fzf-tab
-      # 2. zsh-autosuggestions
-      # 3. zsh-syntax-highlighting (must be last)
     '';
 
     dirHashes = {
