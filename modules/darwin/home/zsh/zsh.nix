@@ -266,8 +266,47 @@ in
       # Fix autosuggestion strategy syntax (removed spaces around =)
       export ZSH_AUTOSUGGEST_STRATEGY=(completion history)
       
-      # Add key bindings for fzf-tab and autosuggestions
-      bindkey '^I' fzf-tab-complete      # Tab to open fzf-tab
+      # Don't use precmd hooks for rebinding as they can cause recursion issues
+      # Instead, do the binding once after all plugins are loaded
+      
+      # Setup autosuggest accept widget if not already defined
+      [[ -z "$widgets[autosuggest-accept]" ]] && {
+        _custom_autosuggest_accept() {
+          # Simple implementation that just appends the suggestion to the buffer
+          local -i max_cursor_pos=$#BUFFER
+          
+          if [[ -n "$POSTDISPLAY" && $CURSOR -eq $max_cursor_pos ]]; then
+            BUFFER="$BUFFER$POSTDISPLAY"
+            POSTDISPLAY=""
+            CURSOR=$#BUFFER
+          fi
+          zle .accept-line
+        }
+        zle -N autosuggest-accept _custom_autosuggest_accept
+      }
+      
+      # Use standard tab completion as fallback if fzf-tab-complete causes issues
+      # This prevents recursion by using the original tab completion if needed
+      _safe_fzf_tab_complete() {
+        # Set a flag to prevent recursion
+        if [[ -n "$_FZF_TAB_RECURSION_GUARD" ]]; then
+          # Fall back to regular completion
+          zle .expand-or-complete
+          return
+        fi
+        
+        # Set the guard and try fzf-tab
+        export _FZF_TAB_RECURSION_GUARD=1
+        zle fzf-tab-complete
+        unset _FZF_TAB_RECURSION_GUARD
+      }
+      
+      # Create a safer version of fzf-tab-complete
+      zle -N safe-fzf-tab-complete _safe_fzf_tab_complete
+      
+      # Bind the keys - use the safe version of fzf-tab-complete
+      bindkey '^I' safe-fzf-tab-complete  # Tab
+      bindkey '^[[Z' autosuggest-accept   # Shift-Tab
     '';
 
     dirHashes = {
