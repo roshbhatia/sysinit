@@ -193,7 +193,7 @@ in
       [[ -n "$SYSINIT_DEBUG" ]] && zprof
     '';
     
-    completionInit = ''
+completionInit = ''
       # fzf-tab configuration
       zstyle ':fzf-tab:*' fzf-command fzf
       zstyle ':fzf-tab:*' fzf-min-height 50
@@ -263,7 +263,10 @@ in
         compinit -C
       fi
       
-      export ZSH_AUTOSUGGEST_STRATEGY = (completion history)
+      export ZSH_AUTOSUGGEST_STRATEGY=(completion history)
+      
+      bindkey '^I' fzf-tab-complete      # Tab to open fzf-tab
+      bindkey '^[[Z' autosuggest-accept  # Shift-Tab to accept suggestion
     '';
     
     dirHashes = {
