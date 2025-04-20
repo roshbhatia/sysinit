@@ -194,68 +194,32 @@ in
     '';
 
     completionInit = ''
-      # fzf-tab configuration
-      zstyle ':fzf-tab:*' fzf-command fzf
-      zstyle ':fzf-tab:*' fzf-min-height 50
-      zstyle ':fzf-tab:*' fzf-pad 4
+      # Basic fzf-tab configuration
+      # Set descriptions format to enable group support
+      zstyle ':completion:*:descriptions' format '[%d]'
       
-      # Use the same colors as fzf default
-      zstyle ':fzf-tab:*' fzf-flags --color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7
+      # Set list-colors to enable filename colorizing
+      zstyle ':completion:*' list-colors ''${(s.:.)LS_COLORS}
       
-      # Show file previews for file/dir completions
+      # Force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
+      zstyle ':completion:*' menu no
+      
+      # Preview configurations for various commands
       zstyle ':fzf-tab:complete:ls:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
       zstyle ':fzf-tab:complete:cp:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
       zstyle ':fzf-tab:complete:mv:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
       zstyle ':fzf-tab:complete:rm:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
+      zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
       
-      # Use enhancd fzf instead
-      zstyle ':fzf-tab:complete:cd:*' disabled-on any
-
-      # Preview content for text files
+      # Preview content for text files with bat
       zstyle ':fzf-tab:complete:cat:*' fzf-preview 'bat --color=always --style=numbers,header {}'
       zstyle ':fzf-tab:complete:vim:*' fzf-preview 'bat --color=always --style=numbers,header {}'
       zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'bat --color=always --style=numbers,header {}'
       
-      # Show systemd unit status
-      zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word'
-      
-      # Environment variables
-      zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' \
-        fzf-preview 'echo ''\${(P)word}'
-      
-      # Git preview support
-      zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview \
-        'git diff $word | delta'
-      zstyle ':fzf-tab:complete:git-log:*' fzf-preview \
-        'git log --color=always $word'
-      zstyle ':fzf-tab:complete:git-help:*' fzf-preview \
-        'git help $word | bat --color=always --language=man'
-      zstyle ':fzf-tab:complete:git-show:*' fzf-preview \
-        'case "$group" in
-          "commit tag") git show --color=always $word ;;
-          *) git show --color=always $word | delta ;;
-        esac'
-      zstyle ':fzf-tab:complete:git-checkout:*' fzf-preview \
-        'case "$group" in
-          "modified file") git diff $word | delta ;;
-          "remote branch") git log --color=always $word ;;
-          *) git log --color=always $word ;;
-        esac'
-        
-      # General settings
-      zstyle ':fzf-tab:*' default-color $'\033[37m'
-      zstyle ':fzf-tab:*' show-group full
-      zstyle ':fzf-tab:*' prefix ''\''
-      zstyle ':fzf-tab:*' single-group color header
+      # Switch groups using alt-p and alt-n
       zstyle ':fzf-tab:*' switch-group 'alt-p' 'alt-n'
       
-      # Completion configuration
-      zstyle ':completion:*' use-cache on
-      zstyle ':completion:*' cache-path "$HOME/.zcompcache"
-      zstyle ':completion:*' list-colors ''\${(s.:.)LS_COLORS}
-      zstyle ':completion:*' menu no
-      zstyle ':completion:*' fzf-preview 'echo ''\${(P)word}'
-
+      # Autocompletion settings
       autoload -Uz compinit
       if [ "$(date +'%j')" != "$(stat -f '%Sm' -t '%j' ~/.zcompdump 2>/dev/null)" ]; then
         compinit
@@ -263,50 +227,17 @@ in
         compinit -C
       fi
       
-      # Fix autosuggestion strategy syntax (removed spaces around =)
+      # Fix autosuggestion strategy syntax
       export ZSH_AUTOSUGGEST_STRATEGY=(completion history)
       
-      # Don't use precmd hooks for rebinding as they can cause recursion issues
-      # Instead, do the binding once after all plugins are loaded
+      # Add explicit key bindings for accepting suggestions with Shift-Tab
+      bindkey '^[[Z' autosuggest-accept  # Shift-Tab
       
-      # Setup autosuggest accept widget if not already defined
-      [[ -z "$widgets[autosuggest-accept]" ]] && {
-        _custom_autosuggest_accept() {
-          # Simple implementation that just appends the suggestion to the buffer
-          local -i max_cursor_pos=$#BUFFER
-          
-          if [[ -n "$POSTDISPLAY" && $CURSOR -eq $max_cursor_pos ]]; then
-            BUFFER="$BUFFER$POSTDISPLAY"
-            POSTDISPLAY=""
-            CURSOR=$#BUFFER
-          fi
-          zle .accept-line
-        }
-        zle -N autosuggest-accept _custom_autosuggest_accept
-      }
-      
-      # Use standard tab completion as fallback if fzf-tab-complete causes issues
-      # This prevents recursion by using the original tab completion if needed
-      _safe_fzf_tab_complete() {
-        # Set a flag to prevent recursion
-        if [[ -n "$_FZF_TAB_RECURSION_GUARD" ]]; then
-          # Fall back to regular completion
-          zle .expand-or-complete
-          return
-        fi
-        
-        # Set the guard and try fzf-tab
-        export _FZF_TAB_RECURSION_GUARD=1
-        zle fzf-tab-complete
-        unset _FZF_TAB_RECURSION_GUARD
-      }
-      
-      # Create a safer version of fzf-tab-complete
-      zle -N safe-fzf-tab-complete _safe_fzf_tab_complete
-      
-      # Bind the keys - use the safe version of fzf-tab-complete
-      bindkey '^I' safe-fzf-tab-complete  # Tab
-      bindkey '^[[Z' autosuggest-accept   # Shift-Tab
+      # This is important to make tab trigger fzf-tab correctly
+      # Make sure the completion system is properly initialized before adding this
+      zstyle ':fzf-tab:*' fzf-command fzf
+      zstyle ':fzf-tab:*' fzf-min-height 50
+      zstyle ':fzf-tab:*' fzf-pad 4
     '';
 
     dirHashes = {
