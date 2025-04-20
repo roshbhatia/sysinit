@@ -1,5 +1,6 @@
 #!/usr/bin/env zsh
 # shellcheck disable=all
+
 # ---------- FZF General Configuration ----------
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git --exclude node_modules'
 
@@ -18,6 +19,12 @@ export ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
 export ZSH_AUTOSUGGEST_MANUAL_REBIND=1
 export ZSH_AUTOSUGGEST_STRATEGY=(completion history)
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#8FBBE6,bold,underline"
+for dir in "${fpath[@]}"; do
+  if [[ -f "$dir/zsh-autosuggestions.plugin.zsh" ]]; then
+    source "$dir/zsh-autosuggestions.plugin.zsh"
+    break
+  fi
+done
 
 # ---------- General Completion Settings ----------
 # Initialize completions first
