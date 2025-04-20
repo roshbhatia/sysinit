@@ -127,15 +127,24 @@ in
     '';
     
     initExtra = ''
-      # Load plugins first - fzf-tab needs to be sourced before compinit
-      # This is why we're not using programs.zsh.enableCompletion
-      for dir in "$fpath[@]"; do
-        if [[ -f "$dir/fzf-tab.plugin.zsh" ]]; then
-          echo "Loading fzf-tab from $dir/fzf-tab.plugin.zsh"
-          source "$dir/fzf-tab.plugin.zsh"
-          break
-        fi
-      done
+      # Load plugins directly with full paths to avoid fpath issues
+      # The logs show the plugin is at ~/.zsh/plugins/fzf-tab/
+      if [[ -f "$HOME/.zsh/plugins/fzf-tab/fzf-tab.plugin.zsh" ]]; then
+        echo "Loading fzf-tab from $HOME/.zsh/plugins/fzf-tab/fzf-tab.plugin.zsh"
+        source "$HOME/.zsh/plugins/fzf-tab/fzf-tab.plugin.zsh"
+      elif [[ -f "$HOME/.nix-profile/share/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh" ]]; then
+        echo "Loading fzf-tab from nix profile"
+        source "$HOME/.nix-profile/share/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh"
+      else
+        echo "WARNING: Could not find fzf-tab plugin"
+      fi
+      
+      # Try to load other plugins directly
+      [[ -f "$HOME/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh" ]] && \
+        source "$HOME/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh"
+      
+      [[ -f "$HOME/.zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh" ]] && \
+        source "$HOME/.zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"
       
       # Verify fzf-tab loaded correctly
       if typeset -f _fzf_tab_complete >/dev/null 2>&1; then
@@ -170,6 +179,10 @@ in
       recursive = true;
       executable = true;
     };
+    "zsh/setup-plugins.sh" = {
+      source = ./setup-plugins.sh;
+      executable = true;
+    };
   };
 
   home.activation.prepareZshDirs = lib.hm.dag.entryBefore ["checkLinkTargets"] ''
@@ -180,5 +193,11 @@ in
     rm -rf "$HOME/.config/zsh/extras"
     # Create extras and extras/bin
     mkdir -p -m 755 "$HOME/.config/zsh/extras" "$HOME/.config/zsh/extras/bin"
+    # Create a placeholder file to avoid "no matches found" error
+    touch "$HOME/.config/zsh/extras/placeholder.sh"
+    
+    # Ensure the ZSH plugins are installed
+    echo "Setting up ZSH plugins..."
+    $HOME/.config/zsh/setup-plugins.sh
   '';
 }
