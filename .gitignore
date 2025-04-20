@@ -45,3 +45,5 @@ vendor/
 
 **/nix-darwin-master/
 **/*.old
+modules/darwin/home/neovim/prompt.md
+modules/darwin/home/neovim/status.md
