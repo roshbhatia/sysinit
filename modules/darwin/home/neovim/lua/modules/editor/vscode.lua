@@ -1,6 +1,89 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/vscode-neovim/vscode-neovim/main/README.md"
 local M = {}
 
+-- Setup utilities for writing prompt and status logs
+local info = debug.getinfo(1, 'S')
+local script_path = info.source:sub(2)
+local script_dir = vim.fn.fnamemodify(script_path, ':p:h')
+local root_dir = vim.fn.fnamemodify(script_dir .. '/../../../', ':p')
+local utils = {}
+utils.prompt_file = root_dir .. 'prompt.md'
+utils.status_file = root_dir .. 'status.md'
+utils.actions_file = root_dir .. 'vscode/actions.txt'
+
+local function write_file(path, lines)
+  local f, err = io.open(path, 'w')
+  if not f then
+    vim.notify('Error opening file: ' .. path .. ': ' .. err, vim.log.levels.ERROR)
+    return
+  end
+  for _, line in ipairs(lines) do f:write(line .. '\n') end
+  f:close()
+end
+
+--- Perform parity check between Neovim bindings and VSCode actions
+function M.check_parity()
+  local entries = {}
+  -- Load valid actions from actions.txt
+  local valid = {}
+  local af = io.open(utils.actions_file, 'r')
+  if not af then
+    table.insert(entries, 'Unable to open actions file: ' .. utils.actions_file)
+    utils.write_status(entries)
+    return
+  end
+  for line in af:lines() do valid[line] = true end
+  af:close()
+  -- Validate cmd_map actions
+  for cmd, action in pairs(M.cmd_map) do
+    if not valid[action] then
+      local msg = string.format("Invalid VSCode action '%s' for Neovim command '%s'", action, cmd)
+      vim.notify(msg, vim.log.levels.WARN)
+      table.insert(entries, msg)
+    end
+  end
+  -- Validate keybindings actions
+  for prefix, group in pairs(M.keybindings) do
+    for _, binding in ipairs(group.bindings) do
+      local act = binding.action or ''
+      if not valid[act] then
+        local msg = string.format("Invalid VSCode action '%s' in bindings for prefix '%s'", act, prefix)
+        vim.notify(msg, vim.log.levels.WARN)
+        table.insert(entries, msg)
+      end
+    end
+  end
+  if #entries == 0 then table.insert(entries, 'All VSCode actions are valid.') end
+  utils.write_status(entries)
+end
+
+function utils.write_prompt(title, placeholder, items)
+  local lines = {
+    '# Which Key Prompt',
+    '',
+    '**Title**: ' .. title,
+    '',
+    '**Placeholder**: ' .. placeholder,
+    '',
+    'Items:',
+    ''
+  }
+  for _, item in ipairs(items) do
+    if item.kind == -1 then
+      table.insert(lines, '- --- separator ---')
+    else
+      table.insert(lines, string.format('- `%s`: %s (action: %s)', item.label, item.description or '', item.action or ''))
+    end
+  end
+  write_file(utils.prompt_file, lines)
+end
+
+function utils.write_status(entries)
+  local lines = { '# VSCode Neovim Parity Status', '' }
+  for _, entry in ipairs(entries) do table.insert(lines, '- ' .. entry) end
+  write_file(utils.status_file, lines)
+end
+
 -- map of Neovim commands (without <cmd> and <cr>) to VSCode action names
 M.cmd_map = {
   w      = 'workbench.action.files.save',
@@ -305,24 +388,23 @@ function M.setup_compat_plugins()
   end
 
   local function show_menu(group)
-    local items
-    if group then
-        items = format_menu_items(group)
-    else
-        items = format_root_menu_items()
-    end
+    -- Prepare items and metadata for prompt
+    local items = group and format_menu_items(group) or format_root_menu_items()
+    local title = group and group.name or "Which Key Menu"
+    local placeholder = group
+        and 'Select an action or press <Esc> to cancel'
+        or 'Select a group or action (groups shown with ▸)'
 
-    -- Remove this line that creates the unwanted split
-    -- vscode.action('workbench.action.editorLayoutTwoRows')
+    -- Write current prompt state to prompt.md
+    utils.write_prompt(title, placeholder, items)
 
+    -- Show the quick pick menu in VSCode
     vscode.eval(M.EVAL_STRINGS.quickpick_menu, {
         timeout = 1000,
         args = {
             items = items,
-            title = group and group.name or "Which Key Menu",
-            placeholder = group
-                and 'Select an action or press <Esc> to cancel'
-                or 'Select a group or action (groups shown with ▸)'
+            title = title,
+            placeholder = placeholder
         }
     })
   end
@@ -405,6 +487,8 @@ function M.setup_compat_plugins()
   vim.keymap.set('n', 'N', 'Nzzzv', opts)
 
   update_mode_display()
+  -- Perform parity check and write status
+  M.check_parity()
 end
 
 return M
