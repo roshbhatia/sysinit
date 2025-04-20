@@ -123,6 +123,8 @@ in
     '';
     
     initExtra = ''
+      ${completions}
+
       ${logLib}
 
       ${paths}
@@ -138,10 +140,6 @@ in
       ${prompt}
 
       ${post}
-    '';
-    
-    completionInit = ''
-      ${completions}
     '';
   };
   
