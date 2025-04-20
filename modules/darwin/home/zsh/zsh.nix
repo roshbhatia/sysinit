@@ -18,7 +18,7 @@ let
   aliases = stripHeaders ./core/05-aliases.sh;
   crepo = stripHeaders ./core/06-crepo.sh;
   prompt = stripHeaders ./core/07-prompt.sh;
-  prompt = stripHeaders ./core/08-post.sh;
+  post = stripHeaders ./core/08-post.sh;
 
   completions = stripHeaders ./core/00-completions.sh;
 in

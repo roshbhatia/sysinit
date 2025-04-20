@@ -84,6 +84,7 @@ function utils.write_status(entries)
   write_file(utils.status_file, lines)
 end
 
+-- VGEN-BEGIN CMD_MAP
 -- map of Neovim commands (without <cmd> and <cr>) to VSCode action names
 M.cmd_map = {
   w      = 'workbench.action.files.save',
@@ -97,6 +98,7 @@ M.cmd_map = {
   split  = 'workbench.action.splitEditorDown',
   vsplit = 'workbench.action.splitEditorRight',
 }
+-- VGEN-END CMD_MAP
 
 --- Helper: map a Neovim command to a VSCode action or fallback to Neovim command
 ---@param mode string|table  Vim mode(s)
@@ -197,6 +199,7 @@ function M.setup_compat_plugins()
     group_items = {}
   }
 
+-- VGEN-BEGIN KEYBINDINGS
   M.keybindings = {
     f = {
       name = "🔍 Find",
@@ -313,6 +316,7 @@ function M.setup_compat_plugins()
       }
     }
   }
+-- VGEN-END KEYBINDINGS
 
   for mode, data in pairs(M.MODE_DISPLAY) do
     mode_strings[mode] = string.format("Mode: %s", data.text)
