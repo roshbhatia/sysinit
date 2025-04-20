@@ -27,12 +27,23 @@ for dir in "${fpath[@]}"; do
 done
 
 # ---------- General Completion Settings ----------
-# Initialize completions first
+# Initialize completions - fzf-tab should already be loaded from zsh.nix
 autoload -Uz compinit
 if [ "$(date +'%j')" != "$(stat -f '%Sm' -t '%j' ~/.zcompdump 2>/dev/null)" ]; then
   compinit
 else
   compinit -C
+fi
+
+# Make sure fzf-tab is properly configured after compinit
+if ! typeset -f _fzf_tab_complete >/dev/null 2>&1; then
+  echo "Warning: fzf-tab not loaded properly, trying again..."
+  for dir in "${fpath[@]}"; do
+    if [[ -f "$dir/fzf-tab.plugin.zsh" ]]; then
+      source "$dir/fzf-tab.plugin.zsh"
+      break
+    fi
+  done
 fi
 
 # Base completion configuration
@@ -51,9 +62,38 @@ zstyle ':fzf-tab:*' prefix ''
 zstyle ':fzf-tab:*' single-group color header
 zstyle ':fzf-tab:*' switch-group 'alt-p' 'alt-n'
 
+# Advanced fzf-tab options
+zstyle ':fzf-tab:*' continuous-trigger 'tab'
+zstyle ':fzf-tab:*' accept-line enter
+
 # Color settings
 zstyle ':fzf-tab:*' fzf-flags --color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7
 
-# Simple file previews - using minimal set first to avoid errors
-zstyle ':fzf-tab:complete:ls:*' fzf-preview 'eza -1 --color=always $realpath'
-zstyle ':fzf-tab:complete:cd:*' disabled-on any
+# Preview settings for different file types
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
+zstyle ':fzf-tab:complete:ls:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
+
+# Git preview
+zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview \
+  'git diff $word | bat --color=always --style=numbers --paging=never --language=diff'
+zstyle ':fzf-tab:complete:git-log:*' fzf-preview \
+  'git log --color=always $word'
+zstyle ':fzf-tab:complete:git-help:*' fzf-preview \
+  'git help $word | bat --color=always --language=man --style=numbers'
+zstyle ':fzf-tab:complete:git-show:*' fzf-preview \
+  'case "$group" in
+  "commit tag") git show --color=always $word ;;
+  *) git show --color=always $word ;;
+  esac'
+
+# Kill process preview
+zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-preview \
+  '[[ $group == "[process ID]" ]] && ps -p$word -o cmd --no-headers -w -w'
+zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags --preview-window=down:3:wrap
+
+# Misc previews
+zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' \
+  fzf-preview 'echo ${(P)word}'
+
+# Systemd unit file previews
+zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word'
