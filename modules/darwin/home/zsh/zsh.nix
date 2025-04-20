@@ -30,7 +30,7 @@ in
   programs.zsh = {
     enable = true;
     autocd = true;
-    enableCompletion = true;
+    enableCompletion = false; # We're managing completions manually
     historySubstringSearch.enable = true;
     # We need to install this manually due to fzf-tab needing to run first
     autosuggestion.enable = false;
@@ -127,6 +127,23 @@ in
     '';
     
     initExtra = ''
+      # Load plugins first - fzf-tab needs to be sourced before compinit
+      # This is why we're not using programs.zsh.enableCompletion
+      for dir in "$fpath[@]"; do
+        if [[ -f "$dir/fzf-tab.plugin.zsh" ]]; then
+          echo "Loading fzf-tab from $dir/fzf-tab.plugin.zsh"
+          source "$dir/fzf-tab.plugin.zsh"
+          break
+        fi
+      done
+      
+      # Verify fzf-tab loaded correctly
+      if typeset -f _fzf_tab_complete >/dev/null 2>&1; then
+        echo "fzf-tab loaded successfully"
+      else
+        echo "WARNING: fzf-tab did not load correctly"
+      fi
+      
       ${completions}
 
       ${logLib}
