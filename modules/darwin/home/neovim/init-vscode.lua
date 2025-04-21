@@ -55,9 +55,10 @@ end
 
 -- VSCode integration specific settings
 local function setup_vscode_integration()
-  if vim.g.vscode then
-    vim.notify("VSCode Neovim integration detected", vim.log.levels.INFO)
-  end
+  if not vim.g.vscode then return end
+  -- Suppress VimEnter autocommands to avoid premature remote plugin bootstrap errors
+  vim.cmd("set eventignore+=VimEnter")
+  vim.notify("VSCode Neovim integration detected", vim.log.levels.INFO)
 end
 
 -- Initialize module loader and setup plugins
@@ -77,9 +78,17 @@ local function setup_plugins()
     tools = {},
   }
 
-  -- Collect plugin specs from modules
+  -- Collect plugin specs, including VSCode-Neovim bridge
   local function collect_plugin_specs()
-    return module_loader.get_plugin_specs(module_system)
+    local specs = module_loader.get_plugin_specs(module_system)
+    -- Ensure the VSCode-Neovim plugin is loaded when in VSCode
+    table.insert(specs, {
+      "vscode-neovim/vscode-neovim",
+      -- Load the VSCode-Neovim bridge after the UI attaches to avoid premature RPC calls
+      cond = function() return vim.g.vscode == true end,
+      event = "UIEnter",
+    })
+    return specs
   end
 
   local lazy_ok, lazy = pcall(require, "lazy")
@@ -580,9 +589,10 @@ local function init()
   -- Try to load plugins (may fail if modules aren't available)
   pcall(setup_plugins)
   
-  -- Set up VSCode-specific features when VSCode has fully started
+  -- Set up VSCode-specific features when the VSCode UI attaches
   if vim.g.vscode then
-    vim.api.nvim_create_autocmd("VimEnter", {
+    vim.api.nvim_create_autocmd("UIEnter", {
+      once = true,
       callback = function()
         local ok, err = pcall(setup_vscode_features)
         if not ok then
