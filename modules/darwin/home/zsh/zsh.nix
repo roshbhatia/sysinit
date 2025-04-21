@@ -18,6 +18,7 @@ let
   completions = stripHeaders ./core/completions.sh;
   kubectl = stripHeaders ./core/kubectl.sh;
   crepo = stripHeaders ./core/crepo.sh;
+  extras = stripHeaders ./core/extras.sh;
   prompt = stripHeaders ./core/prompt.sh;
 
   combinedCoreScripts = ''
@@ -337,28 +338,9 @@ in
     initExtra = ''
       # modules/darwin/home/zsh/zsh.nix#initExtra (begin)
       ${combinedCoreScripts}
-    
-      ${completions}
-
-      if [[ -d "$HOME/.config/zsh/extras" ]]; then
-        for file in "$HOME/.config/zsh/extras/"*.sh(N); do
-          if [[ -f "$file" ]]; then
-            if [[ -n "$SYSINIT_DEBUG" ]]; then
-              log_debug "Sourcing file" path="$file"
-              source "$file"
-            else
-              source "$file"
-            fi
-          fi
-        done
-      fi
-
-      if [[ -f "$HOME/.zshsecrets" ]]; then
-        source $HOME/.zshsecrets
-      fi
-      
+          
       [[ -n "$SYSINIT_DEBUG" ]] && zprof
-      # modules/darwin/home/zsh/zsh.nix#initExtraFirst (end)
+      # modules/darwin/home/zsh/zsh.nix#initExtra (end)
     '';
   };
   
