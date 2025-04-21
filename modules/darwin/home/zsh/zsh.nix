@@ -225,9 +225,7 @@ in
       #      |__|/         \__\/         \__\/         \__\/         \__\/
 
       [[ -n "$SYSINIT_DEBUG" ]] && zmodload zsh/zprof
-      
-      typeset -U path cdpath fpath manpath
-      
+            
       unset MAILCHECK
       stty stop undef
       # modules/darwin/home/zsh/zsh.nix#initExtraFirst (end)
