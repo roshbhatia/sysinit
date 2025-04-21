@@ -1,21 +1,57 @@
 #!/usr/bin/env bash
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
-# shellcheck disable=all
+set -euo pipefail
 
-if [[ -f $1 ]]; then
-  if [[ $1 =~ \.md$ ]]; then
-    glow -s dark "$1"
-  elif [[ $1 =~ \.json$ ]]; then
-    jq -C . "$1"
-  elif [[ $1 =~ \.(js|jsx|ts|tsx|html|css|yml|yaml|toml|nix|sh|zsh|bash|fish)$ ]]; then
-    bat --color=always --style=numbers,header "$1"
-  elif [[ $1 =~ \.(jpg|jpeg|png|gif)$ ]]; then
-    wezterm imgcat "$1" 2>/dev/null || echo "Image preview not available"
-  else
-    bat --color=always --style=numbers,header "$1" || cat "$1"
+file="$1"
+realpath="$file"
+context="${2:-}" # Optional context parameter
+
+# Git-specific preview handling
+if [[ "$context" == "git" ]]; then
+  if [[ -f "$realpath" ]]; then
+    git diff --color=always "$realpath" 2>/dev/null | delta || bat --color=always --style=numbers,header,grid --line-range :100 "$realpath"
+    exit 0
+  elif [[ -z "$realpath" ]]; then
+    git status -s 2>/dev/null || echo "Not a git repository"
+    exit 0
   fi
-elif [[ -d $1 ]]; then
-  eza -T --color=always --icons --git-ignore --git "$1" | head -200
-else
-  echo "$1"
 fi
+
+# Directory preview
+if [[ -d "$realpath" ]]; then
+  eza -la --color=always --icons --git-ignore --git --group-directories-first "$realpath"
+  exit 0
+fi
+
+# File preview
+if [[ -f "$realpath" ]]; then
+  case "$realpath" in
+    *.md)
+      glow -s dark "$realpath"
+      ;;
+    *.json)
+      jq -C . "$realpath"
+      ;;
+    *.yml|*.yaml)
+      bat --color=always --style=numbers,header,grid --language=yaml --line-range :100 "$realpath"
+      ;;
+    *.js|*.jsx|*.ts|*.tsx|*.html|*.css|*.toml|*.nix|*.sh|*.zsh|*.bash|*.fish)
+      bat --color=always --style=numbers,header,grid --line-range :100 "$realpath"
+      ;;
+    *.jpg|*.jpeg|*.png|*.gif)
+      wezterm imgcat "$realpath" 2>/dev/null || echo "Image preview not available"
+      ;;
+    *)
+      bat --color=always --style=numbers,header,grid --line-range :100 "$realpath" || cat "$realpath"
+      ;;
+  esac
+  exit 0
+fi
+
+# Systemd unit status
+if [[ "$context" == "systemd" && -n "$realpath" ]]; then
+  SYSTEMD_COLORS=1 systemctl status "$realpath" 2>/dev/null || echo "No unit status available"
+  exit 0
+fi
+
+# Fallback
+echo "$realpath"

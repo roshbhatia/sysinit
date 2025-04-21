@@ -114,6 +114,36 @@ in
       ZSH_AUTOSUGGEST_MANUAL_REBIND = 1;
       ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE = "fg=#808080,bold,underline";
 
+      FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
+      FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
+        "--preview-window=right:60%:wrap:border-rounded"
+        "--height=80%"
+        "--layout=reverse"
+        "--border=rounded"
+        "--margin=1"
+        "--padding=1"
+        "--info=inline-right"
+        "--prompt='❯ '"
+        "--pointer='▶'"
+        "--marker='✓'"
+        "--scrollbar='█'"
+        "--color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7"
+        "--color=prompt:1,pointer:5,marker:2,spinner:5,header:4"
+        "--preview='sysinit-fzf-preview {}'"
+        "--bind='ctrl-/:toggle-preview'"        # Toggle preview window
+        "--bind='ctrl-s:toggle-sort'"           # Toggle sorting
+        "--bind='ctrl-space:toggle-preview-wrap'" # Toggle preview wrap
+        "--bind='tab:half-page-down'"           # Scroll preview down
+        "--bind='btab:half-page-up'"            # Scroll preview up
+        "--bind='ctrl-u:clear-query'"           # Clear query
+        "--bind='resize:refresh-preview'"       # Refresh on resize
+      ];
+
+      # Enhanced cd navigation
+      ENHANCD_FILTER = "fzf --height=35% --reverse --border=rounded --inline-info --preview='sysinit-fzf-preview {}'";
+      ENHANCD_ENABLE_DOUBLE_DOT = false;
+      ENHANCD_ENABLE_HOME = false;
+
       EDITOR = "nvim";
       SUDO_EDITOR = "$EDITOR";
       VISUAL = "$EDITOR";
@@ -197,145 +227,53 @@ in
     '';
     
     completionInit = ''
-      # modules/darwin/home/zsh/zsh.nix#completionInit (begin)
-      # Create zcompdump directory if it doesn't exist
+      # Create zcompdump directory and load completions
       mkdir -p "''\${XDG_DATA_HOME}/zsh/zcompdump"
-
-      # Load completions
       autoload -Uz compinit
       if [[ -n ''\${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump(#qN.mh+24) ]]; then
         compinit -d "''\${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump";
       else
         compinit -C -d "''\${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump";
-      fi;
+      fi
 
-      # Basic fzf-tab configuration
-      # Set descriptions format to enable group support
-      zstyle ':completion:*:descriptions' format '[%d]'
-      
-      # Set list-colors to enable filename colorizing
-      zstyle ':completion:*' list-colors ''${(s.:.)LS_COLORS}
-      
-      # Force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
+      # Basic completion configuration
       zstyle ':completion:*' menu no
-      
-      # Define preview command for different file types
-      preview_command="
-      if [[ -d \$realpath ]]; then
-        eza -la --color=always --icons --git-ignore --git --group-directories-first \$realpath
-      elif [[ -f \$realpath ]]; then
-        case \$realpath in
-          *.md)
-            glow -s dark \$realpath
-            ;;
-          *.json)
-            jq -C . \$realpath
-            ;;
-          *.js|*.jsx|*.ts|*.tsx|*.html|*.css|*.yml|*.yaml|*.toml|*.nix|*.sh|*.zsh|*.bash|*.fish)
-            bat --color=always --style=numbers,header,grid --line-range :100 \$realpath
-            ;;
-          *.jpg|*.jpeg|*.png|*.gif)
-            kitten icat \$realpath 2>/dev/null || imgcat \$realpath 2>/dev/null || echo \"Image preview not available\"
-            ;;
-          *)
-            bat --color=always --style=numbers,header,grid --line-range :100 \$realpath || cat \$realpath
-            ;;
-        esac
-      else
-        echo \$realpath
-      fi
-      "
-      
-      # Use the same FZF appearance settings from your configuration
-      zstyle ':fzf-tab:*' fzf-flags --preview-window=right:60%,wrap,border-rounded --height=80% --layout=reverse --border=rounded --margin=1 --padding=1 --info=inline-right --prompt='❯ ' --pointer='▶' --marker='✓' --scrollbar='█' --color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7 --color=prompt:1,pointer:5,marker:2,spinner:5,header:4 --bind='ctrl-/:toggle-preview' --bind='ctrl-s:toggle-sort' --bind='ctrl-space:toggle-preview-wrap' --bind='tab:half-page-down' --bind='btab:half-page-up' --bind='ctrl-y:preview-up' --bind='ctrl-e:preview-down' --bind='?:toggle-preview' --bind='alt-w:toggle-preview-wrap' --bind='ctrl-u:clear-query' --bind='resize:refresh-preview'
-      
-      # Apply preview command to different completion contexts
-      zstyle ':fzf-tab:complete:cd:*' fzf-preview sysinit-fzf-preview
-      zstyle ':fzf-tab:complete:ls:*' fzf-preview sysinit-fzf-preview
-      zstyle ':fzf-tab:complete:nvim:*' fzf-preview sysinit-fzf-preview
-      zstyle ':fzf-tab:complete:vim:*' fzf-preview sysinit-fzf-preview
-      zstyle ':fzf-tab:complete:cat:*' fzf-preview sysinit-fzf-preview
-      zstyle ':fzf-tab:complete:cp:*' fzf-preview sysinit-fzf-preview
-      zstyle ':fzf-tab:complete:mv:*' fzf-preview sysinit-fzf-preview
-      zstyle ':fzf-tab:complete:rm:*' fzf-preview sysinit-fzf-preview
-      
-      # Apply preview command as default for all other completions
-      zstyle ':fzf-tab:*' fzf-preview sysinit-fzf-preview
-      
-      # Show systemd unit status
-      zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word 2>/dev/null || echo "No unit status available"'
-      
-      # Git preview with delta
-      git_preview="
-      if [[ -d \$realpath ]]; then
-        eza -la --color=always --icons --git-ignore --git --group-directories-first \$realpath
-      elif [[ -f \$realpath ]]; then
-        git diff --color=always \$realpath 2>/dev/null | delta || bat --color=always --style=numbers,header,grid --line-range :100 \$realpath
-      else
-        git status -s \$word 2>/dev/null || echo \$word
-      fi
-      "
-      
-      zstyle ':fzf-tab:complete:git-*:*' fzf-preview $git_preview
-      
-      # Add kubectl file previewing
-      kubectl_preview="
-      if [[ -f \$realpath && (\$realpath == *.yml || \$realpath == *.yaml) ]]; then
-        bat --color=always --style=numbers,header,grid --language=yaml --line-range :100 \$realpath
-      else
-        sysinit-fzf-preview
-      fi
-      "
-      
-      zstyle ':fzf-tab:complete:kubectl-*:*' fzf-preview $kubectl_preview
-      
-      # Switch groups using alt-p and alt-n
-      zstyle ':fzf-tab:*' switch-group 'alt-p' 'alt-n'
-      
-      # fzf appearance and behavior 
+      zstyle ':completion:*' list-colors ''${(s.:.)LS_COLORS}
+      zstyle ':completion:*:descriptions' format '[%d]'
+
+      # FZF-tab configuration
       zstyle ':fzf-tab:*' fzf-command fzf
       zstyle ':fzf-tab:*' fzf-min-height 50
       zstyle ':fzf-tab:*' fzf-pad 4
-      
-      # Enable continuous preview when Ctrl+/ is pressed
       zstyle ':fzf-tab:*' continuous-trigger '/'
-      
-      # General settings
+      zstyle ':fzf-tab:*' switch-group 'alt-p' 'alt-n'
       zstyle ':fzf-tab:*' default-color $'\033[37m'
       zstyle ':fzf-tab:*' show-group full
       zstyle ':fzf-tab:*' prefix ''\''
       zstyle ':fzf-tab:*' single-group color header
+
+      # Preview configurations
+      zstyle ':fzf-tab:*' fzf-flags --preview-window=right:60%:wrap:border-rounded --height=80% --layout=reverse --border=rounded --margin=1 --padding=1 --info=inline-right --prompt='❯ ' --pointer='▶' --marker='✓' --scrollbar='█' --color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7 --color=prompt:1,pointer:5,marker:2,spinner:5,header:4 --bind='ctrl-/:toggle-preview' --bind='ctrl-s:toggle-sort' --bind='ctrl-space:toggle-preview-wrap' --bind='tab:half-page-down' --bind='btab:half-page-up' --bind='ctrl-y:preview-up' --bind='ctrl-e:preview-down' --bind='?:toggle-preview' --bind='alt-w:toggle-preview-wrap' --bind='ctrl-u:clear-query' --bind='resize:refresh-preview'
+      zstyle ':fzf-tab:*' fzf-preview 'sysinit-fzf-preview {}'
+      zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word 2>/dev/null || echo "No unit status available"'
+      zstyle ':fzf-tab:complete:git-*:*' fzf-preview 'sysinit-fzf-preview {}'
+      zstyle ':fzf-tab:complete:kubectl-*:*' fzf-preview 'if [[ {} == *.@(yml|yaml) ]]; then bat --color=always --style=numbers,header,grid --language=yaml --line-range :100 {}; else sysinit-fzf-preview {}; fi'
       
-      # Use enhancd fzf instead for cd
+      # Disable fzf-tab for cd (using enhancd instead)
       zstyle ':fzf-tab:complete:cd:*' disabled-on any
-      
-      # Fix autosuggestion strategy syntax
-      export ZSH_AUTOSUGGEST_STRATEGY=(completion history)
-      
-      # Add explicit key binding for accepting suggestions with Shift-Tab
-      bindkey '^[[Z' autosuggest-accept  # Shift-Tab
-      
-      # Make sure fzf-tab is loaded properly
+
+      # Load and configure fzf-tab
       autoload -Uz +X _fzf_tab_complete 2>/dev/null
-      
-      # This is crucial: ensure the key binding is set after plugins are loaded
-      _setup_fzf_tab_bindings() {
-        # Only rebind if fzf-tab-complete exists
-        (( $+widgets[fzf-tab-complete] )) && bindkey '^I' fzf-tab-complete
-      }
-      
-      # Add the setup function to precmd hook to ensure it runs after all plugins load
+      _setup_fzf_tab_bindings() { (( $+widgets[fzf-tab-complete] )) && bindkey '^I' fzf-tab-complete }
       autoload -Uz add-zsh-hook
       add-zsh-hook precmd _setup_fzf_tab_bindings
-
-      # Enable fzf-tab plugin if available
-      type enable-fzf-tab >/dev/null 2>&1 && enable-fzf-tab
-      # modules/darwin/home/zsh/zsh.nix#completionInit (begin)
     '';
   
     initExtra = ''
       # modules/darwin/home/zsh/zsh.nix#initExtra (begin)
       ${combinedCoreScripts}
+      
+      enable-fzf-tab
           
       [[ -n "$SYSINIT_DEBUG" ]] && zprof
       # modules/darwin/home/zsh/zsh.nix#initExtra (end)
