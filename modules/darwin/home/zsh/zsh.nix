@@ -345,14 +345,6 @@ in
       # Use enhancd fzf instead for cd
       zstyle ':fzf-tab:complete:cd:*' disabled-on any
       
-      # Autocompletion settings
-      autoload -Uz compinit
-      if [ "$(date +'%j')" != "$(stat -f '%Sm' -t '%j' ~/.zcompdump 2>/dev/null)" ]; then
-        compinit
-      else
-        compinit -C
-      fi
-      
       # Fix autosuggestion strategy syntax
       export ZSH_AUTOSUGGEST_STRATEGY=(completion history)
       
