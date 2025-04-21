@@ -117,19 +117,7 @@ tasks:
     desc: Generate VSCode Neovim config file (init-vscode.lua)
     silent: true
     cmds:
-      - |-
-        # Auto-generate init-vscode.lua from annotated sections in vscode.lua
-        echo '-- WARNING: AUTO-GENERATED FILE. DO NOT EDIT.' > init-vscode.lua
-        echo '' >> init-vscode.lua
-        echo 'local M = {}' >> init-vscode.lua
-        echo '' >> init-vscode.lua
-        # Extract command map section
-        sed -n '/-- VGEN-BEGIN CMD_MAP/,/-- VGEN-END CMD_MAP/p' lua/modules/editor/vscode.lua >> init-vscode.lua
-        echo '' >> init-vscode.lua
-        # Extract keybindings section
-        sed -n '/-- VGEN-BEGIN KEYBINDINGS/,/-- VGEN-END KEYBINDINGS/p' lua/modules/editor/vscode.lua >> init-vscode.lua
-        echo '' >> init-vscode.lua
-        echo 'return M' >> init-vscode.lua
+      - go run scripts/generate_vscode.go
     usage: |
       Generate a VSCode-specific Neovim config file:
         task generate-vscode

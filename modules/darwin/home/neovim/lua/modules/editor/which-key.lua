@@ -50,10 +50,10 @@ M.plugins = {
       })
       
       wk.add({
-        { "<leader>f", group = "Find/Files", icon = { icon = "󰍉", hl = "WhichKeyIconPurple" } },
-        { "<leader>b", group = "Buffers", icon = { icon = "󰓩", hl = "WhichKeyIconBlue" } },
-        { "<leader>w", group = "Windows", icon = { icon = "󰖮", hl = "WhichKeyIconCyan" } },
-        { "<leader>g", group = "Git", icon = { icon = "", hl = "WhichKeyIconRed" } },
+        { "<leader>f", group = "Find/Files", icon = { icon = "󰍉", hl = "WhichKeyIconPurple" } }, -- vscode actions: search-preview.quickOpenWithPreview, workbench.action.findInFiles, workbench.action.showAllEditors, workbench.action.showAllSymbols, workbench.action.openRecent
+        { "<leader>b", group = "Buffers", icon = { icon = "󰓩", hl = "WhichKeyIconBlue" } }, -- vscode actions: workbench.action.nextEditor, workbench.action.previousEditor, workbench.action.closeActiveEditor, workbench.action.closeOtherEditors
+        { "<leader>w", group = "Windows", icon = { icon = "󰖮", hl = "WhichKeyIconCyan" } }, -- vscode actions: workbench.action.focusLeftGroup, workbench.action.focusBelowGroup, workbench.action.focusAboveGroup, workbench.action.focusRightGroup, workbench.action.evenEditorWidths, workbench.action.toggleEditorWidths, workbench.action.closeActiveEditor, workbench.action.closeOtherEditors, workbench.action.moveEditorToLeftGroup, workbench.action.moveEditorToBelowGroup, workbench.action.moveEditorToAboveGroup, workbench.action.moveEditorToRightGroup
+        { "<leader>g", group = "Git", icon = { icon = "", hl = "WhichKeyIconRed" } }, -- vscode actions: git.stage, git.stageAll, git.unstage, git.unstageAll, git.commit, git.commitAll, git.push, git.pull, git.openChange, git.openAllChanges, git.checkout, git.fetch, git.revertChange, workbench.view.scm, workbench.action.chat.open
         { "<leader>l", group = "LSP", icon = { icon = "󰒕", hl = "WhichKeyIconBlue" } },
         { "<leader>s", group = "Session", icon = { icon = "󱂬", hl = "WhichKeyIconCyan" } },
         { "<leader>c", group = "Comment", icon = { icon = "󰅺", hl = "WhichKeyIconGreen" } },

@@ -160,7 +160,7 @@ M.plugins = {
 function M.setup()
   local wk = require("which-key")
   wk.add({
-    { "<leader>b", group = "📑 Buffer", icon = { icon = "📑" } },
+    { "<leader>b", group = "📑 Buffer", icon = { icon = "📑" } }, -- vscode actions: workbench.action.nextEditor, workbench.action.previousEditor, workbench.action.closeActiveEditor, workbench.action.closeOtherEditors
     { "<leader>bc", "<cmd>BufferClose<CR>", desc = "Close Buffer" },
     { "<leader>ba", "<cmd>BufferCloseAllButCurrent<CR>", desc = "Close All But Current" },
     { "<leader>bv", "<cmd>BufferCloseAllButVisible<CR>", desc = "Close All But Visible" },
