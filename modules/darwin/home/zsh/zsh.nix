@@ -212,7 +212,7 @@ in
       zstyle ':completion:*' menu no
       
       # Import your FZF settings
-      ${completion}
+      ${completions}
       
       # Define preview command for different file types
       preview_command="
