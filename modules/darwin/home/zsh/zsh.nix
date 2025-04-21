@@ -227,7 +227,7 @@ in
       # Instant prompt: minimal prompt to avoid blank screen
       setopt PROMPT_SUBST
       PROMPT='%~%# '
-      RPS1=''
+      RPS1=""
       # modules/darwin/home/zsh/zsh.nix#initExtraFirst (end)
     '';
     
