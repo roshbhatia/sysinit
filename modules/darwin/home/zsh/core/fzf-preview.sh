@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+if [[ -f $1 ]]; then
+  if [[ $1 =~ \.md$ ]]; then
+    glow -s dark "$1"
+  elif [[ $1 =~ \.json$ ]]; then
+    jq -C . "$1"
+  elif [[ $1 =~ \.(js|jsx|ts|tsx|html|css|yml|yaml|toml|nix|sh|zsh|bash|fish)$ ]]; then
+    bat --color=always --style=numbers,header "$1"
+  elif [[ $1 =~ \.(jpg|jpeg|png|gif)$ ]]; then
+    wezterm imgcat "$1" 2>/dev/null || echo "Image preview not available"
+  else
+    bat --color=always --style=numbers,header "$1" || cat "$1"
+  fi
+elif [[ -d $1 ]]; then
+  eza -T --color=always --icons --git-ignore --git "$1" | head -200
+else
+  echo "$1"
+fi
