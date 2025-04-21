@@ -37,6 +37,8 @@ let
 
     ${prompt}
   '';
+
+  fzfPreview = stripHeaders ./core/fzf-preview.sh;
 in
 {
   programs.zsh = {
@@ -120,56 +122,37 @@ in
 
       # FZF Configuration
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
-      FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
-        "--preview-window=right:60%:wrap:border-rounded"
-        "--height=80%"
-        "--layout=reverse"
-        "--border=rounded"
-        "--margin=1"
-        "--padding=1"
-        "--info=inline-right"
-        "--prompt='❯ '"
-        "--pointer='▶'"
-        "--marker='✓'"
-        "--scrollbar='█'"
-        "--color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7"
-        "--color=prompt:1,pointer:5,marker:2,spinner:5,header:4"
-        ''--preview='
-          if [[ -f {} ]]; then
-            if [[ {} =~ \.md$ ]]; then
-              glow -s dark {}
-            elif [[ {} =~ \.json$ ]]; then
-              jq -C . {}
-            elif [[ {} =~ \.(js|jsx|ts|tsx|html|css|yml|yaml|toml|nix|sh|zsh|bash|fish)$ ]]; then
-              bat --color=always --style=numbers,header {}
-            elif [[ {} =~ \.(jpg|jpeg|png|gif)$ ]]; then
-              wezterm imgcat {} 2>/dev/null || echo "Image preview not available"
-            else
-              bat --color=always --style=numbers,header {} || cat {}
-            fi
-          elif [[ -d {} ]]; then
-            eza -T --color=always --icons --git-ignore --git {} | head -200
-          else
-            echo {}
-          fi
-        ''
-        "--bind='ctrl-/:toggle-preview'"
-        "--bind='ctrl-s:toggle-sort'"
-        "--bind='ctrl-space:toggle-preview-wrap'"
-        "--bind='tab:half-page-down'"
-        "--bind='btab:half-page-up'"
-        "--bind='ctrl-y:preview-up'"
-        "--bind='ctrl-e:preview-down'"
-        "--bind='?:toggle-preview'"
-        "--bind='alt-w:toggle-preview-wrap'"
-        "--bind='ctrl-u:clear-query'"
-        "--bind='resize:refresh-preview'"
-      ];
-
-      # Enhancd Configuration
-      ENHANCD_FILTER = "fzf --ansi --preview 'eza -al --tree --level 1 --group-directories-first --git-ignore --header --git --no-user --no-time --no-filesize --no-permissions {}' --preview-window=right:40%:wrap:border-rounded --height=35% --layout=reverse --border=rounded --margin=1 --padding=1 --info=inline-right --prompt='❯ ' --pointer='▶' --marker='✓' --scrollbar='█' --bind='ctrl-/:toggle-preview' --bind='ctrl-r:refresh-preview'";
-      ENHANCD_ENABLE_DOUBLE_DOT = false;
-      ENHANCD_ENABLE_HOME = false;
+      FZF_DEFAULT_OPTS = let
+        baseOpts = [
+          "--preview-window=right:60%:wrap:border-rounded"
+          "--height=80%"
+          "--layout=reverse"
+          "--border=rounded"
+          "--margin=1"
+          "--padding=1"
+          "--info=inline-right"
+          "--prompt='❯ '"
+          "--pointer='▶'"
+          "--marker='✓'"
+          "--scrollbar='█'"
+          "--color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7"
+          "--color=prompt:1,pointer:5,marker:2,spinner:5,header:4"
+        ];
+        bindings = [
+          "ctrl-/:toggle-preview"
+          "ctrl-s:toggle-sort"
+          "ctrl-space:toggle-preview-wrap"
+          "tab:half-page-down"
+          "btab:half-page-up"
+          "ctrl-y:preview-up"
+          "ctrl-e:preview-down"
+          "?:toggle-preview"
+          "alt-w:toggle-preview-wrap"
+          "ctrl-u:clear-query"
+          "resize:refresh-preview"
+        ];
+        bindOpts = map (binding: "--bind='${binding}'") bindings;
+      in builtins.concatStringsSep " " (baseOpts ++ ["--preview=${fzfPreview}"] ++ bindOpts);
     };
 
     plugins = [
