@@ -77,15 +77,9 @@ local function setup_plugins()
     tools = {},
   }
 
-  -- Setup lazy.nvim with plugin specs
+  -- Collect plugin specs from modules
   local function collect_plugin_specs()
-    local specs = module_loader.get_plugin_specs(module_system)
-    table.insert(specs, {
-      "vscode-neovim/vscode-neovim",
-      lazy = false,
-      cond = function() return vim.g.vscode == true end,
-    })
-    return specs
+    return module_loader.get_plugin_specs(module_system)
   end
 
   local lazy_ok, lazy = pcall(require, "lazy")
@@ -586,9 +580,16 @@ local function init()
   -- Try to load plugins (may fail if modules aren't available)
   pcall(setup_plugins)
   
-  -- Set up VSCode-specific features if we're in VSCode
+  -- Set up VSCode-specific features when VSCode has fully started
   if vim.g.vscode then
-    pcall(setup_vscode_features)
+    vim.api.nvim_create_autocmd("VimEnter", {
+      callback = function()
+        local ok, err = pcall(setup_vscode_features)
+        if not ok then
+          vim.notify("Error loading VSCode features: " .. tostring(err), vim.log.levels.ERROR)
+        end
+      end,
+    })
   end
 end
 
