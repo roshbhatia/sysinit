@@ -233,14 +233,14 @@ in
     completionInit = ''
       # modules/darwin/home/zsh/zsh.nix#completionInit (begin)
       # Create zcompdump directory if it doesn't exist
-      mkdir -p "${XDG_DATA_HOME}/zsh/zcompdump"
+      mkdir -p "''\${XDG_DATA_HOME}/zsh/zcompdump"
 
       # Load completions
       autoload -Uz compinit
-      if [[ -n ${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump(#qN.mh+24) ]]; then
-        compinit -d "${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump";
+      if [[ -n ''\${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump(#qN.mh+24) ]]; then
+        compinit -d "''\${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump";
       else
-        compinit -C -d "${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump";
+        compinit -C -d "''\${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump";
       fi;
 
       # Basic fzf-tab configuration
