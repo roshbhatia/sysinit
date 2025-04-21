@@ -204,9 +204,6 @@ in
         done
       fi
 
-      if [[ -f "$HOME/.zshwork" ]]; then
-        source $HOME/.zshwork
-      fi
       if [[ -f "$HOME/.zshsecrets" ]]; then
         source $HOME/.zshsecrets
       fi
