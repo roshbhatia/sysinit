@@ -52,12 +52,12 @@
   install = [
     # Work config files
     {
-      source = toString ./work-configs/ssh-config;
-      destination = ~/.ssh/config;
+      source = ./work-configs/ssh-config;
+      destination = ".ssh/config";
     },
     {
-      source = toString ./work-configs/vpn-config;
-      destination = toString ~/.config/vpn/config;
+      source = ./work-configs/vpn-config;
+      destination = ".config/vpn/config";
     }
   ];
 }
