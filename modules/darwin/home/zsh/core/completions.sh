@@ -1,6 +1,7 @@
 #!/usr/bin/env zsh
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
+# modules/darwin/home/zsh/core/completions.sh (begin)
 # Initialize Homebrew environment
 if [ -x "/opt/homebrew/bin/brew" ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -44,3 +45,4 @@ EOF
 export ENHANCD_FILTER="fzf --ansi --preview 'eza -al --tree --level 1 --group-directories-first --git-ignore --header --git --no-user --no-time --no-filesize --no-permissions {}' --preview-window=right:40%:wrap:border-rounded --height=35% --layout=reverse --border=rounded --margin=1 --padding=1 --info=inline-right --prompt='❯ ' --pointer='▶' --marker='✓' --scrollbar='█' --bind='ctrl-/:toggle-preview' --bind='ctrl-r:refresh-preview'"
 export ENHANCD_ENABLE_DOUBLE_DOT=false
 export ENHANCD_ENABLE_HOME=false
+# modules/darwin/home/zsh/core/completions.sh (end)

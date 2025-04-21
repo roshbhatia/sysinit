@@ -2,7 +2,7 @@
 # Converted from core.main/crepo.sh to standalone executable
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-
+# modules/darwin/home/zsh/core/crepo.sh (begin)
 # Make sure this script is sourced, not executed
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     echo "This script must be sourced, not executed."
@@ -174,3 +174,4 @@ function crepo() {
     fi
     return 1
 }
+# modules/darwin/home/zsh/core/crepo.sh (end)
