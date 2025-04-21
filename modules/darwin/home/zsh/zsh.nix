@@ -82,6 +82,9 @@ in
       vi = "nvim";
       
       sudo = "sudo -E";
+
+      diff = "diff --color";
+      grep = "grep -s --color=auto";
     };
 
     sessionVariables = {
@@ -108,6 +111,16 @@ in
 
     plugins = [
       {
+        name = "evalcache";
+        src = pkgs.fetchFromGitHub {
+          owner = "mroth";
+          repo = "evalcache";
+          rev = "3153dcd77a2c93aa8fdf5d17cece7edb1aa3e040";
+          sha256 = "GAjsTQJs9JdBEf9LGurme3zqXN//kVUM2YeBo0sCR2c=";
+        };
+        file = "evalcache.plugin.zsh";
+      }
+      {
         name = "enhancd";
         src = pkgs.fetchFromGitHub {
           owner = "babarot";
@@ -118,16 +131,6 @@ in
         file = "enhancd.plugin.zsh";
       }
       {
-        name = "zsh-autosuggestions";
-        src = pkgs.fetchFromGitHub {
-          owner = "zsh-users";
-          repo = "zsh-autosuggestions";
-          rev = "0e810e5afa27acbd074398eefbe28d13005dbc15";
-          sha256 = "sha256-85aw9OM2pQPsWklXjuNOzp9El1MsNb+cIiZQVHUzBnk=";
-        };
-        file = "zsh-autosuggestions.plugin.zsh";
-      }
-      {
         name = "fzf-tab";
         src = pkgs.fetchFromGitHub {
           owner = "Aloxaf";
@@ -136,6 +139,16 @@ in
           sha256 = "sha256-q26XVS/LcyZPRqDNwKKA9exgBByE0muyuNb0Bbar2lY=";
         };
         file = "fzf-tab.plugin.zsh";
+      }
+      {
+        name = "zsh-autosuggestions";
+        src = pkgs.fetchFromGitHub {
+          owner = "zsh-users";
+          repo = "zsh-autosuggestions";
+          rev = "0e810e5afa27acbd074398eefbe28d13005dbc15";
+          sha256 = "sha256-85aw9OM2pQPsWklXjuNOzp9El1MsNb+cIiZQVHUzBnk=";
+        };
+        file = "zsh-autosuggestions.plugin.zsh";
       }
       {
         name = "fast-syntax-highlighting";
@@ -171,57 +184,6 @@ in
       
       unset MAILCHECK
       stty stop undef
-
-      # https://github.com/QuarticCat/zsh-smartcache/blob/main/zsh-smartcache.plugin.zsh
-      _smartcache-eval() {
-          local cache=$ZSH_SMARTCACHE_DIR/eval-$1; shift
-          if [[ ! -f $cache ]] {
-              local output=$("$@")
-              eval $output
-              {
-                  printf '%s' $output >| $cache
-                  zcompile $cache
-              } &!
-          } else {
-              source $cache
-              {
-                  local output=$("$@")
-                  [[ $output == "$(<$cache)" ]] && return
-                  printf '%s' $output >| $cache
-                  source $cache
-                  zcompile $cache
-                  print "Cache updated: '$@' (applied next time)"
-              } &!
-          }
-      }
-
-      _smartcache-comp() {
-          local cache=$ZSH_SMARTCACHE_DIR/_$1; shift
-          if [[ ! -f $cache ]] {
-              "$@" >| $cache
-          } else {
-              {
-                  local output=$("$@")
-                  [[ $output == "$(<$cache)" ]] && return
-                  printf '%s' $output >| $cache
-                  print "Cache updated: '$@' (applied next time)"
-              } &!
-          }
-          # fpath is set unique by default so it's OK to append multiple times.
-          fpath+=($ZSH_SMARTCACHE_DIR)
-      }
-
-      smartcache() {
-          emulate -LR zsh -o extended_glob -o err_return
-
-          # Doing these lately as users might change settings after plugin loading.
-          (( $+commands[base64] )) || base64 --help  # trigger error
-          [[ -d $ZSH_SMARTCACHE_DIR ]] || mkdir -p $ZSH_SMARTCACHE_DIR
-
-          local subcmd=$1; shift
-          local id=''\${$(base64 <<< "$@")%%=#}
-          _smartcache-$subcmd $id "$@"
-      }
     '';
     
     initExtra = ''
