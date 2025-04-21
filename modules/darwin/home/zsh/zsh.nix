@@ -39,12 +39,15 @@ let
   '';
 in
 {
+  environment.pathsToLink = [ "/share/zsh" ];
+
   programs.zsh = {
     enable = true;
     dotDir = ~/.config.zsh;
 
     autocd = true;
-    enableCompletion = true;
+    # We enable completion anyways, we don't want our cache to be invalidated.
+    enableCompletion = false;
     historySubstringSearch.enable = false;
     # We need to install this manually due to fzf-tab needing to run first
     autosuggestion.enable = false;
