@@ -108,16 +108,6 @@ in
 
     plugins = [
       {
-        name = "zsh-smartcache";
-        src = pkgs.fetchFromGitHub {
-          owner = "QuarticCat";
-          repo = "zsh-smartcache";
-          rev = "641dbfa196c9f69264ad7a49f9ef180af75831be";
-          sha256 = "sha256-t6QbAMFJfCvEOtq1y/YXZz5eyyc5OHOM/xg3cgXNcjU=";
-        };
-        file = "zsh-smartcache.plugin.zsh";
-      }
-      {
         name = "enhancd";
         src = pkgs.fetchFromGitHub {
           owner = "babarot";
@@ -160,7 +150,6 @@ in
     ];
 
     initExtraFirst = ''
-      #!/usr/bin/env zsh
       # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
       # shellcheck disable=all
       #       ___           ___           ___           ___           ___
@@ -182,6 +171,57 @@ in
       
       unset MAILCHECK
       stty stop undef
+
+      # https://github.com/QuarticCat/zsh-smartcache/blob/main/zsh-smartcache.plugin.zsh
+      _smartcache-eval() {
+          local cache=$ZSH_SMARTCACHE_DIR/eval-$1; shift
+          if [[ ! -f $cache ]] {
+              local output=$("$@")
+              eval $output
+              {
+                  printf '%s' $output >| $cache
+                  zcompile $cache
+              } &!
+          } else {
+              source $cache
+              {
+                  local output=$("$@")
+                  [[ $output == "$(<$cache)" ]] && return
+                  printf '%s' $output >| $cache
+                  source $cache
+                  zcompile $cache
+                  print "Cache updated: '$@' (applied next time)"
+              } &!
+          }
+      }
+
+      _smartcache-comp() {
+          local cache=$ZSH_SMARTCACHE_DIR/_$1; shift
+          if [[ ! -f $cache ]] {
+              "$@" >| $cache
+          } else {
+              {
+                  local output=$("$@")
+                  [[ $output == "$(<$cache)" ]] && return
+                  printf '%s' $output >| $cache
+                  print "Cache updated: '$@' (applied next time)"
+              } &!
+          }
+          # fpath is set unique by default so it's OK to append multiple times.
+          fpath+=($ZSH_SMARTCACHE_DIR)
+      }
+
+      smartcache() {
+          emulate -LR zsh -o extended_glob -o err_return
+
+          # Doing these lately as users might change settings after plugin loading.
+          (( $+commands[base64] )) || base64 --help  # trigger error
+          [[ -d $ZSH_SMARTCACHE_DIR ]] || mkdir -p $ZSH_SMARTCACHE_DIR
+
+          local subcmd=$1; shift
+          local id=${$(base64 <<< "$@")%%=#}
+          _smartcache-$subcmd $id "$@"
+      }
     '';
     
     initExtra = ''
