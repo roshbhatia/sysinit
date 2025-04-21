@@ -131,7 +131,7 @@ tasks:
           echo "Failed to build configuration"
           exit 1
         fi && \
-        if ! ./result/sw/bin/darwin-rebuild switch --flake .#default; then
+        if ! task refresh; then
           echo "Failed to apply configuration"
           exit 1
         fi && \
