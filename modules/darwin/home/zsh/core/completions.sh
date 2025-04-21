@@ -5,11 +5,11 @@
 if [ -x "/opt/homebrew/bin/brew" ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
-type _evalcache >/dev/null 2>&1 && _evalcache atuin init zsh --disable-up-arrow
-type _evalcache >/dev/null 2>&1 && _evalcache kubectl completion zsh
-type _evalcache >/dev/null 2>&1 && _evalcache docker completion zsh
-type _evalcache >/dev/null 2>&1 && _evalcache direnv hook zsh
-type _evalcache >/dev/null 2>&1 && _evalcache gh copilot alias -- zsh
+type smartcache >/dev/null 2>&1 && smartcache atuin init zsh --disable-up-arrow
+type smartcache >/dev/null 2>&1 && smartcache kubectl completion zsh
+type smartcache >/dev/null 2>&1 && smartcache docker completion zsh
+type smartcache >/dev/null 2>&1 && smartcache direnv hook zsh
+type smartcache >/dev/null 2>&1 && smartcache gh copilot alias -- zsh
 
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git --exclude node_modules'
 export FZF_DEFAULT_OPTS="$(cat << 'EOF'

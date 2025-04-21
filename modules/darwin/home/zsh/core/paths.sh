@@ -18,16 +18,21 @@ path.add.safe() {
 }
 
 paths=(
+  "/opt/homebrew/bin"
+  "/opt/homebrew/sbin"
+  "/usr/bin"
   "/usr/local/opt/cython/bin"
-  "$XDG_CONFIG_HOME/.cargo/bin"
-  "$XDG_CONFIG_HOME/yarn/global/node_modules/.bin"
-  "$XDG_CONFIG_HOME/zsh/bin"
-  "$HOME/.govm/shim"
+  "/usr/sbin"
   "$HOME/.krew/bin"
+  "$HOME/.local/bin"
   "$HOME/.npm-global/bin"
   "$HOME/.rvm/bin"
   "$HOME/.yarn/bin"
-  "$(go env GOPATH)/bin"
+  "$HOME/bin"
+  "$HOME/go/bin"
+  "$XDG_CONFIG_HOME/.cargo/bin"
+  "$XDG_CONFIG_HOME/yarn/global/node_modules/.bin"
+  "$XDG_CONFIG_HOME/zsh/bin"
 )
 
 for dir in "${paths[@]}"; do
