@@ -77,4 +77,13 @@
     fi
     /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
   '';
+  # Ensure user owns /usr/local/bin for easy management without sudo
+  system.activationScripts.fixUsrLocalBin = {
+    text = ''
+      if [ -d /usr/local/bin ]; then
+        echo "Fixing ownership of /usr/local/bin"
+        chown -R ${username} /usr/local/bin || true
+      fi
+    '';
+  };
 }

@@ -49,4 +49,15 @@ in {
 
   # Add files to home.file
   home.file = fileAttrs.homeFiles;
+  # Prune broken symlinks left from removed home.file or xdg.configFile entries
+  home.activation.pruneBrokenLinks = lib.hm.dag.entryAfter ["checkLinkTargets"] ''
+    echo "Pruning stale Home-Manager symlinks..."
+    find "${homeDirectory}" -type l | while read -r link; do
+      target=$(readlink "$link")
+      if [ ! -e "$target" ]; then
+        echo "Removing stale symlink: $link -> $target"
+        rm "$link"
+      fi
+    done
+  '';
 }
