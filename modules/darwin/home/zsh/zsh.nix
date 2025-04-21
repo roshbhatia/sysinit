@@ -113,6 +113,7 @@ in
           owner = "QuarticCat";
           repo = "zsh-smartcache";
           rev = "641dbfa196c9f69264ad7a49f9ef180af75831be";
+          sha256 = "sha256-t6QbAMFJfCvEOtq1y/YXZz5eyyc5OHOM/xg3cgXNcjU=";
         };
         file = "zsh-smartcache.plugin.zsh";
       }
