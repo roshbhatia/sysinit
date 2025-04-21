@@ -43,7 +43,6 @@ in
 
   programs.zsh = {
     enable = true;
-    dotDir = ~/.config/zsh;
 
     autocd = true;
     # We enable completion anyways, we don't want our cache to be invalidated.
