@@ -1,12 +1,15 @@
 #!/usr/bin/env zsh
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-_evalcache /opt/homebrew/bin/brew shellenv
-_evalcache atuin init zsh --disable-up-arrow
-_evalcache kubectl completion zsh
-_evalcache docker completion zsh
-_evalcache direnv hook zsh
-_evalcache gh copilot alias -- zsh
+# Initialize Homebrew environment
+if [ -x "/opt/homebrew/bin/brew" ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+type _evalcache >/dev/null 2>&1 && _evalcache atuin init zsh --disable-up-arrow
+type _evalcache >/dev/null 2>&1 && _evalcache kubectl completion zsh
+type _evalcache >/dev/null 2>&1 && _evalcache docker completion zsh
+type _evalcache >/dev/null 2>&1 && _evalcache direnv hook zsh
+type _evalcache >/dev/null 2>&1 && _evalcache gh copilot alias -- zsh
 
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git --exclude node_modules'
 export FZF_DEFAULT_OPTS="$(cat << 'EOF'
