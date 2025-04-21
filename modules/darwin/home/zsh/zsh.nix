@@ -152,7 +152,7 @@ in
           else
             echo {}
           fi
-        '''
+        ''
         "--bind='ctrl-/:toggle-preview'"
         "--bind='ctrl-s:toggle-sort'"
         "--bind='ctrl-space:toggle-preview-wrap'"
