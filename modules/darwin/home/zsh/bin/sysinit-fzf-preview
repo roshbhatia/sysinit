@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
+# shellcheck disable=all
+
 if [[ -f $1 ]]; then
   if [[ $1 =~ \.md$ ]]; then
     glow -s dark "$1"
