@@ -189,6 +189,9 @@ in
           fi
         done
       fi
+
+      if [[ -f "$HOME/.zshwork" ]] && source $HOME/.zshwork
+      if [[ -f "$HOME/.zshsecrets" ]] && source $HOME/.zshsecrets
       
       [[ -n "$SYSINIT_DEBUG" ]] && zprof
     '';
@@ -204,20 +207,69 @@ in
       # Force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
       zstyle ':completion:*' menu no
       
-      # Preview configurations for various commands
-      zstyle ':fzf-tab:complete:ls:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
-      zstyle ':fzf-tab:complete:cp:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
-      zstyle ':fzf-tab:complete:mv:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
-      zstyle ':fzf-tab:complete:rm:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
-      zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always --icons --git-ignore --git $realpath'
+      # Preview directories with eza - showing icons, hidden files, and colors
+      zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -la --color=always --icons --git-ignore --git --group-directories-first $realpath'
+      zstyle ':fzf-tab:complete:ls:*' fzf-preview 'eza -la --color=always --icons --git-ignore --git --group-directories-first $realpath'
+      zstyle ':fzf-tab:complete:cp:*' fzf-preview 'eza -la --color=always --icons --git-ignore --git --group-directories-first $realpath'
+      zstyle ':fzf-tab:complete:mv:*' fzf-preview 'eza -la --color=always --icons --git-ignore --git --group-directories-first $realpath'
+      zstyle ':fzf-tab:complete:rm:*' fzf-preview 'eza -la --color=always --icons --git-ignore --git --group-directories-first $realpath'
       
-      # Preview content for text files with bat
-      zstyle ':fzf-tab:complete:cat:*' fzf-preview 'bat --color=always --style=numbers,header {}'
-      zstyle ':fzf-tab:complete:vim:*' fzf-preview 'bat --color=always --style=numbers,header {}'
-      zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'bat --color=always --style=numbers,header {}'
+      # Preview files with bat - add style and line numbers
+      zstyle ':fzf-tab:complete:cat:*' fzf-preview 'bat --color=always --style=numbers,header,grid --line-range :100 $realpath'
+      zstyle ':fzf-tab:complete:vim:*' fzf-preview 'bat --color=always --style=numbers,header,grid --line-range :100 $realpath'
+      zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'bat --color=always --style=numbers,header,grid --line-range :100 $realpath'
+      zstyle ':fzf-tab:complete:nano:*' fzf-preview 'bat --color=always --style=numbers,header,grid --line-range :100 $realpath'
+      zstyle ':fzf-tab:complete:less:*' fzf-preview 'bat --color=always --style=numbers,header,grid --line-range :100 $realpath'
+      zstyle ':fzf-tab:complete:head:*' fzf-preview 'bat --color=always --style=numbers,header,grid --line-range :100 $realpath'
+      zstyle ':fzf-tab:complete:tail:*' fzf-preview 'bat --color=always --style=numbers,header,grid --line-range :100 $realpath'
+      
+      # Add kubectl file previewing with bat
+      zstyle ':fzf-tab:complete:kubectl-apply:*' fzf-preview 'bat --color=always --style=numbers,header,grid --language=yaml --line-range :100 $realpath'
+      zstyle ':fzf-tab:complete:kubectl-edit:*' fzf-preview 'bat --color=always --style=numbers,header,grid --language=yaml --line-range :100 $realpath'
+      zstyle ':fzf-tab:complete:kubectl-delete:*' fzf-preview 'bat --color=always --style=numbers,header,grid --language=yaml --line-range :100 $realpath'
+      zstyle ':fzf-tab:complete:kubectl-describe:*' fzf-preview 'bat --color=always --style=numbers,header,grid --language=yaml --line-range :100 $realpath'
+      zstyle ':fzf-tab:complete:kubectl-get:*' fzf-preview 'bat --color=always --style=numbers,header,grid --language=yaml --line-range :100 $realpath'
+      
+      # Show systemd unit status
+      zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word'
+      
+      # Environment variables preview
+      zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' \
+        fzf-preview 'echo ''\${(P)word}'
+      
+      # Git preview support with better formatting
+      zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview \
+        'git diff --color=always $word | delta'
+      zstyle ':fzf-tab:complete:git-log:*' fzf-preview \
+        'git log --color=always --stat $word'
+      zstyle ':fzf-tab:complete:git-help:*' fzf-preview \
+        'git help $word | bat --color=always --language=man'
+      zstyle ':fzf-tab:complete:git-show:*' fzf-preview \
+        'case "$group" in
+          "commit tag") git show --color=always $word | delta ;;
+          *) git show --color=always $word | delta ;;
+        esac'
+      zstyle ':fzf-tab:complete:git-checkout:*' fzf-preview \
+        'case "$group" in
+          "modified file") git diff --color=always $word | delta ;;
+          "remote branch") git log --color=always --stat $word ;;
+          *) git log --color=always --stat $word ;;
+        esac'
       
       # Switch groups using alt-p and alt-n
       zstyle ':fzf-tab:*' switch-group 'alt-p' 'alt-n'
+      
+      # fzf appearance and behavior 
+      zstyle ':fzf-tab:*' fzf-command fzf
+      zstyle ':fzf-tab:*' fzf-min-height 50
+      zstyle ':fzf-tab:*' fzf-pad 4
+      zstyle ':fzf-tab:*' fzf-flags --color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7
+      
+      # General settings
+      zstyle ':fzf-tab:*' default-color $'\033[37m'
+      zstyle ':fzf-tab:*' show-group full
+      zstyle ':fzf-tab:*' prefix ''\''
+      zstyle ':fzf-tab:*' single-group color header
       
       # Autocompletion settings
       autoload -Uz compinit
@@ -230,14 +282,8 @@ in
       # Fix autosuggestion strategy syntax
       export ZSH_AUTOSUGGEST_STRATEGY=(completion history)
       
-      # Add explicit key bindings for accepting suggestions with Shift-Tab
+      # Add explicit key binding for accepting suggestions with Shift-Tab
       bindkey '^[[Z' autosuggest-accept  # Shift-Tab
-      
-      # This is important to make tab trigger fzf-tab correctly
-      # Make sure the completion system is properly initialized before adding this
-      zstyle ':fzf-tab:*' fzf-command fzf
-      zstyle ':fzf-tab:*' fzf-min-height 50
-      zstyle ':fzf-tab:*' fzf-pad 4
     '';
 
     dirHashes = {
