@@ -44,12 +44,11 @@ in {
   ];
 
   
-  # Add config files to xdg.configFile
   xdg.configFile = fileAttrs.xdg.configFiles;
-
-  # Add files to home.file
   home.file = fileAttrs.homeFiles;
-  # Prune broken symlinks left from removed home.file or xdg.configFile entries
+
+  environment.pathsToLink = [ "/share/zsh" ];
+  
   home.activation.pruneBrokenLinks = lib.hm.dag.entryAfter ["checkLinkTargets"] ''
     echo "Pruning stale Home-Manager symlinks..."
     
@@ -57,6 +56,7 @@ in {
     declare -A allowlist
     allowlist[".config"]=1
     allowlist[".local/share"]=1
+    allowlist["$HOME"]=1
     # Add more allowed directories as needed
     
     # Function to check if path is in an allowlisted directory
