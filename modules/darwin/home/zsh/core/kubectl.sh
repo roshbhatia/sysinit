@@ -1,6 +1,7 @@
 #!/usr/bin/env zsh
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
+# modules/darwin/home/zsh/core/kubectl.sh (begin)
 compdef _kubectl kubecolor
 compdef _kubectl k
 
@@ -174,3 +175,4 @@ alias kgcmall='kubecolor get configmap --all-namespaces'         # List all name
 alias kdcmall='kubecolor describe configmap --all-namespaces'     # Describe all namespaces configmaps
 alias kgsecall='kubecolor get secret --all-namespaces'           # List all namespaces secrets
 alias kdsecall='kubecolor describe secret --all-namespaces'       # Describe all namespaces secrets
+# modules/darwin/home/zsh/core/kubectl.sh (end)

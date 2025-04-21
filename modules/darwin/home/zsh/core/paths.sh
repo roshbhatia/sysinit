@@ -1,6 +1,7 @@
 #!/usr/bin/env zsh
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
+# modules/darwin/home/zsh/core/paths.sh (begin)
 path.print() {
   echo "$PATH" | tr ':' '\n' | bat --style=numbers,grid
 }
@@ -38,3 +39,4 @@ paths=(
 for dir in "${paths[@]}"; do
   path.add.safe "$dir"
 done
+# modules/darwin/home/zsh/core/paths.sh (end)

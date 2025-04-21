@@ -1,6 +1,7 @@
 #!/usr/bin/env zsh
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
+# modules/darwin/home/zsh/core/loglib.sh (begin)
 # Colors
 COLOR_RESET="\033[0m"
 COLOR_BLACK="\033[0;30m"
@@ -171,3 +172,4 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
   log_error "This is an error message" user="$USER" pid=$$
   log_critical "This is a critical message" user="$USER" pid=$$
 fi
+# modules/darwin/home/zsh/core/loglib.sh (end)

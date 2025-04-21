@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-
+# modules/darwin/home/zsh/core/bindings.sh (begin)
 # Modified version of https://github.com/jirutka/zsh-shift-select/blob/master/zsh-shift-select.plugin.zsh
 # vim: set ts=4:
 # Copyright 2022-present Jakub Jirutka <jakub@jirutka.cz>.
@@ -106,3 +106,4 @@ bindkey '^y' beginning-of-line    # CTRL + y for beginning of line
 bindkey '^u' backward-word        # CTRL + u for back word
 bindkey '^i' forward-word         # CTRL + i for forward word
 bindkey '^o' end-of-line          # CTRL + o for end of line
+# modules/darwin/home/zsh/core/bindings.sh (end)

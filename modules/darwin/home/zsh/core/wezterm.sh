@@ -1,6 +1,7 @@
 #!/usr/bin/env zsh
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
+# modules/darwin/home/zsh/core/wezterm.sh (begin)
 # This file hooks up shell integration for wezterm.
 # It is suitable for zsh and bash.
 #
@@ -571,3 +572,4 @@ if [[ -z "${WEZTERM_SHELL_SKIP_CWD-}" ]] ; then
 fi
 
 true
+# modules/darwin/home/zsh/core/wezterm.sh (end)
