@@ -17,18 +17,20 @@ end
 local function setup_leader()
   vim.g.mapleader = " "
   vim.g.maplocalleader = " "
-  -- Prevent space from moving cursor in normal/visual mode
   vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { noremap = true, silent = true })
+  
+  vim.keymap.set("n", "<leader>;", function() 
+    local vscode = require("vscode")
+    vscode.action("workbench.action.showCommands")
+  end, { noremap = true, silent = true })
 end
 
 local function setup_common_settings()
-  -- Search settings
   vim.opt.hlsearch = true
   vim.opt.incsearch = true
   vim.opt.ignorecase = true
   vim.opt.smartcase = true
 
-  -- Indentation settings
   vim.opt.expandtab = true
   vim.opt.shiftwidth = 2
   vim.opt.tabstop = 2
@@ -37,11 +39,9 @@ local function setup_common_settings()
   vim.opt.linebreak = true
   vim.opt.breakindent = true
 
-  -- Window behavior
   vim.opt.splitbelow = true
   vim.opt.splitright = true
 
-  -- Performance and usability
   vim.opt.updatetime = 100
   vim.opt.timeoutlen = 300
   vim.opt.scrolloff = 8
@@ -50,62 +50,43 @@ local function setup_common_settings()
   vim.opt.clipboard = "unnamedplus"
 end
 
-local function setup_vscode_integration()
-  if vim.g.vscode then
-    vim.notify("VSCode Neovim integration detected", vim.log.levels.INFO)
-  end
-end
-
--- Initialize module loader and setup plugins
 local function setup_plugins()
   local ok, module_loader = pcall(require, "core.module_loader")
-  if not ok then
-    vim.notify("Failed to load core.module_loader: " .. tostring(module_loader), vim.log.levels.ERROR)
-    return
-  end
+  if not ok then return end
 
-  -- Define module system
   local module_system = {
-    editor = {},
-    ui = {"hop"},
+    editor = { "vscode" },
+    ui = {},
     tools = {},
   }
 
-  -- Setup lazy.nvim with plugin specs
   local function collect_plugin_specs()
     local specs = module_loader.get_plugin_specs(module_system)
     table.insert(specs, {
       "vscode-neovim/vscode-neovim",
       lazy = false,
-      cond = function() return vim.g.vscode == true end,
+      cond = function() return true end,
     })
     return specs
   end
 
   local lazy_ok, lazy = pcall(require, "lazy")
-  if not lazy_ok then
-    vim.notify("Failed to load lazy.nvim: " .. tostring(lazy), vim.log.levels.ERROR)
-    return
-  end
+  if not lazy_ok then return end
 
   lazy.setup(collect_plugin_specs())
   module_loader.setup_modules(module_system)
 end
 
--- Setup VSCode-specific keybindings and features
 local function setup_vscode_features()
-  if not vim.g.vscode then return end
-
   local vscode_ok, vscode = pcall(require, "vscode")
-  if not vscode_ok then
-    vim.notify("Failed to load vscode module: " .. tostring(vscode), vim.log.levels.ERROR)
-    return
-  end
+  if not vscode_ok then return end
 
-  -- =============================================
-  -- VSCode Command Mapping
-  -- =============================================
-  local cmd_map = {
+  local CommonMappings = {}
+  local WhichKey = {}
+  local CommandMapper = {}
+  local ModeDisplayer = {}
+
+  CommandMapper.map = {
     w      = "workbench.action.files.save",
     wa     = "workbench.action.files.saveAll",
     q      = "workbench.action.closeActiveEditor",
@@ -118,10 +99,9 @@ local function setup_vscode_features()
     vsplit = "workbench.action.splitEditorRight",
   }
 
-  -- Map Vim commands to VSCode actions
-  local function map_cmd(mode, lhs, cmd, opts)
+  function CommandMapper.map_cmd(mode, lhs, cmd, opts)
     opts = opts or { noremap = true, silent = true }
-    local action = cmd_map[cmd]
+    local action = CommandMapper.map[cmd]
     if action then
       vim.keymap.set(mode, lhs, function() vscode.action(action) end, opts)
     else
@@ -129,13 +109,9 @@ local function setup_vscode_features()
     end
   end
 
-  -- =============================================
-  -- Which Key Menu Setup
-  -- =============================================
-  -- Define keybinding groups for which-key style menu
-  local keybindings = {
+  WhichKey.keybindings = {
     f = {
-      name = "🔍 Find",
+      name = "🗺️ Find",
       bindings = {
         { key = "f", description = "Find Files",    action = "search-preview.quickOpenWithPreview" },
         { key = "g", description = "Find in Files", action = "workbench.action.findInFiles" },
@@ -145,7 +121,7 @@ local function setup_vscode_features()
       },
     },
     w = {
-      name = "🪟 Window",
+      name = "🏰 Window",
       bindings = {
         { key = "h", description = "Focus Left",   action = "workbench.action.focusLeftGroup" },
         { key = "j", description = "Focus Down",   action = "workbench.action.focusBelowGroup" },
@@ -162,7 +138,7 @@ local function setup_vscode_features()
       },
     },
     u = {
-      name = "⚙️ UI",
+      name = "🛡️ UI",
       bindings = {
         { key = "a", description = "Activity Bar", action = "workbench.action.toggleActivityBarVisibility" },
         { key = "s", description = "Status Bar",   action = "workbench.action.toggleStatusbarVisibility" },
@@ -173,7 +149,7 @@ local function setup_vscode_features()
       },
     },
     b = {
-      name = "📝 Buffer",
+      name = "📜 Scroll",
       bindings = {
         { key = "n", description = "Next Buffer",     action = "workbench.action.nextEditor" },
         { key = "p", description = "Previous Buffer", action = "workbench.action.previousEditor" },
@@ -182,7 +158,7 @@ local function setup_vscode_features()
       },
     },
     g = {
-      name = "🔄 Git",
+      name = "⚔️ Git",
       bindings = {
         { key = "s", description = "Stage Changes",           action = "git.stage" },
         { key = "S", description = "Stage All",               action = "git.stageAll" },
@@ -202,7 +178,7 @@ local function setup_vscode_features()
       },
     },
     c = {
-      name = "💻 Code",
+      name = "📖 Codex",
       bindings = {
         { key = "a", description = "Quick Fix",            action = "editor.action.quickFix" },
         { key = "r", description = "Rename Symbol",        action = "editor.action.rename" },
@@ -216,7 +192,7 @@ local function setup_vscode_features()
       },
     },
     t = {
-      name = "🔧 Toggle",
+      name = "🧙 Toggle",
       bindings = {
         { key = "e", description = "Explorer",         action = "workbench.view.explorer" },
         { key = "t", description = "Terminal",         action = "workbench.action.terminal.toggleTerminal" },
@@ -228,7 +204,7 @@ local function setup_vscode_features()
       },
     },
     a = {
-      name = "🤖 AI",
+      name = "🧝 Assistant",
       bindings = {
         { key = "c", description = "Start Chat",      action = "workbench.action.chat.open" },
         { key = "i", description = "Inline Chat",     action = "inlineChat.start" },
@@ -239,7 +215,7 @@ local function setup_vscode_features()
       },
     },
     s = {
-      name = "✂️ Stage/Split",
+      name = "🗡️ Split",
       bindings = {
         { key = "s", description = "Stage Hunk",       action = "git.diff.stageHunk" },
         { key = "S", description = "Stage Selection",  action = "git.diff.stageSelection" },
@@ -250,305 +226,288 @@ local function setup_vscode_features()
     },
   }
 
-  -- =============================================
-  -- Which Key Implementation
-  -- =============================================
-  -- Implements a VSCode-compatible which-key menu system
-  local which_key = (function()
-    local cache = {
-      root_items = nil,
-      group_items = {}
-    }
-    
-    local MODE_DISPLAY = {
-      n = { text = 'NORMAL', color = '#7aa2f7' },
-      i = { text = 'INSERT', color = '#9ece6a' },
-      v = { text = 'VISUAL', color = '#bb9af7' },
-      V = { text = 'V-LINE', color = '#bb9af7' },
-      ['\22'] = { text = 'V-BLOCK', color = '#bb9af7' },
-      R = { text = 'REPLACE', color = '#f7768e' },
-      s = { text = 'SELECT', color = '#ff9e64' },
-      S = { text = 'S-LINE', color = '#ff9e64' },
-      ['\19'] = { text = 'S-BLOCK', color = '#ff9e64' },
-      c = { text = 'COMMAND', color = '#7dcfff' },
-      t = { text = 'TERMINAL', color = '#73daca' },
-    }
+  ModeDisplayer.modes = {
+    n = { text = '🗡️ NORMAL', color = '#7aa2f7', cursorStyle = 'block', cursorColor = '#7aa2f7' },
+    i = { text = '✒️ INSERT', color = '#9ece6a', cursorStyle = 'line', cursorColor = '#9ece6a' },
+    v = { text = '🏹 VISUAL', color = '#bb9af7', cursorStyle = 'block', cursorColor = '#bb9af7' },
+    V = { text = '⚔️ VISUAL LINE', color = '#bb9af7', cursorStyle = 'underline', cursorColor = '#bb9af7' },
+    ['\22'] = { text = '🛡️ VISUAL BLOCK', color = '#bb9af7', cursorStyle = 'block', cursorColor = '#bb9af7' },
+    R = { text = '🔮 REPLACE', color = '#f7768e', cursorStyle = 'underline', cursorColor = '#f7768e' },
+    s = { text = '🧙 SELECT', color = '#ff9e64', cursorStyle = 'block', cursorColor = '#ff9e64' },
+    S = { text = '🧝 SELECT LINE', color = '#ff9e64', cursorStyle = 'underline', cursorColor = '#ff9e64' },
+    ['\19'] = { text = '💀 SELECT BLOCK', color = '#ff9e64', cursorStyle = 'block', cursorColor = '#ff9e64' },
+    c = { text = '📜 COMMAND', color = '#7dcfff', cursorStyle = 'line', cursorColor = '#7dcfff' },
+    t = { text = '🏰 TERMINAL', color = '#73daca', cursorStyle = 'line', cursorColor = '#73daca' },
+  }
 
-    local mode_strings = {}
-    local last_mode = nil
+  ModeDisplayer.mode_strings = {}
+  ModeDisplayer.last_mode = nil
+  
+  for mode, data in pairs(ModeDisplayer.modes) do
+    ModeDisplayer.mode_strings[mode] = data.text
+  end
+
+  ModeDisplayer.js_mode_display = [[
+    if (globalThis.modeStatusBar) { globalThis.modeStatusBar.dispose(); }
     
-    for mode, data in pairs(MODE_DISPLAY) do
-      mode_strings[mode] = string.format("Mode: %s", data.text)
+    const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+    statusBar.text = args.text;
+    statusBar.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
+    statusBar.color = args.color;
+    statusBar.show();
+    globalThis.modeStatusBar = statusBar;
+    
+    const editor = vscode.window.activeTextEditor;
+    if (editor) {
+      vscode.window.activeTextEditor.options = {
+        cursorStyle: args.cursorStyle,
+        cursorBlinking: 'solid'
+      };
+      
+      vscode.workspace.getConfiguration().update('workbench.colorCustomizations', {
+        "editorCursor.foreground": args.cursorColor
+      }, vscode.ConfigurationTarget.Workspace);
+    }
+  ]]
+
+  WhichKey.js_quickpick_menu = [[
+    if (globalThis.quickPick) { globalThis.quickPick.dispose(); }
+    
+    const quickPick = vscode.window.createQuickPick();
+    
+    quickPick.items = args.items.map(item => ({
+      label: item.isGroup ? 
+        `$(chevron-right) ${item.label}` : 
+        item.isGroupItem ? 
+          `    $(arrow-small-right) ${item.label}` : 
+          `  $(key) ${item.label}`,
+      description: item.description,
+      action: item.action,
+      key: item.key,
+      kind: item.kind,
+      iconPath: item.isGroup ? new vscode.ThemeIcon("folder") : undefined,
+      buttons: item.action ? [{ iconPath: new vscode.ThemeIcon("run") }] : []
+    }));
+    
+    quickPick.title = args.title;
+    quickPick.placeholder = args.placeholder;
+    quickPick.matchOnDescription = true;
+    quickPick.matchOnDetail = true;
+    
+    quickPick.onDidAccept(() => {
+      const selected = quickPick.selectedItems[0];
+      if (selected && selected.action) {
+        vscode.commands.executeCommand(selected.action);
+      }
+      quickPick.hide();
+      quickPick.dispose();
+    });
+    
+    quickPick.onDidTriggerItemButton(event => {
+      if (event.item.action) {
+        vscode.commands.executeCommand(event.item.action);
+        quickPick.hide();
+        quickPick.dispose();
+      }
+    });
+    
+    quickPick.onDidHide(() => {
+      quickPick.dispose();
+    });
+    
+    globalThis.quickPick = quickPick;
+    quickPick.show();
+  ]]
+
+  WhichKey.js_hide_quickpick = [[
+    if (globalThis.quickPick) {
+      globalThis.quickPick.hide();
+      globalThis.quickPick.dispose();
+      globalThis.quickPick = undefined;
+    }
+  ]]
+
+  WhichKey.cache = {
+    root_items = nil,
+    group_items = {}
+  }
+
+  function WhichKey.format_menu_items(group)
+    local items = {}
+    for _, binding in ipairs(group.bindings) do
+      table.insert(items, {
+        label = binding.key,
+        description = binding.description,
+        action = binding.action,
+        key = binding.key,
+      })
+    end
+    return items
+  end
+
+  function WhichKey.format_root_menu_items()
+    if WhichKey.cache.root_items then
+      return WhichKey.cache.root_items
     end
 
-    -- JavaScript code templates for VSCode interaction
-    local EVAL_STRINGS = {
-      mode_display = [[
-        if (globalThis.modeStatusBar) { globalThis.modeStatusBar.dispose(); }
-        const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-        statusBar.text = args.text;
-        statusBar.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
-        statusBar.color = args.color;
-        statusBar.show();
-        globalThis.modeStatusBar = statusBar;
-      ]],
-      quickpick_menu = [[
-        if (globalThis.quickPick) { globalThis.quickPick.dispose(); }
-        const quickPick = vscode.window.createQuickPick();
-        quickPick.items = args.items.map(item => ({
-          label: item.isGroup ? `$(chevron-right) ${item.label}` : item.isGroupItem ? `  $(key) ${item.label}` : item.label,
-          description: item.description,
-          action: item.action,
-          key: item.key,
-          kind: item.kind
-        }));
-        quickPick.title = args.title;
-        quickPick.placeholder = args.placeholder;
-        quickPick.onDidAccept(() => {
-          const selected = quickPick.selectedItems[0];
-          if (selected && selected.action) {
-            vscode.commands.executeCommand(selected.action);
-          }
-          quickPick.hide();
-          quickPick.dispose();
-        });
-        quickPick.onDidHide(() => {
-          quickPick.dispose();
-        });
-        globalThis.quickPick = quickPick;
-        quickPick.show();
-      ]],
-      hide_quickpick = [[
-        if (globalThis.quickPick) {
-          globalThis.quickPick.hide();
-          globalThis.quickPick.dispose();
-          globalThis.quickPick = undefined;
-        }
-      ]],
-    }
+    local items = {}
+    local lastCategory = nil
 
-    -- Format menu items for a specific group
-    local function format_menu_items(group)
-      local items = {}
+    for key, group in pairs(WhichKey.keybindings) do
+      if lastCategory then
+        table.insert(items, {
+          label = "──────────────",
+          kind = -1,
+        })
+      end
+      table.insert(items, {
+        label = key,
+        description = group.name,
+        isGroup = true,
+        key = key,
+      })
       for _, binding in ipairs(group.bindings) do
         table.insert(items, {
-          label = binding.key,
+          label = key .. binding.key,
           description = binding.description,
           action = binding.action,
-          key = binding.key,
+          isGroupItem = true,
         })
       end
-      return items
+      lastCategory = key
     end
 
-    -- Format root menu items (all groups)
-    local function format_root_menu_items()
-      if cache.root_items then
-        return cache.root_items
-      end
-
-      local items = {}
-      local lastCategory = nil
-
-      for key, group in pairs(keybindings) do
-        if lastCategory then
-          table.insert(items, {
-            label = "──────────────",
-            kind = -1,
-          })
-        end
-        table.insert(items, {
-          label = key,
-          description = group.name,
-          isGroup = true,
-          key = key,
-        })
-        for _, binding in ipairs(group.bindings) do
-          table.insert(items, {
-            label = key .. binding.key,
-            description = binding.description,
-            action = binding.action,
-            isGroupItem = true,
-          })
-        end
-        lastCategory = key
-      end
-
-      cache.root_items = items
-      return items
-    end
-
-    -- Show the which-key menu for a group or the root menu
-    local function show_menu(group)
-      local ok, items = pcall(function()
-        return group and format_menu_items(group) or format_root_menu_items()
-      end)
-      
-      if not ok then
-        vim.notify("Error formatting menu items: " .. tostring(items), vim.log.levels.ERROR)
-        return
-      end
-      
-      local title = group and group.name or "Which Key Menu"
-      local placeholder = group
-        and "Select an action or press <Esc> to cancel"
-        or "Select a group or action (groups shown with ▸)"
-
-      local eval_ok, eval_err = pcall(vscode.eval, EVAL_STRINGS.quickpick_menu, {
-        timeout = 1000,
-        args = {
-          items = items,
-          title = title,
-          placeholder = placeholder,
-        }
-      })
-      
-      if not eval_ok then
-        vim.notify("Error showing which-key menu: " .. tostring(eval_err), vim.log.levels.ERROR)
-      end
-    end
-
-    -- Hide the which-key menu
-    local function hide_menu()
-      pcall(vscode.eval, EVAL_STRINGS.hide_quickpick, { timeout = 1000 })
-    end
-
-    -- Handle a specific key group
-    local function handle_group(prefix, group)
-      vim.keymap.set("n", prefix, function()
-        show_menu(group)
-      end, { noremap = true, silent = true })
-
-      for _, binding in ipairs(group.bindings) do
-        vim.keymap.set("n", prefix .. binding.key, function()
-          hide_menu()
-          pcall(vscode.action, binding.action)
-        end, { noremap = true, silent = true })
-      end
-    end
-
-    -- Update the mode display in the VSCode status bar
-    local function update_mode_display()
-      local current_mode = vim.api.nvim_get_mode().mode
-      if current_mode == last_mode then return end
-      local mode_data = MODE_DISPLAY[current_mode] or MODE_DISPLAY.n
-      pcall(vscode.eval, EVAL_STRINGS.mode_display, {
-        timeout = 1000,
-        args = {
-          text = mode_strings[current_mode] or mode_strings.n,
-          color = mode_data.color
-        }
-      })
-      last_mode = current_mode
-    end
-
-    -- Setup which-key menu system
-    local function setup()
-      -- Show root menu when leader is pressed
-      vim.keymap.set("n", "<leader>", function()
-        show_menu()
-      end, { noremap = true, silent = true, desc = "Show which-key menu" })
-
-      -- Setup each group
-      for prefix, group in pairs(keybindings) do
-        handle_group("<leader>" .. prefix, group)
-      end
-
-      -- Auto-hide menu on mode change or cursor move
-      vim.api.nvim_create_autocmd({ "ModeChanged", "CursorMoved" }, {
-        callback = hide_menu,
-      })
-
-      -- Update mode display in status bar
-      vim.api.nvim_create_autocmd("ModeChanged", {
-        pattern = "*",
-        callback = update_mode_display,
-      })
-
-      -- Update mode display when entering command mode
-      vim.api.nvim_create_autocmd("CmdlineEnter", {
-        callback = function()
-          pcall(vscode.eval, EVAL_STRINGS.mode_display, {
-            timeout = 1000,
-            args = {
-              text = "COMMAND",
-              color = MODE_DISPLAY.c.color,
-            }
-          })
-        end,
-      })
-
-      -- Initialize mode display
-      update_mode_display()
-    end
-
-    return {
-      setup = setup,
-      update_mode_display = update_mode_display,
-      show_menu = show_menu,
-      hide_menu = hide_menu
-    }
-  end)()
-
-  -- =============================================
-  -- Common Keybindings
-  -- =============================================
-  local opts = { noremap = true, silent = true }
-
-  -- Window navigation
-  vim.keymap.set("n", "<C-h>", function() vscode.action("workbench.action.focusLeftGroup") end, opts)
-  vim.keymap.set("n", "<C-j>", function() vscode.action("workbench.action.focusDownGroup") end, opts)
-  vim.keymap.set("n", "<C-k>", function() vscode.action("workbench.action.focusUpGroup") end, opts)
-  vim.keymap.set("n", "<C-l>", function() vscode.action("workbench.action.focusRightGroup") end, opts)
-
-  -- Common commands
-  map_cmd("n", "<leader>w", "w", opts)
-  map_cmd("n", "<leader>wa", "wa", opts)
-
-  -- Splits
-  map_cmd("n", "<leader>\\\\", "vsplit", opts)
-  map_cmd("n", "<leader>-", "split", opts)
-
-  -- Code navigation
-  vim.keymap.set("n", "gd", function() vscode.action("editor.action.revealDefinition") end, opts)
-  vim.keymap.set("n", "gr", function() vscode.action("editor.action.goToReferences") end, opts)
-  vim.keymap.set("n", "gi", function() vscode.action("editor.action.goToImplementation") end, opts)
-  vim.keymap.set("n", "K", function() vscode.action("editor.action.showHover") end, opts)
-
-  -- Comments
-  vim.keymap.set("n", "gcc", function() vscode.action("editor.action.commentLine") end, opts)
-  vim.keymap.set("v", "gc", function() vscode.action("editor.action.commentLine") end, opts)
-
-  -- Return to editor / escape terminal
-  vim.keymap.set("n", "<Esc><Esc>", function() vscode.action("workbench.action.focusActiveEditorGroup") end, opts)
-  vim.keymap.set("t", "<Esc><Esc>", [[<C-\><C-n>]], opts)
-
-  -- Better scrolling
-  vim.keymap.set("n", "<C-d>", "<C-d>zz", opts)
-  vim.keymap.set("n", "<C-u>", "<C-u>zz", opts)
-  vim.keymap.set("n", "n", "nzzzv", opts)
-  vim.keymap.set("n", "N", "Nzzzv", opts)
-
-  -- Initialize which-key
-  which_key.setup()
-end
-
--- Main initialization function
-local function init()
-  -- Basic initialization - works even if subsequent steps fail
-  setup_lazy()
-  setup_leader()
-  setup_common_settings()
-  setup_vscode_integration()
-  
-  -- Try to load plugins (may fail if modules aren't available)
-  pcall(setup_plugins)
-  
-  -- Set up VSCode-specific features if we're in VSCode
-  if vim.g.vscode then
-    pcall(setup_vscode_features)
+    WhichKey.cache.root_items = items
+    return items
   end
+
+  function WhichKey.show_menu(group)
+    local ok, items = pcall(function()
+      return group and WhichKey.format_menu_items(group) or WhichKey.format_root_menu_items()
+    end)
+    
+    if not ok then return end
+    
+    local title = group and group.name or "🗡️ Command Menu"
+    local placeholder = group
+      and "Select an action or press <Esc> to cancel"
+      or "Select a group or action (groups shown with ▸)"
+
+    pcall(vscode.eval, WhichKey.js_quickpick_menu, {
+      timeout = 1000,
+      args = {
+        items = items,
+        title = title,
+        placeholder = placeholder,
+      }
+    })
+  end
+
+  function WhichKey.hide_menu()
+    pcall(vscode.eval, WhichKey.js_hide_quickpick, { timeout = 1000 })
+  end
+
+  function WhichKey.handle_group(prefix, group)
+    vim.keymap.set("n", prefix, function()
+      WhichKey.show_menu(group)
+    end, { noremap = true, silent = true })
+
+    for _, binding in ipairs(group.bindings) do
+      vim.keymap.set("n", prefix .. binding.key, function()
+        WhichKey.hide_menu()
+        pcall(vscode.action, binding.action)
+      end, { noremap = true, silent = true })
+    end
+  end
+
+  function ModeDisplayer.update()
+    local current_mode = vim.api.nvim_get_mode().mode
+    if current_mode == ModeDisplayer.last_mode then return end
+    local mode_data = ModeDisplayer.modes[current_mode] or ModeDisplayer.modes.n
+    pcall(vscode.eval, ModeDisplayer.js_mode_display, {
+      timeout = 1000,
+      args = {
+        text = ModeDisplayer.mode_strings[current_mode] or ModeDisplayer.mode_strings.n,
+        color = mode_data.color,
+        cursorStyle = mode_data.cursorStyle,
+        cursorColor = mode_data.cursorColor
+      }
+    })
+    ModeDisplayer.last_mode = current_mode
+  end
+
+  function WhichKey.setup()
+    vim.keymap.set("n", "<leader>", function()
+      WhichKey.show_menu()
+    end, { noremap = true, silent = true })
+
+    for prefix, group in pairs(WhichKey.keybindings) do
+      WhichKey.handle_group("<leader>" .. prefix, group)
+    end
+
+    vim.api.nvim_create_autocmd({ "ModeChanged", "CursorMoved" }, {
+      callback = WhichKey.hide_menu,
+    })
+
+    vim.api.nvim_create_autocmd("ModeChanged", {
+      pattern = "*",
+      callback = ModeDisplayer.update,
+    })
+
+    vim.api.nvim_create_autocmd("CmdlineEnter", {
+      callback = function()
+        pcall(vscode.eval, ModeDisplayer.js_mode_display, {
+          timeout = 1000,
+          args = {
+            text = ModeDisplayer.modes.c.text,
+            color = ModeDisplayer.modes.c.color,
+            cursorStyle = ModeDisplayer.modes.c.cursorStyle,
+            cursorColor = ModeDisplayer.modes.c.cursorColor
+          }
+        })
+      end,
+    })
+
+    ModeDisplayer.update()
+  end
+
+  function CommonMappings.setup()
+    local opts = { noremap = true, silent = true }
+
+    vim.keymap.set("n", "<C-h>", function() vscode.action("workbench.action.focusLeftGroup") end, opts)
+    vim.keymap.set("n", "<C-j>", function() vscode.action("workbench.action.focusDownGroup") end, opts)
+    vim.keymap.set("n", "<C-k>", function() vscode.action("workbench.action.focusUpGroup") end, opts)
+    vim.keymap.set("n", "<C-l>", function() vscode.action("workbench.action.focusRightGroup") end, opts)
+
+    CommandMapper.map_cmd("n", "<leader>w", "w", opts)
+    CommandMapper.map_cmd("n", "<leader>wa", "wa", opts)
+
+    CommandMapper.map_cmd("n", "<leader>\\\\", "vsplit", opts)
+    CommandMapper.map_cmd("n", "<leader>-", "split", opts)
+
+    vim.keymap.set("n", "gd", function() vscode.action("editor.action.revealDefinition") end, opts)
+    vim.keymap.set("n", "gr", function() vscode.action("editor.action.goToReferences") end, opts)
+    vim.keymap.set("n", "gi", function() vscode.action("editor.action.goToImplementation") end, opts)
+    vim.keymap.set("n", "K", function() vscode.action("editor.action.showHover") end, opts)
+
+    vim.keymap.set("n", "gcc", function() vscode.action("editor.action.commentLine") end, opts)
+    vim.keymap.set("v", "gc", function() vscode.action("editor.action.commentLine") end, opts)
+
+    vim.keymap.set("n", "<Esc><Esc>", function() vscode.action("workbench.action.focusActiveEditorGroup") end, opts)
+    vim.keymap.set("t", "<Esc><Esc>", [[<C-\><C-n>]], opts)
+
+    vim.keymap.set("n", "<C-d>", "<C-d>zz", opts)
+    vim.keymap.set("n", "<C-u>", "<C-u>zz", opts)
+    vim.keymap.set("n", "n", "nzzzv", opts)
+    vim.keymap.set("n", "N", "Nzzzv", opts)
+  end
+
+  CommonMappings.setup()
+  WhichKey.setup()
 end
 
--- Run initialization
-init()
+setup_lazy()
+setup_leader()
+setup_common_settings()
+setup_plugins()
+setup_vscode_features()
