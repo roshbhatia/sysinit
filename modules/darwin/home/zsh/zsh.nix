@@ -180,7 +180,6 @@ in
       [[ -n "$SYSINIT_DEBUG" ]] && zmodload zsh/zprof
       
       typeset -U path cdpath fpath manpath
-      setopt EXTENDED_GLOB
       
       unset MAILCHECK
       stty stop undef
