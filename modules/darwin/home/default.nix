@@ -52,11 +52,39 @@ in {
   # Prune broken symlinks left from removed home.file or xdg.configFile entries
   home.activation.pruneBrokenLinks = lib.hm.dag.entryAfter ["checkLinkTargets"] ''
     echo "Pruning stale Home-Manager symlinks..."
+    
+    # Define allowlisted directories (relative to $homeDirectory)
+    declare -A allowlist
+    allowlist[".config"]=1
+    allowlist[".local/share"]=1
+    # Add more allowed directories as needed
+    
+    # Function to check if path is in an allowlisted directory
+    is_allowed() {
+      local path="$1"
+      local rel_path=''${path#"$homeDirectory/"}
+      
+      for dir in "''${!allowlist[@]}"; do
+        if [[ "$rel_path" == "$dir"* || "$rel_path" == "$dir" ]]; then
+          return 0  # Path is in allowlist
+        fi
+      done
+      
+      return 1  # Path is not in allowlist
+    }
+    
     find "${homeDirectory}" -type l | while read -r link; do
-      target=$(readlink "$link")
-      if [ ! -e "$target" ]; then
-        echo "Removing stale symlink: $link -> $target"
-        rm "$link"
+      # Check if the link is in an allowlisted directory
+      if is_allowed "$link"; then
+        target=$(readlink "$link")
+        if [ ! -e "$target" ]; then
+          echo "Removing stale symlink: $link -> $target"
+          rm "$link"
+        fi
+      else
+        # Optional: Uncomment to see skipped links
+        # echo "Skipping symlink outside allowlist: $link"
+        :
       fi
     done
   '';
