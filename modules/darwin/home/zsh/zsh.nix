@@ -119,40 +119,6 @@ in
       SUDO_EDITOR = "$EDITOR";
       VISUAL = "$EDITOR";
       PAGER = "bat --pager=always --color=always";
-
-      # FZF Configuration
-      FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
-      FZF_DEFAULT_OPTS = let
-        baseOpts = [
-          "--preview-window=right:60%:wrap:border-rounded"
-          "--height=80%"
-          "--layout=reverse"
-          "--border=rounded"
-          "--margin=1"
-          "--padding=1"
-          "--info=inline-right"
-          "--prompt='❯ '"
-          "--pointer='▶'"
-          "--marker='✓'"
-          "--scrollbar='█'"
-          "--color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7"
-          "--color=prompt:1,pointer:5,marker:2,spinner:5,header:4"
-        ];
-        bindings = [
-          "ctrl-/:toggle-preview"
-          "ctrl-s:toggle-sort"
-          "ctrl-space:toggle-preview-wrap"
-          "tab:half-page-down"
-          "btab:half-page-up"
-          "ctrl-y:preview-up"
-          "ctrl-e:preview-down"
-          "?:toggle-preview"
-          "alt-w:toggle-preview-wrap"
-          "ctrl-u:clear-query"
-          "resize:refresh-preview"
-        ];
-        bindOpts = map (binding: "--bind='${binding}'") bindings;
-      in builtins.concatStringsSep " " (baseOpts ++ ["--preview=${fzfPreview}"] ++ bindOpts);
     };
 
     plugins = [
