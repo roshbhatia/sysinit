@@ -38,8 +38,6 @@ let
 
     ${prompt}
   '';
-
-  fzfPreview = stripHeaders ./core/fzf-preview.sh;
 in
 {
   programs.zsh = {
@@ -252,17 +250,17 @@ in
       zstyle ':fzf-tab:*' fzf-flags --preview-window=right:60%,wrap,border-rounded --height=80% --layout=reverse --border=rounded --margin=1 --padding=1 --info=inline-right --prompt='❯ ' --pointer='▶' --marker='✓' --scrollbar='█' --color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7 --color=prompt:1,pointer:5,marker:2,spinner:5,header:4 --bind='ctrl-/:toggle-preview' --bind='ctrl-s:toggle-sort' --bind='ctrl-space:toggle-preview-wrap' --bind='tab:half-page-down' --bind='btab:half-page-up' --bind='ctrl-y:preview-up' --bind='ctrl-e:preview-down' --bind='?:toggle-preview' --bind='alt-w:toggle-preview-wrap' --bind='ctrl-u:clear-query' --bind='resize:refresh-preview'
       
       # Apply preview command to different completion contexts
-      zstyle ':fzf-tab:complete:cd:*' fzf-preview $preview_command
-      zstyle ':fzf-tab:complete:ls:*' fzf-preview $preview_command
-      zstyle ':fzf-tab:complete:nvim:*' fzf-preview $preview_command
-      zstyle ':fzf-tab:complete:vim:*' fzf-preview $preview_command
-      zstyle ':fzf-tab:complete:cat:*' fzf-preview $preview_command
-      zstyle ':fzf-tab:complete:cp:*' fzf-preview $preview_command
-      zstyle ':fzf-tab:complete:mv:*' fzf-preview $preview_command
-      zstyle ':fzf-tab:complete:rm:*' fzf-preview $preview_command
+      zstyle ':fzf-tab:complete:cd:*' fzf-preview sysinit-fzf-preview
+      zstyle ':fzf-tab:complete:ls:*' fzf-preview sysinit-fzf-preview
+      zstyle ':fzf-tab:complete:nvim:*' fzf-preview sysinit-fzf-preview
+      zstyle ':fzf-tab:complete:vim:*' fzf-preview sysinit-fzf-preview
+      zstyle ':fzf-tab:complete:cat:*' fzf-preview sysinit-fzf-preview
+      zstyle ':fzf-tab:complete:cp:*' fzf-preview sysinit-fzf-preview
+      zstyle ':fzf-tab:complete:mv:*' fzf-preview sysinit-fzf-preview
+      zstyle ':fzf-tab:complete:rm:*' fzf-preview sysinit-fzf-preview
       
       # Apply preview command as default for all other completions
-      zstyle ':fzf-tab:*' fzf-preview $preview_command
+      zstyle ':fzf-tab:*' fzf-preview sysinit-fzf-preview
       
       # Show systemd unit status
       zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word 2>/dev/null || echo "No unit status available"'
@@ -285,7 +283,7 @@ in
       if [[ -f \$realpath && (\$realpath == *.yml || \$realpath == *.yaml) ]]; then
         bat --color=always --style=numbers,header,grid --language=yaml --line-range :100 \$realpath
       else
-        $preview_command
+        sysinit-fzf-preview
       fi
       "
       
