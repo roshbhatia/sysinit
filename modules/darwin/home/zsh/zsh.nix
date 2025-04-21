@@ -242,7 +242,7 @@ in
       "
       
       # Use the same FZF appearance settings from your configuration
-      zstyle ':fzf-tab:*' fzf-flags --preview-window=right:60%:wrap:border-rounded --height=80% --layout=reverse --border=rounded --margin=1 --padding=1 --info=inline-right --prompt='❯ ' --pointer='▶' --marker='✓' --scrollbar='█' --color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7 --color=prompt:1,pointer:5,marker:2,spinner:5,header:4 --bind='ctrl-/:toggle-preview' --bind='ctrl-s:toggle-sort' --bind='ctrl-space:toggle-preview-wrap' --bind='tab:half-page-down' --bind='btab:half-page-up' --bind='ctrl-y:preview-up' --bind='ctrl-e:preview-down' --bind='?:toggle-preview' --bind='alt-w:toggle-preview-wrap' --bind='ctrl-u:clear-query' --bind='resize:refresh-preview'
+      zstyle ':fzf-tab:*' fzf-flags --preview-window=right:60%,wrap,border-rounded --height=80% --layout=reverse --border=rounded --margin=1 --padding=1 --info=inline-right --prompt='❯ ' --pointer='▶' --marker='✓' --scrollbar='█' --color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7 --color=prompt:1,pointer:5,marker:2,spinner:5,header:4 --bind='ctrl-/:toggle-preview' --bind='ctrl-s:toggle-sort' --bind='ctrl-space:toggle-preview-wrap' --bind='tab:half-page-down' --bind='btab:half-page-up' --bind='ctrl-y:preview-up' --bind='ctrl-e:preview-down' --bind='?:toggle-preview' --bind='alt-w:toggle-preview-wrap' --bind='ctrl-u:clear-query' --bind='resize:refresh-preview'
       
       # Apply preview command to different completion contexts
       zstyle ':fzf-tab:complete:cd:*' fzf-preview $preview_command
@@ -331,7 +331,8 @@ in
       autoload -Uz add-zsh-hook
       add-zsh-hook precmd _setup_fzf_tab_bindings
 
-      enable-fzf-tab
+      # Enable fzf-tab plugin if available
+      type enable-fzf-tab >/dev/null 2>&1 && enable-fzf-tab
     '';
 
     dirHashes = {
