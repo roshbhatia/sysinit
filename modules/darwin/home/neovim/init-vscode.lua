@@ -86,7 +86,40 @@ require("lazy").setup(collect_plugin_specs())
 
 module_loader.setup_modules(module_system)
 
-local vscode_module = require("modules.editor.vscode")
-if vscode_module and vscode_module.setup_compat_plugins then
-  vscode_module.setup_compat_plugins()
-end
+-- VSCode Neovim compatibility: inline from lua/modules/editor/vscode.lua
+-- 1) Map of Neovim commands to VSCode actions
+local cmd_map = {
+  w      = "workbench.action.files.save",
+  wa     = "workbench.action.files.saveAll",
+  q      = "workbench.action.closeActiveEditor",
+  qa     = "workbench.action.quit",
+  enew   = "workbench.action.files.newUntitledFile",
+  bdelete= "workbench.action.closeActiveEditor",
+  bn     = "workbench.action.nextEditor",
+  bp     = "workbench.action.previousEditor",
+  split  = "workbench.action.splitEditorDown",
+  vsplit = "workbench.action.splitEditorRight",
+}
+
+-- 2) Which-key style keybindings
+local keybindings = {
+  f = {
+    name = "🔍 Find",
+    bindings = {
+      { key = "f", description = "Find Files",    action = "search-preview.quickOpenWithPreview" },
+      { key = "g", description = "Find in Files", action = "workbench.action.findInFiles" },
+      { key = "b", description = "Find Buffers",  action = "workbench.action.showAllEditors" },
+      { key = "s", description = "Find Symbols",  action = "workbench.action.showAllSymbols" },
+      { key = "r", description = "Recent Files",  action = "workbench.action.openRecent" },
+    },
+  },
+  w = {
+    name = "🪟 Window",
+    bindings = {
+      -- ... fill in from original module
+    },
+  },
+  -- TODO: add remaining prefixes: u, b, g, c, t, a, s
+}
+
+-- TODO: inline utility functions, write_prompt/status, map_cmd, prompt menu logic, and mappings
