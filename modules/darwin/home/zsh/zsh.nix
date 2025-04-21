@@ -114,7 +114,7 @@ in
           repo = "zsh-smartcache";
           rev = "641dbfa196c9f69264ad7a49f9ef180af75831be";
         };
-        file = "zsh-smartcache.plugin.zsh"
+        file = "zsh-smartcache.plugin.zsh";
       }
       {
         name = "enhancd";
