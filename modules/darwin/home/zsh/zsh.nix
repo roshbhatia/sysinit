@@ -190,8 +190,12 @@ in
         done
       fi
 
-      if [[ -f "$HOME/.zshwork" ]] && source $HOME/.zshwork
-      if [[ -f "$HOME/.zshsecrets" ]] && source $HOME/.zshsecrets
+      if [[ -f "$HOME/.zshwork" ]]; then
+        source $HOME/.zshwork
+      fi
+      if [[ -f "$HOME/.zshsecrets" ]]; then
+        source $HOME/.zshsecrets
+      fi
       
       [[ -n "$SYSINIT_DEBUG" ]] && zprof
     '';
