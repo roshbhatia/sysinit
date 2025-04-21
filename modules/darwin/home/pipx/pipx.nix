@@ -7,6 +7,7 @@ let
 
   basePackages = [
     "yamllint"
+    "uv"
   ];
 
   allPackages = basePackages ++ additionalPackages;

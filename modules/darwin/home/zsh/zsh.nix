@@ -44,9 +44,10 @@ in
     autocd = true;
     enableCompletion = true;
     historySubstringSearch.enable = true;
+
     # We need to install this manually due to fzf-tab needing to run first
     autosuggestion.enable = false;
-
+    # We use fast-syntax-highlighting instead
     syntaxHighlighting.enable = false;
 
     history = {
@@ -84,7 +85,15 @@ in
     };
 
     sessionVariables = {
-      ZSH_EVALCACHE_DIR = "$XDG_DATA_HOME/zsh/evalcache";
+      LANG = "en_US.UTF-8";
+      LC_ALL = "en_US.UTF-8";
+
+      XDG_CACHE_HOME = "$HOME/.cache";
+      XDG_CONFIG_HOME = "$HOME/.config";
+      XDG_DATA_HOME = "$HOME/.local/share";
+      XDG_STATE_HOME = "$HOME/.local/state";
+
+      ZSH_SMARTCACHE_DIR = "$XDG_DATA_HOME/zsh/smartcache";
 
       ZSH_AUTOSUGGEST_USE_ASYNC = 1;
       ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = 20;
@@ -99,24 +108,13 @@ in
 
     plugins = [
       {
-        name = "fzf-tab";
+        name = "zsh-smartcache";
         src = pkgs.fetchFromGitHub {
-          owner = "Aloxaf";
-          repo = "fzf-tab";
-          rev = "v1.2.0";
-          sha256 = "sha256-q26XVS/LcyZPRqDNwKKA9exgBByE0muyuNb0Bbar2lY=";
+          owner = "QuarticCat";
+          repo = "zsh-smartcache";
+          rev = "641dbfa196c9f69264ad7a49f9ef180af75831be";
         };
-        file = "fzf-tab.plugin.zsh";
-      }
-      {
-        name = "zsh-autosuggestions";
-        src = pkgs.fetchFromGitHub {
-          owner = "zsh-users";
-          repo = "zsh-autosuggestions";
-          rev = "0e810e5afa27acbd074398eefbe28d13005dbc15";
-          sha256 = "sha256-85aw9OM2pQPsWklXjuNOzp9El1MsNb+cIiZQVHUzBnk=";
-        };
-        file = "zsh-autosuggestions.plugin.zsh";
+        file = "zsh-smartcache.plugin.zsh"
       }
       {
         name = "enhancd";
@@ -129,6 +127,26 @@ in
         file = "enhancd.plugin.zsh";
       }
       {
+        name = "zsh-autosuggestions";
+        src = pkgs.fetchFromGitHub {
+          owner = "zsh-users";
+          repo = "zsh-autosuggestions";
+          rev = "0e810e5afa27acbd074398eefbe28d13005dbc15";
+          sha256 = "sha256-85aw9OM2pQPsWklXjuNOzp9El1MsNb+cIiZQVHUzBnk=";
+        };
+        file = "zsh-autosuggestions.plugin.zsh";
+      }
+      {
+        name = "fzf-tab";
+        src = pkgs.fetchFromGitHub {
+          owner = "Aloxaf";
+          repo = "fzf-tab";
+          rev = "v1.2.0";
+          sha256 = "sha256-q26XVS/LcyZPRqDNwKKA9exgBByE0muyuNb0Bbar2lY=";
+        };
+        file = "fzf-tab.plugin.zsh";
+      }
+      {
         name = "fast-syntax-highlighting";
         src = pkgs.fetchFromGitHub {
           owner = "zdharma-continuum";
@@ -137,15 +155,6 @@ in
           sha256 = "sha256-RVX9ZSzjBW3LpFs2W86lKI6vtcvDWP6EPxzeTcRZua4=";
         };
         file = "fast-syntax-highlighting.plugin.zsh";
-      }
-      {
-        name = "evalcache";
-        src = pkgs.fetchFromGitHub {
-          owner = "mroth";
-          repo = "evalcache";
-          rev = "4c7fb8d5b319ae177fead3ec666e316ff2e13b90";
-          sha256 = "sha256-qzpnGTrLnq5mNaLlsjSA6VESA88XBdN3Ku/YIgLCb28=";
-        };
       }
     ];
 
