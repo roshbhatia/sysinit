@@ -1,8 +1,0 @@
-{
-  "modules": {
-    "editor": ["vscode"],
-    "ui": [],
-    "tools": []
-  },
-  "annotations": {}
-}
