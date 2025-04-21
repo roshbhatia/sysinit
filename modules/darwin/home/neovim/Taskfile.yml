@@ -13,9 +13,6 @@ tasks:
     cmds:
       - |
         nvim -u "$(pwd)/init.lua"
-    usage: |
-      Run Neovim with the local configuration (isolated environment):
-        task run-local
 
   run-local-headless:
     desc: Run Neovim with local configuration (isolated) (headless)
@@ -23,9 +20,6 @@ tasks:
     cmds:
       - |
         nvim -u "$(pwd)/init.lua" --headless
-    usage: |
-      Run Neovim with the local configuration (isolated environment):
-        task run-local-headless
       
   run-local-isolated:
     desc: Run Neovim with local configuration (isolated)
@@ -41,9 +35,6 @@ tasks:
         XDG_STATE_HOME=$TMP_DIR/state \
         XDG_CACHE_HOME=$TMP_DIR/cache \
         nvim --cmd "set runtimepath^=$(pwd),$(pwd)/lua" -u "$(pwd)/init.lua"
-    usage: |
-      Run Neovim with the local configuration (isolated environment):
-        task run-local-isolated
 
   run-local-headless-isolated:
     desc: Run Neovim with local configuration (isolated) (headless)
@@ -59,10 +50,7 @@ tasks:
         XDG_STATE_HOME=$TMP_DIR/state \
         XDG_CACHE_HOME=$TMP_DIR/cache \
         nvim --cmd "set runtimepath^=$(pwd),$(pwd)/lua" -u "$(pwd)/init.lua" --headless
-    usage: |
-      Run Neovim with the local configuration (isolated environment):
-        task run-local-headless-isolated
-        
+
   pull-docs:
     desc: Fetch documentation for all Neovim plugins
     silent: true
@@ -110,14 +98,23 @@ tasks:
         
         echo -e "${YELLOW}Scanned ${count} files, found ${found} documentation URLs${NC}"
         echo -e "${GREEN}documentation saved to ${DOC_DIR}${NC}"
-    usage: |
-      Fetch documentation for all Neovim plugins:
-        task pull-docs
-  generate-vscode:
-    desc: Generate VSCode Neovim config file (init-vscode.lua)
-    silent: true
+
+  verify-vscode-actions:
+    desc: Verify that all VSCode actions in init-vscode.lua are listed in the actions.txt
     cmds:
-      - go run scripts/generate_vscode.go
-    usage: |
-      Generate a VSCode-specific Neovim config file:
-        task generate-vscode
+      - |
+        set -eu
+        INIT_LUA="$(pwd)/init-vscode.lua"
+        ACTIONS_FILE="$(pwd)/vscode/actions.txt"
+        echo "Extracting VSCode actions from $INIT_LUA"
+        grep -oE 'action *= *"[^"]+"' "$INIT_LUA" | sed 's/.*"\([^\"]*\)".*/\1/' | sort -u > .actions_used
+        echo "Extracting declared actions from $ACTIONS_FILE"
+        sort -u "$ACTIONS_FILE" > .actions_declared
+        MISSING=$(comm -23 .actions_used .actions_declared || true)
+        if [ -n "$MISSING" ]; then
+          echo "Error: Actions used in init-vscode.lua missing from $ACTIONS_FILE:"
+          echo "$MISSING"
+          exit 1
+        fi
+        echo "All VSCode actions in $INIT_LUA are declared in $ACTIONS_FILE"
+    silent: true
