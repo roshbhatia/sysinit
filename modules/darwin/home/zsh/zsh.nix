@@ -134,7 +134,25 @@ in
         "--scrollbar='█'"
         "--color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7"
         "--color=prompt:1,pointer:5,marker:2,spinner:5,header:4"
-        "--preview='([[ -f {} ]] && (([[ {} =~ \\.md$ ]] && glow -s dark {}) || ([[ {} =~ \\.json$ ]] && jq -C . {}) || ([[ {} =~ \\.(js|jsx|ts|tsx|html|css|yml|yaml|toml|nix|sh|zsh|bash|fish)$ ]] && bat --color=always --style=numbers,header {}) || ([[ {} =~ \\.(jpg|jpeg|png|gif)$ ]] && (kitten icat {} 2>/dev/null || imgcat {} 2>/dev/null || echo \"Image preview not available\")) || (bat --color=always --style=numbers,header {} || cat {}))) || ([[ -d {} ]] && eza -T --color=always --icons --git-ignore --git {} | head -200) || echo {}'"
+        ''--preview='
+          if [[ -f {} ]]; then
+            if [[ {} =~ \.md$ ]]; then
+              glow -s dark {}
+            elif [[ {} =~ \.json$ ]]; then
+              jq -C . {}
+            elif [[ {} =~ \.(js|jsx|ts|tsx|html|css|yml|yaml|toml|nix|sh|zsh|bash|fish)$ ]]; then
+              bat --color=always --style=numbers,header {}
+            elif [[ {} =~ \.(jpg|jpeg|png|gif)$ ]]; then
+              wezterm imgcat {} 2>/dev/null || echo "Image preview not available"
+            else
+              bat --color=always --style=numbers,header {} || cat {}
+            fi
+          elif [[ -d {} ]]; then
+            eza -T --color=always --icons --git-ignore --git {} | head -200
+          else
+            echo {}
+          fi
+        '''
         "--bind='ctrl-/:toggle-preview'"
         "--bind='ctrl-s:toggle-sort'"
         "--bind='ctrl-space:toggle-preview-wrap'"
