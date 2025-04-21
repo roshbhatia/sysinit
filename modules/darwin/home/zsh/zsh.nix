@@ -219,7 +219,7 @@ in
           [[ -d $ZSH_SMARTCACHE_DIR ]] || mkdir -p $ZSH_SMARTCACHE_DIR
 
           local subcmd=$1; shift
-          local id=${$(base64 <<< "$@")%%=#}
+          local id=''\${$(base64 <<< "$@")%%=#}
           _smartcache-$subcmd $id "$@"
       }
     '';
