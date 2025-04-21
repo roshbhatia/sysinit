@@ -79,7 +79,16 @@ local module_system = {
 }
 
 local function collect_plugin_specs()
-  return module_loader.get_plugin_specs(module_system)
+  -- collect module plugin specs and add VSCode Neovim extension
+  local specs = module_loader.get_plugin_specs(module_system)
+  table.insert(specs, {
+    "vscode-neovim/vscode-neovim",
+    lazy = false,
+    cond = function()
+      return vim.g.vscode == true
+    end,
+  })
+  return specs
 end
 
 require("lazy").setup(collect_plugin_specs())

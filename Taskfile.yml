@@ -137,3 +137,22 @@ tasks:
         fi && \
         echo "Work configuration refreshed successfully"
     silent: true
+  verify-vscode-actions:
+    desc: Verify that all VSCode actions in init-vscode.lua are listed in the actions.txt
+    cmds:
+      - |
+        set -eu
+        INIT_LUA="modules/darwin/home/neovim/init-vscode.lua"
+        ACTIONS_FILE="modules/darwin/home/neovim/vscode/actions.txt"
+        echo "Extracting VSCode actions from $INIT_LUA"
+        grep -oE 'action *= *"[^"]+"' "$INIT_LUA" | sed 's/.*"\([^\"]*\)".*/\1/' | sort -u > .actions_used
+        echo "Extracting declared actions from $ACTIONS_FILE"
+        sort -u "$ACTIONS_FILE" > .actions_declared
+        MISSING=$(comm -23 .actions_used .actions_declared || true)
+        if [ -n "$MISSING" ]; then
+          echo "Error: Actions used in init-vscode.lua missing from $ACTIONS_FILE:"
+          echo "$MISSING"
+          exit 1
+        fi
+        echo "All VSCode actions in $INIT_LUA are declared in $ACTIONS_FILE"
+    silent: false
