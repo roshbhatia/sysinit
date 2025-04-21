@@ -86,7 +86,7 @@ in
       diff = "diff --color";
       grep = "grep -s --color=auto";
     };
-
+    
     sessionVariables = {
       LANG = "en_US.UTF-8";
       LC_ALL = "en_US.UTF-8";
@@ -103,10 +103,45 @@ in
       ZSH_AUTOSUGGEST_MANUAL_REBIND = 1;
       ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE = "fg=#808080,bold,underline";
 
-      EDITOR="nvim";
-      SUDO_EDITOR="$EDITOR";
-      VISUAL="$EDITOR";
-      PAGER="bat --pager=always --color=always";
+      EDITOR = "nvim";
+      SUDO_EDITOR = "$EDITOR";
+      VISUAL = "$EDITOR";
+      PAGER = "bat --pager=always --color=always";
+
+      # FZF Configuration
+      FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
+      FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
+        "--preview-window=right:60%:wrap:border-rounded"
+        "--height=80%"
+        "--layout=reverse"
+        "--border=rounded"
+        "--margin=1"
+        "--padding=1"
+        "--info=inline-right"
+        "--prompt='❯ '"
+        "--pointer='▶'"
+        "--marker='✓'"
+        "--scrollbar='█'"
+        "--color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7"
+        "--color=prompt:1,pointer:5,marker:2,spinner:5,header:4"
+        "--preview='([[ -f {} ]] && (([[ {} =~ \\.md$ ]] && glow -s dark {}) || ([[ {} =~ \\.json$ ]] && jq -C . {}) || ([[ {} =~ \\.(js|jsx|ts|tsx|html|css|yml|yaml|toml|nix|sh|zsh|bash|fish)$ ]] && bat --color=always --style=numbers,header {}) || ([[ {} =~ \\.(jpg|jpeg|png|gif)$ ]] && (kitten icat {} 2>/dev/null || imgcat {} 2>/dev/null || echo \"Image preview not available\")) || (bat --color=always --style=numbers,header {} || cat {}))) || ([[ -d {} ]] && eza -T --color=always --icons --git-ignore --git {} | head -200) || echo {}'"
+        "--bind='ctrl-/:toggle-preview'"
+        "--bind='ctrl-s:toggle-sort'"
+        "--bind='ctrl-space:toggle-preview-wrap'"
+        "--bind='tab:half-page-down'"
+        "--bind='btab:half-page-up'"
+        "--bind='ctrl-y:preview-up'"
+        "--bind='ctrl-e:preview-down'"
+        "--bind='?:toggle-preview'"
+        "--bind='alt-w:toggle-preview-wrap'"
+        "--bind='ctrl-u:clear-query'"
+        "--bind='resize:refresh-preview'"
+      ];
+
+      # Enhancd Configuration
+      ENHANCD_FILTER = "fzf --ansi --preview 'eza -al --tree --level 1 --group-directories-first --git-ignore --header --git --no-user --no-time --no-filesize --no-permissions {}' --preview-window=right:40%:wrap:border-rounded --height=35% --layout=reverse --border=rounded --margin=1 --padding=1 --info=inline-right --prompt='❯ ' --pointer='▶' --marker='✓' --scrollbar='█' --bind='ctrl-/:toggle-preview' --bind='ctrl-r:refresh-preview'";
+      ENHANCD_ENABLE_DOUBLE_DOT = false;
+      ENHANCD_ENABLE_HOME = false;
     };
 
     plugins = [
@@ -220,40 +255,6 @@ in
       
       # Force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
       zstyle ':completion:*' menu no
-
-      export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git --exclude node_modules'
-      export FZF_DEFAULT_OPTS="$(cat << 'EOF'
-      --preview-window=right:60%:wrap:border-rounded
-      --height=80%
-      --layout=reverse
-      --border=rounded
-      --margin=1
-      --padding=1
-      --info=inline-right
-      --prompt='❯ '
-      --pointer='▶'
-      --marker='✓'
-      --scrollbar='█'
-      --color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7
-      --color=prompt:1,pointer:5,marker:2,spinner:5,header:4
-      --preview='([[ -f {} ]] && (([[ {} =~ \.md$ ]] && glow -s dark {}) || ([[ {} =~ \.json$ ]] && jq -C . {}) || ([[ {} =~ \.(js|jsx|ts|tsx|html|css|yml|yaml|toml|nix|sh|zsh|bash|fish)$ ]] && bat --color=always --style=numbers,header {}) || ([[ {} =~ \.(jpg|jpeg|png|gif)$ ]] && (kitten icat {} 2>/dev/null || imgcat {} 2>/dev/null || echo "Image preview not available")) || (bat --color=always --style=numbers,header {} || cat {}))) || ([[ -d {} ]] && eza -T --color=always --icons --git-ignore --git {} | head -200) || echo {}'
-      --bind='ctrl-/:toggle-preview'
-      --bind='ctrl-s:toggle-sort'
-      --bind='ctrl-space:toggle-preview-wrap'
-      --bind='tab:half-page-down'
-      --bind='btab:half-page-up'
-      --bind='ctrl-y:preview-up'
-      --bind='ctrl-e:preview-down'
-      --bind='?:toggle-preview'
-      --bind='alt-w:toggle-preview-wrap'
-      --bind='ctrl-u:clear-query'
-      --bind='resize:refresh-preview'
-      EOF
-      )"
-
-      export ENHANCD_FILTER="fzf --ansi --preview 'eza -al --tree --level 1 --group-directories-first --git-ignore --header --git --no-user --no-time --no-filesize --no-permissions {}' --preview-window=right:40%:wrap:border-rounded --height=35% --layout=reverse --border=rounded --margin=1 --padding=1 --info=inline-right --prompt='❯ ' --pointer='▶' --marker='✓' --scrollbar='█' --bind='ctrl-/:toggle-preview' --bind='ctrl-r:refresh-preview'"
-      export ENHANCD_ENABLE_DOUBLE_DOT=false
-      export ENHANCD_ENABLE_HOME=false
       
       # Define preview command for different file types
       preview_command="
@@ -387,11 +388,12 @@ in
 
   home.activation.prepareZshDirs = lib.hm.dag.entryBefore ["checkLinkTargets"] ''
     echo "Preparing zsh extras directory..."
-    # Ensure base config dir exists
+    
     mkdir -p -m 755 "$HOME/.config/zsh"
-    # Clean old extras symlinks
+    
     rm -rf "$HOME/.config/zsh/extras"
-    # Create extras and extras/bin
-    mkdir -p -m 755 "$HOME/.config/zsh/extras" "$HOME/.config/zsh/extras/bin"
+    rm -rf "$HOME/.config/zsh/bin"
+
+    mkdir -p -m 755 "$HOME/.config/zsh/extras" "$HOME/.config/zsh/bin"
   '';
 }
