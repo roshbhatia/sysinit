@@ -109,17 +109,6 @@ local cmd_map = {
   split  = "workbench.action.splitEditorDown",
   vsplit = "workbench.action.splitEditorRight",
 }
- 
--- Helper functions for file output and parity checking
-local info = debug.getinfo(1, 'S')
-local script_path = info.source:sub(2)
-local script_dir = vim.fn.fnamemodify(script_path, ':p:h')
-local root_dir = vim.fn.fnamemodify(script_dir .. '/../../../', ':p')
-local utils = {
-  prompt_file  = root_dir .. 'prompt.md',
-  status_file  = root_dir .. 'status.md',
-  actions_file = root_dir .. 'vscode/actions.txt',
-}
 
 local function write_file(path, lines)
   local f, err = io.open(path, 'w')
@@ -155,38 +144,6 @@ local function write_status(entries)
   local lines = { '# VSCode Neovim Parity Status', '' }
   for _, e in ipairs(entries) do table.insert(lines, '- ' .. e) end
   write_file(utils.status_file, lines)
-end
-
-local function check_parity()
-  local entries = {}
-  local valid = {}
-  local af = io.open(utils.actions_file, 'r')
-  if af then
-    for line in af:lines() do valid[line] = true end
-    af:close()
-  else
-    table.insert(entries, 'Unable to open actions file: ' .. utils.actions_file)
-    write_status(entries)
-    return
-  end
-  for cmd, action in pairs(cmd_map) do
-    if not valid[action] then
-      local msg = string.format("Invalid action '%s' for command '%s'", action, cmd)
-      vim.notify(msg, vim.log.levels.WARN)
-      table.insert(entries, msg)
-    end
-  end
-  for prefix, group in pairs(keybindings) do
-    for _, b in ipairs(group.bindings) do
-      if not valid[b.action or ''] then
-        local msg = string.format("Invalid action '%s' in bindings for '%s'", b.action, prefix)
-        vim.notify(msg, vim.log.levels.WARN)
-        table.insert(entries, msg)
-      end
-    end
-  end
-  if #entries == 0 then table.insert(entries, 'All VSCode actions are valid.') end
-  write_status(entries)
 end
 
 local function map_cmd(mode, lhs, cmd, opts)
@@ -550,4 +507,3 @@ vim.keymap.set("n", "n", "nzzzv", opts)
 vim.keymap.set("n", "N", "Nzzzv", opts)
 
 update_mode_display()
-check_parity()
