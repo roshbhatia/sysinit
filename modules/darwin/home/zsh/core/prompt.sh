@@ -14,6 +14,6 @@ fi
 if [ "$VSCODE_INJECTION" = "1" ]; then
   eval "$(oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/zash.omp.json)"
 else
-  smartcache oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/catppuccin_mocha.omp.json
+  _smartcache-eval oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/catppuccin_mocha.omp.json
 fi
 # modules/darwin/home/zsh/core/prompt.sh (end)
