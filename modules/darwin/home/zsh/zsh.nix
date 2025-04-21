@@ -45,7 +45,8 @@ in
 
     autocd = true;
     enableCompletion = true;
-    historySubstringSearch.enable = true;
+    # We use atuin
+    historySubstringSearch.enable = false;
     # We need to install this manually due to fzf-tab needing to run first
     autosuggestion.enable = false;
     # We use fast-syntax-highlighting instead
