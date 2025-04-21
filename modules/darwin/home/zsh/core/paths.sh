@@ -26,6 +26,7 @@ paths=(
   "/usr/sbin"
   "$HOME/.krew/bin"
   "$HOME/.local/bin"
+  "$HOME/.local/bin"
   "$HOME/.npm-global/bin"
   "$HOME/.rvm/bin"
   "$HOME/.yarn/bin"
