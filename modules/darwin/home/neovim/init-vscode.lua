@@ -1,41 +1,37 @@
--- WARNING: AUTO-GENERATED FILE. DO NOT EDIT.
--- Template for VSCode Neovim init, based on init.lua
+local function setup_lazy()
+  local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+  if not vim.loop.fs_stat(lazypath) then
+    vim.fn.system({
+      "git", "clone", "--filter=blob:none",
+      "https://github.com/folke/lazy.nvim.git",
+      "--branch=stable", lazypath,
+    })
+  end
+  vim.opt.rtp:prepend(lazypath)
 
-vim.g.vscode = true
-
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system({
-    "git",
-    "clone",
-    "--filter=blob:none",
-    "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable",
-    lazypath,
-  })
+  -- Add lua directory to runtime path
+  local init_dir = vim.fn.fnamemodify(vim.fn.expand("$MYVIMRC"), ":p:h")
+  local lua_dir = init_dir .. "/lua"
+  vim.opt.rtp:prepend(lua_dir)
 end
-vim.opt.rtp:prepend(lazypath)
 
-local init_dir = vim.fn.fnamemodify(vim.fn.expand("$MYVIMRC"), ":p:h")
-local lua_dir = init_dir .. "/lua"
-vim.opt.rtp:prepend(lua_dir)
+-- Basic leader setup
+local function setup_leader()
+  vim.g.mapleader = " "
+  vim.g.maplocalleader = " "
+  -- Prevent space from moving cursor in normal/visual mode
+  vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { noremap = true, silent = true })
+end
 
-vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { noremap = true, silent = true })
-
-vim.g.mapleader = " "
-vim.g.maplocalleader = " "
-
-vim.opt.clipboard = "unnamedplus"
-
-vim.keymap.set("n", ":", ":", { noremap = true, desc = "Command mode" })
-
--- Common settings
+-- Common Neovim settings
 local function setup_common_settings()
+  -- Search settings
   vim.opt.hlsearch = true
   vim.opt.incsearch = true
   vim.opt.ignorecase = true
   vim.opt.smartcase = true
 
+  -- Indentation settings
   vim.opt.expandtab = true
   vim.opt.shiftwidth = 2
   vim.opt.tabstop = 2
@@ -44,466 +40,557 @@ local function setup_common_settings()
   vim.opt.linebreak = true
   vim.opt.breakindent = true
 
+  -- Window behavior
   vim.opt.splitbelow = true
   vim.opt.splitright = true
 
+  -- Performance and usability
   vim.opt.updatetime = 100
   vim.opt.timeoutlen = 300
-
   vim.opt.scrolloff = 8
   vim.opt.sidescrolloff = 8
-
   vim.opt.mouse = "a"
   vim.opt.clipboard = "unnamedplus"
 end
 
--- VSCode-specific settings
-local function setup_vscode_settings()
-  vim.notify("SysInit -- VSCode Neovim integration detected", vim.log.levels.INFO)
+-- VSCode integration specific settings
+local function setup_vscode_integration()
+  if vim.g.vscode then
+    vim.notify("VSCode Neovim integration detected", vim.log.levels.INFO)
+  end
 end
 
-setup_common_settings()
-setup_vscode_settings()
-
-local module_loader = require("core.module_loader")
-
--- determine module loading system
-local module_system = {
-  editor = {
-    "vscode",
-  },
-  ui = {
-  },
-  tools = {
-  },
-}
-
-local function collect_plugin_specs()
-  -- collect module plugin specs and add VSCode Neovim extension
-  local specs = module_loader.get_plugin_specs(module_system)
-  table.insert(specs, {
-    "vscode-neovim/vscode-neovim",
-    lazy = false,
-    cond = function()
-      return vim.g.vscode == true
-    end,
-  })
-  return specs
-end
-
-require("lazy").setup(collect_plugin_specs())
-
-module_loader.setup_modules(module_system)
-
--- VSCode Neovim compatibility: inline from lua/modules/editor/vscode.lua
--- 1) Map of Neovim commands to VSCode actions
-local cmd_map = {
-  w      = "workbench.action.files.save",
-  wa     = "workbench.action.files.saveAll",
-  q      = "workbench.action.closeActiveEditor",
-  qa     = "workbench.action.quit",
-  enew   = "workbench.action.files.newUntitledFile",
-  bdelete= "workbench.action.closeActiveEditor",
-  bn     = "workbench.action.nextEditor",
-  bp     = "workbench.action.previousEditor",
-  split  = "workbench.action.splitEditorDown",
-  vsplit = "workbench.action.splitEditorRight",
-}
-
-local function write_file(path, lines)
-  local f, err = io.open(path, 'w')
-  if not f then
-    vim.notify('Error opening file: ' .. path .. ': ' .. err, vim.log.levels.ERROR)
+-- Initialize module loader and setup plugins
+local function setup_plugins()
+  local ok, module_loader = pcall(require, "core.module_loader")
+  if not ok then
+    vim.notify("Failed to load core.module_loader: " .. tostring(module_loader), vim.log.levels.ERROR)
     return
   end
-  for _, line in ipairs(lines) do f:write(line .. '\n') end
-  f:close()
-end
 
-local function write_prompt(title, placeholder, items)
-  local lines = {
-    '# Which Key Prompt', '',
-    '**Title**: ' .. title, '',
-    '**Placeholder**: ' .. placeholder, '',
-    'Items:', ''
+  -- Define module system
+  local module_system = {
+    editor = {
+      "vscode",
+    },
+    ui = {},
+    tools = {},
   }
-  for _, item in ipairs(items) do
-    if item.kind == -1 then
-      table.insert(lines, '- --- separator ---')
+
+  -- Setup lazy.nvim with plugin specs
+  local function collect_plugin_specs()
+    local specs = module_loader.get_plugin_specs(module_system)
+    table.insert(specs, {
+      "vscode-neovim/vscode-neovim",
+      lazy = false,
+      cond = function() return vim.g.vscode == true end,
+    })
+    return specs
+  end
+
+  local lazy_ok, lazy = pcall(require, "lazy")
+  if not lazy_ok then
+    vim.notify("Failed to load lazy.nvim: " .. tostring(lazy), vim.log.levels.ERROR)
+    return
+  end
+
+  lazy.setup(collect_plugin_specs())
+  module_loader.setup_modules(module_system)
+end
+
+-- Setup VSCode-specific keybindings and features
+local function setup_vscode_features()
+  if not vim.g.vscode then return end
+
+  local vscode_ok, vscode = pcall(require, "vscode")
+  if not vscode_ok then
+    vim.notify("Failed to load vscode module: " .. tostring(vscode), vim.log.levels.ERROR)
+    return
+  end
+
+  -- =============================================
+  -- VSCode Command Mapping
+  -- =============================================
+  local cmd_map = {
+    w      = "workbench.action.files.save",
+    wa     = "workbench.action.files.saveAll",
+    q      = "workbench.action.closeActiveEditor",
+    qa     = "workbench.action.quit",
+    enew   = "workbench.action.files.newUntitledFile",
+    bdelete= "workbench.action.closeActiveEditor",
+    bn     = "workbench.action.nextEditor",
+    bp     = "workbench.action.previousEditor",
+    split  = "workbench.action.splitEditorDown",
+    vsplit = "workbench.action.splitEditorRight",
+  }
+
+  -- Map Vim commands to VSCode actions
+  local function map_cmd(mode, lhs, cmd, opts)
+    opts = opts or { noremap = true, silent = true }
+    local action = cmd_map[cmd]
+    if action then
+      vim.keymap.set(mode, lhs, function() vscode.action(action) end, opts)
     else
-      table.insert(lines, string.format(
-        '- `%s`: %s (action: %s)',
-        item.label, item.description or '', item.action or ''
-      ))
+      vim.keymap.set(mode, lhs, '<cmd>' .. cmd .. '<cr>', opts)
     end
   end
-  write_file(utils.prompt_file, lines)
-end
 
-local function write_status(entries)
-  local lines = { '# VSCode Neovim Parity Status', '' }
-  for _, e in ipairs(entries) do table.insert(lines, '- ' .. e) end
-  write_file(utils.status_file, lines)
-end
+  -- =============================================
+  -- Which Key Menu Setup
+  -- =============================================
+  -- Define keybinding groups for which-key style menu
+  local keybindings = {
+    f = {
+      name = "🔍 Find",
+      bindings = {
+        { key = "f", description = "Find Files",    action = "search-preview.quickOpenWithPreview" },
+        { key = "g", description = "Find in Files", action = "workbench.action.findInFiles" },
+        { key = "b", description = "Find Buffers",  action = "workbench.action.showAllEditors" },
+        { key = "s", description = "Find Symbols",  action = "workbench.action.showAllSymbols" },
+        { key = "r", description = "Recent Files",  action = "workbench.action.openRecent" },
+      },
+    },
+    w = {
+      name = "🪟 Window",
+      bindings = {
+        { key = "h", description = "Focus Left",   action = "workbench.action.focusLeftGroup" },
+        { key = "j", description = "Focus Down",   action = "workbench.action.focusBelowGroup" },
+        { key = "k", description = "Focus Up",     action = "workbench.action.focusAboveGroup" },
+        { key = "l", description = "Focus Right",  action = "workbench.action.focusRightGroup" },
+        { key = "=", description = "Equal Width",  action = "workbench.action.evenEditorWidths" },
+        { key = "_", description = "Max Width",    action = "workbench.action.toggleEditorWidths" },
+        { key = "w", description = "Close Editor", action = "workbench.action.closeActiveEditor" },
+        { key = "o", description = "Close Others", action = "workbench.action.closeOtherEditors" },
+        { key = "H", description = "Move Left",    action = "workbench.action.moveEditorToLeftGroup" },
+        { key = "J", description = "Move Down",    action = "workbench.action.moveEditorToBelowGroup" },
+        { key = "K", description = "Move Up",      action = "workbench.action.moveEditorToAboveGroup" },
+        { key = "L", description = "Move Right",   action = "workbench.action.moveEditorToRightGroup" },
+      },
+    },
+    u = {
+      name = "⚙️ UI",
+      bindings = {
+        { key = "a", description = "Activity Bar", action = "workbench.action.toggleActivityBarVisibility" },
+        { key = "s", description = "Status Bar",   action = "workbench.action.toggleStatusbarVisibility" },
+        { key = "t", description = "Tab Bar",      action = "workbench.action.toggleTabsVisibility" },
+        { key = "b", description = "Side Bar",     action = "workbench.action.toggleSidebarVisibility" },
+        { key = "z", description = "Zen Mode",     action = "workbench.action.toggleZenMode" },
+        { key = "f", description = "Full Screen",  action = "workbench.action.toggleFullScreen" },
+      },
+    },
+    b = {
+      name = "📝 Buffer",
+      bindings = {
+        { key = "n", description = "Next Buffer",     action = "workbench.action.nextEditor" },
+        { key = "p", description = "Previous Buffer", action = "workbench.action.previousEditor" },
+        { key = "d", description = "Close Buffer",    action = "workbench.action.closeActiveEditor" },
+        { key = "o", description = "Close Others",    action = "workbench.action.closeOtherEditors" },
+      },
+    },
+    g = {
+      name = "🔄 Git",
+      bindings = {
+        { key = "s", description = "Stage Changes",           action = "git.stage" },
+        { key = "S", description = "Stage All",               action = "git.stageAll" },
+        { key = "u", description = "Unstage Changes",         action = "git.unstage" },
+        { key = "U", description = "Unstage All",             action = "git.unstageAll" },
+        { key = "c", description = "Commit",                  action = "git.commit" },
+        { key = "C", description = "Commit All",              action = "git.commitAll" },
+        { key = "p", description = "Push",                    action = "git.push" },
+        { key = "P", description = "Pull",                    action = "git.pull" },
+        { key = "d", description = "Open Change",             action = "git.openChange" },
+        { key = "D", description = "Open All Changes",        action = "git.openAllChanges" },
+        { key = "b", description = "Checkout Branch",         action = "git.checkout" },
+        { key = "f", description = "Fetch",                   action = "git.fetch" },
+        { key = "r", description = "Revert Change",           action = "git.revertChange" },
+        { key = "v", description = "SCM View",                action = "workbench.view.scm" },
+        { key = "m", description = "Generate Commit Message", action = "workbench.action.chat.open" },
+      },
+    },
+    c = {
+      name = "💻 Code",
+      bindings = {
+        { key = "a", description = "Quick Fix",            action = "editor.action.quickFix" },
+        { key = "r", description = "Rename Symbol",        action = "editor.action.rename" },
+        { key = "f", description = "Format Document",      action = "editor.action.formatDocument" },
+        { key = "d", description = "Go to Definition",     action = "editor.action.revealDefinition" },
+        { key = "i", description = "Go to Implementation", action = "editor.action.goToImplementation" },
+        { key = "h", description = "Show Hover",           action = "editor.action.showHover" },
+        { key = "c", description = "Toggle Comment",       action = "editor.action.commentLine" },
+        { key = "s", description = "Go to Symbol",         action = "workbench.action.gotoSymbol" },
+        { key = "R", description = "Find References",      action = "editor.action.goToReferences" },
+      },
+    },
+    t = {
+      name = "🔧 Toggle",
+      bindings = {
+        { key = "e", description = "Explorer",         action = "workbench.view.explorer" },
+        { key = "t", description = "Terminal",         action = "workbench.action.terminal.toggleTerminal" },
+        { key = "p", description = "Problems",         action = "workbench.actions.view.problems" },
+        { key = "o", description = "Outline",          action = "outline.focus" },
+        { key = "c", description = "Chat",             action = "workbench.action.chat.open" },
+        { key = "b", description = "Return to Editor", action = "workbench.action.focusActiveEditorGroup" },
+        { key = "m", description = "Command Palette",  action = "workbench.action.showCommands" },
+      },
+    },
+    a = {
+      name = "🤖 AI",
+      bindings = {
+        { key = "c", description = "Start Chat",      action = "workbench.action.chat.open" },
+        { key = "i", description = "Inline Chat",     action = "inlineChat.start" },
+        { key = "v", description = "View in Chat",    action = "inlineChat.viewInChat" },
+        { key = "r", description = "Regenerate",      action = "inlineChat.regenerate" },
+        { key = "a", description = "Accept Changes",  action = "inlineChat.acceptChanges" },
+        { key = "g", description = "Generate Commit", action = "workbench.action.chat.open" },
+      },
+    },
+    s = {
+      name = "✂️ Stage/Split",
+      bindings = {
+        { key = "s", description = "Stage Hunk",       action = "git.diff.stageHunk" },
+        { key = "S", description = "Stage Selection",  action = "git.diff.stageSelection" },
+        { key = "u", description = "Unstage",          action = "git.unstage" },
+        { key = "h", description = "Split Horizontal", action = "workbench.action.splitEditorDown" },
+        { key = "v", description = "Split Vertical",   action = "workbench.action.splitEditorRight" },
+      },
+    },
+  }
 
-local function map_cmd(mode, lhs, cmd, opts)
-  opts = opts or { noremap = true, silent = true }
-  local action = cmd_map[cmd]
-  if action then
-    local api = require('vscode')
-    vim.keymap.set(mode, lhs, function() api.action(action) end, opts)
-  else
-    vim.keymap.set(mode, lhs, '<cmd>' .. cmd .. '<cr>', opts)
-  end
-end
+  -- =============================================
+  -- Which Key Implementation
+  -- =============================================
+  -- Implements a VSCode-compatible which-key menu system
+  local which_key = (function()
+    local cache = {
+      root_items = nil,
+      group_items = {}
+    }
+    
+    local MODE_DISPLAY = {
+      n = { text = 'NORMAL', color = '#7aa2f7' },
+      i = { text = 'INSERT', color = '#9ece6a' },
+      v = { text = 'VISUAL', color = '#bb9af7' },
+      V = { text = 'V-LINE', color = '#bb9af7' },
+      ['\22'] = { text = 'V-BLOCK', color = '#bb9af7' },
+      R = { text = 'REPLACE', color = '#f7768e' },
+      s = { text = 'SELECT', color = '#ff9e64' },
+      S = { text = 'S-LINE', color = '#ff9e64' },
+      ['\19'] = { text = 'S-BLOCK', color = '#ff9e64' },
+      c = { text = 'COMMAND', color = '#7dcfff' },
+      t = { text = 'TERMINAL', color = '#73daca' },
+    }
 
--- 2) Which-key style keybindings
-local keybindings = {
-  f = {
-    name = "🔍 Find",
-    bindings = {
-      { key = "f", description = "Find Files",    action = "search-preview.quickOpenWithPreview" },
-      { key = "g", description = "Find in Files", action = "workbench.action.findInFiles" },
-      { key = "b", description = "Find Buffers",  action = "workbench.action.showAllEditors" },
-      { key = "s", description = "Find Symbols",  action = "workbench.action.showAllSymbols" },
-      { key = "r", description = "Recent Files",  action = "workbench.action.openRecent" },
-    },
-  },
-  w = {
-    name = "🪟 Window",
-    bindings = {
-      { key = "h", description = "Focus Left",   action = "workbench.action.focusLeftGroup" },
-      { key = "j", description = "Focus Down",   action = "workbench.action.focusBelowGroup" },
-      { key = "k", description = "Focus Up",     action = "workbench.action.focusAboveGroup" },
-      { key = "l", description = "Focus Right",  action = "workbench.action.focusRightGroup" },
-      { key = "=", description = "Equal Width",  action = "workbench.action.evenEditorWidths" },
-      { key = "_", description = "Max Width",    action = "workbench.action.toggleEditorWidths" },
-      { key = "w", description = "Close Editor", action = "workbench.action.closeActiveEditor" },
-      { key = "o", description = "Close Others", action = "workbench.action.closeOtherEditors" },
-      { key = "H", description = "Move Left",    action = "workbench.action.moveEditorToLeftGroup" },
-      { key = "J", description = "Move Down",    action = "workbench.action.moveEditorToBelowGroup" },
-      { key = "K", description = "Move Up",      action = "workbench.action.moveEditorToAboveGroup" },
-      { key = "L", description = "Move Right",   action = "workbench.action.moveEditorToRightGroup" },
-    },
-  },
-  u = {
-    name = "⚙️ UI",
-    bindings = {
-      { key = "a", description = "Activity Bar", action = "workbench.action.toggleActivityBarVisibility" },
-      { key = "s", description = "Status Bar",   action = "workbench.action.toggleStatusbarVisibility" },
-      { key = "t", description = "Tab Bar",      action = "workbench.action.toggleTabsVisibility" },
-      { key = "b", description = "Side Bar",     action = "workbench.action.toggleSidebarVisibility" },
-      { key = "z", description = "Zen Mode",     action = "workbench.action.toggleZenMode" },
-      { key = "f", description = "Full Screen",  action = "workbench.action.toggleFullScreen" },
-    },
-  },
-  b = {
-    name = "📝 Buffer",
-    bindings = {
-      { key = "n", description = "Next Buffer",     action = "workbench.action.nextEditor" },
-      { key = "p", description = "Previous Buffer", action = "workbench.action.previousEditor" },
-      { key = "d", description = "Close Buffer",    action = "workbench.action.closeActiveEditor" },
-      { key = "o", description = "Close Others",    action = "workbench.action.closeOtherEditors" },
-    },
-  },
-  g = {
-    name = "🔄 Git",
-    bindings = {
-      { key = "s", description = "Stage Changes",           action = "git.stage" },
-      { key = "S", description = "Stage All",               action = "git.stageAll" },
-      { key = "u", description = "Unstage Changes",         action = "git.unstage" },
-      { key = "U", description = "Unstage All",             action = "git.unstageAll" },
-      { key = "c", description = "Commit",                  action = "git.commit" },
-      { key = "C", description = "Commit All",              action = "git.commitAll" },
-      { key = "p", description = "Push",                    action = "git.push" },
-      { key = "P", description = "Pull",                    action = "git.pull" },
-      { key = "d", description = "Open Change",             action = "git.openChange" },
-      { key = "D", description = "Open All Changes",        action = "git.openAllChanges" },
-      { key = "b", description = "Checkout Branch",         action = "git.checkout" },
-      { key = "f", description = "Fetch",                   action = "git.fetch" },
-      { key = "r", description = "Revert Change",           action = "git.revertChange" },
-      { key = "v", description = "SCM View",                action = "workbench.view.scm" },
-      { key = "m", description = "Generate Commit Message", action = "workbench.action.chat.open" },
-    },
-  },
-  c = {
-    name = "💻 Code",
-    bindings = {
-      { key = "a", description = "Quick Fix",            action = "editor.action.quickFix" },
-      { key = "r", description = "Rename Symbol",        action = "editor.action.rename" },
-      { key = "f", description = "Format Document",      action = "editor.action.formatDocument" },
-      { key = "d", description = "Go to Definition",     action = "editor.action.revealDefinition" },
-      { key = "i", description = "Go to Implementation", action = "editor.action.goToImplementation" },
-      { key = "h", description = "Show Hover",           action = "editor.action.showHover" },
-      { key = "c", description = "Toggle Comment",       action = "editor.action.commentLine" },
-      { key = "s", description = "Go to Symbol",         action = "workbench.action.gotoSymbol" },
-      { key = "R", description = "Find References",      action = "editor.action.goToReferences" },
-    },
-  },
-  t = {
-    name = "🔧 Toggle",
-    bindings = {
-      { key = "e", description = "Explorer",         action = "workbench.view.explorer" },
-      { key = "t", description = "Terminal",         action = "workbench.action.terminal.toggleTerminal" },
-      { key = "p", description = "Problems",         action = "workbench.actions.view.problems" },
-      { key = "o", description = "Outline",          action = "outline.focus" },
-      { key = "c", description = "Chat",             action = "workbench.action.chat.open" },
-      { key = "b", description = "Return to Editor", action = "workbench.action.focusActiveEditorGroup" },
-      { key = "m", description = "Command Palette",  action = "workbench.action.showCommands" },
-    },
-  },
-  a = {
-    name = "🤖 AI",
-    bindings = {
-      { key = "c", description = "Start Chat",      action = "workbench.action.chat.open" },
-      { key = "i", description = "Inline Chat",     action = "inlineChat.start" },
-      { key = "v", description = "View in Chat",    action = "inlineChat.viewInChat" },
-      { key = "r", description = "Regenerate",      action = "inlineChat.regenerate" },
-      { key = "a", description = "Accept Changes",  action = "inlineChat.acceptChanges" },
-      { key = "g", description = "Generate Commit", action = "workbench.action.chat.open" },
-    },
-  },
-  s = {
-    name = "✂️ Stage/Split",
-    bindings = {
-      { key = "s", description = "Stage Hunk",       action = "git.diff.stageHunk" },
-      { key = "S", description = "Stage Selection",  action = "git.diff.stageSelection" },
-      { key = "u", description = "Unstage",          action = "git.unstage" },
-      { key = "h", description = "Split Horizontal", action = "workbench.action.splitEditorDown" },
-      { key = "v", description = "Split Vertical",   action = "workbench.action.splitEditorRight" },
-    },
-  },
-}
+    local mode_strings = {}
+    local last_mode = nil
+    
+    for mode, data in pairs(MODE_DISPLAY) do
+      mode_strings[mode] = string.format("Mode: %s", data.text)
+    end
 
--- Inline VSCode compatibility logic
+    -- Safe utility for writing to files with error handling
+    local function write_file(path, lines)
+      local f, err = io.open(path, 'w')
+      if not f then
+        vim.notify('Error opening file: ' .. path .. ': ' .. err, vim.log.levels.ERROR)
+        return
+      end
+      for _, line in ipairs(lines) do f:write(line .. '\n') end
+      f:close()
+    end
 
-local vscode = require('vscode')
-local mode_strings = {}
-local last_mode = nil
-
-local MODE_DISPLAY = {
-  n = { text = 'NORMAL', color = '#7aa2f7' },
-  i = { text = 'INSERT', color = '#9ece6a' },
-  v = { text = 'VISUAL', color = '#bb9af7' },
-  V = { text = 'V-LINE', color = '#bb9af7' },
-  ['\22'] = { text = 'V-BLOCK', color = '#bb9af7' },
-  R = { text = 'REPLACE', color = '#f7768e' },
-  s = { text = 'SELECT', color = '#ff9e64' },
-  S = { text = 'S-LINE', color = '#ff9e64' },
-  ['\19'] = { text = 'S-BLOCK', color = '#ff9e64' },
-  c = { text = 'COMMAND', color = '#7dcfff' },
-  t = { text = 'TERMINAL', color = '#73daca' },
-}
-
-local EVAL_STRINGS = {
-  mode_display = [[
-    if (globalThis.modeStatusBar) { globalThis.modeStatusBar.dispose(); }
-    const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-    statusBar.text = args.text;
-    statusBar.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
-    statusBar.color = args.color;
-    statusBar.show();
-    globalThis.modeStatusBar = statusBar;
-  ]],
-  quickpick_menu = [[
-    if (globalThis.quickPick) { globalThis.quickPick.dispose(); }
-    const quickPick = vscode.window.createQuickPick();
-    quickPick.items = args.items.map(item => ({
-      label: item.isGroup ? `$(chevron-right) ${item.label}` : item.isGroupItem ? `  $(key) ${item.label}` : item.label,
-      description: item.description,
-      action: item.action,
-      key: item.key,
-      kind: item.kind
-    }));
-    quickPick.title = args.title;
-    quickPick.placeholder = args.placeholder;
-    quickPick.onDidAccept(() => {
-      const selected = quickPick.selectedItems[0];
-      if (selected && selected.action) {
-        vscode.commands.executeCommand(selected.action);
+    local function write_prompt(title, placeholder, items)
+      local lines = {
+        '# Which Key Prompt', '',
+        '**Title**: ' .. title, '',
+        '**Placeholder**: ' .. placeholder, '',
+        'Items:', ''
       }
-      quickPick.hide();
-      quickPick.dispose();
-    });
-    quickPick.onDidHide(() => {
-      quickPick.dispose();
-    });
-    globalThis.quickPick = quickPick;
-    quickPick.show();
-  ]],
-  hide_quickpick = [[
-    if (globalThis.quickPick) {
-      globalThis.quickPick.hide();
-      globalThis.quickPick.dispose();
-      globalThis.quickPick = undefined;
-    }
-  ]],
-}
-
-local menu_cache = {
-  root_items = nil,
-  group_items = {}
-}
-
-for mode, data in pairs(MODE_DISPLAY) do
-  mode_strings[mode] = string.format("Mode: %s", data.text)
-end
-
-local function update_mode_display()
-  local current_mode = vim.api.nvim_get_mode().mode
-  if current_mode == last_mode then return end
-  local mode_data = MODE_DISPLAY[current_mode] or MODE_DISPLAY.n
-  vscode.eval(EVAL_STRINGS.mode_display, {
-    timeout = 1000,
-    args = {
-      text = mode_strings[current_mode] or mode_strings.n,
-      color = mode_data.color
-    }
-  })
-  last_mode = current_mode
-end
-
-local function format_menu_items(group)
-  local items = {}
-  for _, binding in ipairs(group.bindings) do
-    table.insert(items, {
-      label = binding.key,
-      description = binding.description,
-      action = binding.action,
-      key = binding.key,
-    })
-  end
-  return items
-end
-
-local function format_root_menu_items()
-  if menu_cache.root_items then
-    return menu_cache.root_items
-  end
-
-  local items = {}
-  local lastCategory = nil
-
-  for key, group in pairs(keybindings) do
-    if lastCategory then
-      table.insert(items, {
-        label = "──────────────",
-        kind = -1,
-      })
+      for _, item in ipairs(items) do
+        if item.kind == -1 then
+          table.insert(lines, '- --- separator ---')
+        else
+          table.insert(lines, string.format(
+            '- `%s`: %s (action: %s)',
+            item.label, item.description or '', item.action or ''
+          ))
+        end
+      end
+      -- Use safe_prompt_file instead of direct reference
+      local safe_prompt_file = vim.fn.tempname() .. "_vscode_prompt.md"
+      write_file(safe_prompt_file, lines)
     end
-    table.insert(items, {
-      label = key,
-      description = group.name,
-      isGroup = true,
-      key = key,
-    })
-    for _, binding in ipairs(group.bindings) do
-      table.insert(items, {
-        label = key .. binding.key,
-        description = binding.description,
-        action = binding.action,
-        isGroupItem = true,
-      })
-    end
-    lastCategory = key
-  end
 
-  menu_cache.root_items = items
-  return items
-end
-
-local function show_menu(group)
-  local items = group and format_menu_items(group) or format_root_menu_items()
-  local title = group and group.name or "Which Key Menu"
-  local placeholder = group
-    and "Select an action or press <Esc> to cancel"
-    or "Select a group or action (groups shown with ▸)"
-
-  write_prompt(title, placeholder, items)
-
-  vscode.eval(EVAL_STRINGS.quickpick_menu, {
-    timeout = 1000,
-    args = {
-      items = items,
-      title = title,
-      placeholder = placeholder,
+    -- JavaScript code templates for VSCode interaction
+    local EVAL_STRINGS = {
+      mode_display = [[
+        if (globalThis.modeStatusBar) { globalThis.modeStatusBar.dispose(); }
+        const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+        statusBar.text = args.text;
+        statusBar.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
+        statusBar.color = args.color;
+        statusBar.show();
+        globalThis.modeStatusBar = statusBar;
+      ]],
+      quickpick_menu = [[
+        if (globalThis.quickPick) { globalThis.quickPick.dispose(); }
+        const quickPick = vscode.window.createQuickPick();
+        quickPick.items = args.items.map(item => ({
+          label: item.isGroup ? `$(chevron-right) ${item.label}` : item.isGroupItem ? `  $(key) ${item.label}` : item.label,
+          description: item.description,
+          action: item.action,
+          key: item.key,
+          kind: item.kind
+        }));
+        quickPick.title = args.title;
+        quickPick.placeholder = args.placeholder;
+        quickPick.onDidAccept(() => {
+          const selected = quickPick.selectedItems[0];
+          if (selected && selected.action) {
+            vscode.commands.executeCommand(selected.action);
+          }
+          quickPick.hide();
+          quickPick.dispose();
+        });
+        quickPick.onDidHide(() => {
+          quickPick.dispose();
+        });
+        globalThis.quickPick = quickPick;
+        quickPick.show();
+      ]],
+      hide_quickpick = [[
+        if (globalThis.quickPick) {
+          globalThis.quickPick.hide();
+          globalThis.quickPick.dispose();
+          globalThis.quickPick = undefined;
+        }
+      ]],
     }
-  })
+
+    -- Format menu items for a specific group
+    local function format_menu_items(group)
+      local items = {}
+      for _, binding in ipairs(group.bindings) do
+        table.insert(items, {
+          label = binding.key,
+          description = binding.description,
+          action = binding.action,
+          key = binding.key,
+        })
+      end
+      return items
+    end
+
+    -- Format root menu items (all groups)
+    local function format_root_menu_items()
+      if cache.root_items then
+        return cache.root_items
+      end
+
+      local items = {}
+      local lastCategory = nil
+
+      for key, group in pairs(keybindings) do
+        if lastCategory then
+          table.insert(items, {
+            label = "──────────────",
+            kind = -1,
+          })
+        end
+        table.insert(items, {
+          label = key,
+          description = group.name,
+          isGroup = true,
+          key = key,
+        })
+        for _, binding in ipairs(group.bindings) do
+          table.insert(items, {
+            label = key .. binding.key,
+            description = binding.description,
+            action = binding.action,
+            isGroupItem = true,
+          })
+        end
+        lastCategory = key
+      end
+
+      cache.root_items = items
+      return items
+    end
+
+    -- Show the which-key menu for a group or the root menu
+    local function show_menu(group)
+      local ok, items = pcall(function()
+        return group and format_menu_items(group) or format_root_menu_items()
+      end)
+      
+      if not ok then
+        vim.notify("Error formatting menu items: " .. tostring(items), vim.log.levels.ERROR)
+        return
+      end
+      
+      local title = group and group.name or "Which Key Menu"
+      local placeholder = group
+        and "Select an action or press <Esc> to cancel"
+        or "Select a group or action (groups shown with ▸)"
+
+      -- Optional: write to prompt file for debugging
+      -- write_prompt(title, placeholder, items)
+
+      local eval_ok, eval_err = pcall(vscode.eval, EVAL_STRINGS.quickpick_menu, {
+        timeout = 1000,
+        args = {
+          items = items,
+          title = title,
+          placeholder = placeholder,
+        }
+      })
+      
+      if not eval_ok then
+        vim.notify("Error showing which-key menu: " .. tostring(eval_err), vim.log.levels.ERROR)
+      end
+    end
+
+    -- Hide the which-key menu
+    local function hide_menu()
+      pcall(vscode.eval, EVAL_STRINGS.hide_quickpick, { timeout = 1000 })
+    end
+
+    -- Handle a specific key group
+    local function handle_group(prefix, group)
+      vim.keymap.set("n", prefix, function()
+        show_menu(group)
+      end, { noremap = true, silent = true })
+
+      for _, binding in ipairs(group.bindings) do
+        vim.keymap.set("n", prefix .. binding.key, function()
+          hide_menu()
+          pcall(vscode.action, binding.action)
+        end, { noremap = true, silent = true })
+      end
+    end
+
+    -- Update the mode display in the VSCode status bar
+    local function update_mode_display()
+      local current_mode = vim.api.nvim_get_mode().mode
+      if current_mode == last_mode then return end
+      local mode_data = MODE_DISPLAY[current_mode] or MODE_DISPLAY.n
+      pcall(vscode.eval, EVAL_STRINGS.mode_display, {
+        timeout = 1000,
+        args = {
+          text = mode_strings[current_mode] or mode_strings.n,
+          color = mode_data.color
+        }
+      })
+      last_mode = current_mode
+    end
+
+    -- Setup which-key menu system
+    local function setup()
+      -- Show root menu when leader is pressed
+      vim.keymap.set("n", "<leader>", function()
+        show_menu()
+      end, { noremap = true, silent = true, desc = "Show which-key menu" })
+
+      -- Setup each group
+      for prefix, group in pairs(keybindings) do
+        handle_group("<leader>" .. prefix, group)
+      end
+
+      -- Auto-hide menu on mode change or cursor move
+      vim.api.nvim_create_autocmd({ "ModeChanged", "CursorMoved" }, {
+        callback = hide_menu,
+      })
+
+      -- Update mode display in status bar
+      vim.api.nvim_create_autocmd("ModeChanged", {
+        pattern = "*",
+        callback = update_mode_display,
+      })
+
+      -- Update mode display when entering command mode
+      vim.api.nvim_create_autocmd("CmdlineEnter", {
+        callback = function()
+          pcall(vscode.eval, EVAL_STRINGS.mode_display, {
+            timeout = 1000,
+            args = {
+              text = "COMMAND",
+              color = MODE_DISPLAY.c.color,
+            }
+          })
+        end,
+      })
+
+      -- Initialize mode display
+      update_mode_display()
+    end
+
+    return {
+      setup = setup,
+      update_mode_display = update_mode_display,
+      show_menu = show_menu,
+      hide_menu = hide_menu
+    }
+  end)()
+
+  -- =============================================
+  -- Common Keybindings
+  -- =============================================
+  local opts = { noremap = true, silent = true }
+
+  -- Window navigation
+  vim.keymap.set("n", "<C-h>", function() vscode.action("workbench.action.focusLeftGroup") end, opts)
+  vim.keymap.set("n", "<C-j>", function() vscode.action("workbench.action.focusDownGroup") end, opts)
+  vim.keymap.set("n", "<C-k>", function() vscode.action("workbench.action.focusUpGroup") end, opts)
+  vim.keymap.set("n", "<C-l>", function() vscode.action("workbench.action.focusRightGroup") end, opts)
+
+  -- Common commands
+  map_cmd("n", "<leader>w", "w", opts)
+  map_cmd("n", "<leader>wa", "wa", opts)
+
+  -- Splits
+  map_cmd("n", "<leader>\\\\", "vsplit", opts)
+  map_cmd("n", "<leader>-", "split", opts)
+
+  -- Code navigation
+  vim.keymap.set("n", "gd", function() vscode.action("editor.action.revealDefinition") end, opts)
+  vim.keymap.set("n", "gr", function() vscode.action("editor.action.goToReferences") end, opts)
+  vim.keymap.set("n", "gi", function() vscode.action("editor.action.goToImplementation") end, opts)
+  vim.keymap.set("n", "K", function() vscode.action("editor.action.showHover") end, opts)
+
+  -- Comments
+  vim.keymap.set("n", "gcc", function() vscode.action("editor.action.commentLine") end, opts)
+  vim.keymap.set("v", "gc", function() vscode.action("editor.action.commentLine") end, opts)
+
+  -- Return to editor / escape terminal
+  vim.keymap.set("n", "<Esc><Esc>", function() vscode.action("workbench.action.focusActiveEditorGroup") end, opts)
+  vim.keymap.set("t", "<Esc><Esc>", [[<C-\><C-n>]], opts)
+
+  -- Better scrolling
+  vim.keymap.set("n", "<C-d>", "<C-d>zz", opts)
+  vim.keymap.set("n", "<C-u>", "<C-u>zz", opts)
+  vim.keymap.set("n", "n", "nzzzv", opts)
+  vim.keymap.set("n", "N", "Nzzzv", opts)
+
+  -- Initialize which-key
+  which_key.setup()
 end
 
-local function hide_menu()
-  vscode.eval(EVAL_STRINGS.hide_quickpick, { timeout = 1000 })
-end
-
-local function handle_group(prefix, group)
-  vim.keymap.set("n", prefix, function()
-    show_menu(group)
-  end, { noremap = true, silent = true })
-
-  for _, binding in ipairs(group.bindings) do
-    vim.keymap.set("n", prefix .. binding.key, function()
-      hide_menu()
-      vscode.action(binding.action)
-    end, { noremap = true, silent = true })
+-- Main initialization function
+local function init()
+  -- Basic initialization - works even if subsequent steps fail
+  setup_lazy()
+  setup_leader()
+  setup_common_settings()
+  setup_vscode_integration()
+  
+  -- Try to load plugins (may fail if modules aren't available)
+  pcall(setup_plugins)
+  
+  -- Set up VSCode-specific features if we're in VSCode
+  if vim.g.vscode then
+    pcall(setup_vscode_features)
   end
 end
 
-vim.keymap.set("n", "<leader>", function()
-  show_menu()
-end, { noremap = true, silent = true })
-
-for prefix, group in pairs(keybindings) do
-  handle_group("<leader>" .. prefix, group)
-end
-
-vim.api.nvim_create_autocmd({ "ModeChanged", "CursorMoved" }, {
-  callback = hide_menu,
-})
-
-vim.api.nvim_create_autocmd("ModeChanged", {
-  pattern = "*",
-  callback = update_mode_display,
-})
-
-vim.api.nvim_create_autocmd("CmdlineEnter", {
-  callback = function()
-    vscode.eval(EVAL_STRINGS.mode_display, {
-      timeout = 1000,
-      args = {
-        text = "COMMAND",
-        color = MODE_DISPLAY.c.color,
-      }
-    })
-  end,
-})
-
-local opts = { noremap = true, silent = true }
-
-vim.keymap.set("n", "<C-h>", function() vscode.action("workbench.action.focusLeftGroup") end, opts)
-vim.keymap.set("n", "<C-j>", function() vscode.action("workbench.action.focusDownGroup") end, opts)
-vim.keymap.set("n", "<C-k>", function() vscode.action("workbench.action.focusUpGroup") end, opts)
-vim.keymap.set("n", "<C-l>", function() vscode.action("workbench.action.focusRightGroup") end, opts)
-
-map_cmd("n", "<leader>w", "w", opts)
-map_cmd("n", "<leader>wa", "wa", opts)
-
-map_cmd("n", "<leader>\\\\", "vsplit", opts)
-map_cmd("n", "<leader>-", "split", opts)
-
-vim.keymap.set("n", "gd", function() vscode.action("editor.action.revealDefinition") end, opts)
-vim.keymap.set("n", "gr", function() vscode.action("editor.action.goToReferences") end, opts)
-vim.keymap.set("n", "gi", function() vscode.action("editor.action.goToImplementation") end, opts)
-vim.keymap.set("n", "K", function() vscode.action("editor.action.showHover") end, opts)
-
-vim.keymap.set("n", "gcc", function() vscode.action("editor.action.commentLine") end, opts)
-vim.keymap.set("v", "gc", function() vscode.action("editor.action.commentLine") end, opts)
-
-vim.keymap.set("n", "<Esc><Esc>", function() vscode.action("workbench.action.focusActiveEditorGroup") end, opts)
-vim.keymap.set("t", "<Esc><Esc>", [[<C-\\><C-n>]], opts)
-
-vim.keymap.set("n", "<C-d>", "<C-d>zz", opts)
-vim.keymap.set("n", "<C-u>", "<C-u>zz", opts)
-vim.keymap.set("n", "n", "nzzzv", opts)
-vim.keymap.set("n", "N", "Nzzzv", opts)
-
-update_mode_display()
+-- Run initialization
+init()
