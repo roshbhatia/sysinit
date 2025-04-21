@@ -5,25 +5,25 @@ let
   # Convert install entries to home.file and xdg.configFile attrs
   fileAttrs = lib.foldl (acc: entry:
     let
-      srcPath = if lib.strings.hasPrefix "/" entry.source
-                then entry.source
-                else toString (inputs.self + "/${entry.source}");
+      # Use entry.source as path; configValidator ensures it's a path
+      srcPath = entry.source;
       relPath = lib.removePrefix "/Users/${username}/" entry.destination;
       isConfig = lib.hasPrefix ".config/" relPath;
       configPath = lib.removePrefix ".config/" relPath;
       homePath = relPath;
-      isExecutable = lib.strings.hasInfix "/bin/" entry.destination
-                    || lib.strings.hasSuffix ".sh" entry.source 
-                    || lib.strings.hasSuffix ".expect" entry.source
-                    || !(lib.strings.hasInfix "." entry.source);
-      fileAttrs = {
+      # Determine executability based on file extension or destination path
+      srcStr = toString entry.source;
+      isExecutable = lib.hasInfix "/bin/" entry.destination
+                   || lib.hasSuffix ".sh" srcStr
+                   || lib.hasSuffix ".expect" srcStr;
+      attrs = {
         source = srcPath;
         executable = isExecutable;
       };
     in
     if isConfig
-    then acc // { xdg.configFiles.${configPath} = fileAttrs; }
-    else acc // { homeFiles.${homePath} = fileAttrs; }
+    then acc // { xdg.configFiles.${configPath} = attrs; }
+    else acc // { homeFiles.${homePath} = attrs; }
   ) { xdg.configFiles = {}; homeFiles = {}; } installFiles;
 in {
   imports = [
