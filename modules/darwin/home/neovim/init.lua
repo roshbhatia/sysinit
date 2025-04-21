@@ -66,13 +66,8 @@ local function setup_plugins()
 
   -- Define module system
   local module_system = {
-    editor = {
-      "oil",
-    },
-    ui = {
-      "lazygit",
-      "hop"
-    },
+    editor = {},
+    ui = {"hop"},
     tools = {},
   }
 
