@@ -67,20 +67,7 @@ setup_vscode_settings()
 
 local module_loader = require("core.module_loader")
 
--- determine module loading system
-local module_system = {
-  editor = {
-    "vscode",
-  },
-  ui = {
-  },
-  tools = {
-  },
-}
-
-local function collect_plugin_specs()
-  return module_loader.get_plugin_specs(module_system)
-end
+-- MODULE_SYSTEM_BLOCK
 
 require("lazy").setup(collect_plugin_specs())
 

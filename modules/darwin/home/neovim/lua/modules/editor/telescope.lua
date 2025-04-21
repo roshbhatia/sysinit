@@ -48,13 +48,13 @@ M.plugins = {
       
       local wk = require("which-key")
       wk.add({
-        { "<leader>f", group = "Find", icon = { icon = "󰍉", hl = "WhichKeyIconPurple" } },
+        { "<leader>f", group = "Find", icon = { icon = "󰍉", hl = "WhichKeyIconPurple" } }, -- vscode actions: search-preview.quickOpenWithPreview, workbench.action.findInFiles, workbench.action.showAllEditors, workbench.action.showAllSymbols, workbench.action.openRecent
         { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find Files", mode = "n" },
         { "<leader>fg", "<cmd>Telescope live_grep<cr>", desc = "Find Text", mode = "n" },
         { "<leader>fb", "<cmd>Telescope buffers<cr>", desc = "Find Buffers", mode = "n" },
         { "<leader>fm", "<cmd>Telescope marks<cr>", desc = "Find Marks", mode = "n" },
         
-        { "<leader>g", group = "Git", icon = { icon = "", hl = "WhichKeyIconRed" } },
+        { "<leader>g", group = "Git", icon = { icon = "", hl = "WhichKeyIconRed" } }, -- vscode actions: git.stage, git.stageAll, git.unstage, git.unstageAll, git.commit, git.commitAll, git.push, git.pull, git.openChange, git.openAllChanges, git.checkout, git.fetch, git.revertChange, workbench.view.scm, workbench.action.chat.open
         { "<leader>gc", "<cmd>Telescope git_commits<cr>", desc = "Git Commits", mode = "n" },
         { "<leader>gb", "<cmd>Telescope git_branches<cr>", desc = "Git Branches", mode = "n" },
       })
