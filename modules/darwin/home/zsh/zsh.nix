@@ -41,10 +41,11 @@ in
 {
   programs.zsh = {
     enable = true;
+    dotDir = ~/.config.zsh;
+
     autocd = true;
     enableCompletion = true;
     historySubstringSearch.enable = true;
-
     # We need to install this manually due to fzf-tab needing to run first
     autosuggestion.enable = false;
     # We use fast-syntax-highlighting instead
@@ -57,6 +58,15 @@ in
       ignoreSpace = true;
       extended = true;
       share = true;
+    };
+
+    dirHashes = {
+      dsk = "$HOME/Desktop";
+      docs = "$HOME/Documents";
+      dl = "$HOME/Downloads";
+      ghp = "$HOME/github/personal";
+      ghpr = "$HOME/github/personal/roshbhatia";
+      ghw = "$HOME/github/work";
     };
     
     shellAliases = {
@@ -198,6 +208,7 @@ in
     ];
 
     initExtraFirst = ''
+      # modules/darwin/home/zsh/zsh.nix#initExtraFirst (begin)
       # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
       # shellcheck disable=all
       #       ___           ___           ___           ___           ___
@@ -218,34 +229,22 @@ in
       
       unset MAILCHECK
       stty stop undef
+      # modules/darwin/home/zsh/zsh.nix#initExtraFirst (end)
     '';
     
-    initExtra = ''
-      ${combinedCoreScripts}
-    
-      ${completions}
-
-      if [[ -d "$HOME/.config/zsh/extras" ]]; then
-        for file in "$HOME/.config/zsh/extras/"*.sh(N); do
-          if [[ -f "$file" ]]; then
-            if [[ -n "$SYSINIT_DEBUG" ]]; then
-              log_debug "Sourcing file" path="$file"
-              source "$file"
-            else
-              source "$file"
-            fi
-          fi
-        done
-      fi
-
-      if [[ -f "$HOME/.zshsecrets" ]]; then
-        source $HOME/.zshsecrets
-      fi
-      
-      [[ -n "$SYSINIT_DEBUG" ]] && zprof
-    '';
-
     completionInit = ''
+      # modules/darwin/home/zsh/zsh.nix#completionInit (begin)
+      # Create zcompdump directory if it doesn't exist
+      mkdir -p "${XDG_DATA_HOME}/zsh/zcompdump"
+
+      # Load completions
+      autoload -Uz compinit
+      if [[ -n ${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump(#qN.mh+24) ]]; then
+        compinit -d "${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump";
+      else
+        compinit -C -d "${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump";
+      fi;
+
       # Basic fzf-tab configuration
       # Set descriptions format to enable group support
       zstyle ':completion:*:descriptions' format '[%d]'
@@ -367,15 +366,35 @@ in
 
       # Enable fzf-tab plugin if available
       type enable-fzf-tab >/dev/null 2>&1 && enable-fzf-tab
+      # modules/darwin/home/zsh/zsh.nix#completionInit (begin)
     '';
+  
+    initExtra = ''
+      # modules/darwin/home/zsh/zsh.nix#initExtra (begin)
+      ${combinedCoreScripts}
+    
+      ${completions}
 
-    dirHashes = {
-      docs = "$HOME/Documents";
-      dl = "$HOME/Downloads";
-      ghp = "$HOME/github/personal";
-      ghpr = "$HOME/github/personal/roshbhatia";
-      ghw = "$HOME/github/work";
-    };
+      if [[ -d "$HOME/.config/zsh/extras" ]]; then
+        for file in "$HOME/.config/zsh/extras/"*.sh(N); do
+          if [[ -f "$file" ]]; then
+            if [[ -n "$SYSINIT_DEBUG" ]]; then
+              log_debug "Sourcing file" path="$file"
+              source "$file"
+            else
+              source "$file"
+            fi
+          fi
+        done
+      fi
+
+      if [[ -f "$HOME/.zshsecrets" ]]; then
+        source $HOME/.zshsecrets
+      fi
+      
+      [[ -n "$SYSINIT_DEBUG" ]] && zprof
+      # modules/darwin/home/zsh/zsh.nix#initExtraFirst (end)
+    '';
   };
   
   xdg.configFile = {
