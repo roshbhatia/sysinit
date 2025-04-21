@@ -47,8 +47,6 @@ in {
   xdg.configFile = fileAttrs.xdg.configFiles;
   home.file = fileAttrs.homeFiles;
 
-  environment.pathsToLink = [ "/share/zsh" ];
-  
   home.activation.pruneBrokenLinks = lib.hm.dag.entryAfter ["checkLinkTargets"] ''
     echo "Recursively pruning stale symlinks in home directory..."
     

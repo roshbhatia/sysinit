@@ -68,7 +68,9 @@
   users.users.${username}.home = homeDirectory;
   
   security.pam.services.sudo_local.touchIdAuth = true;
-
+  
+  environment.pathsToLink = [ "/share/zsh" ];
+ 
   system.activationScripts.postUserActivation.text = ''  
     # Install Rosetta 2 for M1/M2 Mac compatibility
     if [[ "$(uname -m)" == "arm64" ]] && ! /usr/bin/pgrep -q "oahd"; then
