@@ -96,7 +96,7 @@ in
       XDG_DATA_HOME = "$HOME/.local/share";
       XDG_STATE_HOME = "$HOME/.local/state";
 
-      ZSH_SMARTCACHE_DIR = "$XDG_DATA_HOME/zsh/smartcache";
+      ZSH_EVALCACHE_DIR = "$XDG_DATA_HOME/zsh/evalcache";
 
       ZSH_AUTOSUGGEST_USE_ASYNC = 1;
       ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = 20;
