@@ -211,54 +211,78 @@ in
       # Force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
       zstyle ':completion:*' menu no
       
-      # Preview directories with eza - showing icons, hidden files, and colors
-      zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -la --color=always --icons --git-ignore --git --group-directories-first $realpath'
-      zstyle ':fzf-tab:complete:ls:*' fzf-preview 'eza -la --color=always --icons --git-ignore --git --group-directories-first $realpath'
-      zstyle ':fzf-tab:complete:cp:*' fzf-preview 'eza -la --color=always --icons --git-ignore --git --group-directories-first $realpath'
-      zstyle ':fzf-tab:complete:mv:*' fzf-preview 'eza -la --color=always --icons --git-ignore --git --group-directories-first $realpath'
-      zstyle ':fzf-tab:complete:rm:*' fzf-preview 'eza -la --color=always --icons --git-ignore --git --group-directories-first $realpath'
+      # Import your FZF settings
+      ${completion}
       
-      # Preview files with bat - add style and line numbers
-      zstyle ':fzf-tab:complete:cat:*' fzf-preview 'bat --color=always --style=numbers,header,grid --line-range :100 $realpath'
-      zstyle ':fzf-tab:complete:vim:*' fzf-preview 'bat --color=always --style=numbers,header,grid --line-range :100 $realpath'
-      zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'bat --color=always --style=numbers,header,grid --line-range :100 $realpath'
-      zstyle ':fzf-tab:complete:nano:*' fzf-preview 'bat --color=always --style=numbers,header,grid --line-range :100 $realpath'
-      zstyle ':fzf-tab:complete:less:*' fzf-preview 'bat --color=always --style=numbers,header,grid --line-range :100 $realpath'
-      zstyle ':fzf-tab:complete:head:*' fzf-preview 'bat --color=always --style=numbers,header,grid --line-range :100 $realpath'
-      zstyle ':fzf-tab:complete:tail:*' fzf-preview 'bat --color=always --style=numbers,header,grid --line-range :100 $realpath'
+      # Define preview command for different file types
+      preview_command="
+      if [[ -d \$realpath ]]; then
+        eza -la --color=always --icons --git-ignore --git --group-directories-first \$realpath
+      elif [[ -f \$realpath ]]; then
+        case \$realpath in
+          *.md)
+            glow -s dark \$realpath
+            ;;
+          *.json)
+            jq -C . \$realpath
+            ;;
+          *.js|*.jsx|*.ts|*.tsx|*.html|*.css|*.yml|*.yaml|*.toml|*.nix|*.sh|*.zsh|*.bash|*.fish)
+            bat --color=always --style=numbers,header,grid --line-range :100 \$realpath
+            ;;
+          *.jpg|*.jpeg|*.png|*.gif)
+            kitten icat \$realpath 2>/dev/null || imgcat \$realpath 2>/dev/null || echo \"Image preview not available\"
+            ;;
+          *)
+            bat --color=always --style=numbers,header,grid --line-range :100 \$realpath || cat \$realpath
+            ;;
+        esac
+      else
+        echo \$realpath
+      fi
+      "
       
-      # Add kubectl file previewing with bat
-      zstyle ':fzf-tab:complete:kubectl-apply:*' fzf-preview 'bat --color=always --style=numbers,header,grid --language=yaml --line-range :100 $realpath'
-      zstyle ':fzf-tab:complete:kubectl-edit:*' fzf-preview 'bat --color=always --style=numbers,header,grid --language=yaml --line-range :100 $realpath'
-      zstyle ':fzf-tab:complete:kubectl-delete:*' fzf-preview 'bat --color=always --style=numbers,header,grid --language=yaml --line-range :100 $realpath'
-      zstyle ':fzf-tab:complete:kubectl-describe:*' fzf-preview 'bat --color=always --style=numbers,header,grid --language=yaml --line-range :100 $realpath'
-      zstyle ':fzf-tab:complete:kubectl-get:*' fzf-preview 'bat --color=always --style=numbers,header,grid --language=yaml --line-range :100 $realpath'
+      # Use the same FZF appearance settings from your configuration
+      zstyle ':fzf-tab:*' fzf-flags --preview-window=right:60%:wrap:border-rounded --height=80% --layout=reverse --border=rounded --margin=1 --padding=1 --info=inline-right --prompt='❯ ' --pointer='▶' --marker='✓' --scrollbar='█' --color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7 --color=prompt:1,pointer:5,marker:2,spinner:5,header:4 --bind='ctrl-/:toggle-preview' --bind='ctrl-s:toggle-sort' --bind='ctrl-space:toggle-preview-wrap' --bind='tab:half-page-down' --bind='btab:half-page-up' --bind='ctrl-y:preview-up' --bind='ctrl-e:preview-down' --bind='?:toggle-preview' --bind='alt-w:toggle-preview-wrap' --bind='ctrl-u:clear-query' --bind='resize:refresh-preview'
+      
+      # Apply preview command to different completion contexts
+      zstyle ':fzf-tab:complete:cd:*' fzf-preview $preview_command
+      zstyle ':fzf-tab:complete:ls:*' fzf-preview $preview_command
+      zstyle ':fzf-tab:complete:nvim:*' fzf-preview $preview_command
+      zstyle ':fzf-tab:complete:vim:*' fzf-preview $preview_command
+      zstyle ':fzf-tab:complete:cat:*' fzf-preview $preview_command
+      zstyle ':fzf-tab:complete:cp:*' fzf-preview $preview_command
+      zstyle ':fzf-tab:complete:mv:*' fzf-preview $preview_command
+      zstyle ':fzf-tab:complete:rm:*' fzf-preview $preview_command
+      
+      # Apply preview command as default for all other completions
+      zstyle ':fzf-tab:*' fzf-preview $preview_command
       
       # Show systemd unit status
-      zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word'
+      zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word 2>/dev/null || echo "No unit status available"'
       
-      # Environment variables preview
-      zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' \
-        fzf-preview 'echo ''\${(P)word}'
+      # Git preview with delta
+      git_preview="
+      if [[ -d \$realpath ]]; then
+        eza -la --color=always --icons --git-ignore --git --group-directories-first \$realpath
+      elif [[ -f \$realpath ]]; then
+        git diff --color=always \$realpath 2>/dev/null | delta || bat --color=always --style=numbers,header,grid --line-range :100 \$realpath
+      else
+        git status -s \$word 2>/dev/null || echo \$word
+      fi
+      "
       
-      # Git preview support with better formatting
-      zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview \
-        'git diff --color=always $word | delta'
-      zstyle ':fzf-tab:complete:git-log:*' fzf-preview \
-        'git log --color=always --stat $word'
-      zstyle ':fzf-tab:complete:git-help:*' fzf-preview \
-        'git help $word | bat --color=always --language=man'
-      zstyle ':fzf-tab:complete:git-show:*' fzf-preview \
-        'case "$group" in
-          "commit tag") git show --color=always $word | delta ;;
-          *) git show --color=always $word | delta ;;
-        esac'
-      zstyle ':fzf-tab:complete:git-checkout:*' fzf-preview \
-        'case "$group" in
-          "modified file") git diff --color=always $word | delta ;;
-          "remote branch") git log --color=always --stat $word ;;
-          *) git log --color=always --stat $word ;;
-        esac'
+      zstyle ':fzf-tab:complete:git-*:*' fzf-preview $git_preview
+      
+      # Add kubectl file previewing
+      kubectl_preview="
+      if [[ -f \$realpath && (\$realpath == *.yml || \$realpath == *.yaml) ]]; then
+        bat --color=always --style=numbers,header,grid --language=yaml --line-range :100 \$realpath
+      else
+        $preview_command
+      fi
+      "
+      
+      zstyle ':fzf-tab:complete:kubectl-*:*' fzf-preview $kubectl_preview
       
       # Switch groups using alt-p and alt-n
       zstyle ':fzf-tab:*' switch-group 'alt-p' 'alt-n'
@@ -267,13 +291,18 @@ in
       zstyle ':fzf-tab:*' fzf-command fzf
       zstyle ':fzf-tab:*' fzf-min-height 50
       zstyle ':fzf-tab:*' fzf-pad 4
-      zstyle ':fzf-tab:*' fzf-flags --color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7
+      
+      # Enable continuous preview when Ctrl+/ is pressed
+      zstyle ':fzf-tab:*' continuous-trigger '/'
       
       # General settings
       zstyle ':fzf-tab:*' default-color $'\033[37m'
       zstyle ':fzf-tab:*' show-group full
       zstyle ':fzf-tab:*' prefix ''\''
       zstyle ':fzf-tab:*' single-group color header
+      
+      # Use enhancd fzf instead for cd
+      zstyle ':fzf-tab:complete:cd:*' disabled-on any
       
       # Autocompletion settings
       autoload -Uz compinit
@@ -288,6 +317,21 @@ in
       
       # Add explicit key binding for accepting suggestions with Shift-Tab
       bindkey '^[[Z' autosuggest-accept  # Shift-Tab
+      
+      # Make sure fzf-tab is loaded properly
+      autoload -Uz +X _fzf_tab_complete 2>/dev/null
+      
+      # This is crucial: ensure the key binding is set after plugins are loaded
+      _setup_fzf_tab_bindings() {
+        # Only rebind if fzf-tab-complete exists
+        (( $+widgets[fzf-tab-complete] )) && bindkey '^I' fzf-tab-complete
+      }
+      
+      # Add the setup function to precmd hook to ensure it runs after all plugins load
+      autoload -Uz add-zsh-hook
+      add-zsh-hook precmd _setup_fzf_tab_bindings
+
+      enable-fzf-tab
     '';
 
     dirHashes = {
