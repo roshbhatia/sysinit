@@ -21,9 +21,9 @@ tasks:
     vars:
       IGNORE_PATTERNS: &ignore_patterns
         - ".DS_Store"
+        - ".git"
         - "*.lock"
         - "node_modules"
-        - ".git"
         - "OrbStack*"
     cmds:
       - |
