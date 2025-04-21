@@ -10,7 +10,7 @@ let
     "typescript"
   ];
   allPackages = basePackages ++ additionalPackages;
-  npmGlobalDir = "$HOME/.npm-global";
+  npmGlobalDir = "~/.npm-global";
 in
 {
   home.file.".npmrc".text = ''
