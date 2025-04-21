@@ -48,12 +48,35 @@ in {
   home.file = fileAttrs.homeFiles;
 
   home.activation.pruneBrokenLinks = lib.hm.dag.entryAfter ["checkLinkTargets"] ''
-    echo "Recursively pruning stale symlinks in home directory..."
+    echo "Pruning stale home-manager symlinks..."
     
-    find "${homeDirectory}" -type l | while read -r link; do
+    # Only check specific home-manager managed directories
+    for dir in ".config" ".local"; do
+      if [ -d "$HOME/$dir" ]; then
+        find "$HOME/$dir" -type l | while read -r link; do
+          target=$(readlink "$link")
+          # Only remove broken links pointing to the nix store
+          if [[ "$target" == "/nix/store/"* ]] && [ ! -e "$target" ]; then
+            echo "Removing stale home-manager symlink: $link -> $target"
+            rm "$link"
+          fi
+        done
+      fi
+    done
+
+    # Check direct home directory links but exclude system paths
+    find "$HOME" -maxdepth 1 -type l | while read -r link; do
+      # Skip if link is in a protected system directory
+      if [[ "$link" == *"/Library/Containers/"* ]] || 
+         [[ "$link" == *"/Library/Group Containers/"* ]] || 
+         [[ "$link" == *"/Library/SystemMigration/"* ]]; then
+        continue
+      fi
+      
       target=$(readlink "$link")
-      if [ ! -e "$target" ]; then
-        echo "Removing stale symlink: $link -> $target"
+      # Only remove broken links pointing to the nix store
+      if [[ "$target" == "/nix/store/"* ]] && [ ! -e "$target" ]; then
+        echo "Removing stale home-manager symlink: $link -> $target"
         rm "$link"
       fi
     done
