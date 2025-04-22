@@ -40,8 +40,8 @@ in
     echo "Using wallpaper: $WALLPAPER_PATH"
     
     if [ -f "$WALLPAPER_PATH" ]; then
-      mkdir -p "$HOME/.config/wallpaper"
-      ln -sf "$WALLPAPER_PATH" "$HOME/.wallpaper"
+      mkdir -p $HOME/.config/wallpaper
+      ln -sf "$WALLPAPER_PATH" $HOME/.wallpaper
       
       OSASCRIPT="/usr/bin/osascript"
       if [ -x "$OSASCRIPT" ]; then
