@@ -676,5 +676,21 @@ local function init()
   end
 end
 
+-- Safeguard for ephemeral buffers
+local function is_valid_buffer(bufnr)
+  return bufnr and vim.api.nvim_buf_is_valid(bufnr) and vim.api.nvim_buf_get_option(bufnr, "buflisted")
+end
+
+-- Override Neovim's buffer-related commands to check for valid buffers
+vim.api.nvim_create_autocmd("BufEnter", {
+  callback = function()
+    local bufnr = vim.api.nvim_get_current_buf()
+    if not is_valid_buffer(bufnr) then
+      vim.notify("Ignoring ephemeral buffer: " .. tostring(bufnr), vim.log.levels.WARN)
+      return
+    end
+  end,
+})
+
 -- Run initialization
 init()
