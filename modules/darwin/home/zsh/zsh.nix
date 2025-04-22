@@ -306,11 +306,11 @@ in
   home.activation.prepareZshDirs = lib.hm.dag.entryBefore ["checkLinkTargets"] ''
     echo "Preparing zsh extras directory..."
     
-    mkdir -p -m 755 "$HOME/.config/zsh"
+    mkdir -p -m 755 $HOME/.config/zsh
     
-    rm -rf "$HOME/.config/zsh/extras"
-    rm -rf "$HOME/.config/zsh/bin"
+    rm -rf $HOME/.config/zsh/extras
+    rm -rf $HOME/.config/zsh/bin
 
-    mkdir -p -m 755 "$HOME/.config/zsh/extras" "$HOME/.config/zsh/bin"
+    mkdir -p -m 755 $HOME/.config/zsh/extras $HOME/.config/zsh/bin
   '';
 }
