@@ -42,9 +42,11 @@ _cached_source() {
 if [[ -d "$HOME/.config/zsh/extras" ]]; then
   for file in "$HOME/.config/zsh/extras/"*.sh(N); do
     if [[ -f "$file" ]]; then
+      [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Caching file" file="$file"
       _cached_source "$file"
     fi
   done
+fi
 fi
 
 # Source secrets with caching
