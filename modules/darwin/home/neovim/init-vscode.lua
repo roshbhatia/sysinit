@@ -71,9 +71,7 @@ local function setup_plugins()
 
   -- Define module system
   local module_system = {
-    editor = {
-      "vscode",
-    },
+    editor = {},
     ui = {},
     tools = {},
   }
@@ -329,8 +327,16 @@ local function setup_vscode_features()
         if (globalThis.modeStatusBar) { globalThis.modeStatusBar.dispose(); }
         const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
         statusBar.text = args.text;
-        statusBar.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
         statusBar.color = args.color;
+        statusBar.command = {
+          command: 'vscode-neovim.lua',
+          title: 'Toggle Neovim Mode',
+          arguments: [
+            args.mode === 'n'
+              ? "vim.cmd('startinsert')"
+              : "vim.cmd('stopinsert')"
+          ]
+        };
         statusBar.show();
         globalThis.modeStatusBar = statusBar;
       ]],
@@ -474,17 +480,19 @@ local function setup_vscode_features()
 
     -- Update the mode display in the VSCode status bar
     local function update_mode_display()
-      local current_mode = vim.api.nvim_get_mode().mode
-      if current_mode == last_mode then return end
-      local mode_data = MODE_DISPLAY[current_mode] or MODE_DISPLAY.n
+      local full_mode = vim.api.nvim_get_mode().mode
+      local mode_key = full_mode:sub(1,1)
+      if mode_key == last_mode then return end
+      local mode_data = MODE_DISPLAY[mode_key] or MODE_DISPLAY.n
       pcall(vscode.eval, EVAL_STRINGS.mode_display, {
         timeout = 1000,
         args = {
-          text = mode_strings[current_mode] or mode_strings.n,
-          color = mode_data.color
+          text = mode_strings[mode_key] or mode_strings.n,
+          color = mode_data.color,
+          mode = mode_key
         }
       })
-      last_mode = current_mode
+      last_mode = mode_key
     end
 
     -- Setup which-key menu system
@@ -515,10 +523,11 @@ local function setup_vscode_features()
         callback = function()
           pcall(vscode.eval, EVAL_STRINGS.mode_display, {
             timeout = 1000,
-            args = {
-              text = "COMMAND",
-              color = MODE_DISPLAY.c.color,
-            }
+        args = {
+          text = "COMMAND",
+          color = MODE_DISPLAY.c.color,
+          mode = 'c',
+        }
           })
         end,
       })
@@ -580,6 +589,8 @@ end
 
 -- Main initialization function
 local function init()
+  vim.notify = vscode.notify
+  
   -- Basic initialization - works even if subsequent steps fail
   setup_lazy()
   setup_leader()
