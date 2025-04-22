@@ -36,6 +36,8 @@ let
 
     ${completions}
 
+    ${extras}
+
     ${prompt}
   '';
 in
