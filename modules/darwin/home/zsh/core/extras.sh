@@ -24,18 +24,28 @@ _cache_expired() {
   [[ $(find "$cache" -mtime +1) ]]
 }
 
-# Source with zcompile caching
+# Source with combined caching
 _cached_source() {
   local source="$1"
-  local cache="${source:r:t}.zwc"
-  cache="$ZCACHE_EXTRAS_DIR/$cache"
+  local combined_cache="$ZCACHE_EXTRAS_DIR/combined.zwc"
+  local hash_file="$ZCACHE_EXTRAS_DIR/combined.hash"
+  local current_hash
 
-  if _cache_expired "$cache" "$source"; then
-    [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Compiling" path="$source"
-    zcompile -R "$source" "$cache"
+  # Generate hash of all source files
+  if [[ -f "$source" ]]; then
+    current_hash=$(sha256sum "$source" | cut -d' ' -f1)
   fi
 
-  source "$cache"
+  # Check if cache needs updating
+  if [[ ! -f "$combined_cache" ]] || \
+     [[ ! -f "$hash_file" ]] || \
+     [[ "$(cat "$hash_file")" != "$current_hash" ]]; then
+    [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Recompiling cache" path="$source"
+    zcompile -R "$source" "$combined_cache"
+    echo "$current_hash" > "$hash_file"
+  fi
+
+  source "$combined_cache"
 }
 
 # Source extras
@@ -43,7 +53,7 @@ EXTRAS_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh/extras"
 if [[ -d "$EXTRAS_DIR" ]]; then
   for file in "$EXTRAS_DIR/"*.sh(N); do
     if [[ -f "$file" ]]; then
-      [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Caching file" file="$file"
+      [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Loading" file="$file"
       _cached_source "$file"
     fi
   done
