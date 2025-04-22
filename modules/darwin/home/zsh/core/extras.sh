@@ -39,17 +39,18 @@ _cached_source() {
 }
 
 # Source extras
-if [[ -d "$HOME/.config/zsh/extras" ]]; then
-  for file in "$HOME/.config/zsh/extras/"*.sh(N); do
+EXTRAS_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh/extras"
+if [[ -d "$EXTRAS_DIR" ]]; then
+  for file in "$EXTRAS_DIR/"*.sh(N); do
     if [[ -f "$file" ]]; then
       [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Caching file" file="$file"
       _cached_source "$file"
     fi
   done
 fi
-fi
 
 # Source secrets with caching
 if [[ -f "$HOME/.zshsecrets" ]]; then
+  [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Caching file" file="$file"
   _cached_source "$HOME/.zshsecrets"
 fi
