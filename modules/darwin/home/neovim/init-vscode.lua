@@ -665,7 +665,7 @@ local function init()
   -- Set up VSCode-specific features when the VSCode UI attaches
   if vim.g.vscode then
     vim.api.nvim_create_autocmd("UIEnter", {
-      once = true,
+      once = true, 
       callback = function()
         local ok, err = pcall(setup_vscode_features)
         if not ok then

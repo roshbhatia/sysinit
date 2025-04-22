@@ -8,11 +8,7 @@ M.plugins = {
       "nvim-telescope/telescope.nvim",
       "nvim-lua/plenary.nvim",
     },
-    opts = {
-      rocks = {
-        hererocks = false, -- Disable hererocks to avoid luarocks dependency
-      },
-    },
+    opts = {},
     config = function()
       local alpha = require("alpha")
       local dashboard = require("alpha.themes.dashboard")
