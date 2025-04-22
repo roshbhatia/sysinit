@@ -68,7 +68,7 @@ M.plugins = {
           "russ",
           
           -- JS/TS
-          "ts_ls"
+          "ts_ls",
 
           -- Shell
           "bashls",
@@ -81,11 +81,11 @@ M.plugins = {
           "grammarly",
           
           -- Nix
-          "nil_ls"
+          "nil_ls",
           
           -- Terraform
           "tflint",
-          "terraformls"
+          "terraformls",
           
           -- Helm
           "helm-ls",
