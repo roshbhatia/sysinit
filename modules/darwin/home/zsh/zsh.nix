@@ -64,12 +64,12 @@ in
     };
 
     dirHashes = {
-      dsk = "~/Desktop";
-      docs = "~/Documents";
-      dl = "~/Downloads";
-      ghp = "~/github/personal";
-      ghpr = "~/github/personal/roshbhatia";
-      ghw = "~/github/work";
+      dsk = "$HOME/Desktop";
+      docs = "$HOME/Documents";
+      dl = "$HOME/Downloads";
+      ghp = "$HOME/github/personal";
+      ghpr = "$HOME/github/personal/roshbhatia";
+      ghw = "$HOME/github/work";
     };
     
     shellAliases = {
@@ -104,10 +104,10 @@ in
       LANG = "en_US.UTF-8";
       LC_ALL = "en_US.UTF-8";
 
-      XDG_CACHE_HOME = "~/.cache";
-      XDG_CONFIG_HOME = "~/.config";
-      XDG_DATA_HOME = "~/.local/share";
-      XDG_STATE_HOME = "~/.local/state";
+      XDG_CACHE_HOME = "$HOME/.cache";
+      XDG_CONFIG_HOME = "$HOME/.config";
+      XDG_DATA_HOME = "$HOME/.local/share";
+      XDG_STATE_HOME = "$HOME/.local/state";
 
       ZSH_EVALCACHE_DIR = "$XDG_DATA_HOME/zsh/evalcache";
 
@@ -306,11 +306,11 @@ in
   home.activation.prepareZshDirs = lib.hm.dag.entryBefore ["checkLinkTargets"] ''
     echo "Preparing zsh extras directory..."
     
-    mkdir -p -m 755 "~/.config/zsh"
+    mkdir -p -m 755 "$HOME/.config/zsh"
     
-    rm -rf "~/.config/zsh/extras"
-    rm -rf "~/.config/zsh/bin"
+    rm -rf "$HOME/.config/zsh/extras"
+    rm -rf "$HOME/.config/zsh/bin"
 
-    mkdir -p -m 755 "~/.config/zsh/extras" "~/.config/zsh/bin"
+    mkdir -p -m 755 "$HOME/.config/zsh/extras" "$HOME/.config/zsh/bin"
   '';
 }
