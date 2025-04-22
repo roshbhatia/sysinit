@@ -23,13 +23,13 @@
     before = [];
     data = ''
       echo "Setting permissions and ownership for Neovim directories..."
-      mkdir -p "$HOME/.local/share/nvim"
-      chmod 755 "$HOME/.local/share/nvim"
-      chown -R ${config.user.username}:${config.user.username} "$HOME/.local/share/nvim"
+      mkdir -p "~/.local/share/nvim"
+      chmod 755 "~/.local/share/nvim"
+      chown -R ${config.user.username}:${config.user.username} "~/.local/share/nvim"
       
-      mkdir -p "$HOME/.config/nvim"
-      chmod 755 "$HOME/.config/nvim"
-      chown -R ${config.user.username}:${config.user.username} "$HOME/.config/nvim"
+      mkdir -p "~/.config/nvim"
+      chmod 755 "~/.config/nvim"
+      chown -R ${config.user.username}:${config.user.username} "~/.config/nvim"
     '';
   };
 }
