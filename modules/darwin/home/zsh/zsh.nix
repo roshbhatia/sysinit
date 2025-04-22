@@ -279,6 +279,9 @@ in
       bindkey -r '\ep'
       bindkey -r '\en'
       bindkey -r '\ew'
+  
+      # Bind ctrl-space to accept zsh autosuggestions
+      bindkey '^ ' autosuggest-accept
     '';
   
     initExtra = ''
@@ -286,7 +289,7 @@ in
       ${combinedCoreScripts}
       
       enable-fzf-tab
-          
+ 
       [[ -n "$SYSINIT_DEBUG" ]] && zprof
       # modules/darwin/home/zsh/zsh.nix#initExtra (end)
     '';
