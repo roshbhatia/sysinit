@@ -25,12 +25,24 @@ _cache_expired() {
   # If source is newer than cache, it's expired
   [[ "$source" -nt "$cache" ]] && return 0
   
-  # Check if cache is older than 24h
-  local cache_mtime=$(stat -f %m "$cache")
-  local current_time=$(date +%s)
-  local day_seconds=86400
+  # Check if cache is older than 24h using macOS compatible stat
+  local cache_mtime
+  if ! cache_mtime=$(stat -f %m "$cache" 2>/dev/null); then
+    [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Failed to get cache mtime" cache="$cache"
+    return 0
+  fi
   
-  (( current_time - cache_mtime > day_seconds )) && return 0
+  local current_time
+  if ! current_time=$(date +%s 2>/dev/null); then
+    [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Failed to get current time"
+    return 0
+  fi
+  
+  local day_seconds=86400
+  if (( current_time - cache_mtime > day_seconds )); then
+    [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Cache expired" cache="$cache" age=$((current_time - cache_mtime))
+    return 0
+  fi
   
   return 1
 }
@@ -42,7 +54,9 @@ _cached_source() {
 
   if _cache_expired "$cache" "$source"; then
     [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Compiling" path="$source" reason="cache expired"
-    zcompile "$cache" "$source"
+    if ! zcompile "$source"; then
+      [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Failed to compile" path="$source"
+    fi
   else
     [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Using cached version" path="$source"
   fi
