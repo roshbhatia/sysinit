@@ -72,7 +72,7 @@ local function setup_plugins()
   -- Define module system
   local module_system = {
     editor = {},
-    ui = {},
+    ui = { "alpha" },
     tools = { "hop" },
   }
 
@@ -107,6 +107,56 @@ local function setup_vscode_features()
   if not vscode_ok then
     vim.notify("Failed to load vscode module: " .. tostring(vscode), vim.log.levels.ERROR)
     return
+  end
+
+  -- =============================================
+  -- Hop.nvim Integration
+  -- =============================================
+  local hop_ok, hop = pcall(require, "hop")
+  if hop_ok then
+    local directions = require('hop.hint').HintDirection
+    
+    hop.setup({
+      keys = 'etovxqpdygfblzhckisuran'
+    })
+
+    -- Define hop highlight groups for VSCode
+    vim.api.nvim_set_hl(0, 'HopNextKey', { fg = '#ff007c', bold = true })
+    vim.api.nvim_set_hl(0, 'HopNextKey1', { fg = '#00dfff', bold = true })
+    vim.api.nvim_set_hl(0, 'HopNextKey2', { fg = '#2b8db3' })
+    vim.api.nvim_set_hl(0, 'HopUnmatched', { fg = '#666666' })
+    
+    -- Character motions
+    vim.keymap.set({"n","v","o"}, "f", function()
+      hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = true })
+    end, { desc = "Hop Forward to Char" })
+    
+    vim.keymap.set({"n","v","o"}, "F", function()
+      hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true })
+    end, { desc = "Hop Backward to Char" })
+    
+    vim.keymap.set({"n","v","o"}, "t", function()
+      hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = true, hint_offset = -1 })
+    end, { desc = "Hop Forward Till Char" })
+    
+    vim.keymap.set({"n","v","o"}, "T", function()
+      hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true, hint_offset = 1 })
+    end, { desc = "Hop Backward Till Char" })
+    
+    -- Leader based motions
+    vim.keymap.set("n", "<leader>hw", function()
+      hop.hint_words()
+    end, { desc = "Hop to Word" })
+    
+    vim.keymap.set("n", "<leader>hl", function()
+      hop.hint_lines()
+    end, { desc = "Hop to Line" })
+    
+    vim.keymap.set("n", "<leader>ha", function()
+      hop.hint_anywhere()
+    end, { desc = "Hop Anywhere" })
+  else
+    vim.notify("Hop.nvim is not installed or failed to load", vim.log.levels.WARN)
   end
 
   -- =============================================
@@ -192,20 +242,26 @@ local function setup_vscode_features()
       name = "🔄 Git",
       bindings = {
         { key = "s", description = "Stage Changes",           action = "git.stage" },
-        { key = "S", description = "Stage All",               action = "git.stageAll" },
-        { key = "u", description = "Unstage Changes",         action = "git.unstage" },
-        { key = "U", description = "Unstage All",             action = "git.unstageAll" },
-        { key = "c", description = "Commit",                  action = "git.commit" },
-        { key = "C", description = "Commit All",              action = "git.commitAll" },
-        { key = "p", description = "Push",                    action = "git.push" },
-        { key = "P", description = "Pull",                    action = "git.pull" },
-        { key = "d", description = "Open Change",             action = "git.openChange" },
-        { key = "D", description = "Open All Changes",        action = "git.openAllChanges" },
-        { key = "b", description = "Checkout Branch",         action = "git.checkout" },
-        { key = "f", description = "Fetch",                   action = "git.fetch" },
-        { key = "r", description = "Revert Change",           action = "git.revertChange" },
-        { key = "v", description = "SCM View",                action = "workbench.view.scm" },
+        { key = "S", description = "Stage All",              action = "git.stageAll" },
+        { key = "u", description = "Unstage Changes",        action = "git.unstage" },
+        { key = "U", description = "Unstage All",           action = "git.unstageAll" },
+        { key = "c", description = "Commit",                 action = "git.commit" },
+        { key = "C", description = "Commit All",             action = "git.commitAll" },
+        { key = "p", description = "Push",                   action = "git.push" },
+        { key = "P", description = "Pull",                   action = "git.pull" },
+        { key = "d", description = "Open Change",            action = "git.openChange" },
+        { key = "D", description = "Open All Changes",       action = "git.openAllChanges" },
+        { key = "b", description = "Checkout Branch",        action = "git.checkout" },
+        { key = "f", description = "Fetch",                  action = "git.fetch" },
+        { key = "r", description = "Revert Change",          action = "git.revertChange" },
+        { key = "v", description = "SCM View",               action = "workbench.view.scm" },
         { key = "m", description = "Generate Commit Message", action = "workbench.action.chat.open" },
+        { key = "e", description = "Open File Explorer",     action = "workbench.view.explorer" },
+        -- Stage/unstage in file explorer
+        { key = "h", description = "Stage Selected Ranges",  action = "git.stageSelectedRanges" },
+        { key = "j", description = "Next Change",           action = "workbench.action.editor.nextChange" },
+        { key = "k", description = "Previous Change",       action = "workbench.action.editor.previousChange" },
+        { key = "l", description = "Unstage Selected Ranges", action = "git.unstageSelectedRanges" },
       },
     },
     c = {
