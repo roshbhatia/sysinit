@@ -73,7 +73,7 @@ local function setup_plugins()
   local module_system = {
     editor = {},
     ui = {},
-    tools = {},
+    tools = { "hop" },
   }
 
   -- Collect plugin specs, including VSCode-Neovim bridge
@@ -589,7 +589,13 @@ end
 
 -- Main initialization function
 local function init()
-  vim.notify = vscode.notify
+  -- If running under VSCode, override notifications to use VSCode UI
+  if vim.g.vscode then
+    local ok, vscode_mod = pcall(require, "vscode")
+    if ok and vscode_mod.notify then
+      vim.notify = vscode_mod.notify
+    end
+  end
   
   -- Basic initialization - works even if subsequent steps fail
   setup_lazy()
