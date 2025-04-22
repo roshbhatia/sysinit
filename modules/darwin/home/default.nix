@@ -52,8 +52,8 @@ in {
     
     # Only check specific home-manager managed directories
     for dir in ".config" ".local"; do
-      if [ -d "~/$dir" ]; then
-        find "~/$dir" -type l | while read -r link; do
+      if [ -d "$HOME/$dir" ]; then
+        find "$HOME/$dir" -type l | while read -r link; do
           target=$(readlink "$link")
           # Only remove broken links pointing to the nix store
           if [[ "$target" == "/nix/store/"* ]] && [ ! -e "$target" ]; then
@@ -65,7 +65,7 @@ in {
     done
 
     # Check direct home directory links but exclude system paths
-    find "~" -maxdepth 1 -type l | while read -r link; do
+    find "$HOME" -maxdepth 1 -type l | while read -r link; do
       # Skip if link is in a protected system directory
       if [[ "$link" == *"/Library/Containers/"* ]] || 
          [[ "$link" == *"/Library/Group Containers/"* ]] || 
