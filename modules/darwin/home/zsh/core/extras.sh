@@ -39,13 +39,24 @@ _cached_source() {
 
 # Source extras
 EXTRAS_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh/extras"
+[[ -n "$SYSINIT_DEBUG" ]] && log_debug "Checking extras directory" dir="$EXTRAS_DIR"
+
 if [[ -d "$EXTRAS_DIR" ]]; then
-  for file in "$EXTRAS_DIR"/*.sh(N); do
-    if [[ -f "$file" ]]; then
-      [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Loading" file="$file"
+  setopt null_glob
+  local extra_files=("$EXTRAS_DIR"/*.sh)
+  unsetopt null_glob
+  
+  if (( ${#extra_files[@]} )); then
+    [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Found extras" count="${#extra_files[@]}"
+    for file in "${extra_files[@]}"; do
+      [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Loading extra" file="$file"
       _cached_source "$file"
-    fi
-  done
+    done
+  else
+    [[ -n "$SYSINIT_DEBUG" ]] && log_debug "No extras found in directory" dir="$EXTRAS_DIR"
+  fi
+else
+  [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Extras directory does not exist" dir="$EXTRAS_DIR"
 fi
 
 # Source secrets
