@@ -242,7 +242,7 @@ local function setup_vscode_features()
         { key = "v", description = "View in Chat",    action = "inlineChat.viewInChat" },
         { key = "r", description = "Regenerate",      action = "inlineChat.regenerate" },
         { key = "a", description = "Accept Changes",  action = "inlineChat.acceptChanges" },
-        { key = "g", description = "Generate Commit", action = "workbench.action.chat.open" },
+        { key = "g", description = "Generate Commit", action = "github.copilot.git.generateCommitMessage" },
       },
     },
     s = {
