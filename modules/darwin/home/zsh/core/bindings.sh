@@ -102,8 +102,40 @@ function {
 	done
 }
 
-bindkey '^y' beginning-of-line    # CTRL + y for beginning of line
-bindkey '^u' backward-word        # CTRL + u for back word
-bindkey '^i' forward-word         # CTRL + i for forward word
-bindkey '^o' end-of-line          # CTRL + o for end of line
+# Bind CTRL + Space + HJKL keys for these actions:
+bindkey '^ h' beginning-of-line    # CTRL + Space + h for beginning of line
+bindkey '^ j' backward-word        # CTRL + Space + j for back word
+bindkey '^ k' forward-word         # CTRL + Space + k for forward word
+bindkey '^ l' end-of-line          # CTRL + Space + l for end of line
+
+# Bind CTRL + Space + YUIO keys for word and line selection actions:
+bindkey '^ y' vi-select-word-forward    # CTRL + Space + y to select the current word forward
+bindkey '^ u' vi-select-word-backward   # CTRL + Space + u to select the current word backward
+bindkey '^ i' vi-select-to-line-start   # CTRL + Space + i to select from cursor to line start
+bindkey '^ o' vi-select-to-line-end     # CTRL + Space + o to select from cursor to line end
+
+# Define widgets for the new bindings
+function vi-select-word-forward() {
+  zle vi-forward-word -w
+  zle set-mark-command -w
+}
+zle -N vi-select-word-forward
+
+function vi-select-word-backward() {
+  zle vi-backward-word -w
+  zle set-mark-command -w
+}
+zle -N vi-select-word-backward
+
+function vi-select-to-line-start() {
+  zle beginning-of-line -w
+  zle set-mark-command -w
+}
+zle -N vi-select-to-line-start
+
+function vi-select-to-line-end() {
+  zle end-of-line -w
+  zle set-mark-command -w
+}
+zle -N vi-select-to-line-end
 # modules/darwin/home/zsh/core/bindings.sh (end)
