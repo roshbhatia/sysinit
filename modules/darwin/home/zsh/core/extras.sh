@@ -18,10 +18,21 @@ function cache.clean() {
 _cache_expired() {
   local cache="$1"
   local source="$2"
-  [[ ! -f "$cache" ]] || \
-  [[ ! -f "$source" ]] || \
-  [[ "$cache" -ot "$source" ]] || \
-  [[ $(find "$cache" -mtime +1) ]]
+  
+  # If cache doesn't exist or source doesn't exist, it's expired
+  [[ ! -f "$cache" || ! -f "$source" ]] && return 0
+  
+  # If source is newer than cache, it's expired
+  [[ "$source" -nt "$cache" ]] && return 0
+  
+  # Check if cache is older than 24h
+  local cache_mtime=$(stat -f %m "$cache")
+  local current_time=$(date +%s)
+  local day_seconds=86400
+  
+  (( current_time - cache_mtime > day_seconds )) && return 0
+  
+  return 1
 }
 
 # Source with caching
@@ -30,8 +41,10 @@ _cached_source() {
   local cache="${ZCACHE_EXTRAS_DIR}/${source:t}.zwc"
 
   if _cache_expired "$cache" "$source"; then
-    [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Compiling" path="$source"
-    zcompile "$source"
+    [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Compiling" path="$source" reason="cache expired"
+    zcompile "$cache" "$source"
+  else
+    [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Using cached version" path="$source"
   fi
 
   source "$source"
