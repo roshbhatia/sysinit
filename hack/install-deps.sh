@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
+# Exit on errors
 set -e
+# Directory of this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -28,6 +31,18 @@ function log_warning {
 # Check if running as root
 if [ "$EUID" -eq 0 ]; then
     handle_error "Please do not run this script as root or with sudo."
+fi
+
+# Install Determinate Systems post-build hook
+log_info "Installing Determinate Systems post-build hook"
+if [ -f "$SCRIPT_DIR/determinate/post-build-hook.sh" ]; then
+    log_warning "Copying post-build-hook to /nix/var/determinate"
+    sudo mkdir -p /nix/var/determinate
+    sudo cp "$SCRIPT_DIR/determinate/post-build-hook.sh" /nix/var/determinate/post-build-hook.sh
+    sudo chmod +x /nix/var/determinate/post-build-hook.sh
+    log_success "post-build-hook installed"
+else
+    log_warning "post-build-hook template not found at $SCRIPT_DIR/determinate/post-build-hook.sh"
 fi
 
 # Check for existing Nix installation that might be broken

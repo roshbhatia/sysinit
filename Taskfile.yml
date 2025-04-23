@@ -94,18 +94,14 @@ tasks:
     cmds:
       - |
         echo "Updating flake inputs..." && \
-        if ! nix flake update; then
-          echo "Failed to update flake"
-          exit 1
-        fi && \
-        git add flake.lock && \
-        git commit -m "chore(lockfile): regenerate lockfile" || true && \
-        git push && \
+        if ! nix flake update; then echo "Failed to update flake"; exit 1; fi && \
+        # Commit all local changes, including lockfile
+        git add -A && \
+        git commit -m "chore: update configuration and regenerate lockfile" || true && \
+        # Push changes (ignore push errors, e.g., SSL issues)
+        git push || true && \
         echo "Applying system configuration..." && \
-        if ! darwin-rebuild switch --flake . --show-trace; then
-          echo "Failed to apply configuration"
-          exit 1
-        fi && \
+        if ! darwin-rebuild switch --flake . --show-trace; then echo "Failed to apply configuration"; exit 1; fi && \
         echo "System configuration applied successfully"
     silent: true
 
