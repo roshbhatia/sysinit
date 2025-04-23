@@ -1,4 +1,4 @@
-{ pkgs, lib, config, userConfig ? {}, ... }:
+{ pkgs, lib, config, userConfig ? {}, homeDirectory, ... }:
 let
   additionalPackages = if userConfig ? npm && userConfig.npm ? additionalPackages
     then userConfig.npm.additionalPackages
@@ -10,7 +10,7 @@ let
     "typescript"
   ];
   allPackages = basePackages ++ additionalPackages;
-  npmGlobalDir = "~/.npm-global";
+  npmGlobalDir = "${homeDirectory}/.npm-global";
 in
 {
   home.file.".npmrc".text = ''
