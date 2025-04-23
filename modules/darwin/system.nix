@@ -51,8 +51,6 @@
   environment.systemPackages = with pkgs; [
     argocd
     ansible
-    bcrypt
-    borders
     caddy
     colima
     direnv
