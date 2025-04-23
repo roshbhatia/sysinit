@@ -43,6 +43,8 @@
       };
       modules = [
         ./modules/darwin/default.nix
+        # Ensure Home Manager backs up existing files instead of erroring
+        { home-manager.backupFileExtension = "backup"; }
         { 
           networking.hostName = hostname;
         }
