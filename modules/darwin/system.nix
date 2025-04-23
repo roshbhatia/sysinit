@@ -46,6 +46,41 @@
     };
     enable = false;
   };
+  
+  # Migrate common CLI tools from Homebrew to Nix
+  environment.systemPackages = with pkgs; [
+    argocd
+    ansible
+    bcrypt
+    borders
+    caddy
+    colima
+    direnv
+    eza
+    fd
+    glow
+    gum
+    gettext
+    helm
+    oh-my-posh
+    kubectl
+    kubecolor
+    k9s
+    lazygit
+    libgit2
+    luajit
+    nushell
+    pipx
+    python3
+    ripgrep
+    screenresolution
+    shellcheck
+    socat
+    sshpass
+    tailscale
+    go-task
+    yazi
+  ];
 
   launchd.agents.colima = {
     serviceConfig = {
