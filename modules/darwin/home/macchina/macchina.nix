@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, homeDirectory, ... }:
 
 let
   tomlFormat = pkgs.formats.toml {};
@@ -43,7 +43,7 @@ let
     box.title = "rosh";
     custom_ascii = {
       color = "#BB90B7";
-      path = "~/.config/macchina/themes/rosh.ascii";
+      path = "${homeDirectory}/.config/macchina/themes/rosh.ascii";
     };
   };
   
@@ -53,7 +53,7 @@ let
     box.title = "nix";
     custom_ascii = {
       color = "#5277C3";  # NixOS blue
-      path = "~/.config/macchina/themes/nix.ascii";
+      path = "${homeDirectory}/.config/macchina/themes/nix.ascii";
     };
   };
   

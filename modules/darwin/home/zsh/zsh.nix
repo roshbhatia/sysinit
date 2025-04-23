@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, homeDirectory, ... }:
 
 let
   stripHeaders = file: let
@@ -64,12 +64,12 @@ in
     };
 
     dirHashes = {
-      dsk = "$HOME/Desktop";
-      docs = "$HOME/Documents";
-      dl = "$HOME/Downloads";
-      ghp = "$HOME/github/personal";
-      ghpr = "$HOME/github/personal/roshbhatia";
-      ghw = "$HOME/github/work";
+      dsk = "${homeDirectory}/Desktop";
+      docs = "${homeDirectory}/Documents";
+      dl = "${homeDirectory}/Downloads";
+      ghp = "${homeDirectory}/github/personal";
+      ghpr = "${homeDirectory}/github/personal/roshbhatia";
+      ghw = "${homeDirectory}/github/work";
     };
     
     shellAliases = {
@@ -104,12 +104,12 @@ in
       LANG = "en_US.UTF-8";
       LC_ALL = "en_US.UTF-8";
 
-      XDG_CACHE_HOME = "$HOME/.cache";
-      XDG_CONFIG_HOME = "$HOME/.config";
-      XDG_DATA_HOME = "$HOME/.local/share";
-      XDG_STATE_HOME = "$HOME/.local/state";
+      XDG_CACHE_HOME = "${homeDirectory}/.cache";
+      XDG_CONFIG_HOME = "${homeDirectory}/.config";
+      XDG_DATA_HOME = "${homeDirectory}/.local/share";
+      XDG_STATE_HOME = "${homeDirectory}/.local/state";
 
-      ZSH_EVALCACHE_DIR = "$XDG_DATA_HOME/zsh/evalcache";
+      ZSH_EVALCACHE_DIR = "${homeDirectory}/.local/share/zsh/evalcache";
 
       ZSH_AUTOSUGGEST_USE_ASYNC = 1;
       ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = 20;
@@ -306,11 +306,11 @@ in
   home.activation.prepareZshDirs = lib.hm.dag.entryBefore ["checkLinkTargets"] ''
     echo "Preparing zsh extras directory..."
     
-    mkdir -p -m 755 $HOME/.config/zsh
+    mkdir -p -m 755 ${homeDirectory}/.config/zsh
     
-    rm -rf $HOME/.config/zsh/extras
-    rm -rf $HOME/.config/zsh/bin
+    rm -rf ${homeDirectory}/.config/zsh/extras
+    rm -rf ${homeDirectory}/.config/zsh/bin
 
-    mkdir -p -m 755 $HOME/.config/zsh/extras $HOME/.config/zsh/bin
+    mkdir -p -m 755 ${homeDirectory}/.config/zsh/extras ${homeDirectory}/.config/zsh/bin
   '';
 }
