@@ -10,6 +10,7 @@
         AppleShowScrollBars = "Always";
         KeyRepeat = 2;
         InitialKeyRepeat = 15;
+        _HIHideMenuBar = true;
       };
       dock = {
         autohide = true;
