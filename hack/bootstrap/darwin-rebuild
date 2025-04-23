@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Temporary darwin-rebuild shim for Determinate Nix
+exec /nix/var/nix/profiles/default/bin/nix run \
+  --extra-experimental-features "nix-command flakes" \
+  github:lnl7/nix-darwin \
+  -- "$@"
