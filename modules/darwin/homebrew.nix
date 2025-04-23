@@ -69,7 +69,6 @@ let
     "firefox"
     "font-hack-nerd-font"
     "font-symbols-only-nerd-font"
-    "jordanbaird-ice"
     "keycastr"
     "mediosz/tap/swipeaerospace"
     "nikitabobko/tap/aerospace"
