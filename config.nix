@@ -12,6 +12,7 @@
   };
 
   homebrew = {
+    enable = true;
     additionalPackages = {
       taps = [
         "hashicorp/tap"

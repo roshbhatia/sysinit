@@ -1,4 +1,4 @@
-{ pkgs, lib, username, homeDirectory, userConfig ? {}, ... }:
+{ pkgs, lib, username, homeDirectory, userConfig ? {}, enableHomebrew, ... }:
 
 {
   system = {
@@ -47,8 +47,8 @@
     enable = false;
   };
   
-  # Migrate common CLI tools from Homebrew to Nix
-  environment.systemPackages = with pkgs; [
+  # Migrate common CLI tools from Homebrew to Nix when Homebrew is disabled
+  environment.systemPackages = lib.mkIf (!enableHomebrew) (with pkgs; [
     argocd
     ansible
     caddy
@@ -78,7 +78,7 @@
     tailscale
     go-task
     yazi
-  ];
+  ]);
 
   launchd.agents.colima = {
     serviceConfig = {
