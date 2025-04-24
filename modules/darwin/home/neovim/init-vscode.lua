@@ -12,6 +12,12 @@ local function log(message)
   vim.notify(message)
 end
 
+local init_dir = vim.fn.fnamemodify(vim.fn.expand("$MYVIMRC"), ":p:h")
+local lua_dir = init_dir .. "/lua"
+vim.opt.rtp:prepend(lua_dir)
+
+vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { noremap = true, silent = true })
+
 log("==================== VSCode Neovim Init ====================")
 log("Beginning VSCode Neovim initialization")
 
