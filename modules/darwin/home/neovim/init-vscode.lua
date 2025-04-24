@@ -397,7 +397,9 @@ local function setup_vscode_features()
         globalThis.modeStatusBar = statusBar;
       ]],
       quickpick_menu = [[
+        const vscode = require('vscode');
         if (globalThis.quickPick) { globalThis.quickPick.dispose(); }
+        
         const quickPick = vscode.window.createQuickPick();
         quickPick.items = args.items.map(item => ({
           label: item.isGroup ? `$(chevron-right) ${item.label}` : item.isGroupItem ? `  $(key) ${item.label}` : item.label,
@@ -410,32 +412,44 @@ local function setup_vscode_features()
         quickPick.title = args.title;
         quickPick.placeholder = args.placeholder;
         
-        // Keep the onDidAccept for backup/compatibility
-        quickPick.onDidAccept(() => {
-          const selected = quickPick.selectedItems[0];
-          if (selected && selected.action) {
-            vscode.commands.executeCommand(selected.action);
-          }
-          quickPick.hide();
-          quickPick.dispose();
-        });
+        -- Keep track of the last active item to prevent multiple executions
+        let lastActiveItem = null;
         
-        // Auto-execute for leaf nodes
-        quickPick.onDidChangeSelection((items) => {
-          if (items.length === 0) return;
-          const selected = items[0];
+        quickPick.onDidChangeActive(async (items) => {
+          const active = items[0];
+          if (!active || active === lastActiveItem) return;
+          lastActiveItem = active;
           
-          // If it's a leaf node (has an action and is not a group), execute immediately
-          if (selected && selected.action && !selected.isGroup) {
-            vscode.commands.executeCommand(selected.action);
+          -- Auto-execute for leaf nodes (non-groups)
+          if (active.action && !active.isGroup) {
+            await vscode.commands.executeCommand(active.action);
             quickPick.hide();
             quickPick.dispose();
           }
         });
         
+        -- Handle explicit selection with Enter key
+        quickPick.onDidAccept(async () => {
+          const selected = quickPick.selectedItems[0];
+          if (!selected) return;
+          
+          -- If it's a group item, keep the menu open
+          if (selected.isGroup) {
+            return;
+          }
+          
+          -- Execute and close for non-group items
+          if (selected.action) {
+            await vscode.commands.executeCommand(selected.action);
+          }
+          quickPick.hide();
+          quickPick.dispose();
+        });
+        
         quickPick.onDidHide(() => {
           quickPick.dispose();
         });
+        
         globalThis.quickPick = quickPick;
         quickPick.show();
       ]],
@@ -457,7 +471,8 @@ local function setup_vscode_features()
           description = binding.description,
           action = binding.action,
           key = binding.key,
-          isGroup = false  -- Explicitly mark as non-group item
+          isGroup = false,  -- Explicitly mark as non-group item
+          isGroupItem = false  -- Explicitly mark as non-group item
         })
       end
       return items
@@ -477,20 +492,27 @@ local function setup_vscode_features()
           table.insert(items, {
             label = "──────────────",
             kind = -1,
+            isGroup = false,
+            isGroupItem = false
           })
         end
+        -- Add the group header
         table.insert(items, {
           label = key,
           description = group.name,
-          isGroup = true,  -- Explicitly mark as group
           key = key,
+          isGroup = true,
+          isGroupItem = false
         })
+        -- Add the group's bindings
         for _, binding in ipairs(group.bindings) do
           table.insert(items, {
             label = key .. binding.key,
             description = binding.description,
             action = binding.action,
-            isGroupItem = true,
+            key = binding.key,
+            isGroup = false,
+            isGroupItem = true
           })
         end
         lastCategory = key
