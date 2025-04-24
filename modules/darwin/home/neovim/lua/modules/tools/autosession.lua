@@ -116,10 +116,21 @@ M.plugins = {
             -- Check if Alpha is available before trying to open it
             local alpha_ok, _ = pcall(require, "alpha")
             if alpha_ok then
-              -- Close auto-session windows if they were opened
-              vim.cmd("silent! %bd")
-              -- Open Alpha
-              vim.cmd("Alpha")
+              -- Only open Alpha if barbar is not loaded yet or properly initialized
+              local barbar_ok, _ = pcall(require, "barbar.state")
+              if not barbar_ok then
+                -- Close auto-session windows if they were opened
+                vim.cmd("silent! %bd")
+                -- Open Alpha
+                vim.cmd("Alpha")
+              else
+                -- If barbar is loaded, add a delay to ensure it's properly initialized
+                vim.defer_fn(function()
+                  -- Try to close existing buffers safely
+                  vim.cmd("silent! %bd")
+                  vim.cmd("Alpha")
+                end, 100)
+              end
             end
           end
         end,

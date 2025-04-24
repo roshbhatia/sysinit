@@ -195,6 +195,23 @@ M.plugins = {
 function M.setup()
   if not vim.g.vscode then return end
   
+  -- Define debug log function
+  local function debug_log(msg, level)
+    level = level or vim.log.levels.INFO
+    -- Create a debug.log file in the Neovim data directory
+    local log_path = vim.fn.stdpath("data") .. "/vscode-which-key-debug.log"
+    local log_file = io.open(log_path, "a")
+    if log_file then
+      log_file:write(os.date("%Y-%m-%d %H:%M:%S ") .. msg .. "\n")
+      log_file:close()
+    end
+    
+    -- Also use Vim's notify system if available
+    vim.notify(msg, level)
+  end
+  
+  debug_log("Setting up vsc-which-key")
+  
   -- Implementation of VSCode-compatible which-key menu system
   local which_key = {}
   
@@ -290,9 +307,10 @@ function M.setup()
 
   -- Show the which-key menu for a group or the root menu
   local function show_menu(group)
+    debug_log("Attempting to show which-key menu")
     local vscode_ok, vscode = pcall(require, "vscode")
     if not vscode_ok then
-      vim.notify("VSCode module not available", vim.log.levels.ERROR)
+      debug_log("VSCode module not available when showing menu", vim.log.levels.ERROR)
       return
     end
     
@@ -301,7 +319,7 @@ function M.setup()
     end)
     
     if not ok then
-      vim.notify("Error formatting menu items: " .. tostring(items), vim.log.levels.ERROR)
+      debug_log("Error formatting menu items: " .. tostring(items), vim.log.levels.ERROR)
       return
     end
     
@@ -310,8 +328,9 @@ function M.setup()
       and "Select an action or press <Esc> to cancel"
       or "Select a group or action (groups shown with ▸)"
 
+    debug_log("Calling vscode.eval with quickpick_menu")
     local eval_ok, eval_err = pcall(vscode.eval, M.eval_strings.quickpick_menu, {
-      timeout = 1000,
+      timeout = 2000, -- Extend timeout
       args = {
         items = items,
         title = title,
@@ -320,7 +339,9 @@ function M.setup()
     })
     
     if not eval_ok then
-      vim.notify("Error showing which-key menu: " .. tostring(eval_err), vim.log.levels.ERROR)
+      debug_log("Error showing which-key menu: " .. tostring(eval_err), vim.log.levels.ERROR)
+    else
+      debug_log("Successfully showed which-key menu")
     end
   end
 
@@ -351,55 +372,84 @@ function M.setup()
 
   -- Update the mode display in the VSCode status bar
   local function update_mode_display()
+    debug_log("Attempting to update mode display")
     local vscode_ok, vscode = pcall(require, "vscode")
-    if not vscode_ok then return end
+    if not vscode_ok then
+      debug_log("VSCode module not available when updating mode display", vim.log.levels.WARN)
+      return
+    end
     
     local full_mode = vim.api.nvim_get_mode().mode
     local mode_key = full_mode:sub(1,1)
-    if mode_key == last_mode then return end
+    if mode_key == last_mode then 
+      debug_log("Mode unchanged, skipping update")
+      return 
+    end
     local mode_data = MODE_DISPLAY[mode_key] or MODE_DISPLAY.n
-    pcall(vscode.eval, M.eval_strings.mode_display, {
-      timeout = 1000,
+    
+    debug_log("Updating mode display to: " .. (mode_strings[mode_key] or mode_strings.n))
+    local eval_ok, eval_err = pcall(vscode.eval, M.eval_strings.mode_display, {
+      timeout = 2000, -- Extend timeout
       args = {
         text = mode_strings[mode_key] or mode_strings.n,
         color = mode_data.color,
         mode = mode_key
       }
     })
-    last_mode = mode_key
+    
+    if not eval_ok then
+      debug_log("Error updating mode display: " .. tostring(eval_err), vim.log.levels.ERROR)
+    else
+      debug_log("Successfully updated mode display")
+      last_mode = mode_key
+    end
   end
 
   -- Main setup function
   which_key.setup = function()
+    debug_log("Setting up which key keybindings")
+    
     -- Show root menu when leader is pressed
+    debug_log("Setting up leader key mapping")
     vim.keymap.set("n", "<leader>", function()
+      debug_log("Leader key pressed, showing menu")
       show_menu()
     end, { noremap = true, silent = true, desc = "Show which-key menu" })
 
     -- Setup each group
+    debug_log("Setting up group key mappings")
     for prefix, group in pairs(M.keybindings) do
+      debug_log("Setting up mappings for group: " .. prefix)
       handle_group("<leader>" .. prefix, group)
     end
 
     -- Auto-hide menu on mode change or cursor move
+    debug_log("Setting up auto-hide menu autocmds")
     vim.api.nvim_create_autocmd({ "ModeChanged", "CursorMoved" }, {
       callback = hide_menu,
     })
 
     -- Update mode display in status bar
+    debug_log("Setting up mode display autocmds")
     vim.api.nvim_create_autocmd("ModeChanged", {
       pattern = "*",
       callback = update_mode_display,
     })
 
     -- Update mode display when entering command mode
+    debug_log("Setting up command mode autocmd")
     vim.api.nvim_create_autocmd("CmdlineEnter", {
       callback = function()
+        debug_log("Command mode entered")
         local vscode_ok, vscode = pcall(require, "vscode")
-        if not vscode_ok then return end
+        if not vscode_ok then
+          debug_log("VSCode module not available in command mode", vim.log.levels.WARN)
+          return
+        end
         
+        debug_log("Updating mode display to COMMAND")
         pcall(vscode.eval, M.eval_strings.mode_display, {
-          timeout = 1000,
+          timeout = 2000,
           args = {
             text = "COMMAND",
             color = MODE_DISPLAY.c.color,
@@ -410,7 +460,30 @@ function M.setup()
     })
 
     -- Initialize mode display
+    debug_log("Initializing mode display")
     update_mode_display()
+    
+    -- Make sure the VSCode module is available
+    debug_log("Setup completed, checking VSCode module availability")
+    local vscode_ok, _ = pcall(require, "vscode")
+    if not vscode_ok then
+      debug_log("VSCode module still not available after setup - will retry on mode change", vim.log.levels.WARN)
+      
+      -- Create a timer to periodically check for VSCode module
+      local timer_check = vim.loop.new_timer()
+      if timer_check then
+        timer_check:start(1000, 1000, vim.schedule_wrap(function()
+          local check_ok, _ = pcall(require, "vscode")
+          if check_ok then
+            debug_log("VSCode module now available!")
+            update_mode_display()
+            timer_check:stop()
+          else
+            debug_log("VSCode module still not available...")
+          end
+        end))
+      end
+    end
   end
   
   -- Register which-key to the module
