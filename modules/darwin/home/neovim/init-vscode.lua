@@ -127,7 +127,7 @@ function setup_vscode_with_module(vscode)
   -- Define the keybinding groups for which-key style display
   local keybinding_groups = {
     f = {
-      name = "🔍 Find",
+      name = " Find",
       action = "workbench.action.quickOpen", 
       subcommands = {
         f = { name = "Find Files", action = "search-preview.quickOpenWithPreview" },
@@ -138,7 +138,7 @@ function setup_vscode_with_module(vscode)
       }
     },
     h = {
-      name = "🦘 Jumpy",
+      name = " Jumpy",
       action = "extension.jumpy-word",
       subcommands = {
         w = { name = "Jumpy Word Mode", action = "extension.jumpy-word" },
@@ -146,7 +146,7 @@ function setup_vscode_with_module(vscode)
       }
     },
     g = {
-      name = "🔄 Git",
+      name = " Git",
       action = "workbench.view.scm",
       subcommands = {
         s = { name = "Stage Changes", action = "git.stage" },
@@ -157,7 +157,7 @@ function setup_vscode_with_module(vscode)
       }
     },
     c = {
-      name = "💻 Code",
+      name = " Code",
       action = "editor.action.quickFix",
       subcommands = {
         a = { name = "Quick Fix", action = "editor.action.quickFix" },
@@ -168,7 +168,7 @@ function setup_vscode_with_module(vscode)
       }
     },
     w = {
-      name = "🪟 Window",
+      name = " Window",
       action = "workbench.action.focusFirstEditorGroup",
       subcommands = {
         h = { name = "Focus Left", action = "workbench.action.focusLeftGroup" },
@@ -179,7 +179,7 @@ function setup_vscode_with_module(vscode)
       }
     },
     t = {
-      name = "🔧 Toggle",
+      name = " Toggle",
       action = "workbench.action.terminal.toggleTerminal",
       subcommands = {
         e = { name = "Explorer", action = "workbench.view.explorer" },
@@ -190,7 +190,7 @@ function setup_vscode_with_module(vscode)
     },
   }
   
-  -- Just setup the direct keybindings without any fancy overlay
+  -- Setup direct keybindings for all commands
   for prefix, group in pairs(keybinding_groups) do
     -- Lead action for the group
     local leader_prefix = "<leader>" .. prefix
@@ -219,21 +219,284 @@ function setup_vscode_with_module(vscode)
     end
   end
   
-  -- Create a simple notification-based which-key helper
-  -- This will at least show a message with available keys when leader is pressed
-  vim.keymap.set("n", "<leader>", function()
-    -- Show a simple notification with available commands
-    local message = "Available commands:\n\n"
-    for prefix, group in pairs(keybinding_groups) do
-      message = message .. prefix .. ": " .. group.name .. "\n"
+  -- Global which-key state
+  local which_key_state = {
+    active_group = nil,
+    quickpick = nil
+  }
+  
+  -- QuickPick interface for which-key-like functionality
+  local function show_which_key_menu()
+    log("Showing which-key menu")
+    
+    -- Hide any existing quickpick
+    if which_key_state.quickpick then
+      hide_which_key_menu()
     end
-    message = message .. "\nPress a key to continue..."
     
-    vscode.notify(message, vim.log.levels.INFO)
+    -- Prepare items for the quickpick
+    local items = {}
+    for prefix, group in pairs(keybinding_groups) do
+      table.insert(items, {
+        label = prefix .. ": " .. group.name,
+        description = "Press key to execute or see submenu",
+        prefix = prefix,
+        -- Additional fields for reference
+        group = group,
+        action = group.action
+      })
+    end
     
-    -- Return true to allow the leader key to be used in the next keybinding
+    -- Create and configure quickpick
+    local js_code = [[
+      const quickPick = vscode.window.createQuickPick();
+      quickPick.items = args.items.map(item => ({
+        label: item.label,
+        description: item.description,
+        prefix: item.prefix,
+        action: item.action,
+        alwaysShow: true
+      }));
+      
+      quickPick.title = "Which Key Menu";
+      quickPick.placeholder = "Select category or press matching key";
+      
+      // Handle direct key press (no Enter needed)
+      const keyHandler = args.keyHandler;
+      
+      // Create buttons for each group
+      const buttons = args.items.map(item => ({
+        iconPath: new vscode.ThemeIcon('key'),
+        tooltip: 'Execute ' + item.label,
+        item: item
+      }));
+      
+      quickPick.buttons = buttons;
+      
+      // Handle button clicks (direct execution)
+      quickPick.onDidTriggerButton(button => {
+        if (button.item && button.item.action) {
+          // Execute the command
+          vscode.commands.executeCommand(button.item.action);
+          quickPick.hide();
+        }
+      });
+      
+      // Handle selection changes
+      quickPick.onDidChangeSelection(selection => {
+        if (selection.length > 0) {
+          const selected = selection[0];
+          if (selected.prefix) {
+            // When an item is selected, show its subcommands
+            vscode.commands.executeCommand('vscode-neovim.send', '<Esc>');
+            vscode.commands.executeCommand('vscode-neovim.send', '<Space>' + selected.prefix);
+            quickPick.hide();
+          }
+        }
+      });
+      
+      // Handle hiding
+      quickPick.onDidHide(() => {
+        vscode.commands.executeCommand('vscode-neovim.lua', 'require("which-key-state").active_group = nil');
+        quickPick.dispose();
+      });
+      
+      // Store in global for later access
+      if (globalThis.whichKeyQuickPick) {
+        globalThis.whichKeyQuickPick.dispose();
+      }
+      globalThis.whichKeyQuickPick = quickPick;
+      
+      // Show the quickpick
+      quickPick.show();
+    ]]
+    
+    -- Execute the JS code in VSCode
+    local eval_ok, eval_err = pcall(vscode.eval, js_code, {
+      timeout = 3000,
+      args = {
+        items = items
+      }
+    })
+    
+    if not eval_ok then
+      log("ERROR: Failed to show which-key menu: " .. tostring(eval_err))
+    else
+      log("SUCCESS: Showed which-key menu")
+    end
+  end
+  
+  -- Show subcommands for a specific group
+  local function show_which_key_submenu(prefix, group)
+    log("Showing submenu for: " .. prefix)
+    which_key_state.active_group = prefix
+    
+    -- Hide any existing quickpick
+    if which_key_state.quickpick then
+      hide_which_key_menu()
+    end
+    
+    -- Prepare submenu items
+    local items = {}
+    for key, subcmd in pairs(group.subcommands or {}) do
+      table.insert(items, {
+        label = key .. ": " .. subcmd.name,
+        description = "Press key to execute",
+        key = key,
+        action = subcmd.action
+      })
+    end
+    
+    -- Create buttons for direct execution
+    local buttons = {}
+    for _, item in ipairs(items) do
+      table.insert(buttons, {
+        iconPath = "key",
+        tooltip = "Execute " .. item.label,
+        key = item.key,
+        action = item.action
+      })
+    end
+    
+    -- Create and configure quickpick for submenu
+    local js_code = [[
+      const quickPick = vscode.window.createQuickPick();
+      quickPick.items = args.items.map(item => ({
+        label: item.label,
+        description: item.description,
+        key: item.key,
+        action: item.action,
+        alwaysShow: true
+      }));
+      
+      quickPick.title = args.title;
+      quickPick.placeholder = "Select command or press matching key";
+      
+      // Create buttons for each command
+      const buttons = args.items.map(item => ({
+        iconPath: new vscode.ThemeIcon('play'),
+        tooltip: 'Execute ' + item.label,
+        item: item
+      }));
+      
+      quickPick.buttons = buttons;
+      
+      // Handle button clicks (direct execution)
+      quickPick.onDidTriggerButton(button => {
+        if (button.item && button.item.action) {
+          // Execute the command
+          vscode.commands.executeCommand(button.item.action);
+          quickPick.hide();
+        }
+      });
+      
+      // Handle selection changes (double click or Enter)
+      quickPick.onDidChangeSelection(selection => {
+        if (selection.length > 0) {
+          const selected = selection[0];
+          if (selected.action) {
+            // Execute the command
+            vscode.commands.executeCommand(selected.action);
+            quickPick.hide();
+          }
+        }
+      });
+      
+      // Handle accepting via Enter
+      quickPick.onDidAccept(() => {
+        const selection = quickPick.selectedItems;
+        if (selection.length > 0) {
+          const selected = selection[0];
+          if (selected.action) {
+            // Execute the command
+            vscode.commands.executeCommand(selected.action);
+            quickPick.hide();
+          }
+        }
+      });
+      
+      // Handle hiding
+      quickPick.onDidHide(() => {
+        vscode.commands.executeCommand('vscode-neovim.lua', 'require("which-key-state").active_group = nil');
+        quickPick.dispose();
+      });
+      
+      // Store in global for later access
+      if (globalThis.whichKeyQuickPick) {
+        globalThis.whichKeyQuickPick.dispose();
+      }
+      globalThis.whichKeyQuickPick = quickPick;
+      
+      // Show the quickpick
+      quickPick.show();
+    ]]
+    
+    -- Execute the JS code in VSCode
+    local eval_ok, eval_err = pcall(vscode.eval, js_code, {
+      timeout = 3000,
+      args = {
+        items = items,
+        title = "Submenu: " .. group.name
+      }
+    })
+    
+    if not eval_ok then
+      log("ERROR: Failed to show submenu: " .. tostring(eval_err))
+    else
+      log("SUCCESS: Showed submenu for " .. prefix)
+    end
+  end
+  
+  -- Hide the which-key menu
+  local function hide_which_key_menu()
+    log("Hiding which-key menu")
+    
+    local js_code = [[
+      if (globalThis.whichKeyQuickPick) {
+        globalThis.whichKeyQuickPick.hide();
+        globalThis.whichKeyQuickPick.dispose();
+        globalThis.whichKeyQuickPick = undefined;
+      }
+    ]]
+    
+    pcall(vscode.eval, js_code, { timeout = 1000 })
+    which_key_state.active_group = nil
+  end
+  
+  -- Store the which-key state for access from JavaScript
+  _G["which-key-state"] = which_key_state
+  
+  -- Setup the which-key menu activation with leader key
+  vim.keymap.set("n", "<leader>", function()
+    log("Leader key pressed - showing which-key menu")
+    
+    -- If a group is already active, just execute the action
+    if which_key_state.active_group then
+      local prefix = which_key_state.active_group
+      if keybinding_groups[prefix] then
+        local action = keybinding_groups[prefix].action
+        log("Executing action for active group: " .. action)
+        pcall(vscode.action, action)
+      end
+      hide_which_key_menu()
+      return true
+    end
+    
+    -- Show the which-key menu
+    show_which_key_menu()
+    
+    -- Return true for the leader key to be available for the next key
     return true
   end, { noremap = true, silent = true, expr = true })
+  
+  -- Setup group key handlers
+  for prefix, group in pairs(keybinding_groups) do
+    -- When pressing <leader>f, show the "f" submenu
+    vim.keymap.set("n", "<leader>" .. prefix, function()
+      show_which_key_submenu(prefix, group)
+      return true
+    end, { noremap = true, silent = true, expr = true })
+  end
   
   -- Setup jumpy keybindings
   log("Setting up Jumpy extension mappings")
@@ -351,14 +614,13 @@ function setup_vscode_with_module(vscode)
   
   -- Notify user about Jumpy
   vim.notify([[
-    VSCode-Neovim is configured with:
+    VSCode-Neovim is now configured with:
     
-    1. Direct keybindings for all commands (e.g., <leader>ff for Find Files)
-    2. Jumpy integration using <leader>hw for word mode and <leader>hl for line mode
-    3. Simple notification-based which-key menu when pressing <leader>
+    1. Interactive leader menu with submenus - press <leader> to access
+    2. Jumpy integration for navigation - use <leader>h for jumpy commands
+    3. All keybindings are still directly accessible (<leader>xy)
     
-    Make sure you have the Jumpy extension installed from the VS Code marketplace:
-    https://marketplace.visualstudio.com/items?itemName=wmaurer.vscode-jumpy
+    Make sure you have the Jumpy extension installed from the VS Code marketplace.
   ]], vim.log.levels.INFO)
   
   log("VSCode features setup complete")
@@ -381,6 +643,15 @@ local function init()
   
   log("Initialization complete")
 end
+
+-- Notify when entering buffers
+vim.api.nvim_create_autocmd("BufEnter", {
+  callback = function()
+    local bufnr = vim.api.nvim_get_current_buf()
+    local bufname = vim.api.nvim_buf_get_name(bufnr)
+    log("Entered buffer: " .. bufnr .. " - " .. (bufname ~= "" and bufname or "[No Name]"))
+  end
+})
 
 -- Run initialization
 init()
