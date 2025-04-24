@@ -124,167 +124,343 @@ function setup_vscode_with_module(vscode)
   -- Setup which-key style leader menu
   log("Setting up which-key style menu")
   
+  -- Define the keybinding groups for which-key style display
   local keybinding_groups = {
-    { key = "f", name = "🔍 Find", action = "workbench.action.quickOpen", 
+    f = {
+      name = "🔍 Find",
+      action = "workbench.action.quickOpen", 
       subcommands = {
-        { key = "f", name = "Find Files", action = "search-preview.quickOpenWithPreview" },
-        { key = "g", name = "Find in Files", action = "workbench.action.findInFiles" },
-        { key = "b", name = "Find Buffers", action = "workbench.action.showAllEditors" },
-        { key = "s", name = "Find Symbols", action = "workbench.action.showAllSymbols" },
-        { key = "r", name = "Recent Files", action = "workbench.action.openRecent" },
+        f = { name = "Find Files", action = "search-preview.quickOpenWithPreview" },
+        g = { name = "Find in Files", action = "workbench.action.findInFiles" },
+        b = { name = "Find Buffers", action = "workbench.action.showAllEditors" },
+        s = { name = "Find Symbols", action = "workbench.action.showAllSymbols" },
+        r = { name = "Recent Files", action = "workbench.action.openRecent" },
       }
     },
-    { key = "h", name = "🦘 Jumpy", action = "extension.jumpy-word",
+    h = {
+      name = "🦘 Jumpy",
+      action = "extension.jumpy-word",
       subcommands = {
-        { key = "w", name = "Jumpy Word Mode", action = "extension.jumpy-word" },
-        { key = "l", name = "Jumpy Line Mode", action = "extension.jumpy-line" },
+        w = { name = "Jumpy Word Mode", action = "extension.jumpy-word" },
+        l = { name = "Jumpy Line Mode", action = "extension.jumpy-line" },
       }
     },
-    { key = "g", name = "🔄 Git", action = "workbench.view.scm",
+    g = {
+      name = "🔄 Git",
+      action = "workbench.view.scm",
       subcommands = {
-        { key = "s", name = "Stage Changes", action = "git.stage" },
-        { key = "u", name = "Unstage Changes", action = "git.unstage" },
-        { key = "c", name = "Commit", action = "git.commit" },
-        { key = "p", name = "Push", action = "git.push" },
-        { key = "P", name = "Pull", action = "git.pull" },
+        s = { name = "Stage Changes", action = "git.stage" },
+        u = { name = "Unstage Changes", action = "git.unstage" },
+        c = { name = "Commit", action = "git.commit" },
+        p = { name = "Push", action = "git.push" },
+        P = { name = "Pull", action = "git.pull" },
       }
     },
-    { key = "c", name = "💻 Code", action = "editor.action.quickFix",
+    c = {
+      name = "💻 Code",
+      action = "editor.action.quickFix",
       subcommands = {
-        { key = "a", name = "Quick Fix", action = "editor.action.quickFix" },
-        { key = "r", name = "Rename Symbol", action = "editor.action.rename" },
-        { key = "f", name = "Format Document", action = "editor.action.formatDocument" },
-        { key = "d", name = "Go to Definition", action = "editor.action.revealDefinition" },
-        { key = "i", name = "Go to Implementation", action = "editor.action.goToImplementation" },
+        a = { name = "Quick Fix", action = "editor.action.quickFix" },
+        r = { name = "Rename Symbol", action = "editor.action.rename" },
+        f = { name = "Format Document", action = "editor.action.formatDocument" },
+        d = { name = "Go to Definition", action = "editor.action.revealDefinition" },
+        i = { name = "Go to Implementation", action = "editor.action.goToImplementation" },
       }
     },
-    { key = "w", name = "🪟 Window", action = "workbench.action.focusFirstEditorGroup",
+    w = {
+      name = "🪟 Window",
+      action = "workbench.action.focusFirstEditorGroup",
       subcommands = {
-        { key = "h", name = "Focus Left", action = "workbench.action.focusLeftGroup" },
-        { key = "j", name = "Focus Down", action = "workbench.action.focusBelowGroup" },
-        { key = "k", name = "Focus Up", action = "workbench.action.focusAboveGroup" },
-        { key = "l", name = "Focus Right", action = "workbench.action.focusRightGroup" },
-        { key = "=", name = "Equal Width", action = "workbench.action.evenEditorWidths" },
+        h = { name = "Focus Left", action = "workbench.action.focusLeftGroup" },
+        j = { name = "Focus Down", action = "workbench.action.focusBelowGroup" },
+        k = { name = "Focus Up", action = "workbench.action.focusAboveGroup" },
+        l = { name = "Focus Right", action = "workbench.action.focusRightGroup" },
+        ["="] = { name = "Equal Width", action = "workbench.action.evenEditorWidths" },
       }
     },
-    { key = "t", name = "🔧 Toggle", action = "workbench.action.terminal.toggleTerminal",
+    t = {
+      name = "🔧 Toggle",
+      action = "workbench.action.terminal.toggleTerminal",
       subcommands = {
-        { key = "e", name = "Explorer", action = "workbench.view.explorer" },
-        { key = "t", name = "Terminal", action = "workbench.action.terminal.toggleTerminal" },
-        { key = "p", name = "Problems", action = "workbench.actions.view.problems" },
-        { key = "m", name = "Command Palette", action = "workbench.action.showCommands" },
+        e = { name = "Explorer", action = "workbench.view.explorer" },
+        t = { name = "Terminal", action = "workbench.action.terminal.toggleTerminal" },
+        p = { name = "Problems", action = "workbench.actions.view.problems" },
+        m = { name = "Command Palette", action = "workbench.action.showCommands" },
       }
     },
   }
   
-  -- Setup submenu mappings for direct keybindings
-  for _, group in ipairs(keybinding_groups) do
+  -- State for which-key system
+  local which_key_state = {
+    active = false,
+    timeout_timer = nil,
+    current_prefix = "",
+    last_pressed_time = 0,
+  }
+  
+  -- Handle each individual keybinding
+  for prefix, group in pairs(keybinding_groups) do
     if group.subcommands then
-      local prefix = "<leader>" .. group.key
-      for _, subcmd in ipairs(group.subcommands) do
-        local key = prefix .. subcmd.key
-        log("Setting up keybinding: " .. key .. " -> " .. subcmd.action)
+      local leader_prefix = "<leader>" .. prefix
+      
+      -- Setup the group prefix key
+      vim.keymap.set("n", leader_prefix, function()
+        -- If pressed as part of sequence, execute directly
+        if which_key_state.active and which_key_state.current_prefix == "<leader>" then
+          log("Executing group action directly: " .. group.action)
+          pcall(vscode.action, group.action)
+          which_key_state.active = false
+          return
+        end
         
-        vim.keymap.set("n", key, function()
+        -- Otherwise show subcommands
+        show_which_key_submenu(vscode, prefix, group)
+      end, { noremap = true, silent = true, desc = group.name })
+      
+      -- Setup each subcommand
+      for key, subcmd in pairs(group.subcommands) do
+        local full_key = leader_prefix .. key
+        log("Setting up keybinding: " .. full_key .. " -> " .. subcmd.action)
+        
+        vim.keymap.set("n", full_key, function()
           log("Executing action: " .. subcmd.action)
           local ok, err = pcall(vscode.action, subcmd.action)
           if not ok then
             log("ERROR executing action: " .. tostring(err))
           end
+          which_key_state.active = false
         end, { noremap = true, silent = true, desc = subcmd.name })
       end
     end
   end
   
-  -- Show root menu for leader key
-  vim.keymap.set("n", "<leader>", function()
-    log("Leader key pressed - showing menu")
+  -- Function to create a which-key style display in VSCode
+  function show_which_key_menu(vscode)
+    log("Showing which-key root menu")
     
-    -- Create QuickPick menu with hierarchical submenus
-    local js_code = [[
-      // Function to create and show the quickpick menu
-      function createWhichKeyMenu(items, title, placeholder, isRoot = true) {
-        // Dispose any existing quickpick
-        if (globalThis.whichKeyMenu) {
-          globalThis.whichKeyMenu.dispose();
-          globalThis.whichKeyMenu = undefined;
-        }
-        
-        // Create new quickpick
-        const quickPick = vscode.window.createQuickPick();
-        
-        // Format items differently for root vs submenu
-        quickPick.items = items.map(item => {
-          return {
-            label: isRoot ? `$(chevron-right) ${item.key}: ${item.name}` : `${item.key}: ${item.name}`,
-            description: item.name,
-            detail: isRoot ? "Press to see subcommands" : "Press to execute",
-            action: item.action,
-            subcommands: item.subcommands,
-            key: item.key,
-            alwaysShow: true
-          };
-        });
-        
-        quickPick.title = title;
-        quickPick.placeholder = placeholder;
-        
-        // Handle selection
-        quickPick.onDidAccept(() => {
-          const selected = quickPick.selectedItems[0];
-          if (!selected) return;
-          
-          if (selected.subcommands && isRoot) {
-            // Show submenu
-            quickPick.hide();
-            const subTitle = selected.description || 'Commands';
-            createWhichKeyMenu(
-              selected.subcommands,
-              `${subTitle} Commands`,
-              `Select a command or press Escape to return`,
-              false // not root menu
-            );
-          } else if (selected.action) {
-            // Execute action
-            vscode.commands.executeCommand(selected.action);
-            quickPick.hide();
-          }
-        });
-        
-        // Handle hiding
-        quickPick.onDidHide(() => {
-          quickPick.dispose();
-          if (isRoot) {
-            globalThis.whichKeyMenu = undefined;
-          }
-        });
-        
-        if (isRoot) {
-          globalThis.whichKeyMenu = quickPick;
-        }
-        
-        quickPick.show();
-      }
-      
-      // Show the root menu
-      createWhichKeyMenu(
-        args.groups,
-        "Neovim Which Key",
-        "Select a category"
-      );
+    -- Reset state
+    which_key_state.active = true
+    which_key_state.current_prefix = "<leader>"
+    which_key_state.last_pressed_time = vim.loop.now()
+    
+    -- Create HTML for which-key display
+    local html = [[
+      <div style="
+        background: rgba(30, 30, 30, 0.95);
+        color: white;
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        z-index: 9999;
+        width: auto;
+        max-width: 80%;
+        display: flex;
+        flex-direction: column;
+      ">
+        <div style="margin-bottom: 10px; font-weight: bold; text-align: center;">
+          Key Bindings (press key to continue)
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(6, auto); gap: 10px;">
     ]]
     
-    local eval_ok, eval_err = pcall(vscode.eval, js_code, {
-      timeout = 3000,
-      args = { groups = keybinding_groups }
-    })
+    -- Add each key group
+    for prefix, group in pairs(keybinding_groups) do
+      local color = "#8aadf4"
+      html = html .. string.format([[
+        <div style="text-align: center; padding: 5px; border: 1px solid %s; border-radius: 3px;">
+          <span style="font-weight: bold; color: %s;">%s</span>
+          <div>%s</div>
+        </div>
+      ]], color, color, prefix, group.name)
+    end
     
+    html = html .. [[
+        </div>
+      </div>
+    ]]
+    
+    -- Show the menu using VSCode webview
+    local js_code = string.format([[
+      // Remove any existing overlay
+      if (globalThis.whichKeyOverlay) {
+        document.body.removeChild(globalThis.whichKeyOverlay);
+        globalThis.whichKeyOverlay = undefined;
+      }
+      
+      // Create new overlay
+      const overlay = document.createElement('div');
+      overlay.id = 'which-key-overlay';
+      overlay.innerHTML = %q;
+      document.body.appendChild(overlay);
+      globalThis.whichKeyOverlay = overlay;
+      
+      // Auto-hide after timeout
+      if (globalThis.whichKeyTimer) {
+        clearTimeout(globalThis.whichKeyTimer);
+      }
+      
+      globalThis.whichKeyTimer = setTimeout(() => {
+        if (globalThis.whichKeyOverlay) {
+          document.body.removeChild(globalThis.whichKeyOverlay);
+          globalThis.whichKeyOverlay = undefined;
+        }
+      }, 3000);
+    ]], html)
+    
+    local eval_ok, eval_err = pcall(vscode.eval, js_code, { timeout = 3000 })
     if not eval_ok then
       log("ERROR: Failed to show which-key menu: " .. tostring(eval_err))
     else
       log("SUCCESS: Showed which-key menu")
     end
+    
+    -- Set timer to auto-hide menu
+    if which_key_state.timeout_timer then
+      which_key_state.timeout_timer:stop()
+    end
+    
+    which_key_state.timeout_timer = vim.defer_fn(function()
+      hide_which_key_menu(vscode)
+    end, 3000)
+  end
+  
+  -- Function to show submenu for a group
+  function show_which_key_submenu(vscode, prefix, group)
+    log("Showing which-key submenu for: " .. prefix)
+    
+    -- Update state
+    which_key_state.active = true
+    which_key_state.current_prefix = "<leader>" .. prefix
+    which_key_state.last_pressed_time = vim.loop.now()
+    
+    -- Create HTML for submenu
+    local html = [[
+      <div style="
+        background: rgba(30, 30, 30, 0.95);
+        color: white;
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        z-index: 9999;
+        width: auto;
+        max-width: 80%;
+        display: flex;
+        flex-direction: column;
+      ">
+        <div style="margin-bottom: 10px; font-weight: bold; text-align: center;">
+    ]] .. group.name .. [[ Commands (press key to execute)
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;">
+    ]]
+    
+    -- Add each subcommand
+    for key, subcmd in pairs(group.subcommands) do
+      local color = "#a6da95"
+      html = html .. string.format([[
+        <div style="text-align: center; padding: 5px; border: 1px solid %s; border-radius: 3px;">
+          <span style="font-weight: bold; color: %s;">%s</span>
+          <div>%s</div>
+        </div>
+      ]], color, color, key, subcmd.name)
+    end
+    
+    html = html .. [[
+        </div>
+      </div>
+    ]]
+    
+    -- Show the submenu
+    local js_code = string.format([[
+      // Remove any existing overlay
+      if (globalThis.whichKeyOverlay) {
+        document.body.removeChild(globalThis.whichKeyOverlay);
+        globalThis.whichKeyOverlay = undefined;
+      }
+      
+      // Create new overlay
+      const overlay = document.createElement('div');
+      overlay.id = 'which-key-overlay';
+      overlay.innerHTML = %q;
+      document.body.appendChild(overlay);
+      globalThis.whichKeyOverlay = overlay;
+      
+      // Auto-hide after timeout
+      if (globalThis.whichKeyTimer) {
+        clearTimeout(globalThis.whichKeyTimer);
+      }
+      
+      globalThis.whichKeyTimer = setTimeout(() => {
+        if (globalThis.whichKeyOverlay) {
+          document.body.removeChild(globalThis.whichKeyOverlay);
+          globalThis.whichKeyOverlay = undefined;
+        }
+      }, 3000);
+    ]], html)
+    
+    local eval_ok, eval_err = pcall(vscode.eval, js_code, { timeout = 3000 })
+    if not eval_ok then
+      log("ERROR: Failed to show which-key submenu: " .. tostring(eval_err))
+    else
+      log("SUCCESS: Showed which-key submenu for " .. prefix)
+    end
+    
+    -- Set timer to auto-hide menu
+    if which_key_state.timeout_timer then
+      which_key_state.timeout_timer:stop()
+    end
+    
+    which_key_state.timeout_timer = vim.defer_fn(function()
+      hide_which_key_menu(vscode)
+    end, 3000)
+  end
+  
+  -- Function to hide the which-key menu
+  function hide_which_key_menu(vscode)
+    log("Hiding which-key menu")
+    
+    which_key_state.active = false
+    which_key_state.current_prefix = ""
+    
+    local js_code = [[
+      if (globalThis.whichKeyOverlay) {
+        document.body.removeChild(globalThis.whichKeyOverlay);
+        globalThis.whichKeyOverlay = undefined;
+      }
+      
+      if (globalThis.whichKeyTimer) {
+        clearTimeout(globalThis.whichKeyTimer);
+        globalThis.whichKeyTimer = undefined;
+      }
+    ]]
+    
+    pcall(vscode.eval, js_code, { timeout = 1000 })
+  end
+  
+  -- Show which-key menu on leader key
+  vim.keymap.set("n", "<leader>", function()
+    log("Leader key pressed - showing menu")
+    show_which_key_menu(vscode)
   end, { noremap = true, silent = true })
+  
+  -- Hide which-key menu on Escape
+  vim.keymap.set("n", "<Esc>", function()
+    if which_key_state.active then
+      hide_which_key_menu(vscode)
+      return false -- prevent default action
+    end
+  end, { noremap = true, silent = true, expr = true })
   
   -- Setup jumpy keybindings
   log("Setting up Jumpy extension mappings")
@@ -295,6 +471,7 @@ function setup_vscode_with_module(vscode)
     if not ok then
       log("ERROR executing Jumpy Word Mode: " .. tostring(err))
     end
+    which_key_state.active = false
   end, { noremap = true, silent = true, desc = "Jumpy Word Mode" })
   
   vim.keymap.set("n", "<leader>hl", function()
@@ -303,6 +480,7 @@ function setup_vscode_with_module(vscode)
     if not ok then
       log("ERROR executing Jumpy Line Mode: " .. tostring(err))
     end
+    which_key_state.active = false
   end, { noremap = true, silent = true, desc = "Jumpy Line Mode" })
   
   -- Replace f/F with Jumpy for character navigation
@@ -436,25 +614,6 @@ vim.api.nvim_create_autocmd("BufEnter", {
     local bufnr = vim.api.nvim_get_current_buf()
     local bufname = vim.api.nvim_buf_get_name(bufnr)
     log("Entered buffer: " .. bufnr .. " - " .. (bufname ~= "" and bufname or "[No Name]"))
-  end
-})
-
--- Add a fallback mode display
-vim.api.nvim_create_autocmd("ModeChanged", {
-  pattern = "*",
-  callback = function()
-    local mode = vim.api.nvim_get_mode().mode
-    local mode_text = "Mode: " .. ({
-      n = "NORMAL",
-      i = "INSERT",
-      v = "VISUAL",
-      V = "V-LINE",
-      ["\22"] = "V-BLOCK",
-      c = "COMMAND",
-      t = "TERMINAL",
-    })[mode:sub(1,1)] or "NORMAL"
-    
-    log("Mode changed: " .. mode_text .. " [fallback display]")
   end
 })
 
