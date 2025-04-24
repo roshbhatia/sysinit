@@ -259,10 +259,7 @@ function setup_vscode_with_module(vscode)
       }));
       
       quickPick.title = "Which Key Menu";
-      quickPick.placeholder = "Select category or press matching key";
-      
-      // Handle direct key press (no Enter needed)
-      const keyHandler = args.keyHandler;
+      quickPick.placeholder = "Type a key to show submenu or select an item";
       
       // Create buttons for each group
       const buttons = args.items.map(item => ({
@@ -290,6 +287,23 @@ function setup_vscode_with_module(vscode)
             // When an item is selected, show its subcommands
             vscode.commands.executeCommand('vscode-neovim.send', '<Esc>');
             vscode.commands.executeCommand('vscode-neovim.send', '<Space>' + selected.prefix);
+            quickPick.hide();
+          }
+        }
+      });
+      
+      // Handle direct key presses
+      quickPick.onDidChangeValue(value => {
+        // If single letter is typed, it's likely a shortcut
+        if (value.length === 1) {
+          // Look for matching shortcut by key
+          const matchingItem = args.items.find(item => 
+            item.prefix && item.prefix.toLowerCase() === value.toLowerCase());
+            
+          if (matchingItem) {
+            // Send key sequence to open submenu
+            vscode.commands.executeCommand('vscode-neovim.send', '<Esc>');
+            vscode.commands.executeCommand('vscode-neovim.send', '<Space>' + matchingItem.prefix);
             quickPick.hide();
           }
         }
@@ -370,7 +384,7 @@ function setup_vscode_with_module(vscode)
       }));
       
       quickPick.title = args.title;
-      quickPick.placeholder = "Select command or press matching key";
+      quickPick.placeholder = "Type a key to execute command";
       
       // Create buttons for each command
       const buttons = args.items.map(item => ({
@@ -397,6 +411,22 @@ function setup_vscode_with_module(vscode)
           if (selected.action) {
             // Execute the command
             vscode.commands.executeCommand(selected.action);
+            quickPick.hide();
+          }
+        }
+      });
+      
+      // Handle direct key presses
+      quickPick.onDidChangeValue(value => {
+        // If single letter is typed, it's likely a shortcut
+        if (value.length === 1) {
+          // Look for matching shortcut by key
+          const matchingItem = args.items.find(item => 
+            item.key && item.key.toLowerCase() === value.toLowerCase());
+            
+          if (matchingItem) {
+            // Execute the matching command
+            vscode.commands.executeCommand(matchingItem.action);
             quickPick.hide();
           }
         }
@@ -489,10 +519,11 @@ function setup_vscode_with_module(vscode)
     return true
   end, { noremap = true, silent = true, expr = true })
   
-  -- Setup group key handlers
+  -- Create a mapping for each key to catch direct key presses after leader
   for prefix, group in pairs(keybinding_groups) do
-    -- When pressing <leader>f, show the "f" submenu
+    -- Set up a listener for <leader><key> to directly show the submenu
     vim.keymap.set("n", "<leader>" .. prefix, function()
+      log("Leader and group key pressed directly: " .. prefix)
       show_which_key_submenu(prefix, group)
       return true
     end, { noremap = true, silent = true, expr = true })
