@@ -190,34 +190,20 @@ function setup_vscode_with_module(vscode)
     },
   }
   
-  -- State for which-key system
-  local which_key_state = {
-    active = false,
-    timeout_timer = nil,
-    current_prefix = "",
-    last_pressed_time = 0,
-  }
-  
-  -- Handle each individual keybinding
+  -- Just setup the direct keybindings without any fancy overlay
   for prefix, group in pairs(keybinding_groups) do
+    -- Lead action for the group
+    local leader_prefix = "<leader>" .. prefix
+    vim.keymap.set("n", leader_prefix, function()
+      log("Executing group action: " .. group.action)
+      local ok, err = pcall(vscode.action, group.action)
+      if not ok then
+        log("ERROR executing action: " .. tostring(err))
+      end
+    end, { noremap = true, silent = true, desc = group.name })
+    
+    -- Setup subcommands
     if group.subcommands then
-      local leader_prefix = "<leader>" .. prefix
-      
-      -- Setup the group prefix key
-      vim.keymap.set("n", leader_prefix, function()
-        -- If pressed as part of sequence, execute directly
-        if which_key_state.active and which_key_state.current_prefix == "<leader>" then
-          log("Executing group action directly: " .. group.action)
-          pcall(vscode.action, group.action)
-          which_key_state.active = false
-          return
-        end
-        
-        -- Otherwise show subcommands
-        show_which_key_submenu(vscode, prefix, group)
-      end, { noremap = true, silent = true, desc = group.name })
-      
-      -- Setup each subcommand
       for key, subcmd in pairs(group.subcommands) do
         local full_key = leader_prefix .. key
         log("Setting up keybinding: " .. full_key .. " -> " .. subcmd.action)
@@ -228,238 +214,25 @@ function setup_vscode_with_module(vscode)
           if not ok then
             log("ERROR executing action: " .. tostring(err))
           end
-          which_key_state.active = false
         end, { noremap = true, silent = true, desc = subcmd.name })
       end
     end
   end
   
-  -- Function to create a which-key style display in VSCode
-  function show_which_key_menu(vscode)
-    log("Showing which-key root menu")
-    
-    -- Reset state
-    which_key_state.active = true
-    which_key_state.current_prefix = "<leader>"
-    which_key_state.last_pressed_time = vim.loop.now()
-    
-    -- Create HTML for which-key display
-    local html = [[
-      <div style="
-        background: rgba(30, 30, 30, 0.95);
-        color: white;
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 10px 20px;
-        border-radius: 5px;
-        font-family: 'Courier New', monospace;
-        font-size: 14px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        z-index: 9999;
-        width: auto;
-        max-width: 80%;
-        display: flex;
-        flex-direction: column;
-      ">
-        <div style="margin-bottom: 10px; font-weight: bold; text-align: center;">
-          Key Bindings (press key to continue)
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(6, auto); gap: 10px;">
-    ]]
-    
-    -- Add each key group
-    for prefix, group in pairs(keybinding_groups) do
-      local color = "#8aadf4"
-      html = html .. string.format([[
-        <div style="text-align: center; padding: 5px; border: 1px solid %s; border-radius: 3px;">
-          <span style="font-weight: bold; color: %s;">%s</span>
-          <div>%s</div>
-        </div>
-      ]], color, color, prefix, group.name)
-    end
-    
-    html = html .. [[
-        </div>
-      </div>
-    ]]
-    
-    -- Show the menu using VSCode webview
-    local js_code = string.format([[
-      // Remove any existing overlay
-      if (globalThis.whichKeyOverlay) {
-        document.body.removeChild(globalThis.whichKeyOverlay);
-        globalThis.whichKeyOverlay = undefined;
-      }
-      
-      // Create new overlay
-      const overlay = document.createElement('div');
-      overlay.id = 'which-key-overlay';
-      overlay.innerHTML = %q;
-      document.body.appendChild(overlay);
-      globalThis.whichKeyOverlay = overlay;
-      
-      // Auto-hide after timeout
-      if (globalThis.whichKeyTimer) {
-        clearTimeout(globalThis.whichKeyTimer);
-      }
-      
-      globalThis.whichKeyTimer = setTimeout(() => {
-        if (globalThis.whichKeyOverlay) {
-          document.body.removeChild(globalThis.whichKeyOverlay);
-          globalThis.whichKeyOverlay = undefined;
-        }
-      }, 3000);
-    ]], html)
-    
-    local eval_ok, eval_err = pcall(vscode.eval, js_code, { timeout = 3000 })
-    if not eval_ok then
-      log("ERROR: Failed to show which-key menu: " .. tostring(eval_err))
-    else
-      log("SUCCESS: Showed which-key menu")
-    end
-    
-    -- Set timer to auto-hide menu
-    if which_key_state.timeout_timer then
-      which_key_state.timeout_timer:stop()
-    end
-    
-    which_key_state.timeout_timer = vim.defer_fn(function()
-      hide_which_key_menu(vscode)
-    end, 3000)
-  end
-  
-  -- Function to show submenu for a group
-  function show_which_key_submenu(vscode, prefix, group)
-    log("Showing which-key submenu for: " .. prefix)
-    
-    -- Update state
-    which_key_state.active = true
-    which_key_state.current_prefix = "<leader>" .. prefix
-    which_key_state.last_pressed_time = vim.loop.now()
-    
-    -- Create HTML for submenu
-    local html = [[
-      <div style="
-        background: rgba(30, 30, 30, 0.95);
-        color: white;
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 10px 20px;
-        border-radius: 5px;
-        font-family: 'Courier New', monospace;
-        font-size: 14px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        z-index: 9999;
-        width: auto;
-        max-width: 80%;
-        display: flex;
-        flex-direction: column;
-      ">
-        <div style="margin-bottom: 10px; font-weight: bold; text-align: center;">
-    ]] .. group.name .. [[ Commands (press key to execute)
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;">
-    ]]
-    
-    -- Add each subcommand
-    for key, subcmd in pairs(group.subcommands) do
-      local color = "#a6da95"
-      html = html .. string.format([[
-        <div style="text-align: center; padding: 5px; border: 1px solid %s; border-radius: 3px;">
-          <span style="font-weight: bold; color: %s;">%s</span>
-          <div>%s</div>
-        </div>
-      ]], color, color, key, subcmd.name)
-    end
-    
-    html = html .. [[
-        </div>
-      </div>
-    ]]
-    
-    -- Show the submenu
-    local js_code = string.format([[
-      // Remove any existing overlay
-      if (globalThis.whichKeyOverlay) {
-        document.body.removeChild(globalThis.whichKeyOverlay);
-        globalThis.whichKeyOverlay = undefined;
-      }
-      
-      // Create new overlay
-      const overlay = document.createElement('div');
-      overlay.id = 'which-key-overlay';
-      overlay.innerHTML = %q;
-      document.body.appendChild(overlay);
-      globalThis.whichKeyOverlay = overlay;
-      
-      // Auto-hide after timeout
-      if (globalThis.whichKeyTimer) {
-        clearTimeout(globalThis.whichKeyTimer);
-      }
-      
-      globalThis.whichKeyTimer = setTimeout(() => {
-        if (globalThis.whichKeyOverlay) {
-          document.body.removeChild(globalThis.whichKeyOverlay);
-          globalThis.whichKeyOverlay = undefined;
-        }
-      }, 3000);
-    ]], html)
-    
-    local eval_ok, eval_err = pcall(vscode.eval, js_code, { timeout = 3000 })
-    if not eval_ok then
-      log("ERROR: Failed to show which-key submenu: " .. tostring(eval_err))
-    else
-      log("SUCCESS: Showed which-key submenu for " .. prefix)
-    end
-    
-    -- Set timer to auto-hide menu
-    if which_key_state.timeout_timer then
-      which_key_state.timeout_timer:stop()
-    end
-    
-    which_key_state.timeout_timer = vim.defer_fn(function()
-      hide_which_key_menu(vscode)
-    end, 3000)
-  end
-  
-  -- Function to hide the which-key menu
-  function hide_which_key_menu(vscode)
-    log("Hiding which-key menu")
-    
-    which_key_state.active = false
-    which_key_state.current_prefix = ""
-    
-    local js_code = [[
-      if (globalThis.whichKeyOverlay) {
-        document.body.removeChild(globalThis.whichKeyOverlay);
-        globalThis.whichKeyOverlay = undefined;
-      }
-      
-      if (globalThis.whichKeyTimer) {
-        clearTimeout(globalThis.whichKeyTimer);
-        globalThis.whichKeyTimer = undefined;
-      }
-    ]]
-    
-    pcall(vscode.eval, js_code, { timeout = 1000 })
-  end
-  
-  -- Show which-key menu on leader key
+  -- Create a simple notification-based which-key helper
+  -- This will at least show a message with available keys when leader is pressed
   vim.keymap.set("n", "<leader>", function()
-    log("Leader key pressed - showing menu")
-    show_which_key_menu(vscode)
-  end, { noremap = true, silent = true })
-  
-  -- Hide which-key menu on Escape
-  vim.keymap.set("n", "<Esc>", function()
-    if which_key_state.active then
-      hide_which_key_menu(vscode)
-      return false -- prevent default action
+    -- Show a simple notification with available commands
+    local message = "Available commands:\n\n"
+    for prefix, group in pairs(keybinding_groups) do
+      message = message .. prefix .. ": " .. group.name .. "\n"
     end
+    message = message .. "\nPress a key to continue..."
+    
+    vscode.notify(message, vim.log.levels.INFO)
+    
+    -- Return true to allow the leader key to be used in the next keybinding
+    return true
   end, { noremap = true, silent = true, expr = true })
   
   -- Setup jumpy keybindings
@@ -471,7 +244,6 @@ function setup_vscode_with_module(vscode)
     if not ok then
       log("ERROR executing Jumpy Word Mode: " .. tostring(err))
     end
-    which_key_state.active = false
   end, { noremap = true, silent = true, desc = "Jumpy Word Mode" })
   
   vim.keymap.set("n", "<leader>hl", function()
@@ -480,7 +252,6 @@ function setup_vscode_with_module(vscode)
     if not ok then
       log("ERROR executing Jumpy Line Mode: " .. tostring(err))
     end
-    which_key_state.active = false
   end, { noremap = true, silent = true, desc = "Jumpy Line Mode" })
   
   -- Replace f/F with Jumpy for character navigation
@@ -580,11 +351,14 @@ function setup_vscode_with_module(vscode)
   
   -- Notify user about Jumpy
   vim.notify([[
-    VSCode-Neovim is configured to use Jumpy extension.
-    Make sure you have it installed from the VS Code marketplace:
-    https://marketplace.visualstudio.com/items?itemName=wmaurer.vscode-jumpy
+    VSCode-Neovim is configured with:
     
-    Use <leader>h for Jumpy commands.
+    1. Direct keybindings for all commands (e.g., <leader>ff for Find Files)
+    2. Jumpy integration using <leader>hw for word mode and <leader>hl for line mode
+    3. Simple notification-based which-key menu when pressing <leader>
+    
+    Make sure you have the Jumpy extension installed from the VS Code marketplace:
+    https://marketplace.visualstudio.com/items?itemName=wmaurer.vscode-jumpy
   ]], vim.log.levels.INFO)
   
   log("VSCode features setup complete")
@@ -607,28 +381,6 @@ local function init()
   
   log("Initialization complete")
 end
-
--- Notify when entering buffers
-vim.api.nvim_create_autocmd("BufEnter", {
-  callback = function()
-    local bufnr = vim.api.nvim_get_current_buf()
-    local bufname = vim.api.nvim_buf_get_name(bufnr)
-    log("Entered buffer: " .. bufnr .. " - " .. (bufname ~= "" and bufname or "[No Name]"))
-  end
-})
-
--- Check VSCode module periodically
-vim.defer_fn(function()
-  local vscode_ok, vscode = pcall(require, "vscode")
-  log("Checking VSCode module (delayed): " .. (vscode_ok and "AVAILABLE" or "NOT AVAILABLE"))
-  
-  if vscode_ok then
-    log("VSCode module methods:")
-    for k, v in pairs(vscode) do
-      log("  - " .. k .. " (" .. type(v) .. ")")
-    end
-  end
-end, 2000)
 
 -- Run initialization
 init()
