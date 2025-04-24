@@ -102,6 +102,7 @@ local module_system = {
   },
   -- Tool modules
   tools = {
+    "remote-fix",  -- Load this first to fix remote plugin issues
     "comment",
     "hop",
     "neoscroll",
