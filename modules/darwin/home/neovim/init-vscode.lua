@@ -1,22 +1,19 @@
--- Mark this as a VSCode instance
+-- Mark this is a VSCode instance
 vim.g.vscode = true
 
--- Add debug log function
-local function debug_log(msg, level)
-  level = level or vim.log.levels.INFO
-  -- Create a debug.log file in the Neovim data directory
-  local log_path = vim.fn.stdpath("data") .. "/vscode-neovim-debug.log"
-  local log_file = io.open(log_path, "a")
-  if log_file then
-    log_file:write(os.date("%Y-%m-%d %H:%M:%S ") .. msg .. "\n")
-    log_file:close()
+-- Create a log file for debugging
+local log_path = vim.fn.stdpath("data") .. "/vscode-debug.log"
+local function log(message)
+  local file = io.open(log_path, "a")
+  if file then
+    file:write(os.date("%Y-%m-%d %H:%M:%S ") .. message .. "\n")
+    file:close()
   end
-  
-  -- Also use Vim's notify system if available
-  vim.notify(msg, level)
+  vim.notify(message)
 end
 
-debug_log("Starting VSCode Neovim initialization")
+log("==================== VSCode Neovim Init ====================")
+log("Beginning VSCode Neovim initialization")
 
 local function setup_lazy()
   local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -33,6 +30,8 @@ local function setup_lazy()
   local init_dir = vim.fn.fnamemodify(vim.fn.expand("$MYVIMRC"), ":p:h")
   local lua_dir = init_dir .. "/lua"
   vim.opt.rtp:prepend(lua_dir)
+  
+  log("Lazy.nvim and lua directories added to runtime path")
 end
 
 -- Basic leader setup
@@ -41,6 +40,7 @@ local function setup_leader()
   vim.g.maplocalleader = " "
   -- Prevent space from moving cursor in normal/visual mode
   vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { noremap = true, silent = true })
+  log("Leader key configured")
 end
 
 -- Common Neovim settings
@@ -71,6 +71,8 @@ local function setup_common_settings()
   vim.opt.sidescrolloff = 8
   vim.opt.mouse = "a"
   vim.opt.clipboard = "unnamedplus"
+  
+  log("Common settings configured")
 end
 
 -- VSCode integration specific settings
@@ -78,195 +80,273 @@ local function setup_vscode_integration()
   if not vim.g.vscode then return end
   -- Suppress VimEnter autocommands to avoid premature remote plugin bootstrap errors
   vim.cmd("set eventignore+=VimEnter")
-  vim.notify("VSCode Neovim integration detected", vim.log.levels.INFO)
+  log("VSCode integration settings applied")
 end
 
--- Initialize module loader and setup plugins
-local function setup_plugins()
-  debug_log("Setting up plugins")
-  local ok, module_loader = pcall(require, "core.vsc_module_loader")
-  if not ok then
-    debug_log("Failed to load core.vsc_module_loader: " .. tostring(module_loader), vim.log.levels.ERROR)
+-- Direct VSCode features (with no dependencies)
+local function setup_direct_vscode_features()
+  log("Setting up direct VSCode features")
+  
+  -- First, check if we have VSCode module
+  local vscode_ok, vscode = pcall(require, "vscode")
+  if not vscode_ok then
+    log("ERROR: vscode module not available: " .. tostring(vscode))
     
-    -- Try to create the module loader if it doesn't exist
-    debug_log("Attempting to create fallback module loader")
+    -- Setup deferred loading
+    vim.api.nvim_create_autocmd("UIEnter", {
+      once = true,
+      callback = function()
+        log("UIEnter triggered, trying to load vscode module again")
+        local retry_ok, retry_vscode = pcall(require, "vscode")
+        if retry_ok then
+          log("SUCCESS: vscode module available on UIEnter")
+          setup_vscode_with_module(retry_vscode)
+        else
+          log("ERROR: vscode module still not available on UIEnter: " .. tostring(retry_vscode))
+        end
+      end
+    })
     
-    -- Create a simple fallback module loader
-    local fallback_loader = {}
-    
-    function fallback_loader.get_plugin_specs(modules)
-      debug_log("Using fallback get_plugin_specs")
-      return {
-        {
-          "vscode-neovim/vscode-neovim",
-          cond = function() return vim.g.vscode == true end,
-          event = "VimEnter",
-        }
-      }
-    end
-    
-    function fallback_loader.setup_modules(modules)
-      debug_log("Using fallback setup_modules")
-      
-      -- Setup mode display
-      vim.api.nvim_create_autocmd("ModeChanged", {
-        pattern = "*",
-        callback = function()
-          local vscode_ok, vscode = pcall(require, "vscode")
-          if not vscode_ok then
-            debug_log("VSCode module not available", vim.log.levels.WARN)
-            return
-          end
-          
-          -- Show mode in status bar
-          local mode = vim.api.nvim_get_mode().mode:sub(1,1)
-          local mode_text = "Mode: " .. ({
-            n = "NORMAL",
-            i = "INSERT",
-            v = "VISUAL",
-            V = "V-LINE",
-            ["\22"] = "V-BLOCK",
-            c = "COMMAND"
-          })[mode] or "NORMAL"
-          
-          pcall(vscode.notify, mode_text)
-        end,
-      })
-    end
-    
-    module_loader = fallback_loader
-  end
-
-  -- Define module system
-  local module_system = {
-    vscode = {
-      "vsc-which-key",
-      "vsc-commands",
-      "vsc-keybindings",
-      "vsc-jumpy"
-    }
-  }
-
-  -- Collect plugin specs
-  local function collect_plugin_specs()
-    debug_log("Collecting plugin specs")
-    local specs = module_loader.get_plugin_specs(module_system)
-    return specs
-  end
-
-  local lazy_ok, lazy = pcall(require, "lazy")
-  if not lazy_ok then
-    debug_log("Failed to load lazy.nvim: " .. tostring(lazy), vim.log.levels.ERROR)
     return
   end
-
-  debug_log("Setting up lazy.nvim with plugin specs")
-  lazy.setup(collect_plugin_specs())
   
-  debug_log("Setting up modules")
-  module_loader.setup_modules(module_system)
+  log("SUCCESS: vscode module available")
+  setup_vscode_with_module(vscode)
 end
 
--- Safeguard for ephemeral buffers
-local function is_valid_buffer(bufnr)
-  return bufnr and vim.api.nvim_buf_is_valid(bufnr) and vim.api.nvim_buf_get_option(bufnr, "buflisted")
+-- Setup VSCode features when the module is available
+function setup_vscode_with_module(vscode)
+  log("Setting up VSCode features with vscode module")
+  
+  -- Override notifications to use VSCode UI
+  vim.notify = vscode.notify
+  
+  -- Setup which-key style leader menu
+  log("Setting up which-key style menu")
+  
+  local keybinding_groups = {
+    { key = "f", name = "Find", action = "workbench.action.quickOpen" },
+    { key = "g", name = "Git", action = "workbench.view.scm" },
+    { key = "e", name = "Explorer", action = "workbench.view.explorer" },
+    { key = "t", name = "Terminal", action = "workbench.action.terminal.toggleTerminal" },
+    { key = "c", name = "Code", action = "editor.action.quickFix" },
+    { key = "w", name = "Window", action = "workbench.action.focusFirstEditorGroup" },
+  }
+  
+  -- Show root menu for leader key
+  vim.keymap.set("n", "<leader>", function()
+    log("Leader key pressed - showing menu")
+    
+    -- Create QuickPick menu in VSCode
+    local js_code = [[
+      if (globalThis.quickPick) { globalThis.quickPick.dispose(); }
+      const quickPick = vscode.window.createQuickPick();
+      quickPick.items = args.items.map(item => ({
+        label: item.key,
+        description: item.name,
+        action: item.action,
+      }));
+      quickPick.title = "VSCode Commands";
+      quickPick.placeholder = "Select a command category";
+      quickPick.onDidAccept(() => {
+        const selected = quickPick.selectedItems[0];
+        if (selected && selected.action) {
+          vscode.commands.executeCommand(selected.action);
+        }
+        quickPick.hide();
+      });
+      quickPick.onDidHide(() => {
+        quickPick.dispose();
+        globalThis.quickPick = undefined;
+      });
+      globalThis.quickPick = quickPick;
+      quickPick.show();
+    ]]
+    
+    local eval_ok, eval_err = pcall(vscode.eval, js_code, {
+      timeout = 3000,
+      args = { items = keybinding_groups }
+    })
+    
+    if not eval_ok then
+      log("ERROR: Failed to show quickpick menu: " .. tostring(eval_err))
+    else
+      log("SUCCESS: Showed quickpick menu")
+    end
+  end, { noremap = true, silent = true })
+  
+  -- Setup direct keybindings for common actions
+  log("Setting up common keybindings")
+  
+  local opts = { noremap = true, silent = true }
+  
+  -- Find files
+  vim.keymap.set("n", "<leader>f", function()
+    log("Executing: Find Files")
+    pcall(vscode.action, "workbench.action.quickOpen")
+  end, opts)
+  
+  -- Explorer
+  vim.keymap.set("n", "<leader>e", function()
+    log("Executing: Explorer")
+    pcall(vscode.action, "workbench.view.explorer")
+  end, opts)
+  
+  -- Terminal
+  vim.keymap.set("n", "<leader>t", function()
+    log("Executing: Terminal")
+    pcall(vscode.action, "workbench.action.terminal.toggleTerminal")
+  end, opts)
+  
+  -- Window navigation
+  vim.keymap.set("n", "<C-h>", function() 
+    log("Executing: Focus Left Group")
+    pcall(vscode.action, "workbench.action.focusLeftGroup") 
+  end, opts)
+  
+  vim.keymap.set("n", "<C-j>", function() 
+    log("Executing: Focus Down Group")
+    pcall(vscode.action, "workbench.action.focusBelowGroup") 
+  end, opts)
+  
+  vim.keymap.set("n", "<C-k>", function() 
+    log("Executing: Focus Up Group")
+    pcall(vscode.action, "workbench.action.focusAboveGroup") 
+  end, opts)
+  
+  vim.keymap.set("n", "<C-l>", function() 
+    log("Executing: Focus Right Group")
+    pcall(vscode.action, "workbench.action.focusRightGroup") 
+  end, opts)
+  
+  -- Setup mode display in status bar
+  log("Setting up mode display")
+  
+  local MODE_DISPLAY = {
+    n = { text = 'NORMAL', color = '#7aa2f7' },
+    i = { text = 'INSERT', color = '#9ece6a' },
+    v = { text = 'VISUAL', color = '#bb9af7' },
+    V = { text = 'V-LINE', color = '#bb9af7' },
+    ['\22'] = { text = 'V-BLOCK', color = '#bb9af7' },
+    R = { text = 'REPLACE', color = '#f7768e' },
+    c = { text = 'COMMAND', color = '#7dcfff' },
+    t = { text = 'TERMINAL', color = '#73daca' },
+  }
+  
+  local last_mode = nil
+  
+  local function update_mode_display()
+    local mode = vim.api.nvim_get_mode().mode
+    local mode_key = mode:sub(1,1)
+    if mode_key == last_mode then return end
+    
+    local mode_data = MODE_DISPLAY[mode_key] or MODE_DISPLAY.n
+    local mode_text = "Mode: " .. mode_data.text
+    
+    log("Updating mode display: " .. mode_text)
+    
+    local js_code = [[
+      if (globalThis.modeStatusBar) { globalThis.modeStatusBar.dispose(); }
+      const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+      statusBar.text = args.text;
+      statusBar.color = args.color;
+      statusBar.show();
+      globalThis.modeStatusBar = statusBar;
+    ]]
+    
+    local eval_ok, eval_err = pcall(vscode.eval, js_code, {
+      timeout = 2000,
+      args = {
+        text = mode_text,
+        color = mode_data.color
+      }
+    })
+    
+    if not eval_ok then
+      log("ERROR: Failed to update mode display: " .. tostring(eval_err))
+    else
+      log("SUCCESS: Updated mode display")
+      last_mode = mode_key
+    end
+  end
+  
+  -- Update mode on mode changes
+  vim.api.nvim_create_autocmd("ModeChanged", {
+    pattern = "*",
+    callback = update_mode_display
+  })
+  
+  -- Initial mode display
+  update_mode_display()
+  log("Mode display configured")
+  
+  log("VSCode features setup complete")
 end
 
 -- Main initialization function
 local function init()
-  debug_log("Starting initialization sequence")
-  
-  -- If running under VSCode, override notifications to use VSCode UI
-  if vim.g.vscode then
-    local ok, vscode_mod = pcall(require, "vscode")
-    if ok and vscode_mod.notify then
-      debug_log("Setting up VSCode notification handler")
-      vim.notify = vscode_mod.notify
-    else
-      debug_log("VSCode module not available yet, will try setting it up later", vim.log.levels.WARN)
-      
-      -- Set up a deferred loading mechanism for the vscode module
-      vim.api.nvim_create_autocmd("UIEnter", {
-        once = true,
-        callback = function()
-          debug_log("UIEnter event triggered, trying to load VSCode module again")
-          local vscode_ok, vscode = pcall(require, "vscode")
-          if vscode_ok then
-            debug_log("Successfully loaded VSCode module on UIEnter")
-            vim.notify = vscode.notify
-            
-            -- Initialize VSCode features on a delay to ensure UI is ready
-            vim.defer_fn(function()
-              debug_log("Setting up VSCode features with delay")
-              pcall(setup_vscode_integration)
-              
-              -- Try to set up basic keybindings manually if needed
-              if not vim.g.vscode_features_initialized then
-                debug_log("Setting up basic VSCode keybindings")
-                
-                -- Set up basic mode indicator
-                local mode_data = {
-                  n = { text = 'NORMAL', color = '#7aa2f7' },
-                  i = { text = 'INSERT', color = '#9ece6a' },
-                  v = { text = 'VISUAL', color = '#bb9af7' },
-                  c = { text = 'COMMAND', color = '#7dcfff' },
-                }
-                
-                -- Update mode display in status bar
-                local function update_mode_display()
-                  local full_mode = vim.api.nvim_get_mode().mode
-                  local mode_key = full_mode:sub(1,1)
-                  local data = mode_data[mode_key] or mode_data.n
-                  vscode.notify("Mode: " .. data.text)
-                end
-                
-                vim.api.nvim_create_autocmd("ModeChanged", {
-                  pattern = "*",
-                  callback = update_mode_display
-                })
-                
-                update_mode_display()
-                vim.g.vscode_features_initialized = true
-              end
-            end, 200)
-          else
-            debug_log("VSCode module still not available after UIEnter", vim.log.levels.ERROR)
-          end
-        end
-      })
-    end
-  end
+  log("Starting initialization sequence")
   
   -- Basic initialization - works even if subsequent steps fail
-  debug_log("Setting up lazy.nvim")
   setup_lazy()
-  
-  debug_log("Setting up leader key")
   setup_leader()
-  
-  debug_log("Setting up common settings")
   setup_common_settings()
-  
-  debug_log("Setting up VSCode integration")
   setup_vscode_integration()
   
-  -- Try to load plugins (may fail if modules aren't available)
-  debug_log("Attempting to set up plugins")
-  pcall(setup_plugins)
+  -- Setup direct VSCode features
+  if vim.g.vscode then
+    setup_direct_vscode_features()
+  end
   
-  debug_log("Initialization complete")
+  log("Initialization complete")
 end
 
--- Override Neovim's buffer-related commands to check for valid buffers
+-- Notify when entering buffers
 vim.api.nvim_create_autocmd("BufEnter", {
   callback = function()
     local bufnr = vim.api.nvim_get_current_buf()
-    if not is_valid_buffer(bufnr) then
-      vim.notify("Ignoring ephemeral buffer: " .. tostring(bufnr), vim.log.levels.WARN)
-      return
-    end
-  end,
+    local bufname = vim.api.nvim_buf_get_name(bufnr)
+    log("Entered buffer: " .. bufnr .. " - " .. (bufname ~= "" and bufname or "[No Name]"))
+  end
 })
+
+-- Add a fallback mode display
+vim.api.nvim_create_autocmd("ModeChanged", {
+  pattern = "*",
+  callback = function()
+    local mode = vim.api.nvim_get_mode().mode
+    local mode_text = "Mode: " .. ({
+      n = "NORMAL",
+      i = "INSERT",
+      v = "VISUAL",
+      V = "V-LINE",
+      ["\22"] = "V-BLOCK",
+      c = "COMMAND",
+      t = "TERMINAL",
+    })[mode:sub(1,1)] or "NORMAL"
+    
+    log("Mode changed: " .. mode_text .. " [fallback display]")
+  end
+})
+
+-- Check VSCode module periodically
+vim.defer_fn(function()
+  local vscode_ok, vscode = pcall(require, "vscode")
+  log("Checking VSCode module (delayed): " .. (vscode_ok and "AVAILABLE" or "NOT AVAILABLE"))
+  
+  if vscode_ok then
+    log("VSCode module methods:")
+    for k, v in pairs(vscode) do
+      log("  - " .. k .. " (" .. type(v) .. ")")
+    end
+  end
+end, 2000)
 
 -- Run initialization
 init()
+
+-- Final instructions to help user
+log("\nVSCode Neovim initialization completed. If you don't see the which-key popup or mode display, please:")
+log("1. Check the log file at: " .. log_path)
+log("2. Ensure the vscode-neovim extension is properly installed")
+log("3. Try restarting VSCode with a simple init file like this one")

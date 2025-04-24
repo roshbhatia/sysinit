@@ -9,7 +9,7 @@ let
                  else inputs.self;
       resolvedPath = if lib.strings.hasPrefix "/" path
                     then path
-                    else toString (flakeRoot + "/${path}");
+                    else toString (flakeRoot + "/${path}");     
       pathExists = builtins.pathExists resolvedPath;
     in
       if pathExists
