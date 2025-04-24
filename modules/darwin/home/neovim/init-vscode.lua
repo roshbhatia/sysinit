@@ -529,24 +529,21 @@ function setup_vscode_with_module(vscode)
     end, { noremap = true, silent = true, expr = true })
   end
   
-  -- Setup jumpy keybindings
-  log("Setting up Jumpy extension mappings")
-  
-  vim.keymap.set("n", "<leader>hw", function()
-    log("Executing Jumpy Word Mode")
-    local ok, err = pcall(vscode.action, "extension.jumpy-word")
-    if not ok then
-      log("ERROR executing Jumpy Word Mode: " .. tostring(err))
+  -- Create direct key mappings for submenu entries
+  for prefix, group in pairs(keybinding_groups) do
+    if group.subcommands then
+      for key, subcmd in pairs(group.subcommands) do
+        local full_key = "<leader>" .. prefix .. key
+        log("Setting up direct subcommand keybinding: " .. full_key .. " -> " .. subcmd.action)
+        
+        vim.keymap.set("n", full_key, function()
+          log("Executing direct subcommand: " .. subcmd.action)
+          pcall(vscode.action, subcmd.action)
+          return true
+        end, { noremap = true, silent = true, expr = true, desc = subcmd.name })
+      end
     end
-  end, { noremap = true, silent = true, desc = "Jumpy Word Mode" })
-  
-  vim.keymap.set("n", "<leader>hl", function()
-    log("Executing Jumpy Line Mode")
-    local ok, err = pcall(vscode.action, "extension.jumpy-line")
-    if not ok then
-      log("ERROR executing Jumpy Line Mode: " .. tostring(err))
-    end
-  end, { noremap = true, silent = true, desc = "Jumpy Line Mode" })
+  end
   
   -- Replace f/F with Jumpy for character navigation
   vim.keymap.set({"n", "v", "o"}, "f", function()
@@ -613,6 +610,15 @@ function setup_vscode_with_module(vscode)
       const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
       statusBar.text = args.text;
       statusBar.color = args.color;
+      
+      // Make the status bar clickable to toggle mode
+      statusBar.command = {
+        title: 'Toggle Neovim Mode',
+        command: 'vscode-neovim.send',
+        arguments: [args.mode === 'n' ? 'i' : '<Esc>']
+      };
+      
+      statusBar.tooltip = "Click to toggle between Normal and Insert mode";
       statusBar.show();
       globalThis.modeStatusBar = statusBar;
     ]]
@@ -621,7 +627,8 @@ function setup_vscode_with_module(vscode)
       timeout = 2000,
       args = {
         text = mode_text,
-        color = mode_data.color
+        color = mode_data.color,
+        mode = mode_key
       }
     })
     
