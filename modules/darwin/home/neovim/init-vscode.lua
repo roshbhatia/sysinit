@@ -234,6 +234,22 @@ function setup_vscode_with_module(vscode)
   -- Use the module we created earlier
   local which_key_state = require("which-key-state")
   
+  -- Hide the which-key menu - define this function first so it's available to use
+  local function hide_which_key_menu()
+    log("Hiding which-key menu")
+    
+    local js_code = [[
+      if (globalThis.whichKeyQuickPick) {
+        globalThis.whichKeyQuickPick.hide();
+        globalThis.whichKeyQuickPick.dispose();
+        globalThis.whichKeyQuickPick = undefined;
+      }
+    ]]
+    
+    pcall(vscode.eval, js_code, { timeout = 1000 })
+    which_key_state.active_group = nil
+  end
+  
   -- QuickPick interface for which-key-like functionality
   local function show_which_key_menu()
     log("Showing which-key menu")
@@ -480,22 +496,6 @@ function setup_vscode_with_module(vscode)
     else
       log("SUCCESS: Showed submenu for " .. prefix)
     end
-  end
-  
-  -- Hide the which-key menu
-  local function hide_which_key_menu()
-    log("Hiding which-key menu")
-    
-    local js_code = [[
-      if (globalThis.whichKeyQuickPick) {
-        globalThis.whichKeyQuickPick.hide();
-        globalThis.whichKeyQuickPick.dispose();
-        globalThis.whichKeyQuickPick = undefined;
-      }
-    ]]
-    
-    pcall(vscode.eval, js_code, { timeout = 1000 })
-    which_key_state.active_group = nil
   end
   
   -- Setup the which-key menu activation with leader key
