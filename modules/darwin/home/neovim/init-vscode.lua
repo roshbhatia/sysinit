@@ -412,33 +412,60 @@ local function setup_vscode_features()
         quickPick.title = args.title;
         quickPick.placeholder = args.placeholder;
         
-        -- Keep track of the last active item to prevent multiple executions
         let lastActiveItem = null;
+        let autoExecuteTimer = null;
+        const TIMEOUT_MS = 500;  // Timeout in milliseconds
         
-        quickPick.onDidChangeActive(async (items) => {
+        // Filter items based on input
+        quickPick.onDidChangeValue((value) => {
+          if (autoExecuteTimer) {
+            clearTimeout(autoExecuteTimer);
+          }
+          
+          // Get filtered items that match the input
+          const matchingItems = quickPick.items.filter(item => 
+            item.label.toLowerCase().startsWith(value.toLowerCase())
+          );
+          
+          // If we have exactly one match and it's a leaf node
+          if (matchingItems.length === 1 && !matchingItems[0].isGroup) {
+            autoExecuteTimer = setTimeout(async () => {
+              const item = matchingItems[0];
+              if (item.action) {
+                await vscode.commands.executeCommand(item.action);
+                quickPick.hide();
+                quickPick.dispose();
+              }
+            }, TIMEOUT_MS);
+          }
+        });
+        
+        quickPick.onDidChangeActive((items) => {
           const active = items[0];
           if (!active || active === lastActiveItem) return;
           lastActiveItem = active;
           
-          -- Auto-execute for leaf nodes (non-groups)
+          // Auto-execute for leaf nodes (non-groups)
           if (active.action && !active.isGroup) {
-            await vscode.commands.executeCommand(active.action);
-            quickPick.hide();
-            quickPick.dispose();
+            vscode.commands.executeCommand(active.action).then(() => {
+              quickPick.hide();
+              quickPick.dispose();
+            });
           }
         });
         
-        -- Handle explicit selection with Enter key
         quickPick.onDidAccept(async () => {
+          if (autoExecuteTimer) {
+            clearTimeout(autoExecuteTimer);
+          }
+          
           const selected = quickPick.selectedItems[0];
           if (!selected) return;
           
-          -- If it's a group item, keep the menu open
           if (selected.isGroup) {
             return;
           }
-          
-          -- Execute and close for non-group items
+
           if (selected.action) {
             await vscode.commands.executeCommand(selected.action);
           }
@@ -447,6 +474,9 @@ local function setup_vscode_features()
         });
         
         quickPick.onDidHide(() => {
+          if (autoExecuteTimer) {
+            clearTimeout(autoExecuteTimer);
+          }
           quickPick.dispose();
         });
         
