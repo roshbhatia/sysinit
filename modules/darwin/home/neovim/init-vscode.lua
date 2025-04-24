@@ -1,21 +1,3 @@
-local function setup_lazy()
-  local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-  if not vim.loop.fs_stat(lazypath) then
-    vim.fn.system({
-      "git", "clone", "--filter=blob:none",
-      "https://github.com/folke/lazy.nvim.git",
-      "--branch=stable", lazypath,
-    })
-  end
-  vim.opt.rtp:prepend(lazypath)
-
-  -- Add lua directory to runtime path
-  local init_dir = vim.fn.fnamemodify(vim.fn.expand("$MYVIMRC"), ":p:h")
-  local lua_dir = init_dir .. "/lua"
-  vim.opt.rtp:prepend(lua_dir)
-end
-
--- Basic leader setup
 local function setup_leader()
   vim.g.mapleader = " "
   vim.g.maplocalleader = " "
@@ -61,44 +43,6 @@ local function setup_vscode_integration()
   vim.notify("VSCode Neovim integration detected", vim.log.levels.INFO)
 end
 
--- Initialize module loader and setup plugins
-local function setup_plugins()
-  local ok, module_loader = pcall(require, "core.module_loader")
-  if not ok then
-    vim.notify("Failed to load core.module_loader: " .. tostring(module_loader), vim.log.levels.ERROR)
-    return
-  end
-
-  -- Define module system
-  local module_system = {
-    editor = {},
-    ui = { "alpha" },
-    tools = { "hop" },
-  }
-
-  -- Collect plugin specs, including VSCode-Neovim bridge
-  local function collect_plugin_specs()
-    local specs = module_loader.get_plugin_specs(module_system)
-    -- Ensure the VSCode-Neovim plugin is loaded when in VSCode
-    table.insert(specs, {
-      "vscode-neovim/vscode-neovim",
-      -- Load the VSCode-Neovim bridge after the UI attaches to avoid premature RPC calls
-      cond = function() return vim.g.vscode == true end,
-      event = "UIEnter",
-    })
-    return specs
-  end
-
-  local lazy_ok, lazy = pcall(require, "lazy")
-  if not lazy_ok then
-    vim.notify("Failed to load lazy.nvim: " .. tostring(lazy), vim.log.levels.ERROR)
-    return
-  end
-
-  lazy.setup(collect_plugin_specs())
-  module_loader.setup_modules(module_system)
-end
-
 -- Setup VSCode-specific keybindings and features
 local function setup_vscode_features()
   if not vim.g.vscode then return end
@@ -107,56 +51,6 @@ local function setup_vscode_features()
   if not vscode_ok then
     vim.notify("Failed to load vscode module: " .. tostring(vscode), vim.log.levels.ERROR)
     return
-  end
-
-  -- =============================================
-  -- Hop.nvim Integration
-  -- =============================================
-  local hop_ok, hop = pcall(require, "hop")
-  if hop_ok then
-    local directions = require('hop.hint').HintDirection
-    
-    hop.setup({
-      keys = 'etovxqpdygfblzhckisuran'
-    })
-
-    -- Define hop highlight groups for VSCode
-    vim.api.nvim_set_hl(0, 'HopNextKey', { fg = '#ff007c', bold = true })
-    vim.api.nvim_set_hl(0, 'HopNextKey1', { fg = '#00dfff', bold = true })
-    vim.api.nvim_set_hl(0, 'HopNextKey2', { fg = '#2b8db3' })
-    vim.api.nvim_set_hl(0, 'HopUnmatched', { fg = '#666666' })
-    
-    -- Character motions
-    vim.keymap.set({"n","v","o"}, "f", function()
-      hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = true })
-    end, { desc = "Hop Forward to Char" })
-    
-    vim.keymap.set({"n","v","o"}, "F", function()
-      hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true })
-    end, { desc = "Hop Backward to Char" })
-    
-    vim.keymap.set({"n","v","o"}, "t", function()
-      hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = true, hint_offset = -1 })
-    end, { desc = "Hop Forward Till Char" })
-    
-    vim.keymap.set({"n","v","o"}, "T", function()
-      hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true, hint_offset = 1 })
-    end, { desc = "Hop Backward Till Char" })
-    
-    -- Leader based motions
-    vim.keymap.set("n", "<leader>hw", function()
-      hop.hint_words()
-    end, { desc = "Hop to Word" })
-    
-    vim.keymap.set("n", "<leader>hl", function()
-      hop.hint_lines()
-    end, { desc = "Hop to Line" })
-    
-    vim.keymap.set("n", "<leader>ha", function()
-      hop.hint_anywhere()
-    end, { desc = "Hop Anywhere" })
-  else
-    vim.notify("Hop.nvim is not installed or failed to load", vim.log.levels.WARN)
   end
 
   -- =============================================
@@ -724,7 +618,6 @@ local function init()
   end
   
   -- Basic initialization - works even if subsequent steps fail
-  setup_lazy()
   setup_leader()
   setup_common_settings()
   setup_vscode_integration()
