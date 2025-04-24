@@ -15,6 +15,18 @@ end
 log("==================== VSCode Neovim Init ====================")
 log("Beginning VSCode Neovim initialization")
 
+-- Create a proper which-key-state module to avoid "module not found" errors
+do
+  -- Create the module
+  local state_module = {
+    active_group = nil,
+    quickpick = nil
+  }
+  
+  -- Register as a module
+  package.loaded["which-key-state"] = state_module
+end
+
 local function setup_lazy()
   local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
   if not vim.loop.fs_stat(lazypath) then
@@ -219,20 +231,15 @@ function setup_vscode_with_module(vscode)
     end
   end
   
-  -- Global which-key state
-  local which_key_state = {
-    active_group = nil,
-    quickpick = nil
-  }
+  -- Use the module we created earlier
+  local which_key_state = require("which-key-state")
   
   -- QuickPick interface for which-key-like functionality
   local function show_which_key_menu()
     log("Showing which-key menu")
     
     -- Hide any existing quickpick
-    if which_key_state.quickpick then
-      hide_which_key_menu()
-    end
+    hide_which_key_menu()
     
     -- Prepare items for the quickpick
     local items = {}
@@ -346,9 +353,7 @@ function setup_vscode_with_module(vscode)
     which_key_state.active_group = prefix
     
     -- Hide any existing quickpick
-    if which_key_state.quickpick then
-      hide_which_key_menu()
-    end
+    hide_which_key_menu()
     
     -- Prepare submenu items
     local items = {}
@@ -492,9 +497,6 @@ function setup_vscode_with_module(vscode)
     pcall(vscode.eval, js_code, { timeout = 1000 })
     which_key_state.active_group = nil
   end
-  
-  -- Store the which-key state for access from JavaScript
-  _G["which-key-state"] = which_key_state
   
   -- Setup the which-key menu activation with leader key
   vim.keymap.set("n", "<leader>", function()
@@ -657,6 +659,7 @@ function setup_vscode_with_module(vscode)
     1. Interactive leader menu with submenus - press <leader> to access
     2. Jumpy integration for navigation - use <leader>h for jumpy commands
     3. All keybindings are still directly accessible (<leader>xy)
+    4. Clickable mode indicator to toggle between modes
     
     Make sure you have the Jumpy extension installed from the VS Code marketplace.
   ]], vim.log.levels.INFO)
@@ -681,15 +684,6 @@ local function init()
   
   log("Initialization complete")
 end
-
--- Notify when entering buffers
-vim.api.nvim_create_autocmd("BufEnter", {
-  callback = function()
-    local bufnr = vim.api.nvim_get_current_buf()
-    local bufname = vim.api.nvim_buf_get_name(bufnr)
-    log("Entered buffer: " .. bufnr .. " - " .. (bufname ~= "" and bufname or "[No Name]"))
-  end
-})
 
 -- Run initialization
 init()
