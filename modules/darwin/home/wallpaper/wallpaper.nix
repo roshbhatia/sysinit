@@ -24,7 +24,7 @@ let
         # Verify wallpaper exists before attempting to use it
         _ = resolvePath path;
       in path
-    else ./images/bladerunner0.png;
+    else ./images/bladerunner.jpg;
     
   # Get the fully resolved wallpaper path
   resolvedWallpaperPath = resolvePath wallpaperPath;
