@@ -192,7 +192,7 @@ local function setup_vscode_features()
   -- Define keybinding groups for which-key style menu
   local keybindings = {
     f = {
-      name = "🔍 Find",
+      name = "󰀶 Find",
       bindings = {
         { key = "f", description = "Find Files",    action = "search-preview.quickOpenWithPreview" },
         { key = "g", description = "Find in Files", action = "workbench.action.findInFiles" },
@@ -202,7 +202,7 @@ local function setup_vscode_features()
       },
     },
     w = {
-      name = "🪟 Window",
+      name = "󱂬 Window",
       bindings = {
         { key = "h", description = "Focus Left",   action = "workbench.action.focusLeftGroup" },
         { key = "j", description = "Focus Down",   action = "workbench.action.focusBelowGroup" },
@@ -219,7 +219,7 @@ local function setup_vscode_features()
       },
     },
     u = {
-      name = "⚙️ UI",
+      name = " UI",
       bindings = {
         { key = "a", description = "Activity Bar", action = "workbench.action.toggleActivityBarVisibility" },
         { key = "s", description = "Status Bar",   action = "workbench.action.toggleStatusbarVisibility" },
@@ -230,7 +230,7 @@ local function setup_vscode_features()
       },
     },
     b = {
-      name = "📝 Buffer",
+      name = " Buffer",
       bindings = {
         { key = "n", description = "Next Buffer",     action = "workbench.action.nextEditor" },
         { key = "p", description = "Previous Buffer", action = "workbench.action.previousEditor" },
@@ -239,7 +239,7 @@ local function setup_vscode_features()
       },
     },
     g = {
-      name = "🔄 Git",
+      name = " Git",
       bindings = {
         { key = "s", description = "Stage Changes",           action = "git.stage" },
         { key = "S", description = "Stage All",              action = "git.stageAll" },
@@ -265,7 +265,7 @@ local function setup_vscode_features()
       },
     },
     c = {
-      name = "💻 Code",
+      name = "󰘧 Code",
       bindings = {
         { key = "a", description = "Quick Fix",            action = "editor.action.quickFix" },
         { key = "r", description = "Rename Symbol",        action = "editor.action.rename" },
@@ -279,7 +279,7 @@ local function setup_vscode_features()
       },
     },
     t = {
-      name = "🔧 Toggle",
+      name = "󰨚 Toggle",
       bindings = {
         { key = "e", description = "Explorer",         action = "workbench.view.explorer" },
         { key = "t", description = "Terminal",         action = "workbench.action.terminal.toggleTerminal" },
@@ -291,7 +291,7 @@ local function setup_vscode_features()
       },
     },
     a = {
-      name = "🤖 AI",
+      name = "󱚟 AI",
       bindings = {
         { key = "c", description = "Start Chat",      action = "workbench.action.chat.open" },
         { key = "i", description = "Inline Chat",     action = "inlineChat.start" },
@@ -302,7 +302,7 @@ local function setup_vscode_features()
       },
     },
     s = {
-      name = "✂️ Stage/Split",
+      name = "󰓩 Stage/Split",
       bindings = {
         { key = "s", description = "Stage Hunk",       action = "git.diff.stageHunk" },
         { key = "S", description = "Stage Selection",  action = "git.diff.stageSelection" },
@@ -457,6 +457,7 @@ local function setup_vscode_features()
           description = binding.description,
           action = binding.action,
           key = binding.key,
+          isGroup = false  -- Explicitly mark as non-group item
         })
       end
       return items
@@ -481,7 +482,7 @@ local function setup_vscode_features()
         table.insert(items, {
           label = key,
           description = group.name,
-          isGroup = true,
+          isGroup = true,  -- Explicitly mark as group
           key = key,
         })
         for _, binding in ipairs(group.bindings) do
