@@ -65,10 +65,10 @@ M.plugins = {
           "golangci_lint_ls",
           
           -- Python
-          "russ",
+          "pyright",
           
           -- JS/TS
-          "ts_ls",
+          "tsserver",
 
           -- Shell
           "bashls",
@@ -88,7 +88,7 @@ M.plugins = {
           "terraformls",
           
           -- Helm
-          "helm-ls",
+          "helm_ls",
         }
         local to_install = {}
         if mlsp.get_available_servers then
