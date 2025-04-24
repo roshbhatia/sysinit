@@ -125,80 +125,200 @@ function setup_vscode_with_module(vscode)
   log("Setting up which-key style menu")
   
   local keybinding_groups = {
-    { key = "f", name = "Find", action = "workbench.action.quickOpen" },
-    { key = "g", name = "Git", action = "workbench.view.scm" },
-    { key = "e", name = "Explorer", action = "workbench.view.explorer" },
-    { key = "t", name = "Terminal", action = "workbench.action.terminal.toggleTerminal" },
-    { key = "c", name = "Code", action = "editor.action.quickFix" },
-    { key = "w", name = "Window", action = "workbench.action.focusFirstEditorGroup" },
+    { key = "f", name = "🔍 Find", action = "workbench.action.quickOpen", 
+      subcommands = {
+        { key = "f", name = "Find Files", action = "search-preview.quickOpenWithPreview" },
+        { key = "g", name = "Find in Files", action = "workbench.action.findInFiles" },
+        { key = "b", name = "Find Buffers", action = "workbench.action.showAllEditors" },
+        { key = "s", name = "Find Symbols", action = "workbench.action.showAllSymbols" },
+        { key = "r", name = "Recent Files", action = "workbench.action.openRecent" },
+      }
+    },
+    { key = "h", name = "🦘 Jumpy", action = "extension.jumpy-word",
+      subcommands = {
+        { key = "w", name = "Jumpy Word Mode", action = "extension.jumpy-word" },
+        { key = "l", name = "Jumpy Line Mode", action = "extension.jumpy-line" },
+      }
+    },
+    { key = "g", name = "🔄 Git", action = "workbench.view.scm",
+      subcommands = {
+        { key = "s", name = "Stage Changes", action = "git.stage" },
+        { key = "u", name = "Unstage Changes", action = "git.unstage" },
+        { key = "c", name = "Commit", action = "git.commit" },
+        { key = "p", name = "Push", action = "git.push" },
+        { key = "P", name = "Pull", action = "git.pull" },
+      }
+    },
+    { key = "c", name = "💻 Code", action = "editor.action.quickFix",
+      subcommands = {
+        { key = "a", name = "Quick Fix", action = "editor.action.quickFix" },
+        { key = "r", name = "Rename Symbol", action = "editor.action.rename" },
+        { key = "f", name = "Format Document", action = "editor.action.formatDocument" },
+        { key = "d", name = "Go to Definition", action = "editor.action.revealDefinition" },
+        { key = "i", name = "Go to Implementation", action = "editor.action.goToImplementation" },
+      }
+    },
+    { key = "w", name = "🪟 Window", action = "workbench.action.focusFirstEditorGroup",
+      subcommands = {
+        { key = "h", name = "Focus Left", action = "workbench.action.focusLeftGroup" },
+        { key = "j", name = "Focus Down", action = "workbench.action.focusBelowGroup" },
+        { key = "k", name = "Focus Up", action = "workbench.action.focusAboveGroup" },
+        { key = "l", name = "Focus Right", action = "workbench.action.focusRightGroup" },
+        { key = "=", name = "Equal Width", action = "workbench.action.evenEditorWidths" },
+      }
+    },
+    { key = "t", name = "🔧 Toggle", action = "workbench.action.terminal.toggleTerminal",
+      subcommands = {
+        { key = "e", name = "Explorer", action = "workbench.view.explorer" },
+        { key = "t", name = "Terminal", action = "workbench.action.terminal.toggleTerminal" },
+        { key = "p", name = "Problems", action = "workbench.actions.view.problems" },
+        { key = "m", name = "Command Palette", action = "workbench.action.showCommands" },
+      }
+    },
   }
+  
+  -- Setup submenu mappings for direct keybindings
+  for _, group in ipairs(keybinding_groups) do
+    if group.subcommands then
+      local prefix = "<leader>" .. group.key
+      for _, subcmd in ipairs(group.subcommands) do
+        local key = prefix .. subcmd.key
+        log("Setting up keybinding: " .. key .. " -> " .. subcmd.action)
+        
+        vim.keymap.set("n", key, function()
+          log("Executing action: " .. subcmd.action)
+          local ok, err = pcall(vscode.action, subcmd.action)
+          if not ok then
+            log("ERROR executing action: " .. tostring(err))
+          end
+        end, { noremap = true, silent = true, desc = subcmd.name })
+      end
+    end
+  end
   
   -- Show root menu for leader key
   vim.keymap.set("n", "<leader>", function()
     log("Leader key pressed - showing menu")
     
-    -- Create QuickPick menu in VSCode
+    -- Create QuickPick menu with hierarchical submenus
     local js_code = [[
-      if (globalThis.quickPick) { globalThis.quickPick.dispose(); }
-      const quickPick = vscode.window.createQuickPick();
-      quickPick.items = args.items.map(item => ({
-        label: item.key,
-        description: item.name,
-        action: item.action,
-      }));
-      quickPick.title = "VSCode Commands";
-      quickPick.placeholder = "Select a command category";
-      quickPick.onDidAccept(() => {
-        const selected = quickPick.selectedItems[0];
-        if (selected && selected.action) {
-          vscode.commands.executeCommand(selected.action);
+      // Function to create and show the quickpick menu
+      function createWhichKeyMenu(items, title, placeholder, isRoot = true) {
+        // Dispose any existing quickpick
+        if (globalThis.whichKeyMenu) {
+          globalThis.whichKeyMenu.dispose();
+          globalThis.whichKeyMenu = undefined;
         }
-        quickPick.hide();
-      });
-      quickPick.onDidHide(() => {
-        quickPick.dispose();
-        globalThis.quickPick = undefined;
-      });
-      globalThis.quickPick = quickPick;
-      quickPick.show();
+        
+        // Create new quickpick
+        const quickPick = vscode.window.createQuickPick();
+        
+        // Format items differently for root vs submenu
+        quickPick.items = items.map(item => {
+          return {
+            label: isRoot ? `$(chevron-right) ${item.key}: ${item.name}` : `${item.key}: ${item.name}`,
+            description: item.name,
+            detail: isRoot ? "Press to see subcommands" : "Press to execute",
+            action: item.action,
+            subcommands: item.subcommands,
+            key: item.key,
+            alwaysShow: true
+          };
+        });
+        
+        quickPick.title = title;
+        quickPick.placeholder = placeholder;
+        
+        // Handle selection
+        quickPick.onDidAccept(() => {
+          const selected = quickPick.selectedItems[0];
+          if (!selected) return;
+          
+          if (selected.subcommands && isRoot) {
+            // Show submenu
+            quickPick.hide();
+            const subTitle = selected.description || 'Commands';
+            createWhichKeyMenu(
+              selected.subcommands,
+              `${subTitle} Commands`,
+              `Select a command or press Escape to return`,
+              false // not root menu
+            );
+          } else if (selected.action) {
+            // Execute action
+            vscode.commands.executeCommand(selected.action);
+            quickPick.hide();
+          }
+        });
+        
+        // Handle hiding
+        quickPick.onDidHide(() => {
+          quickPick.dispose();
+          if (isRoot) {
+            globalThis.whichKeyMenu = undefined;
+          }
+        });
+        
+        if (isRoot) {
+          globalThis.whichKeyMenu = quickPick;
+        }
+        
+        quickPick.show();
+      }
+      
+      // Show the root menu
+      createWhichKeyMenu(
+        args.groups,
+        "Neovim Which Key",
+        "Select a category"
+      );
     ]]
     
     local eval_ok, eval_err = pcall(vscode.eval, js_code, {
       timeout = 3000,
-      args = { items = keybinding_groups }
+      args = { groups = keybinding_groups }
     })
     
     if not eval_ok then
-      log("ERROR: Failed to show quickpick menu: " .. tostring(eval_err))
+      log("ERROR: Failed to show which-key menu: " .. tostring(eval_err))
     else
-      log("SUCCESS: Showed quickpick menu")
+      log("SUCCESS: Showed which-key menu")
     end
   end, { noremap = true, silent = true })
   
-  -- Setup direct keybindings for common actions
-  log("Setting up common keybindings")
+  -- Setup jumpy keybindings
+  log("Setting up Jumpy extension mappings")
+  
+  vim.keymap.set("n", "<leader>hw", function()
+    log("Executing Jumpy Word Mode")
+    local ok, err = pcall(vscode.action, "extension.jumpy-word")
+    if not ok then
+      log("ERROR executing Jumpy Word Mode: " .. tostring(err))
+    end
+  end, { noremap = true, silent = true, desc = "Jumpy Word Mode" })
+  
+  vim.keymap.set("n", "<leader>hl", function()
+    log("Executing Jumpy Line Mode")
+    local ok, err = pcall(vscode.action, "extension.jumpy-line")
+    if not ok then
+      log("ERROR executing Jumpy Line Mode: " .. tostring(err))
+    end
+  end, { noremap = true, silent = true, desc = "Jumpy Line Mode" })
+  
+  -- Replace f/F with Jumpy for character navigation
+  vim.keymap.set({"n", "v", "o"}, "f", function()
+    log("Executing Jumpy Word Mode (f key)")
+    local ok, err = pcall(vscode.action, "extension.jumpy-word")
+    if not ok then
+      log("ERROR executing Jumpy Word Mode: " .. tostring(err))
+    end
+  end, { noremap = true, silent = true, desc = "Jumpy Word Mode" })
+  
+  -- Setup basic window navigation
+  log("Setting up window navigation keybindings")
   
   local opts = { noremap = true, silent = true }
   
-  -- Find files
-  vim.keymap.set("n", "<leader>f", function()
-    log("Executing: Find Files")
-    pcall(vscode.action, "workbench.action.quickOpen")
-  end, opts)
-  
-  -- Explorer
-  vim.keymap.set("n", "<leader>e", function()
-    log("Executing: Explorer")
-    pcall(vscode.action, "workbench.view.explorer")
-  end, opts)
-  
-  -- Terminal
-  vim.keymap.set("n", "<leader>t", function()
-    log("Executing: Terminal")
-    pcall(vscode.action, "workbench.action.terminal.toggleTerminal")
-  end, opts)
-  
-  -- Window navigation
   vim.keymap.set("n", "<C-h>", function() 
     log("Executing: Focus Left Group")
     pcall(vscode.action, "workbench.action.focusLeftGroup") 
@@ -280,6 +400,15 @@ function setup_vscode_with_module(vscode)
   update_mode_display()
   log("Mode display configured")
   
+  -- Notify user about Jumpy
+  vim.notify([[
+    VSCode-Neovim is configured to use Jumpy extension.
+    Make sure you have it installed from the VS Code marketplace:
+    https://marketplace.visualstudio.com/items?itemName=wmaurer.vscode-jumpy
+    
+    Use <leader>h for Jumpy commands.
+  ]], vim.log.levels.INFO)
+  
   log("VSCode features setup complete")
 end
 
@@ -349,4 +478,5 @@ init()
 log("\nVSCode Neovim initialization completed. If you don't see the which-key popup or mode display, please:")
 log("1. Check the log file at: " .. log_path)
 log("2. Ensure the vscode-neovim extension is properly installed")
-log("3. Try restarting VSCode with a simple init file like this one")
+log("3. Ensure Jumpy extension is installed for the jump functionality")
+log("4. Try restarting VSCode")
