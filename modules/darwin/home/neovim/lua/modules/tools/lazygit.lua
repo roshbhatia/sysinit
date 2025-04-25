@@ -13,8 +13,8 @@ M.plugins = {
       vim.g.lazygit_floating_window_scaling_factor = 0.9
       vim.g.lazygit_floating_window_border_chars = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }
       vim.g.lazygit_floating_window_use_plenary = 0
-      -- Use neovim-remote for commit messages if available
-      vim.g.lazygit_use_neovim_remote = 1
+      -- Use neovim-remote for commit messages if available, but disable in headless mode
+      vim.g.lazygit_use_neovim_remote = vim.v.headless and 0 or 1
 
       -- Which-key mappings for LazyGit
       local wk = require("which-key")
