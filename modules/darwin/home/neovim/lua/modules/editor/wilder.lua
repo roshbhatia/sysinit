@@ -9,8 +9,6 @@ M.plugins = {
       "nvim-tree/nvim-web-devicons",
       "romgrk/fzy-lua-native",
       "nixprime/cpsm",
-      "roxma/nvim-yarp",
-      "roxma/vim-hug-neovim-rpc",
     },
     config = function()
       local wilder = require("wilder")
@@ -21,7 +19,7 @@ M.plugins = {
         wilder.branch(
           wilder.cmdline_pipeline({
             fuzzy = 1,
-            fuzzy_filter = wilder.lua_fzy_filter(),
+            language = "vim"
           }),
           wilder.vim_search_pipeline()
         ),
