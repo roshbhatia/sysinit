@@ -14,8 +14,8 @@ M.plugins = {
         auto_session_enable_last_session = false,
         auto_session_root_dir = vim.fn.stdpath("data") .. "/sessions/",
         auto_session_enabled = true,
-        auto_save_enabled = true,
-        auto_restore_enabled = false, -- Disable auto restore by default
+        auto_save_enabled = not vim.v.headless, -- Disable auto save in headless
+        auto_restore_enabled = not vim.v.headless, -- Disable auto restore in headless
         -- Continue restoring even if errors occur (prevent disabling auto save)
         continue_restore_on_error = true,
         auto_session_suppress_dirs = { "~/", "~/Projects", "~/Downloads", "/" },
