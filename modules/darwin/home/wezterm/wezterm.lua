@@ -128,77 +128,23 @@ config.key_tables = {
     }
 }
 
--- Enhanced powerline configuration
-local function get_appearance()
-    if wezterm.gui then
-        return wezterm.gui.get_appearance()
-    end
-    return 'Dark'
-end
-
--- Define powerline characters
-local SOLID_LEFT_ARROW = utf8.char(0xe0b2)
-local SOLID_RIGHT_ARROW = utf8.char(0xe0b0)
-
--- Function to create powerline segments for right status
-local function segments_for_right_status(window)
-    local segments = {}
-    
-    -- Get current working directory for first segment
-    local cwd = ""
-    local success, cwd_uri = pcall(window.active_pane.get_current_working_dir, window:active_pane())
-    if success then
-        cwd = cwd_uri.file_path:gsub(os.getenv("HOME"), "~")
-        if cwd ~= "~" then
-            local parts = {}
-            for part in cwd:gmatch("[^/]+") do
-                table.insert(parts, part)
-            end
-            if #parts > 0 then
-                cwd = parts[#parts]
-            end
-        end
-    end
-    
-    -- Add directory segment
-    if cwd ~= "" then
-        table.insert(segments, { text = "󰉋 " .. cwd, foreground = "#bd93f9", background = "#282c34" })
-    end
-    
-    -- Add hostname segment
-    table.insert(segments, { text = wezterm.hostname(), foreground = "#8be9fd", background = "#3b4048" })
-    
-    return segments
-end
-
--- Update status event
+-- Simplified right status with Catppuccin Mocha colors and Nerd Font symbols
 wezterm.on('update-status', function(window, _)
-    local segments = segments_for_right_status(window)
-    local elements = {}
-    
-    -- Build the right status elements with powerline separators
-    for i, segment in ipairs(segments) do
-        local is_last = i == #segments
-        
-        if i > 1 then
-            table.insert(elements, {Foreground = {Color = segment.background}})
-            table.insert(elements, {Background = {Color = segments[i-1].background}})
-            table.insert(elements, {Text = SOLID_LEFT_ARROW})
-        end
-        
-        table.insert(elements, {Foreground = {Color = segment.foreground}})
-        table.insert(elements, {Background = {Color = segment.background}})
-        table.insert(elements, {Text = " " .. segment.text .. " "})
-        
-        if is_last then
-            table.insert(elements, {Foreground = {Color = "background"}})
-            table.insert(elements, {Background = {Color = segment.background}})
-            table.insert(elements, {Text = SOLID_LEFT_ARROW})
-        end
-    end
-    
+    local cwd = window:active_pane():get_current_working_dir()
+    local hostname = wezterm.hostname()
+    local kube_context = os.getenv("KUBECONFIG") or "default" -- Replace with actual kube context retrieval if needed
+
+    local cwd_display = cwd and cwd:gsub('file://[^/]+', ''):gsub(os.getenv('HOME'), '~') or '~'
+
+    local elements = {
+        { Foreground = { Color = "#89b4fa" }, Text = "󰉋 " .. cwd_display },
+        { Foreground = { Color = "#f5c2e7" }, Text = " > " },
+        { Foreground = { Color = "#a6e3a1" }, Text = "󱄅 " .. hostname },
+        { Foreground = { Color = "#f5c2e7" }, Text = " > " },
+        { Foreground = { Color = "#f38ba8" }, Text = "󱃾 " .. kube_context },
+    }
+
     window:set_right_status(wezterm.format(elements))
-    window:set_left_status("") -- Clear left status
 end)
 
 return config
