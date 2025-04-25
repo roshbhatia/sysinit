@@ -69,16 +69,10 @@ M.plugins = {
           
           -- Shell
           "bashls",
-          
-          -- Data formats
-          "spectral",
 
           -- Markdown
           "marksman",
           "grammarly",
-          
-          -- Nix
-          "nil_ls",
           
           -- Terraform
           "tflint",
