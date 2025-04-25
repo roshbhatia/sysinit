@@ -77,9 +77,6 @@ M.plugins = {
           -- Terraform
           "tflint",
           "terraformls",
-          
-          -- Helm
-          "helm_ls",
         }
         local to_install = {}
         if mlsp.get_available_servers then
