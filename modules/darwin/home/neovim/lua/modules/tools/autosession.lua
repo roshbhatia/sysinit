@@ -107,8 +107,8 @@ M.plugins = {
           local session_restored = vim.v.event.file
           local argc = vim.fn.argc()
 
-          -- Only proceed if no session was restored and no arguments were given
-          if not session_restored and argc == 0 then
+          -- Only proceed if no session was restored, no arguments were given, and not running headlessly
+          if not session_restored and argc == 0 and not vim.v.headless then
             -- Check if the current buffer is empty and not special
             local current_buf = vim.api.nvim_get_current_buf()
             local buf_name = vim.api.nvim_buf_get_name(current_buf)
