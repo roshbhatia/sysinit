@@ -49,7 +49,7 @@ config.line_height = 1.0
 
 -- Cursor settings
 config.default_cursor_style = 'SteadyUnderline'
-config.cursor_blink_rate = 800
+config.cursor_blink_rate = 300
 
 -- Tab bar
 config.enable_tab_bar = true
