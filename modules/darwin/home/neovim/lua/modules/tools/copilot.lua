@@ -5,6 +5,7 @@ M.plugins = {
   {
     "github/copilot.vim",
     event = "VeryLazy", -- Load lazily
+    enabled = not vim.v.headless, -- Disable entirely in headless mode
     config = function()
       -- Basic settings
       vim.g.copilot_no_tab_map = true
