@@ -7,35 +7,23 @@ M.plugins = {
     event = "CmdlineEnter",
     dependencies = {
       "nvim-tree/nvim-web-devicons",
-      "romgrk/fzy-lua-native",
-      "nixprime/cpsm",
     },
     config = function()
       local wilder = require("wilder")
       wilder.setup({ modes = { ":", "/", "?" } })
 
-      -- Advanced pipeline configuration
-      wilder.set_option("pipeline", {
+      wilder.set_option('pipeline', {
         wilder.branch(
-          wilder.cmdline_pipeline({
-            fuzzy = 1,
-            language = "vim"
-          }),
-          wilder.vim_search_pipeline()
+          wilder.cmdline_pipeline(),
+          wilder.search_pipeline()
         ),
       })
-
-      -- Highlighters configuration
-      local highlighters = {
-        wilder.pcre2_highlighter(),
-        wilder.lua_fzy_highlighter(),
-      }
 
       -- Create the popupmenu renderer with palette theme
       local popupmenu_renderer = wilder.popupmenu_renderer(wilder.popupmenu_palette_theme({
         border = "rounded",
         empty_message = wilder.popupmenu_empty_message_with_spinner(),
-        highlighter = highlighters,
+        highlighter = wilder.basic_highlighter(),
         left = {
           " ",
           wilder.popupmenu_devicons(),
