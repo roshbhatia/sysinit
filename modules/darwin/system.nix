@@ -36,8 +36,8 @@
         AppleShowScrollBars = "Always";
         InitialKeyRepeat = 15;
         KeyRepeat = 2;
+        NSWindowShouldDragOnGesture = true;
       };
-      NSWindowShouldDragOnGesture = true;
       spaces = {
         spans-displays = false;
       };
