@@ -26,42 +26,97 @@
   let
     system = "aarch64-darwin";
     configValidator = import ./modules/lib/config-validator.nix { inherit nixpkgs self; };
-
-    mkDarwinConfig = { configPath ? ./config.nix }: 
-    let
-      config = configValidator configPath;
-      username = config.user.username;
-      hostname = config.user.hostname;
-      homeDirectory = "/Users/${username}";
-    in
-    darwin.lib.darwinSystem {
+    config = configValidator ./config.nix;
+    username = config.user.username;
+    hostname = config.user.hostname;
+    homeDirectory = "/Users/${username}";
+  in {
+    darwinConfigurations.${hostname} = darwin.lib.darwinSystem {
       inherit system;
       specialArgs = { 
         inherit inputs username homeDirectory;
         userConfig = config;
-        # Toggle Homebrew usage via config.homebrew.enable (default true)
         enableHomebrew = if config.homebrew ? enable then config.homebrew.enable else true;
       };
       modules = [
-        ./modules/darwin/default.nix
-        # Ensure Home Manager backs up existing files instead of erroring
-        { home-manager.backupFileExtension = "backup"; }
-        { 
+        ./modules/darwin/system.nix
+        ./modules/darwin/homebrew.nix
+        nix-homebrew.darwinModules.nix-homebrew
+        home-manager.darwinModules.home-manager
+        {
           networking.hostName = hostname;
+          home-manager = {
+            useGlobalPkgs = true;
+            useUserPackages = true;
+            extraSpecialArgs = { 
+              inherit inputs username homeDirectory userConfig; 
+            };
+            users.${username} = { pkgs, ... }: {
+              imports = [ ./modules/darwin/home ];
+              home = {
+                inherit username homeDirectory;
+                stateVersion = "23.11";
+              };
+            };
+            backupFileExtension = "backup";
+          };
         }
       ];
     };
-  in {
-    darwinConfigurations = {
-      default = mkDarwinConfig {};
-      "${(import ./config.nix).user.hostname}" = mkDarwinConfig {};
-    };
 
+    # Keep compatibility with previous configuration
+    darwinConfigurations.default = self.darwinConfigurations.${hostname};
+
+    # Preserve the helper functions
     lib = {
-      mkConfigWithFile = configPath: mkDarwinConfig { inherit configPath; };
+      mkConfigWithFile = configPath: 
+        let
+          customConfig = configValidator configPath;
+          customUsername = customConfig.user.username;
+          customHostname = customConfig.user.hostname;
+          customHomeDirectory = "/Users/${customUsername}";
+        in
+        darwin.lib.darwinSystem {
+          inherit system;
+          specialArgs = { 
+            inherit inputs;
+            username = customUsername;
+            homeDirectory = customHomeDirectory;
+            userConfig = customConfig;
+            enableHomebrew = if customConfig.homebrew ? enable then customConfig.homebrew.enable else true;
+          };
+          modules = [
+            ./modules/darwin/system.nix
+            ./modules/darwin/homebrew.nix
+            nix-homebrew.darwinModules.nix-homebrew
+            home-manager.darwinModules.home-manager
+            {
+              networking.hostName = customHostname;
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                extraSpecialArgs = { 
+                  inherit inputs; 
+                  username = customUsername;
+                  homeDirectory = customHomeDirectory;
+                  userConfig = customConfig;
+                };
+                users.${customUsername} = { pkgs, ... }: {
+                  imports = [ ./modules/darwin/home ];
+                  home = {
+                    username = customUsername;
+                    homeDirectory = customHomeDirectory;
+                    stateVersion = "23.11";
+                  };
+                };
+                backupFileExtension = "backup";
+              };
+            }
+          ];
+        };
       defaultConfigPath = ./config.nix;
     };
 
-    packages.${system}.default = self.darwinConfigurations.default.system;
+    packages.${system}.default = self.darwinConfigurations.${hostname}.system;
   };
 }
