@@ -4,7 +4,7 @@ local M = {}
 M.plugins = {
   {
     "github/copilot.vim",
-    lazy = false,
+    event = "VeryLazy", -- Load lazily
     config = function()
       -- Basic settings
       vim.g.copilot_no_tab_map = true

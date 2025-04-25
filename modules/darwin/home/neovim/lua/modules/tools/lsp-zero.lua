@@ -5,7 +5,7 @@ M.plugins = {
   {
     "VonHeikemen/lsp-zero.nvim",
     branch = "v3.x",
-    lazy = false,
+    event = "VeryLazy", -- Load lazily
     dependencies = {
       "neovim/nvim-lspconfig",
       "williamboman/mason.nvim",
