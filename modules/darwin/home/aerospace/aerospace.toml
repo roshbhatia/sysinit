@@ -100,23 +100,23 @@ automatically-unhide-macos-hidden-apps = false
     alt-slash = 'layout tiles horizontal vertical'
     alt-comma = 'layout accordion horizontal vertical'
 
-    # Window movement (changed from alt-shift to alt-ctrl)
-    alt-ctrl-h = 'move left'
-    alt-ctrl-j = 'move down'
-    alt-ctrl-k = 'move up'
-    alt-ctrl-l = 'move right'
+    # Window movement (use alt + shift)
+    alt-shift-h = 'move left'
+    alt-shift-j = 'move down'
+    alt-shift-k = 'move up'
+    alt-shift-l = 'move right'
 
-    # Navigation (unchanged)
+    # Navigation (use alt)
     alt-h = 'focus left'
     alt-j = 'focus down'
     alt-k = 'focus up'
     alt-l = 'focus right'
 
-    # Window resizing with smart cycling for specific split ratios
-    alt-shift-h = 'exec-and-forget ~/.config/aerospace/smart-resize right'
-    alt-shift-l = 'exec-and-forget ~/.config/aerospace/smart-resize left'
-    alt-shift-j = 'exec-and-forget ~/.config/aerospace/smart-resize down'
-    alt-shift-k = 'exec-and-forget ~/.config/aerospace/smart-resize up'
+    # Window resizing with smart cycling for specific split ratios (use alt + space)
+    alt-space-h = 'exec-and-forget ~/.config/aerospace/smart-resize right'
+    alt-space-l = 'exec-and-forget ~/.config/aerospace/smart-resize left'
+    alt-space-j = 'exec-and-forget ~/.config/aerospace/smart-resize down'
+    alt-space-k = 'exec-and-forget ~/.config/aerospace/smart-resize up'
     
     # Explicitly NOT binding alt+arrow keys to preserve zsh word/line navigation
 
