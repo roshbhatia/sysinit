@@ -102,17 +102,17 @@ function {
 	done
 }
 
-# Bind CTRL + Space + HJKL keys for these actions:
-bindkey '^ h' beginning-of-line    # CTRL + Space + h for beginning of line
-bindkey '^ j' backward-word        # CTRL + Space + j for back word
-bindkey '^ k' forward-word         # CTRL + Space + k for forward word
-bindkey '^ l' end-of-line          # CTRL + Space + l for end of line
+# Bind CTRL + HJKL keys for these actions:
+bindkey '^h' beginning-of-line    # CTRL + h for beginning of line
+bindkey '^j' backward-word        # CTRL + j for back word
+bindkey '^k' forward-word         # CTRL + k for forward word
+bindkey '^l' end-of-line          # CTRL + l for end of line
 
-# Bind CTRL + Space + YUIO keys for word and line selection actions:
-bindkey '^ y' vi-select-word-forward    # CTRL + Space + y to select the current word forward
-bindkey '^ u' vi-select-word-backward   # CTRL + Space + u to select the current word backward
-bindkey '^ i' vi-select-to-line-start   # CTRL + Space + i to select from cursor to line start
-bindkey '^ o' vi-select-to-line-end     # CTRL + Space + o to select from cursor to line end
+# Bind CTRL + Shift + HJKL keys for word and line selection actions:
+bindkey '^[H' vi-select-word-forward    # CTRL + Shift + h to select the current word forward
+bindkey '^[J' vi-select-word-backward   # CTRL + Shift + j to select the current word backward
+bindkey '^[K' vi-select-to-line-start   # CTRL + Shift + k to select from cursor to line start
+bindkey '^[L' vi-select-to-line-end     # CTRL + Shift + l to select from cursor to line end
 
 # Define widgets for the new bindings
 function vi-select-word-forward() {
