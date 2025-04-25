@@ -8,9 +8,9 @@ M.plugins = {
       "lewis6991/gitsigns.nvim",
       "nvim-tree/nvim-web-devicons",
     },
-    lazy = false,
-    init = function() 
-      vim.g.barbar_auto_setup = false 
+    event = "VeryLazy", -- Load lazily instead of immediately
+    init = function()
+      vim.g.barbar_auto_setup = false
     end,
     config = function()
       require("barbar").setup({

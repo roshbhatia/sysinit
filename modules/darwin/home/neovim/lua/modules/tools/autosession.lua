@@ -100,41 +100,43 @@ M.plugins = {
       
       vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
       
-      -- Auto open Alpha when Neovim starts with no arguments
+      -- Auto open Alpha when Neovim starts with no arguments and no session is restored
       vim.api.nvim_create_autocmd("VimEnter", {
-        callback = function()
-          -- Only show Alpha when:
-          -- 1. No arguments were passed to nvim
-          -- 2. The buffer is empty
-          -- 3. It's not a directory
+        callback = function(args)
+          -- Check if a session was restored or if files/dirs were passed as arguments
+          local session_restored = vim.v.event.file
           local argc = vim.fn.argc()
-          local bufnr = vim.api.nvim_get_current_buf()
-          local bufname = vim.api.nvim_buf_get_name(bufnr)
-          local buftype = vim.bo[bufnr].ft
-          
-          if argc == 0 and bufname == "" and buftype ~= "directory" then
-            -- Check if Alpha is available before trying to open it
-            local alpha_ok, _ = pcall(require, "alpha")
-            if alpha_ok then
-              -- Only open Alpha if barbar is not loaded yet or properly initialized
-              local barbar_ok, _ = pcall(require, "barbar.state")
-              if not barbar_ok then
-                -- Close auto-session windows if they were opened
-                vim.cmd("silent! %bd")
-                -- Open Alpha
-                vim.cmd("Alpha")
-              else
-                -- If barbar is loaded, add a delay to ensure it's properly initialized
-                vim.defer_fn(function()
-                  -- Try to close existing buffers safely
-                  vim.cmd("silent! %bd")
-                  vim.cmd("Alpha")
-                end, 100)
-              end
+
+          -- Only proceed if no session was restored and no arguments were given
+          if not session_restored and argc == 0 then
+            -- Check if the current buffer is empty and not special
+            local current_buf = vim.api.nvim_get_current_buf()
+            local buf_name = vim.api.nvim_buf_get_name(current_buf)
+            local buf_ft = vim.bo[current_buf].filetype
+            local buf_type = vim.bo[current_buf].buftype
+
+            -- Ensure it's a normal, empty buffer
+            if buf_name == "" and buf_type == "" and buf_ft == "" then
+              -- Schedule Alpha to open slightly later to avoid conflicts
+              vim.schedule(function()
+                local alpha_ok, _ = pcall(require, "alpha")
+                if alpha_ok then
+                  -- Ensure we are still in the empty buffer before opening Alpha
+                  local check_buf = vim.api.nvim_get_current_buf()
+                  if vim.api.nvim_buf_get_name(check_buf) == "" then
+                    -- Close the initial empty buffer before opening Alpha
+                    vim.cmd("silent! bd!")
+                    vim.cmd("Alpha")
+                  end
+                else
+                   vim.notify("Alpha plugin not found, cannot open dashboard.", vim.log.levels.WARN)
+                end
+              end)
             end
           end
         end,
-        nested = true,
+        group = vim.api.nvim_create_augroup("AutoSessionAlphaStart", { clear = true }),
+        desc = "Open Alpha dashboard on startup if no session/file is loaded",
       })
     end
   }
