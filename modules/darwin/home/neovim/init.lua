@@ -86,7 +86,6 @@ local module_system = {
   ui = {
     "wezterm",
     "devicons",
-    "nvimtree",
     "dropbar",
     "lualine",
     "neominimap",
