@@ -49,7 +49,8 @@
             useGlobalPkgs = true;
             useUserPackages = true;
             extraSpecialArgs = { 
-              inherit inputs username homeDirectory userConfig; 
+              inherit inputs username homeDirectory; 
+              userConfig = config;
             };
             users.${username} = { pkgs, ... }: {
               imports = [ ./modules/darwin/home ];
@@ -96,8 +97,10 @@
                 useGlobalPkgs = true;
                 useUserPackages = true;
                 extraSpecialArgs = { 
-                  inherit inputs username homeDirectory; 
-                  userConfin = config;
+                  inherit inputs; 
+                  username = customUsername;
+                  homeDirectory = customHomeDirectory;
+                  userConfig = customConfig;
                 };
                 users.${customUsername} = { pkgs, ... }: {
                   imports = [ ./modules/darwin/home ];
