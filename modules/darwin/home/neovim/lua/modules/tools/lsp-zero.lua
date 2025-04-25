@@ -67,9 +67,6 @@ M.plugins = {
           -- Python
           "pyright",
           
-          -- JS/TS
-          "typescript-language-server",
-
           -- Shell
           "bashls",
           
