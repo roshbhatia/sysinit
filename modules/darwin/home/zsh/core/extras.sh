@@ -89,5 +89,5 @@ fi
 # Source secrets
 if [[ -f "$HOME/.zshsecrets" ]]; then
   [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Loading secrets" file="$HOME/.zshsecrets"
-  _cached_source "$HOME/.zshsecrets"
+  source "$HOME/.zshsecrets"
 fi
