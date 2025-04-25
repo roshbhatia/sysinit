@@ -4,7 +4,7 @@ local M = {}
 M.plugins = {
   {
     "zbirenbaum/copilot-cmp",
-    lazy = false,
+    event = "VeryLazy", -- Load lazily
     dependencies = {
       "zbirenbaum/copilot.lua",
       "hrsh7th/nvim-cmp",

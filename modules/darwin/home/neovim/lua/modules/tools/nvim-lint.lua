@@ -4,7 +4,7 @@ local M = {}
 M.plugins = {
   {
     "mfussenegger/nvim-lint",
-    lazy = false,
+    event = "VeryLazy", -- Load lazily
     dependencies = {
       "mason.nvim",
     },

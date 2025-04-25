@@ -4,7 +4,7 @@ local M = {}
 M.plugins = {
   {
     "nvim-tree/nvim-tree.lua",
-    lazy = false,
+    event = "VeryLazy", -- Load lazily
     dependencies = {
       "nvim-tree/nvim-web-devicons",
     },
