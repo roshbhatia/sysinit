@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
   {
     "mrjones2014/smart-splits.nvim",
-    lazy = false, -- Important to not lazy load for proper multiplexer integration
+    event = "VeryLazy", -- Load lazily
     config = function()
       local smart_splits = require("smart-splits")
       -- Configure smart-splits

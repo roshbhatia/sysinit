@@ -4,7 +4,7 @@ local M = {}
 M.plugins = {
   {
     "stevearc/conform.nvim",
-    lazy = false,
+    event = "VeryLazy", -- Load lazily
     dependencies = {
       "mason.nvim",
     },
