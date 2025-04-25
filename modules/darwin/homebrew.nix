@@ -39,6 +39,7 @@ let
     "fd"
     "glow"
     "gum"
+    "git-filter-repo"
     "gettext"
     "helm"
     "jandedobbeleer/oh-my-posh/oh-my-posh"
