@@ -146,7 +146,7 @@ in
       ENHANCD_ENABLE_DOUBLE_DOT = false;
       ENHANCD_ENABLE_HOME = false;
 
-      EDITOR = "code --wait";
+      EDITOR = "nvim";
       SUDO_EDITOR = "$EDITOR";
       VISUAL = "$EDITOR";
       PAGER = "bat --pager=always --color=always";
