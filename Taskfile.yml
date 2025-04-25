@@ -133,3 +133,40 @@ tasks:
         fi && \
         echo "Work configuration refreshed successfully"
     silent: true
+
+  # Neovim specific tasks (delegated)
+  nvim:run-local:
+    desc: Run Neovim with local configuration (delegated)
+    cmds:
+      - task -d modules/darwin/home/neovim run-local
+    silent: true
+
+  nvim:run-local-headless:
+    desc: Run Neovim with local configuration (headless, delegated)
+    cmds:
+      - task -d modules/darwin/home/neovim run-local-headless
+    silent: true
+
+  nvim:run-local-isolated:
+    desc: Run Neovim with local configuration (isolated, delegated)
+    cmds:
+      - task -d modules/darwin/home/neovim run-local-isolated
+    silent: true
+
+  nvim:run-local-headless-isolated:
+    desc: Run Neovim with local configuration (isolated, headless, delegated)
+    cmds:
+      - task -d modules/darwin/home/neovim run-local-headless-isolated
+    silent: true
+
+  nvim:pull-docs:
+    desc: Fetch documentation for Neovim plugins (delegated)
+    cmds:
+      - task -d modules/darwin/home/neovim pull-docs
+    silent: true
+
+  nvim:verify-vscode-actions:
+    desc: Verify VSCode actions in init-vscode.lua (delegated)
+    cmds:
+      - task -d modules/darwin/home/neovim verify-vscode-actions
+    silent: true
