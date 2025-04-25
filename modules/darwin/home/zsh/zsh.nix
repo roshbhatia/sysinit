@@ -280,8 +280,8 @@ in
       bindkey -r '\en'
       bindkey -r '\ew'
   
-      # Bind ctrl-space to accept zsh autosuggestions
-      bindkey '^ ' autosuggest-accept
+      # Bind ctrl-tab to accept zsh autosuggestions
+      bindkey '^I' autosuggest-accept
     '';
   
     initExtra = ''
