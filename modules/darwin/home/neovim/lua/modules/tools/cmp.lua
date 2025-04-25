@@ -5,6 +5,7 @@ M.plugins = {
   {
     "hrsh7th/nvim-cmp",
     lazy = false,
+    enabled = not vim.v.headless, -- Disable in headless mode
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
       "hrsh7th/cmp-buffer",
