@@ -21,7 +21,9 @@
       finder = {
         _FXShowPosixPathInTitle = true;
         AppleShowAllExtensions = true;
+        AppleShowAllFiles = true;
         CreateDesktop = false;
+        FXDefaultSearchScope = "SCcf";
         QuitMenuItem = true;
         ShowPathbar = true;
       };
