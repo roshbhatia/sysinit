@@ -138,7 +138,7 @@ local function setup_vscode_features()
         { key = "s", description = "Stage Changes",           action = "git.stage" },
         { key = "S", description = "Stage All",              action = "git.stageAll" },
         { key = "u", description = "Unstage Changes",        action = "git.unstage" },
-        { key = "U", description = "Unstage All",           action = "git.unstageAll" },
+        { key = "U", description = "Unstage All",            action = "git.unstageAll" },
         { key = "c", description = "Commit",                 action = "git.commit" },
         { key = "C", description = "Commit All",             action = "git.commitAll" },
         { key = "p", description = "Push",                   action = "git.push" },
@@ -196,12 +196,9 @@ local function setup_vscode_features()
       },
     },
     s = {
-      name = "󰓩 Stage/Split",
+      name = "󰓩 Split",
       bindings = {
-        { key = "s", description = "Stage Hunk",       action = "git.diff.stageHunk" },
-        { key = "S", description = "Stage Selection",  action = "git.diff.stageSelection" },
-        { key = "u", description = "Unstage",          action = "git.unstage" },
-        { key = "h", description = "Split Horizontal", action = "workbench.action.splitEditorDown" },
+        { key = "s", description = "Split Horizontal", action = "workbench.action.splitEditorDown" },
         { key = "v", description = "Split Vertical",   action = "workbench.action.splitEditorRight" },
       },
     },
