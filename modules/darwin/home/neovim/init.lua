@@ -175,8 +175,7 @@ local function setup_plugins(keybindings)
         },
       })
 
-      local wk = require("which-key")
-      wk.register({
+      require("which-key").register({
         { "", desc = "<leader>" },
         { "b", group = "󱅄 Buffer" },
         { "bd", "<cmd>BufferClose<CR>", desc = "Close" },
