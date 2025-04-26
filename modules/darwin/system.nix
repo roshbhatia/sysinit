@@ -31,6 +31,7 @@
         _HIHideMenuBar = true;
         "com.apple.sound.beep.feedback" = 0;
         AppleInterfaceStyle = "Dark";
+        ApplePressAndHoldEnabled = false;
         AppleShowAllExtensions = true;
         AppleShowAllFiles = true;
         AppleShowScrollBars = "Always";
