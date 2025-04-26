@@ -35,6 +35,6 @@ yarn-error.log
 devenv.shell.nix
 
 # aider
-.aider.chat.history.md
-.aider.input.history
-.aider.tags.cache.v4/
+.aider*
+!.aider.conf.yml
+!.aiderignore
