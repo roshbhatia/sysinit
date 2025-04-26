@@ -94,7 +94,7 @@ M.plugins = {
 
       dashboard.section.footer.val = {
         "Git Contributions: " .. get_git_contributions(),
-        "Welcome back, Rosh",
+        "Welcome back, Roshan",
       }
 
       -- Custom configuration
