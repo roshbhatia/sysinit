@@ -81,8 +81,6 @@ M.plugins = {
           for _, name in ipairs(servers) do
             if vim.tbl_contains(available, name) then
               table.insert(to_install, name)
-            else
-              vim.notify("LSP server '" .. name .. "' not available in mason-lspconfig, skipping", vim.log.levels.WARN)
             end
           end
         else
