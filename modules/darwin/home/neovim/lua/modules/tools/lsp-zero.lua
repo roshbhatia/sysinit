@@ -63,12 +63,10 @@ M.plugins = {
           -- Shell
           "bashls",
           -- Data formats
-          "spectral",
+          "hydra_lsp",
           -- Markdown
           "marksman",
           "grammarly",
-          -- Nix
-          "nil_ls",
           -- Terraform
           "tflint",
           "terraformls",
