@@ -29,7 +29,7 @@
       mkdir -p $HOME/.config/nvim
       chmod 755 $HOME/.config/nvim
 
-      defaults write com.microsoft.VSCode ApplePressAndHoldEnabled -bool false
+      /usr/bin/defaults write com.microsoft.VSCode ApplePressAndHoldEnabled -bool false
     '';
   };
 }
