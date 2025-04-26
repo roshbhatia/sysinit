@@ -88,16 +88,6 @@ M.plugins = {
           end,
         },
       })
-      
-      local wk = require("which-key")
-      wk.add({
-        { "<leader>s", group = "Session", icon = { icon = "󱂬", hl = "WhichKeyIconCyan" } },
-        { "<leader>ss", "<cmd>SessionSave<CR>", desc = "Save Session", mode = "n" },
-        { "<leader>sl", "<cmd>SessionRestore<CR>", desc = "Load Session", mode = "n" },
-        { "<leader>sd", "<cmd>SessionDelete<CR>", desc = "Delete Session", mode = "n" },
-        { "<leader>sp", "<cmd>SessionPurgeOrphaned<CR>", desc = "Purge Orphaned Sessions", mode = "n" },
-      })
-      
       vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
       
       -- Auto open Alpha when Neovim starts with no arguments and no session is restored

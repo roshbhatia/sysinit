@@ -117,31 +117,6 @@ M.plugins = {
           },
         })
       end, { desc = "Format Selection" })
-      
-      -- Register with which-key
-      wk.add({
-        { "<leader>c", group = "Code", icon = { icon = "󰅪", hl = "WhichKeyIconPurple" } },
-        { "<leader>cf", function()
-            conform.format({ async = true, lsp_fallback = true })
-          end,
-          desc = "Format Document",
-          mode = "n"
-        },
-        { "<leader>cf", function()
-            conform.format({
-              async = true,
-              lsp_fallback = true,
-              range = {
-                start = vim.api.nvim_buf_get_mark(0, "<"),
-                ["end"] = vim.api.nvim_buf_get_mark(0, ">"),
-              },
-            })
-          end,
-          desc = "Format Selection",
-          mode = "v"
-        },
-        { "<leader>ct", toggle_format_on_save, desc = "Toggle Format on Save", mode = "n" },
-      })
     end
   }
 }

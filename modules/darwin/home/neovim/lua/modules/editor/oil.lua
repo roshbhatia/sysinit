@@ -30,17 +30,6 @@ M.plugins = {
       })
       
       vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
-      
-      local wk = require("which-key")
-      wk.add({
-        { "<leader>o", group = "Oil", icon = { icon = "󰏘", hl = "WhichKeyIconBlue" } },
-        { "<leader>of", "<cmd>Oil --float<CR>", desc = "Open Oil in Float", mode = "n" },
-        { "<leader>oh", function() 
-            require("oil").open(vim.fn.expand("~")) 
-          end, 
-          desc = "Open Home Directory"
-        },
-      })
     end
   }
 }
