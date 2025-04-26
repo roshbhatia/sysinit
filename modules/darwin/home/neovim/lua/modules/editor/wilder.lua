@@ -12,13 +12,6 @@ M.plugins = {
       local wilder = require("wilder")
       wilder.setup({ modes = { ":", "/", "?" } })
 
-      wilder.set_option('pipeline', {
-        wilder.branch(
-          wilder.cmdline_pipeline(),
-          wilder.search_pipeline()
-        ),
-      })
-
       -- Create the popupmenu renderer with palette theme
       local popupmenu_renderer = wilder.popupmenu_renderer(wilder.popupmenu_palette_theme({
         border = "rounded",
