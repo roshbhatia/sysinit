@@ -136,12 +136,6 @@ M.plugins = {
         update_in_insert = false,
       })
       
-      -- Enable LSP inlay hints (for supported servers)
-      if vim.lsp.inlay_hint then
-        vim.keymap.set('n', '<leader>ih', function()
-          vim.lsp.inlay_hint.enable(0, not vim.lsp.inlay_hint.is_enabled())
-        end, { desc = "Toggle Inlay Hints" })
-      end
     end
   }
 }
