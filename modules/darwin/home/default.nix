@@ -41,6 +41,7 @@ in {
     ./aerospace/aerospace.nix
     ./macchina/macchina.nix
     ./wezterm/wezterm.nix
+    ./aider/aider.nix
   ];
 
   
