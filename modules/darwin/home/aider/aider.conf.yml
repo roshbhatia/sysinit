@@ -323,7 +323,7 @@ upgrade: true
 #message-file: xxx
 
 ## Run aider in your browser (default: False)
-gui: true
+#gui: false
 
 ## Enable automatic copy/paste of chat between aider and web UI (default: False)
 copy-paste: true
