@@ -49,16 +49,6 @@ M.plugins = {
         triggers = { { "<auto>", mode = "nxsotc" } },
       })
       
-      wk.add({
-        { "<leader>;", ":", desc = "Command Mode", mode = "n" },
-        
-        { "<leader>bd", "<cmd>bdelete<cr>", desc = "Delete Buffer", mode = "n" },
-        { "<leader>bn", "<cmd>bnext<cr>", desc = "Next Buffer", mode = "n" },
-        { "<leader>bp", "<cmd>bprevious<cr>", desc = "Previous Buffer", mode = "n" },
-        { "<leader>bN", "<cmd>enew<cr>", desc = "New Buffer", mode = "n" },
-        { "<leader>bl", "<cmd>Telescope buffers<cr>", desc = "List Buffers", mode = "n" },
-      })
-      
       vim.keymap.set("n", "<leader>W", function()
         require("which-key").show({
           keys = "<c-w>",

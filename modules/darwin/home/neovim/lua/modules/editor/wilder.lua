@@ -60,12 +60,6 @@ M.plugins = {
           substitute = wildmenu_renderer,
         })
       )
-
-      -- Register with which-key
-      local wk = require("which-key")
-      wk.add({
-        { "<leader>:", ":", desc = "Command-line (Wilder)", mode = "n" },
-      })
     end,
   },
 }

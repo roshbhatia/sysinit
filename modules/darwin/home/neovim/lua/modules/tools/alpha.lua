@@ -119,11 +119,6 @@ M.plugins = {
 }
 
 function M.setup()
-  local wk = require("which-key")
-  wk.add({
-    { "<leader>P", "<cmd>Alpha<CR>", desc = "Open Homepage" },
-  })
-
   vim.api.nvim_create_autocmd("ColorScheme", {
     pattern = "*",
     callback = function()
