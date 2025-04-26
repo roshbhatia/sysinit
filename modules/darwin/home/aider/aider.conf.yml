@@ -207,7 +207,7 @@ code-theme: nord
 # Git settings:
 
 ## Enable/disable looking for a git repo (default: True)
-git: false
+# git: true
 
 ## Enable/disable adding .aider* to .gitignore (default: True)
 gitignore: false
@@ -234,10 +234,10 @@ attribute-committer: false
 attribute-commit-message-author: false
 
 ## Prefix all commit messages with 'aider: ' (default: False)
-#attribute-commit-message-committer: false
+# attribute-commit-message-committer: false
 
 ## Enable/disable git pre-commit hooks with --no-verify (default: False)
-#git-commit-verify: false
+# git-commit-verify: false
 
 ## Commit all pending changes with a suitable commit message, then exit
 # commit: false
