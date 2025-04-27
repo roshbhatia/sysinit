@@ -41,7 +41,4 @@ M.plugins = {{
     end
 }}
 
-function M.setup()
-end
-
 return M
