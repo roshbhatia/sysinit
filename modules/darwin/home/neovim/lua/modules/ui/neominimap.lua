@@ -168,47 +168,6 @@ M.plugins = {{
                 return true
             end
         end
-
-        -- Set up autocommands to toggle minimap based on window position
-        vim.api.nvim_create_augroup("NeominimapRightmost", {
-            clear = true
-        })
-        vim.api.nvim_create_autocmd({"WinEnter", "BufEnter", "VimResized"}, {
-            group = "NeominimapRightmost",
-            callback = function()
-                if is_rightmost_window() and vim.g.minimap_enabled then
-                    vim.cmd("Neominimap winOn")
-                else
-                    vim.cmd("Neominimap winOff")
-                end
-            end
-        })
-
-        -- Add a global variable to track minimap state
-        vim.g.minimap_enabled = false
-
-        -- Modify toggle commands to update the global tracking variable
-        local toggle_minimap = function()
-            vim.g.minimap_enabled = not vim.g.minimap_enabled
-            if is_rightmost_window() and vim.g.minimap_enabled then
-                vim.cmd("Neominimap winOn")
-            else
-                vim.cmd("Neominimap winOff")
-            end
-        end
-
-        -- Create custom commands
-        vim.api.nvim_create_user_command("RightmostMinimapToggle", toggle_minimap, {})
-        vim.api.nvim_create_user_command("RightmostMinimapOn", function()
-            vim.g.minimap_enabled = true
-            if is_rightmost_window() then
-                vim.cmd("Neominimap winOn")
-            end
-        end, {})
-        vim.api.nvim_create_user_command("RightmostMinimapOff", function()
-            vim.g.minimap_enabled = false
-            vim.cmd("Neominimap winOff")
-        end, {})
     end
 }}
 
