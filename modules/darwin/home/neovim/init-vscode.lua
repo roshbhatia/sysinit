@@ -63,8 +63,9 @@ local function init()
     local lua_dir = init_dir .. "/lua"
     vim.opt.rtp:prepend(lua_dir)
 
-    local common = require('common')
-    common.setup_settings()
+    require('common')
+    setup_package_manager()
+    setup_settings()
 
     setup_neovim_settings()
     setup_vscode_integration()
