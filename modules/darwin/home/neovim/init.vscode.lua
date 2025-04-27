@@ -43,6 +43,7 @@ end
 local function init()
     local current_dir = debug.getinfo(1).source:match("@?(.*/)") or "./"
     package.path = package.path .. ";" .. current_dir .. "?.lua" .. ";" .. current_dir .. "lua/?.lua"
+
     require('common.settings').setup_settings()
 
     -- Custom settings

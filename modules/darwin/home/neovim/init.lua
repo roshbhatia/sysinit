@@ -87,8 +87,8 @@ local function setup_plugins(keybindings)
 end
 
 local function init()
-    local init_dir = vim.fn.fnamemodify(vim.fn.expand("$MYVIMRC"), ":p:h")
-    vim.opt.rtp:prepend(init_dir)
+    local current_dir = debug.getinfo(1).source:match("@?(.*/)") or "./"
+    package.path = package.path .. ";" .. current_dir .. "?.lua" .. ";" .. current_dir .. "lua/?.lua"
 
     require('common.settings').setup_settings()
 
