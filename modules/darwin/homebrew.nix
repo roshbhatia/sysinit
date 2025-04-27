@@ -50,6 +50,7 @@ let
     "lazygit"
     "libgit2"
     "luajit"
+    "neovim"
     "nushell"
     "pipx"
     "python"

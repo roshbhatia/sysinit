@@ -38,10 +38,6 @@ local function setup_plugins()
     module_loader.setup_modules(module_system)
 end
 
-local function is_valid_buffer(bufnr)
-    return bufnr and vim.api.nvim_buf_is_valid(bufnr) and vim.bo[bufnr].buflisted
-end
-
 local function init()
     local init_dir = vim.fn.fnamemodify(vim.fn.expand("$MYVIMRC"), ":p:h")
     vim.opt.rtp:prepend(init_dir)
