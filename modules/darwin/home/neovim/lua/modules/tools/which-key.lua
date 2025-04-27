@@ -521,7 +521,7 @@ M.keybindings_data = {
         }, {
             key = "e",
             desc = "Explorer",
-            neovim_cmd = "<cmd>NvimTreeToggle<CR>",
+            neovim_cmd = "<cmd>Neotree toggle<CR>",
             vscode_cmd = "workbench.view.explorer"
         }, {
             key = "t",
