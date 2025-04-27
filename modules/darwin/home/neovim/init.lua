@@ -293,6 +293,10 @@ local function setup_plugins(keybindings)
             }, {
                 "<leader>ss",
                 "<cmd>split<CR>",
+                desc = "Horizontal Split"
+            }, {
+                "<leader>vs",
+                "<cmd>vsplit<CR>",
                 desc = "Vertical Split"
             }, {
                 "<leader>t",
