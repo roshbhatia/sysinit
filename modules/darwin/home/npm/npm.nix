@@ -4,6 +4,7 @@ let
     then userConfig.npm.additionalPackages
     else [];
   basePackages = [
+    "awk-language-server"
     "jsonlint"
     "prettier"
     "typescript-language-server"
