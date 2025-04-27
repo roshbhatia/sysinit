@@ -44,18 +44,46 @@ local function setup_keybindings()
 end
 
 local function setup_plugins(keybindings)
-    local module_system = {
-        ui = {"devicons", "lualine", "neominimap", "barbar", "themify"},
-        editor = {"telescope", "oil", "wilder"},
-        tools = {"comment", "hop", "treesitter", "conform", "git", "lsp-zero", "nvim-lint", "copilot", "copilot-chat",
-                 "copilot-cmp", "autopairs", "autosession", "alpha", "which-key"}
+    local ui = {
+        devicons = require("modules.ui.devicons"),
+        lualine = require("modules.ui.lualine"),
+        neominimap = require("modules.ui.neominimap"),
+        barbar = require("modules.ui.barbar"),
+        themify = require("modules.ui.themify")
     }
 
-    local module_loader = require("common.module_loader")
-    local specs = module_loader.get_plugin_specs(module_system)
+    local editor = {
+        telescope = require("modules.editor.telescope"),
+        oil = require("modules.editor.oil"),
+        wilder = require("modules.editor.wilder")
+    }
 
-    require('common.settings').setup_package_manager()
-    module_loader.setup_modules(module_system)
+    local tools = {
+        comment = require("modules.tools.comment"),
+        hop = require("modules.tools.hop"),
+        treesitter = require("modules.tools.treesitter"),
+        conform = require("modules.tools.conform"),
+        git = require("modules.tools.git"),
+        ["lsp-zero"] = require("modules.tools.lsp-zero"),
+        ["nvim-lint"] = require("modules.tools.nvim-lint"),
+        copilot = require("modules.tools.copilot"),
+        ["copilot-chat"] = require("modules.tools.copilot-chat"),
+        ["copilot-cmp"] = require("modules.tools.copilot-cmp"),
+        autopairs = require("modules.tools.autopairs"),
+        autosession = require("modules.tools.autosession"),
+        alpha = require("modules.tools.alpha"),
+        ["which-key"] = require("modules.tools.which-key")
+    }
+
+    local modules = {ui.devicons, ui.lualine, ui.neominimap, ui.barbar, ui.themify, editor.telescope, editor.oil,
+                     editor.wilder, tools.comment, tools.hop, tools.treesitter, tools.conform, tools.git,
+                     tools["lsp-zero"], tools["nvim-lint"], tools.copilot, tools["copilot-chat"], tools["copilot-cmp"],
+                     tools.autopairs, tools.autosession, tools.alpha, tools["which-key"]}
+
+    local module_loader = require("common.module_loader")
+    local specs = module_loader.get_plugin_specs(modules)
+    require('common.settings').setup_package_manager(specs)
+    module_loader.setup_modules(modules)
 end
 
 local function init()
