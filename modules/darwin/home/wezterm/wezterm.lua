@@ -255,11 +255,9 @@ config.key_tables = {
     }}
 }
 
--- Simplified right status with Catppuccin Mocha colors and Nerd Font symbols
 wezterm.on('update-status', function(window, _)
     local cwd = window:active_pane():get_current_working_dir()
     local hostname = wezterm.hostname()
-    local kube_context = os.getenv("KUBECONFIG") or "default" -- Replace with actual kube context retrieval if needed
 
     local cwd_display = cwd and cwd:gsub('file://[^/]+', ''):gsub(os.getenv('HOME'), '~') or '~'
 
@@ -283,11 +281,6 @@ wezterm.on('update-status', function(window, _)
             Color = "#f5c2e7"
         },
         Text = " > "
-    }, {
-        Foreground = {
-            Color = "#f38ba8"
-        },
-        Text = "󱃾 " .. kube_context
     }}
 
     window:set_right_status(wezterm.format(elements))
