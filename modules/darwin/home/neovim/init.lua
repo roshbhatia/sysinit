@@ -175,7 +175,7 @@ local function setup_plugins(keybindings)
         },
       })
 
-      require("which-key").register({
+      require("which-key").add({
         { "", desc = "<leader>" },
         { "b", group = "󱅄 Buffer" },
         { "bd", "<cmd>BufferClose<CR>", desc = "Close" },
