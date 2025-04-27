@@ -7,6 +7,30 @@ function M.setup_package_manager()
                        "--branch=stable", lazypath})
     end
     vim.opt.rtp:prepend(lazypath)
+
+    require("lazy").setup({
+        root = vim.fn.stdpath("data") .. "/lazy",
+        lockfile = vim.fn.stdpath("data") .. "/lazy/lazy-lock.json",
+
+        spec = {{
+            "vhyrro/luarocks.nvim",
+            priority = 1000,
+            config = true,
+            opts = {
+                rocks = {}
+            }
+        }},
+
+        performance = {
+            rtp = {
+                disabled_plugins = {"gzip", "matchit", "matchparen", "netrwPlugin", "tarPlugin", "tohtml", "tutor",
+                                    "zipPlugin"}
+            }
+        },
+        change_detection = {
+            notify = false
+        }
+    })
 end
 
 function M.setup_settings()
