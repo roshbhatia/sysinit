@@ -83,19 +83,14 @@ local function setup_keybindings()
   vim.keymap.set("n", "n", "nzzzv", opts)
   vim.keymap.set("n", "N", "Nzzzv", opts)
 
-  vim.keymap.set("n", "<D-b>", "<cmd>Oil<CR>", opts)
+  vim.keymap.set("n", "<A-b>", "<cmd>Oil<CR>", opts)
   vim.keymap.set("n", "<S-CR>", "<cmd>HopWord<CR>", opts)
   vim.keymap.set("i", "<S-CR>", "<Esc><cmd>HopWord<CR>", opts)
 
   vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", opts)
 
-  vim.keymap.set("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
-  vim.keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opts)
-  vim.keymap.set("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
-  vim.keymap.set("n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
-
-  vim.keymap.set("n", "gc", "<Plug>(comment_toggle_linewise_current)", {})
-  vim.keymap.set("v", "gc", "<Plug>(comment_toggle_linewise_visual)", {})
+  vim.keymap.set("n", "<D-/>", "<Plug>(comment_toggle_linewise_current)", { desc = "Toggle comment" })
+  vim.keymap.set("v", "<D-/>", "<Plug>(comment_toggle_linewise_visual)", { desc = "Toggle comment" })  
 end
 
 local function setup_plugins(keybindings)
