@@ -27,15 +27,17 @@ local function setup_keybindings()
 end
 
 local function setup_plugins()
-    local module_system = {
-        vscode = {"which-key", "commands"}
+    local tools = {
+        commands = require("modules.tools.vsc-commands"),
+        ["which-key"] = require("modules.tools.vsc-which-key")
     }
 
-    local module_loader = require("common.module_loader")
-    local specs = module_loader.get_plugin_specs(module_system)
+    local modules = {tools.commands, tools["which-key"]}
 
-    require('common.settings').setup_package_manager()
-    module_loader.setup_modules(module_system)
+    local module_loader = require("common.module_loader")
+    local specs = module_loader.get_plugin_specs(modules)
+    require('common.settings').setup_package_manager(specs)
+    module_loader.setup_modules(modules)
 end
 
 local function init()
