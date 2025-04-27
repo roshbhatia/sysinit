@@ -59,12 +59,13 @@ M.plugins = {{
         dashboard.section.header.opts.hl = "ProfileGreen"
 
         -- Set menu
-        dashboard.section.buttons.val = {dashboard.button("f", "  Find Files", ":Telescope find_files<CR>"),
+        dashboard.section.buttons.val = {dashboard.button("a", "  Load Last Session", ":SessionRestore<CR>"),
+                                         dashboard.button("f", "  Find Files", ":Telescope find_files<CR>"),
                                          dashboard.button("r", "  Recent Files", ":Telescope oldfiles<CR>"),
                                          dashboard.button("g", "  Live Grep", ":Telescope live_grep<CR>"),
                                          dashboard.button("c", "  Configuration", ":e $MYVIMRC<CR>"),
                                          dashboard.button("t", "  Change Theme", ":Themify<CR>"),
-                                         dashboard.button("l", "󰒲  Lazy", ":Lazy<CR>"),
+                                         dashboard.button("l", "  Lazy", ":Lazy<CR>"),
                                          dashboard.button("q", "  Quit", ":qa<CR>")}
 
         -- Footer with git contributions (simplified)
