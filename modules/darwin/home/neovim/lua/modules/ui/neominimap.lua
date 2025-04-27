@@ -6,24 +6,19 @@ M.plugins = {{
     version = "v3.x.x",
     event = "BufReadPost",
     config = function()
-        -- Setup neominimap
         local neominimap = require("neominimap")
 
-        -- Configuration
-        ---@type Neominimap.UserConfig
         local config = {
-            -- Disable auto enable so we can control it manually
             auto_enable = false,
 
-            -- Rest of your existing configuration
             log_level = vim.log.levels.OFF,
             notification_level = vim.log.levels.INFO,
-            exclude_filetypes = {"help", "bigfile", "NvimTree", "neo-tree", "lazy", "mason", "oil", "alpha",
-                                 "dashboard", "TelescopePrompt", "toggleterm"},
+            exclude_filetypes = {"help", "bigfile", "neo-tree", "lazy", "mason", "oil", "alpha", "dashboard",
+                                 "TelescopePrompt", "toggleterm"},
             exclude_buftypes = {"nofile", "nowrite", "quickfix", "terminal", "prompt"},
             x_multiplier = 4,
             y_multiplier = 1,
-            layout = "float", -- "float" or "split"
+            layout = "float",
             split = {
                 minimap_width = 20,
                 fix_width = true,

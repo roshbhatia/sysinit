@@ -10,8 +10,8 @@ M.plugins = {{
     config = function()
         require("nvim-treesitter.configs").setup({
             ensure_installed = {"bash", "c", "cpp", "css", "go", "html", "javascript", "json", "lua", "markdown",
-                                "markdown_inline", "python", "regex", "rust", "toml", "tsx", "typescript", "vim",
-                                "yaml", "nix", "comment"},
+                                "markdown_inline", "python", "regex", "rust", "terraform", "toml", "tsx", "typescript",
+                                "vim", "yaml", "nix", "comment"},
             highlight = {
                 enable = true,
                 additional_vim_regex_highlighting = false
