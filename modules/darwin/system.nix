@@ -77,6 +77,7 @@
     lazygit
     libgit2
     luajit
+    nil
     nushell
     pipx
     python3

@@ -7,6 +7,7 @@ let
     "awk-language-server"
     "jsonlint"
     "prettier"
+    "@stoplight/spectral-cli"
     "typescript-language-server"
     "typescript"
   ];

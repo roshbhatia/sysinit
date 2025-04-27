@@ -42,6 +42,7 @@ let
     "git-filter-repo"
     "gettext"
     "helm"
+    "helm-ls"
     "jandedobbeleer/oh-my-posh/oh-my-posh"
     "kubectl"
     "kubecolor"
