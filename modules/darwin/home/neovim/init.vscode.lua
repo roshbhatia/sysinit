@@ -50,6 +50,8 @@ local function init()
 
     -- Custom settings
     vim.opt.foldmethod = "manual"
+    vim.notify = require('vscode').notify
+    vim.g.clipboard = vim.g.vscode_clipboard
 
     setup_keybindings()
     setup_plugins()
