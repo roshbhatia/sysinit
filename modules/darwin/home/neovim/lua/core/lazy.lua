@@ -2,39 +2,29 @@
 local M = {}
 
 function M.setup()
-  require("lazy").setup({
-    root = vim.fn.stdpath("data") .. "/lazy",
-    lockfile = vim.fn.stdpath("data") .. "/lazy/lazy-lock.json",
-    
-    spec = {
-      {
-        "vhyrro/luarocks.nvim",
-        priority = 1000,
-        config = true,
-        opts = {
-          rocks = {},
+    require("lazy").setup({
+        root = vim.fn.stdpath("data") .. "/lazy",
+        lockfile = vim.fn.stdpath("data") .. "/lazy/lazy-lock.json",
+
+        spec = {{
+            "vhyrro/luarocks.nvim",
+            priority = 1000,
+            config = true,
+            opts = {
+                rocks = {}
+            }
+        }},
+
+        performance = {
+            rtp = {
+                disabled_plugins = {"gzip", "matchit", "matchparen", "netrwPlugin", "tarPlugin", "tohtml", "tutor",
+                                    "zipPlugin"}
+            }
         },
-      },
-    },
-    
-    performance = {
-      rtp = {
-        disabled_plugins = {
-          "gzip",
-          "matchit",
-          "matchparen",
-          "netrwPlugin",
-          "tarPlugin",
-          "tohtml",
-          "tutor",
-          "zipPlugin",
-        },
-      },
-    },
-    change_detection = {
-      notify = false,
-    },
-  })
+        change_detection = {
+            notify = false
+        }
+    })
 end
 
 return M

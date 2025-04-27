@@ -52,71 +52,36 @@ M.plugins = {
           }
         }
       })
-      
-      -- Ensure required LSP servers are installed via mason-lspconfig
-      do
-        local mlsp = mason_lspconfig
-        local servers = {
-          -- Go
-          "gopls",
-          "golangci_lint_ls",
-          -- Shell
-          "bashls",
-          -- Data formats
-          "hydra_lsp",
-          -- Markdown
-          "marksman",
-          "grammarly",
-          -- Terraform
-          "tflint",
-          "terraformls",
-          -- Helm
-          "helm-ls",
-        }
-        local to_install = {}
-        if mlsp.get_available_servers then
-          local available = mlsp.get_available_servers()
-          for _, name in ipairs(servers) do
-            if vim.tbl_contains(available, name) then
-              table.insert(to_install, name)
-            end
-          end
-        else
-          to_install = servers
-        end
-        mlsp.setup({ ensure_installed = to_install })
-      end
 
-      -- Setup handlers for LSP configurations
+      mason_lspconfig.setup(
+        {
+          ensure_installed = {
+            "awk_ls",
+            "bashls",
+            "dagger",
+            "docker_compose_language_service",
+            "dockerls",
+            "golangci_lint_ls",
+            "gopls",
+            "grammarly",
+            "helm-ls",
+            "html",
+            "htmx",
+            "jqls",
+            "marksman",
+            "nil_ls",
+            "spectral",
+            "terraformls",
+            "tflint",
+            "ts_ls",
+          },
+          automatic_installation = true
+        }
+      )
       mason_lspconfig.setup_handlers({
         lsp_zero.default_setup,
-
-        -- Lua Configuration
-        lua_ls = function()
-          lspconfig.lua_ls.setup(lsp_zero.nvim_lua_ls())
-        end,
-
-        -- Go Configuration
-        gopls = function()
-          lspconfig.gopls.setup({
-            settings = {
-              gopls = {
-                analyses = {
-                  unusedparams = true,
-                  shadow = true,
-                },
-                staticcheck = true,
-                gofumpt = true,
-                usePlaceholders = true,
-                completeUnimported = true,
-              },
-            },
-            capabilities = lsp_zero.get_capabilities(),
-          })
-        end,
       })
 
-      -- Configure diagnostics display
       vim.diagnostic.config({
         virtual_text = {
           prefix = '●',
