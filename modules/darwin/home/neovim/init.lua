@@ -50,7 +50,7 @@ local function setup_plugins()
         neominimap = require("modules.ui.neominimap"),
         barbar = require("modules.ui.barbar"),
         themify = require("modules.ui.themify"),
-        tree = require("modules.editor.tree")
+        tree = require("modules.ui.tree")
     }
 
     local editor = {
