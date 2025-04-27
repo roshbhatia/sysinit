@@ -1,3 +1,4 @@
+local vscode = require('vscode')
 local function setup_keybindings()
     -- ctrl + hjkl for moving between panes
     vim.keymap.set("n", "<C-h>", function()
