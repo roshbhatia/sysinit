@@ -78,6 +78,7 @@
     libgit2
     luajit
     nil
+    nixfmt-rfc-style
     nushell
     pipx
     python3
