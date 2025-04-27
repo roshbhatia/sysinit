@@ -76,7 +76,6 @@ M.plugins = {{
 
         vim.g.neominimap = config
 
-        -- Initialize lualine integration if lualine is available
         local has_lualine, _ = pcall(require, "lualine")
         if has_lualine then
             local minimap_extension = require("neominimap.statusline").lualine_default
@@ -100,7 +99,6 @@ M.plugins = {{
                     link = "CursorLine"
                 })
 
-                -- Diagnostic highlights
                 vim.api.nvim_set_hl(0, "NeominimapErrorLine", {
                     link = "DiagnosticVirtualTextError"
                 })
@@ -114,7 +112,6 @@ M.plugins = {{
                     link = "DiagnosticVirtualTextHint"
                 })
 
-                -- Git highlights
                 vim.api.nvim_set_hl(0, "NeominimapGitAddLine", {
                     link = "DiffAdd"
                 })
@@ -125,44 +122,11 @@ M.plugins = {{
                     link = "DiffDelete"
                 })
 
-                -- Search highlights
                 vim.api.nvim_set_hl(0, "NeominimapSearchLine", {
                     link = "Search"
                 })
             end
         })
-
-        -- Function to check if current window is the rightmost one
-        local function is_rightmost_window()
-            local mux = require('smart-splits.mux').get()
-            if mux and mux.current_pane_at_edge then
-                return mux.current_pane_at_edge('right')
-            else
-                -- Fallback when multiplexer is not available
-                local win_id = vim.api.nvim_get_current_win()
-                local wins = vim.api.nvim_tabpage_list_wins(0)
-
-                -- Get window positions
-                local positions = {}
-                for _, id in ipairs(wins) do
-                    local pos = vim.api.nvim_win_get_position(id)
-                    local width = vim.api.nvim_win_get_width(id)
-                    positions[id] = {
-                        col = pos[2],
-                        right_edge = pos[2] + width
-                    }
-                end
-
-                -- Check if current window has the rightmost edge
-                local current_right = positions[win_id].right_edge
-                for id, pos in pairs(positions) do
-                    if id ~= win_id and pos.right_edge > current_right then
-                        return false
-                    end
-                end
-                return true
-            end
-        end
     end
 }}
 
