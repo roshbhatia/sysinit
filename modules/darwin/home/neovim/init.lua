@@ -65,18 +65,16 @@ local function setup_plugins()
         treesitter = require("modules.tools.treesitter"),
         conform = require("modules.tools.conform"),
         git = require("modules.tools.git"),
-        lsp = require("modules.tools.lsp"),
         ["nvim-lint"] = require("modules.tools.nvim-lint"),
-        copilot = require("modules.tools.copilot"),
+        cmp = require("modules.tools.copilot"),
         autopairs = require("modules.tools.autopairs"),
         autosession = require("modules.tools.autosession"),
         alpha = require("modules.tools.alpha"),
         ["which-key"] = require("modules.tools.which-key")
     }
-    local modules = {ui.devicons, ui.themify, tools.treesitter, tools.lsp, editor.oil, ui.tree, editor.telescope,
-                     tools.autopairs, tools.comment, tools.conform, tools["nvim-lint"], tools.hop, ui.lualine,
-                     ui.barbar, ui.neominimap, tools.git, tools.copilot, editor.wilder, tools.autosession, tools.alpha,
-                     tools["which-key"]}
+    local modules = {ui.devicons, ui.themify, tools.treesitter, editor.oil, ui.tree, editor.telescope, tools.autopairs,
+                     tools.comment, tools.conform, tools["nvim-lint"], tools.hop, ui.lualine, ui.barbar, ui.neominimap,
+                     tools.git, tools.cmp, editor.wilder, tools.autosession, tools.alpha, tools["which-key"]}
 
     local module_loader = require("common.module_loader")
     local specs = module_loader.get_plugin_specs(modules)
