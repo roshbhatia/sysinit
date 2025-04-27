@@ -31,7 +31,7 @@ local function setup_plugins()
         vscode = {"which-key", "commands"}
     }
 
-    local module_loader = require("core.module_loader")
+    local module_loader = require("common.module_loader")
     local specs = module_loader.get_plugin_specs(module_system)
 
     module_loader.setup_modules(module_system)
@@ -45,8 +45,9 @@ local function init()
     local init_dir = vim.fn.fnamemodify(vim.fn.expand("$MYVIMRC"), ":p:h")
     vim.opt.rtp:prepend(init_dir)
 
-    require('common').setup_package_manager()
-    require('common').setup_settings()
+    local settings = require('common.settings')
+    settings.setup_package_manager()
+    settings.setup_settings()
 
     -- Custom settings
     vim.opt.foldmethod = "manual"
