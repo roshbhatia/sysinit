@@ -41,9 +41,8 @@ local function setup_plugins()
 end
 
 local function init()
-    local current_dir = debug.getinfo(1).source:match("@?(.*/)") or "./"
-    package.path = package.path .. ";" .. current_dir .. "?.lua" .. ";" .. current_dir .. "lua/?.lua"
-
+    local config_path = vim.fn.stdpath('config')
+    package.path = package.path .. ";" .. config_path .. "/?.lua" .. ";" .. config_path .. "/lua/?.lua"
     require('common.settings').setup_settings()
 
     -- Custom settings
