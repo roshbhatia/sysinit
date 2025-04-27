@@ -125,8 +125,8 @@ local function setup_plugins(keybindings)
       "copilot-chat",
       "copilot-cmp",
       "autopairs",
-      "alpha",
       "autosession",
+      "alpha",
     },
   }
 
@@ -227,10 +227,6 @@ local function setup_plugins(keybindings)
         { "tp", "<cmd>TroubleToggle<CR>", desc = "Trouble" },
         { "u", group = "󱂬 UI" },
         { "uT", "<cmd>set showtabline=2<CR>", desc = "Show Tab Line" },
-        { "ua", "<cmd>Alpha<CR>", desc = "Alpha" },
-        { "ub", "<cmd>Oil<CR>", desc = "Oil" },
-        { "ut", "<cmd>set showtabline=0<CR>", desc = "Hide Tab Line" },
-        { "uz", "<cmd>ZenMode<CR>", desc = "Zen Mode" },
         { "w", group = " Window" },
         { "w=", "<C-w>=", desc = "Equal Size" },
         { "wH", "<C-w>H", desc = "Move Window Left" },
