@@ -71,35 +71,35 @@ in
       ghpr = "${homeDirectory}/github/personal/roshbhatia";
       ghw = "${homeDirectory}/github/work";
     };
-    
+
     shellAliases = {
       "....." = "cd ../../../..";
       "...." = "cd ../../..";
       "..." = "cd ../..";
       ".." = "cd ..";
       "~" = "cd ~";
-      
+
       code = "code-insiders";
       kubectl = "kubecolor";
-      
+
       l = "eza --icons=always -1";
       la = "eza --icons=always -1 -a";
       ll = "eza --icons=always -1 -a";
       ls = "eza";
       lt = "eza --icons=always -1 -a -T";
-      
+
       tf = "terraform";
       y = "yazi";
-      
+
       vim = "nvim";
       vi = "nvim";
-      
+
       sudo = "sudo -E";
 
       diff = "diff --color";
       grep = "grep -s --color=auto";
     };
-    
+
     sessionVariables = {
       LANG = "en_US.UTF-8";
       LC_ALL = "en_US.UTF-8";
@@ -205,34 +205,46 @@ in
       }
     ];
 
-    initExtraFirst = ''
-      # modules/darwin/home/zsh/zsh.nix#initExtraFirst (begin)
-      # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
-      # shellcheck disable=all
-      #       ___           ___           ___           ___           ___
-      #      /  /\         /  /\         /__/\         /  /\         /  /\
-      #     /  /::|       /  /:/_        \  \:\       /  /::\       /  /:/
-      #    /  /:/:|      /  /:/ /\        \__\:\     /  /:/\:\     /  /:/
-      #   /  /:/|:|__   /  /:/ /::\   ___ /  /::\   /  /:/~/:/    /  /:/  ___
-      #  /__/:/ |:| /\ /__/:/ /:/\:\ /__/\  /:/\:\ /__/:/ /:/___ /__/:/  /  /\
-      #  \__\/  |:|/:/ \  \:\/:/~/:/ \  \:\/:/__\/ \  \:\/:::::/ \  \:\ /  /:/
-      #      |  |:/:/   \  \::/ /:/   \  \::/       \  \::/~~~~   \  \:\  /:/
-      #      |  |::/     \__\/ /:/     \  \:\        \  \:\        \  \:\/:/
-      #      |  |:/        /__/:/       \  \:\        \  \:\        \  \::/
-      #      |__|/         \__\/         \__\/         \__\/         \__\/
+    initContent = lib.mkMerge [
+      (lib.mkBefore ''
+        # modules/darwin/home/zsh/zsh.nix#initContent
+        # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
+        # shellcheck disable=all
+        #       ___           ___           ___           ___           ___
+        #      /  /\         /  /\         /__/\         /  /\         /  /\
+        #     /  /::|       /  /:/_        \  \:\       /  /::\       /  /:/
+        #    /  /:/:|      /  /:/ /\        \__\:\     /  /:/\:\     /  /:/
+        #   /  /:/|:|__   /  /:/ /::\   ___ /  /::\   /  /:/~/:/    /  /:/  ___
+        #  /__/:/ |:| /\ /__/:/ /:/\:\ /__/\  /:/\:\ /__/:/ /:/___ /__/:/  /  /\
+        #  \__\/  |:|/:/ \  \:\/:/~/:/ \  \:\/:/__\/ \  \:\/:::::/ \  \:\ /  /:/
+        #      |  |:/:/   \  \::/ /:/   \  \::/       \  \::/~~~~   \  \:\  /:/
+        #      |  |::/     \__\/ /:/     \  \:\        \  \:\        \  \:\/:/
+        #      |  |:/        /__/:/       \  \:\        \  \:\        \  \::/
+        #      |__|/         \__\/         \__\/         \__\/         \__\/
 
-      [[ -n "$SYSINIT_DEBUG" ]] && zmodload zsh/zprof
-            
-      unset MAILCHECK
-      stty stop undef
+        [[ -n "$SYSINIT_DEBUG" ]] && zmodload zsh/zprof
 
-      # Instant prompt: minimal prompt to avoid blank screen
-      setopt PROMPT_SUBST
-      PROMPT='%~%# '
-      RPS1=""
-      # modules/darwin/home/zsh/zsh.nix#initExtraFirst (end)
-    '';
-    
+        unset MAILCHECK
+        stty stop undef
+
+        # Instant prompt: minimal prompt to avoid blank screen
+        setopt PROMPT_SUBST
+        PROMPT='%~%# '
+        RPS1=""
+        # modules/darwin/home/zsh/zsh.nix#initContent
+      '')
+
+      ''
+        # modules/darwin/home/zsh/zsh.nix#initContent)
+        ${combinedCoreScripts}
+
+        enable-fzf-tab
+
+        [[ -n "$SYSINIT_DEBUG" ]] && zprof
+        # modules/darwin/home/zsh/zsh.nix#initContent
+    ''
+    ];
+
     completionInit = ''
       # Create zcompdump directory and load completions
       mkdir -p "''\${XDG_DATA_HOME}/zsh/zcompdump"
@@ -265,7 +277,7 @@ in
       zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word 2>/dev/null || echo "No unit status available"'
       zstyle ':fzf-tab:complete:git-*:*' fzf-preview 'sysinit-fzf-preview {}'
       zstyle ':fzf-tab:complete:kubectl-*:*' fzf-preview 'if [[ {} == *.@(yml|yaml) ]]; then bat --color=always --style=numbers,header,grid --language=yaml --line-range :100 {}; else sysinit-fzf-preview {}; fi'
-      
+
       # Disable fzf-tab for cd (using enhancd instead)
       zstyle ':fzf-tab:complete:cd:*' disabled-on any
 
@@ -279,22 +291,12 @@ in
       bindkey -r '\ep'
       bindkey -r '\en'
       bindkey -r '\ew'
-  
+
       # Bind ctrl-tab to accept zsh autosuggestions
       bindkey '^I' autosuggest-accept
     '';
-  
-    initExtra = ''
-      # modules/darwin/home/zsh/zsh.nix#initExtra (begin)
-      ${combinedCoreScripts}
-      
-      enable-fzf-tab
- 
-      [[ -n "$SYSINIT_DEBUG" ]] && zprof
-      # modules/darwin/home/zsh/zsh.nix#initExtra (end)
-    '';
   };
-  
+
   xdg.configFile = {
     "zsh/bin" = {
       source = ./bin;
@@ -305,9 +307,9 @@ in
 
   home.activation.prepareZshDirs = lib.hm.dag.entryBefore ["checkLinkTargets"] ''
     echo "Preparing zsh extras directory..."
-    
+
     mkdir -p -m 755 ${homeDirectory}/.config/zsh
-    
+
     rm -rf ${homeDirectory}/.config/zsh/extras
     rm -rf ${homeDirectory}/.config/zsh/bin
 
