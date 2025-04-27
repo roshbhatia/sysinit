@@ -62,8 +62,9 @@ local function init()
     local init_dir = vim.fn.fnamemodify(vim.fn.expand("$MYVIMRC"), ":p:h")
     vim.opt.rtp:prepend(init_dir)
 
-    require('common').setup_package_manager()
-    require('common').setup_settings()
+    local settings = require('common.settings')
+    settings.setup_package_manager()
+    settings.setup_settings()
 
     -- Custom settings
     vim.opt.foldmethod = "expr"

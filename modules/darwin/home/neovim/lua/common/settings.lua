@@ -1,4 +1,6 @@
-function setup_package_manager()
+local M = {}
+
+function M.setup_package_manager()
     local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
     if not vim.loop.fs_stat(lazypath) then
         vim.fn.system({"git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git",
@@ -7,7 +9,7 @@ function setup_package_manager()
     vim.opt.rtp:prepend(lazypath)
 end
 
-function setup_settings()
+function M.setup_settings()
     vim.keymap.set({"n", "v"}, "<Space>", "<Nop>", {
         noremap = true,
         silent = true
@@ -72,3 +74,5 @@ function setup_settings()
     vim.opt.foldenable = false
     vim.opt.foldlevel = 99
 end
+
+return M
