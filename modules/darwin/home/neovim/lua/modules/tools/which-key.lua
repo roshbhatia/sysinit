@@ -225,47 +225,52 @@ M.keybindings_data = {
             key = "c",
             desc = "Toggle Chat",
             neovim_cmd = "<cmd>CopilotChatToggle<CR>",
-            vscode_cmd = "workbench.action.chat.open"
+            vscode_cmd = "workbench.action.chat.openInSidebar"
         }, {
             key = "d",
             desc = "Generate Docs",
             neovim_cmd = "<cmd>CopilotChatDocumentThis<CR>",
-            vscode_cmd = "copilot.generateDocs"
+            vscode_cmd = "github.copilot.chat.generateDocs"
         }, {
             key = "o",
             desc = "Optimize",
             neovim_cmd = "<cmd>CopilotChatOptimizeCode<CR>",
-            vscode_cmd = "inlineChat.optimizeCode"
+            vscode_cmd = "github.copilot.chat.fix"
         }, {
             key = "r",
             desc = "Refactor",
             neovim_cmd = "<cmd>CopilotChatRefactorCode<CR>",
-            vscode_cmd = "inlineChat.refactorCode"
+            vscode_cmd = "github.copilot.chat.fix"
         }, {
             key = "f",
             desc = "Fix Code",
             neovim_cmd = "<cmd>CopilotChatFix<CR>",
-            vscode_cmd = "inlineChat.fix"
+            vscode_cmd = "github.copilot.chat.fix"
         }, {
             key = "e",
             desc = "Explain",
             neovim_cmd = "<cmd>CopilotChatExplain<CR>",
-            vscode_cmd = "inlineChat.explain"
+            vscode_cmd = "github.copilot.chat.explain"
         }, {
             key = "t",
             desc = "Generate Tests",
             neovim_cmd = "<cmd>CopilotChatTests<CR>",
-            vscode_cmd = "copilot.generateTests"
+            vscode_cmd = "github.copilot.chat.generateTests"
         }, {
             key = "i",
             desc = "Inline Chat",
             neovim_cmd = "<cmd>CopilotChatInline<CR>",
-            vscode_cmd = "inlineChat.start"
+            vscode_cmd = "inlineChat.startWithCurrentLine"
         }, {
             key = "a",
             desc = "Accept Changes",
             neovim_cmd = "<cmd>CopilotChatAccept<CR>",
-            vscode_cmd = "inlineChat.acceptChanges"
+            vscode_cmd = "github.copilot.chat.review.apply"
+        }, {
+            key = "k",
+            desc = "Discard Changes",
+            neovim_cmd = "<cmd>CopilotChatDiscard<CR>",
+            vscode_cmd = "github.copilot.chat.review.discard"
         }, {
             key = "g",
             desc = "Generate Commit",
@@ -295,6 +300,11 @@ M.keybindings_data = {
             desc = "Previous",
             neovim_cmd = "<cmd>BufferPrevious<CR>",
             vscode_cmd = "workbench.action.previousEditor"
+        }, {
+            key = "t",
+            desc = "Show in Tree",
+            neovim_cmd = "Neotree toggle show buffers right<CR>",
+            vscode_cmd = "git.revealInExplorer"
         }, {
             key = "i",
             desc = "New File",
