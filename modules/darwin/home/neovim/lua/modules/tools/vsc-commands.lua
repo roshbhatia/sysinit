@@ -1,3 +1,4 @@
+local vscode = require('vscode')
 local M = {}
 
 local cmd_map = {
