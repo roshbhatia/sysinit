@@ -1,11 +1,5 @@
 local M = {}
 
-local vscode_ok, vscode = pcall(require, "vscode")
-if not vscode_ok then
-    vim.notify("Failed to load vscode module for commands", vim.log.levels.ERROR)
-    return M
-end
-
 local cmd_map = {
     w = "workbench.action.files.save",
     wa = "workbench.action.files.saveAll",
