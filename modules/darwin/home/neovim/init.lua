@@ -49,14 +49,14 @@ local function setup_plugins()
         lualine = require("modules.ui.lualine"),
         neominimap = require("modules.ui.neominimap"),
         barbar = require("modules.ui.barbar"),
-        themify = require("modules.ui.themify")
+        themify = require("modules.ui.themify"),
+        tree = require("modules.editor.tree")
     }
 
     local editor = {
         telescope = require("modules.editor.telescope"),
         oil = require("modules.editor.oil"),
-        wilder = require("modules.editor.wilder"),
-        tree = require("modules.editor.tree")
+        wilder = require("modules.editor.wilder")
     }
 
     local tools = {
@@ -73,10 +73,9 @@ local function setup_plugins()
         alpha = require("modules.tools.alpha"),
         ["which-key"] = require("modules.tools.which-key")
     }
-
-    local modules = {ui.devicons, ui.lualine, ui.neominimap, ui.barbar, ui.themify, editor.telescope, editor.oil,
-                     editor.wilder, tools.comment, tools.hop, tools.treesitter, tools.conform, tools.git,
-                     tools["lsp-zero"], tools["nvim-lint"], tools.copilot, tools.autopairs, tools.autosession,
+    local modules = {ui.devicons, ui.themify, tools.treesitter, tools["lsp-zero"], editor.oil, ui.tree,
+                     editor.telescope, tools.autopairs, tools.comment, tools.conform, tools["nvim-lint"], tools.hop,
+                     ui.lualine, ui.barbar, ui.neominimap, tools.git, tools.copilot, editor.wilder, tools.autosession,
                      tools.alpha, tools["which-key"]}
 
     local module_loader = require("common.module_loader")
