@@ -116,11 +116,11 @@ automatically-unhide-macos-hidden-apps = false
     alt-k = 'focus up'
     alt-l = 'focus right'
 
-    # Window resizing with smart cycling for specific split ratios (use alt + space)
-    alt-space-h = 'exec-and-forget ~/.config/aerospace/smart-resize right'
-    alt-space-l = 'exec-and-forget ~/.config/aerospace/smart-resize left'
-    alt-space-j = 'exec-and-forget ~/.config/aerospace/smart-resize down'
-    alt-space-k = 'exec-and-forget ~/.config/aerospace/smart-resize up'
+    # Window resizing with smart cycling for specific split ratios (use alt + z)
+    alt-z-h = 'exec-and-forget ~/.config/aerospace/smart-resize right'
+    alt-z-l = 'exec-and-forget ~/.config/aerospace/smart-resize left'
+    alt-z-j = 'exec-and-forget ~/.config/aerospace/smart-resize down'
+    alt-z-k = 'exec-and-forget ~/.config/aerospace/smart-resize up'
     
     # Explicitly NOT binding alt+arrow keys to preserve zsh word/line navigation
 
