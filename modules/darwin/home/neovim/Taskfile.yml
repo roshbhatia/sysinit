@@ -104,7 +104,7 @@ tasks:
     cmds:
       - |
         set -eu
-        WHICH_KEY_LUA="$(pwd)/modules/tools/which-key.lua"
+        WHICH_KEY_LUA="$(pwd)/lua/modules/tools/which-key.lua"
         ACTIONS_FILE="$(pwd)/dependency-docs/actions.txt"
         echo "Extracting VSCode actions from $WHICH_KEY_LUA"
         # Look only for vscode_cmd pattern
