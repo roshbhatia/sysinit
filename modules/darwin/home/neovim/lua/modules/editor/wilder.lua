@@ -4,14 +4,13 @@ local M = {}
 M.plugins = {{
     "gelguy/wilder.nvim",
     event = "CmdlineEnter",
-    dependencies = {"nvim-tree/nvim-web-devicons"},
+    dependencies = {"roxma/nvim-yarp", "roxma/vim-hug-neovim-rpc"},
     config = function()
         local wilder = require("wilder")
         wilder.setup({
             modes = {":", "/", "?"}
         })
 
-        -- Create the popupmenu renderer with palette theme
         local popupmenu_renderer = wilder.popupmenu_renderer(
             wilder.popupmenu_palette_theme({
                 border = "rounded",
@@ -26,14 +25,12 @@ M.plugins = {{
                     }
                 })},
                 right = {" ", wilder.popupmenu_scrollbar()},
-                -- Palette specific settings
                 max_height = "75%",
                 min_height = 0,
                 prompt_position = "top",
                 reverse = false
             }))
 
-        -- Create the wildmenu renderer
         local wildmenu_renderer = wilder.wildmenu_renderer({
             highlighter = highlighters,
             separator = " · ",
@@ -41,7 +38,6 @@ M.plugins = {{
             right = {" ", wilder.wildmenu_index()}
         })
 
-        -- Set up renderer based on mode
         wilder.set_option("renderer", wilder.renderer_mux({
             [":"] = popupmenu_renderer,
             ["/"] = wildmenu_renderer,
