@@ -310,10 +310,6 @@ local function setup_plugins(keybindings)
                 "<cmd>SymbolsOutline<CR>",
                 desc = "Symbols Outline"
             }, {
-                "<leader>tp",
-                "<cmd>TroubleToggle<CR>",
-                desc = "Trouble"
-            }, {
                 "<leader>w",
                 group = " Window"
             }, {
