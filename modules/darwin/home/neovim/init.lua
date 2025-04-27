@@ -55,7 +55,8 @@ local function setup_plugins()
     local editor = {
         telescope = require("modules.editor.telescope"),
         oil = require("modules.editor.oil"),
-        wilder = require("modules.editor.wilder")
+        wilder = require("modules.editor.wilder"),
+        tree = require("modules.editor.tree")
     }
 
     local tools = {
