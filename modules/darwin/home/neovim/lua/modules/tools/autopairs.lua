@@ -6,11 +6,7 @@ M.plugins = {{
     event = "InsertEnter",
     dependencies = {"nvim-treesitter/nvim-treesitter"},
     config = function()
-        local autopairs = require("nvim-autopairs")
-        local cmp_autopairs = require("nvim-autopairs.completion.cmp")
-        local cmp = require("cmp")
-
-        autopairs.setup({
+        require("nvim-autopairs").setup({
             check_ts = true,
             ts_config = {
                 lua = {'string'},
@@ -33,7 +29,7 @@ M.plugins = {{
             }
         })
 
-        cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done())
+        require("cmp").event:on('confirm_done', require("nvim-autopairs.completion.cmp").on_confirm_done())
     end
 }}
 

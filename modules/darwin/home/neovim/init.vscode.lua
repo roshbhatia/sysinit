@@ -29,10 +29,10 @@ end
 local function setup_plugins()
     local tools = {
         ["vsc-commands"] = require("modules.tools.vsc-commands"),
-        ["vsc-which-key"] = require("modules.tools.vsc-which-key")
+        ["which-key"] = require("modules.tools.which-key")
     }
 
-    local modules = {tools["vsc-commands"], tools["vsc-which-key"]}
+    local modules = {tools["vsc-commands"], tools["which-key"]}
 
     local module_loader = require("common.module_loader")
     local specs = module_loader.get_plugin_specs(modules)
