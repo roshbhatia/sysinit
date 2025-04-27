@@ -4,11 +4,17 @@ function M.get_plugin_specs(module_system)
     local specs = {}
     for category, modules in pairs(module_system) do
         for _, module_name in ipairs(modules) do
-            local ok, spec = pcall(require, string.format("modules.%s.%s", category, module_name))
+            local ok, module = pcall(require, string.format("modules.%s.%s", category, module_name))
             if ok then
-                table.insert(specs, spec)
+                if module.plugins and type(module.plugins) == "table" then
+                    for _, plugin in ipairs(module.plugins) do
+                        table.insert(specs, plugin)
+                    end
+                else
+                    table.insert(specs, module)
+                end
             else
-                vim.notify(string.format("Failed to load plugin spec for %s.%s: %s", category, module_name, spec),
+                vim.notify(string.format("Failed to load plugin spec for %s.%s: %s", category, module_name, module),
                     vim.log.levels.ERROR)
             end
         end
