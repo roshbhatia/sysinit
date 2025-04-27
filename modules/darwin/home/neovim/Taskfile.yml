@@ -99,25 +99,25 @@ tasks:
         echo -e "${YELLOW}Scanned ${count} files, found ${found} documentation URLs${NC}"
         echo -e "${GREEN}documentation saved to ${DOC_DIR}${NC}"
 
-  verify-vscode-actions:
+  verify-vsc-actions:
     desc: Verify that all VSCode actions in our which-key abstraction are listed in the actions.txt
     cmds:
       - |
         set -eu
-        INIT_LUA="$(pwd)/init-vscode.lua"
+        WHICH_KEY_LUA="$(pwd)/modules/tools/which-key.lua"
         ACTIONS_FILE="$(pwd)/dependency-docs/actions.txt"
-        echo "Extracting VSCode actions from $INIT_LUA"
+        echo "Extracting VSCode actions from $WHICH_KEY_LUA"
         # Look only for vscode_cmd pattern
-        grep -oE 'vscode_cmd *= *"[^"]+"' "$INIT_LUA" | sed 's/.*"\([^\"]*\)".*/\1/' | sort -u > .actions_used
+        grep -oE 'vscode_cmd *= *"[^"]+"' "$WHICH_KEY_LUA" | sed 's/.*"\([^\"]*\)".*/\1/' | sort -u > .actions_used
         echo "Extracting declared actions from $ACTIONS_FILE"
         sort -u "$ACTIONS_FILE" > .actions_declared
         MISSING=$(comm -23 .actions_used .actions_declared || true)
         if [ -n "$MISSING" ]; then
-          echo "Error: Actions used in init-vscode.lua missing from $ACTIONS_FILE:"
+          echo "Error: Actions used in which-key.lua missing from $ACTIONS_FILE:"
           echo "$MISSING"
           exit 1
         fi
-        echo "All VSCode actions in $INIT_LUA are declared in $ACTIONS_FILE"
+        echo "All VSCode actions in $WHICH_KEY_LUA are declared in $ACTIONS_FILE"
     silent: true
 
   extract-vsc-commands:
