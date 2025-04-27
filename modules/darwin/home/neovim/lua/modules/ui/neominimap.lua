@@ -111,33 +111,6 @@ M.plugins = {
         })
       end
       
-      -- Register with which-key
-      local wk = require("which-key")
-      wk.add({
-        { "<leader>m", group = "Minimap", icon = { icon = "🗺️", hl = "WhichKeyIconBlue" } },
-        { "<leader>mm", "<cmd>Neominimap toggle<CR>", desc = "Toggle Minimap", mode = "n" },
-        { "<leader>mo", "<cmd>Neominimap on<CR>", desc = "Enable Minimap", mode = "n" },
-        { "<leader>mc", "<cmd>Neominimap off<CR>", desc = "Disable Minimap", mode = "n" },
-        { "<leader>mr", "<cmd>Neominimap refresh<CR>", desc = "Refresh Minimap", mode = "n" },
-        { "<leader>mf", "<cmd>Neominimap focus<CR>", desc = "Focus Minimap", mode = "n" },
-        { "<leader>mu", "<cmd>Neominimap unfocus<CR>", desc = "Unfocus Minimap", mode = "n" },
-        { "<leader>ms", "<cmd>Neominimap toggleFocus<CR>", desc = "Switch Minimap Focus", mode = "n" },
-        
-        -- Window specific controls
-        { "<leader>mw", group = "Window Controls", mode = "n" },
-        { "<leader>mwt", "<cmd>Neominimap winToggle<CR>", desc = "Toggle for Current Window", mode = "n" },
-        { "<leader>mwr", "<cmd>Neominimap winRefresh<CR>", desc = "Refresh for Current Window", mode = "n" },
-        { "<leader>mwo", "<cmd>Neominimap winOn<CR>", desc = "Enable for Current Window", mode = "n" },
-        { "<leader>mwc", "<cmd>Neominimap winOff<CR>", desc = "Disable for Current Window", mode = "n" },
-        
-        -- Buffer specific controls
-        { "<leader>mb", group = "Buffer Controls", mode = "n" },
-        { "<leader>mbt", "<cmd>Neominimap bufToggle<CR>", desc = "Toggle for Current Buffer", mode = "n" },
-        { "<leader>mbr", "<cmd>Neominimap bufRefresh<CR>", desc = "Refresh for Current Buffer", mode = "n" },
-        { "<leader>mbo", "<cmd>Neominimap bufOn<CR>", desc = "Enable for Current Buffer", mode = "n" },
-        { "<leader>mbc", "<cmd>Neominimap bufOff<CR>", desc = "Disable for Current Buffer", mode = "n" },
-      })
-      
       -- Set up highlight groups for better integration with your colorscheme
       vim.api.nvim_create_autocmd("ColorScheme", {
         pattern = "*",
@@ -233,11 +206,6 @@ M.plugins = {
         vim.g.minimap_enabled = false
         vim.cmd("Neominimap winOff")
       end, {})
-      
-      -- Update keymaps to use our rightmost-only commands
-      vim.keymap.set("n", "<leader>mm", "<cmd>RightmostMinimapToggle<CR>", { desc = "Toggle Rightmost Minimap" })
-      vim.keymap.set("n", "<leader>mo", "<cmd>RightmostMinimapOn<CR>", { desc = "Enable Rightmost Minimap" })
-      vim.keymap.set("n", "<leader>mc", "<cmd>RightmostMinimapOff<CR>", { desc = "Disable Minimap" })
     end
   }
 }
