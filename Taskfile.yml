@@ -165,6 +165,12 @@ tasks:
       - task -d modules/darwin/home/neovim pull-docs
     silent: true
 
+  nvim:extract-vsc-commands:
+    desc: Extract commands from default-keybindings.json to actions.txt (delegated)
+    cmds:
+      - task -d modules/darwin/home/neovim extract-vsc-commands
+    silent: true
+
   nvim:verify-vscode-actions:
     desc: Verify VSCode actions in init-vscode.lua (delegated)
     cmds:

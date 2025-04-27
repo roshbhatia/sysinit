@@ -118,3 +118,11 @@ tasks:
         fi
         echo "All VSCode actions in $INIT_LUA are declared in $ACTIONS_FILE"
     silent: true
+
+  extract-vsc-commands:
+    desc: Extract commands from default-keybindings.json to actions.txt
+    dir: '{{.ROOT_DIR}}'
+    cmds:
+      - |
+        sed -n 's/.*"command": "\([^"]*\)".*$/\1/p; s/.*- \([a-zA-Z0-9.]*\)$/\1/p' ./dependency-docs/default-keybindings.json > ./dependency-docs/actions.txt
+    silent: true
