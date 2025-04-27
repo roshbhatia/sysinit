@@ -1,6 +1,6 @@
 local M = {}
 
-function M.setup_package_manager()
+function M.setup_package_manager(specs)
     local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
     if not vim.loop.fs_stat(lazypath) then
         vim.fn.system({"git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git",
@@ -8,18 +8,24 @@ function M.setup_package_manager()
     end
     vim.opt.rtp:prepend(lazypath)
 
+    local core_specs = {{
+        "vhyrro/luarocks.nvim",
+        priority = 1000,
+        config = true,
+        opts = {
+            rocks = {}
+        }
+    }}
+
+    for _, spec in ipairs(specs) do
+        table.insert(core_specs, spec)
+    end
+
     require("lazy").setup({
         root = vim.fn.stdpath("data") .. "/lazy",
         lockfile = vim.fn.stdpath("data") .. "/lazy/lazy-lock.json",
 
-        spec = {{
-            "vhyrro/luarocks.nvim",
-            priority = 1000,
-            config = true,
-            opts = {
-                rocks = {}
-            }
-        }},
+        spec = core_specs,
 
         performance = {
             rtp = {
@@ -32,7 +38,6 @@ function M.setup_package_manager()
         }
     })
 end
-
 function M.setup_settings()
     vim.keymap.set({"n", "v"}, "<Space>", "<Nop>", {
         noremap = true,

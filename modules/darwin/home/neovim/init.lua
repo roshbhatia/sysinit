@@ -104,7 +104,9 @@ local function init()
     vim.opt.clipboard = "unnamedplus"
 
     setup_keybindings()
+    print("Loading plugins...")
     setup_plugins()
+    print("Plugins loaded")
 end
 
 init()
