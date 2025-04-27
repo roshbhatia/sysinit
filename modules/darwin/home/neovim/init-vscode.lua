@@ -75,6 +75,7 @@ local function init()
         callback = function()
             setup_keybindings()
             setup_plugins()
+            vim.cmd("Alpha")
         end
     })
 end
