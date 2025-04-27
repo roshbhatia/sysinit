@@ -1,0 +1,45 @@
+function setup_package_manager()
+    local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+    if not vim.loop.fs_stat(lazypath) then
+        vim.fn.system({"git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git",
+                       "--branch=stable", lazypath})
+    end
+    vim.opt.rtp:prepend(lazypath)
+end
+
+function setup_settings()
+    vim.keymap.set({"n", "v"}, "<Space>", "<Nop>", {
+        noremap = true,
+        silent = true
+    })
+    vim.g.mapleader = " "
+    vim.g.maplocalleader = " "
+
+    vim.keymap.set("n", ":", ":", {
+        noremap = true,
+        desc = "Command mode"
+    })
+
+    vim.opt.hlsearch = true
+    vim.opt.incsearch = true
+    vim.opt.ignorecase = true
+    vim.opt.smartcase = true
+
+    vim.opt.expandtab = true
+    vim.opt.shiftwidth = 2
+    vim.opt.tabstop = 2
+    vim.opt.smartindent = true
+    vim.opt.wrap = false
+    vim.opt.linebreak = true
+    vim.opt.breakindent = true
+
+    vim.opt.splitbelow = true
+    vim.opt.splitright = true
+
+    vim.opt.updatetime = 100
+    vim.opt.timeoutlen = 300
+    vim.opt.scrolloff = 8
+    vim.opt.sidescrolloff = 8
+    vim.opt.mouse = "a"
+    vim.opt.clipboard = "unnamedplus"
+end
