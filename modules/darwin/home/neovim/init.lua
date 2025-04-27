@@ -75,6 +75,7 @@ local function init()
     vim.opt.showtabline = 2
     vim.opt.shortmess:append("c")
     vim.opt.completeopt = {"menuone", "noselect"}
+    vim.opt.clipboard = "unnamedplus"
 
     setup_keybindings()
     setup_plugins()

@@ -62,7 +62,6 @@ function setup_settings()
     vim.opt.scrolloff = 8
     vim.opt.sidescrolloff = 8
     vim.opt.mouse = "a"
-    vim.opt.clipboard = "unnamedplus"
 
     vim.opt.number = true
     vim.opt.cursorline = true

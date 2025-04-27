@@ -9,7 +9,7 @@ M.plugins = {{
         local directions = require('hop.hint').HintDirection
 
         hop.setup({
-            keys = 'etovxqpdygfblzhckisuran'
+            keys = 'fjdkslaghrueiwoncmv'
         })
     end
 }}
