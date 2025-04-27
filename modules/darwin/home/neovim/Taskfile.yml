@@ -100,14 +100,15 @@ tasks:
         echo -e "${GREEN}documentation saved to ${DOC_DIR}${NC}"
 
   verify-vscode-actions:
-    desc: Verify that all VSCode actions in init-vscode.lua are listed in the actions.txt
+    desc: Verify that all VSCode actions in our which-key abstraction are listed in the actions.txt
     cmds:
       - |
         set -eu
         INIT_LUA="$(pwd)/init-vscode.lua"
-        ACTIONS_FILE="$(pwd)/vscode/actions.txt"
+        ACTIONS_FILE="$(pwd)/dependency-docs/actions.txt"
         echo "Extracting VSCode actions from $INIT_LUA"
-        grep -oE 'action *= *"[^"]+"' "$INIT_LUA" | sed 's/.*"\([^\"]*\)".*/\1/' | sort -u > .actions_used
+        # Look only for vscode_cmd pattern
+        grep -oE 'vscode_cmd *= *"[^"]+"' "$INIT_LUA" | sed 's/.*"\([^\"]*\)".*/\1/' | sort -u > .actions_used
         echo "Extracting declared actions from $ACTIONS_FILE"
         sort -u "$ACTIONS_FILE" > .actions_declared
         MISSING=$(comm -23 .actions_used .actions_declared || true)
