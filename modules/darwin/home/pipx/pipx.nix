@@ -22,11 +22,12 @@ in
 
       PIPX="/opt/homebrew/bin/pipx"
       if [ -x "$PIPX" ]; then
+        "$PIPX" ensurepath || true
         PACKAGES="${lib.escapeShellArgs allPackages}"
         if [ -n "$PACKAGES" ]; then
           for package in $PACKAGES; do
             echo "Installing $package if needed..."
-            "$PIPX" install "$package" --force || true
+            "$PIPX" install "$package" --force q || true
           done
         fi
       else
