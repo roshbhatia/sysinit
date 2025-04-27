@@ -576,12 +576,12 @@ M.keybindings_data = {
             key = "j",
             desc = "Focus Lower Window",
             neovim_cmd = "<C-w>j",
-            vscode_cmd = "workbench.action.focusDownGroup"
+            vscode_cmd = "workbench.action.navigateDown"
         }, {
             key = "k",
             desc = "Focus Upper Window",
             neovim_cmd = "<C-w>k",
-            vscode_cmd = "workbench.action.focusUpGroup"
+            vscode_cmd = "workbench.action.navigateUp"
         }, {
             key = "l",
             desc = "Focus Right Window",
