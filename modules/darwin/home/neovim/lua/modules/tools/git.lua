@@ -4,8 +4,7 @@ local M = {}
 M.plugins = {{
     "kdheepak/lazygit.nvim",
     event = "VeryLazy",
-    cmd = {"LazyGit", "LazyGitConfig", "LazyGitCurrentFile", "LazyGitFilter", "LazyGitFilterCurrentFile"},
-    dependencies = {"nvim-lua/plenary.nvim", "lewis6991/gitsigns.nvim"},
+    dependencies = {"nvim-lua/plenary.nvim", "lewis6991/gitsigns.nvim", "tpope/vim-fugitive"},
     config = function()
         require("gitsigns").setup()
         vim.g.lazygit_floating_window_winblend = 0

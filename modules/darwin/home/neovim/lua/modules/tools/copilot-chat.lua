@@ -4,9 +4,6 @@ local M = {}
 M.plugins = {{
     "CopilotC-Nvim/CopilotChat.nvim",
     lazy = true,
-    cmd = {"CopilotChat", "CopilotChatOpen", "CopilotChatToggle", "CopilotChatClose", "CopilotChatReset",
-           "CopilotChatExplain", "CopilotChatReview", "CopilotChatFix", "CopilotChatOptimize", "CopilotChatDocs",
-           "CopilotChatTests", "CopilotChatCommit"},
     dependencies = {"nvim-lua/plenary.nvim", "github/copilot.vim"},
     config = function()
         local chat = require("CopilotChat")

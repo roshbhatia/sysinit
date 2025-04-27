@@ -6,10 +6,9 @@ M.plugins = {{
     lazy = false,
     priority = 999,
     config = function()
-        -- Set up the themify plugin with our themes
         require("themify").setup({
-            async = true, -- Enable async loading for faster startup
-            activity = true, -- Track colorscheme usage activity
+            async = true,
+            activity = true,
             "EdenEast/nightfox.nvim",
             "RRethy/base16-nvim",
             "folke/tokyonight.nvim",
@@ -33,11 +32,8 @@ M.plugins = {{
             "rafamadriz/neon",
             "dracula/vim",
 
-            -- Set default theme to one of the installed themes
             loader = function()
-                -- First attempt to load whatever was used last
                 local success = pcall(function()
-                    -- Load the last used theme if available
                     require("themify").load_saved()
                 end)
             end

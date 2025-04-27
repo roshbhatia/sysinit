@@ -3,12 +3,11 @@ local M = {}
 
 M.plugins = {{
     "mfussenegger/nvim-lint",
-    event = "VeryLazy", -- Load lazily
+    event = "VeryLazy",
     dependencies = {"mason.nvim"},
     config = function()
         local lint = require("lint")
 
-        -- Configure linters for different filetypes
         local linters_by_ft = {
             python = {"pylint", "ruff"},
             javascript = {"eslint"},
@@ -24,33 +23,23 @@ M.plugins = {{
             lua = {"luacheck"},
             terraform = {"tflint"}
         }
-        -- Add YAML linter only if 'yamllint' is installed
-        if vim.fn.executable("yamllint") == 1 then
-            linters_by_ft.yaml = {"yamllint"}
-        else
-            vim.notify("yamllint not found: YAML linting disabled", vim.log.levels.WARN)
-        end
         lint.linters_by_ft = linters_by_ft
 
-        -- Configure specific linters
         lint.linters.pylint.args = {"--output-format=text", "--score=no",
                                     "--msg-template='{line}:{column}:{category}:{msg} ({symbol})'"}
 
         lint.linters.shellcheck.args = {"--format=gcc", "--external-sources", "--shell=bash"}
 
-        -- Set up autocommands for running linters
         vim.api.nvim_create_autocmd({"BufWritePost", "BufEnter"}, {
             callback = function()
                 require("lint").try_lint()
             end
         })
 
-        -- Create a command to manually trigger linting
         vim.api.nvim_create_user_command("Lint", function()
             require("lint").try_lint()
         end, {})
 
-        -- Create a function to toggle automatic linting
         local auto_linting_enabled = true
 
         local function toggle_auto_lint()
@@ -74,7 +63,6 @@ M.plugins = {{
             end
         end
 
-        -- Create a command to toggle automatic linting
         vim.api.nvim_create_user_command("ToggleAutoLint", toggle_auto_lint, {})
     end
 }}
