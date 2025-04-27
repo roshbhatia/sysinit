@@ -1,44 +1,3 @@
-local function setup_leader()
-    vim.g.mapleader = " "
-    vim.g.maplocalleader = " "
-    -- Prevent space from moving cursor in normal/visual mode
-    vim.keymap.set({"n", "v"}, "<Space>", "<Nop>", {
-        noremap = true,
-        silent = true
-    })
-end
-
--- Common Neovim settings
-local function setup_common_settings()
-    -- Search settings
-    vim.opt.hlsearch = true
-    vim.opt.incsearch = true
-    vim.opt.ignorecase = true
-    vim.opt.smartcase = true
-
-    -- Indentation settings
-    vim.opt.expandtab = true
-    vim.opt.shiftwidth = 2
-    vim.opt.tabstop = 2
-    vim.opt.smartindent = true
-    vim.opt.wrap = false
-    vim.opt.linebreak = true
-    vim.opt.breakindent = true
-
-    -- Window behavior
-    vim.opt.splitbelow = true
-    vim.opt.splitright = true
-
-    -- Performance and usability
-    vim.opt.updatetime = 100
-    vim.opt.timeoutlen = 300
-    vim.opt.scrolloff = 8
-    vim.opt.sidescrolloff = 8
-    vim.opt.mouse = "a"
-    vim.opt.clipboard = "unnamedplus"
-end
-
--- VSCode integration specific settings
 local function setup_vscode_integration()
     if not vim.g.vscode then
         return
@@ -887,38 +846,6 @@ local function setup_vscode_features()
     which_key.setup()
 end
 
--- Main initialization function
-local function init()
-    -- If running under VSCode, override notifications to use VSCode UI
-    if vim.g.vscode then
-        local ok, vscode_mod = pcall(require, "vscode")
-        if ok and vscode_mod.notify then
-            vim.notify = vscode_mod.notify
-        end
-    end
-
-    -- Basic initialization - works even if subsequent steps fail
-    setup_leader()
-    setup_common_settings()
-    setup_vscode_integration()
-
-    -- Try to load plugins (may fail if modules aren't available)
-    pcall(setup_plugins)
-
-    -- Set up VSCode-specific features when the VSCode UI attaches
-    if vim.g.vscode then
-        vim.api.nvim_create_autocmd("UIEnter", {
-            once = true,
-            callback = function()
-                local ok, err = pcall(setup_vscode_features)
-                if not ok then
-                    vim.notify("Error loading VSCode features: " .. tostring(err), vim.log.levels.ERROR)
-                end
-            end
-        })
-    end
-end
-
 -- Safeguard for ephemeral buffers
 local function is_valid_buffer(bufnr)
     return bufnr and vim.api.nvim_buf_is_valid(bufnr) and vim.api.nvim_buf_get_option(bufnr, "buflisted")
@@ -935,5 +862,26 @@ vim.api.nvim_create_autocmd("BufEnter", {
     end
 })
 
--- Run initialization
+-- Main initialization function
+local function init()
+    local ok, vscode_mod = pcall(require, "vscode")
+    if ok and vscode_mod.notify then
+        vim.notify = vscode_mod.notify
+    end
+
+    setup_leader()
+    setup_common_settings()
+    setup_vscode_integration()
+
+    vim.api.nvim_create_autocmd("UIEnter", {
+        once = true,
+        callback = function()
+            local ok, err = pcall(setup_vscode_features)
+            if not ok then
+                vim.notify("Error loading VSCode features: " .. tostring(err), vim.log.levels.ERROR)
+            end
+        end
+    })
+end
+
 init()
