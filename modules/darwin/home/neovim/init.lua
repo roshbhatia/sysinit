@@ -67,8 +67,6 @@ local function setup_plugins()
         ["lsp-zero"] = require("modules.tools.lsp-zero"),
         ["nvim-lint"] = require("modules.tools.nvim-lint"),
         copilot = require("modules.tools.copilot"),
-        ["copilot-chat"] = require("modules.tools.copilot-chat"),
-        ["copilot-cmp"] = require("modules.tools.copilot-cmp"),
         autopairs = require("modules.tools.autopairs"),
         autosession = require("modules.tools.autosession"),
         alpha = require("modules.tools.alpha"),
@@ -77,8 +75,8 @@ local function setup_plugins()
 
     local modules = {ui.devicons, ui.lualine, ui.neominimap, ui.barbar, ui.themify, editor.telescope, editor.oil,
                      editor.wilder, tools.comment, tools.hop, tools.treesitter, tools.conform, tools.git,
-                     tools["lsp-zero"], tools["nvim-lint"], tools.copilot, tools["copilot-chat"], tools["copilot-cmp"],
-                     tools.autopairs, tools.autosession, tools.alpha, tools["which-key"]}
+                     tools["lsp-zero"], tools["nvim-lint"], tools.copilot, tools.autopairs, tools.autosession,
+                     tools.alpha, tools["which-key"]}
 
     local module_loader = require("common.module_loader")
     local specs = module_loader.get_plugin_specs(modules)

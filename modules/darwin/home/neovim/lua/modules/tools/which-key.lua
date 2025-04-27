@@ -43,6 +43,37 @@ M.plugins = {{
         })
 
         require("which-key").add({{
+            "<leader>a",
+            group = " AI"
+        }, {
+            "<leader>ac",
+            "<cmd>CopilotChatToggle<CR>",
+            desc = "Toggle Chat"
+        }, {
+            "<leader>ad",
+            "<cmd>CopilotChatDocumentThis<CR>",
+            desc = "Generate Docs"
+        }, {
+            "<leader>ao",
+            "<cmd>CopilotChatOptimizeCode<CR>",
+            desc = "Optimize"
+        }, {
+            "<leader>ar",
+            "<cmd>CopilotChatRefactorCode<CR>",
+            desc = "Refactor"
+        }, {
+            "<leader>af",
+            "<cmd>CopilotChatFix<CR>",
+            desc = "Fix Code"
+        }, {
+            "<leader>ae",
+            "<cmd>CopilotChatExplain<CR>",
+            desc = "Explain"
+        }, {
+            "<leader>at",
+            "<cmd>CopilotChatTests<CR>",
+            desc = "Generate Tests"
+        }, {
             "<leader>b",
             group = "󱅄 Buffer"
         }, {
@@ -219,7 +250,7 @@ M.plugins = {{
             "<cmd>split<CR>",
             desc = "Horizontal Split"
         }, {
-            "<leader>vs",
+            "<leader>sv",
             "<cmd>vsplit<CR>",
             desc = "Vertical Split"
         }, {
