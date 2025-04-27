@@ -106,7 +106,6 @@ local function init()
 
     setup_keybindings()
     setup_plugins()
-    vim.cmd("Alpha")
 end
 
 init()
