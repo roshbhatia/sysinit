@@ -166,13 +166,13 @@ tasks:
     silent: true
 
   nvim:extract-vsc-commands:
-    desc: Verify that all VSCode actions in our which-key abstraction are listed in the actions.txt (delegated)
+    desc: Extract commands from default-keybindings.json to actions.txt (delegated)
     cmds:
       - task -d modules/darwin/home/neovim extract-vsc-commands
     silent: true
 
   nvim:verify-vsc-commands:
-    desc: Verify VSCode actions in init-vscode.lua (delegated)
+    desc: Verify that all VSCode actions in our which-key abstraction are listed in the actions.txt (delegated)
     cmds:
-      - task -d modules/darwin/home/neovim verify-vscode-actions
+      - task -d modules/darwin/home/neovim verify-vsc-actions
     silent: true
