@@ -27,7 +27,7 @@ M.plugins = {{
 
         require('mason-lspconfig').setup({
             ensure_installed = {"awk_ls", "bashls", "dagger", "docker_compose_language_service", "dockerls",
-                                "golangci_lint_ls", "gopls", "grammarly", "helm-ls", "html", "jqls", "marksman",
+                                "golangci_lint_ls", "gopls", "grammarly", "helm_ls", "html", "jqls", "marksman",
                                 "nil_ls", "spectral", "terraformls", "tflint", "ts_ls"},
             automatic_installation = true,
             handlers = {function(server_name)
