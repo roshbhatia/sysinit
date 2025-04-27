@@ -353,8 +353,9 @@ end
 
 local function init()
     local init_dir = vim.fn.fnamemodify(vim.fn.expand("$MYVIMRC"), ":p:h")
-    local lua_dir = init_dir .. "/lua"
-    vim.opt.rtp:prepend(lua_dir)
+    print("Init directory:", init_dir)
+    print("Lua directory:", init_dir .. "/lua")
+    vim.opt.rtp:prepend(init_dir)
 
     require('common')
     setup_package_manager()
