@@ -138,6 +138,23 @@ local function setup_plugins(keybindings)
                 "<cmd>BufferPrevious<CR>",
                 desc = "Previous"
             }, {
+                "<leader>bi",
+                function()
+                    vim.ui.input({
+                        prompt = "Enter file path: "
+                    }, function(input)
+                        if input then
+                            -- Create parent directories if they don't exist
+                            local dir = vim.fn.fnamemodify(input, ":h")
+                            if dir ~= "." and vim.fn.isdirectory(dir) == 0 then
+                                vim.fn.mkdir(dir, "p")
+                            end
+                            vim.cmd("edit " .. input)
+                        end
+                    end)
+                end,
+                desc = "New File"
+            }, {
                 "<leader>c",
                 group = "󰘧 Code"
             }, {
