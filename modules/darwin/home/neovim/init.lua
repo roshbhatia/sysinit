@@ -218,7 +218,7 @@ local function setup_plugins(keybindings)
             }, {
                 "<leader>gD",
                 "<cmd>Telescope git_status<CR>",
-                desc = "Status (Telescope)"
+                desc = "Status"
             }, {
                 "<leader>gL",
                 "<cmd>LazyGit<CR>",
