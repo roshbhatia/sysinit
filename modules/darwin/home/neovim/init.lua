@@ -68,7 +68,7 @@ end
 local function setup_plugins(keybindings)
     local module_system = {
         ui = {"devicons", "lualine", "neominimap", "barbar", "themify"},
-        editor = {"which-key", "telescope", "oil", "wilder"},
+        editor = {"telescope", "oil", "wilder"},
         tools = {"comment", "hop", "treesitter", "conform", "git", "lsp-zero", "nvim-lint", "copilot", "copilot-chat",
                  "copilot-cmp", "autopairs", "autosession", "alpha"}
     }
@@ -356,9 +356,9 @@ local function init()
     local lua_dir = init_dir .. "/lua"
     vim.opt.rtp:prepend(lua_dir)
 
-    local common = require('common')
-    common.setup_package_manager()
-    common.setup_settings()
+    require('common')
+    setup_package_manager()
+    setup_settings()
 
     setup_neovim_settings()
     setup_keybindings()
