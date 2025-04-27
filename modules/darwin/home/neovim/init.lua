@@ -209,7 +209,6 @@ local function setup_plugins(keybindings)
         { "<leader>ss", "<cmd>split<CR>", desc = "Horizontal Split", group = "󰃻 Split" },
         { "<leader>sv", "<cmd>vsplit<CR>", desc = "Vertical Split", group = "󰃻 Split" },
         { "<leader>tb", "<cmd>lua require('core.utils').toggle_buffer()<CR>", desc = "Toggle Buffer", group = "󰨚 Toggle" },
-        { "<leader>te", "<cmd>Oil<CR>", desc = "Oil", group = "󰨚 Toggle" },
         { "<leader>tm", "<cmd>Telescope commands<CR>", desc = "Commands", group = "󰨚 Toggle" },
         { "<leader>to", "<cmd>SymbolsOutline<CR>", desc = "Symbols Outline", group = "󰨚 Toggle" },
         { "<leader>tp", "<cmd>TroubleToggle<CR>", desc = "Trouble", group = "󰨚 Toggle" },
