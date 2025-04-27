@@ -537,18 +537,29 @@ local function update_mode_display()
         return
     end
     local mode_data = MODE_DISPLAY[mode_key] or MODE_DISPLAY.n
-    pcall(vscode.eval, EVAL_STRINGS.mode_display, {
-        timeout = 1000,
-        args = {
-            text = mode_strings[mode_key] or mode_strings.n,
-            color = mode_data.color,
-            mode = mode_key
-        }
-    })
-    last_mode = mode_key
+
+    -- Add defensive check for vscode module
+    if vscode then
+        local success = pcall(vscode.eval, EVAL_STRINGS.mode_display, {
+            timeout = 1000,
+            args = {
+                text = mode_strings[mode_key] or mode_strings.n,
+                color = mode_data.color,
+                mode = mode_key
+            }
+        })
+
+        -- Only update last_mode if successful
+        if success then
+            last_mode = mode_key
+        end
+    end
 end
 
 function M.setup()
+    -- Initialize variables to avoid nil reference
+    last_mode = ""
+
     vim.keymap.set("n", "<leader>", function()
         show_menu()
     end, {
@@ -561,29 +572,49 @@ function M.setup()
         handle_group("<leader>" .. prefix, group)
     end
 
+    -- Create augroups to organize and manage autocmds
+    local menu_group = vim.api.nvim_create_augroup("WhichKeyMenu", {
+        clear = true
+    })
+    local mode_group = vim.api.nvim_create_augroup("ModeDisplay", {
+        clear = true
+    })
+
     vim.api.nvim_create_autocmd({"ModeChanged", "CursorMoved"}, {
-        callback = hide_menu
+        callback = hide_menu,
+        group = menu_group
     })
 
     vim.api.nvim_create_autocmd("ModeChanged", {
         pattern = "*",
-        callback = update_mode_display
+        callback = function()
+            -- Wrap in protected call to prevent errors from propagating
+            pcall(update_mode_display)
+        end,
+        group = mode_group
     })
 
     vim.api.nvim_create_autocmd("CmdlineEnter", {
         callback = function()
-            pcall(vscode.eval, EVAL_STRINGS.mode_display, {
-                timeout = 1000,
-                args = {
-                    text = "COMMAND",
-                    color = MODE_DISPLAY.c.color,
-                    mode = 'c'
-                }
-            })
-        end
+            -- Check if vscode module is available
+            if vscode then
+                pcall(vscode.eval, EVAL_STRINGS.mode_display, {
+                    timeout = 1000,
+                    args = {
+                        text = "COMMAND",
+                        color = MODE_DISPLAY.c.color,
+                        mode = 'c'
+                    }
+                })
+            end
+        end,
+        group = mode_group
     })
 
-    update_mode_display()
+    -- Delay the initial mode display to ensure channel is ready
+    vim.defer_fn(function()
+        pcall(update_mode_display)
+    end, 100)
 end
 
 return M

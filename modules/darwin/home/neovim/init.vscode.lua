@@ -50,7 +50,6 @@ local function init()
 
     -- Custom settings
     vim.opt.foldmethod = "manual"
-    vim.cmd("set eventignore+=VimEnter")
 
     setup_keybindings()
     setup_plugins()
