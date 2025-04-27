@@ -116,11 +116,11 @@ automatically-unhide-macos-hidden-apps = false
     alt-k = 'focus up'
     alt-l = 'focus right'
 
-    # Window resizing with smart cycling for specific split ratios (use alt + space)
-    alt-space-h = 'exec-and-forget ~/.config/aerospace/smart-resize right'
-    alt-space-l = 'exec-and-forget ~/.config/aerospace/smart-resize left'
-    alt-space-j = 'exec-and-forget ~/.config/aerospace/smart-resize down'
-    alt-space-k = 'exec-and-forget ~/.config/aerospace/smart-resize up'
+    # Window resizing with smart cycling for specific split ratios (use alt + yuio)
+    alt-y = 'exec-and-forget ~/.config/aerospace/smart-resize right'
+    alt-o = 'exec-and-forget ~/.config/aerospace/smart-resize left'
+    alt-u = 'exec-and-forget ~/.config/aerospace/smart-resize down'
+    alt-i = 'exec-and-forget ~/.config/aerospace/smart-resize up'
     
     # Base resize commands
     alt-minus = 'resize smart -50'
