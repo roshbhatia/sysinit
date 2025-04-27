@@ -20,6 +20,27 @@ function setup_settings()
         desc = "Command mode"
     })
 
+    vim.keymap.set("n", "<C-d>", "<C-d>zz", {
+        noremap = true,
+        silent = true
+    })
+    vim.keymap.set("n", "<C-u>", "<C-u>zz", {
+        noremap = true,
+        silent = true
+    })
+    vim.keymap.set("n", "n", "nzzzv", {
+        noremap = true,
+        silent = true
+    })
+    vim.keymap.set("n", "N", "Nzzzv", {
+        noremap = true,
+        silent = true
+    })
+    vim.keymap.set("t", "<Esc><Esc>", [[<C-\><C-n>]], {
+        noremap = true,
+        silent = true
+    })
+
     vim.opt.hlsearch = true
     vim.opt.incsearch = true
     vim.opt.ignorecase = true
@@ -42,4 +63,13 @@ function setup_settings()
     vim.opt.sidescrolloff = 8
     vim.opt.mouse = "a"
     vim.opt.clipboard = "unnamedplus"
+
+    vim.opt.number = true
+    vim.opt.cursorline = true
+    vim.opt.signcolumn = "yes"
+    vim.opt.termguicolors = true
+    vim.opt.showmode = false
+    vim.opt.lazyredraw = true
+    vim.opt.foldenable = false
+    vim.opt.foldlevel = 99
 end
