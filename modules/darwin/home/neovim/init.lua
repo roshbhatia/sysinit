@@ -108,3 +108,5 @@ local function init()
 end
 
 init()
+
+vim.cmd("Alpha")
