@@ -28,11 +28,11 @@ end
 
 local function setup_plugins()
     local tools = {
-        commands = require("modules.tools.vsc-commands"),
-        ["which-key"] = require("modules.tools.vsc-which-key")
+        ["vsc-commands"] = require("modules.tools.vsc-commands"),
+        ["vsc-which-key"] = require("modules.tools.vsc-which-key")
     }
 
-    local modules = {tools.commands, tools["which-key"]}
+    local modules = {tools["vsc-commands"], tools["vsc-which-key"]}
 
     local module_loader = require("common.module_loader")
     local specs = module_loader.get_plugin_specs(modules)
@@ -41,9 +41,8 @@ local function setup_plugins()
 end
 
 local function init()
-    local init_dir = vim.fn.fnamemodify(vim.fn.expand("$MYVIMRC"), ":p:h")
-    vim.opt.rtp:prepend(init_dir)
-
+    local current_dir = debug.getinfo(1).source:match("@?(.*/)") or "./"
+    package.path = package.path .. ";" .. current_dir .. "?.lua" .. ";" .. current_dir .. "lua/?.lua"
     require('common.settings').setup_settings()
 
     -- Custom settings
