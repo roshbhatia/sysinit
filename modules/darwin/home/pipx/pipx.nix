@@ -27,7 +27,7 @@ in
         if [ -n "$PACKAGES" ]; then
           for package in $PACKAGES; do
             echo "Installing $package if needed..."
-            "$PIPX" install "$package" --force q || true
+            "$PIPX" install "$package" --force --quiet || true
           done
         fi
       else
