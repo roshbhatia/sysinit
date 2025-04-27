@@ -115,13 +115,7 @@ M.plugins = {
           })
         end,
       })
-      
-      -- Global keymappings
-      lsp_zero.on_attach(function(client, bufnr)
-        -- Default LSP mappings
-        lsp_zero.default_keymaps({buffer = bufnr})
-      end)
-      
+
       -- Configure diagnostics display
       vim.diagnostic.config({
         virtual_text = {
