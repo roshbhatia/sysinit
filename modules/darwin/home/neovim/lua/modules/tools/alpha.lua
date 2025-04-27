@@ -133,40 +133,6 @@ function M.setup()
             })
         end
     })
-
-    vim.api.nvim_create_autocmd("VimEnter", {
-        desc = "Open Alpha when Neovim starts with no arguments",
-        callback = function()
-            local should_skip = false
-
-            if vim.fn.argc() > 0 or vim.fn.line2byte("$") ~= -1 or vim.bo.filetype == "gitcommit" then
-                should_skip = true
-            end
-
-            for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-                if vim.bo[bufnr].filetype ~= "" and vim.bo[bufnr].filetype ~= "alpha" then
-                    should_skip = true
-                    break
-                end
-            end
-
-            if not should_skip then
-                for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-                    if vim.api.nvim_buf_line_count(bufnr) == 1 and vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)[1] ==
-                        "" then
-                        vim.api.nvim_buf_delete(bufnr, {
-                            force = true
-                        })
-                    end
-                end
-
-                vim.cmd("Alpha")
-            end
-        end,
-        group = vim.api.nvim_create_augroup("alpha_autostart", {
-            clear = true
-        })
-    })
 end
 
 return M
