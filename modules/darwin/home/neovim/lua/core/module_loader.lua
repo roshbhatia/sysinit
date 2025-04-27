@@ -1,14 +1,20 @@
 local M = {}
 
-function M.get_plugin_specs(modules)
+function M.get_plugin_specs(module_system)
     local specs = {}
-    local categories = {"editor", "ui", "tools"}
 
-    for _, category in ipairs(categories) do
-        for _, module_name in ipairs(modules[category] or {}) do
-            local ok, module = pcall(require, "modules." .. category .. "." .. module_name)
-            if ok and module.plugins then
-                vim.list_extend(specs, module.plugins)
+    if vim.g.vscode then
+        return specs
+    end
+
+    for category, modules in pairs(module_system) do
+        for _, module_name in ipairs(modules) do
+            local ok, spec = pcall(require, string.format("plugins.%s.%s", category, module_name))
+            if ok then
+                table.insert(specs, spec)
+            else
+                vim.notify(string.format("Failed to load plugin spec for %s.%s: %s", category, module_name, spec),
+                    vim.log.levels.ERROR)
             end
         end
     end
@@ -16,14 +22,23 @@ function M.get_plugin_specs(modules)
     return specs
 end
 
-function M.setup_modules(modules)
-    local categories = {"editor", "ui", "tools"}
+function M.setup_modules(module_system)
+    for category, modules in pairs(module_system) do
+        for _, module_name in ipairs(modules) do
+            local ok, err = pcall(function()
+                local module_path = string.format("modules.%s.%s", category, module_name)
+                local module = require(module_path)
 
-    for _, category in ipairs(categories) do
-        for _, module_name in ipairs(modules[category] or {}) do
-            local ok, module = pcall(require, "modules." .. category .. "." .. module_name)
-            if ok and module.setup then
-                module.setup()
+                if type(module.setup) == "function" then
+                    module.setup()
+                else
+                    vim.notify(string.format("Module %s has no setup function", module_path), vim.log.levels.WARN)
+                end
+            end)
+
+            if not ok then
+                vim.notify(string.format("Failed to setup module %s.%s: %s", category, module_name, err),
+                    vim.log.levels.ERROR)
             end
         end
     end
