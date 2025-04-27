@@ -171,7 +171,6 @@ local function setup_plugins(keybindings)
       })
 
       require("which-key").add({
-        { "", desc = "<leader>" },
         { "bd", "<cmd>BufferClose<CR>", desc = "Close", group = "󱅄 Buffer" },
         { "bn", "<cmd>BufferNext<CR>", desc = "Next", group = "󱅄 Buffer" },
         { "bo", "<cmd>BufferCloseAllButCurrent<CR>", desc = "Close Others", group = "󱅄 Buffer" },
