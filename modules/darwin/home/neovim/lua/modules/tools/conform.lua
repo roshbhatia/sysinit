@@ -7,7 +7,6 @@ M.plugins = {{
     dependencies = {"mason.nvim"},
     config = function()
         local conform = require("conform")
-        local wk = require("which-key")
 
         -- Enable format on save globally by default (can be toggled)
         vim.g.format_on_save = true
@@ -95,7 +94,6 @@ M.plugins = {{
             range = true
         })
 
-        -- Toggle format on save function
         local function toggle_format_on_save()
             vim.g.format_on_save = not vim.g.format_on_save
             if vim.g.format_on_save then
@@ -105,31 +103,7 @@ M.plugins = {{
             end
         end
 
-        -- Register the toggle function as a command
         vim.api.nvim_create_user_command("ToggleFormatOnSave", toggle_format_on_save, {})
-
-        -- Format mappings
-        vim.keymap.set("n", "<leader>cf", function()
-            conform.format({
-                async = true,
-                lsp_fallback = true
-            })
-        end, {
-            desc = "Format Document"
-        })
-
-        vim.keymap.set("v", "<leader>cf", function()
-            conform.format({
-                async = true,
-                lsp_fallback = true,
-                range = {
-                    start = vim.api.nvim_buf_get_mark(0, "<"),
-                    ["end"] = vim.api.nvim_buf_get_mark(0, ">")
-                }
-            })
-        end, {
-            desc = "Format Selection"
-        })
     end
 }}
 

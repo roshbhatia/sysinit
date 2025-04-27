@@ -1,100 +1,304 @@
 local M = {}
 
-M.plugins = {{
-    "folke/which-key.nvim",
-    lazy = VeryLazy,
-    config = function()
-        require("which-key").setup({
-            plugins = {
-                marks = true,
-                registers = true,
-                spelling = {
-                    enabled = true,
-                    suggestions = 20
-                },
-                presets = {
-                    operators = true,
-                    motions = true,
-                    text_objects = true,
-                    windows = true,
-                    nav = true,
-                    z = true,
-                    g = true
-                }
-            },
-            win = {
-                border = "rounded",
-                padding = {2, 2, 2, 2}
-            },
-            layout = {
-                spacing = 3
-            },
-            icons = {
-                breadcrumb = "»",
-                separator = "➜",
-                group = "+"
-            },
-            show_help = true,
-            show_keys = true,
-            triggers = {{
-                "<auto>",
-                mode = "nxsotc"
-            }}
+local vscode_utils = {}
+
+if vim.g.vscode then
+    vscode_utils.vscode = require('vscode')
+
+    vscode_utils.EVAL_STRINGS = {
+        quickpick_menu = [[
+            const vscode = require('vscode');
+            if (globalThis.quickPick) { globalThis.quickPick.dispose(); }
+            
+            const quickPick = vscode.window.createQuickPick();
+            quickPick.items = args.items.map(item => ({
+              label: item.isGroup ? `$(chevron-right) ${item.label}` : item.isGroupItem ? `  $(key) ${item.label}` : item.label,
+              description: item.description,
+              action: item.action,
+              key: item.key,
+              kind: item.kind,
+              isGroup: item.isGroup
+            }));
+            quickPick.title = args.title;
+            quickPick.placeholder = args.placeholder;
+            
+            let lastActiveItem = null;
+            let autoExecuteTimer = null;
+            const TIMEOUT_MS = 500;  // Timeout in milliseconds
+            
+            // Filter items based on input
+            quickPick.onDidChangeValue((value) => {
+              if (autoExecuteTimer) {
+                clearTimeout(autoExecuteTimer);
+              }
+              
+              // Get filtered items that match the input
+              const matchingItems = quickPick.items.filter(item => 
+                item.label.toLowerCase().startsWith(value.toLowerCase())
+              );
+              
+              // If we have exactly one match and it's a leaf node
+              if (matchingItems.length === 1 && !matchingItems[0].isGroup) {
+                autoExecuteTimer = setTimeout(async () => {
+                  const item = matchingItems[0];
+                  if (item.action) {
+                    await vscode.commands.executeCommand(item.action);
+                    quickPick.hide();
+                    quickPick.dispose();
+                  }
+                }, TIMEOUT_MS);
+              }
+            });
+            
+            quickPick.onDidChangeActive((items) => {
+              const active = items[0];
+              if (!active || active === lastActiveItem) return;
+              lastActiveItem = active;
+              
+              // Auto-execute for leaf nodes (non-groups)
+              if (active.action && !active.isGroup) {
+                vscode.commands.executeCommand(active.action).then(() => {
+                  quickPick.hide();
+                  quickPick.dispose();
+                });
+              }
+            });
+            
+            quickPick.onDidAccept(async () => {
+              if (autoExecuteTimer) {
+                clearTimeout(autoExecuteTimer);
+              }
+              
+              const selected = quickPick.selectedItems[0];
+              if (!selected) return;
+              
+              if (selected.isGroup) {
+                return;
+              }
+
+              if (selected.action) {
+                await vscode.commands.executeCommand(selected.action);
+              }
+              quickPick.hide();
+              quickPick.dispose();
+            });
+            
+            quickPick.onDidHide(() => {
+              if (autoExecuteTimer) {
+                clearTimeout(autoExecuteTimer);
+              }
+              quickPick.dispose();
+            });
+            
+            globalThis.quickPick = quickPick;
+            quickPick.show();
+        ]],
+        hide_quickpick = [[
+            if (globalThis.quickPick) {
+              globalThis.quickPick.hide();
+              globalThis.quickPick.dispose();
+              globalThis.quickPick = undefined;
+            }
+        ]]
+    }
+
+    vscode_utils.cache = {
+        root_items = nil,
+        group_items = {}
+    }
+
+    function vscode_utils.format_menu_items(group)
+        local items = {}
+        for _, binding in ipairs(group.bindings) do
+            table.insert(items, {
+                label = binding.key,
+                description = binding.desc,
+                action = binding.vscode_cmd,
+                key = binding.key,
+                isGroup = false,
+                isGroupItem = false
+            })
+        end
+        return items
+    end
+
+    function vscode_utils.format_root_menu_items(keybindings)
+        if vscode_utils.cache.root_items then
+            return vscode_utils.cache.root_items
+        end
+
+        local items = {}
+        local lastCategory = nil
+
+        for key, group in pairs(keybindings) do
+            if lastCategory then
+                table.insert(items, {
+                    label = "──────────────",
+                    kind = -1,
+                    isGroup = false,
+                    isGroupItem = false
+                })
+            end
+            table.insert(items, {
+                label = key,
+                description = group.name,
+                key = key,
+                isGroup = true,
+                isGroupItem = false
+            })
+            for _, binding in ipairs(group.bindings) do
+                table.insert(items, {
+                    label = key .. binding.key,
+                    description = binding.desc,
+                    action = binding.vscode_cmd,
+                    key = binding.key,
+                    isGroup = false,
+                    isGroupItem = true
+                })
+            end
+            lastCategory = key
+        end
+
+        vscode_utils.cache.root_items = items
+        return items
+    end
+
+    function vscode_utils.show_menu(group, keybindings)
+        local ok, items = pcall(function()
+            return group and vscode_utils.format_menu_items(group) or vscode_utils.format_root_menu_items(keybindings)
+        end)
+
+        if not ok then
+            vim.notify("Error formatting menu items: " .. tostring(items), vim.log.levels.ERROR)
+            return
+        end
+
+        local title = group and group.name or "Which Key Menu"
+        local placeholder = group and "Select an action or press <Esc> to cancel" or
+                                "Select a group or action (groups shown with ▸)"
+
+        local eval_ok, eval_err = pcall(vscode_utils.vscode.eval, vscode_utils.EVAL_STRINGS.quickpick_menu, {
+            timeout = 1000,
+            args = {
+                items = items,
+                title = title,
+                placeholder = placeholder
+            }
         })
 
-        require("which-key").add({{
-            "<leader>a",
-            group = " AI"
+        if not eval_ok then
+            vim.notify("Error showing which-key menu: " .. tostring(eval_err), vim.log.levels.ERROR)
+        end
+    end
+
+    function vscode_utils.hide_menu()
+        pcall(vscode_utils.vscode.eval, vscode_utils.EVAL_STRINGS.hide_quickpick, {
+            timeout = 1000
+        })
+    end
+
+    function vscode_utils.handle_group(prefix, group)
+        vim.keymap.set("n", prefix, function()
+            vscode_utils.show_menu(group, M.keybindings_vsc)
+        end, {
+            noremap = true,
+            silent = true
+        })
+
+        for _, binding in ipairs(group.bindings) do
+            vim.keymap.set("n", prefix .. binding.key, function()
+                vscode_utils.hide_menu()
+                pcall(vscode_utils.vscode.action, binding.vscode_cmd)
+            end, {
+                noremap = true,
+                silent = true,
+                desc = binding.desc
+            })
+        end
+    end
+end
+
+M.keybindings_data = {
+    a = {
+        name = "󱚤 AI",
+        bindings = {{
+            key = "c",
+            desc = "Toggle Chat",
+            neovim_cmd = "<cmd>CopilotChatToggle<CR>",
+            vscode_cmd = "workbench.action.chat.open"
         }, {
-            "<leader>ac",
-            "<cmd>CopilotChatToggle<CR>",
-            desc = "Toggle Chat"
+            key = "d",
+            desc = "Generate Docs",
+            neovim_cmd = "<cmd>CopilotChatDocumentThis<CR>",
+            vscode_cmd = "copilot.generateDocs"
         }, {
-            "<leader>ad",
-            "<cmd>CopilotChatDocumentThis<CR>",
-            desc = "Generate Docs"
+            key = "o",
+            desc = "Optimize",
+            neovim_cmd = "<cmd>CopilotChatOptimizeCode<CR>",
+            vscode_cmd = "inlineChat.optimizeCode"
         }, {
-            "<leader>ao",
-            "<cmd>CopilotChatOptimizeCode<CR>",
-            desc = "Optimize"
+            key = "r",
+            desc = "Refactor",
+            neovim_cmd = "<cmd>CopilotChatRefactorCode<CR>",
+            vscode_cmd = "inlineChat.refactorCode"
         }, {
-            "<leader>ar",
-            "<cmd>CopilotChatRefactorCode<CR>",
-            desc = "Refactor"
+            key = "f",
+            desc = "Fix Code",
+            neovim_cmd = "<cmd>CopilotChatFix<CR>",
+            vscode_cmd = "inlineChat.fix"
         }, {
-            "<leader>af",
-            "<cmd>CopilotChatFix<CR>",
-            desc = "Fix Code"
+            key = "e",
+            desc = "Explain",
+            neovim_cmd = "<cmd>CopilotChatExplain<CR>",
+            vscode_cmd = "inlineChat.explain"
         }, {
-            "<leader>ae",
-            "<cmd>CopilotChatExplain<CR>",
-            desc = "Explain"
+            key = "t",
+            desc = "Generate Tests",
+            neovim_cmd = "<cmd>CopilotChatTests<CR>",
+            vscode_cmd = "copilot.generateTests"
         }, {
-            "<leader>at",
-            "<cmd>CopilotChatTests<CR>",
-            desc = "Generate Tests"
+            key = "i",
+            desc = "Inline Chat",
+            neovim_cmd = "<cmd>CopilotChatInline<CR>",
+            vscode_cmd = "inlineChat.start"
         }, {
-            "<leader>b",
-            group = "󱅄 Buffer"
+            key = "a",
+            desc = "Accept Changes",
+            neovim_cmd = "<cmd>CopilotChatAccept<CR>",
+            vscode_cmd = "inlineChat.acceptChanges"
         }, {
-            "<leader>bd",
-            "<cmd>BufferClose<CR>",
-            desc = "Close"
+            key = "g",
+            desc = "Generate Commit",
+            neovim_cmd = "<cmd>CopilotChatCommit<CR>",
+            vscode_cmd = "github.copilot.git.generateCommitMessage"
+        }}
+    },
+    b = {
+        name = "󱅄 Buffer",
+        bindings = {{
+            key = "d",
+            desc = "Close",
+            neovim_cmd = "<cmd>BufferClose<CR>",
+            vscode_cmd = "workbench.action.closeActiveEditor"
         }, {
-            "<leader>bn",
-            "<cmd>BufferNext<CR>",
-            desc = "Next"
+            key = "n",
+            desc = "Next",
+            neovim_cmd = "<cmd>BufferNext<CR>",
+            vscode_cmd = "workbench.action.nextEditor"
         }, {
-            "<leader>bo",
-            "<cmd>BufferCloseAllButCurrent<CR>",
-            desc = "Close Others"
+            key = "o",
+            desc = "Close Others",
+            neovim_cmd = "<cmd>BufferCloseAllButCurrent<CR>",
+            vscode_cmd = "workbench.action.closeOtherEditors"
         }, {
-            "<leader>bp",
-            "<cmd>BufferPrevious<CR>",
-            desc = "Previous"
+            key = "p",
+            desc = "Previous",
+            neovim_cmd = "<cmd>BufferPrevious<CR>",
+            vscode_cmd = "workbench.action.previousEditor"
         }, {
-            "<leader>bi",
-            function()
+            key = "i",
+            desc = "New File",
+            neovim_cmd = function()
                 vim.ui.input({
                     prompt = "Enter file path: "
                 }, function(input)
@@ -108,214 +312,383 @@ M.plugins = {{
                     end
                 end)
             end,
-            desc = "New File"
+            vscode_cmd = "workbench.action.files.newUntitledFile"
+        }}
+    },
+    c = {
+        name = "󰘧 Code",
+        bindings = {{
+            key = "R",
+            desc = "References",
+            neovim_cmd = "<cmd>lua vim.lsp.buf.references()<CR>",
+            vscode_cmd = "editor.action.goToReferences"
         }, {
-            "<leader>c",
-            group = "󰘧 Code"
+            key = "a",
+            desc = "Code Action",
+            neovim_cmd = "<cmd>lua vim.lsp.buf.code_action()<CR>",
+            vscode_cmd = "editor.action.quickFix"
         }, {
-            "<leader>cR",
-            "<cmd>lua vim.lsp.buf.references()<CR>",
-            desc = "References"
+            key = "c",
+            desc = "Toggle Comment",
+            neovim_cmd = "<Plug>(comment_toggle_linewise_current)",
+            vscode_cmd = "editor.action.commentLine"
         }, {
-            "<leader>ca",
-            "<cmd>lua vim.lsp.buf.code_action()<CR>",
-            desc = "Code Action"
+            key = "d",
+            desc = "Definition",
+            neovim_cmd = "<cmd>lua vim.lsp.buf.definition()<CR>",
+            vscode_cmd = "editor.action.revealDefinition"
         }, {
-            "<leader>cc",
-            "<Plug>(comment_toggle_linewise_current)",
-            desc = "Toggle Comment"
+            key = "f",
+            desc = "Format",
+            neovim_cmd = "<cmd>lua vim.lsp.buf.format()<CR>",
+            vscode_cmd = "editor.action.formatDocument"
         }, {
-            "<leader>cd",
-            "<cmd>lua vim.lsp.buf.definition()<CR>",
-            desc = "Definition"
+            key = "h",
+            desc = "Hover",
+            neovim_cmd = "<cmd>lua vim.lsp.buf.hover()<CR>",
+            vscode_cmd = "editor.action.showHover"
         }, {
-            "<leader>cf",
-            "<cmd>lua vim.lsp.buf.format()<CR>",
-            desc = "Format"
+            key = "i",
+            desc = "Implementation",
+            neovim_cmd = "<cmd>lua vim.lsp.buf.implementation()<CR>",
+            vscode_cmd = "editor.action.goToImplementation"
         }, {
-            "<leader>ch",
-            "<cmd>lua vim.lsp.buf.hover()<CR>",
-            desc = "Hover"
+            key = "r",
+            desc = "Rename",
+            neovim_cmd = "<cmd>lua vim.lsp.buf.rename()<CR>",
+            vscode_cmd = "editor.action.rename"
+        }}
+    },
+    f = {
+        name = "󰀶 Find",
+        bindings = {{
+            key = "b",
+            desc = "Buffers",
+            neovim_cmd = "<cmd>Telescope buffers<CR>",
+            vscode_cmd = "workbench.action.showAllEditors"
         }, {
-            "<leader>ci",
-            "<cmd>lua vim.lsp.buf.implementation()<CR>",
-            desc = "Implementation"
+            key = "f",
+            desc = "Find Files",
+            neovim_cmd = "<cmd>Telescope find_files<CR>",
+            vscode_cmd = "search-preview.quickOpenWithPreview"
         }, {
-            "<leader>cr",
-            "<cmd>lua vim.lsp.buf.rename()<CR>",
-            desc = "Rename"
+            key = "g",
+            desc = "Live Grep",
+            neovim_cmd = "<cmd>Telescope live_grep<CR>",
+            vscode_cmd = "workbench.action.findInFiles"
         }, {
-            "<leader>f",
-            group = "󰀶 Find"
+            key = "r",
+            desc = "Recent Files",
+            neovim_cmd = "<cmd>Telescope oldfiles<CR>",
+            vscode_cmd = "workbench.action.openRecent"
         }, {
-            "<leader>fb",
-            "<cmd>Telescope buffers<CR>",
-            desc = "Buffers"
+            key = "s",
+            desc = "Document Symbols",
+            neovim_cmd = "<cmd>Telescope lsp_document_symbols<CR>",
+            vscode_cmd = "workbench.action.showAllSymbols"
+        }}
+    },
+    g = {
+        name = "󰊢 Git",
+        bindings = {{
+            key = "D",
+            desc = "Status",
+            neovim_cmd = "<cmd>Telescope git_status<CR>",
+            vscode_cmd = "workbench.view.scm"
         }, {
-            "<leader>ff",
-            "<cmd>Telescope find_files<CR>",
-            desc = "Find Files"
+            key = "L",
+            desc = "LazyGit",
+            neovim_cmd = "<cmd>LazyGit<CR>",
+            vscode_cmd = "workbench.view.scm"
         }, {
-            "<leader>fg",
-            "<cmd>Telescope live_grep<CR>",
-            desc = "Live Grep"
+            key = "P",
+            desc = "Pull",
+            neovim_cmd = "<cmd>Git pull<CR>",
+            vscode_cmd = "git.pull"
         }, {
-            "<leader>fr",
-            "<cmd>Telescope oldfiles<CR>",
-            desc = "Recent Files"
+            key = "S",
+            desc = "Stage Buffer",
+            neovim_cmd = "<cmd>Gitsigns stage_buffer<CR>",
+            vscode_cmd = "git.stageAll"
         }, {
-            "<leader>fs",
-            "<cmd>Telescope lsp_document_symbols<CR>",
-            desc = "Document Symbols"
+            key = "U",
+            desc = "Reset Buffer Index",
+            neovim_cmd = "<cmd>Gitsigns reset_buffer_index<CR>",
+            vscode_cmd = "git.unstageAll"
         }, {
-            "<leader>g",
-            group = "󰊢 Git"
+            key = "b",
+            desc = "Branches",
+            neovim_cmd = "<cmd>Telescope git_branches<CR>",
+            vscode_cmd = "git.checkout"
         }, {
-            "<leader>gD",
-            "<cmd>Telescope git_status<CR>",
-            desc = "Status"
+            key = "c",
+            desc = "Commit",
+            neovim_cmd = "<cmd>Git commit<CR>",
+            vscode_cmd = "git.commit"
         }, {
-            "<leader>gL",
-            "<cmd>LazyGit<CR>",
-            desc = "LazyGit"
+            key = "d",
+            desc = "Diff This",
+            neovim_cmd = "<cmd>Gitsigns diffthis<CR>",
+            vscode_cmd = "git.openChange"
         }, {
-            "<leader>gP",
-            "<cmd>Git pull<CR>",
-            desc = "Pull"
+            key = "f",
+            desc = "Fetch",
+            neovim_cmd = "<cmd>Git fetch<CR>",
+            vscode_cmd = "git.fetch"
         }, {
-            "<leader>gS",
-            "<cmd>Gitsigns stage_buffer<CR>",
-            desc = "Stage Buffer"
+            key = "h",
+            desc = "Select Hunk",
+            neovim_cmd = "<cmd>Gitsigns select_hunk<CR>",
+            vscode_cmd = "git.openChange"
         }, {
-            "<leader>gU",
-            "<cmd>Gitsigns reset_buffer_index<CR>",
-            desc = "Reset Buffer Index"
+            key = "j",
+            desc = "Next Hunk",
+            neovim_cmd = "<cmd>Gitsigns next_hunk<CR>",
+            vscode_cmd = "workbench.action.editor.nextChange"
         }, {
-            "<leader>gb",
-            "<cmd>Telescope git_branches<CR>",
-            desc = "Branches"
+            key = "k",
+            desc = "Previous Hunk",
+            neovim_cmd = "<cmd>Gitsigns prev_hunk<CR>",
+            vscode_cmd = "workbench.action.editor.previousChange"
         }, {
-            "<leader>gc",
-            "<cmd>Git commit<CR>",
-            desc = "Commit"
+            key = "l",
+            desc = "Reset Hunk",
+            neovim_cmd = "<cmd>Gitsigns reset_hunk<CR>",
+            vscode_cmd = "git.revertSelectedRanges"
         }, {
-            "<leader>gd",
-            "<cmd>Gitsigns diffthis<CR>",
-            desc = "Diff This"
+            key = "p",
+            desc = "Push",
+            neovim_cmd = "<cmd>Git push<CR>",
+            vscode_cmd = "git.push"
         }, {
-            "<leader>gf",
-            "<cmd>Git fetch<CR>",
-            desc = "Fetch"
+            key = "r",
+            desc = "Reset Hunk",
+            neovim_cmd = "<cmd>Gitsigns reset_hunk<CR>",
+            vscode_cmd = "git.revertSelectedRanges"
         }, {
-            "<leader>gh",
-            "<cmd>Gitsigns select_hunk<CR>",
-            desc = "Select Hunk"
+            key = "s",
+            desc = "Stage Hunk",
+            neovim_cmd = "<cmd>Gitsigns stage_hunk<CR>",
+            vscode_cmd = "git.stage"
         }, {
-            "<leader>gj",
-            "<cmd>Gitsigns next_hunk<CR>",
-            desc = "Next Hunk"
+            key = "u",
+            desc = "Undo Stage Hunk",
+            neovim_cmd = "<cmd>Gitsigns undo_stage_hunk<CR>",
+            vscode_cmd = "git.unstage"
         }, {
-            "<leader>gk",
-            "<cmd>Gitsigns prev_hunk<CR>",
-            desc = "Previous Hunk"
+            key = "v",
+            desc = "Status (View)",
+            neovim_cmd = "<cmd>Telescope git_status<CR>",
+            vscode_cmd = "workbench.view.scm"
+        }}
+    },
+    s = {
+        name = "󰃻 Split",
+        bindings = {{
+            key = "s",
+            desc = "Horizontal Split",
+            neovim_cmd = "<cmd>split<CR>",
+            vscode_cmd = "workbench.action.splitEditorDown"
         }, {
-            "<leader>gl",
-            "<cmd>Gitsigns reset_hunk<CR>",
-            desc = "Reset Hunk"
+            key = "v",
+            desc = "Vertical Split",
+            neovim_cmd = "<cmd>vsplit<CR>",
+            vscode_cmd = "workbench.action.splitEditorRight"
+        }}
+    },
+    t = {
+        name = "󰨚 Toggle",
+        bindings = {{
+            key = "m",
+            desc = "Commands",
+            neovim_cmd = "<cmd>Telescope commands<CR>",
+            vscode_cmd = "workbench.action.showCommands"
         }, {
-            "<leader>gp",
-            "<cmd>Git push<CR>",
-            desc = "Push"
+            key = "o",
+            desc = "Symbols Outline",
+            neovim_cmd = "<cmd>SymbolsOutline<CR>",
+            vscode_cmd = "outline.focus"
         }, {
-            "<leader>gr",
-            "<cmd>Gitsigns reset_hunk<CR>",
-            desc = "Reset Hunk"
+            key = "e",
+            desc = "Explorer",
+            neovim_cmd = "<cmd>NvimTreeToggle<CR>",
+            vscode_cmd = "workbench.view.explorer"
         }, {
-            "<leader>gs",
-            "<cmd>Gitsigns stage_hunk<CR>",
-            desc = "Stage Hunk"
+            key = "t",
+            desc = "Terminal",
+            neovim_cmd = "<cmd>ToggleTerm<CR>",
+            vscode_cmd = "workbench.action.terminal.toggleTerminal"
         }, {
-            "<leader>gu",
-            "<cmd>Gitsigns undo_stage_hunk<CR>",
-            desc = "Undo Stage Hunk"
+            key = "p",
+            desc = "Problems",
+            neovim_cmd = "<cmd>TroubleToggle<CR>",
+            vscode_cmd = "workbench.actions.view.problems"
+        }}
+    },
+    w = {
+        name = " Window",
+        bindings = {{
+            key = "=",
+            desc = "Equal Size",
+            neovim_cmd = "<C-w>=",
+            vscode_cmd = "workbench.action.evenEditorWidths"
         }, {
-            "<leader>gv",
-            "<cmd>Telescope git_status<CR>",
-            desc = "Status (View)"
+            key = "H",
+            desc = "Move Window Left",
+            neovim_cmd = "<C-w>H",
+            vscode_cmd = "workbench.action.moveEditorToLeftGroup"
         }, {
-            "<leader>s",
-            group = "󰃻 Split"
+            key = "J",
+            desc = "Move Window Down",
+            neovim_cmd = "<C-w>J",
+            vscode_cmd = "workbench.action.moveEditorToBelowGroup"
         }, {
-            "<leader>ss",
-            "<cmd>split<CR>",
-            desc = "Horizontal Split"
+            key = "K",
+            desc = "Move Window Up",
+            neovim_cmd = "<C-w>K",
+            vscode_cmd = "workbench.action.moveEditorToAboveGroup"
         }, {
-            "<leader>sv",
-            "<cmd>vsplit<CR>",
-            desc = "Vertical Split"
+            key = "L",
+            desc = "Move Window Right",
+            neovim_cmd = "<C-w>L",
+            vscode_cmd = "workbench.action.moveEditorToRightGroup"
         }, {
-            "<leader>t",
-            group = "󰨚 Toggle"
+            key = "_",
+            desc = "Max Height",
+            neovim_cmd = "<C-w>_",
+            vscode_cmd = "workbench.action.toggleEditorWidths"
         }, {
-            "<leader>tm",
-            "<cmd>Telescope commands<CR>",
-            desc = "Commands"
+            key = "h",
+            desc = "Focus Left Window",
+            neovim_cmd = "<C-w>h",
+            vscode_cmd = "workbench.action.focusLeftGroup"
         }, {
-            "<leader>to",
-            "<cmd>SymbolsOutline<CR>",
-            desc = "Symbols Outline"
+            key = "j",
+            desc = "Focus Lower Window",
+            neovim_cmd = "<C-w>j",
+            vscode_cmd = "workbench.action.focusDownGroup"
         }, {
-            "<leader>w",
-            group = " Window"
+            key = "k",
+            desc = "Focus Upper Window",
+            neovim_cmd = "<C-w>k",
+            vscode_cmd = "workbench.action.focusUpGroup"
         }, {
-            "<leader>w=",
-            "<C-w>=",
-            desc = "Equal Size"
+            key = "l",
+            desc = "Focus Right Window",
+            neovim_cmd = "<C-w>l",
+            vscode_cmd = "workbench.action.focusRightGroup"
         }, {
-            "<leader>wH",
-            "<C-w>H",
-            desc = "Move Window Left"
+            key = "o",
+            desc = "Only Window",
+            neovim_cmd = "<cmd>only<CR>",
+            vscode_cmd = "workbench.action.closeOtherEditors"
         }, {
-            "<leader>wJ",
-            "<C-w>J",
-            desc = "Move Window Down"
-        }, {
-            "<leader>wK",
-            "<C-w>K",
-            desc = "Move Window Up"
-        }, {
-            "<leader>wL",
-            "<C-w>L",
-            desc = "Move Window Right"
-        }, {
-            "<leader>w_",
-            "<C-w>_",
-            desc = "Max Height"
-        }, {
-            "<leader>wh",
-            "<C-w>h",
-            desc = "Focus Left Window"
-        }, {
-            "<leader>wj",
-            "<C-w>j",
-            desc = "Focus Lower Window"
-        }, {
-            "<leader>wk",
-            "<C-w>k",
-            desc = "Focus Upper Window"
-        }, {
-            "<leader>wl",
-            "<C-w>l",
-            desc = "Focus Right Window"
-        }, {
-            "<leader>wo",
-            "<cmd>only<CR>",
-            desc = "Only Window"
-        }, {
-            "<leader>ww",
-            "<cmd>close<CR>",
-            desc = "Close Window"
-        }})
+            key = "w",
+            desc = "Close Window",
+            neovim_cmd = "<cmd>close<CR>",
+            vscode_cmd = "workbench.action.closeActiveEditor"
+        }}
+    }
+}
+
+-- Converts to v3 format
+local function convert_to_which_key(keybindings_data)
+    local which_key_keybindings = {}
+
+    for prefix, group in pairs(keybindings_data) do
+        table.insert(which_key_keybindings, {
+            "<leader>" .. prefix,
+            group = group.name
+        })
+
+        for _, binding in ipairs(group.bindings) do
+            table.insert(which_key_keybindings, {
+                "<leader>" .. prefix .. binding.key,
+                binding.neovim_cmd,
+                desc = binding.desc
+            })
+        end
+    end
+
+    return which_key_keybindings
+end
+
+M.plugins = {{
+    "folke/which-key.nvim",
+    lazy = VeryLazy,
+    config = function()
+        if vim.g.vscode then
+            M.keybindings_vsc = M.keybindings_data
+
+            -- Setup VSCode <leader> key menu
+            vim.keymap.set("n", "<leader>", function()
+                vscode_utils.show_menu(nil, M.keybindings_vsc)
+            end, {
+                noremap = true,
+                silent = true,
+                desc = "Show which-key menu"
+            })
+
+            -- Setup VSCode group menus
+            for prefix, group in pairs(M.keybindings_vsc) do
+                vscode_utils.handle_group("<leader>" .. prefix, group)
+            end
+
+            -- Autocmd to hide menu on mode changes or cursor moved
+            local menu_group = vim.api.nvim_create_augroup("WhichKeyMenu", {
+                clear = true
+            })
+
+            vim.api.nvim_create_autocmd({"ModeChanged", "CursorMoved"}, {
+                callback = vscode_utils.hide_menu,
+                group = menu_group
+            })
+        else
+            -- Regular Neovim which-key setup
+            require("which-key").setup({
+                plugins = {
+                    marks = true,
+                    registers = true,
+                    spelling = {
+                        enabled = true,
+                        suggestions = 20
+                    },
+                    presets = {
+                        operators = true,
+                        motions = true,
+                        text_objects = true,
+                        windows = true,
+                        nav = true,
+                        z = true,
+                        g = true
+                    }
+                },
+                win = {
+                    border = "rounded",
+                    padding = {2, 2, 2, 2}
+                },
+                layout = {
+                    spacing = 3
+                },
+                icons = {
+                    breadcrumb = "»",
+                    separator = "➜",
+                    group = "+"
+                },
+                show_help = true,
+                show_keys = true,
+                triggers = {{
+                    "<auto>",
+                    mode = "nxsotc"
+                }}
+            })
+
+            -- Convert unified format to which-key format
+            local which_key_bindings = convert_to_which_key(M.keybindings_data)
+
+            -- Add to which-key
+            require("which-key").add(which_key_bindings)
+        end
     end
 }}
 
