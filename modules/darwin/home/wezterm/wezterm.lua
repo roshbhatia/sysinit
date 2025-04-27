@@ -293,8 +293,11 @@ wezterm.on('update-status', function(window, _)
     window:set_right_status(wezterm.format(elements))
 end)
 
-wezterm.on('gui-startup', function(cmd)
-    window:gui_window():maximize()
+wezterm.on("gui-startup", function(cmd)
+    local active = wezterm.gui.screens().active
+    local tab, pane, window = wezterm.mux.spawn_window(cmd or {})
+    window:guiwindow():setposition(active.x, active.y)
+    window:guiwindow():set_innersize(active.width, active.height)
 end)
 
 return config
