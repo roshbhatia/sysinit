@@ -40,7 +40,11 @@ M.plugins = {{
 }, {
     "zbirenbaum/copilot.lua",
     lazy = false,
+    dependencies = {"github/copilot.vim"},
     config = function()
+        -- Explicitly disable the default key mapping for Tab
+        vim.g.copilot_no_tab_map = true
+
         require("copilot").setup({
             suggestion = {
                 enabled = false,
