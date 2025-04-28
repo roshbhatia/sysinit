@@ -227,10 +227,15 @@ M.keybindings_data = {
             neovim_cmd = "<cmd>AvanteToggle<CR>",
             vscode_cmd = "workbench.action.chat.openInSidebar"
         }, {
+            key = "cr",
+            desc = "Reset Chat",
+            neovim_cmd = "<cmd>:AvanteChatNew<CR>",
+            vscode_cmd = "workbench.action.chat.openInSidebar"
+        }, {
             key = "d",
             desc = "Generate Docs",
             neovim_cmd = "<cmd>CopilotChatDocumentThis<CR>",
-            vscode_cmd = "github.copilot.chat.generateDocs"
+            vscode_cmd = "github.copilot.chat.newChat"
         }, {
             key = "o",
             desc = "Optimize",
