@@ -37,7 +37,7 @@ config.colors = {
 }
 
 -- Theme
-config.color_scheme = "Abernathy"
+config.color_scheme = "Catppuccin Mocha"
 
 -- Font configuration
 config.font = wezterm.font_with_fallback({{
