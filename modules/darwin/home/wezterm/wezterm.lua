@@ -21,7 +21,6 @@ config.enable_scroll_bar = true
 config.scrollback_lines = 20000
 config.window_background_opacity = 0.85
 config.macos_window_background_blur = 50
-config.window_decorations = 'RESIZE'
 config.window_close_confirmation = 'NeverPrompt'
 
 -- Visual bell
