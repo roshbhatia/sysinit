@@ -6,10 +6,11 @@ M.plugins = {{
     lazy = false,
     dependencies = {"neovim/nvim-lspconfig", "williamboman/mason.nvim", "williamboman/mason-lspconfig.nvim"},
     config = function()
-        require('lsp-zero').preset({
+        local lsp = require('lsp-zero')
+        lsp.preset({
             name = 'recommended',
             set_lsp_keymaps = false,
-            manage_nvim_cmp = true,
+            manage_nvim_cmp = false,
             suggest_lsp_servers = true
         })
 
@@ -30,8 +31,47 @@ M.plugins = {{
                                 "spectral", "terraformls", "tflint", "ts_ls"},
             automatic_installation = true,
             handlers = {function(server_name)
-                require('lspconfig')[server_name].setup({})
+                require('lspconfig')[server_name].setup({
+                    capabilities = lsp.get_capabilities()
+                })
             end}
+        })
+    end
+}, {
+    "zbirenbaum/copilot.lua",
+    lazy = false,
+    config = function()
+        require("copilot").setup({
+            suggestion = {
+                enabled = false,
+                auto_trigger = false
+            },
+            panel = {
+                enabled = false
+            },
+            filetypes = {
+                ["*"] = true,
+                ["help"] = false,
+                ["gitcommit"] = false,
+                ["gitrebase"] = false,
+                ["hgcommit"] = false,
+                ["svn"] = false,
+                ["cvs"] = false
+            }
+        })
+    end
+}, {
+    "zbirenbaum/copilot-cmp",
+    lazy = false,
+    dependencies = {"zbirenbaum/copilot.lua"},
+    config = function()
+        require("copilot_cmp").setup({
+            method = "getCompletionsCycling",
+            formatters = {
+                label = require("copilot_cmp.format").format_label_text,
+                insert_text = require("copilot_cmp.format").format_insert_text,
+                preview = require("copilot_cmp.format").deindent
+            }
         })
     end
 }, {
@@ -39,7 +79,7 @@ M.plugins = {{
     lazy = false,
     dependencies = {"hrsh7th/cmp-nvim-lsp", "hrsh7th/cmp-buffer", "hrsh7th/cmp-path", "hrsh7th/cmp-cmdline",
                     "saadparwaiz1/cmp_luasnip", "L3MON4D3/LuaSnip", "onsails/lspkind.nvim",
-                    "rafamadriz/friendly-snippets"},
+                    "rafamadriz/friendly-snippets", "zbirenbaum/copilot-cmp"},
     config = function()
         local cmp = require('cmp')
         local luasnip = require('luasnip')
@@ -48,12 +88,14 @@ M.plugins = {{
         require("luasnip.loaders.from_vscode").lazy_load()
 
         local has_words_before = function()
-            if vim.api.nvim_buf_get_option(0, "buftype") == "prompt" then
-                return false
-            end
+            unpack = unpack or table.unpack
             local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-            return col ~= 0 and vim.api.nvim_buf_get_text(0, line - 1, 0, line - 1, col, {})[1]:match("^%s*$") == nil
+            return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
         end
+
+        vim.api.nvim_set_hl(0, "CmpItemKindCopilot", {
+            fg = "#6CC644"
+        })
 
         cmp.setup({
             snippet = {
@@ -76,6 +118,9 @@ M.plugins = {{
                     mode = 'symbol_text',
                     maxwidth = 50,
                     ellipsis_char = '...',
+                    symbol_map = {
+                        Copilot = ""
+                    },
                     menu = {
                         buffer = "[Buffer]",
                         nvim_lsp = "[LSP]",
@@ -94,7 +139,7 @@ M.plugins = {{
                 group_index = 1
             }, {
                 name = 'nvim_lsp',
-                group_index = 2
+                group_index = 1
             }, {
                 name = 'luasnip',
                 group_index = 2
@@ -106,6 +151,9 @@ M.plugins = {{
                 group_index = 3,
                 keyword_length = 3
             }}),
+            completion = {
+                completeopt = 'menu,menuone,noinsert'
+            },
             mapping = cmp.mapping.preset.insert({
                 ['<C-b>'] = cmp.mapping.scroll_docs(-4),
                 ['<C-f>'] = cmp.mapping.scroll_docs(4),
@@ -135,8 +183,9 @@ M.plugins = {{
                     end
                 end, {'i', 's'})
             }),
+            preselect = cmp.PreselectMode.None,
             experimental = {
-                ghost_text = true
+                ghost_text = false
             },
             sorting = {
                 priority_weight = 2,
@@ -167,64 +216,6 @@ M.plugins = {{
             }}, {{
                 name = 'cmdline'
             }})
-        })
-    end
-}, {
-    "zbirenbaum/copilot.lua",
-    lazy = false,
-    dependencies = {},
-    config = function()
-        require("copilot").setup({
-            suggestion = {
-                enabled = true
-            },
-            panel = {
-                enabled = true
-            },
-            filetypes = {
-                ["*"] = true,
-                ["help"] = false,
-                ["gitcommit"] = false,
-                ["gitrebase"] = false,
-                ["hgcommit"] = false,
-                ["svn"] = false,
-                ["cvs"] = false
-            }
-        })
-
-        vim.g.copilot_filetypes = {
-            ["*"] = true,
-            ["markdown"] = true,
-            ["yaml"] = true,
-            ["help"] = false,
-            ["gitrebase"] = false,
-            ["hgcommit"] = false,
-            ["svn"] = false,
-            ["cvs"] = false
-        }
-
-        vim.api.nvim_create_autocmd("ColorScheme", {
-            pattern = "*",
-            callback = function()
-                vim.api.nvim_set_hl(0, "CopilotSuggestion", {
-                    fg = "#888888",
-                    ctermfg = 8,
-                    force = true
-                })
-            end
-        })
-        vim.api.nvim_set_hl(0, "CmpItemKindCopilot", {
-            fg = "#888888"
-        })
-    end
-}, {
-    "zbirenbaum/copilot-cmp",
-    lazy = false,
-    dependencies = {"zbirenbaum/copilot.lua", "hrsh7th/nvim-cmp"},
-    config = function()
-        require("copilot_cmp").setup({
-            event = {"InsertEnter", "LspAttach"},
-            fix_pairs = true
         })
     end
 }, {
