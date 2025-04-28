@@ -520,12 +520,12 @@ M.keybindings_data = {
             vscode_cmd = "editor.action.toggleMinimap"
         }, {
             key = "o",
-            desc = "Symbols Outline",
-            neovim_cmd = "<cmd>SymbolsOutline<CR>",
-            vscode_cmd = "outline.focus"
+            desc = "Explorer (Oil)",
+            neovim_cmd = "<cmd>Oil<CR>",
+            vscode_cmd = "workbench.view.explorer"
         }, {
             key = "e",
-            desc = "Explorer",
+            desc = "Explorer (Tree)",
             neovim_cmd = "<cmd>Neotree toggle<CR>",
             vscode_cmd = "workbench.view.explorer"
         }, {
