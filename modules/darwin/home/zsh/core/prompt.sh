@@ -10,10 +10,12 @@ if [ "$WEZTERM_PANE" = "0" ] && [ "$VSCODE_INJECTION" != "1" ]; then
   fi
 fi
 
-# If this is a VSCODE terminal, we need to use a tiny prompt.
-if [ "$VSCODE_INJECTION" = "1" ]; then
+# Check for VSCode terminal using multiple environment variables
+if [ -n "$VSCODE_INSPECTOR_OPTIONS" ] || [ -n "$VSCODE_GIT_ASKPASS_NODE" ] || [ -n "$VSCODE_GIT_IPC_HANDLE" ]; then
+  # VSCode terminal detected
   eval "$(oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/zash.omp.json)"
 else
+  # Not in VSCode terminal
   _evalcache oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/catppuccin_mocha.omp.json
 fi
 # modules/darwin/home/zsh/core/prompt.sh (end)
