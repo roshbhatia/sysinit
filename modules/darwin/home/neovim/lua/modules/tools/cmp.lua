@@ -43,7 +43,9 @@ M.plugins = {{
     dependencies = {"hrsh7th/cmp-nvim-lsp", "hrsh7th/cmp-buffer", "hrsh7th/cmp-path", "hrsh7th/cmp-cmdline",
                     "saadparwaiz1/cmp_luasnip", "L3MON4D3/LuaSnip", "onsails/lspkind.nvim",
                     "rafamadriz/friendly-snippets", "github/copilot.vim", "zbirenbaum/copilot.lua",
-                    "zbirenbaum/copilot-cmp", "nvim-lua/plenary.nvim", "CopilotC-Nvim/CopilotChat.nvim"},
+                    "zbirenbaum/copilot-cmp", "nvim-lua/plenary.nvim", "CopilotC-Nvim/CopilotChat.nvim",
+                    "MunifTanjim/nui.nvim", "nvim-treesitter/nvim-treesitter", "stevearc/dressing.nvim",
+                    "HakonHarnes/img-clip.nvim", "MeanderingProgrammer/render-markdown.nvim", "yetone/avante.nvim"},
     config = function()
         local cmp = require('cmp')
         local luasnip = require('luasnip')
@@ -133,6 +135,56 @@ M.plugins = {{
             }
         })
 
+        -- Setup Avante with Claude as provider
+        require("avante").setup({
+            provider = "claude",
+            auto_suggestions_provider = "claude",
+            claude = {
+                endpoint = "https://api.anthropic.com",
+                model = "claude-3.5-sonnet-20241022",
+                temperature = 0,
+                max_tokens = 4096
+            },
+            behaviour = {
+                auto_suggestions = true,
+                auto_set_highlight_group = true,
+                auto_set_keymaps = true,
+                minimize_diff = true,
+                enable_token_counting = true,
+                enable_cursor_planning_mode = true
+            },
+            windows = {
+                position = "right",
+                wrap = true,
+                width = 30
+            },
+            mappings = {
+                suggestion = {
+                    accept = "<M-l>",
+                    next = "<M-]>",
+                    prev = "<M-[>",
+                    dismiss = "<C-]>"
+                }
+            }
+        })
+
+        -- Setup image clip for Avante
+        require("img-clip").setup({
+            default = {
+                embed_image_as_base64 = false,
+                prompt_for_file_name = false,
+                drag_and_drop = {
+                    insert_mode = true
+                },
+                use_absolute_path = true
+            }
+        })
+
+        -- Setup markdown rendering for Avante
+        require("render-markdown").setup({
+            file_types = {"markdown", "Avante"}
+        })
+
         local has_words_before = function()
             unpack = unpack or table.unpack
             local line, col = unpack(vim.api.nvim_win_get_cursor(0))
@@ -173,7 +225,8 @@ M.plugins = {{
                         nvim_lsp = "[LSP]",
                         luasnip = "[Snippet]",
                         path = "[Path]",
-                        copilot = "[Copilot]"
+                        copilot = "[Copilot]",
+                        avante = "[Avante]"
                     },
                     before = function(entry, vim_item)
                         vim_item.abbr = string.sub(vim_item.abbr, 1, 50)
@@ -202,6 +255,18 @@ M.plugins = {{
                 group_index = 3,
                 keyword_length = 3,
                 priority = 40
+            }, {
+                name = 'avante_commands',
+                group_index = 1,
+                priority = 95
+            }, {
+                name = 'avante_mentions',
+                group_index = 1,
+                priority = 95
+            }, {
+                name = 'avante_files',
+                group_index = 1,
+                priority = 95
             }}),
             completion = {
                 completeopt = 'menu,menuone,noinsert',

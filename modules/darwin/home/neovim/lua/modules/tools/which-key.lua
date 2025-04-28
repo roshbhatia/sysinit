@@ -224,7 +224,7 @@ M.keybindings_data = {
         bindings = {{
             key = "c",
             desc = "Toggle Chat",
-            neovim_cmd = "<cmd>CopilotChatToggle<CR>",
+            neovim_cmd = "<cmd>AvanteToggle<CR>",
             vscode_cmd = "workbench.action.chat.openInSidebar"
         }, {
             key = "d",
