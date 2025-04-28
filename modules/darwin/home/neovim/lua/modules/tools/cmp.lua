@@ -15,6 +15,8 @@ M.plugins = {{
         })
 
         require('mason').setup({
+            install_root_dir = "~/.local/share/nvim/mason",
+            
             ui = {
                 border = 'rounded',
                 icons = {
@@ -24,6 +26,8 @@ M.plugins = {{
                 }
             }
         })
+
+        vim.cmd("MasonUpdate")
 
         require('mason-lspconfig').setup({
             ensure_installed = {"awk_ls", "bashls", "dagger", "docker_compose_language_service", "dockerls",
@@ -137,14 +141,7 @@ M.plugins = {{
 
         -- Setup Avante with Claude as provider
         require("avante").setup({
-            provider = "claude",
-            auto_suggestions_provider = "claude",
-            claude = {
-                endpoint = "https://api.anthropic.com",
-                model = "claude-3.5-sonnet-20241022",
-                temperature = 0,
-                max_tokens = 4096
-            },
+            provider = "copilot",
             behaviour = {
                 auto_suggestions = true,
                 auto_set_highlight_group = true,
