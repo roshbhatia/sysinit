@@ -67,10 +67,7 @@ M.plugins = {{
                 enabled = true
             },
             winopt = function(opt, winid)
-                opt.winblend = 10 -- Semi-transparent minimap
-            end,
-            bufopt = function(opt, bufnr)
-                -- Add any custom buffer options here
+                opt.winblend = 20 -- Semi-transparent minimap
             end
         }
 

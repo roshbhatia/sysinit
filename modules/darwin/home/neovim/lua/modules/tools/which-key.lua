@@ -509,10 +509,15 @@ M.keybindings_data = {
     t = {
         name = "󰨚 Toggle",
         bindings = {{
-            key = "m",
+            key = "c",
             desc = "Commands",
             neovim_cmd = "<cmd>Telescope commands<CR>",
             vscode_cmd = "workbench.action.showCommands"
+        }, {
+            key = "m",
+            desc = "Minimap",
+            neovim_cmd = "<cmd>Neominimap toggle<CR>",
+            vscode_cmd = "editor.action.toggleMinimap"
         }, {
             key = "o",
             desc = "Symbols Outline",
