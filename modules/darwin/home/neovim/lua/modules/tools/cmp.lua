@@ -57,7 +57,7 @@ M.plugins = {{
         vim.g.copilot_tab_fallback = ""
 
         -- Explicitly disable native copilot suggestion display
-        vim.api.nvim_set_var("copilot_enabled", true)
+        vim.api.nvim_set_var("copilot_enabled", false)
 
         require("luasnip.loaders.from_vscode").lazy_load()
 
