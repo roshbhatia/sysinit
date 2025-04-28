@@ -44,6 +44,7 @@ let
     "helm"
     "helm-ls"
     "jandedobbeleer/oh-my-posh/oh-my-posh"
+    "jordanbaird-ice"
     "kubectl"
     "kubecolor"
     "k9s"
