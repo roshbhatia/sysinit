@@ -158,17 +158,6 @@ M.plugins = {{
                 }
             }
         })
-
-        -- Keymaps
-        vim.keymap.set('n', '<leader>e', ':Neotree toggle<CR>', {
-            desc = "Toggle Neo-tree"
-        })
-        vim.keymap.set('n', '<leader>o', ':Neotree reveal<CR>', {
-            desc = "Reveal in Neo-tree"
-        })
-        vim.keymap.set('n', '<leader>b', ':Neotree toggle show buffers right<CR>', {
-            desc = "Show buffers in Neo-tree"
-        })
     end
 }}
 return M
