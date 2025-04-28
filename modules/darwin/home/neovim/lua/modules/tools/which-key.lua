@@ -630,7 +630,7 @@ end
 
 M.plugins = {{
     "folke/which-key.nvim",
-    lazy = VeryLazy,
+    lazy = false,
     config = function()
         if vim.g.vscode then
             M.keybindings_vsc = M.keybindings_data
