@@ -1,3 +1,9 @@
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/github/copilot.vim/refs/heads/release/doc/copilot.txt"
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/zbirenbaum/copilot-cmp/refs/heads/master/README.md"
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/zbirenbaum/copilot.lua/refs/heads/master/doc/copilot.txt"
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/hrsh7th/nvim-cmp/refs/heads/main/doc/cmp.txt"
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/VonHeikemen/lsp-zero.nvim/refs/heads/v4.x/doc/lsp-zero.txt"
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/CopilotC-Nvim/CopilotChat.nvim/refs/heads/main/doc/CopilotChat.txt"
 local M = {}
 
 M.plugins = {{
