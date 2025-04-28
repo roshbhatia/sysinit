@@ -255,12 +255,38 @@ config.key_tables = {
     }}
 }
 
-wezterm.on('update-status', function(window, _)
-    local cwd = window:active_pane():get_current_working_dir()
+-- Fix for the update-status event handler
+wezterm.on('update-status', function(window)
+    -- Get current working directory from active pane
+    local success, cwd, _ = pcall(function()
+        return window:active_pane():get_current_working_dir()
+    end)
+
+    local cwd_display = '~'
+    if success and cwd then
+        -- Format the path for display
+        cwd_display = cwd:gsub('file://[^/]+', ''):gsub(wezterm.home_dir, '~')
+    end
+
+    -- Get hostname safely
     local hostname = wezterm.hostname()
 
-    local cwd_display = cwd and cwd:gsub('file://[^/]+', ''):gsub(os.getenv('HOME'), '~') or '~'
+    -- Get current kubernetes context using kubectl
+    local success_kube, kube_context_stdout, _ = wezterm.run_child_process(
+        {"/opt/homebrew/bin/kubecolor", "config", "current-context"})
+    local kube_context = "none"
+    if success_kube then
+        kube_context = kube_context_stdout:gsub("[\r\n]+$", "") -- Trim trailing newlines
+    end
 
+    -- Get current GitHub user using gh-whoami
+    local success_gh, gh_user_stdout, _ = wezterm.run_child_process({"~/.config/zsh/bin/gh-whoami"})
+    local gh_user = "unknown"
+    if success_gh then
+        gh_user = gh_user_stdout:gsub("[\r\n]+$", "") -- Trim trailing newlines
+    end
+
+    -- Create status elements
     local elements = {{
         Foreground = {
             Color = "#89b4fa"
@@ -281,16 +307,44 @@ wezterm.on('update-status', function(window, _)
             Color = "#f5c2e7"
         },
         Text = " > "
+    }, {
+        Foreground = {
+            Color = "#cba6f7"
+        },
+        Text = "󱃾 " .. kube_context
+    }, {
+        Foreground = {
+            Color = "#f5c2e7"
+        },
+        Text = " > "
+    }, {
+        Foreground = {
+            Color = "#fab387"
+        },
+        Text = " " .. gh_user
     }}
 
+    -- Set the right status with the formatted elements
     window:set_right_status(wezterm.format(elements))
 end)
 
+-- Fix for the gui-startup event handler
 wezterm.on("gui-startup", function(cmd)
-    local active = wezterm.gui.screens().active
-    local tab, pane, window = wezterm.mux.spawn_window(cmd or {})
-    window:guiwindow():setposition(active.x, active.y)
-    window:guiwindow():set_innersize(active.width, active.height)
+    -- Get active screen information
+    local screen = wezterm.gui.screens().active
+    if not screen then
+        return -- Exit if no active screen is found
+    end
+
+    -- Create a new window with the specified command or default
+    local _, _, window = wezterm.mux.spawn_window(cmd or {})
+
+    -- Position and size the window to match the screen
+    local gui_window = window:gui_window()
+    if gui_window then
+        gui_window:set_position(screen.x, screen.y)
+        gui_window:set_inner_size(screen.width, screen.height)
+    end
 end)
 
 return config
