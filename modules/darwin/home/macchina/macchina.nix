@@ -89,6 +89,6 @@ in {
     
     "macchina/themes/mgs.ascii" = {
       source = ./themes/mgs.ascii;
-    }
+    };
   };
 }
