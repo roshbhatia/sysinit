@@ -86,5 +86,9 @@ in {
     "macchina/themes/nix.ascii" = {
       source = ./themes/nix.ascii;
     };
+    
+    "macchina/themes/mgs.ascii" = {
+      source = ./themes/mgs.ascii;
+    }
   };
 }
