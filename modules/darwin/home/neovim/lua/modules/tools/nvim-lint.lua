@@ -9,7 +9,6 @@ M.plugins = {{
         local lint = require("lint")
 
         local linters_by_ft = {
-            python = {"pylint", "ruff"},
             javascript = {"eslint"},
             typescript = {"eslint"},
             javascriptreact = {"eslint"},
@@ -20,7 +19,6 @@ M.plugins = {{
             zsh = {"shellcheck"},
             json = {"jsonlint"},
             markdown = {"markdownlint"},
-            lua = {"luacheck"},
             terraform = {"tflint"}
         }
         lint.linters_by_ft = linters_by_ft
