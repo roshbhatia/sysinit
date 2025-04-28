@@ -70,7 +70,7 @@ local function setup_plugins()
         conform = require("modules.tools.conform"),
         git = require("modules.tools.git"),
         ["nvim-lint"] = require("modules.tools.nvim-lint"),
-        cmp = require("modules.tools.copilot"),
+        cmp = require("modules.tools.cmp"),
         autopairs = require("modules.tools.autopairs"),
         autosession = require("modules.tools.autosession"),
         alpha = require("modules.tools.alpha"),
