@@ -205,7 +205,8 @@ M.plugins = {{
             }}),
             completion = {
                 completeopt = 'menu,menuone,noinsert',
-                autocomplete = true,
+                autocomplete = {require('cmp.types').cmp.TriggerEvent.TextChanged,
+                                require('cmp.types').cmp.TriggerEvent.InsertEnter},
                 keyword_length = 1
             },
             mapping = cmp.mapping.preset.insert({
