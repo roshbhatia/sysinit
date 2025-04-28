@@ -16,7 +16,7 @@ M.plugins = {{
 
         require('mason').setup({
             install_root_dir = "~/.local/share/nvim/mason",
-            
+
             ui = {
                 border = 'rounded',
                 icons = {
@@ -285,24 +285,17 @@ M.plugins = {{
                         cmp.select_next_item()
                     elseif luasnip.expand_or_jumpable() then
                         luasnip.expand_or_jump()
-                    else
+                    elseif has_words_before() then
                         cmp.complete()
-                        vim.defer_fn(function()
-                            if cmp.visible() then
-                                cmp.select_next_item()
-                            else
-                                fallback()
-                            end
-                        end, 50)
+                    else
+                        fallback()
                     end
                 end, {'i', 's'}),
                 ['<S-Tab>'] = cmp.mapping(function(fallback)
                     if cmp.visible() then
                         cmp.select_prev_item()
-                    elseif luasnip.jumpable(-1) then
-                        luasnip.jump(-1)
                     else
-                        fallback()
+                        cmp.complete()
                     end
                 end, {'i', 's'})
             }),
