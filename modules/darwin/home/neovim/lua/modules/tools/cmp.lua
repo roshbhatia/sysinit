@@ -343,6 +343,8 @@ M.plugins = {{
                 name = 'cmdline'
             }})
         })
+
+        vim.cmd("AvanteBuild")
     end
 }}
 
