@@ -256,7 +256,7 @@ config.key_tables = {
 }
 
 -- Fix for the update-status event handler
-wezterm.on('update-status', function(window)
+wezterm.on('update-right-status', function(window)
     -- Get current working directory from active pane
     local success, cwd, _ = pcall(function()
         return window:active_pane():get_current_working_dir()
@@ -328,23 +328,11 @@ wezterm.on('update-status', function(window)
     window:set_right_status(wezterm.format(elements))
 end)
 
--- Fix for the gui-startup event handler
 wezterm.on("gui-startup", function(cmd)
-    -- Get active screen information
-    local screen = wezterm.gui.screens().active
-    if not screen then
-        return -- Exit if no active screen is found
-    end
-
-    -- Create a new window with the specified command or default
-    local _, _, window = wezterm.mux.spawn_window(cmd or {})
-
-    -- Position and size the window to match the screen
-    local gui_window = window:gui_window()
-    if gui_window then
-        gui_window:set_position(screen.x, screen.y)
-        gui_window:set_inner_size(screen.width, screen.height)
-    end
+    local active = wezterm.gui.screens().active
+    local tab, pane, window = wezterm.mux.spawn_window(cmd or {})
+    window:guiwindow():setposition(active.x, active.y)
+    window:guiwindow():set_innersize(active.width, active.height)
 end)
 
 return config
