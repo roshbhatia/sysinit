@@ -49,16 +49,30 @@ M.plugins = {{
         local luasnip = require('luasnip')
         local lspkind = require('lspkind')
 
+        -- Completely disable the native Copilot inline suggestions
         vim.g.copilot_no_tab_map = true
         vim.g.copilot_assume_mapped = true
         vim.g.copilot_tab_fallback = ""
 
+        -- Explicitly disable native copilot suggestion display
+        vim.api.nvim_set_var("copilot_enabled", true)
+
         require("luasnip.loaders.from_vscode").lazy_load()
 
+        -- Setup Copilot.lua with suggestions disabled
         require("copilot").setup({
             suggestion = {
                 enabled = false,
-                auto_trigger = false
+                auto_trigger = false,
+                debounce = 75,
+                keymap = {
+                    accept = false,
+                    accept_word = false,
+                    accept_line = false,
+                    next = false,
+                    prev = false,
+                    dismiss = false
+                }
             },
             panel = {
                 enabled = false
@@ -71,9 +85,11 @@ M.plugins = {{
                 ["hgcommit"] = false,
                 ["svn"] = false,
                 ["cvs"] = false
-            }
+            },
+            copilot_node_command = 'node'
         })
 
+        -- Configure Copilot-cmp
         require("copilot_cmp").setup({
             method = "getCompletionsCycling",
             formatters = {
@@ -83,6 +99,7 @@ M.plugins = {{
             }
         })
 
+        -- CopilotChat config
         require("CopilotChat").setup({
             model = "copilot:claude-3.5-sonnet",
             agent = "copilot",
@@ -126,6 +143,7 @@ M.plugins = {{
             fg = "#6CC644"
         })
 
+        -- Configure nvim-cmp
         cmp.setup({
             snippet = {
                 expand = function(args)
@@ -187,7 +205,7 @@ M.plugins = {{
             }}),
             completion = {
                 completeopt = 'menu,menuone,noinsert',
-                autocomplete = {require('cmp.types').cmp.TriggerEvent.TextChanged},
+                autocomplete = true,
                 keyword_length = 1
             },
             mapping = cmp.mapping.preset.insert({
@@ -205,11 +223,14 @@ M.plugins = {{
                     elseif luasnip.expand_or_jumpable() then
                         luasnip.expand_or_jump()
                     else
-                        -- Always try to show completions first
                         cmp.complete()
-                        if not cmp.visible() then
-                            fallback()
-                        end
+                        vim.defer_fn(function()
+                            if cmp.visible() then
+                                cmp.select_next_item()
+                            else
+                                fallback()
+                            end
+                        end, 50)
                     end
                 end, {'i', 's'}),
                 ['<S-Tab>'] = cmp.mapping(function(fallback)
