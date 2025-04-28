@@ -45,6 +45,44 @@ local function setup_keybindings()
     vim.keymap.set("v", "<D-/>", "<Plug>(comment_toggle_linewise_visual)", {
         desc = "Toggle comment"
     })
+
+    -- Buffer switching with Ctrl + number keys
+    for i = 1, 9 do
+        vim.keymap.set("n", "<C-" .. i .. ">", "<cmd>buffer " .. i .. "<CR>", {
+            noremap = true,
+            silent = true,
+            desc = "Switch to buffer " .. i
+        })
+    end
+
+    -- VSCode-like save with Cmd+s
+    vim.keymap.set({"n", "i", "v"}, "<D-s>", "<cmd>w<CR>", {
+        noremap = true,
+        silent = true,
+        desc = "Save file"
+    })
+
+    -- VSCode-like copy/cut/paste
+    vim.keymap.set("v", "<D-c>", '"+y', {
+        noremap = true,
+        silent = true,
+        desc = "Copy to clipboard"
+    })
+    vim.keymap.set({"n", "i"}, "<D-c>", '<cmd>let @+=@"<CR>', {
+        noremap = true,
+        silent = true,
+        desc = "Copy to clipboard"
+    })
+    vim.keymap.set("v", "<D-x>", '"+d', {
+        noremap = true,
+        silent = true,
+        desc = "Cut to clipboard"
+    })
+    vim.keymap.set({"n", "i", "v"}, "<D-p>", '"+p', {
+        noremap = true,
+        silent = true,
+        desc = "Paste from clipboard"
+    })
 end
 
 local function setup_plugins()
