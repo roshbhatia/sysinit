@@ -139,7 +139,6 @@ M.plugins = {{
             }
         })
 
-        -- Setup Avante with Claude as provider
         require("avante").setup({
             provider = "copilot",
             behaviour = {
