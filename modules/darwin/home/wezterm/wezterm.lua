@@ -272,14 +272,15 @@ wezterm.on('update-status', function(window)
     local hostname = wezterm.hostname()
 
     -- Get current kubernetes context using kubectl
-    local success_kube, kube_context_stdout, _ = wezterm.run_child_process({"kubectl", "config", "current-context"})
+    local success_kube, kube_context_stdout, _ = wezterm.run_child_process({'zsh', '-c',
+                                                                            "kubectl config current-context"})
     local kube_context = "none"
     if success_kube then
         kube_context = kube_context_stdout:gsub("[\r\n]+$", "") -- Trim trailing newlines
     end
 
     -- Get current GitHub user using gh-whoami
-    local success_gh, gh_user_stdout, _ = wezterm.run_child_process({"gh-whoami"})
+    local success_gh, gh_user_stdout, _ = wezterm.run_child_process({"zsh", "-c", "gh-whoami"})
     local gh_user = "unknown"
     if success_gh then
         gh_user = gh_user_stdout:gsub("[\r\n]+$", "") -- Trim trailing newlines
