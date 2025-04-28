@@ -1,9 +1,3 @@
--- sysinit.nvim.doc-url="https://raw.githubusercontent.com/github/copilot.vim/refs/heads/release/doc/copilot.txt"
--- sysinit.nvim.doc-url="https://raw.githubusercontent.com/zbirenbaum/copilot-cmp/refs/heads/master/README.md"
--- sysinit.nvim.doc-url="https://raw.githubusercontent.com/zbirenbaum/copilot.lua/refs/heads/master/doc/copilot.txt"
--- sysinit.nvim.doc-url="https://raw.githubusercontent.com/hrsh7th/nvim-cmp/refs/heads/main/doc/cmp.txt"
--- sysinit.nvim.doc-url="https://raw.githubusercontent.com/VonHeikemen/lsp-zero.nvim/refs/heads/v4.x/doc/lsp-zero.txt"
--- sysinit.nvim.doc-url="https://raw.githubusercontent.com/CopilotC-Nvim/CopilotChat.nvim/refs/heads/main/doc/CopilotChat.txt"
 local M = {}
 
 M.plugins = {{
@@ -44,12 +38,22 @@ M.plugins = {{
         })
     end
 }, {
-    "zbirenbaum/copilot.lua",
+    "hrsh7th/nvim-cmp",
     lazy = false,
-    dependencies = {"github/copilot.vim"},
+    dependencies = {"hrsh7th/cmp-nvim-lsp", "hrsh7th/cmp-buffer", "hrsh7th/cmp-path", "hrsh7th/cmp-cmdline",
+                    "saadparwaiz1/cmp_luasnip", "L3MON4D3/LuaSnip", "onsails/lspkind.nvim",
+                    "rafamadriz/friendly-snippets", "github/copilot.vim", "zbirenbaum/copilot.lua",
+                    "zbirenbaum/copilot-cmp", "nvim-lua/plenary.nvim", "CopilotC-Nvim/CopilotChat.nvim"},
     config = function()
-        -- Explicitly disable the default key mapping for Tab
+        local cmp = require('cmp')
+        local luasnip = require('luasnip')
+        local lspkind = require('lspkind')
+
         vim.g.copilot_no_tab_map = true
+        vim.g.copilot_assume_mapped = true
+        vim.g.copilot_tab_fallback = ""
+
+        require("luasnip.loaders.from_vscode").lazy_load()
 
         require("copilot").setup({
             suggestion = {
@@ -69,12 +73,7 @@ M.plugins = {{
                 ["cvs"] = false
             }
         })
-    end
-}, {
-    "zbirenbaum/copilot-cmp",
-    lazy = false,
-    dependencies = {"zbirenbaum/copilot.lua"},
-    config = function()
+
         require("copilot_cmp").setup({
             method = "getCompletionsCycling",
             formatters = {
@@ -83,19 +82,39 @@ M.plugins = {{
                 preview = require("copilot_cmp.format").deindent
             }
         })
-    end
-}, {
-    "hrsh7th/nvim-cmp",
-    lazy = false,
-    dependencies = {"hrsh7th/cmp-nvim-lsp", "hrsh7th/cmp-buffer", "hrsh7th/cmp-path", "hrsh7th/cmp-cmdline",
-                    "saadparwaiz1/cmp_luasnip", "L3MON4D3/LuaSnip", "onsails/lspkind.nvim",
-                    "rafamadriz/friendly-snippets", "zbirenbaum/copilot-cmp"},
-    config = function()
-        local cmp = require('cmp')
-        local luasnip = require('luasnip')
-        local lspkind = require('lspkind')
 
-        require("luasnip.loaders.from_vscode").lazy_load()
+        require("CopilotChat").setup({
+            model = "copilot:claude-3.5-sonnet",
+            agent = "copilot",
+            auto_insert_mode = false,
+            system_prompt = "The key words \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"MAY\", and \"OPTIONAL\" in this document are to be interpreted as described in RFC 2119.\n\nImplement a new feature based on the context and description below.\n\nYou MUST begin by enclosing all thoughts within <thinking> tags, exploring multiple angles and approaches. You MUST break down the solution into clear steps within <step> tags. You SHALL start with a 20-step budget, requesting more for complex problems if needed. You MUST use <count> tags after each step to show the remaining budget. You SHALL stop when reaching 0. You MUST continuously adjust your reasoning based on intermediate results and reflections, adapting your strategy as you progress. You SHALL regularly evaluate progress using <reflection> tags. You MUST be critical and honest about your reasoning process. You SHALL assign a quality score between 0.0 and 1.0 using <reward> tags after each reflection. You MUST use this to guide your approach:\n0.8+: Continue current approach\n0.5-0.7: Consider minor adjustments\nBelow 0.5: Seriously consider backtracking and trying a different approach\nIf unsure or if reward score is low, you SHOULD backtrack and try a different approach, explaining your decision within <thinking> tags. For mathematical problems, you MUST show all work explicitly using LaTeX for formal notation and provide detailed proofs. You SHOULD explore multiple solutions individually if possible, comparing approaches in reflections. You SHALL use thoughts as a scratchpad, writing out all calculations and reasoning explicitly. You MUST synthesize the final answer within <answer> tags, providing a clear, concise summary. You SHALL conclude with a final reflection on the overall solution, discussing effectiveness, challenges, and solutions. You MUST assign a final reward score.",
+            prompts = {
+                Optimize = {
+                    prompt = "The key words \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"MAY\", and \"OPTIONAL\" in this document are to be interpreted as described in RFC 2119.\n\nOptimize the selected code for improved performance and readability.\n\nYou MUST begin by enclosing all thoughts within <thinking> tags, analyzing performance bottlenecks and readability issues. You MUST break down the optimization process into clear steps within <step> tags. You SHALL use <count> tags to track your 20-step budget. You MUST regularly evaluate progress using <reflection> tags, assigning a quality score between 0.0 and 1.0 using <reward> tags. You MUST provide the optimized code and explanation within <answer> tags."
+                },
+                Tests = {
+                    prompt = "The key words \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"MAY\", and \"OPTIONAL\" in this document are to be interpreted as described in RFC 2119.\n\nGenerate comprehensive tests for the selected code.\n\nYou MUST begin by enclosing all thoughts within <thinking> tags, exploring various testing approaches and edge cases. You MUST structure the test creation process in clear steps within <step> tags. You SHALL use <count> tags to track your 20-step budget. You MUST regularly evaluate progress using <reflection> tags, assigning a quality score between 0.0 and 1.0 using <reward> tags. You MUST provide the final test suite within <answer> tags."
+                },
+                Review = {
+                    prompt = "The key words \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"MAY\", and \"OPTIONAL\" in this document are to be interpreted as described in RFC 2119.\n\nConduct a thorough code review of the selected code, focusing on security, efficiency, and best practices.\n\nYou MUST begin by enclosing all thoughts within <thinking> tags, examining multiple aspects of code quality. You MUST break down the review into clear steps within <step> tags. You SHALL use <count> tags to track your 20-step budget. You MUST regularly evaluate your findings using <reflection> tags, assigning a quality score between 0.0 and 1.0 using <reward> tags. You MUST provide the final code review within <answer> tags.",
+                    system_prompt = 'COPILOT_REVIEW'
+                },
+                Docs = {
+                    prompt = "The key words \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"MAY\", and \"OPTIONAL\" in this document are to be interpreted as described in RFC 2119.\n\nGenerate comprehensive documentation for the selected code, including function descriptions, parameters, return values, and examples.\n\nYou MUST begin by enclosing all thoughts within <thinking> tags, exploring how to best document each component. You MUST structure the documentation process within <step> tags. You SHALL use <count> tags to track your 20-step budget. You MUST regularly evaluate the quality of documentation using <reflection> tags, assigning a quality score between 0.0 and 1.0 using <reward> tags. You MUST provide the final documentation within <answer> tags."
+                },
+                RefactorCode = {
+                    prompt = "The key words \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"MAY\", and \"OPTIONAL\" in this document are to be interpreted as described in RFC 2119.\n\nRefactor the selected code to improve its structure while maintaining functionality.\n\nYou MUST begin by enclosing all thoughts within <thinking> tags, exploring refactoring patterns and approaches. You MUST break down the refactoring process into clear steps within <step> tags. You SHALL use <count> tags to track your 20-step budget. You MUST regularly evaluate progress using <reflection> tags, assigning a quality score between 0.0 and 1.0 using <reward> tags. You MUST provide the refactored code and explanation within <answer> tags."
+                },
+                Explain = {
+                    prompt = "The key words \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"MAY\", and \"OPTIONAL\" in this document are to be interpreted as described in RFC 2119.\n\nExplain the programming concept demonstrated in the selected code in depth, with examples and analogies.\n\nYou MUST begin by enclosing all thoughts within <thinking> tags, exploring different ways to explain the concept. You MUST structure your explanation in clear steps within <step> tags. You SHALL use <count> tags to track your 20-step budget. You MUST regularly evaluate the clarity of your explanation using <reflection> tags, assigning a quality score between 0.0 and 1.0 using <reward> tags. You MUST provide the final concept explanation within <answer> tags.",
+                    system_prompt = 'COPILOT_EXPLAIN'
+                },
+                Commit = {
+                    prompt = 'Write commit message for the change with commitizen convention. Keep the title under 50 characters and wrap message at 72 characters. Format as a gitcommit code block.',
+                    context = 'git:staged'
+                }
+            }
+        })
 
         local has_words_before = function()
             unpack = unpack or table.unpack
@@ -146,23 +165,30 @@ M.plugins = {{
             },
             sources = cmp.config.sources({{
                 name = 'copilot',
-                group_index = 1
+                group_index = 1,
+                priority = 100
             }, {
                 name = 'nvim_lsp',
-                group_index = 1
+                group_index = 1,
+                priority = 90
             }, {
                 name = 'luasnip',
-                group_index = 2
+                group_index = 2,
+                priority = 80
             }, {
                 name = 'path',
-                group_index = 3
+                group_index = 3,
+                priority = 50
             }, {
                 name = 'buffer',
                 group_index = 3,
-                keyword_length = 3
+                keyword_length = 3,
+                priority = 40
             }}),
             completion = {
-                completeopt = 'menu,menuone,noinsert'
+                completeopt = 'menu,menuone,noinsert',
+                autocomplete = {require('cmp.types').cmp.TriggerEvent.TextChanged},
+                keyword_length = 1
             },
             mapping = cmp.mapping.preset.insert({
                 ['<C-b>'] = cmp.mapping.scroll_docs(-4),
@@ -170,17 +196,20 @@ M.plugins = {{
                 ['<C-Space>'] = cmp.mapping.complete(),
                 ['<C-e>'] = cmp.mapping.abort(),
                 ['<CR>'] = cmp.mapping.confirm({
-                    select = true
+                    select = true,
+                    behavior = cmp.ConfirmBehavior.Replace
                 }),
                 ['<Tab>'] = cmp.mapping(function(fallback)
                     if cmp.visible() then
                         cmp.select_next_item()
                     elseif luasnip.expand_or_jumpable() then
                         luasnip.expand_or_jump()
-                    elseif has_words_before() then
-                        cmp.complete()
                     else
-                        fallback()
+                        -- Always try to show completions first
+                        cmp.complete()
+                        if not cmp.visible() then
+                            fallback()
+                        end
                     end
                 end, {'i', 's'}),
                 ['<S-Tab>'] = cmp.mapping(function(fallback)
@@ -193,16 +222,16 @@ M.plugins = {{
                     end
                 end, {'i', 's'})
             }),
-            preselect = cmp.PreselectMode.None,
+            preselect = cmp.PreselectMode.Item,
             experimental = {
-                ghost_text = false
+                ghost_text = true
             },
             sorting = {
                 priority_weight = 2,
-                comparators = {require("copilot_cmp.comparators").prioritize, cmp.config.compare.offset,
-                               cmp.config.compare.exact, cmp.config.compare.score, cmp.config.compare.recently_used,
-                               cmp.config.compare.locality, cmp.config.compare.kind, cmp.config.compare.sort_text,
-                               cmp.config.compare.length, cmp.config.compare.order}
+                comparators = {require("copilot_cmp.comparators").prioritize, cmp.config.compare.exact,
+                               cmp.config.compare.score, cmp.config.compare.recently_used, cmp.config.compare.locality,
+                               cmp.config.compare.kind, cmp.config.compare.sort_text, cmp.config.compare.length,
+                               cmp.config.compare.order}
             }
         })
 
@@ -226,44 +255,6 @@ M.plugins = {{
             }}, {{
                 name = 'cmdline'
             }})
-        })
-    end
-}, {
-    "CopilotC-Nvim/CopilotChat.nvim",
-    lazy = false,
-    dependencies = {"nvim-lua/plenary.nvim", "zbirenbaum/copilot.lua"},
-    config = function()
-        require("CopilotChat").setup({
-            model = "copilot:claude-3.5-sonnet",
-            agent = "copilot",
-            auto_insert_mode = false,
-            system_prompt = "The key words \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"MAY\", and \"OPTIONAL\" in this document are to be interpreted as described in RFC 2119.\n\nImplement a new feature based on the context and description below.\n\nYou MUST begin by enclosing all thoughts within <thinking> tags, exploring multiple angles and approaches. You MUST break down the solution into clear steps within <step> tags. You SHALL start with a 20-step budget, requesting more for complex problems if needed. You MUST use <count> tags after each step to show the remaining budget. You SHALL stop when reaching 0. You MUST continuously adjust your reasoning based on intermediate results and reflections, adapting your strategy as you progress. You SHALL regularly evaluate progress using <reflection> tags. You MUST be critical and honest about your reasoning process. You SHALL assign a quality score between 0.0 and 1.0 using <reward> tags after each reflection. You MUST use this to guide your approach:\n0.8+: Continue current approach\n0.5-0.7: Consider minor adjustments\nBelow 0.5: Seriously consider backtracking and trying a different approach\nIf unsure or if reward score is low, you SHOULD backtrack and try a different approach, explaining your decision within <thinking> tags. For mathematical problems, you MUST show all work explicitly using LaTeX for formal notation and provide detailed proofs. You SHOULD explore multiple solutions individually if possible, comparing approaches in reflections. You SHALL use thoughts as a scratchpad, writing out all calculations and reasoning explicitly. You MUST synthesize the final answer within <answer> tags, providing a clear, concise summary. You SHALL conclude with a final reflection on the overall solution, discussing effectiveness, challenges, and solutions. You MUST assign a final reward score.",
-            prompts = {
-                Optimize = {
-                    prompt = "The key words \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"MAY\", and \"OPTIONAL\" in this document are to be interpreted as described in RFC 2119.\n\nOptimize the selected code for improved performance and readability.\n\nYou MUST begin by enclosing all thoughts within <thinking> tags, analyzing performance bottlenecks and readability issues. You MUST break down the optimization process into clear steps within <step> tags. You SHALL use <count> tags to track your 20-step budget. You MUST regularly evaluate progress using <reflection> tags, assigning a quality score between 0.0 and 1.0 using <reward> tags. You MUST provide the optimized code and explanation within <answer> tags."
-                },
-                Tests = {
-                    prompt = "The key words \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"MAY\", and \"OPTIONAL\" in this document are to be interpreted as described in RFC 2119.\n\nGenerate comprehensive tests for the selected code.\n\nYou MUST begin by enclosing all thoughts within <thinking> tags, exploring various testing approaches and edge cases. You MUST structure the test creation process in clear steps within <step> tags. You SHALL use <count> tags to track your 20-step budget. You MUST regularly evaluate progress using <reflection> tags, assigning a quality score between 0.0 and 1.0 using <reward> tags. You MUST provide the final test suite within <answer> tags."
-                },
-                Review = {
-                    prompt = "The key words \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"MAY\", and \"OPTIONAL\" in this document are to be interpreted as described in RFC 2119.\n\nConduct a thorough code review of the selected code, focusing on security, efficiency, and best practices.\n\nYou MUST begin by enclosing all thoughts within <thinking> tags, examining multiple aspects of code quality. You MUST break down the review into clear steps within <step> tags. You SHALL use <count> tags to track your 20-step budget. You MUST regularly evaluate your findings using <reflection> tags, assigning a quality score between 0.0 and 1.0 using <reward> tags. You MUST provide the final code review within <answer> tags.",
-                    system_prompt = 'COPILOT_REVIEW'
-                },
-                Docs = {
-                    prompt = "The key words \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"MAY\", and \"OPTIONAL\" in this document are to be interpreted as described in RFC 2119.\n\nGenerate comprehensive documentation for the selected code, including function descriptions, parameters, return values, and examples.\n\nYou MUST begin by enclosing all thoughts within <thinking> tags, exploring how to best document each component. You MUST structure the documentation process within <step> tags. You SHALL use <count> tags to track your 20-step budget. You MUST regularly evaluate the quality of documentation using <reflection> tags, assigning a quality score between 0.0 and 1.0 using <reward> tags. You MUST provide the final documentation within <answer> tags."
-                },
-                RefactorCode = {
-                    prompt = "The key words \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"MAY\", and \"OPTIONAL\" in this document are to be interpreted as described in RFC 2119.\n\nRefactor the selected code to improve its structure while maintaining functionality.\n\nYou MUST begin by enclosing all thoughts within <thinking> tags, exploring refactoring patterns and approaches. You MUST break down the refactoring process into clear steps within <step> tags. You SHALL use <count> tags to track your 20-step budget. You MUST regularly evaluate progress using <reflection> tags, assigning a quality score between 0.0 and 1.0 using <reward> tags. You MUST provide the refactored code and explanation within <answer> tags."
-                },
-                Explain = {
-                    prompt = "The key words \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"MAY\", and \"OPTIONAL\" in this document are to be interpreted as described in RFC 2119.\n\nExplain the programming concept demonstrated in the selected code in depth, with examples and analogies.\n\nYou MUST begin by enclosing all thoughts within <thinking> tags, exploring different ways to explain the concept. You MUST structure your explanation in clear steps within <step> tags. You SHALL use <count> tags to track your 20-step budget. You MUST regularly evaluate the clarity of your explanation using <reflection> tags, assigning a quality score between 0.0 and 1.0 using <reward> tags. You MUST provide the final concept explanation within <answer> tags.",
-                    system_prompt = 'COPILOT_EXPLAIN'
-                },
-                Commit = {
-                    prompt = 'Write commit message for the change with commitizen convention. Keep the title under 50 characters and wrap message at 72 characters. Format as a gitcommit code block.',
-                    context = 'git:staged'
-                }
-            }
         })
     end
 }}

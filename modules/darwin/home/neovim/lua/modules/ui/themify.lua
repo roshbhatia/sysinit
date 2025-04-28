@@ -9,12 +9,12 @@ M.plugins = {{
         require("themify").setup({
             async = true,
             activity = true,
+            "rmehri01/onenord.nvim",
             "EdenEast/nightfox.nvim",
             "RRethy/base16-nvim",
             "folke/tokyonight.nvim",
             "catppuccin/nvim",
             "Shatur/neovim-ayu",
-            "rmehri01/onenord.nvim",
             "rebelot/kanagawa.nvim",
             "sainnhe/sonokai",
             "sainnhe/edge",
