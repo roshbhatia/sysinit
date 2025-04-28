@@ -55,8 +55,8 @@ local function init()
     vim.notify = require('vscode').notify
     vim.g.clipboard = vim.g.vscode_clipboard
 
-    setup_keybindings()
     setup_plugins()
+    setup_keybindings()
 end
 
 init()

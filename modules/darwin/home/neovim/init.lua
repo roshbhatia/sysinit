@@ -21,10 +21,14 @@ local function setup_keybindings()
         desc = "Move to right window"
     })
 
-    vim.keymap.set("n", "<A-b>", "<cmd>Oil<CR>", {
+    vim.keymap.set("n", "<A-b>", "<cmd>Neotree toggle<CR>", {
         noremap = true,
         silent = true
     }) -- Like the alt+b to open up left activity bar in vsc
+    vim.keymap.set("n", "<A-D-jkb>", "<cmd>CopilotChatToggle<CR>", {
+        noremap = true,
+        silent = true
+    }) -- Like the alt+cmd+b to open up chat in vsc
     vim.keymap.set("n", "<S-CR>", "<cmd>HopWord<CR>", {
         noremap = true,
         silent = true
@@ -99,8 +103,8 @@ local function init()
     vim.opt.completeopt = {"menuone", "noselect"}
     vim.opt.clipboard = "unnamedplus"
 
-    setup_keybindings()
     setup_plugins()
+    setup_keybindings()
 end
 
 init()
