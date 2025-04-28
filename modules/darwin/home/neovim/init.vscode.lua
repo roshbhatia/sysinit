@@ -28,6 +28,10 @@ local function setup_keybindings()
 end
 
 local function setup_plugins()
+    local ui = {
+        ["vsc-statusbar"] = require("modules.ui.vsc-statusbar")
+    }
+
     local editor = {
         oil = require("modules.editor.oil")
     }
@@ -37,7 +41,7 @@ local function setup_plugins()
         ["which-key"] = require("modules.tools.which-key")
     }
 
-    local modules = {editor.oil, tools["vsc-commands"], tools["which-key"]}
+    local modules = {ui["vsc-statusbar"], editor.oil, tools["vsc-commands"], tools["which-key"]}
 
     local module_loader = require("common.module_loader")
     local specs = module_loader.get_plugin_specs(modules)
