@@ -112,7 +112,7 @@ M.plugins = {{
                 local current = themery.getCurrentTheme()
 
                 if not current then
-                    themery.setThemeByName("Onenord", true)
+                    themery.setThemeByName("Carbonfox", true)
                 end
             end,
             once = true
