@@ -112,7 +112,7 @@ M.plugins = {{
                 local current = themery.getCurrentTheme()
 
                 if not current then
-                    themery.setThemeByName("Nord", true)
+                    themery.setThemeByName("GitHub Dark", true)
                 end
             end,
             once = true
