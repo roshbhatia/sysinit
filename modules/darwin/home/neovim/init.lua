@@ -100,8 +100,8 @@ local function setup_plugins()
     local editor = {
         ibl = require("modules.editor.ibl"),
         oil = require("modules.editor.oil"),
-        telescope = require("modules.editor.telescope"),
-        wilder = require("modules.editor.wilder")
+        telescope = require("modules.tools.telescope"),
+        wilder = require("modules.ui.wilder")
     }
 
     local tools = {
@@ -119,7 +119,7 @@ local function setup_plugins()
         ["nvim-ts-autotag"] = require("modules.tools.nvim-ts-autotag"),
         ["nvim-web-devicons"] = require("modules.tools.nvim-web-devicons"),
         ["which-key"] = require("modules.tools.which-key"),
-        alpha = require("modules.tools.alpha"),
+        alpha = require("modules.ui.alpha"),
         autopairs = require("modules.tools.autopairs"),
         autosession = require("modules.tools.autosession"),
         blame = require("modules.tools.blame"),
@@ -147,7 +147,7 @@ local function setup_plugins()
     tools.blame, -- Git blame integration 
     tools.diffview, -- Git diff viewer
     -- Search and navigation
-    editor.telescope, -- Fuzzy finder (used by many plugins)
+    tools.telescope, -- Fuzzy finder (used by many plugins)
     tools.hop, -- Quick navigation
     -- Code editing enhancements
     tools.autopairs, -- Auto-pairing brackets, etc.
@@ -157,14 +157,14 @@ local function setup_plugins()
     -- Completion and helpers
     tools.cmp, -- Completion engine
     tools["which-key"], -- Keybinding helper
-    editor.wilder, -- Command line completion
+    ui.wilder, -- Command line completion
     -- UI enhancements
     ui.lualine, -- Status line
     ui.barbar, -- Tab bar
     ui.neominimap, -- Minimap
     -- Session and startup
     tools.autosession, -- Session management
-    tools.alpha -- Dashboard/greeter
+    ui.alpha -- Dashboard/greeter
     }
 
     local module_loader = require("common.module_loader")
