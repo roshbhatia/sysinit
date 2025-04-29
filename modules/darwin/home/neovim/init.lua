@@ -108,6 +108,19 @@ local function setup_plugins()
         treesitter = require("modules.tools.treesitter"),
         conform = require("modules.tools.conform"),
         git = require("modules.tools.git"),
+        blame = require("modules.tools.blame"),
+        ["nvim-tree"] = require("modules.tools.nvim-tree"),
+        ["nvim-autopairs"] = require("modules.tools.nvim-autopairs"),
+        ["nvim-ts-autotag"] = require("modules.tools.nvim-ts-autotag"),
+        ["nvim-surround"] = require("modules.tools.nvim-surround"),
+        ["nvim-comment"] = require("modules.tools.nvim-comment"),
+        ["nvim-colorizer"] = require("modules.tools.nvim-colorizer"),
+        ["nvim-notify"] = require("modules.tools.nvim-notify"),
+        ["nvim-web-devicons"] = require("modules.tools.nvim-web-devicons"),
+        ["lspkind-nvim"] = require("modules.tools.lspkind-nvim"),
+        ["lsp-zero"] = require("modules.tools.lsp-zero"),
+        ["mason-lspconfig"] = require("modules.tools.mason-lspconfig"),
+        ["mason-null-ls"] = require("modules.tools.mason-null-ls"),
         ["nvim-lint"] = require("modules.tools.nvim-lint"),
         cmp = require("modules.tools.cmp"),
         autopairs = require("modules.tools.autopairs"),
@@ -115,9 +128,9 @@ local function setup_plugins()
         alpha = require("modules.tools.alpha"),
         ["which-key"] = require("modules.tools.which-key")
     }
-    local modules = {ui.notify, ui.devicons, ui.themify, tools.treesitter, editor.oil, ui.tree, editor.telescope, tools.autopairs,
+    local modules = {ui.devicons, ui.themify, tools.treesitter, editor.oil, ui.tree, editor.telescope, tools.autopairs,
                      tools.comment, tools.conform, tools["nvim-lint"], tools.hop, ui.lualine, ui.barbar, ui.neominimap,
-                     tools.git, tools.cmp, editor.wilder, tools.autosession, tools.alpha, tools["which-key"]}
+                     tools.git, tools.blame, tools.cmp, editor.wilder, tools.autosession, tools.alpha, tools["which-key"]}
 
     local module_loader = require("common.module_loader")
     local specs = module_loader.get_plugin_specs(modules)
