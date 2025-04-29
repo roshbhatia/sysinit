@@ -7,7 +7,7 @@ tasks:
       - task -l
     silent: true
     
-  create-dev-instance:
+  nvim:create-dev-instance:
     desc: Create a Lima VM instance for Neovim development
     silent: true
     cmds:
@@ -69,7 +69,7 @@ tasks:
             --cmd "set runtimepath^=/config,/config/lua" \
             -u /config/init.lua
 
-  run-local-headless-isolated:
+  nvim:run-local-headless-isolated:
     desc: Run Neovim with local configuration in Docker container (headless)
     silent: true
     cmds:
@@ -86,7 +86,7 @@ tasks:
             --cmd "set runtimepath^=/config,/config/lua" \
             -u /config/init.lua --headless
 
-  run-local-clean:
+  nvim:run-local-clean:
     desc: Clean local Neovim test environment
     silent: true
     cmds:
@@ -94,7 +94,7 @@ tasks:
         rm -rf .local/
         docker rmi nvim-isolated 2>/dev/null || true
 
-  pull-docs:
+  nvim:pull-docs:
     desc: Fetch documentation for all Neovim plugins
     silent: true
     cmds:
@@ -142,7 +142,7 @@ tasks:
         echo -e "${YELLOW}Scanned ${count} files, found ${found} documentation URLs${NC}"
         echo -e "${GREEN}documentation saved to ${DOC_DIR}${NC}"
 
-  verify-vsc-actions:
+  nvim:verify-vsc-actions:
     desc: Verify that all VSCode actions in our which-key abstraction are listed in the actions.txt
     cmds:
       - |
@@ -171,7 +171,7 @@ tasks:
         sed -n 's/.*"command": "\([^"]*\)".*$/\1/p; s/.*- \([a-zA-Z0-9.]*\)$/\1/p' ./dependency-docs/default-keybindings.json > ./dependency-docs/actions.txt
     silent: true
 
-  extract-nvim-commands:
+  nvim:extract-nvim-commands:
     desc: Extract all available Neovim commands (built-in, plugin-provided, and user-defined)
     dir: '{{.ROOT_DIR}}'
     cmds:

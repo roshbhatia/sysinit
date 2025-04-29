@@ -134,39 +134,32 @@ tasks:
         echo "Work configuration refreshed successfully"
     silent: true
 
-  # Neovim specific tasks (delegated)
-  run-local-isolated:
-    desc: Run Neovim with local configuration (isolated, delegated)
+  nvim:run-local-isolated:
     cmds:
-      - task -d modules/darwin/home/neovim run-local-isolated
+      - task -d modules/darwin/home/neovim nvim:run-local-isolated
     silent: true
 
-  run-local-headless-isolated:
-    desc: Run Neovim with local configuration (isolated, headless, delegated)
+  nvim:run-local-headless-isolated:
     cmds:
-      - task -d modules/darwin/home/neovim run-local-headless-isolated
+      - task -d modules/darwin/home/neovim nvim:run-local-headless-isolated
     silent: true
 
-  run-local-clean:
-    desc: Clean Neovim with local configuration (isolated, delegated)
+  nvim:pull-docs:
     cmds:
-      - task -d modules/darwin/home/neovim run-local-clean
+      - task -d modules/darwin/home/neovim nvim:pull-docs
     silent: true
 
-  pull-docs:
-    desc: Fetch documentation for Neovim plugins (delegated)
+  nvim:verify-vsc-commands:
     cmds:
-      - task -d modules/darwin/home/neovim pull-docs
+      - task -d modules/darwin/home/neovim nvim:verify-vsc-actions
     silent: true
 
-  extract-vsc-commands:
-    desc: Extract commands from default-keybindings.json to actions.txt (delegated)
+  nvim:extract-vsc-commands:
     cmds:
-      - task -d modules/darwin/home/neovim extract-vsc-commands
+      - task -d modules/darwin/home/neovim nvim:extract-vsc-commands
     silent: true
 
-  verify-vsc-commands:
-    desc: Verify that all VSCode actions in our which-key abstraction are listed in the actions.txt (delegated)
+  nvim:extract-nvim-commands:
     cmds:
-      - task -d modules/darwin/home/neovim verify-vsc-actions
+      - task -d modules/darwin/home/neovim nvim:extract-nvim-commands
     silent: true
