@@ -16,14 +16,7 @@ M.plugins = {{
                 color = "ScrollbarHandle",
                 hide_if_all_visible = true,
             },
-            marks = {
-                Search = { color = "Orange" },
-                Error = { color = "Red" },
-                Warn = { color = "Yellow" },
-                Info = { color = "Blue" },
-                Hint = { color = "Green" },
-                Misc = { color = "Purple" },
-            },
+            marks = {},
             excluded_filetypes = {
                 "prompt",
                 "TelescopePrompt",
