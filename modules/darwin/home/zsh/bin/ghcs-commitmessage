@@ -2,28 +2,79 @@
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
 
+help() {
+    echo "Usage: $(basename "$0") [options]"
+    echo
+    echo "Generate a conventional commit message using GitHub Copilot"
+    echo
+    echo "Options:"
+    echo "  -c, --context TEXT        Additional context for the commit message"
+    echo "  -s, --ci-skip            Add [ci skip] to the commit scope"
+    echo "  -b, --breaking-change    Mark this as a breaking change"
+    echo "  -i, --interactive        Enable interactive mode with gum"
+    echo "  -h, --help              Show this help message"
+    exit 0
+}
+
+validate_context() {
+    if [[ -z "$2" ]]; then
+        echo "Error: --context requires a value"
+        exit 1
+    fi
+}
+
+if [[ $# -eq 0 ]]; then
+    help
+fi
+
+command -v gum >/dev/null 2>&1 || { echo "Error: gum is required for interactive mode. Install with 'brew install gum'"; exit 1; }
 eval "$(gh copilot alias bash)"
 
+CI_SKIP=${CI_SKIP:-false}
+BREAKING_CHANGE=${BREAKING_CHANGE:-false}
+INTERACTIVE=${INTERACTIVE:-false}
+
 while [[ $# -gt 0 ]]; do
-  case $1 in
-    -c|--context)
-      CONTEXT="$2"
-      shift 2
-      ;;
-    -s|--ci-skip)
-      CI_SKIP=true
-      shift
-      ;;
-    -b|--breaking-change)
-      BREAKING_CHANGE=true
-      shift
-      ;;
-    *)
-      echo "Unknown option: $1"
-      exit 1
-      ;;
-  esac
+    case $1 in
+        -h|--help)
+            help
+            ;;
+        -c|--context)
+            validate_context "$@"
+            CONTEXT="$2"
+            shift 2
+            ;;
+        -s|--ci-skip)
+            CI_SKIP=true
+            shift
+            ;;
+        -b|--breaking-change)
+            BREAKING_CHANGE=true
+            shift
+            ;;
+        -i|--interactive)
+            INTERACTIVE=true
+            shift
+            ;;
+        *)
+            echo "Error: Unknown option: $1"
+            echo "Use --help to see available options"
+            exit 1
+            ;;
+    esac
 done
+
+# Validate git repository
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "Error: Not in a git repository"
+    exit 1
+fi
+
+# Check for staged changes
+if [[ -z "$(git diff --staged)" ]]; then
+    echo "Error: No staged changes found. Stage your changes with 'git add' first"
+    exit 1
+fi
 
 # Get branch name without origin/ prefix
 BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
@@ -96,18 +147,32 @@ Please output ONLY valid JSON matching the schema above.
 EOF
 
 # Run copilot suggest and store output
-ghcs "${PROMPT}" | jq -c 'if .type and .subject then 
+COMMIT_MSG=$(ghcs "${PROMPT}" | jq --arg ci_skip "$CI_SKIP" -c 'if .type and .subject then 
   . + {
     message: (
       .type + 
       (if .scope then 
-        "(" + .scope + (if $CI_SKIP == "true" then "[ci skip]" else "" end) + ")" 
+        "(" + .scope + (if $ci_skip == "true" then "[ci skip]" else "" end) + ")" 
       else 
-        (if $CI_SKIP == "true" then "([ci skip])" else "" end)
+        (if $ci_skip == "true" then "([ci skip])" else "" end)
       end) +
       (if .breaking then "!" else "" end) + 
       ": " + .subject + 
       (if .body then "\n\n" + .body else "" end)
     )
   } 
-else . end'
+else . end' | jq -r '.message')
+
+if [[ $INTERACTIVE == "true" ]]; then
+    echo "Generated commit message:"
+    echo "$COMMIT_MSG"
+    echo
+    EDITED_MSG=$(echo "$COMMIT_MSG" | gum write --width 80 --placeholder "Edit commit message...")
+    if gum confirm "Use this commit message?"; then
+        echo "$EDITED_MSG"
+    else
+        exit 1
+    fi
+else
+    echo "$COMMIT_MSG"
+fi
