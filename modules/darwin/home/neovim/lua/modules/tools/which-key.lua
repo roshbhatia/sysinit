@@ -218,9 +218,20 @@ if vim.g.vscode then
     end
 end
 
+M.group_icons = {
+    ai = "󱚤",
+    buffer = "󱅄",
+    code = "󰘧",
+    find = "󰀶",
+    git = "󰊢",
+    split = "󰃻",
+    toggle = "󰨚",
+    window = ""
+}
+
 M.keybindings_data = {
     a = {
-        name = "󱚤 AI",
+        name = M.group_icons.ai .. " AI",
         bindings = {{
             key = "c",
             desc = "Toggle Chat",
@@ -284,7 +295,7 @@ M.keybindings_data = {
         }}
     },
     b = {
-        name = "󱅄 Buffer",
+        name = M.group_icons.buffer .. " Buffer",
         bindings = {{
             key = "d",
             desc = "Close",
@@ -331,7 +342,7 @@ M.keybindings_data = {
         }}
     },
     c = {
-        name = "󰘧 Code",
+        name = M.group_icons.code .. " Code",
         bindings = {{
             key = "R",
             desc = "References",
@@ -375,7 +386,7 @@ M.keybindings_data = {
         }}
     },
     f = {
-        name = "󰀶 Find",
+        name = M.group_icons.find .. " Find",
         bindings = {{
             key = "b",
             desc = "Buffers",
@@ -404,7 +415,7 @@ M.keybindings_data = {
         }}
     },
     g = {
-        name = "󰊢 Git",
+        name = M.group_icons.git .. " Git",
         bindings = {{
             key = "D",
             desc = "Status",
@@ -498,7 +509,7 @@ M.keybindings_data = {
         }}
     },
     s = {
-        name = "󰃻 Split",
+        name = M.group_icons.split .. " Split",
         bindings = {{
             key = "s",
             desc = "Horizontal Split",
@@ -512,7 +523,7 @@ M.keybindings_data = {
         }}
     },
     t = {
-        name = "󰨚 Toggle",
+        name = M.group_icons.toggle .. " Toggle",
         bindings = {{
             key = "c",
             desc = "Commands",
@@ -546,7 +557,7 @@ M.keybindings_data = {
         }}
     },
     w = {
-        name = " Window",
+        name = M.group_icons.window .. " Window",
         bindings = {{
             key = "=",
             desc = "Equal Size",
