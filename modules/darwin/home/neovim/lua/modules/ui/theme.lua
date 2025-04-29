@@ -7,76 +7,100 @@ M.plugins = {{
     config = function()
         require("themery").setup({
             themes = {{
-                name = "Nordfox",
-                colorscheme = "nordfox",
+                name = "Gruvbox Dark",
+                colorscheme = "gruvbox",
                 before = [[
-                        vim.g.nightfox_style = "nordfox"
-                    ]]
+                    vim.o.background = "dark"
+                ]]
             }, {
-                name = "Tokyonight",
-                colorscheme = "tokyonight"
-            }, {
-                name = "Catppuccin",
-                colorscheme = "catppuccin"
-            }, {
-                name = "Ayu Dark",
-                colorscheme = "ayu",
+                name = "Tokyonight Storm",
+                colorscheme = "tokyonight",
                 before = [[
-                        vim.g.ayucolor = "dark"
-                    ]]
+                    vim.g.tokyonight_style = "storm"
+                ]]
             }, {
-                name = "Kanagawa",
-                colorscheme = "kanagawa"
+                name = "Tokyonight Night",
+                colorscheme = "tokyonight",
+                before = [[
+                    vim.g.tokyonight_style = "night"
+                ]]
             }, {
-                name = "Sonokai",
-                colorscheme = "sonokai"
+                name = "Catppuccin Mocha",
+                colorscheme = "catppuccin",
+                before = [[
+                    vim.g.catppuccin_flavour = "mocha"
+                ]]
             }, {
-                name = "Edge",
-                colorscheme = "edge"
+                name = "Nightfox",
+                colorscheme = "nightfox"
             }, {
-                name = "Everforest",
-                colorscheme = "everforest"
+                name = "Carbonfox",
+                colorscheme = "carbonfox"
             }, {
-                name = "Material",
-                colorscheme = "material"
+                name = "Duskfox",
+                colorscheme = "duskfox"
             }, {
-                name = "Onedark",
-                colorscheme = "onedark"
+                name = "Terafox",
+                colorscheme = "terafox"
             }, {
-                name = "Tokyodark",
-                colorscheme = "tokyodark"
+                name = "Kanagawa Dragon",
+                colorscheme = "kanagawa",
+                before = [[
+                    vim.g.kanagawa_theme_style = "dragon"
+                ]]
             }, {
-                name = "Github",
-                colorscheme = "github-theme"
-            }, {
-                name = "Rosepine",
-                colorscheme = "rose-pine"
-            }, {
-                name = "Oxocarbon",
-                colorscheme = "oxocarbon"
-            }, {
-                name = "Nightfly",
-                colorscheme = "nightfly"
-            }, {
-                name = "Onedarkpro",
-                colorscheme = "onedarkpro"
-            }, {
-                name = "Neon",
-                colorscheme = "neon"
+                name = "Kanagawa Wave",
+                colorscheme = "kanagawa",
+                before = [[
+                    vim.g.kanagawa_theme_style = "wave"
+                ]]
             }, {
                 name = "Dracula",
                 colorscheme = "dracula"
             }, {
-                name = "Onenord",
-                colorscheme = "onenord"
+                name = "GitHub Dark",
+                colorscheme = "github-theme",
+                before = [[
+                    vim.g.github_dark_theme_style = "dark"
+                ]]
+            }, {
+                name = "Oceanic Next",
+                colorscheme = "OceanicNext"
+            }, {
+                name = "Nord",
+                colorscheme = "nord"
+            }, {
+                name = "Onedark Deep",
+                colorscheme = "onedark",
+                before = [[
+                    vim.g.onedark_style = "deep"
+                ]]
+            }, {
+                name = "Material Deep Ocean",
+                colorscheme = "material",
+                before = [[
+                    vim.g.material_style = "deep-ocean"
+                ]]
+            }, {
+                name = "Moonfly",
+                colorscheme = "moonfly"
+            }, {
+                name = "Substrata",
+                colorscheme = "substrata"
+            }, {
+                name = "Edge Dark",
+                colorscheme = "edge",
+                before = [[
+                    vim.g.edge_style = "neon"
+                ]]
+            }, {
+                name = "Doom One",
+                colorscheme = "doom-one"
             }},
             livePreview = true,
-            themeConfigFile = vim.fn.stdpath("config") .. "/lua/theme.lua",
-
             globalBefore = [[
                 vim.opt.termguicolors = true
             ]],
-
             globalAfter = [[
                 vim.cmd("hi Normal guibg=NONE ctermbg=NONE")
             ]]
@@ -88,7 +112,7 @@ M.plugins = {{
                 local current = themery.getCurrentTheme()
 
                 if not current then
-                    themery.setThemeByName("Nordfox", true)
+                    themery.setThemeByName("Nord", true)
                 end
             end,
             once = true
