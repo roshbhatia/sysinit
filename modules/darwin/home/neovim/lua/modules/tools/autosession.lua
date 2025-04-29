@@ -8,8 +8,8 @@ M.plugins = {{
         local auto_session = require("auto-session")
         auto_session.setup({
             args_allow_single_directory = true,
-            auto_restore = false,
-            auto_restore_last_session = false,
+            auto_restore = true,
+            auto_restore_last_session = true,
             auto_save = true,
             bypass_save_filetypes = {"alpha"},
             close_unsupported_windows = true,
