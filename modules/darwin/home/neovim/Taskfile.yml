@@ -6,60 +6,93 @@ tasks:
     cmds:
       - task -l
     silent: true
+    
+  create-dev-instance:
+    desc: Create a Lima VM instance for Neovim development
+    silent: true
+    cmds:
+      - |
+        cat > /tmp/nvim-dev.yaml << 'EOL'
+        images:
+        - location: "https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64.img"
+          arch: "x86_64"
+          digest: "sha256:b34b1735ea3f3f3cc145e5a450bd6cc559420ea5c8c5231917f9d37c11600b69"
+        
+        cpus: 4
+        memory: "8GiB"
+        disk: "20GiB"
+        
+        mounts:
+        - location: "~"
+          writable: true
+        - location: "/tmp/lima"
+          writable: true
+        
+        provision:
+        - mode: system
+          script: |
+            #!/bin/bash
+            apt-get update
+            apt-get install -y git build-essential ninja-build gettext cmake unzip curl
+        
+        probes:
+        - script: |
+            #!/bin/bash
+            command -v git && command -v cmake && command -v ninja
+          hint: Checking if development tools are installed
+        
+        portForwards:
+        - guestSocket: "/tmp/nvim-dev.sock"
+          hostSocket: "{{.Dir}}/nvim-dev.sock"
+        EOL
+        
+        limactl start --name=nvim-dev /tmp/nvim-dev.yaml
+        echo "Lima VM 'nvim-dev' created and started"
+        
+        # Open shell to the instance
+        limactl shell nvim-dev
 
   run-local-isolated:
-    desc: Run Neovim with local configuration in an isolated environment
+    desc: Run Neovim with local configuration in Docker container
     silent: true
     cmds:
       - |
-        # Ensure any stray nvim processes are cleaned up
-        pkill -f "nvim-test" || true
-        
-        # Create temp directory
-        TMP_DIR=$(mktemp -d /tmp/nvim-test-XXXXXX)
-        TMP_CONFIG_DIR="$TMP_DIR/config"
-        mkdir -p "$TMP_DIR"/{share,config,state,cache}
-        
-        # Copy config files
-        cp -r "$(pwd)"/* "$TMP_CONFIG_DIR/"
-        echo "Running Neovim with isolated config in $TMP_DIR"
-        
-        # Run nvim with timeout and cleanup
-        (NVIM_APPNAME=nvim-test \
-        XDG_DATA_HOME="$TMP_DIR/share" \
-        XDG_CONFIG_HOME="$TMP_DIR/config" \
-        XDG_STATE_HOME="$TMP_DIR/state" \
-        XDG_CACHE_HOME="$TMP_DIR/cache" \
-        NVIM_LOG_FILE="$TMP_DIR/nvim.log" \
-        nvim \
-          --cmd "let g:auto_session_enabled = v:false" \
-          --cmd "set runtimepath^=$TMP_CONFIG_DIR,$TMP_CONFIG_DIR/lua" \
-          -u "$TMP_CONFIG_DIR/init.lua" || \
-        (echo "Neovim exited with error. Check $TMP_DIR/nvim.log for details" && false))
-        
-        # Cleanup temp files unless KEEP_TMP is set
-        if [ -z "$KEEP_TMP" ]; then
-          rm -rf "$TMP_DIR"
-        else
-          echo "Keeping temporary files in $TMP_DIR"
-        fi
+        mkdir -p .local/share .local/state .local/cache
+        docker build -t nvim-isolated .
+        docker run -it --rm \
+          -v "$(pwd):/config" \
+          -v "$(pwd)/.local/share:/data" \
+          -v "$(pwd)/.local/state:/state" \
+          -v "$(pwd)/.local/cache:/cache" \
+          nvim-isolated nvim \
+            --cmd "let g:auto_session_enabled = v:false" \
+            --cmd "set runtimepath^=/config,/config/lua" \
+            -u /config/init.lua
 
   run-local-headless-isolated:
-    desc: Run Neovim with local configuration in an isolated environment (headless)
+    desc: Run Neovim with local configuration in Docker container (headless)
     silent: true
     cmds:
       - |
-        TMP_DIR=$(mktemp -d /tmp/nvim-test-XXXXXX)
-        TMP_CONFIG_DIR="$TMP_DIR/config"
-        mkdir -p "$TMP_DIR"/{share,config,state,cache}
-        cp -r "$(pwd)"/* "$TMP_CONFIG_DIR/"
-        echo "Running Neovim with isolated config in $TMP_DIR"
-        NVIM_APPNAME=nvim-test \
-        XDG_DATA_HOME="$TMP_DIR/share" \
-        XDG_CONFIG_HOME="$TMP_DIR/config" \
-        XDG_STATE_HOME="$TMP_DIR/state" \
-        XDG_CACHE_HOME="$TMP_DIR/cache" \
-        nvim --cmd "set runtimepath^=$TMP_CONFIG_DIR,$TMP_CONFIG_DIR/lua" -u "$TMP_CONFIG_DIR/init.lua" --headless
+        mkdir -p .local/share .local/state .local/cache
+        docker build -t nvim-isolated .
+        docker run --rm \
+          -v "$(pwd):/config" \
+          -v "$(pwd)/.local/share:/data" \
+          -v "$(pwd)/.local/state:/state" \
+          -v "$(pwd)/.local/cache:/cache" \
+          nvim-isolated nvim \
+            --cmd "let g:auto_session_enabled = v:false" \
+            --cmd "set runtimepath^=/config,/config/lua" \
+            -u /config/init.lua --headless
+
+  run-local-clean:
+    desc: Clean local Neovim test environment
+    silent: true
+    cmds:
+      - |
+        rm -rf .local/
+        docker rmi nvim-isolated 2>/dev/null || true
 
   pull-docs:
     desc: Fetch documentation for all Neovim plugins
