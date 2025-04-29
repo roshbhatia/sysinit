@@ -118,7 +118,6 @@ local function setup_plugins()
         ["nvim-lint"] = require("modules.tools.nvim-lint"),
         telescope = require("modules.tools.telescope"),
         treesitter = require("modules.tools.treesitter"),
-        ["vsc-commands"] = require("modules.tools.vsc-commands"),
         ["which-key"] = require("modules.tools.which-key")
     }
 
