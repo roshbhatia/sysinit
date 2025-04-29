@@ -16,6 +16,6 @@ if [ -n "$VSCODE_INSPECTOR_OPTIONS" ] || [ -n "$VSCODE_GIT_ASKPASS_NODE" ] || [ 
   eval "$(oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/zash.omp.json)"
 else
   # Not in VSCode terminal
-  _evalcache oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/catppuccin_mocha.omp.json
+  _evalcache oh-my-posh init zsh --config $XDG_CONFIG_HOME/oh-my-posh/themes/sysinit.omp.json
 fi
 # modules/darwin/home/zsh/core/prompt.sh (end)
