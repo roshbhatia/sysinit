@@ -87,6 +87,7 @@ end
 
 local function setup_plugins()
     local ui = {
+        notify = require("modules.ui.notify"),
         devicons = require("modules.ui.devicons"),
         lualine = require("modules.ui.lualine"),
         neominimap = require("modules.ui.neominimap"),
@@ -114,7 +115,7 @@ local function setup_plugins()
         alpha = require("modules.tools.alpha"),
         ["which-key"] = require("modules.tools.which-key")
     }
-    local modules = {ui.devicons, ui.themify, tools.treesitter, editor.oil, ui.tree, editor.telescope, tools.autopairs,
+    local modules = {ui.notify, ui.devicons, ui.themify, tools.treesitter, editor.oil, ui.tree, editor.telescope, tools.autopairs,
                      tools.comment, tools.conform, tools["nvim-lint"], tools.hop, ui.lualine, ui.barbar, ui.neominimap,
                      tools.git, tools.cmp, editor.wilder, tools.autosession, tools.alpha, tools["which-key"]}
 
