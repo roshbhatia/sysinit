@@ -129,24 +129,71 @@ tasks:
     silent: true
 
   extract-nvim-commands:
-    desc: Extract all available Neovim commands (built-in and plugin-provided) to nvim-commands.txt
+    desc: Extract all available Neovim commands (built-in, plugin-provided, and user-defined)
     dir: '{{.ROOT_DIR}}'
     cmds:
       - |
         echo "Extracting all Neovim commands..."
         mkdir -p ./dependency-docs
         
-        # Run Neovim in headless mode to extract all available commands
-        nvim --headless -c "redir! > ./dependency-docs/nvim-commands.txt" -c "silent! command" -c "redir END" -c "quit"
+        # Create a temporary Lua script to extract commands
+        cat > ./tmp_extract_commands.lua << 'EOF'
+        -- List built-in commands
+        vim.api.nvim_command('redir! > ./dependency-docs/nvim-commands-builtin.txt')
+        vim.api.nvim_command('silent! command')
+        vim.api.nvim_command('redir END')
         
-        # Process the output to clean it up
-        awk '{
-          if ($1 ~ /^[A-Z]/ || $1 ~ /^[a-z]/) {
-            print $1
-          }
-        }' ./dependency-docs/nvim-commands.txt | sort > ./dependency-docs/nvim-commands-clean.txt
+        -- List user commands
+        vim.api.nvim_command('redir! > ./dependency-docs/nvim-commands-user.txt')
+        vim.api.nvim_command('silent! command!')
+        vim.api.nvim_command('redir END')
         
-        mv ./dependency-docs/nvim-commands-clean.txt ./dependency-docs/nvim-commands.txt
+        -- Use Lua API to get comprehensive command list
+        local cmds = {}
+        
+        -- Collect commands from command line output
+        local function collect_from_file(filename)
+          local file = io.open(filename, "r")
+          if not file then return end
+          
+          for line in file:lines() do
+            local cmd_name = line:match("^%s*([%w]+)")
+            if cmd_name and cmd_name:match("^%w") then
+              cmds[cmd_name] = true
+            end
+          end
+          file:close()
+        end
+        
+        collect_from_file("./dependency-docs/nvim-commands-builtin.txt")
+        collect_from_file("./dependency-docs/nvim-commands-user.txt")
+        
+        -- Write all unique commands to file
+        local result_file = io.open("./dependency-docs/nvim-commands-all.txt", "w")
+        if result_file then
+          local sorted_cmds = {}
+          for cmd, _ in pairs(cmds) do
+            table.insert(sorted_cmds, cmd)
+          end
+          table.sort(sorted_cmds)
+          
+          for _, cmd in ipairs(sorted_cmds) do
+            result_file:write(cmd .. "\n")
+          end
+          result_file:close()
+        end
+        
+        vim.api.nvim_command('quit')
+        EOF
+        
+        # Run the Lua script in Neovim
+        nvim --headless -u NONE -i NONE -n -S ./tmp_extract_commands.lua
+        
+        # Clean up
+        rm ./tmp_extract_commands.lua
+        rm ./dependency-docs/nvim-commands-builtin.txt
+        rm ./dependency-docs/nvim-commands-user.txt
+        mv ./dependency-docs/nvim-commands-all.txt ./dependency-docs/nvim-commands.txt
         
         echo "All Neovim commands extracted to ./dependency-docs/nvim-commands.txt"
     silent: true
