@@ -77,10 +77,10 @@ if [[ -z "$(git diff --staged)" ]]; then
 fi
 
 # Get branch name without origin/ prefix
-BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
 
 # Get staged files diff, truncated to first 500 chars
-STAGED_DIFF=$(git diff --staged | head -c 500)
+STAGED_DIFF=$(git diff --cached --unified=0 2>/dev/null | head -c 500 || echo "No diff available")
 
 # Build the prompt for copilot
 read -r -d '' SCHEMA << EOF
@@ -116,14 +116,22 @@ read -r -d '' SCHEMA << EOF
 }
 EOF
 
-STAGED_FILES=$(git diff --staged --name-only)
+STAGED_FILES=$(git diff --cached --name-only 2>/dev/null)
 FILES_JSON="{"
-for file in $STAGED_FILES; do
-  FULL_PATH=$(git rev-parse --show-toplevel)/$file
-  DESC=$(git diff --staged "$file" | head -n 50 | gh copilot suggest "Summarize this change in 10 words or less")
-  FILES_JSON+="\\"$FULL_PATH\\": \\"$DESC\\","
-done
-FILES_JSON="${FILES_JSON%,}}"
+if [[ -n "$STAGED_FILES" ]]; then
+    while IFS= read -r file; do
+        if [[ -n "$file" ]]; then
+            FULL_PATH=$(git rev-parse --show-toplevel 2>/dev/null)/$file
+            DESC=$(git diff --cached "$file" 2>/dev/null | head -n 50 | gh copilot suggest "Summarize this change in 10 words or less" || echo "Changed file")
+            # Escape quotes and sanitize the JSON
+            FULL_PATH=$(echo "$FULL_PATH" | sed 's/"/\\"/g')
+            DESC=$(echo "$DESC" | sed 's/"/\\"/g')
+            FILES_JSON+="\"$FULL_PATH\": \"$DESC\","
+        fi
+    done <<< "$STAGED_FILES"
+    FILES_JSON="${FILES_JSON%,}" # Remove trailing comma
+fi
+FILES_JSON+="}"
 
 read -r -d '' PROMPT << EOF
 Create a conventional commit message based on the following info:
@@ -147,7 +155,7 @@ Please output ONLY valid JSON matching the schema above.
 EOF
 
 # Run copilot suggest and store output
-COMMIT_MSG=$(ghcs "${PROMPT}" | jq --arg ci_skip "$CI_SKIP" -c 'if .type and .subject then 
+COMMIT_MSG=$(ghcs "${PROMPT}" 2>/dev/null | jq --arg ci_skip "$CI_SKIP" -c 'if .type and .subject then 
   . + {
     message: (
       .type + 
@@ -161,18 +169,36 @@ COMMIT_MSG=$(ghcs "${PROMPT}" | jq --arg ci_skip "$CI_SKIP" -c 'if .type and .su
       (if .body then "\n\n" + .body else "" end)
     )
   } 
-else . end' | jq -r '.message')
+else . end' 2>/dev/null)
+
+# Check if we got a valid commit message
+if [[ -z "$COMMIT_MSG" ]] || [[ "$COMMIT_MSG" == "null" ]]; then
+    echo "Error: Failed to generate commit message. Please try again."
+    exit 1
+fi
+
+# Extract just the message field if it exists
+COMMIT_MSG=$(echo "$COMMIT_MSG" | jq -r '.message // .' 2>/dev/null || echo "$COMMIT_MSG")
 
 if [[ $INTERACTIVE == "true" ]]; then
     echo "Generated commit message:"
     echo "$COMMIT_MSG"
     echo
     EDITED_MSG=$(echo "$COMMIT_MSG" | gum write --width 80 --placeholder "Edit commit message...")
+    if [[ -z "$EDITED_MSG" ]]; then
+        echo "Error: Empty commit message. Aborting."
+        exit 1
+    fi
     if gum confirm "Use this commit message?"; then
         echo "$EDITED_MSG"
     else
         exit 1
     fi
 else
-    echo "$COMMIT_MSG"
+    if [[ -n "$COMMIT_MSG" ]]; then
+        echo "$COMMIT_MSG"
+    else
+        echo "Error: Failed to generate commit message"
+        exit 1
+    fi
 fi
