@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
+# shellcheck disable=all
+
+eval "$(gh copilot alias bash)"
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -c|--context)
+      CONTEXT="$2"
+      shift 2
+      ;;
+    -s|--ci-skip)
+      CI_SKIP=true
+      shift
+      ;;
+    -b|--breaking-change)
+      BREAKING_CHANGE=true
+      shift
+      ;;
+    *)
+      echo "Unknown option: $1"
+      exit 1
+      ;;
+  esac
+done
+
+# Get branch name without origin/ prefix
+BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+
+# Get staged files diff, truncated to first 500 chars
+STAGED_DIFF=$(git diff --staged | head -c 500)
+
+# Build the prompt for copilot
+read -r -d '' SCHEMA << EOF
+{
+  "type": "object",
+  "required": ["type", "subject"],
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": ["fix", "feat", "chore", "docs"]
+    },
+    "scope": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "string",
+      "maxLength": 72
+    },
+    "body": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "files": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "breaking": {
+      "type": "boolean"
+    }
+  }
+}
+EOF
+
+STAGED_FILES=$(git diff --staged --name-only)
+FILES_JSON="{"
+for file in $STAGED_FILES; do
+  FULL_PATH=$(git rev-parse --show-toplevel)/$file
+  DESC=$(git diff --staged "$file" | head -n 50 | gh copilot suggest "Summarize this change in 10 words or less")
+  FILES_JSON+="\\"$FULL_PATH\\": \\"$DESC\\","
+done
+FILES_JSON="${FILES_JSON%,}}"
+
+read -r -d '' PROMPT << EOF
+Create a conventional commit message based on the following info:
+Branch name: ${BRANCH_NAME}
+Staged changes:
+${STAGED_DIFF}
+
+${CONTEXT:+Additional context: ${CONTEXT}
+
+}Schema for the response - output MUST be valid JSON:
+${SCHEMA}
+
+A few rules:
+1. Type must be one of: fix, feat, chore, docs
+2. Subject must be under 72 chars
+3. If ci-skip is ${CI_SKIP:-false}, include "[ci skip]" in scope
+4. If breaking-change is ${BREAKING_CHANGE:-false}, set breaking to true
+5. Files field should be: ${FILES_JSON}
+
+Please output ONLY valid JSON matching the schema above.
+EOF
+
+# Run copilot suggest and store output
+ghcs "${PROMPT}" | jq -c 'if .type and .subject then 
+  . + {
+    message: (
+      .type + 
+      (if .scope then 
+        "(" + .scope + (if $CI_SKIP == "true" then "[ci skip]" else "" end) + ")" 
+      else 
+        (if $CI_SKIP == "true" then "([ci skip])" else "" end)
+      end) +
+      (if .breaking then "!" else "" end) + 
+      ": " + .subject + 
+      (if .body then "\n\n" + .body else "" end)
+    )
+  } 
+else . end'
