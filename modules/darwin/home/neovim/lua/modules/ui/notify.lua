@@ -3,6 +3,7 @@ local M = {}
 M.plugins = {{
     "rcarriga/nvim-notify",
     lazy = false,
+    priority = 100,
     config = function()
         local notify = require("notify")
         notify.setup({
@@ -23,7 +24,7 @@ M.plugins = {{
             timeout = 3000, -- 3 seconds default timeout
             top_down = true
         })
-        
+
         vim.notify = notify
     end
 }}

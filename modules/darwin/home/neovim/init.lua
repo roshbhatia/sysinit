@@ -121,7 +121,8 @@ local function setup_plugins()
     }
 
     local modules = { -- Core UI foundations
-    ui.theme, -- Load theme first for consistent appearance
+    ui.notify, -- Notification system
+    ui.theme, -- Theme
     ui.devicons, -- Icons should load early for other UI elements
     -- Essential editor components  
     tools.treesitter, -- Syntax parsing foundation for many plugins
