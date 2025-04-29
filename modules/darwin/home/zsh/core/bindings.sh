@@ -102,17 +102,20 @@ function {
 	done
 }
 
-# Bind CTRL + HJKL keys for these actions:
-bindkey '^h' beginning-of-line    # CTRL + h for beginning of line
-bindkey '^j' backward-word        # CTRL + j for back word
-bindkey '^k' forward-word         # CTRL + k for forward word
-bindkey '^l' end-of-line          # CTRL + l for end of line
+bindkey '^h' beginning-of-line
+bindkey '^j' backward-word
+bindkey '^k' forward-word
+bindkey '^l' end-of-line
 
-# Bind CTRL + Shift + HJKL keys for word and line selection actions:
-bindkey '^[H' vi-select-word-forward    # CTRL + Shift + h to select the current word forward
-bindkey '^[J' vi-select-word-backward   # CTRL + Shift + j to select the current word backward
-bindkey '^[K' vi-select-to-line-start   # CTRL + Shift + k to select from cursor to line start
-bindkey '^[L' vi-select-to-line-end     # CTRL + Shift + l to select from cursor to line end
+bindkey '^y' backward-char
+bindkey '^u' down-line
+bindkey '^i' up-line
+bindkey '^o' forward-char
+
+bindkey '^[H' vi-select-word-forward
+bindkey '^[J' vi-select-word-backward
+bindkey '^[K' vi-select-to-line-start
+bindkey '^[L' vi-select-to-line-en
 
 # Define widgets for the new bindings
 function vi-select-word-forward() {
