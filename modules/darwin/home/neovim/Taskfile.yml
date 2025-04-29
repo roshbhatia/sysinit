@@ -7,49 +7,39 @@ tasks:
       - task -l
     silent: true
 
-  run-local:
-    desc: Run Neovim with local configuration (isolated)
-    silent: true
-    cmds:
-      - |
-        nvim -u "$(pwd)/init.lua"
-
-  run-local-headless:
-    desc: Run Neovim with local configuration (isolated) (headless)
-    silent: true
-    cmds:
-      - |
-        nvim -u "$(pwd)/init.lua" --headless
-      
   run-local-isolated:
-    desc: Run Neovim with local configuration (isolated)
+    desc: Run Neovim with local configuration in an isolated environment
     silent: true
     cmds:
       - |
         TMP_DIR=$(mktemp -d /tmp/nvim-test-XXXXXX)
-        mkdir -p $TMP_DIR/share $TMP_DIR/config $TMP_DIR/state $TMP_DIR/cache
-        echo "Running Neovim with config from $(pwd)"
+        TMP_CONFIG_DIR="$TMP_DIR/config"
+        mkdir -p "$TMP_DIR"/{share,config,state,cache}
+        cp -r "$(pwd)"/* "$TMP_CONFIG_DIR/"
+        echo "Running Neovim with isolated config in $TMP_DIR"
         NVIM_APPNAME=nvim-test \
-        XDG_DATA_HOME=$TMP_DIR/share \
-        XDG_CONFIG_HOME=$TMP_DIR/config \
-        XDG_STATE_HOME=$TMP_DIR/state \
-        XDG_CACHE_HOME=$TMP_DIR/cache \
-        nvim --cmd "set runtimepath^=$(pwd),$(pwd)/lua" -u "$(pwd)/init.lua"
+        XDG_DATA_HOME="$TMP_DIR/share" \
+        XDG_CONFIG_HOME="$TMP_DIR/config" \
+        XDG_STATE_HOME="$TMP_DIR/state" \
+        XDG_CACHE_HOME="$TMP_DIR/cache" \
+        nvim --cmd "set runtimepath^=$TMP_CONFIG_DIR,$TMP_CONFIG_DIR/lua" -u "$TMP_CONFIG_DIR/init.lua"
 
   run-local-headless-isolated:
-    desc: Run Neovim with local configuration (isolated) (headless)
+    desc: Run Neovim with local configuration in an isolated environment (headless)
     silent: true
     cmds:
       - |
         TMP_DIR=$(mktemp -d /tmp/nvim-test-XXXXXX)
-        mkdir -p $TMP_DIR/share $TMP_DIR/config $TMP_DIR/state $TMP_DIR/cache
-        echo "Running Neovim with config from $(pwd)"
+        TMP_CONFIG_DIR="$TMP_DIR/config"
+        mkdir -p "$TMP_DIR"/{share,config,state,cache}
+        cp -r "$(pwd)"/* "$TMP_CONFIG_DIR/"
+        echo "Running Neovim with isolated config in $TMP_DIR"
         NVIM_APPNAME=nvim-test \
-        XDG_DATA_HOME=$TMP_DIR/share \
-        XDG_CONFIG_HOME=$TMP_DIR/config \
-        XDG_STATE_HOME=$TMP_DIR/state \
-        XDG_CACHE_HOME=$TMP_DIR/cache \
-        nvim --cmd "set runtimepath^=$(pwd),$(pwd)/lua" -u "$(pwd)/init.lua" --headless
+        XDG_DATA_HOME="$TMP_DIR/share" \
+        XDG_CONFIG_HOME="$TMP_DIR/config" \
+        XDG_STATE_HOME="$TMP_DIR/state" \
+        XDG_CACHE_HOME="$TMP_DIR/cache" \
+        nvim --cmd "set runtimepath^=$TMP_CONFIG_DIR,$TMP_CONFIG_DIR/lua" -u "$TMP_CONFIG_DIR/init.lua" --headless
 
   pull-docs:
     desc: Fetch documentation for all Neovim plugins
