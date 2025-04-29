@@ -127,3 +127,60 @@ tasks:
       - |
         sed -n 's/.*"command": "\([^"]*\)".*$/\1/p; s/.*- \([a-zA-Z0-9.]*\)$/\1/p' ./dependency-docs/default-keybindings.json > ./dependency-docs/actions.txt
     silent: true
+
+  extract-nvim-commands:
+    desc: Extract Neovim commands to nvim-actions.txt
+    dir: '{{.ROOT_DIR}}'
+    cmds:
+      - |
+        echo "Extracting Neovim commands..."
+        # Create the directory if it doesn't exist
+        mkdir -p ./dependency-docs
+        
+        # Run nvim in headless mode to extract all commands
+        nvim --headless -c "redir! > ./dependency-docs/nvim-actions.txt" -c "silent verbose command" -c "redir END" -c "quit"
+        
+        # Clean up the output to get just the command names
+        sed -i -E '/^[ \t]*$/d; s/^[ \t]*//; s/!.*$//; s/[ \t]+.*$//; /^[[:space:]]*#/d; /^[[:space:]]*$/d' ./dependency-docs/nvim-actions.txt
+        
+        # Sort and remove duplicates
+        sort -u -o ./dependency-docs/nvim-actions.txt ./dependency-docs/nvim-actions.txt
+        
+        echo "Neovim commands extracted to ./dependency-docs/nvim-actions.txt"
+    silent: true
+
+  extract-lua-commands:
+    desc: Extract command references from Lua files to lua-actions.txt
+    dir: '{{.ROOT_DIR}}'
+    cmds:
+      - |
+        echo "Extracting command references from Lua files..."
+        # Create the directory if it doesn't exist
+        mkdir -p ./dependency-docs
+        
+        # Find all Lua files and extract command patterns
+        find . -name "*.lua" -type f -exec grep -o "cmd\s*=\s*[\"'][^\"']*[\"']" {} \; | \
+          sed -E 's/cmd\s*=\s*["\x27]([^"\x27]*)["\x27]/\1/g' | \
+          sort -u > ./dependency-docs/lua-actions.txt
+        
+        # Also extract vim.cmd calls
+        find . -name "*.lua" -type f -exec grep -o "vim\.cmd(\s*[\"'][^\"']*[\"']" {} \; | \
+          sed -E 's/vim\.cmd\(\s*["\x27]([^"\x27]*)["\x27]/\1/g' | \
+          sort -u >> ./dependency-docs/lua-actions.txt
+        
+        # Deduplicate
+        sort -u -o ./dependency-docs/lua-actions.txt ./dependency-docs/lua-actions.txt
+        
+        echo "Lua command references extracted to ./dependency-docs/lua-actions.txt"
+    silent: true
+
+  extract-all-commands:
+    desc: Extract both VSCode, Neovim and Lua commands
+    dir: '{{.ROOT_DIR}}'
+    cmds:
+      - task: extract-vsc-commands
+      - task: extract-nvim-commands
+      - task: extract-lua-commands
+      - |
+        echo "All command extractions completed"
+    silent: true
