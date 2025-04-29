@@ -87,53 +87,85 @@ end
 
 local function setup_plugins()
     local ui = {
-        notify = require("modules.ui.notify"),
+        barbar = require("modules.ui.barbar"),
         devicons = require("modules.ui.devicons"),
         lualine = require("modules.ui.lualine"),
         neominimap = require("modules.ui.neominimap"),
-        barbar = require("modules.ui.barbar"),
+        notify = require("modules.ui.notify"),
+        scrollbar = require("modules.ui.scrollbar"),
         theme = require("modules.ui.theme"),
-        tree = require("modules.ui.tree"),
-        scrollbar = require("modules.ui.scrollbar")
+        tree = require("modules.ui.tree")
     }
 
     local editor = {
-        telescope = require("modules.editor.telescope"),
+        ibl = require("modules.editor.ibl"),
         oil = require("modules.editor.oil"),
+        telescope = require("modules.editor.telescope"),
         wilder = require("modules.editor.wilder")
-        ibl = require("modules.editor.ibl") 
     }
 
     local tools = {
-        comment = require("modules.tools.comment"),
-        hop = require("modules.tools.hop"),
-        treesitter = require("modules.tools.treesitter"),
-        conform = require("modules.tools.conform"),
-        git = require("modules.tools.git"),
-        blame = require("modules.tools.blame"),
-        ["nvim-tree"] = require("modules.tools.nvim-tree"),
-        ["nvim-autopairs"] = require("modules.tools.nvim-autopairs"),
-        ["nvim-ts-autotag"] = require("modules.tools.nvim-ts-autotag"),
-        ["nvim-surround"] = require("modules.tools.nvim-surround"),
-        ["nvim-comment"] = require("modules.tools.nvim-comment"),
-        ["nvim-colorizer"] = require("modules.tools.nvim-colorizer"),
-        ["nvim-notify"] = require("modules.tools.nvim-notify"),
-        ["nvim-web-devicons"] = require("modules.tools.nvim-web-devicons"),
-        ["lspkind-nvim"] = require("modules.tools.lspkind-nvim"),
         ["lsp-zero"] = require("modules.tools.lsp-zero"),
+        ["lspkind-nvim"] = require("modules.tools.lspkind-nvim"),
         ["mason-lspconfig"] = require("modules.tools.mason-lspconfig"),
         ["mason-null-ls"] = require("modules.tools.mason-null-ls"),
+        ["nvim-autopairs"] = require("modules.tools.nvim-autopairs"),
+        ["nvim-colorizer"] = require("modules.tools.nvim-colorizer"),
+        ["nvim-comment"] = require("modules.tools.nvim-comment"),
         ["nvim-lint"] = require("modules.tools.nvim-lint"),
-        cmp = require("modules.tools.cmp"),
+        ["nvim-notify"] = require("modules.tools.nvim-notify"),
+        ["nvim-surround"] = require("modules.tools.nvim-surround"),
+        ["nvim-tree"] = require("modules.tools.nvim-tree"),
+        ["nvim-ts-autotag"] = require("modules.tools.nvim-ts-autotag"),
+        ["nvim-web-devicons"] = require("modules.tools.nvim-web-devicons"),
+        ["which-key"] = require("modules.tools.which-key"),
+        alpha = require("modules.tools.alpha"),
         autopairs = require("modules.tools.autopairs"),
         autosession = require("modules.tools.autosession"),
-        alpha = require("modules.tools.alpha"),
-        ["which-key"] = require("modules.tools.which-key"),
-        diffview = require('modules.tools.diffview')
+        blame = require("modules.tools.blame"),
+        cmp = require("modules.tools.cmp"),
+        comment = require("modules.tools.comment"),
+        conform = require("modules.tools.conform"),
+        diffview = require('modules.tools.diffview'),
+        git = require("modules.tools.git"),
+        hop = require("modules.tools.hop"),
+        treesitter = require("modules.tools.treesitter")
     }
-    local modules = {ui.devicons, ui.theme, tools.treesitter, editor.oil, ui.tree, ui.scrollbar, editor.telescope, tools.autopairs,
-                     tools.comment, tools.conform, tools["nvim-lint"], tools.hop, ui.lualine, ui.barbar, ui.neominimap,
-                    tools.git, tools.blame, tools.cmp, editor.wilder, tools.autosession, tools.alpha, tools["which-key"], editor.ibl, tools.diffview }
+
+    local modules = { -- Core UI foundations
+    ui.theme, -- Load theme first for consistent appearance
+    ui.devicons, -- Icons should load early for other UI elements
+    -- Essential editor components  
+    tools.treesitter, -- Syntax parsing foundation for many plugins
+    editor.ibl, -- Indentation guides (relies on treesitter)
+    -- File navigation/management
+    editor.oil, -- File navigator
+    ui.tree, -- File tree (alternative to oil)
+    ui.scrollbar, -- Scrollbar enhancement
+    -- Git integration
+    tools.git, -- Core git functionality
+    tools.blame, -- Git blame integration 
+    tools.diffview, -- Git diff viewer
+    -- Search and navigation
+    editor.telescope, -- Fuzzy finder (used by many plugins)
+    tools.hop, -- Quick navigation
+    -- Code editing enhancements
+    tools.autopairs, -- Auto-pairing brackets, etc.
+    tools.comment, -- Code commenting functionality
+    tools.conform, -- Code formatting
+    tools["nvim-lint"], -- Linting
+    -- Completion and helpers
+    tools.cmp, -- Completion engine
+    tools["which-key"], -- Keybinding helper
+    editor.wilder, -- Command line completion
+    -- UI enhancements
+    ui.lualine, -- Status line
+    ui.barbar, -- Tab bar
+    ui.neominimap, -- Minimap
+    -- Session and startup
+    tools.autosession, -- Session management
+    tools.alpha -- Dashboard/greeter
+    }
 
     local module_loader = require("common.module_loader")
     local specs = module_loader.get_plugin_specs(modules)

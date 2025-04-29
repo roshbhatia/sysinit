@@ -1,42 +1,97 @@
--- sysinit.nvim.doc-url="https://raw.githubusercontent.com/LmanTW/themify.nvim/refs/heads/main/documents/api.md"
 local M = {}
 
 M.plugins = {{
-    "LmanTW/themify.nvim",
+    "zaldih/themery.nvim",
     lazy = false,
     priority = 999,
     config = function()
-        require("themify").setup({
-            async = true,
-            activity = true,
-            "rmehri01/onenord.nvim",
-            "EdenEast/nightfox.nvim",
-            "RRethy/base16-nvim",
-            "folke/tokyonight.nvim",
-            "catppuccin/nvim",
-            "Shatur/neovim-ayu",
-            "rebelot/kanagawa.nvim",
-            "sainnhe/sonokai",
-            "sainnhe/edge",
-            "sainnhe/everforest",
-            "marko-cerovac/material.nvim",
-            "navarasu/onedark.nvim",
-            "tiagovla/tokyodark.nvim",
-            "projekt0n/github-nvim-theme",
-            "rose-pine/neovim",
-            "nyoom-engineering/oxocarbon.nvim",
-            "folke/twilight.nvim",
-            "LunarVim/horizon.nvim",
-            "bluz71/vim-nightfly-colors",
-            "olimorris/onedarkpro.nvim",
-            "rafamadriz/neon",
-            "dracula/vim",
+        require("themery").setup({
+            themes = {{
+                name = "Nordfox",
+                colorscheme = "nordfox",
+                before = [[
+                        vim.g.nightfox_style = "nordfox"
+                    ]]
+            }, {
+                name = "Tokyonight",
+                colorscheme = "tokyonight"
+            }, {
+                name = "Catppuccin",
+                colorscheme = "catppuccin"
+            }, {
+                name = "Ayu Dark",
+                colorscheme = "ayu",
+                before = [[
+                        vim.g.ayucolor = "dark"
+                    ]]
+            }, {
+                name = "Kanagawa",
+                colorscheme = "kanagawa"
+            }, {
+                name = "Sonokai",
+                colorscheme = "sonokai"
+            }, {
+                name = "Edge",
+                colorscheme = "edge"
+            }, {
+                name = "Everforest",
+                colorscheme = "everforest"
+            }, {
+                name = "Material",
+                colorscheme = "material"
+            }, {
+                name = "Onedark",
+                colorscheme = "onedark"
+            }, {
+                name = "Tokyodark",
+                colorscheme = "tokyodark"
+            }, {
+                name = "Github",
+                colorscheme = "github-theme"
+            }, {
+                name = "Rosepine",
+                colorscheme = "rose-pine"
+            }, {
+                name = "Oxocarbon",
+                colorscheme = "oxocarbon"
+            }, {
+                name = "Nightfly",
+                colorscheme = "nightfly"
+            }, {
+                name = "Onedarkpro",
+                colorscheme = "onedarkpro"
+            }, {
+                name = "Neon",
+                colorscheme = "neon"
+            }, {
+                name = "Dracula",
+                colorscheme = "dracula"
+            }, {
+                name = "Onenord",
+                colorscheme = "onenord"
+            }},
+            livePreview = true,
+            themeConfigFile = vim.fn.stdpath("config") .. "/lua/theme.lua",
 
-            loader = function()
-                local success = pcall(function()
-                    require("themify").load_saved()
-                end)
-            end
+            globalBefore = [[
+                vim.opt.termguicolors = true
+            ]],
+
+            globalAfter = [[
+                vim.cmd("hi Normal guibg=NONE ctermbg=NONE")
+            ]]
+        })
+
+        vim.api.nvim_create_autocmd("VimEnter", {
+            callback = function()
+                local themery = require("themery")
+                local current = themery.getCurrentTheme()
+
+                if not current then
+                    themery.setThemeByName("Nordfox", true)
+                end
+            end,
+            once = true
         })
     end
 }}
