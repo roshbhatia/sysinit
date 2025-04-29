@@ -38,7 +38,7 @@ in {
     ./colima/colima.nix
     ./neovim/neovim.nix
     ./k9s/k9s.nix
-    ./aerospace/aerospace.nix
+    # ./aerospace/aerospace.nix
     ./macchina/macchina.nix
     ./wezterm/wezterm.nix
     ./aider/aider.nix
