@@ -92,7 +92,7 @@ local function setup_plugins()
         lualine = require("modules.ui.lualine"),
         neominimap = require("modules.ui.neominimap"),
         barbar = require("modules.ui.barbar"),
-        themify = require("modules.ui.themify"),
+        theme = require("modules.ui.theme"),
         tree = require("modules.ui.tree"),
         scrollbar = require("modules.ui.scrollbar")
     }
@@ -131,7 +131,7 @@ local function setup_plugins()
         ["which-key"] = require("modules.tools.which-key"),
         diffview = require('modules.tools.diffview')
     }
-    local modules = {ui.devicons, ui.themify, tools.treesitter, editor.oil, ui.tree, ui.scrollbar, editor.telescope, tools.autopairs,
+    local modules = {ui.devicons, ui.theme, tools.treesitter, editor.oil, ui.tree, ui.scrollbar, editor.telescope, tools.autopairs,
                      tools.comment, tools.conform, tools["nvim-lint"], tools.hop, ui.lualine, ui.barbar, ui.neominimap,
                     tools.git, tools.blame, tools.cmp, editor.wilder, tools.autosession, tools.alpha, tools["which-key"], editor.ibl, tools.diffview }
 
