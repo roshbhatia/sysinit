@@ -12,17 +12,37 @@ tasks:
     silent: true
     cmds:
       - |
+        # Ensure any stray nvim processes are cleaned up
+        pkill -f "nvim-test" || true
+        
+        # Create temp directory
         TMP_DIR=$(mktemp -d /tmp/nvim-test-XXXXXX)
         TMP_CONFIG_DIR="$TMP_DIR/config"
         mkdir -p "$TMP_DIR"/{share,config,state,cache}
+        
+        # Copy config files
         cp -r "$(pwd)"/* "$TMP_CONFIG_DIR/"
         echo "Running Neovim with isolated config in $TMP_DIR"
-        NVIM_APPNAME=nvim-test \
+        
+        # Run nvim with timeout and cleanup
+        (NVIM_APPNAME=nvim-test \
         XDG_DATA_HOME="$TMP_DIR/share" \
         XDG_CONFIG_HOME="$TMP_DIR/config" \
         XDG_STATE_HOME="$TMP_DIR/state" \
         XDG_CACHE_HOME="$TMP_DIR/cache" \
-        nvim --cmd "set runtimepath^=$TMP_CONFIG_DIR,$TMP_CONFIG_DIR/lua" -u "$TMP_CONFIG_DIR/init.lua"
+        NVIM_LOG_FILE="$TMP_DIR/nvim.log" \
+        nvim \
+          --cmd "let g:auto_session_enabled = v:false" \
+          --cmd "set runtimepath^=$TMP_CONFIG_DIR,$TMP_CONFIG_DIR/lua" \
+          -u "$TMP_CONFIG_DIR/init.lua" || \
+        (echo "Neovim exited with error. Check $TMP_DIR/nvim.log for details" && false))
+        
+        # Cleanup temp files unless KEEP_TMP is set
+        if [ -z "$KEEP_TMP" ]; then
+          rm -rf "$TMP_DIR"
+        else
+          echo "Keeping temporary files in $TMP_DIR"
+        fi
 
   run-local-headless-isolated:
     desc: Run Neovim with local configuration in an isolated environment (headless)
