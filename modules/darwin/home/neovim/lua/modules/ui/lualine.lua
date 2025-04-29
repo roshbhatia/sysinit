@@ -424,7 +424,7 @@ M.plugins = {{
             tabline = {},
             winbar = {},
             inactive_winbar = {},
-            extensions = {'fugitive', 'nvim-tree', 'toggleterm', 'lazy', 'trouble', 'neo-tree'}
+            extensions = {'neo-tree', 'lazy', 'trouble', 'toggleterm'}
         }
     end
 }}

@@ -33,14 +33,14 @@ M.plugins = {{
                 end
             end},
 
-            -- Refresh UI components after restore
+            -- Refresh UI components after restore, with proper delay to ensure components are initialized
             post_restore_cmds = {function()
-                vim.cmd("silent! AirlineRefresh")
-
-                local status_ok, lualine = pcall(require, "lualine")
-                if status_ok then
-                    lualine.refresh()
-                end
+                vim.defer_fn(function()
+                    local status_ok, lualine = pcall(require, "lualine")
+                    if status_ok then
+                        lualine.refresh()
+                    end
+                end, 100) -- Small delay to ensure components are initialized
             end},
 
             -- Additional settings that help with common issues
