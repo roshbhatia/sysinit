@@ -87,7 +87,7 @@ end
 
 local function setup_plugins()
     local ui = {
-        barbar = require("modules.ui.barbar"),
+        tab = require("modules.ui.tab"),
         devicons = require("modules.ui.devicons"),
         lualine = require("modules.ui.lualine"),
         neominimap = require("modules.ui.neominimap"),
@@ -160,7 +160,7 @@ local function setup_plugins()
     ui.wilder, -- Command line completion
     -- UI enhancements
     ui.lualine, -- Status line
-    ui.barbar, -- Tab bar
+    ui.tab, -- Tab bar
     ui.neominimap, -- Minimap
     -- Session and startup
     tools.autosession, -- Session management
