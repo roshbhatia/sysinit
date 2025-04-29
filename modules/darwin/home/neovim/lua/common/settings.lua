@@ -38,6 +38,7 @@ function M.setup_package_manager(specs)
         }
     })
 end
+
 function M.setup_settings()
     vim.api.nvim_set_keymap('n', 'q', '<Nop>', {
         noremap = true,
