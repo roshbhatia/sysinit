@@ -96,7 +96,6 @@ local function setup_plugins()
         tab = require("modules.ui.tab"),
         theme = require("modules.ui.theme"),
         tree = require("modules.ui.tree"),
-        ["vsc-statusbar"] = require("modules.ui.vsc-statusbar"),
         wilder = require("modules.ui.wilder")
     }
 
