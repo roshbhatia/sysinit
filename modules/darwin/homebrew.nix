@@ -76,8 +76,6 @@ let
     "jordanbaird-ice"
     "keycastr"
     "loop"
-    # "mediosz/tap/swipeaerospace"
-    # "nikitabobko/tap/aerospace"
     "obsidian"
     "raycast"
     "slack"
