@@ -101,8 +101,7 @@ local function setup_plugins()
         telescope = require("modules.editor.telescope"),
         oil = require("modules.editor.oil"),
         wilder = require("modules.editor.wilder")
-        ibl = require("modules.editor.ibl")
- 
+        ibl = require("modules.editor.ibl") 
     }
 
     local tools = {
@@ -129,11 +128,12 @@ local function setup_plugins()
         autopairs = require("modules.tools.autopairs"),
         autosession = require("modules.tools.autosession"),
         alpha = require("modules.tools.alpha"),
-        ["which-key"] = require("modules.tools.which-key")
+        ["which-key"] = require("modules.tools.which-key"),
+        diffview = require('modules.tools.diffview')
     }
     local modules = {ui.devicons, ui.themify, tools.treesitter, editor.oil, ui.tree, ui.scrollbar, editor.telescope, tools.autopairs,
                      tools.comment, tools.conform, tools["nvim-lint"], tools.hop, ui.lualine, ui.barbar, ui.neominimap,
-                    tools.git, tools.blame, tools.cmp, editor.wilder, tools.autosession, tools.alpha, tools["which-key"], editor.ibl }
+                    tools.git, tools.blame, tools.cmp, editor.wilder, tools.autosession, tools.alpha, tools["which-key"], editor.ibl, tools.diffview }
 
     local module_loader = require("common.module_loader")
     local specs = module_loader.get_plugin_specs(modules)
