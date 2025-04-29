@@ -11,11 +11,25 @@ function M.setup_package_manager(specs)
     local core_specs = {{
         "vhyrro/luarocks.nvim",
         priority = 1000,
-        config = true,
+        dependencies = {"nvim-lua/plenary.nvim"},
         opts = {
-            rocks = {}
+            rocks = {},
+            rocks_path = vim.fn.stdpath("data") .. "/luarocks",
+            lua_path = vim.fn.stdpath("data") .. "/luarocks/share/lua/5.1/?.lua;" .. vim.fn.stdpath("data") ..
+                "/luarocks/share/lua/5.1/?/init.lua",
+            lua_cpath = vim.fn.stdpath("data") .. "/luarocks/lib/lua/5.1/?.so",
+            create_dirs = true,
+            install = {
+                only_deps = false,
+                flags = {"--local", "--force-config"}
+            },
+            show_progress = true
         }
     }}
+
+    for _, spec in ipairs(specs) do
+        table.insert(core_specs, spec)
+    end
 
     for _, spec in ipairs(specs) do
         table.insert(core_specs, spec)
