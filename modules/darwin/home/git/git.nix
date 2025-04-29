@@ -81,6 +81,7 @@ in
     current-branch = rev-parse --abbrev-ref HEAD
     branches = !git --no-pager branch -a
     ghcs-commit = !ghcs-commitmessage | jq -r .message | git commit -F -
+    root = rev-parse --show-toplevel
 '';
   };
 
