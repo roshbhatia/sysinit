@@ -56,6 +56,16 @@ let
       path = "${homeDirectory}/.config/macchina/themes/nix.ascii";
     };
   };
+
+  mgsTheme = commonTheme // {
+    key_color = "#5277C3";  # NixOS blue
+    separator_color = "#7EBAE4";  # NixOS light blue
+    box.title = "nix";
+    custom_ascii = {
+      color = "#5277C3";  # NixOS blue
+      path = "${homeDirectory}/.config/macchina/themes/mgs.ascii";
+    };
+  }
   
 in {
   home.packages = [ pkgs.macchina ];
@@ -76,6 +86,10 @@ in {
     
     "macchina/themes/nix.toml" = {
       source = tomlFormat.generate "nix.toml" nixTheme;
+    };
+  
+    "macchina/themes/mgs.toml" = {
+      source = tomlFormat.generate "mgs.toml" mgsTheme;
     };
     
     # Keep the ASCII art files
