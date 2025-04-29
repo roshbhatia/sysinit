@@ -105,6 +105,4 @@ colima.recreate() {
 }
 
 # If being run directly, execute main function with arguments
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    colima.recreate "$@"
-fi
+colima.recreate "$@"
