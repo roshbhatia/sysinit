@@ -65,7 +65,7 @@ let
       color = "#5277C3";  # NixOS blue
       path = "${homeDirectory}/.config/macchina/themes/mgs.ascii";
     };
-  }
+  };
   
 in {
   home.packages = [ pkgs.macchina ];
