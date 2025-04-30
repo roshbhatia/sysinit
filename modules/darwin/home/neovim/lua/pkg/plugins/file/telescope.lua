@@ -3,7 +3,9 @@ local M = {}
 
 M.plugins = {{
     "nvim-telescope/telescope.nvim",
-    lazy = false,
+    commit = "a4ed82509cecc56df1c7138920a1aeaf246c0ac5",
+    lazy = true,
+    priority = 1000,
     dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons"},
     config = function()
         require("telescope").setup({
