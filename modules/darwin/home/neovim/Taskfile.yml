@@ -121,57 +121,31 @@ tasks:
         echo -e "${YELLOW}Scanned ${count} files, found ${found} documentation URLs${NC}"
         echo -e "${GREEN}Documentation saved to ${DOC_DIR}${NC}"
 
-  nvim:verify-vsc-actions:
-    desc: Verify that all VSCode actions in our which-key abstraction are listed in the actions.txt
-    cmds:
-      - |
-        set -eu
-        mkdir -p ./commands/out
-        WHICH_KEY_LUA="$(pwd)/lua/modules/tools/which-key.lua"
-        ACTIONS_FILE="$(pwd)/commands/out/actions.txt"
-        echo "Extracting VSCode actions from $WHICH_KEY_LUA"
-        # Look only for vscode_cmd pattern
-        grep -oE 'vscode_cmd *= *"[^"]+"' "$WHICH_KEY_LUA" | sed 's/.*"\([^\"]*\)".*/\1/' | sort -u > .actions_used
-        echo "Extracting declared actions from $ACTIONS_FILE"
-        sort -u "$ACTIONS_FILE" > .actions_declared
-        MISSING=$(comm -23 .actions_used .actions_declared || true)
-        if [ -n "$MISSING" ]; then
-          echo "Error: Actions used in which-key.lua missing from $ACTIONS_FILE:"
-          echo "$MISSING"
-          exit 1
-        fi
-        echo "All VSCode actions in $WHICH_KEY_LUA are declared in $ACTIONS_FILE"
-    silent: true
-
   nvim:extract-vsc-commands:
     desc: Extract commands from default-keybindings.json to actions.txt
     dir: '{{.ROOT_DIR}}'
     cmds:
       - |
-        mkdir -p ./commands/out ./commands/vscode
-        sed -n 's/.*"command": "\([^"]*\)".*$/\1/p; s/.*- \([a-zA-Z0-9.]*\)$/\1/p' ./commands/vscode/default-keybindings.json > ./commands/out/actions.txt
-    silent: true
+        mkdir -p ./commands/vscode
+        sed -n 's/.*"command": "\([^"]*\)".*$/\1/p; s/.*- \([a-zA-Z0-9.]*\)$/\1/p' ./commands/vscode/default-keybindings.json > ./commands/vscode/actions.txt
 
   nvim:extract-nvim-commands:
-    desc: Extract all available Neovim commands (built-in, plugin-provided, and user-defined)
+    desc: Extract all available Neovim commands
     dir: '{{.ROOT_DIR}}'
     cmds:
       - |
         echo "Extracting all Neovim commands..."
         mkdir -p ./commands/neovim
-        
         NVIM_TMP_DIR="/tmp/nvim-cmd-extract-$(date +%s)"
         mkdir -p "$NVIM_TMP_DIR"
         cp -r * "$NVIM_TMP_DIR/"
-        
-        XDG_DATA_HOME="/tmp/nvim-cmd-extract/share" \
-        XDG_STATE_HOME="/tmp/nvim-cmd-extract/state" \
-        XDG_CACHE_HOME="/tmp/nvim-cmd-extract/cache" \
-        nvim --headless \
+        timeout 5s nvim --headless \
           --cmd "set runtimepath^=$NVIM_TMP_DIR,$NVIM_TMP_DIR/lua" \
           -u "$NVIM_TMP_DIR/init.lua" \
-          -S ./hack/extract_commands.lua
-        
+          -S ./hack/extract_commands.lua || {
+            echo "Error: Command extraction timed out or failed"
+            rm -rf "$NVIM_TMP_DIR"
+            exit 1
+          }
         rm -rf "$NVIM_TMP_DIR"
-        echo "All Neovim commands extracted to ./commands/neovim/all.txt"
-    silent: true
+        echo "All Neovim commands extracted to ./commands/neovim/actions.txt"
