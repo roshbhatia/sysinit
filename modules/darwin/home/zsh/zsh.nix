@@ -302,7 +302,7 @@ in
 
   xdg.configFile = {
     "zsh/bin" = {
-      source = ./bin;
+      source = config.lib.file.mkOutOfStoreSymlink ./bin;
       recursive = true;
       executable = true;
     };
