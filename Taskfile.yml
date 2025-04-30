@@ -69,9 +69,16 @@ tasks:
         
         gum style {{.INFO_STYLE}} "Working in: $WORK_SYSINIT"
         cd "$WORK_SYSINIT"
+
+        if ! gum spin --spinner dot --title "Running nix flake update..." -- nix flake update; then
+          gum style {{.ERROR_STYLE}} "Failed to update flake"
+          exit 1
+        fi
         
-        task update-flake
-        task refresh
+        if ! gum spin --spinner dot --title "Running refresh..." -- task refresh; then
+          gum style {{.ERROR_STYLE}} "Failed to refresh work configuration"
+          exit 1
+        fi
         
         gum style {{.SUCCESS_STYLE}} "Work configuration refreshed successfully"
     desc: Update and rebuild work sysinit configuration
