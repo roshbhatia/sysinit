@@ -228,12 +228,6 @@ M.plugins = {{
             file_types = {"markdown", "Avante"}
         })
 
-        local has_words_before = function()
-            unpack = unpack or table.unpack
-            local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-            return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
-        end
-
         vim.api.nvim_set_hl(0, "CmpItemKindCopilot", {
             fg = "#6CC644"
         })
@@ -313,26 +307,36 @@ M.plugins = {{
                     select = true,
                     behavior = cmp.ConfirmBehavior.Replace
                 }),
-                ['<Tab>'] = {function(cmp)
-                    -- Check if line is empty
+                ['<Tab>'] = cmp.mapping(function(fallback)
                     local line = vim.api.nvim_get_current_line()
                     local cursor = vim.api.nvim_win_get_cursor(0)
                     local col = cursor[2]
+                    local line_empty = line:match("^%s*$")
+                    local only_whitespace_before_cursor = line:sub(1, col):match("^%s*$")
 
-                    -- If line is empty before cursor, fallback to intellitab
-                    if col == 0 or line:sub(1, col):match("^%s*$") then
+                    -- Handle indentation like VSCode - at line start or empty line
+                    if line_empty or only_whitespace_before_cursor then
                         require("intellitab").indent()
-                        return false
+                        return
                     end
 
-                    if cmp.visible() then
-                        return cmp.select_next()
-                    elseif require('luasnip').expand_or_jumpable() then
-                        return require('luasnip').expand_or_jump()
-                    else
-                        return cmp.complete()
+                    -- Handle copilot suggestion if available
+                    if vim.b.copilot_suggestion ~= nil then
+                        if require("copilot.suggestion").is_visible() then
+                            require("copilot.suggestion").accept()
+                            return
+                        end
                     end
-                end, 'fallback'},
+
+                    -- Normal nvim-cmp behavior
+                    if cmp.visible() then
+                        cmp.select_next_item()
+                    elseif luasnip.expand_or_jumpable() then
+                        luasnip.expand_or_jump()
+                    else
+                        cmp.complete()
+                    end
+                end, {'i', 's'}),
                 ['<S-Tab>'] = cmp.mapping(function(fallback)
                     if cmp.visible() then
                         cmp.select_prev_item()
