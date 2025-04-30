@@ -16,8 +16,7 @@ M.plugins = {{
         })
 
         require('mason').setup({
-            install_root_dir = "~/.local/share/nvim/mason",
-
+            install_root_dir = (os.getenv("XDG_DATA_HOME") or os.getenv("HOME") .. "/.local/share") .. "/nvim/mason",
             ui = {
                 border = 'rounded',
                 icons = {
@@ -96,20 +95,42 @@ M.plugins = {{
                     "zbirenbaum/copilot-cmp", "nvim-lua/plenary.nvim", "CopilotC-Nvim/CopilotChat.nvim",
                     "MunifTanjim/nui.nvim", "nvim-treesitter/nvim-treesitter", "stevearc/dressing.nvim",
                     "HakonHarnes/img-clip.nvim", "MeanderingProgrammer/render-markdown.nvim", "yetone/avante.nvim",
-                    "pta2002/intellitab.nvim"},
+                    "pta2002/intellitab.nvim", "windwp/nvim-autopairs"},
     config = function()
         local cmp = require('cmp')
         local luasnip = require('luasnip')
         local lspkind = require('lspkind')
+        local autopairs = require('nvim-autopairs')
+
+        -- Useful utility functions
+        local has_words_before = function()
+            local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+            return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+        end
+
+        local get_line_context = function()
+            local line = vim.api.nvim_get_current_line()
+            local cursor = vim.api.nvim_win_get_cursor(0)
+            local col = cursor[2]
+
+            return {
+                line = line,
+                before_cursor = line:sub(1, col),
+                after_cursor = line:sub(col + 1),
+                col = col,
+                is_empty_line = line:match("^%s*$") ~= nil,
+                at_indent_position = line:sub(1, col):match("^%s*$") ~= nil,
+                has_text_after_cursor = line:sub(col + 1):match("%S") ~= nil
+            }
+        end
 
         -- Completely disable the native Copilot inline suggestions
         vim.g.copilot_no_tab_map = true
         vim.g.copilot_assume_mapped = true
         vim.g.copilot_tab_fallback = ""
-
-        -- Explicitly disable native copilot suggestion display
         vim.api.nvim_set_var("copilot_enabled", false)
 
+        -- Setup LuaSnip
         require("luasnip.loaders.from_vscode").lazy_load()
 
         -- Setup Copilot.lua with suggestions disabled
@@ -186,6 +207,7 @@ M.plugins = {{
             }
         })
 
+        -- Setup Avante
         require("avante").setup({
             provider = "copilot",
             behaviour = {
@@ -228,6 +250,16 @@ M.plugins = {{
             file_types = {"markdown", "Avante"}
         })
 
+        -- Autopairs setup for CMP integration
+        autopairs.setup({
+            check_ts = true,
+            ts_config = {
+                lua = {'string'},
+                javascript = {'template_string'}
+            }
+        })
+
+        -- Set highlight for Copilot completion items
         vim.api.nvim_set_hl(0, "CmpItemKindCopilot", {
             fg = "#6CC644"
         })
@@ -262,7 +294,8 @@ M.plugins = {{
                         nvim_lsp = "[LSP]",
                         luasnip = "[Snippet]",
                         path = "[Path]",
-                        copilot = "[Copilot]"
+                        copilot = "[Copilot]",
+                        avante = "[Avante]"
                     },
                     before = function(entry, vim_item)
                         vim_item.abbr = string.sub(vim_item.abbr, 1, 50)
@@ -291,6 +324,18 @@ M.plugins = {{
                 group_index = 3,
                 keyword_length = 3,
                 priority = 40
+            }, {
+                name = 'avante_commands',
+                group_index = 1,
+                priority = 95
+            }, {
+                name = 'avante_mentions',
+                group_index = 1,
+                priority = 95
+            }, {
+                name = 'avante_files',
+                group_index = 1,
+                priority = 95
             }}),
             completion = {
                 completeopt = 'menu,menuone,noinsert',
@@ -303,45 +348,82 @@ M.plugins = {{
                 ['<C-f>'] = cmp.mapping.scroll_docs(4),
                 ['<C-Space>'] = cmp.mapping.complete(),
                 ['<C-e>'] = cmp.mapping.abort(),
-                ['<CR>'] = cmp.mapping.confirm({
-                    select = true,
-                    behavior = cmp.ConfirmBehavior.Replace
+                ['<CR>'] = cmp.mapping({
+                    i = function(fallback)
+                        if cmp.visible() then
+                            cmp.confirm({
+                                select = true,
+                                behavior = cmp.ConfirmBehavior.Replace
+                            })
+                        else
+                            fallback()
+                        end
+                    end,
+                    s = cmp.mapping.confirm({
+                        select = true,
+                        behavior = cmp.ConfirmBehavior.Replace
+                    }),
+                    c = function(fallback)
+                        if cmp.visible() then
+                            cmp.confirm({
+                                select = true,
+                                behavior = cmp.ConfirmBehavior.Replace
+                            })
+                        else
+                            fallback()
+                        end
+                    end
                 }),
                 ['<Tab>'] = cmp.mapping(function(fallback)
-                    local line = vim.api.nvim_get_current_line()
-                    local cursor = vim.api.nvim_win_get_cursor(0)
-                    local col = cursor[2]
-                    local line_empty = line:match("^%s*$")
-                    local only_whitespace_before_cursor = line:sub(1, col):match("^%s*$")
+                    -- Get context about current line
+                    local ctx = get_line_context()
 
-                    -- Handle indentation like VSCode - at line start or empty line
-                    if line_empty or only_whitespace_before_cursor then
+                    -- 1. Handle indentation at beginning of line or empty line
+                    if ctx.is_empty_line or ctx.at_indent_position then
                         require("intellitab").indent()
                         return
                     end
 
-                    -- Handle copilot suggestion if available
-                    if vim.b.copilot_suggestion ~= nil then
-                        if require("copilot.suggestion").is_visible() then
-                            require("copilot.suggestion").accept()
-                            return
-                        end
+                    -- 2. Handle visible copilot suggestion 
+                    if vim.b.copilot_suggestion ~= nil and require("copilot.suggestion").is_visible() then
+                        require("copilot.suggestion").accept()
+                        return
                     end
 
-                    -- Normal nvim-cmp behavior
+                    -- 3. Handle nvim-cmp completion menu
                     if cmp.visible() then
                         cmp.select_next_item()
-                    elseif luasnip.expand_or_jumpable() then
-                        luasnip.expand_or_jump()
-                    else
-                        cmp.complete()
+                        return
                     end
+
+                    -- 4. Handle snippets expansion and navigation
+                    if luasnip.expandable() then
+                        luasnip.expand()
+                        return
+                    end
+
+                    if luasnip.jumpable(1) then
+                        luasnip.jump(1)
+                        return
+                    end
+
+                    -- 5. Try to invoke completion if there's text before cursor
+                    if has_words_before() then
+                        cmp.complete()
+                        return
+                    end
+
+                    -- 6. If nothing worked, use intellitab fallback
+                    require("intellitab").indent()
                 end, {'i', 's'}),
+
                 ['<S-Tab>'] = cmp.mapping(function(fallback)
                     if cmp.visible() then
                         cmp.select_prev_item()
+                    elseif luasnip.jumpable(-1) then
+                        luasnip.jump(-1)
                     else
-                        cmp.complete()
+                        fallback()
                     end
                 end, {'i', 's'})
             }),
@@ -358,12 +440,14 @@ M.plugins = {{
             }
         })
 
+        -- Special configuration for gitcommit files
         cmp.setup.filetype('gitcommit', {
             sources = cmp.config.sources({{
                 name = 'buffer'
             }})
         })
 
+        -- Special configuration for search
         cmp.setup.cmdline({'/', '?'}, {
             mapping = cmp.mapping.preset.cmdline(),
             sources = {{
@@ -371,6 +455,7 @@ M.plugins = {{
             }}
         })
 
+        -- Special configuration for command mode
         cmp.setup.cmdline(':', {
             mapping = cmp.mapping.preset.cmdline(),
             sources = cmp.config.sources({{
@@ -380,6 +465,34 @@ M.plugins = {{
             }})
         })
 
+        -- Setup autopairs to work with CMP
+        cmp.event:on('confirm_done', require('nvim-autopairs.completion.cmp').on_confirm_done())
+
+        -- Manage Copilot visibility with CMP
+        local function hide_copilot()
+            if vim.g.copilot_enabled == true then
+                vim.b.copilot_suggestion_hidden = true
+            end
+        end
+
+        local function show_copilot()
+            if vim.g.copilot_enabled == true then
+                vim.b.copilot_suggestion_hidden = false
+            end
+        end
+
+        -- Autocmds to sync copilot and cmp
+        vim.api.nvim_create_autocmd('User', {
+            pattern = 'CmpBufVisible',
+            callback = hide_copilot
+        })
+
+        vim.api.nvim_create_autocmd('User', {
+            pattern = 'CmpBufInvisible',
+            callback = show_copilot
+        })
+
+        -- Build Avante
         vim.cmd("AvanteBuild")
     end
 }}

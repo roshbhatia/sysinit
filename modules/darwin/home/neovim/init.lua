@@ -109,7 +109,7 @@ local function setup_plugins()
     local tools = {
         autosession = require("plugins.configs.tools.autosession"),
         blame = require("plugins.configs.tools.blame"),
-        cmp = require("plugins.configs.tools.cmp"),
+        intelligence = require("plugins.configs.tools.intelligence"),
         comment = require("plugins.configs.tools.comment"),
         conform = require("plugins.configs.tools.conform"),
         diffview = require("plugins.configs.tools.diffview"),
@@ -123,8 +123,8 @@ local function setup_plugins()
 
     local modules = {ui.notify, ui.theme, ui.devicons, tools.treesitter, editor.ibl, editor.oil, ui.tree, ui.scrollbar,
                      tools.git, tools.blame, tools.diffview, tools.telescope, tools.hop, tools.comment, tools.conform,
-                     tools["nvim-lint"], tools.cmp, tools["which-key"], ui.wilder, ui.lualine, ui.tab, ui.neominimap,
-                     tools.autosession, ui.alpha}
+                     tools["nvim-lint"], tools.intelligence, tools["which-key"], ui.wilder, ui.lualine, ui.tab,
+                     ui.neominimap, tools.autosession, ui.alpha}
 
     local specs = sysinit_lib.get_plugin_specs(modules)
     sysinit_lib.setup_package_manager(specs)
