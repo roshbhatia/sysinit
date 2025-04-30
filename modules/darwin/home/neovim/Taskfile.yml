@@ -6,53 +6,8 @@ tasks:
     cmds:
       - task -l
     silent: true
-    
-  nvim:create-dev-instance:
-    desc: Create a Lima VM instance for Neovim development
-    silent: true
-    cmds:
-      - |
-        cat > /tmp/nvim-dev.yaml << 'EOL'
-        images:
-        - location: "https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64.img"
-          arch: "x86_64"
-          digest: "sha256:b34b1735ea3f3f3cc145e5a450bd6cc559420ea5c8c5231917f9d37c11600b69"
-        
-        cpus: 4
-        memory: "8GiB"
-        disk: "20GiB"
-        
-        mounts:
-        - location: "~"
-          writable: true
-        - location: "/tmp/lima"
-          writable: true
-        
-        provision:
-        - mode: system
-          script: |
-            #!/bin/bash
-            apt-get update
-            apt-get install -y git build-essential ninja-build gettext cmake unzip curl
-        
-        probes:
-        - script: |
-            #!/bin/bash
-            command -v git && command -v cmake && command -v ninja
-          hint: Checking if development tools are installed
-        
-        portForwards:
-        - guestSocket: "/tmp/nvim-dev.sock"
-          hostSocket: "{{.Dir}}/nvim-dev.sock"
-        EOL
-        
-        limactl start --name=nvim-dev /tmp/nvim-dev.yaml
-        echo "Lima VM 'nvim-dev' created and started"
-        
-        # Open shell to the instance
-        limactl shell nvim-dev
 
-  run-local-isolated:
+  nvim:run-local-isolated:
     desc: Run Neovim with local configuration in Docker container
     silent: true
     cmds:
@@ -163,7 +118,7 @@ tasks:
         echo "All VSCode actions in $WHICH_KEY_LUA are declared in $ACTIONS_FILE"
     silent: true
 
-  extract-vsc-commands:
+  nvim:extract-vsc-commands:
     desc: Extract commands from default-keybindings.json to actions.txt
     dir: '{{.ROOT_DIR}}'
     cmds:
