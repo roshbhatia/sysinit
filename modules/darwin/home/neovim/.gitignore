@@ -3,3 +3,7 @@
 .state/
 nvim-data/
 nvim.log
+
+
+dependency-docs/
+command/
