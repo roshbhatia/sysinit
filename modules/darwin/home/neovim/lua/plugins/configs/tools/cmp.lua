@@ -172,13 +172,18 @@ M.plugins = {{
                         return cmp.complete()
                     end
                 end},
-                ['<CR>'] = {'accept'},
                 ['<C-space>'] = {'show', 'show_documentation'},
                 ['<C-e>'] = {'cancel'},
                 ['<C-b>'] = {'scroll_documentation_up'},
                 ['<C-f>'] = {'scroll_documentation_down'},
                 ['<C-n>'] = {'select_next'},
-                ['<C-p>'] = {'select_prev'}
+                ['<C-p>'] = {'select_prev'},
+                ['<CR>'] = {function(cmp)
+                    if cmp.visible() then
+                        return cmp.accept()
+                    end
+                    return false
+                end, 'fallback'}
             },
 
             -- Sources configuration
