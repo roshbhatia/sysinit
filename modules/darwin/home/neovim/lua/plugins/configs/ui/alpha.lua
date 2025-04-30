@@ -60,6 +60,7 @@ M.plugins = {{
 
         -- Set menu
         dashboard.section.buttons.val = {dashboard.button("a", "  Load Last Session", ":SessionRestore<CR>"),
+                                         dashboard.button("i", "  Init Buffer", ":enew<CR>"),
                                          dashboard.button("f", "  Find Files", ":Telescope find_files<CR>"),
                                          dashboard.button("r", "  Recent Files", ":Telescope oldfiles<CR>"),
                                          dashboard.button("g", "  Live Grep", ":Telescope live_grep<CR>"),

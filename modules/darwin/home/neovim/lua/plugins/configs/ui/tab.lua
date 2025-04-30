@@ -12,32 +12,12 @@ M.plugins = {{
         vim.opt.sessionoptions = vim.opt.sessionoptions + {"tabpages", "globals"}
 
         local theme = {
-            fill = {
-                bg = "#1e2030"
-            },
-            head = {
-                fg = "#c8d3f5",
-                bg = "#2d3f76",
-                style = "italic"
-            },
-            current_tab = {
-                fg = "#c8d3f5",
-                bg = "#3e68d7",
-                style = "bold"
-            },
-            tab = {
-                fg = "#c8d3f5",
-                bg = "#222436"
-            },
-            win = {
-                fg = "#82aaff",
-                bg = "#1e2030"
-            },
-            tail = {
-                fg = "#c8d3f5",
-                bg = "#2d3f76",
-                style = "italic"
-            }
+            fill = 'TabLineFill',
+            head = 'TabLine',
+            current_tab = 'TabLineSel',
+            tab = 'TabLine',
+            win = 'TabLine',
+            tail = 'TabLine'
         }
 
         require('tabby').setup({

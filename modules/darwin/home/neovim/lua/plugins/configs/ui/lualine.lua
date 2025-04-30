@@ -5,24 +5,6 @@ M.plugins = {{
     'nvim-lualine/lualine.nvim',
     dependencies = {'nvim-tree/nvim-web-devicons', 'lewis6991/gitsigns.nvim'},
     config = function()
-        -- Custom colors for neo theme with transparency
-        local colors = {
-            bg = 'none',
-            fg = '#bbc2cf',
-            yellow = '#ECBE7B',
-            cyan = '#008080',
-            darkblue = '#081633',
-            green = '#98be65',
-            orange = '#FF8800',
-            violet = '#a9a1e1',
-            magenta = '#c678dd',
-            blue = '#51afef',
-            red = '#ec5f67',
-            git_add = '#98be65',
-            git_mod = '#ECBE7B',
-            git_del = '#ec5f67'
-        }
-
         -- Custom mode colors
         local mode_colors = {
             n = colors.blue,
@@ -294,14 +276,14 @@ M.plugins = {{
         }
 
         -- Indentation info
-        local spaces = function()
+        local function spaces()
             local indent_type = vim.bo.expandtab and "Spaces" or "Tabs"
             local indent_size = vim.bo.expandtab and vim.bo.shiftwidth or vim.bo.tabstop
             return indent_type .. ": " .. indent_size
         end
 
         -- Session component
-        local session = function()
+        local function session()
             local status_ok, auto_session_lib = pcall(require, "auto-session.lib")
             if not status_ok then
                 return ""
@@ -357,28 +339,30 @@ M.plugins = {{
             },
             sections = {
                 lualine_a = {mode},
-                lualine_b = {branch, diff, {
-                    macro,
-                    color = {
-                        fg = colors.red,
-                        gui = "bold"
-                    }
-                }},
-                lualine_c = {{file_info}, {
-                    session,
+                lualine_b = {branch, diff, macro},
+                lualine_c = {{function()
+                    return file_info()
+                end}, {
+                    function()
+                        return session()
+                    end,
                     color = {
                         fg = colors.green,
                         gui = "italic"
                     }
                 }},
                 lualine_x = {diagnostics, {
-                    lsp_client_names,
+                    function()
+                        return lsp_client_names()
+                    end,
                     color = {
                         fg = colors.blue,
                         gui = "bold"
                     }
                 }, {
-                    spaces,
+                    function()
+                        return spaces()
+                    end,
                     color = {
                         fg = colors.orange,
                         gui = "bold"
@@ -411,7 +395,9 @@ M.plugins = {{
                 lualine_a = {},
                 lualine_b = {},
                 lualine_c = {{
-                    file_info,
+                    function()
+                        return file_info()
+                    end,
                     color = {
                         fg = colors.fg,
                         gui = "italic"
