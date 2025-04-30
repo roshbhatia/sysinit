@@ -107,7 +107,6 @@ local function setup_plugins()
     }
 
     local tools = {
-        autopairs = require("plugins.configs.tools.autopairs"),
         autosession = require("plugins.configs.tools.autosession"),
         blame = require("plugins.configs.tools.blame"),
         cmp = require("plugins.configs.tools.cmp"),
@@ -123,9 +122,9 @@ local function setup_plugins()
     }
 
     local modules = {ui.notify, ui.theme, ui.devicons, tools.treesitter, editor.ibl, editor.oil, ui.tree, ui.scrollbar,
-                     tools.git, tools.blame, tools.diffview, tools.telescope, tools.hop, tools.autopairs, tools.comment,
-                     tools.conform, tools["nvim-lint"], tools.cmp, tools["which-key"], ui.wilder, ui.lualine, ui.tab,
-                     ui.neominimap, tools.autosession, ui.alpha}
+                     tools.git, tools.blame, tools.diffview, tools.telescope, tools.hop, tools.comment, tools.conform,
+                     tools["nvim-lint"], tools.cmp, tools["which-key"], ui.wilder, ui.lualine, ui.tab, ui.neominimap,
+                     tools.autosession, ui.alpha}
 
     local specs = sysinit_lib.get_plugin_specs(modules)
     sysinit_lib.setup_package_manager(specs)
@@ -138,8 +137,8 @@ local function init()
     sysinit_lib.setup_settings()
 
     -- Custom settings
-    vim.opt.foldmethod = "expr"
-    vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+    vim.wo.foldmethod = 'expr'
+    vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
 
     vim.opt.pumheight = 10
     vim.opt.cmdheight = 1
