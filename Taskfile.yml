@@ -12,7 +12,7 @@ tasks:
     desc: Show help information
     silent: true
 
-  # System Configuration Tasks
+  # System Configuration
   build:
     cmds:
       - gum style {{.INFO_STYLE}} "Building system configuration..."
@@ -38,115 +38,120 @@ tasks:
     silent: true
 
   refresh:
+    deps: [update-flake]
     cmds:
       - |
-        gum style {{.INFO_STYLE}} "Updating flake inputs..." && \
-        if ! gum spin --spinner dot --title "Updating flakes..." -- nix flake update; then
-          gum style {{.ERROR_STYLE}} "Failed to update flake"
-          exit 1
-        fi && \
-
-        gum style {{.INFO_STYLE}} "Committing changes..." && \
-        git add -A && \
-        git commit -m "chore: update configuration and regenerate lockfile" || true && \
-        git push || true && \
-
-        gum style {{.INFO_STYLE}} "Applying system configuration..." && \
-        if ! gum spin --spinner dot --title "Running darwin-rebuild..." -- darwin-rebuild switch --flake . --show-trace; then
-          gum style {{.ERROR_STYLE}} "Failed to apply configuration"
-          exit 1
-        fi && \
-        gum style {{.SUCCESS_STYLE}} "System configuration applied successfully" && \
-        task: perms
+        {
+          gum style {{.INFO_STYLE}} "Applying system configuration..."
+          
+          git add -A
+          git commit -m "chore: update configuration and regenerate lockfile" || true
+          git push || true
+          
+          if ! gum spin --spinner dot --title "Running darwin-rebuild..." -- darwin-rebuild switch --flake . --show-trace; then
+            gum style {{.ERROR_STYLE}} "Failed to apply configuration"
+            exit 1
+          fi
+          
+          gum style {{.SUCCESS_STYLE}} "System configuration applied successfully"
+        } | gum pager --soft-wrap
+      - task perms
     desc: Apply the system configuration
     silent: true
 
   refresh-work:
     cmds:
       - |
-        WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
-        if [ -z "$WORK_SYSINIT" ]; then
-          gum style {{.ERROR_STYLE}} "Could not find work sysinit repository"
-          exit 1
-        fi
-        gum style {{.INFO_STYLE}} "Refreshing work sysinit at $WORK_SYSINIT"
-        cd "$WORK_SYSINIT" && \
-        if ! nix flake update; then
-          gum style {{.ERROR_STYLE}} "Failed to update flake"
-          exit 1
-        fi && \
-        git add flake.lock && \
-        git commit -m "chore(lockfile): regenerate lockfile" || true && \
-        git push && \
-        if ! nix build; then
-          gum style {{.ERROR_STYLE}} "Failed to build configuration"
-          exit 1
-        fi && \
-        if ! task refresh; then
-          gum style {{.ERROR_STYLE}} "Failed to apply configuration"
-          exit 1
-        fi && \
-        gum style {{.SUCCESS_STYLE}} "Work configuration refreshed successfully" && \
-        task: perms
+        {
+          WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
+          
+          if [ -z "$WORK_SYSINIT" ]; then
+            gum style {{.ERROR_STYLE}} "Could not find work sysinit repository"
+            exit 1
+          fi
+          
+          gum style {{.INFO_STYLE}} "Working in: $WORK_SYSINIT"
+          cd "$WORK_SYSINIT"
+          
+          task update-flake
+          task refresh
+          
+          gum style {{.SUCCESS_STYLE}} "Work configuration refreshed successfully"
+        } | gum pager --soft-wrap
     desc: Update and rebuild work sysinit configuration
     silent: true
 
   update-flake:
     cmds:
-      - echo "Updating flake inputs..."
-      - nix flake update
-      - echo "Flake inputs updated successfully"
+      - gum style {{.INFO_STYLE}} "Updating flake inputs..."
+      - |
+        if ! gum spin --spinner dot --title "Running flake update..." -- nix flake update; then
+          gum style {{.ERROR_STYLE}} "Failed to update flake"
+          exit 1
+        fi
+      - gum style {{.SUCCESS_STYLE}} "Flake inputs updated successfully"
     desc: Update flake inputs
     silent: true
 
-  # System Setup Tasks
+  # System Setup
   setup:
     cmds:
-      - echo "Installing prerequisites..."
-      - ./hack/install-deps.sh
-      - echo "Setup completed"
+      - gum style {{.INFO_STYLE}} "Installing prerequisites..."
+      - |
+        if ! gum spin --spinner dot --title "Running setup..." -- ./hack/install-deps.sh; then
+          gum style {{.ERROR_STYLE}} "Setup failed"
+          exit 1
+        fi
+      - gum style {{.SUCCESS_STYLE}} "Setup completed"
     desc: Install prerequisites for sysinit
     silent: true
 
   uninstall-nix:
     cmds:
-      - echo "Uninstalling Nix..."
-      - ./hack/uninstall-nix.sh
-      - echo "Nix uninstalled"
+      - gum style {{.INFO_STYLE}} "Uninstalling Nix..."
+      - |
+        if ! gum spin --spinner dot --title "Uninstalling..." -- ./hack/uninstall-nix.sh; then
+          gum style {{.ERROR_STYLE}} "Uninstall failed"
+          exit 1
+        fi
+      - gum style {{.SUCCESS_STYLE}} "Nix uninstalled successfully"
     desc: Completely uninstall Nix from the system
     silent: true
 
   perms:
     cmds:
       - |
-        fix_permissions() {
-          local dir="$1"
-          local message="$2"
-          shift 2
-          local ignore_args=()
-          
-          # Add common ignore patterns
-          for pattern in "${IGNORE_PATTERNS[@]}"; do
-            ignore_args+=("-E" "$pattern")
-          done
-          
-          # Add additional patterns if provided
-          for pattern in "$@"; do
-            ignore_args+=("-E" "$pattern")
-          done
-          
-          echo "$message"
-          fd . "$dir" -t f -t d "${ignore_args[@]}" --owner "!$USER" -x sudo chown -v "$USER:staff" {}
-        }
+        {
+          fix_permissions() {
+            local dir="$1"
+            local message="$2"
+            shift 2
+            local ignore_args=()
+            
+            for pattern in "${IGNORE_PATTERNS[@]}"; do
+              ignore_args+=("-E" "$pattern")
+            done
+            
+            for pattern in "$@"; do
+              ignore_args+=("-E" "$pattern")
+            done
+            
+            gum style {{.INFO_STYLE}} "$message"
+            if ! gum spin --spinner dot --title "Fixing permissions..." -- fd . "$dir" -t f -t d "${ignore_args[@]}" --owner "!$USER" -x sudo chown -v "$USER:staff" {}; then
+              gum style {{.ERROR_STYLE}} "Failed to fix permissions for $dir"
+              return 1
+            fi
+          }
 
-        # Define common ignore patterns
-        IGNORE_PATTERNS=({{range .IGNORE_PATTERNS}}{{.}} {{end}})
+          IGNORE_PATTERNS=({{range .IGNORE_PATTERNS}}{{.}} {{end}})
 
-        # Fix permissions for each directory
-        fix_permissions "/nix" "Fixing /nix permissions..."
-        fix_permissions "/opt/homebrew/opt" "Fixing /opt/homebrew/opt permissions..."
-        fix_permissions "$HOME" "Fixing home directory permissions..." "node_modules" ".git"
-    desc: Fix permissions for /nix and home directories using parallel processing
+          fix_permissions "/nix" "Fixing /nix permissions..."
+          fix_permissions "/opt/homebrew/opt" "Fixing Homebrew permissions..."
+          fix_permissions "$HOME" "Fixing home directory permissions..." "node_modules" ".git"
+          
+          gum style {{.SUCCESS_STYLE}} "All permissions fixed successfully"
+        } | gum pager --soft-wrap
+    desc: Fix permissions for system directories
     silent: true
     vars:
       IGNORE_PATTERNS:
@@ -157,32 +162,9 @@ tasks:
         - OrbStack*
 
   # Neovim Tasks
-  nvim:extract-nvim-commands:
-    cmds:
-      - task -d modules/darwin/home/neovim nvim:extract-nvim-commands
-    silent: true
-
-  nvim:extract-vsc-commands:
-    cmds:
-      - task -d modules/darwin/home/neovim nvim:extract-vsc-commands
-    silent: true
-
-  nvim:pull-docs:
-    cmds:
-      - task -d modules/darwin/home/neovim nvim:pull-docs
-    silent: true
-
-  nvim:run-local-headless-isolated:
-    cmds:
-      - task -d modules/darwin/home/neovim nvim:run-local-headless-isolated
-    silent: true
-
-  nvim:run-local-isolated:
-    cmds:
-      - task -d modules/darwin/home/neovim nvim:run-local-isolated
-    silent: true
-
-  nvim:verify-vsc-commands:
-    cmds:
-      - task -d modules/darwin/home/neovim nvim:verify-vsc-actions
-    silent: true
+  nvim:extract-nvim-commands: { cmds: [task -d modules/darwin/home/neovim nvim:extract-nvim-commands], silent: true }
+  nvim:extract-vsc-commands: { cmds: [task -d modules/darwin/home/neovim nvim:extract-vsc-commands], silent: true }
+  nvim:pull-docs: { cmds: [task -d modules/darwin/home/neovim nvim:pull-docs], silent: true }
+  nvim:run-local-headless-isolated: { cmds: [task -d modules/darwin/home/neovim nvim:run-local-headless-isolated], silent: true }
+  nvim:run-local-isolated: { cmds: [task -d modules/darwin/home/neovim nvim:run-local-isolated], silent: true }
+  nvim:verify-vsc-commands: { cmds: [task -d modules/darwin/home/neovim nvim:verify-vsc-actions], silent: true }
