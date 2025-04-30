@@ -21,7 +21,7 @@ local function get_all_commands()
         end
     end
 
-    local result_file = io.open("./commands/neovim/all.txt", "w")
+    local result_file = io.open("./commands/neovim/actions.txt", "w")
     if result_file then
         local sorted = {}
         for cmd in pairs(cmds) do
