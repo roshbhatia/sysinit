@@ -8,7 +8,11 @@ M.plugins = {{
     config = function()
         local wilder = require("wilder")
         wilder.setup({
-            modes = {":", "/", "?"}
+            modes = {":", "/", "?"},
+            next_key = "<Tab>",
+            previous_key = "<S-Tab>",
+            accept_key = "<Down>",
+            reject_key = "<Up>"
         })
 
         local popupmenu_renderer = wilder.popupmenu_renderer(
@@ -28,14 +32,16 @@ M.plugins = {{
                 max_height = "75%",
                 min_height = 0,
                 prompt_position = "top",
-                reverse = false
+                reverse = false,
+                selected_item_index = 0
             }))
 
         local wildmenu_renderer = wilder.wildmenu_renderer({
-            highlighter = highlighters,
+            highlighter = wilder.basic_highlighter(),
             separator = " · ",
             left = {" ", wilder.wildmenu_spinner(), " "},
-            right = {" ", wilder.wildmenu_index()}
+            right = {" ", wilder.wildmenu_index()},
+            selected_item_index = 0
         })
 
         wilder.set_option("renderer", wilder.renderer_mux({
@@ -47,4 +53,3 @@ M.plugins = {{
 }}
 
 return M
-
