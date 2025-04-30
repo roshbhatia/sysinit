@@ -37,6 +37,9 @@ M.plugins = {{
                 name = "Nightfox",
                 colorscheme = "nightfox"
             }, {
+                name = "Nordfox",
+                colorscheme = "nordfox"
+            }, {
                 name = "Carbonfox",
                 colorscheme = "carbonfox"
             }, {
