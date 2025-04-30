@@ -95,7 +95,8 @@ M.plugins = {{
                     "rafamadriz/friendly-snippets", "github/copilot.vim", "zbirenbaum/copilot.lua",
                     "zbirenbaum/copilot-cmp", "nvim-lua/plenary.nvim", "CopilotC-Nvim/CopilotChat.nvim",
                     "MunifTanjim/nui.nvim", "nvim-treesitter/nvim-treesitter", "stevearc/dressing.nvim",
-                    "HakonHarnes/img-clip.nvim", "MeanderingProgrammer/render-markdown.nvim", "yetone/avante.nvim"},
+                    "HakonHarnes/img-clip.nvim", "MeanderingProgrammer/render-markdown.nvim", "yetone/avante.nvim",
+                    "pta2002/intellitab.nvim"},
     config = function()
         local cmp = require('cmp')
         local luasnip = require('luasnip')
@@ -312,17 +313,26 @@ M.plugins = {{
                     select = true,
                     behavior = cmp.ConfirmBehavior.Replace
                 }),
-                ['<Tab>'] = cmp.mapping(function(fallback)
-                    if cmp.visible() then
-                        cmp.select_next_item()
-                    elseif luasnip.expand_or_jumpable() then
-                        luasnip.expand_or_jump()
-                    elseif has_words_before() then
-                        cmp.complete()
-                    else
-                        fallback()
+                ['<Tab>'] = {function(cmp)
+                    -- Check if line is empty
+                    local line = vim.api.nvim_get_current_line()
+                    local cursor = vim.api.nvim_win_get_cursor(0)
+                    local col = cursor[2]
+
+                    -- If line is empty before cursor, fallback to intellitab
+                    if col == 0 or line:sub(1, col):match("^%s*$") then
+                        require("intellitab").indent()
+                        return false
                     end
-                end, {'i', 's'}),
+
+                    if cmp.visible() then
+                        return cmp.select_next()
+                    elseif require('luasnip').expand_or_jumpable() then
+                        return require('luasnip').expand_or_jump()
+                    else
+                        return cmp.complete()
+                    end
+                end, 'fallback'},
                 ['<S-Tab>'] = cmp.mapping(function(fallback)
                     if cmp.visible() then
                         cmp.select_prev_item()
