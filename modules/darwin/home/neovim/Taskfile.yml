@@ -68,24 +68,23 @@ tasks:
 
   nvim:pull-docs:
     desc: Fetch documentation for all Neovim plugins
+    deps: [nvim:extract-vsc-commands, nvim:extract-nvim-commands]
     silent: true
     cmds:
       - |
         RED='\033[0;31m'
         GREEN='\033[0;32m'
         YELLOW='\033[0;33m'
-        NC='\033[0m' # No Color
+        NC='\033[0m'
         
         NEOVIM_DIR="$(pwd)"
-        DOC_DIR="${NEOVIM_DIR}/dependency-docs"
+        DOC_DIR="${NEOVIM_DIR}/commands/docs"
         
         mkdir -p "${DOC_DIR}"
         
         echo -e "${YELLOW}Scanning Lua files for documentation URLs...${NC}"
         
-        # Find all Lua files and process them with awk instead of grep
         find "${NEOVIM_DIR}" -type f -name "*.lua" | while read file; do
-          # Use awk to find the line with the URL and extract it
           url=$(awk '/-- sysinit\.nvim\.doc-url=/ { 
             match($0, /"[^"]+"/); 
             url = substr($0, RSTART+1, RLENGTH-2); 
@@ -108,11 +107,19 @@ tasks:
           fi
         done
         
+        # Combine all documentation for a complete view
+        echo -e "${GREEN}Generating combined documentation view...${NC}"
+        echo "# Command Documentation" > "${DOC_DIR}/all.md"
+        echo "## VSCode Commands" >> "${DOC_DIR}/all.md"
+        cat "./commands/out/actions.txt" >> "${DOC_DIR}/all.md"
+        echo -e "\n## Neovim Commands" >> "${DOC_DIR}/all.md"
+        cat "./commands/neovim/all.txt" >> "${DOC_DIR}/all.md"
+        
         found=$(find "${DOC_DIR}" -type f -name "*.md" | wc -l)
         count=$(find "${NEOVIM_DIR}" -type f -name "*.lua" | wc -l)
         
         echo -e "${YELLOW}Scanned ${count} files, found ${found} documentation URLs${NC}"
-        echo -e "${GREEN}documentation saved to ${DOC_DIR}${NC}"
+        echo -e "${GREEN}Documentation saved to ${DOC_DIR}${NC}"
 
   nvim:verify-vsc-actions:
     desc: Verify that all VSCode actions in our which-key abstraction are listed in the actions.txt
@@ -153,61 +160,18 @@ tasks:
         echo "Extracting all Neovim commands..."
         mkdir -p ./commands/neovim
         
-        # Create a temporary Lua script to extract commands
-        cat > ./tmp_extract_commands.lua << 'EOF'
-        -- List built-in commands
-        vim.api.nvim_command('redir! > ./commands/neovim/builtin.txt')
-        vim.api.nvim_command('silent! command')
-        vim.api.nvim_command('redir END')
+        NVIM_TMP_DIR="/tmp/nvim-cmd-extract-$(date +%s)"
+        mkdir -p "$NVIM_TMP_DIR"
+        cp -r * "$NVIM_TMP_DIR/"
         
-        -- List user commands
-        vim.api.nvim_command('redir! > ./commands/neovim/user.txt')
-        vim.api.nvim_command('silent! command!')
-        vim.api.nvim_command('redir END')
+        XDG_DATA_HOME="/tmp/nvim-cmd-extract/share" \
+        XDG_STATE_HOME="/tmp/nvim-cmd-extract/state" \
+        XDG_CACHE_HOME="/tmp/nvim-cmd-extract/cache" \
+        nvim --headless \
+          --cmd "set runtimepath^=$NVIM_TMP_DIR,$NVIM_TMP_DIR/lua" \
+          -u "$NVIM_TMP_DIR/init.lua" \
+          -S ./hack/extract_commands.lua
         
-        -- Use Lua API to get comprehensive command list
-        local cmds = {}
-        
-        -- Collect commands from command line output
-        local function collect_from_file(filename)
-          local file = io.open(filename, "r")
-          if not file then return end
-          
-          for line in file:lines() do
-            local cmd_name = line:match("^%s*([%w]+)")
-            if cmd_name and cmd_name:match("^%w") then
-              cmds[cmd_name] = true
-            end
-          end
-          file:close()
-        end
-        
-        collect_from_file("./commands/neovim/builtin.txt")
-        collect_from_file("./commands/neovim/user.txt")
-        
-        -- Write all unique commands to file
-        local result_file = io.open("./commands/neovim/all.txt", "w")
-        if result_file then
-          local sorted_cmds = {}
-          for cmd, _ in pairs(cmds) do
-            table.insert(sorted_cmds, cmd)
-          end
-          table.sort(sorted_cmds)
-          
-          for _, cmd in ipairs(sorted_cmds) do
-            result_file:write(cmd .. "\n")
-          end
-          result_file:close()
-        end
-        
-        vim.api.nvim_command('quit')
-        EOF
-        
-        # Run the Lua script in Neovim
-        nvim --headless -u NONE -i NONE -n -S ./tmp_extract_commands.lua
-        
-        # Clean up
-        rm ./tmp_extract_commands.lua
-        
+        rm -rf "$NVIM_TMP_DIR"
         echo "All Neovim commands extracted to ./commands/neovim/all.txt"
     silent: true
