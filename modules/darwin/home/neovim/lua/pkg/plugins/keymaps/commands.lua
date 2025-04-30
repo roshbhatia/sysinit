@@ -30,6 +30,10 @@ local function map_cmd(mode, lhs, cmd, opts)
 end
 
 function M.setup()
+    if not vim.g.vscode then
+        return
+    end
+
     map_cmd("n", "<leader>w", "w")
     map_cmd("n", "<leader>q", "q")
     map_cmd("n", "<leader>wa", "wa")

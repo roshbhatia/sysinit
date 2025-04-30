@@ -31,15 +31,14 @@ end
 
 local function setup_plugins()
     local ui = {
-        ["vsc-statusbar"] = require("plugins.configs.ui.vsc-statusbar")
+        statusbar = require("pkg.plugins.ui.statusbar")
     }
 
-    local tools = {
-        ["vsc-commands"] = require("plugins.configs.tools.vsc-commands"),
-        ["which-key"] = require("plugins.configs.tools.which-key")
+    local keymaps = {
+        commands = require("pkg.plugins.keymaps.commands")
     }
 
-    local modules = {ui["vsc-statusbar"], tools["vsc-commands"], tools["which-key"]}
+    local modules = {ui.statusbar, keymaps.commands}
 
     local specs = sysinit_lib.get_plugin_specs(modules)
     sysinit_lib.setup_package_manager(specs)

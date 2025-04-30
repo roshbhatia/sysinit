@@ -89,42 +89,52 @@ end
 
 local function setup_plugins()
     local ui = {
-        alpha = require("plugins.configs.ui.alpha"),
-        devicons = require("plugins.configs.ui.devicons"),
-        lualine = require("plugins.configs.ui.lualine"),
-        neominimap = require("plugins.configs.ui.neominimap"),
-        notify = require("plugins.configs.ui.notify"),
-        scrollbar = require("plugins.configs.ui.scrollbar"),
-        tab = require("plugins.configs.ui.tab"),
-        theme = require("plugins.configs.ui.theme"),
-        tree = require("plugins.configs.ui.tree"),
-        wilder = require("plugins.configs.ui.wilder")
+        dashboard = require("pkg.plugins.ui.dashboard"),
+        devicons = require("pkg.plugins.ui.devicons"),
+        minimap = require("pkg.plugins.ui.minimap"),
+        notifications = require("pkg.plugins.ui.notifications"),
+        pallete = require("pkg.plugins.ui.pallete"),
+        scrollbar = require("pkg.plugins.ui.scrollbar"),
+        statusbar = require("pkg.plugins.ui.statusbar"),
+        tab = require("pkg.plugins.ui.tab"),
+        theme = require("pkg.plugins.ui.theme")
     }
 
     local editor = {
-        ibl = require("plugins.configs.editor.ibl"),
-        oil = require("plugins.configs.editor.oil")
+        comment = require("pkg.plugins.editor.comment"),
+        ibl = require("pkg.plugins.editor.ibl")
+    }
+
+    local file = {
+        diffview = require("pkg.plugins.file.diffview"),
+        editor = require("pkg.plugins.file.editor"),
+        session = require("pkg.plugins.file.session"),
+        telescope = require("pkg.plugins.file.telescope"),
+        tree = require("pkg.plugins.file.tree")
+    }
+
+    local git = {
+        blame = require("pkg.plugins.git.blame"),
+        client = require("pkg.plugins.git.client")
+    }
+
+    local keymaps = {
+        hop = require("pkg.plugins.keymaps.hop"),
+        leader_pallete = require("pkg.plugins.keymaps.leader-pallete")
     }
 
     local tools = {
-        autosession = require("plugins.configs.tools.autosession"),
-        blame = require("plugins.configs.tools.blame"),
-        intelligence = require("plugins.configs.tools.intelligence"),
-        comment = require("plugins.configs.tools.comment"),
-        conform = require("plugins.configs.tools.conform"),
-        diffview = require("plugins.configs.tools.diffview"),
-        git = require("plugins.configs.tools.git"),
-        hop = require("plugins.configs.tools.hop"),
-        ["nvim-lint"] = require("plugins.configs.tools.nvim-lint"),
-        telescope = require("plugins.configs.tools.telescope"),
-        treesitter = require("plugins.configs.tools.treesitter"),
-        ["which-key"] = require("plugins.configs.tools.which-key")
+        completion_ai = require("pkg.plugins.tools.completion-ai"),
+        formatter = require("pkg.plugins.tools.formatter"),
+        linters = require("pkg.plugins.tools.linters"),
+        lsp = require("pkg.plugins.tools.lsp"),
+        parser = require("pkg.plugins.tools.parser")
     }
 
-    local modules = {ui.notify, ui.theme, ui.devicons, tools.treesitter, editor.ibl, editor.oil, ui.tree, ui.scrollbar,
-                     tools.git, tools.blame, tools.diffview, tools.telescope, tools.hop, tools.comment, tools.conform,
-                     tools["nvim-lint"], tools.intelligence, tools["which-key"], ui.wilder, ui.lualine, ui.tab,
-                     ui.neominimap, tools.autosession, ui.alpha}
+    local modules = {ui.dashboard, ui.devicons, ui.minimap, ui.notifications, ui.pallete, ui.scrollbar, ui.statusbar,
+                     ui.tab, ui.theme, editor.comment, editor.ibl, file.diffview, file.editor, file.session,
+                     file.telescope, file.tree, git.blame, git.client, keymaps.hop, keymaps.leader_pallete,
+                     tools.completion_ai, tools.formatter, tools.linters, tools.lsp, tools.parser}
 
     local specs = sysinit_lib.get_plugin_specs(modules)
     sysinit_lib.setup_package_manager(specs)
