@@ -56,7 +56,8 @@ tasks:
           gum style {{.ERROR_STYLE}} "Failed to apply configuration"
           exit 1
         fi && \
-        gum style {{.SUCCESS_STYLE}} "System configuration applied successfully"
+        gum style {{.SUCCESS_STYLE}} "System configuration applied successfully" && \
+        task: perms
     desc: Apply the system configuration
     silent: true
 
@@ -65,27 +66,28 @@ tasks:
       - |
         WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
         if [ -z "$WORK_SYSINIT" ]; then
-          echo "Could not find work sysinit repository"
+          gum style {{.ERROR_STYLE}} "Could not find work sysinit repository"
           exit 1
         fi
-        echo "Refreshing work sysinit at $WORK_SYSINIT"
+        gum style {{.INFO_STYLE}} "Refreshing work sysinit at $WORK_SYSINIT"
         cd "$WORK_SYSINIT" && \
         if ! nix flake update; then
-          echo "Failed to update flake"
+          gum style {{.ERROR_STYLE}} "Failed to update flake"
           exit 1
         fi && \
         git add flake.lock && \
         git commit -m "chore(lockfile): regenerate lockfile" || true && \
         git push && \
         if ! nix build; then
-          echo "Failed to build configuration"
+          gum style {{.ERROR_STYLE}} "Failed to build configuration"
           exit 1
         fi && \
         if ! task refresh; then
-          echo "Failed to apply configuration"
+          gum style {{.ERROR_STYLE}} "Failed to apply configuration"
           exit 1
         fi && \
-        echo "Work configuration refreshed successfully"
+        gum style {{.SUCCESS_STYLE}} "Work configuration refreshed successfully" && \
+        task: perms
     desc: Update and rebuild work sysinit configuration
     silent: true
 
