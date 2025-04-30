@@ -29,12 +29,12 @@ end
 
 local function setup_plugins()
     local ui = {
-        ["vsc-statusbar"] = require("modules.ui.vsc-statusbar")
+        ["vsc-statusbar"] = require("plugins.configs.ui.vsc-statusbar")
     }
 
     local tools = {
-        ["vsc-commands"] = require("modules.tools.vsc-commands"),
-        ["which-key"] = require("modules.tools.which-key")
+        ["vsc-commands"] = require("plugins.configs.tools.vsc-commands"),
+        ["which-key"] = require("plugins.configs.tools.which-key")
     }
 
     local modules = {ui["vsc-statusbar"], tools["vsc-commands"], tools["which-key"]}
