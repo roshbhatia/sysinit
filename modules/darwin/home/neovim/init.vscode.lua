@@ -1,4 +1,6 @@
 local vscode = require('vscode')
+local sysinit_lib = require('lib')
+
 local function setup_keybindings()
     -- ctrl + hjkl for moving between panes
     vim.keymap.set("n", "<C-h>", function()
@@ -39,16 +41,15 @@ local function setup_plugins()
 
     local modules = {ui["vsc-statusbar"], tools["vsc-commands"], tools["which-key"]}
 
-    local module_loader = require("common.module_loader")
-    local specs = module_loader.get_plugin_specs(modules)
-    require('common.settings').setup_package_manager(specs)
-    module_loader.setup_modules(modules)
+    local specs = sysinit_lib.get_plugin_specs(modules)
+    sysinit_lib.setup_package_manager(specs)
+    sysinit_lib.setup_modules(modules)
 end
 
 local function init()
     local config_path = vim.fn.stdpath('config')
     package.path = package.path .. ";" .. config_path .. "/?.lua" .. ";" .. config_path .. "/lua/?.lua"
-    require('common.settings').setup_settings()
+    sysinit_lib.setup_settings()
 
     -- Custom settings
     vim.opt.foldmethod = "manual"
