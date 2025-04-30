@@ -108,7 +108,7 @@ M.plugins = {{
                 vim.opt.termguicolors = true
             ]],
             globalAfter = [[
-                vim.cmd("hi Normal guibg=NONE ctermbg=NONE")
+                vim.cmd("hi Normal ctermbg=NONE")
             ]]
         })
 
