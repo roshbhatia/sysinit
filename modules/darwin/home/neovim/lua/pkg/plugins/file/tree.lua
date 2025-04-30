@@ -1,8 +1,9 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/nvim-neo-tree/neo-tree.nvim/refs/heads/main/doc/neo-tree.txt"
 local M = {}
+
 M.plugins = {{
     "nvim-neo-tree/neo-tree.nvim",
-    branch = "v3.x",
+    commit = "71bfdeddc90225e281ce34c378dc1b5914f5018d",
     event = "VeryLazy",
     dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "MunifTanjim/nui.nvim"},
     config = function()

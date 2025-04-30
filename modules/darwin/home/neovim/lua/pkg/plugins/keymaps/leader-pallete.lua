@@ -1,3 +1,4 @@
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/folke/which-key.nvim/main/doc/which-key.nvim.txt"
 local M = {}
 
 local vscode_utils = {}
@@ -705,6 +706,7 @@ end
 
 M.plugins = {{
     "folke/which-key.nvim",
+    commit = "370ec46f710e058c9c1646273e6b225acf47cbed",
     lazy = false,
     config = function()
         if vim.g.vscode then

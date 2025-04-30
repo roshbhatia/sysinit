@@ -3,6 +3,7 @@ local M = {}
 
 M.plugins = {{
     "rmagatti/auto-session",
+    commit = "00334ee24b9a05001ad50221c8daffbeedaa0842",
     lazy = false,
     priority = 100, -- Make sure it loads early
     config = function()

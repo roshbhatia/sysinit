@@ -1,69 +1,70 @@
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/sindrets/diffview.nvim/refs/heads/main/doc/diffview.txt"
 local M = {}
 
 M.plugins = {{
     "sindrets/diffview.nvim",
-    lazy = false,
-    dependencies = {
-        "nvim-lua/plenary.nvim",
-    },
+    commit = "4516612fe98ff56ae0415a259ff6361a89419b0a",
+    lazy = true,
+    priority = 900,
+    dependencies = {"nvim-lua/plenary.nvim"},
     config = function()
         local actions = require("diffview.config").actions
-        
+
         require("diffview").setup({
             enhanced_diff_hl = true,
-            
+
             view = {
                 default = {
                     layout = "diff2_horizontal",
-                    winbar_info = true,
+                    winbar_info = true
                 },
                 merge_tool = {
                     layout = "diff3_horizontal",
                     disable_diagnostics = true,
-                    winbar_info = true,
+                    winbar_info = true
                 },
                 file_history = {
                     layout = "diff2_horizontal",
-                    winbar_info = true,
-                },
+                    winbar_info = true
+                }
             },
-            
+
             file_panel = {
                 win_config = {
                     position = "left",
                     width = 35,
-                    type = "split",
+                    type = "split"
                 },
                 listing_style = "tree",
                 tree_options = {
                     flatten_dirs = true,
-                    folder_statuses = "always",
-                },
+                    folder_statuses = "always"
+                }
             },
-            
+
             file_history_panel = {
                 win_config = {
                     position = "bottom",
                     height = 16,
-                    type = "split",
-                },
+                    type = "split"
+                }
             },
-            
+
             log_options = {
                 single_file = {
                     follow = true,
                     all = false,
                     merges = false,
-                    reflog = false,
+                    reflog = false
                 },
                 multi_file = {
                     follow = false,
                     all = false,
                     merges = false,
-                    reflog = false,
-                },
+                    reflog = false
+                }
             },
-            
+
             hooks = {
                 diff_buf_read = function()
                     vim.opt_local.wrap = false
@@ -71,12 +72,12 @@ M.plugins = {{
                     vim.opt_local.cursorline = true
                     vim.opt_local.foldmethod = "expr"
                     vim.opt_local.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-                end,
+                end
             },
-            
+
             keymaps = {
                 disable_defaults = false,
-                
+
                 view = {
                     ["q"] = actions.close,
                     ["gf"] = actions.goto_file,
@@ -86,13 +87,13 @@ M.plugins = {{
                     ["<leader>e"] = actions.focus_files,
                     ["]x"] = actions.next_conflict,
                     ["[x"] = actions.prev_conflict,
-                    ["<leader>co"] = { actions.conflict_choose, { "ours" } },
-                    ["<leader>ct"] = { actions.conflict_choose, { "theirs" } },
-                    ["<leader>cb"] = { actions.conflict_choose, { "base" } },
-                    ["<leader>ca"] = { actions.conflict_choose, { "all" } },
-                    ["dx"] = { actions.conflict_choose, { "none" } },
+                    ["<leader>co"] = {actions.conflict_choose, {"ours"}},
+                    ["<leader>ct"] = {actions.conflict_choose, {"theirs"}},
+                    ["<leader>cb"] = {actions.conflict_choose, {"base"}},
+                    ["<leader>ca"] = {actions.conflict_choose, {"all"}},
+                    ["dx"] = {actions.conflict_choose, {"none"}}
                 },
-                
+
                 file_panel = {
                     ["j"] = actions.next_entry,
                     ["k"] = actions.prev_entry,
@@ -106,14 +107,14 @@ M.plugins = {{
                     ["U"] = actions.unstage_all,
                     ["X"] = actions.restore_entry,
                     ["R"] = actions.refresh_files,
-                    ["i"] = actions.listing_style,
+                    ["i"] = actions.listing_style
                 },
-                
+
                 file_history_panel = {
                     ["g!"] = actions.options,
-                    ["<C-d>"] = actions.open_in_diffview,
-                },
-            },
+                    ["<C-d>"] = actions.open_in_diffview
+                }
+            }
         })
     end
 }}
