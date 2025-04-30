@@ -5,7 +5,7 @@ M.plugins = {{
     branch = "v3.x",
     lazy = false,
     dependencies = {"neovim/nvim-lspconfig", "williamboman/mason.nvim", "williamboman/mason-lspconfig.nvim",
-                    "folke/trouble.nvim", "nvim-tree/nvim-web-devicons", "pta2002/intellitab.nvim"},
+                    "folke/trouble.nvim", "nvim-tree/nvim-web-devicons"},
     config = function()
         local lsp = require('lsp-zero')
         lsp.preset({
@@ -267,8 +267,7 @@ M.plugins = {{
                         nvim_lsp = "[LSP]",
                         luasnip = "[Snippet]",
                         path = "[Path]",
-                        copilot = "[Copilot]",
-                        avante = "[Avante]"
+                        copilot = "[Copilot]"
                     },
                     before = function(entry, vim_item)
                         vim_item.abbr = string.sub(vim_item.abbr, 1, 50)
@@ -297,18 +296,6 @@ M.plugins = {{
                 group_index = 3,
                 keyword_length = 3,
                 priority = 40
-            }, {
-                name = 'avante_commands',
-                group_index = 1,
-                priority = 95
-            }, {
-                name = 'avante_mentions',
-                group_index = 1,
-                priority = 95
-            }, {
-                name = 'avante_files',
-                group_index = 1,
-                priority = 95
             }}),
             completion = {
                 completeopt = 'menu,menuone,noinsert',
@@ -333,7 +320,7 @@ M.plugins = {{
                     elseif has_words_before() then
                         cmp.complete()
                     else
-                        require("intellitab").indent()
+                        fallback()
                     end
                 end, {'i', 's'}),
                 ['<S-Tab>'] = cmp.mapping(function(fallback)
