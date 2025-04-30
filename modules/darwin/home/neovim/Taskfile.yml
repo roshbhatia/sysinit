@@ -1,89 +1,44 @@
-version: '3'
-
+---
 tasks:
   default:
-    desc: Show help information
     cmds:
       - task -l
+    desc: Show help information
     silent: true
 
-  nvim:run-local-isolated:
-    desc: Run Neovim with local configuration in temporary directory
-    silent: true
+  nvim:extract-nvim-commands:
     cmds:
       - |
-        NVIM_TMP_DIR="/tmp/nvim-$(date +%s)"
-        NVIM_DATA_DIR="/tmp/nvim-run-local-isolated"
-        
-        # Create directories
-        mkdir -p "$NVIM_TMP_DIR" "$NVIM_DATA_DIR/share" "$NVIM_DATA_DIR/state" "$NVIM_DATA_DIR/cache"
-        
-        # Copy config to temporary directory
-        cp -r * "$NVIM_TMP_DIR/"
-        
-        # Run Neovim with the copied config
-        XDG_DATA_HOME="$NVIM_DATA_DIR/share" \
-        XDG_STATE_HOME="$NVIM_DATA_DIR/state" \
-        XDG_CACHE_HOME="$NVIM_DATA_DIR/cache" \
-        nvim \
-          --cmd "let g:auto_session_enabled = v:false" \
-          --cmd "set runtimepath^=$NVIM_TMP_DIR,$NVIM_TMP_DIR/lua" \
-          -u "$NVIM_TMP_DIR/init.lua"
-        
-        # Clean up tmp directory
-        rm -rf "$NVIM_TMP_DIR"
+        echo "Extracting all Neovim commands..."
+        mkdir -p ./commands/neovim
+        nvim --headless -c 'redir! > /tmp/commands.txt' -c 'silent command' -c 'redir END' -c 'qa!'
+        sed -e 's/[|!]//g' -e 's/^[[:space:]]*\([A-Za-z][A-Za-z0-9]*\)[[:space:]].*$/\1/p' -n /tmp/commands.txt | sed '1d' | sed '/^$/d' > ./commands/neovim/actions.txt
+    desc: Extract all available Neovim commands
+    dir: '{{.ROOT_DIR}}'
 
-  nvim:run-local-headless-isolated:
-    desc: Run Neovim with local configuration in temporary directory (headless)
-    silent: true
+  nvim:extract-vsc-commands:
     cmds:
       - |
-        NVIM_TMP_DIR="/tmp/nvim-$(date +%s)"
-        NVIM_DATA_DIR="/tmp/nvim-run-local-isolated"
-        
-        # Create directories
-        mkdir -p "$NVIM_TMP_DIR" "$NVIM_DATA_DIR/share" "$NVIM_DATA_DIR/state" "$NVIM_DATA_DIR/cache"
-        
-        # Copy config to temporary directory
-        cp -r * "$NVIM_TMP_DIR/"
-        
-        # Run Neovim headless with the copied config
-        XDG_DATA_HOME="$NVIM_DATA_DIR/share" \
-        XDG_STATE_HOME="$NVIM_DATA_DIR/state" \
-        XDG_CACHE_HOME="$NVIM_DATA_DIR/cache" \
-        nvim \
-          --cmd "let g:auto_session_enabled = v:false" \
-          --cmd "set runtimepath^=$NVIM_TMP_DIR,$NVIM_TMP_DIR/lua" \
-          -u "$NVIM_TMP_DIR/init.lua" --headless
-        
-        # Clean up tmp directory
-        rm -rf "$NVIM_TMP_DIR"
-
-  nvim:run-local-clean:
-    desc: Clean local Neovim test environment
-    silent: true
-    cmds:
-      - |
-        rm -rf "/tmp/nvim-run-local-isolated"
+        mkdir -p ./commands/vscode
+        sed -n 's/.*"command": "\([^"]*\)".*$/\1/p; s/.*- \([a-zA-Z0-9.]*\)$/\1/p' ./commands/vscode/default-keybindings.json > ./commands/vscode/actions.txt
+    desc: Extract commands from default-keybindings.json to actions.txt
+    dir: '{{.ROOT_DIR}}'
 
   nvim:pull-docs:
-    desc: Fetch documentation for all Neovim plugins
-    deps: [nvim:extract-vsc-commands, nvim:extract-nvim-commands]
-    silent: true
     cmds:
       - |
         RED='\033[0;31m'
         GREEN='\033[0;32m'
         YELLOW='\033[0;33m'
         NC='\033[0m'
-        
+
         NEOVIM_DIR="$(pwd)"
         DOC_DIR="${NEOVIM_DIR}/commands/docs"
-        
+
         mkdir -p "${DOC_DIR}"
-        
+
         echo -e "${YELLOW}Scanning Lua files for documentation URLs...${NC}"
-        
+
         find "${NEOVIM_DIR}" -type f -name "*.lua" | while read file; do
           url=$(awk '/-- sysinit\.nvim\.doc-url=/ { 
             match($0, /"[^"]+"/); 
@@ -106,7 +61,7 @@ tasks:
             fi
           fi
         done
-        
+
         # Combine all documentation for a complete view
         echo -e "${GREEN}Generating combined documentation view...${NC}"
         echo "# Command Documentation" > "${DOC_DIR}/all.md"
@@ -114,38 +69,75 @@ tasks:
         cat "./commands/out/actions.txt" >> "${DOC_DIR}/all.md"
         echo -e "\n## Neovim Commands" >> "${DOC_DIR}/all.md"
         cat "./commands/neovim/all.txt" >> "${DOC_DIR}/all.md"
-        
+
         found=$(find "${DOC_DIR}" -type f -name "*.md" | wc -l)
         count=$(find "${NEOVIM_DIR}" -type f -name "*.lua" | wc -l)
-        
+
         echo -e "${YELLOW}Scanned ${count} files, found ${found} documentation URLs${NC}"
         echo -e "${GREEN}Documentation saved to ${DOC_DIR}${NC}"
+    deps: [nvim:extract-vsc-commands, nvim:extract-nvim-commands]
+    desc: Fetch documentation for all Neovim plugins
+    silent: true
 
-  nvim:extract-vsc-commands:
-    desc: Extract commands from default-keybindings.json to actions.txt
-    dir: '{{.ROOT_DIR}}'
+  nvim:run-local-clean:
     cmds:
       - |
-        mkdir -p ./commands/vscode
-        sed -n 's/.*"command": "\([^"]*\)".*$/\1/p; s/.*- \([a-zA-Z0-9.]*\)$/\1/p' ./commands/vscode/default-keybindings.json > ./commands/vscode/actions.txt
+        rm -rf "/tmp/nvim-run-local-isolated"
+    desc: Clean local Neovim test environment
+    silent: true
 
-  nvim:extract-nvim-commands:
-    desc: Extract all available Neovim commands
-    dir: '{{.ROOT_DIR}}'
+  nvim:run-local-headless-isolated:
     cmds:
       - |
-        echo "Extracting all Neovim commands..."
-        mkdir -p ./commands/neovim
-        NVIM_TMP_DIR="/tmp/nvim-cmd-extract-$(date +%s)"
-        mkdir -p "$NVIM_TMP_DIR"
+        NVIM_TMP_DIR="/tmp/nvim-$(date +%s)"
+        NVIM_DATA_DIR="/tmp/nvim-run-local-isolated"
+
+        # Create directories
+        mkdir -p "$NVIM_TMP_DIR" "$NVIM_DATA_DIR/share" "$NVIM_DATA_DIR/state" "$NVIM_DATA_DIR/cache"
+
+        # Copy config to temporary directory
         cp -r * "$NVIM_TMP_DIR/"
-        timeout 5s nvim --headless \
+
+        # Run Neovim headless with the copied config
+        XDG_DATA_HOME="$NVIM_DATA_DIR/share" \
+        XDG_STATE_HOME="$NVIM_DATA_DIR/state" \
+        XDG_CACHE_HOME="$NVIM_DATA_DIR/cache" \
+        nvim \
+          --cmd "let g:auto_session_enabled = v:false" \
           --cmd "set runtimepath^=$NVIM_TMP_DIR,$NVIM_TMP_DIR/lua" \
-          -u "$NVIM_TMP_DIR/init.lua" \
-          -S ./hack/extract_commands.lua || {
-            echo "Error: Command extraction timed out or failed"
-            rm -rf "$NVIM_TMP_DIR"
-            exit 1
-          }
+          -u "$NVIM_TMP_DIR/init.lua" --headless
+
+        # Clean up tmp directory
         rm -rf "$NVIM_TMP_DIR"
-        echo "All Neovim commands extracted to ./commands/neovim/actions.txt"
+    desc: Run Neovim with local configuration in temporary directory (headless)
+    silent: true
+
+  nvim:run-local-isolated:
+    cmds:
+      - |
+        NVIM_TMP_DIR="/tmp/nvim-$(date +%s)"
+        NVIM_DATA_DIR="/tmp/nvim-run-local-isolated"
+
+        # Create directories
+        mkdir -p "$NVIM_TMP_DIR" "$NVIM_DATA_DIR/share" "$NVIM_DATA_DIR/state" "$NVIM_DATA_DIR/cache"
+
+        # Copy config to temporary directory
+        cp -r * "$NVIM_TMP_DIR/"
+
+        # Run Neovim with the copied config
+        # Run Neovim headless with the copied config
+        # Run Neovim with the copied config
+        XDG_DATA_HOME="$NVIM_DATA_DIR/share" \
+        XDG_STATE_HOME="$NVIM_DATA_DIR/state" \
+        XDG_CACHE_HOME="$NVIM_DATA_DIR/cache" \
+        nvim \
+          --cmd "let g:auto_session_enabled = v:false" \
+          --cmd "set runtimepath^=$NVIM_TMP_DIR,$NVIM_TMP_DIR/lua" \
+          -u "$NVIM_TMP_DIR/init.lua"
+
+        # Clean up tmp directory
+        rm -rf "$NVIM_TMP_DIR"
+    desc: Run Neovim with local configuration in temporary directory
+    silent: true
+
+version: '3'

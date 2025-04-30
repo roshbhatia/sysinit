@@ -1,30 +1,50 @@
-version: '3'
-
+---
 tasks:
+ # Installs
+  build:
+    cmds:
+      - echo "Building system configuration..."
+      - darwin-rebuild build --flake .
+      - echo "Build completed successfully"
+    desc: Build the configuration without applying
+    silent: true
+  clean:
+    cmds:
+      - echo "Running garbage collection..."
+      - sudo nix-collect-garbage -d
+      - echo "Garbage collection completed"
+    desc: Run garbage collection
+    silent: true
   default:
-    desc: Show help information
     cmds:
       - task -l
+    desc: Show help information
     silent: true
-
-  # Boostrap and teardown
-  setup:
-    desc: Install prerequisites for sysinit
+  nvim:extract-nvim-commands:
     cmds:
-      - echo "Installing prerequisites..."
-      - ./hack/install-deps.sh
-      - echo "Setup completed"
+      - task -d modules/darwin/home/neovim nvim:extract-nvim-commands
     silent: true
-
+  nvim:extract-vsc-commands:
+    cmds:
+      - task -d modules/darwin/home/neovim nvim:extract-vsc-commands
+    silent: true
+  nvim:pull-docs:
+    cmds:
+      - task -d modules/darwin/home/neovim nvim:pull-docs
+    silent: true
+  nvim:run-local-headless-isolated:
+    cmds:
+      - task -d modules/darwin/home/neovim nvim:run-local-headless-isolated
+    silent: true
+  nvim:run-local-isolated:
+    cmds:
+      - task -d modules/darwin/home/neovim nvim:run-local-isolated
+    silent: true
+  nvim:verify-vsc-commands:
+    cmds:
+      - task -d modules/darwin/home/neovim nvim:verify-vsc-actions
+    silent: true
   perms:
-    desc: Fix permissions for /nix and home directories using parallel processing
-    vars:
-      IGNORE_PATTERNS: &ignore_patterns
-        - ".DS_Store"
-        - ".git"
-        - "*.lock"
-        - "node_modules"
-        - "OrbStack*"
     cmds:
       - |
         fix_permissions() {
@@ -46,51 +66,24 @@ tasks:
           echo "$message"
           fd . "$dir" -t f -t d "${ignore_args[@]}" --owner "!$USER" -x sudo chown -v "$USER:staff" {}
         }
-        
+
         # Define common ignore patterns
-        IGNORE_PATTERNS=({{range .IGNORE_PATTERNS}}"{{.}}" {{end}})
-        
+        IGNORE_PATTERNS=({{range .IGNORE_PATTERNS}}{{.}} {{end}})
+
         # Fix permissions for each directory
         fix_permissions "/nix" "Fixing /nix permissions..."
         fix_permissions "/opt/homebrew/opt" "Fixing /opt/homebrew/opt permissions..."
         fix_permissions "$HOME" "Fixing home directory permissions..." "node_modules" ".git"
+    desc: Fix permissions for /nix and home directories using parallel processing
     silent: true
-
-  uninstall-nix:
-    desc: Completely uninstall Nix from the system
-    cmds:
-      - echo "Uninstalling Nix..."
-      - ./hack/uninstall-nix.sh
-      - echo "Nix uninstalled"
-    silent: true
-
- # Installs
-  build:
-    desc: Build the configuration without applying
-    cmds:
-      - echo "Building system configuration..."
-      - darwin-rebuild build --flake .
-      - echo "Build completed successfully"
-    silent: true
-
-  update-flake:
-    desc: Update flake inputs
-    cmds:
-      - echo "Updating flake inputs..."
-      - nix flake update
-      - echo "Flake inputs updated successfully"
-    silent: true
-
-  clean:
-    desc: Run garbage collection
-    cmds:
-      - echo "Running garbage collection..."
-      - sudo nix-collect-garbage -d
-      - echo "Garbage collection completed"
-    silent: true
-
+    vars:
+      IGNORE_PATTERNS:
+        - .DS_Store
+        - .git
+        - '*.lock'
+        - node_modules
+        - OrbStack*
   refresh:
-    desc: Apply the system configuration
     cmds:
       - |
         echo "Updating flake inputs..." && \
@@ -103,10 +96,9 @@ tasks:
         echo "Applying system configuration..." && \
         if ! darwin-rebuild switch --flake . --show-trace; then echo "Failed to apply configuration"; exit 1; fi && \
         echo "System configuration applied successfully"
+    desc: Apply the system configuration
     silent: true
-
   refresh-work:
-    desc: Update and rebuild work sysinit configuration
     cmds:
       - |
         WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
@@ -132,34 +124,28 @@ tasks:
           exit 1
         fi && \
         echo "Work configuration refreshed successfully"
+    desc: Update and rebuild work sysinit configuration
     silent: true
-
-  nvim:run-local-isolated:
+  # Boostrap and teardown
+  setup:
     cmds:
-      - task -d modules/darwin/home/neovim nvim:run-local-isolated
+      - echo "Installing prerequisites..."
+      - ./hack/install-deps.sh
+      - echo "Setup completed"
+    desc: Install prerequisites for sysinit
     silent: true
-
-  nvim:run-local-headless-isolated:
+  uninstall-nix:
     cmds:
-      - task -d modules/darwin/home/neovim nvim:run-local-headless-isolated
+      - echo "Uninstalling Nix..."
+      - ./hack/uninstall-nix.sh
+      - echo "Nix uninstalled"
+    desc: Completely uninstall Nix from the system
     silent: true
-
-  nvim:pull-docs:
+  update-flake:
     cmds:
-      - task -d modules/darwin/home/neovim nvim:pull-docs
+      - echo "Updating flake inputs..."
+      - nix flake update
+      - echo "Flake inputs updated successfully"
+    desc: Update flake inputs
     silent: true
-
-  nvim:verify-vsc-commands:
-    cmds:
-      - task -d modules/darwin/home/neovim nvim:verify-vsc-actions
-    silent: true
-
-  nvim:extract-vsc-commands:
-    cmds:
-      - task -d modules/darwin/home/neovim nvim:extract-vsc-commands
-    silent: true
-
-  nvim:extract-nvim-commands:
-    cmds:
-      - task -d modules/darwin/home/neovim nvim:extract-nvim-commands
-    silent: true
+version: '3'
