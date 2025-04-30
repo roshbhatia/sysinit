@@ -1,3 +1,5 @@
+local sysinit_lib = require('lib')
+
 local function setup_keybindings()
     -- ctrl + hjkl for moving between panes
     vim.keymap.set("n", "<C-h>", "<C-w>h", {
@@ -125,16 +127,15 @@ local function setup_plugins()
                      tools.conform, tools["nvim-lint"], tools.cmp, tools["which-key"], ui.wilder, ui.lualine, ui.tab,
                      ui.neominimap, tools.autosession, ui.alpha}
 
-    local module_loader = require("plugins.module_loader")
-    local specs = module_loader.get_plugin_specs(modules)
-    require('plugins.settings').setup_package_manager(specs)
-    module_loader.setup_modules(modules)
+    local specs = sysinit_lib.get_plugin_specs(modules)
+    sysinit_lib.setup_package_manager(specs)
+    sysinit_lib.setup_modules(modules)
 end
 
 local function init()
     local config_path = vim.fn.stdpath('config')
     package.path = package.path .. ";" .. config_path .. "/?.lua" .. ";" .. config_path .. "/lua/?.lua"
-    require('common.settings').setup_settings()
+    sysinit_lib.setup_settings()
 
     -- Custom settings
     vim.opt.foldmethod = "expr"
