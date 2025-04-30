@@ -45,7 +45,7 @@ end
 
 local M = {}
 
-function init()
+function M.init()
     local config_path = vim.fn.stdpath('config')
     package.path = package.path .. ";" .. config_path .. "/?.lua" .. ";" .. config_path .. "/lua/?.lua"
     sysinit_lib.setup_settings()
