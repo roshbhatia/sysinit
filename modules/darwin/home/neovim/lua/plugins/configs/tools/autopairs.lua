@@ -28,6 +28,8 @@ M.plugins = {{
                 highlight_grey = "Comment"
             }
         })
+
+        require("cmp").event:on('confirm_done', require("nvim-autopairs.completion.cmp").on_confirm_done())
     end
 }}
 
