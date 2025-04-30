@@ -41,20 +41,18 @@ tasks:
     deps: [update-flake]
     cmds:
       - |
-        {
-          gum style {{.INFO_STYLE}} "Applying system configuration..."
-          
-          git add -A
-          git commit -m "chore: update configuration and regenerate lockfile" || true
-          git push || true
-          
-          if ! gum spin --spinner dot --title "Running darwin-rebuild..." -- darwin-rebuild switch --flake . --show-trace; then
-            gum style {{.ERROR_STYLE}} "Failed to apply configuration"
-            exit 1
-          fi
-          
-          gum style {{.SUCCESS_STYLE}} "System configuration applied successfully"
-        } | gum pager --soft-wrap
+        gum style {{.INFO_STYLE}} "Applying system configuration..."
+        
+        git add -A
+        git commit -m "chore: update configuration and regenerate lockfile" || true
+        git push || true
+        
+        if ! gum spin --spinner dot --title "Running darwin-rebuild..." -- darwin-rebuild switch --flake . --show-trace; then
+          gum style {{.ERROR_STYLE}} "Failed to apply configuration"
+          exit 1
+        fi
+        
+        gum style {{.SUCCESS_STYLE}} "System configuration applied successfully"
       - task perms
     desc: Apply the system configuration
     silent: true
@@ -62,22 +60,20 @@ tasks:
   refresh-work:
     cmds:
       - |
-        {
-          WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
-          
-          if [ -z "$WORK_SYSINIT" ]; then
-            gum style {{.ERROR_STYLE}} "Could not find work sysinit repository"
-            exit 1
-          fi
-          
-          gum style {{.INFO_STYLE}} "Working in: $WORK_SYSINIT"
-          cd "$WORK_SYSINIT"
-          
-          task update-flake
-          task refresh
-          
-          gum style {{.SUCCESS_STYLE}} "Work configuration refreshed successfully"
-        } | gum pager --soft-wrap
+        WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
+        
+        if [ -z "$WORK_SYSINIT" ]; then
+          gum style {{.ERROR_STYLE}} "Could not find work sysinit repository"
+          exit 1
+        fi
+        
+        gum style {{.INFO_STYLE}} "Working in: $WORK_SYSINIT"
+        cd "$WORK_SYSINIT"
+        
+        task update-flake
+        task refresh
+        
+        gum style {{.SUCCESS_STYLE}} "Work configuration refreshed successfully"
     desc: Update and rebuild work sysinit configuration
     silent: true
 
