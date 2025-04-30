@@ -381,46 +381,28 @@ M.keybindings_data = {
         bindings = {{
             key = "d",
             desc = "Close",
-            neovim_cmd = "<cmd>BufferClose<CR>",
+            neovim_cmd = "<cmd>bd<CR>", -- Changed from BufferClose
             vscode_cmd = "workbench.action.closeActiveEditor"
         }, {
             key = "n",
             desc = "Next",
-            neovim_cmd = "<cmd>BufferNext<CR>",
+            neovim_cmd = "<cmd>bnext<CR>", -- Changed from BufferNext
             vscode_cmd = "workbench.action.nextEditor"
         }, {
             key = "o",
             desc = "Close Others",
-            neovim_cmd = "<cmd>BufferCloseAllButCurrent<CR>",
+            neovim_cmd = "<cmd>%bd|e#|bd#<CR>", -- Changed from BufferCloseAllButCurrent
             vscode_cmd = "workbench.action.closeOtherEditors"
         }, {
             key = "p",
             desc = "Previous",
-            neovim_cmd = "<cmd>BufferPrevious<CR>",
+            neovim_cmd = "<cmd>bprevious<CR>", -- Changed from BufferPrevious
             vscode_cmd = "workbench.action.previousEditor"
         }, {
             key = "t",
             desc = "Show in Tree",
-            neovim_cmd = "Neotree toggle show buffers right<CR>",
-            vscode_cmd = "git.revealInExplorer"
-        }, {
-            key = "i",
-            desc = "New File",
-            neovim_cmd = function()
-                vim.ui.input({
-                    prompt = "Enter file path: "
-                }, function(input)
-                    if input then
-                        -- Create parent directories if they don't exist
-                        local dir = vim.fn.fnamemodify(input, ":h")
-                        if dir ~= "." and vim.fn.isdirectory(dir) == 0 then
-                            vim.fn.mkdir(dir, "p")
-                        end
-                        vim.cmd("edit " .. input)
-                    end
-                end)
-            end,
-            vscode_cmd = "workbench.action.files.newUntitledFile"
+            neovim_cmd = "<cmd>Telescope buffers<CR>", -- Changed from Neotree
+            vscode_cmd = "workbench.files.action.focusFilesExplorer"
         }}
     },
     c = {
@@ -478,7 +460,7 @@ M.keybindings_data = {
             key = "f",
             desc = "Find Files",
             neovim_cmd = "<cmd>Telescope find_files<CR>",
-            vscode_cmd = "search-preview.quickOpenWithPreview"
+            vscode_cmd = "workbench.action.quickOpen"
         }, {
             key = "g",
             desc = "Live Grep",
@@ -493,7 +475,7 @@ M.keybindings_data = {
             key = "s",
             desc = "Document Symbols",
             neovim_cmd = "<cmd>Telescope lsp_document_symbols<CR>",
-            vscode_cmd = "workbench.action.showAllSymbols"
+            vscode_cmd = "workbench.action.gotoSymbol"
         }}
     },
     g = {
@@ -614,27 +596,22 @@ M.keybindings_data = {
         }, {
             key = "m",
             desc = "Minimap",
-            neovim_cmd = "<cmd>Neominimap toggle<CR>",
+            neovim_cmd = "<cmd>lua require('mini.map').toggle()<CR>", -- Changed from Neominimap
             vscode_cmd = "editor.action.toggleMinimap"
         }, {
-            key = "o",
-            desc = "Explorer (Oil)",
-            neovim_cmd = "<cmd>Oil<CR>",
-            vscode_cmd = "workbench.view.explorer"
-        }, {
             key = "e",
-            desc = "Explorer (Tree)",
-            neovim_cmd = "<cmd>Neotree toggle<CR>",
+            desc = "Explorer",
+            neovim_cmd = "<cmd>Telescope file_browser<CR>", -- Changed from Neotree
             vscode_cmd = "workbench.view.explorer"
         }, {
             key = "t",
             desc = "Terminal",
-            neovim_cmd = "<cmd>ToggleTerm<CR>",
+            neovim_cmd = "<cmd>terminal<CR>", -- Changed from ToggleTerm
             vscode_cmd = "workbench.action.terminal.toggleTerminal"
         }, {
             key = "p",
             desc = "Problems",
-            neovim_cmd = "<cmd>TroubleToggle<CR>",
+            neovim_cmd = "<cmd>Telescope diagnostics<CR>", -- Changed from Trouble
             vscode_cmd = "workbench.actions.view.problems"
         }}
     },
