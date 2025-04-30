@@ -4,6 +4,9 @@ M.plugins = {{
     "zaldih/themery.nvim",
     lazy = false,
     priority = 999,
+    dependencies = {"EdenEast/nightfox.nvim", "catppuccin/nvim", "folke/tokyonight.nvim", "lunarvim/darkplus.nvim",
+                    "dracula/vim", "sainnhe/edge", "sainnhe/gruvbox-material", "navarasu/onedark.nvim",
+                    "marko-cerovac/material.nvim"},
     config = function()
         require("themery").setup({
             themes = {{
@@ -112,7 +115,7 @@ M.plugins = {{
                 local current = themery.getCurrentTheme()
 
                 if not current then
-                    themery.setThemeByName("Carbonfox", true)
+                    themery.setThemeByName("Nordfox", true)
                 end
             end,
             once = true
