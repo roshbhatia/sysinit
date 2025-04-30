@@ -230,6 +230,88 @@ M.group_icons = {
 }
 
 M.keybindings_data = {
+    -- Add tab switching bindings at the beginning
+    ["1"] = {
+        name = "Tab 1",
+        bindings = {{
+            key = "",
+            desc = "Switch to Tab 1",
+            neovim_cmd = "<cmd>1tabnext<CR>",
+            vscode_cmd = "workbench.action.openEditorAtIndex1"
+        }}
+    },
+    ["2"] = {
+        name = "Tab 2",
+        bindings = {{
+            key = "",
+            desc = "Switch to Tab 2",
+            neovim_cmd = "<cmd>2tabnext<CR>",
+            vscode_cmd = "workbench.action.openEditorAtIndex2"
+        }}
+    },
+    ["3"] = {
+        name = "Tab 3",
+        bindings = {{
+            key = "",
+            desc = "Switch to Tab 3",
+            neovim_cmd = "<cmd>3tabnext<CR>",
+            vscode_cmd = "workbench.action.openEditorAtIndex3"
+        }}
+    },
+    ["4"] = {
+        name = "Tab 4",
+        bindings = {{
+            key = "",
+            desc = "Switch to Tab 4",
+            neovim_cmd = "<cmd>4tabnext<CR>",
+            vscode_cmd = "workbench.action.openEditorAtIndex4"
+        }}
+    },
+    ["5"] = {
+        name = "Tab 5",
+        bindings = {{
+            key = "",
+            desc = "Switch to Tab 5",
+            neovim_cmd = "<cmd>5tabnext<CR>",
+            vscode_cmd = "workbench.action.openEditorAtIndex5"
+        }}
+    },
+    ["6"] = {
+        name = "Tab 6",
+        bindings = {{
+            key = "",
+            desc = "Switch to Tab 6",
+            neovim_cmd = "<cmd>6tabnext<CR>",
+            vscode_cmd = "workbench.action.openEditorAtIndex6"
+        }}
+    },
+    ["7"] = {
+        name = "Tab 7",
+        bindings = {{
+            key = "",
+            desc = "Switch to Tab 7",
+            neovim_cmd = "<cmd>7tabnext<CR>",
+            vscode_cmd = "workbench.action.openEditorAtIndex7"
+        }}
+    },
+    ["8"] = {
+        name = "Tab 8",
+        bindings = {{
+            key = "",
+            desc = "Switch to Tab 8",
+            neovim_cmd = "<cmd>8tabnext<CR>",
+            vscode_cmd = "workbench.action.openEditorAtIndex8"
+        }}
+    },
+    ["9"] = {
+        name = "Tab 9",
+        bindings = {{
+            key = "",
+            desc = "Switch to Tab 9",
+            neovim_cmd = "<cmd>9tabnext<CR>",
+            vscode_cmd = "workbench.action.openEditorAtIndex9"
+        }}
+    },
     a = {
         name = M.group_icons.ai .. " AI",
         bindings = {{
