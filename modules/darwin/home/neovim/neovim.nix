@@ -5,10 +5,6 @@
     source = config.lib.file.mkOutOfStoreSymlink ./init.lua;
   };
 
-  xdg.configFile."nvim/init.vscode.lua" = {
-    source = config.lib.file.mkOutOfStoreSymlink ./init.vscode.lua;
-  };
-
   xdg.configFile."nvim/lua" = {
     source = config.lib.file.mkOutOfStoreSymlink ./lua;
     recursive = true;
