@@ -5,9 +5,7 @@ M.plugins = {{
     branch = "v3.x",
     lazy = false,
     dependencies = {"neovim/nvim-lspconfig", "williamboman/mason.nvim", "williamboman/mason-lspconfig.nvim",
-                    "folke/trouble.nvim", -- Added trouble as a dependency
-    "nvim-tree/nvim-web-devicons" -- Required for trouble icons
-    },
+                    "folke/trouble.nvim", "nvim-tree/nvim-web-devicons", "pta2002/intellitab.nvim"},
     config = function()
         local lsp = require('lsp-zero')
         lsp.preset({
@@ -335,7 +333,7 @@ M.plugins = {{
                     elseif has_words_before() then
                         cmp.complete()
                     else
-                        fallback()
+                        require("intellitab").indent()
                     end
                 end, {'i', 's'}),
                 ['<S-Tab>'] = cmp.mapping(function(fallback)
