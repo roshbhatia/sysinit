@@ -40,6 +40,9 @@ local function setup_plugins()
     }
 
     local modules = {ui["vsc-statusbar"], tools["vsc-commands"], tools["which-key"]}
+
+    local specs = sysinit_lib.get_plugin_specs(modules)
+    sysinit_lib.setup_package_manager(specs)
     sysinit_lib.setup_modules(modules)
 end
 
