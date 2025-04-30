@@ -8,6 +8,12 @@ M.plugins = {{
     config = function()
         local auto_session = require("auto-session")
 
+        -- Check if lualine is available
+        local function is_lualine_available()
+            local ok, lualine = pcall(require, "lualine")
+            return ok and lualine
+        end
+
         -- Make sure the session directories exist
         local session_dir = vim.fn.stdpath("data") .. "/sessions/"
         vim.fn.mkdir(session_dir, "p")
@@ -36,9 +42,8 @@ M.plugins = {{
             -- Refresh UI components after restore, with proper delay to ensure components are initialized
             post_restore_cmds = {function()
                 vim.defer_fn(function()
-                    local status_ok, lualine = pcall(require, "lualine")
-                    if status_ok then
-                        lualine.refresh()
+                    if is_lualine_available() then
+                        require("lualine").refresh()
                     end
                 end, 100) -- Small delay to ensure components are initialized
             end},
