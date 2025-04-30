@@ -109,6 +109,9 @@ in
       XDG_DATA_HOME = "${homeDirectory}/.local/share";
       XDG_STATE_HOME = "${homeDirectory}/.local/state";
 
+      CH = "${homeDirectory}/.config";
+      DH = "${homeDirectory}/.local/share";
+
       ZSH_EVALCACHE_DIR = "${homeDirectory}/.local/share/zsh/evalcache";
 
       ZSH_AUTOSUGGEST_USE_ASYNC = 1;
