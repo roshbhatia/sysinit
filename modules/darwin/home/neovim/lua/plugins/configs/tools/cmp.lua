@@ -268,6 +268,22 @@ M.plugins = {{
             pattern = 'BlinkCmpMenuClose',
             callback = show_copilot
         })
+
+        vim.api.nvim_create_autocmd('User', {
+            pattern = 'BlinkCmpAcceptDone',
+            callback = function()
+                local autopairs = require('nvim-autopairs')
+                local handlers = require('nvim-autopairs.completion.handlers')
+
+                local item = vim.g.blink_cmp_last_accepted_item
+                if item then
+                    handlers['*']({
+                        text = item.insertText or item.label or '',
+                        item = item
+                    })
+                end
+            end
+        })
     end
 }}
 
