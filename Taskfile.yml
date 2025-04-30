@@ -1,49 +1,119 @@
----
+version: '3'
+
+vars:
+  SUCCESS_STYLE: --foreground 212 --border normal --border-foreground 212 --align left --width 50 --margin "0 1" --padding "0 1"
+  ERROR_STYLE: --foreground 196 --border normal --border-foreground 196 --align left --width 50 --margin "0 1" --padding "0 1"
+  INFO_STYLE: --foreground 87 --border normal --border-foreground 87 --align left --width 50 --margin "0 1" --padding "0 1"
+
 tasks:
- # Installs
-  build:
-    cmds:
-      - echo "Building system configuration..."
-      - darwin-rebuild build --flake .
-      - echo "Build completed successfully"
-    desc: Build the configuration without applying
-    silent: true
-  clean:
-    cmds:
-      - echo "Running garbage collection..."
-      - sudo nix-collect-garbage -d
-      - echo "Garbage collection completed"
-    desc: Run garbage collection
-    silent: true
   default:
     cmds:
       - task -l
     desc: Show help information
     silent: true
-  nvim:extract-nvim-commands:
+
+  # System Configuration Tasks
+  build:
     cmds:
-      - task -d modules/darwin/home/neovim nvim:extract-nvim-commands
+      - gum style {{.INFO_STYLE}} "Building system configuration..."
+      - |
+        if ! gum spin --spinner dot --title "Running darwin-rebuild..." -- darwin-rebuild build --flake .; then
+          gum style {{.ERROR_STYLE}} "Build failed"
+          exit 1
+        fi
+      - gum style {{.SUCCESS_STYLE}} "Build completed successfully"
+    desc: Build the configuration without applying
     silent: true
-  nvim:extract-vsc-commands:
+
+  clean:
     cmds:
-      - task -d modules/darwin/home/neovim nvim:extract-vsc-commands
+      - gum style {{.INFO_STYLE}} "Running garbage collection..."
+      - |
+        if ! gum spin --spinner dot --title "Collecting garbage..." -- sudo nix-collect-garbage -d; then
+          gum style {{.ERROR_STYLE}} "Garbage collection failed"
+          exit 1
+        fi
+      - gum style {{.SUCCESS_STYLE}} "Garbage collection completed"
+    desc: Run garbage collection
     silent: true
-  nvim:pull-docs:
+
+  refresh:
     cmds:
-      - task -d modules/darwin/home/neovim nvim:pull-docs
+      - |
+        gum style {{.INFO_STYLE}} "Updating flake inputs..." && \
+        if ! gum spin --spinner dot --title "Updating flakes..." -- nix flake update; then
+          gum style {{.ERROR_STYLE}} "Failed to update flake"
+          exit 1
+        fi && \
+
+        gum style {{.INFO_STYLE}} "Committing changes..." && \
+        git add -A && \
+        git commit -m "chore: update configuration and regenerate lockfile" || true && \
+        git push || true && \
+
+        gum style {{.INFO_STYLE}} "Applying system configuration..." && \
+        if ! gum spin --spinner dot --title "Running darwin-rebuild..." -- darwin-rebuild switch --flake . --show-trace; then
+          gum style {{.ERROR_STYLE}} "Failed to apply configuration"
+          exit 1
+        fi && \
+        gum style {{.SUCCESS_STYLE}} "System configuration applied successfully"
+    desc: Apply the system configuration
     silent: true
-  nvim:run-local-headless-isolated:
+
+  refresh-work:
     cmds:
-      - task -d modules/darwin/home/neovim nvim:run-local-headless-isolated
+      - |
+        WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
+        if [ -z "$WORK_SYSINIT" ]; then
+          echo "Could not find work sysinit repository"
+          exit 1
+        fi
+        echo "Refreshing work sysinit at $WORK_SYSINIT"
+        cd "$WORK_SYSINIT" && \
+        if ! nix flake update; then
+          echo "Failed to update flake"
+          exit 1
+        fi && \
+        git add flake.lock && \
+        git commit -m "chore(lockfile): regenerate lockfile" || true && \
+        git push && \
+        if ! nix build; then
+          echo "Failed to build configuration"
+          exit 1
+        fi && \
+        if ! task refresh; then
+          echo "Failed to apply configuration"
+          exit 1
+        fi && \
+        echo "Work configuration refreshed successfully"
+    desc: Update and rebuild work sysinit configuration
     silent: true
-  nvim:run-local-isolated:
+
+  update-flake:
     cmds:
-      - task -d modules/darwin/home/neovim nvim:run-local-isolated
+      - echo "Updating flake inputs..."
+      - nix flake update
+      - echo "Flake inputs updated successfully"
+    desc: Update flake inputs
     silent: true
-  nvim:verify-vsc-commands:
+
+  # System Setup Tasks
+  setup:
     cmds:
-      - task -d modules/darwin/home/neovim nvim:verify-vsc-actions
+      - echo "Installing prerequisites..."
+      - ./hack/install-deps.sh
+      - echo "Setup completed"
+    desc: Install prerequisites for sysinit
     silent: true
+
+  uninstall-nix:
+    cmds:
+      - echo "Uninstalling Nix..."
+      - ./hack/uninstall-nix.sh
+      - echo "Nix uninstalled"
+    desc: Completely uninstall Nix from the system
+    silent: true
+
   perms:
     cmds:
       - |
@@ -83,69 +153,34 @@ tasks:
         - '*.lock'
         - node_modules
         - OrbStack*
-  refresh:
+
+  # Neovim Tasks
+  nvim:extract-nvim-commands:
     cmds:
-      - |
-        echo "Updating flake inputs..." && \
-        if ! nix flake update; then echo "Failed to update flake"; exit 1; fi && \
-        # Commit all local changes, including lockfile
-        git add -A && \
-        git commit -m "chore: update configuration and regenerate lockfile" || true && \
-        # Push changes (ignore push errors, e.g., SSL issues)
-        git push || true && \
-        echo "Applying system configuration..." && \
-        if ! darwin-rebuild switch --flake . --show-trace; then echo "Failed to apply configuration"; exit 1; fi && \
-        echo "System configuration applied successfully"
-    desc: Apply the system configuration
+      - task -d modules/darwin/home/neovim nvim:extract-nvim-commands
     silent: true
-  refresh-work:
+
+  nvim:extract-vsc-commands:
     cmds:
-      - |
-        WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
-        if [ -z "$WORK_SYSINIT" ]; then
-          echo "Could not find work sysinit repository"
-          exit 1
-        fi
-        echo "Refreshing work sysinit at $WORK_SYSINIT"
-        cd "$WORK_SYSINIT" && \
-        if ! nix flake update; then
-          echo "Failed to update flake"
-          exit 1
-        fi && \
-        git add flake.lock && \
-        git commit -m "chore(lockfile): regenerate lockfile" || true && \
-        git push && \
-        if ! nix build; then
-          echo "Failed to build configuration"
-          exit 1
-        fi && \
-        if ! task refresh; then
-          echo "Failed to apply configuration"
-          exit 1
-        fi && \
-        echo "Work configuration refreshed successfully"
-    desc: Update and rebuild work sysinit configuration
+      - task -d modules/darwin/home/neovim nvim:extract-vsc-commands
     silent: true
-  # Boostrap and teardown
-  setup:
+
+  nvim:pull-docs:
     cmds:
-      - echo "Installing prerequisites..."
-      - ./hack/install-deps.sh
-      - echo "Setup completed"
-    desc: Install prerequisites for sysinit
+      - task -d modules/darwin/home/neovim nvim:pull-docs
     silent: true
-  uninstall-nix:
+
+  nvim:run-local-headless-isolated:
     cmds:
-      - echo "Uninstalling Nix..."
-      - ./hack/uninstall-nix.sh
-      - echo "Nix uninstalled"
-    desc: Completely uninstall Nix from the system
+      - task -d modules/darwin/home/neovim nvim:run-local-headless-isolated
     silent: true
-  update-flake:
+
+  nvim:run-local-isolated:
     cmds:
-      - echo "Updating flake inputs..."
-      - nix flake update
-      - echo "Flake inputs updated successfully"
-    desc: Update flake inputs
+      - task -d modules/darwin/home/neovim nvim:run-local-isolated
     silent: true
-version: '3'
+
+  nvim:verify-vsc-commands:
+    cmds:
+      - task -d modules/darwin/home/neovim nvim:verify-vsc-actions
+    silent: true
