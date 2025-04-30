@@ -106,9 +106,6 @@ M.plugins = {{
             livePreview = true,
             globalBefore = [[
                 vim.opt.termguicolors = true
-            ]],
-            globalAfter = [[
-                vim.cmd("hi Normal ctermbg=NONE")
             ]]
         })
 
