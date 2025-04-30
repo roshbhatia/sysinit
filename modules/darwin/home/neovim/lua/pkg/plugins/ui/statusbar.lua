@@ -1,13 +1,82 @@
-local vscode = require('vscode')
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/nvim-lualine/lualine.nvim/refs/heads/master/doc/lualine.txt"
 local M = {}
 
+-- Early return if not in VSCode - don't define anything else
+if not vim.g.vscode then
+    -- Only export the plugin when NOT in VSCode (when in regular Neovim)
+    M.plugins = {{
+        'nvim-lualine/lualine.nvim',
+        dependencies = {'nvim-tree/nvim-web-devicons', 'lewis6991/gitsigns.nvim'},
+        config = function()
+            require('lualine').setup {
+                options = {
+                    icons_enabled = true,
+                    theme = 'auto',
+                    component_separators = {
+                        left = '',
+                        right = ''
+                    },
+                    section_separators = {
+                        left = '',
+                        right = ''
+                    },
+                    disabled_filetypes = {
+                        statusline = {},
+                        winbar = {}
+                    },
+                    ignore_focus = {},
+                    always_divide_middle = true,
+                    always_show_tabline = true,
+                    globalstatus = false,
+                    refresh = {
+                        statusline = 100,
+                        tabline = 100,
+                        winbar = 100
+                    }
+                },
+                sections = {
+                    lualine_a = {'mode'},
+                    lualine_b = {'branch', 'diff', 'diagnostics'},
+                    lualine_c = {'filename'},
+                    lualine_x = {'encoding', 'fileformat', 'filetype'},
+                    lualine_y = {'progress'},
+                    lualine_z = {'location'}
+                },
+                inactive_sections = {
+                    lualine_a = {},
+                    lualine_b = {},
+                    lualine_c = {'filename'},
+                    lualine_x = {'location'},
+                    lualine_y = {},
+                    lualine_z = {}
+                },
+                tabline = {},
+                winbar = {},
+                inactive_winbar = {},
+                extensions = {}
+            }
+        end
+    }}
+
+    -- Empty setup function for Neovim mode since lualine handles itself in its config
+    function M.setup()
+        -- Nothing needed here for regular Neovim
+    end
+
+    return M
+end
+
+-- If we reach here, we're in VSCode mode
+local vscode = require('vscode')
+
+-- VSCode mode-specific functionality
 local MODE_DISPLAY = {
     n = {
         text = '󱄅 NORMAL',
         color = '#7aa2f7'
     },
     i = {
-        text = ' INSERT',
+        text = ' INSERT',
         color = '#9ece6a'
     },
     v = {
@@ -39,11 +108,11 @@ local MODE_DISPLAY = {
         color = '#ff9e64'
     },
     c = {
-        text = ' COMMAND',
+        text = ' COMMAND',
         color = '#7dcfff'
     },
     t = {
-        text = ' TERMINAL',
+        text = ' TERMINAL',
         color = '#73daca'
     }
 }
@@ -171,5 +240,8 @@ function M.setup()
 
     M.update_mode_display()
 end
+
+-- No plugin definition for VSCode mode - it's handled through the VSCode API
+-- M.plugins is intentionally nil in VSCode mode
 
 return M
