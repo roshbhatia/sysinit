@@ -1034,8 +1034,7 @@ M.plugins = {{
             })
 
             wilder.set_option('pipeline', {wilder.branch(wilder.cmdline_pipeline({
-                fuzzy = 1,
-                set_pcre2_pattern = 1
+                fuzzy = 1
             }), wilder.vim_search_pipeline())})
 
             local popupmenu_renderer = wilder.popupmenu_renderer(
