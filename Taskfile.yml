@@ -38,7 +38,7 @@ tasks:
     silent: true
 
   nix:refresh:
-    deps: [update:flake]
+    deps: [nix:update:flake]
     cmds:
       - |
         gum style {{.INFO_STYLE}} "Applying system configuration..."
