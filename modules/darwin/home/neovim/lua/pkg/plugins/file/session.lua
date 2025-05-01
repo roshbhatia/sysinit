@@ -25,9 +25,9 @@ M.plugins = {{
         auto_session.setup({
             log_level = "info", -- Change to debug if issues persist
             auto_session_root_dir = session_dir,
-            auto_session_enable_last_session = true,
+            auto_session_enable_last_session = false,
             auto_save = true,
-            auto_restore = true,
+            auto_restore = false,
             auto_session_suppress_dirs = {}, -- Don't suppress any dirs
 
             -- Make sure to close floating windows before saving

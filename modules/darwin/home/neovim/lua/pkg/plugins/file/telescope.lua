@@ -6,12 +6,12 @@ M.plugins = {{
     commit = "a4ed82509cecc56df1c7138920a1aeaf246c0ac5",
     lazy = true,
     priority = 1000,
-    dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons"},
+    dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "barrett-ruth/http-codes.nvim"},
     config = function()
         require("telescope").setup({
             defaults = {
-                prompt_prefix = " ",
-                selection_caret = " ",
+                prompt_prefix = ">",
+                selection_caret = "=>",
                 path_display = {"smart"},
                 sorting_strategy = "ascending",
                 layout_config = {
@@ -26,7 +26,11 @@ M.plugins = {{
                     width = 0.87,
                     height = 0.80,
                     preview_cutoff = 120
-                }
+                },
+                file_previewer = require("telescope.previewers").vim_buffer_cat.new,
+                grep_previewer = require("telescope.previewers").vim_buffer_vimgrep.new,
+                qflist_previewer = require("telescope.previewers").vim_buffer_qflist.new,
+                buffer_previewer_maker = require("telescope.previewers").buffer_previewer_maker
             },
             pickers = {
                 find_files = {
@@ -40,10 +44,21 @@ M.plugins = {{
                     override_generic_sorter = true,
                     override_file_sorter = true,
                     case_mode = "smart_case"
+                },
+                ["http-codes"] = {
+                    open_url = nil,
+                    telescope_opts = {}
                 }
             }
         })
+
+        require('telescope').load_extension('fzf')
+        require('telescope').load_extension('http-codes')
     end
+}, {
+    "barrett-ruth/http-codes.nvim",
+    lazy = true,
+    config = true
 }}
 
 return M
