@@ -21,7 +21,7 @@ in
     data = ''
       echo "Installing Cargo packages..."
       set +u
-      CARGO="/etc/profiles/per-user/$USER/bin/cargo"
+      CARGO="/opt/homebrew/bin/cargo"
       if [ -x "$CARGO" ]; then
         PACKAGES='${escapedPackages}'
         if [ -n "$PACKAGES" ]; then
