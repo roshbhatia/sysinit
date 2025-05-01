@@ -1029,70 +1029,35 @@ M.plugins = {{
     config = function()
         if not vim.g.vscode then
             local wilder = require("wilder")
-            wilder.setup({
-                modes = {":", "/", "?"}
-            })
-
-            wilder.set_option('pipeline', {wilder.branch(wilder.cmdline_pipeline({
-                fuzzy = 1
-            }), wilder.vim_search_pipeline())})
-
-            local popupmenu_renderer = wilder.popupmenu_renderer(
-                wilder.popupmenu_palette_theme({
-                    border = "rounded",
-                    max_height = "50%",
-                    min_height = 10,
-                    prompt_position = "top",
-                    reverse = 0
+            wilder.setup {
+                modes = {":", "/", "?"},
+                next_key = "<Tab>",
+                previous_key = "<S-Tab>",
+                accept_key = "<Down>",
+                reject_key = "<Up>"
+            }
+            wilder.set_option("pipeline", {wilder.branch(wilder.python_file_finder_pipeline {
+                file_command = {"rg", "--files"},
+                dir_command = {"fd", "-td"}
+            }, wilder.cmdline_pipeline(), wilder.python_search_pipeline())})
+            wilder.set_option("renderer", wilder.popupmenu_renderer(
+                wilder.popupmenu_border_theme {
+                    highlighter = wilder.lua_fzy_highlighter(),
+                    highlights = {
+                        border = "FloatBorder",
+                        accent = wilder.make_hl("WilderAccent", "Pmenu", {{
+                            a = true
+                        }, {
+                            a = true
+                        }, {
+                            foreground = Get_theme_hl("Special").foreground,
+                            bold = true
+                        }})
+                    },
+                    left = {" ", wilder.popupmenu_devicons()},
+                    right = {" ", wilder.popupmenu_scrollbar()},
+                    border = vim.g.border_type
                 }))
-
-            local wildmenu_renderer = wilder.wildmenu_renderer({
-                highlighter = {wilder.pcre2_highlighter(), wilder.basic_highlighter()},
-                separator = " · ",
-                left = {" ", wilder.wildmenu_spinner(), " "},
-                right = {" ", wilder.wildmenu_index()}
-            })
-
-            wilder.set_option("renderer", wilder.renderer_mux({
-                [":"] = popupmenu_renderer,
-                ["/"] = wildmenu_renderer,
-                substitute = wildmenu_renderer
-            }))
-
-            vim.api.nvim_set_keymap('c', '<Tab>',
-                [[wilder#in_context() ? wilder#can_accept_completion() ? wilder#accept_completion() : wilder#next() : "\<Tab>"]],
-                {
-                    noremap = true,
-                    expr = true
-                })
-
-            vim.api.nvim_set_keymap('c', '<S-Tab>',
-                [[wilder#in_context() ? wilder#can_accept_completion() ? wilder#accept_completion() : wilder#previous() : "\<S-Tab>"]],
-                {
-                    noremap = true,
-                    expr = true
-                })
-
-            vim.api.nvim_set_keymap('c', '<Down>',
-                [[wilder#in_context() ? wilder#can_accept_completion() ? wilder#accept_completion() : wilder#next() : "\<Down>"]],
-                {
-                    noremap = true,
-                    expr = true
-                })
-
-            vim.api.nvim_set_keymap('c', '<Up>',
-                [[wilder#in_context() ? wilder#can_reject_completion() ? wilder#reject_completion() : "\<Up>" : "\<Up>"]],
-                {
-                    noremap = true,
-                    expr = true
-                })
-
-            vim.api.nvim_set_keymap('c', '<CR>',
-                [[wilder#in_context() ? wilder#can_accept_completion() ? wilder#accept_completion() : "\<CR>" : "\<CR>"]],
-                {
-                    noremap = true,
-                    expr = true
-                })
         end
     end
 }, {
