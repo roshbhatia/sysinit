@@ -263,6 +263,8 @@ function M.init()
 
     setup_plugins()
     setup_keybindings()
+
+    vim.cmd("Alpha")
 end
 
 return M
