@@ -64,7 +64,6 @@ function M.setup_package_manager(specs)
         rocks = {
             enabled = true,
             root = vim.fn.stdpath("data") .. "/lazy-rocks",
-            hererocks = true
         },
 
         spec = core_specs,
