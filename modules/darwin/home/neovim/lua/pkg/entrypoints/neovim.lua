@@ -186,7 +186,6 @@ local function setup_plugins()
         dashboard = require("pkg.plugins.ui.dashboard"),
         devicons = require("pkg.plugins.ui.devicons"),
         minimap = require("pkg.plugins.ui.minimap"),
-        notifications = require("pkg.plugins.ui.notifications"),
         scrollbar = require("pkg.plugins.ui.scrollbar"),
         statusbar = require("pkg.plugins.ui.statusbar"),
         tab = require("pkg.plugins.ui.tab"),
@@ -231,11 +230,14 @@ local function setup_plugins()
         dap = require("pkg.plugins.debugger.dap")
     }
 
-    local modules = {ui.notifications, ui.theme, ui.devicons, ui.statusbar, ui.tab, ui.minimap, ui.scrollbar,
-                     ui.smart_splits, editor.comment, editor.ibl, file.editor, file.tree, file.telescope, file.session,
-                     file.diffview, git.client, git.blame, tools.parser, tools.lsp, tools.formatter, tools.linters,
-                     tools.completion_ai, tools.outline, debugger.dap, keymaps.commands, keymaps.hop, keymaps.pallete,
-                     ui.dashboard}
+    local modules = { -- UI elements
+    ui.theme, ui.devicons, ui.statusbar, ui.tab, ui.minimap, ui.scrollbar, ui.smart_splits, ui.dashboard, -- Keymaps
+    keymaps.pallete, keymaps.commands, keymaps.hop, -- Editor enhancements
+    editor.comment, editor.ibl, -- File management
+    file.editor, file.tree, file.telescope, file.session, file.diffview, -- Git integration
+    git.client, git.blame, -- Tools
+    tools.parser, tools.lsp, tools.formatter, tools.linters, tools.completion_ai, tools.outline, -- Debugging
+    debugger.dap}
 
     local specs = sysinit_lib.get_plugin_specs(modules)
     sysinit_lib.setup_package_manager(specs)
