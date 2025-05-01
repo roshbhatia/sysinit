@@ -1022,119 +1022,28 @@ M.plugins = {{
         end
     end
 }, {
-    "gelguy/wilder.nvim",
-    event = "CmdlineEnter",
-    dependencies = {"roxma/nvim-yarp", "roxma/vim-hug-neovim-rpc", "nvim-tree/nvim-web-devicons"},
+    "folke/noice.nvim",
+    event = "VeryLazy",
+    dependencies = {"MunifTanjim/nui.nvim", "rcarriga/nvim-notify"},
     config = function()
-        local wilder = require("wilder")
-
-        -- Enable wilder
-        wilder.setup({
-            modes = {":", "/", "?"},
-            next_key = "<Tab>",
-            previous_key = "<S-Tab>",
-            accept_key = "<Down>",
-            reject_key = "<Up>"
+        require("noice").setup({
+            lsp = {
+                -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
+                override = {
+                    ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+                    ["vim.lsp.util.stylize_markdown"] = true,
+                    ["cmp.entry.get_documentation"] = true -- requires hrsh7th/nvim-cmp
+                }
+            },
+            -- you can enable a preset for easier configuration
+            presets = {
+                bottom_search = false, -- use a classic bottom cmdline for search
+                command_palette = false, -- position the cmdline and popupmenu together
+                long_message_to_split = false, -- long messages will be sent to a split
+                inc_rename = false, -- enables an input dialog for inc-rename.nvim
+                lsp_doc_border = true -- add a border to hover docs and signature help
+            }
         })
-
-        -- Create stylish highlights
-        local accent_fg = "#7AA2F7" -- Adjust to match your colorscheme
-        local border_color = "#3B4252" -- Adjust to match your colorscheme
-
-        wilder.set_option('renderer', wilder.popupmenu_renderer(
-            wilder.popupmenu_border_theme({
-                -- Highlighters
-                highlighter = {wilder.lua_fzy_highlighter(), -- Provides nice highlighting
-                wilder.basic_highlighter() -- Fallback for basic highlighting
-                },
-
-                -- Highlights configuration
-                highlights = {
-                    accent = wilder.make_hl('WilderAccent', 'Pmenu', {{}, {}, {
-                        foreground = accent_fg,
-                        bold = true
-                    }}),
-                    selected_accent = wilder.make_hl('WilderSelectedAccent', 'PmenuSel', {{}, {}, {
-                        foreground = accent_fg,
-                        bold = true
-                    }}),
-                    border = 'FloatBorder',
-                    default = 'Pmenu',
-                    selected = 'PmenuSel'
-                },
-
-                -- Border style - can be 'single', 'double', 'rounded', etc.
-                border = 'rounded',
-
-                -- Left and right elements
-                left = {' ', -- Add space
-                wilder.popupmenu_devicons(), -- File icons
-                wilder.popupmenu_buffer_flags({
-                    flags = ' a + ',
-                    icons = {
-                        ['+'] = '',
-                        ['a'] = '',
-                        [' '] = ''
-                    }
-                })},
-                right = {' ', -- Add space
-                wilder.popupmenu_scrollbar() -- Scrollbar
-                },
-
-                -- Empty message styling
-                empty_message = wilder.popupmenu_empty_message_with_spinner({
-                    message = ' No matches found ',
-                    highlighter = {wilder.lua_fzy_highlighter(), wilder.basic_highlighter()}
-                }),
-
-                -- Max dimensions
-                min_width = '30%',
-                max_width = '70%',
-                min_height = '0%',
-                max_height = '50%',
-
-                -- Make the UI pop
-                pumblend = 15, -- Transparency
-
-                -- Reverse the order (most relevant on top)
-                reverse = true
-            })))
-
-        -- Set up the pipeline
-        wilder.set_option('pipeline', {wilder.branch( -- File finder for file name completion
-        wilder.python_file_finder_pipeline({
-            file_command = {"find", ".", "-type", "f", "-name", "*.*"},
-            dir_command = {"find", ".", "-type", "d"},
-            filters = {'fuzzy_filter', 'difflib_sorter'}
-        }), -- Fallback for cmdline completion
-        wilder.cmdline_pipeline({
-            fuzzy = 1,
-            fuzzy_filter = wilder.lua_fzy_filter(),
-            debounce = 10 -- Smoother results
-        }), -- Search pipeline
-        wilder.python_search_pipeline({
-            pattern = 'fuzzy',
-            sorter = wilder.python_difflib_sorter(),
-            engine = 're'
-        }))})
-
-        -- Create an auto command to select the first item by default
-        vim.api.nvim_create_autocmd("CmdlineChanged", {
-            callback = function()
-                -- This will select the first item when the popup menu appears
-                if wilder.in_context() and not wilder.get_state().selected then
-                    vim.schedule(function()
-                        vim.fn.feedkeys(vim.api.nvim_replace_termcodes("<Tab>", true, false, true), "n")
-                    end)
-                end
-            end
-        })
-
-        -- Fix for ensuring Tab accepts the completion properly
-        wilder.set_option('pre_hook', function()
-            -- Make sure tab behaves as expected 
-            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
-        end)
     end
 }, {
     "smjonas/live-command.nvim",
