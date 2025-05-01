@@ -31,7 +31,6 @@ let
     "argocd"
     "ansible"
     "bcrypt"
-    "borders"
     "caddy"
     "colima"
     "direnv"
