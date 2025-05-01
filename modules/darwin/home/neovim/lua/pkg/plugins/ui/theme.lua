@@ -106,6 +106,19 @@ M.plugins = {{
             livePreview = true,
             globalBefore = [[
                 vim.opt.termguicolors = true
+                
+                -- Enable transparency for editor windows
+                vim.api.nvim_command("highlight Normal guibg=NONE ctermbg=NONE")
+                vim.api.nvim_command("highlight NormalNC guibg=NONE ctermbg=NONE")
+                vim.api.nvim_command("highlight LineNr guibg=NONE ctermbg=NONE")
+                vim.api.nvim_command("highlight SignColumn guibg=NONE ctermbg=NONE")
+                vim.api.nvim_command("highlight EndOfBuffer guibg=NONE ctermbg=NONE")
+                
+                -- Keep UI elements non-transparent (for Noice and other UI components)
+                vim.api.nvim_command("highlight NormalFloat guibg=#1f2335")
+                vim.api.nvim_command("highlight FloatBorder guibg=#1f2335")
+                vim.api.nvim_command("highlight Pmenu guibg=#1f2335")
+                vim.api.nvim_command("highlight PmenuSel guibg=#3b4261")
             ]]
         })
 
@@ -115,7 +128,7 @@ M.plugins = {{
                 local current = themery.getCurrentTheme()
 
                 if not current then
-                    themery.setThemeByName("Nordfox", true)
+                    themery.setThemeByName("Tokyonight Storm", true)
                 end
             end,
             once = true
