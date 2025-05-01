@@ -25,6 +25,7 @@ let
     keycastr
     kind
     kustomize
+    nixfmt-rfc-style
     nodejs
     nodePackages.typescript
     openssh
