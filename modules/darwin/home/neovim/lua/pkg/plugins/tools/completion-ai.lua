@@ -298,19 +298,13 @@ M.plugins = {{
                         return
                     end
 
-                    -- 2. Handle visible copilot suggestion 
-                    if vim.b.copilot_suggestion ~= nil and require("copilot.suggestion").is_visible() then
-                        require("copilot.suggestion").accept()
-                        return
-                    end
-
-                    -- 3. Handle nvim-cmp completion menu
+                    -- 2. Handle nvim-cmp completion menu
                     if cmp.visible() then
                         cmp.select_next_item()
                         return
                     end
 
-                    -- 4. Handle snippets expansion and navigation
+                    -- 3. Handle snippets expansion and navigation
                     if luasnip.expandable() then
                         luasnip.expand()
                         return
@@ -321,9 +315,15 @@ M.plugins = {{
                         return
                     end
 
-                    -- 5. Try to invoke completion if there's text before cursor
+                    -- 4. Try to invoke completion if there's text before cursor
                     if has_words_before() then
                         cmp.complete()
+                        return
+                    end
+
+                    -- 5. Handle Copilot suggestions
+                    if vim.b.copilot_suggestion ~= nil and require("copilot.suggestion").is_visible() then
+                        require("copilot.suggestion").accept()
                         return
                     end
 
