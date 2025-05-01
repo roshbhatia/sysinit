@@ -9,35 +9,27 @@ M.plugins = {{
         local wilder = require("wilder")
         wilder.setup({
             modes = {":", "/", "?"}
-            -- Don't set the keybindings here, we'll set them manually below
         })
 
-        -- Customize the highlighting for better visibility
         wilder.set_option('pipeline', {wilder.branch(wilder.cmdline_pipeline({
             fuzzy = 1,
             set_pcre2_pattern = 1
         }), wilder.vim_search_pipeline())})
 
         local popupmenu_renderer = wilder.popupmenu_renderer(
-            wilder.popupmenu_border_theme({
-                border = "rounded",
-                empty_message = wilder.popupmenu_empty_message_with_spinner(),
-                highlighter = {wilder.pcre2_highlighter(), wilder.basic_highlighter()},
-                left = {" ", wilder.popupmenu_devicons(), wilder.popupmenu_buffer_flags({
-                    flags = " a + ",
-                    icons = {
-                        ["+"] = "",
-                        a = "",
-                        h = ""
-                    }
-                })},
-                right = {" ", wilder.popupmenu_scrollbar()},
+            wilder.popupmenu_palette_theme({ -- Changed from border_theme to palette_theme
+                border = "none", -- No rounded borders
                 max_height = "50%",
-                min_height = 0,
+                min_height = 10, -- Increased min_height for more VSCode-like appearance
                 prompt_position = "top",
-                reverse = false
+                reverse = false,
+                highlighter = {wilder.pcre2_highlighter(), wilder.basic_highlighter()},
+                left = {" ", wilder.popupmenu_devicons()},
+                right = {" ", wilder.popupmenu_scrollbar()},
+                pumblend = 10 -- Add transparency
             }))
 
+        -- Keep the wildmenu renderer as is
         local wildmenu_renderer = wilder.wildmenu_renderer({
             highlighter = {wilder.pcre2_highlighter(), wilder.basic_highlighter()},
             separator = " · ",
