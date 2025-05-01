@@ -230,6 +230,7 @@ M.group_icons = {
     org = "",
     problems = "󰗯",
     split = "󰃻",
+    tab = "",
     terminal = "",
     utils = "󰟻",
     window = ""
@@ -667,32 +668,40 @@ M.keybindings_data = {
     },
 
     t = {
-        name = M.group_icons.terminal .. " Terminal",
+        name = M.group_icons.tab .. " Tab",
         bindings = {{
             key = "t",
-            desc = "Toggle Terminal",
-            neovim_cmd = "<cmd>ToggleTerm<CR>",
-            vscode_cmd = "workbench.action.terminal.toggleTerminal"
+            desc = "Jump to Tab",
+            neovim_cmd = "<cmd>Tabby jump_to_tab<CR>",
+            vscode_cmd = "workbench.action.quickOpen"
         }, {
-            key = "f",
-            desc = "Float Terminal",
-            neovim_cmd = "<cmd>ToggleTerm direction=float<CR>",
-            vscode_cmd = "workbench.action.terminal.toggleTerminal"
+            key = "a",
+            desc = "New Tab",
+            neovim_cmd = "<cmd>$tabnew<CR>"
         }, {
-            key = "h",
-            desc = "Horizontal Terminal",
-            neovim_cmd = "<cmd>ToggleTerm direction=horizontal<CR>",
-            vscode_cmd = "workbench.action.terminal.toggleTerminal"
+            key = "c",
+            desc = "Close Tab",
+            neovim_cmd = "<cmd>tabclose<CR>"
         }, {
-            key = "v",
-            desc = "Vertical Terminal",
-            neovim_cmd = "<cmd>ToggleTerm direction=vertical<CR>",
-            vscode_cmd = "workbench.action.terminal.toggleTerminal"
+            key = "o",
+            desc = "Close Other Tabs",
+            neovim_cmd = "<cmd>tabonly<CR>"
         }, {
             key = "n",
-            desc = "New Terminal",
-            neovim_cmd = "<cmd>ToggleTerm<CR>",
-            vscode_cmd = "workbench.action.terminal.new"
+            desc = "Next Tab",
+            neovim_cmd = "<cmd>tabn<CR>"
+        }, {
+            key = "p",
+            desc = "Previous Tab",
+            neovim_cmd = "<cmd>tabp<CR>"
+        }, {
+            key = "mp",
+            desc = "Move Tab Left",
+            neovim_cmd = "<cmd>-tabmove<CR>"
+        }, {
+            key = "mn",
+            desc = "Move Tab Right",
+            neovim_cmd = "<cmd>+tabmove<CR>"
         }}
     },
 
@@ -723,11 +732,6 @@ M.keybindings_data = {
             desc = "Keymaps",
             neovim_cmd = "<cmd>WhichKey<CR>",
             vscode_cmd = "workbench.action.openGlobalKeybindings"
-        }, {
-            key = "t",
-            desc = "Toggle Theme",
-            neovim_cmd = "<cmd>Themery<CR>",
-            vscode_cmd = "workbench.action.selectTheme"
         }}
     },
 
@@ -841,7 +845,6 @@ M.plugins = {{
                 group = menu_group
             })
         else
-            -- Regular Neovim which-key setup
             require("which-key").setup({
                 plugins = {
                     marks = true,
@@ -861,7 +864,8 @@ M.plugins = {{
                     }
                 },
                 win = {
-                    border = "rounded",
+                    border = "none", -- Changed from "rounded" to "none"
+                    position = "top", -- Added position parameter
                     padding = {2, 2, 2, 2}
                 },
                 layout = {
