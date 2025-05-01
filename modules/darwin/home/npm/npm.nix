@@ -1,8 +1,10 @@
 { pkgs, lib, config, userConfig ? {}, homeDirectory, ... }:
+
 let
   additionalPackages = if userConfig ? npm && userConfig.npm ? additionalPackages
     then userConfig.npm.additionalPackages
     else [];
+
   basePackages = [
     "awk-language-server"
     "jsonlint"
@@ -11,14 +13,20 @@ let
     "typescript-language-server"
     "typescript"
   ];
+
   allPackages = basePackages ++ additionalPackages;
+
+  escapedPackages = lib.concatStringsSep " " (map lib.escapeShellArg allPackages);
+
   npmGlobalDir = "${homeDirectory}/.npm-global";
 in
 {
   home.file.".npmrc".text = ''
     prefix=${npmGlobalDir}
   '';
+
   home.sessionVariables.NPM_CONFIG_PREFIX = npmGlobalDir;
+
   home.activation.npmPackages = {
     after = [ "fixVariables" ];
     before = [];
@@ -27,11 +35,12 @@ in
       set +u
       NPM="/etc/profiles/per-user/$USER/bin/npm"
       if [ -x "$NPM" ]; then
-        PACKAGES="${lib.escapeShellArgs allPackages}"
+        PACKAGES='${escapedPackages}'
         if [ -n "$PACKAGES" ]; then
           for package in $PACKAGES; do
-            echo "Installing $package if needed..."
-            "$NPM" install -g "$package" || true
+            "$NPM" install -g "$package" --silent >/dev/null 2>&1 \
+              && echo "✅ Successfully installed $package via npm" \
+              || echo "❌ Failed to install $package via npm"
           done
         fi
       else

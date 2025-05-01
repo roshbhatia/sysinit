@@ -11,6 +11,8 @@ let
   ];
 
   allPackages = basePackages ++ additionalPackages;
+
+  escapedPackages = lib.concatStringsSep " " (map lib.escapeShellArg allPackages);
 in
 {
   home.activation.pipxPackages = {
@@ -22,12 +24,13 @@ in
 
       PIPX="/opt/homebrew/bin/pipx"
       if [ -x "$PIPX" ]; then
-        "$PIPX" ensurepath || true
-        PACKAGES="${lib.escapeShellArgs allPackages}"
+        "$PIPX" ensurepath >/dev/null 2>&1 || true
+        PACKAGES='${escapedPackages}'
         if [ -n "$PACKAGES" ]; then
           for package in $PACKAGES; do
-            echo "Installing $package if needed..."
-            "$PIPX" install "$package" --force --quiet || true
+            "$PIPX" install "$package" --force --quiet >/dev/null 2>&1 \
+              && echo "✅ Successfully installed $package via pipx" \
+              || echo "❌ Failed to install $package via pipx"
           done
         fi
       else
