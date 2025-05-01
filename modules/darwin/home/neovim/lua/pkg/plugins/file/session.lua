@@ -23,14 +23,29 @@ M.plugins = {{
         vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 
         auto_session.setup({
-            log_level = "info", -- Change to debug if issues persist
-            auto_session_root_dir = session_dir,
-            auto_session_enable_last_session = false,
+            enabled = true,
+            root_dir = vim.fn.stdpath("data") .. "/sessions/",
             auto_save = true,
-            auto_restore = false,
-            auto_session_suppress_dirs = {}, -- Don't suppress any dirs
+            auto_restore = true,
+            auto_create = true,
+            suppressed_dirs = nil,
+            allowed_dirs = nil,
+            auto_restore_last_session = false,
+            git_use_branch_name = false,
+            git_auto_restore_on_branch_change = false,
+            lazy_support = true,
+            bypass_save_filetypes = {"alpha", "NvimTree", "neo-tree", "dashboard", "lazy"},
+            close_unsupported_windows = true,
+            args_allow_single_directory = true,
+            args_allow_files_auto_save = false,
+            continue_restore_on_error = true,
+            show_auto_restore_notif = true,
+            cwd_change_handling = false,
+            lsp_stop_on_restore = false,
+            restore_error_handler = nil,
+            purge_after_minutes = 14400,
+            log_level = "info",
 
-            -- Make sure to close floating windows before saving
             pre_save_cmds = {function()
                 for _, win in ipairs(vim.api.nvim_list_wins()) do
                     local config = vim.api.nvim_win_get_config(win)
@@ -40,22 +55,30 @@ M.plugins = {{
                 end
             end},
 
-            -- Refresh UI components after restore, with proper delay to ensure components are initialized
             post_restore_cmds = {function()
                 vim.defer_fn(function()
                     if is_lualine_available() then
                         require("lualine").refresh()
                     end
-                end, 100) -- Small delay to ensure components are initialized
+                end, 100)
             end},
 
-            -- Additional settings that help with common issues
-            bypass_save_filetypes = {"alpha", "NvimTree", "neo-tree", "dashboard", "lazy"},
-            close_unsupported_windows = true,
-            args_allow_single_directory = true,
-            continue_restore_on_error = true,
-            -- Enable lazy.nvim support
-            lazy_support = true
+            session_lens = {
+                load_on_setup = true,
+                theme_conf = {},
+                previewer = false,
+
+                mappings = {
+                    delete_session = {"i", "<C-D>"},
+                    alternate_session = {"i", "<C-S>"},
+                    copy_session = {"i", "<C-Y>"}
+                },
+
+                session_control = {
+                    control_dir = vim.fn.stdpath("data") .. "/auto_session/",
+                    control_filename = "session_control.json"
+                }
+            }
         })
 
         -- Add an autocommand to verify the session was saved on exit
