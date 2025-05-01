@@ -8,10 +8,16 @@ local cmd_map = {
     qa = "workbench.action.quit",
     enew = "workbench.action.files.newUntitledFile",
     bdelete = "workbench.action.closeActiveEditor",
+    bd = "workbench.action.closeActiveEditor",
     bn = "workbench.action.nextEditor",
     bp = "workbench.action.previousEditor",
     split = "workbench.action.splitEditorDown",
-    vsplit = "workbench.action.splitEditorRight"
+    vsplit = "workbench.action.splitEditorRight",
+    term = "workbench.action.terminal.toggleTerminal",
+    find = "actions.find",
+    grep = "workbench.action.findInFiles",
+    cmd = "workbench.action.showCommands",
+    Ex = "workbench.view.explorer"
 }
 
 local function map_cmd(mode, lhs, cmd, opts)
@@ -37,6 +43,9 @@ function M.setup()
     map_cmd("n", "<leader>w", "w")
     map_cmd("n", "<leader>q", "q")
     map_cmd("n", "<leader>wa", "wa")
+    map_cmd("n", "<leader>bd", "bd")
+    map_cmd("n", "<leader>bn", "bn")
+    map_cmd("n", "<leader>bp", "bp")
 
     vim.keymap.set("n", "gd", function()
         vscode.action("editor.action.revealDefinition")
@@ -84,6 +93,70 @@ function M.setup()
         noremap = true,
         silent = true,
         desc = "Toggle Comment"
+    })
+
+    vim.keymap.set({"n", "i", "v"}, "<D-s>", function()
+        vscode.action("workbench.action.files.save")
+    end, {
+        noremap = true,
+        silent = true,
+        desc = "Save file"
+    })
+
+    vim.keymap.set({"n", "i", "v"}, "<D-w>", function()
+        vscode.action("workbench.action.closeActiveEditor")
+    end, {
+        noremap = true,
+        silent = true,
+        desc = "Close editor"
+    })
+
+    vim.keymap.set({"n", "i", "v"}, "<D-n>", function()
+        vscode.action("workbench.action.files.newUntitledFile")
+    end, {
+        noremap = true,
+        silent = true,
+        desc = "New file"
+    })
+
+    vim.keymap.set("v", "<D-c>", function()
+        vscode.action("editor.action.clipboardCopyAction")
+    end, {
+        noremap = true,
+        silent = true,
+        desc = "Copy to clipboard"
+    })
+
+    vim.keymap.set("v", "<D-x>", function()
+        vscode.action("editor.action.clipboardCutAction")
+    end, {
+        noremap = true,
+        silent = true,
+        desc = "Cut to clipboard"
+    })
+
+    vim.keymap.set({"n", "i", "v"}, "<D-p>", function()
+        vscode.action("editor.action.clipboardPasteAction")
+    end, {
+        noremap = true,
+        silent = true,
+        desc = "Paste from clipboard"
+    })
+
+    vim.keymap.set("n", "<D-/>", function()
+        vscode.action("editor.action.commentLine")
+    end, {
+        noremap = true,
+        silent = true,
+        desc = "Toggle comment"
+    })
+
+    vim.keymap.set("v", "<D-/>", function()
+        vscode.action("editor.action.commentLine")
+    end, {
+        noremap = true,
+        silent = true,
+        desc = "Toggle comment"
     })
 
     vim.keymap.set("n", "<Esc><Esc>", function()
