@@ -6,12 +6,12 @@ M.plugins = {{
     commit = "a4ed82509cecc56df1c7138920a1aeaf246c0ac5",
     lazy = true,
     priority = 1000,
-    dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "barrett-ruth/http-codes.nvim"},
+    dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons"},
     config = function()
         require("telescope").setup({
             defaults = {
-                prompt_prefix = ">",
-                selection_caret = "=>",
+                prompt_prefix = "󱄅 ",
+                selection_caret = "󱞩 ",
                 path_display = {"smart"},
                 sorting_strategy = "ascending",
                 layout_config = {
@@ -37,21 +37,9 @@ M.plugins = {{
                     hidden = true,
                     find_command = {"fd", "--type", "f", "--strip-cwd-prefix"}
                 }
-            },
-            extensions = {
-                ["http-codes"] = {
-                    open_url = nil,
-                    telescope_opts = {}
-                }
             }
         })
-
-        require('telescope').load_extension('http-codes')
     end
-}, {
-    "barrett-ruth/http-codes.nvim",
-    lazy = true,
-    config = true
 }}
 
 return M
