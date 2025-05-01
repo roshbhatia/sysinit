@@ -16,7 +16,6 @@ config.window_padding = {
     top = 20,
     bottom = 20
 }
-
 config.enable_scroll_bar = true
 config.scrollback_lines = 20000
 config.window_background_opacity = 0.85
@@ -31,7 +30,6 @@ config.visual_bell = {
     fade_out_function = 'EaseOut',
     fade_out_duration_ms = 50
 }
-
 config.colors = {
     visual_bell = '#242529'
 }
@@ -60,8 +58,59 @@ config.use_fancy_tab_bar = false
 -- Disable defaults
 config.disable_default_key_bindings = true
 
--- Key bindings
-config.keys = { -- Split creation
+-- Check if a pane is running Neovim
+local function is_vim(pane)
+    return pane:get_user_vars().IS_NVIM == 'true'
+end
+
+-- Direction mappings
+local direction_keys = {
+    h = 'Left',
+    j = 'Down',
+    k = 'Up',
+    l = 'Right'
+}
+
+-- Split navigation function
+local function split_nav(resize_or_move, key)
+    return {
+        key = key,
+        mods = resize_or_move == 'resize' and 'META' or 'CTRL',
+        action = wezterm.action_callback(function(win, pane)
+            if is_vim(pane) then
+                -- Pass the keys through to Neovim
+                win:perform_action({
+                    SendKey = {
+                        key = key,
+                        mods = resize_or_move == 'resize' and 'META' or 'CTRL'
+                    }
+                }, pane)
+            else
+                if resize_or_move == 'resize' then
+                    win:perform_action({
+                        AdjustPaneSize = {direction_keys[key], 3}
+                    }, pane)
+                else
+                    win:perform_action({
+                        ActivatePaneDirection = direction_keys[key]
+                    }, pane)
+                end
+            end
+        end)
+    }
+end
+
+-- Smart splits keybindings
+local smart_splits_keys = { -- Move between split panes
+split_nav('move', 'h'), split_nav('move', 'j'), split_nav('move', 'k'), split_nav('move', 'l'), -- Resize panes
+split_nav('resize', 'h'), split_nav('resize', 'j'), split_nav('resize', 'k'), split_nav('resize', 'l')}
+
+------------------------------------------
+-- Keybindings
+------------------------------------------
+
+-- Base keybindings
+local base_keys = { -- Split creation
 {
     key = 'v',
     mods = 'CMD|SHIFT',
@@ -207,11 +256,18 @@ config.keys = { -- Split creation
     action = act.ActivatePaneDirection 'Down'
 }}
 
--- Copy mode and search mode key tables
+-- Combine base keys with smart splits keys
+config.keys = base_keys
+for _, key_binding in ipairs(smart_splits_keys) do
+    table.insert(config.keys, key_binding)
+end
+
+-- Key tables for special modes
 config.key_tables = {
-    -- We dont use this!
+    -- Empty copy mode (disabled)
     copy_mode = {},
 
+    -- Search mode keys
     search_mode = {{
         key = 'Enter',
         mods = 'NONE',
@@ -255,7 +311,11 @@ config.key_tables = {
     }}
 }
 
--- Fix for the update-status event handler
+------------------------------------------
+-- Event Handlers
+------------------------------------------
+
+-- Status bar update handler
 wezterm.on('update-status', function(window)
     -- Get current working directory from active pane
     local success, cwd, _ = pcall(function()
@@ -268,23 +328,14 @@ wezterm.on('update-status', function(window)
         cwd_display = cwd:gsub('file://[^/]+', ''):gsub(wezterm.home_dir, '~')
     end
 
-    -- Get hostname safely
+    -- Get hostname
     local hostname = wezterm.hostname()
 
-    -- Get current kubernetes context using kubectl
-    local success_kube, kube_context_stdout, _ = wezterm.run_child_process({'zsh', '-c',
-                                                                            "kubectl config current-context"})
-    local kube_context = "none"
-    if success_kube then
-        kube_context = kube_context_stdout:gsub("[\r\n]+$", "") -- Trim trailing newlines
-    end
+    -- Get kubernetes context from environment variable
+    local kube_context = os.getenv("SYSINIT_KUBECTL_CONTEXT") or "none"
 
-    -- Get current GitHub user using gh-whoami
-    local success_gh, gh_user_stdout, _ = wezterm.run_child_process({"zsh", "-c", "gh-whoami"})
-    local gh_user = "unknown"
-    if success_gh then
-        gh_user = gh_user_stdout:gsub("[\r\n]+$", "") -- Trim trailing newlines
-    end
+    -- Get GitHub user from environment variable
+    local gh_user = os.getenv("SYSINIT_GH_USER") or "unknown"
 
     -- Create status elements
     local elements = {{
@@ -321,19 +372,19 @@ wezterm.on('update-status', function(window)
         Foreground = {
             Color = "#fab387"
         },
-        Text = " " .. gh_user
+        Text = " " .. gh_user
     }}
 
     -- Set the right status with the formatted elements
     window:set_right_status(wezterm.format(elements))
 end)
 
--- Fix for the gui-startup event handler
+-- GUI startup handler
 wezterm.on("gui-startup", function(cmd)
     -- Get active screen information
     local screen = wezterm.gui.screens().active
     if not screen then
-        return -- Exit if no active screen is found
+        return
     end
 
     -- Create a new window with the specified command or default

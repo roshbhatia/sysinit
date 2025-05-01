@@ -21,6 +21,43 @@ let
   extras = stripHeaders ./core/extras.sh;
   prompt = stripHeaders ./core/prompt.sh;
 
+  # New WezTerm status bar scripts
+  weztermStatusScripts = ''    
+    update_kubectl_context() {
+      local context
+      if context=$(kubectl config current-context 2>/dev/null); then
+        echo "export SYSINIT_KUBECTL_CONTEXT=\"$context\"" > "$XDG_CONFIG_HOME/wezterm/kubectl_context"
+      else
+        echo "export SYSINIT_KUBECTL_CONTEXT=\"none\"" > "$XDG_CONFIG_HOME/wezterm/kubectl_context"
+      fi
+    }
+    
+    update_gh_user() {
+      local user
+      if user=$(gh-whoami 2>/dev/null); then
+        echo "export SYSINIT_GH_USER=\"$user\"" > "$XDG_CONFIG_HOME/wezterm/gh_user"
+      else
+        echo "export SYSINIT_GH_USER=\"unknown\"" > "$XDG_CONFIG_HOME/wezterm/gh_user"
+      fi
+    }
+    
+    load_wezterm_env_vars() {
+      if [[ -f "$XDG_CONFIG_HOME/wezterm/kubectl_context" ]]; then
+        source "$XDG_CONFIG_HOME/wezterm/kubectl_context"
+      fi
+      
+      if [[ -f "$XDG_CONFIG_HOME/wezterm/gh_user" ]]; then
+        source "$XDG_CONFIG_HOME/wezterm/gh_user"
+      fi
+      
+      # Export variables to make them available to wezterm
+      [[ -n "$SYSINIT_KUBECTL_CONTEXT" ]] && export SYSINIT_KUBECTL_CONTEXT
+      [[ -n "$SYSINIT_GH_USER" ]] && export SYSINIT_GH_USER
+    }
+    
+    load_wezterm_env_vars
+  '';
+
   combinedCoreScripts = ''
     ${logLib}
 
@@ -37,6 +74,8 @@ let
     ${completions}
 
     ${extras}
+
+    ${weztermStatusScripts}
 
     ${prompt}
   '';
@@ -308,10 +347,69 @@ in
     };
   };
 
+  systemd.user.services = {
+    update-kubectl-context = {
+      Unit = {
+        Description = "Update kubectl context environment variable for WezTerm";
+      };
+      Service = {
+        Type = "oneshot";
+        ExecStart = "${pkgs.writeShellScript "update-kubectl-context" ''
+          mkdir -p "$HOME/.config/wezterm"
+          CONTEXT=$(${pkgs.kubectl}/bin/kubectl config current-context 2>/dev/null || echo "none")
+          echo "export SYSINIT_KUBECTL_CONTEXT=\"$CONTEXT\"" > "$HOME/.config/wezterm/kubectl_context"
+        ''}";
+      };
+    };
+    
+    update-gh-user = {
+      Unit = {
+        Description = "Update GitHub user environment variable for WezTerm";
+      };
+      Service = {
+        Type = "oneshot";
+        ExecStart = "${pkgs.writeShellScript "update-gh-user" ''
+          mkdir -p "$HOME/.config/wezterm"
+          GH_USER=$(${pkgs.gh}/bin/gh api user --jq '.login' 2>/dev/null || echo "unknown")
+          echo "export SYSINIT_GH_USER=\"$GH_USER\"" > "$HOME/.config/wezterm/gh_user"
+        ''}";
+      };
+    };
+  };
+  
+  systemd.user.timers = {
+    update-kubectl-context = {
+      Unit = {
+        Description = "Timer for updating kubectl context for WezTerm";
+      };
+      Timer = {
+        OnBootSec = "10s";
+        OnUnitActiveSec = "1min";
+      };
+      Install = {
+        WantedBy = [ "timers.target" ];
+      };
+    };
+    
+    update-gh-user = {
+      Unit = {
+        Description = "Timer for updating GitHub user for WezTerm";
+      };
+      Timer = {
+        OnBootSec = "20s";
+        OnUnitActiveSec = "10min";
+      };
+      Install = {
+        WantedBy = [ "timers.target" ];
+      };
+    };
+  };
+
   home.activation.prepareZshDirs = lib.hm.dag.entryBefore ["checkLinkTargets"] ''
     echo "Preparing zsh extras directory..."
 
     mkdir -p -m 755 ${homeDirectory}/.config/zsh
+    mkdir -p -m 755 ${homeDirectory}/.config/wezterm
 
     rm -rf ${homeDirectory}/.config/zsh/extras
     rm -rf ${homeDirectory}/.config/zsh/bin
