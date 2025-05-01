@@ -6,7 +6,6 @@ let
     else [];
 
   basePackages = [
-    "awk-language-server"
     "jsonlint"
     "prettier"
     "@stoplight/spectral-cli"
