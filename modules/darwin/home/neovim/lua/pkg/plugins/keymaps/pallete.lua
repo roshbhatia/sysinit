@@ -457,7 +457,7 @@ M.keybindings_data = {
         }, {
             key = "o",
             desc = "Open Oil",
-            neovim_cmd = "<cmd>Oil<CR>",
+            neovim_cmd = "<cmd>Oil --float<CR>",
             vscode_cmd = "workbench.explorer.fileView.focus"
         }}
     },

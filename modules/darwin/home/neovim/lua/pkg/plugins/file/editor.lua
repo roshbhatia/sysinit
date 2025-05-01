@@ -10,7 +10,21 @@ M.plugins = {{
     config = function()
         require("oil").setup({
             default_file_explorer = true,
-            columns = {"icon", "size", "mtime"},
+            columns = {"icon"},
+            delete_to_trash = true,
+            skip_confirm_for_simple_edits = true,
+            watch_for_changes = true,
+            git = {
+                add = function(path)
+                    return true
+                end,
+                mv = function(src_path, dest_path)
+                    return true
+                end,
+                rm = function(path)
+                    return true
+                end
+            },
             view_options = {
                 show_hidden = true,
                 is_hidden_file = function(name)
@@ -22,10 +36,6 @@ M.plugins = {{
                 max_width = 80,
                 max_height = 30
             }
-        })
-
-        vim.keymap.set("n", "-", "<CMD>Oil<CR>", {
-            desc = "Open parent directory"
         })
     end
 }}
