@@ -1110,10 +1110,4 @@ M.plugins = {{
     end
 }}
 
-function M.setup()
-    local module_loader = require("module_loader")
-    module_loader.setup_modules({M})
-    return M
-end
-
 return M
