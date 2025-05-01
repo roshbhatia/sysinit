@@ -9,6 +9,7 @@
     withNodeJs = true;
     withPython3 = true;
     withRuby = false;
+  };
 
   # Using mkOutOfStoreSymlink for Neovim config
   xdg.configFile."nvim/init.lua" = {
@@ -31,4 +32,5 @@
       fi
     '';
   };
+
 }
