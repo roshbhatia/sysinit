@@ -18,15 +18,11 @@ M.plugins = {{
 
         local popupmenu_renderer = wilder.popupmenu_renderer(
             wilder.popupmenu_palette_theme({ -- Changed from border_theme to palette_theme
-                border = "none", -- No rounded borders
+                border = "rounded",
                 max_height = "50%",
                 min_height = 10, -- Increased min_height for more VSCode-like appearance
                 prompt_position = "top",
-                reverse = false,
-                highlighter = {wilder.pcre2_highlighter(), wilder.basic_highlighter()},
-                left = {" ", wilder.popupmenu_devicons()},
-                right = {" ", wilder.popupmenu_scrollbar()},
-                pumblend = 10 -- Add transparency
+                reverse = 0
             }))
 
         -- Keep the wildmenu renderer as is
