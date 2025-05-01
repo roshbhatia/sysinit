@@ -4,8 +4,11 @@ local M = {}
 M.plugins = {{
     "mfussenegger/nvim-lint",
     event = "VeryLazy",
-    dependencies = {"mason.nvim"},
+    dependencies = {"mason.nvim", "echasnovski/mini.trailspace", "sQVe/sort.nvim"},
     config = function()
+        require('mini.trailspace').setup()
+        require("sort").setup()
+
         local lint = require("lint")
 
         local linters_by_ft = {
