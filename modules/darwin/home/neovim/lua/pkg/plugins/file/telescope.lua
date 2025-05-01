@@ -6,8 +6,7 @@ M.plugins = {{
     commit = "a4ed82509cecc56df1c7138920a1aeaf246c0ac5",
     lazy = true,
     priority = 1000,
-    dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "barrett-ruth/http-codes.nvim",
-                    "nvim-telescope/telescope-fzf-native.nvim"},
+    dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "barrett-ruth/http-codes.nvim"},
     config = function()
         require("telescope").setup({
             defaults = {
@@ -40,12 +39,6 @@ M.plugins = {{
                 }
             },
             extensions = {
-                fzf = {
-                    fuzzy = true,
-                    override_generic_sorter = true,
-                    override_file_sorter = true,
-                    case_mode = "smart_case"
-                },
                 ["http-codes"] = {
                     open_url = nil,
                     telescope_opts = {}
@@ -53,7 +46,6 @@ M.plugins = {{
             }
         })
 
-        require('telescope').load_extension('fzf')
         require('telescope').load_extension('http-codes')
     end
 }, {
