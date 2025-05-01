@@ -1025,40 +1025,118 @@ M.plugins = {{
 }, {
     "gelguy/wilder.nvim",
     event = "CmdlineEnter",
-    dependencies = {"roxma/nvim-yarp", "roxma/vim-hug-neovim-rpc"},
+    dependencies = {"roxma/nvim-yarp", "roxma/vim-hug-neovim-rpc", "nvim-tree/nvim-web-devicons" -- For file icons
+    },
     config = function()
-        if not vim.g.vscode then
-            local wilder = require("wilder")
-            wilder.setup {
-                modes = {":", "/", "?"},
-                next_key = "<Tab>",
-                previous_key = "<S-Tab>",
-                accept_key = "<Down>",
-                reject_key = "<Up>"
-            }
-            wilder.set_option("pipeline", {wilder.branch(wilder.python_file_finder_pipeline {
-                file_command = {"rg", "--files"},
-                dir_command = {"fd", "-td"}
-            }, wilder.cmdline_pipeline(), wilder.python_search_pipeline())})
-            wilder.set_option("renderer", wilder.popupmenu_renderer(
-                wilder.popupmenu_border_theme {
-                    highlighter = wilder.lua_fzy_highlighter(),
-                    highlights = {
-                        border = "FloatBorder",
-                        accent = wilder.make_hl("WilderAccent", "Pmenu", {{
-                            a = true
-                        }, {
-                            a = true
-                        }, {
-                            foreground = Get_theme_hl("Special").foreground,
-                            bold = true
-                        }})
-                    },
-                    left = {" ", wilder.popupmenu_devicons()},
-                    right = {" ", wilder.popupmenu_scrollbar()},
-                    border = vim.g.border_type
-                }))
-        end
+        local wilder = require("wilder")
+
+        -- Enable wilder
+        wilder.setup({
+            modes = {":", "/", "?"},
+            next_key = "<Tab>",
+            previous_key = "<S-Tab>",
+            accept_key = "<Down>",
+            reject_key = "<Up>"
+        })
+
+        -- Create stylish highlights
+        local accent_fg = "#7AA2F7" -- Adjust to match your colorscheme
+        local border_color = "#3B4252" -- Adjust to match your colorscheme
+
+        wilder.set_option('renderer', wilder.popupmenu_renderer(
+            wilder.popupmenu_border_theme({
+                -- Highlighters
+                highlighter = {wilder.lua_fzy_highlighter(), -- Provides nice highlighting
+                wilder.basic_highlighter() -- Fallback for basic highlighting
+                },
+
+                -- Highlights configuration
+                highlights = {
+                    accent = wilder.make_hl('WilderAccent', 'Pmenu', {{}, {}, {
+                        foreground = accent_fg,
+                        bold = true
+                    }}),
+                    selected_accent = wilder.make_hl('WilderSelectedAccent', 'PmenuSel', {{}, {}, {
+                        foreground = accent_fg,
+                        bold = true
+                    }}),
+                    border = 'FloatBorder',
+                    default = 'Pmenu',
+                    selected = 'PmenuSel'
+                },
+
+                -- Border style - can be 'single', 'double', 'rounded', etc.
+                border = 'rounded',
+
+                -- Left and right elements
+                left = {' ', -- Add space
+                wilder.popupmenu_devicons(), -- File icons
+                wilder.popupmenu_buffer_flags({
+                    flags = ' a + ',
+                    icons = {
+                        ['+'] = '',
+                        ['a'] = '',
+                        [' '] = ''
+                    }
+                })},
+                right = {' ', -- Add space
+                wilder.popupmenu_scrollbar() -- Scrollbar
+                },
+
+                -- Empty message styling
+                empty_message = wilder.popupmenu_empty_message_with_spinner({
+                    message = ' No matches found ',
+                    highlighter = {wilder.lua_fzy_highlighter(), wilder.basic_highlighter()}
+                }),
+
+                -- Max dimensions
+                min_width = '30%',
+                max_width = '70%',
+                min_height = '0%',
+                max_height = '50%',
+
+                -- Make the UI pop
+                pumblend = 15, -- Transparency
+
+                -- Reverse the order (most relevant on top)
+                reverse = true
+            })))
+
+        -- Set up the pipeline
+        wilder.set_option('pipeline', {wilder.branch( -- File finder for file name completion
+        wilder.python_file_finder_pipeline({
+            file_command = {"find", ".", "-type", "f", "-name", "*.*"},
+            dir_command = {"find", ".", "-type", "d"},
+            filters = {'fuzzy_filter', 'difflib_sorter'}
+        }), -- Fallback for cmdline completion
+        wilder.cmdline_pipeline({
+            fuzzy = 1,
+            fuzzy_filter = wilder.lua_fzy_filter(),
+            debounce = 10 -- Smoother results
+        }), -- Search pipeline
+        wilder.python_search_pipeline({
+            pattern = 'fuzzy',
+            sorter = wilder.python_difflib_sorter(),
+            engine = 're'
+        }))})
+
+        -- Create an auto command to select the first item by default
+        vim.api.nvim_create_autocmd("CmdlineChanged", {
+            callback = function()
+                -- This will select the first item when the popup menu appears
+                if wilder.in_context() and not wilder.get_state().selected then
+                    vim.schedule(function()
+                        vim.fn.feedkeys(vim.api.nvim_replace_termcodes("<Tab>", true, false, true), "n")
+                    end)
+                end
+            end
+        })
+
+        -- Fix for ensuring Tab accepts the completion properly
+        wilder.set_option('pre_hook', function()
+            -- Make sure tab behaves as expected 
+            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
+        end)
     end
 }, {
     "smjonas/live-command.nvim",
