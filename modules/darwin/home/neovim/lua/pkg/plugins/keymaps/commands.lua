@@ -1,4 +1,3 @@
-local vscode = require('vscode')
 local M = {}
 
 local cmd_map = {
@@ -21,6 +20,8 @@ local cmd_map = {
 }
 
 local function map_cmd(mode, lhs, cmd, opts)
+    local vscode = require('vscode')
+
     opts = opts or {
         noremap = true,
         silent = true
@@ -39,6 +40,8 @@ function M.setup()
     if not vim.g.vscode then
         return
     end
+
+    local vscode = require('vscode')
 
     map_cmd("n", "<leader>w", "w")
     map_cmd("n", "<leader>q", "q")
