@@ -57,6 +57,7 @@ let
     "python"
     "python@3.11"
     "ripgrep"
+    "rustup"
     "screenresolution"
     "shellcheck"
     "socat"
