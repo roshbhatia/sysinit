@@ -1,5 +1,24 @@
--- sysinit.nvim.doc-url="https://raw.githubusercontent.com/folke/which-key.nvim/main/doc/which-key.nvim.txt"
 local M = {}
+
+function M.get_plugin_specs(modules)
+    local specs = {}
+    for _, module in ipairs(modules) do
+        if module.plugins then
+            for _, plugin in ipairs(module.plugins) do
+                table.insert(specs, plugin)
+            end
+        end
+    end
+    return specs
+end
+
+function M.setup_modules(modules)
+    for _, module in ipairs(modules) do
+        if module.setup then
+            module.setup()
+        end
+    end
+end
 
 local vscode_utils = {}
 
@@ -25,20 +44,17 @@ if vim.g.vscode then
             
             let lastActiveItem = null;
             let autoExecuteTimer = null;
-            const TIMEOUT_MS = 500;  // Timeout in milliseconds
+            const TIMEOUT_MS = 500;
             
-            // Filter items based on input
             quickPick.onDidChangeValue((value) => {
               if (autoExecuteTimer) {
                 clearTimeout(autoExecuteTimer);
               }
               
-              // Get filtered items that match the input
               const matchingItems = quickPick.items.filter(item => 
                 item.label.toLowerCase().startsWith(value.toLowerCase())
               );
               
-              // If we have exactly one match and it's a leaf node
               if (matchingItems.length === 1 && !matchingItems[0].isGroup) {
                 autoExecuteTimer = setTimeout(async () => {
                   const item = matchingItems[0];
@@ -56,7 +72,6 @@ if vim.g.vscode then
               if (!active || active === lastActiveItem) return;
               lastActiveItem = active;
               
-              // Auto-execute for leaf nodes (non-groups)
               if (active.action && !active.isGroup) {
                 vscode.commands.executeCommand(active.action).then(() => {
                   quickPick.hide();
@@ -200,7 +215,7 @@ if vim.g.vscode then
 
     function vscode_utils.handle_group(prefix, group)
         vim.keymap.set("n", prefix, function()
-            vscode_utils.show_menu(group, M.keybindings_vsc)
+            vscode_utils.show_menu(group, M.keybindings_data)
         end, {
             noremap = true,
             silent = true
@@ -791,7 +806,6 @@ M.keybindings_data = {
     }
 }
 
--- Converts to v3 format
 local function convert_to_which_key(keybindings_data)
     local which_key_keybindings = {}
 
@@ -813,6 +827,15 @@ local function convert_to_which_key(keybindings_data)
     return which_key_keybindings
 end
 
+local function require_safe(module_name)
+    local ok, module = pcall(require, module_name)
+    if not ok then
+        vim.notify("Failed to load module: " .. module_name, vim.log.levels.WARN)
+        return nil
+    end
+    return module
+end
+
 M.plugins = {{
     "folke/which-key.nvim",
     commit = "370ec46f710e058c9c1646273e6b225acf47cbed",
@@ -821,7 +844,6 @@ M.plugins = {{
         if vim.g.vscode then
             M.keybindings_vsc = M.keybindings_data
 
-            -- Setup VSCode <leader> key menu
             vim.keymap.set("n", "<leader>", function()
                 vscode_utils.show_menu(nil, M.keybindings_vsc)
             end, {
@@ -830,12 +852,10 @@ M.plugins = {{
                 desc = "Show which-key menu"
             })
 
-            -- Setup VSCode group menus
             for prefix, group in pairs(M.keybindings_vsc) do
                 vscode_utils.handle_group("<leader>" .. prefix, group)
             end
 
-            -- Autocmd to hide menu on mode changes or cursor moved
             local menu_group = vim.api.nvim_create_augroup("WhichKeyMenu", {
                 clear = true
             })
@@ -883,13 +903,217 @@ M.plugins = {{
                 }}
             })
 
-            -- Convert unified format to which-key format
             local which_key_bindings = convert_to_which_key(M.keybindings_data)
-
-            -- Add to which-key
             require("which-key").add(which_key_bindings)
         end
     end
+}, {
+    "mrjones2014/legendary.nvim",
+    priority = 10000,
+    lazy = false,
+    dependencies = {"kkharji/sqlite.lua", "stevearc/dressing.nvim"},
+    config = function()
+        if not vim.g.vscode then
+            local keybindings_data = M.keybindings_data
+            local keymaps = {}
+            for prefix, group in pairs(keybindings_data) do
+                for _, binding in ipairs(group.bindings) do
+                    table.insert(keymaps, {
+                        "<leader>" .. prefix .. binding.key,
+                        binding.neovim_cmd,
+                        description = binding.desc,
+                        group = group.name
+                    })
+                end
+            end
+
+            local legendary = require("legendary")
+            legendary.setup({
+                keymaps = keymaps,
+                commands = {{
+                    ":LegendaryPalette",
+                    function()
+                        legendary.find()
+                    end,
+                    description = "Open Command Palette"
+                }},
+                select_prompt = " Command Palette ",
+                col_separator_char = "│",
+                icons = {
+                    keymap = "",
+                    command = "",
+                    fn = "󰡱",
+                    itemgroup = ""
+                },
+                sort = {
+                    most_recent_first = true,
+                    user_items_first = true,
+                    item_type_bias = nil,
+                    frecency = {
+                        db_root = string.format('%s/legendary/', vim.fn.stdpath('data')),
+                        max_timestamps = 10
+                    }
+                },
+                which_key = {
+                    auto_register = true,
+                    do_binding = false,
+                    use_groups = true
+                },
+                extensions = {
+                    lazy_nvim = true,
+                    nvim_tree = true,
+                    smart_splits = {
+                        directions = {'h', 'j', 'k', 'l'},
+                        mods = {
+                            move = '<C>',
+                            resize = '<M>'
+                        }
+                    }
+                }
+            })
+
+            vim.keymap.set("n", "<leader>p", function()
+                legendary.find()
+            end, {
+                desc = "Command Palette"
+            })
+        end
+    end
+}, {
+    "stevearc/dressing.nvim",
+    config = function()
+        if not vim.g.vscode then
+            require("dressing").setup({
+                input = {
+                    enabled = true,
+                    default_prompt = "Input:",
+                    title_pos = "left",
+                    insert_only = true,
+                    start_in_insert = true,
+                    border = "rounded",
+                    relative = "cursor",
+                    prefer_width = 40,
+                    width = nil,
+                    max_width = {140, 0.9},
+                    min_width = {20, 0.2},
+                    win_options = {
+                        winblend = 0,
+                        wrap = false
+                    }
+                },
+                select = {
+                    enabled = true,
+                    backend = {"telescope", "fzf", "builtin"},
+                    trim_prompt = true,
+                    telescope = {
+                        layout_config = {
+                            width = 0.65,
+                            height = 0.7,
+                            prompt_position = "top"
+                        },
+                        borderchars = {
+                            prompt = {"─", "│", "─", "│", "╭", "╮", "╯", "╰"},
+                            results = {"─", "│", "─", "│", "╭", "╮", "╯", "╰"},
+                            preview = {"─", "│", "─", "│", "╭", "╮", "╯", "╰"}
+                        }
+                    }
+                }
+            })
+        end
+    end
+}, {
+    "gelguy/wilder.nvim",
+    event = "CmdlineEnter",
+    dependencies = {"roxma/nvim-yarp", "roxma/vim-hug-neovim-rpc"},
+    config = function()
+        if not vim.g.vscode then
+            local wilder = require("wilder")
+            wilder.setup({
+                modes = {":", "/", "?"}
+            })
+
+            wilder.set_option('pipeline', {wilder.branch(wilder.cmdline_pipeline({
+                fuzzy = 1,
+                set_pcre2_pattern = 1
+            }), wilder.vim_search_pipeline())})
+
+            local popupmenu_renderer = wilder.popupmenu_renderer(
+                wilder.popupmenu_palette_theme({
+                    border = "rounded",
+                    max_height = "50%",
+                    min_height = 10,
+                    prompt_position = "top",
+                    reverse = 0
+                }))
+
+            local wildmenu_renderer = wilder.wildmenu_renderer({
+                highlighter = {wilder.pcre2_highlighter(), wilder.basic_highlighter()},
+                separator = " · ",
+                left = {" ", wilder.wildmenu_spinner(), " "},
+                right = {" ", wilder.wildmenu_index()}
+            })
+
+            wilder.set_option("renderer", wilder.renderer_mux({
+                [":"] = popupmenu_renderer,
+                ["/"] = wildmenu_renderer,
+                substitute = wildmenu_renderer
+            }))
+
+            vim.api.nvim_set_keymap('c', '<Tab>',
+                [[wilder#in_context() ? wilder#can_accept_completion() ? wilder#accept_completion() : wilder#next() : "\<Tab>"]],
+                {
+                    noremap = true,
+                    expr = true
+                })
+
+            vim.api.nvim_set_keymap('c', '<S-Tab>',
+                [[wilder#in_context() ? wilder#can_accept_completion() ? wilder#accept_completion() : wilder#previous() : "\<S-Tab>"]],
+                {
+                    noremap = true,
+                    expr = true
+                })
+
+            vim.api.nvim_set_keymap('c', '<Down>',
+                [[wilder#in_context() ? wilder#can_accept_completion() ? wilder#accept_completion() : wilder#next() : "\<Down>"]],
+                {
+                    noremap = true,
+                    expr = true
+                })
+
+            vim.api.nvim_set_keymap('c', '<Up>',
+                [[wilder#in_context() ? wilder#can_reject_completion() ? wilder#reject_completion() : "\<Up>" : "\<Up>"]],
+                {
+                    noremap = true,
+                    expr = true
+                })
+
+            vim.api.nvim_set_keymap('c', '<CR>',
+                [[wilder#in_context() ? wilder#can_accept_completion() ? wilder#accept_completion() : "\<CR>" : "\<CR>"]],
+                {
+                    noremap = true,
+                    expr = true
+                })
+        end
+    end
+}, {
+    "smjonas/live-command.nvim",
+    config = function()
+        if not vim.g.vscode then
+            require("live-command").setup({
+                commands = {
+                    Norm = {
+                        cmd = "norm"
+                    }
+                }
+            })
+        end
+    end
 }}
+
+function M.setup()
+    local module_loader = require("module_loader")
+    module_loader.setup_modules({M})
+    return M
+end
 
 return M

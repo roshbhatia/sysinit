@@ -187,7 +187,6 @@ local function setup_plugins()
         devicons = require("pkg.plugins.ui.devicons"),
         minimap = require("pkg.plugins.ui.minimap"),
         notifications = require("pkg.plugins.ui.notifications"),
-        pallete = require("pkg.plugins.ui.pallete"),
         scrollbar = require("pkg.plugins.ui.scrollbar"),
         statusbar = require("pkg.plugins.ui.statusbar"),
         tab = require("pkg.plugins.ui.tab"),
@@ -215,7 +214,7 @@ local function setup_plugins()
 
     local keymaps = {
         hop = require("pkg.plugins.keymaps.hop"),
-        leader_pallete = require("pkg.plugins.keymaps.leader-pallete"),
+        pallete = require("pkg.plugins.keymaps.pallete"),
         commands = require("pkg.plugins.keymaps.commands")
     }
 
@@ -233,10 +232,10 @@ local function setup_plugins()
     }
 
     local modules = {ui.theme, ui.devicons, ui.statusbar, ui.tab, ui.notifications, ui.dashboard, ui.minimap,
-                     ui.pallete, ui.scrollbar, ui.smart_splits, editor.comment, editor.ibl, file.editor, file.tree,
-                     file.telescope, file.session, file.diffview, git.client, git.blame, tools.parser, tools.lsp,
-                     tools.formatter, tools.linters, tools.completion_ai, tools.outline, debugger.dap, keymaps.commands,
-                     keymaps.hop, keymaps.leader_pallete}
+                     ui.scrollbar, ui.smart_splits, editor.comment, editor.ibl, file.editor, file.tree, file.telescope,
+                     file.session, file.diffview, git.client, git.blame, tools.parser, tools.lsp, tools.formatter,
+                     tools.linters, tools.completion_ai, tools.outline, debugger.dap, keymaps.commands, keymaps.hop,
+                     keymaps.pallete}
 
     local specs = sysinit_lib.get_plugin_specs(modules)
     sysinit_lib.setup_package_manager(specs)
