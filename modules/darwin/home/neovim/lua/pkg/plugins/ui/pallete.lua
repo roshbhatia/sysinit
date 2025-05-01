@@ -4,24 +4,25 @@ local M = {}
 M.plugins = {{
     "gelguy/wilder.nvim",
     event = "CmdlineEnter",
-    dependencies = {"roxma/nvim-yarp", "roxma/vim-hug-neovim-rpc", "smjonas/live-command.nvim"},
+    dependencies = {"roxma/nvim-yarp", "roxma/vim-hug-neovim-rpc"},
     config = function()
-        require("live-command").setup()
-
         local wilder = require("wilder")
         wilder.setup({
-            modes = {":", "/", "?"},
-            next_key = "<Tab>",
-            previous_key = "<S-Tab>",
-            accept_key = "<Down>",
-            reject_key = "<Up>"
+            modes = {":", "/", "?"}
+            -- Don't set the keybindings here, we'll set them manually below
         })
 
+        -- Customize the highlighting for better visibility
+        wilder.set_option('pipeline', {wilder.branch(wilder.cmdline_pipeline({
+            fuzzy = 1,
+            set_pcre2_pattern = 1
+        }), wilder.vim_search_pipeline())})
+
         local popupmenu_renderer = wilder.popupmenu_renderer(
-            wilder.popupmenu_palette_theme({
+            wilder.popupmenu_border_theme({
                 border = "rounded",
                 empty_message = wilder.popupmenu_empty_message_with_spinner(),
-                highlighter = wilder.basic_highlighter(),
+                highlighter = {wilder.pcre2_highlighter(), wilder.basic_highlighter()},
                 left = {" ", wilder.popupmenu_devicons(), wilder.popupmenu_buffer_flags({
                     flags = " a + ",
                     icons = {
@@ -31,19 +32,17 @@ M.plugins = {{
                     }
                 })},
                 right = {" ", wilder.popupmenu_scrollbar()},
-                max_height = "75%",
+                max_height = "50%",
                 min_height = 0,
                 prompt_position = "top",
-                reverse = false,
-                selected_item_index = 0
+                reverse = false
             }))
 
         local wildmenu_renderer = wilder.wildmenu_renderer({
-            highlighter = wilder.basic_highlighter(),
+            highlighter = {wilder.pcre2_highlighter(), wilder.basic_highlighter()},
             separator = " · ",
             left = {" ", wilder.wildmenu_spinner(), " "},
-            right = {" ", wilder.wildmenu_index()},
-            selected_item_index = 0
+            right = {" ", wilder.wildmenu_index()}
         })
 
         wilder.set_option("renderer", wilder.renderer_mux({
@@ -51,7 +50,57 @@ M.plugins = {{
             ["/"] = wildmenu_renderer,
             substitute = wildmenu_renderer
         }))
+
+        -- Set up keybindings manually to fix tab behavior
+        -- This makes Tab select the first item if nothing is selected yet
+        -- or move to the next item if something is already selected
+        vim.api.nvim_set_keymap('c', '<Tab>',
+            [[wilder#in_context() ? wilder#can_accept_completion() ? wilder#accept_completion() : wilder#next() : "\<Tab>"]],
+            {
+                noremap = true,
+                expr = true
+            })
+        vim.api.nvim_set_keymap('c', '<S-Tab>',
+            [[wilder#in_context() ? wilder#can_accept_completion() ? wilder#accept_completion() : wilder#previous() : "\<S-Tab>"]],
+            {
+                noremap = true,
+                expr = true
+            })
+
+        -- Add Down and Up keys for accepting and rejecting completions
+        vim.api.nvim_set_keymap('c', '<Down>',
+            [[wilder#in_context() ? wilder#can_accept_completion() ? wilder#accept_completion() : wilder#next() : "\<Down>"]],
+            {
+                noremap = true,
+                expr = true
+            })
+        vim.api.nvim_set_keymap('c', '<Up>',
+            [[wilder#in_context() ? wilder#can_reject_completion() ? wilder#reject_completion() : "\<Up>" : "\<Up>"]], {
+                noremap = true,
+                expr = true
+            })
+
+        -- Extra mappings for accepting
+        vim.api.nvim_set_keymap('c', '<CR>',
+            [[wilder#in_context() ? wilder#can_accept_completion() ? wilder#accept_completion() : "\<CR>" : "\<CR>"]], {
+                noremap = true,
+                expr = true
+            })
     end
 }}
+
+-- Separately load live-command.nvim to avoid conflicts
+M.plugins[#M.plugins + 1] = {
+    "smjonas/live-command.nvim",
+    config = function()
+        require("live-command").setup({
+            commands = {
+                Norm = {
+                    cmd = "norm"
+                }
+            }
+        })
+    end
+}
 
 return M
