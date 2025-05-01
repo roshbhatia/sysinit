@@ -15,6 +15,9 @@
     before = [];
     data = ''
       echo "Setting permissions and ownership for Neovim directories..."
+      rm -rf $HOME/.local/share/nvim
+      mkdir -p $HOME/.local/share/nvim
+      
       NVIM_DIRS=("$HOME/.local/share/nvim" "$HOME/.config/nvim")
 
       for dir in "''${NVIM_DIRS[@]}"; do
