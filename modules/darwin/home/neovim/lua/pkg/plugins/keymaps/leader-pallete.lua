@@ -223,153 +223,66 @@ M.group_icons = {
     ai = "󱚤",
     buffer = "󱅄",
     code = "󰘧",
+    debug = "",
+    explorer = "󰒍",
     find = "󰀶",
     git = "󰊢",
+    org = "",
+    problems = "󰗯",
     split = "󰃻",
-    toggle = "󰨚",
-    window = ""
+    terminal = "",
+    utils = "󰟻",
+    window = ""
 }
 
 M.keybindings_data = {
-    -- Add tab switching bindings at the beginning
-    ["1"] = {
-        name = "Tab 1",
-        bindings = {{
-            key = "",
-            desc = "Switch to Tab 1",
-            neovim_cmd = "<cmd>1tabnext<CR>",
-            vscode_cmd = "workbench.action.openEditorAtIndex1"
-        }}
-    },
-    ["2"] = {
-        name = "Tab 2",
-        bindings = {{
-            key = "",
-            desc = "Switch to Tab 2",
-            neovim_cmd = "<cmd>2tabnext<CR>",
-            vscode_cmd = "workbench.action.openEditorAtIndex2"
-        }}
-    },
-    ["3"] = {
-        name = "Tab 3",
-        bindings = {{
-            key = "",
-            desc = "Switch to Tab 3",
-            neovim_cmd = "<cmd>3tabnext<CR>",
-            vscode_cmd = "workbench.action.openEditorAtIndex3"
-        }}
-    },
-    ["4"] = {
-        name = "Tab 4",
-        bindings = {{
-            key = "",
-            desc = "Switch to Tab 4",
-            neovim_cmd = "<cmd>4tabnext<CR>",
-            vscode_cmd = "workbench.action.openEditorAtIndex4"
-        }}
-    },
-    ["5"] = {
-        name = "Tab 5",
-        bindings = {{
-            key = "",
-            desc = "Switch to Tab 5",
-            neovim_cmd = "<cmd>5tabnext<CR>",
-            vscode_cmd = "workbench.action.openEditorAtIndex5"
-        }}
-    },
-    ["6"] = {
-        name = "Tab 6",
-        bindings = {{
-            key = "",
-            desc = "Switch to Tab 6",
-            neovim_cmd = "<cmd>6tabnext<CR>",
-            vscode_cmd = "workbench.action.openEditorAtIndex6"
-        }}
-    },
-    ["7"] = {
-        name = "Tab 7",
-        bindings = {{
-            key = "",
-            desc = "Switch to Tab 7",
-            neovim_cmd = "<cmd>7tabnext<CR>",
-            vscode_cmd = "workbench.action.openEditorAtIndex7"
-        }}
-    },
-    ["8"] = {
-        name = "Tab 8",
-        bindings = {{
-            key = "",
-            desc = "Switch to Tab 8",
-            neovim_cmd = "<cmd>8tabnext<CR>",
-            vscode_cmd = "workbench.action.openEditorAtIndex8"
-        }}
-    },
-    ["9"] = {
-        name = "Tab 9",
-        bindings = {{
-            key = "",
-            desc = "Switch to Tab 9",
-            neovim_cmd = "<cmd>9tabnext<CR>",
-            vscode_cmd = "workbench.action.openEditorAtIndex9"
-        }}
-    },
     a = {
         name = M.group_icons.ai .. " AI",
         bindings = {{
-            key = "c",
+            key = "a",
             desc = "Toggle Chat",
             neovim_cmd = "<cmd>AvanteToggle<CR>",
-            vscode_cmd = "workbench.action.chat.openInSidebar"
+            vscode_cmd = "workbench.action.chat.toggle"
         }, {
-            key = "cr",
-            desc = "Reset Chat",
-            neovim_cmd = "<cmd>:AvanteChatNew<CR>",
-            vscode_cmd = "workbench.action.chat.openInSidebar"
+            key = "n",
+            desc = "New Chat",
+            neovim_cmd = "<cmd>AvanteChatNew<CR>",
+            vscode_cmd = "workbench.action.chat.newChat"
         }, {
-            key = "d",
-            desc = "Generate Docs",
-            neovim_cmd = "<cmd>CopilotChatDocumentThis<CR>",
-            vscode_cmd = "github.copilot.chat.newChat"
+            key = "c",
+            desc = "Clear Chat",
+            neovim_cmd = "<cmd>AvanteClear<CR>",
+            vscode_cmd = "workbench.action.chat.clearHistory"
         }, {
-            key = "o",
-            desc = "Optimize",
-            neovim_cmd = "<cmd>CopilotChatOptimizeCode<CR>",
-            vscode_cmd = "github.copilot.chat.fix"
-        }, {
-            key = "r",
-            desc = "Refactor",
-            neovim_cmd = "<cmd>CopilotChatRefactorCode<CR>",
-            vscode_cmd = "github.copilot.chat.fix"
+            key = "e",
+            desc = "Explain Code",
+            neovim_cmd = "<cmd>CopilotChatExplain<CR>",
+            vscode_cmd = "github.copilot.chat.explain"
         }, {
             key = "f",
             desc = "Fix Code",
             neovim_cmd = "<cmd>CopilotChatFix<CR>",
             vscode_cmd = "github.copilot.chat.fix"
         }, {
-            key = "e",
-            desc = "Explain",
-            neovim_cmd = "<cmd>CopilotChatExplain<CR>",
-            vscode_cmd = "github.copilot.chat.explain"
-        }, {
             key = "t",
             desc = "Generate Tests",
             neovim_cmd = "<cmd>CopilotChatTests<CR>",
             vscode_cmd = "github.copilot.chat.generateTests"
         }, {
+            key = "d",
+            desc = "Generate Docs",
+            neovim_cmd = "<cmd>CopilotChatDocumentThis<CR>",
+            vscode_cmd = "github.copilot.chat.generateDocs"
+        }, {
+            key = "r",
+            desc = "Refactor Code",
+            neovim_cmd = "<cmd>CopilotChatRefactorCode<CR>",
+            vscode_cmd = "github.copilot.chat.fix"
+        }, {
             key = "i",
             desc = "Inline Chat",
             neovim_cmd = "<cmd>CopilotChatInline<CR>",
-            vscode_cmd = "inlineChat.startWithCurrentLine"
-        }, {
-            key = "a",
-            desc = "Accept Changes",
-            neovim_cmd = "<cmd>CopilotChatAccept<CR>",
-            vscode_cmd = "github.copilot.chat.review.apply"
-        }, {
-            key = "k",
-            desc = "Discard Changes",
-            neovim_cmd = "<cmd>CopilotChatDiscard<CR>",
-            vscode_cmd = "github.copilot.chat.review.discard"
+            vscode_cmd = "inlineChat.start"
         }, {
             key = "g",
             desc = "Generate Commit",
@@ -377,101 +290,84 @@ M.keybindings_data = {
             vscode_cmd = "github.copilot.git.generateCommitMessage"
         }}
     },
+
     b = {
         name = M.group_icons.buffer .. " Buffer",
         bindings = {{
+            key = "b",
+            desc = "Show Buffers",
+            neovim_cmd = "<cmd>Telescope buffers<CR>",
+            vscode_cmd = "workbench.action.showAllEditors"
+        }, {
             key = "d",
-            desc = "Close",
-            neovim_cmd = "<cmd>bd<CR>", -- Changed from BufferClose
+            desc = "Close Buffer",
+            neovim_cmd = "<cmd>bd<CR>",
             vscode_cmd = "workbench.action.closeActiveEditor"
         }, {
             key = "n",
-            desc = "Next",
-            neovim_cmd = "<cmd>bnext<CR>", -- Changed from BufferNext
+            desc = "Next Buffer",
+            neovim_cmd = "<cmd>bnext<CR>",
             vscode_cmd = "workbench.action.nextEditor"
         }, {
-            key = "o",
-            desc = "Close Others",
-            neovim_cmd = "<cmd>%bd|e#|bd#<CR>", -- Changed from BufferCloseAllButCurrent
-            vscode_cmd = "workbench.action.closeOtherEditors"
-        }, {
             key = "p",
-            desc = "Previous",
-            neovim_cmd = "<cmd>bprevious<CR>", -- Changed from BufferPrevious
+            desc = "Previous Buffer",
+            neovim_cmd = "<cmd>bprevious<CR>",
             vscode_cmd = "workbench.action.previousEditor"
         }, {
-            key = "t",
-            desc = "Show in Tree",
-            neovim_cmd = "<cmd>Telescope buffers<CR>", -- Changed from Neotree
-            vscode_cmd = "workbench.files.action.focusFilesExplorer"
+            key = "o",
+            desc = "Close Other Buffers",
+            neovim_cmd = "<cmd>%bd|e#|bd#<CR>",
+            vscode_cmd = "workbench.action.closeOtherEditors"
+        }, {
+            key = "f",
+            desc = "Find in Buffers",
+            neovim_cmd = "<cmd>Telescope current_buffer_fuzzy_find<CR>",
+            vscode_cmd = "actions.find"
         }}
     },
+
     c = {
         name = M.group_icons.code .. " Code",
         bindings = {{
-            key = "R",
-            desc = "References",
-            neovim_cmd = "<cmd>lua vim.lsp.buf.references()<CR>",
-            vscode_cmd = "editor.action.goToReferences"
+            key = "c",
+            desc = "Toggle Comment",
+            neovim_cmd = "<Plug>(comment_toggle_linewise_current)",
+            vscode_cmd = "editor.action.commentLine"
         }, {
             key = "a",
             desc = "Code Action",
             neovim_cmd = "<cmd>lua vim.lsp.buf.code_action()<CR>",
             vscode_cmd = "editor.action.quickFix"
         }, {
-            key = "c",
-            desc = "Toggle Comment",
-            neovim_cmd = "<Plug>(comment_toggle_linewise_current)",
-            vscode_cmd = "editor.action.commentLine"
-        }, {
-            key = "d",
-            desc = "Definition",
-            neovim_cmd = "<cmd>lua vim.lsp.buf.definition()<CR>",
-            vscode_cmd = "editor.action.revealDefinition"
-        }, {
             key = "f",
-            desc = "Format",
+            desc = "Format Document",
             neovim_cmd = "<cmd>lua vim.lsp.buf.format()<CR>",
             vscode_cmd = "editor.action.formatDocument"
+        }, {
+            key = "r",
+            desc = "Rename Symbol",
+            neovim_cmd = "<cmd>lua vim.lsp.buf.rename()<CR>",
+            vscode_cmd = "editor.action.rename"
         }, {
             key = "h",
             desc = "Hover",
             neovim_cmd = "<cmd>lua vim.lsp.buf.hover()<CR>",
             vscode_cmd = "editor.action.showHover"
         }, {
+            key = "d",
+            desc = "Go to Definition",
+            neovim_cmd = "<cmd>lua vim.lsp.buf.definition()<CR>",
+            vscode_cmd = "editor.action.revealDefinition"
+        }, {
             key = "i",
-            desc = "Implementation",
+            desc = "Go to Implementation",
             neovim_cmd = "<cmd>lua vim.lsp.buf.implementation()<CR>",
             vscode_cmd = "editor.action.goToImplementation"
         }, {
-            key = "r",
-            desc = "Rename",
-            neovim_cmd = "<cmd>lua vim.lsp.buf.rename()<CR>",
-            vscode_cmd = "editor.action.rename"
-        }}
-    },
-    f = {
-        name = M.group_icons.find .. " Find",
-        bindings = {{
-            key = "b",
-            desc = "Buffers",
-            neovim_cmd = "<cmd>Telescope buffers<CR>",
-            vscode_cmd = "workbench.action.showAllEditors"
-        }, {
-            key = "f",
-            desc = "Find Files",
-            neovim_cmd = "<cmd>Telescope find_files<CR>",
-            vscode_cmd = "workbench.action.quickOpen"
-        }, {
-            key = "g",
-            desc = "Live Grep",
-            neovim_cmd = "<cmd>Telescope live_grep<CR>",
-            vscode_cmd = "workbench.action.findInFiles"
-        }, {
-            key = "r",
-            desc = "Recent Files",
-            neovim_cmd = "<cmd>Telescope oldfiles<CR>",
-            vscode_cmd = "workbench.action.openRecent"
+            key = "R",
+            desc = "Find References",
+            neovim_cmd = "<cmd>lua vim.lsp.buf.references()<CR>",
+            vscode_cmd = "editor.action.goToReferences"
         }, {
             key = "s",
             desc = "Document Symbols",
@@ -479,33 +375,129 @@ M.keybindings_data = {
             vscode_cmd = "workbench.action.gotoSymbol"
         }}
     },
+
+    d = {
+        name = M.group_icons.debug .. " Debug",
+        bindings = {{
+            key = "d",
+            desc = "Toggle Debugger",
+            neovim_cmd = "<cmd>lua require'dap'.toggle_breakpoint()<CR>",
+            vscode_cmd = "workbench.view.debug"
+        }, {
+            key = "b",
+            desc = "Toggle Breakpoint",
+            neovim_cmd = "<cmd>lua require'dap'.toggle_breakpoint()<CR>",
+            vscode_cmd = "editor.debug.action.toggleBreakpoint"
+        }, {
+            key = "c",
+            desc = "Continue",
+            neovim_cmd = "<cmd>lua require'dap'.continue()<CR>",
+            vscode_cmd = "workbench.action.debug.continue"
+        }, {
+            key = "s",
+            desc = "Step Over",
+            neovim_cmd = "<cmd>lua require'dap'.step_over()<CR>",
+            vscode_cmd = "workbench.action.debug.stepOver"
+        }, {
+            key = "i",
+            desc = "Step Into",
+            neovim_cmd = "<cmd>lua require'dap'.step_into()<CR>",
+            vscode_cmd = "workbench.action.debug.stepInto"
+        }, {
+            key = "o",
+            desc = "Step Out",
+            neovim_cmd = "<cmd>lua require'dap'.step_out()<CR>",
+            vscode_cmd = "workbench.action.debug.stepOut"
+        }, {
+            key = "r",
+            desc = "Restart",
+            neovim_cmd = "<cmd>lua require'dap'.restart()<CR>",
+            vscode_cmd = "workbench.action.debug.restart"
+        }, {
+            key = "t",
+            desc = "Terminate",
+            neovim_cmd = "<cmd>lua require'dap'.terminate()<CR>",
+            vscode_cmd = "workbench.action.debug.stop"
+        }}
+    },
+
+    e = {
+        name = M.group_icons.explorer .. " Explorer",
+        bindings = {{
+            key = "e",
+            desc = "Toggle Explorer",
+            neovim_cmd = "<cmd>Neotree toggle<CR>",
+            vscode_cmd = "workbench.action.toggleSidebarVisibility"
+        }, {
+            key = "f",
+            desc = "Focus Explorer",
+            neovim_cmd = "<cmd>Neotree focus<CR>",
+            vscode_cmd = "workbench.view.explorer"
+        }, {
+            key = "r",
+            desc = "Reveal in Explorer",
+            neovim_cmd = "<cmd>Neotree reveal<CR>",
+            vscode_cmd = "workbench.files.action.showActiveFileInExplorer"
+        }, {
+            key = "o",
+            desc = "Open Oil",
+            neovim_cmd = "<cmd>Oil<CR>",
+            vscode_cmd = "workbench.explorer.fileView.focus"
+        }}
+    },
+
+    f = {
+        name = M.group_icons.find .. " Find",
+        bindings = {{
+            key = "f",
+            desc = "Find Files",
+            neovim_cmd = "<cmd>Telescope find_files<CR>",
+            vscode_cmd = "workbench.action.quickOpen"
+        }, {
+            key = "g",
+            desc = "Find in Files",
+            neovim_cmd = "<cmd>Telescope live_grep<CR>",
+            vscode_cmd = "workbench.action.findInFiles"
+        }, {
+            key = "b",
+            desc = "Find in Buffers",
+            neovim_cmd = "<cmd>Telescope buffers<CR>",
+            vscode_cmd = "workbench.action.showAllEditors"
+        }, {
+            key = "s",
+            desc = "Find Symbols",
+            neovim_cmd = "<cmd>Telescope lsp_document_symbols<CR>",
+            vscode_cmd = "workbench.action.gotoSymbol"
+        }, {
+            key = "w",
+            desc = "Find Workspace Symbols",
+            neovim_cmd = "<cmd>Telescope lsp_workspace_symbols<CR>",
+            vscode_cmd = "workbench.action.showAllSymbols"
+        }, {
+            key = "r",
+            desc = "Recent Files",
+            neovim_cmd = "<cmd>Telescope oldfiles<CR>",
+            vscode_cmd = "workbench.action.openRecent"
+        }, {
+            key = "c",
+            desc = "Commands",
+            neovim_cmd = "<cmd>Telescope commands<CR>",
+            vscode_cmd = "workbench.action.showCommands"
+        }, {
+            key = "h",
+            desc = "Help Tags",
+            neovim_cmd = "<cmd>Telescope help_tags<CR>",
+            vscode_cmd = "workbench.action.openDocumentationUrl"
+        }}
+    },
+
     g = {
         name = M.group_icons.git .. " Git",
         bindings = {{
-            key = "D",
-            desc = "Status",
+            key = "g",
+            desc = "View Status",
             neovim_cmd = "<cmd>Telescope git_status<CR>",
             vscode_cmd = "workbench.view.scm"
-        }, {
-            key = "L",
-            desc = "LazyGit",
-            neovim_cmd = "<cmd>LazyGit<CR>",
-            vscode_cmd = "workbench.view.scm"
-        }, {
-            key = "P",
-            desc = "Pull",
-            neovim_cmd = "<cmd>Git pull<CR>",
-            vscode_cmd = "git.pull"
-        }, {
-            key = "S",
-            desc = "Stage Buffer",
-            neovim_cmd = "<cmd>Gitsigns stage_buffer<CR>",
-            vscode_cmd = "git.stageAll"
-        }, {
-            key = "U",
-            desc = "Reset Buffer Index",
-            neovim_cmd = "<cmd>Gitsigns reset_buffer_index<CR>",
-            vscode_cmd = "git.unstageAll"
         }, {
             key = "b",
             desc = "Branches",
@@ -517,62 +509,118 @@ M.keybindings_data = {
             neovim_cmd = "<cmd>Git commit<CR>",
             vscode_cmd = "git.commit"
         }, {
-            key = "d",
-            desc = "Diff This",
-            neovim_cmd = "<cmd>Gitsigns diffthis<CR>",
-            vscode_cmd = "git.openChange"
-        }, {
             key = "f",
             desc = "Fetch",
             neovim_cmd = "<cmd>Git fetch<CR>",
             vscode_cmd = "git.fetch"
         }, {
-            key = "h",
-            desc = "Select Hunk",
-            neovim_cmd = "<cmd>Gitsigns select_hunk<CR>",
-            vscode_cmd = "git.openChange"
+            key = "p",
+            desc = "Pull",
+            neovim_cmd = "<cmd>Git pull<CR>",
+            vscode_cmd = "git.pull"
+        }, {
+            key = "P",
+            desc = "Push",
+            neovim_cmd = "<cmd>Git push<CR>",
+            vscode_cmd = "git.push"
         }, {
             key = "j",
-            desc = "Next Hunk",
+            desc = "Next Change",
             neovim_cmd = "<cmd>Gitsigns next_hunk<CR>",
             vscode_cmd = "workbench.action.editor.nextChange"
         }, {
             key = "k",
-            desc = "Previous Hunk",
+            desc = "Prev Change",
             neovim_cmd = "<cmd>Gitsigns prev_hunk<CR>",
             vscode_cmd = "workbench.action.editor.previousChange"
         }, {
-            key = "l",
-            desc = "Reset Hunk",
-            neovim_cmd = "<cmd>Gitsigns reset_hunk<CR>",
-            vscode_cmd = "git.revertSelectedRanges"
+            key = "d",
+            desc = "Diff",
+            neovim_cmd = "<cmd>Gitsigns diffthis<CR>",
+            vscode_cmd = "git.openChange"
         }, {
-            key = "p",
-            desc = "Push",
-            neovim_cmd = "<cmd>Git push<CR>",
-            vscode_cmd = "git.push"
+            key = "s",
+            desc = "Stage Hunk",
+            neovim_cmd = "<cmd>Gitsigns stage_hunk<CR>",
+            vscode_cmd = "git.stageSelectedRanges"
+        }, {
+            key = "u",
+            desc = "Unstage Hunk",
+            neovim_cmd = "<cmd>Gitsigns undo_stage_hunk<CR>",
+            vscode_cmd = "git.unstageSelectedRanges"
         }, {
             key = "r",
             desc = "Reset Hunk",
             neovim_cmd = "<cmd>Gitsigns reset_hunk<CR>",
             vscode_cmd = "git.revertSelectedRanges"
         }, {
-            key = "s",
-            desc = "Stage Hunk",
-            neovim_cmd = "<cmd>Gitsigns stage_hunk<CR>",
-            vscode_cmd = "git.stage"
-        }, {
-            key = "u",
-            desc = "Undo Stage Hunk",
-            neovim_cmd = "<cmd>Gitsigns undo_stage_hunk<CR>",
-            vscode_cmd = "git.unstage"
-        }, {
-            key = "v",
-            desc = "Status (View)",
-            neovim_cmd = "<cmd>Telescope git_status<CR>",
-            vscode_cmd = "workbench.view.scm"
+            key = "l",
+            desc = "Blame",
+            neovim_cmd = "<cmd>Gitsigns toggle_current_line_blame<CR>",
+            vscode_cmd = "git.blame"
         }}
     },
+
+    o = {
+        name = M.group_icons.org .. " Organize",
+        bindings = {{
+            key = "o",
+            desc = "Open Oil",
+            neovim_cmd = "<cmd>Oil<CR>",
+            vscode_cmd = "workbench.explorer.fileView.focus"
+        }, {
+            key = "t",
+            desc = "Todo",
+            neovim_cmd = "<cmd>TodoTelescope<CR>",
+            vscode_cmd = "workbench.action.tasks.runTask"
+        }, {
+            key = "a",
+            desc = "Auto-Session",
+            neovim_cmd = "<cmd>SessionSave<CR>",
+            vscode_cmd = "workbench.action.files.saveAll"
+        }, {
+            key = "s",
+            desc = "Project Structure",
+            neovim_cmd = "<cmd>Telescope file_browser<CR>",
+            vscode_cmd = "workbench.files.action.showActiveFileInExplorer"
+        }, {
+            key = "p",
+            desc = "Projects",
+            neovim_cmd = "<cmd>Telescope projects<CR>",
+            vscode_cmd = "workbench.action.openRecent"
+        }}
+    },
+
+    p = {
+        name = M.group_icons.problems .. " Problems",
+        bindings = {{
+            key = "p",
+            desc = "Toggle Problems",
+            neovim_cmd = "<cmd>Trouble toggle<CR>",
+            vscode_cmd = "workbench.actions.view.toggleProblems"
+        }, {
+            key = "w",
+            desc = "Workspace Diagnostics",
+            neovim_cmd = "<cmd>Trouble workspace_diagnostics<CR>",
+            vscode_cmd = "workbench.actions.view.problems"
+        }, {
+            key = "d",
+            desc = "Document Diagnostics",
+            neovim_cmd = "<cmd>Trouble document_diagnostics<CR>",
+            vscode_cmd = "editor.action.marker.next"
+        }, {
+            key = "n",
+            desc = "Next Problem",
+            neovim_cmd = "<cmd>lua vim.diagnostic.goto_next()<CR>",
+            vscode_cmd = "editor.action.marker.next"
+        }, {
+            key = "p",
+            desc = "Previous Problem",
+            neovim_cmd = "<cmd>lua vim.diagnostic.goto_prev()<CR>",
+            vscode_cmd = "editor.action.marker.prev"
+        }}
+    },
+
     s = {
         name = M.group_icons.split .. " Split",
         bindings = {{
@@ -585,99 +633,156 @@ M.keybindings_data = {
             desc = "Vertical Split",
             neovim_cmd = "<cmd>vsplit<CR>",
             vscode_cmd = "workbench.action.splitEditorRight"
-        }}
-    },
-    t = {
-        name = M.group_icons.toggle .. " Toggle",
-        bindings = {{
-            key = "c",
-            desc = "Commands",
-            neovim_cmd = "<cmd>Telescope commands<CR>",
-            vscode_cmd = "workbench.action.showCommands"
-        }, {
-            key = "m",
-            desc = "Minimap",
-            neovim_cmd = "<cmd>lua require('mini.map').toggle()<CR>", -- Changed from Neominimap
-            vscode_cmd = "editor.action.toggleMinimap"
-        }, {
-            key = "e",
-            desc = "Explorer",
-            neovim_cmd = "<cmd>Telescope file_browser<CR>", -- Changed from Neotree
-            vscode_cmd = "workbench.view.explorer"
-        }, {
-            key = "t",
-            desc = "Terminal",
-            neovim_cmd = "<cmd>terminal<CR>", -- Changed from ToggleTerm
-            vscode_cmd = "workbench.action.terminal.toggleTerminal"
-        }, {
-            key = "p",
-            desc = "Problems",
-            neovim_cmd = "<cmd>Telescope diagnostics<CR>", -- Changed from Trouble
-            vscode_cmd = "workbench.actions.view.problems"
-        }}
-    },
-    w = {
-        name = M.group_icons.window .. " Window",
-        bindings = {{
-            key = "=",
-            desc = "Equal Size",
-            neovim_cmd = "<C-w>=",
-            vscode_cmd = "workbench.action.evenEditorWidths"
-        }, {
-            key = "H",
-            desc = "Move Window Left",
-            neovim_cmd = "<C-w>H",
-            vscode_cmd = "workbench.action.moveEditorToLeftGroup"
-        }, {
-            key = "J",
-            desc = "Move Window Down",
-            neovim_cmd = "<C-w>J",
-            vscode_cmd = "workbench.action.moveEditorToBelowGroup"
-        }, {
-            key = "K",
-            desc = "Move Window Up",
-            neovim_cmd = "<C-w>K",
-            vscode_cmd = "workbench.action.moveEditorToAboveGroup"
-        }, {
-            key = "L",
-            desc = "Move Window Right",
-            neovim_cmd = "<C-w>L",
-            vscode_cmd = "workbench.action.moveEditorToRightGroup"
-        }, {
-            key = "_",
-            desc = "Max Height",
-            neovim_cmd = "<C-w>_",
-            vscode_cmd = "workbench.action.toggleEditorWidths"
         }, {
             key = "h",
-            desc = "Focus Left Window",
+            desc = "Focus Left",
             neovim_cmd = "<C-w>h",
             vscode_cmd = "workbench.action.focusLeftGroup"
         }, {
             key = "j",
-            desc = "Focus Lower Window",
+            desc = "Focus Down",
+            neovim_cmd = "<C-w>j",
+            vscode_cmd = "workbench.action.focusBelowGroup"
+        }, {
+            key = "k",
+            desc = "Focus Up",
+            neovim_cmd = "<C-w>k",
+            vscode_cmd = "workbench.action.focusAboveGroup"
+        }, {
+            key = "l",
+            desc = "Focus Right",
+            neovim_cmd = "<C-w>l",
+            vscode_cmd = "workbench.action.focusRightGroup"
+        }, {
+            key = "c",
+            desc = "Close Split",
+            neovim_cmd = "<cmd>close<CR>",
+            vscode_cmd = "workbench.action.closeActiveEditor"
+        }, {
+            key = "o",
+            desc = "Only Split",
+            neovim_cmd = "<cmd>only<CR>",
+            vscode_cmd = "workbench.action.closeEditorsInOtherGroups"
+        }}
+    },
+
+    t = {
+        name = M.group_icons.terminal .. " Terminal",
+        bindings = {{
+            key = "t",
+            desc = "Toggle Terminal",
+            neovim_cmd = "<cmd>ToggleTerm<CR>",
+            vscode_cmd = "workbench.action.terminal.toggleTerminal"
+        }, {
+            key = "f",
+            desc = "Float Terminal",
+            neovim_cmd = "<cmd>ToggleTerm direction=float<CR>",
+            vscode_cmd = "workbench.action.terminal.toggleTerminal"
+        }, {
+            key = "h",
+            desc = "Horizontal Terminal",
+            neovim_cmd = "<cmd>ToggleTerm direction=horizontal<CR>",
+            vscode_cmd = "workbench.action.terminal.toggleTerminal"
+        }, {
+            key = "v",
+            desc = "Vertical Terminal",
+            neovim_cmd = "<cmd>ToggleTerm direction=vertical<CR>",
+            vscode_cmd = "workbench.action.terminal.toggleTerminal"
+        }, {
+            key = "n",
+            desc = "New Terminal",
+            neovim_cmd = "<cmd>ToggleTerm<CR>",
+            vscode_cmd = "workbench.action.terminal.new"
+        }}
+    },
+
+    u = {
+        name = M.group_icons.utils .. " Utils",
+        bindings = {{
+            key = "c",
+            desc = "ColorPicker",
+            neovim_cmd = "<cmd>PickColor<CR>",
+            vscode_cmd = "editor.action.showColorPicker"
+        }, {
+            key = "h",
+            desc = "Highlight",
+            neovim_cmd = "<cmd>TSHighlightCapturesUnderCursor<CR>",
+            vscode_cmd = "editor.action.selectHighlights"
+        }, {
+            key = "r",
+            desc = "Restart LSP",
+            neovim_cmd = "<cmd>LspRestart<CR>",
+            vscode_cmd = "typescript.restartTsServer"
+        }, {
+            key = "m",
+            desc = "Markdown Preview",
+            neovim_cmd = "<cmd>MarkdownPreviewToggle<CR>",
+            vscode_cmd = "markdown.showPreview"
+        }, {
+            key = "k",
+            desc = "Keymaps",
+            neovim_cmd = "<cmd>WhichKey<CR>",
+            vscode_cmd = "workbench.action.openGlobalKeybindings"
+        }, {
+            key = "t",
+            desc = "Toggle Theme",
+            neovim_cmd = "<cmd>Themery<CR>",
+            vscode_cmd = "workbench.action.selectTheme"
+        }}
+    },
+
+    w = {
+        name = M.group_icons.window .. " Window",
+        bindings = {{
+            key = "w",
+            desc = "Switch Window",
+            neovim_cmd = "<C-w>w",
+            vscode_cmd = "workbench.action.focusNextGroup"
+        }, {
+            key = "h",
+            desc = "Left Window",
+            neovim_cmd = "<C-w>h",
+            vscode_cmd = "workbench.action.focusLeftGroup"
+        }, {
+            key = "j",
+            desc = "Down Window",
             neovim_cmd = "<C-w>j",
             vscode_cmd = "workbench.action.navigateDown"
         }, {
             key = "k",
-            desc = "Focus Upper Window",
+            desc = "Up Window",
             neovim_cmd = "<C-w>k",
             vscode_cmd = "workbench.action.navigateUp"
         }, {
             key = "l",
-            desc = "Focus Right Window",
+            desc = "Right Window",
             neovim_cmd = "<C-w>l",
             vscode_cmd = "workbench.action.focusRightGroup"
         }, {
-            key = "o",
-            desc = "Only Window",
-            neovim_cmd = "<cmd>only<CR>",
-            vscode_cmd = "workbench.action.closeOtherEditors"
-        }, {
-            key = "w",
+            key = "c",
             desc = "Close Window",
             neovim_cmd = "<cmd>close<CR>",
             vscode_cmd = "workbench.action.closeActiveEditor"
+        }, {
+            key = "o",
+            desc = "Close Others",
+            neovim_cmd = "<cmd>only<CR>",
+            vscode_cmd = "workbench.action.closeOtherEditors"
+        }, {
+            key = "=",
+            desc = "Equal Width",
+            neovim_cmd = "<C-w>=",
+            vscode_cmd = "workbench.action.evenEditorWidths"
+        }, {
+            key = "v",
+            desc = "Split Vertical",
+            neovim_cmd = "<cmd>vsplit<CR>",
+            vscode_cmd = "workbench.action.splitEditorRight"
+        }, {
+            key = "s",
+            desc = "Split Horizontal",
+            neovim_cmd = "<cmd>split<CR>",
+            vscode_cmd = "workbench.action.splitEditorDown"
         }}
     }
 }
