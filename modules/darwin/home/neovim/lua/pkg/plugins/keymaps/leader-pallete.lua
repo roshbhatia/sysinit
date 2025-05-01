@@ -864,8 +864,7 @@ M.plugins = {{
                     }
                 },
                 win = {
-                    border = "none", -- Changed from "rounded" to "none"
-                    position = "top", -- Added position parameter
+                    border = "rounded",
                     padding = {2, 2, 2, 2}
                 },
                 layout = {
