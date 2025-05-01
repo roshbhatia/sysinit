@@ -4,7 +4,7 @@ M.plugins = {{
     "goolord/alpha-nvim",
     lazy = false,
     priority = 100,
-    dependencies = {"3rd/image.nvim", "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim"},
+    dependencies = {"nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim"},
     opts = {},
     config = function()
         local alpha = require("alpha")
