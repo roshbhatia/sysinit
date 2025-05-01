@@ -38,7 +38,7 @@ tasks:
     silent: true
 
   nix:refresh:
-    deps: [update-flake]
+    deps: [update:flake]
     cmds:
       - |
         gum style {{.INFO_STYLE}} "Applying system configuration..."
@@ -83,7 +83,7 @@ tasks:
     desc: Update and rebuild work sysinit configuration
     silent: true
 
-  nix:update-flake:
+  nix:update:flake:
     cmds:
       - gum style {{.INFO_STYLE}} "Updating flake inputs..."
       - |
