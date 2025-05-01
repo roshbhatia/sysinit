@@ -54,6 +54,7 @@ let
     "neovim"
     "nushell"
     "pipx"
+    "prettierd"
     "python"
     "python@3.11"
     "ripgrep"
@@ -63,6 +64,7 @@ let
     "socat"
     "sshpass"
     "tailscale"
+    "taplo"
     "go-task"
     "yazi"
   ];

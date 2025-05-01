@@ -14,7 +14,7 @@ M.plugins = {{
         conform.setup({
             formatters_by_ft = {
                 lua = {"stylua"},
-                python = {"isort", "black"},
+                python = {"black"},
                 javascript = {{"prettierd", "prettier"}},
                 typescript = {{"prettierd", "prettier"}},
                 javascriptreact = {{"prettierd", "prettier"}},

@@ -6,6 +6,7 @@ let
                       else [];
 
   basePackages = [
+    "black"
     "yamllint"
     "uv"
   ];

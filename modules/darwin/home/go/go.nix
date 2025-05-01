@@ -10,6 +10,8 @@ let
     "github.com/x-motemen/gore/cmd/gore"
     "golang.org/x/tools/cmd/godoc"
     "golang.org/x/tools/gopls"
+    "golang.org/x/tools/cmd/goimports@latest"
+    "mvdan.cc/sh/v3/cmd/shfmt@latest"
   ];
 
   allPackages = basePackages ++ additionalPackages;
