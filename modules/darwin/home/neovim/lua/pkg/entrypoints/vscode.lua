@@ -132,10 +132,10 @@ local function setup_plugins()
 
     local keymaps = {
         commands = require("pkg.plugins.keymaps.commands"),
-        leader_pallete = require("pkg.plugins.keymaps.leader-pallete")
+        pallete = require("pkg.plugins.keymaps.leader-pallete")
     }
 
-    local modules = {ui.statusbar, keymaps.commands, keymaps.leader_pallete}
+    local modules = {ui.statusbar, keymaps.commands, keymaps.pallete}
 
     local specs = sysinit_lib.get_plugin_specs(modules)
     sysinit_lib.setup_package_manager(specs)
