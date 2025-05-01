@@ -3,10 +3,9 @@ local M = {}
 
 M.plugins = {{
     "Isrothy/neominimap.nvim",
-    version = "v3.x.x",
     event = "BufReadPost",
     lazy = false,
-    config = function()
+    init = function()
         vim.opt_local.wrap = false
         vim.opt_local.sidescrolloff = 36
 

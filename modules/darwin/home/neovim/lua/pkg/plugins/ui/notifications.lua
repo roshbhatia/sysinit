@@ -2,7 +2,6 @@ local M = {}
 
 M.plugins = {{
     'j-hui/fidget.nvim',
-    tag = "v1.0.0",
     lazy = false,
     priority = 100,
     config = function()

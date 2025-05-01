@@ -3,7 +3,6 @@ local M = {}
 
 M.plugins = {{
     "nvim-neo-tree/neo-tree.nvim",
-    commit = "71bfdeddc90225e281ce34c378dc1b5914f5018d",
     event = "VeryLazy",
     dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "MunifTanjim/nui.nvim"},
     config = function()
