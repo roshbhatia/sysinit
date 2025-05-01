@@ -131,7 +131,7 @@ tasks:
               shift 2
               local ignore_args=()
 
-              # Add ignore patterns, including the new /nix/store/* pattern
+              # Add ignore patterns, including the /nix/store/ exclusion
               for pattern in "${IGNORE_PATTERNS[@]}"; do
                 ignore_args+=("-E" "$pattern")
               done
@@ -149,7 +149,6 @@ tasks:
 
             IGNORE_PATTERNS=(
               {{range .IGNORE_PATTERNS}}{{.}} {{end}}
-              "/nix/store/*"  # Ignore all directories under /nix/store/*
             )
 
             fix_permissions "/nix" "Fixing /nix permissions..."
@@ -167,6 +166,8 @@ tasks:
         - '*.lock'
         - node_modules
         - OrbStack*
+        - /nix/store/*
+
 
   # Neovim Tasks
   nvim:extract-nvim-commands: { cmds: [task -d modules/darwin/home/neovim nvim:extract-nvim-commands], silent: true }
