@@ -59,18 +59,30 @@ M.plugins = {{
         -- Set header
         dashboard.section.header.val = read_ascii_art()
         dashboard.section.header.opts.hl = "ProfileGreen"
+        local auto_session = require("auto-session")
 
-        -- Set menu
-        dashboard.section.buttons.val = {dashboard.button("a", "  Load Last Session", ":SessionRestore<CR>"),
-                                         dashboard.button("i", "  Init Buffer", ":enew<CR>"),
-                                         dashboard.button("f", "  Find Files", ":Telescope find_files<CR>"),
-                                         dashboard.button("r", "  Recent Files", ":Telescope oldfiles<CR>"),
-                                         dashboard.button("g", "  Live Grep", ":Telescope live_grep<CR>"),
-                                         dashboard.button("c", "  Configuration", ":e $MYVIMRC<CR>"),
-                                         dashboard.button("t", "  Change Theme", ":Themify<CR>"),
-                                         dashboard.button("l", "  Lazy", ":Lazy<CR>"),
-                                         dashboard.button("q", "  Quit", ":qa<CR>")}
+        -- Function to check if session exists for current directory
+        local function session_exists()
+            local utils = require("auto-session.utils")
+            local session_file = utils.get_session_file()
+            return session_file and vim.fn.filereadable(session_file) == 1
+        end
 
+        -- Set menu with conditional session button
+        dashboard.section.buttons.val = { -- Only add session button if a session exists
+        session_exists() and dashboard.button("a", "  Load Last Session", ":SessionRestore<CR>") or nil,
+        dashboard.button("i", "  Init Buffer", ":enew<CR>"),
+        dashboard.button("f", "  Find Files", ":Telescope find_files<CR>"),
+        dashboard.button("r", "  Recent Files", ":Telescope oldfiles<CR>"),
+        dashboard.button("g", "  Live Grep", ":Telescope live_grep<CR>"),
+        dashboard.button("c", "  Configuration", ":e $MYVIMRC<CR>"),
+        dashboard.button("t", "  Change Theme", ":Themify<CR>"), dashboard.button("l", "  Lazy", ":Lazy<CR>"),
+        dashboard.button("q", "  Quit", ":qa<CR>")}
+
+        -- Filter out nil values in case session button isn't shown
+        dashboard.section.buttons.val = vim.tbl_filter(function(item)
+            return item ~= nil
+        end, dashboard.section.buttons.val)
         -- Footer with git contributions (simplified)
         local function get_git_contributions()
             -- This is a placeholder. You might want to implement actual git contribution tracking
