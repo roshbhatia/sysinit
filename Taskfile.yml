@@ -166,7 +166,7 @@ tasks:
         - '*.lock'
         - node_modules
         - OrbStack*
-        - /nix/store/*
+        - /nix/store/**
 
 
   # Neovim Tasks
