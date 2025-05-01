@@ -1,12 +1,22 @@
-{ pkgs, lib, config, userConfig ? {}, homeDirectory, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  userConfig ? { },
+  homeDirectory,
+  ...
+}:
 
 let
-  additionalPackages = if userConfig ? npm && userConfig.npm ? additionalPackages
-    then userConfig.npm.additionalPackages
-    else [];
+  additionalPackages =
+    if userConfig ? npm && userConfig.npm ? additionalPackages then
+      userConfig.npm.additionalPackages
+    else
+      [ ];
 
   basePackages = [
     "jsonlint"
+    "markdownlint"
     "prettier"
     "@stoplight/spectral-cli"
     "typescript-language-server"
@@ -28,7 +38,7 @@ in
 
   home.activation.npmPackages = {
     after = [ "fixVariables" ];
-    before = [];
+    before = [ ];
     data = ''
       echo "Installing npm packages..."
       set +u
