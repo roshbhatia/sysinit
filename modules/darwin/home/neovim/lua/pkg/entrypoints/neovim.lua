@@ -97,7 +97,8 @@ local function setup_plugins()
         scrollbar = require("pkg.plugins.ui.scrollbar"),
         statusbar = require("pkg.plugins.ui.statusbar"),
         tab = require("pkg.plugins.ui.tab"),
-        theme = require("pkg.plugins.ui.theme")
+        theme = require("pkg.plugins.ui.theme"),
+        smart_splits = require("pkg.plugins.ui.smart-splits")
     }
 
     local editor = {
@@ -120,7 +121,8 @@ local function setup_plugins()
 
     local keymaps = {
         hop = require("pkg.plugins.keymaps.hop"),
-        leader_pallete = require("pkg.plugins.keymaps.leader-pallete")
+        leader_pallete = require("pkg.plugins.keymaps.leader-pallete"),
+        commands = require("pkg.plugins.keymaps.commands")
     }
 
     local tools = {
@@ -128,13 +130,19 @@ local function setup_plugins()
         formatter = require("pkg.plugins.tools.formatter"),
         linters = require("pkg.plugins.tools.linters"),
         lsp = require("pkg.plugins.tools.lsp"),
-        parser = require("pkg.plugins.tools.parser")
+        parser = require("pkg.plugins.tools.parser"),
+        outline = require("pkg.plugins.tools.outline")
     }
 
-    local modules = {ui.dashboard, ui.devicons, ui.minimap, ui.notifications, ui.pallete, ui.scrollbar, ui.statusbar,
-                     ui.tab, ui.theme, editor.comment, editor.ibl, file.diffview, file.editor, file.session,
-                     file.telescope, file.tree, git.blame, git.client, keymaps.hop, keymaps.leader_pallete,
-                     tools.completion_ai, tools.formatter, tools.linters, tools.lsp, tools.parser}
+    local debugger = {
+        dap = require("pkg.plugins.debugger.dap")
+    }
+
+    local modules = {ui.theme, ui.devicons, ui.statusbar, ui.tab, ui.notifications, ui.dashboard, ui.minimap,
+                     ui.pallete, ui.scrollbar, ui.smart_splits, editor.comment, editor.ibl, file.editor, file.tree,
+                     file.telescope, file.session, file.diffview, git.client, git.blame, tools.parser, tools.lsp,
+                     tools.formatter, tools.linters, tools.completion_ai, tools.outline, debugger.dap, keymaps.commands,
+                     keymaps.hop, keymaps.leader_pallete}
 
     local specs = sysinit_lib.get_plugin_specs(modules)
     sysinit_lib.setup_package_manager(specs)
