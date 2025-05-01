@@ -5,11 +5,7 @@ M.plugins = {{
     lazy = false,
     priority = 100,
     dependencies = {"3rd/image.nvim", "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim"},
-    opts = {
-        rocks = {
-            hererocks = true
-        }
-    },
+    opts = {},
     config = function()
         local alpha = require("alpha")
         local dashboard = require("alpha.themes.dashboard")

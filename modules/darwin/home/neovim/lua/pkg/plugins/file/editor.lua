@@ -3,7 +3,6 @@ local M = {}
 
 M.plugins = {{
     "stevearc/oil.nvim",
-    commit = "685cdb4ffa74473d75a1b97451f8654ceeab0f4a",
     lazy = false,
     priority = 900,
     dependencies = {"nvim-tree/nvim-web-devicons"},

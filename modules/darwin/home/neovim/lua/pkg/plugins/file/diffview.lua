@@ -3,7 +3,6 @@ local M = {}
 
 M.plugins = {{
     "sindrets/diffview.nvim",
-    commit = "4516612fe98ff56ae0415a259ff6361a89419b0a",
     lazy = true,
     priority = 900,
     dependencies = {"nvim-lua/plenary.nvim"},

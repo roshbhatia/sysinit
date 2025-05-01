@@ -231,11 +231,11 @@ local function setup_plugins()
         dap = require("pkg.plugins.debugger.dap")
     }
 
-    local modules = {ui.theme, ui.devicons, ui.statusbar, ui.tab, ui.notifications, ui.dashboard, ui.minimap,
-                     ui.scrollbar, ui.smart_splits, editor.comment, editor.ibl, file.editor, file.tree, file.telescope,
-                     file.session, file.diffview, git.client, git.blame, tools.parser, tools.lsp, tools.formatter,
-                     tools.linters, tools.completion_ai, tools.outline, debugger.dap, keymaps.commands, keymaps.hop,
-                     keymaps.pallete}
+    local modules = {ui.notifications, ui.theme, ui.devicons, ui.statusbar, ui.tab, ui.minimap, ui.scrollbar,
+                     ui.smart_splits, editor.comment, editor.ibl, file.editor, file.tree, file.telescope, file.session,
+                     file.diffview, git.client, git.blame, tools.parser, tools.lsp, tools.formatter, tools.linters,
+                     tools.completion_ai, tools.outline, debugger.dap, keymaps.commands, keymaps.hop, keymaps.pallete,
+                     ui.dashboard}
 
     local specs = sysinit_lib.get_plugin_specs(modules)
     sysinit_lib.setup_package_manager(specs)

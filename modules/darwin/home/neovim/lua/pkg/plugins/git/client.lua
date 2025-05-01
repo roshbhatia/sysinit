@@ -5,7 +5,6 @@ local M = {}
 
 M.plugins = {{
     "kdheepak/lazygit.nvim",
-    commit = "b9eae3badab982e71abab96d3ee1d258f0c07961",
     event = "VeryLazy",
     dependencies = {"nvim-lua/plenary.nvim", "lewis6991/gitsigns.nvim", "tpope/vim-fugitive",
                     "nvim-telescope/telescope.nvim"},

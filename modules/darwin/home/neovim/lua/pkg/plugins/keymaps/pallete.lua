@@ -838,7 +838,6 @@ end
 
 M.plugins = {{
     "folke/which-key.nvim",
-    commit = "370ec46f710e058c9c1646273e6b225acf47cbed",
     lazy = false,
     config = function()
         if vim.g.vscode then
@@ -1025,8 +1024,7 @@ M.plugins = {{
 }, {
     "gelguy/wilder.nvim",
     event = "CmdlineEnter",
-    dependencies = {"roxma/nvim-yarp", "roxma/vim-hug-neovim-rpc", "nvim-tree/nvim-web-devicons" -- For file icons
-    },
+    dependencies = {"roxma/nvim-yarp", "roxma/vim-hug-neovim-rpc", "nvim-tree/nvim-web-devicons"},
     config = function()
         local wilder = require("wilder")
 
