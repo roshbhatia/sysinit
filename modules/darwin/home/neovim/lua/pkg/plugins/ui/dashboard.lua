@@ -61,16 +61,10 @@ M.plugins = {{
         dashboard.section.header.opts.hl = "ProfileGreen"
         local auto_session = require("auto-session")
 
-        -- Function to check if session exists for current directory
-        local function session_exists()
-            local utils = require("auto-session.utils")
-            local session_file = utils.get_session_file()
-            return session_file and vim.fn.filereadable(session_file) == 1
-        end
-
         -- Set menu with conditional session button
         dashboard.section.buttons.val = { -- Only add session button if a session exists
-        session_exists() and dashboard.button("a", "  Load Last Session", ":SessionRestore<CR>") or nil,
+        require('auto-session.lib').current_session_name(true) and
+            dashboard.button("a", "  Load Last Session", ":SessionRestore<CR>") or nil,
         dashboard.button("i", "  Init Buffer", ":enew<CR>"),
         dashboard.button("f", "  Find Files", ":Telescope find_files<CR>"),
         dashboard.button("r", "  Recent Files", ":Telescope oldfiles<CR>"),
