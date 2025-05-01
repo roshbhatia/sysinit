@@ -954,21 +954,22 @@ M.plugins = {{
                         max_timestamps = 10
                     }
                 },
-                which_key = {
-                    auto_register = true,
-                    do_binding = false,
-                    use_groups = true
-                },
                 extensions = {
+                    which_key = {
+                        auto_register = true,
+                        do_binding = false,
+                        use_groups = true
+                    },
                     lazy_nvim = true,
-                    nvim_tree = true,
+                    nvim_tree = false,
                     smart_splits = {
                         directions = {'h', 'j', 'k', 'l'},
                         mods = {
                             move = '<C>',
                             resize = '<M>'
                         }
-                    }
+                    },
+                    diffview = true
                 }
             })
 
