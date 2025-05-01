@@ -4,8 +4,10 @@ local M = {}
 M.plugins = {{
     "gelguy/wilder.nvim",
     event = "CmdlineEnter",
-    dependencies = {"roxma/nvim-yarp", "roxma/vim-hug-neovim-rpc"},
+    dependencies = {"roxma/nvim-yarp", "roxma/vim-hug-neovim-rpc", "smjonas/live-command.nvim"},
     config = function()
+        require("live-command").setup()
+
         local wilder = require("wilder")
         wilder.setup({
             modes = {":", "/", "?"},
