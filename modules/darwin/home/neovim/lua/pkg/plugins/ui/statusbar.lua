@@ -1,247 +1,157 @@
--- sysinit.nvim.doc-url="https://raw.githubusercontent.com/nvim-lualine/lualine.nvim/refs/heads/master/doc/lualine.txt"
+-- sysinit.nvim.doc-url="https://raw.githubusercontent.com/mfussenegger/nvim-lint/master/doc/lint.txt"
 local M = {}
 
--- Early return if not in VSCode - don't define anything else
-if not vim.g.vscode then
-    -- Only export the plugin when NOT in VSCode (when in regular Neovim)
-    M.plugins = {{
-        'nvim-lualine/lualine.nvim',
-        dependencies = {'nvim-tree/nvim-web-devicons', 'lewis6991/gitsigns.nvim'},
-        config = function()
-            require('lualine').setup {
-                options = {
-                    icons_enabled = true,
-                    theme = 'auto',
-                    component_separators = {
-                        left = '',
-                        right = ''
-                    },
-                    section_separators = {
-                        left = '',
-                        right = ''
-                    },
-                    disabled_filetypes = {
-                        statusline = {},
-                        winbar = {}
-                    },
-                    ignore_focus = {},
-                    always_divide_middle = true,
-                    always_show_tabline = true,
-                    globalstatus = false,
-                    refresh = {
-                        statusline = 100,
-                        tabline = 100,
-                        winbar = 100
-                    }
-                },
-                sections = {
-                    lualine_a = {'mode'},
-                    lualine_b = {'branch', 'diff', 'diagnostics'},
-                    lualine_c = {'filename'},
-                    lualine_x = {'encoding', 'fileformat', 'filetype'},
-                    lualine_y = {'progress'},
-                    lualine_z = {'location'}
-                },
-                inactive_sections = {
-                    lualine_a = {},
-                    lualine_b = {},
-                    lualine_c = {'filename'},
-                    lualine_x = {'location'},
-                    lualine_y = {},
-                    lualine_z = {}
-                },
-                tabline = {},
-                winbar = {},
-                inactive_winbar = {},
-                extensions = {}
-            }
-        end
-    }}
+M.plugins = {{
+    "mfussenegger/nvim-lint",
+    event = "VeryLazy",
+    dependencies = {"mason.nvim", "echasnovski/mini.trailspace", "sQVe/sort.nvim"},
+    config = function()
+        -- Setup mini.trailspace for trailing whitespace handling
+        require('mini.trailspace').setup()
+        require("sort").setup()
 
-    -- Empty setup function for Neovim mode since lualine handles itself in its config
-    function M.setup()
-        -- Nothing needed here for regular Neovim
-    end
+        local lint = require("lint")
 
-    return M
-end
+        local linters_by_ft = {
+            javascript = {"eslint"},
+            typescript = {"eslint"},
+            javascriptreact = {"eslint"},
+            typescriptreact = {"eslint"},
+            go = {"golangcilint"},
+            sh = {"shellcheck"},
+            bash = {"shellcheck"},
+            zsh = {"shellcheck"},
+            json = {"jsonlint"},
+            markdown = {"markdownlint"},
+            terraform = {"tflint"}
+        }
+        lint.linters_by_ft = linters_by_ft
 
--- If we reach here, we're in VSCode mode
-local vscode = require('vscode')
+        lint.linters.pylint.args = {"--output-format=text", "--score=no",
+                                    "--msg-template='{line}:{column}:{category}:{msg} ({symbol})'"}
 
--- VSCode mode-specific functionality
-local MODE_DISPLAY = {
-    n = {
-        text = '󱄅 NORMAL',
-        color = '#7aa2f7'
-    },
-    i = {
-        text = ' INSERT',
-        color = '#9ece6a'
-    },
-    v = {
-        text = '󰈈 VISUAL',
-        color = '#bb9af7'
-    },
-    V = {
-        text = '󱣾 V-LINE',
-        color = '#bb9af7'
-    },
-    ['\22'] = {
-        text = '󰮔 V-BLOCK',
-        color = '#bb9af7'
-    },
-    R = {
-        text = '󰛔 REPLACE',
-        color = '#f7768e'
-    },
-    s = {
-        text = '󰴱 SELECT',
-        color = '#ff9e64'
-    },
-    S = {
-        text = '󰫙 S-LINE',
-        color = '#ff9e64'
-    },
-    ['\19'] = {
-        text = '󰩬 S-BLOCK',
-        color = '#ff9e64'
-    },
-    c = {
-        text = ' COMMAND',
-        color = '#7dcfff'
-    },
-    t = {
-        text = ' TERMINAL',
-        color = '#73daca'
-    }
-}
+        lint.linters.shellcheck.args = {"--format=gcc", "--external-sources", "--shell=bash"}
 
-local mode_strings = {}
-local last_mode = nil
-
-for mode, data in pairs(MODE_DISPLAY) do
-    mode_strings[mode] = data.text
-end
-
-local STATUSBAR_JS = [[
-  // Create or reuse the statusbar item
-  if (!globalThis.modeStatusBar) {
-    globalThis.modeStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-  }
-  
-  const statusBar = globalThis.modeStatusBar;
-  statusBar.text = args.text;
-  statusBar.color = args.color;
-  statusBar.command = {
-    command: 'vscode-neovim.lua',
-    title: 'Toggle Neovim Mode',
-    arguments: [
-      args.mode === 'n'
-        ? "vim.cmd('startinsert')"
-        : "vim.cmd('stopinsert')"
-    ]
-  };
-  
-  // Ensure visibility
-  statusBar.show();
-  
-  // Setup automatic refresh mechanism
-  if (!globalThis.statusBarRefreshInterval) {
-    globalThis.statusBarRefreshInterval = setInterval(() => {
-      if (statusBar && !statusBar.visible) {
-        statusBar.show();
-      }
-    }, 1000); // Check every second
-  }
-]]
-
-local STATUSBAR_DISPOSE_JS = [[
-  if (globalThis.statusBarRefreshInterval) {
-    clearInterval(globalThis.statusBarRefreshInterval);
-    globalThis.statusBarRefreshInterval = null;
-  }
-  
-  if (globalThis.modeStatusBar) {
-    globalThis.modeStatusBar.dispose();
-    globalThis.modeStatusBar = null;
-  }
-]]
-
-function M.update_mode_display()
-    local full_mode = vim.api.nvim_get_mode().mode
-    local mode_key = full_mode:sub(1, 1)
-    if mode_key == last_mode then
-        pcall(vscode.eval, [[
-      if (globalThis.modeStatusBar && !globalThis.modeStatusBar.visible) {
-        globalThis.modeStatusBar.show();
-      }
-    ]], {
-            timeout = 500
+        -- Create augroup for linting
+        local lint_augroup = vim.api.nvim_create_augroup("nvim_lint_augroup", {
+            clear = true
         })
-        return
-    end
 
-    local mode_data = MODE_DISPLAY[mode_key] or MODE_DISPLAY.n
-    pcall(vscode.eval, STATUSBAR_JS, {
-        timeout = 1000,
-        args = {
-            text = mode_strings[mode_key] or mode_strings.n,
-            color = mode_data.color,
-            mode = mode_key
-        }
-    })
-    last_mode = mode_key
-end
+        -- Setup lint autocmd
+        vim.api.nvim_create_autocmd({"BufWritePost", "BufEnter"}, {
+            group = lint_augroup,
+            callback = function()
+                require("lint").try_lint()
+            end
+        })
 
-function M.set_command_mode()
-    pcall(vscode.eval, STATUSBAR_JS, {
-        timeout = 1000,
-        args = {
-            text = MODE_DISPLAY.c.text,
-            color = MODE_DISPLAY.c.color,
-            mode = 'c'
-        }
-    })
-end
+        -- Create Lint command
+        vim.api.nvim_create_user_command("Lint", function()
+            require("lint").try_lint()
+        end, {})
 
-function M.force_refresh()
-    M.update_mode_display()
-end
+        -- Setup toggle for auto linting
+        local auto_linting_enabled = true
 
-function M.setup()
-    vim.api.nvim_create_autocmd("ModeChanged", {
-        pattern = "*",
-        callback = M.update_mode_display
-    })
+        local function toggle_auto_lint()
+            auto_linting_enabled = not auto_linting_enabled
 
-    vim.api.nvim_create_autocmd("CmdlineEnter", {
-        callback = M.set_command_mode
-    })
-
-    vim.api.nvim_create_autocmd({"BufEnter", "WinEnter", "FocusGained", "VimResized"}, {
-        callback = M.force_refresh
-    })
-
-    local timer = vim.loop.new_timer()
-    timer:start(2000, 2000, vim.schedule_wrap(function()
-        M.force_refresh()
-    end))
-
-    vim.api.nvim_create_autocmd("VimLeavePre", {
-        callback = function()
-            timer:stop()
-            timer:close()
-            pcall(vscode.eval, STATUSBAR_DISPOSE_JS, {
-                timeout = 500
-            })
+            if auto_linting_enabled then
+                vim.api.nvim_clear_autocmds({
+                    group = lint_augroup
+                })
+                vim.api.nvim_create_autocmd({"BufWritePost", "BufEnter"}, {
+                    callback = function()
+                        require("lint").try_lint()
+                    end,
+                    group = lint_augroup
+                })
+                vim.notify("Automatic linting enabled", vim.log.levels.INFO)
+            else
+                vim.api.nvim_clear_autocmds({
+                    group = lint_augroup
+                })
+                vim.notify("Automatic linting disabled", vim.log.levels.INFO)
+            end
         end
-    })
 
-    M.update_mode_display()
-end
+        vim.api.nvim_create_user_command("ToggleAutoLint", toggle_auto_lint, {})
 
--- No plugin definition for VSCode mode - it's handled through the VSCode API
--- M.plugins is intentionally nil in VSCode mode
+        -- Setup whitespace trimming functionality
+        local whitespace_augroup = vim.api.nvim_create_augroup("whitespace_trim_augroup", {
+            clear = true
+        })
+        local trim_whitespace_enabled = true
+
+        -- Function to ensure file ends with exactly one newline
+        local function ensure_trailing_newline()
+            local last_line = vim.fn.line("$")
+            local last_line_text = vim.fn.getline(last_line)
+
+            if last_line_text ~= "" then
+                -- Add newline if the last line is not empty
+                vim.fn.append(last_line, "")
+            elseif last_line > 1 and vim.fn.getline(last_line - 1) == "" then
+                -- Remove extra empty lines at the end (keep only one)
+                while last_line > 1 and vim.fn.getline(last_line - 1) == "" do
+                    vim.api.nvim_buf_set_lines(0, last_line - 1, last_line, false, {})
+                    last_line = last_line - 1
+                end
+            end
+        end
+
+        -- Function to trim trailing whitespace using mini.trailspace
+        local function trim_trailing_whitespace()
+            MiniTrailspace.trim()
+        end
+
+        -- Function to handle both operations
+        local function trim_whitespace_and_ensure_newline()
+            if not trim_whitespace_enabled then
+                return
+            end
+
+            -- Save cursor position
+            local cursor_pos = vim.fn.getpos(".")
+
+            -- Trim whitespace and ensure newline
+            trim_trailing_whitespace()
+            ensure_trailing_newline()
+
+            -- Restore cursor position
+            vim.fn.setpos(".", cursor_pos)
+        end
+
+        -- Setup autocmd for trimming
+        vim.api.nvim_create_autocmd("BufWritePre", {
+            group = whitespace_augroup,
+            callback = trim_whitespace_and_ensure_newline
+        })
+
+        -- Function to toggle whitespace trimming
+        local function toggle_whitespace_trim()
+            trim_whitespace_enabled = not trim_whitespace_enabled
+
+            if trim_whitespace_enabled then
+                vim.api.nvim_clear_autocmds({
+                    group = whitespace_augroup
+                })
+                vim.api.nvim_create_autocmd("BufWritePre", {
+                    group = whitespace_augroup,
+                    callback = trim_whitespace_and_ensure_newline
+                })
+                vim.notify("Automatic whitespace trimming enabled", vim.log.levels.INFO)
+            else
+                vim.api.nvim_clear_autocmds({
+                    group = whitespace_augroup
+                })
+                vim.notify("Automatic whitespace trimming disabled", vim.log.levels.INFO)
+            end
+        end
+
+        -- Create command to toggle whitespace trimming
+        vim.api.nvim_create_user_command("ToggleWhitespaceTrim", toggle_whitespace_trim, {})
+    end
+}}
 
 return M
