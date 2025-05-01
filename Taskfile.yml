@@ -130,7 +130,8 @@ tasks:
               local message="$2"
               shift 2
               local ignore_args=()
-              
+
+              # Add ignore patterns, including the new /nix/store/* pattern
               for pattern in "${IGNORE_PATTERNS[@]}"; do
                 ignore_args+=("-E" "$pattern")
               done
@@ -138,23 +139,25 @@ tasks:
               for pattern in "$@"; do
                 ignore_args+=("-E" "$pattern")
               done
-              
-              gum style {{.INFO_STYLE}} "$message"
-              gum style {{.INFO_STYLE}} "Changing permissions for directory: $dir"  # Print the directory being processed
-              if ! gum spin --spinner dot --title "Fixing permissions..." -- fd . "$dir" -t f -t d "${ignore_args[@]}" --owner "!$USER" -x sudo chown -v "$USER:staff" {}; then
-                gum style {{.ERROR_STYLE}} "Failed to fix permissions for $dir"
+
+              echo "Changing permissions for directory: $dir"  # Directly print what is being changed
+              if ! fd . "$dir" -t f -t d "${ignore_args[@]}" --owner "!$USER" -x sudo chown -v "$USER:staff" {}; then
+                echo "❌ Failed to fix permissions for $dir"
                 return 1
               fi
             }
 
-            IGNORE_PATTERNS=({{range .IGNORE_PATTERNS}}{{.}} {{end}})
+            IGNORE_PATTERNS=(
+              {{range .IGNORE_PATTERNS}}{{.}} {{end}}
+              "/nix/store/*"  # Ignore all directories under /nix/store/*
+            )
 
             fix_permissions "/nix" "Fixing /nix permissions..."
             fix_permissions "/opt/homebrew/opt" "Fixing Homebrew permissions..."
             fix_permissions "$HOME" "Fixing home directory permissions..." "node_modules" ".git"
             
-            gum style {{.SUCCESS_STYLE}} "All permissions fixed successfully"
-          } | gum pager --soft-wrap
+            echo "✅ All permissions fixed successfully"
+          }
     desc: Fix permissions for system directories
     silent: true
     vars:
@@ -164,7 +167,6 @@ tasks:
         - '*.lock'
         - node_modules
         - OrbStack*
-
 
   # Neovim Tasks
   nvim:extract-nvim-commands: { cmds: [task -d modules/darwin/home/neovim nvim:extract-nvim-commands], silent: true }
