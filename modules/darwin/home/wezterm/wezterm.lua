@@ -3,9 +3,9 @@ local act = wezterm.action
 local config = wezterm.config_builder()
 
 -- Shell configuration
-config.default_prog = {'/bin/zsh', '-l'}
+config.default_prog = {'/etc/profiles/per-user/rshnbhatia/bin/zsh', '-l'}
 config.set_environment_variables = {
-    SHELL = '/bin/zsh',
+    SHELL = '/etc/profiles/per-user/rshnbhatia/bin/zsh',
     TERM = 'wezterm'
 }
 

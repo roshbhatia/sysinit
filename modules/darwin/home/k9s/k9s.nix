@@ -8,7 +8,7 @@ let
       refreshRate = 2;
       maxConnRetry = 5;
       readOnly = false;
-      noExitOnCtrlC = false;
+      noExitOnCtrlC = true;
       ui = {
         enableMouse = false;
         headless = false;
@@ -33,7 +33,7 @@ let
         image = "killerAdmin";
         namespace = "default";
         limits = {
-          cpu = "100m";
+          cpu = "150m";
           memory = "100Mi";
         };
         tty = true;
@@ -60,24 +60,6 @@ let
 
   k9sPlugins = {
     plugins = {
-      "xplane-beta-trace" = {
-        shortCut = "Ctrl-B";
-        confirm = false;
-        description = "Crossplane Beta Trace";
-        scopes = [ "nrfruntimes" ];
-        command = "sh";
-        background = false;
-        args = [
-          "-c"
-          ''watch -n .5 "crossplane beta trace \
-          $RESOURCE_NAME.$RESOURCE_GROUP \
-          -o wide \
-          --show-package-runtime-configs \
-          -n $NAMESPACE \
-          $NAME \
-          | bat -"''
-        ];
-      };
       "force-argo-app-sync" = {
         shortCut = "Ctrl-F";
         confirm = true;
