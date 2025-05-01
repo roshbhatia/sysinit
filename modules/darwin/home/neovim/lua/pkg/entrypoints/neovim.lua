@@ -231,7 +231,8 @@ local function setup_plugins()
     }
 
     local modules = { -- UI elements
-    ui.theme, ui.devicons, ui.statusbar, ui.tab, ui.minimap, ui.scrollbar, ui.smart_splits, ui.dashboard, -- Keymaps
+    -- ui.theme, 
+    ui.devicons, ui.statusbar, ui.tab, ui.minimap, ui.scrollbar, ui.smart_splits, ui.dashboard, -- Keymaps
     keymaps.pallete, keymaps.commands, keymaps.hop, -- Editor enhancements
     editor.comment, editor.ibl, -- File management
     file.editor, file.tree, file.telescope, file.session, file.diffview, -- Git integration
