@@ -35,17 +35,14 @@ function M.setup_package_manager(specs)
         priority = 1000,
         dependencies = {"nvim-lua/plenary.nvim"},
         opts = {
-            rocks = {},
-            rocks_path = vim.fn.stdpath("data") .. "/luarocks",
-            lua_path = vim.fn.stdpath("data") .. "/luarocks/share/lua/5.1/?.lua;" .. vim.fn.stdpath("data") ..
-                "/luarocks/share/lua/5.1/?/init.lua",
-            lua_cpath = vim.fn.stdpath("data") .. "/luarocks/lib/lua/5.1/?.so",
+            rocks = {
+                root = vim.fn.stdpath("data") .. "/lazy-rocks",
+                server = "https://nvim-neorocks.github.io/rocks-binaries/"
+            },
             create_dirs = true,
             install = {
-                only_deps = false,
-                flags = {"--local", "--force-config"}
-            },
-            show_progress = true
+                missing = true
+            }
         }
     }}
 
@@ -63,7 +60,7 @@ function M.setup_package_manager(specs)
 
         rocks = {
             enabled = true,
-            root = vim.fn.stdpath("data") .. "/lazy-rocks",
+            root = vim.fn.stdpath("data") .. "/lazy-rocks"
         },
 
         spec = core_specs,
