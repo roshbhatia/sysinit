@@ -50,7 +50,6 @@ let
     "libgit2"
     "luajit"
     "luarocks"
-    "neovim"
     "nushell"
     "pipx"
     "prettierd"

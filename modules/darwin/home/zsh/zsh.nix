@@ -130,9 +130,6 @@ in
       tf = "terraform";
       y = "yazi";
 
-      vim = "nvim";
-      vi = "nvim";
-
       sudo = "sudo -E";
 
       diff = "diff --color";
