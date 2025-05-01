@@ -7,6 +7,7 @@ let
 
   basePackages = [
     "black"
+    "hererocks"
     "yamllint"
     "uv"
   ];
