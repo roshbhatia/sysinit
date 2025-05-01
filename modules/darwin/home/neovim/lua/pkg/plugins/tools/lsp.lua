@@ -16,7 +16,7 @@ M.plugins = {{
         })
 
         require('mason').setup({
-            install_root_dir = (os.getenv("XDG_DATA_HOME") or os.getenv("HOME") .. "/.local/share") .. "/nvim/mason",
+            install_root_dir = vim.fn.stdpath("data") .. "/mason",
             ui = {
                 border = 'rounded',
                 icons = {

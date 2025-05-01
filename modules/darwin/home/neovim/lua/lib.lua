@@ -58,12 +58,12 @@ function M.setup_package_manager(specs)
     end
 
     require("lazy").setup({
-        root = vim.fn.stdpath("data") .. "lazy",
-        lockfile = vim.fn.stdpath("data") .. "lazy/lazy-lock.json",
+        root = vim.fn.stdpath("data") .. "/lazy",
+        lockfile = vim.fn.stdpath("data") .. "/lazy/lazy-lock.json",
 
         rocks = {
             enabled = true,
-            root = vim.fn.stdpath("data") .. "lazy-rocks",
+            root = vim.fn.stdpath("data") .. "/lazy-rocks",
             hererocks = true
         },
 
