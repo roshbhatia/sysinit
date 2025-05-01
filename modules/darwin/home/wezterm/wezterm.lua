@@ -18,10 +18,9 @@ config.window_padding = {
 }
 config.enable_scroll_bar = true
 config.scrollback_lines = 20000
-config.window_background_opacity = 0.85
-config.macos_window_background_blur = 50
+config.window_background_opacity = 0.9
+config.macos_window_background_blur = 70
 config.window_decorations = 'RESIZE'
-config.window_close_confirmation = 'NeverPrompt'
 
 -- Visual bell
 config.visual_bell = {
@@ -35,7 +34,7 @@ config.colors = {
 }
 
 -- Theme
-config.color_scheme = "Catppuccin Mocha"
+config.color_scheme = "DoomOne"
 
 -- Font configuration
 config.font = wezterm.font_with_fallback({{
