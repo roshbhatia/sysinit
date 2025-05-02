@@ -29,7 +29,7 @@ if vim.g.vscode then
         quickpick_menu = [[
             const vscode = require('vscode');
             if (globalThis.quickPick) { globalThis.quickPick.dispose(); }
-            
+
             const quickPick = vscode.window.createQuickPick();
             quickPick.items = args.items.map(item => ({
               label: item.isGroup ? `$(chevron-right) ${item.label}` : item.isGroupItem ? `  $(key) ${item.label}` : item.label,
@@ -41,20 +41,20 @@ if vim.g.vscode then
             }));
             quickPick.title = args.title;
             quickPick.placeholder = args.placeholder;
-            
+
             let lastActiveItem = null;
             let autoExecuteTimer = null;
             const TIMEOUT_MS = 500;
-            
+
             quickPick.onDidChangeValue((value) => {
               if (autoExecuteTimer) {
                 clearTimeout(autoExecuteTimer);
               }
-              
-              const matchingItems = quickPick.items.filter(item => 
+
+              const matchingItems = quickPick.items.filter(item =>
                 item.label.toLowerCase().startsWith(value.toLowerCase())
               );
-              
+
               if (matchingItems.length === 1 && !matchingItems[0].isGroup) {
                 autoExecuteTimer = setTimeout(async () => {
                   const item = matchingItems[0];
@@ -66,12 +66,12 @@ if vim.g.vscode then
                 }, TIMEOUT_MS);
               }
             });
-            
+
             quickPick.onDidChangeActive((items) => {
               const active = items[0];
               if (!active || active === lastActiveItem) return;
               lastActiveItem = active;
-              
+
               if (active.action && !active.isGroup) {
                 vscode.commands.executeCommand(active.action).then(() => {
                   quickPick.hide();
@@ -79,15 +79,15 @@ if vim.g.vscode then
                 });
               }
             });
-            
+
             quickPick.onDidAccept(async () => {
               if (autoExecuteTimer) {
                 clearTimeout(autoExecuteTimer);
               }
-              
+
               const selected = quickPick.selectedItems[0];
               if (!selected) return;
-              
+
               if (selected.isGroup) {
                 return;
               }
@@ -98,14 +98,14 @@ if vim.g.vscode then
               quickPick.hide();
               quickPick.dispose();
             });
-            
+
             quickPick.onDidHide(() => {
               if (autoExecuteTimer) {
                 clearTimeout(autoExecuteTimer);
               }
               quickPick.dispose();
             });
-            
+
             globalThis.quickPick = quickPick;
             quickPick.show();
         ]],
@@ -571,9 +571,9 @@ M.keybindings_data = {
             vscode_cmd = "git.revertSelectedRanges"
         }, {
             key = "l",
-            desc = "Blame",
-            neovim_cmd = "<cmd>Gitsigns toggle_current_line_blame<CR>",
-            vscode_cmd = "git.blame"
+            desc = "Git UI",
+            neovim_cmd = "<cmd>LazyGit<CR>",
+            vscode_cmd = "git.openChange"
         }}
     },
 
@@ -1061,3 +1061,4 @@ M.plugins = {{
 }}
 
 return M
+
