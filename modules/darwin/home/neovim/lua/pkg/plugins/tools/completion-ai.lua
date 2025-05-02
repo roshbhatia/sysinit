@@ -11,9 +11,8 @@ M.plugins = {{
             },
             panel = {
                 enabled = false
-            }
+            },
             copilot_model = "gpt-4o-copilot"
-
         })
     end
 }, {
