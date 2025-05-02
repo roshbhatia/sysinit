@@ -128,7 +128,7 @@ function M.setup_settings()
     vim.opt.shiftwidth = 2
     vim.opt.tabstop = 2
     vim.opt.smartindent = true
-    vim.opt.wrap = false
+    vim.opt.wrap = true
     vim.opt.linebreak = true
     vim.opt.breakindent = true
 
@@ -145,10 +145,10 @@ function M.setup_settings()
     vim.opt.cursorline = true
     vim.opt.signcolumn = "yes"
     vim.opt.termguicolors = true
-    vim.opt.showmode = false
-    vim.opt.lazyredraw = true
-    vim.opt.foldenable = false
+    vim.opt.showmode = true
+    vim.opt.foldenable = true
     vim.opt.foldlevel = 99
 end
 
 return M
+

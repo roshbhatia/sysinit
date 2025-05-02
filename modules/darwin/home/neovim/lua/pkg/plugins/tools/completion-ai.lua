@@ -7,9 +7,11 @@ M.plugins = {{
     config = function()
         require("copilot").setup({
             suggestion = {
-                enabled = false,
-                auto_trigger = false
+                enabled = false
             },
+            panel = {
+                enabled = false
+            }
             copilot_model = "gpt-4o-copilot"
 
         })
@@ -30,7 +32,8 @@ M.plugins = {{
         local cmp = require('cmp')
         local luasnip = require('luasnip')
         local lspkind = require('lspkind')
-        local autopairs = require('nvim-autopairs')
+        require('nvim-autopairs').setup({})
+
 
         -- Utility functions for context awareness
         local has_words_before = function()
@@ -80,14 +83,7 @@ M.plugins = {{
         })
 
         -- Configure Copilot-cmp
-        require("copilot_cmp").setup({
-            method = "getCompletionsCycling",
-            formatters = {
-                label = require("copilot_cmp.format").format_label_text,
-                insert_text = require("copilot_cmp.format").format_insert_text,
-                preview = require("copilot_cmp.format").deindent
-            }
-        })
+        require("copilot_cmp").setup()
 
         -- Setup Avante (only for chat, not suggestions)
         require("avante").setup({
@@ -217,32 +213,20 @@ M.plugins = {{
                 local base_sources = {{
                     name = 'nvim_lsp',
                     group_index = 1,
-                    priority = 90
                 }, {
                     name = 'path',
-                    group_index = 2,
-                    priority = 60
+                    group_index = 3,
                 }, {
                     name = 'buffer',
                     group_index = 3,
-                    keyword_length = 3,
-                    priority = 40
                 }}
 
                 table.insert(base_sources, 1, {
                     name = 'copilot',
-                    group_index = 1,
-                    priority = 100,
+                    group_index = 2,
                     max_item_count = 10
                 })
-
-                table.insert(base_sources, {
-                    name = 'luasnip',
-                    group_index = 2,
-                    priority = 50
-                })
-
-                return base_sources
+               return base_sources
             end,
             mapping = cmp.mapping.preset.insert({
                 -- VS Code-like keybindings
@@ -364,77 +348,8 @@ M.plugins = {{
                 name = 'cmdline'
             }})
         })
-
-        -- Setup autopairs to work with CMP
-        cmp.event:on('confirm_done', require('nvim-autopairs.completion.cmp').on_confirm_done())
-
-        -- Set up visual mode indentation key mappings to work like VSCode
-        -- This allows selecting a block and pressing Tab to indent it all
-        vim.keymap.set('v', '<Tab>', '>gv', {
-            silent = true,
-            noremap = true
-        })
-
-        vim.keymap.set('v', '<S-Tab>', '<gv', {
-            silent = true,
-            noremap = true
-        })
-
-        -- Set up enhanced highlight groups for a more attractive completion menu
-        vim.api.nvim_set_hl(0, "CmpPmenu", {
-            bg = "#1E1E1E",
-            fg = "#D4D4D4"
-        })
-        vim.api.nvim_set_hl(0, "CmpPmenuBorder", {
-            fg = "#3E3E3E"
-        })
-        vim.api.nvim_set_hl(0, "CmpItemAbbrMatch", {
-            fg = "#569CD6",
-            bold = true
-        })
-        vim.api.nvim_set_hl(0, "CmpItemAbbrMatchFuzzy", {
-            fg = "#569CD6",
-            bold = true
-        })
-        vim.api.nvim_set_hl(0, "CmpItemKindCopilot", {
-            fg = "#6CC644",
-            bold = true
-        })
-        vim.api.nvim_set_hl(0, "CmpItemKindVariable", {
-            fg = "#9CDCFE"
-        })
-        vim.api.nvim_set_hl(0, "CmpItemKindFunction", {
-            fg = "#C586C0"
-        })
-        vim.api.nvim_set_hl(0, "CmpItemKindMethod", {
-            fg = "#DCDCAA"
-        })
-        vim.api.nvim_set_hl(0, "CmpDoc", {
-            bg = "#252525"
-        })
-        vim.api.nvim_set_hl(0, "CmpDocBorder", {
-            fg = "#454545"
-        })
-
-        -- Enable auto-pairing (like in VS Code)
-        require("nvim-autopairs").setup({
-            check_ts = true,
-            ts_config = {
-                lua = {'string'},
-                javascript = {'template_string'}
-            },
-            fast_wrap = {
-                map = '<M-e>', -- Alt+e to wrap with pairs
-                chars = {'{', '[', '(', '"', "'"},
-                pattern = [=[[%'%"%>%]%)%}%,]]=],
-                end_key = '$',
-                keys = 'qwertyuiopzxcvbnmasdfghjkl',
-                check_comma = true,
-                highlight = 'Search',
-                highlight_grey = 'Comment'
-            }
-        })
     end
 }}
 
 return M
+
