@@ -19,6 +19,7 @@ let
     gnupg
     go
     gopls
+    helix
     htop
     jq
     jqp
