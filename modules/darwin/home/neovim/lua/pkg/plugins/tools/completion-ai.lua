@@ -25,13 +25,12 @@ M.plugins = {{
     "yetone/avante.nvim", "nvim-lua/plenary.nvim", "MunifTanjim/nui.nvim", -- Support plugins
     "nvim-treesitter/nvim-treesitter", "stevearc/dressing.nvim", "HakonHarnes/img-clip.nvim",
     "MeanderingProgrammer/render-markdown.nvim", "NMAC427/guess-indent.nvim", -- Added guess-indent instead of intellitab
-    "windwp/nvim-autopairs", -- Snippets (kept for compatibility)
-   },
+    "windwp/nvim-autopairs" -- Snippets (kept for compatibility)
+    },
     config = function()
         local cmp = require('cmp')
         local lspkind = require('lspkind')
         require('nvim-autopairs').setup({})
-
 
         -- Utility functions for context awareness
         local has_words_before = function()
@@ -85,7 +84,7 @@ M.plugins = {{
         require("avante").setup({
             provider = "copilot",
             behaviour = {
-                auto_suggestions = false, -- Disabled as per request
+                auto_suggestions = false,
                 auto_set_highlight_group = true,
                 auto_set_keymaps = true,
                 minimize_diff = true,
@@ -98,12 +97,9 @@ M.plugins = {{
                 width = 30
             },
             mappings = {
-                suggestion = {
-                    accept = "<M-l>",
-                    next = "<M-]>",
-                    prev = "<M-[>",
-                    dismiss = "<C-]>"
-                }
+                ask = "",
+                edit = "",
+                refresh = ""
             }
         })
 
@@ -129,13 +125,13 @@ M.plugins = {{
                 -- Base sources that are always available
                 local base_sources = {{
                     name = 'nvim_lsp',
-                    group_index = 1,
+                    group_index = 1
                 }, {
                     name = 'path',
-                    group_index = 3,
+                    group_index = 3
                 }, {
                     name = 'buffer',
-                    group_index = 3,
+                    group_index = 3
                 }}
 
                 table.insert(base_sources, 1, {
@@ -143,7 +139,7 @@ M.plugins = {{
                     group_index = 2,
                     max_item_count = 10
                 })
-               return base_sources
+                return base_sources
             end,
             preselect = cmp.PreselectMode.Item,
             matching = {

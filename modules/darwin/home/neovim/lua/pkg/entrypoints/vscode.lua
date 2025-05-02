@@ -132,7 +132,7 @@ local function setup_plugins()
 
     local keymaps = {
         commands = require("pkg.plugins.keymaps.commands"),
-        pallete = require("pkg.plugins.keymaps.leader-pallete")
+        pallete = require("pkg.plugins.keymaps.pallete")
     }
 
     local modules = {ui.statusbar, keymaps.commands, keymaps.pallete}

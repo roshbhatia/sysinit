@@ -10,11 +10,7 @@ M.plugins = {{
         vim.opt_local.sidescrolloff = 36
 
         vim.g.neominimap = {
-            auto_enable = false,
-            click = {
-                enabled = true,
-                auto_switch_focus = true
-            }
+            auto_enable = false
         }
     end
 }}
