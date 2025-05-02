@@ -65,7 +65,7 @@ M.plugins = {{
               "wildcharm",
               "zaibatsu",
               "zellner"
-            }
+            },
             livePreview = true
         })
     end
