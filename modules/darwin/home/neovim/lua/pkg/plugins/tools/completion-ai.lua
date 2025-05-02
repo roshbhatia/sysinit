@@ -26,10 +26,9 @@ M.plugins = {{
     "nvim-treesitter/nvim-treesitter", "stevearc/dressing.nvim", "HakonHarnes/img-clip.nvim",
     "MeanderingProgrammer/render-markdown.nvim", "NMAC427/guess-indent.nvim", -- Added guess-indent instead of intellitab
     "windwp/nvim-autopairs", -- Snippets (kept for compatibility)
-    "L3MON4D3/LuaSnip", "saadparwaiz1/cmp_luasnip", "rafamadriz/friendly-snippets"},
+   },
     config = function()
         local cmp = require('cmp')
-        local luasnip = require('luasnip')
         local lspkind = require('lspkind')
         require('nvim-autopairs').setup({})
 
@@ -55,8 +54,6 @@ M.plugins = {{
                 has_text_after_cursor = line:sub(col + 1):match("%S") ~= nil
             }
         end
-
-        require("luasnip.loaders.from_vscode").lazy_load()
 
         -- Setup guess-indent for automatic indentation style detection
         require('guess-indent').setup({
@@ -127,86 +124,7 @@ M.plugins = {{
             file_types = {"markdown", "Avante"}
         })
 
-        -- Configure nvim-cmp with a slicker appearance
         cmp.setup({
-            snippet = {
-                expand = function(args)
-                    luasnip.lsp_expand(args.body)
-                end
-            },
-            window = {
-                -- Enhanced window styling for a more modern look
-                completion = cmp.config.window.bordered({
-                    border = "single",
-                    winhighlight = "Normal:CmpPmenu,CursorLine:PmenuSel,Search:None",
-                    scrollbar = true,
-                    col_offset = -3,
-                    side_padding = 1
-                }),
-                documentation = cmp.config.window.bordered({
-                    border = "rounded",
-                    winhighlight = "Normal:CmpDoc,FloatBorder:CmpDocBorder",
-                    max_width = 80,
-                    max_height = 20
-                })
-            },
-            formatting = {
-                -- Enhanced formatting for a VS Code-like experience
-                format = lspkind.cmp_format({
-                    mode = 'symbol_text',
-                    maxwidth = 50,
-                    ellipsis_char = '…', -- Unicode ellipsis for cleaner look
-                    symbol_map = {
-                        Copilot = "󰚩", -- Enhanced Copilot icon
-                        Text = "󰉿",
-                        Method = "󰆧",
-                        Function = "󰊕",
-                        Constructor = "",
-                        Field = "󰜢",
-                        Variable = "󰀫",
-                        Class = "󰠱",
-                        Interface = "",
-                        Module = "",
-                        Property = "󰜢",
-                        Unit = "󰑭",
-                        Value = "󰎠",
-                        Enum = "",
-                        Keyword = "󰌋",
-                        Snippet = "",
-                        Color = "󰏘",
-                        File = "󰈙",
-                        Reference = "󰈇",
-                        Folder = "󰉋",
-                        EnumMember = "",
-                        Constant = "󰏿",
-                        Struct = "󰙅",
-                        Event = "",
-                        Operator = "󰆕"
-                    },
-                    menu = {
-                        buffer = "  Buffer",
-                        nvim_lsp = "  LSP",
-                        luasnip = "  Snippet",
-                        path = "  Path",
-                        copilot = "  Copilot",
-                        avante = "  Avante"
-                    },
-                    before = function(entry, vim_item)
-                        -- Improved item display formatting
-                        vim_item.abbr = string.sub(vim_item.abbr, 1, 50)
-
-                        -- Special styling for Copilot items to make them stand out
-                        local source = entry.source.name
-                        if source == "copilot" then
-                            vim_item.kind_hl_group = "CmpItemKindCopilot"
-                            -- Priority hint for Copilot suggestions
-                            vim_item.dup = 0
-                        end
-
-                        return vim_item
-                    end
-                })
-            },
             sources = function()
                 -- Base sources that are always available
                 local base_sources = {{
@@ -228,14 +146,6 @@ M.plugins = {{
                return base_sources
             end,
             mapping = cmp.mapping.preset.insert({
-                -- VS Code-like keybindings
-                ['<C-Space>'] = cmp.mapping.complete(),
-                ['<C-e>'] = cmp.mapping.abort(),
-                ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-                ['<C-f>'] = cmp.mapping.scroll_docs(4),
-                ['<C-j>'] = cmp.mapping.select_next_item(),
-                ['<C-k>'] = cmp.mapping.select_prev_item(),
-
                 -- Enter key behavior
                 ['<CR>'] = cmp.mapping({
                     i = function(fallback)
@@ -295,9 +205,6 @@ M.plugins = {{
             }),
             -- VS Code-like behavior settings
             preselect = cmp.PreselectMode.Item,
-            experimental = {
-                ghost_text = true -- Keep lookahead suggestions
-            },
             matching = {
                 disallow_fuzzy_matching = false,
                 disallow_partial_matching = false,
