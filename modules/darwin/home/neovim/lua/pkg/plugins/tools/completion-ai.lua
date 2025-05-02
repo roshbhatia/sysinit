@@ -1,14 +1,27 @@
 local M = {}
 
 M.plugins = {{
+    "zbirenbaum/copilot.lua",
+    cmd = "Copilot",
+    event = "InsertEnter",
+    config = function()
+        require("copilot").setup({
+            suggestion = {
+                enabled = false,
+                auto_trigger = false
+            },
+            copilot_model = "gpt-4o-copilot"
+
+        })
+    end
+}, {
     "hrsh7th/nvim-cmp",
-    lazy = false,
+    lazy = true,
     dependencies = { -- Core completion plugins
     "hrsh7th/cmp-nvim-lsp", "hrsh7th/cmp-buffer", "hrsh7th/cmp-path", "hrsh7th/cmp-cmdline", "onsails/lspkind.nvim",
     -- Copilot integration
-    "github/copilot.vim", "zbirenbaum/copilot.lua", "zbirenbaum/copilot-cmp", -- Avante integration for chat
-    "yetone/avante.nvim", "nvim-lua/plenary.nvim", "CopilotC-Nvim/CopilotChat.nvim", "MunifTanjim/nui.nvim",
-    -- Support plugins
+    "zbirenbaum/copilot-cmp", -- Avante integration for chat
+    "yetone/avante.nvim", "nvim-lua/plenary.nvim", "MunifTanjim/nui.nvim", -- Support plugins
     "nvim-treesitter/nvim-treesitter", "stevearc/dressing.nvim", "HakonHarnes/img-clip.nvim",
     "MeanderingProgrammer/render-markdown.nvim", "NMAC427/guess-indent.nvim", -- Added guess-indent instead of intellitab
     "windwp/nvim-autopairs", -- Snippets (kept for compatibility)
@@ -41,13 +54,6 @@ M.plugins = {{
             }
         end
 
-        -- Improved function to check Copilot status
-        local function is_copilot_online()
-            local copilot_status = vim.fn.system("nvim --headless -c 'Copilot status' -c 'q'")
-            return string.find(string.lower(copilot_status), "online") ~= nil
-        end
-
-        -- Initialize minimal LuaSnip setup (for compatibility with cmp)
         require("luasnip.loaders.from_vscode").lazy_load()
 
         -- Setup guess-indent for automatic indentation style detection
@@ -73,134 +79,58 @@ M.plugins = {{
             }
         })
 
-        -- Completely disable the native Copilot inline suggestions
-        vim.g.copilot_no_tab_map = true
-        vim.g.copilot_assume_mapped = true
-        vim.g.copilot_tab_fallback = ""
-        vim.api.nvim_set_var("copilot_enabled", false)
+        -- Configure Copilot-cmp
+        require("copilot_cmp").setup({
+            method = "getCompletionsCycling",
+            formatters = {
+                label = require("copilot_cmp.format").format_label_text,
+                insert_text = require("copilot_cmp.format").format_insert_text,
+                preview = require("copilot_cmp.format").deindent
+            }
+        })
 
-        -- Check if Copilot is online and set up related features
-        if is_copilot_online() then
-            -- Setup Copilot.lua with suggestions disabled
-            require("copilot").setup({
+        -- Setup Avante (only for chat, not suggestions)
+        require("avante").setup({
+            provider = "copilot",
+            behaviour = {
+                auto_suggestions = false, -- Disabled as per request
+                auto_set_highlight_group = true,
+                auto_set_keymaps = true,
+                minimize_diff = true,
+                enable_token_counting = true,
+                enable_cursor_planning_mode = true
+            },
+            windows = {
+                position = "right",
+                wrap = true,
+                width = 30
+            },
+            mappings = {
                 suggestion = {
-                    enabled = false,
-                    auto_trigger = false,
-                    debounce = 75,
-                    keymap = {
-                        accept = false,
-                        accept_word = false,
-                        accept_line = false,
-                        next = false,
-                        prev = false,
-                        dismiss = false
-                    }
-                },
-                panel = {
-                    enabled = false
-                },
-                filetypes = {
-                    ["*"] = true,
-                    ["help"] = false,
-                    ["gitcommit"] = false,
-                    ["gitrebase"] = false,
-                    ["hgcommit"] = false,
-                    ["svn"] = false,
-                    ["cvs"] = false
-                },
-                copilot_node_command = 'node'
-            })
-
-            -- Configure Copilot-cmp
-            require("copilot_cmp").setup({
-                method = "getCompletionsCycling",
-                formatters = {
-                    label = require("copilot_cmp.format").format_label_text,
-                    insert_text = require("copilot_cmp.format").format_insert_text,
-                    preview = require("copilot_cmp.format").deindent
+                    accept = "<M-l>",
+                    next = "<M-]>",
+                    prev = "<M-[>",
+                    dismiss = "<C-]>"
                 }
-            })
+            }
+        })
 
-            -- CopilotChat config
-            require("CopilotChat").setup({
-                model = "copilot:claude-3.5-sonnet",
-                agent = "copilot",
-                auto_insert_mode = false,
-                system_prompt = "The key words \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"MAY\", and \"OPTIONAL\" in this document are to be interpreted as described in RFC 2119.\n\nImplement a new feature based on the context and description below.\n\nYou MUST begin by enclosing all thoughts within <thinking> tags, exploring multiple angles and approaches. You MUST break down the solution into clear steps within <step> tags. You SHALL start with a 20-step budget, requesting more for complex problems if needed. You MUST use <count> tags after each step to show the remaining budget. You SHALL stop when reaching 0. You MUST continuously adjust your reasoning based on intermediate results and reflections, adapting your strategy as you progress. You SHALL regularly evaluate progress using <reflection> tags. You MUST be critical and honest about your reasoning process. You SHALL assign a quality score between 0.0 and 1.0 using <reward> tags after each reflection. You MUST use this to guide your approach:\n0.8+: Continue current approach\n0.5-0.7: Consider minor adjustments\nBelow 0.5: Seriously consider backtracking and trying a different approach\nIf unsure or if reward score is low, you SHOULD backtrack and try a different approach, explaining your decision within <thinking> tags. For mathematical problems, you MUST show all work explicitly using LaTeX for formal notation and provide detailed proofs. You SHOULD explore multiple solutions individually if possible, comparing approaches in reflections. You SHALL use thoughts as a scratchpad, writing out all calculations and reasoning explicitly. You MUST synthesize the final answer within <answer> tags, providing a clear, concise summary. You SHALL conclude with a final reflection on the overall solution, discussing effectiveness, challenges, and solutions. You MUST assign a final reward score.",
-                prompts = {
-                    Optimize = {
-                        prompt = "The key words \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"MAY\", and \"OPTIONAL\" in this document are to be interpreted as described in RFC 2119.\n\nOptimize the selected code for improved performance and readability.\n\nYou MUST begin by enclosing all thoughts within <thinking> tags, analyzing performance bottlenecks and readability issues. You MUST break down the optimization process into clear steps within <step> tags. You SHALL use <count> tags to track your 20-step budget. You MUST regularly evaluate progress using <reflection> tags, assigning a quality score between 0.0 and 1.0 using <reward> tags. You MUST provide the optimized code and explanation within <answer> tags."
-                    },
-                    Tests = {
-                        prompt = "The key words \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"MAY\", and \"OPTIONAL\" in this document are to be interpreted as described in RFC 2119.\n\nGenerate comprehensive tests for the selected code.\n\nYou MUST begin by enclosing all thoughts within <thinking> tags, exploring various testing approaches and edge cases. You MUST structure the test creation process in clear steps within <step> tags. You SHALL use <count> tags to track your 20-step budget. You MUST regularly evaluate progress using <reflection> tags, assigning a quality score between 0.0 and 1.0 using <reward> tags. You MUST provide the final test suite within <answer> tags."
-                    },
-                    Review = {
-                        prompt = "The key words \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"MAY\", and \"OPTIONAL\" in this document are to be interpreted as described in RFC 2119.\n\nConduct a thorough code review of the selected code, focusing on security, efficiency, and best practices.\n\nYou MUST begin by enclosing all thoughts within <thinking> tags, examining multiple aspects of code quality. You MUST break down the review into clear steps within <step> tags. You SHALL use <count> tags to track your 20-step budget. You MUST regularly evaluate your findings using <reflection> tags, assigning a quality score between 0.0 and 1.0 using <reward> tags. You MUST provide the final code review within <answer> tags.",
-                        system_prompt = 'COPILOT_REVIEW'
-                    },
-                    Docs = {
-                        prompt = "The key words \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"MAY\", and \"OPTIONAL\" in this document are to be interpreted as described in RFC 2119.\n\nGenerate comprehensive documentation for the selected code, including function descriptions, parameters, return values, and examples.\n\nYou MUST begin by enclosing all thoughts within <thinking> tags, exploring how to best document each component. You MUST structure the documentation process within <step> tags. You SHALL use <count> tags to track your 20-step budget. You MUST regularly evaluate the quality of documentation using <reflection> tags, assigning a quality score between 0.0 and 1.0 using <reward> tags. You MUST provide the final documentation within <answer> tags."
-                    },
-                    RefactorCode = {
-                        prompt = "The key words \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"MAY\", and \"OPTIONAL\" in this document are to be interpreted as described in RFC 2119.\n\nRefactor the selected code to improve its structure while maintaining functionality.\n\nYou MUST begin by enclosing all thoughts within <thinking> tags, exploring refactoring patterns and approaches. You MUST break down the refactoring process into clear steps within <step> tags. You SHALL use <count> tags to track your 20-step budget. You MUST regularly evaluate progress using <reflection> tags, assigning a quality score between 0.0 and 1.0 using <reward> tags. You MUST provide the refactored code and explanation within <answer> tags."
-                    },
-                    Explain = {
-                        prompt = "The key words \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"MAY\", and \"OPTIONAL\" in this document are to be interpreted as described in RFC 2119.\n\nExplain the programming concept demonstrated in the selected code in depth, with examples and analogies.\n\nYou MUST begin by enclosing all thoughts within <thinking> tags, exploring different ways to explain the concept. You MUST structure your explanation in clear steps within <step> tags. You SHALL use <count> tags to track your 20-step budget. You MUST regularly evaluate the clarity of your explanation using <reflection> tags, assigning a quality score between 0.0 and 1.0 using <reward> tags. You MUST provide the final concept explanation within <answer> tags.",
-                        system_prompt = 'COPILOT_EXPLAIN'
-                    },
-                    Commit = {
-                        prompt = 'Write commit message for the change with commitizen convention. Keep the title under 50 characters and wrap message at 72 characters. Format as a gitcommit code block.',
-                        context = 'git:staged'
-                    }
-                }
-            })
-
-            -- Setup Avante (only for chat, not suggestions)
-            require("avante").setup({
-                provider = "copilot",
-                behaviour = {
-                    auto_suggestions = false, -- Disabled as per request
-                    auto_set_highlight_group = true,
-                    auto_set_keymaps = true,
-                    minimize_diff = true,
-                    enable_token_counting = true,
-                    enable_cursor_planning_mode = true
+        -- Setup image clip for Avante
+        require("img-clip").setup({
+            default = {
+                embed_image_as_base64 = false,
+                prompt_for_file_name = false,
+                drag_and_drop = {
+                    insert_mode = true
                 },
-                windows = {
-                    position = "right",
-                    wrap = true,
-                    width = 30
-                },
-                mappings = {
-                    suggestion = {
-                        accept = "<M-l>",
-                        next = "<M-]>",
-                        prev = "<M-[>",
-                        dismiss = "<C-]>"
-                    }
-                }
-            })
+                use_absolute_path = true
+            }
+        })
 
-            -- Setup image clip for Avante
-            require("img-clip").setup({
-                default = {
-                    embed_image_as_base64 = false,
-                    prompt_for_file_name = false,
-                    drag_and_drop = {
-                        insert_mode = true
-                    },
-                    use_absolute_path = true
-                }
-            })
-
-            -- Setup markdown rendering for Avante
-            require("render-markdown").setup({
-                file_types = {"markdown", "Avante"}
-            })
-
-            -- Build Avante
-            vim.cmd("AvanteBuild")
-        end
+        -- Setup markdown rendering for Avante
+        require("render-markdown").setup({
+            file_types = {"markdown", "Avante"}
+        })
 
         -- Configure nvim-cmp with a slicker appearance
         cmp.setup({
@@ -299,18 +229,13 @@ M.plugins = {{
                     priority = 40
                 }}
 
-                -- Only add Copilot sources if it's online
-                -- This prioritizes Copilot suggestions like in VS Code
-                if is_copilot_online() then
-                    table.insert(base_sources, 1, {
-                        name = 'copilot',
-                        group_index = 1,
-                        priority = 100,
-                        max_item_count = 10
-                    })
-                end
+                table.insert(base_sources, 1, {
+                    name = 'copilot',
+                    group_index = 1,
+                    priority = 100,
+                    max_item_count = 10
+                })
 
-                -- Keep snippets with lower priority since you don't use them much
                 table.insert(base_sources, {
                     name = 'luasnip',
                     group_index = 2,
@@ -403,11 +328,7 @@ M.plugins = {{
                                          cmp.config.compare.kind, cmp.config.compare.sort_text,
                                          cmp.config.compare.length, cmp.config.compare.order}
 
-                    -- Put Copilot suggestions at the top when available
-                    if is_copilot_online() then
-                        table.insert(comparators, 1, require("copilot_cmp.comparators").prioritize)
-                    end
-
+                    table.insert(comparators, 1, require("copilot_cmp.comparators").prioritize)
                     return comparators
                 end
             },
@@ -513,15 +434,6 @@ M.plugins = {{
                 highlight_grey = 'Comment'
             }
         })
-
-        -- Print setup completion message
-        vim.defer_fn(function()
-            if is_copilot_online() then
-                vim.notify("Completion setup with Copilot integration", vim.log.levels.INFO)
-            else
-                vim.notify("Completion setup with LSP only (Copilot not connected)", vim.log.levels.WARN)
-            end
-        end, 1000)
     end
 }}
 
