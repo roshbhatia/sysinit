@@ -189,7 +189,7 @@ local function setup_plugins()
         scrollbar = require("pkg.plugins.ui.scrollbar"),
         statusbar = require("pkg.plugins.ui.statusbar"),
         tab = require("pkg.plugins.ui.tab"),
-        smart_splits = require("pkg.plugins.ui.smart-splits")
+        smart_splits = require("pkg.plugins.ui.smart-splits"),
         theme = require("pkg.plugins.ui.theme")
     }
 
