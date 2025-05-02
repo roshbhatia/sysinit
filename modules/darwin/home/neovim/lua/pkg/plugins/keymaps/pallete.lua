@@ -572,7 +572,7 @@ M.keybindings_data = {
         }, {
             key = "l",
             desc = "Git UI",
-            neovim_cmd = "<cmd>LazyGit<CR>",
+            neovim_cmd = "<cmd>Snacks.lazygit.open()<CR>",
             vscode_cmd = "git.openChange"
         }}
     },
