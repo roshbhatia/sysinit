@@ -145,65 +145,6 @@ M.plugins = {{
                 })
                return base_sources
             end,
-            mapping = cmp.mapping.preset.insert({
-                -- Enter key behavior
-                ['<CR>'] = cmp.mapping({
-                    i = function(fallback)
-                        if cmp.visible() then
-                            cmp.confirm({
-                                select = true,
-                                behavior = cmp.ConfirmBehavior.Replace
-                            })
-                        else
-                            fallback()
-                        end
-                    end,
-                    s = cmp.mapping.confirm({
-                        select = true,
-                        behavior = cmp.ConfirmBehavior.Replace
-                    }),
-                    c = function(fallback)
-                        if cmp.visible() then
-                            cmp.confirm({
-                                select = true,
-                                behavior = cmp.ConfirmBehavior.Replace
-                            })
-                        else
-                            fallback()
-                        end
-                    end
-                }),
-
-                -- Enhanced Tab behavior similar to VS Code
-                ['<Tab>'] = cmp.mapping(function(fallback)
-                    -- Handle visible completion menu first
-                    if cmp.visible() then
-                        cmp.select_next_item()
-                        return
-                    end
-
-                    -- If we have text before cursor, try completing
-                    if has_words_before() then
-                        cmp.complete()
-                        if cmp.visible() then
-                            cmp.select_next_item()
-                            return
-                        end
-                    end
-
-                    -- Default to standard tab behavior
-                    fallback()
-                end, {'i', 's'}),
-
-                ['<S-Tab>'] = cmp.mapping(function(fallback)
-                    if cmp.visible() then
-                        cmp.select_prev_item()
-                    else
-                        fallback()
-                    end
-                end, {'i', 's'})
-            }),
-            -- VS Code-like behavior settings
             preselect = cmp.PreselectMode.Item,
             matching = {
                 disallow_fuzzy_matching = false,
