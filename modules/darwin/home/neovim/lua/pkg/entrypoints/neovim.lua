@@ -190,6 +190,7 @@ local function setup_plugins()
         statusbar = require("pkg.plugins.ui.statusbar"),
         tab = require("pkg.plugins.ui.tab"),
         smart_splits = require("pkg.plugins.ui.smart-splits")
+        theme = require("pkg.plugins.ui.theme")
     }
 
     local editor = {
@@ -230,7 +231,7 @@ local function setup_plugins()
     }
 
     local modules = { -- UI elements
-    ui.devicons, ui.statusbar, ui.tab, ui.minimap, ui.scrollbar, ui.smart_splits, ui.dashboard, -- Keymaps
+    ui.devicons, ui.statusbar, ui.tab, ui.minimap, ui.scrollbar, ui.smart_splits, ui.dashboard, ui.theme, -- Keymaps
     keymaps.pallete, keymaps.commands, keymaps.hop, -- Editor enhancements
     editor.comment, editor.ibl, -- File management
     file.editor, file.tree, file.telescope, file.session, file.diffview, -- Git integration
@@ -269,3 +270,4 @@ function M.init()
 end
 
 return M
+
