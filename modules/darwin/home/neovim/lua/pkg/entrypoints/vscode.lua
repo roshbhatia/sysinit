@@ -321,7 +321,7 @@ local function setup_plugins()
 
     local modules = {ui.statusbar, keymaps.commands, keymaps.pallete}
 
-    local specs = sysinit_lib.get_Ms(modules)
+    local specs = sysinit_lib.collect_plugin_specs(modules)
     sysinit_lib.setup_package_manager(specs)
     sysinit_lib.setup_modules(modules)
 end

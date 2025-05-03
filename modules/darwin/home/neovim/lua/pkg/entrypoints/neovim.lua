@@ -239,7 +239,7 @@ local function setup_plugins()
     tools.parser, tools.lsp, tools.formatter, tools.linters, tools.completion_ai, tools.outline, -- Debugging
     debugger.dap}
 
-    local specs = sysinit_lib.get_Ms(modules)
+    local specs = sysinit_lib.collect_plugin_specs(modules)
     sysinit_lib.setup_package_manager(specs)
     sysinit_lib.setup_modules(modules)
 end
