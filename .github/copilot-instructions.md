@@ -1,3 +1,9 @@
+# Common instructions
+
+- NEVER add comments, unless directed to otherwise
+- When refactoring, ALWAYS write the entire content to the file -- never write a partial amount and expect me to define things.
+- When refactoring, ONLY use code I have previously defined OR documentation I explicitly provide, unless directed to otherwise.
+
 ## modules/darwin/home/neovim
 
 This module is a neovim configuration built on lazy.nvim, adhering to the plugin spec format.
