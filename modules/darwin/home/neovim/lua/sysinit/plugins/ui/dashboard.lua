@@ -9,7 +9,7 @@ M.plugins = {{
         local alpha = require("alpha")
         local dashboard = require("alpha.themes.dashboard")
         local win_width = vim.o.columns
-        vim.g.mousescroll = "ver:0,hor:0"
+        -- vim.opt_local.mousescroll = "ver:0,hor:0"
 
         -- Set header
         dashboard.section.header.val =
