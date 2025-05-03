@@ -40,6 +40,7 @@ let
     "gum"
     "git-filter-repo"
     "gettext"
+    "helix"
     "helm"
     "helm-ls"
     "jandedobbeleer/oh-my-posh/oh-my-posh"
