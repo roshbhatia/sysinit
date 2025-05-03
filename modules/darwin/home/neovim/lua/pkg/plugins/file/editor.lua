@@ -3,7 +3,7 @@ local M = {}
 
 M.plugins = {{
     "stevearc/oil.nvim",
-    lazy = true,
+    lazy = false,
     dependencies = {"nvim-tree/nvim-web-devicons"},
     opts = {
         default_file_explorer = true,
