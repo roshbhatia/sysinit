@@ -142,9 +142,9 @@ local function setup_plugins()
     sysinit_lib.setup_modules(modules)
 end
 
-local M = {}
+local plugin_spec = {}
 
-function M.init()
+function plugin_spec.init()
     local config_path = vim.fn.stdpath('config')
     package.path = package.path .. ";" .. config_path .. "/?.lua" .. ";" .. config_path .. "/lua/?.lua"
     sysinit_lib.setup_settings()
@@ -157,4 +157,4 @@ function M.init()
     setup_keybindings()
 end
 
-return M
+return plugin_spec

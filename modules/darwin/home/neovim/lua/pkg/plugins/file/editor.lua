@@ -1,5 +1,5 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/stevearc/oil.nvim/refs/heads/master/doc/api.md"
-local M = {}
+local plugin_spec = {}
 
 M.plugins = {{
     "stevearc/oil.nvim",
@@ -39,4 +39,4 @@ M.plugins = {{
     end
 }}
 
-return M
+return plugin_spec

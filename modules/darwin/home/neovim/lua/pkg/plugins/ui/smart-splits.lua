@@ -1,5 +1,5 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/mrjones2014/smart-splits.nvim/refs/heads/master/doc/smart-splits.txt"
-local M = {}
+local plugin_spec = {}
 
 M.plugins = {{
     "mrjones2014/smart-splits.nvim",
@@ -52,4 +52,4 @@ M.plugins = {{
     end
 }}
 
-return M
+return plugin_spec

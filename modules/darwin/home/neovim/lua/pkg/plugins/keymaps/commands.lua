@@ -1,4 +1,4 @@
-local M = {}
+local plugin_spec = {}
 
 local cmd_map = {
     w = "workbench.action.files.save",
@@ -36,7 +36,7 @@ local function map_cmd(mode, lhs, cmd, opts)
     end
 end
 
-function M.setup()
+function plugin_spec.setup()
     if not vim.g.vscode then
         return
     end
@@ -192,4 +192,4 @@ function M.setup()
     end, {})
 end
 
-return M
+return plugin_spec

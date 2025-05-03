@@ -1,4 +1,4 @@
-local M = {}
+local plugin_spec = {}
 
 M.plugins = {{
     "APZelos/blamer.nvim",
@@ -15,4 +15,4 @@ M.plugins = {{
     end
 }}
 
-return M
+return plugin_spec

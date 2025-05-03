@@ -1,5 +1,5 @@
 -- sysinit.nvim.doc-url="https://github.com/mfussenegger/nvim-dap/wiki"
-local M = {}
+local plugin_spec = {}
 
 M.plugins = {{
     "mfussenegger/nvim-dap",
@@ -218,7 +218,7 @@ local function setup_commands()
     end, {})
 end
 
-function M.setup()
+function plugin_spec.setup()
     setup_dap_signs()
     configure_debuggers()
     configure_dapui()
@@ -234,4 +234,4 @@ function M.setup()
     require("dap").defaults.fallback.terminal_win_cmd = "50vsplit new"
 end
 
-return M
+return plugin_spec

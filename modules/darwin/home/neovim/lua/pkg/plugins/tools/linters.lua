@@ -1,5 +1,5 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/mfussenegger/nvim-lint/master/doc/lint.txt"
-local M = {}
+local plugin_spec = {}
 
 M.plugins = {{
     "mfussenegger/nvim-lint",
@@ -154,4 +154,4 @@ M.plugins = {{
     end
 }}
 
-return M
+return plugin_spec
