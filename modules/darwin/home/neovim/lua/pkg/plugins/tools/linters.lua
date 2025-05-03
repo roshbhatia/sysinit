@@ -3,6 +3,7 @@ local M = {}
 
 M.plugins = {{
     "mfussenegger/nvim-lint",
+    lazy = true,
     event = "VeryLazy",
     dependencies = {"mason.nvim"},
     opts = function()
