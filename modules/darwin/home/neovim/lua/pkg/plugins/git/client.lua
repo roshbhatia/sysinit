@@ -4,6 +4,7 @@ local M = {}
 -- Solely used for lazygit
 M.plugins = {{
     "folke/snacks.nvim",
+    cmd = "Snacks.lazygit()",
     lazy = true,
     event = "VeryLazy",
     dependencies = {"nvim-lua/plenary.nvim", "lewis6991/gitsigns.nvim", "tpope/vim-fugitive",
