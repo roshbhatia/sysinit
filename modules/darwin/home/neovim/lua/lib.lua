@@ -1,6 +1,6 @@
 local M = {}
 
-function M.geMecs(modules)
+function M.collect_plugin_specs(modules)
     local specs = {}
 
     for _, M in ipairs(modules) do
