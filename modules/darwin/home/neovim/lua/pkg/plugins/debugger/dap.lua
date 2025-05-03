@@ -3,23 +3,122 @@ local M = {}
 M.plugins = {{
     "mfussenegger/nvim-dap",
     lazy = true,
-    dependencies = {"rcarriga/nvim-dap-ui", "nvim-neotest/nvim-nio"}
-}}
+    event = "VeryLazy",
+    config = function()
+        local dap = require("dap")
 
-function M.setup()
-    require("pkg.plugins.debugger.signs").setup()
-    require("pkg.plugins.debugger.debuggers").setup()
-    require("pkg.plugins.debugger.dapui").setup()
-    require("pkg.plugins.debugger.commands").setup()
+        dap.adapters.python = {
+            type = 'executable',
+            command = 'python',
+            args = {'-m', 'debugpy.adapter'}
+        }
 
-    vim.api.nvim_create_autocmd("FileType", {
-        pattern = "dap-repl",
-        callback = function()
-            require("dap.ext.autocompl").attach()
+        dap.configurations.python = {{
+            type = "python",
+            request = "launch",
+            name = "Launch file",
+            program = "${file}",
+            pythonPath = function()
+                local venv_path = os.getenv('VIRTUAL_ENV')
+                return venv_path and venv_path .. '/bin/python' or 'python'
+            end
+        }, {
+            type = "python",
+            request = "launch",
+            name = "Launch with arguments",
+            program = "${file}",
+            args = function()
+                return vim.split(vim.fn.input("Arguments: "), " ")
+            end,
+            pythonPath = function()
+                local venv_path = os.getenv('VIRTUAL_ENV')
+                return venv_path and venv_path .. '/bin/python' or 'python'
+            end
+        }}
+
+        dap.adapters.nlua = function(callback, config)
+            callback({
+                type = 'server',
+                host = config.host or "127.0.0.1",
+                port = config.port or 8086
+            })
         end
-    })
+        dap.configurations.lua = {{
+            type = 'nlua',
+            request = 'attach',
+            name = "Attach to running Neovim instance",
+            host = function()
+                return "127.0.0.1"
+            end,
+            port = function()
+                return 8086
+            end
+        }}
 
-    require("dap").defaults.fallback.terminal_win_cmd = "50vsplit new"
-end
+        dap.adapters.node2 = {
+            type = 'executable',
+            command = 'node',
+            args = {vim.fn.stdpath("data") .. '/mason/packages/node-debug2-adapter/out/src/nodeDebug.js'}
+        }
+
+        dap.configurations.javascript = {{
+            name = 'Launch',
+            type = 'node2',
+            request = 'launch',
+            program = '${file}',
+            cwd = vim.fn.getcwd(),
+            sourceMaps = true,
+            protocol = 'inspector',
+            console = 'integratedTerminal'
+        }, {
+            name = 'Attach to process',
+            type = 'node2',
+            request = 'attach',
+            processId = require('dap.utils').pick_process
+        }}
+
+        dap.configurations.typescript = dap.configurations.javascript
+
+        vim.api.nvim_create_user_command('DapToggleBreakpoint', function()
+            dap.toggle_breakpoint()
+        end, {})
+        vim.api.nvim_create_user_command('DapContinue', function()
+            dap.continue()
+        end, {})
+        vim.api.nvim_create_user_command('DapStepOver', function()
+            dap.step_over()
+        end, {})
+        vim.api.nvim_create_user_command('DapStepInto', function()
+            dap.step_into()
+        end, {})
+        vim.api.nvim_create_user_command('DapStepOut', function()
+            dap.step_out()
+        end, {})
+        vim.api.nvim_create_user_command('DapTerminate', function()
+            dap.terminate()
+        end, {})
+
+        vim.fn.sign_define('DapBreakpoint', {
+            text = '',
+            texthl = 'DiagnosticSignError',
+            linehl = '',
+            numhl = ''
+        })
+
+        require("pkg.plugins.debugger.signs").setup()
+        require("pkg.plugins.debugger.debuggers").setup()
+        require("pkg.plugins.debugger.dapui").setup()
+        require("pkg.plugins.debugger.commands").setup()
+
+        vim.api.nvim_create_autocmd("FileType", {
+            pattern = "dap-repl",
+            callback = function()
+                require("dap.ext.autocompl").attach()
+            end
+        })
+
+        dap.defaults.fallback.terminal_win_cmd = "50vsplit new"
+    end
+}}
 
 return M
