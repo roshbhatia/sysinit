@@ -1,4 +1,4 @@
-local sysinit_lib = require('lib')
+local sysinit_lib = require('sysinit.pkg.plugin')
 
 local function setup_keybindings()
     vim.keymap.set("n", "<C-h>", "<C-w>h", {
@@ -183,62 +183,62 @@ end
 
 local function setup_plugins()
     local ui = {
-        dashboard = require("pkg.plugins.ui.dashboard"),
-        devicons = require("pkg.plugins.ui.devicons"),
-        minimap = require("pkg.plugins.ui.minimap"),
-        nui = require("pkg.plugins.ui.nui"),
-        plenary = require("pkg.plugins.ui.plenary"),
-        scrollbar = require("pkg.plugins.ui.scrollbar"),
-        smart_splits = require("pkg.plugins.ui.smart-splits"),
-        statusbar = require("pkg.plugins.ui.statusbar"),
-        tab = require("pkg.plugins.ui.tab"),
-        theme = require("pkg.plugins.ui.theme")
+        dashboard = require("sysinit.plugins.plugins.ui.dashboard"),
+        devicons = require("sysinit.plugins.plugins.ui.devicons"),
+        minimap = require("sysinit.plugins.plugins.ui.minimap"),
+        nui = require("sysinit.plugins.plugins.ui.nui"),
+        plenary = require("sysinit.plugins.plugins.ui.plenary"),
+        scrollbar = require("sysinit.plugins.plugins.ui.scrollbar"),
+        smart_splits = require("sysinit.plugins.plugins.ui.smart-splits"),
+        statusbar = require("sysinit.plugins.plugins.ui.statusbar"),
+        tab = require("sysinit.plugins.plugins.ui.tab"),
+        theme = require("sysinit.plugins.plugins.ui.theme")
     }
 
     local editor = {
-        comment = require("pkg.plugins.editor.comment"),
-        commentstring = require("pkg.plugins.editor.commentstring"),
-        formatter = require("pkg.plugins.editor.formatter"),
-        ibl = require("pkg.plugins.editor.ibl")
+        comment = require("sysinit.plugins.plugins.editor.comment"),
+        commentstring = require("sysinit.plugins.plugins.editor.commentstring"),
+        formatter = require("sysinit.plugins.plugins.editor.formatter"),
+        ibl = require("sysinit.plugins.plugins.editor.ibl")
     }
 
     local file = {
-        diffview = require("pkg.plugins.file.diffview"),
-        editor = require("pkg.plugins.file.editor"),
-        session = require("pkg.plugins.file.session"),
-        telescope = require("pkg.plugins.file.telescope"),
-        tree = require("pkg.plugins.file.tree")
+        diffview = require("sysinit.plugins.plugins.file.diffview"),
+        editor = require("sysinit.plugins.plugins.file.editor"),
+        session = require("sysinit.plugins.plugins.file.session"),
+        telescope = require("sysinit.plugins.plugins.file.telescope"),
+        tree = require("sysinit.plugins.plugins.file.tree")
     }
 
     local git = {
-        blame = require("pkg.plugins.git.blame"),
-        client = require("pkg.plugins.git.client"),
-        fugitive = require("pkg.plugins.git.fugitive"),
-        signs = require("pkg.plugins.git.signs")
+        blame = require("sysinit.plugins.plugins.git.blame"),
+        client = require("sysinit.plugins.plugins.git.client"),
+        fugitive = require("sysinit.plugins.plugins.git.fugitive"),
+        signs = require("sysinit.plugins.plugins.git.signs")
     }
 
     local intellicode = {
-        completion_ai = require("pkg.plugins.intellicode.completion-ai"),
-        linters = require("pkg.plugins.intellicode.linters"),
-        lsp_zero = require("pkg.plugins.intellicode.lsp-zero"),
-        mason_lspconfig = require("pkg.plugins.intellicode.mason-lspconfig"),
-        mason = require("pkg.plugins.intellicode.mason"),
-        outline = require("pkg.plugins.intellicode.outline"),
-        sort = require("pkg.plugins.intellicode.sort"),
-        trailspace = require("pkg.plugins.intellicode.trailspace"),
-        treesitter_textobjects = require("pkg.plugins.intellicode.treesitter-textobjects"),
-        treesitter = require("pkg.plugins.intellicode.treesitter"),
-        trouble = require("pkg.plugins.intellicode.trouble")
+        completion_ai = require("sysinit.plugins.plugins.intellicode.completion-ai"),
+        linters = require("sysinit.plugins.plugins.intellicode.linters"),
+        lsp_zero = require("sysinit.plugins.plugins.intellicode.lsp-zero"),
+        mason_lspconfig = require("sysinit.plugins.plugins.intellicode.mason-lspconfig"),
+        mason = require("sysinit.plugins.plugins.intellicode.mason"),
+        outline = require("sysinit.plugins.plugins.intellicode.outline"),
+        sort = require("sysinit.plugins.plugins.intellicode.sort"),
+        trailspace = require("sysinit.plugins.plugins.intellicode.trailspace"),
+        treesitter_textobjects = require("sysinit.plugins.plugins.intellicode.treesitter-textobjects"),
+        treesitter = require("sysinit.plugins.plugins.intellicode.treesitter"),
+        trouble = require("sysinit.plugins.plugins.intellicode.trouble")
     }
 
     local keymaps = {
-        hop = require("pkg.plugins.keymaps.hop"),
-        pallete = require("pkg.plugins.keymaps.pallete")
+        hop = require("sysinit.plugins.plugins.keymaps.hop"),
+        pallete = require("sysinit.plugins.plugins.keymaps.pallete")
     }
 
     local debugger = {
-        dap = require("pkg.plugins.debugger.dap"),
-        dapui = require("pkg.plugins.debugger.dapui")
+        dap = require("sysinit.plugins.plugins.debugger.dap"),
+        dapui = require("sysinit.plugins.plugins.debugger.dapui")
     }
 
     local modules = { -- UI elements
@@ -276,7 +276,7 @@ function M.init()
     vim.opt.shortmess:append("c")
     vim.opt.completeopt = {"menuone", "noselect"}
     vim.opt.clipboard = "unnamedplus"
-    
+
     setup_plugins()
     setup_keybindings()
 end

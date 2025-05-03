@@ -1,5 +1,5 @@
 local vscode = require('vscode')
-local sysinit_lib = require('lib')
+local sysinit_lib = require('sysinit.pkg.plugin')
 
 local cmd_map = {
     w = "workbench.action.files.save",
