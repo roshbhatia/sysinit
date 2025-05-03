@@ -4,42 +4,22 @@ local M = {}
 M.plugins = {{
     "nvim-tree/nvim-web-devicons",
     lazy = false,
-    config = function()
-        require("nvim-web-devicons").setup({
-            override = {
-                default_icon = {
-                    icon = "",
-                    color = "#6d8086",
-                    name = "Default"
-                },
-                nix = {
-                    icon = "",
-                    color = "#7ebae4",
-                    name = "Nix"
-                }
+    opts = {
+        override = {
+            default_icon = {
+                icon = "",
+                color = "#6d8086",
+                name = "Default"
             },
-            default = true,
-            strict = true,
-            color_icons = true
-        })
-    end
+            nix = {
+                icon = "",
+                color = "#7ebae4",
+                name = "Nix"
+            }
+        },
+        default = true,
+        strict = true,
+        color_icons = true
+    }
 }}
-
-function M.setup()
-    vim.api.nvim_create_user_command("ShowDevIcons", function()
-        local icons_status, icons = pcall(require, 'nvim-web-devicons')
-        if not icons_status then
-            vim.notify("nvim-web-devicons not available", vim.log.levels.ERROR)
-            return
-        end
-
-        local all_icons = icons.get_icons()
-        if all_icons then
-            vim.api.nvim_echo({{vim.inspect(all_icons), "Normal"}}, true, {})
-        else
-            vim.notify("No icons available", vim.log.levels.WARN)
-        end
-    end, {})
-end
-
 return M
