@@ -276,7 +276,6 @@ function M.init()
     vim.opt.shortmess:append("c")
     vim.opt.completeopt = {"menuone", "noselect"}
     vim.opt.clipboard = "unnamedplus"
-    vim.o.statuscolumn = "%s %l %r"
     
     setup_plugins()
     setup_keybindings()
