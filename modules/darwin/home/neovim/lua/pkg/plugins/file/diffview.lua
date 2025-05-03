@@ -4,7 +4,6 @@ local M = {}
 M.plugins = {{
     "sindrets/diffview.nvim",
     lazy = true,
-    priority = 900,
     dependencies = {"nvim-lua/plenary.nvim"},
     config = function()
         local actions = require("diffview.config").actions

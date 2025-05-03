@@ -4,15 +4,10 @@ local M = {}
 M.plugins = {{
     "rmagatti/auto-session",
     lazy = false,
-    priority = 100, -- Make sure it loads early
+    priority = 100,
+    dependencies = {"nvim-lualine/lualine.nvim"},
     config = function()
         local auto_session = require("auto-session")
-
-        -- Check if lualine is available
-        local function is_lualine_available()
-            local ok, lualine = pcall(require, "lualine")
-            return ok and lualine
-        end
 
         -- Make sure the session directories exist
         local session_dir = vim.fn.stdpath("data") .. "/sessions/"
@@ -56,9 +51,7 @@ M.plugins = {{
 
             post_restore_cmds = {function()
                 vim.defer_fn(function()
-                    if is_lualine_available() then
-                        require("lualine").refresh()
-                    end
+                    require("lualine").refresh()
                 end, 100)
             end},
 
