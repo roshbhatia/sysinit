@@ -1,10 +1,10 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/kdheepak/lazygit.nvim/refs/heads/main/README.md"
--- sysinit.nvim.doc-url="https://raw.githubusercontent.com/lewis6991/gitsigns.nvim/refs/heads/main/doc/gitsigns.txt"
--- sysinit.nvim.doc-url="https://raw.githubusercontent.com/tpope/vim-fugitive/refs/heads/master/doc/fugitive.txt"
 local M = {}
 
+-- Solely used for lazygit
 M.plugins = {{
     "folke/snacks.nvim",
+    lazy = true,
     event = "VeryLazy",
     dependencies = {"nvim-lua/plenary.nvim", "lewis6991/gitsigns.nvim", "tpope/vim-fugitive",
                     "nvim-telescope/telescope.nvim"},
@@ -46,10 +46,7 @@ M.plugins = {{
         words = {
             enabled = false
         }
-    },
-    config = function()
-        require("gitsigns").setup()
-    end
+    }
 }}
 
 return M
