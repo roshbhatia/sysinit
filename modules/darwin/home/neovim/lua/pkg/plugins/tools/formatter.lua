@@ -3,6 +3,7 @@ local M = {}
 
 M.plugins = {{
     "stevearc/conform.nvim",
+    lazy = true,
     event = "VeryLazy",
     dependencies = {"mason.nvim"},
     config = function()
