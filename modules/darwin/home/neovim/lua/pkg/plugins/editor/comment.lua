@@ -1,15 +1,10 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/numToStr/Comment.nvim/refs/heads/master/doc/Comment.txt"
--- sysinit.nvim.doc-url="https://github.com/JoosepAlviste/nvim-ts-context-commentstring/blob/main/doc/nvim-ts-context-commentstring.txt"
-local plugin_family = {}
+local M = {}
 
 M.plugins = {{
     "numToStr/Comment.nvim",
     lazy = true,
-    priority = 1000,
-    dependencies = {
-        "JoosepAlviste/nvim-ts-context-commentstring",
-        config = true
-    },
+    dependencies = {"JoosepAlviste/nvim-ts-context-commentstring"},
     opts = {
         mappings = {
             basic = false,
@@ -32,10 +27,7 @@ M.plugins = {{
                 })
             end
         end
-    },
-    config = function(_, opts)
-        require("Comment").setup(opts)
-    end
+    }
 }}
 
-return plugin_family
+return M

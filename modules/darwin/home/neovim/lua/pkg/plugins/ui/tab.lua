@@ -1,4 +1,4 @@
-local plugin_family = {}
+local M = {}
 
 M.plugins = {{
     "nanozuki/tabby.nvim",
@@ -88,4 +88,4 @@ M.plugins = {{
     end
 }}
 
-return plugin_family
+return M

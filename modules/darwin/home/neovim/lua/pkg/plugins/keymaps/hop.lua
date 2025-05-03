@@ -1,4 +1,4 @@
-local plugin_family = {}
+local M = {}
 
 M.plugins = {{
     'phaazon/hop.nvim',
@@ -29,4 +29,4 @@ M.plugins = {{
     end
 }}
 
-return plugin_family
+return M

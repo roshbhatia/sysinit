@@ -1,5 +1,5 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/rmagatti/auto-session/refs/heads/main/doc/auto-session.txt"
-local plugin_family = {}
+local M = {}
 
 M.plugins = {{
     "rmagatti/auto-session",
@@ -89,4 +89,4 @@ M.plugins = {{
     end
 }}
 
-return plugin_family
+return M

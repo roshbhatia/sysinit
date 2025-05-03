@@ -1,5 +1,5 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/nvim-tree/nvim-web-devicons/refs/heads/master/README.md"
-local plugin_family = {}
+local M = {}
 
 M.plugins = {{
     "nvim-tree/nvim-web-devicons",
@@ -25,7 +25,7 @@ M.plugins = {{
     end
 }}
 
-function plugin_family.setup()
+function M.setup()
     vim.api.nvim_create_user_command("ShowDevIcons", function()
         local icons_status, icons = pcall(require, 'nvim-web-devicons')
         if not icons_status then
@@ -42,4 +42,4 @@ function plugin_family.setup()
     end, {})
 end
 
-return plugin_family
+return M

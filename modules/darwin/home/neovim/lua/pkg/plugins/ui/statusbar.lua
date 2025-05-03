@@ -1,5 +1,5 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/nvim-lualine/lualine.nvim/refs/heads/master/doc/lualine.txt"
-local plugin_family = {}
+local M = {}
 
 -- Early return if not in VSCode - don't define anything else
 if not vim.g.vscode then
@@ -244,11 +244,11 @@ if not vim.g.vscode then
     }}
 
     -- Empty setup function for Neovim mode since lualine handles itself in its config
-    function plugin_family.setup()
+    function M.setup()
         -- Nothing needed here for regular Neovim
     end
 
-    return plugin_family
+    return M
 end
 
 -- If we reach here, we're in VSCode mode
@@ -353,7 +353,7 @@ local STATUSBAR_DISPOSE_JS = [[
   }
 ]]
 
-function plugin_family.update_mode_display()
+function M.update_mode_display()
     local full_mode = vim.api.nvim_get_mode().mode
     local mode_key = full_mode:sub(1, 1)
     if mode_key == last_mode then
@@ -379,7 +379,7 @@ function plugin_family.update_mode_display()
     last_mode = mode_key
 end
 
-function plugin_family.set_command_mode()
+function M.set_command_mode()
     pcall(vscode.eval, STATUSBAR_JS, {
         timeout = 1000,
         args = {
@@ -390,11 +390,11 @@ function plugin_family.set_command_mode()
     })
 end
 
-function plugin_family.force_refresh()
+function M.force_refresh()
     M.update_mode_display()
 end
 
-function plugin_family.setup()
+function M.setup()
     vim.api.nvim_create_autocmd("ModeChanged", {
         pattern = "*",
         callback = M.update_mode_display
@@ -429,4 +429,4 @@ end
 -- No plugin definition for VSCode mode - it's handled through the VSCode API
 -- M.plugins is intentionally nil in VSCode mode
 
-return plugin_family
+return M

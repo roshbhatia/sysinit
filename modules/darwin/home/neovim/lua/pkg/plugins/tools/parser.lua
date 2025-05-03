@@ -1,5 +1,5 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/nvim-treesitter/nvim-treesitter/refs/heads/master/doc/nvim-treesitter.txt"
-local plugin_family = {}
+local M = {}
 
 M.plugins = {{
     "nvim-treesitter/nvim-treesitter",
@@ -60,4 +60,4 @@ M.plugins = {{
     end
 }}
 
-return plugin_family
+return M
