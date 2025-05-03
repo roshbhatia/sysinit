@@ -81,42 +81,44 @@ M.plugins = {{
             val = 1
         }, dashboard.section.footer}
 
-        -- Disable folding on alpha buffer
         vim.cmd([[
         autocmd FileType alpha setlocal nofoldenable
       ]])
 
-        -- Setup alpha
         alpha.setup(dashboard.config)
+
+        vim.api.nvim_create_autocmd("ColorScheme", {
+            pattern = "*",
+            callback = function()
+                vim.opt_local.scrolloff = 0
+                vim.opt_local.sidescrolloff = 0
+
+                vim.api.nvim_set_hl(0, "ProfileBlue", {
+                    fg = "#61afef",
+                    bold = true
+                })
+                vim.api.nvim_set_hl(0, "ProfileGreen", {
+                    fg = "#98c379",
+                    bold = true
+                })
+                vim.api.nvim_set_hl(0, "ProfileYellow", {
+                    fg = "#e5c07b",
+                    bold = true
+                })
+                vim.api.nvim_set_hl(0, "ProfileRed", {
+                    fg = "#e06c75",
+                    bold = true
+                })
+            end
+        })
+
+        vim.api.nvim_create_autocmd("VimEnter", {
+            callback = function()
+                vim.cmd("Alpha")
+            end
+        })
     end
 }}
-
-function M.setup()
-    vim.api.nvim_create_autocmd("ColorScheme", {
-        pattern = "*",
-        callback = function()
-            vim.opt_local.scrolloff = 0
-            vim.opt_local.sidescrolloff = 0
-
-            vim.api.nvim_set_hl(0, "ProfileBlue", {
-                fg = "#61afef",
-                bold = true
-            })
-            vim.api.nvim_set_hl(0, "ProfileGreen", {
-                fg = "#98c379",
-                bold = true
-            })
-            vim.api.nvim_set_hl(0, "ProfileYellow", {
-                fg = "#e5c07b",
-                bold = true
-            })
-            vim.api.nvim_set_hl(0, "ProfileRed", {
-                fg = "#e06c75",
-                bold = true
-            })
-        end
-    })
-end
 
 return M
 

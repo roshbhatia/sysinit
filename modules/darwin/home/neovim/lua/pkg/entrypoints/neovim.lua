@@ -186,15 +186,19 @@ local function setup_plugins()
         dashboard = require("pkg.plugins.ui.dashboard"),
         devicons = require("pkg.plugins.ui.devicons"),
         minimap = require("pkg.plugins.ui.minimap"),
+        nui = require("pkg.plugins.ui.nui"),
+        plenary = require("pkg.plugins.ui.plenary"),
         scrollbar = require("pkg.plugins.ui.scrollbar"),
+        smart_splits = require("pkg.plugins.ui.smart-splits"),
         statusbar = require("pkg.plugins.ui.statusbar"),
         tab = require("pkg.plugins.ui.tab"),
-        smart_splits = require("pkg.plugins.ui.smart-splits"),
         theme = require("pkg.plugins.ui.theme")
     }
 
     local editor = {
         comment = require("pkg.plugins.editor.comment"),
+        commentstring = require("pkg.plugins.editor.commentstring"),
+        formatter = require("pkg.plugins.editor.formatter"),
         ibl = require("pkg.plugins.editor.ibl")
     }
 
@@ -208,36 +212,46 @@ local function setup_plugins()
 
     local git = {
         blame = require("pkg.plugins.git.blame"),
-        client = require("pkg.plugins.git.client")
+        client = require("pkg.plugins.git.client"),
+        fugitive = require("pkg.plugins.git.fugitive"),
+        signs = require("pkg.plugins.git.signs")
+    }
+
+    local intellicode = {
+        completion_ai = require("pkg.plugins.intellicode.completion-ai"),
+        linters = require("pkg.plugins.intellicode.linters"),
+        lsp_zero = require("pkg.plugins.intellicode.lsp-zero"),
+        mason_lspconfig = require("pkg.plugins.intellicode.mason-lspconfig"),
+        mason = require("pkg.plugins.intellicode.mason"),
+        outline = require("pkg.plugins.intellicode.outline"),
+        sort = require("pkg.plugins.intellicode.sort"),
+        trailspace = require("pkg.plugins.intellicode.trailspace"),
+        treesitter_textobjects = require("pkg.plugins.intellicode.treesitter-textobjects"),
+        treesitter = require("pkg.plugins.intellicode.treesitter"),
+        trouble = require("pkg.plugins.intellicode.trouble")
     }
 
     local keymaps = {
         hop = require("pkg.plugins.keymaps.hop"),
-        pallete = require("pkg.plugins.keymaps.pallete"),
-        commands = require("pkg.plugins.keymaps.commands")
-    }
-
-    local tools = {
-        completion_ai = require("pkg.plugins.tools.completion-ai"),
-        formatter = require("pkg.plugins.tools.formatter"),
-        linters = require("pkg.plugins.tools.linters"),
-        lsp = require("pkg.plugins.tools.lsp"),
-        parser = require("pkg.plugins.tools.parser"),
-        outline = require("pkg.plugins.tools.outline")
+        pallete = require("pkg.plugins.keymaps.pallete")
     }
 
     local debugger = {
-        dap = require("pkg.plugins.debugger.dap")
+        dap = require("pkg.plugins.debugger.dap"),
+        dapui = require("pkg.plugins.debugger.dapui")
     }
 
     local modules = { -- UI elements
-    ui.devicons, ui.statusbar, ui.tab, ui.minimap, ui.scrollbar, ui.smart_splits, ui.dashboard, ui.theme, -- Keymaps
-    keymaps.pallete, keymaps.commands, keymaps.hop, -- Editor enhancements
-    editor.comment, editor.ibl, -- File management
+    ui.devicons, ui.statusbar, ui.tab, ui.minimap, ui.scrollbar, ui.smart_splits, ui.dashboard, ui.theme, ui.nui,
+    ui.plenary, -- Keymaps
+    keymaps.pallete, keymaps.hop, -- Editor enhancements
+    editor.comment, editor.commentstring, editor.formatter, editor.ibl, -- File management
     file.editor, file.tree, file.telescope, file.session, file.diffview, -- Git integration
-    git.client, git.blame, -- Tools
-    tools.parser, tools.lsp, tools.formatter, tools.linters, tools.completion_ai, tools.outline, -- Debugging
-    debugger.dap}
+    git.client, git.blame, git.fugitive, git.signs, -- Intellicode tools
+    intellicode.parser, intellicode.lsp_zero, intellicode.formatter, intellicode.linters, intellicode.completion_ai,
+    intellicode.outline, intellicode.sort, intellicode.trailspace, intellicode.treesitter_textobjects,
+    intellicode.treesitter, intellicode.trouble, -- Debugging
+    debugger.dap, debugger.dapui}
 
     local specs = sysinit_lib.collect_plugin_specs(modules)
     sysinit_lib.setup_package_manager(specs)
@@ -265,8 +279,6 @@ function M.init()
 
     setup_plugins()
     setup_keybindings()
-
-    vim.cmd("Alpha")
 end
 
 return M
