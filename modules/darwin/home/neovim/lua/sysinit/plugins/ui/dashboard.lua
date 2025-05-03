@@ -9,7 +9,6 @@ M.plugins = {{
         local alpha = require("alpha")
         local dashboard = require("alpha.themes.dashboard")
         local win_width = vim.o.columns
-        -- vim.opt_local.mousescroll = "ver:0,hor:0"
 
         -- Set header
         dashboard.section.header.val =
@@ -33,18 +32,18 @@ M.plugins = {{
              "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠿⣵⣶⣿⣻⡿⢤⢁⣾⡏⡟⠇⣏⣉⣡⣤⡿⠃⡜⠁⠀⠀⠀⠀⠀⠀⠀⣿⣷⣿⡇",
              "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣿⣫⣿⣿⣯⡮⣟⣺⣿⢹⣿⣿⠜⢦⣽⡟⠀⡜⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⣿⣿⡇",
              ""}
-        dashboard.section.header.opts.hl = "ProfileGreen"
         local auto_session = require("auto-session")
 
+        dashboard.section.header.opts.hl = "ProfileRed"
+
         -- Set menu with conditional session button
-        dashboard.section.buttons.val = { -- Only add session button if a session exists
-        require('auto-session.lib').current_session_name(true) and
+        dashboard.section.buttons.val = {require('auto-session.lib').current_session_name(true) and
             dashboard.button("a", "  Load Last Session", ":SessionRestore<CR>") or nil,
-        dashboard.button("i", "  Init Buffer", ":enew<CR>"),
-        dashboard.button("f", "  Find Files", ":Telescope find_files<CR>"),
-        dashboard.button("r", "  Recent Files", ":Telescope oldfiles<CR>"),
-        dashboard.button("g", "  Live Grep", ":Telescope live_grep<CR>"),
-        dashboard.button("c", "  Configuration", ":e $MYVIMRC<CR>"), dashboard.button("q", "  Quit", ":qa<CR>")}
+                                         dashboard.button("i", "  Init Buffer", ":enew<CR>"),
+                                         dashboard.button("f", "  Find Files", ":Telescope find_files<CR>"),
+                                         dashboard.button("r", "  Recent Files", ":Telescope oldfiles<CR>"),
+                                         dashboard.button("g", "  Live Grep", ":Telescope live_grep<CR>"),
+                                         dashboard.button("q", "  Quit", ":qa<CR>")}
 
         -- Filter out nil values in case session button isn't shown
         dashboard.section.buttons.val = vim.tbl_filter(function(item)
@@ -67,7 +66,7 @@ M.plugins = {{
             return table.concat(contribution_str)
         end
 
-        dashboard.section.footer.val = {"Git Contributions: " .. get_git_contributions(), "Welcome back, Roshan"}
+        dashboard.section.footer.val = {"Git Contributions: " .. get_git_contributions(), ""}
 
         -- Custom configuration
         dashboard.config.layout = {{
@@ -81,40 +80,17 @@ M.plugins = {{
             val = 1
         }, dashboard.section.footer}
 
-        vim.cmd([[
-        autocmd FileType alpha setlocal nofoldenable
-      ]])
-
         alpha.setup(dashboard.config)
 
-        vim.api.nvim_create_autocmd("ColorScheme", {
-            pattern = "*",
+        vim.api.nvim_create_autocmd("AlphaReady", {
             callback = function()
-                vim.opt_local.scrolloff = 0
-                vim.opt_local.sidescrolloff = 0
-
-                vim.api.nvim_set_hl(0, "ProfileBlue", {
-                    fg = "#61afef",
-                    bold = true
-                })
-                vim.api.nvim_set_hl(0, "ProfileGreen", {
-                    fg = "#98c379",
-                    bold = true
-                })
-                vim.api.nvim_set_hl(0, "ProfileYellow", {
-                    fg = "#e5c07b",
-                    bold = true
-                })
-                vim.api.nvim_set_hl(0, "ProfileRed", {
-                    fg = "#e06c75",
-                    bold = true
-                })
+                vim.opt.mousescroll = "ver:0,hor:0"
             end
         })
 
-        vim.api.nvim_create_autocmd("VimEnter", {
+        vim.api.nvim_create_autocmd("AlphaClosed", {
             callback = function()
-                vim.cmd("Alpha")
+                vim.opt.mousescroll = "ver:1,hor:1"
             end
         })
     end
