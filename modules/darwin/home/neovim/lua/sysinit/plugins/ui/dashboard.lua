@@ -82,15 +82,43 @@ M.plugins = {{
 
         alpha.setup(dashboard.config)
 
-        vim.api.nvim_create_autocmd("AlphaReady", {
+        local ui_state = {}
+
+        vim.api.nvim_create_autocmd("User", {
+            pattern = "AlphaReady",
             callback = function()
+                ui_state = {
+                    showtabline = vim.opt.showtabline:get(),
+                    ruler = vim.opt.ruler:get(),
+                    laststatus = vim.opt.laststatus:get(),
+                    number = vim.opt.number:get(),
+                    relativenumber = vim.opt.relativenumber:get(),
+                    mousescroll = vim.opt.mousescroll:get(),
+                    guicursor = vim.opt.guicursor:get()
+                }
+                vim.opt.showtabline = 0
+                vim.opt.ruler = false
+                vim.opt.laststatus = 0
+                vim.opt.number = false
+                vim.opt.relativenumber = false
                 vim.opt.mousescroll = "ver:0,hor:0"
+                vim.opt.guicursor = "n:none"
             end
         })
 
-        vim.api.nvim_create_autocmd("AlphaClosed", {
+        vim.api.nvim_create_autocmd("User", {
+            pattern = "AlphaClosed",
             callback = function()
-                vim.opt.mousescroll = "ver:1,hor:1"
+                for option, value in pairs(ui_state) do
+                    vim.opt[option] = value
+                end
+            end
+        })
+
+        vim.api.nvim_create_autocmd("VimEnter", {
+            pattern = "*",
+            callback = function()
+                vim.cmd("Alpha")
             end
         })
     end
