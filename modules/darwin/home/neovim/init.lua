@@ -1,5 +1,5 @@
 if vim.g.vscode then
-    require("pkg.entrypoints.vscode").init()
+    require("sysinit.entrypoints.vscode").init()
 else
-    require("pkg.entrypoints.neovim").init()
+    require("sysinit.entrypoints.neovim").init()
 end
