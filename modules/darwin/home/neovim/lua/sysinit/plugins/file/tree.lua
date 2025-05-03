@@ -8,6 +8,66 @@ M.plugins = {{
     config = function()
         vim.cmd([[ let g:neo_tree_remove_legacy_commands = 1 ]])
 
+        local popup = require "sysinit.pkg.popupmenu"
+
+        local buf_is_neotree = function()
+            return vim.bo.filetype == "neo-tree"
+        end
+
+        local items = {
+            newfile = popup.menu_item {
+                id = "NeoTreePopUpNewFile",
+                label = "New File",
+                condition = buf_is_neotree,
+                command = "a"
+            },
+            new_dir = popup.menu_item {
+                label = "New Directory",
+                condition = buf_is_neotree,
+                command = "A"
+            },
+            rename = popup.menu_item {
+                label = "Rename",
+                condition = buf_is_neotree,
+                command = "r"
+            },
+            delete = popup.menu_item {
+                label = "Delete",
+                condition = buf_is_neotree,
+                command = "D"
+            },
+            copy = popup.menu_item {
+                label = "Copy",
+                condition = buf_is_neotree,
+                command = "c"
+            },
+            paste = popup.menu_item {
+                label = "Paste",
+                condition = buf_is_neotree,
+                command = "p"
+            },
+            open = popup.menu_item {
+                label = "Open",
+                condition = buf_is_neotree,
+                command = "o"
+            },
+            close = popup.menu_item {
+                label = "Close",
+                condition = buf_is_neotree,
+                command = "q"
+            }
+        }
+
+        local neotree_menu = popup.menu_item {
+            id = "NeoTreePopUp",
+            label = "Files",
+            condition = buf_is_neotree,
+            items = {items.newfile, items.new_dir, items.rename, items.delete, items.copy, items.paste, items.open,
+                     items.close}
+        }
+
+        popup.menu(neotree_menu)
+
         require("neo-tree").setup({
             close_if_last_window = true,
             popup_border_style = "rounded",
@@ -158,6 +218,16 @@ M.plugins = {{
                 }
             }
         })
+
+        vim.api.nvim_create_autocmd("FileType", {
+            pattern = "neo-tree",
+            callback = function()
+                vim.opt_local.number = false
+                vim.opt_local.relativenumber = false
+                vim.api.nvim_buf_set_name(0, "File Explorer")
+            end
+        })
     end
 }}
+
 return M
