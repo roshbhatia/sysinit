@@ -1,5 +1,5 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/lukas-reineke/indent-blankline.nvim/refs/heads/master/doc/indent_blankline.txt"
-local plugin_spec = {}
+local plugin_family = {}
 
 M.plugins = {{
     "lukas-reineke/indent-blankline.nvim",
@@ -63,5 +63,5 @@ M.plugins = {{
     end
 }}
 
-return plugin_spec
+return plugin_family
 

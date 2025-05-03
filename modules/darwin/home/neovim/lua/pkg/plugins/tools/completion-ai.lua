@@ -1,4 +1,4 @@
-local plugin_spec = {}
+local plugin_family = {}
 
 M.plugins = {{
     "zbirenbaum/copilot.lua",
@@ -194,5 +194,5 @@ M.plugins = {{
     end
 }}
 
-return plugin_spec
+return plugin_family
 

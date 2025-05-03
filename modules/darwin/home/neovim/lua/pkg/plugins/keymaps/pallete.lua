@@ -1,6 +1,6 @@
-local plugin_spec = {}
+local plugin_family = {}
 
-function plugin_spec.get_plugin_specs(modules)
+function plugin_family.get_plugin_familys(modules)
     local specs = {}
     for _, module in ipairs(modules) do
         if module.plugins then
@@ -12,7 +12,7 @@ function plugin_spec.get_plugin_specs(modules)
     return specs
 end
 
-function plugin_spec.setup_modules(modules)
+function plugin_family.setup_modules(modules)
     for _, module in ipairs(modules) do
         if module.setup then
             module.setup()
@@ -1060,5 +1060,5 @@ M.plugins = {{
     end
 }}
 
-return plugin_spec
+return plugin_family
 

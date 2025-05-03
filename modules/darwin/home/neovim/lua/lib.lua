@@ -1,11 +1,11 @@
-local plugin_spec = {}
+local plugin_family = {}
 
-function plugin_spec.get_plugin_specs(modules)
+function plugin_family.geplugin_familyecs(modules)
     local specs = {}
 
-    for _, module in ipairs(modules) do
-        if module.plugins then
-            for _, plugin in ipairs(module.plugins) do
+    for _, plugin_family in ipairs(modules) do
+        if plugin_family.plugins then
+            for _, plugin in ipairs(plugin_family.plugins) do
                 table.insert(specs, plugin)
             end
         end
@@ -14,15 +14,15 @@ function plugin_spec.get_plugin_specs(modules)
     return specs
 end
 
-function plugin_spec.setup_modules(modules)
-    for _, module in ipairs(modules) do
-        if module.setup then
-            module.setup()
+function plugin_family.setup_modules(modules)
+    for _, plugin_family in ipairs(modules) do
+        if plugin_family.setup then
+            plugin_family.setup()
         end
     end
 end
 
-function plugin_spec.setup_package_manager(specs)
+function plugin_family.setup_package_manager(specs)
     local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
     if not vim.loop.fs_stat(lazypath) then
         vim.fn.system({"git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git",
@@ -80,7 +80,7 @@ function plugin_spec.setup_package_manager(specs)
     })
 end
 
-function plugin_spec.setup_settings()
+function plugin_family.setup_settings()
     vim.api.nvim_set_keymap('n', 'q', '<Nop>', {
         noremap = true,
         silent = true
@@ -150,5 +150,5 @@ function plugin_spec.setup_settings()
     vim.opt.foldlevel = 99
 end
 
-return plugin_spec
+return plugin_family
 

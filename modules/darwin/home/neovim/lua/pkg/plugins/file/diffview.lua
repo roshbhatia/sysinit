@@ -1,5 +1,5 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/sindrets/diffview.nvim/refs/heads/main/doc/diffview.txt"
-local plugin_spec = {}
+local plugin_family = {}
 
 M.plugins = {{
     "sindrets/diffview.nvim",
@@ -118,4 +118,4 @@ M.plugins = {{
     end
 }}
 
-return plugin_spec
+return plugin_family

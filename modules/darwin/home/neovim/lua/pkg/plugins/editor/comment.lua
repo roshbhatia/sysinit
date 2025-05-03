@@ -1,6 +1,6 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/numToStr/Comment.nvim/refs/heads/master/doc/Comment.txt"
 -- sysinit.nvim.doc-url="https://github.com/JoosepAlviste/nvim-ts-context-commentstring/blob/main/doc/nvim-ts-context-commentstring.txt"
-local plugin_spec = {}
+local plugin_family = {}
 
 M.plugins = {{
     "numToStr/Comment.nvim",
@@ -38,4 +38,4 @@ M.plugins = {{
     end
 }}
 
-return plugin_spec
+return plugin_family

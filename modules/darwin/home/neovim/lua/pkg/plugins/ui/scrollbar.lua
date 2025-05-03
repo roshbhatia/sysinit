@@ -1,4 +1,4 @@
-local plugin_spec = {}
+local plugin_family = {}
 
 M.plugins = {{
     "petertriho/nvim-scrollbar",
@@ -21,4 +21,4 @@ M.plugins = {{
     end
 }}
 
-return plugin_spec
+return plugin_family
