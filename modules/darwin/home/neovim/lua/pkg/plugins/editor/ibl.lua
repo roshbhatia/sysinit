@@ -1,15 +1,15 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/lukas-reineke/indent-blankline.nvim/refs/heads/master/doc/indent_blankline.txt"
-local plugin_family = {}
+local M = {}
 
 M.plugins = {{
     "lukas-reineke/indent-blankline.nvim",
     main = "ibl",
     lazy = true,
-    priority = 950,
     config = function()
+        local ibl = require("ibl")
         local hooks = require("ibl.hooks")
 
-        require("ibl").setup({
+        ibl.setup({
             enabled = true,
             debounce = 200,
 
@@ -39,29 +39,14 @@ M.plugins = {{
 
             exclude = {
                 filetypes = {"lspinfo", "packer", "checkhealth", "help", "man", "gitcommit", "TelescopePrompt",
-                             "TelescopeResults", "dashboard", "NeoTree", "lazy", ""},
+                             "TelescopeResults", "dashboard", "NeoTree", "lazy", "alpha", "oil", "Outline", ""},
                 buftypes = {"terminal", "nofile", "quickfix", "prompt"}
             }
         })
-
-        local has_rainbow_delimiters, _ = pcall(require, "rainbow-delimiters")
-        if has_rainbow_delimiters then
-            local highlight = {"RainbowDelimiterRed", "RainbowDelimiterYellow", "RainbowDelimiterBlue",
-                               "RainbowDelimiterOrange", "RainbowDelimiterGreen", "RainbowDelimiterViolet",
-                               "RainbowDelimiterCyan"}
-
-            require("ibl").setup({
-                scope = {
-                    highlight = highlight
-                }
-            })
-
-            hooks.register(hooks.type.SCOPE_HIGHLIGHT, hooks.builtin.scope_highlight_from_extmark)
-        end
 
         hooks.register(hooks.type.SKIP_LINE, hooks.builtin.skip_preproc_lines)
     end
 }}
 
-return plugin_family
+return M
 

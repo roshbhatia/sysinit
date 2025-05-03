@@ -1,4 +1,4 @@
-local plugin_family = {}
+local M = {}
 
 M.plugins = {{
     "VonHeikemen/lsp-zero.nvim",
@@ -86,4 +86,4 @@ M.plugins = {{
     end
 }}
 
-return plugin_family
+return M

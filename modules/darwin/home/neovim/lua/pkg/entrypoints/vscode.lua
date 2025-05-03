@@ -137,14 +137,14 @@ local function setup_plugins()
 
     local modules = {ui.statusbar, keymaps.commands, keymaps.pallete}
 
-    local specs = sysinit_lib.get_plugin_familys(modules)
+    local specs = sysinit_lib.get_Ms(modules)
     sysinit_lib.setup_package_manager(specs)
     sysinit_lib.setup_modules(modules)
 end
 
-local plugin_family = {}
+local M = {}
 
-function plugin_family.init()
+function M.init()
     local config_path = vim.fn.stdpath('config')
     package.path = package.path .. ";" .. config_path .. "/?.lua" .. ";" .. config_path .. "/lua/?.lua"
     sysinit_lib.setup_settings()
@@ -157,4 +157,4 @@ function plugin_family.init()
     setup_keybindings()
 end
 
-return plugin_family
+return M

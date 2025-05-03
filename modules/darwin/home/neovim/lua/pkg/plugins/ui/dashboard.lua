@@ -1,4 +1,4 @@
-local plugin_family = {}
+local M = {}
 
 M.plugins = {{
     "goolord/alpha-nvim",
@@ -91,7 +91,7 @@ M.plugins = {{
     end
 }}
 
-function plugin_family.setup()
+function M.setup()
     vim.api.nvim_create_autocmd("ColorScheme", {
         pattern = "*",
         callback = function()
@@ -118,5 +118,5 @@ function plugin_family.setup()
     })
 end
 
-return plugin_family
+return M
 
