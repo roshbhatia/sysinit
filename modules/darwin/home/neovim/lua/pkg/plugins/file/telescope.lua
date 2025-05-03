@@ -1,5 +1,5 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/nvim-telescope/telescope.nvim/refs/heads/master/doc/telescope.txt"
-local plugin_spec = {}
+local plugin_family = {}
 
 M.plugins = {{
     "nvim-telescope/telescope.nvim",
@@ -41,4 +41,4 @@ M.plugins = {{
     end
 }}
 
-return plugin_spec
+return plugin_family

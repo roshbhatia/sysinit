@@ -1,5 +1,5 @@
 -- sysinit.nvim.doc-url="https://github.com/stevearc/aerial.nvim"
-local plugin_spec = {}
+local plugin_family = {}
 
 M.plugins = {{
     "stevearc/aerial.nvim",
@@ -73,7 +73,7 @@ M.plugins = {{
     end
 }}
 
-function plugin_spec.setup()
+function plugin_family.setup()
     -- Command to navigate to the most important symbols in a file
     vim.api.nvim_create_user_command("OutlineFind", function()
         -- Check if aerial is available
@@ -110,4 +110,4 @@ function plugin_spec.setup()
     end, {})
 end
 
-return plugin_spec
+return plugin_family

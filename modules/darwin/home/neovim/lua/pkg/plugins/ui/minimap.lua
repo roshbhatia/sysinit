@@ -1,5 +1,5 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/Isrothy/neominimap.nvim/refs/heads/main/doc/neominimap.nvim.txt"
-local plugin_spec = {}
+local plugin_family = {}
 
 M.plugins = {{
     "Isrothy/neominimap.nvim",
@@ -15,4 +15,4 @@ M.plugins = {{
     end
 }}
 
-return plugin_spec
+return plugin_family

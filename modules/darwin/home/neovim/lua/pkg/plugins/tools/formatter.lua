@@ -1,5 +1,5 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/stevearc/conform.nvim/master/doc/conform.txt"
-local plugin_spec = {}
+local plugin_family = {}
 
 M.plugins = {{
     "stevearc/conform.nvim",
@@ -304,4 +304,4 @@ M.plugins = {{
     end
 }}
 
-return plugin_spec
+return plugin_family
