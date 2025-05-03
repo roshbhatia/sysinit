@@ -6,10 +6,6 @@ M.plugins = {{
     event = "VeryLazy",
     dependencies = {"mason.nvim", "echasnovski/mini.trailspace", "sQVe/sort.nvim"},
     config = function()
-        -- Setup mini.trailspace for trailing whitespace handling
-        require('mini.trailspace').setup()
-        require("sort").setup()
-
         local lint = require("lint")
 
         local linters_by_ft = {
@@ -102,7 +98,7 @@ M.plugins = {{
 
         -- Function to trim trailing whitespace using mini.trailspace
         local function trim_trailing_whitespace()
-            MiniTrailspace.trim()
+            require("MiniTrailspace").trim()
         end
 
         -- Function to handle both operations
