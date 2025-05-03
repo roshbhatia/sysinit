@@ -1,4 +1,4 @@
-local M = {}
+local plugin_spec = {}
 
 M.plugins = {{
     "zaldih/themery.nvim",
@@ -23,5 +23,5 @@ M.plugins = {{
     end
 }}
 
-return M
+return plugin_spec
 

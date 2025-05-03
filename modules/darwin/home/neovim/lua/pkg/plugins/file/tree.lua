@@ -1,5 +1,5 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/nvim-neo-tree/neo-tree.nvim/refs/heads/main/doc/neo-tree.txt"
-local M = {}
+local plugin_spec = {}
 
 M.plugins = {{
     "nvim-neo-tree/neo-tree.nvim",
@@ -160,4 +160,4 @@ M.plugins = {{
         })
     end
 }}
-return M
+return plugin_spec

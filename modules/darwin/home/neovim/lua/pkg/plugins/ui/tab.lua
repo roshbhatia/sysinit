@@ -1,4 +1,4 @@
-local M = {}
+local plugin_spec = {}
 
 M.plugins = {{
     "nanozuki/tabby.nvim",
@@ -88,4 +88,4 @@ M.plugins = {{
     end
 }}
 
-return M
+return plugin_spec
