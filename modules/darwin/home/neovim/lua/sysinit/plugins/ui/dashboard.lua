@@ -5,11 +5,11 @@ M.plugins = {{
     lazy = false,
     priority = 100,
     dependencies = {"nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim"},
-    opts = {},
     config = function()
         local alpha = require("alpha")
         local dashboard = require("alpha.themes.dashboard")
         local win_width = vim.o.columns
+        vim.g.mousescroll = "ver:0,hor:0"
 
         -- Set header
         dashboard.section.header.val =
