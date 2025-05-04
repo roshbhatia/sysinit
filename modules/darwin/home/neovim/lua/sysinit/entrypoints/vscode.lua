@@ -316,15 +316,7 @@ function Entrypoint.setup_options()
 end
 
 function Entrypoint.get_plugins()
-    local ui = {
-        statusbar = require("sysinit.plugins.ui.statusbar")
-    }
-
-    local keymaps = {
-        pallete = require("sysinit.plugins.keymaps.pallete")
-    }
-
-    return {ui.statusbar, keymaps.pallete}
+    return {require("sysinit.plugins.ui.statusbar"), require("sysinit.plugins.keymaps.pallete")}
 end
 
 return Entrypoint
