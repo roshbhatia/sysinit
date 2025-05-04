@@ -4,6 +4,7 @@ local M = {}
 M.plugins = {{
     "nvim-neo-tree/neo-tree.nvim",
     event = "VeryLazy",
+    branch = "v3.x",
     dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "MunifTanjim/nui.nvim"},
     config = function()
         vim.cmd([[ let g:neo_tree_remove_legacy_commands = 1 ]])
@@ -158,8 +159,8 @@ M.plugins = {{
                     visible = false, -- when true, they will just be displayed differently than normal items
                     hide_dotfiles = true,
                     hide_gitignored = true,
-                    hide_hidden = true, -- only works on Windows for hidden files/directories
-                    hide_by_name = {".DS_Store", "thumbs.db", "node_modules"},
+                    hide_hidden = false,
+                    hide_by_name = {".DS_Store", "node_modules"},
                     hide_by_pattern = { -- uses glob style patterns
                     "*.meta"},
                     always_show = { -- remains visible even if other settings would hide it
