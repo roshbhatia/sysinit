@@ -2,8 +2,7 @@ local M = {}
 
 M.plugins = {{
     "L3MON4D3/LuaSnip",
-    lazy = true,
-    event = "InsertEnter",
+    lazy = false,
     version = "v2.*",
     build = "make install_jsregexp",
     config = function()
