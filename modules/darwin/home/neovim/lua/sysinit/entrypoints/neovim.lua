@@ -218,77 +218,26 @@ function Entrypoint.setup_options()
 end
 
 function Entrypoint.get_plugins()
-    local ui = {
-        alpha = require("sysinit.plugins.ui.alpha"),
-        devicons = require("sysinit.plugins.ui.devicons"),
-        minimap = require("sysinit.plugins.ui.minimap"),
-        nui = require("sysinit.plugins.ui.nui"),
-        plenary = require("sysinit.plugins.ui.plenary"),
-        scrollbar = require("sysinit.plugins.ui.scrollbar"),
-        smart_splits = require("sysinit.plugins.ui.smart-splits"),
-        statusbar = require("sysinit.plugins.ui.statusbar"),
-        tab = require("sysinit.plugins.ui.tab"),
-        theme = require("sysinit.plugins.ui.theme"),
-        transparent = require("sysinit.plugins.ui.transparent")
-    }
-
-    local editor = {
-        comment = require("sysinit.plugins.editor.comment"),
-        commentstring = require("sysinit.plugins.editor.commentstring"),
-        formatter = require("sysinit.plugins.editor.formatter"),
-        ibl = require("sysinit.plugins.editor.ibl")
-    }
-
-    local file = {
-        diffview = require("sysinit.plugins.file.diffview"),
-        editor = require("sysinit.plugins.file.editor"),
-        session = require("sysinit.plugins.file.session"),
-        telescope = require("sysinit.plugins.file.telescope"),
-        tree = require("sysinit.plugins.file.tree")
-    }
-
-    local git = {
-        blame = require("sysinit.plugins.git.blame"),
-        client = require("sysinit.plugins.git.client"),
-        fugitive = require("sysinit.plugins.git.fugitive"),
-        signs = require("sysinit.plugins.git.signs")
-    }
-
-    local intellicode = {
-        completion_ai = require("sysinit.plugins.intellicode.completion-ai"),
-        linters = require("sysinit.plugins.intellicode.linters"),
-        lsp_zero = require("sysinit.plugins.intellicode.lsp-zero"),
-        mason_lspconfig = require("sysinit.plugins.intellicode.mason-lspconfig"),
-        mason = require("sysinit.plugins.intellicode.mason"),
-        outline = require("sysinit.plugins.intellicode.outline"),
-        sort = require("sysinit.plugins.intellicode.sort"),
-        trailspace = require("sysinit.plugins.intellicode.trailspace"),
-        treesitter_textobjects = require("sysinit.plugins.intellicode.treesitter-textobjects"),
-        treesitter = require("sysinit.plugins.intellicode.treesitter"),
-        trouble = require("sysinit.plugins.intellicode.trouble")
-    }
-
-    local keymaps = {
-        hop = require("sysinit.plugins.keymaps.hop"),
-        pallete = require("sysinit.plugins.keymaps.pallete")
-    }
-
-    local debugger = {
-        dap = require("sysinit.plugins.debugger.dap"),
-        dapui = require("sysinit.plugins.debugger.dapui")
-    }
-
-    return { -- UI elements
-    ui.devicons, ui.statusbar, ui.tab, ui.minimap, ui.scrollbar, ui.smart_splits, ui.alpha, ui.theme, ui.nui,
-    ui.transparent, ui.plenary, -- Keymaps
-    keymaps.pallete, keymaps.hop, -- Editor enhancements
-    editor.comment, editor.commentstring, editor.formatter, editor.ibl, -- File management
-    file.editor, file.tree, file.telescope, file.session, file.diffview, -- Git integration
-    git.client, git.blame, git.fugitive, git.signs, -- Intellicode tools
-    intellicode.parser, intellicode.lsp_zero, intellicode.formatter, intellicode.linters, intellicode.completion_ai,
-    intellicode.outline, intellicode.sort, intellicode.trailspace, intellicode.treesitter_textobjects,
-    intellicode.treesitter, intellicode.trouble, -- Debugging
-    debugger.dap, debugger.dapui}
+    return {require("sysinit.plugins.ui.alpha"), require("sysinit.plugins.ui.devicons"),
+            require("sysinit.plugins.ui.minimap"), require("sysinit.plugins.ui.nui"),
+            require("sysinit.plugins.ui.plenary"), require("sysinit.plugins.ui.scrollbar"),
+            require("sysinit.plugins.ui.smart-splits"), require("sysinit.plugins.ui.statusbar"),
+            require("sysinit.plugins.ui.tab"), require("sysinit.plugins.ui.theme"),
+            require("sysinit.plugins.ui.transparent"), require("sysinit.plugins.keymaps.hop"),
+            require("sysinit.plugins.keymaps.pallete"), require("sysinit.plugins.editor.comment"),
+            require("sysinit.plugins.editor.commentstring"), require("sysinit.plugins.editor.formatter"),
+            require("sysinit.plugins.editor.ibl"), require("sysinit.plugins.file.editor"),
+            require("sysinit.plugins.file.tree"), require("sysinit.plugins.file.telescope"),
+            require("sysinit.plugins.file.session"), require("sysinit.plugins.file.diffview"),
+            require("sysinit.plugins.git.client"), require("sysinit.plugins.git.blame"),
+            require("sysinit.plugins.git.fugitive"), require("sysinit.plugins.git.signs"),
+            require("sysinit.plugins.intellicode.completion-ai"), require("sysinit.plugins.intellicode.linters"),
+            require("sysinit.plugins.intellicode.lsp-zero"), require("sysinit.plugins.intellicode.mason-lspconfig"),
+            require("sysinit.plugins.intellicode.mason"), require("sysinit.plugins.intellicode.outline"),
+            require("sysinit.plugins.intellicode.sort"), require("sysinit.plugins.intellicode.trailspace"),
+            require("sysinit.plugins.intellicode.treesitter-textobjects"),
+            require("sysinit.plugins.intellicode.treesitter"), require("sysinit.plugins.intellicode.trouble"),
+            require("sysinit.plugins.debugger.dap"), require("sysinit.plugins.debugger.dapui")}
 end
 
 return Entrypoint
