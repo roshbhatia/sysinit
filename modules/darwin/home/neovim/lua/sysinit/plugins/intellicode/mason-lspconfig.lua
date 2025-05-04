@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {{
     "williamboman/mason-lspconfig.nvim",
     lazy = false,
-    dependencies = {"williamboman/mason.nvim", "neovim/nvim-lspconfig", "VonHeikemen/lsp-zero.nvim"},
+    dependencies = {"williamboman/mason.nvim", "VonHeikemen/lsp-zero.nvim"},
     opts = {
         ensure_installed = {"bashls", "dagger", "docker_compose_language_service", "dockerls", "golangci_lint_ls",
                             "gopls", "helm_ls", "html", "jqls", "marksman", "spectral", "terraformls", "tflint", "ts_ls"},
