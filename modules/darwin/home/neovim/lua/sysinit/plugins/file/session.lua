@@ -13,9 +13,6 @@ M.plugins = {{
         local session_dir = vim.fn.stdpath("data") .. "/sessions/"
         vim.fn.mkdir(session_dir, "p")
 
-        -- Set sessionoptions before setup to ensure proper session saving
-        vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
-
         auto_session.setup({
             enabled = true,
             root_dir = vim.fn.stdpath("data") .. "/sessions/",

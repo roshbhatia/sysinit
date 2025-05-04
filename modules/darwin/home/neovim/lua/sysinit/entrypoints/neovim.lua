@@ -269,7 +269,6 @@ function M.init()
     -- Custom settings
     vim.wo.foldmethod = 'expr'
     vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
-
     vim.opt.pumheight = 10
     vim.opt.cmdheight = 1
     vim.opt.hidden = true
@@ -279,7 +278,8 @@ function M.init()
     vim.opt.clipboard = "unnamedplus"
     vim.opt.number = true
     vim.opt.relativenumber = true
-    vim.cmd('set nonumber norelativenumber')
+    vim.o.sessionoptions =
+        "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions,tabpages,globals"
 
     setup_plugins()
     setup_keybindings()

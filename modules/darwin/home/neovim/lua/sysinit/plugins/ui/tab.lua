@@ -6,12 +6,6 @@ M.plugins = {{
     lazy = false,
     event = "VimEnter",
     config = function()
-        -- Always show tabline
-        vim.o.showtabline = 2
-
-        -- Add tabpages and globals to session options to preserve tab layout and names
-        vim.opt.sessionoptions = vim.opt.sessionoptions + {"tabpages", "globals"}
-
         local theme = {
             fill = 'TabLineFill',
             head = 'TabLine',
