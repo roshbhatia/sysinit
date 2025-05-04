@@ -108,11 +108,6 @@ M.plugins = {{
             numhl = ''
         })
 
-        require("pkg.plugins.debugger.signs").setup()
-        require("pkg.plugins.debugger.debuggers").setup()
-        require("pkg.plugins.debugger.dapui").setup()
-        require("pkg.plugins.debugger.commands").setup()
-
         vim.api.nvim_create_autocmd("FileType", {
             pattern = "dap-repl",
             callback = function()
