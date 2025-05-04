@@ -25,11 +25,15 @@ M.plugins = { {
             width = 30
         },
         mappings = {
-            ask = "<leader>ua",   -- ask
-            edit = "<leader>ue",  -- edit
+            ask = "<leader>ua",     -- ask
+            edit = "<leader>ue",    -- edit
             refresh = "<leader>ur", -- refresh
         }
-    }
+    },
+    config = function(_, opts)
+        require("avante").setup(opts)
+        vim.cmd("AvanteBuild")
+    end
 } }
 
 return M
