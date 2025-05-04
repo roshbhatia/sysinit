@@ -6,6 +6,9 @@ M.plugins = {{
     dependencies = {"VonHeikemen/lsp-zero.nvim", "hrsh7th/cmp-buffer", "hrsh7th/cmp-path", "hrsh7th/cmp-cmdline",
                     "hrsh7th/cmp-nvim-lsp", "hrsh7th/cmp-nvim-lua", "zbirenbaum/copilot-cmp", "petertriho/cmp-git",
                     "L3MON4D3/LuaSnip"},
+    after = {"VonHeikemen/lsp-zero.nvim", "hrsh7th/cmp-buffer", "hrsh7th/cmp-path", "hrsh7th/cmp-cmdline",
+             "hrsh7th/cmp-nvim-lsp", "hrsh7th/cmp-nvim-lua", "zbirenbaum/copilot-cmp", "petertriho/cmp-git",
+             "L3MON4D3/LuaSnip"},
     event = "InsertEnter",
     config = function()
         local cmp = require("cmp")
@@ -57,6 +60,17 @@ M.plugins = {{
             window = {
                 completion = cmp.config.window.bordered(),
                 documentation = cmp.config.window.bordered()
+            },
+            sorting = {
+                priority_weight = 2,
+                comparators = {require("copilot_cmp.comparators").prioritize,
+
+                -- Below is the default comparitor list and order for nvim-cmp
+                               cmp.config.compare.offset,
+                -- cmp.config.compare.scopes, --this is commented in nvim-cmp too
+                               cmp.config.compare.exact, cmp.config.compare.score, cmp.config.compare.recently_used,
+                               cmp.config.compare.locality, cmp.config.compare.kind, cmp.config.compare.sort_text,
+                               cmp.config.compare.length, cmp.config.compare.order}
             },
             formatting = {
                 fields = {"kind", "abbr", "menu"},
