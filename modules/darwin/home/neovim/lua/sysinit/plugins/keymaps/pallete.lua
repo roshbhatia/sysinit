@@ -231,7 +231,7 @@ M.group_icons = {
 }
 
 M.keybindings_data = {
-    l = {
+    a = {
         name = M.group_icons.ai .. " AI",
         bindings = { {
             key = "a",
