@@ -1,12 +1,14 @@
 local M = {}
 
-M.plugins = {{
+M.plugins = { {
     "yetone/avante.nvim",
-    dependencies = {"nvim-treesitter/nvim-treesitter", "stevearc/dressing.nvim", "nvim-lua/plenary.nvim",
-                    "MunifTanjim/nui.nvim", "nvim-telescope/telescope.nvim", "hrsh7th/nvim-cmp",
-                    "nvim-tree/nvim-web-devicons", "zbirenbaum/copilot.lua"},
-    lazy = true,
+    version = false,
+    dependencies = { "nvim-treesitter/nvim-treesitter", "stevearc/dressing.nvim", "nvim-lua/plenary.nvim",
+        "MunifTanjim/nui.nvim", "nvim-telescope/telescope.nvim", "hrsh7th/nvim-cmp",
+        "nvim-tree/nvim-web-devicons", "zbirenbaum/copilot.lua" },
+    event = "VeryLazy",
     cmd = "AvanteToggle",
+    build = "make",
     opts = {
         provider = "copilot",
         behaviour = {
@@ -23,11 +25,11 @@ M.plugins = {{
             width = 30
         },
         mappings = {
-            ask = "",
-            edit = "",
-            refresh = ""
+            ask = "<leader>ua",   -- ask
+            edit = "<leader>ue",  -- edit
+            refresh = "<leader>ur", -- refresh
         }
     }
-}}
+} }
 
 return M
