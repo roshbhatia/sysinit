@@ -13,9 +13,7 @@ M.plugins = { {
         provider = "copilot",
         behaviour = {
             auto_apply_diff_after_generation = true,
-            auto_set_highlight_group = true,
-            auto_set_keymaps = true,
-            auto_suggestions = false,
+            auto_set_keymaps = false,
             enable_cursor_planning_mode = true,
             enable_token_counting = true
         },
@@ -23,6 +21,9 @@ M.plugins = { {
             position = "right",
             wrap = true,
             width = 30
+        },
+        hints = {
+            enabled = false
         }
     },
     config = function(_, opts)
