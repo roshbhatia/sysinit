@@ -2,8 +2,7 @@ local M = {}
 
 M.plugins = {{
     'neovim/nvim-lspconfig',
-    cmd = {'LspInfo', 'LspInstall', 'LspStart'},
-    event = {'BufReadPre', 'BufNewFile'},
+    lazy = false,
     dependencies = {{'hrsh7th/cmp-nvim-lsp'}, {'williamboman/mason.nvim'}, {'williamboman/mason-lspconfig.nvim'}},
     init = function()
         -- Reserve a space in the gutter
@@ -38,15 +37,6 @@ M.plugins = {{
                 vim.keymap.set({'n', 'x'}, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
                 vim.keymap.set('n', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>', opts)
             end
-        })
-
-        require('mason-lspconfig').setup({
-            ensure_installed = {},
-            handlers = { -- this first function is the "default handler"
-            -- it applies to every language server without a "custom handler"
-            function(server_name)
-                require('lspconfig')[server_name].setup({})
-            end}
         })
     end
 }}
