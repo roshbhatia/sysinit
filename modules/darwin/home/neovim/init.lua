@@ -14,7 +14,7 @@ end
 options.setup_shared()
 editor_host.setup_options()
 editor_host.setup_actions()
+
+plugin_manager.setup_package_manager()
 local plugins = editor_host.get_plugins()
-local specs = plugin_manager.collect_plugin_specs(plugins)
-plugin_manager.setup_package_manager(specs)
-plugin_manager.run_plugin_post_setup(plugins)
+plugin_manager.setup_plugins(plugins)

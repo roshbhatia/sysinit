@@ -1,12 +1,23 @@
 local plugin_manager = {}
 
-function plugin_manager.setup_package_manager(specs)
+function plugin_manager.setup_package_manager()
     local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
     if not vim.loop.fs_stat(lazypath) then
         vim.fn.system({"git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git",
                        "--branch=stable", lazypath})
     end
     vim.opt.rtp:prepend(lazypath)
+end
+
+function plugin_manager.setup_plugins(modules)
+    local specs = {}
+    for _, M in ipairs(modules) do
+        if M.plugins then
+            for _, plugin in ipairs(M.plugins) do
+                table.insert(specs, plugin)
+            end
+        end
+    end
 
     local core_specs = {{
         "vhyrro/luarocks.nvim",
@@ -31,21 +42,14 @@ function plugin_manager.setup_package_manager(specs)
         table.insert(core_specs, spec)
     end
 
-    for _, spec in ipairs(specs) do
-        table.insert(core_specs, spec)
-    end
-
     require("lazy").setup({
         root = vim.fn.stdpath("data") .. "/lazy",
         lockfile = vim.fn.stdpath("data") .. "/lazy/lazy-lock.json",
-
         rocks = {
             enabled = true,
             root = vim.fn.stdpath("data") .. "/lazy-rocks"
         },
-
         spec = core_specs,
-
         performance = {
             rtp = {
                 disabled_plugins = {"gzip", "matchit", "matchparen", "netrwPlugin", "tarPlugin", "tohtml", "tutor",
@@ -56,28 +60,6 @@ function plugin_manager.setup_package_manager(specs)
             notify = false
         }
     })
-end
-
-function plugin_manager.collect_plugin_specs(modules)
-    local specs = {}
-
-    for _, M in ipairs(modules) do
-        if plugin_manager.plugins then
-            for _, plugin in ipairs(plugin_manager.plugins) do
-                table.insert(specs, plugin)
-            end
-        end
-    end
-
-    return specs
-end
-
-function plugin_manager.run_plugin_post_setup(modules)
-    for _, M in ipairs(modules) do
-        if plugin_manager.setup then
-            plugin_manager.setup()
-        end
-    end
 end
 
 return plugin_manager
