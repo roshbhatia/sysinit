@@ -2,7 +2,7 @@ local M = {}
 
 M.plugins = {{
     "williamboman/mason.nvim",
-    lazy = true,
+    lazy = false,
     opts = {
         install_root_dir = vim.fn.stdpath("data") .. "/mason",
         ui = {

@@ -2,8 +2,7 @@ local M = {}
 
 M.plugins = {{
     "rafamadriz/friendly-snippets",
-    lazy = true,
-    event = "InsertEnter"
+    lazy = false
 }}
 
 return M

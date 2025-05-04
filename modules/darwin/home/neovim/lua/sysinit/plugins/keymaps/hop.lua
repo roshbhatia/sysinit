@@ -2,7 +2,7 @@ local M = {}
 
 M.plugins = {{
     'phaazon/hop.nvim',
-    lazy = true,
+    lazy = false,
     config = function()
         local hop = require('hop')
         hop.setup({
