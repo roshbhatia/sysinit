@@ -9,9 +9,7 @@ M.plugins = {{
                             "gopls", "helm_ls", "html", "jqls", "marksman", "spectral", "terraformls", "tflint", "ts_ls"},
         automatic_installation = true,
         handlers = {function(server_name)
-            require("lspconfig")[server_name].setup({
-                capabilities = require("lsp-zero").get_capabilities()
-            })
+            require('lspconfig')[server_name].setup({})
         end}
     }
 }}

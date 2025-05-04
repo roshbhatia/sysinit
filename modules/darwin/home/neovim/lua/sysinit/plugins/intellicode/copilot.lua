@@ -2,7 +2,7 @@ local M = {}
 
 M.plugins = {{
     "zbirenbaum/copilot.lua",
-    event = "InsertEnter",
+    lazy = false,
     opts = {
         suggestion = {
             enabled = false
