@@ -18,9 +18,9 @@ let
     "jsonlint"
     "markdownlint"
     "prettier"
-    "@stoplight/spectral-cli"
     "typescript-language-server"
     "typescript"
+    "yarn"
   ];
 
   allPackages = basePackages ++ additionalPackages;
