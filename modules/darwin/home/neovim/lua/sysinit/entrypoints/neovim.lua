@@ -276,6 +276,9 @@ function M.init()
     vim.opt.shortmess:append("c")
     vim.opt.completeopt = {"menuone", "noselect"}
     vim.opt.clipboard = "unnamedplus"
+    vim.opt.number = true
+    vim.opt.relativenumber = true
+    vim.cmd('set nonumber norelativenumber')
 
     setup_plugins()
     setup_keybindings()

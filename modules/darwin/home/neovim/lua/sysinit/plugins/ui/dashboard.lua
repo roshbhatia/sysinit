@@ -82,12 +82,22 @@ M.plugins = {{
 
         alpha.setup(dashboard.config)
 
-        local ui_state = {}
+        vim._alpha_ui = {
+            state = {},
+            restore = function()
+                for option, value in pairs(vim._alpha_ui.state) do
+                    if option ~= "number" and option ~= "relativenumber" then
+                        vim.opt[option] = value
+                    end
+                end
+                vim.cmd('set number relativenumber')
+            end
+        }
 
         vim.api.nvim_create_autocmd("User", {
             pattern = "AlphaReady",
             callback = function()
-                ui_state = {
+                vim._alpha_ui.state = {
                     showtabline = vim.opt.showtabline:get(),
                     ruler = vim.opt.ruler:get(),
                     laststatus = vim.opt.laststatus:get(),
@@ -99,8 +109,7 @@ M.plugins = {{
                 vim.opt.showtabline = 0
                 vim.opt.ruler = false
                 vim.opt.laststatus = 0
-                vim.opt.number = false
-                vim.opt.relativenumber = false
+                vim.cmd('set nonumber norelativenumber')
                 vim.opt.mousescroll = "ver:0,hor:0"
                 vim.opt.guicursor = "n:none"
             end
@@ -109,9 +118,7 @@ M.plugins = {{
         vim.api.nvim_create_autocmd("User", {
             pattern = "AlphaClosed",
             callback = function()
-                for option, value in pairs(ui_state) do
-                    vim.opt[option] = value
-                end
+                vim._alpha_ui.restore()
             end
         })
 
