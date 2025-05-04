@@ -23,15 +23,22 @@ M.plugins = {{
     "petertriho/cmp-git",
     lazy = true
 }, {
+    "L3MON4D3/LuaSnip",
+    version = "v2.*",
+    build = "make install_jsregexp",
+    config = function()
+        local luasnip = require("luasnip")
+        require("luasnip/loaders/from_vscode").lazy_load()
+    end
+}, {
     "hrsh7th/nvim-cmp",
     lazy = true,
     dependencies = {"VonHeikemen/lsp-zero.nvim", "hrsh7th/cmp-buffer", "hrsh7th/cmp-path", "hrsh7th/cmp-cmdline",
-                    "hrsh7th/cmp-nvim-lsp", "hrsh7th/cmp-nvim-lua", "zbirenbaum/copilot-cmp", "petertriho/cmp-git"},
+                    "hrsh7th/cmp-nvim-lsp", "hrsh7th/cmp-nvim-lua", "zbirenbaum/copilot-cmp", "petertriho/cmp-git",
+                    "L3MON4D3/LuaSnip"},
     event = "InsertEnter",
     config = function()
         local cmp = require("cmp")
-        local luasnip = require("luasnip")
-        require("luasnip/loaders/from_vscode").lazy_load()
 
         local has_words_before = function()
             if vim.api.nvim_buf_get_option(0, "buftype") == "prompt" then
@@ -95,8 +102,7 @@ M.plugins = {{
                 end
             },
             sources = cmp.config.sources({{
-                name = "copilot",
-                max_item_count = 3
+                name = "copilot"
             }, {
                 name = "nvim_lsp"
             }, {
