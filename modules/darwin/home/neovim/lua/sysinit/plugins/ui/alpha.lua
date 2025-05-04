@@ -90,7 +90,6 @@ M.plugins = {{
                         vim.opt[option] = value
                     end
                 end
-                vim.cmd('set number relativenumber')
             end
         }
 
@@ -103,13 +102,16 @@ M.plugins = {{
                     laststatus = vim.opt.laststatus:get(),
                     number = vim.opt.number:get(),
                     relativenumber = vim.opt.relativenumber:get(),
+                    signcolumn = vim.opt.signcolumn:get(),
                     mousescroll = vim.opt.mousescroll:get(),
                     guicursor = vim.opt.guicursor:get()
                 }
                 vim.opt.showtabline = 0
                 vim.opt.ruler = false
                 vim.opt.laststatus = 0
-                vim.cmd('set nonumber norelativenumber')
+                vim.opt.number = false
+                vim.opt.relativenumber = false
+                vim.opt.signcolumn = "no"
                 vim.opt.mousescroll = "ver:0,hor:0"
                 vim.opt.guicursor = "n:none"
             end
