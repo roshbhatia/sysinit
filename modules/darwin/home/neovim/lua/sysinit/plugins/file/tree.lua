@@ -8,57 +8,57 @@ M.plugins = {{
     config = function()
         vim.cmd([[ let g:neo_tree_remove_legacy_commands = 1 ]])
 
-        local popup = require "sysinit.pkg.popupmenu"
+        local right_click_menu = require "sysinit.pkg.right_click_menu"
 
         local buf_is_neotree = function()
             return vim.bo.filetype == "neo-tree"
         end
 
         local items = {
-            newfile = popup.menu_item {
+            newfile = right_click_menu.menu_item {
                 id = "NeoTreePopUpNewFile",
                 label = "New File",
                 condition = buf_is_neotree,
                 command = "a"
             },
-            new_dir = popup.menu_item {
+            new_dir = right_click_menu.menu_item {
                 label = "New Directory",
                 condition = buf_is_neotree,
                 command = "A"
             },
-            rename = popup.menu_item {
+            rename = right_click_menu.menu_item {
                 label = "Rename",
                 condition = buf_is_neotree,
                 command = "r"
             },
-            delete = popup.menu_item {
+            delete = right_click_menu.menu_item {
                 label = "Delete",
                 condition = buf_is_neotree,
                 command = "D"
             },
-            copy = popup.menu_item {
+            copy = right_click_menu.menu_item {
                 label = "Copy",
                 condition = buf_is_neotree,
                 command = "c"
             },
-            paste = popup.menu_item {
+            paste = right_click_menu.menu_item {
                 label = "Paste",
                 condition = buf_is_neotree,
                 command = "p"
             },
-            open = popup.menu_item {
+            open = right_click_menu.menu_item {
                 label = "Open",
                 condition = buf_is_neotree,
                 command = "o"
             },
-            close = popup.menu_item {
+            close = right_click_menu.menu_item {
                 label = "Close",
                 condition = buf_is_neotree,
                 command = "q"
             }
         }
 
-        local neotree_menu = popup.menu_item {
+        local neotree_menu = right_click_menu.menu_item {
             id = "NeoTreePopUp",
             label = "Files",
             condition = buf_is_neotree,
@@ -66,7 +66,7 @@ M.plugins = {{
                      items.close}
         }
 
-        popup.menu(neotree_menu)
+        right_click_menu.menu(neotree_menu)
 
         require("neo-tree").setup({
             close_if_last_window = true,

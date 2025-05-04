@@ -1,6 +1,7 @@
-local sysinit_lib = require('sysinit.pkg.plugin')
+local Entrypoint = {}
 
-local function setup_keybindings()
+function Entrypoint.setup_actions()
+    -- Set up key mappings for Neovim
     vim.keymap.set("n", "<C-h>", "<C-w>h", {
         noremap = true,
         silent = true,
@@ -181,7 +182,42 @@ local function setup_keybindings()
     })
 end
 
-local function setup_plugins()
+function Entrypoint.setup_options()
+    -- Basic settings
+    vim.opt.clipboard = "unnamedplus"
+    vim.opt.mouse = "a"
+    vim.opt.hidden = true
+    vim.opt.number = true
+    vim.opt.relativenumber = true
+
+    -- UI settings
+    vim.opt.pumheight = 10
+    vim.opt.cmdheight = 1
+    vim.opt.showtabline = 2
+    vim.opt.timeoutlen = 500
+    vim.opt.updatetime = 300
+
+    -- Completion settings
+    vim.opt.shortmess:append("c")
+    vim.opt.completeopt = {"menuone", "noselect"}
+
+    -- Visual settings
+    vim.opt.fillchars:append({
+        eob = " ",
+        vert = "│",
+        fold = "⤷"
+    })
+
+    -- Folding settings
+    vim.wo.foldmethod = 'expr'
+    vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+
+    -- Session settings
+    vim.o.sessionoptions =
+        "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions,tabpages,globals"
+end
+
+function Entrypoint.get_plugins()
     local ui = {
         alpha = require("sysinit.plugins.ui.alpha"),
         devicons = require("sysinit.plugins.ui.devicons"),
@@ -242,7 +278,7 @@ local function setup_plugins()
         dapui = require("sysinit.plugins.debugger.dapui")
     }
 
-    local modules = { -- UI elements
+    return { -- UI elements
     ui.devicons, ui.statusbar, ui.tab, ui.minimap, ui.scrollbar, ui.smart_splits, ui.alpha, ui.theme, ui.nui,
     ui.transparent, ui.plenary, -- Keymaps
     keymaps.pallete, keymaps.hop, -- Editor enhancements
@@ -253,37 +289,7 @@ local function setup_plugins()
     intellicode.outline, intellicode.sort, intellicode.trailspace, intellicode.treesitter_textobjects,
     intellicode.treesitter, intellicode.trouble, -- Debugging
     debugger.dap, debugger.dapui}
-
-    local specs = sysinit_lib.collect_plugin_specs(modules)
-    sysinit_lib.setup_package_manager(specs)
-    sysinit_lib.setup_modules(modules)
 end
 
-local M = {}
-
-function M.init()
-    local config_path = vim.fn.stdpath('config')
-    package.path = package.path .. ";" .. config_path .. "/?.lua" .. ";" .. config_path .. "/lua/?.lua"
-    sysinit_lib.setup_settings()
-
-    -- Custom settings
-    vim.wo.foldmethod = 'expr'
-    vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
-    vim.opt.pumheight = 10
-    vim.opt.cmdheight = 1
-    vim.opt.hidden = true
-    vim.opt.showtabline = 2
-    vim.opt.shortmess:append("c")
-    vim.opt.completeopt = {"menuone", "noselect"}
-    vim.opt.clipboard = "unnamedplus"
-    vim.opt.number = true
-    vim.opt.relativenumber = true
-    vim.o.sessionoptions =
-        "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions,tabpages,globals"
-
-    setup_plugins()
-    setup_keybindings()
-end
-
-return M
+return Entrypoint
 
