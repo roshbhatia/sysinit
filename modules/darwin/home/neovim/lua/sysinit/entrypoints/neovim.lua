@@ -72,13 +72,13 @@ function Entrypoint.setup_actions()
         })
     end
 
-    vim.keymap.set({"n", "i", "v"}, "<D-s>", "<cmd>w<CR>", {
+    vim.keymap.set({ "n", "i", "v" }, "<D-s>", "<cmd>w<CR>", {
         noremap = true,
         silent = true,
         desc = "Save file"
     })
 
-    vim.keymap.set({"n", "i", "v"}, "<D-w>", function()
+    vim.keymap.set({ "n", "i", "v" }, "<D-w>", function()
         local buf_count = 0
         for _ in pairs(vim.fn.getbufinfo({
             buflisted = 1
@@ -97,7 +97,7 @@ function Entrypoint.setup_actions()
         desc = "Close buffer or quit"
     })
 
-    vim.keymap.set({"n", "i", "v"}, "<D-n>", "<cmd>enew<CR>", {
+    vim.keymap.set({ "n", "i", "v" }, "<D-n>", "<cmd>enew<CR>", {
         noremap = true,
         silent = true,
         desc = "New file"
@@ -109,7 +109,7 @@ function Entrypoint.setup_actions()
         desc = "Copy to clipboard"
     })
 
-    vim.keymap.set({"n", "i"}, "<D-c>", '<cmd>let @+=@"<CR>', {
+    vim.keymap.set({ "n", "i" }, "<D-c>", '<cmd>let @+=@"<CR>', {
         noremap = true,
         silent = true,
         desc = "Copy to clipboard"
@@ -121,25 +121,25 @@ function Entrypoint.setup_actions()
         desc = "Cut to clipboard"
     })
 
-    vim.keymap.set({"n", "i", "v"}, "<D-p>", '"+p', {
+    vim.keymap.set({ "n", "i", "v" }, "<D-p>", '"+p', {
         noremap = true,
         silent = true,
         desc = "Paste from clipboard"
     })
 
-    vim.keymap.set({"n", "i"}, "<D-z>", "<cmd>undo<CR>", {
+    vim.keymap.set({ "n", "i" }, "<D-z>", "<cmd>undo<CR>", {
         noremap = true,
         silent = true,
         desc = "Undo"
     })
 
-    vim.keymap.set({"n", "i"}, "<D-S-z>", "<cmd>redo<CR>", {
+    vim.keymap.set({ "n", "i" }, "<D-S-z>", "<cmd>redo<CR>", {
         noremap = true,
         silent = true,
         desc = "Redo"
     })
 
-    vim.keymap.set({"n", "v", "i"}, "<D-a>", function()
+    vim.keymap.set({ "n", "v", "i" }, "<D-a>", function()
         if vim.fn.mode() == 'i' then
             return "<Esc>ggVG"
         else
@@ -151,7 +151,7 @@ function Entrypoint.setup_actions()
         desc = "Select all"
     })
 
-    vim.keymap.set({"n", "i"}, "<D-f>", function()
+    vim.keymap.set({ "n", "i" }, "<D-f>", function()
         if vim.fn.mode() == 'i' then
             return "<Esc>/"
         else
@@ -198,15 +198,15 @@ function Entrypoint.setup_options()
     vim.opt.timeoutlen = 500
     vim.opt.updatetime = 300
 
-    vim.opt.guicursor = {"n-v-c:block-Cursor/lCursor", -- Block cursor in normal, visual, and command modes
-    "i:ver25-blinkwait700-blinkoff400-blinkon250-Cursor/lCursor", -- Blinking vertical line in insert mode
-    "r-cr-o:hor20-Cursor/lCursor", -- Horizontal line cursor in replace, command-line replace, and operator-pending modes
-                         "a:blinkwait700-blinkoff400-blinkon250" -- Global blinking settings for all modes
+    vim.opt.guicursor = { "n-v-c:block-Cursor/lCursor",           -- Block cursor in normal, visual, and command modes
+        "i:ver25-blinkwait700-blinkoff400-blinkon250-Cursor/lCursor", -- Blinking vertical line in insert mode
+        "r-cr-o:hor20-Cursor/lCursor",                            -- Horizontal line cursor in replace, command-line replace, and operator-pending modes
+        "a:blinkwait700-blinkoff400-blinkon250"                   -- Global blinking settings for all modes
     }
 
     -- Completion settings
     vim.opt.shortmess:append("c")
-    vim.opt.completeopt = {"menuone", "noselect"}
+    vim.opt.completeopt = { "menuone", "noselect" }
 
     -- Visual settings
     vim.opt.fillchars:append({
@@ -221,39 +221,38 @@ function Entrypoint.setup_options()
 
     -- Session settings
     vim.o.sessionoptions =
-        "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions,tabpages,globals"
+    "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions,tabpages,globals"
 end
 
 function Entrypoint.get_plugins()
-    return {require("sysinit.plugins.ui.alpha"), require("sysinit.plugins.ui.devicons"),
-            require("sysinit.plugins.ui.minimap"), require("sysinit.plugins.ui.nui"),
-            require("sysinit.plugins.ui.scrollbar"), require("sysinit.plugins.ui.smart-splits"),
-            require("sysinit.plugins.ui.statusbar"), require("sysinit.plugins.ui.tab"),
-            require("sysinit.plugins.ui.theme"), require("sysinit.plugins.ui.transparent"),
-            require("sysinit.plugins.keymaps.hop"), require("sysinit.plugins.keymaps.pallete"),
-            require("sysinit.plugins.editor.comment"), require("sysinit.plugins.editor.commentstring"),
-            require("sysinit.plugins.editor.formatter"), require("sysinit.plugins.editor.ibl"),
-            require("sysinit.plugins.file.diffview"), require("sysinit.plugins.file.editor"),
-            require("sysinit.plugins.file.session"), require("sysinit.plugins.file.telescope"),
-            require("sysinit.plugins.file.tree"), require("sysinit.plugins.git.blame"),
-            require("sysinit.plugins.git.client"), require("sysinit.plugins.git.fugitive"),
-            require("sysinit.plugins.git.signs"), require("sysinit.plugins.intellicode.avante"),
-            require("sysinit.plugins.intellicode.cmp-buffer"), require("sysinit.plugins.intellicode.cmp-cmdline"),
-            require("sysinit.plugins.intellicode.cmp-git"), require("sysinit.plugins.intellicode.cmp-nvim-lsp"),
-            require("sysinit.plugins.intellicode.cmp-nvim-lua"), require("sysinit.plugins.intellicode.cmp-path"),
-            require("sysinit.plugins.intellicode.copilot-cmp"), require("sysinit.plugins.intellicode.copilot"),
-            require("sysinit.plugins.intellicode.friendly-snippets"),
-            require("sysinit.plugins.intellicode.guess-indent"), require("sysinit.plugins.intellicode.img-clip"),
-            require("sysinit.plugins.intellicode.linters"), 
-            require("sysinit.plugins.intellicode.luasnip"), require("sysinit.plugins.intellicode.mason-lspconfig"),
-            require("sysinit.plugins.intellicode.mason"), require("sysinit.plugins.intellicode.nvim-autopairs"),
-            require("sysinit.plugins.intellicode.nvim-cmp"), require("sysinit.plugins.intellicode.nvim-lspconfig"),
-            require("sysinit.plugins.intellicode.outline"), require("sysinit.plugins.intellicode.render-markdown"),
-            require("sysinit.plugins.intellicode.sort"), require("sysinit.plugins.intellicode.trailspace"),
-            require("sysinit.plugins.intellicode.treesitter-textobjects"),
-            require("sysinit.plugins.intellicode.treesitter"), require("sysinit.plugins.intellicode.trouble"),
-            require("sysinit.plugins.debugger.dap")}
+    return { require("sysinit.plugins.ui.alpha"), require("sysinit.plugins.ui.devicons"),
+        require("sysinit.plugins.ui.minimap"), require("sysinit.plugins.ui.nui"),
+        require("sysinit.plugins.ui.scrollbar"), require("sysinit.plugins.ui.smart-splits"),
+        require("sysinit.plugins.ui.statusbar"), require("sysinit.plugins.ui.tab"),
+        require("sysinit.plugins.ui.theme"), require("sysinit.plugins.ui.transparent"),
+        require("sysinit.plugins.keymaps.hop"), require("sysinit.plugins.keymaps.pallete"),
+        require("sysinit.plugins.editor.comment"), require("sysinit.plugins.editor.commentstring"),
+        require("sysinit.plugins.editor.formatter"), require("sysinit.plugins.editor.ibl"),
+        require("sysinit.plugins.file.diffview"), require("sysinit.plugins.file.editor"),
+        require("sysinit.plugins.file.session"), require("sysinit.plugins.file.telescope"),
+        require("sysinit.plugins.file.tree"), require("sysinit.plugins.git.blame"),
+        require("sysinit.plugins.git.client"), require("sysinit.plugins.git.fugitive"),
+        require("sysinit.plugins.git.signs"), require("sysinit.plugins.intellicode.avante"),
+        require("sysinit.plugins.intellicode.cmp-buffer"), require("sysinit.plugins.intellicode.cmp-cmdline"),
+        require("sysinit.plugins.intellicode.cmp-git"), require("sysinit.plugins.intellicode.cmp-nvim-lsp"),
+        require("sysinit.plugins.intellicode.cmp-nvim-lua"), require("sysinit.plugins.intellicode.cmp-path"),
+        require("sysinit.plugins.intellicode.copilot-cmp"), require("sysinit.plugins.intellicode.copilot"),
+        require("sysinit.plugins.intellicode.friendly-snippets"),
+        require("sysinit.plugins.intellicode.guess-indent"), require("sysinit.plugins.intellicode.img-clip"),
+        require("sysinit.plugins.intellicode.linters"),
+        require("sysinit.plugins.intellicode.luasnip"), require("sysinit.plugins.intellicode.mason-lspconfig"),
+        require("sysinit.plugins.intellicode.mason"), require("sysinit.plugins.intellicode.nvim-autopairs"),
+        require("sysinit.plugins.intellicode.nvim-cmp"), require("sysinit.plugins.intellicode.nvim-lspconfig"),
+        require("sysinit.plugins.intellicode.outline"), require("sysinit.plugins.intellicode.render-markdown"),
+        require("sysinit.plugins.intellicode.sort"), require("sysinit.plugins.intellicode.trailspace"),
+        require("sysinit.plugins.intellicode.treesitter-textobjects"),
+        require("sysinit.plugins.intellicode.treesitter"), require("sysinit.plugins.intellicode.trouble"),
+        require("sysinit.plugins.debugger.dap") }
 end
 
 return Entrypoint
-
