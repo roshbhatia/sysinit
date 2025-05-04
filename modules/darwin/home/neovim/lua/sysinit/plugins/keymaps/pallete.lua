@@ -1001,9 +1001,17 @@ M.plugins = {{
         end
     end
 }, {
+    "rcarriga/nvim-notify",
+    lazy = false,
+    config = function()
+        require("notify").setup({
+            background_colour = "#000000"
+        })
+    end
+}, {
     "folke/noice.nvim",
-    event = "VeryLazy",
-    dependencies = {"MunifTanjim/nui.nvim", "rcarriga/nvim-notify"},
+    lazy = false,
+    dependencies = {"MunifTanjim/nui.nvim"},
     config = function()
         require("noice").setup({
             lsp = {
