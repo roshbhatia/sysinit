@@ -170,7 +170,7 @@ if vim.g.vscode then
 
         local title = group and group.name or "Which Key Menu"
         local placeholder = group and "Select an action or press <Esc> to cancel" or
-                                "Select a group or action (groups shown with ▸)"
+            "Select a group or action (groups shown with ▸)"
 
         local eval_ok, eval_err = pcall(vscode_utils.vscode.eval, vscode_utils.EVAL_STRINGS.quickpick_menu, {
             timeout = 1000,
@@ -231,9 +231,9 @@ M.group_icons = {
 }
 
 M.keybindings_data = {
-    a = {
+    l = {
         name = M.group_icons.ai .. " AI",
-        bindings = {{
+        bindings = { {
             key = "a",
             desc = "Toggle Chat",
             neovim_cmd = "<cmd>AvanteToggle<CR>",
@@ -283,12 +283,12 @@ M.keybindings_data = {
             desc = "Generate Commit",
             neovim_cmd = "<cmd>CopilotChatCommit<CR>",
             vscode_cmd = "github.copilot.git.generateCommitMessage"
-        }}
+        } }
     },
 
     b = {
         name = M.group_icons.buffer .. " Buffer",
-        bindings = {{
+        bindings = { {
             key = "b",
             desc = "Show Buffers",
             neovim_cmd = "<cmd>Telescope buffers<CR>",
@@ -318,12 +318,12 @@ M.keybindings_data = {
             desc = "Find in Buffers",
             neovim_cmd = "<cmd>Telescope current_buffer_fuzzy_find<CR>",
             vscode_cmd = "actions.find"
-        }}
+        } }
     },
 
     c = {
         name = M.group_icons.code .. " Code",
-        bindings = {{
+        bindings = { {
             key = "c",
             desc = "Toggle Comment",
             neovim_cmd = "<Plug>(comment_toggle_linewise_current)",
@@ -368,12 +368,12 @@ M.keybindings_data = {
             desc = "Document Symbols",
             neovim_cmd = "<cmd>Telescope lsp_document_symbols<CR>",
             vscode_cmd = "workbench.action.gotoSymbol"
-        }}
+        } }
     },
 
     d = {
         name = M.group_icons.debug .. " Debug",
-        bindings = {{
+        bindings = { {
             key = "d",
             desc = "Toggle Debugger",
             neovim_cmd = "<cmd>lua require'dap'.toggle_breakpoint()<CR>",
@@ -413,12 +413,12 @@ M.keybindings_data = {
             desc = "Terminate",
             neovim_cmd = "<cmd>lua require'dap'.terminate()<CR>",
             vscode_cmd = "workbench.action.debug.stop"
-        }}
+        } }
     },
 
     e = {
         name = M.group_icons.explorer .. " Explorer",
-        bindings = {{
+        bindings = { {
             key = "e",
             desc = "Toggle Explorer",
             neovim_cmd = "<cmd>Neotree toggle<CR>",
@@ -438,12 +438,12 @@ M.keybindings_data = {
             desc = "Open Oil",
             neovim_cmd = "<cmd>Oil --float<CR>",
             vscode_cmd = "workbench.explorer.fileView.focus"
-        }}
+        } }
     },
 
     f = {
         name = M.group_icons.find .. " Find",
-        bindings = {{
+        bindings = { {
             key = "f",
             desc = "Find Files",
             neovim_cmd = "<cmd>Telescope find_files<CR>",
@@ -483,12 +483,12 @@ M.keybindings_data = {
             desc = "Help Tags",
             neovim_cmd = "<cmd>Telescope help_tags<CR>",
             vscode_cmd = "workbench.action.openDocumentationUrl"
-        }}
+        } }
     },
 
     g = {
         name = M.group_icons.git .. " Git",
-        bindings = {{
+        bindings = { {
             key = "g",
             desc = "View Status",
             neovim_cmd = "<cmd>Telescope git_status<CR>",
@@ -553,12 +553,12 @@ M.keybindings_data = {
             desc = "Git UI",
             neovim_cmd = "<cmd>LazyGit<CR>",
             vscode_cmd = "git.openChange"
-        }}
+        } }
     },
 
     o = {
         name = M.group_icons.org .. " Organize",
-        bindings = {{
+        bindings = { {
             key = "o",
             desc = "Open Oil",
             neovim_cmd = "<cmd>Oil<CR>",
@@ -583,12 +583,12 @@ M.keybindings_data = {
             desc = "Projects",
             neovim_cmd = "<cmd>Telescope projects<CR>",
             vscode_cmd = "workbench.action.openRecent"
-        }}
+        } }
     },
 
     p = {
         name = M.group_icons.problems .. " Problems",
-        bindings = {{
+        bindings = { {
             key = "p",
             desc = "Toggle Problems",
             neovim_cmd = "<cmd>Trouble toggle<CR>",
@@ -613,12 +613,12 @@ M.keybindings_data = {
             desc = "Previous Problem",
             neovim_cmd = "<cmd>lua vim.diagnostic.goto_prev()<CR>",
             vscode_cmd = "editor.action.marker.prev"
-        }}
+        } }
     },
 
     s = {
         name = M.group_icons.split .. " Split",
-        bindings = {{
+        bindings = { {
             key = "s",
             desc = "Horizontal Split",
             neovim_cmd = "<cmd>split<CR>",
@@ -658,12 +658,12 @@ M.keybindings_data = {
             desc = "Only Split",
             neovim_cmd = "<cmd>only<CR>",
             vscode_cmd = "workbench.action.closeEditorsInOtherGroups"
-        }}
+        } }
     },
 
     t = {
         name = M.group_icons.tab .. " Tab",
-        bindings = {{
+        bindings = { {
             key = "t",
             desc = "Jump to Tab",
             neovim_cmd = "<cmd>Tabby jump_to_tab<CR>",
@@ -696,12 +696,12 @@ M.keybindings_data = {
             key = "mn",
             desc = "Move Tab Right",
             neovim_cmd = "<cmd>+tabmove<CR>"
-        }}
+        } }
     },
 
     u = {
         name = M.group_icons.utils .. " Utils",
-        bindings = {{
+        bindings = { {
             key = "c",
             desc = "ColorPicker",
             neovim_cmd = "<cmd>PickColor<CR>",
@@ -726,12 +726,12 @@ M.keybindings_data = {
             desc = "Keymaps",
             neovim_cmd = "<cmd>WhichKey<CR>",
             vscode_cmd = "workbench.action.openGlobalKeybindings"
-        }}
+        } }
     },
 
     w = {
         name = M.group_icons.window .. " Window",
-        bindings = {{
+        bindings = { {
             key = "w",
             desc = "Switch Window",
             neovim_cmd = "<C-w>w",
@@ -781,7 +781,7 @@ M.keybindings_data = {
             desc = "Split Horizontal",
             neovim_cmd = "<cmd>split<CR>",
             vscode_cmd = "workbench.action.splitEditorDown"
-        }}
+        } }
     }
 }
 
@@ -815,7 +815,7 @@ local function require_safe(module_name)
     return module
 end
 
-M.plugins = {{
+M.plugins = { {
     "folke/which-key.nvim",
     lazy = false,
     config = function()
@@ -838,7 +838,7 @@ M.plugins = {{
                 clear = true
             })
 
-            vim.api.nvim_create_autocmd({"ModeChanged", "CursorMoved"}, {
+            vim.api.nvim_create_autocmd({ "ModeChanged", "CursorMoved" }, {
                 callback = vscode_utils.hide_menu,
                 group = menu_group
             })
@@ -863,7 +863,7 @@ M.plugins = {{
                 },
                 win = {
                     border = "rounded",
-                    padding = {2, 2, 2, 2}
+                    padding = { 2, 2, 2, 2 }
                 },
                 layout = {
                     spacing = 3
@@ -875,10 +875,10 @@ M.plugins = {{
                 },
                 show_help = true,
                 show_keys = true,
-                triggers = {{
+                triggers = { {
                     "<auto>",
                     mode = "nxsotc"
-                }}
+                } }
             })
 
             local which_key_bindings = convert_to_which_key(M.keybindings_data)
@@ -889,7 +889,7 @@ M.plugins = {{
     "mrjones2014/legendary.nvim",
     priority = 10000,
     lazy = false,
-    dependencies = {"kkharji/sqlite.lua", "stevearc/dressing.nvim"},
+    dependencies = { "kkharji/sqlite.lua", "stevearc/dressing.nvim" },
     config = function()
         if not vim.g.vscode then
             local keybindings_data = M.keybindings_data
@@ -908,13 +908,13 @@ M.plugins = {{
             local legendary = require("legendary")
             legendary.setup({
                 keymaps = keymaps,
-                commands = {{
+                commands = { {
                     ":LegendaryPalette",
                     function()
                         legendary.find()
                     end,
                     description = "Open Command Palette"
-                }},
+                } },
                 select_prompt = " Command Palette ",
                 col_separator_char = "│",
                 icons = {
@@ -941,7 +941,7 @@ M.plugins = {{
                     lazy_nvim = true,
                     nvim_tree = false,
                     smart_splits = {
-                        directions = {'h', 'j', 'k', 'l'},
+                        directions = { 'h', 'j', 'k', 'l' },
                         mods = {
                             move = '<C>',
                             resize = '<M>'
@@ -973,8 +973,8 @@ M.plugins = {{
                     relative = "cursor",
                     prefer_width = 40,
                     width = nil,
-                    max_width = {140, 0.9},
-                    min_width = {20, 0.2},
+                    max_width = { 140, 0.9 },
+                    min_width = { 20, 0.2 },
                     win_options = {
                         winblend = 0,
                         wrap = false
@@ -982,7 +982,7 @@ M.plugins = {{
                 },
                 select = {
                     enabled = true,
-                    backend = {"telescope", "fzf", "builtin"},
+                    backend = { "telescope", "fzf", "builtin" },
                     trim_prompt = true,
                     telescope = {
                         layout_config = {
@@ -991,9 +991,9 @@ M.plugins = {{
                             prompt_position = "top"
                         },
                         borderchars = {
-                            prompt = {"─", "│", "─", "│", "╭", "╮", "╯", "╰"},
-                            results = {"─", "│", "─", "│", "╭", "╮", "╯", "╰"},
-                            preview = {"─", "│", "─", "│", "╭", "╮", "╯", "╰"}
+                            prompt = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
+                            results = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
+                            preview = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
                         }
                     }
                 }
@@ -1011,7 +1011,7 @@ M.plugins = {{
 }, {
     "folke/noice.nvim",
     lazy = false,
-    dependencies = {"MunifTanjim/nui.nvim"},
+    dependencies = { "MunifTanjim/nui.nvim" },
     config = function()
         require("noice").setup({
             lsp = {
@@ -1023,11 +1023,11 @@ M.plugins = {{
                 }
             },
             presets = {
-                bottom_search = false, -- use a classic bottom cmdline for search
-                command_palette = false, -- position the cmdline and popup menu together
+                bottom_search = false,         -- use a classic bottom cmdline for search
+                command_palette = false,       -- position the cmdline and popup menu together
                 long_message_to_split = false, -- long messages will be sent to a split
-                inc_rename = false, -- enables an input dialog for inc-rename.nvim
-                lsp_doc_border = true -- add a border to hover docs and signature help
+                inc_rename = false,            -- enables an input dialog for inc-rename.nvim
+                lsp_doc_border = true          -- add a border to hover docs and signature help
             }
         })
     end
@@ -1044,7 +1044,6 @@ M.plugins = {{
             })
         end
     end
-}}
+} }
 
 return M
-

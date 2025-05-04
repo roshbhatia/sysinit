@@ -197,11 +197,12 @@ function Entrypoint.setup_options()
     vim.opt.showtabline = 2
     vim.opt.timeoutlen = 500
     vim.opt.updatetime = 300
+    vim.opt.laststatus = 3
 
-    vim.opt.guicursor = { "n-v-c:block-Cursor/lCursor",           -- Block cursor in normal, visual, and command modes
+    vim.opt.guicursor = { "n-v-c:block-Cursor/lCursor",               -- Block cursor in normal, visual, and command modes
         "i:ver25-blinkwait700-blinkoff400-blinkon250-Cursor/lCursor", -- Blinking vertical line in insert mode
-        "r-cr-o:hor20-Cursor/lCursor",                            -- Horizontal line cursor in replace, command-line replace, and operator-pending modes
-        "a:blinkwait700-blinkoff400-blinkon250"                   -- Global blinking settings for all modes
+        "r-cr-o:hor20-Cursor/lCursor",                                -- Horizontal line cursor in replace, command-line replace, and operator-pending modes
+        "a:blinkwait700-blinkoff400-blinkon250"                       -- Global blinking settings for all modes
     }
 
     -- Completion settings

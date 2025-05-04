@@ -12,22 +12,17 @@ M.plugins = { {
     opts = {
         provider = "copilot",
         behaviour = {
-            auto_suggestions = false,
+            auto_apply_diff_after_generation = true,
             auto_set_highlight_group = true,
             auto_set_keymaps = true,
-            minimize_diff = true,
-            enable_token_counting = true,
-            enable_cursor_planning_mode = true
+            auto_suggestions = false,
+            enable_cursor_planning_mode = true,
+            enable_token_counting = true
         },
         windows = {
             position = "right",
             wrap = true,
             width = 30
-        },
-        mappings = {
-            ask = "<leader>ua",     -- ask
-            edit = "<leader>ue",    -- edit
-            refresh = "<leader>ur", -- refresh
         }
     },
     config = function(_, opts)
