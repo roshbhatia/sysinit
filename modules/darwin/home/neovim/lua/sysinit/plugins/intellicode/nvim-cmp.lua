@@ -1,14 +1,32 @@
 local M = {}
 
 M.plugins = {{
+    "hrsh7th/cmp-buffer",
+    lazy = true
+}, {
+    "hrsh7th/cmp-path",
+    lazy = true
+}, {
+    "hrsh7th/cmp-cmdline",
+    lazy = true
+}, {
+    "hrsh7th/cmp-nvim-lsp",
+    lazy = true
+}, {
+    "hrsh7th/cmp-nvim-lua",
+    lazy = true
+}, {
     "zbirenbaum/copilot-cmp",
     lazy = true,
     dependencies = {"zbirenbaum/copilot.lua"}
 }, {
+    "petertriho/cmp-git",
+    lazy = true
+}, {
     "hrsh7th/nvim-cmp",
     lazy = true,
-    dependencies = {"hrsh7th/cmp-buffer", "hrsh7th/cmp-path", "hrsh7th/cmp-cmdline", "hrsh7th/cmp-nvim-lsp",
-                    "hrsh7th/cmp-nvim-lua", "hrsh7th/cmp-copilot", "zbirenbaum/copilot-cmp"},
+    dependencies = {"VonHeikemen/lsp-zero.nvim", "hrsh7th/cmp-buffer", "hrsh7th/cmp-path", "hrsh7th/cmp-cmdline",
+                    "hrsh7th/cmp-nvim-lsp", "hrsh7th/cmp-nvim-lua", "zbirenbaum/copilot-cmp", "petertriho/cmp-git"},
     event = "InsertEnter",
     config = function()
         local cmp = require("cmp")
@@ -65,6 +83,8 @@ M.plugins = {{
         -- Special configuration for gitcommit files
         cmp.setup.filetype('gitcommit', {
             sources = cmp.config.sources({{
+                name = 'git'
+            }}, {{
                 name = 'buffer'
             }})
         })
