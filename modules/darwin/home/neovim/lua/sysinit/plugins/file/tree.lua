@@ -1,11 +1,11 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/nvim-neo-tree/neo-tree.nvim/refs/heads/main/doc/neo-tree.txt"
 local M = {}
 
-M.plugins = {{
+M.plugins = { {
     "nvim-neo-tree/neo-tree.nvim",
-    event = "VeryLazy",
+    lazy = false,
     branch = "v3.x",
-    dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "MunifTanjim/nui.nvim"},
+    dependencies = { "nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "MunifTanjim/nui.nvim" },
     config = function()
         vim.cmd([[ let g:neo_tree_remove_legacy_commands = 1 ]])
 
@@ -63,8 +63,8 @@ M.plugins = {{
             id = "NeoTreePopUp",
             label = "Files",
             condition = buf_is_neotree,
-            items = {items.newfile, items.new_dir, items.rename, items.delete, items.copy, items.paste, items.open,
-                     items.close}
+            items = { items.newfile, items.new_dir, items.rename, items.delete, items.copy, items.paste, items.open,
+                items.close }
         }
 
         right_click_menu.menu(neotree_menu)
@@ -147,10 +147,10 @@ M.plugins = {{
             },
 
             nesting_rules = {
-                ["js"] = {"js.map"},
+                ["js"] = { "js.map" },
                 ["package.json"] = {
                     pattern = "^package%.json$",
-                    files = {"package-lock.json", "yarn.lock"}
+                    files = { "package-lock.json", "yarn.lock" }
                 }
             },
 
@@ -160,21 +160,21 @@ M.plugins = {{
                     hide_dotfiles = true,
                     hide_gitignored = true,
                     hide_hidden = false,
-                    hide_by_name = {".DS_Store", "node_modules"},
+                    hide_by_name = { ".DS_Store", "node_modules" },
                     hide_by_pattern = { -- uses glob style patterns
-                    "*.meta"},
-                    always_show = { -- remains visible even if other settings would hide it
-                    ".gitignored"},
-                    never_show = { -- remains hidden even if visible is toggled to true
-                    ".DS_Store"}
+                        "*.meta" },
+                    always_show = {     -- remains visible even if other settings would hide it
+                        ".gitignored" },
+                    never_show = {      -- remains hidden even if visible is toggled to true
+                        ".DS_Store" }
                 },
                 follow_current_file = {
-                    enabled = true, -- Focus the file that is currently being edited
-                    leave_dirs_open = true -- Leave directories open when focusing a file
+                    enabled = true,                     -- Focus the file that is currently being edited
+                    leave_dirs_open = true              -- Leave directories open when focusing a file
                 },
-                group_empty_dirs = false, -- when true, empty folders will be grouped together
+                group_empty_dirs = false,               -- when true, empty folders will be grouped together
                 hijack_netrw_behavior = "open_default", -- netrw disabled, opening a directory opens neo-tree
-                use_libuv_file_watcher = false, -- This will use the OS level file watchers to detect changes
+                use_libuv_file_watcher = false,         -- This will use the OS level file watchers to detect changes
                 window = {
                     mappings = {
                         ["H"] = "toggle_hidden",
@@ -192,7 +192,7 @@ M.plugins = {{
 
             buffers = {
                 follow_current_file = {
-                    enabled = true -- focus the file in the buffer list that is currently being edited
+                    enabled = true       -- focus the file in the buffer list that is currently being edited
                 },
                 group_empty_dirs = true, -- when true, empty directories will be grouped together
                 show_unloaded = true,
@@ -229,6 +229,6 @@ M.plugins = {{
             end
         })
     end
-}}
+} }
 
 return M
