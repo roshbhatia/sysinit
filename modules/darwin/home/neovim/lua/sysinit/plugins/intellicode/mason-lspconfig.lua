@@ -6,7 +6,7 @@ M.plugins = {{
     dependencies = {"williamboman/mason.nvim", "VonHeikemen/lsp-zero.nvim"},
     opts = {
         ensure_installed = {"bashls", "dagger", "docker_compose_language_service", "dockerls", "golangci_lint_ls",
-                            "gopls", "helm_ls", "html", "jqls", "marksman", "spectral", "terraformls", "tflint", "ts_ls"},
+                            "gopls", "helm_ls", "html", "jqls", "jsonls" ,"lua_ls", "marksman", "terraformls", "tflint", "ts_ls", "yamlls"},
         automatic_installation = true,
         handlers = {function(server_name)
             require('lspconfig')[server_name].setup({})
