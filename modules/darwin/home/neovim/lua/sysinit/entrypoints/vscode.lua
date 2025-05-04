@@ -1,41 +1,9 @@
 local vscode = require('vscode')
-local sysinit_lib = require('sysinit.pkg.plugin')
 
-local cmd_map = {
-    w = "workbench.action.files.save",
-    wa = "workbench.action.files.saveAll",
-    q = "workbench.action.closeActiveEditor",
-    qa = "workbench.action.quit",
-    enew = "workbench.action.files.newUntitledFile",
-    bdelete = "workbench.action.closeActiveEditor",
-    bd = "workbench.action.closeActiveEditor",
-    bn = "workbench.action.nextEditor",
-    bp = "workbench.action.previousEditor",
-    split = "workbench.action.splitEditorDown",
-    vsplit = "workbench.action.splitEditorRight",
-    term = "workbench.action.terminal.toggleTerminal",
-    find = "actions.find",
-    grep = "workbench.action.findInFiles",
-    cmd = "workbench.action.showCommands",
-    Ex = "workbench.view.explorer"
-}
+local Entrypoint = {}
 
-local function map_cmd(mode, lhs, cmd, opts)
-    opts = opts or {
-        noremap = true,
-        silent = true
-    }
-    local action = cmd_map[cmd]
-    if action then
-        vim.keymap.set(mode, lhs, function()
-            vscode.action(action)
-        end, opts)
-    else
-        vim.keymap.set(mode, lhs, '<cmd>' .. cmd .. '<cr>', opts)
-    end
-end
-
-local function setup_keybindings()
+function Entrypoint.setup_actions()
+    -- Set up key mappings for VSCode
     vim.keymap.set("n", "<C-h>", function()
         vscode.action("workbench.action.focusLeftGroup")
     end, {
@@ -157,9 +125,41 @@ local function setup_keybindings()
         silent = true,
         desc = "Show commands"
     })
-end
 
-local function setup_commands()
+    local function map_cmd(mode, lhs, cmd, opts)
+        cmd_map = {
+            w = "workbench.action.files.save",
+            wa = "workbench.action.files.saveAll",
+            q = "workbench.action.closeActiveEditor",
+            qa = "workbench.action.quit",
+            enew = "workbench.action.files.newUntitledFile",
+            bdelete = "workbench.action.closeActiveEditor",
+            bd = "workbench.action.closeActiveEditor",
+            bn = "workbench.action.nextEditor",
+            bp = "workbench.action.previousEditor",
+            split = "workbench.action.splitEditorDown",
+            vsplit = "workbench.action.splitEditorRight",
+            term = "workbench.action.terminal.toggleTerminal",
+            find = "actions.find",
+            grep = "workbench.action.findInFiles",
+            cmd = "workbench.action.showCommands",
+            Ex = "workbench.view.explorer"
+        }
+
+        opts = opts or {
+            noremap = true,
+            silent = true
+        }
+        local action = cmd_map[cmd]
+        if action then
+            vim.keymap.set(mode, lhs, function()
+                vscode.action(action)
+            end, opts)
+        else
+            vim.keymap.set(mode, lhs, '<cmd>' .. cmd .. '<cr>', opts)
+        end
+    end
+
     map_cmd("n", "<leader>w", "w")
     map_cmd("n", "<leader>q", "q")
     map_cmd("n", "<leader>wa", "wa")
@@ -309,36 +309,22 @@ local function setup_commands()
     end, {})
 end
 
-local function setup_plugins()
-    local ui = {
-        statusbar = require("pkg.plugins.ui.statusbar")
-    }
-
-    local keymaps = {
-        commands = require("pkg.plugins.keymaps.commands"),
-        pallete = require("pkg.plugins.keymaps.pallete")
-    }
-
-    local modules = {ui.statusbar, keymaps.commands, keymaps.pallete}
-
-    local specs = sysinit_lib.collect_plugin_specs(modules)
-    sysinit_lib.setup_package_manager(specs)
-    sysinit_lib.setup_modules(modules)
-end
-
-local M = {}
-
-function M.init()
-    local config_path = vim.fn.stdpath('config')
-    package.path = package.path .. ";" .. config_path .. "/?.lua" .. ";" .. config_path .. "/lua/?.lua"
-    sysinit_lib.setup_settings()
-
+function Entrypoint.setup_options()
     vim.opt.foldmethod = "manual"
     vim.notify = require('vscode').notify
     vim.g.clipboard = vim.g.vscode_clipboard
-
-    setup_plugins()
-    setup_keybindings()
 end
 
-return M
+function Entrypoint.get_plugins()
+    local ui = {
+        statusbar = require("sysinit.plugins.ui.statusbar")
+    }
+
+    local keymaps = {
+        pallete = require("sysinit.plugins.keymaps.pallete")
+    }
+
+    return {ui.statusbar, keymaps.pallete}
+end
+
+return Entrypoint
