@@ -183,7 +183,7 @@ end
 
 local function setup_plugins()
     local ui = {
-        dashboard = require("sysinit.plugins.ui.dashboard"),
+        alpha = require("sysinit.plugins.ui.alpha"),
         devicons = require("sysinit.plugins.ui.devicons"),
         minimap = require("sysinit.plugins.ui.minimap"),
         nui = require("sysinit.plugins.ui.nui"),
@@ -192,7 +192,8 @@ local function setup_plugins()
         smart_splits = require("sysinit.plugins.ui.smart-splits"),
         statusbar = require("sysinit.plugins.ui.statusbar"),
         tab = require("sysinit.plugins.ui.tab"),
-        theme = require("sysinit.plugins.ui.theme")
+        theme = require("sysinit.plugins.ui.theme"),
+        transparent = require("sysinit.plugins.ui.transparent")
     }
 
     local editor = {
@@ -242,8 +243,8 @@ local function setup_plugins()
     }
 
     local modules = { -- UI elements
-    ui.devicons, ui.statusbar, ui.tab, ui.minimap, ui.scrollbar, ui.smart_splits, ui.dashboard, ui.theme, ui.nui,
-    ui.plenary, -- Keymaps
+    ui.devicons, ui.statusbar, ui.tab, ui.minimap, ui.scrollbar, ui.smart_splits, ui.alpha, ui.theme, ui.nui,
+    ui.transparent, ui.plenary, -- Keymaps
     keymaps.pallete, keymaps.hop, -- Editor enhancements
     editor.comment, editor.commentstring, editor.formatter, editor.ibl, -- File management
     file.editor, file.tree, file.telescope, file.session, file.diffview, -- Git integration
