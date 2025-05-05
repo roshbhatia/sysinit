@@ -245,6 +245,7 @@ function Entrypoint.get_plugins()
             require("sysinit.plugins.intellicode.cmp-git"), require("sysinit.plugins.intellicode.cmp-nvim-lsp"),
             require("sysinit.plugins.intellicode.cmp-nvim-lua"), require("sysinit.plugins.intellicode.cmp-path"),
             require("sysinit.plugins.intellicode.copilot-cmp"), require("sysinit.plugins.intellicode.copilot"),
+            require("sysinit.plugins.intellicode.copilot-chat"),
             require("sysinit.plugins.intellicode.friendly-snippets"),
             require("sysinit.plugins.intellicode.guess-indent"), require("sysinit.plugins.intellicode.img-clip"),
             require("sysinit.plugins.intellicode.linters"), require("sysinit.plugins.intellicode.luasnip"),
