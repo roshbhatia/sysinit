@@ -6,7 +6,7 @@ let
   };
 
   xdgConfigAttrs = lib.listToAttrs (map (entry: {
-    name = ".config/${entry.destination}";
+    name = "${homeDirectory}/.config/${entry.destination}";
     value = {
       source = config.lib.file.mkOutOfStoreSymlink (toString entry.source);
       force = true;

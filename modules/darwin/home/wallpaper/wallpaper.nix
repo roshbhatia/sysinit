@@ -40,9 +40,6 @@ in
     echo "Using wallpaper: $WALLPAPER_PATH"
     
     if [ -f "$WALLPAPER_PATH" ]; then
-      mkdir -p ${builtins.getEnv "HOME"}/.config/wallpaper
-      ln -sf "$WALLPAPER_PATH" ${builtins.getEnv "HOME"}/.wallpaper
-      
       OSASCRIPT="/usr/bin/osascript"
       if [ -x "$OSASCRIPT" ]; then
         "$OSASCRIPT" -e 'tell application "Finder" to set desktop picture to POSIX file "'"$WALLPAPER_PATH"'"'
