@@ -10,6 +10,7 @@ let
     value = {
       source = config.lib.file.mkOutOfStoreSymlink (toString entry.source);
       force = true;
+      executable = entry.executable or false;
     };
   }) install.installToXdgConfigHome);
 
@@ -18,6 +19,7 @@ let
     value = {
       source = config.lib.file.mkOutOfStoreSymlink (toString entry.source);
       force = true;
+      executable = entry.executable or false;
     };
   }) install.installToHome);
 in {

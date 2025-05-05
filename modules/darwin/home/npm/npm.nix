@@ -3,7 +3,6 @@
   lib,
   config,
   userConfig ? { },
-  homeDirectory,
   ...
 }:
 
@@ -26,15 +25,13 @@ let
   allPackages = basePackages ++ additionalPackages;
 
   escapedPackages = lib.concatStringsSep " " (map lib.escapeShellArg allPackages);
-
-  npmGlobalDir = "${homeDirectory}/.npm-global";
 in
 {
   home.file.".npmrc".text = ''
-    prefix=${npmGlobalDir}
+    prefix=.npm-global
   '';
 
-  home.sessionVariables.NPM_CONFIG_PREFIX = npmGlobalDir;
+  home.sessionVariables.NPM_CONFIG_PREFIX = ".npm-global";
 
   home.activation.npmPackages = {
     after = [ "fixVariables" ];
