@@ -396,43 +396,43 @@ in
 
   xdg.configFile = {
     "zsh/bin/colima-recreate" = {
-      source = ./modules/darwin/home/zsh/bin/colima-recreate;
+      source = ./zsh/bin/colima-recreate;
       force = true;
     };
     "zsh/bin/dns-flush" = {
-      source = ./modules/darwin/home/zsh/bin/dns-flush;
+      source = ./zsh/bin/dns-flush;
       force = true;
     };
     "zsh/bin/gh-whoami" = {
-      source = ./modules/darwin/home/zsh/bin/gh-whoami;
+      source = ./zsh/bin/gh-whoami;
       force = true;
     };
     "zsh/bin/ghcs-commitmessage" = {
-      source = ./modules/darwin/home/zsh/bin/ghcs-commitmessage;
+      source = ./zsh/bin/ghcs-commitmessage;
       force = true;
     };
     "zsh/bin/kubectl-crdbrowse" = {
-      source = ./modules/darwin/home/zsh/bin/kubectl-crdbrowse;
+      source = ./zsh/bin/kubectl-crdbrowse;
       force = true;
     };
     "zsh/bin/kubectl-kdesc" = {
-      source = ./modules/darwin/home/zsh/bin/kubectl-kdesc;
+      source = ./zsh/bin/kubectl-kdesc;
       force = true;
     };
     "zsh/bin/kubectl-kexec" = {
-      source = ./modules/darwin/home/zsh/bin/kubectl-kexec;
+      source = ./zsh/bin/kubectl-kexec;
       force = true;
     };
     "zsh/bin/kubectl-klog" = {
-      source = ./modules/darwin/home/zsh/bin/kubectl-klog;
+      source = ./zsh/bin/kubectl-klog;
       force = true;
     };
     "zsh/bin/kubectl-kproxy" = {
-      source = ./modules/darwin/home/zsh/bin/kubectl-kproxy;
+      source = ./zsh/bin/kubectl-kproxy;
       force = true;
     };
     "zsh/bin/sysinit-fzf-preview" = {
-      source = ./modules/darwin/home/zsh/bin/sysinit-fzf-preview;
+      source = ./zsh/bin/sysinit-fzf-preview;
       force = true;
     };
   };
