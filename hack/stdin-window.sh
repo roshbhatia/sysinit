@@ -3,9 +3,6 @@
 
 # Default settings
 height=16
-title="Log Viewer"
-title_align="center"
-window_color="default"
 text_color="8" # Default to a lighter gray (8) instead of regular text
 
 while [[ $# -gt 0 ]]; do
@@ -14,20 +11,18 @@ while [[ $# -gt 0 ]]; do
             height="$2"
             shift 2
             ;;
+        --text-color)
+            text_color="$2"
+            shift 2
+            ;;
+        # Keep these options for backward compatibility but ignore them
         --title)
-            title="$2"
             shift 2
             ;;
         --title-align)
-            title_align="$2"
             shift 2
             ;;
         --window-color)
-            window_color="$2"
-            shift 2
-            ;;
-        --text-color)
-            text_color="$2"
             shift 2
             ;;
         *)
@@ -36,54 +31,62 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Simple function to draw the header
-draw_header() {
-    local width=$(tput cols)
-    local top_border="╭$(printf '─%.0s' $(seq 1 $((width - 2))))╮"
-    local bottom_border="╰$(printf '─%.0s' $(seq 1 $((width - 2))))╯"
-    local padding=$(( (width - ${#title} - 2) / 2 ))
+# Store the initial cursor position
+tput sc
+
+# Hide cursor
+tput civis
+
+# Set up trap to restore cursor state and clear display on exit
+trap 'tput cnorm; tput rc; tput ed; exit' INT TERM EXIT
+
+# Array to store lines
+declare -a lines=()
+for ((i=0; i<height; i++)); do
+    lines[i]=""
+done
+
+# Set up colors
+if [[ "$text_color" =~ ^[0-9]+$ ]]; then
+    color_code="\033[38;5;${text_color}m"
+else
+    color_code="\033[0m"
+fi
+reset="\033[0m"
+
+# Function to redraw the display
+redraw_display() {
+    # Return to saved position
+    tput rc
+    # Clear display area
+    tput ed
     
-    # Apply color to border if a color was specified
-    if [[ "$window_color" =~ ^[0-9]+$ ]]; then
-        printf "\033[38;5;%sm%s\033[0m\n" "$window_color" "$top_border"
-        
-        if [[ "$title_align" == "center" ]]; then
-            printf "\033[38;5;%sm%s\033[0m\n" "$window_color" "$(printf "%*s%s%*s" "$padding" "" "$title" "$padding" "")"
-        elif [[ "$title_align" == "left" ]]; then
-            printf "\033[38;5;%sm%s\033[0m\n" "$window_color" "$(printf " %s%*s" "$title" $((width - ${#title} - 2)) "")"
-        elif [[ "$title_align" == "right" ]]; then
-            printf "\033[38;5;%sm%s\033[0m\n" "$window_color" "$(printf "%*s%s " $((width - ${#title} - 2)) "" "$title")"
+    # Draw lines
+    for ((i=0; i<${#lines[@]}; i++)); do
+        if [[ -n "${lines[i]}" ]]; then
+            echo -e "| ${color_code}${lines[i]}${reset}"
         fi
-        
-        printf "\033[38;5;%sm%s\033[0m\n" "$window_color" "$bottom_border"
-    else
-        # Default color
-        echo "$top_border"
-        
-        if [[ "$title_align" == "center" ]]; then
-            printf "%*s%s%*s\n" "$padding" "" "$title" "$padding" ""
-        elif [[ "$title_align" == "left" ]]; then
-            printf " %s%*s\n" "$title" $((width - ${#title} - 2)) ""
-        elif [[ "$title_align" == "right" ]]; then
-            printf "%*s%s \n" $((width - ${#title} - 2)) "" "$title"
-        fi
-        
-        echo "$bottom_border"
-    fi
+    done
 }
 
-# Draw the header
-draw_header
+# Process input line by line
+line_count=0
+while IFS= read -r line; do
+    # Add line to buffer, shifting if necessary
+    if [[ $line_count -ge $height ]]; then
+        # Shift lines up
+        for ((i=0; i<height-1; i++)); do
+            lines[i]="${lines[i+1]}"
+        done
+        lines[height-1]="$line"
+    else
+        lines[$line_count]="$line"
+        ((line_count++))
+    fi
+    
+    # Redraw the display
+    redraw_display
+done
 
-# Process input and display with color if specified
-if [[ "$text_color" =~ ^[0-9]+$ ]]; then
-    # Read input and apply color
-    while IFS= read -r line; do
-        printf "\033[38;5;%sm%s\033[0m\n" "$text_color" "$line"
-    done
-else
-    # Just pass through the input
-    cat
-fi
-
+# If we get here, we're at the end of the input
 exit 0
