@@ -6,7 +6,7 @@ let
   };
 
   xdgConfigAttrs = lib.listToAttrs (map (entry: {
-    name = entry.destination;
+    destination = entry.destination;
     value = {
       source = config.lib.file.mkOutOfStoreSymlink (toString entry.source);
       force = true;
@@ -15,7 +15,7 @@ let
   }) install.installToXdgConfigHome);
 
   homeFileAttrs = lib.listToAttrs (map (entry: {
-    name = entry.destination;
+    destination = entry.destination;
     value = {
       source = config.lib.file.mkOutOfStoreSymlink (toString entry.source);
       force = true;
