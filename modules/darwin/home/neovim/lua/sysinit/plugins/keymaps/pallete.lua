@@ -565,377 +565,319 @@ M.keybindings_data = {
     }
 }
 
--- VSCode implementation
-local function init_vscode_module()
-    -- VSCode-specific implementation
-    local vscode_utils = {}
+-- Define plugins spec for lazy.nvim
+M.plugins = {}
 
-    vscode_utils.vscode = require('vscode')
+if vim.g.vscode then
+    -- VSCode Implementation
+    table.insert(M.plugins, {
+        dir = ".", -- This is a virtual plugin - no actual files needed
+        name = "vscode-which-key",
+        event = "VeryLazy",
+        cond = vim.g.vscode,
+        config = function()
+            local vscode = require("vscode")
 
-    vscode_utils.EVAL_STRINGS = {
-        quickpick_menu = [[
-            const vscode = require('vscode');
-            if (globalThis.quickPick) { globalThis.quickPick.dispose(); }
-
-            const quickPick = vscode.window.createQuickPick();
-            quickPick.items = args.items.map(item => ({
-              label: item.isGroup ? `$(chevron-right) ${item.label}` : item.isGroupItem ? `  $(key) ${item.label}` : item.label,
-              description: item.description,
-              action: item.action,
-              key: item.key,
-              kind: item.kind,
-              isGroup: item.isGroup
-            }));
-            quickPick.title = args.title;
-            quickPick.placeholder = args.placeholder;
-
-            let lastActiveItem = null;
-            let autoExecuteTimer = null;
-            const TIMEOUT_MS = 500;
-
-            quickPick.onDidChangeValue((value) => {
-              if (autoExecuteTimer) {
-                clearTimeout(autoExecuteTimer);
-              }
-
-              const matchingItems = quickPick.items.filter(item =>
-                item.label.toLowerCase().startsWith(value.toLowerCase())
-              );
-
-              if (matchingItems.length === 1 && !matchingItems[0].isGroup) {
-                autoExecuteTimer = setTimeout(async () => {
-                  const item = matchingItems[0];
-                  if (item.action) {
-                    await vscode.commands.executeCommand(item.action);
-                    quickPick.hide();
-                    quickPick.dispose();
-                  }
-                }, TIMEOUT_MS);
-              }
-            });
-
-            quickPick.onDidChangeActive((items) => {
-              const active = items[0];
-              if (!active || active === lastActiveItem) return;
-              lastActiveItem = active;
-
-              if (active.action && !active.isGroup) {
-                vscode.commands.executeCommand(active.action).then(() => {
-                  quickPick.hide();
-                  quickPick.dispose();
-                });
-              }
-            });
-
-            quickPick.onDidAccept(async () => {
-              if (autoExecuteTimer) {
-                clearTimeout(autoExecuteTimer);
-              }
-
-              const selected = quickPick.selectedItems[0];
-              if (!selected) return;
-
-              if (selected.isGroup) {
-                return;
-              }
-
-              if (selected.action) {
-                await vscode.commands.executeCommand(selected.action);
-              }
-              quickPick.hide();
-              quickPick.dispose();
-            });
-
-            quickPick.onDidHide(() => {
-              if (autoExecuteTimer) {
-                clearTimeout(autoExecuteTimer);
-              }
-              quickPick.dispose();
-            });
-
-            globalThis.quickPick = quickPick;
-            quickPick.show();
-        ]],
-        hide_quickpick = [[
-            if (globalThis.quickPick) {
-              globalThis.quickPick.hide();
-              globalThis.quickPick.dispose();
-              globalThis.quickPick = undefined;
+            -- Cache for menu items
+            local cache = {
+                root_items = nil,
+                group_items = {}
             }
-        ]]
-    }
 
-    vscode_utils.cache = {
-        root_items = nil,
-        group_items = {}
-    }
+            -- Evaluation strings for VSCode integration
+            local EVAL_STRINGS = {
+                quickpick_menu = [[
+                    const vscode = require('vscode');
+                    if (globalThis.quickPick) { globalThis.quickPick.dispose(); }
 
-    function vscode_utils.format_menu_items(group)
-        local items = {}
-        for _, binding in ipairs(group.bindings) do
-            table.insert(items, {
-                label = binding.key,
-                description = binding.desc,
-                action = binding.vscode_cmd,
-                key = binding.key,
-                isGroup = false,
-                isGroupItem = false
-            })
-        end
-        return items
-    end
+                    const quickPick = vscode.window.createQuickPick();
+                    quickPick.items = args.items.map(item => ({
+                      label: item.isGroup ? `$(chevron-right) ${item.label}` : item.isGroupItem ? `  $(key) ${item.label}` : item.label,
+                      description: item.description,
+                      action: item.action,
+                      key: item.key,
+                      kind: item.kind,
+                      isGroup: item.isGroup
+                    }));
+                    quickPick.title = args.title;
+                    quickPick.placeholder = args.placeholder;
 
-    function vscode_utils.format_root_menu_items(keybindings)
-        if vscode_utils.cache.root_items then
-            return vscode_utils.cache.root_items
-        end
+                    let lastActiveItem = null;
+                    let autoExecuteTimer = null;
+                    const TIMEOUT_MS = 500;
 
-        local items = {}
-        local lastCategory = nil
+                    quickPick.onDidChangeValue((value) => {
+                      if (autoExecuteTimer) {
+                        clearTimeout(autoExecuteTimer);
+                      }
 
-        for key, group in pairs(keybindings) do
-            if lastCategory then
-                table.insert(items, {
-                    label = "──────────────",
-                    kind = -1,
-                    isGroup = false,
-                    isGroupItem = false
+                      const matchingItems = quickPick.items.filter(item =>
+                        item.label.toLowerCase().startsWith(value.toLowerCase())
+                      );
+
+                      if (matchingItems.length === 1 && !matchingItems[0].isGroup) {
+                        autoExecuteTimer = setTimeout(async () => {
+                          const item = matchingItems[0];
+                          if (item.action) {
+                            await vscode.commands.executeCommand(item.action);
+                            quickPick.hide();
+                            quickPick.dispose();
+                          }
+                        }, TIMEOUT_MS);
+                      }
+                    });
+
+                    quickPick.onDidChangeActive((items) => {
+                      const active = items[0];
+                      if (!active || active === lastActiveItem) return;
+                      lastActiveItem = active;
+
+                      if (active.action && !active.isGroup) {
+                        vscode.commands.executeCommand(active.action).then(() => {
+                          quickPick.hide();
+                          quickPick.dispose();
+                        });
+                      }
+                    });
+
+                    quickPick.onDidAccept(async () => {
+                      if (autoExecuteTimer) {
+                        clearTimeout(autoExecuteTimer);
+                      }
+
+                      const selected = quickPick.selectedItems[0];
+                      if (!selected) return;
+
+                      if (selected.isGroup) {
+                        return;
+                      }
+
+                      if (selected.action) {
+                        await vscode.commands.executeCommand(selected.action);
+                      }
+                      quickPick.hide();
+                      quickPick.dispose();
+                    });
+
+                    quickPick.onDidHide(() => {
+                      if (autoExecuteTimer) {
+                        clearTimeout(autoExecuteTimer);
+                      }
+                      quickPick.dispose();
+                    });
+
+                    globalThis.quickPick = quickPick;
+                    quickPick.show();
+                ]],
+                hide_quickpick = [[
+                    if (globalThis.quickPick) {
+                      globalThis.quickPick.hide();
+                      globalThis.quickPick.dispose();
+                      globalThis.quickPick = undefined;
+                    }
+                ]]
+            }
+
+            -- Format menu items for a group
+            local function format_menu_items(group)
+                local items = {}
+                for _, binding in ipairs(group.bindings) do
+                    table.insert(items, {
+                        label = binding.key,
+                        description = binding.desc,
+                        action = binding.vscode_cmd,
+                        key = binding.key,
+                        isGroup = false,
+                        isGroupItem = false
+                    })
+                end
+                return items
+            end
+
+            -- Format root menu items
+            local function format_root_menu_items(keybindings)
+                if cache.root_items then
+                    return cache.root_items
+                end
+
+                local items = {}
+                local lastCategory = nil
+
+                for key, group in pairs(keybindings) do
+                    if lastCategory then
+                        table.insert(items, {
+                            label = "──────────────",
+                            kind = -1,
+                            isGroup = false,
+                            isGroupItem = false
+                        })
+                    end
+                    table.insert(items, {
+                        label = key,
+                        description = group.name,
+                        key = key,
+                        isGroup = true,
+                        isGroupItem = false
+                    })
+                    for _, binding in ipairs(group.bindings) do
+                        table.insert(items, {
+                            label = key .. binding.key,
+                            description = binding.desc,
+                            action = binding.vscode_cmd,
+                            key = binding.key,
+                            isGroup = false,
+                            isGroupItem = true
+                        })
+                    end
+                    lastCategory = key
+                end
+
+                cache.root_items = items
+                return items
+            end
+
+            -- Show the menu
+            local function show_menu(group, keybindings)
+                local ok, items = pcall(function()
+                    return group and format_menu_items(group) or format_root_menu_items(keybindings)
+                end)
+
+                if not ok then
+                    vim.notify("Error formatting menu items: " .. tostring(items), vim.log.levels.ERROR)
+                    return
+                end
+
+                local title = group and group.name or "Which Key Menu"
+                local placeholder = group and "Select an action or press <Esc> to cancel" or
+                                        "Select a group or action (groups shown with ▸)"
+
+                local eval_ok, eval_err = pcall(vscode.eval, EVAL_STRINGS.quickpick_menu, {
+                    timeout = 1000,
+                    args = {
+                        items = items,
+                        title = title,
+                        placeholder = placeholder
+                    }
+                })
+
+                if not eval_ok then
+                    vim.notify("Error showing which-key menu: " .. tostring(eval_err), vim.log.levels.ERROR)
+                end
+            end
+
+            -- Hide the menu
+            local function hide_menu()
+                pcall(vscode.eval, EVAL_STRINGS.hide_quickpick, {
+                    timeout = 1000
                 })
             end
-            table.insert(items, {
-                label = key,
-                description = group.name,
-                key = key,
-                isGroup = true,
-                isGroupItem = false
-            })
-            for _, binding in ipairs(group.bindings) do
-                table.insert(items, {
-                    label = key .. binding.key,
-                    description = binding.desc,
-                    action = binding.vscode_cmd,
-                    key = binding.key,
-                    isGroup = false,
-                    isGroupItem = true
+
+            -- Handle a group of keybindings
+            local function handle_group(prefix, group)
+                vim.keymap.set("n", prefix, function()
+                    show_menu(group, M.keybindings_data)
+                end, {
+                    noremap = true,
+                    silent = true
                 })
+
+                for _, binding in ipairs(group.bindings) do
+                    if binding.vscode_cmd then
+                        vim.keymap.set("n", prefix .. binding.key, function()
+                            hide_menu()
+                            pcall(vscode.action, binding.vscode_cmd)
+                        end, {
+                            noremap = true,
+                            silent = true,
+                            desc = binding.desc
+                        })
+                    end
+                end
             end
-            lastCategory = key
-        end
 
-        vscode_utils.cache.root_items = items
-        return items
-    end
-
-    function vscode_utils.show_menu(group, keybindings)
-        local ok, items = pcall(function()
-            return group and vscode_utils.format_menu_items(group) or vscode_utils.format_root_menu_items(keybindings)
-        end)
-
-        if not ok then
-            vim.notify("Error formatting menu items: " .. tostring(items), vim.log.levels.ERROR)
-            return
-        end
-
-        local title = group and group.name or "Which Key Menu"
-        local placeholder = group and "Select an action or press <Esc> to cancel" or
-                                "Select a group or action (groups shown with ▸)"
-
-        local eval_ok, eval_err = pcall(vscode_utils.vscode.eval, vscode_utils.EVAL_STRINGS.quickpick_menu, {
-            timeout = 1000,
-            args = {
-                items = items,
-                title = title,
-                placeholder = placeholder
-            }
-        })
-
-        if not eval_ok then
-            vim.notify("Error showing which-key menu: " .. tostring(eval_err), vim.log.levels.ERROR)
-        end
-    end
-
-    function vscode_utils.hide_menu()
-        pcall(vscode_utils.vscode.eval, vscode_utils.EVAL_STRINGS.hide_quickpick, {
-            timeout = 1000
-        })
-    end
-
-    function vscode_utils.handle_group(prefix, group)
-        vim.keymap.set("n", prefix, function()
-            vscode_utils.show_menu(group, M.keybindings_data)
-        end, {
-            noremap = true,
-            silent = true
-        })
-
-        for _, binding in ipairs(group.bindings) do
-            vim.keymap.set("n", prefix .. binding.key, function()
-                vscode_utils.hide_menu()
-                pcall(vscode_utils.vscode.action, binding.vscode_cmd)
+            -- Set up the main leader mapping
+            vim.keymap.set("n", "<leader>", function()
+                show_menu(nil, M.keybindings_data)
             end, {
                 noremap = true,
                 silent = true,
-                desc = binding.desc
+                desc = "Show which-key menu"
+            })
+
+            -- Set up all the group keybindings
+            for prefix, group in pairs(M.keybindings_data) do
+                handle_group("<leader>" .. prefix, group)
+            end
+
+            -- Create autocmds to hide the menu when appropriate
+            local menu_group = vim.api.nvim_create_augroup("WhichKeyMenu", {
+                clear = true
+            })
+
+            vim.api.nvim_create_autocmd({"ModeChanged", "CursorMoved"}, {
+                callback = hide_menu,
+                group = menu_group
             })
         end
-    end
+    })
+else
+    -- Neovim Implementation using wf.nvim
+    table.insert(M.plugins, {
+        "Cassin01/wf.nvim",
+        event = "VeryLazy",
+        config = function()
+            local which_key = require("wf.builtin.which_key")
 
-    -- Setup function for VSCode
-    local function setup(opts)
-        local options = vim.tbl_deep_extend("force", {}, opts or {})
+            -- Initialize wf.nvim
+            require("wf").setup({
+                theme = "default",
+                behavior = {
+                    skip_front_duplication = true,
+                    skip_back_duplication = true
+                }
+            })
 
-        -- Set main leader mapping
-        vim.keymap.set("n", "<leader>", function()
-            vscode_utils.show_menu(nil, M.keybindings_data)
-        end, {
-            noremap = true,
-            silent = true,
-            desc = "Show which-key menu"
-        })
+            -- Create the mappings object for wf.nvim
+            local mappings = {}
 
-        -- Set up group keybindings
-        for prefix, group in pairs(M.keybindings_data) do
-            vscode_utils.handle_group("<leader>" .. prefix, group)
-        end
-
-        -- Handle menu hiding when mode changes
-        local menu_group = vim.api.nvim_create_augroup("WhichKeyMenu", {
-            clear = true
-        })
-
-        vim.api.nvim_create_autocmd({"ModeChanged", "CursorMoved"}, {
-            callback = vscode_utils.hide_menu,
-            group = menu_group
-        })
-    end
-
-    return {
-        setup = setup
-    }
-end
-
--- Neovim implementation
-local function init_neovim_module()
-    local module = {}
-
-    -- Setup function for Neovim using wf.nvim
-    function module.setup(opts)
-        local options = vim.tbl_deep_extend("force", {}, opts or {})
-
-        -- Convert our keybindings to wf.nvim format
-        local which_key_mappings = {}
-
-        -- Define prefix patterns for key grouping
-        local key_group_dict = {}
-        for prefix, group in pairs(M.keybindings_data) do
-            -- Format: Prefix -> Group name with description
-            key_group_dict["<leader>" .. prefix] = group.name
-        end
-
-        -- Convert the keybindings data to wf.nvim format
-        for prefix, group in pairs(M.keybindings_data) do
-            -- Add group mapping
-            which_key_mappings["<leader>" .. prefix] = {
-                desc = group.name,
-                group = true
-            }
-
-            -- Add individual key mappings
-            for _, binding in ipairs(group.bindings) do
-                if binding.neovim_cmd then
-                    which_key_mappings["<leader>" .. prefix .. binding.key] = {
-                        cmd = binding.neovim_cmd,
-                        desc = binding.desc
-                    }
+            -- Set up the mappings for wf.nvim
+            for prefix, group in pairs(M.keybindings_data) do
+                -- Set keymaps manually in the Neovim way
+                for _, binding in ipairs(group.bindings) do
+                    if binding.neovim_cmd then
+                        vim.keymap.set("n", "<leader>" .. prefix .. binding.key, binding.neovim_cmd, {
+                            noremap = true,
+                            silent = true,
+                            desc = group.name .. ": " .. binding.desc
+                        })
+                    end
                 end
             end
+
+            -- Build the key groups dictionary for wf.nvim
+            local key_group_dict = {}
+            for prefix, group in pairs(M.keybindings_data) do
+                key_group_dict["<leader>" .. prefix] = group.name
+            end
+
+            -- Set up the which-key mapping with wf.nvim
+            vim.keymap.set("n", "<leader>", which_key({
+                text_insert_in_advance = "<leader>",
+                key_group_dict = key_group_dict,
+                behavior = {
+                    skip_front_duplication = true,
+                    skip_back_duplication = true
+                },
+                title = "Commands"
+            }))
+
+            -- Register additional wf.nvim pickers
+            M.register = require("wf.builtin.register")
+            M.bookmark = require("wf.builtin.bookmark")
+            M.buffer = require("wf.builtin.buffer")
+            M.mark = require("wf.builtin.mark")
         end
-
-        -- Setup which-key using wf.nvim
-        local which_key = require("wf.builtin.which_key")
-
-        -- Register which-key mapping
-        vim.keymap.set("n", "<Leader>", which_key({
-            text_insert_in_advance = "<Leader>",
-            key_group_dict = key_group_dict,
-            mappings = which_key_mappings,
-            title = "Commands",
-            info = ""
-        }), {
-            noremap = true,
-            silent = true,
-            desc = "[wf.nvim] which-key /"
-        })
-    end
-
-    -- Additional wf.nvim pickers
-    module.register = function(opts)
-        return require("wf.builtin.register")(opts)
-    end
-
-    module.bookmark = function(bookmark_dirs, opts)
-        return require("wf.builtin.bookmark")(bookmark_dirs, opts)
-    end
-
-    module.buffer = function(opts)
-        return require("wf.builtin.buffer")(opts)
-    end
-
-    module.mark = function(opts)
-        return require("wf.builtin.mark")(opts)
-    end
-
-    return module
+    })
 end
 
--- Define plugins spec for lazy.nvim
-M.plugins = {{
-    -- VSCode-compatible which-key implementation
-    dir = ".", -- Use the current directory as the plugin path
-    name = "which-key",
-    cond = vim.g.vscode, -- Only load in VSCode environment
-    lazy = false,
-    config = function()
-        local vscode_module = init_vscode_module()
-        vscode_module.setup()
-    end
-}, {
-    -- Neovim-only which-key implementation using wf.nvim
-    "Cassin01/wf.nvim",
-    cond = not vim.g.vscode, -- Only load in Neovim environment
-    lazy = false,
-    config = function()
-        -- Initialize wf.nvim
-        require("wf").setup({
-            theme = "default", -- Options: "default", "space", "chad"
-            behavior = {
-                skip_front_duplication = true, -- Skip duplicate characters from the beginning
-                skip_back_duplication = true -- Skip duplicate characters from the end
-            },
-            popup = {
-                -- Custom popup styling
-                border = "rounded", -- Border style: "rounded", "single", "double", "solid"
-                position = "bottom-right", -- Position: "center", "top", "bottom", "left", "right", "top-left", etc.
-                min_width = 20,
-                max_width = 80,
-                padding = 1,
-                title_pos = "center" -- Title position: "center", "left", "right"
-            },
-            layout = {
-                height = {
-                    min = 1,
-                    max = 15
-                }, -- Min and max height of the columns
-                spacing = 3, -- Spacing between columns
-                align = "center" -- Alignment of columns
-            }
-        })
-
-        -- Setup which-key using the Neovim module
-        local neovim_module = init_neovim_module()
-        neovim_module.setup()
-    end
-}}
-
--- Return the complete module
 return M
