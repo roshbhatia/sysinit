@@ -41,18 +41,14 @@ in
       NPM="/etc/profiles/per-user/$USER/bin/npm"
       if [ -x "$NPM" ]; then
         echo "Installing yarn..."
-        "$NPM" install -g yarn --silent >/dev/null 2>&1 \
-          && echo "✅ Successfully installed yarn" \
-          || echo "❌ Failed to install yarn"
+        "$NPM" install -g yarn
 
         YARN="/Users/$USER/.npm-global/bin/yarn"
         if [ -x "$YARN" ]; then
           echo "Installing packages via yarn..."
           PACKAGES='${escapedPackages}'
           if [ -n "$PACKAGES" ]; then
-            "$YARN" global add $PACKAGES --silent >/dev/null 2>&1 \
-              && echo "✅ Successfully installed packages via yarn" \
-              || echo "❌ Failed to install packages via yarn"
+            "$YARN" global add $PACKAGES
           fi
         else
           echo "❌ yarn not found at $YARN"

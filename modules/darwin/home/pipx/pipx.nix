@@ -30,9 +30,7 @@ in
         PACKAGES='${escapedPackages}'
         if [ -n "$PACKAGES" ]; then
           for package in $PACKAGES; do
-            "$PIPX" install "$package" --force --quiet >/dev/null 2>&1 \
-              && echo "✅ Successfully installed $package via pipx" \
-              || echo "❌ Failed to install $package via pipx"
+            "$PIPX" install "$package" --force
           done
         fi
       else
