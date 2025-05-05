@@ -22,6 +22,13 @@ let
       executable = entry.executable or false;
     };
   }) install.installToHome);
+
+  emptyDirs = {
+    "${homeDirectory}/.config" = { directory = true; };
+    "${homeDirectory}/.config/zsh" = { directory = true; };
+    "${homeDirectory}/.config/zsh/bin" = { directory = true; };
+    "${homeDirectory}/.config/zsh/extras" = { directory = true; };
+  };
 in {
   imports = [
     ./git/git.nix
@@ -43,5 +50,5 @@ in {
   ];
 
   xdg.configFile = xdgConfigAttrs;
-  home.file = homeFileAttrs;
+  home.file = lib.recursiveUpdate homeFileAttrs emptyDirs;
 }
