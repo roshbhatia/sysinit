@@ -18,7 +18,6 @@ let
     "jsonlint"
     "markdownlint"
     "prettier"
-    "spectral-language-server"
     "typescript-language-server"
     "typescript"
     "yarn"

@@ -338,9 +338,7 @@ in
 
   xdg.configFile = {
     "zsh/bin" = {
-      source = config.lib.file.mkOutOfStoreSymlink ./bin;
-      recursive = true;
-      executable = true;
+      source = config.lib.file.mkOutOfStoreSymlink "${builtins.getEnv "PWD"}/modules/darwin/home/zsh/bin";
     };
   };
 

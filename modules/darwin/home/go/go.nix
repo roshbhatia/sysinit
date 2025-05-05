@@ -7,9 +7,9 @@ let
     else [];
 
   basePackages = [
-    "github.com/x-motemen/gore/cmd/gore"
-    "golang.org/x/tools/cmd/godoc"
-    "golang.org/x/tools/gopls"
+    "github.com/x-motemen/gore/cmd/gore@latest"
+    "golang.org/x/tools/cmd/godoc@latest"
+    "golang.org/x/tools/gopls@latest"
     "golang.org/x/tools/cmd/goimports@latest"
     "mvdan.cc/sh/v3/cmd/shfmt@latest"
   ];
@@ -31,7 +31,7 @@ in
         PACKAGES='${escapedPackages}'
         if [ -n "$PACKAGES" ]; then
           for package in $PACKAGES; do
-            "$GO" install "$package@latest" >/dev/null 2>&1 \
+            "$GO" install "$package" >/dev/null 2>&1 \
               && echo "✅ Successfully installed $package via go install" \
               || echo "❌ Failed to install $package via go install"
           done
