@@ -395,8 +395,44 @@ in
   };
 
   xdg.configFile = {
-    "zsh/bin" = {
-      source = config.lib.file.mkOutOfStoreSymlink "${builtins.getEnv "PWD"}/modules/darwin/home/zsh/bin";
+    "zsh/bin/colima-recreate" = {
+      source = config.lib.file.mkOutOfStoreSymlink "${builtins.getEnv "PWD"}/modules/darwin/home/zsh/bin/colima-recreate";
+      force = true;
+    };
+    "zsh/bin/dns-flush" = {
+      source = config.lib.file.mkOutOfStoreSymlink "${builtins.getEnv "PWD"}/modules/darwin/home/zsh/bin/dns-flush";
+      force = true;
+    };
+    "zsh/bin/gh-whoami" = {
+      source = config.lib.file.mkOutOfStoreSymlink "${builtins.getEnv "PWD"}/modules/darwin/home/zsh/bin/gh-whoami";
+      force = true;
+    };
+    "zsh/bin/ghcs-commitmessage" = {
+      source = config.lib.file.mkOutOfStoreSymlink "${builtins.getEnv "PWD"}/modules/darwin/home/zsh/bin/ghcs-commitmessage";
+      force = true;
+    };
+    "zsh/bin/kubectl-crdbrowse" = {
+      source = config.lib.file.mkOutOfStoreSymlink "${builtins.getEnv "PWD"}/modules/darwin/home/zsh/bin/kubectl-crdbrowse";
+      force = true;
+    };
+    "zsh/bin/kubectl-kdesc" = {
+      source = config.lib.file.mkOutOfStoreSymlink "${builtins.getEnv "PWD"}/modules/darwin/home/zsh/bin/kubectl-kdesc";
+      force = true;
+    };
+    "zsh/bin/kubectl-kexec" = {
+      source = config.lib.file.mkOutOfStoreSymlink "${builtins.getEnv "PWD"}/modules/darwin/home/zsh/bin/kubectl-kexec";
+      force = true;
+    };
+    "zsh/bin/kubectl-klog" = {
+      source = config.lib.file.mkOutOfStoreSymlink "${builtins.getEnv "PWD"}/modules/darwin/home/zsh/bin/kubectl-klog";
+      force = true;
+    };
+    "zsh/bin/kubectl-kproxy" = {
+      source = config.lib.file.mkOutOfStoreSymlink "${builtins.getEnv "PWD"}/modules/darwin/home/zsh/bin/kubectl-kproxy";
+      force = true;
+    };
+    "zsh/bin/sysinit-fzf-preview" = {
+      source = config.lib.file.mkOutOfStoreSymlink "${builtins.getEnv "PWD"}/modules/darwin/home/zsh/bin/sysinit-fzf-preview";
       force = true;
     };
   };
