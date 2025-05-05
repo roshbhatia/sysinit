@@ -23,6 +23,9 @@ in
       echo "Installing Cargo packages..."
       set +u
       CARGO="/opt/homebrew/bin/cargo"
+      
+      export PATH="$PATH:/opt/homebrew/bin"
+      
       if [ -x "$CARGO" ]; then
         PACKAGES='${escapedPackages}'
         if [ -n "$PACKAGES" ]; then
