@@ -4,6 +4,22 @@ vars:
   INFO_COLOR: 87
   SUCCESS_COLOR: 212
   ERROR_COLOR: 196
+  LOG_FUNCTIONS: |
+    log_setup() {
+      local prefix="$1"
+      log_info() {
+        echo "[$prefix] INFO: $1"
+      }
+      log_debug() {
+        echo "[$prefix] DEBUG: $1"
+      }
+      log_error() {
+        echo "[$prefix] ERROR: $1"
+      }
+      log_success() {
+        echo "[$prefix] SUCCESS: $1"
+      }
+    }
 
 tasks:
   default:
@@ -16,16 +32,9 @@ tasks:
   nix:build:
     cmds:
       - |
-        # Log functions
-        log_info() {
-          echo "[sysinit:build] INFO: $1"
-        }
-        log_error() {
-          echo "[sysinit:build] ERROR: $1"
-        }
-        log_success() {
-          echo "[sysinit:build] SUCCESS: $1"
-        }
+        # Setup logging
+        {{.LOG_FUNCTIONS}}
+        log_setup "sysinit:build"
         
         log_info "Building system configuration..."
         
@@ -41,16 +50,9 @@ tasks:
   nix:clean:
     cmds:
       - |
-        # Log functions
-        log_info() {
-          echo "[sysinit:clean] INFO: $1"
-        }
-        log_error() {
-          echo "[sysinit:clean] ERROR: $1"
-        }
-        log_success() {
-          echo "[sysinit:clean] SUCCESS: $1"
-        }
+        # Setup logging
+        {{.LOG_FUNCTIONS}}
+        log_setup "sysinit:clean"
         
         log_info "Running garbage collection..."
         
@@ -67,19 +69,9 @@ tasks:
     deps: [nix:update:flake]
     cmds:
       - |
-        # Log functions
-        log_info() {
-          echo "[sysinit:refresh] INFO: $1"
-        }
-        log_debug() {
-          echo "[sysinit:refresh] DEBUG: $1"
-        }
-        log_error() {
-          echo "[sysinit:refresh] ERROR: $1"
-        }
-        log_success() {
-          echo "[sysinit:refresh] SUCCESS: $1"
-        }
+        # Setup logging
+        {{.LOG_FUNCTIONS}}
+        log_setup "sysinit:refresh"
         
         log_info "Applying system configuration..."
 
@@ -102,19 +94,9 @@ tasks:
   nix:refresh:work:
     cmds:
       - |
-        # Log functions
-        log_info() {
-          echo "[sysinit:work] INFO: $1"
-        }
-        log_debug() {
-          echo "[sysinit:work] DEBUG: $1"
-        }
-        log_error() {
-          echo "[sysinit:work] ERROR: $1"
-        }
-        log_success() {
-          echo "[sysinit:work] SUCCESS: $1"
-        }
+        # Setup logging
+        {{.LOG_FUNCTIONS}}
+        log_setup "sysinit:work"
         
         WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
 
@@ -145,16 +127,9 @@ tasks:
   nix:update:flake:
     cmds:
       - |
-        # Log functions
-        log_info() {
-          echo "[sysinit:flake] INFO: $1"
-        }
-        log_error() {
-          echo "[sysinit:flake] ERROR: $1"
-        }
-        log_success() {
-          echo "[sysinit:flake] SUCCESS: $1"
-        }
+        # Setup logging
+        {{.LOG_FUNCTIONS}}
+        log_setup "sysinit:flake"
         
         log_info "Updating flake inputs..."
         
@@ -171,16 +146,9 @@ tasks:
   nix:install:
     cmds:
       - |
-        # Log functions
-        log_info() {
-          echo "[sysinit:install] INFO: $1"
-        }
-        log_error() {
-          echo "[sysinit:install] ERROR: $1"
-        }
-        log_success() {
-          echo "[sysinit:install] SUCCESS: $1"
-        }
+        # Setup logging
+        {{.LOG_FUNCTIONS}}
+        log_setup "sysinit:install"
         
         log_info "Installing prerequisites..."
         
@@ -196,16 +164,9 @@ tasks:
   nix:uninstall:
     cmds:
       - |
-        # Log functions
-        log_info() {
-          echo "[sysinit:uninstall] INFO: $1"
-        }
-        log_error() {
-          echo "[sysinit:uninstall] ERROR: $1"
-        }
-        log_success() {
-          echo "[sysinit:uninstall] SUCCESS: $1"
-        }
+        # Setup logging
+        {{.LOG_FUNCTIONS}}
+        log_setup "sysinit:uninstall"
         
         log_info "Uninstalling Nix..."
         
