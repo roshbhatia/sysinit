@@ -859,8 +859,8 @@ local function init_neovim_module()
             text_insert_in_advance = "<Leader>",
             key_group_dict = key_group_dict,
             mappings = which_key_mappings,
-            title = "Which Key Menu",
-            info = "Fuzzy search available - type to find commands"
+            title = "Commands",
+            info = ""
         }), {
             noremap = true,
             silent = true,
@@ -898,8 +898,7 @@ M.plugins = {{
     config = function()
         local vscode_module = init_vscode_module()
         vscode_module.setup()
-    end,
-    desc = "VSCode-compatible which-key implementation with fuzzy search and menu UI"
+    end
 }, {
     -- Neovim-only which-key implementation using wf.nvim
     "Cassin01/wf.nvim",
@@ -935,8 +934,7 @@ M.plugins = {{
         -- Setup which-key using the Neovim module
         local neovim_module = init_neovim_module()
         neovim_module.setup()
-    end,
-    desc = "Fuzzy-finder which-key implementation for Neovim with wf.nvim"
+    end
 }}
 
 -- Return the complete module
