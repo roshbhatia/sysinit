@@ -4,6 +4,7 @@ local M = {}
 M.plugins = { {
     "nvim-neo-tree/neo-tree.nvim",
     lazy = false,
+    priority = 100,
     branch = "restore-session-experimental",
     dependencies = { "nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "MunifTanjim/nui.nvim" },
     config = function()

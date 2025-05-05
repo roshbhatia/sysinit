@@ -3,8 +3,8 @@ local M = {}
 M.plugins = { {
     "goolord/alpha-nvim",
     lazy = false,
-    priority = 100,
-    dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" },
+    priority = 99,
+    dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim", "rgmatti/auto-session", "nvim-neo-tree/neo-tree.nvim" },
     config = function()
         local alpha = require("alpha")
         local dashboard = require("alpha.themes.dashboard")
@@ -49,6 +49,7 @@ M.plugins = { {
         dashboard.section.buttons.val = vim.tbl_filter(function(item)
             return item ~= nil
         end, dashboard.section.buttons.val)
+
         -- Footer with git contributions (simplified)
         local function get_git_contributions()
             -- This is a placeholder. You might want to implement actual git contribution tracking
@@ -80,6 +81,20 @@ M.plugins = { {
             val = 1
         }, dashboard.section.footer }
 
+        -- Override the draw function to add error handling for window issues
+        local alpha_draw_orig = alpha.draw
+        alpha.draw = function(...)
+            local status, err = pcall(alpha_draw_orig, ...)
+            if not status then
+                -- Silently handle window errors
+                if string.match(tostring(err), "Invalid window id") then
+                    return
+                end
+                -- Re-raise other errors
+                error(err)
+            end
+        end
+
         alpha.setup(dashboard.config)
 
         vim._alpha_ui = {
@@ -94,6 +109,7 @@ M.plugins = { {
         vim.api.nvim_create_autocmd("User", {
             pattern = "AlphaReady",
             callback = function()
+                -- Save UI state
                 vim._alpha_ui.state = {
                     showtabline = vim.opt.showtabline:get(),
                     ruler = vim.opt.ruler:get(),
@@ -104,6 +120,8 @@ M.plugins = { {
                     mousescroll = vim.opt.mousescroll:get(),
                     guicursor = vim.opt.guicursor:get()
                 }
+
+                -- Set Alpha UI options
                 vim.opt.showtabline = 0
                 vim.opt.ruler = false
                 vim.opt.laststatus = 0
@@ -112,6 +130,14 @@ M.plugins = { {
                 vim.opt.signcolumn = "no"
                 vim.opt.mousescroll = "ver:0,hor:0"
                 vim.opt.guicursor = "n:none"
+
+                -- Close Neotree if it's open
+                pcall(function()
+                    -- Check if Neotree is loaded and open
+                    if vim.fn.exists(":Neotree") == 2 then
+                        vim.cmd("Neotree close")
+                    end
+                end)
             end
         })
 
@@ -122,10 +148,32 @@ M.plugins = { {
             end
         })
 
+        -- Disable WinResized handler for alpha to prevent errors
+        -- Create a special group for Alpha's WinResized handling
+        local alpha_group = vim.api.nvim_create_augroup("alpha_safe", { clear = true })
+        vim.api.nvim_create_autocmd("WinResized", {
+            group = alpha_group,
+            callback = function()
+                -- Check if we're in an Alpha buffer before doing anything
+                if vim.bo.filetype == "alpha" then
+                    -- Only redraw if the window still exists
+                    for _, win in ipairs(vim.api.nvim_list_wins()) do
+                        if vim.api.nvim_win_is_valid(win) and
+                            vim.api.nvim_buf_get_option(vim.api.nvim_win_get_buf(win), "filetype") == "alpha" then
+                            -- Use pcall to catch any errors during redraw
+                            pcall(function() alpha.redraw() end)
+                            break
+                        end
+                    end
+                end
+            end
+        })
+
         vim.api.nvim_create_autocmd("VimEnter", {
             pattern = "*",
             callback = function()
-                vim.cmd("Alpha")
+                -- Use pcall to safely start Alpha
+                pcall(function() vim.cmd("Alpha") end)
             end
         })
 
@@ -139,11 +187,12 @@ M.plugins = { {
                 local fallback_on_empty = fallback_name == "" and fallback_ft == ""
 
                 if fallback_on_empty then
-                    vim.cmd("Alpha")
+                    -- Safely show Alpha
+                    pcall(function() vim.cmd("Alpha") end)
                 end
             end,
         })
     end
 } }
 
-return M
+return ss
