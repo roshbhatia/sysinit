@@ -5,18 +5,19 @@ let
   # Convert install entries to home.file and xdg.configFile attrs
   fileAttrs = lib.foldl (acc: entry:
     let
-      srcPath = entry.source;
+      srcPath = toString entry.source;
       relPath = lib.removePrefix "/Users/${username}/" entry.destination;
       isConfig = lib.hasPrefix ".config/" relPath;
       configPath = lib.removePrefix ".config/" relPath;
       homePath = relPath;
-      srcStr = toString entry.source;
       isExecutable = lib.hasInfix "/bin/" entry.destination
-                   || lib.hasSuffix ".sh" srcStr
-                   || lib.hasSuffix ".expect" srcStr;
+                   || lib.hasSuffix ".sh" srcPath
+                   || lib.hasSuffix ".expect" srcPath;
       attrs = {
         source = srcPath;
         executable = isExecutable;
+        force = true;
+        mkOutOfStoreSymlink = "true";
       };
     in
     if isConfig
