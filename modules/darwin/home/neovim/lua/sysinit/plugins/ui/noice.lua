@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {{
     "folke/noice.nvim",
     lazy = false,
-    dependencies = {"MunifTanjim/nui.nvim"},
+    dependencies = {"MunifTanjim/nui.nvim", "rcarriga/nvim-notify"},
     opts = {
         lsp = {
             -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
