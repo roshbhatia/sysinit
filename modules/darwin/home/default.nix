@@ -5,7 +5,7 @@ let
     installToHome = [];
   };
 
-  extractDirectories = paths: lib.unique (map (entry: lib.dirname entry.destination) paths);
+  extractDirectories = paths: lib.unique (map (entry: builtins.dirname entry.destination) paths);
 
   xdgConfigDirs = extractDirectories install.installToXdgConfigHome;
   homeFileDirs = extractDirectories install.installToHome;
@@ -18,6 +18,10 @@ let
       '';
     };
   }) dirs);
+
+  emptyDirs = lib.recursiveUpdate
+    (createEmptyDirs xdgConfigDirs)
+    (createEmptyDirs homeFileDirs);
 
   xdgConfigAttrs = lib.listToAttrs (map (entry: {
     name = "${homeDirectory}/.config/${entry.destination}";
@@ -36,10 +40,6 @@ let
       executable = entry.executable or false;
     };
   }) install.installToHome);
-
-  emptyDirs = lib.recursiveUpdate
-    (createEmptyDirs xdgConfigDirs)
-    (createEmptyDirs homeFileDirs);
 in {
   imports = [
     ./git/git.nix
