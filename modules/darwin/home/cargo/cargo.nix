@@ -27,9 +27,7 @@ in
         PACKAGES='${escapedPackages}'
         if [ -n "$PACKAGES" ]; then
           for package in $PACKAGES; do
-            "$CARGO" install "$package" -f >/dev/null 2>&1 \
-              && echo "✅ Successfully installed $package via cargo" \
-              || echo "❌ Failed to install $package via cargo"
+            "$CARGO" install "$package" -f
           done
         fi
       else
