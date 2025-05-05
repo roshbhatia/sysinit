@@ -11,14 +11,12 @@
     withRuby = false;
   };
 
-  # Using mkOutOfStoreSymlink for Neovim config
   xdg.configFile."nvim/init.lua" = {
-    source = config.lib.file.mkOutOfStoreSymlink ./init.lua;
+    source = config.lib.file.mkOutOfStoreSymlink "${builtins.getEnv "PWD"}/modules/darwin/home/neovim/init.lua";
   };
 
   xdg.configFile."nvim/lua" = {
-    source = config.lib.file.mkOutOfStoreSymlink ./lua;
-    recursive = true;
+    source = config.lib.file.mkOutOfStoreSymlink "${builtins.getEnv "PWD"}/modules/darwin/home/neovim/lua";
   };
 
   # Keep only the VSCode key repeat settings
