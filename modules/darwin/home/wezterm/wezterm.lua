@@ -1,11 +1,12 @@
 local wezterm = require('wezterm')
 local act = wezterm.action
 local config = wezterm.config_builder()
+local username = os.getenv('USER')
 
 -- Shell configuration
-config.default_prog = {'/etc/profiles/per-user/rshnbhatia/bin/zsh', '-l'}
+config.default_prog = {string.format('/etc/profiles/per-user/%s/bin/zsh', username), '-l'}
 config.set_environment_variables = {
-    SHELL = '/etc/profiles/per-user/rshnbhatia/bin/zsh',
+    SHELL = string.format('/etc/profiles/per-user/%s/bin/zsh', username),
     TERM = 'wezterm'
 }
 
