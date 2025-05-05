@@ -24,22 +24,22 @@ let
   }) install.installToHome);
 
   emptyDirs = {
-    "${homeDirectory}/.config" = {
+    "${homeDirectory}/.config" = lib.mkForce {
       source = pkgs.runCommand "empty-config-dir" {} ''
         mkdir -p $out
       '';
     };
-    "${homeDirectory}/.config/zsh" = {
+    "${homeDirectory}/.config/zsh" = lib.mkForce {
       source = pkgs.runCommand "empty-zsh-dir" {} ''
         mkdir -p $out
       '';
     };
-    "${homeDirectory}/.config/zsh/bin" = {
+    "${homeDirectory}/.config/zsh/bin" = lib.mkForce {
       source = pkgs.runCommand "empty-zsh-bin-dir" {} ''
         mkdir -p $out
       '';
     };
-    "${homeDirectory}/.config/zsh/extras" = {
+    "${homeDirectory}/.config/zsh/extras" = lib.mkForce {
       source = pkgs.runCommand "empty-zsh-extras-dir" {} ''
         mkdir -p $out
       '';
