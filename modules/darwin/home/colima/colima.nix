@@ -40,5 +40,6 @@ in
 {
   xdg.configFile."colima/default/colima.yaml" = {
     source = colimaYaml;
+    force = true;
   };
 }

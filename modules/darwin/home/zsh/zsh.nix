@@ -336,12 +336,6 @@ in
     '';
   };
 
-  xdg.configFile = {
-    "zsh/bin" = {
-      source = config.lib.file.mkOutOfStoreSymlink "${builtins.getEnv "PWD"}/modules/darwin/home/zsh/bin";
-    };
-  };
-
   systemd.user.services = {
     update-kubectl-context = {
       Unit = {
@@ -400,15 +394,10 @@ in
     };
   };
 
-  home.activation.prepareZshDirs = lib.hm.dag.entryBefore ["checkLinkTargets"] ''
-    echo "Preparing zsh extras directory..."
-
-    mkdir -p -m 755 ${homeDirectory}/.config/zsh
-    mkdir -p -m 755 ${homeDirectory}/.config/wezterm
-
-    rm -rf ${homeDirectory}/.config/zsh/extras
-    rm -rf ${homeDirectory}/.config/zsh/bin
-
-    mkdir -p -m 755 ${homeDirectory}/.config/zsh/extras ${homeDirectory}/.config/zsh/bin
-  '';
+  xdg.configFile = {
+    "zsh/bin" = {
+      source = config.lib.file.mkOutOfStoreSymlink "${builtins.getEnv "PWD"}/modules/darwin/home/zsh/bin";
+      force = true;
+    };
+  };
 }
