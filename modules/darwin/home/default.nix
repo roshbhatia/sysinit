@@ -24,10 +24,26 @@ let
   }) install.installToHome);
 
   emptyDirs = {
-    "${homeDirectory}/.config" = { directory = true; };
-    "${homeDirectory}/.config/zsh" = { directory = true; };
-    "${homeDirectory}/.config/zsh/bin" = { directory = true; };
-    "${homeDirectory}/.config/zsh/extras" = { directory = true; };
+    "${homeDirectory}/.config" = {
+      source = pkgs.runCommand "empty-config-dir" {} ''
+        mkdir -p $out
+      '';
+    };
+    "${homeDirectory}/.config/zsh" = {
+      source = pkgs.runCommand "empty-zsh-dir" {} ''
+        mkdir -p $out
+      '';
+    };
+    "${homeDirectory}/.config/zsh/bin" = {
+      source = pkgs.runCommand "empty-zsh-bin-dir" {} ''
+        mkdir -p $out
+      '';
+    };
+    "${homeDirectory}/.config/zsh/extras" = {
+      source = pkgs.runCommand "empty-zsh-extras-dir" {} ''
+        mkdir -p $out
+      '';
+    };
   };
 in {
   imports = [
