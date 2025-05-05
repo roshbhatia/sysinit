@@ -97,31 +97,27 @@ M.plugins = {{
 
         alpha.setup(dashboard.config)
 
-        vim._alpha_ui = {
+        -- Create Alpha UI state manager
+        local alpha_ui = {
+            -- Store original UI values
             state = {},
-            restore = function()
-                for option, value in pairs(vim._alpha_ui.state) do
-                    vim.opt[option] = value
-                end
-            end
-        }
 
-        vim.api.nvim_create_autocmd("User", {
-            pattern = "AlphaReady",
-            callback = function()
-                -- Save UI state
-                vim._alpha_ui.state = {
-                    showtabline = vim.opt.showtabline,
-                    ruler = vim.opt.ruler,
-                    laststatus = vim.opt.laststatus,
-                    number = vim.opt.number,
-                    relativenumber = vim.opt.relativenumber,
-                    signcolumn = vim.opt.signcolumn,
-                    mousescroll = vim.opt.mousescroll,
-                    guicursor = vim.opt.guicursor
+            -- Save current UI state with proper value retrieval
+            save = function()
+                return {
+                    showtabline = vim.opt.showtabline:get(),
+                    ruler = vim.opt.ruler:get(),
+                    laststatus = vim.opt.laststatus:get(),
+                    number = vim.opt.number:get(),
+                    relativenumber = vim.opt.relativenumber:get(),
+                    signcolumn = vim.opt.signcolumn:get(),
+                    mousescroll = vim.opt.mousescroll:get(),
+                    guicursor = vim.opt.guicursor:get()
                 }
+            end,
 
-                -- Set Alpha UI options
+            -- Apply Alpha-specific UI settings
+            apply = function()
                 vim.opt.showtabline = 0
                 vim.opt.ruler = false
                 vim.opt.laststatus = 0
@@ -130,13 +126,54 @@ M.plugins = {{
                 vim.opt.signcolumn = "no"
                 vim.opt.mousescroll = "ver:0,hor:0"
                 vim.opt.guicursor = "n:none"
+            end,
+
+            -- Restore saved UI state
+            restore = function(saved_state)
+                for option, value in pairs(saved_state) do
+                    -- Use pcall for error handling
+                    pcall(function()
+                        vim.opt[option] = value
+                    end)
+                end
+            end
+        }
+
+        -- Create an augroup for Alpha UI management
+        local alpha_ui_group = vim.api.nvim_create_augroup("AlphaUI", {
+            clear = true
+        })
+
+        -- When Alpha is ready, save state and apply Alpha UI
+        vim.api.nvim_create_autocmd("User", {
+            group = alpha_ui_group,
+            pattern = "AlphaReady",
+            callback = function()
+                -- Store the state in buffer-local variable for reliability
+                local buf = vim.api.nvim_get_current_buf()
+                -- Save the state first
+                vim.b[buf].alpha_ui_saved_state = alpha_ui.save()
+                -- Then apply Alpha UI settings
+                alpha_ui.apply()
             end
         })
 
+        -- When Alpha is closed, restore UI from saved state
         vim.api.nvim_create_autocmd("User", {
+            group = alpha_ui_group,
             pattern = "AlphaClosed",
             callback = function()
-                vim._alpha_ui.restore()
+                -- Get the buffer where state was saved
+                local bufs = vim.api.nvim_list_bufs()
+                for _, buf in ipairs(bufs) do
+                    -- If this buffer has saved state, restore from it
+                    if vim.b[buf] and vim.b[buf].alpha_ui_saved_state then
+                        alpha_ui.restore(vim.b[buf].alpha_ui_saved_state)
+                        -- Clear the saved state to avoid potential issues
+                        vim.b[buf].alpha_ui_saved_state = nil
+                        break
+                    end
+                end
             end
         })
 
