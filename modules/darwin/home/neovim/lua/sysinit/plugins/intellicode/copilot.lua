@@ -1,6 +1,6 @@
 local M = {}
 
-M.plugins = { {
+M.plugins = {{
     "zbirenbaum/copilot.lua",
     lazy = false,
     config = function()
@@ -14,6 +14,6 @@ M.plugins = { {
             copilot_model = "gpt-4o-copilot"
         })
     end
-} }
+}}
 
 return M
