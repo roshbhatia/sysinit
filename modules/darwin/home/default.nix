@@ -5,6 +5,20 @@ let
     installToHome = [];
   };
 
+  extractDirectories = paths: lib.unique (map (entry: lib.dirname entry.destination) paths);
+
+  xdgConfigDirs = extractDirectories install.installToXdgConfigHome;
+  homeFileDirs = extractDirectories install.installToHome;
+
+  createEmptyDirs = dirs: lib.listToAttrs (map (dir: {
+    name = dir;
+    value = lib.mkForce {
+      source = pkgs.runCommand "empty-dir-${lib.replaceStrings ["/"] ["-"] dir}" {} ''
+        mkdir -p $out
+      '';
+    };
+  }) dirs);
+
   xdgConfigAttrs = lib.listToAttrs (map (entry: {
     name = "${homeDirectory}/.config/${entry.destination}";
     value = {
@@ -23,28 +37,9 @@ let
     };
   }) install.installToHome);
 
-  emptyDirs = {
-    "${homeDirectory}/.config" = lib.mkForce {
-      source = pkgs.runCommand "empty-config-dir" {} ''
-        mkdir -p $out
-      '';
-    };
-    "${homeDirectory}/.config/zsh" = lib.mkForce {
-      source = pkgs.runCommand "empty-zsh-dir" {} ''
-        mkdir -p $out
-      '';
-    };
-    "${homeDirectory}/.config/zsh/bin" = lib.mkForce {
-      source = pkgs.runCommand "empty-zsh-bin-dir" {} ''
-        mkdir -p $out
-      '';
-    };
-    "${homeDirectory}/.config/zsh/extras" = lib.mkForce {
-      source = pkgs.runCommand "empty-zsh-extras-dir" {} ''
-        mkdir -p $out
-      '';
-    };
-  };
+  emptyDirs = lib.recursiveUpdate
+    (createEmptyDirs xdgConfigDirs)
+    (createEmptyDirs homeFileDirs);
 in {
   imports = [
     ./git/git.nix
