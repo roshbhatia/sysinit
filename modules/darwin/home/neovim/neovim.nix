@@ -12,12 +12,12 @@
   };
 
   xdg.configFile."nvim/init.lua" = {
-    source = ./init.lua;
+    source = config.lib.file.mkOutOfStoreSymlink ./init.lua;
     force = true;
   };
 
   xdg.configFile."nvim/lua" = {
-    source = ./lua;
+    source = config.lib.file.mkOutOfStoreSymlink ./lua;
     force = true;
   };
 
