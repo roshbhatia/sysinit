@@ -8,20 +8,16 @@ let
   xdgConfigAttrs = lib.listToAttrs (map (entry: {
     name = entry.name;
     value = {
-      source = toString entry.source;
-      executable = entry.executable or false;
+      source = config.lib.file.mkOutOfStoreSymlink (toString entry.source);
       force = true;
-      mkOutOfStoreSymlink = "true";
     };
   }) install.installToXdgConfigHome);
 
   homeFileAttrs = lib.listToAttrs (map (entry: {
     name = entry.name;
     value = {
-      source = toString entry.source;
-      executable = entry.executable or false;
+      source = config.lib.file.mkOutOfStoreSymlink (toString entry.source);
       force = true;
-      mkOutOfStoreSymlink = "true";
     };
   }) install.installToHome);
 in {
