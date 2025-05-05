@@ -4,8 +4,7 @@ M.plugins = {{
     "goolord/alpha-nvim",
     lazy = false,
     priority = 99,
-    dependencies = {"nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim", "rgmatti/auto-session",
-                    "nvim-neo-tree/neo-tree.nvim"},
+    dependencies = {"nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim", "rgmatti/auto-session"},
     config = function()
         local alpha = require("alpha")
         local dashboard = require("alpha.themes.dashboard")
@@ -131,14 +130,6 @@ M.plugins = {{
                 vim.opt.signcolumn = "no"
                 vim.opt.mousescroll = "ver:0,hor:0"
                 vim.opt.guicursor = "n:none"
-
-                -- Close Neotree if it's open
-                pcall(function()
-                    -- Check if Neotree is loaded and open
-                    if vim.fn.exists(":Neotree") == 2 then
-                        vim.cmd("Neotree close")
-                    end
-                end)
             end
         })
 
@@ -196,7 +187,6 @@ M.plugins = {{
                 local fallback_on_empty = fallback_name == "" and fallback_ft == ""
 
                 if fallback_on_empty then
-                    -- Safely show Alpha
                     pcall(function()
                         vim.cmd("Alpha")
                     end)

@@ -258,8 +258,6 @@ M.plugins = {{
         vim.api.nvim_create_autocmd("FileType", {
             pattern = "neo-tree",
             callback = function()
-                vim.opt_local.number = false
-                vim.opt_local.relativenumber = false
                 vim.api.nvim_buf_set_name(0, "File Explorer")
             end
         })
