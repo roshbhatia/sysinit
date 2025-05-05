@@ -17,8 +17,6 @@ let
     git
     gnugrep
     gnupg
-    go
-    gopls
     htop
     jq
     jqp
@@ -26,8 +24,6 @@ let
     kind
     kustomize
     nixfmt-rfc-style
-    nodejs
-    nodePackages.typescript
     openssh
     stern
     swift
