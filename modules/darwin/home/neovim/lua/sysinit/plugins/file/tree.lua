@@ -1,12 +1,12 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/nvim-neo-tree/neo-tree.nvim/refs/heads/main/doc/neo-tree.txt"
 local M = {}
 
-M.plugins = { {
+M.plugins = {{
     "nvim-neo-tree/neo-tree.nvim",
     lazy = false,
     priority = 100,
     branch = "restore-session-experimental",
-    dependencies = { "nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "MunifTanjim/nui.nvim" },
+    dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "MunifTanjim/nui.nvim"},
     config = function()
         vim.cmd([[ let g:neo_tree_remove_legacy_commands = 1 ]])
 
@@ -16,47 +16,63 @@ M.plugins = { {
             return vim.bo.filetype == "neo-tree"
         end
 
+        -- Helper function to simulate key presses in neo-tree
+        local function neotree_key(key)
+            return string.format("<cmd>lua vim.api.nvim_input('%s')<cr>", key)
+        end
+
         local items = {
             newfile = right_click_menu.menu_item {
                 id = "NeoTreePopUpNewFile",
                 label = "New File",
                 condition = buf_is_neotree,
-                command = "a"
+                command = neotree_key("a")
             },
             new_dir = right_click_menu.menu_item {
                 label = "New Directory",
                 condition = buf_is_neotree,
-                command = "A"
+                command = neotree_key("A")
             },
             rename = right_click_menu.menu_item {
                 label = "Rename",
                 condition = buf_is_neotree,
-                command = "r"
+                command = neotree_key("r")
             },
             delete = right_click_menu.menu_item {
                 label = "Delete",
                 condition = buf_is_neotree,
-                command = "D"
+                command = neotree_key("d")
             },
             copy = right_click_menu.menu_item {
                 label = "Copy",
                 condition = buf_is_neotree,
-                command = "c"
+                command = neotree_key("c")
             },
             paste = right_click_menu.menu_item {
                 label = "Paste",
                 condition = buf_is_neotree,
-                command = "p"
+                command = neotree_key("p")
             },
             open = right_click_menu.menu_item {
                 label = "Open",
                 condition = buf_is_neotree,
-                command = "o"
+                command = neotree_key("o")
             },
             close = right_click_menu.menu_item {
                 label = "Close",
                 condition = buf_is_neotree,
-                command = "q"
+                command = neotree_key("q")
+            },
+            -- Additional helpful actions
+            toggle_hidden = right_click_menu.menu_item {
+                label = "Toggle Hidden",
+                condition = buf_is_neotree,
+                command = neotree_key("H")
+            },
+            refresh = right_click_menu.menu_item {
+                label = "Refresh",
+                condition = buf_is_neotree,
+                command = neotree_key("R")
             }
         }
 
@@ -64,11 +80,28 @@ M.plugins = { {
             id = "NeoTreePopUp",
             label = "Files",
             condition = buf_is_neotree,
-            items = { items.newfile, items.new_dir, items.rename, items.delete, items.copy, items.paste, items.open,
-                items.close }
+            items = {items.newfile, items.new_dir, items.rename, items.delete, items.copy, items.paste, items.open,
+                     items.toggle_hidden, items.refresh, items.close}
         }
 
         right_click_menu.menu(neotree_menu)
+
+        -- Create a cleanup autocmd to fix right-click in neo-tree
+        vim.api.nvim_create_autocmd({"FileType"}, {
+            pattern = "neo-tree",
+            callback = function()
+                -- Clear any potentially conflicting menu entries
+                pcall(function()
+                    vim.cmd([[
+                        silent! aunmenu PopUp.\.
+                        silent! aunmenu PopUp.-1-
+                    ]])
+                end)
+
+                -- Reinitialize our menu
+                right_click_menu.menu(neotree_menu)
+            end
+        })
 
         require("neo-tree").setup({
             auto_restore_session_experimental = true,
@@ -149,10 +182,10 @@ M.plugins = { {
             },
 
             nesting_rules = {
-                ["js"] = { "js.map" },
+                ["js"] = {"js.map"},
                 ["package.json"] = {
                     pattern = "^package%.json$",
-                    files = { "package-lock.json", "yarn.lock" }
+                    files = {"package-lock.json", "yarn.lock"}
                 }
             },
 
@@ -162,21 +195,21 @@ M.plugins = { {
                     hide_dotfiles = true,
                     hide_gitignored = true,
                     hide_hidden = false,
-                    hide_by_name = { ".DS_Store", "node_modules" },
+                    hide_by_name = {".DS_Store", "node_modules"},
                     hide_by_pattern = { -- uses glob style patterns
-                        "*.meta" },
-                    always_show = {     -- remains visible even if other settings would hide it
-                        ".gitignored" },
-                    never_show = {      -- remains hidden even if visible is toggled to true
-                        ".DS_Store" }
+                    "*.meta"},
+                    always_show = { -- remains visible even if other settings would hide it
+                    ".gitignored"},
+                    never_show = { -- remains hidden even if visible is toggled to true
+                    ".DS_Store"}
                 },
                 follow_current_file = {
-                    enabled = true,                     -- Focus the file that is currently being edited
-                    leave_dirs_open = true              -- Leave directories open when focusing a file
+                    enabled = true, -- Focus the file that is currently being edited
+                    leave_dirs_open = true -- Leave directories open when focusing a file
                 },
-                group_empty_dirs = false,               -- when true, empty folders will be grouped together
+                group_empty_dirs = false, -- when true, empty folders will be grouped together
                 hijack_netrw_behavior = "open_default", -- netrw disabled, opening a directory opens neo-tree
-                use_libuv_file_watcher = false,         -- This will use the OS level file watchers to detect changes
+                use_libuv_file_watcher = false, -- This will use the OS level file watchers to detect changes
                 window = {
                     mappings = {
                         ["H"] = "toggle_hidden",
@@ -194,7 +227,7 @@ M.plugins = { {
 
             buffers = {
                 follow_current_file = {
-                    enabled = true       -- focus the file in the buffer list that is currently being edited
+                    enabled = true -- focus the file in the buffer list that is currently being edited
                 },
                 group_empty_dirs = true, -- when true, empty directories will be grouped together
                 show_unloaded = true,
@@ -231,6 +264,6 @@ M.plugins = { {
             end
         })
     end
-} }
+}}
 
 return M
