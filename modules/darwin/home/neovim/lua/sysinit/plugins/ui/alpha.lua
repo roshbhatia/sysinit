@@ -111,14 +111,14 @@ M.plugins = {{
             callback = function()
                 -- Save UI state
                 vim._alpha_ui.state = {
-                    showtabline = vim.opt.showtabline:get(),
-                    ruler = vim.opt.ruler:get(),
-                    laststatus = vim.opt.laststatus:get(),
-                    number = vim.opt.number:get(),
-                    relativenumber = vim.opt.relativenumber:get(),
-                    signcolumn = vim.opt.signcolumn:get(),
-                    mousescroll = vim.opt.mousescroll:get(),
-                    guicursor = vim.opt.guicursor:get()
+                    showtabline = vim.opt.showtabline,
+                    ruler = vim.opt.ruler,
+                    laststatus = vim.opt.laststatus,
+                    number = vim.opt.number,
+                    relativenumber = vim.opt.relativenumber,
+                    signcolumn = vim.opt.signcolumn,
+                    mousescroll = vim.opt.mousescroll,
+                    guicursor = vim.opt.guicursor
                 }
 
                 -- Set Alpha UI options
@@ -140,38 +140,10 @@ M.plugins = {{
             end
         })
 
-        -- Disable WinResized handler for alpha to prevent errors
-        -- Create a special group for Alpha's WinResized handling
-        local alpha_group = vim.api.nvim_create_augroup("alpha_safe", {
-            clear = true
-        })
-        vim.api.nvim_create_autocmd("WinResized", {
-            group = alpha_group,
-            callback = function()
-                -- Check if we're in an Alpha buffer before doing anything
-                if vim.bo.filetype == "alpha" then
-                    -- Only redraw if the window still exists
-                    for _, win in ipairs(vim.api.nvim_list_wins()) do
-                        if vim.api.nvim_win_is_valid(win) and
-                            vim.api.nvim_buf_get_option(vim.api.nvim_win_get_buf(win), "filetype") == "alpha" then
-                            -- Use pcall to catch any errors during redraw
-                            pcall(function()
-                                alpha.redraw()
-                            end)
-                            break
-                        end
-                    end
-                end
-            end
-        })
-
         vim.api.nvim_create_autocmd("VimEnter", {
             pattern = "*",
             callback = function()
-                -- Use pcall to safely start Alpha
-                pcall(function()
-                    vim.cmd("Alpha")
-                end)
+                vim.cmd("Alpha")
             end
         })
 
