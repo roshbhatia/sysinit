@@ -7,7 +7,7 @@ local DEFAULTS = {
 }
 
 -- Modes where context menu will be available
-local MODES = {"n", "i"}
+local MODES = {"n"}
 
 --- Clear all entries from a menu
 ---@param menu string
