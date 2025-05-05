@@ -1,8 +1,8 @@
 #!/bin/bash
-# shellcheck disable=all
+# shellcheck disable=SC2004
 
 # Default settings
-height=20
+height=16
 title="Log Viewer"
 title_align="center"
 window_color="default"
@@ -36,74 +36,54 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Save cursor position and hide cursor
-tput sc
-tput civis
-trap "tput cnorm; tput rc; exit" INT TERM EXIT
-
-# Check if window_color is a number (ANSI color code)
-if [[ "$window_color" =~ ^[0-9]+$ ]]; then
-    border_color="\033[38;5;${window_color}m"
-else
-    border_color="\033[0m"
-fi
-
-# Check if text_color is a number (ANSI color code)
-if [[ "$text_color" =~ ^[0-9]+$ ]]; then
-    text_color_code="\033[38;5;${text_color}m"
-else
-    text_color_code="\033[0m"
-fi
-
-# Draw the initial border
+# Simple function to draw the header
 draw_header() {
     local width=$(tput cols)
-    local top_border="${border_color}╭$(printf '─%.0s' $(seq 1 $((width - 2))))╮\033[0m"
+    local top_border="╭$(printf '─%.0s' $(seq 1 $((width - 2))))╮"
+    local bottom_border="╰$(printf '─%.0s' $(seq 1 $((width - 2))))╯"
     local padding=$(( (width - ${#title} - 2) / 2 ))
-    local title_line=""
-
-    if [[ "$title_align" == "center" ]]; then
-        title_line="${border_color}│$(printf "%*s%s%*s" "$padding" "" "$title" "$padding" "")│\033[0m"
-    elif [[ "$title_align" == "left" ]]; then
-        title_line="${border_color}│ $title$(printf "%*s" $((width - ${#title} - 3)) "")│\033[0m"
-    elif [[ "$title_align" == "right" ]]; then
-        title_line="${border_color}│$(printf "%*s" $((width - ${#title} - 3)) "")$title │\033[0m"
+    
+    # Apply color to border if a color was specified
+    if [[ "$window_color" =~ ^[0-9]+$ ]]; then
+        printf "\033[38;5;%sm%s\033[0m\n" "$window_color" "$top_border"
+        
+        if [[ "$title_align" == "center" ]]; then
+            printf "\033[38;5;%sm%s\033[0m\n" "$window_color" "$(printf "%*s%s%*s" "$padding" "" "$title" "$padding" "")"
+        elif [[ "$title_align" == "left" ]]; then
+            printf "\033[38;5;%sm%s\033[0m\n" "$window_color" "$(printf " %s%*s" "$title" $((width - ${#title} - 2)) "")"
+        elif [[ "$title_align" == "right" ]]; then
+            printf "\033[38;5;%sm%s\033[0m\n" "$window_color" "$(printf "%*s%s " $((width - ${#title} - 2)) "" "$title")"
+        fi
+        
+        printf "\033[38;5;%sm%s\033[0m\n" "$window_color" "$bottom_border"
+    else
+        # Default color
+        echo "$top_border"
+        
+        if [[ "$title_align" == "center" ]]; then
+            printf "%*s%s%*s\n" "$padding" "" "$title" "$padding" ""
+        elif [[ "$title_align" == "left" ]]; then
+            printf " %s%*s\n" "$title" $((width - ${#title} - 2)) ""
+        elif [[ "$title_align" == "right" ]]; then
+            printf "%*s%s \n" $((width - ${#title} - 2)) "" "$title"
+        fi
+        
+        echo "$bottom_border"
     fi
-
-    local bottom_border="${border_color}╰$(printf '─%.0s' $(seq 1 $((width - 2))))╯\033[0m"
-
-    echo -e "$top_border"
-    echo -e "$title_line"
-    echo -e "$bottom_border"
 }
 
-# Draw header initially
-clear
+# Draw the header
 draw_header
 
-# Create buffer array for lines
-declare -a buffer=()
-
-# Process input and update display
-while IFS= read -r line; do
-    # Add new line to buffer
-    buffer+=("${text_color_code}${line}\033[0m")
-    
-    # Keep buffer at maximum height
-    while [ ${#buffer[@]} -gt "$height" ]; do
-        # Remove oldest line
-        buffer=("${buffer[@]:1}")
+# Process input and display with color if specified
+if [[ "$text_color" =~ ^[0-9]+$ ]]; then
+    # Read input and apply color
+    while IFS= read -r line; do
+        printf "\033[38;5;%sm%s\033[0m\n" "$text_color" "$line"
     done
-    
-    # Clear the display area (only the content area, not the header)
-    tput cup 3 0  # Position cursor after the header
-    tput ed       # Clear from cursor to end of screen
-    
-    # Print all lines in buffer
-    for i in "${!buffer[@]}"; do
-        echo -e "${buffer[$i]}"
-    done
-done
+else
+    # Just pass through the input
+    cat
+fi
 
-# Restore cursor and clear control characters
-tput cnorm
+exit 0
