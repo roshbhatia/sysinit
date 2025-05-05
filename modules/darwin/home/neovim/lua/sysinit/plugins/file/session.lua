@@ -1,11 +1,11 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/rmagatti/auto-session/refs/heads/main/doc/auto-session.txt"
 local M = {}
 
-M.plugins = {{
+M.plugins = { {
     "rmagatti/auto-session",
     lazy = false,
     priority = 100,
-    dependencies = {"nvim-lualine/lualine.nvim"},
+    dependencies = { "nvim-lualine/lualine.nvim" },
     config = function()
         local auto_session = require("auto-session")
 
@@ -17,7 +17,7 @@ M.plugins = {{
             enabled = true,
             root_dir = vim.fn.stdpath("data") .. "/sessions/",
             auto_save = true,
-            auto_restore = true,
+            auto_restore = false,
             auto_create = true,
             suppressed_dirs = nil,
             allowed_dirs = nil,
@@ -25,7 +25,7 @@ M.plugins = {{
             git_use_branch_name = false,
             git_auto_restore_on_branch_change = false,
             lazy_support = true,
-            bypass_save_filetypes = {"alpha", "NvimTree", "neo-tree", "dashboard", "lazy"},
+            bypass_save_filetypes = { "alpha", "NvimTree", "neo-tree", "dashboard", "lazy" },
             close_unsupported_windows = true,
             args_allow_single_directory = true,
             args_allow_files_auto_save = false,
@@ -37,20 +37,20 @@ M.plugins = {{
             purge_after_minutes = 14400,
             log_level = "info",
 
-            pre_save_cmds = {function()
+            pre_save_cmds = { function()
                 for _, win in ipairs(vim.api.nvim_list_wins()) do
                     local config = vim.api.nvim_win_get_config(win)
                     if config.relative ~= "" then
                         vim.api.nvim_win_close(win, false)
                     end
                 end
-            end},
+            end },
 
-            post_restore_cmds = {function()
+            post_restore_cmds = { function()
                 vim.defer_fn(function()
                     require("lualine").refresh()
                 end, 100)
-            end},
+            end },
 
             session_lens = {
                 load_on_setup = true,
@@ -58,9 +58,9 @@ M.plugins = {{
                 previewer = false,
 
                 mappings = {
-                    delete_session = {"i", "<C-D>"},
-                    alternate_session = {"i", "<C-S>"},
-                    copy_session = {"i", "<C-Y>"}
+                    delete_session = { "i", "<C-D>" },
+                    alternate_session = { "i", "<C-S>" },
+                    copy_session = { "i", "<C-Y>" }
                 },
 
                 session_control = {
@@ -77,6 +77,6 @@ M.plugins = {{
             end
         })
     end
-}}
+} }
 
 return M
