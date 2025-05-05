@@ -12,12 +12,12 @@
   };
 
   xdg.configFile."nvim/init.lua" = {
-    source = ./modules/darwin/home/neovim/init.lua;
+    source = ./init.lua;
     force = true;
   };
 
   xdg.configFile."nvim/lua" = {
-    source = ./modules/darwin/home/neovim/lua;
+    source = ./lua;
     force = true;
   };
 
