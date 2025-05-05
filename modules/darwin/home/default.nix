@@ -41,6 +41,9 @@ let
     };
   }) install.installToHome);
 in {
+  xdg.configFile = xdgConfigAttrs;
+  home.file = lib.recursiveUpdate homeFileAttrs emptyDirs;
+
   imports = [
     ./git/git.nix
     ./core/packages.nix
@@ -59,7 +62,4 @@ in {
     ./colima/colima.nix
     ./wallpaper/wallpaper.nix
   ];
-
-  xdg.configFile = xdgConfigAttrs;
-  home.file = lib.recursiveUpdate homeFileAttrs emptyDirs;
 }
