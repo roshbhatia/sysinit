@@ -4,7 +4,7 @@ local M = {}
 M.plugins = { {
     "nvim-neo-tree/neo-tree.nvim",
     lazy = false,
-    branch = "v3.x",
+    branch = "restore-session-experimental",
     dependencies = { "nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "MunifTanjim/nui.nvim" },
     config = function()
         vim.cmd([[ let g:neo_tree_remove_legacy_commands = 1 ]])
@@ -70,6 +70,7 @@ M.plugins = { {
         right_click_menu.menu(neotree_menu)
 
         require("neo-tree").setup({
+            auto_restore_session_experimental = true,
             close_if_last_window = true,
             popup_border_style = "rounded",
             enable_git_status = true,
