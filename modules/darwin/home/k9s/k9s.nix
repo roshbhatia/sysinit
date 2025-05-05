@@ -106,19 +106,23 @@ in {
   xdg.configFile = {
     "k9s/config.yaml" = {
       text = lib.generators.toYAML {} k9sConfig;
+      force = true;
     };
     
     "k9s/aliases.yaml" = {
       text = lib.generators.toYAML {} k9sAliases;
+      force = true;
     };
     
     "k9s/plugins.yaml" = {
       text = lib.generators.toYAML {} k9sPlugins;
+      force = true;
     };
     
     # Keep the skin file as-is
     "k9s/skins/monokai.yaml" = {
       source = ./skins/monokai.yaml;
+      force = true;
     };
   };
 }

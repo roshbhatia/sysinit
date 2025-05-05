@@ -13,10 +13,12 @@
 
   xdg.configFile."nvim/init.lua" = {
     source = config.lib.file.mkOutOfStoreSymlink "${builtins.getEnv "PWD"}/modules/darwin/home/neovim/init.lua";
+    force = true;
   };
 
   xdg.configFile."nvim/lua" = {
     source = config.lib.file.mkOutOfStoreSymlink "${builtins.getEnv "PWD"}/modules/darwin/home/neovim/lua";
+    force = true;
   };
 
   # Keep only the VSCode key repeat settings

@@ -78,31 +78,38 @@ in {
         theme = "rosh";
         # Add any other global settings here
       };
+      force = true;
     };
     
     "macchina/themes/rosh.toml" = {
       source = tomlFormat.generate "rosh.toml" roshTheme;
+      force = true;
     };
     
     "macchina/themes/nix.toml" = {
       source = tomlFormat.generate "nix.toml" nixTheme;
+      force = true;
     };
   
     "macchina/themes/mgs.toml" = {
       source = tomlFormat.generate "mgs.toml" mgsTheme;
+      force = true;
     };
     
     # Keep the ASCII art files
     "macchina/themes/rosh.ascii" = {
       source = ./themes/rosh.ascii;
+      force = true;
     };
     
     "macchina/themes/nix.ascii" = {
       source = ./themes/nix.ascii;
+      force = true;
     };
     
     "macchina/themes/mgs.ascii" = {
       source = ./themes/mgs.ascii;
+      force = true;
     };
   };
 }
