@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=all
 
 # Default settings
 height=20
@@ -35,62 +36,74 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Save cursor position and hide cursor
+tput sc
 tput civis
-trap "tput cnorm; clear; exit" INT TERM EXIT
+trap "tput cnorm; tput rc; exit" INT TERM EXIT
 
-draw_border() {
-    local width
-    local top_border
-    local bottom_border
-    local padding
+# Check if window_color is a number (ANSI color code)
+if [[ "$window_color" =~ ^[0-9]+$ ]]; then
+    border_color="\033[38;5;${window_color}m"
+else
+    border_color="\033[0m"
+fi
 
-    width=$(tput cols)
-    top_border="╭$(printf '─%.0s' $(seq 1 $((width - 2))))╮"
-    bottom_border="╰$(printf '─%.0s' $(seq 1 $((width - 2))))╯"
-    padding=$(( (width - ${#title} - 2) / 2 ))
+# Check if text_color is a number (ANSI color code)
+if [[ "$text_color" =~ ^[0-9]+$ ]]; then
+    text_color_code="\033[38;5;${text_color}m"
+else
+    text_color_code="\033[0m"
+fi
 
-    echo -e "\033[${window_color}m"
-    echo "$top_border"
+# Draw the initial border
+draw_header() {
+    local width=$(tput cols)
+    local top_border="${border_color}╭$(printf '─%.0s' $(seq 1 $((width - 2))))╮\033[0m"
+    local padding=$(( (width - ${#title} - 2) / 2 ))
+    local title_line=""
 
     if [[ "$title_align" == "center" ]]; then
-        printf "%*s%s%*s\n" "$padding" "" "$title" "$padding" ""
+        title_line="${border_color}│$(printf "%*s%s%*s" "$padding" "" "$title" "$padding" "")│\033[0m"
     elif [[ "$title_align" == "left" ]]; then
-        printf " %s%*s\n" "$title" $((width - ${#title} - 2)) ""
+        title_line="${border_color}│ $title$(printf "%*s" $((width - ${#title} - 3)) "")│\033[0m"
     elif [[ "$title_align" == "right" ]]; then
-        printf "%*s%s \n" $((width - ${#title} - 2)) "" "$title"
+        title_line="${border_color}│$(printf "%*s" $((width - ${#title} - 3)) "")$title │\033[0m"
     fi
 
-    echo "$bottom_border"
-    echo -e "\033[0m"
+    local bottom_border="${border_color}╰$(printf '─%.0s' $(seq 1 $((width - 2))))╯\033[0m"
+
+    echo -e "$top_border"
+    echo -e "$title_line"
+    echo -e "$bottom_border"
 }
 
-main() {
-    # Create a buffer to store up to $height lines
-    declare -a buffer
-    local line_count=0
+# Draw header initially
+clear
+draw_header
+
+# Create buffer array for lines
+declare -a buffer=()
+
+# Process input and update display
+while IFS= read -r line; do
+    # Add new line to buffer
+    buffer+=("${text_color_code}${line}\033[0m")
     
-    while IFS= read -r line; do
-        # Add line to buffer
-        # shellcheck disable=SC2004
-        buffer[$line_count]="$line"
-        ((line_count++))
-        
-        # Keep only the last $height lines
-        if [ $line_count -gt "$height" ]; then
-            # Shift array to remove oldest entry
-            buffer=("${buffer[@]:1}")
-            ((line_count--))
-        fi
-        
-        # Display current buffer
-        clear
-        draw_border
-        
-        # Display each line in the buffer with text color
-        for i in "${!buffer[@]}"; do
-            echo -e "\033[38;5;${text_color}m${buffer[$i]}\033[0m"
-        done
+    # Keep buffer at maximum height
+    while [ ${#buffer[@]} -gt "$height" ]; do
+        # Remove oldest line
+        buffer=("${buffer[@]:1}")
     done
-}
+    
+    # Clear the display area (only the content area, not the header)
+    tput cup 3 0  # Position cursor after the header
+    tput ed       # Clear from cursor to end of screen
+    
+    # Print all lines in buffer
+    for i in "${!buffer[@]}"; do
+        echo -e "${buffer[$i]}"
+    done
+done
 
-main
+# Restore cursor and clear control characters
+tput cnorm
