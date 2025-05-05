@@ -1,9 +1,9 @@
 version: '3'
 
 vars:
-  SUCCESS_STYLE: --title "Success" --window-color 212 --text-color 212
-  ERROR_STYLE: --title "Error" --window-color 196 --text-color 196
-  INFO_STYLE: --title "Info" --window-color 87 --text-color 87
+  SUCCESS_STYLE: --foreground 212 --border normal --border-foreground 212 --align left --width 50 --margin "0 1" --padding "0 1"
+  ERROR_STYLE: --foreground 196 --border normal --border-foreground 196 --align left --width 50 --margin "0 1" --padding "0 1"
+  INFO_STYLE: --foreground 87 --border normal --border-foreground 87 --align left --width 50 --margin "0 1" --padding "0 1"
 
 tasks:
   default:
@@ -15,25 +15,25 @@ tasks:
   # System Configuration
   nix:build:
     cmds:
-      - echo "Building system configuration..." | ./hack/stdin-window.sh {{.INFO_STYLE}}
+      - gum style {{.INFO_STYLE}} "Building system configuration..."
       - |
-        if ! darwin-rebuild build --flake . 2>&1 | ./hack/stdin-window.sh --title "Running darwin-rebuild..."; then
-          echo "Build failed" | ./hack/stdin-window.sh {{.ERROR_STYLE}}
+        if ! gum spin --spinner dot --title "Running darwin-rebuild..." -- darwin-rebuild build --flake .; then
+          gum style {{.ERROR_STYLE}} "Build failed"
           exit 1
         fi
-      - echo "Build completed successfully" | ./hack/stdin-window.sh {{.SUCCESS_STYLE}}
+      - gum style {{.SUCCESS_STYLE}} "Build completed successfully"
     desc: Build the configuration without applying
     silent: true
 
   nix:clean:
     cmds:
-      - echo "Running garbage collection..." | ./hack/stdin-window.sh {{.INFO_STYLE}}
+      - gum style {{.INFO_STYLE}} "Running garbage collection..."
       - |
-        if ! sudo nix-collect-garbage -d 2>&1 | ./hack/stdin-window.sh --title "Collecting garbage..."; then
-          echo "Garbage collection failed" | ./hack/stdin-window.sh {{.ERROR_STYLE}}
+        if ! gum spin --spinner dot --title "Collecting garbage..." -- sudo nix-collect-garbage -d; then
+          gum style {{.ERROR_STYLE}} "Garbage collection failed"
           exit 1
         fi
-      - echo "Garbage collection completed" | ./hack/stdin-window.sh {{.SUCCESS_STYLE}}
+      - gum style {{.SUCCESS_STYLE}} "Garbage collection completed"
     desc: Run garbage collection
     silent: true
 
@@ -41,18 +41,18 @@ tasks:
     deps: [nix:update:flake]
     cmds:
       - |
-        echo "Applying system configuration..." | ./hack/stdin-window.sh {{.INFO_STYLE}}
+        gum style {{.INFO_STYLE}} "Applying system configuration..."
 
         git add -A
         git commit -m "chore: update configuration and regenerate lockfile" || true
         git push || true
 
-        if ! darwin-rebuild switch --flake . --show-trace 2>&1 | ./hack/stdin-window.sh --title "Running darwin-rebuild..."; then
-          echo "Failed to apply configuration" | ./hack/stdin-window.sh {{.ERROR_STYLE}}
+        if ! gum spin --spinner dot --title "Running darwin-rebuild..." -- darwin-rebuild switch --flake . --show-trace; then
+          gum style {{.ERROR_STYLE}} "Failed to apply configuration"
           exit 1
         fi
 
-        echo "System configuration applied successfully" | ./hack/stdin-window.sh {{.SUCCESS_STYLE}}
+        gum style {{.SUCCESS_STYLE}} "System configuration applied successfully"
     desc: Apply the system configuration
     silent: true
 
@@ -62,231 +62,63 @@ tasks:
         WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
 
         if [ -z "$WORK_SYSINIT" ]; then
-          echo "Could not find work sysinit repository" | ./hack/stdin-window.sh {{.ERROR_STYLE}}
+          gum style {{.ERROR_STYLE}} "Could not find work sysinit repository"
           exit 1
         fi
 
-        echo "Working in: $WORK_SYSINIT" | ./hack/stdin-window.sh {{.INFO_STYLE}}
+        gum style {{.INFO_STYLE}} "Working in: $WORK_SYSINIT"
         cd "$WORK_SYSINIT"
 
-        if ! nix flake update 2>&1 | ./hack/stdin-window.sh --title "Running nix flake update..."; then
-          echo "Failed to update flake" | ./hack/stdin-window.sh {{.ERROR_STYLE}}
+        if ! gum spin --spinner dot --title "Running nix flake update..." -- nix flake update; then
+          gum style {{.ERROR_STYLE}} "Failed to update flake"
           exit 1
         fi
 
-        if ! task refresh 2>&1 | ./hack/stdin-window.sh --title "Running refresh..."; then
-          echo "Failed to refresh work configuration" | ./hack/stdin-window.sh {{.ERROR_STYLE}}
+        if ! gum spin --spinner dot --title "Running refresh..." -- task refresh; then
+          gum style {{.ERROR_STYLE}} "Failed to refresh work configuration"
           exit 1
         fi
 
-        echo "Work configuration refreshed successfully" | ./hack/stdin-window.sh {{.SUCCESS_STYLE}}
+        gum style {{.SUCCESS_STYLE}} "Work configuration refreshed successfully"
     desc: Update and rebuild work sysinit configuration
     silent: true
 
   nix:update:flake:
     cmds:
-      - echo "Updating flake inputs..." | ./hack/stdin-window.sh {{.INFO_STYLE}}
+      - gum style {{.INFO_STYLE}} "Updating flake inputs..."
       - |
-        if ! nix flake update 2>&1 | ./hack/stdin-window.sh --title "Running flake update..."; then
-          echo "Failed to update flake" | ./hack/stdin-window.sh {{.ERROR_STYLE}}
+        if ! nix flake update 2>&1 | ./hack/stdin-window.sh; then
+          gum style {{.ERROR_STYLE}} "Failed to update flake"
           exit 1
         fi
-      - echo "Flake inputs updated successfully" | ./hack/stdin-window.sh {{.SUCCESS_STYLE}}
+      - gum style {{.SUCCESS_STYLE}} "Flake inputs updated successfully"
     desc: Update flake inputs
     silent: true
 
   # System Setup
   nix:install:
     cmds:
-      - echo "Installing prerequisites..." | ./hack/stdin-window.sh {{.INFO_STYLE}}
+      - gum style {{.INFO_STYLE}} "Installing prerequisites..."
       - |
-        if ! ./hack/install-deps.sh 2>&1 | ./hack/stdin-window.sh --title "Running setup..."; then
-          echo "Setup failed" | ./hack/stdin-window.sh {{.ERROR_STYLE}}
+        if ! ./hack/install-deps.sh 2>&1 | ./hack/stdin-window.sh; then
+          gum style {{.ERROR_STYLE}} "Setup failed"
           exit 1
         fi
-      - echo "Setup completed" | ./hack/stdin-window.sh {{.SUCCESS_STYLE}}
+      - gum style {{.SUCCESS_STYLE}} "Setup completed"
     desc: Install prerequisites for sysinit
     silent: true
 
   nix:uninstall:
     cmds:
-      - echo "Uninstalling Nix..." | ./hack/stdin-window.sh {{.INFO_STYLE}}
+      - gum style {{.INFO_STYLE}} "Uninstalling Nix..."
       - |
-        if ! ./hack/uninstall-nix.sh 2>&1 | ./hack/stdin-window.sh --title "Uninstalling..."; then
-          echo "Uninstall failed" | ./hack/stdin-window.sh {{.ERROR_STYLE}}
+        if ! ./hack/uninstall-nix.sh 2>&1 | ./hack/stdin-window.sh; then
+          gum style {{.ERROR_STYLE}} "Uninstall failed"
           exit 1
         fi
-      - echo "Nix uninstalled successfully" | ./hack/stdin-window.sh {{.SUCCESS_STYLE}}
+      - gum style {{.SUCCESS_STYLE}} "Nix uninstalled successfully"
     desc: Completely uninstall Nix from the system
     silent: true
-
-  nix:perms:
-    cmds:
-      - |
-          {
-            fix_permissions() {
-              local dir="$1"
-              local message="$2"
-              shift 2
-              local ignore_patterns=("${IGNORE_PATTERNS[@]}")
-
-              # Add any additional ignore patterns passed as arguments
-              for pattern in "$@"; do
-                ignore_patterns+=("$pattern")
-              done
-
-              local ignore_args=()
-              for pattern in "${ignore_patterns[@]}"; do
-                ignore_args+=("-E" "$pattern")
-              done
-
-              echo "🔍 $message" | ./hack/stdin-window.sh --title "Permissions"
-              echo "   Directory: $dir" | ./hack/stdin-window.sh --title "Permissions"
-
-              if ! fd . "$dir" -t f -t d "${ignore_args[@]}" --owner "!$USER" -x sudo chown -v "$USER:staff" {} 2>/dev/null | ./hack/stdin-window.sh --title "Fixing Permissions"; then
-                echo "❌ Failed to fix permissions for $dir" | ./hack/stdin-window.sh {{.ERROR_STYLE}}
-                return 1
-              fi
-
-              # Fix directories where we need execute permission
-              fd . "$dir" -t d "${ignore_args[@]}" -x sudo chmod -v 755 {} 2>/dev/null | ./hack/stdin-window.sh --title "Fixing Directory Permissions" || true
-
-              # Fix files where we need read/write permission
-              fd . "$dir" -t f "${ignore_args[@]}" -x sudo chmod -v 644 {} 2>/dev/null | ./hack/stdin-window.sh --title "Fixing File Permissions" || true
-
-              echo "✅ Permissions fixed for $dir" | ./hack/stdin-window.sh {{.SUCCESS_STYLE}}
-            }
-
-            # Use more specific patterns for exclusions, especially for nix store
-            IGNORE_PATTERNS=(
-              ".DS_Store"
-              ".git"
-              "*.lock"
-              "node_modules"
-              "OrbStack*"
-              "^/nix/store"  # Specifically exclude /nix/store at the beginning of paths
-            )
-
-            # Define XDG directories if not set
-            XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
-            XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
-            XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
-            XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
-
-            # Create XDG directories if they don't exist
-            mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME" "$XDG_STATE_HOME"
-
-            echo "🔧 Starting permission fixes..." | ./hack/stdin-window.sh {{.INFO_STYLE}}
-
-            # Fix XDG directories first - these are most important for your needs
-            fix_permissions "$XDG_DATA_HOME" "Fixing XDG_DATA_HOME permissions..."
-            fix_permissions "$XDG_CONFIG_HOME" "Fixing XDG_CONFIG_HOME permissions..."
-            fix_permissions "$XDG_CACHE_HOME" "Fixing XDG_CACHE_HOME permissions..."
-            fix_permissions "$XDG_STATE_HOME" "Fixing XDG_STATE_HOME permissions..."
-
-            # Fix other common directories that might need permission fixes
-            fix_permissions "$HOME/.local" "Fixing .local directory permissions..."
-            fix_permissions "$HOME/.nix-profile" "Fixing .nix-profile permissions..."
-
-            # Fix Homebrew permissions if needed
-            if [ -d "/opt/homebrew/opt" ]; then
-              fix_permissions "/opt/homebrew/opt" "Fixing Homebrew permissions..."
-            fi
-
-            # Fix only specific directories under /nix that might need user access
-            # Avoid touching /nix/store directly
-            if [ -d "/nix/var" ]; then
-              fix_permissions "/nix/var" "Fixing /nix/var permissions..."
-            fi
-
-            echo "" 
-            echo "✅ All permissions fixed successfully" | ./hack/stdin-window.sh {{.SUCCESS_STYLE}}
-            echo "XDG directories are now properly accessible" | ./hack/stdin-window.sh {{.SUCCESS_STYLE}}
-          }
-    desc: Fix permissions for XDG directories and other relevant system paths
-    silent: true
-    vars:
-      IGNORE_PATTERNS:
-        - .DS_Store
-        - .git
-        - '*.lock'
-        - node_modules
-        - OrbStack*
-        - '^/nix/store'
-        -
-  nix:orphans:locate:
-    cmds:
-      - |
-          {
-            find_orphaned_nix_files() {
-              echo "🔍 Finding orphaned Nix files that aren't part of current generation..." | ./hack/stdin-window.sh {{.INFO_STYLE}}
-
-              # Get the current generation path
-              local current_gen=$(readlink -f "$HOME/.nix-profile")
-              echo "Current Nix profile generation: $current_gen" | ./hack/stdin-window.sh --title "Orphaned Files"
-
-              # Find nix store paths in the user's home directory
-              local found_count=0
-
-              echo "Searching for Nix store paths in $HOME that don't link to current generation..." | ./hack/stdin-window.sh --title "Orphaned Files"
-
-              while IFS= read -r file; do
-                if [[ -L "$file" ]]; then
-                  target=$(readlink -f "$file")
-                  if [[ "$target" == /nix/store/* && "$target" != "$current_gen"* ]]; then
-                    echo "Found: $file → $target" | ./hack/stdin-window.sh --title "Orphaned Files"
-                    found_count=$((found_count + 1))
-                  fi
-                fi
-              done < <(find "$HOME" -type l -not -path "*/\.*" -not -path "*/node_modules/*" 2>/dev/null)
-
-              if [ $found_count -eq 0 ]; then
-                echo "✅ No orphaned Nix files found." | ./hack/stdin-window.sh {{.SUCCESS_STYLE}}
-              else
-                echo "🔍 Found $found_count orphaned Nix files." | ./hack/stdin-window.sh {{.INFO_STYLE}}
-                echo "To remove them, run: task nix-orphans:prune" | ./hack/stdin-window.sh {{.INFO_STYLE}}
-              fi
-            }
-
-            # Run in find-only mode by default
-            find_orphaned_nix_files
-          }
-    desc: Find Nix files that don't link to current home-manager generation
-    silent: false
-
-  nix:orphans:prune:
-    cmds:
-      - |
-          {
-            prune_orphaned_nix_files() {
-              echo "🗑️ Pruning orphaned Nix files that aren't part of current generation..." | ./hack/stdin-window.sh {{.INFO_STYLE}}
-
-              # Get the current generation path
-              local current_gen=$(readlink -f "$HOME/.nix-profile")
-              echo "Current Nix profile generation: $current_gen" | ./hack/stdin-window.sh --title "Pruning Files"
-
-              # Find and remove nix store paths not in current generation
-              local removed_count=0
-
-              while IFS= read -r file; do
-                if [[ -L "$file" ]]; then
-                  target=$(readlink -f "$file")
-                  if [[ "$target" == /nix/store/* && "$target" != "$current_gen"* ]]; then
-                    echo "Removing: $file → $target" | ./hack/stdin-window.sh --title "Pruning Files"
-                    rm -f "$file"
-                    removed_count=$((removed_count + 1))
-                  fi
-                fi
-              done < <(find "$HOME" -type l -not -path "*/\.*" -not -path "*/node_modules/*" 2>/dev/null)
-
-              echo "🗑️ Removed $removed_count orphaned Nix files." | ./hack/stdin-window.sh {{.SUCCESS_STYLE}}
-            }
-
-            prune_orphaned_nix_files
-          }
-    desc: Remove Nix files that don't link to current home-manager generation
-    silent: false
-
 
   # Neovim Tasks
   nvim:extract-nvim-commands: { cmds: [task -d modules/darwin/home/neovim nvim:extract-nvim-commands], silent: true }
