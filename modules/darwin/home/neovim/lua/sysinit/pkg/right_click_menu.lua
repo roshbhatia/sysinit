@@ -1,176 +1,164 @@
--- https://github.com/zenobi-us/mouse-peasant.nvim/blob/4f476d41d4f204f22d09e140d982297774fb96eb/core/context_menu.lua
--- Thank you to @airtonix for the implementation!
 local M = {}
--- these are filetypes and buftypes that are not actual files
--- created by plugins or by neovim itself
 
+-- Basic defaults for the menu
 local DEFAULTS = {
-    -- the width of the menu item
     menu_item_width = 30,
-    -- the indicator to show if a menu item has a submenu
-    submenu_indicator = "▸",
-    -- the colour of the label
-    label_colour = "Normal",
-    -- the colour of the command
-    command_colour = "Comment"
+    submenu_indicator = "▸"
 }
 
-local MODES = {"i", "n"}
+-- Modes where context menu will be available
+local MODES = {"n", "i"}
 
-local UI_TYPES = {"NvimTree", "Nvpunk", "NvpunkHealthcheck", "Outline", "TelescopePrompt", "Trouble", "aerial", "alpha",
-                  "dap-repl", "dapui_breakpoints", "dapui_console", "dapui_scopes", "dapui_stacks", "dapui_watches",
-                  "dashboard", "help", "lazy", "lir", "neo-tree", "neo-tree-popup", "neogitstatus", "notify", "packer",
-                  "qf", "spectre_panel", "startify", "toggleterm", "vim"}
-
-local BUF_TYPES = {"nofile", "prompt", "quickfix", "terminal"}
-
---- Checks if current buf has LSPs attached
----@return boolean
-M.buf_has_lsp = function()
-    return not vim.tbl_isempty(vim.lsp.get_active_clients {
-        bufnr = vim.api.nvim_get_current_buf()
-    })
-end
-
---- Checks if current buf is a file
----@return boolean
-M.buf_is_file = function()
-    return not vim.tbl_contains(UI_TYPES, vim.bo.filetype) and not vim.tbl_contains(BUF_TYPES, vim.bo.buftype)
-end
-
---- Checks if current buf has DAP support
----@return boolean
-M.buf_has_dap = function()
-    return M.buf_is_file()
-end
-
---- Clear all entries from the given menu
+--- Clear all entries from a menu
 ---@param menu string
-local clear_menu = function(menu)
+local function clear_menu(menu)
     pcall(function()
         vim.cmd("aunmenu " .. menu)
     end)
 end
 
---- Formats the label of a menu entry to avoid errors
+--- Format menu label to escape special characters
 ---@param label string
 ---@return string
-local escape_label = function(label)
+local function escape_label(label)
     local res = string.gsub(label, " ", [[\ ]])
     res = string.gsub(res, "<", [[\<]])
     res = string.gsub(res, ">", [[\>]])
     return res
 end
 
-local menu_label = function(menu, options)
-    -- merge options with defaults
-    -- this is done to avoid having to pass the options table around
-    local opts = vim.tbl_extend("force", options or {}, DEFAULTS)
+--- Format menu item label with proper spacing
+---@param menu table
+local function format_menu_label(menu)
+    local padding = DEFAULTS.menu_item_width - #menu.label
 
-    local padding = opts.menu_item_width - #menu.label
-
-    if menu.items ~= nil and opts.submenu_indicator ~= nil then
-        -- we'll add a ▸ to indicate it's a submenu
-        menu.label = menu.label .. string.rep(" ", padding - 2) .. opts.submenu_indicator
+    -- Add submenu indicator if needed
+    if menu.items ~= nil then
+        menu.label = menu.label .. string.rep(" ", padding - 2) .. DEFAULTS.submenu_indicator
         return
     end
 
-    menu.label = menu.label .. string.rep(" ", padding - #menu.command) .. menu.command
+    -- Format regular menu item
+    local command_display = menu.command and menu.command or ""
+    menu.label = menu.label .. string.rep(" ", math.max(2, padding - #command_display)) .. command_display
 end
 
-local render_menu_item = function(menu)
-    -- bail out of rendering it anew, if there's a condition and it's not me
-    if menu.condition ~= nil and not menu.condition() then
-        return
-    end
-
-    -- create the menu entry for each mode
-    for _, mode in ipairs(MODES) do
-        vim.cmd(mode .. "menu " .. menu.id .. "." .. escape_label(menu.label) .. " " .. menu.command)
-    end
-end
-
-local render_menu = function(menu)
-    -- if it's an entry to a submenu, clear the submenu first
-    clear_menu(menu.id)
-
-    -- bail out of rendering it anew, if there's a condition and it's not me
-    if menu.condition ~= nil and not menu.condition() then
-        return
-    end
-
-    for _, item in ipairs(menu.items) do
-        render_menu_item(item)
-    end
-
-    render_menu_item {
-        id = "PopUp",
-        label = menu.label,
-        command = "<cmd>popup " .. menu.id .. "<cr>"
-    }
-end
-
-local Walk = {}
-
-Walk.tree = function(menu, func, args)
-    func(menu, args and args.parent or nil)
-
-    if menu.items then
-        for _, item in ipairs(menu.items) do
-            Walk.tree(item, func, {
-                parent = menu
-            })
-        end
-    end
-end
-
--- Create a menu item identified by id. It requires a label and a command.
--- if it has items then it's a submenu which requires a table of items
+--- Create a menu item
+---@param options table
+---@return table
 M.menu_item = function(options)
-    local result = {
+    return {
         id = options.id,
         label = options.label,
         command = options.command or "<Nop>",
         condition = options.condition,
         items = options.items
     }
-
-    Walk.tree(result, function(item, parent)
-        if parent then
-            item.id = parent.id or item.id
-        end
-    end)
-
-    return result
 end
 
-clear_menu "PopUp"
+--- Render menu item
+---@param item table
+local function render_menu_item(item)
+    -- Skip if condition isn't met
+    if item.condition and not item.condition() then
+        return
+    end
 
+    -- Create menu entries for each mode
+    for _, mode in ipairs(MODES) do
+        vim.cmd(mode .. "menu " .. item.id .. "." .. escape_label(item.label) .. " " .. item.command)
+    end
+end
+
+--- Render a complete menu
+---@param menu table
+local function render_menu(menu)
+    -- Clear existing menu first
+    clear_menu(menu.id)
+
+    -- Skip if condition isn't met
+    if menu.condition and not menu.condition() then
+        return
+    end
+
+    -- Render all menu items
+    for _, item in ipairs(menu.items or {}) do
+        -- Update the id to include parent id
+        item.id = menu.id
+        render_menu_item(item)
+    end
+
+    -- Add menu to popup
+    render_menu_item({
+        id = "PopUp",
+        label = menu.label,
+        command = "<cmd>popup " .. menu.id .. "<cr>"
+    })
+end
+
+-- Initialize popup menu
+clear_menu("PopUp")
+
+--- Create a context menu
+---@param menu table
 M.menu = function(menu)
-    Walk.tree(menu, function(item)
-        menu_label(item)
-    end)
+    -- Format labels
+    format_menu_label(menu)
+    if menu.items then
+        for _, item in ipairs(menu.items) do
+            format_menu_label(item)
+        end
+    end
 
-    vim.api.nvim_create_autocmd({"BufEnter"}, {
+    -- Create autocommand to update the menu
+    vim.api.nvim_create_autocmd({"BufEnter", "FileType"}, {
         callback = function()
-            -- recursively walk the menu tree and format the labels
-
-            -- clear the popup menu entry
+            -- Clear existing menu entry
             clear_menu("PopUp." .. escape_label(menu.label))
 
-            if menu.items ~= nil then
-                render_menu(menu)
-            else
-                render_menu_item {
-                    id = "PopUp",
-                    label = menu.label,
-                    command = menu.command,
-                    condition = menu.condition
-                }
+            -- Check condition if exists
+            local should_render = true
+            if menu.condition then
+                should_render = menu.condition()
             end
 
-            -- attach neotree menu
-            render_menu(menu)
+            -- Render menu if condition passes
+            if should_render then
+                if menu.items then
+                    render_menu(menu)
+                else
+                    render_menu_item({
+                        id = "PopUp",
+                        label = menu.label,
+                        command = menu.command,
+                        condition = menu.condition
+                    })
+                end
+            end
+
+            -- Special handling for special filetypes like neo-tree
+            if vim.tbl_contains({"neo-tree", "NvimTree", "neo-tree-popup"}, vim.bo.filetype) then
+                -- Clean up default entries that might interfere
+                pcall(function()
+                    vim.cmd([[
+                        silent! aunmenu PopUp.\.
+                        silent! aunmenu PopUp.-1-
+                    ]])
+                end)
+
+                -- Re-attach menu for special filetypes
+                if should_render then
+                    if menu.items then
+                        render_menu(menu)
+                    else
+                        render_menu_item({
+                            id = "PopUp",
+                            label = menu.label,
+                            command = menu.command
+                        })
+                    end
+                end
+            end
         end
     })
 end
