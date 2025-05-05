@@ -396,43 +396,43 @@ in
 
   xdg.configFile = {
     "zsh/bin/colima-recreate" = {
-      source = ./zsh/bin/colima-recreate;
+      source = ./bin/colima-recreate;
       force = true;
     };
     "zsh/bin/dns-flush" = {
-      source = ./zsh/bin/dns-flush;
+      source = ./bin/dns-flush;
       force = true;
     };
     "zsh/bin/gh-whoami" = {
-      source = ./zsh/bin/gh-whoami;
+      source = ./bin/gh-whoami;
       force = true;
     };
     "zsh/bin/ghcs-commitmessage" = {
-      source = ./zsh/bin/ghcs-commitmessage;
+      source = ./bin/ghcs-commitmessage;
       force = true;
     };
     "zsh/bin/kubectl-crdbrowse" = {
-      source = ./zsh/bin/kubectl-crdbrowse;
+      source = ./bin/kubectl-crdbrowse;
       force = true;
     };
     "zsh/bin/kubectl-kdesc" = {
-      source = ./zsh/bin/kubectl-kdesc;
+      source = ./bin/kubectl-kdesc;
       force = true;
     };
     "zsh/bin/kubectl-kexec" = {
-      source = ./zsh/bin/kubectl-kexec;
+      source = ./bin/kubectl-kexec;
       force = true;
     };
     "zsh/bin/kubectl-klog" = {
-      source = ./zsh/bin/kubectl-klog;
+      source = ./bin/kubectl-klog;
       force = true;
     };
     "zsh/bin/kubectl-kproxy" = {
-      source = ./zsh/bin/kubectl-kproxy;
+      source = ./bin/kubectl-kproxy;
       force = true;
     };
     "zsh/bin/sysinit-fzf-preview" = {
-      source = ./zsh/bin/sysinit-fzf-preview;
+      source = ./bin/sysinit-fzf-preview;
       force = true;
     };
   };
