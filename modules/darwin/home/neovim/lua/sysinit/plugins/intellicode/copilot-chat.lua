@@ -1,12 +1,14 @@
 local M = {}
 
 M.plugins = {{
-    "CopilotC-Nvim/CopilotChat",
+    "CopilotC-Nvim/CopilotChat.nvim",
     lazy = false,
-    dependencies = {"zbirenbaum/copilot.lua"},
+    dependencies = {"zbirenbaum/copilot.lua", {
+        "nvim-lua/plenary.nvim",
+        branch = "master"
+    }},
     build = "make tiktoken",
     opts = {
-        mappings {},
         window = {
             layout = 'float', -- 'vertical', 'horizontal', 'float', 'replace', or a function that returns the layout
             width = 0.5, -- width of the window
