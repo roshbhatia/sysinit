@@ -7,7 +7,6 @@ let
 
   basePackages = [
     "cargo-watch"
-    "ripgrep-all"
     "stylua"
   ];
 
