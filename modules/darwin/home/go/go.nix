@@ -31,9 +31,7 @@ in
         PACKAGES='${escapedPackages}'
         if [ -n "$PACKAGES" ]; then
           for package in $PACKAGES; do
-            "$GO" install "$package" >/dev/null 2>&1 \
-              && echo "✅ Successfully installed $package via go install" \
-              || echo "❌ Failed to install $package via go install"
+            $GO install $package
           done
         fi
       else

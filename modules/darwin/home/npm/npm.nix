@@ -19,7 +19,6 @@ let
     "prettier"
     "typescript-language-server"
     "typescript"
-    "yarn"
   ];
 
   allPackages = basePackages ++ additionalPackages;
@@ -41,13 +40,22 @@ in
       set +u
       NPM="/etc/profiles/per-user/$USER/bin/npm"
       if [ -x "$NPM" ]; then
-        PACKAGES='${escapedPackages}'
-        if [ -n "$PACKAGES" ]; then
-          for package in $PACKAGES; do
-            "$NPM" install -g "$package" --silent >/dev/null 2>&1 \
-              && echo "✅ Successfully installed $package via npm" \
-              || echo "❌ Failed to install $package via npm"
-          done
+        echo "Installing yarn..."
+        "$NPM" install -g yarn --silent >/dev/null 2>&1 \
+          && echo "✅ Successfully installed yarn" \
+          || echo "❌ Failed to install yarn"
+
+        YARN="/Users/$USER/.npm-global/bin/yarn"
+        if [ -x "$YARN" ]; then
+          echo "Installing packages via yarn..."
+          PACKAGES='${escapedPackages}'
+          if [ -n "$PACKAGES" ]; then
+            "$YARN" global add $PACKAGES --silent >/dev/null 2>&1 \
+              && echo "✅ Successfully installed packages via yarn" \
+              || echo "❌ Failed to install packages via yarn"
+          fi
+        else
+          echo "❌ yarn not found at $YARN"
         fi
       else
         echo "❌ npm not found at $NPM"
