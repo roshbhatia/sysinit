@@ -5,7 +5,7 @@ let
     installToHome = [];
   };
 
-  extractDirectories = paths: lib.unique (map (entry: builtins.dirname entry.destination) paths);
+  extractDirectories = paths: lib.unique (map (entry: builtins.dirOf entry.destination) paths);
 
   xdgConfigDirs = extractDirectories install.installToXdgConfigHome;
   homeFileDirs = extractDirectories install.installToHome;
