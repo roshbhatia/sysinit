@@ -24,8 +24,8 @@ in
       set +u
       CARGO="/opt/homebrew/bin/cargo"
       
-      export PATH="$PATH:/opt/homebrew/bin"
-      
+      export PATH="$PATH:/opt/homebrew/bin:/usr/bin"
+
       if [ -x "$CARGO" ]; then
         PACKAGES='${escapedPackages}'
         if [ -n "$PACKAGES" ]; then
