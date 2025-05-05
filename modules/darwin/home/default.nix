@@ -1,29 +1,29 @@
 { config, pkgs, lib, inputs, username, homeDirectory, userConfig ? {}, ... }: 
 let
-  installFiles = userConfig.install or [];
+  install = userConfig.install or {
+    installToXdgConfigHome = [];
+    installToHome = [];
+  };
 
-  # Convert install entries to home.file and xdg.configFile attrs
-  fileAttrs = lib.foldl (acc: entry:
-    let
-      srcPath = toString entry.source;
-      relPath = lib.removePrefix "/Users/${username}/" entry.destination;
-      isConfig = lib.hasPrefix ".config/" relPath;
-      configPath = lib.removePrefix ".config/" relPath;
-      homePath = relPath;
-      isExecutable = lib.hasInfix "/bin/" entry.destination
-                   || lib.hasSuffix ".sh" srcPath
-                   || lib.hasSuffix ".expect" srcPath;
-      attrs = {
-        source = srcPath;
-        executable = isExecutable;
-        force = true;
-        mkOutOfStoreSymlink = "true";
-      };
-    in
-    if isConfig
-    then acc // { xdg.configFiles.${configPath} = attrs; }
-    else acc // { homeFiles.${homePath} = attrs; }
-  ) { xdg.configFiles = {}; homeFiles = {}; } installFiles;
+  xdgConfigAttrs = lib.listToAttrs (map (entry: {
+    name = entry.name;
+    value = {
+      source = toString entry.source;
+      executable = entry.executable or false;
+      force = true;
+      mkOutOfStoreSymlink = "true";
+    };
+  }) install.installToXdgConfigHome);
+
+  homeFileAttrs = lib.listToAttrs (map (entry: {
+    name = entry.name;
+    value = {
+      source = toString entry.source;
+      executable = entry.executable or false;
+      force = true;
+      mkOutOfStoreSymlink = "true";
+    };
+  }) install.installToHome);
 in {
   imports = [
     ./git/git.nix
@@ -44,6 +44,6 @@ in {
     ./wallpaper/wallpaper.nix
   ];
 
-  xdg.configFile = fileAttrs.xdg.configFiles;
-  home.file = fileAttrs.homeFiles;
+  xdg.configFile = xdgConfigAttrs;
+  home.file = homeFileAttrs;
 }
