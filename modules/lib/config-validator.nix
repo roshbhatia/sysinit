@@ -29,13 +29,13 @@ let
         if config ? install then
           let
             validateXdgConfigHome = entry:
-              if !(entry ? name) then throw "Install entry for XDG config home missing name"
-              else if !(entry ? source) then throw "Install entry for XDG config home missing source path"
+              if !(entry ? destination) then throw "Install entry for XDG config home missing destination"
+              else if !(entry ? source) then throw "Install entry for XDG config home missing source"
               else entry;
 
             validateHome = entry:
-              if !(entry ? name) then throw "Install entry for home missing name"
-              else if !(entry ? source) then throw "Install entry for home missing source path"
+              if !(entry ? destination) then throw "Install entry for home missing destination"
+              else if !(entry ? source) then throw "Install entry for home missing source"
               else entry;
           in
           config // {
