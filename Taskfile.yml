@@ -1,9 +1,9 @@
 version: '3'
 
 vars:
-  SUCCESS_STYLE: --foreground 212 --border normal --border-foreground 212 --align left --width 50 --margin "0 1" --padding "0 1"
-  ERROR_STYLE: --foreground 196 --border normal --border-foreground 196 --align left --width 50 --margin "0 1" --padding "0 1"
-  INFO_STYLE: --foreground 87 --border normal --border-foreground 87 --align left --width 50 --margin "0 1" --padding "0 1"
+  INFO_COLOR: 87
+  SUCCESS_COLOR: 212
+  ERROR_COLOR: 196
 
 tasks:
   default:
@@ -15,25 +15,51 @@ tasks:
   # System Configuration
   nix:build:
     cmds:
-      - gum style {{.INFO_STYLE}} "Building system configuration..."
       - |
-        if ! gum spin --spinner dot --title "Running darwin-rebuild..." -- darwin-rebuild build --flake .; then
-          gum style {{.ERROR_STYLE}} "Build failed"
+        # Log functions
+        log_info() {
+          echo "[sysinit:build] INFO: $1"
+        }
+        log_error() {
+          echo "[sysinit:build] ERROR: $1"
+        }
+        log_success() {
+          echo "[sysinit:build] SUCCESS: $1"
+        }
+        
+        log_info "Building system configuration..."
+        
+        if ! darwin-rebuild build --flake . 2>&1 | ./hack/stdin-window.sh; then
+          log_error "Build failed"
           exit 1
         fi
-      - gum style {{.SUCCESS_STYLE}} "Build completed successfully"
+        
+        log_success "Build completed successfully"
     desc: Build the configuration without applying
     silent: true
 
   nix:clean:
     cmds:
-      - gum style {{.INFO_STYLE}} "Running garbage collection..."
       - |
-        if ! gum spin --spinner dot --title "Collecting garbage..." -- sudo nix-collect-garbage -d; then
-          gum style {{.ERROR_STYLE}} "Garbage collection failed"
+        # Log functions
+        log_info() {
+          echo "[sysinit:clean] INFO: $1"
+        }
+        log_error() {
+          echo "[sysinit:clean] ERROR: $1"
+        }
+        log_success() {
+          echo "[sysinit:clean] SUCCESS: $1"
+        }
+        
+        log_info "Running garbage collection..."
+        
+        if ! sudo nix-collect-garbage -d 2>&1 | ./hack/stdin-window.sh; then
+          log_error "Garbage collection failed"
           exit 1
         fi
-      - gum style {{.SUCCESS_STYLE}} "Garbage collection completed"
+        
+        log_success "Garbage collection completed"
     desc: Run garbage collection
     silent: true
 
@@ -41,82 +67,154 @@ tasks:
     deps: [nix:update:flake]
     cmds:
       - |
-        gum style {{.INFO_STYLE}} "Applying system configuration..."
+        # Log functions
+        log_info() {
+          echo "[sysinit:refresh] INFO: $1"
+        }
+        log_debug() {
+          echo "[sysinit:refresh] DEBUG: $1"
+        }
+        log_error() {
+          echo "[sysinit:refresh] ERROR: $1"
+        }
+        log_success() {
+          echo "[sysinit:refresh] SUCCESS: $1"
+        }
+        
+        log_info "Applying system configuration..."
 
+        log_debug "Committing changes..."
         git add -A
-        git commit -m "chore: update configuration and regenerate lockfile" || true
-        git push || true
+        git commit -m "chore: update configuration and regenerate lockfile" 2>&1 | ./hack/stdin-window.sh || true
+        
+        log_debug "Pushing changes..."
+        git push 2>&1 | ./hack/stdin-window.sh || true
 
-        if ! gum spin --spinner dot --title "Running darwin-rebuild..." -- darwin-rebuild switch --flake . --show-trace; then
-          gum style {{.ERROR_STYLE}} "Failed to apply configuration"
+        if ! darwin-rebuild switch --flake . --show-trace 2>&1 | ./hack/stdin-window.sh; then
+          log_error "Failed to apply configuration"
           exit 1
         fi
 
-        gum style {{.SUCCESS_STYLE}} "System configuration applied successfully"
+        log_success "System configuration applied successfully"
     desc: Apply the system configuration
     silent: true
 
   nix:refresh:work:
     cmds:
       - |
+        # Log functions
+        log_info() {
+          echo "[sysinit:work] INFO: $1"
+        }
+        log_debug() {
+          echo "[sysinit:work] DEBUG: $1"
+        }
+        log_error() {
+          echo "[sysinit:work] ERROR: $1"
+        }
+        log_success() {
+          echo "[sysinit:work] SUCCESS: $1"
+        }
+        
         WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
 
         if [ -z "$WORK_SYSINIT" ]; then
-          gum style {{.ERROR_STYLE}} "Could not find work sysinit repository"
+          log_error "Could not find work sysinit repository"
           exit 1
         fi
 
-        gum style {{.INFO_STYLE}} "Working in: $WORK_SYSINIT"
+        log_info "Working in: $WORK_SYSINIT"
         cd "$WORK_SYSINIT"
 
-        if ! gum spin --spinner dot --title "Running nix flake update..." -- nix flake update; then
-          gum style {{.ERROR_STYLE}} "Failed to update flake"
+        log_debug "Updating flake..."
+        if ! nix flake update 2>&1 | ./hack/stdin-window.sh; then
+          log_error "Failed to update flake"
           exit 1
         fi
 
-        if ! gum spin --spinner dot --title "Running refresh..." -- task refresh; then
-          gum style {{.ERROR_STYLE}} "Failed to refresh work configuration"
+        log_debug "Running refresh..."
+        if ! task refresh 2>&1 | ./hack/stdin-window.sh; then
+          log_error "Failed to refresh work configuration"
           exit 1
         fi
 
-        gum style {{.SUCCESS_STYLE}} "Work configuration refreshed successfully"
+        log_success "Work configuration refreshed successfully"
     desc: Update and rebuild work sysinit configuration
     silent: true
 
   nix:update:flake:
     cmds:
-      - gum style {{.INFO_STYLE}} "Updating flake inputs..."
       - |
+        # Log functions
+        log_info() {
+          echo "[sysinit:flake] INFO: $1"
+        }
+        log_error() {
+          echo "[sysinit:flake] ERROR: $1"
+        }
+        log_success() {
+          echo "[sysinit:flake] SUCCESS: $1"
+        }
+        
+        log_info "Updating flake inputs..."
+        
         if ! nix flake update 2>&1 | ./hack/stdin-window.sh; then
-          gum style {{.ERROR_STYLE}} "Failed to update flake"
+          log_error "Failed to update flake"
           exit 1
         fi
-      - gum style {{.SUCCESS_STYLE}} "Flake inputs updated successfully"
+        
+        log_success "Flake inputs updated successfully"
     desc: Update flake inputs
     silent: true
 
   # System Setup
   nix:install:
     cmds:
-      - gum style {{.INFO_STYLE}} "Installing prerequisites..."
       - |
+        # Log functions
+        log_info() {
+          echo "[sysinit:install] INFO: $1"
+        }
+        log_error() {
+          echo "[sysinit:install] ERROR: $1"
+        }
+        log_success() {
+          echo "[sysinit:install] SUCCESS: $1"
+        }
+        
+        log_info "Installing prerequisites..."
+        
         if ! ./hack/install-deps.sh 2>&1 | ./hack/stdin-window.sh; then
-          gum style {{.ERROR_STYLE}} "Setup failed"
+          log_error "Setup failed"
           exit 1
         fi
-      - gum style {{.SUCCESS_STYLE}} "Setup completed"
+        
+        log_success "Setup completed"
     desc: Install prerequisites for sysinit
     silent: true
 
   nix:uninstall:
     cmds:
-      - gum style {{.INFO_STYLE}} "Uninstalling Nix..."
       - |
+        # Log functions
+        log_info() {
+          echo "[sysinit:uninstall] INFO: $1"
+        }
+        log_error() {
+          echo "[sysinit:uninstall] ERROR: $1"
+        }
+        log_success() {
+          echo "[sysinit:uninstall] SUCCESS: $1"
+        }
+        
+        log_info "Uninstalling Nix..."
+        
         if ! ./hack/uninstall-nix.sh 2>&1 | ./hack/stdin-window.sh; then
-          gum style {{.ERROR_STYLE}} "Uninstall failed"
+          log_error "Uninstall failed"
           exit 1
         fi
-      - gum style {{.SUCCESS_STYLE}} "Nix uninstalled successfully"
+        
+        log_success "Nix uninstalled successfully"
     desc: Completely uninstall Nix from the system
     silent: true
 
