@@ -16,6 +16,7 @@ let
   basePackages = [
     "jsonlint"
     "markdownlint"
+    "@mermaid-js/mermaid-cli"
     "prettier"
     "typescript-language-server"
     "typescript"
