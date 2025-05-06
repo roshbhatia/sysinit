@@ -44,7 +44,7 @@ tasks:
         log_info "{{.START_MSG_TEMPLATE}}"
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
-        if ! darwin-rebuild build --flake . | tee >(./hack/stdin-window.sh) > "{{.LOG_FILE}}" 2>&1; then
+        if ! darwin-rebuild switch --flake . --show-trace --impure | tee >(./hack/stdin-window.sh) > "{{.LOG_FILE}}" 2>&1; then
           log_error "Failed. See log: {{.LOG_FILE}}"
           log_error "Last 20 lines of log:"
           echo "------------------------------------------------------------"
