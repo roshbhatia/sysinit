@@ -2,8 +2,7 @@ local M = {}
 
 M.plugins = {{
     "HakonHarnes/img-clip.nvim",
-    lazy = true,
-    event = "VeryLazy",
+    lazy = false,
     opts = {
         default = {
             embed_image_as_base64 = false,

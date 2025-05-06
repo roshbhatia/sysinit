@@ -1,11 +1,11 @@
 local M = {}
 
-M.plugins = { {
+M.plugins = {{
     "yetone/avante.nvim",
     version = false,
-    dependencies = { "nvim-treesitter/nvim-treesitter", "stevearc/dressing.nvim", "nvim-lua/plenary.nvim",
-        "MunifTanjim/nui.nvim", "nvim-telescope/telescope.nvim", "hrsh7th/nvim-cmp",
-        "nvim-tree/nvim-web-devicons", "zbirenbaum/copilot.lua" },
+    dependencies = {"nvim-treesitter/nvim-treesitter", "stevearc/dressing.nvim", "nvim-lua/plenary.nvim",
+                    "MunifTanjim/nui.nvim", "nvim-telescope/telescope.nvim", "hrsh7th/nvim-cmp",
+                    "nvim-tree/nvim-web-devicons", "zbirenbaum/copilot.lua"},
     event = "VeryLazy",
     cmd = "AvanteToggle",
     build = "make",
@@ -30,6 +30,6 @@ M.plugins = { {
         require("avante").setup(opts)
         vim.cmd("AvanteBuild")
     end
-} }
+}}
 
 return M
