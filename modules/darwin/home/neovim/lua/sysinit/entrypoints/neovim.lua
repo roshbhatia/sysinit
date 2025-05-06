@@ -252,7 +252,7 @@ function Entrypoint.get_plugins()
             require("sysinit.plugins.intellicode.mason-lspconfig"), require("sysinit.plugins.intellicode.mason"),
             require("sysinit.plugins.intellicode.nvim-autopairs"), require("sysinit.plugins.intellicode.nvim-cmp"),
             require("sysinit.plugins.intellicode.nvim-lspconfig"), require("sysinit.plugins.intellicode.outline"),
-            require("sysinit.plugins.intellicode.render-markdown"), require("sysinit.plugins.intellicode.sort"),
+            require("sysinit.plugins.editor.render-markdown"), require("sysinit.plugins.intellicode.sort"),
             require("sysinit.plugins.intellicode.trailspace"),
             require("sysinit.plugins.intellicode.treesitter-textobjects"),
             require("sysinit.plugins.intellicode.treesitter"), require("sysinit.plugins.intellicode.trouble"),
