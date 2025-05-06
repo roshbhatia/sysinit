@@ -2,7 +2,7 @@ local M = {}
 
 M.plugins = {{
     "pwntester/octo.nvim",
-    lazy = true,
+    lazy = false,
     event = "VeryLazy",
     opts = {
         mappings_disable_default = true,
