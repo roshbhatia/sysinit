@@ -11,6 +11,8 @@ in packageManager.mkPackageManager {
   additionalPackages = if userConfig ? cargo && userConfig.cargo ? additionalPackages
     then userConfig.cargo.additionalPackages
     else [];
-  installCommand = ''"$CARGO" install "$package" -f''; # Use single quotes for the outer string
+  installCommand = ''
+    "$CARGO" install "$package" -f
+  '';
   executablePath = "/opt/homebrew/bin/cargo";
 }
