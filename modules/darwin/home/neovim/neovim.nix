@@ -11,21 +11,21 @@
     withRuby = false;
   };
 
+  xdg.configFile."nvim/init.lua" = {
+    source = config.lib.file.mkOutOfStoreSymlink ./init.lua;
+    force = true;
+  };
+
+  xdg.configFile."nvim/lua" = {
+    source = config.lib.file.mkOutOfStoreSymlink ./lua;
+    force = true;
+  };
+
   home.activation.neovimPermissions = {
     after = [ "writeBoundary" ];
     before = [];
     data = ''
       /usr/bin/defaults write com.microsoft.VSCodeInsiders ApplePressAndHoldEnabled -bool false
-
-      chmod -R 755 ${homeDirectory}/.config/nvim
-
-      if [ ! -L ${homeDirectory}/.config/nvim/init.lua ]; then
-        ln -s ${homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/init.lua ${homeDirectory}/.config/nvim/init.lua
-      fi
-
-      if [ ! -L ${homeDirectory}/.config/nvim/lua ]; then
-        ln -s ${homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/lua ${homeDirectory}/.config/nvim/lua
-      fi
     '';
   };
 }
