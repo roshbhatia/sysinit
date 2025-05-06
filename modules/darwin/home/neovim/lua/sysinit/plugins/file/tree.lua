@@ -188,6 +188,27 @@ M.plugins = {{
                     files = {"package-lock.json", "yarn.lock"}
                 }
             },
+            commands = {
+                avante_add_files = function(state)
+                    local node = state.tree:get_node()
+                    local filepath = node:get_id()
+                    local relative_path = require("avante.utils").relative_path(filepath)
+
+                    local sidebar = require("avante").get()
+                    local open = sidebar:is_open()
+
+                    if not open then
+                        require("avante.api").ask()
+                        sidebar = require("avante").get()
+                    end
+
+                    sidebar.file_selector:add_selected_file(relative_path)
+
+                    if not open then
+                        sidebar.file_selector:remove_selected_file("neo-tree filesystem [1]")
+                    end
+                end
+            },
 
             filesystem = {
                 filtered_items = {
@@ -210,27 +231,6 @@ M.plugins = {{
                 group_empty_dirs = false, -- when true, empty folders will be grouped together
                 hijack_netrw_behavior = "open_default", -- netrw disabled, opening a directory opens neo-tree
                 use_libuv_file_watcher = false, -- This will use the OS level file watchers to detect changes
-                commands = {
-                    avante_add_files = function(state)
-                        local node = state.tree:get_node()
-                        local filepath = node:get_id()
-                        local relative_path = require("avante.utils").relative_path(filepath)
-
-                        local sidebar = require("avante").get()
-                        local open = sidebar:is_open()
-
-                        if not open then
-                            require("avante.api").ask()
-                            sidebar = require("avante").get()
-                        end
-
-                        sidebar.file_selector:add_selected_file(relative_path)
-
-                        if not open then
-                            sidebar.file_selector:remove_selected_file("neo-tree filesystem [1]")
-                        end
-                    end
-                },
                 window = {
                     mappings = {
                         ["H"] = "toggle_hidden",
