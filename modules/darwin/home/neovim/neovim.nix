@@ -17,14 +17,14 @@
     data = ''
       /usr/bin/defaults write com.microsoft.VSCodeInsiders ApplePressAndHoldEnabled -bool false
 
-      chmod -R 755 "$HOME/.config/nvim"
+      chmod -R 755 ${homeDirectory}/.config/nvim
 
       if [ ! -L "$HOME/.config/nvim/init.lua" ]; then
-        ln -s "${homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/init.lua" "$HOME/.config/nvim/init.lua"
+        ln -s ${homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/init.lua ${homeDirectory}/.config/nvim/init.lua
       fi
 
       if [ ! -L "$HOME/.config/nvim/lua" ]; then
-        ln -s "${homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/lua" "$HOME/.config/nvim/lua"
+        ln -s ${homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/lua ${homeDirectory}/.config/nvim/lua
       fi
     '';
   };
