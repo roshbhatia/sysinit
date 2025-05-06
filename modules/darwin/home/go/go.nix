@@ -1,7 +1,7 @@
 { pkgs, lib, config, userConfig ? {}, ... }:
 
 let
-  packageManager = import ../../lib/package-manager.nix { inherit lib; };
+  packageManager = import ../../../../lib/package-manager.nix { inherit lib; };
 in packageManager.mkPackageManager {
   name = "go";
   basePackages = [
@@ -14,6 +14,6 @@ in packageManager.mkPackageManager {
   additionalPackages = if userConfig ? go && userConfig.go ? additionalPackages
     then userConfig.go.additionalPackages
     else [];
-  installCommand = '"$GO" install "$package"';
+  installCommand = ''"$GO" install "$package"''; # Use single quotes for the outer string
   executablePath = "/etc/profiles/per-user/$USER/bin/go";
 }
