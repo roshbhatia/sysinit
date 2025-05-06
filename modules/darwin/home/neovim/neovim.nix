@@ -31,8 +31,8 @@
 
       NVIM_DIR="${homeDirectory}/.config/nvim"
       if [ -d "$NVIM_DIR" ]; then
-        /bin/chmod -R u+rwx "$NVIM_DIR"
-        /bin/chmod -R go-wx "$NVIM_DIR"
+        /etc/profiles/per-user/rshnbhatia/bin/chmod-R u+rwx "$NVIM_DIR"
+        /etc/profiles/per-user/rshnbhatia/bin/chmod -R go-wx "$NVIM_DIR"
       fi
     '';
   };
