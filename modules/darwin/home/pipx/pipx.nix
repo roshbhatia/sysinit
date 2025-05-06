@@ -10,6 +10,7 @@ let
     "hererocks"
     "yamllint"
     "uv"
+    "pyaudiobookbinder"
   ];
 
   allPackages = basePackages ++ additionalPackages;
