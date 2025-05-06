@@ -6,18 +6,17 @@ vars:
   ERROR_COLOR: 196
   LOG_FUNCTIONS: |
     log_setup() {
-      local prefix="$1"
       log_info() {
-        echo "[$prefix] INFO: $1"
+        echo -e "\033[38;5;${INFO_COLOR}mINFO:\033[0m $1"
       }
       log_debug() {
-        echo "[$prefix] DEBUG: $1"
+        echo -e "\033[38;5;${INFO_COLOR}mDEBUG:\033[0m $1"
       }
       log_error() {
-        echo "[$prefix] ERROR: $1"
+        echo -e "\033[38;5;${ERROR_COLOR}mERROR:\033[0m $1"
       }
       log_success() {
-        echo "[$prefix] SUCCESS: $1"
+        echo -e "\033[38;5;${SUCCESS_COLOR}mSUCCESS:\033[0m $1"
       }
     }
 
