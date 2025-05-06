@@ -12,8 +12,6 @@ in packageManager.mkPackageManager {
   additionalPackages = if userConfig ? pipx && userConfig.pipx ? additionalPackages
     then userConfig.pipx.additionalPackages
     else [];
-  installCommand = ''
-    "$EXECUTABLE" install "$package" --force
-  '';
+  executableArguments = [ "install" "--force" ];
   executablePath = "/opt/homebrew/bin/pipx";
 }

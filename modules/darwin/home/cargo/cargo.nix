@@ -11,8 +11,6 @@ in packageManager.mkPackageManager {
   additionalPackages = if userConfig ? cargo && userConfig.cargo ? additionalPackages
     then userConfig.cargo.additionalPackages
     else [];
-  installCommand = ''
-    "$EXECUTABLE" install "$package" -f
-  '';
+  executableArguments = [ "install" "-f" ];
   executablePath = "/opt/homebrew/bin/cargo";
 }
