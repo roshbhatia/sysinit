@@ -51,6 +51,7 @@ let
     "libgit2"
     "luajit"
     "luarocks"
+    "m4b-tool"
     "nushell"
     "pipx"
     "prettierd"
