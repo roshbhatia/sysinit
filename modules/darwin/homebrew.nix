@@ -44,7 +44,7 @@ let
     "helix"
     "helm-ls"
     "helm"
-    "homebrew-ffmpeg/ffmpeg/ffmpeg --with-fdk-aac"
+    # "homebrew-ffmpeg/ffmpeg/ffmpeg --with-fdk-aac"
     "jandedobbeleer/oh-my-posh/oh-my-posh"
     "k9s"
     "kubecolor"
