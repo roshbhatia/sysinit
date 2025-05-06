@@ -1,7 +1,6 @@
 { pkgs, lib, config, enableHomebrew ? true, username, inputs, userConfig ? {}, ... }:
 
 let
-  # Get additional homebrew packages from userConfig or use empty lists if not defined
   additionalTaps = if userConfig ? homebrew && userConfig.homebrew ? additionalPackages && userConfig.homebrew.additionalPackages ? taps
                   then userConfig.homebrew.additionalPackages.taps
                   else [];
@@ -14,7 +13,6 @@ let
                    then userConfig.homebrew.additionalPackages.casks
                    else [];
 
-  # Base packages
   baseTaps = [
     "jandedobbeleer/oh-my-posh"
     "homebrew/bundle"
@@ -25,6 +23,7 @@ let
     "noahgorstein/tap"
     "nikitabobko/tap"
     "FelixKratz/formulae"
+    "sandreas/tap"
   ];
 
   baseBrews = [
@@ -87,13 +86,11 @@ let
     "wezterm"
   ];
 
-  # Combine base and additional packages
   allTaps = baseTaps ++ additionalTaps;
   allBrews = baseBrews ++ additionalBrews;
   allCasks = baseCasks ++ additionalCasks;
 in
 {
-  # nix-homebrew configuration to manage the Homebrew installation itself
   nix-homebrew = {
     enable = enableHomebrew;
     enableRosetta = true;
@@ -106,7 +103,6 @@ in
     mutableTaps = true;
   };
 
-  # Homebrew packages configuration
   homebrew = {
     enable = enableHomebrew;
     onActivation = {
