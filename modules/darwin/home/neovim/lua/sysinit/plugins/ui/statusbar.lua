@@ -1,194 +1,133 @@
--- sysinit.nvim.doc-url="https://raw.githubusercontent.com/nvim-lualine/lualine.nvim/refs/heads/master/doc/lualine.txt"
 local M = {}
 
-if not vim.g.vscode then
-    M.plugins = {{
-        'tamton-aquib/staline.nvim',
-        lazy = false,
-        dependencies = {'nvim-tree/nvim-web-devicons', "zaldih/themery.nvim"},
-        config = function()
-            require('staline').setup()
+M.plugins = {{
+    dir = ".",
+    name = "vscode-statusbar",
+    lazy = false,
+    cond = vim.g.vscode,
+    opts = {
+        mode_icons = {
+            n = {
+                text = "󱄅 NORMAL",
+                color = "#7aa2f7"
+            },
+            i = {
+                text = " INSERT",
+                color = "#9ece6a"
+            },
+            v = {
+                text = "󰈈 VISUAL",
+                color = "#bb9af7"
+            },
+            V = {
+                text = "󱣾 V-LINE",
+                color = "#bb9af7"
+            },
+            ["\22"] = {
+                text = "󰮔 V-BLOCK",
+                color = "#bb9af7"
+            },
+            R = {
+                text = "󰛔 REPLACE",
+                color = "#f7768e"
+            },
+            s = {
+                text = "󰴱 SELECT",
+                color = "#ff9e64"
+            },
+            S = {
+                text = "󰫙 S-LINE",
+                color = "#ff9e64"
+            },
+            ["\19"] = {
+                text = "󰩬 S-BLOCK",
+                color = "#ff9e64"
+            },
+            c = {
+                text = " COMMAND",
+                color = "#7dcfff"
+            },
+            t = {
+                text = " TERMINAL",
+                color = "#73daca"
+            }
+        }
+    },
+    config = function(_, opts)
+        local vscode = require("vscode")
+        local last_mode = nil
+
+        local STATUSBAR_JS = [[
+              if (!globalThis.modeStatusBar) {
+                globalThis.modeStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+              }
+              const statusBar = globalThis.modeStatusBar;
+              statusBar.text = args.text;
+              statusBar.color = args.color;
+              statusBar.command = {
+                command: 'vscode-neovim.lua',
+                title: 'Toggle Neovim Mode',
+                arguments: [
+                  args.mode === 'n'
+                    ? "vim.cmd('startinsert')"
+                    : "vim.cmd('stopinsert')"
+                ]
+              };
+              statusBar.show();
+            ]]
+
+        local STATUSBAR_DISPOSE_JS = [[
+              if (globalThis.modeStatusBar) {
+                globalThis.modeStatusBar.dispose();
+                globalThis.modeStatusBar = null;
+              }
+            ]]
+
+        local function update_mode_display()
+            local full_mode = vim.api.nvim_get_mode().mode
+            local mode_key = full_mode:sub(1, 1)
+            if mode_key == last_mode then
+                return
+            end
+
+            local mode_data = opts.mode_icons[mode_key] or opts.mode_icons.n
+            pcall(vscode.eval, STATUSBAR_JS, {
+                timeout = 1000,
+                args = {
+                    text = mode_data.text,
+                    color = mode_data.color,
+                    mode = mode_key
+                }
+            })
+            last_mode = mode_key
         end
-    }}
-    return M
-end
 
--- If we reach here, we're in VSCode mode
-local vscode = require('vscode')
-
--- VSCode mode-specific functionality
-local MODE_DISPLAY = {
-    n = {
-        text = '󱄅 NORMAL',
-        color = '#7aa2f7'
-    },
-    i = {
-        text = ' INSERT',
-        color = '#9ece6a'
-    },
-    v = {
-        text = '󰈈 VISUAL',
-        color = '#bb9af7'
-    },
-    V = {
-        text = '󱣾 V-LINE',
-        color = '#bb9af7'
-    },
-    ['\22'] = {
-        text = '󰮔 V-BLOCK',
-        color = '#bb9af7'
-    },
-    R = {
-        text = '󰛔 REPLACE',
-        color = '#f7768e'
-    },
-    s = {
-        text = '󰴱 SELECT',
-        color = '#ff9e64'
-    },
-    S = {
-        text = '󰫙 S-LINE',
-        color = '#ff9e64'
-    },
-    ['\19'] = {
-        text = '󰩬 S-BLOCK',
-        color = '#ff9e64'
-    },
-    c = {
-        text = ' COMMAND',
-        color = '#7dcfff'
-    },
-    t = {
-        text = ' TERMINAL',
-        color = '#73daca'
-    }
-}
-
-local mode_strings = {}
-local last_mode = nil
-
-for mode, data in pairs(MODE_DISPLAY) do
-    mode_strings[mode] = data.text
-end
-
-local STATUSBAR_JS = [[
-  // Create or reuse the statusbar item
-  if (!globalThis.modeStatusBar) {
-    globalThis.modeStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-  }
-  
-  const statusBar = globalThis.modeStatusBar;
-  statusBar.text = args.text;
-  statusBar.color = args.color;
-  statusBar.command = {
-    command: 'vscode-neovim.lua',
-    title: 'Toggle Neovim Mode',
-    arguments: [
-      args.mode === 'n'
-        ? "vim.cmd('startinsert')"
-        : "vim.cmd('stopinsert')"
-    ]
-  };
-  
-  // Ensure visibility
-  statusBar.show();
-  
-  // Setup automatic refresh mechanism
-  if (!globalThis.statusBarRefreshInterval) {
-    globalThis.statusBarRefreshInterval = setInterval(() => {
-      if (statusBar && !statusBar.visible) {
-        statusBar.show();
-      }
-    }, 1000); // Check every second
-  }
-]]
-
-local STATUSBAR_DISPOSE_JS = [[
-  if (globalThis.statusBarRefreshInterval) {
-    clearInterval(globalThis.statusBarRefreshInterval);
-    globalThis.statusBarRefreshInterval = null;
-  }
-  
-  if (globalThis.modeStatusBar) {
-    globalThis.modeStatusBar.dispose();
-    globalThis.modeStatusBar = null;
-  }
-]]
-
-function M.update_mode_display()
-    local full_mode = vim.api.nvim_get_mode().mode
-    local mode_key = full_mode:sub(1, 1)
-    if mode_key == last_mode then
-        pcall(vscode.eval, [[
-      if (globalThis.modeStatusBar && !globalThis.modeStatusBar.visible) {
-        globalThis.modeStatusBar.show();
-      }
-    ]], {
-            timeout = 500
-        })
-        return
-    end
-
-    local mode_data = MODE_DISPLAY[mode_key] or MODE_DISPLAY.n
-    pcall(vscode.eval, STATUSBAR_JS, {
-        timeout = 1000,
-        args = {
-            text = mode_strings[mode_key] or mode_strings.n,
-            color = mode_data.color,
-            mode = mode_key
-        }
-    })
-    last_mode = mode_key
-end
-
-function M.set_command_mode()
-    pcall(vscode.eval, STATUSBAR_JS, {
-        timeout = 1000,
-        args = {
-            text = MODE_DISPLAY.c.text,
-            color = MODE_DISPLAY.c.color,
-            mode = 'c'
-        }
-    })
-end
-
-function M.force_refresh()
-    M.update_mode_display()
-end
-
-function M.setup()
-    vim.api.nvim_create_autocmd("ModeChanged", {
-        pattern = "*",
-        callback = M.update_mode_display
-    })
-
-    vim.api.nvim_create_autocmd("CmdlineEnter", {
-        callback = M.set_command_mode
-    })
-
-    vim.api.nvim_create_autocmd({"BufEnter", "WinEnter", "FocusGained", "VimResized"}, {
-        callback = M.force_refresh
-    })
-
-    local timer = vim.loop.new_timer()
-    timer:start(2000, 2000, vim.schedule_wrap(function()
-        M.force_refresh()
-    end))
-
-    vim.api.nvim_create_autocmd("VimLeavePre", {
-        callback = function()
-            timer:stop()
-            timer:close()
+        local function dispose_statusbar()
             pcall(vscode.eval, STATUSBAR_DISPOSE_JS, {
                 timeout = 500
             })
         end
-    })
 
-    M.update_mode_display()
-end
+        vim.api.nvim_create_autocmd("ModeChanged", {
+            callback = update_mode_display
+        })
+        vim.api.nvim_create_autocmd("VimLeavePre", {
+            callback = dispose_statusbar
+        })
 
--- No plugin definition for VSCode mode - it's handled through the VSCode API
--- M.plugins is intentionally nil in VSCode mode
+        update_mode_display()
+    end
+}, {
+    "tamton-aquib/staline.nvim",
+    lazy = false,
+    cond = not vim.g.vscode,
+    opts = {
+        sections = {
+            left = {"mode", "branch", "file_name"},
+            mid = {"lsp"},
+            right = {"line_column"}
+        }
+    }
+}}
 
 return M
