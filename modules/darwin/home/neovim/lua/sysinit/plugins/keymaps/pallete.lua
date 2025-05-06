@@ -5,21 +5,24 @@ local M = {}
 
 -- Icons for different command categories
 M.group_icons = {
-    llm = "󱚤", -- AI-related commands
-    buffer = "󱅄", -- Buffer management
-    code = "󰘧", -- Code actions and navigation
-    debug = "", -- Debugging utilities
-    explorer = "󰒍", -- File explorer
-    find = "󰀶", -- Search and find tools
-    git = "󰊢", -- Git operations
-    org = "", -- Organization tools
-    problems = "󰗯", -- Diagnostics and problems
-    split = "󰃻", -- Window splitting
-    tab = "", -- Tab management
-    terminal = "", -- Terminal operations
-    utils = "󰟻", -- Utilities
-    window = "", -- Window management
-    notifications = "󰂚" -- Add notifications icon
+    llm = "󱚤",
+    buffer = "󱅄",
+    code = "󰘧",
+    debug = "",
+    explorer = "󰒍",
+    find = "󰀶",
+    git = "󰊢",
+    fold = "",
+    lsp = "󰛖",
+    org = "",
+    problems = "󰗯",
+    split = "󰃻",
+    tab = "",
+    terminal = "",
+    utils = "󰟻",
+    window = "",
+    notifications = "󰂚",
+    view = "󰛐"
 }
 
 -- Keybindings data structure - shared between VSCode and Neovim
@@ -36,11 +39,26 @@ M.keybindings_data = {
             desc = "Close Buffer",
             neovim_cmd = "<cmd>bd<CR>",
             vscode_cmd = "workbench.action.closeActiveEditor"
+        }, {
+            key = "n",
+            desc = "Next Buffer",
+            neovim_cmd = "<cmd>bnext<CR>",
+            vscode_cmd = "workbench.action.nextEditor"
+        }, {
+            key = "p",
+            desc = "Previous Buffer",
+            neovim_cmd = "<cmd>bprevious<CR>",
+            vscode_cmd = "workbench.action.previousEditor"
         }}
     },
     c = {
         name = M.group_icons.code .. " Code",
         bindings = {{
+            key = "a",
+            desc = "Code Actions",
+            neovim_cmd = "<cmd>lua vim.lsp.buf.code_action()<CR>",
+            vscode_cmd = "editor.action.sourceAction"
+        }, {
             key = "c",
             desc = "Toggle Comment",
             neovim_cmd = "<Plug>(comment_toggle_linewise_current)",
@@ -50,6 +68,45 @@ M.keybindings_data = {
             desc = "Format Document",
             neovim_cmd = "<cmd>lua vim.lsp.buf.format()<CR>",
             vscode_cmd = "editor.action.formatDocument"
+        }, {
+            key = "r",
+            desc = "Rename Symbol",
+            neovim_cmd = "<cmd>lua vim.lsp.buf.rename()<CR>",
+            vscode_cmd = "editor.action.rename"
+        }}
+    },
+    d = {
+        name = M.group_icons.debug .. " Debug",
+        bindings = {{
+            key = "b",
+            desc = "Toggle Breakpoint",
+            neovim_cmd = "<cmd>lua require'dap'.toggle_breakpoint()<CR>",
+            vscode_cmd = "editor.debug.action.toggleBreakpoint"
+        }, {
+            key = "c",
+            desc = "Continue/Start",
+            neovim_cmd = "<cmd>lua require'dap'.continue()<CR>",
+            vscode_cmd = "workbench.action.debug.start"
+        }, {
+            key = "i",
+            desc = "Step Into",
+            neovim_cmd = "<cmd>lua require'dap'.step_into()<CR>",
+            vscode_cmd = "workbench.action.debug.stepInto"
+        }, {
+            key = "o",
+            desc = "Step Over",
+            neovim_cmd = "<cmd>lua require'dap'.step_over()<CR>",
+            vscode_cmd = "workbench.action.debug.stepOver"
+        }, {
+            key = "O",
+            desc = "Step Out",
+            neovim_cmd = "<cmd>lua require'dap'.step_out()<CR>",
+            vscode_cmd = "workbench.action.debug.stepOut"
+        }, {
+            key = "t",
+            desc = "Toggle DAP UI",
+            neovim_cmd = "<cmd>lua require'dapui'.toggle()<CR>",
+            vscode_cmd = "workbench.debug.action.toggleRepl"
         }}
     },
     e = {
@@ -64,6 +121,30 @@ M.keybindings_data = {
             desc = "Open Oil",
             neovim_cmd = "<cmd>Oil<CR>",
             vscode_cmd = "workbench.explorer.fileView.focus"
+        }}
+    },
+    f = {
+        name = M.group_icons.fold .. " Fold",
+        bindings = {{
+            key = "c",
+            desc = "Close Fold",
+            neovim_cmd = "zc",
+            vscode_cmd = "editor.fold"
+        }, {
+            key = "o",
+            desc = "Open Fold",
+            neovim_cmd = "zo",
+            vscode_cmd = "editor.unfold"
+        }, {
+            key = "t",
+            desc = "Toggle Fold",
+            neovim_cmd = "za",
+            vscode_cmd = "editor.toggleFold"
+        }, {
+            key = "a",
+            desc = "Toggle All Folds",
+            neovim_cmd = "zA",
+            vscode_cmd = "editor.toggleAllFolds"
         }}
     },
     g = {
@@ -106,6 +187,30 @@ M.keybindings_data = {
         }}
     },
     l = {
+        name = M.group_icons.lsp .. " LSP",
+        bindings = {{
+            key = "d",
+            desc = "Go to Definition",
+            neovim_cmd = "<cmd>lua vim.lsp.buf.definition()<CR>",
+            vscode_cmd = "editor.action.revealDefinition"
+        }, {
+            key = "r",
+            desc = "Find References",
+            neovim_cmd = "<cmd>lua vim.lsp.buf.references()<CR>",
+            vscode_cmd = "editor.action.goToReferences"
+        }, {
+            key = "h",
+            desc = "Hover",
+            neovim_cmd = "<cmd>lua vim.lsp.buf.hover()<CR>",
+            vscode_cmd = "editor.action.showHover"
+        }, {
+            key = "i",
+            desc = "Implementation",
+            neovim_cmd = "<cmd>lua vim.lsp.buf.implementation()<CR>",
+            vscode_cmd = "editor.action.goToImplementation"
+        }}
+    },
+    i = {
         name = M.group_icons.llm .. " LLM",
         bindings = {{
             key = "t",
@@ -163,7 +268,7 @@ M.keybindings_data = {
             vscode_cmd = "notifications.toggleList"
         }}
     },
-    p = {
+    q = {
         name = M.group_icons.problems .. " Problems",
         bindings = {{
             key = "p",
@@ -173,6 +278,25 @@ M.keybindings_data = {
         }}
     },
     s = {
+        name = M.group_icons.search .. " Search",
+        bindings = {{
+            key = "f",
+            desc = "Find Files",
+            neovim_cmd = "<cmd>Telescope find_files<CR>",
+            vscode_cmd = "workbench.action.quickOpen"
+        }, {
+            key = "g",
+            desc = "Find in Files",
+            neovim_cmd = "<cmd>Telescope live_grep<CR>",
+            vscode_cmd = "workbench.action.findInFiles"
+        }, {
+            key = "s",
+            desc = "Find Symbol",
+            neovim_cmd = "<cmd>Telescope lsp_document_symbols<CR>",
+            vscode_cmd = "workbench.action.gotoSymbol"
+        }}
+    },
+    p = {
         name = M.group_icons.split .. " Split",
         bindings = {{
             key = "v",
@@ -196,17 +320,17 @@ M.keybindings_data = {
         }}
     },
     v = {
-        name = M.group_icons.utils .. " View",
+        name = M.group_icons.view .. " View",
         bindings = {{
-            key = "n",
-            desc = "Toggle Line Numbers",
-            neovim_cmd = "<cmd>set relativenumber!<CR>",
-            vscode_cmd = "editor.action.toggleLineNumbers"
+            key = "e",
+            desc = "Toggle Explorer",
+            neovim_cmd = "<cmd>NvimTreeToggle<CR>",
+            vscode_cmd = "workbench.action.toggleSidebarVisibility"
         }, {
-            key = "h",
-            desc = "Clear Search",
-            neovim_cmd = "<cmd>noh<CR>",
-            vscode_cmd = "closeFindWidget"
+            key = "p",
+            desc = "Toggle Panel",
+            neovim_cmd = "<cmd>lua require('toggleterm').toggle()<CR>",
+            vscode_cmd = "workbench.action.togglePanel"
         }}
     },
     w = {
