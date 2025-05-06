@@ -26,13 +26,6 @@ vars:
 
   START_MSG_TEMPLATE: "{{.TASK}}..."
   SUCCESS_MSG_TEMPLATE: "{{.TASK}} completed successfully"
-  FAILURE_MSG_TEMPLATE: |
-    log_error "Failed. See log: {{.LOG_FILE}}"
-    log_error "Last 20 lines of log:"
-    echo "------------------------------------------------------------"
-    tail -n 20 "{{.LOG_FILE}}"
-    echo "------------------------------------------------------------"
-    exit 1
 
 tasks:
   default:
@@ -43,6 +36,7 @@ tasks:
 
   nix:build:
     vars:
+      TASK: "Building system configuration"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-build.log"
     cmds:
       - |
@@ -51,7 +45,12 @@ tasks:
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
         if ! darwin-rebuild build --flake . > "{{.LOG_FILE}}" 2>&1; then
-          {{.FAILURE_MSG_TEMPLATE}}
+          log_error "Failed. See log: {{.LOG_FILE}}"
+          log_error "Last 20 lines of log:"
+          echo "------------------------------------------------------------"
+          tail -n 20 "{{.LOG_FILE}}"
+          echo "------------------------------------------------------------"
+          exit 1
         fi
         log_info "Log file: {{.LOG_FILE}}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
@@ -60,6 +59,7 @@ tasks:
 
   nix:clean:
     vars:
+      TASK: "Running garbage collection"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-clean.log"
     cmds:
       - |
@@ -68,7 +68,12 @@ tasks:
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
         if ! sudo nix-collect-garbage -d > "{{.LOG_FILE}}" 2>&1; then
-          {{.FAILURE_MSG_TEMPLATE}}
+          log_error "Failed. See log: {{.LOG_FILE}}"
+          log_error "Last 20 lines of log:"
+          echo "------------------------------------------------------------"
+          tail -n 20 "{{.LOG_FILE}}"
+          echo "------------------------------------------------------------"
+          exit 1
         fi
         log_info "Log file: {{.LOG_FILE}}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
@@ -78,6 +83,7 @@ tasks:
   nix:refresh:
     deps: [nix:update:flake]
     vars:
+      TASK: "Applying system configuration"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-refresh.log"
     cmds:
       - |
@@ -89,7 +95,12 @@ tasks:
         git commit -m "chore: update configuration and regenerate lockfile" >> "{{.LOG_FILE}}" 2>&1 || true
         git push >> "{{.LOG_FILE}}" 2>&1 || true
         if ! darwin-rebuild switch --flake . --show-trace >> "{{.LOG_FILE}}" 2>&1; then
-          {{.FAILURE_MSG_TEMPLATE}}
+          log_error "Failed. See log: {{.LOG_FILE}}"
+          log_error "Last 20 lines of log:"
+          echo "------------------------------------------------------------"
+          tail -n 20 "{{.LOG_FILE}}"
+          echo "------------------------------------------------------------"
+          exit 1
         fi
         log_info "Log file: {{.LOG_FILE}}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
@@ -98,6 +109,7 @@ tasks:
 
   nix:refresh:work:
     vars:
+      TASK: "Refreshing work configuration"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-work-refresh.log"
     cmds:
       - |
@@ -108,12 +120,22 @@ tasks:
         WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
         if [ -z "$WORK_SYSINIT" ]; then
           log_error "Could not find work sysinit repository"
-          {{.FAILURE_MSG_TEMPLATE}}
+          log_error "Failed. See log: {{.LOG_FILE}}"
+          log_error "Last 20 lines of log:"
+          echo "------------------------------------------------------------"
+          tail -n 20 "{{.LOG_FILE}}"
+          echo "------------------------------------------------------------"
+          exit 1
         fi
         cd "$WORK_SYSINIT"
         nix flake update > "{{.LOG_FILE}}" 2>&1
         if ! task refresh >> "{{.LOG_FILE}}" 2>&1; then
-          {{.FAILURE_MSG_TEMPLATE}}
+          log_error "Failed. See log: {{.LOG_FILE}}"
+          log_error "Last 20 lines of log:"
+          echo "------------------------------------------------------------"
+          tail -n 20 "{{.LOG_FILE}}"
+          echo "------------------------------------------------------------"
+          exit 1
         fi
         log_info "Log file: {{.LOG_FILE}}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
@@ -122,6 +144,7 @@ tasks:
 
   nix:update:flake:
     vars:
+      TASK: "Updating flake inputs"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-flake-update.log"
     cmds:
       - |
@@ -130,7 +153,12 @@ tasks:
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
         if ! nix flake update > "{{.LOG_FILE}}" 2>&1; then
-          {{.FAILURE_MSG_TEMPLATE}}
+          log_error "Failed. See log: {{.LOG_FILE}}"
+          log_error "Last 20 lines of log:"
+          echo "------------------------------------------------------------"
+          tail -n 20 "{{.LOG_FILE}}"
+          echo "------------------------------------------------------------"
+          exit 1
         fi
         log_info "Log file: {{.LOG_FILE}}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
@@ -139,6 +167,7 @@ tasks:
 
   nix:install:nix:
     vars:
+      TASK: "Installing prerequisites"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-install.log"
     cmds:
       - |
@@ -147,7 +176,12 @@ tasks:
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
         if ! ./hack/install-deps.sh > "{{.LOG_FILE}}" 2>&1; then
-          {{.FAILURE_MSG_TEMPLATE}}
+          log_error "Failed. See log: {{.LOG_FILE}}"
+          log_error "Last 20 lines of log:"
+          echo "------------------------------------------------------------"
+          tail -n 20 "{{.LOG_FILE}}"
+          echo "------------------------------------------------------------"
+          exit 1
         fi
         log_info "Log file: {{.LOG_FILE}}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
@@ -156,6 +190,7 @@ tasks:
 
   nix:uninstall:nix:
     vars:
+      TASK: "Uninstalling Nix"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-uninstall.log"
     cmds:
       - |
@@ -164,7 +199,12 @@ tasks:
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
         if ! ./hack/uninstall-nix.sh > "{{.LOG_FILE}}" 2>&1; then
-          {{.FAILURE_MSG_TEMPLATE}}
+          log_error "Failed. See log: {{.LOG_FILE}}"
+          log_error "Last 20 lines of log:"
+          echo "------------------------------------------------------------"
+          tail -n 20 "{{.LOG_FILE}}"
+          echo "------------------------------------------------------------"
+          exit 1
         fi
         log_info "Log file: {{.LOG_FILE}}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
