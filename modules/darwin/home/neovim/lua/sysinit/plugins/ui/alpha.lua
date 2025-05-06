@@ -4,7 +4,7 @@ M.plugins = {{
     "goolord/alpha-nvim",
     lazy = false,
     priority = 99,
-    dependencies = {"nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim", "rgmatti/auto-session"},
+    dependencies = {"nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim", "folke/persistence.nvim"},
     config = function()
         local alpha = require("alpha")
         local dashboard = require("alpha.themes.dashboard")
@@ -38,7 +38,7 @@ M.plugins = {{
 
         -- Set menu with conditional session button
         dashboard.section.buttons.val = {require('auto-session.lib').current_session_name(true) and
-            dashboard.button("a", "  Load Last Session", ":SessionRestore<CR>") or nil,
+            dashboard.button("a", "  Load Last Session", require("persistence").load({ last = true })) or nil,
                                          dashboard.button("i", "  Init Buffer", ":enew<CR>"),
                                          dashboard.button("f", "  Find Files", ":Telescope find_files<CR>"),
                                          dashboard.button("r", "  Recent Files", ":Telescope oldfiles<CR>"),
@@ -80,20 +80,6 @@ M.plugins = {{
             type = "padding",
             val = 1
         }, dashboard.section.footer}
-
-        -- Override the draw function to add error handling for window issues
-        local alpha_draw_orig = alpha.draw
-        alpha.draw = function(...)
-            local status, err = pcall(alpha_draw_orig, ...)
-            if not status then
-                -- Silently handle window errors
-                if string.match(tostring(err), "Invalid window id") then
-                    return
-                end
-                -- Re-raise other errors
-                error(err)
-            end
-        end
 
         alpha.setup(dashboard.config)
 
