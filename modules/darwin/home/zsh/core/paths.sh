@@ -37,6 +37,7 @@ paths=(
   "$XDG_CONFIG_HOME/zsh/bin"
   "$HOME/.uv/bin"
   "$HOME/.yarn/global/node_modules/.bin"
+  "$HOME/.cargo/bin"
 )
 
 for dir in "${paths[@]}"; do
