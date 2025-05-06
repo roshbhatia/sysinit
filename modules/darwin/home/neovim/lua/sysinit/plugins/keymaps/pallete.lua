@@ -260,12 +260,12 @@ M.keybindings_data = {
         bindings = {{
             key = "c",
             desc = "Clear All",
-            neovim_cmd = "<cmd>NotificationsClear<CR>",
+            neovim_cmd = "<cmd>Fidget clear<CR>",
             vscode_cmd = "notifications.clearAll"
         }, {
             key = "t",
             desc = "Toggle",
-            neovim_cmd = "<cmd>Notifications<CR>",
+            neovim_cmd = "<cmd>Fidget history<CR>",
             vscode_cmd = "notifications.toggleList"
         }}
     },

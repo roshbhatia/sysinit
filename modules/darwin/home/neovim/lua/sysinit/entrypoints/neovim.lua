@@ -227,7 +227,7 @@ function Entrypoint.setup_options()
 end
 
 function Entrypoint.get_plugins()
-    return {require("sysinit.plugins.ui.noice"), require("sysinit.plugins.ui.nvim-notify"),
+    return {require("sysinit.plugins.ui.cmdline"), require("sysinit.plugins.ui.notifications"),
             require("sysinit.plugins.ui.live-command"), require("sysinit.plugins.ui.alpha"),
             require("sysinit.plugins.ui.devicons"), require("sysinit.plugins.ui.minimap"),
             require("sysinit.plugins.ui.nui"), require("sysinit.plugins.ui.scrollbar"),
