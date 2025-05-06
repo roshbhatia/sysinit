@@ -12,7 +12,7 @@ in packageManager.mkPackageManager {
     then userConfig.cargo.additionalPackages
     else [];
   installCommand = ''
-    "$CARGO" install "$package" -f
+    "$EXECUTABLE" install "$package" -f
   '';
   executablePath = "/opt/homebrew/bin/cargo";
 }

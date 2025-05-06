@@ -16,8 +16,6 @@ in packageManager.mkPackageManager {
   additionalPackages = if userConfig ? npm && userConfig.npm ? additionalPackages
     then userConfig.npm.additionalPackages
     else [];
-  installCommand = ''
-    "$NPM" install -g "$package"
-  '';
+  executableArguments = [ "install" "-g" ];
   executablePath = "/etc/profiles/per-user/$USER/bin/npm";
 }

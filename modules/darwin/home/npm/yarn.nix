@@ -8,6 +8,6 @@ in packageManager.mkPackageManager {
   additionalPackages = if userConfig ? yarn && userConfig.yarn ? additionalPackages
     then userConfig.yarn.additionalPackages
     else [];
-  installCommand = ''"$YARN" global add "$package"''; # Use single quotes for the outer string
+  executableArguments = [ "global" "add" ];
   executablePath = "/Users/$USER/.npm-global/bin/yarn";
 }

@@ -5,11 +5,12 @@
     name,
     basePackages,
     additionalPackages ? [],
-    installCommand,
+    executableArguments,
     executablePath,
   }: let
     allPackages = basePackages ++ additionalPackages;
     escapedPackages = lib.concatStringsSep " " (map lib.escapeShellArg allPackages);
+    escapedArguments = lib.concatStringsSep " " (map lib.escapeShellArg executableArguments);
   in {
     home.activation."${name}Packages" = {
       after = [ "fixVariables" ];
@@ -22,7 +23,7 @@
           PACKAGES='${escapedPackages}'
           if [ -n "$PACKAGES" ]; then
             for package in $PACKAGES; do
-              ${installCommand}
+              "$EXECUTABLE" ${escapedArguments} "$package"
             done
           fi
         else
