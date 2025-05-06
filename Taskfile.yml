@@ -24,8 +24,15 @@ vars:
   LOG_DIR: "/tmp/log"
   LOG_PREFIX: "sysinit"
 
-  START_MSG_TEMPLATE: "{{.TASK_NAME}}..."
-  SUCCESS_MSG_TEMPLATE: "{{.TASK_NAME}} completed successfully"
+  START_MSG_TEMPLATE: "{{.TASK}}..."
+  SUCCESS_MSG_TEMPLATE: "{{.TASK}} completed successfully"
+  FAILURE_MSG_TEMPLATE: |
+    log_error "Failed. See log: {{.LOG_FILE}}"
+    log_error "Last 20 lines of log:"
+    echo "------------------------------------------------------------"
+    tail -n 20 "{{.LOG_FILE}}"
+    echo "------------------------------------------------------------"
+    exit 1
 
 tasks:
   default:
@@ -36,7 +43,6 @@ tasks:
 
   nix:build:
     vars:
-      TASK_NAME: "Building system configuration"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-build.log"
     cmds:
       - |
@@ -45,8 +51,7 @@ tasks:
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
         if ! darwin-rebuild build --flake . > "{{.LOG_FILE}}" 2>&1; then
-          log_error "Build failed. See log: {{.LOG_FILE}}"
-          exit 1
+          {{.FAILURE_MSG_TEMPLATE}}
         fi
         log_info "Log file: {{.LOG_FILE}}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
@@ -55,7 +60,6 @@ tasks:
 
   nix:clean:
     vars:
-      TASK_NAME: "Running garbage collection"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-clean.log"
     cmds:
       - |
@@ -64,8 +68,7 @@ tasks:
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
         if ! sudo nix-collect-garbage -d > "{{.LOG_FILE}}" 2>&1; then
-          log_error "Garbage collection failed. See log: {{.LOG_FILE}}"
-          exit 1
+          {{.FAILURE_MSG_TEMPLATE}}
         fi
         log_info "Log file: {{.LOG_FILE}}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
@@ -75,7 +78,6 @@ tasks:
   nix:refresh:
     deps: [nix:update:flake]
     vars:
-      TASK_NAME: "Applying system configuration"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-refresh.log"
     cmds:
       - |
@@ -87,8 +89,7 @@ tasks:
         git commit -m "chore: update configuration and regenerate lockfile" >> "{{.LOG_FILE}}" 2>&1 || true
         git push >> "{{.LOG_FILE}}" 2>&1 || true
         if ! darwin-rebuild switch --flake . --show-trace >> "{{.LOG_FILE}}" 2>&1; then
-          log_error "Failed to apply configuration. See log: {{.LOG_FILE}}"
-          exit 1
+          {{.FAILURE_MSG_TEMPLATE}}
         fi
         log_info "Log file: {{.LOG_FILE}}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
@@ -97,7 +98,6 @@ tasks:
 
   nix:refresh:work:
     vars:
-      TASK_NAME: "Refreshing work configuration"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-work-refresh.log"
     cmds:
       - |
@@ -108,11 +108,13 @@ tasks:
         WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
         if [ -z "$WORK_SYSINIT" ]; then
           log_error "Could not find work sysinit repository"
-          exit 1
+          {{.FAILURE_MSG_TEMPLATE}}
         fi
         cd "$WORK_SYSINIT"
         nix flake update > "{{.LOG_FILE}}" 2>&1
-        task refresh >> "{{.LOG_FILE}}" 2>&1
+        if ! task refresh >> "{{.LOG_FILE}}" 2>&1; then
+          {{.FAILURE_MSG_TEMPLATE}}
+        fi
         log_info "Log file: {{.LOG_FILE}}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Update and rebuild work sysinit configuration
@@ -120,7 +122,6 @@ tasks:
 
   nix:update:flake:
     vars:
-      TASK_NAME: "Updating flake inputs"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-flake-update.log"
     cmds:
       - |
@@ -129,8 +130,7 @@ tasks:
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
         if ! nix flake update > "{{.LOG_FILE}}" 2>&1; then
-          log_error "Failed to update flake. See log: {{.LOG_FILE}}"
-          exit 1
+          {{.FAILURE_MSG_TEMPLATE}}
         fi
         log_info "Log file: {{.LOG_FILE}}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
@@ -139,7 +139,6 @@ tasks:
 
   nix:install:nix:
     vars:
-      TASK_NAME: "Installing prerequisites"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-install.log"
     cmds:
       - |
@@ -148,8 +147,7 @@ tasks:
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
         if ! ./hack/install-deps.sh > "{{.LOG_FILE}}" 2>&1; then
-          log_error "Setup failed. See log: {{.LOG_FILE}}"
-          exit 1
+          {{.FAILURE_MSG_TEMPLATE}}
         fi
         log_info "Log file: {{.LOG_FILE}}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
@@ -158,7 +156,6 @@ tasks:
 
   nix:uninstall:nix:
     vars:
-      TASK_NAME: "Uninstalling Nix"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-uninstall.log"
     cmds:
       - |
@@ -167,8 +164,7 @@ tasks:
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
         if ! ./hack/uninstall-nix.sh > "{{.LOG_FILE}}" 2>&1; then
-          log_error "Uninstall failed. See log: {{.LOG_FILE}}"
-          exit 1
+          {{.FAILURE_MSG_TEMPLATE}}
         fi
         log_info "Log file: {{.LOG_FILE}}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
