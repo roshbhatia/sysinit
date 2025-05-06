@@ -346,9 +346,9 @@ in
       Service = {
         Type = "oneshot";
         ExecStart = "${pkgs.writeShellScript "update-kubectl-context" ''
-          mkdir -p "$HOME/.config/wezterm"
+          mkdir -p ${homeDirectory}/.config/wezterm
           CONTEXT=$(${pkgs.kubectl}/bin/kubectl config current-context 2>/dev/null || echo "none")
-          echo "export SYSINIT_KUBECTL_CONTEXT=\"$CONTEXT\"" > "$HOME/.config/wezterm/kubectl_context"
+          echo "export SYSINIT_KUBECTL_CONTEXT=\"$CONTEXT\"" > ${homeDirectory}.config/wezterm/kubectl_context
         ''}";
       };
     };
@@ -360,9 +360,9 @@ in
       Service = {
         Type = "oneshot";
         ExecStart = "${pkgs.writeShellScript "update-gh-user" ''
-          mkdir -p "$HOME/.config/wezterm"
+          mkdir -p ${homeDirectory}/.config/wezterm
           GH_USER=$(${pkgs.gh}/bin/gh api user --jq '.login' 2>/dev/null || echo "unknown")
-          echo "export SYSINIT_GH_USER=\"$GH_USER\"" > "$HOME/.config/wezterm/gh_user"
+          echo "export SYSINIT_GH_USER=\"$GH_USER\"" > ${homeDirectory}/.config/wezterm/gh_user
         ''}";
       };
     };
