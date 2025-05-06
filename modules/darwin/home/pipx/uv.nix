@@ -6,6 +6,6 @@ in packageManager.mkPackageManager {
   name = "uv";
   basePackages = [ "uv" ];
   additionalPackages = [];
-  installCommand = '"$PIPX" install "$package" --force';
+  installCommand = ''"$PIPX" install "$package" --force''; # Use single quotes for the outer string
   executablePath = "/opt/homebrew/bin/pipx";
 }
