@@ -14,6 +14,20 @@ vars:
     log_success() {
       echo "[$(date '+%Y-%m-%d %H:%M:%S')] [✅ SUCCESS] $1"
     }
+  
+  # Common script elements
+  SCRIPT_HEADER: |
+    #!/usr/bin/env bash
+    {{.LOG_FUNCTIONS}}
+    trap 'log_error "${INTERRUPT_MSG:-Task interrupted}"; exit 1' 2
+  
+  # Common log file patterns
+  LOG_DIR: "/var/log"
+  LOG_PREFIX: "sysinit"
+
+  # Common log message templates
+  START_MSG_TEMPLATE: "{{.TASK_NAME}}..."
+  SUCCESS_MSG_TEMPLATE: "{{.TASK_NAME}} completed successfully"
 
 tasks:
   default:
@@ -24,130 +38,137 @@ tasks:
 
   # System Configuration
   nix:build:
+    vars:
+      TASK_NAME: "Building system configuration"
+      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-build.log"
+      INTERRUPT_MSG: "Build interrupted"
     cmds:
       - |
-        #!/usr/bin/env bash
-        {{.LOG_FUNCTIONS}}
-        trap 'log_error "Build interrupted"; exit 1' INT
-        log_info "Building system configuration..."
-        LOG_FILE="/var/log/sysinit-build.log"
-        if ! darwin-rebuild build --flake . > "$LOG_FILE" 2>&1; then
-          log_error "Build failed. See log: $LOG_FILE"
+        {{.SCRIPT_HEADER}}
+        log_info "{{.START_MSG_TEMPLATE}}"
+        if ! darwin-rebuild build --flake . > "{{.LOG_FILE}}" 2>&1; then
+          log_error "Build failed. See log: {{.LOG_FILE}}"
           exit 1
         fi
-        log_info "Log file: $LOG_FILE"
-        log_success "Build completed successfully"
+        log_info "Log file: {{.LOG_FILE}}"
+        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Build the configuration without applying
     silent: true
 
   nix:clean:
+    vars:
+      TASK_NAME: "Running garbage collection"
+      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-clean.log"
+      INTERRUPT_MSG: "Garbage collection interrupted"
     cmds:
       - |
-        #!/usr/bin/env bash
-        {{.LOG_FUNCTIONS}}
-        trap 'log_error "Garbage collection interrupted"; exit 1' INT
-        log_info "Running garbage collection..."
-        LOG_FILE="/var/log/sysinit-clean.log"
-        if ! sudo nix-collect-garbage -d > "$LOG_FILE" 2>&1; then
-          log_error "Garbage collection failed. See log: $LOG_FILE"
+        {{.SCRIPT_HEADER}}
+        log_info "{{.START_MSG_TEMPLATE}}"
+        if ! sudo nix-collect-garbage -d > "{{.LOG_FILE}}" 2>&1; then
+          log_error "Garbage collection failed. See log: {{.LOG_FILE}}"
           exit 1
         fi
-        log_info "Log file: $LOG_FILE"
-        log_success "Garbage collection completed"
+        log_info "Log file: {{.LOG_FILE}}"
+        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Run garbage collection
     silent: true
 
   nix:refresh:
     deps: [nix:update:flake]
+    vars:
+      TASK_NAME: "Applying system configuration"
+      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-refresh.log"
+      INTERRUPT_MSG: "Refresh interrupted"
     cmds:
       - |
-        #!/usr/bin/env bash
-        {{.LOG_FUNCTIONS}}
-        trap 'log_error "Refresh interrupted"; exit 1' INT
-        log_info "Applying system configuration..."
-        LOG_FILE="/var/log/sysinit-refresh.log"
-        git add -A > "$LOG_FILE" 2>&1
-        git commit -m "chore: update configuration and regenerate lockfile" >> "$LOG_FILE" 2>&1 || true
-        git push >> "$LOG_FILE" 2>&1 || true
-        if ! darwin-rebuild switch --flake . --show-trace >> "$LOG_FILE" 2>&1; then
-          log_error "Failed to apply configuration. See log: $LOG_FILE"
+        {{.SCRIPT_HEADER}}
+        log_info "{{.START_MSG_TEMPLATE}}"
+        git add -A > "{{.LOG_FILE}}" 2>&1
+        git commit -m "chore: update configuration and regenerate lockfile" >> "{{.LOG_FILE}}" 2>&1 || true
+        git push >> "{{.LOG_FILE}}" 2>&1 || true
+        if ! darwin-rebuild switch --flake . --show-trace >> "{{.LOG_FILE}}" 2>&1; then
+          log_error "Failed to apply configuration. See log: {{.LOG_FILE}}"
           exit 1
         fi
-        log_info "Log file: $LOG_FILE"
-        log_success "System configuration applied successfully"
+        log_info "Log file: {{.LOG_FILE}}"
+        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Apply the system configuration
     silent: true
 
   nix:refresh:work:
+    vars:
+      TASK_NAME: "Refreshing work configuration"
+      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-work-refresh.log"
+      INTERRUPT_MSG: "Work refresh interrupted"
     cmds:
       - |
-        #!/usr/bin/env bash
-        {{.LOG_FUNCTIONS}}
-        trap 'log_error "Work refresh interrupted"; exit 1' INT
-        log_info "Refreshing work configuration..."
-        LOG_FILE="/var/log/sysinit-work-refresh.log"
+        {{.SCRIPT_HEADER}}
+        log_info "{{.START_MSG_TEMPLATE}}"
         WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
         if [ -z "$WORK_SYSINIT" ]; then
           log_error "Could not find work sysinit repository"
           exit 1
         fi
         cd "$WORK_SYSINIT"
-        nix flake update > "$LOG_FILE" 2>&1
-        task refresh >> "$LOG_FILE" 2>&1
-        log_info "Log file: $LOG_FILE"
-        log_success "Work configuration refreshed successfully"
+        nix flake update > "{{.LOG_FILE}}" 2>&1
+        task refresh >> "{{.LOG_FILE}}" 2>&1
+        log_info "Log file: {{.LOG_FILE}}"
+        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Update and rebuild work sysinit configuration
     silent: true
 
   nix:update:flake:
+    vars:
+      TASK_NAME: "Updating flake inputs"
+      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-flake-update.log"
+      INTERRUPT_MSG: "Flake update interrupted"
     cmds:
       - |
-        #!/usr/bin/env bash
-        {{.LOG_FUNCTIONS}}
-        trap 'log_error "Flake update interrupted"; exit 1' INT
-        log_info "Updating flake inputs..."
-        LOG_FILE="/var/log/sysinit-flake-update.log"
-        if ! nix flake update > "$LOG_FILE" 2>&1; then
-          log_error "Failed to update flake. See log: $LOG_FILE"
+        {{.SCRIPT_HEADER}}
+        log_info "{{.START_MSG_TEMPLATE}}"
+        if ! nix flake update > "{{.LOG_FILE}}" 2>&1; then
+          log_error "Failed to update flake. See log: {{.LOG_FILE}}"
           exit 1
         fi
-        log_info "Log file: $LOG_FILE"
-        log_success "Flake inputs updated successfully"
+        log_info "Log file: {{.LOG_FILE}}"
+        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Update flake inputs
     silent: true
 
   # System Setup
   nix:install:
+    vars:
+      TASK_NAME: "Installing prerequisites"
+      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-install.log"
+      INTERRUPT_MSG: "Install interrupted"
     cmds:
       - |
-        #!/usr/bin/env bash
-        {{.LOG_FUNCTIONS}}
-        trap 'log_error "Install interrupted"; exit 1' INT
-        log_info "Installing prerequisites..."
-        LOG_FILE="/var/log/sysinit-install.log"
-        if ! ./hack/install-deps.sh > "$LOG_FILE" 2>&1; then
-          log_error "Setup failed. See log: $LOG_FILE"
+        {{.SCRIPT_HEADER}}
+        log_info "{{.START_MSG_TEMPLATE}}"
+        if ! ./hack/install-deps.sh > "{{.LOG_FILE}}" 2>&1; then
+          log_error "Setup failed. See log: {{.LOG_FILE}}"
           exit 1
         fi
-        log_info "Log file: $LOG_FILE"
-        log_success "Setup completed"
+        log_info "Log file: {{.LOG_FILE}}"
+        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Install prerequisites for sysinit
     silent: true
 
   nix:uninstall:
+    vars:
+      TASK_NAME: "Uninstalling Nix"
+      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-uninstall.log"
+      INTERRUPT_MSG: "Uninstall interrupted"
     cmds:
       - |
-        #!/usr/bin/env bash
-        {{.LOG_FUNCTIONS}}
-        trap 'log_error "Uninstall interrupted"; exit 1' INT
-        log_info "Uninstalling Nix..."
-        LOG_FILE="/var/log/sysinit-uninstall.log"
-        if ! ./hack/uninstall-nix.sh > "$LOG_FILE" 2>&1; then
-          log_error "Uninstall failed. See log: $LOG_FILE"
+        {{.SCRIPT_HEADER}}
+        log_info "{{.START_MSG_TEMPLATE}}"
+        if ! ./hack/uninstall-nix.sh > "{{.LOG_FILE}}" 2>&1; then
+          log_error "Uninstall failed. See log: {{.LOG_FILE}}"
           exit 1
         fi
-        log_info "Log file: $LOG_FILE"
-        log_success "Nix uninstalled successfully"
+        log_info "Log file: {{.LOG_FILE}}"
+        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Completely uninstall Nix from the system
     silent: true
 

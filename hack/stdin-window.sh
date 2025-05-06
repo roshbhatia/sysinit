@@ -1,6 +1,6 @@
 #!/bin/bash
 # shellcheck disable=all
-height=16
+height=32
 
 while [[ $# -gt 0 ]]; do
     case $1 in
