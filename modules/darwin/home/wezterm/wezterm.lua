@@ -35,7 +35,7 @@ config.colors = {
 }
 
 -- Theme
-config.color_scheme = "DoomOne"
+config.color_scheme = "Catppuccin Macchiato"
 
 -- Font configuration
 config.font = wezterm.font_with_fallback({{
