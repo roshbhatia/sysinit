@@ -3,16 +3,16 @@ version: '3'
 vars:
   LOG_FUNCTIONS: |
     log_info() {
-      echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ℹ️ INFO] $1"
+      echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $1"
     }
     log_debug() {
-      echo "[$(date '+%Y-%m-%d %H:%M:%S')] [🐛 DEBUG] $1"
+      echo "[$(date '+%Y-%m-%d %H:%M:%S')] [DEBUG] $1"
     }
     log_error() {
-      echo "[$(date '+%Y-%m-%d %H:%M:%S')] [❌ ERROR] $1"
+      echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $1"
     }
     log_success() {
-      echo "[$(date '+%Y-%m-%d %H:%M:%S')] [✅ SUCCESS] $1"
+      echo "[$(date '+%Y-%m-%d %H:%M:%S')] [SUCCESS] $1"
     }
   
   SCRIPT_HEADER: |
@@ -44,7 +44,7 @@ tasks:
         log_info "{{.START_MSG_TEMPLATE}}"
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
-        if ! darwin-rebuild build --flake . > "{{.LOG_FILE}}" 2>&1; then
+        if ! darwin-rebuild build --flake . | tee >(./hack/stdin-window.sh) > "{{.LOG_FILE}}" 2>&1; then
           log_error "Failed. See log: {{.LOG_FILE}}"
           log_error "Last 20 lines of log:"
           echo "------------------------------------------------------------"
@@ -67,7 +67,7 @@ tasks:
         log_info "{{.START_MSG_TEMPLATE}}"
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
-        if ! sudo nix-collect-garbage -d > "{{.LOG_FILE}}" 2>&1; then
+        if ! sudo nix-collect-garbage -d | tee >(./hack/stdin-window.sh) > "{{.LOG_FILE}}" 2>&1; then
           log_error "Failed. See log: {{.LOG_FILE}}"
           log_error "Last 20 lines of log:"
           echo "------------------------------------------------------------"
@@ -91,10 +91,10 @@ tasks:
         log_info "{{.START_MSG_TEMPLATE}}"
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
-        git add -A > "{{.LOG_FILE}}" 2>&1
-        git commit -m "chore: update configuration and regenerate lockfile" >> "{{.LOG_FILE}}" 2>&1 || true
-        git push >> "{{.LOG_FILE}}" 2>&1 || true
-        if ! darwin-rebuild switch --flake . --show-trace >> "{{.LOG_FILE}}" 2>&1; then
+        git add -A | tee >(./hack/stdin-window.sh) > "{{.LOG_FILE}}" 2>&1
+        git commit -m "chore: update configuration and regenerate lockfile" | tee >(./hack/stdin-window.sh) >> "{{.LOG_FILE}}" 2>&1 || true
+        git push | tee >(./hack/stdin-window.sh) >> "{{.LOG_FILE}}" 2>&1 || true
+        if ! darwin-rebuild switch --flake . --show-trace | tee >(./hack/stdin-window.sh) >> "{{.LOG_FILE}}" 2>&1; then
           log_error "Failed. See log: {{.LOG_FILE}}"
           log_error "Last 20 lines of log:"
           echo "------------------------------------------------------------"
@@ -128,8 +128,8 @@ tasks:
           exit 1
         fi
         cd "$WORK_SYSINIT"
-        nix flake update > "{{.LOG_FILE}}" 2>&1
-        if ! task refresh >> "{{.LOG_FILE}}" 2>&1; then
+        nix flake update | tee >(./hack/stdin-window.sh) > "{{.LOG_FILE}}" 2>&1
+        if ! task refresh | tee >(./hack/stdin-window.sh) >> "{{.LOG_FILE}}" 2>&1; then
           log_error "Failed. See log: {{.LOG_FILE}}"
           log_error "Last 20 lines of log:"
           echo "------------------------------------------------------------"
@@ -152,7 +152,7 @@ tasks:
         log_info "{{.START_MSG_TEMPLATE}}"
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
-        if ! nix flake update > "{{.LOG_FILE}}" 2>&1; then
+        if ! nix flake update | tee >(./hack/stdin-window.sh) > "{{.LOG_FILE}}" 2>&1; then
           log_error "Failed. See log: {{.LOG_FILE}}"
           log_error "Last 20 lines of log:"
           echo "------------------------------------------------------------"
@@ -175,7 +175,7 @@ tasks:
         log_info "{{.START_MSG_TEMPLATE}}"
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
-        if ! ./hack/install-deps.sh > "{{.LOG_FILE}}" 2>&1; then
+        if ! ./hack/install-deps.sh | tee >(./hack/stdin-window.sh) > "{{.LOG_FILE}}" 2>&1; then
           log_error "Failed. See log: {{.LOG_FILE}}"
           log_error "Last 20 lines of log:"
           echo "------------------------------------------------------------"
@@ -198,7 +198,7 @@ tasks:
         log_info "{{.START_MSG_TEMPLATE}}"
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
-        if ! ./hack/uninstall-nix.sh > "{{.LOG_FILE}}" 2>&1; then
+        if ! ./hack/uninstall-nix.sh | tee >(./hack/stdin-window.sh) > "{{.LOG_FILE}}" 2>&1; then
           log_error "Failed. See log: {{.LOG_FILE}}"
           log_error "Last 20 lines of log:"
           echo "------------------------------------------------------------"
