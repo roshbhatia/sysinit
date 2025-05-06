@@ -21,18 +21,15 @@
     force = true;
   };
 
-  home.activation.vscodeKeySettings = {
+  home.activation.neovimPermissions = {
     after = [ "writeBoundary" ];
     before = [];
     data = ''
-      if [ "$(/usr/bin/defaults read com.microsoft.VSCodeInsiders ApplePressAndHoldEnabled 2>/dev/null)" != "0" ]; then
-        /usr/bin/defaults write com.microsoft.VSCodeInsiders ApplePressAndHoldEnabled -bool false
-      fi
+      /usr/bin/defaults write com.microsoft.VSCodeInsiders ApplePressAndHoldEnabled -bool false
 
       NVIM_DIR="${homeDirectory}/.config/nvim"
-      if [ -d "$NVIM_DIR" ]; then
-        /etc/profiles/per-user/rshnbhatia/bin/chmod-R u+rwx "$NVIM_DIR"
-        /etc/profiles/per-user/rshnbhatia/bin/chmod -R go-wx "$NVIM_DIR"
+      /etc/profiles/per-user/rshnbhatia/bin/chmod-R u+rwx "$NVIM_DIR"
+      /etc/profiles/per-user/rshnbhatia/bin/chmod -R go-wx "$NVIM_DIR"
       fi
     '';
   };
