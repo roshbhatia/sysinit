@@ -186,9 +186,7 @@ function Entrypoint.setup_options()
     -- Basic settings
     vim.opt.clipboard = "unnamedplus"
     vim.opt.mouse = "a"
-    vim.opt.hidden = true
     vim.opt.number = true
-    vim.opt.relativenumber = true
     vim.opt.signcolumn = "number"
 
     -- UI settings
