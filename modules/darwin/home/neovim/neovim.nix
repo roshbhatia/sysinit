@@ -12,12 +12,12 @@
   };
 
   xdg.configFile."nvim/init.lua" = {
-    source = config.lib.file.mkOutOfStoreSymlink ./init.lua;
+    source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/init.lua";
     force = true;
   };
 
   xdg.configFile."nvim/lua" = {
-    source = config.lib.file.mkOutOfStoreSymlink ./lua;
+    source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/lua";
     force = true;
   };
 
