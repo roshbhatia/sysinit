@@ -1,23 +1,18 @@
 version: '3'
 
 vars:
-  INFO_COLOR: 87
-  SUCCESS_COLOR: 212
-  ERROR_COLOR: 196
   LOG_FUNCTIONS: |
-    log_setup() {
-      log_info() {
-        echo -e "\033[38;5;${INFO_COLOR}mINFO:\033[0m $1"
-      }
-      log_debug() {
-        echo -e "\033[38;5;${INFO_COLOR}mDEBUG:\033[0m $1"
-      }
-      log_error() {
-        echo -e "\033[38;5;${ERROR_COLOR}mERROR:\033[0m $1"
-      }
-      log_success() {
-        echo -e "\033[38;5;${SUCCESS_COLOR}mSUCCESS:\033[0m $1"
-      }
+    log_info() {
+      echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ℹ️ INFO] $1"
+    }
+    log_debug() {
+      echo "[$(date '+%Y-%m-%d %H:%M:%S')] [🐛 DEBUG] $1"
+    }
+    log_error() {
+      echo "[$(date '+%Y-%m-%d %H:%M:%S')] [❌ ERROR] $1"
+    }
+    log_success() {
+      echo "[$(date '+%Y-%m-%d %H:%M:%S')] [✅ SUCCESS] $1"
     }
 
 tasks:
@@ -31,17 +26,15 @@ tasks:
   nix:build:
     cmds:
       - |
-        # Setup logging
         {{.LOG_FUNCTIONS}}
-        log_setup "sysinit:build"
-        
+        trap 'log_error "Build interrupted"; exit 1' INT
         log_info "Building system configuration..."
-        
-        if ! darwin-rebuild build --flake . 2>&1 | {{.ROOT_DIR}}/hack/stdin-window.sh; then
-          log_error "Build failed"
+        LOG_FILE="/var/log/sysinit-build.log"
+        if ! darwin-rebuild build --flake . > "$LOG_FILE" 2>&1; then
+          log_error "Build failed. See log: $LOG_FILE"
           exit 1
         fi
-        
+        log_info "Log file: $LOG_FILE"
         log_success "Build completed successfully"
     desc: Build the configuration without applying
     silent: true
@@ -49,17 +42,15 @@ tasks:
   nix:clean:
     cmds:
       - |
-        # Setup logging
         {{.LOG_FUNCTIONS}}
-        log_setup "sysinit:clean"
-        
+        trap 'log_error "Garbage collection interrupted"; exit 1' INT
         log_info "Running garbage collection..."
-        
-        if ! sudo nix-collect-garbage -d 2>&1 | {{.ROOT_DIR}}/hack/stdin-window.sh; then
-          log_error "Garbage collection failed"
+        LOG_FILE="/var/log/sysinit-clean.log"
+        if ! sudo nix-collect-garbage -d > "$LOG_FILE" 2>&1; then
+          log_error "Garbage collection failed. See log: $LOG_FILE"
           exit 1
         fi
-        
+        log_info "Log file: $LOG_FILE"
         log_success "Garbage collection completed"
     desc: Run garbage collection
     silent: true
@@ -68,24 +59,18 @@ tasks:
     deps: [nix:update:flake]
     cmds:
       - |
-        # Setup logging
         {{.LOG_FUNCTIONS}}
-        log_setup "sysinit:refresh"
-        
+        trap 'log_error "Refresh interrupted"; exit 1' INT
         log_info "Applying system configuration..."
-
-        log_debug "Committing changes..."
-        git add -A
-        git commit -m "chore: update configuration and regenerate lockfile" 2>&1 | {{.ROOT_DIR}}/hack/stdin-window.sh || true
-        
-        log_debug "Pushing changes..."
-        git push 2>&1 | {{.ROOT_DIR}}/hack/stdin-window.sh || true
-
-        if ! darwin-rebuild switch --flake . --show-trace 2>&1 | {{.ROOT_DIR}}/hack/stdin-window.sh; then
-          log_error "Failed to apply configuration"
+        LOG_FILE="/var/log/sysinit-refresh.log"
+        git add -A > "$LOG_FILE" 2>&1
+        git commit -m "chore: update configuration and regenerate lockfile" >> "$LOG_FILE" 2>&1 || true
+        git push >> "$LOG_FILE" 2>&1 || true
+        if ! darwin-rebuild switch --flake . --show-trace >> "$LOG_FILE" 2>&1; then
+          log_error "Failed to apply configuration. See log: $LOG_FILE"
           exit 1
         fi
-
+        log_info "Log file: $LOG_FILE"
         log_success "System configuration applied successfully"
     desc: Apply the system configuration
     silent: true
@@ -93,32 +78,19 @@ tasks:
   nix:refresh:work:
     cmds:
       - |
-        # Setup logging
         {{.LOG_FUNCTIONS}}
-        log_setup "sysinit:work"
-        
+        trap 'log_error "Work refresh interrupted"; exit 1' INT
+        log_info "Refreshing work configuration..."
+        LOG_FILE="/var/log/sysinit-work-refresh.log"
         WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
-
         if [ -z "$WORK_SYSINIT" ]; then
           log_error "Could not find work sysinit repository"
           exit 1
         fi
-
-        log_info "Working in: $WORK_SYSINIT"
         cd "$WORK_SYSINIT"
-
-        log_debug "Updating flake..."
-        if ! nix flake update 2>&1 | {{.ROOT_DIR}}/hack/stdin-window.sh; then
-          log_error "Failed to update flake"
-          exit 1
-        fi
-
-        log_debug "Running refresh..."
-        if ! task refresh 2>&1 | {{.ROOT_DIR}}/hack/stdin-window.sh; then
-          log_error "Failed to refresh work configuration"
-          exit 1
-        fi
-
+        nix flake update > "$LOG_FILE" 2>&1
+        task refresh >> "$LOG_FILE" 2>&1
+        log_info "Log file: $LOG_FILE"
         log_success "Work configuration refreshed successfully"
     desc: Update and rebuild work sysinit configuration
     silent: true
@@ -126,17 +98,15 @@ tasks:
   nix:update:flake:
     cmds:
       - |
-        # Setup logging
         {{.LOG_FUNCTIONS}}
-        log_setup "sysinit:flake"
-        
+        trap 'log_error "Flake update interrupted"; exit 1' INT
         log_info "Updating flake inputs..."
-        
-        if ! nix flake update 2>&1 | {{.ROOT_DIR}}/hack/stdin-window.sh; then
-          log_error "Failed to update flake"
+        LOG_FILE="/var/log/sysinit-flake-update.log"
+        if ! nix flake update > "$LOG_FILE" 2>&1; then
+          log_error "Failed to update flake. See log: $LOG_FILE"
           exit 1
         fi
-        
+        log_info "Log file: $LOG_FILE"
         log_success "Flake inputs updated successfully"
     desc: Update flake inputs
     silent: true
@@ -145,17 +115,15 @@ tasks:
   nix:install:
     cmds:
       - |
-        # Setup logging
         {{.LOG_FUNCTIONS}}
-        log_setup "sysinit:install"
-        
+        trap 'log_error "Install interrupted"; exit 1' INT
         log_info "Installing prerequisites..."
-        
-        if ! ./hack/install-deps.sh 2>&1 | {{.ROOT_DIR}}/hack/stdin-window.sh; then
-          log_error "Setup failed"
+        LOG_FILE="/var/log/sysinit-install.log"
+        if ! ./hack/install-deps.sh > "$LOG_FILE" 2>&1; then
+          log_error "Setup failed. See log: $LOG_FILE"
           exit 1
         fi
-        
+        log_info "Log file: $LOG_FILE"
         log_success "Setup completed"
     desc: Install prerequisites for sysinit
     silent: true
@@ -163,17 +131,15 @@ tasks:
   nix:uninstall:
     cmds:
       - |
-        # Setup logging
         {{.LOG_FUNCTIONS}}
-        log_setup "sysinit:uninstall"
-        
+        trap 'log_error "Uninstall interrupted"; exit 1' INT
         log_info "Uninstalling Nix..."
-        
-        if ! ./hack/uninstall-nix.sh 2>&1 | {{.ROOT_DIR}}/hack/stdin-window.sh; then
-          log_error "Uninstall failed"
+        LOG_FILE="/var/log/sysinit-uninstall.log"
+        if ! ./hack/uninstall-nix.sh > "$LOG_FILE" 2>&1; then
+          log_error "Uninstall failed. See log: $LOG_FILE"
           exit 1
         fi
-        
+        log_info "Log file: $LOG_FILE"
         log_success "Nix uninstalled successfully"
     desc: Completely uninstall Nix from the system
     silent: true
