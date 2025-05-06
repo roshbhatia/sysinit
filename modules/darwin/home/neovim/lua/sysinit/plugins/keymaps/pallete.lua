@@ -5,7 +5,7 @@ local M = {}
 
 -- Icons for different command categories
 M.group_icons = {
-    ai = "󱚤", -- AI-related commands
+    llm = "󱚤", -- AI-related commands
     buffer = "󱅄", -- Buffer management
     code = "󰘧", -- Code actions and navigation
     debug = "", -- Debugging utilities
@@ -23,8 +23,8 @@ M.group_icons = {
 
 -- Keybindings data structure - shared between VSCode and Neovim
 M.keybindings_data = {
-    a = {
-        name = M.group_icons.ai .. " AI",
+    l = {
+        name = M.group_icons.llm .. " LLM",
         bindings = {{
             key = "a",
             desc = "Toggle Chat",
