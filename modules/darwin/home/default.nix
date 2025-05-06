@@ -50,7 +50,7 @@ in {
     ./cargo/cargo.nix
     ./npm/npm.nix
     ./pipx/pipx.nix
-    ./go/go.nix  
+    # ./go/go.nix  
     ./neovim/neovim.nix
     ./macchina/macchina.nix
     ./atuin/atuin.nix
