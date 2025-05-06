@@ -3,7 +3,7 @@ local M = {}
 
 M.plugins = {{
     "nvim-telescope/telescope.nvim",
-    lazy = true,
+    lazy = false,
     dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons"},
     opts = {
         defaults = {

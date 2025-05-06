@@ -8,21 +8,22 @@ M.group_icons = {
     llm = "󱚤",
     buffer = "󱅄",
     code = "󰘧",
-    debug = "",
+    debug = "󰘧",
     explorer = "󰒍",
     find = "󰀶",
+    fold = "󰘧",
     git = "󰊢",
-    fold = "",
     lsp = "󰛖",
-    org = "",
-    problems = "󰗯",
-    split = "󰃻",
-    tab = "",
-    terminal = "",
-    utils = "󰟻",
-    window = "",
     notifications = "󰂚",
-    view = "󰛐"
+    org = "󰗯",
+    problems = "󰗯",
+    search = "󰍉",
+    split = "󰃻",
+    tab = "󱅄",
+    terminal = "󱅄",
+    utils = "󰟻",
+    view = "󰛐",
+    window = "󱅄"
 }
 
 -- Keybindings data structure - shared between VSCode and Neovim
