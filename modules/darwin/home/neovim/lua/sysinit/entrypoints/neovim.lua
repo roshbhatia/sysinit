@@ -180,6 +180,11 @@ function Entrypoint.setup_actions()
         silent = true,
         desc = "Command palette"
     })
+
+    vim.keymap.set({"n", "i"}, "<D-f>", "/", {
+        noremap = true,
+        desc = "Find"
+    })
 end
 
 function Entrypoint.setup_options()
