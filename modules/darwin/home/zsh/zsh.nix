@@ -337,36 +337,6 @@ in
       bindkey '^I' autosuggest-accept
     '';
   };
-
-  systemd.user.services = {
-    update-kubectl-context = {
-      Unit = {
-        Description = "Update kubectl context environment variable for WezTerm";
-      };
-      Service = {
-        Type = "oneshot";
-        ExecStart = "${pkgs.writeShellScript "update-kubectl-context" ''
-          mkdir -p ${homeDirectory}/.config/wezterm
-          CONTEXT=$(${pkgs.kubectl}/bin/kubectl config current-context 2>/dev/null || echo "none")
-          echo "export SYSINIT_KUBECTL_CONTEXT=\"$CONTEXT\"" > ${homeDirectory}.config/wezterm/kubectl_context
-        ''}";
-      };
-    };
-    
-    update-gh-user = {
-      Unit = {
-        Description = "Update GitHub user environment variable for WezTerm";
-      };
-      Service = {
-        Type = "oneshot";
-        ExecStart = "${pkgs.writeShellScript "update-gh-user" ''
-          mkdir -p ${homeDirectory}/.config/wezterm
-          GH_USER=$(${pkgs.gh}/bin/gh api user --jq '.login' 2>/dev/null || echo "unknown")
-          echo "export SYSINIT_GH_USER=\"$GH_USER\"" > ${homeDirectory}/.config/wezterm/gh_user
-        ''}";
-      };
-    };
-  };
   
   systemd.user.timers = {
     update-kubectl-context = {
