@@ -37,7 +37,7 @@ tasks:
         
         log_info "Building system configuration..."
         
-        if ! darwin-rebuild build --flake . 2>&1 | ./hack/stdin-window.sh; then
+        if ! darwin-rebuild build --flake . 2>&1 | {{.ROOT_DIR}}/hack/stdin-window.sh; then
           log_error "Build failed"
           exit 1
         fi
@@ -55,7 +55,7 @@ tasks:
         
         log_info "Running garbage collection..."
         
-        if ! sudo nix-collect-garbage -d 2>&1 | ./hack/stdin-window.sh; then
+        if ! sudo nix-collect-garbage -d 2>&1 | {{.ROOT_DIR}}/hack/stdin-window.sh; then
           log_error "Garbage collection failed"
           exit 1
         fi
@@ -76,12 +76,12 @@ tasks:
 
         log_debug "Committing changes..."
         git add -A
-        git commit -m "chore: update configuration and regenerate lockfile" 2>&1 | ./hack/stdin-window.sh || true
+        git commit -m "chore: update configuration and regenerate lockfile" 2>&1 | {{.ROOT_DIR}}/hack/stdin-window.sh || true
         
         log_debug "Pushing changes..."
-        git push 2>&1 | ./hack/stdin-window.sh || true
+        git push 2>&1 | {{.ROOT_DIR}}/hack/stdin-window.sh || true
 
-        if ! darwin-rebuild switch --flake . --show-trace 2>&1 | ./hack/stdin-window.sh; then
+        if ! darwin-rebuild switch --flake . --show-trace 2>&1 | {{.ROOT_DIR}}/hack/stdin-window.sh; then
           log_error "Failed to apply configuration"
           exit 1
         fi
@@ -108,13 +108,13 @@ tasks:
         cd "$WORK_SYSINIT"
 
         log_debug "Updating flake..."
-        if ! nix flake update 2>&1 | ./hack/stdin-window.sh; then
+        if ! nix flake update 2>&1 | {{.ROOT_DIR}}/hack/stdin-window.sh; then
           log_error "Failed to update flake"
           exit 1
         fi
 
         log_debug "Running refresh..."
-        if ! task refresh 2>&1 | ./hack/stdin-window.sh; then
+        if ! task refresh 2>&1 | {{.ROOT_DIR}}/hack/stdin-window.sh; then
           log_error "Failed to refresh work configuration"
           exit 1
         fi
@@ -132,7 +132,7 @@ tasks:
         
         log_info "Updating flake inputs..."
         
-        if ! nix flake update 2>&1 | ./hack/stdin-window.sh; then
+        if ! nix flake update 2>&1 | {{.ROOT_DIR}}/hack/stdin-window.sh; then
           log_error "Failed to update flake"
           exit 1
         fi
@@ -151,7 +151,7 @@ tasks:
         
         log_info "Installing prerequisites..."
         
-        if ! ./hack/install-deps.sh 2>&1 | ./hack/stdin-window.sh; then
+        if ! ./hack/install-deps.sh 2>&1 | {{.ROOT_DIR}}/hack/stdin-window.sh; then
           log_error "Setup failed"
           exit 1
         fi
@@ -169,7 +169,7 @@ tasks:
         
         log_info "Uninstalling Nix..."
         
-        if ! ./hack/uninstall-nix.sh 2>&1 | ./hack/stdin-window.sh; then
+        if ! ./hack/uninstall-nix.sh 2>&1 | {{.ROOT_DIR}}/hack/stdin-window.sh; then
           log_error "Uninstall failed"
           exit 1
         fi
