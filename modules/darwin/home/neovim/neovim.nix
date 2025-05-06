@@ -27,10 +27,7 @@
     data = ''
       /usr/bin/defaults write com.microsoft.VSCodeInsiders ApplePressAndHoldEnabled -bool false
 
-      NVIM_DIR="${homeDirectory}/.config/nvim"
-      /etc/profiles/per-user/rshnbhatia/bin/chmod-R u+rwx "$NVIM_DIR"
-      /etc/profiles/per-user/rshnbhatia/bin/chmod -R go-wx "$NVIM_DIR"
-      fi
+      chmod -R 755 "$HOME/.config/nvim"
     '';
   };
 }
