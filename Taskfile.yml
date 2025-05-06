@@ -18,9 +18,10 @@ vars:
   SCRIPT_HEADER: |
     #!/usr/bin/env bash
     {{.LOG_FUNCTIONS}}
-    trap 'log_error "${INTERRUPT_MSG:-Task interrupted}"; exit 1' 2
+    UUID=$(uuidgen)
+    log_info "Task ID: $UUID"
   
-  LOG_DIR: "/var/log"
+  LOG_DIR: "/tmp/log"
   LOG_PREFIX: "sysinit"
 
   START_MSG_TEMPLATE: "{{.TASK_NAME}}..."
@@ -37,11 +38,12 @@ tasks:
     vars:
       TASK_NAME: "Building system configuration"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-build.log"
-      INTERRUPT_MSG: "Build interrupted"
     cmds:
       - |
         {{.SCRIPT_HEADER}}
         log_info "{{.START_MSG_TEMPLATE}}"
+        mkdir -p "$(dirname "{{.LOG_FILE}}")"
+        touch "{{.LOG_FILE}}"
         if ! darwin-rebuild build --flake . > "{{.LOG_FILE}}" 2>&1; then
           log_error "Build failed. See log: {{.LOG_FILE}}"
           exit 1
@@ -55,11 +57,12 @@ tasks:
     vars:
       TASK_NAME: "Running garbage collection"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-clean.log"
-      INTERRUPT_MSG: "Garbage collection interrupted"
     cmds:
       - |
         {{.SCRIPT_HEADER}}
         log_info "{{.START_MSG_TEMPLATE}}"
+        mkdir -p "$(dirname "{{.LOG_FILE}}")"
+        touch "{{.LOG_FILE}}"
         if ! sudo nix-collect-garbage -d > "{{.LOG_FILE}}" 2>&1; then
           log_error "Garbage collection failed. See log: {{.LOG_FILE}}"
           exit 1
@@ -74,11 +77,12 @@ tasks:
     vars:
       TASK_NAME: "Applying system configuration"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-refresh.log"
-      INTERRUPT_MSG: "Refresh interrupted"
     cmds:
       - |
         {{.SCRIPT_HEADER}}
         log_info "{{.START_MSG_TEMPLATE}}"
+        mkdir -p "$(dirname "{{.LOG_FILE}}")"
+        touch "{{.LOG_FILE}}"
         git add -A > "{{.LOG_FILE}}" 2>&1
         git commit -m "chore: update configuration and regenerate lockfile" >> "{{.LOG_FILE}}" 2>&1 || true
         git push >> "{{.LOG_FILE}}" 2>&1 || true
@@ -95,11 +99,12 @@ tasks:
     vars:
       TASK_NAME: "Refreshing work configuration"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-work-refresh.log"
-      INTERRUPT_MSG: "Work refresh interrupted"
     cmds:
       - |
         {{.SCRIPT_HEADER}}
         log_info "{{.START_MSG_TEMPLATE}}"
+        mkdir -p "$(dirname "{{.LOG_FILE}}")"
+        touch "{{.LOG_FILE}}"
         WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
         if [ -z "$WORK_SYSINIT" ]; then
           log_error "Could not find work sysinit repository"
@@ -117,11 +122,12 @@ tasks:
     vars:
       TASK_NAME: "Updating flake inputs"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-flake-update.log"
-      INTERRUPT_MSG: "Flake update interrupted"
     cmds:
       - |
         {{.SCRIPT_HEADER}}
         log_info "{{.START_MSG_TEMPLATE}}"
+        mkdir -p "$(dirname "{{.LOG_FILE}}")"
+        touch "{{.LOG_FILE}}"
         if ! nix flake update > "{{.LOG_FILE}}" 2>&1; then
           log_error "Failed to update flake. See log: {{.LOG_FILE}}"
           exit 1
@@ -135,11 +141,12 @@ tasks:
     vars:
       TASK_NAME: "Installing prerequisites"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-install.log"
-      INTERRUPT_MSG: "Install interrupted"
     cmds:
       - |
         {{.SCRIPT_HEADER}}
         log_info "{{.START_MSG_TEMPLATE}}"
+        mkdir -p "$(dirname "{{.LOG_FILE}}")"
+        touch "{{.LOG_FILE}}"
         if ! ./hack/install-deps.sh > "{{.LOG_FILE}}" 2>&1; then
           log_error "Setup failed. See log: {{.LOG_FILE}}"
           exit 1
@@ -153,11 +160,12 @@ tasks:
     vars:
       TASK_NAME: "Uninstalling Nix"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-uninstall.log"
-      INTERRUPT_MSG: "Uninstall interrupted"
     cmds:
       - |
         {{.SCRIPT_HEADER}}
         log_info "{{.START_MSG_TEMPLATE}}"
+        mkdir -p "$(dirname "{{.LOG_FILE}}")"
+        touch "{{.LOG_FILE}}"
         if ! ./hack/uninstall-nix.sh > "{{.LOG_FILE}}" 2>&1; then
           log_error "Uninstall failed. See log: {{.LOG_FILE}}"
           exit 1
