@@ -15,6 +15,7 @@ let
     gettext
     gh
     git
+    go
     gnugrep
     gnupg
     htop
@@ -24,6 +25,7 @@ let
     kind
     kustomize
     nixfmt-rfc-style
+    nodejs
     openssh
     stern
     swift
