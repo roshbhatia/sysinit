@@ -27,7 +27,7 @@ tasks:
     cmds:
       - |
         {{.LOG_FUNCTIONS}}
-        trap 'log_error "Build interrupted"; exit 1' INT
+        trap 'log_error "Build interrupted"; exit 1' SIGINT
         log_info "Building system configuration..."
         LOG_FILE="/var/log/sysinit-build.log"
         if ! darwin-rebuild build --flake . > "$LOG_FILE" 2>&1; then
@@ -43,7 +43,7 @@ tasks:
     cmds:
       - |
         {{.LOG_FUNCTIONS}}
-        trap 'log_error "Garbage collection interrupted"; exit 1' INT
+        trap 'log_error "Garbage collection interrupted"; exit 1' SIGINT
         log_info "Running garbage collection..."
         LOG_FILE="/var/log/sysinit-clean.log"
         if ! sudo nix-collect-garbage -d > "$LOG_FILE" 2>&1; then
@@ -60,7 +60,7 @@ tasks:
     cmds:
       - |
         {{.LOG_FUNCTIONS}}
-        trap 'log_error "Refresh interrupted"; exit 1' INT
+        trap 'log_error "Refresh interrupted"; exit 1' SIGINT
         log_info "Applying system configuration..."
         LOG_FILE="/var/log/sysinit-refresh.log"
         git add -A > "$LOG_FILE" 2>&1
@@ -79,7 +79,7 @@ tasks:
     cmds:
       - |
         {{.LOG_FUNCTIONS}}
-        trap 'log_error "Work refresh interrupted"; exit 1' INT
+        trap 'log_error "Work refresh interrupted"; exit 1' SIGINT
         log_info "Refreshing work configuration..."
         LOG_FILE="/var/log/sysinit-work-refresh.log"
         WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
@@ -99,7 +99,7 @@ tasks:
     cmds:
       - |
         {{.LOG_FUNCTIONS}}
-        trap 'log_error "Flake update interrupted"; exit 1' INT
+        trap 'log_error "Flake update interrupted"; exit 1' SIGINT
         log_info "Updating flake inputs..."
         LOG_FILE="/var/log/sysinit-flake-update.log"
         if ! nix flake update > "$LOG_FILE" 2>&1; then
@@ -116,7 +116,7 @@ tasks:
     cmds:
       - |
         {{.LOG_FUNCTIONS}}
-        trap 'log_error "Install interrupted"; exit 1' INT
+        trap 'log_error "Install interrupted"; exit 1' SIGINT
         log_info "Installing prerequisites..."
         LOG_FILE="/var/log/sysinit-install.log"
         if ! ./hack/install-deps.sh > "$LOG_FILE" 2>&1; then
@@ -132,7 +132,7 @@ tasks:
     cmds:
       - |
         {{.LOG_FUNCTIONS}}
-        trap 'log_error "Uninstall interrupted"; exit 1' INT
+        trap 'log_error "Uninstall interrupted"; exit 1' SIGINT
         log_info "Uninstalling Nix..."
         LOG_FILE="/var/log/sysinit-uninstall.log"
         if ! ./hack/uninstall-nix.sh > "$LOG_FILE" 2>&1; then
