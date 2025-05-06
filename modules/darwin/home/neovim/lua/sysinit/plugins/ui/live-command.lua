@@ -3,13 +3,9 @@ local M = {}
 M.plugins = {{
     "smjonas/live-command.nvim",
     lazy = false,
-    opts = {
-        commands = {
-            Norm = {
-                cmd = "norm"
-            }
-        }
-    }
+    config = function()
+        require("live-command").setup()
+    end
 }}
 
 return M
