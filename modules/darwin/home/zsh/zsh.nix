@@ -148,6 +148,8 @@ in
       CH = "${homeDirectory}/.config";
       DH = "${homeDirectory}/.local/share";
 
+      GIT_DISCOVERY_ACROSS_FILESYSTEM = 1;
+
       ZSH_EVALCACHE_DIR = "${homeDirectory}/.local/share/zsh/evalcache";
 
       ZSH_AUTOSUGGEST_USE_ASYNC = 1;

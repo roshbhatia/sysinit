@@ -31,8 +31,8 @@
 
       NVIM_DIR="${homeDirectory}/.config/nvim"
       if [ -d "$NVIM_DIR" ]; then
-        /bin/chmod -R u+rw "$NVIM_DIR"
-        find "$NVIM_DIR" -type l -exec /bin/chmod -R u+rw {} +
+        /bin/chmod -R u+rwx "$NVIM_DIR"
+        /bin/chmod -R go-wx "$NVIM_DIR"
       fi
     '';
   };
