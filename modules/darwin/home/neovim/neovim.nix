@@ -1,4 +1,4 @@
-{ config, lib, pkgs, homeDirectory,p ... }:
+{ config, lib, pkgs, homeDirectory, ... }:
 
 {
   programs.neovim = {
