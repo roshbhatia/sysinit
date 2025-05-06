@@ -8,7 +8,10 @@ M.plugins = {{
     build = "make install_jsregexp",
     dependencies = {"saadparwaiz1/cmp_luasnip", -- For autocompletion
     "rafamadriz/friendly-snippets" -- For common snippets
-    }
+    },
+    config = function()
+        require("luasnip.loaders.from_vscode").lazy_load()
+    end
 }}
 
 return M
