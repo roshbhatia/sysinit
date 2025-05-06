@@ -11,7 +11,7 @@ M.plugins = {{
             hide_if_all_visible = true
         },
         marks = {},
-        excluded_filetypes = {"prompt", "TelescopePrompt", "noice", "NeoTree", "alpha"},
+        excluded_filetypes = {"prompt", "TelescopePrompt", "noice", "neo-tree", "alpha"},
         autocmd = {
             render = {"BufWinEnter", "TabEnter", "TermEnter", "WinEnter", "CmdwinLeave", "TextChanged", "VimResized",
                       "WinScrolled"}

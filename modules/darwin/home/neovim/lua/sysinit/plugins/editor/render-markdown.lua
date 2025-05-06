@@ -7,6 +7,12 @@ M.plugins = {{
     ft = {"markdown", "Avante"},
     opts = {
         file_types = {"markdown", "mermaid"},
+        latex = {
+            enabled = false
+        },
+        html = {
+            enabled = false
+        },
         custom_handlers = {
             mermaid = {
                 parse = function(ctx)

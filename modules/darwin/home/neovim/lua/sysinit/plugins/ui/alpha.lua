@@ -32,23 +32,16 @@ M.plugins = {{
              "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠿⣵⣶⣿⣻⡿⢤⢁⣾⡏⡟⠇⣏⣉⣡⣤⡿⠃⡜⠁⠀⠀⠀⠀⠀⠀⠀⣿⣷⣿⡇",
              "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣿⣫⣿⣿⣯⡮⣟⣺⣿⢹⣿⣿⠜⢦⣽⡟⠀⡜⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⣿⣿⡇",
              ""}
-        local auto_session = require("auto-session")
 
         dashboard.section.header.opts.hl = "ProfileRed"
 
-        -- Set menu with conditional session button
-        dashboard.section.buttons.val = {require('auto-session.lib').current_session_name(true) and
-            dashboard.button("a", "  Load Last Session", require("persistence").load({ last = true })) or nil,
-                                         dashboard.button("i", "  Init Buffer", ":enew<CR>"),
+        dashboard.section.buttons.val = {dashboard.button("a", "  Load Last Session", require("persistence").load({
+            last = true
+        })), dashboard.button("i", "  Init Buffer", ":enew<CR>"),
                                          dashboard.button("f", "  Find Files", ":Telescope find_files<CR>"),
                                          dashboard.button("r", "  Recent Files", ":Telescope oldfiles<CR>"),
                                          dashboard.button("g", "  Live Grep", ":Telescope live_grep<CR>"),
                                          dashboard.button("q", "  Quit", ":qa<CR>")}
-
-        -- Filter out nil values in case session button isn't shown
-        dashboard.section.buttons.val = vim.tbl_filter(function(item)
-            return item ~= nil
-        end, dashboard.section.buttons.val)
 
         -- Footer with git contributions (simplified)
         local function get_git_contributions()
@@ -167,25 +160,6 @@ M.plugins = {{
             pattern = "*",
             callback = function()
                 vim.cmd("Alpha")
-            end
-        })
-
-        vim.api.nvim_create_augroup("alpha_on_empty", {
-            clear = true
-        })
-        vim.api.nvim_create_autocmd("User", {
-            pattern = "BDeletePost*",
-            group = "alpha_on_empty",
-            callback = function(event)
-                local fallback_name = vim.api.nvim_buf_get_name(event.buf)
-                local fallback_ft = vim.api.nvim_buf_get_option(event.buf, "filetype")
-                local fallback_on_empty = fallback_name == "" and fallback_ft == ""
-
-                if fallback_on_empty then
-                    pcall(function()
-                        vim.cmd("Alpha")
-                    end)
-                end
             end
         })
     end

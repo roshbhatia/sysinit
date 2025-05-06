@@ -18,6 +18,7 @@ let
     "markdownlint"
     "@mermaid-js/mermaid-cli"
     "prettier"
+    "tree-sitter-cli"
     "typescript-language-server"
     "typescript"
   ];
