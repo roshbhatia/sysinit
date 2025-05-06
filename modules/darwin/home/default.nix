@@ -49,7 +49,9 @@ in {
     ./core/packages.nix
     ./cargo/cargo.nix
     ./npm/npm.nix
+    ./npm/yarn.nix
     ./pipx/pipx.nix
+    ./pipx/uv.nix
     # ./go/go.nix  
     ./neovim/neovim.nix
     ./macchina/macchina.nix

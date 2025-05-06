@@ -28,6 +28,7 @@ paths=(
   "$HOME/.local/bin"
   "$HOME/.local/bin"
   "$HOME/.npm-global/bin"
+  "$HOME/.npm-global/bin/yarn"
   "$HOME/.rvm/bin"
   "$HOME/.yarn/bin"
   "$HOME/bin"
