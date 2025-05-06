@@ -124,7 +124,7 @@ M.keybindings_data = {
             vscode_cmd = "workbench.explorer.fileView.focus"
         }}
     },
-    f = {
+    s = {
         name = M.group_icons.fold .. " Fold",
         bindings = {{
             key = "c",
@@ -278,7 +278,7 @@ M.keybindings_data = {
             vscode_cmd = "workbench.actions.view.problems"
         }}
     },
-    s = {
+    f = {
         name = M.group_icons.search .. " Search",
         bindings = {{
             key = "f",
