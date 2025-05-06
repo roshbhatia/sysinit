@@ -24,7 +24,7 @@ function plugin_manager.setup_plugins(modules)
         priority = 1000,
         dependencies = {"nvim-lua/plenary.nvim"},
         opts = {
-            rocks = {},
+            rocks = {"tiktoken_core"},
             rocks_path = vim.fn.stdpath("data") .. "/luarocks",
             lua_path = vim.fn.stdpath("data") .. "/luarocks/share/lua/5.1/?.lua;" .. vim.fn.stdpath("data") ..
                 "/luarocks/share/lua/5.1/?/init.lua",

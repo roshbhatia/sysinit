@@ -148,7 +148,7 @@ M.plugins = {{
 
             window = {
                 position = "left",
-                width = 35,
+                width = 64,
                 mappings = {
                     ["<space>"] = "toggle_node",
                     ["<2-LeftMouse>"] = "open",
@@ -250,7 +250,7 @@ M.plugins = {{
                 follow_current_file = {
                     enabled = true -- focus the file in the buffer list that is currently being edited
                 },
-                group_empty_dirs = true, -- when true, empty directories will be grouped together
+                group_empty_dirs = false, -- when true, empty directories will be grouped together
                 show_unloaded = true,
                 window = {
                     mappings = {

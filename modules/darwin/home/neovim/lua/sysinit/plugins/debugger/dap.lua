@@ -12,7 +12,7 @@ M.plugins = {{
 
         dap.adapters.python = {
             type = 'executable',
-            command = 'python',
+            command = vim.fn.expand("$VIRTUAL_ENV/bin/python") or vim.fn.expand("$HOME/.pyenv/shims/python"),
             args = {'-m', 'debugpy.adapter'}
         }
 
@@ -23,7 +23,7 @@ M.plugins = {{
             program = "${file}",
             pythonPath = function()
                 local venv_path = os.getenv('VIRTUAL_ENV')
-                return venv_path and venv_path .. '/bin/python' or 'python'
+                return venv_path and venv_path .. '/bin/python' or vim.fn.expand("$HOME/.pyenv/shims/python")
             end
         }, {
             type = "python",
@@ -35,7 +35,7 @@ M.plugins = {{
             end,
             pythonPath = function()
                 local venv_path = os.getenv('VIRTUAL_ENV')
-                return venv_path and venv_path .. '/bin/python' or 'python'
+                return venv_path and venv_path .. '/bin/python' or vim.fn.expand("$HOME/.pyenv/shims/python")
             end
         }}
 

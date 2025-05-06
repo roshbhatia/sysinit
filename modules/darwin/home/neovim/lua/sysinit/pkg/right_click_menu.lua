@@ -137,7 +137,7 @@ M.menu = function(menu)
             end
 
             -- Special handling for special filetypes like neo-tree
-            if vim.tbl_contains({"neo-tree", "NvimTree", "neo-tree-popup"}, vim.bo.filetype) then
+            if vim.tbl_contains({"neo-tree", "neo-tree-popup"}, vim.bo.filetype) then
                 -- Clean up default entries that might interfere
                 pcall(function()
                     vim.cmd([[

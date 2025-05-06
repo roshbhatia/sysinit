@@ -223,9 +223,7 @@ function Entrypoint.setup_options()
     vim.wo.foldmethod = 'expr'
     vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
 
-    -- Session settings
-    vim.o.sessionoptions =
-        "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions,tabpages,globals"
+    vim.env.PATH = vim.fn.getenv("PATH")
 end
 
 function Entrypoint.get_plugins()
