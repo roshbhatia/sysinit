@@ -13,7 +13,7 @@ in packageManager.mkPackageManager {
     then userConfig.pipx.additionalPackages
     else [];
   installCommand = ''
-    "$PIPX" install "$package" --force
+    "$EXECUTABLE" install "$package" --force
   '';
   executablePath = "/opt/homebrew/bin/pipx";
 }

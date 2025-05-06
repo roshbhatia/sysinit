@@ -14,8 +14,6 @@ in packageManager.mkPackageManager {
   additionalPackages = if userConfig ? go && userConfig.go ? additionalPackages
     then userConfig.go.additionalPackages
     else [];
-  installCommand = ''
-    "$GO" install "$package"
-  '';
+  executableArguments = [ "install" ];
   executablePath = "/etc/profiles/per-user/$USER/bin/go";
 }
