@@ -15,17 +15,14 @@ vars:
       echo "[$(date '+%Y-%m-%d %H:%M:%S')] [✅ SUCCESS] $1"
     }
   
-  # Common script elements
   SCRIPT_HEADER: |
     #!/usr/bin/env bash
     {{.LOG_FUNCTIONS}}
     trap 'log_error "${INTERRUPT_MSG:-Task interrupted}"; exit 1' 2
   
-  # Common log file patterns
   LOG_DIR: "/var/log"
   LOG_PREFIX: "sysinit"
 
-  # Common log message templates
   START_MSG_TEMPLATE: "{{.TASK_NAME}}..."
   SUCCESS_MSG_TEMPLATE: "{{.TASK_NAME}} completed successfully"
 
@@ -36,7 +33,6 @@ tasks:
     desc: Show help information
     silent: true
 
-  # System Configuration
   nix:build:
     vars:
       TASK_NAME: "Building system configuration"
@@ -135,8 +131,7 @@ tasks:
     desc: Update flake inputs
     silent: true
 
-  # System Setup
-  nix:install:
+  nix:install:nix:
     vars:
       TASK_NAME: "Installing prerequisites"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-install.log"
@@ -154,7 +149,7 @@ tasks:
     desc: Install prerequisites for sysinit
     silent: true
 
-  nix:uninstall:
+  nix:uninstall:nix:
     vars:
       TASK_NAME: "Uninstalling Nix"
       LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-uninstall.log"
@@ -172,10 +167,32 @@ tasks:
     desc: Completely uninstall Nix from the system
     silent: true
 
-  # Neovim Tasks
-  nvim:extract-nvim-commands: { cmds: [task -d modules/darwin/home/neovim nvim:extract-nvim-commands], silent: true }
-  nvim:extract-vsc-commands: { cmds: [task -d modules/darwin/home/neovim nvim:extract-vsc-commands], silent: true }
-  nvim:pull-docs: { cmds: [task -d modules/darwin/home/neovim nvim:pull-docs], silent: true }
-  nvim:run-local-headless-isolated: { cmds: [task -d modules/darwin/home/neovim nvim:run-local-headless-isolated], silent: true }
-  nvim:run-local-isolated: { cmds: [task -d modules/darwin/home/neovim nvim:run-local-isolated], silent: true }
-  nvim:verify-vsc-commands: { cmds: [task -d modules/darwin/home/neovim nvim:verify-vsc-actions], silent: true }
+  nvim:extract-nvim-commands:
+    cmds:
+      - task -d modules/darwin/home/neovim nvim:extract-nvim-commands
+    silent: true
+    
+  nvim:extract-vsc-commands:
+    cmds:
+      - task -d modules/darwin/home/neovim nvim:extract-vsc-commands
+    silent: true
+    
+  nvim:pull-docs:
+    cmds:
+      - task -d modules/darwin/home/neovim nvim:pull-docs
+    silent: true
+    
+  nvim:run-local-headless-isolated:
+    cmds:
+      - task -d modules/darwin/home/neovim nvim:run-local-headless-isolated
+    silent: true
+    
+  nvim:run-local-isolated:
+    cmds:
+      - task -d modules/darwin/home/neovim nvim:run-local-isolated
+    silent: true
+    
+  nvim:verify-vsc-commands:
+    cmds:
+      - task -d modules/darwin/home/neovim nvim:verify-vsc-actions
+    silent: true
