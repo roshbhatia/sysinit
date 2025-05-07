@@ -5,6 +5,11 @@ let
 in {
   imports = [];
   
+  # Set environment variables needed by activation scripts
+  home.sessionVariables = {
+    XDG_CONFIG_HOME = "$HOME/.config";
+  };
+  
   # Set up the activation utilities with additional paths from user config
   home.activation.setupActivationUtils = activationUtils.mkActivationUtils {
     logDir = "/tmp/sysinit-logs";
@@ -18,6 +23,9 @@ in {
     after = [ "setupActivationUtils" ];
     before = [];
     data = ''
+      # Source the activation tools
+      source ${../lib/activation-tools.sh}
+      
       log_info "Setting up sysinit symlink"
       
       SYSINIT_SRC="$HOME/github/personal/roshbhatia/sysinit"
