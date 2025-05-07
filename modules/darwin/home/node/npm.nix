@@ -1,8 +1,8 @@
 { pkgs, lib, config, userConfig ? {}, ... }:
 
 let
-  packageManager = import ../../../lib/package-manager.nix { inherit lib; };
-in packageManager.mkPackageManager {
+  activationUtils = import ../../../lib/activation-utils.nix { inherit lib; };
+in activationUtils.mkPackageManager {
   name = "npm";
   basePackages = [
     "jsonlint"
@@ -17,5 +17,5 @@ in packageManager.mkPackageManager {
     then userConfig.npm.additionalPackages
     else [];
   executableArguments = [ "install" "-g" ];
-  executablePath = "/etc/profiles/per-user/$USER/bin/npm";
+  executablePath = "npm";  # Using PATH now instead of hardcoded path
 }

@@ -1,11 +1,14 @@
 { pkgs, lib, config, userConfig ? {}, ... }:
 
 let
-  packageManager = import ../../../lib/package-manager.nix { inherit lib; };
-in packageManager.mkPackageManager {
+  activationUtils = import ../../../lib/activation-utils.nix { inherit lib; };
+in activationUtils.mkPackageManager {
   name = "uvx";
   basePackages = [ "skydeckai-code" ];
-  additionalPackages = [];
+  additionalPackages = if userConfig ? uvx && userConfig.uvx ? additionalPackages
+    then userConfig.uvx.additionalPackages
+    else [];
   executableArguments = [];
-  executablePath = "$HOME/.local/bin/uvx";
+  executablePath = "uvx";  # Using PATH now instead of hardcoded path
+  skipIfMissing = true;    # Skip if uvx is not installed
 }
