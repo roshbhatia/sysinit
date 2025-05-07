@@ -14,7 +14,7 @@ M.plugins = {{
         auto_session_use_git_branch = true,
         -- Don't save these buffers/directories in the session
         auto_session_suppress_dirs = {"~/", "~/Downloads", "~/Documents"},
-        bypass_session_save_file_types = {"alpha", "NvimTree", "neo-tree", "qf", "help", "nofile"},
+        bypass_session_save_file_types = {"alpha", "neo-tree", "qf", "help", "nofile"},
         pre_save_cmds = { -- Close things that shouldn't be saved before saving the session
         "Neotree close", function()
             -- Hide the statusline and tabline
