@@ -4,106 +4,127 @@ local plugin_manager = require('sysinit.pkg.plugin_manager')
 local config_path = vim.fn.stdpath('config')
 package.path = package.path .. ";" .. config_path .. "/?.lua" .. ";" .. config_path .. "/lua/?.lua"
 
+-- Disable 'q' in normal mode to avoid accidental macro recordings
 vim.api.nvim_set_keymap('n', 'q', '<Nop>', {
     noremap = true,
     silent = true
 })
 
+-- Disable Space key to use as <Leader> prefix
 vim.keymap.set({"n", "v"}, "<Space>", "<Nop>", {
     noremap = true,
     silent = true
 })
+-- Set leader key. Space is unmapped above to use as <Leader> prefix for custom shortcuts.
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
+-- Keep ':' mapping for entering command-line mode
 vim.keymap.set("n", ":", ":", {
     noremap = true,
     desc = "Command mode"
 })
 
+-- Scrolling: page down and center cursor
 vim.keymap.set("n", "<C-d>", "<C-d>zz", {
     noremap = true,
     silent = true
 })
+-- Scrolling: page up and center cursor
 vim.keymap.set("n", "<C-u>", "<C-u>zz", {
     noremap = true,
     silent = true
 })
+-- Search: next match, center and unfold
 vim.keymap.set("n", "n", "nzzzv", {
     noremap = true,
     silent = true
 })
+-- Search: previous match, center and unfold
 vim.keymap.set("n", "N", "Nzzzv", {
     noremap = true,
     silent = true
 })
+-- Terminal: double Esc to exit to Normal mode
 vim.keymap.set("t", "<Esc><Esc>", [[<C-\><C-n>]], {
     noremap = true,
     silent = true
 })
 
+-- Window nav: move to left split with Ctrl+h
 vim.keymap.set("n", "<C-h>", "<C-w>h", {
     noremap = true,
     silent = true,
     desc = "Move to left window"
 })
 
+-- Window nav: move to lower split with Ctrl+j
 vim.keymap.set("n", "<C-j>", "<C-w>j", {
     noremap = true,
     silent = true,
     desc = "Move to lower window"
 })
 
+-- Window nav: move to upper split with Ctrl+k
 vim.keymap.set("n", "<C-k>", "<C-w>k", {
     noremap = true,
     silent = true,
     desc = "Move to upper window"
 })
 
+-- Window nav: move to right split with Ctrl+l
 vim.keymap.set("n", "<C-l>", "<C-w>l", {
     noremap = true,
     silent = true,
     desc = "Move to right window"
 })
 
+-- File explorer: toggle Neotree (Alt+b)
 vim.keymap.set("n", "<A-b>", "<cmd>Neotree toggle<CR>", {
     noremap = true,
     silent = true,
     desc = "Toggle file explorer"
 })
 
+-- File explorer: toggle Neotree (Command+b)
 vim.keymap.set("n", "<D-b>", "<cmd>Neotree toggle<CR>", {
     noremap = true,
     silent = true,
     desc = "Toggle file explorer"
 })
 
+-- AI: toggle GitHub Copilot Chat
 vim.keymap.set("n", "<A-D-jkb>", "<cmd>CopilotChatToggle<CR>", {
     noremap = true,
     silent = true,
     desc = "Toggle Copilot Chat"
 })
 
+-- Motion: Hop plugin – jump to word (Shift+Enter) in normal mode
 vim.keymap.set("n", "<S-CR>", "<cmd>HopWord<CR>", {
     noremap = true,
     silent = true,
     desc = "Hop to word"
 })
 
+-- Motion: Hop plugin – jump to word (Shift+Enter) in insert mode
 vim.keymap.set("i", "<S-CR>", "<Esc><cmd>HopWord<CR>", {
     noremap = true,
     silent = true,
     desc = "Hop to word"
 })
 
+-- Comment: toggle current line (Command+/)
 vim.keymap.set("n", "<D-/>", "<Plug>(comment_toggle_linewise_current)", {
     desc = "Toggle comment"
 })
 
+-- Comment: toggle selection (Command+/)
 vim.keymap.set("v", "<D-/>", "<Plug>(comment_toggle_linewise_visual)", {
     desc = "Toggle comment"
 })
 
+-- Buffers: quick switch to buffer N via Ctrl+N
 for i = 1, 9 do
     vim.keymap.set("n", "<C-" .. i .. ">", "<cmd>buffer " .. i .. "<CR>", {
         noremap = true,
@@ -112,12 +133,14 @@ for i = 1, 9 do
     })
 end
 
+-- File: save current buffer (Command+s)
 vim.keymap.set({"n", "i", "v"}, "<D-s>", "<cmd>w<CR>", {
     noremap = true,
     silent = true,
     desc = "Save file"
 })
 
+-- File/Buffer: close buffer or quit if last (Command+w)
 vim.keymap.set({"n", "i", "v"}, "<D-w>", function()
     local buf_count = 0
     for _ in pairs(vim.fn.getbufinfo({
@@ -137,12 +160,14 @@ end, {
     desc = "Close buffer or quit"
 })
 
+-- File: new empty buffer (Command+n)
 vim.keymap.set({"n", "i", "v"}, "<D-n>", "<cmd>enew<CR>", {
     noremap = true,
     silent = true,
     desc = "New file"
 })
 
+-- Clipboard: copy selection to system clipboard (Command+c)
 vim.keymap.set("v", "<D-c>", '"+y', {
     noremap = true,
     silent = true,
