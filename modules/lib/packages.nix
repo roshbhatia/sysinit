@@ -1,7 +1,6 @@
 { pkgs, lib, ... }:
 
 {
-  # Define the system packages (previously in system.nix)
   # These are installed at the system level when Homebrew is disabled
   systemPackages = with pkgs; [
     argocd
@@ -25,8 +24,6 @@
     nil
     nixfmt-rfc-style
     nushell
-    pipx
-    python3
     ripgrep
     screenresolution
     shellcheck

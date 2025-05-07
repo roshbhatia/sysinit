@@ -25,8 +25,7 @@ in
   };
 
   # Replace the old activation script with our new framework
-  home.activation = activationUtils.mkActivationScript {
-    name = "neovimPermissions";
+  home.activation.neovimPermissions = activationUtils.mkActivationScript {
     description = "Setting VSCode key repeat preferences for Neovim";
     after = [ "setupActivationUtils" "writeBoundary" ];
     script = ''
