@@ -1,5 +1,9 @@
 { config, lib, pkgs, homeDirectory, ... }:
 
+let
+  pathLib = import ../../lib/path.nix { inherit lib; };
+  loggerLib = import ../../lib/logger.nix { inherit lib; };
+in
 {
   programs.neovim = {
     enable = true;
@@ -20,6 +24,17 @@
     source = config.lib.file.mkOutOfStoreSymlink ./lua;
     force = true;
   };
+
+  home.activation.neovimLogger = loggerLib.mkLogger {
+    name = "neovim";
+    logDir = "/tmp/log";
+    logPrefix = "neovim";
+  }.home.activation.neovimLogger;
+
+  home.activation.neovimPathExporter = pathLib.mkPathExporter {
+    name = "neovim";
+    additionalPaths = [];
+  }.home.activation.neovimPathExporter;
 
   home.activation.neovimPermissions = {
     after = [ "writeBoundary" ];
