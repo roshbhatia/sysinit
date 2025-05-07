@@ -1,29 +1,8 @@
 { lib, ... }:
 
 let
-  defaultPaths = [
-    "/opt/homebrew/bin"
-    "/opt/homebrew/sbin"
-    "/usr/bin"
-    "/usr/local/opt/cython/bin"
-    "/usr/sbin"
-    "$HOME/.krew/bin"
-    "$HOME/.local/bin"
-    "$HOME/.npm-global/bin"
-    "$HOME/.npm-global/bin/yarn"
-    "$HOME/.rvm/bin"
-    "$HOME/.yarn/bin"
-    "$HOME/bin"
-    "$HOME/go/bin"
-    "$XDG_CONFIG_HOME/.cargo/bin"
-    "$XDG_CONFIG_HOME/yarn/global/node_modules/.bin"
-    "$XDG_CONFIG_HOME/zsh/bin"
-    "$HOME/.uv/bin"
-    "$HOME/.yarn/global/node_modules/.bin"
-    "$HOME/.cargo/bin"
-    "/bin"
-    "/sbin"
-  ];
+  # Define the path to the activation tools shell script
+  activationToolsPath = ./activation-tools.sh;
 in {
   /**
    * Creates an activation utils script for PATH management and logging functions
@@ -32,76 +11,27 @@ in {
    * are available for all subsequent activations.
    */
   mkActivationUtils = {
-    logDir ? "/tmp/log",
+    logDir ? "/tmp/sysinit-logs",
     logPrefix ? "sysinit",
     additionalPaths ? [],
-  }: let
-    allPaths = lib.unique (defaultPaths ++ additionalPaths);
-    escapedPaths = lib.concatStringsSep ":" allPaths;
-  in {
+  }: {
     # Ensure this runs first, before other activation scripts
     after = [];
     before = [ "*" ];
     data = ''
-      ########## PATH SETUP ##########
-      export PATH="${escapedPaths}:$PATH"
+      # Source the activation tools
+      source ${activationToolsPath}
       
-      ########## LOGGING SETUP ##########
-      LOG_DIR="${logDir}"
-      LOG_PREFIX="${logPrefix}"
-      mkdir -p "$LOG_DIR"
+      # Set custom log directory and prefix if provided
+      export LOG_DIR="${logDir}"
+      export LOG_PREFIX="${logPrefix}"
       
-      log_info() {
-        echo -e "[\033[0;36m$(date '+%Y-%m-%d %H:%M:%S')\033[0m] [\033[0;34mINFO\033[0m] $1"
-        echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $1" >> "$LOG_DIR/${logPrefix}.log"
-      }
+      # Add additional paths if specified
+      ${lib.concatMapStrings (path: ''
+        export PATH="${path}:$PATH"
+      '') additionalPaths}
       
-      log_debug() {
-        echo -e "[\033[0;36m$(date '+%Y-%m-%d %H:%M:%S')\033[0m] [\033[0;35mDEBUG\033[0m] $1"
-        echo "[$(date '+%Y-%m-%d %H:%M:%S')] [DEBUG] $1" >> "$LOG_DIR/${logPrefix}.log"
-      }
-      
-      log_error() {
-        echo -e "[\033[0;36m$(date '+%Y-%m-%d %H:%M:%S')\033[0m] [\033[0;31mERROR\033[0m] $1"
-        echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $1" >> "$LOG_DIR/${logPrefix}.log"
-      }
-      
-      log_success() {
-        echo -e "[\033[0;36m$(date '+%Y-%m-%d %H:%M:%S')\033[0m] [\033[0;32mSUCCESS\033[0m] $1"
-        echo "[$(date '+%Y-%m-%d %H:%M:%S')] [SUCCESS] $1" >> "$LOG_DIR/${logPrefix}.log"
-      }
-      
-      log_command() {
-        local cmd="$1"
-        local description="$2"
-        log_info "Running: $description"
-        
-        # Execute the command and capture its output
-        local output
-        if output=$(eval "$cmd" 2>&1); then
-          log_success "$description completed"
-          [ -n "$output" ] && echo "$output"
-          return 0
-        else
-          local exit_code=$?
-          log_error "$description failed with exit code $exit_code"
-          [ -n "$output" ] && echo "$output"
-          return $exit_code
-        fi
-      }
-      
-      check_executable() {
-        local executable="$1"
-        if ! command -v "$executable" &> /dev/null; then
-          log_error "$executable not found in PATH"
-          return 1
-        fi
-        log_debug "Found $executable at $(command -v "$executable")"
-        return 0
-      }
-      
-      log_debug "Activation utilities initialized"
-      log_debug "PATH: $PATH"
+      log_debug "Activation utilities initialized with custom settings"
     '';
   };
   
@@ -125,6 +55,9 @@ in {
     after = [ "setupActivationUtils" ];
     before = [];
     data = ''
+      # Source the activation tools
+      source ${activationToolsPath}
+      
       log_info "Managing ${name} packages..."
       
       # Check if executable exists
@@ -159,6 +92,9 @@ in {
   }: {
     inherit after before;
     data = ''
+      # Source the activation tools
+      source ${activationToolsPath}
+      
       ${if description != "" then ''log_info "Starting: ${description}"'' else ""}
       
       # Check required executables
