@@ -4,11 +4,6 @@ M.plugins = {{
     "nvim-neo-tree/neo-tree.nvim",
     branch = "v3.x",
     cmd = "Neotree",
-    keys = {{
-        "<leader>ee",
-        "<cmd>Neotree toggle<cr>",
-        desc = "Explorer: toggle file tree"
-    }},
     dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "MunifTanjim/nui.nvim"},
     config = function()
         vim.g.neo_tree_remove_legacy_commands = 1
@@ -167,7 +162,12 @@ M.plugins = {{
             silent = true,
             desc = "Explorer: toggle file tree"
         })
-    end
+    end,
+    keys = {{
+        "<leader>eo",
+        "<cmd>Neotree reveal<CR>",
+        desc = "Explorer: reveal file tree"
+    }}
 }}
 
 return M
