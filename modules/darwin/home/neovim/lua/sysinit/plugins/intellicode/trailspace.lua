@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {{
     "echasnovski/mini.trailspace",
     lazy = true,
-    opts = function()
+    config = function()
         local trim_whitespace_enabled = true
         local whitespace_augroup = vim.api.nvim_create_augroup("whitespace_trim_augroup", {
             clear = true

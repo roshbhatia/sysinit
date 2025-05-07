@@ -5,8 +5,8 @@ local M = {}
 -- Define plugins spec for lazy.nvim
 M.plugins = {{
     "Cassin01/wf.nvim",
-    event = "VeryLazy",
-    opts = function()
+    lazy = false,
+    config = function()
         local which_key = require("wf.builtin.which_key")
         local keybindings = M.load_groups and M.load_groups() or {}
         require("wf").setup({
