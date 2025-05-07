@@ -29,11 +29,11 @@ WHITE="\033[97m"
 BG_BLUE="\033[44m"
 BG_BLACK="\033[40m"
 
-# Border styling
-BORDER_VERT="${BLUE}│${RESET}"
-BORDER_TOP="${BLUE}┌$RESET"
-BORDER_BOTTOM="${BLUE}└$RESET"
-BORDER_FILL="${BLUE}─$RESET"
+# Border styling (using ASCII instead of Unicode)
+BORDER_VERT="${BLUE}|${RESET}"
+BORDER_TOP="${BLUE}+${RESET}"
+BORDER_BOTTOM="${BLUE}+${RESET}"
+BORDER_FILL="${BLUE}-${RESET}"
 
 # Determine terminal width
 term_width=$(tput cols)
@@ -51,7 +51,7 @@ done
 
 # Draw the top border
 draw_top_border() {
-    echo -e "${BORDER_TOP}$(printf "%${border_width}s" | tr ' ' '─')${BLUE}┐${RESET}"
+    echo -e "${BORDER_TOP}$(printf "%${border_width}s" | tr ' ' '-')${BLUE}+${RESET}"
 }
 
 # Draw message type with appropriate color
@@ -116,7 +116,7 @@ redraw_display() {
     done
     
     # Draw the bottom border
-    echo -e "${BORDER_BOTTOM}$(printf "%${border_width}s" | tr ' ' '─')${BLUE}┘${RESET}"
+    echo -e "${BORDER_BOTTOM}$(printf "%${border_width}s" | tr ' ' '-')${BLUE}+${RESET}"
 }
 
 line_count=0
