@@ -1,7 +1,8 @@
 { config, lib, pkgs, userConfig ? {}, inputs, ... }:
 
 let
-  # Function to resolve a possibly relative path to an absolute path with strict validation
+  pathLib = import ../../lib/path.nix { inherit lib; };
+  loggerLib = import ../../lib/logger.nix { inherit lib; };
   resolvePath = path:
     let
       flakeRoot = if inputs ? sysinit 
@@ -15,30 +16,32 @@ let
       if pathExists
       then resolvedPath
       else throw "ERROR: Wallpaper file not found at ${resolvedPath}";
-      
-  # Get wallpaper path with strict validation
   wallpaperPath = 
     if userConfig ? wallpaper && userConfig.wallpaper ? path then
       let 
         path = userConfig.wallpaper.path;
-        # Verify wallpaper exists before attempting to use it
         _ = resolvePath path;
       in path
     else ./images/bladerunner0.jpg;
-    
-  # Get the fully resolved wallpaper path
   resolvedWallpaperPath = resolvePath wallpaperPath;
 in
 {
+  home.activation.wallpaperLogger = loggerLib.mkLogger {
+    name = "wallpaper";
+    logDir = "/tmp/log";
+    logPrefix = "wallpaper";
+  }.home.activation.wallpaperLogger;
+
+  home.activation.wallpaperPathExporter = pathLib.mkPathExporter {
+    name = "wallpaper";
+    additionalPaths = [];
+  }.home.activation.wallpaperPathExporter;
+
   home.activation.setWallpaper = lib.hm.dag.entryAfter ["writeBoundary"] ''
     echo "Setting wallpaper..."
-    
     set +e
-        
-    # Set wallpaper path variable explicitly in the main script
     WALLPAPER_PATH="${resolvedWallpaperPath}"
     echo "Using wallpaper: $WALLPAPER_PATH"
-    
     if [ -f "$WALLPAPER_PATH" ]; then
       OSASCRIPT="/usr/bin/osascript"
       if [ -x "$OSASCRIPT" ]; then
@@ -50,7 +53,6 @@ in
     else
       echo "⚠️  Wallpaper file not found at $WALLPAPER_PATH"
     fi
-    
     exit 0
   '';
 }

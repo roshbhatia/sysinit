@@ -1,6 +1,9 @@
 { pkgs, lib, username, homeDirectory, userConfig ? {}, enableHomebrew, ... }:
 
-{
+let
+  logger = import ../lib/logger.nix { inherit lib; };
+  path = import ../lib/path.nix { inherit lib; };
+in {
   system = {
     defaults = {
       alf = {
@@ -122,6 +125,7 @@
     fi
     /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
   '';
+  
   # Ensure user owns /usr/local/bin for easy management without sudo
   system.activationScripts.fixUsrLocalBin = {
     text = ''
@@ -130,5 +134,17 @@
         chown -R ${username} /usr/local/bin || true
       fi
     '';
+  };
+
+  home.activation.logger = logger.mkLogger {
+    name = "system";
+  };
+
+  home.activation.pathExporter = path.mkPathExporter {
+    name = "system";
+    additionalPaths = [
+      "${homeDirectory}/.local/bin"
+      "${homeDirectory}/bin"
+    ];
   };
 }

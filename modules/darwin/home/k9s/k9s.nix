@@ -1,6 +1,8 @@
 { config, lib, pkgs, ... }:
 
 let
+  pathLib = import ../../lib/path.nix { inherit lib; };
+  loggerLib = import ../../lib/logger.nix { inherit lib; };
   k9sConfig = {
     k9s = {
       liveViewAutoRefresh = true;
@@ -86,7 +88,7 @@ let
         background = false;
         args = [
           "-c"
-          ''watch -n .5 "kubectl get applications -n argocd-system $NAME -o json | jq -r '. as \\$app | \"Application Status -- $NAME: \\(\\$app.status.sync.status)\", \"Resources Status:\", (\"Kind,Name,Status\", (.status.resources[] | [ .kind, .name, .status ] | @csv))' | awk -F, '{if (NR > 2) {for (i=1; i<=NF; i++) {gsub(/^\\\"|\\\"$/, \"\", $i); if (length($i) > 30) $i = substr($i, 1, 27) \"...\"; else while (length($i) < 30) $i = $i \" \"; } OFS=\"\\t\"; print} else {print $0}}'"''
+          ''watch -n .5 "kubectl get applications -n argocd-system $NAME -o json | jq -r '. as \\$app | \"Application Status -- $NAME: \\\$app.status.sync.status)\", \"Resources Status:\", (\"Kind,Name,Status\", (.status.resources[] | [ .kind, .name, .status ] | @csv))' | awk -F, '{if (NR > 2) {for (i=1; i<=NF; i++) {gsub(/^\\\"|\\\"$/, \"\", $i); if (length($i) > 30) $i = substr($i, 1, 27) \"...\"; else while (length($i) < 30) $i = $i \" \"; } OFS=\"\\t\"; print} else {print $0}}'"''
         ];
       };
       "view-resource-in-vscode" = {
@@ -103,6 +105,17 @@ let
     };
   };
 in {
+  home.activation.k9sLogger = loggerLib.mkLogger {
+    name = "k9s";
+    logDir = "/tmp/log";
+    logPrefix = "k9s";
+  }.home.activation.k9sLogger;
+
+  home.activation.k9sPathExporter = pathLib.mkPathExporter {
+    name = "k9s";
+    additionalPaths = [];
+  }.home.activation.k9sPathExporter;
+
   xdg.configFile = {
     "k9s/config.yaml" = {
       text = lib.generators.toYAML {} k9sConfig;
