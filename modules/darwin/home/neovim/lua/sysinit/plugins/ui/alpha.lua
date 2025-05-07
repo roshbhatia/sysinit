@@ -2,13 +2,14 @@ local M = {}
 
 M.plugins = {{
     "goolord/alpha-nvim",
-    lazy = false,
-    priority = 99,
-    dependencies = {"nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim", "folke/persistence.nvim"},
+    event = "VimEnter",
+    enabled = function()
+        return not vim.g.vscode
+    end,
+    dependencies = {"nvim-tree/nvim-web-devicons"},
     config = function()
         local alpha = require("alpha")
         local dashboard = require("alpha.themes.dashboard")
-        local win_width = vim.o.columns
 
         -- Set header
         dashboard.section.header.val =
@@ -33,134 +34,101 @@ M.plugins = {{
              "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣿⣫⣿⣿⣯⡮⣟⣺⣿⢹⣿⣿⠜⢦⣽⡟⠀⡜⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⣿⣿⡇",
              ""}
 
-        dashboard.section.header.opts.hl = "ProfileRed"
+        dashboard.section.header.opts = {
+            position = "center",
+            hl = "DashboardHeader"
+        }
 
-        dashboard.section.buttons.val = {dashboard.button("a", "  Load Last Session", require("persistence").load({
-            last = true
-        })), dashboard.button("i", "  Init Buffer", ":enew<CR>"),
-                                         dashboard.button("f", "  Find Files", ":Telescope find_files<CR>"),
-                                         dashboard.button("r", "  Recent Files", ":Telescope oldfiles<CR>"),
-                                         dashboard.button("g", "  Live Grep", ":Telescope live_grep<CR>"),
-                                         dashboard.button("q", "  Quit", ":qa<CR>")}
+        dashboard.section.buttons.val = {dashboard.button("f", "  Find file", ":Telescope find_files <CR>"),
+                                         dashboard.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
+                                         dashboard.button("p", "  Find project", ":Telescope projects <CR>"),
+                                         dashboard.button("r", "  Recently used files", ":Telescope oldfiles <CR>"),
+                                         dashboard.button("t", "  Find text", ":Telescope live_grep <CR>"),
+                                         dashboard.button("c", "  Configuration", ":e $MYVIMRC <CR>"),
+                                         dashboard.button("q", "  Quit Neovim", ":qa<CR>")}
 
-        -- Footer with git contributions (simplified)
-        local function get_git_contributions()
-            -- This is a placeholder. You might want to implement actual git contribution tracking
-            local contributions = {}
-            for i = 1, 40 do
-                table.insert(contributions, math.random(0, 4))
-            end
-
-            local contribution_str = {}
-            for _, level in ipairs(contributions) do
-                local chars = {" ", "▁", "▂", "▃", "▄", "█"}
-                table.insert(contribution_str, chars[level + 1])
-            end
-
-            return table.concat(contribution_str)
+        local function footer()
+            local stats = require("lazy").stats()
+            local ms = (math.floor(stats.startuptime * 100 + 0.5) / 100)
+            return "⚡ Neovim loaded " .. stats.count .. " plugins in " .. ms .. "ms"
         end
 
-        dashboard.section.footer.val = {"Git Contributions: " .. get_git_contributions(), ""}
-
-        -- Custom configuration
-        dashboard.config.layout = {{
+        dashboard.section.footer.val = footer()
+        dashboard.section.footer.opts.hl = "DashboardFooter"
+        dashboard.section.buttons.opts.hl = "DashboardCenter"
+        dashboard.opts.layout = {{
             type = "padding",
-            val = 2
+            val = 4
         }, dashboard.section.header, {
             type = "padding",
             val = 2
         }, dashboard.section.buttons, {
             type = "padding",
-            val = 1
+            val = 2
         }, dashboard.section.footer}
 
-        alpha.setup(dashboard.config)
+        -- Use protected calls for Alpha to prevent errors
+        alpha.setup(dashboard.opts)
 
-        -- Create Alpha UI state manager
-        local alpha_ui = {
-            -- Store original UI values
-            state = {},
-
-            -- Save current UI state with proper value retrieval
-            save = function()
-                return {
-                    showtabline = vim.opt.showtabline:get(),
-                    ruler = vim.opt.ruler:get(),
-                    laststatus = vim.opt.laststatus:get(),
-                    number = vim.opt.number:get(),
-                    relativenumber = vim.opt.relativenumber:get(),
-                    signcolumn = vim.opt.signcolumn:get(),
-                    mousescroll = vim.opt.mousescroll:get(),
-                    guicursor = vim.opt.guicursor:get()
-                }
-            end,
-
-            -- Apply Alpha-specific UI settings
-            apply = function()
-                vim.opt.showtabline = 0
-                vim.opt.ruler = false
-                vim.opt.laststatus = 0
-                vim.opt.number = false
-                vim.opt.relativenumber = false
-                vim.opt.signcolumn = "no"
-                vim.opt.mousescroll = "ver:0,hor:0"
-                vim.opt.guicursor = "n:none"
-            end,
-
-            -- Restore saved UI state
-            restore = function(saved_state)
-                for option, value in pairs(saved_state) do
-                    -- Use pcall for error handling
-                    pcall(function()
-                        vim.opt[option] = value
-                    end)
-                end
+        -- Safe redraw function that won't break when buffer doesn't exist
+        local alpha_redraw = function()
+            -- Only update if the dashboard buffer exists and is visible
+            local bufnr = vim.fn.bufnr('dashboard')
+            if bufnr and bufnr ~= -1 and vim.api.nvim_buf_is_valid(bufnr) then
+                dashboard.section.footer.val = footer()
+                pcall(vim.cmd.AlphaRedraw)
             end
-        }
+        end
 
-        -- Create an augroup for Alpha UI management
-        local alpha_ui_group = vim.api.nvim_create_augroup("AlphaUI", {
+        -- Auto-start Alpha when no args and no buffers
+        vim.api.nvim_create_augroup("alpha_autostart", {
             clear = true
         })
 
-        -- When Alpha is ready, save state and apply Alpha UI
+        -- Safely update dashboard stats when lazy.nvim completes loading
         vim.api.nvim_create_autocmd("User", {
-            group = alpha_ui_group,
-            pattern = "AlphaReady",
+            pattern = "LazyVimStarted",
             callback = function()
-                -- Store the state in buffer-local variable for reliability
-                local buf = vim.api.nvim_get_current_buf()
-                -- Save the state first
-                vim.b[buf].alpha_ui_saved_state = alpha_ui.save()
-                -- Then apply Alpha UI settings
-                alpha_ui.apply()
+                pcall(alpha_redraw)
             end
         })
 
-        -- When Alpha is closed, restore UI from saved state
-        vim.api.nvim_create_autocmd("User", {
-            group = alpha_ui_group,
-            pattern = "AlphaClosed",
+        -- Only show dashboard when starting Neovim with no arguments
+        vim.api.nvim_create_autocmd("VimEnter", {
+            group = "alpha_autostart",
             callback = function()
-                -- Get the buffer where state was saved
-                local bufs = vim.api.nvim_list_bufs()
-                for _, buf in ipairs(bufs) do
-                    -- If this buffer has saved state, restore from it
-                    if vim.b[buf] and vim.b[buf].alpha_ui_saved_state then
-                        alpha_ui.restore(vim.b[buf].alpha_ui_saved_state)
-                        -- Clear the saved state to avoid potential issues
-                        vim.b[buf].alpha_ui_saved_state = nil
-                        break
+                local should_skip = false
+                -- Check if there are files specified on the command line
+                if vim.fn.argc() > 0 or vim.fn.line2byte('$') ~= -1 or not vim.o.modifiable then
+                    should_skip = true
+                else
+                    -- Check for command line arguments that would indicate we shouldn't show Alpha
+                    for _, arg in pairs(vim.v.argv) do
+                        if arg == "-b" or arg == "-c" or vim.startswith(arg, "+") or arg == "-S" then
+                            should_skip = true
+                            break
+                        end
                     end
                 end
-            end
+
+                -- Only start Alpha if we should not skip it
+                if not should_skip then
+                    -- Use pcall to prevent errors if Alpha can't start for some reason
+                    pcall(function()
+                        require('alpha').start(true)
+                        vim.cmd("AlphaFooter")
+                    end)
+                end
+            end,
+            desc = "Start Alpha when Neovim is opened with no arguments"
         })
 
-        vim.api.nvim_create_autocmd("VimEnter", {
-            pattern = "*",
+        -- Add protection against window resize errors
+        vim.api.nvim_create_autocmd("WinResized", {
             callback = function()
-                vim.cmd("Alpha")
-            end
+                pcall(alpha_redraw)
+            end,
+            desc = "Safely redraw Alpha dashboard on window resize"
         })
     end
 }}
