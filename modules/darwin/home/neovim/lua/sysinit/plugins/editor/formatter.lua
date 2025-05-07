@@ -3,8 +3,6 @@ local M = {}
 
 M.plugins = {{
     "stevearc/conform.nvim",
-    lazy = true,
-    event = "VeryLazy",
     opts = {
         formatters_by_ft = {
             lua = "stylua",
