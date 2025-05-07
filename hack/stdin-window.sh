@@ -39,11 +39,12 @@ BORDER_FILL="${BLUE}-${RESET}"
 term_width=$(tput cols)
 border_width=$((term_width - 2))
 
+# Save cursor position and hide cursor
 tput sc
 tput civis
 trap 'tput cnorm; tput rc; tput ed; exit' INT TERM EXIT
 
-# Initialize the lines array
+# Initialize the lines array with empty strings
 declare -a lines=()
 for ((i=0; i<height; i++)); do
     lines[i]=""
@@ -98,40 +99,70 @@ colorize_log_level() {
     echo "$line"
 }
 
-redraw_display() {
+# Initial drawing of the window (filled with empty lines)
+initial_draw() {
+    # Clear the screen area
     tput rc
     tput ed
     
     # Draw the top border
     draw_top_border
     
-    # Draw each line with the left border
+    # Draw empty lines with left border
     for ((i=0; i<height; i++)); do
-        if [[ -n "${lines[i]}" ]]; then
-            colored_line=$(colorize_log_level "${lines[i]}")
-            echo -e "${BORDER_VERT} ${colored_line}"
-        else
-            echo -e "${BORDER_VERT}"
-        fi
+        echo -e "${BORDER_VERT}"
     done
     
     # Draw the bottom border
     echo -e "${BORDER_BOTTOM}$(printf "%${border_width}s" | tr ' ' '-')${BLUE}+${RESET}"
+    
+    # Move cursor back to the start position plus border height
+    tput rc
+    # Move down 1 line (top border)
+    tput cud 1
 }
 
-line_count=0
-while IFS= read -r line; do
-    if [[ $line_count -ge $height ]]; then
-        for ((i=0; i<height-1; i++)); do
-            lines[i]="${lines[i+1]}"
-        done
-        lines[$((height-1))]="$line"
-    else
-        lines[$line_count]="$line"
-        ((line_count++))
-    fi
+# Redraw the content of the window
+redraw_content() {
+    # Save current position
+    tput sc
     
-    redraw_display
+    # For each line in our buffer
+    for ((i=0; i<height; i++)); do
+        # Move to the correct line position (top border + line number)
+        tput rc
+        tput cud $((i+1))
+        
+        # Clear the line
+        tput el
+        
+        if [[ -n "${lines[i]}" ]]; then
+            colored_line=$(colorize_log_level "${lines[i]}")
+            echo -en "${BORDER_VERT} ${colored_line}"
+        else
+            echo -en "${BORDER_VERT}"
+        fi
+    done
+    
+    # Restore position
+    tput rc
+}
+
+# Draw the initial empty window
+initial_draw
+
+# Manage input lines
+while IFS= read -r line; do
+    # Shift all lines up by one
+    for ((i=0; i<height-1; i++)); do
+        lines[i]="${lines[i+1]}"
+    done
+    
+    # Add the new line at the bottom
+    lines[$((height-1))]="$line"
+    
+    # Redraw the content
+    redraw_content
 done
 
 exit 0
