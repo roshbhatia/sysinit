@@ -2,8 +2,7 @@ local M = {}
 
 M.plugins = {{
     "goolord/alpha-nvim",
-    event = "VimEnter",
-    enabled = true,
+    lazy = false,
     config = function()
         local dashboard = require("alpha.themes.dashboard")
         dashboard.section.header.val = {"                                             ",
