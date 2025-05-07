@@ -4,7 +4,8 @@ local M = {}
 M.plugins = {{
     "folke/persistence.nvim",
     lazy = false,
-    priority = 100
+    priority = 100,
+    opts = {}
 }}
 
 return M
