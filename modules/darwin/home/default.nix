@@ -64,6 +64,7 @@ in {
     ./node/yarn.nix
     ./python/pipx.nix
     ./python/uvx.nix
-    ./go/go.nix  
+    ./go/go.nix
+    ./test-activation.nix
   ];
 }

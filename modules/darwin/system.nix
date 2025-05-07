@@ -1,8 +1,11 @@
 { pkgs, lib, username, homeDirectory, userConfig ? {}, enableHomebrew, ... }:
 
 let
-  logger = import ../lib/logger.nix { inherit lib; };
-  path = import ../lib/path.nix { inherit lib; };
+  # Import the activation utils
+  activationUtils = import ../lib/activation-utils.nix { inherit lib; };
+  
+  # Import the shared package definitions
+  packageLib = import ../lib/packages.nix { inherit pkgs lib; };
 in {
   system = {
     defaults = {
@@ -61,39 +64,8 @@ in {
   };
   
   # Migrate common CLI tools from Homebrew to Nix when Homebrew is disabled
-  environment.systemPackages = lib.mkIf (!enableHomebrew) (with pkgs; [
-    argocd
-    ansible
-    caddy
-    colima
-    direnv
-    eza
-    fd
-    glow
-    gum
-    gettext
-    helm
-    oh-my-posh
-    kubectl
-    kubecolor
-    k9s
-    lazygit
-    libgit2
-    luajit
-    nil
-    nixfmt-rfc-style
-    nushell
-    pipx
-    python3
-    ripgrep
-    screenresolution
-    shellcheck
-    socat
-    sshpass
-    tailscale
-    go-task
-    yazi
-  ]);
+  # Packages are defined in modules/lib/packages.nix
+  environment.systemPackages = lib.mkIf (!enableHomebrew) packageLib.systemPackages;
 
   launchd.agents.colima = {
     serviceConfig = {
@@ -117,21 +89,49 @@ in {
   
   security.pam.services.sudo_local.touchIdAuth = true;
  
+  # Use our custom activation script format for system activation scripts
   system.activationScripts.postUserActivation.text = ''  
+    # Setup PATH and logging functions
+    export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/bin:/usr/sbin:/bin:/sbin:$PATH"
+    
+    log_info() {
+      echo -e "[\033[0;36m$(date '+%Y-%m-%d %H:%M:%S')\033[0m] [\033[0;34mINFO\033[0m] $1"
+    }
+    
+    log_success() {
+      echo -e "[\033[0;36m$(date '+%Y-%m-%d %H:%M:%S')\033[0m] [\033[0;32mSUCCESS\033[0m] $1"
+    }
+    
     # Install Rosetta 2 for M1/M2 Mac compatibility
     if [[ "$(uname -m)" == "arm64" ]] && ! /usr/bin/pgrep -q "oahd"; then
-      echo "Installing Rosetta 2 for Intel app compatibility..."
+      log_info "Installing Rosetta 2 for Intel app compatibility..."
       /usr/sbin/softwareupdate --install-rosetta --agree-to-license
+      log_success "Rosetta 2 installed"
     fi
+    
+    # Activate settings
+    log_info "Activating system settings..."
     /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
+    log_success "System settings activated"
   '';
   
-  # Ensure user owns /usr/local/bin for easy management without sudo
+  # Fix /usr/local/bin ownership using our consistent logging
   system.activationScripts.fixUsrLocalBin = {
     text = ''
+      export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/bin:/usr/sbin:/bin:/sbin:$PATH"
+      
+      log_info() {
+        echo -e "[\033[0;36m$(date '+%Y-%m-%d %H:%M:%S')\033[0m] [\033[0;34mINFO\033[0m] $1"
+      }
+      
+      log_success() {
+        echo -e "[\033[0;36m$(date '+%Y-%m-%d %H:%M:%S')\033[0m] [\033[0;32mSUCCESS\033[0m] $1"
+      }
+      
       if [ -d /usr/local/bin ]; then
-        echo "Fixing ownership of /usr/local/bin"
+        log_info "Fixing ownership of /usr/local/bin"
         chown -R ${username} /usr/local/bin || true
+        log_success "Fixed ownership of /usr/local/bin"
       fi
     '';
   };

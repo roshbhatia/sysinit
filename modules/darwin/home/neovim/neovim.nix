@@ -1,8 +1,7 @@
 { config, lib, pkgs, homeDirectory, ... }:
 
 let
-  pathLib = import ../../lib/path.nix { inherit lib; };
-  loggerLib = import ../../lib/logger.nix { inherit lib; };
+  activationUtils = import ../../../lib/activation-utils.nix { inherit lib; };
 in
 {
   programs.neovim = {
@@ -25,11 +24,13 @@ in
     force = true;
   };
 
-  home.activation.neovimPermissions = {
-    after = [ "writeBoundary" ];
-    before = [];
-    data = ''
-      /usr/bin/defaults write com.microsoft.VSCodeInsiders ApplePressAndHoldEnabled -bool false
+  # Replace the old activation script with our new framework
+  home.activation = activationUtils.mkActivationScript {
+    name = "neovimPermissions";
+    description = "Setting VSCode key repeat preferences for Neovim";
+    after = [ "setupActivationUtils" "writeBoundary" ];
+    script = ''
+      log_command "/usr/bin/defaults write com.microsoft.VSCodeInsiders ApplePressAndHoldEnabled -bool false" "Configuring VSCode key repeat"
     '';
   };
 }
