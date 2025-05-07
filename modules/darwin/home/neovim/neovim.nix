@@ -25,17 +25,6 @@ in
     force = true;
   };
 
-  home.activation.neovimLogger = loggerLib.mkLogger {
-    name = "neovim";
-    logDir = "/tmp/log";
-    logPrefix = "neovim";
-  }.home.activation.neovimLogger;
-
-  home.activation.neovimPathExporter = pathLib.mkPathExporter {
-    name = "neovim";
-    additionalPaths = [];
-  }.home.activation.neovimPathExporter;
-
   home.activation.neovimPermissions = {
     after = [ "writeBoundary" ];
     before = [];

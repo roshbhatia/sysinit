@@ -102,35 +102,21 @@ let
       };
     };
   };
+
 in {
-  home.activation.k9sLogger = loggerLib.mkLogger {
-    name = "k9s";
-    logDir = "/tmp/log";
-    logPrefix = "k9s";
-  }.home.activation.k9sLogger;
-
-  home.activation.k9sPathExporter = pathLib.mkPathExporter {
-    name = "k9s";
-    additionalPaths = [];
-  }.home.activation.k9sPathExporter;
-
   xdg.configFile = {
     "k9s/config.yaml" = {
       text = lib.generators.toYAML {} k9sConfig;
       force = true;
     };
-    
     "k9s/aliases.yaml" = {
       text = lib.generators.toYAML {} k9sAliases;
       force = true;
     };
-    
     "k9s/plugins.yaml" = {
       text = lib.generators.toYAML {} k9sPlugins;
       force = true;
     };
-    
-    # Keep the skin file as-is
     "k9s/skins/monokai.yaml" = {
       source = ./skins/monokai.yaml;
       force = true;
