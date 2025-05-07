@@ -66,6 +66,5 @@ in {
     ./python/pipx.nix
     ./python/uvx.nix
     ./go/go.nix
-    ./test-activation.nix
   ];
 }
