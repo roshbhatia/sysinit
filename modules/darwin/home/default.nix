@@ -60,10 +60,10 @@ in {
     
     ./core/packages.nix
     ./cargo/cargo.nix
-    ./npm/npm.nix
-    ./npm/yarn.nix
-    ./pipx/pipx.nix
-    ./pipx/uv.nix
+    ./node/npm.nix
+    ./node/yarn.nix
+    ./python/pipx.nix
+    ./python/uvx.nix
     ./go/go.nix  
   ];
 }
