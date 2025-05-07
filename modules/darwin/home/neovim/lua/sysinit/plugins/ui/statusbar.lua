@@ -4,7 +4,9 @@ M.plugins = {{
     dir = ".",
     name = "vscode-statusbar",
     lazy = false,
-    cond = vim.g.vscode,
+    enabled = function()
+        return vim.g.vscode
+    end,
     opts = {
         mode_icons = {
             n = {
@@ -120,7 +122,9 @@ M.plugins = {{
 }, {
     "tamton-aquib/staline.nvim",
     lazy = false,
-    cond = not vim.g.vscode,
+    enabled = function()
+        return not vim.g.vscode
+    end,
     opts = {
         sections = {
             left = {"mode", "branch", "file_name"},
