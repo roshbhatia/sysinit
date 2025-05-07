@@ -197,6 +197,8 @@ vim.env.PATH = vim.fn.getenv("PATH")
 -- Session persistence
 vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 
+vim.o.autoread = true
+
 plugin_manager.setup_package_manager()
 
 local plugins = {require("sysinit.plugins.ui.notifications"), require("sysinit.plugins.ui.live-command"),

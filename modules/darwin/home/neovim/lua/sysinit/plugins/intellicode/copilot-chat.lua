@@ -10,23 +10,23 @@ M.plugins = {{
         return {{
             "<leader>ie",
             "<cmd>CopilotChatExplain<cr>",
-            desc = "Copilot: Explain Code"
+            desc = "AI: Explain Code"
         }, {
             "<leader>it",
             "<cmd>CopilotChatTests<cr>",
-            desc = "Copilot: Generate Tests"
+            desc = "AI: Generate Tests"
         }, {
             "<leader>if",
             "<cmd>CopilotChatFix<cr>",
-            desc = "Copilot: Fix Code"
+            desc = "AI: Fix Code"
         }, {
             "<leader>io",
             "<cmd>CopilotChatOptimize<cr>",
-            desc = "Copilot: Optimize Code"
+            desc = "AI: Optimize Code"
         }, {
             "<leader>id",
             "<cmd>CopilotChatDocs<cr>",
-            desc = "Copilot: Generate Docs"
+            desc = "AI: Generate Docs"
         }}
     end,
     opts = {
