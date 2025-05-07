@@ -16,8 +16,6 @@ done
 
 # ANSI color codes
 RESET="\033[0m"
-BOLD="\033[1m"
-DIM="\033[2m"
 BLUE="\033[34m"
 CYAN="\033[36m"
 GREEN="\033[32m"
@@ -25,41 +23,22 @@ YELLOW="\033[33m"
 RED="\033[31m"
 MAGENTA="\033[35m"
 GRAY="\033[90m"
-WHITE="\033[97m"
-BG_BLUE="\033[44m"
-BG_BLACK="\033[40m"
 
-# Border styling (using ASCII instead of Unicode)
-BORDER_VERT="${BLUE}|${RESET}"
-BORDER_TOP="${BLUE}+${RESET}"
-BORDER_BOTTOM="${BLUE}+${RESET}"
-BORDER_FILL="${BLUE}-${RESET}"
-
-# Determine terminal width
-term_width=$(tput cols)
-border_width=$((term_width - 2))
-
-# Save cursor position and hide cursor
-tput sc
+# Clear the screen and hide cursor
+clear
 tput civis
-trap 'tput cnorm; tput rc; tput ed; exit' INT TERM EXIT
+trap 'tput cnorm; exit' INT TERM EXIT
 
-# Initialize the lines array with empty strings
+# Initialize the lines array
 declare -a lines=()
 for ((i=0; i<height; i++)); do
     lines[i]=""
 done
 
-# Draw the top border
-draw_top_border() {
-    echo -e "${BORDER_TOP}$(printf "%${border_width}s" | tr ' ' '-')${BLUE}+${RESET}"
-}
-
-# Draw message type with appropriate color
 colorize_log_level() {
     local line="$1"
     
-    # Detect log level by common patterns and colorize
+    # Detect log level patterns and colorize
     if [[ "$line" =~ \[(INFO|info)\] ]]; then
         line="${line//\[INFO\]/${CYAN}[INFO]${RESET}}"
         line="${line//\[info\]/${CYAN}[info]${RESET}}"
@@ -69,100 +48,64 @@ colorize_log_level() {
     elif [[ "$line" =~ \[(ERROR|error|ERR|err)\] ]]; then
         line="${line//\[ERROR\]/${RED}[ERROR]${RESET}}"
         line="${line//\[error\]/${RED}[error]${RESET}}"
-        line="${line//\[ERR\]/${RED}[ERR]${RESET}}"
-        line="${line//\[err\]/${RED}[err]${RESET}}"
     elif [[ "$line" =~ \[(WARN|warn|WARNING|warning)\] ]]; then
         line="${line//\[WARN\]/${YELLOW}[WARN]${RESET}}"
         line="${line//\[warn\]/${YELLOW}[warn]${RESET}}"
-        line="${line//\[WARNING\]/${YELLOW}[WARNING]${RESET}}"
-        line="${line//\[warning\]/${YELLOW}[warning]${RESET}}"
     elif [[ "$line" =~ \[(SUCCESS|success|OK|ok)\] ]]; then
         line="${line//\[SUCCESS\]/${GREEN}[SUCCESS]${RESET}}"
         line="${line//\[success\]/${GREEN}[success]${RESET}}"
-        line="${line//\[OK\]/${GREEN}[OK]${RESET}}"
-        line="${line//\[ok\]/${GREEN}[ok]${RESET}}"
     fi
     
-    # Colorize timestamps in the format [HH:MM:SS] or YYYY-MM-DD HH:MM:SS
-    if [[ "$line" =~ \[[0-9]{2}:[0-9]{2}:[0-9]{2}\] ]]; then
-        line=$(echo "$line" | sed -E "s/\[([0-9]{2}:[0-9]{2}:[0-9]{2})\]/${GRAY}[\1]${RESET}/g")
-    fi
+    # Colorize timestamps
     if [[ "$line" =~ [0-9]{4}-[0-9]{2}-[0-9]{2}\ [0-9]{2}:[0-9]{2}:[0-9]{2} ]]; then
         line=$(echo "$line" | sed -E "s/([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})/${GRAY}\1${RESET}/g")
     fi
     
-    # Emphasize important keywords
-    line=$(echo "$line" | sed -E "s/(completed|finished|done)/${GREEN}\1${RESET}/gi")
-    line=$(echo "$line" | sed -E "s/(failed|error|fatal)/${RED}\1${RESET}/gi")
-    line=$(echo "$line" | sed -E "s/(warning|warn|caution)/${YELLOW}\1${RESET}/gi")
-    
     echo "$line"
 }
 
-# Initial drawing of the window (filled with empty lines)
-initial_draw() {
-    # Clear the screen area
-    tput rc
-    tput ed
+redraw_display() {
+    clear
     
-    # Draw the top border
-    draw_top_border
+    # Top border
+    echo -e "${BLUE}+$(printf "%*s" $(($(tput cols)-2)) | tr ' ' '-')+${RESET}"
     
-    # Draw empty lines with left border
+    # Content with left border
     for ((i=0; i<height; i++)); do
-        echo -e "${BORDER_VERT}"
-    done
-    
-    # Draw the bottom border
-    echo -e "${BORDER_BOTTOM}$(printf "%${border_width}s" | tr ' ' '-')${BLUE}+${RESET}"
-    
-    # Move cursor back to the start position plus border height
-    tput rc
-    # Move down 1 line (top border)
-    tput cud 1
-}
-
-# Redraw the content of the window
-redraw_content() {
-    # Save current position
-    tput sc
-    
-    # For each line in our buffer
-    for ((i=0; i<height; i++)); do
-        # Move to the correct line position (top border + line number)
-        tput rc
-        tput cud $((i+1))
-        
-        # Clear the line
-        tput el
-        
         if [[ -n "${lines[i]}" ]]; then
             colored_line=$(colorize_log_level "${lines[i]}")
-            echo -en "${BORDER_VERT} ${colored_line}"
+            echo -e "${BLUE}|${RESET} ${colored_line}"
         else
-            echo -en "${BORDER_VERT}"
+            echo -e "${BLUE}|${RESET}"
         fi
     done
     
-    # Restore position
-    tput rc
+    # Bottom border
+    echo -e "${BLUE}+$(printf "%*s" $(($(tput cols)-2)) | tr ' ' '-')+${RESET}"
 }
 
-# Draw the initial empty window
-initial_draw
-
-# Manage input lines
+# Main loop
+line_count=0
 while IFS= read -r line; do
-    # Shift all lines up by one
-    for ((i=0; i<height-1; i++)); do
-        lines[i]="${lines[i+1]}"
-    done
+    # Skip empty lines
+    if [[ -z "$line" ]]; then
+        continue
+    fi
     
-    # Add the new line at the bottom
-    lines[$((height-1))]="$line"
+    if [[ $line_count -ge $height ]]; then
+        # Shift all lines up by one
+        for ((i=0; i<height-1; i++)); do
+            lines[i]="${lines[i+1]}"
+        done
+        # Add new line at the bottom
+        lines[$((height-1))]="$line"
+    else
+        # Fill from the top until height is reached
+        lines[$line_count]="$line"
+        ((line_count++))
+    fi
     
-    # Redraw the content
-    redraw_content
+    redraw_display
 done
 
 exit 0
