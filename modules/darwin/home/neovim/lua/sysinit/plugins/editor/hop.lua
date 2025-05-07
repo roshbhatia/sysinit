@@ -24,28 +24,28 @@ M.plugins = {{
         vim.keymap.set('n', '<leader>j', '<cmd>HopWord<CR>', {
             noremap = true,
             silent = true,
-            desc = "[wf.nvim] Quick jump to word"
+            desc = "Quick jump to word"
         })
 
         vim.keymap.set('n', '<leader>jj', '<cmd>HopWord<CR>', {
             noremap = true,
             silent = true,
-            desc = "[wf.nvim] Jump to any word"
+            desc = "Jump to any word"
         })
         vim.keymap.set('n', '<leader>jl', '<cmd>HopLine<CR>', {
             noremap = true,
             silent = true,
-            desc = "[wf.nvim] Jump to any line"
+            desc = "Jump to any line"
         })
         vim.keymap.set('n', '<leader>js', '<cmd>HopChar1<CR>', {
             noremap = true,
             silent = true,
-            desc = "[wf.nvim] Jump to character"
+            desc = "Jump to character"
         })
         vim.keymap.set('n', '<leader>jp', '<cmd>HopPattern<CR>', {
             noremap = true,
             silent = true,
-            desc = "[wf.nvim] Jump to pattern"
+            desc = "Jump to pattern"
         })
     end
 }}
