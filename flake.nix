@@ -68,14 +68,13 @@
           }
         ];
       };
+      
+    # Extract the default config and hostname for use in the outputs
+    defaultConfig = configValidator defaultConfigPath;
+    defaultHostname = defaultConfig.user.hostname;
   in {
     # Create the default config using the default config path
-    darwinConfigurations = let 
-      defaultConfig = configValidator defaultConfigPath;
-      hostname = defaultConfig.user.username;
-    in {
-      ${hostname} = mkDarwinConfig defaultConfigPath;
-    };
+    darwinConfigurations.${defaultHostname} = mkDarwinConfig defaultConfigPath;
 
     # Export the helper function for custom configs
     lib = {
@@ -83,7 +82,7 @@
       inherit defaultConfigPath;
     };
 
-    # Default package
-    packages.${system}.default = self.darwinConfigurations.${hostname}.system;
+    # Default package - now using defaultHostname which is in scope
+    packages.${system}.default = self.darwinConfigurations.${defaultHostname}.system;
   };
 }
