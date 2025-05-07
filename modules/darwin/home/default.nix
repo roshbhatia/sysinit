@@ -45,6 +45,7 @@ in {
   home.file = lib.recursiveUpdate homeFileAttrs emptyDirs;
 
   imports = [
+    ../../lib/activation-compat.nix
     ./aider/aider.nix
     ./atuin/atuin.nix
     ./colima/colima.nix
