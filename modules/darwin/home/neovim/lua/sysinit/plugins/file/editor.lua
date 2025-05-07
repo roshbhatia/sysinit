@@ -34,7 +34,16 @@ M.plugins = {{
             max_width = 80,
             max_height = 30
         }
-    }
+    },
+    config = function(_, opts)
+        require("oil").setup(opts)
+
+        vim.keymap.set("n", "<leader>eo", "<cmd>Oil --float<CR>", {
+            noremap = true,
+            silent = true,
+            desc = "Explorer: open filesystem in floating buffer"
+        })
+    end
 }}
 
 return M

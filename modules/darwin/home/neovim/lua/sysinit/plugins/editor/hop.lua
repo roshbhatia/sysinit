@@ -11,10 +11,10 @@ M.plugins = {{
             case_sensitive = false
         })
 
-        vim.keymap.set('n', '<S-Enter>', '<cmd>HopWord<CR>', {
+        vim.keymap.set('n', '<S-CR>', '<cmd>HopWord<CR>', {
             noremap = true,
             silent = true,
-            desc = "Quick jump to word"
+            desc = "Quick jump to CR"
         })
         vim.keymap.set('i', '<S-Enter>', '<Esc><cmd>HopWord<CR>', {
             noremap = true,
