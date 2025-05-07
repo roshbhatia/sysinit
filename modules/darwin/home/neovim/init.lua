@@ -339,66 +339,38 @@ vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,
 
 plugin_manager.setup_package_manager()
 
--- UI Plugins
-local ui_plugins = {require("sysinit.plugins.ui.notifications"), require("sysinit.plugins.ui.live-command"),
-                    require("sysinit.plugins.ui.alpha"), require("sysinit.plugins.ui.devicons"),
-                    require("sysinit.plugins.ui.minimap"), require("sysinit.plugins.ui.nui"),
-                    require("sysinit.plugins.ui.scrollbar"), require("sysinit.plugins.ui.smart-splits"),
-                    require("sysinit.plugins.ui.statusbar"), require("sysinit.plugins.ui.tab"),
-                    require("sysinit.plugins.ui.theme"), require("sysinit.plugins.ui.transparent"),
-                    require("sysinit.plugins.ui.dressing")}
-
--- Editor Enhancements
-local editor_plugins = {require("sysinit.plugins.editor.hop"), require("sysinit.plugins.keymaps.wf"),
-                        require("sysinit.plugins.editor.comment"), require("sysinit.plugins.editor.commentstring"),
-                        require("sysinit.plugins.editor.formatter"), require("sysinit.plugins.editor.ibl"),
-                        require("sysinit.plugins.editor.render-markdown")}
-
--- File Handling
-local file_plugins = {require("sysinit.plugins.file.diffview"), require("sysinit.plugins.file.editor"),
-                      require("sysinit.plugins.file.session"), require("sysinit.plugins.file.telescope"),
-                      require("sysinit.plugins.file.tree")}
-
--- Git Integration
-local git_plugins = {require("sysinit.plugins.git.blame"), require("sysinit.plugins.git.client"),
-                     require("sysinit.plugins.git.octo"), require("sysinit.plugins.git.fugitive"),
-                     require("sysinit.plugins.git.signs")}
-
--- Intellicode / LSP / Completion
-local intellicode_plugins = {require("sysinit.plugins.intellicode.avante"),
-                             require("sysinit.plugins.intellicode.cmp-buffer"),
-                             require("sysinit.plugins.intellicode.cmp-cmdline"),
-                             require("sysinit.plugins.intellicode.cmp-git"),
-                             require("sysinit.plugins.intellicode.cmp-nvim-lsp"),
-                             require("sysinit.plugins.intellicode.cmp-nvim-lua"),
-                             require("sysinit.plugins.intellicode.cmp-path"),
-                             require("sysinit.plugins.intellicode.copilot-cmp"),
-                             require("sysinit.plugins.intellicode.copilot"),
-                             require("sysinit.plugins.intellicode.copilot-chat"),
-                             require("sysinit.plugins.intellicode.schemastore"),
-                             require("sysinit.plugins.intellicode.friendly-snippets"),
-                             require("sysinit.plugins.intellicode.guess-indent"),
-                             require("sysinit.plugins.intellicode.img-clip"),
-                             require("sysinit.plugins.intellicode.linters"),
-                             require("sysinit.plugins.intellicode.luasnip"),
-                             require("sysinit.plugins.intellicode.mason-lspconfig"),
-                             require("sysinit.plugins.intellicode.mason"),
-                             require("sysinit.plugins.intellicode.nvim-autopairs"),
-                             require("sysinit.plugins.intellicode.nvim-cmp"),
-                             require("sysinit.plugins.intellicode.nvim-lspconfig"),
-                             require("sysinit.plugins.intellicode.outline"),
-                             require("sysinit.plugins.intellicode.sort"),
-                             require("sysinit.plugins.intellicode.trailspace"),
-                             require("sysinit.plugins.intellicode.treesitter-textobjects"),
-                             require("sysinit.plugins.intellicode.treesitter"),
-                             require("sysinit.plugins.intellicode.trouble")}
-
--- Debugging
-local debugging_plugins = {require("sysinit.plugins.debugger.dap")}
-
--- Combine all plugin groups
-local all_plugins = vim.tbl_flatten({ui_plugins, editor_plugins, file_plugins, git_plugins, intellicode_plugins,
-                                     debugging_plugins})
+local plugins = {require("sysinit.plugins.ui.notifications"), require("sysinit.plugins.ui.live-command"),
+                 require("sysinit.plugins.ui.alpha"), require("sysinit.plugins.ui.devicons"),
+                 require("sysinit.plugins.ui.minimap"), require("sysinit.plugins.ui.nui"),
+                 require("sysinit.plugins.ui.scrollbar"), require("sysinit.plugins.ui.smart-splits"),
+                 require("sysinit.plugins.ui.statusbar"), require("sysinit.plugins.ui.tab"),
+                 require("sysinit.plugins.ui.theme"), require("sysinit.plugins.ui.transparent"),
+                 require("sysinit.plugins.ui.dressing"), require("sysinit.plugins.editor.hop"),
+                 require("sysinit.plugins.keymaps.wf"), require("sysinit.plugins.editor.comment"),
+                 require("sysinit.plugins.editor.commentstring"), require("sysinit.plugins.editor.formatter"),
+                 require("sysinit.plugins.editor.ibl"), require("sysinit.plugins.editor.render-markdown"),
+                 require("sysinit.plugins.file.diffview"), require("sysinit.plugins.file.editor"),
+                 require("sysinit.plugins.file.session"), require("sysinit.plugins.file.telescope"),
+                 require("sysinit.plugins.file.tree"), require("sysinit.plugins.git.blame"),
+                 require("sysinit.plugins.git.client"), require("sysinit.plugins.git.octo"),
+                 require("sysinit.plugins.git.fugitive"), require("sysinit.plugins.git.signs"),
+                 require("sysinit.plugins.intellicode.avante"), require("sysinit.plugins.intellicode.cmp-buffer"),
+                 require("sysinit.plugins.intellicode.cmp-cmdline"), require("sysinit.plugins.intellicode.cmp-git"),
+                 require("sysinit.plugins.intellicode.cmp-nvim-lsp"),
+                 require("sysinit.plugins.intellicode.cmp-nvim-lua"), require("sysinit.plugins.intellicode.cmp-path"),
+                 require("sysinit.plugins.intellicode.copilot-cmp"), require("sysinit.plugins.intellicode.copilot"),
+                 require("sysinit.plugins.intellicode.copilot-chat"),
+                 require("sysinit.plugins.intellicode.schemastore"),
+                 require("sysinit.plugins.intellicode.friendly-snippets"),
+                 require("sysinit.plugins.intellicode.guess-indent"), require("sysinit.plugins.intellicode.img-clip"),
+                 require("sysinit.plugins.intellicode.linters"), require("sysinit.plugins.intellicode.luasnip"),
+                 require("sysinit.plugins.intellicode.mason-lspconfig"), require("sysinit.plugins.intellicode.mason"),
+                 require("sysinit.plugins.intellicode.nvim-autopairs"), require("sysinit.plugins.intellicode.nvim-cmp"),
+                 require("sysinit.plugins.intellicode.nvim-lspconfig"), require("sysinit.plugins.intellicode.outline"),
+                 require("sysinit.plugins.intellicode.sort"), require("sysinit.plugins.intellicode.trailspace"),
+                 require("sysinit.plugins.intellicode.treesitter-textobjects"),
+                 require("sysinit.plugins.intellicode.treesitter"), require("sysinit.plugins.intellicode.trouble"),
+                 require("sysinit.plugins.debugger.dap")}
 
 -- Setup plugins
-plugin_manager.setup_plugins(all_plugins)
+plugin_manager.setup_plugins(plugins)
