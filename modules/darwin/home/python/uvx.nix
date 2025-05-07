@@ -6,6 +6,6 @@ in packageManager.mkPackageManager {
   name = "uvx";
   basePackages = [ "skydeckai-code" ];
   additionalPackages = [];
-  executableArguments = [ "install" "--force" ];
+  executableArguments = [];
   executablePath = "$HOME/.local/bin/uvx";
 }
