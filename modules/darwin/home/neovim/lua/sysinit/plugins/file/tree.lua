@@ -1,288 +1,178 @@
--- sysinit.nvim.doc-url="https://raw.githubusercontent.com/nvim-neo-tree/neo-tree.nvim/refs/heads/main/doc/neo-tree.txt"
 local M = {}
 
-M.plugins = {{
-    "nvim-neo-tree/neo-tree.nvim",
-    lazy = false,
-    priority = 100,
-    dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "MunifTanjim/nui.nvim"},
-    config = function()
-        vim.cmd([[ let g:neo_tree_remove_legacy_commands = 1 ]])
+M.plugins = {
+    {
+        "nvim-neo-tree/neo-tree.nvim",
+        branch = "v3.x",
+        cmd = "Neotree",
+        keys = {
+            { "<leader>e", "<cmd>Neotree toggle<cr>", desc = "Toggle Explorer" },
+            { "<A-b>", "<cmd>Neotree toggle<cr>", desc = "Toggle Explorer" },
+            { "<D-b>", "<cmd>Neotree toggle<cr>", desc = "Toggle Explorer" },
+        },
+        dependencies = {
+            "nvim-lua/plenary.nvim",
+            "nvim-tree/nvim-web-devicons",
+            "MunifTanjim/nui.nvim"
+        },
+        config = function()
+            vim.g.neo_tree_remove_legacy_commands = 1
 
-        local right_click_menu = require "sysinit.pkg.right_click_menu"
-
-        local buf_is_neotree = function()
-            return vim.bo.filetype == "neo-tree"
-        end
-
-        -- Helper function to simulate key presses in neo-tree
-        local function neotree_key(key)
-            return string.format("<cmd>lua vim.api.nvim_input('%s')<cr>", key)
-        end
-
-        local items = {
-            newfile = right_click_menu.menu_item {
-                id = "NeoTreePopUpNewFile",
-                label = "New File",
-                condition = buf_is_neotree,
-                command = neotree_key("a")
-            },
-            new_dir = right_click_menu.menu_item {
-                label = "New Directory",
-                condition = buf_is_neotree,
-                command = neotree_key("A")
-            },
-            rename = right_click_menu.menu_item {
-                label = "Rename",
-                condition = buf_is_neotree,
-                command = neotree_key("r")
-            },
-            delete = right_click_menu.menu_item {
-                label = "Delete",
-                condition = buf_is_neotree,
-                command = neotree_key("d")
-            },
-            copy = right_click_menu.menu_item {
-                label = "Copy",
-                condition = buf_is_neotree,
-                command = neotree_key("c")
-            },
-            paste = right_click_menu.menu_item {
-                label = "Paste",
-                condition = buf_is_neotree,
-                command = neotree_key("p")
-            },
-            open = right_click_menu.menu_item {
-                label = "Open",
-                condition = buf_is_neotree,
-                command = neotree_key("o")
-            },
-            close = right_click_menu.menu_item {
-                label = "Close",
-                condition = buf_is_neotree,
-                command = neotree_key("q")
-            },
-            -- Additional helpful actions
-            toggle_hidden = right_click_menu.menu_item {
-                label = "Toggle Hidden",
-                condition = buf_is_neotree,
-                command = neotree_key("H")
-            },
-            refresh = right_click_menu.menu_item {
-                label = "Refresh",
-                condition = buf_is_neotree,
-                command = neotree_key("R")
-            }
-        }
-
-        local neotree_menu = right_click_menu.menu_item {
-            id = "NeoTreePopUp",
-            label = "Files",
-            condition = buf_is_neotree,
-            items = {items.newfile, items.new_dir, items.rename, items.delete, items.copy, items.paste, items.open,
-                     items.toggle_hidden, items.refresh, items.close}
-        }
-
-        right_click_menu.menu(neotree_menu)
-
-        -- Create a cleanup autocmd to fix right-click in neo-tree
-        vim.api.nvim_create_autocmd({"FileType"}, {
-            pattern = "neo-tree",
-            callback = function()
-                -- Clear any potentially conflicting menu entries
-                pcall(function()
-                    vim.cmd([[
-                        silent! aunmenu PopUp.\.
-                        silent! aunmenu PopUp.-1-
-                    ]])
-                end)
-
-                -- Reinitialize our menu
-                right_click_menu.menu(neotree_menu)
-            end
-        })
-
-        require("neo-tree").setup({
-            auto_clean_after_session_restore = true,
-            close_if_last_window = true,
-            popup_border_style = "rounded",
-            enable_git_status = true,
-            enable_diagnostics = false,
-
-            default_component_configs = {
-                indent = {
-                    with_markers = true,
-                    indent_marker = "│",
-                    last_indent_marker = "└",
-                    indent_size = 2,
-                    with_expanders = true, -- expander arrows for folders
-                    expander_collapsed = "",
-                    expander_expanded = ""
+            require("neo-tree").setup({
+                close_if_last_window = true,
+                enable_git_status = true,
+                enable_diagnostics = true,
+                sort_case_insensitive = true,
+                default_component_configs = {
+                    container = {
+                        enable_character_fade = true
+                    },
+                    indent = {
+                        indent_size = 2,
+                        padding = 1,
+                        with_markers = true,
+                        indent_marker = "│",
+                        last_indent_marker = "└",
+                        highlight = "NeoTreeIndentMarker",
+                        with_expanders = true,
+                        expander_collapsed = "",
+                        expander_expanded = "",
+                        expander_highlight = "NeoTreeExpander"
+                    },
+                    icon = {
+                        folder_closed = "",
+                        folder_open = "",
+                        folder_empty = "󰜌",
+                        default = "*",
+                        highlight = "NeoTreeFileIcon"
+                    },
+                    modified = {
+                        symbol = "[+]",
+                        highlight = "NeoTreeModified"
+                    },
+                    name = {
+                        trailing_slash = false,
+                        use_git_status_colors = true,
+                        highlight = "NeoTreeFileName"
+                    },
+                    git_status = {
+                        symbols = {
+                            added = "✚",
+                            modified = "",
+                            deleted = "✖",
+                            renamed = "󰁕",
+                            untracked = "",
+                            ignored = "",
+                            unstaged = "󰄱",
+                            staged = "",
+                            conflict = ""
+                        }
+                    }
                 },
-                icon = {
-                    folder_closed = "",
-                    folder_open = "",
-                    folder_empty = "",
-                    default = ""
+                window = {
+                    position = "left",
+                    width = 30,
+                    mapping_options = {
+                        noremap = true,
+                        nowait = true
+                    },
+                    mappings = {
+                        ["<space>"] = {
+                            "toggle_node",
+                            nowait = false
+                        },
+                        ["<2-LeftMouse>"] = "open",
+                        ["<cr>"] = "open",
+                        ["<esc>"] = "revert_preview",
+                        ["P"] = {"toggle_preview", config = {use_float = true}},
+                        ["S"] = "open_split",
+                        ["s"] = "open_vsplit",
+                        ["t"] = "open_tabnew",
+                        ["w"] = "open_with_window_picker",
+                        ["C"] = "close_node",
+                        ["z"] = "close_all_nodes",
+                        ["Z"] = "expand_all_nodes",
+                        ["a"] = {
+                            "add",
+                            config = {
+                                show_path = "none"
+                            }
+                        },
+                        ["A"] = "add_directory",
+                        ["d"] = "delete",
+                        ["r"] = "rename",
+                        ["y"] = "copy_to_clipboard",
+                        ["x"] = "cut_to_clipboard",
+                        ["p"] = "paste_from_clipboard",
+                        ["c"] = "copy",
+                        ["m"] = "move",
+                        ["q"] = "close_window",
+                        ["R"] = "refresh",
+                        ["?"] = "show_help",
+                        ["<"] = "prev_source",
+                        [">"] = "next_source"
+                    }
+                },
+                filesystem = {
+                    filtered_items = {
+                        visible = false,
+                        hide_dotfiles = false,
+                        hide_gitignored = false,
+                        hide_hidden = false,
+                        hide_by_name = {
+                            ".DS_Store",
+                            "thumbs.db",
+                            "node_modules"
+                        },
+                        hide_by_pattern = {
+                            "*.meta",
+                            "*/src/*/tsconfig.json"
+                        },
+                        always_show = {
+                            ".gitignored"
+                        },
+                        never_show = {
+                            ".DS_Store"
+                        },
+                        never_show_by_pattern = {}
+                    },
+                    follow_current_file = {
+                        enabled = true
+                    },
+                    group_empty_dirs = false,
+                    hijack_netrw_behavior = "open_default",
+                    use_libuv_file_watcher = true,
+                    window = {
+                        mappings = {
+                            ["<bs>"] = "navigate_up",
+                            ["."] = "set_root",
+                            ["H"] = "toggle_hidden",
+                            ["/"] = "fuzzy_finder",
+                            ["D"] = "fuzzy_finder_directory",
+                            ["f"] = "filter_on_submit",
+                            ["<c-x>"] = "clear_filter",
+                            ["[g"] = "prev_git_modified",
+                            ["]g"] = "next_git_modified"
+                        }
+                    }
                 },
                 git_status = {
-                    symbols = {
-                        -- Change type
-                        added = "✚",
-                        deleted = "✖",
-                        modified = "",
-                        renamed = "󰁕",
-                        -- Status type
-                        untracked = "",
-                        ignored = "",
-                        unstaged = "󰄱",
-                        staged = "",
-                        conflict = ""
-                    }
-                },
-                name = {
-                    trailing_slash = false,
-                    use_git_status_colors = true
-                }
-            },
-
-            window = {
-                position = "left",
-                width = 64,
-                mappings = {
-                    ["<space>"] = "toggle_node",
-                    ["<2-LeftMouse>"] = "open",
-                    ["<cr>"] = "open",
-                    ["S"] = "open_split",
-                    ["s"] = "open_vsplit",
-                    ["t"] = "open_tabnew",
-                    ["C"] = "close_node",
-                    ["z"] = "close_all_nodes",
-                    ["R"] = "refresh",
-                    ["a"] = {
-                        "add",
-                        config = {
-                            show_path = "relative" -- "none", "relative", "absolute"
+                    window = {
+                        position = "float",
+                        mappings = {
+                            ["A"] = "git_add_all",
+                            ["gu"] = "git_unstage_file",
+                            ["ga"] = "git_add_file",
+                            ["gr"] = "git_revert_file",
+                            ["gc"] = "git_commit",
+                            ["gp"] = "git_push",
+                            ["gg"] = "git_commit_and_push"
                         }
-                    },
-                    ["A"] = "add_directory",
-                    ["d"] = "delete",
-                    ["r"] = "rename",
-                    ["y"] = "copy_to_clipboard",
-                    ["x"] = "cut_to_clipboard",
-                    ["p"] = "paste_from_clipboard",
-                    ["c"] = "copy",
-                    ["m"] = "move",
-                    ["q"] = "close_window",
-                    ["?"] = "show_help",
-                    ["<"] = "prev_source",
-                    [">"] = "next_source",
-                    ["oa"] = "avante_add_files"
-                }
-            },
-
-            nesting_rules = {
-                ["js"] = {"js.map"},
-                ["package.json"] = {
-                    pattern = "^package%.json$",
-                    files = {"package-lock.json", "yarn.lock"}
-                }
-            },
-            commands = {
-                avante_add_files = function(state)
-                    local node = state.tree:get_node()
-                    local filepath = node:get_id()
-                    local relative_path = require("avante.utils").relative_path(filepath)
-
-                    local sidebar = require("avante").get()
-                    local open = sidebar:is_open()
-
-                    if not open then
-                        require("avante.api").ask()
-                        sidebar = require("avante").get()
-                    end
-
-                    sidebar.file_selector:add_selected_file(relative_path)
-
-                    if not open then
-                        sidebar.file_selector:remove_selected_file("neo-tree filesystem [1]")
-                    end
-                end
-            },
-
-            filesystem = {
-                filtered_items = {
-                    visible = false, -- when true, they will just be displayed differently than normal items
-                    hide_dotfiles = true,
-                    hide_gitignored = true,
-                    hide_hidden = false,
-                    hide_by_name = {".DS_Store", "node_modules"},
-                    hide_by_pattern = { -- uses glob style patterns
-                    "*.meta"},
-                    always_show = { -- remains visible even if other settings would hide it
-                    ".gitignored"},
-                    never_show = { -- remains hidden even if visible is toggled to true
-                    ".DS_Store"}
-                },
-                follow_current_file = {
-                    enabled = true, -- Focus the file that is currently being edited
-                    leave_dirs_open = true -- Leave directories open when focusing a file
-                },
-                group_empty_dirs = false, -- when true, empty folders will be grouped together
-                hijack_netrw_behavior = "open_default", -- netrw disabled, opening a directory opens neo-tree
-                use_libuv_file_watcher = false, -- This will use the OS level file watchers to detect changes
-                window = {
-                    mappings = {
-                        ["H"] = "toggle_hidden",
-                        ["/"] = "fuzzy_finder",
-                        ["D"] = "fuzzy_finder_directory",
-                        ["f"] = "filter_on_submit",
-                        ["<c-x>"] = "clear_filter",
-                        ["<bs>"] = "navigate_up",
-                        ["."] = "set_root",
-                        ["[g"] = "prev_git_modified",
-                        ["]g"] = "next_git_modified"
                     }
                 }
-            },
-
-            buffers = {
-                follow_current_file = {
-                    enabled = true -- focus the file in the buffer list that is currently being edited
-                },
-                group_empty_dirs = false, -- when true, empty directories will be grouped together
-                show_unloaded = true,
-                window = {
-                    mappings = {
-                        ["bd"] = "buffer_delete",
-                        ["<bs>"] = "navigate_up",
-                        ["."] = "set_root"
-                    }
-                }
-            },
-
-            git_status = {
-                window = {
-                    mappings = {
-                        ["A"] = "git_add_all",
-                        ["ga"] = "git_add_file",
-                        ["gu"] = "git_unstage_file",
-                        ["gr"] = "git_revert_file",
-                        ["gc"] = "git_commit",
-                        ["gp"] = "git_push",
-                        ["gg"] = "git_commit_and_push"
-                    }
-                }
-            }
-        })
-
-        vim.api.nvim_create_autocmd("FileType", {
-            pattern = "neo-tree",
-            callback = function()
-                vim.api.nvim_buf_set_name(0, "File Explorer")
-            end
-        })
-    end
-}}
+            })
+        end
+    }
+}
 
 return M

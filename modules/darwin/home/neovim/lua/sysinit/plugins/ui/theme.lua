@@ -1,24 +1,80 @@
 local M = {}
 
-M.plugins = {{
-    "zaldih/themery.nvim",
-    lazy = false,
-    priority = 100,
-    dependencies = {"EdenEast/nightfox.nvim", "catppuccin/nvim", "folke/tokyonight.nvim", "lunarvim/darkplus.nvim",
-                    "dracula/vim", "sainnhe/edge", "sainnhe/gruvbox-material", "navarasu/onedark.nvim",
-                    "marko-cerovac/material.nvim"},
-    opts = {
-        themes = {"blue", "carbonfox", "catppuccin", "catppuccin-frappe", "catppuccin-latte", "catppuccin-macchiato",
-                  "catppuccin-mocha", "darkblue", "darkplus", "dawnfox", "dayfox", "default", "delek", "desert",
-                  "dracula", "duskfox", "edge", "elflord", "evening", "gruvbox-material", "habamax", "industry",
-                  "koehler", "lunaperche", "material", "material-darker", "material-deep-ocean", "material-lighter",
-                  "material-oceanic", "material-palenight", "morning", "murphy", "nightfox", "nordfox", "onedark",
-                  "pablo", "peachpuff", "quiet", "retrobox", "ron", "shine", "slate", "sorbet", "terafox", "tokyonight",
-                  "tokyonight-day", "tokyonight-moon", "tokyonight-night", "tokyonight-storm", "torte", "unokai", "vim",
-                  "wildcharm", "zaibatsu", "zellner"},
-        livePreview = true
+M.plugins = {
+    {
+        "folke/tokyonight.nvim",
+        lazy = false,
+        priority = 1000,
+        config = function()
+            vim.cmd([[colorscheme tokyonight-night]])
+        end
+    },
+    {
+        "AlexvZyl/nordic.nvim",
+        lazy = true,
+        enabled = false
+    },
+    {
+        "catppuccin/nvim",
+        name = "catppuccin",
+        lazy = true,
+        enabled = false
+    },
+    {
+        "EdenEast/nightfox.nvim",
+        lazy = true,
+        enabled = false
+    },
+    {
+        "shaunsingh/nord.nvim",
+        lazy = true,
+        enabled = false
+    },
+    {
+        "marko-cerovac/material.nvim",
+        lazy = true,
+        enabled = false
+    },
+    {
+        "themercorp/themer.lua",
+        name = "themer",
+        lazy = true,
+        cmd = "Themery",
+        config = function()
+            require("themer").setup({
+                colorscheme = "tokyonight-night",
+                styles = {
+                    functionStyle = {
+                        italic = true,
+                        bold = true
+                    },
+                    keywordStyle = {
+                        italic = true
+                    },
+                    variableStyle = {
+                        italic = false
+                    },
+                    commentStyle = {
+                        italic = true
+                    },
+                    typeStyle = {
+                        italic = true,
+                        bold = true
+                    }
+                },
+                plugins = {
+                    treesitter = true,
+                    indentline = true,
+                    barbar = true,
+                    bufferline = true,
+                    cmp = true,
+                    gitsigns = true,
+                    lsp = true,
+                    telescope = true
+                }
+            })
+        end
     }
-}}
+}
 
 return M
-

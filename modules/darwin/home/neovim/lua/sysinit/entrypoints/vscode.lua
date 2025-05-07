@@ -316,8 +316,8 @@ function Entrypoint.setup_options()
 end
 
 function Entrypoint.get_plugins()
-    return {require("sysinit.plugins.ui.statusbar"), require("sysinit.plugins.keymaps.pallete"),
-            require("sysinit.plugins.intellicode.treesitter")}
+    -- We're now only loading the keymaps module since it contains the statusbar integration
+    return {require("sysinit.plugins.keymaps"), require("sysinit.plugins.intellicode.treesitter")}
 end
 
 return Entrypoint
