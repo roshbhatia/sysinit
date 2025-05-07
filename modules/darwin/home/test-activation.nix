@@ -5,8 +5,7 @@ let
 in
 {
   # Create a simple test activation script
-  home.activation = activationUtils.mkActivationScript {
-    name = "testActivation";
+  home.activation.testActivation = activationUtils.mkActivationScript {
     description = "Testing activation framework";
     after = [ "setupActivationUtils" ];
     script = ''

@@ -6,8 +6,7 @@ in {
   imports = [];
   
   # Set up the activation utilities with additional paths from user config
-  home.activation = activationUtils.mkActivationUtils {
-    name = "setupActivationUtils";
+  home.activation.setupActivationUtils = activationUtils.mkActivationUtils {
     logDir = "/tmp/sysinit-logs";
     logPrefix = "sysinit";
     additionalPaths = if userConfig ? additionalPaths then userConfig.additionalPaths else [];

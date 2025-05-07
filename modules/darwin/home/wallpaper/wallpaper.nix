@@ -26,8 +26,7 @@ let
 in
 {
   # Use our new activation framework to create a custom activation script
-  home.activation = activationUtils.mkActivationScript {
-    name = "setWallpaper";
+  home.activation.setWallpaper = activationUtils.mkActivationScript {
     description = "Setting macOS wallpaper";
     requiredExecutables = [ "/usr/bin/osascript" ];
     after = [ "setupActivationUtils" "writeBoundary" ];
