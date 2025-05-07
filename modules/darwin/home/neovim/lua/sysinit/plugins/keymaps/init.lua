@@ -67,7 +67,7 @@ function M.load_groups()
         local ok, module = pcall(require, group_path .. group)
         if ok and module then
             if type(module.setup) == "function" then
-                module.setup()
+                pcall(module.setup)  -- Added pcall for error handling
             end
         end
     end
