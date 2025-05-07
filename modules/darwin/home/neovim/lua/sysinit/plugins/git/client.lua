@@ -1,61 +1,24 @@
--- sysinit.nvim.doc-url="https://raw.githubusercontent.com/kdheepak/lazygit.nvim/refs/heads/main/README.md"
 local M = {}
 
--- Solely used for lazygit
-M.plugins = {{
-    "folke/snacks.nvim",
-    cmd = "LazyGit",
-    lazy = false,
-    priority = 1000,
-    opts = {
-        lazygit = {},
-        bigfile = {
-            enabled = false
+M.plugins = {
+    {
+        "kdheepak/lazygit.nvim",
+        cmd = "LazyGit",
+        keys = {
+            { "<leader>gg", "<cmd>LazyGit<CR>", desc = "Open LazyGit" },
         },
-        dashboard = {
-            enabled = false
+        dependencies = {
+            "nvim-lua/plenary.nvim",
         },
-        explorer = {
-            enabled = false
-        },
-        image = {
-            enabled = false
-        },
-        indent = {
-            enabled = false
-        },
-        input = {
-            enabled = false
-        },
-        picker = {
-            enabled = false
-        },
-        notifier = {
-            enabled = false
-        },
-        quickfile = {
-            enabled = false
-        },
-        scope = {
-            enabled = false
-        },
-        scroll = {
-            enabled = false
-        },
-        statuscolumn = {
-            enabled = false
-        },
-        words = {
-            enabled = false
-        }
-    },
-    config = function(_, opts)
-        require("snacks").setup(opts)
-
-        vim.api.nvim_create_user_command("LazyGit", function()
-            require("snacks.lazygit").open()
-        end, {})
-    end
-}}
+        config = function()
+            -- LazyGit configuration
+            vim.g.lazygit_floating_window_winblend = 0
+            vim.g.lazygit_floating_window_scaling_factor = 0.9
+            vim.g.lazygit_floating_window_corner_chars = {'╭', '╮', '╰', '╯'}
+            vim.g.lazygit_floating_window_use_plenary = 1
+            vim.g.lazygit_use_neovim_remote = 0
+        end
+    }
+}
 
 return M
