@@ -4,7 +4,7 @@ M.plugins = {{
     "MeanderingProgrammer/render-markdown.nvim",
     lazy = true,
     event = "VeryLazy",
-    ft = {"markdown", "Avante"},
+    ft = {"markdown"},
     opts = {
         file_types = {"markdown", "mermaid"},
         latex = {
