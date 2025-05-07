@@ -16,6 +16,6 @@ in {
       then userConfig.go.additionalPackages
       else [];
     executableArguments = [ "install" ];
-    executablePath = "go";  # Using PATH now instead of hardcoded path
+    executablePath = "go";
   };
 }
