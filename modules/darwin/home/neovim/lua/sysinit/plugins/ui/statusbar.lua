@@ -1,12 +1,9 @@
 local M = {}
 
-M.plugins = {{
+local vscode_plugin = {
     dir = ".",
     name = "vscode-statusbar",
     lazy = false,
-    enabled = function()
-        return vim.g.vscode
-    end,
     opts = {
         mode_icons = {
             n = {
@@ -60,30 +57,30 @@ M.plugins = {{
         local last_mode = nil
 
         local STATUSBAR_JS = [[
-              if (!globalThis.modeStatusBar) {
+            if (!globalThis.modeStatusBar) {
                 globalThis.modeStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-              }
-              const statusBar = globalThis.modeStatusBar;
-              statusBar.text = args.text;
-              statusBar.color = args.color;
-              statusBar.command = {
+            }
+            const statusBar = globalThis.modeStatusBar;
+            statusBar.text = args.text;
+            statusBar.color = args.color;
+            statusBar.command = {
                 command: 'vscode-neovim.lua',
                 title: 'Toggle Neovim Mode',
                 arguments: [
-                  args.mode === 'n'
-                    ? "vim.cmd('startinsert')"
-                    : "vim.cmd('stopinsert')"
+                    args.mode === 'n'
+                        ? "vim.cmd('startinsert')"
+                        : "vim.cmd('stopinsert')"
                 ]
-              };
-              statusBar.show();
-            ]]
+            };
+            statusBar.show();
+        ]]
 
         local STATUSBAR_DISPOSE_JS = [[
-              if (globalThis.modeStatusBar) {
+            if (globalThis.modeStatusBar) {
                 globalThis.modeStatusBar.dispose();
                 globalThis.modeStatusBar = null;
-              }
-            ]]
+            }
+        ]]
 
         local function update_mode_display()
             local full_mode = vim.api.nvim_get_mode().mode
@@ -91,7 +88,6 @@ M.plugins = {{
             if mode_key == last_mode then
                 return
             end
-
             local mode_data = opts.mode_icons[mode_key] or opts.mode_icons.n
             pcall(vscode.eval, STATUSBAR_JS, {
                 timeout = 1000,
@@ -119,7 +115,9 @@ M.plugins = {{
 
         update_mode_display()
     end
-}, {
+}
+
+local staline_plugin = {
     "tamton-aquib/staline.nvim",
     lazy = false,
     enabled = function()
@@ -132,6 +130,8 @@ M.plugins = {{
             right = {"line_column"}
         }
     }
-}}
+}
+
+M.plugins = vim.g.vscode and {vscode_plugin} or {staline_plugin}
 
 return M
