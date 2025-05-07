@@ -1,8 +1,8 @@
 { pkgs, lib, config, userConfig ? {}, ... }:
 
 let
-  packageManager = import ../../../lib/package-manager.nix { inherit lib; };
-in packageManager.mkPackageManager {
+  activationUtils = import ../../../lib/activation-utils.nix { inherit lib; };
+in activationUtils.mkPackageManager {
   name = "pipx";
   basePackages = [
     "black"
@@ -14,5 +14,7 @@ in packageManager.mkPackageManager {
     then userConfig.pipx.additionalPackages
     else [];
   executableArguments = [ "install" "--force" ];
-  executablePath = "/opt/homebrew/bin/pipx";
+  executablePath = "pipx";  # Using PATH now instead of hardcoded path
+  skipIfMissing = true;     # Skip if pipx is not installed
+  logFailures = false;      # Don't fail the entire activation if package install fails
 }
