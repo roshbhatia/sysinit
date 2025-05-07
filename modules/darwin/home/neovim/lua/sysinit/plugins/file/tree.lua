@@ -5,17 +5,9 @@ M.plugins = {{
     branch = "v3.x",
     cmd = "Neotree",
     keys = {{
-        "<leader>e",
+        "<leader>ee",
         "<cmd>Neotree toggle<cr>",
-        desc = "Toggle Explorer"
-    }, {
-        "<A-b>",
-        "<cmd>Neotree toggle<cr>",
-        desc = "Toggle Explorer"
-    }, {
-        "<D-b>",
-        "<cmd>Neotree toggle<cr>",
-        desc = "Toggle Explorer"
+        desc = "Explorer: toggle file tree"
     }},
     dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "MunifTanjim/nui.nvim"},
     config = function()
@@ -171,13 +163,6 @@ M.plugins = {{
 
         -- File explorer: toggle Neotree (Alt+b)
         vim.keymap.set("n", "<A-b>", "<cmd>Neotree toggle<CR>", {
-            noremap = true,
-            silent = true,
-            desc = "Explorer: toggle file tree"
-        })
-
-        -- File explorer: toggle Neotree with leader key
-        vim.keymap.set("n", "<leader>ee", "<cmd>Neotree toggle<CR>", {
             noremap = true,
             silent = true,
             desc = "Explorer: toggle file tree"
