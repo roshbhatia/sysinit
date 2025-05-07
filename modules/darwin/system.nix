@@ -135,16 +135,4 @@ in {
       fi
     '';
   };
-
-  home.activation.logger = logger.mkLogger {
-    name = "system";
-  };
-
-  home.activation.pathExporter = path.mkPathExporter {
-    name = "system";
-    additionalPaths = [
-      "${homeDirectory}/.local/bin"
-      "${homeDirectory}/bin"
-    ];
-  };
 }
