@@ -10,6 +10,6 @@ in {
       then userConfig.uvx.additionalPackages
       else [];
     executableArguments = [];
-    executablePath = "uvx";  # Using PATH now instead of hardcoded path
+    executablePath = "uvx";
   };
 }
