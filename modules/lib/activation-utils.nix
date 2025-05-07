@@ -116,8 +116,6 @@ in {
     additionalPackages ? [],
     executableArguments,
     executablePath,
-    logFailures ? true,
-    skipIfMissing ? false,
   }: let
     allPackages = basePackages ++ additionalPackages;
     escapedPackages = lib.concatStringsSep " " (map lib.escapeShellArg allPackages);
@@ -143,12 +141,8 @@ in {
           log_info "No ${name} packages specified"
         fi
       else
-        ${if skipIfMissing then ''
-          log_info "${name} not found at ${executablePath} - skipping package installation"
-        '' else ''
-          log_error "${name} not found at ${executablePath}"
-          ${if logFailures then "exit 1" else ""}
-        ''}
+        log_error "${name} not found at ${executablePath}"
+        exit 1
       fi
     '';
   };

@@ -16,7 +16,5 @@ in {
       else [];
     executableArguments = [ "install" "--force" ];
     executablePath = "pipx";  # Using PATH now instead of hardcoded path
-    skipIfMissing = true;     # Skip if pipx is not installed
-    logFailures = false;      # Don't fail the entire activation if package install fails
   };
 }

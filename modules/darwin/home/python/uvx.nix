@@ -11,6 +11,5 @@ in {
       else [];
     executableArguments = [];
     executablePath = "uvx";  # Using PATH now instead of hardcoded path
-    skipIfMissing = true;    # Skip if uvx is not installed
   };
 }
