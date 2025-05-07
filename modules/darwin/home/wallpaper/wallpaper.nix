@@ -1,8 +1,7 @@
 { config, lib, pkgs, userConfig ? {}, inputs, ... }:
 
 let
-  pathLib = import ../../../lib/path.nix { inherit lib; };
-  loggerLib = import ../../../lib/logger.nix { inherit lib; };
+  activationUtils = import ../../../lib/activation-utils.nix { inherit lib; };
   resolvePath = path:
     let
       flakeRoot = if inputs ? sysinit 
@@ -26,33 +25,22 @@ let
   resolvedWallpaperPath = resolvePath wallpaperPath;
 in
 {
-  home.activation.wallpaperLogger = loggerLib.mkLogger {
-    name = "wallpaper";
-    logDir = "/tmp/log";
-    logPrefix = "wallpaper";
-  };
-
-  home.activation.wallpaperPathExporter = pathLib.mkPathExporter {
-    name = "wallpaper";
-    additionalPaths = [];
-  };
-
-  home.activation.setWallpaper = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    echo "Setting wallpaper..."
-    set +e
-    WALLPAPER_PATH="${resolvedWallpaperPath}"
-    echo "Using wallpaper: $WALLPAPER_PATH"
-    if [ -f "$WALLPAPER_PATH" ]; then
-      OSASCRIPT="/usr/bin/osascript"
-      if [ -x "$OSASCRIPT" ]; then
-        "$OSASCRIPT" -e 'tell application "Finder" to set desktop picture to POSIX file "'"$WALLPAPER_PATH"'"'
-        echo "✅ Wallpaper set successfully"
+  # Use our new activation framework to create a custom activation script
+  home.activation = activationUtils.mkActivationScript {
+    name = "setWallpaper";
+    description = "Setting macOS wallpaper";
+    requiredExecutables = [ "/usr/bin/osascript" ];
+    after = [ "setupActivationUtils" "writeBoundary" ];
+    script = ''
+      WALLPAPER_PATH="${resolvedWallpaperPath}"
+      log_info "Using wallpaper: $WALLPAPER_PATH"
+      
+      if [ -f "$WALLPAPER_PATH" ]; then
+        log_command "/usr/bin/osascript -e 'tell application \"Finder\" to set desktop picture to POSIX file \"$WALLPAPER_PATH\"'" "Setting desktop wallpaper"
+        log_success "Wallpaper set successfully"
       else
-        echo "⚠️ osascript not found at $OSASCRIPT"
+        log_error "Wallpaper file not found at $WALLPAPER_PATH"
       fi
-    else
-      echo "⚠️  Wallpaper file not found at $WALLPAPER_PATH"
-    fi
-    exit 0
-  '';
+    '';
+  };
 }
