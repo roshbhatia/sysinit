@@ -61,6 +61,3 @@ check_executable() {
   log_debug "Found $executable at $(command -v "$executable")"
   return 0
 }
-
-log_debug "Activation tools loaded"
-log_debug "PATH: $PATH"

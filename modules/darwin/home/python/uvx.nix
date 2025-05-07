@@ -9,7 +9,7 @@ in {
     additionalPackages = if userConfig ? uvx && userConfig.uvx ? additionalPackages
       then userConfig.uvx.additionalPackages
       else [];
-    executableArguments = [];
-    executablePath = "uvx";
+    executableArguments = ["tool" "install"];
+    executablePath = "uv";
   };
 }
