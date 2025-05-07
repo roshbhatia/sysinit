@@ -16,13 +16,11 @@
     allPaths = lib.unique (defaultPaths ++ additionalPaths);
     escapedPaths = lib.concatStringsSep ":" allPaths;
   in {
-    home.activation."${name}PathExporter" = {
-      after = [ "fixVariables" ];
-      before = [];
-      data = ''
-        export PATH="${escapedPaths}:$PATH"
-        log_debug "Exported PATH: $PATH"
-      '';
-    };
+    after = [ "fixVariables" ];
+    before = [];
+    data = ''
+      export PATH="${escapedPaths}:$PATH"
+      log_debug "Exported PATH: $PATH"
+    '';
   };
 }

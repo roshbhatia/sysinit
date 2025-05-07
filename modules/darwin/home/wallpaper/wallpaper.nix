@@ -1,8 +1,8 @@
 { config, lib, pkgs, userConfig ? {}, inputs, ... }:
 
 let
-  pathLib = import ../../lib/path.nix { inherit lib; };
-  loggerLib = import ../../lib/logger.nix { inherit lib; };
+  pathLib = import ../../../lib/path.nix { inherit lib; };
+  loggerLib = import ../../../lib/logger.nix { inherit lib; };
   resolvePath = path:
     let
       flakeRoot = if inputs ? sysinit 
@@ -30,12 +30,12 @@ in
     name = "wallpaper";
     logDir = "/tmp/log";
     logPrefix = "wallpaper";
-  }.home.activation.wallpaperLogger;
+  };
 
   home.activation.wallpaperPathExporter = pathLib.mkPathExporter {
     name = "wallpaper";
     additionalPaths = [];
-  }.home.activation.wallpaperPathExporter;
+  };
 
   home.activation.setWallpaper = lib.hm.dag.entryAfter ["writeBoundary"] ''
     echo "Setting wallpaper..."
