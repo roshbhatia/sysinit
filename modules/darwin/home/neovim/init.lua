@@ -213,7 +213,7 @@ local plugins = {require("sysinit.plugins.ui.notifications"), require("sysinit.p
                  require("sysinit.plugins.file.telescope"), require("sysinit.plugins.file.tree"),
                  require("sysinit.plugins.git.blame"), require("sysinit.plugins.git.client"),
                  require("sysinit.plugins.git.octo"), require("sysinit.plugins.git.fugitive"),
-                 require("sysinit.plugins.git.signs"), require("sysinit.plugins.intellicode.avante"),
+                 require("sysinit.plugins.git.signs"), require("sysinit.plugins.intellicode.aider"),
                  require("sysinit.plugins.intellicode.cmp-buffer"), require("sysinit.plugins.intellicode.cmp-cmdline"),
                  require("sysinit.plugins.intellicode.cmp-git"), require("sysinit.plugins.intellicode.cmp-nvim-lsp"),
                  require("sysinit.plugins.intellicode.cmp-nvim-lua"), require("sysinit.plugins.intellicode.cmp-path"),
