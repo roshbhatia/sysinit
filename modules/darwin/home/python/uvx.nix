@@ -3,9 +3,9 @@
 let
   packageManager = import ../../../lib/package-manager.nix { inherit lib; };
 in packageManager.mkPackageManager {
-  name = "uv";
-  basePackages = [ "uv" ];
+  name = "uvx";
+  basePackages = [ "skydeckai-code" ];
   additionalPackages = [];
   executableArguments = [ "install" "--force" ];
-  executablePath = "/opt/homebrew/bin/pipx";
+  executablePath = "$HOME/.local/bin/uvx";
 }

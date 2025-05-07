@@ -8,6 +8,7 @@ in packageManager.mkPackageManager {
     "black"
     "hererocks"
     "yamllint"
+    "uv"
   ];
   additionalPackages = if userConfig ? pipx && userConfig.pipx ? additionalPackages
     then userConfig.pipx.additionalPackages
