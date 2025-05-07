@@ -1,7 +1,7 @@
-local plugin_manager = require('sysinit.pkg.plugin_manager')
-
 local config_path = vim.fn.stdpath('config')
 package.path = package.path .. ";" .. config_path .. "/?.lua" .. ";" .. config_path .. "/lua/?.lua"
+
+local plugin_manager = require('sysinit.pkg.plugin_manager')
 
 -- Disable 'q' in normal mode to avoid accidental macro recordings
 vim.api.nvim_set_keymap('n', 'q', '<Nop>', {
@@ -14,6 +14,7 @@ vim.keymap.set({"n", "v"}, "<Space>", "<Nop>", {
     noremap = true,
     silent = true
 })
+
 -- Set leader key. Space is unmapped above to use as <Leader> prefix for custom shortcuts.
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
