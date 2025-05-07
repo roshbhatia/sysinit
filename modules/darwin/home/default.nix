@@ -45,23 +45,25 @@ in {
   home.file = lib.recursiveUpdate homeFileAttrs emptyDirs;
 
   imports = [
+    ./aider/aider.nix
+    ./atuin/atuin.nix
+    ./colima/colima.nix
     ./git/git.nix
+    ./k9s/k9s.nix
+    ./macchina/macchina.nix
+    ./neovim/neovim.nix
+    ./omp/omp.nix
+    ./wezterm/wezterm.nix
+    ./zsh/zsh.nix
+
+    ./wallpaper/wallpaper.nix
+    
     ./core/packages.nix
     ./cargo/cargo.nix
     ./npm/npm.nix
     ./npm/yarn.nix
     ./pipx/pipx.nix
     ./pipx/uv.nix
-    # ./go/go.nix  
-    ./neovim/neovim.nix
-    ./macchina/macchina.nix
-    ./atuin/atuin.nix
-    ./omp/omp.nix
-    ./zsh/zsh.nix
-    ./wezterm/wezterm.nix
-    ./aider/aider.nix
-    ./k9s/k9s.nix
-    ./colima/colima.nix
-    ./wallpaper/wallpaper.nix
+    ./go/go.nix  
   ];
 }
