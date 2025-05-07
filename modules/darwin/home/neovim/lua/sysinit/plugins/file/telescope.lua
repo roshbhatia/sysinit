@@ -6,19 +6,23 @@ M.plugins = {{
     keys = {{
         "<leader>ff",
         "<cmd>Telescope find_files<cr>",
-        desc = "Find files"
+        desc = "Picker: find files"
     }, {
         "<leader>fg",
         "<cmd>Telescope live_grep<cr>",
-        desc = "Live grep"
+        desc = "Picker: live grep"
     }, {
         "<leader>fb",
         "<cmd>Telescope buffers<cr>",
-        desc = "Find buffers"
+        desc = "Picker: find buffers"
     }, {
         "<leader>fh",
         "<cmd>Telescope help_tags<cr>",
-        desc = "Help tags"
+        desc = "Picker: help tags"
+    }, {
+        "<leader><leader>",
+        "<cmd>Telescope cmdline<cr>",
+        desc = "Command Line"
     }},
     dependencies = {{"nvim-lua/plenary.nvim"}, {
         "nvim-tree/nvim-web-devicons",
@@ -108,11 +112,6 @@ M.plugins = {{
 
         telescope.load_extension("fzf")
         telescope.load_extension("cmdline")
-
-        vim.api.nvim_set_keymap('n', '<leader><leader>', ':Telescope cmdline<CR>', {
-            noremap = true,
-            desc = "Cmdline"
-        })
 
         vim.api.nvim_set_keymap('n', ':', ':Telescope cmdline<CR>', {
             noremap = true,
