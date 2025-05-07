@@ -1,8 +1,6 @@
 { config, lib, pkgs, ... }:
 
 let
-  pathLib = import ../../lib/path.nix { inherit lib; };
-  loggerLib = import ../../lib/logger.nix { inherit lib; };
   k9sConfig = {
     k9s = {
       liveViewAutoRefresh = true;
