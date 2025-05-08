@@ -251,6 +251,7 @@ local plugins = {
 	require("sysinit.plugins.ui.tab"),
 	require("sysinit.plugins.ui.theme"),
 	require("sysinit.plugins.ui.transparent"),
+	require("sysinit.plugins.ui.terminal"),
 	require("sysinit.plugins.ui.dressing"),
 	require("sysinit.plugins.editor.hop"),
 	require("sysinit.plugins.keymaps.wf"),
