@@ -76,17 +76,17 @@ M.plugins = {{
                     maxwidth = 50,
                     ellipsis_char = "...",
                     menu = {
-                        buffer = "[Buffer]",
-                        nvim_lsp = "[LSP]",
-                        luasnip = "[Snippet]",
-                        nvim_lua = "[Lua]",
-                        path = "[Path]",
-                        copilot = "[Copilot]"
+                        buffer = "",
+                        nvim_lsp = "󰘧",
+                        luasnip = "󰑷",
+                        nvim_lua = "",
+                        path = "",
+                        codecompanion = ""
                     }
                 })
             },
             sources = {{
-                name = "copilot",
+                name = "codecompanion",
                 group_index = 2,
                 priority = 100
             }, {
