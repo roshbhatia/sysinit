@@ -2,7 +2,6 @@ local M = {}
 
 M.plugins = {{
     "tamton-aquib/staline.nvim",
-    lazy = false,
     config = function()
         require("staline").setup {
             sections = {
