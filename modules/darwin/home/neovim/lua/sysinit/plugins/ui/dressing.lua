@@ -25,20 +25,9 @@ M.plugins = {
 			},
 			select = {
 				enabled = true,
-				backend = { "telescope", "fzf", "builtin" },
+				backend = { "telescope", "fzf", "builtin", "nui" },
 				trim_prompt = true,
-				telescope = {
-					layout_config = {
-						width = 0.65,
-						height = 0.7,
-						prompt_position = "bottom",
-					},
-					borderchars = {
-						prompt = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
-						results = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
-						preview = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
-					},
-				},
+				telescope = require("telescope.themes").get_ivy(),
 			},
 		},
 	},
