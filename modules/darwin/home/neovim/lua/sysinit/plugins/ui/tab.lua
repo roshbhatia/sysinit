@@ -3,8 +3,6 @@ local M = {}
 M.plugins = {{
     "nanozuki/tabby.nvim",
     dependencies = {"nvim-tree/nvim-web-devicons"},
-    lazy = false,
-    event = "VimEnter",
     config = function()
         require('tabby').setup({
             preset = 'tab_only',
