@@ -7,8 +7,8 @@ M.plugins = {
 			notification = {
 				override_vim_notify = true,
 				window = {
-					border = "rounded",
-					winblend = 30,
+					border = "single",
+					winblend = 25,
 					align = "top",
 				},
 			},

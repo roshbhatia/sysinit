@@ -28,39 +28,13 @@ M.plugins = {
 					and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
 			end
 
-			local function border(hl_name)
-				return {
-					{ "╭", hl_name },
-					{ "─", hl_name },
-					{ "╮", hl_name },
-					{ "│", hl_name },
-					{ "╯", hl_name },
-					{ "─", hl_name },
-					{ "╰", hl_name },
-					{ "│", hl_name },
-				}
-			end
-
 			cmp.setup({
 				snippet = {
 					expand = function(args)
 						luasnip.lsp_expand(args.body)
 					end,
 				},
-				window = {
-					completion = {
-						border = border("CmpBorder"),
-						winhighlight = "Normal:CmpPmenu,CursorLine:PmenuSel,Search:None",
-						scrollbar = true,
-					},
-					documentation = {
-						border = border("CmpDocBorder"),
-						winhighlight = "Normal:CmpDoc",
-					},
-				},
 				mapping = cmp.mapping.preset.insert({
-					["<C-k>"] = cmp.mapping.select_prev_item(),
-					["<C-j>"] = cmp.mapping.select_next_item(),
 					["<C-b>"] = cmp.mapping.scroll_docs(-4),
 					["<C-f>"] = cmp.mapping.scroll_docs(4),
 					["<C-Space>"] = cmp.mapping.complete({}),
