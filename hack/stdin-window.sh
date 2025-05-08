@@ -14,108 +14,118 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# Use Python to handle the sliding window display
+python3 -c "
+import sys
+import re
+import os
+import time
+import fcntl
+import termios
+import struct
+
 # ANSI color codes
-RESET="\033[0m"
-BLUE="\033[34m"
-CYAN="\033[36m"
-GREEN="\033[32m"
-YELLOW="\033[33m"
-RED="\033[31m"
-MAGENTA="\033[35m"
-GRAY="\033[90m"
-LIGHT_GRAY="\033[37m"
+RESET = '\033[0m'
+BLUE = '\033[34m'
+CYAN = '\033[36m'
+GREEN = '\033[32m'
+YELLOW = '\033[33m'
+RED = '\033[31m'
+MAGENTA = '\033[35m'
+GRAY = '\033[90m'
+LIGHT_GRAY = '\033[37m'
 
-# Determine terminal width
-term_width=$(tput cols)
+# Get terminal size
+def get_terminal_size():
+    h, w = struct.unpack('HHHH', 
+                         fcntl.ioctl(0, termios.TIOCGWINSZ,
+                                    struct.pack('HHHH', 0, 0, 0, 0)))[:2]
+    return w, h
 
-# Initialize the buffer
-declare -a buffer=()
+# Terminal width
+term_width, _ = get_terminal_size()
 
-# Setup terminal
-tput civis  # Hide cursor
-trap 'tput cnorm; exit' INT TERM EXIT
+# Maximum height from bash variable
+height = $height
 
-# Draw borders
-draw_border() {
-  echo -e "${BLUE}+$(printf "%${term_width}s" | tr ' ' '-')+${RESET}"
-}
+# Buffer to store log lines
+buffer = []
+
+# Draw border
+def draw_border():
+    return f'{BLUE}+{'-' * term_width}+{RESET}'
 
 # Process a log line with colors
-colorize_log() {
-  local line="$1"
-  local is_latest="$2"
-  
-  # Make line light gray by default
-  line="${LIGHT_GRAY}${line}${RESET}"
-  
-  # Add prefix to latest line
-  if [[ "$is_latest" == "true" ]]; then
-    line="> $line"
-  else
-    line="  $line"
-  fi
-  
-  # Color log levels
-  line=$(echo "$line" | sed -E "s/\[(INFO|info)\]/${CYAN}[&]${LIGHT_GRAY}/g")
-  line=$(echo "$line" | sed -E "s/\[(DEBUG|debug)\]/${MAGENTA}[&]${LIGHT_GRAY}/g")
-  line=$(echo "$line" | sed -E "s/\[(ERROR|error|ERR|err)\]/${RED}[&]${LIGHT_GRAY}/g")
-  line=$(echo "$line" | sed -E "s/\[(WARN|warn|WARNING|warning)\]/${YELLOW}[&]${LIGHT_GRAY}/g")
-  line=$(echo "$line" | sed -E "s/\[(SUCCESS|success|OK|ok)\]/${GREEN}[&]${LIGHT_GRAY}/g")
-  
-  # Color timestamps
-  line=$(echo "$line" | sed -E "s/\[([0-9]{2}:[0-9]{2}:[0-9]{2})\]/${GRAY}[&]${LIGHT_GRAY}/g")
-  
-  # Color keywords
-  line=$(echo "$line" | sed -E "s/(completed|finished|done)/${GREEN}&${LIGHT_GRAY}/gi")
-  line=$(echo "$line" | sed -E "s/(failed|error|fatal)/${RED}&${LIGHT_GRAY}/gi")
-  line=$(echo "$line" | sed -E "s/(warning|warn|caution)/${YELLOW}&${LIGHT_GRAY}/gi")
-  
-  echo -e "$line"
-}
+def colorize_log(line, is_latest=False):
+    # Make line light gray by default
+    result = f'{LIGHT_GRAY}{line}{RESET}'
+    
+    # Add prefix to latest line
+    if is_latest:
+        result = f'> {result}'
+    else:
+        result = f'  {result}'
+    
+    # Color log levels
+    patterns = [
+        (r'\[(INFO|info)\]', f'{CYAN}\\\\g<0>{LIGHT_GRAY}'),
+        (r'\[(DEBUG|debug)\]', f'{MAGENTA}\\\\g<0>{LIGHT_GRAY}'),
+        (r'\[(ERROR|error|ERR|err)\]', f'{RED}\\\\g<0>{LIGHT_GRAY}'),
+        (r'\[(WARN|warn|WARNING|warning)\]', f'{YELLOW}\\\\g<0>{LIGHT_GRAY}'),
+        (r'\[(SUCCESS|success|OK|ok)\]', f'{GREEN}\\\\g<0>{LIGHT_GRAY}'),
+        (r'\[([0-9]{2}:[0-9]{2}:[0-9]{2})\]', f'{GRAY}\\\\g<0>{LIGHT_GRAY}'),
+        (r'(completed|finished|done)', f'{GREEN}\\\\g<0>{LIGHT_GRAY}'),
+        (r'(failed|error|fatal)', f'{RED}\\\\g<0>{LIGHT_GRAY}'),
+        (r'(warning|warn|caution)', f'{YELLOW}\\\\g<0>{LIGHT_GRAY}')
+    ]
+    
+    for pattern, replacement in patterns:
+        result = re.sub(pattern, replacement, result, flags=re.IGNORECASE)
+    
+    return result
 
-# Draw the entire display
-update_display() {
-  clear
-  
-  # Draw top border
-  draw_border
-  
-  # Calculate empty space needed at top
-  local filled_lines=${#buffer[@]}
-  local empty_lines=$((height - filled_lines))
-  
-  # Print empty lines to push content to bottom
-  for ((i=0; i<empty_lines; i++)); do
-    echo ""
-  done
-  
-  # Print all log lines
-  for ((i=0; i<filled_lines; i++)); do
-    is_latest="false"
-    if [[ $i -eq $((filled_lines - 1)) ]]; then
-      is_latest="true"
-    fi
-    colorize_log "${buffer[i]}" "$is_latest"
-  done
-  
-  # Draw bottom border
-  draw_border
-}
+# Update the display
+def update_display():
+    # Clear screen and move cursor to top-left
+    print('\033[2J\033[H', end='')
+    
+    # Draw top border
+    print(draw_border())
+    
+    # Calculate empty space needed
+    filled_lines = len(buffer)
+    empty_lines = height - filled_lines
+    
+    # Print empty lines to push content to bottom
+    for _ in range(empty_lines):
+        print()
+    
+    # Print all log lines
+    for i, line in enumerate(buffer):
+        is_latest = (i == len(buffer) - 1)
+        print(colorize_log(line, is_latest))
+    
+    # Draw bottom border
+    print(draw_border())
+    sys.stdout.flush()
 
-# Main processing loop
-while IFS= read -r line; do
-  # Add line to buffer
-  buffer+=("$line")
-  
-  # Keep buffer at maximum size
-  if [[ ${#buffer[@]} -gt $height ]]; then
-    # Remove oldest entry
-    buffer=("${buffer[@]:1}")
-  fi
-  
-  # Update display
-  update_display
-done
+# Main loop
+try:
+    for line in sys.stdin:
+        line = line.rstrip()
+        
+        # Add to buffer
+        buffer.append(line)
+        
+        # Keep buffer at maximum size
+        if len(buffer) > height:
+            buffer.pop(0)
+        
+        # Update the display
+        update_display()
+        
+except KeyboardInterrupt:
+    sys.exit(0)
+" || echo "Python script failed. Make sure Python 3 is installed."
 
-tput cnorm # Show cursor
 exit 0

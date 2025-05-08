@@ -1,4 +1,4 @@
-{ config, lib, pkgs, homeDirectory, ... }:
+{ config, lib, pkgs, ... }:
 
 let
   activationUtils = import ../../../lib/activation-utils.nix { inherit lib; };
@@ -15,12 +15,12 @@ in
   };
 
   xdg.configFile."nvim/init.lua" = {
-    source = config.lib.file.mkOutOfStoreSymlink "${homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/init.lua";
+    source = config.lib.file.mkOutOfStoreSymlink "~/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/init.lua";
     force = true;
   };
 
   xdg.configFile."nvim/lua" = {
-    source = config.lib.file.mkOutOfStoreSymlink "${homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/lua";
+    source = config.lib.file.mkOutOfStoreSymlink "~/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/lua";
     force = true;
   };
 
