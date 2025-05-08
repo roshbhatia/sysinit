@@ -118,10 +118,10 @@ end, {
 	desc = "Find",
 })
 
-vim.keymap.set("n", "bd", "<cmd>bdelete<CR>", {
+vim.keymap.set("n", "bd", ":q<CR>", {
 	noremap = true,
 	silent = true,
-	desc = "Buffer: Delete",
+	desc = "Buffer: Close",
 })
 
 vim.keymap.set("n", "bn", "<cmd>bnext<CR>", {
@@ -268,14 +268,12 @@ local plugins = {
 	require("sysinit.plugins.git.octo"),
 	require("sysinit.plugins.git.fugitive"),
 	require("sysinit.plugins.git.signs"),
-	require("sysinit.plugins.intellicode.aider"),
 	require("sysinit.plugins.intellicode.cmp-buffer"),
 	require("sysinit.plugins.intellicode.cmp-cmdline"),
 	require("sysinit.plugins.intellicode.cmp-git"),
 	require("sysinit.plugins.intellicode.cmp-nvim-lsp"),
 	require("sysinit.plugins.intellicode.cmp-nvim-lua"),
 	require("sysinit.plugins.intellicode.cmp-path"),
-	require("sysinit.plugins.intellicode.copilot-cmp"),
 	require("sysinit.plugins.intellicode.copilot"),
 	require("sysinit.plugins.intellicode.copilot-chat"),
 	require("sysinit.plugins.intellicode.schemastore"),
