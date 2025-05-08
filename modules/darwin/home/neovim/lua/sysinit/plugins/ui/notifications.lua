@@ -6,11 +6,6 @@ M.plugins = {
 		opts = {
 			notification = {
 				override_vim_notify = true,
-				window = {
-					border = "single",
-					winblend = 25,
-					align = "top",
-				},
 			},
 		},
 		keys = function()

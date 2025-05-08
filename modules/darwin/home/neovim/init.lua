@@ -1,6 +1,6 @@
 local config_path = vim.fn.stdpath("config")
 package.path = package.path .. ";" .. config_path .. "/?.lua" .. ";" .. config_path .. "/lua/?.lua"
-
+vim.g.base46_cache = vim.fn.stdpath("data") .. "/base46_cache/"
 local plugin_manager = require("sysinit.pkg.plugin_manager")
 
 -- Disable 'q' in normal mode to avoid accidental macro recordings
@@ -301,3 +301,6 @@ local plugins = {
 
 -- Setup plugins
 plugin_manager.setup_plugins(plugins)
+for _, v in ipairs(vim.fn.readdir(vim.g.base46_cache)) do
+	dofile(vim.g.base46_cache .. v)
+end
