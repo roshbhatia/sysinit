@@ -163,8 +163,8 @@ M.plugins = {{
             desc = "Explorer: toggle file tree"
         })
 
-        vim.api.nvim_create_autocmd("PersistenceSavePre", {
-            pattern = "*",
+        vim.api.nvim_create_autocmd("User", {
+            pattern = "PersistenceSavePre",
             callback = function()
                 vim.cmd("Neotree close")
             end
