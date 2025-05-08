@@ -2,7 +2,7 @@
 
 {
   xdg.configFile."wezterm" = {
-    source = ./;
+    source = .;
     force = true;
   };
 }
