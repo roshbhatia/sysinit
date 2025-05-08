@@ -27,7 +27,6 @@ M.plugins = {
 				enabled = true,
 				backend = { "telescope", "fzf", "builtin", "nui" },
 				trim_prompt = true,
-				telescope = require("telescope.themes").get_ivy(),
 			},
 		},
 	},
