@@ -25,11 +25,6 @@ M.plugins = {
 				"<cmd>Telescope help_tags<cr>",
 				desc = "Picker: help tags",
 			},
-			{
-				"<leader><leader>",
-				"<cmd>FineCmdline<cr>",
-				desc = "Commandline",
-			},
 		},
 		dependencies = {
 			{
