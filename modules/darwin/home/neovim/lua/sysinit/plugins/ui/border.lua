@@ -6,9 +6,7 @@ M.plugins = {
 		lazy = false,
 		priority = 1000,
 		config = function()
-			require("borderline").setup({
-				border = "single",
-			})
+			require("borderline").setup()
 		end,
 	},
 }
