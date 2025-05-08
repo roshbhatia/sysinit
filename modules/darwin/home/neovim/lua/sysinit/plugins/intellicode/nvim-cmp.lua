@@ -12,7 +12,7 @@ M.plugins = {
 			"hrsh7th/cmp-nvim-lsp",
 			"hrsh7th/cmp-nvim-lua",
 			"hrsh7th/cmp-cmdline",
-			"zbirenbaum/copilot-cpm",
+			"zbirenbaum/copilot-cmp",
 			"onsails/lspkind.nvim",
 		},
 		config = function()
