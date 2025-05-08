@@ -38,7 +38,7 @@ M.plugins = {{
         }
 
         dashboard.section.buttons.val = {dashboard.button("a", "  Load last session",
-            ":lua require('auto-session').RestoreSession()<CR>"),
+            ":lua require(\"persistence\").load() <CR>"),
                                          dashboard.button("i", "  New file", ":ene <BAR> startinsert<CR>"),
                                          dashboard.button("f", "  Find file", ":Telescope find_files<CR>"),
                                          dashboard.button("g", "  Grep files", ":Telescope live_grep<CR>"),

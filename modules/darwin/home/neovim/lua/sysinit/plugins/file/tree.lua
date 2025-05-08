@@ -4,8 +4,7 @@ M.plugins = {{
     "nvim-neo-tree/neo-tree.nvim",
     branch = "v3.x",
     cmd = "Neotree",
-    dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "MunifTanjim/nui.nvim",
-                    "GeorgesAlkhouri/nvim-aider"},
+    dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "MunifTanjim/nui.nvim"},
     config = function()
         vim.g.neo_tree_remove_legacy_commands = 1
 
@@ -157,8 +156,6 @@ M.plugins = {{
             }
         })
 
-        require("nvim_aider.neo_tree").setup(opts)
-
         -- File explorer: toggle Neotree (Alt+b)
         vim.keymap.set("n", "<A-b>", "<cmd>Neotree toggle<CR>", {
             noremap = true,
@@ -167,9 +164,9 @@ M.plugins = {{
         })
     end,
     keys = {{
-        "<leader>eo",
-        "<cmd>Neotree reveal<CR>",
-        desc = "Explorer: reveal file tree"
+        "<leader>ee",
+        "<cmd>Neotree toggle<CR>",
+        desc = "Explorer: toggle file tree"
     }}
 }}
 
