@@ -14,7 +14,7 @@ M.plugins = {
 				defaults = {
 					true_colors = true,
 					line_column = " [%l/%L] :%c  ",
-					branch_symbol = "  ",
+					branch_symbol = " ",
 				},
 			})
 		end,
