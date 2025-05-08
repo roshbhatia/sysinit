@@ -250,6 +250,7 @@ local plugins = {
 	require("sysinit.plugins.ui.smart-splits"),
 	require("sysinit.plugins.ui.statusbar"),
 	require("sysinit.plugins.ui.tab"),
+	require("sysinit.plugins.ui.cmdline"),
 	require("sysinit.plugins.ui.theme"),
 	require("sysinit.plugins.ui.transparent"),
 	require("sysinit.plugins.ui.terminal"),
