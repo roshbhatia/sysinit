@@ -7,7 +7,7 @@ M.plugins = {{
     event = "VimEnter",
     config = function()
         require('tabby').setup({
-            preset = 'tab_with_top_win',
+            preset = 'tab_only',
             option = {
                 theme = {
                     fill = 'TabLineFill', -- tabline background

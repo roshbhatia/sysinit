@@ -118,6 +118,48 @@ end, {
     desc = "Find"
 })
 
+vim.keymap.set("n", "bd", "<cmd>bdelete<CR>", {
+    noremap = true,
+    silent = true,
+    desc = "Buffer: Delete"
+})
+
+vim.keymap.set("n", "bn", "<cmd>bnext<CR>", {
+    noremap = true,
+    silent = true,
+    desc = "Buffer: Next"
+})
+
+vim.keymap.set("n", "bp", "<cmd>bprevious<CR>", {
+    noremap = true,
+    silent = true,
+    desc = "Buffer: Previous"
+})
+
+vim.keymap.set("n", "bl", "<cmd>buffers<CR>", {
+    noremap = true,
+    silent = true,
+    desc = "Buffer: List"
+})
+
+vim.keymap.set("n", "bw", "<cmd>write<CR>", {
+    noremap = true,
+    silent = true,
+    desc = "Buffer: Write"
+})
+
+vim.keymap.set("n", "bW", "<cmd>wall<CR>", {
+    noremap = true,
+    silent = true,
+    desc = "Buffer: Write All"
+})
+
+vim.keymap.set("n", "bi", "<cmd>enew<CR>", {
+    noremap = true,
+    silent = true,
+    desc = "Buffer: New (Init)"
+})
+
 -- === Options === --
 
 -- Clipboard & mouse

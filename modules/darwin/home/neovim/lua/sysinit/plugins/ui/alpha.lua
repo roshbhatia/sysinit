@@ -2,6 +2,7 @@ local M = {}
 
 M.plugins = {{
     "goolord/alpha-nvim",
+    dependencies = {"nanozuki/tabby.nvim"},
     lazy = false,
     config = function()
         local alpha = require("alpha")
@@ -63,6 +64,7 @@ M.plugins = {{
         vim.api.nvim_create_autocmd("VimEnter", {
             pattern = "*",
             callback = function()
+                vim.cmd()
                 vim.cmd("Alpha")
             end
         })
