@@ -1,6 +1,7 @@
 #!/bin/bash
 # shellcheck disable=all
 
+# Default height
 height=32
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -14,64 +15,69 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# Extremely simple version with minimal dependencies
-/usr/bin/ruby -e "
 # ANSI color codes
-RESET = '\033[0m'
-BLUE = '\033[34m'
-LIGHT_GRAY = '\033[37m'
+RESET="\033[0m"
+BLUE="\033[34m"
+LIGHT_GRAY="\033[37m"
 
-# Height from bash variable
-height = $height
-width = 80
+# Get terminal width or use default
+term_width=$(tput cols 2>/dev/null || echo 80)
 
-# Buffer to store log lines
-buffer = []
+# Draw borders
+function draw_border {
+  echo -e "${BLUE}+$(printf '%*s' $((term_width-2)) | tr ' ' '-')+${RESET}"
+}
+
+# Initialize buffer array
+declare -a buffer=()
+
+# Hide cursor
+tput civis 2>/dev/null
+
+# Restore cursor on exit
+trap 'tput cnorm 2>/dev/null; exit' INT TERM EXIT
 
 # Main loop
-begin
-  STDIN.each_line do |line|
-    line = line.chomp
-    
-    # Add to buffer
-    buffer << line
-    
-    # Keep buffer at maximum size
-    buffer.shift if buffer.size > height
-    
-    # Clear screen
-    print \"\033[2J\033[H\"
-    
-    # Draw top border
-    puts \"#{BLUE}+#{'-' * (width - 2)}+#{RESET}\"
-    
-    # Calculate empty lines needed
-    empty_lines = [0, height - buffer.size].max
-    
-    # Print empty lines
-    empty_lines.times { puts \"\" }
-    
-    # Print all log lines
-    buffer.each_with_index do |line, idx|
-      prefix = idx == buffer.size - 1 ? '> ' : '  '
-      puts \"#{prefix}#{LIGHT_GRAY}#{line}#{RESET}\"
-    end
-    
-    # Draw bottom border
-    puts \"#{BLUE}+#{'-' * (width - 2)}+#{RESET}\"
-  end
-rescue Exception => e
-  # Just exit silently on any error
-  exit 0
-end
-" || {
-  # Pure bash fallback if Ruby fails
-  while read -r line; do
-    clear
-    echo -e "\033[34m+------------------------------------------------------------------------------+\033[0m"
-    echo -e "> \033[37m$line\033[0m"
-    echo -e "\033[34m+------------------------------------------------------------------------------+\033[0m"
+while IFS= read -r line; do
+  # Add to buffer
+  buffer+=("$line")
+  
+  # Keep buffer at maximum size
+  if [[ ${#buffer[@]} -gt $height ]]; then
+    # Remove oldest entry by re-slicing the array
+    buffer=("${buffer[@]:1}")
+  fi
+  
+  # Clear screen
+  clear
+  
+  # Draw top border
+  draw_border
+  
+  # Calculate empty lines
+  empty_lines=$((height - ${#buffer[@]}))
+  
+  # Print empty lines
+  for ((i=0; i<empty_lines; i++)); do
+    echo ""
   done
-}
+  
+  # Print all log lines
+  for ((i=0; i<${#buffer[@]}; i++)); do
+    if [[ $i -eq $((${#buffer[@]} - 1)) ]]; then
+      # Latest entry with prefix
+      echo -e "> ${LIGHT_GRAY}${buffer[$i]}${RESET}"
+    else
+      # Older entries
+      echo -e "  ${LIGHT_GRAY}${buffer[$i]}${RESET}"
+    fi
+  done
+  
+  # Draw bottom border
+  draw_border
+done
+
+# Show cursor
+tput cnorm 2>/dev/null
 
 exit 0
