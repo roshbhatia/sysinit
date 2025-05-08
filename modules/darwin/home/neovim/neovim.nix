@@ -15,7 +15,7 @@ in
   };
 
   xdg.configFile."nvim" = {
-    source = ./;
+    source = .;
     force = true;
   };
 
