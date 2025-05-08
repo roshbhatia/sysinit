@@ -5,21 +5,9 @@ M.plugins = {{
     version = "*",
     cmd = {"ToggleTerm", "TermExec"},
     keys = {{
-        "<leader>tt",
-        "<cmd>ToggleTerm<CR>",
-        desc = "Toggle Terminal"
-    }, {
-        "<leader>tf",
+        "<leader>kf",
         "<cmd>ToggleTerm direction=float<CR>",
-        desc = "Toggle Float Terminal"
-    }, {
-        "<leader>th",
-        "<cmd>ToggleTerm direction=horizontal<CR>",
-        desc = "Toggle Horizontal Terminal"
-    }, {
-        "<leader>tv",
-        "<cmd>ToggleTerm direction=vertical<CR>",
-        desc = "Toggle Vertical Terminal"
+        desc = "Terminal: Toggle floating terminal"
     }},
     opts = {
         size = function(term)
