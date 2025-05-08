@@ -14,16 +14,8 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# Use Python to handle the sliding window display
-/opt/homebrew/bin/python3 -c "
-import sys
-import re
-import os
-import time
-import fcntl
-import termios
-import struct
-
+# Use Ruby for the sliding window display
+/usr/bin/ruby -e "
 # ANSI color codes
 RESET = '\033[0m'
 BLUE = '\033[34m'
@@ -35,97 +27,91 @@ MAGENTA = '\033[35m'
 GRAY = '\033[90m'
 LIGHT_GRAY = '\033[37m'
 
-# Get terminal size
-def get_terminal_size():
-    h, w = struct.unpack('HHHH', 
-                         fcntl.ioctl(0, termios.TIOCGWINSZ,
-                                    struct.pack('HHHH', 0, 0, 0, 0)))[:2]
-    return w, h
+# Get terminal width
+term_width = \`tput cols\`.to_i rescue 80
 
-# Terminal width
-term_width, _ = get_terminal_size()
-
-# Maximum height from bash variable
+# Height from bash variable
 height = $height
 
 # Buffer to store log lines
 buffer = []
 
 # Draw border
-def draw_border():
-    return f'{BLUE}+{'-' * term_width}+{RESET}'
+def draw_border(width)
+  \"#{BLUE}+#{'-' * (width - 2)}+#{RESET}\"
+end
 
 # Process a log line with colors
-def colorize_log(line, is_latest=False):
-    # Make line light gray by default
-    result = f'{LIGHT_GRAY}{line}{RESET}'
-    
-    # Add prefix to latest line
-    if is_latest:
-        result = f'> {result}'
-    else:
-        result = f'  {result}'
-    
-    # Color log levels
-    patterns = [
-        (r'\[(INFO|info)\]', f'{CYAN}\\\\g<0>{LIGHT_GRAY}'),
-        (r'\[(DEBUG|debug)\]', f'{MAGENTA}\\\\g<0>{LIGHT_GRAY}'),
-        (r'\[(ERROR|error|ERR|err)\]', f'{RED}\\\\g<0>{LIGHT_GRAY}'),
-        (r'\[(WARN|warn|WARNING|warning)\]', f'{YELLOW}\\\\g<0>{LIGHT_GRAY}'),
-        (r'\[(SUCCESS|success|OK|ok)\]', f'{GREEN}\\\\g<0>{LIGHT_GRAY}'),
-        (r'\[([0-9]{2}:[0-9]{2}:[0-9]{2})\]', f'{GRAY}\\\\g<0>{LIGHT_GRAY}'),
-        (r'(completed|finished|done)', f'{GREEN}\\\\g<0>{LIGHT_GRAY}'),
-        (r'(failed|error|fatal)', f'{RED}\\\\g<0>{LIGHT_GRAY}'),
-        (r'(warning|warn|caution)', f'{YELLOW}\\\\g<0>{LIGHT_GRAY}')
-    ]
-    
-    for pattern, replacement in patterns:
-        result = re.sub(pattern, replacement, result, flags=re.IGNORECASE)
-    
-    return result
+def colorize_log(line, is_latest = false)
+  # Make line light gray by default
+  result = \"#{LIGHT_GRAY}#{line}#{RESET}\"
+  
+  # Add prefix to latest line
+  prefix = is_latest ? '> ' : '  '
+  result = \"#{prefix}#{result}\"
+  
+  # Color log levels
+  result = result.gsub(/\\[(INFO|info)\\]/) { \"#{CYAN}#{$&}#{LIGHT_GRAY}\" }
+  result = result.gsub(/\\[(DEBUG|debug)\\]/) { \"#{MAGENTA}#{$&}#{LIGHT_GRAY}\" }
+  result = result.gsub(/\\[(ERROR|error|ERR|err)\\]/) { \"#{RED}#{$&}#{LIGHT_GRAY}\" }
+  result = result.gsub(/\\[(WARN|warn|WARNING|warning)\\]/) { \"#{YELLOW}#{$&}#{LIGHT_GRAY}\" }
+  result = result.gsub(/\\[(SUCCESS|success|OK|ok)\\]/) { \"#{GREEN}#{$&}#{LIGHT_GRAY}\" }
+  
+  # Color timestamps
+  result = result.gsub(/\\[\\d{2}:\\d{2}:\\d{2}\\]/) { \"#{GRAY}#{$&}#{LIGHT_GRAY}\" }
+  result = result.gsub(/(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})/) { \"#{GRAY}#{$&}#{LIGHT_GRAY}\" }
+  
+  # Color keywords
+  result = result.gsub(/(completed|finished|done)/i) { \"#{GREEN}#{$&}#{LIGHT_GRAY}\" }
+  result = result.gsub(/(failed|error|fatal)/i) { \"#{RED}#{$&}#{LIGHT_GRAY}\" }
+  result = result.gsub(/(warning|warn|caution)/i) { \"#{YELLOW}#{$&}#{LIGHT_GRAY}\" }
+  
+  result
+end
 
 # Update the display
-def update_display():
-    # Clear screen and move cursor to top-left
-    print('\033[2J\033[H', end='')
-    
-    # Draw top border
-    print(draw_border())
-    
-    # Calculate empty space needed
-    filled_lines = len(buffer)
-    empty_lines = height - filled_lines
-    
-    # Print empty lines to push content to bottom
-    for _ in range(empty_lines):
-        print()
-    
-    # Print all log lines
-    for i, line in enumerate(buffer):
-        is_latest = (i == len(buffer) - 1)
-        print(colorize_log(line, is_latest))
-    
-    # Draw bottom border
-    print(draw_border())
-    sys.stdout.flush()
+def update_display(buffer, height, term_width)
+  # Clear screen and move cursor to top-left
+  print \"\033[2J\033[H\"
+  
+  # Draw top border
+  puts draw_border(term_width)
+  
+  # Calculate empty space needed
+  filled_lines = buffer.size
+  empty_lines = height - filled_lines
+  
+  # Print empty lines to push content to bottom
+  empty_lines.times { puts \"\" }
+  
+  # Print all log lines
+  buffer.each_with_index do |line, i|
+    is_latest = (i == buffer.size - 1)
+    puts colorize_log(line, is_latest)
+  end
+  
+  # Draw bottom border
+  puts draw_border(term_width)
+  $stdout.flush
+end
 
 # Main loop
-try:
-    for line in sys.stdin:
-        line = line.rstrip()
-        
-        # Add to buffer
-        buffer.append(line)
-        
-        # Keep buffer at maximum size
-        if len(buffer) > height:
-            buffer.pop(0)
-        
-        # Update the display
-        update_display()
-        
-except KeyboardInterrupt:
-    sys.exit(0)
-" || echo "Python script failed. Make sure Python 3 is installed."
+begin
+  while line = gets
+    line = line.chomp
+    
+    # Add to buffer
+    buffer << line
+    
+    # Keep buffer at maximum size
+    buffer.shift if buffer.size > height
+    
+    # Update the display
+    update_display(buffer, height, term_width)
+  end
+rescue Interrupt
+  exit
+end
+" || echo "Ruby script failed with an error."
 
 exit 0
