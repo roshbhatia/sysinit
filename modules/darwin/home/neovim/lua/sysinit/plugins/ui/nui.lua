@@ -1,8 +1,16 @@
 local M = {}
 
-M.plugins = {{
-    "MunifTanjim/nui.nvim",
-    lazy = false
-}}
+M.plugins = {
+	{
+		"nvchad/base46",
+		build = function()
+			require("base46").load_all_highlights()
+		end,
+	},
+	{
+		"MunifTanjim/nui.nvim",
+		lazy = false,
+	},
+}
 
 return M
