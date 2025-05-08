@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, homeDirectory, ... }:
 
 let
   activationUtils = import ../../../lib/activation-utils.nix { inherit lib; };
@@ -14,8 +14,13 @@ in
     withRuby = false;
   };
 
-  xdg.configFile."nvim" = {
-    source = .;
+  xdg.configFile."nvim/init.lua" = {
+    source = ./init.lua;
+    force = true;
+  };
+
+  xdg.configFile."nvim/lua" = {
+    source = ./lua;
     force = true;
   };
 

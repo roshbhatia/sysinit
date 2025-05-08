@@ -1,8 +1,8 @@
 { config, lib, pkgs, ... }:
 
 {
-  xdg.configFile."wezterm" = {
-    source = .;
+  xdg.configFile."wezterm/wezterm.lua" = {
+    source = ./wezterm.lua;
     force = true;
   };
 }
