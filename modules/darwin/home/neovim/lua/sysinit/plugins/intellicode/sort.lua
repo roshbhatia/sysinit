@@ -3,11 +3,16 @@ local M = {}
 M.plugins = {
 	{
 		"sQVe/sort.nvim",
-		lazy = true,
+		cmd = { "Sort" },
 		config = function()
 			vim.api.nvim_create_user_command("Sort", function()
 				require("sort").sort()
 			end, {})
+		end,
+		keys = function()
+			vim.keymap.set("v", "<leader>ss", function()
+				require("sort").sort()
+			end, { desc = "Sort: sort selection" })
 		end,
 	},
 }

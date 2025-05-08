@@ -6,7 +6,7 @@ local M = {}
 M.plugins = {
 	{
 		"Cassin01/wf.nvim",
-		lazy = false,
+		version = "*",
 		config = function()
 			require("wf").setup()
 
@@ -19,6 +19,7 @@ M.plugins = {
 					text_insert_in_advance = "<Leader>",
 				}),
 				{
+					nowait = true,
 					noremap = true,
 					silent = true,
 					desc = "[wf.nvim] which-key /",

@@ -5,7 +5,12 @@ M.plugins = {
 		"nvim-neo-tree/neo-tree.nvim",
 		branch = "v3.x",
 		cmd = "Neotree",
-		dependencies = { "nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "MunifTanjim/nui.nvim" },
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"nvim-tree/nvim-web-devicons",
+			"MunifTanjim/nui.nvim",
+			"xiyaowong/transparent.nvim",
+		},
 		config = function()
 			vim.g.neo_tree_remove_legacy_commands = 1
 
@@ -170,6 +175,8 @@ M.plugins = {
 					vim.cmd("Neotree close")
 				end,
 			})
+
+			require("transparent").clear_prefix("NeoTree")
 		end,
 		keys = {
 			{
