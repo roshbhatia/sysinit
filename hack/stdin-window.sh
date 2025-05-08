@@ -14,7 +14,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# Use Ruby for the sliding window display
+# Use a much simpler Ruby script
 /usr/bin/ruby -e "
 # ANSI color codes
 RESET = '\033[0m'
@@ -27,8 +27,8 @@ MAGENTA = '\033[35m'
 GRAY = '\033[90m'
 LIGHT_GRAY = '\033[37m'
 
-# Get terminal width
-term_width = \`tput cols\`.to_i rescue 80
+# Get terminal width - fallback to 80 if not available
+term_width = ENV['COLUMNS'] ? ENV['COLUMNS'].to_i : 80
 
 # Height from bash variable
 height = $height
@@ -42,62 +42,50 @@ def draw_border(width)
 end
 
 # Process a log line with colors
-def colorize_log(line, is_latest = false)
-  # Make line light gray by default
-  result = \"#{LIGHT_GRAY}#{line}#{RESET}\"
+def colorize_log(line, is_latest)
+  # Add prefix and make light gray
+  result = is_latest ? \"> #{LIGHT_GRAY}#{line}#{RESET}\" : \"  #{LIGHT_GRAY}#{line}#{RESET}\"
   
-  # Add prefix to latest line
-  prefix = is_latest ? '> ' : '  '
-  result = \"#{prefix}#{result}\"
+  # Simple replacements for log levels
+  result = result.gsub('[INFO]', \"#{CYAN}[INFO]#{LIGHT_GRAY}\")
+  result = result.gsub('[info]', \"#{CYAN}[info]#{LIGHT_GRAY}\")
+  result = result.gsub('[DEBUG]', \"#{MAGENTA}[DEBUG]#{LIGHT_GRAY}\")
+  result = result.gsub('[debug]', \"#{MAGENTA}[debug]#{LIGHT_GRAY}\")
+  result = result.gsub('[ERROR]', \"#{RED}[ERROR]#{LIGHT_GRAY}\")
+  result = result.gsub('[error]', \"#{RED}[error]#{LIGHT_GRAY}\")
+  result = result.gsub('[WARN]', \"#{YELLOW}[WARN]#{LIGHT_GRAY}\")
+  result = result.gsub('[warn]', \"#{YELLOW}[warn]#{LIGHT_GRAY}\")
   
-  # Color log levels
-  result = result.gsub(/\\[(INFO|info)\\]/) { \"#{CYAN}#{$&}#{LIGHT_GRAY}\" }
-  result = result.gsub(/\\[(DEBUG|debug)\\]/) { \"#{MAGENTA}#{$&}#{LIGHT_GRAY}\" }
-  result = result.gsub(/\\[(ERROR|error|ERR|err)\\]/) { \"#{RED}#{$&}#{LIGHT_GRAY}\" }
-  result = result.gsub(/\\[(WARN|warn|WARNING|warning)\\]/) { \"#{YELLOW}#{$&}#{LIGHT_GRAY}\" }
-  result = result.gsub(/\\[(SUCCESS|success|OK|ok)\\]/) { \"#{GREEN}#{$&}#{LIGHT_GRAY}\" }
-  
-  # Color timestamps
-  result = result.gsub(/\\[\\d{2}:\\d{2}:\\d{2}\\]/) { \"#{GRAY}#{$&}#{LIGHT_GRAY}\" }
-  result = result.gsub(/(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})/) { \"#{GRAY}#{$&}#{LIGHT_GRAY}\" }
-  
-  # Color keywords
-  result = result.gsub(/(completed|finished|done)/i) { \"#{GREEN}#{$&}#{LIGHT_GRAY}\" }
-  result = result.gsub(/(failed|error|fatal)/i) { \"#{RED}#{$&}#{LIGHT_GRAY}\" }
-  result = result.gsub(/(warning|warn|caution)/i) { \"#{YELLOW}#{$&}#{LIGHT_GRAY}\" }
-  
+  # Done with basic coloring
   result
 end
 
 # Update the display
-def update_display(buffer, height, term_width)
-  # Clear screen and move cursor to top-left
-  print \"\033[2J\033[H\"
+def update_display(buffer, height, width)
+  # Clear screen
+  puts \"\033[2J\033[H\"
   
   # Draw top border
-  puts draw_border(term_width)
+  puts draw_border(width)
   
-  # Calculate empty space needed
-  filled_lines = buffer.size
-  empty_lines = height - filled_lines
+  # Calculate empty lines needed
+  empty_lines = [0, height - buffer.size].max
   
-  # Print empty lines to push content to bottom
+  # Print empty lines
   empty_lines.times { puts \"\" }
   
   # Print all log lines
-  buffer.each_with_index do |line, i|
-    is_latest = (i == buffer.size - 1)
-    puts colorize_log(line, is_latest)
+  buffer.each_with_index do |line, idx|
+    puts colorize_log(line, idx == buffer.size - 1)
   end
   
   # Draw bottom border
-  puts draw_border(term_width)
-  $stdout.flush
+  puts draw_border(width)
 end
 
 # Main loop
 begin
-  while line = gets
+  while line = STDIN.gets
     line = line.chomp
     
     # Add to buffer
@@ -106,11 +94,14 @@ begin
     # Keep buffer at maximum size
     buffer.shift if buffer.size > height
     
-    # Update the display
+    # Update display
     update_display(buffer, height, term_width)
   end
 rescue Interrupt
-  exit
+  exit 0
+rescue Exception => e
+  puts \"Error: \#{e.message}\"
+  exit 1
 end
 " || echo "Ruby script failed with an error."
 
