@@ -2,11 +2,11 @@ local M = {}
 
 -- Simple plugin spec for SchemaStore
 M.plugins = {
-    {
-        "b0o/SchemaStore.nvim",
-        lazy = true,
-        version = "*"
-    }
+	{
+		"b0o/SchemaStore.nvim",
+		lazy = true,
+		version = "*",
+	},
 }
 
 return M
