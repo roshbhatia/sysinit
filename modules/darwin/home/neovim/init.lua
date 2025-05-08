@@ -32,12 +32,6 @@ vim.keymap.set("n", "N", "Nzzzv", {
 	desc = "Previous search",
 })
 
--- Terminal: double Esc to exit to Normal mode
-vim.keymap.set("t", "<Esc><Esc>", [[<C-\><C-n>]], {
-	noremap = true,
-	silent = true,
-})
-
 -- File: Save current buffer (Cmd + S)
 vim.keymap.set({ "n", "i", "v" }, "<D-s>", "<cmd>w<CR>", {
 	noremap = true,
