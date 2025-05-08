@@ -112,43 +112,49 @@ end, {
 	desc = "Find",
 })
 
-vim.keymap.set("n", "bd", ":q<CR>", {
+vim.keymap.set("n", "<leader>bd", ":q<CR>", {
 	noremap = true,
 	silent = true,
 	desc = "Buffer: Close",
 })
 
-vim.keymap.set("n", "bn", "<cmd>bnext<CR>", {
+vim.keymap.set("n", "<leader>bD", ":bdelete<CR>", {
+	noremap = true,
+	silent = true,
+	desc = "Buffer: Delete",
+})
+
+vim.keymap.set("n", "<leader>bn", "<cmd>bnext<CR>", {
 	noremap = true,
 	silent = true,
 	desc = "Buffer: Next",
 })
 
-vim.keymap.set("n", "bp", "<cmd>bprevious<CR>", {
+vim.keymap.set("n", "<leader>bp", "<cmd>bprevious<CR>", {
 	noremap = true,
 	silent = true,
 	desc = "Buffer: Previous",
 })
 
-vim.keymap.set("n", "bl", "<cmd>buffers<CR>", {
+vim.keymap.set("n", "<leader>bl", "<cmd>buffers<CR>", {
 	noremap = true,
 	silent = true,
 	desc = "Buffer: List",
 })
 
-vim.keymap.set("n", "bw", "<cmd>write<CR>", {
+vim.keymap.set("n", "<leader>bw", "<cmd>write<CR>", {
 	noremap = true,
 	silent = true,
 	desc = "Buffer: Write",
 })
 
-vim.keymap.set("n", "bW", "<cmd>wall<CR>", {
+vim.keymap.set("n", "<leader>bW", "<cmd>wall<CR>", {
 	noremap = true,
 	silent = true,
 	desc = "Buffer: Write All",
 })
 
-vim.keymap.set("n", "bi", "<cmd>enew<CR>", {
+vim.keymap.set("n", "<leader>bi", "<cmd>enew<CR>", {
 	noremap = true,
 	silent = true,
 	desc = "Buffer: New (Init)",
