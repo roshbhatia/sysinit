@@ -39,10 +39,6 @@ M.plugins = {
 					require("overseer").setup()
 				end,
 			},
-			{
-				"VonHeikemen/fine-cmdline.nvim",
-				requires = { { "MunifTanjim/nui.nvim" },
-			},
 			"nvim-lua/plenary.nvim",
 			"nvim-tree/nvim-web-devicons",
 			"nvim-telescope/telescope-fzy-native.nvim",
