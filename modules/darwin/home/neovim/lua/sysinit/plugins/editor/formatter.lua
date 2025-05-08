@@ -4,6 +4,7 @@ local M = {}
 M.plugins = {
 	{
 		"stevearc/conform.nvim",
+		event = "BufEnter",
 		opts = {
 			formatters_by_ft = {
 				lua = { "stylua" },

@@ -5,7 +5,7 @@ M.plugins = {
 	{
 		"lukas-reineke/indent-blankline.nvim",
 		main = "ibl",
-		lazy = true,
+		event = "BufEnter",
 		config = function()
 			local ibl = require("ibl")
 			local hooks = require("ibl.hooks")
