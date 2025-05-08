@@ -15,7 +15,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Use Python to handle the sliding window display
-python3 -c "
+/opt/homebrew/bin/python3 -c "
 import sys
 import re
 import os
