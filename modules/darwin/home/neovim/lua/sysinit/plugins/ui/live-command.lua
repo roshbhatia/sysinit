@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"smjonas/live-command.nvim",
-		lazy = false,
+		tag = "2.*",
 		config = function()
 			require("live-command").setup()
 		end,

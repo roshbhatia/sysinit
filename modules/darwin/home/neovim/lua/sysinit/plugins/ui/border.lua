@@ -3,8 +3,8 @@ local M = {}
 M.plugins = {
 	{
 		"mikesmithgh/borderline.nvim",
-		lazy = false,
-		priority = 1000,
+		lazy = true,
+		event = "VeryLazy",
 		config = function()
 			require("borderline").setup({
 				border = "single",

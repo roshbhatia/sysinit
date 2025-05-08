@@ -4,7 +4,7 @@ local M = {}
 M.plugins = {
 	{
 		"Isrothy/neominimap.nvim",
-		event = "BufReadPost",
+		version = "v3.x.x",
 		lazy = false,
 		init = function()
 			vim.opt_local.wrap = false

@@ -5,15 +5,16 @@ M.plugins = {
 		"hrsh7th/nvim-cmp",
 		event = { "InsertEnter", "CmdlineEnter" },
 		dependencies = {
-			"L3MON4D3/LuaSnip",
-			"saadparwaiz1/cmp_luasnip",
 			"hrsh7th/cmp-buffer",
-			"hrsh7th/cmp-path",
+			"hrsh7th/cmp-cmdline",
 			"hrsh7th/cmp-nvim-lsp",
 			"hrsh7th/cmp-nvim-lua",
-			"hrsh7th/cmp-cmdline",
-			"zbirenbaum/copilot-cmp",
+			"hrsh7th/cmp-path",
+			"L3MON4D3/LuaSnip",
 			"onsails/lspkind.nvim",
+			"petertriho/cmp-git",
+			"saadparwaiz1/cmp_luasnip",
+			"zbirenbaum/copilot-cmp",
 		},
 		config = function()
 			local cmp = require("cmp")
@@ -100,6 +101,11 @@ M.plugins = {
 						priority = 70,
 					},
 					{
+						name = "git",
+						group_index = 2,
+						priority = 65,
+					},
+					{
 						name = "nvim_lua",
 						group_index = 2,
 						priority = 60,
@@ -128,22 +134,6 @@ M.plugins = {
 					ghost_text = false,
 				},
 			})
-
-			-- Set up special configuration for filetype 'gitcommit'
-			cmp.setup.filetype("gitcommit", {
-				sources = {
-					{
-						name = "git",
-					},
-					{
-						name = "buffer",
-					},
-					{
-						name = "path",
-					},
-				},
-			})
-
 			-- `:` cmdline setup.
 			cmp.setup.cmdline(":", {
 				mapping = cmp.mapping.preset.cmdline(),
@@ -159,6 +149,8 @@ M.plugins = {
 					} }
 				),
 			})
+
+			require("cmp_git").setup()
 		end,
 	},
 }

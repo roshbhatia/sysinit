@@ -38,11 +38,6 @@ M.plugins = {
 		keys = function()
 			return {
 				{
-					"<leader>e",
-					"<cmd>Oil --float<CR>",
-					desc = "Explorer: open filesystem in floating buffer",
-				},
-				{
 					"<leader>eo",
 					"<cmd>Oil --float<CR>",
 					desc = "Explorer: open filesystem in floating buffer",

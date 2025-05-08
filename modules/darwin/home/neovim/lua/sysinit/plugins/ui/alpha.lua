@@ -3,8 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"goolord/alpha-nvim",
-		dependencies = { "nanozuki/tabby.nvim" },
-		lazy = false,
+		dependencies = { "nvim-tree/nvim-web-devicons" },
 		config = function()
 			local alpha = require("alpha")
 			local dashboard = require("alpha.themes.dashboard")
