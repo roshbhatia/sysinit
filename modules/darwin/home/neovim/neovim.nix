@@ -15,7 +15,7 @@ in
   };
 
   xdg.configFile."nvim" = {
-    source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim";
+    source = config.lib.file.mkOutOfStoreSymlink "/Users/${config.user.username}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim";
     force = true;
   };
 
