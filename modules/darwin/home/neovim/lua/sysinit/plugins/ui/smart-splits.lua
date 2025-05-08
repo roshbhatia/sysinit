@@ -31,48 +31,49 @@ M.plugins = {{
             -- Log level
             log_level = 'info'
         })
-
-        -- Keymaps for moving between splits
-        vim.keymap.set('n', '<C-h>', require('smart-splits').move_cursor_left, {
-            desc = "Move to left split"
-        })
-        vim.keymap.set('n', '<C-j>', require('smart-splits').move_cursor_down, {
-            desc = "Move to bottom split"
-        })
-        vim.keymap.set('n', '<C-k>', require('smart-splits').move_cursor_up, {
-            desc = "Move to top split"
-        })
-        vim.keymap.set('n', '<C-l>', require('smart-splits').move_cursor_right, {
-            desc = "Move to right split"
-        })
-
-        -- Keymaps for resizing splits
-        vim.keymap.set('n', '<M-h>', require('smart-splits').resize_left, {
-            desc = "Decrease width of current split"
-        })
-        vim.keymap.set('n', '<M-j>', require('smart-splits').resize_down, {
-            desc = "Decrease height of current split"
-        })
-        vim.keymap.set('n', '<M-k>', require('smart-splits').resize_up, {
-            desc = "Increase height of current split"
-        })
-        vim.keymap.set('n', '<M-l>', require('smart-splits').resize_right, {
-            desc = "Increase width of current split"
-        })
-
-        -- Keymaps for swapping buffers between windows
-        vim.keymap.set('n', 'C-H', require('smart-splits').swap_buf_left, {
-            desc = "Swap buffer with left window"
-        })
-        vim.keymap.set('n', 'C-J', require('smart-splits').swap_buf_down, {
-            desc = "Swap buffer with window below"
-        })
-        vim.keymap.set('n', 'C-K', require('smart-splits').swap_buf_up, {
-            desc = "Swap buffer with window above"
-        })
-        vim.keymap.set('n', 'C-L', require('smart-splits').swap_buf_right, {
-            desc = "Swap buffer with right window"
-        })
+    end,
+    keys = function()
+        return {{
+            '<C-h>',
+            '<cmd>lua require("smart-splits").move_cursor_left()<CR>',
+            desc = "Split: Move to left split"
+        }, {
+            '<C-j>',
+            '<cmd>lua require("smart-splits").move_cursor_down()<CR>',
+            desc = "Split: Move to bottom split"
+        }, {
+            '<C-k>',
+            '<cmd>lua require("smart-splits").move_cursor_up()<CR>',
+            desc = "Split: Move to top split"
+        }, {
+            '<C-l>',
+            '<cmd>lua require("smart-splits").move_cursor_right()<CR>',
+            desc = "Split: Move to right split"
+        }, {
+            '<M-h>',
+            '<cmd>lua require("smart-splits").resize_left()<CR>',
+            desc = "Split: Decrease width of current split"
+        }, {
+            '<M-j>',
+            '<cmd>lua require("smart-splits").resize_down()<CR>',
+            desc = "Split: Decrease height of current split"
+        }, {
+            '<M-k>',
+            '<cmd>lua require("smart-splits").resize_up()<CR>',
+            desc = "Split: Increase height of current split"
+        }, {
+            '<M-l>',
+            '<cmd>lua require("smart-splits").resize_right()<CR>',
+            desc = "Split: Increase width of current split"
+        }, {
+            '<leader><S-s>',
+            '<cmd>split<CR>',
+            desc = "Split: Horizontal"
+        }, {
+            '<leader><S-v>',
+            '<cmd>vsplit<CR>',
+            desc = "Split: Vertical"
+        }}
     end
 }}
 
