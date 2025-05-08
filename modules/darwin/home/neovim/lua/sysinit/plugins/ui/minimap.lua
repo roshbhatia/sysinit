@@ -12,6 +12,15 @@ M.plugins = {{
         vim.g.neominimap = {
             auto_enable = false
         }
+    end,
+    keys = function()
+        return {{
+            "<leader>m",
+            function()
+                require("neominimap").toggle()
+            end,
+            desc = "Minimap: Toggle"
+        }}
     end
 }}
 

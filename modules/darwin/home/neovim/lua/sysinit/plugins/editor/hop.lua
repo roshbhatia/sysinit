@@ -17,11 +17,6 @@ M.plugins = {{
             mode = 'n',
             desc = "Hop: Quick jump to word"
         }, {
-            '<S-Enter>',
-            '<Esc><cmd>HopWord<CR>',
-            mode = 'i',
-            desc = "Hop: Exit insert and quick jump to word"
-        }, {
             '<leader>j',
             '<cmd>HopWord<CR>',
             mode = 'n',

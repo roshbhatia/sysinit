@@ -38,7 +38,13 @@ M.plugins = {{
         "<cmd>Aider reset<cr>",
         desc = "AI: Reset Session"
     }},
-    config = true
+    config = function()
+        require("nvim_aider").setup({
+            picker_cfg = {
+                preset = "telescope"
+            }
+        })
+    end
 }}
 
 return M
