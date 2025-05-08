@@ -40,7 +40,7 @@ config.color_scheme = "Material Palenight (base16)"
 -- Font configuration
 config.font = wezterm.font_with_fallback({
 	{
-		family = "Hack Nerd Font Mono",
+		family = "JetBrains Mono",
 		weight = "Medium",
 		harfbuzz_features = { "zero", "ss01", "liga" },
 	},
