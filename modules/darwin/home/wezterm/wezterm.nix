@@ -1,8 +1,8 @@
 { config, lib, pkgs, ... }:
 
 {
-  xdg.configFile."wezterm/wezterm.lua" = {
-    source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/wezterm/wezterm.lua";
+  xdg.configFile."wezterm" = {
+    source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/wezterm";
     force = true;
   };
 }
