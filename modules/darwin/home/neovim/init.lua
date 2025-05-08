@@ -237,6 +237,7 @@ vim.o.autoread = true
 plugin_manager.setup_package_manager()
 
 local plugins = {
+	require("lua.sysinit.plugins.library.nio"),
 	require("sysinit.plugins.ui.border"),
 	require("sysinit.plugins.ui.snacks"),
 	require("sysinit.plugins.ui.notifications"),
@@ -265,7 +266,6 @@ local plugins = {
 	require("sysinit.plugins.file.session"),
 	require("sysinit.plugins.file.telescope"),
 	require("sysinit.plugins.file.tree"),
-	require("sysinit.plugins.git.blame"),
 	require("sysinit.plugins.git.client"),
 	require("sysinit.plugins.git.octo"),
 	require("sysinit.plugins.git.fugitive"),

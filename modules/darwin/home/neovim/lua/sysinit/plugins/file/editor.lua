@@ -5,7 +5,6 @@ M.plugins = {
 	{
 		"stevearc/oil.nvim",
 		cmd = "Oil",
-		lazy = true,
 		dependencies = { "nvim-tree/nvim-web-devicons" },
 		opts = {
 			default_file_explorer = true,

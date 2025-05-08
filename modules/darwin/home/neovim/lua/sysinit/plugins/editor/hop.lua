@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"phaazon/hop.nvim",
-		lazy = false,
+		event = "BufEnter",
 		config = function()
 			require("hop").setup({
 				keys = "fjdkslaghrueiwoncmv",

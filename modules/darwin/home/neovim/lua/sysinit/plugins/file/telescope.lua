@@ -3,43 +3,12 @@ local M = {}
 M.plugins = {
 	{
 		"nvim-telescope/telescope.nvim",
-		lazy = false,
-		keys = {
-			{
-				"<leader>ff",
-				"<cmd>Telescope find_files<cr>",
-				desc = "Picker: find files",
-			},
-			{
-				"<leader>fg",
-				"<cmd>Telescope live_grep<cr>",
-				desc = "Picker: live grep",
-			},
-			{
-				"<leader>fb",
-				"<cmd>Telescope buffers<cr>",
-				desc = "Picker: find buffers",
-			},
-			{
-				"<leader>fh",
-				"<cmd>Telescope help_tags<cr>",
-				desc = "Picker: help tags",
-			},
-		},
+		tag = "0.1.8",
 		dependencies = {
-			{
-				"stevearc/overseer.nvim",
-				opts = {},
-				config = function()
-					require("overseer").setup()
-				end,
-			},
 			"nvim-lua/plenary.nvim",
 			"nvim-tree/nvim-web-devicons",
 			"nvim-telescope/telescope-fzy-native.nvim",
-			"jonarrien/telescope-cmdline.nvim",
 			"nvim-telescope/telescope-dap.nvim",
-			"j-hui/fidget.nvim",
 		},
 		config = function()
 			local telescope = require("telescope")
@@ -64,7 +33,7 @@ M.plugins = {
 				},
 				extensions = {
 					fzy_native = {
-						override_generic_sorter = false,
+						override_generic_sorter = true,
 						override_file_sorter = true,
 					},
 				},
@@ -84,11 +53,30 @@ M.plugins = {
 
 			telescope.load_extension("fzy_native")
 			telescope.load_extension("dap")
-			telescope.load_extension("fidget")
-
-			vim.api.nvim_set_keymap("n", ":", "<cmd>FineCmdline<CR>", {
-				noremap = true,
-			})
+		end,
+		keys = function()
+			return {
+				{
+					"<leader>ff",
+					"<cmd>Telescope find_files<cr>",
+					desc = "Picker: find files",
+				},
+				{
+					"<leader>fg",
+					"<cmd>Telescope live_grep<cr>",
+					desc = "Picker: live grep",
+				},
+				{
+					"<leader>fb",
+					"<cmd>Telescope buffers<cr>",
+					desc = "Picker: find buffers",
+				},
+				{
+					"<leader>fh",
+					"<cmd>Telescope help_tags<cr>",
+					desc = "Picker: help tags",
+				},
+			}
 		end,
 	},
 }

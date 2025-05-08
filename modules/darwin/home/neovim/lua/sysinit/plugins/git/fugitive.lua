@@ -4,7 +4,7 @@ local M = {}
 M.plugins = {
 	{
 		"tpope/vim-fugitive",
-		lazy = false,
+		event = "VeryLazy",
 		keys = {
 			{
 				"<leader>gs",

@@ -3,7 +3,7 @@ local M = {}
 
 M.plugins = { {
 	"numToStr/Comment.nvim",
-	lazy = false,
+	event = "BufEnter",
 	opts = {},
 } }
 

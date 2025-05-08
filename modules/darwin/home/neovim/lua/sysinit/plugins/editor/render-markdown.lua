@@ -3,8 +3,6 @@ local M = {}
 M.plugins = {
 	{
 		"MeanderingProgrammer/render-markdown.nvim",
-		lazy = true,
-		event = "VeryLazy",
 		ft = { "markdown" },
 		opts = {
 			file_types = { "markdown", "mermaid" },
