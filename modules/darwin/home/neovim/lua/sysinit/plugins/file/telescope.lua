@@ -41,7 +41,7 @@ M.plugins = {
 			},
 			{
 				"VonHeikemen/fine-cmdline.nvim",
-				requires = { { "MunifTanjim/nui.nvim" } },
+				requires = { { "MunifTanjim/nui.nvim" },
 			},
 			"nvim-lua/plenary.nvim",
 			"nvim-tree/nvim-web-devicons",
