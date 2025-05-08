@@ -32,10 +32,10 @@ M.plugins = {
 			close_on_exit = true,
 			shell = vim.o.shell,
 			float_opts = {
-				border = "single",
+				border = "solid",
 				winblend = 0,
 				highlights = {
-					border = "single",
+					border = "solid",
 					background = "Normal",
 				},
 			},
@@ -75,7 +75,7 @@ M.plugins = {
 				hidden = true,
 				direction = "float",
 				float_opts = {
-					border = "single",
+					border = "solid",
 				},
 				on_open = function(term)
 					vim.cmd("startinsert!")
@@ -98,7 +98,7 @@ M.plugins = {
 				hidden = true,
 				direction = "float",
 				float_opts = {
-					border = "single",
+					border = "solid",
 				},
 			})
 
@@ -112,7 +112,7 @@ M.plugins = {
 				hidden = true,
 				direction = "float",
 				float_opts = {
-					border = "single",
+					border = "solid",
 				},
 			})
 

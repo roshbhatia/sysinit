@@ -238,6 +238,7 @@ vim.o.autoread = true
 plugin_manager.setup_package_manager()
 
 local plugins = {
+	require("sysinit.plugins.ui.border"),
 	require("sysinit.plugins.ui.snacks"),
 	require("sysinit.plugins.ui.notifications"),
 	require("sysinit.plugins.ui.live-command"),
