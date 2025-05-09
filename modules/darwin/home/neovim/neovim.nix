@@ -23,10 +23,30 @@ in
     description = "Symlink Neovim init.lua and lua directory";
     script = ''
       mkdir -p "${nvimConfigDir}"
-      ln -sf "${nvimInitSource}" "${nvimInitTarget}"
-      ln -sf "${nvimLuaSource}" "${nvimLuaTarget}"
+      if [ -L "${nvimInitTarget}" ]; then
+        if [ "$(readlink "${nvimInitTarget}")" != "${nvimInitSource}" ]; then
+          rm "${nvimInitTarget}"
+          ln -sf "${nvimInitSource}" "${nvimInitTarget}"
+        fi
+      elif [ -e "${nvimInitTarget}" ]; then
+        rm -rf "${nvimInitTarget}"
+        ln -sf "${nvimInitSource}" "${nvimInitTarget}"
+      else
+        ln -sf "${nvimInitSource}" "${nvimInitTarget}"
+      fi
+      if [ -L "${nvimLuaTarget}" ]; then
+        if [ "$(readlink "${nvimLuaTarget}")" != "${nvimLuaSource}" ]; then
+          rm "${nvimLuaTarget}"
+          ln -sf "${nvimLuaSource}" "${nvimLuaTarget}"
+        fi
+      elif [ -e "${nvimLuaTarget}" ]; then
+        rm -rf "${nvimLuaTarget}"
+        ln -sf "${nvimLuaSource}" "${nvimLuaTarget}"
+      else
+        ln -sf "${nvimLuaSource}" "${nvimLuaTarget}"
+      fi
     '';
-    requiredExecutables = [ "ln" "mkdir" ];
+    requiredExecutables = [ "ln" "mkdir" "readlink" "rm" ];
   };
 
   home.activation.neovimPermissions = activationUtils.mkActivationScript {
