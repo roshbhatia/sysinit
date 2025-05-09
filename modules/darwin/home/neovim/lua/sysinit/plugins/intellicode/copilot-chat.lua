@@ -24,27 +24,27 @@ M.plugins = {
 				{
 					"<leader>ae",
 					"<cmd>CopilotChatExplain<cr>",
-					desc = "AI: Explain Code",
+					desc = "AI: Explain code",
 				},
 				{
 					"<leader>at",
 					"<cmd>CopilotChatTests<cr>",
-					desc = "AI: Generate Tests",
+					desc = "AI: Generate tests",
 				},
 				{
 					"<leader>af",
 					"<cmd>CopilotChatFix<cr>",
-					desc = "AI: Fix Code",
+					desc = "AI: Fix code",
 				},
 				{
 					"<leader>ao",
 					"<cmd>CopilotChatOptimize<cr>",
-					desc = "AI: Optimize Code",
+					desc = "AI: Optimize code",
 				},
 				{
 					"<leader>ad",
 					"<cmd>CopilotChatDocs<cr>",
-					desc = "AI: Generate Docs",
+					desc = "AI: Generate docs",
 				},
 			}
 		end,
@@ -138,24 +138,75 @@ M.plugins = {
 		end,
 	},
 	{
-		"olimorris/codecompanion.nvim",
-		dependencies = { "nvim-lua/plenary.nvim", "nvim-treesitter/nvim-treesitter" },
-		cmd = {
-			"CodeCompanionChat",
-			"CodeCompanionActions",
+		"yetone/avante.nvim",
+		event = "VeryLazy",
+		version = false,
+		opts = {
+			provider = "copilot:3.7",
+			auto_suggestions_provider = "copilot:3.7",
+			vendors = {
+				["copilot:3.7"] = {
+					__inherited_from = "copilot",
+					model = "claude-3.7-sonnet",
+					disabled_tools = { "web_search" },
+					max_tokens = 16384,
+				},
+				["copilot:3.5"] = {
+					__inherited_from = "copilot",
+					model = "claude-3.5-sonnet",
+					disabled_tools = { "web_search" },
+					max_tokens = 16384,
+				},
+				["copilot:o3"] = {
+					__inherited_from = "copilot",
+					model = "o3-mini",
+					disabled_tools = { "web_search" },
+					max_tokens = 16384,
+				},
+			},
+			behaviour = {
+				auto_suggestions = false,
+				auto_set_keymaps = false,
+			},
 		},
-		opts = {},
+		build = ":AvanteBuild",
+		dependencies = {
+			"nvim-treesitter/nvim-treesitter",
+			"stevearc/dressing.nvim",
+			"nvim-lua/plenary.nvim",
+			"MunifTanjim/nui.nvim",
+			"nvim-telescope/telescope.nvim",
+			"hrsh7th/nvim-cmp",
+			"nvim-tree/nvim-web-devicons",
+			"zbirenbaum/copilot.lua",
+			"MeanderingProgrammer/render-markdown.nvim",
+		},
 		keys = function()
 			return {
 				{
 					"<leader>aa",
-					"<cmd>CodeCompanionChat<cr>",
-					desc = "AI: Toggle Chat",
+					"<cmd>AvanteToggle<cr>",
+					desc = "AI: Toggle chat",
 				},
 				{
-					"<leader>ap",
-					"<cmd>CodeCompanionActions<cr>",
-					desc = "AI: Toggle Action Pallete",
+					"<leader>ac",
+					"<cmd>AvanteClear<cr>",
+					desc = "AI: Clear chat",
+				},
+				{
+					"<leader>ah",
+					"<cmd>AvanteHistory<cr>",
+					desc = "AI: Chat history",
+				},
+				{
+					"<leader>as",
+					"<cmd>AvanteStop<cr>",
+					desc = "AI: Stop current request",
+				},
+				{
+					"<leader>an",
+					"<cmd>AvanteChatNew<cr>",
+					desc = "AI: New chat",
 				},
 			}
 		end,
