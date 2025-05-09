@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"tribela/transparent.nvim",
-		event = "VimEnter",
+		lazy = false,
 		config = true,
 	},
 }

@@ -3,6 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"tamton-aquib/staline.nvim",
+		dependencies = { "nvim-tree/nvim-web-devicons", "xiyaowong/transparent.nvim" },
 		event = "User AlphaClosed",
 		config = function()
 			vim.opt.laststatus = 3
@@ -19,6 +20,8 @@ M.plugins = {
 					branch_symbol = " ",
 				},
 			})
+
+			require("transparent").clear_prefix("Staline")
 		end,
 	},
 }

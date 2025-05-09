@@ -162,6 +162,8 @@ M.plugins = {
 				},
 			})
 
+			require("transparent").clear_prefix("NeoTree")
+
 			-- File explorer: toggle Neotree (Alt+b)
 			vim.keymap.set("n", "<A-b>", "<cmd>Neotree toggle<CR>", {
 				noremap = true,
