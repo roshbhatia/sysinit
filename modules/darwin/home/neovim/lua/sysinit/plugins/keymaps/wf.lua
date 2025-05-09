@@ -11,19 +11,21 @@ M.plugins = {
 			require("wf").setup()
 
 			local which_key = require("wf.builtin.which_key")
-
-			vim.keymap.set(
-				"n",
-				"<Leader>",
-				which_key({
-					text_insert_in_advance = "<Leader>",
-				}),
+		end,
+		keys = function()
+			return {
 				{
-					noremap = true,
-					silent = true,
-					desc = "[wf.nvim] which-key /",
-				}
-			)
+					"<Leader>",
+					which_key({
+						text_insert_in_advance = "<Leader>",
+					}),
+					{
+						noremap = true,
+						silent = true,
+						desc = "[wf.nvim] which-key /",
+					},
+				},
+			}
 		end,
 	},
 }
