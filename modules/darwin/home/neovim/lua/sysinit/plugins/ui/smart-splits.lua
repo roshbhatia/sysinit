@@ -4,6 +4,8 @@ local M = {}
 M.plugins = {
 	{
 		"mrjones2014/smart-splits.nvim",
+		lazy = false,
+		priority = 1000,
 		config = function()
 			require("smart-splits").setup({
 				-- Ignored buffer types (only while resizing)
