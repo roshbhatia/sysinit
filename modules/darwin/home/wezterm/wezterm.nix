@@ -10,10 +10,22 @@ in
   home.activation.mkWeztermSymlink = activationUtils.mkActivationScript {
     description = "Symlink wezterm.lua to .config/wezterm";
     script = ''
-      log_info "Creating symlink for wezterm.lua in ${weztermConfigDir}"
+      log_info "Ensuring symlink for wezterm.lua in ${weztermConfigDir}"
       mkdir -p "${weztermConfigDir}"
-      ln -sf "${weztermLuaSource}" "${weztermConfigTarget}"
+      if [ -L "${weztermConfigTarget}" ]; then
+        if [ "$(readlink "${weztermConfigTarget}")" = "${weztermLuaSource}" ]; then
+          exit 0
+        else
+          rm "${weztermConfigTarget}"
+          ln -sf "${weztermLuaSource}" "${weztermConfigTarget}"
+        fi
+      elif [ -e "${weztermConfigTarget}" ]; then
+        rm -rf "${weztermConfigTarget}"
+        ln -sf "${weztermLuaSource}" "${weztermConfigTarget}"
+      else
+        ln -sf "${weztermLuaSource}" "${weztermConfigTarget}"
+      fi
     '';
-    requiredExecutables = [ "ln" "mkdir" ];
+    requiredExecutables = [ "ln" "mkdir" "readlink" "rm" ];
   };
 }
