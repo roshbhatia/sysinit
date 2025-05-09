@@ -272,7 +272,6 @@ local plugins = {
 	require("sysinit.plugins.library.nui"),
 	require("sysinit.plugins.ui.alpha"),
 	require("sysinit.plugins.ui.border"),
-	require("sysinit.plugins.ui.cmdline"),
 	require("sysinit.plugins.ui.devicons"),
 	require("sysinit.plugins.ui.dressing"),
 	require("sysinit.plugins.ui.live-command"),
