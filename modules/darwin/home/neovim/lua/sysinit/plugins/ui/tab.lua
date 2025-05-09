@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"nanozuki/tabby.nvim",
-		event = "BufReadPre",
+		event = "User AlphaClosed",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
 		config = function()
 			require("tabby").setup({
