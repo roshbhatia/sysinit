@@ -42,7 +42,7 @@ M.plugins = {
 			return {
 				{
 					"<leader>ev",
-					"cmd>Oil<CR>",
+					"<cmd>Oil<CR>",
 					desc = "Editor: Open filesystem",
 				},
 				{
@@ -56,4 +56,3 @@ M.plugins = {
 }
 
 return M
-
