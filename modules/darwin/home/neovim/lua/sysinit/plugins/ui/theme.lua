@@ -62,9 +62,6 @@ M.plugins = {
 				which_key = true,
 			},
 		},
-		config = function(_, opts)
-			require("catppuccin").setup(opts)
-		end,
 	},
 	{ "folke/tokyonight.nvim", lazy = false, priority = 1000 },
 	{ "AlexvZyl/nordic.nvim", lazy = false, priority = 1000 },
@@ -142,3 +139,4 @@ M.plugins = {
 }
 
 return M
+
