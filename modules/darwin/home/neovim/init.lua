@@ -196,7 +196,7 @@ vim.opt.cmdheight = 1
 vim.opt.showtabline = 2
 vim.opt.timeoutlen = 500
 vim.opt.updatetime = 300
-vim.opt.laststatus = 3
+vim.opt.laststatus = 2
 
 -- Completion settings
 vim.opt.shortmess:append("c")

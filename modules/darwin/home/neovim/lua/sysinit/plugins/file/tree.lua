@@ -175,8 +175,6 @@ M.plugins = {
 					vim.cmd("Neotree close")
 				end,
 			})
-
-			require("transparent").clear_prefix("NeoTree")
 		end,
 		keys = {
 			{
