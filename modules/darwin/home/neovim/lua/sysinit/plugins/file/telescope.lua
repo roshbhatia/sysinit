@@ -59,22 +59,22 @@ M.plugins = {
 				{
 					"<leader>ff",
 					"<cmd>Telescope find_files<cr>",
-					desc = "Picker: find files",
+					desc = "Picker: Find files",
 				},
 				{
 					"<leader>fg",
 					"<cmd>Telescope live_grep<cr>",
-					desc = "Picker: live grep",
+					desc = "Picker: Live grep",
 				},
 				{
 					"<leader>fb",
 					"<cmd>Telescope buffers<cr>",
-					desc = "Picker: find buffers",
+					desc = "Picker: Find buffers",
 				},
 				{
 					"<leader>fh",
 					"<cmd>Telescope help_tags<cr>",
-					desc = "Picker: help tags",
+					desc = "Picker: Help tags",
 				},
 			}
 		end,

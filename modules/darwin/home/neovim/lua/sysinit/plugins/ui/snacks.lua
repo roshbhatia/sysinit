@@ -46,14 +46,14 @@ M.plugins = {
 					function()
 						Snacks.notifier.show_history()
 					end,
-					desc = "Notifications: show",
+					desc = "Notifications: Show",
 				},
 				{
 					"<leader>nc",
 					function()
 						Snacks.notifier.hide()
 					end,
-					desc = "Notifications: dismiss",
+					desc = "Notifications: Dismiss",
 				},
 			}
 		end,

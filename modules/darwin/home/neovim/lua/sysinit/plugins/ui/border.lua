@@ -7,7 +7,7 @@ M.plugins = {
 		event = "VeryLazy",
 		config = function()
 			require("borderline").setup({
-				border = "single",
+				border = "rounded",
 			})
 		end,
 	},

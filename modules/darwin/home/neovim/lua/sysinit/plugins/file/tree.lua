@@ -166,7 +166,7 @@ M.plugins = {
 			vim.keymap.set("n", "<A-b>", "<cmd>Neotree toggle<CR>", {
 				noremap = true,
 				silent = true,
-				desc = "Explorer: toggle file tree",
+				desc = "Explorer: Toggle file tree",
 			})
 
 			vim.api.nvim_create_autocmd("User", {
@@ -182,7 +182,7 @@ M.plugins = {
 			{
 				"<leader>ee",
 				"<cmd>Neotree toggle<CR>",
-				desc = "Explorer: toggle file tree",
+				desc = "Explorer: Toggle file tree",
 			},
 		},
 	},
