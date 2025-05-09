@@ -60,6 +60,12 @@ M.plugins = {
 			telescope.load_extension("dap")
 			telescope.load_extension("live_grep_args")
 			telescope.load_extension("cmdline")
+
+			vim.keymap.set("n", ":", "<cmd>Telescope cmdline<cr>", {
+				noremap = true,
+				silent = true,
+				desc = "[telescope] Command line",
+			})
 		end,
 		keys = function()
 			return {
