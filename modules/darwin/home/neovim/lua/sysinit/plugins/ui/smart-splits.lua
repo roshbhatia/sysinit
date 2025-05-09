@@ -11,7 +11,7 @@ M.plugins = {
 				-- Ignored buffer types (only while resizing)
 				ignored_buftypes = { "nofile", "quickfix", "prompt" },
 				-- Ignored filetypes (only while resizing)
-				ignored_filetypes = { "neo-tree" },
+				ignored_filetypes = {},
 				-- Default resize amount
 				default_amount = 3,
 				-- Behavior when cursor is at edge
