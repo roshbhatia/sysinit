@@ -18,7 +18,7 @@ M.plugins = {
 			return {
 				{
 					"<leader>mm",
-					"<cmd>Neominimap toggle<CR>",
+					"<cmd>Neominimap Toggle<CR>",
 					desc = "Minimap: Toggle",
 				},
 			}
@@ -27,3 +27,4 @@ M.plugins = {
 }
 
 return M
+
