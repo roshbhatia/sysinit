@@ -154,36 +154,15 @@ M.plugins = {
 			"MeanderingProgrammer/render-markdown.nvim",
 		},
 		opts = {
-			provider = "copilot:3.5",
-			auto_suggestions_provider = "copilot:3.5",
-			vendors = {
-				["copilot:3.5"] = {
-					__inherited_from = "copilot",
-					model = "claude-3.5-sonnet",
-					disabled_tools = { "web_search" },
-					max_tokens = 16384,
-				},
-				["copilot:o3"] = {
-					__inherited_from = "copilot",
-					model = "o3-mini",
-					disabled_tools = { "web_search" },
-					max_tokens = 16384,
-				},
+			provider = "copilot",
+			auto_suggestions_provider = "copilot",
+			copilot = {
+				model = "claude-3.5-sonnet",
 			},
 			behaviour = {
 				auto_suggestions = false,
 			},
 		},
-		config = function(opts)
-			require("avante").setup(opts)
-
-			vim.api.nvim_create_autocmd("User", {
-				pattern = "PersistenceSavePre",
-				callback = function()
-					vim.cmd("Avante ")
-				end,
-			})
-		end,
 	},
 }
 return M
