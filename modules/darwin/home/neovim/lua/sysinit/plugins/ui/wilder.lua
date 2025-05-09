@@ -38,6 +38,22 @@ M.plugins = {
 					reverse = 0,
 				}))
 			)
+
+			vim.opt.wildmode = "longest:full,full"
+			vim.opt.wildmenu = true
+			vim.opt.wildignorecase = true
+		end,
+		keys = function()
+			return {
+				{
+					"<leader><leader>",
+					function()
+						vim.fn.feedkeys(":", "n")
+					end,
+					mode = "n",
+					desc = "Commandline",
+				},
+			}
 		end,
 	},
 }
