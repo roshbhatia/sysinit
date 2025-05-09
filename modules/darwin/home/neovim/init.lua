@@ -164,7 +164,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
 	end,
 })
 
-vim.keymap.set("n", "<leader>en", function()
+vim.keymap.set("n", "<leader>pn", function()
 	if vim.wo.relativenumber then
 		vim.wo.relativenumber = false
 		vim.wo.number = true
@@ -317,3 +317,4 @@ local plugins = {
 }
 
 plugin_manager.setup_plugins(plugins)
+
