@@ -146,6 +146,12 @@ vim.keymap.set("n", "<leader>bi", "<cmd>enew<CR>", {
 	desc = "Buffer: New (Init)",
 })
 
+vim.api.nvim_create_autocmd("VimEnter", {
+	callback = function()
+		vim.cmd("wincmd o")
+	end,
+})
+
 -- === Options === --
 
 -- Clipboard & mouse
