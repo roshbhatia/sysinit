@@ -14,6 +14,7 @@ M.plugins = {
 				desc = "Terminal: Toggle floating terminal",
 			},
 		},
+  }
 }
 
 return M
