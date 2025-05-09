@@ -24,10 +24,4 @@ graph TD
     L --> M
     M --> N
     N --> G
-
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style B fill:#bbf,stroke:#333,stroke-width:2px
-    style C fill:#ddf,stroke:#333,stroke-width:2px
-    style K fill:#f96,stroke:#333,stroke-width:2px
 ```
-
