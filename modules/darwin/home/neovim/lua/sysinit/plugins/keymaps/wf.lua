@@ -9,10 +9,9 @@ M.plugins = {
 		version = "*",
 		config = function()
 			require("wf").setup()
-
-			local which_key = require("wf.builtin.which_key")
 		end,
 		keys = function()
+			local which_key = require("wf.builtin.which_key")
 			return {
 				{
 					"<Leader>",
