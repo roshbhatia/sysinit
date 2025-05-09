@@ -10,12 +10,16 @@ M.plugins = {
 			bigfile = { enabled = true },
 			bufdelete = { enabled = true },
 			image = { enabled = true },
+			notifier = {
+				enabled = true,
+				timeout = 3000,
+			},
 			quickfile = { enabled = true },
 			rename = { enabled = true },
 			scope = { enabled = true },
 			scroll = { enabled = true },
 			statuscolumn = { enabled = true },
-			util = { enabled = true },
+			words = { enabled = true },
 
 			dashboard = { enabled = false },
 			debug = { enabled = false },
@@ -27,17 +31,32 @@ M.plugins = {
 			input = { enabled = false },
 			layout = { enabled = false },
 			lazygit = { enabled = false },
-			notifier = { enabled = false },
-			notify = { enabled = false },
 			picker = { enabled = false },
 			profiler = { enabled = false },
 			scratch = { enabled = false },
 			terminal = { enabled = false },
 			toggle = { enabled = false },
 			win = { enabled = false },
-			words = { enabled = false },
 			zen = { enabled = false },
 		},
+		keys = function()
+			return {
+				{
+					"<leader>ns",
+					function()
+						Snacks.notifier.show_history()
+					end,
+					desc = "Notifications: show",
+				},
+				{
+					"<leader>nc",
+					function()
+						Snacks.notifier.hide()
+					end,
+					desc = "Notifications: dismiss",
+				},
+			}
+		end,
 	},
 }
 
