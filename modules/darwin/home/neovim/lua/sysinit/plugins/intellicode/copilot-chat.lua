@@ -19,35 +19,6 @@ M.plugins = {
 			"CopilotChatOptimize",
 			"CopilotChatDocs",
 		},
-		keys = function()
-			return {
-				{
-					"<leader>ace",
-					"<cmd>CopilotChatExplain<cr>",
-					desc = "Copilot: Explain code",
-				},
-				{
-					"<leader>act",
-					"<cmd>CopilotChatTests<cr>",
-					desc = "Copilot: Generate tests",
-				},
-				{
-					"<leader>acf",
-					"<cmd>CopilotChatFix<cr>",
-					desc = "Copilot: Fix code",
-				},
-				{
-					"<leader>aco",
-					"<cmd>CopilotChatOptimize<cr>",
-					desc = "Copilot: Optimize code",
-				},
-				{
-					"<leader>acd",
-					"<cmd>CopilotChatDocs<cr>",
-					desc = "Copilot: Generate docs",
-				},
-			}
-		end,
 		opts = {
 			debug = false,
 			prompts = {
@@ -136,6 +107,35 @@ M.plugins = {
 			vim.api.nvim_create_user_command("CCO", "CopilotChatOptimize", {})
 			vim.api.nvim_create_user_command("CCD", "CopilotChatDocs", {})
 		end,
+		keys = function()
+			return {
+				{
+					"<leader>ace",
+					"<cmd>CopilotChatExplain<cr>",
+					desc = "Copilot: Explain code",
+				},
+				{
+					"<leader>act",
+					"<cmd>CopilotChatTests<cr>",
+					desc = "Copilot: Generate tests",
+				},
+				{
+					"<leader>acf",
+					"<cmd>CopilotChatFix<cr>",
+					desc = "Copilot: Fix code",
+				},
+				{
+					"<leader>aco",
+					"<cmd>CopilotChatOptimize<cr>",
+					desc = "Copilot: Optimize code",
+				},
+				{
+					"<leader>acd",
+					"<cmd>CopilotChatDocs<cr>",
+					desc = "Copilot: Generate docs",
+				},
+			}
+		end,
 	},
 	{
 		"yetone/avante.nvim",
@@ -153,24 +153,34 @@ M.plugins = {
 			"zbirenbaum/copilot.lua",
 			"MeanderingProgrammer/render-markdown.nvim",
 		},
-		opts = {
-			provider = "copilot",
-			auto_suggestions_provider = "copilot",
-			copilot = {
-				model = "claude-3.5-sonnet",
-			},
-			behaviour = {
-				auto_suggestions = false,
-				auto_apply_diff_after_generation = true,
-				support_paste_from_clipboard = true,
-			},
-			mappings = {
-				submit = {
-					normal = "<CR>",
-					insert = "<S-CR>",
+		config = function()
+			local avante = require("avante")
+			avante.setup({
+				provider = "copilot",
+				auto_suggestions_provider = "copilot",
+				copilot = {
+					model = "claude-3.5-sonnet",
 				},
-			},
-		},
+				behaviour = {
+					auto_suggestions = false,
+					auto_apply_diff_after_generation = true,
+					support_paste_from_clipboard = true,
+				},
+				mappings = {
+					submit = {
+						normal = "<CR>",
+						insert = "<S-CR>",
+					},
+				},
+			})
+
+			vim.api.nvim_create_autocmd("User", {
+				pattern = "PersistenceSavePre",
+				callback = function()
+					avante.close_sidebar()
+				end,
+			})
+		end,
 	},
 }
 return M
