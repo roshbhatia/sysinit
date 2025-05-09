@@ -208,13 +208,6 @@ vim.opt.laststatus = 2
 vim.opt.shortmess:append("c")
 vim.opt.completeopt = { "menuone", "noselect" }
 
--- Fill characters
-vim.opt.fillchars:append({
-	eob = " ",
-	vert = "│",
-	fold = "⤷",
-})
-
 -- Folding with treesitter
 vim.wo.foldmethod = "expr"
 vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
