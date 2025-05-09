@@ -34,6 +34,9 @@ M.plugins = {
 				max_width = 80,
 				max_height = 30,
 			},
+			keymaps = {
+				["q"] = { "actions.close", mode = "n" },
+			},
 		},
 		keys = function()
 			return {
