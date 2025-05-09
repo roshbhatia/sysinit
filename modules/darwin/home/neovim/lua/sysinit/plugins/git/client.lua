@@ -18,16 +18,17 @@ M.plugins = {
 			vim.g.lazygit_floating_window_use_plenary = 1
 			vim.g.lazygit_use_neovim_remote = 0
 		end,
+		keys = function()
+			return {
+				{
+					"<leader>gg",
+					"<cmd>LazyGit<CR>",
+					desc = "Git: Open git ui",
+				},
+			}
+		end,
 	},
-	keys = function()
-		return {
-			{
-				"<leader>gg",
-				"<cmd>LazyGit<CR>",
-				desc = "Open LazyGit",
-			},
-		}
-	end,
 }
 
 return M
+
