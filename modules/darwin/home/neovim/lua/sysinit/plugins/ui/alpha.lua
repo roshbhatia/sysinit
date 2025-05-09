@@ -92,7 +92,13 @@ M.plugins = {
 			vim.api.nvim_create_autocmd("VimEnter", {
 				pattern = "*",
 				callback = function()
-					vim.cmd("Alpha")
+					if vim.fn.argc() > 0 and vim.fn.isdirectory(vim.fn.argv()[1]) == 1 then
+						require("persistence").load()
+					elseif vim.fn.argc() > 0 then
+						return
+					else
+						vim.cmd("Alpha")
+					end
 				end,
 			})
 		end,

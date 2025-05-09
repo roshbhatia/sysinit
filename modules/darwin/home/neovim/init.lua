@@ -181,7 +181,7 @@ end, {
 -- === Options === --
 
 -- Clipboard & mouse
-vim.opt.clipboard = "unnamedplus"
+vim.o.clipboard = "unnamedplus"
 vim.opt.mouse = "a"
 
 -- Line numbers and sign column
@@ -315,3 +315,4 @@ local plugins = {
 }
 
 plugin_manager.setup_plugins(plugins)
+
