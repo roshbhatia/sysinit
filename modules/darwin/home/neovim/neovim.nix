@@ -1,7 +1,12 @@
-{ config, lib, pkgs, homeDirectory, ... }:
+{ config, lib, pkgs, ... }:
 
 let
   activationUtils = import ../../../lib/activation-utils.nix { inherit lib; };
+  nvimConfigDir = "${config.home.homeDirectory}/.config/nvim";
+  nvimInitSource = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/init.lua";
+  nvimLuaSource = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/lua";
+  nvimInitTarget = "${nvimConfigDir}/init.lua";
+  nvimLuaTarget = "${nvimConfigDir}/lua";
 in
 {
   programs.neovim = {
@@ -14,17 +19,16 @@ in
     withRuby = false;
   };
 
-  xdg.configFile."nvim/init.lua" = {
-    source = ./init.lua;
-    force = true;
+  home.activation.mkNeovimSymlinks = activationUtils.mkActivationScript {
+    description = "Symlink Neovim init.lua and lua directory";
+    script = ''
+      mkdir -p "${nvimConfigDir}"
+      ln -sf "${nvimInitSource}" "${nvimInitTarget}"
+      ln -sf "${nvimLuaSource}" "${nvimLuaTarget}"
+    '';
+    requiredExecutables = [ "ln" "mkdir" ];
   };
 
-  xdg.configFile."nvim/lua" = {
-    source = ./lua;
-    force = true;
-  };
-
-  # Replace the old activation script with our new framework
   home.activation.neovimPermissions = activationUtils.mkActivationScript {
     description = "Setting VSCode key repeat preferences for Neovim";
     after = [ "setupActivationUtils" "writeBoundary" ];
