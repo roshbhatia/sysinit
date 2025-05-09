@@ -26,7 +26,7 @@ M.plugins = {
 					desc = "Git: Open git ui",
 				},
 				{
-					"leader<gh>",
+					"<leader>gr",
 					"<cmd>FloatermNew --name github gh dash<CR>",
 					desc = "Git: Open github ui",
 				},
@@ -36,4 +36,3 @@ M.plugins = {
 }
 
 return M
-
