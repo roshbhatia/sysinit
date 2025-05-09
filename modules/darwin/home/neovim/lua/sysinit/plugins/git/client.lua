@@ -27,7 +27,7 @@ M.plugins = {
 				},
 				{
 					"<leader>gr",
-					':FloatermNew --name=github --cmd="gh dash"<CR>',
+					":FloatermNew! --name=github gh dash<CR>",
 					desc = "Git: Open github ui",
 				},
 			}
@@ -36,4 +36,3 @@ M.plugins = {
 }
 
 return M
-
