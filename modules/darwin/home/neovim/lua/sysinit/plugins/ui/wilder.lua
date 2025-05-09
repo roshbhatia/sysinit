@@ -7,10 +7,17 @@ M.plugins = {
 		priority = 1000,
 		dependencies = {
 			"romgrk/fzy-lua-native",
+			"kyazdani42/nvim-web-devicons",
 		},
 		config = function()
 			local wilder = require("wilder")
-			wilder.setup({ modes = { ":", "/", "?" } })
+			wilder.setup({
+				modes = { ":", "/", "?" },
+				next_key = "<Tab>",
+				previous_key = "<S-Tab>",
+				accept_key = "<CR>",
+				reject_key = "<Esc>",
+			})
 
 			wilder.set_option("use_python_remote_plugin", 0)
 
@@ -58,3 +65,4 @@ M.plugins = {
 	},
 }
 return M
+
