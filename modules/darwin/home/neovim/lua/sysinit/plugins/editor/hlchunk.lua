@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"shellRaining/hlchunk.nvim",
-		event = { "BufReadPre", "BufNewFile" },
+		event = { "VeryLazy" },
 		config = function()
 			require("hlchunk").setup({
 				line_num = {
@@ -15,4 +15,3 @@ M.plugins = {
 }
 
 return M
-
