@@ -273,7 +273,6 @@ local plugins = {
 	require("sysinit.plugins.file.tree"),
 	require("sysinit.plugins.git.client"),
 	require("sysinit.plugins.git.fugitive"),
-	require("sysinit.plugins.git.octo"),
 	require("sysinit.plugins.git.signs"),
 	require("sysinit.plugins.intellicode.cmp-buffer"),
 	require("sysinit.plugins.intellicode.cmp-cmdline"),
@@ -323,3 +322,4 @@ local plugins = {
 }
 
 plugin_manager.setup_plugins(plugins)
+
