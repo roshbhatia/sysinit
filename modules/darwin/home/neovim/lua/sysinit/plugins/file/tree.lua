@@ -177,7 +177,7 @@ M.plugins = {
 		end,
 		keys = {
 			{
-				"<leader>pp",
+				"<leader>ee",
 				"<cmd>Neotree toggle<CR>",
 				desc = "Editor: Toggle file tree",
 			},

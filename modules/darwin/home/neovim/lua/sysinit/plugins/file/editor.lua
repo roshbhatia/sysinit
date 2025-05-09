@@ -41,9 +41,9 @@ M.plugins = {
 		keys = function()
 			return {
 				{
-					"<leader>pv",
+					"<leader>ev",
 					"cmd>Oil<CR>",
-					desc= "Editor: Open filesystem",
+					desc = "Editor: Open filesystem",
 				},
 				{
 					"<leader>eo",
