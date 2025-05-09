@@ -43,6 +43,7 @@ let
     "helix"
     "helm-ls"
     "helm"
+    "imagemagick"
     "jandedobbeleer/oh-my-posh/oh-my-posh"
     "k9s"
     "kubecolor"
