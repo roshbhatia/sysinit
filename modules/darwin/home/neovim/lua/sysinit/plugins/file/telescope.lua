@@ -76,11 +76,6 @@ M.plugins = {
 					"<cmd>Telescope buffers<cr>",
 					desc = "Picker: Find buffers",
 				},
-				{
-					"<leader>fh",
-					"<cmd>Telescope help_tags<cr>",
-					desc = "Picker: Help tags",
-				},
 			}
 		end,
 	},
