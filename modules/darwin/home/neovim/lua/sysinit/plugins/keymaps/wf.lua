@@ -19,6 +19,7 @@ M.plugins = {
 					text_insert_in_advance = "<Leader>",
 				}),
 				{
+					noremap = true,
 					silent = true,
 					desc = "[wf.nvim] which-key /",
 				}
@@ -28,4 +29,3 @@ M.plugins = {
 }
 
 return M
-
