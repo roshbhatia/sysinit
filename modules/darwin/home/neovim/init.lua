@@ -256,7 +256,6 @@ local plugins = {
 	require("sysinit.plugins.editor.formatter"),
 	require("sysinit.plugins.editor.hlchunk"),
 	require("sysinit.plugins.editor.hop"),
-	require("sysinit.plugins.editor.ibl"),
 	require("sysinit.plugins.editor.intellitab"),
 	require("sysinit.plugins.editor.muren"),
 	require("sysinit.plugins.editor.render-markdown"),

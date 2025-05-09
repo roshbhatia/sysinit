@@ -5,7 +5,11 @@ M.plugins = {
 		"shellRaining/hlchunk.nvim",
 		event = { "BufReadPre", "BufNewFile" },
 		config = function()
-			require("hlchunk").setup({})
+			require("hlchunk").setup({
+				line_num = {
+					enablechunk = true,
+				},
+			})
 		end,
 	},
 }
