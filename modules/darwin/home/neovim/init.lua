@@ -98,19 +98,6 @@ end, {
 	desc = "Select all",
 })
 
--- Search: Cmd + F (enters search mode)
-vim.keymap.set({ "n", "i" }, "<D-f>", function()
-	if vim.fn.mode() == "i" then
-		return "<Esc>/"
-	else
-		return "/"
-	end
-end, {
-	noremap = true,
-	expr = true,
-	desc = "Find",
-})
-
 vim.keymap.set("n", "<leader>bd", ":q<CR>", {
 	noremap = true,
 	silent = true,
@@ -242,7 +229,9 @@ local plugins = {
 	require("sysinit.plugins.editor.formatter"),
 	require("sysinit.plugins.editor.hop"),
 	require("sysinit.plugins.editor.ibl"),
+	require("sysinit.plugins.editor.intellitab"),
 	require("sysinit.plugins.editor.render-markdown"),
+	require("sysinit.plugins.editor.surround"),
 	require("sysinit.plugins.file.diffview"),
 	require("sysinit.plugins.file.editor"),
 	require("sysinit.plugins.file.session"),
@@ -283,6 +272,7 @@ local plugins = {
 	require("sysinit.plugins.library.nio"),
 	require("sysinit.plugins.library.nui"),
 	require("sysinit.plugins.ui.alpha"),
+	require("sysinit.plugins.ui.animate"),
 	require("sysinit.plugins.ui.border"),
 	require("sysinit.plugins.ui.cmdline"),
 	require("sysinit.plugins.ui.devicons"),
