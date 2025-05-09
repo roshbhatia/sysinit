@@ -5,6 +5,8 @@ M.plugins = {
 		"tamton-aquib/staline.nvim",
 		event = "User AlphaClosed",
 		config = function()
+			vim.opt.laststatus = 3
+
 			require("staline").setup({
 				sections = {
 					left = { " ", "mode", " ", "branch", " ", "lsp" },
