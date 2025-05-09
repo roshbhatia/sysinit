@@ -9,7 +9,6 @@ M.plugins = {
 			"nvim-lua/plenary.nvim",
 			"nvim-tree/nvim-web-devicons",
 			"MunifTanjim/nui.nvim",
-			"xiyaowong/transparent.nvim",
 		},
 		config = function()
 			vim.g.neo_tree_remove_legacy_commands = 1
@@ -161,8 +160,6 @@ M.plugins = {
 					},
 				},
 			})
-
-			require("transparent").clear_prefix("NeoTree")
 
 			-- File explorer: toggle Neotree (Alt+b)
 			vim.keymap.set("n", "<A-b>", "<cmd>Neotree toggle<CR>", {

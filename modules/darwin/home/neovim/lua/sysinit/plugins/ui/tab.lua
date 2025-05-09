@@ -4,7 +4,7 @@ M.plugins = {
 	{
 		"nanozuki/tabby.nvim",
 		event = "User AlphaClosed",
-		dependencies = { "nvim-tree/nvim-web-devicons", "xiyaowong/transparent.nvim" },
+		dependencies = { "nvim-tree/nvim-web-devicons" },
 		config = function()
 			vim.opt.showtabline = 2
 
@@ -31,8 +31,6 @@ M.plugins = {
 					},
 				},
 			})
-
-			require("transparent").clear_prefix("TabLine")
 		end,
 		keys = function()
 			-- Uses default tabnew, tab close, tab next, tab prev, tab move, and the command Tabby jump_to_tab
