@@ -2,10 +2,11 @@ local M = {}
 
 M.plugins = {
 	{
-		"tribela/transparent.nvim",
+		"xiyaowong/transparent.nvim",
 		lazy = false,
-		config = true,
+		opts = {},
 	},
 }
 
 return M
+

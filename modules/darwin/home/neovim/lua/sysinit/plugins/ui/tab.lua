@@ -4,7 +4,7 @@ M.plugins = {
 	{
 		"nanozuki/tabby.nvim",
 		event = "User AlphaClosed",
-		dependencies = { "nvim-tree/nvim-web-devicons", "tribela/transparent.lua" },
+		dependencies = { "nvim-tree/nvim-web-devicons", "xiyaowong/transparent.nvim" },
 		config = function()
 			vim.opt.showtabline = 2
 
@@ -85,3 +85,4 @@ M.plugins = {
 }
 
 return M
+
