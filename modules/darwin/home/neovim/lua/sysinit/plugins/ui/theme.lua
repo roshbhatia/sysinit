@@ -10,7 +10,7 @@ local function get_theme()
 			return theme
 		end
 	end
-	return "nordfox"
+	return "catpuccin"
 end
 
 local function set_theme(theme)
@@ -30,6 +30,42 @@ vim.api.nvim_create_autocmd("VimEnter", {
 })
 
 M.plugins = {
+	{
+		"catppuccin/nvim",
+		name = "catppuccin",
+		priority = 1000,
+		opts = {
+			flavour = "macchiato", -- latte, frappe, macchiato, mocha
+			transparent_background = true, -- disables setting the background color.
+			integrations = {
+				alpha = true,
+				aerial = true,
+				cmp = true,
+				gitsigns = true,
+				nvimtree = true,
+				treesitter = true,
+				mason = true,
+				neotree = true,
+				noice = true,
+				copilot_vim = true,
+				dap = true,
+				dap_ui = true,
+				nvim_notify = true,
+				render_markdown = true,
+				snacks = {
+					enabled = true,
+				},
+				telescope = {
+					enabled = true,
+				},
+				lsp_trouble = true,
+				which_key = true,
+			},
+		},
+		config = function(_, opts)
+			require("catppuccin").setup(opts)
+		end,
+	},
 	{ "folke/tokyonight.nvim", lazy = false, priority = 1000 },
 	{ "AlexvZyl/nordic.nvim", lazy = false, priority = 1000 },
 	{ "EdenEast/nightfox.nvim", lazy = false, priority = 1000 },
@@ -61,6 +97,7 @@ M.plugins = {
 		event = "VeryLazy",
 		opts = {
 			themes = {
+				"catppuccin",
 				"tokyonight-night",
 				"tokyonight-storm",
 				"tokyonight-moon",
@@ -105,3 +142,4 @@ M.plugins = {
 }
 
 return M
+
