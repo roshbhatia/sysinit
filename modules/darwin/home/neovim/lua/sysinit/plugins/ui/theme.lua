@@ -13,6 +13,15 @@ local function get_theme()
 	return "nordfox"
 end
 
+local function set_theme(theme)
+	local theme_file = vim.fn.stdpath("data") .. "/theme"
+	local f = io.open(theme_file, "w")
+	if f then
+		f:write(theme)
+		f:close()
+	end
+end
+
 M.plugins = {
 	{ "folke/tokyonight.nvim", lazy = true, event = "VeryLazy" },
 	{ "AlexvZyl/nordic.nvim", lazy = true, event = "VeryLazy" },
@@ -81,6 +90,9 @@ M.plugins = {
 				"sweetie",
 			},
 			livePreview = true,
+			onApply = function(theme)
+				set_theme(theme)
+			end,
 		},
 		init = function()
 			local theme = get_theme()
