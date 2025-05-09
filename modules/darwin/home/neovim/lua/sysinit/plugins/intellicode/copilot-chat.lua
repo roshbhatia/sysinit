@@ -142,15 +142,9 @@ M.plugins = {
 		event = "VeryLazy",
 		version = false,
 		opts = {
-			provider = "copilot:3.7",
-			auto_suggestions_provider = "copilot:3.7",
+			provider = "copilot:3.5",
+			auto_suggestions_provider = "copilot:3.5",
 			vendors = {
-				["copilot:3.7"] = {
-					__inherited_from = "copilot",
-					model = "claude-3.7-sonnet",
-					disabled_tools = { "web_search" },
-					max_tokens = 16384,
-				},
 				["copilot:3.5"] = {
 					__inherited_from = "copilot",
 					model = "claude-3.5-sonnet",
