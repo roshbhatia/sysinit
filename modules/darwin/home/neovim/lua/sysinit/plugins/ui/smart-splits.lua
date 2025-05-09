@@ -9,7 +9,7 @@ M.plugins = {
 		config = function()
 			require("smart-splits").setup({
 				-- Ignored buffer types (only while resizing)
-				ignored_buftypes = { "nofile", "quickfix", "prompt" },
+				ignored_buftypes = { "nofile", "quickfix", "prompt", "neotree" },
 				-- Ignored filetypes (only while resizing)
 				ignored_filetypes = {},
 				-- Default resize amount
@@ -92,3 +92,4 @@ M.plugins = {
 }
 
 return M
+
