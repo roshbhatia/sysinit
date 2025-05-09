@@ -18,9 +18,7 @@ M.plugins = {
 			return {
 				{
 					"<leader>m",
-					function()
-						require("neominimap").toggle()
-					end,
+					"<cmd>Neominimap toggle<CR>",
 					desc = "Minimap: Toggle",
 				},
 			}
@@ -29,3 +27,4 @@ M.plugins = {
 }
 
 return M
+
