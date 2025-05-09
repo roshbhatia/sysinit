@@ -204,6 +204,9 @@ vim.opt.timeoutlen = 500
 vim.opt.updatetime = 300
 vim.opt.laststatus = 2
 
+vim.opt.wildmenu = true -- Enable wildmenu
+vim.opt.wildmode = { "longest", "full" } -- Completion mode
+
 -- Completion settings
 vim.opt.shortmess:append("c")
 vim.opt.completeopt = { "menuone", "noselect" }
@@ -284,6 +287,7 @@ local plugins = {
 	require("sysinit.plugins.ui.terminal"),
 	require("sysinit.plugins.ui.theme"),
 	require("sysinit.plugins.ui.transparent"),
+	require("sysinit.plugins.ui.wilder"),
 }
 
 plugin_manager.setup_plugins(plugins)

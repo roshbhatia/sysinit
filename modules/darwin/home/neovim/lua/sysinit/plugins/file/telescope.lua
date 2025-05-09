@@ -10,7 +10,6 @@ M.plugins = {
 			"nvim-telescope/telescope-fzy-native.nvim",
 			"nvim-telescope/telescope-dap.nvim",
 			"nvim-telescope/telescope-live-grep-args.nvim",
-			"jonarrien/telescope-cmdline.nvim",
 		},
 		config = function()
 			local telescope = require("telescope")
@@ -59,13 +58,6 @@ M.plugins = {
 			telescope.load_extension("fzy_native")
 			telescope.load_extension("dap")
 			telescope.load_extension("live_grep_args")
-			telescope.load_extension("cmdline")
-
-			vim.keymap.set("n", ":", "<cmd>Telescope cmdline<cr>", {
-				noremap = true,
-				silent = true,
-				desc = "[telescope] Command line",
-			})
 		end,
 		keys = function()
 			return {
@@ -88,11 +80,6 @@ M.plugins = {
 					"<leader>fh",
 					"<cmd>Telescope help_tags<cr>",
 					desc = "Picker: Help tags",
-				},
-				{
-					"<leader><leader>",
-					"<cmd>Telescope cmdline<cr>",
-					desc = "Picker: Command line",
 				},
 			}
 		end,
