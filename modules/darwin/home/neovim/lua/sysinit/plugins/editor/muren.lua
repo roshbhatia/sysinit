@@ -7,7 +7,7 @@ M.plugins = {
 		keys = function()
 			return {
 				{
-					"<leader>fg",
+					"<leader>fs",
 					"<cmd>MurenToggle<cr>",
 					desc = "Find: Global search",
 				},
@@ -17,3 +17,4 @@ M.plugins = {
 }
 
 return M
+
