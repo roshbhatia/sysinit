@@ -22,29 +22,29 @@ M.plugins = {
 		keys = function()
 			return {
 				{
-					"<leader>ae",
+					"<leader>ace",
 					"<cmd>CopilotChatExplain<cr>",
-					desc = "AI: Explain code",
+					desc = "Copilot: Explain code",
 				},
 				{
-					"<leader>at",
+					"<leader>act",
 					"<cmd>CopilotChatTests<cr>",
-					desc = "AI: Generate tests",
+					desc = "Copilot: Generate tests",
 				},
 				{
-					"<leader>af",
+					"<leader>acf",
 					"<cmd>CopilotChatFix<cr>",
-					desc = "AI: Fix code",
+					desc = "Copilot: Fix code",
 				},
 				{
-					"<leader>ao",
+					"<leader>aco",
 					"<cmd>CopilotChatOptimize<cr>",
-					desc = "AI: Optimize code",
+					desc = "Copilot: Optimize code",
 				},
 				{
-					"<leader>ad",
+					"<leader>acd",
 					"<cmd>CopilotChatDocs<cr>",
-					desc = "AI: Generate docs",
+					desc = "Copilot: Generate docs",
 				},
 			}
 		end,
@@ -141,6 +141,18 @@ M.plugins = {
 		"yetone/avante.nvim",
 		event = "VeryLazy",
 		version = false,
+		build = ":AvanteBuild",
+		dependencies = {
+			"nvim-treesitter/nvim-treesitter",
+			"stevearc/dressing.nvim",
+			"nvim-lua/plenary.nvim",
+			"MunifTanjim/nui.nvim",
+			"nvim-telescope/telescope.nvim",
+			"hrsh7th/nvim-cmp",
+			"nvim-tree/nvim-web-devicons",
+			"zbirenbaum/copilot.lua",
+			"MeanderingProgrammer/render-markdown.nvim",
+		},
 		opts = {
 			provider = "copilot:3.5",
 			auto_suggestions_provider = "copilot:3.5",
@@ -160,49 +172,17 @@ M.plugins = {
 			},
 			behaviour = {
 				auto_suggestions = false,
-				auto_set_keymaps = false,
 			},
 		},
-		build = ":AvanteBuild",
-		dependencies = {
-			"nvim-treesitter/nvim-treesitter",
-			"stevearc/dressing.nvim",
-			"nvim-lua/plenary.nvim",
-			"MunifTanjim/nui.nvim",
-			"nvim-telescope/telescope.nvim",
-			"hrsh7th/nvim-cmp",
-			"nvim-tree/nvim-web-devicons",
-			"zbirenbaum/copilot.lua",
-			"MeanderingProgrammer/render-markdown.nvim",
-		},
-		keys = function()
-			return {
-				{
-					"<leader>aa",
-					"<cmd>AvanteToggle<cr>",
-					desc = "AI: Toggle chat",
-				},
-				{
-					"<leader>ac",
-					"<cmd>AvanteClear<cr>",
-					desc = "AI: Clear chat",
-				},
-				{
-					"<leader>ah",
-					"<cmd>AvanteHistory<cr>",
-					desc = "AI: Chat history",
-				},
-				{
-					"<leader>as",
-					"<cmd>AvanteStop<cr>",
-					desc = "AI: Stop current request",
-				},
-				{
-					"<leader>an",
-					"<cmd>AvanteChatNew<cr>",
-					desc = "AI: New chat",
-				},
-			}
+		config = function(opts)
+			require("avante").setup(opts)
+
+			vim.api.nvim_create_autocmd("User", {
+				pattern = "PersistenceSavePre",
+				callback = function()
+					vim.cmd("Avante ")
+				end,
+			})
 		end,
 	},
 }
