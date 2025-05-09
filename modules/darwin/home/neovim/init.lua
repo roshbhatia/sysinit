@@ -237,7 +237,6 @@ vim.o.autoread = true
 plugin_manager.setup_package_manager()
 
 local plugins = {
-	require("lua.sysinit.plugins.library.nio"),
 	require("sysinit.plugins.debugger.dap"),
 	require("sysinit.plugins.editor.comment"),
 	require("sysinit.plugins.editor.formatter"),
@@ -279,6 +278,9 @@ local plugins = {
 	require("sysinit.plugins.intellicode.treesitter"),
 	require("sysinit.plugins.intellicode.trouble"),
 	require("sysinit.plugins.keymaps.wf"),
+	require("sysinit.plugins.kubernetes.crossplane"),
+	require("sysinit.plugins.kubernetes.kubectl"),
+	require("sysinit.plugins.library.nio"),
 	require("sysinit.plugins.library.nui"),
 	require("sysinit.plugins.ui.alpha"),
 	require("sysinit.plugins.ui.border"),
@@ -287,7 +289,6 @@ local plugins = {
 	require("sysinit.plugins.ui.dressing"),
 	require("sysinit.plugins.ui.live-command"),
 	require("sysinit.plugins.ui.minimap"),
-	require("sysinit.plugins.ui.notifications"),
 	require("sysinit.plugins.ui.scrollbar"),
 	require("sysinit.plugins.ui.smart-splits"),
 	require("sysinit.plugins.ui.snacks"),

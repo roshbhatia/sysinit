@@ -12,7 +12,7 @@ M.plugins = {
 		keys = function()
 			vim.keymap.set("v", "<leader>ss", function()
 				require("sort").sort()
-			end, { desc = "Sort: sort selection" })
+			end, { desc = "Sort: Sort selection" })
 		end,
 	},
 }

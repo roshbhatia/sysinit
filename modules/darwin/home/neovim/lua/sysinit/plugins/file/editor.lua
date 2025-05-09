@@ -30,7 +30,7 @@ M.plugins = {
 				end,
 			},
 			float = {
-				border = "single",
+				border = "rounded",
 				max_width = 80,
 				max_height = 30,
 			},
@@ -40,7 +40,7 @@ M.plugins = {
 				{
 					"<leader>eo",
 					"<cmd>Oil --float<CR>",
-					desc = "Explorer: open filesystem in floating buffer",
+					desc = "Explorer: Open filesystem in floating buffer",
 				},
 			}
 		end,

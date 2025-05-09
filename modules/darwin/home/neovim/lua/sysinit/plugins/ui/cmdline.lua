@@ -4,14 +4,6 @@ M.plugins = {
 	{
 		"VonHeikemen/fine-cmdline.nvim",
 		dependencies = { "MunifTanjim/nui.nvim" },
-		config = function()
-			require("fine-cmdline").setup({
-				win_options = {
-					winblend = 30,
-					border = "single",
-				},
-			})
-		end,
 		keys = function()
 			return {
 				{
