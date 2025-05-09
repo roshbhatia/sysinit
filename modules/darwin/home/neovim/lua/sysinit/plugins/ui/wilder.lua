@@ -30,11 +30,11 @@ M.plugins = {
 					highlighter = wilder.lua_fzy_highlighter(),
 					left = { " ", wilder.popupmenu_devicons() },
 					right = { " ", wilder.popupmenu_scrollbar() },
-					max_height = "50%",
+					max_height = "65%",
 					min_height = "0",
 					pumblend = 0,
 					border = "rounded",
-					prompt_position = "bottom",
+					prompt_position = "top",
 					reverse = 0,
 				}))
 			)
