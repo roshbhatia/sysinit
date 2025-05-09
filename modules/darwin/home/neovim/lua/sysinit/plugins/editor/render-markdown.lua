@@ -1,3 +1,5 @@
+local M = {}
+
 M.plugins = {
 	{
 		"MeanderingProgrammer/render-markdown.nvim",
