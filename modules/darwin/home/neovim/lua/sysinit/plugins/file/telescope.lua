@@ -10,6 +10,7 @@ M.plugins = {
 			"nvim-telescope/telescope-fzy-native.nvim",
 			"nvim-telescope/telescope-dap.nvim",
 			"nvim-telescope/telescope-live-grep-args.nvim",
+			"nvim-telescope/telescope-cmdline.nvim",
 		},
 		config = function()
 			local telescope = require("telescope")
