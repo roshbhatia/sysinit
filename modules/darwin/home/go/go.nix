@@ -5,13 +5,7 @@ let
 in {
   home.activation.goPackages = activationUtils.mkPackageManager {
     name = "go";
-    basePackages = [
-      "github.com/x-motemen/gore/cmd/gore@latest"
-      "golang.org/x/tools/cmd/godoc@latest"
-      "golang.org/x/tools/gopls@latest"
-      "golang.org/x/tools/cmd/goimports@latest"
-      "mvdan.cc/sh/v3/cmd/shfmt@latest"
-    ];
+    basePackages = [];
     additionalPackages = if userConfig ? go && userConfig.go ? additionalPackages
       then userConfig.go.additionalPackages
       else [];

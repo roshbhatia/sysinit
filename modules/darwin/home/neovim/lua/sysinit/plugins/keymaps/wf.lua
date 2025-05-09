@@ -5,30 +5,25 @@ local M = {}
 -- Define plugins spec for lazy.nvim
 M.plugins = {
 	{
-		"Cassin01/wf.nvim",
-		version = "*",
-		config = function()
-			require("wf").setup({
-				theme = "space",
-			})
-		end,
-		keys = function()
-			local which_key = require("wf.builtin.which_key")
-			return {
-				{
-					"<Leader>",
-					which_key({
-						text_insert_in_advance = "<Space>",
-					}),
-					{
-						noremap = true,
-						silent = true,
-						desc = "[wf.nvim] which-key /",
-					},
-				},
-			}
-		end,
+		"folke/which-key.nvim",
+		dependencies = {}
+			"nvim-tree/nvim-web-devicons",
+		},
+		event = "VeryLazy",
+		opts = {
+			preset = "helix"
+		},
+		keys = {
+			{
+				"<leader>",
+				function()
+					require("which-key").show({ global = false })
+				end,
+				desc = "Buffer Local Keymaps (which-key)",
+			},
+		},
 	},
 }
 
 return M
+
