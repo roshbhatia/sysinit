@@ -131,17 +131,26 @@ M.plugins = {
 
 			cmp.setup.cmdline(":", {
 				mapping = cmp.mapping.preset.cmdline(),
-				sources = cmp.config.sources(
-					{ {
-						name = "path",
-					} },
-					{ {
+				sources = cmp.config.sources({
+					{
 						name = "cmdline",
 						option = {
 							ignore_cmds = { "Man", "!" },
 						},
-					} }
-				),
+					},
+				}),
+			})
+
+			cmp.setup.cmdline("<leader><leader>", {
+				mapping = cmp.mapping.preset.cmdline(),
+				sources = cmp.config.sources({
+					{
+						name = "cmdline",
+						option = {
+							ignore_cmds = { "Man", "!" },
+						},
+					},
+				}),
 			})
 
 			require("cmp_git").setup()
