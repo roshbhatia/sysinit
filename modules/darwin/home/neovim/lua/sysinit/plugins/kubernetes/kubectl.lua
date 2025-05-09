@@ -23,7 +23,7 @@ M.plugins = {
 			},
 			{
 				"<leader>kg",
-				"<cmd>FloatermToggle -wintype=float --name=k9s --position=center --autoclose=2 k9sCR>",
+				"<cmd>FloatermToggle -wintype=float --name=k9s --position=center --autoclose=2 k9s<CR>",
 				desc = "Kubernetes: Toggle k9s",
 			},
 		}
