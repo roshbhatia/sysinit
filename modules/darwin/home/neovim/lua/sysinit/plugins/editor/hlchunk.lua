@@ -6,6 +6,15 @@ M.plugins = {
 		event = { "VeryLazy" },
 		config = function()
 			require("hlchunk").setup({
+				chunk = {
+					enable = true,
+				},
+				indent = {
+					enable = false,
+				},
+				blank = {
+					enable = false,
+				},
 				line_num = {
 					enablechunk = true,
 				},
@@ -15,3 +24,4 @@ M.plugins = {
 }
 
 return M
+
