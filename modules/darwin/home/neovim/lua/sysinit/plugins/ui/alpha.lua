@@ -92,10 +92,7 @@ M.plugins = {
 			vim.api.nvim_create_autocmd("VimEnter", {
 				pattern = "*",
 				callback = function()
-					local args = vim.fn.argv()
-					if #args == 0 then
-						vim.cmd("Alpha")
-					end
+					vim.cmd("Alpha")
 				end,
 			})
 		end,
