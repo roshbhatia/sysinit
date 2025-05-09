@@ -3,9 +3,9 @@ local M = {}
 M.plugins = {
 	{
 		"MeanderingProgrammer/render-markdown.nvim",
-		ft = { "markdown" },
+		ft = { "markdown", "Avante" },
 		opts = {
-			file_types = { "markdown", "mermaid" },
+			file_types = { "markdown", "mermaid", "Avante" },
 			latex = {
 				enabled = false,
 			},
