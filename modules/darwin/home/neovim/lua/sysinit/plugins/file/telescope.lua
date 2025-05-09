@@ -9,6 +9,7 @@ M.plugins = {
 			"nvim-tree/nvim-web-devicons",
 			"nvim-telescope/telescope-fzy-native.nvim",
 			"nvim-telescope/telescope-dap.nvim",
+			"nvim-telescope/telescope-live-grep-args.nvim",
 		},
 		config = function()
 			local telescope = require("telescope")
@@ -75,6 +76,11 @@ M.plugins = {
 					"<leader>fh",
 					"<cmd>Telescope help_tags<cr>",
 					desc = "Picker: Help tags",
+				},
+				{
+					"<leader><leader>",
+					"<cmd>Telescope cmdline<cr>",
+					desc = "Picker: Command line",
 				},
 			}
 		end,
