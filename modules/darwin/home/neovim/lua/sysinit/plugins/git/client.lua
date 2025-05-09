@@ -25,9 +25,15 @@ M.plugins = {
 					"<cmd>LazyGit<CR>",
 					desc = "Git: Open git ui",
 				},
+				{
+					"leader<gh>",
+					"<cmd>FloatermNew --name github gh dash<CR>",
+					desc = "Git: Open github ui",
+				},
 			}
 		end,
 	},
 }
 
 return M
+
