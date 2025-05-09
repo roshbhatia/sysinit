@@ -138,7 +138,12 @@ local base_keys = { -- Split creation
 	{
 		key = "k",
 		mods = "CMD",
-		action = act.ClearScrollback("ScrollbackAndViewport"),
+		action = wezterm.action_callback(function(win, pane)
+			if not is_vim(pane) then
+				-- Only clear scrollback if NOT in vim
+				win:perform_action(act.ClearScrollback("ScrollbackAndViewport"), pane)
+			end
+		end),
 	},
 	{
 		key = "p",
