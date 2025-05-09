@@ -104,6 +104,13 @@ vim.keymap.set("n", "<leader>bd", ":q<CR>", {
 	desc = "Buffer: Close",
 })
 
+-- Akin to our terminal split close
+vim.keymap.set("n", "<leader>w", ":q<CR>", {
+	noremap = true,
+	silent = true,
+	desc = "Buffer: Close",
+})
+
 vim.keymap.set("n", "<leader>bD", ":bdelete<CR>", {
 	noremap = true,
 	silent = true,
