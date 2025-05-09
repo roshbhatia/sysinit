@@ -5,7 +5,17 @@ M.plugins = {
 		"voldikss/vim-floaterm",
 		version = "*",
 		cmd = {
-			"FloatTermNew", "FloatermToggle", "FloatermKill", "FloatTermSend", "FloatTermShow", "FloatTermHide", "FloatTermPrev", "FloatTermNext", "FloatTermFirst", "FloatTermLast", "FloatTermUpdate"
+			"FloatTermNew",
+			"FloatermToggle",
+			"FloatermKill",
+			"FloatTermSend",
+			"FloatTermShow",
+			"FloatTermHide",
+			"FloatTermPrev",
+			"FloatTermNext",
+			"FloatTermFirst",
+			"FloatTermLast",
+			"FloatTermUpdate",
 		},
 		keys = {
 			{
@@ -14,8 +24,7 @@ M.plugins = {
 				desc = "Terminal: Toggle floating terminal",
 			},
 		},
-  }
+	},
 }
 
 return M
-
