@@ -10,7 +10,7 @@ local function get_theme()
 			return theme
 		end
 	end
-	return "catpuccin"
+	return "catppuccin"
 end
 
 local function set_theme(theme)
@@ -142,4 +142,3 @@ M.plugins = {
 }
 
 return M
-
