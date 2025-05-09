@@ -10,6 +10,7 @@ M.plugins = {
 	},
 	{
 		"MeanderingProgrammer/render-markdown.nvim",
+		dependencies = { "3rd/image.nvim" },
 		ft = { "markdown", "Avante" },
 		config = function()
 			-- Create namespaces for mermaid handling
@@ -18,12 +19,6 @@ M.plugins = {
 
 			-- Global storage for diagram information across buffers
 			local buffer_diagrams = {}
-
-			-- Make sure image.nvim is available
-			local has_image_nvim = pcall(require, "image")
-			if not has_image_nvim then
-				print("Warning: image.nvim not found, mermaid diagrams may not render properly.")
-			end
 
 			-- Set up the plugin
 			require("render-markdown").setup({
@@ -130,11 +125,6 @@ M.plugins = {
 
 							-- Function to render or hide diagrams based on cursor position
 							local function update_diagrams()
-								-- Skip if image.nvim is not available
-								if not has_image_nvim then
-									return
-								end
-
 								local image = require("image")
 
 								-- Get current cursor position
@@ -195,7 +185,7 @@ M.plugins = {
 										end
 									else
 										-- Inside the block, hide the image if it exists
-										if diagram.image_id and has_image_nvim then
+										if diagram.image_id then
 											require("image").hide(diagram.image_id)
 										end
 									end
@@ -225,8 +215,7 @@ M.plugins = {
 			-- Clean up diagrams when buffer is closed
 			vim.api.nvim_create_autocmd("BufDelete", {
 				callback = function(args)
-					-- Remove any images if image.nvim is available
-					if has_image_nvim and buffer_diagrams[args.buf] then
+					if buffer_diagrams[args.buf] then
 						local image = require("image")
 						for _, diagram in ipairs(buffer_diagrams[args.buf]) do
 							if diagram.image_id then
@@ -240,9 +229,6 @@ M.plugins = {
 				end,
 			})
 		end,
-		dependencies = {
-			"3rd/image.nvim", -- Make sure image.nvim is a dependency
-		},
 	},
 }
 
