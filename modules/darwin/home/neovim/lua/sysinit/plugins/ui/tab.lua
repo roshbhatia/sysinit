@@ -6,6 +6,8 @@ M.plugins = {
 		event = "User AlphaClosed",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
 		config = function()
+			vim.opt.showtabline = 2
+
 			require("tabby").setup({
 				preset = "tab_only",
 				option = {

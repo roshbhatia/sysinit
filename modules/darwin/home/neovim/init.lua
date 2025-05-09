@@ -218,7 +218,7 @@ vim.opt.foldlevel = 99
 -- Popup/Command/Status line
 vim.opt.pumheight = 10
 vim.opt.cmdheight = 1
-vim.opt.showtabline = 2
+vim.opt.showtabline = 0 -- on alphaexit, will be enabled
 vim.opt.timeoutlen = 500
 vim.opt.updatetime = 300
 vim.opt.laststatus = 2
