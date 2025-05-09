@@ -22,7 +22,7 @@ M.plugins = {
 				desc = "Kubernetes: Toggle kubectl",
 			},
 			{
-				"<leader>k9s",
+				"<leader>kg",
 				"<cmd>FloatermToggle -wintype=float --name=k9s --position=center --autoclose=2 k9sCR>",
 				desc = "Kubernetes: Toggle k9s",
 			},
@@ -31,3 +31,4 @@ M.plugins = {
 }
 
 return M
+
