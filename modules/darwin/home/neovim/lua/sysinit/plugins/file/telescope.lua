@@ -10,7 +10,7 @@ M.plugins = {
 			"nvim-telescope/telescope-fzy-native.nvim",
 			"nvim-telescope/telescope-dap.nvim",
 			"nvim-telescope/telescope-live-grep-args.nvim",
-			"nvim-telescope/telescope-cmdline.nvim",
+			"jonarrien/telescope-cmdline.nvim",
 		},
 		config = function()
 			local telescope = require("telescope")
@@ -38,6 +38,9 @@ M.plugins = {
 						override_generic_sorter = true,
 						override_file_sorter = true,
 					},
+					dap = {},
+					live_grep_args = {},
+					cmdline = {},
 				},
 				file_ignore_patterns = { ".git/", "node_modules", "poetry.lock", "vendor" },
 				vimgrep_arguments = {
