@@ -171,6 +171,20 @@ vim.api.nvim_create_autocmd("VimEnter", {
 	end,
 })
 
+vim.keymap.set("n", "<leader>en", function()
+	if vim.wo.relativenumber then
+		vim.wo.relativenumber = false
+		vim.wo.number = true
+	else
+		vim.wo.relativenumber = true
+		vim.wo.number = true
+	end
+end, {
+	noremap = true,
+	silent = true,
+	desc = "Editor: Toggle line numbers",
+})
+
 -- === Options === --
 
 -- Clipboard & mouse
@@ -214,7 +228,6 @@ vim.opt.termguicolors = true
 vim.opt.showmode = true
 vim.opt.foldenable = true
 vim.opt.foldlevel = 99
-vim.o.statuscolumn = "%s %l %r"
 
 -- Popup/Command/Status line
 vim.opt.pumheight = 10
@@ -223,6 +236,8 @@ vim.opt.showtabline = 0 -- on `User AlphaClosed` event, will be enabled as 2
 vim.opt.laststatus = 0 -- on `User AlphaClosed` event, will be enabled as 3
 vim.opt.timeoutlen = 500
 vim.opt.updatetime = 300
+
+vim.opt.number = true
 
 -- Completion settings
 vim.opt.shortmess:append("c")
