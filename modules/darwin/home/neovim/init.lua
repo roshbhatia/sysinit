@@ -158,13 +158,6 @@ vim.keymap.set("n", "<leader>fS", ":%s//g<Left><Left><Left>", {
 	desc = "Find: replace string in buffer",
 })
 
--- :noh to clear search highlights
-vim.keymap.set("n", "<leader>fh", ":noh<CR>", {
-	noremap = true,
-	silent = true,
-	desc = "Find: clear highlights",
-})
-
 vim.api.nvim_create_autocmd("VimEnter", {
 	callback = function()
 		vim.cmd("wincmd o")
