@@ -8,9 +8,7 @@ M.plugins = {
 			return {
 				{
 					"<leader>fg",
-					function()
-						require("muren").toggle()
-					end,
+					"<cmd>MurenToggle<cr>",
 					desc = "Find: Global search",
 				},
 			}
@@ -19,4 +17,3 @@ M.plugins = {
 }
 
 return M
-
