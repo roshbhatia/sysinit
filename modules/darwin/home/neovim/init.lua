@@ -302,7 +302,7 @@ local plugins = {
 	require("sysinit.plugins.intellicode.treesitter-textobjects"),
 	require("sysinit.plugins.intellicode.treesitter"),
 	require("sysinit.plugins.intellicode.trouble"),
-	require("sysinit.plugins.keymaps.wf"),
+	require("sysinit.plugins.keymaps.which-key"),
 	require("sysinit.plugins.kubernetes.crossplane"),
 	require("sysinit.plugins.kubernetes.kubectl"),
 	require("sysinit.plugins.library.nio"),
@@ -324,4 +324,3 @@ local plugins = {
 }
 
 plugin_manager.setup_plugins(plugins)
-
