@@ -22,7 +22,7 @@ M.plugins = {
 				},
 				{
 					"<leader>k9s",
-					":FloatermNew --name=k9s k9s<CR>",
+					":FloatermNew! --name=k9s k9s<CR>",
 					desc = "Kubernetes: Toggle k9s",
 				},
 			}
@@ -31,4 +31,3 @@ M.plugins = {
 }
 
 return M
-
