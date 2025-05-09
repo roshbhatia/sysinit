@@ -322,3 +322,4 @@ local plugins = {
 }
 
 plugin_manager.setup_plugins(plugins)
+

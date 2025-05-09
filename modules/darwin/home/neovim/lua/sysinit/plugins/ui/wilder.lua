@@ -45,9 +45,6 @@ M.plugins = {
 					reverse = 0,
 				}))
 			)
-
-			vim.opt.wildmode = "longest:full,full"
-			vim.opt.wildmenu = true
 			vim.opt.wildignorecase = true
 		end,
 		keys = function()
