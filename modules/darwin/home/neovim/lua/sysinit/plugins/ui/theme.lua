@@ -22,6 +22,13 @@ local function set_theme(theme)
 	end
 end
 
+vim.api.nvim_create_autocmd("VimEnter", {
+	callback = function()
+		local theme = get_theme()
+		vim.cmd.colorscheme(theme)
+	end,
+})
+
 M.plugins = {
 	{ "folke/tokyonight.nvim", lazy = true, event = "VeryLazy" },
 	{ "AlexvZyl/nordic.nvim", lazy = true, event = "VeryLazy" },
@@ -94,10 +101,6 @@ M.plugins = {
 				set_theme(theme)
 			end,
 		},
-		init = function()
-			local theme = get_theme()
-			vim.cmd.colorscheme(theme)
-		end,
 	},
 }
 
