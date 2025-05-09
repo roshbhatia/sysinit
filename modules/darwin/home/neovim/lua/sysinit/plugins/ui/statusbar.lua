@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"tamton-aquib/staline.nvim",
-		event = "BufReadPre",
+		event = "User AlphaClosed",
 		config = function()
 			require("staline").setup({
 				sections = {
