@@ -305,7 +305,6 @@ local plugins = {
 	require("sysinit.plugins.library.nio"),
 	require("sysinit.plugins.library.nui"),
 	require("sysinit.plugins.ui.alpha"),
-	require("sysinit.plugins.ui.border"),
 	require("sysinit.plugins.ui.devicons"),
 	require("sysinit.plugins.ui.dressing"),
 	require("sysinit.plugins.ui.live-command"),
@@ -322,4 +321,3 @@ local plugins = {
 }
 
 plugin_manager.setup_plugins(plugins)
-
