@@ -6,7 +6,6 @@ M.plugins = {
 		priority = 1000,
 		lazy = false,
 		opts = {
-			animate = { enabled = true },
 			bigfile = { enabled = true },
 			bufdelete = { enabled = true },
 			image = { enabled = true },
@@ -17,10 +16,10 @@ M.plugins = {
 			quickfile = { enabled = true },
 			rename = { enabled = true },
 			scope = { enabled = true },
-			scroll = { enabled = true },
 			statuscolumn = { enabled = true },
 			words = { enabled = true },
 
+			animate = { enabled = false },
 			dashboard = { enabled = false },
 			debug = { enabled = false },
 			dim = { enabled = false },
@@ -34,6 +33,7 @@ M.plugins = {
 			picker = { enabled = false },
 			profiler = { enabled = false },
 			scratch = { enabled = false },
+			scroll = { enabled = false },
 			terminal = { enabled = false },
 			toggle = { enabled = false },
 			win = { enabled = false },

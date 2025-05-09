@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"hrsh7th/nvim-cmp",
-		event = { "InsertEnter", "CmdlineEnter" },
+		event = { "BufReadPost" },
 		dependencies = {
 			"hrsh7th/cmp-buffer",
 			"hrsh7th/cmp-cmdline",
@@ -15,6 +15,7 @@ M.plugins = {
 			"petertriho/cmp-git",
 			"saadparwaiz1/cmp_luasnip",
 			"zbirenbaum/copilot-cmp",
+			"pta2002/intellitab.nvim",
 		},
 		config = function()
 			local cmp = require("cmp")
@@ -51,7 +52,7 @@ M.plugins = {
 						elseif has_words_before() then
 							cmp.complete()
 						else
-							fallback()
+							require("intellitab").indent()
 						end
 					end, { "i", "s" }),
 					["<S-Tab>"] = cmp.mapping(function(fallback)
@@ -82,38 +83,24 @@ M.plugins = {
 				sources = {
 					{
 						name = "copilot",
-						group_index = 2,
-						priority = 100,
 					},
 					{
 						name = "nvim_lsp",
-						group_index = 2,
-						priority = 90,
 					},
 					{
 						name = "luasnip",
-						group_index = 2,
-						priority = 80,
 					},
 					{
 						name = "buffer",
-						group_index = 2,
-						priority = 70,
 					},
 					{
 						name = "git",
-						group_index = 2,
-						priority = 65,
 					},
 					{
 						name = "nvim_lua",
-						group_index = 2,
-						priority = 60,
 					},
 					{
 						name = "path",
-						group_index = 2,
-						priority = 50,
 					},
 				},
 				sorting = {
@@ -134,7 +121,14 @@ M.plugins = {
 					ghost_text = false,
 				},
 			})
-			-- `:` cmdline setup.
+
+			cmp.setup.cmdline("/", {
+				mapping = cmp.mapping.preset.cmdline(),
+				sources = {
+					{ name = "buffer" },
+				},
+			})
+
 			cmp.setup.cmdline(":", {
 				mapping = cmp.mapping.preset.cmdline(),
 				sources = cmp.config.sources(
