@@ -5,17 +5,17 @@ M.plugins = {
 		"voldikss/vim-floaterm",
 		version = "*",
 		cmd = {
-			"FloatTermNew",
+			"FloatermNew",
 			"FloatermToggle",
 			"FloatermKill",
-			"FloatTermSend",
-			"FloatTermShow",
-			"FloatTermHide",
-			"FloatTermPrev",
-			"FloatTermNext",
-			"FloatTermFirst",
-			"FloatTermLast",
-			"FloatTermUpdate",
+			"FloatermSend",
+			"FloatermShow",
+			"FloatermHide",
+			"FloatermPrev",
+			"FloatermNext",
+			"FloatermFirst",
+			"FloatermLast",
+			"FloatermUpdate",
 		},
 		keys = {
 			{
@@ -28,3 +28,4 @@ M.plugins = {
 }
 
 return M
+
