@@ -261,9 +261,11 @@ local plugins = {
 	require("sysinit.plugins.debugger.dap"),
 	require("sysinit.plugins.editor.comment"),
 	require("sysinit.plugins.editor.formatter"),
+	require("sysinit.plugins.editor.hlchunk"),
 	require("sysinit.plugins.editor.hop"),
 	require("sysinit.plugins.editor.ibl"),
 	require("sysinit.plugins.editor.intellitab"),
+	require("sysinit.plugins.editor.muren"),
 	require("sysinit.plugins.editor.render-markdown"),
 	require("sysinit.plugins.editor.surround"),
 	require("sysinit.plugins.file.diffview"),
@@ -271,6 +273,7 @@ local plugins = {
 	require("sysinit.plugins.file.session"),
 	require("sysinit.plugins.file.telescope"),
 	require("sysinit.plugins.file.tree"),
+	require("sysinit.plugins.git.blamer"),
 	require("sysinit.plugins.git.client"),
 	require("sysinit.plugins.git.fugitive"),
 	require("sysinit.plugins.git.signs"),
@@ -321,3 +324,4 @@ local plugins = {
 }
 
 plugin_manager.setup_plugins(plugins)
+
