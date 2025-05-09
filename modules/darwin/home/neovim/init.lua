@@ -308,7 +308,6 @@ local plugins = {
 	require("sysinit.plugins.ui.smart-splits"),
 	require("sysinit.plugins.ui.snacks"),
 	require("sysinit.plugins.ui.statusbar"),
-	require("sysinit.plugins.ui.tab"),
 	require("sysinit.plugins.ui.terminal"),
 	require("sysinit.plugins.ui.theme"),
 	require("sysinit.plugins.ui.transparent"),
@@ -316,4 +315,3 @@ local plugins = {
 }
 
 plugin_manager.setup_plugins(plugins)
-

@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   activationUtils = import ../../../lib/activation-utils.nix { inherit lib; };
@@ -46,12 +51,20 @@ in
         ln -sf "${nvimLuaSource}" "${nvimLuaTarget}"
       fi
     '';
-    requiredExecutables = [ "ln" "mkdir" "readlink" "rm" ];
+    requiredExecutables = [
+      "ln"
+      "mkdir"
+      "readlink"
+      "rm"
+    ];
   };
 
   home.activation.neovimPermissions = activationUtils.mkActivationScript {
     description = "Setting VSCode key repeat preferences for Neovim";
-    after = [ "setupActivationUtils" "writeBoundary" ];
+    after = [
+      "setupActivationUtils"
+      "writeBoundary"
+    ];
     script = ''
       log_command "/usr/bin/defaults write com.microsoft.VSCodeInsiders ApplePressAndHoldEnabled -bool false" "Configuring VSCode key repeat"
     '';
