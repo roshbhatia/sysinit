@@ -97,6 +97,7 @@ M.plugins = {
 					elseif vim.fn.argc() > 0 then
 						return
 					else
+						vim.opt.laststatus = 0
 						vim.cmd("Alpha")
 					end
 				end,

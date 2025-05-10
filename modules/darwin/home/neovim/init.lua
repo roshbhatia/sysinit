@@ -232,8 +232,7 @@ vim.opt.foldlevel = 99
 -- Popup/Command/Status line
 vim.opt.pumheight = 10
 vim.opt.cmdheight = 0
-vim.opt.showtabline = 0 -- on `User AlphaClosed` event, will be enabled as 2
-vim.opt.laststatus = 0 -- on `User AlphaClosed` event, will be enabled as 3
+vim.opt.laststatus = 3
 vim.opt.timeoutlen = 500
 vim.opt.updatetime = 300
 
