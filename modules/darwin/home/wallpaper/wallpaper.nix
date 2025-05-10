@@ -21,7 +21,7 @@ let
         path = userConfig.wallpaper.path;
         _ = resolvePath path;
       in path
-    else ./images/bladerunner0.jpg;
+    else ./images/berserk1.jpg;
   resolvedWallpaperPath = resolvePath wallpaperPath;
 in
 {
