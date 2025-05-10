@@ -4,7 +4,10 @@ M.plugins = {
 	{
 		"tamton-aquib/staline.nvim",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
-		event = "BufEnter",
+		event = {
+			"BufEnter",
+			"User AlphaClosed",
+		},
 		config = function()
 			require("staline").setup({
 				sections = {
