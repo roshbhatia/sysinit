@@ -193,7 +193,7 @@ vim.opt.mouse = "a"
 
 -- Line numbers and sign column
 vim.opt.number = true
-vim.opt.cursorline = true
+vim.opt.cursorline = false
 vim.opt.signcolumn = "yes"
 
 -- Search settings
@@ -322,4 +322,3 @@ local plugins = {
 }
 
 plugin_manager.setup_plugins(plugins)
-
