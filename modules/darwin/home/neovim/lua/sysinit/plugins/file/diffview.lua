@@ -14,16 +14,16 @@ M.plugins = {
 
 				view = {
 					default = {
-						layout = "diff2_horizontal",
+						layout = "diff2_vertical",
 						winbar_info = true,
 					},
 					merge_tool = {
-						layout = "diff3_horizontal",
+						layout = "diff3_vertical",
 						disable_diagnostics = true,
 						winbar_info = true,
 					},
 					file_history = {
-						layout = "diff2_horizontal",
+						layout = "diff2_vertical",
 						winbar_info = true,
 					},
 				},
