@@ -2,9 +2,11 @@
 local M = {}
 
 M.plugins = {
+	{ "yaocccc/nvim-foldsign", event = "CursorHold", config = 'require("nvim-foldsign").setup()' },
 	{
 		"nvim-tree/nvim-web-devicons",
 		opts = {},
 	},
 }
 return M
+
