@@ -3,6 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"goolord/alpha-nvim",
+		lazy = false,
 		dependencies = { "nvim-tree/nvim-web-devicons", "folke/persistence.nvim" },
 		config = function()
 			local alpha = require("alpha")
@@ -89,15 +90,12 @@ M.plugins = {
 
 			alpha.setup(dashboard.config)
 
-			vim.api.nvim_create_autocmd("VimEnter", {
+			vim.api.nvim_create_autocmd("GUIEnter", {
 				pattern = "*",
 				callback = function()
-					if vim.fn.argc() > 0 and vim.fn.isdirectory(vim.fn.argv()[1]) == 1 then
-						require("persistence").load()
-					elseif vim.fn.argc() > 0 then
-						return
-					else
+					if vim.fn.argc() == 0 then
 						vim.opt.laststatus = 0
+						vim.cmd("wincmd o")
 						vim.cmd("Alpha")
 					end
 				end,
@@ -107,4 +105,3 @@ M.plugins = {
 }
 
 return M
-

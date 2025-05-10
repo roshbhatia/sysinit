@@ -2,15 +2,13 @@ local M = {}
 
 M.plugins = {
 	{
-		"phaazon/hop.nvim",
+		"smoka7/hop.nvim",
 		event = "BufEnter",
-		config = function()
-			require("hop").setup({
-				keys = "fjdkslaghrueiwoncmv",
-				jump_on_sole_occurrence = false,
-				case_sensitive = false,
-			})
-		end,
+		opts = {
+			keys = "fjdkslaghrueiwoncmv",
+			jump_on_sole_occurrence = false,
+			case_sensitive = false,
+		},
 		keys = function()
 			return {
 				{
