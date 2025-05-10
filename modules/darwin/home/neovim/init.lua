@@ -2,23 +2,19 @@ local config_path = vim.fn.stdpath("config")
 package.path = package.path .. ";" .. config_path .. "/?.lua" .. ";" .. config_path .. "/lua/?.lua"
 local plugin_manager = require("sysinit.pkg.plugin_manager")
 
--- Disable 'q' in normal mode to avoid accidental macro recordings
 vim.api.nvim_set_keymap("n", "q", "<Nop>", {
 	noremap = true,
 	silent = true,
 })
 
--- Disable Space key to use as <Leader> prefix
 vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", {
 	noremap = true,
 	silent = true,
 })
 
--- Set leader key. Space is unmapped above to use as <Leader> prefix for custom shortcuts.
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
--- Akin to our terminal split close
 vim.keymap.set("n", "<leader>w", ":q<CR>", {
 	noremap = true,
 	silent = true,
@@ -45,52 +41,42 @@ end, {
 	desc = "Editor: Toggle line numbers",
 })
 
--- === Options === --
-
--- Clipboard & mouse
 vim.o.clipboard = "unnamedplus"
 vim.opt.mouse = "a"
 
--- Line numbers and sign column
 vim.opt.number = true
 vim.opt.cursorline = false
 vim.opt.signcolumn = "yes"
 
--- Search settings
 vim.opt.hlsearch = true
 vim.opt.incsearch = true
 
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
--- Indentation
 vim.opt.expandtab = true
 vim.opt.shiftwidth = 2
 vim.opt.tabstop = 2
 vim.opt.smartindent = true
 
--- Wrapping
 vim.opt.wrap = true
 vim.opt.linebreak = true
 vim.opt.breakindent = true
 
--- Window splits
 vim.opt.splitbelow = true
 vim.opt.splitright = true
 
--- Performance
 vim.opt.updatetime = 100
 vim.opt.timeoutlen = 300
 vim.opt.scrolloff = 8
 vim.opt.sidescrolloff = 8
 
--- UI visuals
 vim.opt.termguicolors = true
+
 vim.opt.showmode = true
 vim.opt.foldenable = true
 vim.opt.foldlevel = 99
 
--- Popup/Command/Status line
 vim.opt.pumheight = 10
 vim.opt.cmdheight = 0
 vim.opt.laststatus = 3
@@ -99,18 +85,14 @@ vim.opt.updatetime = 300
 
 vim.opt.number = true
 
--- Completion settings
 vim.opt.shortmess:append("c")
 vim.opt.completeopt = { "menuone", "noselect" }
 
--- Folding with treesitter
 vim.wo.foldmethod = "expr"
 vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 
--- Environment setup
 vim.env.PATH = vim.fn.getenv("PATH")
 
--- Session persistence
 vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 
 vim.o.autoread = true
@@ -177,9 +159,7 @@ local plugins = {
 	require("sysinit.plugins.ui.statusbar"),
 	require("sysinit.plugins.ui.terminal"),
 	require("sysinit.plugins.ui.theme"),
-	-- require("sysinit.plugins.ui.transparent"),
 	require("sysinit.plugins.ui.wilder"),
 }
 
 plugin_manager.setup_plugins(plugins)
-
