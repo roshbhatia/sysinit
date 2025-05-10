@@ -17,6 +17,7 @@ M.plugins = {
 				},
 				line_num = {
 					enablechunk = true,
+					use_treesitter = true,
 				},
 			})
 		end,

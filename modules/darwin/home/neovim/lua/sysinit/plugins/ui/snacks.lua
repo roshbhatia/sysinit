@@ -6,6 +6,12 @@ M.plugins = {
 		priority = 1000,
 		lazy = false,
 		opts = {
+			animate = {
+				enabled = true,
+				duration = 18,
+				easing = "cubic",
+				fps = 60,
+			},
 			bigfile = { enabled = true },
 			bufdelete = { enabled = true },
 			image = { enabled = true },
@@ -20,12 +26,6 @@ M.plugins = {
 			statuscolumn = { enabled = true },
 			words = { enabled = true },
 
-			animate = {
-				enabled = true,
-				duration = 5,
-				easing = "quad",
-				fps = 120,
-			},
 			dashboard = { enabled = false },
 			debug = { enabled = false },
 			dim = { enabled = false },
