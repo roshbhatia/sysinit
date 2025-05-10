@@ -3,7 +3,9 @@ local M = {}
 M.plugins = {
 	{
 		"smoka7/hop.nvim",
-		event = "BufEnter",
+		-- Lazy loading based on the command(s) ensures highlight
+		-- groups are not cleared.
+		cmd = { "HopWord", "HopLine", "HopChar1", "HopPattern" },
 		opts = {
 			keys = "fjdkslaghrueiwoncmv",
 			jump_on_sole_occurrence = false,
