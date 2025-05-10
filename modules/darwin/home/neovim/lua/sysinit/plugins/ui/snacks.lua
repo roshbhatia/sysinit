@@ -20,7 +20,12 @@ M.plugins = {
 			statuscolumn = { enabled = true },
 			words = { enabled = true },
 
-			animate = { enabled = false },
+			animate = {
+				enabled = true,
+				duration = 5,
+				easing = "quad",
+				fps = 120,
+			},
 			dashboard = { enabled = false },
 			debug = { enabled = false },
 			dim = { enabled = false },
@@ -62,3 +67,4 @@ M.plugins = {
 }
 
 return M
+
