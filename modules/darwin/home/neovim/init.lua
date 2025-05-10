@@ -101,6 +101,7 @@ plugin_manager.setup_package_manager()
 
 local plugins = {
 	require("sysinit.plugins.debugger.dap"),
+	require("sysinit.plugins.debugger.dap-ui"),
 	require("sysinit.plugins.editor.comment"),
 	require("sysinit.plugins.editor.formatter"),
 	require("sysinit.plugins.editor.hlchunk"),
@@ -118,6 +119,7 @@ local plugins = {
 	require("sysinit.plugins.git.client"),
 	require("sysinit.plugins.git.fugitive"),
 	require("sysinit.plugins.git.signs"),
+	require("sysinit.plugins.intellicode.aider"),
 	require("sysinit.plugins.intellicode.cmp-buffer"),
 	require("sysinit.plugins.intellicode.cmp-cmdline"),
 	require("sysinit.plugins.intellicode.cmp-git"),
@@ -146,6 +148,7 @@ local plugins = {
 	require("sysinit.plugins.keymaps.which-key"),
 	require("sysinit.plugins.kubernetes.crossplane"),
 	require("sysinit.plugins.kubernetes.kubectl"),
+	require("sysinit.plugins.library.image"),
 	require("sysinit.plugins.library.nio"),
 	require("sysinit.plugins.library.nui"),
 	require("sysinit.plugins.ui.alpha"),

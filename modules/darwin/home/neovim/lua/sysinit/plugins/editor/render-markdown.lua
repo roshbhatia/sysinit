@@ -2,13 +2,6 @@ local M = {}
 
 M.plugins = {
 	{
-		"3rd/image.nvim",
-		build = false,
-		opts = {
-			processor = "magick_cli",
-		},
-	},
-	{
 		"MeanderingProgrammer/render-markdown.nvim",
 		dependencies = { "3rd/image.nvim" },
 		ft = { "markdown", "Avante" },
