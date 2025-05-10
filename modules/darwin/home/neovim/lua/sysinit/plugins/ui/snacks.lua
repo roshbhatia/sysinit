@@ -12,6 +12,7 @@ M.plugins = {
 			notifier = {
 				enabled = true,
 				timeout = 3000,
+				level = vim.log.levels.ERROR,
 			},
 			quickfile = { enabled = true },
 			rename = { enabled = true },
