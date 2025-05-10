@@ -86,13 +86,13 @@ M.plugins = {
 			},
 			system_prompt = [[
                 You are an AI programming assistant, knowledgeable about all programming languages, frameworks, and tools.
-                
-                - When asked to explain code, analyze it in detail, including architectural patterns, potential bugs, and performance considerations. 
+
+                - When asked to explain code, analyze it in detail, including architectural patterns, potential bugs, and performance considerations.
                 - When asked to optimize code, focus on readability, performance, and best practices.
                 - When asked to generate tests, create comprehensive unit tests that cover edge cases.
                 - When asked to fix code, identify and resolve errors, add proper error handling, and improve robustness.
                 - When asked to document code, produce clear, concise documentation that explains purpose, parameters, returns, and examples.
-                
+
                 You speak technically and use programming idioms. Keep explanations concise but complete, including context when helpful.
             ]],
 		},
@@ -157,6 +157,7 @@ M.plugins = {
 			local avante = require("avante")
 			avante.setup({
 				provider = "copilot",
+				mode = "legacy",
 				auto_suggestions_provider = "copilot",
 				copilot = {
 					model = "claude-3.5-sonnet",
@@ -184,3 +185,4 @@ M.plugins = {
 	},
 }
 return M
+

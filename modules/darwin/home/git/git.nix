@@ -133,4 +133,3 @@ in
     source = ./gitignore.global;
   };
 }
-
