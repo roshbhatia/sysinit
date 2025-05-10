@@ -4,10 +4,8 @@ M.plugins = {
 	{
 		"tamton-aquib/staline.nvim",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
-		event = "User AlphaClosed",
+		event = "BufEnter",
 		config = function()
-			vim.opt.laststatus = 3
-
 			require("staline").setup({
 				sections = {
 					left = { " ", "mode", " ", "branch", " ", "lsp" },

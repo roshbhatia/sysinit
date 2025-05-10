@@ -36,13 +36,6 @@ M.plugins = {
 				wilder.popupmenu_renderer(wilder.popupmenu_palette_theme({
 					highlighter = wilder.lua_fzy_highlighter(),
 					left = { " ", wilder.popupmenu_devicons() },
-					right = { " ", wilder.popupmenu_scrollbar() },
-					max_height = "65%",
-					min_height = "0",
-					pumblend = 0,
-					border = "rounded",
-					prompt_position = "top",
-					reverse = 0,
 				}))
 			)
 			vim.opt.wildignorecase = true
