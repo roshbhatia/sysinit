@@ -93,10 +93,12 @@ M.plugins = {
 			vim.api.nvim_create_autocmd("GUIEnter", {
 				pattern = "*",
 				callback = function()
-					if vim.fn.argc() == 0 then
+					if not (next(vim.fn.argv()) ~= nil) then
 						vim.opt.laststatus = 0
 						vim.cmd("wincmd o")
 						vim.cmd("Alpha")
+					elseif vim.fn.argv() == 1 and vim.fn.argv()[1] == "." then
+						require("persistence").load()
 					end
 				end,
 			})
@@ -105,3 +107,4 @@ M.plugins = {
 }
 
 return M
+

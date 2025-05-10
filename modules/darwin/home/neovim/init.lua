@@ -18,103 +18,11 @@ vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", {
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
--- Search: next match, center and unfold
-vim.keymap.set("n", "n", "nzzzv", {
-	noremap = true,
-	silent = true,
-	desc = "Next search",
-})
--- Search: previous match, center and unfold
-vim.keymap.set("n", "N", "Nzzzv", {
-	noremap = true,
-	silent = true,
-	desc = "Previous search",
-})
-
--- File: Save current buffer (Cmd + S)
-vim.keymap.set({ "n", "i", "v" }, "<D-s>", "<cmd>w<CR>", {
-	noremap = true,
-	silent = true,
-	desc = "Save file",
-})
-
--- File: New empty buffer (Cmd + N)
-vim.keymap.set({ "n", "i", "v" }, "<D-n>", "<cmd>enew<CR>", {
-	noremap = true,
-	silent = true,
-	desc = "New file",
-})
-
--- Clipboard: Copy selection to system clipboard (Cmd + C)
-vim.keymap.set("v", "<D-c>", '"+y', {
-	noremap = true,
-	silent = true,
-	desc = "Copy to clipboard",
-})
-
--- Clipboard: Copy current line in normal/insert mode (Cmd + C)
-vim.keymap.set({ "n", "i" }, "<D-c>", '<cmd>let @+=@"<CR>', {
-	noremap = true,
-	silent = true,
-	desc = "Copy to clipboard",
-})
-
--- Clipboard: Cut selection to system clipboard (Cmd + X)
-vim.keymap.set("v", "<D-x>", '"+d', {
-	noremap = true,
-	silent = true,
-	desc = "Cut to clipboard",
-})
-
--- Clipboard: Paste from system clipboard (Cmd + V)
-vim.keymap.set({ "n", "i", "v" }, "<D-p>", '"+p', {
-	noremap = true,
-	silent = true,
-	desc = "Paste from clipboard",
-})
-
--- Undo/Redo: Cmd + Z / Cmd + Shift + Z
-vim.keymap.set({ "n", "i" }, "<D-z>", "<cmd>undo<CR>", {
-	noremap = true,
-	silent = true,
-	desc = "Undo",
-})
-vim.keymap.set({ "n", "i" }, "<D-S-z>", "<cmd>redo<CR>", {
-	noremap = true,
-	silent = true,
-	desc = "Redo",
-})
-
--- Select All: Cmd + A (normal/insert mode aware)
-vim.keymap.set({ "n", "v", "i" }, "<D-a>", function()
-	if vim.fn.mode() == "i" then
-		return "<Esc>ggVG"
-	else
-		return "ggVG"
-	end
-end, {
-	noremap = true,
-	expr = true,
-	desc = "Select all",
-})
-
-vim.keymap.set("n", "<leader>bd", ":q<CR>", {
-	noremap = true,
-	silent = true,
-	desc = "Buffer: Close",
-})
-
 -- Akin to our terminal split close
 vim.keymap.set("n", "<leader>w", ":q<CR>", {
 	noremap = true,
 	silent = true,
 	desc = "Buffer: Close",
-})
-
-vim.keymap.set("n", "<leader>bD", ":bdelete<CR>", {
-	noremap = true,
-	silent = true,
-	desc = "Buffer: Delete",
 })
 
 vim.keymap.set("n", "<leader>bn", "<cmd>bnext<CR>", {
@@ -123,55 +31,7 @@ vim.keymap.set("n", "<leader>bn", "<cmd>bnext<CR>", {
 	desc = "Buffer: Next",
 })
 
-vim.keymap.set("n", "<leader>bp", "<cmd>bprevious<CR>", {
-	noremap = true,
-	silent = true,
-	desc = "Buffer: Previous",
-})
-
-vim.keymap.set("n", "<leader>bl", "<cmd>buffers<CR>", {
-	noremap = true,
-	silent = true,
-	desc = "Buffer: List",
-})
-
-vim.keymap.set("n", "<leader>bw", "<cmd>write<CR>", {
-	noremap = true,
-	silent = true,
-	desc = "Buffer: Write",
-})
-
-vim.keymap.set("n", "<leader>bW", "<cmd>wall<CR>", {
-	noremap = true,
-	silent = true,
-	desc = "Buffer: Write All",
-})
-
-vim.keymap.set("n", "<leader>bi", "<cmd>enew<CR>", {
-	noremap = true,
-	silent = true,
-	desc = "Buffer: New (Init)",
-})
-
-vim.keymap.set("n", "<leader>fs", "/", {
-	noremap = true,
-	silent = true,
-	desc = "Find: string in buffer",
-})
-
-vim.keymap.set("n", "<leader>fS", ":%s//g<Left><Left><Left>", {
-	noremap = true,
-	silent = true,
-	desc = "Find: replace string in buffer",
-})
-
-vim.api.nvim_create_autocmd("VimEnter", {
-	callback = function()
-		vim.cmd("wincmd o")
-	end,
-})
-
-vim.keymap.set("n", "<leader>pn", function()
+vim.keymap.set("n", "<leader>nn", function()
 	if vim.wo.relativenumber then
 		vim.wo.relativenumber = false
 		vim.wo.number = true
@@ -199,6 +59,7 @@ vim.opt.signcolumn = "yes"
 -- Search settings
 vim.opt.hlsearch = true
 vim.opt.incsearch = true
+
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
@@ -316,7 +177,7 @@ local plugins = {
 	require("sysinit.plugins.ui.statusbar"),
 	require("sysinit.plugins.ui.terminal"),
 	require("sysinit.plugins.ui.theme"),
-	require("sysinit.plugins.ui.transparent"),
+	-- require("sysinit.plugins.ui.transparent"),
 	require("sysinit.plugins.ui.wilder"),
 }
 
