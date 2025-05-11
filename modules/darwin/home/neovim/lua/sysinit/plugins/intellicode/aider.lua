@@ -70,6 +70,13 @@ M.plugins = {
 					"openai/gpt-4o", -- github_copilot/gpt-4o
 					"--openai-api-key",
 					get_github_copilot_token(),
+					-- extras
+					"--no-gitignore",
+					"--no-attribute-author",
+					"--no-attribute-committer",
+					"--watch-files",
+					"--code-theme",
+					"github-dark",
 				},
 				auto_reload = true,
 				theme = {
