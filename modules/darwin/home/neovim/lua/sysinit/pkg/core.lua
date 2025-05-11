@@ -123,7 +123,7 @@ function M.register_keybindings()
 	})
 
 	-- Toggle line numbers
-	vim.keymap.set("n", "<leader>nn", function()
+	vim.keymap.set("n", "<leader>en", function()
 		if vim.wo.relativenumber then
 			vim.wo.relativenumber = false
 			vim.wo.number = true
