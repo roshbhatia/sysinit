@@ -2,14 +2,18 @@ local M = {}
 
 M.plugins = {
 	{
-		"AckslD/muren.nvim",
-		config = true,
+		"brooth/far.vim",
 		keys = function()
 			return {
 				{
 					"<leader>fs",
-					"<cmd>MurenToggle<cr>",
+					"<cmd>Farr<cr>",
 					desc = "Find: Global search",
+				},
+				{
+					"<leader>fr",
+					"<cmd>Farf<cr>",
+					desc = "Find: Global search and replace",
 				},
 			}
 		end,
@@ -17,3 +21,4 @@ M.plugins = {
 }
 
 return M
+
