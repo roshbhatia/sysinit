@@ -139,3 +139,4 @@ function M.register_keybindings()
 end
 
 return M
+
