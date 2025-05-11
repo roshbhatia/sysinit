@@ -107,7 +107,7 @@ local plugins = {
 	require("sysinit.plugins.editor.hlchunk"),
 	require("sysinit.plugins.editor.hop"),
 	require("sysinit.plugins.editor.intellitab"),
-	require("sysinit.plugins.editor.muren"),
+	require("sysinit.plugins.editor.far"),
 	require("sysinit.plugins.editor.render-markdown"),
 	require("sysinit.plugins.editor.surround"),
 	require("sysinit.plugins.file.diffview"),

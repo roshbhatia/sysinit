@@ -7,12 +7,12 @@ M.plugins = {
 			return {
 				{
 					"<leader>fs",
-					"<cmd>Farr<cr>",
+					"<cmd>Farf<cr>",
 					desc = "Find: Global search",
 				},
 				{
 					"<leader>fr",
-					"<cmd>Farf<cr>",
+					"<cmd>Farr<cr>",
 					desc = "Find: Global search and replace",
 				},
 			}
@@ -21,4 +21,3 @@ M.plugins = {
 }
 
 return M
-
