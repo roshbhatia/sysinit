@@ -11,6 +11,7 @@ local core = require("sysinit.pkg.core")
 core.register_leader()
 core.register_options()
 core.register_keybindings()
+core.register_autocmds()
 
 require("sysinit.pkg.plugin_manager").setup_package_manager()
 require("sysinit.pkg.plugin_manager").setup_plugins({

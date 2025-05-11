@@ -153,5 +153,11 @@ function M.register_keybindings()
 	})
 end
 
-return M
+function M.register_autocmds()
+	vim.api.nvim_create_autocmd("FileType", {
+		pattern = "help",
+		command = "wincmd L",
+	})
+end
 
+return M
