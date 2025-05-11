@@ -2,6 +2,7 @@ local M = {}
 
 M.plugins = {
 	{
+		cond = false,
 		"zbirenbaum/copilot.lua",
 		event = "InsertEnter",
 		cmd = "Copilot",
