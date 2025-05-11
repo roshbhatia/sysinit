@@ -99,6 +99,33 @@ vim.o.autoread = true
 
 plugin_manager.setup_package_manager()
 
+local right_click = require("sysinit.pkg.right-click-menu")
+right_click.add({
+	editor_menu = {
+		{
+			id = "CodeEditor",
+			label = "Cut",
+			command = '"+x',
+		},
+		{
+			id = "CodeEditor",
+			label = "Copy",
+			command = '"+y',
+		},
+		{
+			id = "CodeEditor",
+			label = "Paste",
+			command = '"+p',
+		},
+		right_click.separator("CodeEditor"),
+		{
+			id = "CodeEditor",
+			label = "Select All",
+			command = "ggVG",
+		},
+	},
+})
+
 local plugins = {
 	require("sysinit.plugins.debugger.dap"),
 	require("sysinit.plugins.debugger.dap-ui"),

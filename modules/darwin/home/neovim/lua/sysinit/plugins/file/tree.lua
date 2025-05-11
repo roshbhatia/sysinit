@@ -174,6 +174,58 @@ M.plugins = {
 					vim.cmd("Neotree close")
 				end,
 			})
+
+			local right_click = require("sysinit.pkg.right-click-menu")
+			right_click.add({
+				explorer_menu = {
+					{
+						id = "FileExplorer",
+						label = "Open to the Side",
+						command = "<cmd>lua require('neo-tree.command').execute({ action = 'open', position = 'right' })<cr>",
+					},
+					{
+						id = "FileExplorer",
+						label = "Open With...",
+						items = {
+							right_click.item({
+								label = "Vertical Split",
+								command = "<cmd>lua require('neo-tree.command').execute({ action = 'open', position = 'right' })<cr>",
+							}),
+							right_click.item({
+								label = "Horizontal Split",
+								command = "<cmd>lua require('neo-tree.command').execute({ action = 'open', position = 'bottom' })<cr>",
+							}),
+						},
+					},
+					right_click.separator("FileExplorer"),
+					{
+						id = "FileExplorer",
+						label = "Cut",
+						command = "<cmd>lua require('neo-tree.command').execute({ action = 'cut' })<cr>",
+					},
+					{
+						id = "FileExplorer",
+						label = "Copy",
+						command = "<cmd>lua require('neo-tree.command').execute({ action = 'copy' })<cr>",
+					},
+					{
+						id = "FileExplorer",
+						label = "Paste",
+						command = "<cmd>lua require('neo-tree.command').execute({ action = 'paste' })<cr>",
+					},
+					right_click.separator("FileExplorer"),
+					{
+						id = "FileExplorer",
+						label = "Rename...",
+						command = "<cmd>lua require('neo-tree.command').execute({ action = 'rename' })<cr>",
+					},
+					{
+						id = "FileExplorer",
+						label = "Delete",
+						command = "<cmd>lua require('neo-tree.command').execute({ action = 'delete' })<cr>",
+					},
+				},
+			})
 		end,
 		keys = {
 			{
@@ -186,4 +238,3 @@ M.plugins = {
 }
 
 return M
-
