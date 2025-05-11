@@ -140,7 +140,11 @@ function M.register_keybindings()
 		desc = " Toggle absolute & relative",
 	})
 
-	vim.keymap.set("n", "<D-k>", ":noh<CR>")
+	vim.keymap.set("n", "<D-k>", ":noh<CR>", {
+		noremap = true,
+		silent = true,
+		desc = "󰀶 Clear search highlights",
+	})
 
 	vim.keymap.set("n", "<leader>?", "<cmd>Telescope keymaps<CR>", {
 		noremap = true,
@@ -150,3 +154,4 @@ function M.register_keybindings()
 end
 
 return M
+
