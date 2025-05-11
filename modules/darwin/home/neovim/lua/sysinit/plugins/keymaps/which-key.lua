@@ -12,6 +12,9 @@ M.plugins = {
 
 			wk.setup({
 				preset = "helix",
+				icons = {
+          mapping = false -- we're setting these inline below
+        }
 			})
 
 			wk.add({
@@ -36,3 +39,4 @@ M.plugins = {
 }
 
 return M
+
