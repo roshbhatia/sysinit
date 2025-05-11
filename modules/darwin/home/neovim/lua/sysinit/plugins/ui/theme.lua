@@ -10,7 +10,7 @@ local function get_theme()
 			return theme
 		end
 	end
-	return "catppuccin"
+	return nil
 end
 
 local function set_theme(theme)
@@ -25,7 +25,9 @@ end
 vim.api.nvim_create_autocmd("VimEnter", {
 	callback = function()
 		local theme = get_theme()
-		vim.cmd.colorscheme(theme)
+		if theme then
+			vim.cmd.colorscheme(theme)
+		end
 	end,
 })
 

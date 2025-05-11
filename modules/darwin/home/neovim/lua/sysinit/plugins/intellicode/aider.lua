@@ -59,6 +59,8 @@ M.plugins = {
 					"--no-auto-commits",
 					"--pretty",
 					"--stream",
+					-- Our options to hackily work with github copilot, which uses the openai auth method.
+					"--no-show-model-warnings",
 					"--openai-api-base",
 					"https://api.githubcopilot.com",
 					"--model",
@@ -95,6 +97,13 @@ M.plugins = {
 				},
 			})
 		end,
+
+		vim.api.nvim_create_autocmd("User", {
+			pattern = "PersistenceSavePre",
+			callback = function()
+				avante.close_sidebar()
+			end,
+		}),
 	},
 }
 return M

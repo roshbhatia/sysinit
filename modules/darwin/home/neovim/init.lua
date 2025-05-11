@@ -120,6 +120,7 @@ local plugins = {
 	require("sysinit.plugins.git.fugitive"),
 	require("sysinit.plugins.git.signs"),
 	require("sysinit.plugins.intellicode.aider"),
+	require("sysinit.plugins.intellicode.avante"),
 	require("sysinit.plugins.intellicode.cmp-buffer"),
 	require("sysinit.plugins.intellicode.cmp-cmdline"),
 	require("sysinit.plugins.intellicode.cmp-git"),
