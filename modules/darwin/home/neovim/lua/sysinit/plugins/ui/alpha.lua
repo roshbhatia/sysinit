@@ -5,7 +5,7 @@ M.plugins = {
 		"goolord/alpha-nvim",
 		commit = "de72250e054e5e691b9736ee30db72c65d560771",
 		lazy = false,
-		dependencies = { "nvim-tree/nvim-web-devicons", "folke/persistence.nvim" },
+		dependencies = { "nvim-tree/nvim-web-devicons", "folke/persistence.nvim", "nvim-telescope/telescope.nvim" },
 		config = function()
 			local alpha = require("alpha")
 			local dashboard = require("alpha.themes.dashboard")
