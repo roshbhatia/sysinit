@@ -137,7 +137,9 @@ local function setup_base_keybindings()
 			key = "k",
 			mods = "CMD",
 			action = wezterm.action_callback(function(win, pane)
-				if not is_vim(pane) then
+				if is_vim(pane) then
+					act.SendKey({ key = "k", mods = "CMD" })
+				else
 					win:perform_action(act.ClearScrollback("ScrollbackAndViewport"), pane)
 				end
 			end),
@@ -167,30 +169,22 @@ local function setup_base_keybindings()
 		{
 			key = "c",
 			mods = "CMD",
-			action = wezterm.action_callback(function(win, pane)
-				win:perform_action(act.CopyTo("Clipboard"), pane)
-			end),
+			action = act.CopyTo("Clipboard"),
 		},
 		{
 			key = "x",
 			mods = "CMD",
-			action = wezterm.action_callback(function(win, pane)
-				win:perform_action(act.Cut, pane)
-			end),
+			action = act.Cut,
 		},
 		{
 			key = "v",
 			mods = "CMD",
-			action = wezterm.action_callback(function(win, pane)
-				win:perform_action(act.PasteFrom("Clipboard"), pane)
-			end),
+			action = act.PasteFrom("Clipboard"),
 		},
 		{
 			key = "p",
 			mods = "CMD",
-			action = wezterm.action_callback(function(win, pane)
-				win:perform_action(act.PasteFrom("Clipboard"), pane)
-			end),
+			action = act.PasteFrom("Clipboard"),
 		},
 		{
 			key = "m",
