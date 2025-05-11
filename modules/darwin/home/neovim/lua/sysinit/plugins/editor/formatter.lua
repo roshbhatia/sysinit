@@ -64,24 +64,6 @@ M.plugins = {
 					}
 				end,
 			})
-
-			vim.api.nvim_create_autocmd("InsertLeave", {
-				pattern = {
-					"*.go",
-					"*.js",
-					"*.json",
-					"*.nix",
-					"*.sh",
-					"*.ts",
-					"*.yaml",
-				},
-				callback = function()
-					if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
-						return
-					end
-					require("conform").format()
-				end,
-			})
 		end,
 	},
 }

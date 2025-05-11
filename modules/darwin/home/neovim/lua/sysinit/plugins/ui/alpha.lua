@@ -104,12 +104,6 @@ M.plugins = {
 						vim.opt.laststatus = 0
 						vim.cmd("wincmd o")
 						vim.cmd("Alpha")
-					elseif vim.fn.argv() == 1 and vim.fn.argv()[1] == "." then
-						if should_load_session() then
-							persistence.load()
-						else
-							vim.defer_fn(vim.cmd(":Telescope find_files"), 200)
-						end
 					end
 				end,
 			})
@@ -118,3 +112,4 @@ M.plugins = {
 }
 
 return M
+
