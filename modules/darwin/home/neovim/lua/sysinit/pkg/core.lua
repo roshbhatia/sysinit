@@ -140,7 +140,7 @@ function M.register_keybindings()
 		desc = " Toggle absolute & relative",
 	})
 
-	vim.keymap.set("n", "<D-k>", ":nohlsearch<CR>", {
+	vim.keymap.set("n", "<D-k>", "<cmd>nohlsearch<CR>", {
 		noremap = true,
 		silent = true,
 		desc = " Clear highlights",
