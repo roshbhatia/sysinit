@@ -45,12 +45,7 @@ M.plugins = {
 		dependencies = {
 			"folke/snacks.nvim",
 			"catppuccin/nvim",
-			{
-				"nvim-neo-tree/neo-tree.nvim",
-				opts = function(_, opts)
-					require("nvim_aider.neo_tree").setup(opts)
-				end,
-			},
+			"nvim-neo-tree/neo-tree.nvim",
 			"zbirenbaum/copilot.lua",
 		},
 		config = function()
@@ -62,38 +57,20 @@ M.plugins = {
 					"--stream",
 					-- Our options to hackily work with github copilot, which uses the openai auth method.
 					"--no-show-model-warnings",
-					"--openai-api-base",
-					"https://api.githubcopilot.com",
-					"--model",
-					"openai/claude-3.5-sonnet", -- github_copilot/claude-3.5-sonnet
-					"--weak-model",
-					"openai/gpt-4o", -- github_copilot/gpt-4o
-					"--openai-api-key",
-					get_github_copilot_token(),
+					"--openai-api-base https://api.githubcopilot.com",
+					"--model openai/claude-3.5-sonnet", -- github_copilot/claude-3.5-sonnet
+					"--weak-model openai/gpt-4o", -- github_copilot/gpt-4o",
+					string.format("--openai-api-key %s", get_github_copilot_token()),
 					-- extras
 					"--no-gitignore",
 					"--no-attribute-author",
 					"--no-attribute-committer",
-					"--watch-files",
-					"--code-theme",
-					"github-dark",
+					"--code-theme github-dark",
 				},
 				auto_reload = true,
-				theme = {
-					user_input_color = "#a6da95",
-					tool_output_color = "#8aadf4",
-					tool_error_color = "#ed8796",
-					tool_warning_color = "#eed49f",
-					assistant_output_color = "#c6a0f6",
-					completion_menu_color = "#cad3f5",
-					completion_menu_bg_color = "#24273a",
-					completion_menu_current_color = "#181926",
-					completion_menu_current_bg_color = "#f4dbd6",
-				},
 				picker_cfg = {
 					preset = "vscode",
 				},
-				-- Other snacks.terminal.Opts options
 				config = {
 					os = { editPreset = "nvim-remote" },
 					gui = { nerdFontsVersion = "3" },
@@ -104,6 +81,8 @@ M.plugins = {
 					position = "right",
 				},
 			})
+
+			require("nvim_aider.neo_tree").setup({})
 
 			vim.api.nvim_create_autocmd("User", {
 				pattern = "PersistenceSavePre",
