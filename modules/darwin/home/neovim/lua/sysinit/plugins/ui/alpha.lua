@@ -94,13 +94,24 @@ M.plugins = {
 			vim.api.nvim_create_autocmd("GUIEnter", {
 				pattern = "*",
 				callback = function()
+					local persistence = require("persistence")
+					local function session_exists()
+						local file = persistence.current()
+
+						if vim.fn.filereadable(file) == 0 then
+							file = persistence.current({ branch = false })
+						end
+
+						return vim.fn.filereadable(file) ~= 0
+					end
+
 					if not (next(vim.fn.argv()) ~= nil) then
 						vim.opt.laststatus = 0
 						vim.cmd("wincmd o")
 						vim.cmd("Alpha")
 					elseif vim.fn.argv() == 1 and vim.fn.argv()[1] == "." then
-						if current_session then
-							require("persistence").load()
+						if session_exists() then
+							persistence.load()
 						else
 							vim.cmd("Telescope find_files")
 						end

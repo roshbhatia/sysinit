@@ -30,6 +30,10 @@ M.plugins = {
 					},
 					mappings = {
 						n = { ["q"] = require("telescope.actions").close },
+						i = {
+							["<Tab>"] = actions.move_selection_next,
+							["<S-Tab>"] = actions.move_selection_previous,
+						},
 					},
 				},
 				extensions = {
