@@ -99,13 +99,13 @@ function M.register_keybindings()
 	vim.keymap.set("n", "<leader>W", ":w!<CR>", {
 		noremap = true,
 		silent = true,
-		desc = " Write",
+		desc = " Close",
 	})
 
-	vim.keymap.set("n", "<leader>w", ":q!<CR>", {
+	vim.keymap.set("n", "<leader>w", ":wq!<CR>", {
 		noremap = true,
 		silent = true,
-		desc = " Close",
+		desc = " Write and close",
 	})
 
 	vim.keymap.set("n", "<leader>bn", "<cmd>bnext<CR>", {
@@ -142,3 +142,4 @@ function M.register_keybindings()
 end
 
 return M
+

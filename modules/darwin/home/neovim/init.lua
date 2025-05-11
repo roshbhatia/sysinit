@@ -65,7 +65,7 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.kubernetes.kubectl"),
 	require("sysinit.plugins.library.image"),
 	require("sysinit.plugins.library.nio"),
-	nit.require("sysinit.plugins.library.nui"),
+	require("sysinit.plugins.library.nui"),
 	require("sysinit.plugins.ui.alpha"),
 	require("sysinit.plugins.ui.devicons"),
 	require("sysinit.plugins.ui.dressing"),
