@@ -9,6 +9,7 @@ package.path = package.path
 
 require("sysinit.pkg.plugin_manager").setup_package_manager()
 require("sysinit.pkg.plugin_manager").setup_plugins({
+	require("sysinit.plugins.core.shared"),
 	require("sysinit.plugins.debugger.dap"),
 	require("sysinit.plugins.debugger.dap-ui"),
 	require("sysinit.plugins.editor.comment"),
