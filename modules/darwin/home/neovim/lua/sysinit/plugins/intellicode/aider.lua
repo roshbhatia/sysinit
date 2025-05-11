@@ -1,4 +1,32 @@
 local M = {}
+function get_github_copilot_token()
+	local apps_json_path = vim.fn.expand("~/.config/github-copilot/apps.json")
+
+	if vim.fn.filereadable(apps_json_path) ~= 1 then
+		vim.notify("GitHub Copilot apps.json file not found", vim.log.levels.ERROR)
+		return nil
+	end
+
+	local content = vim.fn.readfile(apps_json_path)
+	local json_str = table.concat(content, "\n")
+
+	local success, parsed = pcall(vim.fn.json_decode, json_str)
+	if not success then
+		vim.notify("Failed to parse GitHub Copilot apps.json", vim.log.levels.ERROR)
+		return nil
+	end
+
+	-- Find the first key that matches GitHub App ID pattern
+	for key, value in pairs(parsed) do
+		-- Look for entries with the structure we need
+		if type(value) == "table" and value.oauth_token and value.githubAppId then
+			return value.oauth_token
+		end
+	end
+
+	vim.notify("No valid GitHub Copilot token found in apps.json", vim.log.levels.WARN)
+	return nil
+end
 
 M.plugins = {
 	{
@@ -22,6 +50,7 @@ M.plugins = {
 					require("nvim_aider.neo_tree").setup(opts)
 				end,
 			},
+			"zbirenbaum/copilot.lua",
 		},
 		config = function()
 			require("nvim_aider").setup({
@@ -30,6 +59,14 @@ M.plugins = {
 					"--no-auto-commits",
 					"--pretty",
 					"--stream",
+					"--openai-api-base",
+					"https://api.githubcopilot.com",
+					"--model",
+					"openai/claude-3.5-sonnet", -- github_copilot/claude-3.5-sonnet
+					"--weak-model",
+					"openai/gpt-4o", -- github_copilot/gpt-4o
+					"--openai-api-key",
+					get_github_copilot_token(),
 				},
 				auto_reload = true,
 				theme = {
