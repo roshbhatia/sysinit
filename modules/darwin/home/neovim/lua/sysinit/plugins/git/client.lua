@@ -27,7 +27,7 @@ M.plugins = {
 				},
 				{
 					"<leader>gr",
-					":FloatermNew! --name=github gh dash<CR>",
+					":FloatermNew! --autoclose=2 --name=github gh dash<CR>",
 					desc = "Git: Open github ui",
 				},
 			}
