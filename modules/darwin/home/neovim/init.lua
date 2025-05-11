@@ -130,6 +130,7 @@ local plugins = {
 	require("sysinit.plugins.intellicode.copilot-chat"),
 	require("sysinit.plugins.intellicode.copilot-cmp"),
 	require("sysinit.plugins.intellicode.copilot"),
+	require("sysinit.plugins.intellicode.eagle"),
 	require("sysinit.plugins.intellicode.friendly-snippets"),
 	require("sysinit.plugins.intellicode.guess-indent"),
 	require("sysinit.plugins.intellicode.linters"),
