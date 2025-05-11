@@ -145,7 +145,12 @@ function M.register_keybindings()
 		silent = true,
 		desc = " Clear highlights",
 	})
+
+	vim.keymap.set("n", "<leader>?", "<cmd>Telescope keymaps<CR>", {
+		noremap = true,
+		silent = true,
+		desc = "󰀶 Find keymaps",
+	})
 end
 
 return M
-
