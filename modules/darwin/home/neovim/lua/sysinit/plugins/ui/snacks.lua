@@ -14,7 +14,6 @@ M.plugins = {
 			},
 			bigfile = { enabled = true },
 			bufdelete = { enabled = true },
-			image = { enabled = true },
 			notifier = {
 				enabled = true,
 				timeout = 3000,
@@ -32,6 +31,7 @@ M.plugins = {
 			explorer = { enabled = false },
 			git = { enabled = false },
 			gitbrowse = { enabled = false },
+			image = { enabled = false },
 			indent = { enabled = false },
 			input = { enabled = false },
 			layout = { enabled = false },

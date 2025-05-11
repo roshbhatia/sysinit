@@ -9,7 +9,7 @@ function M.register_options()
 	vim.opt.mouse = "a"
 	vim.opt.number = true
 	vim.opt.cursorline = false
-	vim.opt.signcolumn = "yes"
+	vim.opt.signcolumn = "number"
 
 	-- Search options
 	vim.opt.hlsearch = true
