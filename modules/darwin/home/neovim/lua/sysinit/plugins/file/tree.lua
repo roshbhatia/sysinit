@@ -178,7 +178,10 @@ M.plugins = {
 		keys = {
 			{
 				"<leader>ee",
-				"<cmd>Neotree toggle<CR>",
+				function()
+					vim.cmd("Neotree toggle")
+					vim.cmd("wincmd p")
+				end,
 				desc = "Editor: Toggle file tree",
 			},
 		},
