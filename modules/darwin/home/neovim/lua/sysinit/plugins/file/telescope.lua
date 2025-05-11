@@ -17,7 +17,7 @@ M.plugins = {
 			telescope.setup({
 				defaults = {
 					prompt_prefix = "   ",
-					selection_caret = " ",
+					selection_caret = " > ",
 					entry_prefix = " ",
 					sorting_strategy = "ascending",
 					layout_config = {
@@ -29,7 +29,11 @@ M.plugins = {
 						height = 0.80,
 					},
 					mappings = {
-						n = { ["q"] = require("telescope.actions").close },
+						n = {
+							["q"] = require("telescope.actions").close,
+							["<Tab>"] = actions.move_selection_next,
+							["<S-Tab>"] = actions.move_selection_previous,
+						},
 						i = {
 							["<Tab>"] = actions.move_selection_next,
 							["<S-Tab>"] = actions.move_selection_previous,
