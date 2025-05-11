@@ -13,10 +13,10 @@ M.plugins = {
 			incremental_selection = {
 				enable = true,
 				keymaps = {
-					init_selection = "tnn", -- set to `false` to disable one of the mappings
-					node_incremental = "trn",
-					scope_incremental = "trc",
-					node_decremental = "trm",
+					init_selection = "gnn", -- set to `false` to disable one of the mappings
+					node_incremental = "grn",
+					scope_incremental = "grc",
+					node_decremental = "grm",
 				},
 			},
 			ensure_installed = {
@@ -79,4 +79,3 @@ M.plugins = {
 }
 
 return M
-
