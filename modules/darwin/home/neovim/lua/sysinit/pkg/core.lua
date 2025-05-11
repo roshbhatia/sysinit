@@ -139,6 +139,12 @@ function M.register_keybindings()
 		silent = true,
 		desc = " Toggle absolute & relative",
 	})
+
+	vim.keymap.set("n", "<D-k>", ":noh<CR>", {
+		noremap = true,
+		silent = true,
+		desc = " Clear highlights"
+	})
 end
 
 return M
