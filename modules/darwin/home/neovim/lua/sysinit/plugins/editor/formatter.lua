@@ -70,7 +70,6 @@ M.plugins = {
 					"*.go",
 					"*.js",
 					"*.json",
-					"*.lua",
 					"*.nix",
 					"*.sh",
 					"*.ts",
