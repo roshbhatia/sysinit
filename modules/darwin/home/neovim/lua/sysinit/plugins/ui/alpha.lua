@@ -108,7 +108,7 @@ M.plugins = {
 						if should_load_session() then
 							persistence.load()
 						else
-							vim.cmd(":Telescope find_files")
+							vim.defer_fn(vim.cmd(":Telescope find_files"), 200)
 						end
 					end
 				end,
@@ -118,4 +118,3 @@ M.plugins = {
 }
 
 return M
-
