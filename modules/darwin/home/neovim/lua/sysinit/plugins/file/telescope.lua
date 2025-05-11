@@ -13,6 +13,7 @@ M.plugins = {
 		},
 		config = function()
 			local telescope = require("telescope")
+			local actions = require("telescope.actions")
 
 			telescope.setup({
 				defaults = {
@@ -30,7 +31,7 @@ M.plugins = {
 					},
 					mappings = {
 						n = {
-							["q"] = require("telescope.actions").close,
+							["q"] = actions.close,
 							["<Tab>"] = actions.move_selection_next,
 							["<S-Tab>"] = actions.move_selection_previous,
 						},
