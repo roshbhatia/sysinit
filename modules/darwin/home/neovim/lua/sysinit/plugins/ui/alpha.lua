@@ -99,7 +99,11 @@ M.plugins = {
 						vim.cmd("wincmd o")
 						vim.cmd("Alpha")
 					elseif vim.fn.argv() == 1 and vim.fn.argv()[1] == "." then
-						require("persistence").load()
+						if current_session then
+							require("persistence").load()
+						else
+							vim.cmd("Telescope find_files")
+						end
 					end
 				end,
 			})
