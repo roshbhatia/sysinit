@@ -1,5 +1,6 @@
 local M = {}
-function get_github_copilot_token()
+
+local function get_github_copilot_token()
 	local apps_json_path = vim.fn.expand("~/.config/github-copilot/apps.json")
 
 	if vim.fn.filereadable(apps_json_path) ~= 1 then
@@ -96,14 +97,14 @@ M.plugins = {
 					position = "right",
 				},
 			})
-		end,
 
-		vim.api.nvim_create_autocmd("User", {
-			pattern = "PersistenceSavePre",
-			callback = function()
-				avante.close_sidebar()
-			end,
-		}),
+			vim.api.nvim_create_autocmd("User", {
+				pattern = "PersistenceSavePre",
+				callback = function()
+					avante.close_sidebar()
+				end,
+			})
+		end,
 	},
 }
 return M
