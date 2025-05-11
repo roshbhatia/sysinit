@@ -10,28 +10,29 @@ M.plugins = {
 		config = function()
 			local wk = require("which-key")
 
-			},wk.setup({
+			wk.setup({
 				preset = "helix",
 			})
 
 			wk.add({
-				["<leader>o"] = group = "󰉹 +outline",
-				["<leader>t"] = group = " +terminal",
-				["<leader>a"] = group = "󱚣 +copilot",
-				["<leader>n"] = group = "󰎟 +notifications",
-				["<leader>s"] = group = "󰃻 +split",
-				["<leader>d"] = group = " +debugger",
-				["<leader>g"] = group = " +git",
-				["<leader>j"] = group = "󱋿 +hop",
-				["<leader>f"] = group = "󰀶 +find",
-				["<leader>m"] = group = "󰨁 +map",
-				["<leader>e"] = group = " +editor",
-				["<leader>x"] = group = "󰁨 +problems",
-				["<leader>c"] = group = "󰘧 +code"
+				{ "<leader>a", group = "󱚣 +copilot" },
+				{ "<leader>b", group = " +buffer" },
+				{ "<leader>c", group = "󰘧 +code" },
+				{ "<leader>d", group = " +debugger" },
+				{ "<leader>e", group = " +editor" },
+				{ "<leader>f", group = "󰀶 +find" },
+				{ "<leader>g", group = " +git" },
+				{ "<leader>k", group = " +k8s" },
+				{ "<leader>j", group = "󱋿 +hop" },
+				{ "<leader>m", group = "󰨁 +map" },
+				{ "<leader>n", group = "󰎟 +notifications" },
+				{ "<leader>o", group = "󰉹 +outline" },
+				{ "<leader>s", group = "󰃻 +split" },
+				{ "<leader>t", group = " +terminal" },
+				{ "<leader>x", group = "󰁨 +problems" },
 			})
 		end,
 	},
 }
 
 return M
-

@@ -96,33 +96,30 @@ function M.register_keybindings()
 	vim.keymap.set("v", "<D-p>", '"+p', { silent = true, noremap = true })
 
 	-- Buffer management
-	vim.keymap.set("n", "<leader>w", ":q!<CR>", {
+	vim.keymap.set("n", "<leader>w", ":wq!<CR>", {
 		noremap = true,
 		silent = true,
-		desc = "Buffer: Close",
+		desc = " Write and close",
 	})
-	vim.keymap.set("n", "<leader>q", ":w!<CR>", {
-		noremap = true,
-		silent = true,
-		desc = "Buffer: Write",
-	})
+
 	vim.keymap.set("n", "<leader>bn", "<cmd>bnext<CR>", {
 		noremap = true,
 		silent = true,
-		desc = "Buffer: Next",
+		desc = " Next",
 	})
+
 	vim.keymap.set("n", "<leader>bp", "<cmd>bprev<CR>", {
 		noremap = true,
 		silent = true,
-		desc = "Buffer: Previous",
+		desc = " Previous",
 	})
+
 	vim.keymap.set("n", "<leader>Q", ":qa!<CR>", {
 		noremap = true,
 		silent = true,
-		desc = "System: Close",
+		desc = " Quit",
 	})
 
-	-- Toggle line numbers
 	vim.keymap.set("n", "<leader>en", function()
 		if vim.wo.relativenumber then
 			vim.wo.relativenumber = false
@@ -134,7 +131,7 @@ function M.register_keybindings()
 	end, {
 		noremap = true,
 		silent = true,
-		desc = "Editor: Toggle line numbers",
+		desc = " Toggle absolute & relative",
 	})
 end
 

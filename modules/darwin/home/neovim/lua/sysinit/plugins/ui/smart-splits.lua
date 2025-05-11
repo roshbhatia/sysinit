@@ -39,52 +39,52 @@ M.plugins = {
 				{
 					"<C-h>",
 					'<cmd>lua require("smart-splits").move_cursor_left()<CR>',
-					desc = "Split: Move to left split",
+					desc = "Move to left split",
 				},
 				{
 					"<C-j>",
 					'<cmd>lua require("smart-splits").move_cursor_down()<CR>',
-					desc = "Split: Move to bottom split",
+					desc = "Move to bottom split",
 				},
 				{
 					"<C-k>",
 					'<cmd>lua require("smart-splits").move_cursor_up()<CR>',
-					desc = "Split: Move to top split",
+					desc = "Move to top split",
 				},
 				{
 					"<C-l>",
 					'<cmd>lua require("smart-splits").move_cursor_right()<CR>',
-					desc = "Split: Move to right split",
+					desc = "Move to right split",
 				},
 				{
 					"<M-h>",
 					'<cmd>lua require("smart-splits").resize_left()<CR>',
-					desc = "Split: Decrease width of current split",
+					desc = "Decrease width of current split",
 				},
 				{
 					"<M-j>",
 					'<cmd>lua require("smart-splits").resize_down()<CR>',
-					desc = "Split: Decrease height of current split",
+					desc = "Decrease height of current split",
 				},
 				{
 					"<M-k>",
 					'<cmd>lua require("smart-splits").resize_up()<CR>',
-					desc = "Split: Increase height of current split",
+					desc = "Increase height of current split",
 				},
 				{
 					"<M-l>",
 					'<cmd>lua require("smart-splits").resize_right()<CR>',
-					desc = "Split: Increase width of current split",
+					desc = "Increase width of current split",
 				},
 				{
 					"<leader><S-s>",
 					"<cmd>split<CR>",
-					desc = "Split: Horizontal",
+					desc = "󰃻 Horizontal",
 				},
 				{
 					"<leader><S-v>",
 					"<cmd>vsplit<CR>",
-					desc = "Split: Vertical",
+					desc = "󰃻 Vertical",
 				},
 			}
 		end,
@@ -92,4 +92,3 @@ M.plugins = {
 }
 
 return M
-
