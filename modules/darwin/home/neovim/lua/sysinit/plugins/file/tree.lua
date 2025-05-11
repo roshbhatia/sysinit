@@ -72,10 +72,6 @@ M.plugins = {
 						nowait = true,
 					},
 					mappings = {
-						["<space>"] = {
-							"toggle_node",
-							nowait = false,
-						},
 						["<2-LeftMouse>"] = "open",
 						["<cr>"] = "open",
 						["<esc>"] = "revert_preview",
@@ -86,8 +82,7 @@ M.plugins = {
 							},
 						},
 						["S"] = "open_split",
-						["s"] = "open_vsplit",
-						["t"] = "open_tabnew",
+						["v"] = "open_vsplit",
 						["w"] = "open_with_window_picker",
 						["C"] = "close_node",
 						["z"] = "close_all_nodes",
@@ -189,3 +184,4 @@ M.plugins = {
 }
 
 return M
+
