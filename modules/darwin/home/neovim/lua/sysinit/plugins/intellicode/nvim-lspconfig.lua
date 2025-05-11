@@ -28,7 +28,7 @@ M.plugins = {
 			})
 			lspconfig.lua_ls.setup({})
 			lspconfig.marksman.setup({})
-			lspconfig.nil_ls.setup({})
+			lspconfig.nixd.setup({})
 			lspconfig.pyright.setup({})
 			lspconfig.terraformls.setup({})
 			lspconfig.tflint.setup({})
@@ -62,3 +62,4 @@ M.plugins = {
 }
 
 return M
+
