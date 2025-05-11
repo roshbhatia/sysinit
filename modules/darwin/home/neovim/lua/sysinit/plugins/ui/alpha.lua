@@ -95,13 +95,8 @@ M.plugins = {
 				pattern = "*",
 				callback = function()
 					local persistence = require("persistence")
-					local function session_exists()
+					local function should_load_session()
 						local file = persistence.current()
-
-						if vim.fn.filereadable(file) == 0 then
-							file = persistence.current({ branch = false })
-						end
-
 						return vim.fn.filereadable(file) ~= 0
 					end
 
@@ -110,10 +105,10 @@ M.plugins = {
 						vim.cmd("wincmd o")
 						vim.cmd("Alpha")
 					elseif vim.fn.argv() == 1 and vim.fn.argv()[1] == "." then
-						if session_exists() then
+						if should_load_session() then
 							persistence.load()
 						else
-							vim.cmd("Telescope find_files")
+							vim.cmd(":Telescope find_files")
 						end
 					end
 				end,
