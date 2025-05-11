@@ -53,9 +53,9 @@ function M.register_options()
 	-- Completion
 	vim.opt.pumheight = 10
 	vim.opt.cmdheight = 0
+	vim.opt.cmdwinheight = 1
 	vim.opt.laststatus = 3
-	vim.opt.shortmess:append("c")
-	vim.opt.completeopt = { "menuone", "noselect" }
+	vim.opt.completeopt = { "menu", "menuone", "fuzzy", "preview" }
 
 	-- Environment
 	vim.env.PATH = vim.fn.getenv("PATH")
