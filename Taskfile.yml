@@ -1,22 +1,9 @@
 version: "3"
 
 vars:
-  LOG_FUNCTIONS: |
-    log_info() {
-      echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $1"
-    }
-    log_debug() {
-      echo "[$(date '+%Y-%m-%d %H:%M:%S')] [DEBUG] $1"
-    log_error() {
-      echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $1"
-    }
-    log_success() {
-      echo "[$(date '+%Y-%m-%d %H:%M:%S')] [SUCCESS] $1"
-    }
-
   SCRIPT_HEADER: |
     #!/usr/bin/env bash
-    {{.LOG_FUNCTIONS}}
+    source ./hack/lib/logger.sh
     UUID=$(uuidgen)
     log_info "Task ID: $UUID"
 
@@ -210,21 +197,6 @@ tasks:
     desc: Completely uninstall Nix from the system
     silent: true
 
-  nvim:extract-nvim-commands:
-    cmds:
-      - task -d modules/darwin/home/neovim nvim:extract-nvim-commands
-    silent: true
-
-  nvim:extract-vsc-commands:
-    cmds:
-      - task -d modules/darwin/home/neovim nvim:extract-vsc-commands
-    silent: true
-
-  nvim:pull-docs:
-    cmds:
-      - task -d modules/darwin/home/neovim nvim:pull-docs
-    silent: true
-
   nvim:run-local-headless-isolated:
     cmds:
       - task -d modules/darwin/home/neovim nvim:run-local-headless-isolated
@@ -234,9 +206,3 @@ tasks:
     cmds:
       - task -d modules/darwin/home/neovim nvim:run-local-isolated
     silent: true
-
-  nvim:verify-vsc-commands:
-    cmds:
-      - task -d modules/darwin/home/neovim nvim:verify-vsc-actions
-    silent: true
-
