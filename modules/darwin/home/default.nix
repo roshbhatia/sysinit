@@ -82,6 +82,7 @@ in
     ./python/pipx.nix
     ./python/uvx.nix
     ./go/go.nix
+    ./gh/gh.nix
   ];
 }
 
