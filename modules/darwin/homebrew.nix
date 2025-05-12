@@ -51,6 +51,7 @@ let
     "kubectl"
     "lazygit"
     "libgit2"
+    "loop"
     "luajit"
     "luarocks"
     "lynx"
