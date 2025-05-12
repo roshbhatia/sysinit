@@ -1,46 +1,63 @@
-{ config, pkgs, lib, inputs, username, homeDirectory, userConfig ? {}, ... }: 
+{
+  config,
+  pkgs,
+  lib,
+  inputs,
+  username,
+  homeDirectory,
+  userConfig ? { },
+  ...
+}:
 let
-  install = userConfig.install or {
-    installToXdgConfigHome = [];
-    installToHome = [];
-  };
+  install =
+    userConfig.install or {
+      installToXdgConfigHome = [ ];
+      installToHome = [ ];
+    };
 
   extractDirectories = paths: lib.unique (map (entry: builtins.dirOf entry.destination) paths);
 
   xdgConfigDirs = extractDirectories install.installToXdgConfigHome;
   homeFileDirs = extractDirectories install.installToHome;
 
-  createEmptyDirs = dirs: lib.listToAttrs (map (dir: {
-    name = dir;
-    value = lib.mkForce {
-      source = pkgs.runCommand "empty-dir-${lib.replaceStrings ["/"] ["-"] dir}" {} ''
-        mkdir -p $out
-      '';
-    };
-  }) dirs);
+  createEmptyDirs =
+    dirs:
+    lib.listToAttrs (
+      map (dir: {
+        name = dir;
+        value = lib.mkForce {
+          source = pkgs.runCommand "empty-dir-${lib.replaceStrings [ "/" ] [ "-" ] dir}" { } ''
+            mkdir -p $out
+          '';
+        };
+      }) dirs
+    );
 
-  emptyDirs = lib.recursiveUpdate
-    (createEmptyDirs xdgConfigDirs)
-    (createEmptyDirs homeFileDirs);
+  emptyDirs = lib.recursiveUpdate (createEmptyDirs xdgConfigDirs) (createEmptyDirs homeFileDirs);
 
-  xdgConfigAttrs = lib.listToAttrs (map (entry: {
-    name = "${homeDirectory}/.config/${entry.destination}";
-    value = {
-      source = config.lib.file.mkOutOfStoreSymlink (toString entry.source);
-      force = true;
-      executable = entry.executable or false;
-    };
-  }) install.installToXdgConfigHome);
+  xdgConfigAttrs = lib.listToAttrs (
+    map (entry: {
+      name = "${homeDirectory}/.config/${entry.destination}";
+      value = {
+        source = config.lib.file.mkOutOfStoreSymlink (toString entry.source);
+        force = true;
+        executable = entry.executable or false;
+      };
+    }) install.installToXdgConfigHome
+  );
 
-  homeFileAttrs = lib.listToAttrs (map (entry: {
-    name = entry.destination;
-    value = {
-      source = config.lib.file.mkOutOfStoreSymlink (toString entry.source);
-      force = true;
-      executable = entry.executable or false;
-    };
-  }) install.installToHome);
-in {
+  homeFileAttrs = lib.listToAttrs (
+    map (entry: {
+      name = entry.destination;
+      value = {
+        source = config.lib.file.mkOutOfStoreSymlink (toString entry.source);
+        force = true;
+        executable = entry.executable or false;
+      };
+    }) install.installToHome
+  );
+in
+{
   xdg.configFile = xdgConfigAttrs;
   home.file = lib.recursiveUpdate homeFileAttrs emptyDirs;
 
@@ -57,8 +74,6 @@ in {
     ./wezterm/wezterm.nix
     ./zsh/zsh.nix
 
-    ./wallpaper/wallpaper.nix
-    
     ./core/packages.nix
     ./cargo/cargo.nix
     ./node/npm.nix
@@ -68,3 +83,4 @@ in {
     ./go/go.nix
   ];
 }
+
