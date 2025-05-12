@@ -25,7 +25,6 @@
   outputs = { self, nixpkgs, darwin, home-manager, nix-homebrew, homebrew-core, homebrew-cask, ... }@inputs:
   let
     system = "aarch64-darwin";
-    configValidator = import ./modules/lib/config-validator.nix { inherit nixpkgs self; };
     defaultConfigPath = ./config.nix;
     
     # Helper function to create a darwin configuration from a config file
