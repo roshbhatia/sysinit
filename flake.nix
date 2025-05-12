@@ -27,10 +27,9 @@
     system = "aarch64-darwin";
     defaultConfigPath = ./config.nix;
     
-    # Helper function to create a darwin configuration from a config file
     mkDarwinConfig = configPath:
       let
-        config = configValidator configPath;
+        config = configPath;
         username = config.user.username;
         hostname = config.user.hostname;
         homeDirectory = "/Users/${username}";
@@ -68,20 +67,17 @@
         ];
       };
       
-    # Extract the default config and hostname for use in the outputs
     defaultConfig = configValidator defaultConfigPath;
     defaultHostname = defaultConfig.user.hostname;
   in {
     # Create the default config using the default config path
     darwinConfigurations.${defaultHostname} = mkDarwinConfig defaultConfigPath;
 
-    # Export the helper function for custom configs
     lib = {
       mkConfigWithFile = mkDarwinConfig;
       inherit defaultConfigPath;
     };
 
-    # Default package - now using defaultHostname which is in scope
     packages.${system}.default = self.darwinConfigurations.${defaultHostname}.system;
   };
 }
