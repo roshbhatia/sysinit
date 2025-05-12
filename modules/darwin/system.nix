@@ -53,6 +53,7 @@ in
         InitialKeyRepeat = 15;
         KeyRepeat = 2;
         NSWindowShouldDragOnGesture = true;
+        _HIHideMenuBar = true;
       };
       spaces = {
         spans-displays = false;
