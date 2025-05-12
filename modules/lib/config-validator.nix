@@ -85,7 +85,7 @@ let
         else
           config;
     in
-    checkNpm (checkPipx (checkHomebrew (checkInstall (checkWallpaper config))));
+    checkNpm (checkPipx (checkHomebrew (checkInstall config)));
 
 in
 checkOptionalFields (checkGit (checkUser config))

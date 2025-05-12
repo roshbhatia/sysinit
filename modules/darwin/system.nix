@@ -43,7 +43,6 @@ in
         ShowPathbar = true;
       };
       NSGlobalDomain = {
-        _HIHideMenuBar = false;
         "com.apple.sound.beep.feedback" = 0;
         AppleInterfaceStyle = "Dark";
         ApplePressAndHoldEnabled = false;

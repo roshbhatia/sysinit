@@ -15,10 +15,8 @@ let
 
   baseTaps = [
     "FelixKratz/formulae"
-    "homebrew/bundle"
     "homebrew/cask"
     "homebrew/core"
-    "homebrew/services"
     "jandedobbeleer/oh-my-posh"
     "mediosz/tap"
     "nikitabobko/tap"
@@ -51,7 +49,6 @@ let
     "kubectl"
     "lazygit"
     "libgit2"
-    "loop"
     "luajit"
     "luarocks"
     "lynx"

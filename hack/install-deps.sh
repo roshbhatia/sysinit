@@ -115,6 +115,8 @@ FLAKES_CONFIG="experimental-features = nix-command flakes"
 TRUSTED_USERS="trusted-users = root $(whoami)"
 
 # Add flakes configuration if not present
+sudo touch ~/.config/nix/nix.conf
+sudo chmod 775 ~/.config/nix/nix.conf
 if ! grep -q "$FLAKES_CONFIG" ~/.config/nix/nix.conf 2>/dev/null; then
     echo "$FLAKES_CONFIG" >> ~/.config/nix/nix.conf
     log_success "Nix Flakes enabled"
