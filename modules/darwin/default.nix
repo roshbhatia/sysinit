@@ -2,7 +2,7 @@
   imports = [
     ./system.nix
     ./homebrew.nix
-    ./activation.nix  # Import the new activation module
+    ./activation.nix
     inputs.nix-homebrew.darwinModules.nix-homebrew
     inputs.home-manager.darwinModules.home-manager
   ];

@@ -9,10 +9,7 @@
 }:
 
 let
-  # Import the activation utils
   activationUtils = import ../lib/activation-utils.nix { inherit lib; };
-
-  # Import the shared package definitions
   packageLib = import ../lib/packages.nix { inherit pkgs lib; };
 in
 {
@@ -52,7 +49,6 @@ in
         InitialKeyRepeat = 15;
         KeyRepeat = 2;
         NSWindowShouldDragOnGesture = true;
-        _HIHideMenuBar = true;
       };
       spaces = {
         spans-displays = false;
@@ -78,8 +74,6 @@ in
     enable = false;
   };
 
-  # Migrate common CLI tools from Homebrew to Nix when Homebrew is disabled
-  # Packages are defined in modules/lib/packages.nix
   environment.systemPackages = lib.mkIf (!enableHomebrew) packageLib.systemPackages;
 
   launchd.agents.colima = {
@@ -107,7 +101,6 @@ in
 
   security.pam.services.sudo_local.touchIdAuth = true;
 
-  # Use our custom activation script format for system activation scripts
   system.activationScripts.postUserActivation.text = ''
     # Setup PATH and logging functions
     export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/bin:/usr/sbin:/bin:/sbin:$PATH"
@@ -133,7 +126,6 @@ in
     log_success "System settings activated"
   '';
 
-  # Fix /usr/local/bin ownership using our consistent logging
   system.activationScripts.fixUsrLocalBin = {
     text = ''
       export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/bin:/usr/sbin:/bin:/sbin:$PATH"
