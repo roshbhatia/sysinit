@@ -29,6 +29,7 @@ let
   baseBrews = [
     "ansible"
     "argocd"
+    "borders"
     "bcrypt"
     "caddy"
     "colima"

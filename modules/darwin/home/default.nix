@@ -73,6 +73,7 @@ in
     ./omp/omp.nix
     ./wezterm/wezterm.nix
     ./zsh/zsh.nix
+    ./borders/borders.nix
 
     ./core/packages.nix
     ./cargo/cargo.nix
