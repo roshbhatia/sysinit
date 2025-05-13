@@ -96,10 +96,16 @@ function M.register_keybindings()
 	vim.keymap.set("v", "<D-p>", '"+p', { silent = true, noremap = true })
 
 	-- Buffer management
-	vim.keymap.set("n", "<leader>W", ":w!<CR>", {
+	vim.keymap.set("n", "<leader>W", ":q!<CR>", {
 		noremap = true,
 		silent = true,
 		desc = " Close",
+	})
+
+	vim.keymap.set("n", "<leader>s", ":w!<CR>", {
+		noremap = true,
+		silent = true,
+		desc = " Write",
 	})
 
 	vim.keymap.set("n", "<leader>w", ":wq!<CR>", {
@@ -161,3 +167,4 @@ function M.register_autocmds()
 end
 
 return M
+
