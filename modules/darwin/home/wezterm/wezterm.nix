@@ -16,11 +16,11 @@ in
         if [ "$(readlink "${weztermConfigTarget}")" = "${weztermLuaSource}" ]; then
           exit 0
         else
-          rm "${weztermConfigTarget}"
+          sudo rm "${weztermConfigTarget}"
           ln -sf "${weztermLuaSource}" "${weztermConfigTarget}"
         fi
       elif [ -e "${weztermConfigTarget}" ]; then
-        rm -rf "${weztermConfigTarget}"
+        sudo rm -rf "${weztermConfigTarget}"
         ln -sf "${weztermLuaSource}" "${weztermConfigTarget}"
       else
         ln -sf "${weztermLuaSource}" "${weztermConfigTarget}"
