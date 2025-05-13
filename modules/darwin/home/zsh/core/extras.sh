@@ -69,7 +69,9 @@ EXTRAS_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh/extras"
 [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Checking extras directory" dir="$EXTRAS_DIR"
 
 if [[ -d "$EXTRAS_DIR" ]]; then
+  setopt nullglob
   local extra_files=("$EXTRAS_DIR"/*.sh)
+  unsetopt nullglob
   
   if (( ${#extra_files[@]} )); then
     [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Found extras" count="${#extra_files[@]}"
