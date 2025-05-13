@@ -67,7 +67,7 @@
         ];
       };
       
-    defaultConfig = configValidator defaultConfigPath;
+    defaultConfig = defaultConfigPath;
     defaultHostname = defaultConfig.user.hostname;
   in {
     # Create the default config using the default config path
