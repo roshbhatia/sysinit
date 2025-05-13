@@ -20,7 +20,6 @@ in
       "ctx"
       "debug-shell"
       "history"
-      "pod-dive"
       "pod-inspect"
       "pod-lens"
       "pod-logs"
