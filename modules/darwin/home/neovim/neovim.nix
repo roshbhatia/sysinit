@@ -30,22 +30,22 @@ in
       mkdir -p "${nvimConfigDir}"
       if [ -L "${nvimInitTarget}" ]; then
         if [ "$(readlink "${nvimInitTarget}")" != "${nvimInitSource}" ]; then
-          rm "${nvimInitTarget}"
+          sudo rm "${nvimInitTarget}"
           ln -sf "${nvimInitSource}" "${nvimInitTarget}"
         fi
       elif [ -e "${nvimInitTarget}" ]; then
-        rm -rf "${nvimInitTarget}"
+        sudo rm -rf "${nvimInitTarget}"
         ln -sf "${nvimInitSource}" "${nvimInitTarget}"
       else
         ln -sf "${nvimInitSource}" "${nvimInitTarget}"
       fi
       if [ -L "${nvimLuaTarget}" ]; then
         if [ "$(readlink "${nvimLuaTarget}")" != "${nvimLuaSource}" ]; then
-          rm "${nvimLuaTarget}"
+          sudo rm "${nvimLuaTarget}"
           ln -sf "${nvimLuaSource}" "${nvimLuaTarget}"
         fi
       elif [ -e "${nvimLuaTarget}" ]; then
-        rm -rf "${nvimLuaTarget}"
+        sudo rm -rf "${nvimLuaTarget}"
         ln -sf "${nvimLuaSource}" "${nvimLuaTarget}"
       else
         ln -sf "${nvimLuaSource}" "${nvimLuaTarget}"
