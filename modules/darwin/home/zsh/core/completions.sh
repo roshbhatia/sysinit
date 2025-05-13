@@ -14,4 +14,6 @@ _evalcache gh copilot alias -- zsh
 _evalcache kubectl completion zsh
 _evalcache docker completion zsh
 _evalcache task --completion zsh
+_evalcache zoxide init zsh
 # modules/darwin/home/zsh/core/completions.sh (end)
+
