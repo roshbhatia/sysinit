@@ -11,19 +11,14 @@ in {
     after = [];
     before = [ "*" ];
     data = ''
-      # Source the activation tools
       source ${activationToolsPath}
       
-      # Set custom log directory and prefix if provided
       export LOG_DIR="${logDir}"
       export LOG_PREFIX="${logPrefix}"
       
-      # Add additional paths if specified
       ${lib.concatMapStrings (path: ''
         export PATH="${path}:$PATH"
       '') additionalPaths}
-      
-      log_debug "Activation utilities initialized with custom settings"
     '';
   };
   
@@ -41,12 +36,10 @@ in {
     after = [ "setupActivationUtils" ];
     before = [];
     data = ''
-      # Source the activation tools
       source ${activationToolsPath}
       
       log_info "Managing ${name} packages..."
       
-      # Check if executable exists
       if check_executable "${executableName}"; then
         EXECUTABLE="${executableName}"
         PACKAGES='${escapedPackages}'
