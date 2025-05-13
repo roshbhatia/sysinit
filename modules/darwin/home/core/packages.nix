@@ -47,6 +47,7 @@ let
     watch
     wget
     yq
+    zoxide
   ];
 
   allHomePackages = baseHomePackages ++ additionalPackages;
