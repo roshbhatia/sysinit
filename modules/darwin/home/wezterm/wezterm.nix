@@ -2,8 +2,8 @@
 
 let
   activationUtils = import ../../../lib/activation-utils.nix { inherit lib; };
-  weztermLuaSource = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/wezterm/wezterm.lua";
-  weztermConfigDir = "${config.home.homeDirectory}/.config/wezterm";
+  weztermLuaSource = "/Users/${config.user.username}/github/personal/roshbhatia/sysinit/modules/darwin/home/wezterm/wezterm.lua";
+  weztermConfigDir = "/Users/${config.user.username}/.config/wezterm";
   weztermConfigTarget = "${weztermConfigDir}/wezterm.lua";
 in
 {

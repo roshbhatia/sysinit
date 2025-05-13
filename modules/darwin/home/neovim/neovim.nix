@@ -7,9 +7,9 @@
 
 let
   activationUtils = import ../../../lib/activation-utils.nix { inherit lib; };
-  nvimConfigDir = "${config.home.homeDirectory}/.config/nvim";
-  nvimInitSource = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/init.lua";
-  nvimLuaSource = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/lua";
+  nvimConfigDir = "/Users/${config.user.username}/.config/nvim";
+  nvimInitSource = "/Users/${config.user.username}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/init.lua";
+  nvimLuaSource = "/Users/${config.user.username}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/lua";
   nvimInitTarget = "${nvimConfigDir}/init.lua";
   nvimLuaTarget = "${nvimConfigDir}/lua";
 in
