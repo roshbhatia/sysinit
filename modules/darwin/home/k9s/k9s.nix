@@ -117,8 +117,8 @@ in {
       text = lib.generators.toYAML {} k9sPlugins;
       force = true;
     };
-    "k9s/skins/latte.yaml" = {
-      source = ./skins/latte.yaml;
+    "k9s/skins/macchiato.yaml" = {
+      source = ./skins/macchiato.yaml;
       force = true;
     };
   };
