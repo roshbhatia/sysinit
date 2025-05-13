@@ -7,9 +7,9 @@
 
 let
   activationUtils = import ../../../lib/activation-utils.nix { inherit lib; };
-  nvimConfigDir = "/Users/${config.user.username}/.config/nvim";
-  nvimInitSource = "/Users/${config.user.username}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/init.lua";
-  nvimLuaSource = "/Users/${config.user.username}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/lua";
+  nvimConfigDir = "${config.home.homeDirectory}/.config/nvim";
+  nvimInitSource = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/init.lua";
+  nvimLuaSource = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/neovim/lua";
   nvimInitTarget = "${nvimConfigDir}/init.lua";
   nvimLuaTarget = "${nvimConfigDir}/lua";
 in
@@ -28,24 +28,43 @@ in
     description = "Symlink Neovim init.lua and lua directory";
     script = ''
       mkdir -p "${nvimConfigDir}"
+
+      echo "Source: ${nvimInitSource}"
+      echo "Target: ${nvimInitTarget}"
+
       if [ -L "${nvimInitTarget}" ]; then
-        if [ "$(readlink "${nvimInitTarget}")" != "${nvimInitSource}" ]; then
-          sudo rm "${nvimInitTarget}"
-          ln -sf "${nvimInitSource}" "${nvimInitTarget}"
+        current_dest=$(readlink -f "${nvimInitTarget}")
+        source_real=$(realpath "${nvimInitSource}")
+        
+        echo "Current symlink points to: $current_dest"
+        echo "Source real path: $source_real"
+        
+        if [ "$current_dest" != "$source_real" ]; then
+          echo "Removing existing symlink and creating new one"
+          rm "${nvimInitTarget}"
+          ln -sf "$source_real" "${nvimInitTarget}"
+        else
+          echo "Symlink already points to the correct location"
         fi
       elif [ -e "${nvimInitTarget}" ]; then
-        sudo rm -rf "${nvimInitTarget}"
+        echo "Target exists but is not a symlink, removing and creating symlink"
+        rm -f "${nvimInitTarget}"
         ln -sf "${nvimInitSource}" "${nvimInitTarget}"
       else
+        echo "Creating new symlink"
         ln -sf "${nvimInitSource}" "${nvimInitTarget}"
       fi
+
       if [ -L "${nvimLuaTarget}" ]; then
-        if [ "$(readlink "${nvimLuaTarget}")" != "${nvimLuaSource}" ]; then
-          sudo rm "${nvimLuaTarget}"
-          ln -sf "${nvimLuaSource}" "${nvimLuaTarget}"
+        current_dest=$(readlink -f "${nvimLuaTarget}")
+        source_real=$(realpath "${nvimLuaSource}")
+        
+        if [ "$current_dest" != "$source_real" ]; then
+          rm "${nvimLuaTarget}"
+          ln -sf "$source_real" "${nvimLuaTarget}"
         fi
       elif [ -e "${nvimLuaTarget}" ]; then
-        sudo rm -rf "${nvimLuaTarget}"
+        rm -rf "${nvimLuaTarget}"
         ln -sf "${nvimLuaSource}" "${nvimLuaTarget}"
       else
         ln -sf "${nvimLuaSource}" "${nvimLuaTarget}"
@@ -55,6 +74,7 @@ in
       "ln"
       "mkdir"
       "readlink"
+      "realpath"
       "rm"
     ];
   };
