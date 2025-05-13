@@ -71,10 +71,6 @@ end
 
 -- Register all basic keybindings
 function M.register_keybindings()
-	-- jj as esc in normal, visual modes
-	vim.keymap.set("n", "jj", "<Esc>", { silent = true, noremap = true })
-	vim.keymap.set("v", "jj", "<Esc>", { silent = true, noremap = true })
-
 	-- Disable recording
 	vim.api.nvim_set_keymap("n", "q", "<Nop>", {
 		noremap = true,
