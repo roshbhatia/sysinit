@@ -75,7 +75,7 @@ in
   };
 
   environment.systemPackages = lib.mkIf (!enableHomebrew) packageLib.systemPackages;
-  environment.extraInit =  packageLib.extraInit
+  environment.extraInit =  packageLib.extraInit;
 
   launchd.agents.colima = {
     serviceConfig = {
