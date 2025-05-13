@@ -20,7 +20,7 @@ in
     name = "yarn";
     basePackages = [
       "jsonlint"
-      "markdownlint-cli"
+      "markdownlint-cli2"
       "@mermaid-js/mermaid-cli"
       "prettier"
       "tree-sitter-cli"
