@@ -26,6 +26,11 @@ in
         ln -sf "${weztermLuaSource}" "${weztermConfigTarget}"
       fi
     '';
-    requiredExecutables = [ "ln" "mkdir" "readlink" "rm" ];
+    requiredExecutables = [
+      "ln"
+      "mkdir"
+      "readlink"
+      "rm"
+    ];
   };
 }
