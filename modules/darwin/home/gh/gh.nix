@@ -12,7 +12,7 @@ in {
     additionalPackages = if userConfig ? gh && userConfig.gh ? additionalPackages
       then userConfig.gh.additionalPackages
       else [];
-    executableArguments = [ "extension", "install" ];
+    executableArguments = [ "extension" "install" ];
     executablePath = "gh";
   };
 }
