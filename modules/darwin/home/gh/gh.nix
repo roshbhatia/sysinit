@@ -13,6 +13,6 @@ in {
       then userConfig.gh.additionalPackages
       else [];
     executableArguments = [ "extension" "install" ];
-    executablePath = "gh";
+    executablePath = "/etc/profiles/per-user/rshnbhatia/bin/gh";
   };
 }
