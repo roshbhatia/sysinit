@@ -8,7 +8,7 @@ vars:
     log_info "Task ID: $UUID"
 
   LOG_DIR: "/tmp/log"
-  LOG_PREFIX: "sysinit"
+  LOG_PREFIX: "$UUID-sysinit"
 
   START_MSG_TEMPLATE: "{{.TASK}}..."
   SUCCESS_MSG_TEMPLATE: "{{.TASK}} completed successfully"
