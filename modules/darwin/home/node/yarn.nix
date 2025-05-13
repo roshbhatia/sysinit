@@ -30,6 +30,6 @@ in
       "global"
       "add"
     ];
-    executableName = "yarn"; # Use PATH instead of hardcoded path
+    executableName = "yarn";
   };
 }

@@ -13,6 +13,7 @@ in
   home.activation.npmPackages = activationUtils.mkPackageManager {
     name = "npm";
     basePackages = [
+      "yarn"
     ];
     additionalPackages =
       if userConfig ? npm && userConfig.npm ? additionalPackages then
