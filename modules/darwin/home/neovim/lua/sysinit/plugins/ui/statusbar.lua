@@ -3,6 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"tamton-aquib/staline.nvim",
+		commit = "d337bc9b343df3328921ef4c3f8ff604102d0201",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
 		event = {
 			"BufEnter",
@@ -13,9 +14,15 @@ M.plugins = {
 
 			require("staline").setup({
 				sections = {
-					left = { " ", "mode", " ", "branch", " ", "lsp" },
+					left = { " ", "mode", " ", "branch", " ", "lsp", " " },
 					mid = {},
-					right = { "file_name", "line_column" },
+					right = { "cool_symbol", "file_name", "line_column" },
+				},
+				mode_colors = {
+					i = "#c6a0f6", -- Mauve
+					n = "#8aadf4", -- Blue
+					c = "#a6da95", -- Green
+					v = "#f5a97f", -- Peach
 				},
 				defaults = {
 					true_colors = true,
@@ -28,3 +35,4 @@ M.plugins = {
 }
 
 return M
+
