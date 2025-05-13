@@ -49,6 +49,7 @@ let
     "kubectl"
     "lazygit"
     "libgit2"
+    "lnav"
     "luajit"
     "luarocks"
     "lynx"
