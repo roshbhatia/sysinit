@@ -5,7 +5,7 @@
     findutils
   ];
 
-  environment.extraInit = ''
+  extraInit = ''
     export PATH="${pkgs.findutils}/bin:$PATH"
   '';
 }
