@@ -39,10 +39,11 @@ paths=(
   "$HOME/.uv/bin"
   "$HOME/.yarn/global/node_modules/.bin"
   "$HOME/.cargo/bin"
-  "$XDG_DATA_HOME/.npm-packages/bin
+  "$XDG_DATA_HOME/.npm-packages/bin"
 )
 
 for dir in "${paths[@]}"; do
   path.add.safe "$dir"
 done
 # modules/darwin/home/zsh/core/paths.sh (end)
+
