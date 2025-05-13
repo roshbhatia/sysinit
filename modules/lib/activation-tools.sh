@@ -23,11 +23,6 @@ export PATH="$XDG_CONFIG_HOME/zsh/bin:$PATH"
 export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
 export PATH="/etc/profiles/per-user/$USER/bin:$PATH"
 
-NIX_FINDUTILS=$(find /nix/store -name "findutils-*" -type d | sort -V | tail -n1)
-if [ -n "$NIX_FINDUTILS" ]; then
-    export PATH="$NIX_FINDUTILS/bin:$PATH"
-fi
-
 LOG_DIR="/tmp/sysinit-logs"
 LOG_PREFIX="sysinit"
 mkdir -p "$LOG_DIR"
