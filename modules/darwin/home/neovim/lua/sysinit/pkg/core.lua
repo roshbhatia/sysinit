@@ -11,6 +11,9 @@ function M.register_options()
 	vim.opt.cursorline = false
 	vim.opt.signcolumn = "yes:2"
 
+	vim.opt.spelllang = "en_gb"
+	vim.opt.spell = true
+
 	-- Search options
 	vim.opt.hlsearch = true
 	vim.opt.incsearch = true
@@ -61,6 +64,11 @@ function M.register_options()
 	vim.env.PATH = vim.fn.getenv("PATH")
 	vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 	vim.o.autoread = true
+
+	-- Undo directory for more persisted undo-s
+	local undo_dir = vim.fn.stdpath("cache") .. "/undo"
+	vim.opt.undodir = undo_dir
+	vim.opt.undodir = undo_dir
 end
 
 -- Register leader key (should be called before keybindings)
