@@ -36,7 +36,7 @@ tasks:
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
         
-        if ! darwin-rebuild switch --flake . --show-trace --impure > "${LOG_FILE}" 2>&1; then
+        if ! darwin-rebuild switch -v --show-trace --impure --flake . > "${LOG_FILE}" 2>&1; then
           {{.ERROR_TEMPLATE}}
         fi
         
