@@ -395,10 +395,6 @@ in
       source = ./bin/kubectl-kexec;
       force = true;
     };
-    "zsh/bin/kubectl-klog" = {
-      source = ./bin/kubectl-klog;
-      force = true;
-    };
     "zsh/bin/kubectl-kproxy" = {
       source = ./bin/kubectl-kproxy;
       force = true;
