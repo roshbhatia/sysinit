@@ -15,11 +15,6 @@ vars:
   
   ERROR_TEMPLATE: |
     log_error "Failed. See log: ${LOG_FILE}"
-    log_error "Last 20 lines of log:"
-    echo "------------------------------------------------------------"
-    tail -n 20 "${LOG_FILE}"
-    echo "------------------------------------------------------------"
-    exit 1
 
 tasks:
   default:
