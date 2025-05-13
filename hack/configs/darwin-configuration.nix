@@ -16,8 +16,13 @@
   environment.systemPackages = with pkgs; [
     git
     curl
+    findutils
     libgit2
   ];
+
+  environment.extraInit = ''
+    export PATH="${pkgs.findutils}/bin:$PATH"
+  '';
   
   security.pam.services.sudo_local.touchIdAuth = true;
 }
