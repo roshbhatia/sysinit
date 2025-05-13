@@ -16,7 +16,7 @@ let
         crumbsless = false;
         noIcons = false;
         reactive = true;
-        skin = "monokai";
+        skin = "latte";
         defaultsToFullScreen = true;
       };
       noIcons = false;
@@ -117,8 +117,8 @@ in {
       text = lib.generators.toYAML {} k9sPlugins;
       force = true;
     };
-    "k9s/skins/monokai.yaml" = {
-      source = ./skins/monokai.yaml;
+    "k9s/skins/latte.yaml" = {
+      source = ./skins/latte.yaml;
       force = true;
     };
   };

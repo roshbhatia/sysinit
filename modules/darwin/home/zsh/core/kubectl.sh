@@ -2,6 +2,8 @@
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
 # modules/darwin/home/zsh/core/kubectl.sh (begin)
+export K9S_CONFIG_DIR=$XDG_CONFIG_HOME/k9s
+
 compdef _kubectl kubecolor
 compdef _kubectl k
 
