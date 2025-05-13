@@ -6,15 +6,15 @@ M.plugins = {
 		dependencies = {
 			"nvim-tree/nvim-web-devicons",
 		},
-		event = "VeryLazy",
+		event = "BufEnter",
 		config = function()
 			local wk = require("which-key")
 
 			wk.setup({
 				preset = "helix",
 				icons = {
-          mapping = false -- we're setting these inline below
-        }
+					mapping = false, -- we're setting these inline below
+				},
 			})
 
 			wk.add({
@@ -39,4 +39,3 @@ M.plugins = {
 }
 
 return M
-
