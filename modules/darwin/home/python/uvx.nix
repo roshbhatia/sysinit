@@ -10,6 +10,6 @@ in {
       then userConfig.uvx.additionalPackages
       else [];
     executableArguments = ["tool" "install"];
-    executablePath = "uv";
+    executableName = "uv";
   };
 }

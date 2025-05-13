@@ -12,7 +12,7 @@ in {
     additionalPackages = if userConfig ? cargo && userConfig.cargo ? additionalPackages
       then userConfig.cargo.additionalPackages
       else [];
-    executableArguments = [ "install" "-f" ];
-    executablePath = "cargo";  # Use PATH instead of hardcoded path
+    executableArguments = [ "install" ];
+    executableName = "cargo";
   };
 }

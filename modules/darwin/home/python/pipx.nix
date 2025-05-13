@@ -15,6 +15,6 @@ in {
       then userConfig.pipx.additionalPackages
       else [];
     executableArguments = [ "install" "--force" ];
-    executablePath = "pipx";
+    executableName = "pipx";
   };
 }

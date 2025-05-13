@@ -10,6 +10,6 @@ in {
       then userConfig.go.additionalPackages
       else [];
     executableArguments = [ "install" ];
-    executablePath = "go";
+    executableName = "go";
   };
 }

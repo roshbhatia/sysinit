@@ -10,6 +10,6 @@ in {
       then userConfig.yarn.additionalPackages
       else [];
     executableArguments = [ "global" "add" ];
-    executablePath = "yarn";  # Use PATH instead of hardcoded path
+    executableName = "yarn";  # Use PATH instead of hardcoded path
   };
 }

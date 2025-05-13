@@ -18,6 +18,6 @@ in {
       then userConfig.npm.additionalPackages
       else [];
     executableArguments = [ "install" "-g" ];
-    executablePath = "npm";
+    executableName = "npm";
   };
 }

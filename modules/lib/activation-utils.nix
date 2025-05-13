@@ -45,7 +45,7 @@ in {
     basePackages,
     additionalPackages ? [],
     executableArguments,
-    executablePath,
+    executableName,
   }: let
     allPackages = basePackages ++ additionalPackages;
     escapedPackages = lib.concatStringsSep " " (map lib.escapeShellArg allPackages);
@@ -61,8 +61,8 @@ in {
       log_info "Managing ${name} packages..."
       
       # Check if executable exists
-      if check_executable "${executablePath}"; then
-        EXECUTABLE="${executablePath}"
+      if check_executable "${executableName}"; then
+        EXECUTABLE="${executableName}"
         PACKAGES='${escapedPackages}'
         
         if [ -n "$PACKAGES" ]; then
@@ -74,7 +74,7 @@ in {
           log_info "No ${name} packages specified"
         fi
       else
-        log_error "${name} not found at ${executablePath}"
+        log_error "${name} not found at ${executableName}"
         exit 1
       fi
     '';
