@@ -10,6 +10,12 @@ let
   activationUtils = import ../../../lib/activation-utils.nix { inherit lib; };
 in
 {
+  home.file.".npmrc" = {
+    text = ''
+      prefix = ''\${XDG_DATA_HOME}/.npm-packages
+    '';
+  };
+
   home.activation.npmPackages = activationUtils.mkPackageManager {
     name = "npm";
     basePackages = [
