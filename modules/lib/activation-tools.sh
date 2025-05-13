@@ -1,14 +1,11 @@
 #!/usr/bin/env bash
 
-# Set default XDG_CONFIG_HOME if not set
 if [ -z "${XDG_CONFIG_HOME+x}" ]; then
   export XDG_CONFIG_HOME="$HOME/.config"
 fi
 
-# Set up paths
 export PATH="/etc/profiles/per-user/$USER/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/bin:/usr/local/opt/cython/bin:/usr/sbin:$HOME/.krew/bin:$HOME/.local/bin:$HOME/.npm-global/bin:$HOME/.npm-global/bin/yarn:$HOME/.rvm/bin:$HOME/.yarn/bin:$HOME/bin:$HOME/go/bin:$XDG_CONFIG_HOME/.cargo/bin:$XDG_CONFIG_HOME/yarn/global/node_modules/.bin:$XDG_CONFIG_HOME/zsh/bin:$HOME/.uv/bin:$HOME/.yarn/global/node_modules/.bin:$HOME/.cargo/bin:/bin:/sbin:$PATH"
 
-# Set up logging
 LOG_DIR="/tmp/sysinit-logs"
 LOG_PREFIX="sysinit"
 mkdir -p "$LOG_DIR"
@@ -38,7 +35,6 @@ log_command() {
   local description="$2"
   log_info "Running: $description"
   
-  # Execute the command and capture its output
   local output
   if output=$(eval "$cmd" 2>&1); then
     log_success "$description completed"

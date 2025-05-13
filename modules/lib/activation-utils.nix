@@ -1,21 +1,13 @@
 { lib, ... }:
 
 let
-  # Define the path to the activation tools shell script
   activationToolsPath = ./activation-tools.sh;
 in {
-  /**
-   * Creates an activation utils script for PATH management and logging functions
-   * 
-   * This function must be called early in the activation setup to ensure PATH and logging 
-   * are available for all subsequent activations.
-   */
   mkActivationUtils = {
     logDir ? "/tmp/sysinit-logs",
     logPrefix ? "sysinit",
     additionalPaths ? [],
   }: {
-    # Ensure this runs first, before other activation scripts
     after = [];
     before = [ "*" ];
     data = ''
@@ -35,11 +27,6 @@ in {
     '';
   };
   
-  /**
-   * Creates a package manager activation script
-   * 
-   * Requires the activation utils to be set up first
-   */
   mkPackageManager = {
     name,
     basePackages,
@@ -51,7 +38,6 @@ in {
     escapedPackages = lib.concatStringsSep " " (map lib.escapeShellArg allPackages);
     escapedArguments = lib.concatStringsSep " " (map lib.escapeShellArg executableArguments);
   in {
-    # Make sure this runs after the activation utils
     after = [ "setupActivationUtils" ];
     before = [];
     data = ''
@@ -80,9 +66,6 @@ in {
     '';
   };
   
-  /**
-   * Creates a custom activation script that uses the activation utils
-   */
   mkActivationScript = {
     description ? "",
     script,
@@ -92,12 +75,10 @@ in {
   }: {
     inherit after before;
     data = ''
-      # Source the activation tools
       source ${activationToolsPath}
       
       ${if description != "" then ''log_info "Starting: ${description}"'' else ""}
       
-      # Check required executables
       ${lib.concatMapStrings (exe: ''
         if ! check_executable "${exe}"; then
           log_error "Required executable ${exe} not found"
@@ -105,7 +86,6 @@ in {
         fi
       '') requiredExecutables}
       
-      # Run the script
       ${script}
       
       ${if description != "" then ''log_success "${description} completed"'' else ""}
