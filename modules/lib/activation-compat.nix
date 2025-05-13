@@ -1,7 +1,6 @@
 { lib, config, ... }:
 
 {
-  # Override home-manager's checkLinkTargets activation script to work on macOS
   home.activation.checkLinkTargets = lib.mkForce {
     after = [];
     before = [ "linkGeneration" ];
