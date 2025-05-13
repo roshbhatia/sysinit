@@ -1,18 +1,4 @@
-version: "3"
-
-vars:
-  SCRIPT_HEADER: |
-    #!/usr/bin/env bash
-    source ./hack/lib/logger.sh
-    UUID=$(uuidgen)
-    log_info "Task ID: $UUID"
-
-  LOG_DIR: "/tmp/log"
-  LOG_PREFIX: "sysinit"
-
-  START_MSG_TEMPLATE: "{{.TASK}}..."
-  SUCCESS_MSG_TEMPLATE: "{{.TASK}} completed successfully"
-
+---
 tasks:
   default:
     cmds:
@@ -20,189 +6,65 @@ tasks:
     desc: Show help information
     silent: true
 
-  nix:build:
-    vars:
-      TASK: "Building system configuration"
-      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-build.log"
+  nvim:run-local-clean:
     cmds:
       - |
-        {{.SCRIPT_HEADER}}
-        log_info "{{.START_MSG_TEMPLATE}}"
-        mkdir -p "$(dirname "{{.LOG_FILE}}")"
-        touch "{{.LOG_FILE}}"
-        if ! darwin-rebuild switch --flake . --show-trace --impure | tee >(bat --paging=never --style=plain) > "{{.LOG_FILE}}" 2>&1; then
-          log_error "Failed. See log: {{.LOG_FILE}}"
-          log_error "Last 20 lines of log:"
-          echo "------------------------------------------------------------"
-          tail -n 20 "{{.LOG_FILE}}" | bat --paging=never --style=grid
-          echo "------------------------------------------------------------"
-          exit 1
-        fi
-        log_info "Log file: {{.LOG_FILE}}"
-        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
-    desc: Build the configuration without applying
-    silent: true
-
-  nix:clean:
-    vars:
-      TASK: "Running garbage collection"
-      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-clean.log"
-    cmds:
-      - |
-        {{.SCRIPT_HEADER}}
-        log_info "{{.START_MSG_TEMPLATE}}"
-        mkdir -p "$(dirname "{{.LOG_FILE}}")"
-        touch "{{.LOG_FILE}}"
-        if ! sudo nix-collect-garbage -d | tee >(bat --paging=never --style=plain) > "{{.LOG_FILE}}" 2>&1; then
-          log_error "Failed. See log: {{.LOG_FILE}}"
-          log_error "Last 20 lines of log:"
-          echo "------------------------------------------------------------"
-          tail -n 20 "{{.LOG_FILE}}" | bat --paging=never --style=grid
-          echo "------------------------------------------------------------"
-          exit 1
-        fi
-        log_info "Log file: {{.LOG_FILE}}"
-        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
-    desc: Run garbage collection
-    silent: true
-
-  nix:refresh:
-    deps: [nix:update:flake]
-    vars:
-      TASK: "Applying system configuration"
-      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-refresh.log"
-    cmds:
-      - |
-        {{.SCRIPT_HEADER}}
-        log_info "{{.START_MSG_TEMPLATE}}"
-        mkdir -p "$(dirname "{{.LOG_FILE}}")"
-        touch "{{.LOG_FILE}}"
-        git add -A | tee >(bat --paging=never --style=plain) > "{{.LOG_FILE}}" 2>&1
-        git commit -m "chore: update configuration and regenerate lockfile" | tee >(bat --paging=never --style=plain) >> "{{.LOG_FILE}}" 2>&1 || true
-        git push | tee >(bat --paging=never --style=plain) >> "{{.LOG_FILE}}" 2>&1 || true
-        if ! darwin-rebuild switch --flake . --show-trace | tee >(bat --paging=never --style=plain) >> "{{.LOG_FILE}}" 2>&1; then
-          log_error "Failed. See log: {{.LOG_FILE}}"
-          log_error "Last 20 lines of log:"
-          echo "------------------------------------------------------------"
-          tail -n 20 "{{.LOG_FILE}}" | bat --paging=never --style=grid
-          echo "------------------------------------------------------------"
-          exit 1
-        fi
-        log_info "Log file: {{.LOG_FILE}}"
-        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
-    desc: Apply the system configuration
-    silent: true
-
-  nix:refresh:work:
-    vars:
-      TASK: "Refreshing work configuration"
-      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-work-refresh.log"
-    cmds:
-      - |
-        {{.SCRIPT_HEADER}}
-        log_info "{{.START_MSG_TEMPLATE}}"
-        mkdir -p "$(dirname "{{.LOG_FILE}}")"
-        touch "{{.LOG_FILE}}"
-        WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
-        if [ -z "$WORK_SYSINIT" ]; then
-          log_error "Could not find work sysinit repository"
-          log_error "Failed. See log: {{.LOG_FILE}}"
-          log_error "Last 20 lines of log:"
-          echo "------------------------------------------------------------"
-          tail -n 20 "{{.LOG_FILE}}" | bat --paging=never --style=grid
-          echo "------------------------------------------------------------"
-          exit 1
-        fi
-        cd "$WORK_SYSINIT"
-        nix flake update | tee >(bat --paging=never --style=plain) > "{{.LOG_FILE}}" 2>&1
-        if ! task refresh | tee >(bat --paging=never --style=plain) >> "{{.LOG_FILE}}" 2>&1; then
-          log_error "Failed. See log: {{.LOG_FILE}}"
-          log_error "Last 20 lines of log:"
-          echo "------------------------------------------------------------"
-          tail -n 20 "{{.LOG_FILE}}" | bat --paging=never --style=grid
-          echo "------------------------------------------------------------"
-          exit 1
-        fi
-        log_info "Log file: {{.LOG_FILE}}"
-        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
-    desc: Update and rebuild work sysinit configuration
-    silent: true
-
-  nix:update:flake:
-    vars:
-      TASK: "Updating flake inputs"
-      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-flake-update.log"
-    cmds:
-      - |
-        {{.SCRIPT_HEADER}}
-        log_info "{{.START_MSG_TEMPLATE}}"
-        mkdir -p "$(dirname "{{.LOG_FILE}}")"
-        touch "{{.LOG_FILE}}"
-        if ! nix flake update | tee >(bat --paging=never --style=plain) > "{{.LOG_FILE}}" 2>&1; then
-          log_error "Failed. See log: {{.LOG_FILE}}"
-          log_error "Last 20 lines of log:"
-          echo "------------------------------------------------------------"
-          tail -n 20 "{{.LOG_FILE}}" | bat --paging=never --style=grid
-          echo "------------------------------------------------------------"
-          exit 1
-        fi
-        log_info "Log file: {{.LOG_FILE}}"
-        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
-    desc: Update flake inputs
-    silent: true
-
-  nix:install:nix:
-    vars:
-      TASK: "Installing prerequisites"
-      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-install.log"
-    cmds:
-      - |
-        {{.SCRIPT_HEADER}}
-        log_info "{{.START_MSG_TEMPLATE}}"
-        mkdir -p "$(dirname "{{.LOG_FILE}}")"
-        touch "{{.LOG_FILE}}"
-        if ! ./hack/install-deps.sh | tee >(bat --paging=never --style=plain) > "{{.LOG_FILE}}" 2>&1; then
-          log_error "Failed. See log: {{.LOG_FILE}}"
-          log_error "Last 20 lines of log:"
-          echo "------------------------------------------------------------"
-          tail -n 20 "{{.LOG_FILE}}" | bat --paging=never --style=grid
-          echo "------------------------------------------------------------"
-          exit 1
-        fi
-        log_info "Log file: {{.LOG_FILE}}"
-        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
-    desc: Install prerequisites for sysinit
-    silent: true
-
-  nix:uninstall:nix:
-    vars:
-      TASK: "Uninstalling Nix"
-      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-uninstall.log"
-    cmds:
-      - |
-        {{.SCRIPT_HEADER}}
-        log_info "{{.START_MSG_TEMPLATE}}"
-        mkdir -p "$(dirname "{{.LOG_FILE}}")"
-        touch "{{.LOG_FILE}}"
-        if ! ./hack/uninstall-nix.sh | tee >(bat --paging=never --style=plain) > "{{.LOG_FILE}}" 2>&1; then
-          log_error "Failed. See log: {{.LOG_FILE}}"
-          log_error "Last 20 lines of log:"
-          echo "------------------------------------------------------------"
-          tail -n 20 "{{.LOG_FILE}}" | bat --paging=never --style=grid
-          echo "------------------------------------------------------------"
-          exit 1
-        fi
-        log_info "Log file: {{.LOG_FILE}}"
-        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
-    desc: Completely uninstall Nix from the system
+        rm -rf "/tmp/nvim-run-local-isolated"
+    desc: Clean local Neovim test environment
     silent: true
 
   nvim:run-local-headless-isolated:
     cmds:
-      - task -d modules/darwin/home/neovim nvim:run-local-headless-isolated
+      - |
+        NVIM_TMP_DIR="/tmp/nvim-$(date +%s)"
+        NVIM_DATA_DIR="/tmp/nvim-run-local-isolated"
+
+        # Create directories
+        mkdir -p "$NVIM_TMP_DIR" "$NVIM_DATA_DIR/share" "$NVIM_DATA_DIR/state" "$NVIM_DATA_DIR/cache"
+
+        # Copy config to temporary directory
+        cp -r * "$NVIM_TMP_DIR/"
+
+        # Run Neovim headless with the copied config
+        XDG_DATA_HOME="$NVIM_DATA_DIR/share" \
+        XDG_STATE_HOME="$NVIM_DATA_DIR/state" \
+        XDG_CACHE_HOME="$NVIM_DATA_DIR/cache" \
+        nvim \
+          --cmd "let g:auto_session_enabled = v:false" \
+          --cmd "set runtimepath^=$NVIM_TMP_DIR,$NVIM_TMP_DIR/lua" \
+          -u "$NVIM_TMP_DIR/init.lua" --headless
+
+        # Clean up tmp directory
+        rm -rf "$NVIM_TMP_DIR"
+    desc: Run Neovim with local configuration in temporary directory (headless)
     silent: true
 
   nvim:run-local-isolated:
     cmds:
-      - task -d modules/darwin/home/neovim nvim:run-local-isolated
+      - |
+        NVIM_TMP_DIR="/tmp/nvim-$(date +%s)"
+        NVIM_DATA_DIR="/tmp/nvim-run-local-isolated"
+
+        # Create directories
+        mkdir -p "$NVIM_TMP_DIR" "$NVIM_DATA_DIR/share" "$NVIM_DATA_DIR/state" "$NVIM_DATA_DIR/cache"
+
+        # Copy config to temporary directory
+        cp -r * "$NVIM_TMP_DIR/"
+
+        # Run Neovim with the copied config
+        # Run Neovim headless with the copied config
+        # Run Neovim with the copied config
+        XDG_DATA_HOME="$NVIM_DATA_DIR/share" \
+        XDG_STATE_HOME="$NVIM_DATA_DIR/state" \
+        XDG_CACHE_HOME="$NVIM_DATA_DIR/cache" \
+        nvim \
+          --cmd "let g:auto_session_enabled = v:false" \
+          --cmd "set runtimepath^=$NVIM_TMP_DIR,$NVIM_TMP_DIR/lua" \
+          -u "$NVIM_TMP_DIR/init.lua"
+
+        # Clean up tmp directory
+        rm -rf "$NVIM_TMP_DIR"
+    desc: Run Neovim with local configuration in temporary directory
     silent: true
+
+version: '3'

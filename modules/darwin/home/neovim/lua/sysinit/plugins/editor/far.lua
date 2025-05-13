@@ -1,0 +1,23 @@
+local M = {}
+
+M.plugins = {
+	{
+		"brooth/far.vim",
+		keys = function()
+			return {
+				{
+					"<leader>fs",
+					"<cmd>Farf<cr>",
+					desc = "Find: Global search",
+				},
+				{
+					"<leader>fr",
+					"<cmd>Farr<cr>",
+					desc = "Find: Global search and replace",
+				},
+			}
+		end,
+	},
+}
+
+return M
