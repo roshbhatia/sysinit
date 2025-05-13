@@ -24,12 +24,9 @@ in
       "pod-lens"
       "pod-logs"
       "pod-shell"
-      "podevents"
       "pods-on"
       "status"
-      "strace"
       "tail"
-      "warp"
     ];
     additionalPackages =
       if userConfig ? krewPackages && userConfig.krew ? additionalPackages then
