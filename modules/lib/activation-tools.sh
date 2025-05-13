@@ -4,6 +4,10 @@ if [ -z "${XDG_CONFIG_HOME+x}" ]; then
   export XDG_CONFIG_HOME="$HOME/.config"
 fi
 
+if [ -z "${XDG_DATA_HOME+x}" ]; then
+  export XDG_DATA_HOME="$HOME/.local/share"
+fi
+
 export PATH="/usr/bin:/usr/sbin:/bin:/sbin:$PATH"
 export PATH="$HOME/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
