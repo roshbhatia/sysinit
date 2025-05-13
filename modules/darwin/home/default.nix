@@ -11,7 +11,6 @@
 
 {
   imports = [
-    ../../lib/activation-compat.nix
     ./aider/aider.nix
     ./atuin/atuin.nix
     ./colima/colima.nix
