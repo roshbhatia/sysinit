@@ -31,8 +31,7 @@ This comprises most of my dotfiles, managed (mostly) by `nix`.
 xcode-select --install && \
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" && \
 eval "$(/opt/homebrew/bin/brew shellenv)" && \
-brew install go-task/tap/go-task && \
-brew install bat
+brew install go-task/tap/go-task
 ```
 
 ## Usage
