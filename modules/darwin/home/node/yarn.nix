@@ -20,7 +20,7 @@ in
     name = "yarn";
     basePackages = [
       "jsonlint"
-      "markdownlint"
+      "markdownlint-cli"
       "@mermaid-js/mermaid-cli"
       "prettier"
       "tree-sitter-cli"
@@ -39,3 +39,4 @@ in
     executableName = "yarn";
   };
 }
+
