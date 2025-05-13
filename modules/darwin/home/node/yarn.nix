@@ -10,6 +10,12 @@ let
   activationUtils = import ../../../lib/activation-utils.nix { inherit lib; };
 in
 {
+  home.file.".yarnrc" = {
+    text = ''
+      strict-ssl false
+    '';
+  };
+
   home.activation.yarnPackages = activationUtils.mkPackageManager {
     name = "yarn";
     basePackages = [
