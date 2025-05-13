@@ -19,6 +19,7 @@ let
     bat
     coreutils
     docker
+    findutils
     fzf
     gettext
     gh
