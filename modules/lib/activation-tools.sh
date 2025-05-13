@@ -22,6 +22,7 @@ export PATH="$HOME/.krew/bin:$PATH"
 export PATH="$XDG_CONFIG_HOME/zsh/bin:$PATH"
 export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
 export PATH="/etc/profiles/per-user/$USER/bin:$PATH"
+export PATH="$XDG_DATA_HOME/.npm-packages/bin:$PATH"
 
 LOG_DIR="/tmp/sysinit-logs"
 LOG_PREFIX="sysinit"
