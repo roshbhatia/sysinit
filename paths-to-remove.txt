@@ -1,6 +1,0 @@
-wall/botns.png
-modules/home/wallpaper/images/mvp2.jpeg
-modules/home/wallpaper/images/gutsvgriffith.jpeg
-modules/home/wallpaper/images/pain.jpeg
-modules/home/wallpaper/images/eldenring.png
-
