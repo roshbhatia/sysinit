@@ -1,12 +1,18 @@
-{ pkgs, lib, config, userConfig ? {}, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  userConfig ? { },
+  ...
+}:
 
 let
-  # User-defined additional packages
-  additionalPackages = if userConfig ? packages && userConfig.packages ? additional
-                      then userConfig.packages.additional
-                      else [];
+  additionalPackages =
+    if userConfig ? packages && userConfig.packages ? additional then
+      userConfig.packages.additional
+    else
+      [ ];
 
-  # Base packages for home-manager
   baseHomePackages = with pkgs; [
     atuin
     awscli
@@ -17,17 +23,22 @@ let
     gettext
     gh
     git
-    go
     gnugrep
     gnupg
+    go
     htop
     jq
     jqp
+    k9s
     keycastr
     kind
     kustomize
+    nil
+    nixfmt-rfc-style
     nixfmt-rfc-style
     nodejs
+    nushell
+    oh-my-posh
     openssh
     stern
     swift
@@ -37,10 +48,8 @@ let
     yq
   ];
 
-  # Combine all packages for home-manager
   allHomePackages = baseHomePackages ++ additionalPackages;
 in
 {
-  # Define the home packages
   home.packages = allHomePackages;
 }

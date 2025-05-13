@@ -2,10 +2,10 @@
 
 {
   systemPackages = with pkgs; [
-    oh-my-posh
-    k9s
-    nil
-    nixfmt-rfc-style
-    nushell
+    findutils
   ];
+
+  environment.extraInit = ''
+    export PATH="${pkgs.findutils}/bin:$PATH"
+  '';
 }
