@@ -15,6 +15,7 @@ vars:
   
   ERROR_TEMPLATE: |
     log_error "Failed. See log: ${LOG_FILE}"
+    exit 1
 
 tasks:
   default:
