@@ -6,7 +6,7 @@ in {
   home.activation.ghPackages = activationUtils.mkPackageManager {
     name = "gh";
     basePackages = [
-      "dlvhdr/gh-dash",
+      "dlvhdr/gh-dash"
       "github/gh-copilot"
     ];
     additionalPackages = if userConfig ? gh && userConfig.gh ? additionalPackages
