@@ -31,5 +31,6 @@
     ./python/uvx.nix
     ./go/go.nix
     ./gh/gh.nix
+    ./krew/krew.nix
   ];
 }

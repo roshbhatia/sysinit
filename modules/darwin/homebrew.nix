@@ -1,17 +1,44 @@
-{ pkgs, lib, config, enableHomebrew ? true, username, inputs, userConfig ? {}, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  enableHomebrew ? true,
+  username,
+  inputs,
+  userConfig ? { },
+  ...
+}:
 
 let
-  additionalTaps = if userConfig ? homebrew && userConfig.homebrew ? additionalPackages && userConfig.homebrew.additionalPackages ? taps
-                  then userConfig.homebrew.additionalPackages.taps
-                  else [];
+  additionalTaps =
+    if
+      userConfig ? homebrew
+      && userConfig.homebrew ? additionalPackages
+      && userConfig.homebrew.additionalPackages ? taps
+    then
+      userConfig.homebrew.additionalPackages.taps
+    else
+      [ ];
 
-  additionalBrews = if userConfig ? homebrew && userConfig.homebrew ? additionalPackages && userConfig.homebrew.additionalPackages ? brews
-                   then userConfig.homebrew.additionalPackages.brews
-                   else [];
+  additionalBrews =
+    if
+      userConfig ? homebrew
+      && userConfig.homebrew ? additionalPackages
+      && userConfig.homebrew.additionalPackages ? brews
+    then
+      userConfig.homebrew.additionalPackages.brews
+    else
+      [ ];
 
-  additionalCasks = if userConfig ? homebrew && userConfig.homebrew ? additionalPackages && userConfig.homebrew.additionalPackages ? casks
-                   then userConfig.homebrew.additionalPackages.casks
-                   else [];
+  additionalCasks =
+    if
+      userConfig ? homebrew
+      && userConfig.homebrew ? additionalPackages
+      && userConfig.homebrew.additionalPackages ? casks
+    then
+      userConfig.homebrew.additionalPackages.casks
+    else
+      [ ];
 
   baseTaps = [
     "FelixKratz/formulae"
@@ -45,6 +72,7 @@ let
     "imagemagick"
     "jandedobbeleer/oh-my-posh/oh-my-posh"
     "k9s"
+    "krew"
     "kubecolor"
     "kubectl"
     "lazygit"
