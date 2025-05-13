@@ -34,7 +34,7 @@ M.plugins = {
 		"GeorgesAlkhouri/nvim-aider",
 		cmd = "Aider",
 		keys = {
-			{ "<leader>aa", "<cmd>Aider toggle<cr>", desc = "Copilot: Toggle chat" },
+			{ "<leader>ai", "<cmd>Aider toggle<cr>", desc = "Copilot: Toggle chat" },
 			{ "<leader>as", "<cmd>Aider send<cr>", desc = "Copilot: Send to chat", mode = { "n", "v" } },
 			{ "<leader>ac", "<cmd>Aider command<cr>", desc = "Copilot: Chat commands" },
 			{ "<leader>ab", "<cmd>Aider buffer<cr>", desc = "Copilot: Send buffer" },
@@ -94,3 +94,4 @@ M.plugins = {
 	},
 }
 return M
+

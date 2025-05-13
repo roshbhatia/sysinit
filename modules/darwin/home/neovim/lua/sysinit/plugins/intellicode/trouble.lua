@@ -8,32 +8,32 @@ M.plugins = {
 		keys = function()
 			return {
 				{
-					"<leader>xx",
+					"<leader>cx",
 					"<cmd>Trouble diagnostics toggle<cr>",
 					desc = "Problems: Diagnostics",
 				},
 				{
-					"<leader>xX",
+					"<leader>cxX",
 					"<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
 					desc = "Problems: Buffer Diagnostics",
 				},
 				{
-					"<leader>cs",
+					"<leader>cxs",
 					"<cmd>Trouble symbols toggle focus=false<cr>",
 					desc = "Problems: Symbols",
 				},
 				{
-					"<leader>cl",
+					"<leader>cxl",
 					"<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
 					desc = "Problems: LSP Definitions / references / ...",
 				},
 				{
-					"<leader>xL",
+					"<leader>cxL",
 					"<cmd>Trouble loclist toggle<cr>",
 					desc = "Problems: Location List",
 				},
 				{
-					"<leader>xQ",
+					"<leader>cxQ",
 					"<cmd>Trouble qflist toggle<cr>",
 					desc = "Problems: Quickfix List",
 				},

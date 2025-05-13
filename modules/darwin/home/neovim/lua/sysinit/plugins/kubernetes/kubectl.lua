@@ -18,11 +18,11 @@ M.plugins = {
 					function()
 						require("kubectl").toggle()
 					end,
-					desc = "Kubernetes: Toggle kubectl",
+					desc = "Kubernetes: Toggle kube ui",
 				},
 				{
 					"<leader>k9s",
-					":FloatermNew! --name=k9s k9s<CR>",
+					":FloatermNew! --autoclose=2 --width=0.8 --height=0.8 --name=k9s k9s<CR>",
 					desc = "Kubernetes: Toggle k9s",
 				},
 			}

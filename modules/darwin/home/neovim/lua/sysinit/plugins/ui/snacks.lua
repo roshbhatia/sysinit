@@ -14,7 +14,6 @@ M.plugins = {
 			},
 			bigfile = { enabled = true },
 			bufdelete = { enabled = true },
-			image = { enabled = true },
 			notifier = {
 				enabled = true,
 				timeout = 3000,
@@ -23,6 +22,7 @@ M.plugins = {
 			quickfile = { enabled = true },
 			rename = { enabled = true },
 			scope = { enabled = true },
+			scroll = { enabled = true },
 			statuscolumn = { enabled = true },
 			words = { enabled = true },
 
@@ -32,6 +32,7 @@ M.plugins = {
 			explorer = { enabled = false },
 			git = { enabled = false },
 			gitbrowse = { enabled = false },
+			image = { enabled = false },
 			indent = { enabled = false },
 			input = { enabled = false },
 			layout = { enabled = false },
@@ -39,7 +40,6 @@ M.plugins = {
 			picker = { enabled = false },
 			profiler = { enabled = false },
 			scratch = { enabled = false },
-			scroll = { enabled = false },
 			terminal = { enabled = false },
 			toggle = { enabled = false },
 			win = { enabled = false },

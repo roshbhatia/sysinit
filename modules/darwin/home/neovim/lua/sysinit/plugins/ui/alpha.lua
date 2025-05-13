@@ -5,7 +5,7 @@ M.plugins = {
 		"goolord/alpha-nvim",
 		commit = "de72250e054e5e691b9736ee30db72c65d560771",
 		lazy = false,
-		dependencies = { "nvim-tree/nvim-web-devicons", "folke/persistence.nvim" },
+		dependencies = { "nvim-tree/nvim-web-devicons", "folke/persistence.nvim", "nvim-telescope/telescope.nvim" },
 		config = function()
 			local alpha = require("alpha")
 			local dashboard = require("alpha.themes.dashboard")
@@ -94,12 +94,16 @@ M.plugins = {
 			vim.api.nvim_create_autocmd("GUIEnter", {
 				pattern = "*",
 				callback = function()
+					local persistence = require("persistence")
+					local function should_load_session()
+						local file = persistence.current()
+						return vim.fn.filereadable(file) ~= 0
+					end
+
 					if not (next(vim.fn.argv()) ~= nil) then
 						vim.opt.laststatus = 0
 						vim.cmd("wincmd o")
 						vim.cmd("Alpha")
-					elseif vim.fn.argv() == 1 and vim.fn.argv()[1] == "." then
-						require("persistence").load()
 					end
 				end,
 			})
@@ -108,3 +112,4 @@ M.plugins = {
 }
 
 return M
+

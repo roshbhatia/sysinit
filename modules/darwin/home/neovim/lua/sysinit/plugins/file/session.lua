@@ -5,7 +5,11 @@ M.plugins = {
 		"folke/persistence.nvim",
 		event = "BufReadPre",
 		config = function()
-			require("persistence").setup()
+			require("persistence").setup({
+				dir = vim.fn.stdpath("state") .. "/sessions/",
+				need = 0, -- always save
+				branch = true,
+			})
 
 			vim.api.nvim_create_autocmd("User", {
 				pattern = "PersistenceSavePre",

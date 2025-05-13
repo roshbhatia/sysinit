@@ -7,9 +7,14 @@ package.path = package.path
 	.. vim.fn.stdpath("config")
 	.. "/lua/?.lua"
 
+local core = require("sysinit.pkg.core")
+core.register_leader()
+core.register_options()
+core.register_keybindings()
+core.register_autocmds()
+
 require("sysinit.pkg.plugin_manager").setup_package_manager()
 require("sysinit.pkg.plugin_manager").setup_plugins({
-	require("sysinit.plugins.core.shared"),
 	require("sysinit.plugins.debugger.dap"),
 	require("sysinit.plugins.debugger.dap-ui"),
 	require("sysinit.plugins.editor.comment"),

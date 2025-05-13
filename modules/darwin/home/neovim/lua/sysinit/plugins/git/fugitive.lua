@@ -17,12 +17,12 @@ M.plugins = {
 				desc = "Git: Commit",
 			},
 			{
-				"<leader>gp",
+				"<leader>gP",
 				"<cmd>Git push<CR>",
 				desc = "Git: Push",
 			},
 			{
-				"<leader>gP",
+				"<leader>gp",
 				"<cmd>Git pull<CR>",
 				desc = "Git: Pull",
 			},

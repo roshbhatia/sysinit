@@ -48,11 +48,10 @@ M.plugins = {
 						vim.fn.feedkeys(":", "n")
 					end,
 					mode = "n",
-					desc = "Commandline",
+					desc = " Cmd",
 				},
 			}
 		end,
 	},
 }
 return M
-

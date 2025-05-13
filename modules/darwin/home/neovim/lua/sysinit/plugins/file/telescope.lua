@@ -4,6 +4,7 @@ M.plugins = {
 	{
 		"nvim-telescope/telescope.nvim",
 		tag = "0.1.8",
+		lazy = false,
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			"nvim-tree/nvim-web-devicons",
@@ -13,11 +14,12 @@ M.plugins = {
 		},
 		config = function()
 			local telescope = require("telescope")
+			local actions = require("telescope.actions")
 
 			telescope.setup({
 				defaults = {
 					prompt_prefix = "   ",
-					selection_caret = " ",
+					selection_caret = " > ",
 					entry_prefix = " ",
 					sorting_strategy = "ascending",
 					layout_config = {
@@ -29,7 +31,15 @@ M.plugins = {
 						height = 0.80,
 					},
 					mappings = {
-						n = { ["q"] = require("telescope.actions").close },
+						n = {
+							["q"] = actions.close,
+							["<Tab>"] = actions.move_selection_next,
+							["<S-Tab>"] = actions.move_selection_previous,
+						},
+						i = {
+							["<Tab>"] = actions.move_selection_next,
+							["<S-Tab>"] = actions.move_selection_previous,
+						},
 					},
 				},
 				extensions = {
