@@ -77,7 +77,7 @@ function plugin_manager.setup_plugins(modules)
 			notify = false,
 		},
 		install = {
-			colorscheme = { "catppuccin", "tokyonight", "nightfox", "material" },
+			colorscheme = { "catppuccin" },
 		},
 	})
 end
