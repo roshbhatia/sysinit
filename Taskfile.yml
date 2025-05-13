@@ -12,6 +12,8 @@ vars:
 
   START_MSG_TEMPLATE: "{{.TASK}}..."
   SUCCESS_MSG_TEMPLATE: "{{.TASK}} completed successfully"
+  BAT_PREVIEW: "bat --paging=never --style=plain"
+  BAT_ERROR_PREVIEW: "bat --paging=never --style=grid --highlight-line"
 
 tasks:
   default:
@@ -30,11 +32,11 @@ tasks:
         log_info "{{.START_MSG_TEMPLATE}}"
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
-        if ! darwin-rebuild switch --flake . --show-trace --impure | tee >({{.ROOT_DIR}}/hack/lib/stdin-window.sh) > "{{.LOG_FILE}}" 2>&1; then
+        if ! darwin-rebuild switch --flake . --show-trace --impure | tee >({{.BAT_PREVIEW}}) > "{{.LOG_FILE}}" 2>&1; then
           log_error "Failed. See log: {{.LOG_FILE}}"
           log_error "Last 20 lines of log:"
           echo "------------------------------------------------------------"
-          tail -n 20 "{{.LOG_FILE}}"
+          tail -n 20 "{{.LOG_FILE}}" | {{.BAT_ERROR_PREVIEW}}
           echo "------------------------------------------------------------"
           exit 1
         fi
@@ -53,11 +55,11 @@ tasks:
         log_info "{{.START_MSG_TEMPLATE}}"
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
-        if ! sudo nix-collect-garbage -d | tee >({{.ROOT_DIR}}/hack/lib/stdin-window.sh) > "{{.LOG_FILE}}" 2>&1; then
+        if ! sudo nix-collect-garbage -d | tee >({{.BAT_PREVIEW}}) > "{{.LOG_FILE}}" 2>&1; then
           log_error "Failed. See log: {{.LOG_FILE}}"
           log_error "Last 20 lines of log:"
           echo "------------------------------------------------------------"
-          tail -n 20 "{{.LOG_FILE}}"
+          tail -n 20 "{{.LOG_FILE}}" | {{.BAT_ERROR_PREVIEW}}
           echo "------------------------------------------------------------"
           exit 1
         fi
@@ -77,14 +79,14 @@ tasks:
         log_info "{{.START_MSG_TEMPLATE}}"
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
-        git add -A | tee >({{.ROOT_DIR}}/hack/lib/stdin-window.sh) > "{{.LOG_FILE}}" 2>&1
-        git commit -m "chore: update configuration and regenerate lockfile" | tee >({{.ROOT_DIR}}/hack/lib/stdin-window.sh) >> "{{.LOG_FILE}}" 2>&1 || true
-        git push | tee >({{.ROOT_DIR}}/hack/lib/stdin-window.sh) >> "{{.LOG_FILE}}" 2>&1 || true
-        if ! darwin-rebuild switch --flake . --show-trace | tee >({{.ROOT_DIR}}/hack/lib/stdin-window.sh) >> "{{.LOG_FILE}}" 2>&1; then
+        git add -A | tee >({{.BAT_PREVIEW}}) > "{{.LOG_FILE}}" 2>&1
+        git commit -m "chore: update configuration and regenerate lockfile" | tee >({{.BAT_PREVIEW}}) >> "{{.LOG_FILE}}" 2>&1 || true
+        git push | tee >({{.BAT_PREVIEW}}) >> "{{.LOG_FILE}}" 2>&1 || true
+        if ! darwin-rebuild switch --flake . --show-trace | tee >({{.BAT_PREVIEW}}) >> "{{.LOG_FILE}}" 2>&1; then
           log_error "Failed. See log: {{.LOG_FILE}}"
           log_error "Last 20 lines of log:"
           echo "------------------------------------------------------------"
-          tail -n 20 "{{.LOG_FILE}}"
+          tail -n 20 "{{.LOG_FILE}}" | {{.BAT_ERROR_PREVIEW}}
           echo "------------------------------------------------------------"
           exit 1
         fi
@@ -109,17 +111,17 @@ tasks:
           log_error "Failed. See log: {{.LOG_FILE}}"
           log_error "Last 20 lines of log:"
           echo "------------------------------------------------------------"
-          tail -n 20 "{{.LOG_FILE}}"
+          tail -n 20 "{{.LOG_FILE}}" | {{.BAT_ERROR_PREVIEW}}
           echo "------------------------------------------------------------"
           exit 1
         fi
         cd "$WORK_SYSINIT"
-        nix flake update | tee >({{.ROOT_DIR}}/hack/lib/stdin-window.sh) > "{{.LOG_FILE}}" 2>&1
-        if ! task refresh | tee >({{.ROOT_DIR}}/hack/lib/stdin-window.sh) >> "{{.LOG_FILE}}" 2>&1; then
+        nix flake update | tee >({{.BAT_PREVIEW}}) > "{{.LOG_FILE}}" 2>&1
+        if ! task refresh | tee >({{.BAT_PREVIEW}}) >> "{{.LOG_FILE}}" 2>&1; then
           log_error "Failed. See log: {{.LOG_FILE}}"
           log_error "Last 20 lines of log:"
           echo "------------------------------------------------------------"
-          tail -n 20 "{{.LOG_FILE}}"
+          tail -n 20 "{{.LOG_FILE}}" | {{.BAT_ERROR_PREVIEW}}
           echo "------------------------------------------------------------"
           exit 1
         fi
@@ -138,11 +140,11 @@ tasks:
         log_info "{{.START_MSG_TEMPLATE}}"
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
-        if ! nix flake update | tee >({{.ROOT_DIR}}/hack/lib/stdin-window.sh) > "{{.LOG_FILE}}" 2>&1; then
+        if ! nix flake update | tee >({{.BAT_PREVIEW}}) > "{{.LOG_FILE}}" 2>&1; then
           log_error "Failed. See log: {{.LOG_FILE}}"
           log_error "Last 20 lines of log:"
           echo "------------------------------------------------------------"
-          tail -n 20 "{{.LOG_FILE}}"
+          tail -n 20 "{{.LOG_FILE}}" | {{.BAT_ERROR_PREVIEW}}
           echo "------------------------------------------------------------"
           exit 1
         fi
@@ -161,11 +163,11 @@ tasks:
         log_info "{{.START_MSG_TEMPLATE}}"
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
-        if ! ./hack/install-deps.sh | tee >({{.ROOT_DIR}}/hack/lib/stdin-window.sh) > "{{.LOG_FILE}}" 2>&1; then
+        if ! ./hack/install-deps.sh | tee >({{.BAT_PREVIEW}}) > "{{.LOG_FILE}}" 2>&1; then
           log_error "Failed. See log: {{.LOG_FILE}}"
           log_error "Last 20 lines of log:"
           echo "------------------------------------------------------------"
-          tail -n 20 "{{.LOG_FILE}}"
+          tail -n 20 "{{.LOG_FILE}}" | {{.BAT_ERROR_PREVIEW}}
           echo "------------------------------------------------------------"
           exit 1
         fi
@@ -184,11 +186,11 @@ tasks:
         log_info "{{.START_MSG_TEMPLATE}}"
         mkdir -p "$(dirname "{{.LOG_FILE}}")"
         touch "{{.LOG_FILE}}"
-        if ! ./hack/uninstall-nix.sh | tee >({{.ROOT_DIR}}/hack/lib/stdin-window.sh) > "{{.LOG_FILE}}" 2>&1; then
+        if ! ./hack/uninstall-deps.sh | tee >({{.BAT_PREVIEW}}) > "{{.LOG_FILE}}" 2>&1; then
           log_error "Failed. See log: {{.LOG_FILE}}"
           log_error "Last 20 lines of log:"
           echo "------------------------------------------------------------"
-          tail -n 20 "{{.LOG_FILE}}"
+          tail -n 20 "{{.LOG_FILE}}" | {{.BAT_ERROR_PREVIEW}}
           echo "------------------------------------------------------------"
           exit 1
         fi

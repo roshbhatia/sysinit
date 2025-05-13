@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 # shellcheck disable=all
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/logger/lib.sh"
+source "$SCRIPT_DIR/lib/logger.sh"
 
 if [ "$EUID" -eq 0 ]; then
     log_error "Please do not run this script as root or with sudo."
@@ -18,7 +18,7 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     exit 0
 fi
 
-log_info "Step 1: Stopping Nix services..."
+log_info "Stopping Nix services"
 if sudo launchctl list | grep -q org.nixos.nix-daemon; then
     log_warn "Stopping nix-daemon service..."
     sudo launchctl unload /Library/LaunchDaemons/org.nixos.nix-daemon.plist 2>/dev/null || true
@@ -40,7 +40,7 @@ if pgrep -f "/nix" > /dev/null; then
     sleep 2
 fi
 
-log_info "Step 2: Removing configuration files..."
+log_info "Removing configuration files"
 if [ -d /etc/nix ]; then
     log_warn "Removing /etc/nix..."
     sudo rm -rf /etc/nix
@@ -83,7 +83,7 @@ if [ -d ~/.local/state/nix ]; then
     log_success "Removed ~/.local/state/nix"
 fi
 
-log_info "Step 3: Removing launch daemons..."
+log_info "Removing launch daemons"
 for plist in /Library/LaunchDaemons/org.nixos.*.plist; do
     if [ -f "$plist" ]; then
         log_warn "Removing $plist..."
@@ -92,7 +92,7 @@ for plist in /Library/LaunchDaemons/org.nixos.*.plist; do
     fi
 done
 
-log_info "Step 4: Removing Nix store and related files..."
+log_info "Removing Nix store and related files"
 for dir in /nix /var/root/.nix-profile /var/root/.nix-defexpr /var/root/.nix-channels; do
     if [ -e "$dir" ]; then
         log_warn "Removing $dir..."
@@ -115,7 +115,7 @@ if [ -L /run/current-system ]; then
     log_success "Removed /run/current-system symlink"
 fi
 
-log_info "Step 5: Cleaning up backup files..."
+log_info "Cleaning up backup files"
 log_warn "Removing system backup files..."
 sudo rm -f /etc/*.before-nix-darwin || true
 log_success "Removed system backup files"
@@ -134,7 +134,7 @@ if [ -d /etc/static ]; then
     log_success "Removed /etc/static"
 fi
 
-log_info "Step 6: Cleaning up shell configuration files..."
+log_info "Cleaning up shell configuration files"
 for file in "$HOME/.bash_profile" "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile"; do
     if [ -f "$file" ]; then
         log_warn "Removing Nix references from $file..."
@@ -144,7 +144,7 @@ for file in "$HOME/.bash_profile" "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile
     fi
 done
 
-log_info "Step 7: Removing Nix users and groups..."
+log_info "Removing Nix users and groups"
 if dscl . -list /Groups | grep -q nixbld; then
     for i in $(seq 1 32); do
         nixbld="nixbld${i}"
@@ -158,3 +158,6 @@ if dscl . -list /Groups | grep -q nixbld; then
     sudo dscl . -delete /Groups/nixbld || true
     log_success "Removed group nixbld"
 fi
+
+log_success "Nix has been completely uninstalled from your system"
+log_warn "You may need to restart your terminal or reboot your system for all changes to take effect"
