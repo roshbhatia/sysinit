@@ -12,7 +12,7 @@ in
 {
   home.file.".npmrc" = {
     text = ''
-      prefix = ''\${XDG_DATA_HOME}/.npm-packages
+      prefix = ''\${HOME}/.local/.share/.npm-packages
     '';
   };
 
@@ -33,3 +33,4 @@ in
     executableName = "npm";
   };
 }
+
