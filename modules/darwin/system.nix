@@ -42,7 +42,7 @@ in
       NSGlobalDomain = {
         "com.apple.sound.beep.feedback" = 0;
         AppleInterfaceStyle = "Dark";
-        ApplePressAndHoldEnabled = false;
+        ApplePressAndHoldEnabled = true;
         AppleShowAllExtensions = true;
         AppleShowAllFiles = true;
         AppleShowScrollBars = "Always";
@@ -75,7 +75,7 @@ in
   };
 
   environment.systemPackages = lib.mkIf (!enableHomebrew) packageLib.systemPackages;
-  environment.extraInit =  packageLib.extraInit;
+  environment.extraInit = packageLib.extraInit;
 
   launchd.agents.colima = {
     serviceConfig = {
@@ -101,49 +101,5 @@ in
   users.users.${username}.home = homeDirectory;
 
   security.pam.services.sudo_local.touchIdAuth = true;
-
-  system.activationScripts.postUserActivation.text = ''
-    # Setup PATH and logging functions
-    export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/bin:/usr/sbin:/bin:/sbin:$PATH"
-
-    log_info() {
-      echo -e "[\033[0;36m$(date '+%Y-%m-%d %H:%M:%S')\033[0m] [\033[0;34mINFO\033[0m] $1"
-    }
-
-    log_success() {
-      echo -e "[\033[0;36m$(date '+%Y-%m-%d %H:%M:%S')\033[0m] [\033[0;32mSUCCESS\033[0m] $1"
-    }
-
-    # Install Rosetta 2 for M1/M2 Mac compatibility
-    if [[ "$(uname -m)" == "arm64" ]] && ! /usr/bin/pgrep -q "oahd"; then
-      log_info "Installing Rosetta 2 for Intel app compatibility..."
-      /usr/sbin/softwareupdate --install-rosetta --agree-to-license
-      log_success "Rosetta 2 installed"
-    fi
-
-    # Activate settings
-    log_info "Activating system settings..."
-    /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
-    log_success "System settings activated"
-  '';
-
-  system.activationScripts.fixUsrLocalBin = {
-    text = ''
-      export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/bin:/usr/sbin:/bin:/sbin:$PATH"
-
-      log_info() {
-        echo -e "[\033[0;36m$(date '+%Y-%m-%d %H:%M:%S')\033[0m] [\033[0;34mINFO\033[0m] $1"
-      }
-
-      log_success() {
-        echo -e "[\033[0;36m$(date '+%Y-%m-%d %H:%M:%S')\033[0m] [\033[0;32mSUCCESS\033[0m] $1"
-      }
-
-      if [ -d /usr/local/bin ]; then
-        log_info "Fixing ownership of /usr/local/bin"
-        chown -R ${username} /usr/local/bin || true
-        log_success "Fixed ownership of /usr/local/bin"
-      fi
-    '';
-  };
 }
+
