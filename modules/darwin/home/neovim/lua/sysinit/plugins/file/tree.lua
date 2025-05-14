@@ -67,6 +67,8 @@ M.plugins = {
 				window = {
 					position = "left",
 					width = 55,
+					min_width = 55,
+					max_width = 55,
 					mapping_options = {
 						noremap = true,
 						nowait = true,
@@ -177,4 +179,3 @@ M.plugins = {
 }
 
 return M
-
