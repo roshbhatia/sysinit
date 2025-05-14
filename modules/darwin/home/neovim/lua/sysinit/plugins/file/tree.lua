@@ -162,13 +162,6 @@ M.plugins = {
 				silent = true,
 				desc = "Editor: Toggle file tree",
 			})
-
-			vim.api.nvim_create_autocmd("User", {
-				pattern = "PersistenceSavePre",
-				callback = function()
-					vim.cmd("Neotree close")
-				end,
-			})
 		end,
 		keys = {
 			{

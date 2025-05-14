@@ -83,13 +83,6 @@ M.plugins = {
 			})
 
 			require("nvim_aider.neo_tree").setup({})
-
-			vim.api.nvim_create_autocmd("User", {
-				pattern = "PersistenceSavePre",
-				callback = function()
-					avante.close_sidebar()
-				end,
-			})
 		end,
 	},
 }

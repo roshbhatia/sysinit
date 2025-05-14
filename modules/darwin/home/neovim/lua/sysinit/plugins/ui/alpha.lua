@@ -5,7 +5,7 @@ M.plugins = {
 		"goolord/alpha-nvim",
 		commit = "de72250e054e5e691b9736ee30db72c65d560771",
 		lazy = false,
-		dependencies = { "nvim-tree/nvim-web-devicons", "folke/persistence.nvim", "nvim-telescope/telescope.nvim" },
+		dependencies = { "nvim-tree/nvim-web-devicons", "nvim-telescope/telescope.nvim" },
 		config = function()
 			local alpha = require("alpha")
 			local dashboard = require("alpha.themes.dashboard")
@@ -48,18 +48,6 @@ M.plugins = {
 			dashboard.section.buttons.val = function()
 				local buttons = {}
 
-				-- Check if a session exists for the current directory
-				local persistence = require("persistence")
-				local current_session = persistence.current()
-
-				-- Only add the "Load last session" button if the session file exists
-				if vim.fn.filereadable(current_session) == 1 then
-					table.insert(
-						buttons,
-						dashboard.button("a", " Load last session", ':lua require("persistence").load() <CR>')
-					)
-				end
-
 				-- Add the rest of the buttons
 				table.insert(buttons, dashboard.button("i", " New file", ":ene <BAR> startinsert<CR>"))
 				table.insert(buttons, dashboard.button("f", " Find file", ":Telescope find_files<CR>"))
@@ -90,23 +78,6 @@ M.plugins = {
 			}
 
 			alpha.setup(dashboard.config)
-
-			vim.api.nvim_create_autocmd("GUIEnter", {
-				pattern = "*",
-				callback = function()
-					local persistence = require("persistence")
-					local function should_load_session()
-						local file = persistence.current()
-						return vim.fn.filereadable(file) ~= 0
-					end
-
-					if not (next(vim.fn.argv()) ~= nil) then
-						vim.opt.laststatus = 0
-						vim.cmd("wincmd o")
-						vim.cmd("Alpha")
-					end
-				end,
-			})
 		end,
 	},
 }
