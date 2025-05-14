@@ -54,9 +54,6 @@ M.plugins = {
 			require("lspsaga").setup({
 				ui = {
 					border = "round",
-					code_action = " 󰘧 ",
-					actionfix = " 󰁨 ",
-					imp_sign = "  ",
 				},
 				lightbulb = {
 					sign = false,
@@ -89,3 +86,4 @@ M.plugins = {
 }
 
 return M
+
