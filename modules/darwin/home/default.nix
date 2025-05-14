@@ -17,6 +17,7 @@
     ./git/git.nix
     ./k9s/k9s.nix
     ./macchina/macchina.nix
+    ./mcphub/mcphub.nix
     ./neovim/neovim.nix
     ./omp/omp.nix
     ./wezterm/wezterm.nix
