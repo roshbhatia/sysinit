@@ -38,7 +38,6 @@ let
     go
     go-task
     gum
-    helm
     helm-ls
     htop
     jq
