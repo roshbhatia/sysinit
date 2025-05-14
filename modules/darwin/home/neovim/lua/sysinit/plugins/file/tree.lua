@@ -22,6 +22,7 @@ M.plugins = {
 					auto_expand_width = true,
 				},
 				filtered_items = {
+					visible = true,
 					hide_dotfiles = false,
 					hide_gitignored = false,
 				},
@@ -48,4 +49,3 @@ M.plugins = {
 }
 
 return M
-
