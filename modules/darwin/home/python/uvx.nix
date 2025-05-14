@@ -13,7 +13,7 @@ in
   home.activation.uvxPackages = activationUtils.mkPackageManager {
     name = "uvx";
     basePackages = [
-      "aider-chat"
+      # "aider-chat"
       "skydeckai-code"
     ];
     additionalPackages =
