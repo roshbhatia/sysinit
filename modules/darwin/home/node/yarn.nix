@@ -21,7 +21,6 @@ in
     basePackages = [
       "jsonlint"
       "markdownlint-cli2"
-      "mcphub@latest"
       "@mermaid-js/mermaid-cli"
       "prettier"
       "tree-sitter-cli"
