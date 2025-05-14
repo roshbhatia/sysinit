@@ -58,6 +58,7 @@ let
     "helm"
     "imagemagick"
     "jandedobbeleer/oh-my-posh/oh-my-posh"
+    "krew"
     "luarocks"
     "peterldowns/tap/nix-search-cli"
     "pipx"
@@ -122,3 +123,4 @@ in
     casks = allCasks;
   };
 }
+

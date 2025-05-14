@@ -44,7 +44,6 @@ let
     k9s
     keycastr
     kind
-    krew
     kubecolor
     kubectl
     kustomize
@@ -80,3 +79,4 @@ in
 {
   home.packages = allHomePackages;
 }
+
