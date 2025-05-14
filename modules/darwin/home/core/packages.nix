@@ -22,7 +22,6 @@ let
     caddy
     colima
     coreutils
-    direnv
     docker
     eza
     fd

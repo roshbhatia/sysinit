@@ -54,6 +54,7 @@ let
   baseBrews = [
     "borders"
     "bcrypt"
+    "direnv"
     "helm"
     "imagemagick"
     "jandedobbeleer/oh-my-posh/oh-my-posh"
