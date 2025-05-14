@@ -11,8 +11,8 @@ function M.register_options()
 	vim.opt.cursorline = false
 	vim.opt.signcolumn = "yes:2"
 
-	vim.opt.spelllang = "en_gb"
-	vim.opt.spell = true
+	-- vim.opt.spelllang = "en_gb"
+	-- vim.opt.spell = true
 
 	-- Search options
 	vim.opt.hlsearch = true
