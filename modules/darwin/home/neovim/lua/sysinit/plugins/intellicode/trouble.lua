@@ -4,7 +4,14 @@ M.plugins = {
 	{
 		"folke/trouble.nvim",
 		cmd = { "Trouble" },
-		opts = {},
+		opts = {
+			win = {
+				preview = {
+					type = "split",
+					scratch = true,
+				},
+			},
+		},
 		keys = function()
 			return {
 				{
@@ -43,3 +50,4 @@ M.plugins = {
 }
 
 return M
+

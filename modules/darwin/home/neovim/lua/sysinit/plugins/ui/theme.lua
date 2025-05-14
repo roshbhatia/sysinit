@@ -38,7 +38,11 @@ M.plugins = {
 		priority = 1000,
 		opts = {
 			flavour = "macchiato",
-			transparent_background = true,
+			show_end_of_buffer = false,
+			transparent_background = false,
+			styles = {
+				comments = { "italic" },
+			},
 			integrations = {
 				alpha = true,
 				aerial = true,
@@ -69,8 +73,8 @@ M.plugins = {
 		"folke/tokyonight.nvim",
 		lazy = false,
 		priority = 1000,
-	  opts = {	
-      transparent = true,
+		opts = {
+			transparent = true,
 			styles = {
 				floats = "transparent",
 			},
