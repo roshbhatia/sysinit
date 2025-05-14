@@ -14,26 +14,47 @@ let
       [ ];
 
   baseHomePackages = with pkgs; [
+    ansible
+    argocd
     atuin
     awscli
     bat
+    caddy
+    colima
     coreutils
+    direnv
     docker
+    eza
+    fd
     findutils
     fzf
     gettext
     gh
     git
+    git-filter-repo
+    glow
     gnugrep
     gnupg
     go
+    go-task
+    gum
+    helm
+    helm-ls
     htop
     jq
     jqp
     k9s
     keycastr
     kind
+    krew
+    kubecolor
+    kubectl
     kustomize
+    lazygit
+    libgit2
+    lnav
+    luajit
+    lynx
     nil
     nixfmt-rfc-style
     nixfmt-rfc-style
@@ -41,13 +62,19 @@ let
     nushell
     oh-my-posh
     openssh
+    prettierd
+    ripgrep
+    shellcheck
+    socat
     stern
     swift
+    taplo
     tree
     watch
     wget
     yq
     zoxide
+    yazi
   ];
 
   allHomePackages = baseHomePackages ++ additionalPackages;
