@@ -2,21 +2,6 @@ local M = {}
 
 M.plugins = {
 	{
-		"ravitemer/mcphub.nvim",
-		dependencies = {
-			"nvim-lua/plenary.nvim",
-		},
-		config = function()
-			require("mcphub").setup({
-				extensions = {
-					avante = {
-						make_slash_commands = true, -- make /slash commands from MCP server prompts
-					},
-				},
-			})
-		end,
-	},
-	{
 		"yetone/avante.nvim",
 		event = "VeryLazy",
 		version = false,

@@ -5,11 +5,11 @@ M.plugins = {
 	{
 		"mrjones2014/smart-splits.nvim",
 		lazy = false,
-		priority = 1000
+		priority = 1000,
 		config = function()
 			require("smart-splits").setup({
 				-- Ignored buffer types (only while resizing)
-				ignored_buftypes = { "nofile", "quickfix", "prompt"},
+				ignored_buftypes = { "nofile", "quickfix", "prompt" },
 				-- Ignored filetypes (only while resizing)
 				ignored_fietypes = { "neo-tree", "Avante" },
 				-- Default resize amount
@@ -92,4 +92,3 @@ M.plugins = {
 }
 
 return M
-
