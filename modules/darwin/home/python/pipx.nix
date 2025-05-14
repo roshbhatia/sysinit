@@ -13,7 +13,6 @@ in
   home.activation.pipxPackages = activationUtils.mkPackageManager {
     name = "pipx";
     basePackages = [
-      "aider-chat"
       "black"
       "hererocks"
       "yamllint"
@@ -31,4 +30,3 @@ in
     executableName = "pipx";
   };
 }
-

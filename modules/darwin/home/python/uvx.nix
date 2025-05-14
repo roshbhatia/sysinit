@@ -12,7 +12,10 @@ in
 {
   home.activation.uvxPackages = activationUtils.mkPackageManager {
     name = "uvx";
-    basePackages = [ "skydeckai-code" ];
+    basePackages = [
+      "aider-chat"
+      "skydeckai-code"
+    ];
     additionalPackages =
       if userConfig ? uvx && userConfig.uvx ? additionalPackages then
         userConfig.uvx.additionalPackages
@@ -25,4 +28,3 @@ in
     executableName = "uv";
   };
 }
-
