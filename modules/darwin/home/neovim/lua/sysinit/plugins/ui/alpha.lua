@@ -81,12 +81,12 @@ M.plugins = {
 
 			vim.api.nvim_create_autocmd("User", {
 				pattern = "AlphaReady",
-				"<CMD>Neotree close<CR>",
+				vim.cmd("<CMD>Neotree close<CR>"),
 			})
 
 			vim.api.nvim_create_autocmd("User", {
 				pattern = "AlphaClosed",
-				"<CMD>Neotree show<CR>",
+				vim.cmd("<CMD>Neotree show<CR>"),
 			})
 		end,
 	},

@@ -12,7 +12,7 @@ vars:
 
   START_MSG_TEMPLATE: "{{.TASK}}..."
   SUCCESS_MSG_TEMPLATE: "{{.TASK}} completed successfully"
-  
+
   ERROR_TEMPLATE: |
     log_error "Failed. See log: ${LOG_FILE}"
     exit 1
@@ -35,11 +35,11 @@ tasks:
         LOG_FILE="{{.LOG_FILE}}"
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
-        
+
         if ! darwin-rebuild switch -v --show-trace --impure --flake . > "${LOG_FILE}" 2>&1; then
           {{.ERROR_TEMPLATE}}
         fi
-        
+
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Build the configuration without applying
@@ -56,11 +56,11 @@ tasks:
         LOG_FILE="{{.LOG_FILE}}"
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
-        
+
         if ! sudo nix-collect-garbage -d > "${LOG_FILE}" 2>&1; then
           {{.ERROR_TEMPLATE}}
         fi
-        
+
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Run garbage collection
@@ -78,15 +78,15 @@ tasks:
         LOG_FILE="{{.LOG_FILE}}"
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
-        
+
         git add -A > "${LOG_FILE}" 2>&1
         git commit -m "chore: update configuration and regenerate lockfile" >> "${LOG_FILE}" 2>&1 || true
         git push >> "${LOG_FILE}" 2>&1 || true
-        
+
         if ! darwin-rebuild switch --flake . --show-trace >> "${LOG_FILE}" 2>&1; then
           {{.ERROR_TEMPLATE}}
         fi
-        
+
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Apply the system configuration
@@ -103,19 +103,18 @@ tasks:
         LOG_FILE="{{.LOG_FILE}}"
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
-        
+
         WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
         if [ -z "$WORK_SYSINIT" ]; then
           log_error "Could not find work sysinit repository"
           {{.ERROR_TEMPLATE}}
         fi
-        
+
         cd "$WORK_SYSINIT"
-        nix flake update > "${LOG_FILE}" 2>&1
-        if ! task refresh >> "${LOG_FILE}" 2>&1; then
+        if ! task nix:refresh >> "${LOG_FILE}" 2>&1; then
           {{.ERROR_TEMPLATE}}
         fi
-        
+
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Update and rebuild work sysinit configuration
@@ -132,11 +131,11 @@ tasks:
         LOG_FILE="{{.LOG_FILE}}"
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
-        
+
         if ! nix flake update > "${LOG_FILE}" 2>&1; then
           {{.ERROR_TEMPLATE}}
         fi
-        
+
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Update flake inputs
@@ -153,11 +152,11 @@ tasks:
         LOG_FILE="{{.LOG_FILE}}"
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
-        
+
         if ! ./hack/install-deps.sh > "${LOG_FILE}" 2>&1; then
           {{.ERROR_TEMPLATE}}
         fi
-        
+
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Install prerequisites for sysinit
@@ -174,11 +173,11 @@ tasks:
         LOG_FILE="{{.LOG_FILE}}"
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
-        
+
         if ! ./hack/uninstall-deps.sh > "${LOG_FILE}" 2>&1; then
           {{.ERROR_TEMPLATE}}
         fi
-        
+
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Completely uninstall Nix from the system
