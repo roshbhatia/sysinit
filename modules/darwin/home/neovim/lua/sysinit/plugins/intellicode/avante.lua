@@ -62,27 +62,9 @@ M.plugins = {
 					}
 				end,
 			})
-
-			vim.api.nvim_create_autocmd("BufWinEnter", {
-				pattern = "*",
-				callback = function()
-					local bufname = vim.api.nvim_buf_get_name(0)
-					if bufname:match("Avante Sidebar") then
-						vim.cmd([[highlight Normal guibg=#1e1e1e]])
-
-						vim.api.nvim_buf_set_option(0, "foldcolumn", "0")
-						vim.api.nvim_buf_set_option(0, "foldenable", false)
-
-						local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-						for i, line in ipairs(lines) do
-							lines[i] = string.rep(" ", 2) .. line
-						end
-						vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
-					end
-				end,
-			})
 		end,
 	},
 }
 
 return M
+

@@ -10,9 +10,19 @@ M.plugins = {
 		config = function()
 			require("smart-splits").setup({
 				-- Ignored buffer types (only while resizing)
-				ignored_buftypes = { "nofile", "quickfix", "prompt" },
+				ignored_buftypes = {
+					"nofile",
+					"quickfix",
+					"prompt",
+				},
 				-- Ignored filetypes (only while resizing)
-				ignored_filetypes = { "neo-tree", "Avante" },
+				ignored_filetypes = {
+					"neotree",
+					"Avante",
+					"AvanteSelectedFiles",
+					"AvanteInput",
+					"AvantePromptInput",
+				},
 				-- Behavior when cursor is at edge
 				at_edge = "stop",
 				-- Multiplexer integration (automatically determined unless explicitly set)
@@ -82,3 +92,4 @@ M.plugins = {
 }
 
 return M
+
