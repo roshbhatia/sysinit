@@ -66,6 +66,7 @@ let
     stern
     swift
     taplo
+    tmux
     tree
     watch
     wget
