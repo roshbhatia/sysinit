@@ -11,10 +11,10 @@ M.plugins = {
 			},
 			post_restore_cmds= {
 				"Neotree show"
-			}
+			},
 			no_restore_cmds= {
 				"Alpha"
-			}
+			},
 			bypass_save_filetypes = { "alpha", "dashboard" },
 		},
 	},
