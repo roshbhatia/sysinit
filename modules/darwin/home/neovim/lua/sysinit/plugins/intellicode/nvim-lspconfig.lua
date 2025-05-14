@@ -58,7 +58,6 @@ M.plugins = {
 				code_action = " 󰘧 ",
 				actionfix = " 󰁨 ",
 				imp_sign = "  ",
-				border_style = "round",
 			})
 		end,
 		dependencies = {
@@ -87,3 +86,4 @@ M.plugins = {
 }
 
 return M
+
