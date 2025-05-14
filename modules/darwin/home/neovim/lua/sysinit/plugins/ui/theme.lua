@@ -104,6 +104,7 @@ M.plugins = {
 	{ "maxmx03/fluoromachine.nvim", lazy = false, priority = 1000 },
 	{ "kvrohit/substrata.nvim", lazy = false, priority = 1000 },
 	{ "NTBBloodbath/sweetie.nvim", lazy = false, priority = 1000 },
+	{ "rose-pine/neovim", lazy = false, priority = 1000 },
 	{
 		"zaldih/themery.nvim",
 		lazy = true,
@@ -145,6 +146,7 @@ M.plugins = {
 				"fluoromachine",
 				"substrata",
 				"sweetie",
+				"rose-pine",
 			},
 			livePreview = true,
 			onApply = function(theme)
