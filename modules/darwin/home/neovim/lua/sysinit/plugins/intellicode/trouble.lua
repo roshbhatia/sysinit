@@ -3,15 +3,8 @@ local M = {}
 M.plugins = {
 	{
 		"folke/trouble.nvim",
-		cmd = { "Trouble" },
-		opts = {
-			win = {
-				preview = {
-					type = "split",
-					scratch = true,
-				},
-			},
-		},
+		event = "LSPAttach",
+		opts = {},
 		keys = function()
 			return {
 				{
@@ -50,4 +43,3 @@ M.plugins = {
 }
 
 return M
-
