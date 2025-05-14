@@ -4,6 +4,7 @@ local M = {}
 M.plugins = {
 	{
 		"mrjones2014/smart-splits.nvim",
+		tag = "v2.0.0",
 		lazy = false,
 		priority = 1000,
 		config = function()
@@ -12,8 +13,6 @@ M.plugins = {
 				ignored_buftypes = { "nofile", "quickfix", "prompt" },
 				-- Ignored filetypes (only while resizing)
 				ignored_fietypes = { "neo-tree", "Avante" },
-				-- Default resize amount
-				default_amount = 3,
 				-- Behavior when cursor is at edge
 				at_edge = "stop",
 				-- Multiplexer integration (automatically determined unless explicitly set)
@@ -21,15 +20,6 @@ M.plugins = {
 				multiplexer_integration = "wezterm",
 				-- Whether cursor follows swapped buffers
 				cursor_follows_swapped_bufs = true,
-				-- Configure resize mode
-				resize_mode = {
-					-- Key to exit resize mode
-					quit_key = "<ESC>",
-					-- Keys for resize directions (h,j,k,l)
-					resize_keys = { "h", "j", "k", "l" },
-					-- Don't show resize mode notifications
-					silent = false,
-				},
 				-- Log level
 				log_level = "info",
 			})
@@ -92,3 +82,4 @@ M.plugins = {
 }
 
 return M
+

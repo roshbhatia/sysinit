@@ -35,3 +35,4 @@
     ./krew/krew.nix
   ];
 }
+
