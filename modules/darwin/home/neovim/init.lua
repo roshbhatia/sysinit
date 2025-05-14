@@ -64,6 +64,7 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.keymaps.which-key"),
 	require("sysinit.plugins.kubernetes.crossplane"),
 	require("sysinit.plugins.kubernetes.kubectl"),
+	require("sysinit.plugins.kubernetes.yaml"),
 	require("sysinit.plugins.library.image"),
 	require("sysinit.plugins.library.nio"),
 	require("sysinit.plugins.library.nui"),
@@ -80,3 +81,4 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.ui.theme"),
 	require("sysinit.plugins.ui.wilder"),
 })
+
