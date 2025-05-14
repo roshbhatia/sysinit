@@ -42,7 +42,7 @@ in
       NSGlobalDomain = {
         "com.apple.sound.beep.feedback" = 0;
         AppleInterfaceStyle = "Dark";
-        ApplePressAndHoldEnabled = true;
+        ApplePressAndHoldEnabled = false;
         AppleShowAllExtensions = true;
         AppleShowAllFiles = true;
         AppleShowScrollBars = "Always";
