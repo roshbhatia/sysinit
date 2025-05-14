@@ -12,7 +12,7 @@ M.plugins = {
 				-- Ignored buffer types (only while resizing)
 				ignored_buftypes = { "nofile", "quickfix", "prompt" },
 				-- Ignored filetypes (only while resizing)
-				ignored_fietypes = { "neo-tree", "Avante" },
+				ignored_filetypes = { "neo-tree", "Avante" },
 				-- Behavior when cursor is at edge
 				at_edge = "stop",
 				-- Multiplexer integration (automatically determined unless explicitly set)
@@ -82,4 +82,3 @@ M.plugins = {
 }
 
 return M
-

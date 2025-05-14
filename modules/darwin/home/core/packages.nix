@@ -66,7 +66,6 @@ let
     stern
     swift
     taplo
-    tmux
     tree
     watch
     wget
@@ -80,4 +79,3 @@ in
 {
   home.packages = allHomePackages;
 }
-
