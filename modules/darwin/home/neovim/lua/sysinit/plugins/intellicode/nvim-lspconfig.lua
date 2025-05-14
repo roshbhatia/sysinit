@@ -52,9 +52,13 @@ M.plugins = {
 		event = { "LspAttach" },
 		config = function()
 			require("lspsaga").setup({
+				border = "rounded",
 				lightbulb = {
 					sign = false,
 				},
+				code_action = "  ",
+				actionfix = " 󰁨 ",
+				imp_sign = "  ",
 			})
 		end,
 		dependencies = {
@@ -83,3 +87,4 @@ M.plugins = {
 }
 
 return M
+
