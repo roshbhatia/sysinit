@@ -69,7 +69,8 @@ M.plugins = {
 		"folke/tokyonight.nvim",
 		lazy = false,
 		priority = 1000,
-			transparent = true,
+	  opts = {	
+      transparent = true,
 			styles = {
 				floats = "transparent",
 			},
