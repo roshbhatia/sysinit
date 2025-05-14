@@ -5,17 +5,17 @@ M.plugins = {
 	{
 		"mrjones2014/smart-splits.nvim",
 		lazy = false,
-		priority = 1000,
+		priority = 1000
 		config = function()
 			require("smart-splits").setup({
 				-- Ignored buffer types (only while resizing)
-				ignored_buftypes = { "nofile", "quickfix", "prompt", "neo-tree", "NeoTree", "avante" },
+				ignored_buftypes = { "nofile", "quickfix", "prompt"},
 				-- Ignored filetypes (only while resizing)
-				ignored_filetypes = { "neo-tree", "NeoTree", "avante" },
+				ignored_fietypes = { "neo-tree", "Avante" },
 				-- Default resize amount
 				default_amount = 3,
 				-- Behavior when cursor is at edge
-				at_edge = "wrap",
+				at_edge = "stop",
 				-- Multiplexer integration (automatically determined unless explicitly set)
 				-- Set to "wezterm" to force WezTerm integration
 				multiplexer_integration = "wezterm",
@@ -92,3 +92,4 @@ M.plugins = {
 }
 
 return M
+

@@ -2,6 +2,21 @@ local M = {}
 
 M.plugins = {
 	{
+		"ravitemer/mcphub.nvim",
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+		},
+		config = function()
+			require("mcphub").setup({
+				extensions = {
+					avante = {
+						make_slash_commands = true, -- make /slash commands from MCP server prompts
+					},
+				},
+			})
+		end,
+	},
+	{
 		"yetone/avante.nvim",
 		event = "VeryLazy",
 		version = false,
@@ -16,6 +31,7 @@ M.plugins = {
 			"nvim-tree/nvim-web-devicons",
 			"zbirenbaum/copilot.lua",
 			"MeanderingProgrammer/render-markdown.nvim",
+			"ravitemer/mcphub.nvim",
 		},
 		config = function()
 			local avante = require("avante")
@@ -23,10 +39,8 @@ M.plugins = {
 				provider = "copilot",
 				mode = "legacy",
 				auto_suggestions_provider = "copilot",
-				copilot = {
-					model = "claude-3.5-sonnet",
-				},
 				behaviour = {
+					auto_focus_sidebar = false,
 					auto_suggestions = false,
 					auto_apply_diff_after_generation = true,
 					support_paste_from_clipboard = true,
@@ -37,6 +51,31 @@ M.plugins = {
 						insert = "<S-CR>",
 					},
 				},
+				selector = {
+					provider = "telescope",
+				},
+				disabled_tools = {
+					"list_files",
+					"search_files",
+					"read_file",
+					"create_file",
+					"rename_file",
+					"delete_file",
+					"create_dir",
+					"rename_dir",
+					"delete_dir",
+					"bash",
+					"web_search",
+				},
+				system_prompt = function()
+					local hub = require("mcphub").get_hub_instance()
+					return hub:get_active_servers_prompt()
+				end,
+				custom_tools = function()
+					return {
+						require("mcphub.extensions.avante").mcp_tool(),
+					}
+				end,
 			})
 		end,
 	},
