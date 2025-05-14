@@ -9,9 +9,10 @@ M.plugins = {
 		build = "bundled_build.lua",
 		config = function()
 			require("mcphub").setup({
+				use_bundled_binary = true,
 				extensions = {
 					avante = {
-						make_slash_commands = true, -- make /slash commands from MCP server prompts
+						make_slash_commands = true,
 					},
 				},
 			})
