@@ -20,7 +20,7 @@ M.plugins = {
 		keys = {
 			{
 				"<leader>tt",
-				"<cmd>FloatermToggle<CR>",
+				"<cmd>FloatermToggle --width=0.8 --height=0.8 --name=terminal<CR>",
 				desc = "Terminal: Toggle floating terminal",
 			},
 		},
