@@ -2,8 +2,8 @@
   extra_params:
     extra_headers:
       accept: application/json
-      Editor-Version: Neovim/0.11.1
-      Editor-Plugin-Version: copilot.vim/1.49.0
+      editor-version: Neovim/0.11.1
+      editor-plugin-version: copilot.vim/1.49.0
       content-type: application/json
       user-agent: GithubCopilot/1.155.0
     max_tokens: 8192
@@ -12,8 +12,8 @@
   extra_params:
     extra_headers:
       accept: application/json
-      Editor-Version: Neovim/0.11.1
-      Editor-Plugin-Version: copilot.vim/1.49.0
+      editor-version: Neovim/0.11.1
+      editor-plugin-version: copilot.vim/1.49.0
       content-type: application/json
       user-agent: GithubCopilot/1.155.0
     max_tokens: 8192
@@ -22,8 +22,8 @@
   extra_params:
     extra_headers:
       accept: application/json
-      Editor-Version: Neovim/0.11.1
-      Editor-Plugin-Version: copilot.vim/1.49.0
+      editor-version: Neovim/0.11.1
+      editor-plugin-version: copilot.vim/1.49.0
       content-type: application/json
       user-agent: GithubCopilot/1.155.0
     max_tokens: 8192
@@ -32,8 +32,8 @@
   extra_params:
     extra_headers:
       accept: application/json
-      Editor-Version: Neovim/0.11.1
-      Editor-Plugin-Version: copilot.vim/1.49.0
+      editor-version: Neovim/0.11.1
+      editor-plugin-version: copilot.vim/1.49.0
       content-type: application/json
       user-agent: GithubCopilot/1.155.0
     max_tokens: 8192
@@ -42,8 +42,8 @@
   extra_params:
     extra_headers:
       accept: application/json
-      Editor-Version: Neovim/0.11.1
-      Editor-Plugin-Version: copilot.vim/1.49.0
+      editor-version: Neovim/0.11.1
+      editor-plugin-version: copilot.vim/1.49.0
       content-type: application/json
       user-agent: GithubCopilot/1.155.0
     max_tokens: 4096

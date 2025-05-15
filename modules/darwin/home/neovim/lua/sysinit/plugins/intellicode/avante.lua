@@ -2,7 +2,7 @@ local M = {}
 
 M.plugins = {
 	{
-		enabled = false,
+		enabled = true,
 		"yetone/avante.nvim",
 		event = "VeryLazy",
 		version = false,
