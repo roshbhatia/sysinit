@@ -11,6 +11,7 @@ M.plugins = {
 			"nvim-telescope/telescope-fzy-native.nvim",
 			"nvim-telescope/telescope-dap.nvim",
 			"nvim-telescope/telescope-live-grep-args.nvim",
+			"debugloop/telescope-undo.nvim",
 		},
 		config = function()
 			local telescope = require("telescope")
@@ -49,7 +50,13 @@ M.plugins = {
 					},
 					dap = {},
 					live_grep_args = {},
-					cmdline = {},
+					undo = {
+						side_by_side = true,
+						layout_strategy = "vertical",
+						layout_config = {
+							preview_height = 0.8,
+						},
+					},
 				},
 				file_ignore_patterns = { ".git/", "node_modules", "poetry.lock", "vendor" },
 				vimgrep_arguments = {
@@ -68,6 +75,7 @@ M.plugins = {
 			telescope.load_extension("fzy_native")
 			telescope.load_extension("dap")
 			telescope.load_extension("live_grep_args")
+			telescope.load_extension("undo")
 		end,
 		keys = function()
 			return {
@@ -111,10 +119,14 @@ M.plugins = {
 					"<cmd>Telescope<cr>",
 					desc = "Picker: Telescope",
 				},
+				{
+					"<leader>fu",
+					"<cmd>Telescope undo<cr>",
+					desc = "Picker: Undo history",
+				},
 			}
 		end,
 	},
 }
 
 return M
-

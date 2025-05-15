@@ -62,10 +62,7 @@ M.plugins = {
 					}
 				end,
 				windows = {
-					sidebar_header = {
-						enabled = false,
-					},
-					position = "smart",
+					position = "bottom",
 				},
 				edit = {
 					start_insert = false,
@@ -76,4 +73,3 @@ M.plugins = {
 }
 
 return M
-
