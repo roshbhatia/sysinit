@@ -39,7 +39,7 @@ M.plugins = {
 		opts = {
 			flavour = "macchiato",
 			show_end_of_buffer = false,
-			transparent_background = false,
+			transparent_background = true,
 			styles = { comments = { "italic" } },
 			integrations = {
 				alpha = true,
@@ -163,3 +163,4 @@ M.plugins = {
 }
 
 return M
+
