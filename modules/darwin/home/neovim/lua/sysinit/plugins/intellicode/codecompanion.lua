@@ -50,12 +50,12 @@ M.plugins = {
 						provider = "telescope",
 					},
 					chat = {
-						show_header_separator = true,
 						icons = {
 							pinned_buffer = " ",
 							watched_buffer = "󱣽 ",
 						},
 						window = {
+							width = 0.33,
 							position = "right",
 							opts = {
 								cursorline = true,

@@ -3,6 +3,9 @@ local M = {}
 
 M.plugins = {
 	{
+		"rhysd/conflict-marker.vim",
+	},
+	{
 		"sindrets/diffview.nvim",
 		cmd = {
 			"DiffviewOpen",
