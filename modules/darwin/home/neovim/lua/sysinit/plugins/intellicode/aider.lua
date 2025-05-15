@@ -26,6 +26,7 @@ M.plugins = {
 				args = {
 					"-c",
 					"~/.aider.nvim.copilot.conf.yml",
+					"--model-settings-file ~/.aider.nvim.copilot.model.settings.yml",
 					"--openai-api-key $(get-copilot-token)",
 				},
 				auto_reload = true,

@@ -4,21 +4,6 @@ model: openai/claude-3.5-sonnet
 ## Specify the api base url
 openai-api-base: https://api.githubcopilot.com
 
-## Specify a file with aider model settings for unknown models
-model-settings-file: ~/.aider.nvim.copilot.model.settings.yml
-
-## Enable caching of prompts (default: False)
-cache-prompts: true
-
-## Number of times to ping at 5min intervals to keep prompt cache warm (default: 0)
-#cache-keepalive-pings: false
-
-###################
-# Repomap settings:
-
-## Suggested number of tokens to use for repo map, use 0 to disable
-#map-tokens: xxx
-
 ## Control how often the repo map is refreshed. Options: auto, always, files, manual (default: auto)
 map-refresh: auto
 
