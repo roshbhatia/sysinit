@@ -61,6 +61,14 @@ M.plugins = {
 						require("mcphub.extensions.avante").mcp_tool(),
 					}
 				end,
+				windows = {
+					sidebar_header = {
+						enabled = false,
+					},
+				},
+				edit = {
+					start_insert = false,
+				},
 			})
 		end,
 	},
