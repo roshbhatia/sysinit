@@ -9,6 +9,10 @@ M.plugins = {
 				lightbulb = {
 					sign = false,
 				},
+				ui = {
+					code_action = "󰘧",
+					actionfix = "",
+				},
 			})
 		end,
 		dependencies = {
