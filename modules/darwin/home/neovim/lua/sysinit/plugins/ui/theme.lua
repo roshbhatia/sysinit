@@ -150,7 +150,13 @@ M.plugins = {
 		lazy = true,
 		event = "VeryLazy",
 		opts = {
-			themes = vim.fn.getcompletion("", "color"),
+			themes = function()
+				local result = {}
+				for _, v in ipairs(vim.fn.getcompletion("", "color")) do
+					table.insert(result, v)
+				end
+				return result
+			end,
 			livePreview = true,
 			onApply = function(theme)
 				set_theme(theme)
@@ -160,3 +166,4 @@ M.plugins = {
 }
 
 return M
+
