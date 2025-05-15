@@ -6,7 +6,7 @@ M.plugins = {
 		event = { "BufReadPre", "BufNewFile" },
 		config = function()
 			require("gitsigns").setup({
-				current_line_blame_formatter = " <author>@<author_time:%Y-%m-%d> - <summary>",
+				current_line_blame_formatter = "",
 				on_attach = function(bufnr)
 					local gs = package.loaded.gitsigns
 

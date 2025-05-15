@@ -12,7 +12,7 @@ function M.register_options()
 	vim.opt.signcolumn = "yes:2"
 
 	-- vim.opt.spelllang = "en_gb"
-	-- vim.opt.spell = true
+	vim.opt.spell = false
 
 	-- Search options
 	vim.opt.hlsearch = true

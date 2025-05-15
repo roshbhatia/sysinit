@@ -4,7 +4,10 @@ M.plugins = {
 	{
 		"MeanderingProgrammer/render-markdown.nvim",
 		dependencies = { "3rd/image.nvim" },
-		ft = { "markdown", "Avante" },
+		ft = {
+			"markdown",
+			"Avante",
+		},
 		config = function()
 			-- Create namespaces for mermaid handling
 			local mermaid_ns_id = vim.api.nvim_create_namespace("mermaid_inline_render")

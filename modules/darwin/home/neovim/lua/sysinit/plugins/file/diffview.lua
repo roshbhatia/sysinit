@@ -4,7 +4,13 @@ local M = {}
 M.plugins = {
 	{
 		"sindrets/diffview.nvim",
-		cmd = { "DiffviewOpen", "DiffviewClose", "DiffviewToggleFiles", "DiffviewFocusFiles", "DiffviewRefresh" },
+		cmd = {
+			"DiffviewOpen",
+			"DiffviewClose",
+			"DiffviewToggleFiles",
+			"DiffviewFocusFiles",
+			"DiffviewRefresh",
+		},
 		dependencies = { "nvim-lua/plenary.nvim" },
 		config = function()
 			local actions = require("diffview.config").actions
