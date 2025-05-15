@@ -2,8 +2,7 @@ local M = {}
 
 local markdown_filetypes = {
 	"markdown",
-	-- Uncomment if avante is enabled
-	-- "Avante",
+	"Avante",
 	"codecompanion",
 }
 
@@ -234,3 +233,4 @@ M.plugins = {
 }
 
 return M
+

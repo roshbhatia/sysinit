@@ -4,7 +4,6 @@ local M = {}
 M.plugins = {
 	{
 		"mrjones2014/smart-splits.nvim",
-		commit = "f011745141fbe767183dfe3d057e8ac039082c9b",
 		lazy = false,
 		config = function()
 			require("smart-splits").setup({
@@ -17,11 +16,10 @@ M.plugins = {
 					"NeoTree",
 					"Neotree",
 					"neo-tree",
-					-- Uncomment if avante is enabled
-					-- "Avante",
-					-- "AvanteSelectedFiles",
-					-- "AvanteInput",
-					-- "AvantePromptInput",
+					"Avante",
+					"AvanteSelectedFiles",
+					"AvanteInput",
+					"AvantePromptInput",
 					"codecompanion",
 				},
 				-- Ignored filetypes (only while resizing)
@@ -33,11 +31,10 @@ M.plugins = {
 					"Neotree",
 					"neo-tree",
 					"neo-tree.nvim",
-					-- Uncomment if avante is enabled
-					-- "Avante",
-					-- "AvanteSelectedFiles",
-					-- "AvanteInput",
-					-- "AvantePromptInput",
+					"Avante",
+					"AvanteSelectedFiles",
+					"AvanteInput",
+					"AvantePromptInput",
 					"codecompanion",
 				},
 				-- Behavior when cursor is at edge
@@ -114,3 +111,4 @@ M.plugins = {
 }
 
 return M
+
