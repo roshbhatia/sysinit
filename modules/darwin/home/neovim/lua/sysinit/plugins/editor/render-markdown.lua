@@ -1,15 +1,17 @@
 local M = {}
 
+local markdown_filetypes = {
+	"markdown",
+	-- Uncomment if avante is enabled
+	-- "Avante",
+	"codecompanion",
+}
+
 M.plugins = {
 	{
 		"MeanderingProgrammer/render-markdown.nvim",
 		dependencies = { "3rd/image.nvim" },
-		ft = {
-			"markdown",
-			-- Uncomment if avante is enabled
-			-- "Avante",
-			"codecompanion",
-		},
+		ft = markdown_filetypes,
 		config = function()
 			-- Create namespaces for mermaid handling
 			local mermaid_ns_id = vim.api.nvim_create_namespace("mermaid_inline_render")
@@ -20,7 +22,8 @@ M.plugins = {
 
 			-- Set up the plugin
 			require("render-markdown").setup({
-				file_types = { "markdown", "mermaid", "Avante" },
+				file_types = markdown_filetypes,
+				render_modes = true, -- Render in ALL modes
 				latex = {
 					enabled = false,
 				},

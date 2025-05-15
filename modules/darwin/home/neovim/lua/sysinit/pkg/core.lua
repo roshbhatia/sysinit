@@ -110,6 +110,12 @@ function M.register_keybindings()
 		desc = " Write",
 	})
 
+	vim.keymap.set("i", "<leader>s", ":w!<CR>", {
+		noremap = true,
+		silent = true,
+		desc = " Write",
+	})
+
 	vim.keymap.set("n", "<leader>w", ":wq!<CR>", {
 		noremap = true,
 		silent = true,
@@ -169,3 +175,4 @@ function M.register_autocmds()
 end
 
 return M
+

@@ -50,6 +50,8 @@ M.plugins = {
 						provider = "telescope",
 					},
 					chat = {
+						show_header_seperator = true,
+						show_references = true,
 						icons = {
 							pinned_buffer = " ",
 							watched_buffer = "󱣽 ",
@@ -101,3 +103,4 @@ M.plugins = {
 }
 
 return M
+
