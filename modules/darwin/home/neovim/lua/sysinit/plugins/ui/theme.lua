@@ -150,7 +150,7 @@ M.plugins = {
 		lazy = true,
 		event = "VeryLazy",
 		opts = {
-			themes = vim.fn.getcompletion("colo ", "cmdline"),
+			themes = vim.fn.getcompletion("", "color"),
 			livePreview = true,
 			onApply = function(theme)
 				set_theme(theme)
