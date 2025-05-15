@@ -4,38 +4,27 @@ M.plugins = {
 	{
 		"folke/trouble.nvim",
 		event = "LSPAttach",
-		opts = {},
+		opts = {
+			win = split,
+		},
 		keys = function()
 			return {
 				{
-					"<leader>cx",
-					"<cmd>Trouble diagnostics toggle<cr>",
-					desc = "Problems: Diagnostics",
-				},
-				{
-					"<leader>cxX",
-					"<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
-					desc = "Problems: Buffer Diagnostics",
-				},
-				{
-					"<leader>cxs",
-					"<cmd>Trouble symbols toggle focus=false<cr>",
-					desc = "Problems: Symbols",
-				},
-				{
-					"<leader>cxl",
-					"<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
-					desc = "Problems: LSP Definitions / references / ...",
-				},
-				{
-					"<leader>cxL",
-					"<cmd>Trouble loclist toggle<cr>",
-					desc = "Problems: Location List",
-				},
-				{
-					"<leader>cxQ",
-					"<cmd>Trouble qflist toggle<cr>",
-					desc = "Problems: Quickfix List",
+					{
+						"<leader>xa",
+						"<cmd>Trouble diagnostics toggle focus=false win.position=right win.type=split pinned=true win.relative=win<cr>",
+						desc = "Problems: Project Diagnostics"
+					}
+					{
+						"<leader>xb",
+						"<cmd>Trouble diagnostics toggle filter.buf=0 focus=false win.position=right win.type=split pinned=true win.relative=win<cr>",
+						desc = "Problems: Buffer Diagnostics"
+					},
+					{
+						"<leader>xq",
+						"<cmd>Trouble qflist toggle focus=false win.position=right win.type=split pinned=true win.relative=win<cr>",
+						desc = "Problems: Project Quickfix List"
+					},
 				},
 			}
 		end,
@@ -43,3 +32,4 @@ M.plugins = {
 }
 
 return M
+
