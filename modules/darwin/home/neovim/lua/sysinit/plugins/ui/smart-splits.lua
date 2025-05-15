@@ -4,7 +4,7 @@ local M = {}
 M.plugins = {
 	{
 		"mrjones2014/smart-splits.nvim",
-		version = ">=v2.0.0",
+		commit = "f011745141fbe767183dfe3d057e8ac039082c9b",
 		lazy = false,
 		config = function()
 			require("smart-splits").setup({
