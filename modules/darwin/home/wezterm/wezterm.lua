@@ -1,3 +1,11 @@
+package.path = package.path
+	.. ";"
+	.. vim.fn.stdpath("config")
+	.. "/?.lua"
+	.. ";"
+	.. vim.fn.stdpath("config")
+	.. "/lua/?.lua"
+
 local wezterm = require("wezterm")
 local config = wezterm.config_builder()
 local username = os.getenv("USER")
