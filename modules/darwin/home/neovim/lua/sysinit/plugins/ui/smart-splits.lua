@@ -4,7 +4,7 @@ local M = {}
 M.plugins = {
 	{
 		"mrjones2014/smart-splits.nvim",
-		lazy = false,
+		event = "VeryLazy",
 		config = function()
 			require("smart-splits").setup({
 				ignored_buftypes = {
@@ -36,6 +36,7 @@ M.plugins = {
 					"AvanteInput",
 					"AvantePromptInput",
 					"codecompanion",
+					"snacks_terminal",
 				},
 				-- Behavior when cursor is at edge
 				at_edge = "stop",
@@ -111,4 +112,3 @@ M.plugins = {
 }
 
 return M
-

@@ -50,6 +50,23 @@ M.plugins = {
 			"zbirenbaum/copilot.lua",
 		},
 		config = function()
+			-- aider \
+			--no-auto-commits \
+			--pretty \
+			--stream \
+			--no-show-model-warnings \
+			--openai-api-base https://api.githubcopilot.com \
+			--model openai/claude-3.5-sonnet \
+			--weak-model openai/gpt-4o \
+			--openai-api-key $(curl -s -H "Authorization: Bearer $(cat ~/.config/github-copilot/apps.json | jq -r 'to_entries[0].value.oauth_token')" "https://api.github.com/copilot_internal/v2/token" | jq -r '.token') \
+			--no-gitignore \
+			--no-attribute-author \
+			--no-attribute-committer \
+			--code-theme github-dark \
+			--set-env accept=application/json \
+			--set-env editor-version=Neovim/0.6.1 \
+			--set-env editor-plugin-version=copilot.vim/1.16.0 \
+			--set-env user-agent=GithubCopilot/1.155.0
 			require("nvim_aider").setup({
 				aider_cmd = "aider",
 				args = {
@@ -67,6 +84,12 @@ M.plugins = {
 					"--no-attribute-author",
 					"--no-attribute-committer",
 					"--code-theme github-dark",
+					"--set-env accept=application/json",
+					"--set-env Editor-Version=Neovim/0.6.1",
+					"--set-env editor-plugin-version=copilot.vim/1.16.0",
+					"--set-env content-type=application/json",
+					"--set-env user-agent=GithubCopilot/1.155.0",
+					"--set-env accept-encoding=gzip,deflate,br",
 				},
 				auto_reload = true,
 				picker_cfg = {
