@@ -31,7 +31,6 @@ end
 
 M.plugins = {
 	{
-		enabled = false,
 		"GeorgesAlkhouri/nvim-aider",
 		cmd = "BufEnter",
 		keys = {
@@ -42,11 +41,12 @@ M.plugins = {
 			{ "<leader>ad", "<cmd>Aider add<cr>", desc = "Copilot: Add file" },
 			{ "<leader>ar", "<cmd>Aider drop<cr>", desc = "Copilot: Drop file" },
 			{ "<leader>aR", "<cmd>Aider reset<cr>", desc = "Copilot: Reset session" },
+			{ "<leader>aa", "<cmd>AiderTreeAddFile<cr>", desc = "Add File from Tree to Aider", ft = "neo-tree" },
+			{ "<leader>ad", "<cmd>AiderTreeDropFile<cr>", desc = "Drop File from Tree from Aider", ft = "neo-tree" },
 		},
 		dependencies = {
 			"folke/snacks.nvim",
 			"catppuccin/nvim",
-			"nvim-neo-tree/neo-tree.nvim",
 			"zbirenbaum/copilot.lua",
 		},
 		config = function()
@@ -70,7 +70,7 @@ M.plugins = {
 				},
 				auto_reload = true,
 				picker_cfg = {
-					preset = "vscode",
+					preset = "telescope",
 				},
 				config = {
 					os = { editPreset = "nvim-remote" },
@@ -82,8 +82,6 @@ M.plugins = {
 					position = "right",
 				},
 			})
-
-			require("nvim_aider.neo_tree").setup({})
 		end,
 	},
 }
