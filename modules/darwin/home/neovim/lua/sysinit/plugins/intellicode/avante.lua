@@ -65,6 +65,7 @@ M.plugins = {
 					sidebar_header = {
 						enabled = false,
 					},
+					position = "smart",
 				},
 				edit = {
 					start_insert = false,
