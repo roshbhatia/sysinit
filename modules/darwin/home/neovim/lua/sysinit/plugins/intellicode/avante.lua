@@ -62,10 +62,13 @@ M.plugins = {
 					}
 				end,
 				windows = {
-					position = "bottom",
-				},
-				edit = {
-					start_insert = false,
+					sidebar_header = {
+						enabled = false,
+					}
+					edit = {
+						border = { "", "", "", "", "", "", "", "" },
+						start_insert = false,
+					},
 				},
 			})
 		end,
@@ -73,3 +76,4 @@ M.plugins = {
 }
 
 return M
+

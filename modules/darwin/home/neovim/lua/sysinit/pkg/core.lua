@@ -92,16 +92,10 @@ function M.register_keybindings()
 	})
 
 	-- MacOS clipboard integration
-	vim.keymap.set("n", "<D-c>", '"+y', { silent = true, noremap = true })
-	vim.keymap.set("v", "<D-c>", '"+y', { silent = true, noremap = true })
-	vim.keymap.set("n", "<D-v>", '"+p', { silent = true, noremap = true })
-	vim.keymap.set("v", "<D-v>", '"+p', { silent = true, noremap = true })
-	vim.keymap.set("i", "<D-v>", "<C-r>+", { silent = true, noremap = true })
-	vim.keymap.set("c", "<D-v>", "<C-r>+", { silent = true, noremap = true })
-	vim.keymap.set("n", "<D-x>", '"+d', { silent = true, noremap = true })
-	vim.keymap.set("v", "<D-x>", '"+d', { silent = true, noremap = true })
-	vim.keymap.set("n", "<D-p>", '"+p', { silent = true, noremap = true })
-	vim.keymap.set("v", "<D-p>", '"+p', { silent = true, noremap = true })
+	vim.keymap.set("n", "<D-c>", '"+y', { noremap = true, silent = true })
+	vim.keymap.set("v", "<D-c>", '"+y', { noremap = true, silent = true })
+	vim.keymap.set("n", "<D-x>", '"+d', { noremap = true, silent = true })
+	vim.keymap.set("v", "<D-x>", '"+d', { noremap = true, silent = true })
 
 	-- Buffer management
 	vim.keymap.set("n", "<leader>W", ":q!<CR>", {
