@@ -5,9 +5,7 @@ model: openai/claude-3.5-sonnet
 openai-api-base: https://api.githubcopilot.com
 
 ## Specify a file with aider model settings for unknown models
-model-settings-file: .aider.nvim.copilot.model.settings.yml
-
-
+model-settings-file: ~/.aider.nvim.copilot.model.settings.yml
 
 ## Enable caching of prompts (default: False)
 cache-prompts: true
