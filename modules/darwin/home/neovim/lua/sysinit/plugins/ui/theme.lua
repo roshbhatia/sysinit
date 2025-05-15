@@ -130,7 +130,17 @@ M.plugins = {
 	{ "chrsm/paramount-ng.nvim", lazy = false, priority = 1000 },
 	{ "olivercederborg/poimandres.nvim", lazy = false, priority = 1000 },
 	{ "kvrohit/rasmus.nvim", lazy = false, priority = 1000 },
-	{ "rose-pine/neovim", lazy = false, priority = 1000 },
+	{
+		"rose-pine/neovim",
+		lazy = false,
+		priority = 1000,
+		opts = {
+			dim_inactive_windows = true,
+			styles = {
+				transparency = true,
+			},
+		},
+	},
 	{ "lewpoly/sherbet.nvim", lazy = false, priority = 1000 },
 	{ "ishan9299/nvim-solarized-lua", lazy = false, priority = 1000 },
 	{ "sainnhe/sonokai", lazy = false, priority = 1000 },
@@ -163,4 +173,3 @@ M.plugins = {
 }
 
 return M
-
