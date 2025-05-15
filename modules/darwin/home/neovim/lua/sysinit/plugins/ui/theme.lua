@@ -147,23 +147,19 @@ M.plugins = {
 	{ "titanzero/zephyrium", lazy = false, priority = 1000 },
 	{
 		"zaldih/themery.nvim",
-		lazy = true,
-		event = "VeryLazy",
-		opts = {
-			themes = function()
-				local result = {}
-				for _, v in ipairs(vim.fn.getcompletion("", "color")) do
-					table.insert(result, v)
-				end
-				return result
-			end,
-			livePreview = true,
-			onApply = function(theme)
-				set_theme(theme)
-			end,
-		},
+		command = { "Themery" },
+		config = function()
+			local available_colorschemes = vim.fn.getcompletion("", "color")
+			local colorschemes = {}
+			for _, colorscheme in ipairs(available_colorschemes) do
+				table.insert(colorschemes, colorscheme)
+			end
+
+			require("themery").setup({
+				themes = colorschemes,
+			})
+		end,
 	},
 }
 
 return M
-
