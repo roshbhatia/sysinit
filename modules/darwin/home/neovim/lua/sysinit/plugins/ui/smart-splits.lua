@@ -13,6 +13,14 @@ M.plugins = {
 					"quickfix",
 					"prompt",
 					"nofile",
+					"neotree",
+					"NeoTree",
+					"Neotree",
+					"neo-tree",
+					"Avante",
+					"AvanteSelectedFiles",
+					"AvanteInput",
+					"AvantePromptInput",
 				},
 				-- Ignored filetypes (only while resizing)
 				ignored_filetypes = {
@@ -91,3 +99,4 @@ M.plugins = {
 }
 
 return M
+
