@@ -30,6 +30,7 @@ M.plugins = {
 					"NeoTree",
 					"Neotree",
 					"neo-tree",
+					"neo-tree.nvim",
 					"Avante",
 					"AvanteSelectedFiles",
 					"AvanteInput",
@@ -99,4 +100,3 @@ M.plugins = {
 }
 
 return M
-
