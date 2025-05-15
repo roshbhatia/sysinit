@@ -17,10 +17,12 @@ M.plugins = {
 					"NeoTree",
 					"Neotree",
 					"neo-tree",
-					"Avante",
-					"AvanteSelectedFiles",
-					"AvanteInput",
-					"AvantePromptInput",
+					-- Uncomment if avante is enabled
+					-- "Avante",
+					-- "AvanteSelectedFiles",
+					-- "AvanteInput",
+					-- "AvantePromptInput",
+					"codecompanion",
 				},
 				-- Ignored filetypes (only while resizing)
 				ignored_filetypes = {
@@ -31,10 +33,12 @@ M.plugins = {
 					"Neotree",
 					"neo-tree",
 					"neo-tree.nvim",
-					"Avante",
-					"AvanteSelectedFiles",
-					"AvanteInput",
-					"AvantePromptInput",
+					-- Uncomment if avante is enabled
+					-- "Avante",
+					-- "AvanteSelectedFiles",
+					-- "AvanteInput",
+					-- "AvantePromptInput",
+					"codecompanion",
 				},
 				-- Behavior when cursor is at edge
 				at_edge = "stop",

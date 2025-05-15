@@ -42,6 +42,7 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.intellicode.cmp-nvim-lsp"),
 	require("sysinit.plugins.intellicode.cmp-nvim-lua"),
 	require("sysinit.plugins.intellicode.cmp-path"),
+	require("sysinit.plugins.intellicode.codecompanion"),
 	require("sysinit.plugins.intellicode.copilot-chat"),
 	require("sysinit.plugins.intellicode.copilot-cmp"),
 	require("sysinit.plugins.intellicode.copilot"),

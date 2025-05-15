@@ -2,7 +2,7 @@ local M = {}
 
 M.plugins = {
 	{
-
+		enabled = false,
 		"CopilotC-Nvim/CopilotChat.nvim",
 		branch = "canary",
 		dependencies = {

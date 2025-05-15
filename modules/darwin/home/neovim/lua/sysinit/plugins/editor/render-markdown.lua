@@ -6,7 +6,9 @@ M.plugins = {
 		dependencies = { "3rd/image.nvim" },
 		ft = {
 			"markdown",
-			"Avante",
+			-- Uncomment if avante is enabled
+			-- "Avante",
+			"codecompanion",
 		},
 		config = function()
 			-- Create namespaces for mermaid handling
