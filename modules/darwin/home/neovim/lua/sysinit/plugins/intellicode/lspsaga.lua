@@ -7,7 +7,7 @@ M.plugins = {
 		config = function()
 			require("lspsaga").setup({
 				lightbulb = {
-					sign = false,
+					virtual_text = false,
 				},
 				ui = {
 					code_action = "󰘧",
@@ -41,3 +41,4 @@ M.plugins = {
 }
 
 return M
+
