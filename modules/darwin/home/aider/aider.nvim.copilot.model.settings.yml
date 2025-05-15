@@ -1,0 +1,21 @@
+- name: openai/claude-3.5-sonnet
+  extra_params:
+    extra_headers:
+      accept: application/json
+      editor-version: Neovim/0.6.1 
+      editor-plugin-version: copilot.vim/1.16.0
+      content-type: application/json
+      user-agent: GithubCopilot/1.155.0
+      accept-encoding: gzip,deflate,br
+    max_tokens: 8192
+
+- name: openai/gpt-4o
+  extra_params:
+    extra_headers:
+      accept: application/json
+      editor-version: Neovim/0.6.1
+      editor-plugin-version: copilot.vim/1.16.0
+      content-type: application/json
+      user-agent: GithubCopilot/1.155.0
+      accept-encoding: gzip,deflate,br
+    max_tokens: 8192
