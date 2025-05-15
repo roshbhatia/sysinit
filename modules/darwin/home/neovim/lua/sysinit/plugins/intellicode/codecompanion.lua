@@ -46,7 +46,11 @@ M.plugins = {
 					},
 				},
 				display = {
+					action_palette = {
+						provider = "telescope",
+					},
 					chat = {
+						show_header_separator = true,
 						icons = {
 							pinned_buffer = " ",
 							watched_buffer = "󱣽 ",
@@ -62,12 +66,36 @@ M.plugins = {
 			})
 		end,
 		keys = {
-			{ "<leader>aa", "<cmd>CodeCompanionChat Toggle<cr>", desc = "CodeCompanion: Toggle Chat" },
-			{ "<leader>ai", "<cmd>CodeCompanion<cr>", desc = "CodeCompanion: Inline Assistant" },
-			{ "<leader>ac", "<cmd>CodeCompanionChat<cr>", desc = "CodeCompanion: Chat" },
-			{ "<leader>ad", "<cmd>CodeCompanionChat Add<cr>", desc = "CodeCompanion: Add Selection to Chat" },
-			{ "<leader>as", "<cmd>CodeCompanionActions<cr>", desc = "CodeCompanion: Actions" },
-			{ "<leader>am", "<cmd>CodeCompanionCmd<cr>", desc = "CodeCompanion: Command-line" },
+			{
+				"<leader>aa",
+				"<cmd>CodeCompanionChat Toggle<cr>",
+				desc = "CodeCompanion: Toggle Chat",
+			},
+			{
+				"<leader>ai",
+				"<cmd>CodeCompanion<cr>",
+				desc = "CodeCompanion: Inline Assistant",
+			},
+			{
+				"<leader>ac",
+				"<cmd>CodeCompanionChat<cr>",
+				desc = "CodeCompanion: Chat",
+			},
+			{
+				"<leader>ad",
+				"<cmd>CodeCompanionChat Add<cr>",
+				desc = "CodeCompanion: Add Selection to Chat",
+			},
+			{
+				"<leader>as",
+				"<cmd>CodeCompanionActions<cr>",
+				desc = "CodeCompanion: Actions",
+			},
+			{
+				"<leader>am",
+				"<cmd>CodeCompanionCmd<cr>",
+				desc = "CodeCompanion: Command-line",
+			},
 		},
 	},
 }
