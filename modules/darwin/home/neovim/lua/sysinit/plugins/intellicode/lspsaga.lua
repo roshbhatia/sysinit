@@ -6,9 +6,6 @@ M.plugins = {
 		event = { "LspAttach" },
 		config = function()
 			require("lspsaga").setup({
-				ui = {
-					border = "round",
-				},
 				lightbulb = {
 					sign = false,
 				},
