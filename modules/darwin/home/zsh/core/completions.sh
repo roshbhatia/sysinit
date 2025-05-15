@@ -15,5 +15,6 @@ _evalcache kubectl completion zsh
 _evalcache docker completion zsh
 _evalcache task --completion zsh
 _evalcache zoxide init zsh
+compdef _zoxide z
 # modules/darwin/home/zsh/core/completions.sh (end)
 
