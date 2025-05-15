@@ -86,9 +86,35 @@ M.plugins = {
 					"<cmd>Telescope buffers<cr>",
 					desc = "Picker: Find buffers",
 				},
+				{
+					"<leader>fc",
+					"<cmd>Telescope commands<cr>",
+					desc = "Picker: Find commands",
+				},
+				{
+					"<leader>fh",
+					"<cmd>Telescope help_tags<cr>",
+					desc = "Picker: Find help tags",
+				},
+				{
+					"<leader>fr",
+					"<cmd>Telescope oldfiles<cr>",
+					desc = "Picker: Find recent files",
+				},
+				{
+					"<leader>ft",
+					"<cmd>Telescope filetypes<cr>",
+					desc = "Picker: Find filetypes",
+				},
+				{
+					"<leader>fF",
+					"<cmd>Telescope<cr>",
+					desc = "Picker: Telescope",
+				},
 			}
 		end,
 	},
 }
 
 return M
+
