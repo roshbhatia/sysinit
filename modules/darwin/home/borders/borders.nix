@@ -1,8 +1,14 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   activationUtils = import ../../../lib/activation-utils.nix { inherit lib; };
-in {
+in
+{
   xdg.configFile."borders/bordersrc" = {
     source = ./bordersrc;
     force = true;
@@ -12,7 +18,8 @@ in {
     description = "Start borders service";
     requiredExecutables = [ "brew" ];
     script = ''
-      log_command "brew services start borders" "Starting borders service"
+      brew services start borders
+      log_command "brew services restart borders" "Starting borders service"
     '';
   };
 }
