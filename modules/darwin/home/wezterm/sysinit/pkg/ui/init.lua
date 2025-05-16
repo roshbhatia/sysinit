@@ -54,11 +54,7 @@ function M.setup(config)
 			{ Background = { Color = bg } },
 			{ Foreground = { Color = fg } },
 			{
-				Text = wezterm.nerdfonts.pl_right_hard_divider
-					.. os.getenv("USER")
-					.. "@"
-					.. wezterm.hostname()
-					.. " 󱄅 ",
+				Text = os.getenv("USER") .. "@" .. wezterm.hostname() .. " 󱄅 ",
 			},
 		}))
 	end)
