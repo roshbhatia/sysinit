@@ -8,6 +8,14 @@ M.plugins = {
 			vim.opt.splitkeep = "screen"
 
 			require("edgy").setup({
+				options = {
+					left = {
+						size = 55,
+					},
+					right = {
+						size = 55.,
+					},
+				},
 				left = {
 					{
 						title = "Neo-Tree",
