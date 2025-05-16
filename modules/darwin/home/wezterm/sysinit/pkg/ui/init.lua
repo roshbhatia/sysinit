@@ -38,14 +38,8 @@ function M.setup(config)
 
 	wezterm.on("update-status", function(window)
 		local color_scheme = window:effective_config().resolved_palette
-
 		local bg = color_scheme.background
 		local fg = color_scheme.foreground
-
-		config.set_environment_variables = {
-			SYSINIT_COLORSCHEME_BG = bg,
-			SYSINIT_COLORSCHEME_FG = fg,
-		}
 
 		window:set_right_status(wezterm.format({
 			{ Background = { Color = "none" } },
@@ -54,7 +48,7 @@ function M.setup(config)
 			{ Background = { Color = bg } },
 			{ Foreground = { Color = fg } },
 			{
-				Text = " 󱄅 ",
+				Text = "󱄅 ",
 			},
 		}))
 	end)
