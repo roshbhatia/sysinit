@@ -66,7 +66,7 @@ M.plugins = {
 				},
 				window = {
 					position = "left",
-					width = 55,
+					width = 40,
 					mapping_options = {
 						noremap = true,
 						nowait = true,
@@ -109,20 +109,6 @@ M.plugins = {
 					},
 				},
 				filesystem = {
-					commands = {
-						aider_add_files = function(state)
-							local node = state.tree:get_node()
-							local filepath = node:get_id()
-							local api = require("nvim_aider").api
-							api.add_file(filepath)
-						end,
-						aider_drop_files = function(state)
-							local node = state.tree:get_node()
-							local filepath = node:get_id()
-							local api = require("nvim_aider").api
-							api.drop_file(filepath)
-						end,
-					},
 					filtered_items = {
 						visible = false,
 						hide_dotfiles = false,
@@ -151,8 +137,6 @@ M.plugins = {
 							["<c-x>"] = "clear_filter",
 							["[g"] = "prev_git_modified",
 							["]g"] = "next_git_modified",
-							["<leader>ia"] = "aider_add_files",
-							["<leader>ir"] = "aider_drop_files",
 						},
 					},
 				},
@@ -193,3 +177,4 @@ M.plugins = {
 }
 
 return M
+

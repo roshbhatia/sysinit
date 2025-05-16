@@ -10,7 +10,7 @@ M.plugins = {
 			require("edgy").setup({
 				options = {
 					left = {
-						size = 55,
+						size = 40,
 					},
 					right = {
 						size = 55,
@@ -47,3 +47,4 @@ M.plugins = {
 }
 
 return M
+
