@@ -82,6 +82,7 @@ let
     "keycastr"
     "libgit2@1.8"
     "loop"
+    "libgit2@1.8"
     "obsidian"
     "raycast"
     "slack"
