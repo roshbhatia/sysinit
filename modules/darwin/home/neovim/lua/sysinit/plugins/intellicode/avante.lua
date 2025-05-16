@@ -64,7 +64,6 @@ M.plugins = {
 				end,
 				windows = {
 						border = { "", "", "", "", "", "", "", "" },
-					},
 				},
 			})
 		end,
