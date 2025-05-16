@@ -56,6 +56,24 @@ function M.setup(config)
 			{ Text = os.getenv("USER") .. "@" .. wezterm.hostname() .. " 󱄅 " },
 		}))
 	end)
+
+	wezterm.on("gui-startup", function(cmd)
+		-- Get active screen information
+		local screen = wezterm.gui.screens().active
+		if not screen then
+			return
+		end
+
+		-- Create a new window with the specified command or default
+		local _, _, window = wezterm.mux.spawn_window(cmd or {})
+
+		-- Position and size the window to match the screen
+		local gui_window = window:gui_window()
+		if gui_window then
+			gui_window:set_position(screen.x, screen.y)
+			gui_window:set_inner_size(screen.width, screen.height)
+		end
+	end)
 end
 
 return M
