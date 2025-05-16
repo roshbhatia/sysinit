@@ -2,10 +2,10 @@ local M = {}
 
 M.plugins = {
 	{
-		c("folke/edgy.nvim"),
+		"folke/edgy.nvim",
 		event = "VeryLazy",
 		config = function()
-			vim.opt.splitkeep = "screen"
+			vim.opt.splitkeep = "topline"
 
 			require("edgy").setup({
 				options = {
@@ -38,7 +38,7 @@ M.plugins = {
 					},
 					{
 						ft = "avante-input",
-						size = { height = 0.2 }, -- remaining space
+						size = { height = 0.2 },
 					},
 				},
 			})
@@ -47,4 +47,3 @@ M.plugins = {
 }
 
 return M
-
