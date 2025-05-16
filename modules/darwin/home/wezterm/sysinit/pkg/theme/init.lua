@@ -2,7 +2,8 @@ local wezterm = require("wezterm")
 local M = {}
 
 local function get_theme()
-	local theme_file = wezterm.home_dir .. "/.cache/wezterm-theme"
+	local username = os.getenv("USER")
+	local theme_file = "/Users/" .. username .. "/.cache/wezterm-theme"
 	local success, data = pcall(wezterm.read_file, theme_file)
 	return success and data or "rose-pine"
 end
