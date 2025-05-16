@@ -20,7 +20,7 @@ M.plugins = {
 		keys = {
 			{
 				"<leader>tt",
-				"<cmd>FloatermToggle --width=0.8 --height=0.8 --name=terminal<CR>",
+				"<cmd>FloatermToggle --width=0.8 --height=0.8 --name=terminal --dir=" .. vim.fn.getcwd() .. " <CR>",
 				desc = "Terminal: Toggle floating terminal",
 			},
 		},
@@ -28,4 +28,3 @@ M.plugins = {
 }
 
 return M
-
