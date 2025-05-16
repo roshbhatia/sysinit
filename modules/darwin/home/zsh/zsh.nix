@@ -1,15 +1,25 @@
-{ config, lib, pkgs, homeDirectory, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  homeDirectory,
+  ...
+}:
 
 let
-  stripHeaders = file: let
-    content = builtins.readFile file;
-    lines = lib.splitString "\n" content;
-    isHeaderLine = line:
-      lib.hasPrefix "#!/usr/bin/env zsh" line ||
-      lib.hasPrefix "# THIS FILE WAS INSTALLED BY SYSINIT" line ||
-      lib.hasPrefix "# shellcheck disable" line;
-    nonHeaderLines = builtins.filter (line: !(isHeaderLine line)) lines;
-  in lib.concatStringsSep "\n" nonHeaderLines;
+  stripHeaders =
+    file:
+    let
+      content = builtins.readFile file;
+      lines = lib.splitString "\n" content;
+      isHeaderLine =
+        line:
+        lib.hasPrefix "#!/usr/bin/env zsh" line
+        || lib.hasPrefix "# THIS FILE WAS INSTALLED BY SYSINIT" line
+        || lib.hasPrefix "# shellcheck disable" line;
+      nonHeaderLines = builtins.filter (line: !(isHeaderLine line)) lines;
+    in
+    lib.concatStringsSep "\n" nonHeaderLines;
 
   logLib = stripHeaders ./core/loglib.sh;
   paths = stripHeaders ./core/paths.sh;
@@ -20,43 +30,6 @@ let
   crepo = stripHeaders ./core/crepo.sh;
   extras = stripHeaders ./core/extras.sh;
   prompt = stripHeaders ./core/prompt.sh;
-
-  # New WezTerm status bar scripts
-  weztermStatusScripts = ''    
-    update_kubectl_context() {
-      local context
-      if context=$(kubectl config current-context 2>/dev/null); then
-        echo "export SYSINIT_KUBECTL_CONTEXT=\"$context\"" > "$XDG_CONFIG_HOME/wezterm/kubectl_context"
-      else
-        echo "export SYSINIT_KUBECTL_CONTEXT=\"none\"" > "$XDG_CONFIG_HOME/wezterm/kubectl_context"
-      fi
-    }
-    
-    update_gh_user() {
-      local user
-      if user=$(gh-whoami 2>/dev/null); then
-        echo "export SYSINIT_GH_USER=\"$user\"" > "$XDG_CONFIG_HOME/wezterm/gh_user"
-      else
-        echo "export SYSINIT_GH_USER=\"unknown\"" > "$XDG_CONFIG_HOME/wezterm/gh_user"
-      fi
-    }
-    
-    load_wezterm_env_vars() {
-      if [[ -f "$XDG_CONFIG_HOME/wezterm/kubectl_context" ]]; then
-        source "$XDG_CONFIG_HOME/wezterm/kubectl_context"
-      fi
-      
-      if [[ -f "$XDG_CONFIG_HOME/wezterm/gh_user" ]]; then
-        source "$XDG_CONFIG_HOME/wezterm/gh_user"
-      fi
-      
-      # Export variables to make them available to wezterm
-      [[ -n "$SYSINIT_KUBECTL_CONTEXT" ]] && export SYSINIT_KUBECTL_CONTEXT
-      [[ -n "$SYSINIT_GH_USER" ]] && export SYSINIT_GH_USER
-    }
-    
-    load_wezterm_env_vars
-  '';
 
   combinedCoreScripts = ''
     ${logLib}
@@ -74,8 +47,6 @@ let
     ${completions}
 
     ${extras}
-
-    ${weztermStatusScripts}
 
     ${prompt}
   '';
@@ -173,13 +144,13 @@ in
         "--color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7"
         "--color=prompt:1,pointer:5,marker:2,spinner:5,header:4"
         "--preview='sysinit-fzf-preview {}'"
-        "--bind='ctrl-/:toggle-preview'"        # Toggle preview window
-        "--bind='ctrl-s:toggle-sort'"           # Toggle sorting
+        "--bind='ctrl-/:toggle-preview'" # Toggle preview window
+        "--bind='ctrl-s:toggle-sort'" # Toggle sorting
         "--bind='ctrl-space:toggle-preview-wrap'" # Toggle preview wrap
-        "--bind='tab:half-page-down'"           # Scroll preview down
-        "--bind='btab:half-page-up'"            # Scroll preview up
-        "--bind='ctrl-u:clear-query'"           # Clear query
-        "--bind='resize:refresh-preview'"       # Refresh on resize
+        "--bind='tab:half-page-down'" # Scroll preview down
+        "--bind='btab:half-page-up'" # Scroll preview up
+        "--bind='ctrl-u:clear-query'" # Clear query
+        "--bind='resize:refresh-preview'" # Refresh on resize
       ];
 
       # Enhanced cd navigation
@@ -268,6 +239,8 @@ in
         unset MAILCHECK
         stty stop undef
 
+        setopt COMBINING_CHARS
+
         # Instant prompt: minimal prompt to avoid blank screen
         setopt PROMPT_SUBST
         PROMPT='%~%# '
@@ -283,7 +256,7 @@ in
 
         [[ -n "$SYSINIT_DEBUG" ]] && zprof
         # modules/darwin/home/zsh/zsh.nix#initContent
-    ''
+      ''
     ];
 
     completionInit = ''
@@ -337,7 +310,7 @@ in
       bindkey '^I' autosuggest-accept
     '';
   };
-  
+
   systemd.user.timers = {
     update-kubectl-context = {
       Unit = {
@@ -351,7 +324,7 @@ in
         WantedBy = [ "timers.target" ];
       };
     };
-    
+
     update-gh-user = {
       Unit = {
         Description = "Timer for updating GitHub user for WezTerm";

@@ -134,12 +134,15 @@ M.plugins = {
 		"rose-pine/neovim",
 		lazy = false,
 		priority = 1000,
-		opts = {
-			dim_inactive_windows = true,
-			styles = {
-				transparency = true,
-			},
-		},
+		config = function()
+			require("rose-pine").setup({
+				variant = "main",
+				dim_inactive_windows = true,
+				styles = {
+					transparency = true,
+				},
+			})
+		end,
 	},
 	{ "lewpoly/sherbet.nvim", lazy = false, priority = 1000 },
 	{ "ishan9299/nvim-solarized-lua", lazy = false, priority = 1000 },
