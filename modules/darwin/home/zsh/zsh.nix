@@ -27,6 +27,7 @@ let
   bindings = stripHeaders ./core/bindings.sh;
   completions = stripHeaders ./core/completions.sh;
   kubectl = stripHeaders ./core/kubectl.sh;
+  env = stripHeaders ./core/env.sh;
   extras = stripHeaders ./core/extras.sh;
   prompt = stripHeaders ./core/prompt.sh;
 
@@ -40,6 +41,8 @@ let
     ${bindings}
 
     ${kubectl}
+
+    ${env}
 
     ${completions}
 
