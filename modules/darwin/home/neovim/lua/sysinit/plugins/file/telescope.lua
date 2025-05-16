@@ -81,7 +81,7 @@ M.plugins = {
 			return {
 				{
 					"<leader>ff",
-					"<cmd>Telescope find_files<cr>",
+					"<cmd>Telescope find_files hidden=true<cr>",
 					desc = "Picker: Find files",
 				},
 				{
@@ -92,7 +92,7 @@ M.plugins = {
 				{
 					"<leader>fb",
 					"<cmd>Telescope buffers<cr>",
-					desc = "Picker: Find buffers",
+					desc = "Picker: Find buffers sort_mru=true ignore_current_buffer=true show_all_buffers=false",
 				},
 				{
 					"<leader>fc",
