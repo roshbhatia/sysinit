@@ -3,8 +3,8 @@
 {
   xdg.configFile."wezterm/wezterm.lua".source = ./wezterm.lua;
 
-  xdg.configFile."wezterm/lua" = {
-    source = ./lua;
+  xdg.configFile."wezterm/sysinit" = {
+    source = ./sysinit;
     recursive = true;
   };
 }
