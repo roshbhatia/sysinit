@@ -74,6 +74,7 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.ui.alpha"),
 	require("sysinit.plugins.ui.devicons"),
 	require("sysinit.plugins.ui.dressing"),
+	require("sysinit.plugins.ui.edgy"),
 	require("sysinit.plugins.ui.live-command"),
 	require("sysinit.plugins.ui.minimap"),
 	require("sysinit.plugins.ui.scrollbar"),

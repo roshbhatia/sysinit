@@ -9,6 +9,7 @@ M.plugins = {
 		dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
 		config = function()
 			require("aerial").setup({
+				backends = { "treesitter", "lsp", "markdown", "asciidoc", "man" },
 				-- optionally use on_attach to set keymaps when aerial has attached to a buffer
 				on_attach = function(bufnr)
 					-- Jump forwards/backwards with '{' and '}'
@@ -21,11 +22,13 @@ M.plugins = {
 				end,
 			})
 		end,
-		keys = { {
-			"<leader>oo",
-			"<cmd>AerialToggle!<CR>",
-			desc = "Outline: Toggle",
-		} },
+		keys = {
+			{
+				"<leader>oo",
+				"<cmd>AerialToggle!<CR>",
+				desc = "Outline: Toggle",
+			},
+		},
 	},
 }
 

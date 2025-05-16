@@ -1,30 +1,33 @@
--- sysinit.nvim.doc-url="https://raw.githubusercontent.com/Isrothy/neominimap.nvim/refs/heads/main/doc/neominimap.nvim.txt"
 local M = {}
 
 M.plugins = {
 	{
-		"Isrothy/neominimap.nvim",
-		version = "v3.x.x",
-		lazy = false,
-		init = function()
-			vim.opt_local.wrap = false
-			vim.opt_local.sidescrolloff = 36
+		"folke/edgy.nvim",
+		event = "VeryLazy",
+		config = function()
+			vim.opt.splitkeep = "screen"
 
-			vim.g.neominimap = {
-				auto_enable = false,
-			}
-		end,
-		keys = function()
-			return {
-				{
-					"<leader>mm",
-					"<cmd>Neominimap Toggle<CR>",
-					desc = "Minimap: Toggle",
+			require("edgy").setup({
+				left = {
+					{
+						title = "Neo-Tree",
+						ft = "neo-tree",
+						filter = function(buf)
+							return vim.b[buf].neo_tree_source == "filesystem"
+						end,
+						size = { height = 0.5 },
+					},
+					"neo-tree",
 				},
-			}
+				right = {
+					"aerial",
+					"Avante",
+					"AvanteSelectedFiles",
+					"AvanteInput",
+				},
+			})
 		end,
 	},
 }
 
 return M
-
