@@ -25,7 +25,7 @@ function M.setup(config)
 		},
 		"Symbols Nerd Font",
 	})
-	config.font_size = 14.0
+	config.font_size = 12.0
 	config.line_height = 1.0
 
 	config.default_cursor_style = "SteadyUnderline"
@@ -48,12 +48,15 @@ function M.setup(config)
 		}
 
 		window:set_right_status(wezterm.format({
-			{ Background = { Color = "none" } },
-			{ Foreground = { Color = bg } },
-			{ Text = utf8.char(0xe0b2) },
 			{ Background = { Color = bg } },
 			{ Foreground = { Color = fg } },
-			{ Text = os.getenv("USER") .. "@" .. wezterm.hostname() .. " 󱄅 " },
+			{
+				Text = wezterm.nerdfonts.pl_right_hard_divider
+					.. os.getenv("USER")
+					.. "@"
+					.. wezterm.hostname()
+					.. " 󱄅 ",
+			},
 		}))
 	end)
 
