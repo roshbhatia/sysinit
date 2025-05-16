@@ -2,7 +2,7 @@ local M = {}
 
 M.plugins = {
 	{
-		"folke/edgy.nvim",
+		c("folke/edgy.nvim"),
 		event = "VeryLazy",
 		config = function()
 			vim.opt.splitkeep = "screen"
@@ -13,12 +13,12 @@ M.plugins = {
 						size = 55,
 					},
 					right = {
-						size = 55.,
+						size = 55,
 					},
 				},
 				left = {
 					{
-						title = "Neo-Tree",
+						title = " Explorer",
 						ft = "neo-tree",
 						filter = function(buf)
 							return vim.b[buf].neo_tree_source == "filesystem"
@@ -28,10 +28,18 @@ M.plugins = {
 					"neo-tree",
 				},
 				right = {
-					"aerial",
-					"Avante",
-					"AvanteSelectedFiles",
-					"AvanteInput",
+					{
+						ft = "avante",
+						size = { height = 0.66 },
+					},
+					{
+						ft = "avante-selected-files",
+						size = { height = 0.14 },
+					},
+					{
+						ft = "avante-input",
+						size = { height = 0.2 }, -- remaining space
+					},
 				},
 			})
 		end,
@@ -39,3 +47,4 @@ M.plugins = {
 }
 
 return M
+
