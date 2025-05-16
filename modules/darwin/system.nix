@@ -19,7 +19,7 @@ in
         allowdownloadsignedenabled = 0;
       };
       dock = {
-        autohide = false;
+        autohide = true;
         expose-group-apps = true;
         launchanim = true;
         mineffect = "scale";
