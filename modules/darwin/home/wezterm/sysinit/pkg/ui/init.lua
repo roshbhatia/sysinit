@@ -48,6 +48,9 @@ function M.setup(config)
 		}
 
 		window:set_right_status(wezterm.format({
+			{ Background = { Color = "none" } },
+			{ Foreground = { Color = bg } },
+			{ Text = utf8.char(0xe0b2) },
 			{ Background = { Color = bg } },
 			{ Foreground = { Color = fg } },
 			{
