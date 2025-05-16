@@ -54,9 +54,7 @@ let
     lynx
     nil
     nixfmt-rfc-style
-    nixfmt-rfc-style
     nodejs
-    nushell
     oh-my-posh
     openssh
     prettierd
