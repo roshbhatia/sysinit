@@ -54,7 +54,7 @@ function M.setup(config)
 			{ Background = { Color = bg } },
 			{ Foreground = { Color = fg } },
 			{
-				Text = os.getenv("USER") .. "@" .. wezterm.hostname() .. " 󱄅 ",
+				Text = " 󱄅 ",
 			},
 		}))
 	end)
