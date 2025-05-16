@@ -80,6 +80,7 @@ let
     "font-symbols-only-nerd-font"
     "jordanbaird-ice"
     "keycastr"
+    "libgit2@1.8"
     "loop"
     "obsidian"
     "raycast"
@@ -123,4 +124,3 @@ in
     casks = allCasks;
   };
 }
-
