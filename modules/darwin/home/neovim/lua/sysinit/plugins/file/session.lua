@@ -9,11 +9,8 @@ M.plugins = {
 			pre_save_cmds = {
 				"Neotree close",
 			},
-			post_restore_cmds= {
-				"Neotree show"
-			},
-			no_restore_cmds= {
-				"Alpha"
+			post_restore_cmds = {
+				"Neotree show",
 			},
 			bypass_save_filetypes = { "alpha", "dashboard" },
 		},
@@ -21,4 +18,3 @@ M.plugins = {
 }
 
 return M
-
