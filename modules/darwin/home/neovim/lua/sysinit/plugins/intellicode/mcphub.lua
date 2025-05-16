@@ -11,10 +11,9 @@ M.plugins = {
 			require("mcphub").setup({
 				use_bundled_binary = true,
 				extensions = {
-					-- uncomment if avante is enabled
-					-- avante = {
-					-- 	make_slash_commands = true,
-					-- },
+					avante = {
+						make_slash_commands = true,
+					},
 				},
 			})
 		end,

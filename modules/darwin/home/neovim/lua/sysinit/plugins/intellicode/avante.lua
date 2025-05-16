@@ -62,13 +62,9 @@ M.plugins = {
 						require("mcphub.extensions.avante").mcp_tool(),
 					}
 				end,
-				windows = {
-						border = { "", "", "", "", "", "", "", "" },
-				},
 			})
 		end,
 	},
 }
 
 return M
-
