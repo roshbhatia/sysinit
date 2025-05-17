@@ -15,10 +15,10 @@
     };
   };
 
-  xdg.configFile."wezterm/wezterm.lua".source = ./wezterm.lua;
+  xdg.configFile."wezterm/wezterm.lua".source = ./init.lua;
 
-  xdg.configFile."wezterm/sysinit" = {
-    source = ./sysinit;
+  xdg.configFile."wezterm/lua" = {
+    source = ./lua;
     recursive = true;
   };
 }
