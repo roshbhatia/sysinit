@@ -15,16 +15,5 @@ if [ -n "$FLOATERM" ]; then
 else
 	_evalcache oh-my-posh init zsh --config $XDG_CONFIG_HOME/oh-my-posh/themes/sysinit.omp.json
 fi
-
-# Function to move cursor to top of terminal before showing prompt
-function prompt_at_top() {
-	tput cup 0 0
-	tput el
-}
-
-# Add our function to precmd hooks (runs before each prompt)
-autoload -U add-zsh-hook
-add-zsh-hook precmd prompt_at_top
-
 # modules/darwin/home/zsh/core/prompt.sh (end)
 
