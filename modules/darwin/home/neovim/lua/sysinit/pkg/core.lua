@@ -9,7 +9,7 @@ function M.register_options()
 	vim.opt.mouse = "a"
 	vim.opt.number = true
 	vim.opt.signcolumn = "yes:2"
-	vim.opts.cursorline = true
+	vim.opt.cursorline = true
 	vim.opt.fillchars:append({ eob = " " })
 
 	-- vim.opt.spelllang = "en_gb"
