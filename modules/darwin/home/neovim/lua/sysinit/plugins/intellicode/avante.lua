@@ -36,6 +36,10 @@ M.plugins = {
 						normal = "<CR>",
 						insert = "<S-CR>",
 					},
+					ask = "<leader>at",
+					toggle = {
+						default = "<leader>aa",
+					},
 				},
 				selector = {
 					provider = "telescope",
