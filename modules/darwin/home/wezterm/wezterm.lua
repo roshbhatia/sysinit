@@ -18,7 +18,27 @@ require("sysinit.pkg.ui").setup(config)
 
 -- local bar = wezterm.plugin.require("file://" .. home_dir .. "/.config/wezterm/plugins/bar.wezterm")
 local bar = wezterm.plugin.require("https://github.com/adriankarlen/bar.wezterm")
-bar.apply_to_config(config)
+bar.apply_to_config(config, {
+	padding = {
+		left = 2,
+		right = 2,
+		tabs = {
+			left = 0,
+			right = 2,
+		},
+	},
+	modules = {
+		workspace = {
+			enabled = false,
+		},
+		leader = {
+			enabled = false,
+		},
+		clock = {
+			enabled = false,
+		},
+	},
+})
 
 config.set_environment_variables = {
 	TERM = "wezterm",

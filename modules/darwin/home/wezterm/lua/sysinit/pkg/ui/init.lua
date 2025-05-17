@@ -39,23 +39,6 @@ function M.setup(config)
 	config.default_cursor_style = "SteadyUnderline"
 	config.cursor_blink_rate = 300
 
-	wezterm.on("update-status", function(window)
-		local color_scheme = window:effective_config().resolved_palette
-		local bg = color_scheme.background
-		local fg = color_scheme.foreground
-
-		window:set_right_status(wezterm.format({
-			{ Background = { Color = "none" } },
-			{ Foreground = { Color = bg } },
-			{ Text = utf8.char(0xe0b2) },
-			{ Background = { Color = bg } },
-			{ Foreground = { Color = fg } },
-			{
-				Text = "󱄅 ",
-			},
-		}))
-	end)
-
 	wezterm.on("gui-startup", function(cmd)
 		-- Get active screen information
 		local screen = wezterm.gui.screens().active
