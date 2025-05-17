@@ -14,6 +14,7 @@ let
 in
 {
   system = {
+    primaryUser = username;
     defaults = {
       alf = {
         allowdownloadsignedenabled = 0;
