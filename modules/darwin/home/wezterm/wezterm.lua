@@ -7,9 +7,9 @@ package.path = package.path .. ";" .. home_dir .. "/.config/lua/?.lua"
 
 local config = wezterm.config_builder()
 
-require("sysinit.pkg.theme").setup(config)
 require("sysinit.pkg.keybindings").setup(config)
 require("sysinit.pkg.ui").setup(config)
+require("plugins.bar").apply_to_config(config)
 
 config.set_environment_variables = {
 	TERM = "wezterm",

@@ -1,6 +1,13 @@
 local wezterm = require("wezterm")
 local M = {}
 
+local function get_theme()
+	local username = os.getenv("USER")
+	local theme_file = "/Users/" .. username .. "/.cache/wezterm-theme"
+	local success, data = pcall(wezterm.read_file, theme_file)
+	return success and data or "rose-pine"
+end
+
 function M.setup(config)
 	config.window_padding = { left = 20, right = 0, top = 20, bottom = 0 }
 	config.enable_scroll_bar = true
@@ -15,7 +22,8 @@ function M.setup(config)
 		fade_out_function = "EaseOut",
 		fade_out_duration_ms = 50,
 	}
-	config.colors = { visual_bell = "#242529" }
+
+	config.color_scheme = get_theme()
 
 	config.font = wezterm.font_with_fallback({
 		{
@@ -50,12 +58,6 @@ function M.setup(config)
 				Text = "󱄅 ",
 			},
 		}))
-
-		config.colors = {
-			tab_bar = {
-				inactive_tab_edge = bg,
-			},
-		}
 	end)
 
 	wezterm.on("gui-startup", function(cmd)
@@ -78,4 +80,3 @@ function M.setup(config)
 end
 
 return M
-
