@@ -6,6 +6,9 @@ M.plugins = {
 		event = { "LspAttach" },
 		config = function()
 			require("lspsaga").setup({
+				symbol_in_winbar = {
+					enable = false,
+				},
 				lightbulb = {
 					virtual_text = false,
 				},
@@ -41,4 +44,3 @@ M.plugins = {
 }
 
 return M
-
