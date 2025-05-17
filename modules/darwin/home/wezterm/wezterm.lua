@@ -9,7 +9,7 @@ local config = wezterm.config_builder()
 
 require("sysinit.pkg.keybindings").setup(config)
 require("sysinit.pkg.ui").setup(config)
-require("plugins.bar").apply_to_config(config)
+require("plugins.bar.plugin").apply_to_config(config)
 
 config.set_environment_variables = {
 	TERM = "wezterm",
