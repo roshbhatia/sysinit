@@ -129,7 +129,6 @@ M.plugins = {
 	{ "nyoom-engineering/oxocarbon.nvim", lazy = false, priority = 1000 },
 	{ "chrsm/paramount-ng.nvim", lazy = false, priority = 1000 },
 	{ "olivercederborg/poimandres.nvim", lazy = false, priority = 1000 },
-	{ "kvrohit/rasmus.nvim", lazy = false, priority = 1000 },
 	{
 		"rose-pine/neovim",
 		lazy = false,
@@ -154,12 +153,13 @@ M.plugins = {
 	{ "tomasiser/vim-code-dark", lazy = false, priority = 1000 },
 	{ "nxvu699134/vn-night.nvim", lazy = false, priority = 1000 },
 	{ "Mofiqul/vscode.nvim", lazy = false, priority = 1000 },
-	{ "mcchrish/zenbones.nvim", lazy = false, priority = 1000 },
 	{ "phha/zenburn.nvim", lazy = false, priority = 1000 },
 	{ "nvimdev/zephyr-nvim", lazy = false, priority = 1000 },
 	{ "titanzero/zephyrium", lazy = false, priority = 1000 },
 	{
 		"zaldih/themery.nvim",
+		lazy = false,
+		priority = 999,
 		command = { "Themery" },
 		config = function()
 			require("themery").setup({

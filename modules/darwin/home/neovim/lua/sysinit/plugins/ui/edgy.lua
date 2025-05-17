@@ -15,6 +15,9 @@ M.plugins = {
 					right = {
 						size = 55,
 					},
+					bottom = {
+						size = 0,
+					},
 				},
 				left = {
 					{
