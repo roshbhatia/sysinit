@@ -3,8 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"smoka7/hop.nvim",
-		-- Lazy loading based on the command(s) ensures highlight
-		-- groups are not cleared.
+		commit = "9c6a1dd9afb53a112b128877ccd583a1faa0b8b6",
 		cmd = { "HopWord", "HopLine", "HopChar1", "HopPattern", "HopNodes", "HopAnywhere" },
 		opts = {
 			keys = "fjdkslaghrueiwoncmv",
@@ -61,4 +60,3 @@ M.plugins = {
 }
 
 return M
-

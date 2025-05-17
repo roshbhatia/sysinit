@@ -3,6 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"brooth/far.vim",
+		commit = "796d60857ae4dcdae78c64bae69902503cca31f4",
 		keys = function()
 			return {
 				{

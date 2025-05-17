@@ -4,6 +4,7 @@ local M = {}
 M.plugins = {
 	{
 		"stevearc/conform.nvim",
+		commit = "2b2b30260203af3b93a7470ac6c8457ddd6e32d9",
 		event = "BufEnter",
 		config = function()
 			require("conform").setup({

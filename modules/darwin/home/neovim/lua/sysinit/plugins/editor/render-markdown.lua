@@ -9,6 +9,7 @@ local markdown_filetypes = {
 M.plugins = {
 	{
 		"MeanderingProgrammer/render-markdown.nvim",
+		commit = "a1b0988f5ab26698afb56b9c2f0525a4de1195c1",
 		dependencies = { "3rd/image.nvim" },
 		ft = markdown_filetypes,
 		config = function()
@@ -233,4 +234,3 @@ M.plugins = {
 }
 
 return M
-
