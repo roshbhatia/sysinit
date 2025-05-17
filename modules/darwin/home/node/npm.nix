@@ -12,7 +12,7 @@ in
 {
   home.file.".npmrc" = {
     text = ''
-      prefix = ''\${HOME}/.local/.share/.npm-packages
+      prefix = ''\${HOME}/.local/share/.npm-packages
     '';
   };
 
@@ -33,4 +33,3 @@ in
     executableName = "npm";
   };
 }
-

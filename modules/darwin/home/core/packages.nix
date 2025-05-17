@@ -23,7 +23,6 @@ let
     colima
     coreutils
     docker
-    eza
     fd
     findutils
     fzf

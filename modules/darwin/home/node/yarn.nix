@@ -13,6 +13,7 @@ in
   home.file.".yarnrc" = {
     text = ''
       strict-ssl false
+      yarn-offline-mirror ".local/share/yarn/packages-cache"
     '';
   };
 
@@ -35,6 +36,7 @@ in
     executableArguments = [
       "global"
       "add"
+      "--non-interactive"
     ];
     executableName = "yarn";
   };
