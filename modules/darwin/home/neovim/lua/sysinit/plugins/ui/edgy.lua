@@ -30,15 +30,15 @@ M.plugins = {
 				right = {
 					{
 						ft = "avante",
-						size = { height = 0.66 },
+						size = { height = 0.66, width = 55 },
 					},
 					{
 						ft = "avante-selected-files",
-						size = { height = 0.14 },
+						size = { height = 0.14, width = 55 },
 					},
 					{
 						ft = "avante-input",
-						size = { height = 0.2 },
+						size = { height = 0.2, width = 55 },
 					},
 				},
 			})
@@ -47,4 +47,3 @@ M.plugins = {
 }
 
 return M
-
