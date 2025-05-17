@@ -6,7 +6,7 @@
 }:
 
 {
-  xdg.configFile."wezterm/plugins/bar" = {
+  xdg.configFile."wezterm/plugins/bar.wezterm" = {
     source = pkgs.fetchFromGitHub {
       owner = "adriankarlen";
       repo = "bar.wezterm";
