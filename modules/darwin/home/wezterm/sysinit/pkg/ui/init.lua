@@ -39,10 +39,6 @@ function M.setup(config)
 	config.default_cursor_style = "SteadyUnderline"
 	config.cursor_blink_rate = 300
 
-	config.enable_tab_bar = true
-	config.hide_tab_bar_if_only_one_tab = false
-	config.use_fancy_tab_bar = false
-
 	wezterm.on("update-status", function(window)
 		local color_scheme = window:effective_config().resolved_palette
 		local bg = color_scheme.background
