@@ -8,7 +8,6 @@
 {
   programs.neovim = {
     enable = true;
-    package = pkgs.neovim-unwrapped;
     vimAlias = true;
     viAlias = true;
     withNodeJs = true;
