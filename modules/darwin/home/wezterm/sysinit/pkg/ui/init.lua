@@ -34,7 +34,6 @@ function M.setup(config)
 	config.enable_tab_bar = true
 	config.hide_tab_bar_if_only_one_tab = false
 	config.use_fancy_tab_bar = false
-	config.tab_bar_at_bottom = true
 
 	wezterm.on("update-status", function(window)
 		local color_scheme = window:effective_config().resolved_palette
@@ -51,6 +50,12 @@ function M.setup(config)
 				Text = "󱄅 ",
 			},
 		}))
+
+		config.colors = {
+			tab_bar = {
+				inactive_tab_edge = bg,
+			},
+		}
 	end)
 
 	wezterm.on("gui-startup", function(cmd)
@@ -73,3 +78,4 @@ function M.setup(config)
 end
 
 return M
+
