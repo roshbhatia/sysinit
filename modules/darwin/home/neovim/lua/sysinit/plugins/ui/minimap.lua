@@ -6,6 +6,7 @@ M.plugins = {
 		"Isrothy/neominimap.nvim",
 		version = "v3.x.x",
 		lazy = false,
+		dependencies = "Xuyuanp/scrollbar.nvim",
 		init = function()
 			vim.opt_local.wrap = false
 			vim.opt_local.sidescrolloff = 36
@@ -27,4 +28,3 @@ M.plugins = {
 }
 
 return M
-

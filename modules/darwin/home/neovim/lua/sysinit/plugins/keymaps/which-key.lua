@@ -2,39 +2,21 @@ local M = {}
 
 M.plugins = {
 	{
-		"folke/which-key.nvim",
-		dependencies = {
-			"nvim-tree/nvim-web-devicons",
-		},
-		event = "BufEnter",
+		"Cassin01/wf.nvim",
+		version = "*",
 		config = function()
-			local wk = require("which-key")
-
-			wk.setup({
-				preset = "helix",
-				icons = {
-					mapping = false, -- we're setting these inline below
-				},
-			})
-
-			wk.add({
-				{ "<leader>a", group = "󱚣 copilot" },
-				{ "<leader>b", group = " buffer" },
-				{ "<leader>c", group = "󰘧 code" },
-				{ "<leader>d", group = " debugger" },
-				{ "<leader>e", group = " editor" },
-				{ "<leader>f", group = "󰀶 find" },
-				{ "<leader>g", group = " git" },
-				{ "<leader>k", group = " k8s" },
-				{ "<leader>j", group = "󱋿 hop" },
-				{ "<leader>m", group = "󰨁 map" },
-				{ "<leader>n", group = "󰎟 notifications" },
-				{ "<leader>o", group = "󰉹 outline" },
-				{ "<leader>t", group = " terminal" },
-				{ "<leader>x", group = "󰁨 problems" },
-			})
+			require("wf").setup()
+			vim.keymap.set(
+				"n",
+				"<Leader>",
+				-- mark(opts?: table) -> function
+				-- opts?: option
+				which_key({ text_insert_in_advance = "<Leader>" }),
+				{ noremap = true, silent = true, desc = "[wf.nvim] which-key /" }
+			)
 		end,
 	},
 }
 
 return M
+
