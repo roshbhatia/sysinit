@@ -13,7 +13,7 @@ M.plugins = {
 			return {
 				{
 					"<leader>",
-					which_key({ text_insert_in_advance = "<leader>" }),
+					which_key({ text_insert_in_advance = "<Space>" }),
 					{
 						noremap = true,
 						silent = true,
