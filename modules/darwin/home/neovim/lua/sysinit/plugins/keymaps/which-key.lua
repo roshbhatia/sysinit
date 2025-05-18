@@ -12,8 +12,8 @@ M.plugins = {
 
 			return {
 				{
-					"<Leader>",
-					which_key({ text_insert_in_advance = "<Leader>" }),
+					"<leader>",
+					which_key({ text_insert_in_advance = "<leader>" }),
 					{
 						noremap = true,
 						silent = true,
