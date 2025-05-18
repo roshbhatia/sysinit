@@ -6,6 +6,8 @@ M.plugins = {
 		version = "*",
 		config = function()
 			require("wf").setup()
+			local which_key = require("wf.builtin.which_key")
+
 			vim.keymap.set(
 				"n",
 				"<Leader>",
