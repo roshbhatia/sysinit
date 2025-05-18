@@ -1,5 +1,6 @@
 local wezterm = require("wezterm")
 local act = wezterm.action
+local appearance = require("appearance")
 local M = {}
 
 -- Check if a pane is running Neovim
@@ -234,6 +235,13 @@ function M.setup(config)
 			key = "DownArrow",
 			mods = "CMD|SHIFT",
 			action = act.ActivatePaneDirection("Down"),
+		},
+		{
+			key = "t",
+			mods = "CTRL|SHIFT",
+			action = wezterm.action_callback(function(window, pane)
+				appearance.theme_switcher(window, pane)
+			end),
 		},
 	}
 
