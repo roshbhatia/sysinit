@@ -34,43 +34,6 @@ local function get_theme()
 	return success and data or "rose-pine"
 end
 
-M.theme_switcher = function(window, pane)
-	local schemes = wezterm.get_builtin_color_schemes()
-	local choices = {}
-	local username = os.getenv("USER")
-	local theme_file = "/Users/" .. username .. "/.cache/wezterm/theme"
-
-	for key, _ in pairs(schemes) do
-		table.insert(choices, { label = tostring(key) })
-	end
-
-	table.sort(choices, function(c1, c2)
-		return c1.label < c2.label
-	end)
-
-	window:perform_action(
-		act.InputSelector({
-			title = "Theme Picker",
-			choices = choices,
-			fuzzy = true,
-
-			action = wezterm.action_callback(function(inner_window, inner_pane, _, label)
-				local file = io.open(theme_file, "w")
-				if file then
-					file:write(label)
-					file:close()
-
-					inner_window:toast_notification("WezTerm", "Theme changed to " .. label, nil, 4000)
-					inner_window:perform_action(act.ReloadConfiguration, inner_pane)
-				else
-					inner_window:toast_notification("WezTerm", "Failed to update theme file", nil, 4000)
-				end
-			end),
-		}),
-		pane
-	)
-end
-
 function M.setup(config)
 	ensure_cache_exists()
 
@@ -114,3 +77,4 @@ function M.setup(config)
 end
 
 return M
+
