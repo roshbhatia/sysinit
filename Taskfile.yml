@@ -17,19 +17,23 @@ vars:
     log_error "Failed. See log: ${LOG_FILE}"
     exit 1
 
-  GREY_COLOR: "\033[90m"
-  RESET_COLOR: "\033[0m"
-
-  TAIL_LOG_FUNCTION: |
-    function tail_log() {
+  WEZTERM_LOG_FUNCTION: |
+    function log_in_wezterm_pane() {
       local log_file="$1"
-      (tail -f "$log_file" | sed "s/^/{{.GREY_COLOR}}/" | sed "s/$/{{.RESET_COLOR}}/" &)
-      TAIL_PID=$!
+      PANE_ID=""
+      
+      # Create a new pane and capture its ID
+      PANE_ID=$(wezterm cli split-pane --right --percent 40 -- bash -c "tail -f '$log_file'; sleep 2")
+      echo "$PANE_ID" > /tmp/wezterm_pane_id
     }
     
-    function stop_tail() {
-      if [ -n "$TAIL_PID" ]; then
-        kill $TAIL_PID 2>/dev/null || true
+    function close_wezterm_pane() {
+      if [ -f /tmp/wezterm_pane_id ]; then
+        PANE_ID=$(cat /tmp/wezterm_pane_id)
+        if [ -n "$PANE_ID" ]; then
+          wezterm cli kill-pane --pane-id "$PANE_ID" || true
+        fi
+        rm /tmp/wezterm_pane_id
       fi
     }
 
@@ -52,15 +56,15 @@ tasks:
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
         
-        {{.TAIL_LOG_FUNCTION}}
-        tail_log "${LOG_FILE}"
+        {{.WEZTERM_LOG_FUNCTION}}
+        log_in_wezterm_pane "${LOG_FILE}"
 
         if ! sudo darwin-rebuild switch -v --show-trace --impure --flake . > "${LOG_FILE}" 2>&1; then
-          stop_tail
+          close_wezterm_pane
           {{.ERROR_TEMPLATE}}
         fi
 
-        stop_tail
+        close_wezterm_pane
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Build the configuration without applying
@@ -78,15 +82,15 @@ tasks:
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
         
-        {{.TAIL_LOG_FUNCTION}}
-        tail_log "${LOG_FILE}"
+        {{.WEZTERM_LOG_FUNCTION}}
+        log_in_wezterm_pane "${LOG_FILE}"
 
         if ! sudo nix-collect-garbage -d > "${LOG_FILE}" 2>&1; then
-          stop_tail
+          close_wezterm_pane
           {{.ERROR_TEMPLATE}}
         fi
 
-        stop_tail
+        close_wezterm_pane
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Run garbage collection
@@ -105,19 +109,19 @@ tasks:
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
         
-        {{.TAIL_LOG_FUNCTION}}
-        tail_log "${LOG_FILE}"
+        {{.WEZTERM_LOG_FUNCTION}}
+        log_in_wezterm_pane "${LOG_FILE}"
 
         git add -A > "${LOG_FILE}" 2>&1
         git commit -m "chore: update configuration and regenerate lockfile" >> "${LOG_FILE}" 2>&1 || true
         git push >> "${LOG_FILE}" 2>&1 || true
 
         if ! sudo darwin-rebuild switch --flake . --show-trace >> "${LOG_FILE}" 2>&1; then
-          stop_tail
+          close_wezterm_pane
           {{.ERROR_TEMPLATE}}
         fi
 
-        stop_tail
+        close_wezterm_pane
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Apply the system configuration
@@ -135,23 +139,23 @@ tasks:
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
         
-        {{.TAIL_LOG_FUNCTION}}
-        tail_log "${LOG_FILE}"
+        {{.WEZTERM_LOG_FUNCTION}}
+        log_in_wezterm_pane "${LOG_FILE}"
 
         WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
         if [ -z "$WORK_SYSINIT" ]; then
-          stop_tail
+          close_wezterm_pane
           log_error "Could not find work sysinit repository"
           {{.ERROR_TEMPLATE}}
         fi
 
         cd "$WORK_SYSINIT"
         if ! task nix:refresh >> "${LOG_FILE}" 2>&1; then
-          stop_tail
+          close_wezterm_pane
           {{.ERROR_TEMPLATE}}
         fi
 
-        stop_tail
+        close_wezterm_pane
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Update and rebuild work sysinit configuration
@@ -169,15 +173,15 @@ tasks:
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
         
-        {{.TAIL_LOG_FUNCTION}}
-        tail_log "${LOG_FILE}"
+        {{.WEZTERM_LOG_FUNCTION}}
+        log_in_wezterm_pane "${LOG_FILE}"
 
         if ! sudo nix flake update > "${LOG_FILE}" 2>&1; then
-          stop_tail
+          close_wezterm_pane
           {{.ERROR_TEMPLATE}}
         fi
 
-        stop_tail
+        close_wezterm_pane
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Update flake inputs
@@ -195,15 +199,15 @@ tasks:
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
         
-        {{.TAIL_LOG_FUNCTION}}
-        tail_log "${LOG_FILE}"
+        {{.WEZTERM_LOG_FUNCTION}}
+        log_in_wezterm_pane "${LOG_FILE}"
 
         if ! sudo ./hack/install-deps.sh > "${LOG_FILE}" 2>&1; then
-          stop_tail
+          close_wezterm_pane
           {{.ERROR_TEMPLATE}}
         fi
 
-        stop_tail
+        close_wezterm_pane
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Install prerequisites for sysinit
@@ -221,15 +225,15 @@ tasks:
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
         
-        {{.TAIL_LOG_FUNCTION}}
-        tail_log "${LOG_FILE}"
+        {{.WEZTERM_LOG_FUNCTION}}
+        log_in_wezterm_pane "${LOG_FILE}"
 
         if ! sudo ./hack/uninstall-deps.sh > "${LOG_FILE}" 2>&1; then
-          stop_tail
+          close_wezterm_pane
           {{.ERROR_TEMPLATE}}
         fi
 
-        stop_tail
+        close_wezterm_pane
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Completely uninstall Nix from the system
