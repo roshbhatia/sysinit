@@ -83,7 +83,7 @@ tasks:
         git commit -m "chore: update configuration and regenerate lockfile" >> "${LOG_FILE}" 2>&1 || true
         git push >> "${LOG_FILE}" 2>&1 || true
 
-        if ! darwin-rebuild switch --flake . --show-trace >> "${LOG_FILE}" 2>&1; then
+        if ! sudo darwin-rebuild switch --flake . --show-trace >> "${LOG_FILE}" 2>&1; then
           {{.ERROR_TEMPLATE}}
         fi
 
@@ -132,7 +132,7 @@ tasks:
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
 
-        if ! nix flake update > "${LOG_FILE}" 2>&1; then
+        if ! sudo nix flake update > "${LOG_FILE}" 2>&1; then
           {{.ERROR_TEMPLATE}}
         fi
 
@@ -153,7 +153,7 @@ tasks:
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
 
-        if ! ./hack/install-deps.sh > "${LOG_FILE}" 2>&1; then
+        if ! sudo ./hack/install-deps.sh > "${LOG_FILE}" 2>&1; then
           {{.ERROR_TEMPLATE}}
         fi
 
@@ -174,7 +174,7 @@ tasks:
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
 
-        if ! ./hack/uninstall-deps.sh > "${LOG_FILE}" 2>&1; then
+        if ! sudo ./hack/uninstall-deps.sh > "${LOG_FILE}" 2>&1; then
           {{.ERROR_TEMPLATE}}
         fi
 
