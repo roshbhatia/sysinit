@@ -17,6 +17,22 @@ vars:
     log_error "Failed. See log: ${LOG_FILE}"
     exit 1
 
+  GREY_COLOR: "\033[90m"
+  RESET_COLOR: "\033[0m"
+
+  TAIL_LOG_FUNCTION: |
+    function tail_log() {
+      local log_file="$1"
+      (tail -f "$log_file" | sed "s/^/{{.GREY_COLOR}}/" | sed "s/$/{{.RESET_COLOR}}/" &)
+      TAIL_PID=$!
+    }
+    
+    function stop_tail() {
+      if [ -n "$TAIL_PID" ]; then
+        kill $TAIL_PID 2>/dev/null || true
+      fi
+    }
+
 tasks:
   default:
     cmds:
@@ -35,11 +51,16 @@ tasks:
         LOG_FILE="{{.LOG_FILE}}"
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
+        
+        {{.TAIL_LOG_FUNCTION}}
+        tail_log "${LOG_FILE}"
 
         if ! sudo darwin-rebuild switch -v --show-trace --impure --flake . > "${LOG_FILE}" 2>&1; then
+          stop_tail
           {{.ERROR_TEMPLATE}}
         fi
 
+        stop_tail
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Build the configuration without applying
@@ -56,11 +77,16 @@ tasks:
         LOG_FILE="{{.LOG_FILE}}"
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
+        
+        {{.TAIL_LOG_FUNCTION}}
+        tail_log "${LOG_FILE}"
 
         if ! sudo nix-collect-garbage -d > "${LOG_FILE}" 2>&1; then
+          stop_tail
           {{.ERROR_TEMPLATE}}
         fi
 
+        stop_tail
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Run garbage collection
@@ -78,15 +104,20 @@ tasks:
         LOG_FILE="{{.LOG_FILE}}"
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
+        
+        {{.TAIL_LOG_FUNCTION}}
+        tail_log "${LOG_FILE}"
 
         git add -A > "${LOG_FILE}" 2>&1
         git commit -m "chore: update configuration and regenerate lockfile" >> "${LOG_FILE}" 2>&1 || true
         git push >> "${LOG_FILE}" 2>&1 || true
 
         if ! sudo darwin-rebuild switch --flake . --show-trace >> "${LOG_FILE}" 2>&1; then
+          stop_tail
           {{.ERROR_TEMPLATE}}
         fi
 
+        stop_tail
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Apply the system configuration
@@ -103,18 +134,24 @@ tasks:
         LOG_FILE="{{.LOG_FILE}}"
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
+        
+        {{.TAIL_LOG_FUNCTION}}
+        tail_log "${LOG_FILE}"
 
         WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
         if [ -z "$WORK_SYSINIT" ]; then
+          stop_tail
           log_error "Could not find work sysinit repository"
           {{.ERROR_TEMPLATE}}
         fi
 
         cd "$WORK_SYSINIT"
         if ! task nix:refresh >> "${LOG_FILE}" 2>&1; then
+          stop_tail
           {{.ERROR_TEMPLATE}}
         fi
 
+        stop_tail
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Update and rebuild work sysinit configuration
@@ -131,11 +168,16 @@ tasks:
         LOG_FILE="{{.LOG_FILE}}"
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
+        
+        {{.TAIL_LOG_FUNCTION}}
+        tail_log "${LOG_FILE}"
 
         if ! sudo nix flake update > "${LOG_FILE}" 2>&1; then
+          stop_tail
           {{.ERROR_TEMPLATE}}
         fi
 
+        stop_tail
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Update flake inputs
@@ -152,11 +194,16 @@ tasks:
         LOG_FILE="{{.LOG_FILE}}"
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
+        
+        {{.TAIL_LOG_FUNCTION}}
+        tail_log "${LOG_FILE}"
 
         if ! sudo ./hack/install-deps.sh > "${LOG_FILE}" 2>&1; then
+          stop_tail
           {{.ERROR_TEMPLATE}}
         fi
 
+        stop_tail
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Install prerequisites for sysinit
@@ -173,11 +220,16 @@ tasks:
         LOG_FILE="{{.LOG_FILE}}"
         mkdir -p "$(dirname "${LOG_FILE}")"
         touch "${LOG_FILE}"
+        
+        {{.TAIL_LOG_FUNCTION}}
+        tail_log "${LOG_FILE}"
 
         if ! sudo ./hack/uninstall-deps.sh > "${LOG_FILE}" 2>&1; then
+          stop_tail
           {{.ERROR_TEMPLATE}}
         fi
 
+        stop_tail
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Completely uninstall Nix from the system
