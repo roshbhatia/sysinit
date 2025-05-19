@@ -114,8 +114,12 @@ M.plugins = {
 						hide_dotfiles = false,
 						hide_gitignored = false,
 						hide_hidden = false,
-						hide_by_name = { ".DS_Store", "thumbs.db", "node_modules" },
-						hide_by_pattern = { "*.meta", "*/src/*/tsconfig.json" },
+						hide_by_name = {
+							".DS_Store",
+							"node_modules",
+							".git",
+						},
+						hide_by_pattern = { "*.meta" },
 						always_show = { ".gitignored" },
 						never_show = { ".DS_Store" },
 						never_show_by_pattern = {},
@@ -155,13 +159,6 @@ M.plugins = {
 					},
 				},
 			})
-
-			-- File explorer: toggle Neotree (Alt+b)
-			vim.keymap.set("n", "<A-b>", "<cmd>Neotree toggle<CR>", {
-				noremap = true,
-				silent = true,
-				desc = "Editor: Toggle file tree",
-			})
 		end,
 		keys = {
 			{
@@ -177,4 +174,3 @@ M.plugins = {
 }
 
 return M
-
