@@ -9,6 +9,7 @@ M.plugins = {
 			"romgrk/fzy-lua-native",
 			"kyazdani42/nvim-web-devicons",
 		},
+		build = ":UpdateRemotePlugins",
 		config = function()
 			local wilder = require("wilder")
 			wilder.setup({
@@ -23,6 +24,12 @@ M.plugins = {
 
 			wilder.set_option("pipeline", {
 				wilder.branch(
+					{
+						wilder.check(function(_, x)
+							return vim.fn.empty(x)
+						end),
+						wilder.history(15),
+					},
 					wilder.cmdline_pipeline({
 						fuzzy = 1,
 						fuzzy_filter = wilder.lua_fzy_filter(),
@@ -39,18 +46,6 @@ M.plugins = {
 				}))
 			)
 			vim.opt.wildignorecase = true
-		end,
-		keys = function()
-			return {
-				{
-					"<leader><leader>",
-					function()
-						vim.fn.feedkeys(":", "n")
-					end,
-					mode = "n",
-					desc = " Cmd",
-				},
-			}
 		end,
 	},
 }
