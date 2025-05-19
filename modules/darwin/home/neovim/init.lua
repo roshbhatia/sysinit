@@ -17,6 +17,8 @@ require("sysinit.pkg.plugin_manager").setup_package_manager()
 require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.debugger.dap"),
 	require("sysinit.plugins.debugger.dap-ui"),
+	require("sysinit.plugins.debugger.dap-virtual-text"),
+	require("sysinit.plugins.debugger.mason-nvim-dap"),
 	require("sysinit.plugins.editor.comment"),
 	require("sysinit.plugins.editor.formatter"),
 	require("sysinit.plugins.editor.hlchunk"),
@@ -85,3 +87,4 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.ui.theme"),
 	require("sysinit.plugins.ui.wilder"),
 })
+
