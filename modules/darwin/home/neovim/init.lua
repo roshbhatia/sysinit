@@ -15,6 +15,7 @@ core.register_autocmds()
 
 require("sysinit.pkg.plugin_manager").setup_package_manager()
 require("sysinit.pkg.plugin_manager").setup_plugins({
+	require("sysinit.plugins.collections.snacks"),
 	require("sysinit.plugins.debugger.dap"),
 	require("sysinit.plugins.debugger.dap-ui"),
 	require("sysinit.plugins.debugger.dap-virtual-text"),
@@ -25,6 +26,7 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.editor.hop"),
 	require("sysinit.plugins.editor.intellitab"),
 	require("sysinit.plugins.editor.far"),
+	require("sysinit.plugins.editor.foldsign"),
 	require("sysinit.plugins.editor.render-markdown"),
 	require("sysinit.plugins.editor.surround"),
 	require("sysinit.plugins.file.diffview"),
@@ -80,9 +82,8 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.ui.live-command"),
 	require("sysinit.plugins.ui.minimap"),
 	require("sysinit.plugins.ui.smart-splits"),
-	require("sysinit.plugins.ui.snacks"),
 	require("sysinit.plugins.ui.statusbar"),
 	require("sysinit.plugins.ui.terminal"),
-	require("sysinit.plugins.ui.theme"),
+	require("sysinit.plugins.ui.themery"),
 	require("sysinit.plugins.ui.wilder"),
 })
