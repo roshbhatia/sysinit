@@ -24,7 +24,6 @@ in
       "markdownlint-cli2"
       "@mermaid-js/mermaid-cli"
       "prettier"
-      "tree-sitter-cli"
       "typescript-language-server"
       "typescript"
     ];
@@ -41,3 +40,4 @@ in
     executableName = "yarn";
   };
 }
+
