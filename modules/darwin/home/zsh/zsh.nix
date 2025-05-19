@@ -100,6 +100,7 @@ in
 
       tf = "terraform";
       y = "yazi";
+      vi = "nvim";
 
       sudo = "sudo -E";
 
@@ -144,12 +145,6 @@ in
         "--color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7"
         "--color=prompt:1,pointer:5,marker:2,spinner:5,header:4"
         "--preview='sysinit-fzf-preview {}'"
-        "--bind='ctrl-/:toggle-preview'" # Toggle preview window
-        "--bind='ctrl-s:toggle-sort'" # Toggle sorting
-        "--bind='ctrl-space:toggle-preview-wrap'" # Toggle preview wrap
-        "--bind='tab:half-page-down'" # Scroll preview down
-        "--bind='btab:half-page-up'" # Scroll preview up
-        "--bind='ctrl-u:clear-query'" # Clear query
         "--bind='resize:refresh-preview'" # Refresh on resize
       ];
 
@@ -158,10 +153,10 @@ in
       ENHANCD_ENABLE_DOUBLE_DOT = false;
       ENHANCD_ENABLE_HOME = false;
 
-      EDITOR = "nvim";
       SUDO_EDITOR = "$EDITOR";
       VISUAL = "$EDITOR";
       PAGER = "bat --pager=always --color=always";
+      BAT_THEME = "base16";
     };
 
     plugins = [
