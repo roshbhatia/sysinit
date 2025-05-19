@@ -27,13 +27,10 @@ M.plugins = {
 				{ "<leader>m", group = "󰨁 map" },
 				{ "<leader>n", group = "󰎟 notifications" },
 				{ "<leader>o", group = "󰉹 outline" },
-				{ "<leader>s", group = "󰃻 split" },
 				{ "<leader>t", group = " terminal" },
-				{ "<leader>x", group = "󰁨 problems" },
 			})
 		end,
 	},
 }
 
 return M
-

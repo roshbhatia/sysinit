@@ -103,7 +103,7 @@ function M.register_keybindings()
 	vim.keymap.set("i", "<D-x>", '"+d', { noremap = true, silent = true })
 
 	-- Buffer management
-	vim.keymap.set("n", "<leader>W", ":q!<CR>", {
+	vim.keymap.set("n", "<leader>x", ":q!<CR>", {
 		noremap = true,
 		silent = true,
 		desc = " Close",
