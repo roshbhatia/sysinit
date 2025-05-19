@@ -1,4 +1,5 @@
 local M = {}
+
 M.plugins = {
 	{
 		enabled = true,
@@ -103,4 +104,3 @@ M.plugins = {
 	},
 }
 return M
-
