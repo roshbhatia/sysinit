@@ -16,6 +16,7 @@ M.plugins = {
 			lspconfig.dockerls.setup({})
 			lspconfig.golangci_lint_ls.setup({})
 			lspconfig.gopls.setup({})
+			lspconfig.grammarly.setup({})
 			lspconfig.helm_ls.setup({})
 			lspconfig.jqls.setup({})
 			lspconfig.jsonls.setup({
@@ -48,11 +49,7 @@ M.plugins = {
 				},
 			})
 			lspconfig.marksman.setup({})
-			lspconfig.nixd.setup({
-				formatters_by_ft = {
-					nix = { "nixpkgs_fmt" },
-				},
-			})
+			lspconfig.nil_ls.setup({})
 			lspconfig.pyright.setup({})
 			lspconfig.terraformls.setup({})
 			lspconfig.tflint.setup({})
