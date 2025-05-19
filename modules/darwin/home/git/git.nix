@@ -1,46 +1,23 @@
 {
-  config,
-  lib,
-  pkgs,
   userConfig,
   ...
 }:
 
 let
-  # Get git configuration from userConfig passed from flake.nix
-  # Since validation happens in flake.nix, we can be confident these values exist
   cfg = userConfig.git;
 
-  # For additional safety, log warning if any properties are missing
-  # This shouldn't happen due to flake.nix validation, but provides a helpful error
-  missingProps = lib.filter (prop: !(cfg ? ${prop})) [
-    "userName"
-    "userEmail"
-    "githubUser"
-  ];
-
-  # Show warning if any props are missing (shouldn't happen due to flake.nix validation)
-  _ = lib.warnIf (
-    missingProps != [ ]
-  ) "Git configuration in module is missing properties: ${toString missingProps}";
-
-  # Get specific email addresses (defaulting to the global one if not specified)
   personalEmail = if (cfg ? personalEmail) then cfg.personalEmail else cfg.userEmail;
   workEmail = if (cfg ? workEmail) then cfg.workEmail else cfg.userEmail;
 
-  # Assume credentialUsername is same as githubUser if not specified separately
   personalGithubUser = if (cfg ? personalGithubUser) then cfg.personalGithubUser else cfg.githubUser;
   workGithubUser = if (cfg ? workGithubUser) then cfg.workGithubUser else cfg.githubUser;
 in
 {
-  # We're disabling the built-in git module and managing our own config
   programs.git = {
-    enable = false; # Disable home-manager's git management
+    enable = false;
   };
 
-  # Add our own managed gitconfig file - this gives us full control over its content
   home.file.".gitconfig" = {
-    # Use a text content that we generate instead of a static file
     text = ''
       [user]
           name = ${cfg.userName}
@@ -66,8 +43,20 @@ in
           prune = true
 
       [core]
-          editor = code --wait
+          editor = nvim
           excludesFile = ~/.gitignore.global
+          pager = delta
+
+      [interactive]
+          diffFilter = delta --color-only
+
+      [delta]
+          dark = true
+          navigate = true
+          side-by-side = true
+
+      [merge]
+          conflictstyle = zdiff3
 
       [includeIf "gitdir:~/github/work/"]
           path = ~/.gitconfig.work
@@ -94,7 +83,6 @@ in
     '';
   };
 
-  # Generate the personal gitconfig dynamically
   home.file.".gitconfig.personal" = {
     text = ''
       # Personal-specific Git configuration
@@ -111,9 +99,7 @@ in
     '';
   };
 
-  # Add work-specific Git configuration
   home.file.".gitconfig.work" = {
-    # Use a text content that we generate instead of a static file
     text = ''
       # Work-specific Git configuration
       # This file is included when in ~/github/work/ directories
@@ -133,3 +119,4 @@ in
     source = ./gitignore.global;
   };
 }
+

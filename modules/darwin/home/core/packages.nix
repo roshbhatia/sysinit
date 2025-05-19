@@ -22,6 +22,7 @@ let
     caddy
     colima
     coreutils
+    delta
     docker
     fd
     findutils
@@ -78,3 +79,4 @@ in
 {
   home.packages = allHomePackages;
 }
+
