@@ -1,8 +1,26 @@
+## Use architect edit format for the main chat
+#architect: false
+
+## Enable/disable automatic acceptance of architect changes (default: True)
+#auto-accept-architect: true
+
 ## Specify the model to use for the main chat
-model: claude-3-sonnet-20240229
+model: openai/claude-3.5-sonnet
+
+## Specify the model to use for commit messages and chat history summarization (default depends on --model)
+weak-model: openai/gpt-3.5-turbo
+
+## Specify the model to use for editor tasks (default depends on --model)
+editor-model: openai/gpt-4o
 
 ## Specify the api base url
 openai-api-base: http://localhost:4141/v1
+
+openai-api-key: not-needed
+
+show-model-warnings: false
+
+map-tokens: 2048
 
 ## Control how often the repo map is refreshed. Options: auto, always, files, manual (default: auto)
 map-refresh: auto
@@ -12,12 +30,6 @@ restore-chat-history: true
 
 ## Use colors suitable for a dark terminal background (default: False)
 dark-mode: true
-
-## Enable/disable pretty, colorized output (default: True)
-pretty: true
-
-## Enable/disable streaming responses (default: True)
-stream: true
 
 ## Set the color for user input (default: #00cc00)
 user-input-color: "#8FBCBB"
@@ -63,6 +75,3 @@ cache-prompts: true
 
 ## Specify which editor to use for the /editor command
 editor: nvim
-
-## Enable automatic copy/paste of chat between aider and web UI (default: False)
-copy-paste: true
