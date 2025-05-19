@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   k9sConfig = {
@@ -16,7 +21,7 @@ let
         crumbsless = false;
         noIcons = false;
         reactive = true;
-        skin = "latte";
+        skin = "catppuccin";
         defaultsToFullScreen = true;
       };
       noIcons = false;
@@ -69,11 +74,12 @@ let
         background = true;
         args = [
           "-c"
-          ''kubectl patch $RESOURCE_NAME $NAME \
-          --context $CONTEXT \
-          --namespace $NAMESPACE \
-          --type merge \
-          -p '{"spec":{"operation":{"initiatedBy":{"username":"$USER"},"sync":{"syncStrategy":{"hook":{}}}}},"metadata":{"labels":{"argocd.argoproj.io/refresh":"hard"}}}'
+          ''
+            kubectl patch $RESOURCE_NAME $NAME \
+                      --context $CONTEXT \
+                      --namespace $NAMESPACE \
+                      --type merge \
+                      -p '{"spec":{"operation":{"initiatedBy":{"username":"$USER"},"sync":{"syncStrategy":{"hook":{}}}}},"metadata":{"labels":{"argocd.argoproj.io/refresh":"hard"}}}'
           ''
         ];
       };
@@ -103,22 +109,23 @@ let
     };
   };
 
-in {
+in
+{
   xdg.configFile = {
     "k9s/config.yaml" = {
-      text = lib.generators.toYAML {} k9sConfig;
+      text = lib.generators.toYAML { } k9sConfig;
       force = true;
     };
     "k9s/aliases.yaml" = {
-      text = lib.generators.toYAML {} k9sAliases;
+      text = lib.generators.toYAML { } k9sAliases;
       force = true;
     };
     "k9s/plugins.yaml" = {
-      text = lib.generators.toYAML {} k9sPlugins;
+      text = lib.generators.toYAML { } k9sPlugins;
       force = true;
     };
-    "k9s/skins/macchiato.yaml" = {
-      source = ./skins/macchiato.yaml;
+    "k9s/skins/catppuccin.yaml" = {
+      source = ./skins/catppuccin.yaml;
       force = true;
     };
   };
