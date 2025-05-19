@@ -55,6 +55,7 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.intellicode.luasnip"),
 	require("sysinit.plugins.intellicode.lspsaga"),
 	require("sysinit.plugins.intellicode.mason-lspconfig"),
+	require("sysinit.plugins.intellicode.mason-tool-installer"),
 	require("sysinit.plugins.intellicode.mason"),
 	require("sysinit.plugins.intellicode.mcphub"),
 	require("sysinit.plugins.intellicode.nvim-autopairs"),
