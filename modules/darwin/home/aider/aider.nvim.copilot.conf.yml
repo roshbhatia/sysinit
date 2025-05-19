@@ -1,8 +1,8 @@
 ## Specify the model to use for the main chat
-model: openai/claude-3.5-sonnet
+model: claude-3-sonnet-20240229
 
 ## Specify the api base url
-openai-api-base: https://api.githubcopilot.com
+openai-api-base: http://localhost:4141/v1
 
 ## Control how often the repo map is refreshed. Options: auto, always, files, manual (default: auto)
 map-refresh: auto
@@ -34,7 +34,7 @@ tool-warning-color: "#EBCB8B"
 ## Set the color for assistant output (default: #0088ff)
 assistant-output-color: "#81A1C1"
 
-## Set the markdown code theme (default: default, other options include monokai, solarized-dark, solarized-light, or a Pygments builtin style, see https://pygments.org/styles for available themes)
+## Set the markdown code theme (default: default, other options include monokai, solarized-dark, solarized-light)
 code-theme: github-dark
 
 ## Enable/disable adding .aider* to .gitignore (default: True)
@@ -58,5 +58,11 @@ attribute-commit-message-author: false
 ## Skip the sanity check for the git repository (default: False)
 skip-sanity-check-repo: true
 
+## Enable caching of prompts (default: False)
+cache-prompts: true
+
 ## Specify which editor to use for the /editor command
 editor: nvim
+
+## Enable automatic copy/paste of chat between aider and web UI (default: False)
+copy-paste: true
