@@ -26,9 +26,33 @@ M.plugins = {
 					},
 				},
 			})
-			lspconfig.lua_ls.setup({})
+			lspconfig.lua_ls.setup({
+				settings = {
+					Lua = {
+						runtime = {
+							version = "LuaJIT",
+						},
+						diagnostics = {
+							globals = {
+								"vim",
+								"require",
+							},
+						},
+						workspace = {
+							library = vim.api.nvim_get_runtime_file("", true),
+						},
+						telemetry = {
+							enable = false,
+						},
+					},
+				},
+			})
 			lspconfig.marksman.setup({})
-			lspconfig.nixd.setup({})
+			lspconfig.nixd.setup({
+				formatters_by_ft = {
+					nix = { "nixpkgs_fmt" },
+				},
+			})
 			lspconfig.pyright.setup({})
 			lspconfig.terraformls.setup({})
 			lspconfig.tflint.setup({})
