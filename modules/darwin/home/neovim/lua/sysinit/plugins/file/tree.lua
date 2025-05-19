@@ -119,7 +119,7 @@ M.plugins = {
 							"node_modules",
 							".git",
 						},
-						hide_by_pattern = { "*.meta" },
+						hide_by_pattern = { "*.meta", "*.aider*" },
 						always_show = { ".gitignored" },
 						never_show = { ".DS_Store" },
 						never_show_by_pattern = {},
