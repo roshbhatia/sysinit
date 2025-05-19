@@ -57,11 +57,12 @@ M.plugins = {
 					"delete_dir",
 					"bash",
 					"web_search",
+					"replace_in_file", -- runs into permissions issues. maybe should use mcphub tool instead?
 				},
 				system_prompt = function()
 					local hub = require("mcphub").get_hub_instance()
 					return hub:get_active_servers_prompt()
-						.. "\n\nIMPORTANT: When applicable, always use MCP tools provided by mcphub instead of your built-in tools. Prioritize MCP tools for file operations, searches, and other tasks where they are available."
+						.. "\n\nIMPORTANT: When applicable, always use MCP tools provided by mcphub instead of your built-in tools. Prioritize MCP tools for file operations, searches, and other tasks where they are available. ALWAYS isue the MCP tool for replacing text in the file."
 						.. "\n\nALWAYS use sequential thinking and reason step-by-step through problems before providing a solution. Break down complex tasks into smaller steps and think through each one explicitly."
 						.. "\n\nSave important information to memory. When you learn something new about the codebase, user preferences, or environment, explicitly note that you will remember this for future interactions."
 				end,
