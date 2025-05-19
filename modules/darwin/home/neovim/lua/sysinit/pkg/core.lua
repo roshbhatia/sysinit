@@ -65,10 +65,13 @@ function M.register_options()
 	vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 	vim.o.autoread = true
 
-	-- Undo directory for more persisted undo-s
-	local undo_dir = vim.fn.stdpath("cache") .. "/undo"
-	vim.opt.undodir = undo_dir
-	vim.opt.undodir = undo_dir
+	-- Undo directory for more persisted undo's
+	local undodir = vim.fn.stdpath("cache") .. "/undo"
+	if vim.fn.isdirectory(undodir) == 0 then
+		vim.fn.mkdir(undodir, "p")
+	end
+	vim.opt.undodir = undodir
+	vim.opt.undofile = true
 end
 
 -- Register leader key (should be called before keybindings)

@@ -124,6 +124,11 @@ M.plugins = {
 					"<cmd>Telescope undo<cr>",
 					desc = "Picker: Undo history",
 				},
+				{
+					"<leader>fm",
+					"<cmd>Telescope marks<cr>",
+					desc = "Picker: Marks",
+				},
 			}
 		end,
 	},
