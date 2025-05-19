@@ -153,7 +153,7 @@ M.plugins = {
 						end
 
 						-- Return the Aider command with the proper configuration
-						return "aider -c ~/.aider.nvim.copilot.conf.yml --no-yes-always --watch-files --"
+						return "aider -c ~/.aider.nvim.copilot.conf.yml --yes-always false --watch-files --"
 							.. vim.o.background
 							.. "-mode"
 					end,
