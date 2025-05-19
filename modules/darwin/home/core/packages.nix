@@ -57,6 +57,7 @@ let
     nushell
     oh-my-posh
     openssh
+    ollama
     prettierd
     ripgrep
     shellcheck
