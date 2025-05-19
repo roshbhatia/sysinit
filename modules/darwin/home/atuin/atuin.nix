@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ ... }:
 
 {
   programs.atuin = {
@@ -15,3 +15,4 @@
     };
   };
 }
+

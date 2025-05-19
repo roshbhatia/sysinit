@@ -1,7 +1,4 @@
 {
-  config,
-  lib,
-  pkgs,
   ...
 }:
 
@@ -12,4 +9,3 @@
     configFile.source = ./config.nu;
   };
 }
-

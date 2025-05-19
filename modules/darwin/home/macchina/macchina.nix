@@ -1,4 +1,8 @@
-{ pkgs, homeDirectory, ... }:
+{
+  pkgs,
+  homeDirectory,
+  ...
+}:
 
 let
   tomlFormat = pkgs.formats.toml { };

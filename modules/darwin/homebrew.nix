@@ -1,7 +1,4 @@
 {
-  pkgs,
-  lib,
-  config,
   enableHomebrew ? true,
   username,
   inputs,

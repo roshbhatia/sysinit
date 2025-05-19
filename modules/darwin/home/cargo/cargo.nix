@@ -1,7 +1,5 @@
 {
-  pkgs,
   lib,
-  config,
   userConfig ? { },
   ...
 }:
@@ -30,4 +28,3 @@ in
     executableName = "cargo";
   };
 }
-

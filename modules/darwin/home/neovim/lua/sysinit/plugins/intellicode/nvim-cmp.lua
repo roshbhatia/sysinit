@@ -12,7 +12,10 @@ M.plugins = {
 			"hrsh7th/cmp-path",
 			"L3MON4D3/LuaSnip",
 			"onsails/lspkind.nvim",
-			"petertriho/cmp-git",
+			{
+				"petertriho/cmp-git",
+				opts = {},
+			},
 			"saadparwaiz1/cmp_luasnip",
 			"zbirenbaum/copilot-cmp",
 			"pta2002/intellitab.nvim",
@@ -152,8 +155,6 @@ M.plugins = {
 					},
 				}),
 			})
-
-			require("cmp_git").setup({})
 		end,
 	},
 }

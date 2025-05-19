@@ -1,11 +1,4 @@
 {
-  config,
-  pkgs,
-  lib,
-  inputs,
-  username,
-  homeDirectory,
-  userConfig ? { },
   ...
 }:
 
@@ -36,4 +29,3 @@
     ./python/uvx.nix
   ];
 }
-

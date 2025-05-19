@@ -1,18 +1,28 @@
-{ pkgs, lib, config, userConfig ? {}, ... }:
+{
+  lib,
+  userConfig ? { },
+  ...
+}:
 
 let
   activationUtils = import ../../../lib/activation-utils.nix { inherit lib; };
-in {
+in
+{
   home.activation.ghPackages = activationUtils.mkPackageManager {
     name = "gh";
     basePackages = [
       "dlvhdr/gh-dash"
       "github/gh-copilot"
     ];
-    additionalPackages = if userConfig ? gh && userConfig.gh ? additionalPackages
-      then userConfig.gh.additionalPackages
-      else [];
-    executableArguments = [ "extension" "install" ];
+    additionalPackages =
+      if userConfig ? gh && userConfig.gh ? additionalPackages then
+        userConfig.gh.additionalPackages
+      else
+        [ ];
+    executableArguments = [
+      "extension"
+      "install"
+    ];
     executableName = "gh";
   };
 }

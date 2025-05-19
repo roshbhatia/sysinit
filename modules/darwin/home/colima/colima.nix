@@ -1,4 +1,8 @@
-{ config, lib, pkgs, ... }:
+{
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   colimaConfig = {
@@ -14,28 +18,28 @@ let
     autoActivate = true;
     network = {
       address = false;
-      dns = [];
+      dns = [ ];
       dnsHosts = {
         "host.docker.internal" = "host.lima.internal";
       };
       hostAddresses = false;
     };
     forwardAgent = false;
-    docker = {};
+    docker = { };
     vmType = "vz";
     rosetta = true;
     nestedVirtualization = true;
     mountType = "sshfs";
     mountInotify = false;
     cpuType = "host";
-    provision = [];
+    provision = [ ];
     sshConfig = true;
     sshPort = 0;
-    mounts = [];
+    mounts = [ ];
     diskImage = "";
   };
 
-  colimaYaml = pkgs.writeText "colima.yaml" (lib.generators.toYAML {} colimaConfig);
+  colimaYaml = pkgs.writeText "colima.yaml" (lib.generators.toYAML { } colimaConfig);
 in
 {
   xdg.configFile."colima/default/colima.yaml" = {

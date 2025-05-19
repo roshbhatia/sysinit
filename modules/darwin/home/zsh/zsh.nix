@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   pkgs,
   homeDirectory,
@@ -373,4 +372,3 @@ in
     };
   };
 }
-

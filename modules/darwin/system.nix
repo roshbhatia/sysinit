@@ -3,13 +3,11 @@
   lib,
   username,
   homeDirectory,
-  userConfig ? { },
   enableHomebrew,
   ...
 }:
 
 let
-  activationUtils = import ../lib/activation-utils.nix { inherit lib; };
   packageLib = import ../lib/packages.nix { inherit pkgs lib; };
 in
 {
@@ -103,4 +101,3 @@ in
 
   security.pam.services.sudo_local.touchIdAuth = true;
 }
-

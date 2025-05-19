@@ -1,4 +1,11 @@
-{ pkgs, lib, inputs, username, homeDirectory, config, userConfig, ... }: {
+{
+  inputs,
+  username,
+  homeDirectory,
+  userConfig,
+  ...
+}:
+{
   imports = [
     ./system.nix
     ./homebrew.nix
@@ -10,15 +17,22 @@
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    extraSpecialArgs = { 
-      inherit inputs username homeDirectory userConfig; 
+    extraSpecialArgs = {
+      inherit
+        inputs
+        username
+        homeDirectory
+        userConfig
+        ;
     };
-    users.${username} = { pkgs, ... }: {
-      imports = [ ./home ];
-      home = {
-        inherit username homeDirectory;
-        stateVersion = "23.11"; # Keeps home-manager configuration stable
+    users.${username} =
+      { pkgs, ... }:
+      {
+        imports = [ ./home ];
+        home = {
+          inherit username homeDirectory;
+          stateVersion = "23.11"; # Keeps home-manager configuration stable
+        };
       };
-    };
   };
 }

@@ -1,7 +1,5 @@
 {
   pkgs,
-  lib,
-  config,
   userConfig ? { },
   ...
 }:
@@ -79,4 +77,3 @@ in
 {
   home.packages = allHomePackages;
 }
-
