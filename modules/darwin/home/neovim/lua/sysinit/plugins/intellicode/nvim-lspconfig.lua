@@ -6,20 +6,28 @@ M.plugins = {
 		dependencies = {
 			"williamboman/mason-lspconfig.nvim",
 			"WhoIsSethDaniel/mason-tool-installer.nvim",
+			"hrsh7th/cmp-nvim-lsp",
 		},
 		config = function()
 			local lspconfig = require("lspconfig")
+			local mason_lspconfig = require("mason-lspconfig")
 
-			lspconfig.bashls.setup({})
-			lspconfig.dagger.setup({})
-			lspconfig.docker_compose_language_service.setup({})
-			lspconfig.dockerls.setup({})
-			lspconfig.golangci_lint_ls.setup({})
-			lspconfig.gopls.setup({})
-			lspconfig.grammarly.setup({})
-			lspconfig.helm_ls.setup({})
-			lspconfig.jqls.setup({})
-			lspconfig.jsonls.setup({
+			local capabilities = vim.lsp.protocol.make_client_capabilities()
+			capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
+
+			local function setup_lsp(server, opts)
+				opts = opts or {}
+				opts.capabilities = capabilities
+				lspconfig[server].setup(opts)
+			end
+
+			local installed_lsps = mason_lspconfig.get_installed_servers()
+
+			for _, lsp in ipairs(installed_lsps) do
+				setup_lsp(lsp)
+			end
+
+			setup_lsp("jsonls", {
 				settings = {
 					json = {
 						schemas = require("schemastore").json.schemas(),
@@ -27,7 +35,8 @@ M.plugins = {
 					},
 				},
 			})
-			lspconfig.lua_ls.setup({
+
+			setup_lsp("lua_ls", {
 				settings = {
 					Lua = {
 						runtime = {
@@ -48,14 +57,8 @@ M.plugins = {
 					},
 				},
 			})
-			lspconfig.marksman.setup({})
-			lspconfig.nil_ls.setup({})
-			lspconfig.pyright.setup({})
-			lspconfig.terraformls.setup({})
-			lspconfig.tflint.setup({})
-			lspconfig.ts_ls.setup({})
-			lspconfig.vimls.setup({})
-			lspconfig.yamlls.setup({
+
+			setup_lsp("yamlls", {
 				settings = {
 					yaml = {
 						schemaStore = {
@@ -71,4 +74,3 @@ M.plugins = {
 }
 
 return M
-
