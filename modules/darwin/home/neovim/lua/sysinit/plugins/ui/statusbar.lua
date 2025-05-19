@@ -14,15 +14,9 @@ M.plugins = {
 
 			require("staline").setup({
 				sections = {
-					left = { "-", "branch", " ", "-lsp" },
+					left = { "branch", " ", "lsp" },
 					mid = { "mode" },
 					right = { "line_column" },
-				},
-				mode_colors = {
-					i = "#c6a0f6",
-					n = "#8aadf4",
-					c = "#a6da95",
-					v = "#f5a97f",
 				},
 				defaults = {
 					true_colors = true,
