@@ -110,19 +110,6 @@ M.plugins = {
 				end,
 			})
 
-			vim.api.nvim_create_autocmd({ "BufDelete" }, {
-				group = augroup,
-				callback = function(args)
-					local bufname = vim.api.nvim_buf_get_name(args.buf)
-
-					if bufname ~= "" then
-						pcall(function()
-							require("avante.selected_files").remove_file(bufname)
-						end)
-					end
-				end,
-			})
-
 			vim.api.nvim_create_autocmd("FileType", {
 				pattern = { "Avante", "AvanteInput", "AvantePromptInput", "AvanteSelectedFiles" },
 				callback = function()
