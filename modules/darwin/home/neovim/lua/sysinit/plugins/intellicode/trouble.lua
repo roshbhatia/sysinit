@@ -5,7 +5,7 @@ M.plugins = {
 		"folke/trouble.nvim",
 		event = "LSPAttach",
 		opts = {
-			win = split,
+			win = "split",
 		},
 		keys = function()
 			return {

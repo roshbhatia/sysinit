@@ -44,7 +44,7 @@ M.plugins = {
 					["<CR>"] = cmp.mapping.confirm({
 						select = false,
 					}),
-					["<Tab>"] = cmp.mapping(function(fallback)
+					["<Tab>"] = cmp.mapping(function()
 						if cmp.visible() then
 							cmp.select_next_item()
 						elseif luasnip.expand_or_jumpable() then
@@ -153,7 +153,7 @@ M.plugins = {
 				}),
 			})
 
-			require("cmp_git").setup()
+			require("cmp_git").setup({})
 		end,
 	},
 }
