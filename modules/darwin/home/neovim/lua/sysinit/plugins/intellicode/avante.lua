@@ -131,7 +131,7 @@ M.plugins = {
 					vim.opt_local.relativenumber = false
 					vim.opt_local.number = false
 					vim.opt_local.cursorline = true
-					vim.opt_local.signcolumn = false
+					vim.opt_local.signcolumn = "no"
 					vim.api.nvim_buf_set_option(0, "textwidth", 40)
 				end,
 			})
@@ -139,3 +139,4 @@ M.plugins = {
 	},
 }
 return M
+
