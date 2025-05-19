@@ -2,29 +2,38 @@ local M = {}
 
 M.plugins = {
 	{
-		"Cassin01/wf.nvim",
-		version = "*",
+		"folke/which-key.nvim",
+		dependencies = {
+			"nvim-tree/nvim-web-devicons",
+		},
+		event = "VeryLazy",
 		config = function()
-			require("wf").setup()
-		end,
-		keys = function()
-			local which_key = require("wf.builtin.which_key")
+			local wk = require("which-key")
 
-			return {
-				{
-					"<leader>",
-					which_key({
-						text_insert_in_advance = "<Space>",
-					}),
-					{
-						noremap = true,
-						silent = true,
-						desc = "[wf.nvim] which-key /",
-					},
-				},
-			}
+			wk.setup({
+				preset = "helix",
+			})
+
+			wk.add({
+				{ "<leader>a", group = "󱚣 copilot" },
+				{ "<leader>b", group = " buffer" },
+				{ "<leader>c", group = "󰘧 code" },
+				{ "<leader>d", group = " debugger" },
+				{ "<leader>e", group = " editor" },
+				{ "<leader>f", group = "󰀶 find" },
+				{ "<leader>g", group = " git" },
+				{ "<leader>k", group = " k8s" },
+				{ "<leader>j", group = "󱋿 hop" },
+				{ "<leader>m", group = "󰨁 map" },
+				{ "<leader>n", group = "󰎟 notifications" },
+				{ "<leader>o", group = "󰉹 outline" },
+				{ "<leader>s", group = "󰃻 split" },
+				{ "<leader>t", group = " terminal" },
+				{ "<leader>x", group = "󰁨 problems" },
+			})
 		end,
 	},
 }
 
 return M
+
