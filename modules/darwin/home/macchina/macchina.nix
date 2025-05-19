@@ -1,15 +1,15 @@
-{ config, lib, pkgs, homeDirectory, ... }:
+{ pkgs, homeDirectory, ... }:
 
 let
-  tomlFormat = pkgs.formats.toml {};
-  
+  tomlFormat = pkgs.formats.toml { };
+
   # Common theme settings
   commonTheme = {
     hide_ascii = false;
     spacing = 1;
     padding = 0;
     separator = "|";
-    
+
     bar = {
       glyph = "~";
       symbol_open = "(";
@@ -17,7 +17,7 @@ let
       hide_delimiters = false;
       visible = true;
     };
-    
+
     box = {
       border = "rounded";
       visible = true;
@@ -26,17 +26,17 @@ let
         y = 1;
       };
     };
-    
+
     randomize = {
       key_color = false;
       separator_color = false;
     };
-    
+
     palette = {
       visible = false;
     };
   };
-  
+
   roshTheme = commonTheme // {
     key_color = "LightCyan";
     separator_color = "Yellow";
@@ -46,30 +46,31 @@ let
       path = "${homeDirectory}/.config/macchina/themes/rosh.ascii";
     };
   };
-  
+
   nixTheme = commonTheme // {
-    key_color = "#5277C3";  # NixOS blue
-    separator_color = "#7EBAE4";  # NixOS light blue
+    key_color = "#5277C3"; # NixOS blue
+    separator_color = "#7EBAE4"; # NixOS light blue
     box.title = "nix";
     custom_ascii = {
-      color = "#5277C3";  # NixOS blue
+      color = "#5277C3"; # NixOS blue
       path = "${homeDirectory}/.config/macchina/themes/nix.ascii";
     };
   };
 
   mgsTheme = commonTheme // {
-    key_color = "#5277C3";  # NixOS blue
-    separator_color = "#7EBAE4";  # NixOS light blue
+    key_color = "#5277C3"; # NixOS blue
+    separator_color = "#7EBAE4"; # NixOS light blue
     box.title = "nix";
     custom_ascii = {
-      color = "#5277C3";  # NixOS blue
+      color = "#5277C3"; # NixOS blue
       path = "${homeDirectory}/.config/macchina/themes/mgs.ascii";
     };
   };
-  
-in {
+
+in
+{
   home.packages = [ pkgs.macchina ];
-  
+
   # Generate TOML configuration files
   xdg.configFile = {
     "macchina/macchina.toml" = {
@@ -80,33 +81,33 @@ in {
       };
       force = true;
     };
-    
+
     "macchina/themes/rosh.toml" = {
       source = tomlFormat.generate "rosh.toml" roshTheme;
       force = true;
     };
-    
+
     "macchina/themes/nix.toml" = {
       source = tomlFormat.generate "nix.toml" nixTheme;
       force = true;
     };
-  
+
     "macchina/themes/mgs.toml" = {
       source = tomlFormat.generate "mgs.toml" mgsTheme;
       force = true;
     };
-    
+
     # Keep the ASCII art files
     "macchina/themes/rosh.ascii" = {
       source = ./themes/rosh.ascii;
       force = true;
     };
-    
+
     "macchina/themes/nix.ascii" = {
       source = ./themes/nix.ascii;
       force = true;
     };
-    
+
     "macchina/themes/mgs.ascii" = {
       source = ./themes/mgs.ascii;
       force = true;

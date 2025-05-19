@@ -86,4 +86,3 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.ui.theme"),
 	require("sysinit.plugins.ui.wilder"),
 })
-
