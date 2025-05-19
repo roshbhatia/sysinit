@@ -7,12 +7,16 @@ M.plugins = {
 		opts = {
 			suppressed_dirs = { "~/", "~/Projects", "~/Downloads", "/" },
 			pre_save_cmds = {
-				"Neotree close",
+				"Silent Neotree close",
 			},
 			post_restore_cmds = {
-				"Neotree show",
+				"Silent Neotree show",
 			},
 			bypass_save_filetypes = { "alpha", "dashboard" },
+			git_use_branch_name = true,
+			session_lens = {
+				previewer = true,
+			},
 		},
 	},
 }
