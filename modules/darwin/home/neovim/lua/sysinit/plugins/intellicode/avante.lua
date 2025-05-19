@@ -131,8 +131,8 @@ M.plugins = {
 					vim.opt_local.relativenumber = false
 					vim.opt_local.number = false
 					vim.opt_local.cursorline = true
-					vim.api.nvim_buf_set_option(0, "textwidth", 80)
-					vim.api.nvim_set_hl(0, "Normal", { padding = 2 })
+					vim.opt_local.signcolumn = false
+					vim.api.nvim_buf_set_option(0, "textwidth", 40)
 				end,
 			})
 		end,
