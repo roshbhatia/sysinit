@@ -10,6 +10,7 @@ function M.register_options()
 	vim.opt.number = true
 	vim.opt.signcolumn = "yes:2"
 	vim.opt.fillchars:append({ eob = " " })
+	vim.opt.cursorline = false
 
 	-- vim.opt.spelllang = "en_gb"
 	vim.opt.spell = false
@@ -176,4 +177,3 @@ function M.register_autocmds()
 end
 
 return M
-
