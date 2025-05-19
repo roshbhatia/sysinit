@@ -14,7 +14,7 @@ M.plugins = {
 
 			require("staline").setup({
 				sections = {
-					left = { "branch", " ", "lsp" },
+					left = { "-", "branch", " ", "-lsp" },
 					mid = { "mode" },
 					right = { "line_column" },
 				},
@@ -34,3 +34,4 @@ M.plugins = {
 }
 
 return M
+
