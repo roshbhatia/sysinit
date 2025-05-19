@@ -14,9 +14,9 @@ M.plugins = {
 
 			require("staline").setup({
 				sections = {
-					left = { "mode", "branch", " " },
+					left = { "-", "-mode", "branch" },
 					mid = { "lsp" },
-					right = { vim.bo.filetype, " ", "line_column" },
+					right = { "lsp_name", "line_column" },
 				},
 				mode_colors = {
 					i = "#c6a0f6",
@@ -27,7 +27,6 @@ M.plugins = {
 				defaults = {
 					true_colors = true,
 					line_column = " [%l/%L] :%c  ",
-					branch_symbol = "",
 				},
 			})
 		end,
@@ -35,4 +34,3 @@ M.plugins = {
 }
 
 return M
-
