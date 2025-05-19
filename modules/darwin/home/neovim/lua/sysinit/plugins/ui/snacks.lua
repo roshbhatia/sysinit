@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"folke/snacks.nvim",
-		priority = 1000,
+		priority = 1050,
 		lazy = false,
 		opts = {
 			animate = {
