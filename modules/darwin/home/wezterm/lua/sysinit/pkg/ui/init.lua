@@ -3,40 +3,7 @@ local act = wezterm.action
 
 local M = {}
 
-local function ensure_cache_exists()
-	local username = os.getenv("USER")
-	local cache_dir = "/Users/" .. username .. "/.cache/wezterm"
-	local theme_file = cache_dir .. "/theme"
-
-	local success, _, code = os.execute("mkdir -p " .. cache_dir)
-	if not success or code ~= 0 then
-		wezterm.log_error("Failed to create cache directory: " .. cache_dir)
-	end
-
-	local file = io.open(theme_file, "r")
-	if not file then
-		file = io.open(theme_file, "w")
-		if file then
-			file:write("rose-pine")
-			file:close()
-		else
-			wezterm.log_error("Failed to create theme file: " .. theme_file)
-		end
-	else
-		file:close()
-	end
-end
-
-local function get_theme()
-	local username = os.getenv("USER")
-	local theme_file = "/Users/" .. username .. "/.cache/wezterm/theme"
-	local success, data = pcall(wezterm.read_file, theme_file)
-	return success and data or "rose-pine"
-end
-
 function M.setup(config)
-	ensure_cache_exists()
-
 	config.window_padding = { left = 20, right = 0, top = 20, bottom = 0 }
 	config.enable_scroll_bar = true
 	config.scrollback_lines = 20000
@@ -49,7 +16,7 @@ function M.setup(config)
 		fade_out_function = "EaseOut",
 		fade_out_duration_ms = 50,
 	}
-	config.color_scheme = get_theme()
+	config.color_scheme = "rose-pine"
 	config.font = wezterm.font_with_fallback({
 		{
 			family = "JetBrains Mono",
