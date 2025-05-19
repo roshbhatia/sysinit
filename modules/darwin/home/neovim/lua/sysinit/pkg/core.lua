@@ -94,14 +94,6 @@ function M.register_keybindings()
 		silent = true,
 	})
 
-	-- MacOS clipboard integration
-	vim.keymap.set("n", "<D-c>", '"+y', { noremap = true, silent = true })
-	vim.keymap.set("v", "<D-c>", '"+y', { noremap = true, silent = true })
-	vim.keymap.set("i", "<D-c>", '"+y', { noremap = true, silent = true })
-	vim.keymap.set("n", "<D-x>", '"+d', { noremap = true, silent = true })
-	vim.keymap.set("v", "<D-x>", '"+d', { noremap = true, silent = true })
-	vim.keymap.set("i", "<D-x>", '"+d', { noremap = true, silent = true })
-
 	-- Buffer management
 	vim.keymap.set("n", "<leader>x", ":q!<CR>", {
 		noremap = true,
@@ -109,13 +101,7 @@ function M.register_keybindings()
 		desc = " Close",
 	})
 
-	vim.keymap.set("n", "<leader>s", "<Esc>:w!<CR>", {
-		noremap = true,
-		silent = true,
-		desc = " Write",
-	})
-
-	vim.keymap.set("i", "<leader>s", "<Esc>:w!<CR>", {
+	vim.keymap.set("n", "<leader>s", ":w!<CR>", {
 		noremap = true,
 		silent = true,
 		desc = " Write",
