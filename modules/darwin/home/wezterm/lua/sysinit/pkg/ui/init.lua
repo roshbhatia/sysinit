@@ -19,8 +19,7 @@ function M.setup(config)
 	config.color_scheme = "rose-pine"
 	config.font = wezterm.font_with_fallback({
 		{
-			family = "JetBrains Mono",
-			weight = "Light",
+			family = "Hack Nerd Font Mono",
 			harfbuzz_features = { "zero", "ss01", "liga" },
 		},
 		"Symbols Nerd Font",
