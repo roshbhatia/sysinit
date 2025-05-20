@@ -8,7 +8,7 @@ let
 in
 {
   xdg.configFile."borders/bordersrc" = {
-    source = ./bordersrc;
+    source = ./bordersrc.sh;
     force = true;
   };
 

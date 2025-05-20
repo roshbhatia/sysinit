@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=all
 
 options=(
 	style=round
