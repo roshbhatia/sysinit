@@ -1,19 +1,13 @@
-## Use architect edit format for the main chat
-#architect: false
+architect: false
 
-## Enable/disable automatic acceptance of architect changes (default: True)
 #auto-accept-architect: true
 
-## Specify the model to use for the main chat
 model: openai/claude-3.5-sonnet
 
-## Specify the model to use for commit messages and chat history summarization (default depends on --model)
 weak-model: openai/gpt-3.5-turbo
 
-## Specify the model to use for editor tasks (default depends on --model)
 editor-model: openai/gpt-4o
 
-## Specify the api base url
 openai-api-base: http://localhost:4141/v1
 
 openai-api-key: not-needed
@@ -22,56 +16,32 @@ show-model-warnings: false
 
 map-tokens: 2048
 
-## Control how often the repo map is refreshed. Options: auto, always, files, manual (default: auto)
 map-refresh: auto
 
-## Restore the previous chat history messages (default: False)
 restore-chat-history: true
 
-## Use colors suitable for a dark terminal background (default: False)
 dark-mode: true
 
-## Set the color for user input (default: #00cc00)
-user-input-color: "#8FBCBB"
-
-## Set the color for tool output (default: None)
-tool-output-color: "#88C0D0"
-
-## Set the color for tool error messages (default: #FF2222)
-tool-error-color: "#BF616A"
-
-## Set the color for tool warning messages (default: #FFA500)
-tool-warning-color: "#EBCB8B"
-
-## Set the color for assistant output (default: #0088ff)
-assistant-output-color: "#81A1C1"
-
-## Set the markdown code theme (default: default, other options include monokai, solarized-dark, solarized-light)
 code-theme: github-dark
 
-## Enable/disable adding .aider* to .gitignore (default: True)
+yes-always: false
+
 gitignore: false
 
-## Enable/disable auto commit of LLM changes (default: True)
 auto-commits: false
 
-## Enable/disable commits when repo is found dirty (default: True)
 dirty-commits: false
 
-## Attribute aider code changes in the git author name (default: True)
 attribute-author: false
 
-## Attribute aider commits in the git committer name (default: True)
 attribute-committer: false
 
-## Prefix commit messages with 'aider: ' if aider authored the changes (default: False)
 attribute-commit-message-author: false
 
-## Skip the sanity check for the git repository (default: False)
 skip-sanity-check-repo: true
 
-## Enable caching of prompts (default: False)
 cache-prompts: true
 
-## Specify which editor to use for the /editor command
 editor: nvim
+
+watch-files: true
