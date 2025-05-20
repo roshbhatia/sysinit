@@ -19,6 +19,7 @@ require("sysinit.pkg.ui").setup(config)
 -- local bar = wezterm.plugin.require("file://" .. home_dir .. "/.config/wezterm/plugins/bar.wezterm")
 local bar = wezterm.plugin.require("https://github.com/adriankarlen/bar.wezterm")
 bar.apply_to_config(config, {
+	postion = "top",
 	padding = {
 		left = 2,
 		right = 2,
