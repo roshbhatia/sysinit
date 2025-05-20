@@ -1,4 +1,7 @@
-{ lib, ... }:
+{
+  lib,
+  ...
+}:
 
 let
   activationToolsPath = ./activation-tools.sh;
@@ -93,4 +96,3 @@ in
       '';
     };
 }
-

@@ -86,4 +86,5 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.ui.terminal"),
 	require("sysinit.plugins.ui.themery"),
 	require("sysinit.plugins.ui.wilder"),
+	require("sysinit.plugins.ui.window-picker"),
 })

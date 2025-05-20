@@ -1,4 +1,8 @@
-{ pkgs, lib, ... }:
+{
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   systemPackages = with pkgs; [
@@ -9,4 +13,3 @@
     export PATH="${pkgs.findutils}/bin:$PATH"
   '';
 }
-
