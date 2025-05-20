@@ -11,7 +11,9 @@ M.plugins = {
 			vim.o.autoread = true
 			require("ai-terminals").setup({
 				terminals = {
-					aider = "aider -c ~/.aider.nvim.copilot.conf.yml",
+					aider = {
+						cmd = "aider -c ~/.aider.nvim.copilot.conf.yml",
+					},
 					goose = nil,
 					aichat = nil,
 					claude = nil,
@@ -184,3 +186,4 @@ M.plugins = {
 }
 
 return M
+
