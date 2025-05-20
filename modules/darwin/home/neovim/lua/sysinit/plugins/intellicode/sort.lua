@@ -8,9 +8,9 @@ M.plugins = {
 		keys = function()
 			return {
 				{
-					"v",
 					"<leader>ss",
 					"<Cmd>Sort<CR>",
+					mode = "v",
 					desc = "Sort: Sort selection alphabetically",
 				},
 			}
