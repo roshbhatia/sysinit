@@ -51,6 +51,7 @@ let
   baseBrews = [
     "borders"
     "bcrypt"
+    "block-goose-cli"
     "direnv"
     "helm"
     "imagemagick"
@@ -72,7 +73,6 @@ let
   baseCasks = [
     "1password-cli"
     "alt-tab"
-    "block-goose"
     "discord"
     "firefox"
     "font-hack-nerd-font"
