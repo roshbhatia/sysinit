@@ -2,6 +2,32 @@ local wezterm = require("wezterm")
 local act = wezterm.action
 local M = {}
 
+local themes = {
+	"Rosé Pine (Gogh)",
+	"Rosé Pine Moon (Gogh)",
+	"Catppuccin Frappé (Gogh)",
+	"Catppuccin Macchiato (Gogh)",
+	"Nord (base16)",
+	"DoomOne",
+	"nordfox",
+	"Relaxed",
+}
+
+local current_theme_index = 1
+
+wezterm.on(function(window, pane)
+	local overrides = window:get_config_overrides() or {}
+
+	current_theme_index = current_theme_index + 1
+
+	if current_theme_index > #themes then
+		current_theme_index = 1
+	end
+
+	overrides.color_scheme = themes[current_theme_index]
+	window:set_config_overrides(overrides)
+end, "toggle-color-scheme")
+
 -- Check if a pane is running Neovim
 local function is_vim(pane)
 	return pane:get_user_vars().IS_NVIM == "true"
@@ -235,6 +261,11 @@ function M.setup(config)
 			mods = "CMD|SHIFT",
 			action = act.ActivatePaneDirection("Down"),
 		},
+		{
+			key = "t",
+			mods = "SHIFT|CTRL",
+			action = wezterm.action({ EmitEvent = "toggle-color-scheme" }),
+		},
 	}
 
 	-- Combine base keys with smart splits keys
@@ -307,4 +338,3 @@ function M.setup(config)
 end
 
 return M
-

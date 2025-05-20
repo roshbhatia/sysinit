@@ -3,6 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"GeorgesAlkhouri/nvim-aider",
+		commit = "3d1d733a7a3cf726dc41d1c4f15df01d208c09e5",
 		cmd = "Aider",
 		keys = {
 			{ "<leader>aa", "<cmd>Aider toggle<cr>", desc = "Toggle Aider" },
