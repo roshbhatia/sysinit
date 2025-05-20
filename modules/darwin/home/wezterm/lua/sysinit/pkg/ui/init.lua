@@ -29,7 +29,7 @@ function M.setup(config)
 
 	config.font = wezterm.font_with_fallback({
 		{
-			family = "Hack Nerd Font Mono",
+			family = "Noto Mono",
 			harfbuzz_features = { "zero", "ss01", "liga" },
 		},
 		"Symbols Nerd Font",
@@ -53,4 +53,3 @@ function M.setup(config)
 end
 
 return M
-
