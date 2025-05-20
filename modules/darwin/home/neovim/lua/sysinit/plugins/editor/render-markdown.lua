@@ -232,6 +232,14 @@ M.plugins = {
 					buffer_diagrams[args.buf] = nil
 				end,
 			})
+
+			-- Signcolumn on markdown files sometimes causes issues
+			vim.api.nvim_create_autocmd("FileType", {
+				pattern = "markdown",
+				callback = function()
+					vim.opt_local.signcolumn = "no"
+				end,
+			})
 		end,
 	},
 }

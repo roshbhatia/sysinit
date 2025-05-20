@@ -9,29 +9,133 @@ M.plugins = {
 		},
 		config = function()
 			require("goose").setup({
-				default_global_keymaps = true, -- If false, disables all default global keymaps
-				keymap = {
-					global = {
-						toggle = "<leader>aa", -- Open goose. Close if opened
-						open_input = "<leader>ai", -- Opens and focuses on input window on insert mode
-						open_input_new_session = "<leader>aI", -- Opens and focuses on input window on insert mode. Creates a new session
-						open_output = "<leader>ao", -- Opens and focuses on output window
-						toggle_focus = "<leader>at", -- Toggle focus between goose and last window
-						close = "<leader>aq", -- Close UI windows
-						toggle_fullscreen = "<leader>af", -- Toggle between normal and fullscreen mode
-						select_session = "<leader>as", -- Select and load a goose session
-						goose_mode_chat = "<leader>amc", -- Set goose mode to `chat`. (Tool calling disabled. No editor context besides selections)
-						goose_mode_auto = "<leader>ama", -- Set goose mode to `auto`. (Default mode with full agent capabilities)
-						configure_provider = "<leader>ap", -- Quick provider and model switch from predefined list
-						diff_open = "<leader>ad", -- Opens a diff tab of a modified file since the last goose prompt
-						diff_next = "<leader>a]", -- Navigate to next file diff
-						diff_prev = "<leader>a[", -- Navigate to previous file diff
-						diff_close = "<leader>ac", -- Close diff view tab and return to normal editing
-						diff_revert_all = "<leader>ara", -- Revert all file changes since the last goose prompt
-						diff_revert_this = "<leader>art", -- Revert current file changes since the last goose prompt
-					},
-				},
+				default_global_keymaps = false, -- Disable global keymaps
 			})
+		end,
+		keys = function()
+			return {
+				{
+					"<leader>aa",
+					function()
+						require("goose.api").toggle()
+					end,
+					desc = "AI: Toggle chat",
+				},
+				{
+					"<leader>ai",
+					function()
+						require("goose.api").open_input()
+					end,
+					desc = "AI: Open input",
+				},
+				{
+					"<leader>aI",
+					function()
+						require("goose.api").open_input_new_session()
+					end,
+					desc = "AI: Create new session",
+				},
+				{
+					"<leader>ao",
+					function()
+						require("goose.api").open_output()
+					end,
+					desc = "AI: Open output",
+				},
+				{
+					"<leader>at",
+					function()
+						require("goose.api").toggle_focus()
+					end,
+					desc = "AI: Toggle focus",
+				},
+				{
+					"<leader>aq",
+					function()
+						require("goose.api").close()
+					end,
+					desc = "AI: Close windows",
+				},
+				{
+					"<leader>af",
+					function()
+						require("goose.api").toggle_fullscreen()
+					end,
+					desc = "AI: Fullscreen toggle",
+				},
+				{
+					"<leader>as",
+					function()
+						require("goose.api").select_session()
+					end,
+					desc = "AI: Select session",
+				},
+				{
+					"<leader>ap",
+					function()
+						require("goose.api").configure_provider()
+					end,
+					desc = "AI: Provider config",
+				},
+				{
+					"<leader>ad",
+					function()
+						require("goose.api").diff_open()
+					end,
+					desc = "AI: Diff open",
+				},
+				{
+					"<leader>a]",
+					function()
+						require("goose.api").diff_next()
+					end,
+					desc = "AI: Diff next",
+				},
+				{
+					"<leader>a[",
+					function()
+						require("goose.api").diff_prev()
+					end,
+					desc = "AI: Diff previous",
+				},
+				{
+					"<leader>ac",
+					function()
+						require("goose.api").diff_close()
+					end,
+					desc = "AI: Diff close",
+				},
+				{
+					"<leader>ar",
+					function()
+						require("goose.api").diff_revert_this()
+					end,
+					desc = "AI: Revert this file",
+				},
+				{
+					"<leader>aR",
+					function()
+						require("goose.api").run_new_session("")
+					end,
+					desc = "AI: Reset chat",
+				},
+				-- Mode settings
+				{ "<leader>am", mode = { "n" }, desc = "+AI Mode" },
+				{
+					"<leader>amc",
+					function()
+						require("goose.api").set_mode("chat")
+					end,
+					desc = "AI: Mode chat",
+				},
+				{
+					"<leader>ama",
+					function()
+						require("goose.api").set_mode("auto")
+					end,
+					desc = "AI: Mode auto",
+				},
+			}
 		end,
 	},
 }
