@@ -1,7 +1,5 @@
 {
-  pkgs,
   lib,
-  config,
   userConfig ? { },
   ...
 }:
@@ -13,7 +11,6 @@ in
   home.activation.uvxPackages = activationUtils.mkPackageManager {
     name = "uvx";
     basePackages = [
-      # "aider-chat"
       "skydeckai-code"
     ];
     additionalPackages =

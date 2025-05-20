@@ -1,6 +1,7 @@
 {
   lib,
   pkgs,
+  homeDirectory,
   ...
 }:
 
@@ -46,4 +47,26 @@ in
     source = colimaYaml;
     force = true;
   };
+
+  launchd.agents.colima = {
+    serviceConfig = {
+      ProgramArguments = [
+        "${pkgs.colima}/bin/colima"
+        "start"
+      ];
+      EnvironmentVariables = {
+        HOME = homeDirectory;
+        XDG_CONFIG_HOME = "${homeDirectory}/.config";
+      };
+      RunAtLoad = true;
+      KeepAlive = {
+        Crashed = true;
+        SuccessfulExit = false;
+      };
+      ProcessType = "Interactive";
+      StandardOutPath = "${homeDirectory}/.local/state/colima/daemon.log";
+      StandardErrorPath = "${homeDirectory}/.local/state/colima/daemon.error.log";
+    };
+  };
+
 }

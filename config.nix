@@ -19,13 +19,15 @@
       ];
       brews = [
         "blueutil"
-        "go-task"
         "hashicorp/tap/packer"
+        "tailscale"
         "qemu"
       ];
       casks = [
+        "discord"
         "orbstack"
         "notion"
+        "vnc-viewer"
       ];
     };
   };
@@ -37,8 +39,6 @@
   };
 
   npm = {
-    additionalPackages = [
-      "@openai/codex"
-    ];
+    additionalPackages = [ ];
   };
 }

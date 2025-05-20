@@ -65,15 +65,12 @@ let
     "python@3.11"
     "pngpaste"
     "rust"
-    "screenresolution"
     "sshpass"
-    "tailscale"
   ];
 
   baseCasks = [
     "1password-cli"
     "alt-tab"
-    "discord"
     "firefox"
     "font-hack-nerd-font"
     "font-symbols-only-nerd-font"
@@ -84,7 +81,6 @@ let
     "raycast"
     "slack"
     "visual-studio-code@insiders"
-    "vnc-viewer"
     "wezterm"
   ];
 

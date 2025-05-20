@@ -76,27 +76,6 @@ in
   environment.systemPackages = lib.mkIf (!enableHomebrew) packageLib.systemPackages;
   environment.extraInit = packageLib.extraInit;
 
-  launchd.agents.colima = {
-    serviceConfig = {
-      ProgramArguments = [
-        "${pkgs.colima}/bin/colima"
-        "start"
-      ];
-      EnvironmentVariables = {
-        HOME = homeDirectory;
-        XDG_CONFIG_HOME = "${homeDirectory}/.config";
-      };
-      RunAtLoad = true;
-      KeepAlive = {
-        Crashed = true;
-        SuccessfulExit = false;
-      };
-      ProcessType = "Interactive";
-      StandardOutPath = "${homeDirectory}/.local/state/colima/daemon.log";
-      StandardErrorPath = "${homeDirectory}/.local/state/colima/daemon.error.log";
-    };
-  };
-
   users.users.${username}.home = homeDirectory;
 
   security.pam.services.sudo_local.touchIdAuth = true;
