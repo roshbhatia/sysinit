@@ -237,11 +237,23 @@ M.plugins = {
 			vim.api.nvim_create_autocmd("FileType", {
 				pattern = "markdown",
 				callback = function()
-					vim.opt_local.signcolumn = "no"
+					-- Check if current window is a floating window
+					if vim.api.nvim_win_get_config(0).relative ~= "" then
+						vim.opt_local.signcolumn = "no"
+					end
 				end,
 			})
+
+			vim.keymap.set("n", "<leader>es", function()
+				if vim.wo.signcolumn == "no" then
+					vim.wo.signcolumn = "yes:2"
+				else
+					vim.wo.signcolumn = "no"
+				end
+			end, { desc = "Toggle signcolumn" })
 		end,
 	},
 }
 
 return M
+
