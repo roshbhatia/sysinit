@@ -80,6 +80,7 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.ui.live-command"),
 	require("sysinit.plugins.ui.minimap"),
 	require("sysinit.plugins.ui.smart-splits"),
+	require("sysinit.plugins.ui.smear-cursor"),
 	require("sysinit.plugins.ui.statusbar"),
 	require("sysinit.plugins.ui.terminal"),
 	require("sysinit.plugins.ui.themery"),
