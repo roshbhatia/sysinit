@@ -16,7 +16,17 @@ function M.setup(config)
 		fade_out_function = "EaseOut",
 		fade_out_duration_ms = 50,
 	}
-	config.color_scheme = "rose-pine"
+
+	-- 	"Rosé Pine (Gogh)",
+	-- "Rosé Pine Moon (Gogh)",
+	-- "Catppuccin Frappé (Gogh)",
+	-- "Catppuccin Macchiato (Gogh)",
+	-- "Nord (base16)",
+	-- "DoomOne",
+	-- "nordfox",
+	-- "Relaxed",
+	config.color_scheme = "Rosé Pine (Gogh)"
+
 	config.font = wezterm.font_with_fallback({
 		{
 			family = "Hack Nerd Font Mono",
@@ -43,3 +53,4 @@ function M.setup(config)
 end
 
 return M
+
