@@ -52,6 +52,7 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.intellicode.copilot"),
 	require("sysinit.plugins.intellicode.dropbar"),
 	require("sysinit.plugins.intellicode.friendly-snippets"),
+	require("sysinit.plugins.intellicode.goose"),
 	require("sysinit.plugins.intellicode.guess-indent"),
 	require("sysinit.plugins.intellicode.linters"),
 	require("sysinit.plugins.intellicode.luasnip"),

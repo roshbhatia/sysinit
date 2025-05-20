@@ -22,6 +22,9 @@ M.plugins = {
 
 			-- Set up the plugin
 			require("render-markdown").setup({
+				anti_conceal = {
+					enabled = false,
+				},
 				file_types = markdown_filetypes,
 				render_modes = true, -- Render in ALL modes
 				latex = {
