@@ -30,11 +30,12 @@ function M.setup(config)
 	config.font = wezterm.font_with_fallback({
 		{
 			family = "JetBrains Mono",
-			harfbuzz_features = { "zero", "ss01", "liga" },
+			weight = "Medium",
+			harfbuzz_features = { "zero" },
 		},
 		"Symbols Nerd Font",
 	})
-	config.font_size = 12.0
+	config.font_size = 14.0
 	config.line_height = 1.0
 	config.default_cursor_style = "SteadyUnderline"
 	config.cursor_blink_rate = 300
@@ -53,4 +54,3 @@ function M.setup(config)
 end
 
 return M
-
