@@ -24,7 +24,6 @@ extensions:
     type: builtin
   fetch:
     args:
-      - '-y'
       - mcp-server-fetch
     bundled: null
     cmd: uvx
