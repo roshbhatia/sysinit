@@ -54,9 +54,6 @@ let
       ro = "roles";
       rb = "rolebindings";
       np = "networkpolicies";
-      nrfrt = "nrfruntimes";
-      xnrfrt = "xnrfruntimes";
-      plat = "platforms";
       app = "applications";
     };
   };
@@ -81,6 +78,7 @@ let
           ''
         ];
       };
+
       "show-argo-app-sync-status" = {
         shortCut = "Ctrl-L";
         confirm = false;
@@ -93,6 +91,7 @@ let
           ''watch -n .5 "kubectl get applications -n argocd-system $NAME -o json | jq -r '. as \\$app | \"Application Status -- $NAME: \\\$app.status.sync.status)\", \"Resources Status:\", (\"Kind,Name,Status\", (.status.resources[] | [ .kind, .name, .status ] | @csv))' | awk -F, '{if (NR > 2) {for (i=1; i<=NF; i++) {gsub(/^\\\"|\\\"$/, \"\", $i); if (length($i) > 30) $i = substr($i, 1, 27) \"...\"; else while (length($i) < 30) $i = $i \" \"; } OFS=\"\\t\"; print} else {print $0}}'"''
         ];
       };
+
       "view-resource-in-vscode" = {
         shortCut = "v";
         description = "View resource in VSCode";
@@ -102,6 +101,18 @@ let
         args = [
           "-c"
           "kubectl get $RESOURCE_NAME/$NAME --namespace $NAMESPACE --context $CONTEXT -o yaml | code -"
+        ];
+      };
+
+      "view-resource-in-neovim" = {
+        shortCut = "n";
+        description = "View resource in Neovim";
+        scopes = [ "all" ];
+        command = "sh";
+        background = false;
+        args = [
+          "-c"
+          "kubectl get $RESOURCE_NAME/$NAME --namespace $NAMESPACE --context $CONTEXT -o yaml | nvim -"
         ];
       };
     };
@@ -114,14 +125,17 @@ in
       text = lib.generators.toYAML { } k9sConfig;
       force = true;
     };
+
     "k9s/aliases.yaml" = {
       text = lib.generators.toYAML { } k9sAliases;
       force = true;
     };
+
     "k9s/plugins.yaml" = {
       text = lib.generators.toYAML { } k9sPlugins;
       force = true;
     };
+
     "k9s/skins/catppuccin.yaml" = {
       source = ./skins/catppuccin.yaml;
       force = true;

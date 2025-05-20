@@ -31,7 +31,7 @@ M.plugins = {
 					desc = "AI: Toggle chat",
 				},
 				{
-					"<leader>aI",
+					"<leader>aA",
 					function()
 						require("goose.api").open_input_new_session()
 					end,
