@@ -39,18 +39,21 @@ function M.setup(config)
 	config.line_height = 1.0
 	config.default_cursor_style = "SteadyUnderline"
 	config.cursor_blink_rate = 300
-	wezterm.on("gui-startup", function(cmd)
-		local screen = wezterm.gui.screens().active
-		if not screen then
-			return
-		end
-		local _, _, window = wezterm.mux.spawn_window(cmd or {})
-		local gui_window = window:gui_window()
-		if gui_window then
-			gui_window:set_position(screen.x, screen.y)
-			gui_window:set_inner_size(screen.width, screen.height)
-		end
-	end)
+
+	-- At the present, unsure of if I like this or not.
+	-- wezterm.on("gui-startup", function(cmd)
+	-- 	local screen = wezterm.gui.screens().active
+	-- 	if not screen then
+	-- 		return
+	-- 	end
+	-- 	local _, _, window = wezterm.mux.spawn_window(cmd or {})
+	-- 	local gui_window = window:gui_window()
+	-- 	if gui_window then
+	-- 		gui_window:set_position(screen.x, screen.y)
+	-- 		gui_window:set_inner_size(screen.width, screen.height)
+	-- 	end
+	-- end)
 end
 
 return M
+
