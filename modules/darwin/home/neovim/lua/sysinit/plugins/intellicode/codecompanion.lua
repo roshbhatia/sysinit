@@ -2,7 +2,7 @@ local M = {}
 
 M.plugins = {
 	{
-		enabled = true,
+		enabled = false,
 		"olimorris/codecompanion.nvim",
 		event = { "BufReadPost", "BufNewFile" },
 		dependencies = {
@@ -156,7 +156,7 @@ For memory usage, follow these steps for each interaction:
 						window = {
 							position = "right",
 							opts = {
-								cursorline = true,
+								cursorline = false,
 							},
 						},
 					},
@@ -199,4 +199,3 @@ For memory usage, follow these steps for each interaction:
 }
 
 return M
-

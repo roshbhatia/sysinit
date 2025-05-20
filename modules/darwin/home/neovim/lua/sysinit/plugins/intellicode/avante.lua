@@ -2,7 +2,7 @@ local M = {}
 
 M.plugins = {
 	{
-		enabled = false,
+		enabled = true,
 		"yetone/avante.nvim",
 		event = "VeryLazy",
 		version = false,
@@ -83,13 +83,15 @@ M.plugins = {
 				end,
 				windows = {
 					postion = "right",
-					width = 40,
 					sidebar_header = {
 						enabled = false,
 					},
 					input = {
 						prefix = " ",
 						height = 12,
+					},
+					edit = {
+						border = { " ", " ", " ", " ", " ", " ", " ", " " },
 					},
 				},
 			})
@@ -123,4 +125,3 @@ M.plugins = {
 	},
 }
 return M
-
