@@ -9,7 +9,7 @@
   };
 
   xdg.configFile."goose/config.yaml" = {
-    source = ./google.yaml;
+    source = ./goose.yaml;
     force = true;
   };
 
