@@ -118,6 +118,7 @@ M.plugins = {
 							".DS_Store",
 							"node_modules",
 							".git",
+							".goose",
 						},
 						hide_by_pattern = { "*.meta", "*.aider*" },
 						always_show = { ".gitignored" },

@@ -77,6 +77,7 @@ M.plugins = {
 					"%.jpg",
 					"%.png",
 					"%.heic",
+					".goose",
 				},
 				vimgrep_arguments = {
 					"rg",

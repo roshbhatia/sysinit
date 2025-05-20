@@ -38,3 +38,7 @@ devenv.shell.nix
 .aider*
 !.aider.conf.yml
 !.aiderignore
+
+# goose
+.goose/
+
