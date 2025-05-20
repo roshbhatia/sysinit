@@ -22,7 +22,7 @@ restore-chat-history: true
 
 dark-mode: true
 
-code-theme: github-dark
+code-theme: nord
 
 yes-always: false
 
