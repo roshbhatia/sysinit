@@ -18,7 +18,7 @@ M.plugins = {
 		keys = function()
 			return {
 				{
-					"<leader>mm",
+					"<leader>em",
 					"<cmd>Neominimap Toggle<CR>",
 					desc = "Minimap: Toggle",
 				},
