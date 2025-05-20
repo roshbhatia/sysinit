@@ -6,9 +6,6 @@ M.plugins = {
 		lazy = false,
 		opts = {
 			suppressed_dirs = { "~/", "~/Projects", "~/Downloads", "/" },
-			pre_save_cmds = {
-				"Silent Neotree close",
-			},
 			post_restore_cmds = {
 				"Silent Neotree show",
 			},
@@ -22,3 +19,4 @@ M.plugins = {
 }
 
 return M
+

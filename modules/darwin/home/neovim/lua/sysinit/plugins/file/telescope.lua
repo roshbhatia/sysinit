@@ -58,7 +58,26 @@ M.plugins = {
 						},
 					},
 				},
-				file_ignore_patterns = { ".git/", "node_modules", "poetry.lock", "vendor" },
+				file_ignore_patterns = {
+					".git/*",
+					".git/",
+					"node_modules",
+					"poetry.lock",
+					"vendor",
+					".cache",
+					"%.o",
+					"%.a",
+					"%.out",
+					"%.class",
+					"%.pdf",
+					"%.mkv",
+					"%.mp4",
+					"%.zip",
+					"%.jpeg",
+					"%.jpg",
+					"%.png",
+					"%.heic",
+				},
 				vimgrep_arguments = {
 					"rg",
 					"--color=never",
@@ -135,3 +154,4 @@ M.plugins = {
 }
 
 return M
+
