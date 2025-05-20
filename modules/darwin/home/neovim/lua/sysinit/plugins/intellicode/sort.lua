@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"sQVe/sort.nvim",
-		event = "VisualEnter",
+		event = "VeryLazy",
 		opts = {},
 		keys = function()
 			return {
