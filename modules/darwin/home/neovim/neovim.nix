@@ -5,6 +5,7 @@
 {
   programs.neovim = {
     enable = true;
+    defaultEditor = true;
     vimAlias = true;
     viAlias = true;
     withNodeJs = true;
@@ -22,3 +23,4 @@
     force = true;
   };
 }
+
