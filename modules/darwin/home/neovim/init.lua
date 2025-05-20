@@ -47,6 +47,7 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.intellicode.cmp-path"),
 	require("sysinit.plugins.intellicode.copilot-cmp"),
 	require("sysinit.plugins.intellicode.copilot"),
+	require("sysinit.plugins.intellicode.copilot-chat"),
 	require("sysinit.plugins.intellicode.dropbar"),
 	require("sysinit.plugins.intellicode.friendly-snippets"),
 	require("sysinit.plugins.intellicode.goose"),
@@ -86,4 +87,3 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.ui.themery"),
 	require("sysinit.plugins.ui.wilder"),
 })
-

@@ -13,10 +13,10 @@ M.plugins = {
 		keys = function()
 			return {
 				{
-					"<leader>j",
+					"<S-CR>",
 					"<cmd>HopWord<CR>",
 					mode = "n",
-					desc = "Hop: Quick jump to word",
+					desc = "Hop: Jump to any word",
 				},
 				{
 					"<leader>jj",
@@ -60,4 +60,3 @@ M.plugins = {
 }
 
 return M
-
