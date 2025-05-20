@@ -15,6 +15,8 @@ function M.register_options()
 	-- vim.opt.spelllang = "en_gb"
 	vim.opt.spell = false
 
+	vim.opt.autoread = true
+
 	-- Search options
 	vim.opt.hlsearch = true
 	vim.opt.incsearch = true
