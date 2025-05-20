@@ -7,6 +7,7 @@ M.plugins = {
 			"nvim-lua/plenary.nvim",
 			"MeanderingProgrammer/render-markdown.nvim",
 		},
+		event = "VeryLazy",
 		config = function()
 			require("goose").setup({
 				default_global_keymaps = false, -- Disable global keymaps
