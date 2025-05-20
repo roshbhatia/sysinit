@@ -33,8 +33,9 @@ in
     executableName = "npm";
   };
 
+  # Disabled for now, hacky way of integrating aider with copilot
   launchd.agents.copilot-api = {
-    enable = true;
+    enable = false;
     config = {
       Label = "com.user.copilot-api";
       ProgramArguments = [
