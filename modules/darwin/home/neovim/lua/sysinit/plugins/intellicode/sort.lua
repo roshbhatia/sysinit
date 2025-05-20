@@ -9,7 +9,7 @@ M.plugins = {
 			return {
 				{
 					"<leader>ss",
-					"<Cmd>Sort<CR>",
+					"<Cmd>Sort il<CR>",
 					mode = "v",
 					desc = "Sort: Sort selection alphabetically",
 				},
