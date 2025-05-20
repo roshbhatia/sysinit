@@ -49,7 +49,7 @@ in
   };
 
   launchd.agents.colima = {
-    serviceConfig = {
+    config = {
       ProgramArguments = [
         "${pkgs.colima}/bin/colima"
         "start"
@@ -64,8 +64,8 @@ in
         SuccessfulExit = false;
       };
       ProcessType = "Interactive";
-      StandardOutPath = "${homeDirectory}/.local/state/colima/daemon.log";
-      StandardErrorPath = "${homeDirectory}/.local/state/colima/daemon.error.log";
+      StandardOutPath = "/var/log/colima.log";
+      StandardErrorPath = "/var/log/colima.error.log";
     };
   };
 
