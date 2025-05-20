@@ -2,7 +2,7 @@ local M = {}
 
 M.plugins = {
 	{
-		enabled = true,
+		enabled = false,
 		"aweis89/ai-terminals.nvim",
 		dependencies = { "folke/snacks.nvim" },
 		keys = {
@@ -137,22 +137,6 @@ M.plugins = {
 			terminals = {
 				aider = {
 					cmd = function()
-						-- Start the Copilot API server if it's not already running
-						local check_cmd = "curl -s -o /dev/null -w '%{http_code}' http://localhost:4141/v1/models"
-						local status = tonumber(vim.fn.system(check_cmd)) or 0
-
-						if status ~= 200 then
-							-- Start the Copilot API server and wait for it to be ready
-							vim.notify("Starting Copilot API server...", vim.log.levels.INFO)
-							vim.fn.jobstart("npx copilot-api@latest start --port 4141 --wait --vision", {
-								detach = true,
-							})
-
-							-- Give it a moment to start up
-							vim.fn.system("sleep 2")
-						end
-
-						-- Return the Aider command with the proper configuration
 						return "aider -c ~/.aider.nvim.copilot.conf.yml --" .. vim.o.background .. "-mode"
 					end,
 				},
