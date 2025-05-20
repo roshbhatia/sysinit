@@ -84,6 +84,12 @@ end
 
 -- Register all basic keybindings
 function M.register_keybindings()
+	-- Explicit redo key
+	vim.api.nvim_set_keymap("n", "U", "<cmd>later<cr>", {
+		noremap = true,
+		silent = true,
+	})
+
 	-- Disable recording
 	vim.api.nvim_set_keymap("n", "q", "<Nop>", {
 		noremap = true,
