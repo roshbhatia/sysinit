@@ -2,7 +2,7 @@ local M = {}
 
 M.plugins = {
 	{
-		enabled = false,
+		enabled = true,
 		"olimorris/codecompanion.nvim",
 		event = { "BufReadPost", "BufNewFile" },
 		dependencies = {

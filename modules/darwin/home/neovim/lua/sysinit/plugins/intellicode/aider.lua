@@ -1,6 +1,8 @@
 local M = {}
+
 M.plugins = {
 	{
+		enabled = false,
 		"aweis89/ai-terminals.nvim",
 		commit = "09aa0978a83efda9b810b1b0297683de5bffe46c",
 		dependencies = {
@@ -31,18 +33,6 @@ M.plugins = {
 						modes = "t",
 					},
 				},
-			})
-
-			-- Auto-add files
-			vim.api.nvim_create_autocmd("BufEnter", {
-				callback = function()
-					local bufname = vim.fn.expand("%")
-					if bufname == "" or bufname:match("^%s*$") or vim.bo.buftype ~= "" then
-						return
-					end
-					require("ai-terminals").aider_add_files(bufname)
-				end,
-				group = vim.api.nvim_create_augroup("AiderAutoAdd", { clear = true }),
 			})
 
 			-- Telescope integration
