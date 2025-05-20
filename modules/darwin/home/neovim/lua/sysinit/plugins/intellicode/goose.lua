@@ -10,6 +10,15 @@ M.plugins = {
 		config = function()
 			require("goose").setup({
 				default_global_keymaps = false, -- Disable global keymaps
+				github_copilot = {
+					"github_copilot/gpt-4o",
+					"github_copilot/o1",
+					"github_copilot/o3-mini",
+					"github_copilot/claude-3.5-sonnet",
+					"github_copilot/claude-3.7-sonnet",
+					"github_copilot/claude-3.7-sonnet-thought",
+					"github_copilot/gemini-2.0-flash-001",
+				},
 			})
 		end,
 		keys = function()
