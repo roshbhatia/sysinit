@@ -118,5 +118,9 @@ in
   home.file.".gitignore.global" = {
     source = ./gitignore.global;
   };
-}
 
+  xdg.configFile."lazygit/config.yml" = {
+    source = ./lazygit.yaml;
+    force = true;
+  };
+}

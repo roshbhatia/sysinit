@@ -31,25 +31,11 @@ M.plugins = {
 					desc = "AI: Toggle chat",
 				},
 				{
-					"<leader>ai",
-					function()
-						require("goose.api").open_input()
-					end,
-					desc = "AI: Open input",
-				},
-				{
 					"<leader>aI",
 					function()
 						require("goose.api").open_input_new_session()
 					end,
 					desc = "AI: Create new session",
-				},
-				{
-					"<leader>ao",
-					function()
-						require("goose.api").open_output()
-					end,
-					desc = "AI: Open output",
 				},
 				{
 					"<leader>at",
@@ -94,14 +80,14 @@ M.plugins = {
 					desc = "AI: Diff open",
 				},
 				{
-					"<leader>a]",
+					"<leader>an",
 					function()
 						require("goose.api").diff_next()
 					end,
 					desc = "AI: Diff next",
 				},
 				{
-					"<leader>a[",
+					"<leader>ap",
 					function()
 						require("goose.api").diff_prev()
 					end,
@@ -115,7 +101,7 @@ M.plugins = {
 					desc = "AI: Diff close",
 				},
 				{
-					"<leader>ar",
+					"<leader>aU",
 					function()
 						require("goose.api").diff_revert_this()
 					end,
@@ -127,22 +113,6 @@ M.plugins = {
 						require("goose.api").run_new_session("")
 					end,
 					desc = "AI: Reset chat",
-				},
-				-- Mode settings
-				{ "<leader>am", mode = { "n" }, desc = "+AI Mode" },
-				{
-					"<leader>amc",
-					function()
-						require("goose.api").set_mode("chat")
-					end,
-					desc = "AI: Mode chat",
-				},
-				{
-					"<leader>ama",
-					function()
-						require("goose.api").set_mode("auto")
-					end,
-					desc = "AI: Mode auto",
 				},
 			}
 		end,
