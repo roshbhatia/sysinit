@@ -57,6 +57,7 @@ M.plugins = {
 						title = "LSP Progress",
 						opts = function(notif)
 							notif.icon = ev.data.params.value.kind == "end" and " "
+								---@diagnostic disable-next-line: undefined-field
 								or spinner[math.floor(vim.uv.hrtime() / (1e6 * 80)) % #spinner + 1]
 						end,
 					})
@@ -85,4 +86,3 @@ M.plugins = {
 }
 
 return M
-
