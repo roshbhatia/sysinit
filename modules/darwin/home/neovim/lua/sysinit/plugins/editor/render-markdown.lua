@@ -14,7 +14,6 @@ M.plugins = {
 		ft = markdown_filetypes,
 		config = function()
 			-- Create namespaces for mermaid handling
-			local mermaid_ns_id = vim.api.nvim_create_namespace("mermaid_inline_render")
 			local mermaid_fold_ns_id = vim.api.nvim_create_namespace("mermaid_fold")
 
 			-- Global storage for diagram information across buffers
@@ -155,7 +154,6 @@ M.plugins = {
 										vim.api.nvim_buf_set_extmark(buf, mermaid_fold_ns_id, diagram.start_row, 0, {
 											end_row = diagram.end_row,
 											end_col = 0,
-											conceal = true,
 										})
 
 										-- If we haven't created an image for this diagram yet, create it
@@ -245,3 +243,4 @@ M.plugins = {
 }
 
 return M
+

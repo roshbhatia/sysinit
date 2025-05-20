@@ -18,7 +18,7 @@ M.plugins = {
 					mode = "n",
 					noremap = true,
 					silent = true,
-					desc = "Marks: Toggle",
+					desc = "Marks: Add/Remove",
 				},
 				{
 					"<leader>mn",
@@ -51,12 +51,12 @@ M.plugins = {
 					desc = "Marks: Clear",
 				},
 				{
-					"<leader>ml",
+					"<leader>fm",
 					":Telescope recall<CR>",
 					mode = "n",
 					noremap = true,
 					silent = true,
-					desc = "Picker: Marks",
+					desc = "Find: Marks",
 				},
 			}
 		end,
@@ -64,3 +64,4 @@ M.plugins = {
 }
 
 return M
+

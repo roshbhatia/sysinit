@@ -9,9 +9,10 @@ M.plugins = {
 		},
 		config = function()
 			local dropbar_api = require("dropbar.api")
-			vim.keymap.set("n", "<Leader>fx", dropbar_api.pick, { desc = "Pick: Symbols in winbar" })
+			vim.keymap.set("n", "<Leader>fx", dropbar_api.pick, { desc = "Find: Symbols in winbar" })
 		end,
 	},
 }
 
 return M
+

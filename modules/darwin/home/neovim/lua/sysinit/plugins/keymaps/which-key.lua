@@ -15,21 +15,22 @@ M.plugins = {
 			})
 
 			wk.add({
-				{ "<leader>a", group = "󱚣 copilot" },
-				{ "<leader>b", group = " buffer" },
-				{ "<leader>c", group = "󰘧 code" },
-				{ "<leader>d", group = " debugger" },
-				{ "<leader>e", group = " editor" },
-				{ "<leader>f", group = "󰀶 find" },
-				{ "<leader>g", group = " git" },
-				{ "<leader>j", group = "󱋿 hop" },
-				{ "<leader>m", group = " marks" },
-				{ "<leader>n", group = "󰎟 notifications" },
-				{ "<leader>o", group = "󰉹 outline" },
-				{ "<leader>t", group = " terminal" },
+				{ "<leader>a", group = "󱚣 Copilot" },
+				{ "<leader>b", group = " Buffer" },
+				{ "<leader>c", group = "󰘧 Code" },
+				{ "<leader>d", group = " Debugger" },
+				{ "<leader>e", group = " Editor" },
+				{ "<leader>f", group = "󰀶 Find" },
+				{ "<leader>g", group = " Git" },
+				{ "<leader>j", group = "󱋿 Hop" },
+				{ "<leader>m", group = " Marks" },
+				{ "<leader>n", group = "󰎟 Notifications" },
+				{ "<leader>o", group = "󰉹 Outline" },
+				{ "<leader>t", group = " Terminal" },
 			})
 		end,
 	},
 }
 
 return M
+

@@ -2,6 +2,7 @@ local M = {}
 
 M.plugins = {
 	{
+		enabled = false,
 		"NMAC427/guess-indent.nvim",
 		event = "BufReadPre",
 		opts = {
@@ -26,3 +27,4 @@ M.plugins = {
 }
 
 return M
+

@@ -97,34 +97,34 @@ function M.register_keybindings()
 	})
 
 	-- Buffer management
-	vim.keymap.set("n", "<leader>x", ":q!<CR>", {
+	vim.keymap.set("n", "<leader>bx", ":q!<CR>", {
 		noremap = true,
 		silent = true,
-		desc = " Close",
+		desc = "Buffer: Close",
 	})
 
-	vim.keymap.set("n", "<leader>s", ":w!<CR>", {
+	vim.keymap.set("n", "<leader>bs", ":w!<CR>", {
 		noremap = true,
 		silent = true,
-		desc = " Write",
+		desc = "Buffer: Write",
 	})
 
-	vim.keymap.set("n", "<leader>w", ":wq!<CR>", {
+	vim.keymap.set("n", "<leader>bw", ":wq!<CR>", {
 		noremap = true,
 		silent = true,
-		desc = " Write and close",
+		desc = "Buffer: Write and close",
 	})
 
 	vim.keymap.set("n", "<leader>bn", "<cmd>bnext<CR>", {
 		noremap = true,
 		silent = true,
-		desc = " Next",
+		desc = "Buffer: Next",
 	})
 
 	vim.keymap.set("n", "<leader>bp", "<cmd>bprev<CR>", {
 		noremap = true,
 		silent = true,
-		desc = " Previous",
+		desc = "Buffer: Previous",
 	})
 
 	vim.keymap.set("n", "<leader>Q", ":qa!<CR>", {
@@ -144,19 +144,7 @@ function M.register_keybindings()
 	end, {
 		noremap = true,
 		silent = true,
-		desc = " Toggle absolute & relative",
-	})
-
-	vim.keymap.set("n", "<D-k>", ":noh<CR>", {
-		noremap = true,
-		silent = true,
-		desc = "󰀶 Clear search highlights",
-	})
-
-	vim.keymap.set("n", "<leader>?", "<cmd>Telescope keymaps<CR>", {
-		noremap = true,
-		silent = true,
-		desc = "󰀶 Find keymaps",
+		desc = "Editor: Toggle line number display",
 	})
 end
 
@@ -168,3 +156,4 @@ function M.register_autocmds()
 end
 
 return M
+
