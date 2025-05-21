@@ -109,8 +109,8 @@ function M.register_keybindings()
 
 	-- Buffer management
 	vim.keymap.set("n", "<leader>x", function()
-		vim.cmd("SessionSave")
-		vim.cmd("quit!")
+		vim.cmd("silent SessionSave")
+		vim.cmd("silent quit!")
 	end, {
 		noremap = true,
 		silent = true,
@@ -118,8 +118,8 @@ function M.register_keybindings()
 	})
 
 	vim.keymap.set("n", "<leader>s", function()
-		vim.cmd("SessionSave")
-		vim.cmd("write!")
+		vim.cmd("silent SessionSave")
+		vim.cmd("silent write!")
 	end, {
 		noremap = true,
 		silent = true,
@@ -127,9 +127,9 @@ function M.register_keybindings()
 	})
 
 	vim.keymap.set("n", "<leader>w", function()
-		vim.cmd("SessionSave")
-		vim.cmd("write!")
-		vim.cmd("quit!")
+		vim.cmd("silent SessionSave")
+		vim.cmd("silent write!")
+		vim.cmd("silent quit!")
 	end, {
 		noremap = true,
 		silent = true,
@@ -177,4 +177,3 @@ function M.register_autocmds()
 end
 
 return M
-
