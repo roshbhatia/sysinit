@@ -185,15 +185,6 @@ function M.register_autocmds()
 		pattern = "help",
 		command = "wincmd L",
 	})
-
-	vim.api.nvim_create_autocmd("VimEnter", {
-		callback = function()
-			local args = vim.v.argv
-			if #args == 2 and args[2] == "." then
-				vim.cmd("Alpha")
-			end
-		end,
-	})
 end
 
 return M
