@@ -1,10 +1,10 @@
--- sysinit.nvim.doc-url="https://raw.githubusercontent.com/tpope/vim-fugitive/refs/heads/master/doc/fugitive.txt"
 local M = {}
 
 M.plugins = {
 	{
 		"tpope/vim-fugitive",
-		event = "VeryLazy",
+		branch = "master",
+		cmd = { "Git", "Gvdiffsplit" },
 		keys = {
 			{
 				"<leader>gs",
@@ -33,12 +33,12 @@ M.plugins = {
 			},
 			{
 				"<leader>gd",
-				"<cmd>Gdiffsplit!<CR>",
+				"<cmd>Gvdiffsplit!<CR>",
 				desc = "Git: Diff split",
 			},
 			{
 				"<leader>gD",
-				"<cmd>Gdiffsplit! HEAD^ HEAD~1<CR>",
+				"<cmd>Gvdiffsplit! HEAD^ HEAD~1<CR>",
 				desc = "Git: Diff split previous commit",
 			},
 		},
