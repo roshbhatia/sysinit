@@ -10,9 +10,10 @@ M.plugins = {
 			"williamboman/mason.nvim",
 		},
 		opts = {
+			automatic_installation = true,
 			handlers = {},
 			ensure_installed = {
-				"bashdb",
+				"bash-debug-adapter",
 				"delve",
 				"python",
 			},
