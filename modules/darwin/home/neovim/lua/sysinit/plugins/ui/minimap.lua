@@ -19,7 +19,7 @@ M.plugins = {
 				{
 					"<leader>em",
 					"<cmd>Neominimap Toggle<CR>",
-					desc = "Minimap: Toggle",
+					desc = "Editor: Toggle minimap",
 				},
 			}
 		end,
