@@ -38,6 +38,7 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.git.client"),
 	require("sysinit.plugins.git.fugitive"),
 	require("sysinit.plugins.git.signs"),
+	require("sysinit.plugins.intellicode.ai-terminals"),
 	require("sysinit.plugins.intellicode.cmp-buffer"),
 	require("sysinit.plugins.intellicode.cmp-cmdline"),
 	require("sysinit.plugins.intellicode.cmp-git"),
