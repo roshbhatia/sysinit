@@ -14,7 +14,7 @@
   };
 
   xdg.configFile."goose/.goosehints" = {
-    source = ./goosehints;
+    source = ./goosehints.md;
     force = true;
   };
 }

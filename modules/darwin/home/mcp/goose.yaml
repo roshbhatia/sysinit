@@ -1,11 +1,13 @@
 ---
 GOOSE_MODEL: gpt-4o
 GOOSE_PROVIDER: github_copilot
+GOOSE_PLANNER_MODEL: o1
+
 extensions:
   context7:
     args:
-      - '-y'
-      - '@upstash/context7-mcp@latest'
+      - "-y"
+      - "@upstash/context7-mcp@latest"
     bundled: null
     cmd: npx
     description: null
@@ -36,8 +38,8 @@ extensions:
     type: stdio
   kubernetes:
     args:
-      - '-y'
-      - '@strowk/mcp-k8s'
+      - "-y"
+      - "@strowk/mcp-k8s"
     bundled: null
     cmd: npx
     description: null
@@ -56,8 +58,8 @@ extensions:
     type: builtin
   sequential-thinking:
     args:
-      - '-y'
-      - '@modelcontextprotocol/server-sequential-thinking'
+      - "-y"
+      - "@modelcontextprotocol/server-sequential-thinking"
     bundled: null
     cmd: npx
     description: null
@@ -67,3 +69,4 @@ extensions:
     name: sequential-thinking
     timeout: 300
     type: stdio
+
