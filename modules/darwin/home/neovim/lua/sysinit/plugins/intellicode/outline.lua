@@ -12,6 +12,7 @@ M.plugins = {
 		},
 		config = function()
 			require("aerial").setup({
+				highlight_on_hover = true,
 				min_width = { 20, 0.1 },
 				autojump = true,
 				backends = {
