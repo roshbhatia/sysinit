@@ -7,9 +7,12 @@ M.plugins = {
 		event = "VeryLazy",
 		version = "2.*",
 		config = function()
-			require("window-picker").setup()
+			require("window-picker").setup({
+				hint = "floating-big-letter",
+			})
 		end,
 	},
 }
 
 return M
+

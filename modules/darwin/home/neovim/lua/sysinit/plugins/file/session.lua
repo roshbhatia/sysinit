@@ -13,9 +13,13 @@ M.plugins = {
 				previewer = true,
 			},
 			previewer = true,
-			restore_error_handler = function() end, -- ignore errors on restore
+			restore_error_handler = function()
+				return true
+			end, -- ignore errors on restore
+			show_auto_restore_notif = true,
 		},
 	},
 }
 
 return M
+
