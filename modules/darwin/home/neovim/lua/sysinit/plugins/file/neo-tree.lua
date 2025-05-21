@@ -81,7 +81,7 @@ M.plugins = {
 								use_float = true,
 							},
 						},
-						["S"] = "open_split",
+						["s"] = "open_split",
 						["v"] = "open_vsplit",
 						["w"] = "open_with_window_picker",
 						["C"] = "close_node",
