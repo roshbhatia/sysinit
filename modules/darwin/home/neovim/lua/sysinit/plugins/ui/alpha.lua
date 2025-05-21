@@ -74,38 +74,9 @@ M.plugins = {
 			}
 
 			alpha.setup(dashboard.config)
-
-			vim.api.nvim_create_autocmd("User", {
-				pattern = "VeryLazy",
-				callback = function()
-					-- Get the exact startup command arguments
-					local args = vim.v.argv
-					local is_dir_open = false
-
-					-- Check if we're opening a directory (specifically ".")
-					if #args >= 2 then
-						for i = 2, #args do
-							if args[i] == "." then
-								is_dir_open = true
-								break
-							end
-						end
-					end
-
-					-- If opening directory and current buffer isn't a real file
-					if is_dir_open and vim.fn.expand("%") == "" then
-						-- Close any empty initial buffer or netrw
-						vim.cmd("silent! enew")
-						vim.cmd("silent! bd#")
-
-						-- Force alpha to open
-						vim.cmd("Alpha")
-					end
-				end,
-				once = true,
-			})
 		end,
 	},
 }
 
 return M
+
