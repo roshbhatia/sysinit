@@ -43,8 +43,6 @@ M.plugins = {
 				hl = "DashboardHeader",
 			}
 
-			vim.api.nvim_command("highlight DashboardHeader guifg=#ff0000")
-
 			dashboard.section.buttons.val = function()
 				local buttons = {}
 				table.insert(buttons, dashboard.button("i", " New file", ":ene | startinsert<CR>"))
@@ -76,22 +74,9 @@ M.plugins = {
 			}
 
 			alpha.setup(dashboard.config)
-
-			vim.api.nvim_create_autocmd("User", {
-				pattern = "AlphaReady",
-				callback = function()
-					vim.cmd("<CMD>Neotree close<CR>")
-				end,
-			})
-
-			vim.api.nvim_create_autocmd("User", {
-				pattern = "AlphaClosed",
-				callback = function()
-					vim.cmd("<CMD>Neotree show<CR>")
-				end,
-			})
 		end,
 	},
 }
 
 return M
+
