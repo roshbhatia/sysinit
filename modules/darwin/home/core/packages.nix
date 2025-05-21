@@ -51,6 +51,7 @@ let
     luajit
     lynx
     nil
+    nixd
     nixfmt-rfc-style
     nodejs
     nushell

@@ -58,6 +58,26 @@ M.plugins = {
 				},
 			})
 
+			setup_lsp("nixd", {
+				settings = {
+					nixd = {
+						nixpkgs = {
+							expr = "import <nixpkgs> { }",
+						},
+						formatting = {
+							command = { "nixfmt" },
+						},
+						options = {
+							home_manager = {
+								expr = '(builtins.getFlake (".")).darwinConfigurations."'
+									.. vim.fn.hostname()
+									.. '".options',
+							},
+						},
+					},
+				},
+			})
+
 			setup_lsp("yamlls", {
 				settings = {
 					yaml = {

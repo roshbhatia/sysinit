@@ -30,7 +30,7 @@ M.plugins = {
 					},
 					git_status = {
 						symbols = {
-							modified = "+/-",
+							modified = "",
 							renamed = "󰁕",
 							untracked = "",
 							ignored = "",
@@ -112,4 +112,3 @@ M.plugins = {
 }
 
 return M
-
