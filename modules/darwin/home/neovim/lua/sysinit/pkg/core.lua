@@ -108,19 +108,29 @@ function M.register_keybindings()
 	})
 
 	-- Buffer management
-	vim.keymap.set("n", "<leader>x", ":q!<CR>", {
+	vim.keymap.set("n", "<leader>x", function()
+		vim.cmd("SessionSave")
+		vim.cmd("quit!")
+	end, {
 		noremap = true,
 		silent = true,
 		desc = "Buffer: Close",
 	})
 
-	vim.keymap.set("n", "<leader>s", ":w!<CR>", {
+	vim.keymap.set("n", "<leader>s", function()
+		vim.cmd("SessionSave")
+		vim.cmd("write!")
+	end, {
 		noremap = true,
 		silent = true,
 		desc = "Buffer: Write",
 	})
 
-	vim.keymap.set("n", "<leader>w", ":wq!<CR>", {
+	vim.keymap.set("n", "<leader>w", function()
+		vim.cmd("SessionSave")
+		vim.cmd("write!")
+		vim.cmd("quit!")
+	end, {
 		noremap = true,
 		silent = true,
 		desc = "Buffer: Write and close",
@@ -167,3 +177,4 @@ function M.register_autocmds()
 end
 
 return M
+
