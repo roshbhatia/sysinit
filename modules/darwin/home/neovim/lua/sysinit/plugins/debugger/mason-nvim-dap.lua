@@ -12,7 +12,7 @@ M.plugins = {
 		opts = {
 			handlers = {},
 			ensure_installed = {
-				"bash",
+				"bashdb",
 				"delve",
 				"python",
 			},
@@ -21,4 +21,3 @@ M.plugins = {
 }
 
 return M
-
