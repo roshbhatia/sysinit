@@ -27,6 +27,7 @@
         "discord"
         "orbstack"
         "notion"
+        "steam"
         "vnc-viewer"
       ];
     };
@@ -42,3 +43,4 @@
     additionalPackages = [ ];
   };
 }
+
