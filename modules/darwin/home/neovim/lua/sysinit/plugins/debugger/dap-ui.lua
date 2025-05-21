@@ -7,7 +7,6 @@ M.plugins = {
 		lazy = true,
 		dependencies = {
 			"nvim-neotest/nvim-nio",
-			"mfussenegger/nvim-dap",
 		},
 		config = true,
 		keys = function()
@@ -25,3 +24,4 @@ M.plugins = {
 }
 
 return M
+

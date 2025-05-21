@@ -5,7 +5,22 @@ M.plugins = {
 		"mfussenegger/nvim-dap",
 		commit = "8df427aeba0a06c6577dc3ab82de3076964e3b8d",
 		lazy = false,
-		opts = {},
+		recommended = true,
+		dependencies = {
+			"rcarriga/nvim-dap-ui",
+			"theHamsta/nvim-dap-virtual-text",
+			"jay-babu/mason-nvim-dap.nvim",
+		},
+		config = function()
+			vim.api.nvim_set_hl(0, "DapStoppedLine", { default = true, link = "Visual" })
+			for name, sign in pairs(LazyVim.config.icons.dap) do
+				sign = type(sign) == "table" and sign or { sign }
+				vim.fn.sign_define(
+					"Dap" .. name,
+					{ text = sign[1], texthl = sign[2] or "DiagnosticInfo", linehl = sign[3], numhl = sign[3] }
+				)
+			end
+		end,
 		keys = {
 			{
 				"<leader>db",
@@ -82,3 +97,4 @@ M.plugins = {
 }
 
 return M
+

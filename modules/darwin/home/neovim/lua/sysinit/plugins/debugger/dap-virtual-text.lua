@@ -7,7 +7,6 @@ M.plugins = {
 		event = "BufReadPost",
 		dependencies = {
 			"nvim-treesitter/nvim-treesitter",
-			"mussenegger/nvim-dap",
 		},
 		opts = {},
 	},
