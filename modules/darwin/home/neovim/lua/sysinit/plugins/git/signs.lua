@@ -6,77 +6,102 @@ M.plugins = {
 		event = { "VeryLazy" },
 		config = function()
 			require("gitsigns").setup({
-				current_line_blame = false,
 				current_line_blame_formatter = "",
 			})
 		end,
-		keys = function()
-			local gitsigns = require("gitsigns")
-			return {
-				{
-					"n",
-					"<leader>ghs",
-					gitsigns.stage_hunk(),
-					{ desc = "Git: Stage hunk" },
-				},
-				{
-					"n",
-					"<leader>ghr",
-					gitsigns.reset_hunk(),
-					{ desc = "Git: Reset hunk" },
-				},
-				{
-					"n",
-					"<leader>ghS",
-					gitsigns.stage_buffer(),
-					{ desc = "Git: Stage buffer" },
-				},
-				{
-					"n",
-					"<leader>ghu",
-					gitsigns.undo_stage_hunk(),
-					{ desc = "Git: Unstage hunk" },
-				},
-				{
-					"n",
-					"<leader>ghR",
-					gitsigns.reset_buffer(),
-					{ desc = "Git: Reset buffer" },
-				},
-				{
-					"n",
-					"<leader>ghp",
-					gitsigns.preview_hunk_inline(),
-					{ desc = "Git: Preview hunk" },
-				},
-				{
-					"n",
-					"<leader>ghd",
-					gitsigns.diffthis(),
-					{ desc = "Git: Diff with last commit" },
-				},
-				{
-					"n",
-					"<leader>ghd",
-					gitsigns.diffthis("~"),
-					{ desc = "Git: Diff with parent commit" },
-				},
-				{
-					"n",
-					"<leader>ghn",
-					gitsigns.next_hunk(),
-					{ desc = "Git: Next hunk" },
-				},
-				{
-					"n",
-					"<leader>ghp",
-					gitsigns.prev_hunk(),
-					{ desc = "Git: Previous hunk" },
-				},
-			}
-		end,
+		keys = {
+			{
+				"<leader>ghs",
+				function()
+					require("gitsigns").stage_hunk()
+				end,
+				mode = "n",
+				noremap = true,
+				silent = true,
+				desc = "Git: Stage hunk",
+			},
+			{
+				"<leader>ghr",
+				function()
+					require("gitsigns").reset_hunk()
+				end,
+				mode = "n",
+				noremap = true,
+				silent = true,
+				desc = "Git: Reset hunk",
+			},
+			{
+				"<leader>ghS",
+				function()
+					require("gitsigns").stage_buffer()
+				end,
+				mode = "n",
+				noremap = true,
+				silent = true,
+				desc = "Git: Stage buffer",
+			},
+			{
+				"<leader>ghu",
+				function()
+					require("gitsigns").undo_stage_hunk()
+				end,
+				mode = "n",
+				noremap = true,
+				silent = true,
+				desc = "Git: Unstage hunk",
+			},
+			{
+				"<leader>ghR",
+				function()
+					require("gitsigns").reset_buffer()
+				end,
+				mode = "n",
+				noremap = true,
+				silent = true,
+				desc = "Git: Reset buffer",
+			},
+			{
+				"<leader>ghp",
+				function()
+					require("gitsigns").preview_hunk_inlined()
+				end,
+				mode = "n",
+				noremap = true,
+				silent = true,
+				desc = "Git: Preview hunk",
+			},
+			{
+				"<leader>ghd",
+				function()
+					require("gitsigns").diffthis()
+				end,
+				mode = "n",
+				noremap = true,
+				silent = true,
+				desc = "Git: Diff this",
+			},
+			{
+				"<leader>ghn",
+				function()
+					require("gitsigns").next_hunk()
+				end,
+				mode = "n",
+				noremap = true,
+				silent = true,
+				desc = "Git: Next hunk",
+			},
+			{
+				"<leader>ghP",
+				function()
+					require("gitsigns").prev_hunk()
+				end,
+				mode = "n",
+				noremap = true,
+				silent = true,
+				desc = "Git: Previous hunk",
+			},
+		},
 	},
 }
 
 return M
-
