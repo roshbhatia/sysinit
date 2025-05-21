@@ -1,4 +1,7 @@
-return {
+local M = {}
+
+M.plugins = {
+
 	{
 		"aweis89/ai-terminals.nvim",
 		enabled = true,
@@ -133,3 +136,5 @@ return {
 		end,
 	},
 }
+
+return M
