@@ -25,7 +25,7 @@ return {
 						key = "<leader>ae",
 						term = "goose",
 						prompt = "Explain the selected code snippet.",
-						desc = "Goose: Explain selection",
+						desc = "Copilot: Explain selection",
 						include_selection = true,
 						submit = true,
 					},
@@ -36,7 +36,7 @@ return {
 							local file_path = vim.fn.expand("%:p")
 							return string.format("Summarize the content of the file: `%s`", file_path)
 						end,
-						desc = "Goose: Summarize current file",
+						desc = "Copilot: Summarize current file",
 						include_selection = false,
 						submit = true,
 					},
@@ -50,7 +50,7 @@ return {
 					function()
 						require("ai-terminals").toggle("goose")
 					end,
-					desc = "Toggle Goose terminal",
+					desc = "Copilot: Toggle chat",
 					mode = { "n", "v" },
 				},
 				{
@@ -58,7 +58,7 @@ return {
 					function()
 						require("ai-terminals").send_command_output("goose")
 					end,
-					desc = "Open a new Goose terminal session",
+					desc = "Copilot: Open a new chat session",
 					mode = { "n" },
 				},
 				{
@@ -66,7 +66,7 @@ return {
 					function()
 						require("ai-terminals").send_diagnostics("goose")
 					end,
-					desc = "Send diagnostics to Goose terminal",
+					desc = "Copilot: Send diagnostics to chat",
 					mode = { "n", "v" },
 				},
 				{
@@ -74,7 +74,7 @@ return {
 					function()
 						require("ai-terminals").focus()
 					end,
-					desc = "Focus the Goose terminal",
+					desc = "Copilot: Focus the chat",
 					mode = { "n" },
 				},
 				{
@@ -89,4 +89,3 @@ return {
 		end,
 	},
 }
-
