@@ -14,7 +14,7 @@ M.plugins = {
 		end,
 		keys = {
 			{
-				"<leader>oo",
+				"<leader>eo",
 				"<cmd>AerialToggle!<CR>",
 				desc = "Outline: Toggle",
 			},

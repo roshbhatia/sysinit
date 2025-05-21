@@ -42,11 +42,6 @@ M.plugins = {
 			return {
 				{
 					"<leader>eb",
-					"<cmd>Oil<CR>",
-					desc = "Editor: Open filesystem",
-				},
-				{
-					"<leader>eo",
 					"<cmd>Oil --float<CR>",
 					desc = "Editor: Open filesystem in floating buffer",
 				},
@@ -56,3 +51,4 @@ M.plugins = {
 }
 
 return M
+

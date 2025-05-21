@@ -22,10 +22,11 @@ M.plugins = {
 				{ "<leader>e", group = " Editor" },
 				{ "<leader>f", group = "󰀶 Find" },
 				{ "<leader>g", group = " Git" },
+				{ "<leader>gb", group = "Buffer" },
+				{ "<leader>gh", group = "Hunk" },
 				{ "<leader>j", group = "󱋿 Hop" },
 				{ "<leader>m", group = " Marks" },
 				{ "<leader>n", group = "󰎟 Notifications" },
-				{ "<leader>o", group = "󰉹 Outline" },
 				{ "<leader>t", group = " Terminal" },
 			})
 		end,
