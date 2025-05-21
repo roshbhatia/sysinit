@@ -18,14 +18,14 @@ local direction_keys = {
 local function split_nav(resize_or_move, key)
 	return {
 		key = key,
-		mods = resize_or_move == "resize" and "CMD",
+		mods = resize_or_move == "resize" and "META" or "CTRL",
 		action = wezterm.action_callback(function(win, pane)
 			if is_vim(pane) then
 				-- Pass the keys through to Neovim
 				win:perform_action({
 					SendKey = {
 						key = key,
-						mods = resize_or_move == "resize" and "CMD",
+						mods = resize_or_move == "resize" and "META" or "CTRL",
 					},
 				}, pane)
 			else
@@ -83,15 +83,6 @@ function M.setup(config)
 			end),
 		},
 		{
-			key = "l",
-			mods = "CTRL",
-			action = wezterm.action_callback(function(win, pane)
-				if not is_vim(pane) then
-					win:perform_action(act.ClearScrollback("ScrollbackAndViewport"), pane)
-				end
-			end),
-		},
-		{
 			key = "p",
 			mods = "CMD|SHIFT",
 			action = act.ActivateCommandPalette,
@@ -144,6 +135,11 @@ function M.setup(config)
 			action = act.Search("CurrentSelectionOrEmptyString"),
 		},
 		{
+			key = "h",
+			mods = "CMD",
+			action = act.HideApplication,
+		},
+		{
 			key = "q",
 			mods = "CMD",
 			action = act.QuitApplication,
@@ -193,7 +189,16 @@ function M.setup(config)
 			mods = "CMD",
 			action = act.ActivateTab(-1),
 		},
-		-- Font size
+		{
+			key = "{",
+			mods = "CMD|SHIFT",
+			action = act.ActivateTabRelative(-1),
+		},
+		{
+			key = "}",
+			mods = "CMD|SHIFT",
+			action = act.ActivateTabRelative(1),
+		}, -- Font size
 		{
 			key = "-",
 			mods = "CMD",
@@ -203,6 +208,31 @@ function M.setup(config)
 			key = "=",
 			mods = "CMD",
 			action = act.IncreaseFontSize,
+		},
+		{
+			key = "0",
+			mods = "CMD",
+			action = act.ResetFontSize,
+		}, -- Alternative pane navigation
+		{
+			key = "LeftArrow",
+			mods = "CMD|SHIFT",
+			action = act.ActivatePaneDirection("Left"),
+		},
+		{
+			key = "RightArrow",
+			mods = "CMD|SHIFT",
+			action = act.ActivatePaneDirection("Right"),
+		},
+		{
+			key = "UpArrow",
+			mods = "CMD|SHIFT",
+			action = act.ActivatePaneDirection("Up"),
+		},
+		{
+			key = "DownArrow",
+			mods = "CMD|SHIFT",
+			action = act.ActivatePaneDirection("Down"),
 		},
 	}
 
@@ -276,3 +306,4 @@ function M.setup(config)
 end
 
 return M
+
