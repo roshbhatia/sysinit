@@ -101,6 +101,17 @@ function M.register_keybindings()
 		silent = true,
 	})
 
+	-- Disable marks (we use global marks)
+	vim.api.nvim_set_keymap("n", "m", "<Nop>", {
+		noremap = true,
+		silent = true,
+	})
+
+	vim.api.nvim_set_keymap("v", "m", "<Nop>", {
+		noremap = true,
+		silent = true,
+	})
+
 	-- Space as leader key
 	vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", {
 		noremap = true,
@@ -177,4 +188,3 @@ function M.register_autocmds()
 end
 
 return M
-
