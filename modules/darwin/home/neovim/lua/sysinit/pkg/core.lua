@@ -2,6 +2,9 @@ local M = {}
 
 -- Register all basic editor options
 function M.register_options()
+	-- Environment
+	vim.env.PATH = vim.fn.getenv("PATH")
+
 	-- Clipboard
 	vim.o.clipboard = "unnamedplus"
 
@@ -14,8 +17,6 @@ function M.register_options()
 
 	-- vim.opt.spelllang = "en_gb"
 	vim.opt.spell = false
-
-	vim.opt.autoread = true
 
 	-- Search options
 	vim.opt.hlsearch = true
@@ -62,11 +63,15 @@ function M.register_options()
 	vim.opt.laststatus = 3
 	vim.opt.completeopt = { "menu", "menuone", "fuzzy", "preview" }
 
-	-- Environment
-	vim.env.PATH = vim.fn.getenv("PATH")
-	vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+	-- Enable autoread
 	vim.o.autoread = true
 
+	-- Set up periodic checking for file changes (every 1000ms = 1 second)
+	vim.o.updatetime = 1000
+	vim.api.nvim_create_autocmd({ "CursorHold" }, {
+		pattern = "*",
+		command = "checktime",
+	})
 	-- Undo directory for more persisted undo's
 	local undodir = vim.fn.stdpath("cache") .. "/undo"
 	if vim.fn.isdirectory(undodir) == 0 then
@@ -162,4 +167,3 @@ function M.register_autocmds()
 end
 
 return M
-

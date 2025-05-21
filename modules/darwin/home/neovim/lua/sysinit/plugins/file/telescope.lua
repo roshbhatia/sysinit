@@ -4,7 +4,7 @@ M.plugins = {
 	{
 		"nvim-telescope/telescope.nvim",
 		tag = "0.1.8",
-		lazy = false,
+		event = "VeryLazy",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			"nvim-tree/nvim-web-devicons",
@@ -12,6 +12,7 @@ M.plugins = {
 			"nvim-telescope/telescope-dap.nvim",
 			"nvim-telescope/telescope-live-grep-args.nvim",
 			"debugloop/telescope-undo.nvim",
+			"olimorris/persisted.nvim",
 		},
 		config = function()
 			local telescope = require("telescope")
@@ -21,7 +22,7 @@ M.plugins = {
 				defaults = {
 					prompt_prefix = "   ",
 					selection_caret = "",
-					entry_prefix = " ",
+					entry_prefix = "",
 					sorting_strategy = "ascending",
 					layout_config = {
 						horizontal = {
@@ -44,6 +45,9 @@ M.plugins = {
 					},
 				},
 				extensions = {
+					persisted = {
+						layout_config = { width = 0.55, height = 0.55 },
+					},
 					fzy_native = {
 						override_generic_sorter = true,
 						override_file_sorter = true,
@@ -92,6 +96,7 @@ M.plugins = {
 				},
 			})
 
+			telescope.load_extension("persisted")
 			telescope.load_extension("fzy_native")
 			telescope.load_extension("dap")
 			telescope.load_extension("live_grep_args")
