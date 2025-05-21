@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"WhoIsSethDaniel/mason-tool-installer.nvim",
-		dependencies = { "williamboman/mason.nvim" },
+		dependencies = { "williamboman/mason.nvim", "williamboman/mason-lspconfig.nvim" },
 		config = function()
 			require("mason-tool-installer").setup({
 				ensure_installed = {
@@ -33,3 +33,4 @@ M.plugins = {
 }
 
 return M
+
