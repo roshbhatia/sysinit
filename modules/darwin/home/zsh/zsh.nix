@@ -99,7 +99,7 @@ in
 
       tf = "terraform";
       y = "yazi";
-      vi = "nvim";
+      v = "nvim";
 
       sudo = "sudo -E";
 
