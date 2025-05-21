@@ -63,7 +63,7 @@ M.plugins = {
 			{
 				"<leader>ghp",
 				function()
-					require("gitsigns").preview_hunk_inlined()
+					require("gitsigns").preview_hunk_inline()
 				end,
 				mode = "n",
 				noremap = true,
