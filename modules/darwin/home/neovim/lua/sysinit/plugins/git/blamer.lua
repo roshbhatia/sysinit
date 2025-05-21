@@ -7,7 +7,6 @@ M.plugins = {
 		opts = {
 			enabled = true,
 			message_template = "  <summary> by <author> in <<sha>>",
-			date_format = "%m-%d-%Y",
 			virtual_text_column = 1,
 		},
 	},

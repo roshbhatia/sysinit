@@ -26,7 +26,7 @@ M.plugins = {
 					desc = "Git: Open git ui",
 				},
 				{
-					"<leader>gr",
+					"<leader>gG",
 					":FloatermNew! --autoinsert=false --autoclose=2 --width=0.8 --height=0.8 --disposable --name=github gh dash<CR>",
 					desc = "Git: Open github ui",
 				},
@@ -36,4 +36,3 @@ M.plugins = {
 }
 
 return M
-

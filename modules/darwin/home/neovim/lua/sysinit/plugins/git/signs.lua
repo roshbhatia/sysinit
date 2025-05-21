@@ -21,7 +21,7 @@ M.plugins = {
 				desc = "Git: Stage hunk",
 			},
 			{
-				"<leader>ghr",
+				"<leader>ghR",
 				function()
 					require("gitsigns").reset_hunk()
 				end,
@@ -31,7 +31,7 @@ M.plugins = {
 				desc = "Git: Reset hunk",
 			},
 			{
-				"<leader>ghS",
+				"<leader>gbs",
 				function()
 					require("gitsigns").stage_buffer()
 				end,
@@ -51,7 +51,7 @@ M.plugins = {
 				desc = "Git: Unstage hunk",
 			},
 			{
-				"<leader>ghR",
+				"<leader>gbR",
 				function()
 					require("gitsigns").reset_buffer()
 				end,
@@ -71,16 +71,6 @@ M.plugins = {
 				desc = "Git: Preview hunk",
 			},
 			{
-				"<leader>ghd",
-				function()
-					require("gitsigns").diffthis()
-				end,
-				mode = "n",
-				noremap = true,
-				silent = true,
-				desc = "Git: Diff this",
-			},
-			{
 				"<leader>ghn",
 				function()
 					require("gitsigns").next_hunk()
@@ -91,7 +81,7 @@ M.plugins = {
 				desc = "Git: Next hunk",
 			},
 			{
-				"<leader>ghP",
+				"<leader>ghp",
 				function()
 					require("gitsigns").prev_hunk()
 				end,

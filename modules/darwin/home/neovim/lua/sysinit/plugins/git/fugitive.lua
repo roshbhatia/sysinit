@@ -32,14 +32,14 @@ M.plugins = {
 				desc = "Git: Log",
 			},
 			{
-				"<leader>gd",
+				"<leader>gbd",
 				"<cmd>Gvdiffsplit!<CR>",
-				desc = "Git: Diff split",
+				desc = "Git: Diff buffer",
 			},
 			{
-				"<leader>gD",
+				"<leader>gbD",
 				"<cmd>Gvdiffsplit! HEAD^ HEAD~1<CR>",
-				desc = "Git: Diff split previous commit",
+				desc = "Git: Diff buffer with previous commit",
 			},
 		},
 	},
