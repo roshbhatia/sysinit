@@ -26,8 +26,8 @@ M.plugins = {
 						indent_size = 2,
 						padding = 1,
 						with_markers = true,
-						indent_marker = "│",
-						last_indent_marker = "└",
+						indent_marker = "",
+						last_indent_marker = "",
 						highlight = "NeoTreeIndentMarker",
 						with_expanders = true,
 						expander_collapsed = "",
@@ -175,3 +175,4 @@ M.plugins = {
 }
 
 return M
+

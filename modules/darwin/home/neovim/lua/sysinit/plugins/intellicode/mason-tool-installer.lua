@@ -19,7 +19,7 @@ M.plugins = {
 					"jsonls",
 					"lua_ls",
 					"marksman",
-					"nil_ls",
+					"nixd",
 					"pyright",
 					"terraformls",
 					"tflint",
@@ -33,4 +33,3 @@ M.plugins = {
 }
 
 return M
-
