@@ -11,7 +11,7 @@ M.plugins = {
 					enabled = true,
 					duration = 18,
 					easing = "cubic",
-					fps = 60,
+					fps = 144,
 				},
 				bigfile = { enabled = true },
 				bufdelete = { enabled = true },
