@@ -22,7 +22,6 @@ M.plugins = {
 					style = "minimal",
 				},
 				quickfile = { enabled = true },
-				scroll = { enabled = true },
 				statuscolumn = { enabled = true },
 				words = { enabled = true },
 
@@ -42,6 +41,7 @@ M.plugins = {
 				rename = { enabled = false },
 				scratch = { enabled = false },
 				scope = { enabled = false },
+				scroll = { enabled = false },
 				terminal = { enabled = false },
 				toggle = { enabled = false },
 				win = { enabled = false },

@@ -177,3 +177,4 @@ function M.register_autocmds()
 end
 
 return M
+
