@@ -6,9 +6,6 @@
   ...
 }:
 
-let
-  packageLib = import ../lib/activation/packages.nix { inherit pkgs lib; };
-in
 {
   system = {
     primaryUser = username;
@@ -71,9 +68,6 @@ in
     };
     enable = false;
   };
-
-  environment.systemPackages = packageLib.systemPackages;
-  environment.extraInit = packageLib.extraInit;
 
   users.users.${username}.home = homeDirectory;
 
