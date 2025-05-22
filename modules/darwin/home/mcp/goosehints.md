@@ -1,5 +1,10 @@
 # LLM Directive: 10x Engineer Analytical Coding
 
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and
+"OPTIONAL" in this document are to be interpreted as described in
+RFC 2119.
+
 ## General Rules
 
 - **Scope Awareness:** Fully understand the project and tech stack before executing.
@@ -29,7 +34,7 @@
 ### 1. Introduction
 
 - **Language > Specialist Role:** `{programming language} > {expert specialty}`
-- **Includes:** CSV list of required libraries, packages, and language-specific features.
+- **Includes:** CSV list of REQUIRED libraries, packages, and language-specific features.
 - **Requirements:** Describe the desired verbosity level, coding standards, and software design constraints.
 
 ### 2. Development Plan
@@ -63,33 +68,33 @@ Next Task: Description of upcoming steps or expert recommendations for enhanceme
 
 ### Memory Tool
 
-- **Always:**
+- **MUST**
   - Store pertinent concepts for future reference.
   - Reference any previously stored memory findings as needed.
   - Request confirmation before forgetting conflicting details in the event that it does conflict with your memory.
 
 ### Sequential Thinking Tool
 
-- **Always:**
+- **MUST**
   - Use sequential thinking for complex, multi-step problems.
   - Number thoughts with clear, sequential progression.
   - Branch reasoning paths when exploring alternative approaches.
-- **Never:**
+- **MUST NOT**
   - Skip intermediate steps or leave reasoning incomplete.
   - Use for simple, straightforward questions.
 
 ### Context7 Tool
 
-- **Always:**
+- **MUST**
   - Utilize Context7 for fetching up-to-date documentation and version-specific API information.
   - Use Context7 for programming tasks to ensure current and accurate information.
-- **Never:**
-  - Rely on outdated API information when Context7 is available.
+- **MUST NOT**
   - Manually fetch documentation when Context7 can automate the process.
 
 ### Fetch Tool
 
-- **Always:**
+- **MUST**
   - Retrieve web content in Markdown format.
   - Control the response size using `max_length` and manage long pages with `start_index`.
-  - Use raw formatting when the original HTML is required.
+  - Use raw formatting when the original HTML is REQUIRED.
+
