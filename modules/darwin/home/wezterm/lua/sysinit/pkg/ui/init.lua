@@ -1,5 +1,4 @@
 local wezterm = require("wezterm")
-local act = wezterm.action
 
 local M = {}
 
@@ -55,3 +54,4 @@ function M.setup(config)
 end
 
 return M
+
