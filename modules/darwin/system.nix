@@ -7,7 +7,7 @@
 }:
 
 let
-  packageLib = import ../lib/activation-packages.nix { inherit pkgs lib; };
+  packageLib = import ../lib/activation/packages.nix { inherit pkgs lib; };
 in
 {
   system = {
@@ -79,3 +79,4 @@ in
 
   security.pam.services.sudo_local.touchIdAuth = true;
 }
+
