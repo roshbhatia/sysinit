@@ -1,6 +1,4 @@
 {
-  pkgs,
-  lib,
   username,
   homeDirectory,
   ...
@@ -11,7 +9,8 @@
     primaryUser = username;
     defaults = {
       alf = {
-        allowdownloadsignedenabled = 0;
+        allowdownloadsignedenabled = 1;
+        globalstate = 0;
       };
       dock = {
         autohide = true;
@@ -44,9 +43,14 @@
         InitialKeyRepeat = 15;
         KeyRepeat = 2;
         NSWindowShouldDragOnGesture = true;
+        _HIHideMenuBar = true;
       };
       spaces = {
         spans-displays = false;
+      };
+      WindowManager = {
+        EnableTilingOptionAccelerator = true;
+        StandardHideDesktopIcons = true;
       };
     };
 
@@ -73,4 +77,3 @@
 
   security.pam.services.sudo_local.touchIdAuth = true;
 }
-
