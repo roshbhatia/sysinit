@@ -4,7 +4,7 @@
 }:
 
 let
-  activationUtils = import ../../../lib/activation-utils.nix { inherit lib; };
+  activationUtils = import ../../../lib/activation/utils.nix { inherit lib; };
 in
 {
   xdg.configFile."borders/bordersrc" = {

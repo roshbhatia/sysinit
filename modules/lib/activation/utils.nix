@@ -4,7 +4,7 @@
 }:
 
 let
-  activationToolsPath = ./activation-tools.sh;
+  toolsPath = ./tools.sh;
 in
 {
   mkActivationUtils =
@@ -17,7 +17,7 @@ in
       after = [ ];
       before = [ "*" ];
       data = ''
-        source ${activationToolsPath}
+        source ${toolsPath}
 
         export LOG_DIR="${logDir}"
         export LOG_PREFIX="${logPrefix}"
@@ -45,7 +45,7 @@ in
       after = [ "setupActivationUtils" ];
       before = [ ];
       data = ''
-        source ${activationToolsPath}
+        source ${toolsPath}
 
         log_info "Managing ${name} packages..."
 
@@ -79,7 +79,7 @@ in
     {
       inherit after before;
       data = ''
-        source ${activationToolsPath}
+        source ${toolsPath}
 
         ${if description != "" then ''log_info "Starting: ${description}"'' else ""}
 

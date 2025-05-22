@@ -130,7 +130,7 @@ M.plugins = {
 					desc = "Find: Help tags",
 				},
 				{
-					"<leader>fr",
+					"<leader>fo",
 					"<cmd>Telescope oldfiles<cr>",
 					desc = "Find: Recent files",
 				},
@@ -155,4 +155,3 @@ M.plugins = {
 }
 
 return M
-
