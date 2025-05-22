@@ -1,7 +1,5 @@
 {
-  pkgs,
   lib,
-  config,
   userConfig ? { },
   ...
 }:
@@ -40,4 +38,3 @@ in
     executableName = "yarn";
   };
 }
-
