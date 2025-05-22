@@ -13,7 +13,6 @@ M.plugins = {
 					"dockerls",
 					"golangci_lint_ls",
 					"gopls",
-					"grammarly",
 					"helm_ls",
 					"jqls",
 					"jsonls",
