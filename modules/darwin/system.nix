@@ -3,12 +3,11 @@
   lib,
   username,
   homeDirectory,
-  enableHomebrew,
   ...
 }:
 
 let
-  packageLib = import ../lib/packages.nix { inherit pkgs lib; };
+  packageLib = import ../lib/activation-packages.nix { inherit pkgs lib; };
 in
 {
   system = {
@@ -73,7 +72,7 @@ in
     enable = false;
   };
 
-  environment.systemPackages = lib.mkIf (!enableHomebrew) packageLib.systemPackages;
+  environment.systemPackages = packageLib.systemPackages;
   environment.extraInit = packageLib.extraInit;
 
   users.users.${username}.home = homeDirectory;

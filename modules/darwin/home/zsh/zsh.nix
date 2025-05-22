@@ -305,34 +305,6 @@ in
     '';
   };
 
-  systemd.user.timers = {
-    update-kubectl-context = {
-      Unit = {
-        Description = "Timer for updating kubectl context for WezTerm";
-      };
-      Timer = {
-        OnBootSec = "10s";
-        OnUnitActiveSec = "1min";
-      };
-      Install = {
-        WantedBy = [ "timers.target" ];
-      };
-    };
-
-    update-gh-user = {
-      Unit = {
-        Description = "Timer for updating GitHub user for WezTerm";
-      };
-      Timer = {
-        OnBootSec = "20s";
-        OnUnitActiveSec = "10min";
-      };
-      Install = {
-        WantedBy = [ "timers.target" ];
-      };
-    };
-  };
-
   xdg.configFile = {
     "zsh/bin/colima-recreate" = {
       source = ./bin/colima-recreate;

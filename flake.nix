@@ -49,7 +49,6 @@
           specialArgs = {
             inherit inputs username homeDirectory;
             userConfig = config;
-            enableHomebrew = if config.homebrew ? enable then config.homebrew.enable else true;
           };
           modules = [
             ./modules/darwin/system.nix
@@ -93,4 +92,3 @@
       packages.${system}.default = self.darwinConfigurations.${defaultHostname}.system;
     };
 }
-

@@ -26,7 +26,7 @@
         ;
     };
     users.${username} =
-      { pkgs, ... }:
+      { ... }:
       {
         imports = [ ./home ];
         home = {

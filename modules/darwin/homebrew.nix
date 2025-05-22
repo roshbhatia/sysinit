@@ -1,5 +1,4 @@
 {
-  enableHomebrew ? true,
   username,
   inputs,
   userConfig ? { },
@@ -88,7 +87,6 @@ let
 in
 {
   nix-homebrew = {
-    enable = enableHomebrew;
     enableRosetta = true;
     user = username;
     autoMigrate = true;
@@ -100,7 +98,6 @@ in
   };
 
   homebrew = {
-    enable = enableHomebrew;
     onActivation = {
       autoUpdate = true;
       upgrade = true;
