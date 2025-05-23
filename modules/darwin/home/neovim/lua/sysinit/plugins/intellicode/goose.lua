@@ -3,6 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"azorng/goose.nvim",
+		dir = "/Users/rbha18/github/personal/roshbhatia/goose.nvim",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			"MeanderingProgrammer/render-markdown.nvim",
@@ -19,6 +20,9 @@ M.plugins = {
 					"github_copilot/claude-3.7-sonnet",
 					"github_copilot/claude-3.7-sonnet-thought",
 					"github_copilot/gemini-2.0-flash-001",
+				},
+				ui = {
+					type = "split",
 				},
 			})
 		end,
@@ -121,4 +125,3 @@ M.plugins = {
 }
 
 return M
-
