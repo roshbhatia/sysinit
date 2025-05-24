@@ -64,9 +64,15 @@ M.plugins = {
 				},
 				file_ignore_patterns = {
 					".git",
+					".git/",
+					"%/.git/",
 					"node_modules",
-					"poetry.lock",
+					"node_modules/",
+					"%/node_modules/",
 					"vendor",
+					"vendor/",
+					"%/vendor/",
+					"poetry.lock",
 					".cache",
 					"%.o",
 					"%.a",
@@ -81,6 +87,7 @@ M.plugins = {
 					"%.png",
 					"%.heic",
 					".goose",
+					".goose/",
 				},
 
 				vimgrep_arguments = {

@@ -2,7 +2,7 @@ local M = {}
 
 M.plugins = {
 	{
-		enabled = true,
+		enabled = false,
 		"azorng/goose.nvim",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
@@ -122,4 +122,3 @@ M.plugins = {
 }
 
 return M
-

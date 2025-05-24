@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 
 	{
-		enabled = false,
+		enabled = true,
 		"aweis89/ai-terminals.nvim",
 		event = "VeryLazy",
 		dependencies = { "folke/snacks.nvim" },
@@ -138,4 +138,3 @@ M.plugins = {
 }
 
 return M
-
