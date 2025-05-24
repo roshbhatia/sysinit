@@ -51,9 +51,16 @@ M.plugins = {
 		keys = function()
 			return {
 				{
+					"<leader>bs",
+					function()
+						Snacks.scratch()
+					end,
+					desc = "Buffer: Toggle scratchpad",
+				},
+				{
 					"<leader>tt",
 					function()
-						Snacks.terminal.toggle()
+						Snacks.terminal.toggle("zsh")
 					end,
 					desc = "Terminal: Toggle terminal",
 				},
@@ -67,7 +74,7 @@ M.plugins = {
 				{
 					"<leader>tT",
 					function()
-						Snacks.terminal.open()
+						Snacks.terminal.open("zsh")
 					end,
 					desc = "Terminal: New terminal",
 				},
@@ -98,3 +105,4 @@ M.plugins = {
 }
 
 return M
+
