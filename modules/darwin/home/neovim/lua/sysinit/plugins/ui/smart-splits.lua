@@ -1,11 +1,23 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/mrjones2014/smart-splits.nvim/refs/heads/master/doc/smart-splits.txt"
 local M = {}
 
--- Helper function to create movement keybindings with floating window check
+-- Helper function to check if the current window is a floating "snacks" terminal
+local function is_floating_snacks_terminal()
+	local win_config = vim.api.nvim_win_get_config(0)
+	-- Check if the window is floating and has a "snacks" terminal type
+	if win_config.relative ~= "" then
+		local buf_name = vim.api.nvim_buf_get_name(0)
+		if buf_name:match("snacks") then
+			return true
+		end
+	end
+	return false
+end
+
+-- Helper function to create movement keybindings with floating snacks terminal check
 local function create_movement_keybinding(direction, func)
 	return function()
-		local win_config = vim.api.nvim_win_get_config(0)
-		if win_config.relative == "" then -- Only allow movement if not in a floating window
+		if not is_floating_snacks_terminal() then
 			func()
 		end
 	end
@@ -98,3 +110,4 @@ M.plugins = {
 }
 
 return M
+
