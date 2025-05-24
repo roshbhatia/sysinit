@@ -5,4 +5,5 @@ gui:
 git:
   paging:
     colorArg: always
-    pager: delta --dark --paging=never
+    pager: delta --dark ---syntax-theme=Catppuccin-Frappe -paging=never
+
