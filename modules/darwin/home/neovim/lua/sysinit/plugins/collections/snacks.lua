@@ -3,6 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"folke/snacks.nvim",
+		commit = "bc0630e43be5699bb94dadc302c0d21615421d93",
 		priority = 1050,
 		lazy = false,
 		config = function()
