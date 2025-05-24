@@ -69,4 +69,18 @@ extensions:
     name: sequential-thinking
     timeout: 300
     type: stdio
+  filesystem:
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-filesystem"
+      - "~/github/"
+    bundled: null
+    cmd: npx
+    description: null
+    enabled: true
+    env_keys: []
+    envs: {}
+    name: filesystem
+    timeout: 300
+    type: stdio
 

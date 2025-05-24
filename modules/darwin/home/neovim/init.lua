@@ -68,8 +68,8 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.intellicode.treesitter-textobjects"),
 	require("sysinit.plugins.intellicode.treesitter"),
 	require("sysinit.plugins.intellicode.trouble"),
+	require("sysinit.plugins.intellicode.yaml"),
 	require("sysinit.plugins.keymaps.which-key"),
-	require("sysinit.plugins.kubernetes.yaml"),
 	require("sysinit.plugins.library.image"),
 	require("sysinit.plugins.library.nio"),
 	require("sysinit.plugins.library.nui"),
@@ -89,3 +89,4 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 })
 
 core.exec_fallback_entrypoint()
+

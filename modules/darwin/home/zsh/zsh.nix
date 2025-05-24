@@ -117,10 +117,10 @@ in
       XDG_DATA_HOME = "${homeDirectory}/.local/share";
       XDG_STATE_HOME = "${homeDirectory}/.local/state";
 
-      CONF = "$XDG_CONFIG_HOME";
-      DATA = "$XDG_DATA_HOME";
-      CACHE = "$XDG_CACHE_HOME";
-      STATE = "$XDG_STATE_HOME";
+      XCO = "$XDG_CONFIG_HOME";
+      XDA = "$XDG_DATA_HOME";
+      XCA = "$XDG_CACHE_HOME";
+      XSTA = "$XDG_STATE_HOME";
 
       GIT_DISCOVERY_ACROSS_FILESYSTEM = 1;
 
@@ -346,3 +346,4 @@ in
     };
   };
 }
+
