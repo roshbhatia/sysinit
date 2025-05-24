@@ -28,6 +28,7 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.editor.far"),
 	require("sysinit.plugins.editor.foldsign"),
 	require("sysinit.plugins.editor.marks"),
+	require("sysinit.plugins.editor.move"),
 	require("sysinit.plugins.editor.render-markdown"),
 	require("sysinit.plugins.editor.surround"),
 	require("sysinit.plugins.file.editor"),
