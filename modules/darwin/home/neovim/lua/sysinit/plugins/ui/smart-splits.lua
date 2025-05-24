@@ -14,15 +14,6 @@ local function is_floating_snacks_terminal()
 	return false
 end
 
--- Helper function to create movement keybindings with floating snacks terminal check
-local function create_movement_keybinding(direction, func)
-	return function()
-		if not is_floating_snacks_terminal() then
-			func()
-		end
-	end
-end
-
 M.plugins = {
 	{
 		"mrjones2014/smart-splits.nvim",
@@ -46,50 +37,58 @@ M.plugins = {
 			return {
 				{
 					"<C-h>",
-					create_movement_keybinding("left", smart_splits.move_cursor_left),
-					mode = { "n", "i", "v", "t" },
+					function()
+						smart_splits.move_cursor_left()
+					end,
+					mode = { "n", "i", "v" },
 					desc = "Move to left split",
 				},
 				{
 					"<C-j>",
-					create_movement_keybinding("down", smart_splits.move_cursor_down),
-					mode = { "n", "i", "v", "t" },
+					function()
+						smart_splits.move_cursor_down()
+					end,
+					mode = { "n", "i", "v" },
 					desc = "Move to bottom split",
 				},
 				{
 					"<C-k>",
-					create_movement_keybinding("up", smart_splits.move_cursor_up),
-					mode = { "n", "i", "v", "t" },
+					function()
+						smart_splits.move_cursor_up()
+					end,
+					mode = { "n", "i", "v" },
 					desc = "Move to top split",
 				},
 				{
 					"<C-l>",
-					create_movement_keybinding("right", smart_splits.move_cursor_right),
-					mode = { "n", "i", "v", "t" },
+					function()
+						smart_splits.move_cursor_right()
+					end,
+					mode = { "n", "i", "v" },
 					desc = "Move to right split",
 				},
 				{
-					"<C-H>",
-					'<cmd>lua require("smart-splits").resize_left()<CR>',
-					mode = { "n", "i", "v", "t" },
+					"<C-S-h>",
+					smart_splits.resize_left,
+					mode = { "n", "i", "v" },
 					desc = "Decrease width of current split",
 				},
 				{
-					"<C-J>",
-					'<cmd>lua require("smart-splits").resize_down()<CR>',
-					mode = { "n", "i", "v", "t" },
+					"<C-S-j>",
+					smart_splits.resize_down,
+					mode = { "n", "i", "v" },
 					desc = "Decrease height of current split",
 				},
 				{
-					"<C-K>",
-					'<cmd>lua require("smart-splits").resize_up()<CR>',
-					mode = { "n", "i", "v", "t" },
+					"<C-S-k>",
+					smart_splits.resize_up,
+					mode = { "n", "i", "v" },
 					desc = "Increase height of current split",
 				},
 				{
-					"<C-L>",
-					'<cmd>lua require("smart-splits").resize_right()<CR>',
-					mode = { "n", "i", "v", "t" },
+					"<C-S-l>",
+					smart_splits.resize_right,
+					mode = { "n", "i", "v" },
 					desc = "Increase width of current split",
 				},
 				{
@@ -110,4 +109,3 @@ M.plugins = {
 }
 
 return M
-
