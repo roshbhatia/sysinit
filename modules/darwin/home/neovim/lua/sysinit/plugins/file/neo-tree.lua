@@ -9,6 +9,7 @@ M.plugins = {
 			"nvim-lua/plenary.nvim",
 			"nvim-tree/nvim-web-devicons",
 			"MunifTanjim/nui.nvim",
+			"folke/snacks.nvim",
 		},
 		config = function()
 			vim.g.neo_tree_remove_legacy_commands = 1
@@ -95,6 +96,16 @@ M.plugins = {
 						enabled = true,
 					},
 					use_libuv_file_watcher = true,
+					event_handlers = function()
+						local function on_move(data)
+							Snacks.rename.on_rename_file(data.source, data.destination)
+						end
+
+						return {
+							{ event = require("neo-tree.events").FILE_MOVED, handler = on_move },
+							{ event = require("neo-tree.events").FILE_RENAMED, handler = on_move },
+						}
+					end,
 				},
 			})
 		end,

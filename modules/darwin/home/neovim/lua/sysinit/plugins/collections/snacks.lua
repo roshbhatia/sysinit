@@ -23,6 +23,7 @@ M.plugins = {
 					style = "minimal",
 				},
 				quickfile = { enabled = true },
+				rename = { enabled = true },
 				scratch = { enabled = true },
 				statuscolumn = { enabled = true },
 				terminal = { enabled = true },
@@ -40,7 +41,6 @@ M.plugins = {
 				layout = { enabled = false },
 				picker = { enabled = false },
 				profiler = { enabled = false },
-				rename = { enabled = false },
 				scope = { enabled = false },
 				scroll = { enabled = false },
 				toggle = { enabled = false },
@@ -105,4 +105,3 @@ M.plugins = {
 }
 
 return M
-
