@@ -1,18 +1,12 @@
 version: "3"
 
+includes:
+  modules/darwin/home/neovim: {}
+
 vars:
-  SCRIPT_HEADER: |
-    #!/usr/bin/env bash
-    source ./hack/lib/logger.sh
-    UUID=$(uuidgen)
-    log_info "Task ID: $UUID"
   LOG_DIR: "/tmp/log"
-  LOG_PREFIX: "{{UUID}}-sysinit"
   START_MSG_TEMPLATE: "{{.TASK}}..."
   SUCCESS_MSG_TEMPLATE: "{{.TASK}} completed successfully"
-  ERROR_TEMPLATE: |
-    log_error "Failed. See log: ${LOG_FILE}"
-    exit 1
 
 tasks:
   default:
@@ -23,87 +17,102 @@ tasks:
 
   nix:build:
     vars:
-      TASK: "Building system configuration"
-      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-build.log"
+      LOG_FILE: "{{.LOG_DIR}}/sysinit-build.log"
     cmds:
       - |
-        {{.SCRIPT_HEADER}}
-        log_info "{{.START_MSG_TEMPLATE}}"
-        mkdir -p "$(dirname \"${LOG_FILE}\")"
-        touch "${LOG_FILE}"
-        tail -f "${LOG_FILE}" | bat --paging=never -l log
-        if ! sudo darwin-rebuild switch -v --show-trace --impure --flake . > "${LOG_FILE}" 2>&1; then
-          {{.ERROR_TEMPLATE}}
+        #!/usr/bin/env bash
+        source hack/lib/logger.sh
+        log_info "Building system configuration"
+        ensure_dir "$(dirname \"{{.LOG_FILE}}\")"
+        ensure_file "{{.LOG_FILE}}"
+        follow_log "{{.LOG_FILE}}" &
+        if ! sudo darwin-rebuild switch -v --show-trace --impure --flake . > "{{.LOG_FILE}}" 2>&1; then
+          log_error "Build failed. Check the log." log_file="{{.LOG_FILE}}"
+          exit 1
         fi
-        log_info "Log file: ${LOG_FILE}"
-        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
+        log_success "Build completed successfully"
     desc: Build the configuration without applying
     silent: true
 
   nix:clean:
     vars:
-      TASK: "Running garbage collection"
-      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-clean.log"
+      LOG_FILE: "{{.LOG_DIR}}/sysinit-clean.log"
     cmds:
       - |
-        {{.SCRIPT_HEADER}}
-        log_info "{{.START_MSG_TEMPLATE}}"
-        mkdir -p "$(dirname \"${LOG_FILE}\")"
-        touch "${LOG_FILE}"
-        tail -f "${LOG_FILE}" | bat --paging=never -l log
-        if ! sudo nix-collect-garbage -d > "${LOG_FILE}" 2>&1; then
-          {{.ERROR_TEMPLATE}}
+        #!/usr/bin/env bash
+        source hack/lib/logger.sh
+        log_info "Running garbage collection"
+        ensure_dir "$(dirname \"{{.LOG_FILE}}\")"
+        ensure_file "{{.LOG_FILE}}"
+        follow_log "{{.LOG_FILE}}" &
+        if ! sudo nix-collect-garbage -d > "{{.LOG_FILE}}" 2>&1; then
+          log_error "Garbage collection failed" log_file="{{.LOG_FILE}}"
+          exit 1
         fi
-        log_info "Log file: ${LOG_FILE}"
-        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
+        log_success "Garbage collection completed successfully"
     desc: Run garbage collection
     silent: true
 
-  nix:update:flake:
+  nix:update:
     vars:
-      TASK: "Updating flake inputs"
-      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-flake-update.log"
+      LOG_FILE: "{{.LOG_DIR}}/sysinit-flake-update.log"
     cmds:
       - |
-        {{.SCRIPT_HEADER}}
-        log_info "{{.START_MSG_TEMPLATE}}"
-        mkdir -p "$(dirname \"${LOG_FILE}\")"
-        touch "${LOG_FILE}"
-        tail -f "${LOG_FILE}" | bat --paging=never -l log
-        if ! sudo nix flake update > "${LOG_FILE}" 2>&1; then
-          {{.ERROR_TEMPLATE}}
+        #!/usr/bin/env bash
+        source hack/lib/logger.sh
+        log_info "Updating flake inputs"
+        ensure_dir "$(dirname \"{{.LOG_FILE}}\")"
+        ensure_file "{{.LOG_FILE}}"
+        follow_log "{{.LOG_FILE}}" &
+        if ! sudo nix flake update > "{{.LOG_FILE}}" 2>&1; then
+          log_error "Flake update failed" log_file="{{.LOG_FILE}}"
+          exit 1
         fi
-        log_info "Log file: ${LOG_FILE}"
-        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
+        log_success "Flake inputs updated"
     desc: Update flake inputs
     silent: true
 
   nix:refresh:
-    deps: [nix:update:flake]
+    deps: [nix:update]
     vars:
-      TASK: "Applying system configuration"
-      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-refresh.log"
+      LOG_FILE: "{{.LOG_DIR}}/sysinit-refresh.log"
     cmds:
       - |
-        {{.SCRIPT_HEADER}}
-        log_info "{{.START_MSG_TEMPLATE}}"
-        mkdir -p "$(dirname \"${LOG_FILE}\")"
-        touch "${LOG_FILE}"
-        tail -f "${LOG_FILE}" | bat --paging=never -l log
-        if ! sudo darwin-rebuild switch --flake . --show-trace > "${LOG_FILE}" 2>&1; then
-          {{.ERROR_TEMPLATE}}
+        #!/usr/bin/env bash
+        source hack/lib/logger.sh
+        log_info "Applying system configuration"
+        ensure_dir "$(dirname \"{{.LOG_FILE}}\")"
+        ensure_file "{{.LOG_FILE}}"
+        follow_log "{{.LOG_FILE}}" &
+        if ! sudo darwin-rebuild switch --flake . --show-trace > "{{.LOG_FILE}}" 2>&1; then
+          log_error "Refresh failed. Check the log" log_file="{{.LOG_FILE}}"
+          exit 1
         fi
-        log_info "Log file: ${LOG_FILE}"
-        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
+        log_success "System configuration applied successfully"
     desc: Apply the system configuration
     silent: true
 
-  nvim:run-local-headless-isolated:
+  nix:refresh:work:
+    vars:
+      LOG_FILE: "{{.LOG_DIR}}/work-refresh.log"
     cmds:
-      - task -d modules/darwin/home/neovim nvim:run-local-headless-isolated
-    silent: true
-
-  nvim:run-local-isolated:
-    cmds:
-      - task -d modules/darwin/home/neovim nvim:run-local-isolated
+      - |
+        #!/usr/bin/env bash
+        source hack/lib/logger.sh
+        log_info "Refreshing work configuration"
+        ensure_dir "$(dirname \"{{.LOG_FILE}}\")"
+        ensure_file "{{.LOG_FILE}}"
+        follow_log "{{.LOG_FILE}}" &
+        WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
+        if [ -z "${WORK_SYSINIT}" ]; then
+          log_error "Could not find work sysinit repository"
+          exit 1
+        fi
+        cd "${WORK_SYSINIT}"
+        if ! task nix:refresh > "{{.LOG_FILE}}" 2>&1; then
+          log_error "Work refresh failed. Check the log" log_file="{{.LOG_FILE}}"
+          exit 1
+        fi
+        log_success "Work configuration refreshed successfully"
+    desc: Update and rebuild work sysinit configuration
     silent: true

@@ -156,6 +156,31 @@ log_help() {
   echo "  DEBUG < INFO < SUCCESS < WARN < ERROR < CRITICAL"
 }
 
+# Ensure a directory exists
+ensure_dir() {
+  local dir="$1"
+  if [ ! -d "$dir" ]; then
+    mkdir -p "$dir"
+    log_info "Created directory" dir="$dir"
+  fi
+}
+
+# Ensure a file exists
+ensure_file() {
+  local file="$1"
+  if [ ! -f "$file" ]; then
+    touch "$file"
+    log_info "Created file" file="$file"
+  fi
+}
+
+# Follow a log file with syntax highlighting
+follow_log() {
+  local file="$1"
+  log_info "Following log file" file="$file"
+  tail -f "$file" | bat --paging=never -l log
+}
+
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
   log_help
   echo
