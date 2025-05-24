@@ -169,7 +169,7 @@ ensure_dir() {
 ensure_file() {
 	local file="$1"
 	if [ ! -f "$file" ]; then
-		touch "$file"
+		touch $file
 		log_info "Created file" file="$file"
 	fi
 }
@@ -192,4 +192,3 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
 	log_error "This is an error message" user="$USER" pid=$$
 	log_critical "This is a critical message" user="$USER" pid=$$
 fi
-
