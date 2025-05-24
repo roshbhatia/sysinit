@@ -111,13 +111,16 @@ in
       LANG = "en_US.UTF-8";
       LC_ALL = "en_US.UTF-8";
 
+      # Clobbers the home manager defined ones? Maybe?
       XDG_CACHE_HOME = "${homeDirectory}/.cache";
       XDG_CONFIG_HOME = "${homeDirectory}/.config";
       XDG_DATA_HOME = "${homeDirectory}/.local/share";
       XDG_STATE_HOME = "${homeDirectory}/.local/state";
 
-      CH = "${homeDirectory}/.config";
-      DH = "${homeDirectory}/.local/share";
+      CONF = "$XDG_CONFIG_HOME";
+      DATA = "$XDG_DATA_HOME";
+      CACHE = "$XDG_CACHE_HOME";
+      STATE = "$XDG_STATE_HOME";
 
       GIT_DISCOVERY_ACROSS_FILESYSTEM = 1;
 
@@ -155,7 +158,6 @@ in
       SUDO_EDITOR = "$EDITOR";
       VISUAL = "$EDITOR";
       PAGER = "bat --pager=always --color=always";
-      BAT_THEME = "base16";
     };
 
     plugins = [

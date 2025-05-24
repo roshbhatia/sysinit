@@ -54,6 +54,7 @@ in
           dark = true
           navigate = true
           side-by-side = true
+          features = catppuccin-frappe
 
       [merge]
           conflictstyle = zdiff3
@@ -63,6 +64,9 @@ in
 
       [includeIf "gitdir:~/github/personal/"]
           path = ~/.gitconfig.personal
+
+      [include]
+          path = ~/.config/delta/themes/catppuccin.gitconfig
 
       [alias]
           co = checkout
@@ -78,7 +82,6 @@ in
           current-commit-sha = rev-parse --short HEAD
           current-branch = rev-parse --abbrev-ref HEAD
           branches = !git --no-pager branch -a
-          ghcs-commit = !ghcs-commitmessage | jq -r .message | git commit -F -
           root = rev-parse --show-toplevel
     '';
   };
@@ -121,6 +124,11 @@ in
 
   xdg.configFile."lazygit/config.yml" = {
     source = ./lazygit.yaml;
+    force = true;
+  };
+
+  xdg.configFile."delta/themes/catppuccin.gitconfig" = {
+    source = ./catppuccin.gitconfig;
     force = true;
   };
 }
