@@ -1,6 +1,16 @@
 -- sysinit.nvim.doc-url="https://raw.githubusercontent.com/mrjones2014/smart-splits.nvim/refs/heads/master/doc/smart-splits.txt"
 local M = {}
 
+-- Helper function to create movement keybindings with floating window check
+local function create_movement_keybinding(direction, func)
+	return function()
+		local win_config = vim.api.nvim_win_get_config(0)
+		if win_config.relative == "" then -- Only allow movement if not in a floating window
+			func()
+		end
+	end
+end
+
 M.plugins = {
 	{
 		"mrjones2014/smart-splits.nvim",
@@ -20,28 +30,29 @@ M.plugins = {
 			})
 		end,
 		keys = function()
+			local smart_splits = require("smart-splits")
 			return {
 				{
 					"<C-h>",
-					'<cmd>lua require("smart-splits").move_cursor_left()<CR>',
+					create_movement_keybinding("left", smart_splits.move_cursor_left),
 					mode = { "n", "i", "v", "t" },
 					desc = "Move to left split",
 				},
 				{
 					"<C-j>",
-					'<cmd>lua require("smart-splits").move_cursor_down()<CR>',
+					create_movement_keybinding("down", smart_splits.move_cursor_down),
 					mode = { "n", "i", "v", "t" },
 					desc = "Move to bottom split",
 				},
 				{
 					"<C-k>",
-					'<cmd>lua require("smart-splits").move_cursor_up()<CR>',
+					create_movement_keybinding("up", smart_splits.move_cursor_up),
 					mode = { "n", "i", "v", "t" },
 					desc = "Move to top split",
 				},
 				{
 					"<C-l>",
-					'<cmd>lua require("smart-splits").move_cursor_right()<CR>',
+					create_movement_keybinding("right", smart_splits.move_cursor_right),
 					mode = { "n", "i", "v", "t" },
 					desc = "Move to right split",
 				},
@@ -87,4 +98,3 @@ M.plugins = {
 }
 
 return M
-
