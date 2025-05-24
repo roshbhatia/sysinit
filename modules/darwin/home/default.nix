@@ -4,8 +4,11 @@
 
 {
   imports = [
+    ./core/packages.nix
+
     ./aider/aider.nix
     ./atuin/atuin.nix
+    ./bat/bat.nix
     ./borders/borders.nix
     ./colima/colima.nix
     ./git/git.nix
@@ -16,8 +19,6 @@
     ./omp/omp.nix
     ./wezterm/wezterm.nix
     ./zsh/zsh.nix
-
-    ./core/packages.nix
 
     ./cargo/cargo.nix
     ./gh/gh.nix

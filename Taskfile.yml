@@ -1,8 +1,5 @@
 version: "3"
 
-includes:
-  modules/darwin/home/neovim: {}
-
 vars:
   LOG_DIR: "/tmp/log"
   START_MSG_TEMPLATE: "{{.TASK}}..."
@@ -116,3 +113,4 @@ tasks:
         log_success "Work configuration refreshed successfully"
     desc: Update and rebuild work sysinit configuration
     silent: true
+

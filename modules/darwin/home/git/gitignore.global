@@ -42,3 +42,8 @@ devenv.shell.nix
 # goose
 .goose/
 **/.goose/
+.goosehints.local
+
+# Random stuff
+.sysinit/
+
