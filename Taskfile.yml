@@ -6,36 +6,13 @@ vars:
     source ./hack/lib/logger.sh
     UUID=$(uuidgen)
     log_info "Task ID: $UUID"
-
   LOG_DIR: "/tmp/log"
-  LOG_PREFIX: "$UUID-sysinit"
-
+  LOG_PREFIX: "{{UUID}}-sysinit"
   START_MSG_TEMPLATE: "{{.TASK}}..."
   SUCCESS_MSG_TEMPLATE: "{{.TASK}} completed successfully"
-
   ERROR_TEMPLATE: |
     log_error "Failed. See log: ${LOG_FILE}"
     exit 1
-
-  WEZTERM_LOG_FUNCTION: |
-    function log_in_wezterm_pane() {
-      local log_file="$1"
-      PANE_ID=""
-      
-      # Create a new pane and capture its ID
-      PANE_ID=$(wezterm cli split-pane --right --percent 40 -- bash -c "tail -f '$log_file'; sleep 2")
-      echo "$PANE_ID" > /tmp/wezterm_pane_id
-    }
-    
-    function close_wezterm_pane() {
-      if [ -f /tmp/wezterm_pane_id ]; then
-        PANE_ID=$(cat /tmp/wezterm_pane_id)
-        if [ -n "$PANE_ID" ]; then
-          wezterm cli kill-pane --pane-id "$PANE_ID" || true
-        fi
-        rm /tmp/wezterm_pane_id
-      fi
-    }
 
 tasks:
   default:
@@ -52,19 +29,12 @@ tasks:
       - |
         {{.SCRIPT_HEADER}}
         log_info "{{.START_MSG_TEMPLATE}}"
-        LOG_FILE="{{.LOG_FILE}}"
-        mkdir -p "$(dirname "${LOG_FILE}")"
+        mkdir -p "$(dirname \"${LOG_FILE}\")"
         touch "${LOG_FILE}"
-        
-        {{.WEZTERM_LOG_FUNCTION}}
-        log_in_wezterm_pane "${LOG_FILE}"
-
+        tail -f "${LOG_FILE}" | bat --paging=never -l log
         if ! sudo darwin-rebuild switch -v --show-trace --impure --flake . > "${LOG_FILE}" 2>&1; then
-          close_wezterm_pane
           {{.ERROR_TEMPLATE}}
         fi
-
-        close_wezterm_pane
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Build the configuration without applying
@@ -78,22 +48,34 @@ tasks:
       - |
         {{.SCRIPT_HEADER}}
         log_info "{{.START_MSG_TEMPLATE}}"
-        LOG_FILE="{{.LOG_FILE}}"
-        mkdir -p "$(dirname "${LOG_FILE}")"
+        mkdir -p "$(dirname \"${LOG_FILE}\")"
         touch "${LOG_FILE}"
-        
-        {{.WEZTERM_LOG_FUNCTION}}
-        log_in_wezterm_pane "${LOG_FILE}"
-
+        tail -f "${LOG_FILE}" | bat --paging=never -l log
         if ! sudo nix-collect-garbage -d > "${LOG_FILE}" 2>&1; then
-          close_wezterm_pane
           {{.ERROR_TEMPLATE}}
         fi
-
-        close_wezterm_pane
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Run garbage collection
+    silent: true
+
+  nix:update:flake:
+    vars:
+      TASK: "Updating flake inputs"
+      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-flake-update.log"
+    cmds:
+      - |
+        {{.SCRIPT_HEADER}}
+        log_info "{{.START_MSG_TEMPLATE}}"
+        mkdir -p "$(dirname \"${LOG_FILE}\")"
+        touch "${LOG_FILE}"
+        tail -f "${LOG_FILE}" | bat --paging=never -l log
+        if ! sudo nix flake update > "${LOG_FILE}" 2>&1; then
+          {{.ERROR_TEMPLATE}}
+        fi
+        log_info "Log file: ${LOG_FILE}"
+        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
+    desc: Update flake inputs
     silent: true
 
   nix:refresh:
@@ -105,138 +87,15 @@ tasks:
       - |
         {{.SCRIPT_HEADER}}
         log_info "{{.START_MSG_TEMPLATE}}"
-        LOG_FILE="{{.LOG_FILE}}"
-        mkdir -p "$(dirname "${LOG_FILE}")"
+        mkdir -p "$(dirname \"${LOG_FILE}\")"
         touch "${LOG_FILE}"
-        
-        {{.WEZTERM_LOG_FUNCTION}}
-        log_in_wezterm_pane "${LOG_FILE}"
-
-        git add -A > "${LOG_FILE}" 2>&1
-        git commit -m "chore: update configuration and regenerate lockfile" >> "${LOG_FILE}" 2>&1 || true
-        git push >> "${LOG_FILE}" 2>&1 || true
-
-        if ! sudo darwin-rebuild switch --flake . --show-trace >> "${LOG_FILE}" 2>&1; then
-          close_wezterm_pane
+        tail -f "${LOG_FILE}" | bat --paging=never -l log
+        if ! sudo darwin-rebuild switch --flake . --show-trace > "${LOG_FILE}" 2>&1; then
           {{.ERROR_TEMPLATE}}
         fi
-
-        close_wezterm_pane
         log_info "Log file: ${LOG_FILE}"
         log_success "{{.SUCCESS_MSG_TEMPLATE}}"
     desc: Apply the system configuration
-    silent: true
-
-  nix:refresh:work:
-    vars:
-      TASK: "Refreshing work configuration"
-      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-work-refresh.log"
-    cmds:
-      - |
-        {{.SCRIPT_HEADER}}
-        log_info "{{.START_MSG_TEMPLATE}}"
-        LOG_FILE="{{.LOG_FILE}}"
-        mkdir -p "$(dirname "${LOG_FILE}")"
-        touch "${LOG_FILE}"
-        
-        {{.WEZTERM_LOG_FUNCTION}}
-        log_in_wezterm_pane "${LOG_FILE}"
-
-        WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
-        if [ -z "$WORK_SYSINIT" ]; then
-          close_wezterm_pane
-          log_error "Could not find work sysinit repository"
-          {{.ERROR_TEMPLATE}}
-        fi
-
-        cd "$WORK_SYSINIT"
-        if ! task nix:refresh >> "${LOG_FILE}" 2>&1; then
-          close_wezterm_pane
-          {{.ERROR_TEMPLATE}}
-        fi
-
-        close_wezterm_pane
-        log_info "Log file: ${LOG_FILE}"
-        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
-    desc: Update and rebuild work sysinit configuration
-    silent: true
-
-  nix:update:flake:
-    vars:
-      TASK: "Updating flake inputs"
-      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-flake-update.log"
-    cmds:
-      - |
-        {{.SCRIPT_HEADER}}
-        log_info "{{.START_MSG_TEMPLATE}}"
-        LOG_FILE="{{.LOG_FILE}}"
-        mkdir -p "$(dirname "${LOG_FILE}")"
-        touch "${LOG_FILE}"
-        
-        {{.WEZTERM_LOG_FUNCTION}}
-        log_in_wezterm_pane "${LOG_FILE}"
-
-        if ! sudo nix flake update > "${LOG_FILE}" 2>&1; then
-          close_wezterm_pane
-          {{.ERROR_TEMPLATE}}
-        fi
-
-        close_wezterm_pane
-        log_info "Log file: ${LOG_FILE}"
-        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
-    desc: Update flake inputs
-    silent: true
-
-  nix:install:nix:
-    vars:
-      TASK: "Installing prerequisites"
-      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-install.log"
-    cmds:
-      - |
-        {{.SCRIPT_HEADER}}
-        log_info "{{.START_MSG_TEMPLATE}}"
-        LOG_FILE="{{.LOG_FILE}}"
-        mkdir -p "$(dirname "${LOG_FILE}")"
-        touch "${LOG_FILE}"
-        
-        {{.WEZTERM_LOG_FUNCTION}}
-        log_in_wezterm_pane "${LOG_FILE}"
-
-        if ! sudo ./hack/install-deps.sh > "${LOG_FILE}" 2>&1; then
-          close_wezterm_pane
-          {{.ERROR_TEMPLATE}}
-        fi
-
-        close_wezterm_pane
-        log_info "Log file: ${LOG_FILE}"
-        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
-    desc: Install prerequisites for sysinit
-    silent: true
-
-  nix:uninstall:nix:
-    vars:
-      TASK: "Uninstalling Nix"
-      LOG_FILE: "{{.LOG_DIR}}/{{.LOG_PREFIX}}-uninstall.log"
-    cmds:
-      - |
-        {{.SCRIPT_HEADER}}
-        log_info "{{.START_MSG_TEMPLATE}}"
-        LOG_FILE="{{.LOG_FILE}}"
-        mkdir -p "$(dirname "${LOG_FILE}")"
-        touch "${LOG_FILE}"
-        
-        {{.WEZTERM_LOG_FUNCTION}}
-        log_in_wezterm_pane "${LOG_FILE}"
-
-        if ! sudo ./hack/uninstall-deps.sh > "${LOG_FILE}" 2>&1; then
-          close_wezterm_pane
-          {{.ERROR_TEMPLATE}}
-        fi
-
-        close_wezterm_pane
-        log_info "Log file: ${LOG_FILE}"
-        log_success "{{.SUCCESS_MSG_TEMPLATE}}"
-    desc: Completely uninstall Nix from the system
     silent: true
 
   nvim:run-local-headless-isolated:
