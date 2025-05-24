@@ -34,7 +34,12 @@ M.plugins = {
 						border = "none",
 						{
 							box = "vertical",
-							{ win = "list", title = " Results ", title_pos = "center", border = "rounded" },
+							{
+								win = "list",
+								title = " Results ",
+								title_pos = "center",
+								border = "rounded",
+							},
 							{
 								win = "input",
 								height = 1,

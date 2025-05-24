@@ -421,7 +421,6 @@ copy-paste: true
 
 ## Specify which editor to use for the /editor command
 editor: nvim
-
 ############################
 # Deprecated model settings:
 
@@ -457,3 +456,4 @@ editor: nvim
 
 ## Use o1-preview model for the main chat (deprecated, use --model)
 #o1-preview: false
+
