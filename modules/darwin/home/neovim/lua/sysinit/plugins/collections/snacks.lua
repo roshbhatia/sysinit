@@ -24,6 +24,7 @@ M.plugins = {
 				},
 				quickfile = { enabled = true },
 				statuscolumn = { enabled = true },
+				terminal = { enabled = true },
 				words = { enabled = true },
 
 				dashboard = { enabled = false },
@@ -42,7 +43,6 @@ M.plugins = {
 				scratch = { enabled = false },
 				scope = { enabled = false },
 				scroll = { enabled = false },
-				terminal = { enabled = false },
 				toggle = { enabled = false },
 				win = { enabled = false },
 				zen = { enabled = false },
@@ -66,6 +66,27 @@ M.plugins = {
 		end,
 		keys = function()
 			return {
+				{
+					"<leader>tt",
+					function()
+						Snacks.terminal.toggle()
+					end,
+					desc = "Terminal: Toggle terminal",
+				},
+				{
+					"<leader>tl",
+					function()
+						Snacks.terminal.list()
+					end,
+					desc = "Terminal: List terminals",
+				},
+				{
+					"<leader>tT",
+					function()
+						Snacks.terminal.open()
+					end,
+					desc = "Terminal: New terminal",
+				},
 				{
 					"<leader>gg",
 					function()
