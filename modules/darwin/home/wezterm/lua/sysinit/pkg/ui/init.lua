@@ -5,6 +5,7 @@ local M = {}
 function M.setup(config)
 	config.window_padding = { left = 20, right = 0, top = 20, bottom = 0 }
 	config.enable_scroll_bar = true
+	config.enable_tab_bar = false
 	config.scrollback_lines = 20000
 	config.window_background_opacity = 0.9
 	config.macos_window_background_blur = 70
@@ -54,4 +55,3 @@ function M.setup(config)
 end
 
 return M
-
