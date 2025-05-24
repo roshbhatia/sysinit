@@ -18,14 +18,14 @@ local direction_keys = {
 local function split_nav(resize_or_move, key)
 	return {
 		key = key,
-		mods = resize_or_move == "resize" and "META" or "CTRL",
+		mods = resize_or_move == "resize" and "CTRL",
 		action = wezterm.action_callback(function(win, pane)
 			if is_vim(pane) then
 				-- Pass the keys through to Neovim
 				win:perform_action({
 					SendKey = {
 						key = key,
-						mods = resize_or_move == "resize" and "META" or "CTRL",
+						mods = resize_or_move == "resize" and "CTRL",
 					},
 				}, pane)
 			else
