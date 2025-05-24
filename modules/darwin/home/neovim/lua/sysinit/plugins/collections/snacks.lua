@@ -15,6 +15,7 @@ M.plugins = {
 				},
 				bigfile = { enabled = true },
 				bufdelete = { enabled = true },
+				lazygit = { enabled = true },
 				notifier = {
 					enabled = true,
 					timeout = 3000,
@@ -35,7 +36,6 @@ M.plugins = {
 				indent = { enabled = false },
 				input = { enabled = false },
 				layout = { enabled = false },
-				lazygit = { enabled = false },
 				picker = { enabled = false },
 				profiler = { enabled = false },
 				rename = { enabled = false },
@@ -67,6 +67,13 @@ M.plugins = {
 		keys = function()
 			return {
 				{
+					"<leader>gg",
+					function()
+						Snacks.lazygit()
+					end,
+					desc = "Git: Open git ui",
+				},
+				{
 					"<leader>ns",
 					function()
 						Snacks.notifier.show_history()
@@ -86,4 +93,3 @@ M.plugins = {
 }
 
 return M
-
