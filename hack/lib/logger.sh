@@ -156,15 +156,6 @@ log_help() {
 	echo "  DEBUG < INFO < SUCCESS < WARN < ERROR < CRITICAL"
 }
 
-# Ensure a directory exists
-ensure_dir() {
-	local dir="$1"
-	if [ ! -d "$dir" ]; then
-		mkdir -p "$dir"
-		log_info "Created directory" dir="$dir"
-	fi
-}
-
 # Ensure a file exists
 ensure_file() {
 	local file="$1"
@@ -192,3 +183,4 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
 	log_error "This is an error message" user="$USER" pid=$$
 	log_critical "This is a critical message" user="$USER" pid=$$
 fi
+

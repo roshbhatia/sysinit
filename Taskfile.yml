@@ -20,7 +20,6 @@ tasks:
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Building system configuration"
-        ensure_dir "$(dirname \"{{.LOG_FILE}}\")"
         ensure_file "{{.LOG_FILE}}"
         follow_log "{{.LOG_FILE}}" &
         if ! sudo darwin-rebuild switch -v --show-trace --impure --flake . > "{{.LOG_FILE}}" 2>&1; then
@@ -39,7 +38,6 @@ tasks:
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Running garbage collection"
-        ensure_dir "$(dirname \"{{.LOG_FILE}}\")"
         ensure_file "{{.LOG_FILE}}"
         follow_log "{{.LOG_FILE}}" &
         if ! sudo nix-collect-garbage -d > "{{.LOG_FILE}}" 2>&1; then
@@ -58,7 +56,6 @@ tasks:
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Updating flake inputs"
-        ensure_dir "$(dirname \"{{.LOG_FILE}}\")"
         ensure_file "{{.LOG_FILE}}"
         follow_log "{{.LOG_FILE}}" &
         if ! sudo nix flake update > "{{.LOG_FILE}}" 2>&1; then
@@ -78,7 +75,6 @@ tasks:
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Applying system configuration"
-        ensure_dir "$(dirname \"{{.LOG_FILE}}\")"
         ensure_file "{{.LOG_FILE}}"
         follow_log "{{.LOG_FILE}}" &
         if ! sudo darwin-rebuild switch --flake . --show-trace > "{{.LOG_FILE}}" 2>&1; then
@@ -97,7 +93,6 @@ tasks:
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Refreshing work configuration"
-        ensure_dir "$(dirname \"{{.LOG_FILE}}\")"
         ensure_file "{{.LOG_FILE}}"
         follow_log "{{.LOG_FILE}}" &
         WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
