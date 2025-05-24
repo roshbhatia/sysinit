@@ -15,17 +15,17 @@ local direction_keys = {
 }
 
 -- Split navigation function
-local function split_nav(resize_or_move, key)
+local function split_nav(resize_or_move, key, mods)
 	return {
 		key = key,
-		mods = resize_or_move == "resize" and "CTRL",
+		mods = mods,
 		action = wezterm.action_callback(function(win, pane)
 			if is_vim(pane) then
 				-- Pass the keys through to Neovim
 				win:perform_action({
 					SendKey = {
 						key = key,
-						mods = resize_or_move == "resize" and "CTRL",
+						mods = mods,
 					},
 				}, pane)
 			else
@@ -46,14 +46,14 @@ end
 function M.setup(config)
 	-- Smart splits keybindings
 	local smart_splits_keys = { -- Move between split panes
-		split_nav("move", "h"),
-		split_nav("move", "j"),
-		split_nav("move", "k"),
-		split_nav("move", "l"), -- Resize panes
-		split_nav("resize", "h"),
-		split_nav("resize", "j"),
-		split_nav("resize", "k"),
-		split_nav("resize", "l"),
+		split_nav("move", "h", "CTRL"),
+		split_nav("move", "j", "CTRL"),
+		split_nav("move", "k", "CTRL"),
+		split_nav("move", "l", "CTRL"), -- Resize panes
+		split_nav("resize", "h", "CTRL|SHIFT"),
+		split_nav("resize", "j", "CTRL|SHIFT"),
+		split_nav("resize", "k", "CTRL|SHIFT"),
+		split_nav("resize", "l", "CTRL|SHIFT"),
 	}
 
 	-- Base keybindings
