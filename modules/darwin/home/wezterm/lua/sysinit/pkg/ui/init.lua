@@ -36,7 +36,7 @@ function M.setup(config)
 	config.default_cursor_style = "SteadyUnderline"
 	config.cursor_blink_rate = 300
 
-	wezterm.on("update-tab-bar-and-font", function(window, pane)
+	wezterm.on("update-status", function(window, pane)
 		local enable_tab_bar = is_nvim_active() and false or true
 		local font = is_nvim_active()
 				and wezterm.font_with_fallback({
@@ -62,3 +62,4 @@ function M.setup(config)
 end
 
 return M
+
