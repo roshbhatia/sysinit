@@ -17,7 +17,7 @@ function M.register_options()
 	vim.opt.hlsearch = true
 	vim.opt.incsearch = true
 	vim.opt.ignorecase = true
-	vim.opt.incommand = "nosplit"
+	vim.opt.inccommand = "nosplit"
 
 	-- Indentation
 	vim.opt.expandtab = true

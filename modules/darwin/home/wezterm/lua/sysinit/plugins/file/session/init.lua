@@ -8,12 +8,12 @@ function M.setup(config)
 	local workspace_switcher_keys = {
 		{
 			key = "s",
-			mods = "LEADER",
+			mods = "CMD",
 			action = workspace_switcher.switch_workspace(),
 		},
 		{
 			key = "S",
-			mods = "LEADER",
+			mods = "CMD",
 			action = workspace_switcher.switch_to_prev_workspace(),
 		},
 	}
