@@ -16,8 +16,12 @@ local config = wezterm.config_builder()
 require("sysinit.pkg.keybindings").setup(config)
 require("sysinit.pkg.ui").setup(config)
 
+require("sysinit.plugins.ui.bar").setup(config)
+require("sysinit.plugins.ui.session").setup(config)
+
 config.set_environment_variables = {
 	TERM = "wezterm",
 }
 
 return config
+

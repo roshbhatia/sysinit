@@ -75,30 +75,6 @@ function M.setup(config)
 			gui_window:set_inner_size(screen.width - 2, screen.height - 2)
 		end
 	end)
-
-	-- Include the external bar plugin
-	local bar = wezterm.plugin.require("https://github.com/adriankarlen/bar.wezterm")
-	bar.apply_to_config(config, {
-		padding = {
-			left = 2,
-			right = 2,
-			tabs = {
-				left = 0,
-				right = 2,
-			},
-		},
-		modules = {
-			workspace = {
-				enabled = false,
-			},
-			leader = {
-				enabled = false,
-			},
-			clock = {
-				enabled = false,
-			},
-		},
-	})
 end
 
 return M
