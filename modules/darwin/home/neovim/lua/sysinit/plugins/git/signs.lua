@@ -8,6 +8,8 @@ M.plugins = {
 			require("gitsigns").setup({
 				current_line_blame_formatter = "",
 			})
+
+			vim.opt.statuscolumn = "%s%=%{v:relnum?v:relnum:v:lnum} "
 		end,
 		keys = {
 			{
@@ -61,7 +63,7 @@ M.plugins = {
 				desc = "Git: Reset buffer",
 			},
 			{
-				"<leader>ghp",
+				"<leader>ghi",
 				function()
 					require("gitsigns").preview_hunk_inline()
 				end,
@@ -95,3 +97,4 @@ M.plugins = {
 }
 
 return M
+

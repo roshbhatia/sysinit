@@ -10,11 +10,11 @@ M.plugins = {
 		keys = function()
 			return {
 				{
-					"<leader>fs",
+					"<leader>sg",
 					function()
 						require("grug-far").open()
 					end,
-					desc = "Find: Global search",
+					desc = "Search: Global",
 				},
 			}
 		end,
@@ -22,4 +22,3 @@ M.plugins = {
 }
 
 return M
-

@@ -14,6 +14,7 @@ function M.register_options()
 	vim.opt.signcolumn = "yes:2"
 	vim.opt.fillchars:append({ eob = " " })
 	vim.opt.cursorline = false
+	vim.opt.colorcolumn = 80
 
 	-- vim.opt.spelllang = "en_gb"
 	vim.opt.spell = false
@@ -22,6 +23,7 @@ function M.register_options()
 	vim.opt.hlsearch = true
 	vim.opt.incsearch = true
 	vim.opt.ignorecase = true
+	vim.opts.incommand = "nosplit"
 
 	-- Indentation
 	vim.opt.expandtab = true

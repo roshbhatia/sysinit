@@ -30,6 +30,7 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.editor.marks"),
 	require("sysinit.plugins.editor.move"),
 	require("sysinit.plugins.editor.render-markdown"),
+	require("sysinit.plugins.editor.searchbox"),
 	require("sysinit.plugins.editor.surround"),
 	require("sysinit.plugins.file.oil"),
 	require("sysinit.plugins.file.neo-tree"),
@@ -74,6 +75,7 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.library.nio"),
 	require("sysinit.plugins.library.nui"),
 	require("sysinit.plugins.ui.alpha"),
+	require("sysinit.plugins.ui.auto-cmdheight"),
 	require("sysinit.plugins.ui.devicons"),
 	require("sysinit.plugins.ui.dressing"),
 	require("sysinit.plugins.ui.edgy"),
@@ -84,6 +86,7 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.ui.smear-cursor"),
 	require("sysinit.plugins.ui.staline"),
 	require("sysinit.plugins.ui.themery"),
+	require("sysinit.plugins.ui.tiny-glimmer"),
 	require("sysinit.plugins.ui.wilder"),
 	require("sysinit.plugins.ui.window-picker"),
 })
