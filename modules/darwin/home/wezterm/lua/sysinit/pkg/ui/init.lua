@@ -21,8 +21,7 @@ function M.setup(config)
 	}
 	config.color_scheme = "Rosé Pine (Gogh)"
 
-	-- Default font
-	config.font = wezterm.font_with_fallback({
+	local default_font = wezterm.font_with_fallback({
 		{
 			family = "JetBrains Mono",
 			weight = "Medium",
@@ -30,39 +29,24 @@ function M.setup(config)
 		},
 		"Symbols Nerd Font",
 	})
+
+	config.font = default_font
 	config.font_size = 14.0
 	config.line_height = 1.0
 	config.default_cursor_style = "SteadyUnderline"
 	config.cursor_blink_rate = 300
 
-	wezterm.on("update-status", function(window, pane)
-		if is_nvim_active() then
-			window:set_config_overrides({
-				enable_tab_bar = false,
-				font = wezterm.font_with_fallback({
-					{
-						family = "Monaco",
-						weight = "Regular",
-					},
+	wezterm.on("update-tab-bar-and-font", function(window, pane)
+		local enable_tab_bar = is_nvim_active() and false or true
+		local font = is_nvim_active()
+				and wezterm.font_with_fallback({
+					{ family = "Monaco", weight = "Regular" },
 					"Symbols Nerd Font",
-				}),
-			})
-		else
-			window:set_config_overrides({
-				enable_tab_bar = true,
-				font = wezterm.font_with_fallback({
-					{
-						family = "JetBrains Mono",
-						weight = "Medium",
-						harfbuzz_features = { "zero" },
-					},
-					"Symbols Nerd Font",
-				}),
-			})
-		end
+				})
+			or default_font
+		window:set_config_overrides({ enable_tab_bar = enable_tab_bar, font = font })
 	end)
 
-	-- GUI startup handler
 	wezterm.on("gui-startup", function(cmd)
 		local screen = wezterm.gui.screens().active
 		if not screen then
@@ -78,4 +62,3 @@ function M.setup(config)
 end
 
 return M
-

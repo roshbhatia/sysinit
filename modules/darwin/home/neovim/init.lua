@@ -92,4 +92,3 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 })
 
 core.exec_fallback_entrypoint()
-

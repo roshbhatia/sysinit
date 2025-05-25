@@ -7,6 +7,7 @@ function M.register_options()
 
 	-- Editor behavior
 	vim.opt.mouse = "a"
+	vim.opt.clipboard = "unnamedplus"
 	vim.opt.number = true
 	vim.opt.signcolumn = "yes:2"
 	vim.opt.fillchars:append({ eob = " " })

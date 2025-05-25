@@ -31,14 +31,12 @@ M.plugins = {
 					},
 					git_status = {
 						symbols = {
-							added = "",
-							deleted = "",
 							modified = "",
 							renamed = "",
 							untracked = "",
 							ignored = "",
-							unstaged = "",
 							staged = "",
+							unstaged = "",
 							conflict = "",
 						},
 					},
