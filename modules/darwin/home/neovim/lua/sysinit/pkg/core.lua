@@ -5,18 +5,12 @@ function M.register_options()
 	-- Environment
 	vim.env.PATH = vim.fn.getenv("PATH")
 
-	-- Clipboard
-	vim.o.clipboard = "unnamedplus"
-
 	-- Editor behavior
 	vim.opt.mouse = "a"
 	vim.opt.number = true
 	vim.opt.signcolumn = "yes:2"
 	vim.opt.fillchars:append({ eob = " " })
 	vim.opt.cursorline = false
-	vim.opt.colorcolumn = 80
-
-	-- vim.opt.spelllang = "en_gb"
 	vim.opt.spell = false
 
 	-- Search options
@@ -203,4 +197,3 @@ function M.exec_fallback_entrypoint()
 end
 
 return M
-
