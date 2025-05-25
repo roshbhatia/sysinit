@@ -66,12 +66,19 @@ function M.register_options()
 	-- Enable autoread
 	vim.o.autoread = true
 
-	-- Set up periodic checking for file changes (every 1000ms = 1 second)
-	vim.o.updatetime = 1000
-	vim.api.nvim_create_autocmd({ "CursorHold" }, {
+	vim.api.nvim_create_autocmd("FocusGained", {
+		desc = "Reload files from disk when we focus vim",
 		pattern = "*",
-		command = "checktime",
+		command = "if getcmdwintype() == '' | checktime | endif",
+		group = aug,
 	})
+	vim.api.nvim_create_autocmd("BufEnter", {
+		desc = "Every time we enter an unmodified buffer, check if it changed on disk",
+		pattern = "*",
+		command = "if &buftype == '' && !&modified && expand('%') != '' | exec 'checktime ' . expand('<abuf>') | endif",
+		group = aug,
+	})
+
 	-- Undo directory for more persisted undo's
 	local undodir = vim.fn.stdpath("cache") .. "/undo"
 	if vim.fn.isdirectory(undodir) == 0 then

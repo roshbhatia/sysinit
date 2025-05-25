@@ -16,16 +16,10 @@ M.plugins = {
 					end,
 					desc = "Find: Global search",
 				},
-				{
-					"<leader>fr",
-					function()
-						require("grug-far").open()
-					end,
-					desc = "Find: Global search and replace",
-				},
 			}
 		end,
 	},
 }
 
 return M
+

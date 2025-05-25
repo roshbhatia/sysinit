@@ -1,5 +1,9 @@
 local wezterm = require("wezterm")
 
+local function is_nvim_active()
+	return string.match(wezterm.get_foreground_child_process_name() or "", "nvim")
+end
+
 local M = {}
 
 function M.setup(config)
@@ -16,17 +20,9 @@ function M.setup(config)
 		fade_out_function = "EaseOut",
 		fade_out_duration_ms = 50,
 	}
-
-	-- 	"Rosé Pine (Gogh)",
-	-- "Rosé Pine Moon (Gogh)",
-	-- "Catppuccin Frappé (Gogh)",
-	-- "Catppuccin Macchiato (Gogh)",
-	-- "Nord (base16)",
-	-- "DoomOne",
-	-- "nordfox",
-	-- "Relaxed",
 	config.color_scheme = "Rosé Pine (Gogh)"
 
+	-- Default font
 	config.font = wezterm.font_with_fallback({
 		{
 			family = "JetBrains Mono",
@@ -40,6 +36,34 @@ function M.setup(config)
 	config.default_cursor_style = "SteadyUnderline"
 	config.cursor_blink_rate = 300
 
+	wezterm.on("update-tab-bar-and-font", function(window, pane)
+		if is_nvim_active() then
+			window:set_config_overrides({
+				enable_tab_bar = false,
+				font = wezterm.font_with_fallback({
+					{
+						family = "Monaco",
+						weight = "Regular",
+					},
+					"Symbols Nerd Font",
+				}),
+			})
+		else
+			window:set_config_overrides({
+				enable_tab_bar = true,
+				font = wezterm.font_with_fallback({
+					{
+						family = "JetBrains Mono",
+						weight = "Medium",
+						harfbuzz_features = { "zero" },
+					},
+					"Symbols Nerd Font",
+				}),
+			})
+		end
+	end)
+
+	-- GUI startup handler
 	wezterm.on("gui-startup", function(cmd)
 		local screen = wezterm.gui.screens().active
 		if not screen then
@@ -52,6 +76,31 @@ function M.setup(config)
 			gui_window:set_inner_size(screen.width - 2, screen.height - 2)
 		end
 	end)
+
+	-- Include the external bar plugin
+	local bar = wezterm.plugin.require("https://github.com/adriankarlen/bar.wezterm")
+	bar.apply_to_config(config, {
+		padding = {
+			left = 2,
+			right = 2,
+			tabs = {
+				left = 0,
+				right = 2,
+			},
+		},
+		modules = {
+			workspace = {
+				enabled = false,
+			},
+			leader = {
+				enabled = false,
+			},
+			clock = {
+				enabled = false,
+			},
+		},
+	})
 end
 
 return M
+
