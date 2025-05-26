@@ -30,7 +30,10 @@ M.plugins = {
 				rename = { enabled = true },
 				scratch = { enabled = true },
 				statuscolumn = { enabled = true },
-				terminal = { enabled = true },
+				terminal = {
+					enabled = true,
+					border = "rounded",
+				},
 				words = { enabled = true },
 
 				dashboard = { enabled = false },

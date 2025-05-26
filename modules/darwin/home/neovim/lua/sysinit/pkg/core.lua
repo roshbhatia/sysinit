@@ -8,8 +8,8 @@ function M.register_options()
 	-- Editor behavior
 	vim.opt.mouse = "a"
 	vim.opt.clipboard = "unnamedplus"
-	vim.opt.number = true
-	vim.opt.signcolumn = "yes:1"
+	vim.opt.relativenumber = true
+	vim.opt.signcolumn = "yes:2"
 	vim.opt.fillchars:append({ eob = " " })
 	vim.opt.cursorline = true
 	vim.opt.spell = false
@@ -62,18 +62,19 @@ function M.register_options()
 
 	-- Enable autoread
 	vim.o.autoread = true
-
-	vim.api.nvim_create_autocmd("FocusGained", {
-		desc = "Reload files from disk when we focus vim",
+	vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
 		pattern = "*",
-		command = "if getcmdwintype() == '' | checktime | endif",
-		group = aug,
+		callback = function()
+			if vim.fn.mode() ~= "c" then
+				vim.cmd("checktime")
+			end
+		end,
 	})
-	vim.api.nvim_create_autocmd("BufEnter", {
-		desc = "Every time we enter an unmodified buffer, check if it changed on disk",
+	vim.api.nvim_create_autocmd("FileChangedShellPost", {
 		pattern = "*",
-		command = "if &buftype == '' && !&modified && expand('%') != '' | exec 'checktime ' . expand('<abuf>') | endif",
-		group = aug,
+		callback = function()
+			vim.notify("File changed on disk. Buffer reloaded.", vim.log.levels.WARN)
+		end,
 	})
 
 	-- Undo directory for more persisted undo's
@@ -198,3 +199,4 @@ function M.exec_fallback_entrypoint()
 end
 
 return M
+
