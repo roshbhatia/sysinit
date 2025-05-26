@@ -5,10 +5,9 @@ M.plugins = {
 		"f-person/git-blame.nvim",
 		event = "VeryLazy",
 		config = function()
-			require("git-blame").setup({
+			require("gitblame").setup({
 				enabled = true,
-				message_template = "  <summary> by <author> in <<sha>>",
-				virtual_text_column = 1,
+				message_template = "<summary> by <author> in <<sha>>",
 			})
 
 			vim.g.gitblame_highlight_group = "gitblame"
