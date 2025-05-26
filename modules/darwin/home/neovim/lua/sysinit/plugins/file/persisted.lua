@@ -18,7 +18,13 @@ M.plugins = {
 			vim.api.nvim_create_autocmd("User", {
 				pattern = "PersistedLoadPost",
 				callback = function()
-					vim.cmd("silent! Neotree show")
+					vim.defer_fn(function()
+						vim.api.nvim_feedkeys(
+							vim.api.nvim_replace_termcodes("<leader>ee", true, false, true),
+							"n",
+							false
+						)
+					end, 50)
 				end,
 			})
 		end,
