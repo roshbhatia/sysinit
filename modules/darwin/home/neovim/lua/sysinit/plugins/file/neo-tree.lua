@@ -15,6 +15,15 @@ M.plugins = {
 			vim.g.neo_tree_remove_legacy_commands = 1
 
 			require("neo-tree").setup({
+				event_handlers = {
+					{
+						event = "neo_tree_buffer_enter",
+						handler = function(arg)
+							vim.opt_local.number = false
+							vim.opt_local.relativenumber = false
+						end,
+					},
+				},
 				close_if_last_window = true,
 				enable_diagnostics = true,
 				sort_case_insensitive = true,
@@ -106,7 +115,6 @@ M.plugins = {
 						local function on_move(data)
 							Snacks.rename.on_rename_file(data.source, data.destination)
 						end
-
 						return {
 							{
 								event = require("neo-tree.events").FILE_MOVED,
@@ -119,13 +127,6 @@ M.plugins = {
 						}
 					end,
 				},
-			})
-			vim.api.nvim_create_autocmd("FileType", {
-				pattern = "neo-tree",
-				callback = function()
-					vim.opt_local.number = false
-					vim.opt_local.relativenumber = false
-				end,
 			})
 		end,
 		keys = {
