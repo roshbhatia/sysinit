@@ -105,3 +105,4 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 
 require("sysinit.pkg.keybindings").setup()
 require("sysinit.pkg.fallback_entrypoint").setup()
+

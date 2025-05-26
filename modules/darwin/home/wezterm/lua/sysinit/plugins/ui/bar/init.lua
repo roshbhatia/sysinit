@@ -1,25 +1,35 @@
 local wezterm = require("wezterm")
-local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
+local bar = wezterm.plugin.require("https://github.com/adriankarlen/bar.wezterm")
 local M = {}
 
 function M.setup(config)
-	tabline.setup({
-		options = {
-			theme = "Rosé Pine (Gogh)",
-		},
-		sections = {
-			tabline_a = { "mode" },
-			tabline_b = { "workspace" },
-			tabline_c = {
-				function()
-					return os.getenv("ZVM_MODE") or ""
-				end,
+	bar.apply_to_config(config, {
+		padding = {
+			left = 3,
+			right = 3,
+			tabs = {
+				left = 0,
+				right = 2,
 			},
-			tabline_x = { "git_branch" },
 		},
-		extensions = { "smart_workspace_switcher" },
+		modules = {
+			hostname = {
+				enabled = false,
+			},
+			workspace = {
+				enabled = false,
+			},
+			leader = {
+				enabled = false,
+			},
+			clock = {
+				enabled = false,
+			},
+			username = {
+				enabled = false,
+			},
+		},
 	})
-	tabline.apply_to_config(config)
 end
 
 return M
