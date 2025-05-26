@@ -7,6 +7,7 @@ end
 local M = {}
 
 function M.setup(config)
+	config.status_update_interval = 200
 	config.window_padding = { left = 20, right = 0, top = 20, bottom = 0 }
 	config.enable_scroll_bar = true
 	config.scrollback_lines = 20000
@@ -36,15 +37,20 @@ function M.setup(config)
 	config.default_cursor_style = "SteadyUnderline"
 	config.cursor_blink_rate = 300
 
-	wezterm.on("update-status", function(window, pane)
-		local enable_tab_bar = is_nvim_active() and false or true
-		local font = is_nvim_active()
-				and wezterm.font_with_fallback({
-					{ family = "Monaco", weight = "Regular" },
-					"Symbols Nerd Font",
-				})
-			or default_font
-		window:set_config_overrides({ enable_tab_bar = enable_tab_bar, font = font })
+	wezterm.on("update-status", function(window)
+		local overrides = window:get_config_overrides() or {}
+		overrides.enable_tab_bar = is_nvim_active() and false or true
+
+		if is_nvim_active() then
+			overrides.font = wezterm.font_with_fallback({
+				{ family = "Monaco", weight = "Regular" },
+				"Symbols Nerd Font",
+			})
+		else
+			overrides.font = default_font
+		end
+
+		window:set_config_overrides(overrides)
 	end)
 
 	wezterm.on("gui-startup", function(cmd)
@@ -62,4 +68,3 @@ function M.setup(config)
 end
 
 return M
-
