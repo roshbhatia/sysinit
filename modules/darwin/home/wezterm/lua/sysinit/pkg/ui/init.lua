@@ -8,7 +8,12 @@ local M = {}
 
 function M.setup(config)
 	config.status_update_interval = 200
-	config.window_padding = { left = 20, right = 0, top = 20, bottom = 0 }
+	config.window_padding = {
+		left = 20,
+		right = 20,
+		top = 20,
+		bottom = 0,
+	}
 	config.enable_scroll_bar = true
 	config.scrollback_lines = 20000
 	config.window_background_opacity = 0.9
@@ -22,7 +27,7 @@ function M.setup(config)
 	}
 	config.color_scheme = "Rosé Pine (Gogh)"
 
-	local default_font = wezterm.font_with_fallback({
+	config.font = wezterm.font_with_fallback({
 		{
 			family = "JetBrains Mono",
 			weight = "Medium",
@@ -31,23 +36,27 @@ function M.setup(config)
 		"Symbols Nerd Font",
 	})
 
-	config.font = default_font
 	config.font_size = 14.0
 	config.line_height = 1.0
 	config.default_cursor_style = "SteadyUnderline"
 	config.cursor_blink_rate = 300
 
-	wezterm.on("update-status", function(window)
+	wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
+		local window = wezterm.mux.get_window(tab.window_id)
 		local overrides = window:get_config_overrides() or {}
-		overrides.enable_tab_bar = is_nvim_active() and false or true
 
 		if is_nvim_active() then
 			overrides.font = wezterm.font_with_fallback({
-				{ family = "Monaco", weight = "Regular" },
+				{
+					family = "Monaco",
+					weight = "Regular",
+				},
 				"Symbols Nerd Font",
 			})
+			overrides.enable_tab_bar = false
 		else
-			overrides.font = default_font
+			overrides.font = nil
+			overrides.enable_tab_bar = nil
 		end
 
 		window:set_config_overrides(overrides)
