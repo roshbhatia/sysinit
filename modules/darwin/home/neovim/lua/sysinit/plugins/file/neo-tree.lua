@@ -19,6 +19,7 @@ M.plugins = {
 					{
 						event = "neo_tree_buffer_enter",
 						handler = function(arg)
+							vim.opt_local.statuscolumn = "%s"
 							vim.opt_local.number = false
 							vim.opt_local.relativenumber = false
 						end,

@@ -55,6 +55,7 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.intellicode.guess-indent"),
 	require("sysinit.plugins.intellicode.linters"),
 	require("sysinit.plugins.intellicode.luasnip"),
+	require("sysinit.plugins.intellicode.lsp-lines"),
 	require("sysinit.plugins.intellicode.lspsaga"),
 	require("sysinit.plugins.intellicode.mason-lspconfig"),
 	require("sysinit.plugins.intellicode.mason-tool-installer"),
