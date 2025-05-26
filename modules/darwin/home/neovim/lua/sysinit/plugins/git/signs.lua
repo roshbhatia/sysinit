@@ -9,7 +9,7 @@ M.plugins = {
 				current_line_blame_formatter = "",
 			})
 
-			vim.opt.statuscolumn = "%s%=%{v:relnum?v:relnum:v:lnum} "
+			vim.opt.statuscolumn = "%s%=%{v:relnum?v:relnum:v:lnum}"
 		end,
 		keys = {
 			{
@@ -92,9 +92,22 @@ M.plugins = {
 				silent = true,
 				desc = "Git: Previous hunk",
 			},
+			{
+				"<RightMouse>",
+				function()
+					local mouse_pos = vim.fn.getmousepos()
+					if mouse_pos.column <= 2 then
+						vim.api.nvim_win_set_cursor(0, { mouse_pos.line, 0 })
+						require("gitsigns").preview_hunk_inline()
+					end
+				end,
+				mode = "n",
+				noremap = true,
+				silent = true,
+				desc = "Git: Toggle inline preview",
+			},
 		},
 	},
 }
 
 return M
-

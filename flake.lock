@@ -19,7 +19,9 @@
     },
     "darwin": {
       "inputs": {
-        "nixpkgs": ["nixpkgs"]
+        "nixpkgs": [
+          "nixpkgs"
+        ]
       },
       "locked": {
         "lastModified": 1748149228,
@@ -38,7 +40,9 @@
     },
     "home-manager": {
       "inputs": {
-        "nixpkgs": ["nixpkgs"]
+        "nixpkgs": [
+          "nixpkgs"
+        ]
       },
       "locked": {
         "lastModified": 1748227609,
@@ -73,11 +77,11 @@
     "homebrew-core": {
       "flake": false,
       "locked": {
-        "lastModified": 1748235243,
-        "narHash": "sha256-aIkse3TZ40EJtgPgIWSg320Mod+gR9gvcIMzGMf3TV4=",
+        "lastModified": 1748237973,
+        "narHash": "sha256-VcbbVq/uSggot0DG2GUHbnAEwxJgK5t3dHjq1vJvZsY=",
         "owner": "homebrew",
         "repo": "homebrew-core",
-        "rev": "34d66caaf40e7df61de198174438ee8768d569de",
+        "rev": "ddb212a9f06db453aa5c2df8177baa042b0c19c6",
         "type": "github"
       },
       "original": {

@@ -9,7 +9,7 @@ function M.register_options()
 	vim.opt.mouse = "a"
 	vim.opt.clipboard = "unnamedplus"
 	vim.opt.number = true
-	vim.opt.signcolumn = "yes:2"
+	vim.opt.signcolumn = "yes:1"
 	vim.opt.fillchars:append({ eob = " " })
 	vim.opt.cursorline = false
 	vim.opt.spell = false

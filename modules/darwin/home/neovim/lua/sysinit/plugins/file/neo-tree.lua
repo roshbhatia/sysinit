@@ -53,10 +53,6 @@ M.plugins = {
 					},
 				},
 				window = {
-					mapping_options = {
-						noremap = true,
-						nowait = true,
-					},
 					mappings = {
 						["<2-LeftMouse>"] = "open",
 						["<cr>"] = "open",
@@ -70,7 +66,6 @@ M.plugins = {
 						["s"] = "open_split",
 						["v"] = "open_vsplit",
 						["w"] = "open_with_window_picker",
-						["C"] = "close_node",
 						["z"] = "close_all_nodes",
 						["Z"] = "expand_all_nodes",
 						["a"] = {
@@ -79,7 +74,6 @@ M.plugins = {
 								show_path = "none",
 							},
 						},
-						["A"] = "add_directory",
 						["d"] = "delete",
 						["r"] = "rename",
 						["y"] = "copy_to_clipboard",
@@ -88,7 +82,6 @@ M.plugins = {
 						["c"] = "copy",
 						["m"] = "move",
 						["q"] = "close_window",
-						["R"] = "refresh",
 						["?"] = "show_help",
 						["<"] = "prev_source",
 						[">"] = "next_source",
