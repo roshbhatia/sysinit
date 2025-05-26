@@ -11,6 +11,7 @@ function M.register_options()
 	vim.opt.number = true
 	vim.opt.signcolumn = "yes:1"
 	vim.opt.fillchars:append({ eob = " " })
+	vim.opt.cursorline = true
 	vim.opt.spell = false
 
 	-- Search options
@@ -197,4 +198,3 @@ function M.exec_fallback_entrypoint()
 end
 
 return M
-
