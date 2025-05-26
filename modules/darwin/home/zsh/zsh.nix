@@ -114,10 +114,10 @@ in
       XDG_DATA_HOME = "${homeDirectory}/.local/share";
       XDG_STATE_HOME = "${homeDirectory}/.local/state";
 
-      XCO = "$XDG_CONFIG_HOME";
-      XDA = "$XDG_DATA_HOME";
-      XCA = "$XDG_CACHE_HOME";
-      XSTA = "$XDG_STATE_HOME";
+      XCA = "${homeDirectory}/.cache";
+      XCO = "${homeDirectory}/.config";
+      XDA = "${homeDirectory}/.local/share";
+      XST = "${homeDirectory}/.local/state";
 
       GIT_DISCOVERY_ACROSS_FILESYSTEM = 1;
 
@@ -127,6 +127,8 @@ in
       ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = 20;
       ZSH_AUTOSUGGEST_MANUAL_REBIND = 1;
       ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE = "fg=#808080,bold,underline";
+
+      ZVM_LINE_INIT_MODE = "i";
 
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
@@ -147,16 +149,9 @@ in
         "--bind='resize:refresh-preview'" # Refresh on resize
       ];
 
-      # Enhanced cd navigation
-      ENHANCD_FILTER = "fzf --height=35% --reverse --border=rounded --inline-info --preview='sysinit-fzf-preview {}'";
-      ENHANCD_ENABLE_DOUBLE_DOT = false;
-      ENHANCD_ENABLE_HOME = false;
-
-      SUDO_EDITOR = "$EDITOR";
-      VISUAL = "$EDITOR";
+      SUDO_EDITOR = "nvim";
+      VISUAL = "nvim";
       PAGER = "bat --pager=always --color=always";
-
-      ZVM_LINE_INIT_MODE = "$ZVM_MODE_INSERT";
     };
 
     plugins = [
@@ -179,16 +174,6 @@ in
           sha256 = "GAjsTQJs9JdBEf9LGurme3zqXN//kVUM2YeBo0sCR2c=";
         };
         file = "evalcache.plugin.zsh";
-      }
-      {
-        name = "enhancd";
-        src = pkgs.fetchFromGitHub {
-          owner = "babarot";
-          repo = "enhancd";
-          rev = "5afb4eb6ba36c15821de6e39c0a7bb9d6b0ba415";
-          sha256 = "sha256-pKQbwiqE0KdmRDbHQcW18WfxyJSsKfymWt/TboY2iic=";
-        };
-        file = "enhancd.plugin.zsh";
       }
       {
         name = "fzf-tab";
@@ -297,19 +282,11 @@ in
       zstyle ':fzf-tab:complete:git-*:*' fzf-preview 'sysinit-fzf-preview {}'
       zstyle ':fzf-tab:complete:kubectl-*:*' fzf-preview 'if [[ {} == *.@(yml|yaml) ]]; then bat --color=always --style=numbers,header,grid --language=yaml --line-range :100 {}; else sysinit-fzf-preview {}; fi'
 
-      # Disable fzf-tab for cd (using enhancd instead)
-      zstyle ':fzf-tab:complete:cd:*' disabled-on any
-
       # Load and configure fzf-tab
       autoload -Uz +X _fzf_tab_complete 2>/dev/null
       _setup_fzf_tab_bindings() { (( $+widgets[fzf-tab-complete] )) && bindkey '^I' fzf-tab-complete }
       autoload -Uz add-zsh-hook
       add-zsh-hook precmd _setup_fzf_tab_bindings
-
-      # Unbind alt-p, alt-n, alt-w to free these keys for fzf-tab
-      bindkey -r '\ep'
-      bindkey -r '\en'
-      bindkey -r '\ew'
 
       # Bind ctrl-tab to accept zsh autosuggestions
       bindkey '^I' autosuggest-accept
@@ -355,3 +332,4 @@ in
     };
   };
 }
+
