@@ -1,9 +1,4 @@
 local wezterm = require("wezterm")
-local act = wezterm.action
-
-local function is_nvim_active()
-	return string.match(wezterm.get_foreground_child_process_name() or "", "nvim")
-end
 
 local M = {}
 
@@ -25,7 +20,7 @@ function M.setup(config)
 
 	config.font = wezterm.font_with_fallback({
 		{
-			family = "JetBrains Mono",
+			family = "Fira Mono for Powerline",
 			weight = "Medium",
 			harfbuzz_features = { "zero" },
 		},
