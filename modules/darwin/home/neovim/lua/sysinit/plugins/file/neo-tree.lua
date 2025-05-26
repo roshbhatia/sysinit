@@ -22,6 +22,8 @@ M.plugins = {
 							vim.opt_local.statuscolumn = "%s"
 							vim.opt_local.number = false
 							vim.opt_local.relativenumber = false
+							vim.opt_local.wrap = true
+							vim.opt_local.sidescrolloff = 0
 						end,
 					},
 				},
@@ -31,6 +33,7 @@ M.plugins = {
 				default_component_configs = {
 					indent = {
 						with_expanders = true,
+						with_markers = false,
 					},
 					icon = {
 						folder_closed = "",

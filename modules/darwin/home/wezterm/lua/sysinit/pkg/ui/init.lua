@@ -35,30 +35,6 @@ function M.setup(config)
 	config.line_height = 1.0
 	config.default_cursor_style = "SteadyUnderline"
 	config.cursor_blink_rate = 300
-
-	local function poll_for_nvim(window)
-		local overrides = window:get_config_overrides() or {}
-		if is_nvim_active() then
-			overrides.enable_tab_bar = false
-			overrides.font = wezterm.font_with_fallback({
-				{
-					family = "Monaco",
-					weight = "Regular",
-				},
-				"Symbols Nerd Font",
-			})
-		else
-			overrides.enable_tab_bar = nil
-			overrides.font = nil
-		end
-		window:set_config_overrides(overrides)
-	end
-
-	wezterm.on("poll-for-nvim", poll_for_nvim)
-
-	wezterm.on("update-status", function(window, pane)
-		window:perform_action(wezterm.action.EmitEvent("poll-for-nvim"), pane)
-	end)
 end
 
 return M

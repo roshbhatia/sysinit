@@ -8,6 +8,7 @@ function M.register_options()
 	-- Editor behavior
 	vim.opt.mouse = "a"
 	vim.opt.clipboard = "unnamedplus"
+	vim.opts.number = true
 	vim.opt.relativenumber = true
 	vim.opt.signcolumn = "yes:2"
 	vim.opt.fillchars:append({ eob = " " })
@@ -60,7 +61,8 @@ function M.register_options()
 	vim.opt.laststatus = 3
 	vim.opt.completeopt = { "menu", "menuone", "fuzzy", "preview" }
 
-	-- Enable autoread
+	-- Enable autoread, swap cleanup
+	vim.opt.shortmess:append("A")
 	vim.o.autoread = true
 	vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
 		pattern = "*",
@@ -152,13 +154,49 @@ function M.register_keybindings()
 		desc = "Buffer: Write and close",
 	})
 
-	vim.keymap.set("n", "<leader>bn", "<cmd>bnext<CR>", {
+	local function get_listed_buffers()
+		local buffers = {}
+		for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+			if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted then
+				table.insert(buffers, buf)
+			end
+		end
+		return buffers
+	end
+
+	local function buffer_next()
+		local buffers = get_listed_buffers()
+		local current = vim.api.nvim_get_current_buf()
+
+		for i, buf in ipairs(buffers) do
+			if buf == current then
+				local next_buf = buffers[i + 1] or buffers[1]
+				vim.api.nvim_set_current_buf(next_buf)
+				return
+			end
+		end
+	end
+
+	local function buffer_prev()
+		local buffers = get_listed_buffers()
+		local current = vim.api.nvim_get_current_buf()
+
+		for i, buf in ipairs(buffers) do
+			if buf == current then
+				local prev_buf = buffers[i - 1] or buffers[#buffers]
+				vim.api.nvim_set_current_buf(prev_buf)
+				return
+			end
+		end
+	end
+
+	vim.keymap.set("n", "<leader>bn", buffer_next, {
 		noremap = true,
 		silent = true,
 		desc = "Buffer: Next",
 	})
 
-	vim.keymap.set("n", "<leader>bp", "<cmd>bprev<CR>", {
+	vim.keymap.set("n", "<leader>bp", buffer_prev, {
 		noremap = true,
 		silent = true,
 		desc = "Buffer: Previous",
@@ -199,4 +237,3 @@ function M.exec_fallback_entrypoint()
 end
 
 return M
-
