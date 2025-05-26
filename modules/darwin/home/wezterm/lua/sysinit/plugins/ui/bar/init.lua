@@ -5,8 +5,8 @@ local M = {}
 function M.setup(config)
 	bar.apply_to_config(config, {
 		padding = {
-			left = 4,
-			right = 4,
+			left = 6,
+			right = 6,
 			tabs = {
 				left = 0,
 				right = 2,
@@ -33,3 +33,4 @@ function M.setup(config)
 end
 
 return M
+

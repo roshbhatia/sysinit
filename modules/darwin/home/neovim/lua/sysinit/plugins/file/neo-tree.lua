@@ -104,8 +104,22 @@ M.plugins = {
 						end
 
 						return {
-							{ event = require("neo-tree.events").FILE_MOVED, handler = on_move },
-							{ event = require("neo-tree.events").FILE_RENAMED, handler = on_move },
+							{
+								event = "vim_buffer_enter",
+								handler = function()
+									if vim.bo.filetype == "neo-tree" then
+										vim.cmd("setlocal nonumber")
+									end
+								end,
+							},
+							{
+								event = require("neo-tree.events").FILE_MOVED,
+								handler = on_move,
+							},
+							{
+								event = require("neo-tree.events").FILE_RENAMED,
+								handler = on_move,
+							},
 						}
 					end,
 				},
@@ -125,3 +139,4 @@ M.plugins = {
 }
 
 return M
+
