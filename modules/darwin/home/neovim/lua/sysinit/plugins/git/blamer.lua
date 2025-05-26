@@ -13,7 +13,7 @@ M.plugins = {
 			vim.g.gitblame_highlight_group = "gitblame"
 			vim.api.nvim_set_hl(0, "gitblame", {
 				fg = "#888888",
-				bg = "NONE",
+				bg = vim.api.nvim_get_hl_by_name("CursorLine", true).background,
 			})
 		end,
 	},

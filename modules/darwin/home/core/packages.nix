@@ -22,6 +22,7 @@ let
     coreutils
     delta
     docker
+    duf
     fd
     findutils
     fzf

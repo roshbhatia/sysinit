@@ -4,5 +4,5 @@
 
 # Specify desired highlighting theme (e.g. "TwoDark"). Run `bat --list-themes`
 # for a list of all available themes
---theme="Catppuccin Frappe"
+--theme="Catppuccin-Frappe"
 
