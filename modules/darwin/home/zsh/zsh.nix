@@ -23,7 +23,6 @@ let
   logLib = stripHeaders ./core/loglib.sh;
   paths = stripHeaders ./core/paths.sh;
   wezterm = stripHeaders ./core/wezterm.sh;
-  bindings = stripHeaders ./core/bindings.sh;
   completions = stripHeaders ./core/completions.sh;
   kubectl = stripHeaders ./core/kubectl.sh;
   env = stripHeaders ./core/env.sh;
@@ -36,8 +35,6 @@ let
     ${paths}
 
     ${wezterm}
-
-    ${bindings}
 
     ${kubectl}
 
@@ -158,9 +155,21 @@ in
       SUDO_EDITOR = "$EDITOR";
       VISUAL = "$EDITOR";
       PAGER = "bat --pager=always --color=always";
+
+      ZVM_LINE_INIT_MODE = "$ZVM_MODE_INSERT";
     };
 
     plugins = [
+      {
+        name = "zsh-vi-mode";
+        src = pkgs.fetchFromGitHub {
+          owner = "jeffreytse";
+          repo = "zsh-vi-mode";
+          rev = "v0.11.0";
+          sha256 = "sha256-xbchXJTFWeABTwq6h4KWLh+EvydDrDzcY9AQVK65RS8=";
+        };
+        file = "zsh-vi-mode.plugin.zsh";
+      }
       {
         name = "evalcache";
         src = pkgs.fetchFromGitHub {
@@ -346,4 +355,3 @@ in
     };
   };
 }
-
