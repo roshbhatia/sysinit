@@ -20,3 +20,4 @@ in
     additionalPaths = if userConfig ? additionalPaths then userConfig.additionalPaths else [ ];
   };
 }
+
