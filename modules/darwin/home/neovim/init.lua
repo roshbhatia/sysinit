@@ -7,11 +7,22 @@ package.path = package.path
 	.. vim.fn.stdpath("config")
 	.. "/lua/?.lua"
 
-local core = require("sysinit.pkg.core")
-core.register_leader()
-core.register_options()
-core.register_keybindings()
-core.register_autocmds()
+require("sysinit.pkg.opts.leader").setup()
+require("sysinit.pkg.opts.environment").setup()
+require("sysinit.pkg.opts.editor").setup()
+require("sysinit.pkg.opts.search").setup()
+require("sysinit.pkg.opts.indentation").setup()
+require("sysinit.pkg.opts.wrapping").setup()
+require("sysinit.pkg.opts.split_behavior").setup()
+require("sysinit.pkg.opts.performance").setup()
+require("sysinit.pkg.opts.scroll").setup()
+require("sysinit.pkg.opts.ui").setup()
+require("sysinit.pkg.opts.folding").setup()
+require("sysinit.pkg.opts.completion").setup()
+require("sysinit.pkg.opts.autoread").setup()
+require("sysinit.pkg.opts.undo").setup()
+
+require("sysinit.pkg.opts.autocmds").setup()
 
 require("sysinit.pkg.plugin_manager").setup_package_manager()
 require("sysinit.pkg.plugin_manager").setup_plugins({
@@ -92,4 +103,5 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.ui.window-picker"),
 })
 
-core.exec_fallback_entrypoint()
+require("sysinit.pkg.sysinit.pkg.keybindings").setup()
+require("sysinit.pkg.sysinit.pkg.fallback_entrypoint").setup()
