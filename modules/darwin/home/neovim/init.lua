@@ -22,7 +22,7 @@ require("sysinit.pkg.opts.completion").setup()
 require("sysinit.pkg.opts.autoread").setup()
 require("sysinit.pkg.opts.undo").setup()
 
-require("sysinit.pkg.opts.autocmds").setup()
+require("sysinit.pkg.autocmds").setup()
 
 require("sysinit.pkg.plugin_manager").setup_package_manager()
 require("sysinit.pkg.plugin_manager").setup_plugins({
@@ -103,5 +103,5 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.ui.window-picker"),
 })
 
-require("sysinit.pkg.sysinit.pkg.keybindings").setup()
-require("sysinit.pkg.sysinit.pkg.fallback_entrypoint").setup()
+require("sysinit.pkg.keybindings").setup()
+require("sysinit.pkg.fallback_entrypoint").setup()
