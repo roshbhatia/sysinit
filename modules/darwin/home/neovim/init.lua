@@ -97,7 +97,6 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.ui.smart-splits"),
 	require("sysinit.plugins.ui.smear-cursor"),
 	require("sysinit.plugins.ui.staline"),
-	require("sysinit.plugins.ui.theme"),
 	require("sysinit.plugins.ui.tiny-glimmer"),
 	require("sysinit.plugins.ui.wilder"),
 	require("sysinit.plugins.ui.window-picker"),
@@ -105,4 +104,3 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 
 require("sysinit.pkg.keybindings").setup()
 require("sysinit.pkg.fallback_entrypoint").setup()
-
