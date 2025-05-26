@@ -9,7 +9,9 @@ function M.setup(config)
 		{
 			key = "s",
 			mods = "CMD",
-			action = workspace_switcher.switch_workspace(),
+			action = workspace_switcher.switch_workspace({
+				extra_args = " | rg -F -g 'github/*/*/'",
+			}),
 		},
 		{
 			key = "S",

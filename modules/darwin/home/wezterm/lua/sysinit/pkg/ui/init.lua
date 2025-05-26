@@ -7,13 +7,7 @@ end
 local M = {}
 
 function M.setup(config)
-	config.status_update_interval = 200
-	config.window_padding = {
-		left = 20,
-		right = 20,
-		top = 20,
-		bottom = 0,
-	}
+	config.window_padding = { left = 20, right = 0, top = 20, bottom = 0 }
 	config.enable_scroll_bar = true
 	config.scrollback_lines = 20000
 	config.window_background_opacity = 0.9
@@ -27,6 +21,7 @@ function M.setup(config)
 	}
 	config.color_scheme = "Rosé Pine (Gogh)"
 
+	-- Default font
 	config.font = wezterm.font_with_fallback({
 		{
 			family = "JetBrains Mono",
@@ -35,33 +30,39 @@ function M.setup(config)
 		},
 		"Symbols Nerd Font",
 	})
-
 	config.font_size = 14.0
 	config.line_height = 1.0
 	config.default_cursor_style = "SteadyUnderline"
 	config.cursor_blink_rate = 300
 
-	wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
-		local window = wezterm.mux.get_window(tab.window_id)
-		local overrides = window:get_config_overrides() or {}
-
+	wezterm.on("update-status", function(window, pane)
 		if is_nvim_active() then
-			overrides.font = wezterm.font_with_fallback({
-				{
-					family = "Monaco",
-					weight = "Regular",
-				},
-				"Symbols Nerd Font",
+			window:set_config_overrides({
+				enable_tab_bar = false,
+				font = wezterm.font_with_fallback({
+					{
+						family = "Monaco",
+						weight = "Regular",
+					},
+					"Symbols Nerd Font",
+				}),
 			})
-			overrides.enable_tab_bar = false
 		else
-			overrides.font = nil
-			overrides.enable_tab_bar = nil
+			window:set_config_overrides({
+				enable_tab_bar = true,
+				font = wezterm.font_with_fallback({
+					{
+						family = "JetBrains Mono",
+						weight = "Medium",
+						harfbuzz_features = { "zero" },
+					},
+					"Symbols Nerd Font",
+				}),
+			})
 		end
-
-		window:set_config_overrides(overrides)
 	end)
 
+	-- GUI startup handler
 	wezterm.on("gui-startup", function(cmd)
 		local screen = wezterm.gui.screens().active
 		if not screen then
@@ -74,6 +75,10 @@ function M.setup(config)
 			gui_window:set_inner_size(screen.width - 2, screen.height - 2)
 		end
 	end)
+
+	-- Include the external bar plugin
+	local workspace_switcher = wezterm.plugin.require("https://github.com/MLFlexer/smart_workspace_switcher.wezterm")
+	workspace_switcher.apply_to_config(config)
 end
 
 return M

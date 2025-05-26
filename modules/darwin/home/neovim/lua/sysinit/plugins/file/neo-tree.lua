@@ -108,7 +108,7 @@ M.plugins = {
 								event = "vim_buffer_enter",
 								handler = function()
 									if vim.bo.filetype == "neo-tree" then
-										vim.cmd("setlocal nonumber")
+										vim.cmd("setlocal nornu")
 									end
 								end,
 							},

@@ -25,7 +25,6 @@ M.plugins = {
 				},
 				picker = {
 					enabled = true,
-					preset = "telescope",
 				},
 				quickfile = { enabled = true },
 				rename = { enabled = true },
@@ -109,3 +108,4 @@ M.plugins = {
 }
 
 return M
+
