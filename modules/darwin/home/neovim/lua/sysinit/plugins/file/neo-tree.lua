@@ -44,6 +44,10 @@ M.plugins = {
 					},
 				},
 				window = {
+					mapping_options = {
+						noremap = true,
+						nowait = true,
+					},
 					mappings = {
 						["<2-LeftMouse>"] = "open",
 						["<cr>"] = "open",
@@ -105,14 +109,6 @@ M.plugins = {
 
 						return {
 							{
-								event = "vim_buffer_enter",
-								handler = function()
-									if vim.bo.filetype == "neo-tree" then
-										vim.cmd("setlocal nornu")
-									end
-								end,
-							},
-							{
 								event = require("neo-tree.events").FILE_MOVED,
 								handler = on_move,
 							},
@@ -123,6 +119,13 @@ M.plugins = {
 						}
 					end,
 				},
+			})
+			vim.api.nvim_create_autocmd("FileType", {
+				pattern = "neo-tree",
+				callback = function()
+					vim.opt_local.number = false
+					vim.opt_local.relativenumber = false
+				end,
 			})
 		end,
 		keys = {
@@ -139,4 +142,3 @@ M.plugins = {
 }
 
 return M
-

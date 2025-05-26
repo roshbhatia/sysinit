@@ -7,7 +7,6 @@ function M.register_options()
 
 	-- Editor behavior
 	vim.opt.mouse = "a"
-	vim.opt.mousescroll = "ver:1,hor:1"
 	vim.opt.clipboard = "unnamedplus"
 	vim.opt.number = true
 	vim.opt.signcolumn = "yes:2"
@@ -199,4 +198,3 @@ function M.exec_fallback_entrypoint()
 end
 
 return M
-
