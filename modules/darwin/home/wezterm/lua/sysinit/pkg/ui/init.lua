@@ -22,18 +22,24 @@ local font_shared_features = {
 }
 
 local terminal_font = wezterm.font_with_fallback({
-	name = "JetBrains Mono",
-	family = "JetBrains Mono",
-	weight = "Regular",
-	features = font_shared_features,
-}, "Symbols Nerd Font")
+	{
+		name = "JetBrains Mono",
+		family = "JetBrains Mono",
+		weight = "Regular",
+		features = font_shared_features,
+	},
+	"Symbols Nerd Font",
+})
 
 local nvim_font = wezterm.font_with_fallback({
-	name = "Intel One Mono",
-	family = "Intel One Mono",
-	weight = "Regular",
-	features = font_shared_features,
-}, "Symbols Nerd Font")
+	{
+		name = "Intel One Mono",
+		family = "Intel One Mono",
+		weight = "Regular",
+		features = font_shared_features,
+	},
+	"Symbols Nerd Font",
+})
 
 local current_theme_index = 1
 
