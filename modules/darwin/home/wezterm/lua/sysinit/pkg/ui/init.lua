@@ -62,7 +62,7 @@ local current_font_index = 1
 
 local function get_basic_config()
 	return {
-		window_padding = { left = 20, right = 0, top = 20, bottom = 0 },
+		window_padding = { left = 15, right = 0, top = 15, bottom = 0 },
 		enable_scroll_bar = true,
 		enable_tab_bar = true,
 		tab_bar_at_bottom = true,
