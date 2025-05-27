@@ -1,6 +1,5 @@
 {
-  ...
-}:
+  ...}:
 
 {
   programs.atuin = {
@@ -19,10 +18,10 @@
       theme = "catppuccin-frappe-sky";
     };
 
-    themes = ''
-      {
-        "catppuccin-frappe-sky" = {
-          theme.name = "catppuccin-frappe-sky";
+    themes = {
+      "catppuccin-frappe-sky" = {
+        theme = {
+          name = "catppuccin-frappe-sky";
           colors = {
             AlertInfo = "#a6d189";
             AlertWarn = "#ef9f76";
@@ -34,7 +33,8 @@
             Title = "#99d1db";
           };
         };
-      }'';
+      };
+    };
   };
 }
 
