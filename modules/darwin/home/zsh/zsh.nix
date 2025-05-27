@@ -285,11 +285,8 @@ in
       autoload -Uz add-zsh-hook
       add-zsh-hook precmd _setup_fzf_tab_bindings
 
-      # Bind ctrl-tab to accept zsh autosuggestions
-      bindkey '^I' autosuggest-accept
-
-      # zsh-vi-mode clobbers atuin if atuin is sourced earlier
-      zvm_after_init_commands+=(eval "$(atuin init zsh --disable-up-arrow)")
+      # Bind ctrl-space to accept zsh autosuggestions
+      bindkey '^ ' autosuggest-accept
     '';
   };
 
