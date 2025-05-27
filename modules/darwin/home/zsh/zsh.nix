@@ -241,9 +241,6 @@ in
       ''
         # modules/darwin/home/zsh/zsh.nix#initContent)
         ${combinedCoreScripts}
-
-        enable-fzf-tab
-
         [[ -n "$SYSINIT_DEBUG" ]] && zprof
         # modules/darwin/home/zsh/zsh.nix#initContent
       ''
@@ -291,8 +288,8 @@ in
       # Bind ctrl-tab to accept zsh autosuggestions
       bindkey '^I' autosuggest-accept
 
-      # Bind ctrl-r to search in atuin history
-      bindkey '^R' _atuin_search_widget
+      # Bind ctrl-r to search in atuin history -- needs to be done manually do to vi mode collision?
+      bindkey '^r' atuin-search
     '';
   };
 

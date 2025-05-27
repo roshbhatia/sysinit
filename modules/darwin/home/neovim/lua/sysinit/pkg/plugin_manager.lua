@@ -118,6 +118,9 @@ function plugin_manager.setup_plugins(modules)
 		change_detection = {
 			notify = false,
 		},
+		install = {
+			colorscheme = { "catppuccin" },
+		},
 	})
 end
 
