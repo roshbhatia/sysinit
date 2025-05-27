@@ -12,104 +12,53 @@ local themes = {
 	"Relaxed",
 }
 
+local font_shared_features = {
+	"calt",
+	"zero",
+}
+
 local fonts = {
+	{
+		name = "Geist Mono",
+		family = "Geist Mono",
+		weight = "Regular",
+		features = font_shared_features,
+	},
 	{
 		name = "Noto Mono for Powerline",
 		family = "Noto Mono for Powerline",
 		weight = "Regular",
-		features = {
-			"ss01",
-			"ss02",
-			"ss03",
-			"ss11",
-			"ccmp",
-			"mark",
-			"aalt",
-		},
+		features = font_shared_features,
 	},
 	{
 		name = "Intel One Mono",
 		family = "Intel One Mono",
 		weight = "Regular",
-		features = {
-			"ss01",
-			"ss02",
-			"ss03",
-			"ss11",
-			"ccmp",
-			"mark",
-			"aalt",
-		},
+		features = font_shared_features,
 	},
 	{
 		name = "Fira Mono for Powerline",
 		family = "Fira Mono for Powerline",
 		weight = "Medium",
-		features = {
-			"ss01",
-			"ss02",
-			"ss03",
-			"ss11",
-			"ccmp",
-			"mark",
-			"aalt",
-		},
+		features = font_shared_features,
 	},
 	{
 		name = "MonoFur for Powerline",
 		family = "MonoFur for Powerline",
 		weight = "Regular",
-		features = {
-			"ss01",
-			"ss02",
-			"ss03",
-			"ss11",
-			"ccmp",
-			"mark",
-			"aalt",
-		},
+		features = font_shared_features,
 	},
 	{
 		name = "Hack Nerd Font Mono",
 		family = "Hack Nerd Font Mono",
 		weight = "Regular",
-		features = {
-			"ss01",
-			"ss02",
-			"ss03",
-			"ss11",
-			"ccmp",
-			"mark",
-			"aalt",
-		},
+		features = font_shared_features,
 	},
 	{
 		name = "JetBrains Mono",
 		family = "JetBrains Mono",
 		weight = "Regular",
-		features = {
-			"ss01",
-			"ss02",
-			"ss03",
-			"ss11",
-			"ccmp",
-			"mark",
-			"aalt",
-		},
-	},
-	{
-		name = "Geist Mono",
-		family = "Geist Mono",
-		weight = "Regular",
-		features = {
-			"ss01",
-			"ss02",
-			"ss03",
-			"ss11",
-			"ccmp",
-			"mark",
-			"aalt",
-		},
+		features = font_shared_features,
 	},
 }
 
@@ -154,7 +103,7 @@ end
 
 local function get_cursor_config()
 	return {
-		font_size = 14.0,
+		font_size = 12.0,
 		line_height = 1.0,
 		default_cursor_style = "SteadyUnderline",
 		cursor_blink_rate = 300,
