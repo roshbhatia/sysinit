@@ -145,8 +145,12 @@ in
         "--scrollbar='█'"
         "--color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7"
         "--color=prompt:1,pointer:5,marker:2,spinner:5,header:4"
-        "--preview='sysinit-fzf-preview {}'"
-        "--bind='resize:refresh-preview'" # Refresh on resize
+        "--color=bg+:#414559,bg:#303446,spinner:#F2D5CF,hl:#E78284"
+        "--color=fg:#C6D0F5,header:#E78284,info:#CA9EE6,pointer:#F2D5CF"
+        "--color=marker:#BABBF1,fg+:#C6D0F5,prompt:#CA9EE6,hl+:#E78284"
+        "--color=selected-bg:#51576D"
+        "--color=border:#414559,label:#C6D0F5"
+        "--bind='resize:refresh-preview'"
       ];
 
       SUDO_EDITOR = "nvim";
@@ -247,7 +251,6 @@ in
     ];
 
     completionInit = ''
-      # Create zcompdump directory and load completions
       mkdir -p "''\${XDG_DATA_HOME}/zsh/zcompdump"
       autoload -Uz compinit
       if [[ -n ''\${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump(#qN.mh+24) ]]; then
@@ -256,74 +259,54 @@ in
         compinit -C -d "''\${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump";
       fi
 
-      # Basic completion configuration
-      zstyle ':completion:*' menu no
       zstyle ':completion:*' list-colors ''${(s.:.)LS_COLORS}
-      zstyle ':completion:*:descriptions' format '[%d]'
-
-      # FZF-tab configuration
-      zstyle ':fzf-tab:*' fzf-command fzf
-      zstyle ':fzf-tab:*' fzf-min-height 50
-      zstyle ':fzf-tab:*' fzf-pad 4
-      zstyle ':fzf-tab:*' continuous-trigger '/'
-      zstyle ':fzf-tab:*' switch-group 'alt-p' 'alt-n'
-      zstyle ':fzf-tab:*' default-color $'\033[37m'
-      zstyle ':fzf-tab:*' show-group full
-      zstyle ':fzf-tab:*' prefix ''\''
-      zstyle ':fzf-tab:*' single-group color header
-
-      # Preview configurations
-      zstyle ':fzf-tab:*' fzf-flags --preview-window=right:60%:wrap:border-rounded --height=80% --layout=reverse --border=rounded --margin=1 --padding=1 --info=inline-right --prompt='❯ ' --pointer='▶' --marker='✓' --scrollbar='█' --color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7 --color=prompt:1,pointer:5,marker:2,spinner:5,header:4 --bind='ctrl-/:toggle-preview' --bind='ctrl-s:toggle-sort' --bind='ctrl-space:toggle-preview-wrap' --bind='tab:half-page-down' --bind='btab:half-page-up' --bind='ctrl-y:preview-up' --bind='ctrl-e:preview-down' --bind='?:toggle-preview' --bind='alt-w:toggle-preview-wrap' --bind='ctrl-u:clear-query' --bind='resize:refresh-preview' --preview='sysinit-fzf-preview {}'
-      zstyle ':fzf-tab:*' fzf-preview 'sysinit-fzf-preview {}'
-      zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word 2>/dev/null || echo "No unit status available"'
-      zstyle ':fzf-tab:complete:git-*:*' fzf-preview 'sysinit-fzf-preview {}'
-      zstyle ':fzf-tab:complete:kubectl-*:*' fzf-preview 'if [[ {} == *.@(yml|yaml) ]]; then bat --color=always --style=numbers,header,grid --language=yaml --line-range :100 {}; else sysinit-fzf-preview {}; fi'
-
-      # Load and configure fzf-tab
-      autoload -Uz +X _fzf_tab_complete 2>/dev/null
-      _setup_fzf_tab_bindings() { (( $+widgets[fzf-tab-complete] )) && bindkey '^I' fzf-tab-complete }
-      autoload -Uz add-zsh-hook
-      add-zsh-hook precmd _setup_fzf_tab_bindings
+      zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+      zstyle ':completion:*' menu no
+      zstyle ':completion:*:complete:*' use-cache on
+      zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --icons=always -1 -a $realpath'
+      zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza --icons=always -1 -a $realpath'
+      zstyle ':fzf-tab:complete:cat:*' fzf-preview 'bat --color=always $realpath'
+      zstyle ':fzf-tab:complete:bat:*' fzf-preview 'bat --color=always $realpath'
+      zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'bat --color=always $realpath'
     '';
-  };
 
-  xdg.configFile = {
-    "zsh/bin/colima-recreate" = {
-      source = ./bin/colima-recreate;
-      force = true;
+    xdg.configFile = {
+      "zsh/bin/colima-recreate" = {
+        source = ./bin/colima-recreate;
+        force = true;
+      };
+      "zsh/bin/dns-flush" = {
+        source = ./bin/dns-flush;
+        force = true;
+      };
+      "zsh/bin/gh-whoami" = {
+        source = ./bin/gh-whoami;
+        force = true;
+      };
+      "zsh/bin/ghcs-commitmessage" = {
+        source = ./bin/ghcs-commitmessage;
+        force = true;
+      };
+      "zsh/bin/kubectl-crdbrowse" = {
+        source = ./bin/kubectl-crdbrowse;
+        force = true;
+      };
+      "zsh/bin/kubectl-kdesc" = {
+        source = ./bin/kubectl-kdesc;
+        force = true;
+      };
+      "zsh/bin/kubectl-kexec" = {
+        source = ./bin/kubectl-kexec;
+        force = true;
+      };
+      "zsh/bin/kubectl-kproxy" = {
+        source = ./bin/kubectl-kproxy;
+        force = true;
+      };
+      "zsh/bin/sysinit-fzf-preview" = {
+        source = ./bin/sysinit-fzf-preview;
+        force = true;
+      };
     };
-    "zsh/bin/dns-flush" = {
-      source = ./bin/dns-flush;
-      force = true;
-    };
-    "zsh/bin/gh-whoami" = {
-      source = ./bin/gh-whoami;
-      force = true;
-    };
-    "zsh/bin/ghcs-commitmessage" = {
-      source = ./bin/ghcs-commitmessage;
-      force = true;
-    };
-    "zsh/bin/kubectl-crdbrowse" = {
-      source = ./bin/kubectl-crdbrowse;
-      force = true;
-    };
-    "zsh/bin/kubectl-kdesc" = {
-      source = ./bin/kubectl-kdesc;
-      force = true;
-    };
-    "zsh/bin/kubectl-kexec" = {
-      source = ./bin/kubectl-kexec;
-      force = true;
-    };
-    "zsh/bin/kubectl-kproxy" = {
-      source = ./bin/kubectl-kproxy;
-      force = true;
-    };
-    "zsh/bin/sysinit-fzf-preview" = {
-      source = ./bin/sysinit-fzf-preview;
-      force = true;
-    };
-  };
 }
 

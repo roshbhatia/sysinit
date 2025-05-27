@@ -85,19 +85,6 @@ local function get_clear_keys()
 				end
 			end),
 		},
-		{
-			key = "l",
-			mods = "CTRL",
-			action = wezterm.action_callback(function(win, pane)
-				if is_vim(pane) then
-					win:perform_action({
-						SendKey = { key = "l", mods = "CTRL" },
-					}, pane)
-				else
-					win:perform_action(act.ClearScrollback("ScrollbackAndViewport"), pane)
-				end
-			end),
-		},
 	}
 end
 

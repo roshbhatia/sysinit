@@ -62,7 +62,6 @@ let
     "python@3.11"
     "pngpaste"
     "rust"
-    "shortcat"
     "sshpass"
   ];
 
