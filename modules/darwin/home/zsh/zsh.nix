@@ -125,8 +125,6 @@ in
         "--pointer='▶'"
         "--marker='✓'"
         "--scrollbar='█'"
-        "--color=border:-1,fg:-1,bg:-1,hl:6,fg+:12,bg+:-1,hl+:12,info:7"
-        "--color=prompt:1,pointer:5,marker:2,spinner:5,header:4"
         "--color=bg+:#414559,bg:#303446,spinner:#F2D5CF,hl:#E78284"
         "--color=fg:#C6D0F5,header:#E78284,info:#CA9EE6,pointer:#F2D5CF"
         "--color=marker:#BABBF1,fg+:#C6D0F5,prompt:#CA9EE6,hl+:#E78284"
@@ -289,5 +287,5 @@ in
         force = true;
       };
     };
+  };
 }
-
