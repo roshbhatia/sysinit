@@ -63,9 +63,6 @@ function plugin_manager.setup_plugins(modules)
 					which_key = true,
 				},
 			},
-			config = function()
-				vim.cmd.colorscheme("catppuccin")
-			end,
 		},
 		{
 			"vhyrro/luarocks.nvim",
