@@ -28,6 +28,26 @@ let
   env = stripHeaders ./core/env.sh;
   extras = stripHeaders ./core/extras.sh;
   prompt = stripHeaders ./core/prompt.sh;
+
+  sharedFzfOpts = builtins.concatStringsSep " " [
+    "--preview-window=right:60%:wrap:border-rounded"
+    "--height=80%"
+    "--layout=reverse"
+    "--border=rounded"
+    "--margin=1"
+    "--padding=1"
+    "--info=inline-right"
+    "--prompt='❯ '"
+    "--pointer='▶'"
+    "--marker='✓'"
+    "--scrollbar='█'"
+    "--color=bg+:#414559,bg:#303446,spinner:#F2D5CF,hl:#E78284"
+    "--color=fg:#C6D0F5,header:#E78284,info:#CA9EE6,pointer:#F2D5CF"
+    "--color=marker:#BABBF1,fg+:#C6D0F5,prompt:#CA9EE6,hl+:#E78284"
+    "--color=selected-bg:#51576D"
+    "--color=border:#414559,label:#C6D0F5"
+    "--bind='resize:refresh-preview'"
+  ];
 in
 {
   programs.zsh = {
@@ -113,29 +133,14 @@ in
       ZVM_LINE_INIT_MODE = "i";
 
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
-      FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
-        "--preview-window=right:60%:wrap:border-rounded"
-        "--height=80%"
-        "--layout=reverse"
-        "--border=rounded"
-        "--margin=1"
-        "--padding=1"
-        "--info=inline-right"
-        "--prompt='❯ '"
-        "--pointer='▶'"
-        "--marker='✓'"
-        "--scrollbar='█'"
-        "--color=bg+:#414559,bg:#303446,spinner:#F2D5CF,hl:#E78284"
-        "--color=fg:#C6D0F5,header:#E78284,info:#CA9EE6,pointer:#F2D5CF"
-        "--color=marker:#BABBF1,fg+:#C6D0F5,prompt:#CA9EE6,hl+:#E78284"
-        "--color=selected-bg:#51576D"
-        "--color=border:#414559,label:#C6D0F5"
-        "--bind='resize:refresh-preview'"
-      ];
+      FZF_DEFAULT_OPTS = sharedFzfOpts;
 
       SUDO_EDITOR = "nvim";
       VISUAL = "nvim";
       PAGER = "bat --pager=always --color=always";
+
+      EZA_COLORS = "di=38;5;109:ln=38;5;108:so=38;5;110:pi=38;5;109:ex=38;5;142:bd=38;5;109;48;5;236:cd=38;5;109;48;5;236:su=38;5;109;48;5;236:sg=38;5;109;48;5;236:tw=38;5;109;48;5;236:ow=38;5;109;48;5;236";
+      SYSINIT_FZF_OPTS = sharedFzfOpts;
     };
 
     plugins = [

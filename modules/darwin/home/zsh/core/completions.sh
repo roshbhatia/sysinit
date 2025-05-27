@@ -19,6 +19,7 @@ zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza --icons=always -1 -a $r
 zstyle ':fzf-tab:complete:cat:*' fzf-preview 'bat --color=always $realpath'
 zstyle ':fzf-tab:complete:bat:*' fzf-preview 'bat --color=always $realpath'
 zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'bat --color=always $realpath'
+zstyle ':fzf-tab:*' fzf-flags ${SYSINIT_FZF_OPTS} --color=fg:1,fg+:2 --bind=tab:accept
 
 enable-fzf-tab
 zvm_after_init_commands+="_evalcache atuin init zsh --disable-up-arrow"
