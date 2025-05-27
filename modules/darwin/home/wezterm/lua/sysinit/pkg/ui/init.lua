@@ -23,20 +23,18 @@ local font_shared_features = {
 
 local terminal_font = wezterm.font_with_fallback({
 	{
-		name = "JetBrains Mono",
 		family = "JetBrains Mono",
 		weight = "Regular",
-		features = font_shared_features,
+		harfbuzz_features = font_shared_features,
 	},
 	"Symbols Nerd Font",
 })
 
 local nvim_font = wezterm.font_with_fallback({
 	{
-		name = "Intel One Mono",
-		family = "Intel One Mono",
+		family = "Courier New",
 		weight = "Regular",
-		features = font_shared_features,
+		harfbuzz_features = font_shared_features,
 	},
 	"Symbols Nerd Font",
 })
@@ -170,4 +168,3 @@ function M.setup(config)
 end
 
 return M
-

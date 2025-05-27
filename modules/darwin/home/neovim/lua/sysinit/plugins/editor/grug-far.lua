@@ -10,7 +10,7 @@ M.plugins = {
 		keys = function()
 			return {
 				{
-					"<leader>sg",
+					"<leader>ig",
 					function()
 						require("grug-far").open()
 					end,

@@ -22,8 +22,7 @@ M.plugins = {
 				{ "<leader>e", group = " Editor" },
 				{ "<leader>f", group = "󰀶 Find" },
 				{ "<leader>g", group = " Git" },
-				{ "<leader>gb", group = "Buffer" },
-				{ "<leader>gh", group = "Hunk" },
+				{ "<leader>i", group = " Search" },
 				{ "<leader>j", group = "󱋿 Hop" },
 				{ "<leader>m", group = " Marks" },
 				{ "<leader>n", group = "󰎟 Notifications" },
@@ -34,4 +33,3 @@ M.plugins = {
 }
 
 return M
-
