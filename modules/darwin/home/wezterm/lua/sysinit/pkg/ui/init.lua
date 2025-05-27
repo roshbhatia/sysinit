@@ -61,10 +61,16 @@ local function get_visual_bell_config()
 	}
 end
 
+local function get_font_config()
+	return {
+		font = terminal_font,
+		font_size = 12.0,
+		line_height = 1.0,
+	}
+end
+
 local function get_cursor_config()
 	return {
-		font_size = 14.0,
-		line_height = 1.0,
 		default_cursor_style = "SteadyUnderline",
 		cursor_blink_rate = 300,
 	}
@@ -83,15 +89,6 @@ local function get_theme_keys()
 			action = wezterm.action_callback(function(window, pane)
 				local overrides = window:get_config_overrides() or {}
 				overrides.color_scheme = cycle_theme()
-				window:set_config_overrides(overrides)
-			end),
-		},
-		{
-			key = "f",
-			mods = "CMD|SHIFT",
-			action = wezterm.action_callback(function(window, pane)
-				local overrides = window:get_config_overrides() or {}
-				overrides.font = cycle_font()
 				window:set_config_overrides(overrides)
 			end),
 		},
@@ -125,8 +122,10 @@ local function setup_nvim_font_switch()
 		local overrides = window:get_config_overrides() or {}
 		if should_swtich then
 			overrides.font = nvim_font
+			overrides.font_size = 14.0
 		else
 			overrides.font = nil
+			overrides.font_size = nil
 		end
 		window:set_config_overrides(overrides)
 	end)
@@ -147,6 +146,11 @@ function M.setup(config)
 		config[key] = value
 	end
 
+	local font_config = get_font_config()
+	for key, value in pairs(font_config) do
+		config[key] = value
+	end
+
 	local theme_keys = get_theme_keys()
 	config.keys = config.keys or {}
 	for _, key_binding in ipairs(theme_keys) do
@@ -160,3 +164,4 @@ function M.setup(config)
 end
 
 return M
+
