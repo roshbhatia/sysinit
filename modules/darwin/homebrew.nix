@@ -72,7 +72,6 @@ let
     "firefox"
     "font-hack-nerd-font"
     "font-symbols-only-nerd-font"
-    "jordanbaird-ice"
     "keycastr"
     "loop"
     "obsidian"
@@ -114,4 +113,3 @@ in
     casks = allCasks;
   };
 }
-
