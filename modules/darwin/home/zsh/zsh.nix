@@ -240,6 +240,8 @@ in
         ${env}
 
         ${extras}
+        
+        ${completions}
 
         ${prompt}
         [[ -n "$SYSINIT_DEBUG" ]] && zprof
@@ -248,7 +250,24 @@ in
     ];
 
     completionInit = ''
-      ${completions}
+      mkdir -p "''\${XDG_DATA_HOME}/zsh/zcompdump"
+      autoload -Uz compinit
+      if [[ -n ''\${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump(#qN.mh+24) ]]; then
+      compinit -d "''\${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump";
+      else
+      compinit -C -d "''\${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump";
+      fi
+
+      zstyle ':completion:*' list-colors ''\${(s.:.)LS_COLORS}
+      zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+      zstyle ':completion:*' menu no
+      zstyle ':completion:*:complete:*' use-cache on
+      zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --icons=always -1 -a ''\$realpath'
+      zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza --icons=always -1 -a ''\$realpath'
+      zstyle ':fzf-tab:complete:cat:*' fzf-preview 'bat --color=always ''\$realpath'
+      zstyle ':fzf-tab:complete:bat:*' fzf-preview 'bat --color=always ''\$realpath'
+      zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'bat --color=always ''\$realpath'
+      zstyle ':fzf-tab:*' fzf-flags ''\${SYSINIT_FZF_OPTS} --color=fg:1,fg+:2 --bind=tab:accept
     '';
   };
 
