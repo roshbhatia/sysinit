@@ -103,7 +103,7 @@ end
 
 local function get_cursor_config()
 	return {
-		font_size = 12.0,
+		font_size = 14.0,
 		line_height = 1.0,
 		default_cursor_style = "SteadyUnderline",
 		cursor_blink_rate = 300,
@@ -158,7 +158,7 @@ local function setup_gui_startup()
 
 		local gui_window = window:gui_window()
 		if gui_window then
-			gui_window:set_position(screen.x + padding, screen.y + padding)
+			gui_window:set_position(screen.x, screen.y)
 			gui_window:set_inner_size(adjusted_width, adjusted_height)
 		end
 	end)

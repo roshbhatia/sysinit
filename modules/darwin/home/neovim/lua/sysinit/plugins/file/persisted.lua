@@ -19,11 +19,7 @@ M.plugins = {
 				pattern = "PersistedLoadPost",
 				callback = function()
 					vim.defer_fn(function()
-						vim.api.nvim_feedkeys(
-							vim.api.nvim_replace_termcodes("<leader>ee", true, false, true),
-							"n",
-							false
-						)
+						vim.cmd("Neotree show")
 					end, 50)
 				end,
 			})
@@ -32,4 +28,3 @@ M.plugins = {
 }
 
 return M
-
