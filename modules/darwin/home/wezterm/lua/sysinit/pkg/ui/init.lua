@@ -32,7 +32,21 @@ function M.setup(config)
 	config.line_height = 1.0
 	config.default_cursor_style = "SteadyUnderline"
 	config.cursor_blink_rate = 300
+
+	wezterm.on("gui-startup", function(cmd)
+		local active = wezterm.gui.screens().active
+		local _, _, window = wezterm.mux.spawn_window(cmd or {})
+
+		local padding = 12 -- Define the 12px padding
+		local screen_width = active.width
+		local screen_height = active.height
+
+		local adjusted_width = screen_width - (2 * padding)
+		local adjusted_height = screen_height - (2 * padding)
+
+		window:guiwindow():setposition(active.x + padding, active.y + padding)
+		window:guiwindow():set_innersize(adjusted_width, adjusted_height)
+	end)
 end
 
 return M
-
