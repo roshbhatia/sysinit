@@ -24,7 +24,7 @@ local function vim_mode_component(window)
 			return mode
 		end
 	end
-	return nil
+	return ""
 end
 
 local function setup_tab_bar_visibility()
@@ -70,3 +70,4 @@ function M.setup(config)
 end
 
 return M
+
