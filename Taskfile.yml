@@ -14,7 +14,7 @@ tasks:
 
   nix:build:
     vars:
-      LOG_FILE: "{{.LOG_DIR}}/sysinit-build.log"
+      LOG_FILE: "{{.LOG_DIR}}/{{.TIMESTAMP}}-sysinit-build.log"
     cmds:
       - |
         #!/usr/bin/env bash
@@ -108,4 +108,3 @@ tasks:
         log_success "Work configuration refreshed successfully"
     desc: Update and rebuild work sysinit configuration
     silent: true
-
