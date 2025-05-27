@@ -570,5 +570,31 @@ if [[ -z "${WEZTERM_SHELL_SKIP_CWD-}" ]]; then
 fi
 
 true
-# modules/darwin/home/zsh/core/wezterm.sh (end)
 
+# For vim mode detection
+function set_wezterm_user_vars() {
+	printf "\033]1337;SetUserVar=ZVM_MODE=%s\007" "${ZVM_MODE:-n}"
+}
+
+# Hook into zsh-vi-mode if you're using it
+if [[ -n "$ZVM_MODE" ]]; then
+	function zvm_after_select_vi_mode() {
+		set_wezterm_user_vars
+	}
+fi
+
+# Alternative: hook into zle if not using zsh-vi-mode
+function zle-keymap-select() {
+	case $KEYMAP in
+	vicmd) ZVM_MODE="n" ;;
+	viins | main) ZVM_MODE="i" ;;
+	visual) ZVM_MODE="v" ;;
+	esac
+	set_wezterm_user_vars
+}
+zle -N zle-keymap-select
+
+# Set initial mode
+ZVM_MODE="i"
+set_wezterm_user_vars
+# modules/darwin/home/zsh/core/wezterm.sh (end)

@@ -6,7 +6,6 @@ local function is_vim(pane)
 	return pane:get_user_vars().IS_NVIM == "true"
 end
 
--- Direction mappings
 local direction_keys = {
 	h = "Left",
 	j = "Down",
@@ -14,19 +13,14 @@ local direction_keys = {
 	l = "Right",
 }
 
--- Split navigation function
 local function split_nav(resize_or_move, key, mods)
 	return {
 		key = key,
 		mods = mods,
 		action = wezterm.action_callback(function(win, pane)
 			if is_vim(pane) then
-				-- Pass the keys through to Neovim
 				win:perform_action({
-					SendKey = {
-						key = key,
-						mods = mods,
-					},
+					SendKey = { key = key, mods = mods },
 				}, pane)
 			else
 				if resize_or_move == "resize" then
@@ -43,67 +37,87 @@ local function split_nav(resize_or_move, key, mods)
 	}
 end
 
-function M.setup(config)
-	-- Smart splits keybindings
-	local smart_splits_keys = { -- Move between split panes
+local function get_smart_splits()
+	return {
 		split_nav("move", "h", "CTRL"),
 		split_nav("move", "j", "CTRL"),
 		split_nav("move", "k", "CTRL"),
-		split_nav("move", "l", "CTRL"), -- Resize panes
+		split_nav("move", "l", "CTRL"),
 		split_nav("resize", "h", "CTRL|SHIFT"),
 		split_nav("resize", "j", "CTRL|SHIFT"),
 		split_nav("resize", "k", "CTRL|SHIFT"),
 		split_nav("resize", "l", "CTRL|SHIFT"),
 	}
+end
 
-	-- Base keybindings
-	local base_keys = { -- Split creation
+local function get_pane_keys()
+	return {
 		{
 			key = "v",
-			mods = "CMD|SHIFT",
-			action = act.SplitHorizontal({
-				domain = "CurrentPaneDomain",
-			}),
+			mods = "CTRL",
+			action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }),
 		},
 		{
 			key = "s",
-			mods = "CMD|SHIFT",
-			action = act.SplitVertical({
-				domain = "CurrentPaneDomain",
-			}),
-		}, -- Common actions
+			mods = "CTRL",
+			action = act.SplitVertical({ domain = "CurrentPaneDomain" }),
+		},
+		{
+			key = "w",
+			mods = "CMD",
+			action = act.CloseCurrentPane({ confirm = false }),
+		},
+	}
+end
+
+local function get_clear_keys()
+	return {
 		{
 			key = "k",
 			mods = "CMD",
 			action = wezterm.action_callback(function(win, pane)
 				if not is_vim(pane) then
-					-- Only clear scrollback if NOT in vim
 					win:perform_action(act.ClearScrollback("ScrollbackAndViewport"), pane)
 				end
 			end),
 		},
 		{
-			key = "p",
-			mods = "CMD|SHIFT",
-			action = act.ActivateCommandPalette,
+			key = "l",
+			mods = "CTRL",
+			action = wezterm.action_callback(function(win, pane)
+				if not is_vim(pane) then
+					win:perform_action(act.ClearScrollback("ScrollbackAndViewport"), pane)
+				end
+			end),
+		},
+	}
+end
+
+local function get_scroll_keys()
+	return {
+		{
+			key = "u",
+			mods = "CTRL",
+			action = wezterm.action_callback(function(win, pane)
+				if not is_vim(pane) then
+					win:perform_action(act.ScrollByLine(-40))
+				end
+			end),
 		},
 		{
-			key = "y",
-			mods = "CMD",
-			action = act.ActivateCopyMode,
+			key = "d",
+			mods = "CTRL",
+			action = wezterm.action_callback(function(win, pane)
+				if not is_vim(pane) then
+					win:perform_action(act.ScrollByLine(40))
+				end
+			end),
 		},
-		{
-			key = "r",
-			mods = "CMD",
-			action = act.ReloadConfiguration,
-		},
-		{
-			key = "w",
-			mods = "CMD",
-			action = act.CloseCurrentPane({
-				confirm = false,
-			}),
-		}, -- Standard Mac keybindings
+	}
+end
+
+local function get_clipboard_keys()
+	return {
 		{
 			key = "c",
 			mods = "CMD",
@@ -114,6 +128,11 @@ function M.setup(config)
 			mods = "CMD",
 			action = act.PasteFrom("Clipboard"),
 		},
+	}
+end
+
+local function get_window_keys()
+	return {
 		{
 			key = "m",
 			mods = "CMD",
@@ -124,26 +143,16 @@ function M.setup(config)
 			mods = "CMD",
 			action = act.SpawnWindow,
 		},
+	}
+end
+
+local function get_tab_keys()
+	return {
 		{
 			key = "t",
 			mods = "CMD",
 			action = act.SpawnTab("CurrentPaneDomain"),
 		},
-		{
-			key = "f",
-			mods = "CMD",
-			action = act.Search("CurrentSelectionOrEmptyString"),
-		},
-		{
-			key = "h",
-			mods = "CMD",
-			action = act.HideApplication,
-		},
-		{
-			key = "q",
-			mods = "CMD",
-			action = act.QuitApplication,
-		}, -- Tab navigation
 		{
 			key = "1",
 			mods = "CMD",
@@ -184,21 +193,21 @@ function M.setup(config)
 			mods = "CMD",
 			action = act.ActivateTab(7),
 		},
+	}
+end
+
+local function get_search_keys()
+	return {
 		{
-			key = "9",
+			key = "f",
 			mods = "CMD",
-			action = act.ActivateTab(-1),
+			action = act.Search("CurrentSelectionOrEmptyString"),
 		},
-		{
-			key = "{",
-			mods = "CMD|SHIFT",
-			action = act.ActivateTabRelative(-1),
-		},
-		{
-			key = "}",
-			mods = "CMD|SHIFT",
-			action = act.ActivateTabRelative(1),
-		}, -- Font size
+	}
+end
+
+local function get_font_keys()
+	return {
 		{
 			key = "-",
 			mods = "CMD",
@@ -209,45 +218,12 @@ function M.setup(config)
 			mods = "CMD",
 			action = act.IncreaseFontSize,
 		},
-		{
-			key = "0",
-			mods = "CMD",
-			action = act.ResetFontSize,
-		}, -- Alternative pane navigation
-		{
-			key = "LeftArrow",
-			mods = "CMD|SHIFT",
-			action = act.ActivatePaneDirection("Left"),
-		},
-		{
-			key = "RightArrow",
-			mods = "CMD|SHIFT",
-			action = act.ActivatePaneDirection("Right"),
-		},
-		{
-			key = "UpArrow",
-			mods = "CMD|SHIFT",
-			action = act.ActivatePaneDirection("Up"),
-		},
-		{
-			key = "DownArrow",
-			mods = "CMD|SHIFT",
-			action = act.ActivatePaneDirection("Down"),
-		},
 	}
+end
 
-	-- Combine base keys with smart splits keys
-	config.keys = base_keys
-	for _, key_binding in ipairs(smart_splits_keys) do
-		table.insert(config.keys, key_binding)
-	end
-
-	-- Key tables for special modes
-	config.key_tables = {
-		-- Empty copy mode (disabled)
+local function get_key_tables()
+	return {
 		copy_mode = {},
-
-		-- Search mode keys
 		search_mode = {
 			{
 				key = "Enter",
@@ -301,9 +277,33 @@ function M.setup(config)
 			},
 		},
 	}
+end
+
+function M.setup(config)
+	local all_keys = {}
+
+	local key_groups = {
+		get_smart_splits(),
+		get_pane_keys(),
+		get_clear_keys(),
+		get_scroll_keys(),
+		get_clipboard_keys(),
+		get_window_keys(),
+		get_tab_keys(),
+		get_search_keys(),
+		get_font_keys(),
+	}
+
+	for _, group in ipairs(key_groups) do
+		for _, key_binding in ipairs(group) do
+			table.insert(all_keys, key_binding)
+		end
+	end
+
+	config.keys = all_keys
+	config.key_tables = get_key_tables()
 
 	return config
 end
 
 return M
-
