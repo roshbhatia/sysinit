@@ -263,11 +263,11 @@ in
       zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
       zstyle ':completion:*' menu no
       zstyle ':completion:*:complete:*' use-cache on
-      zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --icons=always -1 -a $realpath'
-      zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza --icons=always -1 -a $realpath'
-      zstyle ':fzf-tab:complete:cat:*' fzf-preview 'bat --color=always $realpath'
-      zstyle ':fzf-tab:complete:bat:*' fzf-preview 'bat --color=always $realpath'
-      zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'bat --color=always $realpath'
+      zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --icons=always -1 -a ''\$realpath'
+      zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza --icons=always -1 -a ''\$realpath'
+      zstyle ':fzf-tab:complete:cat:*' fzf-preview 'bat --color=always ''\$realpath'
+      zstyle ':fzf-tab:complete:bat:*' fzf-preview 'bat --color=always ''\$realpath'
+      zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'bat --color=always ''\$realpath'
     '';
 
     xdg.configFile = {
