@@ -284,9 +284,6 @@ in
       _setup_fzf_tab_bindings() { (( $+widgets[fzf-tab-complete] )) && bindkey '^I' fzf-tab-complete }
       autoload -Uz add-zsh-hook
       add-zsh-hook precmd _setup_fzf_tab_bindings
-
-      # Bind ctrl-space to accept zsh autosuggestions
-      bindkey '^ ' autosuggest-accept
     '';
   };
 
@@ -329,4 +326,3 @@ in
     };
   };
 }
-
