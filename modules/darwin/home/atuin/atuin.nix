@@ -18,23 +18,10 @@
       keymap_mode = "vim-normal";
       theme = "catppuccin-frappe-sky";
     };
+  };
 
-    themes = {
-      "catppuccin-frappe-sky" = {
-        theme = {
-          name = "catppuccin-frappe-sky";
-        };
-        colors = {
-          AlertInfo = "#a6d189";
-          AlertWarn = "#ef9f76";
-          AlertError = "#e78284";
-          Annotation = "#99d1db";
-          Base = "#c6d0f5";
-          Guidance = "#949cbb";
-          Important = "#e78284";
-          Title = "#99d1db";
-        };
-      };
-    };
+  xdg.configFile."atuin/themes/catppuccin-frappe-sky.toml" = {
+    source = ./catppuccin-frappe-sky.toml;
+    force = true;
   };
 }
