@@ -30,6 +30,11 @@ in
       [github]
           user = ${cfg.githubUser}
 
+      [advice]
+        addEmptyPathspec = false
+        pushNonFastForward = false
+        statusHints = false
+
       [pull]
           rebase = true
 
@@ -46,6 +51,8 @@ in
           editor = nvim
           excludesFile = ~/.gitignore.global
           pager = delta
+          compression = 9
+          preloadIndex = true
 
       [interactive]
           diffFilter = delta --color-only
