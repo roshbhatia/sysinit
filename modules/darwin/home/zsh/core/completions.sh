@@ -3,7 +3,7 @@
 # shellcheck disable=all
 # modules/darwin/home/zsh/core/completions.sh (begin)
 
-zvm_after_init_commands+="_evalcache enable-fzf-tab"
+enable-fzf-tab
 zvm_after_init_commands+="_evalcache atuin init zsh --disable-up-arrow"
 zvm_after_init_commands+="_evalcache direnv hook zsh"
 zvm_after_init_commands+="_evalcache gh copilot alias -- zsh"

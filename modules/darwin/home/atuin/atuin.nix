@@ -1,5 +1,4 @@
 {
-  lib,
   ...
 }:
 
@@ -17,9 +16,10 @@
       show_tabs = false;
       enter_accept = true;
       keymap_mode = "vim-normal";
+      theme = "catppuccin-frappe-sky";
     };
 
-    themes = lib.literalExpression ''
+    themes = ''
       {
         "catppuccin-frappe-sky" = {
           theme.name = "catppuccin-frappe-sky";
