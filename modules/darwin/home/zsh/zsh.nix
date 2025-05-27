@@ -288,8 +288,8 @@ in
       # Bind ctrl-tab to accept zsh autosuggestions
       bindkey '^I' autosuggest-accept
 
-      # Bind ctrl-r to search in atuin history -- needs to be done manually do to vi mode collision?
-      bindkey '^r' atuin-search
+      # zsh-vi-mode clobbers atuin if atuin is sourced earlier
+      zvm_after_init_commands+=(eval "$(atuin init zsh --disable-up-arrow)")
     '';
   };
 
