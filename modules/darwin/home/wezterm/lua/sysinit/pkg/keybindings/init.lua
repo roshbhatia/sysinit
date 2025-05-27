@@ -39,14 +39,14 @@ end
 
 local function get_smart_splits()
 	return {
-		split_nav("move", "h", "LEADER"),
-		split_nav("move", "j", "LEADER"),
-		split_nav("move", "k", "LEADER"),
-		split_nav("move", "l", "LEADER"),
-		split_nav("resize", "h", "LEADER|SHIFT"),
-		split_nav("resize", "j", "LEADER|SHIFT"),
-		split_nav("resize", "k", "LEADER|SHIFT"),
-		split_nav("resize", "l", "LEADER|SHIFT"),
+		split_nav("move", "h", "RightControl"),
+		split_nav("move", "j", "RightControl"),
+		split_nav("move", "k", "RightControl"),
+		split_nav("move", "l", "RightControl"),
+		split_nav("resize", "h", "RightControl|SHIFT"),
+		split_nav("resize", "j", "RightControl|SHIFT"),
+		split_nav("resize", "k", "RightControl|SHIFT"),
+		split_nav("resize", "l", "RightControl|SHIFT"),
 	}
 end
 
@@ -54,17 +54,17 @@ local function get_pane_keys()
 	return {
 		{
 			key = "v",
-			mods = "LEADER",
+			mods = "RightControl",
 			action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }),
 		},
 		{
 			key = "s",
-			mods = "LEADER",
+			mods = "RightControl",
 			action = act.SplitVertical({ domain = "CurrentPaneDomain" }),
 		},
 		{
 			key = "x",
-			mods = "LEADER",
+			mods = "RightControl",
 			action = act.CloseCurrentPane({ confirm = false }),
 		},
 	}
@@ -74,7 +74,7 @@ local function get_clear_keys()
 	local clear_action = wezterm.action_callback(function(win, pane)
 		if is_vim(pane) then
 			win:perform_action({
-				SendKey = { key = "k", mods = "LEADER" },
+				SendKey = { key = "k", mods = "RightControl" },
 			}, pane)
 		else
 			win:perform_action(act.ClearScrollback("ScrollbackAndViewport"), pane)
@@ -84,12 +84,12 @@ local function get_clear_keys()
 	return {
 		{
 			key = "k",
-			mods = "LEADER",
+			mods = "CMD",
 			action = clear_action,
 		},
 		{
 			key = "l",
-			mods = "LEADER",
+			mods = "CTRL",
 			action = clear_action,
 		},
 	}
@@ -99,11 +99,11 @@ local function get_scroll_keys()
 	return {
 		{
 			key = "u",
-			mods = "LEADER",
+			mods = "RightControl",
 			action = wezterm.action_callback(function(win, pane)
 				if is_vim(pane) then
 					win:perform_action({
-						SendKey = { key = "u", mods = "LEADER" },
+						SendKey = { key = "u", mods = "RightControl" },
 					}, pane)
 				else
 					win:perform_action(act.ScrollByLine(-40), pane)
@@ -112,11 +112,11 @@ local function get_scroll_keys()
 		},
 		{
 			key = "d",
-			mods = "LEADER",
+			mods = "RightControl",
 			action = wezterm.action_callback(function(win, pane)
 				if is_vim(pane) then
 					win:perform_action({
-						SendKey = { key = "d", mods = "LEADER" },
+						SendKey = { key = "d", mods = "RightControl" },
 					}, pane)
 				else
 					win:perform_action(act.ScrollByLine(40), pane)
@@ -130,12 +130,12 @@ local function get_clipboard_keys()
 	return {
 		{
 			key = "c",
-			mods = "LEADER",
+			mods = "CMD",
 			action = act.CopyTo("Clipboard"),
 		},
 		{
 			key = "v",
-			mods = "LEADER",
+			mods = "CMD",
 			action = act.PasteFrom("Clipboard"),
 		},
 	}
@@ -144,13 +144,8 @@ end
 local function get_window_keys()
 	return {
 		{
-			key = "m",
-			mods = "LEADER",
-			action = act.Hide,
-		},
-		{
 			key = "n",
-			mods = "LEADER",
+			mods = "RightControl",
 			action = act.SpawnWindow,
 		},
 	}
@@ -160,47 +155,47 @@ local function get_tab_keys()
 	return {
 		{
 			key = "t",
-			mods = "LEADER",
+			mods = "RightControl",
 			action = act.SpawnTab("CurrentPaneDomain"),
 		},
 		{
 			key = "1",
-			mods = "LEADER",
+			mods = "RightControl",
 			action = act.ActivateTab(0),
 		},
 		{
 			key = "2",
-			mods = "LEADER",
+			mods = "RightControl",
 			action = act.ActivateTab(1),
 		},
 		{
 			key = "3",
-			mods = "LEADER",
+			mods = "RightControl",
 			action = act.ActivateTab(2),
 		},
 		{
 			key = "4",
-			mods = "LEADER",
+			mods = "RightControl",
 			action = act.ActivateTab(3),
 		},
 		{
 			key = "5",
-			mods = "LEADER",
+			mods = "RightControl",
 			action = act.ActivateTab(4),
 		},
 		{
 			key = "6",
-			mods = "LEADER",
+			mods = "RightControl",
 			action = act.ActivateTab(5),
 		},
 		{
 			key = "7",
-			mods = "LEADER",
+			mods = "RightControl",
 			action = act.ActivateTab(6),
 		},
 		{
 			key = "8",
-			mods = "LEADER",
+			mods = "RightControl",
 			action = act.ActivateTab(7),
 		},
 	}
@@ -210,7 +205,7 @@ local function get_search_keys()
 	return {
 		{
 			key = "f",
-			mods = "LEADER",
+			mods = "RightControl",
 			action = act.Search("CurrentSelectionOrEmptyString"),
 		},
 	}
@@ -220,12 +215,12 @@ local function get_font_keys()
 	return {
 		{
 			key = "-",
-			mods = "LEADER",
+			mods = "CMD",
 			action = act.DecreaseFontSize,
 		},
 		{
 			key = "=",
-			mods = "LEADER",
+			mods = "CMD",
 			action = act.IncreaseFontSize,
 		},
 	}
@@ -247,27 +242,27 @@ local function get_key_tables()
 			},
 			{
 				key = "i",
-				mods = "LEADER",
+				mods = "RightControl",
 				action = act.Search("CurrentSelectionOrEmptyString"),
 			},
 			{
 				key = "n",
-				mods = "LEADER",
+				mods = "RightControl",
 				action = act.CopyMode("NextMatch"),
 			},
 			{
 				key = "p",
-				mods = "LEADER",
+				mods = "RightControl",
 				action = act.CopyMode("PriorMatch"),
 			},
 			{
 				key = "r",
-				mods = "LEADER",
+				mods = "RightControl",
 				action = act.CopyMode("CycleMatchType"),
 			},
 			{
 				key = "u",
-				mods = "LEADER",
+				mods = "RightControl",
 				action = act.CopyMode("ClearPattern"),
 			},
 			{
@@ -295,8 +290,6 @@ local function get_key_tables()
 end
 
 function M.setup(config)
-	config.leader = { key = "f", mods = "CTRL", timeout_milliseconds = 1000 }
-
 	local all_keys = {}
 
 	local key_groups = {
