@@ -28,7 +28,7 @@ local terminal_font = wezterm.font_with_fallback({
 	features = font_shared_features,
 }, "Symbols Nerd Font")
 
-local nvim_font = wezterm_font_with_fallback({
+local nvim_font = wezterm.font_with_fallback({
 	name = "Intel One Mono",
 	family = "Intel One Mono",
 	weight = "Regular",
