@@ -32,7 +32,7 @@ local terminal_font = wezterm.font_with_fallback({
 
 local nvim_font = wezterm.font_with_fallback({
 	{
-		family = "Courier New",
+		family = "Lilex Nerd Font Mono",
 		weight = "Regular",
 		harfbuzz_features = font_shared_features,
 	},
@@ -168,3 +168,4 @@ function M.setup(config)
 end
 
 return M
+
