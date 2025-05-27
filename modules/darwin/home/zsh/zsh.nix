@@ -28,24 +28,6 @@ let
   env = stripHeaders ./core/env.sh;
   extras = stripHeaders ./core/extras.sh;
   prompt = stripHeaders ./core/prompt.sh;
-
-  combinedCoreScripts = ''
-    ${logLib}
-
-    ${paths}
-
-    ${wezterm}
-
-    ${kubectl}
-
-    ${env}
-
-    ${completions}
-
-    ${extras}
-
-    ${prompt}
-  '';
 in
 {
   programs.zsh = {
@@ -244,30 +226,26 @@ in
 
       ''
         # modules/darwin/home/zsh/zsh.nix#initContent)
-        ${combinedCoreScripts}
+        ${logLib}
+
+        ${paths}
+
+        ${wezterm}
+
+        ${kubectl}
+
+        ${env}
+
+        ${extras}
+
+        ${prompt}
         [[ -n "$SYSINIT_DEBUG" ]] && zprof
         # modules/darwin/home/zsh/zsh.nix#initContent
       ''
     ];
 
     completionInit = ''
-      mkdir -p "''\${XDG_DATA_HOME}/zsh/zcompdump"
-      autoload -Uz compinit
-      if [[ -n ''\${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump(#qN.mh+24) ]]; then
-        compinit -d "''\${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump";
-      else
-        compinit -C -d "''\${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump";
-      fi
-
-      zstyle ':completion:*' list-colors ''\${(s.:.)LS_COLORS}
-      zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
-      zstyle ':completion:*' menu no
-      zstyle ':completion:*:complete:*' use-cache on
-      zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --icons=always -1 -a ''\$realpath'
-      zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza --icons=always -1 -a ''\$realpath'
-      zstyle ':fzf-tab:complete:cat:*' fzf-preview 'bat --color=always ''\$realpath'
-      zstyle ':fzf-tab:complete:bat:*' fzf-preview 'bat --color=always ''\$realpath'
-      zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'bat --color=always ''\$realpath'
+      ${completions}
     '';
 
     xdg.configFile = {
@@ -275,36 +253,39 @@ in
         source = ./bin/colima-recreate;
         force = true;
       };
+
       "zsh/bin/dns-flush" = {
         source = ./bin/dns-flush;
         force = true;
       };
+
       "zsh/bin/gh-whoami" = {
         source = ./bin/gh-whoami;
         force = true;
       };
+      
       "zsh/bin/ghcs-commitmessage" = {
         source = ./bin/ghcs-commitmessage;
         force = true;
       };
+
       "zsh/bin/kubectl-crdbrowse" = {
         source = ./bin/kubectl-crdbrowse;
         force = true;
       };
+
       "zsh/bin/kubectl-kdesc" = {
         source = ./bin/kubectl-kdesc;
         force = true;
       };
+
       "zsh/bin/kubectl-kexec" = {
         source = ./bin/kubectl-kexec;
         force = true;
       };
+
       "zsh/bin/kubectl-kproxy" = {
         source = ./bin/kubectl-kproxy;
-        force = true;
-      };
-      "zsh/bin/sysinit-fzf-preview" = {
-        source = ./bin/sysinit-fzf-preview;
         force = true;
       };
     };

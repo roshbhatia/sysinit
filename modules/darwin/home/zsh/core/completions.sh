@@ -2,6 +2,23 @@
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
 # modules/darwin/home/zsh/core/completions.sh (begin)
+mkdir -p "${XDG_DATA_HOME}/zsh/zcompdump"
+autoload -Uz compinit
+if [[ -n ${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump(#qN.mh+24) ]]; then
+compinit -d "${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump";
+else
+compinit -C -d "${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump";
+fi
+
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*' menu no
+zstyle ':completion:*:complete:*' use-cache on
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --icons=always -1 -a $realpath'
+zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza --icons=always -1 -a $realpath'
+zstyle ':fzf-tab:complete:cat:*' fzf-preview 'bat --color=always $realpath'
+zstyle ':fzf-tab:complete:bat:*' fzf-preview 'bat --color=always $realpath'
+zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'bat --color=always $realpath'
 
 enable-fzf-tab
 zvm_after_init_commands+="_evalcache atuin init zsh --disable-up-arrow"
