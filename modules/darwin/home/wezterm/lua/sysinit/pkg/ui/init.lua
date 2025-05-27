@@ -1,6 +1,10 @@
 local wezterm = require("wezterm")
 local M = {}
 
+local function is_vim(pane)
+	return pane:get_user_vars().IS_NVIM == "true"
+end
+
 local themes = {
 	"Rosé Pine (Gogh)",
 	"Rosé Pine Moon (Gogh)",
@@ -17,53 +21,21 @@ local font_shared_features = {
 	"zero",
 }
 
-local fonts = {
-	{
-		name = "Geist Mono",
-		family = "Geist Mono",
-		weight = "Regular",
-		features = font_shared_features,
-	},
-	{
-		name = "Noto Mono for Powerline",
-		family = "Noto Mono for Powerline",
-		weight = "Regular",
-		features = font_shared_features,
-	},
-	{
-		name = "Intel One Mono",
-		family = "Intel One Mono",
-		weight = "Regular",
-		features = font_shared_features,
-	},
-	{
-		name = "Fira Mono for Powerline",
-		family = "Fira Mono for Powerline",
-		weight = "Medium",
-		features = font_shared_features,
-	},
-	{
-		name = "MonoFur for Powerline",
-		family = "MonoFur for Powerline",
-		weight = "Regular",
-		features = font_shared_features,
-	},
-	{
-		name = "Hack Nerd Font Mono",
-		family = "Hack Nerd Font Mono",
-		weight = "Regular",
-		features = font_shared_features,
-	},
-	{
-		name = "JetBrains Mono",
-		family = "JetBrains Mono",
-		weight = "Regular",
-		features = font_shared_features,
-	},
-}
+local terminal_font = wezterm.font_with_fallback({
+	name = "JetBrains Mono",
+	family = "JetBrains Mono",
+	weight = "Regular",
+	features = font_shared_features,
+}, "Symbols Nerd Font")
+
+local nvim_font = wezterm_font_with_fallback({
+	name = "Intel One Mono",
+	family = "Intel One Mono",
+	weight = "Regular",
+	features = font_shared_features,
+}, "Symbols Nerd Font")
 
 local current_theme_index = 1
-local current_font_index = 1
 
 local function get_basic_config()
 	return {
@@ -89,18 +61,6 @@ local function get_visual_bell_config()
 	}
 end
 
-local function get_font_config()
-	local font_config = fonts[current_font_index]
-	return wezterm.font_with_fallback({
-		{
-			family = font_config.family,
-			weight = font_config.weight,
-			harfbuzz_features = font_config.features,
-		},
-		"Symbols Nerd Font",
-	})
-end
-
 local function get_cursor_config()
 	return {
 		font_size = 14.0,
@@ -115,12 +75,7 @@ local function cycle_theme()
 	return themes[current_theme_index]
 end
 
-local function cycle_font()
-	current_font_index = current_font_index % #fonts + 1
-	return get_font_config()
-end
-
-local function get_theme_font_keys()
+local function get_theme_keys()
 	return {
 		{
 			key = "t",
@@ -164,6 +119,19 @@ local function setup_gui_startup()
 	end)
 end
 
+local function setup_nvim_font_switch()
+	wezterm.on("update-status", function(window, pane)
+		local should_swtich = is_vim(pane)
+		local overrides = window:get_config_overrides() or {}
+		if should_swtich then
+			overrides.font = nvim_font
+		else
+			overrides.font = nil
+		end
+		window:set_config_overrides(overrides)
+	end)
+end
+
 function M.setup(config)
 	local basic_config = get_basic_config()
 	for key, value in pairs(basic_config) do
@@ -172,20 +140,21 @@ function M.setup(config)
 
 	config.visual_bell = get_visual_bell_config()
 	config.color_scheme = themes[current_theme_index]
-	config.font = get_font_config()
+	config.font = terminal_font
 
 	local cursor_config = get_cursor_config()
 	for key, value in pairs(cursor_config) do
 		config[key] = value
 	end
 
-	local theme_font_keys = get_theme_font_keys()
+	local theme_keys = get_theme_keys()
 	config.keys = config.keys or {}
-	for _, key_binding in ipairs(theme_font_keys) do
+	for _, key_binding in ipairs(theme_keys) do
 		table.insert(config.keys, key_binding)
 	end
 
 	setup_gui_startup()
+	setup_nvim_font_switch()
 
 	return config
 end

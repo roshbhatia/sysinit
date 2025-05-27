@@ -10,7 +10,7 @@ M.plugins = {
 		keys = function()
 			return {
 				{
-					"<leader>ss",
+					"<leader>is",
 					"<CMD>SearchBoxReplace<CR>",
 					desc = "Search: Local",
 				},
@@ -20,4 +20,3 @@ M.plugins = {
 }
 
 return M
-
