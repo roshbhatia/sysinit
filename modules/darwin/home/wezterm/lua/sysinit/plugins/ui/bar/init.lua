@@ -19,8 +19,8 @@ end
 local function get_bar_config()
 	return {
 		padding = {
-			left = 3,
-			right = 3,
+			left = 0,
+			right = 0,
 			tabs = {
 				left = 0,
 				right = 2,
@@ -84,3 +84,4 @@ function M.setup(config)
 end
 
 return M
+

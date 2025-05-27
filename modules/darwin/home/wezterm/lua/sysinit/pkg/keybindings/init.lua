@@ -112,7 +112,7 @@ local function get_scroll_keys()
 						SendKey = { key = "u", mods = "CTRL" },
 					}, pane)
 				else
-					win:perform_action(act.ScrollByLine(-40))
+					win:perform_action(act.ScrollByLine(-40), pane)
 				end
 			end),
 		},
@@ -125,7 +125,7 @@ local function get_scroll_keys()
 						SendKey = { key = "d", mods = "CTRL" },
 					}, pane)
 				else
-					win:perform_action(act.ScrollByLine(40))
+					win:perform_action(act.ScrollByLine(40), pane)
 				end
 			end),
 		},
@@ -323,3 +323,4 @@ function M.setup(config)
 end
 
 return M
+

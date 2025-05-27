@@ -14,6 +14,12 @@ local themes = {
 
 local fonts = {
 	{
+		name = "Intel One Mono",
+		family = "Intel One Mono",
+		weight = "Regular",
+		features = { "ss01", "ss02", "ss03", "ss11", "ccmp", "mark", "aalt" },
+	},
+	{
 		name = "Fira Mono for Powerline",
 		family = "Fira Mono for Powerline",
 		weight = "Medium",
@@ -24,12 +30,6 @@ local fonts = {
 		family = "MonoFur for Powerline",
 		weight = "Regular",
 		features = {},
-	},
-	{
-		name = "Intel One Mono",
-		family = "Intel One Mono",
-		weight = "Regular",
-		features = { "ss01", "ss02", "ss03", "ss11", "ccmp", "mark", "aalt" },
 	},
 	{
 		name = "Hack Nerd Font Mono",
@@ -62,10 +62,9 @@ local current_font_index = 1
 
 local function get_basic_config()
 	return {
-		window_padding = { left = 15, right = 0, top = 15, bottom = 0 },
+		window_padding = { left = 16, right = 0, top = 16, bottom = 0 },
 		enable_scroll_bar = true,
 		enable_tab_bar = true,
-		tab_bar_at_bottom = true,
 		scrollback_lines = 20000,
 		window_background_opacity = 0.9,
 		macos_window_background_blur = 70,
@@ -184,3 +183,4 @@ function M.setup(config)
 end
 
 return M
+
