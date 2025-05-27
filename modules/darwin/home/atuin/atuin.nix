@@ -12,6 +12,7 @@
       show_help = false;
       show_tabs = false;
       enter_accept = true;
+      keymap_mode = "vim-normal";
     };
   };
 }

@@ -290,6 +290,9 @@ in
 
       # Bind ctrl-tab to accept zsh autosuggestions
       bindkey '^I' autosuggest-accept
+
+      # Bind ctrl-r to search in atuin history
+      bindkey '^R' _atuin_search_widget
     '';
   };
 

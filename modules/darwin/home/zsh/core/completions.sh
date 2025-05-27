@@ -21,3 +21,4 @@ function z() {
 	dir=$(zoxide query "$@") && pushd "$dir"
 }
 # modules/darwin/home/zsh/core/completions.sh (end)
+
