@@ -62,7 +62,6 @@ local current_font_index = 1
 
 local function get_basic_config()
 	return {
-		status_update_interval = 50,
 		window_padding = { left = 20, right = 0, top = 20, bottom = 0 },
 		enable_scroll_bar = true,
 		enable_tab_bar = true,
