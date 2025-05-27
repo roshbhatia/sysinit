@@ -259,7 +259,7 @@ in
         compinit -C -d "''\${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump";
       fi
 
-      zstyle ':completion:*' list-colors ''${(s.:.)LS_COLORS}
+      zstyle ':completion:*' list-colors $${(s.:.)LS_COLORS}
       zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
       zstyle ':completion:*' menu no
       zstyle ':completion:*:complete:*' use-cache on
