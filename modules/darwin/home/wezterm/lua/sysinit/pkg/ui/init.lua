@@ -14,46 +14,102 @@ local themes = {
 
 local fonts = {
 	{
+		name = "Noto Mono for Powerline",
+		family = "Noto Mono for Powerline",
+		weight = "Regular",
+		features = {
+			"ss01",
+			"ss02",
+			"ss03",
+			"ss11",
+			"ccmp",
+			"mark",
+			"aalt",
+		},
+	},
+	{
 		name = "Intel One Mono",
 		family = "Intel One Mono",
 		weight = "Regular",
-		features = { "ss01", "ss02", "ss03", "ss11", "ccmp", "mark", "aalt" },
+		features = {
+			"ss01",
+			"ss02",
+			"ss03",
+			"ss11",
+			"ccmp",
+			"mark",
+			"aalt",
+		},
 	},
 	{
 		name = "Fira Mono for Powerline",
 		family = "Fira Mono for Powerline",
 		weight = "Medium",
-		features = { "zero" },
+		features = {
+			"ss01",
+			"ss02",
+			"ss03",
+			"ss11",
+			"ccmp",
+			"mark",
+			"aalt",
+		},
 	},
 	{
 		name = "MonoFur for Powerline",
 		family = "MonoFur for Powerline",
 		weight = "Regular",
-		features = {},
+		features = {
+			"ss01",
+			"ss02",
+			"ss03",
+			"ss11",
+			"ccmp",
+			"mark",
+			"aalt",
+		},
 	},
 	{
 		name = "Hack Nerd Font Mono",
 		family = "Hack Nerd Font Mono",
 		weight = "Regular",
-		features = {},
+		features = {
+			"ss01",
+			"ss02",
+			"ss03",
+			"ss11",
+			"ccmp",
+			"mark",
+			"aalt",
+		},
 	},
 	{
 		name = "JetBrains Mono",
 		family = "JetBrains Mono",
 		weight = "Regular",
-		features = {},
+		features = {
+			"ss01",
+			"ss02",
+			"ss03",
+			"ss11",
+			"ccmp",
+			"mark",
+			"aalt",
+		},
 	},
 	{
 		name = "Geist Mono",
 		family = "Geist Mono",
 		weight = "Regular",
-		features = {},
-	},
-	{
-		name = "Noto Mono for Powerline",
-		family = "Noto Mono for Powerline",
-		weight = "Regular",
-		features = {},
+		features = {
+			"ss01",
+			"ss02",
+			"ss03",
+			"ss11",
+			"ccmp",
+			"mark",
+			"aalt",
+		},
 	},
 }
 
@@ -62,7 +118,10 @@ local current_font_index = 1
 
 local function get_basic_config()
 	return {
-		window_padding = { left = 16, right = 0, top = 16, bottom = 0 },
+		window_padding = {
+			left = "8px",
+			top = "8px",
+		},
 		enable_scroll_bar = true,
 		enable_tab_bar = true,
 		scrollback_lines = 20000,
@@ -183,4 +242,3 @@ function M.setup(config)
 end
 
 return M
-
