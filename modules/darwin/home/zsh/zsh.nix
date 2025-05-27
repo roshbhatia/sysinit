@@ -201,74 +201,50 @@ in
         # modules/darwin/home/zsh/zsh.nix#initContent
         # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
         # shellcheck disable=all
-        #       ___           ___           ___           ___           ___
-        #      /  /\         /  /\         /__/\         /  /\         /  /\
-        #     /  /::|       /  /:/_        \  \:\       /  /::\       /  /:/
-        #    /  /:/:|      /  /:/ /\        \__\:\     /  /:/\:\     /  /:/
-        #   /  /:/|:|__   /  /:/ /::\   ___ /  /::\   /  /:/~/:/    /  /:/  ___
-        #  /__/:/ |:| /\ /__/:/ /:/\:\ /__/\  /:/\:\ /__/:/ /:/___ /__/:/  /  /\
-        #  \__\/  |:|/:/ \  \:\/:/~/:/ \  \:\/:/__\/ \  \:\/:::::/ \  \:\ /  /:/
-        #      |  |:/:/   \  \::/ /:/   \  \::/       \  \::/~~~~   \  \:\  /:/
-        #      |  |::/     \__\/ /:/     \  \:\        \  \:\        \  \:\/:/
-        #      |  |:/        /__/:/       \  \:\        \  \:\        \  \::/
-        #      |__|/         \__\/         \__\/         \__\/         \__\/
-
         [[ -n "$SYSINIT_DEBUG" ]] && zmodload zsh/zprof
-
         unset MAILCHECK
         stty stop undef
-
         setopt COMBINING_CHARS
-
-        # Instant prompt: minimal prompt to avoid blank screen
         setopt PROMPT_SUBST
         PROMPT='%~%# '
         RPS1=""
-        # modules/darwin/home/zsh/zsh.nix#initContent
+      '')
+
+      (lib.mkOrder 550 ''
+        mkdir -p "''\${XDG_DATA_HOME}/zsh/zcompdump"
+        autoload -Uz compinit
+        if [[ -n ''\${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump(#qN.mh+24) ]]; then
+          compinit -d "''\${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump";
+        else
+          compinit -C -d "''\${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump";
+        fi
+        zstyle ':completion:*' list-colors ''\${(s.:.)LS_COLORS}
+        zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+        zstyle ':completion:*' menu no
+        zstyle ':completion:*:complete:*' use-cache on
+        zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --icons=always -1 -a ''\$realpath'
+        zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza --icons=always -1 -a ''\$realpath'
+        zstyle ':fzf-tab:complete:cat:*' fzf-preview 'bat --color=always ''\$realpath'
+        zstyle ':fzf-tab:complete:bat:*' fzf-preview 'bat --color=always ''\$realpath'
+        zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'bat --color=always ''\$realpath'
+        zstyle ':fzf-tab:*' fzf-flags ' ''\${SYSINIT_FZF_OPTS} --color=fg:1,fg+:2 --bind=tab:accept'
       '')
 
       ''
-        # modules/darwin/home/zsh/zsh.nix#initContent)
         ${logLib}
-
         ${paths}
-
         ${wezterm}
-
         ${kubectl}
-
         ${env}
-
         ${extras}
-        
         ${completions}
-
         ${prompt}
-        [[ -n "$SYSINIT_DEBUG" ]] && zprof
-        # modules/darwin/home/zsh/zsh.nix#initContent
       ''
+
+      (lib.mkAfter ''
+        [[ -n "$SYSINIT_DEBUG" ]] && zprof
+      '')
     ];
-
-    completionInit = ''
-      mkdir -p "''\${XDG_DATA_HOME}/zsh/zcompdump"
-      autoload -Uz compinit
-      if [[ -n ''\${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump(#qN.mh+24) ]]; then
-      compinit -d "''\${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump";
-      else
-      compinit -C -d "''\${XDG_DATA_HOME}/zsh/zcompdump/.zcompdump";
-      fi
-
-      zstyle ':completion:*' list-colors ''\${(s.:.)LS_COLORS}
-      zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
-      zstyle ':completion:*' menu no
-      zstyle ':completion:*:complete:*' use-cache on
-      zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --icons=always -1 -a ''\$realpath'
-      zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza --icons=always -1 -a ''\$realpath'
-      zstyle ':fzf-tab:complete:cat:*' fzf-preview 'bat --color=always ''\$realpath'
-      zstyle ':fzf-tab:complete:bat:*' fzf-preview 'bat --color=always ''\$realpath'
-      zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'bat --color=always ''\$realpath'
-      zstyle ':fzf-tab:*' fzf-flags ''\${SYSINIT_FZF_OPTS} --color=fg:1,fg+:2 --bind=tab:accept
-    '';
   };
 
   xdg.configFile = {
