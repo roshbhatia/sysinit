@@ -77,7 +77,7 @@ let
     "raycast"
     "slack"
     "visual-studio-code@insiders"
-    "wezterm"
+    "wezterm@nightly"
   ];
 
   allTaps = baseTaps ++ additionalTaps;
@@ -112,3 +112,4 @@ in
     casks = allCasks;
   };
 }
+
