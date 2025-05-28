@@ -125,7 +125,7 @@ in
         "--prompt='❯ '"
         "--pointer='▶'"
         "--marker='✓'"
-        "--scrollbar='█'"
+        "--scrollbar='||'"
         "--color=bg+:,bg:,spinner:#ebbcba,hl:#eb6f92"
         "--color=fg:#e0def4,header:#eb6f92,info:#9ccfd8,pointer:#ebbcba"
         "--color=marker:#c4a7e7,fg+:#e0def4,prompt:#9ccfd8,hl+:#eb6f92"
