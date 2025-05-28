@@ -3,7 +3,6 @@ local M = {}
 M.plugins = {
 	{
 		"azorng/goose.nvim",
-		dir = "/Users/rbha18/github/personal/roshbhatia/goose.nvim",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			"MeanderingProgrammer/render-markdown.nvim",
@@ -125,3 +124,4 @@ M.plugins = {
 }
 
 return M
+
