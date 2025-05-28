@@ -123,10 +123,7 @@ in
       SUDO_EDITOR = "nvim";
       VISUAL = "nvim";
       PAGER = "bat --style=numbers -p --color=always";
-      
-      MANPAGER = ''
-        sh -c "awk '{gsub(/\x1B\\[[0-9;]*m/, \"\"); gsub(/.\x08/, \"\"); print}' | bat -p -l man"
-      '';
+      MANPAGER = "sh -c 'col -bx | bat -l man -p'";
 
       EZA_COLORS = lib.concatStringsSep ";" [
         # directory color: #6d9eeb
@@ -312,3 +309,4 @@ in
     };
   };
 }
+
