@@ -110,4 +110,3 @@ tasks:
         log_success "Work configuration refreshed successfully"
     desc: Update and rebuild work sysinit configuration
     silent: true
-
