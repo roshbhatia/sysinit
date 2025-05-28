@@ -125,7 +125,7 @@ in
       PAGER = "bat --style=numbers -p --color=always";
       
       MANPAGER = ''
-        sh -c "sed -u -e 's/\\x1B\\[[0-9;]*m//g; s/.\\x08//' | bat -p -lman"
+        sh -c "awk '{gsub(/\x1B\\[[0-9;]*m/, \"\"); gsub(/.\x08/, \"\"); print}' | bat -p -l man"
       '';
 
       EZA_COLORS = lib.concatStringsSep ";" [
