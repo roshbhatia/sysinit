@@ -101,15 +101,15 @@ in
 
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
 
+
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
-        "--style=minimal"
-        "--preview-window=right:40%:wrap:border-rounded"
         "--height=40%"
         "--layout=reverse"
-        "--border=rounded"
-        "--margin=1"
-        "--padding=1"
-        "--info=inline-right"
+        "--border=none"
+        "--info=inline"
+        "--prompt='❯ '"
+        "--pointer='❯'"
+        "--marker='✔'"
         "--color=bg+:,bg:,spinner:#ebbcba,hl:#eb6f92"
         "--color=fg:#e0def4,header:#eb6f92,info:#9ccfd8,pointer:#ebbcba"
         "--color=marker:#c4a7e7,fg+:#e0def4,prompt:#9ccfd8,hl+:#eb6f92"
@@ -234,33 +234,9 @@ in
         zstyle ':completion:*:complete:*' use-cache on
         zstyle ':completion:*' menu no
 
-        zstyle ':fzf-tab:complete:cd:*' fzf-preview '
-          if [[ -d "$realpath" ]]; then
-              eza --icons=always -1 -a "$realpath"
-          elif [[ -f "$realpath" ]]; then
-              bat --color=always "$realpath"
-          else
-              echo "Invalid path or unsupported type!"
-          fi'
-
-        zstyle ':fzf-tab:complete:cat:*' fzf-preview '
-          if [[ -d "$realpath" ]]; then
-              eza --icons=always -1 -a "$realpath"
-          elif [[ -f "$realpath" ]]; then
-              bat --color=always "$realpath"
-          else
-              echo "Invalid path or unsupported type!"
-          fi'
-
-        zstyle ':fzf-tab:complete:bat:*' fzf-preview '
-          if [[ -d "$realpath" ]]; then
-              eza --icons=always -1 -a "$realpath"
-          elif [[ -f "$realpath" ]]; then
-              bat --color=always "$realpath"
-          else
-              echo "Invalid path or unsupported type!"
-          fi'
-
+        zstyle ':fzf-tab:complete:cd:*' fzf-preview 'fzf-preview "$realpath"'
+        zstyle ':fzf-tab:complete:cat:*' fzf-preview  'fzf-preview "$realpath"'
+        zstyle ':fzf-tab:complete:bat:*' fzf-preview  'fzf-preview "$realpath"'
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
       '')
 
@@ -323,3 +299,4 @@ in
     };
   };
 }
+

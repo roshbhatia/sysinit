@@ -91,7 +91,7 @@ in
           branches = !git --no-pager branch -a
           root = rev-parse --show-toplevel
 
-      [http https://git.sr.ht]
+      [http "https://git.sr.ht"]
           sslVerify = false
     '';
   };
