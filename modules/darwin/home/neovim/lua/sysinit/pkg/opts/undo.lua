@@ -7,6 +7,8 @@ function M.setup()
 	end
 	vim.opt.undodir = undodir
 	vim.opt.undofile = true
+	vim.opt.undolevels = 1000
 end
 
 return M
+
