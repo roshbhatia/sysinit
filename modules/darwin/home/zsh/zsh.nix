@@ -102,30 +102,53 @@ in
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
 
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
-        "--preview-window=right:60%:wrap:border-rounded"
-        "--height=80%"
+        "--style=minimal"
+        "--preview-window=right:40%:wrap:border-rounded"
+        "--height=40%"
         "--layout=reverse"
         "--border=rounded"
         "--margin=1"
         "--padding=1"
         "--info=inline-right"
-        "--prompt='❯ '"
-        "--pointer='▶'"
-        "--marker='✓'"
-        "--scrollbar='||'"
         "--color=bg+:,bg:,spinner:#ebbcba,hl:#eb6f92"
         "--color=fg:#e0def4,header:#eb6f92,info:#9ccfd8,pointer:#ebbcba"
         "--color=marker:#c4a7e7,fg+:#e0def4,prompt:#9ccfd8,hl+:#eb6f92"
         "--color=selected-bg:#31748f"
         "--color=border:#2a273f,label:#e0def4"
         "--bind='resize:refresh-preview'"
+        "--cycle"
+        "--ignore-case"
+        "--input-border=rounded"
       ];
 
       SUDO_EDITOR = "nvim";
       VISUAL = "nvim";
       PAGER = "bat --pager=always --color=always";
 
-      EZA_COLORS = "di=38;5;109:ln=38;5;108:so=38;5;110:pi=38;5;109:ex=38;5;142:bd=38;5;109;48;5;236:cd=38;5;109;48;5;236:su=38;5;109;48;5;236:sg=38;5;109;48;5;236:tw=38;5;109;48;5;236:ow=38;5;109;48;5;236";
+      EZA_COLORS = lib.concatStringsSep ";" [
+        # directory color: #6d9eeb
+        "di=38;5;109"
+        # symlink color: #6d8ceb
+        "ln=38;5;108"
+        # socket color: #6e8eef
+        "so=38;5;110"
+        # pipe color: #6d9eeb
+        "pi=38;5;109"
+        # executable color: #8e9d6f
+        "ex=38;5;142"
+        # block device color: #6d9eeb (with background: #6c6c6c)
+        "bd=38;5;109;48;5;236"
+        # char device color: #6d9eeb (with background: #6c6c6c)
+        "cd=38;5;109;48;5;236"
+        # setuid color: #6d9eeb (with background: #6c6c6c)
+        "su=38;5;109;48;5;236"
+        # setgid color: #6d9eeb (with background: #6c6c6c)
+        "sg=38;5;109;48;5;236"
+        # sticky other writable color: #6d9eeb (with background: #6c6c6c)
+        "tw=38;5;109;48;5;236"
+        # other writable color: #6d9eeb (with background: #6c6c6c)
+        "ow=38;5;109;48;5;236"
+      ];
     };
 
     plugins = [
@@ -208,11 +231,36 @@ in
         zstyle ':completion:*:descriptions' format '[%d]'
         zstyle ':completion:*' list-colors ''\${(s.:.)EZA_COLORS}
         zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
-        zstyle ':completion:*' menu no
         zstyle ':completion:*:complete:*' use-cache on
-        zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --icons=always -1 -a ''\$realpath'
-        zstyle ':fzf-tab:complete:cat:*' fzf-preview 'bat --color=always ''\$realpath'
-        zstyle ':fzf-tab:complete:bat:*' fzf-preview 'bat --color=always ''\$realpath'
+        zstyle ':completion:*' menu no
+
+        zstyle ':fzf-tab:complete:cd:*' fzf-preview '
+          if [[ -d "$realpath" ]]; then
+              eza --icons=always -1 -a "$realpath"
+          elif [[ -f "$realpath" ]]; then
+              bat --color=always "$realpath"
+          else
+              echo "Invalid path or unsupported type!"
+          fi'
+
+        zstyle ':fzf-tab:complete:cat:*' fzf-preview '
+          if [[ -d "$realpath" ]]; then
+              eza --icons=always -1 -a "$realpath"
+          elif [[ -f "$realpath" ]]; then
+              bat --color=always "$realpath"
+          else
+              echo "Invalid path or unsupported type!"
+          fi'
+
+        zstyle ':fzf-tab:complete:bat:*' fzf-preview '
+          if [[ -d "$realpath" ]]; then
+              eza --icons=always -1 -a "$realpath"
+          elif [[ -f "$realpath" ]]; then
+              bat --color=always "$realpath"
+          else
+              echo "Invalid path or unsupported type!"
+          fi'
+
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
       '')
 
