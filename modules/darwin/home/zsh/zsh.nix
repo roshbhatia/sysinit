@@ -102,7 +102,7 @@ in
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
 
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
-        "--height=65%"
+        "--height=~50%"
         "--layout=reverse"
         "--info=inline"
         "--prompt='] '"
