@@ -113,6 +113,7 @@ in
       ZVM_LINE_INIT_MODE = "i";
 
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
+
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
         "--preview-window=right:60%:wrap:border-rounded"
         "--height=80%"
@@ -125,7 +126,7 @@ in
         "--pointer='▶'"
         "--marker='✓'"
         "--scrollbar='█'"
-        "--color=bg+:#2a273f,bg:#191724,spinner:#ebbcba,hl:#eb6f92"
+        "--color=bg+:,bg:,spinner:#ebbcba,hl:#eb6f92"
         "--color=fg:#e0def4,header:#eb6f92,info:#9ccfd8,pointer:#ebbcba"
         "--color=marker:#c4a7e7,fg+:#e0def4,prompt:#9ccfd8,hl+:#eb6f92"
         "--color=selected-bg:#31748f"
