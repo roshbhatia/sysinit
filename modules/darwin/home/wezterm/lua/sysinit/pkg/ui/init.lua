@@ -34,8 +34,8 @@ local terminal_font = wezterm.font_with_fallback({
 
 local nvim_font = wezterm.font_with_fallback({
 	{
-		family = "Geist Mono",
-		weight = "Medium",
+		family = "Fira Code",
+		weight = "Retina",
 		harfbuzz_features = font_shared_features,
 	},
 	"Symbols Nerd Font",
@@ -130,12 +130,8 @@ local function setup_nvim_font_switch()
 		local overrides = window:get_config_overrides() or {}
 		if should_swtich then
 			overrides.font = nvim_font
-			overrides.font_size = 15.0
-			overrides.line_height = 1.3
 		else
 			overrides.font = nil
-			overrides.font_size = nil
-			overrides.line_height = nil
 		end
 		window:set_config_overrides(overrides)
 	end)
@@ -174,4 +170,3 @@ function M.setup(config)
 end
 
 return M
-

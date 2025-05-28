@@ -50,6 +50,8 @@ let
     "bcrypt"
     "block-goose-cli"
     "direnv"
+    "font-fira-code"
+    "font-hack-nerd-font"
     "helm"
     "imagemagick"
     "jandedobbeleer/oh-my-posh/oh-my-posh"
@@ -69,8 +71,6 @@ let
     "1password-cli"
     "alt-tab"
     "firefox"
-    "font-hack-nerd-font"
-    "font-symbols-only-nerd-font"
     "keycastr"
     "loop"
     "obsidian"
@@ -112,4 +112,3 @@ in
     casks = allCasks;
   };
 }
-
