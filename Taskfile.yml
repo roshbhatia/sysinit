@@ -32,7 +32,7 @@ tasks:
 
   nix:clean:
     vars:
-      LOG_FILE: "{{.LOG_DIR}}/sysinit-clean.log"
+      LOG_FILE: "{{.LOG_DIR}}/{{.TIMESTAMP}}-sysinit-clean.log"
     cmds:
       - |
         #!/usr/bin/env bash
@@ -50,7 +50,7 @@ tasks:
 
   nix:update:
     vars:
-      LOG_FILE: "{{.LOG_DIR}}/sysinit-flake-update.log"
+      LOG_FILE: "{{.LOG_DIR}}/{{.TIMESTAMP}}-sysinit-flake-update.log"
     cmds:
       - |
         #!/usr/bin/env bash
@@ -69,7 +69,7 @@ tasks:
   nix:refresh:
     deps: [nix:update]
     vars:
-      LOG_FILE: "{{.LOG_DIR}}/sysinit-refresh.log"
+      LOG_FILE: "{{.LOG_DIR}}/{{.TIMESTAMP}}-sysinit-refresh.log"
     cmds:
       - |
         #!/usr/bin/env bash
@@ -87,7 +87,7 @@ tasks:
 
   nix:refresh:work:
     vars:
-      LOG_FILE: "{{.LOG_DIR}}/work-refresh.log"
+      LOG_FILE: "{{.LOG_DIR}}/{{.TIMESTAMP}}-sysinit-work-refresh.log"
     cmds:
       - |
         #!/usr/bin/env bash
