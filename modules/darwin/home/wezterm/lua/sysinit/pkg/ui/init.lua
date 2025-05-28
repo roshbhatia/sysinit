@@ -6,6 +6,7 @@ local function is_vim(pane)
 end
 
 local themes = {
+	"Rosé Pine Moon (base16)",
 	"Rosé Pine (Gogh)",
 	"Rosé Pine Moon (Gogh)",
 	"Catppuccin Frappé (Gogh)",
@@ -32,7 +33,7 @@ local terminal_font = wezterm.font_with_fallback({
 
 local nvim_font = wezterm.font_with_fallback({
 	{
-		family = "Lilex Nerd Font Mono",
+		family = "Geist Mono",
 		weight = "Regular",
 		harfbuzz_features = font_shared_features,
 	},
@@ -168,4 +169,3 @@ function M.setup(config)
 end
 
 return M
-
