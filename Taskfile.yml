@@ -14,16 +14,16 @@ tasks:
 
   nix:build:
     vars:
-      LOG_FILE: "{{.LOG_DIR}}/{{.TIMESTAMP}}-sysinit-build.log"
+      LOG_FILE_PREFIX: "{{.LOG_DIR}}/{{.TIMESTAMP}}-sysinit-build"
     cmds:
       - |
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Building system configuration"
-        ensure_file "{{.LOG_FILE}}"
-        follow_log "{{.LOG_FILE}}" &
-        if ! sudo darwin-rebuild switch -v --show-trace --impure --flake . > "{{.LOG_FILE}}" 2>&1; then
-          log_error "Build failed. Check the log." log_file="{{.LOG_FILE}}"
+        ensure_file "{{.LOG_FILE_PREFIX}}-$(uuid).log"
+        follow_log "{{.LOG_FILE_PREFIX}}-$(uuid).log" &
+        if ! sudo darwin-rebuild switch -v --show-trace --impure --flake . > "{{.LOG_FILE_PREFIX}}-$(uuid).log" 2>&1; then
+          log_error "Build failed. Check the log." log_file="{{.LOG_FILE_PREFIX}}-$(uuid).log"
           exit 1
         fi
         log_success "Build completed successfully"
@@ -32,16 +32,16 @@ tasks:
 
   nix:clean:
     vars:
-      LOG_FILE: "{{.LOG_DIR}}/{{.TIMESTAMP}}-sysinit-clean.log"
+      LOG_FILE_PREFIX: "{{.LOG_DIR}}/{{.TIMESTAMP}}-sysinit-clean"
     cmds:
       - |
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Running garbage collection"
-        ensure_file "{{.LOG_FILE}}"
-        follow_log "{{.LOG_FILE}}" &
-        if ! sudo nix-collect-garbage -d > "{{.LOG_FILE}}" 2>&1; then
-          log_error "Garbage collection failed" log_file="{{.LOG_FILE}}"
+        ensure_file "{{.LOG_FILE_PREFIX}}-$(uuid).log"
+        follow_log "{{.LOG_FILE_PREFIX}}-$(uuid).log" &
+        if ! sudo nix-collect-garbage -d > "{{.LOG_FILE_PREFIX}}-$(uuid).log" 2>&1; then
+          log_error "Garbage collection failed" log_file="{{.LOG_FILE_PREFIX}}-$(uuid).log"
           exit 1
         fi
         log_success "Garbage collection completed successfully"
@@ -50,16 +50,16 @@ tasks:
 
   nix:update:
     vars:
-      LOG_FILE: "{{.LOG_DIR}}/{{.TIMESTAMP}}-sysinit-flake-update.log"
+      LOG_FILE_PREFIX: "{{.LOG_DIR}}/{{.TIMESTAMP}}-sysinit-flake-update"
     cmds:
       - |
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Updating flake inputs"
-        ensure_file "{{.LOG_FILE}}"
-        follow_log "{{.LOG_FILE}}" &
-        if ! sudo nix flake update > "{{.LOG_FILE}}" 2>&1; then
-          log_error "Flake update failed" log_file="{{.LOG_FILE}}"
+        ensure_file "{{.LOG_FILE_PREFIX}}-$(uuid).log"
+        follow_log "{{.LOG_FILE_PREFIX}}-$(uuid).log" &
+        if ! sudo nix flake update > "{{.LOG_FILE_PREFIX}}-$(uuid).log" 2>&1; then
+          log_error "Flake update failed" log_file="{{.LOG_FILE_PREFIX}}-$(uuid).log"
           exit 1
         fi
         log_success "Flake inputs updated"
@@ -69,16 +69,16 @@ tasks:
   nix:refresh:
     deps: [nix:update]
     vars:
-      LOG_FILE: "{{.LOG_DIR}}/{{.TIMESTAMP}}-sysinit-refresh.log"
+      LOG_FILE_PREFIX: "{{.LOG_DIR}}/{{.TIMESTAMP}}-sysinit-refresh"
     cmds:
       - |
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Applying system configuration"
-        ensure_file "{{.LOG_FILE}}"
-        follow_log "{{.LOG_FILE}}" &
-        if ! sudo darwin-rebuild switch --flake . --show-trace > "{{.LOG_FILE}}" 2>&1; then
-          log_error "Refresh failed. Check the log" log_file="{{.LOG_FILE}}"
+        ensure_file "{{.LOG_FILE_PREFIX}}-$(uuid).log"
+        follow_log "{{.LOG_FILE_PREFIX}}-$(uuid).log" &
+        if ! sudo darwin-rebuild switch --flake . --show-trace > "{{.LOG_FILE_PREFIX}}-$(uuid).log" 2>&1; then
+          log_error "Refresh failed. Check the log" log_file="{{.LOG_FILE_PREFIX}}-$(uuid).log"
           exit 1
         fi
         log_success "System configuration applied successfully"
@@ -87,22 +87,22 @@ tasks:
 
   nix:refresh:work:
     vars:
-      LOG_FILE: "{{.LOG_DIR}}/{{.TIMESTAMP}}-sysinit-work-refresh.log"
+      LOG_FILE_PREFIX: "{{.LOG_DIR}}/{{.TIMESTAMP}}-sysinit-work-refresh"
     cmds:
       - |
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Refreshing work configuration"
-        ensure_file "{{.LOG_FILE}}"
-        follow_log "{{.LOG_FILE}}" &
+        ensure_file "{{.LOG_FILE_PREFIX}}-$(uuid).log"
+        follow_log "{{.LOG_FILE_PREFIX}}-$(uuid).log" &
         WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
         if [ -z "${WORK_SYSINIT}" ]; then
           log_error "Could not find work sysinit repository"
           exit 1
         fi
         cd "${WORK_SYSINIT}"
-        if ! task nix:refresh > "{{.LOG_FILE}}" 2>&1; then
-          log_error "Work refresh failed. Check the log" log_file="{{.LOG_FILE}}"
+        if ! task nix:refresh > "{{.LOG_FILE_PREFIX}}-$(uuid).log" 2>&1; then
+          log_error "Work refresh failed. Check the log" log_file="{{.LOG_FILE_PREFIX}}-$(uuid).log"
           exit 1
         fi
         log_success "Work configuration refreshed successfully"
