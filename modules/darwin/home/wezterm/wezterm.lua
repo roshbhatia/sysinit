@@ -23,4 +23,6 @@ config.set_environment_variables = {
 	TERM = "wezterm",
 }
 
+config.automatically_reload_config = true
+
 return config
