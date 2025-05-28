@@ -25,8 +25,8 @@ local font_shared_features = {
 
 local terminal_font = wezterm.font_with_fallback({
 	{
-		family = "JetBrains Mono",
-		weight = "Medium",
+		family = "Hack Nerd Font Mono",
+		weight = "Regular",
 		harfbuzz_features = font_shared_features,
 	},
 	"Symbols Nerd Font",
@@ -34,7 +34,7 @@ local terminal_font = wezterm.font_with_fallback({
 
 local nvim_font = wezterm.font_with_fallback({
 	{
-		family = "Geist Mono",
+		family = "JetBrains Mono",
 		weight = "Medium",
 		harfbuzz_features = font_shared_features,
 	},
@@ -72,7 +72,7 @@ end
 local function get_font_config()
 	return {
 		font = terminal_font,
-		font_size = 13.0,
+		font_size = 12.0,
 		line_height = 1.0,
 	}
 end
@@ -112,7 +112,7 @@ local function setup_gui_startup()
 
 		local _, _, window = wezterm.mux.spawn_window(cmd or {})
 
-		local padding = 12
+		local padding = 25
 		local adjusted_width = screen.width - (2 * padding)
 		local adjusted_height = screen.height - (2 * padding)
 
@@ -130,7 +130,7 @@ local function setup_nvim_font_switch()
 		local overrides = window:get_config_overrides() or {}
 		if should_swtich then
 			overrides.font = nvim_font
-			overrides.font_size = 15.0
+			overrides.font_size = 14.0
 			overrides.line_height = 1.2
 		else
 			overrides.font = nil
