@@ -75,10 +75,11 @@ tasks:
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Applying system configuration"
-        ensure_file "{{.LOG_FILE_PREFIX}}-$(uuidgen).log"
-        follow_log "{{.LOG_FILE_PREFIX}}-$(uuidgen).log" &
-        if ! sudo darwin-rebuild switch --flake . --show-trace > "{{.LOG_FILE_PREFIX}}-$(uuidgen).log" 2>&1; then
-          log_error "Refresh failed. Check the log" log_file="{{.LOG_FILE_PREFIX}}-$(uuidgen).log"
+        LOG_FILE="{{.LOG_FILE_PREFIX}}-$(uuidgen).log"
+        ensure_file "$LOG_FILE"
+        follow_log "$LOG_FILE" &
+        if ! sudo darwin-rebuild switch --flake . --show-trace > "$LOG_FILE" 2>&1; then
+          log_error "Refresh failed. Check the log" log_file="$LOG_FILE"
           exit 1
         fi
         log_success "System configuration applied successfully"
@@ -93,16 +94,17 @@ tasks:
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Refreshing work configuration"
-        ensure_file "{{.LOG_FILE_PREFIX}}-$(uuidgen).log"
-        follow_log "{{.LOG_FILE_PREFIX}}-$(uuidgen).log" &
+        LOG_FILE="{{.LOG_FILE_PREFIX}}-$(uuidgen).log"
+        ensure_file "$LOG_FILE"
+        follow_log "$LOG_FILE" &
         WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
         if [ -z "${WORK_SYSINIT}" ]; then
           log_error "Could not find work sysinit repository"
           exit 1
         fi
         cd "${WORK_SYSINIT}"
-        if ! task nix:refresh > "{{.LOG_FILE_PREFIX}}-$(uuidgen).log" 2>&1; then
-          log_error "Work refresh failed. Check the log" log_file="{{.LOG_FILE_PREFIX}}-$(uuidgen).log"
+        if ! task nix:refresh > "$LOG_FILE" 2>&1; then
+          log_error "Work refresh failed. Check the log" log_file="$LOG_FILE"
           exit 1
         fi
         log_success "Work configuration refreshed successfully"
