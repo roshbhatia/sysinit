@@ -90,6 +90,9 @@ in
           current-branch = rev-parse --abbrev-ref HEAD
           branches = !git --no-pager branch -a
           root = rev-parse --show-toplevel
+
+      [http https://git.sr.ht]
+          sslVerify = false
     '';
   };
 
@@ -139,3 +142,4 @@ in
     force = true;
   };
 }
+

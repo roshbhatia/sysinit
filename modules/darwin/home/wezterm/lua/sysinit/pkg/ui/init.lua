@@ -25,7 +25,7 @@ local font_shared_features = {
 local terminal_font = wezterm.font_with_fallback({
 	{
 		family = "JetBrains Mono",
-		weight = "Regular",
+		weight = "Medium",
 		harfbuzz_features = font_shared_features,
 	},
 	"Symbols Nerd Font",
@@ -34,7 +34,7 @@ local terminal_font = wezterm.font_with_fallback({
 local nvim_font = wezterm.font_with_fallback({
 	{
 		family = "Geist Mono",
-		weight = "Regular",
+		weight = "Medium",
 		harfbuzz_features = font_shared_features,
 	},
 	"Symbols Nerd Font",
@@ -69,7 +69,7 @@ end
 local function get_font_config()
 	return {
 		font = terminal_font,
-		font_size = 14.0,
+		font_size = 13.0,
 		line_height = 1.0,
 	}
 end
