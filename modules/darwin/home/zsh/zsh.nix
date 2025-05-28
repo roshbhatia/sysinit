@@ -60,6 +60,7 @@ in
       l = "eza --icons=always -1";
       la = "eza --icons=always -1 -a";
       ll = "eza --icons=always -1 -a";
+      ls = "eza";
       lt = "eza --icons=always -1 -a -T";
 
       tf = "terraform";
@@ -226,7 +227,7 @@ in
 
         zstyle ':completion:*:git-checkout:*' sort false
         zstyle ':completion:*:descriptions' format '[%d]'
-        zstyle ':completion:*' list-colors ''\${(s.:.)EZA_COLORS}
+        zstyle ':completion:*' list-colors ''\${(s.:.)LS_COLORS}
         zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
         zstyle ':completion:*:complete:*' use-cache on
         zstyle ':completion:*' menu no
