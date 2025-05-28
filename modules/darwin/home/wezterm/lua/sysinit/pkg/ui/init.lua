@@ -26,7 +26,7 @@ local font_shared_features = {
 local terminal_font = wezterm.font_with_fallback({
 	{
 		family = "JetBrains Mono",
-		weight = "SemiBold",
+		weight = "Regular",
 		harfbuzz_features = font_shared_features,
 	},
 	"Symbols Nerd Font",
@@ -174,3 +174,4 @@ function M.setup(config)
 end
 
 return M
+
