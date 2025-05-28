@@ -69,7 +69,7 @@ end
 local function get_font_config()
 	return {
 		font = terminal_font,
-		font_size = 12.0,
+		font_size = 14.0,
 		line_height = 1.0,
 	}
 end
@@ -127,10 +127,8 @@ local function setup_nvim_font_switch()
 		local overrides = window:get_config_overrides() or {}
 		if should_swtich then
 			overrides.font = nvim_font
-			overrides.font_size = 14.0
 		else
 			overrides.font = nil
-			overrides.font_size = nil
 		end
 		window:set_config_overrides(overrides)
 	end)
@@ -169,3 +167,4 @@ function M.setup(config)
 end
 
 return M
+
