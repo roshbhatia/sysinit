@@ -281,21 +281,6 @@ in
       force = true;
     };
 
-    "zsh/bin/ghcs-commitmessage" = {
-      source = ./bin/ghcs-commitmessage;
-      force = true;
-    };
-
-    "zsh/bin/kubectl-crdbrowse" = {
-      source = ./bin/kubectl-crdbrowse;
-      force = true;
-    };
-
-    "zsh/bin/kubectl-kdesc" = {
-      source = ./bin/kubectl-kdesc;
-      force = true;
-    };
-
     "zsh/bin/kubectl-kexec" = {
       source = ./bin/kubectl-kexec;
       force = true;
