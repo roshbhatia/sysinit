@@ -4,30 +4,17 @@
   homeDirectory,
   ...
 }:
-
 let
-  stripHeaders =
-    file:
-    let
-      content = builtins.readFile file;
-      lines = lib.splitString "\n" content;
-      isHeaderLine =
-        line:
-        lib.hasPrefix "#!/usr/bin/env zsh" line
-        || lib.hasPrefix "# THIS FILE WAS INSTALLED BY SYSINIT" line
-        || lib.hasPrefix "# shellcheck disable" line;
-      nonHeaderLines = builtins.filter (line: !(isHeaderLine line)) lines;
-    in
-    lib.concatStringsSep "\n" nonHeaderLines;
+  shellUtils = import ../../../lib/shell/utils.nix { inherit lib; };
 
-  logLib = stripHeaders ./core/loglib.sh;
-  paths = stripHeaders ./core/paths.sh;
-  wezterm = stripHeaders ./core/wezterm.sh;
-  completions = stripHeaders ./core/completions.sh;
-  kubectl = stripHeaders ./core/kubectl.sh;
-  env = stripHeaders ./core/env.sh;
-  extras = stripHeaders ./core/extras.sh;
-  prompt = stripHeaders ./core/prompt.sh;
+  logLib = shellUtils.stripHeaders ./core/loglib.sh;
+  paths = shellUtils.stripHeaders ./core/paths.sh;
+  wezterm = shellUtils.stripHeaders ./core/wezterm.sh;
+  completions = shellUtils.stripHeaders ./core/completions.sh;
+  kubectl = shellUtils.stripHeaders ./core/kubectl.sh;
+  env = shellUtils.stripHeaders ./core/env.sh;
+  extras = shellUtils.stripHeaders ./core/extras.sh;
+  prompt = shellUtils.stripHeaders ./core/prompt.sh;
 in
 {
   programs.zsh = {
@@ -288,4 +275,3 @@ in
     };
   };
 }
-
