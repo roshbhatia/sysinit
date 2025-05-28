@@ -125,11 +125,11 @@ in
         "--pointer='▶'"
         "--marker='✓'"
         "--scrollbar='█'"
-        "--color=bg+:#414559,bg:#303446,spinner:#F2D5CF,hl:#E78284"
-        "--color=fg:#C6D0F5,header:#E78284,info:#CA9EE6,pointer:#F2D5CF"
-        "--color=marker:#BABBF1,fg+:#C6D0F5,prompt:#CA9EE6,hl+:#E78284"
-        "--color=selected-bg:#51576D"
-        "--color=border:#414559,label:#C6D0F5"
+        "--color=bg+:#2a273f,bg:#191724,spinner:#ebbcba,hl:#eb6f92"
+        "--color=fg:#e0def4,header:#eb6f92,info:#9ccfd8,pointer:#ebbcba"
+        "--color=marker:#c4a7e7,fg+:#e0def4,prompt:#9ccfd8,hl+:#eb6f92"
+        "--color=selected-bg:#31748f"
+        "--color=border:#2a273f,label:#e0def4"
         "--bind='resize:refresh-preview'"
       ];
 
