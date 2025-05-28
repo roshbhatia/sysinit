@@ -28,6 +28,7 @@ let
   env = stripHeaders ./core/env.sh;
   extras = stripHeaders ./core/extras.sh;
   prompt = stripHeaders ./core/prompt.sh;
+in
 {
   programs.zsh = {
     enable = true;
