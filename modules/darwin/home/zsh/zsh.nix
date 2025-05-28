@@ -123,7 +123,10 @@ in
       SUDO_EDITOR = "nvim";
       VISUAL = "nvim";
       PAGER = "bat --style=numbers -p --color=always";
-      MANPAGER = "sh -c 'sed -u -e ''\"s/\x1B[[0-9;]*m//g; s/.\x08//''\" | bat -p -lman'";
+      
+      MANPAGER = ''
+        sh -c "sed -u -e 's/\\x1B\\[[0-9;]*m//g; s/.\\x08//' | bat -p -lman"
+      '';
 
       EZA_COLORS = lib.concatStringsSep ";" [
         # directory color: #6d9eeb
