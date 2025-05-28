@@ -1,7 +1,6 @@
 #!/usr/bin/env zsh
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-
 # Setup cache directories
 ZCACHE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/zcache"
 ZCACHE_EXTRAS_DIR="$ZCACHE_DIR/extras"
@@ -18,32 +17,32 @@ function cache.clean() {
 _cache_expired() {
   local cache="$1"
   local source="$2"
-  
+
   # If cache doesn't exist or source doesn't exist, it's expired
   [[ ! -f "$cache" || ! -f "$source" ]] && return 0
-  
+
   # If source is newer than cache, it's expired
   [[ "$source" -nt "$cache" ]] && return 0
-  
+
   # Check if cache is older than 24h using macOS compatible stat
   local cache_mtime
   if ! cache_mtime=$(stat -f %m "$cache" 2>/dev/null); then
     [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Failed to get cache mtime" cache="$cache"
     return 0
   fi
-  
+
   local current_time
   if ! current_time=$(date +%s 2>/dev/null); then
     [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Failed to get current time"
     return 0
   fi
-  
+
   local day_seconds=86400
   if (( current_time - cache_mtime > day_seconds )); then
     [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Cache expired" cache="$cache" age=$((current_time - cache_mtime))
     return 0
   fi
-  
+
   return 1
 }
 
@@ -72,7 +71,7 @@ if [[ -d "$EXTRAS_DIR" ]]; then
   setopt nullglob
   local extra_files=("$EXTRAS_DIR"/*.sh)
   unsetopt nullglob
-  
+
   if (( ${#extra_files[@]} )); then
     [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Found extras" count="${#extra_files[@]}"
     for file in "${extra_files[@]}"; do
@@ -91,3 +90,4 @@ if [[ -f "$HOME/.zshsecrets" ]]; then
   [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Loading secrets" file="$HOME/.zshsecrets"
   source "$HOME/.zshsecrets"
 fi
+

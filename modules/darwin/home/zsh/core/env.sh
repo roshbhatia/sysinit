@@ -6,5 +6,5 @@ env.print() {
   local pattern=${1:-"*"}
   env | grep -E "^$pattern=" | sort | bat --style=numbers,grid
 }
-
 # modules/darwin/home/zsh/core/env.sh (end)
+
