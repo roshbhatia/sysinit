@@ -1,26 +1,38 @@
 local M = {}
 
 function M.setup()
-	vim.api.nvim_set_keymap("n", "U", "<cmd>later<cr>", {
+	vim.keymap.set("n", "u", "g-", {
 		noremap = true,
 		silent = true,
+		desc = "Undo to previous state",
 	})
+
+	vim.keymap.set("n", "<C-r>", "g+", {
+		noremap = true,
+		silent = true,
+		desc = "Redo to next state",
+	})
+
 	vim.api.nvim_set_keymap("n", "q", "<Nop>", {
 		noremap = true,
 		silent = true,
 	})
+
 	vim.api.nvim_set_keymap("n", "m", "<Nop>", {
 		noremap = true,
 		silent = true,
 	})
+
 	vim.api.nvim_set_keymap("v", "m", "<Nop>", {
 		noremap = true,
 		silent = true,
 	})
+
 	vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", {
 		noremap = true,
 		silent = true,
 	})
+
 	vim.keymap.set("n", "<leader>x", function()
 		vim.cmd("silent SessionSave")
 		vim.cmd("silent quit!")
@@ -29,6 +41,7 @@ function M.setup()
 		silent = true,
 		desc = "Buffer: Close",
 	})
+
 	vim.keymap.set("n", "<leader>s", function()
 		vim.cmd("silent SessionSave")
 		vim.cmd("silent write!")
@@ -37,6 +50,7 @@ function M.setup()
 		silent = true,
 		desc = "Buffer: Write",
 	})
+
 	vim.keymap.set("n", "<leader>w", function()
 		vim.cmd("silent SessionSave")
 		vim.cmd("silent write!")
@@ -46,6 +60,7 @@ function M.setup()
 		silent = true,
 		desc = "Buffer: Write and close",
 	})
+
 	local function get_listed_buffers()
 		local buffers = {}
 		for _, buf in ipairs(vim.api.nvim_list_bufs()) do
@@ -55,6 +70,7 @@ function M.setup()
 		end
 		return buffers
 	end
+
 	local function buffer_next()
 		local buffers = get_listed_buffers()
 		local current = vim.api.nvim_get_current_buf()
@@ -66,6 +82,7 @@ function M.setup()
 			end
 		end
 	end
+
 	local function buffer_prev()
 		local buffers = get_listed_buffers()
 		local current = vim.api.nvim_get_current_buf()
@@ -77,21 +94,25 @@ function M.setup()
 			end
 		end
 	end
+
 	vim.keymap.set("n", "<leader>bn", buffer_next, {
 		noremap = true,
 		silent = true,
 		desc = "Buffer: Next",
 	})
+
 	vim.keymap.set("n", "<leader>bp", buffer_prev, {
 		noremap = true,
 		silent = true,
 		desc = "Buffer: Previous",
 	})
+
 	vim.keymap.set("n", "<leader>q", ":qa!<CR>", {
 		noremap = true,
 		silent = true,
 		desc = " Quit",
 	})
+
 	vim.keymap.set("n", "<leader>en", function()
 		if vim.wo.relativenumber then
 			vim.wo.relativenumber = false
@@ -108,3 +129,4 @@ function M.setup()
 end
 
 return M
+
