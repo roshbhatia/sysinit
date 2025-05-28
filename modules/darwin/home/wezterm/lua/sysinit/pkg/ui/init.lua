@@ -6,8 +6,9 @@ local function is_vim(pane)
 end
 
 local themes = {
-	"Rosé Pine Moon (base16)",
+	"Rosé Pine (base16)",
 	"Rosé Pine (Gogh)",
+	"Rosé Pine Moon (base16)",
 	"Rosé Pine Moon (Gogh)",
 	"Catppuccin Frappé (Gogh)",
 	"Catppuccin Macchiato (Gogh)",
