@@ -195,6 +195,28 @@ in
         RPS1=""
       '')
 
+      # These need to be set prior to zoxide init
+      (lib.mkOrder 549 builtins.concatStringsSep " " [
+        "export _ZO_FZF_OPTS"
+        "--preview-window=right:60%:wrap:border-rounded"
+        "--height=80%"
+        "--layout=reverse"
+        "--border=rounded"
+        "--margin=1"
+        "--padding=1"
+        "--info=inline-right"
+        "--prompt='❯ '"
+        "--pointer='▶'"
+        "--marker='✓'"
+        "--scrollbar='||'"
+        "--color=bg+:,bg:,spinner:#ebbcba,hl:#eb6f92"
+        "--color=fg:#e0def4,header:#eb6f92,info:#9ccfd8,pointer:#ebbcba"
+        "--color=marker:#c4a7e7,fg+:#e0def4,prompt:#9ccfd8,hl+:#eb6f92"
+        "--color=selected-bg:#31748f"
+        "--color=border:#2a273f,label:#e0def4"
+        "--bind='resize:refresh-preview'"
+      ])
+
       (lib.mkOrder 550 ''
         mkdir -p ~/.config/zsh
         autoload -Uz compinit
