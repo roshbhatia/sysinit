@@ -104,11 +104,9 @@ in
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
         "--height=65%"
         "--layout=reverse"
-        "--border=none"
         "--info=inline"
-        "--prompt='❯ '"
-        "--pointer='❯'"
-        "--marker='✔'"
+        "--prompt='] '"
+        "--pointer='>>    '"
         "--color=bg+:,bg:,spinner:#ebbcba,hl:#eb6f92"
         "--color=fg:#e0def4,header:#eb6f92,info:#9ccfd8,pointer:#ebbcba"
         "--color=marker:#c4a7e7,fg+:#e0def4,prompt:#9ccfd8,hl+:#eb6f92"
@@ -117,7 +115,7 @@ in
         "--bind='resize:refresh-preview'"
         "--cycle"
         "--ignore-case"
-        "--input-border=rounded"
+        "--style=minimal"
       ];
 
       SUDO_EDITOR = "nvim";
