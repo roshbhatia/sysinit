@@ -88,6 +88,16 @@ local function get_clear_keys()
 	}
 end
 
+local function get_pallete_keys()
+	return {
+		{
+			key = "p",
+			mods = "CMD|SHIFT",
+			action = act.ActivateCommandPalette,
+		},
+	}
+end
+
 local function get_scroll_keys()
 	return {
 		{
@@ -289,6 +299,7 @@ function M.setup(config)
 		get_smart_splits(),
 		get_pane_keys(),
 		get_clear_keys(),
+		get_pallete_keys(),
 		get_scroll_keys(),
 		get_clipboard_keys(),
 		get_window_keys(),
@@ -310,3 +321,4 @@ function M.setup(config)
 end
 
 return M
+

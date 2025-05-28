@@ -56,7 +56,6 @@ local function get_basic_config()
 		macos_window_background_blur = 70,
 		window_decorations = "RESIZE",
 		text_min_contrast_ratio = 4.5,
-		pane_focus_follows_mouse = true,
 		max_fps = 144,
 	}
 end
@@ -131,9 +130,11 @@ local function setup_nvim_font_switch()
 		local overrides = window:get_config_overrides() or {}
 		if should_swtich then
 			overrides.font = nvim_font
+			overrides.font_size = 15.0
 			overrides.line_height = 1.2
 		else
 			overrides.font = nil
+			overrides.font_size = nil
 			overrides.line_height = nil
 		end
 		window:set_config_overrides(overrides)
@@ -173,3 +174,4 @@ function M.setup(config)
 end
 
 return M
+
