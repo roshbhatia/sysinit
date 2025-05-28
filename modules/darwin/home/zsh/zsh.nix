@@ -122,8 +122,6 @@ in
 
       SUDO_EDITOR = "nvim";
       VISUAL = "nvim";
-      PAGER = "bat --style=numbers -p --color=always";
-      MANPAGER = "sh -c 'col -bx | bat -l man -p'";
 
       EZA_COLORS = lib.concatStringsSep ";" [
         # directory color: #6d9eeb
@@ -309,4 +307,3 @@ in
     };
   };
 }
-
