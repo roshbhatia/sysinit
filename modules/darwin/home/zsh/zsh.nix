@@ -60,7 +60,6 @@ in
       l = "eza --icons=always -1";
       la = "eza --icons=always -1 -a";
       ll = "eza --icons=always -1 -a";
-      ls = "eza";
       lt = "eza --icons=always -1 -a -T";
 
       tf = "terraform";
