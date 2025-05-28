@@ -101,7 +101,6 @@ in
 
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
 
-
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
         "--height=40%"
         "--layout=reverse"
@@ -268,6 +267,11 @@ in
       force = true;
     };
 
+    "zsh/bin/fzf-preview" = {
+      source = ./bin/fzf-preview;
+      force = true;
+    };
+
     "zsh/bin/gh-whoami" = {
       source = ./bin/gh-whoami;
       force = true;
@@ -299,4 +303,3 @@ in
     };
   };
 }
-
