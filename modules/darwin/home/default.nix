@@ -18,7 +18,7 @@
     ./mcp/mcp.nix
     ./neovim/neovim.nix
     ./wezterm/wezterm.nix
-    ./hammerspoon/hamerspoon.nix
+    ./hammerspoon/hammerspoon.nix
 
     ./omp/omp.nix
     ./zsh/zsh.nix
