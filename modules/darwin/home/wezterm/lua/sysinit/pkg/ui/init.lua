@@ -129,8 +129,10 @@ local function setup_nvim_font_switch()
 		local overrides = window:get_config_overrides() or {}
 		if should_swtich then
 			overrides.font = nvim_font
+			overrides.enable_scroll_bar = false
 		else
 			overrides.font = nil
+			overrides.enable_scroll_bar = nil
 		end
 		window:set_config_overrides(overrides)
 	end)
@@ -169,4 +171,3 @@ function M.setup(config)
 end
 
 return M
-
