@@ -13,11 +13,6 @@ function M.setup()
 		desc = "Redo to next state",
 	})
 
-	vim.api.nvim_set_keymap("n", "q", "<Nop>", {
-		noremap = true,
-		silent = true,
-	})
-
 	vim.api.nvim_set_keymap("n", "m", "<Nop>", {
 		noremap = true,
 		silent = true,

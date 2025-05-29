@@ -125,6 +125,9 @@ M.plugins = {
 					end,
 				},
 			})
+
+			vim.api.nvim_set_hl(0, "NeoTreeRootName_35", { fg = "#9DA8A0", bg = nil, bold = true })
+			vim.api.nvim_set_hl(0, "NeoTreeMessage", { fg = "#9DA8A0", bg = nil, bold = false })
 		end,
 		keys = {
 			{
@@ -140,3 +143,4 @@ M.plugins = {
 }
 
 return M
+
