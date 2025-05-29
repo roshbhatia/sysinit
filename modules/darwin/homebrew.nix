@@ -71,6 +71,7 @@ let
     "1password-cli"
     "alt-tab"
     "firefox"
+    "hammerspoon"
     "keycastr"
     "loop"
     "obsidian"

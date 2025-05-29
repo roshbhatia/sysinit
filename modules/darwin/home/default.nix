@@ -6,18 +6,21 @@
   imports = [
     ./core/packages.nix
 
+    ./git/git.nix
+
     ./aider/aider.nix
     ./atuin/atuin.nix
     ./bat/bat.nix
     ./borders/borders.nix
     ./colima/colima.nix
-    ./git/git.nix
     ./k9s/k9s.nix
     ./macchina/macchina.nix
     ./mcp/mcp.nix
     ./neovim/neovim.nix
-    ./omp/omp.nix
     ./wezterm/wezterm.nix
+    ./hammerspoon/hamerspoon.nix
+
+    ./omp/omp.nix
     ./zsh/zsh.nix
 
     ./cargo/cargo.nix
