@@ -23,9 +23,22 @@ M.plugins = {
 						filter = function(buf)
 							return vim.b[buf].neo_tree_source == "filesystem"
 						end,
-						size = { height = 0.5 },
 					},
 					"neo-tree",
+				},
+				right = {
+					{
+						title = "󰪧 Outline",
+						ft = "aerial",
+						size = {
+							width = 40,
+						},
+					},
+					"aerial",
+				},
+				icons = {
+					closed = "",
+					open = "",
 				},
 			})
 		end,
@@ -33,4 +46,3 @@ M.plugins = {
 }
 
 return M
-
