@@ -22,10 +22,11 @@ require("sysinit.pkg.opts.completion").setup()
 require("sysinit.pkg.opts.autoread").setup()
 require("sysinit.pkg.opts.undo").setup()
 
-require("sysinit.pkg.autocmds").setup()
+require("sysinit.pkg.autocmds.help").setup()
+require("sysinit.pkg.autocmds.wezterm").setup()
 
-require("sysinit.pkg.plugin_manager").setup_package_manager()
-require("sysinit.pkg.plugin_manager").setup_plugins({
+require("sysinit.pkg.utils.plugin_manager").setup_package_manager()
+require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.collections.snacks"),
 	require("sysinit.plugins.debugger.dap"),
 	require("sysinit.plugins.debugger.dap-ui"),
@@ -105,5 +106,12 @@ require("sysinit.pkg.plugin_manager").setup_plugins({
 	require("sysinit.plugins.ui.window-picker"),
 })
 
-require("sysinit.pkg.keybindings").setup()
-require("sysinit.pkg.fallback_entrypoint").setup()
+require("sysinit.pkg.keybindings.buffer").setup()
+require("sysinit.pkg.keybindings.editor").setup()
+require("sysinit.pkg.keybindings.leader").setup()
+require("sysinit.pkg.keybindings.marks").setup()
+require("sysinit.pkg.keybindings.undo").setup()
+require("sysinit.pkg.keybindings.vim").setup()
+
+require("sysinit.pkg.entrypoint.no-session").setup()
+

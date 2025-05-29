@@ -10,11 +10,7 @@ function M.setup()
 			vim.fn.system('printf "\\033]1337;SetUserVar=IS_NVIM=%s\\007" "false"')
 		end,
 	})
-
-	vim.api.nvim_create_autocmd("FileType", {
-		pattern = "help",
-		command = "wincmd L",
-	})
 end
 
 return M
+

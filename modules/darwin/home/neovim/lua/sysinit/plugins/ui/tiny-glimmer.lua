@@ -3,8 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"rachartier/tiny-glimmer.nvim",
-		event = "VeryLazy",
-		priority = 10,
+		event = "BufReadPost",
 		config = function()
 			require("tiny-glimmer").setup({
 				enabled = true,
