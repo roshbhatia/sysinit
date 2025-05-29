@@ -8,8 +8,14 @@ M.plugins = {
 			vim.opt.splitkeep = "topline"
 
 			require("edgy").setup({
+				animate = {
+					enabled = false,
+				},
 				options = {
 					left = {
+						size = 40,
+					},
+					right = {
 						size = 40,
 					},
 					bottom = {
@@ -24,17 +30,16 @@ M.plugins = {
 							return vim.b[buf].neo_tree_source == "filesystem"
 						end,
 					},
-					"neo-tree",
 				},
 				right = {
 					{
 						title = "󰪧 Outline",
 						ft = "aerial",
-						size = {
-							width = 40,
-						},
 					},
-					"aerial",
+					{
+						title = "󰪧 LSP Diagnostics",
+						ft = "trouble",
+					},
 				},
 				icons = {
 					closed = "",
