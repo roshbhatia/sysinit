@@ -5,7 +5,10 @@ M.plugins = {
 	{
 		"stevearc/oil.nvim",
 		cmd = "Oil",
-		dependencies = { "nvim-tree/nvim-web-devicons" },
+		dependencies = {
+			"nvim-tree/nvim-web-devicons",
+			"folke/snacks.nvim",
+		},
 		config = function()
 			require("oil").setup({
 				default_file_explorer = true,
@@ -62,3 +65,4 @@ M.plugins = {
 }
 
 return M
+

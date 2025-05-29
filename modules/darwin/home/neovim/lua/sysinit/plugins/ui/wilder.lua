@@ -31,7 +31,7 @@ M.plugins = {
 						wilder.history(15),
 					},
 					wilder.cmdline_pipeline({
-						fuzzy = 1,
+						fuzzy = 2,
 						fuzzy_filter = wilder.lua_fzy_filter(),
 					}),
 					wilder.vim_search_pipeline()
@@ -50,3 +50,4 @@ M.plugins = {
 	},
 }
 return M
+
