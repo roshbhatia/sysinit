@@ -49,7 +49,6 @@ let
     "borders"
     "bcrypt"
     "block-goose-cli"
-    "direnv"
     "font-fira-code"
     "font-hack-nerd-font"
     "helm"
@@ -113,4 +112,3 @@ in
     casks = allCasks;
   };
 }
-

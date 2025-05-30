@@ -19,6 +19,7 @@
     ./neovim/neovim.nix
     ./wezterm/wezterm.nix
     ./hammerspoon/hammerspoon.nix
+    ./direnv/direnv.nix
 
     ./omp/omp.nix
     ./zsh/zsh.nix
