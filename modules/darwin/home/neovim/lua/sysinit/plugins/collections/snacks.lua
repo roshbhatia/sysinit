@@ -6,12 +6,8 @@ M.plugins = {
 		commit = "bc0630e43be5699bb94dadc302c0d21615421d93",
 		priority = 1050,
 		lazy = false,
-		dependencies = {
-			"catppuccin/nvim",
-		},
 		config = function()
-			local frappe = require("catppuccin.palettes").get_palette("frappe")
-			require("snacks").setup({
+			require("sncks").setup({
 				animate = {
 					enabled = true,
 					duration = 18,
@@ -59,6 +55,14 @@ M.plugins = {
 				toggle = { enabled = false },
 				win = { enabled = false },
 				zen = { enabled = false },
+			})
+
+			vim.api.nvim_create_autocmd("FileType", {
+				pattern = "snacks_terminal",
+				callback = function()
+					vim.wo.sidescrolloff = 0
+					vim.wo.sidescroll = 0
+				end,
 			})
 		end,
 		keys = function()
