@@ -7,7 +7,7 @@ M.plugins = {
 		priority = 1050,
 		lazy = false,
 		config = function()
-			require("sncks").setup({
+			require("snacks").setup({
 				animate = {
 					enabled = true,
 					duration = 18,
@@ -122,3 +122,4 @@ M.plugins = {
 }
 
 return M
+
