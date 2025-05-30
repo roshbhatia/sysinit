@@ -22,18 +22,7 @@ M.plugins = {
 				bufdelete = { enabled = true },
 				lazygit = {
 					enabled = true,
-					theme = {
-						[241] = { fg = frappe.subtext0 },
-						activeBorderColor = { fg = frappe.lavender, bold = true },
-						cherryPickedCommitBgColor = { fg = frappe.base },
-						cherryPickedCommitFgColor = { fg = frappe.maroon },
-						defaultFgColor = { fg = frappe.text },
-						inactiveBorderColor = { fg = frappe.overlay0 },
-						optionsTextColor = { fg = frappe.peach },
-						searchingActiveBorderColor = { fg = frappe.lavender, bold = true },
-						selectedLineBgColor = { bg = frappe.surface2 },
-						unstagedChangesColor = { fg = frappe.red },
-					},
+					configure = false,
 				},
 				notifier = {
 					enabled = true,

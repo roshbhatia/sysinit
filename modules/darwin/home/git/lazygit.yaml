@@ -5,5 +5,28 @@ gui:
 git:
   paging:
     colorArg: always
-    pager: delta --dark --syntax-theme=Catppuccin-Frappe --paging=never --hyperlinks
+    pager: delta --dark --syntax-theme=Catppuccin-Frappe --paging=never --hyperlinks --diff-so-fancy
 
+theme:
+  activeBorderColor:
+    - "#85c1dc"
+    - bold
+  inactiveBorderColor:
+    - "#a5adce"
+  optionsTextColor:
+    - "#8caaee"
+  selectedLineBgColor:
+    - "#414559"
+  cherryPickedCommitBgColor:
+    - "#51576d"
+  cherryPickedCommitFgColor:
+    - "#85c1dc"
+  unstagedChangesColor:
+    - "#e78284"
+  defaultFgColor:
+    - "#c6d0f5"
+  searchingActiveBorderColor:
+    - "#e5c890"
+
+authorColors:
+  "*": "#babbf1"
