@@ -1,14 +1,26 @@
 local leader = { "cmd", "ctrl" }
 
-hs.hotkey.bind(leader, "j", function()
-	hs.window.focusedWindow():focusWindowSouth(nil, false)
-end)
-hs.hotkey.bind(leader, "k", function()
-	hs.window.focusedWindow():focusWindowNorth(nil, false)
-end)
-hs.hotkey.bind(leader, "h", function()
-	hs.window.focusedWindow():focusWindowWest(nil, false)
-end)
-hs.hotkey.bind(leader, "l", function()
-	hs.window.focusedWindow():focusWindowEast(nil, false)
-end)
+local directions = {
+	{
+		key = "j",
+		method = "focusWindowSouth",
+	},
+	{
+		key = "k",
+		method = "focusWindowNorth",
+	},
+	{
+		key = "h",
+		method = "focusWindowWest",
+	},
+	{
+		key = "l",
+		method = "focusWindowEast",
+	},
+}
+
+for _, dir in ipairs(directions) do
+	hs.hotkey.bind(leader, dir.key, function()
+		hs.window.focusedWindow()[dir.method](hs.window.focusedWindow(), nil, false)
+	end)
+end
