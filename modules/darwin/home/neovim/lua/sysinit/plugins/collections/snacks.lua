@@ -6,7 +6,11 @@ M.plugins = {
 		commit = "bc0630e43be5699bb94dadc302c0d21615421d93",
 		priority = 1050,
 		lazy = false,
+		dependencies = {
+			"catppuccin/nvim",
+		},
 		config = function()
+			local frappe = require("catppuccin.palettes").get_palette("frappe")
 			require("snacks").setup({
 				animate = {
 					enabled = true,
@@ -16,7 +20,21 @@ M.plugins = {
 				},
 				bigfile = { enabled = true },
 				bufdelete = { enabled = true },
-				lazygit = { enabled = true },
+				lazygit = {
+					enabled = true,
+					theme = {
+						[241] = { fg = frappe.subtext0 },
+						activeBorderColor = { fg = frappe.lavender, bold = true },
+						cherryPickedCommitBgColor = { fg = frappe.base },
+						cherryPickedCommitFgColor = { fg = frappe.maroon },
+						defaultFgColor = { fg = frappe.text },
+						inactiveBorderColor = { fg = frappe.overlay0 },
+						optionsTextColor = { fg = frappe.peach },
+						searchingActiveBorderColor = { fg = frappe.lavender, bold = true },
+						selectedLineBgColor = { bg = frappe.surface2 },
+						unstagedChangesColor = { fg = frappe.red },
+					},
+				},
 				notifier = {
 					enabled = true,
 					timeout = 3000,
@@ -111,4 +129,3 @@ M.plugins = {
 }
 
 return M
-
