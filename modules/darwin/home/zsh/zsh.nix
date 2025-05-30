@@ -66,6 +66,7 @@ in
       tf = "terraform";
       y = "yazi";
       v = "nvim";
+      g = "git";
 
       sudo = "sudo -E";
 

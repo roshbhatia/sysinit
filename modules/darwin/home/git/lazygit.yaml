@@ -5,7 +5,7 @@ gui:
 git:
   paging:
     colorArg: always
-    pager: delta --dark --syntax-theme=Catppuccin-Frappe --paging=never --hyperlinks --hunk-header-decoration-style=omit
+    pager: delta --paging=never --hyperlinks --hunk-header-decoration-style=omit
   scrollPastBottom: false
   showCommandLog: false
   showRandomTip: false

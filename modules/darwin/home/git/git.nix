@@ -76,7 +76,10 @@ in
           path = ~/.config/delta/themes/catppuccin.gitconfig
 
       [alias]
+          p = pull
+          P = push
           co = checkout
+          cob = checkout -b
           br = branch
           st = status
           c = commit
@@ -142,4 +145,3 @@ in
     force = true;
   };
 }
-
