@@ -78,7 +78,6 @@ in
       LANG = "en_US.UTF-8";
       LC_ALL = "en_US.UTF-8";
 
-      # Clobbers the home manager defined ones? Maybe?
       XDG_CACHE_HOME = "${homeDirectory}/.cache";
       XDG_CONFIG_HOME = "${homeDirectory}/.config";
       XDG_DATA_HOME = "${homeDirectory}/.local/share";
@@ -292,3 +291,4 @@ in
     };
   };
 }
+

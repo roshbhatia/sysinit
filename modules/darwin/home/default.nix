@@ -34,3 +34,4 @@
     ./python/uvx.nix
   ];
 }
+

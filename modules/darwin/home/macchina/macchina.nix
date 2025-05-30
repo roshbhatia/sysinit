@@ -7,7 +7,6 @@
 let
   tomlFormat = pkgs.formats.toml { };
 
-  # Common theme settings
   commonTheme = {
     hide_ascii = false;
     spacing = 1;
@@ -52,21 +51,21 @@ let
   };
 
   nixTheme = commonTheme // {
-    key_color = "#5277C3"; # NixOS blue
-    separator_color = "#7EBAE4"; # NixOS light blue
+    key_color = "#5277C3";
+    separator_color = "#7EBAE4";
     box.title = "nix";
     custom_ascii = {
-      color = "#5277C3"; # NixOS blue
+      color = "#5277C3";
       path = "${homeDirectory}/.config/macchina/themes/nix.ascii";
     };
   };
 
   mgsTheme = commonTheme // {
-    key_color = "#5277C3"; # NixOS blue
-    separator_color = "#7EBAE4"; # NixOS light blue
+    key_color = "#5277C3";
+    separator_color = "#7EBAE4";
     box.title = "nix";
     custom_ascii = {
-      color = "#5277C3"; # NixOS blue
+      color = "#5277C3";
       path = "${homeDirectory}/.config/macchina/themes/mgs.ascii";
     };
   };
@@ -75,13 +74,10 @@ in
 {
   home.packages = [ pkgs.macchina ];
 
-  # Generate TOML configuration files
   xdg.configFile = {
     "macchina/macchina.toml" = {
-      # Default configuration using rosh theme
       source = tomlFormat.generate "macchina.toml" {
         theme = "rosh";
-        # Add any other global settings here
       };
       force = true;
     };
@@ -101,7 +97,6 @@ in
       force = true;
     };
 
-    # Keep the ASCII art files
     "macchina/themes/rosh.ascii" = {
       source = ./themes/rosh.ascii;
       force = true;
@@ -118,3 +113,4 @@ in
     };
   };
 }
+
