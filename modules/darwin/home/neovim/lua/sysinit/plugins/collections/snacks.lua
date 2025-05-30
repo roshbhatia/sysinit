@@ -60,8 +60,9 @@ M.plugins = {
 			vim.api.nvim_create_autocmd("FileType", {
 				pattern = "snacks_terminal",
 				callback = function()
-					vim.wo.sidescrolloff = 0
-					vim.wo.sidescroll = 0
+					local wo = vim.api.nvim_get_current_win()
+					vim.api.nvim_win_set_option(wo, "sidescroll", 0)
+					vim.api.nvim_win_set_option(wo, "sidescrolloff", 0)
 				end,
 			})
 		end,
