@@ -63,7 +63,9 @@ let
     "python@3.11"
     "pngpaste"
     "rust"
+    "sad"
     "sshpass"
+    "tlrc"
   ];
 
   baseCasks = [

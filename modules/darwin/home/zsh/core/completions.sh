@@ -32,11 +32,10 @@ export _ZO_FZF_OPTS=" \
 --bind='resize:refresh-preview'"
 zvm_after_init_commands+="_evalcache zoxide init zsh"
 
-function zd()
-{
-  local dir
-  dir=$(zoxide query "$@")
-  pushd "$dir"
+function d() {
+	local dir
+	dir=$(zoxide query "$@")
+	pushd "$dir"
 }
 # modules/darwin/home/zsh/core/completions.sh (end)
 
