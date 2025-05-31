@@ -55,6 +55,8 @@ in
       "~" = "cd ~";
 
       code = "code-insiders";
+      c = "code-insiders";
+
       kubectl = "kubecolor";
 
       l = "eza --icons=always -1";
