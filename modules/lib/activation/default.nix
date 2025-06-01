@@ -4,7 +4,7 @@
 }:
 
 let
-  toolsPath = ./tools.sh;
+  libraryPath = ./library.sh;
 in
 {
   mkActivationUtils =
@@ -17,7 +17,7 @@ in
       after = [ ];
       before = [ "*" ];
       data = ''
-        source ${toolsPath}
+        source ${libraryPath}
 
         export LOG_DIR="${logDir}"
         export LOG_PREFIX="${logPrefix}"
@@ -45,7 +45,7 @@ in
       after = [ "setupActivationUtils" ];
       before = [ ];
       data = ''
-        source ${toolsPath}
+        source ${libraryPath}
 
         log_info "Managing ${name} packages..."
 
@@ -79,7 +79,7 @@ in
     {
       inherit after before;
       data = ''
-        source ${toolsPath}
+        source ${libraryPath}
 
         ${if description != "" then ''log_info "Starting: ${description}"'' else ""}
 
