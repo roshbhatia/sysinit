@@ -1,5 +1,5 @@
 {
-  description = "Roshan's OSX DevEnv System Config";
+  description = "Roshan's macOS DevEnv System Config";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
@@ -14,51 +14,41 @@
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
   };
 
-  outputs = { self, darwin, home-manager, nix-homebrew, ... }@inputs:
+  outputs =
+    inputs@{
+      self,
+      nixpkgs,
+      darwin,
+      home-manager,
+      nix-homebrew,
+      ...
+    }:
     let
       system = "aarch64-darwin";
-      mkSystem = configPath:
-        let
-          config = import configPath;
-          username = config.user.username;
-          sharedConfig = {
-            inherit inputs system username;
-            homeDirectory = "/Users/${username}";
-            userConfig = config;
-          };
-        in
-        darwin.lib.darwinSystem {
-          inherit system;
-          specialArgs = sharedConfig;
-          modules = [
-            ./modules/darwin
-            nix-homebrew.darwinModules.nix-homebrew
-            home-manager.darwinModules.home-manager
-            {
-              networking.hostName = config.user.hostname;
-              home-manager = {
-                useGlobalPkgs = true;
-                useUserPackages = true;
-                extraSpecialArgs = sharedConfig;
-                users.${username} = { ... }: {
-                  imports = [ ./modules/home ];
-                  home = {
-                    inherit username;
-                    homeDirectory = sharedConfig.homeDirectory;
-                    stateVersion = "23.11";
-                  };
-                };
-                backupFileExtension = "backup";
-              };
-            }
-          ];
-        };
+      overlay = import ./overlay.nix;
+      username = overlay.user.username;
+      hostname = overlay.user.hostname;
+      homeDirectory = "/Users/${username}";
     in
     {
-      darwinConfigurations.${(import ./config.nix).user.hostname} = mkSystem ./config.nix;
-      lib = {
-        mkConfigWithFile = mkSystem;
-        defaultConfigPath = ./config.nix;
+      darwinConfigurations.${hostname} = darwin.lib.darwinSystem {
+        inherit system;
+        specialArgs = {
+          inherit
+            inputs
+            system
+            overlay
+            username
+            homeDirectory
+            ;
+        };
+        modules = [
+          ./modules/nix
+          ./modules/darwin
+          ./modules/home
+          home-manager.darwinModules.home-manager
+          nix-homebrew.darwinModules.nix-homebrew
+        ];
       };
     };
 }

@@ -2,13 +2,12 @@
   inputs,
   username,
   homeDirectory,
-  userConfig ? { },
+  overlay,
   ...
 }:
 {
   imports = [
     ./configurations
     ./packages
-    inputs.nix-homebrew.darwinModules.nix-homebrew
   ];
 }

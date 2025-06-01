@@ -1,6 +1,6 @@
 {
   lib,
-  userConfig ? { },
+  overlay,
   ...
 }:
 
@@ -13,7 +13,7 @@ in
     basePackages = [
       "uv"
     ];
-    additionalPackages = (userConfig.pipx.additionalPackages or [ ]);
+    additionalPackages = (overlay.pipx.additionalPackages or [ ]);
     executableArguments = [
       "install"
       "--force"

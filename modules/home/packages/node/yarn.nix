@@ -1,6 +1,6 @@
 {
   lib,
-  userConfig ? { },
+  overlay,
   ...
 }:
 
@@ -26,7 +26,7 @@ in
       "typescript-language-server"
       "typescript"
     ];
-    additionalPackages = (userConfig.yarn.additionalPackages or [ ]);
+    additionalPackages = (overlay.yarn.additionalPackages or [ ]);
     executableArguments = [
       "global"
       "add"

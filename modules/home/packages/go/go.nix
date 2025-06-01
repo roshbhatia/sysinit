@@ -1,6 +1,6 @@
 {
   lib,
-  userConfig ? { },
+  overlay,
   ...
 }:
 
@@ -11,7 +11,7 @@ in
   home.activation.goPackages = activation.mkPackageManager {
     name = "go";
     basePackages = [ ];
-    additionalPackages = (userConfig.go.additionalPackages or [ ]);
+    additionalPackages = (overlay.go.additionalPackages or [ ]);
     executableArguments = [ "install" ];
     executableName = "go";
   };

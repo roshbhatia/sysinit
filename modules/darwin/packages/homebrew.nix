@@ -1,14 +1,14 @@
 {
   username,
   inputs,
-  userConfig ? { },
+  overlay,
   ...
 }:
 
 let
-  additionalTaps = (userConfig.homebrew.additionalPackages.taps or [ ]);
-  additionalBrews = (userConfig.homebrew.additionalPackages.brews or [ ]);
-  additionalCasks = (userConfig.homebrew.additionalPackages.casks or [ ]);
+  additionalTaps = (overlay.homebrew.additionalPackages.taps or [ ]);
+  additionalBrews = (overlay.homebrew.additionalPackages.brews or [ ]);
+  additionalCasks = (overlay.homebrew.additionalPackages.casks or [ ]);
 
   baseTaps = [
     "FelixKratz/formulae"

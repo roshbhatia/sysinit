@@ -13,9 +13,7 @@
 
   homebrew = {
     additionalPackages = {
-      taps = [
-        "hashicorp/tap"
-      ];
+      taps = [ "hashicorp/tap" ];
       brews = [
         "blueutil"
         "hashicorp/tap/packer"
@@ -32,13 +30,6 @@
     };
   };
 
-  pipx = {
-    additionalPackages = [
-      "mcp-proxy"
-    ];
-  };
-
-  npm = {
-    additionalPackages = [ ];
-  };
+  pipx.additionalPackages = [ "mcp-proxy" ];
+  npm.additionalPackages = [ ];
 }

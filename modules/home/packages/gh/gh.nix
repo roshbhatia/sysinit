@@ -1,6 +1,6 @@
 {
   lib,
-  userConfig ? { },
+  overlay,
   ...
 }:
 
@@ -15,10 +15,7 @@ in
       "github/gh-copilot"
     ];
     additionalPackages =
-      if userConfig ? gh && userConfig.gh ? additionalPackages then
-        userConfig.gh.additionalPackages
-      else
-        [ ];
+      if overlay ? gh && overlay.gh ? additionalPackages then overlay.gh.additionalPackages else [ ];
     executableArguments = [
       "extension"
       "install"

@@ -1,6 +1,6 @@
 {
   lib,
-  userConfig ? { },
+  overlay,
   ...
 }:
 
@@ -26,7 +26,7 @@ in
       "status"
       "tail"
     ];
-    additionalPackages = (userConfig.krew.additionalPackages or [ ]);
+    additionalPackages = (overlay.krew.additionalPackages or [ ]);
     executableArguments = [
       "krew"
       "install"

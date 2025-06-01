@@ -1,6 +1,6 @@
 {
   lib,
-  userConfig ? { },
+  overlay,
   ...
 }:
 
@@ -19,7 +19,7 @@ in
     basePackages = [
       "yarn"
     ];
-    additionalPackages = (userConfig.npm.additionalPackages or [ ]);
+    additionalPackages = (overlay.npm.additionalPackages or [ ]);
     executableArguments = [
       "install"
       "-g"

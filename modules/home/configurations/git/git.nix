@@ -1,10 +1,10 @@
 {
-  userConfig ? { },
+  overlay,
   ...
 }:
 
 let
-  cfg = userConfig.git;
+  cfg = overlay.git;
 
   personalEmail = if (cfg ? personalEmail) then cfg.personalEmail else cfg.userEmail;
   workEmail = if (cfg ? workEmail) then cfg.workEmail else cfg.userEmail;

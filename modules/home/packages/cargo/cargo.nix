@@ -1,6 +1,6 @@
 {
   lib,
-  userConfig ? { },
+  overlay,
   ...
 }:
 
@@ -16,7 +16,7 @@ in
       "stylua"
       "tree-sitter-cli"
     ];
-    additionalPackages = (userConfig.cargo.additionalPackages or [ ]);
+    additionalPackages = (overlay.cargo.additionalPackages or [ ]);
     executableArguments = [
       "install"
       "--locked"

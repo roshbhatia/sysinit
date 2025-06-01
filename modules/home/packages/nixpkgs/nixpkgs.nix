@@ -1,11 +1,11 @@
 {
   pkgs,
-  userConfig ? { },
+  overlay,
   ...
 }:
 
 let
-  additionalPackages = (userConfig.packages or [ ]);
+  additionalPackages = (overlay.packages or [ ]);
 
   baseNixPackages = with pkgs; [
     ansible
@@ -83,4 +83,3 @@ in
 {
   home.packages = allNixPackages;
 }
-

@@ -1,6 +1,6 @@
 {
   lib,
-  userConfig ? { },
+  overlay,
   ...
 }:
 
@@ -15,7 +15,7 @@ in
       "hererocks"
       "yamllint"
     ];
-    additionalPackages = (userConfig.uvx.additionalPackages or [ ]);
+    additionalPackages = (overlay.uvx.additionalPackages or [ ]);
     executableArguments = [
       "tool"
       "install"
