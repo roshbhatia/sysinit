@@ -7,15 +7,19 @@
 }:
 {
   imports = [
+    (import ./zsh {
+      inherit config lib pkgs;
+    })
+    (import ./git {
+      inherit lib overlay;
+    })
+
     ./aider
     ./atuin
     ./bat
     ./borders
     ./colima
     ./direnv
-    (import ./git {
-      inherit lib overlay;
-    })
     ./hammerspoon
     ./k9s
     ./macchina
@@ -23,8 +27,5 @@
     ./neovim
     ./omp
     ./wezterm
-    (import ./zsh {
-      inherit config lib pkgs;
-    })
   ];
 }

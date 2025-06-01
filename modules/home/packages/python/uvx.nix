@@ -19,6 +19,7 @@ in
     executableArguments = [
       "tool"
       "install"
+      "--force"
     ];
     executableName = "uv";
   };

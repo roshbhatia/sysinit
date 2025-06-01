@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   pkgs,
   ...
@@ -37,12 +38,12 @@ in
     };
 
     dirHashes = {
-      dsk = "~/Desktop";
-      docs = "~/Documents";
-      dl = "~/Downloads";
-      ghp = "~/github/personal";
-      ghpr = "~/github/personal/roshbhatia";
-      ghw = "~/github/work";
+      dsk = "${config.home.homeDirectory}/Desktop";
+      docs = "${config.home.homeDirectory}/Documents";
+      dl = "${config.home.homeDirectory}/Downloads";
+      ghp = "${config.home.homeDirectory}/github/personal";
+      ghpr = "${config.home.homeDirectory}/github/personal/roshbhatia";
+      ghw = "${config.home.homeDirectory}/github/work";
     };
 
     shellAliases = {
@@ -78,19 +79,19 @@ in
       LANG = "en_US.UTF-8";
       LC_ALL = "en_US.UTF-8";
 
-      XDG_CACHE_HOME = "~/.cache";
-      XDG_CONFIG_HOME = "~/.config";
-      XDG_DATA_HOME = "~/.local/share";
-      XDG_STATE_HOME = "~/.local/state";
+      XDG_CACHE_HOME = "${config.home.homeDirectory}/.cache";
+      XDG_CONFIG_HOME = "${config.home.homeDirectory}/.config";
+      XDG_DATA_HOME = "${config.home.homeDirectory}/.local/share";
+      XDG_STATE_HOME = "${config.home.homeDirectory}/.local/state";
 
-      XCA = "~/.cache";
-      XCO = "~/.config";
-      XDA = "~/.local/share";
-      XST = "~/.local/state";
+      XCA = "${config.home.homeDirectory}/.cache";
+      XCO = "${config.home.homeDirectory}/.config";
+      XDA = "${config.home.homeDirectory}/.local/share";
+      XST = "${config.home.homeDirectory}/.local/state";
 
       GIT_DISCOVERY_ACROSS_FILESYSTEM = 1;
 
-      ZSH_EVALCACHE_DIR = "~/.local/share/zsh/evalcache";
+      ZSH_EVALCACHE_DIR = "${config.home.homeDirectory}/.local/share/zsh/evalcache";
 
       ZSH_AUTOSUGGEST_USE_ASYNC = 1;
       ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = 20;
@@ -216,12 +217,12 @@ in
       '')
 
       (lib.mkOrder 550 ''
-        mkdir -p ~/.config/zsh
+        mkdir -p ${config.home.homeDirectory}/.config/zsh
         autoload -Uz compinit
-        if [[ -n ~/.config/zsh/zcompdump/.zcompdump(#qN.mh+24) ]]; then
-          compinit -d "~/.config/zsh/zcompdump/.zcompdump";
+        if [[ -n ${config.home.homeDirectory}/.config/zsh/zcompdump/.zcompdump(#qN.mh+24) ]]; then
+          compinit -d "${config.home.homeDirectory}/.config/zsh/zcompdump/.zcompdump";
         else
-          compinit -C -d "~/.config/zsh/zcompdump/.zcompdump";
+          compinit -C -d "${config.home.homeDirectory}/.config/zsh/zcompdump/.zcompdump";
         fi
 
         zstyle ':completion:*:git-checkout:*' sort false
@@ -272,6 +273,11 @@ in
 
     "zsh/bin/fzf-preview" = {
       source = ./bin/fzf-preview;
+      force = true;
+    };
+
+    "zsh/bin/git-ai-commit" = {
+      source = ./bin/git-ai-commit;
       force = true;
     };
 

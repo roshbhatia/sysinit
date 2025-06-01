@@ -12,7 +12,6 @@ in
     name = "gh";
     basePackages = [
       "dlvhdr/gh-dash"
-      "github/gh-copilot"
     ];
     additionalPackages =
       if overlay ? gh && overlay.gh ? additionalPackages then overlay.gh.additionalPackages else [ ];

@@ -13,6 +13,7 @@ let
     atuin
     awscli
     bat
+    bashInteractive
     caddy
     colima
     coreutils

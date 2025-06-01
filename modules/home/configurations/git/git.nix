@@ -83,7 +83,7 @@ in
           br = branch
           st = status
           c = commit
-          cai = !msg=''\$(goose run --text "Generate a conventional commit message for my staged changes. ONLY output the commit message, DO NOT print anything else." --no-session 2>/dev/null | tail -1) && echo "''\$\msg" | gum write --placeholder="Edit commit message..." | xargs -I {} git commit -m "{}"
+          cai = !git-ai-commit
           ca = commit --amend
           cane = commit --amend --no-edit
           unstage = reset HEAD --
