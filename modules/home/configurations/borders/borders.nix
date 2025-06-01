@@ -16,7 +16,6 @@ in
     description = "Start borders service";
     requiredExecutables = [ "brew" ];
     script = ''
-      brew services start borders
       log_command "brew services restart borders" "Starting borders service"
     '';
   };

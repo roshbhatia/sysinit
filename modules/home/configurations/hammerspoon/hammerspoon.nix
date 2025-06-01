@@ -16,7 +16,7 @@ in
     description = "Modify Hammerspoon config path";
     requiredExecutables = [ "defaults" ];
     script = ''
-      defaults write org.hammerspoon.Hammerspoon MJConfigFile "~/.config/hammerspoon/init.lua"
+      log_command "defaults write org.hammerspoon.Hammerspoon MJConfigFile '~/.config/hammerspoon/init.lua'" "Setting Hammerspoon config path"
     '';
   };
 }
