@@ -12,6 +12,8 @@ let
 
   baseTaps = [
     "FelixKratz/formulae"
+    "homebrew/cask"
+    "homebrew/core"
     "jandedobbeleer/oh-my-posh"
     "mediosz/tap"
     "nikitabobko/tap"
@@ -64,10 +66,6 @@ in
     enableRosetta = true;
     user = username;
     autoMigrate = true;
-    taps = {
-      "homebrew/homebrew-core" = inputs.homebrew-core;
-      "homebrew/homebrew-cask" = inputs.homebrew-cask;
-    };
     mutableTaps = true;
   };
 
