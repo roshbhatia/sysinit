@@ -1,7 +1,22 @@
-{ ... }:
+{
+  lib,
+  overlay,
+  ...
+}:
+
 {
   imports = [
-    ./pipx.nix
-    ./uvx.nix
+    (import ./pipx.nix {
+      inherit
+        lib
+        overlay
+        ;
+    })
+    (import ./uvx.nix {
+      inherit
+        lib
+        overlay
+        ;
+    })
   ];
 }

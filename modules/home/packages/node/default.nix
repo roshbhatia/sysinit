@@ -1,7 +1,22 @@
-{ ... }:
+{
+  lib,
+  overlay,
+  ...
+}:
+
 {
   imports = [
-    ./npm.nix
-    ./yarn.nix
+    (import ./npm.nix {
+      inherit
+        lib
+        overlay
+        ;
+    })
+    (import ./yarn.nix {
+      inherit
+        lib
+        overlay
+        ;
+    })
   ];
 }

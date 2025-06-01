@@ -1,4 +1,16 @@
-{ ... }:
 {
-  imports = [ ./go.nix ];
+  lib,
+  overlay,
+  ...
+}:
+
+{
+  imports = [
+    (import ./go.nix {
+      inherit
+        lib
+        overlay
+        ;
+    })
+  ];
 }
