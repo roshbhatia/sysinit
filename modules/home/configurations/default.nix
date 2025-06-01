@@ -1,4 +1,10 @@
-{ ... }:
+{
+  config,
+  lib,
+  overlay,
+  pkgs,
+  ...
+}:
 {
   imports = [
     ./aider
@@ -7,7 +13,9 @@
     ./borders
     ./colima
     ./direnv
-    ./git
+    (import ./git {
+      inherit lib overlay;
+    })
     ./hammerspoon
     ./k9s
     ./macchina
@@ -15,6 +23,8 @@
     ./neovim
     ./omp
     ./wezterm
-    ./zsh
+    (import ./zsh {
+      inherit config lib pkgs;
+    })
   ];
 }

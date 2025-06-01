@@ -1,7 +1,6 @@
 {
   inputs,
   username,
-  homeDirectory,
   overlay,
   ...
 }:

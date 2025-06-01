@@ -28,7 +28,6 @@
       overlay = import ./overlay.nix;
       username = overlay.user.username;
       hostname = overlay.user.hostname;
-      homeDirectory = "/Users/${username}";
     in
     {
       darwinConfigurations.${hostname} = darwin.lib.darwinSystem {
@@ -39,7 +38,6 @@
             system
             overlay
             username
-            homeDirectory
             ;
         };
         modules = [

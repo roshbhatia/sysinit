@@ -1,12 +1,10 @@
 {
   lib,
   pkgs,
-  homeDirectory,
   ...
 }:
 let
   shell = import ../../../lib/shell { inherit lib; };
-
   logLib = shell.stripHeaders ./core/loglib.sh;
   paths = shell.stripHeaders ./core/paths.sh;
   wezterm = shell.stripHeaders ./core/wezterm.sh;
@@ -39,12 +37,12 @@ in
     };
 
     dirHashes = {
-      dsk = "${homeDirectory}/Desktop";
-      docs = "${homeDirectory}/Documents";
-      dl = "${homeDirectory}/Downloads";
-      ghp = "${homeDirectory}/github/personal";
-      ghpr = "${homeDirectory}/github/personal/roshbhatia";
-      ghw = "${homeDirectory}/github/work";
+      dsk = "~/Desktop";
+      docs = "~/Documents";
+      dl = "~/Downloads";
+      ghp = "~/github/personal";
+      ghpr = "~/github/personal/roshbhatia";
+      ghw = "~/github/work";
     };
 
     shellAliases = {
@@ -80,19 +78,19 @@ in
       LANG = "en_US.UTF-8";
       LC_ALL = "en_US.UTF-8";
 
-      XDG_CACHE_HOME = "${homeDirectory}/.cache";
-      XDG_CONFIG_HOME = "${homeDirectory}/.config";
-      XDG_DATA_HOME = "${homeDirectory}/.local/share";
-      XDG_STATE_HOME = "${homeDirectory}/.local/state";
+      XDG_CACHE_HOME = "~/.cache";
+      XDG_CONFIG_HOME = "~/.config";
+      XDG_DATA_HOME = "~/.local/share";
+      XDG_STATE_HOME = "~/.local/state";
 
-      XCA = "${homeDirectory}/.cache";
-      XCO = "${homeDirectory}/.config";
-      XDA = "${homeDirectory}/.local/share";
-      XST = "${homeDirectory}/.local/state";
+      XCA = "~/.cache";
+      XCO = "~/.config";
+      XDA = "~/.local/share";
+      XST = "~/.local/state";
 
       GIT_DISCOVERY_ACROSS_FILESYSTEM = 1;
 
-      ZSH_EVALCACHE_DIR = "${homeDirectory}/.local/share/zsh/evalcache";
+      ZSH_EVALCACHE_DIR = "~/.local/share/zsh/evalcache";
 
       ZSH_AUTOSUGGEST_USE_ASYNC = 1;
       ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = 20;

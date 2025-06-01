@@ -3,7 +3,7 @@
   lib,
   pkgs,
   username,
-  homeDirectory,
+  overlay,
   ...
 }:
 
@@ -14,14 +14,27 @@
     backupFileExtension = "backup";
 
     users.${username} =
-      { pkgs, ... }:
+      { ... }:
       {
         imports = [
-          ./packages
-          ./configurations
+          (import ./packages {
+            inherit
+              config
+              lib
+              overlay
+              pkgs
+              ;
+          })
+          (import ./configurations {
+            inherit
+              config
+              lib
+              overlay
+              pkgs
+              ;
+          })
         ];
         home = {
-          inherit username homeDirectory;
           stateVersion = "23.11";
         };
       };

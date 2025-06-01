@@ -5,8 +5,6 @@
   overlay,
   ...
 }:
-let
-in
 {
   imports = [
     (import ./nixpkgs {

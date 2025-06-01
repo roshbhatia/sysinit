@@ -1,4 +1,14 @@
-{ ... }:
 {
-  imports = [ ./git.nix ];
+  overlay,
+  ...
+}:
+
+{
+  imports = [
+    (import ./git.nix {
+      inherit
+        overlay
+        ;
+    })
+  ];
 }

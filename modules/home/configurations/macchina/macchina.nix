@@ -1,6 +1,5 @@
 {
   pkgs,
-  homeDirectory,
   ...
 }:
 
@@ -46,7 +45,6 @@ let
     box.title = "rosh";
     custom_ascii = {
       color = "#BB90B7";
-      path = "${homeDirectory}/.config/macchina/themes/rosh.ascii";
     };
   };
 
@@ -56,7 +54,6 @@ let
     box.title = "nix";
     custom_ascii = {
       color = "#5277C3";
-      path = "${homeDirectory}/.config/macchina/themes/nix.ascii";
     };
   };
 
@@ -66,7 +63,6 @@ let
     box.title = "nix";
     custom_ascii = {
       color = "#5277C3";
-      path = "${homeDirectory}/.config/macchina/themes/mgs.ascii";
     };
   };
 
