@@ -2,7 +2,7 @@
   inputs,
   username,
   homeDirectory,
-  userConfig,
+  userConfig ? { },
   ...
 }:
 {

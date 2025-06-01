@@ -61,6 +61,7 @@ let
   allCasks = baseCasks ++ additionalCasks;
 in
 {
+  # This actually installs homebrew
   nix-homebrew = {
     enableRosetta = true;
     user = username;
@@ -72,7 +73,9 @@ in
     mutableTaps = true;
   };
 
+  # This installs packages via homebrew
   homebrew = {
+    enable = true;
     onActivation = {
       autoUpdate = true;
       upgrade = true;
