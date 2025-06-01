@@ -22,7 +22,7 @@
       }:
       {
         imports = [
-          (import ./packages {
+          (import ./configurations {
             inherit
               config
               lib
@@ -30,7 +30,7 @@
               pkgs
               ;
           })
-          (import ./configurations {
+          (import ./packages {
             inherit
               config
               lib
