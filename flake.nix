@@ -22,72 +22,51 @@
     };
   };
 
-  outputs =
-    {
-      self,
-      darwin,
-      home-manager,
-      nix-homebrew,
-      ...
-    }@inputs:
+  outputs = { self, darwin, home-manager, nix-homebrew, ... }@inputs:
     let
       system = "aarch64-darwin";
-      defaultConfigPath = ./config.nix;
-
-      defaultConfig = import defaultConfigPath;
-
-      mkDarwinConfig =
-        configPath:
+      mkSystem = configPath:
         let
           config = import configPath;
           username = config.user.username;
-          hostname = config.user.hostname;
-          homeDirectory = "/Users/${username}";
+          sharedConfig = {
+            inherit inputs system username;
+            homeDirectory = "/Users/${username}";
+            userConfig = config;
+          };
         in
         darwin.lib.darwinSystem {
           inherit system;
-          specialArgs = {
-            inherit inputs username homeDirectory;
-            userConfig = config;
-          };
+          specialArgs = sharedConfig;
           modules = [
             ./modules/darwin
             nix-homebrew.darwinModules.nix-homebrew
             home-manager.darwinModules.home-manager
             {
-              networking.hostName = hostname;
+              networking.hostName = config.user.hostname;
               home-manager = {
                 useGlobalPkgs = true;
                 useUserPackages = true;
-                extraSpecialArgs = {
-                  inherit inputs username homeDirectory;
-                  userConfig = config;
-                };
-                users.${username} =
-                  { ... }:
-                  {
-                    imports = [ ./modules/home ];
-                    home = {
-                      inherit username homeDirectory;
-                      stateVersion = "23.11";
-                    };
+                extraSpecialArgs = sharedConfig;
+                users.${username} = { ... }: {
+                  imports = [ ./modules/home ];
+                  home = {
+                    inherit username;
+                    homeDirectory = sharedConfig.homeDirectory;
+                    stateVersion = "23.11";
                   };
+                };
                 backupFileExtension = "backup";
               };
             }
           ];
         };
-
-      defaultHostname = defaultConfig.user.hostname;
     in
     {
-      darwinConfigurations.${defaultHostname} = mkDarwinConfig defaultConfigPath;
-
+      darwinConfigurations.${(import ./config.nix).user.hostname} = mkSystem ./config.nix;
       lib = {
-        mkConfigWithFile = mkDarwinConfig;
-        inherit defaultConfigPath;
+        mkConfigWithFile = mkSystem;
+        defaultConfigPath = ./config.nix;
       };
-
-      packages.${system}.default = self.darwinConfigurations.${defaultHostname}.system;
     };
 }
