@@ -1,6 +1,10 @@
 # Nix
 *.nix
 .nixignore
+**/nix-darwin-master/
+**/*.old
+flake.lock
+result/
 
 # Git
 .git*
@@ -18,7 +22,7 @@ result-*
 # Flake outputs
 .direnv/
 
-# Aider
+# AI Stuff
 .aider.chat.history.md
 .aider.input.history
 .aider.tags.cache.v4/cache.db
@@ -29,8 +33,14 @@ result-*
 .aider.tags.cache.v4/cache.db
 .aider.tags.cache.v4/cache.db-shm
 .aider.tags.cache.v4/cache.db-wal
+.goose/
 
-# Nix
-**/nix-darwin-master/
-**/*.old
-
+# Development
+.editorconfig
+.gitignore
+.luarc.json
+.nixignore
+.stylua.toml
+hack/
+README.md
+Taskfile.yml
