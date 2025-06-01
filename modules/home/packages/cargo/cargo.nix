@@ -16,11 +16,7 @@ in
       "stylua"
       "tree-sitter-cli"
     ];
-    additionalPackages =
-      if userConfig ? cargo && userConfig.cargo ? additionalPackages then
-        userConfig.cargo.additionalPackages
-      else
-        [ ];
+    additionalPackages = (userConfig.cargo.additionalPackages or [ ]);
     executableArguments = [
       "install"
       "--locked"

@@ -1,4 +1,5 @@
-{...}: {
+{ ... }:
+{
   system.defaults.dock = {
     autohide = true;
     expose-group-apps = true;

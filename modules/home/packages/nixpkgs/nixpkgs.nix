@@ -5,13 +5,9 @@
 }:
 
 let
-  additionalPackages =
-    if userConfig ? packages && userConfig.packages ? additional then
-      userConfig.packages.additional
-    else
-      [ ];
+  additionalPackages = (userConfig.packages or [ ]);
 
-  baseHomePackages = with pkgs; [
+  baseNixPackages = with pkgs; [
     ansible
     argocd
     atuin
@@ -73,9 +69,8 @@ let
     yazi
   ];
 
-  allHomePackages = baseHomePackages ++ additionalPackages;
+  allNixPackages = baseNixPackages ++ additionalPackages;
 in
 {
-  home.packages = allHomePackages;
+  home.packages = allNixPackages;
 }
-

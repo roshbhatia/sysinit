@@ -1,10 +1,11 @@
-{...}: {
+{ ... }:
+{
   imports = [
     ./nixpkgs
     ./cargo
     ./gh
     ./go
-    ./krew
+    ./kubectl
     ./node
     ./python
   ];

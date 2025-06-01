@@ -19,11 +19,7 @@ in
     basePackages = [
       "yarn"
     ];
-    additionalPackages =
-      if userConfig ? npm && userConfig.npm ? additionalPackages then
-        userConfig.npm.additionalPackages
-      else
-        [ ];
+    additionalPackages = (userConfig.npm.additionalPackages or [ ]);
     executableArguments = [
       "install"
       "-g"
@@ -31,4 +27,3 @@ in
     executableName = "npm";
   };
 }
-

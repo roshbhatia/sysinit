@@ -2,7 +2,8 @@
   username,
   homeDirectory,
   ...
-}: {
+}:
+{
   imports = [
     ./dock
     ./finder

@@ -26,11 +26,7 @@ in
       "status"
       "tail"
     ];
-    additionalPackages =
-      if userConfig ? krewPackages && userConfig.krew ? additionalPackages then
-        userConfig.krew.additionalPackages
-      else
-        [ ];
+    additionalPackages = (userConfig.krew.additionalPackages or [ ]);
     executableArguments = [
       "krew"
       "install"
@@ -38,4 +34,3 @@ in
     executableName = "kubectl";
   };
 }
-

@@ -4,7 +4,8 @@
   homeDirectory,
   userConfig,
   ...
-}: {
+}:
+{
   imports = [
     ./osx
   ];

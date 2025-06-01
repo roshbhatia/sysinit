@@ -26,11 +26,7 @@ in
       "typescript-language-server"
       "typescript"
     ];
-    additionalPackages =
-      if userConfig ? yarn && userConfig.yarn ? additionalPackages then
-        userConfig.yarn.additionalPackages
-      else
-        [ ];
+    additionalPackages = (userConfig.yarn.additionalPackages or [ ]);
     executableArguments = [
       "global"
       "add"
@@ -39,4 +35,3 @@ in
     executableName = "yarn";
   };
 }
-

@@ -1,7 +1,7 @@
-{...}: {
+{ ... }:
+{
   imports = [
     ./packages
     ./configurations
   ];
 }
-

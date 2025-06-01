@@ -1,3 +1,4 @@
-{...}: {
+{ ... }:
+{
   imports = [ ./macchina.nix ];
 }

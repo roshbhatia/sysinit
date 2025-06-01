@@ -2,7 +2,8 @@
   username,
   homeDirectory,
   ...
-}: {
+}:
+{
   system = {
     primaryUser = username;
     stateVersion = 4;

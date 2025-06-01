@@ -6,35 +6,9 @@
 }:
 
 let
-  additionalTaps =
-    if
-      userConfig ? homebrew
-      && userConfig.homebrew ? additionalPackages
-      && userConfig.homebrew.additionalPackages ? taps
-    then
-      userConfig.homebrew.additionalPackages.taps
-    else
-      [ ];
-
-  additionalBrews =
-    if
-      userConfig ? homebrew
-      && userConfig.homebrew ? additionalPackages
-      && userConfig.homebrew.additionalPackages ? brews
-    then
-      userConfig.homebrew.additionalPackages.brews
-    else
-      [ ];
-
-  additionalCasks =
-    if
-      userConfig ? homebrew
-      && userConfig.homebrew ? additionalPackages
-      && userConfig.homebrew.additionalPackages ? casks
-    then
-      userConfig.homebrew.additionalPackages.casks
-    else
-      [ ];
+  additionalTaps = (userConfig.homebrew.additionalPackages.taps or [ ]);
+  additionalBrews = (userConfig.homebrew.additionalPackages.brews or [ ]);
+  additionalCasks = (userConfig.homebrew.additionalPackages.casks or [ ]);
 
   baseTaps = [
     "FelixKratz/formulae"

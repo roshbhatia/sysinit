@@ -11,16 +11,9 @@ in
   home.activation.pipxPackages = activation.mkPackageManager {
     name = "pipx";
     basePackages = [
-      "black"
-      "hererocks"
-      "yamllint"
       "uv"
     ];
-    additionalPackages =
-      if userConfig ? pipx && userConfig.pipx ? additionalPackages then
-        userConfig.pipx.additionalPackages
-      else
-        [ ];
+    additionalPackages = (userConfig.pipx.additionalPackages or [ ]);
     executableArguments = [
       "install"
       "--force"
@@ -28,4 +21,3 @@ in
     executableName = "pipx";
   };
 }
-

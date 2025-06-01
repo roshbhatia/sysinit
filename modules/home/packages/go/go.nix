@@ -11,13 +11,8 @@ in
   home.activation.goPackages = activation.mkPackageManager {
     name = "go";
     basePackages = [ ];
-    additionalPackages =
-      if userConfig ? go && userConfig.go ? additionalPackages then
-        userConfig.go.additionalPackages
-      else
-        [ ];
+    additionalPackages = (userConfig.go.additionalPackages or [ ]);
     executableArguments = [ "install" ];
     executableName = "go";
   };
 }
-

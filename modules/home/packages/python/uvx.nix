@@ -11,13 +11,11 @@ in
   home.activation.uvxPackages = activation.mkPackageManager {
     name = "uvx";
     basePackages = [
-      "skydeckai-code"
+      "black"
+      "hererocks"
+      "yamllint"
     ];
-    additionalPackages =
-      if userConfig ? uvx && userConfig.uvx ? additionalPackages then
-        userConfig.uvx.additionalPackages
-      else
-        [ ];
+    additionalPackages = (userConfig.uvx.additionalPackages or [ ]);
     executableArguments = [
       "tool"
       "install"
@@ -25,4 +23,3 @@ in
     executableName = "uv";
   };
 }
-

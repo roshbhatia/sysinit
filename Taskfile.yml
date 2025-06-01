@@ -11,13 +11,27 @@ tasks:
     desc: Show help information
     silent: true
 
+  nix:fmt:
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        source hack/lib/logger.sh
+        log_info "Finding and formatting Nix files"
+        if ! fd -e nix -E result -x sh -c 'source hack/lib/logger.sh && log_info "Formatting: {}" && nixfmt {}' _; then
+          log_error "Formatting failed"
+          exit 1
+        fi
+        log_success "Nix files formatted successfully"
+    desc: Format Nix files using nixfmt
+    silent: true
+
   nix:build:
     cmds:
       - |
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Building system configuration"
-        if ! sudo darwin-rebuild switch -v --show-trace --impure --flake .; then
+        if ! sudo darwin-rebuild build -v --show-trace --impure --flake .; then
           log_error "Build failed."
           exit 1
         fi
