@@ -63,6 +63,7 @@ in
 {
   # This actually installs homebrew
   nix-homebrew = {
+    enable = true;
     enableRosetta = true;
     user = username;
     autoMigrate = true;
