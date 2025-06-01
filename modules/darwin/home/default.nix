@@ -5,7 +5,6 @@
 {
   imports = [
     ./packages/nixpkgs/nixpkgs.nix
-    ./packages/homebrew/homebrew.nix
     ./packages/cargo/cargo.nix
     ./packages/gh/gh.nix
     ./packages/go/go.nix
