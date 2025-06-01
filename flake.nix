@@ -51,8 +51,7 @@
             userConfig = config;
           };
           modules = [
-            ./modules/darwin/system.nix
-            ./modules/darwin/homebrew.nix
+            ./modules/darwin
             nix-homebrew.darwinModules.nix-homebrew
             home-manager.darwinModules.home-manager
             {
@@ -67,7 +66,7 @@
                 users.${username} =
                   { ... }:
                   {
-                    imports = [ ./modules/darwin/home ];
+                    imports = [ ./modules/home ];
                     home = {
                       inherit username homeDirectory;
                       stateVersion = "23.11";
