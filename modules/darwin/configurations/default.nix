@@ -1,7 +1,4 @@
 {
-  inputs,
-  username,
-  overlay,
   ...
 }:
 {
