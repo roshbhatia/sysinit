@@ -30,7 +30,10 @@ in
     executableArguments = [
       "global"
       "add"
+      "--no-progress"
       "--non-interactive"
+      "--pure-lockfile"
+      "--silent"
     ];
     executableName = "yarn";
   };
