@@ -12,8 +12,6 @@ let
 
   baseTaps = [
     "FelixKratz/formulae"
-    "homebrew/cask"
-    "homebrew/core"
     "jandedobbeleer/oh-my-posh"
     "mediosz/tap"
     "nikitabobko/tap"
