@@ -5,7 +5,7 @@
   ...
 }:
 let
-  shellUtils = import ../../../lib/shell/utils.nix { inherit lib; };
+  shellUtils = import ../../../../lib/shell/utils.nix { inherit lib; };
 
   logLib = shellUtils.stripHeaders ./core/loglib.sh;
   paths = shellUtils.stripHeaders ./core/paths.sh;
