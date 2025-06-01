@@ -21,6 +21,7 @@ let
     duf
     fd
     findutils
+    fira-code
     fzf
     gettext
     gh
@@ -47,6 +48,14 @@ let
     lnav
     luajit
     lynx
+    nerd-fonts.m+
+    nerd-fonts.noto
+    nerd-fonts.hack
+    nerd-fonts.tinos
+    nerd-fonts.lilex
+    nerd-fonts.arimo
+    nerd-fonts.agave
+    nerd-fonts._3270
     nil
     nixd
     nixfmt-rfc-style

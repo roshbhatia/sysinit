@@ -23,8 +23,6 @@ let
     "borders"
     "bcrypt"
     "block-goose-cli"
-    "font-fira-code"
-    "font-hack-nerd-font"
     "helm"
     "imagemagick"
     "jandedobbeleer/oh-my-posh/oh-my-posh"
