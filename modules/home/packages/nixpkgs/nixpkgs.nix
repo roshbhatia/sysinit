@@ -48,7 +48,7 @@ let
     lnav
     luajit
     lynx
-    nerd-fonts.m+
+    nerd-fonts."m+"
     nerd-fonts.noto
     nerd-fonts.hack
     nerd-fonts.tinos
@@ -83,3 +83,4 @@ in
 {
   home.packages = allNixPackages;
 }
+
