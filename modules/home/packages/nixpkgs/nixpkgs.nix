@@ -50,6 +50,7 @@ let
     lnav
     luajit
     lynx
+    monaspace
     nerd-fonts."m+"
     nerd-fonts.noto
     nerd-fonts.hack
