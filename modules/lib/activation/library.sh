@@ -28,28 +28,20 @@ export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
 export PATH="/etc/profiles/per-user/$USER/bin:$PATH"
 export PATH="$XDG_DATA_HOME/.npm-packages/bin:$PATH"
 
-LOG_DIR="/tmp/sysinit-logs"
-LOG_PREFIX="sysinit"
-mkdir -p "$LOG_DIR"
-
 log_info() {
-	echo -e "[\033[0;36m$(date '+%Y-%m-%d %H:%M:%S')\033[0m] [\033[0;34mINFO\033[0m] $1"
-	echo "$(date '+%Y-%m-%d %H:%M:%S') INFO $1" >>"$LOG_DIR/${LOG_PREFIX}.log"
+	echo "$(date '+%Y-%m-%d %H:%M:%S') INFO $1"
 }
 
 log_debug() {
-	echo -e "[\033[0;36m$(date '+%Y-%m-%d %H:%M:%S')\033[0m] [\033[0;35mDEBUG\033[0m] $1"
-	echo "$(date '+%Y-%m-%d %H:%M:%S') DEBUG $1" >>"$LOG_DIR/${LOG_PREFIX}.log"
+	echo "$(date '+%Y-%m-%d %H:%M:%S') DEBUG $1"
 }
 
 log_error() {
-	echo -e "[\033[0;36m$(date '+%Y-%m-%d %H:%M:%S')\033[0m] [\033[0;31mERROR\033[0m] $1"
-	echo "$(date '+%Y-%m-%d %H:%M:%S') ERROR $1" >>"$LOG_DIR/${LOG_PREFIX}.log"
+	echo "$(date '+%Y-%m-%d %H:%M:%S') ERROR $1"
 }
 
 log_success() {
-	echo -e "[\033[0;36m$(date '+%Y-%m-%d %H:%M:%S')\033[0m] [\033[0;32mSUCCESS\033[0m] $1"
-	echo "$(date '+%Y-%m-%d %H:%M:%S') SUCCESS $1" >>"$LOG_DIR/${LOG_PREFIX}.log"
+	echo "$(date '+%Y-%m-%d %H:%M:%S') SUCCESS $1"
 }
 
 log_command() {
