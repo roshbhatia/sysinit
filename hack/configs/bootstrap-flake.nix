@@ -9,9 +9,7 @@
 
   outputs =
     {
-      self,
       darwin,
-      nixpkgs,
     }:
     {
       darwinConfigurations.bootstrap = darwin.lib.darwinSystem {

@@ -1,4 +1,4 @@
 #!/bin/sh
 exec /nix/var/nix/profiles/default/bin/nix run --extra-experimental-features "nix-command flakes" \
-    github:lnl7/nix-darwin \
-    -- "$@"
+	github:lnl7/nix-darwin \
+	-- "$@"
