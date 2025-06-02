@@ -38,12 +38,14 @@ in
     };
 
     dirHashes = {
-      dsk = "${config.home.homeDirectory}/Desktop";
-      docs = "${config.home.homeDirectory}/Documents";
       dl = "${config.home.homeDirectory}/Downloads";
+      docs = "${config.home.homeDirectory}/Documents";
+      dsk = "${config.home.homeDirectory}/Desktop";
       ghp = "${config.home.homeDirectory}/github/personal";
       ghpr = "${config.home.homeDirectory}/github/personal/roshbhatia";
       ghw = "${config.home.homeDirectory}/github/work";
+      nvim = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim";
+      sysi = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit";
     };
 
     shellAliases = {
