@@ -10,7 +10,9 @@ in
 {
   home.activation.goPackages = activation.mkPackageManager {
     name = "go";
-    basePackages = [ ];
+    basePackages = [
+      "golang.org/x/tools/cmd/goimports@latest"
+    ];
     additionalPackages = (overlay.go.additionalPackages or [ ]);
     executableArguments = [ "install" ];
     executableName = "go";

@@ -42,35 +42,6 @@ M.plugins = {
 				border = "rounded", -- 'none' | 'single' | 'double' | 'single' | 'shadow' | 'solid'
 			},
 		},
-		keys = function()
-			return {
-				{
-					"<leader>aie",
-					"<cmd>CopilotChatExplain<cr>",
-					desc = "Copilot: Explain code",
-				},
-				{
-					"<leader>ait",
-					"<cmd>CopilotChatTests<cr>",
-					desc = "Copilot: Generate tests",
-				},
-				{
-					"<leader>aif",
-					"<cmd>CopilotChatFix<cr>",
-					desc = "Copilot: Fix code",
-				},
-				{
-					"<leader>aio",
-					"<cmd>CopilotChatOptimize<cr>",
-					desc = "Copilot: Optimize code",
-				},
-				{
-					"<leader>aid",
-					"<cmd>CopilotChatDocs<cr>",
-					desc = "Copilot: Generate docs",
-				},
-			}
-		end,
 	},
 }
 return M

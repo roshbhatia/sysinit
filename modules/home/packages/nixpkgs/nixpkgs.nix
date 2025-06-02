@@ -67,9 +67,11 @@ let
     openssh
     ollama
     prettierd
+    proselint
     ripgrep
     shellcheck
     socat
+    statix
     stern
     swift
     taplo
@@ -86,4 +88,3 @@ in
 {
   home.packages = allNixPackages;
 }
-
