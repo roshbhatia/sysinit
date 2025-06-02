@@ -15,17 +15,6 @@ local terminal_font = wezterm.font_with_fallback({
 	"Symbols Nerd Font",
 })
 
-local nvim_font = wezterm.font_with_fallback({
-	{
-		family = "Hack Nerd Font",
-		harfbuzz_features = {
-			"calt",
-			"zero",
-		},
-	},
-	"Symbols Nerd Font",
-})
-
 local function is_vim(pane)
 	return pane:get_user_vars().IS_NVIM == "true"
 end
@@ -108,10 +97,8 @@ local function setup_nvim_ui_overrides()
 		local overrides = window:get_config_overrides() or {}
 		if should_switch then
 			overrides.enable_scroll_bar = false
-			overrides.font = nvim_font
 		else
 			overrides.enable_scroll_bar = nil
-			overrides.font = nil
 		end
 		window:set_config_overrides(overrides)
 	end)
