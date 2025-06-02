@@ -36,6 +36,7 @@ let
     gum
     helm-ls
     htop
+    jetbrains-mono
     jq
     jqp
     k9s
@@ -84,3 +85,4 @@ in
 {
   home.packages = allNixPackages;
 }
+
