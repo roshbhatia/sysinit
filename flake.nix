@@ -23,29 +23,43 @@
     }:
     let
       system = "aarch64-darwin";
-      overlay = import ./overlay.nix;
-      username = overlay.user.username;
-      hostname = overlay.user.hostname;
+      defaultOverlay = import ./overlay.nix;
+
+      mkDarwinConfiguration =
+        customOverlay:
+        let
+          overlay = customOverlay;
+          username = overlay.user.username;
+          hostname = overlay.user.hostname;
+        in
+        darwin.lib.darwinSystem {
+          inherit system;
+          specialArgs = {
+            inherit
+              inputs
+              system
+              overlay
+              username
+              hostname
+              ;
+          };
+          modules = [
+            ./modules/nix
+            ./modules/darwin
+            ./modules/home
+            home-manager.darwinModules.home-manager
+            nix-homebrew.darwinModules.nix-homebrew
+          ];
+        };
     in
     {
-      darwinConfigurations.${hostname} = darwin.lib.darwinSystem {
-        inherit system;
-        specialArgs = {
-          inherit
-            inputs
-            system
-            overlay
-            username
-            ;
-        };
-        modules = [
-          ./modules/nix
-          ./modules/darwin
-          ./modules/home
-          home-manager.darwinModules.home-manager
-          nix-homebrew.darwinModules.nix-homebrew
-        ];
+      darwinConfigurations = {
+        ${defaultOverlay.user.hostname} = mkDarwinConfiguration defaultOverlay;
+      };
+
+      lib = {
+        inherit mkDarwinConfiguration;
+        defaultOverlay = defaultOverlay;
       };
     };
 }
-
