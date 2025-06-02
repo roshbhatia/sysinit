@@ -17,7 +17,7 @@ local terminal_font = wezterm.font_with_fallback({
 
 local nvim_font = wezterm.font_with_fallback({
 	{
-		family = "Geist Mono",
+		family = "Cascadia Code NF",
 		weight = "Medium",
 		harfbuzz_features = {
 			"calt",
@@ -142,3 +142,4 @@ function M.setup(config)
 end
 
 return M
+

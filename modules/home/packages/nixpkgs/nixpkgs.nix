@@ -14,6 +14,7 @@ let
     awscli
     bat
     bashInteractive
+    cascadia-code
     caddy
     colima
     coreutils
