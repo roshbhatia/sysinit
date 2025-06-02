@@ -78,7 +78,7 @@ _log() {
   local log_line="${STYLE_DIM}${timestamp}${COLOR_RESET} ${color}${level_name}${COLOR_RESET}"
   
   # Add message
-  log_line="${log_line} msg=\"${message}\""
+  log_line="${log_line} ${message}"
   
   # Add any additional key-value pairs
   while [ "$#" -gt 0 ]; do
