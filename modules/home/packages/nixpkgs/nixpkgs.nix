@@ -24,6 +24,7 @@ let
     findutils
     fira-code
     fzf
+    geist-font
     gettext
     gh
     git
@@ -50,7 +51,6 @@ let
     lnav
     luajit
     lynx
-    monaspace
     nerd-fonts."m+"
     nerd-fonts.noto
     nerd-fonts.hack
@@ -86,3 +86,4 @@ in
 {
   home.packages = allNixPackages;
 }
+

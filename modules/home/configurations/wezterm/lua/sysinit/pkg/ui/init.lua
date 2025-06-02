@@ -17,25 +17,10 @@ local terminal_font = wezterm.font_with_fallback({
 
 local nvim_font = wezterm.font_with_fallback({
 	{
-		family = "Monaspace Argon Var",
+		family = "Geist Mono",
 		harfbuzz_features = {
-			"calt=1", -- Enable texture healing
-			"liga=1", -- Enable basic ligatures
-			"ss01=1", -- Equals-related ligatures
-			"ss02=1", -- Less/greater-than-or-equal ligatures
-			"ss03=1", -- Arrow ligatures
-			"ss04=1", -- Markup ligatures like </>
-			"ss05=1", -- F# programming ligatures like |>
-			"ss06=1", -- Repeated #, +, and & ligatures
-			"ss07=1", -- Colon-related ligatures like ::
-			"ss08=1", -- Period-based ligatures like ..=
-			"ss09=1", -- Comparison-based ligatures like <>
-			"ss10=1", -- Specialized tags like #[ and #(
-			"cv01=2", -- Slashed zero (enhanced readability)
-			"cv10=1", -- Alternate 'l' and 'i' for clarity
-			"cv11=1", -- Alternate 'j', 'f', 'r', 't' for programming style
-			"cv30=1", -- Vertically aligned asterisk for code alignment
-			"cv60=1", -- <= ligature styled to match =>
+			"calt",
+			"zero",
 		},
 	},
 	"Symbols Nerd Font",
@@ -156,3 +141,4 @@ function M.setup(config)
 end
 
 return M
+
