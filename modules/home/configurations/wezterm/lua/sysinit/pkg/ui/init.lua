@@ -18,7 +18,7 @@ local terminal_font = wezterm.font_with_fallback({
 local nvim_font = wezterm.font_with_fallback({
 	{
 		family = "Cascadia Code NF",
-		weight = "Medium",
+		weight = "Regular",
 		harfbuzz_features = {
 			"calt",
 			"zero",
