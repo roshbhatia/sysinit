@@ -18,7 +18,7 @@ local terminal_font = wezterm.font_with_fallback({
 local nvim_font = wezterm.font_with_fallback({
 	{
 		family = "Monaspace Neon Var",
-		weight = "Medium",
+		weight = "SemiBold",
 		harfbuzz_features = {
 			"calt=1", -- Enable texture healing
 			"liga=1", -- Enable basic ligatures
