@@ -14,9 +14,9 @@ M.plugins = {
     config = function()
       require("navigator").setup({
         icons = {
-          code_action_icon = "󰘧",
-          diagnostic_head = """,
-		      diagnostic_head_severity_1 = "󱢇"
+          code_action_icon = '󰘧',
+          diagnostic_head = '"',
+		      diagnostic_head_severity_1 = '󱢇'
         },
         keymaps = {
           { key = "<leader>ca", func = "code_action", desc = "Code Action" },
