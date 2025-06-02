@@ -13,8 +13,7 @@ in
     basePackages = [
       "dlvhdr/gh-dash"
     ];
-    additionalPackages =
-      if overlay ? gh && overlay.gh ? additionalPackages then overlay.gh.additionalPackages else [ ];
+    additionalPackages = (overlay.gh.additionalPackages or [ ]);
     executableArguments = [
       "extension"
       "install"
