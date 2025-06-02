@@ -1,7 +1,7 @@
 local wezterm = require("wezterm")
 local M = {}
 
-local terminal_theme = "Rosé Pine (base16)"
+local terminal_theme = "Rosé Pine Moon (Gogh)"
 
 local terminal_font = wezterm.font_with_fallback({
 	{
@@ -30,8 +30,8 @@ end
 
 local function get_window_appearance_config()
 	return {
-		window_background_opacity = 0.9,
-		macos_window_background_blur = 70,
+		window_background_opacity = 0.75,
+		macos_window_background_blur = 65,
 		window_decorations = "RESIZE",
 	}
 end
@@ -128,4 +128,3 @@ function M.setup(config)
 end
 
 return M
-
