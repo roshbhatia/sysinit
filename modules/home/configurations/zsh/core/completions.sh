@@ -29,12 +29,8 @@ export _ZO_FZF_OPTS=" \
 --color=selected-bg:#31748f \
 --color=border:#2a273f,label:#e0def4 \
 --bind='resize:refresh-preview'"
-zvm_after_init_commands+="_evalcache zoxide init zsh"
-
-function d() {
-	local dir
-	dir=$(zoxide query "$@")
-	pushd "$dir"
-}
+zvm_after_init_commands+=$'_evalcache zoxide init zsh'
+# Override the zoxide shorthand to use pushd
+zvm_after_init_commands+=$'\nfunction z() { local dir; dir=$(zoxide query "$@"); pushd "$dir"; }'
 # modules/darwin/home/zsh/core/completions.sh (end)
 
