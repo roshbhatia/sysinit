@@ -32,7 +32,7 @@
         username
       ];
     };
-    enable = false; # This is managed by determinate systems
+    enable = false; # This is managed by determinate systems. Not sure if the above is applicable?
   };
 
   nixpkgs = {
