@@ -27,6 +27,19 @@ M.plugins = {
 				setup_lsp(lsp)
 			end
 
+			setup_lsp("gopls", {
+				settings = {
+					gopls = {
+						analyses = {
+							unusedparams = true,
+							unusedvariable = true,
+						},
+						staticcheck = true,
+						gofumpt = true,
+					},
+				},
+			})
+
 			setup_lsp("jsonls", {
 				settings = {
 					json = {

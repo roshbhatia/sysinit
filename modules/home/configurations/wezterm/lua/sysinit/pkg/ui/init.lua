@@ -99,6 +99,8 @@ local function setup_nvim_ui_overrides()
 			overrides.enable_scroll_bar = false
 		else
 			overrides.enable_scroll_bar = nil
+			-- Set the color scheme after vim exits as vim changes the bg color
+			overrides.color_scheme = terminal_theme
 		end
 		window:set_config_overrides(overrides)
 	end)
@@ -128,3 +130,4 @@ function M.setup(config)
 end
 
 return M
+

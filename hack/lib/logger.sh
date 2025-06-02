@@ -184,3 +184,4 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
 	log_error "This is an error message" user="$USER" pid=$$
 	log_critical "This is a critical message" user="$USER" pid=$$
 fi
+
