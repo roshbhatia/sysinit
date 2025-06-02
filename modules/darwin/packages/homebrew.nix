@@ -35,6 +35,7 @@ let
     "pngpaste"
     "rust"
     "sad"
+    "shortcat"
     "sshpass"
     "tlrc"
   ];
