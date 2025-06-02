@@ -43,31 +43,37 @@ let
   roshTheme = commonTheme // {
     key_color = "LightCyan";
     separator_color = "Yellow";
-    box.title = "rosh";
+    box = {
+      title = "rosh";
+    };
     custom_ascii = {
       color = "#BB90B7";
+      path = "${config.home.homeDirectory}/.config/macchina/themes/rosh.ascii";
     };
-    path = "${config.home.homeDirectory}/.config/macchina/themes/rosh.ascii";
   };
 
   nixTheme = commonTheme // {
     key_color = "#5277C3";
     separator_color = "#7EBAE4";
-    box.title = "nix";
+    box = {
+      title = "rosh";
+    };
     custom_ascii = {
       color = "#5277C3";
+      path = "${config.home.homeDirectory}/.config/macchina/themes/nix.ascii";
     };
-    path = "${config.home.homeDirectory}/.config/macchina/themes/nix.ascii";
   };
 
   mgsTheme = commonTheme // {
     key_color = "#5277C3";
     separator_color = "#7EBAE4";
-    box.title = "nix";
+    box = {
+      title = "rosh";
+    };
     custom_ascii = {
       color = "#5277C3";
+      path = "${config.home.homeDirectory}/.config/macchina/themes/mgs.ascii";
     };
-    path = "${config.home.homeDirectory}/.config/macchina/themes/mgs.ascii";
   };
 
 in
