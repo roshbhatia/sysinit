@@ -45,7 +45,7 @@ in
       ghpr = "${config.home.homeDirectory}/github/personal/roshbhatia";
       ghw = "${config.home.homeDirectory}/github/work";
       nvim = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim";
-      sysi = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit";
+      sysinit = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit";
     };
 
     shellAliases = {
