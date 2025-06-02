@@ -13,8 +13,8 @@ M.plugins = {
 					virtual_text = false,
 				},
 				ui = {
-					code_action = "󰘧",
-					actionfix = "",
+					code_action = "󰺕",
+					actionfix = "",
 				},
 			})
 		end,
