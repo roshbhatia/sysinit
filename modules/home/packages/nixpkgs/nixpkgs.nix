@@ -14,7 +14,6 @@ let
     awscli
     bat
     bashInteractive
-    cascadia-code
     caddy
     colima
     coreutils
@@ -25,7 +24,6 @@ let
     findutils
     fira-code
     fzf
-    geist-font
     gettext
     gh
     git
@@ -52,6 +50,7 @@ let
     lnav
     luajit
     lynx
+    monaspace
     nerd-fonts."m+"
     nerd-fonts.noto
     nerd-fonts.hack
