@@ -22,7 +22,9 @@
     ./direnv
     ./hammerspoon
     ./k9s
-    ./macchina
+    (import ./macchina {
+      inherit config pkgs;
+    })
     ./mcp
     ./neovim
     ./omp

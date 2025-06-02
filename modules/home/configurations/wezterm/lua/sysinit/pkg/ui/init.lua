@@ -1,27 +1,13 @@
 local wezterm = require("wezterm")
 local M = {}
 
-local function is_vim(pane)
-	return pane:get_user_vars().IS_NVIM == "true"
-end
-
-local themes = {
-	"Rosé Pine (base16)",
-	"Catppuccin Frappé (Gogh)",
-	"Rosé Pine (Gogh)",
-	"Rosé Pine Moon (base16)",
-	"Rosé Pine Moon (Gogh)",
-	"Catppuccin Macchiato (Gogh)",
-	"Nord (base16)",
-	"DoomOne",
-	"nordfox",
-	"Relaxed",
-}
-
 local font_shared_features = {
 	"calt",
 	"zero",
 }
+
+local terminal_theme = "Rosé Pine (base16)"
+local nvim_theme = "Catppuccin Frappé (Gogh)"
 
 local terminal_font = wezterm.font_with_fallback({
 	{
@@ -40,22 +26,35 @@ local nvim_font = wezterm.font_with_fallback({
 	"Symbols Nerd Font",
 })
 
-local current_theme_index = 1
+local function is_vim(pane)
+	return pane:get_user_vars().IS_NVIM == "true"
+end
 
-local function get_basic_config()
+local function get_window_padding_config()
 	return {
 		window_padding = {
 			left = "8px",
 			top = "8px",
 		},
-		enable_scroll_bar = true,
-		enable_tab_bar = true,
-		scrollback_lines = 20000,
+	}
+end
+
+local function get_window_appearance_config()
+	return {
 		window_background_opacity = 0.9,
 		macos_window_background_blur = 70,
 		window_decorations = "RESIZE",
+	}
+end
+
+local function get_display_config()
+	return {
+		enable_scroll_bar = true,
+		enable_tab_bar = true,
 		text_min_contrast_ratio = 4.5,
 		max_fps = 144,
+		color_scheme = terminal_theme,
+		scrollback_lines = 20000,
 	}
 end
 
@@ -83,25 +82,6 @@ local function get_cursor_config()
 	}
 end
 
-local function cycle_theme()
-	current_theme_index = current_theme_index % #themes + 1
-	return themes[current_theme_index]
-end
-
-local function get_theme_keys()
-	return {
-		{
-			key = "t",
-			mods = "CMD|SHIFT",
-			action = wezterm.action_callback(function(window, pane)
-				local overrides = window:get_config_overrides() or {}
-				overrides.color_scheme = cycle_theme()
-				window:set_config_overrides(overrides)
-			end),
-		},
-	}
-end
-
 local function setup_gui_startup()
 	wezterm.on("gui-startup", function(cmd)
 		local screen = wezterm.gui.screens().active
@@ -110,7 +90,6 @@ local function setup_gui_startup()
 		end
 
 		local _, _, window = wezterm.mux.spawn_window(cmd or {})
-
 		local padding = 25
 		local adjusted_width = screen.width - (2 * padding)
 		local adjusted_height = screen.height - (2 * padding)
@@ -123,51 +102,45 @@ local function setup_gui_startup()
 	end)
 end
 
-local function setup_nvim_font_switch()
+local function setup_nvim_ui_overrides()
 	wezterm.on("update-status", function(window, pane)
-		local should_swtich = is_vim(pane)
+		local should_switch = is_vim(pane)
 		local overrides = window:get_config_overrides() or {}
-		if should_swtich then
-			overrides.font = nvim_font
+		if should_switch then
 			overrides.enable_scroll_bar = false
+			overrides.font = nvim_font
+			overrides.color_scheme = nvim_theme
 		else
-			overrides.font = nil
 			overrides.enable_scroll_bar = nil
+			overrides.font = nil
+			overrides.color_scheme = nil
 		end
 		window:set_config_overrides(overrides)
 	end)
 end
 
 function M.setup(config)
-	local basic_config = get_basic_config()
-	for key, value in pairs(basic_config) do
-		config[key] = value
+	local configs = {
+		get_window_padding_config(),
+		get_window_appearance_config(),
+		get_display_config(),
+		get_cursor_config(),
+		get_font_config(),
+	}
+
+	for _, cfg in ipairs(configs) do
+		for key, value in pairs(cfg) do
+			config[key] = value
+		end
 	end
 
 	config.visual_bell = get_visual_bell_config()
-	config.color_scheme = themes[current_theme_index]
-	config.font = terminal_font
-
-	local cursor_config = get_cursor_config()
-	for key, value in pairs(cursor_config) do
-		config[key] = value
-	end
-
-	local font_config = get_font_config()
-	for key, value in pairs(font_config) do
-		config[key] = value
-	end
-
-	local theme_keys = get_theme_keys()
-	config.keys = config.keys or {}
-	for _, key_binding in ipairs(theme_keys) do
-		table.insert(config.keys, key_binding)
-	end
 
 	setup_gui_startup()
-	setup_nvim_font_switch()
+	setup_nvim_ui_overrides()
 
 	return config
 end
 
 return M
+
