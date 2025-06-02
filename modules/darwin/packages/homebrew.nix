@@ -35,7 +35,6 @@ let
     "pngpaste"
     "rust"
     "sad"
-    "shortcat"
     "sshpass"
     "tlrc"
   ];
@@ -49,6 +48,7 @@ let
     "loop"
     "obsidian"
     "raycast"
+    "shortcat"
     "slack"
     "visual-studio-code@insiders"
     "wezterm@nightly"
