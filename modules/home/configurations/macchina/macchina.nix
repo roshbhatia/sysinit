@@ -1,5 +1,4 @@
 {
-  config,
   pkgs,
   ...
 }:
@@ -47,7 +46,7 @@ let
     custom_ascii = {
       color = "#BB90B7";
     };
-    path = "${config.home.homeDirectory}//.config/macchina/themes/rosh.ascii";
+    path = "~/.config/macchina/themes/rosh.ascii";
   };
 
   nixTheme = commonTheme // {
@@ -57,7 +56,7 @@ let
     custom_ascii = {
       color = "#5277C3";
     };
-    path = "${config.home.homeDirectory}//.config/macchina/themes/nix.ascii";
+    path = "~/.config/macchina/themes/nix.ascii";
   };
 
   mgsTheme = commonTheme // {
@@ -67,7 +66,7 @@ let
     custom_ascii = {
       color = "#5277C3";
     };
-    path = "${config.home.homeDirectory}//.config/macchina/themes/mgs.ascii";
+    path = "~/.config/macchina/themes/mgs.ascii";
   };
 
 in
