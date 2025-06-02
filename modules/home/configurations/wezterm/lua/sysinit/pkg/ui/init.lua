@@ -6,8 +6,7 @@ local font_shared_features = {
 	"zero",
 }
 
-local terminal_theme = "Rosé Pine (base16)"
-local nvim_theme = "Catppuccin Frappé (Gogh)"
+local terminal_theme = "Catppuccin Frappé (Gogh)"
 
 local terminal_font = wezterm.font_with_fallback({
 	{
@@ -109,11 +108,9 @@ local function setup_nvim_ui_overrides()
 		if should_switch then
 			overrides.enable_scroll_bar = false
 			overrides.font = nvim_font
-			overrides.color_scheme = nvim_theme
 		else
 			overrides.enable_scroll_bar = nil
 			overrides.font = nil
-			overrides.color_scheme = nil
 		end
 		window:set_config_overrides(overrides)
 	end)
