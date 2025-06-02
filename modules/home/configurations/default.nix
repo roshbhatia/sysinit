@@ -23,7 +23,7 @@
     ./hammerspoon
     ./k9s
     (import ./macchina {
-      inherit pkgs;
+      inherit config pkgs;
     })
     ./mcp
     ./neovim
