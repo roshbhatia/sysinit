@@ -31,5 +31,5 @@
   };
 
   pipx.additionalPackages = [ "mcp-proxy" ];
-  npm.additionalPackages = [ ];
 }
+

@@ -5,7 +5,7 @@
 }:
 
 let
-  additionalPackages = (overlay.packages or [ ]);
+  additionalPackages = (overlay.nix.packages or [ ]);
 
   baseNixPackages = with pkgs; [
     ansible
@@ -85,3 +85,4 @@ in
 {
   home.packages = allNixPackages;
 }
+
