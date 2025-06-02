@@ -4,7 +4,7 @@ M.plugins = {
 	{
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
-		event = { "BufReadPost", "BufNewFile" },
+		event = { "BufReadPre" },
 		opts = {
 			highlight = {
 				enable = true,
@@ -79,3 +79,4 @@ M.plugins = {
 }
 
 return M
+
