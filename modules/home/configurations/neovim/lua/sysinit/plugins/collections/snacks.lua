@@ -11,7 +11,6 @@ M.plugins = {
 				animate = {
 					enabled = true,
 					duration = 18,
-					easing = "cubic",
 					fps = 144,
 				},
 				bigfile = { enabled = true },
@@ -120,3 +119,4 @@ M.plugins = {
 }
 
 return M
+
