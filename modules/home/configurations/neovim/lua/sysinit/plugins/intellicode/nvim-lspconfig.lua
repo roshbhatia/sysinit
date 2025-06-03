@@ -82,7 +82,15 @@ M.plugins = {
 				impl = {},
 				jqls = {},
 				jsonls = {},
-				["lua-language-server"] = {},
+				lua_ls = {
+					settings = {
+						Lua = {
+							completion = {
+								callSnippet = "Replace",
+							},
+						},
+					},
+				},
 				pyright = {},
 				terraformls = {},
 				tflint = {},
@@ -95,8 +103,10 @@ M.plugins = {
 				ensure_installed = vim.tbl_keys(servers),
 			})
 
-			mason_lspconfig.setup_handlers({
-				function(server_name)
+			mason_lspconfig.setup({
+				ensure_installed = vim.tbl_keys(servers),
+				automatic_enable = true,
+				handlers = function(server_name)
 					lspconfig[server_name].setup({
 						capabilities = capabilities,
 						settings = servers[server_name],
@@ -187,3 +197,4 @@ M.plugins = {
 }
 
 return M
+
