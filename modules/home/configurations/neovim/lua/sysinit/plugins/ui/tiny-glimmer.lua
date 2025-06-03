@@ -13,13 +13,13 @@ M.plugins = {
 					},
 					undo = {
 						enabled = true,
+						undo_mapping = "u",
 					},
 					redo = {
 						enabled = true,
 						redo_mapping = "U",
 					},
 				},
-				transparency_color = "auto",
 			})
 		end,
 	},

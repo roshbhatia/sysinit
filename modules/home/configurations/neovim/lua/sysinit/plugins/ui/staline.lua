@@ -10,8 +10,6 @@ M.plugins = {
 			"User AlphaClosed",
 		},
 		config = function()
-			vim.opt.laststatus = 3
-
 			require("staline").setup({
 				sections = {
 					left = { "mode", "branch", " ", "lsp" },
@@ -19,7 +17,7 @@ M.plugins = {
 					right = { "line_column" },
 				},
 				defaults = {
-					expand_null_ls = true,
+					expand_null_ls = false,
 					true_colors = true,
 					line_column = ":%c [%l/%L]",
 				},

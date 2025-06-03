@@ -2,8 +2,6 @@ local M = {}
 
 local markdown_filetypes = {
 	"markdown",
-	"Avante",
-	"codecompanion",
 }
 
 M.plugins = {
