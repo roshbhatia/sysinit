@@ -56,7 +56,7 @@ M.plugins = {
 				zen = { enabled = false },
 			})
 
-			vim.notify = require("snacks.notify")
+			vim.notify = Snacks.notifier
 		end,
 		keys = function()
 			return {
