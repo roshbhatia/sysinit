@@ -77,9 +77,7 @@ M.plugins = {
 				dockerls = {},
 				golangci_lint_ls = {},
 				gopls = {},
-				golines = {},
 				helm_ls = {},
-				impl = {},
 				jqls = {},
 				jsonls = {},
 				lua_ls = {
@@ -99,8 +97,26 @@ M.plugins = {
 				yamlls = {},
 			}
 
+			local tools = {
+				"impl",
+				"golines",
+			}
+
 			mason_tool_installer.setup({
-				ensure_installed = vim.tbl_keys(servers),
+				ensure_installed = function()
+					local installable = {}
+					for _, tool in ipairs(tools) do
+						if not vim.fn.executable(tool) then
+							table.insert(installable, tool)
+						end
+					end
+
+					for _, server in ipairs(vim.tbl_keys(servers)) do
+						if not vim.fn.executable(server) then
+							table.insert(installable, server)
+						end
+					end
+				end,
 			})
 
 			mason_lspconfig.setup({
@@ -197,4 +213,3 @@ M.plugins = {
 }
 
 return M
-
