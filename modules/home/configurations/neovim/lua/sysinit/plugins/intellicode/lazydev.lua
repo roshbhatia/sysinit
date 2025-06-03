@@ -3,6 +3,9 @@ local M = {}
 M.plugins = {
 	{
 		"folke/lazydev.nvim",
+		requires = {
+			"neovim/nvim-lspconfig",
+		},
 		ft = "lua", -- only load on lua files
 		opts = {
 			library = {
@@ -15,3 +18,4 @@ M.plugins = {
 }
 
 return M
+

@@ -13,6 +13,7 @@ M.plugins = {
 			vim.api.nvim_create_autocmd("LspProgress", {
 				callback = function(ev)
 					local status_message = vim.lsp.status()
+					-- Avoid showing progress for code action availability
 					if string.find(status_message, "code_action") then
 						return
 					end
@@ -35,10 +36,10 @@ M.plugins = {
 				underline = { severity = vim.diagnostic.severity.ERROR },
 				signs = vim.g.have_nerd_font and {
 					text = {
-						[vim.diagnostic.severity.ERROR] = "",
-						[vim.diagnostic.severity.WARN] = "",
-						[vim.diagnostic.severity.INFO] = "",
-						[vim.diagnostic.severity.HINT] = "",
+						[vim.diagnostic.severity.ERROR] = "",
+						[vim.diagnostic.severity.WARN] = "",
+						[vim.diagnostic.severity.HINT] = "",
+						[vim.diagnostic.severity.INFO] = "",
 					},
 				} or {},
 				virtual_text = {
@@ -61,72 +62,11 @@ M.plugins = {
 
 			local capabilities = vim.lsp.protocol.make_client_capabilities()
 			capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
-
-			local function setup_lsp(server, opts)
-				opts = opts or {}
-				opts.capabilities = capabilities
-				lspconfig[server].setup(opts)
-			end
-
 			local installed_lsps = mason_lspconfig.get_installed_servers()
 
 			for _, lsp in ipairs(installed_lsps) do
-				setup_lsp(lsp)
+				lspconfig[server].setup()
 			end
-
-			setup_lsp("gopls", {
-				settings = {
-					gopls = {
-						analyses = {
-							unusedparams = true,
-							unusedvariable = true,
-						},
-						staticcheck = true,
-						gofumpt = true,
-					},
-				},
-			})
-
-			setup_lsp("jsonls", {
-				settings = {
-					json = {
-						schemas = require("schemastore").json.schemas(),
-						validate = { enable = true },
-					},
-				},
-			})
-
-			setup_lsp("nixd", {
-				settings = {
-					nixd = {
-						nixpkgs = {
-							expr = "import <nixpkgs> { }",
-						},
-						formatting = {
-							command = { "nixfmt" },
-						},
-						options = {
-							home_manager = {
-								expr = '(builtins.getFlake (".")).darwinConfigurations."'
-									.. vim.fn.hostname()
-									.. '".options',
-							},
-						},
-					},
-				},
-			})
-
-			setup_lsp("yamlls", {
-				settings = {
-					yaml = {
-						schemaStore = {
-							enable = false,
-							url = "",
-						},
-						schemas = require("schemastore").yaml.schemas(),
-					},
-				},
-			})
 		end,
 		keys = function()
 			return {
@@ -135,7 +75,7 @@ M.plugins = {
 					function()
 						vim.lsp.buf.code_action()
 					end,
-					desc = "Code Action",
+					desc = "Code action",
 				},
 				{
 					"<leader>ca",
@@ -143,7 +83,7 @@ M.plugins = {
 						vim.lsp.buf.range_code_action()
 					end,
 					mode = "v",
-					desc = "Code Action (Range)",
+					desc = "Code action",
 				},
 				{
 					"<leader>cr",
@@ -155,44 +95,51 @@ M.plugins = {
 				{
 					"<leader>cd",
 					function()
-						require("telescope.builtin").lsp_definitions({})
+						Snacks.picker.lsp_definitions()
 					end,
-					desc = "Peek Definition",
+					desc = "Peek definition",
+				},
+				{
+					"<leader>cu",
+					function()
+						Snacks.picker.lsp_references()
+					end,
+					desc = "Peek references",
 				},
 				{
 					"<leader>ci",
 					function()
-						require("telescope.builtin").lsp_implementations({})
+						Snacks.picker.lsp_implementations()
 					end,
-					desc = "Peek Implementations",
+					desc = "Peek implementations",
 				},
 				{
 					"<leader>cD",
 					function()
 						vim.lsp.buf.definition()
 					end,
-					desc = "Go to Definition",
+					desc = "Go to definition",
 				},
 				{
 					"<leader>ch",
 					function()
 						vim.lsp.buf.hover()
 					end,
-					desc = "Hover Documentation",
+					desc = "Hover documentation",
 				},
 				{
 					"<leader>cn",
 					function()
 						vim.diagnostic.goto_next()
 					end,
-					desc = "Next Diagnostic",
+					desc = "Next diagnostic",
 				},
 				{
 					"<leader>cp",
 					function()
 						vim.diagnostic.goto_prev()
 					end,
-					desc = "Previous Diagnostic",
+					desc = "Previous diagnostic",
 				},
 			}
 		end,
