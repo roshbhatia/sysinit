@@ -3,10 +3,12 @@ local M = {}
 M.plugins = {
 	{
 		"nvimtools/none-ls.nvim",
-		dependencies = { "mason.nvim" },
+		dependencies = {
+			"neovim/nvim-lspconfig",
+		},
 		opts = function(_, opts)
 			local null_ls = require("null-ls")
-			local null_ls_methods = require("null-ls.methods")
+			-- local null_ls_methods = require("null-ls.methods")
 
 			opts.sources = {
 				null_ls.builtins.completion.spell,
@@ -97,3 +99,4 @@ M.plugins = {
 }
 
 return M
+
