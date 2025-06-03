@@ -16,7 +16,6 @@ M.plugins = {
 					"helm_ls",
 					"jqls",
 					"jsonls",
-					"lua_ls",
 					"pyright",
 					"terraformls",
 					"tflint",

@@ -5,7 +5,7 @@ M.plugins = {
 		"azorng/goose.nvim",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
-			-- "MeanderingProgrammer/render-markdown.nvim",
+			"MeanderingProgrammer/render-markdown.nvim",
 		},
 		event = "VeryLazy",
 		config = function()

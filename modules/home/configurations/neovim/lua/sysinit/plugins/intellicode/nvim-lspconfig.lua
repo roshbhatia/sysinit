@@ -96,28 +96,6 @@ M.plugins = {
 				},
 			})
 
-			setup_lsp("lua_ls", {
-				settings = {
-					Lua = {
-						runtime = {
-							version = "LuaJIT",
-						},
-						diagnostics = {
-							globals = {
-								"vim",
-								"require",
-							},
-						},
-						workspace = {
-							library = vim.api.nvim_get_runtime_file("", true),
-						},
-						telemetry = {
-							enable = false,
-						},
-					},
-				},
-			})
-
 			setup_lsp("nixd", {
 				settings = {
 					nixd = {
@@ -150,8 +128,68 @@ M.plugins = {
 				},
 			})
 		end,
+		keys = function()
+			return {
+				{
+					"<leader>ca",
+					function()
+						vim.lsp.buf.code_action()
+					end,
+					desc = "Code Action",
+				},
+				{
+					"<leader>ca",
+					function()
+						vim.lsp.buf.range_code_action()
+					end,
+					mode = "v",
+					desc = "Code Action (Range)",
+				},
+				{
+					"<leader>cr",
+					function()
+						vim.lsp.buf.rename()
+					end,
+					desc = "Rename",
+				},
+				{
+					"<leader>cd",
+					function()
+						require("telescope.builtin").lsp_definitions()
+					end,
+					desc = "Peek Definition",
+				},
+				{
+					"<leader>cD",
+					function()
+						vim.lsp.buf.definition()
+					end,
+					desc = "Go to Definition",
+				},
+				{
+					"<leader>ch",
+					function()
+						vim.lsp.buf.hover()
+					end,
+					desc = "Hover Documentation",
+				},
+				{
+					"<leader>cn",
+					function()
+						vim.diagnostic.goto_next()
+					end,
+					desc = "Next Diagnostic",
+				},
+				{
+					"<leader>cp",
+					function()
+						vim.diagnostic.goto_prev()
+					end,
+					desc = "Previous Diagnostic",
+				},
+			}
+		end,
 	},
 }
 
 return M
-

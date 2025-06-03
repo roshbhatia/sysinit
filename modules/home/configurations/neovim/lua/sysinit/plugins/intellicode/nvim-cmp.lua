@@ -109,6 +109,10 @@ M.plugins = {
 					{
 						name = "path",
 					},
+					{
+						name = "lazydev",
+						group_index = 0,
+					},
 				},
 				sorting = {
 					priority_weight = 2,
