@@ -34,6 +34,15 @@ M.plugins = {
 					vim.opt_local.signcolumn = "yes:2"
 				end,
 			})
+
+			-- Disable signcolumn specifically for floating windows
+			vim.api.nvim_create_autocmd("WinEnter", {
+				callback = function()
+					if vim.api.nvim_win_get_config(0).relative ~= "" then
+						vim.opt_local.signcolumn = "no"
+					end
+				end,
+			})
 		end,
 	},
 }
