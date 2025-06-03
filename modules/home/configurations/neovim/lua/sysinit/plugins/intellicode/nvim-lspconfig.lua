@@ -107,6 +107,7 @@ M.plugins = {
 					local installable = {}
 					installable = vim.list_extend(installable, tools)
 					installable = vim.list_extend(installable, vim.tbl_keys(servers))
+					return installable
 				end,
 			})
 
