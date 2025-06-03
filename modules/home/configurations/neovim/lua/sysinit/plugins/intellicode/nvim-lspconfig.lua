@@ -17,7 +17,12 @@ M.plugins = {
 						return
 					end
 
-					if string.find(status_message, "not supported") then
+					if
+						string.find(
+							status_message,
+							"is not supported by any of the servers registered for the current buffer"
+						)
+					then
 						return
 					end
 
@@ -159,9 +164,22 @@ M.plugins = {
 				{
 					"<leader>cd",
 					function()
-						require("telescope.builtin").lsp_definitions()
+						require("telescope.builtin").lsp_definitions({
+							layout_strategy = "vertical",
+							layout_config = { width = 0.5 },
+						})
 					end,
 					desc = "Peek Definition",
+				},
+				{
+					"<leader>ci",
+					function()
+						require("telescope.builtin").lsp_implementations({
+							layout_strategy = "vertical",
+							layout_config = { width = 0.5 },
+						})
+					end,
+					desc = "Peek Implementations",
 				},
 				{
 					"<leader>cD",
