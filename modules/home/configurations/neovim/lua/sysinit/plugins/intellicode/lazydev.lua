@@ -5,7 +5,6 @@ M.plugins = {
 		"folke/lazydev.nvim",
 		dependencies = {
 			"neovim/nvim-lspconfig",
-			"junstinsgithub/wezterm-types",
 		},
 		ft = "lua", -- only load on lua files
 		opts = {
@@ -22,4 +21,3 @@ M.plugins = {
 }
 
 return M
-

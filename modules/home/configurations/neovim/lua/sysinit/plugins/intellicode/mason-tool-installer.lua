@@ -3,7 +3,6 @@ local M = {}
 M.plugins = {
 	{
 		"WhoIsSethDaniel/mason-tool-installer.nvim",
-		dependencies = { "williamboman/mason.nvim", "williamboman/mason-lspconfig.nvim" },
 		config = function()
 			require("mason-tool-installer").setup({
 				ensure_installed = {
@@ -19,6 +18,7 @@ M.plugins = {
 					"json-to-struct",
 					"jqls",
 					"jsonls",
+					"lua-language-server",
 					"pyright",
 					"terraformls",
 					"tflint",
@@ -32,4 +32,3 @@ M.plugins = {
 }
 
 return M
-
