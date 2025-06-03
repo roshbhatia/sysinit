@@ -103,7 +103,7 @@ M.plugins = {
 			}
 
 			mason_tool_installer.setup({
-				ensure_installed = vim.list_extend(tools, vim_tbl_keys(servers)),
+				ensure_installed = vim.list_extend(tools, vim.tbl_keys(servers)),
 			})
 
 			mason_lspconfig.setup({
