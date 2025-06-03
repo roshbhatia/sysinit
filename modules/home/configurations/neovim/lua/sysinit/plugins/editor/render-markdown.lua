@@ -40,8 +40,7 @@ M.plugins = {
 					local config = vim.api.nvim_win_get_config(0)
 					-- Check if the window is floating and its filetype is markdown
 					if config.relative ~= "" and vim.bo.filetype == "markdown" then
-						-- Disable signcolumn specifically for folds in markdown floating windows
-						vim.opt_local.signcolumn = "no"
+						vim.opt_local.signcolumn = "yes:2"
 					end
 				end,
 			})

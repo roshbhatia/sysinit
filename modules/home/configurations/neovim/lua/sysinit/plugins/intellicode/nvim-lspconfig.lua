@@ -10,6 +10,36 @@ M.plugins = {
 			"folke/snacks.nvim",
 		},
 		config = function()
+			vim.api.nvim_create_autocmd("LspProgress", {
+				callback = function(ev)
+					local spinner = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
+					vim.notify(vim.lsp.status(), "info", {
+						id = "lsp_progress",
+						title = "LSP Progress",
+						opts = function(notif)
+							notif.icon = ev.data.params.value.kind == "end" and " "
+								or spinner[math.floor(vim.uv.hrtime() / (1e6 * 80)) % #spinner + 1]
+						end,
+					})
+				end,
+			})
+
+			vim.diagnostic.config({
+				virtual_text = false,
+				update_in_insert = false,
+				float = {
+					source = true,
+				},
+				signs = {
+					text = {
+						[vim.diagnostic.severity.ERROR] = " ",
+						[vim.diagnostic.severity.WARN] = " ",
+						[vim.diagnostic.severity.HINT] = " ",
+						[vim.diagnostic.severity.INFO] = " ",
+					},
+				},
+			})
+
 			local lspconfig = require("lspconfig")
 			local mason_lspconfig = require("mason-lspconfig")
 
@@ -108,3 +138,4 @@ M.plugins = {
 }
 
 return M
+
