@@ -15,10 +15,11 @@ M.plugins = {
 			require("staline").setup({
 				sections = {
 					left = { "mode", "branch", " ", "lsp" },
-					mid = {},
+					mid = { "lsp_name" },
 					right = { "line_column" },
 				},
 				defaults = {
+					expand_null_ls = true,
 					true_colors = true,
 					line_column = ":%c [%l/%L]",
 				},

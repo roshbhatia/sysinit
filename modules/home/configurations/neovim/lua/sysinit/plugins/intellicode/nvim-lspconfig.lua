@@ -7,6 +7,7 @@ M.plugins = {
 			"williamboman/mason-lspconfig.nvim",
 			"WhoIsSethDaniel/mason-tool-installer.nvim",
 			"hrsh7th/cmp-nvim-lsp",
+			"folke/snacks.nvim",
 		},
 		config = function()
 			local lspconfig = require("lspconfig")
@@ -107,3 +108,4 @@ M.plugins = {
 }
 
 return M
+
