@@ -24,7 +24,7 @@ M.plugins = {
 					end
 
 					local spinner = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
-					vim.notify(status_message, "info", {
+					vim.notify(status_message, vim.log.levels.INFO, {
 						id = "lsp_progress",
 						title = "LSP Progress",
 						opts = function(notif)
@@ -200,3 +200,4 @@ M.plugins = {
 }
 
 return M
+
