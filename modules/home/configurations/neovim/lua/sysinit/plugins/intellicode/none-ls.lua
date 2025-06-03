@@ -1,16 +1,11 @@
 local M = {}
 
-local function get_repo_name()
-	local cwd = vim.fn.getcwd()
-	local repo = cwd:match("([^/]+)$")
-	return repo or "repo"
-end
-
 local copilot_shared = {
 	command = "goose",
 	format = "raw",
 	to_stdin = false,
 	to_temp_file = true,
+	filetypes = { "*" },
 }
 
 local copilot_actions = {
@@ -44,7 +39,7 @@ M.plugins = {
 			local null_ls = require("null-ls")
 			local null_ls_methods = require("null-ls.methods")
 
-			opts.sources = {
+			opts.sources = vim.list_extend(opts.sources or {}, {
 				null_ls.builtins.code_actions.gomodifytags,
 				null_ls.builtins.code_actions.impl,
 				null_ls.builtins.code_actions.refactoring,
@@ -57,43 +52,48 @@ M.plugins = {
 				null_ls.builtins.formatting.goimports,
 				null_ls.builtins.hover.dictionary,
 				null_ls.builtins.hover.printenv,
-			}
+			})
+
+			local helpers = require("null-ls.helpers")
 			for _, action in ipairs(copilot_actions) do
-				table.insert(opts.sources, {
-					name = action.name,
-					method = null_ls_methods.CODE_ACTION,
-					generator = require("null-ls.helpers").generator_factory(vim.tbl_extend("force", copilot_shared, {
-						args = function(params)
-							return {
-								"run",
-								"-r",
-								"-t",
-								table.concat(params.content, "\n"),
-								"-i",
-								"-",
-								"-n",
-								get_repo_name(),
-								action.prompt,
-							}
-						end,
-						on_output = function(params, done)
-							done({
-								{
-									title = action.title,
-									action = function()
-										local orig = params.bufname or "$FILENAME"
-										local tmp = params.temp_path or ""
-										vim.cmd("tabnew | diffthis")
-										vim.cmd("edit " .. orig)
-										vim.cmd("vsplit " .. tmp)
-										vim.cmd("wincmd l | diffthis")
-									end,
-									details = action.details,
-								},
-							})
-						end,
-					})),
-				})
+				table.insert(
+					opts.sources,
+					helpers.make_builtin({
+						method = null_ls_methods.CODE_ACTION,
+						filetypes = {},
+						generator = helpers.generator_factory({
+							args = function(params)
+								return {
+									"run",
+									"--no-session",
+									"-i",
+									"-",
+									action.prompt,
+									"$TEXT",
+								}
+							end,
+							ignore_stderr = true,
+							timeout = 10000,
+							use_cache = true,
+							on_output = function(params, done)
+								done({
+									{
+										title = action.title,
+										action = function()
+											local orig = params.bufname or "$FILENAME"
+											local tmp = params.temp_path or ""
+											vim.cmd("tabnew | diffthis")
+											vim.cmd("edit " .. orig)
+											vim.cmd("vsplit " .. tmp)
+											vim.cmd("wincmd l | diffthis")
+										end,
+										details = action.details,
+									},
+								})
+							end,
+						}),
+					})
+				)
 			end
 		end,
 	},
