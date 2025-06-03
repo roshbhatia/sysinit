@@ -33,6 +33,7 @@ let
     gnupg
     go
     go-task
+    golangci-lint
     gum
     helm-ls
     htop
@@ -88,3 +89,4 @@ in
 {
   home.packages = allNixPackages;
 }
+
