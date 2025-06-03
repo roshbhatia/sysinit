@@ -12,12 +12,17 @@ M.plugins = {
 		config = function()
 			vim.api.nvim_create_autocmd("LspProgress", {
 				callback = function(ev)
+					local status_message = vim.lsp.status()
+					if string.find(status_message, "100%%: code_action") then
+						return
+					end
+
 					local spinner = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
-					vim.notify(vim.lsp.status(), "info", {
+					vim.notify(status_message, "info", {
 						id = "lsp_progress",
 						title = "LSP Progress",
 						opts = function(notif)
-							notif.icon = ev.data.params.value.kind == "end" and " "
+							notif.icon = ev.data.params.value.kind == "end" and " "
 								or spinner[math.floor(vim.uv.hrtime() / (1e6 * 80)) % #spinner + 1]
 						end,
 					})
