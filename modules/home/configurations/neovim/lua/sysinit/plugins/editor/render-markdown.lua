@@ -2,8 +2,6 @@ local M = {}
 
 local markdown_filetypes = {
 	"markdown",
-	"Avante",
-	"codecompanion",
 }
 
 M.plugins = {
@@ -30,9 +28,7 @@ M.plugins = {
 			-- Signcolumn on markdown files sometimes causes issues
 			vim.api.nvim_create_autocmd("FileType", {
 				pattern = "markdown",
-				callback = function()
-					vim.opt_local.signcolumn = "no"
-				end,
+				command = [[setlocal nofoldenable]],
 			})
 		end,
 	},
