@@ -3,7 +3,8 @@ local M = {}
 M.plugins = {
 	{
 		"rachartier/tiny-glimmer.nvim",
-		event = "BufReadPost",
+		event = "VeryLazy",
+		priority = 10,
 		config = function()
 			require("tiny-glimmer").setup({
 				enabled = true,
@@ -20,10 +21,10 @@ M.plugins = {
 						redo_mapping = "U",
 					},
 				},
+				transparency_color = vim.api.nvim_get_hl_by_name("Normal", true).background,
 			})
 		end,
 	},
 }
 
 return M
-

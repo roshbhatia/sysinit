@@ -4,6 +4,7 @@ M.plugins = {
 	{
 		"neovim/nvim-lspconfig",
 		dependencies = {
+			"b0o/SchemaStore.nvim",
 			"williamboman/mason-lspconfig.nvim",
 			"WhoIsSethDaniel/mason-tool-installer.nvim",
 			"hrsh7th/cmp-nvim-lsp",
@@ -48,9 +49,9 @@ M.plugins = {
 				signs = {
 					text = {
 						[vim.diagnostic.severity.ERROR] = "",
-						[vim.diagnostic.severity.WARN] = "",
 						[vim.diagnostic.severity.HINT] = "",
 						[vim.diagnostic.severity.INFO] = "",
+						[vim.diagnostic.severity.WARN] = "",
 					},
 					numhl = {
 						[vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
@@ -65,14 +66,19 @@ M.plugins = {
 					format = function(diagnostic)
 						local diagnostic_message = {
 							[vim.diagnostic.severity.ERROR] = diagnostic.message,
-							[vim.diagnostic.severity.WARN] = diagnostic.message,
-							[vim.diagnostic.severity.INFO] = diagnostic.message,
 							[vim.diagnostic.severity.HINT] = diagnostic.message,
+							[vim.diagnostic.severity.INFO] = diagnostic.message,
+							[vim.diagnostic.severity.WARN] = diagnostic.message,
 						}
 						return diagnostic_message[diagnostic.severity]
 					end,
 				},
 			})
+
+			vim.fn.sign_define("DiagnosticSignError", { text = "", texthl = "DiagnosticSignError" })
+			vim.fn.sign_define("DiagnosticSignHint", { text = "", texthl = "DiagnosticSignHint" })
+			vim.fn.sign_define("DiagnosticSignInfo", { text = "", texthl = "DiagnosticSignInfo" })
+			vim.fn.sign_define("DiagnosticSignWarn", { text = "", texthl = "DiagnosticSignWarn" })
 
 			local capabilities = vim.lsp.protocol.make_client_capabilities()
 			capabilities = vim.tbl_deep_extend("force", capabilities, cmp_nvim_lsp.default_capabilities())
@@ -170,7 +176,14 @@ M.plugins = {
 				},
 				helm_ls = {},
 				jqls = {},
-				jsonls = {},
+				jsonls = {
+					settings = {
+						json = {
+							schemas = require("schemastore").json.schemas(),
+							validate = { enable = true },
+						},
+					},
+				},
 				lua_ls = {
 					settings = {
 						Lua = {
@@ -185,7 +198,20 @@ M.plugins = {
 				tflint = {},
 				ts_ls = {},
 				vimls = {},
-				yamlls = {},
+				yamlls = {
+					settings = {
+						yaml = {
+							schemaStore = {
+								-- You must disable built-in schemaStore support if you want to use
+								-- this plugin and its advanced options like `ignore`.
+								enable = false,
+								-- Avoid TypeError: Cannot read properties of undefined (reading 'length')
+								url = "",
+							},
+							schemas = require("schemastore").yaml.schemas(),
+						},
+					},
+				},
 			}
 
 			local tools = {
@@ -290,4 +316,3 @@ M.plugins = {
 }
 
 return M
-

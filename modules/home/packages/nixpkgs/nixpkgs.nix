@@ -8,6 +8,7 @@ let
   additionalPackages = (overlay.nix.packages or [ ]);
 
   baseNixPackages = with pkgs; [
+    actionlint
     ansible
     argocd
     atuin
@@ -15,8 +16,10 @@ let
     bat
     bashInteractive
     caddy
+    checkmate
     colima
     coreutils
+    deadnix
     delta
     docker
     duf
@@ -76,6 +79,7 @@ let
     stern
     swift
     taplo
+    tfsec
     tree
     watch
     wget
