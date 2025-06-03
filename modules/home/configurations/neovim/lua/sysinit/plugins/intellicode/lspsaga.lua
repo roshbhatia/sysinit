@@ -22,6 +22,7 @@ M.plugins = {
 			"nvim-treesitter/nvim-treesitter",
 			"nvim-tree/nvim-web-devicons",
 			"neovim/nvim-lspconfig",
+			"nvimtools/none-ls.nvim",
 		},
 		keys = function()
 			return {
@@ -39,4 +40,3 @@ M.plugins = {
 }
 
 return M
-
