@@ -17,15 +17,6 @@ M.plugins = {
 						return
 					end
 
-					if
-						string.find(
-							status_message,
-							"is not supported by any of the servers registered for the current buffer"
-						)
-					then
-						return
-					end
-
 					local spinner = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
 					vim.notify(status_message, "info", {
 						id = "lsp_progress",
