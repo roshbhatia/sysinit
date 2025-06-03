@@ -266,7 +266,6 @@ M.plugins = {
 					function()
 						vim.lsp.buf.hover({
 							border = "rounded",
-							anchor_bias = "above",
 						})
 					end,
 					desc = "Hover documentation",
