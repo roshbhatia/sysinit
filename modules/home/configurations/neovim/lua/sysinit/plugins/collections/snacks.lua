@@ -23,7 +23,6 @@ M.plugins = {
 				notifier = {
 					enabled = true,
 					timeout = 3000,
-					level = vim.log.levels.ERROR,
 					style = "minimal",
 				},
 				picker = {
@@ -56,6 +55,8 @@ M.plugins = {
 				win = { enabled = false },
 				zen = { enabled = false },
 			})
+
+			vim.notify = require("snacks.notify")
 		end,
 		keys = function()
 			return {
@@ -114,4 +115,3 @@ M.plugins = {
 }
 
 return M
-
