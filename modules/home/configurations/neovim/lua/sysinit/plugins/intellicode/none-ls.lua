@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"nvimtools/none-ls.nvim",
-		event = "LazyFile",
+		event = "VeryLazy",
 		dependencies = { "mason.nvim" },
 		opts = function(_, opts)
 			local null_ls = require("null-ls")
