@@ -42,7 +42,7 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.editor.intellitab"),
 	require("sysinit.plugins.editor.marks"),
 	require("sysinit.plugins.editor.move"),
-	require("sysinit.plugins.editor.render-markdown"),
+	-- require("sysinit.plugins.editor.render-markdown"),
 	require("sysinit.plugins.editor.searchbox"),
 	require("sysinit.plugins.editor.surround"),
 	require("sysinit.plugins.file.neo-tree"),
@@ -118,3 +118,4 @@ require("sysinit.pkg.keybindings.undo").setup()
 require("sysinit.pkg.keybindings.vim").setup()
 
 require("sysinit.pkg.entrypoint.no-session").setup()
+
