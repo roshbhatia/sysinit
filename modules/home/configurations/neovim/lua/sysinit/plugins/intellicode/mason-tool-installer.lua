@@ -17,7 +17,6 @@ M.plugins = {
 					"jqls",
 					"jsonls",
 					"lua_ls",
-					"marksman",
 					"pyright",
 					"terraformls",
 					"tflint",
