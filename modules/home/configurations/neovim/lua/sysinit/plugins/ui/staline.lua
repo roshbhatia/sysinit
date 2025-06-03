@@ -21,7 +21,7 @@ M.plugins = {
 					true_colors = true,
 					line_column = ":%c [%l/%L]",
 					lsp_client_symbol = "󰘧",
-					lsp_client_character_length = "32",
+					lsp_client_character_length = 32,
 				},
 			})
 		end,
