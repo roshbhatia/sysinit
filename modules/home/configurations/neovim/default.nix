@@ -2,3 +2,4 @@
 {
   imports = [ ./neovim.nix ];
 }
+

@@ -2,6 +2,7 @@ local M = {}
 
 function M.setup()
 	vim.opt.mouse = "a"
+	vim.o.mousemoveevent = true
 	vim.opt.clipboard = "unnamedplus"
 	vim.opt.number = true
 	vim.opt.relativenumber = true
@@ -13,4 +14,3 @@ function M.setup()
 end
 
 return M
-

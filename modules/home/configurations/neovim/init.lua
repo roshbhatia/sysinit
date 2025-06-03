@@ -84,6 +84,7 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.intellicode.schemastore"),
 	require("sysinit.plugins.intellicode.sort"),
 	require("sysinit.plugins.intellicode.trailspace"),
+	require("sysinit.plugins.intellicode.treesitter-context"),
 	require("sysinit.plugins.intellicode.treesitter-textobjects"),
 	require("sysinit.plugins.intellicode.treesitter"),
 	require("sysinit.plugins.intellicode.trouble"),
