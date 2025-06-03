@@ -54,50 +54,51 @@ M.plugins = {
 				null_ls.builtins.hover.printenv,
 			})
 
-			local helpers = require("null-ls.helpers")
-			for _, action in ipairs(copilot_actions) do
-				table.insert(
-					opts.sources,
-					helpers.make_builtin({
-						name = action.name,
-						method = null_ls_methods.CODE_ACTION,
-						filetypes = {},
-						generator = helpers.generator_factory({
-							args = function(params)
-								return {
-									"run",
-									"--no-session",
-									"-i",
-									"-",
-									action.prompt,
-									"$TEXT",
-								}
-							end,
-							ignore_stderr = true,
-							timeout = 10000,
-							use_cache = true,
-							on_output = function(params, done)
-								done({
-									{
-										title = action.title,
-										action = function()
-											local orig = params.bufname or "$FILENAME"
-											local tmp = params.temp_path or ""
-											vim.cmd("tabnew | diffthis")
-											vim.cmd("edit " .. orig)
-											vim.cmd("vsplit " .. tmp)
-											vim.cmd("wincmd l | diffthis")
-										end,
-										details = action.details,
-									},
-								})
-							end,
-						}),
-					})
-				)
-			end
+			-- local helpers = require("null-ls.helpers")
+			-- for _, action in ipairs(copilot_actions) do
+			-- 	table.insert(
+			-- 		opts.sources,
+			-- 		helpers.make_builtin({
+			-- 			name = action.name,
+			-- 			method = null_ls_methods.CODE_ACTION,
+			-- 			filetypes = {},
+			-- 			generator = helpers.generator_factory({
+			-- 				args = function(params)
+			-- 					return {
+			-- 						"run",
+			-- 						"--no-session",
+			-- 						"-i",
+			-- 						"-",
+			-- 						action.prompt,
+			-- 						"$TEXT",
+			-- 					}
+			-- 				end,
+			-- 				ignore_stderr = true,
+			-- 				timeout = 10000,
+			-- 				use_cache = true,
+			-- 				on_output = function(params, done)
+			-- 					done({
+			-- 						{
+			-- 							title = action.title,
+			-- 							action = function()
+			-- 								local orig = params.bufname or "$FILENAME"
+			-- 								local tmp = params.temp_path or ""
+			-- 								vim.cmd("tabnew | diffthis")
+			-- 								vim.cmd("edit " .. orig)
+			-- 								vim.cmd("vsplit " .. tmp)
+			-- 								vim.cmd("wincmd l | diffthis")
+			-- 							end,
+			-- 							details = action.details,
+			-- 						},
+			-- 					})
+			-- 				end,
+			-- 			}),
+			-- 		})
+			-- 	)
+			-- end
 		end,
 	},
 }
 
 return M
+
