@@ -31,6 +31,7 @@ local copilot_actions = {
 
 M.plugins = {
 	{
+		enabled = false,
 		"nvimtools/none-ls.nvim",
 		dependencies = {
 			"neovim/nvim-lspconfig",
@@ -101,3 +102,4 @@ M.plugins = {
 }
 
 return M
+

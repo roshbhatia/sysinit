@@ -11,7 +11,6 @@ M.plugins = {
 					"dagger",
 					"docker_compose_language_service",
 					"dockerls",
-					"fillswitch",
 					"golangci_lint_ls",
 					"gopls",
 					"gofumpt",
@@ -35,3 +34,4 @@ M.plugins = {
 }
 
 return M
+
