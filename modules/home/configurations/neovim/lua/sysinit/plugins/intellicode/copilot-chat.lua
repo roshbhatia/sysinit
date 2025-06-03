@@ -38,8 +38,7 @@ M.plugins = {
 				},
 			},
 			window = {
-				layout = "float", -- 'float' | 'vertical' | 'horizontal' | 'center'
-				border = "rounded", -- 'none' | 'single' | 'double' | 'single' | 'shadow' | 'solid'
+				layout = "Vertical", -- 'float' | 'vertical' | 'horizontal' | 'center'
 			},
 		},
 	},
