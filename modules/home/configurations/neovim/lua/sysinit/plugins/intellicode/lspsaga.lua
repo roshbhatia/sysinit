@@ -16,6 +16,23 @@ M.plugins = {
 					code_action = "󰺕",
 					actionfix = "",
 				},
+				hover = {
+					max_width = 1.2,
+					max_height = 1,
+				},
+				implement = {
+					enable = true,
+				},
+				rename = {
+					auto_save = true,
+				},
+				code_action = {
+					show_server_name = true,
+					max_height = 0.6,
+				},
+				diagnostic = {
+					auto_preview = true,
+				},
 			})
 		end,
 		dependencies = {
@@ -40,4 +57,3 @@ M.plugins = {
 }
 
 return M
-
