@@ -13,7 +13,7 @@ M.plugins = {
 			vim.api.nvim_create_autocmd("LspProgress", {
 				callback = function(ev)
 					local status_message = vim.lsp.status()
-					if string.find(status_message, "100%%: code_action") then
+					if string.find(status_message, "code_action") then
 						return
 					end
 
@@ -143,3 +143,4 @@ M.plugins = {
 }
 
 return M
+
