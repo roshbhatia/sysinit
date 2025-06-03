@@ -11,15 +11,17 @@ M.plugins = {
 			-- local null_ls_methods = require("null-ls.methods")
 
 			opts.sources = {
-				null_ls.builtins.completion.spell,
 				null_ls.builtins.code_actions.gomodifytags,
 				null_ls.builtins.code_actions.impl,
 				null_ls.builtins.code_actions.refactoring,
-				null_ls.builtins.diagnostics.proselint,
 				null_ls.builtins.code_actions.statix,
+				null_ls.builtins.code_actions.textlint,
+				null_ls.builtins.completion.spell,
+				null_ls.builtins.diagnostics.markdownlint,
+				null_ls.builtins.diagnostics.proselint,
 				null_ls.builtins.formatting.goimports,
-				null_ls.builtins.hover.printenv,
 				null_ls.builtins.hover.dictionary,
+				null_ls.builtins.hover.printenv,
 				-- 	-- Fix Issues (Custom Code Action)
 				-- 	{
 				-- 		name = "fix_code",
