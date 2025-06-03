@@ -62,11 +62,6 @@ M.plugins = {
 
 			local capabilities = vim.lsp.protocol.make_client_capabilities()
 			capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
-			local installed_lsps = mason_lspconfig.get_installed_servers()
-
-			for _, lsp in ipairs(installed_lsps) do
-				lspconfig[installed_lsps].setup()
-			end
 		end,
 		keys = function()
 			return {
