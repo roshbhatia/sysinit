@@ -59,6 +59,7 @@ M.plugins = {
 				table.insert(
 					opts.sources,
 					helpers.make_builtin({
+						name = action.name,
 						method = null_ls_methods.CODE_ACTION,
 						filetypes = {},
 						generator = helpers.generator_factory({
