@@ -17,6 +17,10 @@ M.plugins = {
 						return
 					end
 
+					if string.find(status_message, "not supported") then
+						return
+					end
+
 					local spinner = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
 					vim.notify(status_message, "info", {
 						id = "lsp_progress",
