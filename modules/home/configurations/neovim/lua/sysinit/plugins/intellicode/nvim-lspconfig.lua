@@ -10,6 +10,11 @@ M.plugins = {
 			"folke/snacks.nvim",
 		},
 		config = function()
+			local cmp_nvim_lsp = require("cmp_nvim_lsp")
+			local lspconfig = require("lspconfig")
+			local mason_lspconfig = require("mason-lspconfig")
+			local mason_tool_installer = require("mason-tool-installer")
+
 			vim.api.nvim_create_autocmd("LspProgress", {
 				callback = function(ev)
 					local status_message = vim.lsp.status()
@@ -32,16 +37,21 @@ M.plugins = {
 
 			vim.diagnostic.config({
 				severity_sort = true,
-				float = { border = "rounded", source = "if_many" },
-				underline = { severity = vim.diagnostic.severity.ERROR },
-				signs = vim.g.have_nerd_font and {
+				float = {
+					border = "rounded",
+					source = "if_many",
+				},
+				underline = {
+					severity = vim.diagnostic.severity.ERROR,
+				},
+				signs = {
 					text = {
 						[vim.diagnostic.severity.ERROR] = "",
 						[vim.diagnostic.severity.WARN] = "",
 						[vim.diagnostic.severity.HINT] = "",
 						[vim.diagnostic.severity.INFO] = "",
 					},
-				} or {},
+				},
 				virtual_text = {
 					source = "if_many",
 					spacing = 2,
@@ -57,11 +67,49 @@ M.plugins = {
 				},
 			})
 
-			local lspconfig = require("lspconfig")
-			local mason_lspconfig = require("mason-lspconfig")
-
 			local capabilities = vim.lsp.protocol.make_client_capabilities()
-			capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
+			capabilities = vim.tbl_deep_extend("force", capabilities, cmp_nvim_lsp.default_capabilities())
+
+			local servers = {
+				bashls = {},
+				dagger = {},
+				docker_compose_language_service = {},
+				dockerls = {},
+				golangci_lint_ls = {},
+				gopls = {},
+				golines = {},
+				helm_ls = {},
+				impl = {},
+				["json-to-struct"] = {},
+				jqls = {},
+				jsonls = {},
+				["lua-language-server"] = {},
+				pyright = {},
+				terraformls = {},
+				tflint = {},
+				ts_ls = {},
+				vimls = {},
+				yamlls = {},
+			}
+
+			mason_tool_installer.setup({
+				ensure_installed = vim.tbl_keys(servers),
+			})
+
+			mason_lspconfig.setup({
+				ensure_installed = vim.tbl_keys(servers),
+			})
+
+			mason_lspconfig.setup_handlers({
+				function(server_name)
+					lspconfig[server_name].setup({
+						capabilities = capabilities,
+						on_attach = on_attach,
+						settings = servers[server_name],
+						filetypes = (servers[server_name] or {}).filetypes,
+					})
+				end,
+			})
 		end,
 		keys = function()
 			return {
@@ -118,7 +166,10 @@ M.plugins = {
 				{
 					"<leader>ch",
 					function()
-						vim.lsp.buf.hover()
+						vim.lsp.buf.hover({
+							border = "rounded",
+							anchor_bias = "above",
+						})
 					end,
 					desc = "Hover documentation",
 				},
