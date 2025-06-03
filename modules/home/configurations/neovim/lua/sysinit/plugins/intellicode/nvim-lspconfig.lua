@@ -155,20 +155,14 @@ M.plugins = {
 				{
 					"<leader>cd",
 					function()
-						require("telescope.builtin").lsp_definitions({
-							layout_strategy = "vertical",
-							layout_config = { width = 0.5 },
-						})
+						require("telescope.builtin").lsp_definitions({})
 					end,
 					desc = "Peek Definition",
 				},
 				{
 					"<leader>ci",
 					function()
-						require("telescope.builtin").lsp_implementations({
-							layout_strategy = "vertical",
-							layout_config = { width = 0.5 },
-						})
+						require("telescope.builtin").lsp_implementations({})
 					end,
 					desc = "Peek Implementations",
 				},
@@ -206,3 +200,4 @@ M.plugins = {
 }
 
 return M
+
