@@ -65,7 +65,7 @@ M.plugins = {
 			local installed_lsps = mason_lspconfig.get_installed_servers()
 
 			for _, lsp in ipairs(installed_lsps) do
-				lspconfig[server].setup()
+				lspconfig[installed_lsps].setup()
 			end
 		end,
 		keys = function()
@@ -147,3 +147,4 @@ M.plugins = {
 }
 
 return M
+

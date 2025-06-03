@@ -12,6 +12,7 @@ in
     name = "go";
     basePackages = [
       "golang.org/x/tools/cmd/goimports@latest"
+      "golang.org/x/vuln/cmd/govulncheck@latest"
       "github.com/davidrjenni/reftools/cmd/fillswitch@latest"
       "github.com/davidrjenni/reftools/cmd/fillstruct@latest"
       "github.com/davidrjenni/reftools/cmd/fixplurals@latest"
