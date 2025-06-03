@@ -23,6 +23,11 @@ M.plugins = {
 				notifier = {
 					enabled = true,
 					style = "minimal",
+					margin = {
+						top = 1,
+						right = 1,
+						bottom = 0,
+					},
 				},
 				picker = {
 					enabled = true,
