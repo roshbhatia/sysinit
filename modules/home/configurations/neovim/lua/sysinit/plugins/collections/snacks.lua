@@ -22,12 +22,14 @@ M.plugins = {
 				},
 				notifier = {
 					enabled = true,
-					style = "minimal",
 					margin = {
-						top = 1,
+						top = 0,
 						right = 1,
-						bottom = 0,
+						bottom = 1,
 					},
+					style = "minimal",
+					timeout = 1000,
+					top_down = false,
 				},
 				picker = {
 					enabled = true,
@@ -119,3 +121,4 @@ M.plugins = {
 }
 
 return M
+
