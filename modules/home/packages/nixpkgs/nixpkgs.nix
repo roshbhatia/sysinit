@@ -79,6 +79,8 @@ let
     stern
     swift
     taplo
+    terraform
+    textlint
     tfsec
     tree
     watch

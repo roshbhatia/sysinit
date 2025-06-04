@@ -19,7 +19,7 @@ M.plugins = {
 					bash = function(config)
 						config.adapters = {
 							type = "executable",
-							command = vim.fn.stdpath("config") .. "mason/bin/bash-debug-adapter",
+							command = vim.fn.stdpath("config") .. "/mason/bin/bash-debug-adapter",
 						}
 						require("mason-nvim-dap").default_setup(config)
 					end,
