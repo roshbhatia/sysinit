@@ -15,7 +15,35 @@ function M.setup()
 		desc = "Toggle line number display",
 	})
 
-	vim.keymap.set("n", "<D-a>", "ggVG")
+	vim.keymap.set("n", "<D-a>", "ggVG", {
+		noremap = true,
+		silent = true,
+		desc = "Select all",
+	})
+
+	vim.keymap.set("v", "<D-c>", '"+y', {
+		noremap = true,
+		silent = true,
+		desc = "Copy selection",
+	})
+
+	vim.keymap.set("v", "<D-x>", '"+x', {
+		noremap = true,
+		silent = true,
+		desc = "Cut selection",
+	})
+
+	vim.keymap.set("n", "<D-p>", "p", {
+		noremap = true,
+		silent = true,
+		desc = "Paste clipboard contents",
+	})
+
+	vim.keymap.set("n", "<D-r>", "<cmd>edit<cr>", {
+		noremap = true,
+		silent = true,
+		desc = "Refresh buffer",
+	})
 end
 
 return M

@@ -53,6 +53,14 @@ function M.setup()
 		desc = "Write",
 	})
 
+	vim.keymap.set("n", "<leader>S", function()
+		vim.cmd("noautocmd write")
+	end, {
+		noremap = true,
+		silent = true,
+		desc = "Write (No Format)",
+	})
+
 	vim.keymap.set("n", "<leader>w", function()
 		vim.cmd("silent SessionSave")
 		vim.cmd("silent write!")

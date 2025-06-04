@@ -3,10 +3,13 @@ local M = {}
 M.plugins = {
 	{
 		"nvimdev/lspsaga.nvim",
-		event = { "LspAttach" },
+		event = {
+			"BufEnter",
+		},
 		dependencies = {
 			"nvim-treesitter/nvim-treesitter",
 			"nvim-tree/nvim-web-devicons",
+			"nvim-lspconfig/nvim-lspconfig",
 		},
 		config = function()
 			require("lspsaga").setup({
@@ -26,3 +29,4 @@ M.plugins = {
 }
 
 return M
+
