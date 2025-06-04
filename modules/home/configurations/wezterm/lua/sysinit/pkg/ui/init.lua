@@ -100,9 +100,11 @@ local function setup_nvim_ui_overrides()
 			overrides.enable_scroll_bar = false
 			overrides.window_background_opacity = 0.8
 			overrides.color_scheme = nvim_theme
+			overrides.window_padding.bottom = 1
 		else
 			overrides.enable_scroll_bar = nil
 			overrides.window_background_opacity = nil
+			overrides.window_padding.bottom = nil
 			-- Set the color scheme after vim exits as vim changes the bg color
 			overrides.color_scheme = terminal_theme
 		end
