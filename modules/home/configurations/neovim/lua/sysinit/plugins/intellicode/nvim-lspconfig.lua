@@ -9,7 +9,16 @@ M.plugins = {
 			"WhoIsSethDaniel/mason-tool-installer.nvim",
 			"hrsh7th/cmp-nvim-lsp",
 			"folke/snacks.nvim",
-			"aznhe21/actions-preview.nvim",
+			{
+				"aznhe21/actions-preview.nvim",
+				opts = {
+					diff = {
+						algorithm = "patience",
+						ignore_whitespace = true,
+						result_type = "indicies",
+					},
+				},
+			},
 		},
 		config = function()
 			local cmp_nvim_lsp = require("cmp_nvim_lsp")
@@ -279,3 +288,4 @@ M.plugins = {
 }
 
 return M
+
