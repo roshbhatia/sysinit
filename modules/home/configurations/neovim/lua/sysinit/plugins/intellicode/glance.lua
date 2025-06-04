@@ -17,17 +17,17 @@ M.plugins = {
 			return {
 				{
 					"<leader>cd",
-					"Glance definitions",
+					"<cmd>Glance definitions<cr>",
 					desc = "Peek definition",
 				},
 				{
 					"<leader>ci",
-					"Glance implementations",
+					"<cmd>Glance implementations<cr>",
 					desc = "Peek implementations",
 				},
 				{
 					"<leader>cu",
-					"Glance references",
+					"<cmd>Glance references<cr>",
 					desc = "Peek references",
 				},
 			}
