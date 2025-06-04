@@ -24,6 +24,7 @@ in
       "@mermaid-js/mermaid-cli"
       "prettier"
       "typescript-language-server"
+      "@dice-roller/cli"
       "typescript"
     ];
     additionalPackages = (overlay.yarn.additionalPackages or [ ]);
@@ -37,3 +38,4 @@ in
     executableName = "yarn";
   };
 }
+
