@@ -57,7 +57,7 @@ M.plugins = {
 				{
 					"<leader>eb",
 					"<cmd>Oil --float<CR>",
-					desc = "Editor: Open filesystem in floating buffer",
+					desc = "Open filesystem in floating buffer",
 				},
 			}
 		end,

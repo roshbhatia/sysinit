@@ -69,7 +69,7 @@ M.plugins = {
 					"<leader>fx",
 					dropbar_api.pick,
 					mode = "n",
-					desc = "Find: Symbols in winbar",
+					desc = "Symbols in winbar",
 				},
 			}
 		end,

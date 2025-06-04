@@ -32,91 +32,91 @@ M.plugins = {
 					function()
 						require("goose.api").toggle()
 					end,
-					desc = "AI: Toggle chat",
+					desc = "Toggle chat",
 				},
 				{
 					"<leader>aA",
 					function()
 						require("goose.api").open_input_new_session()
 					end,
-					desc = "AI: Create new session",
+					desc = "Create new session",
 				},
 				{
 					"<leader>at",
 					function()
 						require("goose.api").toggle_focus()
 					end,
-					desc = "AI: Toggle focus",
+					desc = "Toggle focus",
 				},
 				{
 					"<leader>aq",
 					function()
 						require("goose.api").close()
 					end,
-					desc = "AI: Close windows",
+					desc = "Close windows",
 				},
 				{
 					"<leader>af",
 					function()
 						require("goose.api").toggle_fullscreen()
 					end,
-					desc = "AI: Fullscreen toggle",
+					desc = "Fullscreen toggle",
 				},
 				{
 					"<leader>as",
 					function()
 						require("goose.api").select_session()
 					end,
-					desc = "AI: Select session",
+					desc = "Select session",
 				},
 				{
 					"<leader>ap",
 					function()
 						require("goose.api").configure_provider()
 					end,
-					desc = "AI: Provider config",
+					desc = "Provider config",
 				},
 				{
 					"<leader>ad",
 					function()
 						require("goose.api").diff_open()
 					end,
-					desc = "AI: Diff open",
+					desc = "Diff open",
 				},
 				{
 					"<leader>an",
 					function()
 						require("goose.api").diff_next()
 					end,
-					desc = "AI: Diff next",
+					desc = "Diff next",
 				},
 				{
 					"<leader>ap",
 					function()
 						require("goose.api").diff_prev()
 					end,
-					desc = "AI: Diff previous",
+					desc = "Diff previous",
 				},
 				{
 					"<leader>ac",
 					function()
 						require("goose.api").diff_close()
 					end,
-					desc = "AI: Diff close",
+					desc = "Diff close",
 				},
 				{
 					"<leader>aU",
 					function()
 						require("goose.api").diff_revert_this()
 					end,
-					desc = "AI: Revert this file",
+					desc = "Revert this file",
 				},
 				{
 					"<leader>aR",
 					function()
 						require("goose.api").run_new_session("")
 					end,
-					desc = "AI: Reset chat",
+					desc = "Reset chat",
 				},
 			}
 		end,
@@ -124,3 +124,4 @@ M.plugins = {
 }
 
 return M
+

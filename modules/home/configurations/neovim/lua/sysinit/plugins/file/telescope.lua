@@ -164,47 +164,47 @@ M.plugins = {
 				{
 					"<leader>ff",
 					"<cmd>Telescope find_files hidden=true<cr>",
-					desc = "Find: Files",
+					desc = "Files",
 				},
 				{
 					"<leader>fg",
 					"<cmd>Telescope live_grep<cr>",
-					desc = "Find: Live grep",
+					desc = "Live grep",
 				},
 				{
 					"<leader>fb",
 					"<cmd>Telescope buffers sort_mru=true ignore_current_buffer=true show_all_buffers=false<cr>",
-					desc = "Find: Buffers",
+					desc = "Buffers",
 				},
 				{
 					"<leader>fc",
 					"<cmd>Telescope commands<cr>",
-					desc = "Find: Commands",
+					desc = "Commands",
 				},
 				{
 					"<leader>fh",
 					"<cmd>Telescope help_tags<cr>",
-					desc = "Find: Help tags",
+					desc = "Help tags",
 				},
 				{
 					"<leader>fo",
 					"<cmd>Telescope oldfiles<cr>",
-					desc = "Find: Recent files",
+					desc = "Recent files",
 				},
 				{
 					"<leader>ft",
 					"<cmd>Telescope filetypes<cr>",
-					desc = "Find: Filetypes",
+					desc = "Filetypes",
 				},
 				{
 					"<leader>fF",
 					"<cmd>Telescope<cr>",
-					desc = "Find: Telescope",
+					desc = "Telescope",
 				},
 				{
 					"<leader>fu",
 					"<cmd>Telescope undo<cr>",
-					desc = "Find: Undo history",
+					desc = "Undo history",
 				},
 			}
 		end,

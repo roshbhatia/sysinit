@@ -12,10 +12,11 @@ function M.setup()
 	end, {
 		noremap = true,
 		silent = true,
-		desc = "Editor: Toggle line number display",
+		desc = "Toggle line number display",
 	})
 
 	vim.keymap.set("n", "<D-a>", "ggVG")
 end
 
 return M
+

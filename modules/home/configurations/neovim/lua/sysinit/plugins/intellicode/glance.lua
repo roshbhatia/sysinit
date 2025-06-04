@@ -18,17 +18,17 @@ M.plugins = {
 				{
 					"<leader>cd",
 					"<cmd>Glance definitions<cr>",
-					desc = "Peek definition",
+					desc = "Peek at definition",
 				},
 				{
 					"<leader>ci",
 					"<cmd>Glance implementations<cr>",
-					desc = "Peek implementations",
+					desc = "Peek at implementations",
 				},
 				{
 					"<leader>cu",
 					"<cmd>Glance references<cr>",
-					desc = "Peek references",
+					desc = "Peek at references",
 				},
 			}
 		end,
@@ -36,3 +36,4 @@ M.plugins = {
 }
 
 return M
+

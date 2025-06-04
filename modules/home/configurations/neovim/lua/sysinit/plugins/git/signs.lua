@@ -18,7 +18,7 @@ M.plugins = {
 				mode = "n",
 				noremap = true,
 				silent = true,
-				desc = "Git: Stage hunk",
+				desc = "Stage hunk",
 			},
 			{
 				"<leader>ghR",
@@ -28,7 +28,7 @@ M.plugins = {
 				mode = "n",
 				noremap = true,
 				silent = true,
-				desc = "Git: Reset hunk",
+				desc = "Reset hunk",
 			},
 			{
 				"<leader>gbs",
@@ -38,7 +38,7 @@ M.plugins = {
 				mode = "n",
 				noremap = true,
 				silent = true,
-				desc = "Git: Stage buffer",
+				desc = "Stage buffer",
 			},
 			{
 				"<leader>ghu",
@@ -48,7 +48,7 @@ M.plugins = {
 				mode = "n",
 				noremap = true,
 				silent = true,
-				desc = "Git: Unstage hunk",
+				desc = "Unstage hunk",
 			},
 			{
 				"<leader>gbR",
@@ -58,7 +58,7 @@ M.plugins = {
 				mode = "n",
 				noremap = true,
 				silent = true,
-				desc = "Git: Reset buffer",
+				desc = "Reset buffer",
 			},
 			{
 				"<leader>ghi",
@@ -68,7 +68,7 @@ M.plugins = {
 				mode = "n",
 				noremap = true,
 				silent = true,
-				desc = "Git: Preview hunk",
+				desc = "Preview hunk",
 			},
 			{
 				"<leader>ghn",
@@ -78,7 +78,7 @@ M.plugins = {
 				mode = "n",
 				noremap = true,
 				silent = true,
-				desc = "Git: Next hunk",
+				desc = "Next hunk",
 			},
 			{
 				"<leader>ghp",
@@ -88,7 +88,7 @@ M.plugins = {
 				mode = "n",
 				noremap = true,
 				silent = true,
-				desc = "Git: Previous hunk",
+				desc = "Previous hunk",
 			},
 			{
 				"<RightMouse>",
@@ -102,7 +102,7 @@ M.plugins = {
 				mode = "n",
 				noremap = true,
 				silent = true,
-				desc = "Git: Toggle inline preview",
+				desc = "Toggle inline preview",
 			},
 		},
 	},

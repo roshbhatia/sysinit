@@ -36,7 +36,7 @@ M.plugins = {
 			local copilot_actions = {
 				{
 					title = "Fix diagnostic with Copilot",
-					cmd = "CopilotChatFixDiagnostic",
+					cmd = "CopilotChatFix",
 				},
 				{
 					title = "Explain code with Copilot",
@@ -70,3 +70,4 @@ M.plugins = {
 }
 
 return M
+

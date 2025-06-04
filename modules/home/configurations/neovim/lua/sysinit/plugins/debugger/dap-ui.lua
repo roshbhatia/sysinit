@@ -16,7 +16,7 @@ M.plugins = {
 					function()
 						require("dapui").toggle({})
 					end,
-					desc = "Debugger: UI",
+					desc = "UI",
 				},
 			}
 		end,

@@ -41,7 +41,7 @@ function M.setup()
 	end, {
 		noremap = true,
 		silent = true,
-		desc = "Buffer: Close",
+		desc = "Close",
 	})
 
 	vim.keymap.set("n", "<leader>s", function()
@@ -50,7 +50,7 @@ function M.setup()
 	end, {
 		noremap = true,
 		silent = true,
-		desc = "Buffer: Write",
+		desc = "Write",
 	})
 
 	vim.keymap.set("n", "<leader>w", function()
@@ -60,20 +60,21 @@ function M.setup()
 	end, {
 		noremap = true,
 		silent = true,
-		desc = "Buffer: Write and close",
+		desc = "Write and close",
 	})
 
 	vim.keymap.set("n", "<leader>bn", buffer_next, {
 		noremap = true,
 		silent = true,
-		desc = "Buffer: Next",
+		desc = "Next",
 	})
 
 	vim.keymap.set("n", "<leader>bp", buffer_prev, {
 		noremap = true,
 		silent = true,
-		desc = "Buffer: Previous",
+		desc = "Previous",
 	})
 end
 
 return M
+

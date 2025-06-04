@@ -69,49 +69,49 @@ M.plugins = {
 					function()
 						Snacks.scratch()
 					end,
-					desc = "Buffer: Toggle scratchpad",
+					desc = "Toggle scratchpad",
 				},
 				{
 					"<leader>tt",
 					function()
 						Snacks.terminal.toggle("zsh")
 					end,
-					desc = "Terminal: Toggle terminal",
+					desc = "Toggle terminal",
 				},
 				{
 					"<leader>tl",
 					function()
 						Snacks.terminal.list()
 					end,
-					desc = "Terminal: List terminals",
+					desc = "List terminals",
 				},
 				{
 					"<leader>tT",
 					function()
 						Snacks.terminal.open("zsh")
 					end,
-					desc = "Terminal: New terminal",
+					desc = "New terminal",
 				},
 				{
 					"<leader>gg",
 					function()
 						Snacks.lazygit()
 					end,
-					desc = "Git: Open git ui",
+					desc = "Open UI",
 				},
 				{
 					"<leader>ns",
 					function()
 						Snacks.notifier.show_history()
 					end,
-					desc = "Notifications: Show",
+					desc = "Show",
 				},
 				{
 					"<leader>nc",
 					function()
 						Snacks.notifier.hide()
 					end,
-					desc = "Notifications: Dismiss",
+					desc = "Dismiss",
 				},
 			}
 		end,
@@ -119,3 +119,4 @@ M.plugins = {
 }
 
 return M
+

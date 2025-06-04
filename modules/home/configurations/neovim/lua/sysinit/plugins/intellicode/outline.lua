@@ -33,7 +33,7 @@ M.plugins = {
 			{
 				"<leader>eo",
 				"<cmd>AerialToggle!<CR>",
-				desc = "Editor: Toggle outline",
+				desc = "Toggle outline",
 			},
 		},
 	},

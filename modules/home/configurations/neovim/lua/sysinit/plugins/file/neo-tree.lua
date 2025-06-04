@@ -137,7 +137,7 @@ M.plugins = {
 					vim.cmd("Neotree toggle")
 					vim.cmd("wincmd p")
 				end,
-				desc = "Editor: Toggle file tree",
+				desc = "Toggle file tree",
 			},
 		},
 	},

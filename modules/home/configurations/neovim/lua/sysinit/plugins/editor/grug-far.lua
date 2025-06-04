@@ -14,7 +14,7 @@ M.plugins = {
 					function()
 						require("grug-far").open()
 					end,
-					desc = "Search: Global",
+					desc = "Global",
 				},
 			}
 		end,
@@ -22,3 +22,4 @@ M.plugins = {
 }
 
 return M
+

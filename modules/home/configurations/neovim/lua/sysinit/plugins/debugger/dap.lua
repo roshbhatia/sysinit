@@ -20,70 +20,70 @@ M.plugins = {
 				function()
 					require("dap").toggle_breakpoint()
 				end,
-				desc = "Debugger: Toggle breakpoint",
+				desc = "Toggle breakpoint",
 			},
 			{
 				"<leader>dc",
 				function()
 					require("dap").continue()
 				end,
-				desc = "Debugger: Continue",
+				desc = "Continue",
 			},
 			{
 				"<leader>dt",
 				function()
 					require("dap").run_to_cursor()
 				end,
-				desc = "Debugger: Run to cursor",
+				desc = "Run to cursor",
 			},
 			{
 				"<leader>dB",
 				function()
 					require("dap").clear_breakpoints()
 				end,
-				desc = "Debugger: Clear breakpoints",
+				desc = "Clear breakpoints",
 			},
 			{
 				"<leader>dr",
 				function()
 					require("dap").run()
 				end,
-				desc = "Debugger: Run",
+				desc = "Run",
 			},
 			{
 				"<leader>dD",
 				function()
 					require("dap").repl.toggle()
 				end,
-				desc = "Debugger: Toggle REPL",
+				desc = "Toggle REPL",
 			},
 			{
 				"<leader>dR",
 				function()
 					require("dap").restart()
 				end,
-				desc = "Debugger: Restart",
+				desc = "Restart",
 			},
 			{
 				"<leader>dx",
 				function()
 					require("dap").terminate()
 				end,
-				desc = "Debugger: Terminate",
+				desc = "Terminate",
 			},
 			{
 				"<leader>di",
 				function()
 					require("dap").step_into()
 				end,
-				desc = "Debugger: Step into",
+				desc = "Step into",
 			},
 			{
 				"<leader>do",
 				function()
 					require("dap").step_over()
 				end,
-				desc = "Debugger: Step over",
+				desc = "Step over",
 			},
 		},
 	},

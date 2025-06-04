@@ -12,7 +12,7 @@ M.plugins = {
 				{
 					"<leader>is",
 					"<CMD>SearchBoxReplace<CR>",
-					desc = "Search: Local",
+					desc = "Local",
 				},
 			}
 		end,
