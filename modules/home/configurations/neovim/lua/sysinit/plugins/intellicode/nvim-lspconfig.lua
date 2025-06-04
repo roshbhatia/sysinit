@@ -9,6 +9,7 @@ M.plugins = {
 			"WhoIsSethDaniel/mason-tool-installer.nvim",
 			"hrsh7th/cmp-nvim-lsp",
 			"folke/snacks.nvim",
+			"aznhe21/actions-preview.nvim",
 		},
 		config = function()
 			local cmp_nvim_lsp = require("cmp_nvim_lsp")
@@ -223,14 +224,14 @@ M.plugins = {
 				{
 					"<leader>ca",
 					function()
-						vim.lsp.buf.code_action()
+						require("actions-preview").code_actions()
 					end,
 					desc = "Code action",
 				},
 				{
 					"<leader>ca",
 					function()
-						vim.lsp.buf.range_code_action()
+						require("actions-preview").code_actions()
 					end,
 					mode = "v",
 					desc = "Code action",
