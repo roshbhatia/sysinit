@@ -75,6 +75,8 @@ in
 
       diff = "diff --color";
       grep = "grep -s --color=auto";
+
+      watch = "watch --color --no-title";
     };
 
     sessionVariables = {
