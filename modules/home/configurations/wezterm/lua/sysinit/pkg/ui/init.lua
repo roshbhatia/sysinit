@@ -2,7 +2,6 @@ local wezterm = require("wezterm")
 local M = {}
 
 local terminal_theme = "Rosé Pine Moon (Gogh)"
-local nvim_theme = "Ef-Autumn"
 
 local terminal_font = wezterm.font_with_fallback({
 	{
@@ -98,8 +97,7 @@ local function setup_nvim_ui_overrides()
 		local overrides = window:get_config_overrides() or {}
 		if should_switch then
 			overrides.enable_scroll_bar = false
-			overrides.window_background_opacity = 0.775
-			overrides.color_scheme = nvim_theme
+			overrides.window_background_opacity = 0.833
 		else
 			overrides.enable_scroll_bar = nil
 			overrides.window_background_opacity = nil
@@ -134,4 +132,3 @@ function M.setup(config)
 end
 
 return M
-
