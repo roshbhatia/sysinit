@@ -12,7 +12,7 @@ function M.setup()
 							vim.cmd("edit")
 						end
 					end
-				end, 10)
+				end, 100)
 			end,
 		})
 	end

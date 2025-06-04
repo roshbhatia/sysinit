@@ -71,6 +71,10 @@ M.plugins = {
 					group = "Notifications",
 				},
 				{
+					"<leader>r",
+					group = "Super",
+				},
+				{
 					"<leader>t",
 					group = "Terminal",
 				},
@@ -80,3 +84,4 @@ M.plugins = {
 }
 
 return M
+
