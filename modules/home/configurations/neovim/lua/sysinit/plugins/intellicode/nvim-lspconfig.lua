@@ -175,6 +175,7 @@ M.plugins = {
 						},
 					},
 				},
+				nil_ls = {},
 				pyright = {},
 				terraformls = {},
 				tflint = {},
