@@ -98,7 +98,7 @@ local function setup_nvim_ui_overrides()
 		local overrides = window:get_config_overrides() or {}
 		if should_switch then
 			overrides.enable_scroll_bar = false
-			overrides.window_background_opacity = 0.95
+			overrides.window_background_opacity = 0.775
 			overrides.color_scheme = nvim_theme
 		else
 			overrides.enable_scroll_bar = nil
