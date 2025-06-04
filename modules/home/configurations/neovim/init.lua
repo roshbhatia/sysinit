@@ -23,6 +23,7 @@ require("sysinit.pkg.opts.autoread").setup()
 require("sysinit.pkg.opts.undo").setup()
 
 require("sysinit.pkg.autocmds.help").setup()
+require("sysinit.pkg.autocmds.refresh").setup()
 require("sysinit.pkg.autocmds.wezterm").setup()
 
 require("sysinit.pkg.utils.plugin_manager").setup_package_manager()
