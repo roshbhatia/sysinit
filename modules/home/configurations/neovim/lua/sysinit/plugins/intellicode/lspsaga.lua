@@ -7,8 +7,6 @@ M.plugins = {
 		dependencies = {
 			"nvim-treesitter/nvim-treesitter",
 			"nvim-tree/nvim-web-devicons",
-			"neovim/nvim-lspconfig",
-			"nvimtools/none-ls.nvim",
 		},
 		config = function()
 			require("lspsaga").setup({

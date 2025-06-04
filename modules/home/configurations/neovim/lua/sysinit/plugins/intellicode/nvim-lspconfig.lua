@@ -242,27 +242,6 @@ M.plugins = {
 					desc = "Rename",
 				},
 				{
-					"<leader>cd",
-					function()
-						Snacks.picker.lsp_definitions()
-					end,
-					desc = "Peek definition",
-				},
-				{
-					"<leader>cu",
-					function()
-						Snacks.picker.lsp_references()
-					end,
-					desc = "Peek references",
-				},
-				{
-					"<leader>ci",
-					function()
-						Snacks.picker.lsp_implementations()
-					end,
-					desc = "Peek implementations",
-				},
-				{
 					"<leader>cD",
 					function()
 						vim.lsp.buf.definition()
