@@ -72,6 +72,7 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.intellicode.linters"),
 	require("sysinit.plugins.intellicode.lsp-lines"),
 	require("sysinit.plugins.intellicode.lsp-signature"),
+	require("sysinit.plugins.intellicode.lspsaga"),
 	require("sysinit.plugins.intellicode.luasnip"),
 	require("sysinit.plugins.intellicode.mason"),
 	require("sysinit.plugins.intellicode.none-ls"),
@@ -118,4 +119,3 @@ require("sysinit.pkg.keybindings.undo").setup()
 require("sysinit.pkg.keybindings.vim").setup()
 
 require("sysinit.pkg.entrypoint.no-session").setup()
-
