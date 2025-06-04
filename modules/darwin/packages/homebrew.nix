@@ -11,6 +11,7 @@ let
 
   baseTaps = [
     "FelixKratz/formulae"
+    "hashicorp/tap"
     "jandedobbeleer/oh-my-posh"
     "mediosz/tap"
     "nikitabobko/tap"
@@ -36,6 +37,7 @@ let
     "rust"
     "sad"
     "sshpass"
+    "terraform"
     "tlrc"
   ];
 
