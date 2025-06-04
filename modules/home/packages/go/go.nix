@@ -23,7 +23,7 @@ in
       "github.com/davidrjenni/reftools/cmd/fixplurals@latest"
       "github.com/kyoh86/richgo@latest"
       "github.com/onsi/ginkgo/v2/ginkgo@latest"
-      "github.com/tmc/json-to-struct"
+      "github.com/tmc/json-to-struct@latest"
       "github.com/twpayne/go-jsonstruct/v3/cmd/gojsonstruct@latest"
       "mvdan.cc/gofumpt@latest"
     ];
@@ -32,4 +32,3 @@ in
     executableName = "go";
   };
 }
-
