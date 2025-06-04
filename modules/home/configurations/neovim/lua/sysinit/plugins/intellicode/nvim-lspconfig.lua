@@ -200,10 +200,10 @@ M.plugins = {
 				tflint = {},
 				ts_ls = {},
 				vimls = {},
-		    -- might need to use a yaml linter with none-ls instead here as this ls isn't as configurable
-        -- as I'd like.
-        -- https://github.com/redhat-developer/yaml-language-server
-        -- yamlls = {
+				-- might need to use a yaml linter with none-ls instead here as this ls isn't as configurable
+				-- as I'd like.
+				-- https://github.com/redhat-developer/yaml-language-server
+				-- yamlls = {
 				-- 	settings = {
 				-- 		yaml = {
 				-- 			schemaStore = {
@@ -216,7 +216,7 @@ M.plugins = {
 				-- 			schemas = require("schemastore").yaml.schemas(),
 				-- 		},
 				-- 	},
-				},
+				-- },
 			}
 
 			local tools = {
@@ -300,4 +300,3 @@ M.plugins = {
 }
 
 return M
-
