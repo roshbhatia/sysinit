@@ -12,27 +12,71 @@ M.plugins = {
 
 			wk.setup({
 				preset = "helix",
+				icons = {
+					mappings = false,
+				},
 			})
 
 			wk.add({
-				{ "<leader>a", group = "󱚣 Copilot" },
-				{ "<leader>b", group = " Buffer" },
-				{ "<leader>c", group = "󰘧 Code" },
-				{ "<leader>d", group = " Debugger" },
-				{ "<leader>e", group = " Editor" },
-				{ "<leader>f", group = "󰀶 Find" },
-				{ "<leader>g", group = " Git" },
-				{ "<leader>gb", group = "Buffer" },
-				{ "<leader>gh", group = "Hunk" },
-				{ "<leader>i", group = " Search" },
-				{ "<leader>j", group = "󱋿 Hop" },
-				{ "<leader>m", group = " Marks" },
-				{ "<leader>n", group = "󰎟 Notifications" },
-				{ "<leader>t", group = " Terminal" },
+				{
+					"<leader>a",
+					group = "Copilot",
+				},
+				{
+					"<leader>b",
+					group = "Buffer",
+				},
+				{
+					"<leader>c",
+					group = "Code",
+				},
+				{
+					"<leader>d",
+					group = "Debugger",
+				},
+				{
+					"<leader>e",
+					group = "Editor",
+				},
+				{
+					"<leader>f",
+					group = "Find",
+				},
+				{
+					"<leader>g",
+					group = "Git",
+				},
+				{
+					"<leader>gb",
+					group = "Buffer",
+				},
+				{
+					"<leader>gh",
+					group = "Hunk",
+				},
+				{
+					"<leader>i",
+					group = "Search",
+				},
+				{
+					"<leader>j",
+					group = "Hop",
+				},
+				{
+					"<leader>m",
+					group = "Marks",
+				},
+				{
+					"<leader>n",
+					group = "Notifications",
+				},
+				{
+					"<leader>t",
+					group = "Terminal",
+				},
 			})
 		end,
 	},
 }
 
 return M
-

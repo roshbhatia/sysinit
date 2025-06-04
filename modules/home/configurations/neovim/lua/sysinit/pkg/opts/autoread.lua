@@ -3,7 +3,12 @@ local M = {}
 function M.setup()
 	vim.opt.shortmess:append("A")
 	vim.o.autoread = true
-	vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
+	vim.api.nvim_create_autocmd({
+		"FocusGained",
+		"BufEnter",
+		"CursorHold",
+		"CursorHoldI",
+	}, {
 		pattern = "*",
 		callback = function()
 			if vim.fn.mode() ~= "c" then

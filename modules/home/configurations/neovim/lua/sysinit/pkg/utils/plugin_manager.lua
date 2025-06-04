@@ -37,7 +37,11 @@ function plugin_manager.setup_plugins(modules)
 					show_end_of_buffer = false,
 					transparent_background = true,
 					term_colors = true,
-					styles = { comments = { "italic" } },
+					styles = {
+						comments = {
+							"italic",
+						},
+					},
 					integrations = {
 						alpha = true,
 						aerial = true,
@@ -49,7 +53,9 @@ function plugin_manager.setup_plugins(modules)
 						copilot_vim = true,
 						dap = true,
 						dap_ui = true,
-						dropbar = { enabled = true },
+						dropbar = {
+							enabled = true,
+						},
 						fzf = true,
 						hop = true,
 						native_lsp = {
@@ -57,8 +63,12 @@ function plugin_manager.setup_plugins(modules)
 						},
 						nvim_notify = false,
 						render_markdown = true,
-						snacks = { enabled = true },
-						telescope = { enabled = true },
+						snacks = {
+							enabled = true,
+						},
+						telescope = {
+							enabled = true,
+						},
 						treesitter = true,
 						lsp_trouble = true,
 						which_key = true,
@@ -70,7 +80,7 @@ function plugin_manager.setup_plugins(modules)
 		},
 		{
 			"vhyrro/luarocks.nvim",
-			priority = 1000,
+			priority = 1200,
 			dependencies = {
 				"nvim-lua/plenary.nvim",
 			},
@@ -84,7 +94,10 @@ function plugin_manager.setup_plugins(modules)
 				create_dirs = true,
 				install = {
 					only_deps = false,
-					flags = { "--local", "--force-config" },
+					flags = {
+						"--local",
+						"--force-config",
+					},
 				},
 				show_progress = true,
 				rocks = {
@@ -124,10 +137,11 @@ function plugin_manager.setup_plugins(modules)
 			notify = false,
 		},
 		install = {
-			colorscheme = { "catppuccin" },
+			colorscheme = {
+				"catppuccin",
+			},
 		},
 	})
 end
 
 return plugin_manager
-

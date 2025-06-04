@@ -22,8 +22,8 @@ M.plugins = {
 						"lsp_name",
 					},
 					right = {
-						"cool_symbol",
 						"line_column",
+						"cool_symbol",
 					},
 				},
 				special_table = {
@@ -49,7 +49,7 @@ M.plugins = {
 					Warn = " ",
 				},
 				defaults = {
-					cool_symbol = "󱄅 ",
+					cool_symbol = "󱄅",
 					expand_null_ls = false,
 					true_colors = true,
 					line_column = ":%c [%l/%L]",
@@ -62,4 +62,3 @@ M.plugins = {
 }
 
 return M
-

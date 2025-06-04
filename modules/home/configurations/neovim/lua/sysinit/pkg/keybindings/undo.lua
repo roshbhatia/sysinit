@@ -6,6 +6,7 @@ function M.setup()
 		silent = true,
 		desc = "Undo to previous state",
 	})
+
 	vim.keymap.set("n", "U", "g+`[", {
 		noremap = true,
 		silent = true,
