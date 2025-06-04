@@ -4,11 +4,12 @@ M.plugins = {
 	{
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
-		event = { "BufReadPre" },
+		branch = "master",
+		lazy = false,
 		opts = {
 			highlight = {
 				enable = true,
-				additional_vim_regex_highlighting = true,
+				additional_vim_regex_highlighting = false,
 			},
 			incremental_selection = {
 				enable = true,
@@ -19,6 +20,7 @@ M.plugins = {
 					node_decremental = "grm",
 				},
 			},
+			sync_install = true,
 			ensure_installed = {
 				"bash",
 				"c",
@@ -79,3 +81,4 @@ M.plugins = {
 }
 
 return M
+
