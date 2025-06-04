@@ -16,6 +16,15 @@ M.plugins = {
 						highlight_command = {
 							require("actions-preview.highlight").delta(),
 						},
+						telescope = vim.tbl_extend(
+							"force",
+							-- telescope theme: https://github.com/nvim-telescope/telescope.nvim#themes
+							require("telescope.themes").get_ivy(),
+							{
+								make_value = nil,
+								make_make_display = nil,
+							}
+						),
 					})
 				end,
 			},
@@ -288,3 +297,4 @@ M.plugins = {
 }
 
 return M
+
