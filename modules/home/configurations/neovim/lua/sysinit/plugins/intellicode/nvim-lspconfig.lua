@@ -11,15 +11,17 @@ M.plugins = {
 			"folke/snacks.nvim",
 			{
 				"aznhe21/actions-preview.nvim",
-				opts = {
+				config = function()
+					require("actions-preview").setup({
 					highlight_command = {
 						require("actions-preview.highlight").delta(),
 					},
 					telescope = vim.tbl_extend("force", require("telescope.themes").get_ivy({ winblend = 10 }), {
 						make_value = nil,
 						make_make_display = nil,
+					})
 					}),
-				},
+				end
 			},
 		},
 		config = function()
