@@ -37,6 +37,7 @@ let
     go
     go-task
     golangci-lint
+    golangci-lint-langserver
     gum
     helm-ls
     htop
@@ -94,3 +95,4 @@ in
 {
   home.packages = allNixPackages;
 }
+

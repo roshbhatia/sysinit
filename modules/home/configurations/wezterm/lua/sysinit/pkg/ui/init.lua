@@ -2,7 +2,7 @@ local wezterm = require("wezterm")
 local M = {}
 
 local terminal_theme = "Rosé Pine Moon (Gogh)"
-local nvim_theme = "rebecca"
+local nvim_theme = "Ef-Autumn"
 
 local terminal_font = wezterm.font_with_fallback({
 	{
