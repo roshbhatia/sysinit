@@ -14,6 +14,8 @@ function M.setup()
 		silent = true,
 		desc = "Editor: Toggle line number display",
 	})
+
+	vim.keymap.set("n", "<D-a>", "ggVG")
 end
 
 return M

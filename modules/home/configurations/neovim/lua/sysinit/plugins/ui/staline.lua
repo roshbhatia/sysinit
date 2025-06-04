@@ -12,15 +12,48 @@ M.plugins = {
 		config = function()
 			require("staline").setup({
 				sections = {
-					left = { "mode", "branch", " ", "lsp" },
-					mid = { "lsp_name" },
-					right = { "line_column" },
+					left = {
+						"mode",
+						"branch",
+						" ",
+						"lsp",
+					},
+					mid = {
+						"lsp_name",
+					},
+					right = {
+						"cool_symbol",
+						"line_column",
+					},
+				},
+				special_table = {
+					NeoTree = {
+						"neo-tree",
+						" ",
+					},
+					Lazy = {
+						"lazy",
+						"󰒲 ",
+					},
+				},
+				mode_icons = {
+					n = "󰸶 ",
+					i = "󰸴 ",
+					c = "󰸸 ",
+					v = "󰸵 ",
+				},
+				lsp_symbols = {
+					Error = " ",
+					Hint = " ",
+					Info = " ",
+					Warn = " ",
 				},
 				defaults = {
+					cool_symbol = "󱄅 ",
 					expand_null_ls = false,
 					true_colors = true,
 					line_column = ":%c [%l/%L]",
-					lsp_client_symbol = "󰘧",
+					lsp_client_symbol = "󰘧 ",
 					lsp_client_character_length = 32,
 				},
 			})

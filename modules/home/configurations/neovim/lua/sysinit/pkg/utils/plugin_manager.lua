@@ -71,7 +71,9 @@ function plugin_manager.setup_plugins(modules)
 		{
 			"vhyrro/luarocks.nvim",
 			priority = 1000,
-			dependencies = { "nvim-lua/plenary.nvim" },
+			dependencies = {
+				"nvim-lua/plenary.nvim",
+			},
 			opts = {
 				rocks_path = vim.fn.stdpath("data") .. "/luarocks",
 				lua_path = vim.fn.stdpath("data")
@@ -85,6 +87,9 @@ function plugin_manager.setup_plugins(modules)
 					flags = { "--local", "--force-config" },
 				},
 				show_progress = true,
+				rocks = {
+					"tiktoken_core",
+				},
 			},
 		},
 	}

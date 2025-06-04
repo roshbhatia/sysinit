@@ -3,11 +3,11 @@ local M = {}
 M.plugins = {
 	{
 		"CopilotC-Nvim/CopilotChat.nvim",
-		branch = "canary",
 		dependencies = {
-			{ "zbirenbaum/copilot.lua" },
-			{ "nvim-lua/plenary.nvim" },
+			"zbirenbaum/copilot.lua",
+			"nvim-lua/plenary.nvim",
 		},
+		build = "make tiktoken",
 		cmd = {
 			"CopilotChat",
 			"CopilotChatOpen",
@@ -19,28 +19,13 @@ M.plugins = {
 			"CopilotChatDocs",
 		},
 		opts = {
-			debug = false,
-			prompts = {
-				Explain = {
-					prompt = "Explain how this code works in detail.",
-				},
-				Tests = {
-					prompt = "Generate unit tests for this code.",
-				},
-				Fix = {
-					prompt = "Fix this code to resolve errors and improve error handling.",
-				},
-				Optimize = {
-					prompt = "Optimize this code for better performance and readability.",
-				},
-				Docs = {
-					prompt = "Generate detailed documentation for this code.",
-				},
-			},
 			window = {
-				layout = "Vertical", -- 'float' | 'vertical' | 'horizontal' | 'center'
+				layout = "float",
+				border = "rounded",
+				relative = "cursor",
 			},
 		},
 	},
 }
 return M
+

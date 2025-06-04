@@ -1,6 +1,7 @@
 {
   "diagnostics.disable": ["deprecated",
-        "undefined-global"],
+        "undefined-global",
+        "undefined-field"],
     "diagnostics.globals": [
         "Snacks"
     ]

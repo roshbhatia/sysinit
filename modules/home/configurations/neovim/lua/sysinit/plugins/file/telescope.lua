@@ -6,17 +6,19 @@ M.plugins = {
 		tag = "0.1.8",
 		event = "VeryLazy",
 		dependencies = {
-			"nvim-lua/plenary.nvim",
-			"nvim-tree/nvim-web-devicons",
-			"nvim-telescope/telescope-fzy-native.nvim",
-			"nvim-telescope/telescope-dap.nvim",
-			"nvim-telescope/telescope-live-grep-args.nvim",
 			"debugloop/telescope-undo.nvim",
+			"nvim-lua/plenary.nvim",
+			"nvim-telescope/telescope-dap.nvim",
+			"nvim-telescope/telescope-fzy-native.nvim",
+			"nvim-telescope/telescope-live-grep-args.nvim",
+			"nvim-telescope/telescope-ui-select.nvim",
+			"nvim-tree/nvim-web-devicons",
 			"olimorris/persisted.nvim",
 		},
 		config = function()
 			local telescope = require("telescope")
 			local actions = require("telescope.actions")
+			local themes = require("telescope.themes")
 
 			telescope.setup({
 				defaults = {
@@ -45,6 +47,9 @@ M.plugins = {
 					},
 				},
 				extensions = {
+					["ui-select"] = {
+						themes.get_dropdown(),
+					},
 					persisted = {
 						layout_config = { width = 0.55, height = 0.55 },
 					},
@@ -147,6 +152,7 @@ M.plugins = {
 				},
 			})
 
+			telescope.load_extension("ui-select")
 			telescope.load_extension("persisted")
 			telescope.load_extension("fzy_native")
 			telescope.load_extension("dap")
