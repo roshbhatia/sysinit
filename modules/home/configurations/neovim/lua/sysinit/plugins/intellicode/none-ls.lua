@@ -26,7 +26,7 @@ M.plugins = {
 					null_ls.builtins.diagnostics.staticcheck,
 					null_ls.builtins.diagnostics.terraform_validate,
 					null_ls.builtins.diagnostics.tfsec,
-					null_ls.builtins.diagnostics.yamllint,
+					-- null_ls.builtins.diagnostics.yamllint,
 					null_ls.builtins.formatting.goimports,
 					null_ls.builtins.hover.dictionary,
 					null_ls.builtins.hover.printenv,
@@ -70,4 +70,3 @@ M.plugins = {
 }
 
 return M
-
