@@ -45,6 +45,10 @@ M.plugins = {
 				callback = function()
 					vim.diagnostic.config({
 						severity_sort = false,
+						virtual_text = false,
+						virtual_lines = {
+							only_current_line = true,
+						},
 						update_in_insert = true,
 						float = {
 							border = "rounded",
@@ -235,6 +239,14 @@ M.plugins = {
 					end,
 					desc = "Hover documentation",
 				},
+
+				{
+					"K",
+					function()
+						require("pretty_hover").hover()
+					end,
+					desc = "Hover documentation",
+				},
 				{
 					"<leader>cn",
 					function()
@@ -255,4 +267,3 @@ M.plugins = {
 }
 
 return M
-
