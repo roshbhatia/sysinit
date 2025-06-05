@@ -32,7 +32,6 @@ M.plugins = {
 				picker = {
 					enabled = true,
 				},
-				quickfile = { enabled = true },
 				rename = { enabled = true },
 				scratch = { enabled = true },
 				statuscolumn = { enabled = true },
@@ -53,6 +52,7 @@ M.plugins = {
 				input = { enabled = false },
 				layout = { enabled = false },
 				profiler = { enabled = false },
+				quickfile = { enabled = false }, -- Causes issues with syntax highlighting?
 				scope = { enabled = false },
 				scroll = { enabled = false },
 				toggle = { enabled = false },
@@ -119,4 +119,3 @@ M.plugins = {
 }
 
 return M
-
