@@ -8,37 +8,37 @@ M.plugins = {
 		keys = {
 			{
 				"<leader>gs",
-				"<cmd>Git<CR>",
+				"<CMD>Git<CR>",
 				desc = "Open git status",
 			},
 			{
 				"<leader>gc",
-				"<cmd>Git commit<CR>",
+				"<CMD>Git commit<CR>",
 				desc = "Commit",
 			},
 			{
 				"<leader>gP",
-				"<cmd>Git push<CR>",
+				"<CMD>Git push<CR>",
 				desc = "Push",
 			},
 			{
 				"<leader>gp",
-				"<cmd>Git pull<CR>",
+				"<CMD>Git pull<CR>",
 				desc = "Pull",
 			},
 			{
 				"<leader>gl",
-				"<cmd>Git log<CR>",
+				"<CMD>Git log<CR>",
 				desc = "Log",
 			},
 			{
 				"<leader>gbd",
-				"<cmd>Gvdiffsplit!<CR>",
+				"<CMD>Gvdiffsplit!<CR>",
 				desc = "Diff buffer",
 			},
 			{
 				"<leader>gbD",
-				"<cmd>Gvdiffsplit! HEAD^ HEAD~1<CR>",
+				"<CMD>Gvdiffsplit! HEAD^ HEAD~1<CR>",
 				desc = "Diff buffer with previous commit",
 			},
 		},

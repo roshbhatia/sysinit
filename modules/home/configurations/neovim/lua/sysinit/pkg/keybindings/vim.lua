@@ -1,7 +1,7 @@
 local M = {}
 
 function M.setup()
-	vim.keymap.set("n", "<leader>q", ":qa!<CR>", {
+	vim.keymap.set("n", "<leader>q", "<CMD>qa!<CR>", {
 		noremap = true,
 		silent = true,
 		desc = "Quit",
@@ -9,4 +9,3 @@ function M.setup()
 end
 
 return M
-

@@ -32,7 +32,7 @@ M.plugins = {
 		keys = {
 			{
 				"<leader>eo",
-				"<cmd>AerialToggle!<CR>",
+				"<CMD>AerialToggle!<CR>",
 				desc = "Toggle outline",
 			},
 		},
@@ -40,4 +40,3 @@ M.plugins = {
 }
 
 return M
-

@@ -14,43 +14,43 @@ M.plugins = {
 			return {
 				{
 					"<S-CR>",
-					"<cmd>HopWord<CR>",
+					"<CMD>HopWord<CR>",
 					mode = "n",
 					desc = "Jump to any word",
 				},
 				{
 					"<leader>jj",
-					"<cmd>HopWord<CR>",
+					"<CMD>HopWord<CR>",
 					mode = "n",
 					desc = "Jump to any word",
 				},
 				{
 					"<leader>jl",
-					"<cmd>HopLine<CR>",
+					"<CMD>HopLine<CR>",
 					mode = "n",
 					desc = "Jump to any line",
 				},
 				{
 					"<leader>js",
-					"<cmd>HopChar1<CR>",
+					"<CMD>HopChar1<CR>",
 					mode = "n",
 					desc = "Jump to character",
 				},
 				{
 					"<leader>jp",
-					"<cmd>HopPattern<CR>",
+					"<CMD>HopPattern<CR>",
 					mode = "n",
 					desc = "Jump to pattern",
 				},
 				{
 					"<leader>jt",
-					"<cmd>HopNodes<CR>",
+					"<CMD>HopNodes<CR>",
 					mode = "n",
 					desc = "Jump to node",
 				},
 				{
 					"<leader>ja",
-					"<cmd>HopAnywhere<CR>",
+					"<CMD>HopAnywhere<CR>",
 					mode = "n",
 					desc = "Jump to anywhere",
 				},
@@ -60,4 +60,3 @@ M.plugins = {
 }
 
 return M
-

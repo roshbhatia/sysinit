@@ -18,7 +18,7 @@ M.plugins = {
 			return {
 				{
 					"<leader>em",
-					"<cmd>Neominimap Toggle<CR>",
+					"<CMD>Neominimap Toggle<CR>",
 					desc = "Toggle minimap",
 				},
 			}
@@ -27,4 +27,3 @@ M.plugins = {
 }
 
 return M
-

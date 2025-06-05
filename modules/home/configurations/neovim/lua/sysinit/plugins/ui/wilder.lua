@@ -50,4 +50,3 @@ M.plugins = {
 	},
 }
 return M
-

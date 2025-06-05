@@ -52,7 +52,7 @@ M.plugins = {
 				},
 				{
 					"<leader>fm",
-					":Telescope recall<CR>",
+					"<CMD>Telescope recall<CR>",
 					mode = "n",
 					noremap = true,
 					silent = true,
@@ -64,4 +64,3 @@ M.plugins = {
 }
 
 return M
-

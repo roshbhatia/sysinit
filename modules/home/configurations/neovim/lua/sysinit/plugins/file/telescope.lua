@@ -163,47 +163,47 @@ M.plugins = {
 			return {
 				{
 					"<leader>ff",
-					"<cmd>Telescope find_files hidden=true<cr>",
+					"<CMD>Telescope find_files hidden=true<CR>",
 					desc = "Files",
 				},
 				{
 					"<leader>fg",
-					"<cmd>Telescope live_grep<cr>",
+					"<CMD>Telescope live_grep<CR>",
 					desc = "Live grep",
 				},
 				{
 					"<leader>fb",
-					"<cmd>Telescope buffers sort_mru=true ignore_current_buffer=true show_all_buffers=false<cr>",
+					"<CMD>Telescope buffers sort_mru=true ignore_current_buffer=true show_all_buffers=false<CR>",
 					desc = "Buffers",
 				},
 				{
 					"<leader>fc",
-					"<cmd>Telescope commands<cr>",
+					"<CMD>Telescope commands<CR>",
 					desc = "Commands",
 				},
 				{
 					"<leader>fh",
-					"<cmd>Telescope help_tags<cr>",
+					"<CMD>Telescope help_tags<CR>",
 					desc = "Help tags",
 				},
 				{
 					"<leader>fo",
-					"<cmd>Telescope oldfiles<cr>",
+					"<CMD>Telescope oldfiles<CR>",
 					desc = "Recent files",
 				},
 				{
 					"<leader>ft",
-					"<cmd>Telescope filetypes<cr>",
+					"<CMD>Telescope filetypes<CR>",
 					desc = "Filetypes",
 				},
 				{
 					"<leader>fF",
-					"<cmd>Telescope<cr>",
+					"<CMD>Telescope<CR>",
 					desc = "Telescope",
 				},
 				{
 					"<leader>fu",
-					"<cmd>Telescope undo<cr>",
+					"<CMD>Telescope undo<CR>",
 					desc = "Undo history",
 				},
 			}
@@ -212,4 +212,3 @@ M.plugins = {
 }
 
 return M
-

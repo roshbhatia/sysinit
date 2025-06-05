@@ -4,30 +4,30 @@ M.plugins = {
 	{
 		"dnlhc/glance.nvim",
 		cmd = "Glance",
-		event = { "LspAttach" },
+		event = {
+			"LspAttach",
+		},
 		opts = {
-
 			winbar = {
 				enable = true,
 			},
-
 			use_trouble_qf = true,
 		},
 		keys = function()
 			return {
 				{
 					"<leader>cd",
-					"<cmd>Glance definitions<cr>",
+					"<CMD>Glance definitions<CR>",
 					desc = "Peek at definition",
 				},
 				{
 					"<leader>ci",
-					"<cmd>Glance implementations<cr>",
+					"<CMD>Glance implementations<CR>",
 					desc = "Peek at implementations",
 				},
 				{
 					"<leader>cu",
-					"<cmd>Glance references<cr>",
+					"<CMD>Glance references<CR>",
 					desc = "Peek at references",
 				},
 			}
@@ -36,4 +36,3 @@ M.plugins = {
 }
 
 return M
-

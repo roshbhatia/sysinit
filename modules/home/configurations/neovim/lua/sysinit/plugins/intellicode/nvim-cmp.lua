@@ -13,10 +13,7 @@ M.plugins = {
 			"hrsh7th/cmp-path",
 			"L3MON4D3/LuaSnip",
 			"onsails/lspkind.nvim",
-			{
-				"petertriho/cmp-git",
-				opts = {},
-			},
+			"petertriho/cmp-git",
 			"saadparwaiz1/cmp_luasnip",
 			"zbirenbaum/copilot-cmp",
 			"pta2002/intellitab.nvim",
@@ -153,4 +150,3 @@ M.plugins = {
 }
 
 return M
-

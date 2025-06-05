@@ -28,7 +28,7 @@ function plugin_manager.setup_plugins(modules)
 	local core_specs = {
 		{
 			"vhyrro/luarocks.nvim",
-			priority = 1200,
+			priority = 9999,
 			dependencies = {
 				"nvim-lua/plenary.nvim",
 			},
@@ -50,6 +50,7 @@ function plugin_manager.setup_plugins(modules)
 				show_progress = true,
 				rocks = {
 					"tiktoken_core",
+					"wezterm-types",
 				},
 			},
 		},
@@ -71,8 +72,6 @@ function plugin_manager.setup_plugins(modules)
 			rtp = {
 				disabled_plugins = {
 					"gzip",
-					"matchit",
-					"matchparen",
 					"netrwPlugin",
 					"tarPlugin",
 					"tohtml",

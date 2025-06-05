@@ -23,10 +23,9 @@ M.plugins = {
 				"<C-y>",
 				"<C-e>",
 			},
-			easing_function = "cubic",
+			easing_function = "quintic",
 		},
 	},
 }
 
 return M
-

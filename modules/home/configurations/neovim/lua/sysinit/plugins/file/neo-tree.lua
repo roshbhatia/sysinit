@@ -61,7 +61,7 @@ M.plugins = {
 				window = {
 					mappings = {
 						["<2-LeftMouse>"] = "open",
-						["<cr>"] = "open",
+						["<CR>"] = "open",
 						["<esc>"] = "revert_preview",
 						["P"] = {
 							"toggle_preview",
@@ -146,4 +146,3 @@ M.plugins = {
 }
 
 return M
-

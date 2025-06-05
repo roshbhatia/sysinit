@@ -25,7 +25,7 @@ function M.setup()
 		desc = "Paste",
 	})
 
-	vim.keymap.set("n", "<leader>rr", "<cmd>edit<cr>", {
+	vim.keymap.set("n", "<leader>rr", "<CMD>edit<CR>", {
 		noremap = true,
 		silent = true,
 		desc = "Refresh",

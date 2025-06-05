@@ -19,20 +19,26 @@ M.plugins = {
 		keys = function()
 			return {
 				{
+					"<leader>ss",
+					"<CMD>sort<CR>",
+					mode = "v",
+					desc = "Sort alphabetically",
+				},
+				{
 					"<leader>su",
-					"<Cmd>Sort u<CR>",
+					"<CMD>Sort u<CR>",
 					mode = "v",
 					desc = "Sort uniquely",
 				},
 				{
 					"<leader>si",
-					"<Cmd>Sort i<CR>",
+					"<CMD>Sort i<CR>",
 					mode = "v",
 					desc = "Sort ignoring case",
 				},
 				{
 					"<leader>sr",
-					"<Cmd>Sort!<CR>",
+					"<CMD>Sort!<CR>",
 					mode = "v",
 					desc = "Sort reverse order",
 				},

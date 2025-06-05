@@ -12,7 +12,7 @@ M.plugins = {
 			return {
 				{
 					"<leader>cx",
-					"<cmd>Trouble diagnostics toggle focus=false win.position=right win.type=split pinned=true win.relative=win<cr>",
+					"<CMD>Trouble diagnostics toggle focus=false win.position=right win.type=split pinned=true win.relative=win<CR>",
 					desc = "Project Diagnostics",
 				},
 			}

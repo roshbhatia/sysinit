@@ -8,7 +8,7 @@ M.plugins = {
 			return {
 				{
 					"<leader>et",
-					"<cmd>TransparentToggle<CR>",
+					"<CMD>TransparentToggle<CR>",
 					desc = "Toggle transparent background",
 				},
 			}

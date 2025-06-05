@@ -56,7 +56,7 @@ M.plugins = {
 			return {
 				{
 					"<leader>eb",
-					"<cmd>Oil<CR>",
+					"<CMD>Oil<CR>",
 					desc = "Open filesystem buffer",
 				},
 			}
@@ -65,4 +65,3 @@ M.plugins = {
 }
 
 return M
-
