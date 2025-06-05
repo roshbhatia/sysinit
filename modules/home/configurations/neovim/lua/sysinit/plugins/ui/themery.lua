@@ -55,38 +55,36 @@ M.plugins = {
 					})
 				end,
 			},
-			"EdenEast/nightfox.nvim",
-            config = function()
-                require("nightfox").setup({
-                    {
-                        options = {
-                            compile_path = vim.fn.stdpath("cache") .. "/nightfox",
-                            compile_file_suffix = "_compiled",
-                            transparent = true,
-                            terminal_colors = true,
-                            dim_inactive = false,
-                            module_default = true,
-                            styles = {
-                                comments = "italic",
-                                conditionals = "NONE",
-                                constants = "NONE",
-                                functions = "NONE",
-                                keywords = "italic",
-                                numbers = "NONE",
-                                operators = "NONE",
-                                strings = "NONE",
-                                types = "NONE",
-                                variables = "NONE",
-                            },
-                            inverse = {
-                                match_paren = false,
-                                visual = false,
-                                search = false,
-                            },
-                        },
-                    }
-                })
-            end
+			{
+				"EdenEast/nightfox.nvim",
+				config = function()
+					require("nightfox").setup({
+						compile_path = vim.fn.stdpath("cache") .. "/nightfox",
+						compile_file_suffix = "_compiled",
+						transparent = true,
+						terminal_colors = true,
+						dim_inactive = false,
+						module_default = true,
+						styles = {
+							comments = "italic",
+							conditionals = "NONE",
+							constants = "NONE",
+							functions = "NONE",
+							keywords = "italic",
+							numbers = "NONE",
+							operators = "NONE",
+							strings = "NONE",
+							types = "NONE",
+							variables = "NONE",
+						},
+						inverse = {
+							match_paren = false,
+							visual = false,
+							search = false,
+						},
+					})
+				end,
+			},
 			{
 				"folke/tokyonight.nvim",
 				config = function()
