@@ -15,7 +15,6 @@
       show_tabs = false;
       enter_accept = true;
       invert = true;
-      keymap_mode = "vim-normal";
       style = "compact";
       theme = {
         name = "catppuccin-frappe";

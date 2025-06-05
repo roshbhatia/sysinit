@@ -59,29 +59,9 @@ M.plugins = {
 				"EdenEast/nightfox.nvim",
 				config = function()
 					require("nightfox").setup({
-						compile_path = vim.fn.stdpath("cache") .. "/nightfox",
-						compile_file_suffix = "_compiled",
 						transparent = true,
 						terminal_colors = true,
-						dim_inactive = false,
-						module_default = true,
-						styles = {
-							comments = "italic",
-							conditionals = "NONE",
-							constants = "NONE",
-							functions = "NONE",
-							keywords = "italic",
-							numbers = "NONE",
-							operators = "NONE",
-							strings = "NONE",
-							types = "NONE",
-							variables = "NONE",
-						},
-						inverse = {
-							match_paren = false,
-							visual = false,
-							search = false,
-						},
+						dim_inactive = true,
 					})
 				end,
 			},
@@ -377,6 +357,10 @@ M.plugins = {
 						name = "Terafox",
 						colorscheme = "terafox",
 					},
+					{
+						name = "Nordfox",
+						colorscheme = "nordfox",
+					},
 				},
 				livePreview = true,
 				globalAfter = [[
@@ -400,7 +384,7 @@ M.plugins = {
 					local current = themery.getCurrentTheme()
 
 					if not current then
-						themery.setThemeByName("catppuccin", true)
+						themery.setThemeByName("nordfox", true)
 					end
 				end,
 				once = true,
@@ -410,4 +394,3 @@ M.plugins = {
 }
 
 return M
-
