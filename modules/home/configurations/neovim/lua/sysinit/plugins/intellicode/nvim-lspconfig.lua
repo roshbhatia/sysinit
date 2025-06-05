@@ -28,6 +28,11 @@ M.plugins = {
 					})
 				end,
 			},
+			{
+				"Fildo7525/pretty_hover",
+				event = "LspAttach",
+				opts = {},
+			},
 		},
 		config = function()
 			local cmp_nvim_lsp = require("cmp_nvim_lsp")
@@ -226,9 +231,7 @@ M.plugins = {
 				{
 					"<leader>ch",
 					function()
-						vim.lsp.buf.hover({
-							border = "rounded",
-						})
+						require("pretty_hover").hover()
 					end,
 					desc = "Hover documentation",
 				},
