@@ -39,7 +39,6 @@ let
     golangci-lint
     golangci-lint-langserver
     gum
-    helm
     helm-ls
     htop
     imagemagick
@@ -51,6 +50,7 @@ let
     kind
     kubecolor
     kubectl
+    kubernetes-helm
     kustomize
     lazygit
     libgit2
