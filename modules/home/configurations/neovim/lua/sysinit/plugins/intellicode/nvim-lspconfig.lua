@@ -36,50 +36,34 @@ M.plugins = {
 			local mason_lspconfig = require("mason-lspconfig")
 			local mason_tool_installer = require("mason-tool-installer")
 
-			vim.api.nvim_create_autocmd("LspProgress", {
-				callback = function(ev)
-					local status_message = vim.lsp.status()
-					-- Avoid showing progress for code action availability
-					if string.find(status_message, "code_action") then
-						return
-					end
-
-					local spinner = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
-					vim.notify(status_message, vim.log.levels.INFO, {
-						id = "lsp_progress",
-						title = "LSP Progress",
-						opts = function(notif)
-							notif.icon = ev.data.params.value.kind == "end" and " "
-								or spinner[math.floor(vim.uv.hrtime() / (1e6 * 80)) % #spinner + 1]
-						end,
+			vim.api.nvim_create_autocmd("LspAttach", {
+				callback = function()
+					vim.diagnostic.config({
+						severity_sort = false,
+						update_in_insert = true,
+						float = {
+							border = "rounded",
+							source = "if_many",
+						},
+						underline = {
+							severity = vim.diagnostic.severity.ERROR,
+						},
+						signs = {
+							text = {
+								[vim.diagnostic.severity.ERROR] = "",
+								[vim.diagnostic.severity.HINT] = "",
+								[vim.diagnostic.severity.INFO] = "",
+								[vim.diagnostic.severity.WARN] = "",
+							},
+							numhl = {
+								[vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
+								[vim.diagnostic.severity.HINT] = "DiagnosticSignHint",
+								[vim.diagnostic.severity.INFO] = "DiagnosticSignInfo",
+								[vim.diagnostic.severity.WARN] = "DiagnosticSignWarn",
+							},
+						},
 					})
 				end,
-			})
-
-			vim.diagnostic.config({
-				severity_sort = true,
-				update_in_insert = true,
-				float = {
-					border = "rounded",
-					source = "if_many",
-				},
-				underline = {
-					severity = vim.diagnostic.severity.ERROR,
-				},
-				signs = {
-					text = {
-						[vim.diagnostic.severity.ERROR] = "",
-						[vim.diagnostic.severity.HINT] = "",
-						[vim.diagnostic.severity.INFO] = "",
-						[vim.diagnostic.severity.WARN] = "",
-					},
-					numhl = {
-						[vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
-						[vim.diagnostic.severity.HINT] = "DiagnosticSignHint",
-						[vim.diagnostic.severity.INFO] = "DiagnosticSignInfo",
-						[vim.diagnostic.severity.WARN] = "DiagnosticSignWarn",
-					},
-				},
 			})
 
 			local capabilities = vim.lsp.protocol.make_client_capabilities()
@@ -116,88 +100,32 @@ M.plugins = {
 					},
 				},
 				gopls = {
-					gofumpt = true,
-					codelenses = {
-						gc_details = false,
-						generate = true,
-						regenerate_cgo = true,
-						run_govulncheck = true,
-						test = true,
-						tidy = true,
-						upgrade_dependency = true,
-						vendor = true,
-					},
-					hints = {
-						assignVariableTypes = false,
-						compositeLiteralFields = false,
-						compositeLiteralTypes = false,
-						constantValues = false,
-						functionTypeParameters = false,
-						parameterNames = false,
-						rangeVariableTypes = false,
-					},
-					analyses = {
-						nilness = true,
-						unusedparams = true,
-						unusedwrite = true,
-						useany = true,
-						unreachable = true,
-						modernize = true,
-						stylecheck = true,
-						appends = true,
-						asmdecl = true,
-						assign = true,
-						atomic = true,
-						bools = true,
-						buildtag = true,
-						cgocall = true,
-						composite = true,
-						contextcheck = true,
-						deba = true,
-						atomicalign = true,
-						composites = true,
-						copylocks = true,
-						deepequalerrors = true,
-						defers = true,
-						deprecated = true,
-						directive = true,
-						embed = true,
-						errorsas = true,
-						fillreturns = true,
-						framepointer = true,
-						gofix = true,
-						hostport = true,
-						infertypeargs = true,
-						lostcancel = true,
-						httpresponse = true,
-						ifaceassert = true,
-						loopclosure = true,
-						nilfunc = true,
-						nonewvars = true,
-						noresultvalues = true,
-						printf = true,
-						shadow = true,
-						shift = true,
-						sigchanyzer = true,
-						simplifycompositelit = true,
-						simplifyrange = true,
-						simplifyslice = true,
-						slog = true,
-						sortslice = true,
-						stdmethods = true,
-						stdversion = true,
-						stringintconv = true,
-						structtag = true,
-						testinggoroutine = true,
-						tests = true,
-						timeformat = true,
-						unmarshal = true,
-						unsafeptr = true,
-						unusedfunc = true,
-						unusedresult = true,
-						waitgroup = true,
-						yield = true,
-						unusedvariable = true,
+					settings = {
+						gopls = {
+							analyses = {
+								unusedvariable = true,
+								unusedwrite = true,
+								useany = true,
+								fieldalignment = true,
+							},
+							gofumpt = true,
+							hoverKind = "SynopsisDocumentation",
+							codelenses = {
+								gc_details = false,
+								generate = true,
+								regenerate_cgo = true,
+								run_govulncheck = true,
+								test = true,
+								tidy = true,
+								upgrade_dependency = true,
+								vendor = true,
+							},
+							hints = {
+								parameterNames = true,
+							},
+							completeUnimported = true,
+							semanticTokens = true,
+						},
 					},
 				},
 				helm_ls = {},
@@ -206,7 +134,9 @@ M.plugins = {
 					settings = {
 						json = {
 							schemas = require("schemastore").json.schemas(),
-							validate = { enable = true },
+							validate = {
+								enable = true,
+							},
 						},
 					},
 				},
