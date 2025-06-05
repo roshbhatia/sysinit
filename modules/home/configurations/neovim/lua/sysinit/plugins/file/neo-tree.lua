@@ -27,6 +27,8 @@ M.plugins = {
 						end,
 					},
 				},
+				enable_modified_markers = false,
+				enable_opened_markers = false,
 				close_if_last_window = true,
 				enable_diagnostics = true,
 				sort_case_insensitive = true,
