@@ -16,11 +16,17 @@ M.plugins = {
 						transparent_background = true,
 						term_colors = true,
 						styles = {
-							comments = { "italic" },
-							conditionals = { "italic" },
+							comments = {
+								"italic",
+							},
+							conditionals = {
+								"italic",
+							},
 							loops = {},
 							functions = {},
-							keywords = { "italic" },
+							keywords = {
+								"italic",
+							},
 							strings = {},
 							variables = {},
 							numbers = {},
@@ -30,27 +36,37 @@ M.plugins = {
 							operators = {},
 						},
 						integrations = {
-							alpha = true,
 							aerial = true,
+							alpha = true,
 							cmp = true,
-							gitsigns = true,
-							grug_far = true,
-							mason = true,
-							neotree = true,
 							copilot_vim = true,
 							dap = true,
 							dap_ui = true,
-							dropbar = { enabled = true },
+							dropbar = {
+								enabled = true,
+							},
 							fzf = true,
+							gitsigns = true,
+							grug_far = true,
 							hop = true,
-							native_lsp = { enabled = true },
-							nvim_notify = false,
-							render_markdown = true,
-							snacks = { enabled = true },
-							telescope = { enabled = true },
-							treesitter = true,
 							lsp_trouble = true,
+							mason = true,
+							native_lsp = {
+								enabled = true,
+							},
+							neotree = true,
+							noice = true,
+							render_markdown = true,
+							snacks = {
+								enabled = true,
+							},
+							telescope = {
+								enabled = true,
+							},
+							treesitter = true,
+							treesitter_context = true,
 							which_key = true,
+							window_picker = true,
 						},
 					})
 				end,
@@ -373,7 +389,6 @@ M.plugins = {
 					vim.cmd("hi StatusLine guibg=NONE ctermbg=NONE")
 					vim.cmd("hi StatusLineNC guibg=NONE ctermbg=NONE")
 					vim.cmd("hi Pmenu guibg=NONE ctermbg=NONE")
-					vim.cmd("hi FloatBorder guibg=NONE ctermbg=NONE")
 					vim.cmd("hi NormalFloat guibg=NONE ctermbg=NONE")
 				]],
 			})
@@ -384,7 +399,7 @@ M.plugins = {
 					local current = themery.getCurrentTheme()
 
 					if not current then
-						themery.setThemeByName("nordfox", true)
+						themery.setThemeByName("catppuccin", true)
 					end
 				end,
 				once = true,
@@ -394,3 +409,4 @@ M.plugins = {
 }
 
 return M
+
