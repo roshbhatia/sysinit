@@ -12,7 +12,6 @@ let
   baseTaps = [
     "FelixKratz/formulae"
     "hashicorp/tap"
-    "jandedobbeleer/oh-my-posh"
     "mediosz/tap"
     "nikitabobko/tap"
     "noahgorstein/tap"
@@ -23,22 +22,13 @@ let
     "borders"
     "bcrypt"
     "block-goose-cli"
-    "helm"
-    "imagemagick"
-    "jandedobbeleer/oh-my-posh/oh-my-posh"
     "krew"
     "libgit2@1.8"
     "luarocks"
     "peterldowns/tap/nix-search-cli"
-    "pipx"
     "python"
     "python@3.11"
-    "pngpaste"
     "rust"
-    "sad"
-    "sshpass"
-    "terraform"
-    "tlrc"
   ];
 
   baseCasks = [

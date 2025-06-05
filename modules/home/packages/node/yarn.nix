@@ -18,7 +18,6 @@ in
   home.activation.yarnPackages = activation.mkPackageManager {
     name = "yarn";
     basePackages = [
-      "fkill-cli"
       "jsonlint"
       "markdownlint-cli2"
       "@mermaid-js/mermaid-cli"
@@ -38,4 +37,3 @@ in
     executableName = "yarn";
   };
 }
-

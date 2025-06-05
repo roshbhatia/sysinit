@@ -39,8 +39,10 @@ let
     golangci-lint
     golangci-lint-langserver
     gum
+    helm
     helm-ls
     htop
+    imagemagick
     jetbrains-mono
     jq
     jqp
@@ -64,6 +66,7 @@ let
     nerd-fonts.arimo
     nerd-fonts.agave
     nerd-fonts._3270
+    nodePackages_latest.fkill-cli
     nil
     nixd
     nixfmt-rfc-style
@@ -71,20 +74,28 @@ let
     oh-my-posh
     openssh
     ollama
+    pipx
+    pngpaste
     prettierd
     proselint
     ripgrep
+    sad
     shellcheck
     socat
+    sshpass
     statix
     stern
     swift
     taplo
+    terraform
     textlint
     tfsec
+    tlrc
     tree
+    uv
     watch
     wget
+    yarn
     yq
     zoxide
     yazi
@@ -95,4 +106,3 @@ in
 {
   home.packages = allNixPackages;
 }
-

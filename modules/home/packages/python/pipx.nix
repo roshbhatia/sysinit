@@ -10,9 +10,7 @@ in
 {
   home.activation.pipxPackages = activation.mkPackageManager {
     name = "pipx";
-    basePackages = [
-      "uv"
-    ];
+    basePackages = [ ];
     additionalPackages = (overlay.pipx.additionalPackages or [ ]);
     executableArguments = [
       "install"

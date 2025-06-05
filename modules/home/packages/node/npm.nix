@@ -16,9 +16,7 @@ in
 
   home.activation.npmPackages = activation.mkPackageManager {
     name = "npm";
-    basePackages = [
-      "yarn"
-    ];
+    basePackages = [ ];
     additionalPackages = (overlay.npm.additionalPackages or [ ]);
     executableArguments = [
       "install"
