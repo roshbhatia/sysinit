@@ -1,21 +1,21 @@
 local M = {}
 
 function M.setup()
-	function M.setup()
-		vim.api.nvim_create_autocmd("BufEnter", {
-			callback = function(args)
-				vim.defer_fn(function()
-					local buf = args.buf
-					if vim.api.nvim_buf_is_valid(buf) then
-						local name = vim.api.nvim_buf_get_name(buf)
-						if name ~= "" and vim.fn.filereadable(name) == 1 then
-							vim.cmd("edit")
-						end
-					end
-				end, 100)
-			end,
-		})
-	end
+	-- bizzare! but something in here is needed to force syntax highlighting
+	vim.api.nvim_create_autocmd("BufEnter", {
+		callback = function(args)
+			-- technically on by default, but forcing doesn't hurt
+			vim.cmd("syntax on")
+			vim.defer_fn(function()
+				local buf = args.buf
+				if vim.api.nvim_buf_is_valid(buf) then
+					-- mapped to :edit, but vim.cmd("edit") doesnt seem to do anything in here
+					-- so we're proxying it through the keybinding
+					vim.cmd("normal \\<leader>rr")
+				end
+			end, 100)
+		end,
+	})
 end
 
 return M
