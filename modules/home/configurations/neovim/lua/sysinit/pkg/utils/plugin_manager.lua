@@ -27,58 +27,6 @@ function plugin_manager.setup_plugins(modules)
 
 	local core_specs = {
 		{
-			"catppuccin/nvim",
-			name = "catppuccin",
-			lazy = false,
-			priority = 1500,
-			config = function()
-				require("catppuccin").setup({
-					flavour = "frappe",
-					show_end_of_buffer = false,
-					transparent_background = true,
-					term_colors = true,
-					styles = {
-						comments = {
-							"italic",
-						},
-					},
-					integrations = {
-						alpha = true,
-						aerial = true,
-						cmp = true,
-						gitsigns = true,
-						grug_far = true,
-						mason = true,
-						neotree = true,
-						copilot_vim = true,
-						dap = true,
-						dap_ui = true,
-						dropbar = {
-							enabled = true,
-						},
-						fzf = true,
-						hop = true,
-						native_lsp = {
-							enabled = true,
-						},
-						nvim_notify = false,
-						render_markdown = true,
-						snacks = {
-							enabled = true,
-						},
-						telescope = {
-							enabled = true,
-						},
-						treesitter = true,
-						lsp_trouble = true,
-						which_key = true,
-					},
-				})
-
-				vim.cmd.colorscheme("catppuccin")
-			end,
-		},
-		{
 			"vhyrro/luarocks.nvim",
 			priority = 1200,
 			dependencies = {
