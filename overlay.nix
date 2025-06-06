@@ -22,7 +22,6 @@
       ];
       casks = [
         "discord"
-        "orbstack"
         "notion"
         "steam"
         "vnc-viewer"
