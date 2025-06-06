@@ -45,7 +45,7 @@ end
 local function get_window_appearance_config()
 	return {
 		window_background_opacity = 0.7,
-		macos_window_background_blur = 75,
+		macos_window_background_blur = 85,
 		window_decorations = "RESIZE",
 	}
 end
@@ -55,9 +55,11 @@ local function get_display_config()
 		enable_scroll_bar = true,
 		enable_tab_bar = true,
 		text_min_contrast_ratio = 4.5,
-		max_fps = 144,
+		max_fps = 120,
 		color_scheme = terminal_theme,
 		scrollback_lines = 20000,
+		animation_fps = 120,
+		adjust_window_size_when_changing_font_size = false,
 	}
 end
 
@@ -73,6 +75,7 @@ end
 local function get_font_config()
 	return {
 		font = terminal_font,
+		freetype_load_target = "Light",
 		font_size = 13.0,
 		line_height = 1.0,
 	}
@@ -156,3 +159,4 @@ function M.setup(config)
 end
 
 return M
+
