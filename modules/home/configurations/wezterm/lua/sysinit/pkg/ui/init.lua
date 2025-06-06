@@ -112,7 +112,7 @@ local function setup_nvim_ui_overrides()
 		if should_switch then
 			overrides.color_scheme = nvim_theme
 			overrides.font = nvim_font
-			overrides.font_size = 14.0,
+			overrides.font_size = 14.0
 			overrides.enable_scroll_bar = false
 			overrides.window_background_opacity = 0.865
 			overrides.window_padding = {
@@ -123,7 +123,7 @@ local function setup_nvim_ui_overrides()
 		else
 			overrides.color_scheme = nil
 			overrides.font = nil
-			overrides.font_size = nil,
+			overrides.font_size = nil
 			overrides.enable_scroll_bar = nil
 			overrides.window_background_opacity = nil
 			overrides.window_padding = nil
