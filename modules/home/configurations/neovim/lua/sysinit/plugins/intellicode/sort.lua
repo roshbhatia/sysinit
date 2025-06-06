@@ -20,27 +20,27 @@ M.plugins = {
 			return {
 				{
 					"<leader>ss",
-					"<CMD>sort<CR>",
+					"<CMD>'<,'>Sort i<CR>",
 					mode = "v",
-					desc = "Sort alphabetically",
+					desc = "Sort alphabetically (case insensitive)",
 				},
 				{
-					"<leader>su",
-					"<CMD>Sort u<CR>",
+					"<leader>sS",
+					"<CMD>'<,'>Sort<CR>",
 					mode = "v",
-					desc = "Sort uniquely",
-				},
-				{
-					"<leader>si",
-					"<CMD>Sort i<CR>",
-					mode = "v",
-					desc = "Sort ignoring case",
+					desc = "Sort alphabetically (case sensitive)",
 				},
 				{
 					"<leader>sr",
-					"<CMD>Sort!<CR>",
+					"<CMD>'<,'>Sort! i<CR>",
 					mode = "v",
-					desc = "Sort reverse order",
+					desc = "Sort reverse order (case insensitive)",
+				},
+				{
+					"<leader>sR",
+					"<CMD>'<,'>Sort!<CR>",
+					mode = "v",
+					desc = "Sort reverse order (case sensitive)",
 				},
 			}
 		end,
@@ -48,3 +48,4 @@ M.plugins = {
 }
 
 return M
+
