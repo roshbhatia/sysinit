@@ -25,41 +25,6 @@ function plugin_manager.setup_plugins(modules)
 		end
 	end
 
-	local core_specs = {
-		{
-			"vhyrro/luarocks.nvim",
-			priority = 9999,
-			dependencies = {
-				"nvim-lua/plenary.nvim",
-			},
-			opts = {
-				rocks_path = vim.fn.stdpath("data") .. "/luarocks",
-				lua_path = vim.fn.stdpath("data")
-					.. "/luarocks/share/lua/5.1/?.lua;"
-					.. vim.fn.stdpath("data")
-					.. "/luarocks/share/lua/5.1/?/init.lua",
-				lua_cpath = vim.fn.stdpath("data") .. "/luarocks/lib/lua/5.1/?.so",
-				create_dirs = true,
-				install = {
-					only_deps = false,
-					flags = {
-						"--local",
-						"--force-config",
-					},
-				},
-				show_progress = true,
-				rocks = {
-					"tiktoken_core",
-					"wezterm-types",
-				},
-			},
-		},
-	}
-
-	for _, spec in ipairs(specs) do
-		table.insert(core_specs, spec)
-	end
-
 	require("lazy").setup({
 		root = vim.fn.stdpath("data") .. "/lazy",
 		lockfile = vim.fn.stdpath("data") .. "/lazy/lazy-lock.json",
@@ -67,7 +32,7 @@ function plugin_manager.setup_plugins(modules)
 			enabled = true,
 			root = vim.fn.stdpath("data") .. "/lazy-rocks",
 		},
-		spec = core_specs,
+		spec = specs,
 		performance = {
 			rtp = {
 				disabled_plugins = {

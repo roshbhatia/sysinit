@@ -27,7 +27,8 @@ require("sysinit.pkg.autocmds.wezterm").setup()
 
 require("sysinit.pkg.utils.plugin_manager").setup_package_manager()
 require("sysinit.pkg.utils.plugin_manager").setup_plugins({
-	require("sysinit.plugins.collections.snacks"),
+	require("sysinit.plugins.core.plenary"),
+	require("sysinit.plugins.core.luarocks"),
 	require("sysinit.plugins.debugger.dap-ui"),
 	require("sysinit.plugins.debugger.dap-virtual-text"),
 	require("sysinit.plugins.debugger.dap"),
@@ -91,6 +92,7 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.library.image"),
 	require("sysinit.plugins.library.nio"),
 	require("sysinit.plugins.library.nui"),
+	require("sysinit.plugins.library.snacks"),
 	require("sysinit.plugins.ui.alpha"),
 	require("sysinit.plugins.ui.auto-cmdheight"),
 	require("sysinit.plugins.ui.devicons"),
