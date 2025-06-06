@@ -2,6 +2,7 @@ local M = {}
 
 M.plugins = {
 	{
+		enabled = not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot")),
 		"CopilotC-Nvim/CopilotChat.nvim",
 		dependencies = {
 			"zbirenbaum/copilot.lua",
@@ -28,4 +29,3 @@ M.plugins = {
 	},
 }
 return M
-

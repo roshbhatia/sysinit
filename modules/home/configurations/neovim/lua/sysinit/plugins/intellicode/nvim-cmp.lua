@@ -15,7 +15,6 @@ M.plugins = {
 			"onsails/lspkind.nvim",
 			"petertriho/cmp-git",
 			"saadparwaiz1/cmp_luasnip",
-			"zbirenbaum/copilot-cmp",
 			"pta2002/intellitab.nvim",
 			"Snikimonkd/cmp-go-pkgs",
 		},

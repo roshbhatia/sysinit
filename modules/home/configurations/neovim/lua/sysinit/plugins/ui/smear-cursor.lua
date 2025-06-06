@@ -8,10 +8,9 @@ M.plugins = {
 			stiffness = 0.5,
 			trailing_stiffness = 0.49,
 			time_interval = 5,
-			transparent_bg_fallback_color = vim.api.nvim_get_hl_by_name("Normal", true).background,
+			legacy_computing_symbols_support = true,
 		},
 	},
 }
 
 return M
-
