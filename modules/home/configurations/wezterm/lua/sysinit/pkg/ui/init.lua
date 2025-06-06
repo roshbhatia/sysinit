@@ -2,6 +2,7 @@ local wezterm = require("wezterm")
 local M = {}
 
 local terminal_theme = "Rosé Pine Moon (Gogh)"
+local nvim_theme = "Catppuccin Frappe (Gogh)"
 
 local terminal_font = wezterm.font_with_fallback({
 	{
@@ -114,12 +115,13 @@ local function setup_nvim_ui_overrides()
 			overrides.font = nvim_font
 			overrides.font_size = 14.0
 			overrides.enable_scroll_bar = false
-			overrides.window_background_opacity = 0.865
+			overrides.window_background_opacity = 0.95
 			overrides.window_padding = {
 				left = "8px",
 				top = "8px",
 				bottom = "0px",
 			}
+      overrides.text_min_contrast_ratio = 7,
 		else
 			overrides.color_scheme = nil
 			overrides.font = nil
@@ -127,6 +129,7 @@ local function setup_nvim_ui_overrides()
 			overrides.enable_scroll_bar = nil
 			overrides.window_background_opacity = nil
 			overrides.window_padding = nil
+      overrides.text_min_contrast_ratio = nil
 		end
 		window:set_config_overrides(overrides)
 	end)
