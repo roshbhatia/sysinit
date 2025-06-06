@@ -17,19 +17,16 @@ M.plugins = {
 				},
 				file_types = markdown_filetypes,
 				render_modes = true,
-				latex = {
-					enabled = false,
-				},
-				html = {
+				sign = {
 					enabled = false,
 				},
 			})
 
-			-- Signcolumn on markdown files sometimes causes issues
+			-- Completely disable signcolumn on markdown files
 			vim.api.nvim_create_autocmd("FileType", {
 				pattern = "markdown",
 				callback = function()
-					vim.opt_local.signcolumn = "yes:2"
+					vim.opt_local.signcolumn = "no"
 				end,
 			})
 
@@ -38,7 +35,7 @@ M.plugins = {
 					local config = vim.api.nvim_win_get_config(0)
 					-- Check if the window is floating and its filetype is markdown
 					if config.relative ~= "" and vim.bo.filetype == "markdown" then
-						vim.opt_local.signcolumn = "yes:2"
+						vim.opt_local.signcolumn = "no"
 					end
 				end,
 			})
@@ -47,4 +44,3 @@ M.plugins = {
 }
 
 return M
-

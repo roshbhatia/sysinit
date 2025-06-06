@@ -20,6 +20,18 @@ M.plugins = {
 			})
 
 			vim.g.gitblame_delay = 25
+
+			vim.api.nvim_create_autocmd("BufEnter", {
+				callback = function()
+					local buf_name = vim.api.nvim_buf_get_name(0)
+					if buf_name:match("%.md$") then
+						vim.cmd("GitBlameDisable")
+					else
+						-- I care not for running this smartly.
+						vim.cmd("GitBlameEnable")
+					end
+				end,
+			})
 		end,
 		keys = function()
 			return {
