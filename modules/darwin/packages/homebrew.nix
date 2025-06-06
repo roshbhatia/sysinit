@@ -22,28 +22,18 @@ let
     "borders"
     "bcrypt"
     "block-goose-cli"
-    "krew"
     "libgit2@1.8"
     "luarocks"
     "peterldowns/tap/nix-search-cli"
-    "python"
-    "python@3.11"
-    "rust"
   ];
 
   baseCasks = [
-    "1password-cli"
-    "alt-tab"
     "firefox"
     "hammerspoon"
     "keycastr"
     "loop"
-    "obsidian"
     "raycast"
-    "shortcat"
-    "slack"
     "visual-studio-code@insiders"
-    "wezterm@nightly"
   ];
 
   allTaps = baseTaps ++ additionalTaps;

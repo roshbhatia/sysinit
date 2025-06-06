@@ -8,14 +8,18 @@ let
   additionalPackages = (overlay.nix.packages or [ ]);
 
   baseNixPackages = with pkgs; [
+    _1password-cli
     actionlint
+    alt-tab-macos
     ansible
     argocd
     atuin
     awscli
     bat
     bashInteractive
+    black
     caddy
+    cargo-watch
     checkmate
     colima
     coreutils
@@ -23,6 +27,7 @@ let
     delta
     docker
     duf
+    eza
     fd
     findutils
     fira-code
@@ -49,6 +54,7 @@ let
     k9s
     keycastr
     kind
+    krew
     kubecolor
     kubectl
     kubernetes-helm
@@ -58,6 +64,8 @@ let
     lnav
     luajit
     lynx
+    markdownlint-cli2
+    mermaid-cli
     monaspace
     nerd-fonts."m+"
     nerd-fonts.noto
@@ -68,24 +76,32 @@ let
     nerd-fonts.agave
     nerd-fonts._3270
     nodePackages_latest.fkill-cli
+    nodePackages_latest.jsonlint
     nil
     nixd
     nixfmt-rfc-style
     nodejs
+    obsidian
     oh-my-posh
     openssh
     ollama
     pipx
     pngpaste
+    prettier
     prettierd
     proselint
+    python311Full
     ripgrep
+    rustup
     sad
     shellcheck
+    shortcat
+    slack
     socat
     sshpass
     statix
     stern
+    stylua
     swift
     taplo
     terraform
@@ -93,12 +109,16 @@ let
     tfsec
     tlrc
     tree
+    typescript
+    typescript-language-server
     uv
     watch
+    wezterm
     wget
     yarn
     yq
     zoxide
+    yamllint
     yazi
   ];
 
@@ -107,3 +127,4 @@ in
 {
   home.packages = allNixPackages;
 }
+

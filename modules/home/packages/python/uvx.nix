@@ -11,9 +11,7 @@ in
   home.activation.uvxPackages = activation.mkPackageManager {
     name = "uvx";
     basePackages = [
-      "black"
       "hererocks"
-      "yamllint"
     ];
     additionalPackages = (overlay.uvx.additionalPackages or [ ]);
     executableArguments = [
@@ -24,3 +22,4 @@ in
     executableName = "uv";
   };
 }
+

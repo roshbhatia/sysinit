@@ -18,13 +18,7 @@ in
   home.activation.yarnPackages = activation.mkPackageManager {
     name = "yarn";
     basePackages = [
-      "jsonlint"
-      "markdownlint-cli2"
-      "@mermaid-js/mermaid-cli"
-      "prettier"
-      "typescript-language-server"
       "@dice-roller/cli"
-      "typescript"
     ];
     additionalPackages = (overlay.yarn.additionalPackages or [ ]);
     executableArguments = [
@@ -37,3 +31,4 @@ in
     executableName = "yarn";
   };
 }
+
