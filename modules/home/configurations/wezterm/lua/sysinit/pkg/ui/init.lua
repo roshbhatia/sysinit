@@ -73,7 +73,7 @@ end
 local function get_window_appearance_config()
 	return {
 		window_background_opacity = 0.7,
-		macos_window_background_blur = 85,
+		macos_window_background_blur = 95,
 		window_decorations = "RESIZE",
 	}
 end
@@ -143,7 +143,7 @@ local function setup_nvim_ui_overrides()
 			overrides.color_scheme = nvim_theme
 			overrides.font = nvim_font
 			overrides.enable_scroll_bar = false
-			overrides.window_background_opacity = 0.975
+			overrides.window_background_opacity = 0.85
 			overrides.window_padding = {
 				left = "8px",
 				top = "8px",
@@ -151,7 +151,7 @@ local function setup_nvim_ui_overrides()
 			}
 			overrides.text_min_contrast_ratio = 7
 		else
-			overrides.color_scheme = nil
+			overrides.color_scheme = terminal_theme -- for some reason, forcing overwrite works better here?
 			overrides.font = nil
 			overrides.enable_scroll_bar = nil
 			overrides.window_background_opacity = nil
@@ -186,4 +186,3 @@ function M.setup(config)
 end
 
 return M
-
