@@ -13,9 +13,6 @@ M.plugins = {
 				"aznhe21/actions-preview.nvim",
 				config = function()
 					require("actions-preview").setup({
-						highlight_command = {
-							require("actions-preview.highlight").delta(),
-						},
 						telescope = vim.tbl_extend(
 							"force",
 							-- telescope theme: https://github.com/nvim-telescope/telescope.nvim#themes
