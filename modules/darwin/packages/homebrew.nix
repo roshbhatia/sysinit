@@ -22,7 +22,6 @@ let
     "borders"
     "bcrypt"
     "block-goose-cli"
-    "grammarly-languageserver"
     "libgit2@1.8"
     "luarocks"
   ];
@@ -68,4 +67,3 @@ in
     casks = allCasks;
   };
 }
-

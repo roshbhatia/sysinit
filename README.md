@@ -1,5 +1,10 @@
 # sysinit
 
+- [sysinit](#sysinit)
+  - [Install Dependencies](#install-dependencies)
+  - [Usage](#usage)
+  - [Project Structure](#project-structure)
+
 ```ascii
           ▗▄▄▄       ▗▄▄▄▄    ▄▄▄▖
           ▜███▙       ▜███▙  ▟███▛
@@ -128,4 +133,3 @@ task: Available tasks for this project:
     │   └── shell
     └── nix
 ```
-
