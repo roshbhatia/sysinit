@@ -29,7 +29,7 @@ M.plugins = {
 					null_ls.builtins.diagnostics.yamllint.with({
 						args = {
 							"-d",
-							"'{rules: {line-length: disable, document-start: disable, comments: disable}'",
+							"'{rules: {line-length: disable, document-start: disable, comments: disable}}'",
 							"--format",
 							"parsable",
 							"-",
@@ -82,3 +82,4 @@ M.plugins = {
 }
 
 return M
+
