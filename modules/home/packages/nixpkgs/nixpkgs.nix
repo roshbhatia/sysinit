@@ -31,7 +31,6 @@ let
     fd
     findutils
     fira-code
-    firefox
     fzf
     gettext
     gh
@@ -85,7 +84,6 @@ let
     prettierd
     proselint
     python311Full
-    raycast
     ripgrep
     rustup
     sad
@@ -108,7 +106,6 @@ let
     typescript-language-server
     uv
     watch
-    wezterm
     wget
     yarn
     yq

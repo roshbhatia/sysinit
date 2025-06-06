@@ -27,10 +27,12 @@ let
   ];
 
   baseCasks = [
+    "firefox"
     "hammerspoon"
     "keycastr"
     "loop"
     "visual-studio-code@insiders"
+    "wezterm@nightly"
   ];
 
   allTaps = baseTaps ++ additionalTaps;
