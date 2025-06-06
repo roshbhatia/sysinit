@@ -63,6 +63,7 @@ let
     lnav
     luajit
     lynx
+    markdownlint-cli
     markdownlint-cli2
     mermaid-cli
     nerd-fonts.hack
@@ -117,3 +118,4 @@ in
 {
   home.packages = allNixPackages;
 }
+
