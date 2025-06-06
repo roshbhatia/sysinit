@@ -20,7 +20,7 @@ M.plugins = {
 			})
 
 			vim.g.gitblame_delay = 25
-			vim.g.gitblame_virtual_text_column = 120
+			vim.g.gitblame_virtual_text_column = 160
 		end,
 		keys = function()
 			return {
@@ -46,4 +46,3 @@ M.plugins = {
 }
 
 return M
-
