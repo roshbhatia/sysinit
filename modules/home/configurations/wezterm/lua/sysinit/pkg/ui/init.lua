@@ -2,6 +2,7 @@ local wezterm = require("wezterm")
 local M = {}
 
 local terminal_theme = "Rosé Pine Moon (Gogh)"
+local nvim_theme = "nordfox"
 
 local terminal_font = wezterm.font_with_fallback({
 	{
@@ -10,6 +11,19 @@ local terminal_font = wezterm.font_with_fallback({
 		harfbuzz_features = {
 			"calt",
 			"zero",
+		},
+	},
+	"Symbols Nerd Font",
+})
+
+local nvim_font = wezterm.font_with_fallback({
+	{
+		family = "Monaspace Neon",
+		harfbuzz_features = {
+			"calt",
+			"zero",
+			"ss01",
+			"cv01",
 		},
 	},
 	"Symbols Nerd Font",
@@ -96,7 +110,8 @@ local function setup_nvim_ui_overrides()
 		local should_switch = is_vim(pane)
 		local overrides = window:get_config_overrides() or {}
 		if should_switch then
-			overrides.color_scheme = "nordfox"
+			overrides.color_scheme = nvim_theme
+			overrides.font = nvim_font
 			overrides.enable_scroll_bar = false
 			overrides.window_background_opacity = 0.865
 			overrides.window_padding = {
@@ -106,6 +121,7 @@ local function setup_nvim_ui_overrides()
 			}
 		else
 			overrides.color_scheme = nil
+			overrides.font = nil
 			overrides.enable_scroll_bar = nil
 			overrides.window_background_opacity = nil
 			overrides.window_padding = nil
