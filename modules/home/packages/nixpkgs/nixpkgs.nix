@@ -73,7 +73,6 @@ let
     nixd
     nixfmt-rfc-style
     nodejs
-    obsidian
     oh-my-posh
     openssh
     ollama
@@ -118,4 +117,3 @@ in
 {
   home.packages = allNixPackages;
 }
-
