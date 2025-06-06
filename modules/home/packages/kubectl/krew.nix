@@ -28,10 +28,9 @@ in
     ];
     additionalPackages = (overlay.krew.additionalPackages or [ ]);
     executableArguments = [
-      "krew"
       "install"
     ];
-    executableName = "kubectl";
+    executableName = "krew";
   };
 }
 
