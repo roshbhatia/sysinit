@@ -17,40 +17,11 @@ local terminal_font = wezterm.font_with_fallback({
 
 local nvim_font = wezterm.font_with_fallback({
 	{
-<<<<<<< HEAD
-<<<<<<< HEAD
-		family = "Monaspace Neon",
-||||||| parent of 8c9b0cff (wip)
-		family = "Monaspace Xenon Var",
-=======
-		family = "Inconsolata-g for Powerline",
->>>>>>> 8c9b0cff (wip)
-||||||| parent of 3243d851 (wip)
-		family = "Inconsolata-g for Powerline",
-=======
 		family = "JetBrains Mono",
 		weight = "Regular",
->>>>>>> 3243d851 (wip)
 		harfbuzz_features = {
 			"calt",
-<<<<<<< HEAD
-			"ss02",
-			"ss19",
-			"ss20",
-||||||| parent of 3243d851 (wip)
-			"liga",
-			"ss01",
-			"ss02",
-			"ss03",
-			"ss04",
-			"ss05",
-			"ss06",
-			"ss07",
-			"ss08",
-			"ss09",
-=======
 			"zero",
->>>>>>> 3243d851 (wip)
 		},
 	},
 	"Symbols Nerd Font",
