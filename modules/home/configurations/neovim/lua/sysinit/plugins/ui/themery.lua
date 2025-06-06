@@ -2,7 +2,7 @@ local M = {}
 
 M.plugins = {
 	{
-		"zaldih/themery.nvim",
+		"MrSloth-dev/Switcheroo.nvim",
 		lazy = false,
 		priority = 2500,
 		dependencies = {
@@ -235,178 +235,119 @@ M.plugins = {
 				end,
 			},
 		},
-		config = function()
-			require("themery").setup({
-				themes = {
-					{
-						name = "Catppuccin Mocha",
-						colorscheme = "catppuccin",
-						before = [[
-							vim.g.catppuccin_flavour = "mocha"
-						]],
-					},
-					{
-						name = "Catppuccin Macchiato",
-						colorscheme = "catppuccin",
-						before = [[
-							vim.g.catppuccin_flavour = "macchiato"
-						]],
-					},
-					{
-						name = "Catppuccin Frappe",
-						colorscheme = "catppuccin",
-						before = [[
-							vim.g.catppuccin_flavour = "frappe"
-						]],
-					},
-					{
-						name = "Tokyonight Moon",
-						colorscheme = "tokyonight",
-						before = [[
-							vim.g.tokyonight_style = "moon"
-						]],
-					},
-					{
-						name = "Tokyonight Storm",
-						colorscheme = "tokyonight",
-						before = [[
-							vim.g.tokyonight_style = "storm"
-						]],
-					},
-					{
-						name = "Tokyonight Night",
-						colorscheme = "tokyonight",
-						before = [[
-							vim.g.tokyonight_style = "night"
-						]],
-					},
-					{
-						name = "Kanagawa Wave",
-						colorscheme = "kanagawa",
-						before = [[
-							vim.g.kanagawa_theme_style = "wave"
-						]],
-					},
-					{
-						name = "Kanagawa Dragon",
-						colorscheme = "kanagawa",
-						before = [[
-							vim.g.kanagawa_theme_style = "dragon"
-						]],
-					},
-					{
-						name = "Onedark Deep",
-						colorscheme = "onedark",
-						before = [[
-							vim.g.onedark_style = "deep"
-						]],
-					},
-					{
-						name = "Onedark Darker",
-						colorscheme = "onedark",
-						before = [[
-							vim.g.onedark_style = "darker"
-						]],
-					},
-					{
-						name = "Material Deep Ocean",
-						colorscheme = "material",
-						before = [[
-							vim.g.material_style = "deep ocean"
-						]],
-					},
-					{
-						name = "Material Oceanic",
-						colorscheme = "material",
-						before = [[
-							vim.g.material_style = "oceanic"
-						]],
-					},
-					{
-						name = "Material Palenight",
-						colorscheme = "material",
-						before = [[
-							vim.g.material_style = "palenight"
-						]],
-					},
-					{
-						name = "Edge Neon",
-						colorscheme = "edge",
-						before = [[
-							vim.g.edge_style = "neon"
-						]],
-					},
-					{
-						name = "Edge Aura",
-						colorscheme = "edge",
-						before = [[
-							vim.g.edge_style = "aura"
-						]],
-					},
-					{
-						name = "Gruvbox Material Hard",
-						colorscheme = "gruvbox-material",
-						before = [[
-							vim.g.gruvbox_material_background = "hard"
-						]],
-					},
-					{
-						name = "Gruvbox Material Medium",
-						colorscheme = "gruvbox-material",
-						before = [[
-							vim.g.gruvbox_material_background = "medium"
-						]],
-					},
-					{
-						name = "Nightfox",
-						colorscheme = "nightfox",
-					},
-					{
-						name = "Carbonfox",
-						colorscheme = "carbonfox",
-					},
-					{
-						name = "Duskfox",
-						colorscheme = "duskfox",
-					},
-					{
-						name = "Terafox",
-						colorscheme = "terafox",
-					},
-					{
-						name = "Nordfox",
-						colorscheme = "nordfox",
-					},
-				},
-				livePreview = true,
-				globalAfter = [[
-					vim.cmd("hi Normal guibg=NONE ctermbg=NONE")
-					vim.cmd("hi NormalNC guibg=NONE ctermbg=NONE")
-					vim.cmd("hi SignColumn guibg=NONE ctermbg=NONE")
-					vim.cmd("hi LineNr guibg=NONE ctermbg=NONE")
-					vim.cmd("hi EndOfBuffer guibg=NONE ctermbg=NONE")
-					vim.cmd("hi VertSplit guibg=NONE ctermbg=NONE")
-					vim.cmd("hi StatusLine guibg=NONE ctermbg=NONE")
-					vim.cmd("hi StatusLineNC guibg=NONE ctermbg=NONE")
-					vim.cmd("hi Pmenu guibg=NONE ctermbg=NONE")
-					vim.cmd("hi NormalFloat guibg=NONE ctermbg=NONE")
-				]],
-			})
-
-			vim.api.nvim_create_autocmd("VimEnter", {
-				callback = function()
-					local themery = require("themery")
-					local current = themery.getCurrentTheme()
-
-					if not current then
-						themery.setThemeByName("catppuccin", true)
-					end
-				end,
-				once = true,
-			})
-		end,
+		"rktjmp/lush.nvim",
+		"rktjmp/lush.nvim",
+		"nvim-telescope/telescope.nvim",
+		"sontungexpt/witch",
+		"Abstract-IDE/Abstract-cs",
+		"tomasiser/vim-code-dark",
+		"Mofiqul/vscode.nvim",
+		"marko-cerovac/material.nvim",
+		"bluz71/vim-nightfly-colors",
+		"bluz71/vim-moonfly-colors",
+		"ChristianChiarulli/nvcode-color-schemes.vim",
+		"folke/tokyonight.nvim",
+		"comfysage/evergarden",
+		"sainnhe/sonokai",
+		"nyoom-engineering/oxocarbon.nvim",
+		"kyazdani42/blue-moon",
+		"mhartington/oceanic-next",
+		"nvimdev/zephyr-nvim",
+		"rockerBOO/boo-colorscheme-nvim",
+		"jim-at-jibba/ariake.nvim",
+		"ishan9299/modus-theme-vim",
+		"sainnhe/edge",
+		"theniceboy/nvim-deus",
+		"PHSix/nvim-hybrid",
+		"Th3Whit3Wolf/space-nvim",
+		"yonlu/omni.vim",
+		"ray-x/aurora",
+		"tanvirtin/monokai.nvim",
+		"ofirgall/ofirkai.nvim",
+		"savq/melange-nvim",
+		"fenetikm/falcon",
+		"andersevenrud/nordic.nvim",
+		"AlexvZyl/nordic.nvim",
+		"shaunsingh/nord.nvim",
+		"ishan9299/nvim-solarized-lua",
+		"jthvai/lavender.nvim",
+		"navarasu/onedark.nvim",
+		"sainnhe/gruvbox-material",
+		"sainnhe/everforest",
+		"neanias/everforest-nvim",
+		"NTBBloodbath/doom-one.nvim",
+		"dracula/vim",
+		"Mofiqul/dracula.nvim",
+		"niyabits/calvera-dark.nvim",
+		"nxvu699134/vn-night.nvim",
+		"adisen99/codeschool.nvim",
+		"projekt0n/github-nvim-theme",
+		"kdheepak/monochrome.nvim",
+		"rose-pine/neovim",
+		"zenbones-theme/zenbones.nvim",
+		"catppuccin/nvim",
+		"FrenzyExists/aquarium-vim",
+		"EdenEast/nightfox.nvim",
+		"kvrohit/substrata.nvim",
+		"ldelossa/vimdark",
+		"Everblush/nvim",
+		"adisen99/apprentice.nvim",
+		"olimorris/onedarkpro.nvim",
+		"rmehri01/onenord.nvim",
+		"RishabhRD/gruvy",
+		"luisiacc/gruvbox-baby",
+		"titanzero/zephyrium",
+		"rebelot/kanagawa.nvim",
+		"sho-87/kanagawa-paper.nvim",
+		"kevinm6/kurayami.nvim",
+		"tiagovla/tokyodark.nvim",
+		"cpea2506/one_monokai.nvim",
+		"phha/zenburn.nvim",
+		"kvrohit/rasmus.nvim",
+		"chrsm/paramount-ng.nvim",
+		"qaptoR-nvim/chocolatier.nvim",
+		"rockyzhang24/arctic.nvim",
+		"ramojus/mellifluous.nvim",
+		"Yazeed1s/minimal.nvim",
+		"Mofiqul/adwaita.nvim",
+		"olivercederborg/poimandres.nvim",
+		"mellow-theme/mellow.nvim",
+		"gbprod/nord.nvim",
+		"Yazeed1s/oh-lucy.nvim",
+		"embark-theme/vim",
+		"nyngwang/nvimgelion",
+		"maxmx03/fluoromachine.nvim",
+		"dasupradyumna/midnight.nvim",
+		"uncleTen276/dark_flat.nvim",
+		"zootedb0t/citruszest.nvim",
+		"xero/miasma.nvim",
+		"Verf/deepwhite.nvim",
+		"judaew/ronny.nvim",
+		"ribru17/bamboo.nvim",
+		"cryptomilk/nightcity.nvim",
+		"polirritmico/monokai-nightasty.nvim",
+		"oxfist/night-owl.nvim",
+		"miikanissi/modus-themes.nvim",
+		"alexmozaidze/palenight.nvim",
+		"scottmckendry/cyberdream.nvim",
+		"HoNamDuong/hybrid.nvim",
+		"bartekjaszczak/distinct-nvim",
+		"samharju/synthweave.nvim",
+		"ptdewey/darkearth-nvim",
+		"uloco/bluloco.nvim",
+		"slugbyte/lackluster.nvim",
+		"0xstepit/flow.nvim",
+		"samharju/serene.nvim",
+		"killitar/obscure.nvim",
+		"bakageddy/alduin.nvim",
+		"diegoulloao/neofusion.nvim",
+		"bartekjaszczak/luma-nvim",
+		"bartekjaszczak/finale-nvim",
+		"ellisonleao/gruvbox.nvim",
+		"metalelf0/jellybeans-nvim",
+		"lalitmee/cobalt2.nvim",
+		"calind/selenized.nvim",
 	},
 }
 
 return M
-
