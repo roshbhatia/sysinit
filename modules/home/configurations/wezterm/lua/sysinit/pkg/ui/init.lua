@@ -102,8 +102,8 @@ local function setup_nvim_ui_overrides()
 			overrides.window_padding = {
 				left = "8px",
 				top = "8px",
-				bottom = "0px"
-			},
+				bottom = "0px",
+			}
 		else
 			overrides.color_scheme = nil
 			overrides.enable_scroll_bar = nil
@@ -138,4 +138,3 @@ function M.setup(config)
 end
 
 return M
-
