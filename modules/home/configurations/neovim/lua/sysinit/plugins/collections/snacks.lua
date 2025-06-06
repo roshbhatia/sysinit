@@ -31,6 +31,19 @@ M.plugins = {
 				},
 				picker = {
 					enabled = true,
+					ui_select = false,
+					formatters = {
+						d = {
+							show_always = false
+							unselected = false,
+						},
+					},
+					icons = {
+						ui = {
+							selected    = " ",
+							unselected  = " ",
+						  },
+					}
 				},
 				rename = { enabled = true },
 				scratch = { enabled = true },

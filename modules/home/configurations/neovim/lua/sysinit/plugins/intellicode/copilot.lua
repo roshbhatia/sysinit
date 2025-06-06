@@ -3,9 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"zbirenbaum/copilot.lua",
-		event = "InsertEnter",
 		cmd = "Copilot",
-		build = ":Copilot auth",
 		opts = {
 			panel = {
 				enabled = false,
