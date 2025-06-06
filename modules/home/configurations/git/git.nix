@@ -35,6 +35,9 @@ in
         pushNonFastForward = false
         statusHints = false
 
+      [diff]
+          ignoreSpaceAtEol = true
+
       [pull]
           rebase = true
 
@@ -146,4 +149,3 @@ in
     force = true;
   };
 }
-
