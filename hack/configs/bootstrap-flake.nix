@@ -16,14 +16,12 @@
         system = "aarch64-darwin";
         modules = [
           {
-            system.stateVersion = 4;
-            nix.enable = false;
             programs.zsh.enable = true;
-            system.defaults.NSGlobalDomain.AppleShowAllExtensions = true;
             system.defaults.finder.AppleShowAllExtensions = true;
+            system.defaults.NSGlobalDomain.AppleShowAllExtensions = true;
+            system.stateVersion = 4;
           }
         ];
       };
     };
 }
-

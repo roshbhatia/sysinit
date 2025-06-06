@@ -7,14 +7,16 @@
   nix.enable = false;
 
   nix.settings = {
-    trusted-users = [
-      "root"
-      "@wheel"
-    ];
+    auto-optimise-store = true;
     experimental-features = [
       "nix-command"
       "flakes"
     ];
+    substituters = "https://cache.nixos.org/";
+    trusted-users = [
+      "*"
+    ];
+    warn-dirty = false;
   };
 
   programs.zsh.enable = true;
@@ -32,4 +34,3 @@
 
   security.pam.services.sudo_local.touchIdAuth = true;
 }
-
