@@ -18,9 +18,31 @@ M.plugins = {
 				fg = vim.fn.synIDattr(vim.fn.hlID("Comment"), "fg") or normal_fg,
 				bg = cursor_line_bg or "NONE",
 			})
+
+			vim.gitblame_delay = 50
+			vim.g.gitblame_virtual_text_column = 80
+		end,
+		keys = function()
+			return {
+				{
+					"<leader>gos",
+					"<CMD>GitBlameCopyCommitURL<CR>",
+					mode = "n",
+					noremap = true,
+					silent = true,
+					desc = "Copy blame URL",
+				},
+				{
+					"<leader>goo",
+					"<CMD>GitBlameOpenFileURL<CR>",
+					mode = "n",
+					noremap = true,
+					silent = true,
+					desc = "Open blame URL",
+				},
+			}
 		end,
 	},
 }
 
 return M
-
