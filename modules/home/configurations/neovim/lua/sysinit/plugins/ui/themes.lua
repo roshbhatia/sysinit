@@ -65,6 +65,7 @@ M.plugins = {
 						window_picker = true,
 					},
 				})
+				vim.cmd("colorscheme catppuccin")
 			end,
 		},
 		{
