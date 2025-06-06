@@ -34,16 +34,16 @@ M.plugins = {
 					ui_select = false,
 					formatters = {
 						d = {
-							show_always = false
+							show_always = false,
 							unselected = false,
 						},
 					},
 					icons = {
 						ui = {
-							selected    = " ",
-							unselected  = " ",
-						  },
-					}
+							selected = " ",
+							unselected = " ",
+						},
+					},
 				},
 				rename = { enabled = true },
 				scratch = { enabled = true },
