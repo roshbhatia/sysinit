@@ -19,6 +19,7 @@ in
     name = "yarn";
     basePackages = [
       "@dice-roller/cli"
+      "puppeteer"
       "markdownlint-cli"
       "markdownlint-cli2"
     ];
