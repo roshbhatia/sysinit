@@ -41,7 +41,7 @@ brew install go-task/tap/go-task
 
 ## Usage
 
-```task
+```text
 task: Available tasks for this project:
 * default:                 Show help information
 * nix:fmt:                 Format the Nix configuration
