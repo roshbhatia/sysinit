@@ -138,6 +138,9 @@ M.plugins = {
 							".goose",
 						},
 					},
+					colorscheme = {
+						enable_preview = true,
+					},
 				},
 				vimgrep_arguments = {
 					"rg",

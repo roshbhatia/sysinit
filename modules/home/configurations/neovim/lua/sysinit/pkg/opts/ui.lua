@@ -5,6 +5,7 @@ function M.setup()
 	vim.opt.showmode = true
 	vim.o.showtabline = 0
 	vim.opt.laststatus = 3
+	vim.cmd("colorscheme catppuccin")
 end
 
 return M
