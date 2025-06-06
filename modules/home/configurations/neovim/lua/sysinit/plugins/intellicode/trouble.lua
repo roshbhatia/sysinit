@@ -6,7 +6,7 @@ M.plugins = {
 		event = "LSPAttach",
 		opts = {
 			open_no_results = true,
-			win = "split",
+			win = "float",
 		},
 		keys = function()
 			return {
