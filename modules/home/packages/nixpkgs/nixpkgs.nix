@@ -82,6 +82,7 @@ let
     prettier
     prettierd
     proselint
+    puppeteer-cli
     python311Full
     ripgrep
     rustup
