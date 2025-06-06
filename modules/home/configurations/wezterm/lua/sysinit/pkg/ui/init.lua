@@ -23,21 +23,13 @@ local nvim_font = wezterm.font_with_fallback({
 ||||||| parent of 8c9b0cff (wip)
 		family = "Monaspace Xenon Var",
 =======
-		family = "Cascadia Mono PL",
+		family = "Inconsolata-g for Powerline",
 >>>>>>> 8c9b0cff (wip)
 		harfbuzz_features = {
 			"calt",
-<<<<<<< HEAD
-			"zero",
-||||||| parent of 8c9b0cff (wip)
-			"zero",
-			"ss01",
-			"cv01",
-=======
 			"ss02",
 			"ss19",
 			"ss20",
->>>>>>> 8c9b0cff (wip)
 		},
 	},
 	"Symbols Nerd Font",
@@ -172,3 +164,4 @@ function M.setup(config)
 end
 
 return M
+
