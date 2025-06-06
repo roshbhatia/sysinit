@@ -1,8 +1,7 @@
 local wezterm = require("wezterm")
 local M = {}
 
-local terminal_theme = "Rosé Pine Moon (Gogh)"
-local nvim_theme = "Catppuccin Frappe (Gogh)"
+local terminal_theme = "Rosé Pine (Gogh)"
 
 local terminal_font = wezterm.font_with_fallback({
 	{
@@ -140,7 +139,6 @@ local function setup_nvim_ui_overrides()
 		local should_switch = is_vim(pane)
 		local overrides = window:get_config_overrides() or {}
 		if should_switch then
-			overrides.color_scheme = nvim_theme
 			overrides.font = nvim_font
 			overrides.enable_scroll_bar = false
 			overrides.window_background_opacity = 0.85
@@ -151,7 +149,6 @@ local function setup_nvim_ui_overrides()
 			}
 			overrides.text_min_contrast_ratio = 7
 		else
-			overrides.color_scheme = terminal_theme -- for some reason, forcing overwrite works better here?
 			overrides.font = nil
 			overrides.enable_scroll_bar = nil
 			overrides.window_background_opacity = nil
