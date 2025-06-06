@@ -39,6 +39,7 @@ let
     golangci-lint
     golangci-lint-langserver
     gum
+    helix
     helm-ls
     htop
     imagemagick
