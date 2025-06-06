@@ -121,7 +121,7 @@ local function setup_nvim_ui_overrides()
 				top = "8px",
 				bottom = "0px",
 			}
-      overrides.text_min_contrast_ratio = 7,
+			overrides.text_min_contrast_ratio = 7
 		else
 			overrides.color_scheme = nil
 			overrides.font = nil
@@ -129,7 +129,7 @@ local function setup_nvim_ui_overrides()
 			overrides.enable_scroll_bar = nil
 			overrides.window_background_opacity = nil
 			overrides.window_padding = nil
-      overrides.text_min_contrast_ratio = nil
+			overrides.text_min_contrast_ratio = nil
 		end
 		window:set_config_overrides(overrides)
 	end)
@@ -159,4 +159,3 @@ function M.setup(config)
 end
 
 return M
-
