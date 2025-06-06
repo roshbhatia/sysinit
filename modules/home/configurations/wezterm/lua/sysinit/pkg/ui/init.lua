@@ -34,7 +34,6 @@ local nvim_font = wezterm.font_with_fallback({
 			"ss01",
 			"cv01",
 =======
-			"ss01",
 			"ss02",
 			"ss19",
 			"ss20",
