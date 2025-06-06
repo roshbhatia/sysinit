@@ -9,19 +9,19 @@ M.plugins = {
 		},
 		config = function()
 			require("dropbar").setup({
-				scrollbar = {
-					enable = false,
-				},
 				icons = {
 					ui = {
 						bar = {
-							separator = "  ",
+							separator = "  ",
 							extends = "…",
 						},
 					},
 				},
 				menu = {
 					preview = false,
+					scrollbar = {
+						enable = false,
+					},
 				},
 				bar = {
 					pick = {
@@ -88,4 +88,3 @@ M.plugins = {
 }
 
 return M
-
