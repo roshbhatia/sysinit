@@ -2,6 +2,7 @@ local M = {}
 
 M.plugins = {
 	{
+		enabled = false,
 		"sphamba/smear-cursor.nvim",
 		event = "VeryLazy",
 		opts = {
