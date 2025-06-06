@@ -31,6 +31,7 @@ let
     fd
     findutils
     fira-code
+    firefox
     fzf
     gettext
     gh
@@ -78,6 +79,7 @@ let
     nodePackages_latest.fkill-cli
     nodePackages_latest.jsonlint
     nil
+    nix-search-cli
     nixd
     nixfmt-rfc-style
     nodejs
@@ -91,6 +93,7 @@ let
     prettierd
     proselint
     python311Full
+    raycast
     ripgrep
     rustup
     sad
@@ -127,4 +130,3 @@ in
 {
   home.packages = allNixPackages;
 }
-

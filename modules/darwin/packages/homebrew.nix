@@ -24,15 +24,12 @@ let
     "block-goose-cli"
     "libgit2@1.8"
     "luarocks"
-    "peterldowns/tap/nix-search-cli"
   ];
 
   baseCasks = [
-    "firefox"
     "hammerspoon"
     "keycastr"
     "loop"
-    "raycast"
     "visual-studio-code@insiders"
   ];
 
