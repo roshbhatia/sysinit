@@ -96,11 +96,19 @@ local function setup_nvim_ui_overrides()
 		local should_switch = is_vim(pane)
 		local overrides = window:get_config_overrides() or {}
 		if should_switch then
+			overrides.color_scheme = "nordfox"
 			overrides.enable_scroll_bar = false
 			overrides.window_background_opacity = 0.865
+			overrides.window_padding = {
+				left = "8px",
+				top = "8px",
+				bottom = "0px"
+			},
 		else
+			overrides.color_scheme = nil
 			overrides.enable_scroll_bar = nil
 			overrides.window_background_opacity = nil
+			overrides.window_padding = nil
 		end
 		window:set_config_overrides(overrides)
 	end)
