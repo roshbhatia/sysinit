@@ -48,27 +48,29 @@ M.plugins = {
 					cmd = "CopilotChatOptimize",
 				},
 			}
-			for _, action in ipairs(copilot_actions) do
-				null_ls.register({
-					method = null_ls.methods.CODE_ACTION,
-					filetypes = {},
-					generator = {
-						fn = function(context)
-							return {
-								{
-									title = action.title,
-									action = function()
-										vim.cmd(action.cmd)
-									end,
-								},
-							}
-						end,
-					},
-				})
+
+			if not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot")) then
+				for _, action in ipairs(copilot_actions) do
+					null_ls.register({
+						method = null_ls.methods.CODE_ACTION,
+						filetypes = {},
+						generator = {
+							fn = function(context)
+								return {
+									{
+										title = action.title,
+										action = function()
+											vim.cmd(action.cmd)
+										end,
+									},
+								}
+							end,
+						},
+					})
+				end
 			end
 		end,
 	},
 }
 
 return M
-
