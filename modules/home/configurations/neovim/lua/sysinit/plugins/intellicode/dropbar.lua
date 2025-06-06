@@ -9,6 +9,17 @@ M.plugins = {
 		},
 		config = function()
 			require("dropbar").setup({
+				scrollbar = {
+					enable = false,
+				},
+				icons = {
+					ui = {
+						bar = {
+							separator = "  ",
+							extends = "…",
+						},
+					},
+				},
 				menu = {
 					preview = false,
 				},
