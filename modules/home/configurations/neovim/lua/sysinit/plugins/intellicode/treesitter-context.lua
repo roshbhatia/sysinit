@@ -8,7 +8,7 @@ M.plugins = {
 		config = function()
 			require("treesitter-context").setup()
 
-			vim.cmd("woeijenable")
+			vim.cmd("TSContext enable")
 		end,
 	},
 }
