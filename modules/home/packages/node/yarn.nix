@@ -19,6 +19,8 @@ in
     name = "yarn";
     basePackages = [
       "@dice-roller/cli"
+      "markdownlint-cli"
+      "markdownlint-cli2"
     ];
     additionalPackages = (overlay.yarn.additionalPackages or [ ]);
     executableArguments = [

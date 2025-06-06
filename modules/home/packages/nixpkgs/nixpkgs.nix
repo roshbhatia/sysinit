@@ -63,8 +63,6 @@ let
     lnav
     luajit
     lynx
-    markdownlint-cli
-    markdownlint-cli2
     mermaid-cli
     nerd-fonts.hack
     nodePackages_latest.fkill-cli
@@ -82,7 +80,6 @@ let
     prettier
     prettierd
     proselint
-    puppeteer-cli
     python311Full
     ripgrep
     rustup
