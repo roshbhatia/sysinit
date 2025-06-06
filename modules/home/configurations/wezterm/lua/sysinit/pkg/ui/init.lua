@@ -2,11 +2,10 @@ local wezterm = require("wezterm")
 local M = {}
 
 local terminal_theme = "Rosé Pine Moon (Gogh)"
-local nvim_theme = "nordfox"
 
 local terminal_font = wezterm.font_with_fallback({
 	{
-		family = "JetBrains Mono",
+		family = "Hack Nerd Font Mono",
 		weight = "Regular",
 		harfbuzz_features = {
 			"calt",
@@ -18,12 +17,11 @@ local terminal_font = wezterm.font_with_fallback({
 
 local nvim_font = wezterm.font_with_fallback({
 	{
-		family = "Monaspace Neon",
+		family = "JetBrains Mono",
+		weight = "Regular",
 		harfbuzz_features = {
 			"calt",
 			"zero",
-			"ss01",
-			"cv01",
 		},
 	},
 	"Symbols Nerd Font",
@@ -58,7 +56,6 @@ local function get_display_config()
 		max_fps = 120,
 		color_scheme = terminal_theme,
 		scrollback_lines = 20000,
-		animation_fps = 120,
 		adjust_window_size_when_changing_font_size = false,
 	}
 end
