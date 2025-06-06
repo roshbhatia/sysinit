@@ -18,10 +18,27 @@ local terminal_font = wezterm.font_with_fallback({
 
 local nvim_font = wezterm.font_with_fallback({
 	{
+<<<<<<< HEAD
 		family = "Monaspace Neon",
+||||||| parent of 8c9b0cff (wip)
+		family = "Monaspace Xenon Var",
+=======
+		family = "Cascadia Mono PL",
+>>>>>>> 8c9b0cff (wip)
 		harfbuzz_features = {
 			"calt",
+<<<<<<< HEAD
 			"zero",
+||||||| parent of 8c9b0cff (wip)
+			"zero",
+			"ss01",
+			"cv01",
+=======
+			"ss01",
+			"ss02",
+			"ss19",
+			"ss20",
+>>>>>>> 8c9b0cff (wip)
 		},
 	},
 	"Symbols Nerd Font",
@@ -112,9 +129,8 @@ local function setup_nvim_ui_overrides()
 		if should_switch then
 			overrides.color_scheme = nvim_theme
 			overrides.font = nvim_font
-			overrides.font_size = 14.0
 			overrides.enable_scroll_bar = false
-			overrides.window_background_opacity = 0.95
+			overrides.window_background_opacity = 0.975
 			overrides.window_padding = {
 				left = "8px",
 				top = "8px",
@@ -124,7 +140,6 @@ local function setup_nvim_ui_overrides()
 		else
 			overrides.color_scheme = nil
 			overrides.font = nil
-			overrides.font_size = nil
 			overrides.enable_scroll_bar = nil
 			overrides.window_background_opacity = nil
 			overrides.window_padding = nil

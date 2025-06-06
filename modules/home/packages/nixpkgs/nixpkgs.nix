@@ -17,7 +17,6 @@ let
     awscli
     bat
     bashInteractive
-    black
     caddy
     cargo-watch
     checkmate
@@ -119,3 +118,4 @@ in
 {
   home.packages = allNixPackages;
 }
+
