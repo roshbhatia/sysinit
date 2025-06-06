@@ -67,15 +67,7 @@ let
     lynx
     markdownlint-cli2
     mermaid-cli
-    monaspace
-    nerd-fonts."m+"
-    nerd-fonts.noto
     nerd-fonts.hack
-    nerd-fonts.tinos
-    nerd-fonts.lilex
-    nerd-fonts.arimo
-    nerd-fonts.agave
-    nerd-fonts._3270
     nodePackages_latest.fkill-cli
     nodePackages_latest.jsonlint
     nil
