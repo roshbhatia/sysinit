@@ -6,17 +6,19 @@ M.plugins = {
 		dependencies = {
 			"3rd/image.nvim",
 		},
-		opts = {
-			integrations = {
-				require("diagram.integrations.markdown"),
-			},
-			renderer_options = {
-				mermaid = {
-					background = "white",
-					theme = "forest",
+		config = function()
+			require("diagram").setup({
+				integrations = {
+					require("diagram.integrations.markdown"),
 				},
-			},
-		},
+				renderer_options = {
+					mermaid = {
+						background = "white",
+						theme = "forest",
+					},
+				},
+			})
+		end,
 	},
 }
 
