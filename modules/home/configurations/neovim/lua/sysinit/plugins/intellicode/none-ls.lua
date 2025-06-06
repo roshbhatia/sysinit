@@ -26,7 +26,15 @@ M.plugins = {
 					null_ls.builtins.diagnostics.staticcheck,
 					null_ls.builtins.diagnostics.terraform_validate,
 					null_ls.builtins.diagnostics.tfsec,
-					null_ls.builtins.diagnostics.yamllint,
+					null_ls.builtins.diagnostics.yamllint.with({
+						args = {
+							"-d",
+							"'{rules: {line-length: disable, document-start: disable, comments: disable}'",
+							"--format",
+							"parsable",
+							"-",
+						},
+					}),
 					null_ls.builtins.formatting.goimports,
 					null_ls.builtins.formatting.terraform_fmt,
 					null_ls.builtins.hover.dictionary,
