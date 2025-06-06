@@ -18,8 +18,7 @@ local terminal_font = wezterm.font_with_fallback({
 
 local nvim_font = wezterm.font_with_fallback({
 	{
-		family = "JetBrains Mono",
-		weight = "Regular",
+		family = "Monaspace Neon",
 		harfbuzz_features = {
 			"calt",
 			"zero",
