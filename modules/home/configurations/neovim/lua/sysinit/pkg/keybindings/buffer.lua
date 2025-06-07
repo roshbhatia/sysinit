@@ -77,7 +77,7 @@ function M.setup()
 		desc = "Next",
 	})
 
-	vim.keymap.set("n", "<leader>bp", buffer_prev, {
+	vim.keymap.set("n", "<leader>bN", buffer_prev, {
 		noremap = true,
 		silent = true,
 		desc = "Previous",

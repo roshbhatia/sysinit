@@ -31,7 +31,7 @@ M.plugins = {
 					desc = "Next",
 				},
 				{
-					"<leader>mp",
+					"<leader>mN",
 					function()
 						require("recall").goto_prev()
 					end,
@@ -64,3 +64,4 @@ M.plugins = {
 }
 
 return M
+
