@@ -25,24 +25,6 @@ M.plugins = {
 					desc = "Jump to any word",
 				},
 				{
-					"<leader>jl",
-					"<CMD>HopLine<CR>",
-					mode = "n",
-					desc = "Jump to any line",
-				},
-				{
-					"<leader>js",
-					"<CMD>HopChar1<CR>",
-					mode = "n",
-					desc = "Jump to character",
-				},
-				{
-					"<leader>jp",
-					"<CMD>HopPattern<CR>",
-					mode = "n",
-					desc = "Jump to pattern",
-				},
-				{
 					"<leader>jt",
 					"<CMD>HopNodes<CR>",
 					mode = "n",
@@ -60,3 +42,4 @@ M.plugins = {
 }
 
 return M
+

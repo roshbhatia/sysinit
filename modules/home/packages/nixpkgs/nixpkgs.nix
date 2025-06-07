@@ -3,7 +3,6 @@
   overlay,
   ...
 }:
-
 let
   additionalPackages = (overlay.nix.packages or [ ]);
 
@@ -115,3 +114,4 @@ in
 {
   home.packages = allNixPackages;
 }
+

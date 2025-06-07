@@ -44,6 +44,7 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.editor.intellitab"),
 	require("sysinit.plugins.editor.marks"),
 	require("sysinit.plugins.editor.move"),
+	require("sysinit.plugins.editor.multicursor"),
 	require("sysinit.plugins.editor.render-markdown"),
 	require("sysinit.plugins.editor.searchbox"),
 	require("sysinit.plugins.editor.surround"),

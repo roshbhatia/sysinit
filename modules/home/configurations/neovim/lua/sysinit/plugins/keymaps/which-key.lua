@@ -60,7 +60,11 @@ M.plugins = {
 				},
 				{
 					"<leader>j",
-					group = "Hop",
+					group = "Jump",
+				},
+				{
+					"<leader>k",
+					group = "Cursor",
 				},
 				{
 					"<leader>m",
