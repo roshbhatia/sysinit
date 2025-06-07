@@ -5,8 +5,12 @@ M.plugins = {
 		"folke/trouble.nvim",
 		event = "LSPAttach",
 		opts = {
-			use_diagnostic_signs = true,
+			auto_preview = false,
 			open_no_results = true,
+			use_diagnostic_signs = true,
+			preview = {
+				type = "float",
+			},
 		},
 		keys = function()
 			return {

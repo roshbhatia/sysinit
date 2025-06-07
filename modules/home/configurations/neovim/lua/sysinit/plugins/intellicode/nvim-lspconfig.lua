@@ -134,7 +134,15 @@ M.plugins = {
 						},
 					},
 				},
-				helm_ls = {},
+				helm_ls = {
+					settings = {
+						["helm-ls"] = {
+							yamlls = {
+								path = "yaml-language-server",
+							},
+						},
+					},
+				},
 				jqls = {},
 				jsonls = {
 					settings = {
@@ -155,7 +163,16 @@ M.plugins = {
 						},
 					},
 				},
-				nil_ls = {},
+				nil_ls = {
+					settings = {
+						["nil"] = {
+							testSetting = 42,
+							formatting = {
+								command = { "nixfmt" },
+							},
+						},
+					},
+				},
 				pyright = {},
 				terraformls = {},
 				tflint = {},
@@ -165,10 +182,7 @@ M.plugins = {
 					settings = {
 						yaml = {
 							schemaStore = {
-								-- You must disable built-in schemaStore support if you want to use
-								-- this plugin and its advanced options like `ignore`.
 								enable = false,
-								-- Avoid TypeError: Cannot read properties of undefined (reading 'length')
 								url = "",
 							},
 							schemas = require("schemastore").yaml.schemas(),
@@ -264,4 +278,3 @@ M.plugins = {
 }
 
 return M
-

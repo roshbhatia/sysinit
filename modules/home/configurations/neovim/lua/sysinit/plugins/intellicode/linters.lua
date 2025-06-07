@@ -1,5 +1,3 @@
-local M = {}
-
 M.plugins = {
 	{
 		"mfussenegger/nvim-lint",
@@ -15,7 +13,6 @@ M.plugins = {
 				go = { "golangcilint" },
 				sh = { "shellcheck" },
 				bash = { "shellcheck" },
-				zsh = { "shellcheck" },
 				json = { "jsonlint" },
 				markdown = { "markdownlint" },
 				terraform = { "tflint" },
@@ -39,4 +36,3 @@ M.plugins = {
 }
 
 return M
-
