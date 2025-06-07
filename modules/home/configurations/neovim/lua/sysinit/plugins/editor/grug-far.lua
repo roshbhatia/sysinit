@@ -14,7 +14,7 @@ M.plugins = {
 					function()
 						require("grug-far").open()
 					end,
-					desc = "Global",
+					desc = "Search and replace within current project",
 				},
 			}
 		end,

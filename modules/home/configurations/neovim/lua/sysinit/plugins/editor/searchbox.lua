@@ -6,13 +6,13 @@ M.plugins = {
 		dependencies = {
 			"MunifTanjim/nui.nvim",
 		},
-		event = "VeryLazy",
+		lazy = false,
 		keys = function()
 			return {
 				{
 					"<leader>is",
 					"<CMD>SearchBoxReplace<CR>",
-					desc = "Local",
+					desc = "Search and replace within current file",
 				},
 				{
 					"/",
@@ -24,3 +24,4 @@ M.plugins = {
 }
 
 return M
+
