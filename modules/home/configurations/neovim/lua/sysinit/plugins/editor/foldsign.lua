@@ -15,6 +15,21 @@ M.plugins = {
 				enabled = true,
 			})
 		end,
+
+		vim.api.nvim_create_autocmd({ "FileType", "BufEnter", "BufWinEnter" }, {
+			pattern = "markdown",
+			callback = function(args)
+				local bufnr = args.buf
+
+				local ns = vim.api.nvim_create_namespace("foldsign")
+				vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
+
+				local winid = vim.api.nvim_get_current_win()
+				vim.api.nvim_set_option_value("number", false, { win = winid })
+				vim.api.nvim_set_option_value("relativenumber", false, { win = winid })
+				vim.api.nvim_set_option_value("foldcolumn", "0", { win = winid })
+			end,
+		}),
 	},
 }
 return M

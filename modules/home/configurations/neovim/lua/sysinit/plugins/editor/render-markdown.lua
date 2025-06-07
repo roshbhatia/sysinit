@@ -30,18 +30,9 @@ M.plugins = {
 					},
 				},
 			})
-
-			vim.api.nvim_create_autocmd({ "FileType", "BufEnter", "BufWinEnter" }, {
-				pattern = "markdown",
-				callback = function(args)
-					local winid = vim.api.nvim_get_current_win()
-					vim.api.nvim_set_option_value("number", false, { win = winid })
-					vim.api.nvim_set_option_value("relativenumber", false, { win = winid })
-					vim.api.nvim_set_option_value("foldcolumn", "0", { win = winid })
-				end,
-			})
 		end,
 	},
 }
 
 return M
+
