@@ -26,7 +26,6 @@ let
     delta
     docker
     duf
-    eza
     fd
     findutils
     fira-code
@@ -116,4 +115,3 @@ in
 {
   home.packages = allNixPackages;
 }
-
