@@ -9,49 +9,65 @@ M.plugins = {
 		config = function()
 			require("conform").setup({
 				formatters_by_ft = {
-					lua = { "stylua" },
-					python = { "black" },
-					javascript = {
-						"prettierd",
+					bash = {
+						"shfmt",
+					},
+					css = {
 						"prettier",
+						"prettierd",
 						stop_after_first = true,
+					},
+					go = {
+						"goimports",
+						"gofmt",
+					},
+					html = {
+						"prettier",
+						"prettierd",
+						stop_after_first = true,
+					},
+					javascript = {
+						"prettier",
+						"prettierd",
+						stop_after_first = true,
+					},
+					json = {
+						"jq",
+					},
+					lua = {
+						"stylua",
+					},
+					markdown = {
+						"prettier",
+						"prettierd",
+						stop_after_first = true,
+					},
+					nix = {
+						"nixfmt",
+					},
+					python = {
+						"autopep8",
+					},
+					rust = {
+						"rustfmt",
+					},
+					sh = {
+						"shfmt",
+					},
+					terraform = {
+						"terraform_fmt",
 					},
 					typescript = {
-						"prettierd",
 						"prettier",
-						stop_after_first = true,
-					},
-					go = { "goimports", "gofmt" },
-					json = {
 						"prettierd",
-						"prettier",
 						stop_after_first = true,
 					},
 					yaml = {
-						"prettierd",
-						"prettier",
-						stop_after_first = true,
+						"yq",
 					},
-					markdown = {
-						"prettierd",
-						"prettier",
-						stop_after_first = true,
+					zsh = {
+						"shfmt",
 					},
-					html = {
-						"prettierd",
-						"prettier",
-						stop_after_first = true,
-					},
-					css = {
-						"prettierd",
-						"prettier",
-						stop_after_first = true,
-					},
-					sh = { "shfmt" },
-					bash = { "shfmt" },
-					zsh = { "shfmt" },
-					rust = { "rustfmt" },
-					nix = { "nixfmt" },
 				},
 				stop_after_first = false,
 				notify_on_error = false,

@@ -35,8 +35,6 @@ M.plugins = {
 							"-",
 						},
 					}),
-					null_ls.builtins.formatting.goimports,
-					null_ls.builtins.formatting.terraform_fmt,
 					null_ls.builtins.hover.dictionary,
 					null_ls.builtins.hover.printenv,
 				},
