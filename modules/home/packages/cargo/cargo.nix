@@ -11,10 +11,23 @@ in
   home.activation.cargoPackages = activation.mkPackageManager {
     name = "cargo";
     basePackages = [
-      "eza"
       "tree-sitter-cli"
     ];
     additionalPackages = (overlay.cargo.additionalPackages or [ ]);
+    executableArguments = [
+      "install"
+      "--locked"
+    ];
+    executableName = "cargo";
+  };
+
+  # eza requires a vendored version of libgit2 in order to work properly
+  home.activation.eza = activation.mkPackageManager {
+    name = "cargo";
+    basePackages = [
+      "eza"
+    ];
+    additionalPackages = [ ];
     executableArguments = [
       "install"
       "--locked"
@@ -24,4 +37,3 @@ in
     executableName = "cargo";
   };
 }
-
