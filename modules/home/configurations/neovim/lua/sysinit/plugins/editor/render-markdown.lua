@@ -23,9 +23,17 @@ M.plugins = {
 					},
 				},
 			})
+
+			vim.api.nvim_create_autocmd("WinEnter", {
+				callback = function()
+					local config = vim.api.nvim_win_get_config(0)
+					if config.relative ~= "" and vim.bo.filetype == "markdown" then
+						vim.opt_local.number = true
+					end
+				end,
+			})
 		end,
 	},
 }
 
 return M
-
