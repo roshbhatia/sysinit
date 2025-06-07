@@ -20,6 +20,7 @@ M.plugins = {
 				callback = function(args)
 					local bufnr = args.buf
 					vim.api.nvim_buf_set_option(bufnr, "signcolumn", "no")
+					vim.api.nvim_buf_set_option(bufnr, "foldcolumn", "0")
 					local ns = vim.api.nvim_create_namespace("spaces")
 					vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
 					local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
