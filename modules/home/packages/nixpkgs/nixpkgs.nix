@@ -31,6 +31,7 @@ let
     fzf
     gettext
     gh
+    gh-dash
     git
     git-filter-repo
     glow
@@ -114,4 +115,3 @@ in
 {
   home.packages = allNixPackages;
 }
-

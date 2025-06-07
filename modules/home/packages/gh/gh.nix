@@ -10,9 +10,7 @@ in
 {
   home.activation.ghPackages = activation.mkPackageManager {
     name = "gh";
-    basePackages = [
-      "dlvhdr/gh-dash"
-    ];
+    basePackages = [ ];
     additionalPackages = (overlay.gh.additionalPackages or [ ]);
     executableArguments = [
       "extension"
