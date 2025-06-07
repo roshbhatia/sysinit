@@ -18,7 +18,7 @@ M.plugins = {
 					enable = false,
 				},
 				line_num = {
-					enablechunk = false,
+					enable = true,
 				},
 			})
 		end,
