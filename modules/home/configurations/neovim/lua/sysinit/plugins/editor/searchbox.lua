@@ -14,6 +14,10 @@ M.plugins = {
 					"<CMD>SearchBoxReplace<CR>",
 					desc = "Local",
 				},
+				{
+					"/",
+					"<CMD>SearchBoxIncSearch<CR>",
+				},
 			}
 		end,
 	},
