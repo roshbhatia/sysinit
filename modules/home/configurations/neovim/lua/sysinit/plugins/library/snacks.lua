@@ -114,9 +114,7 @@ M.plugins = {
 				},
 				{
 					"<leader>ns",
-					function()
-						Snacks.notifier.show_history()
-					end,
+					"<CMD>NoiceSnacks<CR>",
 					desc = "Show",
 				},
 				{
@@ -132,4 +130,3 @@ M.plugins = {
 }
 
 return M
-
