@@ -19,14 +19,15 @@ M.plugins = {
 				pattern = "markdown",
 				callback = function(args)
 					local bufnr = args.buf
-
-					local ns = vim.api.nvim_create_namespace("foldsign")
+					local ns = vim.api.nvim_create_namespace("spaces")
 					vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
-
-					local winid = vim.api.nvim_get_current_win()
-					vim.api.nvim_set_option_value("number", false, { win = winid })
-					vim.api.nvim_set_option_value("relativenumber", false, { win = winid })
-					vim.api.nvim_set_option_value("foldcolumn", "0", { win = winid })
+					local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+					for i, line in ipairs(lines) do
+						vim.api.nvim_buf_set_extmark(bufnr, ns, i - 1, 0, {
+							virt_text = { { "  ", "Comment" } },
+							virt_text_pos = "eol",
+						})
+					end
 				end,
 			})
 		end,
