@@ -15,9 +15,15 @@ M.plugins = {
 				anti_conceal = {
 					enabled = false,
 				},
+				heading = {
+					border_virtual = true,
+					left_pad = 2,
+				},
 				code = {
 					language_icon = false,
 					language_name = false,
+					language_pad = 2,
+					left_padding = 2,
 				},
 				file_types = markdown_filetypes,
 				render_modes = true,
