@@ -1,4 +1,3 @@
--- sysinit.nvim.doc-url="https://raw.githubusercontent.com/stevearc/conform.nvim/master/doc/conform.txt"
 local M = {}
 
 M.plugins = {

@@ -1,4 +1,3 @@
--- sysinit.nvim.doc-url="https://raw.githubusercontent.com/mfussenegger/nvim-lint/master/doc/lint.txt"
 local M = {}
 
 M.plugins = {
@@ -40,3 +39,4 @@ M.plugins = {
 }
 
 return M
+

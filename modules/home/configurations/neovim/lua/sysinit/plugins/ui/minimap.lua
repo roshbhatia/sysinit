@@ -1,4 +1,3 @@
--- sysinit.nvim.doc-url="https://raw.githubusercontent.com/Isrothy/neominimap.nvim/refs/heads/main/doc/neominimap.nvim.txt"
 local M = {}
 
 M.plugins = {
@@ -27,3 +26,4 @@ M.plugins = {
 }
 
 return M
+

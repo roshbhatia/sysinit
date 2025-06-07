@@ -1,4 +1,3 @@
--- sysinit.nvim.doc-url="https://raw.githubusercontent.com/stevearc/oil.nvim/refs/heads/master/doc/api.md"
 local M = {}
 
 M.plugins = {
@@ -65,3 +64,4 @@ M.plugins = {
 }
 
 return M
+

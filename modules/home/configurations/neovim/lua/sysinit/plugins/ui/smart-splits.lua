@@ -1,4 +1,3 @@
--- sysinit.nvim.doc-url="https://raw.githubusercontent.com/mrjones2014/smart-splits.nvim/refs/heads/master/doc/smart-splits.txt"
 local M = {}
 
 -- Helper function to check if the current window is a floating "snacks" terminal
@@ -109,3 +108,4 @@ M.plugins = {
 }
 
 return M
+
