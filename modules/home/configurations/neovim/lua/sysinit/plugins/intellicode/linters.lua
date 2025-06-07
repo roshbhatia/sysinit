@@ -1,3 +1,5 @@
+local M = {}
+
 M.plugins = {
 	{
 		"mfussenegger/nvim-lint",
