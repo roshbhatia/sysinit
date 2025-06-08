@@ -14,13 +14,16 @@ M.plugins = {
 					language_icon = false,
 					language_name = false,
 				},
-				sign = {
-					enabled = false,
-				},
 				completions = {
 					lsp = {
 						enabled = true,
 					},
+				},
+				sign = {
+					enabled = false,
+				},
+				quote = {
+					repeat_linebreak = true,
 				},
 			})
 
