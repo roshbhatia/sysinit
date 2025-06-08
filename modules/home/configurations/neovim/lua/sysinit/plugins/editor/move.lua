@@ -19,7 +19,6 @@ M.plugins = {
 					line_down = "<M-j>",
 					line_up = "<M-k>",
 				},
-
 				options = {
 					reindent_linewise = true,
 				},

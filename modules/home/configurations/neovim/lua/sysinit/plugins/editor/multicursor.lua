@@ -102,26 +102,6 @@ M.plugins = {
 					mode = "n",
 					desc = "Skip previous match",
 				},
-				-- Add and remove cursors with control + left click.
-				{
-					"<c-leftmouse>",
-					mc.handleMouse,
-					mode = "n",
-					desc = "Handle mouse click",
-				},
-				{
-					"<c-leftdrag>",
-					mc.handleMouseDrag,
-					mode = "n",
-					desc = "Handle mouse drag",
-				},
-				{
-					"<c-leftrelease>",
-					mc.handleMouseRelease,
-					mode = "n",
-					desc = "Handle mouse release",
-				},
-				-- Disable and enable cursors.
 				{
 					"<leader>kq",
 					mc.toggleCursor,
@@ -133,4 +113,3 @@ M.plugins = {
 	},
 }
 return M
-
