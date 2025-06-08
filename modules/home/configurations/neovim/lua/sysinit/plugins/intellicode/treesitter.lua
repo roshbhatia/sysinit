@@ -76,6 +76,18 @@ M.plugins = {
 		config = function(_, opts)
 			require("nvim-treesitter.configs").setup(opts)
 			vim.cmd("TSInstall all")
+
+			vim.api.nvim_create_autocmd("WinEnter", {
+				callback = function()
+					local config = vim.api.nvim_win_get_config(0)
+					if config.relative == "" then
+						local bufname = vim.api.nvim_buf_get_name(0)
+						if bufname ~= "" and vim.fn.filereadable(bufname) == 1 then
+							vim.cmd("e!")
+						end
+					end
+				end,
+			})
 		end,
 	},
 }

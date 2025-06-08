@@ -32,8 +32,6 @@ M.plugins = {
 					local config = vim.api.nvim_win_get_config(0)
 					if config.relative ~= "" and vim.bo.filetype == "markdown" then
 						vim.opt_local.number = true
-					else
-						vim.cmd("e!")
 					end
 				end,
 			})
