@@ -4,6 +4,7 @@ M.plugins = {
 	{
 		"folke/noice.nvim",
 		event = "BufReadPost",
+		cmd = "NoiceSnacks",
 		dependencies = {
 			"MunifTanjim/nui.nvim",
 			"hrsh7th/nvim-cmp",
@@ -38,4 +39,3 @@ M.plugins = {
 }
 
 return M
-
