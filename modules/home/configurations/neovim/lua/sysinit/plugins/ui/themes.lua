@@ -7,12 +7,12 @@ M.plugins = {
 		priority = 1000,
 		config = function()
 			require("black-metal").setup({
-				theme = "burzum",
 				alt_bg = false,
 				favor_treesitter_hl = false,
 				plain_float = false,
 				show_eob = false,
 			})
+			require("black-metal").load()
 		end,
 	},
 	{
@@ -78,7 +78,6 @@ M.plugins = {
 					window_picker = true,
 				},
 			})
-			vim.cmd("colorscheme catppuccin")
 		end,
 	},
 	{
