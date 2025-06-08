@@ -28,7 +28,5 @@
       ];
     };
   };
-
-  pipx.additionalPackages = [ "mcp-proxy" ];
 }
 
