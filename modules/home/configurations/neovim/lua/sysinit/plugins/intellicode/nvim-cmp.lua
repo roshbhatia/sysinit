@@ -128,8 +128,8 @@ M.plugins = {
 				},
 				sorting = {
 					priority_weight = 2,
-					comparators = { -- Below is the default comparitor list and order for nvim-cmp
-						cmp.config.compare.offset, -- cmp.config.compare.scopes, --this is commented in nvim-cmp too
+					comparators = {
+						cmp.config.compare.offset,
 						cmp.config.compare.exact,
 						cmp.config.compare.score,
 						cmp.config.compare.recently_used,
@@ -141,7 +141,7 @@ M.plugins = {
 					},
 				},
 				experimental = {
-					ghost_text = false,
+					ghost_text = true,
 				},
 			})
 		end,
