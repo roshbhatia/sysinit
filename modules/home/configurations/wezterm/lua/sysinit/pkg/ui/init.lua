@@ -112,13 +112,13 @@ local function setup_nvim_ui_overrides()
 		if should_switch then
 			overrides.font = nvim_font
 			overrides.enable_scroll_bar = false
-			overrides.window_background_opacity = 0.85
+			overrides.window_background_opacity = 0.975
 			overrides.window_padding = {
 				left = "8px",
 				top = "8px",
 				bottom = "0px",
 			}
-			overrides.text_min_contrast_ratio = 7
+			overrides.text_min_contrast_ratio = 8.5
 		else
 			overrides.font = nil
 			overrides.enable_scroll_bar = nil
@@ -154,3 +154,4 @@ function M.setup(config)
 end
 
 return M
+

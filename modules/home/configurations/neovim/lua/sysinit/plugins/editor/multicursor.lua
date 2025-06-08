@@ -1,4 +1,5 @@
 local M = {}
+
 M.plugins = {
 	{
 		"jake-stewart/multicursor.nvim",
@@ -113,3 +114,4 @@ M.plugins = {
 	},
 }
 return M
+
