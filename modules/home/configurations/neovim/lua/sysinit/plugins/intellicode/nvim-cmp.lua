@@ -80,6 +80,10 @@ M.plugins = {
 							copilot = "",
 						},
 					}),
+					window = {
+						completion = cmp.config.window.bordered(),
+						documentation = cmp.config.window.bordered(),
+					},
 				},
 				sources = {
 					{
@@ -149,4 +153,3 @@ M.plugins = {
 }
 
 return M
-
