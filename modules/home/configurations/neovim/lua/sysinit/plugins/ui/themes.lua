@@ -7,11 +7,9 @@ M.plugins = {
 		priority = 1000,
 		config = function()
 			require("black-metal").setup({
-				alt_bg = false,
-				favor_treesitter_hl = false,
+				favor_treesitter_hl = true,
 				plain_float = false,
 				show_eob = false,
-				transparent = true,
 			})
 			require("black-metal").load()
 		end,
@@ -116,4 +114,3 @@ M.plugins = {
 }
 
 return M
-
