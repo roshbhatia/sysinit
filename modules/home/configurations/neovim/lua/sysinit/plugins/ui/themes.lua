@@ -1,6 +1,7 @@
 local M = {}
 
 M.plugins = {
+	"aereal/vim-colors-japanesque",
 	{
 		"catppuccin/nvim",
 		name = "catppuccin",
@@ -102,3 +103,4 @@ M.plugins = {
 }
 
 return M
+
