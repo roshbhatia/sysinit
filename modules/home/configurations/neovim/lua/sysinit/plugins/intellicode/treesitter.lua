@@ -84,6 +84,7 @@ M.plugins = {
 						local bufname = vim.api.nvim_buf_get_name(0)
 						if bufname ~= "" and vim.fn.filereadable(bufname) == 1 then
 							vim.cmd("e!")
+							vim.cmd("syntax enable")
 						end
 					end
 				end,
@@ -93,3 +94,4 @@ M.plugins = {
 }
 
 return M
+
