@@ -13,7 +13,6 @@ M.plugins = {
 				plain_float = false,
 				show_eob = false,
 			})
-			require("black-metal").load()
 		end,
 	},
 	{
@@ -79,6 +78,7 @@ M.plugins = {
 					window_picker = true,
 				},
 			})
+			vim.cmd("colorscheme catppuccin")
 		end,
 	},
 	{
@@ -116,4 +116,3 @@ M.plugins = {
 }
 
 return M
-
