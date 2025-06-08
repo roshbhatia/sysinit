@@ -1,7 +1,32 @@
 local M = {}
 
 M.plugins = {
-	"aereal/vim-colors-japanesque",
+	{
+		"metalelf0/black-metal-theme-neovim",
+		lazy = false,
+		priority = 1000,
+		config = function()
+			require("black-metal").setup({
+				theme = "burzum",
+				alt_bg = false,
+				favor_treesitter_hl = false,
+				plain_float = false,
+				show_eob = false,
+				transparent = true,
+
+				-- The following options allow for more control over some plugin appearances.
+				plugin = {
+					cmp = { -- works for nvim.cmp and blink.nvim
+						-- Don't highlight lsp-kind items. Only the current selection will be highlighted.
+						plain = false,
+						-- Reverse lsp-kind items' highlights in blink/cmp menu.
+						reverse = false,
+					},
+				},
+			})
+			require("black-metal").load()
+		end,
+	},
 	{
 		"catppuccin/nvim",
 		name = "catppuccin",
@@ -65,7 +90,6 @@ M.plugins = {
 					window_picker = true,
 				},
 			})
-			vim.cmd("colorscheme catppuccin")
 		end,
 	},
 	{
@@ -103,4 +127,3 @@ M.plugins = {
 }
 
 return M
-
