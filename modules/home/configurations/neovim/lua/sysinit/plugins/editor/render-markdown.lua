@@ -33,7 +33,7 @@ M.plugins = {
 					if config.relative ~= "" and vim.bo.filetype == "markdown" then
 						vim.opt_local.number = true
 					else
-						vim.cmd("<CMD>e!<CR>")
+						vim.cmd("e!")
 					end
 				end,
 			})
@@ -42,4 +42,3 @@ M.plugins = {
 }
 
 return M
-
