@@ -141,7 +141,7 @@ M.plugins = {
 					},
 				},
 				experimental = {
-					ghost_text = false,
+					ghost_text = true,
 				},
 			})
 		end,
@@ -149,3 +149,4 @@ M.plugins = {
 }
 
 return M
+
