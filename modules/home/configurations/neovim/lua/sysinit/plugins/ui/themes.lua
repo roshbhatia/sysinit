@@ -11,6 +11,7 @@ M.plugins = {
 				favor_treesitter_hl = false,
 				plain_float = false,
 				show_eob = false,
+				transparent = true,
 			})
 			require("black-metal").load()
 		end,
@@ -115,3 +116,4 @@ M.plugins = {
 }
 
 return M
+

@@ -1,7 +1,7 @@
 local wezterm = require("wezterm")
 local M = {}
 
-local terminal_theme = "Rosé Pine (Gogh)"
+local terminal_theme = "Black Metal (Burzum) (base16)"
 
 local terminal_font = wezterm.font_with_fallback({
 	{
@@ -152,3 +152,4 @@ function M.setup(config)
 end
 
 return M
+
