@@ -19,7 +19,7 @@ M.plugins = {
 				pattern = "PersistedLoadPost",
 				callback = function()
 					vim.defer_fn(function()
-						vim.cmd("LspStart")
+						vim.cmd("bufdo e!")
 						vim.cmd("Neotree show")
 					end, 50)
 				end,
@@ -29,3 +29,4 @@ M.plugins = {
 }
 
 return M
+
