@@ -57,8 +57,7 @@ M.plugins = {
 						return vim.tbl_contains({ "go" }, vim.bo.filetype)
 					end,
 					module = "blink.compat.source",
-					name = "Go Packages",
-					cmp_name = "go_pkgs",
+					name = "go_pkgs",
 					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
 							item.kind_icon = " Go Packages "
@@ -112,8 +111,7 @@ M.plugins = {
 				},
 				treesitter = {
 					module = "blink.compat.source",
-					cmp_name = "treesitter",
-					name = "Treesitter",
+					name = "treesitter",
 					score_offset = 0,
 					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
@@ -213,3 +211,4 @@ M.plugins = {
 }
 
 return M
+

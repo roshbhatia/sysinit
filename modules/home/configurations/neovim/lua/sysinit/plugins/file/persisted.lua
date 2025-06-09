@@ -19,19 +19,8 @@ M.plugins = {
 				pattern = "PersistedLoadPost",
 				callback = function()
 					vim.defer_fn(function()
-						vim.cmd("bufdo! e!")
 						vim.cmd("Neotree show")
 					end, 50)
-				end,
-			})
-
-			vim.api.nvim_create_autocmd({
-				"BufNewFile",
-				"BufReadPost",
-			}, {
-				pattern = "*",
-				callback = function()
-					vim.cmd("bufdo! e!")
 				end,
 			})
 		end,
