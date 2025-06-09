@@ -31,6 +31,9 @@ M.plugins = {
 				git = {
 					module = "blink-cmp-git",
 					name = "Git",
+					enabled = function()
+						return vim.tbl_contains({ "octo", "gitcommit", "markdown" }, vim.bo.filetype)
+					end,
 					score_offset = 0,
 				},
 				go_pkgs = {
@@ -74,7 +77,7 @@ M.plugins = {
 				},
 			}
 
-			local default_sources = {
+			local sources = {
 				"buffer",
 				"cmdline",
 				"git",
@@ -93,7 +96,7 @@ M.plugins = {
 					score_offset = 100,
 					async = true,
 				}
-				table.insert(default_sources, "copilot")
+				table.insert(sources, "copilot")
 			end
 
 			return {
@@ -117,12 +120,12 @@ M.plugins = {
 					["<Tab>"] = { "select_next", "snippet_forward", "fallback" },
 					["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
 				},
-				providers = providers,
 				signature = {
 					enabled = true,
 				},
 				sources = {
-					default = default_sources,
+					default = sources,
+					providers = providers,
 				},
 				snippets = {
 					preset = "luasnip",
