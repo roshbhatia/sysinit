@@ -2,9 +2,9 @@ local M = {}
 local copilot_enabled = not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot"))
 
 local deps = {
+	"folke/lazydev.nvim",
 	"giuxtaposition/blink-cmp-copilot",
 	"hrsh7th/cmp-cmdline",
-	"Kaiser-Yang/blink-cmp-dictionary",
 	"Kaiser-Yang/blink-cmp-git",
 	"L3MON4D3/LuaSnip",
 	"rafamadriz/friendly-snippets",
@@ -20,43 +20,53 @@ end
 M.plugins = {
 	{
 		"saghen/blink.cmp",
-		event = {
-			"BufReadPost",
-		},
+		lazy = true,
 		dependencies = deps,
 		version = "v1.*",
 		opts = function()
 			local providers = {
-				dictionary = {
-					module = "blink-cmp-dictionary",
-					name = "Dict",
-					min_keyword_length = 3,
-					opts = {},
+				buffer = {
+					score_offset = 3,
 				},
 				git = {
 					module = "blink-cmp-git",
 					name = "Git",
+					enabled = function()
+						return vim.tbl_contains({ "octo", "gitcommit", "markdown" }, vim.bo.filetype)
+					end,
 					opts = {},
+					score_offset = 0,
 				},
 				go_pkgs = {
+					enabled = function()
+						return not vim.tbl_contains({ "go" }, vim.bo.filetype)
+					end,
 					module = "blink.compat.source",
 					name = "go_pkgs",
-					score_offset = 50,
-					opts = {
-						matching = {
-							disallow_symbol_nonprefix_matching = false,
-						},
-					},
+					async = true,
+					score_offset = 0,
 				},
 				lazydev = {
+					enabled = function()
+						return not vim.tbl_contains({ "lua" }, vim.bo.filetype)
+					end,
 					module = "lazydev.integrations.blink",
 					name = "LazyDev",
-					score_offset = 100,
+					score_offset = 0,
+				},
+				lsp = {
+					score_offset = 0,
+				},
+				path = {
+					score_offset = 1,
+				},
+				snippets = {
+					score_offset = 2,
 				},
 				treesitter = {
 					module = "blink.compat.source",
 					name = "treesitter",
-					score_offset = 75,
+					score_offset = 1,
 					opts = {
 						keyword_length = 2,
 					},
@@ -66,9 +76,8 @@ M.plugins = {
 			local default_sources = {
 				"buffer",
 				"cmdline",
-				"dictionary",
 				"git",
-				"go-pkgs",
+				"go_pkgs",
 				"lazydev",
 				"lsp",
 				"path",
@@ -105,7 +114,9 @@ M.plugins = {
 				sources = {
 					default = default_sources,
 				},
-				snippets = { preset = "luasnip" },
+				snippets = {
+					preset = "luasnip",
+				},
 			}
 		end,
 		opts_extend = {
