@@ -7,6 +7,12 @@ function M.setup()
 			vim.api.nvim_buf_call(args.buf, function()
 				vim.cmd("silent! edit!")
 			end)
+			vim.api.nvim_buf_call(args.buf, function()
+				vim.cmd("silent! edit!")
+			end)
+			vim.api.nvim_buf_call(args.buf, function()
+				vim.cmd("silent! edit!")
+			end)
 		end,
 	})
 end

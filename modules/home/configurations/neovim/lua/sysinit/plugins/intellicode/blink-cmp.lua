@@ -156,6 +156,9 @@ M.plugins = {
 			return {
 				completion = {
 					accept = {
+						auto_brackets = {
+							enabled = true,
+						},
 						create_undo_point = true,
 					},
 					documentation = {
@@ -167,7 +170,6 @@ M.plugins = {
 					},
 					list = {
 						selection = {
-							preselect = true,
 							auto_insert = true,
 						},
 					},
@@ -211,4 +213,3 @@ M.plugins = {
 }
 
 return M
-
