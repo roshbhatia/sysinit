@@ -107,6 +107,7 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.ui.staline"),
 	require("sysinit.plugins.ui.themes"),
 	require("sysinit.plugins.ui.tiny-glimmer"),
+	require("sysinit.plugins.ui.tiny-devicons-auto-colors"),
 	require("sysinit.plugins.ui.wilder"),
 	require("sysinit.plugins.ui.window-picker"),
 })
