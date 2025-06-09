@@ -24,6 +24,16 @@ M.plugins = {
 					end, 50)
 				end,
 			})
+
+			vim.api.nvim_create_autocmd({
+				"BufNewFile",
+				"BufReadPost",
+			}, {
+				pattern = "*",
+				callback = function()
+					vim.cmd("bufdo! e!")
+				end,
+			})
 		end,
 	},
 }
