@@ -58,36 +58,11 @@ M.plugins = {
 				end,
 			})
 
-			if not configs.golangcilsp then
-				configs.golangcilsp = {
-					default_config = {
-						cmd = { "golangci-lint-langserver" },
-						root_dir = lspconfig.util.root_pattern(".git", "go.mod"),
-						init_options = {
-							command = {
-								"golangci-lint",
-								"run",
-								"--output.json.path",
-								"stdout",
-								"--show-stats=false",
-								"--issues-exit-code=1",
-							},
-						},
-					},
-				}
-			end
-
 			local servers = {
 				bashls = {},
 				dagger = {},
 				docker_compose_language_service = {},
 				dockerls = {},
-				golangci_lint_ls = {
-					filetypes = {
-						"go",
-						"gomod",
-					},
-				},
 				gopls = {
 					settings = {
 						gopls = {

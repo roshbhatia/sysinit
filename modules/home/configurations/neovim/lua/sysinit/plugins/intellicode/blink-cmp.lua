@@ -30,7 +30,7 @@ M.plugins = {
 					score_offset = 3,
 					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
-							item.kind_icon = " "
+							item.kind_icon = " Buffer "
 							item.kind_name = "Buffer"
 						end
 						return items
@@ -44,7 +44,7 @@ M.plugins = {
 					end,
 					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
-							item.kind_icon = " "
+							item.kind_icon = " Git "
 							item.kind_name = "Git"
 						end
 						return items
@@ -60,7 +60,7 @@ M.plugins = {
 					cmp_name = "go_pkgs",
 					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
-							item.kind_icon = " "
+							item.kind_icon = " Go Packages "
 							item.kind_name = "Go Packages"
 						end
 						return items
@@ -76,7 +76,7 @@ M.plugins = {
 					name = "LazyDev",
 					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
-							item.kind_icon = "⏾ "
+							item.kind_icon = "⏾ LazyDev "
 							item.kind_name = "LazyDev"
 						end
 						return items
@@ -87,7 +87,7 @@ M.plugins = {
 					score_offset = 0,
 					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
-							item.kind_icon = "󰘧 "
+							item.kind_icon = "󰘧 LSP "
 							item.kind_name = "LSP"
 						end
 						return items
@@ -97,7 +97,7 @@ M.plugins = {
 					score_offset = 1,
 					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
-							item.kind_icon = " "
+							item.kind_icon = " Path "
 							item.kind_name = "Path"
 						end
 						return items
@@ -110,7 +110,7 @@ M.plugins = {
 					score_offset = 2,
 					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
-							item.kind_icon = "󰩫 "
+							item.kind_icon = "󰩫 Snippets "
 							item.kind_name = "Snippets"
 						end
 						return items
@@ -123,7 +123,7 @@ M.plugins = {
 					score_offset = 1,
 					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
-							item.kind_icon = "󱁇 "
+							item.kind_icon = "󱁇 Treesitter "
 							item.kind_name = "Treesitter"
 						end
 						return items

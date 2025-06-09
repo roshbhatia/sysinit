@@ -20,7 +20,6 @@ M.plugins = {
 				callback = function()
 					vim.defer_fn(function()
 						vim.cmd("Neotree show")
-						vim.cmd("edit!")
 					end, 50)
 				end,
 			})
