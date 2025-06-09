@@ -19,24 +19,6 @@ M.plugins = {
 					desc = "Jump to any word",
 				},
 				{
-					"<leader>jj",
-					"<CMD>HopWord<CR>",
-					mode = "n",
-					desc = "Jump to any word",
-				},
-				{
-					"<leader>jt",
-					"<CMD>HopNodes<CR>",
-					mode = "n",
-					desc = "Jump to node",
-				},
-				{
-					"<leader>ja",
-					"<CMD>HopAnywhere<CR>",
-					mode = "n",
-					desc = "Jump to anywhere",
-				},
-				{
 					"<S-CR>",
 					"<CMD>HopAnywhere<CR>",
 					mode = "v",

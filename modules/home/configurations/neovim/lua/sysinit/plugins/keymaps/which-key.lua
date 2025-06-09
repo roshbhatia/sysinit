@@ -59,10 +59,6 @@ M.plugins = {
 					group = "Search",
 				},
 				{
-					"<leader>j",
-					group = "Jump",
-				},
-				{
 					"<leader>k",
 					group = "Cursor",
 				},
