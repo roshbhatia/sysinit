@@ -1,31 +1,29 @@
 local M = {}
 local copilot_enabled = not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot"))
 
+local deps = {
+	"giuxtaposition/blink-cmp-copilot",
+	"hrsh7th/cmp-cmdline",
+	"Kaiser-Yang/blink-cmp-dictionary",
+	"Kaiser-Yang/blink-cmp-git",
+	"L3MON4D3/LuaSnip",
+	"rafamadriz/friendly-snippets",
+	"ray-x/cmp-treesitter",
+	"saghen/blink.compat",
+	"Snikimonkd/cmp-go-pkgs",
+}
+
+if copilot_enabled then
+	table.insert(deps, "giuxtaposition/blink-cmp-copilot")
+end
+
 M.plugins = {
 	{
 		"saghen/blink.cmp",
 		event = {
 			"BufReadPost",
 		},
-		dependencies = function()
-			local deps = {
-				"giuxtaposition/blink-cmp-copilot",
-				"hrsh7th/cmp-cmdline",
-				"Kaiser-Yang/blink-cmp-dictionary",
-				"Kaiser-Yang/blink-cmp-git",
-				"L3MON4D3/LuaSnip",
-				"rafamadriz/friendly-snippets",
-				"ray-x/cmp-treesitter",
-				"saghen/blink.compat",
-				"Snikimonkd/cmp-go-pkgs",
-			}
-
-			if copilot_enabled then
-				table.insert(deps, "giuxtaposition/blink-cmp-copilot")
-			end
-
-			return deps
-		end,
+		dependencies = deps,
 		version = "v1.*",
 		opts = function()
 			local providers = {

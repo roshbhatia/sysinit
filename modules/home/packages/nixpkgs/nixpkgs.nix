@@ -75,6 +75,7 @@ let
     openssh
     ollama
     pipx
+    pkg-config
     pngpaste
     prettier
     prettierd
@@ -85,7 +86,6 @@ let
     sad
     shellcheck
     shortcat
-    slack
     socat
     sshpass
     statix

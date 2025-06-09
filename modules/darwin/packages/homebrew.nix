@@ -31,6 +31,7 @@ let
     "hammerspoon"
     "keycastr"
     "loop"
+    "slack"
     "visual-studio-code@insiders"
     "wezterm@nightly"
   ];
