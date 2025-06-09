@@ -36,6 +36,12 @@ M.plugins = {
 					mode = "n",
 					desc = "Jump to anywhere",
 				},
+				{
+					"<S-CR>",
+					"<CMD>HopAnywhere<CR>",
+					mode = "v",
+					desc = "Jump to anywhere",
+				},
 			}
 		end,
 	},
