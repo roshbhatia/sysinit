@@ -1,5 +1,4 @@
 local M = {}
-
 M.plugins = {
 	{
 		"saghen/blink.compat",
@@ -20,7 +19,6 @@ M.plugins = {
 			"Snikimonkd/cmp-go-pkgs",
 			-- Snippet engine
 			"L3MON4D3/LuaSnip",
-			"saadparwaiz1/cmp_luasnip",
 			"rafamadriz/friendly-snippets",
 			-- Formatting
 			"onsails/lspkind.nvim",
@@ -57,7 +55,7 @@ M.plugins = {
 				default = {
 					"lazydev",
 					"lsp",
-					"luasnip",
+					"snippets",
 					"treesitter",
 					"buffer",
 					"path",
@@ -76,11 +74,12 @@ M.plugins = {
 						enabled = true,
 						score_offset = 100,
 					},
-					luasnip = {
-						name = "luasnip",
-						module = "blink.compat.source",
+					snippets = {
+						name = "snippets",
+						enabled = true,
 						score_offset = 85,
 						opts = {
+							preset = "luasnip",
 							use_show_condition = false,
 							show_autosnippets = true,
 						},
@@ -179,14 +178,11 @@ M.plugins = {
 										},
 									}
 									if ctx.label_detail then
-										table.insert(
-											highlights,
-											{
-												#ctx.label,
-												#ctx.label + #ctx.label_detail,
-												group = "BlinkCmpLabelDetail",
-											}
-										)
+										table.insert(highlights, {
+											#ctx.label,
+											#ctx.label + #ctx.label_detail,
+											group = "BlinkCmpLabelDetail",
+										})
 									end
 									for _, idx in ipairs(ctx.label_matched_indices or {}) do
 										table.insert(highlights, { idx, idx + 1, group = "BlinkCmpLabelMatch" })
@@ -207,7 +203,7 @@ M.plugins = {
 									local icons = {
 										buffer = "",
 										lsp = "󰘧",
-										luasnip = "󰑷",
+										snippets = "󰑷",
 										nvim_lua = "",
 										path = "",
 										git = "",
@@ -246,6 +242,5 @@ M.plugins = {
 		opts_extend = { "sources.default" },
 	},
 }
-
 return M
 
