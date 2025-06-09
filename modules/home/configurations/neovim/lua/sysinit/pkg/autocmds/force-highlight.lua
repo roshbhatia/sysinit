@@ -1,6 +1,5 @@
 local M = {}
 
--- Track buffers that have already been processed
 local processed_buffers = {}
 
 function M.setup()
@@ -20,7 +19,7 @@ function M.setup()
 			processed_buffers[buf] = true
 
 			vim.api.nvim_buf_call(buf, function()
-				vim.cmd("silent! edit!")
+				vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<leader>r", true, false, true), "n", false)
 			end)
 
 			vim.api.nvim_create_autocmd("BufDelete", {
