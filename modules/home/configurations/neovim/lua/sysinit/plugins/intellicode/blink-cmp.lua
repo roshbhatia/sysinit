@@ -31,6 +31,7 @@ M.plugins = {
 					module = "blink-cmp-dictionary",
 					name = "Dict",
 					min_keyword_length = 3,
+					opts = {},
 				},
 				git = {
 					module = "blink-cmp-git",
@@ -49,7 +50,7 @@ M.plugins = {
 				},
 				lazydev = {
 					module = "lazydev.integrations.blink",
-					name = "LSP (Neovim)",
+					name = "LazyDev",
 					score_offset = 100,
 				},
 				treesitter = {
