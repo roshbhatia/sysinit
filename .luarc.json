@@ -2,7 +2,8 @@
   "diagnostics.disable": ["deprecated",
         "undefined-global",
         "undefined-field",
-        "unused-local"],
+        "unused-local",
+        "missing-fields"],
     "diagnostics.globals": [
         "Snacks"
     ]

@@ -72,6 +72,7 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.intellicode.lazydev"),
 	require("sysinit.plugins.intellicode.linters"),
 	require("sysinit.plugins.intellicode.lsp-lines"),
+	require("sysinit.plugins.intellicode.lspkind"),
 	require("sysinit.plugins.intellicode.luasnip"),
 	require("sysinit.plugins.intellicode.mason"),
 	require("sysinit.plugins.intellicode.none-ls"),
@@ -89,7 +90,6 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.intellicode.trouble"),
 	require("sysinit.plugins.intellicode.typescript-tools"),
 	require("sysinit.plugins.keymaps.which-key"),
-	require("sysinit.plugins.library.image"),
 	require("sysinit.plugins.library.nio"),
 	require("sysinit.plugins.library.nui"),
 	require("sysinit.plugins.library.snacks"),
@@ -120,4 +120,3 @@ require("sysinit.pkg.keybindings.undo").setup()
 require("sysinit.pkg.keybindings.vim").setup()
 
 require("sysinit.pkg.entrypoint.no-session").setup()
-

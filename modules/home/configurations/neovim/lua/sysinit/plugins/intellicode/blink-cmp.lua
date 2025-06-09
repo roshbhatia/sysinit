@@ -7,6 +7,8 @@ local deps = {
 	"hrsh7th/cmp-cmdline",
 	"Kaiser-Yang/blink-cmp-git",
 	"L3MON4D3/LuaSnip",
+	"onsails/lspkind.nvim",
+	"pwntester/octo.nvim",
 	"rafamadriz/friendly-snippets",
 	"ray-x/cmp-treesitter",
 	"saghen/blink.compat",
@@ -27,12 +29,26 @@ M.plugins = {
 			local providers = {
 				buffer = {
 					score_offset = 3,
+					transform_items = function(ctx, items)
+						for _, item in ipairs(items) do
+							item.kind_icon = ""
+							item.kind_name = "Buffer"
+						end
+						return items
+					end,
 				},
 				git = {
 					module = "blink-cmp-git",
 					name = "Git",
 					enabled = function()
 						return vim.tbl_contains({ "octo", "gitcommit", "markdown" }, vim.bo.filetype)
+					end,
+					transform_items = function(ctx, items)
+						for _, item in ipairs(items) do
+							item.kind_icon = ""
+							item.kind_name = "Git"
+						end
+						return items
 					end,
 					score_offset = 0,
 				},
@@ -43,6 +59,13 @@ M.plugins = {
 					module = "blink.compat.source",
 					name = "Go Packages",
 					cmp_name = "go_pkgs",
+					transform_items = function(ctx, items)
+						for _, item in ipairs(items) do
+							item.kind_icon = ""
+							item.kind_name = "Go Packages"
+						end
+						return items
+					end,
 					async = true,
 					score_offset = 0,
 				},
@@ -52,25 +75,59 @@ M.plugins = {
 					end,
 					module = "lazydev.integrations.blink",
 					name = "LazyDev",
+					transform_items = function(ctx, items)
+						for _, item in ipairs(items) do
+							item.kind_icon = "⏾"
+							item.kind_name = "LazyDev"
+						end
+						return items
+					end,
 					score_offset = 0,
 				},
 				lsp = {
 					score_offset = 0,
+					transform_items = function(ctx, items)
+						for _, item in ipairs(items) do
+							item.kind_name = "LSP"
+						end
+						return items
+					end,
 				},
 				path = {
 					score_offset = 1,
+					transform_items = function(ctx, items)
+						for _, item in ipairs(items) do
+							item.kind_icon = ""
+							item.kind_name = "Path"
+						end
+						return items
+					end,
 					opts = {
 						show_hidden_files_by_default = true,
 					},
 				},
 				snippets = {
 					score_offset = 2,
+					transform_items = function(ctx, items)
+						for _, item in ipairs(items) do
+							item.kind_icon = "󰩫"
+							item.kind_name = "Snippets"
+						end
+						return items
+					end,
 				},
 				treesitter = {
 					module = "blink.compat.source",
 					cmp_name = "treesitter",
 					name = "Treesitter",
 					score_offset = 1,
+					transform_items = function(ctx, items)
+						for _, item in ipairs(items) do
+							item.kind_icon = "󱁇"
+							item.kind_name = "Treesitter"
+						end
+						return items
+					end,
 					opts = {
 						keyword_length = 2,
 					},
@@ -95,22 +152,66 @@ M.plugins = {
 					module = "blink-cmp-copilot",
 					score_offset = 100,
 					async = true,
+					transform_items = function(ctx, items)
+						for _, item in ipairs(items) do
+							item.kind_icon = ""
+							item.kind_name = "Copilot"
+						end
+						return items
+					end,
 				}
 				table.insert(sources, "copilot")
 			end
 
 			return {
 				completion = {
+					accept = {
+						create_undo_point = true,
+					},
 					documentation = {
 						auto_show = true,
 					},
-					accept = {
-						create_undo_point = true,
+					ghost_text = {
+						enabled = true,
 					},
 					list = {
 						selection = {
 							preselect = false,
 							auto_insert = true,
+						},
+					},
+					menu = {
+						draw = {
+							components = {
+								kind_icon = {
+									text = function(ctx)
+										local icon = ctx.kind_icon
+										if vim.tbl_contains({ "Path" }, ctx.source_name) then
+											local dev_icon, _ = require("nvim-web-devicons").get_icon(ctx.label)
+											if dev_icon then
+												icon = dev_icon
+											end
+										else
+											icon = require("lspkind").symbolic(ctx.kind, {
+												mode = "symbol",
+											})
+										end
+
+										return icon .. ctx.icon_gap
+									end,
+
+									highlight = function(ctx)
+										local hl = ctx.kind_hl
+										if vim.tbl_contains({ "Path" }, ctx.source_name) then
+											local dev_icon, dev_hl = require("nvim-web-devicons").get_icon(ctx.label)
+											if dev_icon then
+												hl = dev_hl
+											end
+										end
+										return hl
+									end,
+								},
+							},
 						},
 					},
 				},
