@@ -44,7 +44,7 @@ M.plugins = {
 						severity_sort = false,
 						virtual_text = false,
 						virtual_lines = {
-							only_current_line = true,
+							only_current_line = false,
 						},
 						update_in_insert = true,
 						float = {
@@ -283,3 +283,4 @@ M.plugins = {
 }
 
 return M
+
