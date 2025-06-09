@@ -71,8 +71,8 @@ M.plugins = {
 				"go-pkgs",
 				"lazydev",
 				"lsp",
-				"luasnip",
 				"path",
+				"snippets",
 				"treesitter",
 			}
 
@@ -105,6 +105,7 @@ M.plugins = {
 				sources = {
 					default = default_sources,
 				},
+				snippets = { preset = "luasnip" },
 			}
 		end,
 		opts_extend = {
