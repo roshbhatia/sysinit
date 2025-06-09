@@ -31,10 +31,6 @@ M.plugins = {
 				git = {
 					module = "blink-cmp-git",
 					name = "Git",
-					enabled = function()
-						return vim.tbl_contains({ "octo", "gitcommit", "markdown" }, vim.bo.filetype)
-					end,
-					opts = {},
 					score_offset = 0,
 				},
 				go_pkgs = {
@@ -42,7 +38,8 @@ M.plugins = {
 						return vim.tbl_contains({ "go" }, vim.bo.filetype)
 					end,
 					module = "blink.compat.source",
-					name = "go_pkgs",
+					name = "Go Packages",
+					cmp_name = "go_pkgs",
 					async = true,
 					score_offset = 0,
 				},
@@ -59,13 +56,17 @@ M.plugins = {
 				},
 				path = {
 					score_offset = 1,
+					opts = {
+						show_hidden_files_by_default = true,
+					},
 				},
 				snippets = {
 					score_offset = 2,
 				},
 				treesitter = {
 					module = "blink.compat.source",
-					name = "treesitter",
+					cmp_name = "treesitter",
+					name = "Treesitter",
 					score_offset = 1,
 					opts = {
 						keyword_length = 2,
@@ -103,9 +104,18 @@ M.plugins = {
 					accept = {
 						create_undo_point = true,
 					},
+					list = {
+						selection = {
+							preselect = false,
+							auto_insert = true,
+						},
+					},
 				},
 				keymap = {
 					preset = "super-tab",
+					["<CR>"] = { "accept", "fallback" },
+					["<Tab>"] = { "select_next", "snippet_forward", "fallback" },
+					["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
 				},
 				providers = providers,
 				signature = {
