@@ -27,8 +27,8 @@ require("sysinit.pkg.autocmds.wezterm").setup()
 
 require("sysinit.pkg.utils.plugin_manager").setup_package_manager()
 require("sysinit.pkg.utils.plugin_manager").setup_plugins({
-	require("sysinit.plugins.core.plenary"),
 	require("sysinit.plugins.core.luarocks"),
+	require("sysinit.plugins.core.plenary"),
 	require("sysinit.plugins.debugger.dap-ui"),
 	require("sysinit.plugins.debugger.dap-virtual-text"),
 	require("sysinit.plugins.debugger.dap"),
@@ -54,6 +54,8 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.git.blamer"),
 	require("sysinit.plugins.git.fugitive"),
 	require("sysinit.plugins.git.signs"),
+	require("sysinit.plugins.intellicode.actions-preview"),
+	require("sysinit.plugins.intellicode.blink-cmp"),
 	require("sysinit.plugins.intellicode.cmp-cmdline"),
 	require("sysinit.plugins.intellicode.cmp-git"),
 	require("sysinit.plugins.intellicode.cmp-nvim-lua"),
@@ -74,9 +76,9 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.intellicode.mason"),
 	require("sysinit.plugins.intellicode.none-ls"),
 	require("sysinit.plugins.intellicode.nvim-autopairs"),
-	require("sysinit.plugins.intellicode.blink-cmp"),
 	require("sysinit.plugins.intellicode.nvim-lspconfig"),
 	require("sysinit.plugins.intellicode.outline"),
+	require("sysinit.plugins.intellicode.pretty-hover"),
 	require("sysinit.plugins.intellicode.refactoring"),
 	require("sysinit.plugins.intellicode.schemastore"),
 	require("sysinit.plugins.intellicode.sort"),

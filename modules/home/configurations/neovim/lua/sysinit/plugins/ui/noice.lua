@@ -3,8 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"folke/noice.nvim",
-		event = "BufReadPost",
-		cmd = "NoiceSnacks",
+		lazy = false,
 		dependencies = {
 			"MunifTanjim/nui.nvim",
 		},

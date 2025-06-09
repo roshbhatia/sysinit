@@ -4,32 +4,13 @@ M.plugins = {
 	{
 		"neovim/nvim-lspconfig",
 		dependencies = {
-			"saghen/blink.compat",
+			"aznhe21/actions-preview.nvim",
 			"b0o/SchemaStore.nvim",
-			"williamboman/mason-lspconfig.nvim",
-			"WhoIsSethDaniel/mason-tool-installer.nvim",
+			"Fildo7525/pretty_hover",
 			"folke/snacks.nvim",
-			{
-				"aznhe21/actions-preview.nvim",
-				config = function()
-					require("actions-preview").setup({
-						telescope = vim.tbl_extend(
-							"force",
-							-- telescope theme: https://github.com/nvim-telescope/telescope.nvim#themes
-							require("telescope.themes").get_ivy(),
-							{
-								make_value = nil,
-								make_make_display = nil,
-							}
-						),
-					})
-				end,
-			},
-			{
-				"Fildo7525/pretty_hover",
-				event = "LspAttach",
-				opts = {},
-			},
+			"saghen/blink.compat",
+			"WhoIsSethDaniel/mason-tool-installer.nvim",
+			"williamboman/mason-lspconfig.nvim",
 		},
 		config = function()
 			local blink_cmp = require("blink.cmp")
@@ -78,8 +59,7 @@ M.plugins = {
 			})
 
 			local capabilities = vim.lsp.protocol.make_client_capabilities()
-			capabilities =
-				vim.tbl_deep_extend("force", capabilities, blink_cmp.get_lsp_capabilities(config.capabilities))
+			capabilities = vim.tbl_deep_extend("force", capabilities, blink_cmp.get_lsp_capabilities())
 
 			if not configs.golangcilsp then
 				configs.golangcilsp = {
@@ -248,21 +228,6 @@ M.plugins = {
 						vim.lsp.buf.definition()
 					end,
 					desc = "Go to definition",
-				},
-				{
-					"<leader>ch",
-					function()
-						require("pretty_hover").hover()
-					end,
-					desc = "Hover documentation",
-				},
-
-				{
-					"K",
-					function()
-						require("pretty_hover").hover()
-					end,
-					desc = "Hover documentation",
 				},
 				{
 					"<leader>cn",
