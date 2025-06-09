@@ -1,32 +1,34 @@
 local M = {}
 
-local copilot_enabled = not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot"))
-
-local dependencies = {
-	"hrsh7th/cmp-cmdline",
-	"hrsh7th/cmp-nvim-lua",
-	"L3MON4D3/LuaSnip",
-	"petertriho/cmp-git",
-	"rafamadriz/friendly-snippets",
-	"ray-x/cmp-treesitter",
-	"saghen/blink.compat",
-	"saghen/blink.compat",
-	"Snikimonkd/cmp-go-pkgs",
-}
-
-if copilot_enabled then
-	table.insert(dependencies, "zbirenbaum/copilot-cmp")
-end
-
 M.plugins = {
 	{
 		"saghen/blink.cmp",
 		event = {
 			"BufReadPost",
 		},
-		dependencies = dependencies,
+		dependencies = function()
+			local deps = {
+				"hrsh7th/cmp-cmdline",
+				"hrsh7th/cmp-nvim-lua",
+				"L3MON4D3/LuaSnip",
+				"petertriho/cmp-git",
+				"rafamadriz/friendly-snippets",
+				"ray-x/cmp-treesitter",
+				"saghen/blink.compat",
+				"saghen/blink.compat",
+				"Snikimonkd/cmp-go-pkgs",
+			}
+
+			if not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot")) then
+				table.insert(deps, "zbirenbaum/copilot-cmp")
+			end
+
+			return deps
+		end,
 		version = "v1.*",
 		opts = function()
+			local copilot_enabled = not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot"))
+
 			local providers = {
 				buffer = {
 					name = "buffer",
@@ -90,19 +92,6 @@ M.plugins = {
 				},
 			}
 
-			-- Conditionally include copilot
-			if copilot_enabled then
-				providers.copilot = {
-					name = "copilot",
-					module = "blink.compat.source",
-					score_offset = 100,
-					opts = {
-						keyword_length = 2,
-						max_item_count = 5,
-					},
-				}
-			end
-
 			local default_sources = {
 				"buffer",
 				"cmdline",
@@ -117,6 +106,15 @@ M.plugins = {
 			}
 
 			if copilot_enabled then
+				providers.copilot = {
+					name = "copilot",
+					module = "blink.compat.source",
+					score_offset = 100,
+					opts = {
+						keyword_length = 2,
+						max_item_count = 5,
+					},
+				}
 				table.insert(default_sources, 3, "copilot")
 			end
 
