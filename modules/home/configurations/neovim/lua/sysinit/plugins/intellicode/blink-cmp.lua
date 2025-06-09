@@ -7,6 +7,7 @@ local deps = {
 	"Kaiser-Yang/blink-cmp-git",
 	"L3MON4D3/LuaSnip",
 	"onsails/lspkind.nvim",
+	"pta2002/intellitab.nvim",
 	"pwntester/octo.nvim",
 	"rafamadriz/friendly-snippets",
 	"ray-x/cmp-treesitter",
@@ -74,13 +75,6 @@ M.plugins = {
 					end,
 					module = "lazydev.integrations.blink",
 					name = "LazyDev",
-					transform_items = function(ctx, items)
-						for _, item in ipairs(items) do
-							item.kind_icon = "⏾ LazyDev "
-							item.kind_name = "LazyDev"
-						end
-						return items
-					end,
 					score_offset = 0,
 				},
 				lsp = {
@@ -120,17 +114,14 @@ M.plugins = {
 					module = "blink.compat.source",
 					cmp_name = "treesitter",
 					name = "Treesitter",
-					score_offset = 1,
+					score_offset = 0,
 					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
-							item.kind_icon = "󱁇 Treesitter "
+							item.kind_icon = " Treesitter "
 							item.kind_name = "Treesitter"
 						end
 						return items
 					end,
-					opts = {
-						keyword_length = 2,
-					},
 				},
 			}
 
@@ -153,7 +144,7 @@ M.plugins = {
 					async = true,
 					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
-							item.kind_icon = ""
+							item.kind_icon = " Copilot "
 							item.kind_name = "Copilot"
 						end
 						return items
@@ -191,7 +182,14 @@ M.plugins = {
 					preset = "super-tab",
 					["<C-\\>"] = { "show" },
 					["<CR>"] = { "accept", "fallback" },
-					["<Tab>"] = { "select_next", "snippet_forward", "fallback" },
+					["<Tab>"] = {
+						"select_next",
+						"snippet_forward",
+						function()
+							require("intellitab").indent()
+						end,
+						"fallback",
+					},
 					["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
 				},
 				signature = {
@@ -213,3 +211,4 @@ M.plugins = {
 }
 
 return M
+

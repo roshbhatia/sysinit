@@ -35,8 +35,21 @@ M.plugins = {
 				callback = function(args)
 					local bufname = vim.api.nvim_buf_get_name(args.buf)
 					if bufname ~= "" and vim.fn.filereadable(bufname) == 1 then
-						vim.api.nvim_set_hl(0, "Normal", { link = "NormalOpaque" })
-						vim.api.nvim_set_hl(0, "NormalNC", { link = "NormalNCOpaque" })
+						vim.api.nvim_create_autocmd("WinEnter", {
+							buffer = args.buf,
+							callback = function()
+								vim.api.nvim_set_hl(0, "Normal", { link = "NormalOpaque" })
+								vim.api.nvim_set_hl(0, "NormalNC", { link = "NormalNCOpaque" })
+							end,
+						})
+
+						vim.api.nvim_create_autocmd("WinLeave", {
+							buffer = args.buf,
+							callback = function()
+								vim.api.nvim_set_hl(0, "Normal", {})
+								vim.api.nvim_set_hl(0, "NormalNC", {})
+							end,
+						})
 					end
 				end,
 			})
