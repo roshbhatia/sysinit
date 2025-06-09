@@ -24,4 +24,3 @@ for _, dir in ipairs(directions) do
 		hs.window.focusedWindow()[dir.method](hs.window.focusedWindow(), nil, false)
 	end)
 end
-

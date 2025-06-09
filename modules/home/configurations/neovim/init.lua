@@ -56,6 +56,7 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.git.signs"),
 	require("sysinit.plugins.intellicode.actions-preview"),
 	require("sysinit.plugins.intellicode.blink-cmp"),
+	require("sysinit.plugins.intellicode.blink-compat"),
 	require("sysinit.plugins.intellicode.cmp-cmdline"),
 	require("sysinit.plugins.intellicode.cmp-copilot"),
 	require("sysinit.plugins.intellicode.cmp-dictionary"),

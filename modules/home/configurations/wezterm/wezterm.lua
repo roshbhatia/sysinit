@@ -21,4 +21,3 @@ require("sysinit.plugins.ui.bar").setup(config)
 require("sysinit.plugins.file.session").setup(config)
 
 return config
-
