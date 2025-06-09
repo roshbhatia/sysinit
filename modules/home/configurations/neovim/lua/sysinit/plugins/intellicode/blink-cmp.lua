@@ -4,7 +4,6 @@ local copilot_enabled = not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot"))
 local deps = {
 	"folke/lazydev.nvim",
 	"giuxtaposition/blink-cmp-copilot",
-	"hrsh7th/cmp-cmdline",
 	"Kaiser-Yang/blink-cmp-git",
 	"L3MON4D3/LuaSnip",
 	"onsails/lspkind.nvim",
@@ -31,7 +30,7 @@ M.plugins = {
 					score_offset = 3,
 					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
-							item.kind_icon = ""
+							item.kind_icon = " "
 							item.kind_name = "Buffer"
 						end
 						return items
@@ -45,7 +44,7 @@ M.plugins = {
 					end,
 					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
-							item.kind_icon = ""
+							item.kind_icon = " "
 							item.kind_name = "Git"
 						end
 						return items
@@ -61,7 +60,7 @@ M.plugins = {
 					cmp_name = "go_pkgs",
 					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
-							item.kind_icon = ""
+							item.kind_icon = " "
 							item.kind_name = "Go Packages"
 						end
 						return items
@@ -77,7 +76,7 @@ M.plugins = {
 					name = "LazyDev",
 					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
-							item.kind_icon = "⏾"
+							item.kind_icon = "⏾ "
 							item.kind_name = "LazyDev"
 						end
 						return items
@@ -88,6 +87,7 @@ M.plugins = {
 					score_offset = 0,
 					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
+							item.kind_icon = "󰘧 "
 							item.kind_name = "LSP"
 						end
 						return items
@@ -97,7 +97,7 @@ M.plugins = {
 					score_offset = 1,
 					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
-							item.kind_icon = ""
+							item.kind_icon = " "
 							item.kind_name = "Path"
 						end
 						return items
@@ -110,7 +110,7 @@ M.plugins = {
 					score_offset = 2,
 					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
-							item.kind_icon = "󰩫"
+							item.kind_icon = "󰩫 "
 							item.kind_name = "Snippets"
 						end
 						return items
@@ -123,7 +123,7 @@ M.plugins = {
 					score_offset = 1,
 					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
-							item.kind_icon = "󱁇"
+							item.kind_icon = "󱁇 "
 							item.kind_name = "Treesitter"
 						end
 						return items
@@ -136,7 +136,6 @@ M.plugins = {
 
 			local sources = {
 				"buffer",
-				"cmdline",
 				"git",
 				"go_pkgs",
 				"lazydev",
@@ -170,53 +169,27 @@ M.plugins = {
 					},
 					documentation = {
 						auto_show = true,
+						auto_show_delay_ms = 0,
 					},
 					ghost_text = {
 						enabled = true,
 					},
 					list = {
 						selection = {
-							preselect = false,
+							preselect = true,
 							auto_insert = true,
 						},
 					},
-					menu = {
-						draw = {
-							components = {
-								kind_icon = {
-									text = function(ctx)
-										local icon = ctx.kind_icon
-										if vim.tbl_contains({ "Path" }, ctx.source_name) then
-											local dev_icon, _ = require("nvim-web-devicons").get_icon(ctx.label)
-											if dev_icon then
-												icon = dev_icon
-											end
-										else
-											icon = require("lspkind").symbolic(ctx.kind, {
-												mode = "symbol",
-											})
-										end
-
-										return icon .. ctx.icon_gap
-									end,
-
-									highlight = function(ctx)
-										local hl = ctx.kind_hl
-										if vim.tbl_contains({ "Path" }, ctx.source_name) then
-											local dev_icon, dev_hl = require("nvim-web-devicons").get_icon(ctx.label)
-											if dev_icon then
-												hl = dev_hl
-											end
-										end
-										return hl
-									end,
-								},
-							},
-						},
-					},
+				},
+				cmdline = {
+					enabled = false,
+				},
+				fuzzy = {
+					implementation = "prefer_rust",
 				},
 				keymap = {
 					preset = "super-tab",
+					["<C-\\>"] = { "show" },
 					["<CR>"] = { "accept", "fallback" },
 					["<Tab>"] = { "select_next", "snippet_forward", "fallback" },
 					["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },

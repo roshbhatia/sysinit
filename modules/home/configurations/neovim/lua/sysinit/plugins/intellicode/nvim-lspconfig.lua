@@ -27,7 +27,7 @@ M.plugins = {
 						virtual_lines = {
 							only_current_line = false,
 						},
-						update_in_insert = true,
+						update_in_insert = false,
 						float = {
 							border = "rounded",
 							source = "if_many",
@@ -57,9 +57,6 @@ M.plugins = {
 						vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" })
 				end,
 			})
-
-			local capabilities = vim.lsp.protocol.make_client_capabilities()
-			capabilities = vim.tbl_deep_extend("force", capabilities, blink_cmp.get_lsp_capabilities())
 
 			if not configs.golangcilsp then
 				configs.golangcilsp = {
@@ -185,6 +182,9 @@ M.plugins = {
 			mason_tool_installer.setup({
 				ensure_installed = vim.list_extend(tools, vim.tbl_keys(servers)),
 			})
+
+			local capabilities = vim.lsp.protocol.make_client_capabilities()
+			capabilities = vim.tbl_deep_extend("force", capabilities, blink_cmp.get_lsp_capabilities({}, false))
 
 			mason_lspconfig.setup({
 				ensure_installed = vim.tbl_keys(servers),
