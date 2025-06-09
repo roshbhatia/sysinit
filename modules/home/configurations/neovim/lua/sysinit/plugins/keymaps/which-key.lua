@@ -72,7 +72,7 @@ M.plugins = {
 				},
 				{
 					"<leader>r",
-					group = "Super",
+					group = "Refresh",
 				},
 				{
 					"<leader>t",
@@ -84,4 +84,3 @@ M.plugins = {
 }
 
 return M
-
