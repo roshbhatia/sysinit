@@ -57,7 +57,7 @@ M.plugins = {
 
 			null_ls.register({
 				name = "golangci_lint_fix",
-				method = methods.CODE_ACTION,
+				method = null_ls.methods.CODE_ACTION,
 				filetypes = { "go" },
 				generator = {
 					fn = function(params)
