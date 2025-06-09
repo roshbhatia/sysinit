@@ -4,10 +4,10 @@ M.plugins = {
 	{
 		"neovim/nvim-lspconfig",
 		dependencies = {
+			"saghen/blink.compat",
 			"b0o/SchemaStore.nvim",
 			"williamboman/mason-lspconfig.nvim",
 			"WhoIsSethDaniel/mason-tool-installer.nvim",
-			"hrsh7th/cmp-nvim-lsp",
 			"folke/snacks.nvim",
 			{
 				"aznhe21/actions-preview.nvim",
@@ -32,7 +32,7 @@ M.plugins = {
 			},
 		},
 		config = function()
-			local cmp_nvim_lsp = require("cmp_nvim_lsp")
+			local blink_cmp = require("blink.cmp")
 			local lspconfig = require("lspconfig")
 			local configs = require("lspconfig/configs")
 			local mason_lspconfig = require("mason-lspconfig")
@@ -78,7 +78,8 @@ M.plugins = {
 			})
 
 			local capabilities = vim.lsp.protocol.make_client_capabilities()
-			capabilities = vim.tbl_deep_extend("force", capabilities, cmp_nvim_lsp.default_capabilities())
+			capabilities =
+				vim.tbl_deep_extend("force", capabilities, blink_cmp.get_lsp_capabilities(config.capabilities))
 
 			if not configs.golangcilsp then
 				configs.golangcilsp = {
@@ -283,4 +284,3 @@ M.plugins = {
 }
 
 return M
-
