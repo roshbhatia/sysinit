@@ -39,7 +39,7 @@ M.plugins = {
 				},
 				go_pkgs = {
 					enabled = function()
-						return not vim.tbl_contains({ "go" }, vim.bo.filetype)
+						return vim.tbl_contains({ "go" }, vim.bo.filetype)
 					end,
 					module = "blink.compat.source",
 					name = "go_pkgs",
@@ -48,7 +48,7 @@ M.plugins = {
 				},
 				lazydev = {
 					enabled = function()
-						return not vim.tbl_contains({ "lua" }, vim.bo.filetype)
+						return vim.tbl_contains({ "lua" }, vim.bo.filetype)
 					end,
 					module = "lazydev.integrations.blink",
 					name = "LazyDev",
