@@ -35,7 +35,7 @@ M.plugins = {
 				git = {
 					module = "blink-cmp-git",
 					name = "Git",
-					score_offset = 50,
+					opts = {},
 				},
 				go_pkgs = {
 					module = "blink.compat.source",
