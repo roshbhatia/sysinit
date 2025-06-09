@@ -1,55 +1,39 @@
 local M = {}
 
+local copilot_enabled = not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot"))
+
+local dependencies = {
+	"hrsh7th/cmp-cmdline",
+	"hrsh7th/cmp-nvim-lua",
+	"L3MON4D3/LuaSnip",
+	"petertriho/cmp-git",
+	"rafamadriz/friendly-snippets",
+	"ray-x/cmp-treesitter",
+	"saghen/blink.compat",
+	"saghen/blink.compat",
+	"Snikimonkd/cmp-go-pkgs",
+}
+
+if copilot_enabled then
+	table.insert(dependencies, "zbirenbaum/copilot-cmp")
+end
+
 M.plugins = {
 	{
-		"saghen/blink.compat",
-		version = "v2.*",
-		lazy = true,
-		opts = {},
-	},
-	{
 		"saghen/blink.cmp",
-		event = { "BufReadPost" },
-		dependencies = {
-			"hrsh7th/cmp-cmdline",
-			"hrsh7th/cmp-nvim-lua",
-			"L3MON4D3/LuaSnip",
-			"petertriho/cmp-git",
-			"rafamadriz/friendly-snippets",
-			"ray-x/cmp-treesitter",
-			"saghen/blink.compat",
-			"Snikimonkd/cmp-go-pkgs",
-			"zbirenbaum/copilot-cmp",
+		event = {
+			"BufReadPost",
 		},
+		dependencies = dependencies,
 		version = "v1.*",
-		opts = {
-			completion = {
-				documentation = {
-					auto_show = true,
-				},
-				accept = {
-					create_undo_point = true,
-				},
-			},
-			keymap = {
-				preset = "super-tab",
-			},
-			providers = {
+		opts = function()
+			local providers = {
 				buffer = {
 					name = "buffer",
 					enabled = true,
 					score_offset = 70,
 					opts = {
 						keyword_length = 3,
-						max_item_count = 5,
-					},
-				},
-				copilot = {
-					name = "copilot",
-					module = "blink.compat.source",
-					score_offset = 100,
-					opts = {
-						keyword_length = 2,
 						max_item_count = 5,
 					},
 				},
@@ -104,26 +88,59 @@ M.plugins = {
 						keyword_length = 2,
 					},
 				},
-			},
-			signature = {
-				enabled = true,
-			},
-			sources = {
-				default = {
-					"buffer",
-					"cmdline",
-					"copilot",
-					"git",
-					"go-pkgs",
-					"lazydev",
-					"lsp",
-					"nvim_lua",
-					"path",
-					"snippets",
-					"treesitter",
+			}
+
+			-- Conditionally include copilot
+			if copilot_enabled then
+				providers.copilot = {
+					name = "copilot",
+					module = "blink.compat.source",
+					score_offset = 100,
+					opts = {
+						keyword_length = 2,
+						max_item_count = 5,
+					},
+				}
+			end
+
+			local default_sources = {
+				"buffer",
+				"cmdline",
+				"git",
+				"go-pkgs",
+				"lazydev",
+				"lsp",
+				"nvim_lua",
+				"path",
+				"snippets",
+				"treesitter",
+			}
+
+			if copilot_enabled then
+				table.insert(default_sources, 3, "copilot")
+			end
+
+			return {
+				completion = {
+					documentation = {
+						auto_show = true,
+					},
+					accept = {
+						create_undo_point = true,
+					},
 				},
-			},
-		},
+				keymap = {
+					preset = "super-tab",
+				},
+				providers = providers,
+				signature = {
+					enabled = true,
+				},
+				sources = {
+					default = default_sources,
+				},
+			}
+		end,
 		opts_extend = { "sources.default" },
 	},
 }
