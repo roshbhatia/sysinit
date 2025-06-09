@@ -3,13 +3,10 @@ local M = {}
 M.plugins = {
 	{
 		enabled = not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot")),
-		"zbirenbaum/copilot-cmp",
+		"giuxtaposition/blink-cmp-copilot",
 		dependencies = {
 			"zbirenbaum/copilot.lua",
 		},
-		config = function()
-			require("copilot_cmp").setup()
-		end,
 	},
 }
 

@@ -1,4 +1,5 @@
 local M = {}
+local copilot_enabled = not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot"))
 
 M.plugins = {
 	{
@@ -8,83 +9,54 @@ M.plugins = {
 		},
 		dependencies = function()
 			local deps = {
+				"giuxtaposition/blink-cmp-copilot",
 				"hrsh7th/cmp-cmdline",
-				"hrsh7th/cmp-nvim-lua",
+				"Kaiser-Yang/blink-cmp-dictionary",
+				"Kaiser-Yang/blink-cmp-git",
 				"L3MON4D3/LuaSnip",
-				"petertriho/cmp-git",
 				"rafamadriz/friendly-snippets",
 				"ray-x/cmp-treesitter",
-				"saghen/blink.compat",
 				"saghen/blink.compat",
 				"Snikimonkd/cmp-go-pkgs",
 			}
 
-			if not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot")) then
-				table.insert(deps, "zbirenbaum/copilot-cmp")
+			if copilot_enabled then
+				table.insert(deps, "giuxtaposition/blink-cmp-copilot")
 			end
 
 			return deps
 		end,
 		version = "v1.*",
 		opts = function()
-			local copilot_enabled = not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot"))
-
 			local providers = {
-				buffer = {
-					name = "buffer",
-					enabled = true,
-					score_offset = 70,
-					opts = {
-						keyword_length = 3,
-						max_item_count = 5,
-					},
+				dictionary = {
+					module = "blink-cmp-dictionary",
+					name = "Dict",
+					min_keyword_length = 3,
 				},
 				git = {
-					name = "git",
-					module = "blink.compat.source",
+					module = "blink-cmp-git",
+					name = "Git",
 					score_offset = 50,
-					opts = {},
 				},
 				go_pkgs = {
+					module = "blink.compat.source",
 					name = "go_pkgs",
-					module = "blink.compat.source",
 					score_offset = 50,
-					opts = {},
-				},
-				lazydev = {
-					name = "LazyDev",
-					module = "lazydev.integrations.blink",
-					score_offset = 100,
-				},
-				lsp = {
-					name = "lsp",
-					enabled = true,
-					score_offset = 100,
-				},
-				nvim_lua = {
-					name = "nvim_lua",
-					module = "blink.compat.source",
-					score_offset = 50,
-					opts = {},
-				},
-				path = {
-					name = "path",
-					enabled = true,
-					score_offset = 60,
-				},
-				snippets = {
-					name = "snippets",
-					enabled = true,
-					score_offset = 85,
 					opts = {
-						preset = "luasnip",
-						use_show_condition = false,
-						show_autosnippets = true,
+						matching = {
+							disallow_symbol_nonprefix_matching = false,
+						},
 					},
 				},
+				lazydev = {
+					module = "lazydev.integrations.blink",
+					name = "LSP (Neovim)",
+					score_offset = 100,
+				},
 				treesitter = {
-					name = "treesitter",
 					module = "blink.compat.source",
+					name = "treesitter",
 					score_offset = 75,
 					opts = {
 						keyword_length = 2,
@@ -95,27 +67,24 @@ M.plugins = {
 			local default_sources = {
 				"buffer",
 				"cmdline",
+				"dictionary",
 				"git",
 				"go-pkgs",
 				"lazydev",
 				"lsp",
-				"nvim_lua",
+				"luasnip",
 				"path",
-				"snippets",
 				"treesitter",
 			}
 
 			if copilot_enabled then
 				providers.copilot = {
 					name = "copilot",
-					module = "blink.compat.source",
+					module = "blink-cmp-copilot",
 					score_offset = 100,
-					opts = {
-						keyword_length = 2,
-						max_item_count = 5,
-					},
+					async = true,
 				}
-				table.insert(default_sources, 3, "copilot")
+				table.insert(default_sources, "copilot")
 			end
 
 			return {
@@ -139,7 +108,9 @@ M.plugins = {
 				},
 			}
 		end,
-		opts_extend = { "sources.default" },
+		opts_extend = {
+			"sources.default",
+		},
 	},
 }
 

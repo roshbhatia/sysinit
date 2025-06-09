@@ -2,7 +2,7 @@ local M = {}
 
 M.plugins = {
 	{
-		"petertriho/cmp-git",
+		"Kaiser-Yang/blink-cmp-git",
 	},
 }
 

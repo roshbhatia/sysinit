@@ -2,7 +2,7 @@ local M = {}
 
 M.plugins = {
 	{
-		"hrsh7th/cmp-nvim-lua",
+		"Kaiser-Yang/blink-cmp-dictionary",
 	},
 }
 
