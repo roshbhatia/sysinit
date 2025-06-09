@@ -5,12 +5,13 @@ M.plugins = {
 		"jake-stewart/auto-cmdheight.nvim",
 		lazy = false,
 		opts = {
-			max_lines = 5,
-			duration = 2,
+			max_lines = 0,
+			duration = 0,
 			remove_on_key = true,
-			clear_always = false,
+			clear_always = true,
 		},
 	},
 }
 
 return M
+
