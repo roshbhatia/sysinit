@@ -24,6 +24,7 @@
         "discord"
         "notion"
         "steam"
+        "supercollider"
         "vnc-viewer"
       ];
     };
