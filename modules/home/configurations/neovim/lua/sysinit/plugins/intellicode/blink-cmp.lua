@@ -165,17 +165,23 @@ M.plugins = {
 				},
 				keymap = {
 					preset = "super-tab",
-					["<C-\\>"] = { "show" },
-					["<CR>"] = { "accept", "fallback" },
+					["<C-Space>"] = {
+						"show",
+					},
+					["<CR>"] = {
+						"accept",
+						"fallback",
+					},
 					["<Tab>"] = {
 						"select_next",
 						"snippet_forward",
-						function()
-							require("intellitab").indent()
-						end,
 						"fallback",
 					},
-					["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
+					["<S-Tab>"] = {
+						"select_prev",
+						"snippet_backward",
+						"fallback",
+					},
 				},
 				signature = {
 					enabled = true,
@@ -196,3 +202,4 @@ M.plugins = {
 }
 
 return M
+
