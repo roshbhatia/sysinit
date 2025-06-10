@@ -7,12 +7,19 @@ M.plugins = {
 		event = "BufReadPost",
 		keys = function()
 			return {
-				"<Tab>",
-				require("intellitab").indent,
+				{
+					"<Tab>",
+					function()
+						require("intellitab").indent()
+					end,
+					mode = "i",
+					noremap = true,
+					silent = true,
+					desc = "Smart tab",
+				},
 			}
 		end,
 	},
 }
 
 return M
-
