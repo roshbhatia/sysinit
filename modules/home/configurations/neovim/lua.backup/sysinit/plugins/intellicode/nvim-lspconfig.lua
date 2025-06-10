@@ -181,21 +181,6 @@ M.plugins = {
 		keys = function()
 			return {
 				{
-					"<leader>ca",
-					function()
-						require("actions-preview").code_actions()
-					end,
-					desc = "Code action",
-				},
-				{
-					"<leader>ca",
-					function()
-						require("actions-preview").code_actions()
-					end,
-					mode = "v",
-					desc = "Code action",
-				},
-				{
 					"<leader>cr",
 					function()
 						vim.lsp.buf.rename()
@@ -229,4 +214,3 @@ M.plugins = {
 }
 
 return M
-
