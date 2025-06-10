@@ -22,7 +22,6 @@ end
 M.plugins = {
 	{
 		"saghen/blink.cmp",
-		lazy = true,
 		dependencies = deps,
 		version = "v1.*",
 		opts = function()
