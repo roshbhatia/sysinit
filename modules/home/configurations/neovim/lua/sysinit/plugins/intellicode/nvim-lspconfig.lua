@@ -130,6 +130,7 @@ M.plugins = {
 						},
 					},
 				},
+				lua_ls = {},
 				nil_ls = {
 					settings = {
 						["nil"] = {
@@ -214,3 +215,4 @@ M.plugins = {
 }
 
 return M
+
