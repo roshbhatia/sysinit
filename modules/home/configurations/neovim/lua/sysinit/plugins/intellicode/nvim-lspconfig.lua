@@ -15,7 +15,6 @@ M.plugins = {
 		config = function()
 			local blink_cmp = require("blink.cmp")
 			local lspconfig = require("lspconfig")
-			local configs = require("lspconfig/configs")
 			local mason_lspconfig = require("mason-lspconfig")
 			local mason_tool_installer = require("mason-tool-installer")
 
@@ -50,11 +49,6 @@ M.plugins = {
 							},
 						},
 					})
-
-					vim.lsp.handlers["textDocument/hover"] =
-						vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" })
-					vim.lsp.handlers["textDocument/signatureHelp"] =
-						vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" })
 				end,
 			})
 
@@ -69,9 +63,6 @@ M.plugins = {
 						"gomod",
 						"gotpml",
 						"gowork",
-					},
-					cmd = {
-						"gopls",
 					},
 					settings = {
 						go = {
@@ -173,7 +164,7 @@ M.plugins = {
 				handlers = function(server_name)
 					lspconfig[server_name].setup({
 						capabilities = capabilities,
-						settings = servers[server_name],
+						settings = (servers[server_name] or {}).settings,
 						filetypes = (servers[server_name] or {}).filetypes,
 					})
 				end,
@@ -215,4 +206,3 @@ M.plugins = {
 }
 
 return M
-
