@@ -74,7 +74,7 @@ M.plugins = {
 					end,
 					module = "lazydev.integrations.blink",
 					name = "LazyDev",
-					score_offset = 0,
+					score_offset = 1,
 				},
 				lsp = {
 					score_offset = 0,
