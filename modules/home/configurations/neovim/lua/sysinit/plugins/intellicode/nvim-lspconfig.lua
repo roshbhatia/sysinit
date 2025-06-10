@@ -63,19 +63,44 @@ M.plugins = {
 				dagger = {},
 				docker_compose_language_service = {},
 				dockerls = {},
-				gopls = {},
-				golangci_lint_ls = {
-					filetypes = {
-						"go",
-					},
-					init_options = {
-						command = {
-							"golangci-lint",
-							"run",
-							"--output.json.path",
-							"stdout",
-							"--show-stats=false",
-							"--issues-exit-code=1",
+				gopls = {
+					filetypes = { "go", "gomod", "gotpml", "gowork" },
+					cmd = { "gopls" },
+					root_dir = util.root_pattern("go.work", "go.mod", ".git"),
+					settings = {
+						gopls = {
+							gofumpt = true,
+							codelenses = {
+								gc_details = false,
+								generate = true,
+								regenerate_cgo = true,
+								run_govulncheck = true,
+								test = true,
+								tidy = true,
+								upgrade_dependency = true,
+								vendor = true,
+							},
+							hints = {
+								assignVariableTypes = true,
+								compositeLiteralFields = true,
+								compositeLiteralTypes = true,
+								constantValues = true,
+								functionTypeParameters = true,
+								parameterNames = true,
+								rangeVariableTypes = true,
+							},
+							analyses = {
+								fieldalignment = true,
+								nilness = true,
+								unusedparams = true,
+								unusedwrite = true,
+								useany = true,
+							},
+							usePlaceholders = true,
+							completeUnimported = true,
+							staticcheck = true,
+							directoryFilters = { "-.git", "-.vscode", "-.idea", "-.vscode-test", "-node_modules" },
+							semanticTokens = true,
 						},
 					},
 				},
@@ -198,3 +223,4 @@ M.plugins = {
 }
 
 return M
+

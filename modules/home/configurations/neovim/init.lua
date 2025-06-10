@@ -74,7 +74,7 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.intellicode.lspkind"),
 	require("sysinit.plugins.intellicode.luasnip"),
 	require("sysinit.plugins.intellicode.mason"),
-	-- require("sysinit.plugins.intellicode.none-ls"),
+	require("sysinit.plugins.intellicode.none-ls"),
 	require("sysinit.plugins.intellicode.nvim-autopairs"),
 	require("sysinit.plugins.intellicode.nvim-lspconfig"),
 	require("sysinit.plugins.intellicode.outline"),
@@ -120,3 +120,4 @@ require("sysinit.pkg.keybindings.undo").setup()
 require("sysinit.pkg.keybindings.vim").setup()
 
 require("sysinit.pkg.entrypoint.no-session").setup()
+
