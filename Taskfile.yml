@@ -74,7 +74,7 @@ tasks:
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Applying system configuration"
-        if ! sudo darwin-rebuild switch --flake . --show-trace; then
+        if ! sudo darwin-rebuild switch --flake . --impure --show-trace; then
           log_error "Refresh failed."
           exit 1
         fi
@@ -101,3 +101,4 @@ tasks:
         log_success "Work configuration refreshed successfully"
     desc: Update and rebuild work sysinit configuration
     silent: true
+
