@@ -63,22 +63,22 @@ M.plugins = {
 				dagger = {},
 				docker_compose_language_service = {},
 				dockerls = {},
-				-- gopls = {},
-				-- golangci_lint_ls = {
-				-- 	filetypes = {
-				-- 		"go",
-				-- 	},
-				-- 	init_options = {
-				-- 		command = {
-				-- 			"golangci-lint",
-				-- 			"run",
-				-- 			"--output.json.path",
-				-- 			"stdout",
-				-- 			"--show-stats=false",
-				-- 			"--issues-exit-code=1",
-				-- 		},
-				-- 	},
-				-- },
+				gopls = {},
+				golangci_lint_ls = {
+					filetypes = {
+						"go",
+					},
+					init_options = {
+						command = {
+							"golangci-lint",
+							"run",
+							"--output.json.path",
+							"stdout",
+							"--show-stats=false",
+							"--issues-exit-code=1",
+						},
+					},
+				},
 				helm_ls = {
 					settings = {
 						["helm-ls"] = {
