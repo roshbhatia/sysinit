@@ -23,7 +23,7 @@ M.plugins = {
 					group = "Copilot",
 				},
 				{
-					"<leader>b",
+					"<leader>j",
 					group = "Buffer",
 				},
 				{

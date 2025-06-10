@@ -71,13 +71,13 @@ function M.setup()
 		desc = "Write and close",
 	})
 
-	vim.keymap.set("n", "<leader>bn", buffer_next, {
+	vim.keymap.set("n", "<leader>jn", buffer_next, {
 		noremap = true,
 		silent = true,
 		desc = "Next",
 	})
 
-	vim.keymap.set("n", "<leader>bN", buffer_prev, {
+	vim.keymap.set("n", "<leader>jN", buffer_prev, {
 		noremap = true,
 		silent = true,
 		desc = "Previous",
