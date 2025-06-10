@@ -10,7 +10,6 @@ local deps = {
 	"pta2002/intellitab.nvim",
 	"pwntester/octo.nvim",
 	"rafamadriz/friendly-snippets",
-	"ray-x/cmp-treesitter",
 	"saghen/blink.compat",
 	"Snikimonkd/cmp-go-pkgs",
 }
@@ -108,18 +107,6 @@ M.plugins = {
 						return items
 					end,
 				},
-				treesitter = {
-					module = "blink.compat.source",
-					name = "treesitter",
-					score_offset = 0,
-					transform_items = function(ctx, items)
-						for _, item in ipairs(items) do
-							item.kind_icon = " Treesitter "
-							item.kind_name = "Treesitter"
-						end
-						return items
-					end,
-				},
 			}
 
 			local sources = {
@@ -130,7 +117,6 @@ M.plugins = {
 				"lsp",
 				"path",
 				"snippets",
-				"treesitter",
 			}
 
 			if copilot_enabled then
@@ -210,4 +196,3 @@ M.plugins = {
 }
 
 return M
-

@@ -61,7 +61,6 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.intellicode.blink-compat"),
 	require("sysinit.plugins.intellicode.cmp-copilot"),
 	require("sysinit.plugins.intellicode.cmp-git"),
-	require("sysinit.plugins.intellicode.cmp-treesitter"),
 	require("sysinit.plugins.intellicode.copilot-chat"),
 	require("sysinit.plugins.intellicode.copilot"),
 	require("sysinit.plugins.intellicode.dropbar"),
