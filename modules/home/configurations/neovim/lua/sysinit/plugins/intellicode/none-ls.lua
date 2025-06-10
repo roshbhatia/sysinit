@@ -20,7 +20,6 @@ M.plugins = {
 					null_ls.builtins.diagnostics.actionlint,
 					null_ls.builtins.diagnostics.checkmake,
 					null_ls.builtins.diagnostics.deadnix,
-					null_ls.builtins.diagnostics.golangci_lint,
 					null_ls.builtins.diagnostics.markdownlint,
 					null_ls.builtins.diagnostics.proselint,
 					null_ls.builtins.diagnostics.staticcheck,
@@ -80,4 +79,3 @@ M.plugins = {
 }
 
 return M
-
