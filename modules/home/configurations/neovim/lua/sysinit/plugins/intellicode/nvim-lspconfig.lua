@@ -64,6 +64,7 @@ M.plugins = {
 				docker_compose_language_service = {},
 				dockerls = {},
 				gopls = {},
+				golangci_lint_ls = {},
 				helm_ls = {
 					settings = {
 						["helm-ls"] = {
@@ -84,15 +85,6 @@ M.plugins = {
 						},
 					},
 				},
-				lua_ls = {
-					settings = {
-						Lua = {
-							completion = {
-								callSnippet = "Replace",
-							},
-						},
-					},
-				},
 				nil_ls = {
 					settings = {
 						["nil"] = {
@@ -104,7 +96,6 @@ M.plugins = {
 				terraformls = {},
 				tflint = {},
 				ts_ls = {},
-				vimls = {},
 				yamlls = {
 					settings = {
 						yaml = {
