@@ -148,6 +148,9 @@ M.plugins = {
 					documentation = {
 						auto_show = true,
 						auto_show_delay_ms = 0,
+						window = {
+							border = "rounded",
+						},
 					},
 					ghost_text = {
 						enabled = true,
@@ -155,6 +158,16 @@ M.plugins = {
 					list = {
 						selection = {
 							auto_insert = true,
+						},
+					},
+					menu = {
+						max_height = 15,
+						border = "rounded",
+						draw = {
+							treesitter = {
+								"lsp",
+								"copilot",
+							},
 						},
 					},
 				},
@@ -186,6 +199,9 @@ M.plugins = {
 				},
 				signature = {
 					enabled = true,
+					window = {
+						border = rounded,
+					},
 				},
 				sources = {
 					default = sources,
