@@ -194,7 +194,7 @@ M.plugins = {
 					desc = "Next diagnostic",
 				},
 				{
-					"<leader>cN",
+					"<leader>cp",
 					function()
 						vim.diagnostic.goto_prev()
 					end,
