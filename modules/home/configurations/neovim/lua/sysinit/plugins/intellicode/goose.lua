@@ -91,7 +91,7 @@ M.plugins = {
 					desc = "Diff next",
 				},
 				{
-					"<leader>ap",
+					"<leader>aN",
 					function()
 						require("goose.api").diff_prev()
 					end,

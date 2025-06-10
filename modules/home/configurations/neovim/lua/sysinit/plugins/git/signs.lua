@@ -81,7 +81,7 @@ M.plugins = {
 				desc = "Next hunk",
 			},
 			{
-				"<leader>ghp",
+				"<leader>ghN",
 				function()
 					require("gitsigns").prev_hunk()
 				end,
@@ -109,3 +109,4 @@ M.plugins = {
 }
 
 return M
+
