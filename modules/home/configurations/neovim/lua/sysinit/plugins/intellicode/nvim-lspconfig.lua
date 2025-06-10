@@ -64,11 +64,17 @@ M.plugins = {
 				docker_compose_language_service = {},
 				dockerls = {},
 				gopls = {
-					filetypes = { "go", "gomod", "gotpml", "gowork" },
-					cmd = { "gopls" },
-					root_dir = util.root_pattern("go.work", "go.mod", ".git"),
+					filetypes = {
+						"go",
+						"gomod",
+						"gotpml",
+						"gowork",
+					},
+					cmd = {
+						"gopls",
+					},
 					settings = {
-						gopls = {
+						go = {
 							gofumpt = true,
 							codelenses = {
 								gc_details = false,
