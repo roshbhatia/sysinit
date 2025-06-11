@@ -14,7 +14,7 @@ M.plugins = {
 					main = {
 						base = "#191724",
 						surface = "#1f1d2e",
-						overlay = "#2a2a2a",
+						overlay = "#a99bc4",
 						muted = "#6e6a86",
 						subtle = "#908caa",
 						text = "#e0def4",
@@ -165,3 +165,4 @@ M.plugins = {
 }
 
 return M
+
