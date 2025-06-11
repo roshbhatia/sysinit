@@ -105,7 +105,7 @@ local function setup_nvim_ui_overrides()
 				bottom = "0px",
 			}
 			overrides.text_min_contrast_ratio = 4.5
-			overrides.window_background_opacity = 0.85
+			overrides.window_background_opacity = 0.92
 		else
 			overrides.enable_scroll_bar = nil
 			overrides.window_padding = nil
@@ -140,3 +140,4 @@ function M.setup(config)
 end
 
 return M
+
