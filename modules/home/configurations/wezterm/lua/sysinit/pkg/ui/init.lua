@@ -5,18 +5,6 @@ local terminal_theme = "Rosé Pine (Gogh)"
 
 local terminal_font = wezterm.font_with_fallback({
 	{
-		family = "Hack Nerd Font Mono",
-		weight = "Regular",
-		harfbuzz_features = {
-			"calt",
-			"zero",
-		},
-	},
-	"Symbols Nerd Font",
-})
-
-local nvim_font = wezterm.font_with_fallback({
-	{
 		family = "JetBrains Mono",
 		weight = "Regular",
 		harfbuzz_features = {
@@ -42,7 +30,7 @@ end
 
 local function get_window_appearance_config()
 	return {
-		window_background_opacity = 0.7,
+		window_background_opacity = 0.55,
 		macos_window_background_blur = 95,
 		window_decorations = "RESIZE",
 	}
@@ -110,9 +98,7 @@ local function setup_nvim_ui_overrides()
 		local should_switch = is_vim(pane)
 		local overrides = window:get_config_overrides() or {}
 		if should_switch then
-			overrides.font = nvim_font
 			overrides.enable_scroll_bar = false
-			overrides.window_background_opacity = 0.925
 			overrides.window_padding = {
 				left = "8px",
 				top = "8px",
@@ -120,9 +106,7 @@ local function setup_nvim_ui_overrides()
 			}
 			overrides.text_min_contrast_ratio = 4.5
 		else
-			overrides.font = nil
 			overrides.enable_scroll_bar = nil
-			overrides.window_background_opacity = nil
 			overrides.window_padding = nil
 			overrides.text_min_contrast_ratio = nil
 		end
