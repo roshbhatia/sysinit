@@ -6,9 +6,6 @@ M.plugins = {
 		config = function()
 			require("rose-pine").setup({
 				variant = "main",
-				styles = {
-					transparency = true,
-				},
 				palette = {
 					main = {
 						base = "#191724",
@@ -153,3 +150,4 @@ M.plugins = {
 	},
 }
 return M
+

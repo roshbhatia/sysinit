@@ -21,7 +21,7 @@ M.plugins = {
 			vim.api.nvim_create_autocmd("LspAttach", {
 				callback = function()
 					vim.diagnostic.config({
-						severity_sort = false,
+						severity_sort = true,
 						virtual_text = false,
 						virtual_lines = {
 							only_current_line = false,
@@ -206,3 +206,4 @@ M.plugins = {
 }
 
 return M
+
