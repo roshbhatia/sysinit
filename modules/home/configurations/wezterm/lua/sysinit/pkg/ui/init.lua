@@ -31,7 +31,7 @@ end
 local function get_window_appearance_config()
 	return {
 		window_background_opacity = 0.85,
-		macos_window_background_blur = 95,
+		macos_window_background_blur = 975,
 		window_decorations = "RESIZE",
 	}
 end
@@ -105,10 +105,12 @@ local function setup_nvim_ui_overrides()
 				bottom = "0px",
 			}
 			overrides.text_min_contrast_ratio = 4.5
+			overrides.window_background_opacity = 0.975
 		else
 			overrides.enable_scroll_bar = nil
 			overrides.window_padding = nil
 			overrides.text_min_contrast_ratio = nil
+			overrides.window_background_opacity = nil
 		end
 		window:set_config_overrides(overrides)
 	end)
@@ -138,3 +140,4 @@ function M.setup(config)
 end
 
 return M
+
