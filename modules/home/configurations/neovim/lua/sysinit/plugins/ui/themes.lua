@@ -48,23 +48,6 @@ M.plugins = {
 					DiagnosticSignInfo = { fg = "#b3cc80" },
 					DiagnosticSignHint = { fg = "#c7a7f3" },
 
-					["@lsp.type.function"] = { fg = "#f8c96c" },
-					["@lsp.type.method"] = { fg = "#f8c96c" },
-					["@lsp.type.variable"] = { fg = "text" },
-					["@lsp.type.parameter"] = { fg = "subtle" },
-					["@lsp.type.property"] = { fg = "#b3cc80" },
-					["@lsp.type.enumMember"] = { fg = "#f3c2dd" },
-					["@lsp.type.class"] = { fg = "#b3cc80" },
-					["@lsp.type.struct"] = { fg = "#b3cc80" },
-					["@lsp.type.interface"] = { fg = "#b3cc80" },
-					["@lsp.type.enum"] = { fg = "#b3cc80" },
-					["@lsp.type.typeParameter"] = { fg = "#a9c0de" },
-					["@lsp.type.keyword"] = { fg = "pine" },
-					["@lsp.type.string"] = { fg = "#d5dba7" },
-					["@lsp.type.number"] = { fg = "#ffbac1" },
-					["@lsp.type.operator"] = { fg = "#b3cc80" },
-					["@lsp.type.comment"] = { fg = "muted", italic = true },
-
 					SnacksNotifierError = { fg = "#ff6f91", bg = "surface" },
 					SnacksNotifierWarn = { fg = "#f8c96c", bg = "surface" },
 					SnacksNotifierInfo = { fg = "#b3cc80", bg = "surface" },
@@ -119,3 +102,4 @@ M.plugins = {
 }
 
 return M
+
