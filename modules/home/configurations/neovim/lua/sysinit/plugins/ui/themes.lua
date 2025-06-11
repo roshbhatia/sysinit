@@ -2,155 +2,100 @@ local M = {}
 
 M.plugins = {
 	{
-		{
-			"rose-pine/neovim",
-			name = "rose-pine",
-			config = function()
-				require("rose-pine").setup({
-					variant = "main",
-					styles = {
-						transparency = true,
+		"rose-pine/neovim",
+		name = "rose-pine",
+		config = function()
+			require("rose-pine").setup({
+				variant = "main",
+				styles = {
+					transparency = true,
+				},
+				palette = {
+					main = {
+						base = "#191724",
+						surface = "#1f1d2e",
+						overlay = "#26233a",
+						muted = "#6e6a86",
+						subtle = "#908caa",
+						text = "#e0def4",
+
+						love = "#c5838a",
+						gold = "#d4b896",
+						rose = "#d4a8a5",
+						pine = "#5a8394",
+						foam = "#7db5bd",
+						iris = "#a494c2",
+						leaf = "#7a9690",
+
+						highlight_low = "#21202e",
+						highlight_med = "#403d52",
+						highlight_high = "#524f67",
 					},
-					highlight_groups = {
-						CurSearch = {
-							fg = "base",
-							bg = "leaf",
-							inherit = false,
-						},
-						NormalOpaque = {
-							fg = "subtle",
-							bg = "overlay",
-						},
-						NormalNCOpaque = {
-							fg = "subtle",
-							bg = "overlay",
-						},
-						Search = {
-							fg = "text",
-							bg = "leaf",
-							blend = 20,
-							inherit = false,
-						},
-						TelescopeBorder = {
-							fg = "overlay",
-							bg = "overlay",
-						},
-						TelescopeNormal = {
-							fg = "subtle",
-							bg = "overlay",
-						},
-						TelescopeSelection = {
-							fg = "text",
-							bg = "highlight_med",
-						},
-						TelescopeSelectionCaret = {
-							fg = "love",
-							bg = "highlight_med",
-						},
-						TelescopeMultiSelection = {
-							fg = "text",
-							bg = "highlight_high",
-						},
-						TelescopeTitle = {
-							fg = "base",
-							bg = "love",
-						},
-						TelescopePromptTitle = {
-							fg = "base",
-							bg = "pine",
-						},
-						TelescopePreviewTitle = {
-							fg = "base",
-							bg = "iris",
-						},
-						TelescopePromptNormal = {
-							fg = "text",
-							bg = "surface",
-						},
-						TelescopePromptBorder = {
-							fg = "surface",
-							bg = "surface",
-						},
+				},
+				highlight_groups = {
+					CurSearch = {
+						fg = "base",
+						bg = "leaf",
+						inherit = false,
 					},
-				})
-				vim.cmd("colorscheme rose-pine")
-			end,
-		},
-		{
-			"catppuccin/nvim",
-			name = "catppuccin",
-			config = function()
-				require("catppuccin").setup({
-					flavour = "frappe",
-					show_end_of_buffer = false,
-					transparent_background = true,
-					term_colors = true,
-					styles = {
-						comments = {
-							"italic",
-						},
-						conditionals = {
-							"italic",
-						},
-						loops = {},
-						functions = {},
-						keywords = {
-							"italic",
-						},
-						strings = {},
-						variables = {},
-						numbers = {},
-						booleans = {},
-						properties = {},
-						types = {},
-						operators = {},
+					NormalOpaque = {
+						fg = "subtle",
+						bg = "overlay",
 					},
-					integrations = {
-						aerial = true,
-						alpha = true,
-						cmp = true,
-						copilot_vim = true,
-						dap = true,
-						dap_ui = true,
-						dropbar = {
-							enabled = true,
-						},
-						fzf = true,
-						gitsigns = true,
-						grug_far = true,
-						hop = true,
-						lsp_trouble = true,
-						mason = true,
-						native_lsp = {
-							enabled = true,
-						},
-						neotree = true,
-						noice = true,
-						render_markdown = true,
-						snacks = {
-							enabled = true,
-						},
-						telescope = {
-							enabled = true,
-						},
-						treesitter = true,
-						treesitter_context = true,
-						which_key = true,
-						window_picker = true,
+					NormalNCOpaque = {
+						fg = "subtle",
+						bg = "overlay",
 					},
-				})
-			end,
-		},
-		{
-			"EdenEast/nightfox.nvim",
-			config = function()
-				require("nightfox").setup({
-					transparent = true,
-					terminal_colors = true,
-					dim_inactive = true,
-				})
-			end,
-		},
+					Search = {
+						fg = "text",
+						bg = "leaf",
+						blend = 20,
+						inherit = false,
+					},
+					TelescopeBorder = {
+						fg = "overlay",
+						bg = "overlay",
+					},
+					TelescopeNormal = {
+						fg = "subtle",
+						bg = "overlay",
+					},
+					TelescopeSelection = {
+						fg = "text",
+						bg = "highlight_med",
+					},
+					TelescopeSelectionCaret = {
+						fg = "love",
+						bg = "highlight_med",
+					},
+					TelescopeMultiSelection = {
+						fg = "text",
+						bg = "highlight_high",
+					},
+					TelescopeTitle = {
+						fg = "base",
+						bg = "love",
+					},
+					TelescopePromptTitle = {
+						fg = "base",
+						bg = "pine",
+					},
+					TelescopePreviewTitle = {
+						fg = "base",
+						bg = "iris",
+					},
+					TelescopePromptNormal = {
+						fg = "text",
+						bg = "surface",
+					},
+					TelescopePromptBorder = {
+						fg = "surface",
+						bg = "surface",
+					},
+				},
+			})
+			vim.cmd("colorscheme rose-pine")
+		end,
 	},
 }
 
