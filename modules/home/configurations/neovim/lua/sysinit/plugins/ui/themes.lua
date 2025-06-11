@@ -1,4 +1,5 @@
 local M = {}
+
 M.plugins = {
 	{
 		"rose-pine/neovim",
@@ -6,11 +7,14 @@ M.plugins = {
 		config = function()
 			require("rose-pine").setup({
 				variant = "main",
+				styles = {
+					transparency = true,
+				},
 				palette = {
 					main = {
 						base = "#191724",
 						surface = "#1f1d2e",
-						overlay = "#26233a",
+						overlay = "#2a2a2a",
 						muted = "#6e6a86",
 						subtle = "#908caa",
 						text = "#e0def4",
@@ -143,11 +147,22 @@ M.plugins = {
 						fg = "surface",
 						bg = "surface",
 					},
+
+					WinBar = { fg = "text", bg = "NONE" },
+					WinBarNC = { fg = "subtle", bg = "NONE" },
+					DropBarCurrentContext = { fg = "text", bg = "NONE" },
+					DropBarHover = { fg = "text", bg = "highlight_low" },
+					DropBarIconKindDefault = { fg = "subtle", bg = "NONE" },
+					DropBarMenuNormalFloat = { fg = "text", bg = "overlay" },
+					DropBarMenuFloatBorder = { fg = "muted", bg = "overlay" },
+					DropBarMenuCurrentContext = { fg = "text", bg = "highlight_med" },
+					DropBarMenuHoverEntry = { fg = "text", bg = "highlight_high" },
 				},
 			})
 			vim.cmd("colorscheme rose-pine")
 		end,
 	},
 }
+
 return M
 
