@@ -31,7 +31,7 @@ end
 local function get_window_appearance_config()
 	return {
 		window_background_opacity = 0.75,
-		macos_window_background_blur = 97.5,
+		macos_window_background_blur = 20,
 		window_decorations = "RESIZE",
 	}
 end
@@ -140,4 +140,3 @@ function M.setup(config)
 end
 
 return M
-
