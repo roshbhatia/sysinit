@@ -30,7 +30,7 @@ end
 
 local function get_window_appearance_config()
 	return {
-		window_background_opacity = 0.55,
+		window_background_opacity = 0.85,
 		macos_window_background_blur = 95,
 		window_decorations = "RESIZE",
 	}
