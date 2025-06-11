@@ -33,6 +33,40 @@ M.plugins = {
 					},
 				},
 				highlight_groups = {
+					DiagnosticError = { fg = "#ff6b6b" },
+					DiagnosticWarn = { fg = "#ffa500" },
+					DiagnosticInfo = { fg = "#4fc3f7" },
+					DiagnosticHint = { fg = "#9c27b0" },
+					DiagnosticVirtualTextError = { fg = "#ff6b6b" },
+					DiagnosticVirtualTextWarn = { fg = "#ffa500" },
+					DiagnosticVirtualTextInfo = { fg = "#4fc3f7" },
+					DiagnosticVirtualTextHint = { fg = "#9c27b0" },
+					DiagnosticUnderlineError = { undercurl = true, sp = "#ff6b6b" },
+					DiagnosticUnderlineWarn = { undercurl = true, sp = "#ffa500" },
+					DiagnosticUnderlineInfo = { undercurl = true, sp = "#4fc3f7" },
+					DiagnosticUnderlineHint = { undercurl = true, sp = "#9c27b0" },
+					DiagnosticSignError = { fg = "#ff6b6b" },
+					DiagnosticSignWarn = { fg = "#ffa500" },
+					DiagnosticSignInfo = { fg = "#4fc3f7" },
+					DiagnosticSignHint = { fg = "#9c27b0" },
+
+					["@lsp.type.function"] = { fg = "#4fc3f7" },
+					["@lsp.type.method"] = { fg = "#4fc3f7" },
+					["@lsp.type.variable"] = { fg = "text" },
+					["@lsp.type.parameter"] = { fg = "subtle" },
+					["@lsp.type.property"] = { fg = "rose" },
+					["@lsp.type.enumMember"] = { fg = "#81c784" },
+					["@lsp.type.class"] = { fg = "#ffb74d" },
+					["@lsp.type.struct"] = { fg = "#ffb74d" },
+					["@lsp.type.interface"] = { fg = "#ffb74d" },
+					["@lsp.type.enum"] = { fg = "#ffb74d" },
+					["@lsp.type.typeParameter"] = { fg = "#ba68c8" },
+					["@lsp.type.keyword"] = { fg = "pine" },
+					["@lsp.type.string"] = { fg = "#81c784" },
+					["@lsp.type.number"] = { fg = "#f48fb1" },
+					["@lsp.type.operator"] = { fg = "pine" },
+					["@lsp.type.comment"] = { fg = "muted", italic = true },
+
 					CurSearch = {
 						fg = "base",
 						bg = "leaf",
@@ -98,6 +132,4 @@ M.plugins = {
 		end,
 	},
 }
-
 return M
-
