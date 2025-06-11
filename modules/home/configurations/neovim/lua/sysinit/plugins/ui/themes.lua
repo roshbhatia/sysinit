@@ -2,102 +2,155 @@ local M = {}
 
 M.plugins = {
 	{
-		"rose-pine/neovim",
-		name = "rose-pine",
-		config = function()
-			require("rose-pine").setup({
-				variant = "main",
-				styles = {
-					transparency = true,
-				},
-				palette = {
-					main = {
-						base = "#191724",
-						surface = "#1e1c2a",
-						overlay = "#2a2838",
-						muted = "#777089",
-						subtle = "#9a97b0",
-						text = "#ecebf2",
-						love = "#ff6f91",
-						gold = "#f8c96c",
-						rose = "#ffc4c7",
-						pine = "#4e4e66",
-						foam = "#a9c0de",
-						iris = "#c7a7f3",
-						leaf = "#b3cc80",
-						highlight_low = "#22202e",
-						highlight_med = "#2c2a3b",
-						highlight_high = "#37344d",
+		{
+			"rose-pine/neovim",
+			name = "rose-pine",
+			config = function()
+				require("rose-pine").setup({
+					variant = "main",
+					styles = {
+						transparency = true,
 					},
-				},
-				highlight_groups = {
-					DiagnosticError = { fg = "#ff6f91" },
-					DiagnosticWarn = { fg = "#f8c96c" },
-					DiagnosticInfo = { fg = "#b3cc80" },
-					DiagnosticHint = { fg = "#c7a7f3" },
-					DiagnosticVirtualTextError = { fg = "#ff6f91" },
-					DiagnosticVirtualTextWarn = { fg = "#f8c96c" },
-					DiagnosticVirtualTextInfo = { fg = "#b3cc80" },
-					DiagnosticVirtualTextHint = { fg = "#c7a7f3" },
-					DiagnosticUnderlineError = { undercurl = true, sp = "#ff6f91" },
-					DiagnosticUnderlineWarn = { undercurl = true, sp = "#f8c96c" },
-					DiagnosticUnderlineInfo = { undercurl = true, sp = "#b3cc80" },
-					DiagnosticUnderlineHint = { undercurl = true, sp = "#c7a7f3" },
-					DiagnosticSignError = { fg = "#ff6f91" },
-					DiagnosticSignWarn = { fg = "#f8c96c" },
-					DiagnosticSignInfo = { fg = "#b3cc80" },
-					DiagnosticSignHint = { fg = "#c7a7f3" },
-
-					SnacksNotifierError = { fg = "#ff6f91", bg = "surface" },
-					SnacksNotifierWarn = { fg = "#f8c96c", bg = "surface" },
-					SnacksNotifierInfo = { fg = "#b3cc80", bg = "surface" },
-					SnacksNotifierDebug = { fg = "#c7a7f3", bg = "surface" },
-					SnacksNotifierTrace = { fg = "subtle", bg = "surface" },
-					SnacksNotifierIconError = { fg = "#ff6f91" },
-					SnacksNotifierIconWarn = { fg = "#f8c96c" },
-					SnacksNotifierIconInfo = { fg = "#b3cc80" },
-					SnacksNotifierIconDebug = { fg = "#c7a7f3" },
-					SnacksNotifierIconTrace = { fg = "subtle" },
-					SnacksNotifierTitleError = { fg = "#ff6f91" },
-					SnacksNotifierTitleWarn = { fg = "#f8c96c" },
-					SnacksNotifierTitleInfo = { fg = "#b3cc80" },
-					SnacksNotifierTitleDebug = { fg = "#c7a7f3" },
-					SnacksNotifierTitleTrace = { fg = "subtle" },
-					SnacksNotifierBorderError = { fg = "#ff6f91" },
-					SnacksNotifierBorderWarn = { fg = "#f8c96c" },
-					SnacksNotifierBorderInfo = { fg = "#b3cc80" },
-					SnacksNotifierBorderDebug = { fg = "#c7a7f3" },
-					SnacksNotifierBorderTrace = { fg = "subtle" },
-
-					CurSearch = { fg = "base", bg = "#b3cc80", inherit = false },
-					NormalOpaque = { fg = "subtle", bg = "overlay" },
-					NormalNCOpaque = { fg = "subtle", bg = "overlay" },
-					Search = { fg = "text", bg = "#b3cc80", blend = 20, inherit = false },
-
-					TelescopeBorder = { fg = "#2c2a3e", bg = "#26233a" },
-					TelescopeNormal = { fg = "text", bg = "#26233a" },
-					TelescopeSelection = { fg = "text", bg = "#37344d" },
-					TelescopeSelectionCaret = { fg = "#f8c96c", bg = "#37344d" },
-					TelescopeMultiSelection = { fg = "text", bg = "#3a3850" },
-					TelescopeTitle = { fg = "base", bg = "#ff6f91" },
-					TelescopePromptTitle = { fg = "base", bg = "#4e4e66" },
-					TelescopePreviewTitle = { fg = "base", bg = "#b3cc80" },
-					TelescopePromptNormal = { fg = "text", bg = "#201f2f" },
-					TelescopePromptBorder = { fg = "#201f2f", bg = "#201f2f" },
-
-					WinBar = { fg = "text", bg = "NONE" },
-					WinBarNC = { fg = "subtle", bg = "NONE" },
-					DropBarCurrentContext = { fg = "text", bg = "NONE" },
-					DropBarHover = { fg = "text", bg = "highlight_low" },
-					DropBarIconKindDefault = { fg = "subtle", bg = "NONE" },
-					DropBarMenuNormalFloat = { fg = "text", bg = "overlay" },
-					DropBarMenuFloatBorder = { fg = "muted", bg = "overlay" },
-					DropBarMenuCurrentContext = { fg = "text", bg = "highlight_med" },
-					DropBarMenuHoverEntry = { fg = "text", bg = "highlight_high" },
-				},
-			})
-			vim.cmd("colorscheme rose-pine")
-		end,
+					highlight_groups = {
+						CurSearch = {
+							fg = "base",
+							bg = "leaf",
+							inherit = false,
+						},
+						NormalOpaque = {
+							fg = "subtle",
+							bg = "overlay",
+						},
+						NormalNCOpaque = {
+							fg = "subtle",
+							bg = "overlay",
+						},
+						Search = {
+							fg = "text",
+							bg = "leaf",
+							blend = 20,
+							inherit = false,
+						},
+						TelescopeBorder = {
+							fg = "overlay",
+							bg = "overlay",
+						},
+						TelescopeNormal = {
+							fg = "subtle",
+							bg = "overlay",
+						},
+						TelescopeSelection = {
+							fg = "text",
+							bg = "highlight_med",
+						},
+						TelescopeSelectionCaret = {
+							fg = "love",
+							bg = "highlight_med",
+						},
+						TelescopeMultiSelection = {
+							fg = "text",
+							bg = "highlight_high",
+						},
+						TelescopeTitle = {
+							fg = "base",
+							bg = "love",
+						},
+						TelescopePromptTitle = {
+							fg = "base",
+							bg = "pine",
+						},
+						TelescopePreviewTitle = {
+							fg = "base",
+							bg = "iris",
+						},
+						TelescopePromptNormal = {
+							fg = "text",
+							bg = "surface",
+						},
+						TelescopePromptBorder = {
+							fg = "surface",
+							bg = "surface",
+						},
+					},
+				})
+				vim.cmd("colorscheme rose-pine")
+			end,
+		},
+		{
+			"catppuccin/nvim",
+			name = "catppuccin",
+			config = function()
+				require("catppuccin").setup({
+					flavour = "frappe",
+					show_end_of_buffer = false,
+					transparent_background = true,
+					term_colors = true,
+					styles = {
+						comments = {
+							"italic",
+						},
+						conditionals = {
+							"italic",
+						},
+						loops = {},
+						functions = {},
+						keywords = {
+							"italic",
+						},
+						strings = {},
+						variables = {},
+						numbers = {},
+						booleans = {},
+						properties = {},
+						types = {},
+						operators = {},
+					},
+					integrations = {
+						aerial = true,
+						alpha = true,
+						cmp = true,
+						copilot_vim = true,
+						dap = true,
+						dap_ui = true,
+						dropbar = {
+							enabled = true,
+						},
+						fzf = true,
+						gitsigns = true,
+						grug_far = true,
+						hop = true,
+						lsp_trouble = true,
+						mason = true,
+						native_lsp = {
+							enabled = true,
+						},
+						neotree = true,
+						noice = true,
+						render_markdown = true,
+						snacks = {
+							enabled = true,
+						},
+						telescope = {
+							enabled = true,
+						},
+						treesitter = true,
+						treesitter_context = true,
+						which_key = true,
+						window_picker = true,
+					},
+				})
+			end,
+		},
+		{
+			"EdenEast/nightfox.nvim",
+			config = function()
+				require("nightfox").setup({
+					transparent = true,
+					terminal_colors = true,
+					dim_inactive = true,
+				})
+			end,
+		},
 	},
 }
 
