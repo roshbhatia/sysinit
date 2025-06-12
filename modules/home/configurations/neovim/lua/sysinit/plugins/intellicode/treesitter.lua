@@ -7,9 +7,6 @@ M.plugins = {
 		branch = "master",
 		lazy = false,
 		opts = {
-			highlight = {
-				enable = true,
-			},
 			incremental_selection = {
 				enable = true,
 				keymaps = {

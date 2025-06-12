@@ -163,9 +163,15 @@ M.plugins = {
 				automatic_enable = true,
 				handlers = function(server_name)
 					lspconfig[server_name].setup({
-						capabilities = capabilities,
-						settings = (servers[server_name] or {}).settings,
+						capabilities = (servers[server_name] or {}).capabilities + capabilities,
 						filetypes = (servers[server_name] or {}).filetypes,
+						on_init = function(client)
+							-- favor tresitter highlighting over LSP
+							if client.supports_method("textDocument/semanticTokens") then
+								client.server_capabilities.semanticTokensProvider = nil
+							end
+						end,
+						settings = (servers[server_name] or {}).settings,
 					})
 				end,
 			})
