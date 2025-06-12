@@ -74,7 +74,6 @@ M.plugins = {
 		},
 		config = function(_, opts)
 			require("nvim-treesitter.configs").setup(opts)
-			vim.cmd("TSInstall all")
 		end,
 	},
 }
