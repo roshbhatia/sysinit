@@ -76,7 +76,6 @@ let
     ollama
     pipx
     pkg-config
-    pngpaste
     prettier
     prettierd
     proselint
@@ -115,3 +114,4 @@ in
 {
   home.packages = allNixPackages;
 }
+
