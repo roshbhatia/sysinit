@@ -200,7 +200,7 @@ M.plugins = {
 				signature = {
 					enabled = true,
 					window = {
-						border = rounded,
+						border = "rounded",
 					},
 				},
 				sources = {
@@ -219,4 +219,3 @@ M.plugins = {
 }
 
 return M
-
