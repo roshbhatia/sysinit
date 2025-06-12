@@ -31,16 +31,6 @@ M.plugins = {
 						end,
 					},
 				},
-				right = {
-					{
-						title = "󰪧 Outline",
-						ft = "aerial",
-					},
-					{
-						title = "󰪧 LSP Diagnostics",
-						ft = "trouble",
-					},
-				},
 				icons = {
 					closed = "",
 					open = "",
@@ -51,3 +41,4 @@ M.plugins = {
 }
 
 return M
+

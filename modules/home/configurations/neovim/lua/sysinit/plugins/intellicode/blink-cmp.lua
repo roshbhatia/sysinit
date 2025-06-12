@@ -149,7 +149,7 @@ M.plugins = {
 						auto_show = true,
 						auto_show_delay_ms = 0,
 						window = {
-							border = "single",
+							border = "solid",
 						},
 					},
 					ghost_text = {
@@ -162,7 +162,7 @@ M.plugins = {
 					},
 					menu = {
 						max_height = 15,
-						border = "single",
+						border = "solid",
 						draw = {
 							treesitter = {
 								"lsp",
@@ -200,7 +200,7 @@ M.plugins = {
 				signature = {
 					enabled = true,
 					window = {
-						border = "single",
+						border = "rounded",
 					},
 				},
 				sources = {
@@ -219,3 +219,4 @@ M.plugins = {
 }
 
 return M
+

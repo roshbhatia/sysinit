@@ -50,7 +50,7 @@ M.plugins = {
 				statuscolumn = { enabled = true },
 				terminal = {
 					enabled = true,
-					border = "single",
+					border = "solid",
 				},
 				words = { enabled = true },
 
