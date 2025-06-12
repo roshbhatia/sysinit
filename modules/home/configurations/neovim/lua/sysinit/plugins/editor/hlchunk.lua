@@ -10,6 +10,8 @@ M.plugins = {
 				chunk = {
 					enable = true,
 					use_treesitter = true,
+					duration = 100,
+					delay = 100,
 				},
 				indent = {
 					enable = false,
