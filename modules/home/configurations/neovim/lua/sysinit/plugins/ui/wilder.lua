@@ -41,8 +41,8 @@ M.plugins = {
 			wilder.set_option(
 				"renderer",
 				wilder.popupmenu_renderer(wilder.popupmenu_palette_theme({
+					border = "rounded",
 					highlighter = wilder.lua_fzy_highlighter(),
-					left = { " ", wilder.popupmenu_devicons() },
 				}))
 			)
 			vim.opt.wildignorecase = true
