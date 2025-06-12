@@ -22,7 +22,6 @@ M.plugins = {
 
 			telescope.setup({
 				defaults = {
-					border = "rounded",
 					prompt_prefix = "   ",
 					selection_caret = "",
 					entry_prefix = "",

@@ -28,7 +28,7 @@ M.plugins = {
 						},
 						update_in_insert = false,
 						float = {
-							border = "rounded",
+							border = "single",
 							source = "if_many",
 						},
 						underline = {
@@ -212,4 +212,3 @@ M.plugins = {
 }
 
 return M
-

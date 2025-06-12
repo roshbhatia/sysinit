@@ -1,10 +1,12 @@
 local M = {}
 
 function M.setup()
-	vim.opt.termguicolors = true
-	vim.opt.showmode = true
 	vim.o.showtabline = 0
+	vim.o.winborder = "single"
 	vim.opt.laststatus = 3
+	vim.opt.shortmess:append("sI")
+	vim.opt.showmode = false
+	vim.opt.termguicolors = true
 end
 
 return M

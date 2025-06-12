@@ -33,7 +33,7 @@ M.plugins = {
 					end,
 				},
 				float = {
-					border = "rounded",
+					border = "single",
 					max_width = 80,
 					max_height = 30,
 				},

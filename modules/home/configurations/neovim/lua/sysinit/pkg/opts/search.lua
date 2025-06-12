@@ -1,10 +1,10 @@
 local M = {}
 
 function M.setup()
+	vim.o.ignorecase = true
 	vim.opt.hlsearch = true
-	vim.opt.incsearch = true
-	vim.opt.ignorecase = true
 	vim.opt.inccommand = "nosplit"
+	vim.opt.incsearch = true
 end
 
 return M

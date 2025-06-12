@@ -22,7 +22,7 @@ M.plugins = {
 		opts = {
 			window = {
 				layout = "float",
-				border = "rounded",
+				border = "single",
 				relative = "cursor",
 			},
 		},
