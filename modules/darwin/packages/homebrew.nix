@@ -27,6 +27,7 @@ let
   ];
 
   baseCasks = [
+    "alt-tab"
     "firefox"
     "hammerspoon"
     "keycastr"
