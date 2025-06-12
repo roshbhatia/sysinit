@@ -41,7 +41,7 @@ local function get_display_config()
 		enable_scroll_bar = true,
 		enable_tab_bar = true,
 		text_min_contrast_ratio = 4.5,
-		max_fps = 120,
+		max_fps = 240,
 		color_scheme = terminal_theme,
 		scrollback_lines = 20000,
 		adjust_window_size_when_changing_font_size = false,
@@ -140,4 +140,3 @@ function M.setup(config)
 end
 
 return M
-
