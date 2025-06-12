@@ -22,6 +22,15 @@ M.plugins = {
 				lsp = {
 					diagnostics_trigger_update = true,
 				},
+				backends = {
+					["_"] = {
+						"treesitter",
+						"lsp",
+						"markdown",
+						"asciidoc",
+						"man",
+					},
+				},
 			})
 		end,
 		keys = {
