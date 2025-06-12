@@ -15,12 +15,12 @@ let
       ui = {
         enableMouse = false;
         headless = false;
-        logoless = false;
+        logoless = true;
         crumbsless = false;
         noIcons = false;
         reactive = true;
         skin = "catppuccin";
-        defaultsToFullScreen = true;
+        defaultsToFullScreen = false;
       };
       noIcons = false;
       skipLatestRevCheck = false;
@@ -76,3 +76,4 @@ in
     };
   };
 }
+
