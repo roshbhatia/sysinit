@@ -10,7 +10,7 @@ M.plugins = {
 		config = function()
 			local null_ls = require("null-ls")
 			null_ls.setup({
-				border = "solid",
+				border = "rounded",
 				sources = {
 					null_ls.builtins.code_actions.gomodifytags,
 					null_ls.builtins.code_actions.impl,

@@ -56,19 +56,6 @@ extensions:
     name: memory
     timeout: 300
     type: builtin
-  sequential-thinking:
-    args:
-      - "-y"
-      - "@modelcontextprotocol/server-sequential-thinking"
-    bundled: null
-    cmd: npx
-    description: null
-    enabled: true
-    env_keys: []
-    envs: {}
-    name: sequential-thinking
-    timeout: 300
-    type: stdio
   filesystem:
     args:
       - "-y"

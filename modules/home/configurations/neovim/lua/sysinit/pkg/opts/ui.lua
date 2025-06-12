@@ -2,7 +2,7 @@ local M = {}
 
 function M.setup()
 	vim.o.showtabline = 0
-	vim.o.winborder = "solid"
+	vim.o.winborder = "rounded"
 	vim.opt.laststatus = 3
 	vim.opt.shortmess:append("sI")
 	vim.opt.showmode = false

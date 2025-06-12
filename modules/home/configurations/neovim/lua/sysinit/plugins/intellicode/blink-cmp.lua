@@ -149,7 +149,7 @@ M.plugins = {
 						auto_show = true,
 						auto_show_delay_ms = 0,
 						window = {
-							border = "solid",
+							border = "rounded",
 						},
 					},
 					ghost_text = {
@@ -162,7 +162,7 @@ M.plugins = {
 					},
 					menu = {
 						max_height = 15,
-						border = "solid",
+						border = "rounded",
 						draw = {
 							treesitter = {
 								"lsp",
