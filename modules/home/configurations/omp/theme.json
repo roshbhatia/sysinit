@@ -1,12 +1,11 @@
 {
   "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
   "palette": {
-    "os": "#e0def4",
-    "closer": "#e0def4",
-    "pink": "#eb6f92",
-    "lavender": "#c4a7e7",
-    "blue": "#9ccfd8",
-    "yellow": "#f6c177"
+    "os": "#ACB0BE",
+    "closer": "p:os",
+    "pink": "#F4B8E4",
+    "lavender": "#BABBF1",
+    "blue": "#8CAAEE"
   },
   "blocks": [
     {
@@ -15,25 +14,19 @@
         {
           "foreground": "p:os",
           "style": "plain",
-          "template": "󱄅 ",
+          "template": "{{.Icon}} ",
           "type": "os"
         },
         {
           "foreground": "p:blue",
           "style": "plain",
-          "template": "{{ .UserName }} ",
+          "template": "{{ .UserName }}@{{ .HostName }} ",
           "type": "session"
-        },
-        {
-          "foreground": "p:yellow",
-          "style": "plain",
-          "template": "󰠳 {{ .Context }}{{if .Namespace}} :: {{ .Namespace }}{{end}} ",
-          "type": "kubectl"
         },
         {
           "foreground": "p:pink",
           "properties": {
-            "folder_icon": "..\ue5fe..",
+            "folder_icon": "....",
             "home_icon": "~",
             "style": "agnoster_short"
           },
@@ -44,16 +37,16 @@
         {
           "foreground": "p:lavender",
           "properties": {
-            "branch_icon": "\ue725 ",
-            "cherry_pick_icon": "\ue29b ",
-            "commit_icon": "\uf417 ",
+            "branch_icon": " ",
+            "cherry_pick_icon": " ",
+            "commit_icon": " ",
             "fetch_status": false,
             "fetch_upstream_icon": false,
-            "merge_icon": "\ue727 ",
-            "no_commits_icon": "\uf0c3 ",
-            "rebase_icon": "\ue728 ",
-            "revert_icon": "\uf0e2 ",
-            "tag_icon": "\uf412 "
+            "merge_icon": " ",
+            "no_commits_icon": " ",
+            "rebase_icon": " ",
+            "revert_icon": " ",
+            "tag_icon": " "
           },
           "template": "{{ .HEAD }} ",
           "style": "plain",
@@ -62,7 +55,7 @@
         {
           "style": "plain",
           "foreground": "p:closer",
-          "template": "\uf105",
+          "template": "",
           "type": "text"
         }
       ],

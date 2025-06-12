@@ -1,7 +1,7 @@
 local wezterm = require("wezterm")
 local M = {}
 
-local terminal_theme = "Rosé Pine (Gogh)"
+local terminal_theme = "Catppuccin Frappé (Gogh)"
 
 local terminal_font = wezterm.font_with_fallback({
 	{
