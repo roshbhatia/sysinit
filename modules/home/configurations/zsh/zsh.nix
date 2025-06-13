@@ -64,7 +64,7 @@ in
       la = "eza --icons=always -1 -a";
       ll = "eza --icons=always -1 -a";
       ls = "eza";
-      lt = "eza --icons=always -1 -a -T";
+      lt = "eza --icons=always -1 -a -T --git-ignore --ignore-glob='.git'";
 
       tf = "terraform";
       y = "yazi";
@@ -93,6 +93,9 @@ in
       XDA = "${config.home.homeDirectory}/.local/share";
       XST = "${config.home.homeDirectory}/.local/state";
 
+      SUDO_EDITOR = "nvim";
+      VISUAL = "nvim";
+
       GIT_DISCOVERY_ACROSS_FILESYSTEM = 1;
 
       ZSH_EVALCACHE_DIR = "${config.home.homeDirectory}/.local/share/zsh/evalcache";
@@ -100,12 +103,11 @@ in
       ZSH_AUTOSUGGEST_USE_ASYNC = 1;
       ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = 20;
       ZSH_AUTOSUGGEST_MANUAL_REBIND = 1;
-      ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE = "fg=#808080,bold,underline";
+      ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE = "fg=#626880,italic";
 
       ZVM_LINE_INIT_MODE = "i";
 
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
-
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
         "--height=65%"
         "--preview-window 'right,50%,border-left,<50(up,30%,border-bottom)'"
@@ -113,43 +115,40 @@ in
         "--info=inline"
         "--prompt='] '"
         "--pointer='>>'"
-        "--color=bg+:,bg:,spinner:#ebbcba,hl:#eb6f92"
-        "--color=fg:#e0def4,header:#eb6f92,info:#9ccfd8,pointer:#ebbcba"
-        "--color=marker:#c4a7e7,fg+:#e0def4,prompt:#9ccfd8,hl+:#eb6f92"
-        "--color=selected-bg:#31748f"
-        "--color=border:#2a273f,label:#e0def4"
+        "--color=bg+:#313244,bg:#1e1e2e,spinner:#f5c2e7,hl:#f38ba8"
+        "--color=fg:#cdd6f4,header:#f38ba8,info:#89dceb,pointer:#f5c2e7"
+        "--color=marker:#cba6f7,fg+:#cdd6f4,prompt:#89dceb,hl+:#f38ba8"
+        "--color=selected-bg:#45475a"
+        "--color=border:#6c7086,label:#cdd6f4"
         "--bind='resize:refresh-preview'"
         "--cycle"
         "--ignore-case"
         "--style=minimal"
       ];
 
-      SUDO_EDITOR = "nvim";
-      VISUAL = "nvim";
-
       EZA_COLORS = lib.concatStringsSep ";" [
-        # directory color: #6d9eeb
-        "di=38;5;109"
-        # symlink color: #6d8ceb
-        "ln=38;5;108"
-        # socket color: #6e8eef
-        "so=38;5;110"
-        # pipe color: #6d9eeb
-        "pi=38;5;109"
-        # executable color: #8e9d6f
-        "ex=38;5;142"
-        # block device color: #6d9eeb (with background: #6c6c6c)
-        "bd=38;5;109;48;5;236"
-        # char device color: #6d9eeb (with background: #6c6c6c)
-        "cd=38;5;109;48;5;236"
-        # setuid color: #6d9eeb (with background: #6c6c6c)
-        "su=38;5;109;48;5;236"
-        # setgid color: #6d9eeb (with background: #6c6c6c)
-        "sg=38;5;109;48;5;236"
-        # sticky other writable color: #6d9eeb (with background: #6c6c6c)
-        "tw=38;5;109;48;5;236"
-        # other writable color: #6d9eeb (with background: #6c6c6c)
-        "ow=38;5;109;48;5;236"
+        # directory color: #89b4fa (bright blue)
+        "di=38;5;117"
+        # symlink color: #fab387 (peach)
+        "ln=38;5;216"
+        # socket color: #cba6f7 (mauve)
+        "so=38;5;183"
+        # pipe color: #94e2d5 (teal)
+        "pi=38;5;152"
+        # executable color: #a6e3a1 (green)
+        "ex=38;5;151"
+        # block device color: #f9e2af (yellow) with background: #45475a
+        "bd=38;5;223;48;5;238"
+        # char device color: #f38ba8 (pink) with background: #45475a
+        "cd=38;5;211;48;5;238"
+        # setuid color: #f38ba8 (pink) with background: #585b70
+        "su=38;5;211;48;5;240"
+        # setgid color: #fab387 (peach) with background: #585b70
+        "sg=38;5;216;48;5;240"
+        # sticky other writable color: #a6e3a1 (green) with background: #45475a
+        "tw=38;5;151;48;5;238"
+        # other writable color: #94e2d5 (teal) with background: #45475a
+        "ow=38;5;152;48;5;238"
       ];
     };
 
