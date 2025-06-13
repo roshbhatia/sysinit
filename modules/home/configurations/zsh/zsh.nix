@@ -115,7 +115,7 @@ in
         "--color=fg:#cdd6f4,header:#f38ba8,info:#89dceb,pointer:#f5c2e7"
         "--color=marker:#cba6f7,fg+:#cdd6f4,prompt:#89dceb,hl+:#f38ba8"
         "--cycle"
-        "--height=85%"
+        "--height=~85%"
         "--highlight-line"
         "--ignore-case"
         "--info=inline"
@@ -127,7 +127,6 @@ in
         "--preview-border=rounded"
         "--prompt='>> '"
         "--scheme='history'"
-        # "--style=minimal"
       ];
 
       EZA_COLORS = lib.concatStringsSep ";" [
