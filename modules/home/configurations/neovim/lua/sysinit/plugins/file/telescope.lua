@@ -161,6 +161,19 @@ M.plugins = {
 			telescope.load_extension("dap")
 			telescope.load_extension("live_grep_args")
 			telescope.load_extension("undo")
+
+			vim.api.nvim_create_autocmd("User", {
+				pattern = "TelescopeFindPre",
+				callback = function()
+					vim.opt_local.winborder = "none"
+					vim.api.nvim_create_autocmd("WinLeave", {
+						once = true,
+						callback = function()
+							vim.opt_local.winborder = "rounded"
+						end,
+					})
+				end,
+			})
 		end,
 		keys = function()
 			return {

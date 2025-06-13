@@ -11,6 +11,15 @@ M.plugins = {
 			winbar = {
 				enable = true,
 			},
+			border = {
+				enable = true,
+			},
+			theme = {
+				mode = "darken",
+			},
+			folds = {
+				folded = false,
+			},
 			use_trouble_qf = true,
 		},
 		keys = function()
