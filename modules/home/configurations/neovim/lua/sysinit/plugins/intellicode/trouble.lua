@@ -16,13 +16,8 @@ M.plugins = {
 			return {
 				{
 					"<leader>cx",
-					"<CMD>Trouble diagnostics toggle focus=false win.position=right win.type=split preview.type=float pinned=true win.relative=win<CR>",
+					"<CMD>Trouble diagnostics toggle focus=false win.position=bottom win.type=split preview.type=float pinned=true win.relative=win<CR>",
 					desc = "Project diagnostics",
-				},
-				{
-					"<leader>cX",
-					"<cmd>Trouble qflist toggle<cr>",
-					desc = "Project diagnostics quickfix List",
 				},
 			}
 		end,
@@ -30,3 +25,4 @@ M.plugins = {
 }
 
 return M
+
