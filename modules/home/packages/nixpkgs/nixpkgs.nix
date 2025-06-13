@@ -92,7 +92,6 @@ let
     stylua
     swift
     taplo
-    terraform
     textlint
     tfsec
     tlrc
@@ -114,4 +113,3 @@ in
 {
   home.packages = allNixPackages;
 }
-

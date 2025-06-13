@@ -22,6 +22,7 @@ let
     "borders"
     "bcrypt"
     "block-goose-cli"
+    "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"
   ];
