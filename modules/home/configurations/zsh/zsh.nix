@@ -127,6 +127,7 @@ in
         "--preview-border=rounded"
         "--prompt='>> '"
         "--scheme='history'"
+        "--style='minimal'"
       ];
 
       EZA_COLORS = lib.concatStringsSep ";" [
