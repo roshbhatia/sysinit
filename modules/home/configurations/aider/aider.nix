@@ -14,10 +14,7 @@ in
 
   home.activation.aider = activation.mkPackageManager {
     name = "uv";
-    basePackages = [
-      "aider-chat@lates"
-    ];
-    additionalPackages = [ ];
+    executableName = "uv";
     executableArguments = [
       "tool"
       "install"
@@ -26,7 +23,10 @@ in
       "--with"
       "pip"
     ];
-    executableName = "uv";
+    basePackages = [
+      "aider-chat@latest"
+    ];
+    additionalPackages = [ ];
   };
 }
 
