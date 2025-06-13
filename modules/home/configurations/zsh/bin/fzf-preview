@@ -18,7 +18,7 @@ fi
 type=$(file --brief --dereference --mime -- "$target")
 
 if [[ -d "$target" ]]; then
-  eza --colors=always --icons=always -1 "$target"
+  eza --color=always --icons=always -1 "$target"
 elif [[ "$type" =~ image/ ]]; then
   wezterm imgcat "$target"
 else
