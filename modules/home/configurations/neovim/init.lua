@@ -34,6 +34,8 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.debugger.dap-virtual-text"),
 	require("sysinit.plugins.debugger.dap"),
 	require("sysinit.plugins.debugger.mason-nvim-dap"),
+	require("sysinit.plugins.debugger.nvim-dap-docker"),
+	require("sysinit.plugins.debugger.nvim-dap-go"),
 	require("sysinit.plugins.editor.colorizer"),
 	require("sysinit.plugins.editor.comment"),
 	require("sysinit.plugins.editor.foldsign"),
@@ -119,3 +121,4 @@ require("sysinit.pkg.keybindings.undo").setup()
 require("sysinit.pkg.keybindings.vim").setup()
 
 require("sysinit.pkg.entrypoint.no-session").setup()
+
