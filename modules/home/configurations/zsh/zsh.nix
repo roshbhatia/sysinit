@@ -113,9 +113,9 @@ in
         "--preview-window 'right,50%,border-left,<50(up,30%,border-bottom)'"
         "--layout=reverse"
         "--info=inline"
-        "--prompt='] '"
+        "--prompt=' '"
         "--pointer='>>'"
-        "--color=bg+:#313244,bg:#1e1e2e,spinner:#f5c2e7,hl:#f38ba8"
+        "--color=bg+:-1,bg:-1,spinner:#f5c2e7,hl:#f38ba8"
         "--color=fg:#cdd6f4,header:#f38ba8,info:#89dceb,pointer:#f5c2e7"
         "--color=marker:#cba6f7,fg+:#cdd6f4,prompt:#89dceb,hl+:#f38ba8"
         "--color=selected-bg:#45475a"
@@ -300,4 +300,3 @@ in
     };
   };
 }
-
