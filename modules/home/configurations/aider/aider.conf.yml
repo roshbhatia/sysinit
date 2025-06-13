@@ -13,7 +13,7 @@ openai-api-base: https://api.githubcopilot.com
 #   export OPENAI_API_KEY=""
 # fi
 
-model: openai/claude-3.5-sonnet
+model: openai/gpt-4o
 editor-model: openai/gpt-4o
 editor-edit-format: architect
 weak-model: openai/gpt-3.5-turbo
