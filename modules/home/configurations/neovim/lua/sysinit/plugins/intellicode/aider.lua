@@ -5,8 +5,8 @@ M.plugins = {
 		"GeorgesAlkhouri/nvim-aider",
 		cmd = "Aider",
 		keys = {
-			{ "<leader>ss", "<cmd>Aider toggle<cr>", desc = "Toggle Aider" },
-			{ "<leader>sS", "<cmd>Aider reset<cr>", desc = "New Aider Session" },
+			{ "<leader>Aa", "<cmd>Aider toggle<cr>", desc = "Toggle Aider" },
+			{ "<leader>AA", "<cmd>Aider reset<cr>", desc = "New Aider Session" },
 		},
 		opts = {
 			auto_reload = true,
