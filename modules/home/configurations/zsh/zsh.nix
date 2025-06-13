@@ -109,20 +109,24 @@ in
 
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
-        "--height=65%"
-        "--preview-window 'right,50%,border-left,<50(up,30%,border-bottom)'"
-        "--layout=reverse"
-        "--info=inline"
-        "--prompt=' '"
-        "--pointer='>>'"
+        "--bind='resize:refresh-preview'"
         "--color=bg+:-1,bg:-1,spinner:#f5c2e7,hl:#f38ba8"
+        "--color=border:#6c7086,label:#cdd6f4"
         "--color=fg:#cdd6f4,header:#f38ba8,info:#89dceb,pointer:#f5c2e7"
         "--color=marker:#cba6f7,fg+:#cdd6f4,prompt:#89dceb,hl+:#f38ba8"
-        "--color=selected-bg:#45475a"
-        "--color=border:#6c7086,label:#cdd6f4"
-        "--bind='resize:refresh-preview'"
         "--cycle"
+        "--height=85%"
+        "--highlight-line"
         "--ignore-case"
+        "--info=inline"
+        "--input-border='rounded"
+        "--layout=reverse"
+        "--list-border='rounded'"
+        "--no-scrollbar"
+        "--pointer='>'"
+        "--preview-border='rounded"
+        "--prompt='>> '"
+        "--scheme='history'"
         "--style=minimal"
       ];
 
