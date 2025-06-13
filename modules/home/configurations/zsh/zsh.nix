@@ -119,12 +119,12 @@ in
         "--highlight-line"
         "--ignore-case"
         "--info=inline"
-        "--input-border='rounded"
+        "--input-border=rounded"
         "--layout=reverse"
-        "--list-border='rounded'"
+        "--list-border=rounded"
         "--no-scrollbar"
         "--pointer='>'"
-        "--preview-border='rounded"
+        "--preview-border=rounded"
         "--prompt='>> '"
         "--scheme='history'"
         "--style=minimal"
@@ -304,3 +304,4 @@ in
     };
   };
 }
+
