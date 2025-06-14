@@ -5,12 +5,12 @@ M.plugins = {
 		"karb94/neoscroll.nvim",
 		event = "BufReadPost",
 		opts = {
-			hide_cursor = true,
-			stop_eof = true,
+			hide_cursor = false,
+			stop_eof = false,
 			respect_scrolloff = true,
 			cursor_scrolls_alone = false,
 			easing = "cubic",
-			duration_multiplier = 1.2,
+			duration_multiplier = 1.6,
 			performance_mode = false,
 			mappings = {},
 		},
@@ -53,7 +53,7 @@ M.plugins = {
 				{
 					"<C-y>",
 					function()
-						neoscroll.scroll(-1, { move_cursor = false, duration = 80, easing = "sine" })
+						neoscroll.scroll(-1, { duration = 80, easing = "sine" })
 					end,
 					mode = { "n", "v", "x" },
 					silent = true,
@@ -61,7 +61,7 @@ M.plugins = {
 				{
 					"<C-e>",
 					function()
-						neoscroll.scroll(1, { move_cursor = false, duration = 80, easing = "sine" })
+						neoscroll.scroll(1, { duration = 80, easing = "sine" })
 					end,
 					mode = { "n", "v", "x" },
 					silent = true,
@@ -93,7 +93,7 @@ M.plugins = {
 				{
 					"<ScrollWheelUp>",
 					function()
-						neoscroll.scroll(-3, { move_cursor = false, duration = 100, easing = "quadratic" })
+						neoscroll.scroll(-3, { duration = 50, easing = "quadratic" })
 					end,
 					mode = { "n", "v", "x" },
 					silent = true,
@@ -101,7 +101,7 @@ M.plugins = {
 				{
 					"<ScrollWheelDown>",
 					function()
-						neoscroll.scroll(3, { move_cursor = false, duration = 100, easing = "quadratic" })
+						neoscroll.scroll(3, { duration = 50, easing = "quadratic" })
 					end,
 					mode = { "n", "v", "x" },
 					silent = true,
@@ -112,3 +112,4 @@ M.plugins = {
 }
 
 return M
+
