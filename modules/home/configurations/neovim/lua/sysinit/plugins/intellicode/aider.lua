@@ -2,6 +2,7 @@ local M = {}
 
 M.plugins = {
 	{
+		enabled = false 
 		"GeorgesAlkhouri/nvim-aider",
 		cmd = "Aider",
 		keys = {
