@@ -3,7 +3,6 @@ local M = {}
 M.plugins = {
 	{
 		"tamton-aquib/staline.nvim",
-		commit = "d337bc9b343df3c28921ef4c3f8ff604102d0201",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
 		event = {
 			"BufEnter",

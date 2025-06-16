@@ -3,7 +3,6 @@ local M = {}
 M.plugins = {
 	{
 		"mfussenegger/nvim-dap",
-		commit = "8df427aeba0a06c6577dc3ab82de3076964e3b8d",
 		lazy = false,
 		recommended = true,
 		dependencies = {
@@ -90,3 +89,4 @@ M.plugins = {
 }
 
 return M
+
