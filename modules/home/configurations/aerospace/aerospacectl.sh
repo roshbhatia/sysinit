@@ -25,18 +25,18 @@ smart_resize() {
   [ -z "$window_id" ] && handle_error "Failed to retrieve focused window ID"
   log "Current window: $window_info"
 
-  # Get screen dimensions dynamically using displayplacer
-  if command -v displayplacer >/dev/null 2>&1; then
-    screen_info=$(displayplacer list 2>/dev/null | awk '/Resolution:/ {print $2}' | head -n 1)
-    if [[ "$screen_info" =~ ([0-9]+)x([0-9]+) ]]; then
-      screen_width="${BASH_REMATCH[1]}"
-      screen_height="${BASH_REMATCH[2]}"
+  # Get screen dimensions dynamically using system_profiler
+  if command -v system_profiler >/dev/null 2>&1; then
+    screen_info=$(system_profiler SPDisplaysDataType | grep Resolution | head -n 1)
+    screen_width=$(echo "$screen_info" | awk '{print $2}')
+    screen_height=$(echo "$screen_info" | awk '{print $4}')
+    if [[ -n "$screen_width" && -n "$screen_height" ]]; then
       log "Detected screen dimensions: ${screen_width}x${screen_height}"
     else
       handle_error "Failed to detect screen resolution"
     fi
   else
-    handle_error "displayplacer command not found"
+    handle_error "system_profiler command not found"
   fi
 
   # Cycling state
