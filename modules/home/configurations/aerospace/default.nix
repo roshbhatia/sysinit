@@ -1,4 +1,5 @@
 { ... }:
 {
-  imports = [ ./aerospace..nix ];
+  imports = [ ./aerospace.nix ];
 }
+
