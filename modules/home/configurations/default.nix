@@ -14,13 +14,14 @@
       inherit lib overlay;
     })
 
+    ./aerospace
     ./aider
     ./atuin
     ./bat
     ./borders
     ./colima
     ./direnv
-    ./hammerspoon
+    # ./hammerspoon
     ./k9s
     (import ./macchina {
       inherit config pkgs;
@@ -31,4 +32,3 @@
     ./wezterm
   ];
 }
-
