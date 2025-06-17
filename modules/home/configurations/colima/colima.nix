@@ -49,7 +49,8 @@ let
   colimaYaml = pkgs.writeText "colima.yaml" (lib.generators.toYAML { } colimaConfig);
 in
 {
-  xdg.configFile."docker/config.json" = {
+  # Docker CLI doesn't respect XDG_CONFIG_HOME, so we need to set it manually.
+  home.file.".docker/config.json" = {
     source = dockerJson;
     force = true;
   };
