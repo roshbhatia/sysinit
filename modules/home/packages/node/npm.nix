@@ -17,9 +17,7 @@ in
 
   home.activation.npmPackages = activation.mkPackageManager {
     name = "npm";
-    basePackages = [
-      "puppeteer"
-    ];
+    basePackages = [ ];
     additionalPackages = (overlay.npm.additionalPackages or [ ]);
     executableArguments = [
       "install"
@@ -28,4 +26,3 @@ in
     executableName = "npm";
   };
 }
-
