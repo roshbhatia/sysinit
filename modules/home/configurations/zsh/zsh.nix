@@ -268,11 +268,6 @@ in
   };
 
   xdg.configFile = {
-    "zsh/bin/colima-recreate" = {
-      source = ./bin/colima-recreate;
-      force = true;
-    };
-
     "zsh/bin/dns-flush" = {
       source = ./bin/dns-flush;
       force = true;
@@ -290,16 +285,6 @@ in
 
     "zsh/bin/gh-whoami" = {
       source = ./bin/gh-whoami;
-      force = true;
-    };
-
-    "zsh/bin/kubectl-kexec" = {
-      source = ./bin/kubectl-kexec;
-      force = true;
-    };
-
-    "zsh/bin/kubectl-kproxy" = {
-      source = ./bin/kubectl-kproxy;
       force = true;
     };
   };

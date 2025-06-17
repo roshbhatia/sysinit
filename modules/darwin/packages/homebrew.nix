@@ -33,7 +33,6 @@ let
     "hammerspoon"
     "keycastr"
     "nikitabobko/tap/aerospace"
-    # "loop"
     "slack"
     "visual-studio-code@insiders"
     "wezterm@nightly"

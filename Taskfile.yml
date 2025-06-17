@@ -11,6 +11,7 @@ tasks:
     desc: Show help information
     silent: true
 
+
   nix:fmt:
     cmds:
       - |
@@ -100,5 +101,19 @@ tasks:
         fi
         log_success "Work configuration refreshed successfully"
     desc: Update and rebuild work sysinit configuration
+    silent: true
+
+  sh:chmod:
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        source hack/lib/logger.sh
+        log_info "Finding all .sh files and making them executable"
+        if ! fd -e sh -x sh -c 'source hack/lib/logger.sh && log_info "Making executable: {}" && chmod +x {}' _; then
+          log_error "Failed to make .sh files executable"
+          exit 1
+        fi
+        log_success "All .sh files are now executable"
+    desc: Make all .sh files in the repository executable
     silent: true
 
