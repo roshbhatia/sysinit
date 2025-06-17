@@ -62,7 +62,7 @@ in
     force = true;
   };
 
-  home.File.".local/bin/colimactl" = {
+  home.file.".local/bin/colimactl" = {
     source = ./colimactl.sh;
     force = true;
   };
@@ -75,3 +75,4 @@ in
     '';
   };
 }
+
