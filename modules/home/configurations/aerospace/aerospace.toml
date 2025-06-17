@@ -109,7 +109,7 @@ automatically-unhide-macos-hidden-apps = false
     # Navigation (unchanged)
     alt-h = 'focus left'
     alt-j = 'focus down'
-    alt-k = 'focus up'
+    alt-k = 'focus up'ht'
     alt-l = 'focus right'
 
     # Window resizing with smart cycling for specific split ratios

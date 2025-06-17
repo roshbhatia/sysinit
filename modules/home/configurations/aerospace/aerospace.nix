@@ -8,7 +8,7 @@
     force = true;
   };
 
-  xdg.configFile."zsh/bin/aerospacectl" = {
+  home.file.".local/bin/aerospacectl" = {
     source = ./aerospacectl.sh;
     force = true;
   };

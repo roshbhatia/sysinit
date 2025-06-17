@@ -62,7 +62,7 @@ in
     force = true;
   };
 
-  xdg.configFile."zsh/bin/colimactl" = {
+  home.File.".local/bin/colimactl" = {
     source = ./colimactl.sh;
     force = true;
   };
@@ -75,4 +75,3 @@ in
     '';
   };
 }
-
