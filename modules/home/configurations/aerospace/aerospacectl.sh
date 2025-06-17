@@ -2,8 +2,6 @@
 # aerospacectl - Unified script for managing aerospace display cache and smart-resize functionality
 
 CACHE_DIR="$XDG_DATA_HOME/aerospace"
-DISPLAY_CACHE="$CACHE_DIR/displaycache"
-DISPLAY_INFO="$CACHE_DIR/display_info"
 RESIZE_STATE_FILE="$CACHE_DIR/window_state"
 mkdir -p "$CACHE_DIR"
 
@@ -14,52 +12,6 @@ log() {
 handle_error() {
   log "Error: $1"
   exit 1
-}
-
-update_display_cache() {
-  log "Updating display cache"
-
-  # Clear existing files
-  rm -f "$DISPLAY_INFO" "$DISPLAY_CACHE"
-
-  # Get display information
-  if command -v aerospace >/dev/null 2>&1; then
-    display_info=$(aerospace list-monitors 2>/dev/null | while read -r line; do
-      id=$(echo "$line" | cut -d'|' -f1)
-      name=$(echo "$line" | cut -d'|' -f2 | tr -d ' ' | base64)
-      echo "$id | $name"
-    done)
-    log "Retrieved data from aerospace"
-  else
-    handle_error "Aerospace command not found"
-  fi
-
-  # Write to cache
-  if [ ! -z "$display_info" ]; then
-    echo "$display_info" > "$DISPLAY_CACHE"
-    log "Display cache updated successfully"
-  else
-    handle_error "Failed to retrieve display information"
-  fi
-
-  # Detect screen resolution
-  if command -v screenresolution &>/dev/null; then
-    log "Attempting to retrieve real resolution via screenresolution"
-    FOCUSED_MONITOR_INFO=$(aerospace list-monitors --focused --json 2>/dev/null)
-    FOCUSED_MONITOR_ID=$(echo "$FOCUSED_MONITOR_INFO" | jq -r '.[0]["monitor-id"]')
-    if [[ ! -z "$FOCUSED_MONITOR_ID" && "$FOCUSED_MONITOR_ID" != "null" ]]; then
-      SCREEN_INDEX=$((FOCUSED_MONITOR_ID - 1))
-      SCREEN_INFO=$(screenresolution get 2>/dev/null | grep "Display $SCREEN_INDEX:" | grep -oE '[0-9]+x[0-9]+')
-      if [ ! -z "$SCREEN_INFO" ]; then
-        monitor_name=$(echo "$FOCUSED_MONITOR_INFO" | jq -r '.[0]["monitor-name"]' | tr -d ' ' | base64)
-        echo "\"$monitor_name\",\"$SCREEN_INFO\"" > "$DISPLAY_INFO"
-        log "Retrieved resolution $SCREEN_INFO for monitor $monitor_name"
-        return
-      fi
-    fi
-  fi
-
-  handle_error "Failed to update display information"
 }
 
 smart_resize() {
@@ -73,18 +25,18 @@ smart_resize() {
   [ -z "$window_id" ] && handle_error "Failed to retrieve focused window ID"
   log "Current window: $window_info"
 
-  # Screen dimensions
-  screen_width=2056
-  screen_height=1329
-  if command -v screenresolution &>/dev/null; then
-    screen_info=$(screenresolution get 2>/dev/null)
+  # Get screen dimensions dynamically using displayplacer
+  if command -v displayplacer >/dev/null 2>&1; then
+    screen_info=$(displayplacer list 2>/dev/null | awk '/Resolution:/ {print $2}' | head -n 1)
     if [[ "$screen_info" =~ ([0-9]+)x([0-9]+) ]]; then
       screen_width="${BASH_REMATCH[1]}"
       screen_height="${BASH_REMATCH[2]}"
       log "Detected screen dimensions: ${screen_width}x${screen_height}"
     else
-      log "Failed to detect screen resolution, using defaults"
+      handle_error "Failed to detect screen resolution"
     fi
+  else
+    handle_error "displayplacer command not found"
   fi
 
   # Cycling state
@@ -127,19 +79,15 @@ show_help() {
   echo "Usage: aerospacectl [COMMAND] [ARGS]"
   echo ""
   echo "Commands:"
-  echo "  update-display-cache       Update the display cache"
   echo "  smart-resize [direction]   Resize the window (left, right, up, down)"
   echo "  help                       Show this help message"
 }
 
 # Parse command
 case $1 in
-  update-display-cache)
-    update_display_cache
-    ;;
   smart-resize)
     shift
-    update_display_cache & smart_resize "$@"
+    smart_resize "$@"
     ;;
   help|--help|-h|*)
     show_help

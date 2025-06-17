@@ -12,6 +12,7 @@ let
   baseTaps = [
     "FelixKratz/formulae"
     "hashicorp/tap"
+    "jakehilborn/jakehilborn"
     "mediosz/tap"
     "nikitabobko/tap"
     "noahgorstein/tap"
@@ -22,6 +23,7 @@ let
     "borders"
     "bcrypt"
     "block-goose-cli"
+    "displayplacer"
     "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"
