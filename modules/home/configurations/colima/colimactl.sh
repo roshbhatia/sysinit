@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-export COLIMA_HOME="$XDG_CONFIG_HOME/colima"
+export COLIMA_HOME="$HOME/colima"
 CA_CERTS_DIR="/usr/local/share/ca-certificates"
 DOCKER_CERTS_DIR="$HOME/.docker/certs.d"
 OLD_COLIMA_DIR="$HOME/.colima"
-COLIMA_CONFIG_DIR="$XDG_CONFIG_HOME/colima"
+COLIMA_CONFIG_DIR="$HOME/colima"
 ZSCALER_CERT_PATH="$HOME/zscaler-certs/zscaler.pem"
-DOCKER_DOMAINS=("registry-1.docker.io" "another-domain.example.com")
+DOCKER_DOMAINS=("registry-1.docker.io")
 
 check_commands() {
     for cmd in colima security openssl sudo gum; do
@@ -78,7 +78,7 @@ update_ca_certificates() {
 
 setup_docker_socket() {
     sudo rm -f /var/run/docker.sock
-    sudo ln -s "$XDG_CONFIG_HOME/colima/default/docker.sock" /var/run/docker.sock
+    sudo ln -s "$HOME/colima/default/docker.sock" /var/run/docker.sock
 }
 
 run_all() {
@@ -130,3 +130,4 @@ else
         *) echo "Usage: $0 {greedy|check|move-config|delete|setup-dirs|extract-certs|copy-certs|start|update-certs|setup-docker|all}" ;;
     esac
 fi
+
