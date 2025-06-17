@@ -59,10 +59,10 @@ automatically-unhide-macos-hidden-apps = false
 [gaps]
     inner.horizontal = 12
     inner.vertical =   12
-    outer.left =       12
+    outer.left =       24
     outer.bottom =     12
     outer.top =        12
-    outer.right =      12
+    outer.right =      24
 
 # 'main' binding mode declaration
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
@@ -123,6 +123,8 @@ automatically-unhide-macos-hidden-apps = false
     # Base resize commands
     alt-minus = 'resize smart -50'
     alt-equal = 'resize smart +50'
+    alt-shift-minus = 'resize smart -200'
+    alt-shift-equal = 'resize smart +200'
 
     # Workspace management
     alt-1 = 'workspace 1'
@@ -136,13 +138,9 @@ automatically-unhide-macos-hidden-apps = false
     alt-shift-3 = 'move-node-to-workspace 3'
     alt-shift-4 = 'move-node-to-workspace 4'
 
-    alt-esc = 'exec-and-forget  aerospace list-workspaces --monitor focused --empty no | aerospace workspace --wrap-around next'
-    alt-shift-esc = 'exec-and-forget  aerospace list-workspaces --monitor focused --empty no | aerospace workspace --wrap-around prev'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#workspace-back-and-forth
     alt-tab = 'workspace-back-and-forth'
-    # See: https://nikitabobko.github.io/AeroSpace/commands#move-workspace-to-monitor
-    alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#mode
     alt-shift-semicolon = 'mode service'
