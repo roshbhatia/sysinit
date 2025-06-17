@@ -13,7 +13,7 @@ let
     ansible
     argocd
     atuin
-    awscli
+    awscli2
     bat
     bashInteractive
     caddy
@@ -113,3 +113,4 @@ in
 {
   home.packages = allNixPackages;
 }
+

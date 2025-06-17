@@ -1,8 +1,6 @@
 ---
 GOOSE_MODEL: gpt-4o
 GOOSE_PROVIDER: github_copilot
-GOOSE_PLANNER_MODEL: claude-3.7-sonnet-thought
-GOOSE_LEAD_MODEL: claude-3.7-sonnet-thought
 
 extensions:
   developer:
