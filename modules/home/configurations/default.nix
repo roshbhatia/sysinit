@@ -19,7 +19,9 @@
     ./atuin
     ./bat
     ./borders
-    ./colima
+    (import ./colima {
+      inherit lib overlay pkgs;
+    })
     ./direnv
     ./k9s
     (import ./macchina {
