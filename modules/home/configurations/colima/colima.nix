@@ -12,6 +12,9 @@ let
     "insecure-registries" = additionalInsecureRegistries;
     credsStore = "osxkeychain";
     currentContext = "colima";
+    hosts = [
+      "unix:///Users/${overlay.user.username}/.config/colima/default/docker.sock"
+    ];
   };
 
   colimaConfig = {
@@ -62,3 +65,4 @@ in
     force = true;
   };
 }
+
