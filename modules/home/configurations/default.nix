@@ -21,7 +21,6 @@
     ./borders
     ./colima
     ./direnv
-    # ./hammerspoon
     ./k9s
     (import ./macchina {
       inherit config pkgs;

@@ -30,7 +30,6 @@ let
   baseCasks = [
     "alt-tab"
     "firefox"
-    "hammerspoon"
     "keycastr"
     "nikitabobko/tap/aerospace"
     "slack"
