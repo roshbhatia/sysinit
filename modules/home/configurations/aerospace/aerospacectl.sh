@@ -79,15 +79,27 @@ show_help() {
   echo "Usage: aerospacectl [COMMAND] [ARGS]"
   echo ""
   echo "Commands:"
-  echo "  smart-resize [direction]   Resize the window (left, right, up, down)"
+  echo "  [direction]   Resize the window (left, right, up, down)"
   echo "  help                       Show this help message"
 }
 
 # Parse command
 case $1 in
-  smart-resize)
+  right)
     shift
-    smart_resize "$@"
+    smart_resize right
+    ;;
+  left)
+    shift
+    smart_resize left
+    ;;
+  up)
+    shift
+    smart_resize up
+    ;;
+  down)
+    shift
+    smart_resize down
     ;;
   help|--help|-h|*)
     show_help
