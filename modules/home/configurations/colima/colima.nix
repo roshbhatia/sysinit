@@ -6,6 +6,8 @@
 }:
 
 let
+  activation = import ../../../lib/activation { inherit lib; };
+
   additionalInsecureRegistries = (overlay.docker.insecureRegistries or [ ]);
 
   dockerConfig = {
@@ -55,8 +57,7 @@ in
     force = true;
   };
 
-  # Colima has issues respecting XDG, and hacky brew service edits don't persist.
-  home.file.".colima/_templates/colima.yaml" = {
+  xdg.configFile."colima/_templates/colima.yaml" = {
     source = colimaYaml;
     force = true;
   };
@@ -64,6 +65,14 @@ in
   xdg.configFile."zsh/bin/colimactl" = {
     source = ./colimactl.sh;
     force = true;
+  };
+
+  home.activation.linkDockerSock = activation.mkActivationScript {
+    description = "Link docker socket";
+    requiredExecutables = [ "ln" ];
+    script = ''
+      log_command "sudo ln -sf $XDG_CONFIG_HOME/.colima/default/docker.sock /var/run/docker.sock" "Linking docker socket";
+    '';
   };
 }
 

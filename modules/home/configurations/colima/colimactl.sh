@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-export COLIMA_HOME="$HOME/colima"
+export COLIMA_HOME="$XDG_CONFIG_HOME/colima"
 CA_CERTS_DIR="/usr/local/share/ca-certificates"
 DOCKER_CERTS_DIR="$HOME/.docker/certs.d"
-OLD_COLIMA_DIR="$HOME/.colima"
-COLIMA_CONFIG_DIR="$HOME/colima"
+OLD_COLIMA_DIR="$COLIMA_HOME"
+COLIMA_CONFIG_DIR="$COLIMA_HOME"
 ZSCALER_CERT_PATH="$HOME/zscaler-certs/zscaler.pem"
 DOCKER_DOMAINS=("registry-1.docker.io")
 

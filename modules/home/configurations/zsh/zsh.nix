@@ -154,6 +154,8 @@ in
         # other writable color: #94e2d5 (teal) with background: #45475a
         "ow=38;5;152;48;5;238"
       ];
+
+      COLIMA_HOME = "${config.home.homeDirectory}/.config/colima";
     };
 
     plugins = [
@@ -289,3 +291,4 @@ in
     };
   };
 }
+
