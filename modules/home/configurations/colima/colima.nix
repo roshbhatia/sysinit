@@ -21,6 +21,11 @@ let
         "host.docker.internal" = "host.lima.internal";
       };
     };
+    docker = {
+      insecureRegistries = [
+        "xpkg.upbound.io"
+      ];
+    };
     vmType = "vz";
     rosetta = true;
     nestedVirtualization = true;
@@ -41,3 +46,4 @@ in
     force = true;
   };
 }
+
