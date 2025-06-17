@@ -11,12 +11,15 @@ in
   home.file.".npmrc" = {
     text = ''
       prefix = ''\${HOME}/.local/share/.npm-packages
+      strict-ssl = false
     '';
   };
 
   home.activation.npmPackages = activation.mkPackageManager {
     name = "npm";
-    basePackages = [ ];
+    basePackages = [
+      "puppeteer"
+    ];
     additionalPackages = (overlay.npm.additionalPackages or [ ]);
     executableArguments = [
       "install"
@@ -25,3 +28,4 @@ in
     executableName = "npm";
   };
 }
+
