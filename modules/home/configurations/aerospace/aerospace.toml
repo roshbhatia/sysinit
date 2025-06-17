@@ -85,10 +85,10 @@ automatically-unhide-macos-hidden-apps = false
     alt-l = 'focus right'
 
     # Window resizing with smart cycling for specific split ratios
-    alt-shift-h = 'exec-and-forget aerospacectl right'
-    alt-shift-l = 'exec-and-forget aerospacectl left'
-    alt-shift-j = 'exec-and-forget aerospacectl down'
-    alt-shift-k = 'exec-and-forget aerospacectl up'
+    alt-shift-h = 'exec-and-forget "aerospacectl right"'
+    alt-shift-l = 'exec-and-forget "aerospacectl left"'
+    alt-shift-j = 'exec-and-forget "aerospacectl down"'
+    alt-shift-k = 'exec-and-forget "aerospacectl up"'
 
     # Base resize commands
     alt-minus = 'resize smart -50'
