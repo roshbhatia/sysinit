@@ -21,7 +21,7 @@ enable-normalization-opposite-orientation-for-nested-containers = true
 # See: https://nikitabobko.github.io/AeroSpace/guide#layouts
 # The 'accordion-padding' specifies the size of accordion padding
 # You can set 0 to disable the padding feature
-accordion-padding = 30
+accordion-padding = 36
 
 # Possible values: tiles|accordion
 default-root-container-layout = 'tiles'
@@ -70,6 +70,8 @@ automatically-unhide-macos-hidden-apps = false
 # Fallback value (if you omit the key): mode.main.binding = {}
 [mode.main.binding]
     # See: https://nikitabobko.github.io/AeroSpace/commands#layout
+    alt-a = 'enable toggle' # toggle aeroslace
+
     alt-slash = 'layout tiles horizontal vertical'
     alt-comma = 'layout accordion horizontal vertical'
 
@@ -86,10 +88,10 @@ automatically-unhide-macos-hidden-apps = false
     alt-l = 'focus right'
 
     # Window resizing with smart cycling for specific split ratios
-    alt-shift-h = 'exec-and-forget "~/.local/bin/aerospacectl right"'
-    alt-shift-l = 'exec-and-forget "~/.local/bin/aerospacectl left"'
-    alt-shift-j = 'exec-and-forget "~/.local/bin/aerospacectl down"'
-    alt-shift-k = 'exec-and-forget "~/.local/bin/aerospacectl up"'
+    alt-shift-h = 'exec-and-forget "aerospacectl right"'
+    alt-shift-l = 'exec-and-forget "aerospacectl left"'
+    alt-shift-j = 'exec-and-forget "aerospacectl down"'
+    alt-shift-k = 'exec-and-forget "aerospacectl up"'
 
     # Explicitly NOT binding alt+arrow keys to preserve zsh word/line navigation
 

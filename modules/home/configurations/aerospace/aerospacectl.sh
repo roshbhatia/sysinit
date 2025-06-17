@@ -76,7 +76,7 @@ smart_resize() {
 }
 
 show_help() {
-  echo "Usage: aerospacectl [COMMAND] [ARGS]"
+  echo "Usage: aerospacectl [COMMAND]"
   echo ""
   echo "Commands:"
   echo "  [direction]   Resize the window (left, right, up, down)"
