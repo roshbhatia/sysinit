@@ -25,9 +25,7 @@ move_legacy_config() {
 }
 
 delete_colima_instance() {
-    if colima status &>/dev/null; then
-        gum confirm "Delete existing Colima instance?" && colima delete -f
-    fi
+    colima status &>/dev/null && colima delete -f
 }
 
 setup_cert_dirs() {
@@ -61,8 +59,12 @@ copy_zscaler_certs() {
     for domain in "${DOCKER_DOMAINS[@]}"; do
         local dest_dir
         dest_dir="${DOCKER_CERTS_DIR}/${domain}"
-        mkdir -p "$dest_dir"
-        cp "$ZSCALER_CERT_PATH" "$dest_dir/ca.crt"
+        sudo mkdir -p "$dest_dir"
+        if [[ -f "$ZSCALER_CERT_PATH" ]]; then
+            sudo cp "$ZSCALER_CERT_PATH" "$dest_dir/ca.crt"
+        else
+            gum style --foreground red "Zscaler certificate not found at $ZSCALER_CERT_PATH" >&2
+        fi
     done
 }
 
@@ -109,7 +111,9 @@ main_menu() {
     esac
 }
 
-if [[ -z "$1" ]]; then
+if [[ "$1" == "greedy" ]]; then
+    run_all
+elif [[ -z "$1" ]]; then
     main_menu
 else
     case "$1" in
@@ -123,7 +127,6 @@ else
         update-certs) update_ca_certificates ;;
         setup-docker) setup_docker_socket ;;
         all) run_all ;;
-        *) echo "Usage: $0 {check|move-config|delete|setup-dirs|extract-certs|copy-certs|start|update-certs|setup-docker|all}" ;;
+        *) echo "Usage: $0 {greedy|check|move-config|delete|setup-dirs|extract-certs|copy-certs|start|update-certs|setup-docker|all}" ;;
     esac
 fi
-
