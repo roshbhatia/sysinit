@@ -17,12 +17,28 @@ handle_error() {
 
 smart_resize() {
   local direction=$1
+
   [ -z "$direction" ] && handle_error "No direction provided for smart resize"
+
   log "Starting smart resize: $direction"
 
-  window_info=$(aerospace list-windows --workspace focused --format "%{window-id} | %{window-title}")
+  window_info=$(aerospace list-windows --workspace focused --format "%{window-id} | %{window-title}" 2>/dev/null)
+
+  if [ -z "$window_info" ]; then
+    log "No window found in focused workspace. Trying fallback to get focused window..."
+    window_info=$(aerospace list-windows --focused --format "%{window-id} | %{window-title}" 2>/dev/null)
+  fi
+
+  if [ -z "$window_info" ]; then
+    handle_error "Failed to retrieve any window ID from focused workspace or fallback"
+  fi
+
   window_id=$(echo "$window_info" | awk '{print $1}')
-  [ -z "$window_id" ] && handle_error "Failed to retrieve window ID from focused workspace"
+
+  if [ -z "$window_id" ]; then
+    handle_error "Parsed window ID is empty. Full output: '$window_info'"
+  fi
+
   log "Current window: $window_info"
 
   if command -v displayplacer >/dev/null 2>&1; then
