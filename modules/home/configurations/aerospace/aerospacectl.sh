@@ -1,8 +1,10 @@
 #!/bin/bash
 # shellcheck disable=all
-CACHE_DIR="$XDG_DATA_HOME/aerospace"
+
+CACHE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/aerospace"
 RESIZE_STATE_FILE="$CACHE_DIR/window_state"
 LOG_FILE="/tmp/log/aerospacectl.log"
+
 mkdir -p "$CACHE_DIR"
 mkdir -p "$(dirname "$LOG_FILE")"
 
@@ -17,29 +19,17 @@ handle_error() {
 
 smart_resize() {
   local direction=$1
-
   [ -z "$direction" ] && handle_error "No direction provided for smart resize"
 
   log "Starting smart resize: $direction"
 
-  window_info=$(aerospace list-windows --workspace focused --format "%{window-id} | %{window-title}" 2>/dev/null)
-
-  if [ -z "$window_info" ]; then
-    log "No window found in focused workspace. Trying fallback to get focused window..."
-    window_info=$(aerospace list-windows --focused --format "%{window-id} | %{window-title}" 2>/dev/null)
-  fi
-
-  if [ -z "$window_info" ]; then
-    handle_error "Failed to retrieve any window ID from focused workspace or fallback"
-  fi
+  window_info=$(aerospace list-windows --monitor mouse --focused --format "%{window-id} | %{window-title}" 2>/dev/null)
+  [ -z "$window_info" ] && handle_error "No focused window found under mouse monitor"
 
   window_id=$(echo "$window_info" | awk '{print $1}')
+  [ -z "$window_id" ] && handle_error "Parsed window ID is empty. Full output: '$window_info'"
 
-  if [ -z "$window_id" ]; then
-    handle_error "Parsed window ID is empty. Full output: '$window_info'"
-  fi
-
-  log "Current window: $window_info"
+  log "Selected window under mouse: $window_info"
 
   if command -v displayplacer >/dev/null 2>&1; then
     screen_info=$(displayplacer list 2>/dev/null | awk '/Resolution:/ {print $2}' | head -n 1)
@@ -105,8 +95,8 @@ show_help() {
   echo "Usage: aerospacectl [COMMAND]"
   echo ""
   echo "Commands:"
-  echo "  [direction]   Resize the window (left, right, up, down)"
-  echo "  help                       Show this help message"
+  echo "  left, right, up, down   Resize window in given direction"
+  echo "  help                    Show this help message"
 }
 
 case $1 in
@@ -126,9 +116,7 @@ down)
   shift
   smart_resize down
   ;;
-help | --help | -h | *)
-  show_help
-  ;;
+help | --help | -h | *) show_help ;;
 esac
 
 exit 0
