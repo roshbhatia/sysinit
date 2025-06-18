@@ -24,7 +24,6 @@ let
     "bcrypt"
     "block-goose-cli"
     "displayplacer"
-    "font-symbols-only-nerd-font"
     "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"
@@ -33,6 +32,7 @@ let
   baseCasks = [
     "alt-tab"
     "firefox"
+    "font-symbols-only-nerd-font"
     "keycastr"
     "nikitabobko/tap/aerospace"
     "slack"
@@ -72,3 +72,4 @@ in
     casks = allCasks;
   };
 }
+
