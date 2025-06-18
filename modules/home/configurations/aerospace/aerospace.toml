@@ -1,8 +1,5 @@
 # Place a copy of this config to ~/.aerospace.toml
 # After that, you can edit ~/.aerospace.toml to your liking
-[exec.env-vars]
-    PATH = '${HOME}/.local/bin:${PATH}'
-
 # You can use it to add commands that run after login to macOS user session.
 # 'start-at-login' needs to be 'true' for 'after-login-command' to work
 # Available commands: https://nikitabobko.github.io/AeroSpace/commands
@@ -65,6 +62,12 @@ automatically-unhide-macos-hidden-apps = false
     outer.bottom =     12
     outer.top =        12
     outer.right =      24
+
+[exec]
+    inherit-env-vars = true
+
+[exec.env-vars]
+    PATH = '${HOME}/.local/bin:${PATH}'
 
 # 'main' binding mode declaration
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
