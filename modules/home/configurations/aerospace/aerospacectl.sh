@@ -1,6 +1,5 @@
 #!/bin/bash
 # shellcheck disable=all
-
 CACHE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/aerospace"
 RESIZE_STATE_FILE="$CACHE_DIR/window_state"
 LOG_FILE="/tmp/log/aerospacectl.log"
@@ -17,106 +16,68 @@ handle_error() {
   exit 1
 }
 
-smart_resize() {
-  local direction=$1
-  [ -z "$direction" ] && handle_error "No direction provided for smart resize"
+resize_all() {
+  direction=$1
+  [ -z "$direction" ] && handle_error "No direction"
 
-  log "Starting smart resize: $direction"
+  window_ids=$(aerospace list-windows --monitor mouse --format "%{window-id}" 2>/dev/null)
+  [ -z "$window_ids" ] && handle_error "No windows under mouse monitor"
 
-  window_info=$(aerospace list-windows --monitor mouse --focused --format "%{window-id} | %{window-title}" 2>/dev/null)
-  [ -z "$window_info" ] && handle_error "No focused window found under mouse monitor"
-
-  window_id=$(echo "$window_info" | awk '{print $1}')
-  [ -z "$window_id" ] && handle_error "Parsed window ID is empty. Full output: '$window_info'"
-
-  log "Selected window under mouse: $window_info"
-
-  if command -v displayplacer >/dev/null 2>&1; then
-    screen_info=$(displayplacer list 2>/dev/null | awk '/Resolution:/ {print $2}' | head -n 1)
-    if [[ "$screen_info" =~ ([0-9]+)x([0-9]+) ]]; then
-      screen_width="${BASH_REMATCH[1]}"
-      screen_height="${BASH_REMATCH[2]}"
-      log "Detected screen dimensions: ${screen_width}x${screen_height}"
-    else
-      handle_error "Failed to detect screen resolution"
-    fi
-  else
-    handle_error "displayplacer command not found"
+  if ! command -v displayplacer >/dev/null 2>&1; then
+    handle_error "displayplacer not found"
   fi
 
-  presets=("1/2:50" "1/3:33" "2/3:67" "1/4:25" "3/4:75")
+  res=$(displayplacer list 2>/dev/null | awk '/Resolution:/ {print $2}' | head -n 1)
+  [[ "$res" =~ ([0-9]+)x([0-9]+) ]] || handle_error "Could not parse screen resolution"
+
+  screen_width="${BASH_REMATCH[1]}"
+  screen_height="${BASH_REMATCH[2]}"
+
+  presets=(50 33 67 25 75)
   last_state=0
 
   if [ -f "$RESIZE_STATE_FILE" ]; then
-    last_direction=$(cut -d':' -f1 "$RESIZE_STATE_FILE")
+    last_dir=$(cut -d':' -f1 "$RESIZE_STATE_FILE")
     last_state=$(cut -d':' -f2 "$RESIZE_STATE_FILE")
-    [ "$last_direction" != "$direction" ] && last_state=0
+    [ "$last_dir" != "$direction" ] && last_state=0
   fi
 
-  current=${presets[$last_state]}
-  [ -z "$current" ] && handle_error "Invalid state index: $last_state"
+  percentage=${presets[$last_state]}
+  [ -z "$percentage" ] && handle_error "Invalid percentage preset"
 
-  desc=${current%:*}
-  percentage=${current#*:}
-
-  case $direction in
-  left | right)
-    if [ "$percentage" -eq 50 ]; then
-      aerospace balance-sizes || handle_error "Failed to balance sizes"
-      log "Balanced window sizes (50/50 split)"
-    else
-      pixels=$((screen_width * percentage / 100))
-      aerospace resize width $pixels || handle_error "Failed to resize width"
-      log "Set width to $desc ($percentage% = $pixels px)"
-    fi
-    ;;
-  up | down)
-    if [ "$percentage" -eq 50 ]; then
-      aerospace balance-sizes || handle_error "Failed to balance sizes"
-      log "Balanced window sizes (50/50 split)"
-    else
-      pixels=$((screen_height * percentage / 100))
-      aerospace resize height $pixels || handle_error "Failed to resize height"
-      log "Set height to $desc ($percentage% = $pixels px)"
-    fi
-    ;;
-  *)
+  if [[ "$direction" == "left" || "$direction" == "right" ]]; then
+    pixels=$((screen_width * percentage / 100))
+    cmd="resize width $pixels"
+  elif [[ "$direction" == "up" || "$direction" == "down" ]]; then
+    pixels=$((screen_height * percentage / 100))
+    cmd="resize height $pixels"
+  else
     handle_error "Invalid direction: $direction"
-    ;;
-  esac
+  fi
+
+  while IFS= read -r id; do
+    aerospace window "$id" "$cmd" || log "Failed to resize window $id"
+  done <<<"$window_ids"
 
   next_state=$(((last_state + 1) % ${#presets[@]}))
   echo "$direction:$next_state:$(date +%s)" >"$RESIZE_STATE_FILE"
-  log "Saved state: $next_state"
-  log "Resize completed"
+  log "$direction resize done to $percentage% ($pixels px); next state: $next_state"
 }
 
 show_help() {
   echo "Usage: aerospacectl [COMMAND]"
   echo ""
   echo "Commands:"
-  echo "  left, right, up, down   Resize window in given direction"
-  echo "  help                    Show this help message"
+  echo "  left, right    Cycle horizontal window widths"
+  echo "  up, down       Cycle vertical window heights"
+  echo "  help           Show this help message"
 }
 
 case $1 in
-right)
-  shift
-  smart_resize right
-  ;;
-left)
-  shift
-  smart_resize left
-  ;;
-up)
-  shift
-  smart_resize up
-  ;;
-down)
-  shift
-  smart_resize down
-  ;;
+left | right) resize_all "right" ;;
+up | down) resize_all "down" ;;
 help | --help | -h | *) show_help ;;
 esac
 
 exit 0
+
