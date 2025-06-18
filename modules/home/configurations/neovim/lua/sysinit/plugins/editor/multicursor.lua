@@ -22,13 +22,13 @@ M.plugins = {
 			return {
 				-- Add cursor below
 				{
-					"<leader>kk",
+					"<leader>..",
 					mc.toggleCursor,
 					mode = "n",
 					desc = "Toggle cursor",
 				},
 				{
-					"<leader>kx",
+					"<leader>.x",
 					mc.clearCursors,
 					mode = "n",
 					desc = "Delete all cursors",

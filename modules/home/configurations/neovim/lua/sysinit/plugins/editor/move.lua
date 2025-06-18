@@ -7,17 +7,17 @@ M.plugins = {
 		config = function()
 			require("mini.move").setup({
 				mappings = {
-					-- Move visual selection in Visual mode. Defaults are Alt (Meta) + hjkl.
-					left = "<M-h>",
-					right = "<M-l>",
-					down = "<M-j>",
-					up = "<M-k>",
+					-- Move visual selection in Visual mode.
+					left = "<leader>h",
+					right = "<leader>l",
+					down = "<leader>j",
+					up = "<leader>k",
 
 					-- Move current line in Normal mode
-					line_left = "<M-h>",
-					line_right = "<M-l>",
-					line_down = "<M-j>",
-					line_up = "<M-k>",
+					line_left = "<leader>h",
+					line_right = "<leader>l",
+					line_down = "<leader>j",
+					line_up = "<leader>k",
 				},
 				options = {
 					reindent_linewise = true,
@@ -28,3 +28,4 @@ M.plugins = {
 }
 
 return M
+

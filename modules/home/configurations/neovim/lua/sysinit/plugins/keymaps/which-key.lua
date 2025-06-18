@@ -59,7 +59,7 @@ M.plugins = {
 					group = "Search",
 				},
 				{
-					"<leader>k",
+					"<leader>.",
 					group = "Cursor",
 				},
 				{
@@ -84,4 +84,3 @@ M.plugins = {
 }
 
 return M
-
