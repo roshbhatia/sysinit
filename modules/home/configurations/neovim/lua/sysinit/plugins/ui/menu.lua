@@ -6,18 +6,22 @@ M.plugins = {
 		dependencies = {
 			"nvzone/volt",
 		},
-		lazy = true,
-		init = function()
-			vim.keymap.set({ "n", "v" }, "<RightMouse>", function()
-				require("menu.utils").delete_old_menus()
+		event = "VeryLazy",
+		keys = function()
+			return {
+				{
+					mode = { "n", "v" },
+					"<RightMouse>",
+					function()
+						require("menu.utils").delete_old_menus()
 
-				vim.cmd.exec('"normal! \\<RightMouse>"')
+						local buf = vim.api.nvim_win_get_buf(vim.fn.getmousepos().winid)
+						local options = vim.bo[buf].ft == "neo-tree" or "default"
 
-				local buf = vim.api.nvim_win_get_buf(vim.fn.getmousepos().winid)
-				local options = vim.bo[buf].ft == "NvimTree" and "nvimtree" or "default"
-
-				require("menu").open(options, { mouse = true })
-			end, {})
+						require("menu").open(options, { mouse = true })
+					end,
+				},
+			}
 		end,
 	},
 }
