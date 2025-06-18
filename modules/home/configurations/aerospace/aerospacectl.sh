@@ -1,6 +1,5 @@
 #!/bin/bash
 # shellcheck disable=all
-
 CACHE_DIR="$XDG_DATA_HOME/aerospace"
 RESIZE_STATE_FILE="$CACHE_DIR/window_state"
 LOG_FILE="/tmp/log/aerospacectl.log"
@@ -21,9 +20,9 @@ smart_resize() {
   [ -z "$direction" ] && handle_error "No direction provided for smart resize"
   log "Starting smart resize: $direction"
 
-  window_info=$(aerospace list-windows --focused --format "%{window-id} | %{window-title}")
+  window_info=$(aerospace list-windows --workspace focused --format "%{window-id} | %{window-title}")
   window_id=$(echo "$window_info" | awk '{print $1}')
-  [ -z "$window_id" ] && handle_error "Failed to retrieve focused window ID"
+  [ -z "$window_id" ] && handle_error "Failed to retrieve window ID from focused workspace"
   log "Current window: $window_info"
 
   if command -v displayplacer >/dev/null 2>&1; then
@@ -41,6 +40,7 @@ smart_resize() {
 
   presets=("1/2:50" "1/3:33" "2/3:67" "1/4:25" "3/4:75")
   last_state=0
+
   if [ -f "$RESIZE_STATE_FILE" ]; then
     last_direction=$(cut -d':' -f1 "$RESIZE_STATE_FILE")
     last_state=$(cut -d':' -f2 "$RESIZE_STATE_FILE")
@@ -49,6 +49,7 @@ smart_resize() {
 
   current=${presets[$last_state]}
   [ -z "$current" ] && handle_error "Invalid state index: $last_state"
+
   desc=${current%:*}
   percentage=${current#*:}
 
@@ -113,4 +114,5 @@ help | --help | -h | *)
   show_help
   ;;
 esac
+
 exit 0
