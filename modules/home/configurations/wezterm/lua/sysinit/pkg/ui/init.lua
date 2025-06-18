@@ -38,7 +38,6 @@ end
 
 local function get_display_config()
 	return {
-		enable_scroll_bar = true,
 		enable_tab_bar = true,
 		max_fps = 240,
 		color_scheme = terminal_theme,
@@ -72,32 +71,11 @@ local function get_cursor_config()
 	}
 end
 
-local function setup_gui_startup()
-	wezterm.on("gui-startup", function(cmd)
-		local screen = wezterm.gui.screens().active
-		if not screen then
-			return
-		end
-
-		local _, _, window = wezterm.mux.spawn_window(cmd or {})
-		local padding = 25
-		local adjusted_width = screen.width - (2 * padding)
-		local adjusted_height = screen.height - (2 * padding)
-
-		local gui_window = window:gui_window()
-		if gui_window then
-			gui_window:set_position(screen.x, screen.y)
-			gui_window:set_inner_size(adjusted_width, adjusted_height)
-		end
-	end)
-end
-
 local function setup_nvim_ui_overrides()
 	wezterm.on("update-status", function(window, pane)
 		local should_switch = is_vim(pane)
 		local overrides = window:get_config_overrides() or {}
 		if should_switch then
-			overrides.enable_scroll_bar = false
 			overrides.window_padding = {
 				left = "8px",
 				top = "8px",
@@ -105,7 +83,6 @@ local function setup_nvim_ui_overrides()
 			}
 			overrides.window_background_opacity = 0.92
 		else
-			overrides.enable_scroll_bar = nil
 			overrides.window_padding = nil
 			overrides.window_background_opacity = nil
 		end
@@ -130,11 +107,9 @@ function M.setup(config)
 
 	config.visual_bell = get_visual_bell_config()
 
-	setup_gui_startup()
 	setup_nvim_ui_overrides()
 
 	return config
 end
 
 return M
-

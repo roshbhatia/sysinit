@@ -24,6 +24,7 @@ let
     "bcrypt"
     "block-goose-cli"
     "displayplacer"
+    "font-symbols-only-nerd-font"
     "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"
@@ -71,4 +72,3 @@ in
     casks = allCasks;
   };
 }
-
