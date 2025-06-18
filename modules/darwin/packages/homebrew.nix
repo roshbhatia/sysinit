@@ -36,7 +36,7 @@ let
     "nikitabobko/tap/aerospace"
     "slack"
     "visual-studio-code@insiders"
-    "wezterm@nightly"
+    "wezterm"
   ];
 
   allTaps = baseTaps ++ additionalTaps;
@@ -71,3 +71,4 @@ in
     casks = allCasks;
   };
 }
+
