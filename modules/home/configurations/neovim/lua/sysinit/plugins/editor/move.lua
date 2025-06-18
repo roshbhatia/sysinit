@@ -7,15 +7,15 @@ M.plugins = {
 		config = function()
 			require("mini.move").setup({
 				mappings = {
-					left = "<C-A-h>",
-					right = "<C-A-l>",
-					down = "<C-A-j>",
-					up = "<C-A-k>",
+					left = "<C-M-h>",
+					right = "<C-M-l>",
+					down = "<C-M-j>",
+					up = "<C-M-k>",
 
-					line_left = "<C-A-h>",
-					line_right = "<C-A-l>",
-					line_down = "<C-A-j>",
-					line_up = "<C-A-k>",
+					line_left = "<C-M-h>",
+					line_right = "<C-M-l>",
+					line_down = "<C-M-j>",
+					line_up = "<C-M-k>",
 				},
 				options = {
 					reindent_linewise = true,
