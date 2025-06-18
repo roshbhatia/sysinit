@@ -7,17 +7,17 @@ M.plugins = {
 		config = function()
 			require("mini.move").setup({
 				mappings = {
-					-- Move visual selection in Visual mode. Use LocalLeader + hjkl.
-					left = "<LocalLeader>h",
-					right = "<LocalLeader>l",
-					down = "<LocalLeader>j",
-					up = "<LocalLeader>k",
+					-- Move visual selection in Visual mode. Use Shift + hjkl.
+					left = "<S-h>",
+					right = "<S-l>",
+					down = "<S-j>",
+					up = "<S-k>",
 
 					-- Move current line in Normal mode
-					line_left = "<LocalLeader>h",
-					line_right = "<LocalLeader>l",
-					line_down = "<LocalLeader>j",
-					line_up = "<LocalLeader>k",
+					line_left = "<S-h>",
+					line_right = "<S-l>",
+					line_down = "<S-j>",
+					line_up = "<S-k>",
 				},
 				options = {
 					reindent_linewise = true,
@@ -28,4 +28,3 @@ M.plugins = {
 }
 
 return M
-
