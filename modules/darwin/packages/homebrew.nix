@@ -33,6 +33,7 @@ let
     "alt-tab"
     "firefox"
     "font-symbols-only-nerd-font"
+    "jordanbaird-ice"
     "keycastr"
     "nikitabobko/tap/aerospace"
     "slack"
@@ -72,4 +73,3 @@ in
     casks = allCasks;
   };
 }
-
