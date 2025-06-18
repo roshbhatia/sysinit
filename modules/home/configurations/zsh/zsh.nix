@@ -250,6 +250,12 @@ in
         zstyle ':fzf-tab:complete:v:*' fzf-preview 'fzf-preview "$realpath"'
 
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
+
+        function zvm_vi_yank() {
+          zvm_yank
+          echo ''${CUTBUFFER} | pbcopy
+          zvm_exit_visual_mode
+        }
       '')
 
       ''
