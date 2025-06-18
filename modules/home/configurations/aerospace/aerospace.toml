@@ -1,5 +1,7 @@
 # Place a copy of this config to ~/.aerospace.toml
 # After that, you can edit ~/.aerospace.toml to your liking
+[exec.env-vars]
+    PATH = '${HOME}/.local/bin:${PATH}'
 
 # You can use it to add commands that run after login to macOS user session.
 # 'start-at-login' needs to be 'true' for 'after-login-command' to work
@@ -85,10 +87,10 @@ automatically-unhide-macos-hidden-apps = false
     alt-l = 'focus right'
 
     # Window resizing with smart cycling for specific split ratios
-    alt-shift-h = '''exec-and-forget ~/.local/bin/aerospacectl left'''
-    alt-shift-j = '''exec-and-forget ~/.local/bin/aerospacectl down'''
-    alt-shift-k = '''exec-and-forget ~/.local/bin/aerospacectl up'''
-    alt-shift-l = '''exec-and-forget ~/.local/bin/aerospacectl right'''
+    alt-shift-h = 'exec-and-forget aerospacectl left'
+    alt-shift-j = 'exec-and-forget aerospacectl down'
+    alt-shift-k = 'exec-and-forget aerospacectl up'
+    alt-shift-l = 'exec-and-forget aerospacectl right'
 
     # Base resize commands
     alt-minus = 'resize smart -50'
