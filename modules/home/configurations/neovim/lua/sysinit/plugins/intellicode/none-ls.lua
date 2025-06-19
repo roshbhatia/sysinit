@@ -20,10 +20,23 @@ M.plugins = {
 					null_ls.builtins.diagnostics.actionlint,
 					null_ls.builtins.diagnostics.checkmake,
 					null_ls.builtins.diagnostics.deadnix,
+					null_ls.builtins.diagnostics.eslint.with({
+						filetypes = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
+					}),
 					null_ls.builtins.diagnostics.golangci_lint,
+					null_ls.builtins.diagnostics.jsonlint.with({
+						filetypes = { "json" },
+					}),
 					null_ls.builtins.diagnostics.markdownlint,
 					null_ls.builtins.diagnostics.proselint,
+					null_ls.builtins.diagnostics.shellcheck.with({
+						filetypes = { "sh", "bash" },
+						args = { "--format=gcc", "--external-sources", "--shell=bash" },
+					}),
 					null_ls.builtins.diagnostics.staticcheck,
+					null_ls.builtins.diagnostics.tflint.with({
+						filetypes = { "terraform" },
+					}),
 					null_ls.builtins.diagnostics.terraform_validate,
 					null_ls.builtins.diagnostics.tfsec,
 					null_ls.builtins.diagnostics.yamllint.with({
