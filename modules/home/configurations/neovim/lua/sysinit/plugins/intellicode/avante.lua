@@ -104,21 +104,20 @@ M.plugins = {
 				},
 			})
 
-			vim.api.nvim_create_autocmd({ "WinNew", "BufWinEnter" }, {
-				callback = function(args)
-					local bufname = vim.api.nvim_buf_get_name(args.buf)
-					if bufname:match("AvantePromptInput") or bufname:match("AvantePromptInputBorder") then
-						local winids = vim.fn.win_findbuf(args.buf)
-						for _, winid in ipairs(winids) do
-							if vim.api.nvim_win_get_config(winid).relative ~= "" then
-								vim.api.nvim_set_option_value("winblend", 0, { win = winid })
-							end
-						end
+			-- Patch the prompt UI setup
+			local prompt_ui = require("avante.ui.prompt_input")
+			local orig = prompt_ui.open
+			prompt_ui.open = function(...)
+				local winid = orig(...)
+				vim.defer_fn(function()
+					if winid and vim.api.nvim_win_is_valid(winid) then
+						vim.api.nvim_set_option_value("winblend", 0, { win = winid })
 					end
-				end,
-			})
-			local augroup = vim.api.nvim_create_augroup("AvanteAutoBufferSelection", { clear = true })
+				end, 50)
+				return winid
+			end
 
+			local augroup = vim.api.nvim_create_augroup("AvanteAutoBufferSelection", { clear = true })
 			vim.api.nvim_create_autocmd({ "BufEnter" }, {
 				group = augroup,
 				callback = function()
