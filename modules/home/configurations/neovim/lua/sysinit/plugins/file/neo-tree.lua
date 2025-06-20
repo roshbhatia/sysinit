@@ -150,7 +150,7 @@ M.plugins = {
 					end,
 					window = {
 						mappings = {
-							["oa"] = "avante_add_files",
+							["<localleader>aa"] = "avante_add_files",
 						},
 					},
 				},
@@ -174,3 +174,4 @@ M.plugins = {
 }
 
 return M
+
