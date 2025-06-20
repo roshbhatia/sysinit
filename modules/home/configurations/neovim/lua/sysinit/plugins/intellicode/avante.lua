@@ -61,7 +61,15 @@ M.plugins = {
 				},
 				system_prompt = function()
 					local hub = require("mcphub").get_hub_instance()
-					return hub and hub:get_active_servers_prompt() or ""
+					local hub_prompt = hub and hub:get_active_servers_prompt() or ""
+
+					local custom_prompt = [[
+            ALWAYS use Context7 for API information and documentation.
+            ONLY use sequential-thinking MCP if your model doesn't support it, else, rely on your normal sequential thinking.
+            ALWAYS store your knowledge in memory, and recall from memory when needed, especially when you form new associations, insights, etc.
+          ]]
+
+					return hub_prompt .. (hub_prompt ~= "" and "\n\n" or "") .. custom_prompt
 				end,
 				custom_tools = function()
 					return {
@@ -112,4 +120,5 @@ M.plugins = {
 		end,
 	},
 }
+
 return M
