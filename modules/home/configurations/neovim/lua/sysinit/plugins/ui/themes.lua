@@ -9,7 +9,7 @@ M.plugins = {
 				require("catppuccin").setup({
 					flavour = "frappe",
 					show_end_of_buffer = false,
-					transparent_background = true,
+					transparent_background = false,
 					term_colors = true,
 					styles = {
 						comments = {
@@ -146,3 +146,4 @@ M.plugins = {
 }
 
 return M
+
