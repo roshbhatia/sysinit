@@ -19,7 +19,7 @@ M.plugins = {
 					enable = false,
 				},
 				line_num = {
-					enable = true,
+					enable = false,
 				},
 			})
 		end,
@@ -27,4 +27,3 @@ M.plugins = {
 }
 
 return M
-
