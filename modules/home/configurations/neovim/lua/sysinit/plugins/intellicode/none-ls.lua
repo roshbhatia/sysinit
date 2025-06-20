@@ -75,8 +75,42 @@ M.plugins = {
 					})
 				end
 			end
+
+			null_ls.register({
+				name = "hex_color_tools",
+				method = null_ls.methods.CODE_ACTION,
+				filetypes = { "*" },
+				generator = {
+					fn = function(context)
+						local actions = {}
+
+						local hex_pattern = "#%x%x%x%x%x%x"
+
+						for i, line in ipairs(vim.api.nvim_buf_get_lines(0, 0, -1, false)) do
+							if line:find(hex_pattern) then
+								table.insert(actions, {
+									title = "Apply Shades",
+									action = function()
+										vim.cmd("Shades")
+									end,
+								})
+
+								table.insert(actions, {
+									title = "Apply Huefy",
+									action = function()
+										vim.cmd("Huefy")
+									end,
+								})
+							end
+						end
+
+						return actions
+					end,
+				},
+			})
 		end,
 	},
 }
 
 return M
+
