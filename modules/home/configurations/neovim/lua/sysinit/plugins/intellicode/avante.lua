@@ -24,6 +24,11 @@ M.plugins = {
 			avante.setup({
 				provider = "copilot",
 				mode = "legacy",
+				providers = {
+					copilot = {
+						model = "claude-3.7-sonnet",
+					},
+				},
 				behaviour = {
 					auto_approve_tool_permissions = true,
 					auto_focus_on_diff_view = true,
@@ -38,6 +43,7 @@ M.plugins = {
 						insert = "<S-CR>",
 					},
 					ask = "<leader>as",
+					new_ask = "<leader>aA",
 					toggle = {
 						default = "<leader>aa",
 						suggestion = "<leader>a\\",
@@ -92,6 +98,15 @@ M.plugins = {
 							require("avante.selected_files").add_file(bufname)
 						end)
 					end
+				end,
+			})
+
+			-- Disable fold column in Avante buffers
+			vim.api.nvim_create_autocmd("FileType", {
+				group = augroup,
+				pattern = "Avante",
+				callback = function()
+					vim.opt_local.foldcolumn = "0"
 				end,
 			})
 		end,

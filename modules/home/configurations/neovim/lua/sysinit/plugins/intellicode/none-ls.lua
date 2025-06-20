@@ -83,25 +83,29 @@ M.plugins = {
 				generator = {
 					fn = function(context)
 						local actions = {}
-
 						local hex_pattern = "#%x%x%x%x%x%x"
-
-						for i, line in ipairs(vim.api.nvim_buf_get_lines(0, 0, -1, false)) do
-							if line:find(hex_pattern) then
+						local row = context.range.row
+						local line = context.content[row - context.range.row + 1] or ""
+						local col = vim.api.nvim_win_get_cursor(0)[2] + 1
+						local start_idx, end_idx = line:find(hex_pattern)
+						while start_idx do
+							if col >= start_idx and col <= end_idx then
 								table.insert(actions, {
-									title = "Apply Shades",
+									title = "Generate color shade palette",
 									action = function()
 										vim.cmd("Shades")
 									end,
 								})
 
 								table.insert(actions, {
-									title = "Apply Huefy",
+									title = "Generate color hue variations",
 									action = function()
 										vim.cmd("Huefy")
 									end,
 								})
+								break
 							end
+							start_idx, end_idx = line:find(hex_pattern, end_idx + 1)
 						end
 
 						return actions
@@ -113,4 +117,3 @@ M.plugins = {
 }
 
 return M
-

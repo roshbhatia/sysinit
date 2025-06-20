@@ -69,7 +69,6 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.intellicode.dropbar"),
 	require("sysinit.plugins.intellicode.friendly-snippets"),
 	require("sysinit.plugins.intellicode.glance"),
-	require("sysinit.plugins.intellicode.goose"),
 	require("sysinit.plugins.intellicode.lazydev"),
 	require("sysinit.plugins.intellicode.linters"),
 	require("sysinit.plugins.intellicode.lsp-lines"),
@@ -126,3 +125,4 @@ require("sysinit.pkg.keybindings.undo").setup()
 require("sysinit.pkg.keybindings.vim").setup()
 
 require("sysinit.pkg.entrypoint.no-session").setup()
+
