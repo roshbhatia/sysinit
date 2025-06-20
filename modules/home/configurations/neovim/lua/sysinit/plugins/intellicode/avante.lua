@@ -42,6 +42,10 @@ M.plugins = {
 						default = "<leader>aa",
 						suggestion = "<leader>a\\",
 					},
+					sidebar = {
+						switch_windows = "=",
+						reverse_switch_windows = "-",
+					},
 				},
 				hints = {
 					enabled = false,
@@ -94,4 +98,3 @@ M.plugins = {
 	},
 }
 return M
-
