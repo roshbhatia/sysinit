@@ -212,7 +212,7 @@ end
 local function get_search_keys()
 	return {
 		{
-			key = "f",
+			key = "/",
 			mods = "CMD",
 			action = act.Search("CurrentSelectionOrEmptyString"),
 		},
@@ -254,7 +254,7 @@ local function get_key_tables()
 				action = act.CopyMode("NextMatch"),
 			},
 			{
-				key = "p",
+				key = "N",
 				mods = "CMD",
 				action = act.CopyMode("PriorMatch"),
 			},
@@ -321,3 +321,4 @@ function M.setup(config)
 end
 
 return M
+
