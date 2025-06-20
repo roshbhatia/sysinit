@@ -104,8 +104,8 @@ M.plugins = {
 				},
 			})
 
-			vim.api.nvim_set_hl(0, "AvantePromptInput", { bg = "NONE" })
-			vim.api.nvim_set_hl(0, "AvantePromptInputBorder", { bg = "NONE" })
+			vim.api.nvim_set_hl(0, "AvantePromptInput", { fg = "NONE", bg = "NONE" })
+			vim.api.nvim_set_hl(0, "AvantePromptInputBorder", { fg = "NONE", bg = "NONE" })
 
 			local augroup = vim.api.nvim_create_augroup("AvanteAutoBufferSelection", { clear = true })
 
@@ -136,3 +136,4 @@ M.plugins = {
 }
 
 return M
+
