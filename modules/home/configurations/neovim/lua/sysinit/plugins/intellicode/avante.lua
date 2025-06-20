@@ -13,7 +13,6 @@ M.plugins = {
 			"nvim-lua/plenary.nvim",
 			"MunifTanjim/nui.nvim",
 			"nvim-telescope/telescope.nvim",
-			"hrsh7th/nvim-cmp",
 			"nvim-tree/nvim-web-devicons",
 			"zbirenbaum/copilot.lua",
 			"MeanderingProgrammer/render-markdown.nvim",
@@ -43,10 +42,6 @@ M.plugins = {
 					toggle = {
 						default = "<leader>aa",
 					},
-					sidebar = {
-						switch_windows = "",
-						reverse_switch_windows = "",
-					},
 				},
 				hints = {
 					enabled = false,
@@ -64,7 +59,8 @@ M.plugins = {
 					}
 				end,
 				disabled_tools = {
-					"list_files", -- Built-in file operations
+					-- Disabled due to conflicts with mcphub
+					"list_files",
 					"search_files",
 					"read_file",
 					"create_file",
@@ -73,9 +69,9 @@ M.plugins = {
 					"create_dir",
 					"rename_dir",
 					"delete_dir",
-					"bash", -- Built-in terminal access
-
-					"web_search", -- This always complains
+					"bash",
+					-- Disabled due to lack of use in favor with fetch
+					"web_search",
 				},
 			})
 
