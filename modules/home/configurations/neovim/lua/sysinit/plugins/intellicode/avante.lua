@@ -104,18 +104,19 @@ M.plugins = {
 				},
 			})
 
-			vim.api.nvim_create_autocmd("FileType", {
-				pattern = { "AvantePromptInput", "AvantePromptInputBorder" },
+			vim.api.nvim_create_autocmd({ "WinNew", "BufWinEnter" }, {
 				callback = function(args)
-					local winids = vim.fn.win_findbuf(args.buf)
-					for _, winid in ipairs(winids) do
-						if vim.api.nvim_win_get_config(winid).relative ~= "" then
-							vim.api.nvim_set_option_value("winblend", 0, { win = winid })
+					local bufname = vim.api.nvim_buf_get_name(args.buf)
+					if bufname:match("AvantePromptInput") or bufname:match("AvantePromptInputBorder") then
+						local winids = vim.fn.win_findbuf(args.buf)
+						for _, winid in ipairs(winids) do
+							if vim.api.nvim_win_get_config(winid).relative ~= "" then
+								vim.api.nvim_set_option_value("winblend", 0, { win = winid })
+							end
 						end
 					end
 				end,
 			})
-
 			local augroup = vim.api.nvim_create_augroup("AvanteAutoBufferSelection", { clear = true })
 
 			vim.api.nvim_create_autocmd({ "BufEnter" }, {
@@ -145,3 +146,4 @@ M.plugins = {
 }
 
 return M
+
