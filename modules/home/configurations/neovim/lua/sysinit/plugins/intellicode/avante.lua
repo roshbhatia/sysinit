@@ -24,7 +24,6 @@ M.plugins = {
 			avante.setup({
 				provider = "copilot",
 				mode = "legacy",
-				auto_suggestions_provider = "copilot",
 				behaviour = {
 					auto_approve_tool_permissions = true,
 					auto_focus_on_diff_view = true,
@@ -41,6 +40,7 @@ M.plugins = {
 					ask = "<leader>as",
 					toggle = {
 						default = "<leader>aa",
+						suggestion = "<leader>a\\",
 					},
 				},
 				hints = {
@@ -94,3 +94,4 @@ M.plugins = {
 	},
 }
 return M
+
