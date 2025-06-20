@@ -56,12 +56,12 @@ automatically-unhide-macos-hidden-apps = false
 #                 See:
 #                 https://nikitabobko.github.io/AeroSpace/guide#assign-workspaces-to-monitors
 [gaps]
-    inner.horizontal = 12
-    inner.vertical =   12
-    outer.left =       24
-    outer.bottom =     12
-    outer.top =        12
-    outer.right =      24
+    inner.horizontal = 30
+    inner.vertical =   30
+    outer.left =       30
+    outer.bottom =     30
+    outer.top =        30
+    outer.right =      30
 
 [exec]
     inherit-env-vars = true
@@ -101,26 +101,20 @@ automatically-unhide-macos-hidden-apps = false
     alt-3 = 'workspace 3'
     alt-4 = 'workspace 4'
 
+    alt-m = 'workspace M' # Music
+    alt-s = 'workspace S' # Slack
+
     # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
     alt-shift-1 = 'move-node-to-workspace 1'
     alt-shift-2 = 'move-node-to-workspace 2'
     alt-shift-3 = 'move-node-to-workspace 3'
     alt-shift-4 = 'move-node-to-workspace 4'
 
-    # See: https://nikitabobko.github.io/AeroSpace/commands#workspace-back-and-forth
-    alt-tab = 'workspace-back-and-forth'
-
-    # See: https://nikitabobko.github.io/AeroSpace/commands#mode
-    alt-shift-semicolon = 'mode service'
+    alt-shift-m = 'move-node-to-workspace M'
+    alt-shift-s = 'move-node-to-workspace S'
 
     alt-f = 'fullscreen'
 
-# 'service' binding mode declaration.
-# See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
-[mode.service.binding]
-    esc = ['reload-config', 'mode main']
-    r = ['flatten-workspace-tree', 'mode main'] # reset layout
-    f = ['layout floating tiling', 'mode main'] # Toggle between floating and tiling layout
-    backspace = ['close-all-windows-but-current', 'mode main']
-    shift-r = 'exec-and-forget launchctl kickstart -k bokko.aerospace'
+    alt-tab = 'workspace-back-and-forth'
+    alt-esc = ['reload-config', 'mode main']
 
