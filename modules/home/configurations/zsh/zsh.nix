@@ -251,11 +251,6 @@ in
 
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
 
-        function zvm_vi_yank() {
-          zvm_yank
-          echo ''${CUTBUFFER} | pbcopy
-          zvm_exit_visual_mode
-        }
       '')
 
       ''
@@ -270,6 +265,12 @@ in
       ''
 
       (lib.mkAfter ''
+        function zvm_vi_yank() {
+          zvm_yank
+          echo ''${CUTBUFFER} | pbcopy
+          zvm_exit_visual_mode
+        }
+
         [[ -n "$SYSINIT_DEBUG" ]] && zprof
       '')
     ];
