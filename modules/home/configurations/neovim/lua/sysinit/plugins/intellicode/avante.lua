@@ -2,7 +2,7 @@ local M = {}
 
 M.plugins = {
 	{
-		enabled = true,
+		enabled = not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot")),
 		"yetone/avante.nvim",
 		event = "VeryLazy",
 		version = false,
@@ -39,10 +39,17 @@ M.plugins = {
 						normal = "<CR>",
 						insert = "<S-CR>",
 					},
-					ask = "<leader>at",
+					ask = "<leader>as",
 					toggle = {
 						default = "<leader>aa",
 					},
+					sidebar = {
+						switch_windows = "",
+						reverse_switch_windows = "",
+					},
+				},
+				hints = {
+					enabled = false,
 				},
 				selector = {
 					provider = "telescope",
@@ -83,19 +90,6 @@ M.plugins = {
 					if bufname ~= "" then
 						pcall(function()
 							require("avante.selected_files").add_file(bufname)
-						end)
-					end
-				end,
-			})
-
-			vim.api.nvim_create_autocmd({ "BufDelete" }, {
-				group = augroup,
-				callback = function(args)
-					local bufname = vim.api.nvim_buf_get_name(args.buf)
-
-					if bufname ~= "" then
-						pcall(function()
-							require("avante.selected_files").remove_file(bufname)
 						end)
 					end
 				end,
