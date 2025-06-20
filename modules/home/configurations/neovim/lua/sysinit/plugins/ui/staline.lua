@@ -18,7 +18,18 @@ M.plugins = {
 						"lsp",
 					},
 					mid = {
-						"lsp_name",
+						function()
+							local ok, git_blame = pcall(require, "gitblame")
+							if not ok then
+								return ""
+							end
+
+							if git_blame.is_blame_text_available and git_blame.is_blame_text_available() then
+								return git_blame.get_current_blame_text()
+							else
+								return ""
+							end
+						end,
 					},
 					right = {
 						"line_column",
