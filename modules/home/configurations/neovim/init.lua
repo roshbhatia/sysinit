@@ -77,6 +77,7 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.intellicode.lspkind"),
 	require("sysinit.plugins.intellicode.luasnip"),
 	require("sysinit.plugins.intellicode.mason"),
+	require("sysinit.plugins.intellicode.mcphub"),
 	require("sysinit.plugins.intellicode.minty"),
 	require("sysinit.plugins.intellicode.none-ls"),
 	require("sysinit.plugins.intellicode.nvim-autopairs"),

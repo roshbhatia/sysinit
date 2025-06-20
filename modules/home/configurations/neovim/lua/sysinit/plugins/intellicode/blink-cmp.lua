@@ -17,6 +17,7 @@ local deps = {
 
 if copilot_enabled then
 	table.insert(deps, "giuxtaposition/blink-cmp-copilot")
+	table.insert(deps, "Kaiser-Yang/blink-cmp-avante")
 end
 
 M.plugins = {
@@ -135,6 +136,13 @@ M.plugins = {
 					end,
 				}
 				table.insert(sources, "copilot")
+
+				providers.avante = {
+					module = "blink-cmp-avante",
+					name = "Avante",
+					opts = {},
+				}
+				table.insert(sources, "avante")
 			end
 
 			return {
@@ -219,4 +227,3 @@ M.plugins = {
 }
 
 return M
-
