@@ -104,13 +104,15 @@ M.plugins = {
 				},
 			})
 
-			vim.api.nvim_set_hl(0, "AvanteInput", { fg = "NONE", bg = "NONE" })
-			vim.api.nvim_set_hl(0, "AvantePromptInput", { fg = "NONE", bg = "NONE" })
-			vim.api.nvim_set_hl(0, "AvantePromptInputBorder", { fg = "NONE", bg = "NONE" })
 			vim.api.nvim_create_autocmd("FileType", {
-				pattern = { "AvanteInput", "AvantePromptInput", "AvantePromptInputBorder" },
-				callback = function()
-					vim.api.nvim_set_option_value("winblend", 0, { win = 0 })
+				pattern = { "AvantePromptInput", "AvantePromptInputBorder" },
+				callback = function(args)
+					local winids = vim.fn.win_findbuf(args.buf)
+					for _, winid in ipairs(winids) do
+						if vim.api.nvim_win_get_config(winid).relative ~= "" then
+							vim.api.nvim_set_option_value("winblend", 0, { win = winid })
+						end
+					end
 				end,
 			})
 
