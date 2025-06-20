@@ -11,6 +11,8 @@ M.plugins = {
 			mappings = {
 				"<C-y>",
 				"<C-e>",
+				"<C-d>",
+				"<C-u>",
 			},
 		},
 		keys = function()
@@ -34,10 +36,31 @@ M.plugins = {
 						"v",
 					},
 				},
+				{
+					"<C-d>",
+					function()
+						neoscroll.scroll(vim.wo.scroll, true, 250)
+					end,
+					mode = {
+						"n",
+						"v",
+					},
+					desc = "Scroll down (smooth)",
+				},
+				{
+					"<C-u>",
+					function()
+						neoscroll.scroll(-vim.wo.scroll, true, 250)
+					end,
+					mode = {
+						"n",
+						"v",
+					},
+					desc = "Scroll up (smooth)",
+				},
 			}
 		end,
 	},
 }
 
 return M
-
