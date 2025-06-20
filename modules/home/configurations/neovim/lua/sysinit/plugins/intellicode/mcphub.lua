@@ -2,6 +2,7 @@ local M = {}
 
 M.plugins = {
 	{
+		enabled = not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot")),
 		"ravitemer/mcphub.nvim",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
@@ -20,4 +21,3 @@ M.plugins = {
 }
 
 return M
-
