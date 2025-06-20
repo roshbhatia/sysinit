@@ -19,7 +19,7 @@ M.plugins = {
 					},
 					mid = {
 						{
-							"StalineFill",
+							"Staline",
 							function()
 								local ok, git_blame = pcall(require, "gitblame")
 								if not ok then
