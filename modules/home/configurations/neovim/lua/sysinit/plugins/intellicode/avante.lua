@@ -49,8 +49,8 @@ M.plugins = {
 						suggestion = "<leader>a\\",
 					},
 					sidebar = {
-						switch_windows = "=",
-						reverse_switch_windows = "-",
+						switch_windows = "<C-Tab>",
+						reverse_switch_windows = "<C-S-Tab>",
 					},
 				},
 				hints = {
@@ -105,6 +105,7 @@ M.plugins = {
 			})
 
 			vim.api.nvim_set_hl(0, "AvantePromptInput", { bg = "NONE" })
+			vim.api.nvim_set_hl(0, "AvantePromptInputBorder", { bg = "NONE" })
 
 			local augroup = vim.api.nvim_create_augroup("AvanteAutoBufferSelection", { clear = true })
 
@@ -135,4 +136,3 @@ M.plugins = {
 }
 
 return M
-
