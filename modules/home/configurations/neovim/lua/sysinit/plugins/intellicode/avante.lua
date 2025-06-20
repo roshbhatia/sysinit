@@ -91,6 +91,17 @@ M.plugins = {
 					-- Disabled due to lack of use in favor with fetch
 					"web_search",
 				},
+				windows = {
+					input = {
+						height = 12, -- Height of the input window in vertical layout
+					},
+					edit = {
+						border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+					},
+					ask = {
+						border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+					},
+				},
 			})
 
 			local augroup = vim.api.nvim_create_augroup("AvanteAutoBufferSelection", { clear = true })
@@ -122,3 +133,4 @@ M.plugins = {
 }
 
 return M
+
