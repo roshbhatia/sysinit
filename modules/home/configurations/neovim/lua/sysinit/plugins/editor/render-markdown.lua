@@ -21,6 +21,10 @@ M.plugins = {
 						enabled = true,
 					},
 				},
+				file_types = {
+					"markdown",
+					"Avante",
+				},
 				sign = {
 					enabled = false,
 				},
@@ -33,4 +37,3 @@ M.plugins = {
 }
 
 return M
-
