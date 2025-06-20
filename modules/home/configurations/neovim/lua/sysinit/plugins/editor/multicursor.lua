@@ -20,7 +20,6 @@ M.plugins = {
 		keys = function()
 			local mc = require("multicursor-nvim")
 			return {
-				-- Add cursor below
 				{
 					"<leader>..",
 					mc.toggleCursor,
