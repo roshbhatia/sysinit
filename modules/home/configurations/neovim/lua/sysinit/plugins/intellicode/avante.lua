@@ -104,6 +104,16 @@ M.plugins = {
 				},
 			})
 
+			vim.api.nvim_set_hl(0, "AvanteInput", { fg = "NONE", bg = "NONE" })
+			vim.api.nvim_set_hl(0, "AvantePromptInput", { fg = "NONE", bg = "NONE" })
+			vim.api.nvim_set_hl(0, "AvantePromptInputBorder", { fg = "NONE", bg = "NONE" })
+			vim.api.nvim_create_autocmd("FileType", {
+				pattern = { "AvanteInput", "AvantePromptInput", "AvantePromptInputBorder" },
+				callback = function()
+					vim.api.nvim_set_option_value("winblend", 0, { win = 0 })
+				end,
+			})
+
 			local augroup = vim.api.nvim_create_augroup("AvanteAutoBufferSelection", { clear = true })
 
 			vim.api.nvim_create_autocmd({ "BufEnter" }, {
@@ -133,4 +143,3 @@ M.plugins = {
 }
 
 return M
-
