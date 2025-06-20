@@ -19,21 +19,22 @@ M.plugins = {
 			"ravitemer/mcphub.nvim",
 		},
 		config = function()
-			local avante = require("avante")
+			local original_set_option_value = vim.api.nvim_set_option_value
+			vim.api.nvim_set_option_value = function(name, value, opts)
+				if name == "winblend" and opts and opts.win then
+					local config = vim.api.nvim_win_get_config(opts.win)
+					local buf = vim.api.nvim_win_get_buf(opts.win)
+					local bufname = vim.api.nvim_buf_get_name(buf)
 
-			-- Monkeypatch to fix winblend issue in Avante prompt input
-			local prompt_ui = require("avante.ui.prompt_input")
-			local orig = prompt_ui.open
-			prompt_ui.open = function(...)
-				local winid = orig(...)
-				vim.defer_fn(function()
-					if winid and vim.api.nvim_win_is_valid(winid) then
-						vim.api.nvim_set_option_value("winblend", 0, { win = winid })
+					if config.relative ~= "" and bufname:match("Avante") then
+						-- Force winblend to 0 for Avante floating windows
+						value = 0
 					end
-				end, 50)
-				return winid
+				end
+				return original_set_option_value(name, value, opts)
 			end
 
+			local avante = require("avante")
 			avante.setup({
 				provider = "copilot",
 				mode = "legacy",
@@ -145,3 +146,4 @@ M.plugins = {
 }
 
 return M
+
