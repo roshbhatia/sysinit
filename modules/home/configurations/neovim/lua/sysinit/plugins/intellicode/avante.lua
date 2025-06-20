@@ -21,6 +21,19 @@ M.plugins = {
 		config = function()
 			local avante = require("avante")
 
+			-- Monkeypatch to fix winblend issue in Avante prompt input
+			local prompt_ui = require("avante.ui.prompt_input")
+			local orig = prompt_ui.open
+			prompt_ui.open = function(...)
+				local winid = orig(...)
+				vim.defer_fn(function()
+					if winid and vim.api.nvim_win_is_valid(winid) then
+						vim.api.nvim_set_option_value("winblend", 0, { win = winid })
+					end
+				end, 50)
+				return winid
+			end
+
 			avante.setup({
 				provider = "copilot",
 				mode = "legacy",
@@ -104,19 +117,6 @@ M.plugins = {
 				},
 			})
 
-			-- Patch the prompt UI setup
-			local prompt_ui = require("avante.ui.prompt_input")
-			local orig = prompt_ui.open
-			prompt_ui.open = function(...)
-				local winid = orig(...)
-				vim.defer_fn(function()
-					if winid and vim.api.nvim_win_is_valid(winid) then
-						vim.api.nvim_set_option_value("winblend", 0, { win = winid })
-					end
-				end, 50)
-				return winid
-			end
-
 			local augroup = vim.api.nvim_create_augroup("AvanteAutoBufferSelection", { clear = true })
 			vim.api.nvim_create_autocmd({ "BufEnter" }, {
 				group = augroup,
@@ -145,4 +145,3 @@ M.plugins = {
 }
 
 return M
-
