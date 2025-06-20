@@ -21,7 +21,7 @@ in
       "@dice-roller/cli"
       "markdownlint-cli"
       "markdownlint-cli2"
-      "mcphub@latest"
+      "mcp-hub@latest"
     ];
     additionalPackages = (overlay.yarn.additionalPackages or [ ]);
     executableArguments = [
