@@ -13,7 +13,7 @@ M.plugins = {
 		config = function()
 			local wilder = require("wilder")
 			wilder.setup({
-				modes = { ":", "/", "?" },
+				modes = { ":", "?" },
 				next_key = "<Tab>",
 				previous_key = "<S-Tab>",
 				accept_key = "<CR>",
@@ -42,7 +42,8 @@ M.plugins = {
 				"renderer",
 				wilder.popupmenu_renderer(wilder.popupmenu_palette_theme({
 					border = "rounded",
-					highlighter = wilder.lua_fzy_highlighter(),
+					highlighter = wilder.basic_highlighter(),
+					left = { " ", wilder.popupmenu_devicons() },
 				}))
 			)
 			vim.opt.wildignorecase = true
@@ -50,4 +51,3 @@ M.plugins = {
 	},
 }
 return M
-
