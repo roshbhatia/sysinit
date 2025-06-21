@@ -69,6 +69,7 @@ M.plugins = {
 			})
 
 			vim.notify = Snacks.notifier
+			vim.ui.input = Snacks.input
 		end,
 		keys = function()
 			return {
