@@ -16,7 +16,7 @@ M.plugins = {
 						size = 40,
 					},
 					right = {
-						size = 40,
+						size = 60,
 					},
 					bottom = {
 						size = 0,
@@ -31,6 +31,12 @@ M.plugins = {
 						end,
 					},
 				},
+				right = {
+					{
+						title = " Copilot",
+						ft = "Avante",
+					},
+				},
 				icons = {
 					closed = "",
 					open = "",
@@ -41,4 +47,3 @@ M.plugins = {
 }
 
 return M
-
