@@ -4,5 +4,8 @@
     "deprecated",
     "missing-fields",
     "unused-function"
-  ]
+  ],
+    "diagnostics.globals": [
+        "Snacks"
+    ]
 }
