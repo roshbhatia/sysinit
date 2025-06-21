@@ -19,21 +19,6 @@ M.plugins = {
 			"ravitemer/mcphub.nvim",
 		},
 		config = function()
-			local original_set_option_value = vim.api.nvim_set_option_value
-			vim.api.nvim_set_option_value = function(name, value, opts)
-				if name == "winblend" and opts and opts.win then
-					local config = vim.api.nvim_win_get_config(opts.win)
-					local buf = vim.api.nvim_win_get_buf(opts.win)
-					local bufname = vim.api.nvim_buf_get_name(buf)
-
-					if config.relative ~= "" and bufname:match("Avante") then
-						-- Force winblend to 0 for Avante floating windows
-						value = 0
-					end
-				end
-				return original_set_option_value(name, value, opts)
-			end
-
 			local avante = require("avante")
 			avante.setup({
 				provider = "copilot",
