@@ -31,12 +31,6 @@ M.plugins = {
 						end,
 					},
 				},
-				right = {
-					{
-						title = " Copilot",
-						ft = "Avante",
-					},
-				},
 				icons = {
 					closed = "",
 					open = "",
