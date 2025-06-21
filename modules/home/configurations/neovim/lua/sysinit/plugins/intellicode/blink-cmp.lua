@@ -150,7 +150,7 @@ M.plugins = {
 				completion = {
 					accept = {
 						auto_brackets = {
-							enabled = true,
+							enabled = false, -- Fallback to nvim-autopairs manually
 						},
 						create_undo_point = true,
 					},
