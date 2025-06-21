@@ -19,7 +19,7 @@ M.plugins = {
 			local mason_tool_installer = require("mason-tool-installer")
 
 			vim.api.nvim_create_autocmd("LspAttach", {
-				callback = function()
+				callback = function(args)
 					vim.diagnostic.config({
 						severity_sort = true,
 						virtual_text = false,
@@ -49,6 +49,12 @@ M.plugins = {
 							},
 						},
 					})
+
+					local client = vim.lsp.get_client_by_id(args.data.client_id)
+					---@diagnostic disable-next-line: need-check-nil
+					if client.server_capabilities.inlayHintProvider then
+						vim.lsp.inlay_hint.enable(true, { bufnr = args.buf })
+					end
 				end,
 			})
 
@@ -212,3 +218,4 @@ M.plugins = {
 }
 
 return M
+

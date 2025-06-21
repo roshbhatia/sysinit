@@ -38,6 +38,7 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.debugger.nvim-dap-go"),
 	require("sysinit.plugins.editor.colorizer"),
 	require("sysinit.plugins.editor.comment"),
+	require("sysinit.plugins.editor.fold-line"),
 	require("sysinit.plugins.editor.foldsign"),
 	require("sysinit.plugins.editor.formatter"),
 	require("sysinit.plugins.editor.grug-far"),
