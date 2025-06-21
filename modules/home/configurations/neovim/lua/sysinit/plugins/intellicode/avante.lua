@@ -91,6 +91,9 @@ M.plugins = {
 					"web_search",
 				},
 				windows = {
+					sidebar_header = {
+						rounded = false,
+					},
 					input = {
 						height = 12, -- Height of the input window in vertical layout
 					},
@@ -131,4 +134,3 @@ M.plugins = {
 }
 
 return M
-
