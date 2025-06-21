@@ -3,8 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"gelguy/wilder.nvim",
-		lazy = false,
-		priority = 1000,
+		event = "CmdlineEnter",
 		dependencies = {
 			"romgrk/fzy-lua-native",
 			"kyazdani42/nvim-web-devicons",
@@ -42,27 +41,8 @@ M.plugins = {
 				"renderer",
 				wilder.popupmenu_renderer(wilder.popupmenu_palette_theme({
 					border = "rounded",
-					left = {
-						" ",
-						wilder.popupmenu_devicons(),
-					},
-					highlighter = {
-						wilder.lua_pcre2_highlighter(),
-						wilder.lua_fzy_highlighter(),
-					},
-					highlights = {
-						accent = wilder.make_hl("WilderAccent", "Pmenu", {
-							{
-								a = 1,
-							},
-							{
-								a = 1,
-							},
-							{
-								foreground = "#afa3f9",
-							},
-						}),
-					},
+					highlighter = wilder.basic_highlighter(),
+					left = { " ", wilder.popupmenu_devicons() },
 				}))
 			)
 
