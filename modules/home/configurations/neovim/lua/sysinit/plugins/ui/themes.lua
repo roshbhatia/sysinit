@@ -34,6 +34,10 @@ M.plugins = {
 					integrations = {
 						aerial = true,
 						alpha = true,
+						avante = true,
+						blink_cmp = {
+							style = "bordered",
+						},
 						cmp = true,
 						copilot_vim = true,
 						dap = true,
@@ -146,4 +150,3 @@ M.plugins = {
 }
 
 return M
-

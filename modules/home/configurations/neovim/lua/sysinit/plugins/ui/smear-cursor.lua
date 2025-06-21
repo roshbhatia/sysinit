@@ -5,11 +5,10 @@ M.plugins = {
 		"sphamba/smear-cursor.nvim",
 		event = "VeryLazy",
 		opts = {
-			distance_stop_animating = 0.3,
-			legacy_computing_symbols_support = true,
-			smear_between_buffers = false,
-			stiffness = 0.9,
-			trailing_stiffness = 0.8,
+			stiffness = 0.65,
+			trailing_stiffness = 0.65,
+			damping = 0.63,
+			matrix_pixel_threshold = 0.5,
 		},
 	},
 }
