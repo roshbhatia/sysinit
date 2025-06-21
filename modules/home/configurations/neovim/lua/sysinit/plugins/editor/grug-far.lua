@@ -11,7 +11,7 @@ M.plugins = {
 				{
 					"<leader>ig",
 					function()
-						require("grug-far").open()
+						require("grug-far").toggle_instance({ instanceName = "far", staticTitle = "Global Search" })
 					end,
 					desc = "Search and replace within current project",
 				},
