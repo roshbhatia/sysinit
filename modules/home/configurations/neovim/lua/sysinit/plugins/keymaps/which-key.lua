@@ -74,13 +74,10 @@ M.plugins = {
 					"<leader>r",
 					group = "Refresh",
 				},
-				{
-					"<leader>t",
-					group = "Terminal",
-				},
 			})
 		end,
 	},
 }
 
 return M
+

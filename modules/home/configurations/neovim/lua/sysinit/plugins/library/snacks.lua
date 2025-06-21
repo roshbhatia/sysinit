@@ -47,10 +47,6 @@ M.plugins = {
 				rename = { enabled = true },
 				scratch = { enabled = true },
 				statuscolumn = { enabled = true },
-				terminal = {
-					enabled = true,
-					border = "rounded",
-				},
 				words = { enabled = true },
 
 				dashboard = { enabled = false },
@@ -65,6 +61,7 @@ M.plugins = {
 				layout = { enabled = false },
 				profiler = { enabled = false },
 				quickfile = { enabled = false }, -- Causes issues with syntax highlighting?
+				terminal = { enabled = false },
 				scope = { enabled = false },
 				scroll = { enabled = false },
 				toggle = { enabled = false },
@@ -82,27 +79,6 @@ M.plugins = {
 						Snacks.scratch()
 					end,
 					desc = "Toggle scratchpad",
-				},
-				{
-					"<leader>tt",
-					function()
-						Snacks.terminal.toggle("zsh")
-					end,
-					desc = "Toggle terminal",
-				},
-				{
-					"<leader>tl",
-					function()
-						Snacks.terminal.list()
-					end,
-					desc = "List terminals",
-				},
-				{
-					"<leader>tT",
-					function()
-						Snacks.terminal.open("zsh")
-					end,
-					desc = "New terminal",
 				},
 				{
 					"<leader>gg",
