@@ -38,7 +38,7 @@ xcode-select --install && \
 https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" && \
 eval "$(/opt/homebrew/bin/brew shellenv)" && \
 brew install go-task/tap/go-task
-
+```
 
 ## Installing Neovim only
 
