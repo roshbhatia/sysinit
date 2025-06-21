@@ -57,7 +57,6 @@ M.plugins = {
 				gitbrowse = { enabled = false },
 				image = { enabled = false },
 				indent = { enabled = false },
-				input = { enabled = false },
 				layout = { enabled = false },
 				profiler = { enabled = false },
 				quickfile = { enabled = false }, -- Causes issues with syntax highlighting?
@@ -70,6 +69,7 @@ M.plugins = {
 			})
 
 			vim.notify = Snacks.notifier
+			Snacks.input.enable()
 		end,
 		keys = function()
 			return {
@@ -105,4 +105,3 @@ M.plugins = {
 }
 
 return M
-
