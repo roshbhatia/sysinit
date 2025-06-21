@@ -35,9 +35,6 @@ M.plugins = {
 						aerial = true,
 						alpha = true,
 						avante = true,
-						blink_cmp = {
-							style = "bordered",
-						},
 						cmp = true,
 						copilot_vim = true,
 						dap = true,
