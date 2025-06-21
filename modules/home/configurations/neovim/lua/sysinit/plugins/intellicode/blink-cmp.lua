@@ -2,6 +2,7 @@ local M = {}
 local copilot_enabled = not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot"))
 
 local deps = {
+	"Fildo7525/pretty_hover",
 	"folke/lazydev.nvim",
 	"giuxtaposition/blink-cmp-copilot",
 	"Kaiser-Yang/blink-cmp-git",
@@ -159,6 +160,14 @@ M.plugins = {
 						window = {
 							border = "rounded",
 						},
+						draw = function(opts)
+							if opts.item and opts.item.documentation then
+								local out = require("pretty_hover.parser").parse(opts.item.documentation.value)
+								opts.item.documentation.value = out:string()
+							end
+
+							opts.default_implementation(opts)
+						end,
 					},
 					ghost_text = {
 						enabled = true,
@@ -227,3 +236,4 @@ M.plugins = {
 }
 
 return M
+
