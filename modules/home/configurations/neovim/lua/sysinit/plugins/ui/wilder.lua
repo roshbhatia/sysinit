@@ -42,10 +42,30 @@ M.plugins = {
 				"renderer",
 				wilder.popupmenu_renderer(wilder.popupmenu_palette_theme({
 					border = "rounded",
-					highlighter = wilder.basic_highlighter(),
-					left = { " ", wilder.popupmenu_devicons() },
+					left = {
+						" ",
+						wilder.popupmenu_devicons(),
+					},
+					highlighter = {
+						wilder.lua_pcre2_highlighter(),
+						wilder.lua_fzy_highlighter(),
+					},
+					highlights = {
+						accent = wilder.make_hl("WilderAccent", "Pmenu", {
+							{
+								a = 1,
+							},
+							{
+								a = 1,
+							},
+							{
+								foreground = "#afa3f9",
+							},
+						}),
+					},
 				}))
 			)
+
 			vim.opt.wildignorecase = true
 		end,
 	},
