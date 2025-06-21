@@ -9,11 +9,8 @@ M.plugins = {
 		},
 		config = function()
 			require("render-markdown").setup({
-				anti_conceal = {
-					enabled = false,
-				},
 				code = {
-					language_icon = false,
+					language_icon = true,
 					language_name = false,
 				},
 				completions = {
@@ -27,9 +24,6 @@ M.plugins = {
 				},
 				sign = {
 					enabled = false,
-				},
-				quote = {
-					repeat_linebreak = true,
 				},
 			})
 		end,
