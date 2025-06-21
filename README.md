@@ -45,7 +45,7 @@ brew install go-task/tap/go-task
 ```bash
 git clone --depth 1 https://github.com/roshbhatia/sysinit.git /tmp/sysinit && \
 mkdir -p ~/.config/nvim && \
-cp -r /tmp/sysinit/modules/home/configurations/neovim ~/.config/nvim
+cp -r /tmp/sysinit/modules/home/configurations/neovim/ ~/.config/nvim/
 ```
 
 ## Usage
