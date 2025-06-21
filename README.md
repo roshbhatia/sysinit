@@ -34,14 +34,23 @@ This comprises most of my dotfiles, managed (mostly) by `nix`.
 
 ```bash
 xcode-select --install && \
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" && \
+/bin/bash -c "$(curl -fsSL \
+https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" && \
 eval "$(/opt/homebrew/bin/brew shellenv)" && \
 brew install go-task/tap/go-task
+
+
+## Installing Neovim only
+
+```bash
+git clone --depth 1 https://github.com/roshbhatia/sysinit.git /tmp/sysinit && \
+mkdir -p ~/.config/nvim && \
+cp -r /tmp/sysinit/modules/home/configurations/neovim ~/.config/nvim
 ```
 
 ## Usage
 
-```task
+```text
 task: Available tasks for this project:
 * default:                 Show help information
 * nix:fmt:                 Format the Nix configuration
@@ -133,4 +142,3 @@ task: Available tasks for this project:
     │   └── shell
     └── nix
 ```
-
