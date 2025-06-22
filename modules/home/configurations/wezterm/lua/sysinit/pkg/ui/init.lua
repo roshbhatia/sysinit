@@ -40,6 +40,7 @@ local function get_display_config()
 	return {
 		enable_tab_bar = true,
 		max_fps = 240,
+		animation_fps = 240,
 		color_scheme = terminal_theme,
 		scrollback_lines = 20000,
 		adjust_window_size_when_changing_font_size = false,
