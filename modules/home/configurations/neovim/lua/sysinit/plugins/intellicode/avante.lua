@@ -126,9 +126,7 @@ M.plugins = {
 				group = augroup,
 				pattern = "Avante",
 				callback = function()
-					vim.opt_local.foldcolumn = "4" -- Adjust the padding as needed
-					vim.opt_local.number = true -- Enable line numbers
-					vim.opt_local.winblend = 0 -- Disable transparency
+					vim.opt_local.number = true
 				end,
 			})
 		end,
