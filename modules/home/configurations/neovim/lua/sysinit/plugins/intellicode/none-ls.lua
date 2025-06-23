@@ -36,7 +36,7 @@ M.plugins = {
 							"-",
 						},
 					}),
-					null_ls.builtins.diagnostics.vale,
+					-- null_ls.builtins.diagnostics.vale,
 					null_ls.builtins.hover.dictionary,
 					null_ls.builtins.hover.printenv,
 				},
@@ -119,4 +119,3 @@ M.plugins = {
 }
 
 return M
-
