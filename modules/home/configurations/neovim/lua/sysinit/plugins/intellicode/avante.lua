@@ -34,8 +34,8 @@ M.plugins = {
 					auto_focus_sidebar = false,
 					auto_suggestions = false,
 					auto_apply_diff_after_generation = true,
-					enable_cursor_planning_mode = true,
 					support_paste_from_clipboard = true,
+					enable_cursor_planning_mode = true,
 				},
 				mappings = {
 					submit = {
@@ -126,7 +126,9 @@ M.plugins = {
 				group = augroup,
 				pattern = "Avante",
 				callback = function()
-					vim.opt_local.number = true
+					vim.opt_local.foldcolumn = "0"
+					vim.opt_local.foldtext = ""
+					vim.opt_local.foldmethod = "manual"
 				end,
 			})
 		end,
@@ -134,3 +136,4 @@ M.plugins = {
 }
 
 return M
+
