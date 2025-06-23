@@ -22,19 +22,24 @@ M.plugins = {
 			local avante = require("avante")
 			avante.setup({
 				provider = "copilot",
-				mode = "legacy",
+				mode = "agentic",
 				providers = {
 					copilot = {
 						model = "gemini-2.0-flash-001",
 					},
 				},
 				behaviour = {
-					auto_approve_tool_permissions = false,
-					auto_focus_on_diff_view = true,
-					auto_focus_sidebar = true,
 					auto_suggestions = false,
-					auto_apply_diff_after_generation = false,
-					support_paste_from_clipboard = true,
+				},
+				prompt_logger = {
+					next_prompt = {
+						normal = "j",
+						insert = "<Down>",
+					},
+					prev_prompt = {
+						normal = "h",
+						insert = "<Up>",
+					},
 				},
 				mappings = {
 					submit = {
@@ -65,17 +70,17 @@ M.plugins = {
 					}
 				end,
 				disabled_tools = {
-					-- -- Disabled due to conflicts with mcphub
-					-- "list_files",
-					-- "search_files",
-					-- "read_file",
-					-- "create_file",
-					-- "rename_file",
-					-- "delete_file",
-					-- "create_dir",
-					-- "rename_dir",
-					-- "delete_dir",
-					-- "bash",
+					-- Disabled due to conflicts with mcphub
+					"list_files",
+					"search_files",
+					"read_file",
+					"create_file",
+					"rename_file",
+					"delete_file",
+					"create_dir",
+					"rename_dir",
+					"delete_dir",
+					"bash",
 					-- Disabled due to lack of use in favor with fetch
 					"web_search",
 				},
