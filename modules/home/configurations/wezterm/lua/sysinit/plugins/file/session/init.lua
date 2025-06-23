@@ -12,10 +12,15 @@ local function create_schema()
 			callback = history.Wrapper(sessionizer.DefaultCallback),
 		},
 
+		sessionizer.DefaultWorkspace({}),
+
 		history.MostRecentWorkspace({}),
 
 		{
-			sessionizer.AllActiveWorkspaces({ filter_current = false, filter_default = false }),
+			sessionizer.AllActiveWorkspaces({
+				filter_current = false,
+				filter_default = false,
+			}),
 			processing = sessionizer.for_each_entry(function(entry)
 				entry.label = wezterm.format({
 					{ Text = "󱂬 : " .. entry.label },
@@ -59,4 +64,3 @@ function M.setup(config)
 end
 
 return M
-
