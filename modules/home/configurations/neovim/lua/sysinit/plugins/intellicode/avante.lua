@@ -29,13 +29,12 @@ M.plugins = {
 					},
 				},
 				behaviour = {
-					auto_approve_tool_permissions = true,
+					auto_approve_tool_permissions = false,
 					auto_focus_on_diff_view = true,
 					auto_focus_sidebar = false,
 					auto_suggestions = false,
-					auto_apply_diff_after_generation = true,
+					auto_apply_diff_after_generation = false,
 					support_paste_from_clipboard = true,
-					enable_cursor_planning_mode = true,
 				},
 				mappings = {
 					submit = {
@@ -154,4 +153,3 @@ M.plugins = {
 }
 
 return M
-

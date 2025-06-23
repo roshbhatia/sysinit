@@ -6,6 +6,15 @@ M.plugins = {
 		event = "LSPAttach",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
+<<<<<<< HEAD
+=======
+										title = "Generate color hue variations",
+										action = function()
+											vim.cmd("Huefy")
+											vim.notify("Generated color hue variations", vim.log.levels.INFO)
+										end,
+									},
+>>>>>>> Snippet
 		},
 		config = function()
 			local null_ls = require("null-ls")
@@ -119,3 +128,4 @@ M.plugins = {
 }
 
 return M
+
