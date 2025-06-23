@@ -16,7 +16,7 @@ M.plugins = {
 				},
 				{
 					"/",
-					"<CMD>SearchBoxIncSearch<CR>",
+					"<CMD>SearchBoxMatchAll<CR>",
 				},
 			}
 		end,
@@ -24,3 +24,4 @@ M.plugins = {
 }
 
 return M
+

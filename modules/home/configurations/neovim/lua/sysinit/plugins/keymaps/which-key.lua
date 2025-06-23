@@ -15,6 +15,7 @@ M.plugins = {
 				icons = {
 					mappings = false,
 				},
+				notify = false,
 			})
 
 			wk.add({

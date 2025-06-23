@@ -21,13 +21,13 @@ M.plugins = {
 			local mc = require("multicursor-nvim")
 			return {
 				{
-					"<leader>..",
+					"<localleader>..",
 					mc.toggleCursor,
 					mode = "n",
 					desc = "Toggle cursor",
 				},
 				{
-					"<leader>.x",
+					"<localleader>.x",
 					mc.clearCursors,
 					mode = "n",
 					desc = "Delete all cursors",
@@ -37,3 +37,4 @@ M.plugins = {
 	},
 }
 return M
+

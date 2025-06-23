@@ -31,9 +31,13 @@ M.plugins = {
 				presets = {
 					lsp_doc_border = true,
 				},
+				health = {
+					checker = false,
+				},
 			})
 		end,
 	},
 }
 
 return M
+

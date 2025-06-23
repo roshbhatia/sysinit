@@ -21,10 +21,11 @@ M.plugins = {
 						redo_mapping = "U",
 					},
 				},
-				transparency_color = vim.api.nvim_get_hl_by_name("Normal", true).background,
+				transparency_color = vim.api.nvim_get_hl_by_name("NormalNC", true).background,
 			})
 		end,
 	},
 }
 
 return M
+

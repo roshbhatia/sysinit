@@ -29,10 +29,17 @@ M.plugins = {
 			vim.diagnostic.config({
 				severity_sort = true,
 				virtual_text = false,
-				virtual_lines = { only_current_line = false },
+				virtual_lines = {
+					only_current_line = false,
+				},
 				update_in_insert = false,
-				float = { border = "rounded", source = "if_many" },
-				underline = { severity = vim.diagnostic.severity.ERROR },
+				float = {
+					border = "rounded",
+					source = "if_many",
+				},
+				underline = {
+					severity = vim.diagnostic.severity.ERROR,
+				},
 				signs = {
 					text = {
 						[vim.diagnostic.severity.ERROR] = "",
@@ -50,14 +57,31 @@ M.plugins = {
 			})
 
 			local lsp_servers = {
-				bashls = { source = "mason", external = false },
-				dagger = { source = "mason", external = false },
-				docker_compose_language_service = { source = "mason", external = false },
-				dockerls = { source = "mason", external = false },
+				bashls = {
+					source = "mason",
+					external = false,
+				},
+				dagger = {
+					source = "mason",
+					external = false,
+				},
+				docker_compose_language_service = {
+					source = "mason",
+					external = false,
+				},
+				dockerls = {
+					source = "mason",
+					external = false,
+				},
 				gopls = {
 					source = "mason",
 					external = false,
-					filetypes = { "go", "gomod", "gotpml", "gowork" },
+					filetypes = {
+						"go",
+						"gomod",
+						"gotpml",
+						"gowork",
+					},
 					settings = {
 						go = {
 							gofumpt = true,
@@ -90,13 +114,25 @@ M.plugins = {
 							usePlaceholders = true,
 							completeUnimported = true,
 							staticcheck = true,
-							directoryFilters = { "-.git", "-.vscode", "-.idea", "-.vscode-test", "-node_modules" },
+							directoryFilters = {
+								"-.git",
+								"-.vscode",
+								"-.idea",
+								"-.vscode-test",
+								"-node_modules",
+							},
 							semanticTokens = true,
 						},
 					},
 				},
-				helm_ls = { source = "mason", external = false },
-				jqls = { source = "mason", external = false },
+				helm_ls = {
+					source = "mason",
+					external = false,
+				},
+				jqls = {
+					source = "mason",
+					external = false,
+				},
 				jsonls = {
 					source = "mason",
 					external = false,
@@ -109,7 +145,10 @@ M.plugins = {
 						},
 					},
 				},
-				lua_ls = { source = "mason", external = false },
+				lua_ls = {
+					source = "mason",
+					external = false,
+				},
 				nil_ls = {
 					source = "mason",
 					external = false,
@@ -119,10 +158,22 @@ M.plugins = {
 						},
 					},
 				},
-				pyright = { source = "mason", external = false },
-				terraformls = { source = "mason", external = false },
-				tflint = { source = "mason", external = false },
-				ts_ls = { source = "mason", external = false },
+				pyright = {
+					source = "mason",
+					external = false,
+				},
+				terraformls = {
+					source = "mason",
+					external = false,
+				},
+				tflint = {
+					source = "mason",
+					external = false,
+				},
+				ts_ls = {
+					source = "mason",
+					external = false,
+				},
 				yamlls = {
 					source = "mason",
 					external = false,
@@ -139,8 +190,15 @@ M.plugins = {
 				up = {
 					source = "system",
 					external = true,
-					cmd = { "up", "xpls", "serve", "--verbose" },
-					filetypes = { "yaml" },
+					cmd = {
+						"up",
+						"xpls",
+						"serve",
+						"--verbose",
+					},
+					filetypes = {
+						"yaml",
+					},
 					root_dir = function()
 						local fd = vim.fn.system("fd crossplane.yaml")
 						if fd ~= "" then
@@ -151,7 +209,10 @@ M.plugins = {
 				},
 			}
 
-			local tools = { "impl", "golines" }
+			local tools = {
+				"impl",
+				"golines",
+			}
 
 			dependencies.mason_tool_installer.setup({
 				ensure_installed = tools,
@@ -165,11 +226,9 @@ M.plugins = {
 				handlers = function(server_name)
 					if lsp_servers[server_name] and not lsp_servers[server_name].external then
 						dependencies.lspconfig[server_name].setup(
-							vim.tbl_deep_extend(
-								"force",
-								lsp_servers[server_name],
-								{ capabilities = dependencies.capabilities }
-							)
+							vim.tbl_deep_extend("force", lsp_servers[server_name], {
+								capabilities = dependencies.capabilities,
+							})
 						)
 					end
 				end,
@@ -177,7 +236,9 @@ M.plugins = {
 
 			for server_name, server_config in pairs(lsp_servers) do
 				if server_config.external then
-					dependencies.configs[server_name] = { default_config = server_config }
+					dependencies.configs[server_name] = {
+						default_config = server_config,
+					}
 					dependencies.lspconfig[server_name].setup(server_config)
 				end
 			end
@@ -218,3 +279,4 @@ M.plugins = {
 }
 
 return M
+

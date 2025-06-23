@@ -3,7 +3,9 @@ local M = {}
 M.plugins = {
 	{
 		"shellRaining/hlchunk.nvim",
-		event = { "VeryLazy" },
+		event = {
+			"VeryLazy",
+		},
 		config = function()
 			require("hlchunk").setup({
 				chunk = {
@@ -27,3 +29,4 @@ M.plugins = {
 }
 
 return M
+

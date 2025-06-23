@@ -3,7 +3,9 @@ local M = {}
 M.plugins = {
 	{
 		"tamton-aquib/staline.nvim",
-		dependencies = { "nvim-tree/nvim-web-devicons" },
+		dependencies = {
+			"nvim-tree/nvim-web-devicons",
+		},
 		event = {
 			"BufEnter",
 			"User AlphaClosed",

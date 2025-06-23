@@ -3,7 +3,14 @@ local M = {}
 M.plugins = {
 	{
 		"smoka7/hop.nvim",
-		cmd = { "HopWord", "HopLine", "HopChar1", "HopPattern", "HopNodes", "HopAnywhere" },
+		cmd = {
+			"HopWord",
+			"HopLine",
+			"HopChar1",
+			"HopPattern",
+			"HopNodes",
+			"HopAnywhere",
+		},
 		opts = {
 			keys = "fjdkslaghrueiwoncmv",
 			jump_on_sole_occurrence = false,

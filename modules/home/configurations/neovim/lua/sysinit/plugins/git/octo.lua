@@ -28,14 +28,6 @@ M.plugins = {
 					silent = true,
 					desc = "Review PR from current branch",
 				},
-				{
-					"<leader>grs",
-					"<CMD>Octo review submit<CR>",
-					mode = "n",
-					noremap = true,
-					silent = true,
-					desc = "Submit PR review",
-				},
 			}
 		end,
 	},

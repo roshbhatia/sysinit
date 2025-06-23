@@ -3,7 +3,9 @@ local M = {}
 M.plugins = {
 	{
 		"stevearc/aerial.nvim",
-		cmd = { "AerialToggle" },
+		cmd = {
+			"AerialToggle",
+		},
 		dependencies = {
 			"nvim-treesitter/nvim-treesitter",
 			"nvim-tree/nvim-web-devicons",

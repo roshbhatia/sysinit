@@ -4,7 +4,10 @@ M.plugins = {
 	{
 		"tpope/vim-fugitive",
 		branch = "master",
-		cmd = { "Git", "Gvdiffsplit" },
+		cmd = {
+			"Git",
+			"Gvdiffsplit",
+		},
 		keys = {
 			{
 				"<leader>gs",
@@ -46,3 +49,4 @@ M.plugins = {
 }
 
 return M
+

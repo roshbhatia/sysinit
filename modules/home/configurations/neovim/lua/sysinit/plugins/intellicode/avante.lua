@@ -25,7 +25,7 @@ M.plugins = {
 				mode = "legacy",
 				providers = {
 					copilot = {
-						model = "claude-3.7-sonnet",
+						model = "gemini-2.0-flash-001",
 					},
 				},
 				behaviour = {
@@ -96,13 +96,31 @@ M.plugins = {
 						rounded = false,
 					},
 					input = {
-						height = 12, -- Height of the input window in vertical layout
+						height = 24,
 					},
 					edit = {
-						border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+						border = {
+							"╭",
+							"─",
+							"╮",
+							"│",
+							"╯",
+							"─",
+							"╰",
+							"│",
+						},
 					},
 					ask = {
-						border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+						border = {
+							"╭",
+							"─",
+							"╮",
+							"│",
+							"╯",
+							"─",
+							"╰",
+							"│",
+						},
 					},
 				},
 			})
