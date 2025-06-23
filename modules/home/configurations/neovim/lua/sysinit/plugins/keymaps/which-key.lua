@@ -51,10 +51,10 @@ M.plugins = {
 					group = "Buffer",
 				},
 				{
-					{
-						"<leader>gh",
-						group = "Hunk",
-					},
+					"<leader>gh",
+					group = "Hunk",
+				},
+				{
 					"<leader>gr",
 					group = "Review",
 				},
