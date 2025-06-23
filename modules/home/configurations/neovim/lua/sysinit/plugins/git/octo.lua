@@ -17,7 +17,6 @@ M.plugins = {
 
 			vim.treesitter.language.register("markdown", "octo")
 		end,
-
 		keys = function()
 			return {
 				{

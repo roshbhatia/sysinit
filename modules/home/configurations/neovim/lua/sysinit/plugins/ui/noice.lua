@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"folke/noice.nvim",
-		priority = 1051,
+		priority = 2000,
 		lazy = false,
 		dependencies = {
 			"MunifTanjim/nui.nvim",

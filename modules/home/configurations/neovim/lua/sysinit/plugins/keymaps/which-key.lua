@@ -32,6 +32,10 @@ M.plugins = {
 					group = "Code",
 				},
 				{
+					"<localleader>c",
+					group = "Code",
+				},
+				{
 					"<leader>d",
 					group = "Debugger",
 				},
@@ -64,7 +68,7 @@ M.plugins = {
 					group = "Search",
 				},
 				{
-					"<leader>.",
+					"<localleader>.",
 					group = "Cursor",
 				},
 				{
