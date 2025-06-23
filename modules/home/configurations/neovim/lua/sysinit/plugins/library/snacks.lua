@@ -5,6 +5,9 @@ M.plugins = {
 		"folke/snacks.nvim",
 		priority = 1050,
 		lazy = false,
+		dependencies = {
+			"folke/noice.nvim",
+		},
 		config = function()
 			require("snacks").setup({
 				animate = {
