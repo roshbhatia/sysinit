@@ -1,35 +1,64 @@
 local wezterm = require("wezterm")
-local sessionizer = wezterm.plugin.require("https://github.com/mikkasendke/sessionizer.wezterm")
+local workspace_switcher = wezterm.plugin.require("https://github.com/MLFlexer/smart_workspace_switcher.wezterm")
 local M = {}
 
-local function create_schema()
-	return {
-		options = {
-			prompt = " Select workspace 󰄾 ",
-		},
-		sessionizer.DefaultWorkspace({}),
-		sessionizer.FdSearch("~/github"),
-	}
+local colors = {
+	green = "#A6E3A1", -- For ~/github/personal/roshbhatia
+	red = "#F38BA8", -- For ~/github/personal (excluding roshbhatia)
+	blue = "#89B4FA", -- For ~/github/work
+	default = "#FFFFFF", -- Fallback
+}
+
+workspace_switcher.workspace_formatter = function(label)
+	local emoji = "󱂬 "
+	local path = label or ""
+
+	local color = colors.default
+
+	if path:find("^~/github/personal/roshbhatia") then
+		color = colors.green
+		emoji = " "
+	elseif path:find("^~/github/personal") then
+		color = colors.red
+		emoji = " "
+	elseif path:find("^~/github/work") then
+		color = colors.blue
+		emoji = " "
+	end
+
+	return wezterm.format({
+		{ Attribute = { Italic = true } },
+		{ Foreground = { Color = color } },
+		{ Background = { Color = "black" } },
+		{ Text = emoji .. label },
+	})
 end
 
 local function get_workspace_keys()
-	local schema = create_schema()
-
 	return {
 		{
 			key = "s",
 			mods = "CMD",
-			action = sessionizer.show(schema),
+			action = workspace_switcher.switch_workspace(),
+		},
+		{
+			key = "S",
+			mods = "CMD",
+			action = workspace_switcher.switch_to_prev_workspace(),
 		},
 	}
 end
 
 function M.setup(config)
+	workspace_switcher.apply_to_config(config)
+
 	local workspace_keys = get_workspace_keys()
 	for _, key_binding in ipairs(workspace_keys) do
 		table.insert(config.keys, key_binding)
 	end
+
 	return config
 end
 
 return M
+
