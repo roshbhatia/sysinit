@@ -16,7 +16,6 @@ M.plugins = {
 			"nvim-tree/nvim-web-devicons",
 			"zbirenbaum/copilot.lua",
 			"MeanderingProgrammer/render-markdown.nvim",
-			"ravitemer/mcphub.nvim",
 		},
 		config = function()
 			local avante = require("avante")
@@ -60,15 +59,6 @@ M.plugins = {
 				selector = {
 					provider = "telescope",
 				},
-				system_prompt = function()
-					local hub = require("mcphub").get_hub_instance()
-					return hub and hub:get_active_servers_prompt() or ""
-				end,
-				custom_tools = function()
-					return {
-						require("mcphub.extensions.avante").mcp_tool(),
-					}
-				end,
 				disabled_tools = {
 					-- Disabled due to lack of use in favor with fetch
 					"web_search",
