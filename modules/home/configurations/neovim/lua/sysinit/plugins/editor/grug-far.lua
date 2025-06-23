@@ -9,7 +9,7 @@ M.plugins = {
 		keys = function()
 			return {
 				{
-					"<leader>ig",
+					"<leader>iI",
 					function()
 						require("grug-far").toggle_instance({ instanceName = "far", staticTitle = "Global Search" })
 					end,
@@ -21,4 +21,3 @@ M.plugins = {
 }
 
 return M
-
