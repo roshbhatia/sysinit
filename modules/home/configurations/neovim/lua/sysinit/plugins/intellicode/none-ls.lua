@@ -82,7 +82,7 @@ M.plugins = {
 			null_ls.register({
 				name = "hex_color_tools",
 				method = null_ls.methods.CODE_ACTION,
-				filetypes = { "*" },
+				filetypes = {},
 				generator = {
 					fn = function(context)
 						local actions = {}
