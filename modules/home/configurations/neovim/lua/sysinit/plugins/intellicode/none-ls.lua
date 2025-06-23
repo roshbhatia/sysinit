@@ -39,7 +39,7 @@ M.plugins = {
 					null_ls.builtins.hover.printenv,
 					null_ls.builtins.diagnostics.crossplane.with({
 						command = "up",
-						args = { "xpls", "serve", "--verbose" },
+						args = { "xpls", "serve", "--verbose", "--format='json'" },
 						filetypes = { "yaml" },
 						format = "json",
 						on_output = function(params)
