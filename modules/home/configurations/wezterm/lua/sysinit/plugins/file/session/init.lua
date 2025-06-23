@@ -27,10 +27,14 @@ workspace_switcher.workspace_formatter = function(label)
 	end
 
 	return wezterm.format({
-		{ Attribute = { Italic = true } },
-		{ Foreground = { Color = color } },
-		{ Background = { Color = "black" } },
-		{ Text = emoji .. label },
+		{
+			Foreground = {
+				Color = color,
+			},
+		},
+		{
+			Text = emoji .. label,
+		},
 	})
 end
 
@@ -39,7 +43,9 @@ local function get_workspace_keys()
 		{
 			key = "s",
 			mods = "CMD",
-			action = workspace_switcher.switch_workspace(),
+			action = workspace_switcher.switch_workspace({
+				extra_args = " | rg -Fxf ~/github",
+			}),
 		},
 		{
 			key = "S",
