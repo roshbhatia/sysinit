@@ -19,8 +19,9 @@ M.plugins = {
 					},
 				},
 				file_types = {
-					"markdown",
 					"Avante",
+					"markdown",
+					"octo",
 				},
 				sign = {
 					enabled = false,
@@ -31,3 +32,4 @@ M.plugins = {
 }
 
 return M
+

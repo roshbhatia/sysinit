@@ -99,6 +99,7 @@ let
     typescript
     typescript-language-server
     uv
+    vale
     watch
     wget
     yarn
@@ -113,3 +114,4 @@ in
 {
   home.packages = allNixPackages;
 }
+
