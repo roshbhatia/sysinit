@@ -23,10 +23,17 @@ M.plugins = {
 					vim.diagnostic.config({
 						severity_sort = true,
 						virtual_text = false,
-						virtual_lines = { only_current_line = false },
+						virtual_lines = {
+							only_current_line = false,
+						},
 						update_in_insert = false,
-						float = { border = "rounded", source = "if_many" },
-						underline = { severity = vim.diagnostic.severity.ERROR },
+						float = {
+							border = "rounded",
+							source = "if_many",
+						},
+						underline = {
+							severity = vim.diagnostic.severity.ERROR,
+						},
 						signs = {
 							text = {
 								[vim.diagnostic.severity.ERROR] = "",
@@ -44,6 +51,7 @@ M.plugins = {
 					})
 
 					local client = vim.lsp.get_client_by_id(args.data.client_id)
+					---@diagnostic disable-next-line: need-check-nil
 					if client.server_capabilities.inlayHintProvider then
 						vim.lsp.inlay_hint.enable(true, { bufnr = args.buf })
 					end
@@ -51,32 +59,11 @@ M.plugins = {
 			})
 
 			local servers = {
-				bashls = {
-					source = "mason",
-				},
-				crossplane = {
-					source = "system",
-					cmd = {
-						"up",
-						"xpls",
-						"serve",
-						"--verbose",
-					},
-					filetypes = {
-						"yaml",
-					},
-				},
-				dagger = {
-					source = "mason",
-				},
-				docker_compose_language_service = {
-					source = "mason",
-				},
-				dockerls = {
-					source = "mason",
-				},
+				bashls = {},
+				dagger = {},
+				docker_compose_language_service = {},
+				dockerls = {},
 				gopls = {
-					source = "mason",
 					filetypes = {
 						"go",
 						"gomod",
@@ -115,19 +102,12 @@ M.plugins = {
 							usePlaceholders = true,
 							completeUnimported = true,
 							staticcheck = true,
-							directoryFilters = {
-								"-.git",
-								"-.vscode",
-								"-.idea",
-								"-.vscode-test",
-								"-node_modules",
-							},
+							directoryFilters = { "-.git", "-.vscode", "-.idea", "-.vscode-test", "-node_modules" },
 							semanticTokens = true,
 						},
 					},
 				},
 				helm_ls = {
-					source = "mason",
 					settings = {
 						["helm-ls"] = {
 							yamlls = {
@@ -136,11 +116,8 @@ M.plugins = {
 						},
 					},
 				},
-				jqls = {
-					source = "mason",
-				},
+				jqls = {},
 				jsonls = {
-					source = "mason",
 					settings = {
 						json = {
 							schemas = require("schemastore").json.schemas(),
@@ -150,31 +127,19 @@ M.plugins = {
 						},
 					},
 				},
-				lua_ls = {
-					source = "mason",
-				},
+				lua_ls = {},
 				nil_ls = {
-					source = "mason",
 					settings = {
 						["nil"] = {
 							testSetting = 42,
 						},
 					},
 				},
-				pyright = {
-					source = "mason",
-				},
-				terraformls = {
-					source = "mason",
-				},
-				tflint = {
-					source = "mason",
-				},
-				ts_ls = {
-					source = "mason",
-				},
+				pyright = {},
+				terraformls = {},
+				tflint = {},
+				ts_ls = {},
 				yamlls = {
-					source = "mason",
 					settings = {
 						yaml = {
 							schemaStore = {
@@ -191,52 +156,31 @@ M.plugins = {
 				"impl",
 				"golines",
 			}
-			local mason_servers = vim.deepcopy(servers)
-			mason_servers.crossplane = nil
 
 			mason_tool_installer.setup({
-				ensure_installed = vim.list_extend(tools, vim.tbl_keys(mason_servers)),
+				ensure_installed = vim.list_extend(tools, vim.tbl_keys(servers)),
 			})
 
 			local capabilities = vim.lsp.protocol.make_client_capabilities()
 			capabilities = vim.tbl_deep_extend("force", capabilities, blink_cmp.get_lsp_capabilities({}, false))
 
-			local setup_options = {
-				mason = function(server_name)
-					local server_config = servers[server_name] or {}
+			mason_lspconfig.setup({
+				ensure_installed = vim.tbl_keys(servers),
+				automatic_enable = true,
+				handlers = function(server_name)
 					lspconfig[server_name].setup({
-						capabilities = vim.tbl_deep_extend("force", capabilities, server_config.capabilities or {}),
-						filetypes = server_config.filetypes,
+						capabilities = (servers[server_name] or {}).capabilities + capabilities,
+						filetypes = (servers[server_name] or {}).filetypes,
 						on_init = function(client)
+							-- favor tresitter highlighting over LSP
 							if client.supports_method("textDocument/semanticTokens") then
 								client.server_capabilities.semanticTokensProvider = nil
 							end
 						end,
-						settings = server_config.settings,
+						settings = (servers[server_name] or {}).settings,
 					})
 				end,
-				system = function(server_name)
-					local server_config = servers[server_name] or {}
-					vim.lsp.start({
-						cmd = server_config.cmd,
-						capabilities = vim.tbl_deep_extend("force", capabilities, server_config.capabilities or {}),
-						filetypes = server_config.filetypes,
-						on_init = function(client)
-							if client.supports_method("textDocument/semanticTokens") then
-								client.server_capabilities.semanticTokensProvider = nil
-							end
-						end,
-						settings = server_config.settings,
-					})
-				end,
-			}
-
-			for server_name, server_config in pairs(servers) do
-				local setup = setup_options[server_config.source]
-				if setup then
-					setup(server_name)
-				end
-			end
+			})
 		end,
 		keys = function()
 			return {
