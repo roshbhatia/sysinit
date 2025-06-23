@@ -14,7 +14,7 @@
         {
           "foreground": "p:os",
           "style": "plain",
-          "template": " 󱄅 ",
+          "template": "󱄅 ",
           "type": "os"
         },
         {
@@ -65,3 +65,4 @@
   "final_space": true,
   "version": 3
 }
+
