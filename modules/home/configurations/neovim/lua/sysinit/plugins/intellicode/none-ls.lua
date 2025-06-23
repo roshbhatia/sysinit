@@ -6,19 +6,11 @@ M.plugins = {
 		event = "LSPAttach",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
-<<<<<<< HEAD
-=======
-										title = "Generate color hue variations",
-										action = function()
-											vim.cmd("Huefy")
-											vim.notify("Generated color hue variations", vim.log.levels.INFO)
-										end,
-									},
->>>>>>> Snippet
 		},
 		config = function()
 			local null_ls = require("null-ls")
 			local helpers = require("null-ls.helpers")
+			local ts_utils = require("nvim-treesitter.ts_utils")
 
 			null_ls.setup({
 				border = "rounded",
@@ -94,31 +86,28 @@ M.plugins = {
 				generator = {
 					fn = function(context)
 						local actions = {}
-						local hex_pattern = "#%x%x%x%x%x%x"
-						local row = context.range.row
-						local line = context.content[row - context.range.row + 1] or ""
-						local col = vim.api.nvim_win_get_cursor(0)[2] + 1
-						local start_idx, end_idx = line:find(hex_pattern)
-						while start_idx do
-							if col >= start_idx and col <= end_idx then
-								table.insert(actions, {
-									title = "Generate color shade palette",
-									action = function()
-										vim.cmd("Shades")
-									end,
-								})
-
-								table.insert(actions, {
-									title = "Generate color hue variations",
-									action = function()
-										vim.cmd("Huefy")
-									end,
-								})
-								break
-							end
-							start_idx, end_idx = line:find(hex_pattern, end_idx + 1)
+						local node = ts_utils.get_node_at_cursor()
+						if not node then
+							return actions
 						end
 
+						local text = ts_utils.get_node_text(node)[1] or ""
+						local hex_pattern = "#%x%x%x%x%x%x"
+						if text:match(hex_pattern) then
+							table.insert(actions, {
+								title = "Generate color shade palette",
+								action = function()
+									vim.cmd("Shades")
+								end,
+							})
+
+							table.insert(actions, {
+								title = "Generate color hue variations",
+								action = function()
+									vim.cmd("Huefy")
+								end,
+							})
+						end
 						return actions
 					end,
 				},
@@ -128,4 +117,3 @@ M.plugins = {
 }
 
 return M
-
