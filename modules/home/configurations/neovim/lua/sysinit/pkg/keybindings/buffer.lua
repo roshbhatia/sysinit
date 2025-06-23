@@ -37,7 +37,6 @@ end
 function M.setup()
 	vim.keymap.set("n", "<leader>x", function()
 		vim.cmd("silent SessionSave")
-		vim.cmd("silent write!")
 
 		local buffers = get_listed_buffers()
 		if #buffers > 1 then
