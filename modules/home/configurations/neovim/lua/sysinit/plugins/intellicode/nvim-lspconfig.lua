@@ -203,28 +203,30 @@ M.plugins = {
 
 			local setup_options = {
 				mason = function(server_name)
+					local server_config = servers[server_name] or {}
 					lspconfig[server_name].setup({
-						capabilities = (servers[server_name] or {}).capabilities + capabilities,
-						filetypes = (servers[server_name] or {}).filetypes,
+						capabilities = vim.tbl_deep_extend("force", capabilities, server_config.capabilities or {}),
+						filetypes = server_config.filetypes,
 						on_init = function(client)
 							if client.supports_method("textDocument/semanticTokens") then
 								client.server_capabilities.semanticTokensProvider = nil
 							end
 						end,
-						settings = (servers[server_name] or {}).settings,
+						settings = server_config.settings,
 					})
 				end,
 				system = function(server_name)
+					local server_config = servers[server_name] or {}
 					vim.lsp.start({
-						cmd = servers[server_name].cmd,
-						capabilities = capabilities,
-						filetypes = servers[server_name].filetypes,
+						cmd = server_config.cmd,
+						capabilities = vim.tbl_deep_extend("force", capabilities, server_config.capabilities or {}),
+						filetypes = server_config.filetypes,
 						on_init = function(client)
 							if client.supports_method("textDocument/semanticTokens") then
 								client.server_capabilities.semanticTokensProvider = nil
 							end
 						end,
-						settings = servers[server_name].settings,
+						settings = server_config.settings,
 					})
 				end,
 			}
