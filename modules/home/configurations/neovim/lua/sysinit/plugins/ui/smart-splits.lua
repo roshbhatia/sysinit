@@ -93,13 +93,13 @@ M.plugins = {
 				{
 					"<leader><S-s>",
 					"<CMD>split<CR>",
-					mode = { "n", "i", "v", "t" },
+					mode = { "n", "t" },
 					desc = "Split horizontal",
 				},
 				{
 					"<leader><S-v>",
 					"<CMD>vsplit<CR>",
-					mode = { "n", "i", "v", "t" },
+					mode = { "n", "t" },
 					desc = "Split vertical",
 				},
 			}
