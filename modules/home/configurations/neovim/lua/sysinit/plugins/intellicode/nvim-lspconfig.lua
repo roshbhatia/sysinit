@@ -17,59 +17,45 @@ M.plugins = {
 			local lspconfig = require("lspconfig")
 			local mason_lspconfig = require("mason-lspconfig")
 			local mason_tool_installer = require("mason-tool-installer")
+			local configs = require("lspconfig.configs")
 
-			vim.api.nvim_create_autocmd("LspAttach", {
-				callback = function(args)
-					vim.diagnostic.config({
-						severity_sort = true,
-						virtual_text = false,
-						virtual_lines = {
-							only_current_line = false,
-						},
-						update_in_insert = false,
-						float = {
-							border = "rounded",
-							source = "if_many",
-						},
-						underline = {
-							severity = vim.diagnostic.severity.ERROR,
-						},
-						signs = {
-							text = {
-								[vim.diagnostic.severity.ERROR] = "",
-								[vim.diagnostic.severity.HINT] = "",
-								[vim.diagnostic.severity.INFO] = "",
-								[vim.diagnostic.severity.WARN] = "",
-							},
-							numhl = {
-								[vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
-								[vim.diagnostic.severity.HINT] = "DiagnosticSignHint",
-								[vim.diagnostic.severity.INFO] = "DiagnosticSignInfo",
-								[vim.diagnostic.severity.WARN] = "DiagnosticSignWarn",
-							},
-						},
-					})
-
-					local client = vim.lsp.get_client_by_id(args.data.client_id)
-					---@diagnostic disable-next-line: need-check-nil
-					if client.server_capabilities.inlayHintProvider then
-						vim.lsp.inlay_hint.enable(true, { bufnr = args.buf })
-					end
-				end,
+			vim.diagnostic.config({
+				severity_sort = true,
+				virtual_text = false,
+				virtual_lines = {
+					only_current_line = false,
+				},
+				update_in_insert = false,
+				float = {
+					border = "rounded",
+					source = "if_many",
+				},
+				underline = {
+					severity = vim.diagnostic.severity.ERROR,
+				},
+				signs = {
+					text = {
+						[vim.diagnostic.severity.ERROR] = "",
+						[vim.diagnostic.severity.HINT] = "",
+						[vim.diagnostic.severity.INFO] = "",
+						[vim.diagnostic.severity.WARN] = "",
+					},
+					numhl = {
+						[vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
+						[vim.diagnostic.severity.HINT] = "DiagnosticSignHint",
+						[vim.diagnostic.severity.INFO] = "DiagnosticSignInfo",
+						[vim.diagnostic.severity.WARN] = "DiagnosticSignWarn",
+					},
+				},
 			})
 
-			local servers = {
+			local lsp_servers = {
 				bashls = {},
 				dagger = {},
 				docker_compose_language_service = {},
 				dockerls = {},
 				gopls = {
-					filetypes = {
-						"go",
-						"gomod",
-						"gotpml",
-						"gowork",
-					},
+					filetypes = { "go", "gomod", "gotpml", "gowork" },
 					settings = {
 						go = {
 							gofumpt = true,
@@ -150,35 +136,40 @@ M.plugins = {
 						},
 					},
 				},
+				up = {
+					cmd = { "up", "xpls", "serve", "--verbose" },
+					filetypes = { "yaml" },
+					root_dir = function()
+						local fd = vim.fn.system("fd crossplane.yaml")
+						if fd ~= "" then
+							return vim.fn.fnamemodify(fd, ":p:h")
+						end
+						return nil
+					end,
+				},
 			}
+			local tools = { "impl", "golines" }
 
-			local tools = {
-				"impl",
-				"golines",
+			configs.up = {
+				default_config = lsp_servers.up,
 			}
 
 			mason_tool_installer.setup({
-				ensure_installed = vim.list_extend(tools, vim.tbl_keys(servers)),
+				ensure_installed = tools,
 			})
 
 			local capabilities = vim.lsp.protocol.make_client_capabilities()
 			capabilities = vim.tbl_deep_extend("force", capabilities, blink_cmp.get_lsp_capabilities({}, false))
 
 			mason_lspconfig.setup({
-				ensure_installed = vim.tbl_keys(servers),
+				ensure_installed = vim.tbl_keys(lsp_servers),
 				automatic_enable = true,
 				handlers = function(server_name)
-					lspconfig[server_name].setup({
-						capabilities = (servers[server_name] or {}).capabilities + capabilities,
-						filetypes = (servers[server_name] or {}).filetypes,
-						on_init = function(client)
-							-- favor tresitter highlighting over LSP
-							if client.supports_method("textDocument/semanticTokens") then
-								client.server_capabilities.semanticTokensProvider = nil
-							end
-						end,
-						settings = (servers[server_name] or {}).settings,
-					})
+					if lsp_servers[server_name] then
+						lspconfig[server_name].setup(
+							vim.tbl_deep_extend("force", lsp_servers[server_name], { capabilities = capabilities })
+						)
+					end
 				end,
 			})
 		end,

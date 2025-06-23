@@ -9,6 +9,8 @@ M.plugins = {
 		},
 		config = function()
 			local null_ls = require("null-ls")
+			local helpers = require("null-ls.helpers")
+
 			null_ls.setup({
 				border = "rounded",
 				sources = {
@@ -37,25 +39,6 @@ M.plugins = {
 					}),
 					null_ls.builtins.hover.dictionary,
 					null_ls.builtins.hover.printenv,
-					null_ls.builtins.diagnostics.crossplane.with({
-						command = "up",
-						args = { "xpls", "serve", "--verbose", "--format='json'" },
-						filetypes = { "yaml" },
-						format = "json",
-						on_output = function(params)
-							local diagnostics = {}
-							for _, item in ipairs(params.output) do
-								table.insert(diagnostics, {
-									row = item.row,
-									col = item.col,
-									message = item.message,
-									severity = vim.diagnostic.severity[item.severity],
-									source = "crossplane",
-								})
-							end
-							return diagnostics
-						end,
-					}),
 				},
 			})
 
