@@ -3,8 +3,12 @@ local M = {}
 M.plugins = {
 	{
 		"nvim-treesitter/nvim-treesitter-context",
-		event = { "BufReadPost", "BufNewFile" },
-		dependencies = { "nvim-treesitter/nvim-treesitter" },
+		event = {
+			"VeryLazy",
+		},
+		dependencies = {
+			"nvim-treesitter/nvim-treesitter",
+		},
 		config = function()
 			require("treesitter-context").setup()
 
@@ -14,3 +18,4 @@ M.plugins = {
 }
 
 return M
+

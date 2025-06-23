@@ -9,7 +9,6 @@ M.plugins = {
 		},
 		config = function()
 			require("mcphub").setup({
-				auto_approve = true,
 				extensions = {
 					avante = {
 						make_slash_commands = true,
@@ -21,3 +20,4 @@ M.plugins = {
 }
 
 return M
+

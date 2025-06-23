@@ -31,7 +31,7 @@ M.plugins = {
 				behaviour = {
 					auto_approve_tool_permissions = false,
 					auto_focus_on_diff_view = true,
-					auto_focus_sidebar = false,
+					auto_focus_sidebar = true,
 					auto_suggestions = false,
 					auto_apply_diff_after_generation = false,
 					support_paste_from_clipboard = true,
@@ -57,15 +57,7 @@ M.plugins = {
 				},
 				system_prompt = function()
 					local hub = require("mcphub").get_hub_instance()
-					local hub_prompt = hub and hub:get_active_servers_prompt() or ""
-
-					local custom_prompt = [[
-            ALWAYS use Context7 for API information and documentation.
-            ONLY use sequential-thinking MCP if your model doesn't support it, else, rely on your normal sequential thinking.
-            ALWAYS store your knowledge in memory, and recall from memory when needed, especially when you form new associations, insights, etc.
-          ]]
-
-					return hub_prompt .. (hub_prompt ~= "" and "\n\n" or "") .. custom_prompt
+					return hub and hub:get_active_servers_prompt() or ""
 				end,
 				custom_tools = function()
 					return {
@@ -73,17 +65,17 @@ M.plugins = {
 					}
 				end,
 				disabled_tools = {
-					-- Disabled due to conflicts with mcphub
-					"list_files",
-					"search_files",
-					"read_file",
-					"create_file",
-					"rename_file",
-					"delete_file",
-					"create_dir",
-					"rename_dir",
-					"delete_dir",
-					"bash",
+					-- -- Disabled due to conflicts with mcphub
+					-- "list_files",
+					-- "search_files",
+					-- "read_file",
+					-- "create_file",
+					-- "rename_file",
+					-- "delete_file",
+					-- "create_dir",
+					-- "rename_dir",
+					-- "delete_dir",
+					-- "bash",
 					-- Disabled due to lack of use in favor with fetch
 					"web_search",
 				},
