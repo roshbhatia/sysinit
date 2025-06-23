@@ -13,26 +13,26 @@ M.plugins = {
 			"williamboman/mason-lspconfig.nvim",
 		},
 		config = function()
-			local blink_cmp = require("blink.cmp")
-			local lspconfig = require("lspconfig")
-			local mason_lspconfig = require("mason-lspconfig")
-			local mason_tool_installer = require("mason-tool-installer")
-			local configs = require("lspconfig.configs")
+			local dependencies = {
+				blink_cmp = require("blink.cmp"),
+				lspconfig = require("lspconfig"),
+				mason_lspconfig = require("mason-lspconfig"),
+				mason_tool_installer = require("mason-tool-installer"),
+				configs = require("lspconfig.configs"),
+				capabilities = vim.tbl_deep_extend(
+					"force",
+					vim.lsp.protocol.make_client_capabilities(),
+					require("blink.cmp").get_lsp_capabilities({}, false)
+				),
+			}
 
 			vim.diagnostic.config({
 				severity_sort = true,
 				virtual_text = false,
-				virtual_lines = {
-					only_current_line = false,
-				},
+				virtual_lines = { only_current_line = false },
 				update_in_insert = false,
-				float = {
-					border = "rounded",
-					source = "if_many",
-				},
-				underline = {
-					severity = vim.diagnostic.severity.ERROR,
-				},
+				float = { border = "rounded", source = "if_many" },
+				underline = { severity = vim.diagnostic.severity.ERROR },
 				signs = {
 					text = {
 						[vim.diagnostic.severity.ERROR] = "",
@@ -50,11 +50,13 @@ M.plugins = {
 			})
 
 			local lsp_servers = {
-				bashls = {},
-				dagger = {},
-				docker_compose_language_service = {},
-				dockerls = {},
+				bashls = { source = "mason", external = false },
+				dagger = { source = "mason", external = false },
+				docker_compose_language_service = { source = "mason", external = false },
+				dockerls = { source = "mason", external = false },
 				gopls = {
+					source = "mason",
+					external = false,
 					filetypes = { "go", "gomod", "gotpml", "gowork" },
 					settings = {
 						go = {
@@ -93,17 +95,11 @@ M.plugins = {
 						},
 					},
 				},
-				helm_ls = {
-					settings = {
-						["helm-ls"] = {
-							yamlls = {
-								path = "yaml-language-server",
-							},
-						},
-					},
-				},
-				jqls = {},
+				helm_ls = { source = "mason", external = false },
+				jqls = { source = "mason", external = false },
 				jsonls = {
+					source = "mason",
+					external = false,
 					settings = {
 						json = {
 							schemas = require("schemastore").json.schemas(),
@@ -113,19 +109,23 @@ M.plugins = {
 						},
 					},
 				},
-				lua_ls = {},
+				lua_ls = { source = "mason", external = false },
 				nil_ls = {
+					source = "mason",
+					external = false,
 					settings = {
 						["nil"] = {
 							testSetting = 42,
 						},
 					},
 				},
-				pyright = {},
-				terraformls = {},
-				tflint = {},
-				ts_ls = {},
+				pyright = { source = "mason", external = false },
+				terraformls = { source = "mason", external = false },
+				tflint = { source = "mason", external = false },
+				ts_ls = { source = "mason", external = false },
 				yamlls = {
+					source = "mason",
+					external = false,
 					settings = {
 						yaml = {
 							schemaStore = {
@@ -137,6 +137,8 @@ M.plugins = {
 					},
 				},
 				up = {
+					source = "system",
+					external = true,
 					cmd = { "up", "xpls", "serve", "--verbose" },
 					filetypes = { "yaml" },
 					root_dir = function()
@@ -148,30 +150,37 @@ M.plugins = {
 					end,
 				},
 			}
+
 			local tools = { "impl", "golines" }
 
-			configs.up = {
-				default_config = lsp_servers.up,
-			}
-
-			mason_tool_installer.setup({
+			dependencies.mason_tool_installer.setup({
 				ensure_installed = tools,
 			})
 
-			local capabilities = vim.lsp.protocol.make_client_capabilities()
-			capabilities = vim.tbl_deep_extend("force", capabilities, blink_cmp.get_lsp_capabilities({}, false))
-
-			mason_lspconfig.setup({
-				ensure_installed = vim.tbl_keys(lsp_servers),
+			dependencies.mason_lspconfig.setup({
+				ensure_installed = vim.tbl_filter(function(server_name)
+					return lsp_servers[server_name].source == "mason" and not lsp_servers[server_name].external
+				end, vim.tbl_keys(lsp_servers)),
 				automatic_enable = true,
 				handlers = function(server_name)
-					if lsp_servers[server_name] then
-						lspconfig[server_name].setup(
-							vim.tbl_deep_extend("force", lsp_servers[server_name], { capabilities = capabilities })
+					if lsp_servers[server_name] and not lsp_servers[server_name].external then
+						dependencies.lspconfig[server_name].setup(
+							vim.tbl_deep_extend(
+								"force",
+								lsp_servers[server_name],
+								{ capabilities = dependencies.capabilities }
+							)
 						)
 					end
 				end,
 			})
+
+			for server_name, server_config in pairs(lsp_servers) do
+				if server_config.external then
+					dependencies.configs[server_name] = { default_config = server_config }
+					dependencies.lspconfig[server_name].setup(server_config)
+				end
+			end
 		end,
 		keys = function()
 			return {
