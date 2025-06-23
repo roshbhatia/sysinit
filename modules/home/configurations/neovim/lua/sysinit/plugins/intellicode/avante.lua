@@ -25,7 +25,7 @@ M.plugins = {
 				mode = "agentic",
 				providers = {
 					copilot = {
-						model = "gemini-2.0-flash-001",
+						model = "gpt-4.1",
 					},
 				},
 				behaviour = {
@@ -73,7 +73,6 @@ M.plugins = {
 					-- Disabled due to conflicts with mcphub
 					"list_files",
 					"search_files",
-					"replace_in_file",
 					"read_file",
 					"create_file",
 					"rename_file",
