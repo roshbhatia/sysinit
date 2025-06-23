@@ -1,12 +1,5 @@
 {
   "mcpServers": {
-    "sequential-thinking": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-sequential-thinking"
-      ]
-    },
     "fetch": {
       "command": "uvx",
       "args": [
@@ -20,7 +13,7 @@
         "@modelcontextprotocol/server-memory"
       ],
       "env": {
-        "MEMORY_FILE_PATH": "~/.local/share/mcphub/server-memory/memory.json"
+        "MEMORY_FILE_PATH": "~/.local/share/server-memory.json"
       }
     },
     "context7": {
@@ -29,15 +22,6 @@
         "-y",
         "@upstash/context7-mcp@latest"
       ]
-    },
-    "kubernetes-readonly": {
-      "command": "npx",
-      "args": [
-        "mcp-server-kubernetes"
-      ],
-      "env": {
-        "ALLOW_ONLY_NON_DESTRUCTIVE_TOOLS": "true"
-      }
     }
   }
 }

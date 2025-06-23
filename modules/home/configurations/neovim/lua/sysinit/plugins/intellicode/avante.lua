@@ -70,17 +70,6 @@ M.plugins = {
 					}
 				end,
 				disabled_tools = {
-					-- Disabled due to conflicts with mcphub
-					"list_files",
-					"search_files",
-					"read_file",
-					"create_file",
-					"rename_file",
-					"delete_file",
-					"create_dir",
-					"rename_dir",
-					"delete_dir",
-					"bash",
 					-- Disabled due to lack of use in favor with fetch
 					"web_search",
 				},
@@ -147,3 +136,4 @@ M.plugins = {
 }
 
 return M
+
