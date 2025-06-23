@@ -37,15 +37,7 @@ end
 function M.setup()
 	vim.keymap.set("n", "<leader>x", function()
 		vim.cmd("silent SessionSave")
-
-		local buffers = get_listed_buffers()
-		if #buffers > 1 then
-			-- If there are other buffers, just delete the current one
-			vim.cmd("silent bdelete!")
-		else
-			-- If this is the last buffer, show a notification instead of quitting
-			vim.notify("No buffers remaining", vim.log.levels.INFO)
-		end
+		vim.cmd("silent x")
 	end, {
 		noremap = true,
 		silent = true,
