@@ -34,6 +34,7 @@ M.plugins = {
 					auto_focus_sidebar = false,
 					auto_suggestions = false,
 					auto_apply_diff_after_generation = true,
+					enable_cursor_planning_mode = true,
 					support_paste_from_clipboard = true,
 				},
 				mappings = {
@@ -121,12 +122,13 @@ M.plugins = {
 				end,
 			})
 
-			-- Disable fold column in Avante buffers
 			vim.api.nvim_create_autocmd("FileType", {
 				group = augroup,
 				pattern = "Avante",
 				callback = function()
-					vim.opt_local.foldcolumn = "0"
+					vim.opt_local.foldcolumn = "4" -- Adjust the padding as needed
+					vim.opt_local.number = true -- Enable line numbers
+					vim.opt_local.winblend = 0 -- Disable transparency
 				end,
 			})
 		end,
