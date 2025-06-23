@@ -23,17 +23,10 @@ M.plugins = {
 					vim.diagnostic.config({
 						severity_sort = true,
 						virtual_text = false,
-						virtual_lines = {
-							only_current_line = false,
-						},
+						virtual_lines = { only_current_line = false },
 						update_in_insert = false,
-						float = {
-							border = "rounded",
-							source = "if_many",
-						},
-						underline = {
-							severity = vim.diagnostic.severity.ERROR,
-						},
+						float = { border = "rounded", source = "if_many" },
+						underline = { severity = vim.diagnostic.severity.ERROR },
 						signs = {
 							text = {
 								[vim.diagnostic.severity.ERROR] = "",
@@ -208,10 +201,8 @@ M.plugins = {
 			local capabilities = vim.lsp.protocol.make_client_capabilities()
 			capabilities = vim.tbl_deep_extend("force", capabilities, blink_cmp.get_lsp_capabilities({}, false))
 
-			mason_lspconfig.setup({
-				ensure_installed = vim.tbl_keys(mason_servers),
-				automatic_enable = true,
-				handlers = function(server_name)
+			local setup_options = {
+				mason = function(server_name)
 					lspconfig[server_name].setup({
 						capabilities = (servers[server_name] or {}).capabilities + capabilities,
 						filetypes = (servers[server_name] or {}).filetypes,
@@ -223,25 +214,27 @@ M.plugins = {
 						settings = (servers[server_name] or {}).settings,
 					})
 				end,
-			})
-
-			lspconfig.crossplane.setup({
-				cmd = servers.crossplane.cmd,
-				capabilities = capabilities,
-				filetypes = servers.crossplane.filetypes,
-				on_init = function(client)
-					if client.supports_method("textDocument/semanticTokens") then
-						client.server_capabilities.semanticTokensProvider = nil
-					end
+				system = function(server_name)
+					vim.lsp.start({
+						cmd = servers[server_name].cmd,
+						capabilities = capabilities,
+						filetypes = servers[server_name].filetypes,
+						on_init = function(client)
+							if client.supports_method("textDocument/semanticTokens") then
+								client.server_capabilities.semanticTokensProvider = nil
+							end
+						end,
+						settings = servers[server_name].settings,
+					})
 				end,
-				settings = {
-					xpls = {
-						up = {
-							path = "up",
-						},
-					},
-				},
-			})
+			}
+
+			for server_name, server_config in pairs(servers) do
+				local setup = setup_options[server_config.source]
+				if setup then
+					setup(server_name)
+				end
+			end
 		end,
 		keys = function()
 			return {
