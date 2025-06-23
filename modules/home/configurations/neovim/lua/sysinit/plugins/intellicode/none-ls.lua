@@ -37,6 +37,25 @@ M.plugins = {
 					}),
 					null_ls.builtins.hover.dictionary,
 					null_ls.builtins.hover.printenv,
+					null_ls.builtins.diagnostics.crossplane.with({
+						command = "up",
+						args = { "xpls", "serve", "--verbose" },
+						filetypes = { "yaml" },
+						format = "json",
+						on_output = function(params)
+							local diagnostics = {}
+							for _, item in ipairs(params.output) do
+								table.insert(diagnostics, {
+									row = item.row,
+									col = item.col,
+									message = item.message,
+									severity = vim.diagnostic.severity[item.severity],
+									source = "crossplane",
+								})
+							end
+							return diagnostics
+						end,
+					}),
 				},
 			})
 
