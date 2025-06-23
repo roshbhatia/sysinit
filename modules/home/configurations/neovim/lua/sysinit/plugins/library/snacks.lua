@@ -104,7 +104,9 @@ M.plugins = {
 				},
 				{
 					"<leader>ns",
-					Snacks.notifier.show_history,
+					function()
+						Snacks.notifier.show_history()
+					end,
 					desc = "Show",
 				},
 				{
@@ -120,4 +122,3 @@ M.plugins = {
 }
 
 return M
-
