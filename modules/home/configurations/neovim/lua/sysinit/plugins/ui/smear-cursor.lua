@@ -2,6 +2,7 @@ local M = {}
 
 M.plugins = {
 	{
+		enabled = not vim.uv.fs_stat(vim.fn.expand("~/.nosmear")),
 		"sphamba/smear-cursor.nvim",
 		event = "VeryLazy",
 		opts = {
