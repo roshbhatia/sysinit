@@ -52,9 +52,6 @@ M.plugins = {
 						reverse_switch_windows = "<C-S-Tab>",
 					},
 				},
-				hints = {
-					enabled = false,
-				},
 				selector = {
 					provider = "telescope",
 				},
@@ -153,3 +150,4 @@ M.plugins = {
 }
 
 return M
+
