@@ -1,3 +1,4 @@
+local wezterm = require("wezterm")
 local sessionizer = wezterm.plugin.require("https://github.com/mikkasendke/sessionizer.wezterm")
 local M = {}
 
@@ -32,4 +33,3 @@ function M.setup(config)
 end
 
 return M
-
