@@ -30,7 +30,7 @@ M.plugins = {
 				severity_sort = true,
 				virtual_text = false,
 				virtual_lines = {
-					only_current_line = false,
+					only_current_line = true,
 				},
 				update_in_insert = false,
 				float = {
