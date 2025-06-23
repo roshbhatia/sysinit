@@ -5,9 +5,6 @@ M.plugins = {
 		"folke/snacks.nvim",
 		priority = 1050,
 		lazy = false,
-		dependencies = {
-			"folke/noice.nvim",
-		},
 		config = function()
 			require("snacks").setup({
 				animate = {
@@ -107,7 +104,7 @@ M.plugins = {
 				},
 				{
 					"<leader>ns",
-					"<CMD>NoiceSnacks<CR>",
+					Snacks.notifier.show_history,
 					desc = "Show",
 				},
 				{
