@@ -24,7 +24,6 @@ M.plugins = {
 				provider = nvim_config.avante.provider,
 				mode = "agentic",
 				providers = nvim_config.avante.providers,
-				dual_boost = nvim_config.avante.dual_boost,
 				behaviour = {
 					auto_suggestions = false,
 				},

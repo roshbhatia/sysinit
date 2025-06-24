@@ -18,7 +18,6 @@ local function default_config()
 				},
 			},
 		},
-		dual_boost = {},
 	}
 end
 

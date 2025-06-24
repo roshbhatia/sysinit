@@ -24,7 +24,6 @@ M.plugins = {
 			},
 			show_progress = true,
 			rocks = {
-				"lua-yaml",
 				"prec2",
 				"tiktoken_core",
 				"wezterm-types",
