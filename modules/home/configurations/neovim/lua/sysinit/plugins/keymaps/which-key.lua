@@ -64,7 +64,7 @@ M.plugins = {
 					group = "Github Review",
 				},
 				{
-					"<leader>a",
+					"<leader>h",
 					group = "Copilot (Goose)",
 				},
 				{
