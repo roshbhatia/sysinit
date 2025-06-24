@@ -1,8 +1,9 @@
+local nvim_config = require("sysinit.config.nvim_config").load_config()
 local M = {}
 
 M.plugins = {
 	{
-		enabled = not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot")),
+		enabled = nvim_config.copilot.enabled,
 		"CopilotC-Nvim/CopilotChat.nvim",
 		dependencies = {
 			"zbirenbaum/copilot.lua",
@@ -21,9 +22,9 @@ M.plugins = {
 		},
 		opts = {
 			window = {
-				layout = "float",
+				layout = "horizontal",
 				border = "rounded",
-				relative = "cursor",
+				relative = "editor",
 			},
 		},
 	},

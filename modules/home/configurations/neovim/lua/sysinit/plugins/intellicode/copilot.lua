@@ -1,8 +1,9 @@
+local nvim_config = require("sysinit.config.nvim_config").load_config()
 local M = {}
 
 M.plugins = {
 	{
-		enabled = not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot")),
+		enabled = nvim_config.copilot.enabled,
 		"zbirenbaum/copilot.lua",
 		cmd = "Copilot",
 		opts = {

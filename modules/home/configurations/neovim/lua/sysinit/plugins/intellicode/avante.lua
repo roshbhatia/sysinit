@@ -1,8 +1,9 @@
+local nvim_config = require("sysinit.config.nvim_config").load_config()
 local M = {}
 
 M.plugins = {
 	{
-		enabled = not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot")),
+		enabled = nvim_config.copilot.enabled,
 		"yetone/avante.nvim",
 		event = "VeryLazy",
 		version = false,
@@ -20,13 +21,10 @@ M.plugins = {
 		config = function()
 			local avante = require("avante")
 			avante.setup({
-				provider = "copilot",
+				provider = nvim_config.avante.provider,
 				mode = "agentic",
-				providers = {
-					copilot = {
-						model = "gpt-4.1",
-					},
-				},
+				providers = nvim_config.avante.providers,
+				dual_boost = nvim_config.avante.dual_boost,
 				behaviour = {
 					auto_suggestions = false,
 				},
