@@ -12,8 +12,12 @@ M.plugins = {
 					duration = 18,
 					fps = 144,
 				},
-				bigfile = { enabled = true },
-				bufdelete = { enabled = true },
+				bigfile = {
+					enabled = true,
+				},
+				bufdelete = {
+					enabled = true,
+				},
 				lazygit = {
 					enabled = true,
 					configure = false,
@@ -44,28 +48,71 @@ M.plugins = {
 						},
 					},
 				},
-				rename = { enabled = true },
-				scratch = { enabled = true },
-				statuscolumn = { enabled = true },
-				words = { enabled = true },
+				rename = {
+					enabled = true,
+				},
+				scratch = {
+					enabled = true,
+				},
+				statuscolumn = {
+					enabled = true,
+				},
+				words = {
+					enabled = true,
+				},
 
-				dashboard = { enabled = false },
-				debug = { enabled = false },
-				dim = { enabled = false },
-				explorer = { enabled = false },
-				git = { enabled = false },
-				gitbrowse = { enabled = false },
-				image = { enabled = false },
-				indent = { enabled = false },
-				layout = { enabled = false },
-				profiler = { enabled = false },
-				quickfile = { enabled = false }, -- Causes issues with syntax highlighting?
-				terminal = { enabled = false },
-				scope = { enabled = false },
-				scroll = { enabled = false },
-				toggle = { enabled = false },
-				win = { enabled = false },
-				zen = { enabled = false },
+				dashboard = {
+					enabled = false,
+				},
+				debug = {
+					enabled = false,
+				},
+				dim = {
+					enabled = false,
+				},
+				explorer = {
+					enabled = false,
+				},
+				git = {
+					enabled = false,
+				},
+				gitbrowse = {
+					enabled = false,
+				},
+				image = {
+					enabled = false,
+				},
+				indent = {
+					enabled = false,
+				},
+				layout = {
+					enabled = false,
+				},
+				profiler = {
+					enabled = false,
+				},
+				-- Causes issues with syntax highlighting?
+				quickfile = {
+					enabled = false,
+				},
+				terminal = {
+					enabled = false,
+				},
+				scope = {
+					enabled = false,
+				},
+				scroll = {
+					enabled = false,
+				},
+				toggle = {
+					enabled = false,
+				},
+				win = {
+					enabled = false,
+				},
+				zen = {
+					enabled = false,
+				},
 			})
 
 			vim.notify = Snacks.notifier

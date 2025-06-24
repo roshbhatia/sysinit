@@ -21,7 +21,12 @@ M.plugins = {
 						redo_mapping = "U",
 					},
 				},
-				transparency_color = vim.api.nvim_get_hl_by_name("NormalNC", true).background,
+				presets = {
+					pulsar = {
+						enabled = true,
+					},
+				},
+				transparency_color = "#e4e4e4",
 			})
 		end,
 	},
