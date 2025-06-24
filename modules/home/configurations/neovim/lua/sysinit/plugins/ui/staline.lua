@@ -29,7 +29,22 @@ M.plugins = {
 								end
 
 								if git_blame.is_blame_text_available and git_blame.is_blame_text_available() then
-									return git_blame.get_current_blame_text()
+									local text = git_blame.get_current_blame_text()
+									local by_index = string.find(text, " by ")
+									if by_index then
+										local msg = string.sub(text, 1, by_index - 1)
+										local rest = string.sub(text, by_index)
+										if #msg > 32 then
+											msg = string.sub(msg, 1, 29) .. "..."
+										end
+										return msg .. rest
+									else
+										if #text > 32 then
+											return string.sub(text, 1, 29) .. "..."
+										else
+											return text
+										end
+									end
 								else
 									return ""
 								end
