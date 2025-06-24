@@ -108,7 +108,6 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.ui.noice"),
 	require("sysinit.plugins.ui.scrollview"),
 	require("sysinit.plugins.ui.smart-splits"),
-	require("sysinit.plugins.ui.smear-cursor"),
 	require("sysinit.plugins.ui.staline"),
 	require("sysinit.plugins.ui.themes"),
 	require("sysinit.plugins.ui.tiny-glimmer"),
