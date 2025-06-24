@@ -1,3 +1,4 @@
+local nvim_config = require("sysinit.config.nvim_config").load_config()
 local M = {}
 
 M.plugins = {
@@ -10,12 +11,7 @@ M.plugins = {
 		event = "VeryLazy",
 		config = function()
 			require("goose").setup({
-				github_copilot = {
-					"github_copilot/gemini-2.0-flash-001",
-					"github_copilot/gpt-4.1",
-					"github_copilot/claude-3.7-sonnet",
-					"github_copilot/claude-3.5-sonnet",
-				},
+				providers = nvim_config.goose.providers,
 				keymap = {
 					global = {
 						toggle = "<leader>hh", -- Open goose. Close if opened
@@ -56,3 +52,4 @@ M.plugins = {
 }
 
 return M
+

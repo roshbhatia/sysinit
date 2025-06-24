@@ -18,6 +18,16 @@ local function default_config()
 				},
 			},
 		},
+		goose = {
+			providers = {
+				github_copilot = {
+					"github_copilot/gemini-2.0-flash-001",
+					"github_copilot/gpt-4.1",
+					"github_copilot/claude-3.7-sonnet",
+					"github_copilot/claude-3.5-sonnet",
+				},
+			},
+		},
 	}
 end
 
