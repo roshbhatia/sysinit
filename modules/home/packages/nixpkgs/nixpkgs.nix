@@ -73,7 +73,6 @@ let
     nodejs
     oh-my-posh
     openssh
-    ollama
     pipx
     pkg-config
     prettier
