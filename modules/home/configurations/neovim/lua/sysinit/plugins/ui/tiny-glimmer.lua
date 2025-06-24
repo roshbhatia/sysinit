@@ -21,12 +21,7 @@ M.plugins = {
 						redo_mapping = "U",
 					},
 				},
-				presets = {
-					pulsar = {
-						enabled = true,
-					},
-				},
-				transparency_color = "#e4e4e4",
+				transparency_color = "#949cbb",
 			})
 		end,
 	},
