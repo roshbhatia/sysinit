@@ -236,7 +236,6 @@ end
 
 local function get_key_tables()
 	return {
-		copy_mode = {},
 		search_mode = {
 			{
 				key = "Enter",
