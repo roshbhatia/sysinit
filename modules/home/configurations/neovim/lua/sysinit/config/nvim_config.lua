@@ -2,7 +2,7 @@ local M = {}
 
 local function get_config_path()
 	local home = vim.fn.expand("~")
-	return home .. "/.sysinit.nvim.conf.yaml"
+	return home .. "/.sysinit.nvim.conf.json"
 end
 
 local function default_config()
@@ -33,12 +33,6 @@ local function deep_merge(defaults, overrides)
 end
 
 function M.load_config()
-	local ok, yaml = pcall(require, "yaml")
-	if not ok then
-		vim.notify("YAML parser not available (install lua-yaml)", vim.log.levels.WARN)
-		return default_config()
-	end
-
 	local path = get_config_path()
 	local f = io.open(path, "r")
 	if not f then
@@ -47,9 +41,9 @@ function M.load_config()
 
 	local content = f:read("*a")
 	f:close()
-	local ok2, parsed = pcall(yaml.load, content)
+	local ok2, parsed = pcall(vim.fn.json_decode, content)
 	if not ok2 or type(parsed) ~= "table" then
-		vim.notify("Malformed ~/.sysinit.nvim.conf.yaml, using defaults", vim.log.levels.WARN)
+		vim.notify("Malformed ~/.sysinit.nvim.conf.json, using defaults", vim.log.levels.WARN)
 		return default_config()
 	end
 
