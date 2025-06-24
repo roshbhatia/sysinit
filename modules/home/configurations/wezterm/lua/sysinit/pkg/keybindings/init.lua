@@ -237,7 +237,6 @@ function M.setup(config)
 		get_window_keys(),
 		get_tab_keys(),
 		get_search_keys(),
-		get_font_keys(),
 	}
 
 	for _, group in ipairs(key_groups) do
@@ -252,3 +251,4 @@ function M.setup(config)
 end
 
 return M
+
