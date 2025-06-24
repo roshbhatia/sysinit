@@ -6,9 +6,11 @@ local M = {}
 function M.setup(config)
 	toggle_terminal.apply_to_config(config, {
 		key = "\\",
-		mods = "CMD",
+		mods = "CTRL",
 		direction = "Right",
-		size = { Percent = 30 },
+		size = {
+			Percent = 30,
+		},
 		change_invoker_id_everytime = false,
 		zoom = {
 			auto_zoom_toggle_terminal = false,
@@ -21,3 +23,4 @@ function M.setup(config)
 end
 
 return M
+
