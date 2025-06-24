@@ -72,6 +72,7 @@ let
     nixfmt-rfc-style
     nodejs
     oh-my-posh
+    ollama
     openssh
     pipx
     pkg-config
