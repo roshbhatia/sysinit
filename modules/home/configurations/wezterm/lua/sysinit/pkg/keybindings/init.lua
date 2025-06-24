@@ -212,8 +212,13 @@ end
 local function get_search_keys()
 	return {
 		{
+			key = "Escape",
+			mods = "CTRL",
+			action = act.ActivateCopyMode,
+		},
+		{
 			key = "/",
-			mods = "CMD",
+			mods = "CTRL",
 			action = act.Search("CurrentSelectionOrEmptyString"),
 		},
 	}
