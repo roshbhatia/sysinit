@@ -74,11 +74,30 @@ local function get_clear_keys()
 	return {
 		{
 			key = "k",
+			mods = "CMD",
+			action = wezterm.action_callback(function(win, pane)
+				if is_vim(pane) then
+					win:perform_action({
+						SendKey = {
+							key = "k",
+							mods = "CMD",
+						},
+					}, pane)
+				else
+					win:perform_action(act.ClearScrollback("ScrollbackAndViewport"), pane)
+				end
+			end),
+		},
+		{
+			key = "k",
 			mods = "CTRL",
 			action = wezterm.action_callback(function(win, pane)
 				if is_vim(pane) then
 					win:perform_action({
-						SendKey = { key = "k", mods = "CTRL" },
+						SendKey = {
+							key = "k",
+							mods = "CTRL",
+						},
 					}, pane)
 				else
 					win:perform_action(act.ClearScrollback("ScrollbackAndViewport"), pane)
@@ -106,7 +125,10 @@ local function get_scroll_keys()
 			action = wezterm.action_callback(function(win, pane)
 				if is_vim(pane) then
 					win:perform_action({
-						SendKey = { key = "u", mods = "CTRL" },
+						SendKey = {
+							key = "u",
+							mods = "CTRL",
+						},
 					}, pane)
 				else
 					win:perform_action(act.ScrollByLine(-40), pane)
@@ -119,7 +141,10 @@ local function get_scroll_keys()
 			action = wezterm.action_callback(function(win, pane)
 				if is_vim(pane) then
 					win:perform_action({
-						SendKey = { key = "d", mods = "CTRL" },
+						SendKey = {
+							key = "d",
+							mods = "CTRL",
+						},
 					}, pane)
 				else
 					win:perform_action(act.ScrollByLine(40), pane)
@@ -146,11 +171,6 @@ end
 
 local function get_window_keys()
 	return {
-		{
-			key = "m",
-			mods = "CTRL",
-			action = act.Hide,
-		},
 		{
 			key = "n",
 			mods = "CTRL",
