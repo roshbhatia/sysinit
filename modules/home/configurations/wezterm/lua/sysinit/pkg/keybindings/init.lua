@@ -64,7 +64,7 @@ local function get_pane_keys()
 		},
 		{
 			key = "w",
-			mods = "CMD",
+			mods = "CTRL",
 			action = act.CloseCurrentPane({ confirm = false }),
 		},
 	}
@@ -74,11 +74,11 @@ local function get_clear_keys()
 	return {
 		{
 			key = "k",
-			mods = "CMD",
+			mods = "CTRL",
 			action = wezterm.action_callback(function(win, pane)
 				if is_vim(pane) then
 					win:perform_action({
-						SendKey = { key = "k", mods = "CMD" },
+						SendKey = { key = "k", mods = "CTRL" },
 					}, pane)
 				else
 					win:perform_action(act.ClearScrollback("ScrollbackAndViewport"), pane)
@@ -92,7 +92,7 @@ local function get_pallete_keys()
 	return {
 		{
 			key = "p",
-			mods = "CMD|SHIFT",
+			mods = "CTRL|SHIFT",
 			action = act.ActivateCommandPalette,
 		},
 	}
@@ -102,7 +102,7 @@ local function get_scroll_keys()
 	return {
 		{
 			key = "u",
-			mods = "CMD",
+			mods = "CTRL",
 			action = wezterm.action_callback(function(win, pane)
 				if is_vim(pane) then
 					win:perform_action({
@@ -115,7 +115,7 @@ local function get_scroll_keys()
 		},
 		{
 			key = "d",
-			mods = "CMD",
+			mods = "CTRL",
 			action = wezterm.action_callback(function(win, pane)
 				if is_vim(pane) then
 					win:perform_action({
@@ -133,12 +133,12 @@ local function get_clipboard_keys()
 	return {
 		{
 			key = "c",
-			mods = "CMD",
+			mods = "CTRL",
 			action = act.CopyTo("Clipboard"),
 		},
 		{
 			key = "v",
-			mods = "CMD",
+			mods = "CTRL",
 			action = act.PasteFrom("Clipboard"),
 		},
 	}
@@ -148,12 +148,12 @@ local function get_window_keys()
 	return {
 		{
 			key = "m",
-			mods = "CMD",
+			mods = "CTRL",
 			action = act.Hide,
 		},
 		{
 			key = "n",
-			mods = "CMD",
+			mods = "CTRL",
 			action = act.SpawnWindow,
 		},
 	}
@@ -163,47 +163,47 @@ local function get_tab_keys()
 	return {
 		{
 			key = "t",
-			mods = "CMD",
+			mods = "CTRL",
 			action = act.SpawnTab("CurrentPaneDomain"),
 		},
 		{
 			key = "1",
-			mods = "CMD",
+			mods = "CTRL",
 			action = act.ActivateTab(0),
 		},
 		{
 			key = "2",
-			mods = "CMD",
+			mods = "CTRL",
 			action = act.ActivateTab(1),
 		},
 		{
 			key = "3",
-			mods = "CMD",
+			mods = "CTRL",
 			action = act.ActivateTab(2),
 		},
 		{
 			key = "4",
-			mods = "CMD",
+			mods = "CTRL",
 			action = act.ActivateTab(3),
 		},
 		{
 			key = "5",
-			mods = "CMD",
+			mods = "CTRL",
 			action = act.ActivateTab(4),
 		},
 		{
 			key = "6",
-			mods = "CMD",
+			mods = "CTRL",
 			action = act.ActivateTab(5),
 		},
 		{
 			key = "7",
-			mods = "CMD",
+			mods = "CTRL",
 			action = act.ActivateTab(6),
 		},
 		{
 			key = "8",
-			mods = "CMD",
+			mods = "CTRL",
 			action = act.ActivateTab(7),
 		},
 	}
@@ -220,78 +220,6 @@ local function get_search_keys()
 			key = "/",
 			mods = "CTRL",
 			action = act.Search("CurrentSelectionOrEmptyString"),
-		},
-	}
-end
-
-local function get_font_keys()
-	return {
-		{
-			key = "-",
-			mods = "CMD",
-			action = act.DecreaseFontSize,
-		},
-		{
-			key = "=",
-			mods = "CMD",
-			action = act.IncreaseFontSize,
-		},
-	}
-end
-
-local function get_key_tables()
-	return {
-		search_mode = {
-			{
-				key = "Enter",
-				mods = "NONE",
-				action = act.CopyMode("PriorMatch"),
-			},
-			{
-				key = "Escape",
-				mods = "NONE",
-				action = act.CopyMode("Close"),
-			},
-			{
-				key = "n",
-				mods = "CMD",
-				action = act.CopyMode("NextMatch"),
-			},
-			{
-				key = "N",
-				mods = "CMD",
-				action = act.CopyMode("PriorMatch"),
-			},
-			{
-				key = "r",
-				mods = "CMD",
-				action = act.CopyMode("CycleMatchType"),
-			},
-			{
-				key = "u",
-				mods = "CMD",
-				action = act.CopyMode("ClearPattern"),
-			},
-			{
-				key = "PageUp",
-				mods = "NONE",
-				action = act.CopyMode("PriorMatchPage"),
-			},
-			{
-				key = "PageDown",
-				mods = "NONE",
-				action = act.CopyMode("NextMatchPage"),
-			},
-			{
-				key = "UpArrow",
-				mods = "NONE",
-				action = act.CopyMode("PriorMatch"),
-			},
-			{
-				key = "DownArrow",
-				mods = "NONE",
-				action = act.CopyMode("NextMatch"),
-			},
 		},
 	}
 end
@@ -319,10 +247,8 @@ function M.setup(config)
 	end
 
 	config.keys = all_keys
-	config.key_tables = get_key_tables()
 
 	return config
 end
 
 return M
-
