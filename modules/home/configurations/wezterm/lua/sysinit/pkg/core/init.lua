@@ -7,6 +7,7 @@ local function get_basic_config()
 		},
 		automatically_reload_config = true,
 		pane_focus_follows_mouse = true,
+		status_update_interval = 25,
 	}
 end
 
@@ -20,3 +21,4 @@ function M.setup(config)
 end
 
 return M
+
