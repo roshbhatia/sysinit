@@ -4,6 +4,7 @@ set -e
 # Source theme for color variables
 THEME_FILE="$CONFIG_DIR/themes/catppuccin-latte.sh"
 if [ -f "$THEME_FILE" ]; then
+  # shellcheck disable=SC1090
   source "$THEME_FILE"
 else
   echo "[left.sh] Theme file not found: $THEME_FILE"
@@ -16,9 +17,18 @@ sketchybar --query bar | jq -r '.items[]' | grep '^space\.' | while read -r item
 done
 
 sketchybar --add event aerospace_workspace_change
-sketchybar --add event aerospace_workspace_monitor_change
-
-"$PLUGIN_DIR/aerospace.sh"
+for sid in $(aerospace list-workspaces --all); do
+    sketchybar --add item space."$sid" left \
+        --subscribe space."$sid" aerospace_workspace_change \
+        --set space."$sid" \
+        background.color="$BACKGROUND_COLOR" \
+        background.corner_radius=5 \
+        background.height=20 \
+        background.drawing=off \
+        label="$sid" \
+        click_script="aerospace workspace $sid" \
+        script="$PLUGIN_DIR/aerospace.sh $sid"
+done
 
 sketchybar --add item chevron left \
            --set chevron icon= label.drawing=off
