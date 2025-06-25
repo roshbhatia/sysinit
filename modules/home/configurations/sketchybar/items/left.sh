@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -e
 
+# Source theme for color variables
+THEME_FILE="$CONFIG_DIR/themes/catppuccin-latte.sh"
+if [ -f "$THEME_FILE" ]; then
+  source "$THEME_FILE"
+else
+  echo "[left.sh] Theme file not found: $THEME_FILE"
+fi
+
 PLUGIN_DIR="$CONFIG_DIR/plugins"
 
 sketchybar --query bar | jq -r '.items[]' | grep '^space\.' | while read -r item; do
@@ -11,9 +19,12 @@ sketchybar --add event aerospace_workspace_change
 sketchybar --add event aerospace_workspace_monitor_change
 
 FOCUSED_WORKSPACE="$(aerospace list-workspaces --focused)"
+echo "[left.sh] Focused workspace: $FOCUSED_WORKSPACE"
 draw_spaces() {
   monitor_ids=($(aerospace list-monitors --json | jq '.[]."monitor-id"'))
+  echo "[left.sh] Detected monitor IDs: ${monitor_ids[*]}"
   for display in "${monitor_ids[@]}"; do
+    echo "[left.sh] Processing display $display"
     for sid in $(aerospace list-workspaces --monitor "$display"); do
       # Get the workspace name
       space_name=$(aerospace list-workspaces --all | awk -v s="$sid" '$1==s {for(i=2;i<=NF;++i) printf $i " "; print ""}' | sed 's/ *$//')
@@ -26,10 +37,12 @@ draw_spaces() {
       else
         label="$space_name"
       fi
+      echo "[left.sh] Adding space item: space.$sid"
+      echo "  display=$display label='$label' label.color='$_SSDF_CM_MAUVE'"
       workspace=(
         label="$label"
         label.font="$ICON_FONT:Regular:14"
-        label.color="$ICON_COLOR"
+        label.color="$_SSDF_CM_MAUVE"
         display="$display"
         label.drawing=on
         background.drawing=off

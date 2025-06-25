@@ -12,7 +12,7 @@ sketchybar --default \
   icon.font="Hack Nerd Font Mono:Regular:15.0" \
   label.font="Hack Nerd Font Mono:Regular:15.0" \
   icon.color="${_SSDF_CM_SUBTEXT_1}" \
-  label.color="${_SSDF_CM_SUBTEXT_1}" \
+  label.color="${_SSDF_CM_SUBTEXT_0}" \
   icon.padding_left=4 \
   icon.padding_right=4 \
   label.padding_left=4 \
