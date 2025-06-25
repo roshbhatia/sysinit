@@ -9,9 +9,32 @@ M.plugins = {
 		},
 		config = function()
 			require("render-markdown").setup({
+				anti_conceal = {
+					enabled = false,
+				},
+				headings = {
+					border_virtual = true,
+				},
 				code = {
+					border = "thin",
+					disable_background = true,
 					language_icon = true,
 					language_name = false,
+				},
+				pipe_table = {
+					border = {
+						"╭",
+						"┬",
+						"╮",
+						"├",
+						"┼",
+						"┤",
+						"╰",
+						"┴",
+						"╯",
+						"│",
+						"─",
+					},
 				},
 				completions = {
 					lsp = {
@@ -32,4 +55,3 @@ M.plugins = {
 }
 
 return M
-
