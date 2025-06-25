@@ -9,8 +9,8 @@ PLUGIN_DIR="$CONFIG_DIR/plugins"
 sketchybar --default \
   padding_left=5 \
   padding_right=5 \
-  icon.font="sketchybar-app-font:Regular:15.0" \
-  label.font="Geist Mono:Regular:14.0" \
+  icon.font="Hack Nerd Font Mono:Regular:15.0" \
+  label.font="Hack Nerd Font Mono:Regular:15.0" \
   icon.color="${_SSDF_CM_SUBTEXT_1}" \
   label.color="${_SSDF_CM_SUBTEXT_1}" \
   icon.padding_left=4 \
