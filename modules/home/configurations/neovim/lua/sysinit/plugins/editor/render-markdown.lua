@@ -17,11 +17,10 @@ M.plugins = {
 				},
 				code = {
 					border = "thin",
-					disable_background = true,
-					language_icon = true,
-					language_name = false,
 				},
 				pipe_table = {
+					above = "─",
+					below = "─",
 					border = {
 						"╭",
 						"┬",
@@ -55,3 +54,4 @@ M.plugins = {
 }
 
 return M
+
