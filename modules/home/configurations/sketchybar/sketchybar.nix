@@ -13,6 +13,11 @@
     force = true;
   };
 
+  xdg.configFile."sketchybar/themes" = {
+    source = ./themes;
+    force = true;
+  };
+
   xdg.configFile."sketchybar/sketchybarrc" = {
     source = ./sketchybarrc.sh;
     force = true;
