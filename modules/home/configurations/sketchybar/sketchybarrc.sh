@@ -1,7 +1,7 @@
 source "${CONFIG_DIR}/themes/catppuccin-latte.sh"
 
 sketchybar --bar position=top \
-                 height=35 \
+                 height=36 \
                  color="${_SSDF_CM_MANTLE}"
 
 PLUGIN_DIR="$CONFIG_DIR/plugins"
@@ -18,7 +18,6 @@ sketchybar --default \
   label.padding_left=4 \
   label.padding_right=4
 
-. "$CONFIG_DIR/items/spaces.sh"
 . "$CONFIG_DIR/items/left.sh"
 . "$CONFIG_DIR/items/right.sh"
 
