@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 PERCENTAGE="$(pmset -g batt | grep-Eo '[0-9]+%' | cut -d% -f1)"
 CHARGING="$(pmset -g batt | grep 'AC Power')"

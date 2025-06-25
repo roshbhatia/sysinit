@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 PLUGIN_DIR="$CONFIG_DIR/plugins"
 SPACE_ICONS=$(/opt/homebrew/bin/aerospace list-workspaces --all)
