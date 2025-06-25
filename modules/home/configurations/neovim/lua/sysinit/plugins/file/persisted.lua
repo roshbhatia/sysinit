@@ -14,15 +14,6 @@ M.plugins = {
 					vim.cmd("Alpha")
 				end,
 			})
-
-			vim.api.nvim_create_autocmd("User", {
-				pattern = "PersistedLoadPost",
-				callback = function()
-					vim.defer_fn(function()
-						vim.cmd("Neotree show")
-					end, 50)
-				end,
-			})
 		end,
 	},
 }
