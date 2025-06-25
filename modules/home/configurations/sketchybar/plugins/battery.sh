@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PERCENTAGE="$(pmset -g batt | grep-Eo '[0-9]+%' | cut -d% -f1)"
+PERCENTAGE="$(pmset -g batt | grep -Eo '[0-9]+%')"
 CHARGING="$(pmset -g batt | grep 'AC Power')"
 
 if [ "$PERCENTAGE" = "" ]; then
@@ -20,7 +20,7 @@ case "${PERCENTAGE}" in
 esac
 
 if [ "$CHARGING" != "" ]; then
-  ICON=""
+  ICON="⏽"
 fi
 
 sketchybar --set "$NAME" icon="$ICON" label="${PERCENTAGE}%"
