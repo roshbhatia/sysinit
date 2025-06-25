@@ -36,8 +36,8 @@ M.plugins = {
 						"stylua",
 					},
 					markdown = {
-						"prettier",
-						"prettierd",
+						"markdownlint-cli2",
+						"markdownlint",
 						stop_after_first = true,
 					},
 					nix = {

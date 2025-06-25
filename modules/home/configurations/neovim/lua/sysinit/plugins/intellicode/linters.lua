@@ -16,7 +16,6 @@ M.plugins = {
 				sh = { "shellcheck" },
 				bash = { "shellcheck" },
 				json = { "jsonlint" },
-				markdown = { "markdownlint" },
 				terraform = { "tflint" },
 			}
 
@@ -38,3 +37,4 @@ M.plugins = {
 }
 
 return M
+
