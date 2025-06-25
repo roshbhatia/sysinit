@@ -154,21 +154,6 @@ local function get_scroll_keys()
 	}
 end
 
-local function get_clipboard_keys()
-	return {
-		{
-			key = "c",
-			mods = "CTRL",
-			action = act.CopyTo("Clipboard"),
-		},
-		{
-			key = "v",
-			mods = "CTRL",
-			action = act.PasteFrom("Clipboard"),
-		},
-	}
-end
-
 local function get_window_keys()
 	return {
 		{
@@ -253,7 +238,6 @@ function M.setup(config)
 		get_clear_keys(),
 		get_pallete_keys(),
 		get_scroll_keys(),
-		get_clipboard_keys(),
 		get_window_keys(),
 		get_tab_keys(),
 		get_search_keys(),

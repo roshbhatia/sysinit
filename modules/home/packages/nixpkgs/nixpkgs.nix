@@ -15,7 +15,6 @@ let
     atuin
     awscli2
     bat
-    bashInteractive
     caddy
     cargo-watch
     checkmate
@@ -114,4 +113,3 @@ in
 {
   home.packages = allNixPackages;
 }
-
