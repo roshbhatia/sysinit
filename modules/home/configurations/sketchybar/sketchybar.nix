@@ -3,6 +3,11 @@
 }:
 
 {
+  xdg.configFile."sketchybar/items" = {
+    source = ./items;
+    force = true;
+  };
+
   xdg.configFile."sketchybar/plugins" = {
     source = ./plugins;
     force = true;
@@ -13,4 +18,3 @@
     force = true;
   };
 }
-

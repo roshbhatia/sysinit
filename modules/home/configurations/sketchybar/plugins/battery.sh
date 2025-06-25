@@ -19,11 +19,9 @@ case "${PERCENTAGE}" in
   *) ICON=""
 esac
 
-if [[ "$CHARGING" != "" ]]; then
+if [ "$CHARGING" != "" ]; then
   ICON=""
 fi
 
-# The item invoking this script (name $NAME) will get its icon and label
-# updated with the current battery status
 sketchybar --set "$NAME" icon="$ICON" label="${PERCENTAGE}%"
 
