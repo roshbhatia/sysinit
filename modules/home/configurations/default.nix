@@ -30,6 +30,8 @@
     ./mcp
     ./neovim
     ./omp
+    ./sketchybar
     ./wezterm
   ];
 }
+
