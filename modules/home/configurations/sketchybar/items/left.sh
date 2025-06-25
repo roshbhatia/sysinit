@@ -3,7 +3,6 @@ set -e
 
 PLUGIN_DIR="$CONFIG_DIR/plugins"
 
-# Remove all previous items to avoid duplicates (optional, comment if not desired)
 sketchybar --query bar | jq -r '.items[]' | grep '^space\.' | while read -r item; do
   sketchybar --remove item "$item"
 done
@@ -11,12 +10,10 @@ done
 sketchybar --add event aerospace_workspace_change
 sketchybar --add event aerospace_workspace_monitor_change
 
-# Get the focused workspace id
 FOCUSED_WORKSPACE="$(aerospace list-workspaces --focused)"
-
-# Draw spaces for all monitors (assuming 1 and 2)
 draw_spaces() {
-  for display in 1 2; do
+  monitor_ids=($(aerospace list-monitors --json | jq '.[]."monitor-id"'))
+  for display in "${monitor_ids[@]}"; do
     for sid in $(aerospace list-workspaces --monitor "$display"); do
       # Get the workspace name
       space_name=$(aerospace list-workspaces --all | awk -v s="$sid" '$1==s {for(i=2;i<=NF;++i) printf $i " "; print ""}' | sed 's/ *$//')
@@ -49,7 +46,6 @@ draw_spaces() {
 
 draw_spaces
 
-# Add chevron and front_app after spaces, so they appear to the right
 sketchybar --add item chevron left \
            --set chevron icon= label.drawing=off
 
