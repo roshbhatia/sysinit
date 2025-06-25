@@ -8,7 +8,7 @@ M.plugins = {
 			"MarkdownPreview",
 			"MarkdownPreviewStop",
 		},
-		build = "cd app && yarn install",
+		build = "cd app && yarn install --force --pure-lockfile",
 		init = function()
 			vim.g.mkdp_filetypes = {
 				"markdown",
