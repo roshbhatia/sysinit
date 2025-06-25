@@ -27,15 +27,16 @@ let
     "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"
+    "sketchybar"
   ];
 
   baseCasks = [
     "alt-tab"
     "firefox"
+    "font-sketchybar-app-font"
     "font-symbols-only-nerd-font"
     "keycastr"
     "nikitabobko/tap/aerospace"
-    "sketchybar"
     "slack"
     "visual-studio-code@insiders"
     "wezterm"
