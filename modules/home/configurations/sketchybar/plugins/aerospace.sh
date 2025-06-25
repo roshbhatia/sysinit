@@ -1,26 +1,20 @@
 #!/usr/bin/env bash
-# https://github.com/eleonorayaya/nix-config/blob/main/apps/sketchybar/plugins/aerospace.sh
+set -e
 
-SID=$1
-if [ -z "${NAME}" ]; then
-  NAME="space.${SID}"
-fi
+# Output workspace metadata only (no drawing)
+# Fields: id\tname\tfocused\tdisplay\n
+FOCUSED_WORKSPACE="$(aerospace list-workspaces --focused)"
 
-echo "Running aerospace script for $NAME"
-
-result=$(aerospace list-workspaces --monitor 1)
-
-if [[ $result == *"${SID}"* ]]; then
-  sketchybar --set "${NAME}" display=1
-else
-  sketchybar --set "${NAME}" display=2
-fi
-
-if [ -n "${SID}" ] && [ "${SID}" = "${FOCUSED_WORKSPACE}" ]; then
-  echo "$SID is focused"
-
-  sketchybar --animate circ 5 --set "${NAME}" icon.highlight=on
-else
-  sketchybar --animate circ 5 --set "${NAME}" icon.highlight=off
-fi
+monitor_ids=( $(aerospace list-monitors --json | jq -r '.[]."monitor-id"') )
+for display in "${monitor_ids[@]}"; do
+  for sid in $(aerospace list-workspaces --monitor "$display"); do
+    space_name=$(aerospace list-workspaces --all | awk -v s="$sid" '$1==s {for(i=2;i<=NF;++i) printf $i " "; print ""}' | sed 's/ *$//')
+    [ -z "$space_name" ] && space_name="$sid"
+    focused=0
+    if [[ "$sid" == "$FOCUSED_WORKSPACE" ]]; then
+      focused=1
+    fi
+    echo -e "$sid\t$space_name\t$focused\t$display"
+  done
+done
 
