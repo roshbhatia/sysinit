@@ -45,16 +45,8 @@ M.plugins = {
 
 			local copilot_actions = {
 				{
-					title = "Fix diagnostic with Copilot",
-					cmd = "CopilotChatFix",
-				},
-				{
 					title = "Explain code with Copilot",
 					cmd = "CopilotChatExplain",
-				},
-				{
-					title = "Optimize code with Copilot",
-					cmd = "CopilotChatOptimize",
 				},
 			}
 
@@ -78,6 +70,54 @@ M.plugins = {
 					})
 				end
 			end
+
+			null_ls.register({
+				method = null_ls.methods.CODE_ACTION,
+				filetypes = {
+					"markdown",
+				},
+				generator = {
+					fn = function(context)
+						return {
+							{
+								title = "Toggle markdown browser preview",
+								action = function()
+									vim.cmd("MarkdownPreviewToggle")
+								end,
+							},
+						}
+					end,
+				},
+			})
+
+			null_ls.register({
+				name = "open_link_in_browser",
+				method = null_ls.methods.CODE_ACTION,
+				filetypes = {},
+				generator = {
+					fn = function(context)
+						local actions = {}
+						local node = ts_utils.get_node_at_cursor()
+						if not node then
+							return actions
+						end
+
+						local text = ts_utils.get_node_text(node)[1] or ""
+						-- Pattern to match an http/https URL
+						local url_pattern = "https?://[%w-_%.%?%.:/%+=&]+"
+						local url = text:match(url_pattern)
+						if url then
+							table.insert(actions, {
+								title = "Open link in browser",
+								action = function()
+									vim.fn.jobstart({ "open", url }, { detach = true })
+								end,
+							})
+						end
+						return actions
+					end,
+				},
+			})
 
 			null_ls.register({
 				name = "hex_color_tools",
