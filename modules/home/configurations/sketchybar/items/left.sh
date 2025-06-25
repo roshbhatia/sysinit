@@ -33,7 +33,6 @@ draw_space_names() {
       label.drawing=on
       background.drawing=off
       click_script="aerospace workspace ${sid}"
-      script="plugin_aerospace ${sid}"
     )
 
     sketchybar --add item "space.${sid}" left \
