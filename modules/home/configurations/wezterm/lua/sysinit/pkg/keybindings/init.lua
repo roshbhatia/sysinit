@@ -166,10 +166,10 @@ local function get_window_keys()
 			mods = "CMD|SHIFT",
 			action = wezterm.action_callback(function(window)
 				local overrides = window:get_config_overrides() or {}
-				if not overrides.window_background_opacity or overrides.window_background_opacity == 1 then
-					overrides.window_background_opacity = nil
-				else
+				if not overrides.window_background_opacity then
 					overrides.window_background_opacity = 1
+				elseif overrides.window_background_opacity == 1 then
+					overrides.window_background_opacity = nil
 				end
 				window:set_config_overrides(overrides)
 			end),
@@ -268,3 +268,4 @@ function M.setup(config)
 end
 
 return M
+
