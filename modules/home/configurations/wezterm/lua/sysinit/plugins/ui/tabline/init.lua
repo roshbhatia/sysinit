@@ -2,22 +2,13 @@ local wezterm = require("wezterm")
 local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
 local M = {}
 
-function M.setup()
+function M.setup(config)
 	tabline.setup({
 		options = {
-			theme = "Catppuccin Frappe",
-			section_separators = {
-				left = wezterm.nerdfonts.ple_right_half_circle_thick,
-				right = wezterm.nerdfonts.ple_left_half_circle_thick,
-			},
-			component_separators = {
-				left = wezterm.nerdfonts.ple_right_half_cirle_thin,
-				right = wezterm.nerdfonts.ple_left_half_circle_thin,
-			},
-			tab_separators = {
-				left = wezterm.nerdfonts.ple_right_half_circle_thick,
-				right = wezterm.nerdfonts.ple_left_half_circle_thick,
-			},
+			theme = config.colors,
+			section_separators = "",
+			component_separators = "",
+			tab_separators = "",
 		},
 		sections = {
 			tabline_a = {
@@ -32,25 +23,10 @@ function M.setup()
 			tab_active = {
 				"index",
 				{
-					"parent",
-					padding = {
-						left = 1,
-						right = 1,
-					},
-				},
-				"/",
-				{
 					"process",
 					padding = {
 						left = 1,
 						right = 2,
-					},
-				},
-				{
-					"zoomed",
-					padding = {
-						left = 1,
-						right = 1,
 					},
 				},
 			},
@@ -64,14 +40,20 @@ function M.setup()
 					},
 				},
 			},
-			tabline_x = {},
-			tabline_y = {},
+			tabline_x = {
+				" ",
+			},
+			tabline_y = {
+				"hostname",
+			},
 			tabline_z = {
-				"window",
+				" 󱄅 ",
 			},
 		},
 		extensions = {},
 	})
+
+	tabline.apply_to_config(config)
 end
 
 return M
