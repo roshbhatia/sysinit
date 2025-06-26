@@ -44,6 +44,7 @@ local function get_display_config()
 		color_scheme = terminal_theme,
 		scrollback_lines = 20000,
 		adjust_window_size_when_changing_font_size = false,
+		tab_bar_at_bottom = true,
 	}
 end
 
@@ -114,4 +115,3 @@ function M.setup(config)
 end
 
 return M
-
