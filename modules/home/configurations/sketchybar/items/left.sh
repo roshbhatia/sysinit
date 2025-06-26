@@ -7,6 +7,14 @@ PLUGIN_DIR="$CONFIG_DIR/plugins"
 
 sketchybar --add event aerospace_workspace_change
 for sid in $(aerospace list-workspaces --all); do
+
+if [ "$sid" = "$FOCUSED_WORKSPACE" ]; then
+    log_info "Focusing workspace" workspace="$1"
+    sketchybar --set space.$sid background.drawing=on label="[$sid]" label.color=$_SSDF_CM_MAUVE
+else
+    sketchybar --set space.$sid background.drawing=off label="$sid" label.color=$_SSDF_CM_SUBTEXT_1
+fi
+
     sketchybar --add item space.$sid left \
         --subscribe space.$sid aerospace_workspace_change \
         --set space.$sid \
