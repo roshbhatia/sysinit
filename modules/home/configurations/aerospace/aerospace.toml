@@ -1,7 +1,7 @@
 start-at-login = true
 
 after-login-command = []
-after-startup-command = ['exec-and-forget sketchybar']
+after-startup-command = ['exec-and-forget sketchybar & borders']
 exec-on-workspace-change = ['/bin/bash', '-c', 'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE']
 
 enable-normalization-flatten-containers = true
