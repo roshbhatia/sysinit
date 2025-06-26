@@ -26,7 +26,7 @@ automatically-unhide-macos-hidden-apps = false
     inner.vertical =   24
     outer.left =       24
     outer.bottom =     24
-    outer.top =        48
+    outer.top =        36
     outer.right =      24
 
 [exec]
@@ -105,9 +105,10 @@ automatically-unhide-macos-hidden-apps = false
     alt-shift-2 = 'move-node-to-workspace 2'
     alt-shift-3 = 'move-node-to-workspace 3'
     alt-shift-4 = 'move-node-to-workspace 4'
-    alt-shift-c = 'move-node-to-workspace C'
-    alt-shift-m = 'move-node-to-workspace M'
-    alt-shift-s = 'move-node-to-workspace S'
+    alt-shift-c = 'move-node-to-workspace c'
+    alt-shift-e = 'move-node-to-workspace e'
+    alt-shift-m = 'move-node-to-workspace m'
+    alt-shift-s = 'move-node-to-workspace s'
 
     alt-f = 'fullscreen'
 
