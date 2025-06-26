@@ -163,7 +163,7 @@ local function get_window_keys()
 		},
 		{
 			key = "t",
-			mods = "CTRL|SHIFT",
+			mods = "CMD|SHIFT",
 			action = wezterm.action_callback(function(window)
 				local overrides = window:get_config_overrides() or {}
 				if not overrides.window_background_opacity or overrides.window_background_opacity == 1 then
@@ -268,4 +268,3 @@ function M.setup(config)
 end
 
 return M
-
