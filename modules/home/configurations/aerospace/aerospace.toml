@@ -2,7 +2,7 @@ start-at-login = true
 
 after-login-command = []
 after-startup-command = ['exec-and-forget /bin/bash -c /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=1']
-exec-on-workspace-change = ['/bin/bash', '-c', '/opt/homebrew/bin/sketchybar', '--trigger', 'aerospace_workspace_change', 'FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE']
+exec-on-workspace-change = ['/bin/bash', '-c', '/opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE']
 
 enable-normalization-flatten-containers = true
 enable-normalization-opposite-orientation-for-nested-containers = true
