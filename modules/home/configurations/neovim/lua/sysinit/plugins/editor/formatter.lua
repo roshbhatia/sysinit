@@ -56,7 +56,7 @@ M.plugins = {
 						"terraform_fmt",
 					},
 					toml = {
-						"tomlq",
+						"taplo",
 					},
 					typescript = {
 						"prettier",
