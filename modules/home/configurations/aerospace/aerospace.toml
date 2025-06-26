@@ -34,6 +34,10 @@ if.app-id = 'com.microsoft.Outlook'
 run = "move-node-to-workspace E"
 
 [[on-window-detected]]
+if.app-id = 'com.apple.iBooksX'
+run = 'move-node-to-workspace M'
+
+[[on-window-detected]]
 if.app-id = 'com.apple.Music'
 run = 'move-node-to-workspace M'
 
@@ -120,4 +124,3 @@ alt-f = 'fullscreen'
 
 alt-tab = 'workspace-back-and-forth'
 alt-esc = ['reload-config', 'mode main']
-
