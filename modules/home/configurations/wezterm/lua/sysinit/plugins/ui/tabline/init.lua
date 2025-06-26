@@ -11,7 +11,7 @@ function M.setup()
 				right = wezterm.nerdfonts.ple_left_half_circle_thick,
 			},
 			component_separators = {
-				left = wezterm.nerdfonts.ple_right_half_circle_thin,
+				left = wezterm.nerdfonts.ple_right_half_cirle_thin,
 				right = wezterm.nerdfonts.ple_left_half_circle_thin,
 			},
 			tab_separators = {
@@ -67,7 +67,7 @@ function M.setup()
 			tabline_x = {},
 			tabline_y = {},
 			tabline_z = {
-				"cwd",
+				"window",
 			},
 		},
 		extensions = {},
@@ -75,3 +75,4 @@ function M.setup()
 end
 
 return M
+
