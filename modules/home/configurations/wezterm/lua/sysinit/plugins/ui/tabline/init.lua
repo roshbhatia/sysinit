@@ -33,19 +33,25 @@ function M.setup()
 				"index",
 				{
 					"parent",
-					padding = 0,
+					padding = {
+						left = 1,
+						right = 1,
+					},
 				},
 				"/",
 				{
-					"cwd",
+					"process",
 					padding = {
-						left = 0,
-						right = 1,
+						left = 1,
+						right = 2,
 					},
 				},
 				{
 					"zoomed",
-					padding = 0,
+					padding = {
+						left = 1,
+						right = 1,
+					},
 				},
 			},
 			tab_inactive = {
@@ -53,15 +59,15 @@ function M.setup()
 				{
 					"process",
 					padding = {
-						left = 0,
-						right = 1,
+						left = 1,
+						right = 2,
 					},
 				},
 			},
 			tabline_x = {},
 			tabline_y = {},
 			tabline_z = {
-				"domain",
+				"cwd",
 			},
 		},
 		extensions = {},

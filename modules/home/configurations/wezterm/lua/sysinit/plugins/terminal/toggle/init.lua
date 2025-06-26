@@ -13,7 +13,7 @@ function M.setup(config)
 		},
 		change_invoker_id_everytime = false,
 		zoom = {
-			auto_zoom_toggle_terminal = true,
+			auto_zoom_toggle_terminal = false,
 			auto_zoom_invoker_pane = true,
 			remember_zoomed = true,
 		},
@@ -21,4 +21,3 @@ function M.setup(config)
 end
 
 return M
-
