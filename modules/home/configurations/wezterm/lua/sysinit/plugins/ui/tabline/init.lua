@@ -15,7 +15,7 @@ function M.setup(config)
 				"mode",
 			},
 			tabline_b = {
-				" ",
+				"hostname",
 			},
 			tabline_c = {
 				" ",
@@ -44,7 +44,7 @@ function M.setup(config)
 				" ",
 			},
 			tabline_y = {
-				"hostname",
+				"workspace",
 			},
 			tabline_z = {
 				" 󱄅 ",
