@@ -36,7 +36,8 @@ let
     "font-sketchybar-app-font"
     "font-symbols-only-nerd-font"
     "keycastr"
-    "nikitabobko/tap/aerospace"
+    "mediosz/tap/swipeaerospace"
+    "nikitabobko/tap/aerospace@0.17.1"
     "slack"
     "visual-studio-code@insiders"
     "wezterm"
@@ -74,4 +75,3 @@ in
     casks = allCasks;
   };
 }
-
