@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
+# shellcheck disable=all
+. "$CONFIG_DIR/utils/loglib.sh"
 
 PERCENTAGE="$(pmset -g batt | grep -Eo '[0-9]+%')"
 CHARGING="$(pmset -g batt | grep 'AC Power')"
 
 if [ "$PERCENTAGE" = "" ]; then
+  log_error "Battery status unavailable"
   exit 0
 fi
+
+log_debug "Battery state" percentage="$PERCENTAGE" charging="$CHARGING"
 
 case "${PERCENTAGE}" in
   9[0-9]|100) ICON=""

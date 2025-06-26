@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
+# shellcheck disable=all
+. "$CONFIG_DIR/utils/loglib.sh"
 
 if [ "$SENDER" = "volume_change" ]; then
+  log_debug "Volume changed" level="$INFO"
+
   VOLUME="$INFO"
 
   case "$VOLUME" in

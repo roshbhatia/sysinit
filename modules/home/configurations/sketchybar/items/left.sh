@@ -1,16 +1,9 @@
 #!/usr/bin/env bash
-set -e
+# shellcheck disable=all
+. "$CONFIG_DIR/utils/loglib.sh"
+. "$CONFIG_DIR/themes/catppuccin-latte.sh"
 
 PLUGIN_DIR="$CONFIG_DIR/plugins"
-
-THEME_FILE="$CONFIG_DIR/themes/catppuccin-latte.sh"
-if [ -f "$THEME_FILE" ]; then
-  # shellcheck disable=SC1090
-  source "$THEME_FILE"
-else
-  echo "[left.sh] Theme file not found: $THEME_FILE"
-fi
-
 
 sketchybar --add event aerospace_workspace_change
 for sid in $(aerospace list-workspaces --all); do
@@ -32,26 +25,3 @@ sketchybar --add item chevron left \
 sketchybar --add item front_app left \
            --set front_app icon.drawing=off script="$PLUGIN_DIR/front_app.sh" \
            --subscribe front_app front_app_switched
-
-wrapper=(
-  background.drawing=off
-)
-
-separator=(
-  icon=" | "
-  icon.font="$ICON_FONT:Heavy:16.0"
-  padding_left=15
-  padding_right=15
-  label.drawing=off
-  associated_display=active
-  icon.color="$ICON_COLOR"
-)
-
-sketchybar --add bracket wrapper '/space\..*/' \
-  --set wrapper "${wrapper[@]}"
-
-sketchybar --add item separator left \
-  --set separator "${separator[@]}"
-
-# End of file
-

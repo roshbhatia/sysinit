@@ -1,11 +1,14 @@
+#!/usr/bin/env bash
+# shellcheck disable=all
+. "$CONFIG_DIR/utils/loglib.sh"
+
+log_info "Loading theme configuration"
 source "${CONFIG_DIR}/themes/catppuccin-latte.sh"
 
-sketchybar --bar position=top \
-                 height=40 \
-                 color="${_SSDF_CM_MANTLE}"
+log_info "Configuring bar properties"
+sketchybar --bar position=top height=40 color="${_SSDF_CM_MANTLE}"
 
-PLUGIN_DIR="$CONFIG_DIR/plugins"
-
+log_info "Setting default properties"
 sketchybar --default \
   padding_left=5 \
   padding_right=5 \
@@ -18,8 +21,10 @@ sketchybar --default \
   label.padding_left=4 \
   label.padding_right=4
 
+log_info "Loading item configurations"
 . "$CONFIG_DIR/items/left.sh"
 . "$CONFIG_DIR/items/right.sh"
 
+log_info "Updating sketchybar"
+sketchybar --hotload true
 sketchybar --update
-

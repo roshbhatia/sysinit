@@ -18,8 +18,14 @@
     force = true;
   };
 
+  xdg.configFile."sketchybar/utils" = {
+    source = ./utils;
+    force = true;
+  };
+
   xdg.configFile."sketchybar/sketchybarrc" = {
-    source = ./sketchybarrc.sh;
+    source = ./sketchybarrc;
     force = true;
   };
 }
+
