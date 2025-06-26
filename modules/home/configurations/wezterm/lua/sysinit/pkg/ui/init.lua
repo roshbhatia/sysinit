@@ -19,17 +19,14 @@ local function is_vim(pane)
 	return pane:get_user_vars().IS_NVIM == "true"
 end
 
-local function get_window_padding_config()
-	return {
-		window_padding = {
-			left = "8px",
-			top = "8px",
-		},
-	}
-end
-
 local function get_window_appearance_config()
 	return {
+		window_padding = {
+			left = 4,
+			right = 2,
+			top = 4,
+			bottom = 0,
+		},
 		window_background_opacity = 0.75,
 		macos_window_background_blur = 80,
 		window_decorations = "RESIZE",
@@ -89,7 +86,6 @@ end
 
 function M.setup(config)
 	local configs = {
-		get_window_padding_config(),
 		get_window_appearance_config(),
 		get_display_config(),
 		get_cursor_config(),
