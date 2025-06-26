@@ -8,13 +8,13 @@ let
     k9s = {
       liveViewAutoRefresh = true;
       screenDumpDir = "/tmp/dumps";
-      refreshRate = 2;
+      refreshRate = 1;
       maxConnRetry = 5;
       readOnly = false;
       noExitOnCtrlC = true;
       ui = {
         enableMouse = false;
-        headless = false;
+        headless = true;
         logoless = true;
         crumbsless = false;
         noIcons = false;
@@ -31,6 +31,7 @@ let
         sinceSeconds = 300;
         textWrap = true;
         showTime = false;
+        fullscreen = true;
       };
       shellPod = {
         image = "killerAdmin";
@@ -76,4 +77,3 @@ in
     };
   };
 }
-
