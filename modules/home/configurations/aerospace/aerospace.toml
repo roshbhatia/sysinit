@@ -25,9 +25,6 @@ automatically-unhide-macos-hidden-apps = false
 [exec]
     inherit-env-vars = true
 
-[exec.env-vars]
-    PATH = '${HOME}/.local/bin:${PATH}'
-
 # App specific workspace movement
 [[on-window-detected]]
   if.app-id = 'org.ferdium.ferdium-app'

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=all
-. "$CONFIG_DIR/utils/loglib.sh"
-. "$CONFIG_DIR/themes/catppuccin-latte.sh"
+source "$CONFIG_DIR/utils/loglib.sh"
+source "$CONFIG_DIR/themes/catppuccin-latte.sh"
 
 PLUGIN_DIR="$CONFIG_DIR/plugins"
 
@@ -10,10 +10,6 @@ for sid in $(aerospace list-workspaces --all); do
     sketchybar --add item space.$sid left \
         --subscribe space.$sid aerospace_workspace_change \
         --set space.$sid \
-        background.color=0x44ffffff \
-        background.corner_radius=5 \
-        background.height=20 \
-        background.drawing=off \
         label="$sid" \
         click_script="aerospace workspace $sid" \
         script="$PLUGIN_DIR/aerospace.sh $sid"
@@ -25,3 +21,4 @@ sketchybar --add item chevron left \
 sketchybar --add item front_app left \
            --set front_app icon.drawing=off script="$PLUGIN_DIR/front_app.sh" \
            --subscribe front_app front_app_switched
+

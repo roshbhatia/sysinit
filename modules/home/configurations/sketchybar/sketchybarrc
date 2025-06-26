@@ -28,3 +28,4 @@ log_info "Loading item configurations"
 log_info "Updating sketchybar"
 sketchybar --hotload true
 sketchybar --update
+

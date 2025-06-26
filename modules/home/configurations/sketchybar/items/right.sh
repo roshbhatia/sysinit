@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck disable=all
-source "$CONFIG_DIR/utils/loglib.sh"
+. "$CONFIG_DIR/utils/loglib.sh"
 
 PLUGIN_DIR="$CONFIG_DIR/plugins"
 log_info "Adding clock item to sketchybar"
