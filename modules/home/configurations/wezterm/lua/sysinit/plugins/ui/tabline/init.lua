@@ -7,7 +7,7 @@ function M.setup(config)
 		options = {
 			icons_enabled = false,
 			theme = "Catppuccin Frappe",
-			section_separators = {
+			component_seperators = {
 				left = wezterm.nerdfonts.md_solid,
 				right = wezterm.nerdfonts.md_solid,
 			},
