@@ -80,9 +80,7 @@ local function setup_nvim_ui_overrides()
 		local overrides = window:get_config_overrides() or {}
 		if should_switch then
 			overrides.window_padding = {
-				left = "8px",
 				top = "8px",
-				bottom = "0px",
 			}
 			overrides.window_background_opacity = 0.9475
 		else
@@ -116,3 +114,4 @@ function M.setup(config)
 end
 
 return M
+
