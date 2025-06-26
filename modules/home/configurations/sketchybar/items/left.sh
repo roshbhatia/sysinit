@@ -17,15 +17,25 @@ sketchybar --query bar | jq -r '.items[]' | grep '^space\.' | while read -r item
 done
 
 sketchybar --add event aerospace_workspace_change
+FOCUSED_WORKSPACE="$(aerospace list-workspaces --focused)"
 for sid in $(aerospace list-workspaces --all); do
+    if [ "$sid" = "$FOCUSED_WORKSPACE" ]; then
+        label="[$sid]"
+        background_color=$_SSDF_CM_RED
+        background_drawing=on
+    else
+        label="$sid"
+        background_color=0x44ffffff
+        background_drawing=off
+    fi
     sketchybar --add item space."$sid" left \
-        --subscribe space."$sid" aerospace_workspace_change \
+    --subscribe space."$sid" aerospace_workspace_change \
         --set space."$sid" \
-        background.color=0x44ffffff \
+        background.color="$background_color" \
         background.corner_radius=5 \
         background.height=20 \
-        background.drawing=off \
-        label="$sid" \
+        background.drawing="$background_drawing" \
+        label="$label" \
         click_script="aerospace workspace $sid" \
         script="$PLUGIN_DIR/aerospace.sh $sid"
 done
