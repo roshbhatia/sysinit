@@ -227,6 +227,7 @@ in
 
       (lib.mkOrder 550 ''
         mkdir -p ${config.home.homeDirectory}/.config/zsh
+        autoload bashcompinit && bashcompinit
         autoload -Uz compinit
         if [[ -n ${config.home.homeDirectory}/.config/zsh/zcompdump/.zcompdump(#qN.mh+24) ]]; then
           compinit -d "${config.home.homeDirectory}/.config/zsh/zcompdump/.zcompdump";
@@ -298,4 +299,3 @@ in
     };
   };
 }
-
