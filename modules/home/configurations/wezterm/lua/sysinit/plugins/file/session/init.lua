@@ -5,8 +5,8 @@ local M = {}
 local function get_workspace_keys()
 	return {
 		{
-			key = "/",
-			mods = "CTRL|SHIFT",
+			key = "\\",
+			mods = "CMD|SHIFT",
 			action = workspace_switcher.switch_workspace(),
 		},
 	}
@@ -25,3 +25,4 @@ function M.setup(config)
 end
 
 return M
+
