@@ -1,8 +1,8 @@
 start-at-login = true
 
 after-login-command = []
-after-startup-command = ['exec-and-forget sketchybar & borders']
-exec-on-workspace-change = ['/bin/bash', '-c', 'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE']
+after-startup-command = ['exec-and-forget', '/bin/bash', '-c', 'sketchybar', '--trigger', 'aerospace_workspace_change', 'FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE']
+exec-on-workspace-change = ['/bin/bash', '-c', 'sketchybar', '--trigger', 'aerospace_workspace_change', 'FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE']
 
 enable-normalization-flatten-containers = true
 enable-normalization-opposite-orientation-for-nested-containers = true
@@ -38,6 +38,10 @@ automatically-unhide-macos-hidden-apps = false
   run = 'move-node-to-workspace M'
 
 [[on-window-detected]]
+  if.app-id = 'com.apple.Podcasts'
+  run = 'move-node-to-workspace M'
+
+[[on-window-detected]]
   if.app-name-regex-substring = 'Audible'
   if.window-title-regex-substring = 'Audible Cloud Player'
   run = 'move-node-to-workspace M'
@@ -56,7 +60,19 @@ automatically-unhide-macos-hidden-apps = false
   run = ['layout floating']
 
 [[on-window-detected]]
+  if.app-id = 'com.apple.keychainaccess'
+  run = ['layout floating']
+
+[[on-window-detected]]
   if.app-id = 'com.apple.finder'
+  run = ['layout floating']
+
+[[on-window-detected]]
+  if.app-id = 'com.apple.MobileSMS'
+  run = ['layout floating']
+
+[[on-window-detected]]
+  if.app-id = 'com.apple.FaceTime'
   run = ['layout floating']
 
 [mode.main.binding]
