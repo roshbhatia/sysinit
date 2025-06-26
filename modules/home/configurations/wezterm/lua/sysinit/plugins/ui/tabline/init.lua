@@ -2,10 +2,10 @@ local wezterm = require("wezterm")
 local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
 local M = {}
 
-function M.setup(theme)
+function M.setup()
 	tabline.setup({
 		options = {
-			theme = theme,
+			theme = "Catppuccin Frappe",
 			section_separators = {
 				left = wezterm.nerdfonts.ple_right_half_circle_thick,
 				right = wezterm.nerdfonts.ple_left_half_circle_thick,
@@ -69,4 +69,3 @@ function M.setup(theme)
 end
 
 return M
-

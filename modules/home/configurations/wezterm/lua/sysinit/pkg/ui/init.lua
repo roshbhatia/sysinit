@@ -1,6 +1,8 @@
 local wezterm = require("wezterm")
 local M = {}
 
+local terminal_theme = "Catppuccin Frappé (Gogh)"
+
 local terminal_font = wezterm.font_with_fallback({
 	{
 		family = "JetBrains Mono",
@@ -34,12 +36,12 @@ local function get_window_appearance_config()
 	}
 end
 
-local function get_display_config(theme)
+local function get_display_config()
 	return {
 		enable_tab_bar = true,
 		max_fps = 240,
 		animation_fps = 240,
-		color_scheme = theme,
+		color_scheme = terminal_theme,
 		scrollback_lines = 20000,
 		adjust_window_size_when_changing_font_size = false,
 		tab_bar_at_bottom = true,
@@ -49,10 +51,10 @@ end
 
 local function get_visual_bell_config()
 	return {
-		fade_in_function = "EaseInOut",
-		fade_in_duration_ms = 50,
-		fade_out_function = "EaseInOut",
-		fade_out_duration_ms = 60,
+		fade_in_function = "EaseIn",
+		fade_in_duration_ms = 70,
+		fade_out_function = "EaseOut",
+		fade_out_duration_ms = 100,
 	}
 end
 
@@ -85,11 +87,11 @@ local function setup_nvim_ui_overrides()
 	end)
 end
 
-function M.setup(config, theme)
+function M.setup(config)
 	local configs = {
 		get_window_padding_config(),
 		get_window_appearance_config(),
-		get_display_config(theme),
+		get_display_config(),
 		get_cursor_config(),
 		get_font_config(),
 	}
@@ -106,4 +108,3 @@ function M.setup(config, theme)
 end
 
 return M
-
