@@ -2,10 +2,6 @@ local wezterm = require("wezterm")
 local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
 local M = {}
 
-local function is_vim(pane)
-	return pane:get_user_vars().IS_NVIM == "true"
-end
-
 function M.setup(config)
 	tabline.setup({
 		options = {
@@ -49,4 +45,3 @@ function M.setup(config)
 end
 
 return M
-
