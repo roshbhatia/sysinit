@@ -21,13 +21,7 @@ end
 
 local function get_window_appearance_config()
 	return {
-		window_padding = {
-			left = 4,
-			right = 2,
-			top = 4,
-			bottom = 0,
-		},
-		window_background_opacity = 0.75,
+		window_background_opacity = 0.8,
 		macos_window_background_blur = 80,
 		window_decorations = "RESIZE",
 	}
