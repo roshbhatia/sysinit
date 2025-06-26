@@ -217,8 +217,8 @@ end
 local function get_search_keys()
 	return {
 		{
-			key = "]",
-			mods = "CTRL",
+			key = "Esc",
+			mods = "SHIFT",
 			action = act.ActivateCopyMode,
 		},
 		{
@@ -255,4 +255,3 @@ function M.setup(config)
 end
 
 return M
-
