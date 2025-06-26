@@ -57,11 +57,11 @@ M.plugins = {
 					},
 				},
 				mode_icons = {
-					c = "󰸸 ",
-					i = "󰸴 ",
-					n = "󰸶 ",
-					t = "󰸷 ",
-					v = "󰸵 ",
+					c = "󰺕",
+					i = "󰺕",
+					n = "󰺕",
+					t = "󰺕",
+					v = "󰺕",
 				},
 				lsp_symbols = {
 					Error = " ",

@@ -6,12 +6,7 @@ function M.setup()
 		silent = true,
 		desc = "Quit",
 	})
-
-	vim.keymap.set("i", "jj", "<ESC>", {
-		noremap = true,
-		silent = true,
-		desc = "Escape Insert Mode",
-	})
 end
 
 return M
+
