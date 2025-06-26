@@ -21,21 +21,22 @@ FOCUSED_WORKSPACE="$(aerospace list-workspaces --focused)"
 for sid in $(aerospace list-workspaces --all); do
     if [ "$sid" = "$FOCUSED_WORKSPACE" ]; then
         label="[$sid]"
-        background_color=$_SSDF_CM_RED
+        label_color="${_SSDF_CM_RED}"
         background_drawing=on
     else
         label="$sid"
-        background_color=0x44ffffff
+        label_color="${_SSDF_CM_SUBTEXT_0}"
         background_drawing=off
     fi
     sketchybar --add item space."$sid" left \
     --subscribe space."$sid" aerospace_workspace_change \
         --set space."$sid" \
-        background.color="$background_color" \
+        background_color=0x44ffffff \
         background.corner_radius=5 \
         background.height=20 \
         background.drawing="$background_drawing" \
         label="$label" \
+        label.color="$label_color"
         click_script="aerospace workspace $sid" \
         script="$PLUGIN_DIR/aerospace.sh $sid"
 done

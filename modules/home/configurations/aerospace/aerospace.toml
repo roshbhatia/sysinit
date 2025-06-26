@@ -38,23 +38,23 @@ automatically-unhide-macos-hidden-apps = false
 # App specific workspace movement
 [[on-window-detected]]
   if.app-id = 'org.ferdium.ferdium-app'
-  run = "move-node-to-workspace c"
+  run = "move-node-to-workspace C"
 [[on-window-detected]]
   if.app-id = 'com.microsoft.Outlook'
-  run = "move-node-to-workspace e"
+  run = "move-node-to-workspace E"
 
 [[on-window-detected]]
   if.app-id = 'com.apple.Music'
-  run = 'move-node-to-workspace m'
+  run = 'move-node-to-workspace M'
 
 [[on-window-detected]]
   if.app-name-regex-substring = 'Audible'
   if.window-title-regex-substring = 'Audible Cloud Player'
-  run = 'move-node-to-workspace m'
+  run = 'move-node-to-workspace M'
 
 [[on-window-detected]]
   if.app-id = 'com.tinyspeck.slackmacgap'
-  run = "move-node-to-workspace s"
+  run = "move-node-to-workspace S"
 
 # Floating windows for specific apps
 [[on-window-detected]]
@@ -96,19 +96,19 @@ automatically-unhide-macos-hidden-apps = false
     alt-2 = 'workspace 2'
     alt-3 = 'workspace 3'
     alt-4 = 'workspace 4'
-    alt-c = 'workspace c' # Chat
-    alt-m = 'workspace m' # Media
-    alt-s = 'workspace s' # Slack
-    alt-e = 'workspace e' # Email
+    alt-c = 'workspace C' # Chat
+    alt-m = 'workspace M' # Media
+    alt-s = 'workspace S' # Slack
+    alt-e = 'workspace E' # Email
 
     alt-shift-1 = 'move-node-to-workspace 1'
     alt-shift-2 = 'move-node-to-workspace 2'
     alt-shift-3 = 'move-node-to-workspace 3'
     alt-shift-4 = 'move-node-to-workspace 4'
-    alt-shift-c = 'move-node-to-workspace c'
-    alt-shift-e = 'move-node-to-workspace e'
-    alt-shift-m = 'move-node-to-workspace m'
-    alt-shift-s = 'move-node-to-workspace s'
+    alt-shift-c = 'move-node-to-workspace C'
+    alt-shift-e = 'move-node-to-workspace E'
+    alt-shift-m = 'move-node-to-workspace M'
+    alt-shift-s = 'move-node-to-workspace S'
 
     alt-f = 'fullscreen'
 
