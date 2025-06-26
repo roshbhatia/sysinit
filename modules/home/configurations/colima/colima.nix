@@ -66,13 +66,4 @@ in
     source = ./colimactl.sh;
     force = true;
   };
-
-  home.activation.linkDockerSock = activation.mkActivationScript {
-    description = "Link docker socket";
-    requiredExecutables = [ "ln" ];
-    script = ''
-      log_command "sudo ln -sf $XDG_CONFIG_HOME/.colima/default/docker.sock /var/run/docker.sock" "Linking docker socket";
-    '';
-  };
 }
-
