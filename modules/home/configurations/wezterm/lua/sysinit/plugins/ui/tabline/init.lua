@@ -21,7 +21,7 @@ function M.setup(config)
 				"mode",
 			},
 			tabline_b = {
-				"workspace",
+				" ",
 			},
 			tabline_c = {
 				" ",
@@ -68,4 +68,3 @@ function M.setup(config)
 end
 
 return M
-
