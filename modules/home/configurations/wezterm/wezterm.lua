@@ -22,4 +22,3 @@ require("sysinit.plugins.file.session").setup(config)
 require("sysinit.plugins.terminal.toggle").setup(config)
 
 return config
-
