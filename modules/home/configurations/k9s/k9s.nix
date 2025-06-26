@@ -14,7 +14,7 @@ let
       noExitOnCtrlC = true;
       ui = {
         enableMouse = false;
-        headless = true;
+        headless = false;
         logoless = true;
         crumbsless = false;
         noIcons = false;
