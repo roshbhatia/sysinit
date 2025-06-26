@@ -55,6 +55,9 @@ M.plugins = {
 					terraform = {
 						"terraform_fmt",
 					},
+					toml = {
+						"tomlq",
+					},
 					typescript = {
 						"prettier",
 						"prettierd",
