@@ -217,7 +217,7 @@ end
 local function get_search_keys()
 	return {
 		{
-			key = "Esc",
+			key = "Escape",
 			mods = "SHIFT",
 			action = act.ActivateCopyMode,
 		},
