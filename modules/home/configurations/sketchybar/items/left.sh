@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
-# Source theme for color variables
+PLUGIN_DIR="$CONFIG_DIR/plugins"
+
 THEME_FILE="$CONFIG_DIR/themes/catppuccin-latte.sh"
 if [ -f "$THEME_FILE" ]; then
   # shellcheck disable=SC1090
@@ -10,33 +11,17 @@ else
   echo "[left.sh] Theme file not found: $THEME_FILE"
 fi
 
-PLUGIN_DIR="$CONFIG_DIR/plugins"
-
-sketchybar --query bar | jq -r '.items[]' | grep '^space\.' | while read -r item; do
-  sketchybar --remove item "$item"
-done
 
 sketchybar --add event aerospace_workspace_change
-FOCUSED_WORKSPACE="$(aerospace list-workspaces --focused)"
 for sid in $(aerospace list-workspaces --all); do
-    if [ "$sid" = "$FOCUSED_WORKSPACE" ]; then
-        label="[$sid]"
-        label_color="${_SSDF_CM_RED}"
-        background_drawing=on
-    else
-        label="$sid"
-        label_color="${_SSDF_CM_SUBTEXT_0}"
-        background_drawing=off
-    fi
-    sketchybar --add item space."$sid" left \
-    --subscribe space."$sid" aerospace_workspace_change \
-        --set space."$sid" \
-        background_color=0x44ffffff \
+    sketchybar --add item space.$sid left \
+        --subscribe space.$sid aerospace_workspace_change \
+        --set space.$sid \
+        background.color=0x44ffffff \
         background.corner_radius=5 \
         background.height=20 \
-        background.drawing="$background_drawing" \
-        label="$label" \
-        label.color="$label_color"
+        background.drawing=off \
+        label="$sid" \
         click_script="aerospace workspace $sid" \
         script="$PLUGIN_DIR/aerospace.sh $sid"
 done
