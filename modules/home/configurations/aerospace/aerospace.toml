@@ -2,9 +2,6 @@ start-at-login = true
 
 after-login-command = []
 
-after-startup-command = ['exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=1']
-exec-on-workspace-change = ['exec-and-forget /opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE']
-
 enable-normalization-flatten-containers = true
 enable-normalization-opposite-orientation-for-nested-containers = true
 default-root-container-layout = 'tiles'
@@ -20,7 +17,7 @@ automatically-unhide-macos-hidden-apps = false
     inner.vertical =   24
     outer.left =       24
     outer.bottom =     24
-    outer.top =        36
+    outer.top =        24
     outer.right =      24
 
 # App specific workspace movement
