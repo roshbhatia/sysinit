@@ -45,6 +45,7 @@ local function get_display_config()
 		scrollback_lines = 20000,
 		adjust_window_size_when_changing_font_size = false,
 		tab_bar_at_bottom = true,
+		use_fancy_tab_bar = true,
 	}
 end
 
