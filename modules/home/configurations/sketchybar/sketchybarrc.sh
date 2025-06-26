@@ -1,7 +1,7 @@
 source "${CONFIG_DIR}/themes/catppuccin-latte.sh"
 
 sketchybar --bar position=top \
-                 height=42 \
+                 height=40 \
                  color="${_SSDF_CM_MANTLE}"
 
 PLUGIN_DIR="$CONFIG_DIR/plugins"
