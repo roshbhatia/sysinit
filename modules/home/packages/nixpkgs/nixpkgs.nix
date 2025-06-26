@@ -93,7 +93,6 @@ let
     swift
     taplo
     textlint
-    tomlq
     tfsec
     tlrc
     tree
@@ -115,4 +114,3 @@ in
 {
   home.packages = allNixPackages;
 }
-
