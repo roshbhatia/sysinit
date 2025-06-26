@@ -91,14 +91,14 @@ automatically-unhide-macos-hidden-apps = false
     alt-s = 'workspace S' # Slack
     alt-e = 'workspace E' # Email
 
-    alt-shift-1 = 'move-node-to-workspace 1'
-    alt-shift-2 = 'move-node-to-workspace 2'
-    alt-shift-3 = 'move-node-to-workspace 3'
-    alt-shift-4 = 'move-node-to-workspace 4'
-    alt-shift-c = 'move-node-to-workspace C'
-    alt-shift-e = 'move-node-to-workspace E'
-    alt-shift-m = 'move-node-to-workspace M'
-    alt-shift-s = 'move-node-to-workspace S'
+    alt-shift-1 = 'move-node-to-workspace 1 --focus-follows-window'
+    alt-shift-2 = 'move-node-to-workspace 2 --focus-follows-window'
+    alt-shift-3 = 'move-node-to-workspace 3 --focus-follows-window'
+    alt-shift-4 = 'move-node-to-workspace 4 --focus-follows-window'
+    alt-shift-c = 'move-node-to-workspace C --focus-follows-window'
+    alt-shift-e = 'move-node-to-workspace E --focus-follows-window'
+    alt-shift-m = 'move-node-to-workspace M --focus-follows-window'
+    alt-shift-s = 'move-node-to-workspace S --focus-follows-window'
 
     alt-f = 'fullscreen'
 

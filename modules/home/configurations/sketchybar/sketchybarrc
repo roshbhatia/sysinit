@@ -3,7 +3,7 @@
 . "$CONFIG_DIR/utils/loglib.sh"
 
 log_info "Loading theme configuration"
-source "${CONFIG_DIR}/themes/catppuccin-latte.sh"
+. "${CONFIG_DIR}/themes/catppuccin-latte.sh"
 
 log_info "Configuring bar properties"
 sketchybar --bar position=top height=40 color="${_SSDF_CM_MANTLE}"
@@ -12,8 +12,8 @@ log_info "Setting default properties"
 sketchybar --default \
   padding_left=5 \
   padding_right=5 \
-  icon.font="Hack Nerd Font Mono:Regular:15.0" \
-  label.font="Hack Nerd Font Mono:Regular:15.0" \
+  icon.font="Symbols Nerd Font Mono:Regular:15.0" \
+  label.font="JetBrains Mono:Thin:15.0" \
   icon.color="${_SSDF_CM_SUBTEXT_1}" \
   label.color="${_SSDF_CM_SUBTEXT_0}" \
   icon.padding_left=4 \
