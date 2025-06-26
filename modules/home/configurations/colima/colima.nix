@@ -23,7 +23,6 @@ let
         "host.docker.internal" = "host.lima.internal";
       };
     };
-    docker = dockerConfig;
     mounts = [
       {
         location = "/usr/local/share/ca-certificates/";
@@ -50,4 +49,3 @@ in
     force = true;
   };
 }
-
