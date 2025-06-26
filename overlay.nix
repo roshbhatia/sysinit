@@ -21,6 +21,7 @@
         "qemu"
       ];
       casks = [
+        "betterdiscord-installer"
         "discord"
         "notion"
         "steam"
@@ -30,4 +31,3 @@
     };
   };
 }
-
