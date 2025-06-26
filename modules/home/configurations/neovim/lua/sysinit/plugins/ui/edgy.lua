@@ -31,24 +31,6 @@ M.plugins = {
 						end,
 					},
 				},
-				right = {
-					{
-						title = " Copilot",
-						ft = "Avante",
-					},
-					{
-						ft = "AvanteSelectedFiles",
-						size = 25,
-					},
-					{
-						ft = "AvanteTodos",
-						size = 25,
-					},
-					{
-						ft = "AvanteInput",
-						size = 45,
-					},
-				},
 				icons = {
 					closed = "",
 					open = "",
