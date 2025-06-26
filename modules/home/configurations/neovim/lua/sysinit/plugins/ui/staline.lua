@@ -56,13 +56,6 @@ M.plugins = {
 						"cool_symbol",
 					},
 				},
-				mode_icons = {
-					c = "󰺕",
-					i = "󰺕",
-					n = "󰺕",
-					t = "󰺕",
-					v = "󰺕",
-				},
 				lsp_symbols = {
 					Error = " ",
 					Hint = " ",
@@ -83,4 +76,3 @@ M.plugins = {
 }
 
 return M
-
