@@ -9,17 +9,15 @@ function M.setup(config)
 		mods = "CTRL",
 		direction = "Right",
 		size = {
-			Percent = 30,
+			Percent = 45,
 		},
 		change_invoker_id_everytime = false,
 		zoom = {
-			auto_zoom_toggle_terminal = false,
+			auto_zoom_toggle_terminal = true,
 			auto_zoom_invoker_pane = true,
 			remember_zoomed = true,
 		},
 	})
-
-	return config
 end
 
 return M

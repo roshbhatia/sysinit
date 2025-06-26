@@ -2,18 +2,21 @@ local wezterm = require("wezterm")
 local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
 local M = {}
 
-function M.setup(config)
+function M.setup(theme)
 	tabline.setup({
 		options = {
-			icons_enabled = false,
-			theme = "Catppuccin Frappe",
-			component_seperators = {
-				left = wezterm.nerdfonts.md_solid,
-				right = wezterm.nerdfonts.md_solid,
+			theme = theme,
+			section_separators = {
+				left = wezterm.nerdfonts.ple_right_half_circle_thick,
+				right = wezterm.nerdfonts.ple_left_half_circle_thick,
+			},
+			component_separators = {
+				left = wezterm.nerdfonts.ple_right_half_circle_thin,
+				right = wezterm.nerdfonts.ple_left_half_circle_thin,
 			},
 			tab_separators = {
-				left = " ",
-				right = "",
+				left = wezterm.nerdfonts.ple_right_half_circle_thick,
+				right = wezterm.nerdfonts.ple_left_half_circle_thick,
 			},
 		},
 		sections = {
@@ -63,8 +66,7 @@ function M.setup(config)
 		},
 		extensions = {},
 	})
-
-	return config
 end
 
 return M
+

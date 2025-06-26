@@ -16,8 +16,6 @@ function M.setup(config)
 	for key, value in pairs(basic_config) do
 		config[key] = value
 	end
-
-	return config
 end
 
 return M

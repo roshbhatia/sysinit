@@ -20,8 +20,6 @@ function M.setup(config)
 	for _, key_binding in ipairs(workspace_keys) do
 		table.insert(config.keys, key_binding)
 	end
-
-	return config
 end
 
 return M

@@ -1,13 +1,10 @@
 {
   lib,
-  overlay,
   pkgs,
   ...
 }:
 
 let
-  activation = import ../../../lib/activation { inherit lib; };
-
   colimaConfig = {
     cpu = 6;
     disk = 50;
@@ -49,3 +46,4 @@ in
     force = true;
   };
 }
+

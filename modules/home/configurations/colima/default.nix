@@ -1,6 +1,5 @@
 {
   lib,
-  overlay,
   pkgs,
   ...
 }:
@@ -10,9 +9,9 @@
     (import ./colima.nix {
       inherit
         lib
-        overlay
         pkgs
         ;
     })
   ];
 }
+

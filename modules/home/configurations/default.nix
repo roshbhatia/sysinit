@@ -20,7 +20,7 @@
     ./bat
     ./borders
     (import ./colima {
-      inherit lib overlay pkgs;
+      inherit lib pkgs;
     })
     ./direnv
     ./k9s
@@ -33,3 +33,4 @@
     ./wezterm
   ];
 }
+

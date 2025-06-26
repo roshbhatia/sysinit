@@ -250,8 +250,6 @@ function M.setup(config)
 	end
 
 	config.keys = all_keys
-
-	return config
 end
 
 return M
