@@ -22,6 +22,7 @@ require("sysinit.pkg.opts.completion").setup()
 require("sysinit.pkg.opts.autoread").setup()
 require("sysinit.pkg.opts.undo").setup()
 
+require("sysinit.pkg.autocmds.force_transparency").setup()
 require("sysinit.pkg.autocmds.help").setup()
 require("sysinit.pkg.autocmds.wezterm").setup()
 
