@@ -65,6 +65,19 @@ local function get_cursor_config()
 	}
 end
 
+local function setup_nvim_ui_overrides()
+	wezterm.on("update-status", function(window, pane)
+		local should_switch = is_vim(pane)
+		local overrides = window:get_config_overrides() or {}
+		if should_switch then
+			overrides.window_background_opacity = 0.9475
+		else
+			overrides.window_background_opacity = nil
+		end
+		window:set_config_overrides(overrides)
+	end)
+end
+
 function M.setup(config)
 	local configs = {
 		get_window_appearance_config(),
@@ -80,6 +93,8 @@ function M.setup(config)
 	end
 
 	config.visual_bell = get_visual_bell_config()
+
+	setup_nvim_ui_overrides()
 end
 
 return M
