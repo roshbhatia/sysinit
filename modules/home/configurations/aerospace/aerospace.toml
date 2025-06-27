@@ -54,10 +54,6 @@ run = 'move-node-to-workspace M'
 if.app-id = 'com.tinyspeck.slackmacgap'
 run = "move-node-to-workspace S"
 
-[[on-window-detected]]
-if.app-id = 'com.github.wez.wezterm'
-run = "move-node-to-workspace T"
-
 # Floating windows for specific apps
 [[on-window-detected]]
 if.app-id = 'com.apple.systempreferences'
@@ -114,7 +110,6 @@ alt-c = 'workspace C' # Chat
 alt-m = 'workspace M' # Media
 alt-s = 'workspace S' # Slack
 alt-e = 'workspace E' # Email
-alt-t = 'workspace T' # Terminal
 
 alt-shift-1 = 'move-node-to-workspace 1 --focus-follows-window'
 alt-shift-2 = 'move-node-to-workspace 2 --focus-follows-window'
@@ -124,7 +119,6 @@ alt-shift-c = 'move-node-to-workspace C --focus-follows-window'
 alt-shift-e = 'move-node-to-workspace E --focus-follows-window'
 alt-shift-m = 'move-node-to-workspace M --focus-follows-window'
 alt-shift-s = 'move-node-to-workspace S --focus-follows-window'
-alt-shift-t = 'move-node-to-workspace T --focus-follows-window'
 
 alt-f = 'fullscreen'
 
