@@ -42,8 +42,8 @@ M.plugins = {
 						normal = "<S-CR>",
 						insert = "<S-CR>",
 					},
-					ask = "<localleader>as",
-					new_ask = "<localleader>aA",
+					ask = "<leader>as",
+					new_ask = "<leader>aA",
 					toggle = {
 						default = "<leader>aa",
 						suggestion = "<leader>a\\",
@@ -110,4 +110,3 @@ M.plugins = {
 }
 
 return M
-

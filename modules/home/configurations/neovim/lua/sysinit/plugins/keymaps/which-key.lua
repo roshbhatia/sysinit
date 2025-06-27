@@ -21,7 +21,7 @@ M.plugins = {
 			wk.add({
 				{
 					"<leader>a",
-					group = "Copilot (Avante)",
+					group = "Copilot - Avante",
 				},
 				{
 					"<leader>b",
@@ -65,7 +65,11 @@ M.plugins = {
 				},
 				{
 					"<leader>h",
-					group = "Copilot (Goose)",
+					group = "Copilot - Goose",
+				},
+				{
+					"<leader>t",
+					group = "Copilot - Terminal",
 				},
 				{
 					"<leader>i",
@@ -93,4 +97,3 @@ M.plugins = {
 }
 
 return M
-
