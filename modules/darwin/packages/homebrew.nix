@@ -36,6 +36,7 @@ let
     "jordanbaird-ice"
     "keycastr"
     "mediosz/tap/swipeaerospace"
+    "raycast"
     "nikitabobko/tap/aerospace"
     "slack"
     "visual-studio-code@insiders"
@@ -74,3 +75,4 @@ in
     casks = allCasks;
   };
 }
+
