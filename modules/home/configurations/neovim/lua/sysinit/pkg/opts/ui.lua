@@ -6,7 +6,7 @@ function M.setup()
 	vim.opt.shortmess:append("sI")
 	vim.opt.showmode = false
 	vim.opt.termguicolors = true
-	vim.opt.winblend = 100
 end
 
 return M
+
