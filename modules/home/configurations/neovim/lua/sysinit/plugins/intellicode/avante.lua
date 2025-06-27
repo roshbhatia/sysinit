@@ -39,7 +39,7 @@ M.plugins = {
 				},
 				mappings = {
 					submit = {
-						normal = "<CR>",
+						normal = "<S-CR>",
 						insert = "<S-CR>",
 					},
 					ask = "<leader>as",
@@ -49,12 +49,16 @@ M.plugins = {
 						suggestion = "<leader>a\\",
 					},
 					sidebar = {
-						switch_windows = "<C-Tab>",
-						reverse_switch_windows = "<C-S-Tab>",
+						switch_windows = "<localleader>[",
+						reverse_switch_windows = "<localleader>]",
 					},
 				},
 				selector = {
 					provider = "telescope",
+				},
+				input = {
+					provider = "dressing",
+					provider_opts = {},
 				},
 				disabled_tools = {
 					-- Disabled due to lack of use in favor with fetch
@@ -65,31 +69,14 @@ M.plugins = {
 						rounded = false,
 					},
 					input = {
-						height = 24,
+						height = 16,
 					},
 					edit = {
-						border = {
-							"╭",
-							"─",
-							"╮",
-							"│",
-							"╯",
-							"─",
-							"╰",
-							"│",
-						},
+						border = "rounded",
 					},
 					ask = {
-						border = {
-							"╭",
-							"─",
-							"╮",
-							"│",
-							"╯",
-							"─",
-							"╰",
-							"│",
-						},
+						floating = true,
+						border = "rounded",
 					},
 				},
 			})
