@@ -5,9 +5,9 @@ local M = {}
 
 function M.setup(config)
 	toggle_terminal.apply_to_config(config, {
-		key = "\\",
+		key = "`",
 		mods = "CTRL",
-		direction = "Right",
+		direction = "Top",
 		size = {
 			Percent = 45,
 		},
@@ -21,3 +21,4 @@ function M.setup(config)
 end
 
 return M
+

@@ -223,6 +223,11 @@ local function get_search_keys()
 		},
 		{
 			key = "/",
+			mods = "SHIFT|CTRL",
+			action = act.QuickSelect,
+		},
+		{
+			key = "/",
 			mods = "CTRL",
 			action = act.Search("CurrentSelectionOrEmptyString"),
 		},
