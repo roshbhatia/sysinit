@@ -7,7 +7,7 @@ M.plugins = {
 			name = "catppuccin",
 			config = function()
 				require("catppuccin").setup({
-					flavour = "macchiato",
+					flavour = "frappe",
 					show_end_of_buffer = false,
 					term_colors = true,
 					integrations = {
@@ -53,3 +53,4 @@ M.plugins = {
 }
 
 return M
+
