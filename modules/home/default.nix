@@ -37,8 +37,6 @@
           })
         ];
 
-        pkgs.config.allowUnsupportedSystem = true;
-
         home = {
           stateVersion = "23.11";
 
