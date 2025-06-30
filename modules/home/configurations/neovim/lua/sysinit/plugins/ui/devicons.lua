@@ -9,7 +9,7 @@ M.plugins = {
 					icon = "󰻴",
 					color = "#b870b1",
 					cterm_color = "65",
-					name = "Mermaid ",
+					name = "Mermaid",
 				},
 			},
 		},
