@@ -59,6 +59,7 @@ let
     lazygit
     libgit2
     lnav
+    local-ai
     luajit
     lynx
     mermaid-cli
@@ -113,3 +114,4 @@ in
 {
   home.packages = allNixPackages;
 }
+
