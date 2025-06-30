@@ -17,6 +17,12 @@ M.plugins = {
 				},
 				code = {
 					border = "thin",
+					disable_background = {
+						"mermaid",
+						"plantuml",
+						"d2",
+						"gnuplot",
+					},
 				},
 				pipe_table = {
 					above = "─",
@@ -54,4 +60,3 @@ M.plugins = {
 }
 
 return M
-
