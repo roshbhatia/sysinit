@@ -18,6 +18,7 @@ in
       "go.uber.org/mock/mockgen@latest"
       "github.com/abenz1267/gomvp@latest"
       "github.com/abice/go-enum@latest"
+      "github.com/charmbracelet/mods@latest"
       "github.com/davidrjenni/reftools/cmd/fillswitch@latest"
       "github.com/davidrjenni/reftools/cmd/fillstruct@latest"
       "github.com/davidrjenni/reftools/cmd/fixplurals@latest"
