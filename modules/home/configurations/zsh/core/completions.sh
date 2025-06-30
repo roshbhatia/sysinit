@@ -8,7 +8,6 @@ zvm_after_init_commands+="_evalcache atuin init zsh --disable-up-arrow"
 zvm_after_init_commands+="_evalcache kubectl completion zsh"
 zvm_after_init_commands+="_evalcache docker completion zsh"
 zvm_after_init_commands+="_evalcache task --completion zsh"
-zvm_after_init_commands+="_evalcache mods completion zsh -h"
 zvm_after_init_commands+="complete -C '/etc/profiles/per-user/$USER/bin/aws_completer' aws"
 
 # These need to be set prior to zoxide init
