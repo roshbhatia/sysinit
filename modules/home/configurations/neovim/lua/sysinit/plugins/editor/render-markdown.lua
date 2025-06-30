@@ -16,13 +16,16 @@ M.plugins = {
 					border_virtual = true,
 				},
 				code = {
-					border = "thin",
 					disable_background = {
 						"mermaid",
 						"plantuml",
 						"d2",
 						"gnuplot",
 					},
+					language_name = false,
+					language_pad = 50,
+					position = "right",
+					sign = false,
 				},
 				pipe_table = {
 					above = "─",
@@ -60,3 +63,4 @@ M.plugins = {
 }
 
 return M
+
