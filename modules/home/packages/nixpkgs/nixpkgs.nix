@@ -63,6 +63,7 @@ let
     luajit
     lynx
     mermaid-cli
+    mods
     nerd-fonts.hack
     nodePackages_latest.fkill-cli
     nodePackages_latest.jsonlint
@@ -113,4 +114,3 @@ in
 {
   home.packages = allNixPackages;
 }
-
