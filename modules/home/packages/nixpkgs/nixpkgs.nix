@@ -50,7 +50,6 @@ let
     jq
     jqp
     k9s
-    keycastr
     kind
     krew
     kubecolor
@@ -73,6 +72,7 @@ let
     nixfmt-rfc-style
     nodejs
     oh-my-posh
+    ollama
     openssh
     pipx
     pkg-config
@@ -84,7 +84,6 @@ let
     rustup
     sad
     shellcheck
-    shortcat
     socat
     sshpass
     statix
