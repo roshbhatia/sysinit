@@ -16,16 +16,9 @@ M.plugins = {
 					border_virtual = true,
 				},
 				code = {
-					disable_background = {
-						"mermaid",
-						"plantuml",
-						"d2",
-						"gnuplot",
-					},
-					language_name = false,
-					language_pad = 50,
-					position = "right",
-					sign = false,
+					border = "thin",
+					position = "left",
+					language_icon = true,
 				},
 				pipe_table = {
 					above = "─",
@@ -63,4 +56,3 @@ M.plugins = {
 }
 
 return M
-
