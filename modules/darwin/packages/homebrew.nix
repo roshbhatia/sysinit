@@ -17,6 +17,7 @@ let
     "nikitabobko/tap"
     "noahgorstein/tap"
     "sandreas/tap"
+    "sst/tap"
   ];
 
   baseBrews = [
@@ -27,6 +28,7 @@ let
     "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"
+    "opencode"
   ];
 
   baseCasks = [
@@ -75,4 +77,3 @@ in
     casks = allCasks;
   };
 }
-
