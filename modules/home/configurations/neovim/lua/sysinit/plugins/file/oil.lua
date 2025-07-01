@@ -54,7 +54,7 @@ M.plugins = {
 		keys = function()
 			return {
 				{
-					"<leader>eb",
+					"<leader>ee",
 					"<CMD>Oil<CR>",
 					desc = "Open filesystem buffer",
 				},

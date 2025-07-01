@@ -1,40 +1,9 @@
 local wezterm = require("wezterm")
-local bar = wezterm.plugin.require("https://github.com/adriankarlen/bar.wezterm")
+local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
 local M = {}
 
 local function is_vim(pane)
 	return pane:get_user_vars().IS_NVIM == "true"
-end
-
-local function get_bar_config()
-	return {
-		dividers = "slant_right",
-		padding = {
-			left = 1,
-			right = 1,
-			tabs = {
-				left = 0,
-				right = 2,
-			},
-		},
-		modules = {
-			hostname = {
-				enabled = false,
-			},
-			workspace = {
-				enabled = false,
-			},
-			leader = {
-				enabled = false,
-			},
-			clock = {
-				enabled = false,
-			},
-			username = {
-				enabled = false,
-			},
-		},
-	}
 end
 
 local function setup_tab_bar_visibility()
@@ -50,10 +19,48 @@ local function setup_tab_bar_visibility()
 end
 
 function M.setup(config)
-	local bar_config = get_bar_config()
-	bar.apply_to_config(config, bar_config)
+	tabline.setup({
+		options = {
+			icons_enabled = true,
+			theme = "Catppuccin Frappe",
+			tabs_enabled = true,
+			theme_overrides = {},
+			section_separators = {
+				left = wezterm.nerdfonts.pl_left_hard_divider,
+				right = wezterm.nerdfonts.pl_right_hard_divider,
+			},
+			component_separators = {
+				left = wezterm.nerdfonts.pl_left_soft_divider,
+				right = wezterm.nerdfonts.pl_right_soft_divider,
+			},
+			tab_separators = {
+				left = wezterm.nerdfonts.pl_left_hard_divider,
+				right = wezterm.nerdfonts.pl_right_hard_divider,
+			},
+		},
+		sections = {
+			tabline_a = { "mode" },
+			tabline_b = { "workspace" },
+			tabline_c = { " " },
+			tab_active = {
+				"index",
+				{ "parent", padding = 0 },
+				"/",
+				{ "cwd", padding = { left = 0, right = 1 } },
+				{ "zoomed", padding = 0 },
+			},
+			tab_inactive = { "index", { "process", padding = { left = 0, right = 1 } } },
+			tabline_x = {},
+			tabline_y = {},
+			tabline_z = { "domain" },
+		},
+		extensions = {},
+	})
 
 	setup_tab_bar_visibility()
+
+	return config
 end
 
 return M
+
