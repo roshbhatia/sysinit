@@ -162,7 +162,7 @@ M.plugins = {
 		end,
 		keys = {
 			{
-				"<leader>et",
+				"<leader>ee",
 				function()
 					vim.cmd("Neotree toggle")
 					vim.cmd("wincmd p")
@@ -174,4 +174,3 @@ M.plugins = {
 }
 
 return M
-

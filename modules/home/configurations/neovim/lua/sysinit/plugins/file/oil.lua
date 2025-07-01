@@ -39,6 +39,8 @@ M.plugins = {
 				},
 				keymaps = {
 					["q"] = { "actions.close", mode = "n" },
+					["<C-v>"] = { "actions.select", opts = { vertical = true } },
+					["<C-s>"] = { "actions.select", opts = { horizontal = true } },
 				},
 			})
 
@@ -54,8 +56,8 @@ M.plugins = {
 		keys = function()
 			return {
 				{
-					"<leader>ee",
-					"<CMD>Oil<CR>",
+					"<leader>eb",
+					"<CMD>Oil --float<CR>",
 					desc = "Open filesystem buffer",
 				},
 			}
@@ -64,4 +66,3 @@ M.plugins = {
 }
 
 return M
-
