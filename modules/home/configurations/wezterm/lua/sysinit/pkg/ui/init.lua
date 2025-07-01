@@ -25,9 +25,9 @@ local function get_window_appearance_config()
 		macos_window_background_blur = 80,
 		window_decorations = "RESIZE",
 		window_padding = {
-			left = "0.5cell",
-			right = "0.5cell",
-			top = "0.5cell",
+			left = "1cell",
+			right = "1cell",
+			top = "1cell",
 		},
 	}
 end

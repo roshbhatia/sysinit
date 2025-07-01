@@ -64,6 +64,11 @@ local function get_pane_keys()
 		},
 		{
 			key = "w",
+			mods = "CMD",
+			action = act.CloseCurrentPane({ confirm = false }),
+		},
+		{
+			key = "w",
 			mods = "CTRL",
 			action = act.CloseCurrentPane({ confirm = false }),
 		},
@@ -258,4 +263,3 @@ function M.setup(config)
 end
 
 return M
-
