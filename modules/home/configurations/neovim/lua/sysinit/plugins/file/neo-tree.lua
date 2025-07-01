@@ -159,6 +159,13 @@ M.plugins = {
 			vim.api.nvim_set_hl(0, "NeoTreeFileName_35", { fg = "#606377", bg = nil, bold = true })
 			vim.api.nvim_set_hl(0, "NeoTreeRootName_35", { fg = "#606377", bg = nil, bold = true })
 			vim.api.nvim_set_hl(0, "NeoTreeMessage", { fg = "#606377", bg = nil, bold = false })
+
+			vim.api.nvim_create_autocmd("FileType", {
+				pattern = "neo-tree",
+				callback = function()
+					vim.opt_local.guicursor = "a:None"
+				end,
+			})
 		end,
 		keys = {
 			{
@@ -174,4 +181,3 @@ M.plugins = {
 }
 
 return M
-
