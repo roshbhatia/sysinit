@@ -24,6 +24,11 @@ local function get_window_appearance_config()
 		window_background_opacity = 0.8,
 		macos_window_background_blur = 80,
 		window_decorations = "RESIZE",
+		window_padding = {
+			left = "0.5cell",
+			right = "0.5cell",
+			top = "0.5cell",
+		},
 	}
 end
 
@@ -58,13 +63,6 @@ local function get_font_config()
 	}
 end
 
-local function get_cursor_config()
-	return {
-		default_cursor_style = "SteadyUnderline",
-		cursor_blink_rate = 300,
-	}
-end
-
 local function setup_nvim_ui_overrides()
 	wezterm.on("update-status", function(window, pane)
 		local should_switch = is_vim(pane)
@@ -82,7 +80,6 @@ function M.setup(config)
 	local configs = {
 		get_window_appearance_config(),
 		get_display_config(),
-		get_cursor_config(),
 		get_font_config(),
 	}
 
