@@ -30,4 +30,10 @@
       ];
     };
   };
+
+  yarn = {
+    additionalPackages = [
+      "@anthropic-ai/claude-code"
+    ];
+  };
 }
