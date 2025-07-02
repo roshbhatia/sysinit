@@ -1,10 +1,9 @@
 ;; Highlights for YAML multiline strings that are Go templates
+;; Highlight the key `template`
+(key_scalar "template") @keyword
 
-;; Highlight the key `inline`
-(key_scalar "inline") @keyword
-
-;; Highlight multiline strings associated with `inline`
-(block_scalar (key_scalar "inline")) @template.string
+;; Highlight multiline strings associated with `template`
+(block_scalar (key_scalar "template")) @template.string
 
 ;; General YAML nodes
 (string_scalar) @string

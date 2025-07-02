@@ -82,10 +82,6 @@ M.plugins = {
 				used_by = { "gohtmltmpl", "gotexttmpl", "gotmpl", "yaml" },
 			}
 			require("nvim-treesitter.configs").setup(opts)
-
-			-- Auto-sync and update the queries
-			require("nvim-treesitter.install").update({ with_sync = true })
-			vim.cmd([[hi def link @go_template Identifier]])
 		end,
 	},
 }
