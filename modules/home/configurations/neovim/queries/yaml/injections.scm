@@ -1,11 +1,28 @@
-;; Injections for YAML Go templates under `template`
+;; Injections for Go templates in YAML (Crossplane compositions)
 
-;; Inject Go templates specifically under `template`
-(block_scalar (key_scalar "template")) @gotemplate.embedded
+;; Inject Go templates in any multiline string containing template syntax
+((block_scalar) @injection.content
+  (#contains? @injection.content "{{")
+  (#set! injection.language "gotmpl")
+  (#set! injection.include-children))
 
-;; Handle fallback YAML multiline cases with embedded content
-(block_scalar) @yaml.embedded
+;; Inject Go templates in regular strings containing template syntax
+((string_scalar) @injection.content
+  (#contains? @injection.content "{{")
+  (#contains? @injection.content "}}")
+  (#set! injection.language "gotmpl")
+  (#set! injection.include-children))
 
-;; General embedded JSONPath (example fallback for multiline)
-(string_scalar "{{") @template.expression
+;; Inject Go templates in specific Crossplane fields that commonly use templates
+((block_scalar) @injection.content
+  (#any-of? @injection.content
+    (key_scalar "fromFieldPath")
+    (key_scalar "toFieldPath")
+    (key_scalar "string")
+    (key_scalar "fmt")
+    (key_scalar "base64")
+    (key_scalar "value")
+  )
+  (#set! injection.language "gotmpl")
+  (#set! injection.include-children))
 

@@ -1,12 +1,26 @@
-;; Highlights for YAML multiline strings that are Go templates
-;; Highlight the key `template`
-(key_scalar "template") @keyword
+;; Crossplane Composition specific highlighting
+;; Highlight Crossplane-specific keys
+(key_scalar) @keyword
+  (#match? @keyword "^(apiVersion|kind|metadata|spec|name|namespace|resourceTemplates|resources|patches|transforms|connectionDetails|environment|readinessChecks|writeConnectionSecretsToNamespace|compositeTypeRef|compositionRef|base|patch|type|fromFieldPath|toFieldPath|policy|combine|string|convert|math|map)$")
 
-;; Highlight multiline strings associated with `template`
-(block_scalar (key_scalar "template")) @template.string
-
-;; General YAML nodes
+;; Highlight Go template delimiters and expressions in strings
 (string_scalar) @string
-(alias_scalar) @string
-(anchor_scalar) @string
+  (#contains? @string "{{")
+(string_scalar) @string
+  (#contains? @string "}}")
+
+;; Highlight multiline strings that likely contain Go templates
+(block_scalar) @string.special
+  (#contains? @string.special "{{")
+
+;; General YAML highlighting
+(string_scalar) @string
+(integer_scalar) @number
+(float_scalar) @number.float
+(boolean_scalar) @boolean
+(null_scalar) @constant.builtin
+(alias_scalar) @string.escape
+(anchor_scalar) @label
+(tag_scalar) @type
+(comment) @comment
 

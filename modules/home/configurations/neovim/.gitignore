@@ -1,0 +1,3 @@
+test-*.yaml
+validation/
+*.test.yaml
