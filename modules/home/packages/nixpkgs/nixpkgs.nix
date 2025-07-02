@@ -23,6 +23,7 @@ let
     coreutils
     deadnix
     delta
+    discordo
     docker
     duf
     fd
@@ -84,6 +85,7 @@ let
     rustup
     sad
     shellcheck
+    slack-term
     socat
     sshpass
     statix
