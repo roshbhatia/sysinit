@@ -11,6 +11,7 @@ let
     actionlint
     alt-tab-macos
     ansible
+    ansible-lint
     argocd
     atuin
     awscli2
@@ -18,7 +19,7 @@ let
     bashInteractive
     caddy
     cargo-watch
-    checkmate
+    checkmake
     colima
     coreutils
     deadnix
@@ -100,8 +101,6 @@ let
     uv
     vale
     watch
-    weechat
-    weechatScripts.wee-slack
     wget
     yarn
     yq

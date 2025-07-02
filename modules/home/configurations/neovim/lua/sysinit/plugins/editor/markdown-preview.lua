@@ -17,18 +17,7 @@ M.plugins = {
 		ft = {
 			"markdown",
 		},
-		keys = function()
-			return {
-				{
-					"<localleader>p",
-					"<cmd>MarkdownPreviewToggle<cr>",
-					desc = "Toggle Markdown Preview",
-					ft = "markdown",
-				},
-			}
-		end,
 	},
 }
 
 return M
-

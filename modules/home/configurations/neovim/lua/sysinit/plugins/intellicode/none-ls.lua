@@ -23,6 +23,7 @@ M.plugins = {
 					null_ls.builtins.diagnostics.actionlint,
 					null_ls.builtins.diagnostics.checkmake,
 					null_ls.builtins.diagnostics.deadnix,
+					null_ls.builtins.diagnostics.golangci_lint,
 					null_ls.builtins.diagnostics.proselint,
 					null_ls.builtins.diagnostics.staticcheck,
 					null_ls.builtins.diagnostics.terraform_validate,
@@ -36,7 +37,17 @@ M.plugins = {
 							"-",
 						},
 					}),
-					-- null_ls.builtins.diagnostics.vale,
+					null_ls.builtins.diagnostics.vale,
+					null_ls.builtins.diagnostics.zsh,
+					null_ls.builtins.formatting.gofmt,
+					null_ls.builtins.formatting.gofumpt,
+					null_ls.builtins.formatting.goimports,
+					null_ls.builtins.formatting.markdownlint,
+					null_ls.builtins.formatting.nixfmt,
+					null_ls.builtins.formatting.prettierd,
+					null_ls.builtins.formatting.shfmt,
+					null_ls.builtins.formatting.stylua,
+					null_ls.builtins.formatting.yapf,
 					null_ls.builtins.hover.dictionary,
 					null_ls.builtins.hover.printenv,
 				},
@@ -156,4 +167,3 @@ M.plugins = {
 }
 
 return M
-

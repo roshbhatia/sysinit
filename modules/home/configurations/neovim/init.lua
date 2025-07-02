@@ -39,7 +39,6 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.editor.colorizer"),
 	require("sysinit.plugins.editor.comment"),
 	require("sysinit.plugins.editor.foldsign"),
-	require("sysinit.plugins.editor.formatter"),
 	require("sysinit.plugins.editor.grug-far"),
 	require("sysinit.plugins.editor.hlchunk"),
 	require("sysinit.plugins.editor.hop"),
@@ -73,7 +72,6 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.intellicode.goose"),
 	require("sysinit.plugins.intellicode.glance"),
 	require("sysinit.plugins.intellicode.lazydev"),
-	require("sysinit.plugins.intellicode.linters"),
 	require("sysinit.plugins.intellicode.lsp-lines"),
 	require("sysinit.plugins.intellicode.lspkind"),
 	require("sysinit.plugins.intellicode.luasnip"),
@@ -127,4 +125,3 @@ require("sysinit.pkg.keybindings.undo").setup()
 require("sysinit.pkg.keybindings.vim").setup()
 
 require("sysinit.pkg.entrypoint.no-session").setup()
-
