@@ -13,10 +13,10 @@ M.plugins = {
 		config = function()
 			require("aerial").setup({
 				highlight_on_hover = true,
-        layout = {
-          width = 40,
-          resize_to_content = false,
-        },
+				layout = {
+					width = 40,
+					resize_to_content = false,
+				},
 				autojump = true,
 				manage_folds = true,
 				link_folds_to_tree = true,
@@ -24,11 +24,11 @@ M.plugins = {
 					diagnostics_trigger_update = true,
 				},
 				backends = {
-          "lsp",
-          "treesitter",
-          "markdown",
-          "asciidoc",
-          "man",
+					"lsp",
+					"treesitter",
+					"markdown",
+					"asciidoc",
+					"man",
 				},
 			})
 		end,
@@ -43,4 +43,3 @@ M.plugins = {
 }
 
 return M
-

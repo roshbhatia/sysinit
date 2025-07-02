@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"stevearc/conform.nvim",
-		event = "BufWritePre",
+		event = "BufEnter",
 		config = function()
 			require("conform").setup({
 				formatters_by_ft = {
@@ -20,9 +20,9 @@ M.plugins = {
 						stop_after_first = true,
 					},
 					go = {
-            "goimports",
-            "gofmt",
-          },
+						"goimports",
+						"gofmt",
+					},
 					json = {
 						"prettierd",
 						"prettier",
@@ -71,4 +71,3 @@ M.plugins = {
 }
 
 return M
-

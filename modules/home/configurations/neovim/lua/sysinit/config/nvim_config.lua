@@ -61,4 +61,3 @@ function M.load_config()
 end
 
 return M
-
