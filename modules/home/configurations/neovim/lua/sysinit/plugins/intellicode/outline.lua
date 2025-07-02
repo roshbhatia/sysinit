@@ -13,10 +13,10 @@ M.plugins = {
 		config = function()
 			require("aerial").setup({
 				highlight_on_hover = true,
-				min_width = {
-					20,
-					0.1,
-				},
+        layout = {
+          width = 40,
+          resize_to_content = false,
+         },
 				autojump = true,
 				manage_folds = true,
 				link_folds_to_tree = true,
@@ -24,19 +24,17 @@ M.plugins = {
 					diagnostics_trigger_update = true,
 				},
 				backends = {
-					["_"] = {
-						"treesitter",
-						"lsp",
-						"markdown",
-						"asciidoc",
-						"man",
-					},
+          "lsp",
+          "treesitter",
+          "markdown",
+          "asciidoc",
+          "man",
 				},
 			})
 		end,
 		keys = {
 			{
-				"<leader>eo",
+				"<leader>co",
 				"<CMD>AerialToggle!<CR>",
 				desc = "Toggle outline",
 			},
