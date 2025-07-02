@@ -1,12 +1,14 @@
-;; Injections for YAML and Crossplane compositions
+;; Injections for YAML Go templates under `inline`
 
-;; Inject embedded JSONPath templates (used in Crossplane compositions)
-(mapping_value (string_scalar)) @jsonpath
+;; Inject Go templates specifically under `inline`
+(block_scalar (key_scalar "inline")) @gotemplate.embedded
+(block_scalar (key_scalar "template")) @gotemplate.embedded
 
-;; Inject Go templates (optional, depends on Crossplane usage)
-(mapping_value (double_quote_scalar "{{")) @gotemplate
+;; Handle fallback YAML multiline cases with embedded content
+(block_scalar) @yaml.embedded
 
-;; Embed schemas within YAML structure
-;; Automatically detect inline raw schema definitions
-(mapping_key "schema") @yaml.embedded
+;; YAML compatibility fix: Remove problematic node types
+
+;; General embedded JSONPath (example fallback for multiline)
+(string_scalar "{{") @template.expression
 

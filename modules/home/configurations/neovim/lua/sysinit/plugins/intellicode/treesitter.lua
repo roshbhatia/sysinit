@@ -70,7 +70,6 @@ M.plugins = {
 			},
 		},
 		config = function(_, opts)
-			require("nvim-treesitter.configs").setup(opts)
 			local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
 
 			---@diagnostic disable-next-line: inject-field
@@ -82,7 +81,10 @@ M.plugins = {
 				filetype = "gotmpl",
 				used_by = { "gohtmltmpl", "gotexttmpl", "gotmpl", "yaml" },
 			}
+			require("nvim-treesitter.configs").setup(opts)
 
+			-- Auto-sync and update the queries
+			require("nvim-treesitter.install").update({ with_sync = true })
 			vim.cmd([[hi def link @go_template Identifier]])
 		end,
 	},
