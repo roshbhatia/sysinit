@@ -84,7 +84,7 @@ M.plugins = {
 					},
 					settings = {
 						go = {
-							gofumpt = true,
+							gofumpt = false, -- managed by none-ls
 							codelenses = {
 								gc_details = false,
 								generate = true,
@@ -113,7 +113,7 @@ M.plugins = {
 							},
 							usePlaceholders = true,
 							completeUnimported = true,
-							staticcheck = true,
+							staticcheck = false, -- managed by none-ls
 							directoryFilters = {
 								"-.git",
 								"-.vscode",
@@ -211,7 +211,6 @@ M.plugins = {
 
 			local tools = {
 				"impl",
-				"golines",
 			}
 
 			dependencies.mason_tool_installer.setup({
@@ -279,3 +278,4 @@ M.plugins = {
 }
 
 return M
+
