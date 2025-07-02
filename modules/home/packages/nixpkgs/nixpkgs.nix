@@ -23,7 +23,6 @@ let
     coreutils
     deadnix
     delta
-    discordo
     docker
     duf
     fd
@@ -85,7 +84,6 @@ let
     rustup
     sad
     shellcheck
-    slack-term
     socat
     sshpass
     statix
@@ -102,6 +100,8 @@ let
     uv
     vale
     watch
+    weechat
+    weechatScripts.wee-slack
     wget
     yarn
     yq
@@ -115,4 +115,3 @@ in
 {
   home.packages = allNixPackages;
 }
-
