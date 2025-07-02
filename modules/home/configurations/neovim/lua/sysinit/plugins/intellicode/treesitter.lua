@@ -89,8 +89,11 @@ M.plugins = {
 					"yaml",
 				},
 			}
+
+			vim.api.nvim_set_hl(0, "@go_template", { link = "Identifier", default = true })
 		end,
 	},
 }
 
 return M
+

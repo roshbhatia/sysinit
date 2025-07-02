@@ -5,6 +5,11 @@
 (block_scalar) @go_template
   (#match? @go_template "{{[^{]*}}")
 
+; Injection: highlight embedded Go templates in block_scalars for crossplane compositions
+; Only effective if filetype is set to yaml.crossplane or similar
+; NOTE: This requires an appropriate treesitter parser (gotmpl) and correct filetype switching
+(block_scalar) @inject_gotmpl
+
 ; Go templates in plain scalars
 (plain_scalar) @go_template
   (#match? @go_template "{{[^{]*}}")
