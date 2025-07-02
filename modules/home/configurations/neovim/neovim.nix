@@ -22,4 +22,10 @@
     source = ./lua;
     force = true;
   };
+
+  xdg.configFile."nvim/queries" = {
+    source = ./queries;
+    force = true;
+  };
 }
+
