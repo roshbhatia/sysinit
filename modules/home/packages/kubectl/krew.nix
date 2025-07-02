@@ -12,6 +12,7 @@ in
     name = "krew";
     basePackages = [
       "argo-apps-viz"
+      "blame"
       "bulk-action"
       "commander"
       "confirm"
