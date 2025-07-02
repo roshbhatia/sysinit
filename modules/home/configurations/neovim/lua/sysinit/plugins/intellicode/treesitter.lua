@@ -77,23 +77,15 @@ M.plugins = {
 			parser_config.gotmpl = {
 				install_info = {
 					url = "https://github.com/ngalaiko/tree-sitter-go-template",
-					files = {
-						"src/parser.c",
-					},
+					files = { "src/parser.c" },
 				},
 				filetype = "gotmpl",
-				used_by = {
-					"gohtmltmpl",
-					"gotexttmpl",
-					"gotmpl",
-					"yaml",
-				},
+				used_by = { "gohtmltmpl", "gotexttmpl", "gotmpl", "yaml" },
 			}
 
-			vim.api.nvim_set_hl(0, "@go_template", { link = "Identifier", default = true })
+			vim.cmd([[hi def link @go_template Identifier]])
 		end,
 	},
 }
 
 return M
-
