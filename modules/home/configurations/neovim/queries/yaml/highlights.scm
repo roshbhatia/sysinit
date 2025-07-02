@@ -1,24 +1,22 @@
-; Highlight Go template delimiters in various YAML contexts for kustomize, helm, and crossplane
+; Highlight Go template delimiters in YAML for kustomize, helm, crossplane, etc.
 
-; Go templates in block scalars (multiline strings)
-; Go templates in block scalars (multiline strings)
+; Block scalars (multiline strings)
 (block_scalar) @go_template
-  (#match? @go_template "{{[^{]*}}")
+  (#any-of? @go_template "{{" "{{-" "{{ ." "{{- .")
+  (#match? @go_template "{{.*?}}")
 
-; Injection: highlight embedded Go templates in block_scalars for crossplane compositions
-; Only effective if filetype is set to yaml.crossplane or similar
-; NOTE: This requires an appropriate treesitter parser (gotmpl) and correct filetype switching
-(block_scalar) @inject_gotmpl
-
-; Go templates in plain scalars
+; Plain scalars
 (plain_scalar) @go_template
-  (#match? @go_template "{{[^{]*}}")
+  (#any-of? @go_template "{{" "{{-" "{{ ." "{{- .")
+  (#match? @go_template "{{.*?}}")
 
-; Go templates in double-quoted scalars
+; Double-quoted scalars
 (double_quote_scalar) @go_template
-  (#match? @go_template "{{[^{]*}}")
+  (#any-of? @go_template "{{" "{{-" "{{ ." "{{- .")
+  (#match? @go_template "{{.*?}}")
 
-; Go templates in single-quoted scalars
+; Single-quoted scalars
 (single_quote_scalar) @go_template
-  (#match? @go_template "{{[^{]*}}")
+  (#any-of? @go_template "{{" "{{-" "{{ ." "{{- .")
+  (#match? @go_template "{{.*?}}")
 
