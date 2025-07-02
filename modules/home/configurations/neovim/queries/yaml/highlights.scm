@@ -1,16 +1,13 @@
+;; Highlights for YAML multiline strings that are Go templates
 
-; Highlight Go template delimiters in YAML block, plain, and quoted scalars
+;; Highlight the key `inline`
+(key_scalar "inline") @keyword
 
-(block_scalar) @go_template
-  (#match? @go_template "{{[^{]*}}")
+;; Highlight multiline strings associated with `inline`
+(block_scalar (key_scalar "inline")) @template.string
 
-(plain_scalar) @go_template
-  (#match? @go_template "{{[^{]*}}")
-
-(double_quote_scalar) @go_template
-  (#match? @go_template "{{[^{]*}}")
-
-(single_quote_scalar) @go_template
-  (#match? @go_template "{{[^{]*}}")
-
+;; General YAML nodes
+(string_scalar) @string
+(alias_scalar) @string
+(anchor_scalar) @string
 

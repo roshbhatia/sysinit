@@ -29,21 +29,21 @@ M.plugins = {
 				},
 				prompt_logger = {
 					next_prompt = {
-						normal = "j",
+						normal = "<Up>",
 						insert = "<Down>",
 					},
 					prev_prompt = {
-						normal = "h",
+						normal = "<Up>",
 						insert = "<Up>",
 					},
 				},
 				mappings = {
 					submit = {
 						normal = "<S-CR>",
-						insert = "<S-CR>",
+						insert = "<CR>",
 					},
-					ask = "<leader>as",
-					new_ask = "<leader>aA",
+					ask = "<localleader>as",
+					new_ask = "<localleader>aA",
 					toggle = {
 						default = "<leader>aa",
 						suggestion = "<leader>a\\",

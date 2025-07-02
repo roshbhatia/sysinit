@@ -1,18 +1,12 @@
+;; Injections for YAML and Crossplane compositions
 
-; Inject Go template parser into YAML block, plain, and quoted scalars containing Go templates
-(block_scalar) @gotmpl
-  (#match? @gotmpl "{{[^{]*}}")
-  (#set! injection.language "gotmpl")
+;; Inject embedded JSONPath templates (used in Crossplane compositions)
+(mapping_value (string_scalar)) @jsonpath
 
-(plain_scalar) @gotmpl
-  (#match? @gotmpl "{{[^{]*}}")
-  (#set! injection.language "gotmpl")
+;; Inject Go templates (optional, depends on Crossplane usage)
+(mapping_value (double_quote_scalar "{{")) @gotemplate
 
-(double_quote_scalar) @gotmpl
-  (#match? @gotmpl "{{[^{]*}}")
-  (#set! injection.language "gotmpl")
+;; Embed schemas within YAML structure
+;; Automatically detect inline raw schema definitions
+(mapping_key "schema") @yaml.embedded
 
-(single_quote_scalar) @gotmpl
-  (#match? @gotmpl "{{[^{]*}}")
-  (#set! injection.language "gotmpl")
-  (#set! injection.language "gotmpl")
