@@ -16,7 +16,7 @@ M.plugins = {
         layout = {
           width = 40,
           resize_to_content = false,
-         },
+        },
 				autojump = true,
 				manage_folds = true,
 				link_folds_to_tree = true,

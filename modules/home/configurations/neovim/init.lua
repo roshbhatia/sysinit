@@ -67,6 +67,7 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.intellicode.cmp-git"),
 	require("sysinit.plugins.intellicode.copilot-chat"),
 	require("sysinit.plugins.intellicode.copilot"),
+	require("sysinit.plugins.intellicode.conform"),
 	require("sysinit.plugins.intellicode.dropbar"),
 	require("sysinit.plugins.intellicode.friendly-snippets"),
 	require("sysinit.plugins.intellicode.goose"),
@@ -125,3 +126,4 @@ require("sysinit.pkg.keybindings.undo").setup()
 require("sysinit.pkg.keybindings.vim").setup()
 
 require("sysinit.pkg.entrypoint.no-session").setup()
+
