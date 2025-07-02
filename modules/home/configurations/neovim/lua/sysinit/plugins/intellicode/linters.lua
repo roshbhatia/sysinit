@@ -12,7 +12,6 @@ M.plugins = {
 				typescript = { "eslint" },
 				javascriptreact = { "eslint" },
 				typescriptreact = { "eslint" },
-				go = { "golangcilint" },
 				sh = { "shellcheck" },
 				bash = { "shellcheck" },
 				json = { "jsonlint" },
