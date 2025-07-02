@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(tree-sitter:*)"
+      "Bash(tree-sitter:*)",
+      "Bash(git clone:*)",
+      "Bash(cp:*)",
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": []
   }
