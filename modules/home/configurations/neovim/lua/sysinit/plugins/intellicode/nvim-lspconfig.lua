@@ -74,8 +74,8 @@ M.plugins = {
 					external = false,
 				},
 				gopls = {
-					source = "mason",
-					external = false,
+					source = "system",
+					external = true,
 					filetypes = {
 						"go",
 						"gomod",

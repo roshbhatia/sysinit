@@ -13,6 +13,7 @@ in
     basePackages = [
       "golang.org/x/tools/cmd/goimports@latest"
       "golang.org/x/tools/cmd/gonew@latest"
+      "golang.org/x/tools/gopls@latest"
       "golang.org/x/vuln/cmd/govulncheck@latest"
       "gotest.tools/gotestsum@latest"
       "go.uber.org/mock/mockgen@latest"
@@ -32,3 +33,4 @@ in
     executableName = "go";
   };
 }
+
