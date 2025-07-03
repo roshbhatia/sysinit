@@ -75,7 +75,7 @@ let
       };
     };
   };
-  treesitterJson = pkgs.writeText "treesitter.json" (lib.generators.toJSON treesitterConfig);
+  treesitterJson = pkgs.writeText "treesitter.json" (builtins.toJSON treesitterConfig);
 in
 {
   xdg.configFile."tree-sitter/config.json" = {
