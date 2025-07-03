@@ -1,4 +1,5 @@
 {
+  lib,
   config,
   pkgs,
   ...
@@ -74,7 +75,7 @@ let
       };
     };
   };
-  treesitterJson = pkgs.writeText "treesitter.json" (builtins.toJSON treesitterConfig);
+  treesitterJson = pkgs.writeText "treesitter.json" (lib.generators.toJSON treesitterConfig);
 in
 {
   xdg.configFile."tree-sitter/config.json" = {
@@ -82,4 +83,3 @@ in
     force = true;
   };
 }
-
