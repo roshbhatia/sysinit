@@ -4,7 +4,7 @@
   ...
 }:
 let
-  parserConfig = {
+  treesitterConfig = {
     parser-directories = [
       "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim"
       "${config.home.homeDirectory}/github"
@@ -74,11 +74,11 @@ let
       };
     };
   };
-  parserJson = pkgs.writeText "parser.json" (builtins.toJSON parserConfig);
+  treesitterJson = pkgs.writeText "treesitter.json" (builtins.toJSON treesitterConfig);
 in
 {
-  xdg.configFile."parser/config.json" = {
-    source = parserJson;
+  xdg.configFile."tree-sitter/config.json" = {
+    source = treesitterJson;
     force = true;
   };
 }
