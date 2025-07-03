@@ -30,6 +30,10 @@
     ./mcp
     ./neovim
     ./omp
+    (import ./treesitter {
+      inherit config pkgs;
+    })
     ./wezterm
   ];
 }
+
