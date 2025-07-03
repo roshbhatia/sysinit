@@ -31,7 +31,7 @@
     ./neovim
     ./omp
     (import ./treesitter {
-      inherit config pkgs;
+      inherit config lib pkgs;
     })
     ./wezterm
   ];
