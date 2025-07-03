@@ -17,6 +17,9 @@ M.plugins = {
 					node_decremental = "grm",
 				},
 			},
+			highlight = {
+				enable = true,
+			},
 			sync_install = true,
 			ensure_installed = {
 				"bash",
@@ -71,6 +74,8 @@ M.plugins = {
 			},
 		},
 		config = function(_, opts)
+			require("nvim-treesitter.configs").setup(opts)
+
 			local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
 			parser_config.gotmpl = {
 				install_info = {
@@ -97,24 +102,6 @@ M.plugins = {
 					   (#set! injection.language "gotmpl")
 					   (#set! injection.include-children))
 
-					 ((string_scalar) @injection.content
-					   (#contains? @injection.content "{{")
-					   (#not-contains? @injection.content "apiVersion")
-					   (#set! injection.language "gotmpl")
-					   (#set! injection.include-children))
-
-					 ((double_quote_scalar) @injection.content
-					   (#contains? @injection.content "{{")
-					   (#not-contains? @injection.content "apiVersion")
-					   (#set! injection.language "gotmpl")
-					   (#set! injection.include-children))
-
-					 ((single_quote_scalar) @injection.content
-					   (#contains? @injection.content "{{")
-					   (#not-contains? @injection.content "apiVersion")
-					   (#set! injection.language "gotmpl")
-					   (#set! injection.include-children))
-
 					 ((plain_scalar) @injection.content
 					   (#contains? @injection.content "{{")
 					   (#contains? @injection.content "apiVersion")
@@ -124,25 +111,22 @@ M.plugins = {
 				   ]],
 					highlights = [[
 					 (block_mapping_pair
-					   key: (flow_node (plain_scalar) @keyword (#eq? @keyword "name"))
-					   value: (flow_node (plain_scalar) @function (#match? @function "^function-")))
+					   key: (flow_node (plain_scalar) @keyword (#eq? @keyword "apiVersion"))
+					   value: (flow_node (plain_scalar) @type))
 
 					 (block_mapping_pair
 					   key: (flow_node (plain_scalar) @keyword (#eq? @keyword "kind"))
-					   value: (flow_node (plain_scalar) @type.builtin (#eq? @type.builtin "GoTemplate")))
+					   value: (flow_node (plain_scalar) @type.builtin))
 
-					 (string_scalar) @string
-					 (double_quote_scalar) @string
-					 (single_quote_scalar) @string
-					 (plain_scalar) @string
-					 (integer_scalar) @number
-					 (float_scalar) @number.float
-					 (boolean_scalar) @boolean
-					 (null_scalar) @constant.builtin
-					 (alias) @string.escape
-					 (anchor) @label
-					 (tag) @type
-					 (comment) @comment
+					 (block_mapping_pair
+					   key: (flow_node (plain_scalar) @keyword (#eq? @keyword "name"))
+					   value: (flow_node (plain_scalar) @string))
+
+					 (block_mapping_pair
+					   key: (flow_node (plain_scalar) @keyword (#eq? @keyword "functionRef"))
+					   value: (block_mapping (block_mapping_pair
+					     key: (flow_node (plain_scalar) @keyword (#eq? @keyword "name"))
+					     value: (flow_node (plain_scalar) @function))))
 
 					 (block_scalar) @go_template
 					   (#contains? @go_template "{{"))
@@ -155,10 +139,9 @@ M.plugins = {
 					vim.treesitter.query.set(lang, group, content)
 				end
 			end
-
-			require("nvim-treesitter.configs").setup(opts)
 		end,
 	},
 }
 
 return M
+

@@ -9,8 +9,9 @@ function M.setup()
 	vim.opt.signcolumn = "yes:2"
 	vim.opt.numberwidth = 6
 	vim.opt.fillchars:append({ eob = " " })
-	vim.opt.cursorline = true
+	vim.opt.cursorline = false
 	vim.opt.spell = false
 end
 
 return M
+
