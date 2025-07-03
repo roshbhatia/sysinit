@@ -28,13 +28,8 @@
 (tag) @type
 (comment) @comment
 
-;; Highlight Go template expressions in any string context
-(string_scalar) @string.special
-  (#contains? @string.special "{{")
-(double_quote_scalar) @string.special
-  (#contains? @string.special "{{")
-(single_quote_scalar) @string.special
-  (#contains? @string.special "{{")
-(block_scalar) @string.special
-  (#contains? @string.special "{{")
+;; Highlight Go template expressions ONLY in block_scalars for Crossplane compositions
+;; This prevents over-highlighting and avoids conflicts with normal YAML
+(block_scalar) @go_template
+  (#contains? @go_template "{{")
 

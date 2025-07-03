@@ -24,6 +24,7 @@ let
     coreutils
     deadnix
     delta
+    discordo
     docker
     duf
     fd
