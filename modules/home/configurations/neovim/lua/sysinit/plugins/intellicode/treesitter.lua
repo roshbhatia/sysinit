@@ -1,4 +1,5 @@
 local M = {}
+local config_path = vim.fn.stdpath("config")
 
 M.plugins = {
 	{
@@ -82,6 +83,11 @@ M.plugins = {
 				used_by = { "gohtmltmpl", "gotexttmpl", "gotmpl", "yaml" },
 			}
 			require("nvim-treesitter.configs").setup(opts)
+
+			local highlights_query = read_query_file(config_path .. "/queries/yaml/highlights.scm")
+			vim.treesitter.query.set("yaml", "highlights", highlights_query)
+			local injections_query = read_query_file(config_path .. "/queries/yaml/injections.scm")
+			vim.treesitter.query.set("yaml", "injections", injections_query)
 		end,
 	},
 }

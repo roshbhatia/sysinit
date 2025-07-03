@@ -2,21 +2,17 @@
 ;; Highlight Crossplane-specific keys in block mapping pairs
 (block_mapping_pair
   key: (flow_node (plain_scalar) @keyword)
-  (#match? @keyword "^(apiVersion|kind|metadata|spec|name|namespace|resourceTemplates|resources|patches|transforms|connectionDetails|environment|readinessChecks|writeConnectionSecretsToNamespace|compositeTypeRef|compositionRef|base|patch|type|fromFieldPath|toFieldPath|policy|combine|string|convert|math|map)$"))
+  (#match? @keyword "^(apiVersion|kind|metadata|spec|name|namespace|resourceTemplates|resources|patches|transforms|connectionDetails|environment|readinessChecks|writeConnectionSecretsToNamespace|compositeTypeRef|compositionRef|base|patch|type|fromFieldPath|toFieldPath|policy|combine|string|convert|math|map|mode|pipeline|step|functionRef|input|source|inline|template)$"))
 
-;; Highlight Go template expressions in strings
-(string_scalar) @string
-  (#contains? @string "{{")
+;; Highlight Crossplane function names
+(block_mapping_pair
+  key: (flow_node (plain_scalar) @keyword (#eq? @keyword "name"))
+  value: (flow_node (plain_scalar) @function (#match? @function "^function-")))
 
-(double_quote_scalar) @string
-  (#contains? @string "{{")
-
-(single_quote_scalar) @string
-  (#contains? @string "{{")
-
-;; Highlight multiline strings that likely contain Go templates
-(block_scalar) @string.special
-  (#contains? @string.special "{{")
+;; Highlight GoTemplate kind specifically
+(block_mapping_pair
+  key: (flow_node (plain_scalar) @keyword (#eq? @keyword "kind"))
+  value: (flow_node (plain_scalar) @type.builtin (#eq? @type.builtin "GoTemplate")))
 
 ;; General YAML highlighting
 (string_scalar) @string
@@ -31,4 +27,14 @@
 (anchor) @label
 (tag) @type
 (comment) @comment
+
+;; Highlight Go template expressions in any string context
+(string_scalar) @string.special
+  (#contains? @string.special "{{")
+(double_quote_scalar) @string.special
+  (#contains? @string.special "{{")
+(single_quote_scalar) @string.special
+  (#contains? @string.special "{{")
+(block_scalar) @string.special
+  (#contains? @string.special "{{")
 
