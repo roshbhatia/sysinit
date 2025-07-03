@@ -92,22 +92,23 @@ M.plugins = {
 					 ((block_mapping_pair
 					   key: (flow_node (plain_scalar) @_template_key (#eq? @_template_key "template"))
 					   value: (flow_node (block_scalar) @injection.content))
-					   (#set! injection.language "yaml")
-					   (#set! injection.combined)
-					   (#set! injection.include-children))
+					   (#set! injection.language "yaml"))
 
 					 ((block_scalar) @injection.content
 					   (#contains? @injection.content "{{")
 					   (#not-contains? @injection.content "apiVersion")
-					   (#set! injection.language "gotmpl")
-					   (#set! injection.include-children))
+					   (#not-contains? @injection.content "---")
+					   (#set! injection.language "gotmpl"))
+
+					 ((block_scalar) @injection.content
+					   (#contains? @injection.content "{{")
+					   (#contains? @injection.content "---")
+					   (#set! injection.language "yaml"))
 
 					 ((plain_scalar) @injection.content
 					   (#contains? @injection.content "{{")
 					   (#contains? @injection.content "apiVersion")
-					   (#set! injection.language "yaml")
-					   (#set! injection.combined)
-					   (#set! injection.include-children))
+					   (#set! injection.language "yaml"))
 				   ]],
 					highlights = [[
 					 (block_mapping_pair
@@ -144,4 +145,3 @@ M.plugins = {
 }
 
 return M
-
