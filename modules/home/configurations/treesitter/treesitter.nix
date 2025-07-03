@@ -7,70 +7,65 @@
 let
   treesitterConfig = {
     parser-directories = [
-      "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim"
-      "${config.home.homeDirectory}/github"
-      "${config.home.homeDirectory}/src"
-      "${config.home.homeDirectory}/source"
-      "${config.home.homeDirectory}/projects"
-      "${config.home.homeDirectory}/dev"
-      "${config.home.homeDirectory}/git"
       "${config.home.homeDirectory}/.local/share/nvim/lazy/nvim-treesitter/parser"
+      "${config.home.homeDirectory}/.local/share/nvim/lazy/nvim-treesitter/queries"
+      "${config.home.homeDirectory}/github/tree-sitter-grammars"
     ];
     theme = {
       attribute = {
-        color = 124;
+        color = "#cba6f7";
         italic = true;
       };
       comment = {
-        color = 245;
+        color = "#6c7086";
         italic = true;
       };
-      constant = 94;
+      constant = "#f38ba8";
       "constant.builtin" = {
         bold = true;
-        color = 94;
+        color = "#f38ba8";
       };
-      constructor = 136;
+      constructor = "#f9e2af";
       embedded = null;
-      function = 26;
+      function = "#89b4fa";
       "function.builtin" = {
         bold = true;
-        color = 26;
+        color = "#89b4fa";
       };
-      keyword = 56;
-      module = 136;
+      keyword = "#f5c2e7";
+      module = "#f9e2af";
       number = {
         bold = true;
-        color = 94;
+        color = "#f38ba8";
       };
       operator = {
         bold = true;
-        color = 239;
+        color = "#6c7086";
       };
-      property = 124;
+      property = "#cba6f7";
       "property.builtin" = {
         bold = true;
-        color = 124;
+        color = "#cba6f7";
       };
-      punctuation = 239;
-      "punctuation.bracket" = 239;
-      "punctuation.delimiter" = 239;
-      "punctuation.special" = 239;
-      string = 28;
-      "string.special" = 30;
-      tag = 18;
-      type = 23;
+      punctuation = "#6c7086";
+      "punctuation.bracket" = "#6c7086";
+      "punctuation.delimiter" = "#6c7086";
+      "punctuation.special" = "#6c7086";
+      string = "#a6e3a1";
+      "string.special" = "#94e2d5";
+      tag = "#f5c2e7";
+      type = "#89dceb";
       "type.builtin" = {
         bold = true;
-        color = 23;
+        color = "#89dceb";
       };
-      variable = 252;
+      variable = "#cdd6f4";
       "variable.builtin" = {
         bold = true;
-        color = 252;
+        color = "#cdd6f4";
       };
       "variable.parameter" = {
-        color = 252;
+        color = "#cdd6f4";
         underline = true;
       };
     };
@@ -83,4 +78,3 @@ in
     force = true;
   };
 }
-
