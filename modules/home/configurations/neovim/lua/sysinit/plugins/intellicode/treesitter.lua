@@ -83,6 +83,8 @@ M.plugins = {
 				used_by = { "gohtmltmpl", "gotexttmpl", "gotmpl", "yaml" },
 			}
 			require("nvim-treesitter.configs").setup(opts)
+
+			vim.api.nvim_set_hl(0, "@go_template", { link = "GoTemplateHighlight" })
 		end,
 	},
 }
