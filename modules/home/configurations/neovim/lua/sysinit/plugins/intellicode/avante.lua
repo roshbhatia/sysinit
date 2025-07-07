@@ -64,12 +64,13 @@ M.plugins = {
 						rounded = false,
 					},
 					input = {
-						height = 30,
+						height = 20,
 					},
 					edit = {
 						border = "rounded",
 					},
 					ask = {
+						floating = true,
 						border = "rounded",
 					},
 					spinner = {

@@ -9,8 +9,12 @@ M.plugins = {
 			damping = 0.67,
 			matrix_pixel_threshold = 0.5,
 			legacy_computing_symbols_support = true,
+			min_horozontal_distance_smear = 2,
+			smear_replace_mode = true,
+			smear_insert_mode = false,
 		},
 	},
 }
 
 return M
+
