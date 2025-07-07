@@ -29,7 +29,7 @@ M.plugins = {
 				},
 				prompt_logger = {
 					next_prompt = {
-						normal = "<Up>",
+						normal = "<Down>",
 						insert = "<Down>",
 					},
 					prev_prompt = {
@@ -42,12 +42,7 @@ M.plugins = {
 						normal = "<S-CR>",
 						insert = "<CR>",
 					},
-					ask = "<localleader>as",
-					new_ask = "<localleader>aA",
-					toggle = {
-						default = "<leader>aa",
-						suggestion = "<leader>a\\",
-					},
+					new_ask = "<leader>aA",
 					sidebar = {
 						switch_windows = "<localleader>[",
 						reverse_switch_windows = "<localleader>]",
@@ -57,7 +52,7 @@ M.plugins = {
 					provider = "telescope",
 				},
 				input = {
-					provider = "dressing",
+					provider = "snacks",
 					provider_opts = {},
 				},
 				disabled_tools = {
@@ -69,14 +64,43 @@ M.plugins = {
 						rounded = false,
 					},
 					input = {
-						height = 16,
+						height = 30,
 					},
 					edit = {
 						border = "rounded",
 					},
 					ask = {
-						floating = true,
 						border = "rounded",
+					},
+					spinner = {
+						editing = {
+							"-",
+							"|",
+							"-",
+							"|",
+							"-",
+							"|",
+							"-",
+							"|",
+							"-",
+							"|",
+						},
+						generating = {
+							"-",
+							"|",
+							"-",
+							"|",
+							"-",
+							"|",
+							"-",
+							"|",
+							"-",
+							"|",
+						},
+						thinking = {
+							"-",
+							"|",
+						},
 					},
 				},
 			})
@@ -110,3 +134,4 @@ M.plugins = {
 }
 
 return M
+
