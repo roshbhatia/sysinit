@@ -273,9 +273,9 @@ in
         }
 
         function zvm_vi_delete() {
-          zvm_delete
+          zvm_replace_selection
           echo ''${CUTBUFFER} | pbcopy
-          zvm_exit_visual_mode
+          zvm_exit_visual_mode ''\${"1:-true"}
         }
 
         [[ -n "$SYSINIT_DEBUG" ]] && zprof
