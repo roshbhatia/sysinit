@@ -13,7 +13,6 @@ local deps = {
 	"pwntester/octo.nvim",
 	"rafamadriz/friendly-snippets",
 	"saghen/blink.compat",
-	"Snikimonkd/cmp-go-pkgs",
 }
 
 if copilot_enabled then
@@ -51,22 +50,6 @@ M.plugins = {
 						end
 						return items
 					end,
-					score_offset = 0,
-				},
-				go_pkgs = {
-					enabled = function()
-						return vim.tbl_contains({ "go" }, vim.bo.filetype)
-					end,
-					module = "blink.compat.source",
-					name = "go_pkgs",
-					transform_items = function(ctx, items)
-						for _, item in ipairs(items) do
-							item.kind_icon = " Go Packages "
-							item.kind_name = "Go Packages"
-						end
-						return items
-					end,
-					async = true,
 					score_offset = 0,
 				},
 				lazydev = {
