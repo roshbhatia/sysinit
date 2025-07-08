@@ -21,7 +21,7 @@ M.plugins = {
 				configs = require("lspconfig.configs"),
 				capabilities = vim.tbl_deep_extend(
 					"force",
-					vim.lsp.protocol.make_client_capabilities(),
+					require("lspconfig").util.default_config.capabilities,
 					require("blink.cmp").get_lsp_capabilities({}, false)
 				),
 			}

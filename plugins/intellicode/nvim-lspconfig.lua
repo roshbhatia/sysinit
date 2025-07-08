@@ -18,12 +18,8 @@ M.plugins = {
 				lspconfig = require("lspconfig"),
 				mason_lspconfig = require("mason-lspconfig"),
 				mason_tool_installer = require("mason-tool-installer"),
-				configs = require("lspconfig.configs"),
-				capabilities = vim.tbl_deep_extend(
-					"force",
-					require("lspconfig").util.default_config.capabilities,
-					require("blink.cmp").get_lsp_capabilities({}, false)
-				),
+				configs = lspconfig.configs,
+				capabilities = blink_cmp.get_lsp_capabilities(lspconfig.util.default_config.capabilities),
 			}
 
 			vim.diagnostic.config({
@@ -142,6 +138,16 @@ M.plugins = {
 
 			for server_name, server_config in pairs(lsp_servers) do
 				server_config.external = server_config.source == "system"
+				if server_config.external then
+					dependencies.configs[server_name] = {
+						default_config = server_config,
+					}
+					dependencies.lspconfig[server_name].setup(server_config)
+				else
+					dependencies.lspconfig[server_name].setup(vim.tbl_deep_extend("force", server_config, {
+						capabilities = dependencies.capabilities,
+					}))
+				end
 			end
 
 			dependencies.mason_lspconfig.setup({
@@ -149,59 +155,7 @@ M.plugins = {
 					return not lsp_servers[server_name].external
 				end, vim.tbl_keys(lsp_servers)),
 				automatic_installation = true,
-				handlers = {
-					function(server_name)
-						local server_config = lsp_servers[server_name]
-						if not server_config.external then
-							dependencies.lspconfig[server_name].setup(vim.tbl_deep_extend("force", server_config, {
-								capabilities = dependencies.capabilities,
-							}))
-						end
-					end,
-				},
 			})
-
-			for server_name, server_config in pairs(lsp_servers) do
-				if server_config.external then
-					dependencies.configs[server_name] = {
-						default_config = server_config,
-					}
-					dependencies.lspconfig[server_name].setup(server_config)
-				end
-			end
-
-			vim.api.nvim_create_autocmd("LspAttach", {
-				group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
-				callback = function(event)
-					local client = vim.lsp.get_client_by_id(event.data.client_id)
-					if client then
-						if client.server_capabilities.executeCommandProvider then
-							vim.lsp.handlers["workspace/executeCommand"] = function(err, result, ctx, config)
-								if err then
-									vim.notify(
-										string.format("LSP error: %s", err.message or "Unknown error"),
-										vim.log.levels.ERROR,
-										{ title = "LSP" }
-									)
-									return
-								end
-								return vim.lsp.handlers["workspace/executeCommand"](err, result, ctx, config)
-							end
-						end
-					end
-				end,
-			})
-
-			vim.lsp.handlers["window/showMessage"] = function(_, result, ctx)
-				local client = vim.lsp.get_client_by_id(ctx.client_id)
-				local level = ({
-					[vim.lsp.protocol.MessageType.Error] = vim.log.levels.ERROR,
-					[vim.lsp.protocol.MessageType.Warning] = vim.log.levels.WARN,
-					[vim.lsp.protocol.MessageType.Info] = vim.log.levels.INFO,
-					[vim.lsp.protocol.MessageType.Log] = vim.log.levels.DEBUG,
-				})[result.type]
-				vim.notify(result.message, level, { title = client and client.name or "LSP" })
-			end
 		end,
 		keys = function()
 			return {
