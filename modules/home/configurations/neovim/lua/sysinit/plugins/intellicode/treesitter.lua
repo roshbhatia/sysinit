@@ -87,52 +87,28 @@ M.plugins = {
 			require("nvim-treesitter.configs").setup(opts)
 
 			local query_sets = {
-				-- yaml = {
-				-- 	injections = [[
-				-- 	 ((block_mapping_pair
-				-- 	   key: (flow_node (plain_scalar) @_template_key (#eq? @_template_key "template"))
-				-- 	   value: (flow_node (block_scalar) @injection.content))
-				-- 	   (#set! injection.language "yaml"))
+				yaml = {
+					injections = [[
+					((block_scalar) @injection.content
+						(#contains? @injection.content "{{")
+						(#set! injection.language "gotmpl"))
 
-				-- 	 ((block_scalar) @injection.content
-				-- 	   (#contains? @injection.content "{{")
-				-- 	   (#not-contains? @injection.content "apiVersion")
-				-- 	   (#not-contains? @injection.content "---")
-				-- 	   (#set! injection.language "gotmpl"))
+					((plain_scalar) @injection.content
+						(#contains? @injection.content "{{")
+						(#set! injection.language "gotmpl"))
+					]],
+					highlights = [[
+					(block_mapping_pair
+						key: (flow_node (plain_scalar) @keyword)
+						value: (flow_node (plain_scalar) @string))
 
-				-- 	 ((block_scalar) @injection.content
-				-- 	   (#contains? @injection.content "{{")
-				-- 	   (#contains? @injection.content "---")
-				-- 	   (#set! injection.language "yaml"))
+					((block_scalar) @template
+						(#contains? @template "{{"))
 
-				-- 	 ((plain_scalar) @injection.content
-				-- 	   (#contains? @injection.content "{{")
-				-- 	   (#contains? @injection.content "apiVersion")
-				-- 	   (#set! injection.language "yaml"))
-				--    ]],
-				-- 	highlights = [[
-				-- 	 (block_mapping_pair
-				-- 	   key: (flow_node (plain_scalar) @keyword (#eq? @keyword "apiVersion"))
-				-- 	   value: (flow_node (plain_scalar) @type))
-
-				-- 	 (block_mapping_pair
-				-- 	   key: (flow_node (plain_scalar) @keyword (#eq? @keyword "kind"))
-				-- 	   value: (flow_node (plain_scalar) @type.builtin))
-
-				-- 	 (block_mapping_pair
-				-- 	   key: (flow_node (plain_scalar) @keyword (#eq? @keyword "name"))
-				-- 	   value: (flow_node (plain_scalar) @string))
-
-				-- 	 (block_mapping_pair
-				-- 	   key: (flow_node (plain_scalar) @keyword (#eq? @keyword "functionRef"))
-				-- 	   value: (block_mapping (block_mapping_pair
-				-- 	     key: (flow_node (plain_scalar) @keyword (#eq? @keyword "name"))
-				-- 	     value: (flow_node (plain_scalar) @function))))
-
-				-- 	 (block_scalar) @go_template
-				-- 	   (#contains? @go_template "{{"))
-				--    ]],
-				-- },
+					((plain_scalar) @template
+						(#contains? @template "{{"))
+					]],
+				},
 			}
 
 			for lang, sets in pairs(query_sets) do

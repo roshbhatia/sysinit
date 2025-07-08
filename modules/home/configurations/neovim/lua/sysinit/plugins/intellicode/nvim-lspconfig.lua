@@ -9,6 +9,7 @@ M.plugins = {
 			"Fildo7525/pretty_hover",
 			"folke/snacks.nvim",
 			"saghen/blink.compat",
+			"saghen/blink.cmp",
 		},
 		config = function()
 			local schemastore = require("schemastore")
