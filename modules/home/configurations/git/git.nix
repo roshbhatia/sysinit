@@ -56,6 +56,7 @@ in
           pager = delta
           compression = 9
           preloadIndex = true
+          hooksPath = .githooks
 
       [interactive]
           diffFilter = delta --color-only
