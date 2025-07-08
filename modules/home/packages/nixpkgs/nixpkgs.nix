@@ -43,6 +43,7 @@ let
     gnugrep
     gnupg
     go
+    gopls
     go-task
     golangci-lint
     gum

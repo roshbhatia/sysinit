@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+check_command() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+if ! check_command "task"; then
+    echo "task not found, skipping hooks"
+    exit 0
+fi
+
+for cmd in "nixfmt" "stylua"; do
+    if ! check_command "$cmd"; then
+        echo "$cmd not found, skipping hooks"
+        exit 0
+    fi
+done
+
+task lua:fmt nix:fmt sh:chmod

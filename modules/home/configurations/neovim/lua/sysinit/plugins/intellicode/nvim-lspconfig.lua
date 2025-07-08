@@ -12,33 +12,39 @@ M.plugins = {
 		},
 		config = function()
 			local schemastore = require("schemastore")
-			local lsp_servers = {
-				docker_compose_language_service = {},
-				dockerls = {},
-				helm_ls = {},
-				jqls = {},
-				jsonls = {
+			local lspconfig = require("lspconfig")
+			local capabilities = vim.tbl_deep_extend(
+				"force",
+				vim.lsp.protocol.make_client_capabilities(),
+				require("blink.cmp").get_lsp_capabilities() or {}
+			)
+
+			local servers = {
+				tflint = lspconfig.tflint.default_config,
+				dockerls = lspconfig.dockerls.default_config,
+				helm_ls = lspconfig.helm_ls.default_config,
+				jqls = lspconfig.jqls.default_config,
+				lua_ls = lspconfig.lua_ls.default_config,
+				nil_ls = lspconfig.nil_ls.default_config,
+				pyright = lspconfig.pyright.default_config,
+				terraformls = lspconfig.terraformls.default_config,
+				ts_ls = lspconfig.tsserver.default_config,
+				jsonls = vim.tbl_deep_extend("force", lspconfig.jsonls.default_config, {
 					settings = {
 						json = {
 							schemas = schemastore.json.schemas(),
 							validate = { enable = true },
 						},
 					},
-				},
-				lua_ls = {},
-				nil_ls = {},
-				pyright = {},
-				terraformls = {},
-				tflint = {},
-				ts_ls = {},
-				yamlls = {
+				}),
+				yamlls = vim.tbl_deep_extend("force", lspconfig.yamlls.default_config, {
 					settings = {
 						yaml = {
 							schemaStore = { enable = false, url = "" },
 							schemas = schemastore.yaml.schemas(),
 						},
 					},
-				},
+				}),
 				up = {
 					cmd = { "up", "xpls", "serve", "--verbose" },
 					filetypes = { "yaml" },
@@ -49,30 +55,30 @@ M.plugins = {
 				},
 			}
 
-			for server_name, server_config in pairs(lsp_servers) do
-				server_config.capabilities = require("blink.cmp").get_lsp_capabilities(server_config.capabilities)
-				vim.lsp.config(server_name, server_config)
-				vim.lsp.enable(server_name)
-
-				vim.api.nvim_create_autocmd("LspAttach", {
-					callback = function(args)
-						local client = vim.lsp.get_client_by_id(args.data.client_id)
-						local bufnr = args.buf
-						if vim.lsp.inlay_hint and client.supports_method("textDocument/inlayHint") then
-							vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
-						end
-						if vim.lsp.codelens and client.supports_method("textDocument/codeLens") then
-							vim.lsp.codelens.refresh()
-							local group = vim.api.nvim_create_augroup("LSPCodeLens" .. bufnr, { clear = true })
-							vim.api.nvim_create_autocmd({ "BufEnter", "InsertLeave" }, {
-								group = group,
-								buffer = bufnr,
-								callback = vim.lsp.codelens.refresh,
-							})
-						end
-					end,
-				})
+			for name, config in pairs(servers) do
+				config.capabilities = capabilities
+				vim.lsp.config(name, config)
+				vim.lsp.enable(name)
 			end
+
+			vim.api.nvim_create_autocmd("LspAttach", {
+				callback = function(args)
+					local client = vim.lsp.get_client_by_id(args.data.client_id)
+					local bufnr = args.buf
+					if vim.lsp.inlay_hint and client.supports_method("textDocument/inlayHint") then
+						vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+					end
+					if vim.lsp.codelens and client.supports_method("textDocument/codeLens") then
+						vim.lsp.codelens.refresh()
+						local group = vim.api.nvim_create_augroup("LSPCodeLens" .. bufnr, { clear = true })
+						vim.api.nvim_create_autocmd({ "BufEnter", "InsertLeave" }, {
+							group = group,
+							buffer = bufnr,
+							callback = vim.lsp.codelens.refresh,
+						})
+					end
+				end,
+			})
 
 			vim.diagnostic.config({
 				severity_sort = true,
@@ -125,15 +131,11 @@ M.plugins = {
 			dap_debug_keymap = false,
 			trouble = true,
 		},
-		config = function(lp, opts)
+		config = function(_, opts)
 			require("go").setup(opts)
-			local gopls_cfg = require("go.lsp").config()
-			vim.lsp.config.gopls = gopls_cfg
-			vim.lsp.enable("gopls")
 		end,
 		event = { "CmdlineEnter" },
 		ft = { "go", "gomod" },
-		build = ':lua require("go.install").update_all_sync()',
 	},
 }
 

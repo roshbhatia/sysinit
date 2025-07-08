@@ -115,3 +115,17 @@ tasks:
         log_success "All .sh files are now executable"
     desc: Make all .sh files in the repository executable
     silent: true
+
+  lua:fmt:
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        source hack/lib/logger.sh
+        log_info "Finding and formatting Lua files"
+        if ! fd -e lua -x sh -c 'source hack/lib/logger.sh && log_info "Formatting: {}" && stylua {}' _; then
+          log_error "Formatting failed"
+          exit 1
+        fi
+        log_success "Lua files formatted successfully"
+    desc: Format Lua files using stylua
+    silent: true
