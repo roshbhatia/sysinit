@@ -56,7 +56,7 @@ M.plugins = {
 		keys = function()
 			return {
 				{
-					"<leader>eb",
+					"<leader>ee",
 					"<CMD>Oil --float --preview<CR>",
 					desc = "Open filesystem buffer",
 				},
