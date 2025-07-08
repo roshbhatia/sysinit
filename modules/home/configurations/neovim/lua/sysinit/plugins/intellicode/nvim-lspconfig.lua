@@ -19,20 +19,28 @@ M.plugins = {
 				dockerls = {},
 				helm_ls = {},
 				jqls = {},
-				jsonls = { settings = 		json = {
-						schemas = schemastore.json.schemas(),
-						validate = { enable = true },
-					}, },
+				jsonls = {
+					settings = {
+						json = {
+							schemas = schemastore.json.schemas(),
+							validate = { enable = true },
+						},
+					},
+				},
 				lua_ls = {},
 				nil_ls = {},
 				pyright = {},
 				terraformls = {},
 				tflint = {},
 				ts_ls = {},
-				yamlls = { settings = yaml = {
-						schemaStore = { enable = false, url = "" },
-						schemas = schemastore.yaml.schemas(),
-					},},
+				yamlls = {
+					settings = {
+						yaml = {
+							schemaStore = { enable = false, url = "" },
+							schemas = schemastore.yaml.schemas(),
+						},
+					},
+				},
 				up = {
 					cmd = { "up", "xpls", "serve", "--verbose" },
 					filetypes = { "yaml" },
@@ -44,6 +52,7 @@ M.plugins = {
 			}
 
 			for server_name, server_config in pairs(lsp_servers) do
+				server_config.capabilities = require("blink.cmp").get_lsp_capabilities(server_config.capabilities)
 				lspconfig[server_name].setup(server_config)
 			end
 

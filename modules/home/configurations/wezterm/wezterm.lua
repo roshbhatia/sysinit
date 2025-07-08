@@ -23,4 +23,3 @@ require("sysinit.plugins.terminal.toggle").setup(config)
 require("sysinit.pkg.ui").setup(config)
 
 return config
-
