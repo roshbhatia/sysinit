@@ -59,9 +59,7 @@ M.plugins = {
 						local client = vim.lsp.get_client_by_id(args.data.client_id)
 						local bufnr = args.buf
 						if vim.lsp.inlay_hint and client.supports_method("textDocument/inlayHint") then
-							vim.lsp.inlay_hint.enable(bufnr, {
-								enabled = true,
-							})
+							vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
 						end
 						if vim.lsp.codelens and client.supports_method("textDocument/codeLens") then
 							vim.lsp.codelens.refresh()
