@@ -62,8 +62,8 @@ Where:
   done
 
   if [[ -z "$valid_msg" ]]; then
-    log_warn "Failed to generate a valid Conventional Commit message after $max_tries attempts. Aborting."
-    return 1
+    log_warn "Failed to generate a valid Conventional Commit message after $max_tries attempts. Using fallback message: 'chore: updates'."
+    valid_msg="chore: updates"
   fi
 
   git commit -m "$valid_msg"

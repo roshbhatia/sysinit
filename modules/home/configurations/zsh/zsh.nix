@@ -272,6 +272,12 @@ in
           zvm_exit_visual_mode
         }
 
+        function zvm_vi_delete() {
+          zvm_delete
+          echo ''${CUTBUFFER} | pbcopy
+          zvm_exit_visual_mode
+        }
+
         [[ -n "$SYSINIT_DEBUG" ]] && zprof
       '')
     ];
@@ -299,4 +305,3 @@ in
     };
   };
 }
-
