@@ -17,30 +17,17 @@ M.plugins = {
 				delete_to_trash = true,
 				skip_confirm_for_simple_edits = true,
 				watch_for_changes = true,
-				git = {
-					add = function(path)
-						return true
-					end,
-					mv = function(src_path, dest_path)
-						return true
-					end,
-					rm = function(path)
-						return true
-					end,
-				},
 				view_options = {
 					show_hidden = true,
-					is_hidden_file = function(name)
-						return vim.startswith(name, ".")
-					end,
 				},
 				float = {
 					border = "rounded",
 				},
+				case_insensitive = true,
 				keymaps = {
 					["q"] = { "actions.close", mode = "n" },
-					["<C-v>"] = { "actions.select", opts = { vertical = true } },
-					["<C-s>"] = { "actions.select", opts = { horizontal = true } },
+					["<localleader>v"] = { "actions.select", opts = { vertical = true } },
+					["<localleader>s"] = { "actions.select", opts = { horizontal = true } },
 				},
 			})
 
