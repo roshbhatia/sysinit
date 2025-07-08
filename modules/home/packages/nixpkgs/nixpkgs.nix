@@ -55,6 +55,7 @@ let
     jqp
     jq-lsp
     jsonld-cli
+    k9s
     krew
     kubecolor
     kubectl
@@ -124,3 +125,4 @@ in
 {
   home.packages = allNixPackages;
 }
+
