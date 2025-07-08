@@ -6,6 +6,10 @@ M.plugins = {
 		event = "LSPAttach",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
+			{
+				"ckolkey/ts-node-action",
+				opts = {},
+			},
 		},
 		config = function()
 			local null_ls = require("null-ls")
@@ -86,7 +90,7 @@ M.plugins = {
 							return actions
 						end
 
-						local text = ts_utils.get_node_text(node)[1] or ""
+						local text = vim.treesitter.get_node_text(node)[1] or ""
 						-- Pattern to match an http/https URL
 						local url_pattern = "https?://[%w-_%.%?%.:/%+=&]+"
 						local url = text:match(url_pattern)
@@ -115,7 +119,7 @@ M.plugins = {
 							return actions
 						end
 
-						local text = ts_utils.get_node_text(node)[1] or ""
+						local text = vim.treesitter.get_node_text(node)[1] or ""
 						local hex_pattern = "#%x%x%x%x%x%x"
 						if text:match(hex_pattern) then
 							table.insert(actions, {

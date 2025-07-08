@@ -113,6 +113,7 @@ let
     weechatScripts.wee-slack
     wget
     yamllint
+    yaml-language-server
     yazi
     yarn
     yq

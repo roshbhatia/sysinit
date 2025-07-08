@@ -3,6 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"neovim/nvim-lspconfig",
+		event = "LazyFile",
 		dependencies = {
 			"aznhe21/actions-preview.nvim",
 			"b0o/SchemaStore.nvim",
@@ -127,6 +128,7 @@ M.plugins = {
 	},
 	{
 		"ray-x/go.nvim",
+		event = "LazyFile",
 		dependencies = {
 			"ray-x/guihua.lua",
 			"neovim/nvim-lspconfig",
@@ -144,9 +146,9 @@ M.plugins = {
 		config = function(_, opts)
 			require("go").setup(opts)
 		end,
-		event = { "CmdlineEnter" },
 		ft = { "go", "gomod" },
 	},
 }
 
 return M
+
