@@ -69,9 +69,6 @@ M.plugins = {
 				dockerls = {
 					source = "mason",
 				},
-				gopls = {
-					source = "mason",
-				},
 				helm_ls = {
 					source = "mason",
 				},
@@ -148,7 +145,6 @@ M.plugins = {
 				ensure_installed = vim.tbl_filter(function(server_name)
 					return not lsp_servers[server_name].external
 				end, vim.tbl_keys(lsp_servers)),
-				automatic_installation = true,
 				handlers = {
 					function(server_name)
 						local server_config = lsp_servers[server_name]
@@ -202,6 +198,40 @@ M.plugins = {
 				},
 			}
 		end,
+	},
+	{
+		"ray-x/go.nvim",
+		dependencies = {
+			"ray-x/guihua.lua",
+			"neovim/nvim-lspconfig",
+			"nvim-treesitter/nvim-treesitter",
+		},
+		opts = {
+			lsp_keymaps = false,
+			icons = false,
+			lsp_document_formatting = false,
+			dap_debug_keymap = false,
+			trouble = true,
+		},
+		config = function(lp, opts)
+			require("go").setup(opts)
+			local format_sync_grp = vim.api.nvim_create_augroup("GoFormat", {})
+			vim.api.nvim_create_autocmd("BufWritePre", {
+				pattern = "*.go",
+				callback = function()
+					require("go.format").goimports()
+				end,
+				group = format_sync_grp,
+			})
+		end,
+		event = {
+			"CmdlineEnter",
+		},
+		ft = {
+			"go",
+			"gomod",
+		},
+		build = ':lua require("go.install").update_all_sync()',
 	},
 }
 
