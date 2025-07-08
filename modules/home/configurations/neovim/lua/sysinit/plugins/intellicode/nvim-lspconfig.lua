@@ -169,29 +169,6 @@ M.plugins = {
 					dependencies.lspconfig[server_name].setup(server_config)
 				end
 			end
-
-			vim.api.nvim_create_autocmd("LspAttach", {
-				group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
-				callback = function(event)
-					local client = vim.lsp.get_client_by_id(event.data.client_id)
-					if client and client.supports_method("textDocument/inlayHint") then
-						vim.keymap.set("n", "<leader>th", function()
-							vim.lsp.inlay_hint(event.buf, nil)
-						end, { buffer = event.buf, desc = "Toggle Inlay Hints" })
-					end
-				end,
-			})
-
-			vim.lsp.handlers["window/showMessage"] = function(_, result, ctx)
-				local client = vim.lsp.get_client_by_id(ctx.client_id)
-				local level = ({
-					[vim.lsp.protocol.MessageType.Error] = vim.log.levels.ERROR,
-					[vim.lsp.protocol.MessageType.Warning] = vim.log.levels.WARN,
-					[vim.lsp.protocol.MessageType.Info] = vim.log.levels.INFO,
-					[vim.lsp.protocol.MessageType.Log] = vim.log.levels.DEBUG,
-				})[result.type]
-				vim.notify(result.message, level, { title = client and client.name or "LSP" })
-			end
 		end,
 		keys = function()
 			return {
