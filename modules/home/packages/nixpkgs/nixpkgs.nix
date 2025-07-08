@@ -55,6 +55,7 @@ let
     jqp
     jq-lsp
     jsonld-cli
+    krew
     kubecolor
     kubectl
     kubernetes-helm
