@@ -20,16 +20,16 @@ M.plugins = {
 			)
 
 			local servers = {
-				tflint = lspconfig.tflint.default_config,
-				dockerls = lspconfig.dockerls.default_config,
-				helm_ls = lspconfig.helm_ls.default_config,
-				jqls = lspconfig.jqls.default_config,
-				lua_ls = lspconfig.lua_ls.default_config,
-				nil_ls = lspconfig.nil_ls.default_config,
-				pyright = lspconfig.pyright.default_config,
-				terraformls = lspconfig.terraformls.default_config,
-				ts_ls = lspconfig.tsserver.default_config,
-				jsonls = vim.tbl_deep_extend("force", lspconfig.jsonls.default_config, {
+				tflint = lspconfig.configs.tflint.default_config,
+				dockerls = lspconfig.configs.dockerls.default_config,
+				helm_ls = lspconfig.configs.helm_ls.default_config,
+				jqls = lspconfig.configs.jqls.default_config,
+				lua_ls = lspconfig.configs.lua_ls.default_config,
+				nil_ls = lspconfig.configs.nil_ls.default_config,
+				pyright = lspconfig.configs.pyright.default_config,
+				terraformls = lspconfig.configs.terraformls.default_config,
+				ts_ls = lspconfig.configs.ts_ls.default_config,
+				jsonls = vim.tbl_deep_extend("force", lspconfig.configs.jsonls.default_config, {
 					settings = {
 						json = {
 							schemas = schemastore.json.schemas(),
@@ -37,7 +37,7 @@ M.plugins = {
 						},
 					},
 				}),
-				yamlls = vim.tbl_deep_extend("force", lspconfig.yamlls.default_config, {
+				yamlls = vim.tbl_deep_extend("force", lspconfig.configs.yamlls.default_config, {
 					settings = {
 						yaml = {
 							schemaStore = { enable = false, url = "" },
