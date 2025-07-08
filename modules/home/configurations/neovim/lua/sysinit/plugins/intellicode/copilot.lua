@@ -5,6 +5,10 @@ M.plugins = {
 	{
 		enabled = nvim_config.copilot.enabled,
 		"zbirenbaum/copilot.lua",
+		event = "InsertEnter",
+		dependencies = {
+			"neovim/nvim-lspconfig",
+		},
 		config = function()
 			require("copilot").setup({
 				panel = {
@@ -20,3 +24,4 @@ M.plugins = {
 }
 
 return M
+
