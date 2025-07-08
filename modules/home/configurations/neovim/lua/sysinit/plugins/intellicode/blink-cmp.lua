@@ -98,7 +98,6 @@ M.plugins = {
 			local sources = {
 				"buffer",
 				"git",
-				"go_pkgs",
 				"lazydev",
 				"lsp",
 				"path",
