@@ -47,7 +47,6 @@ M.plugins = {
 						grug_far = true,
 						hop = true,
 						lsp_trouble = true,
-						mason = true,
 						native_lsp = {
 							enabled = true,
 						},
