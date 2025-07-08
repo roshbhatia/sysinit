@@ -24,7 +24,6 @@ let
     "bcrypt"
     "block-goose-cli"
     "displayplacer"
-    "golangci-lint@1.68.4"
     "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"
