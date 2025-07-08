@@ -1,0 +1,241 @@
+local M = {}
+
+M.plugins = {
+	{
+		"neovim/nvim-lspconfig",
+		dependencies = {
+			"aznhe21/actions-preview.nvim",
+			"b0o/SchemaStore.nvim",
+			"Fildo7525/pretty_hover",
+			"folke/snacks.nvim",
+			"saghen/blink.compat",
+			"WhoIsSethDaniel/mason-tool-installer.nvim",
+			"williamboman/mason-lspconfig.nvim",
+		},
+		config = function()
+			local dependencies = {
+				blink_cmp = require("blink.cmp"),
+				lspconfig = require("lspconfig"),
+				mason_lspconfig = require("mason-lspconfig"),
+				mason_tool_installer = require("mason-tool-installer"),
+				configs = require("lspconfig.configs"),
+				capabilities = vim.tbl_deep_extend(
+					"force",
+					require("lspconfig").util.default_config.capabilities,
+					require("blink.cmp").get_lsp_capabilities({}, false)
+				),
+			}
+
+			vim.diagnostic.config({
+				severity_sort = true,
+				virtual_text = false,
+				virtual_lines = {
+					only_current_line = true,
+				},
+				update_in_insert = false,
+				float = {
+					border = "rounded",
+					source = "if_many",
+				},
+				underline = {
+					severity = vim.diagnostic.severity.ERROR,
+				},
+				signs = {
+					text = {
+						[vim.diagnostic.severity.ERROR] = "",
+						[vim.diagnostic.severity.HINT] = "",
+						[vim.diagnostic.severity.INFO] = "",
+						[vim.diagnostic.severity.WARN] = "",
+					},
+					numhl = {
+						[vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
+						[vim.diagnostic.severity.HINT] = "DiagnosticSignHint",
+						[vim.diagnostic.severity.INFO] = "DiagnosticSignInfo",
+						[vim.diagnostic.severity.WARN] = "DiagnosticSignWarn",
+					},
+				},
+			})
+
+			local lsp_servers = {
+				bashls = {
+					source = "mason",
+				},
+				dagger = {
+					source = "mason",
+				},
+				docker_compose_language_service = {
+					source = "mason",
+				},
+				dockerls = {
+					source = "mason",
+				},
+				gopls = {
+					source = "mason",
+				},
+				helm_ls = {
+					source = "mason",
+				},
+				jqls = {
+					source = "mason",
+				},
+				jsonls = {
+					source = "mason",
+					settings = {
+						json = {
+							schemas = require("schemastore").json.schemas(),
+							validate = {
+								enable = true,
+							},
+						},
+					},
+				},
+				lua_ls = {
+					source = "mason",
+				},
+				nil_ls = {
+					source = "mason",
+				},
+				pyright = {
+					source = "mason",
+				},
+				terraformls = {
+					source = "mason",
+				},
+				tflint = {
+					source = "mason",
+				},
+				ts_ls = {
+					source = "mason",
+				},
+				yamlls = {
+					source = "mason",
+					settings = {
+						yaml = {
+							schemaStore = {
+								enable = false,
+								url = "",
+							},
+							schemas = require("schemastore").yaml.schemas(),
+						},
+					},
+				},
+				up = {
+					source = "system",
+					cmd = {
+						"up",
+						"xpls",
+						"serve",
+						"--verbose",
+					},
+					filetypes = {
+						"yaml",
+					},
+					root_dir = function()
+						local fd = vim.fn.system("fd crossplane.yaml")
+						if fd ~= "" then
+							return vim.fn.fnamemodify(fd, ":p:h")
+						end
+						return vim.fn.getcwd()
+					end,
+				},
+			}
+
+			for server_name, server_config in pairs(lsp_servers) do
+				server_config.external = server_config.source == "system"
+			end
+
+			dependencies.mason_lspconfig.setup({
+				ensure_installed = vim.tbl_filter(function(server_name)
+					return not lsp_servers[server_name].external
+				end, vim.tbl_keys(lsp_servers)),
+				automatic_installation = true,
+				handlers = {
+					function(server_name)
+						local server_config = lsp_servers[server_name]
+						if not server_config.external then
+							dependencies.lspconfig[server_name].setup(vim.tbl_deep_extend("force", server_config, {
+								capabilities = dependencies.capabilities,
+							}))
+						end
+					end,
+				},
+			})
+
+			for server_name, server_config in pairs(lsp_servers) do
+				if server_config.external then
+					dependencies.configs[server_name] = {
+						default_config = server_config,
+					}
+					dependencies.lspconfig[server_name].setup(server_config)
+				end
+			end
+
+			vim.api.nvim_create_autocmd("LspAttach", {
+				group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
+				callback = function(event)
+					local client = vim.lsp.get_client_by_id(event.data.client_id)
+					if client then
+						if client.server_capabilities.executeCommandProvider then
+							vim.lsp.handlers["workspace/executeCommand"] = function(err, result, ctx, config)
+								if err then
+									vim.notify(
+										string.format("LSP error: %s", err.message or "Unknown error"),
+										vim.log.levels.ERROR,
+										{ title = "LSP" }
+									)
+									return
+								end
+								return vim.lsp.handlers["workspace/executeCommand"](err, result, ctx, config)
+							end
+						end
+					end
+				end,
+			})
+
+			vim.lsp.handlers["window/showMessage"] = function(_, result, ctx)
+				local client = vim.lsp.get_client_by_id(ctx.client_id)
+				local level = ({
+					[vim.lsp.protocol.MessageType.Error] = vim.log.levels.ERROR,
+					[vim.lsp.protocol.MessageType.Warning] = vim.log.levels.WARN,
+					[vim.lsp.protocol.MessageType.Info] = vim.log.levels.INFO,
+					[vim.lsp.protocol.MessageType.Log] = vim.log.levels.DEBUG,
+				})[result.type]
+				vim.notify(result.message, level, { title = client and client.name or "LSP" })
+			end
+		end,
+		keys = function()
+			return {
+				{
+					"<leader>cr",
+					function()
+						vim.lsp.buf.rename()
+					end,
+					desc = "Rename",
+				},
+				{
+					"<leader>cD",
+					function()
+						vim.lsp.buf.definition()
+					end,
+					desc = "Go to definition",
+				},
+				{
+					"<leader>cn",
+					function()
+						vim.diagnostic.goto_next()
+					end,
+					desc = "Next diagnostic",
+				},
+				{
+					"<leader>cp",
+					function()
+						vim.diagnostic.goto_prev()
+					end,
+					desc = "Previous diagnostic",
+				},
+			}
+		end,
+	},
+}
+
+return M
