@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"neovim/nvim-lspconfig",
-		event = { "BufReadPost", "BufWritePost", "BufNewFile" },
+		event = "VeryLazy",
 		dependencies = {
 			"aznhe21/actions-preview.nvim",
 			"b0o/SchemaStore.nvim",
@@ -128,10 +128,8 @@ M.plugins = {
 	},
 	{
 		"ray-x/go.nvim",
-		event = { "BufReadPost", "BufWritePost", "BufNewFile" },
-		ft = { "go", "gomod" },
+		event = "VeryLazy",
 		dependencies = {
-			"ray-x/guihua.lua",
 			"neovim/nvim-lspconfig",
 			"nvim-treesitter/nvim-treesitter",
 		},
@@ -141,11 +139,12 @@ M.plugins = {
 			lsp_document_formatting = false,
 			dap_debug_keymap = false,
 			trouble = true,
-			lsp_cfg = true,
-			lsp_on_attach = true,
+			lsp_cfg = false,
 		},
 		config = function(_, opts)
 			require("go").setup(opts)
+			local cfg = require("go.lsp").config()
+			require("lspconfig").gopls.setup(cfg)
 		end,
 	},
 }
