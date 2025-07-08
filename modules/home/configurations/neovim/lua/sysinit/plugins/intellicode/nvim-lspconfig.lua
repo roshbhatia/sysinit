@@ -19,32 +19,34 @@ M.plugins = {
 				require("blink.cmp").get_lsp_capabilities() or {}
 			)
 
-			local servers = {
-				tflint = lspconfig.configs.tflint.default_config,
-				dockerls = lspconfig.configs.dockerls.default_config,
-				helm_ls = lspconfig.configs.helm_ls.default_config,
-				jqls = lspconfig.configs.jqls.default_config,
-				lua_ls = lspconfig.configs.lua_ls.default_config,
-				nil_ls = lspconfig.configs.nil_ls.default_config,
-				pyright = lspconfig.configs.pyright.default_config,
-				terraformls = lspconfig.configs.terraformls.default_config,
-				ts_ls = lspconfig.configs.ts_ls.default_config,
-				jsonls = vim.tbl_deep_extend("force", lspconfig.configs.jsonls.default_config, {
+			local builtin_servers = {
+				tflint = {},
+				dockerls = {},
+				helm_ls = {},
+				jqls = {},
+				lua_ls = {},
+				nil_ls = {},
+				pyright = {},
+				terraformls = {},
+				jsonls = {
 					settings = {
 						json = {
 							schemas = schemastore.json.schemas(),
 							validate = { enable = true },
 						},
 					},
-				}),
-				yamlls = vim.tbl_deep_extend("force", lspconfig.configs.yamlls.default_config, {
+				},
+				yamlls = {
 					settings = {
 						yaml = {
 							schemaStore = { enable = false, url = "" },
 							schemas = schemastore.yaml.schemas(),
 						},
 					},
-				}),
+				},
+			}
+
+			local custom_servers = {
 				up = {
 					cmd = { "up", "xpls", "serve", "--verbose" },
 					filetypes = { "yaml" },
@@ -55,10 +57,15 @@ M.plugins = {
 				},
 			}
 
-			for name, config in pairs(servers) do
+			for server, config in pairs(builtin_servers) do
 				config.capabilities = capabilities
-				vim.lsp.config(name, config)
-				vim.lsp.enable(name)
+				lspconfig[server].setup(config)
+			end
+
+			for server, config in pairs(custom_servers) do
+				config.capabilities = capabilities
+				vim.lsp.config(server, config)
+				vim.lsp.enable(server)
 			end
 
 			vim.api.nvim_create_autocmd("LspAttach", {
@@ -130,6 +137,8 @@ M.plugins = {
 			lsp_document_formatting = false,
 			dap_debug_keymap = false,
 			trouble = true,
+			lsp_cfg = true,
+			lsp_on_attach = true,
 		},
 		config = function(_, opts)
 			require("go").setup(opts)
