@@ -125,4 +125,3 @@ in
 {
   home.packages = allNixPackages;
 }
-

@@ -36,7 +36,6 @@ M.plugins = {
 						alpha = true,
 						avante = true,
 						cmp = true,
-						copilot_vim = true,
 						dap = true,
 						dap_ui = true,
 						dropbar = {
