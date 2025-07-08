@@ -15,18 +15,24 @@ M.plugins = {
 			null_ls.setup({
 				border = "rounded",
 				sources = {
+					null_ls.builtins.code_actions.gitsigns,
 					null_ls.builtins.code_actions.gomodifytags,
+					null_ls.builtins.code_actions.gitrebase,
 					null_ls.builtins.code_actions.impl,
 					null_ls.builtins.code_actions.refactoring,
 					null_ls.builtins.code_actions.statix,
 					null_ls.builtins.code_actions.textlint,
+					null_ls.builtins.code_actions.ts_node_action,
 					null_ls.builtins.diagnostics.actionlint,
 					null_ls.builtins.diagnostics.checkmake,
 					null_ls.builtins.diagnostics.deadnix,
+					null_ls.builtins.diagnostics.golangci_lint,
+					null_ls.builtins.diagnostics.hadolint,
 					null_ls.builtins.diagnostics.proselint,
 					null_ls.builtins.diagnostics.staticcheck,
 					null_ls.builtins.diagnostics.terraform_validate,
 					null_ls.builtins.diagnostics.tfsec,
+					null_ls.builtins.diagnostics.vale,
 					null_ls.builtins.diagnostics.yamllint.with({
 						args = {
 							"-d",
@@ -36,7 +42,6 @@ M.plugins = {
 							"-",
 						},
 					}),
-					null_ls.builtins.diagnostics.vale,
 					null_ls.builtins.diagnostics.zsh,
 					null_ls.builtins.hover.dictionary,
 					null_ls.builtins.hover.printenv,
@@ -70,25 +75,6 @@ M.plugins = {
 					})
 				end
 			end
-
-			null_ls.register({
-				method = null_ls.methods.CODE_ACTION,
-				filetypes = {
-					"markdown",
-				},
-				generator = {
-					fn = function(context)
-						return {
-							{
-								title = "Toggle markdown browser preview",
-								action = function()
-									vim.cmd("MarkdownPreviewToggle")
-								end,
-							},
-						}
-					end,
-				},
-			})
 
 			null_ls.register({
 				name = "open_link_in_browser",

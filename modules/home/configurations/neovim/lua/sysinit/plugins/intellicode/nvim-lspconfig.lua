@@ -59,79 +59,27 @@ M.plugins = {
 			local lsp_servers = {
 				bashls = {
 					source = "mason",
-					external = false,
 				},
 				dagger = {
 					source = "mason",
-					external = false,
 				},
 				docker_compose_language_service = {
 					source = "mason",
-					external = false,
 				},
 				dockerls = {
 					source = "mason",
-					external = false,
 				},
 				gopls = {
 					source = "mason",
-					external = false,
-					flags = {
-						debounce_text_changes = 200,
-					},
-					filetypes = {
-						"go",
-						"gomod",
-						"gowork",
-						"gohtml",
-						"gotmpl",
-						"go.html",
-						"go.tmpl",
-					},
-					settings = {
-						gopls = {
-							usePlaceholders = true,
-							codelenses = {
-								gc_details = false,
-								generate = true,
-								regenerate_cgo = true,
-								run_govulncheck = true,
-								test = true,
-								tidy = true,
-								upgrade_dependency = true,
-								vendor = true,
-							},
-							experimentalPostfixCompletions = true,
-							completeUnimported = true,
-							staticcheck = true,
-							directoryFilters = {
-								"-.git",
-								"-node_modules",
-							},
-							semanticTokens = true,
-							hints = {
-								assignVariableTypes = true,
-								compositeLiteralFields = true,
-								compositeLiteralTypes = true,
-								constantValues = true,
-								functionTypeParameters = true,
-								parameterNames = true,
-								rangeVariableTypes = true,
-							},
-						},
-					},
 				},
 				helm_ls = {
 					source = "mason",
-					external = false,
 				},
 				jqls = {
 					source = "mason",
-					external = false,
 				},
 				jsonls = {
 					source = "mason",
-					external = false,
 					settings = {
 						json = {
 							schemas = require("schemastore").json.schemas(),
@@ -143,36 +91,24 @@ M.plugins = {
 				},
 				lua_ls = {
 					source = "mason",
-					external = false,
 				},
 				nil_ls = {
 					source = "mason",
-					external = false,
-					settings = {
-						["nil"] = {
-							testSetting = 42,
-						},
-					},
 				},
 				pyright = {
 					source = "mason",
-					external = false,
 				},
 				terraformls = {
 					source = "mason",
-					external = false,
 				},
 				tflint = {
 					source = "mason",
-					external = false,
 				},
 				ts_ls = {
 					source = "mason",
-					external = false,
 				},
 				yamlls = {
 					source = "mason",
-					external = false,
 					settings = {
 						yaml = {
 							schemaStore = {
@@ -185,7 +121,6 @@ M.plugins = {
 				},
 				up = {
 					source = "system",
-					external = true,
 					cmd = {
 						"up",
 						"xpls",
@@ -200,33 +135,30 @@ M.plugins = {
 						if fd ~= "" then
 							return vim.fn.fnamemodify(fd, ":p:h")
 						end
-						return nil
+						return vim.fn.getcwd()
 					end,
 				},
 			}
 
-			local tools = {
-				"impl",
-			}
-
-			dependencies.mason_tool_installer.setup({
-				ensure_installed = tools,
-			})
+			for server_name, server_config in pairs(lsp_servers) do
+				server_config.external = server_config.source == "system"
+			end
 
 			dependencies.mason_lspconfig.setup({
 				ensure_installed = vim.tbl_filter(function(server_name)
-					return lsp_servers[server_name].source == "mason" and not lsp_servers[server_name].external
+					return not lsp_servers[server_name].external
 				end, vim.tbl_keys(lsp_servers)),
-				automatic_enable = true,
-				handlers = function(server_name)
-					if lsp_servers[server_name] and not lsp_servers[server_name].external then
-						dependencies.lspconfig[server_name].setup(
-							vim.tbl_deep_extend("force", lsp_servers[server_name], {
+				automatic_installation = true,
+				handlers = {
+					function(server_name)
+						local server_config = lsp_servers[server_name]
+						if not server_config.external then
+							dependencies.lspconfig[server_name].setup(vim.tbl_deep_extend("force", server_config, {
 								capabilities = dependencies.capabilities,
-							})
-						)
-					end
-				end,
+							}))
+						end
+					end,
+				},
 			})
 
 			for server_name, server_config in pairs(lsp_servers) do
@@ -236,6 +168,29 @@ M.plugins = {
 					}
 					dependencies.lspconfig[server_name].setup(server_config)
 				end
+			end
+
+			vim.api.nvim_create_autocmd("LspAttach", {
+				group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
+				callback = function(event)
+					local client = vim.lsp.get_client_by_id(event.data.client_id)
+					if client and client.supports_method("textDocument/inlayHint") then
+						vim.keymap.set("n", "<leader>th", function()
+							vim.lsp.inlay_hint(event.buf, nil)
+						end, { buffer = event.buf, desc = "Toggle Inlay Hints" })
+					end
+				end,
+			})
+
+			vim.lsp.handlers["window/showMessage"] = function(_, result, ctx)
+				local client = vim.lsp.get_client_by_id(ctx.client_id)
+				local level = ({
+					[vim.lsp.protocol.MessageType.Error] = vim.log.levels.ERROR,
+					[vim.lsp.protocol.MessageType.Warning] = vim.log.levels.WARN,
+					[vim.lsp.protocol.MessageType.Info] = vim.log.levels.INFO,
+					[vim.lsp.protocol.MessageType.Log] = vim.log.levels.DEBUG,
+				})[result.type]
+				vim.notify(result.message, level, { title = client and client.name or "LSP" })
 			end
 		end,
 		keys = function()
@@ -274,4 +229,3 @@ M.plugins = {
 }
 
 return M
-
