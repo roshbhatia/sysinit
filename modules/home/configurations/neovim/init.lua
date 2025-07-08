@@ -33,7 +33,6 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.debugger.dap-ui"),
 	require("sysinit.plugins.debugger.dap-virtual-text"),
 	require("sysinit.plugins.debugger.dap"),
-	require("sysinit.plugins.debugger.mason-nvim-dap"),
 	require("sysinit.plugins.debugger.nvim-dap-docker"),
 	require("sysinit.plugins.debugger.nvim-dap-go"),
 	require("sysinit.plugins.editor.colorizer"),

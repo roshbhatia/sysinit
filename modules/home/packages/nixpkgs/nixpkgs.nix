@@ -24,8 +24,11 @@ let
     coreutils
     deadnix
     delta
+    delve
     discordo
     docker
+    docker-compose-language-service
+    docker-language-server
     duf
     fd
     findutils
@@ -50,9 +53,8 @@ let
     jetbrains-mono
     jq
     jqp
-    k9s
-    kind
-    krew
+    jq-lsp
+    jsonld-cli
     kubecolor
     kubectl
     kubernetes-helm
@@ -65,12 +67,12 @@ let
     mermaid-cli
     mods
     nerd-fonts.hack
-    nodePackages_latest.fkill-cli
-    nodePackages_latest.jsonlint
     nil
     nix-search-cli
     nixd
     nixfmt-rfc-style
+    nodePackages_latest.fkill-cli
+    nodePackages_latest.jsonlint
     nodejs
     oh-my-posh
     ollama
@@ -92,8 +94,12 @@ let
     stylua
     swift
     taplo
+    terraform-ls
+    terraform-lsp
     textlint
     tfsec
+    tflint
+    tflint-plugins.tflint-ruleset-aws
     tlrc
     tree
     typescript
@@ -104,10 +110,10 @@ let
     weechat
     weechatScripts.wee-slack
     wget
-    yarn
-    yq
     yamllint
     yazi
+    yarn
+    yq
     zoxide
   ];
 

@@ -9,29 +9,48 @@ M.plugins = {
 			"Fildo7525/pretty_hover",
 			"folke/snacks.nvim",
 			"saghen/blink.compat",
-			"WhoIsSethDaniel/mason-tool-installer.nvim",
-			"williamboman/mason-lspconfig.nvim",
 		},
 		config = function()
-			local dependencies = {
-				blink_cmp = require("blink.cmp"),
-				lspconfig = require("lspconfig"),
-				mason_lspconfig = require("mason-lspconfig"),
-				mason_tool_installer = require("mason-tool-installer"),
-				configs = require("lspconfig.configs"),
-				capabilities = vim.tbl_deep_extend(
-					"force",
-					require("lspconfig").util.default_config.capabilities,
-					require("blink.cmp").get_lsp_capabilities({}, false)
-				),
+			local schemastore = require("schemastore")
+			local lspconfig = require("lspconfig")
+
+			local lsp_servers = {
+				docker_compose_language_service = {},
+				dockerls = {},
+				helm_ls = {},
+				jqls = {},
+				jsonls = { settings = 		json = {
+						schemas = schemastore.json.schemas(),
+						validate = { enable = true },
+					}, },
+				lua_ls = {},
+				nil_ls = {},
+				pyright = {},
+				terraformls = {},
+				tflint = {},
+				ts_ls = {},
+				yamlls = { settings = yaml = {
+						schemaStore = { enable = false, url = "" },
+						schemas = schemastore.yaml.schemas(),
+					},},
+				up = {
+					cmd = { "up", "xpls", "serve", "--verbose" },
+					filetypes = { "yaml" },
+					root_dir = function()
+						local fd = vim.fn.system("fd crossplane.yaml")
+						return fd ~= "" and vim.fn.fnamemodify(fd, ":p:h") or vim.fn.getcwd()
+					end,
+				},
 			}
+
+			for server_name, server_config in pairs(lsp_servers) do
+				lspconfig[server_name].setup(server_config)
+			end
 
 			vim.diagnostic.config({
 				severity_sort = true,
 				virtual_text = false,
-				virtual_lines = {
-					only_current_line = true,
-				},
+				virtual_lines = { only_current_line = true },
 				update_in_insert = false,
 				float = {
 					border = "rounded",
@@ -55,147 +74,13 @@ M.plugins = {
 					},
 				},
 			})
-
-			local lsp_servers = {
-				bashls = {
-					source = "mason",
-				},
-				dagger = {
-					source = "mason",
-				},
-				docker_compose_language_service = {
-					source = "mason",
-				},
-				dockerls = {
-					source = "mason",
-				},
-				helm_ls = {
-					source = "mason",
-				},
-				jqls = {
-					source = "mason",
-				},
-				jsonls = {
-					source = "mason",
-					settings = {
-						json = {
-							schemas = require("schemastore").json.schemas(),
-							validate = {
-								enable = true,
-							},
-						},
-					},
-				},
-				lua_ls = {
-					source = "mason",
-				},
-				nil_ls = {
-					source = "mason",
-				},
-				pyright = {
-					source = "mason",
-				},
-				terraformls = {
-					source = "mason",
-				},
-				tflint = {
-					source = "mason",
-				},
-				ts_ls = {
-					source = "mason",
-				},
-				yamlls = {
-					source = "mason",
-					settings = {
-						yaml = {
-							schemaStore = {
-								enable = false,
-								url = "",
-							},
-							schemas = require("schemastore").yaml.schemas(),
-						},
-					},
-				},
-				up = {
-					source = "system",
-					cmd = {
-						"up",
-						"xpls",
-						"serve",
-						"--verbose",
-					},
-					filetypes = {
-						"yaml",
-					},
-					root_dir = function()
-						local fd = vim.fn.system("fd crossplane.yaml")
-						if fd ~= "" then
-							return vim.fn.fnamemodify(fd, ":p:h")
-						end
-						return vim.fn.getcwd()
-					end,
-				},
-			}
-
-			for server_name, server_config in pairs(lsp_servers) do
-				server_config.external = server_config.source == "system"
-			end
-
-			dependencies.mason_lspconfig.setup({
-				ensure_installed = vim.tbl_filter(function(server_name)
-					return not lsp_servers[server_name].external
-				end, vim.tbl_keys(lsp_servers)),
-				handlers = {
-					function(server_name)
-						local server_config = lsp_servers[server_name]
-						if not server_config.external then
-							dependencies.lspconfig[server_name].setup(vim.tbl_deep_extend("force", server_config, {
-								capabilities = dependencies.capabilities,
-							}))
-						end
-					end,
-				},
-			})
-
-			for server_name, server_config in pairs(lsp_servers) do
-				if server_config.external then
-					dependencies.configs[server_name] = {
-						default_config = server_config,
-					}
-					dependencies.lspconfig[server_name].setup(server_config)
-				end
-			end
 		end,
 		keys = function()
 			return {
-				{
-					"<leader>cr",
-					function()
-						vim.lsp.buf.rename()
-					end,
-					desc = "Rename",
-				},
-				{
-					"<leader>cD",
-					function()
-						vim.lsp.buf.definition()
-					end,
-					desc = "Go to definition",
-				},
-				{
-					"<leader>cn",
-					function()
-						vim.diagnostic.goto_next()
-					end,
-					desc = "Next diagnostic",
-				},
-				{
-					"<leader>cp",
-					function()
-						vim.diagnostic.goto_prev()
-					end,
-					desc = "Previous diagnostic",
-				},
+				{ "<leader>cr", vim.lsp.buf.rename, desc = "Rename" },
+				{ "<leader>cD", vim.lsp.buf.definition, desc = "Go to definition" },
+				{ "<leader>cn", vim.diagnostic.goto_next, desc = "Next diagnostic" },
+				{ "<leader>cp", vim.diagnostic.goto_prev, desc = "Previous diagnostic" },
 			}
 		end,
 	},
@@ -224,13 +109,8 @@ M.plugins = {
 				group = format_sync_grp,
 			})
 		end,
-		event = {
-			"CmdlineEnter",
-		},
-		ft = {
-			"go",
-			"gomod",
-		},
+		event = { "CmdlineEnter" },
+		ft = { "go", "gomod" },
 		build = ':lua require("go.install").update_all_sync()',
 	},
 }

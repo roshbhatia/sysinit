@@ -19,6 +19,7 @@ in
     name = "yarn";
     basePackages = [
       "@dice-roller/cli"
+      "bash-language-server"
       "markdownlint-cli"
       "markdownlint-cli2"
       "mcp-hub@latest"
