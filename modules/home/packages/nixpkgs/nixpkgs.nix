@@ -102,12 +102,14 @@ let
     uv
     vale
     watch
+    weechat
+    weechatScripts.wee-slack
     wget
     yarn
     yq
-    zoxide
     yamllint
     yazi
+    zoxide
   ];
 
   allNixPackages = baseNixPackages ++ additionalPackages;
