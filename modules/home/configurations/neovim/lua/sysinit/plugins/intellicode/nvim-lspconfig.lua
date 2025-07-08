@@ -15,13 +15,9 @@ M.plugins = {
 		config = function()
 			local schemastore = require("schemastore")
 			local lspconfig = require("lspconfig")
-			local capabilities = vim.tbl_deep_extend(
-				"force",
-				vim.lsp.protocol.make_client_capabilities(),
-				require("blink.cmp").get_lsp_capabilities() or {}
-			)
 
 			local builtin_servers = {
+				gopls = {},
 				tflint = {},
 				dockerls = {},
 				helm_ls = {},
@@ -60,12 +56,12 @@ M.plugins = {
 			}
 
 			for server, config in pairs(builtin_servers) do
-				config.capabilities = capabilities
+				config.capabilities = require("blink.cmp").get_lsp_capabilities()
 				lspconfig[server].setup(config)
 			end
 
 			for server, config in pairs(custom_servers) do
-				config.capabilities = capabilities
+				config.capabilities = require("blink.cmp").get_lsp_capabilities()
 				vim.lsp.config(server, config)
 				vim.lsp.enable(server)
 			end
@@ -124,27 +120,6 @@ M.plugins = {
 				{ "<leader>cn", vim.diagnostic.goto_next, desc = "Next diagnostic" },
 				{ "<leader>cp", vim.diagnostic.goto_prev, desc = "Previous diagnostic" },
 			}
-		end,
-	},
-	{
-		"ray-x/go.nvim",
-		event = "VeryLazy",
-		dependencies = {
-			"neovim/nvim-lspconfig",
-			"nvim-treesitter/nvim-treesitter",
-		},
-		opts = {
-			lsp_keymaps = false,
-			icons = false,
-			lsp_document_formatting = false,
-			dap_debug_keymap = false,
-			trouble = true,
-			lsp_cfg = false,
-		},
-		config = function(_, opts)
-			require("go").setup(opts)
-			local cfg = require("go.lsp").config()
-			require("lspconfig").gopls.setup(cfg)
 		end,
 	},
 }

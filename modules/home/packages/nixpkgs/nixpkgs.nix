@@ -45,7 +45,7 @@ let
     go
     gopls
     go-task
-    golangci-lint
+    "golangci-lint@v1.68.4"
     gum
     helix
     helm-ls
