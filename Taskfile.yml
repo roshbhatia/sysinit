@@ -31,7 +31,7 @@ tasks:
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Building system configuration"
-        if ! sudo darwin-rebuild build -v --show-trace --impure --flake .; then
+        if ! sudo -i darwin-rebuild build -v --show-trace --impure --flake .; then
           log_error "Build failed."
           exit 1
         fi
@@ -129,3 +129,4 @@ tasks:
         log_success "Lua files formatted successfully"
     desc: Format Lua files using stylua
     silent: true
+
