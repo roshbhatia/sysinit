@@ -76,15 +76,21 @@ M.plugins = {
 				gopls = {
 					source = "system",
 					external = true,
+					flags = {
+						debounce_text_changes = 200,
+					},
 					filetypes = {
 						"go",
 						"gomod",
-						"gotpml",
 						"gowork",
+						"gohtml",
+						"gotmpl",
+						"go.html",
+						"go.tmpl",
 					},
 					settings = {
-						go = {
-							gofumpt = false, -- managed by none-ls
+						gopls = {
+							usePlaceholders = true,
 							codelenses = {
 								gc_details = false,
 								generate = true,
@@ -95,6 +101,14 @@ M.plugins = {
 								upgrade_dependency = true,
 								vendor = true,
 							},
+							experimentalPostfixCompletions = true,
+							completeUnimported = true,
+							staticcheck = true,
+							directoryFilters = {
+								"-.git",
+								"-node_modules",
+							},
+							semanticTokens = true,
 							hints = {
 								assignVariableTypes = true,
 								compositeLiteralFields = true,
@@ -104,24 +118,6 @@ M.plugins = {
 								parameterNames = true,
 								rangeVariableTypes = true,
 							},
-							analyses = {
-								fieldalignment = true,
-								nilness = true,
-								unusedparams = true,
-								unusedwrite = true,
-								useany = true,
-							},
-							usePlaceholders = true,
-							completeUnimported = true,
-							staticcheck = false, -- managed by none-ls
-							directoryFilters = {
-								"-.git",
-								"-.vscode",
-								"-.idea",
-								"-.vscode-test",
-								"-node_modules",
-							},
-							semanticTokens = true,
 						},
 					},
 				},
@@ -278,3 +274,4 @@ M.plugins = {
 }
 
 return M
+
