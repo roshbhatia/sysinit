@@ -45,4 +45,9 @@ in
     source = ./colimactl.sh;
     force = true;
   };
+
+  home.file.".local/bin/dockercerts" = {
+    source = ./dockercerts.sh;
+    force = true;
+  };
 }
