@@ -74,8 +74,8 @@ M.plugins = {
 					external = false,
 				},
 				gopls = {
-					source = "system",
-					external = true,
+					source = "mason",
+					external = false,
 					flags = {
 						debounce_text_changes = 200,
 					},
