@@ -12,6 +12,8 @@ M.plugins = {
 		},
 		config = function()
 			local schemastore = require("schemastore")
+			local lspconfig = require("lspconfig")
+
 			local lsp_servers = {
 				docker_compose_language_service = {},
 				dockerls = {},
@@ -39,39 +41,11 @@ M.plugins = {
 						},
 					},
 				},
-				up = {
-					cmd = { "up", "xpls", "serve", "--verbose" },
-					filetypes = { "yaml" },
-					root_dir = function()
-						local fd = vim.fn.system("fd crossplane.yaml")
-						return fd ~= "" and vim.fn.fnamemodify(fd, ":p:h") or vim.fn.getcwd()
-					end,
-				},
 			}
 
 			for server_name, server_config in pairs(lsp_servers) do
 				server_config.capabilities = require("blink.cmp").get_lsp_capabilities(server_config.capabilities)
-				vim.lsp.config(server_name, server_config)
-				vim.lsp.enable(server_name)
-
-				vim.api.nvim_create_autocmd("LspAttach", {
-					callback = function(args)
-						local client = vim.lsp.get_client_by_id(args.data.client_id)
-						local bufnr = args.buf
-						if vim.lsp.inlay_hint and client.supports_method("textDocument/inlayHint") then
-							vim.lsp.inlay_hint.enable(bufnr, true)
-						end
-						if vim.lsp.codelens and client.supports_method("textDocument/codeLens") then
-							vim.lsp.codelens.refresh()
-							local group = vim.api.nvim_create_augroup("LSPCodeLens" .. bufnr, { clear = true })
-							vim.api.nvim_create_autocmd({ "BufEnter", "InsertLeave" }, {
-								group = group,
-								buffer = bufnr,
-								callback = vim.lsp.codelens.refresh,
-							})
-						end
-					end,
-				})
+				lspconfig[server_name].setup(server_config)
 			end
 
 			vim.diagnostic.config({
@@ -101,6 +75,16 @@ M.plugins = {
 					},
 				},
 			})
+
+			vim.lsp.config("up", {
+				cmd = { "up", "xpls", "serve", "--verbose" },
+				filetypes = { "yaml" },
+				root_dir = function()
+					local fd = vim.fn.system("fd crossplane.yaml")
+					return fd ~= "" and vim.fn.fnamemodify(fd, ":p:h") or vim.fn.getcwd()
+				end,
+			})
+			vim.lsp.enable("up")
 		end,
 		keys = function()
 			return {
@@ -127,9 +111,14 @@ M.plugins = {
 		},
 		config = function(lp, opts)
 			require("go").setup(opts)
-			local gopls_cfg = require("go.lsp").config()
-			vim.lsp.config.gopls = gopls_cfg
-			vim.lsp.enable("gopls")
+			local format_sync_grp = vim.api.nvim_create_augroup("GoFormat", {})
+			vim.api.nvim_create_autocmd("BufWritePre", {
+				pattern = "*.go",
+				callback = function()
+					require("go.format").goimports()
+				end,
+				group = format_sync_grp,
+			})
 		end,
 		event = { "CmdlineEnter" },
 		ft = { "go", "gomod" },
