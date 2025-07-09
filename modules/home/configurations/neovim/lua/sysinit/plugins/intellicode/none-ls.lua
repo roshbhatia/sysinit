@@ -37,7 +37,6 @@ M.plugins = {
 					null_ls.builtins.diagnostics.staticcheck,
 					null_ls.builtins.diagnostics.terraform_validate,
 					null_ls.builtins.diagnostics.tfsec,
-					null_ls.builtins.diagnostics.vale,
 					null_ls.builtins.diagnostics.yamllint.with({
 						args = {
 							"-d",
