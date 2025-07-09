@@ -81,33 +81,137 @@ M.plugins = {
 					files = { "src/parser.c" },
 				},
 				filetype = "gotmpl",
-				used_by = { "gohtmltmpl", "gotexttmpl", "gotmpl", "yaml" },
+				used_by = { "gohtmltmpl", "gotexttmpl", "gotmpl" },
 			}
-
 			require("nvim-treesitter.configs").setup(opts)
 
 			local query_sets = {
 				yaml = {
 					injections = [[
-					((block_scalar) @injection.content
-						(#contains? @injection.content "{{")
-						(#set! injection.language "gotmpl"))
+			; Only inject gotmpl in Crossplane Compositions
+			; Check for Composition kind and function-go-templating context
+			(document
+				(block_node
+					(block_mapping
+						(block_mapping_pair
+							key: (flow_node (plain_scalar) @_kind_key)
+							value: (flow_node (plain_scalar) @_kind_value))
+						(block_mapping_pair
+							key: (flow_node (plain_scalar) @_spec_key)
+							value: (block_node
+								(block_mapping
+									(block_mapping_pair
+										key: (flow_node (plain_scalar) @_pipeline_key)
+										value: (block_node
+											(block_sequence
+												(block_sequence_item
+													(block_node
+														(block_mapping
+															(block_mapping_pair
+																key: (flow_node (plain_scalar) @_input_key)
+																value: (block_node
+																	(block_mapping
+																		(block_mapping_pair
+																			key: (flow_node (plain_scalar) @_template_key)
+																			value: (block_node (block_scalar) @injection.content)))))))))))))
+				(#eq? @_kind_key "kind")
+				(#eq? @_kind_value "Composition")
+				(#eq? @_spec_key "spec")
+				(#eq? @_pipeline_key "pipeline")
+				(#eq? @_input_key "input")
+				(#eq? @_template_key "template")
+				(#contains? @injection.content "{{")
+				(#set! injection.language "gotmpl"))
 
-					((plain_scalar) @injection.content
-						(#contains? @injection.content "{{")
-						(#set! injection.language "gotmpl"))
-					]],
+			; Handle inline templates in function-go-templating inputs
+			(document
+				(block_node
+					(block_mapping
+						(block_mapping_pair
+							key: (flow_node (plain_scalar) @_kind_key)
+							value: (flow_node (plain_scalar) @_kind_value))
+						(block_mapping_pair
+							key: (flow_node (plain_scalar) @_api_key)
+							value: (flow_node (plain_scalar) @_api_value))
+						(block_mapping_pair
+							key: (flow_node (plain_scalar) @_template_key)
+							value: (block_node (block_scalar) @injection.content))))
+				(#eq? @_kind_key "kind")
+				(#eq? @_kind_value "GoTemplate")
+				(#eq? @_api_key "apiVersion")
+				(#match? @_api_value "gotemplating\.fn\.crossplane\.io")
+				(#eq? @_template_key "template")
+				(#contains? @injection.content "{{")
+				(#set! injection.language "gotmpl"))
+
+			; Handle quoted template strings in Crossplane context
+			(document
+				(block_node
+					(block_mapping
+						(block_mapping_pair
+							key: (flow_node (plain_scalar) @_kind_key)
+							value: (flow_node (plain_scalar) @_kind_value))
+						; Look for nested template field in Composition context
+						(block_mapping_pair
+							value: (block_node
+								(block_mapping
+									(block_mapping_pair
+										(block_mapping_pair
+											key: (flow_node (plain_scalar) @_template_key)
+											value: (flow_node (double_quote_scalar) @injection.content))))))))
+				(#eq? @_kind_key "kind")
+				(#eq? @_kind_value "Composition")
+				(#eq? @_template_key "template")
+				(#contains? @injection.content "{{")
+				(#set! injection.language "gotmpl"))
+
+			; Fallback for any YAML with specific Crossplane function annotations
+			((block_scalar) @injection.content
+				(#lua-match? @injection.content "apiVersion:%s*gotemplating%.fn%.crossplane%.io")
+				(#contains? @injection.content "{{")
+				(#set! injection.language "gotmpl"))
+
+			; Plain scalars in Crossplane function context
+			((plain_scalar) @injection.content
+				(#lua-match? @injection.content "apiVersion:%s*gotemplating%.fn%.crossplane%.io")
+				(#contains? @injection.content "{{")
+				(#set! injection.language "gotmpl"))
+			]],
+
 					highlights = [[
-					(block_mapping_pair
-						key: (flow_node (plain_scalar) @keyword)
-						value: (flow_node (plain_scalar) @string))
+			; Highlight Crossplane-specific keys
+			(block_mapping_pair
+				key: (flow_node (plain_scalar) @keyword.crossplane)
+				(#any-of? @keyword.crossplane "apiVersion" "kind" "spec" "pipeline" "functionRef" "input" "source" "inline" "template"))
 
-					((block_scalar) @string
-						(#contains? @string "{{"))
+			; Highlight Go template content in Crossplane context only
+			(block_mapping_pair
+				key: (flow_node (plain_scalar) @_template_key)
+				value: (block_node (block_scalar) @string.template)
+				(#eq? @_template_key "template")
+				(#contains? @string.template "{{"))
 
-					((plain_scalar) @string
-						(#contains? @string "{{"))
-					]],
+			; Highlight function names in Crossplane context
+			(block_mapping_pair
+				key: (flow_node (plain_scalar) @_name_key)
+				value: (flow_node (plain_scalar) @function.name)
+				(#eq? @_name_key "name")
+				(#eq? @function.name "function-go-templating"))
+
+			; Highlight Crossplane API versions
+			(block_mapping_pair
+				key: (flow_node (plain_scalar) @_api_key)
+				value: (flow_node (plain_scalar) @constant.api)
+				(#eq? @_api_key "apiVersion")
+				(#any-of? @constant.api "apiextensions.crossplane.io/v1" "gotemplating.fn.crossplane.io/v1beta1"))
+
+			; Highlight Crossplane kinds
+			(block_mapping_pair
+				key: (flow_node (plain_scalar) @_kind_key)
+				value: (flow_node (plain_scalar) @type.crossplane)
+				(#eq? @_kind_key "kind")
+				(#any-of? @type.crossplane "Composition" "GoTemplate" "ExtraResources" "Context" "CompositeConnectionDetails" "ClaimConditions"))
+			]],
 				},
 			}
 
@@ -121,3 +225,4 @@ M.plugins = {
 }
 
 return M
+
