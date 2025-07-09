@@ -114,16 +114,11 @@ M.plugins = {
 					]],
 			}
 
-			vim.api.nvim_create_autocmd("LspAttach", {
+			vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+				pattern = { "composition.yaml", "definition.yaml" },
 				callback = function(args)
-					local client = vim.lsp.get_client_by_id(args.data.client_id)
-					if client and client.name:lower():find("crossplane") then
-						local ft = vim.bo[args.buf].filetype
-						if ft == "yaml" then
-							for group, content in pairs(yaml_queries) do
-								vim.treesitter.query.set("yaml", group, content, args.buf)
-							end
-						end
+					for group, content in pairs(yaml_queries) do
+						vim.treesitter.query.set("yaml", group, content, args.buf)
 					end
 				end,
 			})
