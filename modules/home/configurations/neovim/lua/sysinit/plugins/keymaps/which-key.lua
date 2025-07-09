@@ -68,10 +68,6 @@ M.plugins = {
 					group = "Copilot - Goose",
 				},
 				{
-					"<leader>t",
-					group = "Copilot - Terminal",
-				},
-				{
 					"<leader>i",
 					group = "Search",
 				},
