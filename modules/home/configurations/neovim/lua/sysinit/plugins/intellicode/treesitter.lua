@@ -86,58 +86,54 @@ M.plugins = {
 
 			require("nvim-treesitter.configs").setup(opts)
 
-			local yaml_queries = {
+			local crossplane_queries = {
 				injections = [[
-					((block_scalar) @injection.content
-						(#contains? @injection.content "{{")
-						(#set! injection.language "gotmpl"))
-					((plain_scalar) @injection.content
-						(#contains? @injection.content "{{")
-						(#set! injection.language "gotmpl"))
-					]],
+                ((block_scalar) @injection.content
+                        (#contains? @injection.content "{{")
+                        (#set! injection.language "gotmpl"))
+                ((plain_scalar) @injection.content
+                        (#contains? @injection.content "{{")
+                        (#set! injection.language "gotmpl"))
+                ]],
 				highlights = [[
-					(block_mapping_pair
-						key: (flow_node (plain_scalar) @keyword)
-						value: (flow_node (plain_scalar) @string))
-					((block_scalar) @string
-						(#contains? @string "{{"))
-					((plain_scalar) @string
-						(#contains? @string "{{"))
-					]],
+                (block_mapping_pair
+                        key: (flow_node (plain_scalar) @keyword)
+                        value: (flow_node (plain_scalar) @string))
+                ((block_scalar) @string
+                        (#contains? @string "{{"))
+                ((plain_scalar) @string
+                        (#contains? @string "{{"))
+                ]],
 			}
 
 			local taskfile_queries = {
 				injections = [[
-					((block_scalar) @injection.content
-						(#contains? @injection.content "#!/usr/bin/env bash")
-						(#set! injection.language "bash"))
-					]],
+                ((block_scalar) @injection.content
+                        (#contains? @injection.content "#!/usr/bin/env bash")
+                        (#set! injection.language "bash"))
+                ]],
 			}
 
-			local reattach = function(buf)
-				local ok, configs = pcall(require, "nvim-treesitter.configs")
-				if ok and configs.reattach_module then
-					configs.reattach_module("highlight", buf)
-				else
-					local lang = vim.treesitter.language.get_lang(vim.bo[buf].filetype)
-					if lang then
-						local parser = vim.treesitter.get_parser(buf, lang)
-						if parser and parser:has_tree() then
-							parser:for_each_tree(function(t)
-								t:invalidate()
-							end)
-						end
+			local function is_crossplane_yaml(buf)
+				local lines = vim.api.nvim_buf_get_lines(buf, 0, 10, false)
+				for _, line in ipairs(lines) do
+					if line:match("apiVersion:") or line:match("kind:") then
+						return true
 					end
 				end
+				return false
 			end
 
-			vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+			vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
 				pattern = { "composition.yaml", "definition.yaml" },
 				callback = function(args)
-					for group, content in pairs(yaml_queries) do
-						vim.treesitter.query.set("yaml", group, content, args.buf)
+					if is_crossplane_yaml(args.buf) then
+						for group, content in pairs(crossplane_queries) do
+							vim.treesitter.query.set("yaml", group, content, args.buf)
+						end
+
+						vim.cmd("redraw!")
 					end
-					reattach(args.buf)
 				end,
 			})
 
