@@ -13,60 +13,60 @@ let
     ];
     theme = {
       attribute = {
-        color = "#cba6f7";
+        color = "#ca9ee6";
         italic = true;
       };
       comment = {
-        color = "#6c7086";
+        color = "#626880";
         italic = true;
       };
-      constant = "#f38ba8";
+      constant = "#e78284";
       "constant.builtin" = {
         bold = true;
-        color = "#f38ba8";
+        color = "#ef9f76";
       };
-      constructor = "#f9e2af";
+      constructor = "#e5c890";
       embedded = null;
-      function = "#89b4fa";
+      function = "#8caaee";
       "function.builtin" = {
         bold = true;
-        color = "#89b4fa";
+        color = "#99d1db";
       };
-      keyword = "#f5c2e7";
-      module = "#f9e2af";
+      keyword = "#f4b8e4";
+      module = "#e5c890";
       number = {
         bold = true;
-        color = "#f38ba8";
+        color = "#ef9f76";
       };
       operator = {
         bold = true;
-        color = "#6c7086";
+        color = "#737994";
       };
-      property = "#cba6f7";
+      property = "#ca9ee6";
       "property.builtin" = {
         bold = true;
-        color = "#cba6f7";
+        color = "#f4b8e4";
       };
-      punctuation = "#6c7086";
-      "punctuation.bracket" = "#6c7086";
-      "punctuation.delimiter" = "#6c7086";
-      "punctuation.special" = "#6c7086";
-      string = "#a6e3a1";
-      "string.special" = "#94e2d5";
-      tag = "#f5c2e7";
-      type = "#89dceb";
+      punctuation = "#626880";
+      "punctuation.bracket" = "#737994";
+      "punctuation.delimiter" = "#737994";
+      "punctuation.special" = "#81c8be";
+      string = "#a6d189";
+      "string.special" = "#81c8be";
+      tag = "#f4b8e4";
+      type = "#99d1db";
       "type.builtin" = {
         bold = true;
-        color = "#89dceb";
+        color = "#85c1dc";
       };
-      variable = "#cdd6f4";
+      variable = "#b5bfe2";
       "variable.builtin" = {
         bold = true;
-        color = "#cdd6f4";
+        color = "#eebebe";
       };
       "variable.parameter" = {
-        color = "#cdd6f4";
-        underline = true;
+        color = "#c6d0f5";
+        italic = true;
       };
     };
   };

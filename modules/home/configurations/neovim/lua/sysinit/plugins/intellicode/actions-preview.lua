@@ -8,7 +8,7 @@ M.plugins = {
 		},
 		config = function()
 			require("actions-preview").setup({
-				telescope = vim.tbl_extend("force", require("telescope.themes").get_ivy(), {
+				telescope = vim.tbl_extend("force", require("telescope.themes").get_cursor(), {
 					make_value = nil,
 					make_make_display = nil,
 				}),

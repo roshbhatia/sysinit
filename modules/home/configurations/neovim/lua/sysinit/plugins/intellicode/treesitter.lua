@@ -86,33 +86,56 @@ M.plugins = {
 
 			require("nvim-treesitter.configs").setup(opts)
 
-			local query_sets = {
-				yaml = {
-					injections = [[
-                    ((block_scalar) @injection.content
-                        (#contains? @injection.content "{{")
-                        (#set! injection.language "gotmpl"))
-                    ((plain_scalar) @injection.content
-                        (#contains? @injection.content "{{")
-                        (#set! injection.language "gotmpl"))
-                    ]],
-					highlights = [[
-                    (block_mapping_pair
-                        key: (flow_node (plain_scalar) @keyword)
-                        value: (flow_node (plain_scalar) @string))
-                    ((block_scalar) @string
-                        (#contains? @string "{{"))
-                    ((plain_scalar) @string
-                        (#contains? @string "{{"))
-                    ]],
-				},
+			local yaml_queries = {
+				injections = [[
+					((block_scalar) @injection.content
+						(#contains? @injection.content "{{")
+						(#set! injection.language "gotmpl"))
+					((plain_scalar) @injection.content
+						(#contains? @injection.content "{{")
+						(#set! injection.language "gotmpl"))
+					]],
+				highlights = [[
+					(block_mapping_pair
+						key: (flow_node (plain_scalar) @keyword)
+						value: (flow_node (plain_scalar) @string))
+					((block_scalar) @string
+						(#contains? @string "{{"))
+					((plain_scalar) @string
+						(#contains? @string "{{"))
+					]],
 			}
 
-			for lang, sets in pairs(query_sets) do
-				for group, content in pairs(sets) do
-					vim.treesitter.query.set(lang, group, content)
-				end
-			end
+			local taskfile_queries = {
+				injections = [[
+					((block_scalar) @injection.content
+						(#contains? @injection.content "#!/usr/bin/env bash")
+						(#set! injection.language "bash"))
+					]],
+			}
+
+			vim.api.nvim_create_autocmd("LspAttach", {
+				callback = function(args)
+					local client = vim.lsp.get_client_by_id(args.data.client_id)
+					if client and client.name:lower():find("crossplane") then
+						local ft = vim.bo[args.buf].filetype
+						if ft == "yaml" then
+							for group, content in pairs(yaml_queries) do
+								vim.treesitter.query.set("yaml", group, content, args.buf)
+							end
+						end
+					end
+				end,
+			})
+
+			vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+				pattern = "Taskfile.yml",
+				callback = function(args)
+					for group, content in pairs(taskfile_queries) do
+						vim.treesitter.query.set("yaml", group, content, args.buf)
+					end
+				end,
+			})
 		end,
 	},
 }
