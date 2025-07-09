@@ -115,27 +115,15 @@ M.plugins = {
 				},
 				pickers = {
 					find_files = {
-						find_command = {
-							"fd",
-							"--type",
-							"f",
-							"--hidden",
-							"--exclude",
-							".git",
-							"--exclude",
-							"node_modules",
-							"--exclude",
-							"vendor",
-							"--exclude",
-							".cache",
-							"--exclude",
-							"build",
-							"--exclude",
-							"dist",
-							"--exclude",
-							"target",
-							"--exclude",
-							".goose",
+						live_grep = {
+							file_ignore_patterns = { "node_modules", ".git", ".venv" },
+							additional_args = function(_)
+								return { "--hidden" }
+							end,
+						},
+						find_files = {
+							file_ignore_patterns = { "node_modules", ".git", ".venv" },
+							hidden = true,
 						},
 					},
 					colorscheme = {
@@ -176,7 +164,7 @@ M.plugins = {
 				},
 				{
 					"<leader>bb",
-					"<CMD>Telescope buffers sort_mru=true ignore_current_buffer=true show_all_buffers=false<CR>",
+					"<CMD>Telescope buffers sort_mru=true show_all_buffers=true<CR>",
 					desc = "Buffers",
 				},
 				{
