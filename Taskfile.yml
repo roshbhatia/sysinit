@@ -45,7 +45,7 @@ tasks:
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Running garbage collection"
-        if ! sudo nix-collect-garbage -d; then
+        if ! sudo -i nix-collect-garbage -d; then
           log_error "Garbage collection failed"
           exit 1
         fi
@@ -59,7 +59,7 @@ tasks:
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Updating flake inputs"
-        if ! sudo nix flake update; then
+        if ! sudo -i nix flake update; then
           log_error "Flake update failed"
           exit 1
         fi
@@ -74,7 +74,7 @@ tasks:
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Applying system configuration"
-        if ! sudo darwin-rebuild switch --flake . --impure --show-trace; then
+        if ! sudo -i darwin-rebuild switch --flake . --impure --show-trace; then
           log_error "Refresh failed."
           exit 1
         fi

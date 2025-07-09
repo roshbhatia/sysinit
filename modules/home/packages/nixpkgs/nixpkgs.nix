@@ -65,6 +65,7 @@ let
     libgit2
     lnav
     luajit
+    lua-language-server
     lynx
     mermaid-cli
     mods
@@ -123,3 +124,4 @@ in
 {
   home.packages = allNixPackages;
 }
+
