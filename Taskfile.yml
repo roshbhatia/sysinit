@@ -59,7 +59,7 @@ tasks:
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Updating flake inputs"
-        if ! sudo -i nix flake update; then
+        if ! sudo nix flake update; then
           log_error "Flake update failed"
           exit 1
         fi
@@ -129,4 +129,3 @@ tasks:
         log_success "Lua files formatted successfully"
     desc: Format Lua files using stylua
     silent: true
-
