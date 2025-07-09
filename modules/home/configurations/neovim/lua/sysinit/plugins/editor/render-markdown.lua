@@ -46,6 +46,7 @@ M.plugins = {
 					"Avante",
 					"markdown",
 					"octo",
+					"codecompanion",
 				},
 				sign = {
 					enabled = false,

@@ -133,6 +133,10 @@ M.plugins = {
 					opts = {},
 				}
 				table.insert(sources, "avante")
+
+				sources.per_filetype = {
+					codecompanion = { "codecompanion" },
+				}
 			end
 
 			return {
