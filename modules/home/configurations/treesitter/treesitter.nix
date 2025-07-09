@@ -24,16 +24,31 @@ let
       "constant.builtin" = {
         bold = true;
         color = "#ef9f76";
+        background = "#3b4252";
       };
       constructor = "#e5c890";
-      embedded = null;
-      function = "#8caaee";
+      embedded = {
+        color = "#81c8be";
+        italic = true;
+      };
+      function = {
+        bold = true;
+        color = "#8caaee";
+        underline = true;
+      };
       "function.builtin" = {
         bold = true;
         color = "#99d1db";
+        background = "#3b4252";
       };
-      keyword = "#f4b8e4";
-      module = "#e5c890";
+      keyword = {
+        bold = true;
+        color = "#f4b8e4";
+      };
+      module = {
+        color = "#e5c890";
+        italic = true;
+      };
       number = {
         bold = true;
         color = "#ef9f76";
@@ -48,16 +63,37 @@ let
         color = "#f4b8e4";
       };
       punctuation = "#626880";
-      "punctuation.bracket" = "#737994";
-      "punctuation.delimiter" = "#737994";
-      "punctuation.special" = "#81c8be";
-      string = "#a6d189";
-      "string.special" = "#81c8be";
-      tag = "#f4b8e4";
-      type = "#99d1db";
+      "punctuation.bracket" = {
+        bold = true;
+        color = "#737994";
+      };
+      "punctuation.delimiter" = {
+        color = "#737994";
+      };
+      "punctuation.special" = {
+        bold = true;
+        color = "#81c8be";
+      };
+      string = {
+        color = "#a6d189";
+        italic = true;
+      };
+      "string.special" = {
+        bold = true;
+        color = "#81c8be";
+      };
+      tag = {
+        bold = true;
+        color = "#f4b8e4";
+      };
+      type = {
+        bold = true;
+        color = "#99d1db";
+      };
       "type.builtin" = {
         bold = true;
         color = "#85c1dc";
+        underline = true;
       };
       variable = "#b5bfe2";
       "variable.builtin" = {
@@ -78,3 +114,4 @@ in
     force = true;
   };
 }
+
