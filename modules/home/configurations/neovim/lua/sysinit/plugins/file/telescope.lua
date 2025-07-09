@@ -175,7 +175,7 @@ M.plugins = {
 					desc = "Live grep",
 				},
 				{
-					"<leader>fb",
+					"<leader>bb",
 					"<CMD>Telescope buffers sort_mru=true ignore_current_buffer=true show_all_buffers=false<CR>",
 					desc = "Buffers",
 				},
