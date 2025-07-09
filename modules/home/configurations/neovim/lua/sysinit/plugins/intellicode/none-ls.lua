@@ -6,9 +6,11 @@ M.plugins = {
 		event = "LSPAttach",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
+			"nvim-treesitter/nvim-treesitter",
 			{
 				"ckolkey/ts-node-action",
 				opts = {},
+				config = true,
 			},
 		},
 		config = function()

@@ -2,6 +2,7 @@ local M = {}
 
 M.plugins = {
 	{
+		disabled = true,
 		"aweis89/ai-terminals.nvim",
 		dependencies = {
 			"folke/snacks.nvim",
