@@ -114,16 +114,30 @@ M.plugins = {
 					]],
 			}
 
+			local reattach = function(buf)
+				local ok, configs = pcall(require, "nvim-treesitter.configs")
+				if ok and configs.reattach_module then
+					configs.reattach_module("highlight", buf)
+				else
+					local lang = vim.treesitter.language.get_lang(vim.bo[buf].filetype)
+					if lang then
+						local parser = vim.treesitter.get_parser(buf, lang)
+						if parser and parser:has_tree() then
+							parser:for_each_tree(function(t)
+								t:invalidate()
+							end)
+						end
+					end
+				end
+			end
+
 			vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 				pattern = { "composition.yaml", "definition.yaml" },
 				callback = function(args)
 					for group, content in pairs(yaml_queries) do
 						vim.treesitter.query.set("yaml", group, content, args.buf)
 					end
-					vim.treesitter.highlighter.active[args.buf] = nil
-					vim.api.nvim_buf_call(args.buf, function()
-						vim.cmd("doautocmd BufRead")
-					end)
+					reattach(args.buf)
 				end,
 			})
 
@@ -133,10 +147,6 @@ M.plugins = {
 					for group, content in pairs(taskfile_queries) do
 						vim.treesitter.query.set("yaml", group, content, args.buf)
 					end
-					vim.treesitter.highlighter.active[args.buf] = nil
-					vim.api.nvim_buf_call(args.buf, function()
-						vim.cmd("doautocmd BufRead")
-					end)
 				end,
 			})
 		end,
