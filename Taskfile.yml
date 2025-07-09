@@ -31,7 +31,7 @@ tasks:
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Building system configuration"
-        if ! sudo -i darwin-rebuild build -v --show-trace --impure --flake .; then
+        if ! sudo darwin-rebuild build -v --show-trace --impure --flake .; then
           log_error "Build failed."
           exit 1
         fi
@@ -45,7 +45,7 @@ tasks:
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Running garbage collection"
-        if ! sudo -i nix-collect-garbage -d; then
+        if ! sudo nix-collect-garbage -d; then
           log_error "Garbage collection failed"
           exit 1
         fi
@@ -74,7 +74,7 @@ tasks:
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Applying system configuration"
-        if ! sudo -i darwin-rebuild switch --flake . --impure --show-trace; then
+        if ! sudo darwin-rebuild switch --flake . --impure --show-trace; then
           log_error "Refresh failed."
           exit 1
         fi
