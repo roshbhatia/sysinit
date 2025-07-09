@@ -132,7 +132,7 @@ M.plugins = {
 							vim.treesitter.query.set("yaml", group, content, args.buf)
 						end
 
-						vim.cmd("edit!")
+						vim.cmd("write | edit | TSBufEnable highlight")
 					end
 				end,
 			})
