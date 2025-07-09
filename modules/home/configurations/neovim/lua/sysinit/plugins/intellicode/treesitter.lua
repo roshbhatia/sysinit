@@ -74,6 +74,9 @@ M.plugins = {
 			},
 		},
 		config = function(_, opts)
+			opts.ensure_installed = opts.ensure_installed or {}
+			vim.list_extend(opts.ensure_installed, { "yaml", "go" })
+
 			local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
 			parser_config.gotmpl = {
 				install_info = {
@@ -83,143 +86,73 @@ M.plugins = {
 				filetype = "gotmpl",
 				used_by = { "gohtmltmpl", "gotexttmpl", "gotmpl" },
 			}
+
 			require("nvim-treesitter.configs").setup(opts)
 
-			local query_sets = {
-				yaml = {
-					injections = [[
-			; Only inject gotmpl in Crossplane Compositions
-			; Check for Composition kind and function-go-templating context
-			(document
-				(block_node
-					(block_mapping
-						(block_mapping_pair
-							key: (flow_node (plain_scalar) @_kind_key)
-							value: (flow_node (plain_scalar) @_kind_value))
-						(block_mapping_pair
-							key: (flow_node (plain_scalar) @_spec_key)
-							value: (block_node
-								(block_mapping
-									(block_mapping_pair
-										key: (flow_node (plain_scalar) @_pipeline_key)
-										value: (block_node
-											(block_sequence
-												(block_sequence_item
-													(block_node
-														(block_mapping
-															(block_mapping_pair
-																key: (flow_node (plain_scalar) @_input_key)
-																value: (block_node
-																	(block_mapping
-																		(block_mapping_pair
-																			key: (flow_node (plain_scalar) @_template_key)
-																			value: (block_node (block_scalar) @injection.content)))))))))))))
-				(#eq? @_kind_key "kind")
-				(#eq? @_kind_value "Composition")
-				(#eq? @_spec_key "spec")
-				(#eq? @_pipeline_key "pipeline")
-				(#eq? @_input_key "input")
-				(#eq? @_template_key "template")
-				(#contains? @injection.content "{{")
-				(#set! injection.language "gotmpl"))
+			local function is_crossplane_file()
+				local lines = vim.api.nvim_buf_get_lines(0, 0, 50, false)
+				local content = table.concat(lines, "\n")
+				local crossplane_patterns = {
+					"kind:%s*Composition",
+					"apiVersion:%s*apiextensions%.crossplane%.io",
+					"gotemplating%.fn%.crossplane%.io",
+					"function%-go%-templating",
+					"functionRef:",
+				}
 
-			; Handle inline templates in function-go-templating inputs
-			(document
-				(block_node
-					(block_mapping
-						(block_mapping_pair
-							key: (flow_node (plain_scalar) @_kind_key)
-							value: (flow_node (plain_scalar) @_kind_value))
-						(block_mapping_pair
-							key: (flow_node (plain_scalar) @_api_key)
-							value: (flow_node (plain_scalar) @_api_value))
-						(block_mapping_pair
-							key: (flow_node (plain_scalar) @_template_key)
-							value: (block_node (block_scalar) @injection.content))))
-				(#eq? @_kind_key "kind")
-				(#eq? @_kind_value "GoTemplate")
-				(#eq? @_api_key "apiVersion")
-				(#match? @_api_value "gotemplating\.fn\.crossplane\.io")
-				(#eq? @_template_key "template")
-				(#contains? @injection.content "{{")
-				(#set! injection.language "gotmpl"))
-
-			; Handle quoted template strings in Crossplane context
-			(document
-				(block_node
-					(block_mapping
-						(block_mapping_pair
-							key: (flow_node (plain_scalar) @_kind_key)
-							value: (flow_node (plain_scalar) @_kind_value))
-						; Look for nested template field in Composition context
-						(block_mapping_pair
-							value: (block_node
-								(block_mapping
-									(block_mapping_pair
-										(block_mapping_pair
-											key: (flow_node (plain_scalar) @_template_key)
-											value: (flow_node (double_quote_scalar) @injection.content))))))))
-				(#eq? @_kind_key "kind")
-				(#eq? @_kind_value "Composition")
-				(#eq? @_template_key "template")
-				(#contains? @injection.content "{{")
-				(#set! injection.language "gotmpl"))
-
-			; Fallback for any YAML with specific Crossplane function annotations
-			((block_scalar) @injection.content
-				(#lua-match? @injection.content "apiVersion:%s*gotemplating%.fn%.crossplane%.io")
-				(#contains? @injection.content "{{")
-				(#set! injection.language "gotmpl"))
-
-			; Plain scalars in Crossplane function context
-			((plain_scalar) @injection.content
-				(#lua-match? @injection.content "apiVersion:%s*gotemplating%.fn%.crossplane%.io")
-				(#contains? @injection.content "{{")
-				(#set! injection.language "gotmpl"))
-			]],
-
-					highlights = [[
-			; Highlight Crossplane-specific keys
-			(block_mapping_pair
-				key: (flow_node (plain_scalar) @keyword.crossplane)
-				(#any-of? @keyword.crossplane "apiVersion" "kind" "spec" "pipeline" "functionRef" "input" "source" "inline" "template"))
-
-			; Highlight Go template content in Crossplane context only
-			(block_mapping_pair
-				key: (flow_node (plain_scalar) @_template_key)
-				value: (block_node (block_scalar) @string.template)
-				(#eq? @_template_key "template")
-				(#contains? @string.template "{{"))
-
-			; Highlight function names in Crossplane context
-			(block_mapping_pair
-				key: (flow_node (plain_scalar) @_name_key)
-				value: (flow_node (plain_scalar) @function.name)
-				(#eq? @_name_key "name")
-				(#eq? @function.name "function-go-templating"))
-
-			; Highlight Crossplane API versions
-			(block_mapping_pair
-				key: (flow_node (plain_scalar) @_api_key)
-				value: (flow_node (plain_scalar) @constant.api)
-				(#eq? @_api_key "apiVersion")
-				(#any-of? @constant.api "apiextensions.crossplane.io/v1" "gotemplating.fn.crossplane.io/v1beta1"))
-
-			; Highlight Crossplane kinds
-			(block_mapping_pair
-				key: (flow_node (plain_scalar) @_kind_key)
-				value: (flow_node (plain_scalar) @type.crossplane)
-				(#eq? @_kind_key "kind")
-				(#any-of? @type.crossplane "Composition" "GoTemplate" "ExtraResources" "Context" "CompositeConnectionDetails" "ClaimConditions"))
-			]],
-				},
-			}
-
-			for lang, sets in pairs(query_sets) do
-				for group, content in pairs(sets) do
-					vim.treesitter.query.set(lang, group, content)
+				for _, pattern in ipairs(crossplane_patterns) do
+					if content:match(pattern) then
+						return true
+					end
 				end
+				return false
 			end
+
+			local has_yaml = pcall(vim.treesitter.get_parser, 0, "yaml")
+			local has_gotmpl = pcall(vim.treesitter.get_parser, 0, "gotmpl")
+
+			if not (has_yaml and has_gotmpl) then
+				return
+			end
+
+			local injection_query = [[
+		; Only inject in template fields that contain Go template syntax
+		(block_mapping_pair
+			key: (flow_node (plain_scalar) @_key)
+			value: (block_node (block_scalar) @injection.content)
+			(#eq? @_key "template")
+			(#lua-match? @injection.content "%{%{.*%}%}")
+			(#set! injection.language "gotmpl"))
+
+		; Handle quoted strings with templates
+		(block_mapping_pair
+			key: (flow_node (plain_scalar) @_key)
+			value: (flow_node (double_quote_scalar) @injection.content)
+			(#eq? @_key "template")
+			(#lua-match? @injection.content "%{%{.*%}%}")
+			(#set! injection.language "gotmpl"))
+		]]
+
+			local highlight_query = [[
+		; Highlight template content
+		(block_mapping_pair
+			key: (flow_node (plain_scalar) @_key)
+			value: (block_node (block_scalar) @string.template)
+			(#eq? @_key "template")
+			(#lua-match? @string.template "%{%{.*%}%}"))
+		]]
+
+			local group = vim.api.nvim_create_augroup("CrossplaneTreesitter", { clear = true })
+			vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+				group = group,
+				pattern = "*.yaml",
+				callback = function()
+					if is_crossplane_file() then
+						vim.treesitter.query.set("yaml", "injections", injection_query)
+						vim.treesitter.query.set("yaml", "highlights", highlight_query)
+					end
+				end,
+			})
 		end,
 	},
 }
