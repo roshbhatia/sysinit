@@ -120,6 +120,10 @@ M.plugins = {
 					for group, content in pairs(yaml_queries) do
 						vim.treesitter.query.set("yaml", group, content, args.buf)
 					end
+					vim.treesitter.highlighter.active[args.buf] = nil
+					vim.api.nvim_buf_call(args.buf, function()
+						vim.cmd("doautocmd BufRead")
+					end)
 				end,
 			})
 
@@ -129,6 +133,10 @@ M.plugins = {
 					for group, content in pairs(taskfile_queries) do
 						vim.treesitter.query.set("yaml", group, content, args.buf)
 					end
+					vim.treesitter.highlighter.active[args.buf] = nil
+					vim.api.nvim_buf_call(args.buf, function()
+						vim.cmd("doautocmd BufRead")
+					end)
 				end,
 			})
 		end,
