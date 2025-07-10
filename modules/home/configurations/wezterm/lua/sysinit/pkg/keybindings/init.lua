@@ -156,6 +156,38 @@ local function get_scroll_keys()
 				end
 			end),
 		},
+		{
+			key = "u",
+			mods = "CTRL|SHIFT",
+			action = wezterm.action_callback(function(win, pane)
+				if is_vim(pane) then
+					win:perform_action({
+						SendKey = {
+							key = "u",
+							mods = "CTRL|SHIFT",
+						},
+					}, pane)
+				else
+					win:perform_action(act.ScrollByLine(-9999999999999), pane)
+				end
+			end),
+		},
+		{
+			key = "d",
+			mods = "CTRL|SHIFT",
+			action = wezterm.action_callback(function(win, pane)
+				if is_vim(pane) then
+					win:perform_action({
+						SendKey = {
+							key = "d",
+							mods = "CTRL|SHIFT",
+						},
+					}, pane)
+				else
+					win:perform_action(act.ScrollByLine(9999999999999), pane)
+				end
+			end),
+		},
 	}
 end
 

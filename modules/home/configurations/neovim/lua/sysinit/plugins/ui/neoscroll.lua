@@ -38,14 +38,14 @@ M.plugins = {
 				},
 				{
 					"<C-S-d>",
-					":lua vim.cmd('normal! G')<CR>",
+					"<CMD>normal! G<CR>",
 					mode = {
 						"n",
 					},
 				},
 				{
 					"<C-S-u>",
-					":lua vim.cmd('normal! gg')<CR>",
+					"<CMD>normal! gg<CR>",
 					mode = {
 						"n",
 					},
@@ -56,4 +56,3 @@ M.plugins = {
 }
 
 return M
-
