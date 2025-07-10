@@ -9,8 +9,10 @@ M.plugins = {
 			"nvim-treesitter/nvim-treesitter",
 			{
 				"ckolkey/ts-node-action",
-				opts = {},
-				config = true,
+				event = "BufReadPost",
+				config = function()
+					require("ts-node-action").setup({})
+				end,
 			},
 		},
 		config = function()
