@@ -13,8 +13,6 @@ M.plugins = {
 				"<C-e>",
 				"<C-d>",
 				"<C-u>",
-				"<C-S-d>",
-				"<C-S-u>",
 			},
 		},
 		keys = function()
