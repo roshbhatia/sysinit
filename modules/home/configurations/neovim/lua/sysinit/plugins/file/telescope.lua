@@ -69,6 +69,8 @@ M.plugins = {
 				},
 				file_ignore_patterns = {
 					".git/",
+					".git/*",
+					".git/**",
 					"node_modules/",
 					"vendor/",
 					"poetry.lock",
