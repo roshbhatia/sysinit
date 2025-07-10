@@ -68,64 +68,49 @@ M.plugins = {
 					},
 				},
 				file_ignore_patterns = {
-					-- Git
 					".git/",
-					"^%.git/",
-					"%.git/.*",
-					-- Dependencies
-					"^node_modules/",
-					"node_modules/.*",
 					"node_modules/",
-					"^vendor/",
-					"vendor/.*",
 					"vendor/",
-					"poetry%.lock",
-					"package%-lock%.json",
-					"yarn%.lock",
-					"Cargo%.lock",
-					-- Cache/Build
-					"^%.cache/",
-					"%.cache/.*",
-					"^build/",
-					"^dist/",
-					"^target/",
-					"%.o$",
-					"%.a$",
-					"%.out$",
-					"%.class$",
-					"%.pyc$",
-					"__pycache__/.*",
-					-- Media files
-					"%.pdf$",
-					"%.mkv$",
-					"%.mp4$",
-					"%.avi$",
-					"%.mov$",
-					"%.zip$",
-					"%.tar%.gz$",
-					"%.rar$",
-					"%.7z$",
-					"%.jpeg$",
-					"%.jpg$",
-					"%.png$",
-					"%.gif$",
-					"%.webp$",
-					"%.heic$",
-					"%.svg$",
-					-- Project specific
-					"^%.goose/",
-					"%.goose/.*",
+					"poetry.lock",
+					"package%-lock.json",
+					"yarn.lock",
+					"Cargo.lock",
+					".cache/",
+					"build/",
+					"dist/",
+					"target/",
+					".o$",
+					".a$",
+					".out$",
+					".class$",
+					".pyc$",
+					"__pycache__/",
+					".pdf$",
+					".mkv$",
+					".mp4$",
+					".avi$",
+					".mov$",
+					".zip$",
+					".tar.gz$",
+					".rar$",
+					".7z$",
+					".jpeg$",
+					".jpg$",
+					".png$",
+					".gif$",
+					".webp$",
+					".heic$",
+					".svg$",
+					".goose/",
 				},
 				pickers = {
 					find_files = {
-						live_grep = {
-							additional_args = function(_)
-								return { "--hidden", "-E", ".git/*" }
-							end,
-						},
-						find_files = {
-							hidden = true,
-						},
+						hidden = true,
+					},
+					live_grep = {
+						additional_args = function()
+							return { "--hidden" }
+						end,
 					},
 					colorscheme = {
 						enable_preview = true,
@@ -204,4 +189,3 @@ M.plugins = {
 }
 
 return M
-
