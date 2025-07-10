@@ -118,14 +118,10 @@ M.plugins = {
 					filtered_items = {
 						hide_dotfiles = false,
 						hide_gitignored = false,
-						hide_by_name = {
+						never_show = {
 							".DS_Store",
-							"node_modules",
-							".git",
-							".goose",
 						},
-						hide_by_pattern = { "*.meta", "*.aider*" },
-						never_show = { ".DS_Store" },
+						visible = true,
 					},
 					follow_current_file = {
 						enabled = true,
@@ -182,3 +178,4 @@ M.plugins = {
 }
 
 return M
+
