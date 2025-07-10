@@ -45,6 +45,16 @@ M.plugins = {
 							["<S-Tab>"] = actions.move_selection_previous,
 						},
 					},
+					file_ignore_patterns = {
+						"%.git",
+						"%.cache",
+						"%.png",
+						"%.jpg",
+						"%.jpeg",
+						"%.o",
+						".cache",
+						"Build",
+					},
 				},
 				extensions = {
 					["ui-select"] = {
@@ -66,44 +76,6 @@ M.plugins = {
 							preview_height = 0.8,
 						},
 					},
-				},
-				file_ignore_patterns = {
-					".git/",
-					".git/*",
-					".git/**",
-					"node_modules/",
-					"vendor/",
-					"poetry.lock",
-					"package%-lock.json",
-					"yarn.lock",
-					"Cargo.lock",
-					".cache/",
-					"build/",
-					"dist/",
-					"target/",
-					".o$",
-					".a$",
-					".out$",
-					".class$",
-					".pyc$",
-					"__pycache__/",
-					".pdf$",
-					".mkv$",
-					".mp4$",
-					".avi$",
-					".mov$",
-					".zip$",
-					".tar.gz$",
-					".rar$",
-					".7z$",
-					".jpeg$",
-					".jpg$",
-					".png$",
-					".gif$",
-					".webp$",
-					".heic$",
-					".svg$",
-					".goose/",
 				},
 				pickers = {
 					find_files = {
@@ -191,3 +163,4 @@ M.plugins = {
 }
 
 return M
+
