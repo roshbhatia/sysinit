@@ -51,7 +51,7 @@ M.plugins = {
 					toggle = {
 						default = "<leader>ht",
 						debug = "<leader>hd",
-						hint = "<leader>hh",
+						hint = "<leader>hi",
 						suggestion = "<leader>hs",
 						repomap = "<leader>hR",
 					},
