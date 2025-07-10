@@ -14,7 +14,15 @@ M.plugins = {
 				},
 				enabled = true,
 			})
+
+			vim.api.nvim_create_autocmd("FileType", {
+				pattern = "markdown",
+				callback = function()
+					vim.opt_local.foldcolumn = "0"
+				end,
+			})
 		end,
 	},
 }
 return M
+

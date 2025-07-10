@@ -13,6 +13,8 @@ M.plugins = {
 				"<C-e>",
 				"<C-d>",
 				"<C-u>",
+				"<C-S-d>",
+				"<C-S-u>",
 			},
 		},
 		keys = function()
@@ -36,9 +38,24 @@ M.plugins = {
 						"v",
 					},
 				},
+				{
+					"<C-S-d>",
+					":lua vim.cmd('normal! G')<CR>",
+					mode = {
+						"n",
+					},
+				},
+				{
+					"<C-S-u>",
+					":lua vim.cmd('normal! gg')<CR>",
+					mode = {
+						"n",
+					},
+				},
 			}
 		end,
 	},
 }
 
 return M
+
