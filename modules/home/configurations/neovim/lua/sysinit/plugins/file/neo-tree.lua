@@ -153,17 +153,6 @@ M.plugins = {
 							["+"] = "avante_add_files",
 						},
 					},
-					find_args = function(cmd, path, search_term, args)
-						if cmd ~= "fd" then
-							return args
-						end
-						table.insert(args, "--hidden")
-						table.insert(args, "--exclude")
-						table.insert(args, ".git")
-						table.insert(args, "--exclude")
-						table.insert(args, "node_modules")
-						return args
-					end,
 				},
 			})
 
@@ -185,4 +174,3 @@ M.plugins = {
 }
 
 return M
-
