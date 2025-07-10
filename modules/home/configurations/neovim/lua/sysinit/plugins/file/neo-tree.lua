@@ -103,7 +103,6 @@ M.plugins = {
 							local sidebar = require("avante").get()
 
 							local open = sidebar:is_open()
-							-- ensure avante sidebar is open
 							if not open then
 								require("avante.api").ask()
 								sidebar = require("avante").get()
@@ -111,7 +110,6 @@ M.plugins = {
 
 							sidebar.file_selector:add_selected_file(relative_path)
 
-							-- remove neo tree buffer
 							if not open then
 								sidebar.file_selector:remove_selected_file("neo-tree filesystem [1]")
 							end
@@ -151,6 +149,16 @@ M.plugins = {
 					window = {
 						mappings = {
 							["+"] = "avante_add_files",
+						},
+					},
+					find_command = "fd",
+					find_args = {
+						fd = {
+							"--hidden",
+							"--exclude",
+							".git",
+							"--exclude",
+							"node_modules",
 						},
 					},
 				},
