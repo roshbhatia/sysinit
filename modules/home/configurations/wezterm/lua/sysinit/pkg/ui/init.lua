@@ -58,7 +58,7 @@ local function get_font_config()
 	return {
 		font = terminal_font,
 		freetype_load_target = "Light",
-		font_size = 13.0,
+		font_size = 15.0,
 		line_height = 1.0,
 	}
 end
