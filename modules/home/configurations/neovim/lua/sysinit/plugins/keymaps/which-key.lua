@@ -20,10 +20,6 @@ M.plugins = {
 
 			wk.add({
 				{
-					"<leader>a",
-					group = "Copilot - Avante",
-				},
-				{
 					"<leader>b",
 					group = "Buffer",
 				},
@@ -65,11 +61,19 @@ M.plugins = {
 				},
 				{
 					"<leader>h",
-					group = "Copilot - Goose",
+					group = "Copilot - Avante",
 				},
 				{
 					"<leader>i",
 					group = "Search",
+				},
+				{
+					"<leader>j",
+					group = "Copilot - Goose",
+				},
+				{
+					"<leader>k",
+					group = "Copilot - Code Companion",
 				},
 				{
 					"<localleader>.",
