@@ -11,15 +11,33 @@ M.plugins = {
 				inline = {
 					adapter = "copilot",
 				},
+				cmd = {
+					adapter = "copilot",
+				},
 			},
 			display = {
+				action_palette = {
+					provider = "telescope",
+				},
 				chat = {
-					window = {
-						layout = "vertical",
-						width = 0.45,
-						height = 0.8,
-						border = "rounded",
+					icons = {
+						buffer_pin = " ",
+						buffer_watch = " ",
 					},
+				},
+				diff = {
+					provider = "mini_diff",
+				},
+			},
+			keymaps = {
+				send = {
+					modes = {
+						n = { "<CR>", "<S-CR>" },
+						i = "<S-CR>",
+					},
+					index = 2,
+					callback = "keymaps.send",
+					description = "Send",
 				},
 			},
 		},
