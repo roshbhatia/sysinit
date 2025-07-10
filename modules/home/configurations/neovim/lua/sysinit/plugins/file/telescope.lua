@@ -119,109 +119,11 @@ M.plugins = {
 				pickers = {
 					find_files = {
 						live_grep = {
-							file_ignore_patterns = {
-								-- Git
-								".git/",
-								"^%.git/",
-								"%.git/.*",
-								-- Dependencies
-								"^node_modules/",
-								"node_modules/.*",
-								"node_modules/",
-								"^vendor/",
-								"vendor/.*",
-								"vendor/",
-								"poetry%.lock",
-								"package%-lock%.json",
-								"yarn%.lock",
-								"Cargo%.lock",
-								-- Cache/Build
-								"^%.cache/",
-								"%.cache/.*",
-								"^build/",
-								"^dist/",
-								"^target/",
-								"%.o$",
-								"%.a$",
-								"%.out$",
-								"%.class$",
-								"%.pyc$",
-								"__pycache__/.*",
-								-- Media files
-								"%.pdf$",
-								"%.mkv$",
-								"%.mp4$",
-								"%.avi$",
-								"%.mov$",
-								"%.zip$",
-								"%.tar%.gz$",
-								"%.rar$",
-								"%.7z$",
-								"%.jpeg$",
-								"%.jpg$",
-								"%.png$",
-								"%.gif$",
-								"%.webp$",
-								"%.heic$",
-								"%.svg$",
-								-- Project specific
-								"^%.goose/",
-								"%.goose/.*",
-							},
 							additional_args = function(_)
-								return { "--hidden" }
+								return { "--hidden", "-E", ".git/*" }
 							end,
 						},
 						find_files = {
-							file_ignore_patterns = {
-								-- Git
-								".git/",
-								"^%.git/",
-								"%.git/.*",
-								-- Dependencies
-								"^node_modules/",
-								"node_modules/.*",
-								"node_modules/",
-								"^vendor/",
-								"vendor/.*",
-								"vendor/",
-								"poetry%.lock",
-								"package%-lock%.json",
-								"yarn%.lock",
-								"Cargo%.lock",
-								-- Cache/Build
-								"^%.cache/",
-								"%.cache/.*",
-								"^build/",
-								"^dist/",
-								"^target/",
-								"%.o$",
-								"%.a$",
-								"%.out$",
-								"%.class$",
-								"%.pyc$",
-								"__pycache__/.*",
-								-- Media files
-								"%.pdf$",
-								"%.mkv$",
-								"%.mp4$",
-								"%.avi$",
-								"%.mov$",
-								"%.zip$",
-								"%.tar%.gz$",
-								"%.rar$",
-								"%.7z$",
-								"%.jpeg$",
-								"%.jpg$",
-								"%.png$",
-								"%.gif$",
-								"%.webp$",
-								"%.heic$",
-								"%.svg$",
-								-- Project specific
-								"^%.goose/",
-								"%.goose/.*",
-							},
 							hidden = true,
 						},
 					},
@@ -302,3 +204,4 @@ M.plugins = {
 }
 
 return M
+
