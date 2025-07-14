@@ -75,22 +75,6 @@ extensions:
     name: memory
     timeout: 300
     type: builtin
-  neovim:
-    args:
-      - "-y"
-      - mcp-neovim-server
-    bundled: null
-    cmd: npx
-    description: >-
-      Control Neovim using the official
-      neovim/node-client JavaScript library.
-    enabled: true
-    envs:
-      ALLOW_SHELL_COMMANDS: true
-      NVIM_SOCKET_PATH: /tmp/nvim
-    name: neovim
-    timeout: 300
-    type: stdio
   pandoc:
     args:
       - mcp-pandoc
@@ -105,4 +89,3 @@ extensions:
     name: pandoc
     timeout: 300
     type: stdio
-
