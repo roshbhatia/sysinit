@@ -7,7 +7,6 @@ local deps = {
 	"giuxtaposition/blink-cmp-copilot",
 	"Kaiser-Yang/blink-cmp-git",
 	"L3MON4D3/LuaSnip",
-	"MeanderingProgrammer/render-markdown.nvim",
 	"onsails/lspkind.nvim",
 	"pta2002/intellitab.nvim",
 	"pwntester/octo.nvim",

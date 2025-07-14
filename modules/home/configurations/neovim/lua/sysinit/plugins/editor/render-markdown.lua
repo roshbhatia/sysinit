@@ -7,6 +7,7 @@ M.plugins = {
 			"nvim-treesitter/nvim-treesitter",
 			"nvim-tree/nvim-web-devicons",
 		},
+		event = "VeryLazy",
 		config = function()
 			require("render-markdown").setup({
 				anti_conceal = {
