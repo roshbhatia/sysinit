@@ -107,7 +107,7 @@ let
     typescript-language-server
     uv
     vale
-    vscode-json-languageserver
+    vscode-langservers-extracted
     watch
     weechat
     weechatScripts.wee-slack
