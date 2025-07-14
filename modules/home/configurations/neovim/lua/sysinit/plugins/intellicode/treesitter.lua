@@ -6,7 +6,7 @@ M.plugins = {
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
 		branch = "master",
-		lazy = { "BufReadPost", "BufNewFile" },
+		lazy = false,
 		opts = {
 			incremental_selection = {
 				enable = true,
@@ -150,3 +150,4 @@ M.plugins = {
 }
 
 return M
+

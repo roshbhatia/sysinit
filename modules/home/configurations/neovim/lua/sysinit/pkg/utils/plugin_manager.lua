@@ -67,4 +67,3 @@ function plugin_manager.setup_plugins(modules)
 end
 
 return plugin_manager
-
