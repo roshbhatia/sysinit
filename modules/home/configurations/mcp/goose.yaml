@@ -1,4 +1,5 @@
 ---
+EDIT_MODE: vi
 GOOSE_MODEL: gemini-2.0-flash-001
 GOOSE_PLANNER_MODEL: claude-3.7-sonnet
 GOOSE_PROVIDER: github_copilot
@@ -64,4 +65,3 @@ extensions:
     name: memory
     timeout: 300
     type: builtin
-
