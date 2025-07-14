@@ -5,6 +5,7 @@ M.plugins = {
 		{
 			"catppuccin/nvim",
 			name = "catppuccin",
+			lazy = false,
 			config = function()
 				require("catppuccin").setup({
 					flavour = "frappe",
@@ -72,3 +73,4 @@ M.plugins = {
 }
 
 return M
+
