@@ -3,12 +3,10 @@ local M = {}
 M.plugins = {
 	{
 		"goolord/alpha-nvim",
-		cond = function()
-			return vim.fn.argc() == 0
-		end,
 		dependencies = {
 			"nvim-tree/nvim-web-devicons",
 		},
+		lazy = false,
 		config = function()
 			local alpha = require("alpha")
 			local dashboard = require("alpha.themes.dashboard")
