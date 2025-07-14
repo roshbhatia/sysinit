@@ -17,4 +17,15 @@ extensions:
     name: memory
     timeout: 300
     type: builtin
-
+  neovim:
+    args:
+      - -y
+      - "mcp-neovim-server"
+    bundled: null
+    cmd: npx
+    description: Control Neovim using Model Context Protocol (MCP) and the official neovim/node-client JavaScript library.
+    enabled: true
+    envs: { "ALLOW_SHELL_COMMANDS": true, "NVIM_SOCKET_PATH": "~/cache/nvim" }
+    name: neovim
+    timeout: 300
+    type: stdio

@@ -156,6 +156,8 @@ in
       ];
 
       COLIMA_HOME = "${config.home.homeDirectory}/.config/colima";
+
+      NVIM_LISTEN_ADDRESS = "${config.home.homeDirectory}/.cache/nvim";
     };
 
     plugins = [
