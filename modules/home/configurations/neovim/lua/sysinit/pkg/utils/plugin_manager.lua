@@ -27,9 +27,6 @@ function plugin_manager.setup_plugins(modules)
 	end
 
 	require("lazy").setup({
-		defaults = {
-			lazy = true, -- might break stuff?
-		},
 		root = vim.fn.stdpath("data") .. "/lazy",
 		lockfile = vim.fn.stdpath("data") .. "/lazy/lazy-lock.json",
 		rocks = {
