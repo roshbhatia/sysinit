@@ -4,6 +4,7 @@ local M = {}
 M.plugins = {
 	{
 		"azorng/goose.nvim",
+		enabled = nvim_config.copilot.enabled,
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			"MeanderingProgrammer/render-markdown.nvim",

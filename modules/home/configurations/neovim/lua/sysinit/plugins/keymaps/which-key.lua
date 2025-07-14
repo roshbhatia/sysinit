@@ -1,3 +1,4 @@
+local nvim_config = require("sysinit.config.nvim_config").load_config()
 local M = {}
 
 M.plugins = {
@@ -60,20 +61,8 @@ M.plugins = {
 					group = "Github Review",
 				},
 				{
-					"<leader>h",
-					group = "Copilot - Avante",
-				},
-				{
 					"<leader>i",
 					group = "Search",
-				},
-				{
-					"<leader>j",
-					group = "Copilot - Goose",
-				},
-				{
-					"<leader>k",
-					group = "Copilot - Code Companion",
 				},
 				{
 					"<localleader>.",
@@ -92,6 +81,23 @@ M.plugins = {
 					group = "Refresh",
 				},
 			})
+
+			if nvim_config.copilot.enabled then
+				wk.add({
+					{
+						"<leader>h",
+						group = "Copilot - Avante",
+					},
+					{
+						"<leader>j",
+						group = "Copilot - Goose",
+					},
+					{
+						"<leader>k",
+						group = "Copilot - Code Companion",
+					},
+				})
+			end
 		end,
 	},
 }

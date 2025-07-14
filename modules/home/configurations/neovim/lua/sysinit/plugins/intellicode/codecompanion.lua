@@ -1,8 +1,10 @@
+local nvim_config = require("sysinit.config.nvim_config").load_config()
 local M = {}
 
 M.plugins = {
 	{
 		"olimorris/codecompanion.nvim",
+		enabled = nvim_config.copilot.enabled,
 		opts = {
 			strategies = {
 				chat = {
