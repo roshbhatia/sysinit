@@ -8,17 +8,20 @@ M.plugins = {
 		event = "VeryLazy",
 		version = false,
 		build = function()
-			return "make BUILD_FROM_SOURCE=true"
+			-- conditionally use the correct build system for the current OS
+			if vim.fn.has("win32") == 1 then
+				return "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false"
+			else
+				return "make"
+			end
 		end,
 		dependencies = {
-			"nvim-treesitter/nvim-treesitter",
 			"stevearc/dressing.nvim",
 			"nvim-lua/plenary.nvim",
 			"MunifTanjim/nui.nvim",
 			"nvim-telescope/telescope.nvim",
 			"nvim-tree/nvim-web-devicons",
 			"zbirenbaum/copilot.lua",
-			"MeanderingProgrammer/render-markdown.nvim",
 		},
 		config = function()
 			local avante = require("avante")
@@ -155,3 +158,4 @@ M.plugins = {
 }
 
 return M
+
