@@ -6,6 +6,7 @@ M.plugins = {
 		dependencies = {
 			"nvim-telescope/telescope.nvim",
 		},
+		event = "LSPAttach",
 		config = function()
 			require("actions-preview").setup({
 				telescope = vim.tbl_extend("force", require("telescope.themes").get_ivy(), {
@@ -37,3 +38,4 @@ M.plugins = {
 }
 
 return M
+

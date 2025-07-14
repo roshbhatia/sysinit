@@ -5,13 +5,7 @@ M.plugins = {
 	{
 		enabled = nvim_config.copilot.enabled,
 		"zbirenbaum/copilot.lua",
-		event = {
-			"BufReadPre",
-			"BufNewFile",
-		},
-		dependencies = {
-			"neovim/nvim-lspconfig",
-		},
+		event = "Verylazy",
 		config = function()
 			require("copilot").setup({
 				panel = {
@@ -27,3 +21,4 @@ M.plugins = {
 }
 
 return M
+

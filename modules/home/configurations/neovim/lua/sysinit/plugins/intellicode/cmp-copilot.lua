@@ -8,7 +8,9 @@ M.plugins = {
 		dependencies = {
 			"zbirenbaum/copilot.lua",
 		},
+		lazy = true,
 	},
 }
 
 return M
+

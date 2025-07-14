@@ -5,7 +5,7 @@ M.plugins = {
 		"dnlhc/glance.nvim",
 		cmd = "Glance",
 		event = {
-			"LspAttach",
+			"LSPAttach",
 		},
 		opts = {
 			winbar = {
@@ -45,3 +45,4 @@ M.plugins = {
 }
 
 return M
+

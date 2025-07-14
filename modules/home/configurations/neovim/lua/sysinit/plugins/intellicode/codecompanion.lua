@@ -9,7 +9,7 @@ M.plugins = {
 			"nvim-lua/plenary.nvim",
 			"nvim-treesitter/nvim-treesitter",
 		},
-		event = "VeryLazy",
+		cmd = "CodeCompanionChat",
 		opts = {
 			strategies = {
 				chat = {
@@ -121,3 +121,4 @@ M.plugins = {
 	},
 }
 return M
+
