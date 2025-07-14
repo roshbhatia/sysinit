@@ -3,7 +3,6 @@ local M = {}
 M.plugins = {
 	{
 		"mfussenegger/nvim-dap",
-		lazy = false,
 		recommended = true,
 		dependencies = {
 			"rcarriga/nvim-dap-ui",

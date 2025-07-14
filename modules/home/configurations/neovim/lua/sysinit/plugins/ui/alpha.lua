@@ -3,11 +3,12 @@ local M = {}
 M.plugins = {
 	{
 		"goolord/alpha-nvim",
-		lazy = false,
+		event = "VimEnter",
+		cond = function()
+			return vim.fn.argc() == 0
+		end,
 		dependencies = {
 			"nvim-tree/nvim-web-devicons",
-			"nvim-telescope/telescope.nvim",
-			"olimorris/persisted.nvim",
 		},
 		config = function()
 			local alpha = require("alpha")

@@ -24,6 +24,7 @@ M.plugins = {
 		"saghen/blink.cmp",
 		dependencies = deps,
 		version = "v1.*",
+		event = "InsertEnter",
 		opts = function()
 			local providers = {
 				buffer = {

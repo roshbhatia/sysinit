@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"neovim/nvim-lspconfig",
-		event = "BufReadPre",
+		event = { "BufReadPost", "BufNewFile" },
 		dependencies = {
 			"aznhe21/actions-preview.nvim",
 			"b0o/SchemaStore.nvim",
