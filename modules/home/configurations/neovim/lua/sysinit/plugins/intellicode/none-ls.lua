@@ -7,12 +7,6 @@ M.plugins = {
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			"nvim-treesitter/nvim-treesitter",
-			{
-				"ckolkey/ts-node-action",
-				config = function()
-					require("ts-node-action").setup({})
-				end,
-			},
 		},
 		config = function()
 			local null_ls = require("null-ls")
@@ -28,7 +22,6 @@ M.plugins = {
 					null_ls.builtins.code_actions.refactoring,
 					null_ls.builtins.code_actions.statix,
 					null_ls.builtins.code_actions.textlint,
-					null_ls.builtins.code_actions.ts_node_action,
 					null_ls.builtins.diagnostics.actionlint,
 					null_ls.builtins.diagnostics.checkmake,
 					null_ls.builtins.diagnostics.deadnix,
