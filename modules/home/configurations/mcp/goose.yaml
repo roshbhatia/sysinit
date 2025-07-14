@@ -1,3 +1,4 @@
+---
 GOOSE_MODEL: gemini-2.0-flash
 GOOSE_PLANNER_MODEL: claude-sonnet-3.7
 GOOSE_PROVIDER: github_copilot
@@ -8,7 +9,7 @@ extensions:
     enabled: true
     name: computercontroller
     timeout: 300
-    type: builtin
+    type: builiin
   context7:
     args:
       - "-y"
@@ -43,18 +44,6 @@ extensions:
     name: fetch
     timeout: 300
     type: stdio
-  git:
-    args:
-      - mcp-server-git
-    bundled: null
-    cmd: uvx
-    description: Git version control system integration
-    enabled: true
-    env_keys: []
-    envs: {}
-    name: git
-    timeout: 300
-    type: stdio
   knowledgegraphmemory:
     args:
       - "-y"
@@ -75,17 +64,3 @@ extensions:
     name: memory
     timeout: 300
     type: builtin
-  pandoc:
-    args:
-      - mcp-pandoc
-    bundled: null
-    cmd: uvx
-    description: >-
-      Document format conversion using Pandoc, enabling transformation of
-      content between PDF, HTML, Markdown, .docx, .rst, .epuc, .latex, and more.
-    enabled: false
-    env_keys: []
-    envs: {}
-    name: pandoc
-    timeout: 300
-    type: stdio

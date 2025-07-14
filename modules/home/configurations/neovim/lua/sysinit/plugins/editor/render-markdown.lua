@@ -7,7 +7,15 @@ M.plugins = {
 			"nvim-treesitter/nvim-treesitter",
 			"nvim-tree/nvim-web-devicons",
 		},
-		event = "VeryLazy",
+		ft = {
+			"Avante",
+			"markdown",
+			"octo",
+			"codecompanion",
+		},
+		cmd = {
+			"Goose",
+		},
 		config = function()
 			require("render-markdown").setup({
 				anti_conceal = {
