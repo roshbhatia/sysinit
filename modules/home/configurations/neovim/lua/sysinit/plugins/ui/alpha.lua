@@ -3,7 +3,6 @@ local M = {}
 M.plugins = {
 	{
 		"goolord/alpha-nvim",
-		event = "VimEnter",
 		cond = function()
 			return vim.fn.argc() == 0
 		end,
