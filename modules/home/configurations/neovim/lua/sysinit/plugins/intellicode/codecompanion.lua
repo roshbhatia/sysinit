@@ -5,6 +5,11 @@ M.plugins = {
 	{
 		"olimorris/codecompanion.nvim",
 		enabled = nvim_config.copilot.enabled,
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"nvim-treesitter/nvim-treesitter",
+		},
+		event = "VeryLazy",
 		opts = {
 			strategies = {
 				chat = {
@@ -42,10 +47,6 @@ M.plugins = {
 					description = "Send",
 				},
 			},
-		},
-		dependencies = {
-			"nvim-lua/plenary.nvim",
-			"nvim-treesitter/nvim-treesitter",
 		},
 		keys = function()
 			return {
@@ -120,3 +121,4 @@ M.plugins = {
 	},
 }
 return M
+

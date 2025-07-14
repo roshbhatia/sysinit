@@ -5,7 +5,10 @@ M.plugins = {
 	{
 		enabled = nvim_config.copilot.enabled,
 		"zbirenbaum/copilot.lua",
-		event = "InsertEnter",
+		event = {
+			"BufReadPre",
+			"BufNewFile",
+		},
 		dependencies = {
 			"neovim/nvim-lspconfig",
 		},
@@ -24,3 +27,4 @@ M.plugins = {
 }
 
 return M
+

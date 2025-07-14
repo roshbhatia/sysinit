@@ -7,7 +7,9 @@ M.plugins = {
 		"yetone/avante.nvim",
 		event = "VeryLazy",
 		version = false,
-		build = "make",
+		build = function()
+			return "make BUILD_FROM_SOURCE=true"
+		end,
 		dependencies = {
 			"nvim-treesitter/nvim-treesitter",
 			"stevearc/dressing.nvim",
@@ -153,3 +155,4 @@ M.plugins = {
 }
 
 return M
+
