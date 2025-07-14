@@ -87,7 +87,7 @@ extensions:
     enabled: true
     envs:
       ALLOW_SHELL_COMMANDS: true
-      NVIM_SOCKET_PATH: ~/cache/nvim
+      NVIM_SOCKET_PATH: /tmp/nvim
     name: neovim
     timeout: 300
     type: stdio
