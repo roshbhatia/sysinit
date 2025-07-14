@@ -3,10 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"nvim-treesitter/nvim-treesitter-textobjects",
-		event = {
-			"BufReadPost",
-			"BufNewFile",
-		},
+		lazy = true,
 		dependencies = {
 			"nvim-treesitter/nvim-treesitter",
 		},
