@@ -6,7 +6,7 @@ M.plugins = {
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
 		branch = "main",
-		lazy = false,
+		lazy = false, -- keep Treesitter eager for instant highlighting
 		opts = {
 			incremental_selection = {
 				enable = true,
@@ -86,54 +86,15 @@ M.plugins = {
 
 			require("nvim-treesitter.configs").setup(opts)
 
-			local crossplane_queries = {
-				injections = [[
-                ((block_scalar) @injection.content
-                        (#contains? @injection.content "{{")
-                        (#set! injection.language "gotmpl"))
-                ((plain_scalar) @injection.content
-                        (#contains? @injection.content "{{")
-                        (#set! injection.language "gotmpl"))
-                ]],
-				highlights = [[
-                (block_mapping_pair
-                        key: (flow_node (plain_scalar) @keyword)
-                        value: (flow_node (plain_scalar) @string))
-                ((block_scalar) @string
-                        (#contains? @string "{{"))
-                ((plain_scalar) @string
-                        (#contains? @string "{{"))
-                ]],
-			}
+			-- Treesitter queries for YAML and Taskfile are now in queries/yaml/*.scm files
+			-- Neovim will load these automatically for highlighting and injections
+			-- No need for runtime autocommands or manual refresh
 
-			local taskfile_queries = {
-				injections = [[
-                ((block_scalar) @injection.content
-                        (#contains? @injection.content "#!/usr/bin/env bash")
-                        (#set! injection.language "bash"))
-                ]],
-			}
-
-			local function is_crossplane_yaml(buf)
-				local lines = vim.api.nvim_buf_get_lines(buf, 0, 10, false)
-				for _, line in ipairs(lines) do
-					if line:match("apiVersion:") or line:match("kind:") then
-						return true
-					end
-				end
-				return false
-			end
-
+			-- Ensure highlight is enabled for all supported filetypes
 			vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
-				pattern = { "composition.yaml", "definition.yaml" },
-				callback = function(args)
-					if is_crossplane_yaml(args.buf) then
-						for group, content in pairs(crossplane_queries) do
-							vim.treesitter.query.set("yaml", group, content, args.buf)
-						end
-
-						vim.cmd("write | edit | TSBufEnable highlight")
-					end
+				pattern = { "*.yaml", "*.yml", "Taskfile.yml" },
+				callback = function()
+					vim.cmd("TSBufEnable highlight")
 				end,
 			})
 
