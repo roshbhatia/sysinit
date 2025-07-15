@@ -1,12 +1,11 @@
 local M = {}
-local config_path = vim.fn.stdpath("config")
 
 M.plugins = {
 	{
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
 		branch = "main",
-		lazy = false, -- keep Treesitter eager for instant highlighting
+		lazy = false,
 		opts = {
 			incremental_selection = {
 				enable = true,
@@ -17,10 +16,6 @@ M.plugins = {
 					node_decremental = "grm",
 				},
 			},
-			highlight = {
-				enable = true,
-			},
-			sync_install = true,
 			ensure_installed = {
 				"bash",
 				"c",
@@ -85,27 +80,6 @@ M.plugins = {
 			}
 
 			require("nvim-treesitter.configs").setup(opts)
-
-			-- Treesitter queries for YAML and Taskfile are now in queries/yaml/*.scm files
-			-- Neovim will load these automatically for highlighting and injections
-			-- No need for runtime autocommands or manual refresh
-
-			-- Ensure highlight is enabled for all supported filetypes
-			vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
-				pattern = { "*.yaml", "*.yml", "Taskfile.yml" },
-				callback = function()
-					vim.cmd("TSBufEnable highlight")
-				end,
-			})
-
-			vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-				pattern = "Taskfile.yml",
-				callback = function(args)
-					for group, content in pairs(taskfile_queries) do
-						vim.treesitter.query.set("yaml", group, content, args.buf)
-					end
-				end,
-			})
 		end,
 	},
 }
