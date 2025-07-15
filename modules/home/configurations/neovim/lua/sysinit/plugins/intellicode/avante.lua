@@ -5,7 +5,7 @@ M.plugins = {
 	{
 		enabled = nvim_config.copilot.enabled,
 		"yetone/avante.nvim",
-		lazy = true,
+		event = "VeryLazy",
 		version = false,
 		build = function()
 			-- conditionally use the correct build system for the current OS

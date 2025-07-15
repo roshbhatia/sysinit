@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"yaocccc/nvim-foldsign",
-		event = "CursorHold",
+		event = "VeryLazy",
 		config = function()
 			require("nvim-foldsign").setup({
 				offset = -3,
