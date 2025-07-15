@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"karb94/neoscroll.nvim",
-		event = "BufReadPost",
+		lazy = false,
 		opts = {
 			easing = "cubic",
 			duration_multiplier = 1.6,
