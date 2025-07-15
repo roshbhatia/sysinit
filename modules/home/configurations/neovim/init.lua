@@ -1,14 +1,4 @@
-if vim.env.PROF == "1" then
-	local snacks_path = vim.fn.stdpath("data") .. "/lazy/snacks.nvim"
-	vim.opt.rtp:append(snacks_path)
-	local snacks_profiler = require("snacks.profiler")
-	snacks_profiler.startup({
-		autocmds = true,
-		globals = { "vim", "vim.api", "vim.keymap" },
-		filter_mod = { default = true },
-		filter_fn = { default = true },
-	})
-end
+require("sysinit.pkg.pre.profiler").setup()
 
 vim.env.PATH = vim.fn.getenv("PATH")
 package.path = package.path
@@ -19,6 +9,7 @@ package.path = package.path
 	.. vim.fn.stdpath("config")
 	.. "/lua/?.lua"
 
+require("sysinit.pkg.opts.profiler").setup()
 require("sysinit.pkg.opts.leader").setup()
 require("sysinit.pkg.opts.environment").setup()
 require("sysinit.pkg.opts.editor").setup()
