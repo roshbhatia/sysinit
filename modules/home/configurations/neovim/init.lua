@@ -3,11 +3,6 @@ if vim.env.PROF == "1" then
 	vim.opt.rtp:append(snacks_path)
 	local snacks_profiler = require("snacks.profiler")
 	snacks_profiler.startup({
-		startup = {
-			event = "VimLeavePre", -- stop profiler only on quit
-			after = true, -- stop after event
-			pick = true, -- show picker after stopping
-		},
 		autocmds = true,
 		globals = { "vim", "vim.api", "vim.keymap" },
 		filter_mod = { default = true },

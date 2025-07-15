@@ -118,7 +118,24 @@ M.plugins = {
 			vim.ui.input = Snacks.input
 		end,
 		keys = function()
+			if vim.env.PROF ~= "1" then
+				return {}
+			end
 			return {
+				{
+					"<localleader>px",
+					function()
+						Snacks.profiler.stop()
+					end,
+					desc = "Stop Profiler",
+				},
+				{
+					"<localleader>pf",
+					function()
+						Snacks.profiler.pick()
+					end,
+					desc = "Profiler Picker",
+				},
 				{
 					"<localleader>pp",
 					function()
