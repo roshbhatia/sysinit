@@ -5,7 +5,7 @@ M.plugins = {
 	{
 		enabled = nvim_config.copilot.enabled,
 		"zbirenbaum/copilot.lua",
-		event = "VeryLazy",
+		lazy = false,
 		config = function()
 			require("copilot").setup({
 				panel = {
@@ -21,3 +21,4 @@ M.plugins = {
 }
 
 return M
+
