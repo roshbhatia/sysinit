@@ -126,3 +126,22 @@ require("sysinit.pkg.keybindings.undo").setup()
 require("sysinit.pkg.keybindings.vim").setup()
 
 require("sysinit.pkg.entrypoint.no-session").setup()
+
+-- Start plenary profiling on UIEnter, stop on VimLeavePre
+dofile(vim.fn.stdpath("data") .. "/site/pack/packer/start/plenary.nvim/lua/plenary/profile.lua")
+
+vim.api.nvim_create_autocmd("UIEnter", {
+	once = true,
+	callback = function()
+		require("plenary.profile").start("profile.log", { flame = true })
+		print("Plenary profiling started (UIEnter)")
+	end,
+})
+
+vim.api.nvim_create_autocmd("VimLeavePre", {
+	once = true,
+	callback = function()
+		require("plenary.profile").stop()
+		print("Plenary profiling stopped (VimLeavePre)")
+	end,
+})
