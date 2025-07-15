@@ -2,14 +2,10 @@ local M = {}
 local copilot_enabled = not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot"))
 
 local deps = {
-	"Fildo7525/pretty_hover",
-	"folke/lazydev.nvim",
 	"giuxtaposition/blink-cmp-copilot",
 	"Kaiser-Yang/blink-cmp-git",
 	"L3MON4D3/LuaSnip",
-	"onsails/lspkind.nvim",
 	"pta2002/intellitab.nvim",
-	"pwntester/octo.nvim",
 	"rafamadriz/friendly-snippets",
 	"saghen/blink.compat",
 }
@@ -24,7 +20,7 @@ M.plugins = {
 		"saghen/blink.cmp",
 		dependencies = deps,
 		version = "v1.*",
-		event = "InsertEnter",
+		lazy = false,
 		opts = function()
 			local providers = {
 				buffer = {
