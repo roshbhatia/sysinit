@@ -74,12 +74,18 @@ M.plugins = {
 						vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
 					end
 					if vim.lsp.codelens and client.supports_method("textDocument/codeLens") then
-						vim.lsp.codelens.refresh()
+						vim.schedule(function()
+							vim.lsp.codelens.refresh()
+						end)
 						local group = vim.api.nvim_create_augroup("LSPCodeLens" .. bufnr, { clear = true })
-						vim.api.nvim_create_autocmd({ "BufEnter", "InsertLeave" }, {
+						vim.api.nvim_create_autocmd("BufEnter", {
 							group = group,
 							buffer = bufnr,
-							callback = vim.lsp.codelens.refresh,
+							callback = function()
+								vim.schedule(function()
+									vim.lsp.codelens.refresh()
+								end)
+							end,
 						})
 					end
 				end,
