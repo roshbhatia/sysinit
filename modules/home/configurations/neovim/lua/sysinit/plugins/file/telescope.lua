@@ -4,7 +4,7 @@ M.plugins = {
 	{
 		"nvim-telescope/telescope.nvim",
 		tag = "0.1.8",
-		event = "VeryLazy",
+		lazy = false,
 		dependencies = {
 			"debugloop/telescope-undo.nvim",
 			"nvim-lua/plenary.nvim",
