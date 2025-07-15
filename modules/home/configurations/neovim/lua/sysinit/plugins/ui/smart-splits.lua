@@ -16,7 +16,7 @@ end
 M.plugins = {
 	{
 		"mrjones2014/smart-splits.nvim",
-		lazy = false,
+		lazy = true, -- load only when needed
 		config = function()
 			require("smart-splits").setup({
 				ignored_buftypes = {
@@ -68,25 +68,33 @@ M.plugins = {
 				},
 				{
 					"<C-S-h>",
-					smart_splits.resize_left,
+					function()
+						smart_splits.resize_left()
+					end,
 					mode = { "n", "i", "v" },
 					desc = "Decrease width of current split",
 				},
 				{
 					"<C-S-j>",
-					smart_splits.resize_down,
+					function()
+						smart_splits.resize_down()
+					end,
 					mode = { "n", "i", "v" },
 					desc = "Decrease height of current split",
 				},
 				{
 					"<C-S-k>",
-					smart_splits.resize_up,
+					function()
+						smart_splits.resize_up()
+					end,
 					mode = { "n", "i", "v" },
 					desc = "Increase height of current split",
 				},
 				{
 					"<C-S-l>",
-					smart_splits.resize_right,
+					function()
+						smart_splits.resize_right()
+					end,
 					mode = { "n", "i", "v" },
 					desc = "Increase width of current split",
 				},

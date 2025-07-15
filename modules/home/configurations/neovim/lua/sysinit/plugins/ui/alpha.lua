@@ -6,7 +6,8 @@ M.plugins = {
 		dependencies = {
 			"nvim-tree/nvim-web-devicons",
 		},
-		lazy = false,
+		lazy = true,
+		event = "VimEnter",
 		config = function()
 			local alpha = require("alpha")
 			local dashboard = require("alpha.themes.dashboard")

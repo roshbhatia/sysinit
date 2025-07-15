@@ -103,12 +103,49 @@ M.plugins = {
 				},
 			})
 
-			telescope.load_extension("ui-select")
-			telescope.load_extension("persisted")
-			telescope.load_extension("fzy_native")
-			telescope.load_extension("dap")
-			telescope.load_extension("live_grep_args")
-			telescope.load_extension("undo")
+			-- Extensions will be loaded on demand via pickers
+			local function lazy_load_ext(ext)
+				local ok, _ = pcall(telescope.load_extension, ext)
+				if not ok then
+					return
+				end
+			end
+			vim.api.nvim_create_autocmd("User", {
+				pattern = "TelescopeFindFiles",
+				callback = function()
+					lazy_load_ext("fzy_native")
+				end,
+			})
+			vim.api.nvim_create_autocmd("User", {
+				pattern = "TelescopeLiveGrep",
+				callback = function()
+					lazy_load_ext("live_grep_args")
+				end,
+			})
+			vim.api.nvim_create_autocmd("User", {
+				pattern = "TelescopeUndo",
+				callback = function()
+					lazy_load_ext("undo")
+				end,
+			})
+			vim.api.nvim_create_autocmd("User", {
+				pattern = "TelescopeDap",
+				callback = function()
+					lazy_load_ext("dap")
+				end,
+			})
+			vim.api.nvim_create_autocmd("User", {
+				pattern = "TelescopeUiSelect",
+				callback = function()
+					lazy_load_ext("ui-select")
+				end,
+			})
+			vim.api.nvim_create_autocmd("User", {
+				pattern = "TelescopePersisted",
+				callback = function()
+					lazy_load_ext("persisted")
+				end,
+			})
 		end,
 		keys = function()
 			return {

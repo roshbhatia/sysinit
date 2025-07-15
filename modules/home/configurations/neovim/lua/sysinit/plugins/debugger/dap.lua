@@ -4,6 +4,7 @@ M.plugins = {
 	{
 		"mfussenegger/nvim-dap",
 		recommended = true,
+		event = "CmdlineEnter",
 		dependencies = {
 			"rcarriga/nvim-dap-ui",
 			"theHamsta/nvim-dap-virtual-text",

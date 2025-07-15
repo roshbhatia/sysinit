@@ -89,7 +89,7 @@ M.plugins = {
 					enabled = false,
 				},
 				profiler = {
-					enabled = false,
+					enabled = true,
 				},
 				-- Causes issues with syntax highlighting?
 				quickfile = {
