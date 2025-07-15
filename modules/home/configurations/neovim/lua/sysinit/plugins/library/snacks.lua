@@ -120,6 +120,27 @@ M.plugins = {
 		keys = function()
 			return {
 				{
+					"<localleader>pp",
+					function()
+						Snacks.toggle.profiler()
+					end,
+					desc = "Toggle Profiler",
+				},
+				{
+					"<localleader>ph",
+					function()
+						Snacks.toggle.profiler_highlights()
+					end,
+					desc = "Toggle Profiler Highlights",
+				},
+				{
+					"<localleader>ps",
+					function()
+						Snacks.profiler.scratch()
+					end,
+					desc = "Profiler Scratch Buffer",
+				},
+				{
 					"<leader>bs",
 					function()
 						Snacks.scratch()

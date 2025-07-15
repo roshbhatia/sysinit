@@ -1,3 +1,20 @@
+if vim.env.PROF == "1" then
+	local snacks_path = vim.fn.stdpath("data") .. "/lazy/snacks.nvim"
+	vim.opt.rtp:append(snacks_path)
+	local snacks_profiler = require("snacks.profiler")
+	snacks_profiler.startup({
+		startup = {
+			event = "VimLeavePre", -- stop profiler only on quit
+			after = true, -- stop after event
+			pick = true, -- show picker after stopping
+		},
+		autocmds = true,
+		globals = { "vim", "vim.api", "vim.keymap" },
+		filter_mod = { default = true },
+		filter_fn = { default = true },
+	})
+end
+
 vim.env.PATH = vim.fn.getenv("PATH")
 package.path = package.path
 	.. ";"
@@ -126,8 +143,3 @@ require("sysinit.pkg.keybindings.undo").setup()
 require("sysinit.pkg.keybindings.vim").setup()
 
 require("sysinit.pkg.entrypoint.no-session").setup()
-
--- Automated plenary profiling for post-startup events, gated by SYSINIT_DEBUG=1
-if vim.env.SYSINIT_DEBUG == "1" then
-	require("sysinit.pkg.profiler").setup()
-end
