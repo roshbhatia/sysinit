@@ -7,7 +7,7 @@ M.plugins = {
 		dependencies = {
 			"nvim-tree/nvim-web-devicons",
 		},
-		event = "VeryLazy",
+		lazy = false,
 		config = function()
 			local wk = require("which-key")
 

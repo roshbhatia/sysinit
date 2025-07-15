@@ -5,7 +5,7 @@ M.plugins = {
 	{
 		enabled = nvim_config.copilot.enabled,
 		"yetone/avante.nvim",
-		event = "VeryLazy",
+		lazy = true,
 		version = false,
 		build = function()
 			-- conditionally use the correct build system for the current OS
@@ -30,7 +30,7 @@ M.plugins = {
 				mode = "agentic",
 				providers = nvim_config.avante.providers,
 				behaviour = {
-					auto_suggestions = true,
+					auto_suggestions = false,
 				},
 				prompt_logger = {
 					next_prompt = {

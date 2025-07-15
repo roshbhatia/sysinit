@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"pwntester/octo.nvim",
-		event = "VeryLazy",
+		cmd = "Octo",
 		requires = {
 			"nvim-lua/plenary.nvim",
 			"nvim-telescope/telescope.nvim",

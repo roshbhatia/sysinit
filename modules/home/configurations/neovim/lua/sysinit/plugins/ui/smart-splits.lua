@@ -16,7 +16,7 @@ end
 M.plugins = {
 	{
 		"mrjones2014/smart-splits.nvim",
-		event = "VeryLazy",
+		lazy = false,
 		config = function()
 			require("smart-splits").setup({
 				ignored_buftypes = {

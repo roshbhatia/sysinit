@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"folke/noice.nvim",
-		event = "VeryLazy",
+		event = "LSPAttach",
 		dependencies = {
 			"MunifTanjim/nui.nvim",
 		},

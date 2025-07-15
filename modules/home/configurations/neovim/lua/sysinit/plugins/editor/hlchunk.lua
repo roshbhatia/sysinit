@@ -4,7 +4,7 @@ M.plugins = {
 	{
 		"shellRaining/hlchunk.nvim",
 		event = {
-			"VeryLazy",
+			"BufReadPost",
 		},
 		config = function()
 			require("hlchunk").setup({
