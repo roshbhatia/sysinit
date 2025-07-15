@@ -46,9 +46,6 @@ function plugin_manager.setup_plugins(modules)
 				},
 			},
 		},
-		profiling = {
-			require = true,
-		},
 		change_detection = {
 			notify = false,
 		},
