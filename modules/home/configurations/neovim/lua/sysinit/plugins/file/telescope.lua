@@ -3,9 +3,8 @@ local M = {}
 M.plugins = {
 	{
 		"nvim-telescope/telescope.nvim",
-		tag = "0.1.8",
-		lazy = true,
-		cmd = { "Telescope" },
+		branch = "master",
+		lazy = false,
 		dependencies = {
 			"debugloop/telescope-undo.nvim",
 			"nvim-lua/plenary.nvim",
@@ -15,6 +14,7 @@ M.plugins = {
 			"nvim-telescope/telescope-ui-select.nvim",
 			"nvim-tree/nvim-web-devicons",
 			"olimorris/persisted.nvim",
+			"nvim-treesitter/nvim-treesitter",
 		},
 		config = function()
 			local telescope = require("telescope")
