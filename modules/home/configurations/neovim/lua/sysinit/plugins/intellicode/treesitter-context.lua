@@ -6,7 +6,7 @@ M.plugins = {
 		lazy = true,
 		dependencies = {
 			"nvim-treesitter/nvim-treesitter",
-		}, -- ensure context loads after treesitter
+		},
 		config = function()
 			require("treesitter-context").setup()
 
@@ -16,3 +16,4 @@ M.plugins = {
 }
 
 return M
+

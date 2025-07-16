@@ -4,9 +4,9 @@ M.plugins = {
 	{
 		"windwp/nvim-autopairs",
 		deppendencies = {
-			"nvim-treesitter",
+			"nvim-treesitter/nvim-treesitter",
 		},
-		event = "InsertEnter",
+		event = "BufReadPre",
 		config = true,
 		opts = {
 			check_ts = true,
@@ -15,3 +15,4 @@ M.plugins = {
 }
 
 return M
+

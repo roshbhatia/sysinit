@@ -21,9 +21,9 @@ M.plugins = {
 			require("luasnip").filetype_extend("sh", { "shelldoc" })
 			require("luasnip").filetype_extend("typescript", { "tsdoc" })
 			require("luasnip").filetype_extend("yaml", { "kubernetes" })
-			require("luasnip.loaders.from_vscode").lazy_load()
 		end,
 	},
 }
 
 return M
+

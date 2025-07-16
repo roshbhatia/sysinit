@@ -7,14 +7,6 @@ M.plugins = {
 		"yetone/avante.nvim",
 		event = "VeryLazy",
 		version = false,
-		build = function()
-			-- conditionally use the correct build system for the current OS
-			if vim.fn.has("win32") == 1 then
-				return "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false"
-			else
-				return "make"
-			end
-		end,
 		dependencies = {
 			"stevearc/dressing.nvim",
 			"nvim-lua/plenary.nvim",
@@ -158,3 +150,4 @@ M.plugins = {
 }
 
 return M
+

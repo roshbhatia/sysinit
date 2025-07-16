@@ -3,7 +3,6 @@ local copilot_enabled = not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot"))
 
 local deps = {
 	"giuxtaposition/blink-cmp-copilot",
-	"Kaiser-Yang/blink-cmp-git",
 	"L3MON4D3/LuaSnip",
 	"pta2002/intellitab.nvim",
 	"rafamadriz/friendly-snippets",
@@ -32,21 +31,6 @@ M.plugins = {
 						end
 						return items
 					end,
-				},
-				git = {
-					module = "blink-cmp-git",
-					name = "Git",
-					enabled = function()
-						return vim.tbl_contains({ "octo", "gitcommit", "markdown" }, vim.bo.filetype)
-					end,
-					transform_items = function(ctx, items)
-						for _, item in ipairs(items) do
-							item.kind_icon = " Git "
-							item.kind_name = "Git"
-						end
-						return items
-					end,
-					score_offset = 0,
 				},
 				lazydev = {
 					enabled = function()
@@ -93,7 +77,6 @@ M.plugins = {
 
 			local sources = {
 				"buffer",
-				"git",
 				"lazydev",
 				"lsp",
 				"path",
@@ -226,3 +209,4 @@ M.plugins = {
 }
 
 return M
+

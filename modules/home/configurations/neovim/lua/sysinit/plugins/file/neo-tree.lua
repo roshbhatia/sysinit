@@ -4,7 +4,7 @@ M.plugins = {
 	{
 		"nvim-neo-tree/neo-tree.nvim",
 		branch = "v3.x",
-		event = "VeryLazy",
+		event = "BufReadPre",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			"nvim-tree/nvim-web-devicons",
@@ -178,3 +178,4 @@ M.plugins = {
 }
 
 return M
+
