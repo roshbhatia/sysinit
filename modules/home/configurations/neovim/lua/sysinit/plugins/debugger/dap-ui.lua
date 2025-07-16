@@ -11,7 +11,7 @@ M.plugins = {
 		keys = function()
 			return {
 				{
-					"<leader>dd",
+					"<localleader>dd",
 					function()
 						require("dapui").toggle({})
 					end,
@@ -23,3 +23,4 @@ M.plugins = {
 }
 
 return M
+

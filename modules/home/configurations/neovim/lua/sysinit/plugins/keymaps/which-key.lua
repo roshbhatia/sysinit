@@ -29,11 +29,7 @@ M.plugins = {
 					group = "Code",
 				},
 				{
-					"<localleader>c",
-					group = "Code",
-				},
-				{
-					"<leader>d",
+					"<localleader>d",
 					group = "Debugger",
 				},
 				{
@@ -112,3 +108,4 @@ M.plugins = {
 }
 
 return M
+

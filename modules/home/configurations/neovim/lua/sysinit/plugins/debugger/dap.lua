@@ -14,70 +14,70 @@ M.plugins = {
 		end,
 		keys = {
 			{
-				"<leader>db",
+				"<localleader>db",
 				function()
 					require("dap").toggle_breakpoint()
 				end,
 				desc = "Toggle breakpoint",
 			},
 			{
-				"<leader>dc",
+				"<localleader>dc",
 				function()
 					require("dap").continue()
 				end,
 				desc = "Continue",
 			},
 			{
-				"<leader>dt",
+				"<localleader>dt",
 				function()
 					require("dap").run_to_cursor()
 				end,
 				desc = "Run to cursor",
 			},
 			{
-				"<leader>dB",
+				"<localleader>dB",
 				function()
 					require("dap").clear_breakpoints()
 				end,
 				desc = "Clear breakpoints",
 			},
 			{
-				"<leader>dr",
+				"<localleader>dr",
 				function()
 					require("dap").run()
 				end,
 				desc = "Run",
 			},
 			{
-				"<leader>dD",
+				"<localleader>dD",
 				function()
 					require("dap").repl.toggle()
 				end,
 				desc = "Toggle REPL",
 			},
 			{
-				"<leader>dR",
+				"<localleader>dR",
 				function()
 					require("dap").restart()
 				end,
 				desc = "Restart",
 			},
 			{
-				"<leader>dx",
+				"<localleader>dx",
 				function()
 					require("dap").terminate()
 				end,
 				desc = "Terminate",
 			},
 			{
-				"<leader>di",
+				"<localleader>di",
 				function()
 					require("dap").step_into()
 				end,
 				desc = "Step into",
 			},
 			{
-				"<leader>do",
+				"<localleader>do",
 				function()
 					require("dap").step_over()
 				end,
@@ -88,3 +88,4 @@ M.plugins = {
 }
 
 return M
+
