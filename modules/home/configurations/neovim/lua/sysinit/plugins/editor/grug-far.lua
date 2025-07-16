@@ -5,7 +5,7 @@ M.plugins = {
 		"MagicDuck/grug-far.nvim",
 		config = function()
 			require("grug-far").setup({
-				normalMOdeSearch = true,
+				normalModeSearch = true,
 				keymaps = {
 					replace = { n = "<localleader>gr" },
 					qflist = { n = "<localleader>gq" },
@@ -52,3 +52,4 @@ M.plugins = {
 }
 
 return M
+
