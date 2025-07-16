@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"yaocccc/nvim-foldsign",
-		event = "VeryLazy",
+		lazy = false,
 		config = function()
 			require("nvim-foldsign").setup({
 				offset = -3,
@@ -14,14 +14,8 @@ M.plugins = {
 				},
 				enabled = true,
 			})
-
-			vim.api.nvim_create_autocmd("FileType", {
-				pattern = "markdown",
-				callback = function()
-					vim.opt_local.foldcolumn = "0"
-				end,
-			})
 		end,
 	},
 }
 return M
+

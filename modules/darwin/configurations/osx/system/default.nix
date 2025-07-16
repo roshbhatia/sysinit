@@ -1,4 +1,8 @@
-{ config, username, ... }:
+{
+  config,
+  username,
+  ...
+}:
 {
   system = {
     primaryUser = username;

@@ -66,31 +66,6 @@ M.plugins = {
 				vim.lsp.enable(server)
 			end
 
-			vim.api.nvim_create_autocmd("LspAttach", {
-				callback = function(args)
-					local client = vim.lsp.get_client_by_id(args.data.client_id)
-					local bufnr = args.buf
-					if vim.lsp.inlay_hint and client.supports_method("textDocument/inlayHint") then
-						vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
-					end
-					if vim.lsp.codelens and client.supports_method("textDocument/codeLens") then
-						vim.schedule(function()
-							vim.lsp.codelens.refresh()
-						end)
-						local group = vim.api.nvim_create_augroup("LSPCodeLens" .. bufnr, { clear = true })
-						vim.api.nvim_create_autocmd("BufEnter", {
-							group = group,
-							buffer = bufnr,
-							callback = function()
-								vim.schedule(function()
-									vim.lsp.codelens.refresh()
-								end)
-							end,
-						})
-					end
-				end,
-			})
-
 			vim.diagnostic.config({
 				severity_sort = true,
 				virtual_text = false,
@@ -131,3 +106,4 @@ M.plugins = {
 }
 
 return M
+
