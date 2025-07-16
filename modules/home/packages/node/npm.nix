@@ -17,7 +17,9 @@ in
 
   home.activation.npmPackages = activation.mkPackageManager {
     name = "npm";
-    basePackages = [ ];
+    basePackages = [
+      "opencode-ai@latest"
+    ];
     additionalPackages = (overlay.npm.additionalPackages or [ ]);
     executableArguments = [
       "install"
