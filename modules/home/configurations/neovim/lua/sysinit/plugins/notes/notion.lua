@@ -7,6 +7,7 @@ M.plugins = {
 			"nvim-telescope/telescope.nvim",
 			"nvim-lua/plenary.nvim",
 		},
+		event = "VeryLazy",
 		config = function()
 			require("notion").setup()
 		end,
@@ -15,7 +16,7 @@ M.plugins = {
 				{
 					"<leader>fn",
 					require("notion").openMenu,
-					desc = "Find notes",
+					desc = "Notes",
 				},
 			}
 		end,
@@ -23,3 +24,4 @@ M.plugins = {
 }
 
 return M
+
