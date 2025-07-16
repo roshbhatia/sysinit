@@ -15,4 +15,3 @@ M.plugins = {
 }
 
 return M
-
