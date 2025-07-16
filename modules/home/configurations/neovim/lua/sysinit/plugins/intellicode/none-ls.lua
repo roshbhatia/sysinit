@@ -11,7 +11,6 @@ M.plugins = {
 		config = function()
 			local null_ls = require("null-ls")
 			local helpers = require("null-ls.helpers")
-			local ts_utils = require("nvim-treesitter.ts_utils")
 
 			null_ls.setup({
 				border = "rounded",
@@ -81,7 +80,7 @@ M.plugins = {
 				generator = {
 					fn = function(context)
 						local actions = {}
-						local node = ts_utils.get_node_at_cursor()
+						local node = vim.treesitter.get_node()
 						if not node then
 							return actions
 						end
@@ -110,7 +109,7 @@ M.plugins = {
 				generator = {
 					fn = function(context)
 						local actions = {}
-						local node = ts_utils.get_node_at_cursor()
+						local node = vim.treesitter.get_node()
 						if not node then
 							return actions
 						end
