@@ -1,23 +1,8 @@
 {
-  config,
   ...
 }:
 
 {
-  launchd.user.agents.mcp-hub = {
-    enable = true;
-    program = "${config.home.homeDirectory}/.local/share/.npm-packages/bin/mcp-hub";
-    programArguments = [
-      "${config.home.homeDirectory}/.local/share/.npm-packages/bin/mcp-hub"
-      "--port"
-      "43210"
-    ];
-    runAtLoad = true;
-    keepAlive = true;
-    standardOutPath = "/tmp/mcp-hub.log";
-    standardErrorPath = "/tmp/mcp-hub.err";
-  };
-
   xdg.configFile."mcphub/servers.json" = {
     source = ./mcphub.json;
     force = true;

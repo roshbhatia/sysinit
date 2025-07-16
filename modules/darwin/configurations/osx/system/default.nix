@@ -1,4 +1,4 @@
-{ username, ... }:
+{ config, username, ... }:
 {
   system = {
     primaryUser = username;
@@ -7,15 +7,14 @@
 
   launchd.user.agents.mcp-hub = {
     enable = true;
-    program = "/Users/rbha18/.local/share/.npm-packages/bin/mcp-hub";
+    program = "/Users/${username}/.local/share/.npm-packages/bin/mcp-hub";
     programArguments = [
-      "/Users/rbha18/.local/share/.npm-packages/bin/mcp-hub"
+      "${config.home.homeDirectory}/.local/share/.npm-packages/bin/mcp-hub"
       "--port"
-      "3210"
+      "43210"
     ];
     runAtLoad = true;
     keepAlive = true;
-    standardOutPath = "/tmp/mcp-hub.log";
-    standardErrorPath = "/tmp/mcp-hub.err";
   };
 }
+
