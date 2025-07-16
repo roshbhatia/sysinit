@@ -1,8 +1,9 @@
 local M = {}
 
 function M.setup()
-	vim.keymap.set("n", "<localleader>x", function()
+	vim.keymap.set("n", "<leader>x", function()
 		vim.cmd("silent SessionSave")
+		vim.cmd("silent write!")
 		vim.cmd("silent x")
 	end, {
 		noremap = true,
@@ -24,7 +25,7 @@ function M.setup()
 	end, {
 		noremap = true,
 		silent = true,
-		desc = "Write (No Format)",
+		desc = "Write (no format)",
 	})
 
 	vim.keymap.set("n", "<localleader>bn", function()
