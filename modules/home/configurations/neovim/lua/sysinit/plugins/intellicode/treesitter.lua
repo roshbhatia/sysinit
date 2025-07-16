@@ -69,6 +69,8 @@ M.plugins = {
 			},
 		},
 		config = function(_, opts)
+			require("nvim-treesittek.configs").setup(opts)
+
 			local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
 			parser_config.gotmpl = {
 				install_info = {
@@ -78,8 +80,6 @@ M.plugins = {
 				filetype = "gotmpl",
 				used_by = { "gohtmltmpl", "gotexttmpl", "gotmpl", "yaml" },
 			}
-
-			require("nvim-treesitter.configs").setup(opts)
 		end,
 	},
 }
