@@ -69,19 +69,21 @@ M.plugins = {
 			},
 		},
 		config = function(_, opts)
-			require("nvim-treesittek.configs").setup(opts)
+			require("nvim-treesitter").setup(opts)
 
-			local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
-			parser_config.gotmpl = {
-				install_info = {
-					url = "https://github.com/ngalaiko/tree-sitter-go-template",
-					files = { "src/parser.c" },
+			vim.filetype.add({
+				extension = {
+					gotmpl = "gotmpl",
 				},
-				filetype = "gotmpl",
-				used_by = { "gohtmltmpl", "gotexttmpl", "gotmpl", "yaml" },
-			}
+				pattern = {
+					[".*/templates/.*%.tpl"] = "helm",
+					[".*/templates/.*%.ya?ml"] = "helm",
+					["helmfile.*%.ya?ml"] = "helm",
+				},
+			})
 		end,
 	},
 }
 
 return M
+
