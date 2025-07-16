@@ -15,15 +15,11 @@
     withRuby = true;
   };
 
-  xdg.configFile."nvim/init.lua" = {
-    source = ./init.lua;
-    force = true;
-  };
-
-  xdg.configFile."nvim/lua" = {
-    source = ./lua;
-    force = true;
-  };
+  # Use out-of-store symlinks for live Neovim config editing
+  xdg.configFile."nvim/init.lua".source =
+    pkgs.lib.mkOutOfStoreSymlink "/Users/rbha18/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/init.lua";
+  xdg.configFile."nvim/lua".source =
+    pkgs.lib.mkOutOfStoreSymlink "/Users/rbha18/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua";
 
   # Ensure XDG directories have correct permissions for Neovim plugins
   home.activation.nvimXdgPermissions = lib.hm.dag.entryAfter [ "writeBoundary" ] ''

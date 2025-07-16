@@ -12,7 +12,15 @@ function M.setup()
 	end, {
 		noremap = true,
 		silent = true,
-		desc = "Toggle line number display",
+		desc = "Toggle line numbers",
+	})
+
+	vim.keymap.set("n", "<leader>ew", function()
+		vim.wo.wrap = not vim.wo.wrap
+	end, {
+		noremap = true,
+		silent = true,
+		desc = "Toggle line wrapping",
 	})
 end
 

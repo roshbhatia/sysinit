@@ -90,9 +90,8 @@ M.plugins = {
 				profiler = {
 					enabled = true,
 				},
-				-- Causes issues with syntax highlighting?
 				quickfile = {
-					enabled = false,
+					enabled = true,
 				},
 				terminal = {
 					enabled = false,
@@ -118,10 +117,42 @@ M.plugins = {
 			vim.ui.input = Snacks.input
 		end,
 		keys = function()
-			if vim.env.PROF ~= "1" then
-				return {}
+			local default_keys = {
+				{
+					"<leader>bs",
+					function()
+						Snacks.scratch()
+					end,
+					desc = "Toggle scratchpad",
+				},
+				{
+					"<leader>gg",
+					function()
+						Snacks.lazygit()
+					end,
+					desc = "Open UI",
+				},
+				{
+					"<leader>ns",
+					function()
+						Snacks.notifier.show_history()
+					end,
+					desc = "Show",
+				},
+				{
+					"<leader>nc",
+					function()
+						Snacks.notifier.hide()
+					end,
+					desc = "Dismiss",
+				},
+			}
+
+			if vim.env.SYSINIT_DEBUG ~= "1" then
+				return default_keys
 			end
-			return {
+
+			local debug_keys = {
 				{
 					"<localleader>px",
 					function()
@@ -157,35 +188,13 @@ M.plugins = {
 					end,
 					desc = "Profiler Scratch Buffer",
 				},
-				{
-					"<leader>bs",
-					function()
-						Snacks.scratch()
-					end,
-					desc = "Toggle scratchpad",
-				},
-				{
-					"<leader>gg",
-					function()
-						Snacks.lazygit()
-					end,
-					desc = "Open UI",
-				},
-				{
-					"<leader>ns",
-					function()
-						Snacks.notifier.show_history()
-					end,
-					desc = "Show",
-				},
-				{
-					"<leader>nc",
-					function()
-						Snacks.notifier.hide()
-					end,
-					desc = "Dismiss",
-				},
 			}
+
+			for _, key in ipairs(debug_keys) do
+				table.insert(default_keys, key)
+			end
+
+			return default_keys
 		end,
 	},
 }

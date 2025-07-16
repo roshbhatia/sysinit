@@ -60,7 +60,13 @@ M.plugins = {
 					if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
 						return
 					end
+					-- Skip formatting for large files (over 1MB)
+					local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(bufnr))
+					if ok and stats and stats.size and stats.size > 1024 * 1024 then
+						return
+					end
 					return {
+						async = true,
 						timeout_ms = 500,
 						lsp_fallback = true,
 					}

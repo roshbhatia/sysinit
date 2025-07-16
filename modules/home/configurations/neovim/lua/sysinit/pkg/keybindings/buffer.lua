@@ -42,15 +42,15 @@ function M.setup()
 	end, {
 		noremap = true,
 		silent = true,
-		desc = "Next",
+		desc = "Next buffer",
 	})
 
-	vim.keymap.set("n", "<leader>bN", function()
+	vim.keymap.set("n", "<leader>bp", function()
 		vim.cmd("bprevious")
 	end, {
 		noremap = true,
 		silent = true,
-		desc = "Previous",
+		desc = "Previous buffer",
 	})
 end
 

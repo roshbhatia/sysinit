@@ -98,6 +98,15 @@ M.plugins = {
 					},
 				})
 			end
+
+			if vim.env.SYSINIT_DEBUG == "1" then
+				wk.add({
+					{
+						"<localleader>p",
+						group = "Profiler",
+					},
+				})
+			end
 		end,
 	},
 }
