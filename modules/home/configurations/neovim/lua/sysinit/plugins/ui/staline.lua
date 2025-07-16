@@ -67,9 +67,23 @@ M.plugins = {
 					lsp_client_symbol = "",
 					lsp_client_character_length = 40,
 				},
+				mode_colors = {
+					n = "#f5bde6",
+					i = "#8bd5ca",
+					c = "#b7bdf8",
+					v = "#7dc4e4",
+					V = "#7dc4e4",
+					[""] = "#7dc4e4",
+					R = "#f5a97f",
+					r = "#f5a97f",
+					s = "#eed49f",
+					S = "#eed49f",
+					t = "#a6da95",
+				},
 			})
 		end,
 	},
 }
 
 return M
+
