@@ -7,21 +7,8 @@ M.plugins = {
 		config = function()
 			require("lsp_lines").setup()
 		end,
-		keys = function()
-			return {
-				{
-					"<localleader>cc",
-					require("lsp_lines").toggle,
-					mode = "n",
-					noremap = true,
-					silent = true,
-					{
-						desc = "Toggle LSP Diagnostics",
-					},
-				},
-			}
-		end,
 	},
 }
 
 return M
+

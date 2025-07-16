@@ -18,8 +18,27 @@ M.plugins = {
 				},
 				notify = false,
 			})
-
 			wk.add({
+				{
+					"<localleader>b",
+					group = "Buffer Actions",
+				},
+				{
+					"<localleader>e",
+					group = "Editor Actions",
+				},
+				{
+					"<localleader>p",
+					group = "Snacks/Profiler",
+				},
+				{
+					"<localleader>r",
+					group = "Refresh",
+				},
+				{
+					"<leader>j",
+					group = "Goose",
+				},
 				{
 					"<leader>b",
 					group = "Buffer",
@@ -108,3 +127,4 @@ M.plugins = {
 }
 
 return M
+
