@@ -6,15 +6,13 @@
   };
 
   launchd.user.agents.mcp-hub = {
-    enable = true;
-    program = "/Users/${username}/.local/share/.npm-packages/bin/mcp-hub";
-    programArguments = [
-      "${config.home.homeDirectory}/.local/share/.npm-packages/bin/mcp-hub"
-      "--port"
-      "43210"
-    ];
-    runAtLoad = true;
-    keepAlive = true;
+    command = "/Users/${username}/.local/share/.npm-packages/bin/mcp-hub --port 43210";
+    serviceConfig = {
+      RunAtLoad = true;
+      KeepAlive = true;
+      StandardOutPath = "/tmp/mcphub.out.log";
+      StandardErrorPath = "/tmp/mcphub.err.log";
+    };
   };
 }
 
