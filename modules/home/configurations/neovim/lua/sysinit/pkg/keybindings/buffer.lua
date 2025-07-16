@@ -1,7 +1,7 @@
 local M = {}
 
 function M.setup()
-	vim.keymap.set("n", "<leader>x", function()
+	vim.keymap.set("n", "<localleader>x", function()
 		vim.cmd("silent SessionSave")
 		vim.cmd("silent x")
 	end, {
@@ -10,7 +10,7 @@ function M.setup()
 		desc = "Close buffer",
 	})
 
-	vim.keymap.set("n", "<leader>s", function()
+	vim.keymap.set("n", "<localleader>s", function()
 		vim.cmd("silent SessionSave")
 		vim.cmd("silent write!")
 	end, {
@@ -19,7 +19,7 @@ function M.setup()
 		desc = "Write",
 	})
 
-	vim.keymap.set("n", "<leader>S", function()
+	vim.keymap.set("n", "<localleader>S", function()
 		vim.cmd("noautocmd write")
 	end, {
 		noremap = true,
@@ -27,7 +27,7 @@ function M.setup()
 		desc = "Write (No Format)",
 	})
 
-	vim.keymap.set("n", "<leader>w", function()
+	vim.keymap.set("n", "<localleader>w", function()
 		vim.cmd("silent SessionSave")
 		vim.cmd("silent write!")
 		vim.cmd("silent quit!")
@@ -37,7 +37,7 @@ function M.setup()
 		desc = "Write and close",
 	})
 
-	vim.keymap.set("n", "<leader>bn", function()
+	vim.keymap.set("n", "<localleader>bn", function()
 		vim.cmd("bnext")
 	end, {
 		noremap = true,
@@ -45,7 +45,7 @@ function M.setup()
 		desc = "Next buffer",
 	})
 
-	vim.keymap.set("n", "<leader>bp", function()
+	vim.keymap.set("n", "<localleader>bp", function()
 		vim.cmd("bprevious")
 	end, {
 		noremap = true,

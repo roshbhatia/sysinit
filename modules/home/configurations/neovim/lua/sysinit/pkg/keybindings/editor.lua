@@ -15,7 +15,7 @@ function M.setup()
 		desc = "Toggle line numbers",
 	})
 
-	vim.keymap.set("n", "<leader>ew", function()
+	vim.keymap.set("n", "<localleader>ew", function()
 		vim.wo.wrap = not vim.wo.wrap
 	end, {
 		noremap = true,
