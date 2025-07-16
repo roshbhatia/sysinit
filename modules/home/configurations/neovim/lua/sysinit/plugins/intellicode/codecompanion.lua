@@ -47,6 +47,17 @@ M.plugins = {
 					description = "Send",
 				},
 			},
+			adapters = {
+				copilot = function()
+					return require("codecompanion.adapters").extend("copilot", {
+						schema = {
+							model = {
+								default = "gemini-2.5-pro",
+							},
+						},
+					})
+				end,
+			},
 		},
 		keys = function()
 			return {

@@ -3,8 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"mfussenegger/nvim-dap",
-		recommended = true,
-		event = "CmdlineEnter",
+		event = "VeryLazy",
 		dependencies = {
 			"rcarriga/nvim-dap-ui",
 			"theHamsta/nvim-dap-virtual-text",
@@ -88,3 +87,4 @@ M.plugins = {
 }
 
 return M
+
