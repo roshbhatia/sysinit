@@ -145,8 +145,11 @@ M.plugins = {
 					vim.opt_local.foldmethod = "manual"
 				end,
 			})
+
+			vim.cmd("AvanteBuild")
 		end,
 	},
 }
 
 return M
+
