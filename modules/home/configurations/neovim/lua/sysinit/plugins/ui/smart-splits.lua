@@ -99,13 +99,13 @@ M.plugins = {
 					desc = "Increase width of current split",
 				},
 				{
-					"<localleader><s>",
+					"<localleader>s",
 					"<CMD>split<CR>",
 					mode = { "n", "t" },
 					desc = "Split horizontal",
 				},
 				{
-					"<localleader><v>",
+					"<localleader>v",
 					"<CMD>vsplit<CR>",
 					mode = { "n", "t" },
 					desc = "Split vertical",
