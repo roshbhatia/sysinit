@@ -17,5 +17,9 @@
       StandardOutPath = "/tmp/mcphub.out.log";
       StandardErrorPath = "/tmp/mcphub.err.log";
     };
+    environment = {
+      PATH = "/etc/profiles/per-user/${username}/bin";
+    };
   };
 }
+
