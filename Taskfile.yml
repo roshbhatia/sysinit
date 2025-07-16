@@ -99,8 +99,6 @@ tasks:
           exit 1
         fi
         log_success "Work configuration refreshed successfully"
-        mkdir -p ~/.cache ~/.local/state
-        sudo chmod -R u+x ~/.local/share ~/.cache
     desc: Update and rebuild work sysinit configuration
     silent: true
 
