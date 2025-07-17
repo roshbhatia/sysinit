@@ -104,21 +104,19 @@ alt-shift-equal = 'resize smart +210'
 # Workspace management
 alt-1 = 'workspace 1'
 alt-2 = 'workspace 2'
-alt-3 = 'workspace 3'
-alt-4 = 'workspace 4'
 alt-c = 'workspace C' # Chat
 alt-m = 'workspace M' # Media
 alt-s = 'workspace S' # Slack
 alt-e = 'workspace E' # Email
+alt-x = "workspace X" # Scratch
 
 alt-shift-1 = 'move-node-to-workspace 1 --focus-follows-window'
 alt-shift-2 = 'move-node-to-workspace 2 --focus-follows-window'
-alt-shift-3 = 'move-node-to-workspace 3 --focus-follows-window'
-alt-shift-4 = 'move-node-to-workspace 4 --focus-follows-window'
 alt-shift-c = 'move-node-to-workspace C --focus-follows-window'
 alt-shift-e = 'move-node-to-workspace E --focus-follows-window'
 alt-shift-m = 'move-node-to-workspace M --focus-follows-window'
 alt-shift-s = 'move-node-to-workspace S --focus-follows-window'
+alt-shift-x = 'move-node-to-workspace X --focus-follows-window'
 
 alt-f = 'fullscreen'
 
