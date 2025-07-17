@@ -5,6 +5,9 @@ M.plugins = {
 		"folke/snacks.nvim",
 		priority = 1050,
 		lazy = false,
+		dependencies = {
+			"nvim-tree/nvim-web-devicons",
+		},
 		config = function()
 			require("snacks").setup({
 				animate = {
@@ -61,7 +64,32 @@ M.plugins = {
 					enabled = true,
 				},
 				dashboard = {
-					enabled = false,
+					enabled = true,
+					sections = {
+						{
+							section = "terminal",
+							cmd = "chafa $XDG_CONFIG_HOME/nvim/assets/wall.png --format symbols --symbols vhalf --size 60x17; sleep .1",
+							height = 17,
+							padding = 1,
+						},
+						{
+							section = "header",
+							cmd = "figlet -f catwalk sysinit | lolcat",
+							padding = 1,
+						},
+						{
+							pane = 2,
+							{ section = "keys", gap = 1, padding = 1 },
+							{ section = "startup" },
+						},
+					},
+					buttons = {
+						{ key = "l", label = "  Session: Load Last", action = ":ene | SessionLoad<CR>" },
+						{ key = "i", label = "  File: Create New", action = ":ene | startinsert<CR>" },
+						{ key = "f", label = "󰍉 File: Search", action = ":ene | Telescope find_files<CR>" },
+						{ key = "g", label = "󰍋 Strings: Search", action = ":ene | Telescope live_grep<CR>" },
+						{ key = "q", label = "󰩈 Vim: Exit", action = ":qa<CR>" },
+					},
 				},
 				debug = {
 					enabled = false,
