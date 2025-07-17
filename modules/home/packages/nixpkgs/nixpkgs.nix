@@ -32,6 +32,7 @@ let
     docker-language-server
     duf
     fd
+    figlet
     findutils
     fira-code
     fzf
