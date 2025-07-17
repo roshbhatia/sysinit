@@ -99,6 +99,7 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.library.snacks"),
 	require("sysinit.plugins.library.volt"),
 	require("sysinit.plugins.notes.notion"),
+	require("sysinit.plugins.ui.alpha"),
 	require("sysinit.plugins.ui.devicons"),
 	require("sysinit.plugins.ui.dressing"),
 	require("sysinit.plugins.ui.edgy"),
