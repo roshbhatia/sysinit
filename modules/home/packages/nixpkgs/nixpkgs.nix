@@ -66,6 +66,7 @@ let
     lazygit
     libgit2
     lnav
+    lolcat
     luajit
     lua-language-server
     lynx
