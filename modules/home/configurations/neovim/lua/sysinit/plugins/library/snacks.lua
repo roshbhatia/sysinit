@@ -67,20 +67,27 @@ M.plugins = {
 					enabled = true,
 					sections = {
 						{
-							section = "terminal",
-							cmd = "chafa $XDG_CONFIG_HOME/nvim/assets/wall.png --format symbols --symbols vhalf --size 60x17; sleep .1",
-							height = 17,
-							padding = 1,
-						},
-						{
-							section = "header",
-							cmd = "figlet -f catwalk sysinit | lolcat",
-							padding = 1,
+							pane = 1,
+							{
+								pane = 1,
+								section = "header",
+								cmd = "figlet -f catwalk sysinit | lolcat",
+								padding = 1,
+							},
+							{
+								section = "terminal",
+								cmd = "chafa $XDG_CONFIG_HOME/nvim/assets/frida.png --format symbols --symbols vhalf --size 60x17; sleep .1",
+								height = 17,
+								padding = 1,
+							},
 						},
 						{
 							pane = 2,
-							{ section = "keys", gap = 1, padding = 1 },
-							{ section = "startup" },
+							{
+								section = "keys",
+								gap = 1,
+								padding = 1,
+							},
 						},
 					},
 					buttons = {
@@ -228,3 +235,4 @@ M.plugins = {
 }
 
 return M
+
