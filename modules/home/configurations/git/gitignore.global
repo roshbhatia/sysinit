@@ -44,6 +44,9 @@ shell.nix
 **/.goose/
 .goosehints
 
+# Agents
+AGENTS.md
+
 # Random stuff
 .sysinit/
 
