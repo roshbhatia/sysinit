@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"folke/snacks.nvim",
-		priority = 1050,
+		priority = 9800,
 		lazy = false,
 		dependencies = {
 			"nvim-tree/nvim-web-devicons",
