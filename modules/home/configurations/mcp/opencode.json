@@ -14,25 +14,25 @@
     "app_help": "<leader>h",
     "switch_mode": "tab",
 
-    "editor_open": "<leader>ii",
+    "editor_open": "<leader>i",
 
-    "session_new": "<leader>ss",
-    "session_list": "<leader>fs",
-    "session_share": "<leader>sh",
-    "session_unshare": "<leader>su",
+    "session_new": "<leader>s",
+    "session_list": "<leader>f",
+    "session_share": "<leader>h",
+    "session_unshare": "<leader>u",
     "session_interrupt": "esc",
-    "session_compact": "<leader>sc",
+    "session_compact": "<leader>c",
 
     "tool_details": "<leader>d",
-    "model_list": "<leader>mm",
-    "theme_list": "<leader>tt",
-    "project_init": "<leader>bi",
+    "model_list": "<leader>m",
+    "theme_list": "<leader>t",
+    "project_init": "<leader>b",
 
-    "file_list": "<leader>ff",
+    "file_list": "<leader>f",
     "file_close": "esc",
-    "file_diff_toggle": "<leader>gbd",
+    "file_diff_toggle": "<leader>g",
 
-    "input_clear": "<leader>dd",
+    "input_clear": "<leader>d",
     "input_paste": "<leader>p",
     "input_submit": "enter",
     "input_newline": "shift+enter",
@@ -41,8 +41,8 @@
     "messages_next": "ctrl+d",
     "messages_first": "ctrl-shift-u",
     "messages_last": "ctrl-shift-d",
-    "messages_layout_toggle": "<leader>ee",
-    "messages_copy": "<leader>yy",
+    "messages_layout_toggle": "<leader>e",
+    "messages_copy": "<leader>y",
     "messages_revert": "<leader>u",
     "app_exit": "ctrl+c,<leader>q"
   }
