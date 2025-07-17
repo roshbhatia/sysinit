@@ -52,6 +52,18 @@ let
     };
   };
 
+  roshColorTheme = commonTheme // {
+    key_color = "LightCyan";
+    separator_color = "Yellow";
+    box = {
+      title = "rosh";
+    };
+    custom_ascii = {
+      color = "#BB90B7";
+      path = "${config.home.homeDirectory}/.config/macchina/themes/rosh.color.ascii";
+    };
+  };
+
   nixTheme = commonTheme // {
     key_color = "#5277C3";
     separator_color = "#7EBAE4";
@@ -93,6 +105,11 @@ in
       force = true;
     };
 
+    "macchina/themes/rosh-color.toml" = {
+      source = tomlFormat.generate "rosh-coloro.toml" roshColorTheme;
+      force = true;
+    };
+
     "macchina/themes/nix.toml" = {
       source = tomlFormat.generate "nix.toml" nixTheme;
       force = true;
@@ -119,3 +136,4 @@ in
     };
   };
 }
+
