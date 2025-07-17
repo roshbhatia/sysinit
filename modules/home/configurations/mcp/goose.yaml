@@ -23,7 +23,7 @@ extensions:
     args:
       - -y
       - mcp-remote
-      - https://localhost:43210/mcp
+      - http://localhost:43210/mcp
     bundled: false
     cmd: npx
     description: Hub for various mcp servers

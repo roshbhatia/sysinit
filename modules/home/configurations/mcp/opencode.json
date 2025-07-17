@@ -3,7 +3,7 @@
   "mcp": {
     "hub": {
       "type": "remote",
-      "url": "https://localhost:43210/mcp",
+      "url": "http://localhost:43210/mcp",
       "enabled": true
     }
   }
