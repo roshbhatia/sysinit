@@ -69,8 +69,7 @@ M.plugins = {
 						{
 							pane = 1,
 							{
-								pane = 1,
-								section = "header",
+								section = "terminal",
 								cmd = "figlet -f catwalk sysinit | lolcat",
 								padding = 1,
 							},
@@ -91,11 +90,51 @@ M.plugins = {
 						},
 					},
 					buttons = {
-						{ key = "l", label = "  Session: Load Last", action = ":ene | SessionLoad<CR>" },
-						{ key = "i", label = "  File: Create New", action = ":ene | startinsert<CR>" },
-						{ key = "f", label = "󰍉 File: Search", action = ":ene | Telescope find_files<CR>" },
-						{ key = "g", label = "󰍋 Strings: Search", action = ":ene | Telescope live_grep<CR>" },
-						{ key = "q", label = "󰩈 Vim: Exit", action = ":qa<CR>" },
+						{
+							text = {
+								{ " ", hl = "SnacksDashboardIcon" },
+								{ "Session: Load Last", hl = "SnacksDashboardDesc", width = 50 },
+								{ "[l]", hl = "SnacksDashboardKey" },
+							},
+							action = ":ene | SessionLoad",
+							key = "l",
+						},
+						{
+							text = {
+								{ " ", hl = "SnacksDashboardIcon" },
+								{ "File: Create New", hl = "SnacksDashboardDesc", width = 50 },
+								{ "[i]", hl = "SnacksDashboardKey" },
+							},
+							action = ":ene | startinsert",
+							key = "i",
+						},
+						{
+							text = {
+								{ "󰍉 ", hl = "SnacksDashboardIcon" },
+								{ "File: Search", hl = "SnacksDashboardDesc", width = 50 },
+								{ "[f]", hl = "SnacksDashboardKey" },
+							},
+							action = ":ene | Telescope find_files",
+							key = "f",
+						},
+						{
+							text = {
+								{ "󰍋 ", hl = "SnacksDashboardIcon" },
+								{ "Strings: Search", hl = "SnacksDashboardDesc", width = 50 },
+								{ "[g]", hl = "SnacksDashboardKey" },
+							},
+							action = ":ene | Telescope live_grep",
+							key = "g",
+						},
+						{
+							text = {
+								{ "󰩈 ", hl = "SnacksDashboardIcon" },
+								{ "Vim: Exit", hl = "SnacksDashboardDesc", width = 50 },
+								{ "[q]", hl = "SnacksDashboardKey" },
+							},
+							action = ":qa!",
+							key = "q",
+						},
 					},
 				},
 				debug = {
@@ -235,4 +274,3 @@ M.plugins = {
 }
 
 return M
-
