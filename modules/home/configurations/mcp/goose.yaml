@@ -24,7 +24,7 @@ extensions:
     type: builtin
     args:
   hub:
-    url: https://localhost:43210/mcp
+    uri: https://localhost:43210/mcp
     bundled: false
     description: Hub for various mcp servers
     enabled: true
