@@ -1,8 +1,12 @@
 ---
 EDIT_MODE: vi
-GOOSE_MODEL: gemini-2.0-flash-001
-GOOSE_PLANNER_MODEL: claude-3.7-sonnet
-GOOSE_PROVIDER: github_copilot
+# GOOSE_MODEL: gemini-2.0-flash-001
+# GOOSE_PLANNER_MODEL: claude-3.7-sonnet
+# GOOSE_PROVIDER: github_copilot
+GOOSE_MODEL: llama3.2:3b
+GOOSE_PROVIDER: ollama
+OLLAMA_HOST: http://127.0.0.1:11434
+
 extensions:
   computercontroller:
     bundled: true
@@ -10,7 +14,7 @@ extensions:
     enabled: true
     name: computercontroller
     timeout: 300
-    type: builiin
+    type: builtin
   developer:
     bundled: true
     display_name: Developer Tools
@@ -20,17 +24,11 @@ extensions:
     type: builtin
     args:
   hub:
-    args:
-      - -y
-      - mcp-remote
-      - http://localhost:43210/mcp
+    url: https://localhost:43210/mcp
     bundled: false
-    cmd: npx
     description: Hub for various mcp servers
     enabled: true
-    env_keys: []
-    envs: {}
-    name: hub
+    name: Hub
     timeout: 300
-    type: stdio
+    type: streamable_http
 
