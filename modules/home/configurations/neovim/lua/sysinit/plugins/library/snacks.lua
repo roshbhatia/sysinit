@@ -92,20 +92,24 @@ M.plugins = {
 					buttons = {
 						{
 							text = {
-								{ " ", hl = "SnacksDashboardIcon" },
+								{ " ", hl = "SnacksDashboardIcon" },
 								{ "Session: Load Last", hl = "SnacksDashboardDesc", width = 50 },
 								{ "[l]", hl = "SnacksDashboardKey" },
 							},
-							action = ":ene | SessionLoad",
+							action = function()
+								vim.cmd("ene | SessionLoad")
+							end,
 							key = "l",
 						},
 						{
 							text = {
-								{ " ", hl = "SnacksDashboardIcon" },
+								{ " ", hl = "SnacksDashboardIcon" },
 								{ "File: Create New", hl = "SnacksDashboardDesc", width = 50 },
 								{ "[i]", hl = "SnacksDashboardKey" },
 							},
-							action = ":ene | startinsert",
+							action = function()
+								vim.cmd("ene | startinsert")
+							end,
 							key = "i",
 						},
 						{
@@ -114,7 +118,10 @@ M.plugins = {
 								{ "File: Search", hl = "SnacksDashboardDesc", width = 50 },
 								{ "[f]", hl = "SnacksDashboardKey" },
 							},
-							action = ":ene | Telescope find_files",
+							action = function()
+								vim.cmd("ene")
+								require("telescope.builtin").find_files({ hidden = true })
+							end,
 							key = "f",
 						},
 						{
@@ -123,7 +130,10 @@ M.plugins = {
 								{ "Strings: Search", hl = "SnacksDashboardDesc", width = 50 },
 								{ "[g]", hl = "SnacksDashboardKey" },
 							},
-							action = ":ene | Telescope live_grep",
+							action = function()
+								vim.cmd("ene")
+								require("telescope.builtin").live_grep()
+							end,
 							key = "g",
 						},
 						{
@@ -132,7 +142,9 @@ M.plugins = {
 								{ "Vim: Exit", hl = "SnacksDashboardDesc", width = 50 },
 								{ "[q]", hl = "SnacksDashboardKey" },
 							},
-							action = ":qa!",
+							action = function()
+								vim.cmd("qa!")
+							end,
 							key = "q",
 						},
 					},
