@@ -1,11 +1,50 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "theme": "system",
+  "autoupdate": true,
   "mcp": {
     "hub": {
       "type": "remote",
       "url": "http://localhost:43210/mcp",
       "enabled": true
     }
+  },
+  "keybinds": {
+    "leader": "ctrl+space",
+    "app_help": "<leader>h",
+    "switch_mode": "tab",
+
+    "editor_open": "<leader>ii",
+
+    "session_new": "<leader>ss",
+    "session_list": "<leader>fs",
+    "session_share": "<leader>sh",
+    "session_unshare": "<leader>su",
+    "session_interrupt": "esc",
+    "session_compact": "<leader>sc",
+
+    "tool_details": "<leader>d",
+    "model_list": "<leader>mm",
+    "theme_list": "<leader>tt",
+    "project_init": "<leader>bi",
+
+    "file_list": "<leader>ff",
+    "file_close": "esc",
+    "file_diff_toggle": "<leader>gbd",
+
+    "input_clear": "<leader>dd",
+    "input_paste": "<leader>p",
+    "input_submit": "enter",
+    "input_newline": "shift+enter",
+
+    "messages_previous": "ctrl+u",
+    "messages_next": "ctrl+d",
+    "messages_first": "ctrl-shift-u",
+    "messages_last": "ctrl-shift-d",
+    "messages_layout_toggle": "<leader>ee",
+    "messages_copy": "<leader>yy",
+    "messages_revert": "<leader>u",
+    "app_exit": "ctrl+c,<leader>q"
   }
 }
 

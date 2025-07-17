@@ -18,8 +18,9 @@
     force = true;
   };
 
-  xdg.configFile."opencode/.opencode.json" = {
+  xdg.configFile."opencode/opencode.json" = {
     source = ./opencode.json;
     force = true;
   };
 }
+
