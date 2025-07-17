@@ -19,6 +19,7 @@ let
     bashInteractive
     caddy
     cargo-watch
+    chafa
     checkmake
     colima
     coreutils
@@ -125,3 +126,4 @@ in
 {
   home.packages = allNixPackages;
 }
+
