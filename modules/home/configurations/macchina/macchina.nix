@@ -59,8 +59,7 @@ let
       title = "rosh";
     };
     custom_ascii = {
-      color = "#BB90B7";
-      path = "${config.home.homeDirectory}/.config/macchina/themes/rosh.color.ascii";
+      path = "${config.home.homeDirectory}/.config/macchina/themes/rosh-color.ascii";
     };
   };
 
@@ -125,6 +124,11 @@ in
       force = true;
     };
 
+    "macchina/themes/rosh-color.ascii" = {
+      source = ./themes/rosh-color.ascii;
+      force = true;
+    };
+
     "macchina/themes/nix.ascii" = {
       source = ./themes/nix.ascii;
       force = true;
@@ -136,3 +140,4 @@ in
     };
   };
 }
+
