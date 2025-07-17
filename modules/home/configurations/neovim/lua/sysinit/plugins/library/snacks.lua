@@ -75,7 +75,7 @@ M.plugins = {
 							},
 							{
 								section = "terminal",
-								cmd = "chafa $XDG_CONFIG_HOME/nvim/assets/frida.png --format symbols --symbols vhalf --size 60x17; sleep .1",
+								cmd = "chafa $XDG_CONFIG_HOME/nvim/assets/frida.png --format symbols --symbols vhalf --size 60x17",
 								height = 17,
 								padding = 1,
 							},
