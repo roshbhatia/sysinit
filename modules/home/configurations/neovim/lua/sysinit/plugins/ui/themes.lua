@@ -60,7 +60,11 @@ M.plugins = {
 								WhichKeyBorder = { fg = colors.lavender, bg = colors.none },
 								WhichKeyFloat = { bg = colors.none },
 								DiagnosticVirtualTextError = { bg = colors.none, fg = colors.red, style = { "italic" } },
-								DiagnosticVirtualTextWarn = { bg = colors.none, fg = colors.yellow, style = { "italic" } },
+								DiagnosticVirtualTextWarn = {
+									bg = colors.none,
+									fg = colors.yellow,
+									style = { "italic" },
+								},
 								DiagnosticVirtualTextInfo = { bg = colors.none, fg = colors.blue, style = { "italic" } },
 								DiagnosticVirtualTextHint = { bg = colors.none, fg = colors.teal, style = { "italic" } },
 								GitSignsAdd = { fg = colors.green },
