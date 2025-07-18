@@ -147,28 +147,28 @@ M.plugins = {
 				generator = {
 					fn = function(context)
 						local actions = {}
-						
+
 						table.insert(actions, {
 							title = "Format YAML with yq",
 							action = function()
 								vim.cmd("%!yq eval '.' -")
 							end,
 						})
-						
+
 						table.insert(actions, {
 							title = "Validate YAML syntax",
 							action = function()
 								vim.cmd("!yq eval '.' % > /dev/null && echo 'Valid YAML' || echo 'Invalid YAML'")
 							end,
 						})
-						
+
 						table.insert(actions, {
 							title = "Convert to JSON",
 							action = function()
 								vim.cmd("!yq eval -o=json '%' %")
 							end,
 						})
-						
+
 						return actions
 					end,
 				},
@@ -182,35 +182,35 @@ M.plugins = {
 				generator = {
 					fn = function(context)
 						local actions = {}
-						
+
 						table.insert(actions, {
 							title = "Format JSON with jq",
 							action = function()
 								vim.cmd("%!jq .")
 							end,
 						})
-						
+
 						table.insert(actions, {
 							title = "Compact JSON",
 							action = function()
 								vim.cmd("%!jq -c .")
 							end,
 						})
-						
+
 						table.insert(actions, {
 							title = "Validate JSON syntax",
 							action = function()
 								vim.cmd("!jq empty % && echo 'Valid JSON' || echo 'Invalid JSON'")
 							end,
 						})
-						
+
 						table.insert(actions, {
 							title = "Show JSON keys",
 							action = function()
 								vim.cmd("!jq 'keys' %")
 							end,
 						})
-						
+
 						return actions
 					end,
 				},
@@ -225,23 +225,27 @@ M.plugins = {
 					fn = function(context)
 						local actions = {}
 						local bufname = vim.api.nvim_buf_get_name(context.bufnr)
-						
+
 						-- Check if we're in a Helm chart directory
-						if bufname:match("templates/") or bufname:match("Chart.yaml") or bufname:match("values.yaml") then
+						if
+							bufname:match("templates/")
+							or bufname:match("Chart.yaml")
+							or bufname:match("values.yaml")
+						then
 							table.insert(actions, {
 								title = "Helm template dry-run",
 								action = function()
 									vim.cmd("!helm template . --dry-run")
 								end,
 							})
-							
+
 							table.insert(actions, {
 								title = "Helm lint chart",
 								action = function()
 									vim.cmd("!helm lint .")
 								end,
 							})
-							
+
 							table.insert(actions, {
 								title = "Helm template debug",
 								action = function()
@@ -249,7 +253,7 @@ M.plugins = {
 								end,
 							})
 						end
-						
+
 						return actions
 					end,
 				},
@@ -264,7 +268,7 @@ M.plugins = {
 					fn = function(context)
 						local actions = {}
 						local bufname = vim.api.nvim_buf_get_name(context.bufnr)
-						
+
 						-- Check if we're in a directory with kustomization.yaml
 						if bufname:match("kustomization.yaml") or vim.fn.filereadable("kustomization.yaml") == 1 then
 							table.insert(actions, {
@@ -273,7 +277,7 @@ M.plugins = {
 									vim.cmd("!kustomize build .")
 								end,
 							})
-							
+
 							table.insert(actions, {
 								title = "Kustomize build to file",
 								action = function()
@@ -282,7 +286,7 @@ M.plugins = {
 								end,
 							})
 						end
-						
+
 						return actions
 					end,
 				},
@@ -292,4 +296,3 @@ M.plugins = {
 }
 
 return M
-

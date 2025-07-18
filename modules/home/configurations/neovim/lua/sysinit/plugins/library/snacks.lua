@@ -97,7 +97,7 @@ M.plugins = {
 					enabled = true,
 				},
 				terminal = {
-					enabled = false,
+					enabled = true,
 				},
 				scope = {
 					enabled = false,

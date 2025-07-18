@@ -3,7 +3,6 @@ local M = {}
 M.plugins = {
 	{
 		"kevinhwang91/nvim-bqf",
-		enabled = false,
 		event = "VeryLazy",
 		opts = {
 			preview = {
@@ -42,3 +41,4 @@ M.plugins = {
 }
 
 return M
+
