@@ -44,13 +44,13 @@ M.plugins = {
 			return {
 				{
 					"<leader>eb",
-					"<CMD>Oil --float --preview<CR>",
+					"<CMD>Oil<CR>",
 					desc = "Open filesystem buffer",
 				},
 				{
 					"<leader>ee",
 					"<CMD>Oil --float --preview<CR>",
-					desc = "Open filesystem buffer",
+					desc = "Open filesystem buffer (float and preview)",
 				},
 			}
 		end,
@@ -58,3 +58,4 @@ M.plugins = {
 }
 
 return M
+
