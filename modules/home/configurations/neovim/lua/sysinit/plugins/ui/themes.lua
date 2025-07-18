@@ -34,18 +34,18 @@ M.plugins = {
 					color_overrides = {
 						frappe = {
 							base = "#1e1e2e",
-							mantle = "#181825", 
+							mantle = "#181825",
 							crust = "#11111b",
 							-- Washed out, pastel colors inspired by ThePrimeagen
-							blue = "#7287c7",      -- Muted, pastel blue
-							green = "#9cb380",     -- Washed out green
-							yellow = "#d4c481",    -- Subtle, muted yellow
-							red = "#d67b7b",       -- Soft, desaturated red
-							pink = "#d19bc4",      -- Muted pink
-							teal = "#7fb3aa",      -- Desaturated teal
-							lavender = "#9da3d4",  -- Soft lavender
-							peach = "#c7a584",     -- Muted peach
-							mauve = "#b39bc7",     -- Pastel mauve
+							blue = "#7287c7", -- Muted, pastel blue
+							green = "#9cb380", -- Washed out green
+							yellow = "#d4c481", -- Subtle, muted yellow
+							red = "#d67b7b", -- Soft, desaturated red
+							pink = "#d19bc4", -- Muted pink
+							teal = "#7fb3aa", -- Desaturated teal
+							lavender = "#9da3d4", -- Soft lavender
+							peach = "#c7a584", -- Muted peach
+							mauve = "#b39bc7", -- Pastel mauve
 						},
 					},
 					highlight_overrides = {
@@ -59,17 +59,17 @@ M.plugins = {
 								Visual = { bg = colors.surface1, style = { "bold" } },
 								Search = { bg = colors.yellow, fg = colors.base, style = { "bold" } },
 								IncSearch = { bg = colors.red, fg = colors.base, style = { "bold" } },
-								
+
 								-- Clean popup menus with transparency
 								Pmenu = { bg = colors.none, fg = colors.text },
 								PmenuSel = { bg = colors.surface0, fg = colors.lavender, style = { "bold" } },
 								PmenuBorder = { fg = colors.lavender, bg = colors.none },
-								
+
 								-- Transparent floating windows
 								FloatBorder = { fg = colors.lavender, bg = colors.none },
 								NormalFloat = { bg = colors.none },
 								FloatTitle = { fg = colors.pink, bg = colors.none, style = { "bold" } },
-								
+
 								-- Clean Telescope with transparency
 								TelescopeBorder = { fg = colors.blue, bg = colors.none },
 								TelescopeNormal = { bg = colors.none },
@@ -81,7 +81,7 @@ M.plugins = {
 								TelescopeResultsTitle = { fg = colors.blue, bg = colors.none, style = { "bold" } },
 								TelescopePreviewBorder = { fg = colors.green, bg = colors.none },
 								TelescopePreviewTitle = { fg = colors.green, bg = colors.none, style = { "bold" } },
-								
+
 								-- Clean Which-key with transparency
 								WhichKeyBorder = { fg = colors.lavender, bg = colors.none },
 								WhichKeyFloat = { bg = colors.none },
@@ -96,14 +96,18 @@ M.plugins = {
 								DiagnosticInfo = { fg = colors.blue, style = { "bold" } },
 								DiagnosticHint = { fg = colors.teal, style = { "bold" } },
 								DiagnosticVirtualTextError = { bg = colors.none, fg = colors.red, style = { "italic" } },
-								DiagnosticVirtualTextWarn = { bg = colors.none, fg = colors.yellow, style = { "italic" } },
+								DiagnosticVirtualTextWarn = {
+									bg = colors.none,
+									fg = colors.yellow,
+									style = { "italic" },
+								},
 								DiagnosticVirtualTextInfo = { bg = colors.none, fg = colors.blue, style = { "italic" } },
 								DiagnosticVirtualTextHint = { bg = colors.none, fg = colors.teal, style = { "italic" } },
 								DiagnosticUnderlineError = { undercurl = true, sp = colors.red },
 								DiagnosticUnderlineWarn = { undercurl = true, sp = colors.yellow },
 								DiagnosticUnderlineInfo = { undercurl = true, sp = colors.blue },
 								DiagnosticUnderlineHint = { undercurl = true, sp = colors.teal },
-								
+
 								-- Enhanced Git signs with better contrast
 								GitSignsAdd = { fg = colors.green, style = { "bold" } },
 								GitSignsChange = { fg = colors.yellow, style = { "bold" } },
@@ -115,19 +119,19 @@ M.plugins = {
 								IndentBlanklineChar = { fg = colors.surface0 },
 								IndentBlanklineContextChar = { fg = colors.lavender, style = { "bold" } },
 								IndentBlanklineContextStart = { sp = colors.lavender, underline = true },
-								
+
 								-- Modern status line and tabs
 								StatusLine = { bg = colors.none, fg = colors.text },
 								StatusLineNC = { bg = colors.none, fg = colors.overlay1 },
 								TabLine = { bg = colors.none, fg = colors.overlay1 },
 								TabLineFill = { bg = colors.none },
 								TabLineSel = { bg = colors.blue, fg = colors.base, style = { "bold" } },
-								
+
 								-- Enhanced window separators and columns
 								WinSeparator = { fg = colors.blue, bg = colors.none, style = { "bold" } },
 								SignColumn = { bg = colors.none },
 								ColorColumn = { bg = colors.surface0 },
-								
+
 								-- Enhanced syntax highlighting with better contrast
 								["@keyword"] = { fg = colors.mauve, style = { "italic", "bold" } },
 								["@keyword.function"] = { fg = colors.pink, style = { "italic", "bold" } },

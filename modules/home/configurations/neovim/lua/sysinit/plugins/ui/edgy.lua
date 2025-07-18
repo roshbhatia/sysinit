@@ -41,16 +41,13 @@ M.plugins = {
 							local bufname = vim.api.nvim_buf_get_name(buf)
 							local buftype = vim.api.nvim_get_option_value("buftype", { buf = buf })
 							-- Check for AI-related buffer names, types, or variables
-							return bufname:match("avante") or 
-								   bufname:match("codecompanion") or
-								   bufname:match("goose") or
-								   buftype == "nofile" and (
-									   vim.b[buf].ai_assistant or
-									   vim.w[win].ai_assistant or
-									   bufname:match("Avante") or
-									   bufname:match("CodeCompanion") or
-									   bufname:match("Goose")
-								   )
+							return bufname:match("avante")
+								or bufname:match("codecompanion")
+								or bufname:match("goose")
+								or buftype == "nofile"
+									and (vim.b[buf].ai_assistant or vim.w[win].ai_assistant or bufname:match("Avante") or bufname:match(
+										"CodeCompanion"
+									) or bufname:match("Goose"))
 						end,
 						size = 80,
 					},
