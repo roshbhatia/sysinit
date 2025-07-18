@@ -89,7 +89,6 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.intellicode.sort"),
 	require("sysinit.plugins.intellicode.trailspace"),
 	require("sysinit.plugins.intellicode.treesitter-context"),
-	require("sysinit.plugins.intellicode.treesitter-textobjects"),
 	require("sysinit.plugins.intellicode.treesitter"),
 	require("sysinit.plugins.intellicode.trouble"),
 	require("sysinit.plugins.intellicode.typescript-tools"),
@@ -127,3 +126,4 @@ require("sysinit.pkg.keybindings.undo").setup()
 require("sysinit.pkg.keybindings.vim").setup()
 
 require("sysinit.pkg.entrypoint.no-session").setup()
+

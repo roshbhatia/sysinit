@@ -14,6 +14,8 @@ M.plugins = {
 
 			null_ls.setup({
 				border = "rounded",
+				debounce = 150,
+				default_timeout = 5000,
 				sources = {
 					null_ls.builtins.code_actions.gitsigns,
 					null_ls.builtins.code_actions.gitrebase,
@@ -80,13 +82,16 @@ M.plugins = {
 				generator = {
 					fn = function(context)
 						local actions = {}
-						local node = vim.treesitter.get_node()
-						if not node then
+						local ok, node = pcall(vim.treesitter.get_node)
+						if not ok or not node then
 							return actions
 						end
 
-						local text = vim.treesitter.get_node_text(node)[1] or ""
-						-- Pattern to match an http/https URL
+						local ok_text, text = pcall(vim.treesitter.get_node_text, node, 0)
+						if not ok_text or not text then
+							return actions
+						end
+
 						local url_pattern = "https?://[%w-_%.%?%.:/%+=&]+"
 						local url = text:match(url_pattern)
 						if url then
@@ -109,12 +114,16 @@ M.plugins = {
 				generator = {
 					fn = function(context)
 						local actions = {}
-						local node = vim.treesitter.get_node()
-						if not node then
+						local ok, node = pcall(vim.treesitter.get_node)
+						if not ok or not node then
 							return actions
 						end
 
-						local text = vim.treesitter.get_node_text(node)[1] or ""
+						local ok_text, text = pcall(vim.treesitter.get_node_text, node, 0)
+						if not ok_text or not text then
+							return actions
+						end
+
 						local hex_pattern = "#%x%x%x%x%x%x"
 						if text:match(hex_pattern) then
 							table.insert(actions, {
@@ -140,3 +149,4 @@ M.plugins = {
 }
 
 return M
+

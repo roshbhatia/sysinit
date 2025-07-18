@@ -12,6 +12,7 @@ M.plugins = {
 			min_horozontal_distance_smear = 2,
 			smear_replace_mode = true,
 			smear_insert_mode = false,
+			transparent_bg_fallback_color = "#1e1e2e",
 		},
 	},
 }
