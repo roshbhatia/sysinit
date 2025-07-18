@@ -3,7 +3,6 @@ local M = {}
 M.plugins = {
 	{
 		"nvim-treesitter/nvim-treesitter-context",
-		lazy = true,
 		dependencies = {
 			"nvim-treesitter/nvim-treesitter",
 		},
@@ -16,3 +15,4 @@ M.plugins = {
 }
 
 return M
+

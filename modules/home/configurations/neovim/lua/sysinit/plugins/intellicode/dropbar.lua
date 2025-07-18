@@ -4,6 +4,7 @@ M.plugins = {
 	{
 		"Bekaboo/dropbar.nvim",
 		tag = "v14.1.0",
+		event = "VeryLazy",
 		config = function()
 			require("dropbar").setup({
 				icons = {
@@ -42,3 +43,4 @@ M.plugins = {
 }
 
 return M
+

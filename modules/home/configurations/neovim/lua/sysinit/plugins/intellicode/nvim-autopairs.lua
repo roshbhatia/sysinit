@@ -6,7 +6,7 @@ M.plugins = {
 		deppendencies = {
 			"nvim-treesitter/nvim-treesitter",
 		},
-		event = "BufReadPre",
+		lazy = false, -- Init seemingly taking a long time?
 		config = true,
 		opts = {
 			check_ts = true,
@@ -15,3 +15,4 @@ M.plugins = {
 }
 
 return M
+

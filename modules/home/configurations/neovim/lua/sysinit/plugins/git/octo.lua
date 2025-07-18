@@ -20,7 +20,7 @@ M.plugins = {
 		keys = function()
 			return {
 				{
-					"<leader>grr",
+					"<localleader>grr",
 					"<CMD>Octo review<CR>",
 					mode = "n",
 					noremap = true,
@@ -33,3 +33,4 @@ M.plugins = {
 }
 
 return M
+

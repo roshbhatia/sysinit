@@ -3,7 +3,6 @@ local M = {}
 M.plugins = {
 	{
 		"Fildo7525/pretty_hover",
-		event = "LSPAttach",
 		opts = {},
 		keys = function()
 			return {
@@ -20,3 +19,4 @@ M.plugins = {
 }
 
 return M
+

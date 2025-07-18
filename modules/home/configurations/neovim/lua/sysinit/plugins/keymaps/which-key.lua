@@ -60,24 +60,24 @@ M.plugins = {
 					group = "Find",
 				},
 				{
-					"<leader>g",
+					"<localleader>g",
 					group = "Git",
 				},
 				{
-					"<leader>gb",
+					"<localleader>gb",
 					group = "Buffer",
 				},
 				{
-					"<leader>gh",
+					"<localleader>gh",
 					group = "Hunk",
 				},
 				{
-					"<leader>gr",
+					"<localleader>gr",
 					group = "Github Review",
 				},
 				{
 					"<leader>i",
-					group = "Search",
+					group = "Replace",
 				},
 				{
 					"<localleader>.",
@@ -127,3 +127,4 @@ M.plugins = {
 }
 
 return M
+

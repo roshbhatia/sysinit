@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"echasnovski/mini.trailspace",
-		event = "BufEnter",
+		event = "BufWritePre",
 		config = function()
 			local trim_whitespace_enabled = true
 			local whitespace_augroup = vim.api.nvim_create_augroup("whitespace_trim_augroup", {
@@ -66,3 +66,4 @@ M.plugins = {
 }
 
 return M
+

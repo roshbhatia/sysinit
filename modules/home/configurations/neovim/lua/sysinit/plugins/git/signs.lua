@@ -11,7 +11,7 @@ M.plugins = {
 		end,
 		keys = {
 			{
-				"<leader>ghs",
+				"<localleader>ghs",
 				function()
 					require("gitsigns").stage_hunk()
 				end,
@@ -21,7 +21,7 @@ M.plugins = {
 				desc = "Stage hunk",
 			},
 			{
-				"<leader>ghR",
+				"<localleader>ghR",
 				function()
 					require("gitsigns").reset_hunk()
 				end,
@@ -31,7 +31,7 @@ M.plugins = {
 				desc = "Reset hunk",
 			},
 			{
-				"<leader>gbs",
+				"<localleader>gbs",
 				function()
 					require("gitsigns").stage_buffer()
 				end,
@@ -41,7 +41,7 @@ M.plugins = {
 				desc = "Stage buffer",
 			},
 			{
-				"<leader>ghu",
+				"<localleader>ghu",
 				function()
 					require("gitsigns").undo_stage_hunk()
 				end,
@@ -51,7 +51,7 @@ M.plugins = {
 				desc = "Unstage hunk",
 			},
 			{
-				"<leader>gbR",
+				"<localleader>gbR",
 				function()
 					require("gitsigns").reset_buffer()
 				end,
@@ -61,7 +61,7 @@ M.plugins = {
 				desc = "Reset buffer",
 			},
 			{
-				"<leader>ghi",
+				"<localleader>ghi",
 				function()
 					require("gitsigns").preview_hunk_inline()
 				end,
@@ -71,7 +71,7 @@ M.plugins = {
 				desc = "Preview hunk",
 			},
 			{
-				"<leader>ghn",
+				"<localleader>ghn",
 				function()
 					require("gitsigns").next_hunk()
 				end,
@@ -81,7 +81,7 @@ M.plugins = {
 				desc = "Next hunk",
 			},
 			{
-				"<leader>ghN",
+				"<localleader>ghN",
 				function()
 					require("gitsigns").prev_hunk()
 				end,
@@ -109,3 +109,4 @@ M.plugins = {
 }
 
 return M
+

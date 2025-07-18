@@ -5,6 +5,11 @@ M.plugins = {
 		"kevinhwang91/nvim-bqf",
 		event = "VeryLazy",
 		opts = {
+			preview = {
+				winblend = {
+					default = 0,
+				},
+			},
 			filter = {
 				fzf = {
 					action_for = {
@@ -36,3 +41,4 @@ M.plugins = {
 }
 
 return M
+
