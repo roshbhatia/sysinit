@@ -3,7 +3,6 @@ local M = {}
 M.plugins = {
 	{
 		"yaocccc/nvim-foldsign",
-		lazy = false,
 		config = function()
 			require("nvim-foldsign").setup({
 				offset = -3,
@@ -18,3 +17,4 @@ M.plugins = {
 	},
 }
 return M
+
