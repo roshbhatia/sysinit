@@ -12,6 +12,7 @@ M.plugins = {
 			"markdown",
 			"octo",
 			"codecompanion",
+			"opencode_output",
 		},
 		cmd = {
 			"Goose",
@@ -56,6 +57,7 @@ M.plugins = {
 					"markdown",
 					"octo",
 					"codecompanion",
+					"opencode_output",
 				},
 				sign = {
 					enabled = false,

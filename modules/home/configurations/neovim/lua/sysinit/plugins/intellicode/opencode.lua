@@ -2,107 +2,172 @@ local M = {}
 
 M.plugins = {
 	{
-		"NickvanDyke/opencode.nvim",
+		"sudo-tee/opencode.nvim",
 		dependencies = {
-			"folke/snacks.nvim",
+			"nvim-lua/plenary.nvim",
 		},
-		opts = function()
-			return {
-				auto_reload = false,
-				auto_focus = false,
-				command = "opencode",
+		config = function()
+			require("opencode").setup({
+				prefered_picker = "telescope",
+				default_global_keymaps = false, -- We'll set our own keymaps
+				default_mode = "build",
+				keymap = {
+					global = {
+						toggle = "<leader>ll",
+						open_input = "<leader>li",
+						open_input_new_session = "<leader>lI",
+						open_output = "<leader>lo",
+						toggle_focus = "<leader>lt",
+						close = "<leader>lq",
+						toggle_fullscreen = "<leader>lf",
+						select_session = "<leader>ls",
+						configure_provider = "<leader>lp",
+						diff_open = "<leader>ld",
+						diff_next = "<leader>l]",
+						diff_prev = "<leader>l[",
+						diff_close = "<leader>lc",
+						diff_revert_all = "<leader>lra",
+						diff_revert_this = "<leader>lrt",
+						open_configuration_file = "<leader>lC",
+					},
+				},
+				ui = {
+					floating = false,
+					window_width = 0.40,
+					input_height = 0.15,
+					fullscreen = false,
+					layout = "right",
+					display_model = true,
+				},
 				context = {
-					["@file"] = require("opencode.context").file,
-					["@files"] = require("opencode.context").files,
-					["@cursor"] = require("opencode.context").cursor_position,
-					["@selection"] = require("opencode.context").visual_selection,
-					["@diagnostics"] = require("opencode.context").diagnostics,
-					["@quickfix"] = require("opencode.context").quickfix,
-					["@diff"] = require("opencode.context").git_diff,
+					cursor_data = true,
+					diagnostics = {
+						info = false,
+						warn = true,
+						error = true,
+					},
 				},
-				win = {
-					position = "right",
+				debug = {
+					enabled = false,
 				},
-			}
+			})
 		end,
 		keys = {
 			{
 				"<leader>ll",
 				function()
-					require("opencode").toggle()
+					require("opencode.api").toggle()
 				end,
 				desc = "Toggle opencode",
 			},
 			{
-				"<leader>la",
+				"<leader>li",
 				function()
-					require("opencode").ask()
+					require("opencode.api").open_input()
 				end,
-				desc = "Ask opencode",
-				mode = { "n", "v" },
+				desc = "Open input window",
 			},
 			{
-				"<leader>lA",
+				"<leader>lI",
 				function()
-					require("opencode").ask("@file ")
+					require("opencode.api").open_input_new_session()
 				end,
-				desc = "Ask opencode about current file",
-				mode = { "n", "v" },
-			},
-			{
-				"<leader>lL",
-				function()
-					require("opencode").command("/new")
-				end,
-				desc = "New session",
-			},
-			{
-				"<leader>le",
-				function()
-					require("opencode").prompt("Explain @cursor and its context")
-				end,
-				desc = "Explain code near cursor",
-			},
-			{
-				"<leader>lr",
-				function()
-					require("opencode").prompt("Review @file for correctness and readability")
-				end,
-				desc = "Review file",
-			},
-			{
-				"<leader>lf",
-				function()
-					require("opencode").prompt("Fix these @diagnostics")
-				end,
-				desc = "Fix errors",
+				desc = "Open input window (new session)",
 			},
 			{
 				"<leader>lo",
 				function()
-					require("opencode").prompt("Optimize @selection for performance and readability")
+					require("opencode.api").open_output()
 				end,
-				desc = "Optimize selection",
-				mode = "v",
+				desc = "Open output window",
+			},
+			{
+				"<leader>lt",
+				function()
+					require("opencode.api").toggle_focus()
+				end,
+				desc = "Toggle focus opencode/editor",
+			},
+			{
+				"<leader>lq",
+				function()
+					require("opencode.api").close()
+				end,
+				desc = "Close opencode windows",
+			},
+			{
+				"<leader>lf",
+				function()
+					require("opencode.api").toggle_fullscreen()
+				end,
+				desc = "Toggle fullscreen mode",
+			},
+			{
+				"<leader>ls",
+				function()
+					require("opencode.api").select_session()
+				end,
+				desc = "Select session",
+			},
+			{
+				"<leader>lp",
+				function()
+					require("opencode.api").configure_provider()
+				end,
+				desc = "Configure provider",
 			},
 			{
 				"<leader>ld",
 				function()
-					require("opencode").prompt("Add documentation comments for @selection")
+					require("opencode.api").diff_open()
 				end,
-				desc = "Document selection",
-				mode = "v",
+				desc = "Open diff view",
 			},
 			{
-				"<leader>lT",
+				"<leader>l]",
 				function()
-					require("opencode").prompt("Add tests for @selection")
+					require("opencode.api").diff_next()
 				end,
-				desc = "Test selection",
-				mode = "v",
+				desc = "Next file diff",
+			},
+			{
+				"<leader>l[",
+				function()
+					require("opencode.api").diff_prev()
+				end,
+				desc = "Previous file diff",
+			},
+			{
+				"<leader>lc",
+				function()
+					require("opencode.api").diff_close()
+				end,
+				desc = "Close diff view",
+			},
+			{
+				"<leader>lra",
+				function()
+					require("opencode.api").diff_revert_all()
+				end,
+				desc = "Revert all changes",
+			},
+			{
+				"<leader>lrt",
+				function()
+					require("opencode.api").diff_revert_this()
+				end,
+				desc = "Revert current file",
+			},
+			{
+				"<leader>lC",
+				function()
+					require("opencode.api").open_configuration_file()
+				end,
+				desc = "Open config file",
 			},
 		},
 	},
 }
 
 return M
+
