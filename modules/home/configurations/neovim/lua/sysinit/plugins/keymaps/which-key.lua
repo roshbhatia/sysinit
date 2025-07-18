@@ -20,7 +20,6 @@ M.plugins = {
 				notify = false,
 				win = {
 					border = "rounded",
-					padding = { 1, 2 },
 					wo = {
 						winblend = 0,
 					},
@@ -135,3 +134,4 @@ M.plugins = {
 }
 
 return M
+
