@@ -24,8 +24,8 @@ M.plugins = {
 			telescope.setup({
 				defaults = {
 					prompt_prefix = "   ",
-					selection_caret = " ",
-					entry_prefix = "  ",
+					selection_caret = "",
+					entry_prefix = "",
 					-- Enhanced border styling
 					borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
 					results_title = "",
@@ -221,3 +221,4 @@ M.plugins = {
 }
 
 return M
+
