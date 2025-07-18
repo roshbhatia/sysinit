@@ -82,13 +82,13 @@ M.plugins = {
 				generator = {
 					fn = function(context)
 						local actions = {}
-						local ok, node = pcall(vim.treesitter.get_node)
-						if not ok or not node then
+						local node = vim.treesitter.get_node()
+						if not node then
 							return actions
 						end
 
-						local ok_text, text = pcall(vim.treesitter.get_node_text, node, 0)
-						if not ok_text or not text then
+						local text = vim.treesitter.get_node_text(node, 0)
+						if not text then
 							return actions
 						end
 
@@ -114,32 +114,175 @@ M.plugins = {
 				generator = {
 					fn = function(context)
 						local actions = {}
-						local ok, node = pcall(vim.treesitter.get_node)
-						if not ok or not node then
+						local node = vim.treesitter.get_node()
+						if not node then
 							return actions
 						end
 
-						local ok_text, text = pcall(vim.treesitter.get_node_text, node, 0)
-						if not ok_text or not text then
+						local text = vim.treesitter.get_node_text(node, 0)
+						if not text then
 							return actions
 						end
 
 						local hex_pattern = "#%x%x%x%x%x%x"
 						if text:match(hex_pattern) then
 							table.insert(actions, {
-								title = "Generate color shade palette",
+								title = "Copy hex color to clipboard",
 								action = function()
-									vim.cmd("Shades")
-								end,
-							})
-
-							table.insert(actions, {
-								title = "Generate color hue variations",
-								action = function()
-									vim.cmd("Huefy")
+									vim.fn.setreg("+", text:match(hex_pattern))
+									vim.notify("Copied " .. text:match(hex_pattern) .. " to clipboard")
 								end,
 							})
 						end
+						return actions
+					end,
+				},
+			})
+
+			-- YAML code actions with yq
+			null_ls.register({
+				name = "yaml_tools",
+				method = null_ls.methods.CODE_ACTION,
+				filetypes = { "yaml", "yml" },
+				generator = {
+					fn = function(context)
+						local actions = {}
+						
+						table.insert(actions, {
+							title = "Format YAML with yq",
+							action = function()
+								vim.cmd("%!yq eval '.' -")
+							end,
+						})
+						
+						table.insert(actions, {
+							title = "Validate YAML syntax",
+							action = function()
+								vim.cmd("!yq eval '.' % > /dev/null && echo 'Valid YAML' || echo 'Invalid YAML'")
+							end,
+						})
+						
+						table.insert(actions, {
+							title = "Convert to JSON",
+							action = function()
+								vim.cmd("!yq eval -o=json '%' %")
+							end,
+						})
+						
+						return actions
+					end,
+				},
+			})
+
+			-- JSON code actions with jq
+			null_ls.register({
+				name = "json_tools",
+				method = null_ls.methods.CODE_ACTION,
+				filetypes = { "json" },
+				generator = {
+					fn = function(context)
+						local actions = {}
+						
+						table.insert(actions, {
+							title = "Format JSON with jq",
+							action = function()
+								vim.cmd("%!jq .")
+							end,
+						})
+						
+						table.insert(actions, {
+							title = "Compact JSON",
+							action = function()
+								vim.cmd("%!jq -c .")
+							end,
+						})
+						
+						table.insert(actions, {
+							title = "Validate JSON syntax",
+							action = function()
+								vim.cmd("!jq empty % && echo 'Valid JSON' || echo 'Invalid JSON'")
+							end,
+						})
+						
+						table.insert(actions, {
+							title = "Show JSON keys",
+							action = function()
+								vim.cmd("!jq 'keys' %")
+							end,
+						})
+						
+						return actions
+					end,
+				},
+			})
+
+			-- Helm template actions
+			null_ls.register({
+				name = "helm_tools",
+				method = null_ls.methods.CODE_ACTION,
+				filetypes = { "yaml", "yml" },
+				generator = {
+					fn = function(context)
+						local actions = {}
+						local bufname = vim.api.nvim_buf_get_name(context.bufnr)
+						
+						-- Check if we're in a Helm chart directory
+						if bufname:match("templates/") or bufname:match("Chart.yaml") or bufname:match("values.yaml") then
+							table.insert(actions, {
+								title = "Helm template dry-run",
+								action = function()
+									vim.cmd("!helm template . --dry-run")
+								end,
+							})
+							
+							table.insert(actions, {
+								title = "Helm lint chart",
+								action = function()
+									vim.cmd("!helm lint .")
+								end,
+							})
+							
+							table.insert(actions, {
+								title = "Helm template debug",
+								action = function()
+									vim.cmd("!helm template . --debug")
+								end,
+							})
+						end
+						
+						return actions
+					end,
+				},
+			})
+
+			-- Kustomize actions
+			null_ls.register({
+				name = "kustomize_tools",
+				method = null_ls.methods.CODE_ACTION,
+				filetypes = { "yaml", "yml" },
+				generator = {
+					fn = function(context)
+						local actions = {}
+						local bufname = vim.api.nvim_buf_get_name(context.bufnr)
+						
+						-- Check if we're in a directory with kustomization.yaml
+						if bufname:match("kustomization.yaml") or vim.fn.filereadable("kustomization.yaml") == 1 then
+							table.insert(actions, {
+								title = "Kustomize build",
+								action = function()
+									vim.cmd("!kustomize build .")
+								end,
+							})
+							
+							table.insert(actions, {
+								title = "Kustomize build to file",
+								action = function()
+									vim.cmd("!kustomize build . > output.yaml")
+									vim.notify("Kustomize build saved to output.yaml")
+								end,
+							})
+						end
+						
 						return actions
 					end,
 				},
@@ -149,3 +292,4 @@ M.plugins = {
 }
 
 return M
+
