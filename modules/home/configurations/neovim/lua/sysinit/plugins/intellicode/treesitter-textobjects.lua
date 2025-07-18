@@ -6,6 +6,7 @@ M.plugins = {
 		dependencies = {
 			"nvim-treesitter/nvim-treesitter",
 		},
+		event = "BufReadPre",
 		config = function()
 			require("nvim-treesitter.configs").setup({
 				textobjects = {},
