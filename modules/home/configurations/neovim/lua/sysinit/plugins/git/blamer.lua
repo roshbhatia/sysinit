@@ -18,7 +18,7 @@ M.plugins = {
 		keys = function()
 			return {
 				{
-					"<leader>gos",
+					"<localleader>gbc",
 					"<CMD>GitBlameCopyCommitURL<CR>",
 					mode = "n",
 					noremap = true,
@@ -26,7 +26,7 @@ M.plugins = {
 					desc = "Copy blame URL",
 				},
 				{
-					"<leader>goo",
+					"<localleader>gbo",
 					"<CMD>GitBlameOpenFileURL<CR>",
 					mode = "n",
 					noremap = true,

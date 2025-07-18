@@ -40,11 +40,11 @@ M.plugins = {
 		keys = function()
 			return {
 				{
-					"<leader>iI",
+					"<leader>rp",
 					function()
 						require("grug-far").toggle_instance({ instanceName = "far", staticTitle = "Global Search" })
 					end,
-					desc = "Search and replace within current project",
+					desc = "Replace in current project",
 				},
 			}
 		end,
@@ -52,4 +52,3 @@ M.plugins = {
 }
 
 return M
-

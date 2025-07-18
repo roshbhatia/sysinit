@@ -10,9 +10,9 @@ M.plugins = {
 		keys = function()
 			return {
 				{
-					"<leader>ii",
+					"<leader>rf",
 					"<CMD>SearchBoxReplace<CR>",
-					desc = "Search and replace within current file",
+					desc = "Replace in current file",
 				},
 			}
 		end,

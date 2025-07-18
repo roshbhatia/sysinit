@@ -165,12 +165,6 @@ M.plugins = {
 					"<CMD>Telescope buffers sort_mru=true show_all_buffers=true<CR>",
 					desc = "Buffers",
 				},
-
-				{
-					"<leader>bb",
-					"<CMD>Telescope buffers sort_mru=true show_all_buffers=true<CR>",
-					desc = "Buffers",
-				},
 				{
 					"<leader>fc",
 					"<CMD>Telescope commands<CR>",

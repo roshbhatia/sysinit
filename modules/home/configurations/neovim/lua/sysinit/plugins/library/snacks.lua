@@ -129,11 +129,11 @@ M.plugins = {
 					desc = "Toggle scratchpad",
 				},
 				{
-					"<leader>gg",
+					"<localleader>gg",
 					function()
 						Snacks.lazygit()
 					end,
-					desc = "Open UI",
+					desc = "Open LazyGit UI",
 				},
 				{
 					"<leader>ns",

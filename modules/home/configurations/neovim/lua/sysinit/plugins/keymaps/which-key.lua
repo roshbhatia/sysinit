@@ -65,7 +65,7 @@ M.plugins = {
 				},
 				{
 					"<localleader>gb",
-					group = "Buffer",
+					group = "Git Buffer/Blame",
 				},
 				{
 					"<localleader>gh",
@@ -76,7 +76,7 @@ M.plugins = {
 					group = "Github Review",
 				},
 				{
-					"<leader>i",
+					"<leader>r",
 					group = "Replace",
 				},
 				{
@@ -90,10 +90,6 @@ M.plugins = {
 				{
 					"<leader>n",
 					group = "Notifications",
-				},
-				{
-					"<leader>r",
-					group = "Refresh",
 				},
 			})
 
