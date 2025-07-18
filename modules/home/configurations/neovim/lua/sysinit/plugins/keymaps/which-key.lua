@@ -15,8 +15,20 @@ M.plugins = {
 				preset = "helix",
 				icons = {
 					mappings = false,
+					separator = "➜",
 				},
 				notify = false,
+				win = {
+					border = "rounded",
+					padding = { 1, 2 },
+					wo = {
+						winblend = 0,
+					},
+				},
+				layout = {
+					spacing = 6,
+					align = "center",
+				},
 			})
 			wk.add({
 				{

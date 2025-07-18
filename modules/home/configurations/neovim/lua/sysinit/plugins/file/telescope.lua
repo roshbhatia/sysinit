@@ -24,8 +24,13 @@ M.plugins = {
 			telescope.setup({
 				defaults = {
 					prompt_prefix = "   ",
-					selection_caret = "",
-					entry_prefix = "",
+					selection_caret = " ",
+					entry_prefix = "  ",
+					-- Enhanced border styling
+					borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
+					results_title = "",
+					prompt_title = "",
+					preview_title = "",
 					sorting_strategy = "ascending",
 					layout_config = {
 						horizontal = {

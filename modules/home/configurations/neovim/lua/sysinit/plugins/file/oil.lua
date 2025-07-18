@@ -47,6 +47,11 @@ M.plugins = {
 					"<CMD>Oil --float --preview<CR>",
 					desc = "Open filesystem buffer",
 				},
+				{
+					"<leader>ee",
+					"<CMD>Oil --float --preview<CR>",
+					desc = "Open filesystem buffer",
+				},
 			}
 		end,
 	},

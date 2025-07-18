@@ -49,15 +49,10 @@ M.plugins = {
 						},
 					},
 					right = {
+						"file_size",
 						"line_column",
 						"cool_symbol",
 					},
-				},
-				lsp_symbols = {
-					Error = " ",
-					Hint = " ",
-					Info = " ",
-					Warn = " ",
 				},
 				defaults = {
 					cool_symbol = "󱄅",
@@ -66,19 +61,21 @@ M.plugins = {
 					line_column = ":%c [%l/%L]",
 					lsp_client_symbol = "",
 					lsp_client_character_length = 40,
+					file_size_suffix = true,
+					branch_symbol = " ",
 				},
 				mode_colors = {
-					n = "#f5bde6",
-					i = "#8bd5ca",
-					c = "#b7bdf8",
-					v = "#7dc4e4",
-					V = "#7dc4e4",
-					[""] = "#7dc4e4",
-					R = "#f5a97f",
-					r = "#f5a97f",
-					s = "#eed49f",
-					S = "#eed49f",
-					t = "#a6da95",
+					n = "#d19bc4", -- Muted pink for normal mode
+					i = "#7fb3aa", -- Desaturated teal for insert mode
+					c = "#9da3d4", -- Soft lavender for command mode
+					v = "#7287c7", -- Muted blue for visual mode
+					V = "#7287c7", -- Muted blue for visual line mode
+					[""] = "#7287c7", -- Muted blue for visual block mode
+					R = "#c7a584", -- Muted peach for replace mode
+					r = "#c7a584", -- Muted peach for replace mode
+					s = "#d4c481", -- Subtle yellow for select mode
+					S = "#d4c481", -- Subtle yellow for select mode
+					t = "#9cb380", -- Washed out green for terminal mode
 				},
 			})
 		end,
@@ -86,3 +83,4 @@ M.plugins = {
 }
 
 return M
+
