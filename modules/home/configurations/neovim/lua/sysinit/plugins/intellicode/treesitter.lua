@@ -74,11 +74,31 @@ M.plugins = {
 			vim.filetype.add({
 				extension = {
 					gotmpl = "gotmpl",
+					["yaml.tmpl"] = "yaml",
+					["yaml.tpl"] = "yaml",
+					["yml.tmpl"] = "yaml",
+					["yml.tpl"] = "yaml",
 				},
 				pattern = {
 					[".*/templates/.*%.tpl"] = "helm",
 					[".*/templates/.*%.ya?ml"] = "helm",
 					["helmfile.*%.ya?ml"] = "helm",
+					-- Crossplane composition patterns
+					[".*composition.*%.ya?ml"] = "yaml",
+					[".*function.*%.ya?ml"] = "yaml",
+					-- Files containing Crossplane API versions
+					[".*crossplane%.io.*%.ya?ml"] = "yaml",
+					[".*fn%.crossplane%.io.*%.ya?ml"] = "yaml",
+					-- Kustomize patterns
+					["kustomization%.ya?ml"] = "yaml",
+					[".*kustomize.*%.ya?ml"] = "yaml",
+					-- Helm values files
+					["values.*%.ya?ml"] = "yaml",
+					[".*values%.ya?ml"] = "yaml",
+					["Chart%.ya?ml"] = "yaml",
+					-- Additional patterns for files with Go templating
+					[".*%.gotmpl%.ya?ml"] = "yaml",
+					[".*%.tpl%.ya?ml"] = "yaml",
 				},
 			})
 		end,
