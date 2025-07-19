@@ -8,9 +8,9 @@
 
 ; Crossplane-specific template functions
 ((identifier) @function.builtin
- (#any-of? @function.builtin 
+ (#any-of? @function.builtin
    "setResourceNameAnnotation"
-   "getResourceNameAnnotation" 
+   "getResourceNameAnnotation"
    "fromCompositeFieldPath"
    "toCompositeFieldPath"
    "fromEnvironmentFieldPath"
@@ -101,3 +101,4 @@
 ; Crossplane built-in objects
 ((identifier) @variable.builtin
  (#any-of? @variable.builtin "observed" "desired" "context"))
+

@@ -5,7 +5,7 @@
 ((plain_scalar) @go_template.expression
  (#match? @go_template.expression "{{.*}}"))
 
-; Template expressions in quoted scalars  
+; Template expressions in quoted scalars
 ((double_quote_scalar) @go_template.expression
  (#match? @go_template.expression ".*{{.*}}.*"))
 
@@ -50,7 +50,7 @@
 ((plain_scalar) @template.control
  (#match? @template.control ".*(if|else|end|range|with|template|define|block)\\s.*"))
 
-; Crossplane resource names and kinds  
+; Crossplane resource names and kinds
 ((block_mapping_pair
   key: (flow_node (plain_scalar) @resource.key)
   value: (flow_node (plain_scalar) @resource.value))
@@ -59,7 +59,7 @@
 
 ; API versions for Crossplane
 ((block_mapping_pair
-  key: (flow_node (plain_scalar) @api.key)  
+  key: (flow_node (plain_scalar) @api.key)
   value: (flow_node (plain_scalar) @api.value))
  (#eq? @api.key "apiVersion")
  (#match? @api.value ".*crossplane\\.io.*|.*fn\\.crossplane\\.io.*"))
@@ -76,3 +76,4 @@
   value: (flow_node (plain_scalar) @kustomization.value))
  (#eq? @kustomization.key "apiVersion")
  (#match? @kustomization.value "kustomize\\.config\\.k8s\\.io.*"))
+
