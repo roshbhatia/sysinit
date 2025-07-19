@@ -3,8 +3,11 @@ local M = {}
 M.plugins = {
 	{
 		"Bekaboo/dropbar.nvim",
-		tag = "v14.1.0",
-		event = "VeryLazy",
+		lazy = false,
+		dependencies = {
+			"nvim-telescope/telescope-fzf-native.nvim",
+			build = "make",
+		},
 		config = function()
 			require("dropbar").setup({
 				icons = {
@@ -43,3 +46,4 @@ M.plugins = {
 }
 
 return M
+
