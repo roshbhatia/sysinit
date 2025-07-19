@@ -133,6 +133,20 @@ M.plugins = {
 									vim.notify("Copied " .. text:match(hex_pattern) .. " to clipboard")
 								end,
 							})
+
+							table.insert(actions, {
+								title = "Mutate hex color hue",
+								action = function()
+									vim.cmd("Huefy")
+								end,
+							})
+
+							table.insert(actions, {
+								title = "Generate hex color palette",
+								action = function()
+									vim.cmd("Shades")
+								end,
+							})
 						end
 						return actions
 					end,
@@ -296,3 +310,4 @@ M.plugins = {
 }
 
 return M
+
