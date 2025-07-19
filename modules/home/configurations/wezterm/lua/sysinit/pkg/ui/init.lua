@@ -74,9 +74,11 @@ local function setup_nvim_ui_overrides()
 				right = 0,
 				top = 0,
 			}
+			overrides.enable_tab_bar = false
 		else
 			overrides.window_background_opacity = nil
 			overrides.window_padding = nil
+			overrides.enable_tab_bar = nil
 		end
 		window:set_config_overrides(overrides)
 	end)
@@ -101,3 +103,4 @@ function M.setup(config)
 end
 
 return M
+
