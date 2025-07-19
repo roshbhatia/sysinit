@@ -114,23 +114,118 @@ M.plugins = {
 				generator = {
 					fn = function(context)
 						local actions = {}
-						local node = vim.treesitter.get_node()
-						if not node then
-							return actions
+						
+						-- Get cursor position
+						local cursor = vim.api.nvim_win_get_cursor(0)
+						local row, col = cursor[1] - 1, cursor[2]
+						
+						-- Function to extract hex color from string at position
+						local function extract_hex_at_pos(line, start_col, end_col)
+							local text = line:sub(start_col + 1, end_col)
+							local hex_patterns = {
+								"#%x%x%x%x%x%x%x%x", -- 8-digit hex with alpha
+								"#%x%x%x%x%x%x",     -- 6-digit hex
+								"#%x%x%x",           -- 3-digit hex
+							}
+							
+							for _, pattern in ipairs(hex_patterns) do
+								local hex = text:match(pattern)
+								if hex then
+									return hex
+								end
+							end
+							return nil
 						end
-
-						local text = vim.treesitter.get_node_text(node, 0)
-						if not text then
-							return actions
+						
+						-- Function to find hex color using nvim-colorizer highlights
+						local function find_colorizer_hex()
+							local ns_id = vim.api.nvim_get_namespaces()["colorizer"]
+							if not ns_id then
+								return nil
+							end
+							
+							-- Get all extmarks in current line from colorizer
+							local extmarks = vim.api.nvim_buf_get_extmarks(
+								context.bufnr,
+								ns_id,
+								{row, 0},
+								{row, -1},
+								{details = true}
+							)
+							
+							-- Check if cursor is within any colorizer highlight
+							for _, mark in ipairs(extmarks) do
+								local mark_row, mark_col = mark[2], mark[3]
+								local details = mark[4]
+								
+								if details and details.end_col then
+									local start_col, end_col = mark_col, details.end_col
+									if col >= start_col and col < end_col then
+										local line = vim.api.nvim_buf_get_lines(context.bufnr, row, row + 1, false)[1]
+										if line then
+											return extract_hex_at_pos(line, start_col, end_col)
+										end
+									end
+								end
+							end
+							return nil
 						end
-
-						local hex_pattern = "#%x%x%x%x%x%x"
-						if text:match(hex_pattern) then
+						
+						-- Function to find hex color in current string context
+						local function find_string_hex()
+							local line = vim.api.nvim_get_current_line()
+							if not line then return nil end
+							
+							-- Find string boundaries around cursor
+							local quote_chars = {'"', "'", "`"}
+							local in_string = false
+							local string_start, string_end = nil, nil
+							
+							for _, quote in ipairs(quote_chars) do
+								local start_pos = 1
+								while true do
+									local quote_start = line:find(quote, start_pos)
+									if not quote_start then break end
+									
+									local quote_end = line:find(quote, quote_start + 1)
+									if not quote_end then break end
+									
+									-- Check if cursor is within this string
+									if col >= quote_start - 1 and col <= quote_end - 1 then
+										string_start, string_end = quote_start, quote_end
+										in_string = true
+										break
+									end
+									
+									start_pos = quote_end + 1
+								end
+								if in_string then break end
+							end
+							
+							if in_string and string_start and string_end then
+								return extract_hex_at_pos(line, string_start - 1, string_end)
+							end
+							
+							return nil
+						end
+						
+						-- Try to find hex color using multiple methods
+						local hex_color = find_colorizer_hex() or find_string_hex()
+						
+						-- Fallback to word under cursor if nothing found
+						if not hex_color then
+							local word = vim.fn.expand("<cWORD>")
+							if word then
+								hex_color = extract_hex_at_pos(word, 0, #word)
+							end
+						end
+						
+						if hex_color then
 							table.insert(actions, {
 								title = "Copy hex color to clipboard",
 								action = function()
-									vim.fn.setreg("+", text:match(hex_pattern))
-									vim.notify("Copied " .. text:match(hex_pattern) .. " to clipboard")
+									vim.fn.setreg("+", hex_color)
+									vim.notify("Copied " .. hex_color .. " to clipboard")
 								end,
 							})
 
@@ -310,4 +405,3 @@ M.plugins = {
 }
 
 return M
-

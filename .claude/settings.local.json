@@ -3,7 +3,8 @@
     "allow": [
       "Bash(find:*)",
       "Bash(echo $XDG_CACHE_HOME)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": []
   }
