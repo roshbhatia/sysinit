@@ -64,6 +64,10 @@ M.plugins = {
 					file_size_suffix = true,
 					branch_symbol = " ",
 				},
+				special_table = {
+					qf = { "QuickFix", " " },
+				},
+
 				mode_colors = {
 					n = "#d19bc4", -- Muted pink for normal mode
 					i = "#7fb3aa", -- Desaturated teal for insert mode
@@ -83,3 +87,4 @@ M.plugins = {
 }
 
 return M
+
