@@ -6,9 +6,7 @@ M.plugins = {
 		event = "VeryLazy",
 		opts = {
 			preview = {
-				winblend = {
-					default = 0,
-				},
+				winblend = 0,
 			},
 			filter = {
 				fzf = {
