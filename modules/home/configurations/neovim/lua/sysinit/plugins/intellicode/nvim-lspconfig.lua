@@ -89,6 +89,20 @@ M.plugins = {
 					},
 				},
 			})
+			vim.lsp.inlay_hint.enable(true)
+			
+			vim.api.nvim_create_autocmd("LspAttach", {
+				callback = function(args)
+					local client = vim.lsp.get_client_by_id(args.data.client_id)
+					if client and client.supports_method("textDocument/codeLens") then
+						vim.lsp.codelens.refresh()
+						vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
+							buffer = args.buf,
+							callback = vim.lsp.codelens.refresh,
+						})
+					end
+				end,
+			})
 		end,
 		keys = function()
 			return {
@@ -96,9 +110,16 @@ M.plugins = {
 				{ "<leader>cD", vim.lsp.buf.definition, desc = "Go to definition" },
 				{ "<leader>cn", vim.diagnostic.goto_next, desc = "Next diagnostic" },
 				{ "<leader>cp", vim.diagnostic.goto_prev, desc = "Previous diagnostic" },
+				{ "<leader>cA", vim.lsp.codelens.run, desc = "Code lens actions" },
+				{ "<leader>ch", vim.lsp.buf.hover, desc = "Hover documentation" },
+				{ "<leader>cs", vim.lsp.buf.document_symbol, desc = "Document symbols" },
+				{ "<leader>cS", vim.lsp.buf.workspace_symbol, desc = "Workspace symbols" },
+				{ "<leader>ci", "<cmd>LspInfo<cr>", desc = "LSP info" },
+				{ "<leader>cI", function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end, desc = "Toggle inlay hints" },
 			}
 		end,
 	},
 }
 
 return M
+
