@@ -19,10 +19,6 @@ M.plugins = {
 						"prettier",
 						stop_after_first = true,
 					},
-					go = {
-						"goimports",
-						"gofmt",
-					},
 					json = {
 						"prettierd",
 						"prettier",
@@ -52,7 +48,6 @@ M.plugins = {
 					sh = { "shfmt" },
 					bash = { "shfmt" },
 					zsh = { "shfmt" },
-					rust = { "rustfmt" },
 					nix = { "nixfmt" },
 				},
 				notify_on_error = false,
@@ -75,3 +70,4 @@ M.plugins = {
 }
 
 return M
+
