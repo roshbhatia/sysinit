@@ -1,0 +1,30 @@
+[delta "solarized-dark"]
+	blame-palette = "#002b36 #073642 #586e75 #657b83 #839496"
+	commit-decoration-style = "#586e75" bold box ul
+	dark = true
+	file-decoration-style = "#586e75"
+	file-style = "#839496"
+	hunk-header-decoration-style = "#586e75" box ul
+	hunk-header-file-style = bold
+	hunk-header-line-number-style = bold "#657b83"
+	hunk-header-style = file line-number syntax
+	line-numbers-left-style = "#586e75"
+	line-numbers-minus-style = bold "#dc322f"
+	line-numbers-plus-style = bold "#859900"
+	line-numbers-right-style = "#586e75"
+	line-numbers-zero-style = "#586e75"
+	# 25% red 75% base
+	minus-emph-style = bold syntax "#2b1f1f"
+	# 10% red 90% base
+	minus-style = syntax "#0b2831"
+	# 25% green 75% base
+	plus-emph-style = bold syntax "#1f2b1f"
+	# 10% green 90% base
+	plus-style = syntax "#072b32"
+	map-styles = \
+		bold purple => syntax "#2e2851", \
+		bold blue => syntax "#1f3951", \
+		bold cyan => syntax "#1f4951", \
+		bold yellow => syntax "#4b3b1f"
+	# Should match the name of the bat theme
+	syntax-theme = solarized-dark

@@ -2,10 +2,15 @@
   config,
   lib,
   pkgs,
+  overlay,
   ...
 }:
 let
   shell = import ../../../lib/shell { inherit lib; };
+  themes = import ../../../lib/themes { inherit lib; };
+  palette = themes.getThemePalette overlay.theme.colorscheme overlay.theme.variant;
+  ansiMappings = themes.ansiMappings.${overlay.theme.colorscheme}.${overlay.theme.variant} or themes.ansiMappings.catppuccin.frappe;
+  
   logLib = shell.stripHeaders ./core/loglib.sh;
   paths = shell.stripHeaders ./core/paths.sh;
   wezterm = shell.stripHeaders ./core/wezterm.sh;
@@ -14,6 +19,62 @@ let
   env = shell.stripHeaders ./core/env.sh;
   extras = shell.stripHeaders ./core/extras.sh;
   prompt = shell.stripHeaders ./core/prompt.sh;
+  
+  # Function to get theme-specific colors for different colorschemes
+  getThemeColors = colorscheme: variant: 
+    if colorscheme == "catppuccin" then {
+      autosuggest = palette.mauve or "#ca9ee6";
+      fzf = {
+        spinner = palette.pink or "#f4b8e4";
+        hl = palette.red or "#e78284";
+        border = palette.overlay0 or "#737994";
+        label = palette.text or "#c6d0f5";
+        fg = palette.text or "#c6d0f5";
+        header = palette.red or "#e78284";
+        info = palette.sky or "#99d1db";
+        pointer = palette.pink or "#f4b8e4";
+        marker = palette.mauve or "#ca9ee6";
+        prompt = palette.sky or "#99d1db";
+      };
+    } else if colorscheme == "rose-pine" then {
+      autosuggest = palette.iris or "#c4a7e7";
+      fzf = {
+        spinner = palette.love or "#eb6f92";
+        hl = palette.love or "#eb6f92";
+        border = palette.subtle or "#908caa";
+        label = palette.text or "#e0def4";
+        fg = palette.text or "#e0def4";
+        header = palette.love or "#eb6f92";
+        info = palette.foam or "#9ccfd8";
+        pointer = palette.love or "#eb6f92";
+        marker = palette.iris or "#c4a7e7";
+        prompt = palette.foam or "#9ccfd8";
+      };
+    } else if colorscheme == "gruvbox" then {
+      autosuggest = palette.purple or "#d3869b";
+      fzf = {
+        spinner = palette.orange or "#fe8019";
+        hl = palette.red or "#fb4934";
+        border = palette.gray or "#928374";
+        label = palette.fg1 or "#ebdbb2";
+        fg = palette.fg1 or "#ebdbb2";
+        header = palette.red or "#fb4934";
+        info = palette.blue or "#83a598";
+        pointer = palette.orange or "#fe8019";
+        marker = palette.purple or "#d3869b";
+        prompt = palette.blue or "#83a598";
+      };
+    } else {
+      # Fallback to catppuccin frappe
+      autosuggest = "#ca9ee6";
+      fzf = {
+        spinner = "#f4b8e4"; hl = "#e78284"; border = "#737994"; label = "#c6d0f5";
+        fg = "#c6d0f5"; header = "#e78284"; info = "#99d1db"; pointer = "#f4b8e4";
+        marker = "#ca9ee6"; prompt = "#99d1db";
+      };
+    };
+    
+  themeColors = getThemeColors overlay.theme.colorscheme overlay.theme.variant;
 in
 {
   programs.zsh = {
@@ -103,17 +164,17 @@ in
       ZSH_AUTOSUGGEST_USE_ASYNC = 1;
       ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = 20;
       ZSH_AUTOSUGGEST_MANUAL_REBIND = 1;
-      ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE = "fg=#957e9d,italic";
+      ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE = "fg=${themeColors.autosuggest},italic";
 
       ZVM_LINE_INIT_MODE = "i";
 
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
         "--bind='resize:refresh-preview'"
-        "--color=bg+:-1,bg:-1,spinner:#f5c2e7,hl:#f38ba8"
-        "--color=border:#6c7086,label:#cdd6f4"
-        "--color=fg:#cdd6f4,header:#f38ba8,info:#89dceb,pointer:#f5c2e7"
-        "--color=marker:#cba6f7,fg+:#cdd6f4,prompt:#89dceb,hl+:#f38ba8"
+        "--color=bg+:-1,bg:-1,spinner:${themeColors.fzf.spinner},hl:${themeColors.fzf.hl}"
+        "--color=border:${themeColors.fzf.border},label:${themeColors.fzf.label}"
+        "--color=fg:${themeColors.fzf.fg},header:${themeColors.fzf.header},info:${themeColors.fzf.info},pointer:${themeColors.fzf.pointer}"
+        "--color=marker:${themeColors.fzf.marker},fg+:${themeColors.fzf.fg},prompt:${themeColors.fzf.prompt},hl+:${themeColors.fzf.hl}"
         "--cycle"
         "--height=30"
         "--highlight-line"
@@ -131,28 +192,28 @@ in
       ];
 
       EZA_COLORS = lib.concatStringsSep ";" [
-        # directory color: #89b4fa (bright blue)
-        "di=38;5;117"
-        # symlink color: #fab387 (peach)
-        "ln=38;5;216"
-        # socket color: #cba6f7 (mauve)
-        "so=38;5;183"
-        # pipe color: #94e2d5 (teal)
-        "pi=38;5;152"
-        # executable color: #a6e3a1 (green)
-        "ex=38;5;151"
-        # block device color: #f9e2af (yellow) with background: #45475a
-        "bd=38;5;223;48;5;238"
-        # char device color: #f38ba8 (pink) with background: #45475a
-        "cd=38;5;211;48;5;238"
-        # setuid color: #f38ba8 (pink) with background: #585b70
-        "su=38;5;211;48;5;240"
-        # setgid color: #fab387 (peach) with background: #585b70
-        "sg=38;5;216;48;5;240"
-        # sticky other writable color: #a6e3a1 (green) with background: #45475a
-        "tw=38;5;151;48;5;238"
-        # other writable color: #94e2d5 (teal) with background: #45475a
-        "ow=38;5;152;48;5;238"
+        # directory color
+        "di=38;5;${ansiMappings.blue or "117"}"
+        # symlink color
+        "ln=38;5;${ansiMappings.peach or ansiMappings.orange or "216"}"
+        # socket color
+        "so=38;5;${ansiMappings.mauve or ansiMappings.purple or "183"}"
+        # pipe color
+        "pi=38;5;${ansiMappings.teal or ansiMappings.aqua or "152"}"
+        # executable color
+        "ex=38;5;${ansiMappings.green or "151"}"
+        # block device color with background
+        "bd=38;5;${ansiMappings.yellow or "223"};48;5;${ansiMappings.surface1 or ansiMappings.bg1 or "238"}"
+        # char device color with background
+        "cd=38;5;${ansiMappings.pink or ansiMappings.red or "211"};48;5;${ansiMappings.surface1 or ansiMappings.bg1 or "238"}"
+        # setuid color with background
+        "su=38;5;${ansiMappings.pink or ansiMappings.red or "211"};48;5;${ansiMappings.surface2 or ansiMappings.bg2 or "240"}"
+        # setgid color with background
+        "sg=38;5;${ansiMappings.peach or ansiMappings.orange or "216"};48;5;${ansiMappings.surface2 or ansiMappings.bg2 or "240"}"
+        # sticky other writable color with background
+        "tw=38;5;${ansiMappings.green or "151"};48;5;${ansiMappings.surface1 or ansiMappings.bg1 or "238"}"
+        # other writable color with background
+        "ow=38;5;${ansiMappings.teal or ansiMappings.aqua or "152"};48;5;${ansiMappings.surface1 or ansiMappings.bg1 or "238"}"
       ];
 
       COLIMA_HOME = "${config.home.homeDirectory}/.config/colima";

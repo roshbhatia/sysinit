@@ -1,9 +1,13 @@
 {
   lib,
+  overlay,
   ...
 }:
 
 let
+  themes = import ../../../lib/themes { inherit lib; };
+  skinName = overlay.theme.colorscheme;
+  
   k9sConfig = {
     k9s = {
       liveViewAutoRefresh = true;
@@ -19,7 +23,7 @@ let
         crumbsless = false;
         noIcons = false;
         reactive = true;
-        skin = "catppuccin";
+        skin = skinName;
         defaultsToFullScreen = false;
       };
       noIcons = false;
@@ -60,20 +64,39 @@ let
   };
 in
 {
-  xdg.configFile = {
-    "k9s/config.yaml" = {
-      text = lib.generators.toYAML { } k9sConfig;
-      force = true;
-    };
+  xdg.configFile = lib.mkMerge [
+    {
+      "k9s/config.yaml" = {
+        text = lib.generators.toYAML { } k9sConfig;
+        force = true;
+      };
 
-    "k9s/aliases.yaml" = {
-      text = lib.generators.toYAML { } k9sAliases;
-      force = true;
-    };
-
-    "k9s/skins/catppuccin.yaml" = {
-      source = ./skins/catppuccin.yaml;
-      force = true;
-    };
-  };
+      "k9s/aliases.yaml" = {
+        text = lib.generators.toYAML { } k9sAliases;
+        force = true;
+      };
+    }
+    
+    # Include appropriate skin files based on colorscheme
+    (lib.mkIf (overlay.theme.colorscheme == "catppuccin") {
+      "k9s/skins/catppuccin.yaml" = {
+        source = ./skins/catppuccin.yaml;
+        force = true;
+      };
+    })
+    
+    (lib.mkIf (overlay.theme.colorscheme == "rose-pine") {
+      "k9s/skins/rose-pine.yaml" = {
+        source = ./skins/rose-pine.yaml;
+        force = true;
+      };
+    })
+    
+    (lib.mkIf (overlay.theme.colorscheme == "gruvbox") {
+      "k9s/skins/gruvbox.yaml" = {
+        source = ./skins/gruvbox.yaml;
+        force = true;
+      };
+    })
+  ];
 }

@@ -1,10 +1,13 @@
 {
+  lib,
   overlay,
   ...
 }:
 
 let
   cfg = overlay.git;
+  themes = import ../../../lib/themes { inherit lib; };
+  deltaTheme = themes.getAppTheme "delta" overlay.theme.colorscheme overlay.theme.variant;
 
   personalEmail = if (cfg ? personalEmail) then cfg.personalEmail else cfg.userEmail;
   workEmail = if (cfg ? workEmail) then cfg.workEmail else cfg.userEmail;
@@ -65,7 +68,7 @@ in
           dark = true
           navigate = true
           side-by-side = true
-          features = catppuccin-frappe
+          features = ${deltaTheme}
 
       [merge]
           conflictstyle = zdiff3
@@ -77,7 +80,7 @@ in
           path = ~/.gitconfig.personal
 
       [include]
-          path = ~/.config/delta/themes/catppuccin.gitconfig
+          path = ~/.config/delta/themes/${overlay.theme.colorscheme}.gitconfig
 
       [alias]
           p = pull
@@ -145,8 +148,8 @@ in
     force = true;
   };
 
-  xdg.configFile."delta/themes/catppuccin.gitconfig" = {
-    source = ./catppuccin.gitconfig;
+  xdg.configFile."delta/themes/${overlay.theme.colorscheme}.gitconfig" = {
+    source = ./${overlay.theme.colorscheme}.gitconfig;
     force = true;
   };
 }

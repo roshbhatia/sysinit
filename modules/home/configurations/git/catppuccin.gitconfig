@@ -1,18 +1,18 @@
-[delta "catppuccin-frappe"]
-	blame-palette = "#303446 #292c3c #232634 #414559 #51576d"
-	commit-decoration-style = "#737994" bold box ul
+[delta "catppuccin-macchiato"]
+	blame-palette = "#24273a #1e2030 #181926 #363a4f #494d64"
+	commit-decoration-style = "#6e738d" bold box ul
 	dark = true
-	file-decoration-style = "#737994"
-	file-style = "#c6d0f5"
-	hunk-header-decoration-style = "#737994" box ul
+	file-decoration-style = "#6e738d"
+	file-style = "#cad3f5"
+	hunk-header-decoration-style = "#6e738d" box ul
 	hunk-header-file-style = bold
-	hunk-header-line-number-style = bold "#a5adce"
+	hunk-header-line-number-style = bold "#a5adcb"
 	hunk-header-style = file line-number syntax
-	line-numbers-left-style = "#737994"
-	line-numbers-minus-style = bold "#e78284"
-	line-numbers-plus-style = bold "#a6d189"
-	line-numbers-right-style = "#737994"
-	line-numbers-zero-style = "#737994"
+	line-numbers-left-style = "#6e738d"
+	line-numbers-minus-style = bold "#ed8796"
+	line-numbers-plus-style = bold "#a6da95"
+	line-numbers-right-style = "#6e738d"
+	line-numbers-zero-style = "#6e738d"
 	# 25% red 75% base
 	minus-emph-style = bold syntax "#5e4855"
 	# 10% red 90% base
@@ -27,5 +27,5 @@
 		bold cyan => syntax "#4a5b6b", \
 		bold yellow => syntax "#5d5958"
 	# Should match the name of the bat theme
-	syntax-theme = Catppuccin-Frappe
+	syntax-theme = Catppuccin-Macchiato
 
