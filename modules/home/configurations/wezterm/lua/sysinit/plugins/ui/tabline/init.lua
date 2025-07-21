@@ -27,7 +27,7 @@ function M.setup(config)
 					active = { fg = theme_config.palette.blue, bg = theme_config.palette.base02 },
 					inactive = { fg = theme_config.palette.base0, bg = theme_config.palette.base03 },
 					inactive_hover = { fg = theme_config.palette.cyan, bg = theme_config.palette.base02 },
-				}
+				},
 			} or config.colors,
 			section_separators = "",
 			component_separators = "",
