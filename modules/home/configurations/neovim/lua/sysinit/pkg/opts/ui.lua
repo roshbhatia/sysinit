@@ -8,7 +8,6 @@ function M.setup()
 	vim.opt.termguicolors = true
 	vim.opt.winblend = 0
 	vim.opt.pumblend = 0
-	vim.opt.winborder = "rounded"
 end
 
 return M
