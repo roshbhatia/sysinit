@@ -132,7 +132,7 @@ let
   appThemes = {
     wezterm = {
       catppuccin = {
-        macchiato = "Catppuccin Macchiato (Gogh)";
+        macchiato = "catppuccin-macchiato";
       };
       rose-pine = {
         moon = "Rosé Pine Moon (Gogh)";

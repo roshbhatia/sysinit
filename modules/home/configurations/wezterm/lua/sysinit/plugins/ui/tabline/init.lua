@@ -55,7 +55,7 @@ function M.setup(config)
 	})
 
 	tabline.apply_to_config(config)
-	tabline.set_theme(theme_config.theme_name or "Catppuccin Macchiato (Gogh)")
+	tabline.set_theme(theme_config.theme_name)
 end
 
 return M
