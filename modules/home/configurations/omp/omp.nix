@@ -10,11 +10,19 @@ let
 
   # Map common colors from theme palettes to oh-my-posh roles
   ompColors = {
-    os = palette.accent or palette.blue or "#8CAAEE";
-    closer = palette.accent or palette.blue or "#8CAAEE";
-    pink = palette.pink or palette.love or palette.magenta or "#F4B8E4";
-    lavender = palette.lavender or palette.iris or palette.violet or "#BABBF1";
-    blue = palette.blue or palette.accent or "#8CAAEE";
+    os = (
+      palette.accent or palette.blue or palette.pine or palette.iris or palette.violet or "#8CAAEE"
+    );
+    closer = (
+      palette.accent or palette.blue or palette.pine or palette.iris or palette.violet or "#8CAAEE"
+    );
+    pink = (
+      palette.pink or palette.love or palette.magenta or palette.purple or palette.rose or "#F4B8E4"
+    );
+    lavender = (palette.lavender or palette.iris or palette.violet or palette.foam or "#BABBF1");
+    blue = (
+      palette.blue or palette.accent or palette.pine or palette.iris or palette.violet or "#8CAAEE"
+    );
   };
 
   themeConfig = {
@@ -92,3 +100,4 @@ in
     force = true;
   };
 }
+

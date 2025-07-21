@@ -75,3 +75,4 @@ in
     # Other modules can access theme information via config.sysinit.theme.*
   };
 }
+
