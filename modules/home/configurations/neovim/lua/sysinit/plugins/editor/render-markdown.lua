@@ -13,9 +13,6 @@ M.plugins = {
 			"codecompanion",
 			"opencode_output",
 		},
-		cmd = {
-			"Goose",
-		},
 		config = function()
 			require("render-markdown").setup({
 				anti_conceal = {
@@ -66,3 +63,4 @@ M.plugins = {
 }
 
 return M
+
