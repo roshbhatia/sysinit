@@ -1,5 +1,16 @@
 local M = {}
 
+local function get_palette_colors()
+	local variable = vim.api.nvim_get_hl(0, { name = "@variable", link = false })
+	local root = vim.api.nvim_get_hl(0, { name = "Directory", link = false })
+	local message = vim.api.nvim_get_hl(0, { name = "Comment", link = false })
+	return {
+		file = variable and variable.fg and string.format("#%06x", variable.fg) or "#606377",
+		root = root and root.fg and string.format("#%06x", root.fg) or "#606377",
+		message = message and message.fg and string.format("#%06x", message.fg) or "#606377",
+	}
+end
+
 M.plugins = {
 	{
 		"nvim-neo-tree/neo-tree.nvim",
@@ -159,9 +170,10 @@ M.plugins = {
 				},
 			})
 
-			vim.api.nvim_set_hl(0, "NeoTreeFileName_35", { fg = "#606377", bg = nil, bold = true })
-			vim.api.nvim_set_hl(0, "NeoTreeRootName_35", { fg = "#606377", bg = nil, bold = true })
-			vim.api.nvim_set_hl(0, "NeoTreeMessage", { fg = "#606377", bg = nil, bold = false })
+			local colors = get_palette_colors()
+			vim.api.nvim_set_hl(0, "NeoTreeFileName_35", { fg = colors.file, bg = nil, bold = true })
+			vim.api.nvim_set_hl(0, "NeoTreeRootName_35", { fg = colors.root, bg = nil, bold = true })
+			vim.api.nvim_set_hl(0, "NeoTreeMessage", { fg = colors.message, bg = nil, bold = false })
 		end,
 		keys = {
 			{
@@ -177,4 +189,3 @@ M.plugins = {
 }
 
 return M
-

@@ -1,5 +1,10 @@
 local M = {}
 
+local function get_accent_color()
+	local hl = vim.api.nvim_get_hl(0, { name = "@variable", link = false })
+	return hl and hl.fg and string.format("#%06x", hl.fg) or "#f38ba8"
+end
+
 M.plugins = {
 	{
 		"gelguy/wilder.nvim",
@@ -54,7 +59,7 @@ M.plugins = {
 								a = 1,
 							},
 							{
-								foreground = "#f38ba8",
+								foreground = get_accent_color(),
 							},
 						}),
 					},
