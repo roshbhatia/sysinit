@@ -26,7 +26,8 @@ in
     recursive = true;
   };
 
-  xdg.configFile."nvim/lua/sysinit/theme_config.lua".text = ''
+  # Generate theme configuration for lua to read
+  xdg.configFile."wezterm/lua/sysinit/theme_config.lua".text = ''
     -- Auto-generated theme configuration
     local M = {}
 
@@ -37,21 +38,12 @@ in
       opacity = ${toString themeConfig.transparency.opacity}
     }
 
-    M.plugins = {
-      ${themeConfig.colorscheme} = {
-        plugin = "${appTheme.plugin}",
-        name = "${appTheme.name}",
-        setup = "${appTheme.setup}",
-        colorscheme = "${appTheme.colorscheme}"
-      }
-    }
+    M.theme_name = "${appTheme}"
 
     M.palette = {
-
       ${lib.concatStringsSep ",\n      " (
         lib.mapAttrsToList (name: value: "${name} = \"${value}\"") palette
       )}
-
     }
 
     return M
