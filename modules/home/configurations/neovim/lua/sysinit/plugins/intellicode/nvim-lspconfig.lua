@@ -111,13 +111,13 @@ M.plugins = {
 				{ "<leader>cn", vim.diagnostic.goto_next, desc = "Next diagnostic" },
 				{ "<leader>cp", vim.diagnostic.goto_prev, desc = "Previous diagnostic" },
 				{ "<leader>cA", vim.lsp.codelens.run, desc = "Code lens actions" },
-				jieij({
+				{
 					"<leader>ch",
 					function()
 						vim.lsp.buf.hover({ border = "rounded" })
 					end,
 					desc = "Hover documentation",
-				}),
+				},
 				{
 					"<leader>cj",
 					function()
