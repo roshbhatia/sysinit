@@ -131,29 +131,8 @@ local function get_rose_pine_config()
 
 	return {
 		variant = theme_config.variant,
-		dark_variant = "moon",
-		disable_background = transparency.transparent_background,
-		disable_float_background = transparency.transparent_background,
-		disable_italics = false,
-		groups = {
-			background = "base",
-			panel = "surface",
-			border = "highlight_med",
-			comment = "muted",
-			link = "iris",
-			punctuation = "subtle",
-			error = "love",
-			hint = "iris",
-			info = "foam",
-			warn = "gold",
-			headings = {
-				h1 = "iris",
-				h2 = "foam",
-				h3 = "rose",
-				h4 = "gold",
-				h5 = "pine",
-				h6 = "foam",
-			},
+		styles = {
+			transparency = true,
 		},
 	}
 end
@@ -239,3 +218,4 @@ M.plugins = {
 }
 
 return M
+
