@@ -15,7 +15,7 @@ M.plugins = {
 			if theme_config.colorscheme == "catppuccin" then
 				theme_colors = require("catppuccin.palettes").get_palette(theme_config.variant)
 			elseif theme_config.colorscheme == "rose-pine" then
-				theme_colors = require("rose-pine.config").get_colors()
+				theme_colors = require("rose-pine.pallete")
 			elseif theme_config.colorscheme == "gruvbox" then
 				theme_colors = require("gruvbox").get_colors()
 			elseif theme_config.colorscheme == "solarized" then
@@ -33,3 +33,4 @@ M.plugins = {
 	},
 }
 return M
+
