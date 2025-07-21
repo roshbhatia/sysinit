@@ -5,12 +5,12 @@ local M = {}
 local function get_window_appearance_config()
 	local opacity = theme_config.transparency.enable and theme_config.transparency.opacity or 1.0
 	local blur = theme_config.transparency.enable and 80 or 0
-	local color_scheme = theme_config.color_scheme
+	local theme_name = theme_config.theme_name
 
 	return {
 		window_background_opacity = opacity,
 		macos_window_background_blur = blur,
-		color_scheme = color_scheme,
+		color_scheme = theme_name,
 	}
 end
 
