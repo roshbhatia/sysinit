@@ -41,7 +41,9 @@
     (import ./neovim {
       inherit config lib overlay;
     })
-    ./omp
+    (import ./omp {
+      inherit lib overlay;
+    })
     (import ./treesitter {
       inherit config lib pkgs;
     })
@@ -50,3 +52,4 @@
     })
   ];
 }
+
