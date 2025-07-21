@@ -32,15 +32,29 @@ in
 
   xdg.configFile."nvim/init.lua".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/init.lua";
-  xdg.configFile."nvim/lua".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua";
-  xdg.configFile."nvim/assets/frida.png".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/assets/frida.png";
+  xdg.configFile."nvim/lua/sysinit/plugins/core/".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/plugins/core";
+  xdg.configFile."nvim/lua/sysinit/plugins/debugger/".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/plugins/debugger";
+  xdg.configFile."nvim/lua/sysinit/plugins/editor/".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/plugins/editor";
+  xdg.configFile."nvim/lua/sysinit/plugins/file/".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/plugins/file";
+  xdg.configFile."nvim/lua/sysinit/plugins/git/".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/plugins/git";
+  xdg.configFile."nvim/lua/sysinit/plugins/intellicode/".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/plugins/intellicode";
+  xdg.configFile."nvim/lua/sysinit/plugins/keymaps/".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/plugins/keymaps";
+  xdg.configFile."nvim/lua/sysinit/plugins/library/".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/plugins/library";
+  xdg.configFile."nvim/lua/sysinit/plugins/notes/".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/plugins/notes";
+  xdg.configFile."nvim/lua/sysinit/plugins/ui/".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/plugins/ui";
   xdg.configFile."nvim/queries".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/queries";
-
-  # Generate theme configuration for lua to read
-  home.file.".config/nvim/lua/sysinit/theme_config.lua".text = ''
+  xdg.configFile."nvim/lua/sysinit/theme_config.lua".text = ''
     -- Auto-generated theme configuration
     local M = {}
 

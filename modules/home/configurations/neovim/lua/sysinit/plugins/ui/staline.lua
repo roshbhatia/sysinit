@@ -67,20 +67,6 @@ M.plugins = {
 				special_table = {
 					qf = { "QuickFix", " " },
 				},
-
-				mode_colors = {
-					n = "#d19bc4", -- Muted pink for normal mode
-					i = "#7fb3aa", -- Desaturated teal for insert mode
-					c = "#9da3d4", -- Soft lavender for command mode
-					v = "#7287c7", -- Muted blue for visual mode
-					V = "#7287c7", -- Muted blue for visual line mode
-					[""] = "#7287c7", -- Muted blue for visual block mode
-					R = "#c7a584", -- Muted peach for replace mode
-					r = "#c7a584", -- Muted peach for replace mode
-					s = "#d4c481", -- Subtle yellow for select mode
-					S = "#d4c481", -- Subtle yellow for select mode
-					t = "#9cb380", -- Washed out green for terminal mode
-				},
 			})
 		end,
 	},
