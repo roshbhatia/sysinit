@@ -3,7 +3,6 @@ local M = {}
 M.plugins = {
 	{
 		"Bekaboo/dropbar.nvim",
-		lazy = false,
 		version = "v14.1.0",
 		dependencies = {
 			"nvim-telescope/telescope-fzf-native.nvim",
@@ -47,3 +46,4 @@ M.plugins = {
 }
 
 return M
+

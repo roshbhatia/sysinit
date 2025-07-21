@@ -17,6 +17,7 @@ M.plugins = {
 					width = 40,
 					resize_to_content = false,
 				},
+				filter_kind = false,
 				autojump = true,
 				manage_folds = true,
 				link_folds_to_tree = true,
@@ -43,3 +44,4 @@ M.plugins = {
 }
 
 return M
+
