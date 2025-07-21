@@ -6,7 +6,6 @@ local deps = {
 	"L3MON4D3/LuaSnip",
 	"pta2002/intellitab.nvim",
 	"rafamadriz/friendly-snippets",
-	"saghen/blink.compat",
 }
 
 if copilot_enabled then
@@ -209,3 +208,4 @@ M.plugins = {
 }
 
 return M
+

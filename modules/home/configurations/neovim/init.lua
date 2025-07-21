@@ -41,9 +41,7 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.editor.bqf"),
 	require("sysinit.plugins.editor.colorizer"),
 	require("sysinit.plugins.editor.comment"),
-	require("sysinit.plugins.editor.diff"),
 	require("sysinit.plugins.editor.foldsign"),
-	require("sysinit.plugins.editor.grug-far"),
 	require("sysinit.plugins.editor.hlchunk"),
 	require("sysinit.plugins.editor.hop"),
 	require("sysinit.plugins.editor.intellitab"),
@@ -52,18 +50,15 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.editor.move"),
 	require("sysinit.plugins.editor.multicursor"),
 	require("sysinit.plugins.editor.render-markdown"),
-	require("sysinit.plugins.editor.searchbox"),
 	require("sysinit.plugins.file.neo-tree"),
 	require("sysinit.plugins.file.oil"),
 	require("sysinit.plugins.file.persisted"),
 	require("sysinit.plugins.file.telescope"),
 	require("sysinit.plugins.git.blamer"),
 	require("sysinit.plugins.git.fugitive"),
-	require("sysinit.plugins.git.octo"),
 	require("sysinit.plugins.git.signs"),
 	require("sysinit.plugins.intellicode.avante"),
 	require("sysinit.plugins.intellicode.blink-cmp"),
-	require("sysinit.plugins.intellicode.blink-compat"),
 	require("sysinit.plugins.intellicode.codecompanion"),
 	require("sysinit.plugins.intellicode.cmp-copilot"),
 	require("sysinit.plugins.intellicode.copilot-chat"),
@@ -98,7 +93,6 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.library.nui"),
 	require("sysinit.plugins.library.snacks"),
 	require("sysinit.plugins.library.volt"),
-	require("sysinit.plugins.notes.notion"),
 	require("sysinit.plugins.ui.alpha"),
 	require("sysinit.plugins.ui.auto-cmdheight"),
 	require("sysinit.plugins.ui.devicons"),
@@ -116,7 +110,6 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.ui.tiny-glimmer"),
 	require("sysinit.plugins.ui.tiny-devicons-auto-colors"),
 	require("sysinit.plugins.ui.wilder"),
-	require("sysinit.plugins.ui.window-picker"),
 })
 
 require("sysinit.pkg.keybindings.buffer").setup()
@@ -128,3 +121,4 @@ require("sysinit.pkg.keybindings.undo").setup()
 require("sysinit.pkg.keybindings.vim").setup()
 
 require("sysinit.pkg.entrypoint.no-session").setup()
+

@@ -10,7 +10,6 @@ M.plugins = {
 		ft = {
 			"Avante",
 			"markdown",
-			"octo",
 			"codecompanion",
 			"opencode_output",
 		},
@@ -55,7 +54,6 @@ M.plugins = {
 				file_types = {
 					"Avante",
 					"markdown",
-					"octo",
 					"codecompanion",
 					"opencode_output",
 				},
@@ -68,3 +66,4 @@ M.plugins = {
 }
 
 return M
+

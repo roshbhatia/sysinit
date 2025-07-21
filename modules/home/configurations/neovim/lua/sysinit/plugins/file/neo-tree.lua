@@ -71,7 +71,6 @@ M.plugins = {
 						},
 						["s"] = "open_split",
 						["v"] = "open_vsplit",
-						["w"] = "open_with_window_picker",
 						["z"] = "close_all_nodes",
 						["Z"] = "expand_all_nodes",
 						["a"] = {
@@ -178,3 +177,4 @@ M.plugins = {
 }
 
 return M
+

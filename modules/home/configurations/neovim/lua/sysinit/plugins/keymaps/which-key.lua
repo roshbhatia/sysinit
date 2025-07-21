@@ -39,10 +39,6 @@ M.plugins = {
 					group = "Editor Actions",
 				},
 				{
-					"<localleader>p",
-					group = "Snacks/Profiler",
-				},
-				{
 					"<localleader>r",
 					group = "Refresh",
 				},
@@ -81,14 +77,6 @@ M.plugins = {
 				{
 					"<localleader>gh",
 					group = "Hunk",
-				},
-				{
-					"<localleader>gr",
-					group = "Github Review",
-				},
-				{
-					"<leader>r",
-					group = "Replace",
 				},
 				{
 					"<localleader>.",
@@ -138,3 +126,4 @@ M.plugins = {
 }
 
 return M
+

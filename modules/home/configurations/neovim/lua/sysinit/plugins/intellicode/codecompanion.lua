@@ -32,9 +32,6 @@ M.plugins = {
 						buffer_watch = " ",
 					},
 				},
-				diff = {
-					provider = "mini_diff",
-				},
 			},
 			keymaps = {
 				send = {
@@ -132,3 +129,4 @@ M.plugins = {
 	},
 }
 return M
+
