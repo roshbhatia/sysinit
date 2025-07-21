@@ -172,47 +172,65 @@ M.plugins = {
 			return {
 				{
 					"<leader>ff",
-					"<CMD>Telescope find_files hidden=true<CR>",
+					function()
+						require("telescope.builtin").find_files({ hidden = true })
+					end,
 					desc = "Files",
 				},
 				{
 					"<leader>fg",
-					"<CMD>Telescope live_grep<CR>",
+					function()
+						require("telescope.builtin").live_grep()
+					end,
 					desc = "Live grep",
 				},
 				{
 					"<leader>bb",
-					"<CMD>Telescope buffers sort_mru=true show_all_buffers=true<CR>",
+					function()
+						require("telescope.builtin").buffers({ sort_mru = true, show_all_buffers = true })
+					end,
 					desc = "Buffers",
 				},
 				{
 					"<leader>fc",
-					"<CMD>Telescope commands<CR>",
+					function()
+						require("telescope.builtin").commands()
+					end,
 					desc = "Commands",
 				},
 				{
 					"<leader>fh",
-					"<CMD>Telescope help_tags<CR>",
+					function()
+						require("telescope.builtin").help_tags()
+					end,
 					desc = "Help tags",
 				},
 				{
 					"<leader>fo",
-					"<CMD>Telescope oldfiles<CR>",
+					function()
+						require("telescope.builtin").oldfiles()
+					end,
 					desc = "Recent files",
 				},
 				{
 					"<leader>ft",
-					"<CMD>Telescope filetypes<CR>",
+					function()
+						require("telescope.builtin").filetypes()
+					end,
 					desc = "Filetypes",
 				},
 				{
 					"<leader>fF",
-					"<CMD>Telescope<CR>",
+					function()
+						require("telescope.builtin").builtin()
+					end,
 					desc = "Telescope",
 				},
 				{
 					"<leader>fu",
-					"<CMD>Telescope undo<CR>",
+					function()
+						require("telescope").extensions.undo.undo()
+					end,
 					desc = "Undo history",
 				},
 			}
@@ -221,3 +239,4 @@ M.plugins = {
 }
 
 return M
+
