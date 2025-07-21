@@ -1,10 +1,92 @@
 {
+  lib,
+  overlay,
   ...
 }:
 
+let
+  themes = import ../../../lib/themes { inherit lib; };
+  palette = themes.getThemePalette overlay.theme.colorscheme overlay.theme.variant;
+
+  # Map common colors from theme palettes to oh-my-posh roles
+  ompColors = {
+    os = palette.accent or palette.blue or "#8CAAEE";
+    closer = palette.accent or palette.blue or "#8CAAEE"; 
+    pink = palette.pink or palette.love or palette.magenta or "#F4B8E4";
+    lavender = palette.lavender or palette.iris or palette.violet or "#BABBF1";
+    blue = palette.blue or palette.accent or "#8CAAEE";
+  };
+
+  themeConfig = {
+    "$schema" = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json";
+    palette = {
+      os = ompColors.os;
+      closer = "p:os";
+      pink = ompColors.pink;
+      lavender = ompColors.lavender;
+      blue = ompColors.blue;
+    };
+    blocks = [{
+      alignment = "left";
+      segments = [
+        {
+          foreground = "p:os";
+          style = "plain";
+          template = "󱄅 ";
+          type = "os";
+        }
+        {
+          foreground = "p:blue";
+          style = "plain";
+          template = "{{ .UserName }}@{{ .HostName }} ";
+          type = "session";
+        }
+        {
+          foreground = "p:pink";
+          properties = {
+            folder_icon = "....";
+            home_icon = "~";
+            style = "agnoster_short";
+          };
+          style = "plain";
+          template = "{{ .Path }} ";
+          type = "path";
+        }
+        {
+          foreground = "p:lavender";
+          properties = {
+            branch_icon = " ";
+            cherry_pick_icon = " ";
+            commit_icon = " ";
+            fetch_status = false;
+            fetch_upstream_icon = false;
+            merge_icon = " ";
+            no_commits_icon = " ";
+            rebase_icon = " ";
+            revert_icon = " ";
+            tag_icon = " ";
+          };
+          template = "{{ .HEAD }} ";
+          style = "plain";
+          type = "git";
+        }
+        {
+          style = "plain";
+          foreground = "p:closer";
+          template = "";
+          type = "text";
+        }
+      ];
+      type = "prompt";
+    }];
+    final_space = true;
+    version = 3;
+  };
+in
+
 {
   xdg.configFile."oh-my-posh/themes/sysinit.omp.json" = {
-    source = ./theme.json;
+    text = builtins.toJSON themeConfig;
     force = true;
   };
 }

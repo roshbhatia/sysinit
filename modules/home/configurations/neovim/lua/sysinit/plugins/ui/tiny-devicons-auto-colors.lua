@@ -19,7 +19,8 @@ M.plugins = {
 			elseif theme_config.colorscheme == "gruvbox" then
 				theme_colors = require("gruvbox").get_colors()
 			elseif theme_config.colorscheme == "solarized" then
-				theme_colors = require("solarized-osaka.colors").get_colors()
+				-- Use the palette from theme_config since solarized-osaka doesn't expose get_colors()
+				theme_colors = theme_config.palette
 			else
 				-- Fallback to catppuccin macchiato
 				theme_colors = require("catppuccin.palettes").get_palette("macchiato")
