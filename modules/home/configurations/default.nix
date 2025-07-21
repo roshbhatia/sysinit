@@ -8,7 +8,12 @@
 {
   imports = [
     (import ./zsh {
-      inherit config lib overlay pkgs;
+      inherit
+        config
+        lib
+        overlay
+        pkgs
+        ;
     })
     (import ./git {
       inherit lib overlay;

@@ -13,7 +13,8 @@
       "Bash(ls:*)",
       "Bash(nix-instantiate:*)",
       "Bash(git add:*)",
-      "Bash(nix log:*)"
+      "Bash(nix log:*)",
+      "Bash(task nix:refresh:*)"
     ],
     "deny": []
   }

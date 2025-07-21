@@ -10,7 +10,12 @@ in
 {
   options.sysinit.theme = {
     colorscheme = mkOption {
-      type = types.enum [ "catppuccin" "rose-pine" "gruvbox" "solarized" ];
+      type = types.enum [
+        "catppuccin"
+        "rose-pine"
+        "gruvbox"
+        "solarized"
+      ];
       default = "catppuccin";
       description = "The color scheme to use system-wide";
     };
@@ -59,7 +64,8 @@ in
     ansiMappings = mkOption {
       type = types.attrs;
       readOnly = true;
-      default = themes.ansiMappings.${cfg.colorscheme}.${cfg.variant} or themes.ansiMappings.catppuccin.macchiato;
+      default =
+        themes.ansiMappings.${cfg.colorscheme}.${cfg.variant} or themes.ansiMappings.catppuccin.macchiato;
       description = "ANSI color mappings for terminal applications";
     };
   };

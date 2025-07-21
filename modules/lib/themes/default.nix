@@ -201,7 +201,7 @@ let
         dark = "Solarized (dark)";
       };
     };
-    
+
     atuin = {
       catppuccin = {
         macchiato = "catppuccin-macchiato";

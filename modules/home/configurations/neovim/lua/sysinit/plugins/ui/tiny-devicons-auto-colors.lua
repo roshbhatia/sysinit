@@ -11,7 +11,7 @@ M.plugins = {
 		config = function()
 			local theme_config = require("sysinit.theme_config")
 			local theme_colors = {}
-			
+
 			if theme_config.colorscheme == "catppuccin" then
 				theme_colors = require("catppuccin.palettes").get_palette(theme_config.variant)
 			elseif theme_config.colorscheme == "rose-pine" then
