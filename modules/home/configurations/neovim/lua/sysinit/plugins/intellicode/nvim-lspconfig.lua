@@ -111,7 +111,20 @@ M.plugins = {
 				{ "<leader>cn", vim.diagnostic.goto_next, desc = "Next diagnostic" },
 				{ "<leader>cp", vim.diagnostic.goto_prev, desc = "Previous diagnostic" },
 				{ "<leader>cA", vim.lsp.codelens.run, desc = "Code lens actions" },
-				{ "<leader>ch", vim.lsp.buf.hover, desc = "Hover documentation" },
+				{
+					"<leader>ch",
+					function()
+						vim.lsp.buf.hover({ border = "rounded" })
+					end,
+					desc = "Hover documentation",
+				},
+				{
+					"<leader>cj",
+					function()
+						vim.lsp.buf.signature_help({ border = "rounded" })
+					end,
+					desc = "Signature help",
+				},
 				{ "<leader>cs", vim.lsp.buf.document_symbol, desc = "Document symbols" },
 				{ "<leader>cS", vim.lsp.buf.workspace_symbol, desc = "Workspace symbols" },
 				{ "<leader>ci", "<cmd>LspInfo<cr>", desc = "LSP info" },
@@ -128,3 +141,4 @@ M.plugins = {
 }
 
 return M
+
