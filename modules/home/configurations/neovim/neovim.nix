@@ -40,7 +40,7 @@ in
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/queries";
 
   # Generate theme configuration for lua to read
-  xdg.configFile."nvim/lua/sysinit/theme_config.lua".text = ''
+  home.file.".config/nvim/lua/sysinit/theme_config.lua".text = ''
     -- Auto-generated theme configuration
     local M = {}
 

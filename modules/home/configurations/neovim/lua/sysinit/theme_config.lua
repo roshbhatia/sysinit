@@ -1,0 +1,1 @@
+/nix/store/dmzk4hzgs3mv1lqzj2cwz381dcsnd82g-home-manager-files/.config/nvim/lua/sysinit/theme_config.lua
