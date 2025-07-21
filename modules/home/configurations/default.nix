@@ -8,31 +8,40 @@
 {
   imports = [
     (import ./zsh {
-      inherit config lib pkgs;
+      inherit config lib overlay pkgs;
     })
     (import ./git {
       inherit lib overlay;
     })
-
     ./aerospace
     ./aider
-    ./atuin
-    ./bat
+    (import ./atuin {
+      inherit lib overlay;
+    })
+    (import ./bat {
+      inherit lib overlay;
+    })
     ./borders
     (import ./colima {
       inherit lib pkgs;
     })
     ./direnv
-    ./k9s
+    (import ./k9s {
+      inherit lib overlay;
+    })
     (import ./macchina {
       inherit config pkgs;
     })
     ./mcp
-    ./neovim
+    (import ./neovim {
+      inherit config lib overlay;
+    })
     ./omp
     (import ./treesitter {
       inherit config lib pkgs;
     })
-    ./wezterm
+    (import ./wezterm {
+      inherit lib overlay;
+    })
   ];
 }

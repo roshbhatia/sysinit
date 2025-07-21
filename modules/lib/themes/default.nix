@@ -189,7 +189,22 @@ let
 
     bat = {
       catppuccin = {
-        macchiato = "Catppuccin-Macchiato";
+        macchiato = "Catppuccin Macchiato";
+      };
+      rose-pine = {
+        moon = "Catppuccin Macchiato"; # Using Catppuccin Macchiato as fallback for rose-pine
+      };
+      gruvbox = {
+        dark = "gruvbox-dark";
+      };
+      solarized = {
+        dark = "Solarized (dark)";
+      };
+    };
+    
+    atuin = {
+      catppuccin = {
+        macchiato = "catppuccin-macchiato";
       };
       rose-pine = {
         moon = "rose-pine-moon";

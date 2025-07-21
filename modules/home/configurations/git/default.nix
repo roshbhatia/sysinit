@@ -1,14 +1,12 @@
 {
+  lib,
   overlay,
   ...
 }:
-
 {
   imports = [
     (import ./git.nix {
-      inherit
-        overlay
-        ;
+      inherit lib overlay;
     })
   ];
 }

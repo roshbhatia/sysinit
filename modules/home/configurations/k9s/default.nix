@@ -1,4 +1,15 @@
-{ ... }:
 {
-  imports = [ ./k9s.nix ];
+  lib,
+  overlay,
+  ...
+}:
+{
+  imports = [
+    (import ./k9s.nix {
+      inherit
+        lib
+        overlay
+        ;
+    })
+  ];
 }

@@ -1,12 +1,14 @@
 {
   config,
   lib,
+  overlay,
   pkgs,
   ...
 }:
-
 {
   imports = [
-    ./zsh.nix
+    (import ./zsh.nix {
+      inherit config lib overlay pkgs;
+    })
   ];
 }

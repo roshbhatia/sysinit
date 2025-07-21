@@ -1,0 +1,12 @@
+[theme]
+name = "solarized-dark"
+
+[colors]
+AlertInfo = "#2aa198"
+AlertWarn = "#b58900"
+AlertError = "#dc322f"
+Annotation = "#268bd2"
+Base = "#839496"
+Guidance = "#586e75"
+Important = "#dc322f"
+Title = "#268bd2"

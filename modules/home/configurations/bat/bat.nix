@@ -20,54 +20,6 @@ in
     --theme="${batTheme}"
   '';
 
-  # Conditionally include theme files based on current colorscheme
-  xdg.configFile = lib.mkMerge [
-    (lib.mkIf (overlay.theme.colorscheme == "catppuccin") {
-      "bat/themes/Catppuccin-Frappe.tmTheme" = {
-        source = ./Catppuccin-Frappe.tmTheme;
-        force = true;
-      };
-      "bat/themes/Catppuccin-Latte.tmTheme" = {
-        source = ./Catppuccin-Latte.tmTheme;
-        force = true;
-      };
-      "bat/themes/Catppuccin-Macchiato.tmTheme" = {
-        source = ./Catppuccin-Macchiato.tmTheme;
-        force = true;
-      };
-      "bat/themes/Catppuccin-Mocha.tmTheme" = {
-        source = ./Catppuccin-Mocha.tmTheme;
-        force = true;
-      };
-    })
-
-    (lib.mkIf (overlay.theme.colorscheme == "rose-pine") {
-      "bat/themes/rose-pine.tmTheme" = {
-        source = ./rose-pine.tmTheme;
-        force = true;
-      };
-      "bat/themes/rose-pine-moon.tmTheme" = {
-        source = ./rose-pine-moon.tmTheme;
-        force = true;
-      };
-      "bat/themes/rose-pine-dawn.tmTheme" = {
-        source = ./rose-pine-dawn.tmTheme;
-        force = true;
-      };
-    })
-
-    (lib.mkIf (overlay.theme.colorscheme == "gruvbox") {
-      "bat/themes/gruvbox-dark.tmTheme" = {
-        source = ./gruvbox-dark.tmTheme;
-        force = true;
-      };
-      "bat/themes/gruvbox-light.tmTheme" = {
-        source = ./gruvbox-light.tmTheme;
-        force = true;
-      };
-    })
-  ];
-
   home.activation.buildBatCache = activation.mkActivationScript {
     description = "Build bat cache";
     requiredExecutables = [ "bat" ];

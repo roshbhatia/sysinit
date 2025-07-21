@@ -1,4 +1,12 @@
-{ ... }:
 {
-  imports = [ ./wezterm.nix ];
+  lib,
+  overlay,
+  ...
+}:
+{
+  imports = [
+    (import ./wezterm.nix {
+      inherit lib overlay;
+    })
+  ];
 }

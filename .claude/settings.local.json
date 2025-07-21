@@ -2,7 +2,18 @@
   "permissions": {
     "allow": [
       "Bash(rm:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(task nix:build:*)",
+      "Bash(mv:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(curl:*)",
+      "Bash(nix build:*)",
+      "Bash(ls:*)",
+      "Bash(nix-instantiate:*)",
+      "Bash(git add:*)",
+      "Bash(nix log:*)"
     ],
     "deny": []
   }

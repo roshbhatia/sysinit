@@ -1,0 +1,12 @@
+[theme]
+name = "rose-pine-moon"
+
+[colors]
+AlertInfo = "#9ccfd8"
+AlertWarn = "#f6c177"
+AlertError = "#eb6f92"
+Annotation = "#c4a7e7"
+Base = "#e0def4"
+Guidance = "#908caa"
+Important = "#eb6f92"
+Title = "#c4a7e7"

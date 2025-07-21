@@ -33,35 +33,15 @@ in
   # Conditionally include theme files based on current colorscheme
   xdg.configFile = lib.mkMerge [
     (lib.mkIf (overlay.theme.colorscheme == "catppuccin") {
-      "atuin/themes/catppuccin-frappe.toml" = {
-        source = ./catppuccin-frappe.toml;
-        force = true;
-      };
-      "atuin/themes/catppuccin-latte.toml" = {
-        source = ./catppuccin-latte.toml;
-        force = true;
-      };
       "atuin/themes/catppuccin-macchiato.toml" = {
         source = ./catppuccin-macchiato.toml;
-        force = true;
-      };
-      "atuin/themes/catppuccin-mocha.toml" = {
-        source = ./catppuccin-mocha.toml;
         force = true;
       };
     })
 
     (lib.mkIf (overlay.theme.colorscheme == "rose-pine") {
-      "atuin/themes/rose-pine.toml" = {
-        source = ./rose-pine.toml;
-        force = true;
-      };
       "atuin/themes/rose-pine-moon.toml" = {
         source = ./rose-pine-moon.toml;
-        force = true;
-      };
-      "atuin/themes/rose-pine-dawn.toml" = {
-        source = ./rose-pine-dawn.toml;
         force = true;
       };
     })
@@ -71,8 +51,11 @@ in
         source = ./gruvbox-dark.toml;
         force = true;
       };
-      "atuin/themes/gruvbox-light.toml" = {
-        source = ./gruvbox-light.toml;
+    })
+
+    (lib.mkIf (overlay.theme.colorscheme == "solarized") {
+      "atuin/themes/solarized-dark.toml" = {
+        source = ./solarized-dark.toml;
         force = true;
       };
     })

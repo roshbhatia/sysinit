@@ -8,7 +8,7 @@
 let
   themes = import ../../../lib/themes { inherit lib; };
   palette = themes.getThemePalette overlay.theme.colorscheme overlay.theme.variant;
-  appTheme = themes.getAppTheme "neovim" overlay.theme.colorscheme overlay.theme.variant;
+  appTheme = themes.appThemes.neovim.${overlay.theme.colorscheme};
 
   themeConfig = {
     colorscheme = overlay.theme.colorscheme;
