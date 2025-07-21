@@ -110,7 +110,6 @@ local function get_catppuccin_config()
 			mason = true,
 			native_lsp = { enabled = true, virtual_text = { errors = { "italic" }, hints = { "italic" } } },
 			neotree = true,
-			noice = true,
 			notify = true,
 			nvimtree = true,
 			render_markdown = true,
@@ -218,3 +217,4 @@ M.plugins = {
 }
 
 return M
+
