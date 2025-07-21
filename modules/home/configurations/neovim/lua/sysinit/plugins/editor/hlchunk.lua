@@ -1,10 +1,5 @@
 local M = {}
 
-local function get_bg_color()
-	local hl = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
-	return hl and hl.bg and string.format("#%06x", hl.bg) or "#1e1e2e"
-end
-
 local function get_palette_colors()
 	local good = vim.api.nvim_get_hl(0, { name = "@variable", link = false })
 	local error = vim.api.nvim_get_hl(0, { name = "Error", link = false })
@@ -29,8 +24,8 @@ M.plugins = {
 					duration = 100,
 					delay = 100,
 					style = {
-						{ fg = colors.good, bg = get_bg_color() },
-						{ fg = colors.error, bg = get_bg_color() },
+						{ fg = colors.good },
+						{ fg = colors.error },
 					},
 				},
 				indent = {
@@ -48,3 +43,4 @@ M.plugins = {
 }
 
 return M
+
