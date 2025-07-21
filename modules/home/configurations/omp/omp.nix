@@ -56,16 +56,16 @@ let
           {
             foreground = "p:lavender";
             properties = {
-              branch_icon = "";
-              cherry_pick_icon = "";
-              commit_icon = "";
+              branch_icon = " ";
+              cherry_pick_icon = " ";
+              commit_icon = " ";
               fetch_status = true;
-              fetch_upstream_icon = "";
-              merge_icon = "";
-              no_commits_icon = "";
-              rebase_icon = "󰰓";
-              revert_icon = "󰆴";
-              tag_icon = "";
+              fetch_upstream_icon = " ";
+              merge_icon = " ";
+              no_commits_icon = " ";
+              rebase_icon = " ";
+              revert_icon = "󰆴 ";
+              tag_icon = " ";
             };
             template = "{{ .HEAD }} ";
             style = "plain";
