@@ -77,10 +77,16 @@ in
       };
     }
 
-    # Include appropriate skin files based on colorscheme
     (lib.mkIf (overlay.theme.colorscheme == "catppuccin") {
       "k9s/skins/catppuccin.yaml" = {
         source = ./skins/catppuccin.yaml;
+        force = true;
+      };
+    })
+
+    (lib.mkIf (overlay.theme.colorscheme == "solarized") {
+      "k9s/skins/solarized.yaml" = {
+        source = ./skins/solarized.yaml;
         force = true;
       };
     })
@@ -100,3 +106,4 @@ in
     })
   ];
 }
+

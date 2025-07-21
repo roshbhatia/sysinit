@@ -1,0 +1,56 @@
+k9s:
+  body:
+    fgColor: "#fdf6e3"
+    bgColor: default
+    logoColor: "#268bd2"
+  prompt:
+    fgColor: "#fdf6e3"
+    bgColor: default
+    suggestColor: "#2aa198"
+  help:
+    fgColor: "#fdf6e3"
+    bgColor: default
+    sectionColor: "#859900"
+    keyColor: "#268bd2"
+    numKeyColor: "#cb4b16"
+  frame:
+    title:
+      fgColor: "#859900"
+      bgColor: default
+      highlightColor: "#b58900"
+      counterColor: "#cb4b16"
+      filterColor: "#2aa198"
+    border:
+      fgColor: "#6c71c4"
+      focusColor: "#268bd2"
+    menu:
+      fgColor: "#fdf6e3"
+      keyColor: "#268bd2"
+      numKeyColor: "#cb4b16"
+    crumbs:
+      fgColor: "#002b36"
+      bgColor: default
+      activeColor: "#dc322f"
+    status:
+      newColor: "#268bd2"
+      modifyColor: "#6c71c4"
+      addColor: "#859900"
+      pendingColor: "#b58900"
+      errorColor: "#dc322f"
+      highlightColor: "#2aa198"
+      killColor: "#6c71c4"
+      completedColor: "#657b83"
+  info:
+    fgColor: "#b58900"
+    sectionColor: "#fdf6e3"
+  views:
+    table:
+      fgColor: "#fdf6e3"
+      bgColor: default
+      cursorFgColor: "#002b36"
+      cursorBgColor: "#073642"
+      markColor: "#eee8d5"
+      header:
+        fgColor: "#b58900"
+        bgColor: default
+
