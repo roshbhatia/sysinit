@@ -192,7 +192,7 @@ let
         macchiato = "Catppuccin Macchiato";
       };
       rose-pine = {
-        moon = "Catppuccin Macchiato"; # Using Catppuccin Macchiato as fallback for rose-pine
+        moon = "Rose Pine Moon";
       };
       gruvbox = {
         dark = "gruvbox-dark";

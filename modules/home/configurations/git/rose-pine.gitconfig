@@ -1,0 +1,30 @@
+[delta "rose-pine-moon"]
+	blame-palette = "#26233a #1f1d2e #191724 #393552 #524f67"
+	commit-decoration-style = "#908caa" bold box ul
+	dark = true
+	file-decoration-style = "#908caa"
+	file-style = "#e0def4"
+	hunk-header-decoration-style = "#908caa" box ul
+	hunk-header-file-style = bold
+	hunk-header-line-number-style = bold "#6e6a86"
+	hunk-header-style = file line-number syntax
+	line-numbers-left-style = "#908caa"
+	line-numbers-minus-style = bold "#eb6f92"
+	line-numbers-plus-style = bold "#9ccfd8"
+	line-numbers-right-style = "#908caa"
+	line-numbers-zero-style = "#908caa"
+	# 25% red 75% base
+	minus-emph-style = bold syntax "#593947"
+	# 10% red 90% base
+	minus-style = syntax "#3e2e38"
+	# 25% green/blue 75% base
+	plus-emph-style = bold syntax "#3a4a4e"
+	# 10% green/blue 90% base
+	plus-style = syntax "#2e3c3e"
+	map-styles = \
+		bold purple => syntax "#c4a7e7", \
+		bold blue => syntax "#9ccfd8", \
+		bold cyan => syntax "#31748f", \
+		bold yellow => syntax "#f6c177"
+	syntax-theme = Rosé Pine Moon
+

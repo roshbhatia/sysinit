@@ -28,3 +28,4 @@
 		bold yellow => syntax "#4b3b1f"
 	# Should match the name of the bat theme
 	syntax-theme = solarized-dark
+

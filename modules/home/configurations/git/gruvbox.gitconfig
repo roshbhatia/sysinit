@@ -1,0 +1,30 @@
+[delta "gruvbox-dark"]
+	blame-palette = "#282828 #1d2021 #1b1b1b #3c3836 #504945"
+	commit-decoration-style = "#a89984" bold box ul
+	dark = true
+	file-decoration-style = "#a89984"
+	file-style = "#ebdbb2"
+	hunk-header-decoration-style = "#a89984" box ul
+	hunk-header-file-style = bold
+	hunk-header-line-number-style = bold "#d5c4a1"
+	hunk-header-style = file line-number syntax
+	line-numbers-left-style = "#a89984"
+	line-numbers-minus-style = bold "#fb4934"
+	line-numbers-plus-style = bold "#b8bb26"
+	line-numbers-right-style = "#a89984"
+	line-numbers-zero-style = "#a89984"
+	# 25% red 75% base
+	minus-emph-style = bold syntax "#623f3f"
+	# 10% red 90% base
+	minus-style = syntax "#402c2c"
+	# 25% green 75% base
+	plus-emph-style = bold syntax "#505e3d"
+	# 10% green 90% base
+	plus-style = syntax "#374030"
+	map-styles = \
+		bold purple => syntax "#d3869b", \
+		bold blue => syntax "#83a598", \
+		bold cyan => syntax "#8ec07c", \
+		bold yellow => syntax "#fabd2f"
+	syntax-theme = Gruvbox-Dark
+
