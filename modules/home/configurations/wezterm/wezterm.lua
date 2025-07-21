@@ -17,8 +17,9 @@ require("sysinit.pkg.core").setup(config)
 require("sysinit.pkg.keybindings").setup(config)
 
 require("sysinit.plugins.terminal.toggle").setup(config)
-require("sysinit.pkg.ui").setup(config)
 
+require("sysinit.pkg.theme").setup(config)
 require("sysinit.plugins.ui.tabline").setup(config)
+require("sysinit.pkg.ui").setup(config)
 
 return config

@@ -1,5 +1,4 @@
 local wezterm = require("wezterm")
-local theme_config = require("sysinit.theme_config")
 local M = {}
 
 local terminal_font = wezterm.font_with_fallback({
@@ -19,12 +18,7 @@ local function is_vim(pane)
 end
 
 local function get_window_appearance_config()
-	local opacity = theme_config.transparency.enable and theme_config.transparency.opacity or 1.0
-	local blur = theme_config.transparency.enable and 80 or 0
-
 	return {
-		window_background_opacity = opacity,
-		macos_window_background_blur = blur,
 		window_decorations = "RESIZE",
 		window_padding = {
 			left = "1cell",
@@ -39,7 +33,6 @@ local function get_display_config()
 		enable_tab_bar = true,
 		max_fps = 240,
 		animation_fps = 240,
-		color_scheme = theme_config.theme_name,
 		scrollback_lines = 20000,
 		adjust_window_size_when_changing_font_size = false,
 		tab_bar_at_bottom = true,
