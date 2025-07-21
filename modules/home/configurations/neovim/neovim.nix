@@ -76,3 +76,4 @@ in
     run chmod -R u+w "${config.home.homeDirectory}/.local/state/nvim" 2>/dev/null || true
   '';
 }
+
