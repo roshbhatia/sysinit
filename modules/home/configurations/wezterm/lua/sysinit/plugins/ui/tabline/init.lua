@@ -1,5 +1,6 @@
 local wezterm = require("wezterm")
 local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
+local theme_config = require("sysinit.theme_config")
 local M = {}
 
 function M.setup(config)
@@ -54,6 +55,9 @@ function M.setup(config)
 	})
 
 	tabline.apply_to_config(config)
+
+	tabline.set_theme(theme_config.theme_name)
 end
 
 return M
+
