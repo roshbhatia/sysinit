@@ -8,7 +8,7 @@ let
   themes = import ../../../lib/themes { inherit lib; };
   palette = themes.getThemePalette overlay.theme.colorscheme overlay.theme.variant;
   appTheme = themes.getAppTheme "wezterm" overlay.theme.colorscheme overlay.theme.variant;
-  
+
   themeConfig = {
     colorscheme = overlay.theme.colorscheme;
     variant = overlay.theme.variant;
@@ -25,7 +25,7 @@ in
     source = ./lua;
     recursive = true;
   };
-  
+
   # Generate theme configuration for lua to read
   xdg.configFile."wezterm/lua/sysinit/theme_config.lua".text = ''
     -- Auto-generated theme configuration
@@ -37,11 +37,13 @@ in
       enable = ${if themeConfig.transparency.enable then "true" else "false"},
       opacity = ${toString themeConfig.transparency.opacity}
     }
-    
+
     M.theme_name = "${appTheme}"
-    
+
     M.palette = {
-      ${lib.concatStringsSep ",\n      " (lib.mapAttrsToList (name: value: "${name} = \"${value}\"") palette)}
+      ${lib.concatStringsSep ",\n      " (
+        lib.mapAttrsToList (name: value: "${name} = \"${value}\"") palette
+      )}
     }
 
     return M

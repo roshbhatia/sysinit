@@ -9,7 +9,7 @@ let
   themes = import ../../../lib/themes { inherit lib; };
   palette = themes.getThemePalette overlay.theme.colorscheme overlay.theme.variant;
   appTheme = themes.getAppTheme "neovim" overlay.theme.colorscheme overlay.theme.variant;
-  
+
   themeConfig = {
     colorscheme = overlay.theme.colorscheme;
     variant = overlay.theme.variant;
@@ -38,7 +38,7 @@ in
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/assets/frida.png";
   xdg.configFile."nvim/queries".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/queries";
-  
+
   # Generate theme configuration for lua to read
   xdg.configFile."nvim/lua/sysinit/theme_config.lua".text = ''
     -- Auto-generated theme configuration
@@ -50,7 +50,7 @@ in
       enable = ${if themeConfig.transparency.enable then "true" else "false"},
       opacity = ${toString themeConfig.transparency.opacity}
     }
-    
+
     M.plugins = {
       ${themeConfig.colorscheme} = {
         plugin = "${appTheme.plugin}",
@@ -59,9 +59,11 @@ in
         colorscheme = "${appTheme.colorscheme}"
       }
     }
-    
+
     M.palette = {
-      ${lib.concatStringsSep ",\n      " (lib.mapAttrsToList (name: value: "${name} = \"${value}\"") palette)}
+      ${lib.concatStringsSep ",\n      " (
+        lib.mapAttrsToList (name: value: "${name} = \"${value}\"") palette
+      )}
     }
 
     return M

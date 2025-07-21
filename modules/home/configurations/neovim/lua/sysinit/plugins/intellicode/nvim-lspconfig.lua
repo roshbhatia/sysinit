@@ -90,7 +90,7 @@ M.plugins = {
 				},
 			})
 			vim.lsp.inlay_hint.enable(true)
-			
+
 			vim.api.nvim_create_autocmd("LspAttach", {
 				callback = function(args)
 					local client = vim.lsp.get_client_by_id(args.data.client_id)
@@ -115,11 +115,16 @@ M.plugins = {
 				{ "<leader>cs", vim.lsp.buf.document_symbol, desc = "Document symbols" },
 				{ "<leader>cS", vim.lsp.buf.workspace_symbol, desc = "Workspace symbols" },
 				{ "<leader>ci", "<cmd>LspInfo<cr>", desc = "LSP info" },
-				{ "<leader>cI", function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end, desc = "Toggle inlay hints" },
+				{
+					"<leader>cI",
+					function()
+						vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+					end,
+					desc = "Toggle inlay hints",
+				},
 			}
 		end,
 	},
 }
 
 return M
-

@@ -35,7 +35,7 @@ let
         accent_dim = "#494d64";
       };
     };
-    
+
     rose-pine = {
       moon = {
         base = "#232136";
@@ -57,7 +57,7 @@ let
         accent_dim = "#393552";
       };
     };
-    
+
     gruvbox = {
       dark = {
         bg0_h = "#1d2021";
@@ -96,17 +96,17 @@ let
         accent_dim = "#3c3836";
       };
     };
-    
+
     solarized = {
       dark = {
-        base03 = "#002b36";  # background
-        base02 = "#073642";  # background highlights
-        base01 = "#586e75";  # comments / secondary content
-        base00 = "#657b83";  # body text / default code / primary content
-        base0 = "#839496";   # primary content
-        base1 = "#93a1a1";   # optional emphasized content
-        base2 = "#eee8d5";   # background highlights (light theme)
-        base3 = "#fdf6e3";   # background (light theme)
+        base03 = "#002b36"; # background
+        base02 = "#073642"; # background highlights
+        base01 = "#586e75"; # comments / secondary content
+        base00 = "#657b83"; # body text / default code / primary content
+        base0 = "#839496"; # primary content
+        base1 = "#93a1a1"; # optional emphasized content
+        base2 = "#eee8d5"; # background highlights (light theme)
+        base3 = "#fdf6e3"; # background (light theme)
         yellow = "#b58900";
         orange = "#cb4b16";
         red = "#dc322f";
@@ -115,11 +115,11 @@ let
         blue = "#268bd2";
         cyan = "#2aa198";
         green = "#859900";
-        
+
         # Convenience aliases
-        bg = "#002b36";     # base03
+        bg = "#002b36"; # base03
         bg_alt = "#073642"; # base02
-        fg = "#839496";     # base0
+        fg = "#839496"; # base0
         fg_alt = "#657b83"; # base00
         comment = "#586e75"; # base01
         accent = "#268bd2"; # blue
@@ -127,7 +127,7 @@ let
       };
     };
   };
-  
+
   # Application-specific theme configurations
   appThemes = {
     wezterm = {
@@ -144,7 +144,7 @@ let
         dark = "Solarized Dark Higher Contrast (Gogh)";
       };
     };
-    
+
     neovim = {
       catppuccin = {
         plugin = "catppuccin/nvim";
@@ -171,7 +171,7 @@ let
         colorscheme = "solarized-osaka";
       };
     };
-    
+
     delta = {
       catppuccin = {
         macchiato = "catppuccin-macchiato";
@@ -186,7 +186,7 @@ let
         dark = "solarized-dark";
       };
     };
-    
+
     bat = {
       catppuccin = {
         macchiato = "Catppuccin-Macchiato";
@@ -202,19 +202,20 @@ let
       };
     };
   };
-  
+
   # Helper function to get current theme palette
-  getThemePalette = colorscheme: variant:
+  getThemePalette =
+    colorscheme: variant:
     palettes.${colorscheme}.${variant} or (throw "Theme ${colorscheme}:${variant} not found");
-    
+
   # Helper function to get app-specific theme name
-  getAppTheme = app: colorscheme: variant:
+  getAppTheme =
+    app: colorscheme: variant:
     appThemes.${app}.${colorscheme}.${variant} or "${colorscheme}-${variant}";
-    
+
   # Convert hex to ANSI color code
-  hexToAnsi = hex: ansiCode:
-    "38;5;${toString ansiCode}";
-    
+  hexToAnsi = hex: ansiCode: "38;5;${toString ansiCode}";
+
   # ANSI color mappings for EZA (approximate matches)
   ansiMappings = {
     catppuccin = {
@@ -232,46 +233,53 @@ let
     };
     rose-pine = {
       moon = {
-        iris = "183";      # #c4a7e7 -> light magenta
-        foam = "152";      # #9ccfd8 -> cyan
-        pine = "117";      # #3e8fb0 -> blue
-        love = "211";      # #eb6f92 -> light red
-        gold = "216";      # #f6c177 -> orange
-        rose = "216";      # #ea9a97 -> orange
-        overlay = "238";   # #393552 -> dark gray
-        surface = "240";   # #2a273f -> gray
+        iris = "183"; # #c4a7e7 -> light magenta
+        foam = "152"; # #9ccfd8 -> cyan
+        pine = "117"; # #3e8fb0 -> blue
+        love = "211"; # #eb6f92 -> light red
+        gold = "216"; # #f6c177 -> orange
+        rose = "216"; # #ea9a97 -> orange
+        overlay = "238"; # #393552 -> dark gray
+        surface = "240"; # #2a273f -> gray
       };
     };
     solarized = {
       dark = {
-        blue = "33";       # #268bd2
-        cyan = "37";       # #2aa198
-        green = "64";      # #859900
-        yellow = "136";    # #b58900
-        orange = "166";    # #cb4b16
-        red = "160";       # #dc322f
-        magenta = "125";   # #d33682
-        violet = "61";     # #6c71c4
-        base02 = "240";    # #073642
-        base01 = "244";    # #586e75
+        blue = "33"; # #268bd2
+        cyan = "37"; # #2aa198
+        green = "64"; # #859900
+        yellow = "136"; # #b58900
+        orange = "166"; # #cb4b16
+        red = "160"; # #dc322f
+        magenta = "125"; # #d33682
+        violet = "61"; # #6c71c4
+        base02 = "240"; # #073642
+        base01 = "244"; # #586e75
       };
     };
     gruvbox = {
       dark = {
-        blue = "109";      # #83a598 -> blue
-        orange = "208";    # #fe8019 -> orange
-        purple = "175";    # #d3869b -> magenta
-        aqua = "108";      # #8ec07c -> cyan
-        green = "142";     # #b8bb26 -> green
-        yellow = "214";    # #fabd2f -> yellow
-        red = "167";       # #fb4934 -> red
-        bg1 = "237";       # #3c3836 -> dark gray
-        bg2 = "239";       # #504945 -> gray
+        blue = "109"; # #83a598 -> blue
+        orange = "208"; # #fe8019 -> orange
+        purple = "175"; # #d3869b -> magenta
+        aqua = "108"; # #8ec07c -> cyan
+        green = "142"; # #b8bb26 -> green
+        yellow = "214"; # #fabd2f -> yellow
+        red = "167"; # #fb4934 -> red
+        bg1 = "237"; # #3c3836 -> dark gray
+        bg2 = "239"; # #504945 -> gray
       };
     };
   };
 
 in
 {
-  inherit palettes appThemes getThemePalette getAppTheme hexToAnsi ansiMappings;
+  inherit
+    palettes
+    appThemes
+    getThemePalette
+    getAppTheme
+    hexToAnsi
+    ansiMappings
+    ;
 }

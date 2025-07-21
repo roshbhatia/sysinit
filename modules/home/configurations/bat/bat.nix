@@ -40,7 +40,7 @@ in
         force = true;
       };
     })
-    
+
     (lib.mkIf (overlay.theme.colorscheme == "rose-pine") {
       "bat/themes/rose-pine.tmTheme" = {
         source = ./rose-pine.tmTheme;
@@ -55,7 +55,7 @@ in
         force = true;
       };
     })
-    
+
     (lib.mkIf (overlay.theme.colorscheme == "gruvbox") {
       "bat/themes/gruvbox-dark.tmTheme" = {
         source = ./gruvbox-dark.tmTheme;

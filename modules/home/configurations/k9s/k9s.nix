@@ -7,7 +7,7 @@
 let
   themes = import ../../../lib/themes { inherit lib; };
   skinName = overlay.theme.colorscheme;
-  
+
   k9sConfig = {
     k9s = {
       liveViewAutoRefresh = true;
@@ -76,7 +76,7 @@ in
         force = true;
       };
     }
-    
+
     # Include appropriate skin files based on colorscheme
     (lib.mkIf (overlay.theme.colorscheme == "catppuccin") {
       "k9s/skins/catppuccin.yaml" = {
@@ -84,14 +84,14 @@ in
         force = true;
       };
     })
-    
+
     (lib.mkIf (overlay.theme.colorscheme == "rose-pine") {
       "k9s/skins/rose-pine.yaml" = {
         source = ./skins/rose-pine.yaml;
         force = true;
       };
     })
-    
+
     (lib.mkIf (overlay.theme.colorscheme == "gruvbox") {
       "k9s/skins/gruvbox.yaml" = {
         source = ./skins/gruvbox.yaml;

@@ -21,7 +21,7 @@ end
 local function get_window_appearance_config()
 	local opacity = theme_config.transparency.enable and theme_config.transparency.opacity or 1.0
 	local blur = theme_config.transparency.enable and 80 or 0
-	
+
 	return {
 		window_background_opacity = opacity,
 		macos_window_background_blur = blur,

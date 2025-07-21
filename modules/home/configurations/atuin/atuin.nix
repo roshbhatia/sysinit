@@ -50,7 +50,7 @@ in
         force = true;
       };
     })
-    
+
     (lib.mkIf (overlay.theme.colorscheme == "rose-pine") {
       "atuin/themes/rose-pine.toml" = {
         source = ./rose-pine.toml;
@@ -65,7 +65,7 @@ in
         force = true;
       };
     })
-    
+
     (lib.mkIf (overlay.theme.colorscheme == "gruvbox") {
       "atuin/themes/gruvbox-dark.toml" = {
         source = ./gruvbox-dark.toml;
