@@ -67,7 +67,7 @@ M.plugins = {
 						},
 					},
 					file_ignore_patterns = {
-						"%.git",
+						"^%.git$",
 						"%.cache",
 						"%.png",
 						"%.jpg",
@@ -239,3 +239,4 @@ M.plugins = {
 }
 
 return M
+
