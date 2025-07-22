@@ -149,6 +149,13 @@ M.plugins = {
 					end,
 					desc = "Dismiss",
 				},
+				{
+					"<leader>tt",
+					function()
+						Snacks.terminal.toggle("zsh", {})
+					end,
+					desc = "Toggle Terminal",
+				},
 			}
 
 			if vim.env.SYSINIT_DEBUG ~= "1" then
@@ -203,3 +210,4 @@ M.plugins = {
 }
 
 return M
+
