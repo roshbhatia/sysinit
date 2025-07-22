@@ -42,8 +42,12 @@ M.plugins = {
 
 			local custom_servers = {
 				up = {
-					cmd = { "up", "xpls", "serve", "--verbose" },
-					filetypes = { "yaml" },
+					cmd = {
+						"up",
+						"xpls",
+						"serve",
+						"--verbose",
+					},
 					root_dir = function()
 						local fd = vim.fn.system("fd crossplane.yaml")
 						return fd ~= "" and vim.fn.fnamemodify(fd, ":p:h") or vim.fn.getcwd()
@@ -108,8 +112,8 @@ M.plugins = {
 			return {
 				{ "<leader>cr", vim.lsp.buf.rename, desc = "Rename" },
 				{ "<leader>cD", vim.lsp.buf.definition, desc = "Go to definition" },
-				{ "<leader>cn", vim.diagnostic.goto_next, desc = "Next diagnostic" },
-				{ "<leader>cp", vim.diagnostic.goto_prev, desc = "Previous diagnostic" },
+				{ "<leader>cn", vim.diagnostic.get_next, desc = "Next diagnostic" },
+				{ "<leader>cp", vim.diagnostic.get_prev, desc = "Previous diagnostic" },
 				{ "<leader>cA", vim.lsp.codelens.run, desc = "Code lens actions" },
 				{
 					"<leader>ch",
@@ -141,3 +145,4 @@ M.plugins = {
 }
 
 return M
+
