@@ -152,7 +152,12 @@ M.plugins = {
 				{
 					"<leader>tt",
 					function()
-						Snacks.terminal.toggle("zsh", {})
+						Snacks.terminal.toggle(nil, {
+							win = {
+								position = "float",
+								border = "rounded",
+							},
+						})
 					end,
 					desc = "Toggle Terminal",
 				},
