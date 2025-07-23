@@ -64,9 +64,10 @@ local function setup_nvim_ui_overrides()
 		local overrides = window:get_config_overrides() or {}
 		if should_switch then
 			overrides.window_padding = {
-				left = 0,
+				left = 1,
 				right = 0,
 				top = 0,
+				bottom = 0,
 			}
 			overrides.enable_tab_bar = false
 		else
@@ -96,3 +97,4 @@ function M.setup(config)
 end
 
 return M
+

@@ -51,6 +51,12 @@ function M.setup()
 					vim.api.nvim_set_option_value("number", false, { win = win })
 					vim.api.nvim_set_option_value("relativenumber", false, { win = win })
 				end)
+			else
+				-- Ensure normal buffers have line numbers enabled
+				pcall(function()
+					vim.api.nvim_set_option_value("number", true, { win = win })
+					vim.api.nvim_set_option_value("relativenumber", true, { win = win })
+				end)
 			end
 		end,
 	})
@@ -64,7 +70,7 @@ function M.setup()
 				local buf = vim.api.nvim_win_get_buf(win)
 				local ft = vim.api.nvim_get_option_value("filetype", { buf = buf })
 				local config = vim.api.nvim_win_get_config(win)
-				
+
 				if ft == "oil" or config.relative ~= "" then
 					pcall(function()
 						vim.api.nvim_set_option_value("foldcolumn", "0", { win = win })
