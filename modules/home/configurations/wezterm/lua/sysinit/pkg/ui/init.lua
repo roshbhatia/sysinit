@@ -65,7 +65,7 @@ local function setup_nvim_ui_overrides()
 		if should_switch then
 			overrides.window_padding = {
 				left = 1,
-				right = 0,
+				right = 1,
 				top = 0,
 				bottom = 0,
 			}

@@ -140,7 +140,6 @@ M.plugins = {
 				group = augroup,
 				pattern = "Avante",
 				callback = function()
-					vim.opt_local.foldcolumn = "0"
 					vim.opt_local.foldtext = ""
 					vim.opt_local.foldmethod = "manual"
 				end,
