@@ -135,7 +135,7 @@ let
         macchiato = "catppuccin-macchiato";
       };
       rose-pine = {
-        moon = "Rosé Pine Moon (Gogh)";
+        moon = "Rosé Pine (Gogh)";
       };
       gruvbox = {
         dark = "Gruvbox dark, hard (base16)";
@@ -298,3 +298,4 @@ in
     ansiMappings
     ;
 }
+

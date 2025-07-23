@@ -3,7 +3,7 @@ local M = {}
 
 local terminal_font = wezterm.font_with_fallback({
 	{
-		family = "JetBrains Mono",
+		family = "Fira Code",
 		weight = "Regular",
 		harfbuzz_features = {
 			"calt",
@@ -63,8 +63,6 @@ local function setup_nvim_ui_overrides()
 		local should_switch = is_vim(pane)
 		local overrides = window:get_config_overrides() or {}
 		if should_switch then
-			-- Use nil to inherit the theme-configured opacity instead of hardcoding
-			overrides.window_background_opacity = nil
 			overrides.window_padding = {
 				left = 0,
 				right = 0,
@@ -72,7 +70,6 @@ local function setup_nvim_ui_overrides()
 			}
 			overrides.enable_tab_bar = false
 		else
-			overrides.window_background_opacity = nil
 			overrides.window_padding = nil
 			overrides.enable_tab_bar = nil
 		end
@@ -99,3 +96,4 @@ function M.setup(config)
 end
 
 return M
+
