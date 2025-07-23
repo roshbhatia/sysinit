@@ -187,7 +187,11 @@ M.plugins = {
 				{
 					"<leader>bb",
 					function()
-						require("telescope.builtin").buffers({ sort_mru = true, show_all_buffers = true })
+						require("telescope.builtin").buffers({
+							sort_mru = true,
+							ignore_current_buffer = false,
+							only_cwd = false,
+						})
 					end,
 					desc = "Buffers",
 				},
@@ -239,3 +243,4 @@ M.plugins = {
 }
 
 return M
+
