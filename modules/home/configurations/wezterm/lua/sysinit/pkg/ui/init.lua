@@ -63,7 +63,8 @@ local function setup_nvim_ui_overrides()
 		local should_switch = is_vim(pane)
 		local overrides = window:get_config_overrides() or {}
 		if should_switch then
-			overrides.window_background_opacity = 0.9475
+			-- Use nil to inherit the theme-configured opacity instead of hardcoding
+			overrides.window_background_opacity = nil
 			overrides.window_padding = {
 				left = 0,
 				right = 0,
