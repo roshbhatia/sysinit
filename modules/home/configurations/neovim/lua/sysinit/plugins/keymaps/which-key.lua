@@ -90,6 +90,10 @@ M.plugins = {
 					"<leader>n",
 					group = "Notifications",
 				},
+				{
+					"<leader>t",
+					group = "Terminal",
+				},
 			})
 
 			if nvim_config.copilot.enabled then
@@ -126,3 +130,4 @@ M.plugins = {
 }
 
 return M
+

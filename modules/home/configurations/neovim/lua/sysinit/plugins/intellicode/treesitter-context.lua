@@ -7,7 +7,9 @@ M.plugins = {
 			"nvim-treesitter/nvim-treesitter",
 		},
 		config = function()
-			require("treesitter-context").setup()
+			require("treesitter-context").setup({
+				mutliwindow = true,
+			})
 
 			vim.cmd("TSContext enable")
 		end,
@@ -15,3 +17,4 @@ M.plugins = {
 }
 
 return M
+
