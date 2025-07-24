@@ -59,7 +59,12 @@ M.plugins = {
 					expand_null_ls = false,
 					true_colors = true,
 					line_column = ":%c [%l/%L]",
-					lsp_client_symbol = "",
+					lsp_symbols = {
+						Error = "󰅙 ",
+						Info = "󰋼 ",
+						Warn = "󰀨 ",
+						Hint = " ",
+					},
 					lsp_client_character_length = 40,
 					file_size_suffix = true,
 					branch_symbol = " ",
@@ -73,3 +78,4 @@ M.plugins = {
 }
 
 return M
+
