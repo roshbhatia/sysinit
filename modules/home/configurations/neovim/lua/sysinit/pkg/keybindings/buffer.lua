@@ -66,7 +66,7 @@ function M.setup()
 	vim.keymap.set("n", "<leader>bc", function()
 		local current = vim.api.nvim_get_current_buf()
 		local buffers = vim.api.nvim_list_bufs()
-		
+
 		for _, buf in ipairs(buffers) do
 			if buf ~= current and vim.api.nvim_buf_is_loaded(buf) then
 				local name = vim.api.nvim_buf_get_name(buf)
@@ -75,7 +75,7 @@ function M.setup()
 				end
 			end
 		end
-		
+
 		vim.cmd("silent SessionSave")
 	end, {
 		noremap = true,
