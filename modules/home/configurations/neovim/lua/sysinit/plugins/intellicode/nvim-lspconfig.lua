@@ -46,7 +46,6 @@ M.plugins = {
 						"up",
 						"xpls",
 						"serve",
-						"--verbose",
 					},
 					root_dir = function()
 						local fd = vim.fn.system("fd crossplane.yaml")
