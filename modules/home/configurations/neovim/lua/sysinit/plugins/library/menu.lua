@@ -7,10 +7,9 @@ M.plugins = {
 		dependencies = {
 			"nvzone/volt",
 		},
-		config = function()
-			-- You can add global config here if needed
-		end,
+		opts = {},
 	},
 }
 
 return M
+
