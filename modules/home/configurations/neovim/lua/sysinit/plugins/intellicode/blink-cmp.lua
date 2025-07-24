@@ -17,7 +17,7 @@ M.plugins = {
 	{
 		"saghen/blink.cmp",
 		dependencies = deps,
-		version = "v1.*",
+		branch = "main",
 		lazy = false,
 		opts = function()
 			local providers = {
@@ -204,3 +204,4 @@ M.plugins = {
 }
 
 return M
+
