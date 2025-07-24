@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"nvimtools/none-ls.nvim",
-		event = "LSPAttach",
+		event = "VeryLazy",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			"nvim-treesitter/nvim-treesitter",
@@ -31,16 +31,8 @@ M.plugins = {
 					null_ls.builtins.diagnostics.staticcheck,
 					null_ls.builtins.diagnostics.terraform_validate,
 					null_ls.builtins.diagnostics.tfsec,
-					null_ls.builtins.diagnostics.yamllint.with({
-						args = {
-							"-d",
-							'{"rules": {"line-length": "disable", "document-start": "disable", "comments": "disable"}}',
-							"--format",
-							"parsable",
-							"-",
-						},
-					}),
 					null_ls.builtins.diagnostics.zsh,
+					null_ls.builtins.formatting.shfmt,
 					null_ls.builtins.hover.dictionary,
 					null_ls.builtins.hover.printenv,
 				},
@@ -331,84 +323,9 @@ M.plugins = {
 					end,
 				},
 			})
-
-			-- Helm template actions
-			null_ls.register({
-				name = "helm_tools",
-				method = null_ls.methods.CODE_ACTION,
-				filetypes = { "yaml", "yml" },
-				generator = {
-					fn = function(context)
-						local actions = {}
-						local bufname = vim.api.nvim_buf_get_name(context.bufnr)
-
-						-- Check if we're in a Helm chart directory
-						if
-							bufname:match("templates/")
-							or bufname:match("Chart.yaml")
-							or bufname:match("values.yaml")
-						then
-							table.insert(actions, {
-								title = "Helm template dry-run",
-								action = function()
-									vim.cmd("!helm template . --dry-run")
-								end,
-							})
-
-							table.insert(actions, {
-								title = "Helm lint chart",
-								action = function()
-									vim.cmd("!helm lint .")
-								end,
-							})
-
-							table.insert(actions, {
-								title = "Helm template debug",
-								action = function()
-									vim.cmd("!helm template . --debug")
-								end,
-							})
-						end
-
-						return actions
-					end,
-				},
-			})
-
-			-- Kustomize actions
-			null_ls.register({
-				name = "kustomize_tools",
-				method = null_ls.methods.CODE_ACTION,
-				filetypes = { "yaml", "yml" },
-				generator = {
-					fn = function(context)
-						local actions = {}
-						local bufname = vim.api.nvim_buf_get_name(context.bufnr)
-
-						-- Check if we're in a directory with kustomization.yaml
-						if bufname:match("kustomization.yaml") or vim.fn.filereadable("kustomization.yaml") == 1 then
-							table.insert(actions, {
-								title = "Kustomize build",
-								action = function()
-									vim.cmd("!kustomize build .")
-								end,
-							})
-
-							table.insert(actions, {
-								title = "Kustomize build to file",
-								action = function()
-									vim.cmd("!kustomize build . > output.yaml")
-									vim.notify("Kustomize build saved to output.yaml")
-								end,
-							})
-						end
-
-						return actions
-					end,
-				},
-			})
 		end,
 	},
 }
 
 return M
+
