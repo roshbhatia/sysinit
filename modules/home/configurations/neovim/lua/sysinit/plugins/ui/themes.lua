@@ -186,37 +186,19 @@ local function get_rose_pine_config()
 		theme = "roseprime",
 		transparent = transparency.transparent_background,
 		term_colors = true,
-		colored_docstrings = true,
-		colored_brackets = true,
-		plain_float = false,
-		show_eob = not transparency.transparent_background,
-		cursorline_gutter = true,
-		diagnostics = {
-			darker = true,
-			undercurl = true,
-			background = true,
-		},
+		alt_bg = true,
+		show_eob = false,
+		favor_treesitter_hl = true,
 		code_style = {
-			comments = "italic",
+			comments = "none",
 			conditionals = "none",
 			functions = "bold",
-			keywords = "italic",
-			headings = "bold",
+			keywords = "bold",
+			headings = "italic",
 			operators = "none",
-			keyword_return = "none",
-			strings = "none",
+			keyword_return = "bold",
+			strings = "italic",
 			variables = "none",
-		},
-		plugin = {
-			lualine = {
-				bold = true,
-				plain = false,
-			},
-			cmp = {
-				plain = false,
-				reverse = false,
-			},
-			telescope = "bordered",
 		},
 		highlights = transparency.transparent_background
 				and {
@@ -249,6 +231,13 @@ local function get_rose_pine_config()
 					DropBarMenuNormalFloat = { bg = "none" },
 					DropBarCurrentContext = { bg = "none" },
 					DropBarMenuFloatBorder = { bg = "none", fg = "muted" },
+					-- Diagnostic background colors
+					DiagnosticVirtualTextError = { bg = "none" },
+					DiagnosticVirtualTextWarn = { bg = "none" },
+					DiagnosticVirtualTextInfo = { bg = "none" },
+					DiagnosticVirtualTextHint = { bg = "none" },
+					-- Float fixes
+					FloatTitle = { bg = "none" },
 				}
 			or {},
 	}
@@ -281,3 +270,4 @@ M.plugins = {
 }
 
 return M
+
