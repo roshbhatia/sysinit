@@ -6,6 +6,7 @@ M.plugins = {
 		dependencies = {
 			"mfussenegger/nvim-dap",
 		},
+		ft = { "go" },
 		config = function()
 			require("dap-go").setup()
 		end,
@@ -13,3 +14,4 @@ M.plugins = {
 }
 
 return M
+

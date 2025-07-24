@@ -7,7 +7,6 @@ M.plugins = {
 			"nvim-neotest/nvim-nio",
 			"mfussenegger/nvim-dap",
 		},
-		lazy = true,
 		config = function()
 			local dap = require("dap")
 			local dapui = require("dapui")
@@ -48,3 +47,4 @@ M.plugins = {
 }
 
 return M
+

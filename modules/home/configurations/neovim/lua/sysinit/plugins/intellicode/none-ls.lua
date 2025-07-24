@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
 	{
 		"nvimtools/none-ls.nvim",
-		event = "VeryLazy",
+		event = "LSPAttach",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			"nvim-treesitter/nvim-treesitter",
@@ -329,3 +329,4 @@ M.plugins = {
 }
 
 return M
+

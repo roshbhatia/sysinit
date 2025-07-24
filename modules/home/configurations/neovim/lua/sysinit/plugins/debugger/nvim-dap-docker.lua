@@ -6,6 +6,7 @@ M.plugins = {
 		dependencies = {
 			"mfussenegger/nvim-dap",
 		},
+		ft = { "dockerfile" },
 		config = function()
 			require("dap-docker").setup()
 		end,
@@ -13,3 +14,4 @@ M.plugins = {
 }
 
 return M
+

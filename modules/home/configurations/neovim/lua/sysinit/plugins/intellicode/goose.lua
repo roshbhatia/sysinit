@@ -9,7 +9,7 @@ M.plugins = {
 			"nvim-lua/plenary.nvim",
 			"MeanderingProgrammer/render-markdown.nvim",
 		},
-		event = "VeryLazy",
+		lazy = true,
 		config = function()
 			require("goose").setup({
 				providers = nvim_config.goose.providers,
@@ -53,3 +53,4 @@ M.plugins = {
 }
 
 return M
+
