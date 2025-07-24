@@ -3,7 +3,8 @@
     "allow": [
       "Bash(git push:*)",
       "Bash(find:*)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(nvim:*)"
     ],
     "deny": []
   }

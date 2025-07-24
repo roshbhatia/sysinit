@@ -234,6 +234,20 @@ local function get_rose_pine_config()
 			StatusLine = { bg = "none" },
 			StatusLineNC = { bg = "none" },
 			WinSeparator = { bg = "none" },
+			-- Fix WinBar transparency issues
+			WinBar = { bg = "none", fg = "subtle" },
+			WinBarNC = { bg = "none", fg = "muted" },
+			-- Fix NeoTree transparency issues
+			NeoTreeNormal = { bg = "none" },
+			NeoTreeNormalNC = { bg = "none" },
+			NeoTreeWinSeparator = { bg = "none", fg = "muted" },
+			NeoTreeVertSplit = { bg = "none", fg = "muted" },
+			NeoTreeEndOfBuffer = { bg = "none", fg = "none" },
+			-- Fix DropBar transparency issues
+			DropBarIconKindDefaultNC = { bg = "none" },
+			DropBarMenuNormalFloat = { bg = "none" },
+			DropBarCurrentContext = { bg = "none" },
+			DropBarMenuFloatBorder = { bg = "none", fg = "muted" },
 		} or {},
 	}
 end
