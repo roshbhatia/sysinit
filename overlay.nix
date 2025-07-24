@@ -38,11 +38,11 @@
   };
 
   theme = {
-    colorscheme = "neomodern"; # "catppuccin", "rose-pine", "gruvbox", "solarized", "neomodern"
-    variant = "roseprime"; # catppuccin: "macchiato"; rose-pine: "moon"; gruvbox: "dark"; solarized: "dark"; neomodern: "roseprime"
+    colorscheme = "rose-pine"; # "catppuccin", "rose-pine", "gruvbox", "solarized",
+    variant = "moon"; # catppuccin: "macchiato"; rose-pine: "moon"; gruvbox: "dark"; solarized: "dark";
     transparency = {
       enable = true;
-      opacity = 0.75;
+      opacity = 0.70;
     };
   };
 }

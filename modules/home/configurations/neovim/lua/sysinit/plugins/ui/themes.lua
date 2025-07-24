@@ -125,31 +125,6 @@ local function get_catppuccin_config()
 	}
 end
 
-local function get_rose_pine_config()
-	local transparency = get_transparency_config()
-
-	return {
-		variant = theme_config.variant,
-		bold_vert_split = false,
-		dim_nc_background = false,
-		highlight_groups = {
-			ColorColumn = { bg = "rose" },
-			CursorLine = { bg = "foam", blend = 10 },
-			StatusLine = { fg = "love", bg = "love", blend = 10 },
-			Search = { bg = "gold", inherit = false },
-			DiagnosticVirtualTextError = { fg = "love" },
-			DiagnosticVirtualTextWarn = { fg = "gold" },
-			DiagnosticVirtualTextInfo = { fg = "foam" },
-			DiagnosticVirtualTextHint = { fg = "iris" },
-		},
-		styles = {
-			bold = true,
-			italic = true,
-			transparency = transparency.transparent_background,
-		},
-	}
-end
-
 local function get_gruvbox_config()
 	local transparency = get_transparency_config()
 
@@ -204,7 +179,7 @@ local function get_solarized_config()
 	}
 end
 
-local function get_neomodern_config()
+local function get_rose_pine_config()
 	local transparency = get_transparency_config()
 
 	return {
@@ -269,13 +244,11 @@ local function setup_theme()
 	if theme_config.colorscheme == "catppuccin" then
 		require("catppuccin").setup(get_catppuccin_config())
 	elseif theme_config.colorscheme == "rose-pine" then
-		require("rose-pine").setup(get_rose_pine_config())
+		require("neomodern").setup(get_rose_pine_config())
 	elseif theme_config.colorscheme == "gruvbox" then
 		require("gruvbox").setup(get_gruvbox_config())
 	elseif theme_config.colorscheme == "solarized" then
 		require("solarized-osaka").setup(get_solarized_config())
-	elseif theme_config.colorscheme == "neomodern" then
-		require("neomodern").setup(get_neomodern_config())
 	end
 
 	vim.cmd("colorscheme " .. plugin_config.colorscheme)
