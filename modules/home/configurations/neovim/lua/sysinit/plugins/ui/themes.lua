@@ -204,6 +204,65 @@ local function get_solarized_config()
 	}
 end
 
+local function get_neomodern_config()
+	local transparency = get_transparency_config()
+
+	return {
+		theme = "roseprime",
+		transparent = transparency.transparent_background,
+		term_colors = true,
+		colored_docstrings = true,
+		colored_brackets = true,
+		plain_float = false,
+		show_eob = not transparency.transparent_background,
+		cursorline_gutter = true,
+		diagnostics = {
+			darker = true,
+			undercurl = true,
+			background = true,
+		},
+		code_style = {
+			comments = "italic",
+			conditionals = "none",
+			functions = "bold",
+			keywords = "italic",
+			headings = "bold",
+			operators = "none",
+			keyword_return = "none",
+			strings = "none",
+			variables = "none",
+		},
+		plugin = {
+			lualine = {
+				bold = true,
+				plain = false,
+			},
+			cmp = {
+				plain = false,
+				reverse = false,
+			},
+			telescope = "bordered",
+		},
+		highlights = transparency.transparent_background and {
+			Normal = { bg = "none" },
+			NormalNC = { bg = "none" },
+			NormalFloat = { bg = "none" },
+			FloatBorder = { bg = "none" },
+			Pmenu = { bg = "none" },
+			PmenuBorder = { bg = "none" },
+			TelescopeNormal = { bg = "none" },
+			TelescopeBorder = { bg = "none" },
+			WhichKeyFloat = { bg = "none" },
+			WhichKeyBorder = { bg = "none" },
+			SignColumn = { bg = "none" },
+			CursorLine = { bg = "none" },
+			StatusLine = { bg = "none" },
+			StatusLineNC = { bg = "none" },
+			WinSeparator = { bg = "none" },
+		} or {},
+	}
+end
+
 local function setup_theme()
 	local plugin_config = theme_config.plugins[theme_config.colorscheme]
 
@@ -215,6 +274,8 @@ local function setup_theme()
 		require("gruvbox").setup(get_gruvbox_config())
 	elseif theme_config.colorscheme == "solarized" then
 		require("solarized-osaka").setup(get_solarized_config())
+	elseif theme_config.colorscheme == "neomodern" then
+		require("neomodern").setup(get_neomodern_config())
 	end
 
 	vim.cmd("colorscheme " .. plugin_config.colorscheme)

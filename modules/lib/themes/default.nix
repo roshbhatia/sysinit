@@ -126,6 +126,30 @@ let
         accent_dim = "#073642"; # base02
       };
     };
+
+    neomodern = {
+      roseprime = {
+        bg = "#121315";
+        fg = "#adadcc";
+        comment = "#666a82";
+        selection = "#2a2d3a";
+        keyword = "#f79c95";
+        function_name = "#f79c95";
+        string = "#7fb3aa";
+        number = "#d4c481";
+        boolean = "#d4c481";
+        type = "#c9a7e7";
+        constant = "#c9a7e7";
+        variable = "#adadcc";
+        operator = "#adadcc";
+        error = "#f87171";
+        warning = "#facc15";
+        info = "#60a5fa";
+        hint = "#34d399";
+        accent = "#c9a7e7";
+        accent_dim = "#2a2d3a";
+      };
+    };
   };
 
   # Application-specific theme configurations
@@ -169,6 +193,12 @@ let
         name = "solarized-osaka";
         setup = "solarized-osaka";
         colorscheme = "solarized-osaka";
+      };
+      neomodern = {
+        plugin = "cdmill/neomodern.nvim";
+        name = "neomodern";
+        setup = "neomodern";
+        colorscheme = "roseprime";
       };
     };
 
