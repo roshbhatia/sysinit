@@ -10,8 +10,6 @@ M.plugins = {
 		ft = {
 			"Avante",
 			"markdown",
-			"codecompanion",
-			"opencode_output",
 		},
 		config = function()
 			require("render-markdown").setup({
@@ -51,8 +49,6 @@ M.plugins = {
 				file_types = {
 					"Avante",
 					"markdown",
-					"codecompanion",
-					"opencode_output",
 				},
 				sign = {
 					enabled = false,
@@ -63,3 +59,4 @@ M.plugins = {
 }
 
 return M
+

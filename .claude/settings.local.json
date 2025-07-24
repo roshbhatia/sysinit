@@ -4,7 +4,8 @@
       "Bash(git push:*)",
       "Bash(find:*)",
       "WebFetch(domain:github.com)",
-      "Bash(nvim:*)"
+      "Bash(nvim:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }

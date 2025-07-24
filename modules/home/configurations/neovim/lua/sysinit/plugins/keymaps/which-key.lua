@@ -104,15 +104,11 @@ M.plugins = {
 					},
 					{
 						"<leader>j",
-						group = "Copilot - Goose",
+						group = "Copilot - OpenCode",
 					},
 					{
 						"<leader>k",
-						group = "Copilot - Code Companion",
-					},
-					{
-						"<leader>l",
-						group = "Copilot - OpenCode",
+						group = "Copilot - Goose",
 					},
 				})
 			end
@@ -130,3 +126,4 @@ M.plugins = {
 }
 
 return M
+

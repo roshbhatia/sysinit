@@ -27,14 +27,20 @@ M.plugins = {
 		end,
 		keys = {
 			{
-				"<leader>ll",
+				"<leader>jj",
 				function()
-					require("opencode").toggle()
+					require('snacks.terminal').toggle('opencode', { 
+						win = { 
+							position = 'right',
+							title = "",
+							title_pos = "center",
+						} 
+					})
 				end,
 				desc = "Toggle opencode",
 			},
 			{
-				"<leader>la",
+				"<leader>ja",
 				function()
 					require("opencode").ask()
 				end,
@@ -42,7 +48,7 @@ M.plugins = {
 				mode = { "n", "v" },
 			},
 			{
-				"<leader>lA",
+				"<leader>jA",
 				function()
 					require("opencode").ask("@file ")
 				end,
@@ -50,35 +56,35 @@ M.plugins = {
 				mode = { "n", "v" },
 			},
 			{
-				"<leader>lL",
+				"<leader>jJ",
 				function()
 					require("opencode").command("/new")
 				end,
 				desc = "New session",
 			},
 			{
-				"<leader>le",
+				"<leader>je",
 				function()
 					require("opencode").prompt("Explain @cursor and its context")
 				end,
 				desc = "Explain code near cursor",
 			},
 			{
-				"<leader>lr",
+				"<leader>jr",
 				function()
 					require("opencode").prompt("Review @file for correctness and readability")
 				end,
 				desc = "Review file",
 			},
 			{
-				"<leader>lf",
+				"<leader>jf",
 				function()
 					require("opencode").prompt("Fix these @diagnostics")
 				end,
 				desc = "Fix errors",
 			},
 			{
-				"<leader>lo",
+				"<leader>jo",
 				function()
 					require("opencode").prompt("Optimize @selection for performance and readability")
 				end,
@@ -86,7 +92,7 @@ M.plugins = {
 				mode = "v",
 			},
 			{
-				"<leader>ld",
+				"<leader>jd",
 				function()
 					require("opencode").prompt("Add documentation comments for @selection")
 				end,
@@ -94,7 +100,7 @@ M.plugins = {
 				mode = "v",
 			},
 			{
-				"<leader>lT",
+				"<leader>jt",
 				function()
 					require("opencode").prompt("Add tests for @selection")
 				end,

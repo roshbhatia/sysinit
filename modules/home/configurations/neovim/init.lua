@@ -59,7 +59,6 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.git.signs"),
 	require("sysinit.plugins.intellicode.avante"),
 	require("sysinit.plugins.intellicode.blink-cmp"),
-	require("sysinit.plugins.intellicode.codecompanion"),
 	require("sysinit.plugins.intellicode.cmp-copilot"),
 	require("sysinit.plugins.intellicode.copilot-chat"),
 	require("sysinit.plugins.intellicode.copilot"),

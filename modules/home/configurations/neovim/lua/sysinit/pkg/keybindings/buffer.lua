@@ -17,7 +17,7 @@ function M.setup()
 	end, {
 		noremap = true,
 		silent = true,
-		desc = "Write and close buffer",
+		desc = "Save and close current buffer",
 	})
 
 	vim.keymap.set("n", "<leader>s", function()
@@ -26,7 +26,7 @@ function M.setup()
 	end, {
 		noremap = true,
 		silent = true,
-		desc = "Write",
+		desc = "Save current buffer",
 	})
 
 	vim.keymap.set("n", "<localleader>s", function()
@@ -34,7 +34,7 @@ function M.setup()
 	end, {
 		noremap = true,
 		silent = true,
-		desc = "Write (no format)",
+		desc = "Save without formatting",
 	})
 
 	vim.keymap.set("n", "<leader>bn", function()

@@ -1,14 +1,16 @@
 local M = {}
 
 function M.setup()
-	vim.api.nvim_set_keymap("n", "m", "<Nop>", {
+	vim.keymap.set("n", "m", "<Nop>", {
 		noremap = true,
 		silent = true,
+		desc = "Disabled mark functionality",
 	})
 
-	vim.api.nvim_set_keymap("v", "m", "<Nop>", {
+	vim.keymap.set("v", "m", "<Nop>", {
 		noremap = true,
 		silent = true,
+		desc = "Disabled mark functionality",
 	})
 end
 

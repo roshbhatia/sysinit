@@ -98,6 +98,10 @@ M.plugins = {
 				},
 				terminal = {
 					enabled = true,
+					win = {
+						title = "",
+						title_pos = "center",
+					},
 				},
 				scope = {
 					enabled = false,
@@ -156,10 +160,33 @@ M.plugins = {
 							win = {
 								position = "float",
 								border = "rounded",
+								title = "",
+								title_pos = "center",
 							},
 						})
 					end,
 					desc = "Toggle Terminal",
+				},
+				{
+					"<Esc><Esc>",
+					"<C-\\><C-n>",
+					mode = "t",
+					desc = "Enter normal mode in terminal",
+				},
+				{
+					"<leader>tt",
+					function()
+						Snacks.terminal.toggle(nil, {
+							win = {
+								position = "float",
+								border = "rounded",
+								title = "",
+								title_pos = "center",
+							},
+						})
+					end,
+					mode = "t",
+					desc = "Toggle Terminal from terminal mode",
 				},
 			}
 

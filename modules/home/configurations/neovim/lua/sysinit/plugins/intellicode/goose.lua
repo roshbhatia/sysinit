@@ -15,23 +15,23 @@ M.plugins = {
 				providers = nvim_config.goose.providers,
 				keymap = {
 					global = {
-						toggle = "<leader>jj", -- Open goose. Close if opened
-						open_input = "<leader>ji", -- Opens and focuses on input window on insert mode
-						open_input_new_session = "<leader>jJ", -- Opens and focuses on input window on insert mode. Creates a new session
-						open_output = "<leader>jo", -- Opens and focuses on output window
-						toggle_focus = "<leader>jt", -- Toggle focus between goose and last window
-						close = "<leader>jq", -- Close UI windows
-						toggle_fullscreen = "<leader>jf", -- Toggle between normal and fullscreen mode
-						select_session = "<leader>js", -- Select and load a goose session
-						goose_mode_chat = "<leader>jmc", -- Set goose mode to `chat`. (Tool calling disabled. No editor context besides selections)
-						goose_mode_auto = "<leader>jma", -- Set goose mode to `auto`. (Default mode with full agent capabilities)
-						configure_provider = "<leader>jp", -- Quick provider and model switch from predefined list
-						diff_open = "<leader>jd", -- Opens a diff tab of a modified file since the last goose prompt
-						diff_next = "<leader>j]", -- Navigate to next file diff
-						diff_prev = "<leader>j[", -- Navigate to previous file diff
-						diff_close = "<leader>jc", -- Close diff view tab and return to normal editing
-						diff_revert_all = "<leader>jra", -- Revert all file changes since the last goose prompt
-						diff_revert_this = "<leader>jrt", -- Revert current file changes since the last goose prompt
+						toggle = "<leader>kk", -- Open goose. Close if opened
+						open_input = "<leader>ki", -- Opens and focuses on input window on insert mode
+						open_input_new_session = "<leader>kK", -- Opens and focuses on input window on insert mode. Creates a new session
+						open_output = "<leader>ko", -- Opens and focuses on output window
+						toggle_focus = "<leader>kt", -- Toggle focus between goose and last window
+						close = "<leader>kq", -- Close UI windows
+						toggle_fullscreen = "<leader>kf", -- Toggle between normal and fullscreen mode
+						select_session = "<leader>ks", -- Select and load a goose session
+						goose_mode_chat = "<leader>kmc", -- Set goose mode to `chat`. (Tool calling disabled. No editor context besides selections)
+						goose_mode_auto = "<leader>kma", -- Set goose mode to `auto`. (Default mode with full agent capabilities)
+						configure_provider = "<leader>kp", -- Quick provider and model switch from predefined list
+						diff_open = "<leader>kd", -- Opens a diff tab of a modified file since the last goose prompt
+						diff_next = "<leader>k]", -- Navigate to next file diff
+						diff_prev = "<leader>k[", -- Navigate to previous file diff
+						diff_close = "<leader>kc", -- Close diff view tab and return to normal editing
+						diff_revert_all = "<leader>kra", -- Revert all file changes since the last goose prompt
+						diff_revert_this = "<leader>krt", -- Revert current file changes since the last goose prompt
 					},
 					window = {
 						submit = "<CR>", -- Submit prompt (normal mode)
@@ -53,3 +53,4 @@ M.plugins = {
 }
 
 return M
+

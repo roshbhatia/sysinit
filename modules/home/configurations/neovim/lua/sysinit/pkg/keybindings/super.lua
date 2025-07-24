@@ -4,7 +4,7 @@ function M.setup()
 	vim.keymap.set("n", "<localleader>r", "<CMD>edit!<CR>", {
 		noremap = true,
 		silent = true,
-		desc = "Refresh",
+		desc = "Reload current file",
 	})
 end
 
