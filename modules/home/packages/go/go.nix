@@ -1,6 +1,6 @@
 {
   lib,
-  overlay,
+  values,
   ...
 }:
 
@@ -28,7 +28,7 @@ in
       "github.com/twpayne/go-jsonstruct/v3/cmd/gojsonstruct@latest"
       "mvdan.cc/gofumpt@latest"
     ];
-    additionalPackages = (overlay.go.additionalPackages or [ ]);
+    additionalPackages = (values.go.additionalPackages or [ ]);
     executableArguments = [ "install" ];
     executableName = "go";
   };

@@ -1,12 +1,12 @@
 {
   lib,
-  overlay,
+  values,
   ...
 }:
 {
   imports = [
     (import ./atuin.nix {
-      inherit lib overlay;
+      inherit lib values;
     })
   ];
 }

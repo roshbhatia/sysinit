@@ -1,4 +1,4 @@
-{ overlay, ... }:
+{ values, ... }:
 {
-  networking.hostName = overlay.user.hostname;
+  networking.hostName = values.user.hostname;
 }

@@ -1,10 +1,10 @@
 {
   pkgs,
-  overlay,
+  values,
   ...
 }:
 let
-  additionalPackages = (overlay.nix.packages or [ ]);
+  additionalPackages = (values.nix.packages or [ ]);
 
   baseNixPackages = with pkgs; [
     _1password-cli

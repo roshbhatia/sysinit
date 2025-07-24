@@ -1,6 +1,6 @@
 {
   lib,
-  overlay,
+  values,
   ...
 }:
 
@@ -9,13 +9,13 @@
     (import ./npm.nix {
       inherit
         lib
-        overlay
+        values
         ;
     })
     (import ./yarn.nix {
       inherit
         lib
-        overlay
+        values
         ;
     })
   ];

@@ -1,6 +1,6 @@
 {
   lib,
-  overlay,
+  values,
   ...
 }:
 
@@ -24,7 +24,7 @@ in
       "markdownlint-cli2"
       "mcp-hub@latest"
     ];
-    additionalPackages = (overlay.yarn.additionalPackages or [ ]);
+    additionalPackages = (values.yarn.additionalPackages or [ ]);
     executableArguments = [
       "global"
       "add"

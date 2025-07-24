@@ -1,6 +1,6 @@
 {
   lib,
-  overlay,
+  values,
   ...
 }:
 
@@ -9,13 +9,13 @@
     (import ./pipx.nix {
       inherit
         lib
-        overlay
+        values
         ;
     })
     (import ./uvx.nix {
       inherit
         lib
-        overlay
+        values
         ;
     })
   ];

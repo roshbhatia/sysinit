@@ -1,6 +1,6 @@
 {
   lib,
-  overlay,
+  values,
   ...
 }:
 
@@ -9,7 +9,7 @@
     (import ./cargo.nix {
       inherit
         lib
-        overlay
+        values
         ;
     })
   ];

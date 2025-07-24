@@ -1,13 +1,13 @@
 {
   config,
-  overlay,
+  values,
   pkgs,
   ...
 }:
 {
   imports = [
     (import ./nixpkgs.nix {
-      inherit config overlay pkgs;
+      inherit config values pkgs;
     })
   ];
 }

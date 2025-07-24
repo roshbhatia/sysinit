@@ -1,6 +1,6 @@
 {
   lib,
-  overlay,
+  values,
   ...
 }:
 
@@ -11,7 +11,7 @@ in
   home.activation.pipxPackages = activation.mkPackageManager {
     name = "pipx";
     basePackages = [ ];
-    additionalPackages = (overlay.pipx.additionalPackages or [ ]);
+    additionalPackages = (values.pipx.additionalPackages or [ ]);
     executableArguments = [
       "install"
       "--force"

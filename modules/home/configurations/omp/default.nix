@@ -1,12 +1,12 @@
 {
   lib,
-  overlay,
+  values,
   ...
 }:
 {
   imports = [
     (import ./omp.nix {
-      inherit lib overlay;
+      inherit lib values;
     })
   ];
 }

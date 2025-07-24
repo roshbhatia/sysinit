@@ -1,6 +1,6 @@
 {
   lib,
-  overlay,
+  values,
   ...
 }:
 
@@ -27,7 +27,7 @@ in
       "status"
       "tail"
     ];
-    additionalPackages = (overlay.krew.additionalPackages or [ ]);
+    additionalPackages = (values.krew.additionalPackages or [ ]);
     executableArguments = [
       "install"
     ];

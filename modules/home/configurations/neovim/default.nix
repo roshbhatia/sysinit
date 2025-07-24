@@ -1,13 +1,13 @@
 {
   config,
   lib,
-  overlay,
+  values,
   ...
 }:
 {
   imports = [
     (import ./neovim.nix {
-      inherit config lib overlay;
+      inherit config lib values;
     })
   ];
 }

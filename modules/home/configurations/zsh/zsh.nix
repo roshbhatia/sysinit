@@ -2,15 +2,15 @@
   config,
   lib,
   pkgs,
-  overlay,
+  values,
   ...
 }:
 let
   shell = import ../../../lib/shell { inherit lib; };
   themes = import ../../../lib/themes { inherit lib; };
-  palette = themes.getThemePalette overlay.theme.colorscheme overlay.theme.variant;
+  palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
   ansiMappings =
-    themes.ansiMappings.${overlay.theme.colorscheme}.${overlay.theme.variant}
+    themes.ansiMappings.${values.theme.colorscheme}.${values.theme.variant}
       or themes.ansiMappings.catppuccin.macchiato;
 
   logLib = shell.stripHeaders ./core/loglib.sh;
@@ -107,7 +107,7 @@ let
         };
       };
 
-  themeColors = getThemeColors overlay.theme.colorscheme overlay.theme.variant;
+  themeColors = getThemeColors values.theme.colorscheme values.theme.variant;
 in
 {
   programs.zsh = {

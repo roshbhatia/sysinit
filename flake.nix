@@ -23,14 +23,14 @@
     }:
     let
       system = "aarch64-darwin";
-      defaultOverlay = import ./overlay.nix;
+      defaultValues = import ./values.nix;
 
       mkDarwinConfiguration =
-        customOverlay:
+        customValues:
         let
-          overlay = customOverlay;
-          username = overlay.user.username;
-          hostname = overlay.user.hostname;
+          values = customValues;
+          username = values.user.username;
+          hostname = values.user.hostname;
         in
         darwin.lib.darwinSystem {
           inherit system;
@@ -38,7 +38,7 @@
             inherit
               inputs
               system
-              overlay
+              values
               username
               hostname
               ;
@@ -54,12 +54,13 @@
     in
     {
       darwinConfigurations = {
-        ${defaultOverlay.user.hostname} = mkDarwinConfiguration defaultOverlay;
+        ${defaultValues.user.hostname} = mkDarwinConfiguration defaultValues;
       };
 
       lib = {
         inherit mkDarwinConfiguration;
-        defaultOverlay = defaultOverlay;
+        defaultValues = defaultValues;
       };
     };
 }
+

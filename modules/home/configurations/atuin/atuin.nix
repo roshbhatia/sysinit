@@ -1,12 +1,12 @@
 {
   lib,
-  overlay,
+  values,
   ...
 }:
 
 let
   themes = import ../../../lib/themes { inherit lib; };
-  atuinTheme = themes.getAppTheme "atuin" overlay.theme.colorscheme overlay.theme.variant;
+  atuinTheme = themes.getAppTheme "atuin" values.theme.colorscheme values.theme.variant;
 in
 
 {
@@ -32,28 +32,28 @@ in
 
   # Conditionally include theme files based on current colorscheme
   xdg.configFile = lib.mkMerge [
-    (lib.mkIf (overlay.theme.colorscheme == "catppuccin") {
+    (lib.mkIf (values.theme.colorscheme == "catppuccin") {
       "atuin/themes/catppuccin-macchiato.toml" = {
         source = ./catppuccin-macchiato.toml;
         force = true;
       };
     })
 
-    (lib.mkIf (overlay.theme.colorscheme == "rose-pine") {
+    (lib.mkIf (values.theme.colorscheme == "rose-pine") {
       "atuin/themes/rose-pine-moon.toml" = {
         source = ./rose-pine-moon.toml;
         force = true;
       };
     })
 
-    (lib.mkIf (overlay.theme.colorscheme == "gruvbox") {
+    (lib.mkIf (values.theme.colorscheme == "gruvbox") {
       "atuin/themes/gruvbox-dark.toml" = {
         source = ./gruvbox-dark.toml;
         force = true;
       };
     })
 
-    (lib.mkIf (overlay.theme.colorscheme == "solarized") {
+    (lib.mkIf (values.theme.colorscheme == "solarized") {
       "atuin/themes/solarized-dark.toml" = {
         source = ./solarized-dark.toml;
         force = true;

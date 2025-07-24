@@ -2,31 +2,31 @@
   config,
   lib,
   pkgs,
-  overlay,
+  values,
   ...
 }:
 {
   imports = [
     (import ./nixpkgs {
-      inherit config overlay pkgs;
+      inherit config values pkgs;
     })
     (import ./cargo {
-      inherit lib overlay;
+      inherit lib values;
     })
     (import ./gh {
-      inherit lib overlay;
+      inherit lib values;
     })
     (import ./go {
-      inherit lib overlay;
+      inherit lib values;
     })
     (import ./kubectl {
-      inherit lib overlay;
+      inherit lib values;
     })
     (import ./node {
-      inherit lib overlay;
+      inherit lib values;
     })
     (import ./python {
-      inherit lib overlay;
+      inherit lib values;
     })
   ];
 }

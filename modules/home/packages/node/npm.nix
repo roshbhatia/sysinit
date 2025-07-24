@@ -1,6 +1,6 @@
 {
   lib,
-  overlay,
+  values,
   ...
 }:
 
@@ -20,7 +20,7 @@ in
     basePackages = [
       "opencode-ai@latest"
     ];
-    additionalPackages = (overlay.npm.additionalPackages or [ ]);
+    additionalPackages = (values.npm.additionalPackages or [ ]);
     executableArguments = [
       "install"
       "-g"

@@ -1,13 +1,13 @@
 {
   username,
-  overlay,
+  values,
   ...
 }:
 
 let
-  additionalTaps = (overlay.homebrew.additionalPackages.taps or [ ]);
-  additionalBrews = (overlay.homebrew.additionalPackages.brews or [ ]);
-  additionalCasks = (overlay.homebrew.additionalPackages.casks or [ ]);
+  additionalTaps = (values.homebrew.additionalPackages.taps or [ ]);
+  additionalBrews = (values.homebrew.additionalPackages.brews or [ ]);
+  additionalCasks = (values.homebrew.additionalPackages.casks or [ ]);
 
   baseTaps = [
     "FelixKratz/formulae"

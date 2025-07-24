@@ -1,12 +1,12 @@
 {
   lib,
-  overlay,
+  values,
   ...
 }:
 
 let
   themes = import ../../../lib/themes { inherit lib; };
-  palette = themes.getThemePalette overlay.theme.colorscheme overlay.theme.variant;
+  palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
 
   # Map common colors from theme palettes to oh-my-posh roles
   ompColors = {

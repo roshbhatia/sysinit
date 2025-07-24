@@ -1,6 +1,6 @@
 {
   lib,
-  overlay,
+  values,
   ...
 }:
 
@@ -13,7 +13,7 @@ in
     basePackages = [
       "hererocks"
     ];
-    additionalPackages = (overlay.uvx.additionalPackages or [ ]);
+    additionalPackages = (values.uvx.additionalPackages or [ ]);
     executableArguments = [
       "tool"
       "install"

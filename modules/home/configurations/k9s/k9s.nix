@@ -1,12 +1,12 @@
 {
   lib,
-  overlay,
+  values,
   ...
 }:
 
 let
   themes = import ../../../lib/themes { inherit lib; };
-  skinName = overlay.theme.colorscheme;
+  skinName = values.theme.colorscheme;
 
   k9sConfig = {
     k9s = {
@@ -77,28 +77,28 @@ in
       };
     }
 
-    (lib.mkIf (overlay.theme.colorscheme == "catppuccin") {
+    (lib.mkIf (values.theme.colorscheme == "catppuccin") {
       "k9s/skins/catppuccin.yaml" = {
         source = ./skins/catppuccin.yaml;
         force = true;
       };
     })
 
-    (lib.mkIf (overlay.theme.colorscheme == "solarized") {
+    (lib.mkIf (values.theme.colorscheme == "solarized") {
       "k9s/skins/solarized.yaml" = {
         source = ./skins/solarized.yaml;
         force = true;
       };
     })
 
-    (lib.mkIf (overlay.theme.colorscheme == "rose-pine") {
+    (lib.mkIf (values.theme.colorscheme == "rose-pine") {
       "k9s/skins/rose-pine.yaml" = {
         source = ./skins/rose-pine.yaml;
         force = true;
       };
     })
 
-    (lib.mkIf (overlay.theme.colorscheme == "gruvbox") {
+    (lib.mkIf (values.theme.colorscheme == "gruvbox") {
       "k9s/skins/gruvbox.yaml" = {
         source = ./skins/gruvbox.yaml;
         force = true;

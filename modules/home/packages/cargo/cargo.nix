@@ -1,6 +1,6 @@
 {
   lib,
-  overlay,
+  values,
   ...
 }:
 
@@ -13,7 +13,7 @@ in
     basePackages = [
       "tree-sitter-cli"
     ];
-    additionalPackages = (overlay.cargo.additionalPackages or [ ]);
+    additionalPackages = (values.cargo.additionalPackages or [ ]);
     executableArguments = [
       "install"
       "--locked"

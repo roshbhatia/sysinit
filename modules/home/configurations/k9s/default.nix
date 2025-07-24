@@ -1,6 +1,6 @@
 {
   lib,
-  overlay,
+  values,
   ...
 }:
 {
@@ -8,7 +8,7 @@
     (import ./k9s.nix {
       inherit
         lib
-        overlay
+        values
         ;
     })
   ];

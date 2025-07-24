@@ -1,13 +1,13 @@
 {
   lib,
-  overlay,
+  values,
   ...
 }:
 
 let
-  cfg = overlay.git;
+  cfg = values.git;
   themes = import ../../../lib/themes { inherit lib; };
-  deltaTheme = themes.getAppTheme "delta" overlay.theme.colorscheme overlay.theme.variant;
+  deltaTheme = themes.getAppTheme "delta" values.theme.colorscheme values.theme.variant;
 
   personalEmail = if (cfg ? personalEmail) then cfg.personalEmail else cfg.userEmail;
   workEmail = if (cfg ? workEmail) then cfg.workEmail else cfg.userEmail;
@@ -80,7 +80,7 @@ in
           path = ~/.gitconfig.personal
 
       [include]
-          path = ~/.config/delta/themes/${overlay.theme.colorscheme}.gitconfig
+          path = ~/.config/delta/themes/${values.theme.colorscheme}.gitconfig
 
       [alias]
           p = pull
@@ -148,8 +148,8 @@ in
     force = true;
   };
 
-  xdg.configFile."delta/themes/${overlay.theme.colorscheme}.gitconfig" = {
-    source = ./${overlay.theme.colorscheme}.gitconfig;
+  xdg.configFile."delta/themes/${values.theme.colorscheme}.gitconfig" = {
+    source = ./${values.theme.colorscheme}.gitconfig;
     force = true;
   };
 }

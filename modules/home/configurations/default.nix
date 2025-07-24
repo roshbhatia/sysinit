@@ -1,7 +1,7 @@
 {
   config,
   lib,
-  overlay,
+  values,
   pkgs,
   ...
 }:
@@ -11,20 +11,20 @@
       inherit
         config
         lib
-        overlay
+        values
         pkgs
         ;
     })
     (import ./git {
-      inherit lib overlay;
+      inherit lib values;
     })
     ./aerospace
     ./aider
     (import ./atuin {
-      inherit lib overlay;
+      inherit lib values;
     })
     (import ./bat {
-      inherit lib overlay;
+      inherit lib values;
     })
     ./borders
     (import ./colima {
@@ -32,23 +32,23 @@
     })
     ./direnv
     (import ./k9s {
-      inherit lib overlay;
+      inherit lib values;
     })
     (import ./macchina {
       inherit config pkgs;
     })
     ./mcp
     (import ./neovim {
-      inherit config lib overlay;
+      inherit config lib values;
     })
     (import ./omp {
-      inherit lib overlay;
+      inherit lib values;
     })
     (import ./treesitter {
       inherit config lib pkgs;
     })
     (import ./wezterm {
-      inherit lib overlay;
+      inherit lib values;
     })
   ];
 }

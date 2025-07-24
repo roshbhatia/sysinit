@@ -1,6 +1,6 @@
 {
   username,
-  overlay,
+  values,
   ...
 }:
 
@@ -23,7 +23,7 @@
             inherit
               config
               lib
-              overlay
+              values
               pkgs
               ;
           })
@@ -31,7 +31,7 @@
             inherit
               config
               lib
-              overlay
+              values
               pkgs
               ;
           })

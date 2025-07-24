@@ -1,19 +1,19 @@
 {
   config,
   lib,
-  overlay,
+  values,
   ...
 }:
 
 let
   themes = import ../../../lib/themes { inherit lib; };
-  palette = themes.getThemePalette overlay.theme.colorscheme overlay.theme.variant;
-  appTheme = themes.appThemes.neovim.${overlay.theme.colorscheme};
+  palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
+  appTheme = themes.appThemes.neovim.${values.theme.colorscheme};
 
   themeConfig = {
-    colorscheme = overlay.theme.colorscheme;
-    variant = overlay.theme.variant;
-    transparency = overlay.theme.transparency;
+    colorscheme = values.theme.colorscheme;
+    variant = values.theme.variant;
+    transparency = values.theme.transparency;
     appTheme = appTheme;
     palette = palette;
   };

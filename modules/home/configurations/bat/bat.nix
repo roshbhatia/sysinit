@@ -1,13 +1,13 @@
 {
   lib,
-  overlay,
+  values,
   ...
 }:
 
 let
   activation = import ../../../lib/activation { inherit lib; };
   themes = import ../../../lib/themes { inherit lib; };
-  batTheme = themes.getAppTheme "bat" overlay.theme.colorscheme overlay.theme.variant;
+  batTheme = themes.getAppTheme "bat" values.theme.colorscheme values.theme.variant;
 in
 {
   xdg.configFile."bat/config".text = ''

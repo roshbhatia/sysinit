@@ -1,6 +1,6 @@
 {
   lib,
-  overlay,
+  values,
   ...
 }:
 
@@ -11,7 +11,7 @@ in
   home.activation.ghPackages = activation.mkPackageManager {
     name = "gh";
     basePackages = [ ];
-    additionalPackages = (overlay.gh.additionalPackages or [ ]);
+    additionalPackages = (values.gh.additionalPackages or [ ]);
     executableArguments = [
       "extension"
       "install"
