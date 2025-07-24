@@ -94,7 +94,7 @@ tasks:
           exit 1
         fi
         cd "${WORK_SYSINIT}"
-        if ! task nix:refresh; then
+        if ! task nix:refresh:work; then
           log_error "Work refresh failed."
           exit 1
         fi
