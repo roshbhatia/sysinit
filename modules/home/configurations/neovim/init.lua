@@ -92,7 +92,6 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 	require("sysinit.plugins.library.nui"),
 	require("sysinit.plugins.library.snacks"),
 	require("sysinit.plugins.library.volt"),
-	require("sysinit.plugins.library.menu"),
 	require("sysinit.plugins.ui.alpha"),
 	require("sysinit.plugins.ui.auto-cmdheight"),
 	require("sysinit.plugins.ui.devicons"),
@@ -119,3 +118,4 @@ require("sysinit.pkg.keybindings.undo").setup()
 require("sysinit.pkg.keybindings.vim").setup()
 
 require("sysinit.pkg.entrypoint.no-session").setup()
+
