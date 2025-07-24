@@ -1,27 +1,6 @@
 local M = {}
 
 function M.setup()
-	vim.keymap.set("n", "<C-t>", function()
-		require("menu").open("default")
-	end, {
-		noremap = true,
-		silent = true,
-		desc = "Open main menu",
-	})
-
-	vim.keymap.set({ "n", "v" }, "<RightMouse>", function()
-		require("menu.utils").delete_old_menus()
-		vim.cmd.exec('"normal! \\<RightMouse>"')
-		local buf = vim.api.nvim_win_get_buf(vim.fn.getmousepos().winid)
-		local options = vim.bo[buf].ft == "neo-tree" and "neotree" or "default"
-		require("menu").open(options, { mouse = true })
-	end, {
-		noremap = true,
-		silent = true,
-		desc = "Open menu with mouse",
-	})
-
-	-- Existing buffer keymaps below
 	vim.keymap.set("n", "<leader>x", function()
 		vim.cmd("silent SessionSave")
 		vim.cmd("silent x")
@@ -96,3 +75,4 @@ function M.setup()
 end
 
 return M
+
