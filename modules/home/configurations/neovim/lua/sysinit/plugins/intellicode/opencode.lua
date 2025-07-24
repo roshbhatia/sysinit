@@ -32,8 +32,7 @@ M.plugins = {
 					require("snacks.terminal").toggle("opencode", {
 						win = {
 							position = "right",
-							title = "",
-							title_pos = "center",
+							title = false,
 						},
 					})
 				end,
