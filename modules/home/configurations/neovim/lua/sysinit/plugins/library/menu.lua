@@ -21,31 +21,7 @@ M.plugins = {
 						if ft == "neo-tree" then
 							require("menu").open("neo-tree", { mouse = true })
 						else
-							require("menu").open({
-								{
-									name = "  Lsp Actions",
-									hl = "Exblue",
-									items = "lsp",
-								},
-								{ name = "separator" },
-								{
-									name = "Copy Content",
-									cmd = "%y+",
-									rtxt = "<C-c>",
-								},
-								{
-									name = "Delete Content",
-									cmd = "%d",
-									rtxt = "dc",
-								},
-								{ name = "separator" },
-								{
-									name = "  Color Picker",
-									cmd = function()
-										require("minty.huefy").open()
-									end,
-								},
-							}, { mouse = true })
+							require("menu").open("default", { mouse = true })
 						end
 					end,
 					desc = "Open menu with mouse",
