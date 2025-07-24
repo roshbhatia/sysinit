@@ -62,6 +62,7 @@ let
     kubecolor
     kubectl
     kubernetes-helm
+    kube-linter
     kustomize
     lazygit
     libgit2
@@ -128,3 +129,4 @@ in
 {
   home.packages = allNixPackages;
 }
+
