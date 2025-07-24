@@ -111,7 +111,6 @@ M.plugins = {
 					opts = {},
 				}
 				table.insert(sources, "avante")
-
 			end
 
 			return {

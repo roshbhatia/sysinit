@@ -29,12 +29,12 @@ M.plugins = {
 			{
 				"<leader>jj",
 				function()
-					require('snacks.terminal').toggle('opencode', { 
-						win = { 
-							position = 'right',
+					require("snacks.terminal").toggle("opencode", {
+						win = {
+							position = "right",
 							title = "",
 							title_pos = "center",
-						} 
+						},
 					})
 				end,
 				desc = "Toggle opencode",

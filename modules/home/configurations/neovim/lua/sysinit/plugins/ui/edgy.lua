@@ -43,7 +43,6 @@ M.plugins = {
 							-- Check for AI-related buffer names, types, or variables
 							return bufname:match("avante")
 								or bufname:match("goose")
-								or bufname:match("opencode")
 								or buftype == "nofile"
 									and (vim.b[buf].ai_assistant or vim.w[win].ai_assistant or bufname:match("Avante"))
 						end,
