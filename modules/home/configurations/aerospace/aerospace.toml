@@ -13,12 +13,12 @@ automatically-unhide-macos-hidden-apps = false
 preset = 'qwerty'
 
 [gaps]
-inner.horizontal = 16
-inner.vertical = 16
-outer.right = 8
-outer.left = 8
-outer.bottom = 8
-outer.top = 8
+inner.horizontal = 12
+inner.vertical = 12
+outer.right = 36
+outer.left = 36
+outer.bottom = 48
+outer.top = 48
 
 # App specific workspace movement
 [[on-window-detected]]
