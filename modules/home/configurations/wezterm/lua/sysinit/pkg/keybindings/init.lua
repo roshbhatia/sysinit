@@ -72,6 +72,11 @@ local function get_pane_keys()
 			mods = "CTRL",
 			action = act.CloseCurrentPane({ confirm = false }),
 		},
+		{
+			key = "/",
+			mods = "CTRL|SHIFT",
+			action = act.RotatePanes("Clockwise"),
+		},
 	}
 end
 
@@ -295,3 +300,4 @@ function M.setup(config)
 end
 
 return M
+
