@@ -186,12 +186,12 @@ M.plugins = {
 					desc = "Live grep",
 				},
 				{
-					"<leader>bb",
+					"<leader>fb",
 					function()
 						require("telescope.builtin").buffers({
 							sort_mru = true,
 							ignore_current_buffer = false,
-							only_cwd = false,
+							show_all_buffers = false,
 						})
 					end,
 					desc = "Buffers",
