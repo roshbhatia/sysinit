@@ -13,8 +13,6 @@ M.plugins = {
 					left = {
 						"mode",
 						"branch",
-						" ",
-						"lsp",
 					},
 					mid = {
 						{
@@ -49,7 +47,6 @@ M.plugins = {
 						},
 					},
 					right = {
-						"file_size",
 						"line_column",
 						"cool_symbol",
 					},
@@ -67,7 +64,7 @@ M.plugins = {
 					},
 					lsp_client_character_length = 40,
 					file_size_suffix = true,
-					branch_symbol = " ",
+					branch_symbol = "",
 				},
 				special_table = {
 					qf = { "QuickFix", " " },
@@ -78,3 +75,4 @@ M.plugins = {
 }
 
 return M
+
