@@ -34,12 +34,18 @@ function M.setup()
 			return vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted
 		end, vim.api.nvim_list_bufs())
 		local cur = vim.api.nvim_get_current_buf()
-		local idx = vim.tbl_indexof(bufs, cur)
+		local idx = nil
+		for i, buf in ipairs(bufs) do
+			if buf == cur then
+				idx = i
+				break
+			end
+		end
 		if idx == nil or #bufs < 2 then
 			return
 		end
 		local next = bufs[(idx % #bufs) + 1]
-		vim.api.nvim_set_current_buf(next)
+		vim.cmd("silent! b " .. next)
 	end, {
 		noremap = true,
 		silent = true,
@@ -51,12 +57,18 @@ function M.setup()
 			return vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted
 		end, vim.api.nvim_list_bufs())
 		local cur = vim.api.nvim_get_current_buf()
-		local idx = vim.tbl_indexof(bufs, cur)
+		local idx = nil
+		for i, buf in ipairs(bufs) do
+			if buf == cur then
+				idx = i
+				break
+			end
+		end
 		if idx == nil or #bufs < 2 then
 			return
 		end
 		local prev = bufs[(idx - 2) % #bufs + 1]
-		vim.api.nvim_set_current_buf(prev)
+		vim.cmd("silent! b " .. prev)
 	end, {
 		noremap = true,
 		silent = true,
