@@ -6,7 +6,7 @@
     "hub": {
       "type": "remote",
       "url": "http://localhost:43210/mcp",
-      "enabled": true
+      "enabled": false
     }
   },
   "keybinds": {
