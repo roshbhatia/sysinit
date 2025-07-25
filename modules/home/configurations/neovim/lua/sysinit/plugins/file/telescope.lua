@@ -24,6 +24,7 @@ M.plugins = {
 			telescope.setup({
 				defaults = {
 					prompt_prefix = "   ",
+					path_display = { len = 2, exclude = { 1, 2, -1, -2 } },
 					selection_caret = "",
 					entry_prefix = "",
 					-- Enhanced border styling
@@ -243,3 +244,4 @@ M.plugins = {
 }
 
 return M
+
