@@ -9,9 +9,7 @@ M.plugins = {
 
 			require("edgy").setup({
 				animate = {
-					enabled = true,
-					fps = 144,
-					cps = 360,
+					enabled = false,
 				},
 				options = {
 					left = {
@@ -31,6 +29,29 @@ M.plugins = {
 						filter = function(buf)
 							return vim.b[buf].neo_tree_source == "filesystem"
 						end,
+						size = { height = 0.5 },
+						pinned = true,
+						open = "Neotree position=right filesystem",
+					},
+					{
+						title = " Git Status",
+						ft = "neo-tree",
+						filter = function(buf)
+							return vim.b[buf].neo_tree_source == "git_status"
+						end,
+						pinned = true,
+						collapsed = true,
+						open = "Neotree position=right git_status",
+					},
+					{
+						title = " Open Buffers",
+						ft = "neo-tree",
+						filter = function(buf)
+							return vim.b[buf].neo_tree_source == "buffers"
+						end,
+						pinned = true,
+						collapsed = true,
+						open = "Neotree position=top buffers",
 					},
 				},
 				right = {
@@ -49,16 +70,9 @@ M.plugins = {
 						size = 80,
 					},
 				},
-				bottom = {
-					{
-						title = " Terminal",
-						ft = "toggleterm",
-						size = 0.3,
-					},
-				},
 				icons = {
-					closed = "󰅂",
-					open = "󰅀",
+					closed = " -",
+					open = " *",
 				},
 				wo = {
 					winbar = true,
@@ -72,3 +86,4 @@ M.plugins = {
 }
 
 return M
+
