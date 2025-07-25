@@ -33,26 +33,34 @@ function M.setup()
 		local bufs = vim.tbl_filter(function(buf)
 			return vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted
 		end, vim.api.nvim_list_bufs())
-		if #bufs > 1 then
-			vim.cmd("bnext")
+		local cur = vim.api.nvim_get_current_buf()
+		local idx = vim.tbl_indexof(bufs, cur)
+		if idx == nil or #bufs < 2 then
+			return
 		end
+		local next = bufs[(idx % #bufs) + 1]
+		vim.api.nvim_set_current_buf(next)
 	end, {
 		noremap = true,
 		silent = true,
-		desc = "Next buffer",
+		desc = "Next loaded buffer",
 	})
 
 	vim.keymap.set("n", "<leader>bp", function()
 		local bufs = vim.tbl_filter(function(buf)
 			return vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted
 		end, vim.api.nvim_list_bufs())
-		if #bufs > 1 then
-			vim.cmd("bprevious")
+		local cur = vim.api.nvim_get_current_buf()
+		local idx = vim.tbl_indexof(bufs, cur)
+		if idx == nil or #bufs < 2 then
+			return
 		end
+		local prev = bufs[(idx - 2) % #bufs + 1]
+		vim.api.nvim_set_current_buf(prev)
 	end, {
 		noremap = true,
 		silent = true,
-		desc = "Previous buffer",
+		desc = "Previous loaded buffer",
 	})
 
 	vim.keymap.set("n", "<leader>bc", function()
@@ -75,3 +83,4 @@ function M.setup()
 end
 
 return M
+
