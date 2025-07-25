@@ -17,7 +17,7 @@ M.plugins = {
 				{
 					"<leader>ca",
 					function()
-						require("fastaction").code_actions()
+						require("fastaction").code_action()
 					end,
 					mode = "v",
 					desc = "Code action",
@@ -28,3 +28,4 @@ M.plugins = {
 }
 
 return M
+
