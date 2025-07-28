@@ -1,3 +1,5 @@
+#/usr/bin/env nu
+
 $env.LANG = "en_US.UTF-8"
 $env.LC_ALL = "en_US.UTF-8"
 $env.XDG_CACHE_HOME = ($nu.home-path | append ".cache" | path join)
@@ -23,9 +25,5 @@ $env.EZA_COLORS = "di=38;5;117;ln=38;5;216;so=38;5;183;pi=38;5;152;ex=38;5;151;b
 $env.COLIMA_HOME = ($nu.home-path | append ".config/colima" | path join)
 $env.PATH = ($env.PATH | split row (char esep) | prepend "/usr/local/bin" | uniq | str join (char esep))
 $env.MANPAGER = "nvim +Man!"
-try { source ~/.local/share/atuin/init.nu } catch { }
-try { source ~/.nix-profile/share/zoxide/init.nu } catch { }
-try { source ~/.nix-profile/share/direnv/direnv.nu } catch { }
-oh-my-posh init nu --config ~/.config/oh-my-posh/themes/catppuccin-macchiato.omp.json | save --raw ~/.cache/omp.nu
 source ~/.cache/omp.nu
 
