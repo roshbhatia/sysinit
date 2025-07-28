@@ -19,3 +19,12 @@ alias sudo = sudo -E
 alias diff = diff --color
 alias grep = grep -s --color=auto
 alias watch = watch --color --no-title
+
+$env.config.show_banner = false
+
+# --- Macchina at shell startup (parity with zsh) ---
+# Only run if not in NVIM and not in Wezterm pane 0
+if ($env.WEZTERM_PANE? | is-empty) and ($env.NVIM? | is-empty) {
+  let macchina_theme = ($env.MACCHINA_THEME? | default "rosh-color")
+  macchina --theme $macchina_theme
+}
