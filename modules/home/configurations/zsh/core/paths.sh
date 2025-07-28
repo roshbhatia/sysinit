@@ -11,10 +11,10 @@ path.add.safe() {
   if [ -d "$dir" ]; then
     if [[ ":$PATH:" != *":$dir:"* ]]; then
       export PATH="$dir:$PATH"
-      echo "Added $dir to PATH"
+      [[ -n "$SYSINIT_DEBUG" ]] && echo "Added $dir to PATH"
     fi
   else
-    echo "Directory $dir does not exist, skipping PATH addition"
+    [[ -n "$SYSINIT_DEBUG" ]] && echo "Directory $dir does not exist, skipping PATH addition"
   fi
 }
 
