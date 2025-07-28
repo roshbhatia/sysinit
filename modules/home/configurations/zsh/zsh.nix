@@ -205,11 +205,19 @@ in
         "pi=38;5;${ansiMappings.teal or ansiMappings.aqua or "152"}"
         "ex=38;5;${ansiMappings.green or "151"}"
         "bd=38;5;${ansiMappings.yellow or "223"};48;5;${ansiMappings.surface1 or ansiMappings.bg1 or "238"}"
-        "cd=38;5;${ansiMappings.pink or ansiMappings.red or "211"};48;5;${ansiMappings.surface1 or ansiMappings.bg1 or "238"}"
-        "su=38;5;${ansiMappings.pink or ansiMappings.red or "211"};48;5;${ansiMappings.surface2 or ansiMappings.bg2 or "240"}"
-        "sg=38;5;${ansiMappings.peach or ansiMappings.orange or "216"};48;5;${ansiMappings.surface2 or ansiMappings.bg2 or "240"}"
+        "cd=38;5;${ansiMappings.pink or ansiMappings.red or "211"};48;5;${
+          ansiMappings.surface1 or ansiMappings.bg1 or "238"
+        }"
+        "su=38;5;${ansiMappings.pink or ansiMappings.red or "211"};48;5;${
+          ansiMappings.surface2 or ansiMappings.bg2 or "240"
+        }"
+        "sg=38;5;${ansiMappings.peach or ansiMappings.orange or "216"};48;5;${
+          ansiMappings.surface2 or ansiMappings.bg2 or "240"
+        }"
         "tw=38;5;${ansiMappings.green or "151"};48;5;${ansiMappings.surface1 or ansiMappings.bg1 or "238"}"
-        "ow=38;5;${ansiMappings.teal or ansiMappings.aqua or "152"};48;5;${ansiMappings.surface1 or ansiMappings.bg1 or "238"}"
+        "ow=38;5;${ansiMappings.teal or ansiMappings.aqua or "152"};48;5;${
+          ansiMappings.surface1 or ansiMappings.bg1 or "238"
+        }"
       ];
       COLIMA_HOME = "${config.home.homeDirectory}/.config/colima";
     };

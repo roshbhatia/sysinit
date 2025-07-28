@@ -18,3 +18,4 @@ log_error() {
 log_success() {
   echo "[SUCCESS] $*"
 }
+
