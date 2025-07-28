@@ -16,24 +16,19 @@ in
     "mcphub/servers.json" = {
       text = builtins.toJSON {
         mcpServers = {
-          fetch = {
-            command = config.mcphub.servers.fetch.command;
-            args = config.mcphub.servers.fetch.args;
-          };
-          memory = {
-            command = config.mcphub.servers.memory.command;
-            args = config.mcphub.servers.memory.args;
-            env = config.mcphub.servers.memory.env;
-          };
-          context7 = {
-            command = config.mcphub.servers.context7.command;
-            args = config.mcphub.servers.context7.args;
-          };
-          argocd-mcp = {
-            command = config.mcphub.servers.argocd-mcp.command;
-            args = config.mcphub.servers.argocd-mcp.args;
-          };
-        };
+           fetch = {
+             command = [ config.mcphub.servers.fetch.command ] ++ config.mcphub.servers.fetch.args;
+           };
+           memory = {
+             command = [ config.mcphub.servers.memory.command ] ++ config.mcphub.servers.memory.args;
+             env = config.mcphub.servers.memory.env;
+           };
+           context7 = {
+             command = [ config.mcphub.servers.context7.command ] ++ config.mcphub.servers.context7.args;
+           };
+           argocd-mcp = {
+             command = [ config.mcphub.servers.argocd-mcp.command ] ++ config.mcphub.servers.argocd-mcp.args;
+           };        };
       };
       force = true;
     };
@@ -90,25 +85,22 @@ in
             url = config.mcphub.uri;
             enabled = false;
           };
-          fetch = {
-            type = "local";
-            command = config.mcphub.servers.fetch.command;
-            args = config.mcphub.servers.fetch.args;
-            enabled = true;
-          };
-          memory = {
-            type = "local";
-            command = config.mcphub.servers.memory.command;
-            args = config.mcphub.servers.memory.args;
-            enabled = true;
-            environment = config.mcphub.servers.memory.env;
-          };
-          context7 = {
-            type = "local";
-            command = config.mcphub.servers.context7.command;
-            args = config.mcphub.servers.context7.args;
-            enabled = true;
-          };
+           fetch = {
+             type = "local";
+             command = [ config.mcphub.servers.fetch.command ] ++ config.mcphub.servers.fetch.args;
+             enabled = true;
+           };
+           memory = {
+             type = "local";
+             command = [ config.mcphub.servers.memory.command ] ++ config.mcphub.servers.memory.args;
+             enabled = true;
+             environment = config.mcphub.servers.memory.env;
+           };
+           context7 = {
+             type = "local";
+             command = [ config.mcphub.servers.context7.command ] ++ config.mcphub.servers.context7.args;
+             enabled = true;
+           };
         };
         agent = builtins.listToAttrs (
           map (agent: {
