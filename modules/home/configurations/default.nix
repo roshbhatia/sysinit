@@ -15,6 +15,9 @@
         pkgs
         ;
     })
+    (import ./nushell {
+      inherit config lib values pkgs;
+    })
     (import ./git {
       inherit lib values;
     })

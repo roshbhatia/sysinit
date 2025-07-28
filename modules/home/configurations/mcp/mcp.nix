@@ -1,19 +1,23 @@
 { ... }:
 let
   agents = import ./agents.nix;
-  opencodeAgents = builtins.listToAttrs (map (agent: {
-    name = agent.name;
-    value = {
-      description = agent.description;
-      promptFile = "~/.config/opencode/prompts/${agent.name}.md";
-      tags = agent.tags;
-      tools = agent.tools;
-    };
-  }) agents);
-  promptFiles = builtins.listToAttrs (map (agent: {
-    name = "opencode/prompts/${agent.name}.md";
-    value.source = agent.promptFile;
-  }) agents);
+  opencodeAgents = builtins.listToAttrs (
+    map (agent: {
+      name = agent.name;
+      value = {
+        description = agent.description;
+        promptFile = "~/.config/opencode/prompts/${agent.name}.md";
+        tags = agent.tags;
+        tools = agent.tools;
+      };
+    }) agents
+  );
+  promptFiles = builtins.listToAttrs (
+    map (agent: {
+      name = "opencode/prompts/${agent.name}.md";
+      value.source = agent.promptFile;
+    }) agents
+  );
 in
 {
   xdg.configFile = promptFiles // {
@@ -30,4 +34,3 @@ in
     "opencode/opencode.json".force = true;
   };
 }
-
