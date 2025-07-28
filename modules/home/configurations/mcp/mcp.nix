@@ -3,11 +3,12 @@ let
   config = import ./config.nix;
   agents = import ./agents.nix;
   promptFiles = builtins.listToAttrs (
-    map (agent: {
-      name = "opencode/prompts/${agent.name}.md";
-      value = { source = agent.promptFile; };
-    }) agents
-  );
+map (agent: {
+  name = "opencode/prompts/${agent.name}.nix";
+  value = {
+    source = toString ./. + "/prompts/${agent.name}.nix";
+  };
+}) agents  );
 in
 {
   xdg.configFile = promptFiles // {
@@ -36,7 +37,7 @@ in
       force = true;
     };
     "goose/config.yaml" = {
-      text = lib.generators.toYAML {} {
+      text = lib.generators.toYAML { } {
         EDIT_MODE = config.goose.editMode;
         GOOSE_MODEL = config.goose.model;
         GOOSE_PLANNER_MODEL = config.goose.plannerModel;
@@ -108,19 +109,17 @@ in
             enabled = true;
           };
         };
-        agent = builtins.listToAttrs (map (
-          agent: {
-            name = agent.description;
-            value = {
-              description = agent.description;
-              prompt = agent.prompt;
-              tools = agent.tools;
-            };
-          }
-        ) agents);
+        agent = builtins.listToAttrs (
+map (agent: {
+  name = agent.name;
+  value = {
+    description = agent.description;
+    prompt = agent.prompt;
+    tools = agent.tools;
+  };
+}) agents        );
       });
       force = true;
     };
   };
 }
-
