@@ -8,4 +8,3 @@
     envFile.text = builtins.readFile ./env.nu;
   };
 }
-

@@ -356,7 +356,7 @@ in
 
       '')
 
-       ''
+      ''
         ${logLib}
         ${paths}
         ${wezterm}
@@ -389,21 +389,22 @@ in
     ];
   };
 
-    xdg.configFile = {
-      "local/bin/dns-flush" = {
-        source = ../utils/dns-flush;
-        force = true;
-      };
-      "local/bin/fzf-preview" = {
-        source = ../utils/fzf-preview;
-        force = true;
-      };
-      "local/bin/git-ai-commit" = {
-        source = ../utils/git-ai-commit;
-        force = true;
-      };
-      "local/bin/gh-whoami" = {
-        source = ../utils/gh-whoami;
-        force = true;
-      };
-    };}
+  xdg.configFile = {
+    "local/bin/dns-flush" = {
+      source = ../utils/dns-flush;
+      force = true;
+    };
+    "local/bin/fzf-preview" = {
+      source = ../utils/fzf-preview;
+      force = true;
+    };
+    "local/bin/git-ai-commit" = {
+      source = ../utils/git-ai-commit;
+      force = true;
+    };
+    "local/bin/gh-whoami" = {
+      source = ../utils/gh-whoami;
+      force = true;
+    };
+  };
+}
