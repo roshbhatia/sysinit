@@ -37,4 +37,3 @@ in
     executableName = "cargo";
   };
 }
-

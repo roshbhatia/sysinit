@@ -18,4 +18,3 @@ in
     executableName = "pipx";
   };
 }
-

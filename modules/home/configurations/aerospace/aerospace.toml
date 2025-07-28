@@ -15,10 +15,10 @@ preset = 'qwerty'
 [gaps]
 inner.horizontal = 16
 inner.vertical = 16
-outer.right = 32
-outer.left = 32
-outer.bottom = 48
-outer.top = 48
+outer.right = 16
+outer.left = 16
+outer.bottom = 24
+outer.top = 24
 
 # App specific workspace movement
 [[on-window-detected]]
