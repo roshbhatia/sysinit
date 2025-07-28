@@ -22,7 +22,7 @@ let
   prompt = shell.stripHeaders ./core/prompt.sh;
 
   getThemeColors =
-    colorscheme: variant:
+    colorscheme:
     if colorscheme == "catppuccin" then
       {
         autosuggest = palette.mauve or "#ca9ee6";
@@ -332,8 +332,5 @@ in
         [[ -n "$SYSINIT_DEBUG" ]] && zprof
       '')
     ];
-  };
-  xdg.configFile = {
-    # Utils are now managed by their own module, not here.
   };
 }

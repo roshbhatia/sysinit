@@ -1,4 +1,3 @@
-# Nushell Aliases (mirrors zsh/core/aliases.sh)
 alias ..... = cd ../../../..
 alias .... = cd ../../..
 alias ... = cd ../..
@@ -20,3 +19,4 @@ alias sudo = sudo -E
 alias diff = diff --color
 alias grep = grep -s --color=auto
 alias watch = watch --color --no-title
+
