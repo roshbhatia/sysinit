@@ -14,8 +14,8 @@ in
     additionalPackages = (values.pipx.additionalPackages or [ ]);
     executableArguments = [
       "install"
-      "--force"
     ];
     executableName = "pipx";
   };
 }
+

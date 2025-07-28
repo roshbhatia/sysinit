@@ -3,12 +3,13 @@ let
   config = import ./config.nix;
   agents = import ./agents.nix;
   promptFiles = builtins.listToAttrs (
-map (agent: {
-  name = "opencode/prompts/${agent.name}.nix";
-  value = {
-    source = toString ./. + "/prompts/${agent.name}.nix";
-  };
-}) agents  );
+    map (agent: {
+      name = "opencode/prompts/${agent.name}.nix";
+      value = {
+        source = toString ./. + "/prompts/${agent.name}.nix";
+      };
+    }) agents
+  );
 in
 {
   xdg.configFile = promptFiles // {
@@ -110,14 +111,15 @@ in
           };
         };
         agent = builtins.listToAttrs (
-map (agent: {
-  name = agent.name;
-  value = {
-    description = agent.description;
-    prompt = agent.prompt;
-    tools = agent.tools;
-  };
-}) agents        );
+          map (agent: {
+            name = agent.name;
+            value = {
+              description = agent.description;
+              prompt = agent.prompt;
+              tools = agent.tools;
+            };
+          }) agents
+        );
       });
       force = true;
     };

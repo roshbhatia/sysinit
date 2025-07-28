@@ -18,7 +18,6 @@ in
   home.activation.yarnPackages = activation.mkPackageManager {
     name = "yarn";
     basePackages = [
-      "@dice-roller/cli"
       "bash-language-server"
       "markdownlint-cli"
       "markdownlint-cli2"
@@ -35,3 +34,4 @@ in
     executableName = "yarn";
   };
 }
+
