@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "share": "auto",
   "theme": "system",
   "autoupdate": true,
   "mcp": {
@@ -7,36 +8,120 @@
       "type": "remote",
       "url": "http://localhost:43210/mcp",
       "enabled": false
+    },
+    "fetch": {
+      "type": "local",
+      "command": ["uvx", "mcp-server-fetch"],
+      "enabled": true
+    },
+    "memory": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-memory"],
+      "enabled": true,
+      "environment": {
+        "MEMORY_FILE_PATH": "~/.local/share/server-memory.json"
+      }
+    },
+    "context7": {
+      "type": "local",
+      "command": ["npx", "-y", "@upstash/context7-mcp@latest"],
+      "enabled": true
+    }
+  },
+  "agent": {
+    "ai-engineer": {
+      "description": "Builds LLM applications, RAG systems, and prompt pipelines. Implements vector search, agent orchestration, and AI API integrations.",
+      "prompt": "You are an AI engineer who designs and implements LLM-powered applications, RAG pipelines, and prompt engineering solutions with a focus on reliability, cost efficiency, and best practices.",
+      "tools": {
+        "read": true,
+        "write": true,
+        "edit": true,
+        "bash": true,
+        "grep": true,
+        "glob": true
+      }
+    },
+    "cloud-architect": {
+      "description": "Designs AWS/Azure/GCP infrastructure, implements Terraform IaC, and optimizes cloud costs. Handles auto-scaling, multi-region deployments, and serverless architectures.",
+      "prompt": "You are a cloud architect who creates scalable, secure, and cost-effective cloud infrastructure using best practices in IaC, automation, and cloud-native design.",
+      "tools": {
+        "read": true,
+        "write": true,
+        "edit": true,
+        "bash": true
+      }
+    },
+    "devops-troubleshooter": {
+      "description": "Debugs production issues, analyzes logs, and fixes deployment failures. Masters monitoring tools, incident response, and root cause analysis.",
+      "prompt": "You are a DevOps troubleshooter who rapidly diagnoses and resolves production issues, using logs, metrics, and automation to ensure system reliability.",
+      "tools": {
+        "read": true,
+        "write": true,
+        "edit": true,
+        "bash": true,
+        "grep": true,
+        "glob": true
+      }
+    },
+    "golang-pro": {
+      "description": "Writes idiomatic Go code with goroutines, channels, and interfaces. Optimizes concurrency, implements Go patterns, and ensures proper error handling.",
+      "prompt": "You are a Go expert who writes idiomatic, concurrent, and performant Go code, following best practices for error handling, testing, and code organization.",
+      "tools": {
+        "read": true,
+        "write": true,
+        "edit": true,
+        "bash": true,
+        "grep": true,
+        "glob": true
+      }
+    },
+    "test-automator": {
+      "description": "Creates comprehensive test suites with unit, integration, and e2e tests. Sets up CI pipelines, mocking strategies, and test data.",
+      "prompt": "You are a test automation specialist who builds robust, maintainable test suites and CI pipelines to ensure high code quality and coverage.",
+      "tools": {
+        "read": true,
+        "write": true,
+        "edit": true,
+        "bash": true,
+        "grep": true,
+        "glob": true
+      }
+    },
+    "typescript-expert": {
+      "description": "Writes type-safe TypeScript with advanced type system features, generics, and utility types. Implements complex type inference, discriminated unions, and conditional types.",
+      "prompt": "You are a TypeScript expert who develops scalable, type-safe applications using advanced type system features and strict compiler settings.",
+      "tools": {
+        "read": true,
+        "write": true,
+        "edit": true,
+        "bash": true,
+        "grep": true,
+        "glob": true
+      }
     }
   },
   "keybinds": {
     "leader": "ctrl+space",
     "app_help": "<leader>h",
     "switch_mode": "tab",
-
     "editor_open": "<leader>i",
-
     "session_new": "<leader>s",
     "session_list": "<leader>f",
     "session_share": "<leader>h",
     "session_unshare": "<leader>u",
     "session_interrupt": "esc",
     "session_compact": "<leader>c",
-
     "tool_details": "<leader>d",
     "model_list": "<leader>m",
     "theme_list": "<leader>t",
     "project_init": "<leader>b",
-
     "file_list": "<leader>f",
     "file_close": "esc",
     "file_diff_toggle": "<leader>g",
-
     "input_clear": "<leader>d",
     "input_paste": "<leader>p",
     "input_submit": "enter",
     "input_newline": "shift+enter",
-
     "messages_previous": "ctrl+u",
     "messages_next": "ctrl+d",
     "messages_first": "ctrl-shift-u",
