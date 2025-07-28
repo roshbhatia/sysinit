@@ -45,10 +45,10 @@ function M.setup(config)
 				" ",
 			},
 			tabline_y = {
-				"workspace",
+				"domain",
 			},
 			tabline_z = {
-				" 󱄅 ",
+				" 󱄅  ",
 			},
 		},
 		extensions = {},
@@ -59,3 +59,4 @@ function M.setup(config)
 end
 
 return M
+
