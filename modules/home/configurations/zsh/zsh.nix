@@ -13,7 +13,6 @@ let
     themes.ansiMappings.${values.theme.colorscheme}.${values.theme.variant}
       or themes.ansiMappings.catppuccin.macchiato;
 
-  # logLib = shell.stripHeaders ../utils/loglib.sh;
   paths = shell.stripHeaders ./core/paths.sh;
   wezterm = shell.stripHeaders ./core/wezterm.sh;
   completions = shell.stripHeaders ./core/completions.sh;
@@ -338,3 +337,4 @@ in
     # Utils are now managed by their own module, not here.
   };
 }
+
