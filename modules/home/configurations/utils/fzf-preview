@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Preview file or directory for fzf
+# Usage: fzf-preview <target>
+target="${1/#\~\//$HOME}"
+center=0
+if [[ ! -r "$target" ]]; then
+  if [[ "$target" =~ ^(.+):([0-9]+)\ *$ ]]; then
+    target="${BASH_REMATCH[1]}"
+    center="${BASH_REMATCH[2]}"
+  elif [[ "$target" =~ ^(.+):([0-9]+):[0-9]+\ *$ ]]; then
+    target="${BASH_REMATCH[1]}"
+    center="${BASH_REMATCH[2]}"
+  fi
+fi
+type=$(file --brief --dereference --mime -- "$target")
+if [[ -d "$target" ]]; then
+  eza --color=always --icons=always -1 "$target"
+elif [[ "$type" =~ image/ ]]; then
+  wezterm imgcat "$target"
+else
+  bat --style=numbers -r 0:30 --color=always --pager=never -- "$target"
+fi

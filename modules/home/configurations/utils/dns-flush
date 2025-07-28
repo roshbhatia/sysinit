@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Flush DNS cache with visual feedback
+gum spin --spinner dot --title "Flushing DNS cache..." -- \
+    sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder
+gum style --foreground "#00ff00" "✓ DNS cache flushed successfully"

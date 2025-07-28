@@ -13,7 +13,7 @@ let
     themes.ansiMappings.${values.theme.colorscheme}.${values.theme.variant}
       or themes.ansiMappings.catppuccin.macchiato;
 
-  logLib = shell.stripHeaders ./core/loglib.sh;
+  logLib = shell.stripHeaders ../utils/loglib.sh;
   paths = shell.stripHeaders ./core/paths.sh;
   wezterm = shell.stripHeaders ./core/wezterm.sh;
   completions = shell.stripHeaders ./core/completions.sh;
@@ -356,7 +356,7 @@ in
 
       '')
 
-      ''
+       ''
         ${logLib}
         ${paths}
         ${wezterm}
@@ -365,6 +365,10 @@ in
         ${extras}
         ${completions}
         ${prompt}
+        # Carapace zsh integration
+        if command -v carapace &>/dev/null; then
+          eval "$(carapace _carapace)"
+        fi
       ''
 
       (lib.mkAfter ''
@@ -385,25 +389,21 @@ in
     ];
   };
 
-  xdg.configFile = {
-    "zsh/bin/dns-flush" = {
-      source = ./bin/dns-flush;
-      force = true;
-    };
-
-    "zsh/bin/fzf-preview" = {
-      source = ./bin/fzf-preview;
-      force = true;
-    };
-
-    "zsh/bin/git-ai-commit" = {
-      source = ./bin/git-ai-commit;
-      force = true;
-    };
-
-    "zsh/bin/gh-whoami" = {
-      source = ./bin/gh-whoami;
-      force = true;
-    };
-  };
-}
+    xdg.configFile = {
+      "local/bin/dns-flush" = {
+        source = ../utils/dns-flush;
+        force = true;
+      };
+      "local/bin/fzf-preview" = {
+        source = ../utils/fzf-preview;
+        force = true;
+      };
+      "local/bin/git-ai-commit" = {
+        source = ../utils/git-ai-commit;
+        force = true;
+      };
+      "local/bin/gh-whoami" = {
+        source = ../utils/gh-whoami;
+        force = true;
+      };
+    };}

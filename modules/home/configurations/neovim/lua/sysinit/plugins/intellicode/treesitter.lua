@@ -52,6 +52,7 @@ M.plugins = {
 				"markdown",
 				"markdown_inline",
 				"nix",
+				"nu",
 				"python",
 				"query",
 				"regex",
@@ -106,3 +107,4 @@ M.plugins = {
 }
 
 return M
+

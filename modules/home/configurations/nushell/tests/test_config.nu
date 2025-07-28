@@ -64,3 +64,4 @@ test_env_vars
 print '✓ Environment variables test passed'
 
 print 'All Nushell config tests passed!'
+
