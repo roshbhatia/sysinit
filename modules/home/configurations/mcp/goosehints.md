@@ -97,4 +97,3 @@ Next Task: Description of upcoming steps or expert recommendations for enhanceme
   - Retrieve web content in Markdown format.
   - Control the response size using `max_length` and manage long pages with `start_index`.
   - Use raw formatting when the original HTML is REQUIRED.
-
