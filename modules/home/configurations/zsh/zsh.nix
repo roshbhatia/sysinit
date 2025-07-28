@@ -13,7 +13,7 @@ let
     themes.ansiMappings.${values.theme.colorscheme}.${values.theme.variant}
       or themes.ansiMappings.catppuccin.macchiato;
 
-  logLib = shell.stripHeaders ../utils/loglib.sh;
+  # logLib = shell.stripHeaders ../utils/loglib.sh;
   paths = shell.stripHeaders ./core/paths.sh;
   wezterm = shell.stripHeaders ./core/wezterm.sh;
   completions = shell.stripHeaders ./core/completions.sh;
@@ -22,7 +22,6 @@ let
   extras = shell.stripHeaders ./core/extras.sh;
   prompt = shell.stripHeaders ./core/prompt.sh;
 
-  # Function to get theme-specific colors for different colorschemes
   getThemeColors =
     colorscheme: variant:
     if colorscheme == "catppuccin" then
@@ -91,7 +90,6 @@ let
       }
     else
       {
-        # Fallback to catppuccin macchiato
         autosuggest = "#c6a0f6";
         fzf = {
           spinner = "#f5bde6";
@@ -112,16 +110,11 @@ in
 {
   programs.zsh = {
     enable = true;
-
     autocd = true;
-    # We enable completion anyways, we don't want our cache to be invalidated.
     enableCompletion = false;
     historySubstringSearch.enable = false;
-    # We need to install this manually due to fzf-tab needing to run first
     autosuggestion.enable = false;
-    # We use fast-syntax-highlighting instead
     syntaxHighlighting.enable = false;
-
     history = {
       size = 50000;
       save = 50000;
@@ -130,7 +123,6 @@ in
       extended = true;
       share = true;
     };
-
     dirHashes = {
       dl = "${config.home.homeDirectory}/Downloads";
       docs = "${config.home.homeDirectory}/Documents";
@@ -141,66 +133,49 @@ in
       nvim = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim";
       sysinit = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit";
     };
-
     shellAliases = {
       "....." = "cd ../../../..";
       "...." = "cd ../../..";
       "..." = "cd ../..";
       ".." = "cd ..";
       "~" = "cd ~";
-
       code = "code-insiders";
       c = "code-insiders";
-
       kubectl = "kubecolor";
-
       l = "eza --icons=always -1";
       la = "eza --icons=always -1 -a";
       ll = "eza --icons=always -1 -a";
       ls = "eza";
       lt = "eza --icons=always -1 -a -T --git-ignore --ignore-glob='.git'";
-
       tf = "terraform";
       y = "yazi";
       v = "nvim";
       g = "git";
-
       sudo = "sudo -E";
-
       diff = "diff --color";
       grep = "grep -s --color=auto";
-
       watch = "watch --color --no-title";
     };
-
     sessionVariables = {
       LANG = "en_US.UTF-8";
       LC_ALL = "en_US.UTF-8";
-
       XDG_CACHE_HOME = "${config.home.homeDirectory}/.cache";
       XDG_CONFIG_HOME = "${config.home.homeDirectory}/.config";
       XDG_DATA_HOME = "${config.home.homeDirectory}/.local/share";
       XDG_STATE_HOME = "${config.home.homeDirectory}/.local/state";
-
       XCA = "${config.home.homeDirectory}/.cache";
       XCO = "${config.home.homeDirectory}/.config";
       XDA = "${config.home.homeDirectory}/.local/share";
       XST = "${config.home.homeDirectory}/.local/state";
-
       SUDO_EDITOR = "nvim";
       VISUAL = "nvim";
-
       GIT_DISCOVERY_ACROSS_FILESYSTEM = 1;
-
       ZSH_EVALCACHE_DIR = "${config.home.homeDirectory}/.local/share/zsh/evalcache";
-
       ZSH_AUTOSUGGEST_USE_ASYNC = 1;
       ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = 20;
       ZSH_AUTOSUGGEST_MANUAL_REBIND = 1;
       ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE = "fg=${themeColors.autosuggest},italic";
-
       ZVM_LINE_INIT_MODE = "i";
-
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
         "--bind='resize:refresh-preview'"
@@ -223,43 +198,21 @@ in
         "--scheme='history'"
         "--style='minimal'"
       ];
-
       EZA_COLORS = lib.concatStringsSep ";" [
-        # directory color
         "di=38;5;${ansiMappings.blue or "117"}"
-        # symlink color
         "ln=38;5;${ansiMappings.peach or ansiMappings.orange or "216"}"
-        # socket color
         "so=38;5;${ansiMappings.mauve or ansiMappings.purple or "183"}"
-        # pipe color
         "pi=38;5;${ansiMappings.teal or ansiMappings.aqua or "152"}"
-        # executable color
         "ex=38;5;${ansiMappings.green or "151"}"
-        # block device color with background
         "bd=38;5;${ansiMappings.yellow or "223"};48;5;${ansiMappings.surface1 or ansiMappings.bg1 or "238"}"
-        # char device color with background
-        "cd=38;5;${ansiMappings.pink or ansiMappings.red or "211"};48;5;${
-          ansiMappings.surface1 or ansiMappings.bg1 or "238"
-        }"
-        # setuid color with background
-        "su=38;5;${ansiMappings.pink or ansiMappings.red or "211"};48;5;${
-          ansiMappings.surface2 or ansiMappings.bg2 or "240"
-        }"
-        # setgid color with background
-        "sg=38;5;${ansiMappings.peach or ansiMappings.orange or "216"};48;5;${
-          ansiMappings.surface2 or ansiMappings.bg2 or "240"
-        }"
-        # sticky other writable color with background
+        "cd=38;5;${ansiMappings.pink or ansiMappings.red or "211"};48;5;${ansiMappings.surface1 or ansiMappings.bg1 or "238"}"
+        "su=38;5;${ansiMappings.pink or ansiMappings.red or "211"};48;5;${ansiMappings.surface2 or ansiMappings.bg2 or "240"}"
+        "sg=38;5;${ansiMappings.peach or ansiMappings.orange or "216"};48;5;${ansiMappings.surface2 or ansiMappings.bg2 or "240"}"
         "tw=38;5;${ansiMappings.green or "151"};48;5;${ansiMappings.surface1 or ansiMappings.bg1 or "238"}"
-        # other writable color with background
-        "ow=38;5;${ansiMappings.teal or ansiMappings.aqua or "152"};48;5;${
-          ansiMappings.surface1 or ansiMappings.bg1 or "238"
-        }"
+        "ow=38;5;${ansiMappings.teal or ansiMappings.aqua or "152"};48;5;${ansiMappings.surface1 or ansiMappings.bg1 or "238"}"
       ];
-
       COLIMA_HOME = "${config.home.homeDirectory}/.config/colima";
     };
-
     plugins = [
       {
         name = "zsh-vi-mode";
@@ -312,12 +265,8 @@ in
         file = "fast-syntax-highlighting.plugin.zsh";
       }
     ];
-
     initContent = lib.mkMerge [
       (lib.mkBefore ''
-        # modules/darwin/home/zsh/zsh.nix#initContent
-        # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
-        # shellcheck disable=all
         [[ -n "$SYSINIT_DEBUG" ]] && zmodload zsh/zprof
         unset MAILCHECK
         stty stop undef
@@ -326,7 +275,6 @@ in
         PROMPT='%~%# '
         RPS1=""
       '')
-
       (lib.mkOrder 550 ''
         mkdir -p ${config.home.homeDirectory}/.config/zsh
         autoload bashcompinit && bashcompinit
@@ -336,14 +284,12 @@ in
         else
           compinit -C -d "${config.home.homeDirectory}/.config/zsh/zcompdump/.zcompdump";
         fi
-
         zstyle ':completion:*:git-checkout:*' sort false
         zstyle ':completion:*:descriptions' format '[%d]'
         zstyle ':completion:*' list-colors ''\${(s.:.)LS_COLORS}
         zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
         zstyle ':completion:*:complete:*' use-cache on
         zstyle ':completion:*' menu no
-
         zstyle ':fzf-tab:complete:cd:*' fzf-preview 'fzf-preview "$realpath"'
         zstyle ':fzf-tab:complete:cat:*' fzf-preview  'fzf-preview "$realpath"'
         zstyle ':fzf-tab:complete:bat:*' fzf-preview  'fzf-preview "$realpath"'
@@ -351,13 +297,9 @@ in
         zstyle ':fzf-tab:complete:vim:*' fzf-preview 'fzf-preview "$realpath"'
         zstyle ':fzf-tab:complete:vi:*' fzf-preview 'fzf-preview "$realpath"'
         zstyle ':fzf-tab:complete:v:*' fzf-preview 'fzf-preview "$realpath"'
-
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
-
       '')
-
       ''
-        ${logLib}
         ${paths}
         ${wezterm}
         ${kubectl}
@@ -365,46 +307,26 @@ in
         ${extras}
         ${completions}
         ${prompt}
-        # Carapace zsh integration
         if command -v carapace &>/dev/null; then
           eval "$(carapace _carapace)"
         fi
       ''
-
       (lib.mkAfter ''
         function zvm_vi_yank() {
           zvm_yank
           echo ''${CUTBUFFER} | pbcopy
           zvm_exit_visual_mode
         }
-
         function zvm_vi_delete() {
           zvm_replace_selection
           echo ''${CUTBUFFER} | pbcopy
           zvm_exit_visual_mode ''\${"1:-true"}
         }
-
         [[ -n "$SYSINIT_DEBUG" ]] && zprof
       '')
     ];
   };
-
   xdg.configFile = {
-    "local/bin/dns-flush" = {
-      source = ../utils/dns-flush;
-      force = true;
-    };
-    "local/bin/fzf-preview" = {
-      source = ../utils/fzf-preview;
-      force = true;
-    };
-    "local/bin/git-ai-commit" = {
-      source = ../utils/git-ai-commit;
-      force = true;
-    };
-    "local/bin/gh-whoami" = {
-      source = ../utils/gh-whoami;
-      force = true;
-    };
+    # Utils are now managed by their own module, not here.
   };
 }

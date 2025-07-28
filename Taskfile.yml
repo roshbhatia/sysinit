@@ -1,9 +1,5 @@
 version: "3"
 
-vars:
-  START_MSG_TEMPLATE: "{{.TASK}}..."
-  SUCCESS_MSG_TEMPLATE: "{{.TASK}} completed successfully"
-
 tasks:
   default:
     cmds:
@@ -14,56 +10,76 @@ tasks:
   nix:fmt:
     cmds:
       - &logger_fmt |
-        #!/usr/bin/env bash
-        source hack/lib/logger.sh
-        log_info "Finding and formatting Nix files"
-        if ! fd -e nix -E result -x sh -c 'source hack/lib/logger.sh && log_info "Formatting: {}" && nixfmt {}' _; then
-          log_error "Formatting failed"
-          exit 1
-        fi
-        log_success "Nix files formatted successfully"
+          #!/usr/bin/env bash
+          source hack/lib/logger.sh
+          log_info "Finding and formatting Nix files"
+          if ! fd -e nix -E result -x sh -c 'source hack/lib/logger.sh && log_info "Formatting: {}" && nixfmt {}' _; then
+            log_error "Formatting failed"
+            exit 1
+          fi
+          log_success "Nix files formatted successfully"
     desc: Format Nix files using nixfmt
     silent: true
 
   nix:build:
     cmds:
       - &logger_build |
-        #!/usr/bin/env bash
-        source hack/lib/logger.sh
-        log_info "Building system configuration"
-        if ! sudo darwin-rebuild build -v --show-trace --impure --flake .; then
-          log_error "Build failed."
-          exit 1
-        fi
-        log_success "Build completed successfully"
+          #!/usr/bin/env bash
+          source hack/lib/logger.sh
+          log_info "Building system configuration"
+          if ! sudo darwin-rebuild build -v --show-trace --impure --flake .; then
+            log_error "Build failed."
+            exit 1
+          fi
+          log_success "Build completed successfully"
     desc: Build the configuration without applying
+    silent: true
+
+  nix:build:work:
+    cmds:
+      - &logger_build_work |
+          #!/usr/bin/env bash
+          source hack/lib/logger.sh
+          log_info "Building work system configuration"
+          WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
+          if [ -z "${WORK_SYSINIT}" ]; then
+            log_error "Could not find work sysinit repository"
+            exit 1
+          fi
+          cd "${WORK_SYSINIT}"
+          if ! sudo darwin-rebuild build -v --show-trace --impure --flake .; then
+            log_error "Work build failed."
+            exit 1
+          fi
+          log_success "Work build completed successfully"
+    desc: Build the work sysinit configuration without applying
     silent: true
 
   nix:clean:
     cmds:
       - &logger_clean |
-        #!/usr/bin/env bash
-        source hack/lib/logger.sh
-        log_info "Running garbage collection"
-        if ! sudo nix-collect-garbage -d; then
-          log_error "Garbage collection failed"
-          exit 1
-        fi
-        log_success "Garbage collection completed successfully"
+          #!/usr/bin/env bash
+          source hack/lib/logger.sh
+          log_info "Running garbage collection"
+          if ! sudo nix-collect-garbage -d; then
+            log_error "Garbage collection failed"
+            exit 1
+          fi
+          log_success "Garbage collection completed successfully"
     desc: Run garbage collection
     silent: true
 
   nix:update:
     cmds:
       - &logger_update |
-        #!/usr/bin/env bash
-        source hack/lib/logger.sh
-        log_info "Updating flake inputs"
-        if ! sudo nix flake update; then
-          log_error "Flake update failed"
-          exit 1
-        fi
-        log_success "Flake inputs updated"
+          #!/usr/bin/env bash
+          source hack/lib/logger.sh
+          log_info "Updating flake inputs"
+          if ! sudo nix flake update; then
+            log_error "Flake update failed"
+            exit 1
+          fi
+          log_success "Flake inputs updated"
     desc: Update flake inputs
     silent: true
 
@@ -71,61 +87,61 @@ tasks:
     deps: [nix:update]
     cmds:
       - &logger_refresh |
-        #!/usr/bin/env bash
-        source hack/lib/logger.sh
-        log_info "Applying system configuration"
-        if ! sudo darwin-rebuild switch --flake . --impure --show-trace; then
-          log_error "Refresh failed."
-          exit 1
-        fi
-        log_success "System configuration applied successfully"
+          #!/usr/bin/env bash
+          source hack/lib/logger.sh
+          log_info "Applying system configuration"
+          if ! sudo darwin-rebuild switch --flake . --impure --show-trace; then
+            log_error "Refresh failed."
+            exit 1
+          fi
+          log_success "System configuration applied successfully"
     desc: Apply the system configuration
     silent: true
 
   nix:refresh:work:
     cmds:
       - &logger_refresh_work |
-        #!/usr/bin/env bash
-        source hack/lib/logger.sh
-        log_info "Refreshing work configuration"
-        WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
-        if [ -z "${WORK_SYSINIT}" ]; then
-          log_error "Could not find work sysinit repository"
-          exit 1
-        fi
-        cd "${WORK_SYSINIT}"
-        if ! task nix:refresh:work; then
-          log_error "Work refresh failed."
-          exit 1
-        fi
-        log_success "Work configuration refreshed successfully"
+          #!/usr/bin/env bash
+          source hack/lib/logger.sh
+          log_info "Refreshing work configuration"
+          WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
+          if [ -z "${WORK_SYSINIT}" ]; then
+            log_error "Could not find work sysinit repository"
+            exit 1
+          fi
+          cd "${WORK_SYSINIT}"
+          if ! task nix:refresh:work; then
+            log_error "Work refresh failed."
+            exit 1
+          fi
+          log_success "Work configuration refreshed successfully"
     desc: Update and rebuild work sysinit configuration
     silent: true
 
   sh:chmod:
     cmds:
       - &logger_chmod |
-        #!/usr/bin/env bash
-        source hack/lib/logger.sh
-        log_info "Finding all .sh files and making them executable"
-        if ! fd -e sh -x sh -c 'source hack/lib/logger.sh && log_info "Making executable: {}" && chmod +x {}' _; then
-          log_error "Failed to make .sh files executable"
-          exit 1
-        fi
-        log_success "All .sh files are now executable"
+          #!/usr/bin/env bash
+          source hack/lib/logger.sh
+          log_info "Finding all .sh files and making them executable"
+          if ! fd -e sh -x sh -c 'source hack/lib/logger.sh && log_info "Making executable: {}" && chmod +x {}' _; then
+            log_error "Failed to make .sh files executable"
+            exit 1
+          fi
+          log_success "All .sh files are now executable"
     desc: Make all .sh files in the repository executable
     silent: true
 
   lua:fmt:
     cmds:
       - &logger_lua_fmt |
-        #!/usr/bin/env bash
-        source hack/lib/logger.sh
-        log_info "Finding and formatting Lua files"
-        if ! fd -e lua -x sh -c 'source hack/lib/logger.sh && log_info "Formatting: {}" && stylua {}' _; then
-          log_error "Formatting failed"
-          exit 1
-        fi
-        log_success "Lua files formatted successfully"
+          #!/usr/bin/env bash
+          source hack/lib/logger.sh
+          log_info "Finding and formatting Lua files"
+          if ! fd -e lua -x sh -c 'source hack/lib/logger.sh && log_info "Formatting: {}" && stylua {}' _; then
+            log_error "Formatting failed"
+            exit 1
+          fi
+          log_success "Lua files formatted successfully"
     desc: Format Lua files using stylua
     silent: true

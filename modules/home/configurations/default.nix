@@ -55,6 +55,9 @@
     (import ./treesitter {
       inherit config lib pkgs;
     })
+    (import ./utils {
+      inherit pkgs;
+    })
     (import ./wezterm {
       inherit lib values;
     })
