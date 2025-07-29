@@ -1,6 +1,9 @@
+---@diagnostic disable: ambiguity-1
 local M = {}
 
 local username = os.getenv("USER")
+local home = os.getenv("HOME") or "/home/" .. username
+
 local nix_bin = "/etc/profiles/per-user/" .. username .. "/bin/"
 
 local function get_basic_config()
@@ -13,6 +16,10 @@ local function get_basic_config()
 		status_update_interval = 25,
 		default_prog = {
 			nix_bin .. "nu",
+			"--config",
+			home .. "/.config/nushell/config.nu",
+			"--env-config",
+			home .. "/.config/nushell/env.nu",
 		},
 	}
 end
