@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(task nix:build:*)",
+      "Bash(task nix:refresh:*)",
+      "Bash(ls:*)",
+      "Bash(nu:*)",
+      "Bash(find:*)",
+      "Bash(git add:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(rmdir:*)",
+      "Bash(cp:*)",
+      "Bash(rm:*)",
+      "Bash(git checkout:*)"
+    ],
+    "deny": []
+  }
+}

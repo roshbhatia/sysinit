@@ -1,4 +1,3 @@
-# Theme Module - Centralizes theme configuration and provides it to other modules
 { lib, config, ... }:
 
 with lib;
@@ -40,7 +39,6 @@ in
       };
     };
 
-    # Computed values - these are derived from the user's choices
     palette = mkOption {
       type = types.attrs;
       readOnly = true;
@@ -70,8 +68,5 @@ in
     };
   };
 
-  config = {
-    # This module doesn't generate any config itself, it just provides options
-    # Other modules can access theme information via config.sysinit.theme.*
-  };
+  config = { };
 }

@@ -109,9 +109,6 @@ in
 
   home.file.".gitconfig.personal" = {
     text = ''
-      # Personal-specific Git configuration
-      # This file is included when in ~/github/personal/ directories
-
       [user]
           email = ${personalEmail}
 
@@ -125,9 +122,6 @@ in
 
   home.file.".gitconfig.work" = {
     text = ''
-      # Work-specific Git configuration
-      # This file is included when in ~/github/work/ directories
-
       [user]
           email = ${workEmail}
 

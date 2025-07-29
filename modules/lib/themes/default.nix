@@ -1,7 +1,6 @@
 { lib, ... }:
 
 let
-  # Color palette definitions for all supported themes
   palettes = {
     catppuccin = {
       macchiato = {
@@ -128,7 +127,6 @@ let
     };
   };
 
-  # Application-specific theme configurations
   appThemes = {
     wezterm = {
       catppuccin = {
@@ -228,10 +226,8 @@ let
     app: colorscheme: variant:
     appThemes.${app}.${colorscheme}.${variant} or "${colorscheme}-${variant}";
 
-  # Convert hex to ANSI color code
   hexToAnsi = hex: ansiCode: "38;5;${toString ansiCode}";
 
-  # ANSI color mappings for EZA (approximate matches)
   ansiMappings = {
     catppuccin = {
       macchiato = {

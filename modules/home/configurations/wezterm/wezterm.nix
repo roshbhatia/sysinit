@@ -26,9 +26,7 @@ in
     recursive = true;
   };
 
-  # Generate theme configuration for lua to read
   xdg.configFile."wezterm/lua/sysinit/theme_config.lua".text = ''
-    -- Auto-generated theme configuration
     local M = {}
 
     M.colorscheme = "${themeConfig.colorscheme}"

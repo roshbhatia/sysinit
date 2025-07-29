@@ -104,7 +104,7 @@ let
         };
       };
 
-  themeColors = getThemeColors values.theme.colorscheme values.theme.variant;
+  themeColors = getThemeColors values.theme.colorscheme;
 in
 {
   programs.zsh = {
@@ -158,18 +158,10 @@ in
     sessionVariables = {
       LANG = "en_US.UTF-8";
       LC_ALL = "en_US.UTF-8";
-      XDG_CACHE_HOME = "${config.home.homeDirectory}/.cache";
-      XDG_CONFIG_HOME = "${config.home.homeDirectory}/.config";
-      XDG_DATA_HOME = "${config.home.homeDirectory}/.local/share";
-      XDG_STATE_HOME = "${config.home.homeDirectory}/.local/state";
-      XCA = "${config.home.homeDirectory}/.cache";
-      XCO = "${config.home.homeDirectory}/.config";
-      XDA = "${config.home.homeDirectory}/.local/share";
-      XST = "${config.home.homeDirectory}/.local/state";
       SUDO_EDITOR = "nvim";
       VISUAL = "nvim";
       GIT_DISCOVERY_ACROSS_FILESYSTEM = 1;
-      ZSH_EVALCACHE_DIR = "${config.home.homeDirectory}/.local/share/zsh/evalcache";
+      ZSH_EVALCACHE_DIR = "${config.xdg.dataHome}/zsh/evalcache";
       ZSH_AUTOSUGGEST_USE_ASYNC = 1;
       ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = 20;
       ZSH_AUTOSUGGEST_MANUAL_REBIND = 1;
@@ -218,7 +210,7 @@ in
           ansiMappings.surface1 or ansiMappings.bg1 or "238"
         }"
       ];
-      COLIMA_HOME = "${config.home.homeDirectory}/.config/colima";
+      COLIMA_HOME = "${config.xdg.configHome}/colima";
     };
     plugins = [
       {
@@ -283,13 +275,13 @@ in
         RPS1=""
       '')
       (lib.mkOrder 550 ''
-        mkdir -p ${config.home.homeDirectory}/.config/zsh
+        mkdir -p ${config.xdg.configHome}/zsh
         autoload bashcompinit && bashcompinit
         autoload -Uz compinit
-        if [[ -n ${config.home.homeDirectory}/.config/zsh/zcompdump/.zcompdump(#qN.mh+24) ]]; then
-          compinit -d "${config.home.homeDirectory}/.config/zsh/zcompdump/.zcompdump";
+        if [[ -n ${config.xdg.configHome}/zsh/zcompdump/.zcompdump(#qN.mh+24) ]]; then
+          compinit -d "${config.xdg.configHome}/zsh/zcompdump/.zcompdump";
         else
-          compinit -C -d "${config.home.homeDirectory}/.config/zsh/zcompdump/.zcompdump";
+          compinit -C -d "${config.xdg.configHome}/zsh/zcompdump/.zcompdump";
         fi
         zstyle ':completion:*:git-checkout:*' sort false
         zstyle ':completion:*:descriptions' format '[%d]'

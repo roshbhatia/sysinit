@@ -1,30 +1,49 @@
-#/usr/bin/env nu
+#!/usr/bin/env nu
 
-$env.config.show_banner = false
-$env.config.edit_mode = "vi"
-
-let carapace_completer = {|spans| carapace $spans.0 nushell ...$spans | from json }
-$env.config.completions = {
-  case_sensitive: false
-  quick: true
-  partial: true
-  algorithm: "fuzzy"
-  external: {
-    enable: true
-    max_results: 100
-    completer: $carapace_completer
+# Nushell main configuration
+$env.config = {
+  show_banner: false
+  edit_mode: "vi"
+  completions: {
+    case_sensitive: false
+    quick: true
+    partial: true
+    algorithm: "fuzzy"
+    external: {
+      enable: false  # Will be enabled in integrations if carapace is available
+      max_results: 100
+    }
   }
+  cursor_shape: {
+    vi_insert: underscore
+    vi_normal: block
+  }
+  history: {
+    max_size: 50000
+    sync_on_enter: true
+    file_format: "plaintext"
+    isolation: false
+  }
+  keybindings: [
+    {
+      name: completion_menu
+      modifier: none
+      keycode: tab
+      mode: [emacs vi_normal vi_insert]
+      event: {
+        until: [
+          { send: menu name: completion_menu }
+          { send: menunext }
+          { edit: complete }
+        ]
+      }
+    }
+  ]
 }
 
-try { source ~/.local/share/atuin/init.nu } catch { }
-try { source ~/.nix-profile/share/zoxide/init.nu } catch { }
-try { source ~/.nix-profile/share/direnv/direnv.nu } catch { }
-
-if ($env.WEZTERM_PANE? | is-empty) and ($env.NVIM? | is-empty) {
-  let macchina_theme = ($env.MACCHINA_THEME? | default "rosh")
-  macchina --theme $macchina_theme
-}
-
-oh-my-posh init nu --config ~/.config/oh-my-posh/themes/sysinit.omp.json | save --raw ~/.cache/omp.nu
-source ~/.cache/omp.nu
+# Source modular configuration files
+source ~/.config/nushell/env.nu
+source ~/.config/nushell/aliases.nu
+source ~/.config/nushell/shortcuts.nu
+source ~/.config/nushell/integrations.nu
 

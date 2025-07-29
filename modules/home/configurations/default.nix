@@ -7,6 +7,7 @@
 }:
 {
   imports = [
+    ./xdg
     (import ./zsh {
       inherit
         config
