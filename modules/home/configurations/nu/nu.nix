@@ -44,8 +44,6 @@ in
     environmentVariables = config.home.sessionVariables;
 
     extraConfig = ''
-      source paths.nu
-
       $env.LS_COLORS = (vivid generate ${appTheme})
       $env.EZA_COLORS = $env.LS_COLORS
 
