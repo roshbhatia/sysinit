@@ -4,4 +4,3 @@
 {
   programs.carapace.enable = true;
 }
-
