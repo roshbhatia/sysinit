@@ -14,6 +14,8 @@ def path_add [dir: string] {
 }
 
 let paths = [
+  "/nix/var/nix/profiles/default/bin"
+  $"/etc/profiles/per-user/($env.USER)/bin"
   "/opt/homebrew/bin"
   "/opt/homebrew/opt/libgit2@1.8/bin"
   "/opt/homebrew/sbin"
