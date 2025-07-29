@@ -12,7 +12,8 @@
       "Bash(rmdir:*)",
       "Bash(cp:*)",
       "Bash(rm:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }

@@ -52,30 +52,31 @@
           ];
         };
     in
-     {
-       darwinConfigurations = {
-         ${defaultValues.user.hostname} = mkDarwinConfiguration defaultValues;
-       };
+    {
+      darwinConfigurations = {
+        ${defaultValues.user.hostname} = mkDarwinConfiguration defaultValues;
+      };
 
-       homeConfigurations = {
-         ${defaultValues.user.username} = home-manager.lib.homeManagerConfiguration {
-           pkgs = inputs.nixpkgs.legacyPackages.${system};
-           modules = [
-             {
-               home.username = defaultValues.user.username;
-               home.homeDirectory = "/Users/${defaultValues.user.username}";
-               home.stateVersion = "23.11";
-             }
-             (import ./modules/home {
-               username = defaultValues.user.username;
-               values = defaultValues;
-             })
-           ];
-         };
-       };
+      homeConfigurations = {
+        ${defaultValues.user.username} = home-manager.lib.homeManagerConfiguration {
+          pkgs = inputs.nixpkgs.legacyPackages.${system};
+          modules = [
+            {
+              home.username = defaultValues.user.username;
+              home.homeDirectory = "/Users/${defaultValues.user.username}";
+              home.stateVersion = "23.11";
+            }
+            (import ./modules/home {
+              username = defaultValues.user.username;
+              values = defaultValues;
+            })
+          ];
+        };
+      };
 
-       lib = {
-         inherit mkDarwinConfiguration;
-         defaultValues = defaultValues;
-       };
-     };}
+      lib = {
+        inherit mkDarwinConfiguration;
+        defaultValues = defaultValues;
+      };
+    };
+}

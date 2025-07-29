@@ -13,7 +13,8 @@ let
     themes.ansiMappings.${values.theme.colorscheme}.${values.theme.variant}
       or themes.ansiMappings.catppuccin.macchiato;
 
-  getFzfColors = colorscheme:
+  getFzfColors =
+    colorscheme:
     if colorscheme == "catppuccin" then
       "--color=bg+:-1,bg:-1,spinner:${palette.pink or "#f4b8e4"},hl:${palette.red or "#e78284"} --color=border:${palette.overlay0 or "#737994"},label:${palette.text or "#c6d0f5"} --color=fg:${palette.text or "#c6d0f5"},header:${palette.red or "#e78284"},info:${palette.sky or "#99d1db"},pointer:${palette.pink or "#f4b8e4"} --color=marker:${palette.mauve or "#ca9ee6"},fg+:${palette.text or "#c6d0f5"},prompt:${palette.sky or "#99d1db"},hl+:${palette.red or "#e78284"}"
     else if colorscheme == "rose-pine" then
@@ -96,12 +97,24 @@ let
       $"so=38;5;(${ansiMappings.mauve or ansiMappings.purple or "183"})"
       $"pi=38;5;(${ansiMappings.teal or ansiMappings.aqua or "152"})"
       $"ex=38;5;(${ansiMappings.green or "151"})"
-      $"bd=38;5;(${ansiMappings.yellow or "223"});48;5;(${ansiMappings.surface1 or ansiMappings.bg1 or "238"})"
-      $"cd=38;5;(${ansiMappings.pink or ansiMappings.red or "211"});48;5;(${ansiMappings.surface1 or ansiMappings.bg1 or "238"})"
-      $"su=38;5;(${ansiMappings.pink or ansiMappings.red or "211"});48;5;(${ansiMappings.surface2 or ansiMappings.bg2 or "240"})"
-      $"sg=38;5;(${ansiMappings.peach or ansiMappings.orange or "216"});48;5;(${ansiMappings.surface2 or ansiMappings.bg2 or "240"})"
-      $"tw=38;5;(${ansiMappings.green or "151"});48;5;(${ansiMappings.surface1 or ansiMappings.bg1 or "238"})"
-      $"ow=38;5;(${ansiMappings.teal or ansiMappings.aqua or "152"});48;5;(${ansiMappings.surface1 or ansiMappings.bg1 or "238"})"
+      $"bd=38;5;(${ansiMappings.yellow or "223"});48;5;(${
+        ansiMappings.surface1 or ansiMappings.bg1 or "238"
+      })"
+      $"cd=38;5;(${ansiMappings.pink or ansiMappings.red or "211"});48;5;(${
+        ansiMappings.surface1 or ansiMappings.bg1 or "238"
+      })"
+      $"su=38;5;(${ansiMappings.pink or ansiMappings.red or "211"});48;5;(${
+        ansiMappings.surface2 or ansiMappings.bg2 or "240"
+      })"
+      $"sg=38;5;(${ansiMappings.peach or ansiMappings.orange or "216"});48;5;(${
+        ansiMappings.surface2 or ansiMappings.bg2 or "240"
+      })"
+      $"tw=38;5;(${ansiMappings.green or "151"});48;5;(${
+        ansiMappings.surface1 or ansiMappings.bg1 or "238"
+      })"
+      $"ow=38;5;(${ansiMappings.teal or ansiMappings.aqua or "152"});48;5;(${
+        ansiMappings.surface1 or ansiMappings.bg1 or "238"
+      })"
     ] | str join ";"
   '';
 
@@ -127,7 +140,7 @@ let
     alias g = git
     alias diff = diff --color
     alias grep = grep -s --color=auto
-    alias watch = watch --color --no-title
+    alias watch = watch --quiet
 
     alias cat = bat
     alias find = fd
@@ -229,5 +242,7 @@ in
     ".config/nushell/aliases.nu".text = aliasesNu;
     ".config/nushell/shortcuts.nu".text = shortcutsNu;
     ".config/nushell/integrations.nu".text = integrationsNu;
+    ".config/nushell/kubectl.nu" = ./core/kubectl.nu;
   };
 }
+
