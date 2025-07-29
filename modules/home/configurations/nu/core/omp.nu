@@ -1,18 +1,20 @@
-# make sure we have the right prompt render correctly
+#!/usr/bin/env nu
+# shellcheck disable=all
+# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
+# modules/darwin/home/nu/core/omp.nu (begin)
+
 if ($env.config? | is-not-empty) {
     $env.config = ($env.config | upsert render_right_prompt_on_last_line true)
 }
 
 $env.POWERLINE_COMMAND = 'oh-my-posh'
-$env.POSH_THEME = (echo "/Users/rshnbhatia/.config/oh-my-posh/themes/sysinit.omp.json")
+$env.POSH_THEME = $"($env.XDG_CONFIG_HOME)/oh-my-posh/themes/sysinit.omp.json"
 $env.PROMPT_INDICATOR = ""
-$env.POSH_SESSION_ID = (echo "b96a045d-09b2-4749-a200-03ee24da7106")
+$env.POSH_SESSION_ID = (uuid)
 $env.POSH_SHELL = "nu"
 $env.POSH_SHELL_VERSION = (version | get version)
 
-let _omp_executable: string = (echo "/etc/profiles/per-user/rshnbhatia/bin/oh-my-posh")
-
-# PROMPTS
+let _omp_executable: string = $"(/etc/profiles/per-user/($env.USER)/bin/oh-my-posh)"
 
 def --wrapped _omp_get_prompt [
     type: string,
@@ -20,8 +22,7 @@ def --wrapped _omp_get_prompt [
 ] {
     mut execution_time = -1
     mut no_status = true
-    # We have to do this because the initial value of `$env.CMD_DURATION_MS` is always `0823`, which is an official setting.
-    # See https://github.com/nushell/nushell/discussions/6402#discussioncomment-3466687.
+
     if $env.CMD_DURATION_MS != '0823' {
         $execution_time = $env.CMD_DURATION_MS
         $no_status = false
@@ -47,8 +48,6 @@ $env.PROMPT_MULTILINE_INDICATOR = (
 )
 
 $env.PROMPT_COMMAND = {||
-    # hack to set the cursor line to 1 when the user clears the screen
-    # this obviously isn't bulletproof, but it's a start
     mut clear = false
     if $nu.history-enabled {
         $clear = (history | is-empty) or ((history | last 1 | get 0.command) == "clear")
@@ -62,4 +61,5 @@ $env.PROMPT_COMMAND = {||
 }
 
 $env.PROMPT_COMMAND_RIGHT = {|| _omp_get_prompt right }
+# modules/darwin/home/nu/core/omp.nu (end)
 

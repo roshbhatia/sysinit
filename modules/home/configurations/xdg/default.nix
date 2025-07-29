@@ -1,11 +1,15 @@
 {
   config,
-  lib,
-  pkgs,
   ...
 }:
 {
   imports = [
     ./xdg.nix
+    {
+      inherit
+        config
+        ;
+    }
   ];
 }
+

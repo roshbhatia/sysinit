@@ -107,6 +107,8 @@ let
   themeColors = getThemeColors values.theme.colorscheme;
 in
 {
+  programs.carapace.enableZshIntegration = true;
+
   programs.zsh = {
     enable = true;
     autocd = true;
@@ -326,3 +328,4 @@ in
     ];
   };
 }
+

@@ -1,7 +1,5 @@
 {
   config,
-  lib,
-  pkgs,
   ...
 }:
 {
@@ -24,3 +22,4 @@
     XST = config.xdg.stateHome;
   };
 }
+

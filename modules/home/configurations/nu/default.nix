@@ -7,7 +7,7 @@
 }:
 {
   imports = [
-    (import ./nushell.nix {
+    (import ./nu.nix {
       inherit
         config
         lib
@@ -17,3 +17,4 @@
     })
   ];
 }
+
