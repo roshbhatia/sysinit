@@ -2,10 +2,10 @@
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
 # modules/darwin/home/nu/core/env.nu (begin)
-$env.XDG_DATA_HOME   = ($env.XDG_DATA_HOME   | default $"($env.HOME)/.local/share")
-$env.XDG_CONFIG_HOME = ($env.XDG_CONFIG_HOME | default $"($env.HOME)/.config")
-$env.XDG_STATE_HOME  = ($env.XDG_STATE_HOME  | default $"($env.HOME)/.local/state")
-$env.XDG_CACHE_HOME  = ($env.XDG_CACHE_HOME  | default $"($env.HOME)/.cache")
+$env.XDG_DATA_HOME   = ($env.XDG_DATA_HOME?   | default $"($env.HOME)/.local/share")
+$env.XDG_CONFIG_HOME = ($env.XDG_CONFIG_HOME? | default $"($env.HOME)/.config")
+$env.XDG_STATE_HOME  = ($env.XDG_STATE_HOME?  | default $"($env.HOME)/.local/state")
+$env.XDG_CACHE_HOME  = ($env.XDG_CACHE_HOME?  | default $"($env.HOME)/.cache")
 
 def path_add [dir: string] {
   if ($dir | path exists) {
