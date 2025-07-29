@@ -243,7 +243,7 @@ in
     "nushell/aliases.nu".text = aliasesNu;
     "nushell/shortcuts.nu".text = shortcutsNu;
     "nushell/integrations.nu".text = integrationsNu;
-    "nushell/prompt.nu" = ./prompt.nu;
+    "nushell/prompt.nu".source = ./prompt.nu;
   };
 }
 
