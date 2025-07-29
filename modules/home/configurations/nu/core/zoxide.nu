@@ -1,7 +1,6 @@
 #!/usr/bin/env nu
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # modules/darwin/home/nu/core/zoxide.nu (begin)
-
 export-env {
   $env.config = (
     $env.config?
@@ -44,6 +43,5 @@ def --env --wrapped __zoxide_zi [...rest: string] {
 
 alias z = __zoxide_z
 alias zi = __zoxide_zi
-
 # modules/darwin/home/nu/core/zoxide.nu (end)
 

@@ -41,10 +41,12 @@ in
     };
 
     extraConfig = ''
+      source paths.nu
+
       $env.LS_COLORS = (vivid generate ${appTheme})
       $env.EZA_COLORS = $env.LS_COLORS
 
-      source paths.nu
+      source wezterm.nu
 
       source atuin.nu
       source direnv.nu
@@ -66,6 +68,8 @@ in
     "nushell/macchina.nu".source = ./core/macchina.nu;
     "nushell/omp.nu".source = ./core/omp.nu;
     "nushell/paths.nu".source = ./core/paths.nu;
+    "nushell/wezterm.nu".source = ./core/wezterm.nu;
     "nushell/zoxide.nu".source = ./core/zoxide.nu;
   };
 }
+
