@@ -22,4 +22,3 @@
     XST = config.xdg.stateHome;
   };
 }
-

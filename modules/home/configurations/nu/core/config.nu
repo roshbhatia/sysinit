@@ -42,13 +42,13 @@ $env.config = {
   ]
 }
 
-source ~/.config/nushell/aliases.nu
-source ~/.config/nushell/atuin.nu
-source ~/.config/nushell/carapace.nu
-source ~/.config/nushell/direnv.nu
-source ~/.config/nushell/kubectl.nu
-source ~/.config/nushell/macchina.nu
-source ~/.config/nushell/omp.nu
-source ~/.config/nushell/zoxide.nu
+source aliases.nu
+source atuin.nu
+source carapace.nu
+source direnv.nu
+source kubectl.nu
+source macchina.nu
+source omp.nu
+source zoxide.nu
 # modules/darwin/home/nu/core/config.nu (end)
 
