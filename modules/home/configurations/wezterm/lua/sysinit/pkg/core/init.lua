@@ -1,10 +1,10 @@
----@diagnostic disable: ambiguity-1
 local M = {}
 
 local username = os.getenv("USER")
-local home = os.getenv("HOME") or "/home/" .. username
+local home = (os.getenv("HOME") or "/home/") .. username
 
 local nix_bin = "/etc/profiles/per-user/" .. username .. "/bin/"
+local nushell_config_dir = home .. "/.config/nushell"
 
 local function get_basic_config()
 	return {
@@ -17,9 +17,11 @@ local function get_basic_config()
 		default_prog = {
 			nix_bin .. "nu",
 			"--config",
-			home .. "/.config/nushell/config.nu",
+			nushell_config_dir .. "/config.nu",
 			"--env-config",
-			home .. "/.config/nushell/env.nu",
+			nushell_config_dir .. "/env.nu",
+			"--include-path",
+			nushell_config_dir,
 		},
 	}
 end
