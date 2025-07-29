@@ -42,16 +42,12 @@
 
           packages = [
             pkgs.bashInteractive
-            pkgs.nu
-            pkgs.zsh
           ];
 
           activation.setBash = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
             export PATH="${pkgs.bashInteractive}/bin:$PATH"
           '';
         };
-
-        shell = pkgs.nu;
       };
   };
 }

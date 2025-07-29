@@ -4,10 +4,14 @@ local function get_basic_config()
 	return {
 		set_environment_variables = {
 			TERM = "wezterm",
+			PATH = os.getenv("PATH"),
 		},
 		automatically_reload_config = true,
 		pane_focus_follows_mouse = true,
 		status_update_interval = 25,
+		default_prog = {
+			"nu",
+		},
 	}
 end
 
@@ -19,3 +23,4 @@ function M.setup(config)
 end
 
 return M
+
