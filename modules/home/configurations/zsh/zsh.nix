@@ -8,11 +8,7 @@
 let
   shell = import ../../../lib/shell { inherit lib; };
   themes = import ../../../lib/themes { inherit lib; };
-  palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
-  ansiMappings =
-    themes.ansiMappings.${values.theme.colorscheme}.${values.theme.variant}
-      or themes.ansiMappings.catppuccin.macchiato;
-
+  appTheme = themes.getAppTheme "vivid" values.theme.colorscheme values.theme.variant;
   paths = shell.stripHeaders ./core/paths.sh;
   wezterm = shell.stripHeaders ./core/wezterm.sh;
   completions = shell.stripHeaders ./core/completions.sh;
@@ -20,91 +16,6 @@ let
   env = shell.stripHeaders ./core/env.sh;
   extras = shell.stripHeaders ./core/extras.sh;
   prompt = shell.stripHeaders ./core/prompt.sh;
-
-  getThemeColors =
-    colorscheme:
-    if colorscheme == "catppuccin" then
-      {
-        autosuggest = palette.mauve or "#ca9ee6";
-        fzf = {
-          spinner = palette.pink or "#f4b8e4";
-          hl = palette.red or "#e78284";
-          border = palette.overlay0 or "#737994";
-          label = palette.text or "#c6d0f5";
-          fg = palette.text or "#c6d0f5";
-          header = palette.red or "#e78284";
-          info = palette.sky or "#99d1db";
-          pointer = palette.pink or "#f4b8e4";
-          marker = palette.mauve or "#ca9ee6";
-          prompt = palette.sky or "#99d1db";
-        };
-      }
-    else if colorscheme == "rose-pine" then
-      {
-        autosuggest = palette.iris or "#c4a7e7";
-        fzf = {
-          spinner = palette.love or "#eb6f92";
-          hl = palette.love or "#eb6f92";
-          border = palette.subtle or "#908caa";
-          label = palette.text or "#e0def4";
-          fg = palette.text or "#e0def4";
-          header = palette.love or "#eb6f92";
-          info = palette.foam or "#9ccfd8";
-          pointer = palette.love or "#eb6f92";
-          marker = palette.iris or "#c4a7e7";
-          prompt = palette.foam or "#9ccfd8";
-        };
-      }
-    else if colorscheme == "gruvbox" then
-      {
-        autosuggest = palette.purple or "#d3869b";
-        fzf = {
-          spinner = palette.orange or "#fe8019";
-          hl = palette.red or "#fb4934";
-          border = palette.gray or "#928374";
-          label = palette.fg1 or "#ebdbb2";
-          fg = palette.fg1 or "#ebdbb2";
-          header = palette.red or "#fb4934";
-          info = palette.blue or "#83a598";
-          pointer = palette.orange or "#fe8019";
-          marker = palette.purple or "#d3869b";
-          prompt = palette.blue or "#83a598";
-        };
-      }
-    else if colorscheme == "solarized" then
-      {
-        autosuggest = palette.violet or "#6c71c4";
-        fzf = {
-          spinner = palette.orange or "#cb4b16";
-          hl = palette.red or "#dc322f";
-          border = palette.base01 or "#586e75";
-          label = palette.base0 or "#839496";
-          fg = palette.base0 or "#839496";
-          header = palette.red or "#dc322f";
-          info = palette.blue or "#268bd2";
-          pointer = palette.orange or "#cb4b16";
-          marker = palette.violet or "#6c71c4";
-          prompt = palette.blue or "#268bd2";
-        };
-      }
-    else
-      {
-        autosuggest = "#c6a0f6";
-        fzf = {
-          spinner = "#f5bde6";
-          hl = "#ed8796";
-          border = "#6e738d";
-          label = "#cad3f5";
-          fg = "#cad3f5";
-          header = "#ed8796";
-          info = "#91d7e3";
-          pointer = "#f5bde6";
-          marker = "#c6a0f6";
-          prompt = "#91d7e3";
-        };
-      };
-
-  themeColors = getThemeColors values.theme.colorscheme;
 in
 {
   programs.carapace.enableZshIntegration = true;
@@ -167,15 +78,10 @@ in
       ZSH_AUTOSUGGEST_USE_ASYNC = 1;
       ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = 20;
       ZSH_AUTOSUGGEST_MANUAL_REBIND = 1;
-      ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE = "fg=${themeColors.autosuggest},italic";
       ZVM_LINE_INIT_MODE = "i";
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
         "--bind='resize:refresh-preview'"
-        "--color=bg+:-1,bg:-1,spinner:${themeColors.fzf.spinner},hl:${themeColors.fzf.hl}"
-        "--color=border:${themeColors.fzf.border},label:${themeColors.fzf.label}"
-        "--color=fg:${themeColors.fzf.fg},header:${themeColors.fzf.header},info:${themeColors.fzf.info},pointer:${themeColors.fzf.pointer}"
-        "--color=marker:${themeColors.fzf.marker},fg+:${themeColors.fzf.fg},prompt:${themeColors.fzf.prompt},hl+:${themeColors.fzf.hl}"
         "--cycle"
         "--height=30"
         "--highlight-line"
@@ -191,28 +97,8 @@ in
         "--scheme='history'"
         "--style='minimal'"
       ];
-      EZA_COLORS = lib.concatStringsSep ";" [
-        "di=38;5;${ansiMappings.blue or "117"}"
-        "ln=38;5;${ansiMappings.peach or ansiMappings.orange or "216"}"
-        "so=38;5;${ansiMappings.mauve or ansiMappings.purple or "183"}"
-        "pi=38;5;${ansiMappings.teal or ansiMappings.aqua or "152"}"
-        "ex=38;5;${ansiMappings.green or "151"}"
-        "bd=38;5;${ansiMappings.yellow or "223"};48;5;${ansiMappings.surface1 or ansiMappings.bg1 or "238"}"
-        "cd=38;5;${ansiMappings.pink or ansiMappings.red or "211"};48;5;${
-          ansiMappings.surface1 or ansiMappings.bg1 or "238"
-        }"
-        "su=38;5;${ansiMappings.pink or ansiMappings.red or "211"};48;5;${
-          ansiMappings.surface2 or ansiMappings.bg2 or "240"
-        }"
-        "sg=38;5;${ansiMappings.peach or ansiMappings.orange or "216"};48;5;${
-          ansiMappings.surface2 or ansiMappings.bg2 or "240"
-        }"
-        "tw=38;5;${ansiMappings.green or "151"};48;5;${ansiMappings.surface1 or ansiMappings.bg1 or "238"}"
-        "ow=38;5;${ansiMappings.teal or ansiMappings.aqua or "152"};48;5;${
-          ansiMappings.surface1 or ansiMappings.bg1 or "238"
-        }"
-      ];
       COLIMA_HOME = "${config.xdg.configHome}/colima";
+      VIVID_THEME = appTheme;
     };
     plugins = [
       {
@@ -328,3 +214,4 @@ in
     ];
   };
 }
+

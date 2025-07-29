@@ -39,16 +39,9 @@ $env.config = {
         ]
       }
     }
-  ]
+  ],
+  table_mode: 'rounded',
+  use_ls_colors: true
 }
-
-source aliases.nu
-source atuin.nu
-source carapace.nu
-source direnv.nu
-source kubectl.nu
-source macchina.nu
-source omp.nu
-source zoxide.nu
 # modules/darwin/home/nu/core/config.nu (end)
 

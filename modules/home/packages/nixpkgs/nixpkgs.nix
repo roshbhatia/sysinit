@@ -111,6 +111,7 @@ let
     typescript-language-server
     uv
     vale
+    vivid
     vscode-langservers-extracted
     watch
     weechat
@@ -129,3 +130,4 @@ in
 {
   home.packages = allNixPackages;
 }
+

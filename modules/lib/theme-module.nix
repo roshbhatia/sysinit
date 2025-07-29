@@ -55,6 +55,7 @@ in
         bat = themes.getAppTheme "bat" cfg.colorscheme cfg.variant;
         git = themes.getAppTheme "delta" cfg.colorscheme cfg.variant;
         atuin = themes.getAppTheme "atuin" cfg.colorscheme cfg.variant;
+        vivid = themes.getAppTheme "vivid" cfg.colorscheme cfg.variant;
       };
       description = "App-specific theme names";
     };
@@ -70,3 +71,4 @@ in
 
   config = { };
 }
+

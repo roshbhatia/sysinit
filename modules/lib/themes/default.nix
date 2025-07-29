@@ -214,6 +214,22 @@ let
         dark = "solarized-dark";
       };
     };
+
+    vivid = {
+      catppuccin = {
+        macchiato = "catppuccin-macchiato";
+      };
+      rose-pine = {
+        moon = "rose-pine-moon";
+      };
+      gruvbox = {
+        dark = "gruvbox-dark";
+      };
+      solarized = {
+        dark = "solarized-dark";
+      };
+    };
+
   };
 
   # Helper function to get current theme palette
@@ -294,3 +310,4 @@ in
     ansiMappings
     ;
 }
+
