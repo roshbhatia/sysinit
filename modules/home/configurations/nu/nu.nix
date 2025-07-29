@@ -41,8 +41,8 @@ in
     };
 
     extraConfig = ''
-      let ls_colors = (vivid generate ${appTheme})
-      config set-env LS_COLORS $ls_colors
+      $env.LS_COLORS = (vivid generate ${appTheme})
+      $env.EZA_COLORS = $env.LS_COLORS
 
       source paths.nu
 
