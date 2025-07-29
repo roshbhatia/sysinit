@@ -32,7 +32,7 @@ _log() {
   local timestamp="$(_log_timestamp)"
   local log_line="${STYLE_DIM}${timestamp}${COLOR_RESET} ${color}${level_name}${COLOR_RESET} ${message}"
 
-  echo "$log_line"
+  echo -e "$log_line"
 }
 
 if [ -z "${XDG_CONFIG_HOME+x}" ]; then
@@ -87,12 +87,12 @@ log_command() {
   local output
   if output=$(eval "$cmd" 2>&1); then
     log_success "$description completed"
-    [ -n "$output" ] && echo "$output"
+    [ -n "$output" ] && echo -e "$output"
     return 0
   else
     local exit_code=$?
     log_error "$description failed with exit code $exit_code"
-    [ -n "$output" ] && echo "$output"
+    [ -n "$output" ] && echo -e "$output"
     return $exit_code
   fi
 }
