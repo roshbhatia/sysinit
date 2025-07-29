@@ -20,3 +20,4 @@ require("sysinit.plugins.ui.tabline").setup(config)
 require("sysinit.pkg.ui").setup(config)
 
 return config
+

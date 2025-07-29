@@ -1,6 +1,5 @@
 #!/usr/bin/env nu
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
-# shellcheck disable=all
 # modules/darwin/home/nu/core/zoxide.nu (begin)
 
 export-env {
@@ -11,34 +10,40 @@ export-env {
     | upsert hooks.env_change { default {} }
     | upsert hooks.env_change.PWD { default [] }
   )
+
   let __zoxide_hooked = (
-    $env.config.hooks.env_change.PWD | any { try { get __zoxide_hook } catch { false } }
+    $env.config.hooks.env_change.PWD
+    | any { try { get __zoxide_hook } catch { false } }
   )
+
   if not $__zoxide_hooked {
-    $env.config.hooks.env_change.PWD = ($env.config.hooks.env_change.PWD | append {
-      __zoxide_hook: true,
-      code: {|_, dir| zoxide add -- $dir}
-    })
+    $env.config.hooks.env_change.PWD = (
+      $env.config.hooks.env_change.PWD
+      | append {
+          __zoxide_hook: true,
+          code: {|_, dir| zoxide add -- $dir }
+        }
+    )
   }
 }
 
 def --env --wrapped __zoxide_z [...rest: string] {
   let path = match $rest {
-    [] => {'~'},
-    [ '-' ] => {'-'},
-    [ $arg ] if ($arg | path type) == 'dir' => {$arg}
-    _ => {
-      zoxide query --exclude $env.PWD -- ...$rest | str trim -r -c "\n"
-    }
+    [] => '~'
+    [ '-' ] => '-'
+    [ $arg ] if ($arg | path type) == 'dir' => $arg
+    _ => (zoxide query --exclude $env.PWD -- ...$rest | str trim -r -c "\n")
   }
-  cd $path
+  dirs add $path
 }
 
-def --env --wrapped __zoxide_zi [...rest:string] {
-  cd $'(zoxide query --interactive -- ...$rest | str trim -r -c "\n")'
+def --env --wrapped __zoxide_zi [...rest: string] {
+  let path = (zoxide query --interactive -- ...$rest | str trim -r -c "\n")
+  dirs add $path
 }
 
 alias z = __zoxide_z
 alias zi = __zoxide_zi
+
 # modules/darwin/home/nu/core/zoxide.nu (end)
 

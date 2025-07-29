@@ -1,7 +1,7 @@
 local M = {}
 
 local username = os.getenv("USER")
-local home = (os.getenv("HOME") or "/home/") .. username
+local home = os.getenv("HOME")
 
 local nix_bin = "/etc/profiles/per-user/" .. username .. "/bin/"
 local nushell_config_dir = home .. "/.config/nushell"
