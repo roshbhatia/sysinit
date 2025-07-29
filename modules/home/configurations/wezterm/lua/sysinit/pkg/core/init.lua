@@ -21,9 +21,9 @@ local function get_basic_config()
 		home .. "/bin",
 		home .. "/go/bin",
 	}
-	
+
 	local path = table.concat(path_components, ":")
-	
+
 	return {
 		set_environment_variables = {
 			TERM = "wezterm",

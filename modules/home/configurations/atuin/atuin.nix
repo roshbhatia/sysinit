@@ -27,6 +27,10 @@ in
       theme = {
         name = atuinTheme;
       };
+      # For some reason, this pops up in nushell when using atuin
+      history_filter = [
+        "with-env .*atuin search.*"
+      ];
     };
   };
 
@@ -61,3 +65,4 @@ in
     })
   ];
 }
+

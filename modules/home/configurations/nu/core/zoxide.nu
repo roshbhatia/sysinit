@@ -1,6 +1,8 @@
 #!/usr/bin/env nu
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # modules/darwin/home/nu/core/zoxide.nu (begin)
+use std/dirs
+
 export-env {
   $env.config = (
     $env.config?
