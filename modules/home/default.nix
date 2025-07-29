@@ -45,12 +45,13 @@
             pkgs.nu
             pkgs.zsh
           ];
+
+          activation.setBash = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
+            export PATH="${pkgs.bashInteractive}/bin:$PATH"
+          '';
         };
 
-        home.activation.setBash = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
-          export PATH="${pkgs.bashInteractive}/bin:$PATH"
-        '';
-        users.users.${username}.shell = pkgs.nu;
+        shell = pkgs.nu;
       };
   };
 }

@@ -27,4 +27,3 @@ function M.setup(config)
 end
 
 return M
-
