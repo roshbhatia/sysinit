@@ -7,6 +7,9 @@ M.plugins = {
 		branch = "main",
 		lazy = false,
 		opts = {
+			highlight = {
+				enable = true,
+			},
 			incremental_selection = {
 				enable = true,
 				keymaps = {
@@ -107,3 +110,4 @@ M.plugins = {
 }
 
 return M
+

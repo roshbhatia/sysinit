@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 log_warn() {
-  echo -e "\033[1;33mWARNING:\033[0m $*" >&2
+  echo "\033[1;33mWARNING:\033[0m $*" >&2
 }
 log_error() {
-  echo -e "\033[1;31mERROR:\033[0m $*" >&2
+  echo "\033[1;31mERROR:\033[0m $*" >&2
 }
 if ! command -v opencode &>/dev/null; then
   log_error "opencode not installed"
@@ -56,3 +56,4 @@ if [[ -z "$valid_msg" ]]; then
   valid_msg="chore: updates"
 fi
 git commit -m "$valid_msg"
+
