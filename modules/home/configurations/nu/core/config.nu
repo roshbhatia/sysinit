@@ -40,6 +40,7 @@ $env.config = {
       }
     }
   ],
+  osc133: false
 }
 # modules/darwin/home/nu/core/config.nu (end)
 

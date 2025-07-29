@@ -23,6 +23,7 @@
     })
     (import ./nu {
       inherit
+        config
         lib
         values
         ;
