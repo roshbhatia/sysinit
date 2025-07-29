@@ -40,12 +40,18 @@
         home = {
           stateVersion = "23.11";
 
-          packages = [ pkgs.bashInteractive ];
+          packages = [
+            pkgs.bashInteractive
+            pkgs.nu
+            pkgs.zsh
+          ];
         };
 
         home.activation.setBash = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
           export PATH="${pkgs.bashInteractive}/bin:$PATH"
         '';
+        users.users.${username}.shell = pkgs.nu;
       };
   };
 }
+

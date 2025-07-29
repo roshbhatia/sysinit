@@ -16,7 +16,6 @@ let
     atuin
     awscli2
     bat
-    bashInteractive
     caddy
     cargo-watch
     chafa
@@ -130,3 +129,4 @@ in
 {
   home.packages = allNixPackages;
 }
+
