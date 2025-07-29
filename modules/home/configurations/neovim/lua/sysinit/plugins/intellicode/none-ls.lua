@@ -7,10 +7,31 @@ M.plugins = {
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			"nvim-treesitter/nvim-treesitter",
+			"zioroboco/nu-ls.nvim",
 		},
 		config = function()
 			local null_ls = require("null-ls")
 			local helpers = require("null-ls.helpers")
+
+			vim.filetype.add({
+				extension = {
+					nu = "nu",
+				},
+				pattern = {
+					[".*"] = {
+						priority = -math.huge,
+						function(path, bufnr)
+							local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+							if #lines > 0 then
+								local first_line = lines[1]
+								if first_line:match("^#!/usr/bin/env nu") then
+									return "nu"
+								end
+							end
+						end,
+					},
+				},
+			})
 
 			null_ls.setup({
 				border = "rounded",
@@ -36,6 +57,7 @@ M.plugins = {
 					null_ls.builtins.formatting.shfmt,
 					null_ls.builtins.hover.dictionary,
 					null_ls.builtins.hover.printenv,
+					require("nu-ls"),
 				},
 			})
 
@@ -329,3 +351,4 @@ M.plugins = {
 }
 
 return M
+

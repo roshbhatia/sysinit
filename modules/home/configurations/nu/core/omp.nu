@@ -10,7 +10,7 @@ if ($env.config? | is-not-empty) {
 $env.POWERLINE_COMMAND = 'oh-my-posh'
 $env.POSH_THEME = $"($env.XDG_CONFIG_HOME)/oh-my-posh/themes/sysinit.omp.json"
 $env.PROMPT_INDICATOR = ""
-$env.POSH_SESSION_ID = (uuid)
+$env.POSH_SESSION_ID = (random uuid)
 $env.POSH_SHELL = "nu"
 $env.POSH_SHELL_VERSION = (version | get version)
 

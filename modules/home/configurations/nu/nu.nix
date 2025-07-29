@@ -20,3 +20,4 @@
     "nushell/zoxide.nu".source = ./core/zoxide.nu;
   };
 }
+
