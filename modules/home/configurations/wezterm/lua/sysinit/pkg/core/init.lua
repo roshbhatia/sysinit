@@ -1,10 +1,13 @@
 local M = {}
 
+local username = os.getenv("USER")
+local nix_bin = "/etc/profiles/per-user/" .. username .. "/bin"
+
 local function get_basic_config()
 	return {
 		set_environment_variables = {
 			TERM = "wezterm",
-			PATH = os.getenv("PATH"),
+			PATH = os.getenv("PATH") .. ":" .. nix_bin,
 		},
 		automatically_reload_config = true,
 		pane_focus_follows_mouse = true,
