@@ -14,7 +14,7 @@ $env.POSH_SESSION_ID = (random uuid)
 $env.POSH_SHELL = "nu"
 $env.POSH_SHELL_VERSION = (version | get version)
 
-let _omp_executable: string = $"(/etc/profiles/per-user/($env.USER)/bin/oh-my-posh)"
+let _omp_executable: string = $"/etc/profiles/per-user/($env.USER)/bin/oh-my-posh"
 
 def --wrapped _omp_get_prompt [
     type: string,
