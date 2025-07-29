@@ -70,8 +70,8 @@ in
     "nushell/kubectl.nu".source = ./core/kubectl.nu;
     "nushell/macchina.nu".source = ./core/macchina.nu;
     "nushell/omp.nu".source = ./core/omp.nu;
-    "nushell/paths.nu".source = ./core/paths.nu;
     "nushell/wezterm.nu".source = ./core/wezterm.nu;
     "nushell/zoxide.nu".source = ./core/zoxide.nu;
   };
 }
+
