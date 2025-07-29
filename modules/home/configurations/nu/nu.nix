@@ -41,9 +41,7 @@ in
       watch = "watch --quiet";
     };
 
-    extraEnv = builtins.mapAttrs (
-      name: value: "\"${builtins.toString value}\""
-    ) config.home.sessionVariables;
+    environmentVariables = config.home.sessionVariables;
 
     extraConfig = ''
       source paths.nu
