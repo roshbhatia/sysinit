@@ -8,11 +8,6 @@
 {
   imports = [
     ./carapace
-    (import ./xdg {
-      inherit
-        config
-        ;
-    })
     (import ./zsh {
       inherit
         config
@@ -68,3 +63,4 @@
     })
   ];
 }
+
