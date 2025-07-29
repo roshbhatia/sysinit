@@ -87,7 +87,7 @@ _log() {
     shift
   done
 
-  echo "$log_line"
+  echo -e "$log_line"
 }
 
 # Public logging functions
@@ -134,7 +134,7 @@ set_log_level() {
 }
 
 log_help() {
-  echo "${STYLE_BOLD}Logging Library Usage:${COLOR_RESET}"
+  echo -e "${STYLE_BOLD}Logging Library Usage:${COLOR_RESET}"
   echo
   echo "Functions:"
   echo "  log_debug \"message\" [key=value ...]    - Debug level logs"
