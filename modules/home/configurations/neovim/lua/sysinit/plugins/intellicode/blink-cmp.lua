@@ -16,6 +16,7 @@ end
 M.plugins = {
 	{
 		"saghen/blink.cmp",
+		build = "cargo build --release",
 		dependencies = deps,
 		branch = "main",
 		lazy = false,
@@ -204,3 +205,4 @@ M.plugins = {
 }
 
 return M
+
