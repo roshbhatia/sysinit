@@ -228,6 +228,7 @@ let
     source ~/.config/nushell/aliases.nu
     source ~/.config/nushell/shortcuts.nu
     source ~/.config/nushell/integrations.nu
+    source ~/.config/nushell/prompt.nu
   '';
 
 in
@@ -238,11 +239,11 @@ in
     envFile.text = envNu;
   };
 
-  home.file = {
-    ".config/nushell/aliases.nu".text = aliasesNu;
-    ".config/nushell/shortcuts.nu".text = shortcutsNu;
-    ".config/nushell/integrations.nu".text = integrationsNu;
-    ".config/nushell/kubectl.nu" = ./core/kubectl.nu;
+  xdg.configFile = {
+    "nushell/aliases.nu".text = aliasesNu;
+    "nushell/shortcuts.nu".text = shortcutsNu;
+    "nushell/integrations.nu".text = integrationsNu;
+    "nushell/prompt.nu" = ./prompt.nu;
   };
 }
 
