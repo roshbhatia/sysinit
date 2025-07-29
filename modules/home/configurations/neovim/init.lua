@@ -27,6 +27,7 @@ require("sysinit.pkg.opts.undo").setup()
 require("sysinit.pkg.autocmds.buf").setup()
 require("sysinit.pkg.autocmds.force_transparency").setup()
 require("sysinit.pkg.autocmds.help").setup()
+require("sysinit.pkg.autocmds.msg-dump").setup()
 require("sysinit.pkg.autocmds.wezterm").setup()
 
 require("sysinit.pkg.utils.plugin_manager").setup_package_manager()
@@ -118,3 +119,4 @@ require("sysinit.pkg.keybindings.undo").setup()
 require("sysinit.pkg.keybindings.vim").setup()
 
 require("sysinit.pkg.entrypoint.no-session").setup()
+
