@@ -310,4 +310,3 @@ in
     ansiMappings
     ;
 }
-

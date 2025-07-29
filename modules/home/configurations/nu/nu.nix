@@ -50,7 +50,6 @@ in
       source direnv.nu
       source zoxide.nu
 
-      source aliases.nu
       source carapace.nu
       source kubectl.nu
 
@@ -60,7 +59,6 @@ in
   };
 
   xdg.configFile = {
-    "nushell/aliases.nu".source = ./core/aliases.nu;
     "nushell/atuin.nu".source = ./core/atuin.nu;
     "nushell/carapace.nu".source = ./core/carapace.nu;
     "nushell/direnv.nu".source = ./core/direnv.nu;
