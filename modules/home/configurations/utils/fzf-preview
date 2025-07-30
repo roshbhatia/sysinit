@@ -2,71 +2,105 @@
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
 # modules/home/configurations/utils/fzf-preview
+#
+# Preview script for fzf-tab with support for images, directories, and files
 
-target="${1/#\~\//$HOME/}"
-center=0
-
-if [[ ! -r "$target" ]]; then
-  if [[ "$target" =~ ^(.+):([0-9]+)\ *$ ]]; then
-    target="${match[1]}"
-    center="${match[2]}"
-  elif [[ "$target" =~ ^(.+):([0-9]+):[0-9]+\ *$ ]]; then
-    target="${match[1]}"
-    center="${match[2]}"
-  fi
+# Use realpath if available (from fzf-tab), otherwise use the first argument
+if [[ -n "$realpath" ]]; then
+  target="$realpath"
+else
+  target="${1/#\~\//$HOME/}"
 fi
 
-# Check if target is an image file
-is_image() {
-  local file="$1"
-  case "${file:l}" in
-  *.jpg | *.jpeg | *.png | *.gif | *.bmp | *.tiff | *.tga | *.webp | *.svg | *.ico | *.avif | *.heic | *.heif)
-    return 0
-    ;;
-  *)
-    return 1
-    ;;
-  esac
-}
+center=0
 
+# Handle grep-style output with line numbers (file:line or file:line:column)
+if [[ "$target" =~ ^(.+):([0-9]+)(:([0-9]+))?\ *$ ]]; then
+  target="${match[1]}"
+  center="${match[2]}"
+fi
+
+# If target is a directory, list contents
 if [[ -d "$target" ]]; then
   if command -v eza >/dev/null 2>&1; then
     eza --color=always --icons=always -1 "$target"
   else
     ls -la --color=always "$target" 2>/dev/null || ls -la "$target"
   fi
-elif is_image "$target" && [[ -r "$target" ]]; then
-  if command -v chafa >/dev/null 2>&1; then
-    # Get terminal size for optimal image display
+  exit 0
+fi
+
+# If target doesn't exist, exit early
+if [[ ! -f "$target" ]]; then
+  echo "File not found: $target" >&2
+  exit 1
+fi
+
+# Get file type using the `file` command
+type=$(file --brief --dereference --mime -- "$target" 2>/dev/null)
+
+# Handle images
+if [[ "$type" =~ image/ ]]; then
+  # Get terminal dimensions - prefer fzf-tab variables, fallback to detection
+  if [[ -n "$FZF_PREVIEW_COLUMNS" && -n "$FZF_PREVIEW_LINES" ]]; then
+    dim="${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}"
+  else
     local cols=${COLUMNS:-$(tput cols 2>/dev/null || echo 80)}
     local lines=${LINES:-$(tput lines 2>/dev/null || echo 24)}
-    # Reserve some lines for other content and adjust for aspect ratio
-    chafa --size="${cols}x$((lines - 4))" --animate=off --polite=on "$target"
-  else
-    echo "Image file: $target"
-    if command -v file >/dev/null 2>&1; then
-      file "$target"
+    dim="${cols}x$((lines - 2))"
+  fi
+
+  # Handle potential scrolling issue (from original script)
+  if [[ ! "$KITTY_WINDOW_ID" ]] && [[ -n "$FZF_PREVIEW_TOP" && -n "$FZF_PREVIEW_LINES" ]]; then
+    if ((FZF_PREVIEW_TOP + FZF_PREVIEW_LINES == $(stty size </dev/tty 2>/dev/null | awk '{print $1}' || echo 24))); then
+      dim="${FZF_PREVIEW_COLUMNS}x$((FZF_PREVIEW_LINES - 1))"
     fi
   fi
+
+  # Try different image viewers in order of preference
+  if [[ "$KITTY_WINDOW_ID" || "$GHOSTTY_RESOURCES_DIR" ]] && command -v kitten >/dev/null 2>&1; then
+    # Use Kitty's icat for best quality
+    kitten icat --clear --transfer-mode=memory --unicode-placeholder --stdin=no --place="$dim@0x0" "$target" | sed '$d' | sed $'$s/$/\e[m/'
+  elif command -v chafa >/dev/null 2>&1; then
+    # Use chafa with Sixel output
+    chafa -s "$dim" "$target"
+    echo # Add newline for fzf
+  elif command -v imgcat >/dev/null 2>&1; then
+    # Use imgcat for iTerm2
+    imgcat -W "${dim%%x*}" -H "${dim##*x}" "$target"
+  else
+    # Fallback to file info
+    file "$target"
+  fi
+  exit 0
+fi
+
+# Handle binary files
+if [[ "$type" =~ =binary ]]; then
+  file "$target"
+  exit 0
+fi
+
+# Handle text files
+# Sometimes bat is installed as batcat
+if command -v batcat >/dev/null 2>&1; then
+  batname="batcat"
+elif command -v bat >/dev/null 2>&1; then
+  batname="bat"
 else
-  if [[ -r "$target" ]]; then
-    if command -v bat >/dev/null 2>&1; then
-      if ((center > 0)); then
-        bat --style=numbers --color=always --pager=never --highlight-line="$center" -- "$target"
-      else
-        bat --style=numbers --color=always --pager=never -- "$target"
-      fi
-    else
-      if ((center > 0)); then
-        # Fallback with basic line highlighting using nl and grep
-        nl -ba "$target" | grep --color=always -C5 "^\s*$center\s"
-      else
-        cat "$target"
-      fi
-    fi
+  # Fallback to cat with optional line highlighting
+  if ((center > 0)); then
+    nl -ba "$target" | grep --color=always -C5 "^\s*$center\s" 2>/dev/null || cat "$target"
   else
-    echo "Cannot read file: $target" >&2
-    exit 1
+    cat "$target"
   fi
+  exit 0
+fi
+
+# Use bat with line highlighting
+if ((center > 0)); then
+  "$batname" --style="${BAT_STYLE:-numbers}" --color=always --pager=never --highlight-line="$center" -- "$target"
+else
+  "$batname" --style="${BAT_STYLE:-numbers}" --color=always --pager=never -- "$target"
 fi
 
