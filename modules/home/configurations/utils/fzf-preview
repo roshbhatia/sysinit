@@ -1,27 +1,46 @@
-#!/usr/bin/env zsh
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
-# shellcheck disable=all
+#!/usr/bin/env bash
+# Preview file or directory for fzf
+# Usage: fzf-preview <target>
+
+# Check if argument is provided
+if [[ $# -eq 0 ]]; then
+  echo "Error: A file or directory path is required"
+  exit 1
+fi
 
 target="${1/#\~\//$HOME}"
 center=0
 
+# Handle cases where target is not readable (e.g., grep results with line numbers)
 if [[ ! -r "$target" ]]; then
   if [[ "$target" =~ ^(.+):([0-9]+)\ *$ ]]; then
-    target="${match[1]}"
-    center="${match[2]}"
+    target="${BASH_REMATCH[1]}"
+    center="${BASH_REMATCH[2]}"
   elif [[ "$target" =~ ^(.+):([0-9]+):[0-9]+\ *$ ]]; then
-    target="${match[1]}"
-    center="${match[2]}"
+    target="${BASH_REMATCH[1]}"
+    center="${BASH_REMATCH[2]}"
   fi
 fi
 
-type=$(file --brief --dereference --mime -- "$target")
+# Exit if target still doesn't exist
+if [[ ! -e "$target" ]]; then
+  echo "Error: File or directory '$target' does not exist"
+  exit 1
+fi
+
+type=$(file --brief --dereference --mime -- "$target" 2>/dev/null)
 
 if [[ -d "$target" ]]; then
-  eza --color=always --icons=always -1 "$target"
+  # Use eza with more detailed options for directory preview
+  eza --color=always --icons=always -1 -a --group-directories-first --git "$target"
 elif [[ "$type" =~ image/ ]]; then
   wezterm imgcat "$target"
 else
-  bat --style=numbers -r 0:30 --color=always --pager=never -- "$target"
+  # Preview file with bat, handling line numbers if specified
+  if [[ $center -gt 0 ]]; then
+    bat --style=numbers --color=always --pager=never --highlight-line=$center -- "$target"
+  else
+    bat --style=numbers -r 0:30 --color=always --pager=never -- "$target"
+  fi
 fi
 

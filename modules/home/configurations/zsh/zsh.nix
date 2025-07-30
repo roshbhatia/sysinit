@@ -106,6 +106,15 @@ in
         "--prompt='>> '"
         "--scheme='history'"
         "--style='minimal'"
+        "--color=fg:${palette.text or "#cad3f5"},bg:${palette.base or "#24273a"},hl:${palette.accent or "#8aadf4"}"
+        "--color=fg+:${palette.text or "#cad3f5"},bg+:${
+          palette.surface1 or palette.surface or "#494d64"
+        },hl+:${palette.accent or "#8aadf4"}"
+        "--color=info:${palette.subtext1 or "#b8c0e0"},prompt:${palette.accent or "#8aadf4"},pointer:${palette.accent or "#8aadf4"}"
+        "--color=marker:${palette.accent or "#8aadf4"},spinner:${palette.accent or "#8aadf4"},header:${palette.accent or "#8aadf4"}"
+        "--color=border:${
+          palette.surface2 or palette.overlay or "#5b6078"
+        },label:${palette.text or "#cad3f5"},query:${palette.text or "#cad3f5"}"
       ];
       COLIMA_HOME = "${config.xdg.configHome}/colima";
       VIVID_THEME = appTheme;
@@ -282,4 +291,3 @@ in
     ];
   };
 }
-
