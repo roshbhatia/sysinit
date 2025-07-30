@@ -11,7 +11,7 @@ rec {
     nix = [
       "/nix/var/nix/profiles/default/bin"
       "/etc/profiles/per-user/${username}/bin"
-      "/run/current-system/sw/bin/darwin-rebuild"
+      "/run/current-system/sw/bin"
     ];
 
     # System paths
