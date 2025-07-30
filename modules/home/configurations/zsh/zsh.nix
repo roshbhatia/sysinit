@@ -93,19 +93,18 @@ in
         "--color=marker:${palette.accent or "#8aadf4"},fg+:${palette.text or "#cad3f5"},prompt:${palette.accent or "#8aadf4"},hl+:${palette.accent or "#8aadf4"}"
         "--color=preview-bg:-1,query:${palette.text or "#cad3f5"}"
         "--cycle"
-        "--height=40%"
+        "--height=65%"
         "--highlight-line"
         "--ignore-case"
         "--info=inline"
-        "--input-border=rounded"
         "--layout=reverse"
-        "--list-border=rounded"
         "--no-scrollbar"
         "--pointer='>'"
         "--preview-border=rounded"
+        "--preview-window=right:50%:wrap"
         "--prompt='>> '"
         "--scheme='history'"
-        "--style='minimal'"
+        "--style=minimal"
       ];
       COLIMA_HOME = "${config.xdg.configHome}/colima";
       VIVID_THEME = appTheme;
@@ -182,6 +181,7 @@ in
           compinit -C -d "${config.xdg.configHome}/zsh/zcompdump/.zcompdump";
         fi
 
+        # Essential zsh completion configuration
         zstyle ':completion:*:git-checkout:*' sort false
         zstyle ':completion:*:descriptions' format '[%d]'
         zstyle ':completion:*' list-colors ''\${(s.:.)LS_COLORS}
@@ -189,6 +189,9 @@ in
         zstyle ':completion:*:complete:*' use-cache on
         zstyle ':completion:*' menu no
 
+        zstyle ':fzf-tab:*' use-fzf-default-opts yes
+
+        zstyle ':fzf-tab:complete:rm:*' fzf-preview 'fzf-preview "$realpath"'
         zstyle ':fzf-tab:complete:cd:*' fzf-preview 'fzf-preview "$realpath"'
         zstyle ':fzf-tab:complete:cat:*' fzf-preview  'fzf-preview "$realpath"'
         zstyle ':fzf-tab:complete:bat:*' fzf-preview  'fzf-preview "$realpath"'
@@ -196,8 +199,6 @@ in
         zstyle ':fzf-tab:complete:vim:*' fzf-preview 'fzf-preview "$realpath"'
         zstyle ':fzf-tab:complete:vi:*' fzf-preview 'fzf-preview "$realpath"'
         zstyle ':fzf-tab:complete:v:*' fzf-preview 'fzf-preview "$realpath"'
-
-        zstyle ':fzf-tab:*' use-fzf-default-opts yes
       '')
       ''
         path.print() {
