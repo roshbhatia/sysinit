@@ -189,6 +189,9 @@ in
         zstyle ':completion:*:complete:*' use-cache on
         zstyle ':completion:*' menu no
 
+        zstyle ':fzf-tab:*' fzf-bindings 'space:accept'
+        zstyle ':fzf-tab:*' accept-line enter
+
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
 
         zstyle ':fzf-tab:complete:rm:*' fzf-preview 'fzf-preview "$realpath"'

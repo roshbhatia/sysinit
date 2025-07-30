@@ -9,26 +9,6 @@ zvm_after_init_commands+="_evalcache kubectl completion zsh"
 zvm_after_init_commands+="_evalcache docker completion zsh"
 zvm_after_init_commands+="_evalcache task --completion zsh"
 zvm_after_init_commands+="complete -C '/etc/profiles/per-user/$USER/bin/aws_completer' aws"
-
-# These need to be set prior to zoxide init
-export _ZO_FZF_OPTS=" \
---preview-window=right:60%:wrap:border-rounded \
---height=80% \
---layout=reverse \
---border=rounded \
---margin=1 \
---padding=1 \
---info=inline-right \
---prompt='❯ ' \
---pointer='▶' \
---marker='✓' \
---scrollbar='||' \
---color=bg+:,bg:,spinner:#ebbcba,hl:#eb6f92 \
---color=fg:#e0def4,header:#eb6f92,info:#9ccfd8,pointer:#ebbcba \
---color=marker:#c4a7e7,fg+:#e0def4,prompt:#9ccfd8,hl+:#eb6f92 \
---color=selected-bg:#31748f \
---color=border:#2a273f,label:#e0def4 \
---bind='resize:refresh-preview'"
 zvm_after_init_commands+=$'_evalcache zoxide init zsh'
 # Override the zoxide shorthand to use pushd
 zvm_after_init_commands+=$'\nfunction z() { local dir; dir=$(zoxide query "$@"); pushd "$dir"; }'
