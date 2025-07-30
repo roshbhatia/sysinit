@@ -87,7 +87,6 @@ in
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
         "--bind='resize:refresh-preview'"
-        "--border=rounded"
         "--color=bg+:-1,bg:-1,spinner:${palette.accent or "#8aadf4"},hl:${palette.accent or "#8aadf4"}"
         "--color=border:${
           palette.surface2 or palette.overlay or "#5b6078"
@@ -96,23 +95,35 @@ in
         "--color=marker:${palette.accent or "#8aadf4"},fg+:${palette.text or "#cad3f5"},prompt:${palette.accent or "#8aadf4"},hl+:${palette.accent or "#8aadf4"}"
         "--color=preview-bg:-1,query:${palette.text or "#cad3f5"}"
         "--cycle"
-        "--height=65%"
+        "--height=30"
         "--highlight-line"
         "--ignore-case"
         "--info=inline"
+        "--input-border=rounded"
         "--layout=reverse"
+        "--list-border=rounded"
         "--no-scrollbar"
         "--pointer='>'"
         "--preview-border=rounded"
-        "--preview-window=right:50%:wrap"
         "--prompt='>> '"
         "--scheme='history'"
-        "--style=minimal"
+        "--style='minimal'"
       ];
+
       COLIMA_HOME = "${config.xdg.configHome}/colima";
       VIVID_THEME = appTheme;
     };
     plugins = [
+      {
+        name = "fzf-tab";
+        src = pkgs.fetchFromGitHub {
+          owner = "Aloxaf";
+          repo = "fzf-tab";
+          rev = "fc6f0dcb2d5e41a4a685bfe9af2f2393dc39f689";
+          sha256 = "sha256-q26XVS/LcyZPRqDNwKKA9exgBByE0muyuNb0Bbar2lY=";
+        };
+        file = "fzf-tab.plugin.zsh";
+      }
       {
         name = "zsh-vi-mode";
         src = pkgs.fetchFromGitHub {
@@ -132,16 +143,6 @@ in
           sha256 = "GAjsTQJs9JdBEf9LGurme3zqXN//kVUM2YeBo0sCR2c=";
         };
         file = "evalcache.plugin.zsh";
-      }
-      {
-        name = "fzf-tab";
-        src = pkgs.fetchFromGitHub {
-          owner = "Aloxaf";
-          repo = "fzf-tab";
-          rev = "v1.2.0";
-          sha256 = "sha256-q26XVS/LcyZPRqDNwKKA9exgBByE0muyuNb0Bbar2lY=";
-        };
-        file = "fzf-tab.plugin.zsh";
       }
       {
         name = "zsh-autosuggestions";
@@ -254,3 +255,4 @@ in
     ];
   };
 }
+
