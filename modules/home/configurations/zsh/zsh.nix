@@ -203,7 +203,7 @@ in
         zstyle ':fzf-tab:complete:vi:*' fzf-preview 'fzf-preview "$realpath"'
         zstyle ':fzf-tab:complete:v:*' fzf-preview 'fzf-preview "$realpath"'
       '')
-      (lib.mkOrder 555 ''
+      ''
         path.print() {
           echo "$PATH" | tr ':' '\n' | bat --style=numbers,grid
         }
@@ -237,7 +237,7 @@ in
         if command -v carapace &>/dev/null; then
           eval "$(carapace _carapace)"
         fi
-      '')
+      ''
       (lib.mkAfter ''
         function zvm_vi_yank() {
           zvm_yank
