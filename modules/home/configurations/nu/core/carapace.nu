@@ -1,6 +1,14 @@
 #!/usr/bin/env nu
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
+#
+# To enable completions for argc-based scripts, install argc via Homebrew:
+#   brew install argc
+# See official docs: https://github.com/sigoden/argc#install
+#
+# To enable argc completions in Nushell, run:
+#   argc --argc-completions nushell <your-cmd>
+# and update your Nushell config accordingly.
 
 def --env get-env [name] { $env | get $name }
 def --env set-env [name, value] { load-env { $name: $value } }
@@ -45,6 +53,14 @@ let fish_completer = {|spans|
   }
 }
 
+let argc_completer = {|spans|
+  let resolved_cmd = resolve_alias $spans.0
+  let spans_for_completion = $spans | skip 1 | prepend $resolved_cmd
+  argc --argc-compgen nushell $spans_for_completion.0 ...$spans_for_completion
+  | from json
+  | if ($in | default [] | where value =~ '^-.*ERR$' | is-empty) { $in } else { null }
+}
+
 let external_completer = {|spans|
   let resolved_cmd = resolve_alias $spans.0
   let spans_for_completion = $spans | skip 1 | prepend $resolved_cmd
@@ -52,6 +68,7 @@ let external_completer = {|spans|
   match $resolved_cmd {
     nu => $fish_completer
     git => $fish_completer
+    argc => $argc_completer
     _ => $carapace_completer
   } | do $in $spans_for_completion
 }
@@ -66,4 +83,10 @@ $env.config = ($env.config | default {} | merge {
   }
 })
 # modules/darwin/home/nu/core/carapace.nu (end)
+#
+# To add completions for your own argc-based scripts, see:
+#   https://github.com/sigoden/argc#completions
+# and run:
+#   argc --argc-completions nushell <your-cmd>
+# Then update your Nushell config as needed.
 
