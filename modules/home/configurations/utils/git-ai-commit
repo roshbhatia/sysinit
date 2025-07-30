@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
-log_warn() {
-  echo "\033[1;33mWARNING:\033[0m $*" >&2
-}
-log_error() {
-  echo "\033[1;31mERROR:\033[0m $*" >&2
-}
+# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
+# shellcheck disable=all
+# modules/home/configurations/utils/git-ai-commit
+
+source "$(dirname "$0")/loglib.sh"
 if ! command -v opencode &>/dev/null; then
   log_error "opencode not installed"
   exit 1

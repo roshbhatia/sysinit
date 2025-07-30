@@ -1,5 +1,17 @@
 #!/usr/bin/env bash
-# Flush DNS cache with visual feedback
+# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
+# shellcheck disable=all
+# modules/home/configurations/utils/dns-flush
+
+source "$(dirname "$0")/loglib.sh"
+
 gum spin --spinner dot --title "Flushing DNS cache..." -- \
-    sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder
-gum style --foreground "#00ff00" "✓ DNS cache flushed successfully"
+  sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder
+
+if [[ $? -eq 0 ]]; then
+  log_success "DNS cache flushed successfully"
+else
+  log_error "Failed to flush DNS cache"
+  exit 1
+fi
+

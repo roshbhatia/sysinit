@@ -7,7 +7,9 @@ function M.setup()
 	-- Unset the above
 	vim.api.nvim_create_autocmd("VimLeave", {
 		callback = function()
-			vim.fn.system('printf "\\033]1337;SetUserVar=IS_NVIM=%s\\007" "false"')
+			pcall(function()
+				vim.fn.system('printf "\\033]1337;SetUserVar=IS_NVIM=%s\\007" "false"')
+			end)
 		end,
 	})
 end

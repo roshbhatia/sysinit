@@ -1,41 +1,25 @@
 #!/usr/bin/env bash
-# Preview file or directory for fzf
-# Usage: fzf-preview <target>
+# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
+# shellcheck disable=all
+# modules/home/configurations/utils/fzf-preview
 
-# Debug: log arguments for troubleshooting
-# echo "DEBUG: Args: $*" >> /tmp/fzf-preview.log
-# echo "DEBUG: \$1: '$1'" >> /tmp/fzf-preview.log
-
-# Check if argument is provided
 if [[ $# -eq 0 ]]; then
   echo "No file specified for preview"
   exit 0
 fi
 
-# Strip trailing whitespace (common with fzf-tab)
-target="${1/#\~\//$HOME}"
-target="${target%% }"  # Remove trailing spaces
-target="${target%%$'\t'}"  # Remove trailing tabs
+expanded_target=$(eval echo "$1")
+
+target="${expanded_target%% }"
+target="${target%%$'\t'}"
+
 center=0
 
-# Handle empty or whitespace-only arguments
 if [[ -z "$target" || "$target" =~ ^[[:space:]]*$ ]]; then
-  echo "No file specified for preview"
+  echo "No file specified for preview after expansion"
   exit 0
 fi
 
-# If target is a relative path and doesn't exist, try to resolve it
-if [[ ! -e "$target" && "$target" != /* ]]; then
-  # Try current directory first
-  if [[ -e "./$target" ]]; then
-    target="./$target"
-  # Try without leading ./
-  elif [[ -e "${target#./}" ]]; then
-    target="${target#./}"
-  fi
-fi
-
-# Handle cases where target is not readable (e.g., grep results with line numbers)
 if [[ ! -r "$target" ]]; then
   if [[ "$target" =~ ^(.+):([0-9]+)\ *$ ]]; then
     target="${BASH_REMATCH[1]}"
@@ -46,7 +30,6 @@ if [[ ! -r "$target" ]]; then
   fi
 fi
 
-# Exit if target still doesn't exist
 if [[ ! -e "$target" ]]; then
   echo "File or directory not found: $target"
   exit 0
@@ -55,16 +38,14 @@ fi
 type=$(file --brief --dereference --mime -- "$target" 2>/dev/null)
 
 if [[ -d "$target" ]]; then
-  # Use eza with more detailed options for directory preview
   eza --color=always --icons=always -1 -a --group-directories-first --git "$target"
 elif [[ "$type" =~ image/ ]]; then
   wezterm imgcat "$target"
 else
-  # Preview file with bat, handling line numbers if specified
   if [[ $center -gt 0 ]]; then
     bat --style=numbers --color=always --pager=never --highlight-line=$center -- "$target"
   else
-    bat --style=numbers -r 0:30 --color=always --pager=never -- "$target"
+    bat --style=numbers --color=always --pager=never -- "$target"
   fi
 fi
 
