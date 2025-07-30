@@ -52,6 +52,15 @@ M.plugins = {
 						return fd ~= "" and vim.fn.fnamemodify(fd, ":p:h") or vim.fn.getcwd()
 					end,
 				},
+				nu = {
+					cmd = {
+						"nu",
+						"--lsp",
+					},
+					ft = {
+						"nu",
+					},
+				},
 			}
 
 			for server, config in pairs(builtin_servers) do
@@ -144,3 +153,4 @@ M.plugins = {
 }
 
 return M
+
