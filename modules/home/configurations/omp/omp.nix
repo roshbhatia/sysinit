@@ -7,21 +7,14 @@
 let
   themes = import ../../../lib/themes { inherit lib; };
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
+  colors = themes.getUnifiedColors palette;
 
   ompColors = {
-    os = (
-      palette.accent or palette.blue or palette.pine or palette.iris or palette.violet or "#8CAAEE"
-    );
-    closer = (
-      palette.accent or palette.blue or palette.pine or palette.iris or palette.violet or "#8CAAEE"
-    );
-    pink = (
-      palette.pink or palette.love or palette.magenta or palette.purple or palette.rose or "#F4B8E4"
-    );
-    lavender = (palette.lavender or palette.iris or palette.violet or palette.foam or "#BABBF1");
-    blue = (
-      palette.blue or palette.accent or palette.pine or palette.iris or palette.violet or "#8CAAEE"
-    );
+    os = colors.primary;
+    closer = colors.primary;
+    pink = palette.pink or palette.love or palette.magenta or palette.mauve or colors.error;
+    lavender = palette.lavender or palette.iris or palette.violet or palette.foam or colors.info;
+    blue = colors.info;
   };
 
   themeConfig = {

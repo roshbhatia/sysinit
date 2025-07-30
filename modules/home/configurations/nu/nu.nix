@@ -12,17 +12,17 @@ let
   vividTheme = themes.getAppTheme "vivid" values.theme.colorscheme values.theme.variant;
   nushellTheme = themes.getAppTheme "nushell" values.theme.colorscheme values.theme.variant;
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
+  colors = themes.getUnifiedColors palette;
 
   pathsList = paths.getAllPaths config.home.username config.home.homeDirectory;
 
-  # Organized module groups for better maintainability
   moduleGroups = {
     system = [ "theme.nu" ];
     integrations = [
       "atuin.nu"
       "direnv.nu"
       "zoxide.nu"
-      "carapace.nu"
+      "completions.nu"
     ];
     tools = [ "kubectl.nu" ];
     ui = [
@@ -32,7 +32,6 @@ let
     ];
   };
 
-  # Flatten all modules for source statements
   allModules = lib.flatten (lib.attrValues moduleGroups);
 
   moduleSourceStatements = lib.concatStringsSep "\n      " (
@@ -68,13 +67,11 @@ in
       # FZF theme configuration
       $env.FZF_DEFAULT_OPTS = [
         "--bind=resize:refresh-preview"
-        "--color=bg+:-1,bg:-1,spinner:${palette.accent or "#8aadf4"},hl:${palette.accent or "#8aadf4"}"
-        "--color=border:${
-          palette.surface2 or palette.overlay or "#5b6078"
-        },label:${palette.text or "#cad3f5"}"
-        "--color=fg:${palette.text or "#cad3f5"},header:${palette.accent or "#8aadf4"},info:${palette.subtext1 or "#b8c0e0"},pointer:${palette.accent or "#8aadf4"}"
-        "--color=marker:${palette.accent or "#8aadf4"},fg+:${palette.text or "#cad3f5"},prompt:${palette.accent or "#8aadf4"},hl+:${palette.accent or "#8aadf4"}"
-        "--color=preview-bg:-1,query:${palette.text or "#cad3f5"}"
+        "--color=bg+:-1,bg:-1,spinner:${colors.primary},hl:${colors.primary}"
+        "--color=border:${colors.border},label:${colors.foreground}"
+        "--color=fg:${colors.foreground},header:${colors.primary},info:${colors.muted},pointer:${colors.primary}"
+        "--color=marker:${colors.primary},fg+:${colors.foreground},prompt:${colors.primary},hl+:${colors.primary}"
+        "--color=preview-bg:-1,query:${colors.foreground}"
         "--cycle"
         "--height=30"
         "--highlight-line"
@@ -160,3 +157,4 @@ in
       "nushell/theme.nu".source = ./themes/${nushellTheme};
     };
 }
+

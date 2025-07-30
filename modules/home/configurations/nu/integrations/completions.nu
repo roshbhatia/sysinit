@@ -1,6 +1,7 @@
 #!/usr/bin/env nu
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
+# modules/darwin/home/nu/core/completions.nu (begin)
 
 # Environment variable helpers
 def --env get-env [name] { $env | get $name }
@@ -10,10 +11,11 @@ def --env unset-env [name] { hide-env $name }
 # Resolve alias to the actual command name
 def resolve_alias [cmd] {
   let aliases = scope aliases
-  let expansion = aliases | where name == $cmd | get -i 0.expansion
-  if $expansion != null {
-    let next_cmd = $expansion | split row ' ' | take 1
-    if (aliases | where name == $next_cmd | is-not-empty) {
+  let alias_def = $aliases | where name == $cmd | get -i 0
+  if ($alias_def | is-not-empty) {
+    let expansion = $alias_def.expansion
+    let next_cmd = $expansion | split row ' ' | get 0
+    if ($aliases | where name == $next_cmd | is-not-empty) {
       resolve_alias $next_cmd
     } else {
       $next_cmd
@@ -97,12 +99,24 @@ $env.config = ($env.config | default {} | merge {
     quick: true
     partial: true
     algorithm: "fuzzy"
+    sort: "smart"
     external: {
       enable: true
       max_results: 100
       completer: $external_completer
     }
   }
+  table: {
+    mode: rounded
+    index_mode: auto
+    show_empty: true
+    padding: { left: 1, right: 1 }
+    trim: {
+      methodology: wrapping
+      wrapping_try_keep_words: true
+      truncating_suffix: "..."
+    }
+  }
 })
-# modules/darwin/home/nu/core/carapace.nu (end)
+# modules/darwin/home/nu/core/completions.nu (end)
 

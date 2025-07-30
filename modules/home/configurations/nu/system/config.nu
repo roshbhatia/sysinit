@@ -15,6 +15,24 @@ $env.config = {
     file_format: "plaintext"
     isolation: false
   }
+  menus: [
+    {
+      name: completion_menu
+      only_buffer_difference: false
+      marker: "| "
+      type: {
+        layout: columnar
+        columns: 4
+        col_width: 20
+        col_padding: 2
+      }
+      style: {
+        text: green
+        selected_text: green_reverse
+        description_text: yellow
+      }
+    }
+  ]
   keybindings: [
     {
       name: completion_menu
@@ -28,6 +46,20 @@ $env.config = {
           { edit: complete }
         ]
       }
+    }
+    {
+      name: history_menu
+      modifier: control
+      keycode: char_r
+      mode: [emacs vi_insert vi_normal]
+      event: { send: menu name: history_menu }
+    }
+    {
+      name: help_menu
+      modifier: none
+      keycode: f1
+      mode: [emacs vi_insert vi_normal]
+      event: { send: menu name: help_menu }
     }
   ]
 }
