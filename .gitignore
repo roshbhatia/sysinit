@@ -27,3 +27,6 @@ result-*
 **/nix-darwin-master/
 **/*.old
 
+# Claude AI
+.claude/
+
