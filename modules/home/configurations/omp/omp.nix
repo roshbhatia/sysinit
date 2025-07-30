@@ -78,12 +78,6 @@ let
             style = "plain";
             type = "git";
           }
-          {
-            type = "text";
-            foreground = "p:closer";
-            style = "plain";
-            template = "{{ if .Env.POSH_VI_MODE }}({{ .Env.POSH_VI_MODE }}){{ end }}";
-          }
         ];
         type = "prompt";
       }
