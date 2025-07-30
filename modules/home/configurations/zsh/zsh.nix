@@ -88,7 +88,7 @@ in
         "--color=marker:${palette.accent or "#8aadf4"},fg+:${palette.text or "#cad3f5"},prompt:${palette.accent or "#8aadf4"},hl+:${palette.accent or "#8aadf4"}"
         "--color=preview-bg:-1,query:${palette.text or "#cad3f5"}"
         "--cycle"
-        "--height=30"
+        "--height=65%"
         "--highlight-line"
         "--ignore-case"
         "--info=inline"
@@ -97,9 +97,9 @@ in
         "--pointer='>'"
         "--preview-border=rounded"
         "--preview-window=right:50%:wrap"
-        "--preview='fzf-preview {}'"
         "--prompt='>> '"
         "--scheme='history'"
+        "--style=minimal"
       ];
       COLIMA_HOME = "${config.xdg.configHome}/colima";
       VIVID_THEME = appTheme;
