@@ -113,17 +113,8 @@ in
       COLIMA_HOME = "${config.xdg.configHome}/colima";
       VIVID_THEME = appTheme;
     };
+
     plugins = [
-      {
-        name = "fzf-tab";
-        src = pkgs.fetchFromGitHub {
-          owner = "Aloxaf";
-          repo = "fzf-tab";
-          rev = "fc6f0dcb2d5e41a4a685bfe9af2f2393dc39f689";
-          sha256 = "sha256-q26XVS/LcyZPRqDNwKKA9exgBByE0muyuNb0Bbar2lY=";
-        };
-        file = "fzf-tab.plugin.zsh";
-      }
       {
         name = "zsh-vi-mode";
         src = pkgs.fetchFromGitHub {
@@ -133,6 +124,16 @@ in
           sha256 = "sha256-xbchXJTFWeABTwq6h4KWLh+EvydDrDzcY9AQVK65RS8=";
         };
         file = "zsh-vi-mode.plugin.zsh";
+      }
+      {
+        name = "fzf-tab";
+        src = pkgs.fetchFromGitHub {
+          owner = "Aloxaf";
+          repo = "fzf-tab";
+          rev = "fc6f0dcb2d5e41a4a685bfe9af2f2393dc39f689";
+          sha256 = "sha256-1g3kToboNGXNJTd+LEIB/j76VgPdYqG2PNs3u6Zke9s=";
+        };
+        file = "fzf-tab.plugin.zsh";
       }
       {
         name = "evalcache";
@@ -165,6 +166,7 @@ in
         file = "fast-syntax-highlighting.plugin.zsh";
       }
     ];
+
     initContent = lib.mkMerge [
       (lib.mkBefore ''
         [[ -n "$SYSINIT_DEBUG" ]] && zmodload zsh/zprof
@@ -176,6 +178,7 @@ in
         RPS1=""
 
       '')
+
       (lib.mkOrder 550 ''
         mkdir -p ${config.xdg.cacheHome}/zsh
         autoload bashcompinit && bashcompinit
@@ -204,6 +207,7 @@ in
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
 
       '')
+
       ''
         path.print() {
           echo "$PATH" | tr ':' '\n' | bat --style=numbers,grid
@@ -237,6 +241,7 @@ in
         ${prompt}
 
       ''
+
       (lib.mkAfter ''
         function zvm_vi_yank() {
           zvm_yank
