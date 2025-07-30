@@ -161,7 +161,7 @@ in
     ];
     initContent = lib.mkMerge [
       (lib.mkBefore ''
-        [[ -n "''\$SYSINIT_DEBUG" ]] && zmodload zsh/zprof
+        [[ -n "$SYSINIT_DEBUG" ]] && zmodload zsh/zprof
         unset MAILCHECK
         stty stop undef
         setopt COMBINING_CHARS
@@ -186,21 +186,22 @@ in
         zstyle ':completion:*' menu no
 
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
+        zstyle ':fzf-tab:*' continuous-trigger '/'
 
-        zstyle ':fzf-tab:complete:(rm|cd|nvim|vim|vi|v):*' fzf-preview 'fzf-preview "''\$realpath"'
+        zstyle ':fzf-tab:complete:(rm|cd|nvim|vim|vi|v):*' fzf-preview 'fzf-preview "$realpath"'
       '')
       (lib.mkAfter ''
         function zvm_vi_yank() {
           zvm_yank
-          echo "''\${CUTBUFFER}" | pbcopy
+          echo "$CUTBUFFER" | pbcopy
           zvm_exit_visual_mode
         }
         function zvm_vi_delete() {
           zvm_replace_selection
-          echo "''\${CUTBUFFER}" | pbcopy
-          zvm_exit_visual_mode "''\${"1:-true"}"
+          echo "$CUTBUFFER" | pbcopy
+          zvm_exit_visual_mode "''${1:-true}"
         }
-        [[ -n "''\$SYSINIT_DEBUG" ]] && zprof
+        [[ -n "$SYSINIT_DEBUG" ]] && zprof
       '')
     ];
   };
