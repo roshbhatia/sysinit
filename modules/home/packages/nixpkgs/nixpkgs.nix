@@ -55,6 +55,7 @@ let
     helm-ls
     htop
     imagemagick
+    inshellisense
     jetbrains-mono
     jq
     jqp
@@ -135,3 +136,4 @@ in
 {
   home.packages = allNixPackages;
 }
+
