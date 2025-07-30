@@ -10,7 +10,7 @@ let
   additionalCasks = (values.homebrew.additionalPackages.casks or [ ]);
 
   baseTaps = [
-    "charmbrace/tap"
+    "charmbracelet/tap"
     "FelixKratz/formulae"
     "hashicorp/tap"
     "jakehilborn/jakehilborn"
@@ -23,7 +23,7 @@ let
     "borders"
     "bcrypt"
     "block-goose-cli"
-    "charmbrace/tap/crush"
+    "charmbracelet/tap/crush"
     "displayplacer"
     "hashicorp/tap/terraform"
     "libgit2@1.8"
