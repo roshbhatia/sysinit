@@ -1,21 +1,21 @@
 #!/usr/bin/env zsh
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
-# shellcheck disable=all
-# modules/home/configurations/utils/fzf-preview
 
-# Use realpath if available (from fzf-tab), otherwise use the first argument
+# Determine the target path
+local target
 if [[ -n "$realpath" ]]; then
   target="$realpath"
+elif [[ -n "$word" ]]; then
+  target="$word"
 else
-  target="${1/#\~\//$HOME/}"
+  target="${1}"
 fi
 
-center=0
+# Expand tilde (~) in the target path
+target="${target/#\~\/$HOME/}"
 
-# Handle grep-style output with line numbers (file:line or file:line:column)
-if [[ "$target" =~ ^(.+):([0-9]+)(:([0-9]+))?\ *$ ]]; then
-  target="${match[1]}"
-  center="${match[2]}"
+# Exit if target is empty or a literal "$word"
+if [[ -z "$target" || "$target" == "\$word" ]]; then
+  exit 0
 fi
 
 # Directory listing
@@ -29,7 +29,6 @@ fi
 
 # Image preview
 if file --brief --mime -- "$target" | grep -q "image/"; then
-  # Get terminal dimensions
   if [[ -n "$FZF_PREVIEW_COLUMNS" && -n "$FZF_PREVIEW_LINES" ]]; then
     dim="${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}"
   else
@@ -40,10 +39,6 @@ if file --brief --mime -- "$target" | grep -q "image/"; then
   echo
 else
   # Text file preview
-  if ((center > 0)); then
-    bat --style=numbers --color=always --pager=never --highlight-line="$center" -- "$target"
-  else
-    bat --style=numbers --color=always --pager=never -- "$target"
-  fi
+  bat --style=numbers --color=always --pager=never -- "$target"
 fi
 
