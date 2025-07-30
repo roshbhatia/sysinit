@@ -187,10 +187,10 @@ let
 
     bat = {
       catppuccin = {
-        macchiato = "Catppuccin Macchiato";
+        macchiato = "Catppuccin-Macchiato";
       };
       rose-pine = {
-        moon = "Rose Pine Moon";
+        moon = "Rose-Pine-Moon";
       };
       gruvbox = {
         dark = "gruvbox-dark";
@@ -325,3 +325,4 @@ in
     ansiMappings
     ;
 }
+

@@ -1,6 +1,18 @@
 #!/usr/bin/env zsh
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
+
+path_add() {
+  if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+    PATH="${PATH:+"$PATH:"}$1"
+  fi
+}
+
+path_add "/opt/homebrew/bin"
+path_add "/usr/local/bin"
+path_add "$HOME/.cargo/bin"
+path_add "/etc/profiles/per-user/$USER/bin"
+
 if [[ $# -ne 1 ]]; then
   >&2 echo "usage: $0 FILENAME[:LINENO][:IGNORED]"
   exit 1
@@ -9,7 +21,6 @@ fi
 target="${1/#\~\/$HOME/}"
 center=0
 
-# Check if the target exists and is readable, otherwise try to parse line numbers
 if [[ ! -r "$target" ]]; then
   if [[ "$target" =~ ^(.+):([0-9]+)\ *$ ]] && [[ -r "${match[1]}" ]]; then
     target="${match[1]}"
@@ -20,44 +31,34 @@ if [[ ! -r "$target" ]]; then
   fi
 fi
 
-# If after parsing, the target is still not readable, print file info and exit
 if [[ ! -r "$target" ]]; then
-  file "$1" # Print info about the original, unparseable target
+  file "$1"
   exit 1
 fi
 
 type=$(file --brief --dereference --mime -- "$target")
 
 if [[ -d "$target" ]]; then
-  # If it's a directory, list its contents with eza
   eza --color=always --icons=always -1 "$target"
 elif [[ "$type" =~ ^image/ ]]; then
-  # If it's an image, use wezterm imgcat
   if command -v wezterm &>/dev/null; then
     wezterm imgcat "$target"
   else
-    # Fallback for images if wezterm is not available
     file "$target"
   fi
 elif [[ "$type" =~ =binary ]]; then
-  # If it's a binary file, just use `file` to describe it
   file "$target"
 else
-  # Otherwise, use bat for text files.
-  # Check if bat or batcat is available
   local batname
   if command -v batcat &>/dev/null; then
     batname="batcat"
   elif command -v bat &>/dev/null; then
     batname="bat"
   else
-    # Fallback to cat if bat is not found
     cat "$target"
     exit
   fi
 
-  # Use bat to display the file, highlighting the specified line if 'center' is set.
-  # The --highlight-line option only works if center is not 0.
   if [[ "$center" -gt 0 ]]; then
     "${batname}" --style=numbers --color=always --pager=never --highlight-line="$center" -- "$target"
   else
