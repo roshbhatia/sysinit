@@ -34,4 +34,3 @@ in
     executableName = "go";
   };
 }
-
