@@ -14,7 +14,7 @@ in
     --theme="${batTheme}"
   '';
 
-  xdg.configFile."bat/themes/${batTheme}.tmTheme".source = ./themes/${batTheme}.tmTheme;
+  xdg.configFile."bat/themes/${batTheme}.tmTheme".source = ./${batTheme}.tmTheme;
 
   home.activation.buildBatCache = activation.mkActivationScript {
     description = "Build bat cache";
