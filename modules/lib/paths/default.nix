@@ -62,4 +62,3 @@ rec {
   # Generate path array for lua/wezterm
   getPathArray = username: home: getAllPaths username home;
 }
-

@@ -130,7 +130,6 @@ in
 
     "nushell/atuin.nu".source = ./core/atuin.nu;
     "nushell/carapace.nu".source = ./core/carapace.nu;
-    "nushell/completion-external.nu".source = ./core/completion-external.nu;
     "nushell/direnv.nu".source = ./core/direnv.nu;
     "nushell/kubectl.nu".source = ./core/kubectl.nu;
     "nushell/macchina.nu".source = ./core/macchina.nu;
@@ -139,3 +138,4 @@ in
     "nushell/zoxide.nu".source = ./core/zoxide.nu;
   };
 }
+
