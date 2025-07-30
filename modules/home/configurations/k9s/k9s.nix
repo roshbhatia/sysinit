@@ -5,7 +5,7 @@
 }:
 
 let
-  themes = import ../../../lib/themes { inherit lib; };
+
   skinName = values.theme.colorscheme;
 
   k9sConfig = {

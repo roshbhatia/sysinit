@@ -2,6 +2,7 @@
   config,
   lib,
   values,
+  pkgs,
   ...
 }:
 {
@@ -11,6 +12,7 @@
         config
         lib
         values
+        pkgs
         ;
     })
   ];

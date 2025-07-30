@@ -20,6 +20,7 @@ M.plugins = {
 				jqls = {},
 				lua_ls = {},
 				nil_ls = {},
+				nushell = {},
 				pyright = {},
 				terraformls = {},
 				jsonls = {
@@ -51,15 +52,6 @@ M.plugins = {
 						local fd = vim.fn.system("fd crossplane.yaml")
 						return fd ~= "" and vim.fn.fnamemodify(fd, ":p:h") or vim.fn.getcwd()
 					end,
-				},
-				nu = {
-					cmd = {
-						"nu",
-						"--lsp",
-					},
-					ft = {
-						"nu",
-					},
 				},
 			}
 

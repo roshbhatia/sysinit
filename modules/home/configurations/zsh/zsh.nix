@@ -11,9 +11,7 @@ let
   paths_lib = import ../../../lib/paths { inherit config lib; };
   appTheme = themes.getAppTheme "vivid" values.theme.colorscheme values.theme.variant;
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
-  ansiCodes =
-    themes.ansiMappings.${values.theme.colorscheme}.${values.theme.variant}
-      or themes.ansiMappings.catppuccin.macchiato;
+
   pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;
   wezterm = shell.stripHeaders ./core/wezterm.sh;
   completions = shell.stripHeaders ./core/completions.sh;

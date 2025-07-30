@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ ... }:
 
 let
   palettes = {
@@ -257,7 +257,7 @@ let
     app: colorscheme: variant:
     appThemes.${app}.${colorscheme}.${variant} or "${colorscheme}-${variant}";
 
-  hexToAnsi = hex: ansiCode: "38;5;${toString ansiCode}";
+  hexToAnsi = ansiCode: "38;5;${toString ansiCode}";
 
   ansiMappings = {
     catppuccin = {
