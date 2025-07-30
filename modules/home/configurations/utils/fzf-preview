@@ -2,8 +2,6 @@
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
 # modules/home/configurations/utils/fzf-preview
-#
-# Preview script for fzf-tab with support for images, directories, and files
 
 # Use realpath if available (from fzf-tab), otherwise use the first argument
 if [[ -n "$realpath" ]]; then
@@ -20,87 +18,32 @@ if [[ "$target" =~ ^(.+):([0-9]+)(:([0-9]+))?\ *$ ]]; then
   center="${match[2]}"
 fi
 
-# If target is a directory, list contents
+# Directory listing
 if [[ -d "$target" ]]; then
-  if command -v eza >/dev/null 2>&1; then
-    eza --color=always --icons=always -1 "$target"
-  else
-    ls -la --color=always "$target" 2>/dev/null || ls -la "$target"
-  fi
+  eza --color=always --icons=always -1 "$target"
   exit 0
 fi
 
-# If target doesn't exist, exit early
-if [[ ! -f "$target" ]]; then
-  echo "File not found: $target" >&2
-  exit 1
-fi
+# Exit if file doesn't exist
+[[ ! -f "$target" ]] && exit 1
 
-# Get file type using the `file` command
-type=$(file --brief --dereference --mime -- "$target" 2>/dev/null)
-
-# Handle images
-if [[ "$type" =~ image/ ]]; then
-  # Get terminal dimensions - prefer fzf-tab variables, fallback to detection
+# Image preview
+if file --brief --mime -- "$target" | grep -q "image/"; then
+  # Get terminal dimensions
   if [[ -n "$FZF_PREVIEW_COLUMNS" && -n "$FZF_PREVIEW_LINES" ]]; then
     dim="${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}"
   else
-    local cols=${COLUMNS:-$(tput cols 2>/dev/null || echo 80)}
-    local lines=${LINES:-$(tput lines 2>/dev/null || echo 24)}
-    dim="${cols}x$((lines - 2))"
+    dim="$(tput cols)x$(tput lines)"
   fi
 
-  # Handle potential scrolling issue (from original script)
-  if [[ ! "$KITTY_WINDOW_ID" ]] && [[ -n "$FZF_PREVIEW_TOP" && -n "$FZF_PREVIEW_LINES" ]]; then
-    if ((FZF_PREVIEW_TOP + FZF_PREVIEW_LINES == $(stty size </dev/tty 2>/dev/null | awk '{print $1}' || echo 24))); then
-      dim="${FZF_PREVIEW_COLUMNS}x$((FZF_PREVIEW_LINES - 1))"
-    fi
-  fi
-
-  # Try different image viewers in order of preference
-  if [[ "$KITTY_WINDOW_ID" || "$GHOSTTY_RESOURCES_DIR" ]] && command -v kitten >/dev/null 2>&1; then
-    # Use Kitty's icat for best quality
-    kitten icat --clear --transfer-mode=memory --unicode-placeholder --stdin=no --place="$dim@0x0" "$target" | sed '$d' | sed $'$s/$/\e[m/'
-  elif command -v chafa >/dev/null 2>&1; then
-    # Use chafa with Sixel output
-    chafa -s "$dim" "$target"
-    echo # Add newline for fzf
-  elif command -v imgcat >/dev/null 2>&1; then
-    # Use imgcat for iTerm2
-    imgcat -W "${dim%%x*}" -H "${dim##*x}" "$target"
-  else
-    # Fallback to file info
-    file "$target"
-  fi
-  exit 0
-fi
-
-# Handle binary files
-if [[ "$type" =~ =binary ]]; then
-  file "$target"
-  exit 0
-fi
-
-# Handle text files
-# Sometimes bat is installed as batcat
-if command -v batcat >/dev/null 2>&1; then
-  batname="batcat"
-elif command -v bat >/dev/null 2>&1; then
-  batname="bat"
+  chafa -s "$dim" "$target"
+  echo
 else
-  # Fallback to cat with optional line highlighting
+  # Text file preview
   if ((center > 0)); then
-    nl -ba "$target" | grep --color=always -C5 "^\s*$center\s" 2>/dev/null || cat "$target"
+    bat --style=numbers --color=always --pager=never --highlight-line="$center" -- "$target"
   else
-    cat "$target"
+    bat --style=numbers --color=always --pager=never -- "$target"
   fi
-  exit 0
-fi
-
-# Use bat with line highlighting
-if ((center > 0)); then
-  "$batname" --style="${BAT_STYLE:-numbers}" --color=always --pager=never --highlight-line="$center" -- "$target"
-else
-  "$batname" --style="${BAT_STYLE:-numbers}" --color=always --pager=never -- "$target"
 fi
 
