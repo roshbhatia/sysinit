@@ -13,6 +13,7 @@ let
     ansible
     ansible-lint
     argocd
+    asdf
     atuin
     awscli2
     bat
@@ -34,6 +35,7 @@ let
     figlet
     findutils
     fira-code
+    fish
     fzf
     gettext
     gh
@@ -129,3 +131,4 @@ in
 {
   home.packages = allNixPackages;
 }
+
