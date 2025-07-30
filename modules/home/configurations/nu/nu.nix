@@ -18,9 +18,18 @@ let
   # Organized module groups for better maintainability
   moduleGroups = {
     system = [ "theme.nu" ];
-    integrations = [ "atuin.nu" "direnv.nu" "zoxide.nu" "carapace.nu" ];
+    integrations = [
+      "atuin.nu"
+      "direnv.nu"
+      "zoxide.nu"
+      "carapace.nu"
+    ];
     tools = [ "kubectl.nu" ];
-    ui = [ "wezterm.nu" "macchina.nu" "omp.nu" ];
+    ui = [
+      "wezterm.nu"
+      "macchina.nu"
+      "omp.nu"
+    ];
   };
 
   # Flatten all modules for source statements
@@ -60,7 +69,9 @@ in
       $env.FZF_DEFAULT_OPTS = [
         "--bind=resize:refresh-preview"
         "--color=bg+:-1,bg:-1,spinner:${palette.accent or "#8aadf4"},hl:${palette.accent or "#8aadf4"}"
-        "--color=border:${palette.surface2 or palette.overlay or "#5b6078"},label:${palette.text or "#cad3f5"}"
+        "--color=border:${
+          palette.surface2 or palette.overlay or "#5b6078"
+        },label:${palette.text or "#cad3f5"}"
         "--color=fg:${palette.text or "#cad3f5"},header:${palette.accent or "#8aadf4"},info:${palette.subtext1 or "#b8c0e0"},pointer:${palette.accent or "#8aadf4"}"
         "--color=marker:${palette.accent or "#8aadf4"},fg+:${palette.text or "#cad3f5"},prompt:${palette.accent or "#8aadf4"},hl+:${palette.accent or "#8aadf4"}"
         "--color=preview-bg:-1,query:${palette.text or "#cad3f5"}"
@@ -130,7 +141,8 @@ in
   xdg.configFile =
     let
       # Create config file entries for each group
-      createGroupConfigs = groupName: modules:
+      createGroupConfigs =
+        groupName: modules:
         lib.listToAttrs (
           map (module: {
             name = "nushell/${module}";
@@ -139,12 +151,12 @@ in
         );
 
       # Combine all group configs
-      allGroupConfigs = lib.foldl' (acc: groupName:
-        acc // createGroupConfigs groupName moduleGroups.${groupName}
-      ) {} (lib.attrNames moduleGroups);
+      allGroupConfigs = lib.foldl' (
+        acc: groupName: acc // createGroupConfigs groupName moduleGroups.${groupName}
+      ) { } (lib.attrNames moduleGroups);
     in
-    allGroupConfigs // {
+    allGroupConfigs
+    // {
       "nushell/theme.nu".source = ./themes/${nushellTheme};
     };
 }
-

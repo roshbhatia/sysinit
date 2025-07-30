@@ -1,9 +1,9 @@
 local M = {}
 
 M.plugins = {
-	{
-		"MunifTanjim/nui.nvim",
-	},
+  {
+    "MunifTanjim/nui.nvim",
+  },
 }
 
 return M

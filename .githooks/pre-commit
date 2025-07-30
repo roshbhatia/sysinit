@@ -30,34 +30,50 @@ for cmd in "nixfmt" "stylua" "deadnix"; do
     fi
 done
 
-# Check line endings for staged files
-log_info "Checking line endings..."
+# Auto-fix line endings and whitespace for staged files
+log_info "Checking and fixing line endings..."
 staged_files=$(git diff --cached --name-only --diff-filter=ACM)
+files_fixed=0
 
 if [ -n "$staged_files" ]; then
     for file in $staged_files; do
         if [ -f "$file" ]; then
-            # Check for CRLF line endings
+            file_changed=false
+
+            # Check for CRLF line endings and convert to LF
             if file "$file" | grep -q "CRLF"; then
-                log_error "File has CRLF line endings. Please convert to LF." file="$file"
-                exit 1
+                log_info "Converting CRLF to LF line endings" file="$file"
+                dos2unix "$file" 2>/dev/null || sed -i '' 's/\r$//' "$file"
+                file_changed=true
             fi
 
-            # Check for trailing whitespace (except markdown files)
+            # Fix trailing whitespace (except markdown files)
             if [[ ! "$file" =~ \.(md|markdown)$ ]]; then
                 if grep -q '[[:space:]]$' "$file"; then
-                    log_error "File has trailing whitespace." file="$file"
-                    exit 1
+                    log_info "Removing trailing whitespace" file="$file"
+                    sed -i '' 's/[[:space:]]*$//' "$file"
+                    file_changed=true
                 fi
             fi
 
-            # Check for final newline
+            # Add final newline if missing
             if [ -s "$file" ] && [ "$(tail -c1 "$file" | wc -l)" -eq 0 ]; then
-                log_error "File is missing final newline." file="$file"
-                exit 1
+                log_info "Adding missing final newline" file="$file"
+                echo >> "$file"
+                file_changed=true
+            fi
+
+            # Re-stage the file if it was modified
+            if [ "$file_changed" = true ]; then
+                git add "$file"
+                files_fixed=$((files_fixed + 1))
             fi
         fi
     done
+fi
+
+if [ "$files_fixed" -gt 0 ]; then
+    log_success "Auto-fixed $files_fixed file(s) for line endings and whitespace"
 fi
 
 # Check for dead Nix code

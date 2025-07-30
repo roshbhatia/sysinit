@@ -1,9 +1,9 @@
 local M = {}
 
 M.plugins = {
-	{
-		"rafamadriz/friendly-snippets",
-	},
+  {
+    "rafamadriz/friendly-snippets",
+  },
 }
 
 return M

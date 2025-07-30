@@ -2,207 +2,207 @@ local M = {}
 local copilot_enabled = not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot"))
 
 local deps = {
-	"giuxtaposition/blink-cmp-copilot",
-	"L3MON4D3/LuaSnip",
-	"pta2002/intellitab.nvim",
-	"rafamadriz/friendly-snippets",
+  "giuxtaposition/blink-cmp-copilot",
+  "L3MON4D3/LuaSnip",
+  "pta2002/intellitab.nvim",
+  "rafamadriz/friendly-snippets",
 }
 
 if copilot_enabled then
-	table.insert(deps, "giuxtaposition/blink-cmp-copilot")
-	table.insert(deps, "Kaiser-Yang/blink-cmp-avante")
+  table.insert(deps, "giuxtaposition/blink-cmp-copilot")
+  table.insert(deps, "Kaiser-Yang/blink-cmp-avante")
 end
 
 M.plugins = {
-	{
-		"saghen/blink.cmp",
-		version = "1.*",
-		dependencies = deps,
-		lazy = false,
-		opts = function()
-			local providers = {
-				buffer = {
-					score_offset = 3,
-					transform_items = function(ctx, items)
-						for _, item in ipairs(items) do
-							item.kind_icon = " Buffer "
-							item.kind_name = "Buffer"
-						end
-						return items
-					end,
-				},
-				lazydev = {
-					enabled = function()
-						return vim.tbl_contains({ "lua" }, vim.bo.filetype)
-					end,
-					module = "lazydev.integrations.blink",
-					name = "LazyDev",
-					score_offset = 1,
-				},
-				lsp = {
-					score_offset = 0,
-					transform_items = function(ctx, items)
-						for _, item in ipairs(items) do
-							item.kind_icon = "󰘧 LSP "
-							item.kind_name = "LSP"
-						end
-						return items
-					end,
-				},
-				path = {
-					score_offset = 1,
-					transform_items = function(ctx, items)
-						for _, item in ipairs(items) do
-							item.kind_icon = " Path "
-							item.kind_name = "Path"
-						end
-						return items
-					end,
-					opts = {
-						show_hidden_files_by_default = true,
-					},
-				},
-				snippets = {
-					score_offset = 2,
-					transform_items = function(ctx, items)
-						for _, item in ipairs(items) do
-							item.kind_icon = "󰩫 Snippets "
-							item.kind_name = "Snippets"
-						end
-						return items
-					end,
-				},
-			}
+  {
+    "saghen/blink.cmp",
+    version = "1.*",
+    dependencies = deps,
+    lazy = false,
+    opts = function()
+      local providers = {
+        buffer = {
+          score_offset = 3,
+          transform_items = function(ctx, items)
+            for _, item in ipairs(items) do
+              item.kind_icon = " Buffer "
+              item.kind_name = "Buffer"
+            end
+            return items
+          end,
+        },
+        lazydev = {
+          enabled = function()
+            return vim.tbl_contains({ "lua" }, vim.bo.filetype)
+          end,
+          module = "lazydev.integrations.blink",
+          name = "LazyDev",
+          score_offset = 1,
+        },
+        lsp = {
+          score_offset = 0,
+          transform_items = function(ctx, items)
+            for _, item in ipairs(items) do
+              item.kind_icon = "󰘧 LSP "
+              item.kind_name = "LSP"
+            end
+            return items
+          end,
+        },
+        path = {
+          score_offset = 1,
+          transform_items = function(ctx, items)
+            for _, item in ipairs(items) do
+              item.kind_icon = " Path "
+              item.kind_name = "Path"
+            end
+            return items
+          end,
+          opts = {
+            show_hidden_files_by_default = true,
+          },
+        },
+        snippets = {
+          score_offset = 2,
+          transform_items = function(ctx, items)
+            for _, item in ipairs(items) do
+              item.kind_icon = "󰩫 Snippets "
+              item.kind_name = "Snippets"
+            end
+            return items
+          end,
+        },
+      }
 
-			local sources = {
-				"buffer",
-				"lazydev",
-				"lsp",
-				"path",
-				"snippets",
-			}
+      local sources = {
+        "buffer",
+        "lazydev",
+        "lsp",
+        "path",
+        "snippets",
+      }
 
-			if copilot_enabled then
-				providers.copilot = {
-					name = "copilot",
-					module = "blink-cmp-copilot",
-					score_offset = 100,
-					async = true,
-					transform_items = function(ctx, items)
-						for _, item in ipairs(items) do
-							item.kind_icon = " Copilot "
-							item.kind_name = "Copilot"
-						end
-						return items
-					end,
-				}
-				table.insert(sources, "copilot")
+      if copilot_enabled then
+        providers.copilot = {
+          name = "copilot",
+          module = "blink-cmp-copilot",
+          score_offset = 100,
+          async = true,
+          transform_items = function(ctx, items)
+            for _, item in ipairs(items) do
+              item.kind_icon = " Copilot "
+              item.kind_name = "Copilot"
+            end
+            return items
+          end,
+        }
+        table.insert(sources, "copilot")
 
-				providers.avante = {
-					module = "blink-cmp-avante",
-					name = "Avante",
-					transform_items = function(ctx, items)
-						for _, item in ipairs(items) do
-							item.kind_icon = "󱚞 Avante "
-							item.kind_name = "Avante"
-						end
-						return items
-					end,
-					opts = {},
-				}
-				table.insert(sources, "avante")
-			end
+        providers.avante = {
+          module = "blink-cmp-avante",
+          name = "Avante",
+          transform_items = function(ctx, items)
+            for _, item in ipairs(items) do
+              item.kind_icon = "󱚞 Avante "
+              item.kind_name = "Avante"
+            end
+            return items
+          end,
+          opts = {},
+        }
+        table.insert(sources, "avante")
+      end
 
-			return {
-				completion = {
-					accept = {
-						auto_brackets = {
-							enabled = false, -- Fallback to nvim-autopairs manually
-						},
-						create_undo_point = true,
-					},
-					documentation = {
-						auto_show = true,
-						auto_show_delay_ms = 0,
-						window = {
-							border = "rounded",
-						},
-						draw = function(opts)
-							if opts.item and opts.item.documentation then
-								local out = require("pretty_hover.parser").parse(opts.item.documentation.value)
-								opts.item.documentation.value = out:string()
-							end
+      return {
+        completion = {
+          accept = {
+            auto_brackets = {
+              enabled = false, -- Fallback to nvim-autopairs manually
+            },
+            create_undo_point = true,
+          },
+          documentation = {
+            auto_show = true,
+            auto_show_delay_ms = 0,
+            window = {
+              border = "rounded",
+            },
+            draw = function(opts)
+              if opts.item and opts.item.documentation then
+                local out = require("pretty_hover.parser").parse(opts.item.documentation.value)
+                opts.item.documentation.value = out:string()
+              end
 
-							opts.default_implementation(opts)
-						end,
-					},
-					ghost_text = {
-						enabled = true,
-					},
-					list = {
-						selection = {
-							preselect = false,
-							auto_insert = true,
-						},
-					},
-					menu = {
-						max_height = 15,
-						border = "rounded",
-						draw = {
-							treesitter = {
-								"lsp",
-								"copilot",
-							},
-						},
-					},
-				},
-				cmdline = {
-					enabled = false,
-				},
-				fuzzy = {
-					implementation = "prefer_rust",
-				},
-				keymap = {
-					preset = "super-tab",
-					["<C-Space>"] = {
-						"show",
-					},
-					["<CR>"] = {
-						"accept",
-						"fallback",
-					},
-					["<Tab>"] = {
-						"select_next",
-						"snippet_forward",
-						function()
-							require("intellitab").indent()
-						end,
-					},
-					["<S-Tab>"] = {
-						"select_prev",
-						"snippet_backward",
-						"fallback",
-					},
-				},
-				signature = {
-					enabled = true,
-					window = {
-						border = "rounded",
-					},
-				},
-				sources = {
-					default = sources,
-					providers = providers,
-				},
-				snippets = {
-					preset = "luasnip",
-				},
-			}
-		end,
-		opts_extend = {
-			"sources.default",
-		},
-	},
+              opts.default_implementation(opts)
+            end,
+          },
+          ghost_text = {
+            enabled = true,
+          },
+          list = {
+            selection = {
+              preselect = false,
+              auto_insert = true,
+            },
+          },
+          menu = {
+            max_height = 15,
+            border = "rounded",
+            draw = {
+              treesitter = {
+                "lsp",
+                "copilot",
+              },
+            },
+          },
+        },
+        cmdline = {
+          enabled = false,
+        },
+        fuzzy = {
+          implementation = "prefer_rust",
+        },
+        keymap = {
+          preset = "super-tab",
+          ["<C-Space>"] = {
+            "show",
+          },
+          ["<CR>"] = {
+            "accept",
+            "fallback",
+          },
+          ["<Tab>"] = {
+            "select_next",
+            "snippet_forward",
+            function()
+              require("intellitab").indent()
+            end,
+          },
+          ["<S-Tab>"] = {
+            "select_prev",
+            "snippet_backward",
+            "fallback",
+          },
+        },
+        signature = {
+          enabled = true,
+          window = {
+            border = "rounded",
+          },
+        },
+        sources = {
+          default = sources,
+          providers = providers,
+        },
+        snippets = {
+          preset = "luasnip",
+        },
+      }
+    end,
+    opts_extend = {
+      "sources.default",
+    },
+  },
 }
 
 return M

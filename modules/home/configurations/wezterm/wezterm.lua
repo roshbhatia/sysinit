@@ -4,12 +4,12 @@ local username = os.getenv("USER")
 local home_dir = "/Users/" .. username
 
 package.path = package.path
-	.. ";"
-	.. home_dir
-	.. "/.config/wezterm/lua/?.lua"
-	.. ";"
-	.. home_dir
-	.. "/.config/wezterm/lua/?/init.lua"
+  .. ";"
+  .. home_dir
+  .. "/.config/wezterm/lua/?.lua"
+  .. ";"
+  .. home_dir
+  .. "/.config/wezterm/lua/?/init.lua"
 
 local config = wezterm.config_builder()
 

@@ -1,9 +1,9 @@
 local M = {}
 
 M.plugins = {
-	{
-		"nvim-neotest/nvim-nio",
-	},
+  {
+    "nvim-neotest/nvim-nio",
+  },
 }
 
 return M
