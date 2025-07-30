@@ -43,6 +43,22 @@ def --env --wrapped __zoxide_zi [...rest: string] {
   dirs add $path
 }
 
+def "nu-complete zoxide path" [context: string] {
+    let parts = $context | split row " " | skip 1
+    {
+      options: {
+        sort: false,
+        completion_algorithm: substring,
+        case_sensitive: false,
+      },
+      completions: (^zoxide query --list --exclude $env.PWD -- ...$parts | lines),
+    }
+  }
+
+def --env --wrapped z [...rest: string@"nu-complete zoxide path"] {
+  __zoxide_z ...$rest
+}
+
 alias z = __zoxide_z
 alias zi = __zoxide_zi
 # modules/darwin/home/nu/core/zoxide.nu (end)

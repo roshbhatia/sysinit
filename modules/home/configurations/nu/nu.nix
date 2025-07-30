@@ -14,8 +14,6 @@ let
   pathsList = paths.getAllPaths config.home.username config.home.homeDirectory;
 in
 {
-
-  programs.carapace.enableNushellIntegration = true;
   programs.nushell = {
     enable = true;
 
@@ -59,7 +57,6 @@ in
       source wezterm.nu
 
       source atuin.nu
-      source completion-external.nu
       source direnv.nu
       source zoxide.nu
 
@@ -138,3 +135,4 @@ in
     "nushell/zoxide.nu".source = ./core/zoxide.nu;
   };
 }
+
