@@ -31,24 +31,30 @@ if (which carapace | is-not-empty) {
   }
 
   let external_completer = {|spans|
-    let expanded_alias = scope aliases
-    | where name == $spans.0
-    | get -i 0.expansion
-
-    let spans_for_completion = if $expanded_alias != null {
-        $spans
-        | skip 1
-        | prepend ($expanded_alias | split row ' ' | take 1)
+    def resolve_alias [cmd] {
+  let aliases = scope aliases
+  let expansion = aliases | where name == $cmd | get -i 0.expansion
+  if $expansion != null {
+    let next_cmd = $expansion | split row ' ' | take 1
+    if (aliases | where name == $next_cmd | is-not-empty) {
+      resolve_alias $next_cmd
     } else {
-        $spans
+      $next_cmd
     }
+  } else {
+    $cmd
+  }
+}
 
-    match $spans_for_completion.0 {
-      nu => $fish_completer
-      git => $fish_completer
-      kubectl => $fish_completer
-      _ => $carapace_completer
-    } | do $in $spans_for_completion
+let resolved_cmd = resolve_alias $spans.0
+let spans_for_completion = $spans | skip 1 | prepend $resolved_cmd
+
+match $resolved_cmd {
+  nu => $fish_completer
+  git => $fish_completer
+  kubectl => $fish_completer
+  _ => $carapace_completer
+} | do $in $spans_for_completion
   }
 
   # Configure external completions in $env.config
