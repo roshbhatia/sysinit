@@ -89,7 +89,9 @@ in
         "--bind='resize:refresh-preview'"
         "--border=rounded"
         "--color=bg+:-1,bg:-1,spinner:${palette.accent or "#8aadf4"},hl:${palette.accent or "#8aadf4"}"
-        "--color=border:${palette.surface2 or palette.overlay or "#5b6078"},label:${palette.text or "#cad3f5"}"
+        "--color=border:${
+          palette.surface2 or palette.overlay or "#5b6078"
+        },label:${palette.text or "#cad3f5"}"
         "--color=fg:${palette.text or "#cad3f5"},header:${palette.accent or "#8aadf4"},info:${palette.subtext1 or "#b8c0e0"},pointer:${palette.accent or "#8aadf4"}"
         "--color=marker:${palette.accent or "#8aadf4"},fg+:${palette.text or "#cad3f5"},prompt:${palette.accent or "#8aadf4"},hl+:${palette.accent or "#8aadf4"}"
         "--color=preview-bg:-1,query:${palette.text or "#cad3f5"}"
@@ -102,6 +104,7 @@ in
         "--no-scrollbar"
         "--pointer='>'"
         "--preview-border=rounded"
+        "--preview-window=right:50%:wrap"
         "--prompt='>> '"
         "--scheme='history'"
       ];
@@ -188,12 +191,8 @@ in
         zstyle ':completion:*' menu no
 
         zstyle ':fzf-tab:complete:cd:*' fzf-preview 'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:cat:*' fzf-preview 'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:bat:*' fzf-preview 'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:vim:*' fzf-preview 'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:vi:*' fzf-preview 'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:v:*' fzf-preview 'fzf-preview $realpath'
+        zstyle ':fzf-tab:complete:(cat|bat):*' fzf-preview 'fzf-preview $realpath'
+        zstyle ':fzf-tab:complete:(nvim|vim|vi|v):*' fzf-preview 'fzf-preview $realpath'
 
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
       '')
