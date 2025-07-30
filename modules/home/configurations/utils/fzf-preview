@@ -2,6 +2,10 @@
 # Preview file or directory for fzf
 # Usage: fzf-preview <target>
 
+# Debug: log arguments for troubleshooting
+# echo "DEBUG: Args: $*" >> /tmp/fzf-preview.log
+# echo "DEBUG: \$1: '$1'" >> /tmp/fzf-preview.log
+
 # Check if argument is provided
 if [[ $# -eq 0 ]]; then
   echo "Error: A file or directory path is required"
@@ -10,6 +14,12 @@ fi
 
 target="${1/#\~\//$HOME}"
 center=0
+
+# Handle empty or whitespace-only arguments
+if [[ -z "$target" || "$target" =~ ^[[:space:]]*$ ]]; then
+  echo "Error: Empty or whitespace-only path provided"
+  exit 1
+fi
 
 # Handle cases where target is not readable (e.g., grep results with line numbers)
 if [[ ! -r "$target" ]]; then
