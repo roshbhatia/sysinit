@@ -184,7 +184,7 @@ in
         zstyle ':completion:*' menu no
 
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
-        zstyle ':fzf-tab:complete:(cd|ls|cat|bat|code|c|nvim|v|vi|vim):*' fzf-preview 'fzf-preview $word || fzf-preview $desc || echo "No preview available"'
+        zstyle ':fzf-tab:complete:(rm|cd|ls|cat|bat|code|c|nvim|v|vi|vim):*' fzf-preview 'fzf-preview $word || fzf-preview $desc || echo "No preview available"'
         zstyle ':fzf-tab:complete:*' fzf-flags --preview-window=right:50%:wrap --height=80%
       '')
       ''
