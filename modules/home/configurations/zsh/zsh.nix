@@ -40,16 +40,7 @@ in
       extended = true;
       share = true;
     };
-    dirHashes = {
-      dl = "${config.home.homeDirectory}/Downloads";
-      docs = "${config.home.homeDirectory}/Documents";
-      dsk = "${config.home.homeDirectory}/Desktop";
-      ghp = "${config.home.homeDirectory}/github/personal";
-      ghpr = "${config.home.homeDirectory}/github/personal/roshbhatia";
-      ghw = "${config.home.homeDirectory}/github/work";
-      nvim = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim";
-      sysinit = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit";
-    };
+
     shellAliases = {
       "....." = "cd ../../../..";
       "...." = "cd ../../..";
@@ -73,6 +64,7 @@ in
       grep = "grep -s --color=auto";
       watch = "watch --color --no-title";
     };
+
     sessionVariables = {
       LANG = "en_US.UTF-8";
       LC_ALL = "en_US.UTF-8";
@@ -190,9 +182,9 @@ in
         zstyle ':completion:*:complete:*' use-cache on
         zstyle ':completion:*' menu no
 
-        zstyle ':fzf-tab:complete:cd:*' fzf-preview 'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:(cat|bat):*' fzf-preview 'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:(nvim|vim|vi|v):*' fzf-preview 'fzf-preview $realpath'
+        zstyle ':fzf-tab:complete:(ls|cd):*' fzf-preview '${config.home.homeDirectory}/.local/bin/fzf-preview $realpath'
+        zstyle ':fzf-tab:complete:(cat|bat):*' fzf-preview '${config.home.homeDirectory}/.local/bin/fzf-preview $realpath'
+        zstyle ':fzf-tab:complete:(c|code|nvim|vim|vi|v):*' fzf-preview '${config.home.homeDirectory}/.local/bin/fzf-preview $realpath'
 
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
       '')
@@ -279,3 +271,4 @@ in
     ];
   };
 }
+
