@@ -87,6 +87,12 @@ in
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
         "--bind='resize:refresh-preview'"
+        "--color=bg+:-1,bg:-1,spinner:${palette.accent or "#8aadf4"},hl:${palette.accent or "#8aadf4"}"
+        "--color=border:${
+          palette.surface2 or palette.overlay or "#5b6078"
+        },label:${palette.text or "#cad3f5"}"
+        "--color=fg:${palette.text or "#cad3f5"},header:${palette.accent or "#8aadf4"},info:${palette.subtext1 or "#b8c0e0"},pointer:${palette.accent or "#8aadf4"}"
+        "--color=marker:${palette.accent or "#8aadf4"},fg+:${palette.text or "#cad3f5"},prompt:${palette.accent or "#8aadf4"},hl+:${palette.accent or "#8aadf4"}"
         "--cycle"
         "--height=30"
         "--highlight-line"
@@ -101,15 +107,6 @@ in
         "--prompt='>> '"
         "--scheme='history'"
         "--style='minimal'"
-        "--color=fg:${palette.text or "#cad3f5"},bg:${palette.base or "#24273a"},hl:${palette.accent or "#8aadf4"}"
-        "--color=fg+:${palette.text or "#cad3f5"},bg+:${
-          palette.surface1 or palette.surface or "#494d64"
-        },hl+:${palette.accent or "#8aadf4"}"
-        "--color=info:${palette.subtext1 or "#b8c0e0"},prompt:${palette.accent or "#8aadf4"},pointer:${palette.accent or "#8aadf4"}"
-        "--color=marker:${palette.accent or "#8aadf4"},spinner:${palette.accent or "#8aadf4"},header:${palette.accent or "#8aadf4"}"
-        "--color=border:${
-          palette.surface2 or palette.overlay or "#5b6078"
-        },label:${palette.text or "#cad3f5"},query:${palette.text or "#cad3f5"}"
       ];
       COLIMA_HOME = "${config.xdg.configHome}/colima";
       VIVID_THEME = appTheme;
@@ -185,12 +182,14 @@ in
         else
           compinit -C -d "${config.xdg.configHome}/zsh/zcompdump/.zcompdump";
         fi
+
         zstyle ':completion:*:git-checkout:*' sort false
         zstyle ':completion:*:descriptions' format '[%d]'
         zstyle ':completion:*' list-colors ''\${(s.:.)LS_COLORS}
         zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
         zstyle ':completion:*:complete:*' use-cache on
         zstyle ':completion:*' menu no
+
         zstyle ':fzf-tab:complete:cd:*' fzf-preview 'fzf-preview "$realpath"'
         zstyle ':fzf-tab:complete:cat:*' fzf-preview  'fzf-preview "$realpath"'
         zstyle ':fzf-tab:complete:bat:*' fzf-preview  'fzf-preview "$realpath"'
@@ -198,6 +197,7 @@ in
         zstyle ':fzf-tab:complete:vim:*' fzf-preview 'fzf-preview "$realpath"'
         zstyle ':fzf-tab:complete:vi:*' fzf-preview 'fzf-preview "$realpath"'
         zstyle ':fzf-tab:complete:v:*' fzf-preview 'fzf-preview "$realpath"'
+
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
       '')
       ''
@@ -283,3 +283,4 @@ in
     ];
   };
 }
+

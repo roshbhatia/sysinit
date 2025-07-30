@@ -16,7 +16,15 @@
       "Bash(git commit:*)",
       "Bash(fd:*)",
       "Bash(nix-collect-garbage:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(fzf:*)",
+      "Bash(nix-instantiate:*)",
+      "Bash(chmod:*)",
+      "Bash(bash:*)",
+      "Bash(/Users/rshnbhatia/github/personal/roshbhatia/sysinit/modules/home/configurations/utils/fzf-preview /Users/rshnbhatia/github/personal/roshbhatia/sysinit/modules/home/configurations/zsh/zsh.nix)",
+      "Bash(/Users/rshnbhatia/github/personal/roshbhatia/sysinit/modules/home/configurations/utils/fzf-preview /Users/rshnbhatia/github/personal/roshbhatia/sysinit/modules/home/configurations)",
+      "Bash(/Users/rshnbhatia/github/personal/roshbhatia/sysinit/modules/home/configurations/utils/fzf-preview)",
+      "Bash(git push:*)"
     ],
     "deny": []
   }
