@@ -161,7 +161,7 @@ in
     ];
     initContent = lib.mkMerge [
       (lib.mkBefore ''
-        [[ -n "$SYSINIT_DEBUG" ]] && zmodload zsh/zprof
+        [[ -n "''\$SYSINIT_DEBUG" ]] && zmodload zsh/zprof
         unset MAILCHECK
         stty stop undef
         setopt COMBINING_CHARS
@@ -173,7 +173,7 @@ in
         mkdir -p ${config.xdg.configHome}/zsh
         autoload bashcompinit && bashcompinit
         autoload -Uz compinit
-        if [[ -n ${config.xdg.configHome}/zsh/zcompdump/.zcompdump(#qN.mh+24) ]]; then
+        if [[ -n "${config.xdg.configHome}/zsh/zcompdump/.zcompdump"(#qN.mh+24) ]]; then
           compinit -d "${config.xdg.configHome}/zsh/zcompdump/.zcompdump";
         else
           compinit -C -d "${config.xdg.configHome}/zsh/zcompdump/.zcompdump";
@@ -181,66 +181,27 @@ in
 
         zstyle ':completion:*:git-checkout:*' sort false
         zstyle ':completion:*:descriptions' format '[%d]'
-        zstyle ':completion:*' list-colors ''\${(s.:.)LS_COLORS}
+        zstyle ':completion:*' list-colors ''\${("s.:.") LS_COLORS}
         zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
         zstyle ':completion:*:complete:*' use-cache on
         zstyle ':completion:*' menu no
 
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
 
-        zstyle ':fzf-tab:complete:rm:*' fzf-preview 'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:cd:*' fzf-preview 'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:cat:*' fzf-preview  'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:bat:*' fzf-preview  'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:vim:*' fzf-preview 'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:vi:*' fzf-preview 'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:v:*' fzf-preview 'fzf-preview $realpath'
+        zstyle ':fzf-tab:complete:(rm|cd|nvim|vim|vi|v):*' fzf-preview 'fzf-preview "''\$realpath"'
       '')
-      ''
-        path.print() {
-          echo "$PATH" | tr ':' '\n' | bat --style=numbers,grid
-        }
-
-        path.add.safe() {
-          local dir="$1"
-          if [ -d "$dir" ]; then
-            if [[ ":$PATH:" != *":$dir:"* ]]; then
-              export PATH="$dir:$PATH"
-              [[ -n "$SYSINIT_DEBUG" ]] && echo "Added $dir to PATH"
-            fi
-          else
-            [[ -n "$SYSINIT_DEBUG" ]] && echo "Directory $dir does not exist, skipping PATH addition"
-          fi
-        }
-
-        paths=(
-          ${lib.concatStringsSep "\n          " (map (path: "\"${path}\"") pathsList)}
-        )
-
-        for dir in "''${paths[@]}"; do
-          path.add.safe "$dir"
-        done
-
-        ${wezterm}
-        ${kubectl}
-        ${env}
-        ${extras}
-        ${completions}
-        ${prompt}
-      ''
       (lib.mkAfter ''
         function zvm_vi_yank() {
           zvm_yank
-          echo ''${CUTBUFFER} | pbcopy
+          echo "''\${CUTBUFFER}" | pbcopy
           zvm_exit_visual_mode
         }
         function zvm_vi_delete() {
           zvm_replace_selection
-          echo ''${CUTBUFFER} | pbcopy
-          zvm_exit_visual_mode ''\${"1:-true"}
+          echo "''\${CUTBUFFER}" | pbcopy
+          zvm_exit_visual_mode "''\${"1:-true"}"
         }
-        [[ -n "$SYSINIT_DEBUG" ]] && zprof
+        [[ -n "''\$SYSINIT_DEBUG" ]] && zprof
       '')
     ];
   };
