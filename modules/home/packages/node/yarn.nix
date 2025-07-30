@@ -18,8 +18,6 @@ in
   home.activation.yarnPackages = activation.mkPackageManager {
     name = "yarn";
     basePackages = [
-      "markdownlint-cli"
-      "markdownlint-cli2"
       "mcp-hub@latest"
     ];
     additionalPackages = (values.yarn.additionalPackages or [ ]);

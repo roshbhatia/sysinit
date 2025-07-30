@@ -19,4 +19,3 @@ in
     executableName = "gh";
   };
 }
-
