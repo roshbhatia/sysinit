@@ -76,7 +76,7 @@ in
       ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = 20;
       ZSH_AUTOSUGGEST_MANUAL_REBIND = 1;
       ZVM_LINE_INIT_MODE = "i";
-      FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
+      FZF_DEFAULT_COMMAND = "rg --files --hidden --glob '!**/.git/*' --glob '!**/node_modules/*'";
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
         "--bind='resize:refresh-preview'"
         "--border=rounded"
