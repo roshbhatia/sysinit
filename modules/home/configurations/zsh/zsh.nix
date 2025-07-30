@@ -191,10 +191,7 @@ in
 
         # fzf-tab specific configuration
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
-        zstyle ':fzf-tab:*' continuous-trigger '/'
-        zstyle ':fzf-tab:*' accept-line enter
-        zstyle ':fzf-tab:*' print-query alt-enter
-        zstyle ':fzf-tab:*' switch-group F1 F2
+
         zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --color=always --icons=always -1 -a --group-directories-first --git $realpath'
         zstyle ':fzf-tab:complete:(rm|ls|cat|bat|code|c|nvim|v|vi|vim):*' fzf-preview 'fzf-preview $word || fzf-preview $desc || echo "No preview available"'
         zstyle ':fzf-tab:complete:*' fzf-flags --preview-window=right:50%:wrap --height=80%
