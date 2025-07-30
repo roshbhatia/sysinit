@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   values,
   ...
@@ -6,6 +7,7 @@
 
 let
   themes = import ../../../lib/themes { inherit lib; };
+  paths = import ../../../lib/paths { inherit config lib; };
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
   appTheme = themes.getAppTheme "wezterm" values.theme.colorscheme values.theme.variant;
 
@@ -16,6 +18,8 @@ let
     appTheme = appTheme;
     palette = palette;
   };
+
+  pathsArray = paths.getPathArray config.home.username config.home.homeDirectory;
 in
 
 {
@@ -41,6 +45,18 @@ in
     M.palette = {
       ${lib.concatStringsSep ",\n      " (
         lib.mapAttrsToList (name: value: "${name} = \"${value}\"") palette
+      )}
+    }
+
+    return M
+  '';
+
+  xdg.configFile."wezterm/lua/sysinit/paths_config.lua".text = ''
+    local M = {}
+
+    M.system_paths = {
+      ${lib.concatStringsSep ",\n      " (
+        map (path: "\"${path}\"") pathsArray
       )}
     }
 

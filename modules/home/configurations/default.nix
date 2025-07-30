@@ -59,7 +59,7 @@
       inherit pkgs;
     })
     (import ./wezterm {
-      inherit lib values;
+      inherit config lib values;
     })
   ];
 }

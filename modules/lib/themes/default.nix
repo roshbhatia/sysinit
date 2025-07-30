@@ -230,6 +230,21 @@ let
       };
     };
 
+    nushell = {
+      catppuccin = {
+        macchiato = "catppuccin_macchiato.nu";
+      };
+      rose-pine = {
+        moon = "rose_pine_moon.nu";
+      };
+      gruvbox = {
+        dark = "gruvbox_dark.nu";
+      };
+      solarized = {
+        dark = "solarized_dark.nu";
+      };
+    };
+
   };
 
   # Helper function to get current theme palette

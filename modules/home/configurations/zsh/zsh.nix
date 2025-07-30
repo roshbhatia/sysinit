@@ -8,8 +8,9 @@
 let
   shell = import ../../../lib/shell { inherit lib; };
   themes = import ../../../lib/themes { inherit lib; };
+  paths_lib = import ../../../lib/paths { inherit config lib; };
   appTheme = themes.getAppTheme "vivid" values.theme.colorscheme values.theme.variant;
-  paths = shell.stripHeaders ./core/paths.sh;
+  pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;
   wezterm = shell.stripHeaders ./core/wezterm.sh;
   completions = shell.stripHeaders ./core/completions.sh;
   kubectl = shell.stripHeaders ./core/kubectl.sh;
@@ -187,7 +188,31 @@ in
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
       '')
       ''
-        ${paths}
+        # Generated paths configuration
+        path.print() {
+          echo "$PATH" | tr ':' '\n' | bat --style=numbers,grid
+        }
+
+        path.add.safe() {
+          local dir="$1"
+          if [ -d "$dir" ]; then
+            if [[ ":$PATH:" != *":$dir:"* ]]; then
+              export PATH="$dir:$PATH"
+              [[ -n "$SYSINIT_DEBUG" ]] && echo "Added $dir to PATH"
+            fi
+          else
+            [[ -n "$SYSINIT_DEBUG" ]] && echo "Directory $dir does not exist, skipping PATH addition"
+          fi
+        }
+
+        paths=(
+          ${lib.concatStringsSep "\n          " (map (path: "\"${path}\"") pathsList)}
+        )
+
+        for dir in "''${paths[@]}"; do
+          path.add.safe "$dir"
+        done
+
         ${wezterm}
         ${kubectl}
         ${env}

@@ -3,26 +3,15 @@ local M = {}
 local username = os.getenv("USER")
 local home = os.getenv("HOME")
 
+-- Import centralized paths configuration
+local paths_config = require("sysinit.paths_config")
+
 local nix_bin = "/etc/profiles/per-user/" .. username .. "/bin/"
 local nushell_config_dir = home .. "/.config/nushell"
 
 local function get_basic_config()
-	local path_components = {
-		"/etc/profiles/per-user/" .. username .. "/bin",
-		"/opt/homebrew/bin",
-		"/opt/homebrew/sbin",
-		"/usr/bin",
-		"/usr/sbin",
-		home .. "/.cargo/bin",
-		home .. "/.local/bin",
-		home .. "/.npm-global/bin",
-		home .. "/.uv/bin",
-		home .. "/.yarn/bin",
-		home .. "/bin",
-		home .. "/go/bin",
-	}
-
-	local path = table.concat(path_components, ":")
+	-- Use centralized path configuration
+	local path = table.concat(paths_config.system_paths, ":")
 
 	return {
 		set_environment_variables = {
@@ -53,3 +42,4 @@ function M.setup(config)
 end
 
 return M
+

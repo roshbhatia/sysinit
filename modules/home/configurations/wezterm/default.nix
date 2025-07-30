@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   values,
   ...
@@ -6,7 +7,7 @@
 {
   imports = [
     (import ./wezterm.nix {
-      inherit lib values;
+      inherit config lib values;
     })
   ];
 }

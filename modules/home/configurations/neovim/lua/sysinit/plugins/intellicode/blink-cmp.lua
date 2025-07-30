@@ -16,9 +16,8 @@ end
 M.plugins = {
 	{
 		"saghen/blink.cmp",
-		build = "cargo build --release",
+		build = "nix run .#build-plugin",
 		dependencies = deps,
-		branch = "main",
 		lazy = false,
 		opts = function()
 			local providers = {
@@ -161,7 +160,9 @@ M.plugins = {
 					enabled = false,
 				},
 				fuzzy = {
-					implementation = "prefer_rust",
+					prebuilt_binaries = {
+						force_version = "v0.7.6", -- Force a specific prebuilt version
+					},
 				},
 				keymap = {
 					preset = "super-tab",
@@ -205,3 +206,4 @@ M.plugins = {
 }
 
 return M
+
