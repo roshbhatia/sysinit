@@ -16,6 +16,7 @@ let
     asdf
     atuin
     awscli2
+    bash-language-server
     bat
     caddy
     cargo-watch
@@ -131,3 +132,4 @@ in
 {
   home.packages = allNixPackages;
 }
+

@@ -18,7 +18,6 @@ in
   home.activation.yarnPackages = activation.mkPackageManager {
     name = "yarn";
     basePackages = [
-      "bash-language-server"
       "markdownlint-cli"
       "markdownlint-cli2"
       "mcp-hub@latest"
@@ -30,7 +29,9 @@ in
       "--no-progress"
       "--non-interactive"
       "--silent"
+      "--prefer-offline"
     ];
     executableName = "yarn";
   };
 }
+

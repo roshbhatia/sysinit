@@ -30,7 +30,9 @@ in
     additionalPackages = (values.krew.additionalPackages or [ ]);
     executableArguments = [
       "install"
+      "--no-update-index"
     ];
     executableName = "krew";
   };
 }
+
