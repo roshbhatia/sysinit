@@ -16,14 +16,15 @@
         pkgs
         ;
     })
-(import ./nu {
-  inherit
-    config
-    lib
-    values
-    pkgs
-    ;
-})    (import ./git {
+    (import ./nu {
+      inherit
+        config
+        lib
+        values
+        pkgs
+        ;
+    })
+    (import ./git {
       inherit lib values;
     })
     ./aerospace

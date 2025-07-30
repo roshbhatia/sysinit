@@ -12,21 +12,21 @@ local function get_basic_config()
 	return {
 		set_environment_variables = {
 			TERM = "wezterm",
-			PATH = path,
+			-- PATH = path,
 		},
 		automatically_reload_config = true,
 		pane_focus_follows_mouse = true,
 		status_update_interval = 25,
-		default_prog = {
-			nix_bin .. "nu",
-			"--config",
-			nushell_config_dir .. "/config.nu",
-			"--env-config",
-			nushell_config_dir .. "/env.nu",
-			"--include-path",
-			nushell_config_dir,
-			"--login",
-		},
+		-- default_prog = {
+		-- 	nix_bin .. "nu",
+		-- 	"--config",
+		-- 	nushell_config_dir .. "/config.nu",
+		-- 	"--env-config",
+		-- 	nushell_config_dir .. "/env.nu",
+		-- 	"--include-path",
+		-- 	nushell_config_dir,
+		-- 	"--login",
+		-- },
 	}
 end
 
@@ -38,3 +38,4 @@ function M.setup(config)
 end
 
 return M
+
