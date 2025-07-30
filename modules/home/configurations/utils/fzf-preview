@@ -2,32 +2,30 @@
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
 # modules/home/configurations/utils/fzf-preview
-
-if [[ $# -eq 0 ]]; then
+if [[ $# -eq 0 || -z "$1" ]]; then
   echo "No file specified for preview"
   exit 0
 fi
 
-expanded_target=$(eval echo "$1")
+# Remove potential trailing whitespace, tabs, and newlines
+expanded_target="$(printf "%s" "$1" | sed 's/[[:space:]]*$//')"
 
-target="${expanded_target%% }"
-target="${target%%$'\t'}"
-
-center=0
-
-if [[ -z "$target" || "$target" =~ ^[[:space:]]*$ ]]; then
+# Fallback if nothing left
+if [[ -z "$expanded_target" ]]; then
   echo "No file specified for preview after expansion"
   exit 0
 fi
 
-if [[ ! -r "$target" ]]; then
-  if [[ "$target" =~ ^(.+):([0-9]+)\ *$ ]]; then
-    target="${BASH_REMATCH[1]}"
-    center="${BASH_REMATCH[2]}"
-  elif [[ "$target" =~ ^(.+):([0-9]+):[0-9]+\ *$ ]]; then
-    target="${BASH_REMATCH[1]}"
-    center="${BASH_REMATCH[2]}"
-  fi
+# Handle possible "filename:line" format
+center=0
+if [[ "$expanded_target" =~ ^(.+):([0-9]+)$ ]]; then
+  target="${BASH_REMATCH[1]}"
+  center="${BASH_REMATCH[2]}"
+elif [[ "$expanded_target" =~ ^(.+):([0-9]+):[0-9]+$ ]]; then
+  target="${BASH_REMATCH[1]}"
+  center="${BASH_REMATCH[2]}"
+else
+  target="$expanded_target"
 fi
 
 if [[ ! -e "$target" ]]; then
@@ -35,6 +33,7 @@ if [[ ! -e "$target" ]]; then
   exit 0
 fi
 
+# Detect file type
 type=$(file --brief --dereference --mime -- "$target" 2>/dev/null)
 
 if [[ -d "$target" ]]; then
