@@ -55,9 +55,7 @@ in
     local M = {}
 
     M.system_paths = {
-      ${lib.concatStringsSep ",\n      " (
-        map (path: "\"${path}\"") pathsArray
-      )}
+      ${lib.concatStringsSep ",\n      " (map (path: "\"${path}\"") pathsArray)}
     }
 
     return M

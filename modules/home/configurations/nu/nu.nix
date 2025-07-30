@@ -123,12 +123,12 @@ in
       ] | str join " "
       # modules/darwin/home/nu/core/env.nu (end)
     '';
-# Theme files
+    # Theme files
     "nushell/themes/catppuccin_macchiato.nu".source = ./themes/catppuccin_macchiato.nu;
     "nushell/themes/rose_pine_moon.nu".source = ./themes/rose_pine_moon.nu;
     "nushell/themes/gruvbox_dark.nu".source = ./themes/gruvbox_dark.nu;
     "nushell/themes/solarized_dark.nu".source = ./themes/solarized_dark.nu;
-    
+
     # Core files
     "nushell/atuin.nu".source = ./core/atuin.nu;
     "nushell/carapace.nu".source = ./core/carapace.nu;
@@ -140,4 +140,3 @@ in
     "nushell/zoxide.nu".source = ./core/zoxide.nu;
   };
 }
-

@@ -160,9 +160,7 @@ M.plugins = {
 					enabled = false,
 				},
 				fuzzy = {
-					prebuilt_binaries = {
-						force_version = "v0.7.6", -- Force a specific prebuilt version
-					},
+					implementation = "prefer_rust",
 				},
 				keymap = {
 					preset = "super-tab",

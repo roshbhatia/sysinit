@@ -12,7 +12,7 @@ rec {
       "/nix/var/nix/profiles/default/bin"
       "/etc/profiles/per-user/${username}/bin"
     ];
-    
+
     # System paths
     system = [
       "/opt/homebrew/bin"
@@ -22,7 +22,7 @@ rec {
       "/usr/local/opt/cython/bin"
       "/usr/sbin"
     ];
-    
+
     # User-specific paths
     user = [
       "${home}/.cargo/bin"
@@ -37,7 +37,7 @@ rec {
       "${home}/bin"
       "${home}/go/bin"
     ];
-    
+
     # XDG-based paths
     xdg = [
       "${home}/.config/.cargo/bin"
@@ -46,17 +46,18 @@ rec {
       "${home}/.local/share/.npm-packages/bin"
     ];
   };
-  
+
   # Get all paths in order (nix -> system -> user -> xdg)
-  getAllPaths = username: home: 
-    let paths = getSystemPaths username home; in
+  getAllPaths =
+    username: home:
+    let
+      paths = getSystemPaths username home;
+    in
     paths.nix ++ paths.system ++ paths.user ++ paths.xdg;
-    
+
   # Generate path string for shells
-  getPathString = username: home:
-    lib.concatStringsSep ":" (getAllPaths username home);
-    
+  getPathString = username: home: lib.concatStringsSep ":" (getAllPaths username home);
+
   # Generate path array for lua/wezterm
-  getPathArray = username: home:
-    getAllPaths username home;
+  getPathArray = username: home: getAllPaths username home;
 }
