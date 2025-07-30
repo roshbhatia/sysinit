@@ -8,7 +8,6 @@ let
   themes = import ../../../lib/themes { inherit lib; };
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
 
-  # Map common colors from theme palettes to oh-my-posh roles
   ompColors = {
     os = (
       palette.accent or palette.blue or palette.pine or palette.iris or palette.violet or "#8CAAEE"
@@ -80,10 +79,10 @@ let
             type = "git";
           }
           {
-            style = "plain";
-            foreground = "p:closer";
-            template = "";
             type = "text";
+            foreground = "p:closer";
+            style = "plain";
+            template = "{{ if .Env.POSH_VI_MODE }}({{ .Env.POSH_VI_MODE }}){{ end }}";
           }
         ];
         type = "prompt";
@@ -100,3 +99,4 @@ in
     force = true;
   };
 }
+
