@@ -197,12 +197,12 @@ in
         zstyle ':completion:*' menu no
 
         zstyle ':fzf-tab:complete:cd:*' fzf-preview 'fzf-preview "$realpath"'
-        zstyle ':fzf-tab:complete:cat:*' fzf-preview  'fzf-preview "$realpath"'
-        zstyle ':fzf-tab:complete:bat:*' fzf-preview  'fzf-preview "$realpath"'
-        zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'fzf-preview "$realpath"'
-        zstyle ':fzf-tab:complete:vim:*' fzf-preview 'fzf-preview "$realpath"'
-        zstyle ':fzf-tab:complete:vi:*' fzf-preview 'fzf-preview "$realpath"'
-        zstyle ':fzf-tab:complete:v:*' fzf-preview 'fzf-preview "$realpath"'
+        zstyle ':fzf-tab:complete:cat:*' fzf-preview  'fzf-preview "$word"'
+        zstyle ':fzf-tab:complete:bat:*' fzf-preview  'fzf-preview "$word"'
+        zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'fzf-preview "$word"'
+        zstyle ':fzf-tab:complete:vim:*' fzf-preview 'fzf-preview "$word"'
+        zstyle ':fzf-tab:complete:vi:*' fzf-preview 'fzf-preview "$word"'
+        zstyle ':fzf-tab:complete:v:*' fzf-preview 'fzf-preview "$word"'
 
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
 
@@ -260,3 +260,4 @@ in
     ];
   };
 }
+
