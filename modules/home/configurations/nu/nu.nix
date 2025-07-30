@@ -134,4 +134,3 @@ in
     "nushell/zoxide.nu".source = ./core/zoxide.nu;
   };
 }
-

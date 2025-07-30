@@ -40,7 +40,6 @@ if (which carapace | is-not-empty) {
     match $spans.0 {
         nu => $fish_completer
         git => $fish_completer
-        asdf => $fish_completer
         _ => $carapace_completer
     } | do $in $spans
   }

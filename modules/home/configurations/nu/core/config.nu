@@ -28,8 +28,8 @@ $env.config = {
   keybindings: [
     {
       name: completion_menu
-      modifier: none
-      keycode: tab
+      modifier: control
+      keycode: space
       mode: [emacs vi_normal vi_insert]
       event: {
         until: [
@@ -38,6 +38,13 @@ $env.config = {
           { edit: complete }
         ]
       }
+    }
+    {
+      name: tab_completion
+      modifier: none
+      keycode: tab
+      mode: [emacs vi_normal vi_insert]
+      event: { send: menu name: completion_menu }
     }
   ]
 }

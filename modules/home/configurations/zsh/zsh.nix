@@ -97,6 +97,7 @@ in
         "--pointer='>'"
         "--preview-border=rounded"
         "--preview-window=right:50%:wrap"
+        "--preview='if [ -f {} ]; then bat --style=numbers,changes --color=always --line-range :500 {}; elif [ -d {} ]; then eza --tree --level=2 --icons --color=always {}; else echo {}; fi'"
         "--prompt='>> '"
         "--scheme='history'"
       ];
@@ -183,6 +184,8 @@ in
         zstyle ':completion:*' menu no
 
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
+        zstyle ':fzf-tab:complete:*:*' fzf-preview 'if [ -f "$realpath" ]; then bat --style=numbers,changes --color=always --line-range :100 "$realpath"; elif [ -d "$realpath" ]; then eza --tree --level=2 --icons --color=always "$realpath"; else echo "$word"; fi'
+        zstyle ':fzf-tab:complete:*' fzf-flags --preview-window=right:50%:wrap --height=80%
       '')
       ''
         path.print() {
