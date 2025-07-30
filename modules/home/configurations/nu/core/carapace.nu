@@ -23,45 +23,69 @@ def resolve_alias [cmd] {
 let carapace_completer = {|spans: list<string>|
   let resolved_cmd = resolve_alias $spans.0
   let spans_for_completion = $spans | skip 1 | prepend $resolved_cmd
-  carapace $spans_for_completion.0 nushell ...$spans_for_completion
-  | from json
-  | if ($in | default [] | where value =~ '^-.*ERR$' | is-empty) { $in } else { null }
+  try {
+    carapace $spans_for_completion.0 nushell ...$spans_for_completion
+    | from json
+    | if ($in | default [] | where value =~ '^-.*ERR$' | is-empty) { $in } else { null }
+  } catch {
+    null
+  }
 }
 
 let fish_completer = {|spans|
   let resolved_cmd = resolve_alias $spans.0
   let spans_for_completion = $spans | skip 1 | prepend $resolved_cmd
-  fish --command $"complete '--do-complete=($spans_for_completion | str replace --all "'" "\\'" | str join ' ')'"
-  | from tsv --flexible --noheaders --no-infer
-  | rename value description
-  | update value {|row|
-    let value = $row.value
-    let need_quote = ['\' ',' '[' ']' '(' ')' ' ' '\t' "'" '"' "`"] | any {$in in $value}
-    if ($need_quote and ($value | path exists)) {
-      let expanded_path = if ($value starts-with ~) {$value | path expand --no-symlink} else {$value}
-      $'"($expanded_path | str replace --all "\"" "\\\"")"'
-    } else {$value}
+  try {
+    fish --command $"complete '--do-complete=($spans_for_completion | str replace --all "'" "\\'" | str join ' ')'"
+    | from tsv --flexible --noheaders --no-infer
+    | rename value description
+    | update value {|row|
+      let value = $row.value
+      let need_quote = ['\' ',' '[' ']' '(' ')' ' ' '\t' "'" '"' "`"] | any {$in in $value}
+      if ($need_quote and ($value | path exists)) {
+        let expanded_path = if ($value starts-with ~) {$value | path expand --no-symlink} else {$value}
+        $'"($expanded_path | str replace --all "\"" "\\\"")"'
+      } else {$value}
+    }
+  } catch {
+    null
   }
 }
 
 let argc_completer = {|spans|
   let resolved_cmd = resolve_alias $spans.0
   let spans_for_completion = $spans | skip 1 | prepend $resolved_cmd
-  argc --argc-compgen nushell $spans_for_completion.0 ...$spans_for_completion
-  | from json
-  | if ($in | default [] | where value =~ '^-.*ERR$' | is-empty) { $in } else { null }
+  try {
+    argc --argc-compgen nushell $spans_for_completion.0 ...$spans_for_completion
+    | from json
+    | if ($in | default [] | where value =~ '^-.*ERR$' | is-empty) { $in } else { null }
+  } catch {
+    null
+  }
 }
 
 let external_completer = {|spans|
   let resolved_cmd = resolve_alias $spans.0
   let spans_for_completion = $spans | skip 1 | prepend $resolved_cmd
 
-  match $resolved_cmd {
-    nu => $fish_completer
-    git => $fish_completer
-    argc => $argc_completer
+  # Choose the best completer for each command
+  let completer = match $resolved_cmd {
+    # Commands that work better with fish completions
+    "nu" | "nushell" => $fish_completer
+    "git" => $fish_completer
+    "kubectl" | "kubecolor" => $carapace_completer
+    "docker" => $carapace_completer
+    "cargo" => $carapace_completer
+    "npm" | "yarn" | "pnpm" => $carapace_completer
+    "terraform" | "tf" => $carapace_completer
+    "helm" => $carapace_completer
+    "gh" => $carapace_completer
+    "argc" => $argc_completer
+    # Default to carapace for everything else
     _ => $carapace_completer
-  } | do $in $spans_for_completion
+  }
+  
+  do $completer $spans_for_completion
 }
 
 $env.config = ($env.config | default {} | merge {

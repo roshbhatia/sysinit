@@ -13,34 +13,41 @@ let
   nushellTheme = themes.getAppTheme "nushell" values.theme.colorscheme values.theme.variant;
 
   pathsList = paths.getAllPaths config.home.username config.home.homeDirectory;
+
+  # Core nushell configuration
+  coreModules = [
+    "theme.nu"
+    "wezterm.nu"
+    "atuin.nu"
+    "direnv.nu"
+    "zoxide.nu"
+    "carapace.nu"
+    "kubectl.nu"
+    "macchina.nu"
+    "omp.nu"
+  ];
+
+  # Generate source statements for core modules
+  moduleSourceStatements = lib.concatStringsSep "\n      " (map (module: "source ${module}") coreModules);
 in
 {
   programs.nushell = {
     enable = true;
 
     configFile.source = ./core/config.nu;
+    envFile.source = ./core/env.nu;
+
     extraConfig = ''
+      # Environment setup
       $env.LS_COLORS = (vivid generate ${vividTheme})
       $env.EZA_COLORS = $env.LS_COLORS
 
-      source theme.nu
-
-      source wezterm.nu
-
-      source atuin.nu
-      source direnv.nu
-      source zoxide.nu
-
-      source carapace.nu
-      source kubectl.nu
-
-      source macchina.nu
-      source omp.nu
+      # Load core modules
+      ${moduleSourceStatements}
     '';
 
-    envFile.source = ./core/env.nu;
-
     extraEnv = ''
+      # Dynamic path configuration
       let paths = [
         ${lib.concatStringsSep "\n        " (map (path: "\"${path}\"") pathsList)}
       ]
@@ -57,43 +64,49 @@ in
     ];
 
     shellAliases = {
+      # Navigation shortcuts
       "....." = "cd ../../../..";
       "...." = "cd ../../..";
       "..." = "cd ../..";
       ".." = "cd ..";
       "~" = "cd ~";
+
+      # Editor shortcuts
       code = "code-insiders";
       c = "code-insiders";
+      v = "nvim";
+
+      # Tool shortcuts
       kubectl = "kubecolor";
+      tf = "terraform";
+      g = "git";
+      y = "yazi";
+
+      # Enhanced ls
       l = "ls";
       la = "ls -a";
       ll = "ls -la";
       lt = "eza --icons=always -1 -a -T --git-ignore --ignore-glob='.git'";
-      tf = "terraform";
-      y = "yazi";
-      v = "nvim";
-      g = "git";
+
+      # System utilities
       sudo = "sudo -E";
       diff = "diff --color";
       grep = "grep -s --color=auto";
       watch = "watch --quiet";
 
-      # Required for macos
+      # macOS compatibility
       nu-open = "open";
       open = "^open";
     };
+
     environmentVariables = config.home.sessionVariables;
   };
 
-  xdg.configFile = {
+  # XDG configuration files
+  xdg.configFile = lib.listToAttrs (map (module: {
+    name = "nushell/${module}";
+    value.source = ./core/${module};
+  }) (lib.filter (m: m != "theme.nu") coreModules)) // {
     "nushell/theme.nu".source = ./themes/${nushellTheme};
-    "nushell/atuin.nu".source = ./core/atuin.nu;
-    "nushell/carapace.nu".source = ./core/carapace.nu;
-    "nushell/direnv.nu".source = ./core/direnv.nu;
-    "nushell/kubectl.nu".source = ./core/kubectl.nu;
-    "nushell/macchina.nu".source = ./core/macchina.nu;
-    "nushell/omp.nu".source = ./core/omp.nu;
-    "nushell/wezterm.nu".source = ./core/wezterm.nu;
-    "nushell/zoxide.nu".source = ./core/zoxide.nu;
   };
 }

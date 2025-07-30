@@ -11,7 +11,7 @@ $env.config = {
     partial: true
     algorithm: "fuzzy"
     external: {
-      enable: false
+      enable: true
       max_results: 100
     }
   }
