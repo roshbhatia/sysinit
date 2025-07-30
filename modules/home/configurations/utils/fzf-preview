@@ -12,7 +12,10 @@ if [[ $# -eq 0 ]]; then
   exit 0
 fi
 
+# Strip trailing whitespace (common with fzf-tab)
 target="${1/#\~\//$HOME}"
+target="${target%% }"  # Remove trailing spaces
+target="${target%%$'\t'}"  # Remove trailing tabs
 center=0
 
 # Handle empty or whitespace-only arguments
