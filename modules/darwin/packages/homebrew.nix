@@ -22,6 +22,7 @@ let
     "borders"
     "bcrypt"
     "block-goose-cli"
+    "charmbrace/tap/crush"
     "displayplacer"
     "hashicorp/tap/terraform"
     "libgit2@1.8"
@@ -73,3 +74,4 @@ in
     casks = allCasks;
   };
 }
+
