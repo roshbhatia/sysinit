@@ -28,7 +28,9 @@ let
   ];
 
   # Generate source statements for core modules
-  moduleSourceStatements = lib.concatStringsSep "\n      " (map (module: "source ${module}") coreModules);
+  moduleSourceStatements = lib.concatStringsSep "\n      " (
+    map (module: "source ${module}") coreModules
+  );
 in
 {
   programs.nushell = {
@@ -103,10 +105,14 @@ in
   };
 
   # XDG configuration files
-  xdg.configFile = lib.listToAttrs (map (module: {
-    name = "nushell/${module}";
-    value.source = ./core/${module};
-  }) (lib.filter (m: m != "theme.nu") coreModules)) // {
-    "nushell/theme.nu".source = ./themes/${nushellTheme};
-  };
+  xdg.configFile =
+    lib.listToAttrs (
+      map (module: {
+        name = "nushell/${module}";
+        value.source = ./core/${module};
+      }) (lib.filter (m: m != "theme.nu") coreModules)
+    )
+    // {
+      "nushell/theme.nu".source = ./themes/${nushellTheme};
+    };
 }

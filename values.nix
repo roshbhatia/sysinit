@@ -36,7 +36,6 @@
     additionalPackages = [
       "@anthropic-ai/claude-code"
       "@dice-roller/cli"
-      "@google/gemini-cli"
     ];
   };
 
@@ -49,3 +48,4 @@
     };
   };
 }
+
