@@ -73,6 +73,7 @@ let
     luajit
     lua-language-server
     lynx
+    markdownlint-cli
     markdownlint-cli2
     mermaid-cli
     mods
