@@ -11,6 +11,7 @@ rec {
     nix = [
       "/nix/var/nix/profiles/default/bin"
       "/etc/profiles/per-user/${username}/bin"
+      "/run/current-system/sw/bin/darwin-rebuild"
     ];
 
     # System paths
@@ -61,3 +62,4 @@ rec {
   # Generate path array for lua/wezterm
   getPathArray = username: home: getAllPaths username home;
 }
+
