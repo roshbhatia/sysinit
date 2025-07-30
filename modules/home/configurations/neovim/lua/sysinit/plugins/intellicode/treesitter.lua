@@ -112,7 +112,10 @@ M.plugins = {
 				vim.api.nvim_create_autocmd("FileType", {
 					pattern = ft,
 					callback = function()
-						vim.treesitter.start()
+						local ok = pcall(vim.treesitter.start)
+						if not ok then
+							vim.cmd("syntax on")
+						end
 					end,
 				})
 			end
@@ -121,3 +124,4 @@ M.plugins = {
 }
 
 return M
+
