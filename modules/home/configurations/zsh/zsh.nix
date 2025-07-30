@@ -200,6 +200,18 @@ in
         zstyle ':completion:*:complete:*' use-cache on
         zstyle ':completion:*' menu no
 
+        # fzf-tab configuration for better completion behavior
+        zstyle ':fzf-tab:*' use-fzf-default-opts yes
+        zstyle ':fzf-tab:*' fzf-pad 4
+        zstyle ':fzf-tab:*' single-group color header
+        zstyle ':fzf-tab:*' show-group full
+
+        # Fix for nested folder completions - use empty query instead of prefix
+        zstyle ':fzf-tab:*' query-string ""
+        zstyle ':fzf-tab:*' continuous-trigger "/"
+        zstyle ':fzf-tab:*' fzf-bindings "tab:down" "btab:up"
+
+        # Preview configurations
         zstyle ':fzf-tab:complete:cd:*' fzf-preview 'fzf-preview "$realpath"'
         zstyle ':fzf-tab:complete:cat:*' fzf-preview  'fzf-preview "$word"'
         zstyle ':fzf-tab:complete:bat:*' fzf-preview  'fzf-preview "$word"'
@@ -207,8 +219,6 @@ in
         zstyle ':fzf-tab:complete:vim:*' fzf-preview 'fzf-preview "$word"'
         zstyle ':fzf-tab:complete:vi:*' fzf-preview 'fzf-preview "$word"'
         zstyle ':fzf-tab:complete:v:*' fzf-preview 'fzf-preview "$word"'
-
-        zstyle ':fzf-tab:*' use-fzf-default-opts yes
 
       '')
 

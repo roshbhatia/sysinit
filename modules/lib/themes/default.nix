@@ -261,21 +261,21 @@ let
   getUnifiedColors =
     palette: with palette; {
       # Primary colors - these will always exist in all themes
-      primary = accent or blue or iris or pine;
-      background = base or bg0 or base03;
-      foreground = text or fg1 or base0;
-      secondary = surface1 or bg1 or base02;
+      primary = accent;
+      background = base;
+      foreground = text;
+      secondary = surface1;
 
       # Semantic colors with fallbacks
-      success = green or foam;
-      warning = yellow or gold or orange;
-      error = red or love;
-      info = blue or pine or cyan;
+      success = green;
+      warning = yellow;
+      error = red;
+      info = blue;
 
       # UI colors
-      border = surface2 or overlay or bg2 or base02;
-      muted = subtext1 or muted or fg3 or base01;
-      subtle = subtext0 or subtle or fg4 or base01;
+      border = surface2;
+      muted = subtext1;
+      subtle = subtext0;
     };
 
   hexToAnsi = ansiCode: "38;5;${toString ansiCode}";

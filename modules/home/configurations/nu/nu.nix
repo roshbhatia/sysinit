@@ -157,4 +157,3 @@ in
       "nushell/theme.nu".source = ./themes/${nushellTheme};
     };
 }
-
