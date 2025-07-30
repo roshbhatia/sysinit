@@ -182,10 +182,6 @@ in
         zstyle ':completion:*:complete:*' use-cache on
         zstyle ':completion:*' menu no
 
-        zstyle ':fzf-tab:complete:(ls|cd):*' fzf-preview '${config.home.homeDirectory}/.local/bin/fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:(cat|bat):*' fzf-preview '${config.home.homeDirectory}/.local/bin/fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:(c|code|nvim|vim|vi|v):*' fzf-preview '${config.home.homeDirectory}/.local/bin/fzf-preview $realpath'
-
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
       '')
       ''
