@@ -223,6 +223,38 @@ in
         fi
       ''
       (lib.mkAfter ''
+        # Vi mode integration with oh-my-posh
+        _omp_redraw-prompt() {
+          local precmd
+          for precmd in "''${precmd_functions[@]}"; do
+            "$precmd"
+          done
+          zle && zle reset-prompt
+        }
+
+        export POSH_VI_MODE="> "
+
+        function zvm_after_select_vi_mode() {
+          case $ZVM_MODE in
+          $ZVM_MODE_NORMAL)
+            POSH_VI_MODE="| "
+            ;;
+          $ZVM_MODE_INSERT)
+            POSH_VI_MODE="> "
+            ;;
+          $ZVM_MODE_VISUAL)
+            POSH_VI_MODE=">> "
+            ;;
+          $ZVM_MODE_VISUAL_LINE)
+            POSH_VI_MODE=">> "
+            ;;
+          $ZVM_MODE_REPLACE)
+            POSH_VI_MODE="{} "
+            ;;
+          esac
+          _omp_redraw-prompt
+        }
+
         function zvm_vi_yank() {
           zvm_yank
           echo ''${CUTBUFFER} | pbcopy
