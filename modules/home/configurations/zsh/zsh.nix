@@ -6,6 +6,8 @@
   ...
 }:
 let
+  paths_lib = import ../../../lib/paths { inherit config lib; };
+  pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;
   shell = import ../../../lib/shell { inherit lib; };
   themes = import ../../../lib/themes { inherit lib; };
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
@@ -13,8 +15,6 @@ let
     themes.ansiMappings.${values.theme.colorscheme}.${values.theme.variant}
       or themes.ansiMappings.catppuccin.macchiato;
 
-  logLib = shell.stripHeaders ./core/loglib.sh;
-  paths = shell.stripHeaders ./core/paths.sh;
   wezterm = shell.stripHeaders ./core/wezterm.sh;
   completions = shell.stripHeaders ./core/completions.sh;
   kubectl = shell.stripHeaders ./core/kubectl.sh;
@@ -356,8 +356,30 @@ in
       '')
 
       ''
-        ${logLib}
-        ${paths}
+        path.print() {
+          echo "$PATH" | tr ':' '\n' | bat --style=numbers,grid
+        }
+
+        path.add.safe() {
+          local dir="$1"
+          if [ -d "$dir" ]; then
+            if [[ ":$PATH:" != *":$dir:"* ]]; then
+              export PATH="$dir:$PATH"
+              [[ -n "$SYSINIT_DEBUG" ]] && echo "Added $dir to PATH"
+            fi
+          else
+            [[ -n "$SYSINIT_DEBUG" ]] && echo "Directory $dir does not exist, skipping PATH addition"
+          fi
+        }
+
+        paths=(
+          ${lib.concatStringsSep "\n          " (map (path: "\"${path}\"") pathsList)}
+        )
+
+        for dir in "''${paths[@]}"; do
+          path.add.safe "$dir"
+        done
+
         ${wezterm}
         ${kubectl}
         ${env}
