@@ -3,7 +3,7 @@
 # shellcheck disable=all
 # modules/home/configurations/utils/fzf-preview
 
-target="${1/#\~\//$HOME}"
+target="${1/#\~\//$HOME/}"
 center=0
 
 if [[ ! -r "$target" ]]; then
@@ -16,13 +16,57 @@ if [[ ! -r "$target" ]]; then
   fi
 fi
 
-type=$(file --brief --dereference --mime -- "$target")
+# Check if target is an image file
+is_image() {
+  local file="$1"
+  case "${file:l}" in
+  *.jpg | *.jpeg | *.png | *.gif | *.bmp | *.tiff | *.tga | *.webp | *.svg | *.ico | *.avif | *.heic | *.heif)
+    return 0
+    ;;
+  *)
+    return 1
+    ;;
+  esac
+}
 
 if [[ -d "$target" ]]; then
-  eza --color=always --icons=always -1 "$target"
-elif [[ "$type" =~ image/ ]]; then
-  wezterm imgcat "$target"
+  if command -v eza >/dev/null 2>&1; then
+    eza --color=always --icons=always -1 "$target"
+  else
+    ls -la --color=always "$target" 2>/dev/null || ls -la "$target"
+  fi
+elif is_image "$target" && [[ -r "$target" ]]; then
+  if command -v chafa >/dev/null 2>&1; then
+    # Get terminal size for optimal image display
+    local cols=${COLUMNS:-$(tput cols 2>/dev/null || echo 80)}
+    local lines=${LINES:-$(tput lines 2>/dev/null || echo 24)}
+    # Reserve some lines for other content and adjust for aspect ratio
+    chafa --size="${cols}x$((lines - 4))" --animate=off --polite=on "$target"
+  else
+    echo "Image file: $target"
+    if command -v file >/dev/null 2>&1; then
+      file "$target"
+    fi
+  fi
 else
-  bat --style=numbers -r 0:30 --color=always --pager=never -- "$target"
+  if [[ -r "$target" ]]; then
+    if command -v bat >/dev/null 2>&1; then
+      if ((center > 0)); then
+        bat --style=numbers --color=always --pager=never --highlight-line="$center" -- "$target"
+      else
+        bat --style=numbers --color=always --pager=never -- "$target"
+      fi
+    else
+      if ((center > 0)); then
+        # Fallback with basic line highlighting using nl and grep
+        nl -ba "$target" | grep --color=always -C5 "^\s*$center\s"
+      else
+        cat "$target"
+      fi
+    fi
+  else
+    echo "Cannot read file: $target" >&2
+    exit 1
+  fi
 fi
 
