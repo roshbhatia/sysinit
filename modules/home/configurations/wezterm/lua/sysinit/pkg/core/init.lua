@@ -3,9 +3,7 @@ local M = {}
 local username = os.getenv("USER")
 local home = os.getenv("HOME")
 
--- Import centralized paths configuration
 local paths_config = require("sysinit.paths_config")
-
 local nix_bin = "/etc/profiles/per-user/" .. username .. "/bin/"
 local nushell_config_dir = home .. "/.config/nushell"
 
@@ -42,3 +40,4 @@ function M.setup(config)
 end
 
 return M
+

@@ -189,7 +189,6 @@ in
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
       '')
       ''
-        # Generated paths configuration
         path.print() {
           echo "$PATH" | tr ':' '\n' | bat --style=numbers,grid
         }
@@ -240,3 +239,4 @@ in
     ];
   };
 }
+

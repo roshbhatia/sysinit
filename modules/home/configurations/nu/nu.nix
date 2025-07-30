@@ -59,6 +59,7 @@ in
       source wezterm.nu
 
       source atuin.nu
+      source completion-external.nu
       source direnv.nu
       source zoxide.nu
 
@@ -129,6 +130,7 @@ in
 
     "nushell/atuin.nu".source = ./core/atuin.nu;
     "nushell/carapace.nu".source = ./core/carapace.nu;
+    "nushell/completion-external.nu".source = ./core/completion-external.nu;
     "nushell/direnv.nu".source = ./core/direnv.nu;
     "nushell/kubectl.nu".source = ./core/kubectl.nu;
     "nushell/macchina.nu".source = ./core/macchina.nu;
