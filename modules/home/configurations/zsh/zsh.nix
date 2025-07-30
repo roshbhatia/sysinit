@@ -202,32 +202,8 @@ in
         zstyle ':fzf-tab:complete:vim:*' fzf-preview 'fzf-preview "$realpath"'
         zstyle ':fzf-tab:complete:vi:*' fzf-preview 'fzf-preview "$realpath"'
         zstyle ':fzf-tab:complete:v:*' fzf-preview 'fzf-preview "$realpath"'
-
-        # give a preview of commandline arguments when completing `kill`
-        zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm -w -w"
-        zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-preview \
-          [[ $group == "[process ID]" ]] && ps --pid=$word -o cmd --no-headers -w -w'
-        zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags --preview-window=down:3:wrap
-
-        zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview \
-          'git diff $word | delta'
-        zstyle ':fzf-tab:complete:git-log:*' fzf-preview \
-          'git log --color=always $word'
-        zstyle ':fzf-tab:complete:git-help:*' fzf-preview \
-          'git help $word | bat -plman --color=always'
-        zstyle ':fzf-tab:complete:git-show:*' fzf-preview \
-          'case "$group" in
-          "commit tag") git show --color=always $word ;;
-          *) git show --color=always $word | delta ;;
-          esac'
-        zstyle ':fzf-tab:complete:git-checkout:*' fzf-preview \
-          'case "$group" in
-          "modified file") git diff $word | delta ;;
-          "recent commit object name") git show --color=always $word | delta ;;
-          *) git log --color=always $word ;;
-          esac'
       '')
-      ''
+      (lib.mkOrder 555 ''
         path.print() {
           echo "$PATH" | tr ':' '\n' | bat --style=numbers,grid
         }
@@ -261,7 +237,7 @@ in
         if command -v carapace &>/dev/null; then
           eval "$(carapace _carapace)"
         fi
-      ''
+      '')
       (lib.mkAfter ''
         function zvm_vi_yank() {
           zvm_yank
