@@ -1,7 +1,13 @@
 #!/usr/bin/env nu
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-# modules/darwin/home/nu/core/carapace.nu (begin)
+
+def --env get-env [name] { $env | get $name }
+def --env set-env [name, value] { load-env { $name: $value } }
+def --env unset-env [name] { hide-env $name }
+
+$env.PATH = ($env.PATH | split row (char esep) | prepend "/Users/rshnbhatia/.config/carapace/bin")
+
 if (which carapace | is-not-empty) {
   # Carapace completer with error filtering
   let carapace_completer = {|spans: list<string>|
@@ -29,7 +35,7 @@ if (which carapace | is-not-empty) {
     | where name == $spans.0
     | get -i 0.expansion
 
-    let spans = if $expanded_alias != null {
+    let spans_for_completion = if $expanded_alias != null {
         $spans
         | skip 1
         | prepend ($expanded_alias | split row ' ' | take 1)
@@ -37,18 +43,24 @@ if (which carapace | is-not-empty) {
         $spans
     }
 
-    match $spans.0 {
-        nu => $fish_completer
-        git => $fish_completer
-        _ => $carapace_completer
-    } | do $in $spans
+    match $spans_for_completion.0 {
+      nu => $fish_completer
+      git => $fish_completer
+      kubectl => $fish_completer
+      _ => $carapace_completer
+    } | do $in $spans_for_completion
   }
 
-  $env.config.completions.external = {
-    enable: true
-    max_results: 100
-    completer: $external_completer
-  }
+  # Configure external completions in $env.config
+  $env.config = ($env.config | default {} | merge {
+    completions: {
+      external: {
+        enable: true
+        max_results: 100
+        completer: $external_completer
+      }
+    }
+  })
 }
 # modules/darwin/home/nu/core/carapace.nu (end)
 
