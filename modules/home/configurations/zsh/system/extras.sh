@@ -1,6 +1,12 @@
 #!/usr/bin/env zsh
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
+
+# Debug logging function
+log_debug() {
+  [[ -n "$SYSINIT_DEBUG" ]] && echo "[DEBUG] $*" >&2
+}
+
 # Setup cache directories
 ZCACHE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/zcache"
 ZCACHE_EXTRAS_DIR="$ZCACHE_DIR/extras"

@@ -5,16 +5,6 @@
 $env.config = {
   show_banner: false
   edit_mode: "vi"
-  completions: {
-    case_sensitive: false
-    quick: true
-    partial: true
-    algorithm: "fuzzy"
-    external: {
-      enable: true
-      max_results: 100
-    }
-  }
   cursor_shape: {
     vi_insert: underscore
     vi_normal: block

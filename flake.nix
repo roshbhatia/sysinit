@@ -25,6 +25,22 @@
       system = "aarch64-darwin";
       defaultValues = import ./values.nix;
 
+      # Custom overlays
+      overlayFiles = ./overlays;
+      overlays = import overlayFiles {
+        inherit inputs system;
+      };
+
+      # Package set with overlays applied
+      pkgs = import inputs.nixpkgs {
+        inherit system;
+        overlays = overlays;
+        config = {
+          allowUnfree = true;
+          allowUnsupportedSystem = true;
+        };
+      };
+
       mkDarwinConfiguration =
         customValues:
         let
@@ -41,6 +57,7 @@
               values
               username
               hostname
+              pkgs
               ;
           };
           modules = [
@@ -59,7 +76,7 @@
 
       homeConfigurations = {
         ${defaultValues.user.username} = home-manager.lib.homeManagerConfiguration {
-          pkgs = inputs.nixpkgs.legacyPackages.${system};
+          inherit pkgs;
           modules = [
             {
               home.username = defaultValues.user.username;
@@ -74,9 +91,23 @@
         };
       };
 
+      # Expose overlays for external use
+      overlays = {
+        default =
+          final: prev:
+          let
+            customOverlays = import overlayFiles { inherit inputs system; };
+          in
+          builtins.foldl' (acc: overlay: acc // overlay final prev) { } customOverlays;
+
+        packages = import (overlayFiles + "/packages.nix") { inherit inputs system; };
+        nushell-plugins = import (overlayFiles + "/nushell-plugins.nix") { inherit inputs system; };
+      };
+
       lib = {
         inherit mkDarwinConfiguration;
         defaultValues = defaultValues;
       };
     };
 }
+

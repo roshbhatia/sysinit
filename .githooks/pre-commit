@@ -1,19 +1,82 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
+# Source logging library
+if [ -f "hack/lib/logger.sh" ]; then
+    source hack/lib/logger.sh
+else
+    # Fallback simple logging
+    log_info() { echo -e "\033[0;34m[INFO]\033[0m $*"; }
+    log_warn() { echo -e "\033[1;33m[WARN]\033[0m $*" >&2; }
+    log_error() { echo -e "\033[1;31m[ERROR]\033[0m $*" >&2; }
+    log_success() { echo -e "\033[0;32m[SUCCESS]\033[0m $*"; }
+fi
+
 check_command() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# Check for required commands
 if ! check_command "task"; then
-    echo "task not found, skipping hooks"
+    log_warn "task not found, skipping hooks"
     exit 0
 fi
 
-for cmd in "nixfmt" "stylua"; do
+for cmd in "nixfmt" "stylua" "deadnix"; do
     if ! check_command "$cmd"; then
-        echo "$cmd not found, skipping hooks"
+        log_warn "$cmd not found, skipping hooks"
         exit 0
     fi
 done
 
+# Check line endings for staged files
+log_info "Checking line endings..."
+staged_files=$(git diff --cached --name-only --diff-filter=ACM)
+
+if [ -n "$staged_files" ]; then
+    for file in $staged_files; do
+        if [ -f "$file" ]; then
+            # Check for CRLF line endings
+            if file "$file" | grep -q "CRLF"; then
+                log_error "File has CRLF line endings. Please convert to LF." file="$file"
+                exit 1
+            fi
+
+            # Check for trailing whitespace (except markdown files)
+            if [[ ! "$file" =~ \.(md|markdown)$ ]]; then
+                if grep -q '[[:space:]]$' "$file"; then
+                    log_error "File has trailing whitespace." file="$file"
+                    exit 1
+                fi
+            fi
+
+            # Check for final newline
+            if [ -s "$file" ] && [ "$(tail -c1 "$file" | wc -l)" -eq 0 ]; then
+                log_error "File is missing final newline." file="$file"
+                exit 1
+            fi
+        fi
+    done
+fi
+
+# Check for dead Nix code
+log_info "Checking for dead Nix code..."
+nix_files=$(find . -name "*.nix" -type f | grep -v result | head -20)
+if [ -n "$nix_files" ]; then
+    echo "$nix_files" | xargs deadnix --edit
+
+    # Check if deadnix made any changes
+    if ! git diff --quiet --exit-code -- "*.nix"; then
+        log_warn "deadnix found and removed dead code. Please review and commit the changes."
+        log_info "Modified files:"
+        git diff --name-only -- "*.nix"
+        exit 1
+    fi
+fi
+
+# Run formatting tasks
+log_info "Running formatting tasks..."
 task lua:fmt nix:fmt sh:chmod
+
+log_success "Pre-commit checks passed!"

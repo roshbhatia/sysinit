@@ -6,9 +6,9 @@ $env.ATUIN_SESSION = (atuin uuid)
 hide-env -i ATUIN_HISTORY_ID
 
 # Magic token to make sure we don't record commands run by keybindings
-let ATUIN_KEYBINDING_TOKEN = $"# (random uuid)"
+let atuin_keybinding_token = $"# (random uuid)"
 
-let _atuin_pre_execution = {||
+let atuin_pre_execution = {||
     if ($nu | get -i history-enabled) == false {
         return
     }
@@ -16,12 +16,12 @@ let _atuin_pre_execution = {||
     if ($cmd | is-empty) {
         return
     }
-    if not ($cmd | str starts-with $ATUIN_KEYBINDING_TOKEN) {
+    if not ($cmd | str starts-with $atuin_keybinding_token) {
         $env.ATUIN_HISTORY_ID = (atuin history start -- $cmd)
     }
 }
 
-let _atuin_pre_prompt = {||
+let atuin_pre_prompt = {||
     let last_exit = $env.LAST_EXIT_CODE
     if 'ATUIN_HISTORY_ID' not-in $env {
         return
@@ -33,7 +33,7 @@ let _atuin_pre_prompt = {||
     hide-env ATUIN_HISTORY_ID
 }
 
-def _atuin_search_cmd [...flags: string] {
+def atuin_search_cmd [...flags: string] {
     let nu_version = do {
         let version = version
         let major = $version.major?
@@ -46,7 +46,7 @@ def _atuin_search_cmd [...flags: string] {
         }
     }
     [
-        $ATUIN_KEYBINDING_TOKEN,
+        $atuin_keybinding_token,
         ([
             `with-env { ATUIN_LOG: error, ATUIN_QUERY: (commandline) } {`,
                 (if $nu_version.0 <= 0 and $nu_version.1 <= 90 { 'commandline' } else { 'commandline edit' }),
@@ -64,9 +64,9 @@ $env.config = (
     $env.config | upsert hooks (
         $env.config.hooks
         | upsert pre_execution (
-            $env.config.hooks | get -i pre_execution | default [] | append $_atuin_pre_execution)
+            $env.config.hooks | get -i pre_execution | default [] | append $atuin_pre_execution)
         | upsert pre_prompt (
-            $env.config.hooks | get -i pre_prompt | default [] | append $_atuin_pre_prompt)
+            $env.config.hooks | get -i pre_prompt | default [] | append $atuin_pre_prompt)
     )
 )
 
@@ -80,7 +80,7 @@ $env.config = (
             modifier: control
             keycode: char_r
             mode: [emacs, vi_normal, vi_insert]
-            event: { send: executehostcommand cmd: (_atuin_search_cmd) }
+            event: { send: executehostcommand cmd: (atuin_search_cmd) }
         }
     )
 )
@@ -96,7 +96,7 @@ $env.config = (
             event: {
                 until: [
                     {send: menuup}
-                    {send: executehostcommand cmd: (_atuin_search_cmd '--shell-up-key-binding') }
+                    {send: executehostcommand cmd: (atuin_search_cmd '--shell-up-key-binding') }
                 ]
             }
         }

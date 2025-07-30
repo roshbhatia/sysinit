@@ -134,16 +134,16 @@ in
   };
 
   home.file.".gitignore.global" = {
-    source = ./gitignore.global;
+    source = ./configs/gitignore.global;
   };
 
   xdg.configFile."lazygit/config.yml" = {
-    source = ./lazygit.yaml;
+    source = ./configs/lazygit.yaml;
     force = true;
   };
 
   xdg.configFile."delta/themes/${values.theme.colorscheme}.gitconfig" = {
-    source = ./${values.theme.colorscheme}.gitconfig;
+    source = ./themes/${values.theme.colorscheme}.gitconfig;
     force = true;
   };
 }

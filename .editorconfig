@@ -1,0 +1,74 @@
+# EditorConfig is awesome: https://editorconfig.org
+
+# top-most EditorConfig file
+root = true
+
+# All files
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# Nix files
+[*.nix]
+indent_size = 2
+
+# Shell scripts
+[*.{sh,zsh,bash}]
+indent_size = 2
+
+# Nushell scripts
+[*.nu]
+indent_size = 2
+
+# Lua files
+[*.lua]
+indent_size = 2
+
+# YAML files
+[*.{yml,yaml}]
+indent_size = 2
+
+# TOML files
+[*.toml]
+indent_size = 2
+
+# JSON files
+[*.json]
+indent_size = 2
+
+# Markdown files
+[*.{md,markdown}]
+trim_trailing_whitespace = false
+
+# Makefiles and similar
+[{Makefile,makefile,GNUmakefile,*.mk}]
+indent_style = tab
+
+# Python files
+[*.py]
+indent_size = 4
+
+# Go files
+[*.go]
+indent_style = tab
+
+# JavaScript/TypeScript files
+[*.{js,ts,jsx,tsx}]
+indent_size = 2
+
+# CSS/SCSS files
+[*.{css,scss,sass}]
+indent_size = 2
+
+# HTML files
+[*.{html,htm}]
+indent_size = 2
+
+# XML files
+[*.xml]
+indent_size = 2
+

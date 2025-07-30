@@ -11,33 +11,31 @@ let
   paths = import ../../../lib/paths { inherit config lib; };
   vividTheme = themes.getAppTheme "vivid" values.theme.colorscheme values.theme.variant;
   nushellTheme = themes.getAppTheme "nushell" values.theme.colorscheme values.theme.variant;
+  palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
 
   pathsList = paths.getAllPaths config.home.username config.home.homeDirectory;
 
-  # Core nushell configuration
-  coreModules = [
-    "theme.nu"
-    "wezterm.nu"
-    "atuin.nu"
-    "direnv.nu"
-    "zoxide.nu"
-    "carapace.nu"
-    "kubectl.nu"
-    "macchina.nu"
-    "omp.nu"
-  ];
+  # Organized module groups for better maintainability
+  moduleGroups = {
+    system = [ "theme.nu" ];
+    integrations = [ "atuin.nu" "direnv.nu" "zoxide.nu" "carapace.nu" ];
+    tools = [ "kubectl.nu" ];
+    ui = [ "wezterm.nu" "macchina.nu" "omp.nu" ];
+  };
 
-  # Generate source statements for core modules
+  # Flatten all modules for source statements
+  allModules = lib.flatten (lib.attrValues moduleGroups);
+
   moduleSourceStatements = lib.concatStringsSep "\n      " (
-    map (module: "source ${module}") coreModules
+    map (module: "source ${module}") allModules
   );
 in
 {
   programs.nushell = {
     enable = true;
 
-    configFile.source = ./core/config.nu;
-    envFile.source = ./core/env.nu;
+    configFile.source = ./system/config.nu;
+    envFile.source = ./system/env.nu;
 
     extraConfig = ''
       # Environment setup
@@ -57,6 +55,30 @@ in
       for path in $paths {
         path_add $path
       }
+
+      # FZF theme configuration
+      $env.FZF_DEFAULT_OPTS = [
+        "--bind=resize:refresh-preview"
+        "--color=bg+:-1,bg:-1,spinner:${palette.accent or "#8aadf4"},hl:${palette.accent or "#8aadf4"}"
+        "--color=border:${palette.surface2 or palette.overlay or "#5b6078"},label:${palette.text or "#cad3f5"}"
+        "--color=fg:${palette.text or "#cad3f5"},header:${palette.accent or "#8aadf4"},info:${palette.subtext1 or "#b8c0e0"},pointer:${palette.accent or "#8aadf4"}"
+        "--color=marker:${palette.accent or "#8aadf4"},fg+:${palette.text or "#cad3f5"},prompt:${palette.accent or "#8aadf4"},hl+:${palette.accent or "#8aadf4"}"
+        "--color=preview-bg:-1,query:${palette.text or "#cad3f5"}"
+        "--cycle"
+        "--height=30"
+        "--highlight-line"
+        "--ignore-case"
+        "--info=inline"
+        "--input-border=rounded"
+        "--layout=reverse"
+        "--list-border=rounded"
+        "--no-scrollbar"
+        "--pointer='>'"
+        "--preview-border=rounded"
+        "--prompt='>> '"
+        "--scheme=history"
+        "--style=minimal"
+      ] | str join " "
     '';
 
     plugins = with pkgs.nushellPlugins; [
@@ -104,15 +126,25 @@ in
     environmentVariables = config.home.sessionVariables;
   };
 
-  # XDG configuration files
+  # Generate xdg.configFile entries for all module groups
   xdg.configFile =
-    lib.listToAttrs (
-      map (module: {
-        name = "nushell/${module}";
-        value.source = ./core/${module};
-      }) (lib.filter (m: m != "theme.nu") coreModules)
-    )
-    // {
+    let
+      # Create config file entries for each group
+      createGroupConfigs = groupName: modules:
+        lib.listToAttrs (
+          map (module: {
+            name = "nushell/${module}";
+            value.source = ./${groupName}/${module};
+          }) (lib.filter (m: m != "theme.nu") modules)
+        );
+
+      # Combine all group configs
+      allGroupConfigs = lib.foldl' (acc: groupName:
+        acc // createGroupConfigs groupName moduleGroups.${groupName}
+      ) {} (lib.attrNames moduleGroups);
+    in
+    allGroupConfigs // {
       "nushell/theme.nu".source = ./themes/${nushellTheme};
     };
 }
+

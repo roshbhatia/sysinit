@@ -1,10 +1,13 @@
 #!/usr/bin/env nu
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
+
+# Environment variable helpers
 def --env get-env [name] { $env | get $name }
 def --env set-env [name, value] { load-env { $name: $value } }
 def --env unset-env [name] { hide-env $name }
 
+# Resolve alias to the actual command name
 def resolve_alias [cmd] {
   let aliases = scope aliases
   let expansion = aliases | where name == $cmd | get -i 0.expansion
@@ -84,12 +87,16 @@ let external_completer = {|spans|
     # Default to carapace for everything else
     _ => $carapace_completer
   }
-  
+
   do $completer $spans_for_completion
 }
 
 $env.config = ($env.config | default {} | merge {
   completions: {
+    case_sensitive: false
+    quick: true
+    partial: true
+    algorithm: "fuzzy"
     external: {
       enable: true
       max_results: 100

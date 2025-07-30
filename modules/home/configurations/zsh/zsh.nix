@@ -13,12 +13,19 @@ let
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
 
   pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;
-  wezterm = shell.stripHeaders ./core/wezterm.sh;
-  completions = shell.stripHeaders ./core/completions.sh;
-  kubectl = shell.stripHeaders ./core/kubectl.sh;
-  env = shell.stripHeaders ./core/env.sh;
-  extras = shell.stripHeaders ./core/extras.sh;
-  prompt = shell.stripHeaders ./core/prompt.sh;
+  # UI components
+  wezterm = shell.stripHeaders ./ui/wezterm.sh;
+  prompt = shell.stripHeaders ./ui/prompt.sh;
+
+  # Integrations
+  completions = shell.stripHeaders ./integrations/completions.sh;
+
+  # Tools
+  kubectl = shell.stripHeaders ./tools/kubectl.sh;
+
+  # System configuration
+  env = shell.stripHeaders ./system/env.sh;
+  extras = shell.stripHeaders ./system/extras.sh;
 in
 {
   programs.zsh = {
