@@ -41,11 +41,5 @@ $env.config = {
     }
   ]
 }
-
-# Dynamically source any files in ~/.config/nushell/extras/
-let extras_dir = ($nu.home-path | path join ".config/nushell/extras")
-if ($extras_dir | path exists) {
-  ls $extras_dir | where type == "file" | each { source $it.name }
-}
 # modules/darwin/home/nu/core/config.nu (end)
 
