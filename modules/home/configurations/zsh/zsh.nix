@@ -184,8 +184,8 @@ in
         zstyle ':completion:*' menu no
 
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
-        # Use your existing fzf-preview script with fallback logic
-        zstyle ':fzf-tab:complete:*:*' fzf-preview '[[ -n $realpath ]] && fzf-preview $realpath || [[ -n $word ]] && fzf-preview $word || echo "No preview available"'
+        # Use your existing fzf-preview script with proper path resolution
+        zstyle ':fzf-tab:complete:*:*' fzf-preview 'fzf-tab-debug $realpath $word $desc'
         zstyle ':fzf-tab:complete:*' fzf-flags --preview-window=right:50%:wrap --height=80%
       '')
       ''

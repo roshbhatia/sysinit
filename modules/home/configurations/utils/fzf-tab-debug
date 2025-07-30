@@ -47,11 +47,29 @@ fi
 
 echo "================================" >> "$DEBUG_FILE"
 
-# Now call the actual preview script with the appropriate argument
+# Try to determine the best target for preview
+best_target=""
+
+# Check various potential targets in order of preference
 if [[ -n "$realpath" && -e "$realpath" ]]; then
-    exec fzf-preview "$realpath"
-elif [[ -n "$1" ]]; then
-    exec fzf-preview "$1"
+    best_target="$realpath"
+elif [[ -n "$realpath" && -e "./$realpath" ]]; then
+    best_target="./$realpath"
+elif [[ -n "$word" && -e "$word" ]]; then
+    best_target="$word"
+elif [[ -n "$word" && -e "./$word" ]]; then
+    best_target="./$word"
+elif [[ -n "$1" && -e "$1" ]]; then
+    best_target="$1"
+elif [[ -n "$1" && -e "./$1" ]]; then
+    best_target="./$1"
+fi
+
+echo "Best target: '$best_target'" >> "$DEBUG_FILE"
+
+# Now call the actual preview script
+if [[ -n "$best_target" ]]; then
+    exec fzf-preview "$best_target"
 else
-    echo "No valid target for preview"
+    echo "No valid target for preview (tried: realpath='$realpath', word='$word', arg1='$1')"
 fi

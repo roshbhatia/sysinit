@@ -21,6 +21,17 @@ if [[ -z "$target" || "$target" =~ ^[[:space:]]*$ ]]; then
   exit 0
 fi
 
+# If target is a relative path and doesn't exist, try to resolve it
+if [[ ! -e "$target" && "$target" != /* ]]; then
+  # Try current directory first
+  if [[ -e "./$target" ]]; then
+    target="./$target"
+  # Try without leading ./
+  elif [[ -e "${target#./}" ]]; then
+    target="${target#./}"
+  fi
+fi
+
 # Handle cases where target is not readable (e.g., grep results with line numbers)
 if [[ ! -r "$target" ]]; then
   if [[ "$target" =~ ^(.+):([0-9]+)\ *$ ]]; then
