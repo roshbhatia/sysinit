@@ -68,15 +68,20 @@ in
     sessionVariables = {
       LANG = "en_US.UTF-8";
       LC_ALL = "en_US.UTF-8";
+
       SUDO_EDITOR = "nvim";
       VISUAL = "nvim";
+
       GIT_DISCOVERY_ACROSS_FILESYSTEM = 1;
+
       ZSH_EVALCACHE_DIR = "${config.xdg.dataHome}/zsh/evalcache";
       ZSH_AUTOSUGGEST_USE_ASYNC = 1;
       ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = 20;
       ZSH_AUTOSUGGEST_MANUAL_REBIND = 1;
+
       ZVM_LINE_INIT_MODE = "i";
-      FZF_DEFAULT_COMMAND = "rg --files --hidden --glob '!**/.git/*' --glob '!**/node_modules/*'";
+
+      FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
         "--bind='resize:refresh-preview'"
         "--border=rounded"
@@ -176,6 +181,7 @@ in
           compinit -C -d "${config.xdg.configHome}/zsh/zcompdump/.zcompdump";
         fi
 
+        # Essential zsh completion configuration
         zstyle ':completion:*:git-checkout:*' sort false
         zstyle ':completion:*:descriptions' format '[%d]'
         zstyle ':completion:*' list-colors ''\${(s.:.)LS_COLORS}
@@ -183,8 +189,14 @@ in
         zstyle ':completion:*:complete:*' use-cache on
         zstyle ':completion:*' menu no
 
+        # fzf-tab specific configuration
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
-        zstyle ':fzf-tab:complete:(rm|cd|ls|cat|bat|code|c|nvim|v|vi|vim):*' fzf-preview 'fzf-preview $word || fzf-preview $desc || echo "No preview available"'
+        zstyle ':fzf-tab:*' continuous-trigger '/'
+        zstyle ':fzf-tab:*' accept-line enter
+        zstyle ':fzf-tab:*' print-query alt-enter
+        zstyle ':fzf-tab:*' switch-group F1 F2
+        zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --color=always --icons=always -1 -a --group-directories-first --git $realpath'
+        zstyle ':fzf-tab:complete:(rm|ls|cat|bat|code|c|nvim|v|vi|vim):*' fzf-preview 'fzf-preview $word || fzf-preview $desc || echo "No preview available"'
         zstyle ':fzf-tab:complete:*' fzf-flags --preview-window=right:50%:wrap --height=80%
       '')
       ''
@@ -238,3 +250,4 @@ in
     ];
   };
 }
+
