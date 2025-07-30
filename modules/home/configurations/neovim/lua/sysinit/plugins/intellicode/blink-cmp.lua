@@ -16,7 +16,7 @@ end
 M.plugins = {
 	{
 		"saghen/blink.cmp",
-		build = "nix run .#build-plugin",
+		version = "1.*",
 		dependencies = deps,
 		lazy = false,
 		opts = function()
@@ -204,3 +204,4 @@ M.plugins = {
 }
 
 return M
+
