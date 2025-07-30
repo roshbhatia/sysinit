@@ -105,6 +105,7 @@ in
         "--prompt='>> '"
         "--scheme='history'"
         "--style=minimal"
+        "--bind=tab:accept"
       ];
       COLIMA_HOME = "${config.xdg.configHome}/colima";
       VIVID_THEME = appTheme;
