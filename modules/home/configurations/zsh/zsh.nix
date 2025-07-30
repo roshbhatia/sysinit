@@ -25,11 +25,16 @@ in
 {
   programs.zsh = {
     enable = true;
+
     autocd = true;
+    # We enable completion anyways, we don't want our cache to be invalidated.
     enableCompletion = false;
     historySubstringSearch.enable = false;
+    # We need to install this manually due to fzf-tab needing to run first
     autosuggestion.enable = false;
+    # We use fast-syntax-highlighting instead
     syntaxHighlighting.enable = false;
+
     history = {
       size = 50000;
       save = 50000;
@@ -162,45 +167,88 @@ in
     initContent = lib.mkMerge [
       (lib.mkBefore ''
         [[ -n "$SYSINIT_DEBUG" ]] && zmodload zsh/zprof
-        unset MAILCHECK
+
         stty stop undef
         setopt COMBINING_CHARS
         setopt PROMPT_SUBST
         PROMPT='%~%# '
         RPS1=""
+
       '')
       (lib.mkOrder 550 ''
-        mkdir -p ${config.xdg.configHome}/zsh
+        mkdir -p ${config.xdg.cacheHome}/zsh
         autoload bashcompinit && bashcompinit
         autoload -Uz compinit
-        if [[ -n "${config.xdg.configHome}/zsh/zcompdump/.zcompdump"(#qN.mh+24) ]]; then
-          compinit -d "${config.xdg.configHome}/zsh/zcompdump/.zcompdump";
+        if [[ -n ${config.xdg.cacheHome}/zsh/zcompdump/.zcompdump(#qN.mh+24) ]]; then
+          compinit -d "${config.xdg.cacheHome}/zsh/zcompdump/.zcompdump";
         else
-          compinit -C -d "${config.xdg.configHome}/zsh/zcompdump/.zcompdump";
+          compinit -C -d "${config.xdg.cacheHome}/zsh/zcompdump/.zcompdump";
         fi
 
         zstyle ':completion:*:git-checkout:*' sort false
         zstyle ':completion:*:descriptions' format '[%d]'
+        zstyle ':completion:*' list-colors ''\${(s.:.)LS_COLORS}
         zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
         zstyle ':completion:*:complete:*' use-cache on
         zstyle ':completion:*' menu no
 
-        zstyle ':fzf-tab:*' use-fzf-default-opts yes
-        zstyle ':fzf-tab:*' continuous-trigger '/'
+        zstyle ':fzf-tab:complete:cd:*' fzf-preview 'fzf-preview "$realpath"'
+        zstyle ':fzf-tab:complete:cat:*' fzf-preview  'fzf-preview "$realpath"'
+        zstyle ':fzf-tab:complete:bat:*' fzf-preview  'fzf-preview "$realpath"'
+        zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'fzf-preview "$realpath"'
+        zstyle ':fzf-tab:complete:vim:*' fzf-preview 'fzf-preview "$realpath"'
+        zstyle ':fzf-tab:complete:vi:*' fzf-preview 'fzf-preview "$realpath"'
+        zstyle ':fzf-tab:complete:v:*' fzf-preview 'fzf-preview "$realpath"'
 
-        zstyle ':fzf-tab:complete:(rm|cd|nvim|vim|vi|v):*' fzf-preview 'fzf-preview "$realpath"'
+        zstyle ':fzf-tab:*' use-fzf-default-opts yes
+
       '')
+      ''
+        path.print() {
+          echo "$PATH" | tr ':' '\n' | bat --style=numbers,grid
+        }
+
+        path.add.safe() {
+          local dir="$1"
+          if [ -d "$dir" ]; then
+            if [[ ":$PATH:" != *":$dir:"* ]]; then
+              export PATH="$dir:$PATH"
+              [[ -n "$SYSINIT_DEBUG" ]] && echo "Added $dir to PATH"
+            fi
+          else
+            [[ -n "$SYSINIT_DEBUG" ]] && echo "Directory $dir does not exist, skipping PATH addition"
+          fi
+        }
+
+        paths=(
+          ${lib.concatStringsSep "\n          " (map (path: "\"${path}\"") pathsList)}
+        )
+
+        for dir in "''${paths[@]}"; do
+          path.add.safe "$dir"
+        done
+
+        ${wezterm}
+        ${kubectl}
+        ${env}
+        ${extras}
+        ${completions}
+        ${prompt}
+
+      ''
       (lib.mkAfter ''
         function zvm_vi_yank() {
           zvm_yank
-          echo "$CUTBUFFER" | pbcopy
+          echo ''${CUTBUFFER} | pbcopy
           zvm_exit_visual_mode
         }
+
         function zvm_vi_delete() {
           zvm_replace_selection
-          echo "$CUTBUFFER" | pbcopy
-          zvm_exit_visual_mode "''${1:-true}"
+          echo ''${CUTBUFFER} | pbcopy
+          zvm_exit_visual_mode ''\${"1:-true"}
         }
+
         [[ -n "$SYSINIT_DEBUG" ]] && zprof
       '')
     ];

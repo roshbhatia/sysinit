@@ -11,5 +11,7 @@ export MANPAGER="sh -c 'sed -u -e \"s/\\x1B\[[0-9;]*m//g; s/.\\x08//g\" | bat -p
 export LS_COLORS=$(vivid generate $VIVID_THEME)
 export EZA_COLORS=$LS_COLORS
 export _ZO_FZF_OPTS=$FZF_DEFAULT_OPTS
+
+unset MAILCHECK
 # modules/darwin/home/zsh/core/env.sh (end)
 
