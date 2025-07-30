@@ -125,7 +125,7 @@ in
       # modules/darwin/home/nu/core/env.nu (end)
     '';
 
-    "nushell/theme.nu".source = ./themes/${nushellTheme}.nu;
+    "nushell/theme.nu".source = ./themes/${nushellTheme};
 
     "nushell/atuin.nu".source = ./core/atuin.nu;
     "nushell/carapace.nu".source = ./core/carapace.nu;
@@ -137,3 +137,4 @@ in
     "nushell/zoxide.nu".source = ./core/zoxide.nu;
   };
 }
+
