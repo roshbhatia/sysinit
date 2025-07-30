@@ -231,7 +231,10 @@ in
           path.add.safe "$dir"
         done
 
-        ${wezterm}
+        if [[ -n "$WEZTERM_UNIX_SOCKET" ]]; then
+          ${wezterm}
+        fi
+
         ${kubectl}
         ${env}
         ${extras}
@@ -258,3 +261,4 @@ in
     ];
   };
 }
+

@@ -3,6 +3,22 @@ local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabl
 local theme_config = require("sysinit.theme_config")
 local M = {}
 
+local function zvm_mode_component(pane)
+	local mode = pane:get_user_vars().ZVM_MODE
+	if not mode or mode == "" then
+		return ""
+	end
+	local mode_map = {
+		n = "NORMAL",
+		i = "INSERT",
+		v = "VISUAL",
+		vl = "VISUAL LINE",
+		r = "REPLACE",
+	}
+	local display = mode_map[mode] or mode
+	return "<<" .. display .. ">>"
+end
+
 function M.setup(config)
 	tabline.setup({
 		options = {
@@ -14,6 +30,7 @@ function M.setup(config)
 		sections = {
 			tabline_a = {
 				"mode",
+				zvm_mode_component,
 			},
 			tabline_b = {
 				"hostname",
