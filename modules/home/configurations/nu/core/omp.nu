@@ -2,7 +2,6 @@
 # shellcheck disable=all
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # modules/darwin/home/nu/core/omp.nu (begin)
-
 if ($env.config? | is-not-empty) {
     $env.config = ($env.config | upsert render_right_prompt_on_last_line true)
 }
@@ -61,5 +60,8 @@ $env.PROMPT_COMMAND = {||
 }
 
 $env.PROMPT_COMMAND_RIGHT = {|| _omp_get_prompt right }
+
+$env.PROMPT_INDICATOR_VI_INSERT = "> "
+$env.PROMPT_INDICATOR_VI_NORMAL = "| "
 # modules/darwin/home/nu/core/omp.nu (end)
 

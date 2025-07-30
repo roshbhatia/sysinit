@@ -97,6 +97,7 @@ in
         "--prompt='>> '"
         "--scheme='history'"
         "--style='minimal'"
+        "--preview=~/.local/bin/fzf_preview.sh {}"
       ];
       COLIMA_HOME = "${config.xdg.configHome}/colima";
       VIVID_THEME = appTheme;
@@ -239,3 +240,4 @@ in
     ];
   };
 }
+

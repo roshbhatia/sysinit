@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ ... }:
 {
   home.file = {
     "local/bin/dns-flush" = {
@@ -23,3 +23,4 @@
     };
   };
 }
+

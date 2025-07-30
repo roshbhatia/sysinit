@@ -8,7 +8,7 @@
 let
   themes = import ../../../lib/themes { inherit lib; };
   paths = import ../../../lib/paths { inherit config lib; };
-  appTheme = themes.getAppTheme "vivid" values.theme.colorscheme values.theme.variant;
+  vividTheme = themes.getAppTheme "vivid" values.theme.colorscheme values.theme.variant;
   nushellTheme = themes.getAppTheme "nushell" values.theme.colorscheme values.theme.variant;
 
   pathsList = paths.getAllPaths config.home.username config.home.homeDirectory;
@@ -51,10 +51,10 @@ in
     environmentVariables = config.home.sessionVariables;
 
     extraConfig = ''
-      $env.LS_COLORS = (vivid generate ${appTheme})
+      $env.LS_COLORS = (vivid generate ${vividTheme})
       $env.EZA_COLORS = $env.LS_COLORS
 
-      source themes/${nushellTheme}
+      source theme.nu
 
       source wezterm.nu
 
@@ -120,16 +120,13 @@ in
         "--prompt='>> '"
         "--scheme=history"
         "--style=minimal"
+        "--preview=~/.local/bin/fzf_preview.sh {}"
       ] | str join " "
       # modules/darwin/home/nu/core/env.nu (end)
     '';
-    # Theme files
-    "nushell/themes/catppuccin_macchiato.nu".source = ./themes/catppuccin_macchiato.nu;
-    "nushell/themes/rose_pine_moon.nu".source = ./themes/rose_pine_moon.nu;
-    "nushell/themes/gruvbox_dark.nu".source = ./themes/gruvbox_dark.nu;
-    "nushell/themes/solarized_dark.nu".source = ./themes/solarized_dark.nu;
 
-    # Core files
+    "nushell/theme.nu".source = ./themes/${nushellTheme}.nu;
+
     "nushell/atuin.nu".source = ./core/atuin.nu;
     "nushell/carapace.nu".source = ./core/carapace.nu;
     "nushell/direnv.nu".source = ./core/direnv.nu;
@@ -140,3 +137,4 @@ in
     "nushell/zoxide.nu".source = ./core/zoxide.nu;
   };
 }
+
