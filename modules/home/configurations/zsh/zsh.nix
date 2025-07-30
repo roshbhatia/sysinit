@@ -189,12 +189,16 @@ in
         zstyle ':completion:*:complete:*' use-cache on
         zstyle ':completion:*' menu no
 
-        # fzf-tab specific configuration
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
 
-        zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --color=always --icons=always -1 -a --group-directories-first --git $realpath'
-        zstyle ':fzf-tab:complete:(rm|ls|cat|bat|code|c|nvim|v|vi|vim):*' fzf-preview 'fzf-preview $word || fzf-preview $desc || echo "No preview available"'
-        zstyle ':fzf-tab:complete:*' fzf-flags --preview-window=right:50%:wrap --height=80%
+        zstyle ':fzf-tab:complete:rm:*' fzf-preview 'fzf-preview "$realpath"'
+        zstyle ':fzf-tab:complete:cd:*' fzf-preview 'fzf-preview "$realpath"'
+        zstyle ':fzf-tab:complete:cat:*' fzf-preview  'fzf-preview "$realpath"'
+        zstyle ':fzf-tab:complete:bat:*' fzf-preview  'fzf-preview "$realpath"'
+        zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'fzf-preview "$realpath"'
+        zstyle ':fzf-tab:complete:vim:*' fzf-preview 'fzf-preview "$realpath"'
+        zstyle ':fzf-tab:complete:vi:*' fzf-preview 'fzf-preview "$realpath"'
+        zstyle ':fzf-tab:complete:v:*' fzf-preview 'fzf-preview "$realpath"'
       '')
       ''
         path.print() {
