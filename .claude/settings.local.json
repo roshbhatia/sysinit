@@ -24,7 +24,17 @@
       "Bash(/Users/rshnbhatia/github/personal/roshbhatia/sysinit/modules/home/configurations/utils/fzf-preview /Users/rshnbhatia/github/personal/roshbhatia/sysinit/modules/home/configurations/zsh/zsh.nix)",
       "Bash(/Users/rshnbhatia/github/personal/roshbhatia/sysinit/modules/home/configurations/utils/fzf-preview /Users/rshnbhatia/github/personal/roshbhatia/sysinit/modules/home/configurations)",
       "Bash(/Users/rshnbhatia/github/personal/roshbhatia/sysinit/modules/home/configurations/utils/fzf-preview)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(./test-fzf-preview.sh:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(nix-prefetch-github:*)",
+      "Bash(nix-prefetch-url:*)"
     ],
     "deny": []
   }

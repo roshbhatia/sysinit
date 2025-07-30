@@ -9,6 +9,10 @@
       source = ./fzf-preview;
       executable = true;
     };
+    ".local/bin/fzf-tab-debug" = {
+      source = ./fzf-tab-debug;
+      executable = true;
+    };
     ".local/bin/git-ai-commit" = {
       source = ./git-ai-commit;
       executable = true;

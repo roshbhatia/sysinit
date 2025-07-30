@@ -97,7 +97,7 @@ in
         "--pointer='>'"
         "--preview-border=rounded"
         "--preview-window=right:50%:wrap"
-        "--preview='if [ -f {} ]; then bat --style=numbers,changes --color=always --line-range :500 {}; elif [ -d {} ]; then eza --tree --level=2 --icons --color=always {}; else echo {}; fi'"
+        "--preview='fzf-preview {}'"
         "--prompt='>> '"
         "--scheme='history'"
       ];
@@ -140,8 +140,8 @@ in
         src = pkgs.fetchFromGitHub {
           owner = "zsh-users";
           repo = "zsh-autosuggestions";
-          rev = "0e810e5afa27acbd074398eefbe28d13005dbc15";
-          sha256 = "sha256-85aw9OM2pQPsWklXjuNOzp9El1MsNb+cIiZQVHUzBnk=";
+          rev = "85919cd1ffa7d2d5412f6d3fe437ebdbeeec4fc5";
+          sha256 = "1885w3crr503h5n039kmg199sikb1vw1fvaidwr21sj9mn01fs9a";
         };
         file = "zsh-autosuggestions.plugin.zsh";
       }
@@ -184,7 +184,8 @@ in
         zstyle ':completion:*' menu no
 
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
-        zstyle ':fzf-tab:complete:*:*' fzf-preview 'if [ -f "$realpath" ]; then bat --style=numbers,changes --color=always --line-range :100 "$realpath"; elif [ -d "$realpath" ]; then eza --tree --level=2 --icons --color=always "$realpath"; else echo "$word"; fi'
+        # Use your existing fzf-preview script with fallback logic
+        zstyle ':fzf-tab:complete:*:*' fzf-preview '[[ -n $realpath ]] && fzf-preview $realpath || [[ -n $word ]] && fzf-preview $word || echo "No preview available"'
         zstyle ':fzf-tab:complete:*' fzf-flags --preview-window=right:50%:wrap --height=80%
       '')
       ''

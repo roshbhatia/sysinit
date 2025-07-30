@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# Debug script for fzf-tab to understand available variables
+# Usage: This script logs all environment variables and arguments for debugging
+
+DEBUG_FILE="/tmp/fzf-tab-debug.log"
+
+echo "=== FZF-TAB DEBUG - $(date) ===" >> "$DEBUG_FILE"
+echo "Arguments count: $#" >> "$DEBUG_FILE"
+echo "All args: $*" >> "$DEBUG_FILE"
+
+# Log individual arguments
+for i in $(seq 1 $#); do
+    echo "Arg $i: '${!i}'" >> "$DEBUG_FILE"
+done
+
+# Log relevant environment variables
+echo "--- Environment Variables ---" >> "$DEBUG_FILE"
+env | grep -E "(realpath|word|desc|prefix|suffix|group)" >> "$DEBUG_FILE"
+
+# Log some common fzf-tab variables that might be set
+echo "--- Potential fzf-tab Variables ---" >> "$DEBUG_FILE"
+echo "realpath: '${realpath:-UNSET}'" >> "$DEBUG_FILE"
+echo "word: '${word:-UNSET}'" >> "$DEBUG_FILE"
+echo "desc: '${desc:-UNSET}'" >> "$DEBUG_FILE"
+echo "prefix: '${prefix:-UNSET}'" >> "$DEBUG_FILE"
+echo "suffix: '${suffix:-UNSET}'" >> "$DEBUG_FILE"
+echo "group: '${group:-UNSET}'" >> "$DEBUG_FILE"
+
+# Also show the first argument as that's what we'll preview
+if [[ -n "$1" ]]; then
+    echo "--- Preview Target Analysis ---" >> "$DEBUG_FILE"
+    echo "Target: '$1'" >> "$DEBUG_FILE"
+    if [[ -e "$1" ]]; then
+        echo "Exists: YES" >> "$DEBUG_FILE"
+        echo "Type: $(file --brief "$1")" >> "$DEBUG_FILE"
+    else
+        echo "Exists: NO" >> "$DEBUG_FILE"
+    fi
+    
+    # Try realpath if it exists
+    if [[ -n "$realpath" && -e "$realpath" ]]; then
+        echo "Realpath: '$realpath'" >> "$DEBUG_FILE"
+        echo "Realpath exists: YES" >> "$DEBUG_FILE"
+        echo "Realpath type: $(file --brief "$realpath")" >> "$DEBUG_FILE"
+    fi
+fi
+
+echo "================================" >> "$DEBUG_FILE"
+
+# Now call the actual preview script with the appropriate argument
+if [[ -n "$realpath" && -e "$realpath" ]]; then
+    exec fzf-preview "$realpath"
+elif [[ -n "$1" ]]; then
+    exec fzf-preview "$1"
+else
+    echo "No valid target for preview"
+fi
