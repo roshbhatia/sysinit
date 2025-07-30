@@ -174,7 +174,9 @@ M.plugins = {
 					["<Tab>"] = {
 						"select_next",
 						"snippet_forward",
-						"fallback",
+						function()
+							require("intellitab").indent()
+						end,
 					},
 					["<S-Tab>"] = {
 						"select_prev",
@@ -204,3 +206,4 @@ M.plugins = {
 }
 
 return M
+
