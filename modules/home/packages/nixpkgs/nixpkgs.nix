@@ -12,6 +12,7 @@ let
     alt-tab-macos
     ansible
     ansible-lint
+    argc
     argocd
     asdf
     atuin
@@ -134,3 +135,4 @@ in
 {
   home.packages = allNixPackages;
 }
+

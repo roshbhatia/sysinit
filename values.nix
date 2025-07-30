@@ -36,15 +36,17 @@
     additionalPackages = [
       "@anthropic-ai/claude-code"
       "@dice-roller/cli"
+      "@google/gemini-cli"
     ];
   };
 
   theme = {
-    colorscheme = "catppuccin"; # "catppuccin", "rose-pine", "gruvbox", "solarized",
-    variant = "macchiato"; # catppuccin: "macchiato"; rose-pine: "moon"; gruvbox: "dark"; solarized: "dark";
+    colorscheme = "gruvbox"; # "catppuccin", "rose-pine", "gruvbox", "solarized",
+    variant = "dark"; # catppuccin: "macchiato"; rose-pine: "moon"; gruvbox: "dark"; solarized: "dark";
     transparency = {
       enable = true;
       opacity = 0.70;
     };
   };
 }
+

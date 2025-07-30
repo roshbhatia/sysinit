@@ -1,15 +1,6 @@
 #!/usr/bin/env nu
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-#
-# To enable completions for argc-based scripts, install argc via Homebrew:
-#   brew install argc
-# See official docs: https://github.com/sigoden/argc#install
-#
-# To enable argc completions in Nushell, run:
-#   argc --argc-completions nushell <your-cmd>
-# and update your Nushell config accordingly.
-
 def --env get-env [name] { $env | get $name }
 def --env set-env [name, value] { load-env { $name: $value } }
 def --env unset-env [name] { hide-env $name }
@@ -83,10 +74,4 @@ $env.config = ($env.config | default {} | merge {
   }
 })
 # modules/darwin/home/nu/core/carapace.nu (end)
-#
-# To add completions for your own argc-based scripts, see:
-#   https://github.com/sigoden/argc#completions
-# and run:
-#   argc --argc-completions nushell <your-cmd>
-# Then update your Nushell config as needed.
 
