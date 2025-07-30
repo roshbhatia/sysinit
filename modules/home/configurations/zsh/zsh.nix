@@ -88,11 +88,10 @@ in
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
         "--bind='resize:refresh-preview'"
         "--color=bg+:-1,bg:-1,spinner:${palette.accent or "#8aadf4"},hl:${palette.accent or "#8aadf4"}"
-        "--color=border:${
-          palette.surface2 or palette.overlay or "#5b6078"
-        },label:${palette.text or "#cad3f5"}"
+        "--color=border:-1,label:${palette.text or "#cad3f5"}"
         "--color=fg:${palette.text or "#cad3f5"},header:${palette.accent or "#8aadf4"},info:${palette.subtext1 or "#b8c0e0"},pointer:${palette.accent or "#8aadf4"}"
         "--color=marker:${palette.accent or "#8aadf4"},fg+:${palette.text or "#cad3f5"},prompt:${palette.accent or "#8aadf4"},hl+:${palette.accent or "#8aadf4"}"
+        "--color=preview-bg:-1"
         "--cycle"
         "--height=30"
         "--highlight-line"
