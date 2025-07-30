@@ -118,7 +118,6 @@ in
         "--prompt='>> '"
         "--scheme=history"
         "--style=minimal"
-        "--preview=~/.local/bin/fzf_preview.sh {}"
       ] | str join " "
       # modules/darwin/home/nu/core/env.nu (end)
     '';
@@ -135,3 +134,4 @@ in
     "nushell/zoxide.nu".source = ./core/zoxide.nu;
   };
 }
+
