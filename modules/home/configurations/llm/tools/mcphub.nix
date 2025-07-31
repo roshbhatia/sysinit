@@ -7,11 +7,7 @@ in
 {
   xdg.configFile."mcphub/servers.json" = {
     text = builtins.toJSON {
-      mcpServers = {
-        fetch = mcpServers.fetch;
-        memory = mcpServers.memory;
-        context7 = mcpServers.context7;
-      };
+      mcpServers = mcpServers.servers;
     };
     force = true;
   };
