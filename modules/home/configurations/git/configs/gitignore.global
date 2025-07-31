@@ -46,6 +46,8 @@ shell.nix
 
 # Agents
 AGENTS.md
+CRUSH.md
+.claude/
 
 # Random stuff
 .sysinit/
