@@ -57,46 +57,6 @@ rec {
         fi
       fi
     '';
-
-    mkXdgConfigFile =
-      {
-        name,
-        content ? null,
-        source ? null,
-      }:
-      let
-        fileContent = if content != null then content else readFile source;
-      in
-      {
-        "xdg.configFile.\"${name}\"" = {
-          text = fileContent;
-        };
-      };
-
-    mkSessionVars = vars: {
-      home.sessionVariables = vars;
-    };
   };
-
-  mkPlatformConfig =
-    {
-      darwin ? { },
-      linux ? { },
-    }:
-    if platform.platform.isDarwin then darwin else linux;
-
-  mkOutOfStorePackage =
-    {
-      source,
-      target ? null,
-      name ? null,
-    }:
-    let
-      targetPath = if target != null then target else name;
-      linkName = if name != null then name else builtins.baseNameOf source;
-    in
-    pkgs.runCommand linkName { } ''
-      mkdir -p $out/bin
-      ln -sf ${source} $out/bin/${linkName}
-    '';
 }
+
