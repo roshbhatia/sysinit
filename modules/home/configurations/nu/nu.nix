@@ -66,12 +66,6 @@ in
       ] | str join " "
     '';
 
-    plugins = with pkgs.nushellPlugins; [
-      highlight
-      formats
-      polars
-    ];
-
     shellAliases = {
       # Navigation shortcuts
       "....." = "cd ../../../..";
@@ -133,3 +127,4 @@ in
       ]
   );
 }
+
