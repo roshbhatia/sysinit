@@ -37,10 +37,10 @@ rec {
             MANAGER_PATH="${pkgs.go}/bin/go"
             ;;
           "uv")
-            MANAGER_PATH="${pkgs.uv}/bin/uv"
+            MANAGER_PATH="${pkgs.uv}/bin/uv:${config.home.homeDirectory}/.local/bin"
             ;;
           "kubectl")
-            MANAGER_PATH="${pkgs.kubectl}/bin/kubectl"
+            MANAGER_PATH="${pkgs.kubectl}/bin/kubectl:${config.home.homeDirectory}.krew/bin"
             ;;
           "gh")
             MANAGER_PATH="${pkgs.gh}/bin/gh"
@@ -88,3 +88,4 @@ rec {
     '';
   };
 }
+

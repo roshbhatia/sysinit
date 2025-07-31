@@ -8,7 +8,12 @@
 {
   imports = [
     (import ./bat.nix {
-      inherit lib pkgs values utils;
+      inherit
+        lib
+        pkgs
+        values
+        utils
+        ;
     })
   ];
 }

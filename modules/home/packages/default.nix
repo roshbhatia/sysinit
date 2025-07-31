@@ -12,7 +12,12 @@
       inherit config values pkgs;
     })
     (import ./cargo {
-      inherit lib pkgs values utils;
+      inherit
+        lib
+        pkgs
+        values
+        utils
+        ;
     })
     (import ./gh {
       inherit lib values utils;
