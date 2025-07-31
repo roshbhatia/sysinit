@@ -1,4 +1,6 @@
-{ lib }:
+{
+  ...
+}:
 let
   mcpServers = import ../shared/mcp-servers.nix;
 in
@@ -24,3 +26,4 @@ in
     force = true;
   };
 }
+

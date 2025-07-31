@@ -64,12 +64,12 @@
 
     Always use the latest Next.js patterns and shadcn/ui components.
   '';
-  tools = {
-    read = true;
-    write = true;
-    edit = true;
-    bash = true;
-    grep = true;
-    glob = true;
-  };
+  activities = [
+    "Create a new Next.js app with shadcn/ui"
+    "Build responsive components with Tailwind"
+    "Implement Server Actions for forms"
+    "Set up dark mode with next-themes"
+    "Optimize performance with SSR/SSG"
+  ];
 }
+

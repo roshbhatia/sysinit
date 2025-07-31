@@ -28,12 +28,12 @@
 
     Focus on reliability and cost efficiency. Include prompt versioning and A/B testing.
   '';
-  tools = {
-    read = true;
-    write = true;
-    edit = true;
-    bash = true;
-    grep = true;
-    glob = true;
-  };
+  activities = [
+    "Set up a new RAG system with vector database"
+    "Implement LLM API integration with error handling"
+    "Create prompt templates with variable injection"
+    "Optimize token usage and costs"
+    "Build an agent framework for orchestration"
+  ];
 }
+

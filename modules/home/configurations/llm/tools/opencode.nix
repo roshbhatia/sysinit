@@ -41,14 +41,14 @@ in
             value = {
               description = agent.description;
               prompt = agent.prompt;
-              tools = agent.tools;
             };
           }) agents
         );
       });
       force = true;
     };
-  } // builtins.listToAttrs (
+  }
+  // builtins.listToAttrs (
     map (agent: {
       name = "opencode/prompts/${agent.name}.nix";
       value = {

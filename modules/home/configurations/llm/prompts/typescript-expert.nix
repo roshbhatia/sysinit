@@ -29,12 +29,12 @@
 
     Focus on compile-time safety and developer experience.
   '';
-  tools = {
-    read = true;
-    write = true;
-    edit = true;
-    bash = true;
-    grep = true;
-    glob = true;
-  };
+  activities = [
+    "Set up strict TypeScript configuration"
+    "Create advanced type definitions with generics"
+    "Implement discriminated unions for error handling"
+    "Add comprehensive type safety to existing code"
+    "Migrate JavaScript project to TypeScript"
+  ];
 }
+

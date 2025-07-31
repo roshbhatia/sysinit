@@ -1,12 +1,10 @@
 {
   uri = "https://localhost:43210/mcp";
-
   servers = {
     fetch = {
       command = "uvx";
       args = [ "mcp-server-fetch" ];
     };
-
     memory = {
       command = "npx";
       args = [
@@ -17,7 +15,6 @@
         MEMORY_FILE_PATH = "~/.local/share/server-memory.json";
       };
     };
-
     context7 = {
       command = "npx";
       args = [
@@ -25,7 +22,6 @@
         "@upstash/context7-mcp@latest"
       ];
     };
-
     argocd-mcp = {
       command = "npx";
       args = [
@@ -35,3 +31,4 @@
     };
   };
 }
+

@@ -26,12 +26,12 @@
 
     Always provide concrete examples and focus on practical implementation over theory.
   '';
-  tools = {
-    read = true;
-    write = true;
-    edit = true;
-    bash = true;
-    grep = true;
-    glob = true;
-  };
+  activities = [
+    "Design a RESTful API with proper versioning"
+    "Create microservice architecture diagram"
+    "Design database schema with optimizations"
+    "Plan caching strategy for performance"
+    "Review system architecture for bottlenecks"
+  ];
 }
+

@@ -1,4 +1,6 @@
-{ lib }:
+{
+  ...
+}:
 let
   config = import ../config/crush.nix;
   mcpServers = import ../shared/mcp-servers.nix;
@@ -31,3 +33,4 @@ in
     force = true;
   };
 }
+
