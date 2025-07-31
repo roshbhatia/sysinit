@@ -19,41 +19,70 @@ rec {
     mkPackageManagerScript = manager: packages: ''
       if [ ${toString (length packages)} -gt 0 ]; then
         echo "Installing ${manager} packages: ${concatStringsSep " " packages}"
-        if command -v ${manager} >/dev/null 2>&1; then
+        MANAGER_PATH=""
+        case "${manager}" in
+          "cargo")
+            MANAGER_PATH="${pkgs.rustup}/bin/cargo"
+            ;;
+          "npm")
+            MANAGER_PATH="${pkgs.nodejs}/bin/npm"
+            ;;
+          "yarn")
+            MANAGER_PATH="${pkgs.yarn}/bin/yarn"
+            ;;
+          "pipx")
+            MANAGER_PATH="${pkgs.pipx}/bin/pipx"
+            ;;
+          "go")
+            MANAGER_PATH="${pkgs.go}/bin/go"
+            ;;
+          "uv")
+            MANAGER_PATH="${pkgs.uv}/bin/uv"
+            ;;
+          "kubectl")
+            MANAGER_PATH="${pkgs.kubectl}/bin/kubectl"
+            ;;
+          "gh")
+            MANAGER_PATH="${pkgs.gh}/bin/gh"
+            ;;
+          *)
+            echo "Unknown package manager: ${manager}"
+            exit 1
+            ;;
+        esac
+
+        if [ -f "$MANAGER_PATH" ]; then
           for pkg in ${concatStringsSep " " packages}; do
             case "${manager}" in
               "cargo")
-                cargo install --locked "$pkg" || echo "Warning: Failed to install $pkg"
+                "$MANAGER_PATH" install --locked "$pkg" || echo "Warning: Failed to install $pkg"
                 ;;
               "npm")
-                npm install -g "$pkg" || echo "Warning: Failed to install $pkg"
+                PATH="${pkgs.nodejs}/bin:$PATH" "$MANAGER_PATH" install -g "$pkg" || echo "Warning: Failed to install $pkg"
                 ;;
               "yarn")
-                yarn global add "$pkg" || echo "Warning: Failed to install $pkg"
+                "$MANAGER_PATH" global add "$pkg" || echo "Warning: Failed to install $pkg"
                 ;;
               "pipx")
-                pipx install "$pkg" || echo "Warning: Failed to install $pkg"
+                "$MANAGER_PATH" install "$pkg" || echo "Warning: Failed to install $pkg"
                 ;;
               "go")
-                go install "$pkg" || echo "Warning: Failed to install $pkg"
+                "$MANAGER_PATH" install "$pkg" || echo "Warning: Failed to install $pkg"
                 ;;
               "uv")
-                uv tool install "$pkg" || echo "Warning: Failed to install $pkg"
+                "$MANAGER_PATH" tool install "$pkg" || echo "Warning: Failed to install $pkg"
                 ;;
               "kubectl")
-                kubectl krew install "$pkg" || echo "Warning: Failed to install $pkg"
+                PATH="${pkgs.krew}/bin:$PATH" "${pkgs.krew}/bin/krew" install "$pkg" || echo "Warning: Failed to install $pkg"
                 ;;
               "gh")
-                gh extension install "$pkg" || echo "Warning: Failed to install $pkg"
-                ;;
-              *)
-                echo "Unknown package manager: ${manager}"
+                "$MANAGER_PATH" extension install "$pkg" || echo "Warning: Failed to install $pkg"
                 ;;
             esac
           done
           echo "Completed ${manager} package installation"
         else
-          echo "Warning: ${manager} not available, skipping package installation"
+          echo "Warning: ${manager} not available at $MANAGER_PATH, skipping package installation"
         fi
       fi
     '';
