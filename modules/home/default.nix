@@ -15,6 +15,7 @@
         config,
         pkgs,
         lib,
+        utils,
         ...
       }:
       {
@@ -25,6 +26,7 @@
               lib
               values
               pkgs
+              utils
               ;
           })
           (import ./packages {
@@ -33,6 +35,7 @@
               lib
               values
               pkgs
+              utils
               ;
           })
         ];

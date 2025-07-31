@@ -5,17 +5,18 @@ let
   agents = import ../shared/agents.nix;
 
   # Helper function to convert agent name to title case
-  toTitleCase = name:
+  toTitleCase =
+    name:
     let
       words = lib.splitString "-" name;
-      capitalizeWord = word:
-        lib.toUpper (lib.substring 0 1 word) + lib.substring 1 (lib.stringLength word) word;
+      capitalizeWord =
+        word: lib.toUpper (lib.substring 0 1 word) + lib.substring 1 (lib.stringLength word) word;
     in
     lib.concatStringsSep " " (map capitalizeWord words);
 
   # Helper function to convert activities list to YAML
-  activitiesToYaml = activities:
-    lib.concatStringsSep "\n" (map (activity: "  - \"${activity}\"") activities);
+  activitiesToYaml =
+    activities: lib.concatStringsSep "\n" (map (activity: "  - \"${activity}\"") activities);
 in
 {
   xdg.configFile = {
@@ -56,7 +57,8 @@ in
       };
       force = true;
     };
-  } // builtins.listToAttrs (
+  }
+  // builtins.listToAttrs (
     map (agent: {
       name = "goose/recipes/${agent.name}/recipe.yaml";
       value = {
@@ -74,4 +76,3 @@ in
     }) agents
   );
 }
-

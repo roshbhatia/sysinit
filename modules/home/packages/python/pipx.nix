@@ -1,20 +1,14 @@
 {
   lib,
   values,
+  utils,
   ...
 }:
 
 let
-  activation = import ../../../lib/activation { inherit lib; };
+  pipxPackages = [ ]
+  ++ (values.pipx.additionalPackages or [ ]);
 in
 {
-  home.activation.pipxPackages = activation.mkPackageManager {
-    name = "pipx";
-    basePackages = [ ];
-    additionalPackages = (values.pipx.additionalPackages or [ ]);
-    executableArguments = [
-      "install"
-    ];
-    executableName = "pipx";
-  };
+  home.activation.pipxPackages = utils.sysinit.mkPackageManagerActivation "pipx" pipxPackages;
 }

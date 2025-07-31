@@ -1,4 +1,4 @@
-{ lib }:
+{ }:
 let
   config = import ../config/opencode.nix;
   mcpServers = import ../shared/mcp-servers.nix;

@@ -11,28 +11,32 @@
         "nix-command"
         "no-url-literals"
       ];
-      gc = {
-        automatic = true;
-        interval = {
-          Hour = 5;
-          Minute = 0;
-        };
-        options = "--delete-older-than 7d";
-      };
-      optimise = {
-        automatic = true;
-        interval = {
-          Hour = 6;
-          Minute = 0;
-        };
-      };
-      substituters = [ "https://cache.nixos.org/" ];
+      substituters = [
+        "https://cache.nixos.org/"
+      ];
       trusted-users = [
         "root"
         username
       ];
+      auto-optimise-store = true;
     };
-    enable = false;
+
+    gc = {
+      automatic = true;
+      interval = {
+        Hour = 5;
+        Minute = 0;
+      };
+      options = "--delete-older-than 7d";
+    };
+
+    optimise = {
+      automatic = true;
+      interval = {
+        Hour = 6;
+        Minute = 0;
+      };
+    };
   };
 
   nixpkgs = {

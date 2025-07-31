@@ -72,4 +72,3 @@
     "Optimize performance with SSR/SSG"
   ];
 }
-

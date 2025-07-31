@@ -1,11 +1,15 @@
 {
   lib,
   values,
+  utils,
   ...
 }:
 
 let
-  activation = import ../../../lib/activation { inherit lib; };
+  npmPackages = [
+    "opencode-ai@latest"
+  ]
+  ++ (values.npm.additionalPackages or [ ]);
 in
 {
   home.file.".npmrc" = {
@@ -15,16 +19,5 @@ in
     '';
   };
 
-  home.activation.npmPackages = activation.mkPackageManager {
-    name = "npm";
-    basePackages = [
-      "opencode-ai@latest"
-    ];
-    additionalPackages = (values.npm.additionalPackages or [ ]);
-    executableArguments = [
-      "install"
-      "-g"
-    ];
-    executableName = "npm";
-  };
+  home.activation.npmPackages = utils.sysinit.mkPackageManagerActivation "npm" npmPackages;
 }

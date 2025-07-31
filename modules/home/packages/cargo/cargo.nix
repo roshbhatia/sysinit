@@ -1,39 +1,30 @@
 {
   lib,
   values,
+  utils,
   ...
 }:
 
 let
-  activation = import ../../../lib/activation { inherit lib; };
+  cargoPackages = [
+    "tree-sitter-cli"
+  ]
+  ++ (values.cargo.additionalPackages or [ ]);
 in
 {
-  home.activation.cargoPackages = activation.mkPackageManager {
-    name = "cargo";
-    basePackages = [
-      "tree-sitter-cli"
-    ];
-    additionalPackages = (values.cargo.additionalPackages or [ ]);
-    executableArguments = [
-      "install"
-      "--locked"
-    ];
-    executableName = "cargo";
-  };
+  home.activation = {
+    cargoPackages = utils.sysinit.mkPackageManagerActivation "cargo" cargoPackages;
 
-  # eza requires a vendored version of libgit2 in order to work properly
-  home.activation.eza = activation.mkPackageManager {
-    name = "cargo";
-    basePackages = [
-      "eza"
-    ];
-    additionalPackages = [ ];
-    executableArguments = [
-      "install"
-      "--locked"
-      "--features"
-      "vendored-libgit2"
-    ];
-    executableName = "cargo";
+    eza = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      echo "Installing eza with vendored libgit2..."
+      if command -v cargo >/dev/null 2>&1; then
+        cargo install --locked --features vendored-libgit2 eza || {
+          echo "Warning: Failed to install eza"
+        }
+        echo "Completed eza installation"
+      else
+        echo "Warning: cargo not available, skipping eza installation"
+      fi
+    '';
   };
 }

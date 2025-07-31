@@ -1,19 +1,15 @@
-# modules/home/configurations/default.nix
-# Purpose: Aggregates all home-manager configurations
-# Provides consistent parameter passing and module organization
-
 {
   config,
   lib,
   values,
   pkgs,
+  utils,
   ...
 }:
 
 {
   imports = [
     ./aerospace
-    ./aider
     ./borders
     ./direnv
     ./llm
@@ -28,6 +24,7 @@
       inherit
         lib
         values
+        utils
         ;
     })
     (import ./colima {

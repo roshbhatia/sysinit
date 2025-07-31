@@ -1,23 +1,16 @@
 {
   lib,
   values,
+  utils,
   ...
 }:
 
 let
-  activation = import ../../../lib/activation { inherit lib; };
+  uvxPackages = [
+    "hererocks"
+  ]
+  ++ (values.uvx.additionalPackages or [ ]);
 in
 {
-  home.activation.uvxPackages = activation.mkPackageManager {
-    name = "uvx";
-    basePackages = [
-      "hererocks"
-    ];
-    additionalPackages = (values.uvx.additionalPackages or [ ]);
-    executableArguments = [
-      "tool"
-      "install"
-    ];
-    executableName = "uv";
-  };
+  home.activation.uvxPackages = utils.sysinit.mkPackageManagerActivation "uv" uvxPackages;
 }

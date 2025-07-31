@@ -1,37 +1,30 @@
 {
   lib,
   values,
+  utils,
   ...
 }:
 
 let
-  activation = import ../../../lib/activation { inherit lib; };
+  krewPackages = [
+    "argo-apps-viz"
+    "blame"
+    "bulk-action"
+    "commander"
+    "confirm"
+    "ctx"
+    "debug-shell"
+    "history"
+    "pod-inspect"
+    "pod-lens"
+    "pod-logs"
+    "pod-shell"
+    "pods-on"
+    "status"
+    "tail"
+  ]
+  ++ (values.krew.additionalPackages or [ ]);
 in
 {
-  home.activation.krewPackages = activation.mkPackageManager {
-    name = "krew";
-    basePackages = [
-      "argo-apps-viz"
-      "blame"
-      "bulk-action"
-      "commander"
-      "confirm"
-      "ctx"
-      "debug-shell"
-      "history"
-      "pod-inspect"
-      "pod-lens"
-      "pod-logs"
-      "pod-shell"
-      "pods-on"
-      "status"
-      "tail"
-    ];
-    additionalPackages = (values.krew.additionalPackages or [ ]);
-    executableArguments = [
-      "install"
-      "--no-update-index"
-    ];
-    executableName = "krew";
-  };
+  home.activation.krewPackages = utils.sysinit.mkPackageManagerActivation "kubectl" krewPackages;
 }

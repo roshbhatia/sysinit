@@ -37,4 +37,3 @@
     "Migrate JavaScript project to TypeScript"
   ];
 }
-

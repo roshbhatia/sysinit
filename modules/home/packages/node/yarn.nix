@@ -1,11 +1,15 @@
 {
   lib,
   values,
+  utils,
   ...
 }:
 
 let
-  activation = import ../../../lib/activation { inherit lib; };
+  yarnPackages = [
+    "mcp-hub@latest"
+  ]
+  ++ (values.yarn.additionalPackages or [ ]);
 in
 {
   home.file.".yarnrc" = {
@@ -15,20 +19,5 @@ in
     '';
   };
 
-  home.activation.yarnPackages = activation.mkPackageManager {
-    name = "yarn";
-    basePackages = [
-      "mcp-hub@latest"
-    ];
-    additionalPackages = (values.yarn.additionalPackages or [ ]);
-    executableArguments = [
-      "global"
-      "add"
-      "--no-progress"
-      "--non-interactive"
-      "--silent"
-      "--prefer-offline"
-    ];
-    executableName = "yarn";
-  };
+  home.activation.yarnPackages = utils.sysinit.mkPackageManagerActivation "yarn" yarnPackages;
 }

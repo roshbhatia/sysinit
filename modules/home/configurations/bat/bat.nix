@@ -1,11 +1,11 @@
 {
   lib,
   values,
+  utils,
   ...
 }:
 
 let
-  activation = import ../../../lib/activation { inherit lib; };
   themes = import ../../../lib/themes { inherit lib; };
   batTheme = themes.getAppTheme "bat" values.theme.colorscheme values.theme.variant;
 in
@@ -16,11 +16,13 @@ in
 
   xdg.configFile."bat/themes/${batTheme}.tmTheme".source = ./${batTheme}.tmTheme;
 
-  home.activation.buildBatCache = activation.mkActivationScript {
-    description = "Build bat cache";
-    requiredExecutables = [ "bat" ];
-    script = ''
-      log_command "bat cache --build" "Building bat cache"
-    '';
-  };
+  home.activation.buildBatCache = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    if command -v bat >/dev/null 2>&1; then
+      echo "Building bat cache..."
+      bat cache --build || echo "Warning: Failed to build bat cache"
+      echo "Completed bat cache build"
+    else
+      echo "Warning: bat not available, skipping cache build"
+    fi
+  '';
 }

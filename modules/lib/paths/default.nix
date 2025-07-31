@@ -5,16 +5,13 @@
 }:
 
 rec {
-  # Centralized path management for all shells and configurations
   getSystemPaths = username: home: {
-    # Nix paths - highest priority
     nix = [
       "/nix/var/nix/profiles/default/bin"
       "/etc/profiles/per-user/${username}/bin"
       "/run/current-system/sw/bin"
     ];
 
-    # System paths
     system = [
       "/opt/homebrew/bin"
       "/opt/homebrew/opt/libgit2@1.8/bin"
@@ -24,7 +21,6 @@ rec {
       "/usr/sbin"
     ];
 
-    # User-specific paths
     user = [
       "${home}/.cargo/bin"
       "${home}/.krew/bin"
@@ -39,7 +35,6 @@ rec {
       "${home}/go/bin"
     ];
 
-    # XDG-based paths
     xdg = [
       "${home}/.config/.cargo/bin"
       "${home}/.config/yarn/global/node_modules/.bin"
@@ -48,7 +43,6 @@ rec {
     ];
   };
 
-  # Get all paths in order (nix -> system -> user -> xdg)
   getAllPaths =
     username: home:
     let
@@ -56,9 +50,6 @@ rec {
     in
     paths.nix ++ paths.system ++ paths.user ++ paths.xdg;
 
-  # Generate path string for shells
   getPathString = username: home: lib.concatStringsSep ":" (getAllPaths username home);
-
-  # Generate path array for lua/wezterm
   getPathArray = username: home: getAllPaths username home;
 }

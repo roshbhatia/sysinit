@@ -83,6 +83,10 @@ let
     mods
     nerd-fonts.hack
     nil
+    nix-prefetch
+    nix-prefetch-git
+    nix-prefetch-github
+    nix-prefetch-docker
     nix-search-cli
     nixd
     nixfmt-rfc-style

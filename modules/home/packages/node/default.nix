@@ -1,6 +1,7 @@
 {
   lib,
   values,
+  utils,
   ...
 }:
 
@@ -10,12 +11,14 @@
       inherit
         lib
         values
+        utils
         ;
     })
     (import ./yarn.nix {
       inherit
         lib
         values
+        utils
         ;
     })
   ];

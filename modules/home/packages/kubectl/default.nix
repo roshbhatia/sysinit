@@ -1,6 +1,7 @@
 {
   lib,
   values,
+  utils,
   ...
 }:
 
@@ -10,6 +11,7 @@
       inherit
         lib
         values
+        utils
         ;
     })
   ];

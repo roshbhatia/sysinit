@@ -25,13 +25,11 @@
       system = "aarch64-darwin";
       defaultValues = import ./values.nix;
 
-      # Custom overlays
       overlayFiles = ./overlays;
       overlays = import overlayFiles {
         inherit inputs system;
       };
 
-      # Package set with overlays applied
       pkgs = import inputs.nixpkgs {
         inherit system;
         overlays = overlays;
@@ -61,11 +59,17 @@
               ;
           };
           modules = [
-            ./modules/nix
+            (import ./modules/nix { inherit username system; })
             ./modules/darwin
             ./modules/home
             home-manager.darwinModules.home-manager
             nix-homebrew.darwinModules.nix-homebrew
+            {
+              _module.args.utils = import ./modules/lib {
+                lib = pkgs.lib;
+                inherit pkgs system;
+              };
+            }
           ];
         };
     in
@@ -87,11 +91,16 @@
               username = defaultValues.user.username;
               values = defaultValues;
             })
+            {
+              _module.args.utils = import ./modules/lib {
+                inherit (pkgs) lib;
+                inherit pkgs system;
+              };
+            }
           ];
         };
       };
 
-      # Expose overlays for external use
       overlays = {
         default =
           final: prev:

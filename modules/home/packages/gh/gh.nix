@@ -1,21 +1,14 @@
 {
   lib,
   values,
+  utils,
   ...
 }:
 
 let
-  activation = import ../../../lib/activation { inherit lib; };
+  ghPackages = [ ]
+  ++ (values.gh.additionalPackages or [ ]);
 in
 {
-  home.activation.ghPackages = activation.mkPackageManager {
-    name = "gh";
-    basePackages = [ ];
-    additionalPackages = (values.gh.additionalPackages or [ ]);
-    executableArguments = [
-      "extension"
-      "install"
-    ];
-    executableName = "gh";
-  };
+  home.activation.ghPackages = utils.sysinit.mkPackageManagerActivation "gh" ghPackages;
 }
