@@ -8,10 +8,10 @@ final: prev: {
     src = final.fetchFromGitHub {
       owner = "nushell";
       repo = "nushell";
-      rev = version;
+      tag = version;
       hash = "sha256-VrGsdO7RiTlf8JK3MBMcgj0z4cWUklDwikMN5Pu6JQI=";
-      cargoHash = "";
     };
+    cargoHash = "sha256-GSpR54QGiY9Yrs/A8neoKK6hMvSr3ORtNnwoz4GGprY=";
   });
 }
 
