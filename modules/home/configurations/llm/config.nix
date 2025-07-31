@@ -47,4 +47,3 @@
     schema = "https://charm.land/crush.json";
   };
 }
-

@@ -159,18 +159,18 @@ in
         mcp = {
           fetch = {
             type = "stdio";
-            command = [ config.mcphub.servers.fetch.command ];
+            command = config.mcphub.servers.fetch.command;
             args = config.mcphub.servers.fetch.args;
           };
           memory = {
             type = "stdio";
-            command = [ config.mcphub.servers.memory.command ];
+            command = config.mcphub.servers.memory.command;
             args = config.mcphub.servers.memory.args;
-            environment = config.mcphub.servers.memory.env;
+            env = config.mcphub.servers.memory.env;
           };
           context7 = {
             type = "stdio";
-            command = [ config.mcphub.servers.context7.command ];
+            command = config.mcphub.servers.context7.command;
             args = config.mcphub.servers.context7.args;
           };
         };
