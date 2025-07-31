@@ -39,8 +39,6 @@ let
   );
 in
 {
-  programs.carapace.enableNushellIntegration = true;
-
   programs.nushell = {
     enable = true;
 

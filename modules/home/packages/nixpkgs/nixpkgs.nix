@@ -20,6 +20,8 @@ let
     bash-language-server
     bat
     caddy
+    carapace
+    carapace-bridge
     cargo-watch
     chafa
     checkmake
@@ -136,3 +138,4 @@ in
 {
   home.packages = allNixPackages;
 }
+

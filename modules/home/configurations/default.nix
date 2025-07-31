@@ -12,15 +12,12 @@
 
 {
   imports = [
-    # Simple modules (no parameters needed)
     ./aerospace
     ./aider
     ./borders
-    ./carapace
     ./direnv
     ./mcp
 
-    # Parameterized modules (explicit inheritance)
     (import ./atuin {
       inherit
         lib
@@ -107,3 +104,4 @@
     })
   ];
 }
+
