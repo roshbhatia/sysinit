@@ -11,13 +11,7 @@ in
       "$schema" = config.schema;
       lsp = config.lsp;
       mcp = {
-        fetch = {
-          url = mcpServers.uri;
-        };
-        memory = {
-          url = mcpServers.uri;
-        };
-        context7 = {
+        hub = {
           url = mcpServers.uri;
         };
       };
@@ -26,3 +20,4 @@ in
     force = true;
   };
 }
+

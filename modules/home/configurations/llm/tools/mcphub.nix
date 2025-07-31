@@ -8,20 +8,12 @@ in
   xdg.configFile."mcphub/servers.json" = {
     text = builtins.toJSON {
       mcpServers = {
-        fetch = {
-          url = mcpServers.uri;
-        };
-        memory = {
-          url = mcpServers.uri;
-        };
-        context7 = {
-          url = mcpServers.uri;
-        };
-        argocd-mcp = {
-          url = mcpServers.uri;
-        };
+        fetch = mcpServers.fetch;
+        memory = mcpServers.memory;
+        context7 = mcpServers.context7;
       };
     };
     force = true;
   };
 }
+

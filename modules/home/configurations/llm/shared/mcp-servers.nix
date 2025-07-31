@@ -12,7 +12,7 @@
         "@modelcontextprotocol/server-memory"
       ];
       env = {
-        MEMORY_FILE_PATH = "~/.local/share/server-memory.json";
+        MEMORY_FILE_PATH = "~/.local/state/llm-memory.json";
       };
     };
     context7 = {
@@ -22,12 +22,6 @@
         "@upstash/context7-mcp@latest"
       ];
     };
-    argocd-mcp = {
-      command = "npx";
-      args = [
-        "argocd-mcp@latest"
-        "stdio"
-      ];
-    };
   };
 }
+
