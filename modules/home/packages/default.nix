@@ -13,6 +13,7 @@
     })
     (import ./cargo {
       inherit
+        config
         lib
         pkgs
         values
@@ -20,19 +21,19 @@
         ;
     })
     (import ./gh {
-      inherit lib values utils;
+      inherit config lib values utils;
     })
     (import ./go {
-      inherit lib values utils;
+      inherit config lib values utils;
     })
     (import ./kubectl {
-      inherit lib values utils;
+      inherit config lib values utils;
     })
     (import ./node {
-      inherit lib values utils;
+      inherit config lib values utils;
     })
     (import ./python {
-      inherit lib values utils;
+      inherit config lib values utils;
     })
   ];
 }

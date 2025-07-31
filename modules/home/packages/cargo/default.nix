@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   pkgs,
   values,
@@ -10,6 +11,7 @@
   imports = [
     (import ./cargo.nix {
       inherit
+        config
         lib
         pkgs
         values

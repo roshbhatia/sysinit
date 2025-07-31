@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   values,
   utils,
@@ -28,6 +29,6 @@ let
 in
 {
   home.activation.goPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    utils.sysinit.mkPackageManagerScript "go" goPackages
+    utils.sysinit.mkPackageManagerScript config "go" goPackages
   );
 }

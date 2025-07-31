@@ -10,6 +10,7 @@ let
   additionalCasks = (values.homebrew.additionalPackages.casks or [ ]);
 
   baseTaps = [
+
     "charmbracelet/tap"
     "FelixKratz/formulae"
     "hashicorp/tap"
@@ -17,6 +18,7 @@ let
     "nikitabobko/tap"
     "noahgorstein/tap"
     "sandreas/tap"
+    "vet-run/vet"
   ];
 
   baseBrews = [
@@ -28,6 +30,7 @@ let
     "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"
+    "vet-run"
   ];
 
   baseCasks = [
@@ -75,3 +78,4 @@ in
     casks = allCasks;
   };
 }
+

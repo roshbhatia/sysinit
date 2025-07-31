@@ -16,34 +16,42 @@ rec {
   packages = import ./packages.nix { inherit platform pkgs; };
 
   sysinit = {
-    mkPackageManagerScript = manager: packages: ''
+    mkPackageManagerScript = config: manager: packages: ''
       if [ ${toString (length packages)} -gt 0 ]; then
         echo "Installing ${manager} packages: ${concatStringsSep " " packages}"
-        MANAGER_PATH=""
+        # Add Nix package paths to PATH for this execution
         case "${manager}" in
           "cargo")
-            MANAGER_PATH="${pkgs.rustup}/bin/cargo"
+            export PATH="${pkgs.rustup}/bin:$PATH"
+            MANAGER_CMD="cargo"
             ;;
           "npm")
-            MANAGER_PATH="${pkgs.nodejs}/bin/npm"
+            export PATH="${pkgs.nodejs}/bin:$PATH"
+            MANAGER_CMD="npm"
             ;;
           "yarn")
-            MANAGER_PATH="${pkgs.yarn}/bin/yarn"
+            export PATH="${pkgs.yarn}/bin:$PATH"
+            MANAGER_CMD="yarn"
             ;;
           "pipx")
-            MANAGER_PATH="${pkgs.pipx}/bin/pipx"
+            export PATH="${pkgs.pipx}/bin:$PATH"
+            MANAGER_CMD="pipx"
             ;;
           "go")
-            MANAGER_PATH="${pkgs.go}/bin/go"
+            export PATH="${pkgs.go}/bin:$PATH"
+            MANAGER_CMD="go"
             ;;
           "uv")
-            MANAGER_PATH="${pkgs.uv}/bin/uv:${config.home.homeDirectory}/.local/bin"
+            export PATH="${pkgs.uv}/bin:${config.home.homeDirectory}/.local/bin:$PATH"
+            MANAGER_CMD="uv"
             ;;
           "kubectl")
-            MANAGER_PATH="${pkgs.kubectl}/bin/kubectl:${config.home.homeDirectory}.krew/bin"
+            export PATH="${pkgs.krew}/bin:${config.home.homeDirectory}/.krew/bin:$PATH"
+            MANAGER_CMD="krew"
             ;;
           "gh")
-            MANAGER_PATH="${pkgs.gh}/bin/gh"
+            export PATH="${pkgs.gh}/bin:$PATH"
+            MANAGER_CMD="gh"
             ;;
           *)
             echo "Unknown package manager: ${manager}"
@@ -51,41 +59,40 @@ rec {
             ;;
         esac
 
-        if [ -f "$MANAGER_PATH" ]; then
+        if command -v "$MANAGER_CMD" >/dev/null 2>&1; then
           for pkg in ${concatStringsSep " " packages}; do
             case "${manager}" in
               "cargo")
-                "$MANAGER_PATH" install --locked "$pkg" || echo "Warning: Failed to install $pkg"
+                "$MANAGER_CMD" install --locked "$pkg" || echo "Warning: Failed to install $pkg"
                 ;;
               "npm")
-                PATH="${pkgs.nodejs}/bin:$PATH" "$MANAGER_PATH" install -g "$pkg" || echo "Warning: Failed to install $pkg"
+                "$MANAGER_CMD" install -g "$pkg" || echo "Warning: Failed to install $pkg"
                 ;;
               "yarn")
-                "$MANAGER_PATH" global add "$pkg" || echo "Warning: Failed to install $pkg"
+                "$MANAGER_CMD" global add "$pkg" || echo "Warning: Failed to install $pkg"
                 ;;
               "pipx")
-                "$MANAGER_PATH" install "$pkg" || echo "Warning: Failed to install $pkg"
+                "$MANAGER_CMD" install "$pkg" || echo "Warning: Failed to install $pkg"
                 ;;
               "go")
-                "$MANAGER_PATH" install "$pkg" || echo "Warning: Failed to install $pkg"
+                "$MANAGER_CMD" install "$pkg" || echo "Warning: Failed to install $pkg"
                 ;;
               "uv")
-                "$MANAGER_PATH" tool install "$pkg" || echo "Warning: Failed to install $pkg"
+                "$MANAGER_CMD" tool install "$pkg" || echo "Warning: Failed to install $pkg"
                 ;;
               "kubectl")
-                PATH="${pkgs.krew}/bin:$PATH" "${pkgs.krew}/bin/krew" install "$pkg" || echo "Warning: Failed to install $pkg"
+                "$MANAGER_CMD" install "$pkg" || echo "Warning: Failed to install $pkg"
                 ;;
               "gh")
-                "$MANAGER_PATH" extension install "$pkg" || echo "Warning: Failed to install $pkg"
+                "$MANAGER_CMD" extension install "$pkg" || echo "Warning: Failed to install $pkg"
                 ;;
             esac
           done
           echo "Completed ${manager} package installation"
         else
-          echo "Warning: ${manager} not available at $MANAGER_PATH, skipping package installation"
+          echo "Warning: ${manager} command '$MANAGER_CMD' not available, skipping package installation"
         fi
       fi
     '';
   };
 }
-

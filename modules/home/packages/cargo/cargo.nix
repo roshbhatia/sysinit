@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   pkgs,
   values,
@@ -15,7 +16,7 @@ in
 {
   home.activation = {
     cargoPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-      utils.sysinit.mkPackageManagerScript "cargo" cargoPackages
+      utils.sysinit.mkPackageManagerScript config "cargo" cargoPackages
     );
 
     eza = lib.hm.dag.entryAfter [ "writeBoundary" ] ''

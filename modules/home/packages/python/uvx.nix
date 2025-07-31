@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   values,
   utils,
@@ -14,6 +15,6 @@ let
 in
 {
   home.activation.uvxPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    utils.sysinit.mkPackageManagerScript "uv" uvxPackages
+    utils.sysinit.mkPackageManagerScript config "uv" uvxPackages
   );
 }

@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   values,
   utils,
@@ -10,6 +11,6 @@ let
 in
 {
   home.activation.ghPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    utils.sysinit.mkPackageManagerScript "gh" ghPackages
+    utils.sysinit.mkPackageManagerScript config "gh" ghPackages
   );
 }
