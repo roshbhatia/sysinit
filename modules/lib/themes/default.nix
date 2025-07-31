@@ -264,7 +264,7 @@ let
       primary = accent;
       background = base;
       foreground = text;
-      secondary = surface1;
+      secondary = palette.surface1 or palette.surface or palette.overlay or palette.base;
 
       # Semantic colors with fallbacks
       success = green;
@@ -273,9 +273,9 @@ let
       info = blue;
 
       # UI colors
-      border = surface2;
-      muted = subtext1;
-      subtle = subtext0;
+      border = palette.surface2 or palette.surface or palette.overlay or palette.base;
+      muted = palette.subtext1 or palette.muted or palette.subtle or palette.text;
+      subtle = palette.subtext0 or palette.subtle or palette.muted or palette.text;
     };
 
   hexToAnsi = ansiCode: "38;5;${toString ansiCode}";
