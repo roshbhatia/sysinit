@@ -6,19 +6,6 @@
   nixpkgs.config.allowUnfree = true;
   nix.enable = false;
 
-  nix.settings = {
-    auto-optimise-store = true;
-    experimental-features = [
-      "nix-command"
-      "flakes"
-    ];
-    substituters = "https://cache.nixos.org/";
-    trusted-users = [
-      "*"
-    ];
-    warn-dirty = false;
-  };
-
   programs.zsh.enable = true;
 
   environment.systemPackages = with pkgs; [
