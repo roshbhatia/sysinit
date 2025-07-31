@@ -6,8 +6,7 @@
 }:
 
 let
-  pipxPackages = [ ]
-  ++ (values.pipx.additionalPackages or [ ]);
+  pipxPackages = [ ] ++ (values.pipx.additionalPackages or [ ]);
 in
 {
   home.activation.pipxPackages = utils.sysinit.mkPackageManagerActivation "pipx" pipxPackages;

@@ -71,7 +71,6 @@ rec {
     };
   };
 
-
   mkPlatformConfig =
     {
       darwin ? { },

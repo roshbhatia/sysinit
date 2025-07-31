@@ -40,6 +40,8 @@
   };
 
   theme = {
+    colorscheme = "catppuccin";
+    variant = "macchiato";
     transparency = {
       opacity = 0.70;
     };
