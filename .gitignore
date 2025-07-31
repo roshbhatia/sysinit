@@ -30,3 +30,7 @@ result-*
 # Claude AI
 .claude/
 
+# Crush AI
+.crush/
+CRUSH.md
+
