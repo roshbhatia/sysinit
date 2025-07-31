@@ -60,7 +60,6 @@
               ;
           };
           modules = [
-            (import ./modules/nix { inherit username system; })
             ./modules/darwin
             ./modules/home
             home-manager.darwinModules.home-manager
