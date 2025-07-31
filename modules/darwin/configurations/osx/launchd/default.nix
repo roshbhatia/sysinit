@@ -25,8 +25,9 @@
       StandardErrorPath = "/tmp/litellm.err.log";
     };
     environment = {
-      PATH = "/usr/bin:/etc/profiles/per-user/${username}/bin";
+      PATH = "/usr/bin:/Users/${username}/.local/bin";
       OPENAI_API_KEY = "sk-test-1234567890abcdef1234567890abcdef";
     };
   };
 }
+
