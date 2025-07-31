@@ -43,4 +43,8 @@
     theme = "system";
     autoupdate = true;
   };
+  crush = {
+    schema = "https://charm.land/crush.json";
+  };
 }
+

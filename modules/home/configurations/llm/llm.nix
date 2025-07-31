@@ -1,4 +1,7 @@
-{ lib, ... }:
+{
+  lib,
+  ...
+}:
 let
   config = import ./config.nix;
   agents = import ./agents.nix;
@@ -70,10 +73,7 @@ in
       };
       force = true;
     };
-    "goose/.goosehints" = {
-      source = ./goosehints.md;
-      force = true;
-    };
+
     "opencode/opencode.json" = {
       text = builtins.toJSON ({
         "$schema" = config.opencode.schema;
@@ -116,5 +116,76 @@ in
       });
       force = true;
     };
+
+    "crush/crush.json" = {
+      text = builtins.toJSON {
+        "$schema" = config.crush.schema;
+        lsp = {
+          go = {
+            command = "gopls";
+          };
+          typescript = {
+            command = "typescript-language-server";
+            args = [ "--stdio" ];
+          };
+          nix = {
+            command = "nil";
+          };
+          lua = {
+            command = "lua-language-server";
+            args = [ "--stdio" ];
+          };
+          python = {
+            command = "pyright-langserver";
+            args = [ "--stdio" ];
+          };
+          json = {
+            command = "json-language-server";
+            args = [ "--stdio" ];
+          };
+          yaml = {
+            command = "yaml-language-server";
+            args = [ "--stdio" ];
+          };
+          dockerfile = {
+            command = "docker-langserver";
+            args = [ "--stdio" ];
+          };
+          terraform = {
+            command = "terraform-language-server";
+            args = [ "serve" ];
+          };
+        };
+        mcp = {
+          fetch = {
+            type = "stdio";
+            command = [ config.mcphub.servers.fetch.command ];
+            args = config.mcphub.servers.fetch.args;
+          };
+          memory = {
+            type = "stdio";
+            command = [ config.mcphub.servers.memory.command ];
+            args = config.mcphub.servers.memory.args;
+            environment = config.mcphub.servers.memory.env;
+          };
+          context7 = {
+            type = "stdio";
+            command = [ config.mcphub.servers.context7.command ];
+            args = config.mcphub.servers.context7.args;
+          };
+        };
+        permissions = {
+          allowed_tools = [
+            "view"
+            "ls"
+            "grep"
+            "edit"
+            "mcp_context7_get-library-doc"
+          ];
+        };
+      };
+      force = true;
+    };
   };
 }
+

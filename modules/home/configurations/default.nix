@@ -16,7 +16,7 @@
     ./aider
     ./borders
     ./direnv
-    ./mcp
+    ./llm
 
     (import ./atuin {
       inherit
@@ -104,3 +104,4 @@
     })
   ];
 }
+
