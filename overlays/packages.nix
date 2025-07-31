@@ -14,4 +14,3 @@ final: prev: {
     cargoHash = "";
   });
 }
-
