@@ -6,8 +6,6 @@
   nixpkgs.config.allowUnfree = true;
   nix.enable = false;
 
-  programs.zsh.enable = true;
-
   environment.systemPackages = with pkgs; [
     git
     curl
@@ -21,3 +19,4 @@
 
   security.pam.services.sudo_local.touchIdAuth = true;
 }
+
