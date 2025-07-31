@@ -23,6 +23,7 @@
     (import ./bat {
       inherit
         lib
+        pkgs
         values
         utils
         ;

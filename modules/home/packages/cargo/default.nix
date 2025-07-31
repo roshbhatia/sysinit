@@ -1,5 +1,6 @@
 {
   lib,
+  pkgs,
   values,
   utils,
   ...
@@ -10,6 +11,7 @@
     (import ./cargo.nix {
       inherit
         lib
+        pkgs
         values
         utils
         ;
