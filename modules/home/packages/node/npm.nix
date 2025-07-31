@@ -19,5 +19,7 @@ in
     '';
   };
 
-  home.activation.npmPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (utils.sysinit.mkPackageManagerScript "npm" npmPackages);
+  home.activation.npmPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+    utils.sysinit.mkPackageManagerScript "npm" npmPackages
+  );
 }

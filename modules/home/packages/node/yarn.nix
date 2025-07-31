@@ -19,5 +19,7 @@ in
     '';
   };
 
-  home.activation.yarnPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (utils.sysinit.mkPackageManagerScript "yarn" yarnPackages);
+  home.activation.yarnPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+    utils.sysinit.mkPackageManagerScript "yarn" yarnPackages
+  );
 }

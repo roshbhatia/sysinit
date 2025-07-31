@@ -13,7 +13,9 @@ let
 in
 {
   home.activation = {
-    cargoPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (utils.sysinit.mkPackageManagerScript "cargo" cargoPackages);
+    cargoPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+      utils.sysinit.mkPackageManagerScript "cargo" cargoPackages
+    );
 
     eza = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       echo "Installing eza with vendored libgit2..."

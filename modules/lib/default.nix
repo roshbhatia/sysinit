@@ -16,49 +16,47 @@ rec {
   packages = import ./packages.nix { inherit platform pkgs; };
 
   sysinit = {
-    mkPackageManagerScript =
-      manager: packages:
-      ''
-        if [ ${toString (length packages)} -gt 0 ]; then
-          echo "Installing ${manager} packages: ${concatStringsSep " " packages}"
-          if command -v ${manager} >/dev/null 2>&1; then
-            for pkg in ${concatStringsSep " " packages}; do
-              case "${manager}" in
-                "cargo")
-                  cargo install --locked "$pkg" || echo "Warning: Failed to install $pkg"
-                  ;;
-                "npm")
-                  npm install -g "$pkg" || echo "Warning: Failed to install $pkg"
-                  ;;
-                "yarn")
-                  yarn global add "$pkg" || echo "Warning: Failed to install $pkg"
-                  ;;
-                "pipx")
-                  pipx install "$pkg" || echo "Warning: Failed to install $pkg"
-                  ;;
-                "go")
-                  go install "$pkg" || echo "Warning: Failed to install $pkg"
-                  ;;
-                "uv")
-                  uv tool install "$pkg" || echo "Warning: Failed to install $pkg"
-                  ;;
-                "kubectl")
-                  kubectl krew install "$pkg" || echo "Warning: Failed to install $pkg"
-                  ;;
-                "gh")
-                  gh extension install "$pkg" || echo "Warning: Failed to install $pkg"
-                  ;;
-                *)
-                  echo "Unknown package manager: ${manager}"
-                  ;;
-              esac
-            done
-            echo "Completed ${manager} package installation"
-          else
-            echo "Warning: ${manager} not available, skipping package installation"
-          fi
+    mkPackageManagerScript = manager: packages: ''
+      if [ ${toString (length packages)} -gt 0 ]; then
+        echo "Installing ${manager} packages: ${concatStringsSep " " packages}"
+        if command -v ${manager} >/dev/null 2>&1; then
+          for pkg in ${concatStringsSep " " packages}; do
+            case "${manager}" in
+              "cargo")
+                cargo install --locked "$pkg" || echo "Warning: Failed to install $pkg"
+                ;;
+              "npm")
+                npm install -g "$pkg" || echo "Warning: Failed to install $pkg"
+                ;;
+              "yarn")
+                yarn global add "$pkg" || echo "Warning: Failed to install $pkg"
+                ;;
+              "pipx")
+                pipx install "$pkg" || echo "Warning: Failed to install $pkg"
+                ;;
+              "go")
+                go install "$pkg" || echo "Warning: Failed to install $pkg"
+                ;;
+              "uv")
+                uv tool install "$pkg" || echo "Warning: Failed to install $pkg"
+                ;;
+              "kubectl")
+                kubectl krew install "$pkg" || echo "Warning: Failed to install $pkg"
+                ;;
+              "gh")
+                gh extension install "$pkg" || echo "Warning: Failed to install $pkg"
+                ;;
+              *)
+                echo "Unknown package manager: ${manager}"
+                ;;
+            esac
+          done
+          echo "Completed ${manager} package installation"
+        else
+          echo "Warning: ${manager} not available, skipping package installation"
         fi
-      '';
+      fi
+    '';
 
     mkXdgConfigFile =
       {
