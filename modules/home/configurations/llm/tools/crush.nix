@@ -11,22 +11,9 @@ in
       "$schema" = config.schema;
       lsp = config.lsp;
       mcp = {
-        fetch = {
-          type = "stdio";
-          command = mcpServers.servers.fetch.command;
-          args = mcpServers.servers.fetch.args;
-        };
-        memory = {
-          type = "stdio";
-          command = mcpServers.servers.memory.command;
-          args = mcpServers.servers.memory.args;
-          env = mcpServers.servers.memory.env;
-        };
-        context7 = {
-          type = "stdio";
-          command = mcpServers.servers.context7.command;
-          args = mcpServers.servers.context7.args;
-        };
+        fetch = { url = mcpServers.uri; };
+        memory = { url = mcpServers.uri; };
+        context7 = { url = mcpServers.uri; };
       };
       permissions = config.permissions;
     };
