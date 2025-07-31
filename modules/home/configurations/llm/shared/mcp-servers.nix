@@ -1,5 +1,5 @@
 {
-  uri = "https://localhost:43210/mcp";
+  uri = "http://localhost:43210/mcp";
   servers = {
     fetch = {
       command = "uvx";
@@ -24,3 +24,4 @@
     };
   };
 }
+

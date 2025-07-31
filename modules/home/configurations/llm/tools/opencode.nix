@@ -13,7 +13,7 @@ in
         theme = config.theme;
         autoupdate = config.autoupdate;
         mcp = {
-          hub = {
+          Hub = {
             type = "remote";
             url = mcpServers.uri;
             enabled = true;
@@ -41,3 +41,4 @@ in
     }) agents
   );
 }
+

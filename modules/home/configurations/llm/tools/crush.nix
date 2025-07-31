@@ -11,7 +11,7 @@ in
       "$schema" = config.schema;
       lsp = config.lsp;
       mcp = {
-        hub = {
+        Hub = {
           url = mcpServers.uri;
         };
       };
@@ -20,3 +20,4 @@ in
     force = true;
   };
 }
+
