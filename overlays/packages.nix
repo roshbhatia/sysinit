@@ -10,7 +10,8 @@ final: prev: {
       repo = "nushell";
       rev = version;
       hash = "sha256-VrGsdO7RiTlf8JK3MBMcgj0z4cWUklDwikMN5Pu6JQI=";
+      cargoHash = "";
     };
-    cargoHash = "";
   });
 }
+
