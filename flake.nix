@@ -111,7 +111,6 @@
           builtins.foldl' (acc: overlay: acc // overlay final prev) { } customOverlays;
 
         packages = import (overlayFiles + "/packages.nix") { inherit inputs system; };
-        nushell-plugins = import (overlayFiles + "/nushell-plugins.nix") { inherit inputs system; };
       };
 
       lib = {
@@ -120,3 +119,4 @@
       };
     };
 }
+
