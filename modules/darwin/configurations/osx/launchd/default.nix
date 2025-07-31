@@ -16,17 +16,18 @@
     };
   };
 
-  launchd.user.agents.litellm = {
-    command = "litellm --config /Users/${username}/.config/litellm/config.yaml --port 43211";
-    serviceConfig = {
-      RunAtLoad = true;
-      KeepAlive = true;
-      StandardOutPath = "/tmp/litellm.out.log";
-      StandardErrorPath = "/tmp/litellm.err.log";
-    };
-    environment = {
-      PATH = "/usr/bin:/Users/${username}/.local/bin";
-      OPENAI_API_KEY = "sk-test-1234567890abcdef1234567890abcdef";
-    };
-  };
+  # launchd.user.agents.litellm = {
+  #   command = "litellm --config /Users/${username}/.config/litellm/config.yaml --port 43211";
+  #   serviceConfig = {
+  #     RunAtLoad = true;
+  #     KeepAlive = true;
+  #     StandardOutPath = "/tmp/litellm.out.log";
+  #     StandardErrorPath = "/tmp/litellm.err.log";
+  #   };
+  #   environment = {
+  #     PATH = "/usr/bin:/Users/${username}/.local/bin";
+  #     OPENAI_API_KEY = "sk-test-1234567890abcdef1234567890abcdef";
+  #   };
+  # };
 }
+
