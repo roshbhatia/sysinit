@@ -47,6 +47,7 @@ let
         gold = "#f6c177";
         rose = "#ea9a97";
         pine = "#3e8fb0";
+        blue = "#3e8fb0";
         foam = "#9ccfd8";
         iris = "#c4a7e7";
         highlight_low = "#2a283e";
