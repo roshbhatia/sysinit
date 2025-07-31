@@ -114,19 +114,22 @@ in
   # Generate xdg.configFile entries for autoload directory
   xdg.configFile = {
     "nushell/autoload/${nushellTheme}".source = ./themes/${nushellTheme};
-  } // lib.listToAttrs (
-    map (module: {
-      name = "nushell/autoload/${module}";
-      value.source = ./autoload/${module};
-    }) [
-      "completions.nu"
-      "atuin.nu"
-      "direnv.nu"
-      "zoxide.nu"
-      "kubectl.nu"
-      "wezterm.nu"
-      "macchina.nu"
-      "omp.nu"
-    ]
+  }
+  // lib.listToAttrs (
+    map
+      (module: {
+        name = "nushell/autoload/${module}";
+        value.source = ./autoload/${module};
+      })
+      [
+        "completions.nu"
+        "atuin.nu"
+        "direnv.nu"
+        "zoxide.nu"
+        "kubectl.nu"
+        "wezterm.nu"
+        "macchina.nu"
+        "omp.nu"
+      ]
   );
 }
