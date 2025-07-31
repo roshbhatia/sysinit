@@ -16,27 +16,6 @@ let
 
   pathsList = paths.getAllPaths config.home.username config.home.homeDirectory;
 
-  moduleGroups = {
-    system = [ "theme.nu" ];
-    integrations = [
-      "completions.nu"
-      "atuin.nu"
-      "direnv.nu"
-      "zoxide.nu"
-    ];
-    tools = [ "kubectl.nu" ];
-    ui = [
-      "wezterm.nu"
-      "macchina.nu"
-      "omp.nu"
-    ];
-  };
-
-  allModules = lib.flatten (lib.attrValues moduleGroups);
-
-  moduleSourceStatements = lib.concatStringsSep "\n      " (
-    map (module: "source ${module}") allModules
-  );
 in
 {
   programs.nushell = {
@@ -49,9 +28,6 @@ in
       # Environment setup
       $env.LS_COLORS = (vivid generate ${vividTheme})
       $env.EZA_COLORS = $env.LS_COLORS
-
-      # Load core modules
-      ${moduleSourceStatements}
     '';
 
     extraEnv = ''
@@ -135,26 +111,22 @@ in
     environmentVariables = config.home.sessionVariables;
   };
 
-  # Generate xdg.configFile entries for all module groups
-  xdg.configFile =
-    let
-      # Create config file entries for each group
-      createGroupConfigs =
-        groupName: modules:
-        lib.listToAttrs (
-          map (module: {
-            name = "nushell/${module}";
-            value.source = ./${groupName}/${module};
-          }) (lib.filter (m: m != "theme.nu") modules)
-        );
-
-      # Combine all group configs
-      allGroupConfigs = lib.foldl' (
-        acc: groupName: acc // createGroupConfigs groupName moduleGroups.${groupName}
-      ) { } (lib.attrNames moduleGroups);
-    in
-    allGroupConfigs
-    // {
-      "nushell/theme.nu".source = ./themes/${nushellTheme};
-    };
+  # Generate xdg.configFile entries for autoload directory
+  xdg.configFile = {
+    "nushell/autoload/${nushellTheme}".source = ./themes/${nushellTheme};
+  } // lib.listToAttrs (
+    map (module: {
+      name = "nushell/autoload/${module}";
+      value.source = ./autoload/${module};
+    }) [
+      "completions.nu"
+      "atuin.nu"
+      "direnv.nu"
+      "zoxide.nu"
+      "kubectl.nu"
+      "wezterm.nu"
+      "macchina.nu"
+      "omp.nu"
+    ]
+  );
 }
