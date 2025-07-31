@@ -16,9 +16,9 @@ rec {
   packages = import ./packages.nix { inherit platform pkgs; };
 
   sysinit = {
-    mkPackageManagerActivation =
+    mkPackageManagerScript =
       manager: packages:
-      lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      ''
         if [ ${toString (length packages)} -gt 0 ]; then
           echo "Installing ${manager} packages: ${concatStringsSep " " packages}"
           if command -v ${manager} >/dev/null 2>&1; then
@@ -38,6 +38,15 @@ rec {
                   ;;
                 "go")
                   go install "$pkg" || echo "Warning: Failed to install $pkg"
+                  ;;
+                "uv")
+                  uv tool install "$pkg" || echo "Warning: Failed to install $pkg"
+                  ;;
+                "kubectl")
+                  kubectl krew install "$pkg" || echo "Warning: Failed to install $pkg"
+                  ;;
+                "gh")
+                  gh extension install "$pkg" || echo "Warning: Failed to install $pkg"
                   ;;
                 *)
                   echo "Unknown package manager: ${manager}"

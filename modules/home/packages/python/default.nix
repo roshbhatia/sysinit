@@ -7,13 +7,6 @@
 
 {
   imports = [
-    (import ./aider.nix {
-      inherit
-        lib
-        values
-        utils
-        ;
-    })
     (import ./pipx.nix {
       inherit
         lib

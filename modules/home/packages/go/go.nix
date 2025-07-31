@@ -27,5 +27,5 @@ let
   ++ (values.go.additionalPackages or [ ]);
 in
 {
-  home.activation.goPackages = utils.sysinit.mkPackageManagerActivation "go" goPackages;
+  home.activation.goPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (utils.sysinit.mkPackageManagerScript "go" goPackages);
 }

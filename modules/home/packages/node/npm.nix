@@ -19,5 +19,5 @@ in
     '';
   };
 
-  home.activation.npmPackages = utils.sysinit.mkPackageManagerActivation "npm" npmPackages;
+  home.activation.npmPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (utils.sysinit.mkPackageManagerScript "npm" npmPackages);
 }

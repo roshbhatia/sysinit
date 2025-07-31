@@ -18,7 +18,6 @@
         "root"
         username
       ];
-      auto-optimise-store = true;
     };
 
     gc = {

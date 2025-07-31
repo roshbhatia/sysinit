@@ -9,5 +9,5 @@ let
   pipxPackages = [ ] ++ (values.pipx.additionalPackages or [ ]);
 in
 {
-  home.activation.pipxPackages = utils.sysinit.mkPackageManagerActivation "pipx" pipxPackages;
+  home.activation.pipxPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (utils.sysinit.mkPackageManagerScript "pipx" pipxPackages);
 }
