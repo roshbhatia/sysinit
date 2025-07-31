@@ -1,17 +1,17 @@
 {
+  inputs,
+  system,
   ...
 }:
 
-final: prev: {
-  nushell = prev.nushell.overrideAttrs (_: rec {
-    version = "0.106.1";
-    src = final.fetchFromGitHub {
-      owner = "nushell";
-      repo = "nushell";
-      rev = version;
-      hash = "sha256-VrGsdO7RiTlf8JK3MBMcgj0z4cWUklDwikMN5Pu6JQI=";
-    };
-    cargoHash = "sha256-GSpR54QGiY9Yrs/A8neoKK6hMvSr3ORtNnwoz4GGprY=";
-  });
+final: _prev:
+let
+  unstable = import inputs.nixpkgs-unstable {
+    inherit system;
+    config = final.config;
+  };
+in
+{
+  nushell = unstable.nushell;
 }
 
