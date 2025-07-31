@@ -19,10 +19,10 @@ let
   moduleGroups = {
     system = [ "theme.nu" ];
     integrations = [
+      "completions.nu"
       "atuin.nu"
       "direnv.nu"
       "zoxide.nu"
-      "completions.nu"
     ];
     tools = [ "kubectl.nu" ];
     ui = [
@@ -58,6 +58,7 @@ in
       # Dynamic path configuration
       let paths = [
         ${lib.concatStringsSep "\n        " (map (path: "\"${path}\"") pathsList)}
+        "${config.home.homeDirectory}/.config/carapace/bin"
       ]
 
       for path in $paths {
