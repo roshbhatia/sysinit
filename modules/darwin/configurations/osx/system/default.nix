@@ -10,4 +10,3 @@
     stateVersion = 4;
   };
 }
-

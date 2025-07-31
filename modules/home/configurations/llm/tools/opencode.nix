@@ -20,18 +20,18 @@ in
           };
           fetch = {
             type = "local";
-            command = [ mcpServers.servers.fetch.command ] ++ mcpServers.servers.fetch.args;
+            command = builtins.concatStringsSep " " ([ mcpServers.servers.fetch.command ] ++ mcpServers.servers.fetch.args);
             enabled = true;
           };
           memory = {
             type = "local";
-            command = [ mcpServers.servers.memory.command ] ++ mcpServers.servers.memory.args;
+            command = builtins.concatStringsSep " " ([ mcpServers.servers.memory.command ] ++ mcpServers.servers.memory.args);
             enabled = true;
             environment = mcpServers.servers.memory.env;
           };
           context7 = {
             type = "local";
-            command = [ mcpServers.servers.context7.command ] ++ mcpServers.servers.context7.args;
+            command = builtins.concatStringsSep " " ([ mcpServers.servers.context7.command ] ++ mcpServers.servers.context7.args);
             enabled = true;
           };
         };

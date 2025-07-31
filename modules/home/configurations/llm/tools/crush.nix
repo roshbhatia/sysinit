@@ -11,9 +11,15 @@ in
       "$schema" = config.schema;
       lsp = config.lsp;
       mcp = {
-        fetch = { url = mcpServers.uri; };
-        memory = { url = mcpServers.uri; };
-        context7 = { url = mcpServers.uri; };
+        fetch = {
+          url = mcpServers.uri;
+        };
+        memory = {
+          url = mcpServers.uri;
+        };
+        context7 = {
+          url = mcpServers.uri;
+        };
       };
       permissions = config.permissions;
     };
