@@ -72,7 +72,6 @@ let
     kustomize
     lazygit
     libgit2
-    litellm
     lnav
     lolcat
     luajit
@@ -143,3 +142,4 @@ in
 {
   home.packages = allNixPackages;
 }
+
