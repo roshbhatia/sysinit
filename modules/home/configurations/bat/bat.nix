@@ -1,5 +1,6 @@
 {
   lib,
+  pkgs,
   values,
   ...
 }:
@@ -16,12 +17,12 @@ in
   xdg.configFile."bat/themes/${batTheme}.tmTheme".source = ./${batTheme}.tmTheme;
 
   home.activation.buildBatCache = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    if command -v bat >/dev/null 2>&1; then
+    if [ -f "${pkgs.bat}/bin/bat" ]; then
       echo "Building bat cache..."
-      bat cache --build || echo "Warning: Failed to build bat cache"
+      "${pkgs.bat}/bin/bat" cache --build || echo "Warning: Failed to build bat cache"
       echo "Completed bat cache build"
     else
-      echo "Warning: bat not available, skipping cache build"
+      echo "Warning: bat not available at ${pkgs.bat}/bin/bat, skipping cache build"
     fi
   '';
 }

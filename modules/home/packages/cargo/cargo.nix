@@ -1,5 +1,6 @@
 {
   lib,
+  pkgs,
   values,
   utils,
   ...
@@ -19,13 +20,13 @@ in
 
     eza = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       echo "Installing eza with vendored libgit2..."
-      if command -v cargo >/dev/null 2>&1; then
-        cargo install --locked --features vendored-libgit2 eza || {
+      if [ -f "${pkgs.rustup}/bin/cargo" ]; then
+        "${pkgs.rustup}/bin/cargo" install --locked --features vendored-libgit2 eza || {
           echo "Warning: Failed to install eza"
         }
         echo "Completed eza installation"
       else
-        echo "Warning: cargo not available, skipping eza installation"
+        echo "Warning: cargo not available at ${pkgs.rustup}/bin/cargo, skipping eza installation"
       fi
     '';
   };
