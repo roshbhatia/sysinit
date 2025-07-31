@@ -14,4 +14,3 @@ in
 {
   nushell = unstable.nushell;
 }
-

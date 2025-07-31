@@ -5,6 +5,7 @@
 }:
 {
   nix = {
+    enable = false;
     settings = {
       experimental-features = [
         "flakes"
