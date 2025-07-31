@@ -8,9 +8,9 @@ let
   config = {
     model_list = [
       {
-        model_name = "github_copilot/gpt-4";
+        model_name = litellm.model;
         litellm_params = {
-          model = "github_copilot/gpt-4";
+          model = litellm.model;
         };
       }
     ];
@@ -27,3 +27,4 @@ in
     force = true;
   };
 }
+
