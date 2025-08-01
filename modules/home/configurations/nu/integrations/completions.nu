@@ -1,4 +1,4 @@
-$env.CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense'
+$env.CARAPACE_BRIDGES = 'fish'
 
 def --env get-env [name] { $env | get $name }
 def --env set-env [name, value] { load-env { $name: $value } }
