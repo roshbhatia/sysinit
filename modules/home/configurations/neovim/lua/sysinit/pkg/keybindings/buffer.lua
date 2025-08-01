@@ -1,34 +1,6 @@
 local M = {}
 
 function M.setup()
-  vim.keymap.set("n", "<leader>x", function()
-    vim.cmd("silent SessionSave")
-    vim.cmd("silent x")
-  end, {
-    noremap = true,
-    silent = true,
-    desc = "Close buffer",
-  })
-
-  vim.keymap.set("n", "<leader>w", function()
-    vim.cmd("silent SessionSave")
-    vim.cmd("silent write!")
-    vim.cmd("silent x")
-  end, {
-    noremap = true,
-    silent = true,
-    desc = "Save and close current buffer",
-  })
-
-  vim.keymap.set("n", "<leader>s", function()
-    vim.cmd("silent SessionSave")
-    vim.cmd("silent write!")
-  end, {
-    noremap = true,
-    silent = true,
-    desc = "Save current buffer",
-  })
-
   vim.keymap.set("n", "<leader>bn", function()
     local bufs = vim.tbl_filter(function(buf)
       return vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted
@@ -75,3 +47,4 @@ function M.setup()
 end
 
 return M
+
