@@ -53,7 +53,6 @@ let
     gopls
     go-task
     gum
-    helix
     helm-ls
     htop
     imagemagick
@@ -142,3 +141,4 @@ in
 {
   home.packages = allNixPackages;
 }
+

@@ -13,12 +13,7 @@ function M.setup()
     noremap = true,
     silent = true,
   })
-
-  vim.keymap.set("n", "<leader><leader>", ":", {
-    noremap = true,
-    silent = true,
-    desc = "Enter command-line mode",
-  })
 end
 
 return M
+

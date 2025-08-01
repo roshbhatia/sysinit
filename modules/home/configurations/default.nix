@@ -40,6 +40,14 @@
         values
         ;
     })
+    (import ./helix {
+      inherit
+        config
+        lib
+        pkgs
+        values
+        ;
+    })
     (import ./k9s {
       inherit
         lib
@@ -102,3 +110,4 @@
     })
   ];
 }
+
