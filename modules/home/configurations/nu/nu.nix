@@ -104,25 +104,22 @@ in
     environmentVariables = config.home.sessionVariables;
   };
 
-  # Generate xdg.configFile entries for autoload directory
   xdg.configFile = {
     "nushell/autoload/${nushellTheme}".source = ./themes/${nushellTheme};
-  }
-  // lib.listToAttrs (
-    map
-      (module: {
-        name = "nushell/autoload/${module}";
-        value.source = ./autoload/${module};
-      })
-      [
-        "completions.nu"
-        "atuin.nu"
-        "direnv.nu"
-        "zoxide.nu"
-        "kubectl.nu"
-        "wezterm.nu"
-        "macchina.nu"
-        "omp.nu"
-      ]
-  );
+
+    # Integrations
+    "nushell/autoload/atuin.nu".source = ./integrations/atuin.nu;
+    "nushell/autoload/completions.nu".source = ./integrations/completions.nu;
+    "nushell/autoload/direnv.nu".source = ./integrations/direnv.nu;
+    "nushell/autoload/zoxide.nu".source = ./integrations/zoxide.nu;
+
+    # Tools
+    "nushell/autoload/kubectl.nu".source = ./tools/kubectl.nu;
+
+    # UI
+    "nushell/autoload/macchina.nu".source = ./ui/macchina.nu;
+    "nushell/autoload/omp.nu".source = ./ui/omp.nu;
+    "nushell/autoload/wezterm.nu".source = ./ui/wezterm.nu;
+  };
 }
+
