@@ -8,12 +8,12 @@ let carapace_completer = {|spans|
   # if the current command is an alias, get it's expansion
   let expanded_alias = (scope aliases | where name == $spans.0 | get --optional 0 | get --optional expansion)
 
-  # overwrite
-  let spans = (if $expanded_alias != null  {
-    # put the first word of the expanded alias first in the span
-    $spans | skip 1 | prepend ($expanded_alias | split row " " | take 1)
+  # handle alias expansion correctly
+  let spans = (if $expanded_alias != null {
+    # replace the alias with the first word of the expanded alias, keep the rest of the spans
+    $spans | skip 1 | prepend ($expanded_alias | split row " " | get 0)
   } else {
-    $spans | skip 1 | prepend ($spans.0)
+    $spans
   })
 
   carapace $spans.0 nushell ...$spans
@@ -25,6 +25,5 @@ $current.completions = ($current.completions | default {} external)
 $current.completions.external = ($current.completions.external
 | default true enable
 | default { $carapace_completer } completer)
-
 $env.config = $current
 
