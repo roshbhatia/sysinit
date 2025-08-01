@@ -64,9 +64,9 @@ $env.config = (
     $env.config | upsert hooks (
         $env.config.hooks
         | upsert pre_execution (
-            $env.config.hooks | get -i pre_execution | default [] | append $atuin_pre_execution)
+            $env.config.hooks | get --optional pre_execution | default [] | append $atuin_pre_execution)
         | upsert pre_prompt (
-            $env.config.hooks | get -i pre_prompt | default [] | append $atuin_pre_prompt)
+            $env.config.hooks | get --optional pre_prompt | default [] | append $atuin_pre_prompt)
     )
 )
 
