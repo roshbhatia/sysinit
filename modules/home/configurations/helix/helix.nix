@@ -17,7 +17,6 @@ in
         bufferline = "always";
         color-modes = true;
         completion-replace = true;
-        cursor-word = true;
         cursorline = true;
         gutters = [
           "diagnostics"
