@@ -19,15 +19,15 @@ local function get_basic_config()
     automatically_reload_config = true,
     pane_focus_follows_mouse = true,
     status_update_interval = 25,
-    default_prog = {
-      nix_bin .. "/" .. "nu",
-      "--config",
-      nushell_config_dir .. "/" .. "config.nu",
-      "--env-config",
-      nushell_config_dir .. "/" .. "/env.nu",
-      "--include-path",
-      nushell_config_dir,
-    },
+    -- default_prog = {
+    --   nix_bin .. "/" .. "nu",
+    --   "--config",
+    --   nushell_config_dir .. "/" .. "config.nu",
+    --   "--env-config",
+    --   nushell_config_dir .. "/" .. "/env.nu",
+    --   "--include-path",
+    --   nushell_config_dir,
+    -- },
   }
 end
 
@@ -39,4 +39,3 @@ function M.setup(config)
 end
 
 return M
-

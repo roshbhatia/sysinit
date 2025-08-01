@@ -53,4 +53,3 @@ rec {
   getPathString = username: home: lib.concatStringsSep ":" (getAllPaths username home);
   getPathArray = username: home: getAllPaths username home;
 }
-

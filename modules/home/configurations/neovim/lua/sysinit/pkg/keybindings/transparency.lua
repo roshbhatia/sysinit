@@ -108,13 +108,13 @@ local function toggle_transparency()
 end
 
 function M.setup()
-  vim.keymap.set({"n", "i", "v", "t"}, "<C-A-t>", toggle_transparency, {
+  vim.keymap.set({ "n", "i", "v", "t" }, "<C-A-t>", toggle_transparency, {
     noremap = true,
     silent = true,
     desc = "Toggle transparency",
   })
 
-  vim.keymap.set({"n", "i", "v", "t"}, "<F24>", function()
+  vim.keymap.set({ "n", "i", "v", "t" }, "<F24>", function()
     apply_transparency(true)
   end, {
     noremap = true,
@@ -122,7 +122,7 @@ function M.setup()
     desc = "Enable transparency (from WezTerm)",
   })
 
-  vim.keymap.set({"n", "i", "v", "t"}, "<F23>", function()
+  vim.keymap.set({ "n", "i", "v", "t" }, "<F23>", function()
     apply_transparency(false)
   end, {
     noremap = true,
