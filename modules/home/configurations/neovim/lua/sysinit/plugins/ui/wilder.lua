@@ -71,7 +71,6 @@ M.plugins = {
       }))
 
       local wildmenu_renderer = wilder.wildmenu_renderer({
-        highlighter = highlighters,
         separator = " · ",
         left = { " ", wilder.wildmenu_spinner(), " " },
         right = { " ", wilder.wildmenu_index() },
@@ -92,4 +91,3 @@ M.plugins = {
 }
 
 return M
-
