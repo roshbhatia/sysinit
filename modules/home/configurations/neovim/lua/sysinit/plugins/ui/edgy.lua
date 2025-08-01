@@ -31,26 +31,6 @@ M.plugins = {
             end,
             open = "Neotree position=right filesystem",
           },
-          {
-            title = "Git",
-            ft = "neo-tree",
-            filter = function(buf)
-              return vim.b[buf].neo_tree_source == "git_status"
-            end,
-            pinned = true,
-            collapsed = true,
-            open = "Neotree position=right git_status",
-          },
-          {
-            title = "Buffers",
-            ft = "neo-tree",
-            filter = function(buf)
-              return vim.b[buf].neo_tree_source == "buffers"
-            end,
-            pinned = true,
-            collapsed = true,
-            open = "Neotree position=top buffers",
-          },
         },
         right = {
           {
@@ -91,3 +71,4 @@ M.plugins = {
 }
 
 return M
+
