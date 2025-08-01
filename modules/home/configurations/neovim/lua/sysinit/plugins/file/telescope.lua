@@ -180,7 +180,7 @@ M.plugins = {
         {
           "<leader>fg",
           function()
-            require("telescope.builtin").live_grep()
+            require("telescope").extensions.live_grep_args.live_grep_args()
           end,
           desc = "Live grep",
         },
@@ -244,3 +244,4 @@ M.plugins = {
 }
 
 return M
+
