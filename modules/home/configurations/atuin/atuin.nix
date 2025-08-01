@@ -14,6 +14,9 @@ in
     enable = true;
     # We need to do this manually due to zsh-vi-mode
     enableZshIntegration = false;
+    # We do this manually because we're operating on the bleeding edge version with changes to APIs
+    enableNushellIntegration = false;
+
     settings = {
       update_check = false;
       inline_height = 15;
@@ -65,3 +68,4 @@ in
     })
   ];
 }
+
