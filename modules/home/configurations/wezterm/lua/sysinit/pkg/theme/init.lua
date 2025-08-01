@@ -1,5 +1,6 @@
 local wezterm = require("wezterm")
-local theme_config = require("sysinit.theme_config")
+local json_loader = require("sysinit.pkg.utils.json_loader")
+local theme_config = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"))
 local M = {}
 
 local function get_window_appearance_config()

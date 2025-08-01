@@ -30,26 +30,16 @@ in
     recursive = true;
   };
 
-  xdg.configFile."wezterm/lua/sysinit/theme_config.lua".text = ''
-    local M = {}
-
-    M.colorscheme = "${themeConfig.colorscheme}"
-    M.variant = "${themeConfig.variant}"
-    M.transparency = {
-      enable = ${if themeConfig.transparency.enable then "true" else "false"},
-      opacity = ${toString themeConfig.transparency.opacity}
-    }
-
-    M.theme_name = "${appTheme}"
-
-    M.palette = {
-      ${lib.concatStringsSep ",\n      " (
-        lib.mapAttrsToList (name: value: "${name} = \"${value}\"") palette
-      )}
-    }
-
-    return M
-  '';
+  xdg.configFile."wezterm/theme_config.json".text = builtins.toJSON {
+    colorscheme = themeConfig.colorscheme;
+    variant = themeConfig.variant;
+    transparency = {
+      enable = themeConfig.transparency.enable;
+      opacity = themeConfig.transparency.opacity;
+    };
+    theme_name = appTheme;
+    palette = palette;
+  };
 
   xdg.configFile."wezterm/lua/sysinit/paths_config.lua".text = ''
     local M = {}

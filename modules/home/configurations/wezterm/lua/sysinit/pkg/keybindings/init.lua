@@ -276,6 +276,44 @@ local function get_search_keys()
   }
 end
 
+local function get_transparency_keys()
+  return {
+    {
+      key = "t",
+      mods = "CTRL|SHIFT",
+      action = wezterm.action_callback(function(win, pane)
+        local overrides = win:get_config_overrides() or {}
+        local current_opacity = overrides.window_background_opacity or 1.0
+        local current_blur = overrides.macos_window_background_blur or 0
+
+        if current_opacity == 1.0 then
+          overrides.window_background_opacity = 0.85
+          overrides.macos_window_background_blur = 80
+          win:perform_action({
+            SendKey = {
+              key = "F24",
+              mods = "",
+            },
+          }, pane)
+          pane:set_user_vars({ TRANSPARENCY_ENABLED = "true" })
+        else
+          overrides.window_background_opacity = 1.0
+          overrides.macos_window_background_blur = 0
+          win:perform_action({
+            SendKey = {
+              key = "F23",
+              mods = "",
+            },
+          }, pane)
+          pane:set_user_vars({ TRANSPARENCY_ENABLED = "false" })
+        end
+
+        win:set_config_overrides(overrides)
+      end),
+    },
+  }
+end
+
 function M.setup(config)
   local all_keys = {}
 
@@ -288,6 +326,7 @@ function M.setup(config)
     get_window_keys(),
     get_tab_keys(),
     get_search_keys(),
+    get_transparency_keys(),
   }
 
   for _, group in ipairs(key_groups) do
