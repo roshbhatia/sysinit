@@ -1,7 +1,19 @@
-{ config, lib, pkgs, values, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  values,
+  ...
+}:
 {
   imports = [
-    (import ./helix.nix { inherit config lib pkgs values; })
+    (import ./helix.nix {
+      inherit
+        config
+        lib
+        pkgs
+        values
+        ;
+    })
   ];
 }
-

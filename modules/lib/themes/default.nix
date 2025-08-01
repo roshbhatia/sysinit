@@ -201,18 +201,33 @@ let
       };
     };
 
-    atuin = {
+    helix = {
       catppuccin = {
-        macchiato = "catppuccin-macchiato";
+        macchiato = "catppuccin_macchiato";
       };
       rose-pine = {
-        moon = "rose-pine-moon";
+        moon = "Rose-Pine-Moon";
       };
       gruvbox = {
         dark = "gruvbox-dark";
       };
       solarized = {
-        dark = "solarized-dark";
+        dark = "Solarized (dark)";
+      };
+    };
+
+    atuin = {
+      catppuccin = {
+        macchiato = "catppuccin-macchiato";
+      };
+      rose-pine = {
+        moon = "rose_pine_moon";
+      };
+      gruvbox = {
+        dark = "gruvbox_dark_hard";
+      };
+      solarized = {
+        dark = "solarized_dark";
       };
     };
 
@@ -348,3 +363,4 @@ in
     ansiMappings
     ;
 }
+
