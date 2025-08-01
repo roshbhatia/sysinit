@@ -79,6 +79,21 @@ local function apply_transparency(enable)
     end
   else
     local plugin_config = theme_config.plugins[theme_config.colorscheme]
+    if theme_config.colorscheme == "catppuccin" then
+      local catppuccin = require("catppuccin")
+      local config = catppuccin.options
+      config.transparent_background = false
+      catppuccin.setup(config)
+    elseif theme_config.colorscheme == "rose-pine" then
+      local neomodern = require("neomodern")
+      neomodern.setup({ transparent = false })
+    elseif theme_config.colorscheme == "gruvbox" then
+      local gruvbox = require("gruvbox")
+      gruvbox.setup({ transparent_mode = false })
+    elseif theme_config.colorscheme == "solarized" then
+      local solarized = require("solarized-osaka")
+      solarized.setup({ transparent = false })
+    end
     vim.cmd("colorscheme " .. plugin_config.colorscheme)
   end
 
@@ -93,7 +108,7 @@ local function toggle_transparency()
 end
 
 function M.setup()
-  vim.keymap.set("n", "<C-S-t>", toggle_transparency, {
+  vim.keymap.set("n", "<C-i>", toggle_transparency, {
     noremap = true,
     silent = true,
     desc = "Toggle transparency",
