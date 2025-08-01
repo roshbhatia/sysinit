@@ -27,7 +27,6 @@ local function get_basic_config()
       nushell_config_dir .. "/" .. "/env.nu",
       "--include-path",
       nushell_config_dir,
-      "--login",
     },
   }
 end
