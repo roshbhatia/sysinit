@@ -67,8 +67,6 @@ in
       editor.soft-wrap = {
         enable = true;
       };
-
-      icons = "nerdfonts";
     };
   };
 }
