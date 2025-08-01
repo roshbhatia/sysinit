@@ -30,16 +30,6 @@ in
     '';
 
     extraEnv = ''
-      # Dynamic path configuration
-      let paths = [
-        ${lib.concatStringsSep "\n        " (map (path: "\"${path}\"") pathsList)}
-        "${config.home.homeDirectory}/.config/carapace/bin"
-      ]
-
-      for path in $paths {
-        path_add $path
-      }
-
       # FZF theme configuration
       $env.FZF_DEFAULT_OPTS = [
         "--bind=resize:refresh-preview"
@@ -101,7 +91,11 @@ in
       open = "^open";
     };
 
-    environmentVariables = config.home.sessionVariables;
+    environmentVariables = config.home.sessionVariables // {
+      PATH = lib.concatStringsSep ":" (
+        pathsList ++ [ "${config.home.homeDirectory}/.config/carapace/bin" ]
+      );
+    };
   };
 
   xdg.configFile = {
