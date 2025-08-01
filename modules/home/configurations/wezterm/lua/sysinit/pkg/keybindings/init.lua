@@ -279,8 +279,8 @@ end
 local function get_transparency_keys()
   return {
     {
-      key = "i",
-      mods = "CTRL",
+      key = "t",
+      mods = "CTRL|ALT",
       action = wezterm.action_callback(function(win, pane)
         local overrides = win:get_config_overrides() or {}
         local current_opacity = overrides.window_background_opacity or 1.0
@@ -289,27 +289,35 @@ local function get_transparency_keys()
         if current_opacity == 1.0 then
           overrides.window_background_opacity = 0.85
           overrides.macos_window_background_blur = 80
-          if is_vim(pane) then
-            win:perform_action({
-              SendKey = {
-                key = "F24",
-                mods = "",
-              },
-            }, pane)
+          for _, tab in ipairs(win:mux_window():tabs()) do
+            for _, p in ipairs(tab:panes()) do
+              if is_vim(p) then
+                win:perform_action({
+                  SendKey = {
+                    key = "F24",
+                    mods = "",
+                  },
+                }, p)
+              end
+              p:set_user_vars({ TRANSPARENCY_ENABLED = "true" })
+            end
           end
-          pane:set_user_vars({ TRANSPARENCY_ENABLED = "true" })
         else
           overrides.window_background_opacity = 1.0
           overrides.macos_window_background_blur = 0
-          if is_vim(pane) then
-            win:perform_action({
-              SendKey = {
-                key = "F23",
-                mods = "",
-              },
-            }, pane)
+          for _, tab in ipairs(win:mux_window():tabs()) do
+            for _, p in ipairs(tab:panes()) do
+              if is_vim(p) then
+                win:perform_action({
+                  SendKey = {
+                    key = "F23",
+                    mods = "",
+                  },
+                }, p)
+              end
+              p:set_user_vars({ TRANSPARENCY_ENABLED = "false" })
+            end
           end
-          pane:set_user_vars({ TRANSPARENCY_ENABLED = "false" })
         end
 
         win:set_config_overrides(overrides)
