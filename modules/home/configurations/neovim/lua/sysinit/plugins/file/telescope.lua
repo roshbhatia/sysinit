@@ -238,6 +238,13 @@ M.plugins = {
           end,
           desc = "Undo history",
         },
+        {
+          "<leader>fr",
+          function()
+            require("telescope.builtin").resume()
+          end,
+          desc = "Resume Prior Search",
+        },
       }
     end,
   },
