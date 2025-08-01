@@ -5,7 +5,8 @@ local home = os.getenv("HOME")
 
 local paths_config = require("sysinit.paths_config")
 local nix_bin = "/etc/profiles/per-user/" .. username .. "/" .. "/bin"
-local nushell_config_dir = home .. "/" .. ".config" .. "/" .. "nushell"
+local xdg_config_home = home .. "/" .. ".config"
+local nushell_config_dir = xdg_config_home .. "/" .. "nushell"
 
 local function get_basic_config()
   local path = table.concat(paths_config.system_paths, ":")
@@ -13,6 +14,7 @@ local function get_basic_config()
     set_environment_variables = {
       TERM = "wezterm",
       PATH = path,
+      XDG_CONFIG_HOME = xdg_config_home,
     },
     automatically_reload_config = true,
     pane_focus_follows_mouse = true,
