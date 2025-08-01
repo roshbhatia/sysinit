@@ -14,7 +14,8 @@ let
   colors = themes.getUnifiedColors palette;
 
   pathsList = paths.getAllPaths config.home.username config.home.homeDirectory;
-
+  carapaceBin = "${config.home.homeDirectory}/.config/carapace/bin";
+  renderedPaths = lib.concatMapStringsSep "\n          " (path: "\"${path}\"") (pathsList ++ [carapaceBin]);
 in
 {
   programs.nushell = {
@@ -22,14 +23,18 @@ in
 
     configFile.source = ./system/config.nu;
     envFile.source = ./system/env.nu;
-
     extraConfig = ''
-      # Environment setup
-      $env.LS_COLORS = (vivid generate ${vividTheme})
-      $env.EZA_COLORS = $env.LS_COLORS
+      $env.path = (
+        ($env.path | default []) ++ [
+          ${renderedPaths}
+        ]
+      )
     '';
 
     extraEnv = ''
+      $env.LS_COLORS = (vivid generate ${vividTheme})
+      $env.EZA_COLORS = $env.LS_COLORS
+
       # FZF theme configuration
       $env.FZF_DEFAULT_OPTS = [
         "--bind=resize:refresh-preview"
@@ -91,11 +96,7 @@ in
       open = "^open";
     };
 
-    environmentVariables = config.home.sessionVariables // {
-      PATH = lib.concatStringsSep ":" (
-        pathsList ++ [ "${config.home.homeDirectory}/.config/carapace/bin" ]
-      );
-    };
+    environmentVariables = config.home.sessionVariables;
   };
 
   xdg.configFile = {
