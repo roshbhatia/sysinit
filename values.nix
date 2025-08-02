@@ -42,19 +42,7 @@
   theme = {
     colorscheme = "catppuccin";
     variant = "macchiato";
-    # transparency is optional - defaults to disabled
-    # transparency = {
-    #   enable = true;
-    #   opacity = 0.70;
-    # };
   };
 
-  # Optional Wezterm-specific settings
-  wezterm = {
-    # Optional: override transparency when Neovim is running
-    # nvim_transparency_override = {
-    #   enable = true;
-    #   opacity = 0.85;
-    # };
-  };
+  wezterm = { };
 }

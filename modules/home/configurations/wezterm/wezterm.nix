@@ -10,9 +10,11 @@ let
   paths = import ../../../lib/paths { inherit config lib; };
 
   # Check for neovim-specific transparency override
-  nvimOverride = if values.wezterm.nvim_transparency_override or null != null
-    then { transparency = values.wezterm.nvim_transparency_override; }
-    else {};
+  nvimOverride =
+    if values.wezterm.nvim_transparency_override or null != null then
+      { transparency = values.wezterm.nvim_transparency_override; }
+    else
+      { };
 
   themeConfig = themes.withThemeOverrides values "wezterm" nvimOverride;
   pathsArray = paths.getPathArray config.home.username config.home.homeDirectory;

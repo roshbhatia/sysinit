@@ -6,7 +6,9 @@ local M = {}
 local function is_nvim_running()
   -- Check if any pane is running nvim/vim
   local tab = wezterm.mux.get_active_tab()
-  if not tab then return false end
+  if not tab then
+    return false
+  end
 
   for _, pane in ipairs(tab:panes()) do
     local proc = pane:get_foreground_process_name()

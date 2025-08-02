@@ -81,6 +81,9 @@
       homeConfigurations = {
         ${defaultValues.user.username} = home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
+          extraSpecialArgs = {
+            utils = import ./modules/lib { inherit (pkgs) lib; inherit pkgs system; };
+          };
           modules = [
             {
               home.username = defaultValues.user.username;
@@ -90,13 +93,8 @@
             (import ./modules/home {
               username = defaultValues.user.username;
               values = defaultValues;
+              utils = import ./modules/lib { inherit (pkgs) lib; inherit pkgs system; };
             })
-            {
-              _module.args.utils = import ./modules/lib {
-                inherit (pkgs) lib;
-                inherit pkgs system;
-              };
-            }
           ];
         };
       };

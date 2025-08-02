@@ -34,7 +34,7 @@ let
   commonPackages = with pkgs; [
     git
     gh
-    golang
+    go
     nodejs
     python3
     rustc
