@@ -7,11 +7,16 @@
 let
 
   skinName =
-    if values.theme.colorscheme == "catppuccin" then "catppuccin-macchiato"
-    else if values.theme.colorscheme == "rose-pine" then "rose-pine-moon"
-    else if values.theme.colorscheme == "gruvbox" then "gruvbox-dark"
-    else if values.theme.colorscheme == "solarized" then "solarized-dark"
-    else values.theme.colorscheme;
+    if values.theme.colorscheme == "catppuccin" then
+      "catppuccin-macchiato"
+    else if values.theme.colorscheme == "rose-pine" then
+      "rose-pine-moon"
+    else if values.theme.colorscheme == "gruvbox" then
+      "gruvbox-dark"
+    else if values.theme.colorscheme == "solarized" then
+      "solarized-dark"
+    else
+      values.theme.colorscheme;
 
   k9sConfig = {
     k9s = {

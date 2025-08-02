@@ -144,12 +144,18 @@ in
 
   xdg.configFile."delta/themes/${values.theme.colorscheme}.gitconfig" = {
     source =
-      if values.theme.colorscheme == "catppuccin" then ./themes/catppuccin-macchiato.gitconfig
-      else if values.theme.colorscheme == "rose-pine" then ./themes/rose-pine-moon.gitconfig
-      else if values.theme.colorscheme == "gruvbox" then ./themes/gruvbox-dark.gitconfig
-      else if values.theme.colorscheme == "solarized" then ./themes/solarized-dark.gitconfig
-      else if values.theme.colorscheme == "nord" then ./themes/nord-dark.gitconfig
-      else ./themes/${values.theme.colorscheme}.gitconfig;
+      if values.theme.colorscheme == "catppuccin" then
+        ./themes/catppuccin-macchiato.gitconfig
+      else if values.theme.colorscheme == "rose-pine" then
+        ./themes/rose-pine-moon.gitconfig
+      else if values.theme.colorscheme == "gruvbox" then
+        ./themes/gruvbox-dark.gitconfig
+      else if values.theme.colorscheme == "solarized" then
+        ./themes/solarized-dark.gitconfig
+      else if values.theme.colorscheme == "nord" then
+        ./themes/nord-dark.gitconfig
+      else
+        ./themes/${values.theme.colorscheme}.gitconfig;
     force = true;
   };
 }
