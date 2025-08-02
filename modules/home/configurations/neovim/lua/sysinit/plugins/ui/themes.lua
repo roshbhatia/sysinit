@@ -263,7 +263,6 @@ local function get_kanagawa_config()
       theme = { wave = {}, lotus = {}, dragon = {}, all = {} },
     },
     overrides = function(colors)
-      local theme = colors.theme
       return transparency.transparent_background
           and {
             Normal = { bg = "none" },
@@ -288,11 +287,7 @@ local function get_kanagawa_config()
           }
         or {}
     end,
-    theme = theme_config.variant or "lotus",
-    background = {
-      dark = "lotus",
-      light = "lotus",
-    },
+    theme = theme_config.variant,
   }
 end
 
@@ -410,3 +405,4 @@ M.plugins = {
 }
 
 return M
+
