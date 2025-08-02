@@ -278,6 +278,50 @@ let
         accent_dim = "#1d1c19"; # dragonBlack2
       };
     };
+
+    nightfox = {
+      nordfox = {
+        # Nord-inspired palette from nightfox
+        bg0 = "#2e3440"; # nord0 - dark background
+        bg1 = "#3b4252"; # nord1 - light background
+        bg2 = "#434c5e"; # nord2 - selection background
+        bg3 = "#4c566a"; # nord3 - comments
+        bg4 = "#5e81ac"; # nord10 - line numbers
+
+        fg0 = "#eceff4"; # nord6 - light foreground
+        fg1 = "#e5e9f0"; # nord5 - default foreground
+        fg2 = "#d8dee9"; # nord4 - dark foreground
+        fg3 = "#4c566a"; # nord3 - darker foreground
+
+        sel0 = "#3e4a5b"; # selection bg
+        sel1 = "#4f6074"; # search bg
+        comment = "#60728a"; # comment color
+
+        # Nord aurora colors
+        red = "#bf616a"; # nord11
+        orange = "#d08770"; # nord12
+        yellow = "#ebcb8b"; # nord13
+        green = "#a3be8c"; # nord14
+        purple = "#b48ead"; # nord15
+
+        # Nord frost colors
+        cyan = "#8fbcbb"; # nord7
+        blue = "#81a1c1"; # nord9
+        teal = "#88c0d0"; # nord8
+
+        # Convenience aliases
+        base = "#2e3440"; # bg0
+        bg = "#2e3440"; # bg0
+        bg_alt = "#3b4252"; # bg1
+        surface = "#434c5e"; # bg2
+        surface_alt = "#4c566a"; # bg3
+        text = "#eceff4"; # fg0
+        fg = "#eceff4"; # fg0
+        fg_alt = "#e5e9f0"; # fg1
+        accent = "#81a1c1"; # blue
+        accent_dim = "#434c5e"; # bg2
+      };
+    };
   };
 
   appThemes = {
@@ -300,6 +344,9 @@ let
       kanagawa = {
         dark = "Kanagawa (Gogh)";
         dragon = "Kanagawa Dragon (Gogh)";
+      };
+      nightfox = {
+        nordfox = "Nord (base16)";
       };
     };
 
@@ -346,6 +393,14 @@ let
           name = "kanagawa";
           setup = "kanagawa";
           colorscheme = "kanagawa-dragon";
+        };
+      };
+      nightfox = {
+        nordfox = {
+          plugin = "EdenEast/nightfox.nvim";
+          name = "nightfox";
+          setup = "nightfox";
+          colorscheme = "nordfox";
         };
       };
     };

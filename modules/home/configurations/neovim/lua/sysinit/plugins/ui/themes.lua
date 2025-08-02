@@ -311,6 +311,89 @@ local function get_kanagawa_config()
   }
 end
 
+local function get_nightfox_config()
+  local transparency = get_transparency_config()
+
+  return {
+    options = {
+      compile_path = vim.fn.stdpath("cache") .. "/nightfox",
+      compile_file_suffix = "_compiled",
+      transparent = transparency.transparent_background,
+      terminal_colors = true,
+      dim_inactive = false,
+      module_default = true,
+      styles = {
+        comments = "italic",
+        conditionals = "NONE",
+        constants = "bold",
+        functions = "bold",
+        keywords = "italic",
+        numbers = "bold",
+        operators = "NONE",
+        strings = "italic",
+        types = "bold",
+        variables = "NONE",
+      },
+      inverse = {
+        match_paren = false,
+        visual = false,
+        search = false,
+      },
+      modules = {
+        aerial = true,
+        alpha = true,
+        cmp = true,
+        dap_ui = true,
+        fzf = true,
+        gitsigns = true,
+        hop = true,
+        indent_blankline = true,
+        lsp_trouble = true,
+        native_lsp = {
+          enabled = true,
+          background = true,
+        },
+        neotree = true,
+        notify = true,
+        nvimtree = true,
+        telescope = true,
+        treesitter = true,
+        treesitter_context = true,
+        which_key = true,
+      },
+    },
+    palettes = {},
+    specs = {},
+    groups = transparency.transparent_background and {
+      all = {
+        Normal = { bg = "NONE" },
+        NormalNC = { bg = "NONE" },
+        NormalFloat = { bg = "NONE" },
+        FloatBorder = { bg = "NONE" },
+        FloatTitle = { bg = "NONE" },
+        Pmenu = { bg = "NONE" },
+        PmenuBorder = { bg = "NONE" },
+        TelescopeNormal = { bg = "NONE" },
+        TelescopeBorder = { bg = "NONE" },
+        WhichKeyFloat = { bg = "NONE" },
+        WhichKeyBorder = { bg = "NONE" },
+        SignColumn = { bg = "NONE" },
+        CursorLine = { bg = "NONE" },
+        StatusLine = { bg = "NONE" },
+        StatusLineNC = { bg = "NONE" },
+        WinSeparator = { bg = "NONE" },
+        WinBar = { bg = "NONE" },
+        WinBarNC = { bg = "NONE" },
+        NeoTreeNormal = { bg = "NONE" },
+        NeoTreeNormalNC = { bg = "NONE" },
+        NeoTreeWinSeparator = { bg = "NONE" },
+        NeoTreeVertSplit = { bg = "NONE" },
+        NeoTreeEndOfBuffer = { bg = "NONE" },
+      },
+    } or {},
+  }
+end
+
 local function setup_theme()
   local plugin_config = theme_config.plugins[theme_config.colorscheme]
 
@@ -326,6 +409,8 @@ local function setup_theme()
     require("nord").setup(get_nord_config())
   elseif theme_config.colorscheme == "kanagawa" then
     require("kanagawa").setup(get_kanagawa_config())
+  elseif theme_config.colorscheme == "nightfox" then
+    require("nightfox").setup(get_nightfox_config())
   end
 
   vim.cmd("colorscheme " .. plugin_config.colorscheme)
