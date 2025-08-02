@@ -4,9 +4,6 @@ local M = {}
 M.plugins = {
   {
     "folke/which-key.nvim",
-    dependencies = {
-      "nvim-tree/nvim-web-devicons",
-    },
     lazy = false,
     config = function()
       local wk = require("which-key")
@@ -126,3 +123,4 @@ M.plugins = {
 }
 
 return M
+
