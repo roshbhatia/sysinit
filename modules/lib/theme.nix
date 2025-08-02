@@ -23,18 +23,13 @@ in
 
     variant = mkOption {
       type = types.enum [
-        "macchiato"
-        "latte"
-        "frappe"
-        "mocha" # catppuccin
-        "moon"
-        "dawn"
-        "main" # rose-pine
-        "dark"
-        "light" # gruvbox, solarized, nord
+        "macchiato" # catppuccin
+        "moon" # rose-pine
+        "wave" # kanagawa
         "dragon" # kanagawa
+        "dark" # gruvbox nord solarized
       ];
-      default = "dark";
+      default = "macchiato";
       description = "The variant of the chosen color scheme";
     };
 
@@ -125,7 +120,7 @@ in
             plugin = "rebelot/kanagawa.nvim";
             name = "kanagawa";
             setup = "kanagawa";
-            colorscheme = if cfg.variant == "dragon" then "kanagawa-dragon" else "kanagawa-lotus";
+            colorscheme = if cfg.variant == "dragon" then "kanagawa-dragon" else "kanagawa-wave";
           };
         };
         colors = themes.getUnifiedColors (themes.getThemePalette cfg.colorscheme cfg.variant);
@@ -134,3 +129,4 @@ in
     };
   };
 }
+
