@@ -154,6 +154,11 @@ in
         ./themes/solarized-dark.gitconfig
       else if values.theme.colorscheme == "nord" then
         ./themes/nord-dark.gitconfig
+      else if values.theme.colorscheme == "kanagawa" then
+        if values.theme.variant == "wave" then
+          ./themes/kanagawa-wave.gitconfig
+        else
+          ./themes/kanagawa-dragon.gitconfig
       else
         ./themes/${values.theme.colorscheme}.gitconfig;
     force = true;

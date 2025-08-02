@@ -177,7 +177,8 @@ let
     };
 
     kanagawa = {
-      dark = {
+      wave = {
+        # Kanagawa Wave (default dark theme)
         sumiInk0 = "#16161d";
         sumiInk1 = "#1f1f28";
         sumiInk2 = "#2a2a37";
@@ -199,12 +200,25 @@ let
         winterBlue = "#252535";
 
         autumnGreen = "#76946a";
-        autumnRed = "#c73c37";
+        autumnRed = "#c34043";
         autumnYellow = "#dca561";
 
         samuraiRed = "#e82424";
         roninYellow = "#ff9e3b";
         dragonBlue = "#658594";
+
+        crystalBlue = "#7e9cd8";
+        springViolet1 = "#938aa9";
+        springViolet2 = "#9cabca";
+        springBlue = "#7fb4ca";
+        springGreen = "#98bb6c";
+        boatYellow2 = "#c0a36e";
+        carpYellow = "#e6c384";
+        sakuraPink = "#d27e99";
+        waveRed = "#e46876";
+        peachRed = "#ff5d62";
+        surimiOrange = "#ffa066";
+        oniViolet = "#957fb8";
 
         # Convenience aliases
         base = "#1f1f28"; # sumiInk1
@@ -216,17 +230,18 @@ let
         fg = "#dcd7ba"; # fujiWhite
         fg_alt = "#c8c093"; # oldWhite
         comment = "#727169"; # fujiGray
-        blue = "#658594"; # dragonBlue
-        cyan = "#7aa89f"; # waveAqua2
+        blue = "#7e9cd8"; # crystalBlue
+        cyan = "#7fb4ca"; # springBlue
         teal = "#6a9589"; # waveAqua1
-        green = "#76946a"; # autumnGreen
-        yellow = "#dca561"; # autumnYellow
-        orange = "#ff9e3b"; # roninYellow
-        red = "#c73c37"; # autumnRed
+        green = "#98bb6c"; # springGreen
+        yellow = "#e6c384"; # carpYellow
+        orange = "#ffa066"; # surimiOrange
+        red = "#c34043"; # autumnRed
         purple = "#957fb8"; # oniViolet
-        accent = "#658594"; # dragonBlue
+        accent = "#7e9cd8"; # crystalBlue
         accent_dim = "#2a2a37"; # sumiInk2
       };
+
 
       dragon = {
         # Kanagawa Dragon (darker variant)
@@ -299,7 +314,7 @@ let
         dark = "Nord (base16)";
       };
       kanagawa = {
-        dark = "Kanagawa (Gogh)";
+        wave = "Kanagawa (Gogh)";
         dragon = "Kanagawa Dragon (Gogh)";
       };
     };
@@ -336,11 +351,11 @@ let
         colorscheme = "nordfox";
       };
       kanagawa = {
-        dark = {
+        wave = {
           plugin = "rebelot/kanagawa.nvim";
           name = "kanagawa";
           setup = "kanagawa";
-          colorscheme = "kanagawa-lotus";
+          colorscheme = "kanagawa-wave";
         };
         dragon = {
           plugin = "rebelot/kanagawa.nvim";
@@ -368,7 +383,7 @@ let
         dark = "nord-dark";
       };
       kanagawa = {
-        dark = "kanagawa-dark";
+        wave = "kanagawa-dark";
         dragon = "kanagawa-dragon";
       };
     };
@@ -390,7 +405,7 @@ let
         dark = "Nord";
       };
       kanagawa = {
-        dark = "Kanagawa";
+        wave = "Kanagawa";
         dragon = "Kanagawa Dragon";
       };
     };
@@ -412,7 +427,7 @@ let
         dark = "nord";
       };
       kanagawa = {
-        dark = "kanagawa";
+        wave = "kanagawa";
         dragon = "kanagawa";
       };
     };
@@ -434,7 +449,7 @@ let
         dark = "nord";
       };
       kanagawa = {
-        dark = "kanagawa";
+        wave = "kanagawa";
         dragon = "kanagawa";
       };
     };
@@ -456,7 +471,7 @@ let
         dark = "nord";
       };
       kanagawa = {
-        dark = "kanagawa";
+        wave = "kanagawa";
         dragon = "kanagawa";
       };
     };
@@ -476,6 +491,10 @@ let
       };
       nord = {
         dark = "nord_dark.nu";
+      };
+      kanagawa = {
+        wave = "kanagawa.nu";
+        dragon = "kanagawa.nu";
       };
     };
 
@@ -639,13 +658,13 @@ let
       };
     };
     kanagawa = {
-      dark = {
-        red = "167"; # #c73c37 -> red
-        orange = "215"; # #ff9e3b -> orange/yellow
-        yellow = "179"; # #dca561 -> yellow
-        green = "108"; # #76946a -> green
-        cyan = "109"; # #7aa89f -> cyan
-        blue = "67"; # #658594 -> blue
+      wave = {
+        red = "167"; # #c34043 -> red
+        orange = "215"; # #ffa066 -> orange
+        yellow = "179"; # #e6c384 -> yellow
+        green = "108"; # #98bb6c -> green
+        cyan = "109"; # #7fb4ca -> cyan
+        blue = "67"; # #7e9cd8 -> blue
         purple = "103"; # #957fb8 -> purple
         sumiInk0 = "233"; # #16161d -> very dark
         sumiInk1 = "234"; # #1f1f28 -> dark
