@@ -6,7 +6,12 @@
 
 let
 
-  skinName = values.theme.colorscheme;
+  skinName =
+    if values.theme.colorscheme == "catppuccin" then "catppuccin-macchiato"
+    else if values.theme.colorscheme == "rose-pine" then "rose-pine-moon"
+    else if values.theme.colorscheme == "gruvbox" then "gruvbox-dark"
+    else if values.theme.colorscheme == "solarized" then "solarized-dark"
+    else values.theme.colorscheme;
 
   k9sConfig = {
     k9s = {
@@ -78,29 +83,29 @@ in
     }
 
     (lib.mkIf (values.theme.colorscheme == "catppuccin") {
-      "k9s/skins/catppuccin.yaml" = {
-        source = ./skins/catppuccin.yaml;
+      "k9s/skins/catppuccin-macchiato.yaml" = {
+        source = ./skins/catppuccin-macchiato.yaml;
         force = true;
       };
     })
 
     (lib.mkIf (values.theme.colorscheme == "solarized") {
-      "k9s/skins/solarized.yaml" = {
-        source = ./skins/solarized.yaml;
+      "k9s/skins/solarized-dark.yaml" = {
+        source = ./skins/solarized-dark.yaml;
         force = true;
       };
     })
 
     (lib.mkIf (values.theme.colorscheme == "rose-pine") {
-      "k9s/skins/rose-pine.yaml" = {
-        source = ./skins/rose-pine.yaml;
+      "k9s/skins/rose-pine-moon.yaml" = {
+        source = ./skins/rose-pine-moon.yaml;
         force = true;
       };
     })
 
     (lib.mkIf (values.theme.colorscheme == "gruvbox") {
-      "k9s/skins/gruvbox.yaml" = {
-        source = ./skins/gruvbox.yaml;
+      "k9s/skins/gruvbox-dark.yaml" = {
+        source = ./skins/gruvbox-dark.yaml;
         force = true;
       };
     })

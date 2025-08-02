@@ -474,7 +474,7 @@ let
         dark = "solarized_dark.nu";
       };
       nord = {
-        dark = "nord.nu";
+        dark = "nord_dark.nu";
       };
     };
 
