@@ -40,8 +40,8 @@
   };
 
   theme = {
-    colorscheme = "catppuccin";
-    variant = "macchiato";
+    colorscheme = "gruvbox";
+    variant = "dark";
     transparency = {
       enable = true;
       opacity = 0.70;
