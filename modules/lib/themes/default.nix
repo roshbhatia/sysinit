@@ -178,8 +178,6 @@ let
 
     kanagawa = {
       dark = {
-        # Kanagawa Wave (default dark theme)
-        # Based on Hokusai's famous painting palette
         sumiInk0 = "#16161d";
         sumiInk1 = "#1f1f28";
         sumiInk2 = "#2a2a37";
@@ -341,7 +339,7 @@ let
           plugin = "rebelot/kanagawa.nvim";
           name = "kanagawa";
           setup = "kanagawa";
-          colorscheme = "kanagawa-wave";
+          colorscheme = "kanagawa-lotus";
         };
         dragon = {
           plugin = "rebelot/kanagawa.nvim";
@@ -369,7 +367,7 @@ let
         dark = "nord-dark";
       };
       kanagawa = {
-        wave = "kanagawa";
+        dark = "kanagawa-dark";
         dragon = "kanagawa-dragon";
       };
     };

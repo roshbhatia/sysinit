@@ -1,0 +1,30 @@
+[delta "nord"]
+	blame-palette = "#2e3440 #3b4252 #434c5e #4c566a #5e81ac"
+	commit-decoration-style = "#81a1c1" bold box ul
+	dark = true
+	file-decoration-style = "#81a1c1"
+	file-style = "#eceff4"
+	hunk-header-decoration-style = "#81a1c1" box ul
+	hunk-header-file-style = bold
+	hunk-header-line-number-style = bold "#d8dee9"
+	hunk-header-style = file line-number syntax
+	line-numbers-left-style = "#81a1c1"
+	line-numbers-minus-style = bold "#bf616a"
+	line-numbers-plus-style = bold "#a3be8c"
+	line-numbers-right-style = "#81a1c1"
+	line-numbers-zero-style = "#81a1c1"
+	# 25% red 75% base
+	minus-emph-style = bold syntax "#4a3b3e"
+	# 10% red 90% base
+	minus-style = syntax "#373137"
+	# 25% green 75% base
+	plus-emph-style = bold syntax "#3e4a3e"
+	# 10% green 90% base
+	plus-style = syntax "#323537"
+	map-styles = \
+		bold purple => syntax "#b48ead", \
+		bold blue => syntax "#81a1c1", \
+		bold cyan => syntax "#88c0d0", \
+		bold yellow => syntax "#ebcb8b"
+	syntax-theme = Nord
+

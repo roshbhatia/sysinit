@@ -1,0 +1,30 @@
+[delta "kanagawa-dragon"]
+	blame-palette = "#181616 #0d0c0c #282727 #393836 #625e5a"
+	commit-decoration-style = "#8ba4b0" bold box ul
+	dark = true
+	file-decoration-style = "#8ba4b0"
+	file-style = "#c5c9c5"
+	hunk-header-decoration-style = "#8ba4b0" box ul
+	hunk-header-file-style = bold
+	hunk-header-line-number-style = bold "#a6a69c"
+	hunk-header-style = file line-number syntax
+	line-numbers-left-style = "#8ba4b0"
+	line-numbers-minus-style = bold "#c4746e"
+	line-numbers-plus-style = bold "#8a9a7b"
+	line-numbers-right-style = "#8ba4b0"
+	line-numbers-zero-style = "#8ba4b0"
+	# 25% red 75% base
+	minus-emph-style = bold syntax "#413532"
+	# 10% red 90% base
+	minus-style = syntax "#2d2624"
+	# 25% green 75% base
+	plus-emph-style = bold syntax "#3b4037"
+	# 10% green 90% base
+	plus-style = syntax "#2a2d28"
+	map-styles = \
+		bold purple => syntax "#a292a3", \
+		bold blue => syntax "#8ea4a2", \
+		bold cyan => syntax "#8ea4a2", \
+		bold yellow => syntax "#c4b28a"
+	syntax-theme = Kanagawa
+
