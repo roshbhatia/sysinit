@@ -279,27 +279,29 @@ local function get_kanagawa_config()
     },
     overrides = function(colors)
       local theme = colors.theme
-      return transparency.transparent_background and {
-        Normal = { bg = "none" },
-        NormalNC = { bg = "none" },
-        NormalFloat = { bg = "none" },
-        FloatBorder = { bg = "none" },
-        FloatTitle = { bg = "none" },
-        Pmenu = { bg = "none" },
-        TelescopeNormal = { bg = "none" },
-        TelescopeBorder = { bg = "none" },
-        SignColumn = { bg = "none" },
-        CursorLine = { bg = "none" },
-        StatusLine = { bg = "none" },
-        StatusLineNC = { bg = "none" },
-        WinSeparator = { bg = "none" },
-        -- Integration fixes
-        NeoTreeNormal = { bg = "none" },
-        NeoTreeNormalNC = { bg = "none" },
-        NeoTreeWinSeparator = { bg = "none" },
-        WinBar = { bg = "none" },
-        WinBarNC = { bg = "none" },
-      } or {}
+      return transparency.transparent_background
+          and {
+            Normal = { bg = "none" },
+            NormalNC = { bg = "none" },
+            NormalFloat = { bg = "none" },
+            FloatBorder = { bg = "none" },
+            FloatTitle = { bg = "none" },
+            Pmenu = { bg = "none" },
+            TelescopeNormal = { bg = "none" },
+            TelescopeBorder = { bg = "none" },
+            SignColumn = { bg = "none" },
+            CursorLine = { bg = "none" },
+            StatusLine = { bg = "none" },
+            StatusLineNC = { bg = "none" },
+            WinSeparator = { bg = "none" },
+            -- Integration fixes
+            NeoTreeNormal = { bg = "none" },
+            NeoTreeNormalNC = { bg = "none" },
+            NeoTreeWinSeparator = { bg = "none" },
+            WinBar = { bg = "none" },
+            WinBarNC = { bg = "none" },
+          }
+        or {}
     end,
     theme = theme_config.variant or "lotus",
     background = {
