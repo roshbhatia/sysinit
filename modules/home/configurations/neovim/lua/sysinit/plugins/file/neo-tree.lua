@@ -70,6 +70,7 @@ M.plugins = {
           },
         },
         window = {
+          position = "float",
           mappings = {
             ["<2-LeftMouse>"] = "open",
             ["<CR>"] = "open",
