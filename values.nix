@@ -43,7 +43,8 @@
     colorscheme = "kanagawa";
     variant = "dragon";
     transparency = {
-      enable = false;
+      enable = true;
+      opacity = 1;
     };
   };
 
