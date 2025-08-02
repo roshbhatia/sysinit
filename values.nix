@@ -42,10 +42,6 @@
   theme = {
     colorscheme = "kanagawa";
     variant = "dragon";
-    transparency = {
-      enable = true;
-      opacity = 1;
-    };
   };
 
   wezterm = { };
