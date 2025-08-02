@@ -492,8 +492,8 @@ let
         dark = "nord_dark.nu";
       };
       kanagawa = {
-        wave = "kanagawa.nu";
-        dragon = "kanagawa.nu";
+        wave = "kanagawa_wave.nu";
+        dragon = "kanagawa_dragon.nu";
       };
     };
 
