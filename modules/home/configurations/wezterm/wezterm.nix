@@ -6,7 +6,7 @@
 }:
 
 let
-  themes = import ../../../lib/themes { inherit lib; };
+  themes = import ../../../lib/theme { inherit lib; };
   paths = import ../../../lib/paths { inherit config lib; };
 
   nvimOverride =

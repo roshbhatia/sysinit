@@ -7,7 +7,7 @@
 }:
 let
   shell = import ../../../lib/shell { inherit lib; };
-  themes = import ../../../lib/themes { inherit lib; };
+  themes = import ../../../lib/theme { inherit lib; };
   paths_lib = import ../../../lib/paths { inherit config lib; };
   appTheme = themes.getAppTheme "vivid" values.theme.colorscheme values.theme.variant;
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;

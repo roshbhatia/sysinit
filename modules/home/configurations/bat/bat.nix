@@ -6,7 +6,7 @@
 }:
 
 let
-  themes = import ../../../lib/themes { inherit lib; };
+  themes = import ../../../lib/theme { inherit lib; };
   batTheme = themes.getAppTheme "bat" values.theme.colorscheme values.theme.variant;
 in
 {

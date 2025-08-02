@@ -5,7 +5,7 @@
 }:
 
 let
-  themes = import ../../../lib/themes { inherit lib; };
+  themes = import ../../../lib/theme { inherit lib; };
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
   colors = themes.getUnifiedColors palette;
 

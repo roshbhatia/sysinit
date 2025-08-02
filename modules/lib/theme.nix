@@ -23,10 +23,16 @@ in
 
     variant = mkOption {
       type = types.enum [
-        "macchiato" "latte" "frappe" "mocha"  # catppuccin
-        "moon" "dawn" "main"                   # rose-pine
-        "dark" "light"                         # gruvbox, solarized, nord
-        "dragon"                               # kanagawa
+        "macchiato"
+        "latte"
+        "frappe"
+        "mocha" # catppuccin
+        "moon"
+        "dawn"
+        "main" # rose-pine
+        "dark"
+        "light" # gruvbox, solarized, nord
+        "dragon" # kanagawa
       ];
       default = "dark";
       description = "The variant of the chosen color scheme";
@@ -123,9 +129,8 @@ in
           };
         };
         colors = themes.getUnifiedColors (themes.getThemePalette cfg.colorscheme cfg.variant);
-        ansi = themes.ansiMappings.${cfg.colorscheme}.${cfg.variant} or {};
+        ansi = themes.ansiMappings.${cfg.colorscheme}.${cfg.variant} or { };
       };
     };
   };
 }
-

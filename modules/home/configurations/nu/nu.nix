@@ -6,7 +6,7 @@
 }:
 
 let
-  themes = import ../../../lib/themes { inherit lib; };
+  themes = import ../../../lib/theme { inherit lib; };
   paths = import ../../../lib/paths { inherit config lib; };
   vividTheme = themes.getAppTheme "vivid" values.theme.colorscheme values.theme.variant;
   nushellTheme = themes.getAppTheme "nushell" values.theme.colorscheme values.theme.variant;

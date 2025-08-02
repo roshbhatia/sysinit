@@ -5,7 +5,7 @@
 }:
 
 let
-  themes = import ../../../lib/themes { inherit lib; };
+  themes = import ../../../lib/theme { inherit lib; };
   atuinTheme = themes.getAppTheme "atuin" values.theme.colorscheme values.theme.variant;
 in
 

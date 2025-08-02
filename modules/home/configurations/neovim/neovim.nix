@@ -6,7 +6,7 @@
 }:
 
 let
-  themes = import ../../../lib/themes { inherit lib; };
+  themes = import ../../../lib/theme { inherit lib; };
   themeConfig = themes.withThemeOverrides values "neovim" { };
 in
 

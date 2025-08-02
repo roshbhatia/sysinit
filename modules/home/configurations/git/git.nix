@@ -6,7 +6,7 @@
 
 let
   cfg = values.git;
-  themes = import ../../../lib/themes { inherit lib; };
+  themes = import ../../../lib/theme { inherit lib; };
   deltaTheme = themes.getAppTheme "delta" values.theme.colorscheme values.theme.variant;
 
   personalEmail = if (cfg ? personalEmail) then cfg.personalEmail else cfg.userEmail;
