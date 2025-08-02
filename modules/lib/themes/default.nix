@@ -322,10 +322,11 @@ let
     app: colorscheme: variant: themeConfig: overrides:
     let
       palette = getThemePalette colorscheme variant;
-      appTheme = if app == "wezterm" then
-        getAppTheme app colorscheme variant
-      else
-        appThemes.${app}.${colorscheme} or { };
+      appTheme =
+        if app == "wezterm" then
+          getAppTheme app colorscheme variant
+        else
+          appThemes.${app}.${colorscheme} or { };
 
       # Default transparency settings
       defaultTransparency = {

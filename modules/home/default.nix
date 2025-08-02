@@ -2,7 +2,6 @@
   username,
   values,
   utils,
-  ...
 }:
 
 {
