@@ -242,7 +242,6 @@ let
         accent_dim = "#2a2a37"; # sumiInk2
       };
 
-
       dragon = {
         # Kanagawa Dragon (darker variant)
         dragonBlack0 = "#0d0c0c";
