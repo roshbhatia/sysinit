@@ -32,15 +32,23 @@ end
 
 local function get_window_appearance_config()
   local transparency = get_effective_transparency()
-  local opacity = transparency.enable and transparency.opacity or 1.0
+  local opacity = nil
+  if transparency.enable then
+    opacity = transparency.opacity or 0.85
+  end
   local blur = transparency.enable and 80 or 0
   local theme_name = theme_config.theme_name
 
-  return {
-    window_background_opacity = opacity,
+  local config = {
     macos_window_background_blur = blur,
     color_scheme = theme_name,
   }
+
+  if opacity then
+    config.window_background_opacity = opacity
+  end
+
+  return config
 end
 
 function M.setup(config)
@@ -63,7 +71,11 @@ function M.setup(config)
       local overrides = window:get_config_overrides() or {}
       local transparency = get_effective_transparency()
 
-      overrides.window_background_opacity = transparency.enable and transparency.opacity or 1.0
+      if transparency.enable then
+        overrides.window_background_opacity = transparency.opacity or 0.85
+      else
+        overrides.window_background_opacity = nil
+      end
       overrides.macos_window_background_blur = transparency.enable and 80 or 0
 
       window:set_config_overrides(overrides)
@@ -73,7 +85,10 @@ function M.setup(config)
       local overrides = window:get_config_overrides() or {}
       local transparency = get_effective_transparency()
 
-      local new_opacity = transparency.enable and transparency.opacity or 1.0
+      local new_opacity = nil
+      if transparency.enable then
+        new_opacity = transparency.opacity or 0.85
+      end
       local new_blur = transparency.enable and 80 or 0
 
       if overrides.window_background_opacity ~= new_opacity then

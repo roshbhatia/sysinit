@@ -126,6 +126,55 @@ let
         accent_dim = "#073642"; # base02
       };
     };
+
+    nord = {
+      dark = {
+        # Polar Night (darker backgrounds)
+        nord0 = "#2e3440";
+        nord1 = "#3b4252";
+        nord2 = "#434c5e";
+        nord3 = "#4c566a";
+
+        # Snow Storm (lighter foregrounds)
+        nord4 = "#d8dee9";
+        nord5 = "#e5e9f0";
+        nord6 = "#eceff4";
+
+        # Frost (blues and teals)
+        nord7 = "#8fbcbb";
+        nord8 = "#88c0d0";
+        nord9 = "#81a1c1";
+        nord10 = "#5e81ac";
+
+        # Aurora (accent colors)
+        nord11 = "#bf616a"; # red
+        nord12 = "#d08770"; # orange
+        nord13 = "#ebcb8b"; # yellow
+        nord14 = "#a3be8c"; # green
+        nord15 = "#b48ead"; # purple
+
+        # Convenience aliases
+        base = "#2e3440"; # nord0
+        bg = "#2e3440"; # nord0
+        bg_alt = "#3b4252"; # nord1
+        surface = "#434c5e"; # nord2
+        surface_alt = "#4c566a"; # nord3
+        text = "#eceff4"; # nord6
+        fg = "#eceff4"; # nord6
+        fg_alt = "#e5e9f0"; # nord5
+        comment = "#4c566a"; # nord3
+        blue = "#5e81ac"; # nord10
+        cyan = "#88c0d0"; # nord8
+        teal = "#8fbcbb"; # nord7
+        green = "#a3be8c"; # nord14
+        yellow = "#ebcb8b"; # nord13
+        orange = "#d08770"; # nord12
+        red = "#bf616a"; # nord11
+        purple = "#b48ead"; # nord15
+        accent = "#5e81ac"; # nord10 (blue)
+        accent_dim = "#434c5e"; # nord2
+      };
+    };
   };
 
   appThemes = {
@@ -141,6 +190,9 @@ let
       };
       solarized = {
         dark = "Solarized Dark Higher Contrast (Gogh)";
+      };
+      nord = {
+        dark = "Nord (base16)";
       };
     };
 
@@ -169,6 +221,12 @@ let
         setup = "solarized-osaka";
         colorscheme = "solarized-osaka";
       };
+      nord = {
+        plugin = "shaunsingh/nord.nvim";
+        name = "nord";
+        setup = "nord";
+        colorscheme = "nord";
+      };
     };
 
     delta = {
@@ -183,6 +241,9 @@ let
       };
       solarized = {
         dark = "solarized-dark";
+      };
+      nord = {
+        dark = "nord-dark";
       };
     };
 
@@ -199,6 +260,9 @@ let
       solarized = {
         dark = "Solarized (dark)";
       };
+      nord = {
+        dark = "Nord";
+      };
     };
 
     helix = {
@@ -213,6 +277,9 @@ let
       };
       solarized = {
         dark = "Solarized (dark)";
+      };
+      nord = {
+        dark = "nord";
       };
     };
 
@@ -229,6 +296,9 @@ let
       solarized = {
         dark = "solarized_dark";
       };
+      nord = {
+        dark = "nord";
+      };
     };
 
     vivid = {
@@ -244,6 +314,9 @@ let
       solarized = {
         dark = "solarized-dark";
       };
+      nord = {
+        dark = "nord";
+      };
     };
 
     nushell = {
@@ -258,6 +331,9 @@ let
       };
       solarized = {
         dark = "solarized_dark.nu";
+      };
+      nord = {
+        dark = "nord.nu";
       };
     };
 
@@ -331,7 +407,7 @@ let
       # Default transparency settings
       defaultTransparency = {
         enable = false;
-        opacity = 1.0;
+        opacity = 0.85; # Default when transparency is enabled
       };
 
       # Merge theme config with defaults and overrides
@@ -403,6 +479,21 @@ let
         red = "167"; # #fb4934 -> red
         bg1 = "237"; # #3c3836 -> dark gray
         bg2 = "239"; # #504945 -> gray
+      };
+    };
+    nord = {
+      dark = {
+        red = "167"; # #bf616a -> red
+        orange = "173"; # #d08770 -> orange
+        yellow = "222"; # #ebcb8b -> yellow
+        green = "150"; # #a3be8c -> green
+        cyan = "152"; # #88c0d0 -> cyan
+        blue = "67"; # #5e81ac -> blue
+        purple = "139"; # #b48ead -> purple
+        nord0 = "236"; # #2e3440 -> dark gray
+        nord1 = "237"; # #3b4252 -> gray
+        nord2 = "240"; # #434c5e -> gray
+        nord3 = "241"; # #4c566a -> gray
       };
     };
   };

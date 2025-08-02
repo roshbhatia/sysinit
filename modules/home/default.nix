@@ -5,7 +5,12 @@
   ...
 }:
 
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   imports = [
@@ -38,6 +43,8 @@
   };
 
   home = {
+    stateVersion = "23.11";
+
     sessionVariables = {
       HOME = config.home.homeDirectory;
       XDG_CACHE_HOME = config.xdg.cacheHome;

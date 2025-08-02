@@ -61,7 +61,14 @@
           };
           modules = [
             ./modules/darwin
-            ./modules/home
+            (import ./modules/darwin/home-manager.nix {
+              username = defaultValues.user.username;
+              values = defaultValues;
+              utils = import ./modules/lib {
+                lib = pkgs.lib;
+                inherit pkgs system;
+              };
+            })
             home-manager.darwinModules.home-manager
             nix-homebrew.darwinModules.nix-homebrew
             {

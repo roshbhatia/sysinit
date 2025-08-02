@@ -9,7 +9,6 @@ let
   themes = import ../../../lib/themes { inherit lib; };
   paths = import ../../../lib/paths { inherit config lib; };
 
-  # Check for neovim-specific transparency override
   nvimOverride =
     if values.wezterm.nvim_transparency_override or null != null then
       { transparency = values.wezterm.nvim_transparency_override; }
@@ -46,3 +45,4 @@ in
     return M
   '';
 }
+

@@ -40,8 +40,8 @@
   };
 
   theme = {
-    colorscheme = "catppuccin";
-    variant = "macchiato";
+    colorscheme = "nord";
+    variant = "dark";
   };
 
   wezterm = { };
