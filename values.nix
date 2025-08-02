@@ -40,8 +40,8 @@
   };
 
   theme = {
-    colorscheme = "nord";
-    variant = "dark";
+    colorscheme = "kanagawa";
+    variant = "lotus";
     transparency = {
       enable = true;
       opacity = 0.90;
