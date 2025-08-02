@@ -40,7 +40,7 @@
   };
 
   theme = {
-    colorscheme = "gruvbox";
+    colorscheme = "solarized";
     variant = "dark";
     transparency = {
       enable = true;
