@@ -406,11 +406,9 @@ local function setup_theme()
   elseif theme_config.colorscheme == "solarized" then
     require("solarized-osaka").setup(get_solarized_config())
   elseif theme_config.colorscheme == "nord" then
-    require("nord").setup(get_nord_config())
+    require("nightfox").setup(get_nightfox_config())
   elseif theme_config.colorscheme == "kanagawa" then
     require("kanagawa").setup(get_kanagawa_config())
-  elseif theme_config.colorscheme == "nightfox" then
-    require("nightfox").setup(get_nightfox_config())
   end
 
   vim.cmd("colorscheme " .. plugin_config.colorscheme)
