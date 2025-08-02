@@ -110,20 +110,7 @@ M.plugins = {
     end,
     keys = function()
       return {
-        { "<leader>cr", vim.lsp.buf.rename, desc = "Rename" },
-        { "<leader>cD", vim.lsp.buf.definition, desc = "Go to definition" },
-        { "<leader>cn", vim.diagnostic.get_next, desc = "Next diagnostic" },
-        { "<leader>cp", vim.diagnostic.get_prev, desc = "Previous diagnostic" },
         { "<leader>cA", vim.lsp.codelens.run, desc = "Code lens actions" },
-        {
-          "<leader>cj",
-          function()
-            vim.lsp.buf.signature_help({ border = "rounded" })
-          end,
-          desc = "Signature help",
-        },
-        { "<leader>cs", vim.lsp.buf.document_symbol, desc = "Document symbols" },
-        { "<leader>cS", vim.lsp.buf.workspace_symbol, desc = "Workspace symbols" },
         { "<leader>ci", "<cmd>LspInfo<cr>", desc = "LSP info" },
         {
           "<leader>cI",
@@ -132,9 +119,27 @@ M.plugins = {
           end,
           desc = "Toggle inlay hints",
         },
+        { "<leader>cD", vim.lsp.buf.definition, desc = "Go to definition" },
+        { "grr", vim.lsp.buf.references, desc = "View references" },
+        { "<leader>cp", vim.diagnostic.get_prev, desc = "Previous diagnostic" },
+        { "<leader>cn", vim.diagnostic.get_next, desc = "Next diagnostic" },
+        { "<leader>cr", vim.lsp.buf.rename, desc = "Rename" },
+        { "grn", vim.lsp.buf.rename, desc = "Rename" },
+        { "<leader>cs", vim.lsp.buf.document_symbol, desc = "Document symbols" },
+        {
+          "<leader>cj",
+          function()
+            vim.lsp.buf.signature_help({ border = "rounded" })
+          end,
+          desc = "Signature help",
+        },
+        { "<leader>cS", vim.lsp.buf.workspace_symbol, desc = "Workspace symbols" },
+        { "gri", vim.lsp.buf.implementation, desc = "View implementations" },
+        { "grO", vim.lsp.buf.document_symbol, desc = "View document_symbol" },
       }
     end,
   },
 }
 
 return M
+
