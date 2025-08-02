@@ -175,6 +175,111 @@ let
         accent_dim = "#434c5e"; # nord2
       };
     };
+
+    kanagawa = {
+      dark = {
+        # Kanagawa Wave (default dark theme)
+        # Based on Hokusai's famous painting palette
+        sumiInk0 = "#16161d";
+        sumiInk1 = "#1f1f28";
+        sumiInk2 = "#2a2a37";
+        sumiInk3 = "#363646";
+        sumiInk4 = "#54546d";
+
+        oldWhite = "#c8c093";
+        fujiWhite = "#dcd7ba";
+        fujiGray = "#727169";
+
+        waveBlue1 = "#223249";
+        waveBlue2 = "#2d4f67";
+        waveAqua1 = "#6a9589";
+        waveAqua2 = "#7aa89f";
+
+        winterGreen = "#2b3328";
+        winterYellow = "#49443c";
+        winterRed = "#43242b";
+        winterBlue = "#252535";
+
+        autumnGreen = "#76946a";
+        autumnRed = "#c73c37";
+        autumnYellow = "#dca561";
+
+        samuraiRed = "#e82424";
+        roninYellow = "#ff9e3b";
+        dragonBlue = "#658594";
+
+        # Convenience aliases
+        base = "#1f1f28"; # sumiInk1
+        bg = "#1f1f28"; # sumiInk1
+        bg_alt = "#16161d"; # sumiInk0
+        surface = "#2a2a37"; # sumiInk2
+        surface_alt = "#363646"; # sumiInk3
+        text = "#dcd7ba"; # fujiWhite
+        fg = "#dcd7ba"; # fujiWhite
+        fg_alt = "#c8c093"; # oldWhite
+        comment = "#727169"; # fujiGray
+        blue = "#658594"; # dragonBlue
+        cyan = "#7aa89f"; # waveAqua2
+        teal = "#6a9589"; # waveAqua1
+        green = "#76946a"; # autumnGreen
+        yellow = "#dca561"; # autumnYellow
+        orange = "#ff9e3b"; # roninYellow
+        red = "#c73c37"; # autumnRed
+        purple = "#957fb8"; # oniViolet
+        accent = "#658594"; # dragonBlue
+        accent_dim = "#2a2a37"; # sumiInk2
+      };
+
+      dragon = {
+        # Kanagawa Dragon (darker variant)
+        dragonBlack0 = "#0d0c0c";
+        dragonBlack1 = "#12120f";
+        dragonBlack2 = "#1d1c19";
+        dragonBlack3 = "#181616";
+        dragonBlack4 = "#282727";
+        dragonBlack5 = "#393836";
+        dragonBlack6 = "#625e5a";
+
+        dragonWhite = "#c5c9c5";
+        dragonGreen = "#87a987";
+        dragonGreen2 = "#8a9a7b";
+        dragonPink = "#a292a3";
+        dragonOrange = "#b6927b";
+        dragonOrange2 = "#b98d7b";
+        dragonGray = "#a6a69c";
+        dragonGray2 = "#9e9b93";
+        dragonGray3 = "#7a8382";
+        dragonBlue = "#8ba4b0";
+        dragonBlue2 = "#8ea4a2";
+        dragonViolet = "#8992a7";
+        dragonRed = "#c4746e";
+        dragonAqua = "#8ea4a2";
+        dragonAsh = "#737c73";
+        dragonTeal = "#949fb5";
+        dragonYellow = "#c4b28a";
+
+        # Convenience aliases
+        base = "#181616"; # dragonBlack3
+        bg = "#181616"; # dragonBlack3
+        bg_alt = "#12120f"; # dragonBlack1
+        surface = "#1d1c19"; # dragonBlack2
+        surface_alt = "#282727"; # dragonBlack4
+        text = "#c5c9c5"; # dragonWhite
+        fg = "#c5c9c5"; # dragonWhite
+        fg_alt = "#a6a69c"; # dragonGray
+        comment = "#7a8382"; # dragonGray3
+        blue = "#8ba4b0"; # dragonBlue
+        cyan = "#8ea4a2"; # dragonAqua
+        teal = "#949fb5"; # dragonTeal
+        green = "#87a987"; # dragonGreen
+        yellow = "#c4b28a"; # dragonYellow
+        orange = "#b6927b"; # dragonOrange
+        red = "#c4746e"; # dragonRed
+        purple = "#8992a7"; # dragonViolet
+        accent = "#8ba4b0"; # dragonBlue
+        accent_dim = "#1d1c19"; # dragonBlack2
+      };
+    };
   };
 
   appThemes = {
@@ -193,6 +298,10 @@ let
       };
       nord = {
         dark = "Nord (base16)";
+      };
+      kanagawa = {
+        dark = "Kanagawa (Gogh)";
+        dragon = "Kanagawa Dragon (Gogh)";
       };
     };
 
@@ -227,6 +336,20 @@ let
         setup = "nord";
         colorscheme = "nord";
       };
+      kanagawa = {
+        dark = {
+          plugin = "rebelot/kanagawa.nvim";
+          name = "kanagawa";
+          setup = "kanagawa";
+          colorscheme = "kanagawa-wave";
+        };
+        dragon = {
+          plugin = "rebelot/kanagawa.nvim";
+          name = "kanagawa";
+          setup = "kanagawa";
+          colorscheme = "kanagawa-dragon";
+        };
+      };
     };
 
     delta = {
@@ -244,6 +367,10 @@ let
       };
       nord = {
         dark = "nord-dark";
+      };
+      kanagawa = {
+        wave = "kanagawa";
+        dragon = "kanagawa-dragon";
       };
     };
 
@@ -263,6 +390,10 @@ let
       nord = {
         dark = "Nord";
       };
+      kanagawa = {
+        dark = "Kanagawa";
+        dragon = "Kanagawa Dragon";
+      };
     };
 
     helix = {
@@ -280,6 +411,10 @@ let
       };
       nord = {
         dark = "nord";
+      };
+      kanagawa = {
+        dark = "kanagawa";
+        dragon = "kanagawa";
       };
     };
 
@@ -299,6 +434,10 @@ let
       nord = {
         dark = "nord";
       };
+      kanagawa = {
+        dark = "kanagawa";
+        dragon = "kanagawa";
+      };
     };
 
     vivid = {
@@ -316,6 +455,10 @@ let
       };
       nord = {
         dark = "nord";
+      };
+      kanagawa = {
+        dark = "kanagawa";
+        dragon = "kanagawa";
       };
     };
 
@@ -494,6 +637,32 @@ let
         nord1 = "237"; # #3b4252 -> gray
         nord2 = "240"; # #434c5e -> gray
         nord3 = "241"; # #4c566a -> gray
+      };
+    };
+    kanagawa = {
+      dark = {
+        red = "167"; # #c73c37 -> red
+        orange = "215"; # #ff9e3b -> orange/yellow
+        yellow = "179"; # #dca561 -> yellow
+        green = "108"; # #76946a -> green
+        cyan = "109"; # #7aa89f -> cyan
+        blue = "67"; # #658594 -> blue
+        purple = "103"; # #957fb8 -> purple
+        sumiInk0 = "233"; # #16161d -> very dark
+        sumiInk1 = "234"; # #1f1f28 -> dark
+        sumiInk2 = "236"; # #2a2a37 -> dark gray
+      };
+      dragon = {
+        red = "167"; # #c4746e -> red
+        orange = "179"; # #b6927b -> orange
+        yellow = "179"; # #c4b28a -> yellow
+        green = "108"; # #87a987 -> green
+        cyan = "109"; # #8ea4a2 -> cyan
+        blue = "109"; # #8ba4b0 -> blue
+        purple = "103"; # #8992a7 -> purple
+        dragonBlack0 = "232"; # #0d0c0c -> very dark
+        dragonBlack1 = "233"; # #12120f -> dark
+        dragonBlack2 = "235"; # #1d1c19 -> dark gray
       };
     };
   };
