@@ -7,16 +7,7 @@
 
 let
   themes = import ../../../lib/themes { inherit lib; };
-  palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
-  appTheme = themes.appThemes.neovim.${values.theme.colorscheme};
-
-  themeConfig = {
-    colorscheme = values.theme.colorscheme;
-    variant = values.theme.variant;
-    transparency = values.theme.transparency;
-    appTheme = appTheme;
-    palette = palette;
-  };
+  themeConfig = themes.withThemeOverrides values "neovim" {};
 in
 
 {
@@ -63,17 +54,9 @@ in
   xdg.configFile."nvim/theme_config.json".text = builtins.toJSON {
     colorscheme = themeConfig.colorscheme;
     variant = themeConfig.variant;
-    transparency = {
-      enable = themeConfig.transparency.enable;
-      opacity = themeConfig.transparency.opacity;
-    };
-    plugins.${themeConfig.colorscheme} = {
-      plugin = appTheme.plugin;
-      name = appTheme.name;
-      setup = appTheme.setup;
-      colorscheme = appTheme.colorscheme;
-    };
-    palette = palette;
+    transparency = themeConfig.transparency;
+    plugins.${themeConfig.colorscheme} = themeConfig.appTheme;
+    palette = themeConfig.palette;
   };
 
   home.activation.nvimXdgPermissions = lib.hm.dag.entryAfter [ "writeBoundary" ] ''

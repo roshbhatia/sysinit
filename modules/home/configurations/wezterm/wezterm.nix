@@ -8,17 +8,13 @@
 let
   themes = import ../../../lib/themes { inherit lib; };
   paths = import ../../../lib/paths { inherit config lib; };
-  palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
-  appTheme = themes.getAppTheme "wezterm" values.theme.colorscheme values.theme.variant;
 
-  themeConfig = {
-    colorscheme = values.theme.colorscheme;
-    variant = values.theme.variant;
-    transparency = values.theme.transparency;
-    appTheme = appTheme;
-    palette = palette;
-  };
+  # Check for neovim-specific transparency override
+  nvimOverride = if values.wezterm.nvim_transparency_override or null != null
+    then { transparency = values.wezterm.nvim_transparency_override; }
+    else {};
 
+  themeConfig = themes.withThemeOverrides values "wezterm" nvimOverride;
   pathsArray = paths.getPathArray config.home.username config.home.homeDirectory;
 in
 
@@ -33,12 +29,9 @@ in
   xdg.configFile."wezterm/theme_config.json".text = builtins.toJSON {
     colorscheme = themeConfig.colorscheme;
     variant = themeConfig.variant;
-    transparency = {
-      enable = themeConfig.transparency.enable;
-      opacity = themeConfig.transparency.opacity;
-    };
-    theme_name = appTheme;
-    palette = palette;
+    transparency = themeConfig.transparency;
+    theme_name = themeConfig.appTheme;
+    palette = themeConfig.palette;
   };
 
   xdg.configFile."wezterm/lua/sysinit/paths_config.lua".text = ''

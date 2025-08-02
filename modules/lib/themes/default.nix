@@ -300,6 +300,56 @@ let
           or (palette.text or palette.fg1 or palette.base0);
     };
 
+  # Helper function to merge theme config with overrides
+  mergeThemeConfig = base: overrides:
+    let
+      # Helper to deeply merge transparency settings
+      mergeTransparency = base: override:
+        if override ? transparency then
+          base // {
+            transparency = (base.transparency or {}) // override.transparency;
+          }
+        else base;
+    in
+    if overrides == {} then base
+    else mergeTransparency base overrides;
+
+  # Get theme configuration for a specific app with optional overrides
+  getThemeForApp =
+    app: colorscheme: variant: themeConfig: overrides:
+    let
+      palette = getThemePalette colorscheme variant;
+      appTheme = appThemes.${app}.${colorscheme} or {};
+
+      # Default transparency settings
+      defaultTransparency = {
+        enable = false;
+        opacity = 1.0;
+      };
+
+      # Merge theme config with defaults and overrides
+      finalConfig = mergeThemeConfig
+        {
+          colorscheme = colorscheme;
+          variant = variant;
+          transparency = themeConfig.transparency or defaultTransparency;
+          appTheme = appTheme;
+          palette = palette;
+        }
+        overrides;
+    in
+    finalConfig;
+
+  # Simplified interface for getting theme with overrides
+  withThemeOverrides =
+    values: app: overrides:
+    getThemeForApp
+      app
+      values.theme.colorscheme
+      values.theme.variant
+      values.theme
+      overrides;
+
   hexToAnsi = ansiCode: "38;5;${toString ansiCode}";
 
   ansiMappings = {
@@ -365,6 +415,9 @@ in
     getThemePalette
     getAppTheme
     getUnifiedColors
+    getThemeForApp
+    withThemeOverrides
+    mergeThemeConfig
     hexToAnsi
     ansiMappings
     ;
