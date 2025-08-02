@@ -278,9 +278,9 @@ let
     palette: with palette; {
       # Primary colors - these will always exist in all themes
       primary = accent;
-      background = base;
-      foreground = text;
-      secondary = palette.surface1 or palette.surface or palette.overlay or palette.base;
+      background = palette.base or palette.bg0 or palette.base03;
+      foreground = palette.text or palette.fg1 or palette.base0;
+      secondary = palette.surface1 or palette.surface or palette.overlay or palette.bg1 or palette.base02;
 
       # Semantic colors with fallbacks
       success = green;
@@ -289,9 +289,9 @@ let
       info = blue;
 
       # UI colors
-      border = palette.surface2 or palette.surface or palette.overlay or palette.base;
-      muted = palette.subtext1 or palette.muted or palette.subtle or palette.text;
-      subtle = palette.subtext0 or palette.subtle or palette.muted or palette.text;
+      border = palette.surface2 or palette.surface or palette.overlay or palette.bg2 or palette.base02 or (palette.base or palette.bg0 or palette.base03);
+      muted = palette.subtext1 or palette.muted or palette.subtle or palette.fg3 or palette.base01 or (palette.text or palette.fg1 or palette.base0);
+      subtle = palette.subtext0 or palette.subtle or palette.muted or palette.fg4 or palette.base00 or (palette.text or palette.fg1 or palette.base0);
     };
 
   hexToAnsi = ansiCode: "38;5;${toString ansiCode}";

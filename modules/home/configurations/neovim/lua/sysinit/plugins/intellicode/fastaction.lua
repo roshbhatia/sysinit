@@ -15,7 +15,22 @@ M.plugins = {
           desc = "Code action",
         },
         {
+          "gra",
+          function()
+            require("fastaction").code_action()
+          end,
+          desc = "Code action",
+        },
+        {
           "<leader>ca",
+          function()
+            require("fastaction").code_action()
+          end,
+          mode = "v",
+          desc = "Code action",
+        },
+        {
+          "gra",
           function()
             require("fastaction").code_action()
           end,
@@ -28,3 +43,4 @@ M.plugins = {
 }
 
 return M
+

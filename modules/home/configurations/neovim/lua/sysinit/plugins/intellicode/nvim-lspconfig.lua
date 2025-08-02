@@ -116,13 +116,6 @@ M.plugins = {
         { "<leader>cp", vim.diagnostic.get_prev, desc = "Previous diagnostic" },
         { "<leader>cA", vim.lsp.codelens.run, desc = "Code lens actions" },
         {
-          "<leader>ch",
-          function()
-            vim.lsp.buf.hover({ border = "rounded" })
-          end,
-          desc = "Hover documentation",
-        },
-        {
           "<leader>cj",
           function()
             vim.lsp.buf.signature_help({ border = "rounded" })
@@ -145,3 +138,4 @@ M.plugins = {
 }
 
 return M
+

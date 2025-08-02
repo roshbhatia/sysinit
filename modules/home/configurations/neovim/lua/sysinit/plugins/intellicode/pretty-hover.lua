@@ -13,9 +13,17 @@ M.plugins = {
           end,
           desc = "Hover documentation",
         },
+        {
+          "<S-k>",
+          function()
+            require("pretty_hover").hover()
+          end,
+          desc = "Hover documentation",
+        },
       }
     end,
   },
 }
 
 return M
+
