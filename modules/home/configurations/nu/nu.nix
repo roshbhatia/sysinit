@@ -15,9 +15,7 @@ let
 
   pathsList = paths.getAllPaths config.home.username config.home.homeDirectory;
   carapaceBin = "${config.home.homeDirectory}/.config/carapace/bin";
-  renderedPaths = lib.concatMapStringsSep "\n          " (path: "\"${path}\"") (
-    pathsList ++ [ carapaceBin ]
-  );
+  renderedPaths = lib.concatMapStringsSep "\n          " (path: "\"${path}\"") (pathsList ++ [carapaceBin]);
 in
 {
   programs.nushell = {
