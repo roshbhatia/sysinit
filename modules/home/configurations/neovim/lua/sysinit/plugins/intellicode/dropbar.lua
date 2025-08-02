@@ -35,7 +35,7 @@ M.plugins = {
       local dropbar_api = require("dropbar.api")
       return {
         {
-          "<leader>fw",
+          "<leader>fx",
           dropbar_api.pick,
           mode = "n",
           desc = "Symbols in winbar",
