@@ -120,7 +120,7 @@ in
             plugin = "rebelot/kanagawa.nvim";
             name = "kanagawa";
             setup = "kanagawa";
-            colorscheme = if cfg.variant == "dragon" then "kanagawa-dragon" else "kanagawa-wave";
+            colorscheme = "kanagawa-${cfg.variant}";
           };
         };
         colors = themes.getUnifiedColors (themes.getThemePalette cfg.colorscheme cfg.variant);
