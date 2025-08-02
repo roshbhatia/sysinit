@@ -11,8 +11,8 @@ rec {
   paths = import ./paths { inherit lib; };
   platform = import ./platform.nix { inherit lib system; };
   shell = import ./shell { inherit lib; };
-  theme = import ./theme-module.nix;
-  themes = import ./themes { inherit lib; };
+  theme = import ./theme.nix;
+  themes = import ./theme { inherit lib; };
   packages = import ./packages.nix { inherit platform pkgs; };
 
   sysinit = {

@@ -42,6 +42,10 @@
   theme = {
     colorscheme = "nord";
     variant = "dark";
+    transparency = {
+      enable = true;
+      opacity = 0.90;
+    };
   };
 
   wezterm = { };

@@ -244,21 +244,6 @@ local function get_rose_pine_config()
   }
 end
 
-local function get_nord_config()
-  local transparency = get_transparency_config()
-
-  return {
-    contrast = true,
-    borders = false,
-    disable_background = transparency.transparent_background,
-    cursorline_transparent = transparency.transparent_background,
-    enable_sidebar_background = not transparency.transparent_background,
-    italic = true,
-    uniform_diff_background = true,
-    bold = true,
-  }
-end
-
 local function get_kanagawa_config()
   local transparency = get_transparency_config()
 
@@ -425,3 +410,4 @@ M.plugins = {
 }
 
 return M
+
