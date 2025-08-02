@@ -289,9 +289,15 @@ let
       info = blue;
 
       # UI colors
-      border = palette.surface2 or palette.surface or palette.overlay or palette.bg2 or palette.base02 or (palette.base or palette.bg0 or palette.base03);
-      muted = palette.subtext1 or palette.muted or palette.subtle or palette.fg3 or palette.base01 or (palette.text or palette.fg1 or palette.base0);
-      subtle = palette.subtext0 or palette.subtle or palette.muted or palette.fg4 or palette.base00 or (palette.text or palette.fg1 or palette.base0);
+      border =
+        palette.surface2 or palette.surface or palette.overlay or palette.bg2 or palette.base02
+          or (palette.base or palette.bg0 or palette.base03);
+      muted =
+        palette.subtext1 or palette.muted or palette.subtle or palette.fg3 or palette.base01
+          or (palette.text or palette.fg1 or palette.base0);
+      subtle =
+        palette.subtext0 or palette.subtle or palette.muted or palette.fg4 or palette.base00
+          or (palette.text or palette.fg1 or palette.base0);
     };
 
   hexToAnsi = ansiCode: "38;5;${toString ansiCode}";
