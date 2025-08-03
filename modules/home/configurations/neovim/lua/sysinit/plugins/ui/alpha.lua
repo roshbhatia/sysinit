@@ -50,20 +50,16 @@ M.plugins = {
             table.insert(ascii_lines, line)
           end
           file:close()
-          if string.find(string.lower(path), "color") then
-            skip_highlight = true
-          end
         end
       end
 
-      dashboard.section.header.val = ascii_lines
-      dashboard.section.header.opts = {
-        position = "center",
+      dashboard.section.header = {
+        val = ascii_lines,
+        opts = {
+          position = "center",
+          hl = "DashboardHeader",
+        },
       }
-
-      if not skip_highlight then
-        dashboard.section.header.opts.hl = "DashboardHeader"
-      end
 
       dashboard.section.buttons.val = function()
         local buttons = {}
