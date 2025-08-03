@@ -79,18 +79,34 @@ in
     let
       palette = themeData.palettes.${config.variant};
       semanticColors = themeData.semanticMapping palette;
-      neovimConfig = createNeovimConfig themeData config { };
+
+      pluginInfo =
+        if hasAttr "neovim" themeData.appAdapters then
+          themeData.appAdapters.neovim
+        else
+          {
+            plugin = "${themeData.meta.id}/${themeData.meta.id}.nvim";
+            name = themeData.meta.id;
+            setup = themeData.meta.id;
+            colorscheme = variant: "${themeData.meta.id}-${variant}";
+          };
+
+      colorscheme =
+        if isFunction pluginInfo.colorscheme then
+          pluginInfo.colorscheme config.variant
+        else
+          pluginInfo.colorscheme;
     in
     {
-      colorscheme = themeData.meta.id;
+      colorscheme = colorscheme;
       variant = config.variant;
       transparency = config.transparency or { };
+      theme_name = themeData.meta.name + " " + (utils.capitalizeFirst config.variant);
 
-      plugins.${themeData.meta.id} = {
-        plugin = neovimConfig.plugin;
-        name = neovimConfig.name;
-        setup = neovimConfig.setup;
-        colorscheme = neovimConfig.colorscheme;
+      plugins.${colorscheme} = {
+        plugin = pluginInfo.plugin;
+        name = pluginInfo.name;
+        colorscheme = colorscheme;
       };
 
       palette = palette;

@@ -163,6 +163,14 @@ rec {
     config: presetName: presets:
     if hasAttr presetName presets then config // { transparency = presets.${presetName}; } else config;
 
+  capitalizeFirst =
+    str:
+    let
+      firstChar = substring 0 1 str;
+      rest = substring 1 (-1) str;
+    in
+    (toUpper firstChar) + rest;
+
   mergeThemeConfigs =
     base: override:
     let

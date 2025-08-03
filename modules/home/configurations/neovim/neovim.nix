@@ -52,14 +52,9 @@ in
   xdg.configFile."nvim/lua/sysinit/plugins/ui/".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/plugins/ui";
 
-  xdg.configFile."nvim/theme_config.json".text = builtins.toJSON {
-    colorscheme = themeConfig.colorscheme;
-    variant = themeConfig.variant;
-    transparency = themeConfig.transparency;
-    theme_name = weztermThemeName;
-    plugins.${themeConfig.colorscheme} = themeConfig.appTheme or { };
-    palette = themeConfig.palette;
-  };
+  xdg.configFile."nvim/theme_config.json".text = builtins.toJSON (
+    themes.generateAppJSON "neovim" values.theme
+  );
 
   home.activation.nvimXdgPermissions = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     run mkdir -p "${config.home.homeDirectory}/.cache/nvim"
