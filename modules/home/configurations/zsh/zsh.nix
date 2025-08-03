@@ -175,7 +175,7 @@ in
         stty stop undef
         setopt COMBINING_CHARS
         setopt PROMPT_SUBST
-        PROMPT='%~%
+        PROMPT='%~%'
         RPS1=""
 
       '')
@@ -184,7 +184,7 @@ in
         mkdir -p ${config.xdg.cacheHome}/zsh
         autoload bashcompinit && bashcompinit
         autoload -Uz compinit
-        if [[ -n ${config.xdg.cacheHome}/zsh/zcompdump/.zcompdump(
+        if [[ -n ${config.xdg.cacheHome}/zsh/zcompdump/.zcompdump(#qN.mh+24) ]]; then
           compinit -d "${config.xdg.cacheHome}/zsh/zcompdump/.zcompdump";
         else
           compinit -C -d "${config.xdg.cacheHome}/zsh/zcompdump/.zcompdump";
@@ -210,8 +210,8 @@ in
 
 
         zstyle ':fzf-tab:complete:cd:*' fzf-preview 'fzf-preview "$realpath"'
-        zstyle ':fzf-tab:complete:cat:*' fzf-preview  'fzf-preview "$word"'
-        zstyle ':fzf-tab:complete:bat:*' fzf-preview  'fzf-preview "$word"'
+        zstyle ':fzf-tab:complete:cat:*' fzf-preview 'fzf-preview "$word"'
+        zstyle ':fzf-tab:complete:bat:*' fzf-preview 'fzf-preview "$word"'
         zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'fzf-preview "$word"'
         zstyle ':fzf-tab:complete:vim:*' fzf-preview 'fzf-preview "$word"'
         zstyle ':fzf-tab:complete:vi:*' fzf-preview 'fzf-preview "$word"'
