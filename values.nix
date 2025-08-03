@@ -40,8 +40,8 @@
   };
 
   theme = {
-    colorscheme = "kanagawa";
-    variant = "wave";
+    colorscheme = "nord";
+    variant = "dark";
     transparency = {
       enable = true;
       opacity = 0.85;
