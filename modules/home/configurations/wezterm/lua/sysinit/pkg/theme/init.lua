@@ -53,24 +53,24 @@ local function get_window_appearance_config()
       scrollbar_thumb = theme_config.palette.surface,
       split = theme_config.palette.surface,
       ansi = {
-        theme_config.palette.base,      -- black
-        theme_config.palette.red,       -- red
-        theme_config.palette.green,     -- green
-        theme_config.palette.yellow,    -- yellow
-        theme_config.palette.blue,      -- blue
-        theme_config.palette.purple,    -- magenta
-        theme_config.palette.cyan,      -- cyan
-        theme_config.palette.text,      -- white
+        theme_config.palette.base, -- black
+        theme_config.palette.red, -- red
+        theme_config.palette.green, -- green
+        theme_config.palette.yellow, -- yellow
+        theme_config.palette.blue, -- blue
+        theme_config.palette.purple, -- magenta
+        theme_config.palette.cyan, -- cyan
+        theme_config.palette.text, -- white
       },
       brights = {
-        theme_config.palette.comment,   -- bright black
-        theme_config.palette.red,       -- bright red
-        theme_config.palette.green,     -- bright green
-        theme_config.palette.yellow,    -- bright yellow
-        theme_config.palette.blue,      -- bright blue
-        theme_config.palette.purple,    -- bright magenta
-        theme_config.palette.cyan,      -- bright cyan
-        theme_config.palette.fg_alt,    -- bright white
+        theme_config.palette.comment, -- bright black
+        theme_config.palette.red, -- bright red
+        theme_config.palette.green, -- bright green
+        theme_config.palette.yellow, -- bright yellow
+        theme_config.palette.blue, -- bright blue
+        theme_config.palette.purple, -- bright magenta
+        theme_config.palette.cyan, -- bright cyan
+        theme_config.palette.fg_alt, -- bright white
       },
       tab_bar = {
         background = theme_config.palette.base,

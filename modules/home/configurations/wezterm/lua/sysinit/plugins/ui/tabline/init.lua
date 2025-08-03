@@ -49,7 +49,7 @@ function M.setup(config)
         "domain",
       },
       tabline_z = {
-        " 󱄅  ",
+        " 󱄅 ",
       },
     },
     extensions = {},
@@ -59,3 +59,4 @@ function M.setup(config)
 end
 
 return M
+

@@ -20,12 +20,11 @@ let
 in
 
 {
-  xdg.configFile."wezterm/wezterm.lua".source = ./wezterm.lua;
+  xdg.configFile."wezterm/wezterm.lua".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/wezterm.lua";
 
-  xdg.configFile."wezterm/lua" = {
-    source = ./lua;
-    recursive = true;
-  };
+  xdg.configFile."wezterm/lua".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/lua";
 
   xdg.configFile."wezterm/theme_config.json".text = builtins.toJSON {
     colorscheme = themeConfig.colorscheme;
@@ -33,7 +32,7 @@ in
     transparency = themeConfig.transparency;
     theme_name = themeConfig.appTheme;
     palette = themeConfig.palette;
-    ansi = themes.ansiMappings.${themeConfig.colorscheme}.${themeConfig.variant} or {};
+    ansi = themes.ansiMappings.${themeConfig.colorscheme}.${themeConfig.variant} or { };
   };
 
   xdg.configFile."wezterm/lua/sysinit/paths_config.lua".text = ''
