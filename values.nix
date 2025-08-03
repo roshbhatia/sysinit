@@ -42,6 +42,10 @@
   theme = {
     colorscheme = "catppuccin";
     variant = "macchiato";
+    transparency = {
+      enable = true;
+      opacity = 0.85;
+    };
   };
 
   wezterm = { };
