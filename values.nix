@@ -41,8 +41,8 @@
 
   theme = {
     colorscheme = "kanagawa";
-    variant = "dragon";
-    transparent = {
+    variant = "wave";
+    transparency = {
       enable = true;
       opacity = 0.85;
     };
