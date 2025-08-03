@@ -24,7 +24,15 @@
     }:
     let
       system = "aarch64-darwin";
-      defaultValues = import ./values.nix;
+      
+      # Import and validate values
+      rawValues = import ./values.nix;
+      lib = inputs.nixpkgs.lib;
+      valuesValidator = import ./modules/lib/values-validator.nix { 
+        inherit lib; 
+        values = rawValues; 
+      };
+      defaultValues = valuesValidator.validatedValues;
 
       overlayFiles = ./overlays;
       overlays = import overlayFiles {
@@ -43,7 +51,12 @@
       mkDarwinConfiguration =
         customValues:
         let
-          values = customValues;
+          # Validate custom values as well
+          customValidator = import ./modules/lib/values-validator.nix { 
+            inherit lib; 
+            values = customValues; 
+          };
+          values = customValidator.validatedValues;
           username = values.user.username;
           hostname = values.user.hostname;
         in
@@ -126,6 +139,8 @@
       lib = {
         inherit mkDarwinConfiguration;
         defaultValues = defaultValues;
+        valuesTypes = import ./modules/lib/values-types.nix { inherit lib; };
+        valuesValidator = valuesValidator;
       };
     };
 }
