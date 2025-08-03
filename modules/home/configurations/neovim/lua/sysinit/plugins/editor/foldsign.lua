@@ -1,25 +1,5 @@
 local M = {}
 
-local uv = vim.loop
-local function debounce(fn, delay)
-  local timer = nil
-  return function(...)
-    local args = { ... }
-    if timer then
-      timer:stop()
-      timer:close()
-    end
-    timer = uv.new_timer()
-    timer:start(
-      delay,
-      0,
-      vim.schedule_wrap(function()
-        fn(unpack(args))
-      end)
-    )
-  end
-end
-
 M.plugins = {
   {
     "yaocccc/nvim-foldsign",
@@ -36,7 +16,7 @@ M.plugins = {
       })
 
       local original_foldsign = foldsign.foldsign
-      foldsign.foldsign = debounce(function()
+      foldsign.foldsign = function()
         local win = vim.api.nvim_get_current_win()
         local cfg = vim.api.nvim_win_get_config(win)
         if cfg.relative ~= "" then
@@ -44,7 +24,7 @@ M.plugins = {
           return
         end
         original_foldsign()
-      end, 50)
+      end
     end,
   },
 }
