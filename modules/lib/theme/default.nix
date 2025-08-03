@@ -50,7 +50,6 @@ let
     colorscheme: variant:
     let
       theme = getTheme colorscheme;
-      config = validateThemeConfig { inherit colorscheme variant; };
     in
     if hasAttr variant theme.palettes then
       theme.palettes.${variant}
@@ -95,7 +94,7 @@ let
       semanticColors = getSemanticColors validatedConfig.colorscheme validatedConfig.variant;
 
       finalConfig = fold (
-        preset: config: transparencyPreset.createAppTransparency app preset { }
+        preset: _config: transparencyPreset.createAppTransparency app preset { }
       ) validatedConfig (validatedConfig.presets or [ ]);
 
       appConfig =
@@ -165,9 +164,9 @@ let
     createAppConfig app baseConfig overrides;
 
   ansiMappings = mapAttrs (
-    themeId: theme:
+    _themeId: theme:
     mapAttrs (
-      variant: palette: utils.generateAnsiMappings (theme.semanticMapping palette)
+      _variant: palette: utils.generateAnsiMappings (theme.semanticMapping palette)
     ) theme.palettes
   ) themes;
 

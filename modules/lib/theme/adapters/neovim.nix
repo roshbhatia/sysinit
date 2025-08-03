@@ -11,8 +11,6 @@ in
   createNeovimConfig =
     themeData: config: overrides:
     let
-      palette = themeData.palettes.${config.variant};
-      semanticColors = utils.createSemanticMapping palette;
       transparency = config.transparency or { };
 
       pluginInfo =

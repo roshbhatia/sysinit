@@ -72,14 +72,14 @@ in
       plugin = "EdenEast/nightfox.nvim";
       name = "nightfox";
       setup = "nightfox";
-      colorscheme = variant: "nordfox";
+      colorscheme = _variant: "nordfox";
     };
 
     bat = variant: "nord-${variant}";
     delta = variant: "nord-${variant}";
     atuin = variant: "nord-${variant}";
-    vivid = variant: "nord";
-    helix = variant: "nord";
+    vivid = _variant: "nord";
+    helix = _variant: "nord";
     nushell = variant: "nord-${variant}.nu";
   };
 }

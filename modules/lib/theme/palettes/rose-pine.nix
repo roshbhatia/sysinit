@@ -152,7 +152,7 @@ in
       plugin = "cdmill/neomodern.nvim";
       name = "neomodern";
       setup = "neomodern";
-      colorscheme = variant: "roseprime";
+      colorscheme = _variant: "roseprime";
     };
 
     bat = variant: "rose-pine-${variant}";

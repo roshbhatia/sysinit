@@ -106,7 +106,7 @@ in
       plugin = "craftzdog/solarized-osaka.nvim";
       name = "solarized-osaka";
       setup = "solarized-osaka";
-      colorscheme = variant: "solarized-osaka";
+      colorscheme = _variant: "solarized-osaka";
     };
 
     bat = variant: "solarized-${variant}";

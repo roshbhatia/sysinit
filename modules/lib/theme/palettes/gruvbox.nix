@@ -140,14 +140,14 @@ in
       plugin = "ellisonleao/gruvbox.nvim";
       name = "gruvbox";
       setup = "gruvbox";
-      colorscheme = variant: "gruvbox";
+      colorscheme = _variant: "gruvbox";
     };
 
     bat = variant: "gruvbox-${variant}";
     delta = variant: "gruvbox-${variant}";
     atuin = variant: "gruvbox-${variant}";
     vivid = variant: "gruvbox-${variant}";
-    helix = variant: "gruvbox";
+    helix = _variant: "gruvbox";
     nushell = variant: "gruvbox-${variant}.nu";
   };
 }

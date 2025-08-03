@@ -12,9 +12,9 @@ tasks:
       - &logger_fmt |
         #!/usr/bin/env bash
         source hack/lib/logger.sh
-        log_info "Finding and formatting Nix files"
-        if ! fd -e nix -E result -x sh -c 'source hack/lib/logger.sh && log_info "Formatting: {}" && nixfmt --width=100 {}' _; then
-          log_error "Formatting failed"
+        log_info "Formatting Nix files"
+        if ! fd -e nix -E result -x nixfmt --width=100; then
+          log_error "Nix formatting failed"
           exit 1
         fi
         log_success "Nix files formatted successfully"
@@ -123,10 +123,10 @@ tasks:
       - &logger_sh_fmt |
         #!/usr/bin/env bash
         source hack/lib/logger.sh
-        log_info "Finding and formatting shell files"
+        log_info "Formatting shell files"
         for ext in sh bash zsh; do
-          if ! fd -e $ext -x sh -c 'source hack/lib/logger.sh && log_info "Formatting: {}" && shfmt -i 2 -ci -sr -kp -fn -w {}' _; then
-            log_error "Shell formatting failed"
+          if ! fd -e $ext -x shfmt -i 2 -ci -sr -kp -fn -w; then
+            log_error "Shell formatting ($ext) failed"
             exit 1
           fi
         done
@@ -153,9 +153,9 @@ tasks:
       - &logger_lua_fmt |
         #!/usr/bin/env bash
         source hack/lib/logger.sh
-        log_info "Finding and formatting Lua files"
-        if ! fd -e lua -x sh -c 'source hack/lib/logger.sh && log_info "Formatting: {}" && stylua {}' _; then
-          log_error "Formatting failed"
+        log_info "Formatting Lua files"
+        if ! fd -e lua -x stylua; then
+          log_error "Lua formatting failed"
           exit 1
         fi
         log_success "Lua files formatted successfully"

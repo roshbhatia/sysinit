@@ -1,4 +1,4 @@
-{ config, lib, ... }:
+{ ... }:
 
 {
   xdg.configFile = {

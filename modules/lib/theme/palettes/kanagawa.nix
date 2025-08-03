@@ -153,7 +153,7 @@ in
     delta = variant: "kanagawa-${variant}";
     atuin = variant: "kanagawa-${variant}";
     vivid = variant: "kanagawa-${variant}";
-    helix = variant: "kanagawa";
+    helix = _variant: "kanagawa";
     nushell = variant: "kanagawa-${variant}.nu";
   };
 }

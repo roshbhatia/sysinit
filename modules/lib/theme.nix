@@ -6,13 +6,6 @@ let
   themes = import ./theme { inherit lib; };
   cfg = config.sysinit.theme;
 
-  getThemeVariants =
-    colorscheme:
-    let
-      theme = themes.getTheme colorscheme;
-    in
-    theme.meta.variants;
-
   allVariants = unique (flatten (map (theme: theme.meta.variants) (attrValues themes.themes)));
 
 in
