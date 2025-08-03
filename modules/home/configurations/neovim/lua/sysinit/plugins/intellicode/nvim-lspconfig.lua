@@ -111,7 +111,6 @@ M.plugins = {
     keys = function()
       return {
         { "<leader>cA", vim.lsp.codelens.run, desc = "Code lens actions" },
-        { "<leader>ci", "<cmd>LspInfo<cr>", desc = "LSP info" },
         {
           "<leader>cI",
           function()
@@ -142,3 +141,4 @@ M.plugins = {
 }
 
 return M
+
