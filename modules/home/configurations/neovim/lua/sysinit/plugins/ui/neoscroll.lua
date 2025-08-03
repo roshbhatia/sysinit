@@ -6,7 +6,7 @@ M.plugins = {
     lazy = false,
     opts = {
       easing = "cubic",
-      duration_multiplier = 1.6,
+      duration_multiplier = 0.5,
       performance_mode = false,
       mappings = {
         "<C-y>",
