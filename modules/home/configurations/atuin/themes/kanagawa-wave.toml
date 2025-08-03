@@ -1,0 +1,12 @@
+[theme]
+name = "kanagawa-wave"
+
+[colors]
+AlertInfo = "#98bb6c"
+AlertWarn = "#e6c384"
+AlertError = "#c34043"
+Annotation = "#7e9cd8"
+Base = "#dcd7ba"
+Guidance = "#727169"
+Important = "#c34043"
+Title = "#7e9cd8"

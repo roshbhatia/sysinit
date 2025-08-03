@@ -1,0 +1,12 @@
+[theme]
+name = "nord-dark"
+
+[colors]
+AlertInfo = "#a3be8c"
+AlertWarn = "#ebcb8b"
+AlertError = "#bf616a"
+Annotation = "#5e81ac"
+Base = "#eceff4"
+Guidance = "#4c566a"
+Important = "#bf616a"
+Title = "#5e81ac"

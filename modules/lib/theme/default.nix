@@ -382,52 +382,52 @@ let
         dark = "nord-dark";
       };
       kanagawa = {
-        wave = "kanagawa-dark";
+        wave = "kanagawa-wave";
         dragon = "kanagawa-dragon";
       };
     };
 
     bat = {
       catppuccin = {
-        macchiato = "Catppuccin-Macchiato";
+        macchiato = "catppuccin-macchiato";
       };
       rose-pine = {
-        moon = "Rose-Pine-Moon";
+        moon = "rose-pine-moon";
       };
       gruvbox = {
         dark = "gruvbox-dark";
       };
       solarized = {
-        dark = "Solarized (dark)";
+        dark = "solarized-dark";
       };
       nord = {
-        dark = "Nord";
+        dark = "nord-dark";
       };
       kanagawa = {
-        wave = "Kanagawa";
-        dragon = "Kanagawa Dragon";
+        wave = "kanagawa-wave";
+        dragon = "kanagawa-dragon";
       };
     };
 
     helix = {
       catppuccin = {
-        macchiato = "catppuccin_macchiato";
+        macchiato = "catppuccin-macchiato";
       };
       rose-pine = {
-        moon = "Rose-Pine-Moon";
+        moon = "rose-pine-moon";
       };
       gruvbox = {
         dark = "gruvbox-dark";
       };
       solarized = {
-        dark = "Solarized (dark)";
+        dark = "solarized-dark";
       };
       nord = {
-        dark = "nord";
+        dark = "nord-dark";
       };
       kanagawa = {
-        wave = "kanagawa";
-        dragon = "kanagawa";
+        wave = "kanagawa-wave";
+        dragon = "kanagawa-dragon";
       };
     };
 
@@ -436,20 +436,20 @@ let
         macchiato = "catppuccin-macchiato";
       };
       rose-pine = {
-        moon = "rose_pine_moon";
+        moon = "rose-pine-moon";
       };
       gruvbox = {
-        dark = "gruvbox_dark_hard";
+        dark = "gruvbox-dark";
       };
       solarized = {
-        dark = "solarized_dark";
+        dark = "solarized-dark";
       };
       nord = {
-        dark = "nord";
+        dark = "nord-dark";
       };
       kanagawa = {
-        wave = "kanagawa";
-        dragon = "kanagawa";
+        wave = "kanagawa-wave";
+        dragon = "kanagawa-dragon";
       };
     };
 
@@ -477,46 +477,213 @@ let
 
     nushell = {
       catppuccin = {
-        macchiato = "catppuccin_macchiato.nu";
+        macchiato = "catppuccin-macchiato.nu";
       };
       rose-pine = {
-        moon = "rose_pine_moon.nu";
+        moon = "rose-pine-moon.nu";
       };
       gruvbox = {
-        dark = "gruvbox_dark.nu";
+        dark = "gruvbox-dark.nu";
       };
       solarized = {
-        dark = "solarized_dark.nu";
+        dark = "solarized-dark.nu";
       };
       nord = {
-        dark = "nord_dark.nu";
+        dark = "nord-dark.nu";
       };
       kanagawa = {
-        wave = "kanagawa_wave.nu";
-        dragon = "kanagawa_dragon.nu";
+        wave = "kanagawa-wave.nu";
+        dragon = "kanagawa-dragon.nu";
       };
     };
 
   };
 
-  # Helper function to get current theme palette
+  # Helper function to get current theme palette (with safety layer)
   getThemePalette =
     colorscheme: variant:
-    palettes.${colorscheme}.${variant} or (throw "Theme ${colorscheme}:${variant} not found");
+    getSafePalette (palettes.${colorscheme}.${variant} or (throw "Theme ${colorscheme}:${variant} not found"));
 
   # Helper function to get app-specific theme name
   getAppTheme =
     app: colorscheme: variant:
     appThemes.${app}.${colorscheme}.${variant} or "${colorscheme}-${variant}";
 
+  # Create safe palette with fallbacks for missing colors
+  getSafePalette =
+    palette:
+    let
+      # Base colors that all themes must have (with fallbacks)
+      safeBase = {
+        # Universal base colors
+        accent = palette.accent or palette.blue or "#0080ff";
+        accent_dim = palette.accent_dim or palette.surface or palette.bg1 or "#333333";
+
+        # Background colors
+        base = palette.base or palette.bg or palette.bg0 or palette.base03 or "#000000";
+        bg = palette.bg or palette.base or palette.bg0 or palette.base03 or "#000000";
+        bg_alt = palette.bg_alt or palette.mantle or palette.bg1 or palette.base02 or "#111111";
+
+        # Foreground colors
+        text = palette.text or palette.fg or palette.fg1 or palette.base0 or "#ffffff";
+        fg = palette.fg or palette.text or palette.fg1 or palette.base0 or "#ffffff";
+        fg_alt = palette.fg_alt or palette.subtext1 or palette.fg2 or palette.base00 or "#cccccc";
+
+        # Surface/overlay colors
+        surface = palette.surface or palette.surface0 or palette.bg1 or palette.base02 or "#222222";
+        surface_alt = palette.surface_alt or palette.surface1 or palette.bg2 or palette.base01 or "#333333";
+        overlay = palette.overlay or palette.overlay0 or palette.surface or palette.bg2 or "#444444";
+
+        # Comment/muted colors
+        comment = palette.comment or palette.fg_alt or palette.fg3 or palette.base01 or "#888888";
+        muted = palette.muted or palette.subtext1 or palette.fg3 or palette.base01 or "#888888";
+        subtle = palette.subtle or palette.subtext0 or palette.fg4 or palette.base00 or "#aaaaaa";
+
+        # Core semantic colors
+        red = palette.red or palette.love or palette.maroon or "#ff0000";
+        green = palette.green or palette.pine or "#00ff00";
+        yellow = palette.yellow or palette.gold or "#ffff00";
+        blue = palette.blue or palette.sapphire or palette.cyan or "#0000ff";
+        purple = palette.purple or palette.mauve or palette.iris or "#800080";
+        orange = palette.orange or palette.peach or "#ff8000";
+        cyan = palette.cyan or palette.teal or palette.foam or "#00ffff";
+        teal = palette.teal or palette.cyan or "#008080";
+      };
+
+      # Theme-specific colors with fallbacks to safeBase
+      themeSafeColors = {
+        # Catppuccin-specific
+        surface0 = palette.surface0 or safeBase.surface;
+        surface1 = palette.surface1 or safeBase.surface_alt;
+        surface2 = palette.surface2 or safeBase.overlay;
+        overlay0 = palette.overlay0 or safeBase.overlay;
+        overlay1 = palette.overlay1 or safeBase.muted;
+        overlay2 = palette.overlay2 or safeBase.subtle;
+        subtext0 = palette.subtext0 or safeBase.subtle;
+        subtext1 = palette.subtext1 or safeBase.muted;
+        mantle = palette.mantle or safeBase.bg_alt;
+        crust = palette.crust or safeBase.bg_alt;
+        rosewater = palette.rosewater or safeBase.text;
+        flamingo = palette.flamingo or safeBase.orange;
+        pink = palette.pink or safeBase.purple;
+        mauve = palette.mauve or safeBase.purple;
+        maroon = palette.maroon or safeBase.red;
+        peach = palette.peach or safeBase.orange;
+        sky = palette.sky or safeBase.cyan;
+        sapphire = palette.sapphire or safeBase.blue;
+        lavender = palette.lavender or safeBase.purple;
+
+        # Solarized-specific
+        base03 = palette.base03 or safeBase.base;
+        base02 = palette.base02 or safeBase.bg_alt;
+        base01 = palette.base01 or safeBase.comment;
+        base00 = palette.base00 or safeBase.fg_alt;
+        base0 = palette.base0 or safeBase.text;
+        base1 = palette.base1 or safeBase.text;
+        base2 = palette.base2 or safeBase.text;
+        base3 = palette.base3 or safeBase.text;
+        violet = palette.violet or safeBase.purple;
+        magenta = palette.magenta or safeBase.purple;
+
+        # Gruvbox-specific
+        bg0_h = palette.bg0_h or safeBase.base;
+        bg0 = palette.bg0 or safeBase.base;
+        bg0_s = palette.bg0_s or safeBase.bg_alt;
+        bg1 = palette.bg1 or safeBase.surface;
+        bg2 = palette.bg2 or safeBase.surface_alt;
+        bg3 = palette.bg3 or safeBase.overlay;
+        bg4 = palette.bg4 or safeBase.comment;
+        fg0 = palette.fg0 or safeBase.text;
+        fg1 = palette.fg1 or safeBase.text;
+        fg2 = palette.fg2 or safeBase.fg_alt;
+        fg3 = palette.fg3 or safeBase.muted;
+        fg4 = palette.fg4 or safeBase.subtle;
+        gray = palette.gray or safeBase.comment;
+        aqua = palette.aqua or safeBase.cyan;
+        neutral_red = palette.neutral_red or safeBase.red;
+        neutral_green = palette.neutral_green or safeBase.green;
+        neutral_yellow = palette.neutral_yellow or safeBase.yellow;
+        neutral_blue = palette.neutral_blue or safeBase.blue;
+        neutral_purple = palette.neutral_purple or safeBase.purple;
+        neutral_aqua = palette.neutral_aqua or safeBase.cyan;
+
+        # Nord-specific
+        nord0 = palette.nord0 or safeBase.base;
+        nord1 = palette.nord1 or safeBase.bg_alt;
+        nord2 = palette.nord2 or safeBase.surface;
+        nord3 = palette.nord3 or safeBase.surface_alt;
+        nord4 = palette.nord4 or safeBase.fg_alt;
+        nord5 = palette.nord5 or safeBase.fg_alt;
+        nord6 = palette.nord6 or safeBase.text;
+        nord7 = palette.nord7 or safeBase.teal;
+        nord8 = palette.nord8 or safeBase.cyan;
+        nord9 = palette.nord9 or safeBase.blue;
+        nord10 = palette.nord10 or safeBase.blue;
+        nord11 = palette.nord11 or safeBase.red;
+        nord12 = palette.nord12 or safeBase.orange;
+        nord13 = palette.nord13 or safeBase.yellow;
+        nord14 = palette.nord14 or safeBase.green;
+        nord15 = palette.nord15 or safeBase.purple;
+
+        # Rose Pine-specific
+        love = palette.love or safeBase.red;
+        gold = palette.gold or safeBase.yellow;
+        rose = palette.rose or safeBase.orange;
+        pine = palette.pine or safeBase.green;
+        foam = palette.foam or safeBase.cyan;
+        iris = palette.iris or safeBase.purple;
+        highlight_low = palette.highlight_low or safeBase.surface;
+        highlight_med = palette.highlight_med or safeBase.surface_alt;
+        highlight_high = palette.highlight_high or safeBase.overlay;
+
+        # Kanagawa-specific
+        sumiInk0 = palette.sumiInk0 or safeBase.bg_alt;
+        sumiInk1 = palette.sumiInk1 or safeBase.base;
+        sumiInk2 = palette.sumiInk2 or safeBase.surface;
+        sumiInk3 = palette.sumiInk3 or safeBase.surface_alt;
+        sumiInk4 = palette.sumiInk4 or safeBase.overlay;
+        oldWhite = palette.oldWhite or safeBase.fg_alt;
+        fujiWhite = palette.fujiWhite or safeBase.text;
+        fujiGray = palette.fujiGray or safeBase.comment;
+        crystalBlue = palette.crystalBlue or safeBase.blue;
+        springBlue = palette.springBlue or safeBase.cyan;
+        springGreen = palette.springGreen or safeBase.green;
+        carpYellow = palette.carpYellow or safeBase.yellow;
+        surimiOrange = palette.surimiOrange or safeBase.orange;
+        oniViolet = palette.oniViolet or safeBase.purple;
+        autumnGreen = palette.autumnGreen or safeBase.green;
+        autumnRed = palette.autumnRed or safeBase.red;
+        autumnYellow = palette.autumnYellow or safeBase.yellow;
+        dragonBlack0 = palette.dragonBlack0 or safeBase.bg_alt;
+        dragonBlack1 = palette.dragonBlack1 or safeBase.bg_alt;
+        dragonBlack2 = palette.dragonBlack2 or safeBase.surface;
+        dragonBlack3 = palette.dragonBlack3 or safeBase.base;
+        dragonWhite = palette.dragonWhite or safeBase.text;
+        dragonGreen = palette.dragonGreen or safeBase.green;
+        dragonBlue = palette.dragonBlue or safeBase.blue;
+        dragonViolet = palette.dragonViolet or safeBase.purple;
+        dragonRed = palette.dragonRed or safeBase.red;
+        dragonAqua = palette.dragonAqua or safeBase.cyan;
+        dragonGray3 = palette.dragonGray3 or safeBase.comment;
+        dragonYellow = palette.dragonYellow or safeBase.yellow;
+        dragonOrange = palette.dragonOrange or safeBase.orange;
+      };
+
+    in
+    safeBase // themeSafeColors;
+
   # Create unified color mappings based on palette
   getUnifiedColors =
-    palette: with palette; {
+    palette:
+    let
+      safePalette = getSafePalette palette;
+    in
+    with safePalette; {
       # Primary colors - these will always exist in all themes
       primary = accent;
-      background = palette.base or palette.bg0 or palette.base03;
-      foreground = palette.text or palette.fg1 or palette.base0;
-      secondary = palette.surface1 or palette.surface or palette.overlay or palette.bg1 or palette.base02;
+      background = base;
+      foreground = text;
+      secondary = surface;
 
       # Semantic colors with fallbacks
       success = green;
@@ -525,15 +692,9 @@ let
       info = blue;
 
       # UI colors
-      border =
-        palette.surface2 or palette.surface or palette.overlay or palette.bg2 or palette.base02
-          or (palette.base or palette.bg0 or palette.base03);
-      muted =
-        palette.subtext1 or palette.muted or palette.subtle or palette.fg3 or palette.base01
-          or (palette.text or palette.fg1 or palette.base0);
-      subtle =
-        palette.subtext0 or palette.subtle or palette.muted or palette.fg4 or palette.base00
-          or (palette.text or palette.fg1 or palette.base0);
+      border = surface_alt;
+      muted = muted;
+      subtle = subtle;
     };
 
   # Helper function to merge theme config with overrides
@@ -689,6 +850,7 @@ in
   inherit
     palettes
     appThemes
+    getSafePalette
     getThemePalette
     getAppTheme
     getUnifiedColors

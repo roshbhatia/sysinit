@@ -1,0 +1,12 @@
+[theme]
+name = "kanagawa-dragon"
+
+[colors]
+AlertInfo = "#87a987"
+AlertWarn = "#c4b28a"
+AlertError = "#c4746e"
+Annotation = "#8ba4b0"
+Base = "#c5c9c5"
+Guidance = "#7a8382"
+Important = "#c4746e"
+Title = "#8ba4b0"

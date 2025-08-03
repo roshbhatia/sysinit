@@ -14,7 +14,7 @@ in
     --theme="${batTheme}"
   '';
 
-  xdg.configFile."bat/themes/${batTheme}.tmTheme".source = ./${batTheme}.tmTheme;
+  xdg.configFile."bat/themes/${batTheme}.tmTheme".source = ./themes/${batTheme}.tmTheme;
 
   home.activation.buildBatCache = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     if [ -f "${pkgs.bat}/bin/bat" ]; then
