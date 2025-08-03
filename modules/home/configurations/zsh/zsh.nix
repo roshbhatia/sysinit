@@ -113,6 +113,7 @@ in
 
       COLIMA_HOME = "${config.xdg.configHome}/colima";
       VIVID_THEME = appTheme;
+      SYSINIT_NVIM_DASH_ASCII_PATH = "${config.xdg.configHome}/macchina/themes/rosh-color.ascii";
     };
 
     plugins = [
@@ -274,3 +275,4 @@ in
     ];
   };
 }
+

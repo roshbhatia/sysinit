@@ -11,7 +11,7 @@ M.plugins = {
       local alpha = require("alpha")
       local dashboard = require("alpha.themes.dashboard")
 
-      dashboard.section.header.val = {
+      local fallback_ascii = {
         "                                             ",
         "                     ....                    ",
         "               .#-+##.. .. .+                ",
@@ -39,10 +39,31 @@ M.plugins = {
         "                                             ",
       }
 
+      local ascii_lines = fallback_ascii
+      local skip_highlight = false
+      local path = os.getenv("SYSINIT_NVIM_DASH_ASCII_PATH")
+      if path then
+        local file = io.open(path, "r")
+        if file then
+          ascii_lines = {}
+          for line in file:lines() do
+            table.insert(ascii_lines, line)
+          end
+          file:close()
+          if string.find(string.lower(path), "color") then
+            skip_highlight = true
+          end
+        end
+      end
+
+      dashboard.section.header.val = ascii_lines
       dashboard.section.header.opts = {
         position = "center",
-        hl = "DashboardHeader",
       }
+
+      if not skip_highlight then
+        dashboard.section.header.opts.hl = "DashboardHeader"
+      end
 
       dashboard.section.buttons.val = function()
         local buttons = {}
@@ -60,7 +81,7 @@ M.plugins = {
         )
         table.insert(
           buttons,
-          dashboard.button("g", "󰍋 Strings: Search", ":ene | Telescope live_grep<CR>")
+          dashboard.button("g", "󰍋 Strings: Search", ":ene | Telescope live_grep_args<CR>")
         )
         table.insert(buttons, dashboard.button("q", "󰩈 Vim: Exit", ":qa<CR>"))
         return buttons
@@ -92,3 +113,4 @@ M.plugins = {
 }
 
 return M
+
