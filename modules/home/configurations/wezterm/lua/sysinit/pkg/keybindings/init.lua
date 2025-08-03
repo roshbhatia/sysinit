@@ -73,8 +73,8 @@ local function get_pane_keys()
       action = act.CloseCurrentPane({ confirm = false }),
     },
     {
-      key = "/",
-      mods = "CTRL|SHIFT",
+      key = "\\",
+      mods = "CTRL",
       action = act.RotatePanes("Clockwise"),
     },
   }
@@ -264,8 +264,8 @@ local function get_search_keys()
       action = act.ActivateCopyMode,
     },
     {
-      key = "/",
-      mods = "SHIFT|CTRL",
+      key = "Enter",
+      mods = "SHIFT",
       action = act.QuickSelect,
     },
     {
