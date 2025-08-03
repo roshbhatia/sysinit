@@ -44,6 +44,7 @@
     variant = "dragon";
     transparent = {
       enable = true;
+      opacity = 0.85;
     };
   };
 
