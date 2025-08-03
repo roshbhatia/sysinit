@@ -40,8 +40,8 @@
   };
 
   theme = {
-    colorscheme = "catppuccin";
-    variant = "macchiato";
+    colorscheme = "rose-pine";
+    variant = "moon";
     transparency = {
       enable = true;
       opacity = 0.85;
