@@ -50,8 +50,8 @@ local function get_window_appearance_config()
       cursor_border = theme_config.palette.accent,
       selection_fg = theme_config.palette.base,
       selection_bg = theme_config.palette.accent,
-      scrollbar_thumb = theme_config.palette.surface,
-      split = theme_config.palette.surface,
+      scrollbar_thumb = theme_config.palette.surface0,
+      split = theme_config.palette.surface0,
       ansi = {
         theme_config.palette.base, -- black
         theme_config.palette.red, -- red
@@ -79,19 +79,19 @@ local function get_window_appearance_config()
           fg_color = theme_config.palette.base,
         },
         inactive_tab = {
-          bg_color = theme_config.palette.surface,
-          fg_color = theme_config.palette.comment,
+          bg_color = theme_config.palette.surface0,
+          fg_color = theme_config.palette.overlay0,
         },
         inactive_tab_hover = {
-          bg_color = theme_config.palette.surface_alt,
+          bg_color = theme_config.palette.surface1,
           fg_color = theme_config.palette.text,
         },
         new_tab = {
-          bg_color = theme_config.palette.surface,
-          fg_color = theme_config.palette.comment,
+          bg_color = theme_config.palette.surface0,
+          fg_color = theme_config.palette.overlay0,
         },
         new_tab_hover = {
-          bg_color = theme_config.palette.surface_alt,
+          bg_color = theme_config.palette.surface1,
           fg_color = theme_config.palette.text,
         },
       },
