@@ -9,9 +9,9 @@ local function get_catppuccin_config()
     flavour = theme_config.variant,
     show_end_of_buffer = false,
     transparent_background = theme_config.transparency.enable,
-    term_colors = true,
-    dim_inactive = {
-      enabled = false,
+    float = {
+      transparent = theme_config.transparency.enable,
+      solid = not theme_config.transparency.enable,
     },
     styles = {
       comments = { "italic" },
@@ -350,25 +350,25 @@ local function get_nightfox_config()
 end
 
 local function setup_theme()
+  local base_scheme = theme_config.colorscheme:match("^[^%-]+") -- hack! had to do this to actually get this to work.
   local plugin_config = theme_config.plugins[theme_config.colorscheme]
 
-  if theme_config.colorscheme == "catppuccin" then
+  if base_scheme == "catppuccin" then
     require("catppuccin").setup(get_catppuccin_config())
-  elseif theme_config.colorscheme == "rose-pine" then
+  elseif base_scheme == "rose" then
     require("neomodern").setup(get_rose_pine_config())
-  elseif theme_config.colorscheme == "gruvbox" then
+  elseif base_scheme == "gruvbox" then
     require("gruvbox").setup(get_gruvbox_config())
-  elseif theme_config.colorscheme == "solarized" then
+  elseif base_scheme == "solarized" then
     require("solarized-osaka").setup(get_solarized_config())
-  elseif theme_config.colorscheme == "nord" then
+  elseif base_scheme == "nord" then
     require("nightfox").setup(get_nightfox_config())
-  elseif theme_config.colorscheme == "kanagawa" then
+  elseif base_scheme == "kanagawa" then
     require("kanagawa").setup(get_kanagawa_config())
   end
 
   vim.cmd("colorscheme " .. plugin_config.colorscheme)
 end
-
 M.plugins = {
   {
     theme_config.plugins[theme_config.colorscheme].plugin,

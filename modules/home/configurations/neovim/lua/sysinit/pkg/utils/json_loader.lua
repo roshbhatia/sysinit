@@ -26,4 +26,3 @@ function M.get_config_path(filename)
 end
 
 return M
-

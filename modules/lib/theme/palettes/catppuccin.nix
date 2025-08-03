@@ -188,7 +188,7 @@ in
       plugin = "catppuccin/nvim";
       name = "catppuccin";
       setup = "catppuccin";
-      colorscheme = variant: "catppuccin-${variant}";
+      colorscheme = "catppuccin";
     };
 
     bat = variant: "catppuccin-${variant}";
@@ -199,3 +199,4 @@ in
     nushell = variant: "catppuccin-${variant}.nu";
   };
 }
+
