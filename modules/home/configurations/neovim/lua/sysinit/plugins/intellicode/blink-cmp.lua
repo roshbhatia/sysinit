@@ -111,6 +111,21 @@ M.plugins = {
           opts = {},
         }
         table.insert(sources, "avante")
+
+        providers.opencode = {
+          module = "opencode.cmp.blink",
+          name = "OpenCode",
+          transform_items = function(ctx, items)
+            for _, item in ipairs(items) do
+              item.kind_icon = " OpenCode "
+              item.kind_name = "OpenCode"
+            end
+            return items
+          end,
+          opts = {},
+        }
+
+        table.insert(sources, "opencode")
       end
 
       return {
@@ -206,3 +221,4 @@ M.plugins = {
 }
 
 return M
+
