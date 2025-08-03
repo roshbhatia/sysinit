@@ -1,32 +1,17 @@
 local json_loader = require("sysinit.pkg.utils.json_loader")
-local theme_config = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"))
+local theme_config =
+  json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
 
 local M = {}
 
-local function get_transparency_config()
-  return theme_config.transparency.enable
-      and {
-        transparent_background = true,
-        show_end_of_buffer = false,
-      }
-    or {
-      transparent_background = false,
-      show_end_of_buffer = true,
-    }
-end
-
 local function get_catppuccin_config()
-  local transparency = get_transparency_config()
-
   return {
     flavour = theme_config.variant,
-    show_end_of_buffer = transparency.show_end_of_buffer,
-    transparent_background = transparency.transparent_background,
+    show_end_of_buffer = false,
+    transparent_background = theme_config.transparency.enable,
     term_colors = true,
     dim_inactive = {
-      enabled = true,
-      shade = "dark",
-      percentage = 0.15,
+      enabled = false,
     },
     styles = {
       comments = { "italic" },
@@ -135,8 +120,6 @@ local function get_catppuccin_config()
 end
 
 local function get_gruvbox_config()
-  local transparency = get_transparency_config()
-
   return {
     terminal_colors = true,
     undercurl = true,
@@ -159,15 +142,13 @@ local function get_gruvbox_config()
     palette_overrides = {},
     overrides = {},
     dim_inactive = false,
-    transparent_mode = transparency.transparent_background,
+    transparent_mode = theme_config.transparency.enable,
   }
 end
 
 local function get_solarized_config()
-  local transparency = get_transparency_config()
-
   return {
-    transparent = transparency.transparent_background,
+    transparent = theme_config.transparency.enable,
     terminal_colors = true,
     styles = {
       comments = { italic = true },
@@ -178,7 +159,7 @@ local function get_solarized_config()
       types = { bold = true },
     },
     on_highlights = function(highlights, colors)
-      local bg = transparency.transparent_background and colors.none or colors.base03
+      local bg = theme_config.transparency.enable and colors.none or colors.base03
       highlights.Normal = { bg = bg, fg = colors.base0 }
       highlights.NormalNC = { bg = bg }
       highlights.SignColumn = { bg = bg }
@@ -189,11 +170,9 @@ local function get_solarized_config()
 end
 
 local function get_rose_pine_config()
-  local transparency = get_transparency_config()
-
   return {
     theme = "roseprime",
-    transparent = transparency.transparent_background,
+    transparent = theme_config.transparency.enable,
     term_colors = true,
     alt_bg = true,
     show_eob = false,
@@ -209,7 +188,7 @@ local function get_rose_pine_config()
       strings = "italic",
       variables = "none",
     },
-    highlights = transparency.transparent_background and {
+    highlights = theme_config.transparency.enable and {
       Normal = { bg = "none" },
       NormalNC = { bg = "none" },
       NormalFloat = { bg = "none" },
@@ -246,8 +225,6 @@ local function get_rose_pine_config()
 end
 
 local function get_kanagawa_config()
-  local transparency = get_transparency_config()
-
   return {
     compile = false,
     undercurl = true,
@@ -256,7 +233,7 @@ local function get_kanagawa_config()
     keywordStyle = { italic = true },
     statementStyle = { bold = true },
     typeStyle = {},
-    transparent = transparency.transparent_background,
+    transparent = theme_config.transparency.enable,
     dimInactive = false,
     terminalColors = true,
     colors = {
@@ -264,7 +241,7 @@ local function get_kanagawa_config()
       theme = { wave = {}, lotus = {}, dragon = {}, all = {} },
     },
     overrides = function(colors)
-      return transparency.transparent_background
+      return theme_config.transparency.enable
           and {
             Normal = { bg = "none" },
             NormalNC = { bg = "none" },
@@ -292,13 +269,11 @@ local function get_kanagawa_config()
 end
 
 local function get_nightfox_config()
-  local transparency = get_transparency_config()
-
   return {
     options = {
       compile_path = vim.fn.stdpath("cache") .. "/nightfox",
       compile_file_suffix = "_compiled",
-      transparent = transparency.transparent_background,
+      transparent = theme_config.transparency.enable,
       terminal_colors = true,
       dim_inactive = false,
       module_default = true,
@@ -344,7 +319,7 @@ local function get_nightfox_config()
     },
     palettes = {},
     specs = {},
-    groups = transparency.transparent_background and {
+    groups = theme_config.transparency.enable and {
       all = {
         Normal = { bg = "NONE" },
         NormalNC = { bg = "NONE" },
