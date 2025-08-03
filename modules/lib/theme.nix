@@ -5,30 +5,29 @@ with lib;
 let
   themes = import ./theme { inherit lib; };
   cfg = config.sysinit.theme;
+
+  # Get available theme variants dynamically
+  getThemeVariants =
+    colorscheme:
+    let
+      theme = themes.getTheme colorscheme;
+    in
+    theme.meta.variants;
+
+  # Get all available variants from all themes
+  allVariants = unique (flatten (map (theme: theme.meta.variants) (attrValues themes.themes)));
+
 in
 {
   options.sysinit.theme = {
     colorscheme = mkOption {
-      type = types.enum [
-        "catppuccin"
-        "rose-pine"
-        "gruvbox"
-        "solarized"
-        "nord"
-        "kanagawa"
-      ];
+      type = types.enum (attrNames themes.themes);
       default = "catppuccin";
       description = "The color scheme to use system-wide";
     };
 
     variant = mkOption {
-      type = types.enum [
-        "macchiato" # catppuccin
-        "moon" # rose-pine
-        "wave" # kanagawa
-        "dragon" # kanagawa
-        "dark" # gruvbox nord solarized
-      ];
+      type = types.enum allVariants;
       default = "macchiato";
       description = "The variant of the chosen color scheme";
     };
@@ -45,6 +44,24 @@ in
         default = 0.85;
         description = "Opacity level for transparency effects";
       };
+
+      blur = mkOption {
+        type = types.int;
+        default = 80;
+        description = "Background blur amount";
+      };
+    };
+
+    presets = mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      description = "Theme presets to apply";
+    };
+
+    overrides = mkOption {
+      type = types.attrs;
+      default = { };
+      description = "Color overrides";
     };
 
     palette = mkOption {
@@ -52,6 +69,13 @@ in
       readOnly = true;
       default = themes.getThemePalette cfg.colorscheme cfg.variant;
       description = "Color palette for the current theme";
+    };
+
+    semanticColors = mkOption {
+      type = types.attrs;
+      readOnly = true;
+      default = themes.getSemanticColors cfg.colorscheme cfg.variant;
+      description = "Semantic color mappings";
     };
 
     appThemes = mkOption {
@@ -75,57 +99,27 @@ in
         themes.ansiMappings.${cfg.colorscheme}.${cfg.variant} or themes.ansiMappings.catppuccin.macchiato;
       description = "ANSI color mappings for terminal applications";
     };
+
+    meta = mkOption {
+      type = types.attrs;
+      readOnly = true;
+      default = themes.getThemeInfo cfg.colorscheme;
+      description = "Theme metadata";
+    };
   };
 
   config = {
-    # Generate JSON config file for applications that need it (like Neovim Lua)
+    # Generate JSON config file for applications that need it
     home.file.".config/sysinit/theme_config.json" = {
-      text = builtins.toJSON {
-        colorscheme = cfg.colorscheme;
-        variant = cfg.variant;
-        transparency = cfg.transparency;
-        palette = themes.getThemePalette cfg.colorscheme cfg.variant;
-        plugins = {
-          catppuccin = {
-            plugin = "catppuccin/nvim";
-            name = "catppuccin";
-            setup = "catppuccin";
-            colorscheme = "catppuccin-${cfg.variant}";
-          };
-          rose-pine = {
-            plugin = "cdmill/neomodern.nvim";
-            name = "neomodern";
-            setup = "neomodern";
-            colorscheme = "roseprime";
-          };
-          gruvbox = {
-            plugin = "ellisonleao/gruvbox.nvim";
-            name = "gruvbox";
-            setup = "gruvbox";
-            colorscheme = "gruvbox";
-          };
-          solarized = {
-            plugin = "craftzdog/solarized-osaka.nvim";
-            name = "solarized-osaka";
-            setup = "solarized-osaka";
-            colorscheme = "solarized-osaka";
-          };
-          nord = {
-            plugin = "EdenEast/nightfox.nvim";
-            name = "nightfox";
-            setup = "nightfox";
-            colorscheme = "nordfox";
-          };
-          kanagawa = {
-            plugin = "rebelot/kanagawa.nvim";
-            name = "kanagawa";
-            setup = "kanagawa";
-            colorscheme = "kanagawa-${cfg.variant}";
-          };
-        };
-        colors = themes.getUnifiedColors (themes.getThemePalette cfg.colorscheme cfg.variant);
-        ansi = themes.ansiMappings.${cfg.colorscheme}.${cfg.variant} or { };
-      };
+      text = builtins.toJSON (
+        themes.generateAppJSON "neovim" {
+          colorscheme = cfg.colorscheme;
+          variant = cfg.variant;
+          transparency = cfg.transparency;
+          presets = cfg.presets;
+          overrides = cfg.overrides;
+        }
+      );
     };
   };
 }

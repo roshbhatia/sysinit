@@ -14,7 +14,14 @@ let
     else
       { };
 
-  themeConfig = themes.withThemeOverrides values "wezterm" nvimOverride;
+  # Create theme configuration using new modular system
+  themeConfig = {
+    colorscheme = values.theme.colorscheme;
+    variant = values.theme.variant;
+    transparency = values.theme.transparency // (nvimOverride.transparency or { });
+    presets = values.theme.presets or [ ];
+    overrides = values.theme.overrides or { };
+  };
 in
 
 {
@@ -24,13 +31,8 @@ in
   xdg.configFile."wezterm/lua".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/lua";
 
-  xdg.configFile."wezterm/theme_config.json".text = builtins.toJSON {
-    colorscheme = themeConfig.colorscheme;
-    variant = themeConfig.variant;
-    transparency = themeConfig.transparency;
-    theme_name = themeConfig.appTheme;
-    palette = themeConfig.palette;
-    ansi = themes.ansiMappings.${themeConfig.colorscheme}.${themeConfig.variant} or { };
-  };
+  xdg.configFile."wezterm/theme_config.json".text = builtins.toJSON (
+    themes.generateAppJSON "wezterm" themeConfig
+  );
 
 }
