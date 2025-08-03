@@ -174,14 +174,14 @@ M.plugins = {
           desc = "Open LazyGit UI",
         },
         {
-          "<leader>ns",
+          "<localleader>ns",
           function()
             Snacks.notifier.show_history()
           end,
           desc = "Show",
         },
         {
-          "<leader>nc",
+          "<localleader>nc",
           function()
             Snacks.notifier.hide()
           end,
@@ -276,3 +276,4 @@ M.plugins = {
 }
 
 return M
+

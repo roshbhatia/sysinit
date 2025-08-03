@@ -84,7 +84,7 @@ M.plugins = {
           group = "Marks",
         },
         {
-          "<leader>n",
+          "<localleader>n",
           group = "Notifications",
         },
         {
