@@ -19,7 +19,7 @@ M.plugins = {
       local avante = require("avante")
       avante.setup({
         provider = nvim_config.avante.provider,
-        mode = "agentic",
+        mode = "legacy",
         providers = nvim_config.avante.providers,
         behaviour = {
           auto_suggestions = false,
@@ -135,18 +135,10 @@ M.plugins = {
         end,
       })
 
-      vim.api.nvim_create_autocmd("FileType", {
-        group = augroup,
-        pattern = "Avante",
-        callback = function()
-          vim.opt_local.foldtext = ""
-          vim.opt_local.foldmethod = "manual"
-        end,
-      })
-
       vim.cmd("AvanteBuild")
     end,
   },
 }
 
 return M
+
