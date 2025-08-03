@@ -26,6 +26,7 @@ M.plugins = {
       vim.g.neo_tree_remove_legacy_commands = 1
 
       require("neo-tree").setup({
+        open_files_do_not_replace_types = { "terminal", "Trouble", "qf", "edgy" },
         event_handlers = {
           {
             event = "neo_tree_buffer_enter",
@@ -189,3 +190,4 @@ M.plugins = {
 }
 
 return M
+
