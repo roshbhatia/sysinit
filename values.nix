@@ -50,6 +50,6 @@
   };
 
   wezterm = {
-    shell = "zsh";
+    shell = "nu";
   };
 }
