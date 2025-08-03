@@ -7,7 +7,7 @@ local M = {}
 function M.setup(config)
   tabline.setup({
     options = {
-      theme = theme_config.theme_name,
+      theme = config.colors,
       section_separators = "",
       component_separators = "",
       tab_separators = "",
@@ -56,7 +56,6 @@ function M.setup(config)
   })
 
   tabline.apply_to_config(config)
-  tabline.set_theme(theme_config.theme_name)
 end
 
 return M

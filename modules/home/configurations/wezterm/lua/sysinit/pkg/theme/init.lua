@@ -42,6 +42,60 @@ local function get_window_appearance_config()
   local config = {
     macos_window_background_blur = blur,
     color_scheme = theme_name,
+    colors = {
+      foreground = theme_config.palette.text,
+      background = theme_config.palette.base,
+      cursor_bg = theme_config.palette.accent,
+      cursor_fg = theme_config.palette.base,
+      cursor_border = theme_config.palette.accent,
+      selection_fg = theme_config.palette.base,
+      selection_bg = theme_config.palette.accent,
+      scrollbar_thumb = theme_config.palette.surface,
+      split = theme_config.palette.surface,
+      ansi = {
+        theme_config.palette.base,      -- black
+        theme_config.palette.red,       -- red
+        theme_config.palette.green,     -- green
+        theme_config.palette.yellow,    -- yellow
+        theme_config.palette.blue,      -- blue
+        theme_config.palette.purple,    -- magenta
+        theme_config.palette.cyan,      -- cyan
+        theme_config.palette.text,      -- white
+      },
+      brights = {
+        theme_config.palette.comment,   -- bright black
+        theme_config.palette.red,       -- bright red
+        theme_config.palette.green,     -- bright green
+        theme_config.palette.yellow,    -- bright yellow
+        theme_config.palette.blue,      -- bright blue
+        theme_config.palette.purple,    -- bright magenta
+        theme_config.palette.cyan,      -- bright cyan
+        theme_config.palette.fg_alt,    -- bright white
+      },
+      tab_bar = {
+        background = theme_config.palette.base,
+        active_tab = {
+          bg_color = theme_config.palette.accent,
+          fg_color = theme_config.palette.base,
+        },
+        inactive_tab = {
+          bg_color = theme_config.palette.surface,
+          fg_color = theme_config.palette.comment,
+        },
+        inactive_tab_hover = {
+          bg_color = theme_config.palette.surface_alt,
+          fg_color = theme_config.palette.text,
+        },
+        new_tab = {
+          bg_color = theme_config.palette.surface,
+          fg_color = theme_config.palette.comment,
+        },
+        new_tab_hover = {
+          bg_color = theme_config.palette.surface_alt,
+          fg_color = theme_config.palette.text,
+        },
+      },
+    },
   }
 
   if opacity then

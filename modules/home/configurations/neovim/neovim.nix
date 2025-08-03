@@ -8,6 +8,7 @@
 let
   themes = import ../../../lib/theme { inherit lib; };
   themeConfig = themes.withThemeOverrides values "neovim" { };
+  weztermThemeName = themes.getAppTheme "wezterm" values.theme.colorscheme values.theme.variant;
 in
 
 {
@@ -55,6 +56,7 @@ in
     colorscheme = themeConfig.colorscheme;
     variant = themeConfig.variant;
     transparency = themeConfig.transparency;
+    theme_name = weztermThemeName;
     plugins.${themeConfig.colorscheme} = themeConfig.appTheme;
     palette = themeConfig.palette;
   };

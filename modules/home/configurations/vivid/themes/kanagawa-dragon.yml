@@ -1,0 +1,149 @@
+# Kanagawa Dragon theme for vivid
+# Based on kanagawa-nvim dragon colors
+colors:
+  background_color: '181616'
+  black: '0d0c0c'
+  white: 'c5c9c5'
+  gray: '7a8382'
+  lightgray: 'a6a69c'
+
+  # Core dragon colors
+  dragon_black: '181616'
+  dragon_white: 'c5c9c5'
+  dragon_gray: 'a6a69c'
+  dragon_gray2: '9e9b93'
+  dragon_gray3: '7a8382'
+
+  # Dragon theme colors
+  dragon_green: '87a987'
+  dragon_green2: '8a9a7b'
+  dragon_pink: 'a292a3'
+  dragon_orange: 'b6927b'
+  dragon_orange2: 'b98d7b'
+  dragon_blue: '8ba4b0'
+  dragon_blue2: '8ea4a2'
+  dragon_violet: '8992a7'
+  dragon_red: 'c4746e'
+  dragon_aqua: '8ea4a2'
+  dragon_ash: '737c73'
+  dragon_teal: '949fb5'
+  dragon_yellow: 'c4b28a'
+
+core:
+  normal_text: {}
+  regular_file: {}
+  reset_to_normal: {}
+
+  directory:
+    foreground: dragon_blue
+    font-style: bold
+
+  symlink:
+    foreground: dragon_aqua
+
+  multi_hard_link:
+    foreground: dragon_teal
+
+  fifo:
+    foreground: black
+    background: dragon_blue
+
+  socket:
+    foreground: black
+    background: dragon_pink
+
+  door:
+    foreground: black
+    background: dragon_pink
+
+  block_device:
+    foreground: black
+    background: dragon_red
+
+  character_device:
+    foreground: black
+    background: dragon_green
+
+  broken_symlink:
+    foreground: black
+    background: dragon_red
+
+  missing_symlink_target:
+    foreground: black
+    background: dragon_red
+
+  setuid:
+    foreground: white
+    background: dragon_red
+
+  setgid:
+    foreground: white
+    background: dragon_yellow
+
+  file_with_capability:
+    foreground: white
+    background: dragon_violet
+
+  sticky_other_writable:
+    foreground: black
+    background: dragon_green
+
+  other_writable:
+    foreground: dragon_blue
+    background: dragon_black
+
+  sticky:
+    foreground: white
+    background: dragon_blue
+
+  executable_file:
+    foreground: dragon_green
+    font-style: bold
+
+text:
+  special:
+    foreground: black
+    background: dragon_yellow
+
+  todo:
+    foreground: dragon_red
+    font-style: bold
+
+  licenses:
+    foreground: dragon_gray3
+
+  configuration:
+    foreground: dragon_orange
+
+  other:
+    foreground: dragon_yellow
+
+markup:
+  foreground: dragon_pink
+
+programming:
+  source:
+    foreground: dragon_green
+
+  tooling:
+    foreground: dragon_green2
+
+    continuous-integration:
+      foreground: dragon_blue
+
+media:
+  foreground: dragon_pink
+
+office:
+  foreground: dragon_orange
+
+archives:
+  foreground: dragon_yellow
+  font-style: underline
+
+executable:
+  foreground: dragon_green
+  font-style: bold
+
+unimportant:
+  foreground: dragon_ash

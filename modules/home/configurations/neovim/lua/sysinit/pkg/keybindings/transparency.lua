@@ -5,26 +5,37 @@ local M = {}
 
 local transparency_enabled = theme_config.transparency.enable
 
-local theme_modules = {
-  catppuccin = require("sysinit.themes.catppuccin"),
-  gruvbox = require("sysinit.themes.gruvbox"),
-  kanagawa = require("sysinit.themes.kanagawa"),
-  ["rose-pine"] = require("sysinit.themes.rose_pine"),
-  solarized = require("sysinit.themes.solarized"),
-  nord = require("sysinit.themes.nord"),
-}
-
 local function get_transparent_highlights()
-  local theme_module = theme_modules[theme_config.colorscheme]
-  if theme_module and theme_module.get_transparent_highlights then
-    return theme_module.get_transparent_highlights()
+  local highlights = {}
+
+  if theme_config.colorscheme == "kanagawa" then
+    highlights = {
+      Normal = { bg = "none" },
+      NormalNC = { bg = "none" },
+      NormalFloat = { bg = "none" },
+      FloatBorder = { bg = "none" },
+      FloatTitle = { bg = "none" },
+      Pmenu = { bg = "none" },
+      TelescopeNormal = { bg = "none" },
+      TelescopeBorder = { bg = "none" },
+      SignColumn = { bg = "none" },
+      CursorLine = { bg = "none" },
+      StatusLine = { bg = "none" },
+      StatusLineNC = { bg = "none" },
+      WinSeparator = { bg = "none" },
+      NeoTreeNormal = { bg = "none" },
+      NeoTreeNormalNC = { bg = "none" },
+      NeoTreeWinSeparator = { bg = "none" },
+      WinBar = { bg = "none" },
+      WinBarNC = { bg = "none" },
+    }
   end
-  return {}
+
+  return highlights
 end
 
 local function apply_transparency(enable)
   local plugin_config = theme_config.plugins[theme_config.colorscheme][theme_config.variant]
-  local theme_module = theme_modules[theme_config.colorscheme]
 
   if enable then
     local highlights = get_transparent_highlights()
@@ -32,8 +43,9 @@ local function apply_transparency(enable)
       vim.api.nvim_set_hl(0, group, opts)
     end
   else
-    if theme_module and theme_module.setup then
-      theme_module.setup({ transparent_background = false, show_end_of_buffer = true })
+    if theme_config.colorscheme == "kanagawa" then
+      local kanagawa = require("kanagawa")
+      kanagawa.setup({ transparent = false })
     end
     vim.cmd("colorscheme " .. plugin_config.colorscheme)
   end

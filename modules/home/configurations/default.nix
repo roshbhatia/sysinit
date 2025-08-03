@@ -13,6 +13,7 @@
     ./borders
     ./direnv
     ./llm
+    ./vivid
 
     (import ./atuin {
       inherit

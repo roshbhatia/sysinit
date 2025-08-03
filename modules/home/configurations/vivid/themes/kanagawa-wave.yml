@@ -1,0 +1,154 @@
+# Kanagawa Wave theme for vivid
+# Based on kanagawa-nvim wave colors
+colors:
+  background_color: '1f1f28'
+  black: '16161d'
+  white: 'dcd7ba'
+  gray: '727169'
+  lightgray: 'c8c093'
+
+  # Core kanagawa colors
+  sumi_ink: '1f1f28'
+  old_white: 'c8c093'
+  fuji_white: 'dcd7ba'
+  fuji_gray: '727169'
+
+  # Wave colors
+  wave_blue: '223249'
+  wave_aqua: '6a9589'
+
+  # Autumn colors
+  autumn_green: '76946a'
+  autumn_red: 'c34043'
+  autumn_yellow: 'dca561'
+
+  # Spring colors
+  crystal_blue: '7e9cd8'
+  spring_violet: '957fb8'
+  spring_blue: '7fb4ca'
+  spring_green: '98bb6c'
+
+  # Other colors
+  carp_yellow: 'e6c384'
+  sakura_pink: 'd27e99'
+  wave_red: 'e46876'
+  surimi_orange: 'ffa066'
+
+core:
+  normal_text: {}
+  regular_file: {}
+  reset_to_normal: {}
+
+  directory:
+    foreground: crystal_blue
+    font-style: bold
+
+  symlink:
+    foreground: spring_blue
+
+  multi_hard_link:
+    foreground: wave_aqua
+
+  fifo:
+    foreground: black
+    background: crystal_blue
+
+  socket:
+    foreground: black
+    background: sakura_pink
+
+  door:
+    foreground: black
+    background: sakura_pink
+
+  block_device:
+    foreground: black
+    background: autumn_red
+
+  character_device:
+    foreground: black
+    background: spring_green
+
+  broken_symlink:
+    foreground: black
+    background: autumn_red
+
+  missing_symlink_target:
+    foreground: black
+    background: autumn_red
+
+  setuid:
+    foreground: white
+    background: autumn_red
+
+  setgid:
+    foreground: white
+    background: autumn_yellow
+
+  file_with_capability:
+    foreground: white
+    background: spring_violet
+
+  sticky_other_writable:
+    foreground: black
+    background: spring_green
+
+  other_writable:
+    foreground: crystal_blue
+    background: sumi_ink
+
+  sticky:
+    foreground: white
+    background: crystal_blue
+
+  executable_file:
+    foreground: spring_green
+    font-style: bold
+
+text:
+  special:
+    foreground: black
+    background: carp_yellow
+
+  todo:
+    foreground: autumn_red
+    font-style: bold
+
+  licenses:
+    foreground: fuji_gray
+
+  configuration:
+    foreground: autumn_yellow
+
+  other:
+    foreground: carp_yellow
+
+markup:
+  foreground: sakura_pink
+
+programming:
+  source:
+    foreground: spring_green
+
+  tooling:
+    foreground: autumn_green
+
+    continuous-integration:
+      foreground: crystal_blue
+
+media:
+  foreground: sakura_pink
+
+office:
+  foreground: surimi_orange
+
+archives:
+  foreground: autumn_yellow
+  font-style: underline
+
+executable:
+  foreground: spring_green
+  font-style: bold
+
+unimportant:
+  foreground: fuji_gray

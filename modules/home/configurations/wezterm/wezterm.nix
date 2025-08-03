@@ -33,6 +33,7 @@ in
     transparency = themeConfig.transparency;
     theme_name = themeConfig.appTheme;
     palette = themeConfig.palette;
+    ansi = themes.ansiMappings.${themeConfig.colorscheme}.${themeConfig.variant} or {};
   };
 
   xdg.configFile."wezterm/lua/sysinit/paths_config.lua".text = ''

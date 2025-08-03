@@ -470,8 +470,8 @@ let
         dark = "nord";
       };
       kanagawa = {
-        wave = "kanagawa";
-        dragon = "kanagawa";
+        wave = "kanagawa-wave";
+        dragon = "kanagawa-dragon";
       };
     };
 
