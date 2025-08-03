@@ -7,7 +7,6 @@
 
 let
   themes = import ../../../lib/theme { inherit lib; };
-  paths = import ../../../lib/paths { inherit config lib; };
 
   nvimOverride =
     if values.wezterm.nvim_transparency_override or null != null then
@@ -16,7 +15,6 @@ let
       { };
 
   themeConfig = themes.withThemeOverrides values "wezterm" nvimOverride;
-  pathsArray = paths.getPathArray config.home.username config.home.homeDirectory;
 in
 
 {
@@ -35,13 +33,4 @@ in
     ansi = themes.ansiMappings.${themeConfig.colorscheme}.${themeConfig.variant} or { };
   };
 
-  xdg.configFile."wezterm/lua/sysinit/paths_config.lua".text = ''
-    local M = {}
-
-    M.system_paths = {
-      ${lib.concatStringsSep ",\n      " (map (path: "\"${path}\"") pathsArray)}
-    }
-
-    return M
-  '';
 }

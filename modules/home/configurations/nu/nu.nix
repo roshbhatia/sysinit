@@ -7,17 +7,11 @@
 
 let
   themes = import ../../../lib/theme { inherit lib; };
-  paths = import ../../../lib/paths { inherit config lib; };
   vividTheme = themes.getAppTheme "vivid" values.theme.colorscheme values.theme.variant;
   nushellTheme = themes.getAppTheme "nushell" values.theme.colorscheme values.theme.variant;
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
   colors = themes.getUnifiedColors palette;
 
-  pathsList = paths.getAllPaths config.home.username config.home.homeDirectory;
-  carapaceBin = "${config.home.homeDirectory}/.config/carapace/bin";
-  renderedPaths = lib.concatMapStringsSep "\n          " (path: "\"${path}\"") (
-    pathsList ++ [ carapaceBin ]
-  );
 in
 {
   programs.nushell = {
@@ -25,13 +19,6 @@ in
 
     configFile.source = ./system/config.nu;
     envFile.source = ./system/env.nu;
-    extraConfig = ''
-      $env.path = (
-        ($env.path | default []) ++ [
-          ${renderedPaths}
-        ]
-      )
-    '';
 
     extraEnv = ''
       $env.LS_COLORS = (vivid generate ${vividTheme})
