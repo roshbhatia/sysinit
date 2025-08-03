@@ -9,7 +9,7 @@ tasks:
 
   nix:fmt:
     cmds:
-      - &logger_fmt |
+      - |
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Formatting Nix files"
@@ -23,7 +23,7 @@ tasks:
 
   nix:build:
     cmds:
-      - &logger_build |
+      - |
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Building system configuration"
@@ -37,7 +37,7 @@ tasks:
 
   nix:build:work:
     cmds:
-      - &logger_build_work |
+      - |
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Building work system configuration"
@@ -57,7 +57,7 @@ tasks:
 
   nix:clean:
     cmds:
-      - &logger_clean |
+      - |
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Running garbage collection"
@@ -71,7 +71,7 @@ tasks:
 
   nix:update:
     cmds:
-      - &logger_update |
+      - |
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Updating flake inputs"
@@ -86,7 +86,7 @@ tasks:
   nix:refresh:
     deps: [nix:update]
     cmds:
-      - &logger_refresh |
+      - |
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Applying system configuration"
@@ -100,7 +100,7 @@ tasks:
 
   nix:refresh:work:
     cmds:
-      - &logger_refresh_work |
+      - |
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Refreshing work configuration"
@@ -120,7 +120,7 @@ tasks:
 
   sh:fmt:
     cmds:
-      - &logger_sh_fmt |
+      - |
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Formatting shell files"
@@ -136,7 +136,7 @@ tasks:
 
   sh:chmod:
     cmds:
-      - &logger_chmod |
+      - |
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Finding all .sh files and making them executable"
@@ -150,7 +150,7 @@ tasks:
 
   lua:fmt:
     cmds:
-      - &logger_lua_fmt |
+      - |
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Formatting Lua files"
@@ -165,10 +165,9 @@ tasks:
   fmt:
     deps: [nix:fmt, lua:fmt, sh:fmt]
     cmds:
-      - &logger_fmt_all |
+      - |
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_success "All files formatted successfully"
     desc: Format all supported file types
     silent: true
-
