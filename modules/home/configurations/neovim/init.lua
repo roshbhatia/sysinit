@@ -115,7 +115,6 @@ require("sysinit.pkg.keybindings.editor").setup()
 require("sysinit.pkg.keybindings.leader").setup()
 require("sysinit.pkg.keybindings.marks").setup()
 require("sysinit.pkg.keybindings.super").setup()
-require("sysinit.pkg.keybindings.transparency").setup()
 require("sysinit.pkg.keybindings.undo").setup()
 require("sysinit.pkg.keybindings.vim").setup()
 
