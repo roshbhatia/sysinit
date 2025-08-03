@@ -199,4 +199,3 @@ in
     nushell = variant: "catppuccin-${variant}.nu";
   };
 }
-
