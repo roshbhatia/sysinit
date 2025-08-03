@@ -53,6 +53,7 @@ M.plugins = {
       end
 
       dashboard.section.header = {
+        type = "text",
         val = ascii_lines,
         opts = {
           position = "center",
@@ -60,16 +61,18 @@ M.plugins = {
         },
       }
 
-      dashboard.section.buttons.val = {
-        dashboard.button("s", " Session: Load Last", ":ene | SessionLoad<CR>"),
-        dashboard.button("i", " File: Create New", ":ene | startinsert<CR>"),
-        dashboard.button("f", "󰍉 File: Search", ":ene | Telescope find_files hidden=true<CR>"),
-        dashboard.button("g", "󰍋 Strings: Search", ":ene | Telescope live_grep_args<CR>"),
-        dashboard.button("q", "󰩈 Vim: Exit", ":qa<CR>"),
-      }
-
-      dashboard.section.buttons.opts = {
-        hl = "DashboardCenter",
+      dashboard.section.buttons = {
+        type = "group",
+        val = {
+          dashboard.button("s", " Session: Load Last", ":ene | SessionLoad<CR>"),
+          dashboard.button("i", " File: Create New", ":ene | startinsert<CR>"),
+          dashboard.button("f", "󰍉 File: Search", ":ene | Telescope find_files hidden=true<CR>"),
+          dashboard.button("g", "󰍋 Strings: Search", ":ene | Telescope live_grep_args<CR>"),
+          dashboard.button("q", "󰩈 Vim: Exit", ":qa<CR>"),
+        },
+        opts = {
+          hl = "DashboardCenter",
+        },
       }
 
       dashboard.opts.layout = {
@@ -80,10 +83,9 @@ M.plugins = {
         { type = "padding", val = 2 },
       }
 
-      alpha.setup(dashboard.config)
+      alpha.setup(dashboard.opts)
     end,
   },
 }
 
 return M
-
