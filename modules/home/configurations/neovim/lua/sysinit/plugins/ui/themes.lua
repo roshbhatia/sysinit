@@ -61,27 +61,30 @@ local function get_catppuccin_config()
     highlight_overrides = {
       [theme_config.variant] = function(colors)
         local bg = theme_config.transparency.enable and colors.none or colors.base
+        local pmenu_bg = theme_config.transparency.enable and colors.none or colors.surface0
+        local float_bg = theme_config.transparency.enable and colors.none or colors.surface0
+
         return {
           Normal = { bg = bg },
           NormalNC = { bg = bg },
-          CursorLine = { bg = colors.none },
+          CursorLine = { bg = theme_config.transparency.enable and colors.none or colors.surface0 },
           CursorLineNr = { fg = colors.lavender, style = { "bold" } },
           LineNr = { fg = colors.overlay1 },
           Visual = { bg = colors.surface1, style = { "bold" } },
           Search = { bg = colors.yellow, fg = colors.base, style = { "bold" } },
           IncSearch = { bg = colors.red, fg = colors.base, style = { "bold" } },
-          Pmenu = { bg = colors.none, fg = colors.text },
+          Pmenu = { bg = pmenu_bg, fg = colors.text },
           PmenuSel = { bg = colors.surface0, fg = colors.lavender, style = { "bold" } },
-          PmenuBorder = { fg = colors.lavender, bg = colors.none },
-          FloatBorder = { fg = colors.lavender, bg = colors.none },
-          NormalFloat = { bg = colors.none },
-          FloatTitle = { fg = colors.pink, bg = colors.none, style = { "bold" } },
-          TelescopeBorder = { fg = colors.blue, bg = colors.none },
-          TelescopeNormal = { bg = colors.none },
+          PmenuBorder = { fg = colors.lavender, bg = pmenu_bg },
+          FloatBorder = { fg = colors.lavender, bg = float_bg },
+          NormalFloat = { bg = float_bg },
+          FloatTitle = { fg = colors.pink, bg = float_bg, style = { "bold" } },
+          TelescopeBorder = { fg = colors.blue, bg = float_bg },
+          TelescopeNormal = { bg = float_bg },
           TelescopeSelection = { bg = colors.surface0, fg = colors.lavender, style = { "bold" } },
-          TelescopeTitle = { fg = colors.pink, bg = colors.none, style = { "bold" } },
-          WhichKeyBorder = { fg = colors.lavender, bg = colors.none },
-          WhichKeyFloat = { bg = colors.none },
+          TelescopeTitle = { fg = colors.pink, bg = float_bg, style = { "bold" } },
+          WhichKeyBorder = { fg = colors.lavender, bg = float_bg },
+          WhichKeyFloat = { bg = float_bg },
           DiagnosticError = { fg = colors.red, style = { "bold" } },
           DiagnosticWarn = { fg = colors.yellow, style = { "bold" } },
           DiagnosticInfo = { fg = colors.blue, style = { "bold" } },
@@ -89,10 +92,10 @@ local function get_catppuccin_config()
           GitSignsAdd = { fg = colors.green, style = { "bold" } },
           GitSignsChange = { fg = colors.yellow, style = { "bold" } },
           GitSignsDelete = { fg = colors.red, style = { "bold" } },
-          StatusLine = { bg = colors.none, fg = colors.text },
-          StatusLineNC = { bg = colors.none, fg = colors.overlay1 },
-          WinSeparator = { fg = colors.blue, bg = colors.none, style = { "bold" } },
-          SignColumn = { bg = colors.none },
+          StatusLine = { bg = bg, fg = colors.text },
+          StatusLineNC = { bg = bg, fg = colors.overlay1 },
+          WinSeparator = { fg = colors.blue, bg = bg, style = { "bold" } },
+          SignColumn = { bg = bg },
         }
       end,
     },
@@ -402,3 +405,4 @@ M.plugins = {
 }
 
 return M
+
