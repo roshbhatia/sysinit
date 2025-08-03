@@ -59,8 +59,20 @@ local function get_kanagawa_config()
   }
 end
 
+local function get_plugin_config()
+  local colorscheme_config = theme_config.plugins[theme_config.colorscheme]
+  if not colorscheme_config then
+    error("No plugin configuration found for colorscheme: " .. theme_config.colorscheme)
+  end
+
+  -- If variant-specific config exists, use it; otherwise use the base config
+  local plugin_config = colorscheme_config[theme_config.variant] or colorscheme_config
+
+  return plugin_config
+end
+
 local function setup_theme()
-  local plugin_config = theme_config.plugins[theme_config.colorscheme][theme_config.variant]
+  local plugin_config = get_plugin_config()
 
   if theme_config.colorscheme == "kanagawa" then
     require("kanagawa").setup(get_kanagawa_config())
@@ -71,8 +83,8 @@ end
 
 M.plugins = {
   {
-    theme_config.plugins[theme_config.colorscheme][theme_config.variant].plugin,
-    name = theme_config.plugins[theme_config.colorscheme][theme_config.variant].name,
+    get_plugin_config().plugin,
+    name = get_plugin_config().name,
     lazy = false,
     priority = 1000,
     config = setup_theme,
