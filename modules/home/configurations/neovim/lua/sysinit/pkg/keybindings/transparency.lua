@@ -5,94 +5,35 @@ local M = {}
 
 local transparency_enabled = theme_config.transparency.enable
 
+local theme_modules = {
+  catppuccin = require("sysinit.themes.catppuccin"),
+  gruvbox = require("sysinit.themes.gruvbox"),
+  kanagawa = require("sysinit.themes.kanagawa"),
+  ["rose-pine"] = require("sysinit.themes.rose_pine"),
+  solarized = require("sysinit.themes.solarized"),
+  nord = require("sysinit.themes.nord"),
+}
+
 local function get_transparent_highlights()
-  local highlights = {}
-
-  if theme_config.colorscheme == "catppuccin" then
-    highlights = {
-      Normal = { bg = "none" },
-      NormalNC = { bg = "none" },
-      CursorLine = { bg = "none" },
-      Pmenu = { bg = "none" },
-      NormalFloat = { bg = "none" },
-      FloatBorder = { bg = "none" },
-      TelescopeNormal = { bg = "none" },
-      TelescopeBorder = { bg = "none" },
-      WhichKeyFloat = { bg = "none" },
-      WhichKeyBorder = { bg = "none" },
-      SignColumn = { bg = "none" },
-      StatusLine = { bg = "none" },
-      StatusLineNC = { bg = "none" },
-      WinSeparator = { bg = "none" },
-    }
-  elseif theme_config.colorscheme == "rose-pine" then
-    highlights = {
-      Normal = { bg = "none" },
-      NormalNC = { bg = "none" },
-      NormalFloat = { bg = "none" },
-      FloatBorder = { bg = "none" },
-      Pmenu = { bg = "none" },
-      PmenuBorder = { bg = "none" },
-      TelescopeNormal = { bg = "none" },
-      TelescopeBorder = { bg = "none" },
-      WhichKeyFloat = { bg = "none" },
-      WhichKeyBorder = { bg = "none" },
-      SignColumn = { bg = "none" },
-      CursorLine = { bg = "none" },
-      StatusLine = { bg = "none" },
-      StatusLineNC = { bg = "none" },
-      WinSeparator = { bg = "none" },
-      WinBar = { bg = "none" },
-      WinBarNC = { bg = "none" },
-      NeoTreeNormal = { bg = "none" },
-      NeoTreeNormalNC = { bg = "none" },
-      NeoTreeWinSeparator = { bg = "none" },
-      NeoTreeVertSplit = { bg = "none" },
-      NeoTreeEndOfBuffer = { bg = "none" },
-    }
-  elseif theme_config.colorscheme == "gruvbox" then
-    highlights = {
-      Normal = { bg = "none" },
-      NormalNC = { bg = "none" },
-      SignColumn = { bg = "none" },
-      CursorLine = { bg = "none" },
-      StatusLine = { bg = "none" },
-      StatusLineNC = { bg = "none" },
-    }
-  elseif theme_config.colorscheme == "solarized" then
-    highlights = {
-      Normal = { bg = "none" },
-      NormalNC = { bg = "none" },
-      SignColumn = { bg = "none" },
-      CursorLine = { bg = "none" },
-    }
+  local theme_module = theme_modules[theme_config.colorscheme]
+  if theme_module and theme_module.get_transparent_highlights then
+    return theme_module.get_transparent_highlights()
   end
-
-  return highlights
+  return {}
 end
 
 local function apply_transparency(enable)
+  local plugin_config = theme_config.plugins[theme_config.colorscheme][theme_config.variant]
+  local theme_module = theme_modules[theme_config.colorscheme]
+
   if enable then
     local highlights = get_transparent_highlights()
     for group, opts in pairs(highlights) do
       vim.api.nvim_set_hl(0, group, opts)
     end
   else
-    local plugin_config = theme_config.plugins[theme_config.colorscheme]
-    if theme_config.colorscheme == "catppuccin" then
-      local catppuccin = require("catppuccin")
-      local config = catppuccin.options
-      config.transparent_background = false
-      catppuccin.setup(config)
-    elseif theme_config.colorscheme == "rose-pine" then
-      local neomodern = require("neomodern")
-      neomodern.setup({ transparent = false })
-    elseif theme_config.colorscheme == "gruvbox" then
-      local gruvbox = require("gruvbox")
-      gruvbox.setup({ transparent_mode = false })
-    elseif theme_config.colorscheme == "solarized" then
-      local solarized = require("solarized-osaka")
-      solarized.setup({ transparent = false })
+    if theme_module and theme_module.setup then
+      theme_module.setup({ transparent_background = false, show_end_of_buffer = true })
     end
     vim.cmd("colorscheme " .. plugin_config.colorscheme)
   end
