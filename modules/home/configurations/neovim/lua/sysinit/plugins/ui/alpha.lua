@@ -40,7 +40,6 @@ M.plugins = {
       }
 
       local ascii_lines = fallback_ascii
-      local skip_highlight = false
       local path = os.getenv("SYSINIT_NVIM_DASH_ASCII_PATH")
       if path then
         local file = io.open(path, "r")
@@ -86,21 +85,13 @@ M.plugins = {
       dashboard.section.buttons.opts = {
         hl = "DashboardCenter",
       }
+
       dashboard.opts.layout = {
-        {
-          type = "padding",
-          val = 4,
-        },
+        { type = "padding", val = 4 },
         dashboard.section.header,
-        {
-          type = "padding",
-          val = 2,
-        },
+        { type = "padding", val = 2 },
         dashboard.section.buttons,
-        {
-          type = "padding",
-          val = 2,
-        },
+        { type = "padding", val = 2 },
       }
 
       alpha.setup(dashboard.config)
