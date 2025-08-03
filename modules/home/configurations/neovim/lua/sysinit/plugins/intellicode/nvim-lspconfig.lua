@@ -135,7 +135,7 @@ M.plugins = {
         },
         { "<leader>cS", vim.lsp.buf.workspace_symbol, desc = "Workspace symbols" },
         { "gri", vim.lsp.buf.implementation, desc = "View implementations" },
-        { "grO", vim.lsp.buf.document_symbol, desc = "View document_symbol" },
+        { "gO", vim.lsp.buf.document_symbol, desc = "View document symbol" },
       }
     end,
   },
