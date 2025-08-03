@@ -21,25 +21,22 @@ in
 
   palettes = {
     wave = utils.validatePalette {
-      # Background colors
+
       sumiInk0 = "#16161d";
       sumiInk1 = "#1f1f28";
       sumiInk2 = "#2a2a37";
       sumiInk3 = "#363646";
       sumiInk4 = "#54546d";
 
-      # Foreground colors
       oldWhite = "#c8c093";
       fujiWhite = "#dcd7ba";
       fujiGray = "#727169";
 
-      # Wave colors
       waveBlue1 = "#223249";
       waveBlue2 = "#2d4f67";
       waveAqua1 = "#6a9589";
       waveAqua2 = "#7aa89f";
 
-      # Seasonal colors
       winterGreen = "#2b3328";
       winterYellow = "#49443c";
       winterRed = "#43242b";
@@ -49,12 +46,10 @@ in
       autumnRed = "#c34043";
       autumnYellow = "#dca561";
 
-      # Special colors
       samuraiRed = "#e82424";
       roninYellow = "#ff9e3b";
       dragonBlue = "#658594";
 
-      # Core colors
       crystalBlue = "#7e9cd8";
       springViolet1 = "#938aa9";
       springViolet2 = "#9cabca";
@@ -68,7 +63,6 @@ in
       surimiOrange = "#ffa066";
       oniViolet = "#957fb8";
 
-      # Semantic aliases
       base = "#1f1f28";
       bg = "#1f1f28";
       bg_alt = "#16161d";
@@ -91,7 +85,7 @@ in
     };
 
     dragon = utils.validatePalette {
-      # Dragon background colors
+
       dragonBlack0 = "#0d0c0c";
       dragonBlack1 = "#12120f";
       dragonBlack2 = "#1d1c19";
@@ -100,7 +94,6 @@ in
       dragonBlack5 = "#393836";
       dragonBlack6 = "#625e5a";
 
-      # Dragon foreground colors
       dragonWhite = "#c5c9c5";
       dragonGreen = "#87a987";
       dragonGreen2 = "#8a9a7b";
@@ -119,7 +112,6 @@ in
       dragonTeal = "#949fb5";
       dragonYellow = "#c4b28a";
 
-      # Semantic aliases
       base = "#181616";
       bg = "#181616";
       bg_alt = "#12120f";

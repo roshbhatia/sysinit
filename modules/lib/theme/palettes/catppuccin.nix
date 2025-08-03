@@ -26,27 +26,23 @@ in
 
   palettes = {
     macchiato = utils.validatePalette {
-      # Base colors
+
       base = "#24273a";
       mantle = "#1e2030";
       crust = "#181926";
 
-      # Surface colors
       surface0 = "#363a4f";
       surface1 = "#494d64";
       surface2 = "#5b6078";
 
-      # Overlay colors
       overlay0 = "#6e738d";
       overlay1 = "#8087a2";
       overlay2 = "#939ab7";
 
-      # Text colors
       text = "#cad3f5";
       subtext0 = "#a5adcb";
       subtext1 = "#b8c0e0";
 
-      # Brand colors
       rosewater = "#f4dbd6";
       flamingo = "#f0c6c6";
       pink = "#f5bde6";
@@ -62,33 +58,28 @@ in
       blue = "#8aadf4";
       lavender = "#b7bdf8";
 
-      # Semantic aliases
       accent = "#8aadf4";
       accent_dim = "#494d64";
     };
 
     frappe = utils.validatePalette {
-      # Base colors
+
       base = "#303446";
       mantle = "#292c3c";
       crust = "#232634";
 
-      # Surface colors
       surface0 = "#414559";
       surface1 = "#51576d";
       surface2 = "#626880";
 
-      # Overlay colors
       overlay0 = "#737994";
       overlay1 = "#838ba7";
       overlay2 = "#949cbb";
 
-      # Text colors
       text = "#c6d0f5";
       subtext0 = "#a5adce";
       subtext1 = "#b5bfe2";
 
-      # Brand colors
       rosewater = "#f2d5cf";
       flamingo = "#eebebe";
       pink = "#f4b8e4";
@@ -104,33 +95,28 @@ in
       blue = "#8caaee";
       lavender = "#babbf1";
 
-      # Semantic aliases
       accent = "#8caaee";
       accent_dim = "#51576d";
     };
 
     latte = utils.validatePalette {
-      # Base colors
+
       base = "#eff1f5";
       mantle = "#e6e9ef";
       crust = "#dce0e8";
 
-      # Surface colors
       surface0 = "#ccd0da";
       surface1 = "#bcc0cc";
       surface2 = "#acb0be";
 
-      # Overlay colors
       overlay0 = "#9ca0b0";
       overlay1 = "#8c8fa1";
       overlay2 = "#7c7f93";
 
-      # Text colors
       text = "#4c4f69";
       subtext0 = "#6c6f85";
       subtext1 = "#5c5f77";
 
-      # Brand colors
       rosewater = "#dc8a78";
       flamingo = "#dd7878";
       pink = "#ea76cb";
@@ -146,33 +132,28 @@ in
       blue = "#1e66f5";
       lavender = "#7287fd";
 
-      # Semantic aliases
       accent = "#1e66f5";
       accent_dim = "#bcc0cc";
     };
 
     mocha = utils.validatePalette {
-      # Base colors
+
       base = "#1e1e2e";
       mantle = "#181825";
       crust = "#11111b";
 
-      # Surface colors
       surface0 = "#313244";
       surface1 = "#45475a";
       surface2 = "#585b70";
 
-      # Overlay colors
       overlay0 = "#6c7086";
       overlay1 = "#7f849c";
       overlay2 = "#9399b2";
 
-      # Text colors
       text = "#cdd6f4";
       subtext0 = "#a6adc8";
       subtext1 = "#bac2de";
 
-      # Brand colors
       rosewater = "#f5e0dc";
       flamingo = "#f2cdcd";
       pink = "#f5c2e7";
@@ -188,7 +169,6 @@ in
       blue = "#89b4fa";
       lavender = "#b4befe";
 
-      # Semantic aliases
       accent = "#89b4fa";
       accent_dim = "#45475a";
     };

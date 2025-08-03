@@ -1,4 +1,4 @@
-{ username, ... }:
+{ values, ... }:
 {
-  users.users.${username}.home = "/Users/${username}";
+  users.users.${values.user.username}.home = "/Users/${values.user.username}";
 }

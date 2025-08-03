@@ -14,7 +14,6 @@ let
     else
       { };
 
-  # Create theme configuration using new modular system
   themeConfig = {
     colorscheme = values.theme.colorscheme;
     variant = values.theme.variant;

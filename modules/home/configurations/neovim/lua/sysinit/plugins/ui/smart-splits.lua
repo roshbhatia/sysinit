@@ -1,9 +1,7 @@
 local M = {}
 
--- Helper function to check if the current window is a floating "snacks" terminal
 local function is_floating_snacks_terminal()
   local win_config = vim.api.nvim_win_get_config(0)
-  -- Check if the window is floating and has a "snacks" terminal type
   if win_config.relative ~= "" then
     local buf_name = vim.api.nvim_buf_get_name(0)
     if buf_name:match("snacks") then
@@ -16,7 +14,7 @@ end
 M.plugins = {
   {
     "mrjones2014/smart-splits.nvim",
-    lazy = true, -- load only when needed
+    lazy = true,
     config = function()
       require("smart-splits").setup({
         ignored_buftypes = {
@@ -25,9 +23,7 @@ M.plugins = {
           "prompt",
           "nofile",
         },
-        -- Behavior when cursor is at edge
         at_edge = "stop",
-        -- Whether cursor follows swapped buffers
         cursor_follows_swapped_bufs = true,
       })
     end,

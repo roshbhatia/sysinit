@@ -25,17 +25,15 @@ in
 
   palettes = {
     moon = utils.validatePalette {
-      # Base colors
+
       base = "#232136";
       surface = "#2a273f";
       overlay = "#393552";
 
-      # Text colors
       muted = "#6e6a86";
       subtle = "#908caa";
       text = "#e0def4";
 
-      # Brand colors
       love = "#eb6f92";
       gold = "#f6c177";
       rose = "#ea9a97";
@@ -43,19 +41,17 @@ in
       foam = "#9ccfd8";
       iris = "#c4a7e7";
 
-      # Highlight colors
       highlight_low = "#2a283e";
       highlight_med = "#44415a";
       highlight_high = "#56526e";
 
-      # Semantic aliases
       bg = "#232136";
       bg_alt = "#2a273f";
       fg = "#e0def4";
       fg_alt = "#908caa";
       comment = "#6e6a86";
       red = "#eb6f92";
-      green = "#3e8fb0"; # pine
+      green = "#3e8fb0";
       yellow = "#f6c177";
       blue = "#3e8fb0";
       purple = "#c4a7e7";
@@ -67,17 +63,15 @@ in
     };
 
     dawn = utils.validatePalette {
-      # Base colors (light theme)
+
       base = "#faf4ed";
       surface = "#fffaf3";
       overlay = "#f2e9e1";
 
-      # Text colors
       muted = "#9893a5";
       subtle = "#797593";
       text = "#575279";
 
-      # Brand colors
       love = "#b4637a";
       gold = "#ea9d34";
       rose = "#d7827e";
@@ -85,19 +79,17 @@ in
       foam = "#56949f";
       iris = "#907aa9";
 
-      # Highlight colors
       highlight_low = "#f4ede8";
       highlight_med = "#dfdad9";
       highlight_high = "#cecacd";
 
-      # Semantic aliases
       bg = "#faf4ed";
       bg_alt = "#fffaf3";
       fg = "#575279";
       fg_alt = "#797593";
       comment = "#9893a5";
       red = "#b4637a";
-      green = "#286983"; # pine
+      green = "#286983";
       yellow = "#ea9d34";
       blue = "#286983";
       purple = "#907aa9";
@@ -109,17 +101,15 @@ in
     };
 
     main = utils.validatePalette {
-      # Base colors
+
       base = "#191724";
       surface = "#1f1d2e";
       overlay = "#26233a";
 
-      # Text colors
       muted = "#6e6a86";
       subtle = "#908caa";
       text = "#e0def4";
 
-      # Brand colors
       love = "#eb6f92";
       gold = "#f6c177";
       rose = "#ebbcba";
@@ -127,19 +117,17 @@ in
       foam = "#9ccfd8";
       iris = "#c4a7e7";
 
-      # Highlight colors
       highlight_low = "#21202e";
       highlight_med = "#403d52";
       highlight_high = "#524f67";
 
-      # Semantic aliases
       bg = "#191724";
       bg_alt = "#1f1d2e";
       fg = "#e0def4";
       fg_alt = "#908caa";
       comment = "#6e6a86";
       red = "#eb6f92";
-      green = "#31748f"; # pine
+      green = "#31748f";
       yellow = "#f6c177";
       blue = "#31748f";
       purple = "#c4a7e7";

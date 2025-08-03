@@ -6,7 +6,7 @@ M.plugins = {
     deppendencies = {
       "nvim-treesitter/nvim-treesitter",
     },
-    lazy = false, -- Init seemingly taking a long time?
+    lazy = false,
     config = true,
     opts = {
       check_ts = true,

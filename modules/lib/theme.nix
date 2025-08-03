@@ -6,7 +6,6 @@ let
   themes = import ./theme { inherit lib; };
   cfg = config.sysinit.theme;
 
-  # Get available theme variants dynamically
   getThemeVariants =
     colorscheme:
     let
@@ -14,7 +13,6 @@ let
     in
     theme.meta.variants;
 
-  # Get all available variants from all themes
   allVariants = unique (flatten (map (theme: theme.meta.variants) (attrValues themes.themes)));
 
 in
@@ -109,7 +107,7 @@ in
   };
 
   config = {
-    # Generate JSON config file for applications that need it
+
     home.file.".config/sysinit/theme_config.json" = {
       text = builtins.toJSON (
         themes.generateAppJSON "neovim" {

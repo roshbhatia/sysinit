@@ -39,7 +39,6 @@ M.plugins = {
             filter = function(buf, win)
               local bufname = vim.api.nvim_buf_get_name(buf)
               local buftype = vim.api.nvim_get_option_value("buftype", { buf = buf })
-              -- Check for AI-related buffer names, types, or variables
               return bufname:match("avante")
                 or bufname:match("goose")
                 or buftype == "nofile"

@@ -14,17 +14,14 @@ let
   colors = themes.getUnifiedColors palette;
 
   pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;
-  # UI components
+
   wezterm = shell.stripHeaders ./ui/wezterm.sh;
   prompt = shell.stripHeaders ./ui/prompt.sh;
 
-  # Integrations
   completions = shell.stripHeaders ./integrations/completions.sh;
 
-  # Tools
   kubectl = shell.stripHeaders ./tools/kubectl.sh;
 
-  # System configuration
   env = shell.stripHeaders ./system/env.sh;
   extras = shell.stripHeaders ./system/extras.sh;
 in
@@ -33,12 +30,12 @@ in
     enable = true;
 
     autocd = true;
-    # We enable completion anyways, we don't want our cache to be invalidated.
+
     enableCompletion = false;
     historySubstringSearch.enable = false;
-    # We need to install this manually due to fzf-tab needing to run first
+
     autosuggestion.enable = false;
-    # We use fast-syntax-highlighting instead
+
     syntaxHighlighting.enable = false;
 
     history = {
@@ -93,11 +90,11 @@ in
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
         "--bind='resize:refresh-preview'"
-        "--color=bg+:-1,bg:-1,spinner:${colors.primary},hl:${colors.primary}"
-        "--color=border:${colors.border},label:${colors.foreground}"
-        "--color=fg:${colors.foreground},header:${colors.primary},info:${colors.muted},pointer:${colors.primary}"
-        "--color=marker:${colors.primary},fg+:${colors.foreground},prompt:${colors.primary},hl+:${colors.primary}"
-        "--color=preview-bg:-1,query:${colors.foreground}"
+        "--color=bg+:-1,bg:-1,spinner:${colors.accent.primary},hl:${colors.accent.primary}"
+        "--color=border:${colors.background.overlay},label:${colors.foreground.primary}"
+        "--color=fg:${colors.foreground.primary},header:${colors.accent.primary},info:${colors.foreground.muted},pointer:${colors.accent.primary}"
+        "--color=marker:${colors.accent.primary},fg+:${colors.foreground.primary},prompt:${colors.accent.primary},hl+:${colors.accent.primary}"
+        "--color=preview-bg:-1,query:${colors.foreground.primary}"
         "--cycle"
         "--height=30"
         "--highlight-line"
@@ -178,7 +175,7 @@ in
         stty stop undef
         setopt COMBINING_CHARS
         setopt PROMPT_SUBST
-        PROMPT='%~%# '
+        PROMPT='%~%
         RPS1=""
 
       '')
@@ -187,7 +184,7 @@ in
         mkdir -p ${config.xdg.cacheHome}/zsh
         autoload bashcompinit && bashcompinit
         autoload -Uz compinit
-        if [[ -n ${config.xdg.cacheHome}/zsh/zcompdump/.zcompdump(#qN.mh+24) ]]; then
+        if [[ -n ${config.xdg.cacheHome}/zsh/zcompdump/.zcompdump(
           compinit -d "${config.xdg.cacheHome}/zsh/zcompdump/.zcompdump";
         else
           compinit -C -d "${config.xdg.cacheHome}/zsh/zcompdump/.zcompdump";
@@ -200,18 +197,18 @@ in
         zstyle ':completion:*:complete:*' use-cache on
         zstyle ':completion:*' menu no
 
-        # fzf-tab configuration for better completion behavior
+
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
         zstyle ':fzf-tab:*' fzf-pad 4
         zstyle ':fzf-tab:*' single-group color header
         zstyle ':fzf-tab:*' show-group full
 
-        # Fix for nested folder completions - use empty query instead of prefix
+
         zstyle ':fzf-tab:*' query-string ""
         zstyle ':fzf-tab:*' continuous-trigger "/"
         zstyle ':fzf-tab:*' fzf-bindings "tab:down" "btab:up"
 
-        # Preview configurations
+
         zstyle ':fzf-tab:complete:cd:*' fzf-preview 'fzf-preview "$realpath"'
         zstyle ':fzf-tab:complete:cat:*' fzf-preview  'fzf-preview "$word"'
         zstyle ':fzf-tab:complete:bat:*' fzf-preview  'fzf-preview "$word"'

@@ -266,8 +266,20 @@ local function get_search_keys()
     {
       key = "Enter",
       mods = "SHIFT",
-      action = act.QuickSelect,
+      action = wezterm.action_callback(function(win, pane)
+        if is_vim(pane) then
+          win:perform_action({
+            SendKey = {
+              key = "Enter",
+              mods = "SHIFT",
+            },
+          }, pane)
+        else
+          win:perform_action(act.QuickSelect)
+        end
+      end),
     },
+
     {
       key = "/",
       mods = "CTRL",

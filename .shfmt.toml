@@ -1,0 +1,10 @@
+# shfmt configuration to match EditorConfig
+# Settings: https://github.com/mvdan/sh#shfmt
+
+[options]
+indent = 2          # Match EditorConfig indent_size
+binary_next_line = false
+switch_case_indent = true
+space_redirects = true
+keep_padding = false
+function_next_line = false

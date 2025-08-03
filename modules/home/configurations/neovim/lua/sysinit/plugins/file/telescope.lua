@@ -26,7 +26,6 @@ M.plugins = {
           prompt_prefix = "   ",
           selection_caret = "",
           entry_prefix = "",
-          -- Enhanced border styling
           borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
           results_title = "",
           prompt_title = "",
@@ -124,7 +123,6 @@ M.plugins = {
         },
       })
 
-      -- Extensions will be loaded on demand via pickers
       local function lazy_load_ext(ext)
         local ok, _ = pcall(telescope.load_extension, ext)
         if not ok then

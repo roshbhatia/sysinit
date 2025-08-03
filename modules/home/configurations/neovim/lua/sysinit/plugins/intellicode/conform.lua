@@ -50,12 +50,19 @@ M.plugins = {
           zsh = { "shfmt" },
           nix = { "nixfmt" },
         },
+        formatters = {
+          shfmt = {
+            prepend_args = { "-i", "2", "-ci", "-sr", "-kp", "-fn" },
+          },
+          nixfmt = {
+            prepend_args = { "--width=100" },
+          },
+        },
         notify_on_error = false,
         format_after_save = function(bufnr)
           if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
             return
           end
-          -- Skip formatting for large files (over 1MB)
           local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(bufnr))
           if ok and stats and stats.size and stats.size > 1024 * 1024 then
             return

@@ -71,7 +71,6 @@ M.plugins = {
           provider_opts = {},
         },
         disabled_tools = {
-          -- Disabled due to lack of use in favor with fetch
           "web_search",
         },
         windows = {

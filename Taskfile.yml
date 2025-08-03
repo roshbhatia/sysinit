@@ -13,7 +13,7 @@ tasks:
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Finding and formatting Nix files"
-        if ! fd -e nix -E result -x sh -c 'source hack/lib/logger.sh && log_info "Formatting: {}" && nixfmt {}' _; then
+        if ! fd -e nix -E result -x sh -c 'source hack/lib/logger.sh && log_info "Formatting: {}" && nixfmt --width=100 {}' _; then
           log_error "Formatting failed"
           exit 1
         fi
@@ -118,6 +118,22 @@ tasks:
     desc: Update and rebuild work sysinit configuration
     silent: true
 
+  sh:fmt:
+    cmds:
+      - &logger_sh_fmt |
+        #!/usr/bin/env bash
+        source hack/lib/logger.sh
+        log_info "Finding and formatting shell files"
+        for ext in sh bash zsh; do
+          if ! fd -e $ext -x sh -c 'source hack/lib/logger.sh && log_info "Formatting: {}" && shfmt -i 2 -ci -sr -kp -fn -w {}' _; then
+            log_error "Shell formatting failed"
+            exit 1
+          fi
+        done
+        log_success "Shell files formatted successfully"
+    desc: Format shell files using shfmt
+    silent: true
+
   sh:chmod:
     cmds:
       - &logger_chmod |
@@ -144,5 +160,15 @@ tasks:
         fi
         log_success "Lua files formatted successfully"
     desc: Format Lua files using stylua
+    silent: true
+
+  fmt:
+    deps: [nix:fmt, lua:fmt, sh:fmt]
+    cmds:
+      - &logger_fmt_all |
+        #!/usr/bin/env bash
+        source hack/lib/logger.sh
+        log_success "All files formatted successfully"
+    desc: Format all supported file types
     silent: true
 

@@ -11,7 +11,6 @@ local function get_basic_config()
   return {
     set_environment_variables = {
       TERM = "wezterm",
-      -- PATH is managed by Nu shell environment - inherit from parent
       XDG_CONFIG_HOME = xdg_config_home,
     },
     automatically_reload_config = true,

@@ -1,7 +1,6 @@
 { ... }:
 
 {
-  # Default theme configuration
   defaultThemeConfig = {
     colorscheme = "catppuccin";
     variant = "macchiato";
@@ -14,7 +13,6 @@
     overrides = { };
   };
 
-  # Supported applications
   supportedApps = [
     "neovim"
     "wezterm"
@@ -27,7 +25,6 @@
     "k9s"
   ];
 
-  # Standard ANSI color indices
   ansiColorMap = {
     black = 0;
     red = 1;
@@ -47,7 +44,6 @@
     bright_white = 15;
   };
 
-  # Common transparency presets
   transparencyPresets = {
     none = {
       enable = false;
@@ -71,13 +67,10 @@
     };
   };
 
-  # Accessibility presets
   accessibilityPresets = {
     high_contrast = {
-      # Will be defined later for color modifications
     };
     reduced_motion = {
-      # For animations/transitions
     };
   };
 }

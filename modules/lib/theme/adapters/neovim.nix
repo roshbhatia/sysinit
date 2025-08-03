@@ -7,48 +7,68 @@ let
 in
 
 {
-  # Create Neovim theme configuration
-  createNeovimConfig = themeData: config: overrides:
+
+  createNeovimConfig =
+    themeData: config: overrides:
     let
       palette = themeData.palettes.${config.variant};
-      semanticColors = themeData.semanticMapping palette;
-      transparency = config.transparency or {};
+      semanticColors = utils.createSemanticMapping palette;
+      transparency = config.transparency or { };
 
-      # Get plugin information
-      pluginInfo = if hasAttr "neovim" themeData.appAdapters then
-        themeData.appAdapters.neovim
-      else {
-        plugin = "${themeData.meta.id}/${themeData.meta.id}.nvim";
-        name = themeData.meta.id;
-        setup = themeData.meta.id;
-        colorscheme = variant: "${themeData.meta.id}-${variant}";
-      };
+      pluginInfo =
+        if hasAttr "neovim" themeData.appAdapters then
+          themeData.appAdapters.neovim
+        else
+          {
+            plugin = "${themeData.meta.id}/${themeData.meta.id}.nvim";
+            name = themeData.meta.id;
+            setup = themeData.meta.id;
+            colorscheme = variant: "${themeData.meta.id}-${variant}";
+          };
 
-      # Base configuration
       baseConfig = {
         plugin = pluginInfo.plugin;
         name = pluginInfo.name;
         setup = pluginInfo.setup;
-        colorscheme = if isFunction pluginInfo.colorscheme then
-          pluginInfo.colorscheme config.variant
-        else
-          pluginInfo.colorscheme;
+        colorscheme =
+          if isFunction pluginInfo.colorscheme then
+            pluginInfo.colorscheme config.variant
+          else
+            pluginInfo.colorscheme;
 
-        # Theme-specific configuration
         config = {
           transparent = transparency.enable or false;
           terminal_colors = true;
           styles = {
-            comments = { "italic" };
-            keywords = { "bold" };
-            functions = { "bold" };
-            strings = { "italic" };
-            variables = {};
-            numbers = { "bold" };
-            booleans = { "bold" "italic" };
-            properties = { "italic" };
-            types = { "bold" };
-            operators = { "bold" };
+            comments = {
+              italic = true;
+            };
+            keywords = {
+              bold = true;
+            };
+            functions = {
+              bold = true;
+            };
+            strings = {
+              italic = true;
+            };
+            variables = { };
+            numbers = {
+              bold = true;
+            };
+            booleans = {
+              bold = true;
+              italic = true;
+            };
+            properties = {
+              italic = true;
+            };
+            types = {
+              bold = true;
+            };
+            operators = {
+              bold = true;
+            };
           };
         };
       };
@@ -56,19 +76,18 @@ in
     in
     utils.mergeThemeConfigs baseConfig overrides;
 
-  # Generate JSON config for Neovim Lua integration
-  generateNeovimJSON = themeData: config:
+  generateNeovimJSON =
+    themeData: config:
     let
       palette = themeData.palettes.${config.variant};
       semanticColors = themeData.semanticMapping palette;
-      neovimConfig = createNeovimConfig themeData config {};
+      neovimConfig = createNeovimConfig themeData config { };
     in
     {
       colorscheme = themeData.meta.id;
       variant = config.variant;
-      transparency = config.transparency or {};
+      transparency = config.transparency or { };
 
-      # Plugin configuration
       plugins.${themeData.meta.id} = {
         plugin = neovimConfig.plugin;
         name = neovimConfig.name;
@@ -76,20 +95,18 @@ in
         colorscheme = neovimConfig.colorscheme;
       };
 
-      # Color information
       palette = palette;
       colors = semanticColors;
       ansi = utils.generateAnsiMappings semanticColors;
     };
 
-  # Create theme-specific highlight overrides
-  createHighlightOverrides = themeData: config:
+  createHighlightOverrides =
+    themeData: config:
     let
       palette = themeData.palettes.${config.variant};
       semanticColors = themeData.semanticMapping palette;
       isTransparent = config.transparency.enable or false;
 
-      # Base overrides that work for all themes
       baseOverrides = {
         Normal = {
           bg = if isTransparent then "none" else semanticColors.background.primary;
@@ -101,25 +118,34 @@ in
         SignColumn = {
           bg = if isTransparent then "none" else semanticColors.background.primary;
         };
-        CursorLine = { bg = if isTransparent then "none" else semanticColors.background.secondary; };
+        CursorLine = {
+          bg = if isTransparent then "none" else semanticColors.background.secondary;
+        };
         Visual = {
           bg = semanticColors.accent.dim;
           fg = semanticColors.foreground.primary;
-          style = { "bold" };
+          style = {
+            bold = true;
+          };
         };
         Search = {
           bg = semanticColors.semantic.warning;
           fg = semanticColors.background.primary;
-          style = { "bold" };
+          style = {
+            bold = true;
+          };
         };
         IncSearch = {
           bg = semanticColors.semantic.error;
           fg = semanticColors.background.primary;
-          style = { "bold" };
+          style = {
+            bold = true;
+          };
         };
 
-        # Floating windows
-        NormalFloat = { bg = if isTransparent then "none" else semanticColors.background.secondary; };
+        NormalFloat = {
+          bg = if isTransparent then "none" else semanticColors.background.secondary;
+        };
         FloatBorder = {
           fg = semanticColors.accent.primary;
           bg = if isTransparent then "none" else semanticColors.background.secondary;
@@ -127,10 +153,11 @@ in
         FloatTitle = {
           fg = semanticColors.accent.primary;
           bg = if isTransparent then "none" else semanticColors.background.secondary;
-          style = { "bold" };
+          style = {
+            bold = true;
+          };
         };
 
-        # Popup menus
         Pmenu = {
           bg = if isTransparent then "none" else semanticColors.background.secondary;
           fg = semanticColors.foreground.primary;
@@ -138,14 +165,15 @@ in
         PmenuSel = {
           bg = semanticColors.accent.dim;
           fg = semanticColors.accent.primary;
-          style = { "bold" };
+          style = {
+            bold = true;
+          };
         };
         PmenuBorder = {
           fg = semanticColors.accent.primary;
           bg = if isTransparent then "none" else semanticColors.background.secondary;
         };
 
-        # Status line
         StatusLine = {
           bg = if isTransparent then "none" else semanticColors.background.secondary;
           fg = semanticColors.foreground.primary;
@@ -155,25 +183,61 @@ in
           fg = semanticColors.foreground.muted;
         };
 
-        # Window separators
         WinSeparator = {
           fg = semanticColors.accent.primary;
           bg = if isTransparent then "none" else semanticColors.background.primary;
-          style = { "bold" };
+          style = {
+            bold = true;
+          };
         };
 
-        # Diagnostics
-        DiagnosticError = { fg = semanticColors.semantic.error; style = { "bold" }; };
-        DiagnosticWarn = { fg = semanticColors.semantic.warning; style = { "bold" }; };
-        DiagnosticInfo = { fg = semanticColors.semantic.info; style = { "bold" }; };
-        DiagnosticHint = { fg = semanticColors.syntax.operator; style = { "bold" }; };
+        DiagnosticError = {
+          fg = semanticColors.semantic.error;
+          style = {
+            bold = true;
+          };
+        };
+        DiagnosticWarn = {
+          fg = semanticColors.semantic.warning;
+          style = {
+            bold = true;
+          };
+        };
+        DiagnosticInfo = {
+          fg = semanticColors.semantic.info;
+          style = {
+            bold = true;
+          };
+        };
+        DiagnosticHint = {
+          fg = semanticColors.syntax.operator;
+          style = {
+            bold = true;
+          };
+        };
 
-        # Git signs
-        GitSignsAdd = { fg = semanticColors.semantic.success; style = { "bold" }; };
-        GitSignsChange = { fg = semanticColors.semantic.warning; style = { "bold" }; };
-        GitSignsDelete = { fg = semanticColors.semantic.error; style = { "bold" }; };
+        GitSignsAdd = {
+          fg = semanticColors.semantic.success;
+          style = {
+            bold = true;
+          };
+        };
+        GitSignsChange = {
+          fg = semanticColors.semantic.warning;
+          style = {
+            bold = true;
+          };
+        };
+        GitSignsDelete = {
+          fg = semanticColors.semantic.error;
+          style = {
+            bold = true;
+          };
+        };
       };
 
     in
-    baseOverrides;
+    {
+      appTheme = baseOverrides;
+    };
 }

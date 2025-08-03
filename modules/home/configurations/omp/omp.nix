@@ -10,11 +10,12 @@ let
   colors = themes.getUnifiedColors palette;
 
   ompColors = {
-    os = colors.primary;
-    closer = colors.primary;
-    pink = palette.pink or palette.love or palette.magenta or palette.mauve or colors.error;
-    lavender = palette.lavender or palette.iris or palette.violet or palette.foam or colors.info;
-    blue = colors.info;
+    os = colors.accent.primary;
+    closer = colors.accent.primary;
+    pink = palette.pink or palette.love or palette.magenta or palette.mauve or colors.semantic.error;
+    lavender =
+      palette.lavender or palette.iris or palette.violet or palette.foam or colors.semantic.info;
+    blue = colors.semantic.info;
   };
 
   themeConfig = {

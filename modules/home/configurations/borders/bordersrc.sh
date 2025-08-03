@@ -10,4 +10,3 @@ options=(
 )
 
 borders "${options[@]}"
-

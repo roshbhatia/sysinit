@@ -3,7 +3,7 @@
 with lib;
 
 {
-  # Core theme type definitions
+
   themeType = types.submodule {
     options = {
       meta = mkOption {
@@ -69,13 +69,11 @@ with lib;
     };
   };
 
-  # Color palette type
   paletteType = types.attrsOf types.str;
 
-  # Semantic colors type
   semanticColorsType = types.submodule {
     options = {
-      # Core UI colors
+
       background = mkOption {
         type = types.submodule {
           options = {
@@ -108,7 +106,6 @@ with lib;
         };
       };
 
-      # Semantic state colors
       semantic = mkOption {
         type = types.submodule {
           options = {
@@ -120,7 +117,6 @@ with lib;
         };
       };
 
-      # Syntax highlighting colors
       syntax = mkOption {
         type = types.submodule {
           options = {
@@ -138,7 +134,6 @@ with lib;
         };
       };
 
-      # Extended color palette for theme-specific needs
       extended = mkOption {
         type = types.attrsOf types.str;
         default = { };
@@ -147,7 +142,6 @@ with lib;
     };
   };
 
-  # Transparency configuration type
   transparencyType = types.submodule {
     options = {
       enable = mkOption {
@@ -170,7 +164,6 @@ with lib;
     };
   };
 
-  # Theme configuration type
   themeConfigType = types.submodule {
     options = {
       colorscheme = mkOption {

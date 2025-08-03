@@ -1,5 +1,4 @@
 {
-  username,
   values,
   ...
 }:
@@ -51,16 +50,15 @@ let
   allCasks = baseCasks ++ additionalCasks;
 in
 {
-  # This actually installs homebrew
+
   nix-homebrew = {
     enable = true;
     enableRosetta = true;
-    user = username;
+    user = values.user.username;
     autoMigrate = true;
     mutableTaps = true;
   };
 
-  # This installs packages via homebrew
   homebrew = {
     enable = true;
     onActivation = {

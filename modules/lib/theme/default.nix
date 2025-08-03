@@ -3,12 +3,10 @@
 with lib;
 
 let
-  # Import core modules
   types = import ./core/types.nix { inherit lib; };
   constants = import ./core/constants.nix { inherit lib; };
   utils = import ./core/utils.nix { inherit lib; };
 
-  # Import theme palettes
   catppuccin = import ./palettes/catppuccin.nix { inherit lib; };
   kanagawa = import ./palettes/kanagawa.nix { inherit lib; };
   rosePine = import ./palettes/rose-pine.nix { inherit lib; };
@@ -16,14 +14,11 @@ let
   solarized = import ./palettes/solarized.nix { inherit lib; };
   nord = import ./palettes/nord.nix { inherit lib; };
 
-  # Import adapters
   weztermAdapter = import ./adapters/wezterm.nix { inherit lib; };
   neovimAdapter = import ./adapters/neovim.nix { inherit lib; };
 
-  # Import presets
   transparencyPreset = import ./presets/transparency.nix { inherit lib; };
 
-  # Available themes registry
   themes = {
     catppuccin = catppuccin;
     kanagawa = kanagawa;
@@ -33,7 +28,6 @@ let
     nord = nord;
   };
 
-  # Get theme by ID
   getTheme =
     themeId:
     if hasAttr themeId themes then
@@ -41,7 +35,6 @@ let
     else
       throw "Theme '${themeId}' not found. Available themes: ${concatStringsSep ", " (attrNames themes)}";
 
-  # Validate theme configuration
   validateThemeConfig =
     config:
     let
@@ -53,7 +46,6 @@ let
     else
       config;
 
-  # Get theme palette with validation
   getThemePalette =
     colorscheme: variant:
     let
@@ -65,7 +57,6 @@ let
     else
       throw "Palette for variant '${variant}' not found in theme '${colorscheme}'";
 
-  # Get semantic colors for theme
   getSemanticColors =
     colorscheme: variant:
     let
@@ -74,7 +65,6 @@ let
     in
     theme.semanticMapping palette;
 
-  # Get app-specific theme configuration
   getAppTheme =
     app: colorscheme: variant:
     let
@@ -96,7 +86,6 @@ let
     else
       "${colorscheme}-${variant}";
 
-  # Create complete theme configuration for an app
   createAppConfig =
     app: themeConfig: overrides:
     let
@@ -105,12 +94,10 @@ let
       palette = getThemePalette validatedConfig.colorscheme validatedConfig.variant;
       semanticColors = getSemanticColors validatedConfig.colorscheme validatedConfig.variant;
 
-      # Apply transparency presets
       finalConfig = fold (
         preset: config: transparencyPreset.createAppTransparency app preset { }
       ) validatedConfig (validatedConfig.presets or [ ]);
 
-      # App-specific configuration generation
       appConfig =
         if app == "wezterm" then
           weztermAdapter.createWeztermConfig theme finalConfig overrides
@@ -124,15 +111,17 @@ let
           };
 
     in
-    appConfig
-    // {
+    {
       meta = theme.meta;
       palette = palette;
       semanticColors = semanticColors;
       config = finalConfig;
-    };
+      colorscheme = "${validatedConfig.colorscheme}-${validatedConfig.variant}";
+      variant = validatedConfig.variant;
+      transparency = finalConfig.transparency or { };
+    }
+    // appConfig;
 
-  # Generate JSON configuration for apps that need it
   generateAppJSON =
     app: themeConfig:
     let
@@ -153,12 +142,10 @@ let
         ansi = utils.generateAnsiMappings semanticColors;
       };
 
-  # Legacy compatibility functions (for gradual migration)
   getSafePalette = palette: utils.validatePalette palette;
-  getUnifiedColors = semanticColors: semanticColors;
+  getUnifiedColors = palette: utils.createSemanticMapping palette;
   mergeThemeConfig = utils.mergeThemeConfigs;
 
-  # Theme registry functions
   listAvailableThemes = map (theme: {
     id = theme.meta.id;
     name = theme.meta.name;
@@ -173,12 +160,10 @@ let
     in
     theme.meta;
 
-  # Enhanced theme utilities
   withThemeOverrides =
     baseConfig: app: overrides:
     createAppConfig app baseConfig overrides;
 
-  # ANSI mappings (legacy compatibility)
   ansiMappings = mapAttrs (
     themeId: theme:
     mapAttrs (
@@ -188,7 +173,6 @@ let
 
 in
 {
-  # Core functions
   inherit
     getTheme
     getThemePalette
@@ -199,17 +183,14 @@ in
     validateThemeConfig
     ;
 
-  # Utility functions
   inherit
     utils
     constants
     types
     ;
 
-  # Theme registry
   inherit themes listAvailableThemes getThemeInfo;
 
-  # Legacy compatibility
   inherit
     getSafePalette
     getUnifiedColors
@@ -218,13 +199,11 @@ in
     ansiMappings
     ;
 
-  # Adapters
   adapters = {
     wezterm = weztermAdapter;
     neovim = neovimAdapter;
   };
 
-  # Presets
   presets = {
     transparency = transparencyPreset;
   };

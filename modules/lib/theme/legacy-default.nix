@@ -99,14 +99,14 @@ let
 
     solarized = {
       dark = {
-        base03 = "#002b36"; # background
-        base02 = "#073642"; # background highlights
-        base01 = "#586e75"; # comments / secondary content
-        base00 = "#657b83"; # body text / default code / primary content
-        base0 = "#839496"; # primary content
-        base1 = "#93a1a1"; # optional emphasized content
-        base2 = "#eee8d5"; # background highlights (light theme)
-        base3 = "#fdf6e3"; # background (light theme)
+        base03 = "#002b36";
+        base02 = "#073642";
+        base01 = "#586e75";
+        base00 = "#657b83";
+        base0 = "#839496";
+        base1 = "#93a1a1";
+        base2 = "#eee8d5";
+        base3 = "#fdf6e3";
         yellow = "#b58900";
         orange = "#cb4b16";
         red = "#dc322f";
@@ -116,69 +116,64 @@ let
         cyan = "#2aa198";
         green = "#859900";
 
-        # Convenience aliases
-        bg = "#002b36"; # base03
-        bg_alt = "#073642"; # base02
-        fg = "#839496"; # base0
-        fg_alt = "#657b83"; # base00
-        comment = "#586e75"; # base01
-        accent = "#268bd2"; # blue
-        accent_dim = "#073642"; # base02
+        bg = "#002b36";
+        bg_alt = "#073642";
+        fg = "#839496";
+        fg_alt = "#657b83";
+        comment = "#586e75";
+        accent = "#268bd2";
+        accent_dim = "#073642";
       };
     };
 
     nord = {
       dark = {
-        # Polar Night (darker backgrounds)
+
         nord0 = "#2e3440";
         nord1 = "#3b4252";
         nord2 = "#434c5e";
         nord3 = "#4c566a";
 
-        # Snow Storm (lighter foregrounds)
         nord4 = "#d8dee9";
         nord5 = "#e5e9f0";
         nord6 = "#eceff4";
 
-        # Frost (blues and teals)
         nord7 = "#8fbcbb";
         nord8 = "#88c0d0";
         nord9 = "#81a1c1";
         nord10 = "#5e81ac";
 
-        # Aurora (accent colors)
-        nord11 = "#bf616a"; # red
-        nord12 = "#d08770"; # orange
-        nord13 = "#ebcb8b"; # yellow
-        nord14 = "#a3be8c"; # green
-        nord15 = "#b48ead"; # purple
+        nord11 = "#bf616a";
+        nord12 = "#d08770";
+        nord13 = "#ebcb8b";
+        nord14 = "#a3be8c";
+        nord15 = "#b48ead";
 
-        # Convenience aliases
-        base = "#2e3440"; # nord0
-        bg = "#2e3440"; # nord0
-        bg_alt = "#3b4252"; # nord1
-        surface = "#434c5e"; # nord2
-        surface_alt = "#4c566a"; # nord3
-        text = "#eceff4"; # nord6
-        fg = "#eceff4"; # nord6
-        fg_alt = "#e5e9f0"; # nord5
-        comment = "#4c566a"; # nord3
-        blue = "#5e81ac"; # nord10
-        cyan = "#88c0d0"; # nord8
-        teal = "#8fbcbb"; # nord7
-        green = "#a3be8c"; # nord14
-        yellow = "#ebcb8b"; # nord13
-        orange = "#d08770"; # nord12
-        red = "#bf616a"; # nord11
-        purple = "#b48ead"; # nord15
-        accent = "#5e81ac"; # nord10 (blue)
-        accent_dim = "#434c5e"; # nord2
+        base = "#2e3440";
+        bg = "#2e3440";
+        bg_alt = "#3b4252";
+        surface = "#434c5e";
+        surface_alt = "#4c566a";
+        text = "#eceff4";
+        fg = "#eceff4";
+        fg_alt = "#e5e9f0";
+        comment = "#4c566a";
+        blue = "#5e81ac";
+        cyan = "#88c0d0";
+        teal = "#8fbcbb";
+        green = "#a3be8c";
+        yellow = "#ebcb8b";
+        orange = "#d08770";
+        red = "#bf616a";
+        purple = "#b48ead";
+        accent = "#5e81ac";
+        accent_dim = "#434c5e";
       };
     };
 
     kanagawa = {
       wave = {
-        # Kanagawa Wave (default dark theme)
+
         sumiInk0 = "#16161d";
         sumiInk1 = "#1f1f28";
         sumiInk2 = "#2a2a37";
@@ -220,30 +215,29 @@ let
         surimiOrange = "#ffa066";
         oniViolet = "#957fb8";
 
-        # Convenience aliases
-        base = "#1f1f28"; # sumiInk1
-        bg = "#1f1f28"; # sumiInk1
-        bg_alt = "#16161d"; # sumiInk0
-        surface = "#2a2a37"; # sumiInk2
-        surface_alt = "#363646"; # sumiInk3
-        text = "#dcd7ba"; # fujiWhite
-        fg = "#dcd7ba"; # fujiWhite
-        fg_alt = "#c8c093"; # oldWhite
-        comment = "#727169"; # fujiGray
-        blue = "#7e9cd8"; # crystalBlue
-        cyan = "#7fb4ca"; # springBlue
-        teal = "#6a9589"; # waveAqua1
-        green = "#98bb6c"; # springGreen
-        yellow = "#e6c384"; # carpYellow
-        orange = "#ffa066"; # surimiOrange
-        red = "#c34043"; # autumnRed
-        purple = "#957fb8"; # oniViolet
-        accent = "#7e9cd8"; # crystalBlue
-        accent_dim = "#2a2a37"; # sumiInk2
+        base = "#1f1f28";
+        bg = "#1f1f28";
+        bg_alt = "#16161d";
+        surface = "#2a2a37";
+        surface_alt = "#363646";
+        text = "#dcd7ba";
+        fg = "#dcd7ba";
+        fg_alt = "#c8c093";
+        comment = "#727169";
+        blue = "#7e9cd8";
+        cyan = "#7fb4ca";
+        teal = "#6a9589";
+        green = "#98bb6c";
+        yellow = "#e6c384";
+        orange = "#ffa066";
+        red = "#c34043";
+        purple = "#957fb8";
+        accent = "#7e9cd8";
+        accent_dim = "#2a2a37";
       };
 
       dragon = {
-        # Kanagawa Dragon (darker variant)
+
         dragonBlack0 = "#0d0c0c";
         dragonBlack1 = "#12120f";
         dragonBlack2 = "#1d1c19";
@@ -270,26 +264,25 @@ let
         dragonTeal = "#949fb5";
         dragonYellow = "#c4b28a";
 
-        # Convenience aliases
-        base = "#181616"; # dragonBlack3
-        bg = "#181616"; # dragonBlack3
-        bg_alt = "#12120f"; # dragonBlack1
-        surface = "#1d1c19"; # dragonBlack2
-        surface_alt = "#282727"; # dragonBlack4
-        text = "#c5c9c5"; # dragonWhite
-        fg = "#c5c9c5"; # dragonWhite
-        fg_alt = "#a6a69c"; # dragonGray
-        comment = "#7a8382"; # dragonGray3
-        blue = "#8ba4b0"; # dragonBlue
-        cyan = "#8ea4a2"; # dragonAqua
-        teal = "#949fb5"; # dragonTeal
-        green = "#87a987"; # dragonGreen
-        yellow = "#c4b28a"; # dragonYellow
-        orange = "#b6927b"; # dragonOrange
-        red = "#c4746e"; # dragonRed
-        purple = "#8992a7"; # dragonViolet
-        accent = "#8ba4b0"; # dragonBlue
-        accent_dim = "#1d1c19"; # dragonBlack2
+        base = "#181616";
+        bg = "#181616";
+        bg_alt = "#12120f";
+        surface = "#1d1c19";
+        surface_alt = "#282727";
+        text = "#c5c9c5";
+        fg = "#c5c9c5";
+        fg_alt = "#a6a69c";
+        comment = "#7a8382";
+        blue = "#8ba4b0";
+        cyan = "#8ea4a2";
+        teal = "#949fb5";
+        green = "#87a987";
+        yellow = "#c4b28a";
+        orange = "#b6927b";
+        red = "#c4746e";
+        purple = "#8992a7";
+        accent = "#8ba4b0";
+        accent_dim = "#1d1c19";
       };
     };
 
@@ -499,49 +492,41 @@ let
 
   };
 
-  # Helper function to get current theme palette (with safety layer)
   getThemePalette =
     colorscheme: variant:
     getSafePalette (
       palettes.${colorscheme}.${variant} or (throw "Theme ${colorscheme}:${variant} not found")
     );
 
-  # Helper function to get app-specific theme name
   getAppTheme =
     app: colorscheme: variant:
     appThemes.${app}.${colorscheme}.${variant} or "${colorscheme}-${variant}";
 
-  # Create safe palette with fallbacks for missing colors
   getSafePalette =
     palette:
     let
-      # Base colors that all themes must have (with fallbacks)
+
       safeBase = {
-        # Universal base colors
+
         accent = palette.accent or palette.blue or "#0080ff";
         accent_dim = palette.accent_dim or palette.surface or palette.bg1 or "#333333";
 
-        # Background colors
         base = palette.base or palette.bg or palette.bg0 or palette.base03 or "#000000";
         bg = palette.bg or palette.base or palette.bg0 or palette.base03 or "#000000";
         bg_alt = palette.bg_alt or palette.mantle or palette.bg1 or palette.base02 or "#111111";
 
-        # Foreground colors
         text = palette.text or palette.fg or palette.fg1 or palette.base0 or "#ffffff";
         fg = palette.fg or palette.text or palette.fg1 or palette.base0 or "#ffffff";
         fg_alt = palette.fg_alt or palette.subtext1 or palette.fg2 or palette.base00 or "#cccccc";
 
-        # Surface/overlay colors
         surface = palette.surface or palette.surface0 or palette.bg1 or palette.base02 or "#222222";
         surface_alt = palette.surface_alt or palette.surface1 or palette.bg2 or palette.base01 or "#333333";
         overlay = palette.overlay or palette.overlay0 or palette.surface or palette.bg2 or "#444444";
 
-        # Comment/muted colors
         comment = palette.comment or palette.fg_alt or palette.fg3 or palette.base01 or "#888888";
         muted = palette.muted or palette.subtext1 or palette.fg3 or palette.base01 or "#888888";
         subtle = palette.subtle or palette.subtext0 or palette.fg4 or palette.base00 or "#aaaaaa";
 
-        # Core semantic colors
         red = palette.red or palette.love or palette.maroon or "#ff0000";
         green = palette.green or palette.pine or "#00ff00";
         yellow = palette.yellow or palette.gold or "#ffff00";
@@ -552,9 +537,8 @@ let
         teal = palette.teal or palette.cyan or "#008080";
       };
 
-      # Theme-specific colors with fallbacks to safeBase
       themeSafeColors = {
-        # Catppuccin-specific
+
         surface0 = palette.surface0 or safeBase.surface;
         surface1 = palette.surface1 or safeBase.surface_alt;
         surface2 = palette.surface2 or safeBase.overlay;
@@ -575,7 +559,6 @@ let
         sapphire = palette.sapphire or safeBase.blue;
         lavender = palette.lavender or safeBase.purple;
 
-        # Solarized-specific
         base03 = palette.base03 or safeBase.base;
         base02 = palette.base02 or safeBase.bg_alt;
         base01 = palette.base01 or safeBase.comment;
@@ -587,7 +570,6 @@ let
         violet = palette.violet or safeBase.purple;
         magenta = palette.magenta or safeBase.purple;
 
-        # Gruvbox-specific
         bg0_h = palette.bg0_h or safeBase.base;
         bg0 = palette.bg0 or safeBase.base;
         bg0_s = palette.bg0_s or safeBase.bg_alt;
@@ -609,7 +591,6 @@ let
         neutral_purple = palette.neutral_purple or safeBase.purple;
         neutral_aqua = palette.neutral_aqua or safeBase.cyan;
 
-        # Nord-specific
         nord0 = palette.nord0 or safeBase.base;
         nord1 = palette.nord1 or safeBase.bg_alt;
         nord2 = palette.nord2 or safeBase.surface;
@@ -627,7 +608,6 @@ let
         nord14 = palette.nord14 or safeBase.green;
         nord15 = palette.nord15 or safeBase.purple;
 
-        # Rose Pine-specific
         love = palette.love or safeBase.red;
         gold = palette.gold or safeBase.yellow;
         rose = palette.rose or safeBase.orange;
@@ -638,7 +618,6 @@ let
         highlight_med = palette.highlight_med or safeBase.surface_alt;
         highlight_high = palette.highlight_high or safeBase.overlay;
 
-        # Kanagawa-specific
         sumiInk0 = palette.sumiInk0 or safeBase.bg_alt;
         sumiInk1 = palette.sumiInk1 or safeBase.base;
         sumiInk2 = palette.sumiInk2 or safeBase.surface;
@@ -674,7 +653,6 @@ let
     in
     safeBase // themeSafeColors;
 
-  # Create unified color mappings based on palette
   getUnifiedColors =
     palette:
     let
@@ -682,29 +660,26 @@ let
     in
     with safePalette;
     {
-      # Primary colors - these will always exist in all themes
+
       primary = accent;
       background = base;
       foreground = text;
       secondary = surface;
 
-      # Semantic colors with fallbacks
       success = green;
       warning = yellow;
       error = red;
       info = blue;
 
-      # UI colors
       border = surface_alt;
       muted = muted;
       subtle = subtle;
     };
 
-  # Helper function to merge theme config with overrides
   mergeThemeConfig =
     base: overrides:
     let
-      # Helper to deeply merge transparency settings
+
       mergeTransparency =
         base: override:
         if override ? transparency then
@@ -717,7 +692,6 @@ let
     in
     if overrides == { } then base else mergeTransparency base overrides;
 
-  # Get theme configuration for a specific app with optional overrides
   getThemeForApp =
     app: colorscheme: variant: themeConfig: overrides:
     let
@@ -728,13 +702,11 @@ let
         else
           appThemes.${app}.${colorscheme} or { };
 
-      # Default transparency settings
       defaultTransparency = {
         enable = false;
-        opacity = 0.85; # Default when transparency is enabled
+        opacity = 0.85;
       };
 
-      # Merge theme config with defaults and overrides
       finalConfig = mergeThemeConfig {
         colorscheme = colorscheme;
         variant = variant;
@@ -745,7 +717,6 @@ let
     in
     finalConfig;
 
-  # Simplified interface for getting theme with overrides
   withThemeOverrides =
     values: app: overrides:
     getThemeForApp app values.theme.colorscheme values.theme.variant values.theme overrides;
@@ -768,82 +739,82 @@ let
     };
     rose-pine = {
       moon = {
-        iris = "183"; # #c4a7e7 -> light magenta
-        foam = "152"; # #9ccfd8 -> cyan
-        pine = "117"; # #3e8fb0 -> blue
-        love = "211"; # #eb6f92 -> light red
-        gold = "216"; # #f6c177 -> orange
-        rose = "216"; # #ea9a97 -> orange
-        overlay = "238"; # #393552 -> dark gray
-        surface = "240"; # #2a273f -> gray
+        iris = "183";
+        foam = "152";
+        pine = "117";
+        love = "211";
+        gold = "216";
+        rose = "216";
+        overlay = "238";
+        surface = "240";
       };
     };
     solarized = {
       dark = {
-        blue = "33"; # #268bd2
-        cyan = "37"; # #2aa198
-        green = "64"; # #859900
-        yellow = "136"; # #b58900
-        orange = "166"; # #cb4b16
-        red = "160"; # #dc322f
-        magenta = "125"; # #d33682
-        violet = "61"; # #6c71c4
-        base02 = "240"; # #073642
-        base01 = "244"; # #586e75
+        blue = "33";
+        cyan = "37";
+        green = "64";
+        yellow = "136";
+        orange = "166";
+        red = "160";
+        magenta = "125";
+        violet = "61";
+        base02 = "240";
+        base01 = "244";
       };
     };
     gruvbox = {
       dark = {
-        blue = "109"; # #83a598 -> blue
-        orange = "208"; # #fe8019 -> orange
-        purple = "175"; # #d3869b -> magenta
-        aqua = "108"; # #8ec07c -> cyan
-        green = "142"; # #b8bb26 -> green
-        yellow = "214"; # #fabd2f -> yellow
-        red = "167"; # #fb4934 -> red
-        bg1 = "237"; # #3c3836 -> dark gray
-        bg2 = "239"; # #504945 -> gray
+        blue = "109";
+        orange = "208";
+        purple = "175";
+        aqua = "108";
+        green = "142";
+        yellow = "214";
+        red = "167";
+        bg1 = "237";
+        bg2 = "239";
       };
     };
     nord = {
       dark = {
-        red = "167"; # #bf616a -> red
-        orange = "173"; # #d08770 -> orange
-        yellow = "222"; # #ebcb8b -> yellow
-        green = "150"; # #a3be8c -> green
-        cyan = "152"; # #88c0d0 -> cyan
-        blue = "67"; # #5e81ac -> blue
-        purple = "139"; # #b48ead -> purple
-        nord0 = "236"; # #2e3440 -> dark gray
-        nord1 = "237"; # #3b4252 -> gray
-        nord2 = "240"; # #434c5e -> gray
-        nord3 = "241"; # #4c566a -> gray
+        red = "167";
+        orange = "173";
+        yellow = "222";
+        green = "150";
+        cyan = "152";
+        blue = "67";
+        purple = "139";
+        nord0 = "236";
+        nord1 = "237";
+        nord2 = "240";
+        nord3 = "241";
       };
     };
     kanagawa = {
       wave = {
-        red = "167"; # #c34043 -> red
-        orange = "215"; # #ffa066 -> orange
-        yellow = "179"; # #e6c384 -> yellow
-        green = "108"; # #98bb6c -> green
-        cyan = "109"; # #7fb4ca -> cyan
-        blue = "67"; # #7e9cd8 -> blue
-        purple = "103"; # #957fb8 -> purple
-        sumiInk0 = "233"; # #16161d -> very dark
-        sumiInk1 = "234"; # #1f1f28 -> dark
-        sumiInk2 = "236"; # #2a2a37 -> dark gray
+        red = "167";
+        orange = "215";
+        yellow = "179";
+        green = "108";
+        cyan = "109";
+        blue = "67";
+        purple = "103";
+        sumiInk0 = "233";
+        sumiInk1 = "234";
+        sumiInk2 = "236";
       };
       dragon = {
-        red = "167"; # #c4746e -> red
-        orange = "179"; # #b6927b -> orange
-        yellow = "179"; # #c4b28a -> yellow
-        green = "108"; # #87a987 -> green
-        cyan = "109"; # #8ea4a2 -> cyan
-        blue = "109"; # #8ba4b0 -> blue
-        purple = "103"; # #8992a7 -> purple
-        dragonBlack0 = "232"; # #0d0c0c -> very dark
-        dragonBlack1 = "233"; # #12120f -> dark
-        dragonBlack2 = "235"; # #1d1c19 -> dark gray
+        red = "167";
+        orange = "179";
+        yellow = "179";
+        green = "108";
+        cyan = "109";
+        blue = "109";
+        purple = "103";
+        dragonBlack0 = "232";
+        dragonBlack1 = "233";
+        dragonBlack2 = "235";
       };
     };
   };

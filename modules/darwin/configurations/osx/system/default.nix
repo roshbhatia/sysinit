@@ -1,12 +1,12 @@
 {
-  username,
+  values,
   ...
 }:
 {
   nix.enable = false;
 
   system = {
-    primaryUser = username;
+    primaryUser = values.user.username;
     stateVersion = 4;
   };
 }

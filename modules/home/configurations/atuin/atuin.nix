@@ -12,9 +12,9 @@ in
 {
   programs.atuin = {
     enable = true;
-    # We need to do this manually due to zsh-vi-mode
+
     enableZshIntegration = false;
-    # We do this manually because we're operating on the bleeding edge version with changes to APIs
+
     enableNushellIntegration = false;
 
     settings = {
@@ -30,14 +30,13 @@ in
       theme = {
         name = atuinTheme;
       };
-      # For some reason, this pops up in nushell when using atuin
+
       history_filter = [
         "with-env .*atuin search.*"
       ];
     };
   };
 
-  # Conditionally include theme files based on current colorscheme
   xdg.configFile = lib.mkMerge [
     (lib.mkIf (values.theme.colorscheme == "catppuccin") {
       "atuin/themes/catppuccin-macchiato.toml" = {

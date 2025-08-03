@@ -93,6 +93,6 @@ fi
 
 # Run formatting tasks
 log_info "Running formatting tasks..."
-task lua:fmt nix:fmt sh:chmod
+task fmt sh:chmod
 
 log_success "Pre-commit checks passed!"

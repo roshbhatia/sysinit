@@ -7,10 +7,9 @@ let
 in
 
 {
-  # Base transparency presets
+
   presets = constants.transparencyPresets;
 
-  # Create transparency config for specific apps
   createAppTransparency =
     app: preset: overrides:
     let
@@ -22,14 +21,14 @@ in
         enable = finalConfig.enable;
         opacity = finalConfig.opacity;
         blur = finalConfig.blur;
-        # Wezterm-specific settings
+
         window_decorations = if finalConfig.enable then "RESIZE" else "TITLE_BAR | RESIZE";
         macos_window_background_blur = finalConfig.blur;
       }
     else if app == "neovim" then
       {
         enable = finalConfig.enable;
-        # Neovim uses boolean transparency
+
         transparent_background = finalConfig.enable;
         show_end_of_buffer = !finalConfig.enable;
       }
@@ -41,14 +40,12 @@ in
       ]
     then
       {
-        # Terminal apps don't usually have transparency settings
-        # but we can pass through for potential use
+
         inherit (finalConfig) enable opacity;
       }
     else
       finalConfig;
 
-  # Merge transparency with existing config
   mergeTransparency =
     baseConfig: transparencyConfig:
     if transparencyConfig == { } then
@@ -56,9 +53,8 @@ in
     else
       baseConfig // { transparency = transparencyConfig; };
 
-  # Dynamic transparency based on context
   contextualTransparency = {
-    # Different transparency for different scenarios
+
     coding = {
       enable = true;
       opacity = 0.90;
@@ -81,7 +77,6 @@ in
     };
   };
 
-  # Create transparency override for specific conditions
   createConditionalTransparency =
     condition: baseTransparency:
     if condition.nvim_running or false then

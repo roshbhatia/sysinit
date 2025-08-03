@@ -4,7 +4,6 @@ let
   mcpServers = import ../shared/mcp-servers.nix;
   agents = import ../shared/agents.nix;
 
-  # Helper function to convert agent name to title case
   toTitleCase =
     name:
     let
@@ -14,7 +13,6 @@ let
     in
     lib.concatStringsSep " " (map capitalizeWord words);
 
-  # Helper function to convert activities list to YAML
   activitiesToYaml =
     activities: lib.concatStringsSep "\n" (map (activity: "  - \"${activity}\"") activities);
 in

@@ -17,6 +17,7 @@
 
   outputs =
     inputs@{
+      nixpkgs,
       darwin,
       home-manager,
       nix-homebrew,
@@ -24,88 +25,68 @@
     }:
     let
       system = "aarch64-darwin";
-      
-      # Import and validate values
-      rawValues = import ./values.nix;
-      lib = inputs.nixpkgs.lib;
-      valuesValidator = import ./modules/lib/values-validator.nix { 
-        inherit lib; 
-        values = rawValues; 
-      };
-      defaultValues = valuesValidator.validatedValues;
 
       overlayFiles = ./overlays;
       overlays = import overlayFiles {
         inherit inputs system;
       };
 
-      pkgs = import inputs.nixpkgs {
-        inherit system;
-        overlays = overlays;
+      pkgs = import nixpkgs {
+        inherit system overlays;
         config = {
           allowUnfree = true;
           allowUnsupportedSystem = true;
         };
       };
 
+      lib = pkgs.lib;
+
+      utils = import ./modules/lib {
+        inherit lib pkgs system;
+      };
+
+      defaultValues = import ./values.nix;
+
       mkDarwinConfiguration =
-        customValues:
-        let
-          # Validate custom values as well
-          customValidator = import ./modules/lib/values-validator.nix { 
-            inherit lib; 
-            values = customValues; 
-          };
-          values = customValidator.validatedValues;
-          username = values.user.username;
-          hostname = values.user.hostname;
-        in
+        {
+          values ? defaultValues,
+        }:
         darwin.lib.darwinSystem {
           inherit system;
           specialArgs = {
             inherit
               inputs
               system
-              values
-              username
-              hostname
               pkgs
+              values
+              utils
               ;
           };
           modules = [
             ./modules/darwin
             (import ./modules/darwin/home-manager.nix {
-              username = defaultValues.user.username;
-              values = defaultValues;
-              utils = import ./modules/lib {
-                lib = pkgs.lib;
-                inherit pkgs system;
-              };
+              username = values.user.username;
+              inherit values utils;
             })
             home-manager.darwinModules.home-manager
             nix-homebrew.darwinModules.nix-homebrew
             {
-              _module.args.utils = import ./modules/lib {
-                lib = pkgs.lib;
-                inherit pkgs system;
-              };
+              _module.args.utils = utils;
             }
           ];
         };
     in
     {
       darwinConfigurations = {
-        ${defaultValues.user.hostname} = mkDarwinConfiguration defaultValues;
+        ${defaultValues.user.hostname} = mkDarwinConfiguration { };
       };
 
       homeConfigurations = {
         ${defaultValues.user.username} = home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
           extraSpecialArgs = {
-            utils = import ./modules/lib {
-              inherit (pkgs) lib;
-              inherit pkgs system;
-            };
+            inherit utils;
+            values = defaultValues;
           };
           modules = [
             {
@@ -116,10 +97,7 @@
             (import ./modules/home {
               username = defaultValues.user.username;
               values = defaultValues;
-              utils = import ./modules/lib {
-                inherit (pkgs) lib;
-                inherit pkgs system;
-              };
+              inherit utils;
             })
           ];
         };
@@ -128,19 +106,17 @@
       overlays = {
         default =
           final: prev:
-          let
-            customOverlays = import overlayFiles { inherit inputs system; };
-          in
-          builtins.foldl' (acc: overlay: acc // overlay final prev) { } customOverlays;
+          builtins.foldl' (acc: overlay: acc // overlay final prev) { } (
+            import overlayFiles { inherit inputs system; }
+          );
 
-        packages = import (overlayFiles + "/packages.nix") { inherit inputs system; };
+        packages = import (overlayFiles + "/packages.nix") {
+          inherit inputs system;
+        };
       };
 
       lib = {
-        inherit mkDarwinConfiguration;
-        defaultValues = defaultValues;
-        valuesTypes = import ./modules/lib/values-types.nix { inherit lib; };
-        valuesValidator = valuesValidator;
+        inherit mkDarwinConfiguration defaultValues;
       };
     };
 }

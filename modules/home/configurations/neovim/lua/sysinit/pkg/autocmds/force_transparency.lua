@@ -6,7 +6,7 @@ function M.setup()
       vim.defer_fn(function()
         for _, win in ipairs(vim.api.nvim_list_wins()) do
           local ok, cfg = pcall(vim.api.nvim_win_get_config, win)
-          if ok and cfg.relative ~= "" then -- only floating windows
+          if ok and cfg.relative ~= "" then
             pcall(vim.api.nvim_set_option_value, "winblend", 0, { win = win })
           end
         end

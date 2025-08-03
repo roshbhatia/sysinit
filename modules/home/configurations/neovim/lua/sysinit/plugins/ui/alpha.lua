@@ -46,10 +46,22 @@ M.plugins = {
 
       dashboard.section.buttons.val = function()
         local buttons = {}
-        table.insert(buttons, dashboard.button("s", " Session: Load Last", ":ene | SessionLoad<CR>"))
-        table.insert(buttons, dashboard.button("i", " File: Create New", ":ene | startinsert<CR>"))
-        table.insert(buttons, dashboard.button("f", "󰍉 File: Search", ":ene | Telescope find_files hidden=true<CR>"))
-        table.insert(buttons, dashboard.button("g", "󰍋 Strings: Search", ":ene | Telescope live_grep<CR>"))
+        table.insert(
+          buttons,
+          dashboard.button("s", " Session: Load Last", ":ene | SessionLoad<CR>")
+        )
+        table.insert(
+          buttons,
+          dashboard.button("i", " File: Create New", ":ene | startinsert<CR>")
+        )
+        table.insert(
+          buttons,
+          dashboard.button("f", "󰍉 File: Search", ":ene | Telescope find_files hidden=true<CR>")
+        )
+        table.insert(
+          buttons,
+          dashboard.button("g", "󰍋 Strings: Search", ":ene | Telescope live_grep<CR>")
+        )
         table.insert(buttons, dashboard.button("q", "󰩈 Vim: Exit", ":qa<CR>"))
         return buttons
       end

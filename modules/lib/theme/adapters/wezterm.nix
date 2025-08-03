@@ -6,23 +6,21 @@ let
   utils = import ../core/utils.nix { inherit lib; };
 in
 
-{
-  # Create Wezterm configuration from theme
+rec {
+
   createWeztermConfig =
     themeData: config: overrides:
     let
       palette = themeData.palettes.${config.variant};
-      semanticColors = themeData.semanticMapping palette;
+      semanticColors = utils.createSemanticMapping palette;
       transparency = config.transparency or { };
 
-      # Get app-specific theme name
       themeName =
         if hasAttr "wezterm" themeData.appAdapters then
           themeData.appAdapters.wezterm.${config.variant} or "${themeData.meta.id}-${config.variant}"
         else
           "${themeData.meta.id}-${config.variant}";
 
-      # Base configuration
       baseConfig = {
         color_scheme = themeName;
 
@@ -38,25 +36,25 @@ in
           split = semanticColors.background.overlay;
 
           ansi = [
-            semanticColors.background.primary # black
-            semanticColors.semantic.error # red
-            semanticColors.semantic.success # green
-            semanticColors.semantic.warning # yellow
-            semanticColors.semantic.info # blue
-            semanticColors.syntax.keyword # magenta
-            semanticColors.syntax.operator # cyan
-            semanticColors.foreground.primary # white
+            semanticColors.background.primary
+            semanticColors.semantic.error
+            semanticColors.semantic.success
+            semanticColors.semantic.warning
+            semanticColors.semantic.info
+            semanticColors.syntax.keyword
+            semanticColors.syntax.operator
+            semanticColors.foreground.primary
           ];
 
           brights = [
-            semanticColors.foreground.muted # bright black
-            semanticColors.semantic.error # bright red
-            semanticColors.semantic.success # bright green
-            semanticColors.semantic.warning # bright yellow
-            semanticColors.semantic.info # bright blue
-            semanticColors.syntax.keyword # bright magenta
-            semanticColors.syntax.operator # bright cyan
-            semanticColors.foreground.primary # bright white
+            semanticColors.foreground.muted
+            semanticColors.semantic.error
+            semanticColors.semantic.success
+            semanticColors.semantic.warning
+            semanticColors.semantic.info
+            semanticColors.syntax.keyword
+            semanticColors.syntax.operator
+            semanticColors.foreground.primary
           ];
 
           tab_bar = {
@@ -85,7 +83,6 @@ in
         };
       };
 
-      # Add transparency settings if enabled
       transparencyConfig =
         if transparency.enable or false then
           {
@@ -99,13 +96,12 @@ in
     in
     utils.mergeThemeConfigs baseConfig (transparencyConfig // overrides);
 
-  # Generate JSON config for Wezterm Lua integration
   generateWeztermJSON =
     themeData: config:
     let
       palette = themeData.palettes.${config.variant};
-      semanticColors = themeData.semanticMapping palette;
-      weztermConfig = createWeztermConfig themeData config { };
+      semanticColors = utils.createSemanticMapping palette;
+      weztermConfig = (createWeztermConfig themeData config { });
     in
     {
       colorscheme = themeData.meta.id;
@@ -113,19 +109,15 @@ in
       transparency = config.transparency or { };
       theme_name = weztermConfig.color_scheme;
       palette = palette // {
-        # Add semantic aliases for Lua access
-        inherit (semanticColors.background)
-          primary
-          secondary
-          tertiary
-          overlay
-          ;
-        inherit (semanticColors.foreground)
-          primary
-          secondary
-          muted
-          subtle
-          ;
+        bg_primary = semanticColors.background.primary;
+        bg_secondary = semanticColors.background.secondary;
+        bg_tertiary = semanticColors.background.tertiary;
+        bg_overlay = semanticColors.background.overlay;
+
+        fg_primary = semanticColors.foreground.primary;
+        fg_secondary = semanticColors.foreground.secondary;
+        fg_muted = semanticColors.foreground.muted;
+        fg_subtle = semanticColors.foreground.subtle;
         inherit (semanticColors.accent) primary secondary dim;
         inherit (semanticColors.semantic)
           success

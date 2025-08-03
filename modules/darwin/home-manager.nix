@@ -1,5 +1,4 @@
 {
-  username,
   values,
   utils,
   ...
@@ -14,8 +13,9 @@
       inherit utils;
     };
 
-    users.${username} = import ../home {
-      inherit username values utils;
+    users.${values.user.username} = import ../home {
+      username = values.user.username;
+      inherit values utils;
     };
   };
 }

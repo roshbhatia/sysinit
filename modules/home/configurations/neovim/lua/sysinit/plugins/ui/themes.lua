@@ -4,13 +4,15 @@ local theme_config = json_loader.load_json_file(json_loader.get_config_path("the
 local M = {}
 
 local function get_transparency_config()
-  return theme_config.transparency.enable and {
-    transparent_background = true,
-    show_end_of_buffer = false,
-  } or {
-    transparent_background = false,
-    show_end_of_buffer = true,
-  }
+  return theme_config.transparency.enable
+      and {
+        transparent_background = true,
+        show_end_of_buffer = false,
+      }
+    or {
+      transparent_background = false,
+      show_end_of_buffer = true,
+    }
 end
 
 local function get_catppuccin_config()
@@ -109,7 +111,10 @@ local function get_catppuccin_config()
       indent_blankline = { enabled = true, scope_color = "lavender", colored_indent_levels = true },
       lsp_trouble = true,
       mason = true,
-      native_lsp = { enabled = true, virtual_text = { errors = { "italic" }, hints = { "italic" } } },
+      native_lsp = {
+        enabled = true,
+        virtual_text = { errors = { "italic" }, hints = { "italic" } },
+      },
       neotree = true,
       notify = true,
       nvimtree = true,
@@ -201,46 +206,39 @@ local function get_rose_pine_config()
       strings = "italic",
       variables = "none",
     },
-    highlights = transparency.transparent_background
-        and {
-          Normal = { bg = "none" },
-          NormalNC = { bg = "none" },
-          NormalFloat = { bg = "none" },
-          FloatBorder = { bg = "none" },
-          Pmenu = { bg = "none" },
-          PmenuBorder = { bg = "none" },
-          TelescopeNormal = { bg = "none" },
-          TelescopeBorder = { bg = "none" },
-          WhichKeyFloat = { bg = "none" },
-          WhichKeyBorder = { bg = "none" },
-          SignColumn = { bg = "none" },
-          CursorLine = { bg = "none" },
-          StatusLine = { bg = "none" },
-          StatusLineNC = { bg = "none" },
-          WinSeparator = { bg = "none" },
-          -- Fix WinBar transparency issues
-          WinBar = { bg = "none", fg = "subtle" },
-          WinBarNC = { bg = "none", fg = "muted" },
-          -- Fix NeoTree transparency issues
-          NeoTreeNormal = { bg = "none" },
-          NeoTreeNormalNC = { bg = "none" },
-          NeoTreeWinSeparator = { bg = "none", fg = "muted" },
-          NeoTreeVertSplit = { bg = "none", fg = "muted" },
-          NeoTreeEndOfBuffer = { bg = "none", fg = "none" },
-          -- Fix DropBar transparency issues
-          DropBarIconKindDefaultNC = { bg = "none" },
-          DropBarMenuNormalFloat = { bg = "none" },
-          DropBarCurrentContext = { bg = "none" },
-          DropBarMenuFloatBorder = { bg = "none", fg = "muted" },
-          -- Diagnostic background colors
-          DiagnosticVirtualTextError = { bg = "none" },
-          DiagnosticVirtualTextWarn = { bg = "none" },
-          DiagnosticVirtualTextInfo = { bg = "none" },
-          DiagnosticVirtualTextHint = { bg = "none" },
-          -- Float fixes
-          FloatTitle = { bg = "none" },
-        }
-      or {},
+    highlights = transparency.transparent_background and {
+      Normal = { bg = "none" },
+      NormalNC = { bg = "none" },
+      NormalFloat = { bg = "none" },
+      FloatBorder = { bg = "none" },
+      Pmenu = { bg = "none" },
+      PmenuBorder = { bg = "none" },
+      TelescopeNormal = { bg = "none" },
+      TelescopeBorder = { bg = "none" },
+      WhichKeyFloat = { bg = "none" },
+      WhichKeyBorder = { bg = "none" },
+      SignColumn = { bg = "none" },
+      CursorLine = { bg = "none" },
+      StatusLine = { bg = "none" },
+      StatusLineNC = { bg = "none" },
+      WinSeparator = { bg = "none" },
+      WinBar = { bg = "none", fg = "subtle" },
+      WinBarNC = { bg = "none", fg = "muted" },
+      NeoTreeNormal = { bg = "none" },
+      NeoTreeNormalNC = { bg = "none" },
+      NeoTreeWinSeparator = { bg = "none", fg = "muted" },
+      NeoTreeVertSplit = { bg = "none", fg = "muted" },
+      NeoTreeEndOfBuffer = { bg = "none", fg = "none" },
+      DropBarIconKindDefaultNC = { bg = "none" },
+      DropBarMenuNormalFloat = { bg = "none" },
+      DropBarCurrentContext = { bg = "none" },
+      DropBarMenuFloatBorder = { bg = "none", fg = "muted" },
+      DiagnosticVirtualTextError = { bg = "none" },
+      DiagnosticVirtualTextWarn = { bg = "none" },
+      DiagnosticVirtualTextInfo = { bg = "none" },
+      DiagnosticVirtualTextHint = { bg = "none" },
+      FloatTitle = { bg = "none" },
+    } or {},
   }
 end
 
@@ -278,7 +276,6 @@ local function get_kanagawa_config()
             StatusLine = { bg = "none" },
             StatusLineNC = { bg = "none" },
             WinSeparator = { bg = "none" },
-            -- Integration fixes
             NeoTreeNormal = { bg = "none" },
             NeoTreeNormalNC = { bg = "none" },
             NeoTreeWinSeparator = { bg = "none" },

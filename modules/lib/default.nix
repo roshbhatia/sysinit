@@ -19,7 +19,6 @@ rec {
     mkPackageManagerScript = config: manager: packages: ''
       if [ ${toString (length packages)} -gt 0 ]; then
         echo "Installing ${manager} packages: ${concatStringsSep " " packages}"
-        # Add Nix package paths to PATH for this execution
         case "${manager}" in
           "cargo")
             export PATH="${pkgs.rustup}/bin:$PATH"

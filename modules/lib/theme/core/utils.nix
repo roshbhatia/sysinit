@@ -2,16 +2,15 @@
 
 with lib;
 
-{
-  # Validate hex color format
+rec {
   isValidHexColor =
     color:
     let
-      # Remove # prefix if present
+
       cleaned = removePrefix "#" color;
-      # Check if it's 3 or 6 hex characters
+
       isValidLength = (stringLength cleaned == 3) || (stringLength cleaned == 6);
-      # Check if all characters are hex
+
       isHex = all (
         c:
         elem c [
@@ -42,10 +41,8 @@ with lib;
     in
     isValidLength && isHex;
 
-  # Ensure color has # prefix
   normalizeHexColor = color: if hasPrefix "#" color then color else "#${color}";
 
-  # Convert 3-digit hex to 6-digit hex
   expandHexColor =
     color:
     let
@@ -59,7 +56,6 @@ with lib;
     else
       normalizeHexColor color;
 
-  # Validate entire color palette
   validatePalette =
     palette:
     let
@@ -70,7 +66,6 @@ with lib;
     else
       mapAttrs (_: normalizeHexColor) palette;
 
-  # Merge palettes with override support
   mergePalettes =
     base: override:
     let
@@ -79,12 +74,10 @@ with lib;
     in
     validatedBase // validatedOverride;
 
-  # Safe color getter with fallback
   safeGetColor =
     palette: colorName: fallback:
     palette.${colorName} or fallback;
 
-  # Create semantic color mapping with fallbacks
   createSemanticMapping = palette: {
     background = {
       primary = safeGetColor palette "base" (safeGetColor palette "bg" "#000000");
@@ -146,33 +139,30 @@ with lib;
     ];
   };
 
-  # Generate ANSI color mappings
   generateAnsiMappings = semanticColors: {
-    # Basic ANSI colors mapped to semantic colors
-    "0" = semanticColors.background.primary; # black
-    "1" = semanticColors.semantic.error; # red
-    "2" = semanticColors.semantic.success; # green
-    "3" = semanticColors.semantic.warning; # yellow
-    "4" = semanticColors.semantic.info; # blue
-    "5" = semanticColors.syntax.keyword; # magenta
-    "6" = semanticColors.syntax.operator; # cyan
-    "7" = semanticColors.foreground.primary; # white
-    "8" = semanticColors.foreground.muted; # bright black
-    "9" = semanticColors.semantic.error; # bright red
-    "10" = semanticColors.semantic.success; # bright green
-    "11" = semanticColors.semantic.warning; # bright yellow
-    "12" = semanticColors.semantic.info; # bright blue
-    "13" = semanticColors.syntax.keyword; # bright magenta
-    "14" = semanticColors.syntax.operator; # bright cyan
-    "15" = semanticColors.foreground.primary; # bright white
+
+    "0" = semanticColors.background.primary;
+    "1" = semanticColors.semantic.error;
+    "2" = semanticColors.semantic.success;
+    "3" = semanticColors.semantic.warning;
+    "4" = semanticColors.semantic.info;
+    "5" = semanticColors.syntax.keyword;
+    "6" = semanticColors.syntax.operator;
+    "7" = semanticColors.foreground.primary;
+    "8" = semanticColors.foreground.muted;
+    "9" = semanticColors.semantic.error;
+    "10" = semanticColors.semantic.success;
+    "11" = semanticColors.semantic.warning;
+    "12" = semanticColors.semantic.info;
+    "13" = semanticColors.syntax.keyword;
+    "14" = semanticColors.syntax.operator;
+    "15" = semanticColors.foreground.primary;
   };
 
-  # Apply transparency preset to configuration
   applyTransparencyPreset =
     config: presetName: presets:
     if hasAttr presetName presets then config // { transparency = presets.${presetName}; } else config;
 
-  # Merge theme configurations
   mergeThemeConfigs =
     base: override:
     let

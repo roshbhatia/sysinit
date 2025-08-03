@@ -44,19 +44,22 @@ LOG_LEVEL_CRITICAL=5
 : ${LOG_LEVEL:=$LOG_LEVEL_INFO}
 
 # Formats the timestamp
-_log_timestamp() {
+_log_timestamp()
+                 {
   date "+%Y-%m-%d %H:%M:%S"
 }
 
 # Formats a key-value pair
-_log_format_kv() {
+_log_format_kv()
+                 {
   local key="$1"
   local value="$2"
   echo -e "${STYLE_BOLD}${key}${COLOR_RESET}=${value}"
 }
 
 # Core logging function
-_log() {
+_log()
+       {
   local level="$1"
   local level_name="$2"
   local color="$3"
@@ -91,49 +94,57 @@ _log() {
 }
 
 # Public logging functions
-log_debug() {
+log_debug()
+            {
   _log $LOG_LEVEL_DEBUG "DEBUG" "$COLOR_DEBUG" "$@"
 }
 
-log_info() {
+log_info()
+           {
   _log $LOG_LEVEL_INFO "INFO " "$COLOR_INFO" "$@"
 }
 
-log_success() {
+log_success()
+              {
   _log $LOG_LEVEL_SUCCESS "OK   " "$COLOR_SUCCESS" "$@"
 }
 
-log_warn() {
+log_warn()
+           {
   _log $LOG_LEVEL_WARN "WARN " "$COLOR_WARN" "$@"
 }
 
-log_error() {
+log_error()
+            {
   _log $LOG_LEVEL_ERROR "ERROR" "$COLOR_ERROR" "$@"
 }
 
-log_critical() {
+log_critical()
+               {
   _log $LOG_LEVEL_CRITICAL "CRIT " "$COLOR_CRITICAL" "$@"
 }
 
 # Helper to set log level
-set_log_level() {
+set_log_level()
+                {
   case "${1^^}" in
-  "DEBUG") LOG_LEVEL=$LOG_LEVEL_DEBUG ;;
-  "INFO") LOG_LEVEL=$LOG_LEVEL_INFO ;;
-  "SUCCESS") LOG_LEVEL=$LOG_LEVEL_SUCCESS ;;
-  "WARN") LOG_LEVEL=$LOG_LEVEL_WARN ;;
-  "ERROR") LOG_LEVEL=$LOG_LEVEL_ERROR ;;
-  "CRITICAL") LOG_LEVEL=$LOG_LEVEL_CRITICAL ;;
-  *)
-    echo "Invalid log level: $1"
-    echo "Valid levels: DEBUG, INFO, SUCCESS, WARN, ERROR, CRITICAL"
-    return 1
-    ;;
+    "DEBUG") LOG_LEVEL=$LOG_LEVEL_DEBUG ;;
+    "INFO") LOG_LEVEL=$LOG_LEVEL_INFO ;;
+    "SUCCESS") LOG_LEVEL=$LOG_LEVEL_SUCCESS ;;
+    "WARN") LOG_LEVEL=$LOG_LEVEL_WARN ;;
+    "ERROR") LOG_LEVEL=$LOG_LEVEL_ERROR ;;
+    "CRITICAL") LOG_LEVEL=$LOG_LEVEL_CRITICAL ;;
+    *)
+      echo "Invalid log level: $1"
+      echo "Valid levels: DEBUG, INFO, SUCCESS, WARN, ERROR, CRITICAL"
+      return 1
+      ;;
   esac
   return 0
 }
 
-log_help() {
+log_help()
+           {
   echo -e "${STYLE_BOLD}Logging Library Usage:${COLOR_RESET}"
   echo
   echo "Functions:"
@@ -156,7 +167,8 @@ log_help() {
 }
 
 # Ensure a file exists
-ensure_file() {
+ensure_file()
+              {
   mkdir -p /tmp/log
   local file="$1"
   if [ ! -f "$file" ]; then
@@ -166,7 +178,8 @@ ensure_file() {
 }
 
 # Follow a log file with syntax highlighting
-follow_log() {
+follow_log()
+             {
   local file="$1"
   log_info "Following log file" file="$file"
   tail -f "$file"
@@ -183,4 +196,3 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
   log_error "This is an error message" user="$USER" pid=$$
   log_critical "This is a critical message" user="$USER" pid=$$
 fi
-

@@ -24,7 +24,7 @@ in
 
   palettes = {
     dark = utils.validatePalette {
-      # Background colors
+
       bg0_h = "#1d2021";
       bg0 = "#282828";
       bg0_s = "#32302f";
@@ -33,17 +33,14 @@ in
       bg3 = "#665c54";
       bg4 = "#7c6f64";
 
-      # Foreground colors
       fg0 = "#fbf1c7";
       fg1 = "#ebdbb2";
       fg2 = "#d5c4a1";
       fg3 = "#bdae93";
       fg4 = "#a89984";
 
-      # Gray
       gray = "#928374";
 
-      # Colors
       red = "#fb4934";
       green = "#b8bb26";
       yellow = "#fabd2f";
@@ -52,7 +49,6 @@ in
       aqua = "#8ec07c";
       orange = "#fe8019";
 
-      # Neutral colors
       neutral_red = "#cc241d";
       neutral_green = "#98971a";
       neutral_yellow = "#d79921";
@@ -60,7 +56,6 @@ in
       neutral_purple = "#b16286";
       neutral_aqua = "#689d6a";
 
-      # Dark colors
       dark_red = "#421e1e";
       dark_green = "#2d3319";
       dark_yellow = "#4e3e1e";
@@ -68,7 +63,6 @@ in
       dark_purple = "#4a3650";
       dark_aqua = "#36473a";
 
-      # Semantic aliases
       base = "#282828";
       bg = "#282828";
       bg_alt = "#1d2021";
@@ -85,7 +79,7 @@ in
     };
 
     light = utils.validatePalette {
-      # Background colors (light)
+
       bg0_h = "#f9f5d7";
       bg0 = "#fbf1c7";
       bg0_s = "#f2e5bc";
@@ -94,17 +88,14 @@ in
       bg3 = "#bdae93";
       bg4 = "#a89984";
 
-      # Foreground colors (light)
       fg0 = "#282828";
       fg1 = "#3c3836";
       fg2 = "#504945";
       fg3 = "#665c54";
       fg4 = "#7c6f64";
 
-      # Gray
       gray = "#928374";
 
-      # Colors (adjusted for light theme)
       red = "#cc241d";
       green = "#98971a";
       yellow = "#d79921";
@@ -113,7 +104,6 @@ in
       aqua = "#689d6a";
       orange = "#d65d0e";
 
-      # Bright colors
       bright_red = "#9d0006";
       bright_green = "#79740e";
       bright_yellow = "#b57614";
@@ -122,7 +112,6 @@ in
       bright_aqua = "#427b58";
       bright_orange = "#af3a03";
 
-      # Semantic aliases
       base = "#fbf1c7";
       bg = "#fbf1c7";
       bg_alt = "#f9f5d7";

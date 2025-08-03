@@ -14,4 +14,3 @@ zvm_after_init_commands+=$'\nfunction z() { local dir; dir=$(zoxide query "$@");
 
 zvm_after_init_commands+="enable-fzf-tab"
 # modules/darwin/home/zsh/core/completions.sh (end)
-
