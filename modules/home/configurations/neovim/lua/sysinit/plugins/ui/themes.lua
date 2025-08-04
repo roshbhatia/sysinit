@@ -5,7 +5,9 @@ local theme_config =
 local M = {}
 
 local function get_transparent_highlights()
-  if not theme_config.transparency.enable then return {} end
+  if not theme_config.transparency.enable then
+    return {}
+  end
 
   return {
     Normal = { bg = "none" },
@@ -116,7 +118,8 @@ local function get_catppuccin_config()
         overrides.FloatBorder = { fg = colors.lavender }
         overrides.FloatTitle = { fg = colors.pink, style = { "bold" } }
         overrides.TelescopeBorder = { fg = colors.blue }
-        overrides.TelescopeSelection = { bg = colors.surface0, fg = colors.lavender, style = { "bold" } }
+        overrides.TelescopeSelection =
+          { bg = colors.surface0, fg = colors.lavender, style = { "bold" } }
         overrides.TelescopeTitle = { fg = colors.pink, style = { "bold" } }
         overrides.WhichKeyBorder = { fg = colors.lavender }
         overrides.DiagnosticError = { fg = colors.red, style = { "bold" } }
@@ -227,6 +230,16 @@ local function get_solarized_config()
 end
 
 local function get_rose_pine_config()
+  local overrides = get_transparent_highlights()
+  if theme_config.transparency.enable then
+    overrides.WinBar = { bg = "none", fg = "subtle" }
+    overrides.WinBarNC = { bg = "none", fg = "muted" }
+    overrides.NeoTreeWinSeparator = { bg = "none", fg = "muted" }
+    overrides.NeoTreeVertSplit = { bg = "none", fg = "muted" }
+    overrides.NeoTreeEndOfBuffer = { bg = "none", fg = "none" }
+    overrides.DropBarMenuFloatBorder = { bg = "none", fg = "muted" }
+  end
+
   return {
     theme = "roseprime",
     transparent = theme_config.transparency.enable,
@@ -245,18 +258,7 @@ local function get_rose_pine_config()
       strings = "italic",
       variables = "none",
     },
-    highlights = function()
-      local overrides = get_transparent_highlights()
-      if theme_config.transparency.enable then
-        overrides.WinBar = { bg = "none", fg = "subtle" }
-        overrides.WinBarNC = { bg = "none", fg = "muted" }
-        overrides.NeoTreeWinSeparator = { bg = "none", fg = "muted" }
-        overrides.NeoTreeVertSplit = { bg = "none", fg = "muted" }
-        overrides.NeoTreeEndOfBuffer = { bg = "none", fg = "none" }
-        overrides.DropBarMenuFloatBorder = { bg = "none", fg = "muted" }
-      end
-      return overrides
-    end,
+    highlights = overrides,
   }
 end
 
