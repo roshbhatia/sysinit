@@ -21,12 +21,12 @@ in
           fetch = {
             type = "local";
             enabled = true;
-            environment = mcpServers.servers.fetch.env;
             command = [ mcpServers.servers.fetch.command ] ++ mcpServers.servers.fetch.args;
           };
           memory = {
             type = "local";
             enabled = true;
+            environment = mcpServers.servers.memory.env;
             command = [ mcpServers.servers.memory.command ] ++ mcpServers.servers.memory.args;
           };
           context7 = {
@@ -57,4 +57,3 @@ in
     }) agents
   );
 }
-
