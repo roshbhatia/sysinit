@@ -16,7 +16,23 @@ in
           Hub = {
             type = "remote";
             url = mcpServers.uri;
+            enabled = false;
+          };
+          fetch = {
+            type = "local";
             enabled = true;
+            environment = mcpServers.servers.fetch.env;
+            command = [ mcpServers.servers.fetch.command ] ++ mcpServers.servers.fetch.args;
+          };
+          memory = {
+            type = "local";
+            enabled = true;
+            command = [ mcpServers.servers.memory.command ] ++ mcpServers.servers.memory.args;
+          };
+          context7 = {
+            type = "local";
+            enabled = true;
+            command = [ mcpServers.servers.context7.command ] ++ mcpServers.servers.context7.args;
           };
         };
         agent = builtins.listToAttrs (
@@ -41,3 +57,4 @@ in
     }) agents
   );
 }
+
