@@ -26,5 +26,5 @@
 		bold blue => syntax "#9ccfd8", \
 		bold cyan => syntax "#31748f", \
 		bold yellow => syntax "#f6c177"
-	syntax-theme = Rosé Pine Moon
+	syntax-theme = rose-pine-moon
 
