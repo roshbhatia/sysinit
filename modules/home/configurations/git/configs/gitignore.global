@@ -34,6 +34,7 @@ yarn-error.log
 # nix-direnv
 .envrc
 shell.nix
+.direnv/
 
 # aider
 .aider*
