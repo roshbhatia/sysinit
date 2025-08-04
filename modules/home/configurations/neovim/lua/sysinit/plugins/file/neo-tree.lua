@@ -131,6 +131,9 @@ M.plugins = {
             hide_gitignored = false,
             never_show = {
               ".DS_Store",
+              ".git",
+              "node_modules",
+              ".direnv",
             },
             visible = true,
           },
@@ -163,9 +166,12 @@ M.plugins = {
             fd = {
               "--hidden",
               "--exclude",
-              ".git",
+              ".git/",
               "--exclude",
-              "node_modules",
+              ".git/",
+              "--exclude",
+              ".direnv/",
+              "node_modules/",
             },
           },
         },
@@ -190,3 +196,4 @@ M.plugins = {
 }
 
 return M
+
