@@ -49,6 +49,7 @@ shell.nix
 # Agents
 AGENTS.md
 CRUSH.md
+CLAUDE.md
 .claude/
 
 # Random stuff
