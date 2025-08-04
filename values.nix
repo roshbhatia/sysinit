@@ -40,8 +40,8 @@
   };
 
   theme = {
-    colorscheme = "rose-pine";
-    variant = "moon";
+    colorscheme = "kanagawa";
+    variant = "dragon";
     transparency = {
       enable = true;
       opacity = 0.85;
@@ -53,4 +53,3 @@
     shell = "nu";
   };
 }
-

@@ -106,6 +106,7 @@ in
       plugins.${colorscheme} = {
         plugin = pluginInfo.plugin;
         name = pluginInfo.name;
+        setup = pluginInfo.setup;
         colorscheme = colorscheme;
       };
 

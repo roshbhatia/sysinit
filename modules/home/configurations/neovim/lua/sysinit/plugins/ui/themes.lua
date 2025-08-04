@@ -355,7 +355,7 @@ local function setup_theme()
 
   if base_scheme == "catppuccin" then
     require("catppuccin").setup(get_catppuccin_config())
-  elseif base_scheme == "rose" then
+  elseif base_scheme == "rose" or theme_config.colorscheme == "roseprime" then
     require("neomodern").setup(get_rose_pine_config())
   elseif base_scheme == "gruvbox" then
     require("gruvbox").setup(get_gruvbox_config())
