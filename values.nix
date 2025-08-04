@@ -40,8 +40,8 @@
   };
 
   theme = {
-    colorscheme = "kanagawa";
-    variant = "dragon";
+    colorscheme = "gruvbox";
+    variant = "dark";
     transparency = {
       enable = true;
       opacity = 0.85;
