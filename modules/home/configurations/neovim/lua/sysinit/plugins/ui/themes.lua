@@ -4,6 +4,65 @@ local theme_config =
 
 local M = {}
 
+local function get_transparent_highlights()
+  if not theme_config.transparency.enable then return {} end
+
+  return {
+    Normal = { bg = "none" },
+    NormalNC = { bg = "none" },
+    NormalFloat = { bg = "none" },
+    SignColumn = { bg = "none" },
+    FoldColumn = { bg = "none" },
+    LineNr = { bg = "none" },
+    LineNrAbove = { bg = "none" },
+    LineNrBelow = { bg = "none" },
+    CursorLine = { bg = "none" },
+    StatusLine = { bg = "none" },
+    StatusLineNC = { bg = "none" },
+    WinSeparator = { bg = "none" },
+    WinBar = { bg = "none" },
+    WinBarNC = { bg = "none" },
+    FloatBorder = { bg = "none" },
+    FloatTitle = { bg = "none" },
+    Pmenu = { bg = "none" },
+    PmenuBorder = { bg = "none" },
+    DiagnosticSignError = { bg = "none" },
+    DiagnosticSignWarn = { bg = "none" },
+    DiagnosticSignInfo = { bg = "none" },
+    DiagnosticSignHint = { bg = "none" },
+    GitSignsAdd = { bg = "none" },
+    GitSignsChange = { bg = "none" },
+    GitSignsDelete = { bg = "none" },
+    DiagnosticVirtualTextError = { bg = "none" },
+    DiagnosticVirtualTextWarn = { bg = "none" },
+    DiagnosticVirtualTextInfo = { bg = "none" },
+    DiagnosticVirtualTextHint = { bg = "none" },
+    TelescopeNormal = { bg = "none" },
+    TelescopeBorder = { bg = "none" },
+    NeoTreeNormal = { bg = "none" },
+    NeoTreeNormalNC = { bg = "none" },
+    NeoTreeWinSeparator = { bg = "none" },
+    DropBarIconKindDefault = { bg = "none" },
+    DropBarIconKindDefaultNC = { bg = "none" },
+    DropBarMenuNormalFloat = { bg = "none" },
+    DropBarCurrentContext = { bg = "none" },
+    DropBarMenuFloatBorder = { bg = "none" },
+    EdgyTitle = { bg = "none" },
+    EdgyIcon = { bg = "none" },
+    EdgyIconActive = { bg = "none" },
+    TreesitterContext = { bg = "none" },
+    TreesitterContextLineNumber = { bg = "none" },
+    WhichKeyFloat = { bg = "none" },
+    WhichKeyBorder = { bg = "none" },
+    BlinkCmpMenu = { bg = "none" },
+    BlinkCmpMenuBorder = { bg = "none" },
+    BlinkCmpDoc = { bg = "none" },
+    BlinkCmpDocBorder = { bg = "none" },
+    BlinkCmpSignatureHelp = { bg = "none" },
+    BlinkCmpSignatureHelpBorder = { bg = "none" },
+  }
+end
+
 local function get_catppuccin_config()
   return {
     flavour = theme_config.variant,
@@ -45,43 +104,37 @@ local function get_catppuccin_config()
     },
     highlight_overrides = {
       [theme_config.variant] = function(colors)
-        local bg = theme_config.transparency.enable and colors.none or colors.base
-        local pmenu_bg = theme_config.transparency.enable and colors.none or colors.surface0
-        local float_bg = theme_config.transparency.enable and colors.none or colors.surface0
+        local overrides = get_transparent_highlights()
 
-        return {
-          Normal = { bg = bg },
-          NormalNC = { bg = bg },
-          CursorLine = { bg = theme_config.transparency.enable and colors.none or colors.surface0 },
-          CursorLineNr = { fg = colors.lavender, style = { "bold" } },
-          LineNr = { fg = colors.overlay1 },
-          Visual = { bg = colors.surface1, style = { "bold" } },
-          Search = { bg = colors.yellow, fg = colors.base, style = { "bold" } },
-          IncSearch = { bg = colors.red, fg = colors.base, style = { "bold" } },
-          Pmenu = { bg = pmenu_bg, fg = colors.text },
-          PmenuSel = { bg = colors.surface0, fg = colors.lavender, style = { "bold" } },
-          PmenuBorder = { fg = colors.lavender, bg = pmenu_bg },
-          FloatBorder = { fg = colors.lavender, bg = float_bg },
-          NormalFloat = { bg = float_bg },
-          FloatTitle = { fg = colors.pink, bg = float_bg, style = { "bold" } },
-          TelescopeBorder = { fg = colors.blue, bg = float_bg },
-          TelescopeNormal = { bg = float_bg },
-          TelescopeSelection = { bg = colors.surface0, fg = colors.lavender, style = { "bold" } },
-          TelescopeTitle = { fg = colors.pink, bg = float_bg, style = { "bold" } },
-          WhichKeyBorder = { fg = colors.lavender, bg = float_bg },
-          WhichKeyFloat = { bg = float_bg },
-          DiagnosticError = { fg = colors.red, style = { "bold" } },
-          DiagnosticWarn = { fg = colors.yellow, style = { "bold" } },
-          DiagnosticInfo = { fg = colors.blue, style = { "bold" } },
-          DiagnosticHint = { fg = colors.teal, style = { "bold" } },
-          GitSignsAdd = { fg = colors.green, style = { "bold" } },
-          GitSignsChange = { fg = colors.yellow, style = { "bold" } },
-          GitSignsDelete = { fg = colors.red, style = { "bold" } },
-          StatusLine = { bg = bg, fg = colors.text },
-          StatusLineNC = { bg = bg, fg = colors.overlay1 },
-          WinSeparator = { fg = colors.blue, bg = bg, style = { "bold" } },
-          SignColumn = { bg = bg },
-        }
+        overrides.CursorLineNr = { fg = colors.lavender, style = { "bold" } }
+        overrides.LineNr = { fg = colors.overlay1 }
+        overrides.Visual = { bg = colors.surface1, style = { "bold" } }
+        overrides.Search = { bg = colors.yellow, fg = colors.base, style = { "bold" } }
+        overrides.IncSearch = { bg = colors.red, fg = colors.base, style = { "bold" } }
+        overrides.PmenuSel = { bg = colors.surface0, fg = colors.lavender, style = { "bold" } }
+        overrides.PmenuBorder = { fg = colors.lavender }
+        overrides.FloatBorder = { fg = colors.lavender }
+        overrides.FloatTitle = { fg = colors.pink, style = { "bold" } }
+        overrides.TelescopeBorder = { fg = colors.blue }
+        overrides.TelescopeSelection = { bg = colors.surface0, fg = colors.lavender, style = { "bold" } }
+        overrides.TelescopeTitle = { fg = colors.pink, style = { "bold" } }
+        overrides.WhichKeyBorder = { fg = colors.lavender }
+        overrides.DiagnosticError = { fg = colors.red, style = { "bold" } }
+        overrides.DiagnosticWarn = { fg = colors.yellow, style = { "bold" } }
+        overrides.DiagnosticInfo = { fg = colors.blue, style = { "bold" } }
+        overrides.DiagnosticHint = { fg = colors.teal, style = { "bold" } }
+        overrides.GitSignsAdd = { fg = colors.green, style = { "bold" } }
+        overrides.GitSignsChange = { fg = colors.yellow, style = { "bold" } }
+        overrides.GitSignsDelete = { fg = colors.red, style = { "bold" } }
+        overrides.WinSeparator = { fg = colors.blue, style = { "bold" } }
+
+        if not theme_config.transparency.enable then
+          overrides.Pmenu = { bg = colors.surface0, fg = colors.text }
+          overrides.StatusLine = { bg = colors.base, fg = colors.text }
+          overrides.StatusLineNC = { bg = colors.base, fg = colors.overlay1 }
+        end
+
+        return overrides
       end,
     },
     integrations = {
@@ -140,7 +193,7 @@ local function get_gruvbox_config()
     inverse = true,
     contrast = "hard",
     palette_overrides = {},
-    overrides = {},
+    overrides = get_transparent_highlights(),
     dim_inactive = false,
     transparent_mode = theme_config.transparency.enable,
   }
@@ -159,12 +212,16 @@ local function get_solarized_config()
       types = { bold = true },
     },
     on_highlights = function(highlights, colors)
-      local bg = theme_config.transparency.enable and colors.none or colors.base03
-      highlights.Normal = { bg = bg, fg = colors.base0 }
-      highlights.NormalNC = { bg = bg }
-      highlights.SignColumn = { bg = bg }
-      highlights.CursorLine = { bg = colors.none }
+      local overrides = get_transparent_highlights()
+      for name, hl in pairs(overrides) do
+        highlights[name] = hl
+      end
+
       highlights.Visual = { bg = colors.base02, fg = colors.base1, bold = true }
+
+      if not theme_config.transparency.enable then
+        highlights.Normal = { bg = colors.base03, fg = colors.base0 }
+      end
     end,
   }
 end
@@ -188,39 +245,18 @@ local function get_rose_pine_config()
       strings = "italic",
       variables = "none",
     },
-    highlights = theme_config.transparency.enable and {
-      Normal = { bg = "none" },
-      NormalNC = { bg = "none" },
-      NormalFloat = { bg = "none" },
-      FloatBorder = { bg = "none" },
-      Pmenu = { bg = "none" },
-      PmenuBorder = { bg = "none" },
-      TelescopeNormal = { bg = "none" },
-      TelescopeBorder = { bg = "none" },
-      WhichKeyFloat = { bg = "none" },
-      WhichKeyBorder = { bg = "none" },
-      SignColumn = { bg = "none" },
-      CursorLine = { bg = "none" },
-      StatusLine = { bg = "none" },
-      StatusLineNC = { bg = "none" },
-      WinSeparator = { bg = "none" },
-      WinBar = { bg = "none", fg = "subtle" },
-      WinBarNC = { bg = "none", fg = "muted" },
-      NeoTreeNormal = { bg = "none" },
-      NeoTreeNormalNC = { bg = "none" },
-      NeoTreeWinSeparator = { bg = "none", fg = "muted" },
-      NeoTreeVertSplit = { bg = "none", fg = "muted" },
-      NeoTreeEndOfBuffer = { bg = "none", fg = "none" },
-      DropBarIconKindDefaultNC = { bg = "none" },
-      DropBarMenuNormalFloat = { bg = "none" },
-      DropBarCurrentContext = { bg = "none" },
-      DropBarMenuFloatBorder = { bg = "none", fg = "muted" },
-      DiagnosticVirtualTextError = { bg = "none" },
-      DiagnosticVirtualTextWarn = { bg = "none" },
-      DiagnosticVirtualTextInfo = { bg = "none" },
-      DiagnosticVirtualTextHint = { bg = "none" },
-      FloatTitle = { bg = "none" },
-    } or {},
+    highlights = function()
+      local overrides = get_transparent_highlights()
+      if theme_config.transparency.enable then
+        overrides.WinBar = { bg = "none", fg = "subtle" }
+        overrides.WinBarNC = { bg = "none", fg = "muted" }
+        overrides.NeoTreeWinSeparator = { bg = "none", fg = "muted" }
+        overrides.NeoTreeVertSplit = { bg = "none", fg = "muted" }
+        overrides.NeoTreeEndOfBuffer = { bg = "none", fg = "none" }
+        overrides.DropBarMenuFloatBorder = { bg = "none", fg = "muted" }
+      end
+      return overrides
+    end,
   }
 end
 
@@ -241,28 +277,7 @@ local function get_kanagawa_config()
       theme = { wave = {}, lotus = {}, dragon = {}, all = {} },
     },
     overrides = function(colors)
-      return theme_config.transparency.enable
-          and {
-            Normal = { bg = "none" },
-            NormalNC = { bg = "none" },
-            NormalFloat = { bg = "none" },
-            FloatBorder = { bg = "none" },
-            FloatTitle = { bg = "none" },
-            Pmenu = { bg = "none" },
-            TelescopeNormal = { bg = "none" },
-            TelescopeBorder = { bg = "none" },
-            SignColumn = { bg = "none" },
-            CursorLine = { bg = "none" },
-            StatusLine = { bg = "none" },
-            StatusLineNC = { bg = "none" },
-            WinSeparator = { bg = "none" },
-            NeoTreeNormal = { bg = "none" },
-            NeoTreeNormalNC = { bg = "none" },
-            NeoTreeWinSeparator = { bg = "none" },
-            WinBar = { bg = "none" },
-            WinBarNC = { bg = "none" },
-          }
-        or {}
+      return get_transparent_highlights()
     end,
     theme = theme_config.variant,
   }
@@ -380,3 +395,4 @@ M.plugins = {
 }
 
 return M
+
