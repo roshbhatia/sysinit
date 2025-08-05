@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   values,
   pkgs,
@@ -103,4 +104,115 @@ in
       sketchybar --update
     '';
   };
+
+  # Create sketchybar plugin files through home-manager
+  # Note: nix-darwin doesn't directly support home.file, but we can use system.activationScripts
+  system.activationScripts.sketchybar-plugins.text = ''
+    mkdir -p /Users/${values.user.username}/.config/sketchybar/plugins
+
+    # workspace_strip.sh - Aerospace integration
+    cat > /Users/${values.user.username}/.config/sketchybar/plugins/workspace_strip.sh << 'EOF'
+#!/usr/bin/env bash
+if command -v aerospace &> /dev/null; then
+    focused_workspace=$(aerospace list-workspaces --focused)
+    sketchybar --set workspace_strip label="$focused_workspace"
+else
+    sketchybar --set workspace_strip label="N/A"
+fi
+EOF
+
+    # space.sh - Space/Desktop switcher
+    cat > /Users/${values.user.username}/.config/sketchybar/plugins/space.sh << 'EOF'
+#!/usr/bin/env bash
+if command -v yabai &> /dev/null; then
+    CURRENT_SPACE=$(yabai -m query --spaces --space | jq -r .index)
+    if [ "$CURRENT_SPACE" == "$NAME" ]; then
+        sketchybar --set "$NAME" background.drawing=on
+    else
+        sketchybar --set "$NAME" background.drawing=off
+    fi
+else
+    sketchybar --set "$NAME" background.drawing=off
+fi
+EOF
+
+    # front_app.sh - Front app display
+    cat > /Users/${values.user.username}/.config/sketchybar/plugins/front_app.sh << 'EOF'
+#!/usr/bin/env bash
+FRONT_APP=$(osascript -e 'tell application "System Events" to get name of first application process whose frontmost is true')
+if [ ''${#FRONT_APP} -gt 20 ]; then
+    FRONT_APP=$(echo "$FRONT_APP" | cut -c1-20)...
+fi
+sketchybar --set front_app label="$FRONT_APP"
+EOF
+
+    # clock.sh - Clock display
+    cat > /Users/${values.user.username}/.config/sketchybar/plugins/clock.sh << 'EOF'
+#!/usr/bin/env bash
+CURRENT_TIME=$(date '+%I:%M %p')
+CURRENT_DATE=$(date '+%m/%d')
+sketchybar --set clock label="$CURRENT_TIME $CURRENT_DATE"
+EOF
+
+    # volume.sh - Volume control
+    cat > /Users/${values.user.username}/.config/sketchybar/plugins/volume.sh << 'EOF'
+#!/usr/bin/env bash
+VOLUME=$(osascript -e 'output volume of (get volume settings)')
+MUTED=$(osascript -e 'output muted of (get volume settings)')
+if [ "$MUTED" == "true" ]; then
+    ICON=""
+    LABEL="Muted"
+elif [ "$VOLUME" -eq 0 ]; then
+    ICON=""
+    LABEL="0%"
+elif [ "$VOLUME" -lt 33 ]; then
+    ICON=""
+    LABEL="$VOLUME%"
+elif [ "$VOLUME" -lt 66 ]; then
+    ICON=""
+    LABEL="$VOLUME%"
+else
+    ICON=""
+    LABEL="$VOLUME%"
+fi
+sketchybar --set volume icon="$ICON" label="$LABEL"
+EOF
+
+    # battery.sh - Battery status
+    cat > /Users/${values.user.username}/.config/sketchybar/plugins/battery.sh << 'EOF'
+#!/usr/bin/env bash
+BATTERY_INFO=$(pmset -g batt)
+BATTERY_PERCENT=$(echo "$BATTERY_INFO" | grep -Eo "\d+%" | cut -d% -f1)
+CHARGING_STATE=$(echo "$BATTERY_INFO" | grep -o "AC Power\|Battery Power")
+if [ "$CHARGING_STATE" == "AC Power" ]; then
+    ICON=""
+elif [ "$BATTERY_PERCENT" -gt 75 ]; then
+    ICON=""
+elif [ "$BATTERY_PERCENT" -gt 50 ]; then
+    ICON=""
+elif [ "$BATTERY_PERCENT" -gt 25 ]; then
+    ICON=""
+else
+    ICON=""
+fi
+sketchybar --set battery icon="$ICON" label="$BATTERY_PERCENT%"
+EOF
+
+    # apple_menu.sh - Apple menu
+    cat > /Users/${values.user.username}/.config/sketchybar/plugins/apple_menu.sh << 'EOF'
+#!/usr/bin/env bash
+osascript << APPLESCRIPT
+display dialog "System Menu" buttons {"About This Mac", "System Preferences", "Cancel"} default button "Cancel" with title "Apple Menu"
+set choice to button returned of result
+if choice is "About This Mac" then
+    tell application "System Information" to activate
+else if choice is "System Preferences" then
+    tell application "System Preferences" to activate
+end if
+APPLESCRIPT
+EOF
+
+    # Make all plugin scripts executable
+    chmod +x /Users/${values.user.username}/.config/sketchybar/plugins/*.sh
+  '';
 }
