@@ -29,7 +29,7 @@ in
       hash = "sha256-FExQNSEe3rt/2vH19A3qlwwDBJNwZeoSJEAzQQ9K8zM=";
     };
 
-    cargoHash = "sha256-FExQNSEe3rt/2vH19A3qlwwDBJNwZeoSJEAzQQ9K8zM=";
+    cargoHash = "sha256-nyDNC/fe5/S/+SYKbvQQbww8U8tXpyVZawmmplwa9DM=";
 
     nativeBuildInputs = [
       prev.pkg-config
