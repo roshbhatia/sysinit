@@ -148,13 +148,13 @@ let
 
   pluginColors = ''
     #!/usr/bin/env zsh
-    BATTERY_1="${palette.green.primary}"
-    BATTERY_2="${palette.yellow.primary}"
-    BATTERY_3="${palette.pink.primary}"
-    BATTERY_4="${palette.red.primary}"
-    BATTERY_5="${palette.maroon.primary}"
-    YELLOW="${palette.yellow.primary}"
-    GREEN="${palette.green.primary}"
+    BATTERY_1="${palette.green}"
+    BATTERY_2="${palette.yellow}"
+    BATTERY_3="${palette.pink}"
+    BATTERY_4="${palette.red}"
+    BATTERY_5="${palette.maroon}"
+    YELLOW="${palette.yellow}"
+    GREEN="${palette.green}"
   '';
 
   pluginIcons = ''
