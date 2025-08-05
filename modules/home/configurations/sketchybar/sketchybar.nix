@@ -190,7 +190,6 @@ in
   home.file = {
     ".config/sketchybar/sketchybarrc" = {
       text = sketchybarrc;
-      executable = false;
     };
     ".config/sketchybar/plugins/date_label.sh" = {
       text = pluginDateLabel;
