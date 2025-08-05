@@ -1,11 +1,6 @@
-# overlays/goose-cli.nix
-# Overlay for the block goose CLI tool only
-# Usage: add this overlay to your overlays list in flake.nix or overlays/default.nix
-
 _final: prev:
 
 let
-  # fetch the tokenizers at overlay-load time
   gpt-4o-tokenizer = prev.fetchurl {
     url = "https://huggingface.co/Xenova/gpt-4o/resolve/31376962e96831b948abe05d420160d0793a65a4/tokenizer.json";
     hash = "sha256-Q6OtRhimqTj4wmFBVOoQwxrVOmLVaDrgsOYTNXXO8H4=";
@@ -49,13 +44,9 @@ in
       ln -s ${claude-tokenizer} tokenizer_files/Xenova--claude-tokenizer/tokenizer.json
     '';
 
-    nativeCheckInputs = [ prev.writableTmpDirAsHomeHook ];
-
     __darwinAllowLocalNetworking = true;
 
-    checkFlags = [
-      "--no-run"
-    ];
+    doCheck = false;
 
     passthru.updateScript = prev.nix-update-script { };
 
@@ -68,3 +59,4 @@ in
     };
   });
 }
+
