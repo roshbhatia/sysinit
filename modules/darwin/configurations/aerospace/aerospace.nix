@@ -5,7 +5,7 @@
     package = pkgs.aerospace;
     settings = {
       after-startup-command = [
-        "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar"
+        "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --hotload true"
         "exec-and-forget ${pkgs.jankyborders}"
       ];
       enable-normalization-flatten-containers = true;
