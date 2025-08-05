@@ -27,7 +27,7 @@ let
         right = 16;
         left = 16;
         bottom = 24;
-        top = 24;
+        top = 40;
       };
     };
 

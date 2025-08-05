@@ -15,12 +15,7 @@ let
   colorDefault = sketchybarColors.muted or "0x88ffffff";
   labelHighlight = sketchybarColors.highlight or "0xff99ccff";
 
-  barAlpha =
-    let
-      enabled = values.theme.transparency.enable or false;
-      opacity = values.theme.transparency.opacity or 0.85;
-    in
-    if enabled then builtins.floor (opacity * 255) else 255;
+  barAlpha = 255;
 
   barColorHex = sketchybarColors.background or "#222222";
   barColor =
@@ -160,6 +155,7 @@ let
   '';
 
   sketchybarrc = ''
+    #!/usr/bin/env zsh
     sketchybar --bar height=32 \
       y_offset=5 \
       margin=2 \
@@ -168,8 +164,7 @@ let
       padding_right=10 \
       blur_radius=30 \
       corner_radius=10 \
-      color=${barColor}
-
+       color=${barColor} # forced opaque, no transparency
     sketchybar --default width=32 \
       icon.font="JetBrainsMono Nerd Font:Bold:18.0" \
       icon.color=${colorDefault} \
@@ -187,37 +182,46 @@ let
 
 in
 {
-  home.file = {
-    ".config/sketchybar/sketchybarrc" = {
+  xdg.configFile = {
+    "sketchybar/sketchybarrc" = {
       text = sketchybarrc;
+      executable = true;
     };
-    ".config/sketchybar/plugins/date_label.sh" = {
+
+    "sketchybar/plugins/date_label.sh" = {
       text = pluginDateLabel;
       executable = true;
     };
-    ".config/sketchybar/plugins/battery.sh" = {
+
+    "sketchybar/plugins/battery.sh" = {
       text = pluginBattery;
       executable = true;
     };
-    ".config/sketchybar/plugins/apple_menu.sh" = {
+
+    "sketchybar/plugins/apple_menu.sh" = {
       text = pluginAppleMenu;
       executable = true;
     };
-    ".config/sketchybar/plugins/workspace_strip.sh" = {
+
+    "sketchybar/plugins/workspace_strip.sh" = {
       text = pluginWorkspaceStrip;
       executable = true;
     };
-    ".config/sketchybar/plugins/icon_map.sh" = {
+
+    "sketchybar/plugins/icon_map.sh" = {
       text = pluginIconMap;
       executable = true;
     };
-    ".config/sketchybar/plugins/colors.sh" = {
+
+    "sketchybar/plugins/colors.sh" = {
       text = pluginColors;
       executable = false;
     };
-    ".config/sketchybar/plugins/icons.sh" = {
+
+    "sketchybar/plugins/icons.sh" = {
       text = pluginIcons;
       executable = false;
     };
   };
 }
+
