@@ -162,7 +162,6 @@ in
 {
   programs.sketchybar = {
     enable = true;
-    service.enable = true;
   };
 
   home.file = {
