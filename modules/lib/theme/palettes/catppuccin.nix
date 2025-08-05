@@ -197,5 +197,6 @@ in
     vivid = variant: "catppuccin-${variant}";
     helix = variant: "catppuccin_${variant}";
     nushell = variant: "catppuccin-${variant}.nu";
+    sketchybar = variant: "catppuccin-${variant}";
   };
 }

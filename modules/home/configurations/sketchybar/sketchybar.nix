@@ -3,13 +3,41 @@
 let
   themes = import ../../../lib/theme { inherit lib; };
   sketchybarTheme = values.theme.appThemes.sketchybar;
-  sketchybarThemeName = if builtins.isAttrs sketchybarTheme then sketchybarTheme.name else sketchybarTheme;
-  sketchybarThemeVariant = if builtins.isAttrs sketchybarTheme && sketchybarTheme ? variant then sketchybarTheme.variant else values.theme.variant;
+  sketchybarThemeName =
+    if builtins.isAttrs sketchybarTheme then sketchybarTheme.name else sketchybarTheme;
+  sketchybarThemeVariant =
+    if builtins.isAttrs sketchybarTheme && sketchybarTheme ? variant then
+      sketchybarTheme.variant
+    else
+      values.theme.variant;
   palette = themes.getThemePalette sketchybarThemeName sketchybarThemeVariant;
   colors = themes.getUnifiedColors palette;
-  colorBlack = colors.black.primary or "0x40000000";
-  colorDefault = colors.fgDim.primary or "0x88ffffff";
+  colorDefault = colors.foreground.muted or "0x88ffffff";
   labelHighlight = colors.accent.primary or "0xff99ccff";
+
+  barAlpha =
+    let
+      enabled = values.theme.transparency.enable or false;
+      opacity = values.theme.transparency.opacity or 0.85;
+    in
+      if enabled then builtins.floor (opacity * 255)
+      else 255;
+
+  barColorHex = colors.background.primary or "#222222";
+  barColor =
+    let
+      hex = builtins.replaceStrings ["#"] [""] barColorHex;
+      padded = if builtins.stringLength hex == 6 then hex else "222222";
+      alpha =
+        let
+          a = builtins.toHexString barAlpha;
+        in
+          if builtins.stringLength a == 1 then "0" + a else a;
+    in
+      if barColorHex != null && barColorHex != "" then
+        "0x" + padded + alpha
+      else
+        "0x222222ff";
 
   pluginDateLabel = ''
     #!/usr/bin/env zsh
@@ -144,7 +172,7 @@ let
       padding_right=10 \
       blur_radius=30 \
       corner_radius=10 \
-      color=${colorBlack}
+      color=${barColor}
 
     sketchybar --default width=32 \
       icon.font="JetBrainsMono Nerd Font:Bold:18.0" \
