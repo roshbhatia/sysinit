@@ -6,7 +6,7 @@ let
   utils = import ../core/utils.nix { inherit lib; };
 in
 
-{
+rec {
   appAdapters = {
     wezterm = {
       wave = "Kanagawa (Gogh)";
