@@ -10,16 +10,24 @@
 {
   imports = [
     ./aerospace
+
     (import ./borders {
       inherit
         lib
         values
         ;
     })
+
     ./direnv
     ./llm
     ./vivid
 
+    (import ./sketchybar {
+      inherit
+        lib
+        values
+        ;
+    })
     (import ./atuin {
       inherit
         lib
@@ -116,3 +124,4 @@
     })
   ];
 }
+
