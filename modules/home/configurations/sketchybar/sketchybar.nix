@@ -160,9 +160,7 @@ let
 
 in
 {
-  programs.sketchybar = {
-    enable = true;
-  };
+  programs.sketchybar.enable = true;
 
   home.file = {
     ".config/sketchybar/sketchybarrc" = {
