@@ -20,24 +20,20 @@ let
       enabled = values.theme.transparency.enable or false;
       opacity = values.theme.transparency.opacity or 0.85;
     in
-      if enabled then builtins.floor (opacity * 255)
-      else 255;
+    if enabled then builtins.floor (opacity * 255) else 255;
 
   barColorHex = colors.background.primary or "#222222";
   barColor =
     let
-      hex = builtins.replaceStrings ["#"] [""] barColorHex;
+      hex = builtins.replaceStrings [ "#" ] [ "" ] barColorHex;
       padded = if builtins.stringLength hex == 6 then hex else "222222";
       alpha =
         let
           a = builtins.toHexString barAlpha;
         in
-          if builtins.stringLength a == 1 then "0" + a else a;
+        if builtins.stringLength a == 1 then "0" + a else a;
     in
-      if barColorHex != null && barColorHex != "" then
-        "0x" + padded + alpha
-      else
-        "0x222222ff";
+    if barColorHex != null && barColorHex != "" then "0x" + padded + alpha else "0x222222ff";
 
   pluginDateLabel = ''
     #!/usr/bin/env zsh
