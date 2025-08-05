@@ -11,17 +11,14 @@ let
   baseTaps = [
 
     "charmbracelet/tap"
-    "FelixKratz/formulae"
     "hashicorp/tap"
     "jakehilborn/jakehilborn"
-    "nikitabobko/tap"
     "noahgorstein/tap"
     "sandreas/tap"
     "vet-run/vet"
   ];
 
   baseBrews = [
-    "borders"
     "bcrypt"
     "charmbracelet/tap/crush"
     "displayplacer"
@@ -37,7 +34,6 @@ let
     "font-symbols-only-nerd-font"
     "keycastr"
     "raycast"
-    "nikitabobko/tap/aerospace"
     "slack"
     "visual-studio-code@insiders"
     "wezterm"

@@ -22,12 +22,12 @@
     ./llm
     ./vivid
 
-    (import ./sketchybar {
-      inherit
-        lib
-        values
-        ;
-    })
+    # (import ./sketchybar {
+    #   inherit
+    #     lib
+    #     values
+    #     ;
+    # })
     (import ./atuin {
       inherit
         lib

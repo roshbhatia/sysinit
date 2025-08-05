@@ -9,5 +9,6 @@
     ./security
     ./system
     ./user
+    ./sketchybar
   ];
 }

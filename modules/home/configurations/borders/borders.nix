@@ -1,6 +1,7 @@
 {
   lib,
   values,
+  pkgs,
   ...
 }:
 
@@ -10,23 +11,16 @@ let
   colors = themes.getUnifiedColors palette;
   activeColor = lib.toLower (lib.removePrefix "#" (colors.accent.primary or "ffdc8a78"));
   inactiveColor = lib.toLower (lib.removePrefix "#" (colors.background.overlay or "ffbabbf1"));
-  bordersrc = ''
-    style=round
-    width=5.0
-    hidpi=on
-    active_color=0x${activeColor}
-    inactive_color=0x${inactiveColor}
-  '';
 in
 {
-  xdg.configFile."borders/bordersrc" = {
-    text = bordersrc;
-    force = true;
-  };
+  services.jankyborders = {
+    enable = true;
+    package = pkgs.jankyborders;
 
-  home.activation.bordersService = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    if ! /opt/homebrew/bin/brew services restart borders; then
-      /opt/homebrew/bin/brew services start borders
-    fi
-  '';
+    style = "round";
+    width = 3.0;
+    hidpi = true;
+    active_color = "0x${activeColor}";
+    inactive_color = "0x${inactiveColor}";
+  };
 }

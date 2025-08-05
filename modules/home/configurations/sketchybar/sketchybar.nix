@@ -14,214 +14,84 @@ let
   sketchybarColors = (themes.getTheme sketchybarThemeName).appAdapters.sketchybar;
   colorDefault = sketchybarColors.muted or "0x88ffffff";
   labelHighlight = sketchybarColors.highlight or "0xff99ccff";
-
-  barAlpha = 255;
-
-  barColorHex = sketchybarColors.background or "#222222";
-  barColor =
-    let
-      hex = builtins.replaceStrings [ "#" ] [ "" ] barColorHex;
-      padded = if builtins.stringLength hex == 6 then hex else "222222";
-      alpha =
-        let
-          a = lib.toHexString barAlpha;
-        in
-        if builtins.stringLength a == 1 then "0" + a else a;
-    in
-    if barColorHex != null && barColorHex != "" then "0x" + padded + alpha else "0x222222ff";
-
-  pluginDateLabel = ''
-    #!/usr/bin/env zsh
-    sketchybar --set "$NAME" label="$(date '+%m/%d %H:%M')"
-  '';
-
-  pluginBattery = ''
-    #!/usr/bin/env zsh
-    source "$CONFIG_DIR/plugins/colors.sh"
-    PERCENTAGE="$(pmset -g batt | grep -Eo "\\d+%" | cut -d% -f1)"
-    CHARGING="$(pmset -g batt | grep 'AC Power')"
-    if [ "''${PERCENTAGE}" = "" ]; then exit 0; fi
-    case ''${PERCENTAGE} in
-      [8-9][0-9] | 100) ICON="􀛨"; ICON_COLOR=''${BATTERY_1} ;;
-      7[0-9])           ICON="􀺸"; ICON_COLOR=''${BATTERY_2} ;;
-      [4-6][0-9])       ICON="􀺶"; ICON_COLOR=''${BATTERY_3} ;;
-      [1-3][0-9])       ICON="􀛩"; ICON_COLOR=''${BATTERY_4} ;;
-      [0-9])            ICON="􀛪"; ICON_COLOR=''${BATTERY_5} ;;
-    esac
-    if [ ! -z "''${CHARGING}" ]; then ICON="􀢋"; ICON_COLOR=''${YELLOW}; fi
-    sketchybar --set "$NAME" icon="$ICON" label=" ''${PERCENTAGE}%" icon.color="''${ICON_COLOR}"
-  '';
-
-  pluginAppleMenu = ''
-    #!/usr/bin/env zsh
-    source "$CONFIG_DIR/plugins/icons.sh"
-    source "$CONFIG_DIR/plugins/colors.sh"
-    POPUP_OFF='sketchybar --set apple.logo popup.drawing=off'
-    POPUP_CLICK_SCRIPT='sketchybar --set $NAME popup.drawing=toggle'
-    apple_logo=(
-      icon=''${APPLE}
-      icon.font="JetBrainsMono Nerd Font:Black:16.0"
-      icon.color=''${GREEN}
-      padding_right=15
-      label.drawing=off
-      click_script="$POPUP_CLICK_SCRIPT"
-      popup.height=35
-    )
-    apple_prefs=(
-      icon=''${PREFERENCES}
-      label="Preferences"
-      click_script="open -a 'System Preferences'; $POPUP_OFF"
-    )
-    apple_activity=(
-      icon=''${ACTIVITY}
-      label="Activity"
-      click_script="open -a 'Activity Monitor'; $POPUP_OFF"
-    )
-    apple_lock=(
-      icon=''${LOCK}
-      label="Lock Screen"
-      click_script="pmset displaysleepnow; $POPUP_OFF"
-    )
-    sketchybar --add item apple.logo left                  \
-               --set apple.logo "''${apple_logo[@]}"         \
-               --add item apple.prefs popup.apple.logo     \
-               --set apple.prefs "''${apple_prefs[@]}"       \
-               --add item apple.activity popup.apple.logo  \
-               --set apple.activity "''${apple_activity[@]}" \
-               --add item apple.lock popup.apple.logo      \
-               --set apple.lock "''${apple_lock[@]}"
-  '';
-
-  pluginWorkspaceStrip = ''
-    #!/usr/bin/env zsh
-    AEROSPACE_FOCUSED_MONITOR_NO=$(aerospace list-workspaces --focused)
-    AEROSPACE_LIST_OF_WINDOWS_IN_FOCUSED_MONITOR=$(aerospace list-windows --workspace $AEROSPACE_FOCUSED_MONITOR_NO | awk -F'|' '{gsub(/^ *| *$/, "" $2); print $2}')
-    if [ "''${SENDER}" = "front_app_switched" ]; then
-      sketchybar --set "$NAME" label="''${INFO}" icon.background.image="app.''${INFO}" icon.background.image.scale=0.8
-      apps=''${AEROSPACE_LIST_OF_WINDOWS_IN_FOCUSED_MONITOR}
-      icon_strip=" "
-      if [ "''${apps}" != "" ]; then
-        while read -r app; do
-          icon_strip+=" $($CONFIG_DIR/plugins/icon_map.sh \"$app\")"
-        done <<< "''${apps}"
-      else
-        icon_strip=" —"
-      fi
-      sketchybar --set space.''${AEROSPACE_FOCUSED_MONITOR_NO} label="''${icon_strip}"
-    fi
-  '';
-
-  pluginIconMap = ''
-    #!/usr/bin/env zsh
-    case "$1" in
-      "Firefox") echo "" ;;
-      "Microsoft Outlook") echo "󰴢" ;;
-      "Slack") echo "" ;;
-      "Discord") echo "" ;;
-      "Messenger") echo "󰍦" ;;
-      "Messages") echo "󰍦" ;;
-      "Ferdium") echo "󰒱" ;;
-      "Apple Music") echo "" ;;
-      "Podcasts") echo "" ;;
-      "Books") echo "" ;;
-      "VSCode Insiders") echo "" ;;
-      "Bruno") echo "󰚩" ;;
-      "Zoom") echo "" ;;
-      "Audible") echo "" ;;
-      "Wezterm") echo "" ;;
-      "Finder") echo "" ;;
-      "Terminal") echo "" ;;
-      *) echo "" ;;
-    esac
-  '';
-
-  pluginColors = ''
-    #!/usr/bin/env zsh
-    BATTERY_1="${sketchybarColors.success}"
-    BATTERY_2="${sketchybarColors.warning}"
-    BATTERY_3="${sketchybarColors.accent}"
-    BATTERY_4="${sketchybarColors.error}"
-    BATTERY_5="${sketchybarColors.background}"
-    YELLOW="${sketchybarColors.warning}"
-    GREEN="${sketchybarColors.success}"
-  '';
-
-  pluginIcons = ''
-    #!/usr/bin/env zsh
-    APPLE="󰀵"
-    PREFERENCES=""
-    ACTIVITY="󰍛"
-    LOCK="󰌾"
-  '';
-
-  sketchybarrc = ''
-    #!/usr/bin/env zsh
-    sketchybar --bar height=32 \
-      y_offset=5 \
-      margin=2 \
-      position=top \
-      padding_left=10 \
-      padding_right=10 \
-      blur_radius=30 \
-      corner_radius=10 \
-       color=${barColor} # forced opaque, no transparency
-    sketchybar --default width=32 \
-      icon.font="JetBrainsMono Nerd Font:Bold:18.0" \
-      icon.color=${colorDefault} \
-      label.font="JetBrainsMono Nerd Font:Bold:18.0" \
-      label.highlight_color="${labelHighlight}" \
-      label.width=50 \
-      label.color=${colorDefault}
-
-    sketchybar --add bracket center_items center
-    sketchybar --add item workspace_strip center
-    sketchybar --set workspace_strip script="$CONFIG_DIR/plugins/workspace_strip.sh" label.align=center
-    sketchybar --add item app_name center
-    sketchybar --set app_name label.align=center
-  '';
-
+  barColor = sketchybarColors.background or "#222222";
 in
 {
-  xdg.configFile = {
-    "sketchybar/sketchybarrc" = {
-      text = sketchybarrc;
-      executable = true;
-    };
+  services.sketchybar = {
+    enable = true;
+    config = ''
+      #!/usr/bin/env zsh
+      PLUGIN_DIR="$CONFIG_DIR/plugins"
+      sketchybar --bar height=32 \
+        y_offset=5 \
+        margin=2 \
+        position=top \
+        padding_left=10 \
+        padding_right=10 \
+        blur_radius=30 \
+        corner_radius=10 \
+        color=${barColor}
+      sketchybar --default width=32 \
+        icon.font="JetBrainsMono Nerd Font:Bold:18.0" \
+        icon.color=${colorDefault} \
+        label.font="JetBrainsMono Nerd Font:Bold:18.0" \
+        label.highlight_color="${labelHighlight}" \
+        label.width=50 \
+        label.color=${colorDefault}
 
-    "sketchybar/plugins/date_label.sh" = {
-      text = pluginDateLabel;
-      executable = true;
-    };
+      # Workspace strip (Aerospace integration)
+      sketchybar --add bracket center_items center
+      sketchybar --add item workspace_strip center
+      sketchybar --set workspace_strip script="$PLUGIN_DIR/workspace_strip.sh" label.align=center
+      sketchybar --add item app_name center
+      sketchybar --set app_name label.align=center
 
-    "sketchybar/plugins/battery.sh" = {
-      text = pluginBattery;
-      executable = true;
-    };
+      # Spaces (classic strip)
+      SPACE_ICONS=("1" "2" "3" "4" "5" "6" "7" "8" "9" "10")
+      for i in "''${!SPACE_ICONS[@]}"
+      do
+        sid="$(($i+1))"
+        space=(
+          space="$sid"
+          icon="''${SPACE_ICONS[i]}"
+          icon.padding_left=7
+          icon.padding_right=7
+          background.color=0x40ffffff
+          background.corner_radius=5
+          background.height=25
+          label.drawing=off
+          script="$PLUGIN_DIR/space.sh"
+          click_script="yabai -m space --focus $sid"
+        )
+        sketchybar --add space space."$sid" left --set space."$sid" "''${space[@]}"
+      done
 
-    "sketchybar/plugins/apple_menu.sh" = {
-      text = pluginAppleMenu;
-      executable = true;
-    };
+      # App icons, front app, chevron
+      sketchybar --add item chevron left \
+        --set chevron icon= label.drawing=off \
+        --add item front_app left \
+        --set front_app icon.drawing=off script="$PLUGIN_DIR/front_app.sh" \
+        --subscribe front_app front_app_switched
 
-    "sketchybar/plugins/workspace_strip.sh" = {
-      text = pluginWorkspaceStrip;
-      executable = true;
-    };
+      # Clock, volume, battery
+      sketchybar --add item clock right \
+        --set clock update_freq=10 icon= script="$PLUGIN_DIR/clock.sh" \
+        --add item volume right \
+        --set volume script="$PLUGIN_DIR/volume.sh" \
+        --subscribe volume volume_change \
+        --add item battery right \
+        --set battery update_freq=120 script="$PLUGIN_DIR/battery.sh" \
+        --subscribe battery system_woke power_source_change
 
-    "sketchybar/plugins/icon_map.sh" = {
-      text = pluginIconMap;
-      executable = true;
-    };
+      # Apple menu (custom popup)
+      sketchybar --add item apple.logo left
+      sketchybar --set apple.logo icon=󰀵 icon.font="JetBrainsMono Nerd Font:Black:16.0" icon.color=${
+        sketchybarColors.success or "0xffaaffaa"
+      } padding_right=15 label.drawing=off click_script="$PLUGIN_DIR/apple_menu.sh"
+      # (You can expand this with your full apple_menu logic if you want)
 
-    "sketchybar/plugins/colors.sh" = {
-      text = pluginColors;
-      executable = false;
-    };
-
-    "sketchybar/plugins/icons.sh" = {
-      text = pluginIcons;
-      executable = false;
-    };
+      sketchybar --update
+    '';
   };
 }
 

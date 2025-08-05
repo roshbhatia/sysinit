@@ -104,7 +104,6 @@ let
     rustup
     sad
     shellcheck
-    sketchybar
     socat
     sshpass
     statix
