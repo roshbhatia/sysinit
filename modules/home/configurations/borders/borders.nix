@@ -1,22 +1,35 @@
-{ config, lib, pkgs, values, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  values,
+  ...
+}:
 
 let
   themes = import ../../../lib/theme { inherit lib; };
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
   colors = themes.getUnifiedColors palette;
-  # Choose theme colors for borders
-  activeColor = colors.accent.primary or "0xffdc8a78";
-  inactiveColor = colors.background.overlay or "0xffbabbf1";
+  activeColor = lib.toLower (lib.removePrefix "#" (colors.accent.primary or "ffdc8a78"));
+  inactiveColor = lib.toLower (lib.removePrefix "#" (colors.background.overlay or "ffbabbf1"));
   bordersrc = ''
     style=round
     width=5.0
     hidpi=on
-    active_color=${activeColor}
-    inactive_color=${inactiveColor}
+    active_color=0x${activeColor}
+    inactive_color=0x${inactiveColor}
   '';
-in {
+in
+{
   xdg.configFile."borders/bordersrc" = {
     text = bordersrc;
     force = true;
   };
+
+  home.activation.bordersService = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    if ! brew services restart borders; then
+      brew services start borders
+    fi
+  '';
 }
+
