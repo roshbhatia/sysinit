@@ -2,27 +2,31 @@
 
 # Battery plugin with charging status and better icons
 
-get_battery_info() {
-    pmset -g batt 2>/dev/null | head -2
+get_battery_info()
+                   {
+    pmset -g batt 2> /dev/null | head -2
 }
 
-get_battery_percent() {
+get_battery_percent()
+                      {
     local battery_info="$1"
     echo "$battery_info" | grep -Eo "\d+%" | cut -d% -f1 | head -1
 }
 
-get_charging_state() {
+get_charging_state()
+                     {
     local battery_info="$1"
     if echo "$battery_info" | grep -q "AC Power"; then
         echo "charging"
-    elif echo "$battery_info" | grep -q "Battery Power"; then
+  elif   echo "$battery_info" | grep -q "Battery Power"; then
         echo "discharging"
-    else
+  else
         echo "unknown"
-    fi
+  fi
 }
 
-get_time_remaining() {
+get_time_remaining()
+                     {
     local battery_info="$1"
     echo "$battery_info" | grep -o "\d*:\d*" | head -1
 }
@@ -41,33 +45,33 @@ if [ "$CHARGING_STATE" == "charging" ]; then
     COLOR="0xffa6da95"  # Green for charging
     if [ -n "$TIME_REMAINING" ]; then
         LABEL="$BATTERY_PERCENT% ($TIME_REMAINING)"
-    else
+  else
         LABEL="$BATTERY_PERCENT% Charging"
-    fi
+  fi
 else
     # Choose battery icon based on level
     if [ "$BATTERY_PERCENT" -gt 75 ]; then
         ICON=""
         COLOR="0xffa6da95"  # Green
-    elif [ "$BATTERY_PERCENT" -gt 50 ]; then
+  elif   [ "$BATTERY_PERCENT" -gt 50 ]; then
         ICON=""
         COLOR="0xffeed49f"  # Yellow
-    elif [ "$BATTERY_PERCENT" -gt 25 ]; then
+  elif   [ "$BATTERY_PERCENT" -gt 25 ]; then
         ICON=""
         COLOR="0xfff5a97f"  # Orange
-    elif [ "$BATTERY_PERCENT" -gt 10 ]; then
+  elif   [ "$BATTERY_PERCENT" -gt 10 ]; then
         ICON=""
         COLOR="0xffed8796"  # Red
-    else
+  else
         ICON=""
         COLOR="0xffed8796"  # Red critical
-    fi
+  fi
 
     if [ -n "$TIME_REMAINING" ]; then
         LABEL="$BATTERY_PERCENT% ($TIME_REMAINING)"
-    else
+  else
         LABEL="$BATTERY_PERCENT%"
-    fi
+  fi
 fi
 
 sketchybar --set "$NAME" \

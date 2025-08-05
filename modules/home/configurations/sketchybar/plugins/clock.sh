@@ -2,15 +2,18 @@
 
 # Clock plugin with date and time
 
-get_time() {
+get_time()
+           {
     date '+%H:%M'
 }
 
-get_date() {
+get_date()
+           {
     date '+%a %m/%d'
 }
 
-get_timezone() {
+get_timezone()
+               {
     date '+%Z'
 }
 

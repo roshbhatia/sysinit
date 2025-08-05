@@ -2,12 +2,14 @@
 
 # System stats plugin (CPU, Memory, Network)
 
-get_cpu_usage() {
-    top -l 1 -n 0 | grep "CPU usage" | awk '{print $3}' | cut -d% -f1 2>/dev/null || echo "0"
+get_cpu_usage()
+                {
+    top -l 1 -n 0 | grep "CPU usage" | awk '{print $3}' | cut -d% -f1 2> /dev/null || echo "0"
 }
 
-get_memory_usage() {
-    local memory_info=$(vm_stat 2>/dev/null)
+get_memory_usage()
+                   {
+    local memory_info=$(vm_stat 2> /dev/null)
     if [ -n "$memory_info" ]; then
         local pages_free=$(echo "$memory_info" | grep "Pages free" | awk '{print $3}' | cut -d. -f1)
         local pages_active=$(echo "$memory_info" | grep "Pages active" | awk '{print $3}' | cut -d. -f1)
@@ -20,21 +22,22 @@ get_memory_usage() {
 
         if [ "$total_pages" -gt 0 ]; then
             echo $((used_pages * 100 / total_pages))
-        else
-            echo "0"
-        fi
     else
-        echo "0"
+            echo "0"
     fi
+  else
+        echo "0"
+  fi
 }
 
-get_network_status() {
+get_network_status()
+                     {
     # Check for active network interface
-    if ping -c 1 -W 1000 8.8.8.8 >/dev/null 2>&1; then
+    if ping -c 1 -W 1000 8.8.8.8 > /dev/null 2>&1; then
         echo "online"
-    else
+  else
         echo "offline"
-    fi
+  fi
 }
 
 case "$1" in
@@ -42,11 +45,11 @@ case "$1" in
         CPU_USAGE=$(get_cpu_usage)
         if [ "$CPU_USAGE" -gt 80 ]; then
             COLOR="0xffed8796"  # Red
-        elif [ "$CPU_USAGE" -gt 60 ]; then
+    elif     [ "$CPU_USAGE" -gt 60 ]; then
             COLOR="0xfff5a97f"  # Orange
-        else
+    else
             COLOR="0xffa5adcb"  # Default
-        fi
+    fi
         sketchybar --set "$NAME" \
                    icon="" \
                    label="$CPU_USAGE%" \
@@ -57,11 +60,11 @@ case "$1" in
         MEMORY_USAGE=$(get_memory_usage)
         if [ "$MEMORY_USAGE" -gt 80 ]; then
             COLOR="0xffed8796"  # Red
-        elif [ "$MEMORY_USAGE" -gt 60 ]; then
+    elif     [ "$MEMORY_USAGE" -gt 60 ]; then
             COLOR="0xfff5a97f"  # Orange
-        else
+    else
             COLOR="0xffa5adcb"  # Default
-        fi
+    fi
         sketchybar --set "$NAME" \
                    icon="" \
                    label="$MEMORY_USAGE%" \
@@ -74,11 +77,11 @@ case "$1" in
             ICON=""
             COLOR="0xffa6da95"  # Green
             LABEL="Online"
-        else
+    else
             ICON=""
             COLOR="0xffed8796"  # Red
             LABEL="Offline"
-        fi
+    fi
         sketchybar --set "$NAME" \
                    icon="$ICON" \
                    label="$LABEL" \

@@ -2,18 +2,20 @@
 
 # Front app display plugin
 
-get_front_app() {
-    osascript -e 'tell application "System Events" to get name of first application process whose frontmost is true' 2>/dev/null
+get_front_app()
+                {
+    osascript -e 'tell application "System Events" to get name of first application process whose frontmost is true' 2> /dev/null
 }
 
-get_app_icon() {
+get_app_icon()
+               {
     local app_name="$1"
     case "$app_name" in
         "Finder") echo "󰀶" ;;
         "Safari") echo "" ;;
         "Firefox") echo "󰈹" ;;
         "Chrome"*) echo "" ;;
-        "Code"*|"Visual Studio Code") echo "󰨞" ;;
+        "Code"* | "Visual Studio Code") echo "󰨞" ;;
         "Terminal"*) echo "" ;;
         "iTerm"*) echo "" ;;
         "WezTerm") echo "" ;;
@@ -24,9 +26,9 @@ get_app_icon() {
         "Mail") echo "󰇮" ;;
         "Calendar") echo "" ;;
         "Notes") echo "" ;;
-        "System Preferences"|"System Settings") echo "" ;;
+        "System Preferences" | "System Settings") echo "" ;;
         *) echo "" ;;
-    esac
+  esac
 }
 
 FRONT_APP=$(get_front_app)
@@ -37,7 +39,7 @@ if [ -n "$FRONT_APP" ]; then
     # Truncate long app names
     if [ ${#FRONT_APP} -gt 15 ]; then
         FRONT_APP=$(echo "$FRONT_APP" | cut -c1-15)...
-    fi
+  fi
 
     sketchybar --set "$NAME" \
                label="$FRONT_APP" \

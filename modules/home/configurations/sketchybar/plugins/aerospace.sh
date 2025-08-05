@@ -3,32 +3,32 @@
 # Aerospace workspace plugin for sketchybar
 
 if command -v aerospace &> /dev/null; then
-    focused_workspace=$(aerospace list-workspaces --focused 2>/dev/null)
-    all_workspaces=$(aerospace list-workspaces --all 2>/dev/null)
+    focused_workspace=$(aerospace list-workspaces --focused 2> /dev/null)
+    all_workspaces=$(aerospace list-workspaces --all 2> /dev/null)
 
     if [ -n "$focused_workspace" ]; then
-        # Create workspace indicator
-        workspace_indicator=""
+        # Show focused workspace number and create dots for all workspaces
+        workspace_dots=""
         for workspace in $all_workspaces; do
             if [ "$workspace" = "$focused_workspace" ]; then
-                workspace_indicator="$workspace_indicator●"
+                workspace_dots="$workspace_dots●"
             else
-                workspace_indicator="$workspace_indicator○"
+                workspace_dots="$workspace_dots○"
             fi
         done
 
         sketchybar --set "$NAME" \
-                   label="$workspace_indicator" \
-                   icon=" "
+                   label="$focused_workspace $workspace_dots" \
+                   icon=""
     else
-        sketchybar --set "$NAME" label="Aerospace" icon=" "
+        sketchybar --set "$NAME" label="?" icon=""
     fi
 else
     # Fallback to yabai if available
     if command -v yabai &> /dev/null; then
-        current_space=$(yabai -m query --spaces --space 2>/dev/null | jq -r '.index // 1' 2>/dev/null || echo "1")
-        sketchybar --set "$NAME" label="Space $current_space" icon=" "
+        current_space=$(yabai -m query --spaces --space 2> /dev/null | jq -r '.index // 1' 2> /dev/null || echo "1")
+        sketchybar --set "$NAME" label="$current_space" icon=""
     else
-        sketchybar --set "$NAME" label="Desktop" icon=" "
+        sketchybar --set "$NAME" label="1" icon=""
     fi
 fi

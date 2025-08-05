@@ -20,13 +20,15 @@ let
   sketchybarColors = (themes.getTheme sketchybarThemeName).appAdapters.sketchybar;
 
   # Helper functions for color conversion
-  toSketchybarColor = color:
+  toSketchybarColor =
+    color:
     let
       cleaned = lib.removePrefix "#" color;
     in
     "0xff${cleaned}";
 
-  toHexColor = color:
+  toHexColor =
+    color:
     let
       cleaned = lib.removePrefix "#" color;
     in
@@ -61,25 +63,16 @@ let
     # Detect display capabilities
     DISPLAY_INFO=$(system_profiler SPDisplaysDataType 2>/dev/null)
 
-    # Set bar configuration based on display
-    BAR_HEIGHT=36
-    Y_OFFSET=8
-    CORNER_RADIUS=12
-    BLUR_RADIUS=50
+    # Set bar configuration - optimized for notch
+    BAR_HEIGHT=32
+    Y_OFFSET=0
+    CORNER_RADIUS=0
+    BLUR_RADIUS=0
 
-    # Check for notch (approximate detection)
-    MODEL_INFO=$(system_profiler SPHardwareDataType 2>/dev/null | grep "Model Name" || echo "")
-    if echo "$MODEL_INFO" | grep -q "MacBook Pro.*14\|MacBook Pro.*16"; then
-        # Likely has notch, adjust accordingly
-        PADDING_LEFT=20
-        PADDING_RIGHT=20
-        MARGIN=8
-    else
-        # Standard display
-        PADDING_LEFT=12
-        PADDING_RIGHT=12
-        MARGIN=5
-    fi
+    # Always use notch-friendly settings
+    PADDING_LEFT=200   # Leave space for notch area
+    PADDING_RIGHT=200  # Symmetrical spacing
+    MARGIN=0
 
     sketchybar --bar \
       height=$BAR_HEIGHT \
@@ -91,8 +84,8 @@ let
       padding_right=$PADDING_RIGHT \
       corner_radius=$CORNER_RADIUS \
       blur_radius=$BLUR_RADIUS \
-      sticky=on \
-      shadow=on
+      sticky=off \
+      shadow=off
   '';
 
 in
@@ -105,7 +98,7 @@ in
       #!/usr/bin/env bash
 
       # Plugin directory
-      PLUGIN_DIR="$CONFIG_DIR/plugins"
+      PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
 
       # Source display helper if available
       if [ -f "$PLUGIN_DIR/display_helper.sh" ]; then
@@ -114,123 +107,93 @@ in
 
       ${barConfig}
 
-      # Default item configuration
+      # Default item configuration - with JetBrains Mono Nerd Font
       sketchybar --default \
         icon.font="JetBrainsMono Nerd Font:Bold:16.0" \
-        icon.color=${colors.muted} \
+        icon.color=0xffcad3f5 \
         icon.padding_left=4 \
-        icon.padding_right=4 \
-        label.font="JetBrainsMono Nerd Font:Medium:14.0" \
-        label.color=${colors.text} \
-        label.padding_left=4 \
-        label.padding_right=4 \
-        background.color=0x00000000 \
-        background.corner_radius=6 \
-        background.height=28
+        icon.padding_right=2 \
+        label.font="JetBrainsMono Nerd Font:Medium:13.0" \
+        label.color=0xffcad3f5 \
+        label.padding_left=2 \
+        label.padding_right=8 \
+        background.drawing=off
 
       # === LEFT SIDE ===
 
-      # Apple logo / System menu
+      # Left side items
       sketchybar --add item apple.logo left \
       --set apple.logo \
-        icon=󰀵 \
-        icon.font="JetBrainsMono Nerd Font:Black:18.0" \
-        icon.color=${colors.success} \
-        icon.padding_left=8 \
-        icon.padding_right=8 \
-        label.drawing=off \
+        icon="" \
         click_script="$PLUGIN_DIR/apple_menu.sh"
 
-      # Separator
-      sketchybar --add item separator.left left \
-      --set separator.left \
-        icon="|" \
-        icon.color=${colors.muted} \
-        icon.padding_left=4 \
-        icon.padding_right=8 \
-        label.drawing=off
-
-      # Aerospace workspace indicator
-      sketchybar --add item aerospace left \
-      --set aerospace \
-        script="$PLUGIN_DIR/aerospace.sh" \
-        update_freq=2 \
-        icon.font="JetBrainsMono Nerd Font:Bold:16.0" \
-        background.color=0x20${lib.removePrefix "0x" colors.accent} \
-        background.corner_radius=8
-
-      # Front app
       sketchybar --add item front_app left \
       --set front_app \
         script="$PLUGIN_DIR/front_app.sh" \
-        icon.font="JetBrainsMono Nerd Font:Bold:16.0" \
-        label.max_chars=20 \
-        background.color=0x20${lib.removePrefix "0x" colors.highlight} \
-        background.corner_radius=8 \
       --subscribe front_app front_app_switched
+
+      sketchybar --add item aerospace left \
+      --set aerospace \
+        script="$PLUGIN_DIR/aerospace.sh" \
+        update_freq=1 \
+      --subscribe aerospace aerospace_workspace_change
 
       # === RIGHT SIDE ===
 
-      # System stats - CPU
-      sketchybar --add item cpu right \
-      --set cpu \
-        script="$PLUGIN_DIR/system_stats.sh cpu" \
-        update_freq=3 \
-        icon.font="JetBrainsMono Nerd Font:Bold:14.0" \
-        background.color=0x20${lib.removePrefix "0x" colors.warning} \
-        background.corner_radius=6
-
-      # System stats - Memory
-      sketchybar --add item memory right \
-      --set memory \
-        script="$PLUGIN_DIR/system_stats.sh memory" \
-        update_freq=5 \
-        icon.font="JetBrainsMono Nerd Font:Bold:14.0" \
-        background.color=0x20${lib.removePrefix "0x" colors.warning} \
-        background.corner_radius=6
-
-      # Volume
-      sketchybar --add item volume right \
-      --set volume \
-        script="$PLUGIN_DIR/volume.sh" \
-        icon.font="JetBrainsMono Nerd Font:Bold:16.0" \
-        background.color=0x20${lib.removePrefix "0x" colors.accent} \
-        background.corner_radius=8 \
-      --subscribe volume volume_change
-
-      # Battery
-      sketchybar --add item battery right \
-      --set battery \
-        script="$PLUGIN_DIR/battery.sh" \
-        update_freq=60 \
-        icon.font="JetBrainsMono Nerd Font:Bold:16.0" \
-        background.color=0x20${lib.removePrefix "0x" colors.success} \
-        background.corner_radius=8 \
-      --subscribe battery system_woke power_source_change
-
-      # Separator
-      sketchybar --add item separator.right right \
-      --set separator.right \
-        icon="|" \
-        icon.color=${colors.muted} \
-        icon.padding_left=8 \
-        icon.padding_right=4 \
-        label.drawing=off
-
-      # Clock
+      # Right side items - simplified
       sketchybar --add item clock right \
       --set clock \
         script="$PLUGIN_DIR/clock.sh" \
-        update_freq=30 \
-        icon.font="JetBrainsMono Nerd Font:Bold:16.0" \
-        icon.color=${colors.accent} \
-        label.font="JetBrainsMono Nerd Font:Medium:14.0" \
-        background.color=0x30${lib.removePrefix "0x" colors.text} \
-        background.corner_radius=10 \
-        icon.padding_left=8 \
-        icon.padding_right=4 \
-        label.padding_left=4 \
-        label.padding_right=8
+        click_script="open /System/Applications/Calendar.app" \
+        update_freq=30
+
+      sketchybar --add item battery right \
+      --set battery \
+        script="$PLUGIN_DIR/battery.sh" \
+        click_script="open /System/Library/PreferencePanes/Battery.prefPane" \
+        update_freq=60 \
+      --subscribe battery system_woke power_source_change
+
+      sketchybar --add item volume right \
+      --set volume \
+        script="$PLUGIN_DIR/volume.sh" \
+        click_script="sketchybar --set volume popup.drawing=toggle" \
+        popup.background.corner_radius=8 \
+        popup.background.color=0xcc24273a \
+        popup.blur_radius=20 \
+        popup.height=35 \
+      --subscribe volume volume_change
+
+      # Volume popup items
+      sketchybar --add item volume.mute popup.volume \
+      --set volume.mute \
+        icon="󰸈" \
+        label="Toggle Mute" \
+        click_script="$PLUGIN_DIR/volume.sh toggle; sketchybar --set volume popup.drawing=off"
+
+      sketchybar --add item volume.25 popup.volume \
+      --set volume.25 \
+        icon="󰖀" \
+        label="25%" \
+        click_script="$PLUGIN_DIR/volume.sh set 25; sketchybar --set volume popup.drawing=off"
+
+      sketchybar --add item volume.50 popup.volume \
+      --set volume.50 \
+        icon="󰖁" \
+        label="50%" \
+        click_script="$PLUGIN_DIR/volume.sh set 50; sketchybar --set volume popup.drawing=off"
+
+      sketchybar --add item volume.75 popup.volume \
+      --set volume.75 \
+        icon="󰕾" \
+        label="75%" \
+        click_script="$PLUGIN_DIR/volume.sh set 75; sketchybar --set volume popup.drawing=off"
+
+      sketchybar --add item volume.100 popup.volume \
+      --set volume.100 \
+        icon="󰕾" \
+        label="100%" \
+        click_script="$PLUGIN_DIR/volume.sh set 100; sketchybar --set volume popup.drawing=off"
 
       # === FINALIZE ===
 

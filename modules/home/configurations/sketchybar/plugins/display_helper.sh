@@ -2,11 +2,13 @@
 
 # Display helper functions for sketchybar
 
-get_display_info() {
+get_display_info()
+                   {
     system_profiler SPDisplaysDataType | grep -A5 "Built-in" | head -10
 }
 
-has_notch() {
+has_notch()
+            {
     # Check if display has a notch by looking for specific MacBook models
     local model=$(system_profiler SPHardwareDataType | grep "Model Name" | cut -d: -f2 | xargs)
 
@@ -16,47 +18,51 @@ has_notch() {
             local year=$(system_profiler SPHardwareDataType | grep "Model Identifier" | grep -o "MacBookPro[0-9]*,[0-9]*" | cut -d, -f1 | grep -o "[0-9]*")
             if [ "$year" -ge 18 ]; then  # MacBookPro18,x and higher have notch
                 echo "true"
-            else
+      else
                 echo "false"
-            fi
+      fi
             ;;
         *)
             echo "false"
             ;;
-    esac
+  esac
 }
 
-get_safe_area() {
+get_safe_area()
+                {
     if [ "$(has_notch)" = "true" ]; then
         echo "notch"
-    else
+  else
         echo "standard"
-    fi
+  fi
 }
 
-get_bar_position() {
+get_bar_position()
+                   {
     local safe_area="$1"
     if [ "$safe_area" = "notch" ]; then
         echo "top"
-    else
+  else
         echo "top"
-    fi
+  fi
 }
 
-get_bar_margin() {
+get_bar_margin()
+                 {
     local safe_area="$1"
     if [ "$safe_area" = "notch" ]; then
         echo "10"  # More margin for notched displays
-    else
+  else
         echo "5"   # Standard margin
-    fi
+  fi
 }
 
-get_bar_padding() {
+get_bar_padding()
+                  {
     local safe_area="$1"
     if [ "$safe_area" = "notch" ]; then
         echo "15"  # More padding around notch
-    else
+  else
         echo "10"  # Standard padding
-    fi
+  fi
 }
