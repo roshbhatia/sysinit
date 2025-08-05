@@ -1,7 +1,6 @@
 { lib }:
 let
   config = import ../config/goose.nix;
-  mcpServers = import ../shared/mcp-servers.nix;
   agents = import ../shared/agents.nix;
 
   toTitleCase =
@@ -42,15 +41,6 @@ in
             type = "builtin";
             args = null;
           };
-          hub = {
-            uri = mcpServers.uri;
-            bundled = false;
-            description = "Hub for various mcp servers";
-            enabled = false;
-            name = "Hub";
-            timeout = 300;
-            type = "streamable_http";
-          };
         };
       };
       force = true;
@@ -74,3 +64,4 @@ in
     }) agents
   );
 }
+
