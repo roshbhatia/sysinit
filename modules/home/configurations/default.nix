@@ -14,7 +14,6 @@
     ./llm
     ./vivid
 
-
     (import ./atuin {
       inherit
         lib
