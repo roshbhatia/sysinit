@@ -46,7 +46,7 @@ in
             uri = mcpServers.uri;
             bundled = false;
             description = "Hub for various mcp servers";
-            enabled = true;
+            enabled = false;
             name = "Hub";
             timeout = 300;
             type = "streamable_http";
