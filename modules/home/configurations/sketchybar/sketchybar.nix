@@ -2,11 +2,14 @@
 
 let
   themes = import ../../../lib/theme { inherit lib; };
-  palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
+  sketchybarTheme = values.theme.appThemes.sketchybar;
+  sketchybarThemeName = if builtins.isAttrs sketchybarTheme then sketchybarTheme.name else sketchybarTheme;
+  sketchybarThemeVariant = if builtins.isAttrs sketchybarTheme && sketchybarTheme ? variant then sketchybarTheme.variant else values.theme.variant;
+  palette = themes.getThemePalette sketchybarThemeName sketchybarThemeVariant;
   colors = themes.getUnifiedColors palette;
-  colorBlack = colors.black or "0x40000000";
-  colorDefault = colors.fgDim or "0x88ffffff";
-  labelHighlight = colors.accent or "0xff99ccff";
+  colorBlack = colors.black.primary or "0x40000000";
+  colorDefault = colors.fgDim.primary or "0x88ffffff";
+  labelHighlight = colors.accent.primary or "0xff99ccff";
 
   pluginDateLabel = ''
     #!/usr/bin/env zsh
@@ -115,13 +118,13 @@ let
 
   pluginColors = ''
     #!/usr/bin/env zsh
-    BATTERY_1="${palette.green}"
-    BATTERY_2="${palette.yellow}"
-    BATTERY_3="${palette.pink}"
-    BATTERY_4="${palette.red}"
-    BATTERY_5="${palette.maroon}"
-    YELLOW="${palette.yellow}"
-    GREEN="${palette.green}"
+    BATTERY_1="${palette.green.primary}"
+    BATTERY_2="${palette.yellow.primary}"
+    BATTERY_3="${palette.pink.primary}"
+    BATTERY_4="${palette.red.primary}"
+    BATTERY_5="${palette.maroon.primary}"
+    YELLOW="${palette.yellow.primary}"
+    GREEN="${palette.green.primary}"
   '';
 
   pluginIcons = ''
