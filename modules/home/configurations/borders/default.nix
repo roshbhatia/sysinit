@@ -1,6 +1,7 @@
 {
   lib,
   values,
+  pkgs,
   ...
 }:
 {
@@ -9,7 +10,9 @@
       inherit
         lib
         values
+        pkgs
         ;
     })
   ];
 }
+

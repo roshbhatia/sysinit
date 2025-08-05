@@ -1,4 +1,9 @@
-{ lib, values, ... }:
+{
+  lib,
+  values,
+  pkgs,
+  ...
+}:
 
 let
   themes = import ../../../lib/theme { inherit lib; };
@@ -18,7 +23,9 @@ let
 in
 {
   services.sketchybar = {
+    package = pkgs.sketchybar;
     enable = true;
+
     config = ''
       #!/usr/bin/env zsh
       PLUGIN_DIR="$CONFIG_DIR/plugins"
@@ -94,3 +101,4 @@ in
     '';
   };
 }
+

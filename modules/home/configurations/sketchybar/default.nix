@@ -1,12 +1,14 @@
 {
   lib,
   values,
+  pkgs,
   ...
 }:
 {
   imports = [
     (import ./sketchybar.nix {
-      inherit lib values;
+      inherit lib values pkgs;
     })
   ];
 }
+
