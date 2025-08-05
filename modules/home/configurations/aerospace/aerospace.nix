@@ -7,7 +7,7 @@
       start-at-login = true;
       after-startup-command = [
         "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar"
-        "exec-and-forget ${pkgs.borders}"
+        "exec-and-forget ${pkgs.jankyborders}"
       ];
       enable-normalization-flatten-containers = true;
       enable-normalization-opposite-orientation-for-nested-containers = true;
