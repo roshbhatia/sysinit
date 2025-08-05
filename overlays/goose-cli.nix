@@ -26,10 +26,10 @@ in
       owner = "roshbhatia";
       repo = "goose";
       rev = "377ff91897db78b3a1b50e3ea4c063d8bd2ff9f4";
-      hash = ""; # Fill in after first build
+      hash = "sha256-nyDNC/fe5/S/+SYKbvQQbww8U8tXpyVZawmmplwa9DM=";
     };
 
-    cargoHash = ""; # Fill in after first build
+    cargoHash = "sha256-nyDNC/fe5/S/+SYKbvQQbww8U8tXpyVZawmmplwa9DM=";
 
     nativeBuildInputs = [
       prev.pkg-config
