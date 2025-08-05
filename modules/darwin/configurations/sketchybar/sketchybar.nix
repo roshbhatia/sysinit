@@ -18,9 +18,83 @@ let
     else
       values.theme.colorscheme;
   sketchybarColors = (themes.getTheme sketchybarThemeName).appAdapters.sketchybar;
-  colorDefault = sketchybarColors.muted or "0x88ffffff";
-  labelHighlight = sketchybarColors.highlight or "0xff99ccff";
-  barColor = sketchybarColors.background or "#222222";
+
+  # Helper functions for color conversion
+  toSketchybarColor = color:
+    let
+      cleaned = lib.removePrefix "#" color;
+    in
+    "0xff${cleaned}";
+
+  toHexColor = color:
+    let
+      cleaned = lib.removePrefix "#" color;
+    in
+    "0x${cleaned}";
+
+  # Raw color values
+  rawColors = {
+    background = sketchybarColors.background or "#24273a";
+    foreground = sketchybarColors.foreground or "#cad3f5";
+    accent = sketchybarColors.accent or "#8aadf4";
+    muted = sketchybarColors.muted or "#a5adcb";
+    highlight = sketchybarColors.highlight or "#f5bde6";
+    success = sketchybarColors.success or "#a6da95";
+    warning = sketchybarColors.warning or "#eed49f";
+    error = sketchybarColors.error or "#ed8796";
+  };
+
+  # Colors in proper sketchybar format
+  barColor = toSketchybarColor rawColors.background;
+  colors = {
+    text = toHexColor rawColors.foreground;
+    accent = toHexColor rawColors.accent;
+    muted = toHexColor rawColors.muted;
+    highlight = toHexColor rawColors.highlight;
+    success = toHexColor rawColors.success;
+    warning = toHexColor rawColors.warning;
+    error = toHexColor rawColors.error;
+  };
+
+  # Dynamic positioning for notched displays
+  barConfig = ''
+    # Detect display capabilities
+    DISPLAY_INFO=$(system_profiler SPDisplaysDataType 2>/dev/null)
+
+    # Set bar configuration based on display
+    BAR_HEIGHT=36
+    Y_OFFSET=8
+    CORNER_RADIUS=12
+    BLUR_RADIUS=50
+
+    # Check for notch (approximate detection)
+    MODEL_INFO=$(system_profiler SPHardwareDataType 2>/dev/null | grep "Model Name" || echo "")
+    if echo "$MODEL_INFO" | grep -q "MacBook Pro.*14\|MacBook Pro.*16"; then
+        # Likely has notch, adjust accordingly
+        PADDING_LEFT=20
+        PADDING_RIGHT=20
+        MARGIN=8
+    else
+        # Standard display
+        PADDING_LEFT=12
+        PADDING_RIGHT=12
+        MARGIN=5
+    fi
+
+    sketchybar --bar \
+      height=$BAR_HEIGHT \
+      color=${barColor} \
+      position=top \
+      y_offset=$Y_OFFSET \
+      margin=$MARGIN \
+      padding_left=$PADDING_LEFT \
+      padding_right=$PADDING_RIGHT \
+      corner_radius=$CORNER_RADIUS \
+      blur_radius=$BLUR_RADIUS \
+      sticky=on \
+      shadow=on
+  '';
+
 in
 {
   services.sketchybar = {
@@ -28,191 +102,142 @@ in
     enable = true;
 
     config = ''
+      #!/usr/bin/env bash
+
+      # Plugin directory
       PLUGIN_DIR="$CONFIG_DIR/plugins"
-      sketchybar --bar height=32 \
-        y_offset=5 \
-        margin=2 \
-        position=top \
-        padding_left=10 \
-        padding_right=10 \
-        blur_radius=30 \
-        corner_radius=10 \
-        color=${barColor}
 
-      sketchybar --default width=32 \
-        icon.font="JetBrainsMono Nerd Font:Bold:18.0" \
-        icon.color=${colorDefault} \
-        label.font="JetBrainsMono Nerd Font:Bold:18.0" \
-        label.highlight_color="${labelHighlight}" \
-        label.width=50 \
-        label.color=${colorDefault}
+      # Source display helper if available
+      if [ -f "$PLUGIN_DIR/display_helper.sh" ]; then
+          source "$PLUGIN_DIR/display_helper.sh"
+      fi
 
-      # Workspace strip (Aerospace integration)
-      sketchybar --add bracket center_items center
-      sketchybar --add item workspace_strip center
-      sketchybar --set workspace_strip script="$PLUGIN_DIR/workspace_strip.sh" label.align=center
-      sketchybar --add item app_name center
-      sketchybar --set app_name label.align=center
+      ${barConfig}
 
-      # Spaces (classic strip)
-      SPACE_ICONS=("1" "2" "3" "4" "5" "6" "7" "8" "9" "10")
-      for i in "''${!SPACE_ICONS[@]}"
-      do
-        sid="$(($i+1))"
-        space=(
-          space="$sid"
-          icon="''${SPACE_ICONS[i]}"
-          icon.padding_left=7
-          icon.padding_right=7
-          background.color=0x40ffffff
-          background.corner_radius=5
-          background.height=25
-          label.drawing=off
-          script="$PLUGIN_DIR/space.sh"
-          click_script="yabai -m space --focus $sid"
-        )
-        sketchybar --add space space."$sid" left --set space."$sid" "''${space[@]}"
-      done
+      # Default item configuration
+      sketchybar --default \
+        icon.font="JetBrainsMono Nerd Font:Bold:16.0" \
+        icon.color=${colors.muted} \
+        icon.padding_left=4 \
+        icon.padding_right=4 \
+        label.font="JetBrainsMono Nerd Font:Medium:14.0" \
+        label.color=${colors.text} \
+        label.padding_left=4 \
+        label.padding_right=4 \
+        background.color=0x00000000 \
+        background.corner_radius=6 \
+        background.height=28
 
-      # App icons, front app, chevron
-      sketchybar --add item chevron left \
-        --set chevron icon= label.drawing=off \
-        --add item front_app left \
-        --set front_app icon.drawing=off script="$PLUGIN_DIR/front_app.sh" \
-        --subscribe front_app front_app_switched
+      # === LEFT SIDE ===
 
-      # Clock, volume, battery
-      sketchybar --add item clock right \
-        --set clock update_freq=10 icon= script="$PLUGIN_DIR/clock.sh" \
-        --add item volume right \
-        --set volume script="$PLUGIN_DIR/volume.sh" \
-        --subscribe volume volume_change \
-        --add item battery right \
-        --set battery update_freq=120 script="$PLUGIN_DIR/battery.sh" \
-        --subscribe battery system_woke power_source_change
-
-      # Apple menu (custom popup)
-      sketchybar --add item apple.logo left
-      sketchybar --set apple.logo \
+      # Apple logo / System menu
+      sketchybar --add item apple.logo left \
+      --set apple.logo \
         icon=󰀵 \
-        icon.font="JetBrainsMono Nerd Font:Black:16.0" \
-        icon.color=${sketchybarColors.success or "0xffaaffaa"} \
-        padding_right=15 \
+        icon.font="JetBrainsMono Nerd Font:Black:18.0" \
+        icon.color=${colors.success} \
+        icon.padding_left=8 \
+        icon.padding_right=8 \
         label.drawing=off \
         click_script="$PLUGIN_DIR/apple_menu.sh"
 
+      # Separator
+      sketchybar --add item separator.left left \
+      --set separator.left \
+        icon="|" \
+        icon.color=${colors.muted} \
+        icon.padding_left=4 \
+        icon.padding_right=8 \
+        label.drawing=off
+
+      # Aerospace workspace indicator
+      sketchybar --add item aerospace left \
+      --set aerospace \
+        script="$PLUGIN_DIR/aerospace.sh" \
+        update_freq=2 \
+        icon.font="JetBrainsMono Nerd Font:Bold:16.0" \
+        background.color=0x20${lib.removePrefix "0x" colors.accent} \
+        background.corner_radius=8
+
+      # Front app
+      sketchybar --add item front_app left \
+      --set front_app \
+        script="$PLUGIN_DIR/front_app.sh" \
+        icon.font="JetBrainsMono Nerd Font:Bold:16.0" \
+        label.max_chars=20 \
+        background.color=0x20${lib.removePrefix "0x" colors.highlight} \
+        background.corner_radius=8 \
+      --subscribe front_app front_app_switched
+
+      # === RIGHT SIDE ===
+
+      # System stats - CPU
+      sketchybar --add item cpu right \
+      --set cpu \
+        script="$PLUGIN_DIR/system_stats.sh cpu" \
+        update_freq=3 \
+        icon.font="JetBrainsMono Nerd Font:Bold:14.0" \
+        background.color=0x20${lib.removePrefix "0x" colors.warning} \
+        background.corner_radius=6
+
+      # System stats - Memory
+      sketchybar --add item memory right \
+      --set memory \
+        script="$PLUGIN_DIR/system_stats.sh memory" \
+        update_freq=5 \
+        icon.font="JetBrainsMono Nerd Font:Bold:14.0" \
+        background.color=0x20${lib.removePrefix "0x" colors.warning} \
+        background.corner_radius=6
+
+      # Volume
+      sketchybar --add item volume right \
+      --set volume \
+        script="$PLUGIN_DIR/volume.sh" \
+        icon.font="JetBrainsMono Nerd Font:Bold:16.0" \
+        background.color=0x20${lib.removePrefix "0x" colors.accent} \
+        background.corner_radius=8 \
+      --subscribe volume volume_change
+
+      # Battery
+      sketchybar --add item battery right \
+      --set battery \
+        script="$PLUGIN_DIR/battery.sh" \
+        update_freq=60 \
+        icon.font="JetBrainsMono Nerd Font:Bold:16.0" \
+        background.color=0x20${lib.removePrefix "0x" colors.success} \
+        background.corner_radius=8 \
+      --subscribe battery system_woke power_source_change
+
+      # Separator
+      sketchybar --add item separator.right right \
+      --set separator.right \
+        icon="|" \
+        icon.color=${colors.muted} \
+        icon.padding_left=8 \
+        icon.padding_right=4 \
+        label.drawing=off
+
+      # Clock
+      sketchybar --add item clock right \
+      --set clock \
+        script="$PLUGIN_DIR/clock.sh" \
+        update_freq=30 \
+        icon.font="JetBrainsMono Nerd Font:Bold:16.0" \
+        icon.color=${colors.accent} \
+        label.font="JetBrainsMono Nerd Font:Medium:14.0" \
+        background.color=0x30${lib.removePrefix "0x" colors.text} \
+        background.corner_radius=10 \
+        icon.padding_left=8 \
+        icon.padding_right=4 \
+        label.padding_left=4 \
+        label.padding_right=8
+
+      # === FINALIZE ===
+
+      # Update all items
       sketchybar --update
+
+      echo "SketchyBar configuration loaded successfully"
     '';
   };
-
-  # Create sketchybar plugin files through home-manager
-  # Note: nix-darwin doesn't directly support home.file, but we can use system.activationScripts
-  system.activationScripts.sketchybar-plugins.text = ''
-    mkdir -p /Users/${values.user.username}/.config/sketchybar/plugins
-
-    # workspace_strip.sh - Aerospace integration
-    cat > /Users/${values.user.username}/.config/sketchybar/plugins/workspace_strip.sh << 'EOF'
-#!/usr/bin/env bash
-if command -v aerospace &> /dev/null; then
-    focused_workspace=$(aerospace list-workspaces --focused)
-    sketchybar --set workspace_strip label="$focused_workspace"
-else
-    sketchybar --set workspace_strip label="N/A"
-fi
-EOF
-
-    # space.sh - Space/Desktop switcher
-    cat > /Users/${values.user.username}/.config/sketchybar/plugins/space.sh << 'EOF'
-#!/usr/bin/env bash
-if command -v yabai &> /dev/null; then
-    CURRENT_SPACE=$(yabai -m query --spaces --space | jq -r .index)
-    if [ "$CURRENT_SPACE" == "$NAME" ]; then
-        sketchybar --set "$NAME" background.drawing=on
-    else
-        sketchybar --set "$NAME" background.drawing=off
-    fi
-else
-    sketchybar --set "$NAME" background.drawing=off
-fi
-EOF
-
-    # front_app.sh - Front app display
-    cat > /Users/${values.user.username}/.config/sketchybar/plugins/front_app.sh << 'EOF'
-#!/usr/bin/env bash
-FRONT_APP=$(osascript -e 'tell application "System Events" to get name of first application process whose frontmost is true')
-if [ ''${#FRONT_APP} -gt 20 ]; then
-    FRONT_APP=$(echo "$FRONT_APP" | cut -c1-20)...
-fi
-sketchybar --set front_app label="$FRONT_APP"
-EOF
-
-    # clock.sh - Clock display
-    cat > /Users/${values.user.username}/.config/sketchybar/plugins/clock.sh << 'EOF'
-#!/usr/bin/env bash
-CURRENT_TIME=$(date '+%I:%M %p')
-CURRENT_DATE=$(date '+%m/%d')
-sketchybar --set clock label="$CURRENT_TIME $CURRENT_DATE"
-EOF
-
-    # volume.sh - Volume control
-    cat > /Users/${values.user.username}/.config/sketchybar/plugins/volume.sh << 'EOF'
-#!/usr/bin/env bash
-VOLUME=$(osascript -e 'output volume of (get volume settings)')
-MUTED=$(osascript -e 'output muted of (get volume settings)')
-if [ "$MUTED" == "true" ]; then
-    ICON=""
-    LABEL="Muted"
-elif [ "$VOLUME" -eq 0 ]; then
-    ICON=""
-    LABEL="0%"
-elif [ "$VOLUME" -lt 33 ]; then
-    ICON=""
-    LABEL="$VOLUME%"
-elif [ "$VOLUME" -lt 66 ]; then
-    ICON=""
-    LABEL="$VOLUME%"
-else
-    ICON=""
-    LABEL="$VOLUME%"
-fi
-sketchybar --set volume icon="$ICON" label="$LABEL"
-EOF
-
-    # battery.sh - Battery status
-    cat > /Users/${values.user.username}/.config/sketchybar/plugins/battery.sh << 'EOF'
-#!/usr/bin/env bash
-BATTERY_INFO=$(pmset -g batt)
-BATTERY_PERCENT=$(echo "$BATTERY_INFO" | grep -Eo "\d+%" | cut -d% -f1)
-CHARGING_STATE=$(echo "$BATTERY_INFO" | grep -o "AC Power\|Battery Power")
-if [ "$CHARGING_STATE" == "AC Power" ]; then
-    ICON=""
-elif [ "$BATTERY_PERCENT" -gt 75 ]; then
-    ICON=""
-elif [ "$BATTERY_PERCENT" -gt 50 ]; then
-    ICON=""
-elif [ "$BATTERY_PERCENT" -gt 25 ]; then
-    ICON=""
-else
-    ICON=""
-fi
-sketchybar --set battery icon="$ICON" label="$BATTERY_PERCENT%"
-EOF
-
-    # apple_menu.sh - Apple menu
-    cat > /Users/${values.user.username}/.config/sketchybar/plugins/apple_menu.sh << 'EOF'
-#!/usr/bin/env bash
-osascript << APPLESCRIPT
-display dialog "System Menu" buttons {"About This Mac", "System Preferences", "Cancel"} default button "Cancel" with title "Apple Menu"
-set choice to button returned of result
-if choice is "About This Mac" then
-    tell application "System Information" to activate
-else if choice is "System Preferences" then
-    tell application "System Preferences" to activate
-end if
-APPLESCRIPT
-EOF
-
-    # Make all plugin scripts executable
-    chmod +x /Users/${values.user.username}/.config/sketchybar/plugins/*.sh
-  '';
 }
