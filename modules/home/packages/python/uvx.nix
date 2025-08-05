@@ -10,8 +10,6 @@ let
   uvxPackages = [
     "hererocks"
     "aider-chat@latest"
-    "litellm"
-    "litellm[proxy]"
   ]
   ++ (values.uvx.additionalPackages or [ ]);
 in
@@ -20,3 +18,4 @@ in
     utils.sysinit.mkPackageManagerScript config "uv" uvxPackages
   );
 }
+
