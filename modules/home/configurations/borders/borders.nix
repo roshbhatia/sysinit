@@ -25,8 +25,8 @@ in
   };
 
   home.activation.bordersService = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    if ! brew services restart borders; then
-      brew services start borders
+    if ! /opt/homebrew/bin/brew services restart borders; then
+      /opt/homebrew/bin/brew services start borders
     fi
   '';
 }
