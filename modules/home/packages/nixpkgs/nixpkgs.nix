@@ -50,6 +50,7 @@ let
     gnugrep
     gnupg
     go
+    goose-cli
     gopls
     go-task
     gum
@@ -141,3 +142,4 @@ in
 {
   home.packages = allNixPackages;
 }
+
