@@ -4,7 +4,6 @@
     enable = true;
     package = pkgs.aerospace;
     settings = {
-      start-at-login = true;
       after-startup-command = [
         "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar"
         "exec-and-forget ${pkgs.jankyborders}"
