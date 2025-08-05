@@ -27,7 +27,6 @@ in
     enable = true;
 
     config = ''
-      #!/usr/bin/env zsh
       PLUGIN_DIR="$CONFIG_DIR/plugins"
       sketchybar --bar height=32 \
         y_offset=5 \
@@ -38,6 +37,7 @@ in
         blur_radius=30 \
         corner_radius=10 \
         color=${barColor}
+
       sketchybar --default width=32 \
         icon.font="JetBrainsMono Nerd Font:Bold:18.0" \
         icon.color=${colorDefault} \
@@ -92,10 +92,13 @@ in
 
       # Apple menu (custom popup)
       sketchybar --add item apple.logo left
-      sketchybar --set apple.logo icon=󰀵 icon.font="JetBrainsMono Nerd Font:Black:16.0" icon.color=${
-        sketchybarColors.success or "0xffaaffaa"
-      } padding_right=15 label.drawing=off click_script="$PLUGIN_DIR/apple_menu.sh"
-      # (You can expand this with your full apple_menu logic if you want)
+      sketchybar --set apple.logo \
+        icon=󰀵 \
+        icon.font="JetBrainsMono Nerd Font:Black:16.0" \
+        icon.color=${sketchybarColors.success or "0xffaaffaa"} \
+        padding_right=15 \
+        label.drawing=off \
+        click_script="$PLUGIN_DIR/apple_menu.sh"
 
       sketchybar --update
     '';
