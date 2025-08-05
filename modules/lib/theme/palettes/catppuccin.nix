@@ -197,6 +197,17 @@ in
     vivid = variant: "catppuccin-${variant}";
     helix = variant: "catppuccin_${variant}";
     nushell = variant: "catppuccin-${variant}.nu";
-    sketchybar = variant: "catppuccin-${variant}";
+
+    sketchybar = {
+      background = palettes.macchiato.base;
+      foreground = palettes.macchiato.text;
+      accent = palettes.macchiato.accent;
+      warning = palettes.macchiato.yellow;
+      success = palettes.macchiato.green;
+      error = palettes.macchiato.red;
+      info = palettes.macchiato.blue;
+      muted = palettes.macchiato.subtext0;
+      highlight = palettes.macchiato.pink;
+    };
   };
 }

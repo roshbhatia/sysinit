@@ -11,15 +11,9 @@ let
       sketchybarTheme
     else
       values.theme.colorscheme;
-  sketchybarThemeVariant =
-    if sketchybarTheme != null && builtins.isAttrs sketchybarTheme && sketchybarTheme ? variant then
-      sketchybarTheme.variant
-    else
-      values.theme.variant;
-  palette = themes.getThemePalette sketchybarThemeName sketchybarThemeVariant;
-  colors = themes.getUnifiedColors palette;
-  colorDefault = colors.foreground.muted or "0x88ffffff";
-  labelHighlight = colors.accent.primary or "0xff99ccff";
+  sketchybarColors = (themes.getTheme sketchybarThemeName).appAdapters.sketchybar;
+  colorDefault = sketchybarColors.muted or "0x88ffffff";
+  labelHighlight = sketchybarColors.highlight or "0xff99ccff";
 
   barAlpha =
     let
@@ -28,14 +22,14 @@ let
     in
     if enabled then builtins.floor (opacity * 255) else 255;
 
-  barColorHex = colors.background.primary or "#222222";
+  barColorHex = sketchybarColors.background or "#222222";
   barColor =
     let
       hex = builtins.replaceStrings [ "#" ] [ "" ] barColorHex;
       padded = if builtins.stringLength hex == 6 then hex else "222222";
       alpha =
         let
-          a = builtins.toHexString barAlpha;
+          a = lib.toHexString barAlpha;
         in
         if builtins.stringLength a == 1 then "0" + a else a;
     in
@@ -148,13 +142,13 @@ let
 
   pluginColors = ''
     #!/usr/bin/env zsh
-    BATTERY_1="${palette.green}"
-    BATTERY_2="${palette.yellow}"
-    BATTERY_3="${palette.pink}"
-    BATTERY_4="${palette.red}"
-    BATTERY_5="${palette.maroon}"
-    YELLOW="${palette.yellow}"
-    GREEN="${palette.green}"
+    BATTERY_1="${sketchybarColors.success}"
+    BATTERY_2="${sketchybarColors.warning}"
+    BATTERY_3="${sketchybarColors.accent}"
+    BATTERY_4="${sketchybarColors.error}"
+    BATTERY_5="${sketchybarColors.background}"
+    YELLOW="${sketchybarColors.warning}"
+    GREEN="${sketchybarColors.success}"
   '';
 
   pluginIcons = ''

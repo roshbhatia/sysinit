@@ -7,6 +7,38 @@ let
 in
 
 {
+  appAdapters = {
+    wezterm = {
+      dark = "Nord (base16)";
+    };
+
+    neovim = {
+      plugin = "EdenEast/nightfox.nvim";
+      name = "nightfox";
+      setup = "nightfox";
+      colorscheme = _variant: "nordfox";
+    };
+
+    bat = variant: "nord-${variant}";
+    delta = variant: "nord-${variant}";
+    atuin = variant: "nord-${variant}";
+    vivid = _variant: "nord";
+    helix = _variant: "nord";
+    nushell = variant: "nord-${variant}.nu";
+
+    sketchybar = {
+      background = palettes.dark.nord0;
+      foreground = palettes.dark.nord4;
+      accent = palettes.dark.nord8;
+      warning = palettes.dark.nord13;
+      success = palettes.dark.nord14;
+      error = palettes.dark.nord11;
+      info = palettes.dark.nord10;
+      muted = palettes.dark.nord3;
+      highlight = palettes.dark.nord15;
+    };
+  };
+
   meta = {
     name = "Nord";
     id = "nord";

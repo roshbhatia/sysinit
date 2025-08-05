@@ -7,6 +7,39 @@ let
 in
 
 {
+  appAdapters = {
+    wezterm = {
+      dark = "Solarized Dark Higher Contrast (Gogh)";
+      light = "Solarized Light (Gogh)";
+    };
+
+    neovim = {
+      plugin = "craftzdog/solarized-osaka.nvim";
+      name = "solarized-osaka";
+      setup = "solarized-osaka";
+      colorscheme = _variant: "solarized-osaka";
+    };
+
+    bat = variant: "solarized-${variant}";
+    delta = variant: "solarized-${variant}";
+    atuin = variant: "solarized-${variant}";
+    vivid = variant: "solarized-${variant}";
+    helix = variant: "solarized_${variant}";
+    nushell = variant: "solarized-${variant}.nu";
+
+    sketchybar = {
+      background = palettes.dark.base03;
+      foreground = palettes.dark.base0;
+      accent = palettes.dark.blue;
+      warning = palettes.dark.yellow;
+      success = palettes.dark.green;
+      error = palettes.dark.red;
+      info = palettes.dark.cyan;
+      muted = palettes.dark.base01;
+      highlight = palettes.dark.magenta;
+    };
+  };
+
   meta = {
     name = "Solarized";
     id = "solarized";

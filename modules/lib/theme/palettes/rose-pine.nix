@@ -7,6 +7,40 @@ let
 in
 
 {
+  appAdapters = {
+    wezterm = {
+      moon = "Rosé Pine (Gogh)";
+      dawn = "Rosé Pine Dawn (Gogh)";
+      main = "Rosé Pine (Gogh)";
+    };
+
+    neovim = {
+      plugin = "cdmill/neomodern.nvim";
+      name = "neomodern";
+      setup = "neomodern";
+      colorscheme = _variant: "roseprime";
+    };
+
+    bat = variant: "rose-pine-${variant}";
+    delta = variant: "rose-pine-${variant}";
+    atuin = variant: "rose-pine-${variant}";
+    vivid = variant: "rose-pine-${variant}";
+    helix = variant: "rose_pine_${variant}";
+    nushell = variant: "rose-pine-${variant}.nu";
+
+    sketchybar = {
+      background = palettes.moon.base;
+      foreground = palettes.moon.text;
+      accent = palettes.moon.iris;
+      warning = palettes.moon.gold;
+      success = palettes.moon.foam;
+      error = palettes.moon.love;
+      info = palettes.moon.pine;
+      muted = palettes.moon.muted;
+      highlight = palettes.moon.rose;
+    };
+  };
+
   meta = {
     name = "Rosé Pine";
     id = "rose-pine";
