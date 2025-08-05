@@ -23,7 +23,6 @@ let
   baseBrews = [
     "borders"
     "bcrypt"
-    "block-goose-cli"
     "charmbracelet/tap/crush"
     "displayplacer"
     "hashicorp/tap/terraform"
@@ -76,3 +75,4 @@ in
     casks = allCasks;
   };
 }
+
