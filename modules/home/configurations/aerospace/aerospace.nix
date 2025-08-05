@@ -181,7 +181,7 @@ in
 {
 
   xdg.configFile."aerospace/aerospace.toml" = {
-    text = tomlFormat.generate "aerospace.toml" aerospaceConfig;
+    source = tomlFormat.generate "aerospace.toml" aerospaceConfig;
     force = true;
   };
 }
