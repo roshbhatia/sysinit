@@ -1,7 +1,5 @@
 {
-  config,
   lib,
-  pkgs,
   values,
   ...
 }:
@@ -32,3 +30,4 @@ in
     fi
   '';
 }
+

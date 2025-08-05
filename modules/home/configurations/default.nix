@@ -10,7 +10,12 @@
 {
   imports = [
     ./aerospace
-    ./borders
+    (import ./borders {
+      inherit
+        lib
+        values
+        ;
+    })
     ./direnv
     ./llm
     ./vivid
@@ -111,3 +116,4 @@
     })
   ];
 }
+

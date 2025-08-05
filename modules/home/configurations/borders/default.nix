@@ -1,4 +1,16 @@
-{ ... }:
 {
-  imports = [ ./borders.nix ];
+  lib,
+  values,
+  ...
+}:
+{
+  imports = [
+    (import ./borders.nix {
+      inherit
+        lib
+        values
+        ;
+    })
+  ];
 }
+
