@@ -2,10 +2,15 @@
 
 let
   themes = import ../../../lib/theme { inherit lib; };
-  appThemes = values.theme.appThemes or {};
+  appThemes = values.theme.appThemes or { };
   sketchybarTheme = appThemes.sketchybar or null;
   sketchybarThemeName =
-    if sketchybarTheme != null && builtins.isAttrs sketchybarTheme then sketchybarTheme.name else (sketchybarTheme or values.theme.colorscheme);
+    if sketchybarTheme != null && builtins.isAttrs sketchybarTheme then
+      sketchybarTheme.name
+    else if sketchybarTheme != null then
+      sketchybarTheme
+    else
+      values.theme.colorscheme;
   sketchybarThemeVariant =
     if sketchybarTheme != null && builtins.isAttrs sketchybarTheme && sketchybarTheme ? variant then
       sketchybarTheme.variant
