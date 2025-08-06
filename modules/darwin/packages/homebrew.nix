@@ -9,10 +9,10 @@ let
   additionalCasks = (values.homebrew.additionalPackages.casks or [ ]);
 
   baseTaps = [
-
     "charmbracelet/tap"
     "hashicorp/tap"
     "jakehilborn/jakehilborn"
+    "mediosz/tap"
     "noahgorstein/tap"
     "sandreas/tap"
     "vet-run/vet"
