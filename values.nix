@@ -37,3 +37,4 @@ in
     wezterm_entrypoint = values.wezterm.shell;
   };
 }
+
