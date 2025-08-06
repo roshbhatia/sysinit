@@ -195,7 +195,7 @@ M.plugins = {
           desc = "Buffers",
         },
         {
-          "<leader>fc",
+          "<leader>?",
           function()
             require("telescope.builtin").commands()
           end,
