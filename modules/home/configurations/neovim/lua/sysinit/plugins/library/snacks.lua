@@ -220,7 +220,20 @@ M.plugins = {
             })
           end,
           mode = "t",
-          desc = "Toggle Terminal from terminal mode",
+          desc = "Terminal - Float",
+        },
+        {
+          "<leader>tv",
+          function()
+            Snacks.terminal.toggle(nil, {
+              win = {
+                position = "right",
+                title_pos = "center",
+              },
+            })
+          end,
+          mode = "t",
+          desc = "Terminal - Vertical Split",
         },
       }
 
@@ -276,3 +289,4 @@ M.plugins = {
 }
 
 return M
+
