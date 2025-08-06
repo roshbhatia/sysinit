@@ -7,39 +7,6 @@ let
 in
 
 rec {
-  appAdapters = {
-    wezterm = {
-      dark = "Gruvbox dark, hard (base16)";
-      light = "Gruvbox light, hard (base16)";
-    };
-
-    neovim = {
-      plugin = "ellisonleao/gruvbox.nvim";
-      name = "gruvbox";
-      setup = "gruvbox";
-      colorscheme = _variant: "gruvbox";
-    };
-
-    bat = variant: "gruvbox-${variant}";
-    delta = variant: "gruvbox-${variant}";
-    atuin = variant: "gruvbox-${variant}";
-    vivid = variant: "gruvbox-${variant}";
-    helix = _variant: "gruvbox";
-    nushell = variant: "gruvbox-${variant}.nu";
-
-    sketchybar = {
-      background = palettes.dark.bg;
-      foreground = palettes.dark.fg;
-      accent = palettes.dark.blue;
-      warning = palettes.dark.yellow;
-      success = palettes.dark.green;
-      error = palettes.dark.red;
-      info = palettes.dark.aqua;
-      muted = palettes.dark.gray;
-      highlight = palettes.dark.orange;
-    };
-  };
-
   meta = {
     name = "Gruvbox";
     id = "gruvbox";
@@ -182,5 +149,18 @@ rec {
     vivid = variant: "gruvbox-${variant}";
     helix = _variant: "gruvbox";
     nushell = variant: "gruvbox-${variant}.nu";
+
+    sketchybar = {
+      background = palettes.dark.bg;
+      foreground = palettes.dark.fg;
+      accent = palettes.dark.blue;
+      warning = palettes.dark.yellow;
+      success = palettes.dark.green;
+      error = palettes.dark.red;
+      info = palettes.dark.aqua;
+      muted = palettes.dark.gray;
+      highlight = palettes.dark.orange;
+    };
   };
+
 }

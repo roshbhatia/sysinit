@@ -7,39 +7,6 @@ let
 in
 
 rec {
-  appAdapters = {
-    wezterm = {
-      wave = "Kanagawa (Gogh)";
-      dragon = "Kanagawa Dragon (Gogh)";
-    };
-
-    neovim = {
-      plugin = "rebelot/kanagawa.nvim";
-      name = "kanagawa";
-      setup = "kanagawa";
-      colorscheme = variant: "kanagawa-${variant}";
-    };
-
-    bat = variant: "kanagawa-${variant}";
-    delta = variant: "kanagawa-${variant}";
-    atuin = variant: "kanagawa-${variant}";
-    vivid = variant: "kanagawa-${variant}";
-    helix = _variant: "kanagawa";
-    nushell = variant: "kanagawa-${variant}.nu";
-
-    sketchybar = {
-      background = palettes.dark.sumiInk0;
-      foreground = palettes.dark.fujiWhite;
-      accent = palettes.dark.crystalBlue;
-      warning = palettes.dark.surimiOrange;
-      success = palettes.dark.springGreen;
-      error = palettes.dark.peachRed;
-      info = palettes.dark.waveAqua1;
-      muted = palettes.dark.fujiGray;
-      highlight = palettes.dark.sakuraPink;
-    };
-  };
-
   meta = {
     name = "Kanagawa";
     id = "kanagawa";
@@ -188,5 +155,18 @@ rec {
     vivid = variant: "kanagawa-${variant}";
     helix = _variant: "kanagawa";
     nushell = variant: "kanagawa-${variant}.nu";
+
+    sketchybar = {
+      background = palettes.dark.sumiInk0;
+      foreground = palettes.dark.fujiWhite;
+      accent = palettes.dark.crystalBlue;
+      warning = palettes.dark.surimiOrange;
+      success = palettes.dark.springGreen;
+      error = palettes.dark.peachRed;
+      info = palettes.dark.waveAqua1;
+      muted = palettes.dark.fujiGray;
+      highlight = palettes.dark.sakuraPink;
+    };
   };
+
 }
