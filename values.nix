@@ -1,61 +1,39 @@
 {
-  user = {
-    username = "rshnbhatia";
-    hostname = "lv426";
-  };
+  config,
+  lib,
+  values,
+  ...
+}:
 
-  git = {
-    userName = "Roshan Bhatia";
-    userEmail = "rshnbhatia@gmail.com";
-    githubUser = "roshbhatia";
-    credentialUsername = "roshbhatia";
-  };
+let
+  themes = import ../../../lib/theme { inherit lib; };
 
-  homebrew = {
-    additionalPackages = {
-      taps = [ "hashicorp/tap" ];
-      brews = [
-        "blueutil"
-        "hashicorp/tap/packer"
-        "tailscale"
-        "qemu"
-      ];
-      casks = [
-        "betterdiscord-installer"
-        "calibre"
-        "discord"
-        "notion"
-        "steam"
-        "supercollider"
-        "vnc-viewer"
-      ];
-    };
-  };
+  nvimOverride =
+    if values.wezterm.nvim_transparency_override or null != null then
+      { transparency = values.wezterm.nvim_transparency_override; }
+    else
+      { };
 
-  yarn = {
-    additionalPackages = [
-      "@anthropic-ai/claude-code"
-      "@dice-roller/cli"
-    ];
+  themeConfig = {
+    colorscheme = values.theme.colorscheme;
+    variant = values.theme.variant;
+    transparency = values.theme.transparency // (nvimOverride.transparency or { });
+    presets = values.theme.presets or [ ];
+    overrides = values.theme.overrides or { };
   };
+in
+{
+  xdg.configFile."wezterm/wezterm.lua".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/wezterm.lua";
 
-  theme = {
-    colorscheme = "catppuccin";
-    variant = "macchiato";
-    transparency = {
-      enable = true;
-      opacity = 0.85;
-      blur = 80;
-    };
-    appThemes = {
-      sketchybar = {
-        name = "catppuccin";
-        variant = "macchiato";
-      };
-    };
-  };
+  xdg.configFile."wezterm/lua".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/lua";
 
-  wezterm = {
-    shell = "nu";
+  xdg.configFile."wezterm/theme_config.json".text = builtins.toJSON (
+    themes.generateAppJSON "wezterm" themeConfig
+  );
+
+  xdg.configFile."wezterm/core_config.json".text = builtins.toJSON {
+    wezterm_entrypoint = values.wezterm.shell;
   };
 }
