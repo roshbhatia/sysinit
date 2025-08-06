@@ -9,7 +9,7 @@ in
     "opencode/opencode.json" = {
       text = builtins.toJSON ({
         "$schema" = config.schema;
-        share = "auto";
+        share = "disabled";
         theme = config.theme;
         autoupdate = config.autoupdate;
         mcp = {
@@ -52,3 +52,4 @@ in
     }) agents
   );
 }
+

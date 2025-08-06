@@ -7,4 +7,3 @@
     ./homebrew.nix
   ];
 }
-
