@@ -9,10 +9,8 @@
 
 {
   imports = [
-
     ./direnv
     ./llm
-    ./sketchybar
     ./vivid
 
     (import ./atuin {

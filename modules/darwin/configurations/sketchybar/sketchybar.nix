@@ -54,6 +54,96 @@ let
   activeWorkspaceBg = toSketchybar raw.accent;
   activeWorkspaceBorder = toSketchybar raw.highlight;
 
+  batteryScriptContent = pkgs.writeText "battery.sh" ''
+    #!/usr/bin/env zsh
+
+    SUCCESS_COLOR="${successColor}"
+    WARNING_COLOR="${warningColor}"
+    ERROR_COLOR="${errorColor}"
+    ACCENT_COLOR="${accentColor}"
+    TEXT_COLOR="${textColor}"
+    MUTED_COLOR="${mutedColor}"
+
+    percentage=$(pmset -g batt | grep -Eo "\d+%" | cut -d% -f1)
+    charging=$(pmset -g batt | grep 'AC Power')
+
+    [[ -z $percentage ]] && exit 0
+
+    current_icon=""
+    current_color="$TEXT_COLOR"
+    icon_color="$MUTED_COLOR"
+
+    if [[ "$charging" != "" ]]; then
+      current_icon=""
+      current_color="$ACCENT_COLOR"
+      icon_color="$ACCENT_COLOR"
+    else
+      case $percentage in
+        9[0-9] | 100)
+          current_icon=""
+          current_color="$SUCCESS_COLOR"
+          icon_color="$SUCCESS_COLOR"
+          ;;
+        [6-8][0-9])
+          current_icon=""
+          current_color="$WARNING_COLOR"
+          icon_color="$WARNING_COLOR"
+          ;;
+        [3-5][0-9])
+          current_icon=""
+          current_color="$WARNING_COLOR"
+          icon_color="$WARNING_COLOR"
+          ;;
+        [1-2][0-9])
+          current_icon=""
+          current_color="$ERROR_COLOR"
+          icon_color="$ERROR_COLOR"
+          ;;
+        *)
+          current_icon=""
+          current_color="$ERROR_COLOR"
+          icon_color="$ERROR_COLOR"
+          ;;
+      esac
+    fi
+
+    sketchybar --set "$NAME" \
+      icon="$current_icon" \
+      label="${percentage}%" \
+      icon.color="$icon_color" \
+      label.color="$current_color"
+  '';
+
+  aerospaceScriptContent = pkgs.writeText "aerospace.sh" ''
+    #!/usr/bin/env zsh
+
+    BRACKET_BG="${bracketBg}"
+    BRACKET_BORDER="${bracketBorder}"
+    ACTIVE_WORKSPACE_BG="${activeWorkspaceBg}"
+    ACTIVE_WORKSPACE_BORDER="${activeWorkspaceBorder}"
+    TEXT_COLOR="${textColor}"
+    MUTED_COLOR="${mutedColor}"
+
+    SID="$1"
+    CURRENT_WORKSPACE=$(aerospace list-workspaces --focused)
+
+    if [[ "$SID" == "$CURRENT_WORKSPACE" ]]; then
+      sketchybar --set space."$SID" \
+        background.drawing=on \
+        background.color="$ACTIVE_WORKSPACE_BG" \
+        background.border_color="$ACTIVE_WORKSPACE_BORDER" \
+        icon.color="$TEXT_COLOR" \
+        label.color="$TEXT_COLOR"
+    else
+      sketchybar --set space."$SID" \
+        background.drawing=on \
+        background.color="$BRACKET_BG" \
+        background.border_color="$BRACKET_BORDER" \
+        icon.color="$MUTED_COLOR" \
+        label.color="$TEXT_COLOR"
+    fi
+  '';
+
   barConfig = ''
     sketchybar --bar \
       height=34 \
@@ -103,6 +193,9 @@ in
       #!/usr/bin/env zsh
 
       PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
+      mkdir -p "$PLUGIN_DIR"
+      ln -sf ${batteryScriptContent} "$PLUGIN_DIR/battery.sh"
+      ln -sf ${aerospaceScriptContent} "$PLUGIN_DIR/aerospace.sh"
 
       ${barConfig}
 
@@ -116,8 +209,6 @@ in
         label.padding_left=4 \
         label.padding_right=8 \
         background.drawing=off
-
-      # Bar items
 
       sketchybar --add item left_padding left \
         --set left_padding width=16
@@ -138,7 +229,9 @@ in
           background.height=26 \
           icon.color=${accentColor} \
           script="$PLUGIN_DIR/front_app.sh" \
-          label.padding_right=12 \
+          label.padding_right=20 \
+          padding_left=8 \
+          padding_right=8 \
         --subscribe front_app front_app_switched
 
       sketchybar --add item right_padding right \
@@ -194,20 +287,21 @@ in
           padding_left=8 \
           padding_right=8
 
-      # Bracket groups
-
       sketchybar --add bracket left_group spaces front_app \
         --set left_group \
           background.color=${toAlphaHex "00" raw.background} \
           y_offset=4 \
-          notch_width=150
+          notch_width=150 \
+          padding_left=8 \
+          padding_right=8
 
       sketchybar --add bracket right_group volume battery clock \
         --set right_group \
           background.color=${toAlphaHex "00" raw.background} \
-          y_offset=4
+          y_offset=4 \
+          padding_left=8 \
+          padding_right=8
 
-      # Final updates
       sketchybar --update
 
       echo "SketchyBar configuration loaded successfully"
