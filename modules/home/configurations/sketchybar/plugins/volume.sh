@@ -23,23 +23,12 @@ set_volume()
     osascript -e "set volume output volume $vol"
 }
 
-# Handle popup actions and slider if called with arguments
+# Handle popup actions if called with arguments
 if [ "$1" = "toggle" ]; then
     toggle_mute
     exit 0
 elif [ "$1" = "set" ] && [ -n "$2" ]; then
     set_volume "$2"
-    exit 0
-elif [ "$1" = "set_slider" ]; then
-    # Set volume based on slider percentage
-    if [ -n "$PERCENTAGE" ]; then
-        set_volume "$PERCENTAGE"
-    fi
-    exit 0
-elif [ "$1" = "slider" ]; then
-    # Update slider position based on current volume
-    VOLUME=$(get_volume)
-    sketchybar --set volume_slider slider.percentage="$VOLUME"
     exit 0
 fi
 

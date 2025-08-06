@@ -63,11 +63,11 @@ let
     # Detect display capabilities
     DISPLAY_INFO=$(system_profiler SPDisplaysDataType 2>/dev/null)
 
-    # Floating bar configuration
-    BAR_HEIGHT=36
-    Y_OFFSET=8        # Float from top
-    CORNER_RADIUS=12  # Rounded corners
-    BLUR_RADIUS=30    # Background blur
+    # Squared transparent bar configuration
+    BAR_HEIGHT=34
+    Y_OFFSET=4        # Closer to top for cleaner look
+    CORNER_RADIUS=6   # Squared off but slightly rounded
+    BLUR_RADIUS=50    # More blur for better transparency
 
     PADDING_LEFT=16
     PADDING_RIGHT=16
@@ -75,7 +75,7 @@ let
 
     sketchybar --bar \
       height=$BAR_HEIGHT \
-      color=0xaa24273a \
+      color=0x44000000 \
       position=top \
       y_offset=$Y_OFFSET \
       margin=$MARGIN \
@@ -84,7 +84,7 @@ let
       corner_radius=$CORNER_RADIUS \
       blur_radius=$BLUR_RADIUS \
       sticky=off \
-      shadow=on
+      shadow=off
   '';
 
 in
@@ -107,15 +107,15 @@ in
 
       ${barConfig}
 
-      # Default item configuration - with JetBrains Mono Nerd Font
+      # Default item configuration - clean grouped look
       sketchybar --default \
-        icon.font="JetBrainsMono Nerd Font:Bold:16.0" \
+        icon.font="JetBrainsMono Nerd Font:Bold:15.0" \
         icon.color=0xffcad3f5 \
-        icon.padding_left=4 \
-        icon.padding_right=2 \
+        icon.padding_left=8 \
+        icon.padding_right=4 \
         label.font="JetBrainsMono Nerd Font:Medium:13.0" \
         label.color=0xffcad3f5 \
-        label.padding_left=2 \
+        label.padding_left=4 \
         label.padding_right=8 \
         background.drawing=off
 
@@ -138,13 +138,14 @@ in
         update_freq=0.5 \
       --subscribe aerospace aerospace_workspace_change space_change
 
-      # Left divider after aerospace
-      sketchybar --add item left_divider left \
-      --set left_divider \
-        icon="│" \
-        icon.color=0x60cad3f5 \
-        label="" \
-        background.drawing=off
+      # Group left items together
+      sketchybar --add bracket left_bracket apple.logo front_app aerospace \
+      --set left_bracket \
+        background.color=0x44ffffff \
+        background.corner_radius=6 \
+        background.height=26 \
+        background.border_width=1 \
+        background.border_color=0x66ffffff
 
       # === RIGHT SIDE ===
 
@@ -162,34 +163,24 @@ in
         update_freq=60 \
       --subscribe battery system_woke power_source_change
 
-      # Right divider before volume
-      sketchybar --add item right_divider1 right \
-      --set right_divider1 \
-        icon="│" \
-        icon.color=0x60cad3f5 \
-        label="" \
-        background.drawing=off
-
-      sketchybar --add slider volume_slider right 100 \
-      --set volume_slider \
-        slider.highlight_color=0xff8aadf4 \
-        slider.background.height=6 \
-        slider.background.corner_radius=3 \
-        slider.background.color=0x60cad3f5 \
-        slider.knob="" \
-        script="$PLUGIN_DIR/volume.sh slider" \
-        click_script="$PLUGIN_DIR/volume.sh set_slider" \
-      --subscribe volume_slider volume_change mouse.clicked
-
       sketchybar --add item volume right \
       --set volume \
         script="$PLUGIN_DIR/volume.sh" \
         click_script="sketchybar --set volume popup.drawing=toggle" \
-        popup.background.corner_radius=8 \
-        popup.background.color=0xaa24273a \
-        popup.blur_radius=20 \
+        popup.background.corner_radius=6 \
+        popup.background.color=0x66000000 \
+        popup.blur_radius=30 \
         popup.height=35 \
       --subscribe volume volume_change
+
+      # Group right items together
+      sketchybar --add bracket right_bracket battery volume clock \
+      --set right_bracket \
+        background.color=0x44ffffff \
+        background.corner_radius=6 \
+        background.height=26 \
+        background.border_width=1 \
+        background.border_color=0x66ffffff
 
       # Volume popup items
       sketchybar --add item volume.mute popup.volume \
@@ -224,14 +215,13 @@ in
 
       # === FINALIZE ===
 
-      # Add animations for smooth transitions
-      sketchybar --animate tanh 20 --bar y_offset=8
+      # Add smooth entrance animation
+      sketchybar --animate tanh 15 --bar y_offset=4
 
-      # Update all items with animation
-      sketchybar --animate sin 15 --update
+      # Update all items
+      sketchybar --update
 
       echo "SketchyBar configuration loaded successfully"
     '';
   };
 }
-

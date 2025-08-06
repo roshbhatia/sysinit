@@ -2,15 +2,18 @@
 
 # Clock plugin with date and time
 
-get_local_time() {
+get_local_time()
+                 {
     date '+%H:%M'
 }
 
-get_utc_time() {
+get_utc_time()
+               {
     date -u '+%H:%M'
 }
 
-get_date() {
+get_date()
+           {
     date '+%a %m/%d'
 }
 
