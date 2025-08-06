@@ -8,7 +8,7 @@ M.plugins = {
     },
     config = function()
       require("opencode").setup({
-        auto_reload = true,
+        auto_reload = false,
       })
 
       local tmp_dir = "/tmp"
@@ -20,7 +20,7 @@ M.plugins = {
             local bufnr = vim.api.nvim_get_current_buf()
             local filename = vim.api.nvim_buf_get_name(bufnr)
             local tmpfile = tmp_dir .. "/opencode_before_" .. bufnr .. ".tmp"
-            vim.api.nvim_command("write! " .. tmpfile)
+            vim.fn.system({ "rsync", "-a", filename, tmpfile })
             vim.cmd("checktime")
             vim.cmd("vert diffsplit " .. tmpfile)
           end
