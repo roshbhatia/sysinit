@@ -167,25 +167,27 @@ M.plugins = {
       })
     end,
     keys = function()
+      local tbuiltin = require("telescope.builtin")
+      local textensions = require("telescope").extensions
       return {
         {
           "<leader>ff",
           function()
-            require("telescope.builtin").find_files({ hidden = true })
+            tbuiltin.find_files({ hidden = true })
           end,
           desc = "Files",
         },
         {
           "<leader>fg",
           function()
-            require("telescope").extensions.live_grep_args.live_grep_args()
+            textensions.live_grep_args.live_grep_args()
           end,
           desc = "Live grep",
         },
         {
           "<leader>fb",
           function()
-            require("telescope.builtin").buffers({
+            tbuiltin.buffers({
               sort_mru = true,
               ignore_current_buffer = false,
               show_all_buffers = false,
@@ -197,49 +199,49 @@ M.plugins = {
         {
           "<leader>?",
           function()
-            require("telescope.builtin").commands()
+            tbuiltin.commands(require("telescope.themes").get_ivy({ previewer = false }))
           end,
           desc = "Commands",
         },
         {
           "<leader>fh",
           function()
-            require("telescope.builtin").help_tags()
+            tbuiltin.help_tags(require("telescope.themes").get_ivy())
           end,
           desc = "Help tags",
         },
         {
           "<leader>fo",
           function()
-            require("telescope.builtin").oldfiles()
+            tbuiltin.oldfiles(require("telescope.themes").get_ivy())
           end,
           desc = "Recent files",
         },
         {
           "<leader>ft",
           function()
-            require("telescope.builtin").filetypes()
+            tbuiltin.filetypes()
           end,
           desc = "Filetypes",
         },
         {
           "<leader>fF",
           function()
-            require("telescope.builtin").builtin()
+            tbuiltin.builtin()
           end,
           desc = "Telescope",
         },
         {
           "<leader>fu",
           function()
-            require("telescope").extensions.undo.undo()
+            textensions.undo.undo(require("telescope.themes").get_ivy())
           end,
           desc = "Undo history",
         },
         {
           "<leader>fr",
           function()
-            require("telescope.builtin").resume()
+            tbuiltin.resume()
           end,
           desc = "Resume Prior Search",
         },
@@ -249,3 +251,4 @@ M.plugins = {
 }
 
 return M
+

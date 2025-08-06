@@ -112,4 +112,3 @@ M.plugins = {
 }
 
 return M
-
