@@ -40,7 +40,6 @@ local function get_basic_config(config_data)
 end
 
 function M.setup(config)
-  local core_config = read_config_from_file()
   local basic_config = get_basic_config(core_config)
 
   for key, value in pairs(basic_config) do
