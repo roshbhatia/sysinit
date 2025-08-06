@@ -4,7 +4,6 @@
 {
   imports = [
     ./osx
-    ./aerospace
-    ./borders
   ];
 }
+

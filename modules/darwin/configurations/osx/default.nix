@@ -9,5 +9,8 @@
     ./security
     ./system
     ./user
+    ./borders
+    ./aerospace
   ];
 }
+
