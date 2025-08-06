@@ -40,18 +40,12 @@
   };
 
   theme = {
-    colorscheme = "catppuccin";
-    variant = "macchiato";
+    colorscheme = "kanagawa";
+    variant = "dragon";
     transparency = {
       enable = true;
       opacity = 0.85;
       blur = 80;
-    };
-    appThemes = {
-      sketchybar = {
-        name = "catppuccin";
-        variant = "macchiato";
-      };
     };
   };
 
