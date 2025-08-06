@@ -109,7 +109,7 @@ let
 
     sketchybar --set "$NAME" \
       icon="$current_icon" \
-      label="${percentage}%" \
+      label="''${percentage}%" \
       icon.color="$icon_color" \
       label.color="$current_color"
   '';
