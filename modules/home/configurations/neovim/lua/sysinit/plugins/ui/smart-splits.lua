@@ -35,7 +35,7 @@ M.plugins = {
           function()
             smart_splits.move_cursor_left()
           end,
-          mode = { "n", "i", "v" },
+          mode = { "n", "i", "v", "t" },
           desc = "Move to left split",
         },
         {
@@ -43,7 +43,7 @@ M.plugins = {
           function()
             smart_splits.move_cursor_down()
           end,
-          mode = { "n", "i", "v" },
+          mode = { "n", "i", "v", "t" },
           desc = "Move to bottom split",
         },
         {
@@ -51,7 +51,7 @@ M.plugins = {
           function()
             smart_splits.move_cursor_up()
           end,
-          mode = { "n", "i", "v" },
+          mode = { "n", "i", "v", "t" },
           desc = "Move to top split",
         },
         {
@@ -59,7 +59,7 @@ M.plugins = {
           function()
             smart_splits.move_cursor_right()
           end,
-          mode = { "n", "i", "v" },
+          mode = { "n", "i", "v", "t" },
           desc = "Move to right split",
         },
         {
@@ -67,7 +67,7 @@ M.plugins = {
           function()
             smart_splits.resize_left()
           end,
-          mode = { "n", "i", "v" },
+          mode = { "n", "i", "v", "t" },
           desc = "Decrease width of current split",
         },
         {
@@ -75,7 +75,7 @@ M.plugins = {
           function()
             smart_splits.resize_down()
           end,
-          mode = { "n", "i", "v" },
+          mode = { "n", "i", "v", "t" },
           desc = "Decrease height of current split",
         },
         {
@@ -83,7 +83,7 @@ M.plugins = {
           function()
             smart_splits.resize_up()
           end,
-          mode = { "n", "i", "v" },
+          mode = { "n", "i", "v", "t" },
           desc = "Increase height of current split",
         },
         {
@@ -91,7 +91,7 @@ M.plugins = {
           function()
             smart_splits.resize_right()
           end,
-          mode = { "n", "i", "v" },
+          mode = { "n", "i", "v", "t" },
           desc = "Increase width of current split",
         },
         {
