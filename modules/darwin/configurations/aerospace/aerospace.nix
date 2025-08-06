@@ -8,7 +8,6 @@
     package = pkgs.aerospace;
     settings = {
       after-startup-command = [
-        "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --hotload true"
         "exec-and-forget ${pkgs.jankyborders}"
       ];
       enable-normalization-flatten-containers = true;
@@ -123,17 +122,6 @@
           };
           run = [ "layout floating" ];
         }
-      ];
-
-      exec-on-workspace-change = [
-        "${pkgs.sketchybar}/bin/sketchybar"
-        "--trigger"
-        "aerospace_workspace_change"
-        "FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE"
-      ];
-
-      on-focus-changed = [
-        "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger front_app_switched"
       ];
 
       mode = {

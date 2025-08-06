@@ -6,6 +6,5 @@
     ./osx
     ./aerospace
     ./borders
-    ./sketchybar
   ];
 }
