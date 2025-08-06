@@ -9,6 +9,7 @@ let
   themes = import ../../../lib/theme { inherit lib; };
   appThemes = values.theme.appThemes or { };
   sketchybarTheme = appThemes.sketchybar or null;
+
   sketchybarThemeName =
     if sketchybarTheme != null && builtins.isAttrs sketchybarTheme then
       sketchybarTheme.name
@@ -17,38 +18,34 @@ let
     else
       values.theme.colorscheme;
 
-  sketchybarColors = (themes.getTheme sketchybarThemeName).appAdapters.sketchybar;
+  theme = themes.getTheme sketchybarThemeName;
+  sketchybarColors =
+    if theme ? appAdapters && theme.appAdapters ? sketchybar then
+      theme.appAdapters.sketchybar
+    else
+      throw "Theme '${sketchybarThemeName}' does not provide a sketchybar adapter.";
 
-  # Color format helpers
-  toSketchybarColor = color: "0xff${lib.removePrefix "#" color}";
-  toHexColor = color: "0x${lib.removePrefix "#" color}";
+  hex = c: lib.removePrefix "#" c;
+  toHex = c: "0x${hex c}";
+  toSketchybar = c: "0xff${hex c}";
+  toAlphaHex = alpha: c: "0x${alpha}${hex c}";
 
-  # Raw color fallback map
-  rawColors = {
-    background = sketchybarColors.background or "#24273a";
-    foreground = sketchybarColors.foreground or "#cad3f5";
-    accent = sketchybarColors.accent or "#8aadf4";
-    muted = sketchybarColors.muted or "#a5adcb";
-    highlight = sketchybarColors.highlight or "#f5bde6";
-    success = sketchybarColors.success or "#a6da95";
-    warning = sketchybarColors.warning or "#eed49f";
-    error = sketchybarColors.error or "#ed8796";
+  raw = {
+    background = sketchybarColors.background or (throw "Missing 'background' in sketchybar theme.");
+    foreground = sketchybarColors.foreground or (throw "Missing 'foreground' in sketchybar theme.");
+    accent = sketchybarColors.accent or (throw "Missing 'accent' in sketchybar theme.");
+    muted = sketchybarColors.muted or (throw "Missing 'muted' in sketchybar theme.");
+    highlight = sketchybarColors.highlight or (throw "Missing 'highlight' in sketchybar theme.");
+    success = sketchybarColors.success or (throw "Missing 'success' in sketchybar theme.");
+    warning = sketchybarColors.warning or (throw "Missing 'warning' in sketchybar theme.");
+    error = sketchybarColors.error or (throw "Missing 'error' in sketchybar theme.");
   };
 
-  # Sketchybar-formatted colors
-  barColor = toSketchybarColor rawColors.background;
-  colors = {
-    text = toHexColor rawColors.foreground;
-    accent = toHexColor rawColors.accent;
-    muted = toHexColor rawColors.muted;
-    highlight = toHexColor rawColors.highlight;
-    success = toHexColor rawColors.success;
-    warning = toHexColor rawColors.warning;
-    error = toHexColor rawColors.error;
-  };
-
-  sharedBackground = "0x44${lib.removePrefix "#" rawColors.foreground}";
-  sharedBorder = "0x66${lib.removePrefix "#" rawColors.foreground}";
+  barColor = toSketchybar raw.background;
+  textColor = toHex raw.foreground;
+  popupBgColor = toAlphaHex "66" raw.background;
+  bracketBg = toAlphaHex "44" raw.foreground;
+  bracketBorder = toAlphaHex "66" raw.foreground;
 
   barConfig = ''
     BAR_HEIGHT=34
@@ -72,6 +69,7 @@ let
       sticky=off \
       shadow=off
   '';
+
 in
 {
   services.sketchybar = {
@@ -87,19 +85,17 @@ in
 
       ${barConfig}
 
-      # Defaults with dynamic colors
       sketchybar --default \
         icon.font="JetBrainsMono Nerd Font:Bold:15.0" \
-        icon.color=${colors.text} \
+        icon.color=${textColor} \
         icon.padding_left=8 \
         icon.padding_right=4 \
         label.font="JetBrainsMono Nerd Font:Medium:13.0" \
-        label.color=${colors.text} \
+        label.color=${textColor} \
         label.padding_left=4 \
         label.padding_right=8 \
         background.drawing=off
 
-      # === LEFT SIDE ITEMS ===
       sketchybar --add item apple.logo left \
         --set apple.logo icon="" click_script="$PLUGIN_DIR/apple_menu.sh"
 
@@ -113,13 +109,12 @@ in
 
       sketchybar --add bracket left_bracket apple.logo front_app aerospace \
         --set left_bracket \
-          background.color=${sharedBackground} \
+          background.color=${bracketBg} \
           background.corner_radius=6 \
           background.height=26 \
           background.border_width=1 \
-          background.border_color=${sharedBorder}
+          background.border_color=${bracketBorder}
 
-      # === RIGHT SIDE ITEMS ===
       sketchybar --add item clock right \
         --set clock \
           script="$PLUGIN_DIR/clock.sh" \
@@ -131,27 +126,29 @@ in
           script="$PLUGIN_DIR/battery.sh" \
           click_script="open /System/Library/PreferencePanes/Battery.prefPane" \
           update_freq=60 \
-        --subscribe battery system_woke power_source_change
+          --subscribe battery system_woke power_source_change
 
       sketchybar --add item volume right \
         --set volume \
           script="$PLUGIN_DIR/volume.sh" \
           click_script="sketchybar --set volume popup.drawing=toggle" \
           popup.background.corner_radius=6 \
-          popup.background.color=0x66${lib.removePrefix "#" rawColors.background} \
+          popup.background.color=${popupBgColor} \
           popup.blur_radius=30 \
           popup.height=35 \
         --subscribe volume volume_change
 
       sketchybar --add bracket right_bracket battery volume clock \
         --set right_bracket \
-          background.color=${sharedBackground} \
+          background.color=${bracketBg} \
           background.corner_radius=6 \
           background.height=26 \
           background.border_width=1 \
-          background.border_color=${sharedBorder}
+          background.border_color=${bracketBorder}
 
-      # === VOLUME POPUP ===
+      sketchybar --add item notch_spacer center \
+        --set notch_spacer width=260 drawing=off
+
       sketchybar --add item volume.mute popup.volume \
         --set volume.mute \
           icon="󰸈" \
@@ -166,10 +163,9 @@ in
             click_script="$PLUGIN_DIR/volume.sh set $level; sketchybar --set volume popup.drawing=off"
       done
 
-      # Smooth transition
       sketchybar --animate tanh 15 --bar y_offset=4
-
       sketchybar --update
+
       echo "SketchyBar configuration loaded successfully"
     '';
   };

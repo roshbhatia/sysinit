@@ -1,4 +1,7 @@
-{ config, pkgs, ... }:
+{
+  pkgs,
+  ...
+}:
 {
   services.aerospace = {
     enable = true;
@@ -29,7 +32,7 @@
           right = 16;
           left = 16;
           bottom = 24;
-          top = 40;
+          top = 24;
         };
       };
 
@@ -210,3 +213,4 @@
     };
   };
 }
+

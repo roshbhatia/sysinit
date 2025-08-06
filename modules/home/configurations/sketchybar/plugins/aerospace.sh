@@ -35,4 +35,3 @@ else
         sketchybar --set "$NAME" label="  1" icon=""
   fi
 fi
-
