@@ -100,11 +100,6 @@ in
   services.sketchybar = {
     package = pkgs.sketchybar;
     enable = true;
-    extraPackages = [
-      pkgs.sketchybar-app-font
-      pkgs.jq
-      pkgs.pmset
-    ]; # Added jq and pmset as they are used
     config = ''
       sketchybar --bar height=34 color=${toAlpha "00" raw.background} position=top y_offset=4 \
         margin=0 padding_left=0 padding_right=0 corner_radius=0 blur_radius=50 sticky=off shadow=off
