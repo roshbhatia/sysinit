@@ -6,7 +6,7 @@
 }:
 
 let
-  themes = import ../../../lib/theme { inherit lib; };
+  themes = import ../../../../lib/theme { inherit lib; };
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
   colors = themes.getUnifiedColors palette;
   activeColor = lib.toLower (lib.removePrefix "#" (colors.accent.primary or "ffdc8a78"));
@@ -14,7 +14,7 @@ let
 in
 {
   services.jankyborders = {
-    enable = true;
+    enable = false;
     package = pkgs.jankyborders;
 
     style = "round";
