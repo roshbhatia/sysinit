@@ -9,9 +9,8 @@ let
   themes = import ../../../../lib/theme { inherit lib; };
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
   colors = themes.getUnifiedColors palette;
-  activeColorRaw = colors.accent.primary or (throw "Missing primary accent color in theme palette");
-  inactiveColorRaw =
-    colors.background.overlay or (throw "Missing overlay background color in theme palette");
+  activeColorRaw = colors.semantic.error (throw "Missing error color in theme palette");
+  inactiveColorRaw = colors.accent.primary or (throw "Missing primary accent color in theme palette");
   activeColor = lib.toLower (lib.removePrefix "#" activeColorRaw);
   inactiveColor = lib.toLower (lib.removePrefix "#" inactiveColorRaw);
 in
@@ -27,3 +26,4 @@ in
     inactive_color = "0xff${inactiveColor}";
   };
 }
+
