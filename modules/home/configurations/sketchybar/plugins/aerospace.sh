@@ -12,23 +12,23 @@ if command -v aerospace &> /dev/null; then
         for workspace in $all_workspaces; do
             if [ "$workspace" = "$focused_workspace" ]; then
                 workspace_dots="$workspace_dots●"
-            else
+      else
                 workspace_dots="$workspace_dots○"
-            fi
-        done
+      fi
+    done
 
         sketchybar --set "$NAME" \
                    label="$focused_workspace $workspace_dots" \
                    icon=""
-    else
+  else
         sketchybar --set "$NAME" label="?" icon=""
-    fi
+  fi
 else
     # Fallback to yabai if available
     if command -v yabai &> /dev/null; then
         current_space=$(yabai -m query --spaces --space 2> /dev/null | jq -r '.index // 1' 2> /dev/null || echo "1")
         sketchybar --set "$NAME" label="$current_space" icon=""
-    else
+  else
         sketchybar --set "$NAME" label="1" icon=""
-    fi
+  fi
 fi

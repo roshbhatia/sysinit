@@ -2,29 +2,44 @@
 
 # Volume plugin with popup menu support
 
-get_volume() {
+get_volume()
+             {
     osascript -e 'output volume of (get volume settings)' 2> /dev/null || echo "50"
 }
 
-get_muted() {
+get_muted()
+            {
     osascript -e 'output muted of (get volume settings)' 2> /dev/null || echo "false"
 }
 
-toggle_mute() {
+toggle_mute()
+              {
     osascript -e 'set volume with output muted'
 }
 
-set_volume() {
+set_volume()
+             {
     local vol="$1"
     osascript -e "set volume output volume $vol"
 }
 
-# Handle popup actions if called with arguments
+# Handle popup actions and slider if called with arguments
 if [ "$1" = "toggle" ]; then
     toggle_mute
     exit 0
 elif [ "$1" = "set" ] && [ -n "$2" ]; then
     set_volume "$2"
+    exit 0
+elif [ "$1" = "set_slider" ]; then
+    # Set volume based on slider percentage
+    if [ -n "$PERCENTAGE" ]; then
+        set_volume "$PERCENTAGE"
+    fi
+    exit 0
+elif [ "$1" = "slider" ]; then
+    # Update slider position based on current volume
+    VOLUME=$(get_volume)
+    sketchybar --set volume_slider slider.percentage="$VOLUME"
     exit 0
 fi
 

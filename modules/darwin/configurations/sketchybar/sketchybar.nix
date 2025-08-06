@@ -63,20 +63,19 @@ let
     # Detect display capabilities
     DISPLAY_INFO=$(system_profiler SPDisplaysDataType 2>/dev/null)
 
-    # Set bar configuration - optimized for notch
-    BAR_HEIGHT=32
-    Y_OFFSET=0
-    CORNER_RADIUS=0
-    BLUR_RADIUS=0
+    # Floating bar configuration
+    BAR_HEIGHT=36
+    Y_OFFSET=8        # Float from top
+    CORNER_RADIUS=12  # Rounded corners
+    BLUR_RADIUS=30    # Background blur
 
-    # Always use notch-friendly settings
-    PADDING_LEFT=200   # Leave space for notch area
-    PADDING_RIGHT=200  # Symmetrical spacing
+    PADDING_LEFT=16
+    PADDING_RIGHT=16
     MARGIN=0
 
     sketchybar --bar \
       height=$BAR_HEIGHT \
-      color=${barColor} \
+      color=0xaa24273a \
       position=top \
       y_offset=$Y_OFFSET \
       margin=$MARGIN \
@@ -85,7 +84,7 @@ let
       corner_radius=$CORNER_RADIUS \
       blur_radius=$BLUR_RADIUS \
       sticky=off \
-      shadow=off
+      shadow=on
   '';
 
 in
@@ -93,6 +92,7 @@ in
   services.sketchybar = {
     package = pkgs.sketchybar;
     enable = true;
+    extraPackages = [ pkgs.sketchybar-app-font ];
 
     config = ''
       #!/usr/bin/env bash
@@ -135,8 +135,16 @@ in
       sketchybar --add item aerospace left \
       --set aerospace \
         script="$PLUGIN_DIR/aerospace.sh" \
-        update_freq=1 \
-      --subscribe aerospace aerospace_workspace_change
+        update_freq=0.5 \
+      --subscribe aerospace aerospace_workspace_change space_change
+
+      # Left divider after aerospace
+      sketchybar --add item left_divider left \
+      --set left_divider \
+        icon="│" \
+        icon.color=0x60cad3f5 \
+        label="" \
+        background.drawing=off
 
       # === RIGHT SIDE ===
 
@@ -154,12 +162,31 @@ in
         update_freq=60 \
       --subscribe battery system_woke power_source_change
 
+      # Right divider before volume
+      sketchybar --add item right_divider1 right \
+      --set right_divider1 \
+        icon="│" \
+        icon.color=0x60cad3f5 \
+        label="" \
+        background.drawing=off
+
+      sketchybar --add slider volume_slider right 100 \
+      --set volume_slider \
+        slider.highlight_color=0xff8aadf4 \
+        slider.background.height=6 \
+        slider.background.corner_radius=3 \
+        slider.background.color=0x60cad3f5 \
+        slider.knob="" \
+        script="$PLUGIN_DIR/volume.sh slider" \
+        click_script="$PLUGIN_DIR/volume.sh set_slider" \
+      --subscribe volume_slider volume_change mouse.clicked
+
       sketchybar --add item volume right \
       --set volume \
         script="$PLUGIN_DIR/volume.sh" \
         click_script="sketchybar --set volume popup.drawing=toggle" \
         popup.background.corner_radius=8 \
-        popup.background.color=0xcc24273a \
+        popup.background.color=0xaa24273a \
         popup.blur_radius=20 \
         popup.height=35 \
       --subscribe volume volume_change
@@ -197,10 +224,14 @@ in
 
       # === FINALIZE ===
 
-      # Update all items
-      sketchybar --update
+      # Add animations for smooth transitions
+      sketchybar --animate tanh 20 --bar y_offset=8
+
+      # Update all items with animation
+      sketchybar --animate sin 15 --update
 
       echo "SketchyBar configuration loaded successfully"
     '';
   };
 }
+

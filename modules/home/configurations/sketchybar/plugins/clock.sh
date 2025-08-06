@@ -2,32 +2,30 @@
 
 # Clock plugin with date and time
 
-get_time()
-           {
+get_local_time() {
     date '+%H:%M'
 }
 
-get_date()
-           {
+get_utc_time() {
+    date -u '+%H:%M'
+}
+
+get_date() {
     date '+%a %m/%d'
 }
 
-get_timezone()
-               {
-    date '+%Z'
-}
-
-TIME=$(get_time)
+LOCAL_TIME=$(get_local_time)
+UTC_TIME=$(get_utc_time)
 DATE=$(get_date)
-TIMEZONE=$(get_timezone)
 
 # Different formats based on available space
 if [ "$1" = "compact" ]; then
     sketchybar --set "$NAME" \
-               label="$TIME" \
+               label="$LOCAL_TIME" \
                icon=""
 else
+    # Show local time | UTC time with date
     sketchybar --set "$NAME" \
-               label="$TIME  $DATE" \
+               label="$LOCAL_TIME │ ${UTC_TIME}Z  $DATE" \
                icon=""
 fi
