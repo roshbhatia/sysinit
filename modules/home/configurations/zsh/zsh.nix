@@ -68,7 +68,7 @@ in
       sudo = "sudo -E";
       diff = "diff --color";
       grep = "grep -s --color=auto";
-      watch = "watch --color --no-title";
+      watch = "KUBECOLOR_FORCE_COLORS=auto watch --color --no-title";
     };
 
     sessionVariables = {
@@ -275,3 +275,4 @@ in
     ];
   };
 }
+
