@@ -54,7 +54,7 @@ let
 
   barConfig = ''
     sketchybar --bar \
-      height=0 \
+      height=34 \
       color=${toAlphaHex "00" raw.background} \
       position=top \
       y_offset=4 \
@@ -131,11 +131,7 @@ in
 
       sketchybar --add item spaces left \
         --set spaces \
-          background.color=${bracketBg} \
-          background.corner_radius=6 \
-          background.border_width=1 \
-          background.border_color=${bracketBorder} \
-          background.height=26 \
+          background.color=${toAlphaHex "00" raw.background} \
           y_offset=0
 
       ${workspaceConfig}
@@ -211,3 +207,4 @@ in
     '';
   };
 }
+
