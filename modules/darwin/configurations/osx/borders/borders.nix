@@ -10,7 +10,8 @@ let
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
   semanticColors = themes.utils.createSemanticMapping palette;
   activeColorRaw = semanticColors.semantic.error or (throw "Missing error color in theme palette");
-  inactiveColorRaw = semanticColors.accent.primary or (throw "Missing primary accent color in theme palette");
+  inactiveColorRaw =
+    semanticColors.accent.primary or (throw "Missing primary accent color in theme palette");
   activeColor = lib.toLower (lib.removePrefix "#" activeColorRaw);
   inactiveColor = lib.toLower (lib.removePrefix "#" inactiveColorRaw);
 in
