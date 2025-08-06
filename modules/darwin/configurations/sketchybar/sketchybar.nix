@@ -23,7 +23,7 @@ let
     if theme ? appAdapters && theme.appAdapters ? sketchybar then
       theme.appAdapters.sketchybar
     else
-      throw "Theme '${sketchybarThemeName}' does not provide a sketchybar adapter.";
+      throw "Theme '${sketchybarThemeName}' does not provide a SketchyBar adapter.";
 
   hex = c: lib.removePrefix "#" c;
   toHex = c: "0x${hex c}";
@@ -97,14 +97,19 @@ in
         background.drawing=off
 
       sketchybar --add item apple.logo left \
-        --set apple.logo icon="" click_script="$PLUGIN_DIR/apple_menu.sh"
+        --set apple.logo \
+          icon="" \
+          click_script="$PLUGIN_DIR/apple_menu.sh"
 
       sketchybar --add item front_app left \
-        --set front_app script="$PLUGIN_DIR/front_app.sh" \
+        --set front_app \
+          script="$PLUGIN_DIR/front_app.sh" \
         --subscribe front_app front_app_switched
 
       sketchybar --add item aerospace left \
-        --set aerospace script="$PLUGIN_DIR/aerospace.sh" update_freq=0.5 \
+        --set aerospace \
+          script="$PLUGIN_DIR/aerospace.sh" \
+          update_freq=0.5 \
         --subscribe aerospace aerospace_workspace_change space_change
 
       sketchybar --add bracket left_bracket apple.logo front_app aerospace \
@@ -126,7 +131,7 @@ in
           script="$PLUGIN_DIR/battery.sh" \
           click_script="open /System/Library/PreferencePanes/Battery.prefPane" \
           update_freq=60 \
-          --subscribe battery system_woke power_source_change
+        --subscribe battery system_woke power_source_change
 
       sketchybar --add item volume right \
         --set volume \
@@ -147,7 +152,9 @@ in
           background.border_color=${bracketBorder}
 
       sketchybar --add item notch_spacer center \
-        --set notch_spacer width=260 drawing=off
+        --set notch_spacer \
+          width=260 \
+          drawing=off
 
       sketchybar --add item volume.mute popup.volume \
         --set volume.mute \

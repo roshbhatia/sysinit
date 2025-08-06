@@ -157,14 +157,38 @@
             alt-shift-minus = "resize smart -210";
             alt-shift-equal = "resize smart +210";
             # Workspace management
-            alt-1 = "workspace 1";
-            alt-2 = "workspace 2";
-            alt-3 = "workspace 3";
-            alt-4 = "workspace 4";
-            alt-c = "workspace C"; # Chat
-            alt-m = "workspace M"; # Media
-            alt-s = "workspace S"; # Slack
-            alt-e = "workspace E"; # Email
+            alt-1 = [
+              "workspace 1"
+              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
+            ];
+            alt-2 = [
+              "workspace 2"
+              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
+            ];
+            alt-3 = [
+              "workspace 3"
+              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
+            ];
+            alt-4 = [
+              "workspace 4"
+              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
+            ];
+            alt-c = [
+              "workspace C"
+              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
+            ]; # Chat
+            alt-m = [
+              "workspace M"
+              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
+            ]; # Media
+            alt-s = [
+              "workspace S"
+              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
+            ]; # Slack
+            alt-e = [
+              "workspace E"
+              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
+            ]; # Email
             alt-shift-1 = [
               "move-node-to-workspace 1 --focus-follows-window"
               "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
