@@ -7,9 +7,6 @@
     enable = true;
     package = pkgs.aerospace;
     settings = {
-      after-startup-command = [
-        "exec-and-forget ${pkgs.jankyborders}"
-      ];
       enable-normalization-flatten-containers = true;
       enable-normalization-opposite-orientation-for-nested-containers = true;
       accordion-padding = 30;
@@ -174,3 +171,4 @@
     };
   };
 }
+
