@@ -36,6 +36,10 @@ M.plugins = {
           group = "Editor Actions",
         },
         {
+          "<localleader>P",
+          group = "Precognition",
+        },
+        {
           "<localleader>r",
           group = "Refresh",
         },
@@ -90,6 +94,10 @@ M.plugins = {
         {
           "<leader>t",
           group = "Terminal",
+        },
+        {
+          "<leader>?",
+          group = "Commands",
         },
       })
 

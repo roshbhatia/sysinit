@@ -34,6 +34,7 @@ let
     "font-symbols-only-nerd-font"
     "jordanbaird-ice"
     "keycastr"
+    "mediosz/tap/swipeaerospace"
     "raycast"
     "slack"
     "visual-studio-code@insiders"
@@ -71,3 +72,4 @@ in
     casks = allCasks;
   };
 }
+
