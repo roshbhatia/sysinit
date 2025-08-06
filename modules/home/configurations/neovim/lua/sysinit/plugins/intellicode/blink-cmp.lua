@@ -126,7 +126,11 @@ M.plugins = {
           opts = {},
         }
 
-        table.insert(sources, "opencode")
+        table.insert(sources, {
+          per_filetype = {
+            opencode_ask = { "opencode", "buffer" },
+          },
+        })
       end
 
       return {
@@ -241,3 +245,4 @@ M.plugins = {
 }
 
 return M
+

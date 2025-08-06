@@ -6,24 +6,27 @@ M.plugins = {
     dependencies = {
       "folke/snacks.nvim",
     },
-    opts = function()
-      return {
+    config = function()
+      require("opencode").setup({
         auto_reload = true,
-        auto_focus = false,
-        command = "opencode",
-        context = {
-          ["@file"] = require("opencode.context").file,
-          ["@files"] = require("opencode.context").files,
-          ["@cursor"] = require("opencode.context").cursor_position,
-          ["@selection"] = require("opencode.context").visual_selection,
-          ["@diagnostics"] = require("opencode.context").diagnostics,
-          ["@quickfix"] = require("opencode.context").quickfix,
-          ["@diff"] = require("opencode.context").git_diff,
-        },
-        win = {
-          position = "right",
-        },
-      }
+      })
+
+      local tmp_dir = "/tmp"
+      vim.api.nvim_create_autocmd("User", {
+        group = vim.api.nvim_create_augroup("OpencodeAutoDiff", { clear = true }),
+        pattern = "OpencodeEvent",
+        callback = function(args)
+          if args.data and args.data.type == "file.edited" then
+            local bufnr = vim.api.nvim_get_current_buf()
+            local filename = vim.api.nvim_buf_get_name(bufnr)
+            local tmpfile = tmp_dir .. "/opencode_before_" .. bufnr .. ".tmp"
+            vim.api.nvim_command("write! " .. tmpfile)
+            vim.cmd("checktime")
+            vim.cmd("vert diffsplit " .. tmpfile)
+          end
+        end,
+        desc = "Show vimdiff of opencode edits",
+      })
     end,
     keys = {
       {
@@ -111,3 +114,4 @@ M.plugins = {
 }
 
 return M
+
