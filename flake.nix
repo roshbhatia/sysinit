@@ -45,7 +45,7 @@
         inherit lib pkgs system;
       };
 
-      defaultValues = (import ./values.nix);
+      defaultValues = import ./values.nix;
 
       mkDarwinConfiguration =
         {
