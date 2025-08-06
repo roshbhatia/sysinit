@@ -28,10 +28,10 @@
           vertical = 16;
         };
         outer = {
-          right = 16;
-          left = 16;
-          bottom = 24;
-          top = 24;
+          right = 24;
+          left = 24;
+          bottom = 32;
+          top = 32;
         };
       };
 
