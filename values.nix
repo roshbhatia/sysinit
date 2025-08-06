@@ -1,39 +1,61 @@
 {
-  config,
-  lib,
-  values,
-  ...
-}:
-
-let
-  themes = import ../../../lib/theme { inherit lib; };
-
-  nvimOverride =
-    if values.wezterm.nvim_transparency_override or null != null then
-      { transparency = values.wezterm.nvim_transparency_override; }
-    else
-      { };
-
-  themeConfig = {
-    colorscheme = values.theme.colorscheme;
-    variant = values.theme.variant;
-    transparency = values.theme.transparency // (nvimOverride.transparency or { });
-    presets = values.theme.presets or [ ];
-    overrides = values.theme.overrides or { };
+  user = {
+    username = "rshnbhatia";
+    hostname = "lv426";
   };
-in
-{
-  xdg.configFile."wezterm/wezterm.lua".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/wezterm.lua";
 
-  xdg.configFile."wezterm/lua".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/lua";
+  git = {
+    userName = "Roshan Bhatia";
+    userEmail = "rshnbhatia@gmail.com";
+    githubUser = "roshbhatia";
+    credentialUsername = "roshbhatia";
+  };
 
-  xdg.configFile."wezterm/theme_config.json".text = builtins.toJSON (
-    themes.generateAppJSON "wezterm" themeConfig
-  );
+  homebrew = {
+    additionalPackages = {
+      taps = [ "hashicorp/tap" ];
+      brews = [
+        "blueutil"
+        "hashicorp/tap/packer"
+        "tailscale"
+        "qemu"
+      ];
+      casks = [
+        "betterdiscord-installer"
+        "calibre"
+        "discord"
+        "notion"
+        "steam"
+        "supercollider"
+        "vnc-viewer"
+      ];
+    };
+  };
 
-  xdg.configFile."wezterm/core_config.json".text = builtins.toJSON {
-    wezterm_entrypoint = values.wezterm.shell;
+  yarn = {
+    additionalPackages = [
+      "@anthropic-ai/claude-code"
+      "@dice-roller/cli"
+    ];
+  };
+
+  theme = {
+    colorscheme = "catppuccin";
+    variant = "macchiato";
+    transparency = {
+      enable = true;
+      opacity = 0.85;
+      blur = 80;
+    };
+    appThemes = {
+      sketchybar = {
+        name = "catppuccin";
+        variant = "macchiato";
+      };
+    };
+  };
+
+  wezterm = {
+    shell = "nu";
   };
 }
