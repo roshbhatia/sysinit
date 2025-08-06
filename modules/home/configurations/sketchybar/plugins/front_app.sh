@@ -49,7 +49,8 @@ get_app_icon()
   esac
 }
 
-get_clean_app_name() {
+get_clean_app_name()
+                     {
     local app_name="$1"
     case "$app_name" in
         "wezterm-gui") echo "Wezterm" ;;
@@ -60,7 +61,7 @@ get_clean_app_name() {
         "Firefox Developer Edition") echo "Firefox Dev" ;;
         "Activity Monitor") echo "Activity" ;;
         *) echo "$app_name" ;;
-    esac
+  esac
 }
 
 FRONT_APP=$(get_front_app)
@@ -72,7 +73,7 @@ if [ -n "$FRONT_APP" ]; then
     # Truncate long app names
     if [ ${#CLEAN_APP_NAME} -gt 15 ]; then
         CLEAN_APP_NAME=$(echo "$CLEAN_APP_NAME" | cut -c1-15)...
-    fi
+  fi
 
     sketchybar --set "$NAME" \
                label="$CLEAN_APP_NAME" \

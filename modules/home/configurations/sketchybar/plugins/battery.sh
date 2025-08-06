@@ -78,3 +78,4 @@ sketchybar --set "$NAME" \
            icon="$ICON" \
            label="$LABEL" \
            icon.color="$COLOR"
+

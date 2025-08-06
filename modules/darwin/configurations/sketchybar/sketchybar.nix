@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   values,
   pkgs,
@@ -17,24 +16,14 @@ let
       sketchybarTheme
     else
       values.theme.colorscheme;
+
   sketchybarColors = (themes.getTheme sketchybarThemeName).appAdapters.sketchybar;
 
-  # Helper functions for color conversion
-  toSketchybarColor =
-    color:
-    let
-      cleaned = lib.removePrefix "#" color;
-    in
-    "0xff${cleaned}";
+  # Color format helpers
+  toSketchybarColor = color: "0xff${lib.removePrefix "#" color}";
+  toHexColor = color: "0x${lib.removePrefix "#" color}";
 
-  toHexColor =
-    color:
-    let
-      cleaned = lib.removePrefix "#" color;
-    in
-    "0x${cleaned}";
-
-  # Raw color values
+  # Raw color fallback map
   rawColors = {
     background = sketchybarColors.background or "#24273a";
     foreground = sketchybarColors.foreground or "#cad3f5";
@@ -46,7 +35,7 @@ let
     error = sketchybarColors.error or "#ed8796";
   };
 
-  # Colors in proper sketchybar format
+  # Sketchybar-formatted colors
   barColor = toSketchybarColor rawColors.background;
   colors = {
     text = toHexColor rawColors.foreground;
@@ -58,24 +47,21 @@ let
     error = toHexColor rawColors.error;
   };
 
-  # Dynamic positioning for notched displays
+  sharedBackground = "0x44${lib.removePrefix "#" rawColors.foreground}";
+  sharedBorder = "0x66${lib.removePrefix "#" rawColors.foreground}";
+
   barConfig = ''
-    # Detect display capabilities
-    DISPLAY_INFO=$(system_profiler SPDisplaysDataType 2>/dev/null)
-
-    # Squared transparent bar configuration
     BAR_HEIGHT=34
-    Y_OFFSET=4        # Closer to top for cleaner look
-    CORNER_RADIUS=6   # Squared off but slightly rounded
-    BLUR_RADIUS=50    # More blur for better transparency
-
+    Y_OFFSET=4
+    CORNER_RADIUS=6
+    BLUR_RADIUS=50
     PADDING_LEFT=16
     PADDING_RIGHT=16
     MARGIN=0
 
     sketchybar --bar \
       height=$BAR_HEIGHT \
-      color=0x44000000 \
+      color=${barColor} \
       position=top \
       y_offset=$Y_OFFSET \
       margin=$MARGIN \
@@ -86,7 +72,6 @@ let
       sticky=off \
       shadow=off
   '';
-
 in
 {
   services.sketchybar = {
@@ -97,131 +82,96 @@ in
     config = ''
       #!/usr/bin/env bash
 
-      # Plugin directory
       PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
-
-      # Source display helper if available
-      if [ -f "$PLUGIN_DIR/display_helper.sh" ]; then
-          source "$PLUGIN_DIR/display_helper.sh"
-      fi
+      [ -f "$PLUGIN_DIR/display_helper.sh" ] && source "$PLUGIN_DIR/display_helper.sh"
 
       ${barConfig}
 
-      # Default item configuration - clean grouped look
+      # Defaults with dynamic colors
       sketchybar --default \
         icon.font="JetBrainsMono Nerd Font:Bold:15.0" \
-        icon.color=0xffcad3f5 \
+        icon.color=${colors.text} \
         icon.padding_left=8 \
         icon.padding_right=4 \
         label.font="JetBrainsMono Nerd Font:Medium:13.0" \
-        label.color=0xffcad3f5 \
+        label.color=${colors.text} \
         label.padding_left=4 \
         label.padding_right=8 \
         background.drawing=off
 
-      # === LEFT SIDE ===
-
-      # Left side items
+      # === LEFT SIDE ITEMS ===
       sketchybar --add item apple.logo left \
-      --set apple.logo \
-        icon="" \
-        click_script="$PLUGIN_DIR/apple_menu.sh"
+        --set apple.logo icon="" click_script="$PLUGIN_DIR/apple_menu.sh"
 
       sketchybar --add item front_app left \
-      --set front_app \
-        script="$PLUGIN_DIR/front_app.sh" \
-      --subscribe front_app front_app_switched
+        --set front_app script="$PLUGIN_DIR/front_app.sh" \
+        --subscribe front_app front_app_switched
 
       sketchybar --add item aerospace left \
-      --set aerospace \
-        script="$PLUGIN_DIR/aerospace.sh" \
-        update_freq=0.5 \
-      --subscribe aerospace aerospace_workspace_change space_change
+        --set aerospace script="$PLUGIN_DIR/aerospace.sh" update_freq=0.5 \
+        --subscribe aerospace aerospace_workspace_change space_change
 
-      # Group left items together
       sketchybar --add bracket left_bracket apple.logo front_app aerospace \
-      --set left_bracket \
-        background.color=0x44ffffff \
-        background.corner_radius=6 \
-        background.height=26 \
-        background.border_width=1 \
-        background.border_color=0x66ffffff
+        --set left_bracket \
+          background.color=${sharedBackground} \
+          background.corner_radius=6 \
+          background.height=26 \
+          background.border_width=1 \
+          background.border_color=${sharedBorder}
 
-      # === RIGHT SIDE ===
-
-      # Right side items - simplified
+      # === RIGHT SIDE ITEMS ===
       sketchybar --add item clock right \
-      --set clock \
-        script="$PLUGIN_DIR/clock.sh" \
-        click_script="open /System/Applications/Calendar.app" \
-        update_freq=30
+        --set clock \
+          script="$PLUGIN_DIR/clock.sh" \
+          click_script="open /System/Applications/Calendar.app" \
+          update_freq=30
 
       sketchybar --add item battery right \
-      --set battery \
-        script="$PLUGIN_DIR/battery.sh" \
-        click_script="open /System/Library/PreferencePanes/Battery.prefPane" \
-        update_freq=60 \
-      --subscribe battery system_woke power_source_change
+        --set battery \
+          script="$PLUGIN_DIR/battery.sh" \
+          click_script="open /System/Library/PreferencePanes/Battery.prefPane" \
+          update_freq=60 \
+        --subscribe battery system_woke power_source_change
 
       sketchybar --add item volume right \
-      --set volume \
-        script="$PLUGIN_DIR/volume.sh" \
-        click_script="sketchybar --set volume popup.drawing=toggle" \
-        popup.background.corner_radius=6 \
-        popup.background.color=0x66000000 \
-        popup.blur_radius=30 \
-        popup.height=35 \
-      --subscribe volume volume_change
+        --set volume \
+          script="$PLUGIN_DIR/volume.sh" \
+          click_script="sketchybar --set volume popup.drawing=toggle" \
+          popup.background.corner_radius=6 \
+          popup.background.color=0x66${lib.removePrefix "#" rawColors.background} \
+          popup.blur_radius=30 \
+          popup.height=35 \
+        --subscribe volume volume_change
 
-      # Group right items together
       sketchybar --add bracket right_bracket battery volume clock \
-      --set right_bracket \
-        background.color=0x44ffffff \
-        background.corner_radius=6 \
-        background.height=26 \
-        background.border_width=1 \
-        background.border_color=0x66ffffff
+        --set right_bracket \
+          background.color=${sharedBackground} \
+          background.corner_radius=6 \
+          background.height=26 \
+          background.border_width=1 \
+          background.border_color=${sharedBorder}
 
-      # Volume popup items
+      # === VOLUME POPUP ===
       sketchybar --add item volume.mute popup.volume \
-      --set volume.mute \
-        icon="󰸈" \
-        label="Toggle Mute" \
-        click_script="$PLUGIN_DIR/volume.sh toggle; sketchybar --set volume popup.drawing=off"
+        --set volume.mute \
+          icon="󰸈" \
+          label="Toggle Mute" \
+          click_script="$PLUGIN_DIR/volume.sh toggle; sketchybar --set volume popup.drawing=off"
 
-      sketchybar --add item volume.25 popup.volume \
-      --set volume.25 \
-        icon="󰖀" \
-        label="25%" \
-        click_script="$PLUGIN_DIR/volume.sh set 25; sketchybar --set volume popup.drawing=off"
+      for level in 25 50 75 100; do
+        sketchybar --add item volume.$level popup.volume \
+          --set volume.$level \
+            icon="󰖀" \
+            label="$level%" \
+            click_script="$PLUGIN_DIR/volume.sh set $level; sketchybar --set volume popup.drawing=off"
+      done
 
-      sketchybar --add item volume.50 popup.volume \
-      --set volume.50 \
-        icon="󰖁" \
-        label="50%" \
-        click_script="$PLUGIN_DIR/volume.sh set 50; sketchybar --set volume popup.drawing=off"
-
-      sketchybar --add item volume.75 popup.volume \
-      --set volume.75 \
-        icon="󰕾" \
-        label="75%" \
-        click_script="$PLUGIN_DIR/volume.sh set 75; sketchybar --set volume popup.drawing=off"
-
-      sketchybar --add item volume.100 popup.volume \
-      --set volume.100 \
-        icon="󰕾" \
-        label="100%" \
-        click_script="$PLUGIN_DIR/volume.sh set 100; sketchybar --set volume popup.drawing=off"
-
-      # === FINALIZE ===
-
-      # Add smooth entrance animation
+      # Smooth transition
       sketchybar --animate tanh 15 --bar y_offset=4
 
-      # Update all items
       sketchybar --update
-
       echo "SketchyBar configuration loaded successfully"
     '';
   };
 }
+
