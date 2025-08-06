@@ -93,7 +93,7 @@ in
     extraPackages = [ pkgs.sketchybar-app-font ];
 
     config = ''
-      #!/usr/bin/env bash
+      #!/usr/bin/env zsh
 
       PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
 

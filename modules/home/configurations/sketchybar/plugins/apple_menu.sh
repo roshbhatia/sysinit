@@ -1,6 +1,7 @@
 #!/usr/bin/env zsh
 
-choice=$(osascript << EOF
+choice=$(
+         osascript << EOF
 set menuItems to {"About This Mac", "System Preferences", "Activity Monitor", "Sleep", "Restart", "Shutdown", "Cancel"}
 set choice to choose from list menuItems with title "System Menu" with prompt "Choose an action:" default items {"Cancel"}
 if choice is false then
