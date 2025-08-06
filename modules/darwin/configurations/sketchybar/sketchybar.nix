@@ -7,7 +7,7 @@
 
 let
   themes = import ../../../lib/theme { inherit lib; };
-  sketchybarTheme = values.theme.appThemes.sketchybar;
+  sketchybarTheme = values.theme.appThemes.sketchybar or values.theme.colorscheme;
   theme = themes.getTheme sketchybarTheme;
   cfg = theme.appAdapters.sketchybar or (throw "Theme lacks sketchybar adapter");
 

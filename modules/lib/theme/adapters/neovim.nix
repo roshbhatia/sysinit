@@ -7,7 +7,6 @@ let
 in
 
 {
-
   createNeovimConfig =
     themeData: config: overrides:
     let
@@ -256,3 +255,4 @@ in
       appTheme = baseOverrides;
     };
 }
+
