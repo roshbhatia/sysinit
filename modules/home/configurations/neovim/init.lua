@@ -50,6 +50,7 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.editor.marks"),
   require("sysinit.plugins.editor.move"),
   require("sysinit.plugins.editor.multicursor"),
+  require("sysinit.plugins.editor.precognition"),
   require("sysinit.plugins.editor.render-markdown"),
   require("sysinit.plugins.file.neo-tree"),
   require("sysinit.plugins.file.oil"),
@@ -61,6 +62,7 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.intellicode.avante"),
   require("sysinit.plugins.intellicode.blink-cmp"),
   require("sysinit.plugins.intellicode.cmp-copilot"),
+  require("sysinit.plugins.intellicode.colorful-menu"),
   require("sysinit.plugins.intellicode.copilot-chat"),
   require("sysinit.plugins.intellicode.copilot"),
   require("sysinit.plugins.intellicode.conform"),
@@ -118,3 +120,4 @@ require("sysinit.pkg.keybindings.undo").setup()
 require("sysinit.pkg.keybindings.vim").setup()
 
 require("sysinit.pkg.entrypoint.no-session").setup()
+

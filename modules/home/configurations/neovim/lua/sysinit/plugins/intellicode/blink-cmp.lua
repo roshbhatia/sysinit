@@ -6,6 +6,7 @@ local deps = {
   "L3MON4D3/LuaSnip",
   "pta2002/intellitab.nvim",
   "rafamadriz/friendly-snippets",
+  "xzbdmw/colorful-menu.nvim",
 }
 
 if copilot_enabled then
@@ -164,6 +165,25 @@ M.plugins = {
             max_height = 15,
             border = "rounded",
             draw = {
+              columns = {
+                {
+                  "kind_icon",
+                },
+                {
+                  "label",
+                  gap = 1,
+                },
+              },
+              components = {
+                label = {
+                  text = function(ctx)
+                    return require("colorful-menu").blink_components_text(ctx)
+                  end,
+                  highlight = function(ctx)
+                    return require("colorful-menu").blink_components_highlight(ctx)
+                  end,
+                },
+              },
               treesitter = {
                 "lsp",
                 "copilot",
@@ -221,3 +241,4 @@ M.plugins = {
 }
 
 return M
+
