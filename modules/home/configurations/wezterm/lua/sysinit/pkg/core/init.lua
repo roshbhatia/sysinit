@@ -1,23 +1,11 @@
 local M = {}
 
 local wezterm = require("wezterm")
+local json_loader = require("sysinit.pkg.utils.json_loader")
+local core_config = json_loader.load_json_file(json_loader.get_config_path("core_config.json"))
+
 local home = os.getenv("HOME") or ""
 local xdg_config_home = os.getenv("XDG_CONFIG_HOME") or (home .. "/.config")
-local config_file_path = xdg_config_home .. "/wezterm/core_config.json"
-
-local function read_config_from_file()
-  local file = io.open(config_file_path, "r")
-  if file then
-    local content = file:read("*a")
-    file:close()
-    local success, parsed_data = pcall(wezterm.json.decode, content)
-    if success and parsed_data then
-      return parsed_data
-    end
-  end
-
-  return {}
-end
 
 local function get_basic_config(config_data)
   local username = os.getenv("USER") or ""
@@ -37,7 +25,7 @@ local function get_basic_config(config_data)
     },
   }
 
-  local wezterm_entrypoint = config_data.wezterm_entrypoint or "zsh"
+  local wezterm_entrypoint = core_config.wezterm_entrypoint or "zsh"
 
   return {
     set_environment_variables = {
@@ -61,3 +49,4 @@ function M.setup(config)
 end
 
 return M
+
