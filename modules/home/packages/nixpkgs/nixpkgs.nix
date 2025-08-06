@@ -105,6 +105,7 @@ let
     sad
     shellcheck
     socat
+    sketchybar-app-font
     sshpass
     statix
     stern
@@ -142,3 +143,4 @@ in
 {
   home.packages = allNixPackages;
 }
+

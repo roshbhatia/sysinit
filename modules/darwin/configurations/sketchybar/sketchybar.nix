@@ -7,304 +7,169 @@
 
 let
   themes = import ../../../lib/theme { inherit lib; };
-  appThemes = values.theme.appThemes or { };
-  sketchybarTheme = appThemes.sketchybar or null;
-
-  sketchybarThemeName =
-    if sketchybarTheme != null && builtins.isAttrs sketchybarTheme then
-      sketchybarTheme.name
-    else if sketchybarTheme != null then
-      sketchybarTheme
-    else
-      values.theme.colorscheme;
-
-  theme = themes.getTheme sketchybarThemeName;
-  sketchybarColors =
-    if theme ? appAdapters && theme.appAdapters ? sketchybar then
-      theme.appAdapters.sketchybar
-    else
-      throw "Theme '${sketchybarThemeName}' does not provide a SketchyBar adapter.";
+  sketchybarTheme = values.theme.appThemes.sketchybar;
+  theme = themes.getTheme sketchybarTheme;
+  cfg = theme.appAdapters.sketchybar or (throw "Theme lacks sketchybar adapter");
 
   hex = c: lib.removePrefix "#" c;
-  toHex = c: "0x${hex c}";
   toSketchybar = c: "0xff${hex c}";
-  toAlphaHex = alpha: c: "0x${alpha}${hex c}";
+  toAlpha = alpha: c: "0x${alpha}${hex c}";
 
   raw = {
-    background = sketchybarColors.background or (throw "Missing 'background' in sketchybar theme.");
-    foreground = sketchybarColors.foreground or (throw "Missing 'foreground' in sketchybar theme.");
-    accent = sketchybarColors.accent or (throw "Missing 'accent' in sketchybar theme.");
-    muted = sketchybarColors.muted or (throw "Missing 'muted' in sketchybar theme.");
-    highlight = sketchybarColors.highlight or (throw "Missing 'highlight' in sketchybar theme.");
-    success = sketchybarColors.success or (throw "Missing 'success' in sketchybar theme.");
-    warning = sketchybarColors.warning or (throw "Missing 'warning' in sketchybar theme.");
-    error = sketchybarColors.error or (throw "Missing 'error' in sketchybar theme.");
+    background = cfg.background;
+    foreground = cfg.foreground;
+    accent = cfg.accent;
+    muted = cfg.muted;
+    highlight = cfg.highlight;
+    success = cfg.success;
+    warning = cfg.warning;
+    error = cfg.error;
   };
 
-  textColor = toSketchybar raw.foreground;
-  accentColor = toSketchybar raw.accent;
-  highlightColor = toSketchybar raw.highlight;
-  mutedColor = toSketchybar raw.muted;
-  successColor = toSketchybar raw.success;
-  errorColor = toSketchybar raw.error;
-  warningColor = toSketchybar raw.warning;
-  popupBgColor = toAlphaHex "aa" raw.background;
-  bracketBg = toAlphaHex "33" raw.foreground;
-  bracketBorder = toAlphaHex "66" raw.highlight;
-  activeWorkspaceBg = toSketchybar raw.accent;
-  activeWorkspaceBorder = toSketchybar raw.highlight;
+  colors = {
+    text = toSketchybar raw.foreground;
+    accent = toSketchybar raw.accent;
+    highlight = toSketchybar raw.highlight;
+    muted = toSketchybar raw.muted;
+    success = toSketchybar raw.success;
+    warning = toSketchybar raw.warning;
+    error = toSketchybar raw.error;
+    popupBg = toAlpha "aa" raw.background;
+    bracketBg = toAlpha "33" raw.foreground;
+    bracketBorder = toAlpha "66" raw.highlight;
+    activeWsBg = toSketchybar raw.accent;
+    activeWsBorder = toSketchybar raw.highlight;
+  };
 
-  batteryScriptContent = pkgs.writeText "battery.sh" ''
+  writeBatteryScript = pkgs.writeText "battery.sh" ''
     #!/usr/bin/env zsh
-
-    SUCCESS_COLOR="${successColor}"
-    WARNING_COLOR="${warningColor}"
-    ERROR_COLOR="${errorColor}"
-    ACCENT_COLOR="${accentColor}"
-    TEXT_COLOR="${textColor}"
-    MUTED_COLOR="${mutedColor}"
-
-    percentage=$(pmset -g batt | grep -Eo "\d+%" | cut -d% -f1)
-    charging=$(pmset -g batt | grep 'AC Power')
-
-    [[ -z $percentage ]] && exit 0
-
-    current_icon=""
-    current_color="$TEXT_COLOR"
-    icon_color="$MUTED_COLOR"
-
-    if [[ "$charging" != "" ]]; then
-      current_icon=""
-      current_color="$ACCENT_COLOR"
-      icon_color="$ACCENT_COLOR"
+    PERCENT=$(pmset -g batt | grep -Eo "\\d+%" | cut -d% -f1) || exit 0
+    CHARGING=$(pmset -g batt | grep 'AC Power')
+    if [[ "$CHARGING" != "" ]]; then
+      ICON=""; COLOR=${colors.accent}
     else
-      case $percentage in
-        9[0-9] | 100)
-          current_icon=""
-          current_color="$SUCCESS_COLOR"
-          icon_color="$SUCCESS_COLOR"
-          ;;
-        [6-8][0-9])
-          current_icon=""
-          current_color="$WARNING_COLOR"
-          icon_color="$WARNING_COLOR"
-          ;;
-        [3-5][0-9])
-          current_icon=""
-          current_color="$WARNING_COLOR"
-          icon_color="$WARNING_COLOR"
-          ;;
-        [1-2][0-9])
-          current_icon=""
-          current_color="$ERROR_COLOR"
-          icon_color="$ERROR_COLOR"
-          ;;
-        *)
-          current_icon=""
-          current_color="$ERROR_COLOR"
-          icon_color="$ERROR_COLOR"
-          ;;
+      case $PERCENT in
+        9[0-9]|100) ICON=""; COLOR=${colors.success} ;;
+        [6-8][0-9]) ICON=""; COLOR=${colors.warning} ;;
+        [3-5][0-9]) ICON=""; COLOR=${colors.warning} ;;
+        [1-2][0-9]) ICON=""; COLOR=${colors.error} ;;
+        *) ICON=""; COLOR=${colors.error} ;;
       esac
     fi
-
-    sketchybar --set "$NAME" \
-      icon="$current_icon" \
-      label="''${percentage}%" \
-      icon.color="$icon_color" \
-      label.color="$current_color"
+    sketchybar --set "$NAME" icon="$ICON" label="''${PERCENT}%" icon.color="$COLOR" label.color="$COLOR"
   '';
 
-  aerospaceScriptContent = pkgs.writeText "aerospace.sh" ''
+  writeAerospaceScript = pkgs.writeText "aerospace.sh" ''
     #!/usr/bin/env zsh
-
-    BRACKET_BG="${bracketBg}"
-    BRACKET_BORDER="${bracketBorder}"
-    ACTIVE_WORKSPACE_BG="${activeWorkspaceBg}"
-    ACTIVE_WORKSPACE_BORDER="${activeWorkspaceBorder}"
-    TEXT_COLOR="${textColor}"
-    MUTED_COLOR="${mutedColor}"
-
-    SID="$1"
-    CURRENT_WORKSPACE=$(aerospace list-workspaces --focused)
-
-    if [[ "$SID" == "$CURRENT_WORKSPACE" ]]; then
-      sketchybar --set space."$SID" \
-        background.drawing=on \
-        background.color="$ACTIVE_WORKSPACE_BG" \
-        background.border_color="$ACTIVE_WORKSPACE_BORDER" \
-        icon.color="$TEXT_COLOR" \
-        label.color="$TEXT_COLOR"
+    BR_BG=${colors.bracketBg}; BR_BORDER=${colors.bracketBorder}
+    ACT_BG=${colors.activeWsBg}; ACT_BORDER=${colors.activeWsBorder}
+    MT=${colors.muted}; TX=${colors.text}
+    SID=$1
+    CURRENT=$(aerospace list-workspaces --focused)
+    if [[ "$SID" == "$CURRENT" ]]; then
+      sketchybar --set space."$SID" background.color="$ACT_BG" background.border_color="$ACT_BORDER" icon.color="$TX" label.color="$TX"
     else
-      sketchybar --set space."$SID" \
-        background.drawing=on \
-        background.color="$BRACKET_BG" \
-        background.border_color="$BRACKET_BORDER" \
-        icon.color="$MUTED_COLOR" \
-        label.color="$TEXT_COLOR"
+      sketchybar --set space."$SID" background.color="$BR_BG" background.border_color="$BR_BORDER" icon.color="$MT" label.color="$TX"
     fi
   '';
 
-  barConfig = ''
-    sketchybar --bar \
-      height=34 \
-      color=${toAlphaHex "00" raw.background} \
-      position=top \
-      y_offset=4 \
-      margin=0 \
-      padding_left=0 \
-      padding_right=0 \
-      corner_radius=0 \
-      blur_radius=50 \
-      sticky=off \
-      shadow=off
+  writeIconMap = pkgs.writeText "icon_map.sh" ''
+    #!/bin/bash
+    function icon_map() {
+      case "$1" in
+        "Live") echo ":ableton:" ;;
+        "Affinity Designer") echo ":affinity_designer:" ;;
+        *) echo ":default:" ;;
+      esac
+    }
+    icon_map "$1"
   '';
 
-  workspaceConfig = ''
-    for sid in $(aerospace list-workspaces --all); do
-      sketchybar --add item space.$sid left \
-        --subscribe space.$sid aerospace_workspace_change \
-        --set space.$sid \
-          background.color=${bracketBg} \
-          background.border_color=${bracketBorder} \
-          background.border_width=1 \
-          background.corner_radius=6 \
-          background.height=26 \
-          background.drawing=on \
-          icon.font="JetBrainsMono Nerd Font:Bold:15.0" \
-          icon.color=${mutedColor} \
-          label.font="JetBrainsMono Nerd Font:Medium:13.0" \
-          label.color=${textColor} \
-          label="$sid" \
-          click_script="aerospace workspace $sid" \
-          script="$PLUGIN_DIR/aerospace.sh $sid" \
-          padding_left=8 \
-          padding_right=8
-    done
+  writeFrontAppScript = pkgs.writeText "front_app.sh" ''
+    #!/usr/bin/env bash
+    APP=$(osascript -e 'tell application "System Events" to get name of first application process whose frontmost is true')
+    ICON=$(${writeIconMap} "$APP")
+    if [[ "$APP" == "" ]]; then
+      sketchybar --set front_app drawing=off
+    else
+      sketchybar --set front_app icon="$ICON" label="$APP" drawing=on
+    fi
   '';
-
 in
 {
   services.sketchybar = {
     package = pkgs.sketchybar;
     enable = true;
-    extraPackages = [ pkgs.sketchybar-app-font ];
-
+    extraPackages = [
+      pkgs.sketchybar-app-font
+      pkgs.jq
+      pkgs.pmset
+    ]; # Added jq and pmset as they are used
     config = ''
-      #!/usr/bin/env zsh
+      sketchybar --bar height=34 color=${toAlpha "00" raw.background} position=top y_offset=4 \
+        margin=0 padding_left=0 padding_right=0 corner_radius=0 blur_radius=50 sticky=off shadow=off
 
-      PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
-      mkdir -p "$PLUGIN_DIR"
-      ln -sf ${batteryScriptContent} "$PLUGIN_DIR/battery.sh"
-      ln -sf ${aerospaceScriptContent} "$PLUGIN_DIR/aerospace.sh"
-
-      ${barConfig}
-
-      sketchybar --default \
-        icon.font="JetBrainsMono Nerd Font:Bold:15.0" \
-        icon.color=${mutedColor} \
-        icon.padding_left=8 \
-        icon.padding_right=4 \
-        label.font="JetBrainsMono Nerd Font:Medium:13.0" \
-        label.color=${textColor} \
-        label.padding_left=4 \
-        label.padding_right=8 \
-        background.drawing=off
+      sketchybar --default icon.font="JetBrainsMono Nerd Font:Bold:15.0" icon.color=${colors.muted} \
+        label.font="JetBrainsMono Nerd Font:Medium:13.0" label.color=${colors.text} background.drawing=off
 
       sketchybar --add item left_padding left \
         --set left_padding width=16
 
       sketchybar --add item spaces left \
-        --set spaces \
-          background.color=${toAlphaHex "00" raw.background} \
-          y_offset=0
+        --set spaces background.color=${toAlpha "00" raw.background}
 
-      ${workspaceConfig}
+      for sid in $(aerospace list-workspaces --all); do
+        sketchybar --add item space.$sid left \
+          --set space.$sid background.drawing=on background.corner_radius=6 background.height=26 \
+              background.color=${colors.bracketBg} background.border_color=${colors.bracketBorder} background.border_width=1 \
+              icon.font="JetBrainsMono Nerd Font:Bold:15.0" icon.color=${colors.muted} \
+              label.font="JetBrainsMono Nerd Font:Medium:13.0" label.color=${colors.text} label="$sid" \
+              click_script="aerospace workspace $sid" script="${writeAerospaceScript} $sid" \
+              padding_left=8 padding_right=8
+        sketchybar --subscribe space.$sid aerospace_workspace_change
+      done
 
       sketchybar --add item front_app left \
-        --set front_app \
-          background.color=${bracketBg} \
-          background.corner_radius=6 \
-          background.border_width=1 \
-          background.border_color=${bracketBorder} \
-          background.height=26 \
-          icon.color=${accentColor} \
-          script="$PLUGIN_DIR/front_app.sh" \
-          label.padding_right=20 \
-          padding_left=8 \
-          padding_right=8 \
-        --subscribe front_app front_app_switched
+        --set front_app background.color=${colors.bracketBg} background.corner_radius=6 background.border_width=1 \
+            background.border_color=${colors.bracketBorder} background.height=26 \
+            icon.font="SKEYCHYBAR-Ionicons" icon.color=${colors.accent} label.color=${colors.text} \
+            script="${writeFrontAppScript}" padding_left=8 padding_right=8
+      sketchybar --subscribe front_app front_app_switched
 
       sketchybar --add item right_padding right \
         --set right_padding width=16
 
       sketchybar --add item volume right \
-        --set volume \
-          background.color=${bracketBg} \
-          background.corner_radius=6 \
-          background.border_width=1 \
-          background.border_color=${bracketBorder} \
-          background.height=26 \
-          popup.background.corner_radius=6 \
-          popup.background.color=${popupBgColor} \
-          popup.blur_radius=30 \
-          popup.height=35 \
-          popup.y_offset=10 \
-          popup.padding_left=10 \
-          popup.padding_right=10 \
-          script="$PLUGIN_DIR/volume.sh" \
-          click_script="sketchybar --set volume popup.drawing=toggle" \
-          padding_left=8 \
-          padding_right=8 \
-        --subscribe volume volume_change
+        --set volume background.color=${colors.bracketBg} background.corner_radius=6 background.border_width=1 \
+            background.border_color=${colors.bracketBorder} background.height=26 \
+            popup.background.color=${colors.popupBg} popup.background.corner_radius=6 popup.blur_radius=30 \
+            popup.height=35 popup.y_offset=10 popup.padding_left=10 popup.padding_right=10 \
+            script="sh /usr/local/share/sketchybar/plugins/volume.sh" click_script="sketchybar --set volume popup.drawing=toggle" \
+            padding_left=8 padding_right=8
+      sketchybar --subscribe volume volume_change
 
       sketchybar --add item battery right \
-        --set battery \
-          background.color=${bracketBg} \
-          background.corner_radius=6 \
-          background.border_width=1 \
-          background.border_color=${bracketBorder} \
-          background.height=26 \
-          script="$PLUGIN_DIR/battery.sh" \
-          click_script="open /System/Library/PreferencePanes/Battery.prefPane" \
-          update_freq=60 \
-          padding_left=8 \
-          padding_right=8 \
-        --subscribe battery system_woke power_source_change
+        --set battery background.color=${colors.bracketBg} background.corner_radius=6 background.border_width=1 \
+            background.border_color=${colors.bracketBorder} background.height=26 \
+            script="${writeBatteryScript}" click_script="open /System/Library/PreferencePanes/Battery.prefPane" \
+            update_freq=60 padding_left=8 padding_right=8
+      sketchybar --subscribe battery system_woke power_source_change
 
       sketchybar --add item clock right \
-        --set clock \
-          icon=󰃰 \
-          icon.color=${highlightColor} \
-          label.font="JetBrainsMono Nerd Font:Bold:13.0" \
-          background.color=${bracketBg} \
-          background.corner_radius=6 \
-          background.border_width=1 \
-          background.border_color=${bracketBorder} \
-          background.height=26 \
-          script="$PLUGIN_DIR/clock.sh" \
-          click_script="open /System/Applications/Calendar.app" \
-          update_freq=30 \
-          padding_left=8 \
-          padding_right=8
+        --set clock icon=󰃰 icon.color=${colors.highlight} label.font="JetBrainsMono Nerd Font:Bold:13.0" \
+            background.color=${colors.bracketBg} background.corner_radius=6 background.border_width=1 \
+            background.border_color=${colors.bracketBorder} background.height=26 \
+            script="sh /usr/local/share/sketchybar/plugins/clock.sh" click_script="open /System/Applications/Calendar.app" \
+            update_freq=30 padding_left=8 padding_right=8
 
       sketchybar --add bracket left_group spaces front_app \
-        --set left_group \
-          background.color=${toAlphaHex "00" raw.background} \
-          y_offset=4 \
-          notch_width=150 \
-          padding_left=8 \
-          padding_right=8
+        --set left_group background.color=${toAlpha "00" raw.background} y_offset=4 padding_left=8 padding_right=8
 
       sketchybar --add bracket right_group volume battery clock \
-        --set right_group \
-          background.color=${toAlphaHex "00" raw.background} \
-          y_offset=4 \
-          padding_left=8 \
-          padding_right=8
+        --set right_group background.color=${toAlpha "00" raw.background} y_offset=4 padding_left=8 padding_right=8
 
       sketchybar --update
-
-      echo "SketchyBar configuration loaded successfully"
     '';
   };
 }
+
