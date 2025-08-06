@@ -51,6 +51,8 @@ let
   popupBgColor = toAlphaHex "aa" raw.background;
   bracketBg = toAlphaHex "33" raw.foreground;
   bracketBorder = toAlphaHex "66" raw.highlight;
+  activeWorkspaceBg = toSketchybar raw.accent;
+  activeWorkspaceBorder = toSketchybar raw.highlight;
 
   barConfig = ''
     sketchybar --bar \
@@ -84,7 +86,9 @@ let
           label.color=${textColor} \
           label="$sid" \
           click_script="aerospace workspace $sid" \
-          script="$PLUGIN_DIR/aerospace.sh $sid"
+          script="$PLUGIN_DIR/aerospace.sh $sid" \
+          padding_left=8 \
+          padding_right=8
     done
   '';
 
@@ -118,6 +122,13 @@ in
       sketchybar --add item left_padding left \
         --set left_padding width=16
 
+      sketchybar --add item spaces left \
+        --set spaces \
+          background.color=${toAlphaHex "00" raw.background} \
+          y_offset=0
+
+      ${workspaceConfig}
+
       sketchybar --add item front_app left \
         --set front_app \
           background.color=${bracketBg} \
@@ -127,43 +138,11 @@ in
           background.height=26 \
           icon.color=${accentColor} \
           script="$PLUGIN_DIR/front_app.sh" \
+          label.padding_right=12 \
         --subscribe front_app front_app_switched
-
-      sketchybar --add item spaces left \
-        --set spaces \
-          background.color=${toAlphaHex "00" raw.background} \
-          y_offset=0
-
-      ${workspaceConfig}
 
       sketchybar --add item right_padding right \
         --set right_padding width=16
-
-      sketchybar --add item clock right \
-        --set clock \
-          icon=󰃰 \
-          icon.color=${highlightColor} \
-          label.font="JetBrainsMono Nerd Font:Bold:13.0" \
-          background.color=${bracketBg} \
-          background.corner_radius=6 \
-          background.border_width=1 \
-          background.border_color=${bracketBorder} \
-          background.height=26 \
-          script="$PLUGIN_DIR/clock.sh" \
-          click_script="open /System/Applications/Calendar.app" \
-          update_freq=30
-
-      sketchybar --add item battery right \
-        --set battery \
-          background.color=${bracketBg} \
-          background.corner_radius=6 \
-          background.border_width=1 \
-          background.border_color=${bracketBorder} \
-          background.height=26 \
-          script="$PLUGIN_DIR/battery.sh" \
-          click_script="open /System/Library/PreferencePanes/Battery.prefPane" \
-          update_freq=60 \
-        --subscribe battery system_woke power_source_change
 
       sketchybar --add item volume right \
         --set volume \
@@ -181,23 +160,51 @@ in
           popup.padding_right=10 \
           script="$PLUGIN_DIR/volume.sh" \
           click_script="sketchybar --set volume popup.drawing=toggle" \
+          padding_left=8 \
+          padding_right=8 \
         --subscribe volume volume_change
+
+      sketchybar --add item battery right \
+        --set battery \
+          background.color=${bracketBg} \
+          background.corner_radius=6 \
+          background.border_width=1 \
+          background.border_color=${bracketBorder} \
+          background.height=26 \
+          script="$PLUGIN_DIR/battery.sh" \
+          click_script="open /System/Library/PreferencePanes/Battery.prefPane" \
+          update_freq=60 \
+          padding_left=8 \
+          padding_right=8 \
+        --subscribe battery system_woke power_source_change
+
+      sketchybar --add item clock right \
+        --set clock \
+          icon=󰃰 \
+          icon.color=${highlightColor} \
+          label.font="JetBrainsMono Nerd Font:Bold:13.0" \
+          background.color=${bracketBg} \
+          background.corner_radius=6 \
+          background.border_width=1 \
+          background.border_color=${bracketBorder} \
+          background.height=26 \
+          script="$PLUGIN_DIR/clock.sh" \
+          click_script="open /System/Applications/Calendar.app" \
+          update_freq=30 \
+          padding_left=8 \
+          padding_right=8
 
       # Bracket groups
 
-      sketchybar --add bracket left_group front_app spaces \
+      sketchybar --add bracket left_group spaces front_app \
         --set left_group \
           background.color=${toAlphaHex "00" raw.background} \
-          padding_left=8 \
-          padding_right=8 \
           y_offset=4 \
           notch_width=150
 
-      sketchybar --add bracket right_group clock battery volume \
+      sketchybar --add bracket right_group volume battery clock \
         --set right_group \
           background.color=${toAlphaHex "00" raw.background} \
-          padding_left=8 \
-          padding_right=8 \
           y_offset=4
 
       # Final updates
@@ -207,4 +214,3 @@ in
     '';
   };
 }
-
