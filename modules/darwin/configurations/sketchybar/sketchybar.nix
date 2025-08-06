@@ -70,6 +70,21 @@ let
       shadow=off
   '';
 
+  workspaceConfig = ''
+    for sid in $(aerospace list-workspaces --all); do
+      sketchybar --add item space.$sid left \
+        --subscribe space.$sid aerospace_workspace_change \
+        --set space.$sid \
+          background.color=${bracketBg} \
+          background.corner_radius=6 \
+          background.height=20 \
+          background.drawing=off \
+          label="$sid" \
+          click_script="aerospace workspace $sid" \
+          script="$PLUGIN_DIR/aerospace.sh $sid"
+    done
+  '';
+
 in
 {
   services.sketchybar = {
@@ -81,7 +96,6 @@ in
       #!/usr/bin/env bash
 
       PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
-      [ -f "$PLUGIN_DIR/display_helper.sh" ] && source "$PLUGIN_DIR/display_helper.sh"
 
       ${barConfig}
 
@@ -106,13 +120,9 @@ in
           script="$PLUGIN_DIR/front_app.sh" \
         --subscribe front_app front_app_switched
 
-      sketchybar --add item aerospace left \
-        --set aerospace \
-          script="$PLUGIN_DIR/aerospace.sh" \
-          update_freq=0.5 \
-        --subscribe aerospace aerospace_workspace_change space_change
+      ${workspaceConfig}
 
-      sketchybar --add bracket left_bracket apple.logo front_app aerospace \
+      sketchybar --add bracket left_bracket apple.logo front_app \
         --set left_bracket \
           background.color=${bracketBg} \
           background.corner_radius=6 \
@@ -151,25 +161,6 @@ in
           background.border_width=1 \
           background.border_color=${bracketBorder}
 
-      sketchybar --add item notch_spacer center \
-        --set notch_spacer \
-          width=260 \
-          drawing=off
-
-      sketchybar --add item volume.mute popup.volume \
-        --set volume.mute \
-          icon="󰸈" \
-          label="Toggle Mute" \
-          click_script="$PLUGIN_DIR/volume.sh toggle; sketchybar --set volume popup.drawing=off"
-
-      for level in 25 50 75 100; do
-        sketchybar --add item volume.$level popup.volume \
-          --set volume.$level \
-            icon="󰖀" \
-            label="$level%" \
-            click_script="$PLUGIN_DIR/volume.sh set $level; sketchybar --set volume popup.drawing=off"
-      done
-
       sketchybar --animate tanh 15 --bar y_offset=4
       sketchybar --update
 
@@ -177,4 +168,3 @@ in
     '';
   };
 }
-

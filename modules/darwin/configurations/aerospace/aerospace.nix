@@ -157,74 +157,23 @@
             alt-shift-minus = "resize smart -210";
             alt-shift-equal = "resize smart +210";
             # Workspace management
-            alt-1 = [
-              "workspace 1"
-              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
-            ];
-            alt-2 = [
-              "workspace 2"
-              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
-            ];
-            alt-3 = [
-              "workspace 3"
-              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
-            ];
-            alt-4 = [
-              "workspace 4"
-              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
-            ];
-            alt-c = [
-              "workspace C"
-              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
-            ]; # Chat
-            alt-m = [
-              "workspace M"
-              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
-            ]; # Media
-            alt-s = [
-              "workspace S"
-              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
-            ]; # Slack
-            alt-e = [
-              "workspace E"
-              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
-            ]; # Email
-            alt-shift-1 = [
-              "move-node-to-workspace 1 --focus-follows-window"
-              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
-            ];
-            alt-shift-2 = [
-              "move-node-to-workspace 2 --focus-follows-window"
-              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
-            ];
-            alt-shift-3 = [
-              "move-node-to-workspace 3 --focus-follows-window"
-              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
-            ];
-            alt-shift-4 = [
-              "move-node-to-workspace 4 --focus-follows-window"
-              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
-            ];
-            alt-shift-c = [
-              "move-node-to-workspace C --focus-follows-window"
-              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
-            ];
-            alt-shift-e = [
-              "move-node-to-workspace E --focus-follows-window"
-              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
-            ];
-            alt-shift-m = [
-              "move-node-to-workspace M --focus-follows-window"
-              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
-            ];
-            alt-shift-s = [
-              "move-node-to-workspace S --focus-follows-window"
-              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
-            ];
-            alt-shift-x = [
-              "move-node-to-workspace X --focus-follows-window"
-              "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger space_windows_change"
-            ];
+            alt-1 = "workspace 1";
+            alt-2 = "workspace 2";
+            alt-3 = "workspace 3";
+            alt-4 = "workspace 4";
+            alt-c = "workspace C";
+            alt-m = "workspace M";
+            alt-s = "workspace S";
+            alt-e = "workspace E";
+            alt-shift-1 = "move-node-to-workspace 1 --focus-follows-window";
+            alt-shift-2 = "move-node-to-workspace 2 --focus-follows-window";
+            alt-shift-3 = "move-node-to-workspace 3 --focus-follows-window";
+            alt-shift-4 = "move-node-to-workspace 4 --focus-follows-window";
+            alt-shift-c = "move-node-to-workspace C --focus-follows-window";
+            alt-shift-e = "move-node-to-workspace E --focus-follows-window";
+            alt-shift-m = "move-node-to-workspace M --focus-follows-window";
+            alt-shift-s = "move-node-to-workspace S --focus-follows-window";
+            alt-shift-x = "move-node-to-workspace X --focus-follows-window";
             alt-f = "fullscreen";
             alt-tab = "workspace-back-and-forth";
             alt-esc = [
@@ -237,4 +186,3 @@
     };
   };
 }
-
