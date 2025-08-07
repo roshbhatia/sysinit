@@ -53,18 +53,23 @@ in
       "..." = "cd ../..";
       ".." = "cd ..";
       "~" = "cd ~";
+
       code = "code-insiders";
       c = "code-insiders";
+      v = "nvim";
+
       kubectl = "kubecolor";
+      tf = "terraform";
+      y = "yazi";
+      g = "git";
+      gg = "lazygit";
+
       l = "eza --icons=always -1";
       la = "eza --icons=always -1 -a";
       ll = "eza --icons=always -1 -a";
       ls = "eza";
       lt = "eza --icons=always -1 -a -T --git-ignore --ignore-glob='.git'";
-      tf = "terraform";
-      y = "yazi";
-      v = "nvim";
-      g = "git";
+
       sudo = "sudo -E";
       diff = "diff --color";
       grep = "grep -s --color=auto";
@@ -275,3 +280,4 @@ in
     ];
   };
 }
+
