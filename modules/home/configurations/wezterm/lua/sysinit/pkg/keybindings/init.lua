@@ -296,40 +296,13 @@ local function get_transparency_keys()
       action = wezterm.action_callback(function(win, pane)
         local overrides = win:get_config_overrides() or {}
         local current_opacity = overrides.window_background_opacity or 1.0
-        local current_blur = overrides.macos_window_background_blur or 0
 
         if current_opacity == 1.0 then
           overrides.window_background_opacity = 0.85
           overrides.macos_window_background_blur = 80
-          for _, tab in ipairs(win:mux_window():tabs()) do
-            for _, p in ipairs(tab:panes()) do
-              if is_vim(p) then
-                win:perform_action({
-                  SendKey = {
-                    key = "F24",
-                    mods = "",
-                  },
-                }, p)
-              end
-              p:set_user_vars({ TRANSPARENCY_ENABLED = "true" })
-            end
-          end
         else
           overrides.window_background_opacity = 1.0
           overrides.macos_window_background_blur = 0
-          for _, tab in ipairs(win:mux_window():tabs()) do
-            for _, p in ipairs(tab:panes()) do
-              if is_vim(p) then
-                win:perform_action({
-                  SendKey = {
-                    key = "F23",
-                    mods = "",
-                  },
-                }, p)
-              end
-              p:set_user_vars({ TRANSPARENCY_ENABLED = "false" })
-            end
-          end
         end
 
         win:set_config_overrides(overrides)
@@ -363,3 +336,4 @@ function M.setup(config)
 end
 
 return M
+
