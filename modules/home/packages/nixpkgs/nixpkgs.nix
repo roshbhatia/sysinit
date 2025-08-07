@@ -98,6 +98,7 @@ let
     openssh
     pipx
     pkg-config
+    prettierd
     proselint
     python311Full
     ripgrep
@@ -143,3 +144,4 @@ in
 {
   home.packages = allNixPackages;
 }
+

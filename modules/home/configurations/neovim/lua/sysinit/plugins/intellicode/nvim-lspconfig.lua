@@ -13,6 +13,7 @@ M.plugins = {
       local lspconfig = require("lspconfig")
 
       local builtin_servers = {
+        eslint = {},
         gopls = {},
         tflint = {},
         dockerls = {},
@@ -141,3 +142,4 @@ M.plugins = {
 }
 
 return M
+
