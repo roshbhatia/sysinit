@@ -26,5 +26,5 @@
 		bold blue => syntax "#83a598", \
 		bold cyan => syntax "#8ec07c", \
 		bold yellow => syntax "#fabd2f"
-	syntax-theme = Gruvbox-Dark
+	syntax-theme = gruvbox-dark
 

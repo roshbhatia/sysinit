@@ -27,5 +27,5 @@
 		bold cyan => syntax "#4a5b6b", \
 		bold yellow => syntax "#5d5958"
 	# Should match the name of the bat theme
-	syntax-theme = Catppuccin-Macchiato
+	syntax-theme = catppuccin-macchiato
 

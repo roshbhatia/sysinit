@@ -26,5 +26,5 @@
 		bold blue => syntax "#81a1c1", \
 		bold cyan => syntax "#88c0d0", \
 		bold yellow => syntax "#ebcb8b"
-	syntax-theme = Nord
+	syntax-theme = nord-dark
 

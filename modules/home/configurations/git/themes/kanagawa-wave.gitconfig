@@ -26,5 +26,5 @@
 		bold blue => syntax "#7fb4ca", \
 		bold cyan => syntax "#7aa89f", \
 		bold yellow => syntax "#e6c384"
-	syntax-theme = Kanagawa
+	syntax-theme = kanagawa-wave
 

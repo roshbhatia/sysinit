@@ -80,7 +80,7 @@ in
           path = ~/.gitconfig.personal
 
       [include]
-          path = ~/.config/delta/themes/${values.theme.colorscheme}.gitconfig
+          path = ~/.config/delta/themes/${values.theme.colorscheme}-${values.theme.variant}.gitconfig
 
       [alias]
           p = pull
@@ -104,6 +104,10 @@ in
 
       [http "https://git.sr.ht"]
           sslVerify = false
+
+
+      [rebase]
+          updateRefs = true
     '';
   };
 
@@ -142,25 +146,9 @@ in
     force = true;
   };
 
-  xdg.configFile."delta/themes/${values.theme.colorscheme}.gitconfig" = {
-    source =
-      if values.theme.colorscheme == "catppuccin" then
-        ./themes/catppuccin-macchiato.gitconfig
-      else if values.theme.colorscheme == "rose-pine" then
-        ./themes/rose-pine-moon.gitconfig
-      else if values.theme.colorscheme == "gruvbox" then
-        ./themes/gruvbox-dark.gitconfig
-      else if values.theme.colorscheme == "solarized" then
-        ./themes/solarized-dark.gitconfig
-      else if values.theme.colorscheme == "nord" then
-        ./themes/nord-dark.gitconfig
-      else if values.theme.colorscheme == "kanagawa" then
-        if values.theme.variant == "wave" then
-          ./themes/kanagawa-wave.gitconfig
-        else
-          ./themes/kanagawa-dragon.gitconfig
-      else
-        ./themes/${values.theme.colorscheme}.gitconfig;
+  xdg.configFile."delta/themes/${values.theme.colorscheme}-${values.theme.variant}.gitconfig" = {
+    source = ./themes/${values.theme.colorscheme}-${values.theme.variant}.gitconfig;
     force = true;
   };
 }
+
