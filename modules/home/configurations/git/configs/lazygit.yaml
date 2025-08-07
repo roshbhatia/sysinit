@@ -13,8 +13,8 @@ git:
 customCommands:
   - key: "s"
     context: "files"
-    command: "ghcs -t git"
-    description: "Suggest commit message (AI)"
+    command: "gh copilot suggest -t git"
+    description: "Suggest commit message"
     output: popup
     outputTitle: "AI Commit Suggestion"
 
