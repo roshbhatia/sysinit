@@ -132,7 +132,7 @@ in
       palette = themeData.palettes.${config.variant};
       semanticColors = themeData.semanticMapping palette;
       isTransparent =
-        if hasAttrByPath ["transparency" "enable"] config then
+        if hasAttrByPath [ "transparency" "enable" ] config then
           config.transparency.enable
         else
           throw "Missing transparency.enable configuration in neovim config";

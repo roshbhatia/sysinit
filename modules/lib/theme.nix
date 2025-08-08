@@ -88,7 +88,7 @@ in
       type = types.attrs;
       readOnly = true;
       default =
-        if hasAttrByPath [cfg.colorscheme cfg.variant] themes.ansiMappings then
+        if hasAttrByPath [ cfg.colorscheme cfg.variant ] themes.ansiMappings then
           themes.ansiMappings.${cfg.colorscheme}.${cfg.variant}
         else
           throw "ANSI mappings not found for theme '${cfg.colorscheme}' variant '${cfg.variant}'";

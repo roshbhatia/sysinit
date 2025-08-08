@@ -29,9 +29,9 @@ let
   ];
 
   baseCasks = [
-    "alt-tab"
     "firefox"
     "font-symbols-only-nerd-font"
+    "hammerspoon"
     "jordanbaird-ice"
     "keycastr"
     "mediosz/tap/swipeaerospace"
@@ -72,3 +72,4 @@ in
     casks = allCasks;
   };
 }
+
