@@ -1,6 +1,5 @@
-{
-  ...
-}:
+
+{ ... }:
 {
   imports = [
     ./dock
@@ -9,7 +8,6 @@
     ./security
     ./system
     ./user
-
     ./borders
     ./aerospace
     ./tailscale

@@ -11,4 +11,3 @@ vim:disableForApp("WezTerm")
 vim:disableForApp("zoom.us")
 
 vim:shouldDimScreenInNormalMode(true)
-
