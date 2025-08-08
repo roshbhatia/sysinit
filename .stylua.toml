@@ -11,3 +11,4 @@ collapse_simple_statement = "Never"
 
 # Ensure final newline is handled consistently
 # StyLua will respect the insert_final_newline from EditorConfig
+

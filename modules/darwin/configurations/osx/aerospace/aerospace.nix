@@ -21,14 +21,14 @@
 
       gaps = {
         inner = {
-          horizontal = 16;
-          vertical = 16;
+          horizontal = 8;
+          vertical = 8;
         };
         outer = {
           right = 24;
           left = 24;
-          bottom = 48;
-          top = 48;
+          bottom = 36;
+          top = 36;
         };
       };
 
@@ -171,3 +171,4 @@
     };
   };
 }
+
