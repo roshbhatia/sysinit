@@ -17,7 +17,7 @@
     };
 
     borders = {
-      enable = true;
+      enable = false;
     };
 
     homebrew = {
