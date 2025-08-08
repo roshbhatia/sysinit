@@ -1,6 +1,6 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 {
   imports = [
-    (import ./hammerspoon.nix { inherit pkgs; })
+    (import ./hammerspoon.nix { inherit config pkgs; })
   ];
 }
