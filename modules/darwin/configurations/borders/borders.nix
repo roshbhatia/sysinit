@@ -27,4 +27,3 @@ in
     inactive_color = "0xff${inactiveColor}";
   };
 }
-
