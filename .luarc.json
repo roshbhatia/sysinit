@@ -1,5 +1,8 @@
 {
     "diagnostics.disable": [
         "unused-local"
+    ],
+    "diagnostics.globals": [
+        "hs"
     ]
 }

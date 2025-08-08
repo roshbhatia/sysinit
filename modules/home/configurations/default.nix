@@ -12,7 +12,14 @@
     ./direnv
     ./llm
     ./vivid
-    ./hammerspoon
+
+    (import ./hammerspoon {
+      inherit
+        lib
+        pkgs
+        values
+        ;
+    })
 
     (import ./atuin {
       inherit
@@ -110,3 +117,4 @@
     })
   ];
 }
+
