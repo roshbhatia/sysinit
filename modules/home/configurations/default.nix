@@ -84,6 +84,18 @@ let
       attrs = { inherit pkgs; };
     }
     {
+      name = "vscode";
+      attrs = {
+        inherit
+          config
+          lib
+          pkgs
+          values
+          utils
+          ;
+      };
+    }
+    {
       name = "wezterm";
       attrs = { inherit config lib values; };
     }
