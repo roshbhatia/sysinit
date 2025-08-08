@@ -25,10 +25,10 @@
           vertical = 8;
         };
         outer = {
-          right = 24;
-          left = 24;
-          bottom = 36;
-          top = 36;
+          right = 16;
+          left = 16;
+          bottom = 24;
+          top = 24;
         };
       };
 
@@ -171,4 +171,3 @@
     };
   };
 }
-
