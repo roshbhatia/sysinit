@@ -95,7 +95,7 @@ let
 
       finalConfig = fold (
         preset: _config: transparencyPreset.createAppTransparency app preset { }
-      ) validatedConfig (validatedConfig.presets or [ ]);
+      ) validatedConfig (validatedConfig.presets);
 
       appConfig =
         if app == "wezterm" then
@@ -117,7 +117,11 @@ let
       config = finalConfig;
       colorscheme = "${validatedConfig.colorscheme}-${validatedConfig.variant}";
       variant = validatedConfig.variant;
-      transparency = finalConfig.transparency or { };
+      transparency =
+        if hasAttr "transparency" finalConfig then
+          finalConfig.transparency
+        else
+          throw "Missing transparency configuration in theme config";
     }
     // appConfig;
 

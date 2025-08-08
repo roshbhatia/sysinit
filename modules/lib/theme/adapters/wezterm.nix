@@ -13,11 +13,18 @@ rec {
     let
       palette = themeData.palettes.${config.variant};
       semanticColors = utils.createSemanticMapping palette;
-      transparency = config.transparency or { };
+      transparency =
+        if hasAttr "transparency" config then
+          config.transparency
+        else
+          throw "Missing transparency configuration in wezterm config";
 
       themeName =
         if hasAttr "wezterm" themeData.appAdapters then
-          themeData.appAdapters.wezterm.${config.variant} or "${themeData.meta.id}-${config.variant}"
+          if hasAttr config.variant themeData.appAdapters.wezterm then
+            themeData.appAdapters.wezterm.${config.variant}
+          else
+            throw "Wezterm theme variant '${config.variant}' not found for theme '${themeData.meta.id}'"
         else
           "${themeData.meta.id}-${config.variant}";
 
@@ -84,10 +91,18 @@ rec {
       };
 
       transparencyConfig =
-        if transparency.enable or false then
+        if (hasAttr "enable" transparency && transparency.enable) then
           {
-            window_background_opacity = transparency.opacity or 0.85;
-            macos_window_background_blur = transparency.blur or 80;
+            window_background_opacity =
+              if hasAttr "opacity" transparency then
+                transparency.opacity
+              else
+                throw "Missing opacity in transparency configuration";
+            macos_window_background_blur =
+              if hasAttr "blur" transparency then
+                transparency.blur
+              else
+                throw "Missing blur in transparency configuration";
             window_decorations = "RESIZE";
           }
         else
@@ -106,7 +121,11 @@ rec {
     {
       colorscheme = themeData.meta.id;
       variant = config.variant;
-      transparency = config.transparency or { };
+      transparency =
+        if hasAttr "transparency" config then
+          config.transparency
+        else
+          throw "Missing transparency configuration in wezterm config";
       theme_name = weztermConfig.color_scheme;
       palette = palette // {
         bg_primary = semanticColors.background.primary;

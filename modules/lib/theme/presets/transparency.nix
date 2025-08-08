@@ -13,7 +13,11 @@ in
   createAppTransparency =
     app: preset: overrides:
     let
-      baseConfig = constants.transparencyPresets.${preset} or constants.transparencyPresets.medium;
+      baseConfig =
+        if hasAttr preset constants.transparencyPresets then
+          constants.transparencyPresets.${preset}
+        else
+          throw "Transparency preset '${preset}' not found. Available presets: ${concatStringsSep ", " (attrNames constants.transparencyPresets)}";
       finalConfig = baseConfig // overrides;
     in
     if app == "wezterm" then
@@ -79,11 +83,11 @@ in
 
   createConditionalTransparency =
     condition: baseTransparency:
-    if condition.nvim_running or false then
+    if condition.nvim_running then
       contextualTransparency.coding
-    else if condition.presentation_mode or false then
+    else if condition.presentation_mode then
       contextualTransparency.presentation
-    else if condition.focus_mode or false then
+    else if condition.focus_mode then
       contextualTransparency.focus
     else
       baseTransparency;

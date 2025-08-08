@@ -179,8 +179,15 @@ rec {
     base
     // override
     // {
-      transparency = mergeTransparency (base.transparency or { }) (override.transparency or { });
-      presets = unique ((base.presets or [ ]) ++ (override.presets or [ ]));
-      overrides = (base.overrides or { }) // (override.overrides or { });
+      transparency = mergeTransparency
+        (if hasAttr "transparency" base then base.transparency else { })
+        (if hasAttr "transparency" override then override.transparency else { });
+      presets = unique (
+        (if hasAttr "presets" base then base.presets else [ ]) ++
+        (if hasAttr "presets" override then override.presets else [ ])
+      );
+      overrides =
+        (if hasAttr "overrides" base then base.overrides else { }) //
+        (if hasAttr "overrides" override then override.overrides else { });
     };
 }

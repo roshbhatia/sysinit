@@ -88,7 +88,10 @@ in
       type = types.attrs;
       readOnly = true;
       default =
-        themes.ansiMappings.${cfg.colorscheme}.${cfg.variant} or themes.ansiMappings.catppuccin.macchiato;
+        if hasAttrByPath [cfg.colorscheme cfg.variant] themes.ansiMappings then
+          themes.ansiMappings.${cfg.colorscheme}.${cfg.variant}
+        else
+          throw "ANSI mappings not found for theme '${cfg.colorscheme}' variant '${cfg.variant}'";
       description = "ANSI color mappings for terminal applications";
     };
 

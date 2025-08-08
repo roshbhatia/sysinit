@@ -10,7 +10,11 @@ in
   createNeovimConfig =
     themeData: config: overrides:
     let
-      transparency = config.transparency or { };
+      transparency =
+        if hasAttr "transparency" config then
+          config.transparency
+        else
+          throw "Missing transparency configuration in neovim config";
 
       pluginInfo =
         if hasAttr "neovim" themeData.appAdapters then
@@ -34,7 +38,11 @@ in
             pluginInfo.colorscheme;
 
         config = {
-          transparent = transparency.enable or false;
+          transparent =
+            if hasAttr "enable" transparency then
+              transparency.enable
+            else
+              throw "Missing 'enable' field in transparency configuration";
           terminal_colors = true;
           styles = {
             comments = {
@@ -99,7 +107,11 @@ in
     {
       colorscheme = colorscheme;
       variant = config.variant;
-      transparency = config.transparency or { };
+      transparency =
+        if hasAttr "transparency" config then
+          config.transparency
+        else
+          throw "Missing transparency configuration in neovim config";
       theme_name = themeData.meta.name + " " + (utils.capitalizeFirst config.variant);
 
       plugins.${colorscheme} = {
@@ -119,7 +131,11 @@ in
     let
       palette = themeData.palettes.${config.variant};
       semanticColors = themeData.semanticMapping palette;
-      isTransparent = config.transparency.enable or false;
+      isTransparent =
+        if hasAttrByPath ["transparency" "enable"] config then
+          config.transparency.enable
+        else
+          throw "Missing transparency.enable configuration in neovim config";
 
       baseOverrides = {
         Normal = {
