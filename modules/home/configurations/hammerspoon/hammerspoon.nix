@@ -1,7 +1,9 @@
 { pkgs, ... }:
 {
-  home.file.".hammerspoon/init.lua".source = ./init.lua;
-  home.file.".hammerspoon/lua/app_switcher.lua".source = ./lua/app_switcher.lua;
+  home.file.".hammerspoon/init.lua".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/hammerspoon/init.lua";
+  home.file.".hammerspoon/lua".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/hammerspoon/lua";
 
   home.file.".hammerspoon/Spoons/VimMode.spoon" = {
     source = pkgs.fetchFromGitHub {
