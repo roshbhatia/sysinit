@@ -27,6 +27,21 @@ let
 
     echo "$result"
   '';
+
+  ghWhoamiScript = pkgs.writeShellScript "gh-whoami" ''
+    if command -v gh &>/dev/null; then
+      username=$(gh api user --jq '.login' 2>/dev/null)
+      if [[ -n "$username" ]]; then
+        echo "$username"
+      else
+        echo "Not logged in"
+        exit 1
+      fi
+    else
+      echo "GitHub CLI not installed"
+      exit 1
+    fi
+  '';
 in
 {
   services.spacebar = {
@@ -34,8 +49,8 @@ in
     package = pkgs.spacebar;
     config = {
       position = "top";
-      display = "main";
-      height = 26;
+      display = "all";
+      height = 36;
       title = "on";
       spaces = "off";
       clock = "on";
@@ -45,8 +60,8 @@ in
       padding_right = 20;
       spacing_left = 25;
       spacing_right = 15;
-      text_font = "JetBrains Mono NL:Regular:12.0";
-      icon_font = "Symbols Nerd Font Mono:Regular:12.0";
+      text_font = "JetBrains Mono NL:Regular:14.0";
+      icon_font = "Symbols Nerd Font Mono:Regular:14.0";
       background_color = toSpacebarColor semanticColors.background.primary;
       foreground_color = toSpacebarColor semanticColors.foreground.primary;
       power_icon_color = toSpacebarColor semanticColors.semantic.warning;
@@ -62,8 +77,12 @@ in
       left_shell_command = "${aerospaceSpacesScript}";
       right_shell = "on";
       right_shell_icon = "";
-      right_shell_command = "/Users/${values.user.username}/.local/bin/gh-whoami";
-      debug_output = "off";
+      right_shell_command = "${ghWhoamiScript}";
+      debug_output = "on";
     };
   };
+
+  launchd.user.agents.spacebar.serviceConfig.StandardErrorPath = "/tmp/spacebar.err.log";
+  launchd.user.agents.spacebar.serviceConfig.StandardOutPath = "/tmp/spacebar.out.log";
 }
+
