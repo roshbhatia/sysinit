@@ -27,8 +27,8 @@
         outer = {
           right = 24;
           left = 24;
-          bottom = 72;
-          top = 72;
+          bottom = 48;
+          top = 48;
         };
       };
 
