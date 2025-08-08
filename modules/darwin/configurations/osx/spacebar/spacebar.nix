@@ -47,20 +47,12 @@ in
       spacing_right = 15;
       text_font = "JetBrains Mono NL:Regular:12.0";
       icon_font = "Symbols Nerd Font Mono:Regular:12.0";
-      background_color = toSpacebarColor ((palette.colors.base or (throw "palette.colors.base not set")));
-      foreground_color = toSpacebarColor ((palette.colors.text or (throw "palette.colors.text not set")));
-      power_icon_color = toSpacebarColor (
-        (semanticColors.semantic.warning or (throw "semanticColors.semantic.warning not set"))
-      );
-      battery_icon_color = toSpacebarColor (
-        (semanticColors.semantic.error or (throw "semanticColors.semantic.error not set"))
-      );
-      dnd_icon_color = toSpacebarColor (
-        (palette.colors.overlay0 or (throw "palette.colors.overlay0 not set"))
-      );
-      clock_icon_color = toSpacebarColor (
-        (semanticColors.accent.primary or (throw "semanticColors.accent.primary not set"))
-      );
+      background_color = toSpacebarColor palette.base;
+      foreground_color = toSpacebarColor palette.text;
+      power_icon_color = toSpacebarColor palette.yellow;
+      battery_icon_color = toSpacebarColor palette.red;
+      dnd_icon_color = toSpacebarColor palette.overlay0;
+      clock_icon_color = toSpacebarColor palette.blue;
       power_icon_strip = "󰁹 󱐋";
       clock_icon = "";
       dnd_icon = "⏾";
@@ -75,4 +67,3 @@ in
     };
   };
 }
-
