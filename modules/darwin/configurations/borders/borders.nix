@@ -6,7 +6,7 @@
 }:
 
 let
-  themes = import ../../../../lib/theme { inherit lib; };
+  themes = import ../../../lib/theme { inherit lib; };
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
   semanticColors = themes.utils.createSemanticMapping palette;
   activeColorRaw = semanticColors.semantic.error or (throw "Missing error color in theme palette");
@@ -27,3 +27,4 @@ in
     inactive_color = "0xff${inactiveColor}";
   };
 }
+

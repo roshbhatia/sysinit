@@ -1,2 +1,1 @@
-{ lib }:
-import ./theme.nix { inherit lib; }
+{ lib }: import ./theme.nix { inherit lib; }
