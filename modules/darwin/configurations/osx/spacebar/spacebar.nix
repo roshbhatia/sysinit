@@ -35,8 +35,8 @@ in
     config = {
       position = "top";
       display = "main";
-      height = 32;
-      title = "off";
+      height = 26;
+      title = "on";
       spaces = "off";
       clock = "on";
       power = "on";
@@ -45,29 +45,34 @@ in
       padding_right = 20;
       spacing_left = 25;
       spacing_right = 15;
-      text_font = ''"JetBrains Mono NL:Regular:12.0"'';
-      icon_font = ''"Symbols Nerd Font Mono:Regular:12.0"'';
-      background_color = toSpacebarColor (palette.colors.base or "#1e1e2e");
-      foreground_color = toSpacebarColor (palette.colors.text or "#cdd6f4");
-      power_icon_color = toSpacebarColor (semanticColors.semantic.warning or "#f9e2af");
-      battery_icon_color = toSpacebarColor (semanticColors.semantic.error or "#f38ba8");
-      dnd_icon_color = toSpacebarColor (palette.colors.overlay0 or "#6c7086");
-      clock_icon_color = toSpacebarColor (semanticColors.accent.primary or "#89b4fa");
+      text_font = "JetBrains Mono NL:Regular:12.0";
+      icon_font = "Symbols Nerd Font Mono:Regular:12.0";
+      background_color = toSpacebarColor ((palette.colors.base or (throw "palette.colors.base not set")));
+      foreground_color = toSpacebarColor ((palette.colors.text or (throw "palette.colors.text not set")));
+      power_icon_color = toSpacebarColor (
+        (semanticColors.semantic.warning or (throw "semanticColors.semantic.warning not set"))
+      );
+      battery_icon_color = toSpacebarColor (
+        (semanticColors.semantic.error or (throw "semanticColors.semantic.error not set"))
+      );
+      dnd_icon_color = toSpacebarColor (
+        (palette.colors.overlay0 or (throw "palette.colors.overlay0 not set"))
+      );
+      clock_icon_color = toSpacebarColor (
+        (semanticColors.accent.primary or (throw "semanticColors.accent.primary not set"))
+      );
       power_icon_strip = "󰁹 󱐋";
-      clock_icon = "";
-      dnd_icon = "";
+      clock_icon = "";
+      dnd_icon = "⏾";
       clock_format = ''"%a %d %b %H:%M"'';
       left_shell = "on";
-      left_shell_icon = "";
+      left_shell_icon = "󱎃";
       left_shell_command = "${aerospaceSpacesScript}";
       right_shell = "on";
-      right_shell_icon = "";
-      right_shell_command = "gh-whoami";
+      right_shell_icon = "";
+      right_shell_command = "/Users/${values.user.username}/.local/bin/gh-whoami";
       debug_output = "off";
     };
   };
-
-  environment.variables = {
-    SPACEBAR_HEIGHT = "32";
-  };
 }
+

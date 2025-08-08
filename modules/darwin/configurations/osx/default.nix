@@ -9,8 +9,11 @@
     ./security
     ./system
     ./user
+
     ./borders
     ./aerospace
     ./tailscale
+    ./spacebar
   ];
 }
+
