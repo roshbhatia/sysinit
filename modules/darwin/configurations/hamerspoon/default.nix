@@ -1,5 +1,9 @@
-
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 {
   config = {
     home.file.".hammerspoon/init.lua".source = ./init.lua;

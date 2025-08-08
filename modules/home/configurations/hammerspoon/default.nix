@@ -9,4 +9,3 @@
     (import ./hammerspoon.nix { inherit config lib values; })
   ];
 }
-

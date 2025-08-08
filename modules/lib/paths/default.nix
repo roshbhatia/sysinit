@@ -1,4 +1,3 @@
-
 { lib, ... }:
 
 rec {
@@ -36,9 +35,12 @@ rec {
       "${home}/.local/share/.npm-packages/bin"
     ];
   };
-  getAllPaths = username: home:
-    let paths = getSystemPaths username home;
-    in paths.nix ++ paths.system ++ paths.user ++ paths.xdg;
+  getAllPaths =
+    username: home:
+    let
+      paths = getSystemPaths username home;
+    in
+    paths.nix ++ paths.system ++ paths.user ++ paths.xdg;
   getPathString = username: home: lib.concatStringsSep ":" (getAllPaths username home);
   getPathArray = username: home: getAllPaths username home;
 }
