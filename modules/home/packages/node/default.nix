@@ -8,21 +8,7 @@
 
 {
   imports = [
-    (import ./npm.nix {
-      inherit
-        config
-        lib
-        values
-        utils
-        ;
-    })
-    (import ./yarn.nix {
-      inherit
-        config
-        lib
-        values
-        utils
-        ;
-    })
+    ./npm.nix
+    ./yarn.nix
   ];
 }

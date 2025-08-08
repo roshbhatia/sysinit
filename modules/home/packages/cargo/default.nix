@@ -9,14 +9,6 @@
 
 {
   imports = [
-    (import ./cargo.nix {
-      inherit
-        config
-        lib
-        pkgs
-        values
-        utils
-        ;
-    })
+    ./cargo.nix
   ];
 }

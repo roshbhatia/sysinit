@@ -1,11 +1,9 @@
 {
-  lib,
-  pkgs,
   ...
 }:
 
 {
   imports = [
-    ./colima.nix
+    ./firefox.nix
   ];
 }

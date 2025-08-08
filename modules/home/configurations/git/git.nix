@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   values,
   ...
@@ -79,8 +80,6 @@ in
       [includeIf "gitdir:~/github/personal/"]
           path = ~/.gitconfig.personal
 
-      [include]
-          path = ~/.config/delta/themes/${values.theme.colorscheme}-${values.theme.variant}.gitconfig
 
       [alias]
           p = pull
@@ -106,9 +105,17 @@ in
           sslVerify = false
 
 
+      [include]
+          path = ~/.config/delta/themes/${values.theme.colorscheme}-${values.theme.variant}.gitconfig
+
       [rebase]
           updateRefs = true
     '';
+  };
+
+  xdg.configFile."delta/themes/${values.theme.colorscheme}-${values.theme.variant}.gitconfig" = {
+    source = ./themes/${values.theme.colorscheme}-${values.theme.variant}.gitconfig;
+    force = true;
   };
 
   home.file.".gitconfig.personal" = {
@@ -146,8 +153,4 @@ in
     force = true;
   };
 
-  xdg.configFile."delta/themes/${values.theme.colorscheme}-${values.theme.variant}.gitconfig" = {
-    source = ./themes/${values.theme.colorscheme}-${values.theme.variant}.gitconfig;
-    force = true;
-  };
 }

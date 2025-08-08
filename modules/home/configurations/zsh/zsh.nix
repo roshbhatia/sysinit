@@ -95,11 +95,7 @@ in
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
         "--bind='resize:refresh-preview'"
-        "--color=bg+:-1,bg:-1,spinner:${colors.accent.primary},hl:${colors.accent.primary}"
-        "--color=border:${colors.background.overlay},label:${colors.foreground.primary}"
-        "--color=fg:${colors.foreground.primary},header:${colors.accent.primary},info:${colors.foreground.muted},pointer:${colors.accent.primary}"
-        "--color=marker:${colors.accent.primary},fg+:${colors.foreground.primary},prompt:${colors.accent.primary},hl+:${colors.accent.primary}"
-        "--color=preview-bg:-1,query:${colors.foreground.primary}"
+        "--color=bg+:-1,bg:-1"
         "--cycle"
         "--height=30"
         "--highlight-line"

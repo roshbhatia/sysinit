@@ -24,7 +24,6 @@ in
       $env.LS_COLORS = (vivid generate ${vividTheme})
       $env.EZA_COLORS = $env.LS_COLORS
 
-
       $env.FZF_DEFAULT_OPTS = [
         "--bind=resize:refresh-preview"
         "--color=bg+:-1,bg:-1,spinner:${colors.accent.primary},hl:${colors.accent.primary}"
@@ -85,7 +84,6 @@ in
 
   xdg.configFile = {
     "nushell/autoload/${nushellTheme}".source = ./themes/${nushellTheme};
-
     "nushell/autoload/atuin.nu".source = ./integrations/atuin.nu;
     "nushell/autoload/completions.nu".source = ./integrations/completions.nu;
     "nushell/autoload/direnv.nu".source = ./integrations/direnv.nu;

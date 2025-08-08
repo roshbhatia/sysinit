@@ -8,13 +8,6 @@
 
 {
   imports = [
-    (import ./krew.nix {
-      inherit
-        config
-        lib
-        values
-        utils
-        ;
-    })
+    ./krew.nix
   ];
 }

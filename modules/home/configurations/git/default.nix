@@ -5,8 +5,6 @@
 }:
 {
   imports = [
-    (import ./git.nix {
-      inherit lib values;
-    })
+    ./git.nix
   ];
 }

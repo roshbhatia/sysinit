@@ -6,11 +6,6 @@
 
 {
   imports = [
-    (import ./macchina.nix {
-      inherit
-        config
-        pkgs
-        ;
-    })
+    ./macchina.nix
   ];
 }

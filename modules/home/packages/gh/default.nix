@@ -8,13 +8,6 @@
 
 {
   imports = [
-    (import ./gh.nix {
-      inherit
-        config
-        lib
-        values
-        utils
-        ;
-    })
+    ./gh.nix
   ];
 }

@@ -10,7 +10,7 @@
 {
   programs.vscode = {
     enable = true;
-    package = pkgs.vscode-insiders;
+    package = pkgs.vscode;
 
     profiles.default = {
       userSettings = {
@@ -190,12 +190,8 @@
         "editor.cursorSmoothCaretAnimation" = "on";
         "editor.cursorStyle" = "underline";
         "editor.cursorWidth" = 2;
-        "editor.fontFamily" = lib.mkIf (
-          !config.stylix.enable
-        ) "Jetbrains Mono, monospace, 'Hack Nerd Font', 'Symbols Nerd Font'";
         "editor.fontLigatures" =
           "'calt', 'liga', 'ss01', 'ss02', 'ss03', 'ss04', 'ss05', 'ss06', 'ss07', 'ss08', 'ss09'";
-        "editor.fontSize" = lib.mkIf (!config.stylix.enable) 12;
         "editor.fontVariations" = true;
         "editor.formatOnType" = true;
         "editor.glyphMargin" = true;
@@ -498,14 +494,12 @@
 
         "workbench.activityBar.location" = "top";
         "workbench.colorCustomizations" = { };
-        "workbench.colorTheme" = lib.mkIf (!config.stylix.enable) "Catppuccin Dark Fixed";
         "workbench.editor.editorActionsLocation" = "hidden";
         "workbench.editor.limit.enabled" = true;
         "workbench.editor.limit.value" = 5;
         "workbench.editorAssociations" = {
           "git-rebase-todo" = "default";
         };
-        "workbench.iconTheme" = lib.mkIf (!config.stylix.enable) "chalice-icon-theme";
         "workbench.layoutControl.enabled" = false;
         "workbench.panel.defaultLocation" = "right";
         "workbench.startupEditor" = "none";
@@ -522,42 +516,19 @@
       keybindings = [ ];
 
       extensions = with pkgs.vscode-extensions; [
-        # Language support
+        # Basic language support
         ms-python.python
-        ms-vscode.vscode-typescript-next
         rust-lang.rust-analyzer
         golang.go
-        ms-vscode.vscode-json
-        redhat.vscode-yaml
-        ms-vscode.vscode-eslint
-        esbenp.prettier-vscode
-        ms-vscode.vscode-html-languageservice
-        ms-vscode.vscode-css-languageservice
 
         # Git
         eamodio.gitlens
-        github.vscode-pull-request-github
-        github.copilot
-        github.copilot-chat
 
         # Vim
         vscodevim.vim
 
-        # Themes and icons
-        catppuccin.catppuccin-vscode
-        antfu.icons-carbon
-
-        # Utilities
-        ms-vscode-remote.remote-ssh
-        ms-vscode.remote-explorer
-        bradlc.vscode-tailwindcss
-
         # Nix
         bbenoist.nix
-        jnoortheen.nix-ide
-
-        # Lua
-        sumneko.lua
       ];
     };
   };

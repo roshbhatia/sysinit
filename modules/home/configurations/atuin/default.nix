@@ -5,8 +5,6 @@
 }:
 {
   imports = [
-    (import ./atuin.nix {
-      inherit lib values;
-    })
+    ./atuin.nix
   ];
 }

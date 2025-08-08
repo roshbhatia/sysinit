@@ -7,13 +7,6 @@
 }:
 {
   imports = [
-    (import ./nu.nix {
-      inherit
-        config
-        lib
-        values
-        pkgs
-        ;
-    })
+    ./nu.nix
   ];
 }

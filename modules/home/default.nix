@@ -13,24 +13,8 @@
 
 {
   imports = [
-    (import ./configurations {
-      inherit
-        config
-        lib
-        values
-        pkgs
-        utils
-        ;
-    })
-    (import ./packages {
-      inherit
-        config
-        lib
-        values
-        pkgs
-        utils
-        ;
-    })
+    ./configurations
+    ./packages
   ];
 
   xdg = {

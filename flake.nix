@@ -12,6 +12,7 @@
       url = "github:nix-community/home-manager/release-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    stylix.url = "github:danth/stylix";
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
   };
 
@@ -20,6 +21,7 @@
       nixpkgs,
       darwin,
       home-manager,
+      stylix,
       nix-homebrew,
       ...
     }:
@@ -69,6 +71,7 @@
               inherit values utils;
             })
             home-manager.darwinModules.home-manager
+            stylix.darwinModules.stylix
             nix-homebrew.darwinModules.nix-homebrew
             {
               _module.args.utils = utils;

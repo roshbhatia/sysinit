@@ -1,4 +1,4 @@
-{ lib }:
+{ lib, ... }:
 let
   config = import ../config/goose.nix;
   agents = import ../shared/agents.nix;

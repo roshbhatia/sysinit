@@ -9,8 +9,8 @@ let
   themes = import ../../../../lib/theme { inherit lib; };
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
   semanticColors = themes.utils.createSemanticMapping palette;
-  backgroundColor = semanticColors.background.primary or "#181825";
-  highlightColor = semanticColors.accent.primary or "#89b4fa";
+  backgroundColor = semanticColors.background.primary;
+  highlightColor = semanticColors.accent.primary;
   hexToRgba =
     hex: alpha:
     let

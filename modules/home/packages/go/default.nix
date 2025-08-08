@@ -8,13 +8,6 @@
 
 {
   imports = [
-    (import ./go.nix {
-      inherit
-        config
-        lib
-        values
-        utils
-        ;
-    })
+    ./go.nix
   ];
 }

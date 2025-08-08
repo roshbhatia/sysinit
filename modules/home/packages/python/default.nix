@@ -8,21 +8,7 @@
 
 {
   imports = [
-    (import ./pipx.nix {
-      inherit
-        config
-        lib
-        values
-        utils
-        ;
-    })
-    (import ./uvx.nix {
-      inherit
-        config
-        lib
-        values
-        utils
-        ;
-    })
+    ./pipx.nix
+    ./uvx.nix
   ];
 }

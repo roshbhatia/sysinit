@@ -7,13 +7,6 @@
 }:
 {
   imports = [
-    (import ./bat.nix {
-      inherit
-        lib
-        pkgs
-        values
-        utils
-        ;
-    })
+    ./bat.nix
   ];
 }

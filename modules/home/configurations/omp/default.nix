@@ -5,8 +5,6 @@
 }:
 {
   imports = [
-    (import ./omp.nix {
-      inherit lib values;
-    })
+    ./omp.nix
   ];
 }

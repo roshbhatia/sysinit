@@ -1,14 +1,8 @@
-# StyLua configuration file
-# This ensures consistency with EditorConfig settings
-
 column_width = 100
-line_endings = "Unix"  # LF line endings to match EditorConfig
+line_endings = "Unix"
 indent_type = "Spaces"
-indent_width = 2       # Match your EditorConfig indent_size
+indent_width = 2
 quote_style = "AutoPreferDouble"
 call_parentheses = "Always"
 collapse_simple_statement = "Never"
-
-# Ensure final newline is handled consistently
-# StyLua will respect the insert_final_newline from EditorConfig
 

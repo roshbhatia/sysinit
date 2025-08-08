@@ -149,6 +149,31 @@ let
   getUnifiedColors = palette: utils.createSemanticMapping palette;
   mergeThemeConfig = utils.mergeThemeConfigs;
 
+  generateStylix =
+    colorscheme: variant:
+    let
+      palette = getThemePalette colorscheme variant;
+      semanticColors = utils.createSemanticMapping palette;
+    in
+    {
+      base00 = lib.removePrefix "#" semanticColors.background.primary;
+      base01 = lib.removePrefix "#" semanticColors.background.secondary;
+      base02 = lib.removePrefix "#" semanticColors.background.tertiary;
+      base03 = lib.removePrefix "#" semanticColors.foreground.muted;
+      base04 = lib.removePrefix "#" semanticColors.foreground.secondary;
+      base05 = lib.removePrefix "#" semanticColors.foreground.primary;
+      base06 = lib.removePrefix "#" semanticColors.foreground.primary;
+      base07 = lib.removePrefix "#" semanticColors.foreground.primary;
+      base08 = lib.removePrefix "#" semanticColors.semantic.error;
+      base09 = lib.removePrefix "#" semanticColors.accent.secondary;
+      base0A = lib.removePrefix "#" semanticColors.semantic.warning;
+      base0B = lib.removePrefix "#" semanticColors.semantic.success;
+      base0C = lib.removePrefix "#" semanticColors.accent.tertiary;
+      base0D = lib.removePrefix "#" semanticColors.accent.primary;
+      base0E = lib.removePrefix "#" semanticColors.accent.quaternary;
+      base0F = lib.removePrefix "#" semanticColors.accent.secondary;
+    };
+
   listAvailableThemes = map (theme: {
     id = theme.meta.id;
     name = theme.meta.name;
@@ -199,6 +224,7 @@ in
     getUnifiedColors
     mergeThemeConfig
     withThemeOverrides
+    generateStylix
     ansiMappings
     ;
 

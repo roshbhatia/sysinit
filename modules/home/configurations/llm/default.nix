@@ -1,9 +1,9 @@
 { lib, ... }:
 {
   imports = [
-    (import ./tools/aider.nix { inherit lib; })
-    (import ./tools/goose.nix { inherit lib; })
-    (import ./tools/opencode.nix { })
-    (import ./tools/crush.nix { inherit lib; })
+    ./tools/aider.nix
+    ./tools/goose.nix
+    ./tools/opencode.nix
+    ./tools/crush.nix
   ];
 }

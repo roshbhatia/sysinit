@@ -7,13 +7,6 @@
 }:
 {
   imports = [
-    (import ./helix.nix {
-      inherit
-        config
-        lib
-        pkgs
-        values
-        ;
-    })
+    ./helix.nix
   ];
 }

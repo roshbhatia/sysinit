@@ -6,8 +6,6 @@
 }:
 {
   imports = [
-    (import ./nixpkgs.nix {
-      inherit config values pkgs;
-    })
+    ./nixpkgs.nix
   ];
 }
