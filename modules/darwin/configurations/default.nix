@@ -13,6 +13,5 @@
     ./borders
     ./aerospace
     ./tailscale
-    ./hammerspoon
   ];
 }

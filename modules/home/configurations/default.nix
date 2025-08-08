@@ -12,6 +12,7 @@
     ./direnv
     ./llm
     ./vivid
+    ./hammerspoon
 
     (import ./atuin {
       inherit
@@ -109,3 +110,4 @@
     })
   ];
 }
+
