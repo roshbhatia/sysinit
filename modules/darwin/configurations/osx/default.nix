@@ -11,5 +11,6 @@
     ./user
     ./borders
     ./aerospace
+    ./tailscale
   ];
 }

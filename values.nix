@@ -11,13 +11,17 @@
     credentialUsername = "roshbhatia";
   };
 
+  tailscale = {
+    enable = true;
+    # package = pkgs.tailscale; # Uses default package, can be overridden
+  };
+
   homebrew = {
     additionalPackages = {
       taps = [ "hashicorp/tap" ];
       brews = [
         "blueutil"
         "hashicorp/tap/packer"
-        "tailscale"
         "qemu"
       ];
       casks = [
@@ -53,3 +57,4 @@
     shell = "nu";
   };
 }
+
