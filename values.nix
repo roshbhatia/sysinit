@@ -13,7 +13,6 @@
 
   tailscale = {
     enable = true;
-    # package = pkgs.tailscale; # Uses default package, can be overridden
   };
 
   homebrew = {
