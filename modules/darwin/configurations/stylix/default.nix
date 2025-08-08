@@ -31,15 +31,9 @@ in
     };
   };
 
-  stylix.opacity.terminal = if values.theme.transparency.enable then values.theme.transparency.opacity else 1.0;
+  stylix.opacity.terminal =
+    if values.theme.transparency.enable then values.theme.transparency.opacity else 1.0;
 
-  stylix.targets = {
-    bat.enable = true;
-    firefox.enable = true;
-    helix.enable = true;
-    k9s.enable = true;
-    fzf.enable = true;
-    neovim.enable = false;
-    wezterm.enable = false;
-  };
+  stylix.autoEnable = true;
+
 }

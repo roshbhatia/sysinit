@@ -96,6 +96,8 @@ rec {
     accent = {
       primary = safeGetColor palette "accent" (safeGetColor palette "blue" "#0080ff");
       secondary = safeGetColor palette "accent_secondary" (safeGetColor palette "cyan" "#00ffff");
+      tertiary = safeGetColor palette "accent_tertiary" (safeGetColor palette "purple" "#8000ff");
+      quaternary = safeGetColor palette "accent_quaternary" (safeGetColor palette "magenta" "#ff00ff");
       dim = safeGetColor palette "accent_dim" (safeGetColor palette "surface" "#333333");
     };
 

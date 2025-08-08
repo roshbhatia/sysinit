@@ -90,19 +90,19 @@ with lib;
           additionalPackages = {
             taps = mkOption {
               type = types.listOf types.str;
-              default = [];
+              default = [ ];
               description = "Additional Homebrew taps";
             };
 
             brews = mkOption {
               type = types.listOf types.str;
-              default = [];
+              default = [ ];
               description = "Additional Homebrew formulae";
             };
 
             casks = mkOption {
               type = types.listOf types.str;
-              default = [];
+              default = [ ];
               description = "Additional Homebrew casks";
             };
           };
@@ -112,7 +112,7 @@ with lib;
       yarn = {
         additionalPackages = mkOption {
           type = types.listOf types.str;
-          default = [];
+          default = [ ];
           description = "Additional global yarn packages";
         };
       };
@@ -183,15 +183,15 @@ with lib;
       };
       homebrew = {
         additionalPackages = {
-          taps = [];
-          brews = [];
-          casks = [];
+          taps = [ ];
+          brews = [ ];
+          casks = [ ];
         };
       };
     };
 
     yarn = {
-      additionalPackages = [];
+      additionalPackages = [ ];
     };
 
     theme = {
