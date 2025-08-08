@@ -13,6 +13,6 @@
     ./borders
     ./aerospace
     ./tailscale
-    ./ice
   ];
 }
+
