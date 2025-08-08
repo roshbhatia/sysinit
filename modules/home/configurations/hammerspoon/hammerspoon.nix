@@ -1,4 +1,10 @@
-{ config, lib, values, pkgs, ... }:
+{
+  config,
+  lib,
+  values,
+  pkgs,
+  ...
+}:
 {
   home.file.".hammerspoon/init.lua".source = ./init.lua;
   home.file.".hammerspoon/lua/app_switcher.lua".source = ./lua/app_switcher.lua;
