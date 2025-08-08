@@ -11,27 +11,33 @@
     credentialUsername = "roshbhatia";
   };
 
-  tailscale = {
-    enable = true;
-  };
+  darwin = {
+    tailscale = {
+      enable = true;
+    };
 
-  homebrew = {
-    additionalPackages = {
-      taps = [ "hashicorp/tap" ];
-      brews = [
-        "blueutil"
-        "hashicorp/tap/packer"
-        "qemu"
-      ];
-      casks = [
-        "betterdiscord-installer"
-        "calibre"
-        "discord"
-        "notion"
-        "steam"
-        "supercollider"
-        "vnc-viewer"
-      ];
+    borders = {
+      enable = true;
+    };
+
+    homebrew = {
+      additionalPackages = {
+        taps = [ "hashicorp/tap" ];
+        brews = [
+          "blueutil"
+          "hashicorp/tap/packer"
+          "qemu"
+        ];
+        casks = [
+          "betterdiscord-installer"
+          "calibre"
+          "discord"
+          "notion"
+          "steam"
+          "supercollider"
+          "vnc-viewer"
+        ];
+      };
     };
   };
 
@@ -56,3 +62,4 @@
     shell = "nu";
   };
 }
+

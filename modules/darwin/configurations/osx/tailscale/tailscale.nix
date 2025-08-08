@@ -6,7 +6,7 @@
 }:
 
 {
-  services.tailscale = lib.mkIf values.tailscale.enable {
+  services.tailscale = lib.mkIf values.darwin.tailscale.enable {
     enable = true;
     package = pkgs.tailscale;
   };

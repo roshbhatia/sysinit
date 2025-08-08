@@ -4,7 +4,7 @@
   ...
 }:
 let
-  additionalPackages = (values.nix.packages or [ ]);
+  additionalPackages = (values.nix.additionalPackages or [ ]);
 
   baseNixPackages = with pkgs; [
     _1password-cli
@@ -144,3 +144,4 @@ in
 {
   home.packages = allNixPackages;
 }
+

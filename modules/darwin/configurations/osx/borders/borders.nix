@@ -16,7 +16,7 @@ let
   inactiveColor = lib.toLower (lib.removePrefix "#" inactiveColorRaw);
 in
 {
-  services.jankyborders = {
+  services.jankyborders = lib.mkIf values.darwin.borders.enable {
     enable = true;
     package = pkgs.jankyborders;
 
