@@ -32,7 +32,6 @@ let
     "alt-tab"
     "firefox"
     "font-symbols-only-nerd-font"
-    "jordanbaird-ice"
     "keycastr"
     "mediosz/tap/swipeaerospace"
     "raycast"

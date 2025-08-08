@@ -20,7 +20,7 @@
       InitialKeyRepeat = 15;
       KeyRepeat = 2;
       NSWindowShouldDragOnGesture = true;
-      _HIHideMenuBar = false;
+      _HIHideMenuBar = true;
     };
   };
 }
