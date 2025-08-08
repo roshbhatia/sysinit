@@ -12,7 +12,7 @@ let
   modulesWithArgs = [
     {
       name = "hammerspoon";
-      attrs = { inherit pkgs; };
+      attrs = { inherit config pkgs; };
     }
     {
       name = "atuin";
