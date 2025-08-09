@@ -4,4 +4,3 @@
   (import ./goose-cli.nix)
   (import ./vscode-insiders.nix)
 ]
-
