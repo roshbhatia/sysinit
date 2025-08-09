@@ -34,10 +34,12 @@ local function mapCmdTab(event)
   local flags = event:getFlags()
   local chars = event:getCharacters()
 
-  if chars == "\t" and flags:containExactly({ "cmd" }) then
+  if event:getKeyCode() == hs.keycodes.map["tab"] and flags:containExactly({ "cmd" }) then
     windowSwitcher:next()
     return true
-  elseif chars == string.char(25) and flags:containExactly({ "cmd", "shift" }) then
+  elseif
+    event:getKeyCode() == hs.keycodes.map["tab"] and flags:containExactly({ "cmd", "shift" })
+  then
     windowSwitcher:previous()
     return true
   end
