@@ -156,8 +156,8 @@
             alt-s = "workspace S";
             alt-e = "workspace E";
 
-            alt-tab = "workspace next --wrap-around";
-            alt-shift-tab = "workspace prev --wrap-around";
+            alt-tab = "workspace --wrap-around next";
+            alt-shift-tab = "workspace --wrap-around prev";
 
             alt-shift-1 = "move-node-to-workspace 1 --focus-follows-window";
             alt-shift-2 = "move-node-to-workspace 2 --focus-follows-window";
@@ -181,3 +181,4 @@
     };
   };
 }
+
