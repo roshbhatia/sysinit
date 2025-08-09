@@ -4,6 +4,7 @@
     ./dock
     ./hostname
     ./finder
+    ./nix
     ./security
     ./stylix
     ./system

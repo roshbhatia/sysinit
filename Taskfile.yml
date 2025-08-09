@@ -27,7 +27,7 @@ tasks:
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Building system configuration"
-        if ! sudo darwin-rebuild build -v --show-trace --impure --flake .; then
+        if ! NIXPKGS_ALLOW_UNFREE=1 sudo -E darwin-rebuild build -v --show-trace --impure --flake .; then
           log_error "Build failed."
           exit 1
         fi
@@ -90,7 +90,7 @@ tasks:
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Applying system configuration"
-        if ! sudo darwin-rebuild switch --flake . --impure --show-trace; then
+        if ! NIXPKGS_ALLOW_UNFREE=1 sudo -E darwin-rebuild switch --flake . --impure --show-trace; then
           log_error "Refresh failed."
           exit 1
         fi

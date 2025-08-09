@@ -16,6 +16,7 @@
     ./llm
     ./macchina
     ./neovim
+    ./nix
     ./nu
     ./omp
     ./treesitter

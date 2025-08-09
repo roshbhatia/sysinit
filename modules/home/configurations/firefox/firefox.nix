@@ -18,7 +18,7 @@
         ublock-origin
 
         # Authentication
-        # onepassword-password-manager  # Commented out due to unfree license
+        onepassword-password-manager
 
         # Reddit enhancements
         reddit-enhancement-suite
@@ -178,4 +178,3 @@
     };
   };
 }
-
