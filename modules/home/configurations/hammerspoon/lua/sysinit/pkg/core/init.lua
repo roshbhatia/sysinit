@@ -1,19 +1,13 @@
+local theme = require("sysinit.pkg.theme")
 local M = {}
 
-local switcherUIPrefs = {
-  showThumbnails = true,
-  thumbnailSize = 112,
-  showTitles = true,
-  titleBackgroundColor = { 0, 0, 0 },
-  textColor = { 1, 1, 1 },
-  showSelectedThumbnail = true,
-  selectedThumbnailSize = 256,
-}
+local switcherUIPrefs = nil
 
 local windowSwitcher = nil
 local tapCmdTab = nil
 
 local function initWindowSwitcher()
+  switcherUIPrefs = theme.getWindowSwitcherPrefs()
   windowSwitcher = hs.window.switcher.new(
     hs.window.filter.new():setCurrentSpace(true):setDefaultFilter({}),
     switcherUIPrefs
