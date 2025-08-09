@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   values,
   ...
@@ -7,7 +6,7 @@
 
 let
   themes = import ../../../lib/theme { inherit lib; };
-  k9sConfig = themes.createAppConfig "k9s" values.theme {};
+  stylixTargets = themes.stylixHelpers.enableStylixTargets ["k9s"];
 in
 
 {
@@ -65,4 +64,5 @@ in
       app = "applications";
     };
   };
-} // k9sConfig
+} // stylixTargets
+

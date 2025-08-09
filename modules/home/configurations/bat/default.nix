@@ -1,8 +1,4 @@
 {
-  lib,
-  pkgs,
-  values,
-  utils,
   ...
 }:
 {
@@ -10,3 +6,4 @@
     ./bat.nix
   ];
 }
+

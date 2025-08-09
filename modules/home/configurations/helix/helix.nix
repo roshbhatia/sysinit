@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   values,
   ...
@@ -7,7 +6,7 @@
 
 let
   themes = import ../../../lib/theme { inherit lib; };
-  helixConfig = themes.createAppConfig "helix" values.theme {};
+  stylixTargets = themes.stylixHelpers.enableStylixTargets ["helix"];
 in
 
 {
@@ -28,4 +27,5 @@ in
       };
     };
   };
-} // helixConfig
+} // stylixTargets
+

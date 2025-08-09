@@ -1,8 +1,4 @@
 {
-  config,
-  lib,
-  pkgs,
-  values,
   ...
 }:
 {
@@ -10,3 +6,4 @@
     ./helix.nix
   ];
 }
+

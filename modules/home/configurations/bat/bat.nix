@@ -1,14 +1,13 @@
 {
   config,
   lib,
-  pkgs,
   values,
   ...
 }:
 
 let
   themes = import ../../../lib/theme { inherit lib; };
-  batConfig = themes.createAppConfig "bat" values.theme {};
+  stylixTargets = themes.stylixHelpers.enableStylixTargets ["bat"];
 in
 
 {
@@ -19,4 +18,5 @@ in
       pager = "less -FR";
     };
   };
-} // batConfig
+} // stylixTargets
+

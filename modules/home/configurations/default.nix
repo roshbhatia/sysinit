@@ -1,9 +1,4 @@
 {
-  config,
-  lib,
-  values,
-  pkgs,
-  utils,
   ...
 }:
 
@@ -31,3 +26,4 @@
     ./zsh
   ];
 }
+

@@ -17,9 +17,6 @@ let
 
   weztermAdapter = import ./adapters/wezterm.nix { inherit lib; };
   neovimAdapter = import ./adapters/neovim.nix { inherit lib; };
-  batAdapter = import ./adapters/bat.nix { inherit lib; };
-  k9sAdapter = import ./adapters/k9s.nix { inherit lib; };
-  helixAdapter = import ./adapters/helix.nix { inherit lib; };
 
   transparencyPreset = import ./presets/transparency.nix { inherit lib; };
 
@@ -106,12 +103,6 @@ let
           weztermAdapter.createWeztermConfig theme finalConfig overrides
         else if app == "neovim" then
           neovimAdapter.createNeovimConfig theme finalConfig overrides
-        else if app == "bat" then
-          batAdapter.createBatConfig theme finalConfig overrides
-        else if app == "k9s" then
-          k9sAdapter.createK9sConfig theme finalConfig overrides
-        else if app == "helix" then
-          helixAdapter.createHelixConfig theme finalConfig overrides
         else
           {
             theme = getAppTheme app validatedConfig.colorscheme validatedConfig.variant;
@@ -145,12 +136,6 @@ let
       weztermAdapter.generateWeztermJSON theme validatedConfig
     else if app == "neovim" then
       neovimAdapter.generateNeovimJSON theme validatedConfig
-    else if app == "bat" then
-      batAdapter.generateBatJSON theme validatedConfig
-    else if app == "k9s" then
-      k9sAdapter.generateK9sJSON theme validatedConfig
-    else if app == "helix" then
-      helixAdapter.generateHelixJSON theme validatedConfig
     else
       {
         colorscheme = validatedConfig.colorscheme;
@@ -179,7 +164,11 @@ let
       theme = getTheme colorscheme;
       palette = getThemePalette colorscheme variant;
       semanticColors = theme.semanticMapping palette;
-      themeConfig = { inherit colorscheme variant; transparency.enable = false; transparency.opacity = 1.0; };
+      themeConfig = {
+        inherit colorscheme variant;
+        transparency.enable = false;
+        transparency.opacity = 1.0;
+      };
     in
     stylix.generateStylixConfig palette semanticColors themeConfig fontConfig;
 
@@ -243,9 +232,6 @@ in
   adapters = {
     wezterm = weztermAdapter;
     neovim = neovimAdapter;
-    bat = batAdapter;
-    k9s = k9sAdapter;
-    helix = helixAdapter;
   };
 
   presets = {

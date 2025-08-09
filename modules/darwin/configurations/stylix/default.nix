@@ -28,10 +28,13 @@ let
     };
   };
 
-  stylixConfig = themes.createStylixFromTheme
-    values.theme.colorscheme
-    values.theme.variant
-    fontConfig;
+  stylixConfig =
+    themes.createStylixFromTheme values.theme.colorscheme values.theme.variant
+      fontConfig;
+
+  # Note: Only enable stylix targets that actually exist in the current stylix version
+  # additionalTargets = themes.stylixHelpers.enableStylixTargets ["fzf" "kubecolor"];
+  additionalTargets = {};
 in
 
-stylixConfig
+stylixConfig // additionalTargets
