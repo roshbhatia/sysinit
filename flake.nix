@@ -59,7 +59,10 @@
         inherit lib pkgs system;
       };
 
-      defaultValues = import ./values.nix;
+      valuesLib = import ./modules/lib/values.nix { inherit lib; };
+      userValues = import ./values.nix;
+
+      defaultValues = lib.recursiveUpdate valuesLib.defaultValues userValues;
 
       mkDarwinConfiguration =
         {
