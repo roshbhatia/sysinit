@@ -6,7 +6,7 @@
 {
   programs.vscode = {
     enable = true;
-    package = pkgs.vscode-insiders;
+    package = pkgs.vscode;
 
     profiles.default = {
       userSettings = {
@@ -529,3 +529,4 @@
     };
   };
 }
+
