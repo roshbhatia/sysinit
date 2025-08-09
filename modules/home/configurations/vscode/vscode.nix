@@ -6,17 +6,20 @@
 {
   programs.vscode = {
     enable = true;
-    package = pkgs.runCommand "vscode-insiders-wrapper" {
-      pname = "visual-studio-code-insiders";
-      version = "1.0.0";
-    } ''
-      mkdir -p $out/bin
-      cat > $out/bin/code <<EOF
-      #!/bin/sh
-      exec /Applications/Visual\ Studio\ Code\ -\ Insiders.app/Contents/Resources/app/bin/code "\$@"
-      EOF
-      chmod +x $out/bin/code
-    '';
+    package =
+      pkgs.runCommand "vscode-insiders-wrapper"
+        {
+          pname = "vscode";
+          version = "1.0.0";
+        }
+        ''
+          mkdir -p $out/bin
+          cat > $out/bin/code <<EOF
+          #!/bin/sh
+          exec /Applications/Visual\ Studio\ Code\ -\ Insiders.app/Contents/Resources/app/bin/code "\$@"
+          EOF
+          chmod +x $out/bin/code
+        '';
 
     profiles.default = {
       userSettings = {
