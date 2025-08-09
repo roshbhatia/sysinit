@@ -36,12 +36,19 @@ function M.load_json_file(filepath)
     -- This only handles simple key-value pairs and nested objects
     local function parse_value(v)
       v = v:gsub("^%s*(.-)%s*$", "%1")
-      if v == "true" then return true
-      elseif v == "false" then return false
-      elseif v == "null" then return nil
-      elseif v:match("^%-?%d+%.?%d*$") then return tonumber(v)
-      elseif v:match('^".*"$') then return v:sub(2, -2)
-      else return v end
+      if v == "true" then
+        return true
+      elseif v == "false" then
+        return false
+      elseif v == "null" then
+        return nil
+      elseif v:match("^%-?%d+%.?%d*$") then
+        return tonumber(v)
+      elseif v:match('^".*"$') then
+        return v:sub(2, -2)
+      else
+        return v
+      end
     end
 
     return parse_value(str)
