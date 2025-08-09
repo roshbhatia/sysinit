@@ -6,6 +6,7 @@ let
   types = import ./core/types.nix { inherit lib; };
   constants = import ./core/constants.nix { inherit lib; };
   utils = import ./core/utils.nix { inherit lib; };
+  stylix = import ./core/stylix.nix { inherit lib; };
 
   catppuccin = import ./palettes/catppuccin.nix { inherit lib; };
   kanagawa = import ./palettes/kanagawa.nix { inherit lib; };
@@ -16,6 +17,9 @@ let
 
   weztermAdapter = import ./adapters/wezterm.nix { inherit lib; };
   neovimAdapter = import ./adapters/neovim.nix { inherit lib; };
+  batAdapter = import ./adapters/bat.nix { inherit lib; };
+  k9sAdapter = import ./adapters/k9s.nix { inherit lib; };
+  helixAdapter = import ./adapters/helix.nix { inherit lib; };
 
   transparencyPreset = import ./presets/transparency.nix { inherit lib; };
 
@@ -102,6 +106,12 @@ let
           weztermAdapter.createWeztermConfig theme finalConfig overrides
         else if app == "neovim" then
           neovimAdapter.createNeovimConfig theme finalConfig overrides
+        else if app == "bat" then
+          batAdapter.createBatConfig theme finalConfig overrides
+        else if app == "k9s" then
+          k9sAdapter.createK9sConfig theme finalConfig overrides
+        else if app == "helix" then
+          helixAdapter.createHelixConfig theme finalConfig overrides
         else
           {
             theme = getAppTheme app validatedConfig.colorscheme validatedConfig.variant;
@@ -135,6 +145,12 @@ let
       weztermAdapter.generateWeztermJSON theme validatedConfig
     else if app == "neovim" then
       neovimAdapter.generateNeovimJSON theme validatedConfig
+    else if app == "bat" then
+      batAdapter.generateBatJSON theme validatedConfig
+    else if app == "k9s" then
+      k9sAdapter.generateK9sJSON theme validatedConfig
+    else if app == "helix" then
+      helixAdapter.generateHelixJSON theme validatedConfig
     else
       {
         colorscheme = validatedConfig.colorscheme;
@@ -155,24 +171,17 @@ let
       palette = getThemePalette colorscheme variant;
       semanticColors = utils.createSemanticMapping palette;
     in
-    {
-      base00 = lib.removePrefix "#" semanticColors.background.primary;
-      base01 = lib.removePrefix "#" semanticColors.background.secondary;
-      base02 = lib.removePrefix "#" semanticColors.background.tertiary;
-      base03 = lib.removePrefix "#" semanticColors.foreground.muted;
-      base04 = lib.removePrefix "#" semanticColors.foreground.secondary;
-      base05 = lib.removePrefix "#" semanticColors.foreground.primary;
-      base06 = lib.removePrefix "#" semanticColors.foreground.primary;
-      base07 = lib.removePrefix "#" semanticColors.foreground.primary;
-      base08 = lib.removePrefix "#" semanticColors.semantic.error;
-      base09 = lib.removePrefix "#" semanticColors.accent.secondary;
-      base0A = lib.removePrefix "#" semanticColors.semantic.warning;
-      base0B = lib.removePrefix "#" semanticColors.semantic.success;
-      base0C = lib.removePrefix "#" semanticColors.accent.tertiary;
-      base0D = lib.removePrefix "#" semanticColors.accent.primary;
-      base0E = lib.removePrefix "#" semanticColors.accent.quaternary;
-      base0F = lib.removePrefix "#" semanticColors.accent.secondary;
-    };
+    stylix.generateBase16Scheme palette semanticColors;
+
+  createStylixFromTheme =
+    colorscheme: variant: fontConfig:
+    let
+      theme = getTheme colorscheme;
+      palette = getThemePalette colorscheme variant;
+      semanticColors = theme.semanticMapping palette;
+      themeConfig = { inherit colorscheme variant; transparency.enable = false; transparency.opacity = 1.0; };
+    in
+    stylix.generateStylixConfig palette semanticColors themeConfig fontConfig;
 
   listAvailableThemes = map (theme: {
     id = theme.meta.id;
@@ -225,12 +234,18 @@ in
     mergeThemeConfig
     withThemeOverrides
     generateStylix
+    createStylixFromTheme
     ansiMappings
     ;
+
+  stylixHelpers = stylix;
 
   adapters = {
     wezterm = weztermAdapter;
     neovim = neovimAdapter;
+    bat = batAdapter;
+    k9s = k9sAdapter;
+    helix = helixAdapter;
   };
 
   presets = {

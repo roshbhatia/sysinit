@@ -6,6 +6,11 @@
   ...
 }:
 
+let
+  themes = import ../../../lib/theme { inherit lib; };
+  batConfig = themes.createAppConfig "bat" values.theme {};
+in
+
 {
   programs.bat = {
     enable = true;
@@ -14,5 +19,4 @@
       pager = "less -FR";
     };
   };
-
-}
+} // batConfig

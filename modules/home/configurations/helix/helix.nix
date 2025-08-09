@@ -5,6 +5,11 @@
   ...
 }:
 
+let
+  themes = import ../../../lib/theme { inherit lib; };
+  helixConfig = themes.createAppConfig "helix" values.theme {};
+in
+
 {
   programs.helix = {
     enable = true;
@@ -23,4 +28,4 @@
       };
     };
   };
-}
+} // helixConfig

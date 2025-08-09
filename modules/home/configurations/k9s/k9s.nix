@@ -5,6 +5,11 @@
   ...
 }:
 
+let
+  themes = import ../../../lib/theme { inherit lib; };
+  k9sConfig = themes.createAppConfig "k9s" values.theme {};
+in
+
 {
   programs.k9s = {
     enable = true;
@@ -60,5 +65,4 @@
       app = "applications";
     };
   };
-
-}
+} // k9sConfig

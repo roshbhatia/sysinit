@@ -8,15 +8,8 @@
 
 let
   themes = import ../../../lib/theme { inherit lib; };
-  stylixScheme = themes.generateStylix values.theme.colorscheme values.theme.variant;
-in
 
-{
-  stylix.enable = true;
-
-  stylix.base16Scheme = stylixScheme;
-
-  stylix.fonts = {
+  fontConfig = {
     monospace = {
       package = pkgs.jetbrains-mono;
       name = "JetBrains Mono";
@@ -29,11 +22,16 @@ in
       package = pkgs.crimson;
       name = "Crimson Text";
     };
+    emoji = {
+      package = pkgs.noto-fonts-emoji;
+      name = "Noto Color Emoji";
+    };
   };
 
-  stylix.opacity.terminal =
-    if values.theme.transparency.enable then values.theme.transparency.opacity else 1.0;
+  stylixConfig = themes.createStylixFromTheme
+    values.theme.colorscheme
+    values.theme.variant
+    fontConfig;
+in
 
-  stylix.autoEnable = true;
-
-}
+stylixConfig
