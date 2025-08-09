@@ -48,4 +48,3 @@ end
 local tapCmdTab = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, mapCmdTab)
 
 tapCmdTab:start()
-

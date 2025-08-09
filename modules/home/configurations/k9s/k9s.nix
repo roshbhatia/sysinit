@@ -65,4 +65,10 @@ in
       app = "applications";
     };
   };
+
+  # Deploy k9s skin files dynamically
+  xdg.configFile."k9s/skins/${k9sTheme}.yaml" = {
+    source = ./skins/${k9sTheme}.yaml;
+    force = true;
+  };
 }

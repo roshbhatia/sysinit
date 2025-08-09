@@ -105,15 +105,15 @@ in
 
 
       [include]
-          path = ~/.config/delta/themes/${values.theme.colorscheme}-${values.theme.variant}.gitconfig
+          path = ~/.config/delta/themes/${values.theme.colorscheme}.gitconfig
 
       [rebase]
           updateRefs = true
     '';
   };
 
-  xdg.configFile."delta/themes/${values.theme.colorscheme}-${values.theme.variant}.gitconfig" = {
-    source = ./themes/${values.theme.colorscheme}-${values.theme.variant}.gitconfig;
+  xdg.configFile."delta/themes/${values.theme.colorscheme}.gitconfig" = {
+    source = ./themes/${deltaTheme}.gitconfig;
     force = true;
   };
 

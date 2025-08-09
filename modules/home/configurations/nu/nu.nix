@@ -24,7 +24,7 @@ in
       $env.LS_COLORS = (vivid generate ${vividTheme})
       $env.EZA_COLORS = $env.LS_COLORS
 
-      $env.FZF_DEFAULT_OPTS = [
+      $env.FZF_DEFAULT_OPTS = "${builtins.concatStringsSep " " [
         "--bind=resize:refresh-preview"
         "--color=bg+:-1,bg:-1,spinner:${colors.accent.primary},hl:${colors.accent.primary}"
         "--color=border:${colors.background.overlay},label:${colors.foreground.primary}"
@@ -45,7 +45,7 @@ in
         "--prompt='>> '"
         "--scheme=history"
         "--style=minimal"
-      ] | str join " "
+      ]}"
     '';
 
     shellAliases = {
