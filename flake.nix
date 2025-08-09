@@ -72,9 +72,6 @@
             })
             home-manager.darwinModules.home-manager
             stylix.darwinModules.stylix
-            {
-              disabledModules = [ "${stylix}/modules/anki/hm.nix" ];
-            }
             nix-homebrew.darwinModules.nix-homebrew
             {
               _module.args.utils = utils;
