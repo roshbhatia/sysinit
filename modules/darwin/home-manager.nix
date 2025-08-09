@@ -10,7 +10,7 @@
     useUserPackages = true;
     backupFileExtension = "backup";
     extraSpecialArgs = {
-      inherit utils;
+      inherit utils values;
     };
 
     users.${values.user.username} = import ../home {
