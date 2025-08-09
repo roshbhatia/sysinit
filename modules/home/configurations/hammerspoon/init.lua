@@ -14,8 +14,8 @@ local windowSwitcher =
     showThumbnails = true,
     thumbnailSize = 112,
     showTitles = true,
-    titleBackgroundColor = {0, 0, 0},
-    textColor = {1, 1, 1}
+    titleBackgroundColor = { 0, 0, 0 },
+    textColor = { 1, 1, 1 },
   })
 
 local function mapCmdTab(event)
@@ -34,4 +34,3 @@ end
 local tapCmdTab = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, mapCmdTab)
 
 tapCmdTab:start()
-

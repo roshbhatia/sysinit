@@ -1,6 +1,6 @@
 local M = {}
 
-local workspaces = {"1", "2", "3", "4", "C", "E", "M", "S", "X"}
+local workspaces = { "1", "2", "3", "4", "C", "E", "M", "S", "X" }
 local currentWorkspaceIndex = 1
 local isVisible = false
 local chooser = nil
@@ -28,7 +28,10 @@ local function switchToWorkspace(workspace)
 end
 
 local function getWorkspaceWindows(workspace)
-  local output = hs.execute("aerospace list-windows --workspace " .. workspace .. " --format '%{app-name}: %{window-title}'", true)
+  local output = hs.execute(
+    "aerospace list-windows --workspace " .. workspace .. " --format '%{app-name}: %{window-title}'",
+    true
+  )
   if output and output ~= "" then
     local windows = {}
     for line in output:gmatch("[^\r\n]+") do
@@ -56,14 +59,16 @@ local function createWorkspaceChoices()
       text = workspace,
       subText = windowText,
       workspace = workspace,
-      index = i
+      index = i,
     })
   end
   return choices
 end
 
 local function showWorkspaceSwitcher()
-  if isVisible then return end
+  if isVisible then
+    return
+  end
 
   updateCurrentWorkspaceIndex()
 
@@ -128,10 +133,16 @@ end
 
 function M.setup()
   -- Alt+Tab for next workspace
-  hs.hotkey.bind({"alt"}, "tab", nextWorkspace, selectCurrentWorkspace, nextWorkspace)
+  hs.hotkey.bind({ "alt" }, "tab", nextWorkspace, selectCurrentWorkspace, nextWorkspace)
 
   -- Alt+Shift+Tab for previous workspace
-  hs.hotkey.bind({"alt", "shift"}, "tab", previousWorkspace, selectCurrentWorkspace, previousWorkspace)
+  hs.hotkey.bind(
+    { "alt", "shift" },
+    "tab",
+    previousWorkspace,
+    selectCurrentWorkspace,
+    previousWorkspace
+  )
 
   -- Escape to cancel
   hs.hotkey.bind({}, "escape", function()
@@ -141,7 +152,7 @@ function M.setup()
   end)
 
   -- Hide switcher when modifier keys are released
-  local flagWatcher = hs.eventtap.new({hs.eventtap.event.types.flagsChanged}, function(event)
+  local flagWatcher = hs.eventtap.new({ hs.eventtap.event.types.flagsChanged }, function(event)
     local flags = event:getFlags()
     if isVisible and not flags.alt then
       selectCurrentWorkspace()
