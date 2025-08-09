@@ -79,6 +79,7 @@ rec {
     delta = variant: "nord-${variant}";
     atuin = variant: "nord-${variant}";
     vivid = _variant: "nord";
+    k9s = variant: "nord-${variant}";
     helix = _variant: "nord";
     nushell = variant: "nord-${variant}.nu";
 

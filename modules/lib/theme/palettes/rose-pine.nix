@@ -157,6 +157,7 @@ rec {
 
     bat = variant: "rose-pine-${variant}";
     delta = variant: "rose-pine-${variant}";
+    k9s = variant: "rose-pine-${variant}";
     atuin = variant: "rose-pine-${variant}";
     vivid = variant: "rose-pine-${variant}";
     helix = variant: "rose_pine_${variant}";

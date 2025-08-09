@@ -1,7 +1,14 @@
 {
+  lib,
+  config,
+  values,
   ...
 }:
 
+let
+  themes = import ../../../lib/theme { inherit lib; };
+  k9sTheme = themes.getAppTheme "k9s" values.theme.colorscheme values.theme.variant;
+in
 {
   programs.k9s = {
     enable = true;
@@ -21,6 +28,7 @@
           noIcons = false;
           reactive = true;
           defaultsToFullScreen = false;
+          skin = k9sTheme;
         };
         noIcons = false;
         skipLatestRevCheck = false;

@@ -8,24 +8,27 @@ vim:bindHotKeys({ enter = { { "cmd" }, "]" } })
 
 vim:shouldDimScreenInNormalMode(true)
 
-vim:disableForApp('Code')
-vim:disableForApp('Code - Insiders')
-vim:disableForApp('WezTerm')
-vim:disableForApp('zoom.us')
-vim:disableForApp('Terminal')
+vim:disableForApp("Code")
+vim:disableForApp("Code - Insiders")
+vim:disableForApp("WezTerm")
+vim:disableForApp("zoom.us")
+vim:disableForApp("Terminal")
 
--- Configure global window switcher UI
-hs.window.switcher.ui.showThumbnails = true
-hs.window.switcher.ui.thumbnailSize = 112
-hs.window.switcher.ui.showTitles = true
-hs.window.switcher.ui.titleBackgroundColor = { 0, 0, 0 }
-hs.window.switcher.ui.textColor = { 1, 1, 1 }
-hs.window.switcher.ui.showSelectedThumbnail = true
-hs.window.switcher.ui.selectedThumbnailSize = 256
+-- Define the UI preferences in a table
+local switcherUIPrefs = {
+  showThumbnails = true,
+  thumbnailSize = 112,
+  showTitles = true,
+  titleBackgroundColor = { 0, 0, 0 },
+  textColor = { 1, 1, 1 },
+  showSelectedThumbnail = true,
+  selectedThumbnailSize = 256,
+}
 
--- Window switcher with thumbnails (using cmd+tab)
-local windowSwitcher =
-  hs.window.switcher.new(hs.window.filter.new():setCurrentSpace(true):setDefaultFilter({}))
+local windowSwitcher = hs.window.switcher.new(
+  hs.window.filter.new():setCurrentSpace(true):setDefaultFilter({}),
+  switcherUIPrefs
+)
 
 local function mapCmdTab(event)
   local flags = event:getFlags()
@@ -43,3 +46,4 @@ end
 local tapCmdTab = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, mapCmdTab)
 
 tapCmdTab:start()
+

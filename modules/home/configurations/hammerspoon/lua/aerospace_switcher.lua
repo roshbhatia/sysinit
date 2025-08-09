@@ -5,21 +5,18 @@ local currentWorkspaceIndex = 1
 local isVisible = false
 local chooser = nil
 local workspaceCache = {}
-local cacheExpiry = 2 -- Cache for 2 seconds
+local cacheExpiry = 1
 local lastCacheUpdate = 0
 
 local function getCurrentWorkspace()
   local output = hs.execute("aerospace list-workspaces --focused", true)
-  if output then
-    return string.gsub(output, "%s+", "")
-  end
-  return "1"
+  return output and output:match("%S+") or "1"
 end
 
 local function updateCurrentWorkspaceIndex()
   local current = getCurrentWorkspace()
-  for i, workspace in ipairs(workspaces) do
-    if workspace == current then
+  for i, w in ipairs(workspaces) do
+    if w == current then
       currentWorkspaceIndex = i
       break
     end
@@ -30,57 +27,26 @@ local function switchToWorkspace(workspace)
   hs.execute("aerospace workspace " .. workspace, true)
 end
 
-local function getWorkspaceWindows(workspace)
-  -- Check cache first
-  local now = hs.timer.secondsSinceEpoch()
-  if workspaceCache[workspace] and (now - lastCacheUpdate) < cacheExpiry then
-    return workspaceCache[workspace]
-  end
-
-  local output = hs.execute(
-    "aerospace list-windows --workspace " .. workspace .. " --format '%{app-name}: %{window-title}'",
-    true
-  )
-  local windows = {}
-  if output and output ~= "" then
-    for line in output:gmatch("[^\r\n]+") do
-      if line and line ~= "" then
-        table.insert(windows, line)
-      end
-    end
-  end
-
-  -- Cache the result
-  workspaceCache[workspace] = windows
-  return windows
-end
-
 local function updateCache()
   local now = hs.timer.secondsSinceEpoch()
-  if (now - lastCacheUpdate) < cacheExpiry then
-    return -- Cache still valid
+  if now - lastCacheUpdate < cacheExpiry then
+    return
   end
 
-  -- Batch update all workspaces in one command for better performance
-  local allWindows = hs.execute(
+  local all = hs.execute(
     "aerospace list-windows --all --format '%{workspace}|%{app-name}: %{window-title}'",
     true
   )
-
-  -- Clear cache
   workspaceCache = {}
-  for _, ws in ipairs(workspaces) do
-    workspaceCache[ws] = {}
+  for _, w in ipairs(workspaces) do
+    workspaceCache[w] = {}
   end
 
-  -- Parse batch output
-  if allWindows and allWindows ~= "" then
-    for line in allWindows:gmatch("[^\r\n]+") do
-      if line and line ~= "" then
-        local ws, windowInfo = line:match("^([^|]+)|(.+)$")
-        if ws and windowInfo and workspaceCache[ws] then
-          table.insert(workspaceCache[ws], windowInfo)
-        end
+  if all then
+    for line in all:gmatch("[^\r\n]+") do
+      local ws, info = line:match("^([^|]+)|(.+)$")
+      if ws and info and workspaceCache[ws] then
+        table.insert(workspaceCache[ws], info)
       end
     end
   end
@@ -90,29 +56,23 @@ end
 
 local function createWorkspaceChoices()
   updateCache()
-
   local choices = {}
-  for i, workspace in ipairs(workspaces) do
-    local windows = workspaceCache[workspace] or {}
-    local windowText = ""
-    if #windows > 0 then
-      -- Limit to first 5 windows for cleaner display
-      local displayWindows = {}
-      for j = 1, math.min(5, #windows) do
-        table.insert(displayWindows, windows[j])
-      end
-      windowText = "\n• " .. table.concat(displayWindows, "\n• ")
-      if #windows > 5 then
-        windowText = windowText .. "\n• (" .. (#windows - 5) .. " more...)"
-      end
-    else
-      windowText = "\n(empty)"
+
+  for i, ws in ipairs(workspaces) do
+    local windows = workspaceCache[ws] or {}
+    local preview = #windows > 0 and ("• " .. table.concat(windows, "\n• ")) or "(empty)"
+    if #windows > 5 then
+      preview = "• "
+        .. table.concat(windows, "\n• ", 1, 5)
+        .. "\n• ("
+        .. (#windows - 5)
+        .. " more...)"
     end
 
     table.insert(choices, {
-      text = workspace,
-      subText = windowText,
-      workspace = workspace,
+      text = "Workspace " .. ws,
+      subText = preview,
+      workspace = ws,
       index = i,
     })
   end
@@ -123,7 +83,6 @@ local function showWorkspaceSwitcher()
   if isVisible then
     return
   end
-
   updateCurrentWorkspaceIndex()
 
   chooser = hs.chooser.new(function(choice)
@@ -136,8 +95,10 @@ local function showWorkspaceSwitcher()
   chooser:choices(createWorkspaceChoices())
   chooser:selectedRow(currentWorkspaceIndex)
   chooser:placeholderText("Select workspace...")
-  chooser:width(25)
+  chooser:width(40)
   chooser:rows(9)
+  chooser:searchSubText(false)
+  chooser:bgDark(true)
   chooser:show()
   isVisible = true
 end
@@ -165,31 +126,23 @@ local function previousWorkspace()
     return
   end
 
-  currentWorkspaceIndex = currentWorkspaceIndex - 1
-  if currentWorkspaceIndex < 1 then
-    currentWorkspaceIndex = #workspaces
-  end
+  currentWorkspaceIndex = (currentWorkspaceIndex - 2) % #workspaces + 1
   chooser:selectedRow(currentWorkspaceIndex)
 end
 
 local function selectCurrentWorkspace()
   if chooser and isVisible then
     local selectedRow = chooser:selectedRow()
-    if selectedRow then
-      local choice = chooser:choices()[selectedRow]
-      if choice then
-        switchToWorkspace(choice.workspace)
-      end
+    local choice = chooser:choices()[selectedRow]
+    if choice then
+      switchToWorkspace(choice.workspace)
     end
     hideWorkspaceSwitcher()
   end
 end
 
 function M.setup()
-  -- Alt+Tab for next workspace
   hs.hotkey.bind({ "alt" }, "tab", nextWorkspace, selectCurrentWorkspace, nextWorkspace)
-
-  -- Alt+Shift+Tab for previous workspace
   hs.hotkey.bind(
     { "alt", "shift" },
     "tab",
@@ -198,21 +151,26 @@ function M.setup()
     previousWorkspace
   )
 
-  -- Escape to cancel
-  hs.hotkey.bind({}, "escape", function()
-    if isVisible then
-      hideWorkspaceSwitcher()
-    end
-  end)
+  -- Cancel switcher on Escape
+  hs.eventtap
+    .new({ hs.eventtap.event.types.keyDown }, function(event)
+      if isVisible and event:getKeyCode() == hs.keycodes.map.escape then
+        hideWorkspaceSwitcher()
+        return true
+      end
+      return false
+    end)
+    :start()
 
-  -- Hide switcher when modifier keys are released
-  local flagWatcher = hs.eventtap.new({ hs.eventtap.event.types.flagsChanged }, function(event)
-    local flags = event:getFlags()
-    if isVisible and not flags.alt then
-      selectCurrentWorkspace()
-    end
-  end)
-  flagWatcher:start()
+  -- Confirm workspace selection on Alt key release
+  hs.eventtap
+    .new({ hs.eventtap.event.types.flagsChanged }, function(event)
+      if isVisible and not event:getFlags().alt then
+        selectCurrentWorkspace()
+      end
+    end)
+    :start()
 end
 
 return M
+

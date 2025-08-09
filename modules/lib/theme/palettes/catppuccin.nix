@@ -197,6 +197,7 @@ rec {
     vivid = variant: "catppuccin-${variant}";
     helix = variant: "catppuccin_${variant}";
     nushell = variant: "catppuccin-${variant}.nu";
+    k9s = variant: "catppuccin-${variant}";
 
     sketchybar = {
       background = palettes.macchiato.base;

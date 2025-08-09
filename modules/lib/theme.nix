@@ -79,6 +79,7 @@ in
         git = themes.getAppTheme "delta" cfg.colorscheme cfg.variant;
         atuin = themes.getAppTheme "atuin" cfg.colorscheme cfg.variant;
         vivid = themes.getAppTheme "vivid" cfg.colorscheme cfg.variant;
+        k9s = themes.getAppTheme "k9s" cfg.colorscheme cfg.variant;
         sketchybar = themes.getAppTheme "sketchybar" cfg.colorscheme cfg.variant;
       };
       description = "App-specific theme names";

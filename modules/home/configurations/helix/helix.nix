@@ -1,11 +1,18 @@
 {
+  lib,
+  values,
   ...
 }:
 
+let
+  themes = import ../../../lib/theme { inherit lib; };
+  helixTheme = themes.getAppTheme "helix" values.theme.colorscheme values.theme.variant;
+in
 {
   programs.helix = {
     enable = true;
     settings = {
+      theme = helixTheme;
       editor = {
         line-number = "relative";
 

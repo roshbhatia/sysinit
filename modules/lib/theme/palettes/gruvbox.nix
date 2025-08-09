@@ -149,6 +149,7 @@ rec {
     vivid = variant: "gruvbox-${variant}";
     helix = _variant: "gruvbox";
     nushell = variant: "gruvbox-${variant}.nu";
+    k9s = variant: "gruvbox-${variant}";
 
     sketchybar = {
       background = palettes.dark.bg;

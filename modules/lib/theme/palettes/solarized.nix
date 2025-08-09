@@ -112,6 +112,7 @@ rec {
     bat = variant: "solarized-${variant}";
     delta = variant: "solarized-${variant}";
     atuin = variant: "solarized-${variant}";
+    k9s = variant: "solarized-${variant}";
     vivid = variant: "solarized-${variant}";
     helix = variant: "solarized_${variant}";
     nushell = variant: "solarized-${variant}.nu";

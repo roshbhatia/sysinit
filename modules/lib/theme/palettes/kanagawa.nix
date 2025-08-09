@@ -155,6 +155,7 @@ rec {
     vivid = variant: "kanagawa-${variant}";
     helix = _variant: "kanagawa";
     nushell = variant: "kanagawa-${variant}.nu";
+    k9s = variant: "kanagawa-${variant}";
 
     sketchybar = {
       background = palettes.dark.sumiInk0;
