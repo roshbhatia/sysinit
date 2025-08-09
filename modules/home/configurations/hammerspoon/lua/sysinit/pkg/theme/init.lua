@@ -59,8 +59,7 @@ function M.getWindowSwitcherPrefs()
     showThumbnails = true,
     showTitles = false,
     showSelectedTitle = false,
-    showSelectedThumbnail = true,
-    selectedThumbnailSize = 256,
+    showSelectedThumbnail = false,
     backgroundColor = colors.background,
     highlightColor = colors.primary,
   }
@@ -77,3 +76,4 @@ function M.getWorkspaceOverlayStyle()
 end
 
 return M
+
