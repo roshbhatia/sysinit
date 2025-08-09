@@ -4,6 +4,9 @@ local workspaces = { "1", "2", "3", "4", "C", "E", "M", "S", "X" }
 local currentWorkspaceIndex = 1
 local isVisible = false
 local chooser = nil
+local workspaceCache = {}
+local cacheExpiry = 2 -- Cache for 2 seconds
+local lastCacheUpdate = 0
 
 local function getCurrentWorkspace()
   local output = hs.execute("aerospace list-workspaces --focused", true)
@@ -28,29 +31,80 @@ local function switchToWorkspace(workspace)
 end
 
 local function getWorkspaceWindows(workspace)
+  -- Check cache first
+  local now = hs.timer.secondsSinceEpoch()
+  if workspaceCache[workspace] and (now - lastCacheUpdate) < cacheExpiry then
+    return workspaceCache[workspace]
+  end
+
   local output = hs.execute(
     "aerospace list-windows --workspace " .. workspace .. " --format '%{app-name}: %{window-title}'",
     true
   )
+  local windows = {}
   if output and output ~= "" then
-    local windows = {}
     for line in output:gmatch("[^\r\n]+") do
       if line and line ~= "" then
         table.insert(windows, line)
       end
     end
-    return windows
   end
-  return {}
+
+  -- Cache the result
+  workspaceCache[workspace] = windows
+  return windows
+end
+
+local function updateCache()
+  local now = hs.timer.secondsSinceEpoch()
+  if (now - lastCacheUpdate) < cacheExpiry then
+    return -- Cache still valid
+  end
+
+  -- Batch update all workspaces in one command for better performance
+  local allWindows = hs.execute(
+    "aerospace list-windows --all --format '%{workspace}|%{app-name}: %{window-title}'",
+    true
+  )
+
+  -- Clear cache
+  workspaceCache = {}
+  for _, ws in ipairs(workspaces) do
+    workspaceCache[ws] = {}
+  end
+
+  -- Parse batch output
+  if allWindows and allWindows ~= "" then
+    for line in allWindows:gmatch("[^\r\n]+") do
+      if line and line ~= "" then
+        local ws, windowInfo = line:match("^([^|]+)|(.+)$")
+        if ws and windowInfo and workspaceCache[ws] then
+          table.insert(workspaceCache[ws], windowInfo)
+        end
+      end
+    end
+  end
+
+  lastCacheUpdate = now
 end
 
 local function createWorkspaceChoices()
+  updateCache()
+
   local choices = {}
   for i, workspace in ipairs(workspaces) do
-    local windows = getWorkspaceWindows(workspace)
+    local windows = workspaceCache[workspace] or {}
     local windowText = ""
     if #windows > 0 then
-      windowText = "\n• " .. table.concat(windows, "\n• ")
+      -- Limit to first 5 windows for cleaner display
+      local displayWindows = {}
+      for j = 1, math.min(5, #windows) do
+        table.insert(displayWindows, windows[j])
+      end
+      windowText = "\n• " .. table.concat(displayWindows, "\n• ")
+      if #windows > 5 then
+        windowText = windowText .. "\n• (" .. (#windows - 5) .. " more...)"
+      end
     else
       windowText = "\n(empty)"
     end
