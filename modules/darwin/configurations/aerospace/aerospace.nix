@@ -6,6 +6,7 @@
   services.aerospace = {
     enable = true;
     package = pkgs.aerospace;
+
     settings = {
       enable-normalization-flatten-containers = true;
       enable-normalization-opposite-orientation-for-nested-containers = true;
@@ -82,7 +83,7 @@
           };
           run = "move-node-to-workspace S";
         }
-        # Floating windows for specific apps
+
         {
           "if" = {
             app-id = "com.apple.systempreferences";
@@ -126,21 +127,25 @@
           binding = {
             alt-slash = "layout tiles horizontal vertical";
             alt-comma = "layout accordion horizontal vertical";
+
             # Window movement
             alt-shift-h = "move left";
             alt-shift-j = "move down";
             alt-shift-k = "move up";
             alt-shift-l = "move right";
+
             # Navigation
             alt-h = "focus left";
             alt-j = "focus down";
             alt-k = "focus up";
             alt-l = "focus right";
+
             # Base resize commands
             alt-minus = "resize smart -70";
             alt-equal = "resize smart +70";
             alt-shift-minus = "resize smart -210";
             alt-shift-equal = "resize smart +210";
+
             # Workspace management
             alt-1 = "workspace 1";
             alt-2 = "workspace 2";
@@ -150,6 +155,10 @@
             alt-m = "workspace M";
             alt-s = "workspace S";
             alt-e = "workspace E";
+
+            alt-tab = "workspace next --wrap-around";
+            alt-shift-tab = "workspace prev --wrap-around";
+
             alt-shift-1 = "move-node-to-workspace 1 --focus-follows-window";
             alt-shift-2 = "move-node-to-workspace 2 --focus-follows-window";
             alt-shift-3 = "move-node-to-workspace 3 --focus-follows-window";
@@ -159,7 +168,9 @@
             alt-shift-m = "move-node-to-workspace M --focus-follows-window";
             alt-shift-s = "move-node-to-workspace S --focus-follows-window";
             alt-shift-x = "move-node-to-workspace X --focus-follows-window";
+
             alt-f = "fullscreen";
+
             alt-esc = [
               "reload-config"
               "mode main"
