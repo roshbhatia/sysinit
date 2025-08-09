@@ -7,10 +7,6 @@
   ...
 }:
 
-let
-  themes = import ../../../lib/theme { inherit lib; };
-  stylixTargets = themes.stylixHelpers.enableStylixTargets ["vscode"];
-in
 
 {
   programs.vscode = {
@@ -537,4 +533,4 @@ in
       ];
     };
   };
-} // stylixTargets
+}

@@ -4,11 +4,6 @@
   ...
 }:
 
-let
-  themes = import ../../../lib/theme { inherit lib; };
-  stylixTargets = themes.stylixHelpers.enableStylixTargets ["helix"];
-in
-
 {
   programs.helix = {
     enable = true;
@@ -27,5 +22,4 @@ in
       };
     };
   };
-} // stylixTargets
-
+}

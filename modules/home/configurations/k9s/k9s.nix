@@ -4,11 +4,6 @@
   ...
 }:
 
-let
-  themes = import ../../../lib/theme { inherit lib; };
-  stylixTargets = themes.stylixHelpers.enableStylixTargets ["k9s"];
-in
-
 {
   programs.k9s = {
     enable = true;
@@ -64,5 +59,4 @@ in
       app = "applications";
     };
   };
-} // stylixTargets
-
+}

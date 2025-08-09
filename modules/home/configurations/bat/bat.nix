@@ -5,11 +5,6 @@
   ...
 }:
 
-let
-  themes = import ../../../lib/theme { inherit lib; };
-  stylixTargets = themes.stylixHelpers.enableStylixTargets ["bat"];
-in
-
 {
   programs.bat = {
     enable = true;
@@ -18,5 +13,4 @@ in
       pager = "less -FR";
     };
   };
-} // stylixTargets
-
+}

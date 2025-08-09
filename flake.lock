@@ -318,13 +318,13 @@
       "locked": {
         "lastModified": 1754597531,
         "narHash": "sha256-OpC9/PBIuL2WEJUkcuD/wVxI8r+3o6f5RylSIefjHo4=",
-        "owner": "danth",
+        "owner": "nix-community",
         "repo": "stylix",
         "rev": "63bb34a66ad7d1af2e95ee20dd675896b2074c32",
         "type": "github"
       },
       "original": {
-        "owner": "danth",
+        "owner": "nix-community",
         "repo": "stylix",
         "type": "github"
       }

@@ -1,13 +1,8 @@
 {
-  lib,
   pkgs,
   ...
 }:
 
-let
-  themes = import ../../../lib/theme { inherit lib; };
-  stylixTargets = themes.stylixHelpers.enableStylixTargets ["firefox"];
-in
 
 {
   programs.firefox = {
@@ -183,4 +178,4 @@ in
       SearchBar = "unified";
     };
   };
-} // stylixTargets
+}
