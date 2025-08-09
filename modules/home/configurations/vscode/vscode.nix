@@ -6,7 +6,14 @@
 {
   programs.vscode = {
     enable = true;
-    package = pkgs.vscode;
+    package = pkgs.runCommand "vscode-insiders-wrapper" {} ''
+      mkdir -p $out/bin
+      cat > $out/bin/code <<EOF
+      #!/bin/sh
+      exec /Applications/Visual\ Studio\ Code\ -\ Insiders.app/Contents/Resources/app/bin/code "\$@"
+      EOF
+      chmod +x $out/bin/code
+    '';
 
     profiles.default = {
       userSettings = {
