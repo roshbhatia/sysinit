@@ -12,12 +12,8 @@
   };
 
   darwin = {
-    tailscale = {
-      enable = true;
-    };
-
     borders = {
-      enable = true;
+      enable = false;
     };
 
     homebrew = {
@@ -62,3 +58,4 @@
     shell = "nu";
   };
 }
+
