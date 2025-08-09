@@ -2,4 +2,3 @@
 [
   (import ./packages.nix { inherit inputs system; })
 ]
-

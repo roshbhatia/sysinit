@@ -6,7 +6,10 @@
 {
   programs.vscode = {
     enable = true;
-    package = pkgs.runCommand "vscode-insiders-wrapper" {} ''
+    package = pkgs.runCommand "vscode-insiders-wrapper" {
+      pname = "visual-studio-code-insiders";
+      version = "1.0.0";
+    } ''
       mkdir -p $out/bin
       cat > $out/bin/code <<EOF
       #!/bin/sh
