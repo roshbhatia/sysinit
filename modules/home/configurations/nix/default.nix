@@ -1,5 +1,4 @@
 {
-  lib,
   pkgs,
   ...
 }:
@@ -18,4 +17,3 @@
     NIX_CONFIG = "experimental-features = nix-command flakes";
   };
 }
-

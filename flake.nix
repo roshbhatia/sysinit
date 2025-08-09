@@ -45,9 +45,11 @@
         config = {
           allowUnfree = true;
           allowUnsupportedSystem = true;
-          allowUnfreePredicate = pkg: builtins.elem (nixpkgs.lib.getName pkg) [
-            "onepassword-password-manager"
-          ];
+          allowUnfreePredicate =
+            pkg:
+            builtins.elem (nixpkgs.lib.getName pkg) [
+              "onepassword-password-manager"
+            ];
         };
       };
 

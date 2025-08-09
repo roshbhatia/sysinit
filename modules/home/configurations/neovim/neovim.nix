@@ -7,8 +7,6 @@
 
 let
   themes = import ../../../lib/theme { inherit lib; };
-  themeConfig = themes.withThemeOverrides values.theme "neovim" { };
-  weztermThemeName = themes.getAppTheme "wezterm" values.theme.colorscheme values.theme.variant;
 in
 
 {

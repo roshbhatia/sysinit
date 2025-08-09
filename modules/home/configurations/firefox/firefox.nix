@@ -13,31 +13,25 @@
       isDefault = true;
       name = "default";
 
-      extensions = with pkgs.firefox-addons; [
-        # Privacy and security
+      extensions.packages = with pkgs.firefox-addons; [
         ublock-origin
 
-        # Authentication
         onepassword-password-manager
 
-        # Reddit enhancements
         reddit-enhancement-suite
         old-reddit-redirect
       ];
 
       settings = {
-        # Privacy settings
         "privacy.donottrackheader.enabled" = true;
         "privacy.trackingprotection.enabled" = true;
         "privacy.trackingprotection.socialtracking.enabled" = true;
         "privacy.partition.network_state" = true;
 
-        # Security settings
         "security.tls.version.fallback-limit" = 3;
         "security.tls.version.min" = 3;
         "security.ssl.require_safe_negotiation" = true;
 
-        # Disable Firefox studies and data collection
         "app.shield.optoutstudies.enabled" = false;
         "browser.discovery.enabled" = false;
         "browser.newtabpage.activity-stream.feeds.telemetry" = false;
@@ -59,10 +53,8 @@
         "toolkit.telemetry.unified" = false;
         "toolkit.telemetry.updatePing.enabled" = false;
 
-        # Disable Pocket
         "extensions.pocket.enabled" = false;
 
-        # Better defaults
         "browser.search.suggest.enabled" = false;
         "browser.urlbar.suggest.searches" = false;
         "browser.urlbar.showSearchSuggestionsFirst" = false;
@@ -71,7 +63,6 @@
         "browser.newtabpage.activity-stream.feeds.topsites" = false;
         "browser.newtabpage.activity-stream.feeds.section.topstories" = false;
 
-        # Performance settings
         "gfx.webrender.all" = true;
         "media.ffmpeg.vaapi.enabled" = true;
         "widget.dmabuf.force-enabled" = true;
@@ -178,3 +169,4 @@
     };
   };
 }
+

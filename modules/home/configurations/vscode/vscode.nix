@@ -1,16 +1,12 @@
 {
-  config,
-  lib,
   pkgs,
-  values,
-  utils,
   ...
 }:
 
 {
   programs.vscode = {
     enable = true;
-    package = pkgs.vscode;
+    package = pkgs.vscode-insiders;
 
     profiles.default = {
       userSettings = {
@@ -533,3 +529,4 @@
     };
   };
 }
+

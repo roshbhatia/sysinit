@@ -4,7 +4,7 @@ with lib;
 
 rec {
   generateStylixConfig =
-    palette: semanticColors: themeConfig: fontConfig:
+    _palette: semanticColors: themeConfig: fontConfig:
     let
       base16Scheme = {
         base00 = removePrefix "#" semanticColors.background.primary;
@@ -39,7 +39,7 @@ rec {
       };
     };
 
-  generateBase16Scheme = palette: semanticColors: {
+  generateBase16Scheme = _palette: semanticColors: {
     base00 = removePrefix "#" semanticColors.background.primary;
     base01 = removePrefix "#" semanticColors.background.secondary;
     base02 = removePrefix "#" semanticColors.background.tertiary;

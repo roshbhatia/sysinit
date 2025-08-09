@@ -10,8 +10,6 @@ let
   themes = import ../../../lib/theme { inherit lib; };
   paths_lib = import ../../../lib/paths { inherit config lib; };
   appTheme = themes.getAppTheme "vivid" values.theme.colorscheme values.theme.variant;
-  palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
-  colors = themes.getUnifiedColors palette;
 
   pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;
 
