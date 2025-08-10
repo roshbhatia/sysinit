@@ -22,18 +22,20 @@ in
   };
 
   # Deploy custom bat theme and rebuild cache
-  xdg.configFile = (utils.themeHelper.deployThemeFiles values {
-    app = "bat";
-    themeDir = ./themes;
-    targetPath = "bat/themes";
-    fileExtension = "tmTheme";
-  }) // {
-    "bat/config".text = ''
-      --theme="${batTheme}"
-      --style=numbers,changes,header
-      --pager="less -FR"
-    '';
-  };
+  xdg.configFile =
+    (utils.themeHelper.deployThemeFiles values {
+      app = "bat";
+      themeDir = ./themes;
+      targetPath = "bat/themes";
+      fileExtension = "tmTheme";
+    })
+    // {
+      "bat/config".text = ''
+        --theme="${batTheme}"
+        --style=numbers,changes,header
+        --pager="less -FR"
+      '';
+    };
 
   home.activation.buildBatCache = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     if [ -f "${pkgs.bat}/bin/bat" ]; then

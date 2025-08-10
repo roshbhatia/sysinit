@@ -114,17 +114,19 @@ in
     '';
   };
 
-  xdg.configFile = (utils.themeHelper.deployThemeFiles values {
-    app = "delta";
-    themeDir = ./themes;
-    targetPath = "delta/themes";
-    fileExtension = "gitconfig";
-  }) // {
-    "lazygit/config.yml" = {
-      source = ./configs/lazygit.yaml;
-      force = true;
+  xdg.configFile =
+    (utils.themeHelper.deployThemeFiles values {
+      app = "delta";
+      themeDir = ./themes;
+      targetPath = "delta/themes";
+      fileExtension = "gitconfig";
+    })
+    // {
+      "lazygit/config.yml" = {
+        source = ./configs/lazygit.yaml;
+        force = true;
+      };
     };
-  };
 
   home.file.".gitconfig.personal" = {
     text = ''
@@ -155,6 +157,5 @@ in
   home.file.".gitignore.global" = {
     source = ./configs/gitignore.global;
   };
-
 
 }

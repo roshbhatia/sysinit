@@ -3,12 +3,14 @@
 with lib;
 
 {
-  mkThemedConfig = values: app: extraConfig:
+  mkThemedConfig =
+    values: app: extraConfig:
     let
       themes = import ./theme { inherit lib; };
       appTheme = themes.getAppTheme app values.theme.colorscheme values.theme.variant;
     in
-    extraConfig // {
+    extraConfig
+    // {
       inherit themes appTheme;
 
       themeConfig = {
@@ -18,12 +20,17 @@ with lib;
       };
     };
 
-  deployThemeFiles = values: { app, themeDir, targetPath, fileExtension ? null }:
+  deployThemeFiles =
+    values:
+    {
+      app,
+      themeDir,
+      targetPath,
+      fileExtension ? null,
+    }:
     let
       currentTheme = "${values.theme.colorscheme}-${values.theme.variant}";
-      themeFileName = if fileExtension != null
-        then "${currentTheme}.${fileExtension}"
-        else currentTheme;
+      themeFileName = if fileExtension != null then "${currentTheme}.${fileExtension}" else currentTheme;
       themeFile = "${themeDir}/${themeFileName}";
     in
     optionalAttrs (pathExists themeFile) {
@@ -33,17 +40,27 @@ with lib;
       };
     };
 
-  mkThemeFileConfigs = values: configs:
+  mkThemeFileConfigs =
+    values: configs:
     let
-      mkThemeConfig = { condition, files }:
+      mkThemeConfig =
+        { condition, files }:
         mkIf condition (listToAttrs (map (file: nameValuePair file.name file.value) files));
     in
     mkMerge (map mkThemeConfig configs);
 
-  mkThemeConditional = values: colorscheme: config:
+  mkThemeConditional =
+    values: colorscheme: config:
     mkIf (values.theme.colorscheme == colorscheme) config;
 
-  mkAllThemeFiles = values: { app, themeDir, targetPath, themes }:
+  mkAllThemeFiles =
+    values:
+    {
+      app,
+      themeDir,
+      targetPath,
+      themes,
+    }:
     let
       mkThemeFile = theme: {
         name = "${targetPath}/${theme}";
@@ -57,22 +74,26 @@ with lib;
       currentTheme = "${values.theme.colorscheme}-${values.theme.variant}";
     in
     if elem "${currentTheme}.toml" availableThemes then
-      { "${targetPath}/${currentTheme}.toml" = {
+      {
+        "${targetPath}/${currentTheme}.toml" = {
           source = "${themeDir}/${currentTheme}.toml";
           force = true;
         };
       }
     else if elem "${currentTheme}.tmTheme" availableThemes then
-      { "${targetPath}/${currentTheme}.tmTheme" = {
+      {
+        "${targetPath}/${currentTheme}.tmTheme" = {
           source = "${themeDir}/${currentTheme}.tmTheme";
           force = true;
         };
       }
     else if elem "${currentTheme}.yaml" availableThemes then
-      { "${targetPath}/${currentTheme}.yaml" = {
+      {
+        "${targetPath}/${currentTheme}.yaml" = {
           source = "${themeDir}/${currentTheme}.yaml";
           force = true;
         };
       }
-    else { };
+    else
+      { };
 }
