@@ -58,9 +58,22 @@ rec {
     base0F = removePrefix "#" semanticColors.accent.secondary;
   };
 
-  enableStylixTargets = targets: {
-    stylix.targets = genAttrs targets (_: {
-      enable = true;
-    });
-  };
+  enableStylixTargets = targets:
+    let
+      targetConfig = target:
+        if target == "firefox" then {
+          enable = true;
+          profileNames = [ "default" ];
+        }
+        else if target == "vscode" then {
+          enable = true;
+          profileNames = [ "default" ];
+        }
+        else {
+          enable = true;
+        };
+    in
+    {
+      stylix.targets = genAttrs targets targetConfig;
+    };
 }
