@@ -34,7 +34,7 @@ local function get_basic_config(config_data)
     },
     automatically_reload_config = true,
     pane_focus_follows_mouse = true,
-    status_update_interval = 25,
+    status_update_interval = 20,
     default_prog = shells[wezterm_entrypoint] or shells.zsh,
   }
 end
@@ -48,3 +48,4 @@ function M.setup(config)
 end
 
 return M
+

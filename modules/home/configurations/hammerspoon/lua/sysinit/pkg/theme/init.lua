@@ -76,4 +76,3 @@ function M.getWorkspaceOverlayStyle()
 end
 
 return M
-
