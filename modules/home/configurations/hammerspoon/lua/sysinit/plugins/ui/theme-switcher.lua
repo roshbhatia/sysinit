@@ -34,7 +34,9 @@ end
 -- Function to get available themes
 local function get_available_themes()
   local themes = {}
-  local handle = io.popen("find '" .. theme_cache_dir .. "' -maxdepth 1 -type d -exec basename {} \\; 2>/dev/null")
+  local handle = io.popen(
+    "find '" .. theme_cache_dir .. "' -maxdepth 1 -type d -exec basename {} \\; 2>/dev/null"
+  )
 
   if handle then
     for theme in handle:lines() do
@@ -52,32 +54,40 @@ end
 -- Function to switch theme
 local function switch_theme(theme_name)
   local cmd = "sysinit-theme switch " .. hs.shell.quote(theme_name)
-  hs.task.new("/usr/bin/env", function(exitCode, stdOut, stdErr)
-    if exitCode == 0 then
-      hs.notify.new({
-        title = "Theme Switcher",
-        informativeText = "Switched to: " .. theme_name,
-        withdrawAfter = 3
-      }):send()
-    else
-      hs.notify.new({
-        title = "Theme Switcher",
-        informativeText = "Failed to switch to: " .. theme_name,
-        withdrawAfter = 5
-      }):send()
-    end
-  end, { "bash", "-c", cmd }):start()
+  hs.task
+    .new("/usr/bin/env", function(exitCode, stdOut, stdErr)
+      if exitCode == 0 then
+        hs.notify
+          .new({
+            title = "Theme Switcher",
+            informativeText = "Switched to: " .. theme_name,
+            withdrawAfter = 3,
+          })
+          :send()
+      else
+        hs.notify
+          .new({
+            title = "Theme Switcher",
+            informativeText = "Failed to switch to: " .. theme_name,
+            withdrawAfter = 5,
+          })
+          :send()
+      end
+    end, { "bash", "-c", cmd })
+    :start()
 end
 
 -- Function to show theme chooser
 local function show_theme_chooser()
   local themes = get_available_themes()
   if #themes == 0 then
-    hs.notify.new({
-      title = "Theme Switcher",
-      informativeText = "No themes available",
-      withdrawAfter = 3
-    }):send()
+    hs.notify
+      .new({
+        title = "Theme Switcher",
+        informativeText = "No themes available",
+        withdrawAfter = 3,
+      })
+      :send()
     return
   end
 
@@ -87,7 +97,7 @@ local function show_theme_chooser()
   for _, theme in ipairs(themes) do
     local choice = {
       text = theme,
-      subText = theme == current and "Current theme" or ""
+      subText = theme == current and "Current theme" or "",
     }
     table.insert(choices, choice)
   end
@@ -144,17 +154,21 @@ end
 local function show_current_theme()
   local current = get_current_theme()
   if current then
-    hs.notify.new({
-      title = "Current Theme",
-      informativeText = current,
-      withdrawAfter = 3
-    }):send()
+    hs.notify
+      .new({
+        title = "Current Theme",
+        informativeText = current,
+        withdrawAfter = 3,
+      })
+      :send()
   else
-    hs.notify.new({
-      title = "Theme Switcher",
-      informativeText = "No current theme found",
-      withdrawAfter = 3
-    }):send()
+    hs.notify
+      .new({
+        title = "Theme Switcher",
+        informativeText = "No current theme found",
+        withdrawAfter = 3,
+      })
+      :send()
   end
 end
 
@@ -163,7 +177,7 @@ function M.setup(opts)
   opts = opts or {}
 
   -- Default keybindings
-  local mods = opts.mods or {"cmd", "alt"}
+  local mods = opts.mods or { "cmd", "alt" }
   local show_chooser_key = opts.show_chooser_key or "t"
   local next_theme_key = opts.next_theme_key or "n"
   local prev_theme_key = opts.prev_theme_key or "p"
@@ -187,10 +201,18 @@ function M.setup(opts)
   end)
 
   hs.console.printStyledtext("Theme Switcher loaded with keybindings:\n")
-  hs.console.printStyledtext("  " .. table.concat(mods, "+") .. "+" .. show_chooser_key .. " - Show theme chooser\n")
-  hs.console.printStyledtext("  " .. table.concat(mods, "+") .. "+" .. next_theme_key .. " - Next theme\n")
-  hs.console.printStyledtext("  " .. table.concat(mods, "+") .. "+" .. prev_theme_key .. " - Previous theme\n")
-  hs.console.printStyledtext("  " .. table.concat(mods, "+") .. "+" .. current_theme_key .. " - Show current theme\n")
+  hs.console.printStyledtext(
+    "  " .. table.concat(mods, "+") .. "+" .. show_chooser_key .. " - Show theme chooser\n"
+  )
+  hs.console.printStyledtext(
+    "  " .. table.concat(mods, "+") .. "+" .. next_theme_key .. " - Next theme\n"
+  )
+  hs.console.printStyledtext(
+    "  " .. table.concat(mods, "+") .. "+" .. prev_theme_key .. " - Previous theme\n"
+  )
+  hs.console.printStyledtext(
+    "  " .. table.concat(mods, "+") .. "+" .. current_theme_key .. " - Show current theme\n"
+  )
 end
 
 -- Public API

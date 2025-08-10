@@ -6,7 +6,20 @@
 {
   programs.firefox = {
     enable = true;
-    package = pkgs.firefox;
+    package =
+      pkgs.runCommand "firefox-wrapper"
+        {
+          pname = "firefox";
+          version = "1.0.0";
+        }
+        ''
+          mkdir -p $out/bin
+          cat > $out/bin/firefox <<EOF
+          #!/bin/sh
+          exec /Applications/Firefox.app/Contents/MacOS/firefox "\$@"
+          EOF
+          chmod +x $out/bin/firefox
+        '';
 
     profiles.default = {
       id = 0;
