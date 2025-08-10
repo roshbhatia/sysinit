@@ -19,6 +19,7 @@
     ./nix
     ./nu
     ./omp
+    ./stylix
     ./treesitter
     ./utils
     ./vivid

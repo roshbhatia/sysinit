@@ -31,12 +31,8 @@ let
     themes.createStylixFromTheme values.theme.colorscheme values.theme.variant
       fontConfig;
 
-  additionalTargets = themes.stylixHelpers.enableStylixTargets [
-    "vscode"
-    "firefox"
-  ];
+  additionalTargets = { };
 
 in
 
 stylixConfig // additionalTargets
-
