@@ -7,12 +7,12 @@ let
 in
 
 rec {
-  validateTheme = colorscheme: variant:
+  validateTheme =
+    colorscheme: variant:
     let
       availableColorschemes = attrNames themes.themes;
-      availableVariants = if hasAttr colorscheme themes.themes
-        then themes.themes.${colorscheme}.meta.variants
-        else [];
+      availableVariants =
+        if hasAttr colorscheme themes.themes then themes.themes.${colorscheme}.meta.variants else [ ];
     in
     [
       {
@@ -41,7 +41,8 @@ rec {
     message = "Invalid hostname: '${hostname}'. Must be valid DNS hostname.";
   };
 
-  validatePackageList = packages: packageType:
+  validatePackageList =
+    packages: packageType:
     map (pkg: {
       assertion = isString pkg && pkg != "";
       message = "Invalid ${packageType} package: '${toString pkg}' must be a non-empty string";
@@ -52,7 +53,6 @@ rec {
     message = "Path must be a non-empty string: '${toString path}'";
   };
 
-
   validateUserConfig = values: [
     {
       assertion = values.user.username != "";
@@ -61,24 +61,30 @@ rec {
     (validateHostname values.user.hostname)
   ];
 
-  validateGitConfig = values: [
-    (validateEmail values.git.userEmail)
-    {
-      assertion = values.git.userName != "";
-      message = "git.userName cannot be empty";
-    }
-    {
-      assertion = values.git.githubUser != "";
-      message = "git.githubUser cannot be empty";
-    }
-  ] ++ optionals (values.git ? personalEmail && values.git.personalEmail != null) [
-    (validateEmail values.git.personalEmail)
-  ] ++ optionals (values.git ? workEmail && values.git.workEmail != null) [
-    (validateEmail values.git.workEmail)
-  ];
+  validateGitConfig =
+    values:
+    [
+      (validateEmail values.git.userEmail)
+      {
+        assertion = values.git.userName != "";
+        message = "git.userName cannot be empty";
+      }
+      {
+        assertion = values.git.githubUser != "";
+        message = "git.githubUser cannot be empty";
+      }
+    ]
+    ++ optionals (values.git ? personalEmail && values.git.personalEmail != null) [
+      (validateEmail values.git.personalEmail)
+    ]
+    ++ optionals (values.git ? workEmail && values.git.workEmail != null) [
+      (validateEmail values.git.workEmail)
+    ];
 
-  validateThemeConfig = values:
-    validateTheme values.theme.colorscheme values.theme.variant ++ [
+  validateThemeConfig =
+    values:
+    validateTheme values.theme.colorscheme values.theme.variant
+    ++ [
       {
         assertion = values.theme.transparency.opacity >= 0.0 && values.theme.transparency.opacity <= 1.0;
         message = "theme.transparency.opacity must be between 0.0 and 1.0, got: ${toString values.theme.transparency.opacity}";
@@ -89,13 +95,14 @@ rec {
       }
     ];
 
-  validateYarnPackages = values:
-    validatePackageList values.yarn.additionalPackages "yarn";
+  validateYarnPackages = values: validatePackageList values.yarn.additionalPackages "yarn";
 
-  validateAllConfigs = values: flatten [
-    (validateUserConfig values)
-    (validateGitConfig values)
-    (validateThemeConfig values)
-    (validateYarnPackages values)
-  ];
+  validateAllConfigs =
+    values:
+    flatten [
+      (validateUserConfig values)
+      (validateGitConfig values)
+      (validateThemeConfig values)
+      (validateYarnPackages values)
+    ];
 }

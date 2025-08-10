@@ -59,14 +59,20 @@ function M.apply_theme(colorscheme, variant)
 
   local nvim_colorscheme = M.get_neovim_colorscheme(theme_config)
   if not nvim_colorscheme then
-    vim.notify("No Neovim colorscheme found for " .. colorscheme .. "-" .. variant, vim.log.levels.WARN)
+    vim.notify(
+      "No Neovim colorscheme found for " .. colorscheme .. "-" .. variant,
+      vim.log.levels.WARN
+    )
     return false
   end
 
   -- Apply the colorscheme
   local success, err = pcall(vim.cmd.colorscheme, nvim_colorscheme)
   if not success then
-    vim.notify("Failed to apply colorscheme '" .. nvim_colorscheme .. "': " .. err, vim.log.levels.ERROR)
+    vim.notify(
+      "Failed to apply colorscheme '" .. nvim_colorscheme .. "': " .. err,
+      vim.log.levels.ERROR
+    )
     return false
   end
 
@@ -100,14 +106,14 @@ function M.setup_file_watcher()
         M.apply_current_theme()
       end)
     end,
-    desc = "Auto-reload theme when theme state changes"
+    desc = "Auto-reload theme when theme state changes",
   })
 
   -- Also set up a timer-based watcher as fallback
   local timer = vim.loop.new_timer()
   local last_mtime = 0
 
-  timer:start(2000, 2000, function()  -- Check every 2 seconds
+  timer:start(2000, 2000, function() -- Check every 2 seconds
     vim.loop.fs_stat(theme_state_file, function(err, stat)
       if not err and stat and stat.mtime.sec > last_mtime then
         last_mtime = stat.mtime.sec
@@ -121,7 +127,8 @@ end
 
 function M.list_available_themes()
   local themes = {}
-  local handle = io.popen("find " .. theme_cache_dir .. " -maxdepth 1 -type d -exec basename {} \\;")
+  local handle =
+    io.popen("find " .. theme_cache_dir .. " -maxdepth 1 -type d -exec basename {} \\;")
   if handle then
     for theme in handle:lines() do
       if theme ~= "theme-cache" and theme ~= "" then
@@ -146,11 +153,11 @@ function M.switch_theme_interactive()
     prompt = "Select theme:",
     format_item = function(item)
       return item
-    end
+    end,
   }, function(choice)
     if choice then
       -- Use external theme switcher to change theme
-      vim.system({"sysinit-theme", "switch", choice}, {}, function(result)
+      vim.system({ "sysinit-theme", "switch", choice }, {}, function(result)
         if result.code == 0 then
           vim.notify("Switched to theme: " .. choice, vim.log.levels.INFO)
         else
@@ -163,22 +170,25 @@ end
 
 -- Expose commands
 vim.api.nvim_create_user_command("ThemeSwitch", M.switch_theme_interactive, {
-  desc = "Switch theme interactively"
+  desc = "Switch theme interactively",
 })
 
 vim.api.nvim_create_user_command("ThemeCurrent", function()
   local theme_info = M.load_current_theme()
   if theme_info then
-    vim.notify("Current theme: " .. theme_info.colorscheme .. "-" .. theme_info.variant, vim.log.levels.INFO)
+    vim.notify(
+      "Current theme: " .. theme_info.colorscheme .. "-" .. theme_info.variant,
+      vim.log.levels.INFO
+    )
   else
     vim.notify("No current theme found", vim.log.levels.WARN)
   end
 end, {
-  desc = "Show current theme"
+  desc = "Show current theme",
 })
 
 vim.api.nvim_create_user_command("ThemeReload", M.apply_current_theme, {
-  desc = "Reload current theme"
+  desc = "Reload current theme",
 })
 
 return M
