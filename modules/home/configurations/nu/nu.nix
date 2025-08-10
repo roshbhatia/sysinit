@@ -2,13 +2,17 @@
   config,
   lib,
   values,
+  utils,
   ...
 }:
 
 let
-  themes = import ../../../lib/theme { inherit lib; };
+  inherit (utils.themeHelper) mkThemedConfig;
+  themeCfg = mkThemedConfig values "nushell" { };
+  inherit (themeCfg) themes;
+
   vividTheme = themes.getAppTheme "vivid" values.theme.colorscheme values.theme.variant;
-  nushellTheme = themes.getAppTheme "nushell" values.theme.colorscheme values.theme.variant;
+  nushellTheme = themeCfg.appTheme;
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
   colors = themes.getUnifiedColors palette;
 

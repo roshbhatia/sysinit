@@ -1,13 +1,15 @@
 {
   lib,
   values,
+  utils,
   ...
 }:
 
 let
   cfg = values.git;
-  themes = import ../../../lib/theme { inherit lib; };
-  deltaTheme = themes.getAppTheme "delta" values.theme.colorscheme values.theme.variant;
+  inherit (utils.themeHelper) mkThemedConfig;
+  themeCfg = mkThemedConfig values "delta" { };
+  deltaTheme = themeCfg.appTheme;
 
   personalEmail = if (cfg ? personalEmail) then cfg.personalEmail else cfg.userEmail;
   workEmail = if (cfg ? workEmail) then cfg.workEmail else cfg.userEmail;
@@ -112,9 +114,16 @@ in
     '';
   };
 
-  xdg.configFile."delta/themes/${values.theme.colorscheme}.gitconfig" = {
-    source = ./themes/${deltaTheme}.gitconfig;
-    force = true;
+  xdg.configFile = (utils.themeHelper.deployThemeFiles values {
+    app = "delta";
+    themeDir = ./themes;
+    targetPath = "delta/themes";
+    fileExtension = "gitconfig";
+  }) // {
+    "lazygit/config.yml" = {
+      source = ./configs/lazygit.yaml;
+      force = true;
+    };
   };
 
   home.file.".gitconfig.personal" = {
@@ -147,9 +156,5 @@ in
     source = ./configs/gitignore.global;
   };
 
-  xdg.configFile."lazygit/config.yml" = {
-    source = ./configs/lazygit.yaml;
-    force = true;
-  };
 
 }

@@ -13,6 +13,7 @@ rec {
   shell = import ./shell { inherit lib; };
   theme = import ./theme.nix;
   themes = import ./theme { inherit lib; };
+  themeHelper = import ./theme-helper.nix { inherit lib; };
   packages = import ./packages.nix { inherit platform pkgs; };
 
   sysinit = {

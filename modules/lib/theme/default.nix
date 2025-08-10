@@ -149,7 +149,6 @@ let
   getUnifiedColors = palette: utils.createSemanticMapping palette;
   mergeThemeConfig = utils.mergeThemeConfigs;
 
-
   listAvailableThemes = map (theme: {
     id = theme.meta.id;
     name = theme.meta.name;
@@ -202,7 +201,6 @@ in
     withThemeOverrides
     ansiMappings
     ;
-
 
   adapters = {
     wezterm = weztermAdapter;

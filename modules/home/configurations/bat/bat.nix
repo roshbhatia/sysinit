@@ -3,12 +3,14 @@
   pkgs,
   config,
   values,
+  utils,
   ...
 }:
 
 let
-  themes = import ../../../lib/theme { inherit lib; };
-  batTheme = themes.getAppTheme "bat" values.theme.colorscheme values.theme.variant;
+  inherit (utils.themeHelper) mkThemedConfig;
+  themeCfg = mkThemedConfig values "bat" { };
+  batTheme = themeCfg.appTheme;
 in
 {
   programs.bat = {
@@ -20,13 +22,18 @@ in
   };
 
   # Deploy custom bat theme and rebuild cache
-  xdg.configFile."bat/config".text = ''
-    --theme="${batTheme}"
-    --style=numbers,changes,header
-    --pager="less -FR"
-  '';
-
-  xdg.configFile."bat/themes/${batTheme}.tmTheme".source = ./themes/${batTheme}.tmTheme;
+  xdg.configFile = (utils.themeHelper.deployThemeFiles values {
+    app = "bat";
+    themeDir = ./themes;
+    targetPath = "bat/themes";
+    fileExtension = "tmTheme";
+  }) // {
+    "bat/config".text = ''
+      --theme="${batTheme}"
+      --style=numbers,changes,header
+      --pager="less -FR"
+    '';
+  };
 
   home.activation.buildBatCache = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     if [ -f "${pkgs.bat}/bin/bat" ]; then
