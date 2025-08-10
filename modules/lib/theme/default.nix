@@ -6,7 +6,6 @@ let
   types = import ./core/types.nix { inherit lib; };
   constants = import ./core/constants.nix { inherit lib; };
   utils = import ./core/utils.nix { inherit lib; };
-  stylix = import ./core/stylix.nix { inherit lib; };
 
   catppuccin = import ./palettes/catppuccin.nix { inherit lib; };
   kanagawa = import ./palettes/kanagawa.nix { inherit lib; };
@@ -150,27 +149,6 @@ let
   getUnifiedColors = palette: utils.createSemanticMapping palette;
   mergeThemeConfig = utils.mergeThemeConfigs;
 
-  generateStylix =
-    colorscheme: variant:
-    let
-      palette = getThemePalette colorscheme variant;
-      semanticColors = utils.createSemanticMapping palette;
-    in
-    stylix.generateBase16Scheme palette semanticColors;
-
-  createStylixFromTheme =
-    colorscheme: variant: fontConfig:
-    let
-      theme = getTheme colorscheme;
-      palette = getThemePalette colorscheme variant;
-      semanticColors = theme.semanticMapping palette;
-      themeConfig = {
-        inherit colorscheme variant;
-        transparency.enable = false;
-        transparency.opacity = 1.0;
-      };
-    in
-    stylix.generateStylixConfig palette semanticColors themeConfig fontConfig;
 
   listAvailableThemes = map (theme: {
     id = theme.meta.id;
@@ -222,12 +200,9 @@ in
     getUnifiedColors
     mergeThemeConfig
     withThemeOverrides
-    generateStylix
-    createStylixFromTheme
     ansiMappings
     ;
 
-  stylixHelpers = stylix;
 
   adapters = {
     wezterm = weztermAdapter;

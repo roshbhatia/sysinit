@@ -5,7 +5,6 @@
     ./hostname
     ./finder
     ./security
-    ./stylix
     ./system
     ./user
     ./borders
