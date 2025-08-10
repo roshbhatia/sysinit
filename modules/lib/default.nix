@@ -14,6 +14,7 @@ rec {
   theme = import ./theme.nix;
   themes = import ./theme { inherit lib; };
   themeHelper = import ./theme-helper.nix { inherit lib; };
+  validation = import ./validation.nix { inherit lib; };
   packages = import ./packages.nix { inherit platform pkgs; };
 
   sysinit = {

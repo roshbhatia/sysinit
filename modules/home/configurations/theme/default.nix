@@ -1,0 +1,8 @@
+{
+  ...
+}:
+{
+  imports = [
+    ./live-switcher.nix
+  ];
+}
