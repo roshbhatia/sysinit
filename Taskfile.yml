@@ -116,6 +116,11 @@ tasks:
           log_error "Failed to copy nix configuration"
           exit {{.ERROR_EXIT_CODE}}
         fi
+        log_info "Restarting nix-daemon"
+        if ! sudo launchctl kickstart -k system/org.nixos.nix-daemon; then
+          log_error "Failed to restart nix-daemon"
+          exit {{.ERROR_EXIT_CODE}}
+        fi
         log_success "Nix configuration updated successfully"
     desc: Copy nix.custom.conf to /etc/nix/ with sudo
     silent: true
@@ -203,4 +208,3 @@ tasks:
     deps: [nix:fmt, lua:fmt, sh:fmt]
     desc: Format all supported file types
     silent: true
-
