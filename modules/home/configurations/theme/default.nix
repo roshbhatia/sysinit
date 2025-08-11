@@ -3,6 +3,5 @@
 }:
 {
   imports = [
-    ./live-switcher.nix
   ];
 }
