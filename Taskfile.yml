@@ -1,9 +1,30 @@
 version: "3"
 
+includes:
+  nix:
+    taskfile: ./tasks/nix.yml
+    optional: true
+  format:
+    taskfile: ./tasks/format.yml
+    optional: true
+
+vars:
+  NIXPKGS_ALLOW_UNFREE: 1
+  NIX_DARWIN_REBUILD: "darwin-rebuild"
+  LOGGER_SCRIPT: "hack/lib/logger.sh"
+  FD_EXCLUDE_PATTERNS: "-E result"
+  WORK_REPO_PATH: "~/github/work"
+  NIXFMT_WIDTH: 100
+  SHFMT_OPTS: "-i 2 -ci -sr -kp -fn -w"
+
+  # Common error handling
+  ERROR_EXIT_CODE: 1
+  SUCCESS_EXIT_CODE: 0
+
 tasks:
   default:
     cmds:
-      - task -l
+      - task --list-all
     desc: Show help information
     silent: true
 
@@ -11,11 +32,11 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
-        source hack/lib/logger.sh
+        source {{.LOGGER_SCRIPT}}
         log_info "Formatting Nix files"
-        if ! fd -e nix -E result -x nixfmt --width=100; then
+        if ! fd -e nix {{.FD_EXCLUDE_PATTERNS}} -x nixfmt --width={{.NIXFMT_WIDTH}}; then
           log_error "Nix formatting failed"
-          exit 1
+          exit {{.ERROR_EXIT_CODE}}
         fi
         log_success "Nix files formatted successfully"
     desc: Format Nix files using nixfmt
@@ -25,11 +46,11 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
-        source hack/lib/logger.sh
+        source {{.LOGGER_SCRIPT}}
         log_info "Building system configuration"
-        if ! NIXPKGS_ALLOW_UNFREE=1 sudo -E darwin-rebuild build -v --show-trace --impure --flake .; then
+        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} build --flake . --impure; then
           log_error "Build failed."
-          exit 1
+          exit {{.ERROR_EXIT_CODE}}
         fi
         log_success "Build completed successfully"
     desc: Build the configuration without applying
@@ -39,17 +60,17 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
-        source hack/lib/logger.sh
+        source {{.LOGGER_SCRIPT}}
         log_info "Building work system configuration"
-        WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
+        WORK_SYSINIT=$(find {{.WORK_REPO_PATH}} -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
         if [ -z "${WORK_SYSINIT}" ]; then
           log_error "Could not find work sysinit repository"
-          exit 1
+          exit {{.ERROR_EXIT_CODE}}
         fi
         cd "${WORK_SYSINIT}"
         if ! task nix:build:work; then
           log_error "Work build failed."
-          exit 1
+          exit {{.ERROR_EXIT_CODE}}
         fi
         log_success "Work build completed successfully"
     desc: Build the work sysinit configuration without applying
@@ -59,11 +80,11 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
-        source hack/lib/logger.sh
+        source {{.LOGGER_SCRIPT}}
         log_info "Running garbage collection"
         if ! sudo nix-collect-garbage -d; then
           log_error "Garbage collection failed"
-          exit 1
+          exit {{.ERROR_EXIT_CODE}}
         fi
         log_success "Garbage collection completed successfully"
     desc: Run garbage collection
@@ -73,11 +94,11 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
-        source hack/lib/logger.sh
+        source {{.LOGGER_SCRIPT}}
         log_info "Updating flake inputs"
         if ! sudo nix flake update; then
           log_error "Flake update failed"
-          exit 1
+          exit {{.ERROR_EXIT_CODE}}
         fi
         log_success "Flake inputs updated"
     desc: Update flake inputs
@@ -88,11 +109,11 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
-        source hack/lib/logger.sh
+        source {{.LOGGER_SCRIPT}}
         log_info "Applying system configuration"
-        if ! NIXPKGS_ALLOW_UNFREE=1 sudo -E darwin-rebuild switch --flake . --impure --show-trace --fallback; then
+        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} switch --flake . --impure; then
           log_error "Refresh failed."
-          exit 1
+          exit {{.ERROR_EXIT_CODE}}
         fi
         log_success "System configuration applied successfully"
     desc: Apply the system configuration
@@ -102,17 +123,17 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
-        source hack/lib/logger.sh
+        source {{.LOGGER_SCRIPT}}
         log_info "Refreshing work configuration"
-        WORK_SYSINIT=$(find ~/github/work -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
+        WORK_SYSINIT=$(find {{.WORK_REPO_PATH}} -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
         if [ -z "${WORK_SYSINIT}" ]; then
           log_error "Could not find work sysinit repository"
-          exit 1
+          exit {{.ERROR_EXIT_CODE}}
         fi
         cd "${WORK_SYSINIT}"
         if ! task nix:refresh:work; then
           log_error "Work refresh failed."
-          exit 1
+          exit {{.ERROR_EXIT_CODE}}
         fi
         log_success "Work configuration refreshed successfully"
     desc: Update and rebuild work sysinit configuration
@@ -122,12 +143,12 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
-        source hack/lib/logger.sh
+        source {{.LOGGER_SCRIPT}}
         log_info "Formatting shell files"
         for ext in sh bash zsh; do
-          if ! fd -e $ext -x shfmt -i 2 -ci -sr -kp -fn -w; then
+          if ! fd -e $ext -x shfmt {{.SHFMT_OPTS}}; then
             log_error "Shell formatting ($ext) failed"
-            exit 1
+            exit {{.ERROR_EXIT_CODE}}
           fi
         done
         log_success "Shell files formatted successfully"
@@ -138,11 +159,11 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
-        source hack/lib/logger.sh
+        source {{.LOGGER_SCRIPT}}
         log_info "Finding all .sh files and making them executable"
-        if ! fd -e sh -x sh -c 'source hack/lib/logger.sh && log_info "Making executable: {}" && chmod +x {}' _; then
+        if ! fd -e sh -x sh -c 'source {{.LOGGER_SCRIPT}} && log_info "Making executable: {}" && chmod +x {}' _; then
           log_error "Failed to make .sh files executable"
-          exit 1
+          exit {{.ERROR_EXIT_CODE}}
         fi
         log_success "All .sh files are now executable"
     desc: Make all .sh files in the repository executable
@@ -152,11 +173,11 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
-        source hack/lib/logger.sh
+        source {{.LOGGER_SCRIPT}}
         log_info "Formatting Lua files"
         if ! fd -e lua -x stylua; then
           log_error "Lua formatting failed"
-          exit 1
+          exit {{.ERROR_EXIT_CODE}}
         fi
         log_success "Lua files formatted successfully"
     desc: Format Lua files using stylua
@@ -164,10 +185,6 @@ tasks:
 
   fmt:
     deps: [nix:fmt, lua:fmt, sh:fmt]
-    cmds:
-      - |
-        #!/usr/bin/env bash
-        source hack/lib/logger.sh
-        log_success "All files formatted successfully"
     desc: Format all supported file types
     silent: true
+
