@@ -90,7 +90,6 @@ let
     nix-search-cli
     nixd
     nixfmt-rfc-style
-    nodePackages_latest.fkill-cli
     nodePackages_latest.jsonlint
     nodejs
     oh-my-posh
