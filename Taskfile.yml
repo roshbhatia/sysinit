@@ -16,6 +16,8 @@ vars:
   WORK_REPO_PATH: "~/github/work"
   NIXFMT_WIDTH: 100
   SHFMT_OPTS: "-i 2 -ci -sr -kp -fn -w"
+  NIX_CUSTOM_CONF: "nix.custom.conf"
+  NIX_SYSTEM_CONF_DIR: "/etc/nix"
 
   # Common error handling
   ERROR_EXIT_CODE: 1
@@ -104,8 +106,22 @@ tasks:
     desc: Update flake inputs
     silent: true
 
+  nix:config:
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        source {{.LOGGER_SCRIPT}}
+        log_info "Updating nix configuration"
+        if ! sudo cp {{.NIX_CUSTOM_CONF}} {{.NIX_SYSTEM_CONF_DIR}}/nix.custom.conf; then
+          log_error "Failed to copy nix configuration"
+          exit {{.ERROR_EXIT_CODE}}
+        fi
+        log_success "Nix configuration updated successfully"
+    desc: Copy nix.custom.conf to /etc/nix/ with sudo
+    silent: true
+
   nix:refresh:
-    deps: [nix:update]
+    deps: [nix:update, nix:config]
     cmds:
       - |
         #!/usr/bin/env bash
