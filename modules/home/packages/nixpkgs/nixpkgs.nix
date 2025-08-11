@@ -90,7 +90,8 @@ let
     nix-search-cli
     nixd
     nixfmt-rfc-style
-    nodePackages_latest.jsonlint
+    nodePackages.fkill-cli
+    nodePackages.jsonlint
     nodejs_22
     oh-my-posh
     ollama
@@ -143,3 +144,4 @@ in
 {
   home.packages = allNixPackages;
 }
+
