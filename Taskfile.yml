@@ -90,7 +90,7 @@ tasks:
         #!/usr/bin/env bash
         source hack/lib/logger.sh
         log_info "Applying system configuration"
-        if ! NIXPKGS_ALLOW_UNFREE=1 sudo -E darwin-rebuild switch --flake . --impure --show-trace; then
+        if ! NIXPKGS_ALLOW_UNFREE=1 sudo -E darwin-rebuild switch --flake . --impure --show-trace --fallback; then
           log_error "Refresh failed."
           exit 1
         fi

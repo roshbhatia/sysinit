@@ -91,7 +91,7 @@ let
     nixd
     nixfmt-rfc-style
     nodePackages_latest.jsonlint
-    nodejs
+    nodejs_22
     oh-my-posh
     ollama
     openssh

@@ -35,7 +35,7 @@ let
     git
     gh
     go
-    nodejs
+    nodejs_22
     python3
     rustc
     bat
