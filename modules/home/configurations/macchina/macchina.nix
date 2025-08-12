@@ -1,7 +1,6 @@
 {
   config,
   pkgs,
-  lib,
   values,
   utils,
   ...
@@ -10,7 +9,6 @@
 let
   inherit (utils.themeHelper) mkThemedConfig;
   themeCfg = mkThemedConfig values "macchina" { };
-  palette = themeCfg.themes.getThemePalette values.theme.colorscheme values.theme.variant;
   semanticColors = themeCfg.themes.getSemanticColors values.theme.colorscheme values.theme.variant;
 
   tomlFormat = pkgs.formats.toml { };
