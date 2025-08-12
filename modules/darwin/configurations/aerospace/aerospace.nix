@@ -158,6 +158,7 @@
 
             alt-tab = "workspace --wrap-around next";
             alt-shift-tab = "workspace --wrap-around prev";
+            alt-space = "workspace-back-and-forth";
 
             alt-shift-1 = "move-node-to-workspace 1 --focus-follows-window";
             alt-shift-2 = "move-node-to-workspace 2 --focus-follows-window";
@@ -167,7 +168,6 @@
             alt-shift-e = "move-node-to-workspace E --focus-follows-window";
             alt-shift-m = "move-node-to-workspace M --focus-follows-window";
             alt-shift-s = "move-node-to-workspace S --focus-follows-window";
-            alt-shift-x = "move-node-to-workspace X --focus-follows-window";
 
             alt-f = "fullscreen";
 
@@ -181,3 +181,4 @@
     };
   };
 }
+
