@@ -3,6 +3,7 @@
         "unused-local"
     ],
     "diagnostics.globals": [
-        "hs"
+        "hs",
+        "Snacks"
     ]
 }
