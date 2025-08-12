@@ -50,20 +50,20 @@ let
   };
 
   roshTheme = commonTheme // {
-    key_color = semanticColors.primary;
-    separator_color = semanticColors.secondary;
+    key_color = semanticColors.foreground.primary;
+    separator_color = semanticColors.accent.secondary;
     box = {
       title = "rosh";
     };
     custom_ascii = {
-      color = semanticColors.accent;
+      color = semanticColors.accent.primary;
       path = "${config.home.homeDirectory}/.config/macchina/themes/rosh.ascii";
     };
   };
 
   roshColorTheme = commonTheme // {
-    key_color = semanticColors.primary;
-    separator_color = semanticColors.secondary;
+    key_color = semanticColors.foreground.primary;
+    separator_color = semanticColors.accent.secondary;
     box = {
       title = "rosh";
     };
@@ -73,37 +73,37 @@ let
   };
 
   nixTheme = commonTheme // {
-    key_color = semanticColors.primary;
-    separator_color = semanticColors.secondary;
+    key_color = semanticColors.foreground.primary;
+    separator_color = semanticColors.accent.secondary;
     box = {
       title = "rosh";
     };
     custom_ascii = {
-      color = semanticColors.accent;
+      color = semanticColors.accent.primary;
       path = "${config.home.homeDirectory}/.config/macchina/themes/nix.ascii";
     };
   };
 
   mgsTheme = commonTheme // {
-    key_color = semanticColors.primary;
-    separator_color = semanticColors.secondary;
+    key_color = semanticColors.foreground.primary;
+    separator_color = semanticColors.accent.secondary;
     box = {
       title = "rosh";
     };
     custom_ascii = {
-      color = semanticColors.accent;
+      color = semanticColors.accent.primary;
       path = "${config.home.homeDirectory}/.config/macchina/themes/mgs.ascii";
     };
   };
 
   varreTheme = commonTheme // {
-    key_color = semanticColors.primary;
-    separator_color = semanticColors.secondary;
+    key_color = semanticColors.foreground.primary;
+    separator_color = semanticColors.accent.secondary;
     box = {
       title = "rosh";
     };
     custom_ascii = {
-      color = semanticColors.accent;
+      color = semanticColors.accent.primary;
       path = "${config.home.homeDirectory}/.config/macchina/themes/varre.ascii";
     };
   };
@@ -170,4 +170,3 @@ in
     };
   };
 }
-
