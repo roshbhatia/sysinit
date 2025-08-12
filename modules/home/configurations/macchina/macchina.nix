@@ -20,7 +20,6 @@ let
     spacing = 1;
     padding = 0;
     separator = "|";
-    prefer_small_ascii = true;
 
     bar = {
       glyph = "~";
@@ -170,3 +169,4 @@ in
     };
   };
 }
+
