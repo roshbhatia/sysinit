@@ -6,7 +6,7 @@ if ($env.WEZTERM_PANE? == "0") and ($env.NVIM? | is-empty) {
   if ($env.MACCHINA_THEME? | is-not-empty) {
     macchina --theme $env.MACCHINA_THEME
   } else {
-    macchina --theme rosh-color
+    macchina --theme varre
   }
 }
 # modules/darwin/home/nu/core/macchina.nu (end)

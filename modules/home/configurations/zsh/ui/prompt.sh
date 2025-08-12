@@ -6,9 +6,10 @@ if [ "$WEZTERM_PANE" = "0" ] && [ -z "$NVIM" ]; then
   if [ -n "$MACCHINA_THEME" ]; then
     macchina --theme "$MACCHINA_THEME"
   else
-    macchina --theme rosh-color
+    macchina --theme varre
   fi
 fi
 
 _evalcache oh-my-posh init zsh --config $XDG_CONFIG_HOME/oh-my-posh/themes/sysinit.omp.json
 # modules/darwin/home/zsh/core/prompt.sh (end)
+

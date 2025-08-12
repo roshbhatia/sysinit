@@ -1,10 +1,18 @@
 {
   config,
   pkgs,
+  lib,
+  values,
+  utils,
   ...
 }:
 
 let
+  inherit (utils.themeHelper) mkThemedConfig;
+  themeCfg = mkThemedConfig values "macchina" { };
+  palette = themeCfg.themes.getThemePalette values.theme.colorscheme values.theme.variant;
+  semanticColors = themeCfg.themes.getSemanticColors values.theme.colorscheme values.theme.variant;
+
   tomlFormat = pkgs.formats.toml { };
 
   commonTheme = {
@@ -42,20 +50,20 @@ let
   };
 
   roshTheme = commonTheme // {
-    key_color = "LightCyan";
-    separator_color = "Yellow";
+    key_color = semanticColors.primary;
+    separator_color = semanticColors.secondary;
     box = {
       title = "rosh";
     };
     custom_ascii = {
-      color = "#BB90B7";
+      color = semanticColors.accent;
       path = "${config.home.homeDirectory}/.config/macchina/themes/rosh.ascii";
     };
   };
 
   roshColorTheme = commonTheme // {
-    key_color = "LightCyan";
-    separator_color = "Yellow";
+    key_color = semanticColors.primary;
+    separator_color = semanticColors.secondary;
     box = {
       title = "rosh";
     };
@@ -65,29 +73,40 @@ let
   };
 
   nixTheme = commonTheme // {
-    key_color = "#5277C3";
-    separator_color = "#7EBAE4";
+    key_color = semanticColors.primary;
+    separator_color = semanticColors.secondary;
     box = {
       title = "rosh";
     };
     custom_ascii = {
-      color = "#5277C3";
+      color = semanticColors.accent;
       path = "${config.home.homeDirectory}/.config/macchina/themes/nix.ascii";
     };
   };
 
   mgsTheme = commonTheme // {
-    key_color = "#5277C3";
-    separator_color = "#7EBAE4";
+    key_color = semanticColors.primary;
+    separator_color = semanticColors.secondary;
     box = {
       title = "rosh";
     };
     custom_ascii = {
-      color = "#5277C3";
+      color = semanticColors.accent;
       path = "${config.home.homeDirectory}/.config/macchina/themes/mgs.ascii";
     };
   };
 
+  varreTheme = commonTheme // {
+    key_color = semanticColors.primary;
+    separator_color = semanticColors.secondary;
+    box = {
+      title = "rosh";
+    };
+    custom_ascii = {
+      color = semanticColors.accent;
+      path = "${config.home.homeDirectory}/.config/macchina/themes/varre.ascii";
+    };
+  };
 in
 {
   home.packages = [ pkgs.macchina ];
@@ -120,6 +139,11 @@ in
       force = true;
     };
 
+    "macchina/themes/varre.toml" = {
+      source = tomlFormat.generate "varre.toml" varreTheme;
+      force = true;
+    };
+
     "macchina/themes/rosh.ascii" = {
       source = ./themes/rosh.ascii;
       force = true;
@@ -139,5 +163,11 @@ in
       source = ./themes/mgs.ascii;
       force = true;
     };
+
+    "macchina/themes/varre.ascii" = {
+      source = ./themes/varre.ascii;
+      force = true;
+    };
   };
 }
+
