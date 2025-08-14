@@ -35,7 +35,6 @@ let
     "jordanbaird-ice"
     "keycastr"
     "mediosz/tap/swipeaerospace"
-    "raycast"
     "slack"
     "visual-studio-code@insiders"
     "wezterm"
@@ -72,3 +71,4 @@ in
     casks = allCasks;
   };
 }
+
