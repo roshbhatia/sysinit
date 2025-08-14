@@ -205,7 +205,7 @@ local function get_window_keys()
     },
     {
       key = "r",
-      mods = "CTRL",
+      mods = "CMD",
       action = act.ReloadConfiguration,
     },
   }
@@ -341,3 +341,4 @@ function M.setup(config)
 end
 
 return M
+
