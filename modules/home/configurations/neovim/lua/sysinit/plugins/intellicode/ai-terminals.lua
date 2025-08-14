@@ -5,6 +5,10 @@ M.plugins = {
     "aweis89/ai-terminals.nvim",
     dependencies = { "folke/snacks.nvim" },
     config = function()
+      -- Ensure vim uses the correct shell
+      vim.opt.shell = "/bin/zsh"
+      vim.opt.shellcmdflag = "-c"
+
       require("ai-terminals").setup({
         terminals = {
           goose = {
@@ -48,7 +52,6 @@ M.plugins = {
         env = {
           PAGER = "bat --style=auto --theme=auto",
           EDITOR = "nvim",
-          PATH = vim.env.PATH,
         },
         enable_diffing = true,
         terminal_keymaps = {
