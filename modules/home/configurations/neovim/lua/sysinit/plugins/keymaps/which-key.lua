@@ -45,7 +45,7 @@ M.plugins = {
         },
         {
           "<leader>j",
-          group = "Goose",
+          group = "AI Terminals",
         },
         {
           "<leader>b",
@@ -101,22 +101,40 @@ M.plugins = {
         },
       })
 
-      if nvim_config.copilot.enabled then
-        wk.add({
-          {
-            "<leader>h",
-            group = "Copilot - Avante",
-          },
-          {
-            "<leader>j",
-            group = "Copilot - OpenCode",
-          },
-          {
-            "<leader>k",
-            group = "Copilot - Goose",
-          },
-        })
-      end
+      wk.add({
+        {
+          "<leader>jg",
+          group = "Goose",
+        },
+        {
+          "<leader>jc",
+          group = "Claude",
+        },
+        {
+          "<leader>jo",
+          group = "OpenCode",
+        },
+        {
+          "<leader>jd",
+          group = "Diagnostics",
+        },
+        {
+          "<leader>ja",
+          group = "Add Files",
+        },
+        {
+          "<leader>jA",
+          group = "Add All Buffers",
+        },
+        {
+          "<leader>je",
+          group = "Explain",
+        },
+        {
+          "<leader>jv",
+          group = "Review",
+        },
+      })
 
       if vim.env.SYSINIT_DEBUG == "1" then
         wk.add({

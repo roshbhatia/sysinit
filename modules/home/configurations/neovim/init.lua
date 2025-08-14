@@ -58,7 +58,7 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.git.blamer"),
   require("sysinit.plugins.git.fugitive"),
   require("sysinit.plugins.git.signs"),
-  require("sysinit.plugins.intellicode.avante"),
+  require("sysinit.plugins.intellicode.ai-terminals"),
   require("sysinit.plugins.intellicode.blink-cmp"),
   require("sysinit.plugins.intellicode.cmp-copilot"),
   require("sysinit.plugins.intellicode.colorful-menu"),
@@ -78,7 +78,6 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.intellicode.none-ls"),
   require("sysinit.plugins.intellicode.nvim-autopairs"),
   require("sysinit.plugins.intellicode.nvim-lspconfig"),
-  require("sysinit.plugins.intellicode.opencode"),
   require("sysinit.plugins.intellicode.outline"),
   require("sysinit.plugins.intellicode.pretty-hover"),
   require("sysinit.plugins.intellicode.refactoring"),
@@ -121,3 +120,4 @@ require("sysinit.pkg.keybindings.undo").setup()
 require("sysinit.pkg.keybindings.vim").setup()
 
 require("sysinit.pkg.entrypoint.no-session").setup()
+

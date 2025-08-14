@@ -106,24 +106,23 @@ M.plugins = {
         },
         filesystem = {
           commands = {
-            avante_add_files = function(state)
+            ai_add_to_goose = function(state)
               local node = state.tree:get_node()
               local filepath = node:get_id()
-              local relative_path = require("avante.utils").relative_path(filepath)
-
-              local sidebar = require("avante").get()
-
-              local open = sidebar:is_open()
-              if not open then
-                require("avante.api").ask()
-                sidebar = require("avante").get()
-              end
-
-              sidebar.file_selector:add_selected_file(relative_path)
-
-              if not open then
-                sidebar.file_selector:remove_selected_file("neo-tree filesystem [1]")
-              end
+              require("ai-terminals").add_files_to_terminal("goose", {filepath})
+              vim.notify("Added " .. vim.fn.fnamemodify(filepath, ":t") .. " to Goose")
+            end,
+            ai_add_to_claude = function(state)
+              local node = state.tree:get_node()
+              local filepath = node:get_id()
+              require("ai-terminals").add_files_to_terminal("claude", {filepath})
+              vim.notify("Added " .. vim.fn.fnamemodify(filepath, ":t") .. " to Claude")
+            end,
+            ai_add_to_opencode = function(state)
+              local node = state.tree:get_node()
+              local filepath = node:get_id()
+              require("ai-terminals").add_files_to_terminal("opencode", {filepath})
+              vim.notify("Added " .. vim.fn.fnamemodify(filepath, ":t") .. " to OpenCode")
             end,
           },
           filtered_items = {
@@ -158,7 +157,9 @@ M.plugins = {
           end,
           window = {
             mappings = {
-              ["+"] = "avante_add_files",
+              ["+g"] = "ai_add_to_goose",
+              ["+c"] = "ai_add_to_claude",
+              ["+o"] = "ai_add_to_opencode",
             },
           },
           find_command = "fd",

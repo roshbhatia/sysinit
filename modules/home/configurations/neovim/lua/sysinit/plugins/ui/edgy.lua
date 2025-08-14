@@ -32,21 +32,6 @@ M.plugins = {
             open = "Neotree position=right filesystem",
           },
         },
-        right = {
-          {
-            title = " AI Assistant",
-            ft = { "avante_input", "avante_chat" },
-            filter = function(buf, win)
-              local bufname = vim.api.nvim_buf_get_name(buf)
-              local buftype = vim.api.nvim_get_option_value("buftype", { buf = buf })
-              return bufname:match("avante")
-                or bufname:match("goose")
-                or buftype == "nofile"
-                  and (vim.b[buf].ai_assistant or vim.w[win].ai_assistant or bufname:match("Avante"))
-            end,
-            size = 80,
-          },
-        },
         bottom = {
           {
             title = " Terminal",
@@ -70,3 +55,4 @@ M.plugins = {
 }
 
 return M
+
