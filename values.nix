@@ -57,4 +57,10 @@
   wezterm = {
     shell = "nu";
   };
+
+  llm = {
+    goose = {
+      provider = "claude-code";
+    };
+  };
 }

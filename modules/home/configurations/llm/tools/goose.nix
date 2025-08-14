@@ -1,6 +1,24 @@
-{ lib, ... }:
+{ lib, values, ... }:
 let
-  config = import ../config/goose.nix;
+  gooseProvider = values.llm.goose.provider or "github_copilot";
+
+  providerConfigs = {
+    "github_copilot" = {
+      model = "gemini-2.0-flash-001";
+      plannerModel = "claude-3.7-sonnet";
+      provider = "github_copilot";
+    };
+    "claude-code" = {
+      model = "claude-3-5-sonnet-20241022";
+      plannerModel = "claude-3-5-sonnet-20241022";
+      provider = "claude-code";
+    };
+  };
+
+  config = (providerConfigs.${gooseProvider} or providerConfigs.github_copilot) // {
+    editMode = "vi";
+  };
+
   agents = import ../shared/agents.nix;
 
   toTitleCase =
