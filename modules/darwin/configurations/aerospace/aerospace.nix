@@ -128,23 +128,23 @@
             alt-slash = "layout tiles horizontal vertical";
             alt-comma = "layout accordion horizontal vertical";
 
-            # Window movement
-            alt-shift-h = "move left";
-            alt-shift-j = "move down";
-            alt-shift-k = "move up";
-            alt-shift-l = "move right";
-
-            # Navigation
             alt-h = "focus left";
             alt-j = "focus down";
             alt-k = "focus up";
             alt-l = "focus right";
 
-            # Base resize commands
+            alt-w-h = "move left";
+            alt-w-j = "move down";
+            alt-w-k = "move up";
+            alt-w-l = "move right";
+
+            alt-shift-h = "resize smart -70";
+            alt-shift-j = "resize smart -70";
+            alt-shift-k = "resize smart -70";
+            alt-shift-l = "resize smart -70";
+
             alt-minus = "resize smart -70";
             alt-equal = "resize smart +70";
-            alt-shift-minus = "resize smart -210";
-            alt-shift-equal = "resize smart +210";
 
             # Workspace management
             alt-1 = "workspace 1";
@@ -158,6 +158,7 @@
 
             alt-tab = "workspace --wrap-around next";
             alt-shift-tab = "workspace --wrap-around prev";
+            alt-s-space = "workspace-back-and-forth";
             alt-space = "workspace-back-and-forth";
 
             alt-shift-1 = "move-node-to-workspace 1 --focus-follows-window";
@@ -170,6 +171,8 @@
             alt-shift-s = "move-node-to-workspace S --focus-follows-window";
 
             alt-f = "fullscreen";
+
+            alt-shift-slash = "mode main";
 
             alt-esc = [
               "reload-config"

@@ -120,7 +120,7 @@ end
 local function get_pallete_keys()
   return {
     {
-      key = "p",
+      key = "/",
       mods = "CTRL|SHIFT",
       action = act.ActivateCommandPalette,
     },
@@ -202,6 +202,11 @@ local function get_window_keys()
       key = "n",
       mods = "CTRL",
       action = act.SpawnWindow,
+    },
+    {
+      key = "r",
+      mods = "CTRL",
+      action = act.ReloadConfiguration,
     },
   }
 end
