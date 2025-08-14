@@ -48,6 +48,7 @@ M.plugins = {
         env = {
           PAGER = "bat --style=auto --theme=auto",
           EDITOR = "nvim",
+          PATH = vim.env.PATH,
         },
         enable_diffing = true,
         terminal_keymaps = {
@@ -55,13 +56,15 @@ M.plugins = {
             key = "<C-w>q",
             action = "close",
             desc = "Close terminal window",
-            modes = "t"
+            modes = "t",
           },
           {
             key = "<Esc>",
-            action = function() vim.cmd("stopinsert") end,
+            action = function()
+              vim.cmd("stopinsert")
+            end,
             desc = "Exit terminal insert mode",
-            modes = "t"
+            modes = "t",
           },
         },
         prompts = {
@@ -126,7 +129,7 @@ M.plugins = {
         {
           "<leader>jag",
           function()
-            require("ai-terminals").add_files_to_terminal("goose", {vim.fn.expand("%")})
+            require("ai-terminals").add_files_to_terminal("goose", { vim.fn.expand("%") })
           end,
           desc = "Add current file to Goose",
         },
@@ -158,7 +161,7 @@ M.plugins = {
         {
           "<leader>jac",
           function()
-            require("ai-terminals").add_files_to_terminal("claude", {vim.fn.expand("%")})
+            require("ai-terminals").add_files_to_terminal("claude", { vim.fn.expand("%") })
           end,
           desc = "Add current file to Claude",
         },
@@ -190,7 +193,7 @@ M.plugins = {
         {
           "<leader>jao",
           function()
-            require("ai-terminals").add_files_to_terminal("opencode", {vim.fn.expand("%")})
+            require("ai-terminals").add_files_to_terminal("opencode", { vim.fn.expand("%") })
           end,
           desc = "Add current file to OpenCode",
         },

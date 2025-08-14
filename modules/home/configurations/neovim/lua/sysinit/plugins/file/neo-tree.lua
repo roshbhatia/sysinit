@@ -109,19 +109,19 @@ M.plugins = {
             ai_add_to_goose = function(state)
               local node = state.tree:get_node()
               local filepath = node:get_id()
-              require("ai-terminals").add_files_to_terminal("goose", {filepath})
+              require("ai-terminals").add_files_to_terminal("goose", { filepath })
               vim.notify("Added " .. vim.fn.fnamemodify(filepath, ":t") .. " to Goose")
             end,
             ai_add_to_claude = function(state)
               local node = state.tree:get_node()
               local filepath = node:get_id()
-              require("ai-terminals").add_files_to_terminal("claude", {filepath})
+              require("ai-terminals").add_files_to_terminal("claude", { filepath })
               vim.notify("Added " .. vim.fn.fnamemodify(filepath, ":t") .. " to Claude")
             end,
             ai_add_to_opencode = function(state)
               local node = state.tree:get_node()
               local filepath = node:get_id()
-              require("ai-terminals").add_files_to_terminal("opencode", {filepath})
+              require("ai-terminals").add_files_to_terminal("opencode", { filepath })
               vim.notify("Added " .. vim.fn.fnamemodify(filepath, ":t") .. " to OpenCode")
             end,
           },
