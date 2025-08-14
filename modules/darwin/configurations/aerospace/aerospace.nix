@@ -38,50 +38,50 @@
           "if" = {
             app-id = "org.ferdium.ferdium-app";
           };
-          run = "move-node-to-workspace C";
+          run = "move-node-to-workspace 7";
         }
         {
           "if" = {
             app-id = "com.facebook.archon.developerID";
           };
-          run = "move-node-to-workspace C";
+          run = "move-node-to-workspace 7";
         }
         {
           "if" = {
             app-id = "com.microsoft.Outlook";
           };
-          run = "move-node-to-workspace E";
+          run = "move-node-to-workspace 5";
         }
         {
           "if" = {
             app-id = "com.apple.iBooksX";
           };
-          run = "move-node-to-workspace M";
+          run = "move-node-to-workspace 6";
         }
         {
           "if" = {
             app-id = "com.apple.Music";
           };
-          run = "move-node-to-workspace M";
+          run = "move-node-to-workspace 6";
         }
         {
           "if" = {
             app-id = "com.apple.Podcasts";
           };
-          run = "move-node-to-workspace M";
+          run = "move-node-to-workspace 6";
         }
         {
           "if" = {
             app-name-regex-substring = "Audible";
             window-title-regex-substring = "Audible Cloud Player";
           };
-          run = "move-node-to-workspace M";
+          run = "move-node-to-workspace 6";
         }
         {
           "if" = {
             app-id = "com.tinyspeck.slackmacgap";
           };
-          run = "move-node-to-workspace S";
+          run = "move-node-to-workspace 4";
         }
 
         {
@@ -133,28 +133,25 @@
             alt-k = "focus up";
             alt-l = "focus right";
 
-            alt-ctrl-h = "move left";
-            alt-ctrl-j = "move down";
-            alt-ctrl-k = "move up";
-            alt-ctrl-l = "move right";
-
-            alt-shift-h = "resize smart -70";
-            alt-shift-j = "resize smart -70";
-            alt-shift-k = "resize smart -70";
-            alt-shift-l = "resize smart -70";
+            alt-cmd-h = "move left";
+            alt-cmd-j = "move down";
+            alt-cmd-k = "move up";
+            alt-cmd-l = "move right";
 
             alt-minus = "resize smart -70";
             alt-equal = "resize smart +70";
+            alt-shift-minus = "resize smart -210";
+            alt-shift-equal = "resize smart +210";
 
             # Workspace management
             alt-1 = "workspace 1";
             alt-2 = "workspace 2";
             alt-3 = "workspace 3";
             alt-4 = "workspace 4";
-            alt-c = "workspace C";
-            alt-m = "workspace M";
-            alt-s = "workspace S";
-            alt-e = "workspace E";
+            alt-5 = "workspace 5";
+            alt-6 = "workspace 6";
+            alt-7 = "workspace 7";
+            alt-8 = "workspace 8";
 
             alt-tab = "workspace --wrap-around next";
             alt-shift-tab = "workspace --wrap-around prev";
@@ -164,14 +161,12 @@
             alt-shift-2 = "move-node-to-workspace 2 --focus-follows-window";
             alt-shift-3 = "move-node-to-workspace 3 --focus-follows-window";
             alt-shift-4 = "move-node-to-workspace 4 --focus-follows-window";
-            alt-shift-c = "move-node-to-workspace C --focus-follows-window";
-            alt-shift-e = "move-node-to-workspace E --focus-follows-window";
-            alt-shift-m = "move-node-to-workspace M --focus-follows-window";
-            alt-shift-s = "move-node-to-workspace S --focus-follows-window";
+            alt-shift-5 = "move-node-to-workspace 5 --focus-follows-window";
+            alt-shift-6 = "move-node-to-workspace 6 --focus-follows-window";
+            alt-shift-7 = "move-node-to-workspace 7 --focus-follows-window";
+            alt-shift-8 = "move-node-to-workspace 8 --focus-follows-window";
 
             alt-f = "fullscreen";
-
-            alt-shift-slash = "mode main";
 
             alt-esc = [
               "reload-config"
