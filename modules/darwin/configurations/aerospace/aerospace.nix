@@ -38,50 +38,50 @@
           "if" = {
             app-id = "org.ferdium.ferdium-app";
           };
-          run = "move-node-to-workspace 7";
+          run = "move-node-to-workspace C";
         }
         {
           "if" = {
             app-id = "com.facebook.archon.developerID";
           };
-          run = "move-node-to-workspace 7";
+          run = "move-node-to-workspace C";
         }
         {
           "if" = {
             app-id = "com.microsoft.Outlook";
           };
-          run = "move-node-to-workspace 5";
+          run = "move-node-to-workspace E";
         }
         {
           "if" = {
             app-id = "com.apple.iBooksX";
           };
-          run = "move-node-to-workspace 6";
+          run = "move-node-to-workspace M";
         }
         {
           "if" = {
             app-id = "com.apple.Music";
           };
-          run = "move-node-to-workspace 6";
+          run = "move-node-to-workspace M";
         }
         {
           "if" = {
             app-id = "com.apple.Podcasts";
           };
-          run = "move-node-to-workspace 6";
+          run = "move-node-to-workspace M";
         }
         {
           "if" = {
             app-name-regex-substring = "Audible";
             window-title-regex-substring = "Audible Cloud Player";
           };
-          run = "move-node-to-workspace 6";
+          run = "move-node-to-workspace M";
         }
         {
           "if" = {
             app-id = "com.tinyspeck.slackmacgap";
           };
-          run = "move-node-to-workspace 4";
+          run = "move-node-to-workspace S";
         }
 
         {
@@ -121,7 +121,6 @@
           run = [ "layout floating" ];
         }
       ];
-
       mode = {
         main = {
           binding = {
@@ -147,11 +146,10 @@
             alt-1 = "workspace 1";
             alt-2 = "workspace 2";
             alt-3 = "workspace 3";
-            alt-4 = "workspace 4";
-            alt-5 = "workspace 5";
-            alt-6 = "workspace 6";
-            alt-7 = "workspace 7";
-            alt-8 = "workspace 8";
+            alt-c = "workspace C";
+            alt-m = "workspace M";
+            alt-s = "workspace S";
+            alt-e = "workspace E";
 
             alt-tab = "workspace --wrap-around next";
             alt-shift-tab = "workspace --wrap-around prev";
@@ -160,11 +158,10 @@
             alt-shift-1 = "move-node-to-workspace 1 --focus-follows-window";
             alt-shift-2 = "move-node-to-workspace 2 --focus-follows-window";
             alt-shift-3 = "move-node-to-workspace 3 --focus-follows-window";
-            alt-shift-4 = "move-node-to-workspace 4 --focus-follows-window";
-            alt-shift-5 = "move-node-to-workspace 5 --focus-follows-window";
-            alt-shift-6 = "move-node-to-workspace 6 --focus-follows-window";
-            alt-shift-7 = "move-node-to-workspace 7 --focus-follows-window";
-            alt-shift-8 = "move-node-to-workspace 8 --focus-follows-window";
+            alt-shift-c = "move-node-to-workspace C --focus-follows-window";
+            alt-shift-e = "move-node-to-workspace E --focus-follows-window";
+            alt-shift-m = "move-node-to-workspace M --focus-follows-window";
+            alt-shift-s = "move-node-to-workspace S --focus-follows-window";
 
             alt-f = "fullscreen";
 
@@ -178,3 +175,4 @@
     };
   };
 }
+
