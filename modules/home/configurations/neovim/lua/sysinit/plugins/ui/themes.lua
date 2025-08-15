@@ -315,7 +315,7 @@ local function get_nightfox_config()
           enabled = true,
           background = true,
         },
-          notify = true,
+        notify = true,
         nvimtree = true,
         telescope = true,
         treesitter = true,

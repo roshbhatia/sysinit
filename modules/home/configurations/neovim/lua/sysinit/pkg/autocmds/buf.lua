@@ -17,7 +17,6 @@ function M.setup()
         "oil_preview",
         "avante",
         "opencode",
-        "neo-tree",
         "trouble",
         "quickfix",
         "help",
@@ -70,3 +69,4 @@ function M.setup()
 end
 
 return M
+
