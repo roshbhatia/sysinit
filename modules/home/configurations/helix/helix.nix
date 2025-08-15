@@ -241,14 +241,22 @@ in
         # Core languages (matching neovim config)
         {
           name = "nix";
+          scope = "source.nix";
           auto-format = true;
           formatter.command = "alejandra";
-          language-servers = [ "nil" "copilot" ];
+          language-servers = [
+            "nil"
+            "copilot"
+          ];
         }
         {
           name = "rust";
+          scope = "source.rust";
           auto-format = true;
-          language-servers = [ "rust-analyzer" "copilot" ];
+          language-servers = [
+            "rust-analyzer"
+            "copilot"
+          ];
           debugger = {
             name = "lldb-dap";
             transport = "stdio";
@@ -287,7 +295,11 @@ in
         }
         {
           name = "go";
-          language-servers = [ "gopls" "copilot" ];
+          scope = "source.go";
+          language-servers = [
+            "gopls"
+            "copilot"
+          ];
           auto-format = true;
           formatter.command = "goimports";
           debugger = {
@@ -365,7 +377,11 @@ in
         }
         {
           name = "python";
-          language-servers = [ "pyright" "copilot" ];
+          scope = "source.python";
+          language-servers = [
+            "pyright"
+            "copilot"
+          ];
           auto-format = true;
           debugger = {
             name = "debugpy";
@@ -396,11 +412,16 @@ in
         }
         {
           name = "lua";
-          language-servers = [ "lua-language-server" "copilot" ];
+          scope = "source.lua";
+          language-servers = [
+            "lua-language-server"
+            "copilot"
+          ];
           auto-format = true;
         }
         {
           name = "typescript";
+          scope = "source.ts";
           auto-format = true;
           language-servers = [
             "typescript-language-server"
@@ -443,6 +464,7 @@ in
         }
         {
           name = "javascript";
+          scope = "source.js";
           auto-format = true;
           language-servers = [
             "typescript-language-server"
@@ -452,6 +474,7 @@ in
         }
         {
           name = "jsx";
+          scope = "source.jsx";
           auto-format = true;
           language-servers = [
             "typescript-language-server"
@@ -461,6 +484,7 @@ in
         }
         {
           name = "tsx";
+          scope = "source.tsx";
           auto-format = true;
           language-servers = [
             "typescript-language-server"
@@ -470,16 +494,25 @@ in
         }
         {
           name = "json";
-          language-servers = [ "vscode-json-language-server" "copilot" ];
+          scope = "source.json";
+          language-servers = [
+            "vscode-json-language-server"
+            "copilot"
+          ];
           auto-format = true;
         }
         {
           name = "yaml";
-          language-servers = [ "yaml-language-server" "copilot" ];
+          scope = "source.yaml";
+          language-servers = [
+            "yaml-language-server"
+            "copilot"
+          ];
           auto-format = true;
         }
         {
           name = "terraform";
+          scope = "source.terraform";
           language-servers = [
             "terraform-ls"
             "tflint"
@@ -489,17 +522,29 @@ in
         }
         {
           name = "hcl";
-          language-servers = [ "terraform-ls" "copilot" ];
+          scope = "source.hcl";
+          language-servers = [
+            "terraform-ls"
+            "copilot"
+          ];
           auto-format = true;
         }
         {
           name = "dockerfile";
-          language-servers = [ "dockerfile-language-server" "copilot" ];
+          scope = "source.dockerfile";
+          language-servers = [
+            "dockerfile-language-server"
+            "copilot"
+          ];
           auto-format = true;
         }
         {
           name = "nushell";
-          language-servers = [ "nushell" "copilot" ];
+          scope = "source.nu";
+          language-servers = [
+            "nushell"
+            "copilot"
+          ];
           auto-format = true;
         }
       ];
