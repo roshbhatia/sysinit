@@ -1,4 +1,4 @@
-local nvim_config = require("sysinit.config.nvim_config").load_config()
+local agents_config = require("sysinit.config.agents_config").load_config()
 local M = {}
 
 M.plugins = {
@@ -101,7 +101,7 @@ M.plugins = {
         },
       })
 
-      if nvim_config.copilot.enabled then
+      if agents_config.agents.enabled then
         wk.add({
           {
             "<leader>h",

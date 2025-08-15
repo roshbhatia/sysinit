@@ -1,10 +1,10 @@
-local nvim_config = require("sysinit.config.nvim_config").load_config()
+local agents_config = require("sysinit.config.agents_config").load_config()
 local M = {}
 
 M.plugins = {
   {
     "azorng/goose.nvim",
-    enabled = nvim_config.copilot.enabled,
+    enabled = agents_config.agents.enabled and agents_config.agents.goose.enabled,
     dependencies = {
       "nvim-lua/plenary.nvim",
       "MeanderingProgrammer/render-markdown.nvim",
@@ -12,7 +12,6 @@ M.plugins = {
     lazy = true,
     config = function()
       require("goose").setup({
-        providers = nvim_config.goose.providers,
         keymap = {
           global = {
             toggle = "<leader>kk",
@@ -53,3 +52,4 @@ M.plugins = {
 }
 
 return M
+

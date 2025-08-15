@@ -1,9 +1,9 @@
-local nvim_config = require("sysinit.config.nvim_config").load_config()
+local agents_config = require("sysinit.config.agents_config").load_config()
 local M = {}
 
 M.plugins = {
   {
-    enabled = nvim_config.copilot.enabled,
+    enabled = agents_config.agents.enabled and agents_config.agents.copilot.enabled,
     "CopilotC-Nvim/CopilotChat.nvim",
     dependencies = {
       "zbirenbaum/copilot.lua",

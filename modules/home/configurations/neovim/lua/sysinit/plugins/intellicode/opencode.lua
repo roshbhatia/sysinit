@@ -1,7 +1,9 @@
+local agents_config = require("sysinit.config.agents_config").load_config()
 local M = {}
 
 M.plugins = {
   {
+    enabled = agents_config.agents.enabled and agents_config.agents.opencode.enabled,
     "NickvanDyke/opencode.nvim",
     dependencies = {
       "folke/snacks.nvim",
@@ -114,3 +116,4 @@ M.plugins = {
 }
 
 return M
+
