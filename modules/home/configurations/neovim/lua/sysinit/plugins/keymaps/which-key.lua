@@ -45,7 +45,7 @@ M.plugins = {
         },
         {
           "<leader>j",
-          group = "AI Terminals",
+          group = "Goose",
         },
         {
           "<leader>b",
@@ -80,18 +80,6 @@ M.plugins = {
           group = "Hunk",
         },
         {
-          "<leader>j",
-          group = "AI Terminals",
-        },
-        {
-          "<leader>jd",
-          group = "Diagnostics",
-        },
-        {
-          "<leader>jt",
-          group = "Toggle",
-        },
-        {
           "<localleader>.",
           group = "Cursor",
         },
@@ -113,6 +101,23 @@ M.plugins = {
         },
       })
 
+      if nvim_config.copilot.enabled then
+        wk.add({
+          {
+            "<leader>h",
+            group = "Copilot - Avante",
+          },
+          {
+            "<leader>j",
+            group = "Copilot - OpenCode",
+          },
+          {
+            "<leader>k",
+            group = "Copilot - Goose",
+          },
+        })
+      end
+
       if vim.env.SYSINIT_DEBUG == "1" then
         wk.add({
           {
@@ -126,4 +131,3 @@ M.plugins = {
 }
 
 return M
-

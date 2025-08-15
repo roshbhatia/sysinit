@@ -106,23 +106,11 @@ M.plugins = {
         },
         filesystem = {
           commands = {
-            ai_add_to_goose = function(state)
+            ai_add_to_avante = function(state)
               local node = state.tree:get_node()
               local filepath = node:get_id()
-              require("ai-terminals").add_files_to_terminal("goose", { filepath })
-              vim.notify("Added " .. vim.fn.fnamemodify(filepath, ":t") .. " to Goose")
-            end,
-            ai_add_to_claude = function(state)
-              local node = state.tree:get_node()
-              local filepath = node:get_id()
-              require("ai-terminals").add_files_to_terminal("claude", { filepath })
-              vim.notify("Added " .. vim.fn.fnamemodify(filepath, ":t") .. " to Claude")
-            end,
-            ai_add_to_opencode = function(state)
-              local node = state.tree:get_node()
-              local filepath = node:get_id()
-              require("ai-terminals").add_files_to_terminal("opencode", { filepath })
-              vim.notify("Added " .. vim.fn.fnamemodify(filepath, ":t") .. " to OpenCode")
+              require("avante.selected_files").add_file(filepath)
+              vim.notify("Added " .. vim.fn.fnamemodify(filepath, ":t") .. " to Avante")
             end,
           },
           filtered_items = {
@@ -157,9 +145,7 @@ M.plugins = {
           end,
           window = {
             mappings = {
-              ["+g"] = "ai_add_to_goose",
-              ["+c"] = "ai_add_to_claude",
-              ["+o"] = "ai_add_to_opencode",
+              ["+a"] = "ai_add_to_avante",
             },
           },
           find_command = "fd",
