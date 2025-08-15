@@ -1,6 +1,7 @@
 {
   lib,
   values,
+  pkgs,
   ...
 }:
 
@@ -13,18 +14,394 @@ in
     enable = true;
     settings = {
       theme = helixTheme;
+
       editor = {
         line-number = "relative";
+        mouse = true;
+        middle-click-paste = true;
+        auto-save = true;
+        auto-format = true;
+        auto-completion = true;
+        completion-trigger-len = 2;
+        completion-replace = true;
+        preview-completion-insert = true;
+        color-modes = true;
+        bufferline = "multiple";
+        true-color = true;
+        undercurl = true;
+        clipboard-provider = "unnamedplus";
 
         cursor-shape = {
           insert = "bar";
+          normal = "block";
           select = "underline";
         };
 
         file-picker = {
           hidden = false;
+          follow-symlinks = true;
+          deduplicate-links = true;
+          parents = true;
+          ignore = true;
+          git-ignore = true;
+          git-global = true;
+          git-exclude = true;
+          max-depth = 20;
+        };
+
+        search = {
+          smart-case = true;
+          wrap-around = true;
+        };
+
+        whitespace = {
+          render = {
+            space = "all";
+            tab = "all";
+            newline = "none";
+          };
+          characters = {
+            space = "·";
+            nbsp = "⍽";
+            tab = "→";
+            newline = "⏎";
+            tabpad = "·";
+          };
+        };
+
+        indent-guides = {
+          render = true;
+          character = "┊";
+          skip-levels = 1;
+        };
+
+        gutters = ["diff" "diagnostics" "line-numbers" "spacer"];
+
+        soft-wrap = {
+          enable = true;
+          max-wrap = 25;
+          max-indent-retain = 40;
+          wrap-indicator = "↪ ";
+        };
+
+        lsp = {
+          enable = true;
+          display-messages = true;
+          auto-signature-help = true;
+          display-inlay-hints = true;
+          display-signature-help-docs = true;
+          snippets = true;
+          goto-reference-include-declaration = true;
+        };
+
+        statusline = {
+          left = ["mode" "spinner" "file-name" "file-modification-indicator"];
+          center = ["file-type" "read-only-indicator" "file-encoding"];
+          right = ["diagnostics" "selections" "register" "position" "file-line-ending"];
+          separator = "│";
+          mode.normal = "NORMAL";
+          mode.insert = "INSERT";
+          mode.select = "SELECT";
         };
       };
     };
+
+    # Language-specific configuration
+    languages = {
+      language-server = {
+        # Core languages we use (matching neovim config)
+        rust-analyzer = {
+          config = {
+            checkOnSave = {
+              command = "clippy";
+            };
+            procMacro = {
+              enable = true;
+            };
+          };
+        };
+
+        gopls = {
+          command = "gopls";
+          config = {
+            gofumpt = true;
+            staticcheck = true;
+          };
+        };
+
+        pyright = {
+          command = "pyright-langserver";
+          args = ["--stdio"];
+        };
+
+        lua-language-server = {
+          command = "lua-language-server";
+        };
+
+        nil = {
+          command = "nil";
+          config.nil = {
+            formatting.command = ["alejandra"];
+            diagnostics.ignored = ["unused_binding" "unused_with"];
+          };
+        };
+
+        # JavaScript/TypeScript
+        typescript-language-server = {
+          config = {
+            preferences = {
+              includeInlayParameterNameHints = "all";
+              includeInlayParameterNameHintsWhenArgumentMatchesName = true;
+              includeInlayFunctionParameterTypeHints = true;
+              includeInlayVariableTypeHints = true;
+              includeInlayPropertyDeclarationTypeHints = true;
+              includeInlayFunctionLikeReturnTypeHints = true;
+            };
+          };
+        };
+
+        vscode-eslint-language-server = {
+          command = "vscode-eslint-language-server";
+          args = ["--stdio"];
+        };
+
+        # Config/Data
+        vscode-json-language-server = {
+          command = "vscode-json-language-server";
+          args = ["--stdio"];
+        };
+
+        yaml-language-server = {
+          command = "yaml-language-server";
+          args = ["--stdio"];
+        };
+
+        # DevOps/Infrastructure
+        terraform-ls = {
+          command = "terraform-ls";
+          args = ["serve"];
+        };
+
+        tflint = {
+          command = "tflint";
+          args = ["--langserver"];
+        };
+
+        dockerfile-language-server = {
+          command = "docker-langserver";
+          args = ["--stdio"];
+        };
+
+        helm-ls = {
+          command = "helm_ls";
+          args = ["serve"];
+        };
+
+        # Utilities
+        jq-lsp = {
+          command = "jq-lsp";
+        };
+
+        nushell = {
+          command = "nu";
+          args = ["--lsp"];
+        };
+      };
+
+      language = [
+        # Core languages (matching neovim config)
+        {
+          name = "nix";
+          auto-format = true;
+          formatter.command = "alejandra";
+        }
+        {
+          name = "rust";
+          auto-format = true;
+          debugger = {
+            name = "lldb-dap";
+            transport = "stdio";
+            command = "lldb-dap";
+            templates = [
+              {
+                name = "binary";
+                request = "launch";
+                completion = [{ name = "binary"; completion = "filename"; }];
+                args = {
+                  program = "{0}";
+                  initCommands = [ "command script import /usr/local/etc/lldb_dap_rustc_primer.py" ];
+                };
+              }
+              {
+                name = "binary (codelldb)";
+                request = "launch";
+                completion = [{ name = "binary"; completion = "filename"; }];
+                args = {
+                  program = "{0}";
+                  runInTerminal = true;
+                };
+              }
+            ];
+          };
+        }
+        {
+          name = "go";
+          language-servers = ["gopls"];
+          auto-format = true;
+          formatter.command = "goimports";
+          debugger = {
+            name = "go-debug";
+            transport = "tcp";
+            command = "dlv";
+            args = ["dap" "--check-go-version=false" "--listen=127.0.0.1:{}" "--log"];
+            port-arg = "--listen=127.0.0.1:{}";
+            templates = [
+              {
+                name = "source";
+                request = "launch";
+                completion = [{ name = "entrypoint"; completion = "filename"; default = "."; }];
+                args = {
+                  mode = "debug";
+                  program = "{0}";
+                };
+              }
+              {
+                name = "binary";
+                request = "launch";
+                completion = [{ name = "binary"; completion = "filename"; }];
+                args = {
+                  mode = "exec";
+                  program = "{0}";
+                };
+              }
+              {
+                name = "test";
+                request = "launch";
+                completion = [{ name = "tests"; completion = "directory"; default = "."; }];
+                args = {
+                  mode = "test";
+                  program = "{0}";
+                };
+              }
+              {
+                name = "attach";
+                request = "attach";
+                completion = [{ name = "pid"; completion = "pid"; }];
+                args = {
+                  mode = "local";
+                  processId = "{0}";
+                };
+              }
+            ];
+          };
+        }
+        {
+          name = "python";
+          language-servers = ["pyright"];
+          auto-format = true;
+          debugger = {
+            name = "debugpy";
+            transport = "stdio";
+            command = "python";
+            args = ["-m" "debugpy.adapter"];
+            templates = [
+              {
+                name = "source";
+                request = "launch";
+                completion = [{ name = "entrypoint"; completion = "filename"; default = "main.py"; }];
+                args = {
+                  program = "{0}";
+                  console = "integratedTerminal";
+                };
+              }
+            ];
+          };
+        }
+        {
+          name = "lua";
+          language-servers = ["lua-language-server"];
+          auto-format = true;
+        }
+        {
+          name = "typescript";
+          auto-format = true;
+          language-servers = ["typescript-language-server" "vscode-eslint-language-server"];
+          debugger = {
+            name = "node-debug2";
+            transport = "stdio";
+            quirks = { absolute-paths = true; };
+            command = "node";
+            args = [
+              "/path/to/vscode-node-debug2/out/src/nodeDebug.js"
+            ];
+            templates = [
+              {
+                name = "source";
+                request = "launch";
+                completion = [{ name = "main"; completion = "filename"; default = "index.ts"; }];
+                args = {
+                  program = "{0}";
+                  cwd = "${workspaceFolder}";
+                  runtimeExecutable = "node";
+                  runtimeArgs = ["-r" "ts-node/register"];
+                };
+              }
+            ];
+          };
+        }
+        {
+          name = "javascript";
+          auto-format = true;
+          language-servers = ["typescript-language-server" "vscode-eslint-language-server"];
+        }
+        {
+          name = "jsx";
+          auto-format = true;
+          language-servers = ["typescript-language-server" "vscode-eslint-language-server"];
+        }
+        {
+          name = "tsx";
+          auto-format = true;
+          language-servers = ["typescript-language-server" "vscode-eslint-language-server"];
+        }
+        {
+          name = "json";
+          language-servers = ["vscode-json-language-server"];
+          auto-format = true;
+        }
+        {
+          name = "yaml";
+          language-servers = ["yaml-language-server"];
+          auto-format = true;
+        }
+        {
+          name = "terraform";
+          language-servers = ["terraform-ls" "tflint"];
+          auto-format = true;
+        }
+        {
+          name = "hcl";
+          language-servers = ["terraform-ls"];
+          auto-format = true;
+        }
+        {
+          name = "dockerfile";
+          language-servers = ["dockerfile-language-server"];
+          auto-format = true;
+        }
+        {
+          name = "nushell";
+          language-servers = ["nushell"];
+          auto-format = true;
+        }
+      ];
+    };
   };
+
+  # Ensure clipboard utilities are available
+  home.packages = with pkgs; [
+    wl-clipboard  # Wayland clipboard
+    xclip         # X11 clipboard fallback
+  ];
 }
+

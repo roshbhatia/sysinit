@@ -29,12 +29,6 @@ M.plugins = {
             "prettier",
             stop_after_first = true,
           },
-          markdown = {
-            "markdownlint",
-            "prettierd",
-            "prettier",
-            stop_after_first = true,
-          },
           html = {
             "prettierd",
             "prettier",
@@ -63,6 +57,13 @@ M.plugins = {
           if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
             return
           end
+
+          -- Disable formatting for markdown files
+          local filetype = vim.bo[bufnr].filetype
+          if filetype == "markdown" then
+            return
+          end
+
           local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(bufnr))
           if ok and stats and stats.size and stats.size > 1024 * 1024 then
             return
