@@ -29,7 +29,7 @@ in
         bufferline = "multiple";
         true-color = true;
         undercurl = true;
-        clipboard-provider = "unnamedplus";
+        clipboard-provider = "pasteboard";
 
         cursor-shape = {
           insert = "bar";
