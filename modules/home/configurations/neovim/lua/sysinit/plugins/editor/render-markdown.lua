@@ -20,9 +20,10 @@ M.plugins = {
           border_virtual = true,
         },
         code = {
-          border = "thin",
+          border = "none",
           position = "left",
-          language_icon = true,
+          language = false,
+          highlight = "NONE",
         },
         pipe_table = {
           above = "─",
