@@ -8,9 +8,18 @@ function M.setup(config)
   tabline.setup({
     options = {
       theme = config.colors,
-      section_separators = "",
-      component_separators = "",
-      tab_separators = "",
+      section_separators = {
+        left = wezterm.nerdfonts.pl_left_hard_divider,
+        right = wezterm.nerdfonts.pl_right_hard_divider,
+      },
+      component_separators = {
+        left = wezterm.nerdfonts.pl_left_soft_divider,
+        right = wezterm.nerdfonts.pl_right_soft_divider,
+      },
+      tab_separators = {
+        left = wezterm.nerdfonts.pl_left_hard_divider,
+        right = wezterm.nerdfonts.pl_right_hard_divider,
+      },
     },
     sections = {
       tabline_a = {
@@ -45,9 +54,7 @@ function M.setup(config)
       tabline_x = {
         " ",
       },
-      tabline_y = {
-        "domain",
-      },
+      tabline_y = {},
       tabline_z = {
         " 󱄅 ",
       },
@@ -59,3 +66,4 @@ function M.setup(config)
 end
 
 return M
+
