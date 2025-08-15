@@ -41,17 +41,11 @@ local function get_transparent_highlights()
     DiagnosticVirtualTextHint = { bg = "none" },
     TelescopeNormal = { bg = "none" },
     TelescopeBorder = { bg = "none" },
-    NeoTreeNormal = { bg = "none" },
-    NeoTreeNormalNC = { bg = "none" },
-    NeoTreeWinSeparator = { bg = "none" },
     DropBarIconKindDefault = { bg = "none" },
     DropBarIconKindDefaultNC = { bg = "none" },
     DropBarMenuNormalFloat = { bg = "none" },
     DropBarCurrentContext = { bg = "none" },
     DropBarMenuFloatBorder = { bg = "none" },
-    EdgyTitle = { bg = "none" },
-    EdgyIcon = { bg = "none" },
-    EdgyIconActive = { bg = "none" },
     TreesitterContext = { bg = "none" },
     TreesitterContextLineNumber = { bg = "none" },
     WhichKeyFloat = { bg = "none" },
@@ -159,7 +153,6 @@ local function get_catppuccin_config()
         enabled = true,
         virtual_text = { errors = { "italic" }, hints = { "italic" } },
       },
-      neotree = true,
       notify = true,
       nvimtree = true,
       render_markdown = true,
@@ -234,9 +227,6 @@ local function get_rose_pine_config()
   if theme_config.transparency.enable then
     overrides.WinBar = { bg = "none", fg = "subtle" }
     overrides.WinBarNC = { bg = "none", fg = "muted" }
-    overrides.NeoTreeWinSeparator = { bg = "none", fg = "muted" }
-    overrides.NeoTreeVertSplit = { bg = "none", fg = "muted" }
-    overrides.NeoTreeEndOfBuffer = { bg = "none", fg = "none" }
     overrides.DropBarMenuFloatBorder = { bg = "none", fg = "muted" }
   end
 
@@ -325,8 +315,7 @@ local function get_nightfox_config()
           enabled = true,
           background = true,
         },
-        neotree = true,
-        notify = true,
+          notify = true,
         nvimtree = true,
         telescope = true,
         treesitter = true,
@@ -356,11 +345,6 @@ local function get_nightfox_config()
         WinSeparator = { bg = "NONE" },
         WinBar = { bg = "NONE" },
         WinBarNC = { bg = "NONE" },
-        NeoTreeNormal = { bg = "NONE" },
-        NeoTreeNormalNC = { bg = "NONE" },
-        NeoTreeWinSeparator = { bg = "NONE" },
-        NeoTreeVertSplit = { bg = "NONE" },
-        NeoTreeEndOfBuffer = { bg = "NONE" },
       },
     } or {},
   }

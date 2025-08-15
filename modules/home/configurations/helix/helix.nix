@@ -381,7 +381,13 @@ in
         {
           name = "python";
           scope = "source.python";
-          file-types = [ "py" "pyi" "py3" "pyw" "ptl" ];
+          file-types = [
+            "py"
+            "pyi"
+            "py3"
+            "pyw"
+            "ptl"
+          ];
           language-servers = [
             "pyright"
             "copilot"
@@ -427,7 +433,11 @@ in
         {
           name = "typescript";
           scope = "source.ts";
-          file-types = [ "ts" "mts" "cts" ];
+          file-types = [
+            "ts"
+            "mts"
+            "cts"
+          ];
           auto-format = true;
           language-servers = [
             "typescript-language-server"
@@ -471,7 +481,11 @@ in
         {
           name = "javascript";
           scope = "source.js";
-          file-types = [ "js" "mjs" "cjs" ];
+          file-types = [
+            "js"
+            "mjs"
+            "cjs"
+          ];
           auto-format = true;
           language-servers = [
             "typescript-language-server"
@@ -504,7 +518,13 @@ in
         {
           name = "json";
           scope = "source.json";
-          file-types = [ "json" "jsonc" "arb" "ipynb" "geojson" ];
+          file-types = [
+            "json"
+            "jsonc"
+            "arb"
+            "ipynb"
+            "geojson"
+          ];
           language-servers = [
             "vscode-json-language-server"
             "copilot"
@@ -514,7 +534,10 @@ in
         {
           name = "yaml";
           scope = "source.yaml";
-          file-types = [ "yml" "yaml" ];
+          file-types = [
+            "yml"
+            "yaml"
+          ];
           language-servers = [
             "yaml-language-server"
             "copilot"
@@ -524,7 +547,10 @@ in
         {
           name = "terraform";
           scope = "source.terraform";
-          file-types = [ "tf" "tfvars" ];
+          file-types = [
+            "tf"
+            "tfvars"
+          ];
           language-servers = [
             "terraform-ls"
             "tflint"
@@ -545,7 +571,11 @@ in
         {
           name = "dockerfile";
           scope = "source.dockerfile";
-          file-types = [ "dockerfile" "Dockerfile" "Containerfile" ];
+          file-types = [
+            "dockerfile"
+            "Dockerfile"
+            "Containerfile"
+          ];
           language-servers = [
             "dockerfile-language-server"
             "copilot"
