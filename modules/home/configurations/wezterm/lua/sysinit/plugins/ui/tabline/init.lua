@@ -16,10 +16,7 @@ function M.setup(config)
         left = wezterm.nerdfonts.pl_left_soft_divider,
         right = wezterm.nerdfonts.pl_right_soft_divider,
       },
-      tab_separators = {
-        left = wezterm.nerdfonts.pl_left_hard_divider,
-        right = wezterm.nerdfonts.pl_right_hard_divider,
-      },
+      tab_separators = "",
     },
     sections = {
       tabline_a = {
