@@ -242,6 +242,7 @@ in
         {
           name = "nix";
           scope = "source.nix";
+          file-types = [ "nix" ];
           auto-format = true;
           formatter.command = "alejandra";
           language-servers = [
@@ -252,6 +253,7 @@ in
         {
           name = "rust";
           scope = "source.rust";
+          file-types = [ "rs" ];
           auto-format = true;
           language-servers = [
             "rust-analyzer"
@@ -296,6 +298,7 @@ in
         {
           name = "go";
           scope = "source.go";
+          file-types = [ "go" ];
           language-servers = [
             "gopls"
             "copilot"
@@ -378,6 +381,7 @@ in
         {
           name = "python";
           scope = "source.python";
+          file-types = [ "py" "pyi" "py3" "pyw" "ptl" ];
           language-servers = [
             "pyright"
             "copilot"
@@ -413,6 +417,7 @@ in
         {
           name = "lua";
           scope = "source.lua";
+          file-types = [ "lua" ];
           language-servers = [
             "lua-language-server"
             "copilot"
@@ -422,6 +427,7 @@ in
         {
           name = "typescript";
           scope = "source.ts";
+          file-types = [ "ts" "mts" "cts" ];
           auto-format = true;
           language-servers = [
             "typescript-language-server"
@@ -465,6 +471,7 @@ in
         {
           name = "javascript";
           scope = "source.js";
+          file-types = [ "js" "mjs" "cjs" ];
           auto-format = true;
           language-servers = [
             "typescript-language-server"
@@ -475,6 +482,7 @@ in
         {
           name = "jsx";
           scope = "source.jsx";
+          file-types = [ "jsx" ];
           auto-format = true;
           language-servers = [
             "typescript-language-server"
@@ -485,6 +493,7 @@ in
         {
           name = "tsx";
           scope = "source.tsx";
+          file-types = [ "tsx" ];
           auto-format = true;
           language-servers = [
             "typescript-language-server"
@@ -495,6 +504,7 @@ in
         {
           name = "json";
           scope = "source.json";
+          file-types = [ "json" "jsonc" "arb" "ipynb" "geojson" ];
           language-servers = [
             "vscode-json-language-server"
             "copilot"
@@ -504,6 +514,7 @@ in
         {
           name = "yaml";
           scope = "source.yaml";
+          file-types = [ "yml" "yaml" ];
           language-servers = [
             "yaml-language-server"
             "copilot"
@@ -513,6 +524,7 @@ in
         {
           name = "terraform";
           scope = "source.terraform";
+          file-types = [ "tf" "tfvars" ];
           language-servers = [
             "terraform-ls"
             "tflint"
@@ -523,6 +535,7 @@ in
         {
           name = "hcl";
           scope = "source.hcl";
+          file-types = [ "hcl" ];
           language-servers = [
             "terraform-ls"
             "copilot"
@@ -532,6 +545,7 @@ in
         {
           name = "dockerfile";
           scope = "source.dockerfile";
+          file-types = [ "dockerfile" "Dockerfile" "Containerfile" ];
           language-servers = [
             "dockerfile-language-server"
             "copilot"
@@ -541,6 +555,7 @@ in
         {
           name = "nushell";
           scope = "source.nu";
+          file-types = [ "nu" ];
           language-servers = [
             "nushell"
             "copilot"
