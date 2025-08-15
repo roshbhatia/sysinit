@@ -36,10 +36,6 @@ M.plugins = {
           group = "Editor Actions",
         },
         {
-          "<localleader>P",
-          group = "Precognition",
-        },
-        {
           "<localleader>r",
           group = "Refresh",
         },
@@ -78,10 +74,6 @@ M.plugins = {
         {
           "<localleader>gh",
           group = "Hunk",
-        },
-        {
-          "<localleader>.",
-          group = "Cursor",
         },
         {
           "<leader>m",
@@ -131,3 +123,4 @@ M.plugins = {
 }
 
 return M
+
