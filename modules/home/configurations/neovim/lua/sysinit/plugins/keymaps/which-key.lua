@@ -80,6 +80,18 @@ M.plugins = {
           group = "Hunk",
         },
         {
+          "<leader>j",
+          group = "AI Terminals",
+        },
+        {
+          "<leader>jd",
+          group = "Diagnostics",
+        },
+        {
+          "<leader>jt",
+          group = "Toggle",
+        },
+        {
           "<localleader>.",
           group = "Cursor",
         },
@@ -101,53 +113,6 @@ M.plugins = {
         },
       })
 
-      wk.add({
-        {
-          "<leader>jg",
-          group = "Goose",
-        },
-        {
-          "<leader>jc",
-          group = "Claude",
-        },
-        {
-          "<leader>jo",
-          group = "OpenCode",
-        },
-        {
-          "<leader>jd",
-          group = "Diagnostics",
-        },
-        {
-          "<leader>ja",
-          group = "Add Files",
-        },
-        {
-          "<leader>jA",
-          group = "Add All Buffers",
-        },
-        {
-          "<leader>je",
-          group = "Explain",
-        },
-        {
-          "<leader>jv",
-          group = "Review",
-        },
-        {
-          "<localleader>g",
-          group = "Add to Goose (Telescope)",
-        },
-        {
-          "<localleader>c",
-          group = "Add to Claude (Telescope)",
-        },
-        {
-          "<localleader>o",
-          group = "Add to OpenCode (Telescope)",
-        },
-      })
-
       if vim.env.SYSINIT_DEBUG == "1" then
         wk.add({
           {
@@ -161,3 +126,4 @@ M.plugins = {
 }
 
 return M
+
