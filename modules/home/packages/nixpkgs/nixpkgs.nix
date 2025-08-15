@@ -120,7 +120,6 @@ let
     tflint
     tflint-plugins.tflint-ruleset-aws
     tlrc
-    tmux
     tree
     typescript
     typescript-language-server

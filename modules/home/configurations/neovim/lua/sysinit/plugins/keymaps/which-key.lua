@@ -134,6 +134,18 @@ M.plugins = {
           "<leader>jv",
           group = "Review",
         },
+        {
+          "<localleader>g",
+          group = "Add to Goose (Telescope)",
+        },
+        {
+          "<localleader>c",
+          group = "Add to Claude (Telescope)",
+        },
+        {
+          "<localleader>o",
+          group = "Add to OpenCode (Telescope)",
+        },
       })
 
       if vim.env.SYSINIT_DEBUG == "1" then

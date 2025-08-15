@@ -56,7 +56,7 @@
   };
 
   wezterm = {
-    shell = "nu";
+    shell = "zsh";
   };
 
   llm = {

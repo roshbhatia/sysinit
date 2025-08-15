@@ -5,53 +5,15 @@ M.plugins = {
     "aweis89/ai-terminals.nvim",
     dependencies = { "folke/snacks.nvim" },
     config = function()
-      -- Ensure vim uses the correct shell
-      vim.opt.shell = "/bin/zsh"
-      vim.opt.shellcmdflag = "-c"
-
       require("ai-terminals").setup({
         terminals = {
-          goose = {
-            cmd = function()
-              return string.format("GOOSE_CLI_THEME=%s goose", vim.o.background)
-            end,
-            path_header_template = "@%s",
-            file_commands = {
-              add_files = "@%s",
-              submit = false,
-            },
-          },
-          claude = {
-            cmd = function()
-              return string.format("claude config set -g theme %s && claude", vim.o.background)
-            end,
-            path_header_template = "@%s",
-            file_commands = {
-              add_files = "@%s",
-              submit = false,
-            },
-          },
           opencode = {
-            cmd = function()
-              return "opencode"
-            end,
+            cmd = "opencode",
             path_header_template = "@%s",
-            file_commands = {
-              add_files = "@%s",
-              submit = false,
-            },
           },
-        },
-        default_position = "right",
-        window_dimensions = {
-          float = { width = 0.8, height = 0.7 },
-          bottom = { width = 1.0, height = 0.4 },
-          right = { width = 0.4, height = 1.0 },
-          border = "rounded",
         },
         env = {
           PAGER = "bat --style=auto --theme=auto",
-          EDITOR = "nvim",
         },
         enable_diffing = true,
         terminal_keymaps = {
@@ -259,3 +221,4 @@ M.plugins = {
 }
 
 return M
+
