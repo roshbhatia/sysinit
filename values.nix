@@ -27,7 +27,6 @@
         casks = [
           "betterdiscord-installer"
           "calibre"
-          # "cursor-cli"
           "discord"
           "notion"
           "steam"
@@ -65,4 +64,3 @@
     };
   };
 }
-

@@ -75,7 +75,12 @@ in
           skip-levels = 1;
         };
 
-        gutters = ["diff" "diagnostics" "line-numbers" "spacer"];
+        gutters = [
+          "diff"
+          "diagnostics"
+          "line-numbers"
+          "spacer"
+        ];
 
         soft-wrap = {
           enable = true;
@@ -95,9 +100,24 @@ in
         };
 
         statusline = {
-          left = ["mode" "spinner" "file-name" "file-modification-indicator"];
-          center = ["file-type" "read-only-indicator" "file-encoding"];
-          right = ["diagnostics" "selections" "register" "position" "file-line-ending"];
+          left = [
+            "mode"
+            "spinner"
+            "file-name"
+            "file-modification-indicator"
+          ];
+          center = [
+            "file-type"
+            "read-only-indicator"
+            "file-encoding"
+          ];
+          right = [
+            "diagnostics"
+            "selections"
+            "register"
+            "position"
+            "file-line-ending"
+          ];
           separator = "│";
           mode.normal = "NORMAL";
           mode.insert = "INSERT";
@@ -131,7 +151,7 @@ in
 
         pyright = {
           command = "pyright-langserver";
-          args = ["--stdio"];
+          args = [ "--stdio" ];
         };
 
         lua-language-server = {
@@ -141,8 +161,11 @@ in
         nil = {
           command = "nil";
           config.nil = {
-            formatting.command = ["alejandra"];
-            diagnostics.ignored = ["unused_binding" "unused_with"];
+            formatting.command = [ "alejandra" ];
+            diagnostics.ignored = [
+              "unused_binding"
+              "unused_with"
+            ];
           };
         };
 
@@ -162,39 +185,39 @@ in
 
         vscode-eslint-language-server = {
           command = "vscode-eslint-language-server";
-          args = ["--stdio"];
+          args = [ "--stdio" ];
         };
 
         # Config/Data
         vscode-json-language-server = {
           command = "vscode-json-language-server";
-          args = ["--stdio"];
+          args = [ "--stdio" ];
         };
 
         yaml-language-server = {
           command = "yaml-language-server";
-          args = ["--stdio"];
+          args = [ "--stdio" ];
         };
 
         # DevOps/Infrastructure
         terraform-ls = {
           command = "terraform-ls";
-          args = ["serve"];
+          args = [ "serve" ];
         };
 
         tflint = {
           command = "tflint";
-          args = ["--langserver"];
+          args = [ "--langserver" ];
         };
 
         dockerfile-language-server = {
           command = "docker-langserver";
-          args = ["--stdio"];
+          args = [ "--stdio" ];
         };
 
         helm-ls = {
           command = "helm_ls";
-          args = ["serve"];
+          args = [ "serve" ];
         };
 
         # Utilities
@@ -204,7 +227,7 @@ in
 
         nushell = {
           command = "nu";
-          args = ["--lsp"];
+          args = [ "--lsp" ];
         };
       };
 
@@ -226,7 +249,12 @@ in
               {
                 name = "binary";
                 request = "launch";
-                completion = [{ name = "binary"; completion = "filename"; }];
+                completion = [
+                  {
+                    name = "binary";
+                    completion = "filename";
+                  }
+                ];
                 args = {
                   program = "{0}";
                   initCommands = [ "command script import /usr/local/etc/lldb_dap_rustc_primer.py" ];
@@ -235,7 +263,12 @@ in
               {
                 name = "binary (codelldb)";
                 request = "launch";
-                completion = [{ name = "binary"; completion = "filename"; }];
+                completion = [
+                  {
+                    name = "binary";
+                    completion = "filename";
+                  }
+                ];
                 args = {
                   program = "{0}";
                   runInTerminal = true;
@@ -246,20 +279,31 @@ in
         }
         {
           name = "go";
-          language-servers = ["gopls"];
+          language-servers = [ "gopls" ];
           auto-format = true;
           formatter.command = "goimports";
           debugger = {
             name = "go-debug";
             transport = "tcp";
             command = "dlv";
-            args = ["dap" "--check-go-version=false" "--listen=127.0.0.1:{}" "--log"];
+            args = [
+              "dap"
+              "--check-go-version=false"
+              "--listen=127.0.0.1:{}"
+              "--log"
+            ];
             port-arg = "--listen=127.0.0.1:{}";
             templates = [
               {
                 name = "source";
                 request = "launch";
-                completion = [{ name = "entrypoint"; completion = "filename"; default = "."; }];
+                completion = [
+                  {
+                    name = "entrypoint";
+                    completion = "filename";
+                    default = ".";
+                  }
+                ];
                 args = {
                   mode = "debug";
                   program = "{0}";
@@ -268,7 +312,12 @@ in
               {
                 name = "binary";
                 request = "launch";
-                completion = [{ name = "binary"; completion = "filename"; }];
+                completion = [
+                  {
+                    name = "binary";
+                    completion = "filename";
+                  }
+                ];
                 args = {
                   mode = "exec";
                   program = "{0}";
@@ -277,7 +326,13 @@ in
               {
                 name = "test";
                 request = "launch";
-                completion = [{ name = "tests"; completion = "directory"; default = "."; }];
+                completion = [
+                  {
+                    name = "tests";
+                    completion = "directory";
+                    default = ".";
+                  }
+                ];
                 args = {
                   mode = "test";
                   program = "{0}";
@@ -286,7 +341,12 @@ in
               {
                 name = "attach";
                 request = "attach";
-                completion = [{ name = "pid"; completion = "pid"; }];
+                completion = [
+                  {
+                    name = "pid";
+                    completion = "pid";
+                  }
+                ];
                 args = {
                   mode = "local";
                   processId = "{0}";
@@ -297,18 +357,27 @@ in
         }
         {
           name = "python";
-          language-servers = ["pyright"];
+          language-servers = [ "pyright" ];
           auto-format = true;
           debugger = {
             name = "debugpy";
             transport = "stdio";
             command = "python";
-            args = ["-m" "debugpy.adapter"];
+            args = [
+              "-m"
+              "debugpy.adapter"
+            ];
             templates = [
               {
                 name = "source";
                 request = "launch";
-                completion = [{ name = "entrypoint"; completion = "filename"; default = "main.py"; }];
+                completion = [
+                  {
+                    name = "entrypoint";
+                    completion = "filename";
+                    default = "main.py";
+                  }
+                ];
                 args = {
                   program = "{0}";
                   console = "integratedTerminal";
@@ -319,17 +388,22 @@ in
         }
         {
           name = "lua";
-          language-servers = ["lua-language-server"];
+          language-servers = [ "lua-language-server" ];
           auto-format = true;
         }
         {
           name = "typescript";
           auto-format = true;
-          language-servers = ["typescript-language-server" "vscode-eslint-language-server"];
+          language-servers = [
+            "typescript-language-server"
+            "vscode-eslint-language-server"
+          ];
           debugger = {
             name = "node-debug2";
             transport = "stdio";
-            quirks = { absolute-paths = true; };
+            quirks = {
+              absolute-paths = true;
+            };
             command = "node";
             args = [
               "/path/to/vscode-node-debug2/out/src/nodeDebug.js"
@@ -338,12 +412,21 @@ in
               {
                 name = "source";
                 request = "launch";
-                completion = [{ name = "main"; completion = "filename"; default = "index.ts"; }];
+                completion = [
+                  {
+                    name = "main";
+                    completion = "filename";
+                    default = "index.ts";
+                  }
+                ];
                 args = {
                   program = "{0}";
                   cwd = "${workspaceFolder}";
                   runtimeExecutable = "node";
-                  runtimeArgs = ["-r" "ts-node/register"];
+                  runtimeArgs = [
+                    "-r"
+                    "ts-node/register"
+                  ];
                 };
               }
             ];
@@ -352,46 +435,58 @@ in
         {
           name = "javascript";
           auto-format = true;
-          language-servers = ["typescript-language-server" "vscode-eslint-language-server"];
+          language-servers = [
+            "typescript-language-server"
+            "vscode-eslint-language-server"
+          ];
         }
         {
           name = "jsx";
           auto-format = true;
-          language-servers = ["typescript-language-server" "vscode-eslint-language-server"];
+          language-servers = [
+            "typescript-language-server"
+            "vscode-eslint-language-server"
+          ];
         }
         {
           name = "tsx";
           auto-format = true;
-          language-servers = ["typescript-language-server" "vscode-eslint-language-server"];
+          language-servers = [
+            "typescript-language-server"
+            "vscode-eslint-language-server"
+          ];
         }
         {
           name = "json";
-          language-servers = ["vscode-json-language-server"];
+          language-servers = [ "vscode-json-language-server" ];
           auto-format = true;
         }
         {
           name = "yaml";
-          language-servers = ["yaml-language-server"];
+          language-servers = [ "yaml-language-server" ];
           auto-format = true;
         }
         {
           name = "terraform";
-          language-servers = ["terraform-ls" "tflint"];
+          language-servers = [
+            "terraform-ls"
+            "tflint"
+          ];
           auto-format = true;
         }
         {
           name = "hcl";
-          language-servers = ["terraform-ls"];
+          language-servers = [ "terraform-ls" ];
           auto-format = true;
         }
         {
           name = "dockerfile";
-          language-servers = ["dockerfile-language-server"];
+          language-servers = [ "dockerfile-language-server" ];
           auto-format = true;
         }
         {
           name = "nushell";
-          language-servers = ["nushell"];
+          language-servers = [ "nushell" ];
           auto-format = true;
         }
       ];
@@ -400,8 +495,7 @@ in
 
   # Ensure clipboard utilities are available
   home.packages = with pkgs; [
-    wl-clipboard  # Wayland clipboard
-    xclip         # X11 clipboard fallback
+    wl-clipboard # Wayland clipboard
+    xclip # X11 clipboard fallback
   ];
 }
-
