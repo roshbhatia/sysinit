@@ -26,6 +26,7 @@ let
     chafa
     checkmake
     colima
+    copilot-language-server
     coreutils
     deadnix
     delta
@@ -144,3 +145,4 @@ in
 {
   home.packages = allNixPackages;
 }
+

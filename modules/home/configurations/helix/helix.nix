@@ -229,6 +229,12 @@ in
           command = "nu";
           args = [ "--lsp" ];
         };
+
+        # AI Assistant
+        copilot = {
+          command = "copilot-language-server";
+          args = [ "--stdio" ];
+        };
       };
 
       language = [
@@ -237,10 +243,12 @@ in
           name = "nix";
           auto-format = true;
           formatter.command = "alejandra";
+          language-servers = [ "nil" "copilot" ];
         }
         {
           name = "rust";
           auto-format = true;
+          language-servers = [ "rust-analyzer" "copilot" ];
           debugger = {
             name = "lldb-dap";
             transport = "stdio";
@@ -279,7 +287,7 @@ in
         }
         {
           name = "go";
-          language-servers = [ "gopls" ];
+          language-servers = [ "gopls" "copilot" ];
           auto-format = true;
           formatter.command = "goimports";
           debugger = {
@@ -357,7 +365,7 @@ in
         }
         {
           name = "python";
-          language-servers = [ "pyright" ];
+          language-servers = [ "pyright" "copilot" ];
           auto-format = true;
           debugger = {
             name = "debugpy";
@@ -388,7 +396,7 @@ in
         }
         {
           name = "lua";
-          language-servers = [ "lua-language-server" ];
+          language-servers = [ "lua-language-server" "copilot" ];
           auto-format = true;
         }
         {
@@ -397,6 +405,7 @@ in
           language-servers = [
             "typescript-language-server"
             "vscode-eslint-language-server"
+            "copilot"
           ];
           debugger = {
             name = "node-debug2";
@@ -421,7 +430,7 @@ in
                 ];
                 args = {
                   program = "{0}";
-                  cwd = "${workspaceFolder}";
+                  cwd = ".";
                   runtimeExecutable = "node";
                   runtimeArgs = [
                     "-r"
@@ -438,6 +447,7 @@ in
           language-servers = [
             "typescript-language-server"
             "vscode-eslint-language-server"
+            "copilot"
           ];
         }
         {
@@ -446,6 +456,7 @@ in
           language-servers = [
             "typescript-language-server"
             "vscode-eslint-language-server"
+            "copilot"
           ];
         }
         {
@@ -454,16 +465,17 @@ in
           language-servers = [
             "typescript-language-server"
             "vscode-eslint-language-server"
+            "copilot"
           ];
         }
         {
           name = "json";
-          language-servers = [ "vscode-json-language-server" ];
+          language-servers = [ "vscode-json-language-server" "copilot" ];
           auto-format = true;
         }
         {
           name = "yaml";
-          language-servers = [ "yaml-language-server" ];
+          language-servers = [ "yaml-language-server" "copilot" ];
           auto-format = true;
         }
         {
@@ -471,22 +483,23 @@ in
           language-servers = [
             "terraform-ls"
             "tflint"
+            "copilot"
           ];
           auto-format = true;
         }
         {
           name = "hcl";
-          language-servers = [ "terraform-ls" ];
+          language-servers = [ "terraform-ls" "copilot" ];
           auto-format = true;
         }
         {
           name = "dockerfile";
-          language-servers = [ "dockerfile-language-server" ];
+          language-servers = [ "dockerfile-language-server" "copilot" ];
           auto-format = true;
         }
         {
           name = "nushell";
-          language-servers = [ "nushell" ];
+          language-servers = [ "nushell" "copilot" ];
           auto-format = true;
         }
       ];
