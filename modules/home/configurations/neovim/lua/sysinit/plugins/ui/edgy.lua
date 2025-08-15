@@ -9,7 +9,9 @@ M.plugins = {
 
       require("edgy").setup({
         animate = {
-          enabled = false,
+          enabled = true,
+          fps = 144,
+          cps = 360,
         },
         options = {
           left = {
@@ -29,7 +31,23 @@ M.plugins = {
             filter = function(buf)
               return vim.b[buf].neo_tree_source == "filesystem"
             end,
-            open = "Neotree position=right filesystem",
+          },
+        },
+        right = {
+          {
+            title = " AI Assistant",
+            ft = { "avante_input", "avante_chat" },
+            filter = function(buf, win)
+              local bufname = vim.api.nvim_buf_get_name(buf)
+              local buftype = vim.api.nvim_get_option_value("buftype", { buf = buf })
+              -- Check for AI-related buffer names, types, or variables
+              return bufname:match("avante")
+                or bufname:match("goose")
+                or bufname:match("opencode")
+                or buftype == "nofile"
+                  and (vim.b[buf].ai_assistant or vim.w[win].ai_assistant or bufname:match("Avante"))
+            end,
+            size = 80,
           },
         },
         bottom = {
@@ -55,3 +73,4 @@ M.plugins = {
 }
 
 return M
+
