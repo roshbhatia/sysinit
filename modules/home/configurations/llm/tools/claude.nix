@@ -1,7 +1,6 @@
 { lib, values, ... }:
 let
   claudeConfig = import ../config/claude.nix;
-  agents = import ../shared/agents.nix;
   themes = import ../../../../lib/theme { inherit lib; };
 
   claudeEnabled = values.llm.claude.enabled or false;
@@ -146,21 +145,6 @@ lib.mkIf claudeEnabled {
       };
       force = true;
     };
-  }
-  // builtins.listToAttrs (
-    map (agent: {
-      name = ".claude/agents/${agent.name}.md";
-      value = {
-        text = ''
-          ---
-          name: ${agent.name}
-          description: ${agent.description}
-          ---
-
-          ${agent.prompt}
-        '';
-      };
-    }) agents
-  );
+  };
 }
 

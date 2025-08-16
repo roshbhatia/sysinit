@@ -8,4 +8,3 @@
   shareAnalytics = false;
   localMode = true;
 }
-
