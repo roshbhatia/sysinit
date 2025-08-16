@@ -28,6 +28,7 @@ let
     checkmake
     colima
     copilot-language-server
+    coreutils
     deadnix
     delta
     delve
@@ -106,7 +107,6 @@ let
     proselint
     pyright
     python311Full
-    coreutils
     ripgrep
     rust
     rust-analyzer
@@ -155,4 +155,3 @@ in
 {
   home.packages = allNixPackages;
 }
-
