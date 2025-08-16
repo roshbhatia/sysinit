@@ -38,4 +38,3 @@ lib.mkIf claudeEnabled {
     fi
   '';
 }
-

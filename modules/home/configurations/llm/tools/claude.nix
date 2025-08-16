@@ -77,13 +77,6 @@ lib.mkIf claudeEnabled {
           lineNumbers = true;
           wordWrap = true;
         };
-
-        shortcuts = {
-          newChat = "Cmd+N";
-          clearContext = "Cmd+K";
-          exportChat = "Cmd+E";
-          toggleSidebar = "Cmd+B";
-        };
       };
       force = true;
     };
@@ -100,13 +93,13 @@ lib.mkIf claudeEnabled {
               segments = {
                 directory = {
                   enabled = true;
-                  showBasename = true;
+                  showBasename = false;
                 };
                 git = {
                   enabled = true;
                   showSha = false;
-                  showWorkingTree = false;
-                  showOperation = false;
+                  showWorkingTree = true;
+                  showOperation = true;
                   showTag = false;
                   showTimeSinceCommit = false;
                   showStashCount = false;
@@ -118,7 +111,7 @@ lib.mkIf claudeEnabled {
                 };
                 session = {
                   enabled = true;
-                  type = "cost";
+                  type = "tokens";
                 };
                 block = {
                   enabled = false;
@@ -136,7 +129,7 @@ lib.mkIf claudeEnabled {
                   enabled = false;
                 };
                 version = {
-                  enabled = false;
+                  enabled = true;
                 };
               };
             }
