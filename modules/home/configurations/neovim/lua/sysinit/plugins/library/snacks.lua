@@ -27,13 +27,13 @@ M.plugins = {
         },
         notifier = {
           enabled = true,
+          top_down = false,
           margin = {
-            top = 1,
+            top = 2,
             right = 1,
-            bottom = 0,
+            bottom = 1,
           },
           style = "minimal",
-          timeout = 1500,
         },
         picker = {
           enabled = true,
@@ -289,4 +289,3 @@ M.plugins = {
 }
 
 return M
-
