@@ -16,6 +16,7 @@ let
     argocd
     asdf
     atuin
+    awk-language-server
     awscli2
     bash-language-server
     bat
@@ -25,9 +26,9 @@ let
     cargo-watch
     chafa
     checkmake
+    co
     colima
     copilot-language-server
-    coreutils
     deadnix
     delta
     delve
@@ -36,6 +37,7 @@ let
     docker-compose-language-service
     docker-language-server
     duf
+    eslint
     fd
     figlet
     findutils
@@ -51,9 +53,9 @@ let
     gnugrep
     gnupg
     go
+    go-task
     goose-cli
     gopls
-    go-task
     gum
     helm-ls
     htop
@@ -61,33 +63,35 @@ let
     inshellisense
     jetbrains-mono
     jq
-    jqp
     jq-lsp
+    jqp
     jsonld-cli
     k9s
     krew
+    kube-linter
     kubecolor
     kubectl
     kubernetes-helm
-    kube-linter
     kustomize
     lazygit
     libgit2
     lnav
     lolcat
-    luajit
     lua-language-server
+    luajit
     lynx
+    markdown-oxide
     markdownlint-cli
     markdownlint-cli2
+    marksman
     mermaid-cli
     mods
     nerd-fonts.hack
     nil
     nix-prefetch
+    nix-prefetch-docker
     nix-prefetch-git
     nix-prefetch-github
-    nix-prefetch-docker
     nix-search-cli
     nixd
     nixfmt-rfc-style
@@ -101,8 +105,12 @@ let
     pkg-config
     prettierd
     proselint
+    pyright
     python311Full
+    reutils
     ripgrep
+    rust
+    rust-analyzer
     rustup
     sad
     shellcheck
@@ -118,9 +126,9 @@ let
     terraform-ls
     terraform-lsp
     textlint
-    tfsec
     tflint
     tflint-plugins.tflint-ruleset-aws
+    tfsec
     tlrc
     tree
     typescript
@@ -133,11 +141,13 @@ let
     weechat
     weechatScripts.wee-slack
     wget
-    yamllint
     yaml-language-server
-    yazi
+    yamllint
     yarn
+    yazi
     yq
+    zig
+    zls
     zoxide
   ];
 

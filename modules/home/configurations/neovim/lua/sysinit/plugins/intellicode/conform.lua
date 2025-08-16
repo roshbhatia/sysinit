@@ -1,5 +1,4 @@
 local M = {}
-
 M.plugins = {
   {
     "stevearc/conform.nvim",
@@ -8,13 +7,23 @@ M.plugins = {
       require("conform").setup({
         formatters_by_ft = {
           lua = { "stylua" },
-          python = { "black" },
+          markdown = {},
           javascript = {
             "prettierd",
             "prettier",
             stop_after_first = true,
           },
           typescript = {
+            "prettierd",
+            "prettier",
+            stop_after_first = true,
+          },
+          javascriptreact = {
+            "prettierd",
+            "prettier",
+            stop_after_first = true,
+          },
+          typescriptreact = {
             "prettierd",
             "prettier",
             stop_after_first = true,
@@ -39,17 +48,35 @@ M.plugins = {
             "prettier",
             stop_after_first = true,
           },
+          scss = {
+            "prettierd",
+            "prettier",
+            stop_after_first = true,
+          },
           sh = { "shfmt" },
           bash = { "shfmt" },
           zsh = { "shfmt" },
-          nix = { "nixfmt" },
+          nix = { "alejandra" },
+          go = { "goimports" },
+          rust = { "rustfmt" },
+          zig = { "zigfmt" },
+          terraform = { "terraform_fmt" },
+          java = { "google-java-format" },
         },
         formatters = {
           shfmt = {
-            prepend_args = { "-i", "2", "-ci", "-sr", "-kp", "-fn" },
+            prepend_args = { "-i", "2" },
           },
-          nixfmt = {
-            prepend_args = { "--width=100" },
+          alejandra = {
+            command = "alejandra",
+          },
+          zigfmt = {
+            command = "zig",
+            args = { "fmt", "--stdin" },
+          },
+          terraform_fmt = {
+            command = "terraform",
+            args = { "fmt", "-" },
           },
         },
         notify_on_error = false,
@@ -57,13 +84,6 @@ M.plugins = {
           if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
             return
           end
-
-          -- Disable formatting for markdown files
-          local filetype = vim.bo[bufnr].filetype
-          if filetype == "markdown" then
-            return
-          end
-
           local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(bufnr))
           if ok and stats and stats.size and stats.size > 1024 * 1024 then
             return
@@ -76,5 +96,5 @@ M.plugins = {
     end,
   },
 }
-
 return M
+

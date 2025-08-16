@@ -24,6 +24,12 @@ M.plugins = {
         nushell = {},
         pyright = {},
         terraformls = {},
+        rust_analyzer = {},
+        bashls = {},
+        marksman = {},
+        zls = {},
+        awk_ls = {},
+        docker_compose_language_service = {},
         jsonls = {
           settings = {
             json = {
@@ -54,6 +60,17 @@ M.plugins = {
             return fd ~= "" and vim.fn.fnamemodify(fd, ":p:h") or vim.fn.getcwd()
           end,
         },
+        markdown_oxide = {
+          cmd = { "markdown-oxide" },
+          filetypes = { "markdown" },
+          root_dir = lspconfig.util.root_pattern(".git", ".obsidian", ".marksman.toml"),
+        },
+        systemd_lsp = {
+          cmd = { "systemd-lsp" },
+          filetypes = { "systemd" },
+          root_dir = lspconfig.util.root_pattern(".git"),
+          single_file_support = true,
+        },
       }
 
       for server, config in pairs(builtin_servers) do
@@ -81,10 +98,10 @@ M.plugins = {
         },
         signs = {
           text = {
-            [vim.diagnostic.severity.ERROR] = "",
-            [vim.diagnostic.severity.HINT] = "",
-            [vim.diagnostic.severity.INFO] = "",
-            [vim.diagnostic.severity.WARN] = "",
+            [vim.diagnostic.severity.ERROR] = "",
+            [vim.diagnostic.severity.HINT] = "",
+            [vim.diagnostic.severity.INFO] = "",
+            [vim.diagnostic.severity.WARN] = "",
           },
           numhl = {
             [vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
@@ -100,7 +117,6 @@ M.plugins = {
         callback = function(args)
           local client = vim.lsp.get_client_by_id(args.data.client_id)
 
-          -- Disable formatting for markdown files
           if vim.bo[args.buf].filetype == "markdown" then
             client.server_capabilities.documentFormattingProvider = false
             client.server_capabilities.documentRangeFormattingProvider = false
@@ -112,6 +128,29 @@ M.plugins = {
               buffer = args.buf,
               callback = vim.lsp.codelens.refresh,
             })
+            vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+              buffer = args.buf,
+              callback = function()
+                vim.lsp.codelens.refresh({ bufnr = args.buf })
+              end,
+            })
+
+            local timer = vim.loop.new_timer()
+            timer:start(2000, 2000, vim.schedule_wrap(function()
+              if vim.api.nvim_buf_is_valid(args.buf) and vim.api.nvim_buf_is_loaded(args.buf) then
+                vim.lsp.codelens.refresh({ bufnr = args.buf })
+              else
+                timer:stop()
+                timer:close()
+              end
+            end))
+
+            vim.api.nvim_buf_attach(args.buf, false, {
+              on_detach = function()
+                timer:stop()
+                timer:close()
+              end
+            })
           end
         end,
       })
@@ -119,6 +158,11 @@ M.plugins = {
     keys = function()
       return {
         { "<leader>cA", vim.lsp.codelens.run, desc = "Code lens actions" },
+        { "<leader>cL", vim.lsp.codelens.refresh, desc = "Refresh code lenses" },
+        { "<leader>cT", function()
+          vim.lsp.codelens.clear()
+          vim.lsp.codelens.refresh()
+        end, desc = "Toggle code lenses refresh" },
         {
           "<leader>cI",
           function()
@@ -149,3 +193,4 @@ M.plugins = {
 }
 
 return M
+

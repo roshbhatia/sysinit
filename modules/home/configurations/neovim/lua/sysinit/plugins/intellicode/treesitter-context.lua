@@ -10,6 +10,7 @@ M.plugins = {
       require("treesitter-context").setup({
         mutliwindow = true,
         separator = "",
+        multiline_threshold = 5,
       })
 
       vim.cmd("TSContext enable")
@@ -18,3 +19,4 @@ M.plugins = {
 }
 
 return M
+

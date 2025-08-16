@@ -1,7 +1,6 @@
 {
   lib,
   values,
-  pkgs,
   ...
 }:
 
@@ -17,69 +16,62 @@ in
 
       editor = {
         line-number = "relative";
-        mouse = true;
-        middle-click-paste = true;
+        mouse = false;
         auto-save = true;
-        auto-format = true;
-        auto-completion = true;
         completion-trigger-len = 2;
-        completion-replace = true;
-        preview-completion-insert = true;
-        color-modes = true;
         bufferline = "multiple";
         true-color = true;
         undercurl = true;
         clipboard-provider = "pasteboard";
+        cursorline = false;
+
+        keys = {
+          select = {
+            "C-d" = "half_page_down";
+            "C-u" = "half_page_up";
+          };
+
+          normal = {
+            "C-d" = "half_page_down";
+            "C-u" = "half_page_up";
+          };
+
+          insert = {
+            "C-d" = "half_page_down";
+            "C-u" = "half_page_up";
+          };
+        };
 
         cursor-shape = {
           insert = "bar";
           normal = "block";
-          select = "underline";
+          select = "block";
         };
 
         file-picker = {
           hidden = false;
-          follow-symlinks = true;
-          deduplicate-links = true;
           parents = true;
-          ignore = true;
-          git-ignore = true;
-          git-global = true;
-          git-exclude = true;
-          max-depth = 20;
-        };
-
-        search = {
-          smart-case = true;
-          wrap-around = true;
         };
 
         whitespace = {
           render = {
-            space = "all";
-            tab = "all";
+            space = "none";
+            tab = "none";
             newline = "none";
-          };
-          characters = {
-            space = "·";
-            nbsp = "⍽";
-            tab = "→";
-            newline = "⏎";
-            tabpad = "·";
           };
         };
 
         indent-guides = {
           render = true;
-          character = "┊";
+          character = "│";
           skip-levels = 1;
         };
 
         gutters = [
           "diff"
-          "diagnostics"
           "line-numbers"
           "spacer"
+          "diagnostics"
         ];
 
         soft-wrap = {
@@ -90,13 +82,10 @@ in
         };
 
         lsp = {
-          enable = true;
           display-messages = true;
           auto-signature-help = true;
           display-inlay-hints = true;
           display-signature-help-docs = true;
-          snippets = true;
-          goto-reference-include-declaration = true;
         };
 
         statusline = {
@@ -144,16 +133,30 @@ in
           config = {
             gofumpt = true;
             staticcheck = true;
+            analyses = {
+              unusedparams = true;
+              nilness = true;
+            };
           };
+        };
+
+        golangci-lint-ls = {
+          command = "golangci-lint-langserver";
+          args = [
+            "-debug"
+            "false"
+          ];
         };
 
         pyright = {
           command = "pyright-langserver";
           args = [ "--stdio" ];
-        };
-
-        lua-language-server = {
-          command = "lua-language-server";
+          config = {
+            python.analysis = {
+              typeCheckingMode = "basic";
+              autoImportCompletions = true;
+            };
+          };
         };
 
         nil = {
@@ -167,7 +170,6 @@ in
           };
         };
 
-        # JavaScript/TypeScript
         typescript-language-server = {
           config = {
             preferences = {
@@ -194,16 +196,22 @@ in
         yaml-language-server = {
           command = "yaml-language-server";
           args = [ "--stdio" ];
+          config = {
+            yaml = {
+              schemas = {
+                "https://json.schemastore.org/github-workflow.json" = ".github/workflows/*.{yml,yaml}";
+                "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/tasks" =
+                  "roles/*/tasks/*.{yml,yaml}";
+                "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/playbook" =
+                  "*play*.{yml,yaml}";
+              };
+            };
+          };
         };
 
-        terraform-ls = {
-          command = "terraform-ls";
-          args = [ "serve" ];
-        };
-
-        tflint = {
-          command = "tflint";
-          args = [ "--langserver" ];
+        ansible-language-server = {
+          command = "ansible-language-server";
+          args = [ "--stdio" ];
         };
 
         dockerfile-language-server = {
@@ -211,29 +219,55 @@ in
           args = [ "--stdio" ];
         };
 
-        helm-ls = {
-          command = "helm_ls";
-          args = [ "serve" ];
-        };
-
-        # Utilities
-        jq-lsp = {
-          command = "jq-lsp";
+        docker-compose-langserver = {
+          command = "docker-compose-langserver";
           args = [ "--stdio" ];
         };
 
-        nushell = {
-          command = "nu";
-          args = [ "--lsp" ];
+        jdtls = {
+          command = "jdtls";
         };
 
-        # AI Assistant
+        zls = {
+          command = "zls";
+        };
+
+        bash-language-server = {
+          command = "bash-language-server";
+          args = [ "start" ];
+        };
+
+        awk-language-server = {
+          command = "awk-language-server";
+        };
+
+        vscode-css-language-server = {
+          command = "vscode-css-language-server";
+          args = [ "--stdio" ];
+        };
+
+        markdown-oxide = {
+          command = "markdown-oxide";
+        };
+
+        systemd-lsp = {
+          command = "systemd-lsp";
+        };
+
+        lua-language-server = {
+          command = "lua-language-server";
+        };
+
+        terraform-ls = {
+          command = "terraform-ls";
+          args = [ "serve" ];
+        };
+
         copilot = {
           command = "copilot-language-server";
           args = [ "--stdio" ];
         };
 
-        # Simple completion language server
         scls = {
           command = "simple-completion-language-server";
           config = {
@@ -245,10 +279,6 @@ in
             feature_unicode_input = false;
             feature_paths = false;
             feature_citations = false;
-          };
-          environment = {
-            RUST_LOG = "info,simple-completion-language-server=info";
-            LOG_FILE = "/tmp/completion.log";
           };
         };
       };
@@ -271,7 +301,6 @@ in
           file-types = [ "rs" ];
           auto-format = true;
           language-servers = [
-            "scls"
             "rust-analyzer"
             "copilot"
           ];
@@ -295,17 +324,17 @@ in
                 };
               }
               {
-                name = "binary (codelldb)";
-                request = "launch";
+                name = "attach";
+                request = "attach";
                 completion = [
                   {
-                    name = "binary";
-                    completion = "filename";
+                    name = "pid";
+                    completion = "text";
+                    description = "Process ID to attach to";
                   }
                 ];
                 args = {
-                  program = "{0}";
-                  runInTerminal = true;
+                  pid = "{0}";
                 };
               }
             ];
@@ -317,6 +346,7 @@ in
           file-types = [ "go" ];
           language-servers = [
             "gopls"
+            "golangci-lint-ls"
             "copilot"
           ];
           auto-format = true;
@@ -329,7 +359,6 @@ in
               "dap"
               "--check-go-version=false"
               "--listen=127.0.0.1:{}"
-              "--log"
             ];
             port-arg = "--listen=127.0.0.1:{}";
             templates = [
@@ -345,20 +374,6 @@ in
                 ];
                 args = {
                   mode = "debug";
-                  program = "{0}";
-                };
-              }
-              {
-                name = "binary";
-                request = "launch";
-                completion = [
-                  {
-                    name = "binary";
-                    completion = "filename";
-                  }
-                ];
-                args = {
-                  mode = "exec";
                   program = "{0}";
                 };
               }
@@ -383,7 +398,7 @@ in
                 completion = [
                   {
                     name = "pid";
-                    completion = "pid";
+                    completion = "text";
                   }
                 ];
                 args = {
@@ -433,18 +448,36 @@ in
                   console = "integratedTerminal";
                 };
               }
+              {
+                name = "module";
+                request = "launch";
+                completion = [
+                  {
+                    name = "module";
+                    completion = "text";
+                    description = "Python module to run";
+                  }
+                ];
+                args = {
+                  module = "{0}";
+                };
+              }
+              {
+                name = "attach";
+                request = "attach";
+                completion = [
+                  {
+                    name = "pid";
+                    completion = "text";
+                    description = "Process ID to attach to";
+                  }
+                ];
+                args = {
+                  processId = "{0}";
+                };
+              }
             ];
           };
-        }
-        {
-          name = "lua";
-          scope = "source.lua";
-          file-types = [ "lua" ];
-          language-servers = [
-            "lua-language-server"
-            "copilot"
-          ];
-          auto-format = true;
         }
         {
           name = "typescript";
@@ -455,6 +488,11 @@ in
             "cts"
           ];
           auto-format = true;
+          formatter.command = "prettier";
+          formatter.args = [
+            "--parser"
+            "typescript"
+          ];
           language-servers = [
             "typescript-language-server"
             "vscode-eslint-language-server"
@@ -470,6 +508,11 @@ in
             "cjs"
           ];
           auto-format = true;
+          formatter.command = "prettier";
+          formatter.args = [
+            "--parser"
+            "babel"
+          ];
           language-servers = [
             "typescript-language-server"
             "vscode-eslint-language-server"
@@ -481,6 +524,11 @@ in
           scope = "source.jsx";
           file-types = [ "jsx" ];
           auto-format = true;
+          formatter.command = "prettier";
+          formatter.args = [
+            "--parser"
+            "babel"
+          ];
           language-servers = [
             "typescript-language-server"
             "vscode-eslint-language-server"
@@ -492,6 +540,11 @@ in
           scope = "source.tsx";
           file-types = [ "tsx" ];
           auto-format = true;
+          formatter.command = "prettier";
+          formatter.args = [
+            "--parser"
+            "typescript"
+          ];
           language-servers = [
             "typescript-language-server"
             "vscode-eslint-language-server"
@@ -513,6 +566,11 @@ in
             "copilot"
           ];
           auto-format = true;
+          formatter.command = "prettier";
+          formatter.args = [
+            "--parser"
+            "json"
+          ];
         }
         {
           name = "yaml";
@@ -523,30 +581,28 @@ in
           ];
           language-servers = [
             "yaml-language-server"
+            "ansible-language-server"
             "copilot"
           ];
           auto-format = true;
+          formatter.command = "prettier";
+          formatter.args = [
+            "--parser"
+            "yaml"
+          ];
         }
         {
-          name = "terraform";
-          scope = "source.terraform";
+          name = "docker-compose";
+          scope = "source.yaml.docker-compose";
           file-types = [
-            "tf"
-            "tfvars"
+            "docker-compose.yml"
+            "docker-compose.yaml"
+            "compose.yml"
+            "compose.yaml"
           ];
           language-servers = [
-            "terraform-ls"
-            "tflint"
-            "copilot"
-          ];
-          auto-format = true;
-        }
-        {
-          name = "hcl";
-          scope = "source.hcl";
-          file-types = [ "hcl" ];
-          language-servers = [
-            "terraform-ls"
+            "docker-compose-langserver"
+            "yaml-language-server"
             "copilot"
           ];
           auto-format = true;
@@ -566,11 +622,160 @@ in
           auto-format = true;
         }
         {
-          name = "nushell";
-          scope = "source.nu";
-          file-types = [ "nu" ];
+          name = "java";
+          scope = "source.java";
+          file-types = [ "java" ];
           language-servers = [
-            "nushell"
+            "jdtls"
+            "copilot"
+          ];
+          auto-format = true;
+        }
+        {
+          name = "zig";
+          scope = "source.zig";
+          file-types = [ "zig" ];
+          language-servers = [
+            "zls"
+            "copilot"
+          ];
+          auto-format = true;
+          formatter.command = "zig";
+          formatter.args = [
+            "fmt"
+            "--stdin"
+          ];
+        }
+        {
+          name = "bash";
+          scope = "source.bash";
+          file-types = [
+            "sh"
+            "bash"
+            "zsh"
+            "ksh"
+          ];
+          language-servers = [
+            "bash-language-server"
+            "copilot"
+          ];
+          auto-format = true;
+          formatter.command = "shfmt";
+          formatter.args = [
+            "-i"
+            "2"
+          ];
+        }
+        {
+          name = "awk";
+          scope = "source.awk";
+          file-types = [ "awk" ];
+          language-servers = [
+            "awk-language-server"
+            "copilot"
+          ];
+          auto-format = true;
+        }
+        {
+          name = "scss";
+          scope = "source.scss";
+          file-types = [ "scss" ];
+          language-servers = [
+            "vscode-css-language-server"
+            "copilot"
+          ];
+          auto-format = true;
+          formatter.command = "prettier";
+          formatter.args = [
+            "--parser"
+            "scss"
+          ];
+        }
+        {
+          name = "css";
+          scope = "source.css";
+          file-types = [ "css" ];
+          language-servers = [
+            "vscode-css-language-server"
+            "copilot"
+          ];
+          auto-format = true;
+          formatter.command = "prettier";
+          formatter.args = [
+            "--parser"
+            "css"
+          ];
+        }
+        {
+          name = "markdown";
+          scope = "source.md";
+          file-types = [
+            "md"
+            "markdown"
+            "mdx"
+          ];
+          language-servers = [
+            "markdown-oxide"
+            "copilot"
+          ];
+          auto-format = false;
+        }
+        {
+          name = "systemd";
+          scope = "source.systemd";
+          file-types = [
+            "service"
+            "socket"
+            "timer"
+            "target"
+            "mount"
+            "automount"
+            "swap"
+            "path"
+            "slice"
+          ];
+          language-servers = [
+            "systemd-lsp"
+            "copilot"
+          ];
+          auto-format = true;
+        }
+        {
+          name = "lua";
+          scope = "source.lua";
+          file-types = [ "lua" ];
+          language-servers = [
+            "lua-language-server"
+            "copilot"
+          ];
+          auto-format = true;
+          formatter.command = "stylua";
+          formatter.args = [ "-" ];
+        }
+        {
+          name = "terraform";
+          scope = "source.terraform";
+          file-types = [
+            "tf"
+            "tfvars"
+          ];
+          language-servers = [
+            "terraform-ls"
+            "copilot"
+          ];
+          auto-format = true;
+          formatter.command = "terraform";
+          formatter.args = [
+            "fmt"
+            "-"
+          ];
+        }
+        {
+          name = "hcl";
+          scope = "source.hcl";
+          file-types = [ "hcl" ];
+          language-servers = [
+            "terraform-ls"
             "copilot"
           ];
           auto-format = true;
@@ -579,20 +784,8 @@ in
           name = "git-commit";
           language-servers = [ "scls" ];
         }
-        {
-          name = "stub";
-          scope = "text.stub";
-          file-types = [ ];
-          shebangs = [ ];
-          roots = [ ];
-          auto-format = false;
-          language-servers = [
-            "scls"
-            "copilot"
-          ];
-        }
       ];
     };
   };
-
 }
+
