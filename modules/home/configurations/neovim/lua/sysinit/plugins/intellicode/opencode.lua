@@ -1,7 +1,6 @@
 local agents_config = require("sysinit.config.agents_config").load_config()
 local M = {}
 
--- Determine plugin source: local path if configured, otherwise upstream
 local function get_plugin_spec()
   local opencode_config = agents_config.agents.opencode
   if opencode_config.local_path then
@@ -21,23 +20,6 @@ M.plugins = {
     config = function()
       require("opencode").setup({
         auto_reload = false,
-      })
-
-      local tmp_dir = "/tmp"
-      vim.api.nvim_create_autocmd("User", {
-        group = vim.api.nvim_create_augroup("OpencodeAutoDiff", { clear = true }),
-        pattern = "OpencodeEvent",
-        callback = function(args)
-          if args.data and args.data.type == "file.edited" then
-            local bufnr = vim.api.nvim_get_current_buf()
-            local filename = vim.api.nvim_buf_get_name(bufnr)
-            local tmpfile = tmp_dir .. "/opencode_before_" .. bufnr .. ".tmp"
-            vim.fn.system({ "rsync", "-a", filename, tmpfile })
-            vim.cmd("checktime")
-            vim.cmd("vert diffsplit " .. tmpfile)
-          end
-        end,
-        desc = "Show vimdiff of opencode edits",
       })
     end,
     keys = {
