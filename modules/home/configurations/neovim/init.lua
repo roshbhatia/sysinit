@@ -115,4 +115,3 @@ require("sysinit.pkg.keybindings.super").setup()
 require("sysinit.pkg.keybindings.undo").setup()
 
 require("sysinit.pkg.entrypoint.no-session").setup()
-

@@ -22,76 +22,6 @@ M.plugins = {
       local action_state = require("telescope.actions.state")
       local themes = require("telescope.themes")
 
-      -- Custom actions for ai-terminals integration
-      local function add_files_to_goose(prompt_bufnr)
-        local current_picker = action_state.get_current_picker(prompt_bufnr)
-        local multi_selection = current_picker:get_multi_selection()
-        local files = {}
-
-        if #multi_selection > 0 then
-          for _, entry in ipairs(multi_selection) do
-            table.insert(files, entry.filename or entry.value)
-          end
-        else
-          local selection = action_state.get_selected_entry()
-          if selection then
-            table.insert(files, selection.filename or selection.value)
-          end
-        end
-
-        actions.close(prompt_bufnr)
-        if #files > 0 then
-          require("ai-terminals").add_files_to_terminal("goose", files)
-          vim.notify("Added " .. #files .. " file(s) to Goose")
-        end
-      end
-
-      local function add_files_to_claude(prompt_bufnr)
-        local current_picker = action_state.get_current_picker(prompt_bufnr)
-        local multi_selection = current_picker:get_multi_selection()
-        local files = {}
-
-        if #multi_selection > 0 then
-          for _, entry in ipairs(multi_selection) do
-            table.insert(files, entry.filename or entry.value)
-          end
-        else
-          local selection = action_state.get_selected_entry()
-          if selection then
-            table.insert(files, selection.filename or selection.value)
-          end
-        end
-
-        actions.close(prompt_bufnr)
-        if #files > 0 then
-          require("ai-terminals").add_files_to_terminal("claude", files)
-          vim.notify("Added " .. #files .. " file(s) to Claude")
-        end
-      end
-
-      local function add_files_to_opencode(prompt_bufnr)
-        local current_picker = action_state.get_current_picker(prompt_bufnr)
-        local multi_selection = current_picker:get_multi_selection()
-        local files = {}
-
-        if #multi_selection > 0 then
-          for _, entry in ipairs(multi_selection) do
-            table.insert(files, entry.filename or entry.value)
-          end
-        else
-          local selection = action_state.get_selected_entry()
-          if selection then
-            table.insert(files, selection.filename or selection.value)
-          end
-        end
-
-        actions.close(prompt_bufnr)
-        if #files > 0 then
-          require("ai-terminals").add_files_to_terminal("opencode", files)
-          vim.notify("Added " .. #files .. " file(s) to OpenCode")
-        end
-      end
-
       telescope.setup({
         defaults = {
           prompt_prefix = "   ",
@@ -123,10 +53,6 @@ M.plugins = {
               ["<localleader>s"] = actions.select_horizontal,
               ["<localleader>v"] = actions.select_vertical,
               ["<localleader>t"] = actions.select_tab,
-              -- AI Terminal actions
-              ["<localleader>g"] = add_files_to_goose,
-              ["<localleader>c"] = add_files_to_claude,
-              ["<localleader>o"] = add_files_to_opencode,
             },
             i = {
               ["<Tab>"] = actions.move_selection_next,
@@ -138,10 +64,6 @@ M.plugins = {
               ["<CR>"] = actions.select_default,
               ["<C-u>"] = actions.preview_scrolling_up,
               ["<C-d>"] = actions.preview_scrolling_down,
-              -- AI Terminal actions (same as normal mode)
-              ["<C-g>"] = add_files_to_goose,
-              ["<C-c>"] = add_files_to_claude,
-              ["<C-o>"] = add_files_to_opencode,
             },
           },
           file_ignore_patterns = {
@@ -330,3 +252,4 @@ M.plugins = {
 }
 
 return M
+
