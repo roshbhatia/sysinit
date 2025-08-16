@@ -569,4 +569,3 @@ in
     xclip # X11 clipboard fallback
   ];
 }
-
