@@ -26,7 +26,6 @@ let
     cargo-watch
     chafa
     checkmake
-    co
     colima
     copilot-language-server
     deadnix
@@ -156,3 +155,4 @@ in
 {
   home.packages = allNixPackages;
 }
+

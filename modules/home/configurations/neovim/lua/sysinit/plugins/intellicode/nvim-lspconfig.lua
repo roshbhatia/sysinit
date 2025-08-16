@@ -136,20 +136,24 @@ M.plugins = {
             })
 
             local timer = vim.loop.new_timer()
-            timer:start(2000, 2000, vim.schedule_wrap(function()
-              if vim.api.nvim_buf_is_valid(args.buf) and vim.api.nvim_buf_is_loaded(args.buf) then
-                vim.lsp.codelens.refresh({ bufnr = args.buf })
-              else
-                timer:stop()
-                timer:close()
-              end
-            end))
+            timer:start(
+              2000,
+              2000,
+              vim.schedule_wrap(function()
+                if vim.api.nvim_buf_is_valid(args.buf) and vim.api.nvim_buf_is_loaded(args.buf) then
+                  vim.lsp.codelens.refresh({ bufnr = args.buf })
+                else
+                  timer:stop()
+                  timer:close()
+                end
+              end)
+            )
 
             vim.api.nvim_buf_attach(args.buf, false, {
               on_detach = function()
                 timer:stop()
                 timer:close()
-              end
+              end,
             })
           end
         end,
@@ -159,10 +163,14 @@ M.plugins = {
       return {
         { "<leader>cA", vim.lsp.codelens.run, desc = "Code lens actions" },
         { "<leader>cL", vim.lsp.codelens.refresh, desc = "Refresh code lenses" },
-        { "<leader>cT", function()
-          vim.lsp.codelens.clear()
-          vim.lsp.codelens.refresh()
-        end, desc = "Toggle code lenses refresh" },
+        {
+          "<leader>cT",
+          function()
+            vim.lsp.codelens.clear()
+            vim.lsp.codelens.refresh()
+          end,
+          desc = "Toggle code lenses refresh",
+        },
         {
           "<leader>cI",
           function()
@@ -193,4 +201,3 @@ M.plugins = {
 }
 
 return M
-
