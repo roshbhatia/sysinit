@@ -13,12 +13,14 @@ let
   claudeYarnPackages = [
     "@anthropic-ai/claude-code"
     "@owloops/claude-powerline"
-  ] ++ (values.llm.claude.yarnPackages or [ ]);
+  ]
+  ++ (values.llm.claude.yarnPackages or [ ]);
 
   # SuperClaude via uv
   claudeUvPackages = [
     "SuperClaude"
-  ] ++ (values.llm.claude.uvPackages or [ ]);
+  ]
+  ++ (values.llm.claude.uvPackages or [ ]);
 in
 lib.mkIf claudeEnabled {
   # Install Claude packages via yarn

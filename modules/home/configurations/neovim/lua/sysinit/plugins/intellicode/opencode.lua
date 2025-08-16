@@ -6,11 +6,11 @@ local function get_plugin_spec()
   if opencode_config.local_path then
     return {
       dir = vim.fn.expand(opencode_config.local_path),
-      name = "opencode.nvim"
+      name = "opencode.nvim",
     }
   else
     return {
-      "NickvanDyke/opencode.nvim"
+      "NickvanDyke/opencode.nvim",
     }
   end
 end
@@ -107,8 +107,8 @@ M.plugins = {
         desc = "Test selection",
         mode = "v",
       },
-    }
-  })
+    },
+  }),
 }
 
 return M

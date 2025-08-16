@@ -50,4 +50,3 @@ function M.load_config()
 end
 -- wow!
 return M
-

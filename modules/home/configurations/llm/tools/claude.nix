@@ -12,16 +12,46 @@ let
 
   # Map our theme colors to claude-powerline custom theme format
   claudePowerlineTheme = {
-    directory = { bg = themeColors.blue; fg = themeColors.base; };
-    git = { bg = themeColors.green; fg = themeColors.base; };
-    model = { bg = themeColors.mauve; fg = themeColors.base; };
-    session = { bg = themeColors.pink; fg = themeColors.base; };
-    block = { bg = themeColors.surface1; fg = themeColors.text; };
-    today = { bg = themeColors.surface0; fg = themeColors.subtext1; };
-    context = { bg = themeColors.surface2; fg = themeColors.text; };
-    tmux = { bg = themeColors.green; fg = themeColors.base; };
-    metrics = { bg = themeColors.overlay1; fg = themeColors.text; };
-    version = { bg = themeColors.overlay0; fg = themeColors.subtext1; };
+    directory = {
+      bg = themeColors.blue;
+      fg = themeColors.base;
+    };
+    git = {
+      bg = themeColors.green;
+      fg = themeColors.base;
+    };
+    model = {
+      bg = themeColors.mauve;
+      fg = themeColors.base;
+    };
+    session = {
+      bg = themeColors.pink;
+      fg = themeColors.base;
+    };
+    block = {
+      bg = themeColors.surface1;
+      fg = themeColors.text;
+    };
+    today = {
+      bg = themeColors.surface0;
+      fg = themeColors.subtext1;
+    };
+    context = {
+      bg = themeColors.surface2;
+      fg = themeColors.text;
+    };
+    tmux = {
+      bg = themeColors.green;
+      fg = themeColors.base;
+    };
+    metrics = {
+      bg = themeColors.overlay1;
+      fg = themeColors.text;
+    };
+    version = {
+      bg = themeColors.overlay0;
+      fg = themeColors.subtext1;
+    };
   };
 in
 lib.mkIf claudeEnabled {
@@ -75,32 +105,46 @@ lib.mkIf claudeEnabled {
           lines = [
             {
               segments = {
-                directory = { enabled = true; showBasename = false; };
+                directory = {
+                  enabled = true;
+                  showBasename = true;
+                };
                 git = {
                   enabled = true;
-                  showSha = true;
+                  showSha = false;
                   showWorkingTree = false;
                   showOperation = false;
                   showTag = false;
                   showTimeSinceCommit = false;
                   showStashCount = false;
-                  showUpstream = true;
+                  showUpstream = false;
                   showRepoName = false;
                 };
-                model = { enabled = true; };
-                session = { enabled = true; type = "tokens"; };
-                block = { enabled = true; type = "cost"; burnType = "cost"; };
-                today = { enabled = true; type = "cost"; };
-                context = { enabled = true; };
-                tmux = { enabled = true; };
-                metrics = {
+                model = {
                   enabled = true;
-                  showResponseTime = true;
-                  showLastResponseTime = false;
-                  showDuration = true;
-                  showMessageCount = true;
                 };
-                version = { enabled = true; };
+                session = {
+                  enabled = true;
+                  type = "cost";
+                };
+                block = {
+                  enabled = false;
+                };
+                today = {
+                  enabled = false;
+                };
+                context = {
+                  enabled = false;
+                };
+                tmux = {
+                  enabled = false;
+                };
+                metrics = {
+                  enabled = false;
+                };
+                version = {
+                  enabled = false;
+                };
               };
             }
           ];
@@ -108,7 +152,8 @@ lib.mkIf claudeEnabled {
       };
       force = true;
     };
-  } // builtins.listToAttrs (
+  }
+  // builtins.listToAttrs (
     # User-level subagents
     map (agent: {
       name = ".claude/agents/${agent.name}.md";
@@ -125,4 +170,3 @@ lib.mkIf claudeEnabled {
     }) agents
   );
 }
-
