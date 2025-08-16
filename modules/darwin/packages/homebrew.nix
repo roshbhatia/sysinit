@@ -15,7 +15,6 @@ let
     "mediosz/tap"
     "noahgorstein/tap"
     "sandreas/tap"
-    "vet-run/vet"
   ];
 
   baseBrews = [
@@ -71,3 +70,4 @@ in
     casks = allCasks;
   };
 }
+

@@ -11,7 +11,7 @@ let
     "hererocks"
     "aider-chat@latest"
   ]
-  ++ (values.uvx.additionalPackages or [ ]);
+  ++ values.uvx.additionalPackages;
 in
 {
   home.activation.uvxPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (

@@ -158,6 +158,100 @@ with lib;
           description = "Default shell for wezterm";
         };
       };
+
+      llm = {
+        claude = {
+          enabled = mkOption {
+            type = types.bool;
+            default = false;
+            description = "Enable Claude Code integration";
+          };
+
+          yarnPackages = mkOption {
+            type = types.listOf types.str;
+            default = [ ];
+            description = "Additional yarn packages for Claude";
+          };
+
+          uvPackages = mkOption {
+            type = types.listOf types.str;
+            default = [ ];
+            description = "Additional uv packages for Claude";
+          };
+        };
+
+        goose = {
+          provider = mkOption {
+            type = types.str;
+            default = "claude-code";
+            description = "Goose provider configuration";
+          };
+        };
+      };
+
+      uvx = {
+        additionalPackages = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          description = "Additional global uvx packages";
+        };
+      };
+
+      pipx = {
+        additionalPackages = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          description = "Additional global pipx packages";
+        };
+      };
+
+      krew = {
+        additionalPackages = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          description = "Additional kubectl krew plugins";
+        };
+      };
+
+      npm = {
+        additionalPackages = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          description = "Additional global npm packages";
+        };
+      };
+
+      gh = {
+        additionalPackages = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          description = "Additional GitHub CLI extensions";
+        };
+      };
+
+      go = {
+        additionalPackages = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          description = "Additional Go packages";
+        };
+      };
+
+      cargo = {
+        additionalPackages = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          description = "Additional Rust/Cargo packages";
+        };
+      };
+
+      nix = {
+        additionalPackages = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          description = "Additional Nix packages";
+        };
+      };
     };
   };
 
@@ -206,6 +300,49 @@ with lib;
 
     wezterm = {
       shell = "zsh";
+    };
+
+    llm = {
+      claude = {
+        enabled = false;
+        yarnPackages = [ ];
+        uvPackages = [ ];
+      };
+      goose = {
+        provider = "claude-code";
+      };
+    };
+
+    uvx = {
+      additionalPackages = [ ];
+    };
+
+    pipx = {
+      additionalPackages = [ ];
+    };
+
+    krew = {
+      additionalPackages = [ ];
+    };
+
+    npm = {
+      additionalPackages = [ ];
+    };
+
+    gh = {
+      additionalPackages = [ ];
+    };
+
+    go = {
+      additionalPackages = [ ];
+    };
+
+    cargo = {
+      additionalPackages = [ ];
+    };
+
+    nix = {
+      additionalPackages = [ ];
     };
   };
 }

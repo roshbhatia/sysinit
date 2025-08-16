@@ -4,13 +4,10 @@ let
   agents = import ../shared/agents.nix;
   themes = import ../../../../lib/theme { inherit lib; };
 
-  # Only support Claude Code - no API configuration needed
   claudeEnabled = values.llm.claude.enabled or false;
 
-  # Theme integration for claude-powerline
   themeColors = themes.getThemePalette values.theme.colorscheme values.theme.variant;
 
-  # Map our theme colors to claude-powerline custom theme format
   claudePowerlineTheme = {
     directory = {
       bg = themeColors.blue;
@@ -55,9 +52,7 @@ let
   };
 in
 lib.mkIf claudeEnabled {
-  # All home files for Claude configuration
   home.file = {
-    # Claude Code settings.json
     "claude/settings.json" = {
       text = builtins.toJSON {
         statusLine = {
@@ -94,7 +89,6 @@ lib.mkIf claudeEnabled {
       force = true;
     };
 
-    # Claude-powerline custom theme configuration
     ".config/claude-powerline/config.json" = {
       text = builtins.toJSON {
         theme = "custom";
@@ -154,7 +148,6 @@ lib.mkIf claudeEnabled {
     };
   }
   // builtins.listToAttrs (
-    # User-level subagents
     map (agent: {
       name = ".claude/agents/${agent.name}.md";
       value = {
@@ -170,3 +163,4 @@ lib.mkIf claudeEnabled {
     }) agents
   );
 }
+

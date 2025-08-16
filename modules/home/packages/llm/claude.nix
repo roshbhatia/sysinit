@@ -7,29 +7,35 @@
 }:
 
 let
-  claudeEnabled = values.llm.claude.enabled or false;
+  claudeEnabled = values.llm.claude.enabled;
 
-  # Claude Code and powerline via yarn
   claudeYarnPackages = [
     "@anthropic-ai/claude-code"
     "@owloops/claude-powerline"
   ]
-  ++ (values.llm.claude.yarnPackages or [ ]);
+  ++ values.llm.claude.yarnPackages;
 
-  # SuperClaude via uv
   claudeUvPackages = [
     "SuperClaude"
   ]
-  ++ (values.llm.claude.uvPackages or [ ]);
+  ++ values.llm.claude.uvPackages;
 in
 lib.mkIf claudeEnabled {
-  # Install Claude packages via yarn
   home.activation.claudeYarnPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
     utils.sysinit.mkPackageManagerScript config "yarn" claudeYarnPackages
   );
 
-  # Install SuperClaude via uv
   home.activation.claudeUvPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
     utils.sysinit.mkPackageManagerScript config "uv" claudeUvPackages
   );
+
+  home.activation.claudeSuperclaude = lib.hm.dag.entryAfter [ "claudeUvPackages" ] ''
+    echo "Configuring SuperClaude integration..."
+    if command -v SuperClaude >/dev/null 2>&1; then
+      SuperClaude install --minimal || echo "Warning: SuperClaude post-install failed"
+    else
+      echo "Warning: SuperClaude not found in PATH"
+    fi
+  '';
 }
+
