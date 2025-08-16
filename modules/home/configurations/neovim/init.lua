@@ -61,7 +61,6 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.intellicode.blink-cmp"),
   require("sysinit.plugins.intellicode.cmp-copilot"),
   require("sysinit.plugins.intellicode.colorful-menu"),
-  require("sysinit.plugins.intellicode.copilot-chat"),
   require("sysinit.plugins.intellicode.copilot"),
   require("sysinit.plugins.intellicode.conform"),
   require("sysinit.plugins.intellicode.dropbar"),
@@ -116,3 +115,4 @@ require("sysinit.pkg.keybindings.super").setup()
 require("sysinit.pkg.keybindings.undo").setup()
 
 require("sysinit.pkg.entrypoint.no-session").setup()
+
