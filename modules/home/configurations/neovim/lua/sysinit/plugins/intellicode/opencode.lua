@@ -4,16 +4,20 @@ local M = {}
 local function get_plugin_spec()
   local opencode_config = agents_config.agents.opencode
   if opencode_config.local_path then
-    return vim.fn.expand(opencode_config.local_path)
+    return {
+      dir = vim.fn.expand(opencode_config.local_path),
+      name = "opencode.nvim"
+    }
   else
-    return "NickvanDyke/opencode.nvim"
+    return {
+      "NickvanDyke/opencode.nvim"
+    }
   end
 end
 
 M.plugins = {
-  {
+  vim.tbl_deep_extend("force", get_plugin_spec(), {
     enabled = agents_config.agents.enabled and agents_config.agents.opencode.enabled,
-    get_plugin_spec(),
     dependencies = {
       "folke/snacks.nvim",
     },
@@ -103,9 +107,8 @@ M.plugins = {
         desc = "Test selection",
         mode = "v",
       },
-    },
-  },
+    }
+  })
 }
 
 return M
-

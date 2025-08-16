@@ -2,7 +2,7 @@ local M = {}
 
 local function get_config_path()
   local home = vim.fn.expand("~")
-  return home .. "/agents.sysinit.config.json"
+  return home .. "/.agents.sysinit.config.json"
 end
 
 local function default_config()
@@ -14,7 +14,7 @@ local function default_config()
       },
       opencode = {
         enabled = true,
-        local_path = nil, -- Set to local path for development, e.g., "~/dev/opencode.nvim"
+        local_path = nil,
       },
     },
   }
@@ -48,5 +48,6 @@ function M.load_config()
 
   return deep_merge(default_config(), parsed)
 end
-
+-- wow!
 return M
+

@@ -39,7 +39,6 @@
 
   yarn = {
     additionalPackages = [
-      "@anthropic-ai/claude-code"
       "@dice-roller/cli"
     ];
   };
@@ -62,5 +61,9 @@
     goose = {
       provider = "claude-code";
     };
+    claude = {
+      enabled = true;
+    };
   };
 }
+
