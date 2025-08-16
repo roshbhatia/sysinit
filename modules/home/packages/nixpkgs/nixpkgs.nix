@@ -106,7 +106,7 @@ let
     proselint
     pyright
     python311Full
-    reutils
+    coreutils
     ripgrep
     rust
     rust-analyzer
