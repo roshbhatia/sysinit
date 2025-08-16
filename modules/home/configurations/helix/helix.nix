@@ -444,39 +444,6 @@ in
             "vscode-eslint-language-server"
             "copilot"
           ];
-          debugger = {
-            name = "node-debug2";
-            transport = "stdio";
-            quirks = {
-              absolute-paths = true;
-            };
-            command = "node";
-            args = [
-              "/path/to/vscode-node-debug2/out/src/nodeDebug.js"
-            ];
-            templates = [
-              {
-                name = "source";
-                request = "launch";
-                completion = [
-                  {
-                    name = "main";
-                    completion = "filename";
-                    default = "index.ts";
-                  }
-                ];
-                args = {
-                  program = "{0}";
-                  cwd = ".";
-                  runtimeExecutable = "node";
-                  runtimeArgs = [
-                    "-r"
-                    "ts-node/register"
-                  ];
-                };
-              }
-            ];
-          };
         }
         {
           name = "javascript";
@@ -602,3 +569,4 @@ in
     xclip # X11 clipboard fallback
   ];
 }
+

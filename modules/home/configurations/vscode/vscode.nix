@@ -340,7 +340,7 @@
         "vim.hlsearch" = true;
         "vim.incsearch" = true;
         "vim.leader" = "<space>";
-        "vim.localleader" = ",";
+        "vim.localleader" = "\\";
         "vim.normalModeKeyBindings" = [
           {
             "before" = [
@@ -542,3 +542,4 @@
     };
   };
 }
+
