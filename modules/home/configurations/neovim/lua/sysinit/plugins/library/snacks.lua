@@ -154,7 +154,7 @@ M.plugins = {
         },
       })
 
-      vim.notify = Snacks.notifier
+      vim.notify = Snacks.notifier.notify
       vim.ui.input = Snacks.input
     end,
     keys = function()
@@ -289,3 +289,4 @@ M.plugins = {
 }
 
 return M
+
