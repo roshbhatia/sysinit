@@ -108,7 +108,6 @@ let
     pyright
     python311Full
     ripgrep
-    rust-analyzer
     rustup
     sad
     shellcheck
