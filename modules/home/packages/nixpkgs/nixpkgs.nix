@@ -108,7 +108,6 @@ let
     pyright
     python311Full
     ripgrep
-    rust
     rust-analyzer
     rustup
     sad
@@ -155,3 +154,4 @@ in
 {
   home.packages = allNixPackages;
 }
+

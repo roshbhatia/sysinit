@@ -137,7 +137,6 @@ local function get_catppuccin_config()
     integrations = {
       aerial = true,
       alpha = true,
-      avante = true,
       cmp = true,
       dap = { enabled = true, enable_ui = true },
       dap_ui = true,

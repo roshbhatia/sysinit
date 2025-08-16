@@ -12,19 +12,7 @@ local function default_config()
       copilot = {
         enabled = true,
       },
-      avante = {
-        enabled = true,
-        provider = "copilot",
-        providers = {
-          copilot = {
-            model = "gpt-4.1",
-          },
-        },
-      },
       opencode = {
-        enabled = true,
-      },
-      goose = {
         enabled = true,
       },
     },

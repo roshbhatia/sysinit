@@ -40,10 +40,6 @@ M.plugins = {
           group = "Refresh",
         },
         {
-          "<leader>j",
-          group = "Goose",
-        },
-        {
           "<leader>b",
           group = "Buffer",
         },
@@ -96,16 +92,8 @@ M.plugins = {
       if agents_config.agents.enabled then
         wk.add({
           {
-            "<leader>h",
-            group = "Copilot - Avante",
-          },
-          {
             "<leader>j",
             group = "Copilot - OpenCode",
-          },
-          {
-            "<leader>k",
-            group = "Copilot - Goose",
           },
         })
       end

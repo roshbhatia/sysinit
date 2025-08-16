@@ -15,7 +15,6 @@ function M.setup()
       local special_filetypes = {
         "oil",
         "oil_preview",
-        "avante",
         "opencode",
         "trouble",
         "quickfix",

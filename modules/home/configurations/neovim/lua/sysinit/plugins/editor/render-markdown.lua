@@ -8,7 +8,6 @@ M.plugins = {
       "nvim-tree/nvim-web-devicons",
     },
     ft = {
-      "Avante",
       "markdown",
     },
     config = function()
@@ -48,7 +47,6 @@ M.plugins = {
           },
         },
         file_types = {
-          "Avante",
           "markdown",
         },
         sign = {
