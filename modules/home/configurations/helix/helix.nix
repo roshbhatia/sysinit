@@ -582,11 +582,14 @@ in
         {
           name = "stub";
           scope = "text.stub";
-          file-types = [];
-          shebangs = [];
-          roots = [];
+          file-types = [ ];
+          shebangs = [ ];
+          roots = [ ];
           auto-format = false;
-          language-servers = [ "scls" "copilot" ];
+          language-servers = [
+            "scls"
+            "copilot"
+          ];
         }
       ];
     };

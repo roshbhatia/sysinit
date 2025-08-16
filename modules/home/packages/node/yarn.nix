@@ -7,10 +7,7 @@
 }:
 
 let
-  yarnPackages = [
-    "mcp-hub@latest"
-  ]
-  ++ (values.yarn.additionalPackages or [ ]);
+  yarnPackages = [ ] ++ (values.yarn.additionalPackages or [ ]);
 in
 {
   home.activation.yarnPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
