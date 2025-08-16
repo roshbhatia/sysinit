@@ -118,18 +118,16 @@ in
             "position"
             "file-line-ending"
           ];
-          separator = "│";
-          mode.normal = "NORMAL";
-          mode.insert = "INSERT";
-          mode.select = "SELECT";
+          separator = " ";
+          mode.normal = "  ";
+          mode.insert = " 󰘧 ";
+          mode.select = " 󰈈 ";
         };
       };
     };
 
-    # Language-specific configuration
     languages = {
       language-server = {
-        # Core languages we use (matching neovim config)
         rust-analyzer = {
           config = {
             checkOnSave = {
@@ -188,7 +186,6 @@ in
           args = [ "--stdio" ];
         };
 
-        # Config/Data
         vscode-json-language-server = {
           command = "vscode-json-language-server";
           args = [ "--stdio" ];
@@ -199,7 +196,6 @@ in
           args = [ "--stdio" ];
         };
 
-        # DevOps/Infrastructure
         terraform-ls = {
           command = "terraform-ls";
           args = [ "serve" ];
@@ -223,6 +219,7 @@ in
         # Utilities
         jq-lsp = {
           command = "jq-lsp";
+          args = [ "--stdio" ];
         };
 
         nushell = {
@@ -235,10 +232,28 @@ in
           command = "copilot-language-server";
           args = [ "--stdio" ];
         };
+
+        # Simple completion language server
+        scls = {
+          command = "simple-completion-language-server";
+          config = {
+            max_completion_items = 100;
+            feature_words = false;
+            feature_snippets = true;
+            snippets_first = true;
+            snippets_inline_by_word_tail = false;
+            feature_unicode_input = false;
+            feature_paths = false;
+            feature_citations = false;
+          };
+          environment = {
+            RUST_LOG = "info,simple-completion-language-server=info";
+            LOG_FILE = "/tmp/completion.log";
+          };
+        };
       };
 
       language = [
-        # Core languages (matching neovim config)
         {
           name = "nix";
           scope = "source.nix";
@@ -256,6 +271,7 @@ in
           file-types = [ "rs" ];
           auto-format = true;
           language-servers = [
+            "scls"
             "rust-analyzer"
             "copilot"
           ];
@@ -559,13 +575,21 @@ in
           ];
           auto-format = true;
         }
+        {
+          name = "git-commit";
+          language-servers = [ "scls" ];
+        }
+        {
+          name = "stub";
+          scope = "text.stub";
+          file-types = [];
+          shebangs = [];
+          roots = [];
+          auto-format = false;
+          language-servers = [ "scls" "copilot" ];
+        }
       ];
     };
   };
 
-  # Ensure clipboard utilities are available
-  home.packages = with pkgs; [
-    wl-clipboard # Wayland clipboard
-    xclip # X11 clipboard fallback
-  ];
 }

@@ -106,8 +106,9 @@ let
     rustup
     sad
     shellcheck
-    socat
+    simple-completion-language-server
     sketchybar-app-font
+    socat
     sshpass
     statix
     stern
@@ -145,3 +146,4 @@ in
 {
   home.packages = allNixPackages;
 }
+
