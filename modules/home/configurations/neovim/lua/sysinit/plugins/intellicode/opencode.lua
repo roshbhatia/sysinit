@@ -1,10 +1,20 @@
 local agents_config = require("sysinit.config.agents_config").load_config()
 local M = {}
 
+-- Determine plugin source: local path if configured, otherwise upstream
+local function get_plugin_spec()
+  local opencode_config = agents_config.agents.opencode
+  if opencode_config.local_path then
+    return vim.fn.expand(opencode_config.local_path)
+  else
+    return "NickvanDyke/opencode.nvim"
+  end
+end
+
 M.plugins = {
   {
     enabled = agents_config.agents.enabled and agents_config.agents.opencode.enabled,
-    "NickvanDyke/opencode.nvim",
+    get_plugin_spec(),
     dependencies = {
       "folke/snacks.nvim",
     },
@@ -116,3 +126,4 @@ M.plugins = {
 }
 
 return M
+

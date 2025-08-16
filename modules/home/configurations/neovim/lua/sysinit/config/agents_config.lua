@@ -14,6 +14,7 @@ local function default_config()
       },
       opencode = {
         enabled = true,
+        local_path = nil, -- Set to local path for development, e.g., "~/dev/opencode.nvim"
       },
     },
   }
