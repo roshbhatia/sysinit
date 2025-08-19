@@ -140,4 +140,3 @@ lib.mkIf claudeEnabled {
     };
   };
 }
-
