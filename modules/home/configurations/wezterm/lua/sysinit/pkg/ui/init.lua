@@ -13,10 +13,6 @@ local terminal_font = wezterm.font_with_fallback({
   "Symbols Nerd Font",
 })
 
-local function is_vim(pane)
-  return pane:get_user_vars().IS_NVIM == "true"
-end
-
 local function get_window_appearance_config()
   return {
     window_decorations = "RESIZE",
@@ -58,26 +54,6 @@ local function get_font_config()
   }
 end
 
-local function setup_nvim_ui_overrides()
-  wezterm.on("update-status", function(window, pane)
-    local should_switch = is_vim(pane)
-    local overrides = window:get_config_overrides() or {}
-    if should_switch then
-      overrides.window_padding = {
-        left = 3,
-        right = 3,
-        top = 2,
-        bottom = 0,
-      }
-      overrides.enable_tab_bar = false
-    else
-      overrides.window_padding = nil
-      overrides.enable_tab_bar = nil
-    end
-    window:set_config_overrides(overrides)
-  end)
-end
-
 function M.setup(config)
   local configs = {
     get_window_appearance_config(),
@@ -92,8 +68,7 @@ function M.setup(config)
   end
 
   config.visual_bell = get_visual_bell_config()
-
-  setup_nvim_ui_overrides()
 end
 
 return M
+

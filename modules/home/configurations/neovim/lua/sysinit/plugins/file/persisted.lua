@@ -24,14 +24,7 @@ M.plugins = {
           local argv = vim.v.argv
           local persisted = require("persisted")
 
-          if argc == 0 then
-            local last_session = persisted.last and persisted.last() or nil
-            if last_session and vim.fn.filereadable(last_session) == 1 then
-              persisted.load({ last = true })
-            else
-              vim.cmd("Alpha")
-            end
-          elseif argc == 1 and argv[2] == "." then
+          if argc == 1 and argv[2] == "." then
             persisted.load({ last = true })
             vim.defer_fn(function()
               require("telescope.builtin").find_files({ hidden = true })
