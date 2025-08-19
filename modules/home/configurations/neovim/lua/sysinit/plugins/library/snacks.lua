@@ -10,12 +10,11 @@ M.plugins = {
     },
     config = function()
       require("snacks").setup({
-animate = {
-      enabled = true,
-      duration = { step = 1, total = 20 },
-      fps = 144,
-      easing = "linear",
-    },
+        animate = {
+          enabled = true,
+          fps = 144,
+          easing = "outQuad",
+        },
         bigfile = {
           enabled = true,
         },
@@ -95,7 +94,7 @@ animate = {
           enabled = true,
         },
         quickfile = {
-          enabled = true,
+          enabled = false,
         },
         terminal = {
           enabled = true,
@@ -131,10 +130,6 @@ animate = {
                   self.esc_timer:start(200, 0, function() end)
                   return "<esc>"
                 end
-                require("snacks").scroll.enable()
-                local snacks = require("snacks").scroll
-                vim.keymap.set({ "n", "i", "v" }, "<ScrollWheelUp>", "<C-y>")
-                vim.keymap.set({ "n", "i", "v" }, "<ScrollWheelDown>", "<C-e>")
               end,
               mode = "t",
               expr = true,
@@ -148,14 +143,14 @@ animate = {
         scroll = {
           enabled = true,
           animate = {
-            duration = { step = 15, total = 250 },
-            easing = "linear",
+            duration = { step = 15, total = 150 },
+            easing = "outQuad",
           },
-animate_repeat = {
-      delay = 50,
-      duration = { step = 1, total = 10 },
-      easing = "linear",
-    },
+          animate_repeat = {
+            delay = 50,
+            duration = { step = 1, total = 10 },
+            easing = "outQuad",
+          },
           filter = function(buf)
             return vim.g.snacks_scroll ~= false
               and vim.b[buf].snacks_scroll ~= false
@@ -178,18 +173,18 @@ animate_repeat = {
     end,
     keys = function()
       local default_keys = {
-  {
-    "<ScrollWheelUp>",
-    "5<C-y>",
-    mode = { "n", "i", "v" },
-    desc = "Smooth scroll up (snacks.nvim)",
-  },
-  {
-    "<ScrollWheelDown>",
-    "5<C-e>",
-    mode = { "n", "i", "v" },
-    desc = "Smooth scroll down (snacks.nvim)",
-  },
+        {
+          "<ScrollWheelUp>",
+          "5<C-y>",
+          mode = { "n", "i", "v" },
+          desc = "Smooth scroll up (snacks.nvim)",
+        },
+        {
+          "<ScrollWheelDown>",
+          "5<C-e>",
+          mode = { "n", "i", "v" },
+          desc = "Smooth scroll down (snacks.nvim)",
+        },
         {
           "<leader>bs",
           function()

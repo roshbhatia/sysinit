@@ -4,6 +4,7 @@ M.plugins = {
   {
     "Bekaboo/dropbar.nvim",
     version = "v14.1.0",
+    event = "BufReadPre",
     dependencies = {
       "nvim-telescope/telescope-fzf-native.nvim",
       build = "make",
