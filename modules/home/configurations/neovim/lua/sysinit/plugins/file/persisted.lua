@@ -11,7 +11,9 @@ M.plugins = {
         save_dir = vim.fn.expand(vim.fn.stdpath("data") .. "/.." .. "/sessions/"),
         autoload = true,
         on_autoload_no_session = function()
-          vim.cmd("Alpha")
+          if vim.fn.argc() == 0 then
+            vim.cmd("Alpha")
+          end
         end,
       })
     end,

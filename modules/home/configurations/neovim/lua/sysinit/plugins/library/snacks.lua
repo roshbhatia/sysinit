@@ -10,11 +10,12 @@ M.plugins = {
     },
     config = function()
       require("snacks").setup({
-        animate = {
-          enabled = true,
-          duration = 18,
-          fps = 144,
-        },
+animate = {
+      enabled = true,
+      duration = { step = 1, total = 20 },
+      fps = 144,
+      easing = "linear",
+    },
         bigfile = {
           enabled = true,
         },
@@ -130,6 +131,10 @@ M.plugins = {
                   self.esc_timer:start(200, 0, function() end)
                   return "<esc>"
                 end
+                require("snacks").scroll.enable()
+                local snacks = require("snacks").scroll
+                vim.keymap.set({ "n", "i", "v" }, "<ScrollWheelUp>", "<C-y>")
+                vim.keymap.set({ "n", "i", "v" }, "<ScrollWheelDown>", "<C-e>")
               end,
               mode = "t",
               expr = true,
@@ -141,7 +146,21 @@ M.plugins = {
           enabled = false,
         },
         scroll = {
-          enabled = false,
+          enabled = true,
+          animate = {
+            duration = { step = 15, total = 250 },
+            easing = "linear",
+          },
+animate_repeat = {
+      delay = 50,
+      duration = { step = 1, total = 10 },
+      easing = "linear",
+    },
+          filter = function(buf)
+            return vim.g.snacks_scroll ~= false
+              and vim.b[buf].snacks_scroll ~= false
+              and vim.bo[buf].buftype ~= "terminal"
+          end,
         },
         toggle = {
           enabled = false,
@@ -159,6 +178,18 @@ M.plugins = {
     end,
     keys = function()
       local default_keys = {
+  {
+    "<ScrollWheelUp>",
+    "5<C-y>",
+    mode = { "n", "i", "v" },
+    desc = "Smooth scroll up (snacks.nvim)",
+  },
+  {
+    "<ScrollWheelDown>",
+    "5<C-e>",
+    mode = { "n", "i", "v" },
+    desc = "Smooth scroll down (snacks.nvim)",
+  },
         {
           "<leader>bs",
           function()
@@ -289,3 +320,4 @@ M.plugins = {
 }
 
 return M
+

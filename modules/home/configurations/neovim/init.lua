@@ -98,7 +98,6 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.ui.edgy"),
   require("sysinit.plugins.ui.live-command"),
   require("sysinit.plugins.ui.minimap"),
-  require("sysinit.plugins.ui.neoscroll"),
   require("sysinit.plugins.ui.scrollview"),
   require("sysinit.plugins.ui.smart-splits"),
   require("sysinit.plugins.ui.staline"),
@@ -114,4 +113,3 @@ require("sysinit.pkg.keybindings.marks").setup()
 require("sysinit.pkg.keybindings.super").setup()
 require("sysinit.pkg.keybindings.undo").setup()
 
-require("sysinit.pkg.entrypoint.no-session").setup()
