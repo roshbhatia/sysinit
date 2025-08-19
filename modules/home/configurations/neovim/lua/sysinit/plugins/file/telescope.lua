@@ -195,12 +195,13 @@ M.plugins = {
         {
           "<leader>fb",
           function()
-            tbuiltin.buffers({
+            tbuiltin.buffers(require("telescope.themes").get_ivy({
+              previewer = true,
               sort_mru = true,
               ignore_current_buffer = false,
               show_all_buffers = false,
               only_cwd = false,
-            })
+            }))
           end,
           desc = "Buffers",
         },
