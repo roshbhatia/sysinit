@@ -67,14 +67,20 @@ M.plugins = {
             },
           },
           file_ignore_patterns = {
-            "^%.git/",
             "%.cache",
-            "%.png",
-            "%.jpg",
             "%.jpeg",
+            "%.jpg",
             "%.o",
+            "%.png",
             ".cache",
             "Build",
+            "^%.claude/",
+            "^%.crush/",
+            "^%.cursor/",
+            "^%.dist/",
+            "^%.git/",
+            "^%.githooks/",
+            "^%node_modules/",
           },
         },
         extensions = {
@@ -253,3 +259,4 @@ M.plugins = {
 }
 
 return M
+
