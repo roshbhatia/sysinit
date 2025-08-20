@@ -17,7 +17,7 @@ in
       vim_keys = true;
       force_tty = true;
       theme_background = false;
-      shown_boxes = "cpo proc";
+      shown_boxes = "cpu proc";
     };
     themes = {
       "${values.theme.colorscheme}-${values.theme.variant}" = btopTheme;
