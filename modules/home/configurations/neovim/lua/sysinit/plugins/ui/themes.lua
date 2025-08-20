@@ -181,7 +181,6 @@ local function get_catppuccin_config()
       grug_far = true,
       hop = true,
       indent_blankline = { enabled = true, scope_color = "lavender", colored_indent_levels = true },
-      lsp_trouble = true,
       mason = true,
       native_lsp = {
         enabled = true,
@@ -349,7 +348,6 @@ local function get_nightfox_config()
         gitsigns = true,
         hop = true,
         indent_blankline = true,
-        lsp_trouble = true,
         native_lsp = {
           enabled = true,
           background = true,

@@ -192,6 +192,13 @@ M.plugins = {
           desc = "Files",
         },
         {
+          "<leader>fd",
+          function()
+            tbuiltin.diagnostics(require("telescope.themes").get_ivy())
+          end,
+          desc = "Files",
+        },
+        {
           "<leader>fg",
           function()
             textensions.live_grep_args.live_grep_args()

@@ -16,7 +16,6 @@ function M.setup()
         "oil",
         "oil_preview",
         "opencode",
-        "trouble",
         "quickfix",
         "help",
       }
