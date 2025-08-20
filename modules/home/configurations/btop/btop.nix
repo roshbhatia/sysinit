@@ -15,6 +15,8 @@ in
     settings = {
       color_theme = "${values.theme.colorscheme}-${values.theme.variant}";
       vim_keys = true;
+      force_tty = true;
+      theme_background = false;
     };
     themes = {
       "${values.theme.colorscheme}-${values.theme.variant}" = btopTheme;
