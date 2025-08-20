@@ -73,7 +73,7 @@ in
       diff = "diff --color";
       grep = "grep -s --color=auto";
       watch = "KUBECOLOR_FORCE_COLORS=auto watch --color --no-title";
-      cat = "bat --paging=never";
+      cat = "bat -pp";
     };
 
     sessionVariables = {

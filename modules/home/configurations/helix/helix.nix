@@ -145,7 +145,7 @@ in
         nil = {
           command = "nil";
           config.nil = {
-             formatting.command = [ "nixfmt" ];
+            formatting.command = [ "nixfmt" ];
             diagnostics.ignored = [
               "unused_binding"
               "unused_with"
@@ -272,7 +272,7 @@ in
           scope = "source.nix";
           file-types = [ "nix" ];
           auto-format = true;
-           formatter.command = "nixfmt";
+          formatter.command = "nixfmt";
           language-servers = [
             "nil"
             "copilot"

@@ -55,4 +55,3 @@ in
 {
   inherit platformPackages commonPackages;
 }
-

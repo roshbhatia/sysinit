@@ -79,7 +79,7 @@ in
       diff = "diff --color";
       grep = "grep -s --color=auto";
       watch = "watch --quiet";
-      cat = "bat --paging=never";
+      cat = "bat -pp";
 
       nu-open = "open";
       open = "^open";

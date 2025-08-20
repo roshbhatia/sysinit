@@ -7,4 +7,3 @@
     ./tools/crush.nix
   ];
 }
-

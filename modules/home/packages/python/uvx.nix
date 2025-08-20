@@ -17,4 +17,3 @@ in
     utils.sysinit.mkPackageManagerScript config "uv" uvxPackages
   );
 }
-
