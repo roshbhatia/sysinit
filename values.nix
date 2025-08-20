@@ -18,29 +18,21 @@
 
     homebrew = {
       additionalPackages = {
-        taps = [ "hashicorp/tap" ];
-        brews = [
-          "blueutil"
-          "hashicorp/tap/packer"
-          "qemu"
-        ];
+        taps = [ ];
+        brews = [ ];
         casks = [
           "betterdiscord-installer"
           "calibre"
           "discord"
           "notion"
           "steam"
-          "supercollider"
-          "vnc-viewer"
         ];
       };
     };
   };
 
   yarn = {
-    additionalPackages = [
-      "@dice-roller/cli"
-    ];
+    additionalPackages = [ ];
   };
 
   theme = {

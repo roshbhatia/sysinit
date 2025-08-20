@@ -102,4 +102,3 @@ in
     "nushell/autoload/wezterm.nu".source = ./ui/wezterm.nu;
   };
 }
-

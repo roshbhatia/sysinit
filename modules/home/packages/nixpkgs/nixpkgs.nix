@@ -97,6 +97,7 @@ let
     rustup
     sad
     shellcheck
+    shfmt
     simple-completion-language-server
     socat
     sshpass
