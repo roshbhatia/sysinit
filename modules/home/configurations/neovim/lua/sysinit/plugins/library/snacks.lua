@@ -23,7 +23,7 @@ M.plugins = {
         },
         lazygit = {
           enabled = true,
-          configure = true,
+          configure = false,
         },
         notifier = {
           enabled = true,
@@ -315,3 +315,4 @@ M.plugins = {
 }
 
 return M
+
