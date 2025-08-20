@@ -58,12 +58,6 @@ M.plugins = {
             title = " Symbols Outline",
             ft = "aerial",
           },
-
-          {
-            title = " Terminal",
-            ft = "toggleterm",
-            size = { height = 0.3 },
-          },
         },
         icons = {
           closed = "",
