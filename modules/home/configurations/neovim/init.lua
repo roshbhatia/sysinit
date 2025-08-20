@@ -1,17 +1,3 @@
--- Prevent Neovim from adding a newline at EOF; let formatter handle it
-vim.opt.fixeol = false
-
--- Special case: if started as `vim .`, skip session autoload and open Telescope find_files
-if vim.fn.argc() == 1 and vim.v.argv[2] == "." then
-  vim.g.persisted_autoload = false
-  vim.api.nvim_create_autocmd("VimEnter", {
-    once = true,
-    callback = function()
-      require("telescope.builtin").find_files({ hidden = true })
-    end,
-  })
-end
-
 require("sysinit.pkg.pre.profiler").setup()
 
 vim.env.PATH = vim.fn.getenv("PATH")
@@ -124,3 +110,5 @@ require("sysinit.pkg.keybindings.leader").setup()
 require("sysinit.pkg.keybindings.marks").setup()
 require("sysinit.pkg.keybindings.super").setup()
 require("sysinit.pkg.keybindings.undo").setup()
+
+require("sysinit.pkg.entrypoint.no-session").setup()
