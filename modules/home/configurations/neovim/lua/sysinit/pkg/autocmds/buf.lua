@@ -19,7 +19,6 @@ function M.setup()
         "trouble",
         "quickfix",
         "help",
-        "alpha",
       }
 
       local should_disable = config.relative ~= "" or vim.tbl_contains(special_filetypes, ft)

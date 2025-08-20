@@ -171,7 +171,6 @@ local function get_catppuccin_config()
     },
     integrations = {
       aerial = true,
-      alpha = true,
       avante = true,
       cmp = true,
       dap = { enabled = true, enable_ui = true },
@@ -344,7 +343,6 @@ local function get_nightfox_config()
       },
       modules = {
         aerial = true,
-        alpha = true,
         cmp = true,
         dap_ui = true,
         fzf = true,

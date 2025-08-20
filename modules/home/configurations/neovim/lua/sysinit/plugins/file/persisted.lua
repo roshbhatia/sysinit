@@ -11,7 +11,7 @@ M.plugins = {
         save_dir = vim.fn.expand(vim.fn.stdpath("data") .. "/.." .. "/sessions/"),
         autoload = true,
         on_autoload_no_session = function()
-          vim.cmd("Alpha")
+          require("telescope.builtin").find_files({ hidden = true })
         end,
       })
     end,
