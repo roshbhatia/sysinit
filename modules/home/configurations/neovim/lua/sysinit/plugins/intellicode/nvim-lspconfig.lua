@@ -29,6 +29,7 @@ M.plugins = {
         marksman = {},
         zls = {},
         awk_ls = {},
+        statix = {},
         docker_compose_language_service = {},
         jsonls = {
           settings = {
@@ -46,6 +47,7 @@ M.plugins = {
             },
           },
         },
+        vale_ls = {},
       }
 
       local custom_servers = {
@@ -201,3 +203,4 @@ M.plugins = {
 }
 
 return M
+

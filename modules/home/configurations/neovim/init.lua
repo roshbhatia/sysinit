@@ -1,3 +1,6 @@
+-- Prevent Neovim from adding a newline at EOF; let formatter handle it
+vim.opt.fixeol = false
+
 -- Special case: if started as `vim .`, skip session autoload and open Telescope find_files
 if vim.fn.argc() == 1 and vim.v.argv[2] == "." then
   vim.g.persisted_autoload = false

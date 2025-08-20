@@ -14,7 +14,6 @@ let
     ansible-lint
     argc
     argocd
-    asdf
     atuin
     awk-language-server
     awscli2
@@ -26,29 +25,27 @@ let
     cargo-watch
     chafa
     checkmake
+    codespell
     colima
     copilot-language-server
     coreutils
     deadnix
     delta
     delve
-    discordo
     docker
     docker-compose-language-service
     docker-language-server
     duf
     eslint
     fd
-    figlet
     findutils
-    fira-code
     fish
     fzf
     gettext
     gh
-    gh-dash
     git
     git-filter-repo
+    glances
     glow
     gnugrep
     gnupg
@@ -58,9 +55,6 @@ let
     gopls
     gum
     helm-ls
-    htop
-    imagemagick
-    inshellisense
     jetbrains-mono
     jq
     jq-lsp
@@ -75,18 +69,11 @@ let
     kustomize
     lazygit
     libgit2
-    lnav
-    lolcat
     lua-language-server
     luajit
-    lynx
-    markdown-oxide
-    markdownlint-cli
-    markdownlint-cli2
     marksman
     mermaid-cli
     mods
-    nerd-fonts.hack
     nil
     nix-prefetch
     nix-prefetch-docker
@@ -103,7 +90,6 @@ let
     openssh
     pipx
     pkg-config
-    prettierd
     proselint
     pyright
     python311Full
@@ -112,7 +98,6 @@ let
     sad
     shellcheck
     simple-completion-language-server
-    sketchybar-app-font
     socat
     sshpass
     statix
@@ -131,12 +116,10 @@ let
     typescript
     typescript-language-server
     uv
-    vale
+    vale-ls
     vivid
     vscode-langservers-extracted
     watch
-    weechat
-    weechatScripts.wee-slack
     wget
     yaml-language-server
     yamllint
@@ -153,3 +136,4 @@ in
 {
   home.packages = allNixPackages;
 }
+

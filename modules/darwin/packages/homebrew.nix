@@ -20,11 +20,9 @@ let
   baseBrews = [
     "bcrypt"
     "charmbracelet/tap/crush"
-    "displayplacer"
     "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"
-    "vet-run"
   ];
 
   baseCasks = [
@@ -70,3 +68,4 @@ in
     casks = allCasks;
   };
 }
+

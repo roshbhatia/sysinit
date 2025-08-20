@@ -9,7 +9,6 @@
 let
   uvxPackages = [
     "hererocks"
-    "aider-chat@latest"
   ]
   ++ values.uvx.additionalPackages;
 in
@@ -18,3 +17,4 @@ in
     utils.sysinit.mkPackageManagerScript config "uv" uvxPackages
   );
 }
+

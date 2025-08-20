@@ -145,7 +145,7 @@ in
         nil = {
           command = "nil";
           config.nil = {
-            formatting.command = [ "alejandra" ];
+             formatting.command = [ "nixfmt" ];
             diagnostics.ignored = [
               "unused_binding"
               "unused_with"
@@ -272,7 +272,7 @@ in
           scope = "source.nix";
           file-types = [ "nix" ];
           auto-format = true;
-          formatter.command = "alejandra";
+           formatter.command = "nixfmt";
           language-servers = [
             "nil"
             "copilot"
@@ -333,7 +333,7 @@ in
             "copilot"
           ];
           auto-format = true;
-          formatter.command = "goimports";
+          formatter.command = "gofmt";
           debugger = {
             name = "go-debug";
             transport = "tcp";

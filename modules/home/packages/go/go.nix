@@ -32,3 +32,4 @@ in
     utils.sysinit.mkPackageManagerScript config "go" goPackages
   );
 }
+

@@ -68,7 +68,6 @@ in
 
       kubectl = "kubecolor";
       tf = "terraform";
-      g = "git";
       y = "yazi";
 
       l = "ls";
@@ -80,6 +79,7 @@ in
       diff = "diff --color";
       grep = "grep -s --color=auto";
       watch = "watch --quiet";
+      cat = "bat --paging=never";
 
       nu-open = "open";
       open = "^open";
@@ -102,3 +102,4 @@ in
     "nushell/autoload/wezterm.nu".source = ./ui/wezterm.nu;
   };
 }
+

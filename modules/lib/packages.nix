@@ -8,22 +8,18 @@ let
         browser = [ "firefox" ];
         systemTools = [
           "borders"
-          "displayplacer"
         ];
       }
     else
       {
         windowManager = with pkgs; [
-          i3
           sway
         ];
         terminalEmulator = with pkgs; [
           wezterm
-          alacritty
         ];
         browser = with pkgs; [
           firefox
-          chromium
         ];
         systemTools = with pkgs; [
           xorg.xwininfo
@@ -59,3 +55,4 @@ in
 {
   inherit platformPackages commonPackages;
 }
+

@@ -1,4 +1,5 @@
 local M = {}
+
 M.plugins = {
   {
     "stevearc/conform.nvim",
@@ -6,77 +7,59 @@ M.plugins = {
     config = function()
       require("conform").setup({
         formatters_by_ft = {
-          lua = { "stylua" },
+          ["*"] = {
+            "codespell",
+          },
+          lua = {
+            "stylua",
+          },
+          nix = {
+            "nixfmt",
+          },
           markdown = {},
           javascript = {
-            "prettierd",
             "prettier",
-            stop_after_first = true,
           },
           typescript = {
-            "prettierd",
             "prettier",
-            stop_after_first = true,
           },
           javascriptreact = {
-            "prettierd",
             "prettier",
-            stop_after_first = true,
-          },
-          typescriptreact = {
-            "prettierd",
-            "prettier",
-            stop_after_first = true,
           },
           json = {
-            "prettierd",
-            "prettier",
-            stop_after_first = true,
+            "jq",
           },
           yaml = {
-            "prettierd",
-            "prettier",
-            stop_after_first = true,
+            "yq",
           },
           html = {
-            "prettierd",
             "prettier",
-            stop_after_first = true,
           },
           css = {
-            "prettierd",
             "prettier",
-            stop_after_first = true,
           },
           scss = {
-            "prettierd",
             "prettier",
-            stop_after_first = true,
           },
-          sh = { "shfmt" },
-          bash = { "shfmt" },
-          zsh = { "shfmt" },
-          nix = { "alejandra" },
-          go = { "goimports" },
-          rust = { "rustfmt" },
-          zig = { "zigfmt" },
-          terraform = { "terraform_fmt" },
-          java = { "google-java-format" },
-        },
-        formatters = {
-          shfmt = {
-            prepend_args = { "-i", "2" },
+          sh = {
+            "shfmt",
           },
-          alejandra = {
-            command = "alejandra",
+          bash = {
+            "shfmt",
+            "shellcheck",
           },
-          zigfmt = {
-            command = "zig",
-            args = { "fmt", "--stdin" },
+          zsh = {
+            "shfmt",
           },
-          terraform_fmt = {
-            command = "terraform",
-            args = { "fmt", "-" },
+          go = {
+            "goimports",
+            "gofmt",
+          },
+          rust = {
+            "rustfmt",
+          },
+          terraform = {
+            "terraform_fmt",
           },
         },
         notify_on_error = false,
@@ -96,4 +79,6 @@ M.plugins = {
     end,
   },
 }
+
 return M
+

@@ -62,8 +62,6 @@ in
       kubectl = "kubecolor";
       tf = "terraform";
       y = "yazi";
-      g = "git";
-      gg = "lazygit";
 
       l = "eza --icons=always -1";
       la = "eza --icons=always -1 -a";
@@ -75,6 +73,7 @@ in
       diff = "diff --color";
       grep = "grep -s --color=auto";
       watch = "KUBECOLOR_FORCE_COLORS=auto watch --color --no-title";
+      cat = "bat --paging=never";
     };
 
     sessionVariables = {
@@ -280,3 +279,4 @@ in
     ];
   };
 }
+
