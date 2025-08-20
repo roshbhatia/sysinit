@@ -22,6 +22,9 @@ result-*
 # Flake outputs
 .direnv/
 
+# Ignore all dist folders
+**/dist/
+
 # AI Stuff
 .aider.chat.history.md
 .aider.input.history

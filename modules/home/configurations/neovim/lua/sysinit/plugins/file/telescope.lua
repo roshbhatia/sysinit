@@ -66,7 +66,7 @@ M.plugins = {
               ["<C-d>"] = actions.preview_scrolling_down,
             },
           },
-          file_ignore_patterns = {
+           file_ignore_patterns = {
             "%.cache",
             "%.jpeg",
             "%.jpg",
@@ -85,6 +85,8 @@ M.plugins = {
             "^%.out/",
             "^%bin/",
             "^%dist/",
+            "dist/",
+            "**/dist/",
             "^%node_modules/",
             "^%out/",
           },

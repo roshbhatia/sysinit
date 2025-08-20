@@ -11,6 +11,9 @@ result-*
 # Flake outputs
 .direnv/
 
+# Ignore all dist folders
+**/dist/
+
 # Aider
 .aider.chat.history.md
 .aider.input.history
