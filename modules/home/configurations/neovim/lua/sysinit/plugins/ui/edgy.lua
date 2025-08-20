@@ -44,11 +44,6 @@ M.plugins = {
             ft = "qf",
             size = { height = 0.3 },
           },
-          {
-            title = " Terminal",
-            ft = "toggleterm",
-            size = { height = 0.3 },
-          },
         },
         right = {
           {
@@ -60,13 +55,14 @@ M.plugins = {
             end,
           },
           {
-            title = " Terminal",
-            ft = "snacks_terminal",
-            size = { height = 0.3 },
-          },
-          {
             title = " Symbols Outline",
             ft = "aerial",
+          },
+
+          {
+            title = " Terminal",
+            ft = "toggleterm",
+            size = { height = 0.3 },
           },
         },
         icons = {

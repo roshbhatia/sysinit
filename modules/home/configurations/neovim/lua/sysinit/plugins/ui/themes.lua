@@ -77,7 +77,6 @@ local function get_transparent_highlights()
     GitSignsAddCul = { bg = "none" },
     GitSignsChangeCul = { bg = "none" },
     GitSignsDeleteCul = { bg = "none" },
-    -- Neogit plugin context highlights
     NeogitHunkMergeHeaderCursor = { bg = "none" },
     NeogitHunkMergeHeaderHighlight = { bg = "none" },
     NeogitHunkMergeHeader = { bg = "none" },
@@ -268,6 +267,8 @@ local function get_rose_pine_config()
     overrides.NeoTreeVertSplit = { bg = "none", fg = "muted" }
     overrides.NeoTreeEndOfBuffer = { bg = "none", fg = "none" }
     overrides.DropBarMenuFloatBorder = { bg = "none", fg = "muted" }
+    overrides.WilderWildmenuSelectedAccent = { bg = "subtle", fg = "muted" }
+    overrides.TelescopeSelection = { bg = "subtle", fg = "muted" }
   end
 
   return {

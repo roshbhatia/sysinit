@@ -1,8 +1,3 @@
--- sysinit.pkg.autocmds.buf
---
--- Buffer/window-related Neovim autocmds for UI tweaks and cleanup.
--- Handles foldcolumn, signcolumn, and buffer cleanup on exit.
-
 local M = {}
 
 function M.setup()
