@@ -1,112 +1,135 @@
 local M = {}
 
-local filetypes = {
-  "bash",
-  "c",
-  "comment",
-  "css",
-  "csv",
-  "cue",
-  "diff",
-  "dockerfile",
-  "git_config",
-  "git_rebase",
-  "gitattributes",
-  "gitcommit",
-  "gitignore",
-  "go",
-  "gomod",
-  "gosum",
-  "gotmpl",
-  "gowork",
-  "hcl",
-  "helm",
-  "html",
-  "java",
-  "javascript",
-  "jinja",
-  "jinja_inline",
-  "jq",
-  "jsdoc",
-  "json",
-  "jsonc",
-  "lua",
-  "luadoc",
-  "luap",
-  "markdown",
-  "markdown_inline",
-  "nix",
-  "nu",
-  "python",
-  "query",
-  "regex",
-  "ruby",
-  "rust",
-  "scss",
-  "terraform",
-  "toml",
-  "tsv",
-  "typescript",
-  "vim",
-  "vimdoc",
-  "xml",
-  "yaml",
-}
-
 M.plugins = {
   {
     "nvim-treesitter/nvim-treesitter",
-    build = ":TSUpdate",
     branch = "main",
-    lazy = false,
+    build = ":TSUpdate",
+    lazy = vim.fn.argc(-1) == 0,
+    cmd = {
+      "TSUpdateSync",
+      "TSUpdate",
+      "TSInstall",
+    },
+    init = function(plugin)
+      require("lazy.core.loader").add_to_rtp(plugin)
+      require("nvim-treesitter.query_predicates")
+    end,
+    keys = {
+      {
+        "<C-space>",
+        desc = "Increment Selection",
+      },
+      {
+        "<bs>",
+        desc = "Decrement Selection",
+        mode = "x",
+      },
+    },
     opts = {
+      ensure_installed = {
+        "bash",
+        "c",
+        "comment",
+        "css",
+        "csv",
+        "cue",
+        "diff",
+        "dockerfile",
+        "git_config",
+        "git_rebase",
+        "gitattributes",
+        "gitcommit",
+        "gitignore",
+        "go",
+        "gomod",
+        "gosum",
+        "gotmpl",
+        "gowork",
+        "hcl",
+        "helm",
+        "html",
+        "java",
+        "javascript",
+        "jinja",
+        "jinja_inline",
+        "jq",
+        "jsdoc",
+        "json",
+        "jsonc",
+        "lua",
+        "luadoc",
+        "luap",
+        "markdown",
+        "markdown_inline",
+        "nix",
+        "python",
+        "query",
+        "regex",
+        "ruby",
+        "rust",
+        "scss",
+        "terraform",
+        "toml",
+        "tsv",
+        "typescript",
+        "vim",
+        "vimdoc",
+        "xml",
+        "yaml",
+      },
+      sync_install = false,
+      auto_install = true,
+      ignore_install = false,
       highlight = {
         enable = true,
+        additional_vim_regex_highlighting = false,
       },
-      ensure_installed = filetypes,
+      rainbow = {
+        enable = true,
+        extended_mode = true,
+        max_file_lines = nil,
+      },
+      incremental_selection = {
+        enable = true,
+        keymaps = {
+          init_selection = "<C-space>",
+          node_incremental = "<C-space>",
+          scope_incremental = false,
+          node_decremental = "<bs>",
+        },
+      },
+      textobjects = {
+        move = {
+          enable = true,
+          goto_next_start = {
+            ["]m"] = "@function.outer",
+            ["]c"] = "@class.outer",
+            ["]a"] = "@parameter.inner",
+          },
+          goto_next_end = {
+            ["]M"] = "@function.outer",
+            ["]C"] = "@class.outer",
+            ["]A"] = "@parameter.inner",
+          },
+          goto_previous_start = {
+            ["[m"] = "@function.outer",
+            ["[c"] = "@class.outer",
+            ["[a"] = "@parameter.inner",
+          },
+          goto_previous_end = {
+            ["[M"] = "@function.outer",
+            ["[C"] = "@class.outer",
+            ["[A"] = "@parameter.inner",
+          },
+        },
+      },
     },
     config = function(_, opts)
-      require("nvim-treesitter").setup(opts)
-
-      vim.filetype.add({
-        extension = {
-          gotmpl = "gotmpl",
-          ["yaml.tmpl"] = "yaml",
-          ["yaml.tpl"] = "yaml",
-          ["yml.tmpl"] = "yaml",
-          ["yml.tpl"] = "yaml",
-        },
-        pattern = {
-          [".*/templates/.*%.tpl"] = "helm",
-          [".*/templates/.*%.ya?ml"] = "helm",
-          ["helmfile.*%.ya?ml"] = "helm",
-          [".*composition.*%.ya?ml"] = "yaml",
-          [".*function.*%.ya?ml"] = "yaml",
-          [".*crossplane%.io.*%.ya?ml"] = "yaml",
-          [".*fn%.crossplane%.io.*%.ya?ml"] = "yaml",
-          ["kustomization%.ya?ml"] = "yaml",
-          [".*kustomize.*%.ya?ml"] = "yaml",
-          ["values.*%.ya?ml"] = "yaml",
-          [".*values%.ya?ml"] = "yaml",
-          ["Chart%.ya?ml"] = "yaml",
-          [".*%.gotmpl%.ya?ml"] = "yaml",
-          [".*%.tpl%.ya?ml"] = "yaml",
-        },
-      })
-
-      for _, ft in ipairs(filetypes) do
-        vim.api.nvim_create_autocmd("FileType", {
-          pattern = ft,
-          callback = function()
-            local ok = pcall(vim.treesitter.start)
-            if not ok then
-              vim.cmd("syntax on")
-            end
-          end,
-        })
-      end
+      require("nvim-treesitter.configs").setup(opts)
     end,
   },
 }
 
 return M
+
