@@ -3,7 +3,6 @@ local M = {}
 M.plugins = {
   {
     "nvim-treesitter/nvim-treesitter",
-    branch = "main",
     build = ":TSUpdate",
     lazy = vim.fn.argc(-1) == 0,
     cmd = {
@@ -132,4 +131,3 @@ M.plugins = {
 }
 
 return M
-
