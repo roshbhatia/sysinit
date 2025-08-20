@@ -13,11 +13,11 @@ in
   programs.btop = {
     enable = true;
     settings = {
-      color_theme = "${config.sysinit.theme.colorscheme}-${config.sysinit.theme.variant}";
+      color_theme = "${values.theme.colorscheme}-${values.theme.variant}";
       vim_keys = true;
     };
     themes = {
-      "${config.sysinit.theme.colorscheme}-${config.sysinit.theme.variant}" = btopTheme;
+      "${values.theme.colorscheme}-${values.theme.variant}" = btopTheme;
     };
   };
 }

@@ -20,7 +20,6 @@
     ./nix
     ./nu
     ./omp
-    ./theme
     ./treesitter
     ./utils
     ./vivid
