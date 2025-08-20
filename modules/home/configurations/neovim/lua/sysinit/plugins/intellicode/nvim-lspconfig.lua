@@ -164,7 +164,7 @@ M.plugins = {
     end,
     keys = function()
       return {
-        { "<leader>cA", vim.lsp.codelens.run, desc = "Code lens actions" },
+        { "<leader>cl", vim.lsp.codelens.run, desc = "Code lens actions" },
         { "<leader>cL", vim.lsp.codelens.refresh, desc = "Refresh code lenses" },
         {
           "<leader>cT",
