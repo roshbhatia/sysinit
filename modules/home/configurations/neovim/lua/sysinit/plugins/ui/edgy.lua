@@ -9,9 +9,7 @@ M.plugins = {
 
       require("edgy").setup({
         animate = {
-          enabled = true,
-          fps = 144,
-          cps = 360,
+          enabled = false,
         },
         options = {
           left = {
@@ -57,3 +55,4 @@ M.plugins = {
 }
 
 return M
+

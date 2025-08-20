@@ -11,9 +11,7 @@ M.plugins = {
     config = function()
       require("snacks").setup({
         animate = {
-          enabled = true,
-          fps = 144,
-          easing = "outQuad",
+          enabled = false,
         },
         bigfile = {
           enabled = true,
