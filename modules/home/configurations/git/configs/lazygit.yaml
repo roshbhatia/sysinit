@@ -18,3 +18,4 @@ customCommands:
     output: popup
     outputTitle: "AI Commit Suggestion"
     loadingText: "Suggesting commit message"
+

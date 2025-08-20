@@ -23,7 +23,7 @@ M.plugins = {
         },
         lazygit = {
           enabled = true,
-          configure = false,
+          configure = true,
         },
         notifier = {
           enabled = true,
@@ -82,7 +82,7 @@ M.plugins = {
           enabled = false,
         },
         image = {
-          enabled = false,
+          enabled = true,
         },
         indent = {
           enabled = false,
@@ -315,3 +315,4 @@ M.plugins = {
 }
 
 return M
+

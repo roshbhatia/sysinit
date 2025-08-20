@@ -107,7 +107,7 @@ in
 
 
       [include]
-          path = ~/.config/delta/themes/${values.theme.colorscheme}.gitconfig
+          path = ~/.config/delta/themes/${values.theme.colorscheme}-${values.theme.variant}.gitconfig
 
       [rebase]
           updateRefs = true
@@ -159,3 +159,4 @@ in
   };
 
 }
+
