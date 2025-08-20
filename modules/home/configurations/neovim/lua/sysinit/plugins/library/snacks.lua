@@ -21,7 +21,6 @@ M.plugins = {
         },
         lazygit = {
           enabled = true,
-          configure = false,
         },
         notifier = {
           enabled = true,
@@ -92,7 +91,7 @@ M.plugins = {
           enabled = true,
         },
         quickfile = {
-          enabled = false,
+          enabled = true,
         },
         terminal = {
           enabled = true,
@@ -175,13 +174,13 @@ M.plugins = {
           "<ScrollWheelUp>",
           "5<C-y>",
           mode = { "n", "i", "v" },
-          desc = "Smooth scroll up (snacks.nvim)",
+          desc = "Scroll up",
         },
         {
           "<ScrollWheelDown>",
           "5<C-e>",
           mode = { "n", "i", "v" },
-          desc = "Smooth scroll down (snacks.nvim)",
+          desc = "Scroll down",
         },
         {
           "<leader>bs",
@@ -230,34 +229,6 @@ M.plugins = {
           "<C-\\><C-n>",
           mode = "t",
           desc = "Enter normal mode in terminal",
-        },
-        {
-          "<leader>tt",
-          function()
-            Snacks.terminal.toggle(nil, {
-              win = {
-                position = "float",
-                border = "rounded",
-                title = "",
-                title_pos = "center",
-              },
-            })
-          end,
-          mode = "t",
-          desc = "Terminal - Float",
-        },
-        {
-          "<leader>tv",
-          function()
-            Snacks.terminal.toggle(nil, {
-              win = {
-                position = "right",
-                title_pos = "center",
-              },
-            })
-          end,
-          mode = "t",
-          desc = "Terminal - Vertical Split",
         },
       }
 
