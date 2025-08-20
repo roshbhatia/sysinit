@@ -45,6 +45,7 @@ M.plugins = {
           null_ls.builtins.code_actions.textlint,
           null_ls.builtins.diagnostics.actionlint,
           null_ls.builtins.diagnostics.checkmake,
+          null_ls.builtins.diagnostics.codespell,
           null_ls.builtins.diagnostics.deadnix,
           null_ls.builtins.diagnostics.golangci_lint,
           null_ls.builtins.diagnostics.kube_linter,
