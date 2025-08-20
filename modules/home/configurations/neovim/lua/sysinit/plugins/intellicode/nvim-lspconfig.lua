@@ -16,7 +16,13 @@ M.plugins = {
         eslint = {},
         gopls = {},
         tflint = {},
-        dockerls = {},
+        dockerls = {
+          cmd = {
+            "docker-language-server",
+            "start",
+            "--stdio",
+          },
+        },
         helm_ls = {},
         jqls = {},
         lua_ls = {},
@@ -61,11 +67,6 @@ M.plugins = {
             local fd = vim.fn.system("fd crossplane.yaml")
             return fd ~= "" and vim.fn.fnamemodify(fd, ":p:h") or vim.fn.getcwd()
           end,
-        },
-        markdown_oxide = {
-          cmd = { "markdown-oxide" },
-          filetypes = { "markdown" },
-          root_dir = lspconfig.util.root_pattern(".git", ".obsidian", ".marksman.toml"),
         },
         systemd_lsp = {
           cmd = { "systemd-lsp" },

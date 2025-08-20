@@ -229,10 +229,6 @@ in
           args = [ "--stdio" ];
         };
 
-        markdown-oxide = {
-          command = "markdown-oxide";
-        };
-
         systemd-lsp = {
           command = "systemd-lsp";
         };
@@ -698,7 +694,6 @@ in
             "mdx"
           ];
           language-servers = [
-            "markdown-oxide"
             "copilot"
           ];
           auto-format = false;
