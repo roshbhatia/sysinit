@@ -45,7 +45,6 @@ let
     gh
     git
     git-filter-repo
-    glances
     glow
     gnugrep
     gnupg

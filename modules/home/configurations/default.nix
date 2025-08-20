@@ -6,6 +6,7 @@
   imports = [
     ./atuin
     ./bat
+    ./btop
     ./colima
     ./direnv
     ./firefox
