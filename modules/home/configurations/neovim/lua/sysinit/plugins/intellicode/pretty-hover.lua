@@ -3,7 +3,10 @@ local M = {}
 M.plugins = {
   {
     "Fildo7525/pretty_hover",
-    opts = {},
+    opts = {
+      max_width = math.floor(vim.o.columns * 0.7),
+      max_height = math.floor(vim.o.lines * 0.3),
+    },
     keys = function()
       return {
         {
