@@ -5,9 +5,14 @@ M.plugins = {
     "folke/edgy.nvim",
     event = "VeryLazy",
     config = function()
-      vim.opt.splitkeep = "topline"
-
       require("edgy").setup({
+        keys = {
+          ["<c-w>>"] = false,
+          ["<c-w><lt>"] = false,
+          ["<c-w>+"] = false,
+          ["<c-w>-"] = false,
+          ["<c-w>="] = false,
+        },
         animate = {
           enabled = false,
         },
@@ -17,9 +22,6 @@ M.plugins = {
           },
           right = {
             size = 60,
-          },
-          bottom = {
-            size = 0,
           },
         },
         left = {
@@ -31,17 +33,45 @@ M.plugins = {
             end,
           },
         },
-        right = {},
         bottom = {
+          {
+            title = " LSP Diagnostics",
+            ft = "trouble",
+            size = { height = 0.3 },
+          },
+          {
+            title = " QuickFix",
+            ft = "qf",
+            size = { height = 0.3 },
+          },
           {
             title = " Terminal",
             ft = "toggleterm",
-            size = 0.3,
+            size = { height = 0.3 },
+          },
+        },
+        right = {
+          {
+            title = " Help",
+            ft = "help",
+            size = { height = 0.5 },
+            filter = function(buf)
+              return vim.bo[buf].buftype == "help"
+            end,
+          },
+          {
+            title = " Terminal",
+            ft = "snacks_terminal",
+            size = { height = 0.3 },
+          },
+          {
+            title = " Symbols Outline",
+            ft = "aerial",
           },
         },
         icons = {
-          closed = "󰅂",
-          open = "󰅀",
+          closed = "",
+          open = "",
         },
         wo = {
           winbar = true,

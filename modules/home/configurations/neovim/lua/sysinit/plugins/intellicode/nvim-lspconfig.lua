@@ -120,12 +120,14 @@ M.plugins = {
         callback = function(args)
           local client = vim.lsp.get_client_by_id(args.data.client_id)
 
-          if vim.bo[args.buf].filetype == "markdown" then
-            client.server_capabilities.documentFormattingProvider = false
-            client.server_capabilities.documentRangeFormattingProvider = false
+          if client and vim.bo[args.buf].filetype == "markdown" then
+            if client.server_capabilities then
+              client.server_capabilities.documentFormattingProvider = false
+              client.server_capabilities.documentRangeFormattingProvider = false
+            end
           end
 
-          if client and client.supports_method("textDocument/codeLens") then
+          if client and client:supports_method("textDocument/codeLens") then
             vim.lsp.codelens.refresh()
             vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
               buffer = args.buf,
@@ -138,26 +140,31 @@ M.plugins = {
               end,
             })
 
-            local timer = vim.loop.new_timer()
-            timer:start(
-              2000,
-              2000,
-              vim.schedule_wrap(function()
-                if vim.api.nvim_buf_is_valid(args.buf) and vim.api.nvim_buf_is_loaded(args.buf) then
-                  vim.lsp.codelens.refresh({ bufnr = args.buf })
-                else
+            ---@diagnostic disable-next-line: undefined-field
+            local timer = (vim.loop and vim.loop.new_timer) and vim.loop.new_timer() or nil
+            if timer then
+              timer:start(
+                2000,
+                2000,
+                vim.schedule_wrap(function()
+                  if
+                    vim.api.nvim_buf_is_valid(args.buf) and vim.api.nvim_buf_is_loaded(args.buf)
+                  then
+                    vim.lsp.codelens.refresh({ bufnr = args.buf })
+                  else
+                    timer:stop()
+                    timer:close()
+                  end
+                end)
+              )
+
+              vim.api.nvim_buf_attach(args.buf, false, {
+                on_detach = function()
                   timer:stop()
                   timer:close()
-                end
-              end)
-            )
-
-            vim.api.nvim_buf_attach(args.buf, false, {
-              on_detach = function()
-                timer:stop()
-                timer:close()
-              end,
-            })
+                end,
+              })
+            end
           end
         end,
       })

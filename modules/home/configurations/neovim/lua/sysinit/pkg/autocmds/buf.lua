@@ -1,3 +1,8 @@
+-- sysinit.pkg.autocmds.buf
+--
+-- Buffer/window-related Neovim autocmds for UI tweaks and cleanup.
+-- Handles foldcolumn, signcolumn, and buffer cleanup on exit.
+
 local M = {}
 
 function M.setup()
@@ -10,7 +15,7 @@ function M.setup()
       local win = vim.api.nvim_get_current_win()
       local config = vim.api.nvim_win_get_config(win)
       local buf = vim.api.nvim_win_get_buf(win)
-      local ft = vim.api.nvim_buf_get_option(buf, "filetype")
+      local ft = vim.api.nvim_get_option_value("filetype", { buf = buf })
 
       local special_filetypes = {
         "oil",
@@ -37,7 +42,7 @@ function M.setup()
       local wins = vim.api.nvim_list_wins()
       for _, win in ipairs(wins) do
         local buf = vim.api.nvim_win_get_buf(win)
-        local ft = vim.api.nvim_buf_get_option(buf, "filetype")
+        local ft = vim.api.nvim_get_option_value("filetype", { buf = buf })
         local config = vim.api.nvim_win_get_config(win)
 
         if ft == "oil" or config.relative ~= "" then
