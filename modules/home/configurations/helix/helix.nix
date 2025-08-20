@@ -25,23 +25,6 @@ in
         clipboard-provider = "pasteboard";
         cursorline = false;
 
-        keys = {
-          select = {
-            "C-d" = "half_page_down";
-            "C-u" = "half_page_up";
-          };
-
-          normal = {
-            "C-d" = "half_page_down";
-            "C-u" = "half_page_up";
-          };
-
-          insert = {
-            "C-d" = "half_page_down";
-            "C-u" = "half_page_up";
-          };
-        };
-
         cursor-shape = {
           insert = "bar";
           normal = "block";
@@ -788,3 +771,4 @@ in
     };
   };
 }
+
