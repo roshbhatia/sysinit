@@ -43,6 +43,7 @@ let
     fzf
     gettext
     gh
+    ghostty
     git
     git-filter-repo
     glow
