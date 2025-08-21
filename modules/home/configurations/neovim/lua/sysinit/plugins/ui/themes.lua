@@ -269,6 +269,19 @@ local function get_rose_pine_config()
     overrides.TelescopeSelection = { bg = "subtle", fg = "muted" }
   end
 
+  -- neomodern expects code_style as a top-level field, not nested
+  local code_style = {
+    comments = "none",
+    conditionals = "none",
+    functions = "bold",
+    keywords = "bold",
+    headings = "italic",
+    operators = "none",
+    keyword_return = "bold",
+    strings = "italic",
+    variables = "none",
+  }
+
   return {
     theme = "roseprime",
     transparent = theme_config.transparency.enable,
@@ -276,17 +289,7 @@ local function get_rose_pine_config()
     alt_bg = true,
     show_eob = false,
     favor_treesitter_hl = true,
-    code_style = {
-      comments = "none",
-      conditionals = "none",
-      functions = "bold",
-      keywords = "bold",
-      headings = "italic",
-      operators = "none",
-      keyword_return = "bold",
-      strings = "italic",
-      variables = "none",
-    },
+    code_style = code_style, -- top-level field
     highlights = overrides,
   }
 end
@@ -304,6 +307,19 @@ local function get_kanagawa_config()
     overrides.TelescopeSelection = { bg = "subtle", fg = "muted" }
   end
 
+  -- neomodern expects code_style as a top-level field, not nested
+  local code_style = {
+    comments = "none",
+    conditionals = "none",
+    functions = "bold",
+    keywords = "bold",
+    headings = "italic",
+    operators = "none",
+    keyword_return = "bold",
+    strings = "italic",
+    variables = "none",
+  }
+
   return {
     theme = "hojicha",
     transparent = theme_config.transparency.enable,
@@ -311,17 +327,7 @@ local function get_kanagawa_config()
     alt_bg = true,
     show_eob = false,
     favor_treesitter_hl = true,
-    code_style = {
-      comments = "none",
-      conditionals = "none",
-      functions = "bold",
-      keywords = "bold",
-      headings = "italic",
-      operators = "none",
-      keyword_return = "bold",
-      strings = "italic",
-      variables = "none",
-    },
+    code_style = code_style, -- top-level field
     highlights = overrides,
   }
 end
@@ -406,21 +412,36 @@ local function get_nightfox_config()
 end
 
 local function setup_theme()
-  local base_scheme = theme_config.colorscheme:match("^[^%-]+") -- hack! had to do this to actually get this to work.
   local plugin_config = theme_config.plugins[theme_config.colorscheme]
+  local base_scheme = plugin_config.base_scheme or theme_config.colorscheme
 
-  if base_scheme == "catppuccin" then
-    require("catppuccin").setup(get_catppuccin_config())
-  elseif base_scheme == "rose" or theme_config.colorscheme == "roseprime" then
-    require("neomodern").setup(get_rose_pine_config())
-  elseif base_scheme == "gruvbox" then
-    require("gruvbox").setup(get_gruvbox_config())
-  elseif base_scheme == "solarized" then
-    require("solarized-osaka").setup(get_solarized_config())
-  elseif base_scheme == "nord" then
-    require("nightfox").setup(get_nightfox_config())
-  elseif base_scheme == "kanagawa" then
-    require("kanagawa").setup(get_kanagawa_config())
+  local theme_setups = {
+    catppuccin = function()
+      require("catppuccin").setup(get_catppuccin_config())
+    end,
+    rose = function()
+      require("neomodern").setup(get_rose_pine_config())
+    end,
+    roseprime = function()
+      require("neomodern").setup(get_rose_pine_config())
+    end,
+    gruvbox = function()
+      require("gruvbox").setup(get_gruvbox_config())
+    end,
+    solarized = function()
+      require("solarized-osaka").setup(get_solarized_config())
+    end,
+    nord = function()
+      require("nightfox").setup(get_nightfox_config())
+    end,
+    kanagawa = function()
+      require("neomodern").setup(get_kanagawa_config())
+    end,
+  }
+
+  local setup_fn = theme_setups[base_scheme]
+  if setup_fn then
+    setup_fn()
   end
 
   vim.cmd("colorscheme " .. plugin_config.colorscheme)
