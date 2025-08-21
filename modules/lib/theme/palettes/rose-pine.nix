@@ -143,9 +143,7 @@ rec {
 
   appAdapters = {
     wezterm = {
-      moon = "Rosé Pine (Gogh)";
-      dawn = "Rosé Pine Dawn (Gogh)";
-      main = "Rosé Pine (Gogh)";
+      moon = "Rouge 2";
     };
 
     neovim = {
