@@ -22,10 +22,6 @@ local function get_transparent_highlights()
     CursorLineFold = { bg = "none" },
     CursorLineNr = { bg = "none" },
     CursorLineSign = { bg = "none" },
-    DiagnosticSignError = { bold = true },
-    DiagnosticSignHint = { bold = true },
-    DiagnosticSignInfo = { bold = true },
-    DiagnosticSignWarn = { bold = true },
     DiagnosticVirtualTextError = { bg = "none" },
     DiagnosticVirtualTextHint = { bg = "none" },
     DiagnosticVirtualTextInfo = { bg = "none" },
@@ -259,7 +255,6 @@ local function get_rose_pine_config()
     overrides.TelescopeSelection = { bg = "subtle", fg = "muted" }
   end
 
-  -- neomodern expects code_style as a top-level field, not nested
   local code_style = {
     comments = "none",
     conditionals = "none",
@@ -279,7 +274,7 @@ local function get_rose_pine_config()
     alt_bg = true,
     show_eob = false,
     favor_treesitter_hl = true,
-    code_style = code_style, -- top-level field
+    code_style = code_style,
     highlights = overrides,
   }
 end
