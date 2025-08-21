@@ -292,25 +292,37 @@ local function get_rose_pine_config()
 end
 
 local function get_kanagawa_config()
+  local overrides = get_transparent_highlights()
+  if theme_config.transparency.enable then
+    overrides.WinBar = { bg = "none", fg = "subtle" }
+    overrides.WinBarNC = { bg = "none", fg = "muted" }
+    overrides.NeoTreeWinSeparator = { bg = "none", fg = "muted" }
+    overrides.NeoTreeVertSplit = { bg = "none", fg = "muted" }
+    overrides.NeoTreeEndOfBuffer = { bg = "none", fg = "none" }
+    overrides.DropBarMenuFloatBorder = { bg = "none", fg = "muted" }
+    overrides.WilderWildmenuSelectedAccent = { bg = "subtle", fg = "muted" }
+    overrides.TelescopeSelection = { bg = "subtle", fg = "muted" }
+  end
+
   return {
-    compile = false,
-    undercurl = true,
-    commentStyle = { italic = true },
-    functionStyle = {},
-    keywordStyle = { italic = true },
-    statementStyle = { bold = true },
-    typeStyle = {},
+    theme = "hojicha",
     transparent = theme_config.transparency.enable,
-    dimInactive = false,
-    terminalColors = true,
-    colors = {
-      palette = {},
-      theme = { wave = {}, lotus = {}, dragon = {}, all = {} },
+    term_colors = true,
+    alt_bg = true,
+    show_eob = false,
+    favor_treesitter_hl = true,
+    code_style = {
+      comments = "none",
+      conditionals = "none",
+      functions = "bold",
+      keywords = "bold",
+      headings = "italic",
+      operators = "none",
+      keyword_return = "bold",
+      strings = "italic",
+      variables = "none",
     },
-    overrides = function(colors)
-      return get_transparent_highlights()
-    end,
-    theme = theme_config.variant,
+    highlights = overrides,
   }
 end
 

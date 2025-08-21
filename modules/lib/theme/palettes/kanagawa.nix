@@ -143,10 +143,10 @@ rec {
     };
 
     neovim = {
-      plugin = "rebelot/kanagawa.nvim";
-      name = "kanagawa";
-      setup = "kanagawa";
-      colorscheme = variant: "kanagawa-${variant}";
+      plugin = "cdmill/neomodern.nvim";
+      name = "neomodern";
+      setup = "neomodern";
+      colorscheme = "hojicha";
     };
 
     bat = variant: "kanagawa-${variant}";
