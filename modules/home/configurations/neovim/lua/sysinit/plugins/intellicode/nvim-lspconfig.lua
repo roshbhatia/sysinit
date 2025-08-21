@@ -101,10 +101,10 @@ M.plugins = {
         },
         signs = {
           text = {
-            [vim.diagnostic.severity.ERROR] = "󰅙",
-            [vim.diagnostic.severity.HINT] = "󰋼",
-            [vim.diagnostic.severity.INFO] = "󰀨",
-            [vim.diagnostic.severity.WARN] = "",
+            [vim.diagnostic.severity.ERROR] = "",
+            [vim.diagnostic.severity.HINT] = "",
+            [vim.diagnostic.severity.INFO] = "",
+            [vim.diagnostic.severity.WARN] = "",
           },
           numhl = {
             [vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
@@ -114,6 +114,7 @@ M.plugins = {
           },
         },
       })
+
       vim.lsp.inlay_hint.enable(true)
 
       vim.api.nvim_create_autocmd("LspAttach", {
