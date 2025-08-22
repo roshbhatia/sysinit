@@ -280,39 +280,25 @@ local function get_rose_pine_config()
 end
 
 local function get_kanagawa_config()
-  local overrides = get_transparent_highlights()
-  if theme_config.transparency.enable then
-    overrides.WinBar = { bg = "none", fg = "subtle" }
-    overrides.WinBarNC = { bg = "none", fg = "muted" }
-    overrides.NeoTreeWinSeparator = { bg = "none", fg = "muted" }
-    overrides.NeoTreeVertSplit = { bg = "none", fg = "muted" }
-    overrides.NeoTreeEndOfBuffer = { bg = "none", fg = "none" }
-    overrides.DropBarMenuFloatBorder = { bg = "none", fg = "muted" }
-    overrides.WilderWildmenuSelectedAccent = { bg = "subtle", fg = "muted" }
-    overrides.TelescopeSelection = { bg = "subtle", fg = "muted" }
-  end
-
-  local code_style = {
-    comments = "none",
-    conditionals = "none",
-    functions = "bold",
-    keywords = "bold",
-    headings = "italic",
-    operators = "none",
-    keyword_return = "bold",
-    strings = "italic",
-    variables = "none",
-  }
-
   return {
-    theme = "hojicha",
+    compile = false,
+    undercurl = true,
+    commentStyle = { italic = true },
+    functionStyle = {},
+    keywordStyle = { italic = true },
+    statementStyle = { bold = true },
+    typeStyle = {},
     transparent = theme_config.transparency.enable,
-    term_colors = true,
-    alt_bg = true,
-    show_eob = false,
-    favor_treesitter_hl = true,
-    code_style = code_style,
-    highlights = overrides,
+    dimInactive = false,
+    terminalColors = true,
+    colors = {
+      palette = {},
+      theme = { wave = {}, lotus = {}, dragon = {}, all = {} },
+    },
+    overrides = function(colors)
+      return get_transparent_highlights()
+    end,
+    theme = theme_config.variant,
   }
 end
 
@@ -419,7 +405,7 @@ local function setup_theme()
       require("nightfox").setup(get_nightfox_config())
     end,
     kanagawa = function()
-      require("neomodern").setup(get_kanagawa_config())
+      require("kanagawa").setup(get_kanagawa_config())
     end,
   }
 
