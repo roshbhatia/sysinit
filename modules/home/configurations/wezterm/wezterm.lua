@@ -20,7 +20,7 @@ require("sysinit.plugins.ui.tabline").setup(config)
 require("sysinit.pkg.ui").setup(config)
 
 config.unix_domains = {
-  { name = "unix" }
+  { name = "unix" },
 }
 config.default_gui_startup_args = { "connect", "unix" }
 
