@@ -7,7 +7,6 @@
       "--daemonize"
     ];
     runAtLoad = true;
-    keepAlive = true;
     standardOutPath = "/tmp/wezterm-mux-server.log";
     standardErrorPath = "/tmp/wezterm-mux-server.err";
   };
