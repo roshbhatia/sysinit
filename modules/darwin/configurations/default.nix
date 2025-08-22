@@ -10,5 +10,6 @@
     ./borders
     ./aerospace
     ./tailscale
+    ./wezterm
   ];
 }

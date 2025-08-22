@@ -19,4 +19,9 @@ require("sysinit.pkg.theme").setup(config)
 require("sysinit.plugins.ui.tabline").setup(config)
 require("sysinit.pkg.ui").setup(config)
 
+config.unix_domains = {
+  { name = "unix" }
+}
+config.default_gui_startup_args = { "connect", "unix" }
+
 return config
