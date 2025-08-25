@@ -33,11 +33,12 @@ in
 
       extensions.packages = with pkgs.firefox-addons; [
         ublock-origin
-
         onepassword-password-manager
-
         reddit-enhancement-suite
         old-reddit-redirect
+        multi-account-containers
+        tridactyl
+        darkreader
       ];
 
       settings = {
