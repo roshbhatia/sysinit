@@ -198,7 +198,7 @@ M.plugins = {
           function()
             tbuiltin.diagnostics(require("telescope.themes").get_ivy())
           end,
-          desc = "Files",
+          desc = "LSP Diagnostics",
         },
         {
           "<leader>fg",
