@@ -58,14 +58,14 @@ M.plugins = {
         mode = "v",
       },
       {
-        "<leader>jt",
+        "<leader>jj",
         function()
           require("opencode").toggle()
         end,
         desc = "Toggle embedded opencode",
       },
       {
-        "<leader>jn",
+        "<leader>jJ",
         function()
           require("opencode").command("session_new")
         end,
