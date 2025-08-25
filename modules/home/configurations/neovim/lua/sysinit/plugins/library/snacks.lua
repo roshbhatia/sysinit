@@ -84,6 +84,9 @@ M.plugins = {
         indent = {
           enabled = false,
         },
+        input = {
+          enabled = true,
+        },
         layout = {
           enabled = false,
         },

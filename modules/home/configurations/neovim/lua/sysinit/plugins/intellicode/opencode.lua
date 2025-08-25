@@ -22,45 +22,83 @@ M.plugins = {
       "folke/snacks.nvim",
     },
     config = function()
-      require("opencode").setup({
-        auto_reload = false,
+      require("opencode").setup({})
+
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "OpencodeEvent",
+        callback = function(args)
+          if args.data and args.data.type == "session.idle" then
+            vim.notify("opencode finished responding", vim.log.levels.INFO)
+          end
+        end,
       })
     end,
     keys = {
       {
-        "<leader>jj",
-        function()
-          require("snacks.terminal").toggle("opencode", {
-            win = {
-              position = "right",
-              title = false,
-            },
-          })
-        end,
-        desc = "Toggle opencode",
-      },
-      {
-        "<leader>ja",
+        "<leader>jA",
         function()
           require("opencode").ask()
         end,
         desc = "Ask opencode",
-        mode = { "n", "v" },
       },
       {
-        "<leader>jA",
+        "<leader>ja",
         function()
-          require("opencode").ask("@file ")
+          require("opencode").ask("@cursor: ")
         end,
-        desc = "Ask opencode about current file",
-        mode = { "n", "v" },
+        desc = "Ask opencode about this",
+        mode = "n",
       },
       {
-        "<leader>jJ",
+        "<leader>ja",
         function()
-          require("opencode").command("/new")
+          require("opencode").ask("@selection: ")
+        end,
+        desc = "Ask opencode about selection",
+        mode = "v",
+      },
+      {
+        "<leader>jt",
+        function()
+          require("opencode").toggle()
+        end,
+        desc = "Toggle embedded opencode",
+      },
+      {
+        "<leader>jn",
+        function()
+          require("opencode").command("session_new")
         end,
         desc = "New session",
+      },
+      {
+        "<leader>jy",
+        function()
+          require("opencode").command("messages_copy")
+        end,
+        desc = "Copy last message",
+      },
+      {
+        "<S-C-u>",
+        function()
+          require("opencode").command("messages_half_page_up")
+        end,
+        desc = "Scroll messages up",
+      },
+      {
+        "<S-C-d>",
+        function()
+          require("opencode").command("messages_half_page_down")
+        end,
+        desc = "Scroll messages down",
+      },
+      {
+        "<leader>jp",
+        function()
+          require("opencode").select_prompt()
+        end,
+        desc = "Select prompt",
+        mode = { "n", "v" },
       },
       {
         "<leader>je",
@@ -68,44 +106,6 @@ M.plugins = {
           require("opencode").prompt("Explain @cursor and its context")
         end,
         desc = "Explain code near cursor",
-      },
-      {
-        "<leader>jr",
-        function()
-          require("opencode").prompt("Review @file for correctness and readability")
-        end,
-        desc = "Review file",
-      },
-      {
-        "<leader>jf",
-        function()
-          require("opencode").prompt("Fix these @diagnostics")
-        end,
-        desc = "Fix errors",
-      },
-      {
-        "<leader>jo",
-        function()
-          require("opencode").prompt("Optimize @selection for performance and readability")
-        end,
-        desc = "Optimize selection",
-        mode = "v",
-      },
-      {
-        "<leader>jd",
-        function()
-          require("opencode").prompt("Add documentation comments for @selection")
-        end,
-        desc = "Document selection",
-        mode = "v",
-      },
-      {
-        "<leader>jt",
-        function()
-          require("opencode").prompt("Add tests for @selection")
-        end,
-        desc = "Test selection",
-        mode = "v",
       },
     },
   }),
