@@ -1,7 +1,8 @@
 {
     "diagnostics.disable": [
         "unused-local",
-        "missing-fields"
+        "missing-fields",
+        "deprecated"
     ],
     "diagnostics.globals": [
         "hs",

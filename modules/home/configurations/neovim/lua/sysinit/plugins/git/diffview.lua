@@ -21,14 +21,13 @@ M.plugins = {
         {
           "<leader>gd",
           function()
-            -- Toggle Diffview: if open, close; if closed, open
-            local tabpages = vim.api.nvim_list_tabpages()
-            local found = false
-            for _, tab in ipairs(tabpages) do
-              local ok, name = pcall(vim.api.nvim_tabpage_get_var, tab, "diffview_view")
-              if ok and name then
-                found = true
-                break
+            for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+              if vim.api.nvim_buf_is_loaded(buf) then
+                local ft = vim.api.nvim_buf_get_option(buf, "filetype")
+                if ft == "DiffviewFiles" then
+                  found = true
+                  break
+                end
               end
             end
             if found then
@@ -37,7 +36,7 @@ M.plugins = {
               vim.cmd("DiffviewOpen")
             end
           end,
-          desc = "Git: Toggle diff view",
+          desc = "Toggle diff view",
           mode = "n",
         },
 
@@ -46,7 +45,7 @@ M.plugins = {
           function()
             vim.cmd("DiffviewFileHistory %")
           end,
-          desc = "Git: File history (current file)",
+          desc = "File history (current file)",
           mode = "n",
         },
         {
@@ -54,7 +53,7 @@ M.plugins = {
           function()
             vim.cmd("DiffviewFileHistory")
           end,
-          desc = "Git: File history (project)",
+          desc = "File history (project)",
           mode = "n",
         },
         {
@@ -62,7 +61,7 @@ M.plugins = {
           function()
             vim.cmd("DiffviewFocusFiles")
           end,
-          desc = "Git: Focus file panel",
+          desc = "Focus file panel",
           mode = "n",
         },
         {
@@ -70,7 +69,7 @@ M.plugins = {
           function()
             vim.cmd("DiffviewToggleFiles")
           end,
-          desc = "Git: Toggle file panel",
+          desc = "Toggle file panel",
           mode = "n",
         },
         {
@@ -78,7 +77,7 @@ M.plugins = {
           function()
             vim.cmd("DiffviewRefresh")
           end,
-          desc = "Git: Refresh diff view",
+          desc = "Refresh diff view",
           mode = "n",
         },
       }

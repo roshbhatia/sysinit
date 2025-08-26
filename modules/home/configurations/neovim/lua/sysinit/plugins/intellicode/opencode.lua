@@ -39,7 +39,7 @@ M.plugins = {
         function()
           require("opencode").ask("@cursor: ")
         end,
-        desc = "Ask opencode about this",
+        desc = "Ask about cursor location",
         mode = "n",
       },
       {
@@ -47,7 +47,7 @@ M.plugins = {
         function()
           require("opencode").ask("@selection: ")
         end,
-        desc = "Ask opencode about selection",
+        desc = "Ask about selection",
         mode = "v",
       },
       {
@@ -55,7 +55,7 @@ M.plugins = {
         function()
           require("opencode").toggle()
         end,
-        desc = "Toggle embedded opencode",
+        desc = "Toggle",
         mode = "n",
       },
       {
@@ -97,12 +97,11 @@ M.plugins = {
         end,
         desc = "Fix all diagnostics in file",
         mode = "n",
-        mode = "n",
       },
       {
         "<leader>jq",
         function()
-          require("opencode").ask("Using @qflist: ")
+          require("opencode").ask("@quickfix: ")
         end,
         desc = "Send quickfix list to opencode",
         mode = "n",

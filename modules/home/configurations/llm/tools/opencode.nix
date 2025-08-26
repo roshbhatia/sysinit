@@ -1,8 +1,7 @@
-{ ... }:
+_:
 let
   config = import ../config/opencode.nix;
   mcpServers = import ../shared/mcp-servers.nix;
-  agents = import ../shared/agents.nix;
 in
 {
   xdg.configFile = {
@@ -28,13 +27,5 @@ in
       });
       force = true;
     };
-  }
-  // builtins.listToAttrs (
-    map (agent: {
-      name = "opencode/prompts/${agent.name}.nix";
-      value = {
-        source = toString ../. + "/prompts/${agent.name}.nix";
-      };
-    }) agents
-  );
+  };
 }
