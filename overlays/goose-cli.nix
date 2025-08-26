@@ -21,7 +21,7 @@ in
       owner = "block";
       repo = "goose";
       rev = "6467bff1769a9bacdb1ca4115f7e582869375574";
-      hash = "sha256-nyDNC/fe5/S/+SYKbvQQbww8U8tXpyVZawmmplwa9DM=";
+      hash = "sha256-OANHiAXsMQkhX/DeD/WJFRqsLnWtVIYN9mzuSQIAHlY=";
     };
 
     cargoHash = "sha256-FExQNSEe3rt/2vH19A3qlwwDBJNwZeoSJEAzQQ9K8zM=";
