@@ -20,20 +20,27 @@ M.plugins = {
       return {
         {
           "<leader>gd",
-          function()
-            vim.cmd("DiffviewOpen")
-          end,
-          desc = "Git: Open diff view",
-          mode = "n",
+           function()
+             -- Toggle Diffview: if open, close; if closed, open
+             local tabpages = vim.api.nvim_list_tabpages()
+             local found = false
+             for _, tab in ipairs(tabpages) do
+               local ok, name = pcall(vim.api.nvim_tabpage_get_var, tab, 'diffview_view')
+               if ok and name then
+                 found = true
+                 break
+               end
+             end
+             if found then
+               vim.cmd("DiffviewClose")
+             else
+               vim.cmd("DiffviewOpen")
+             end
+           end,
+           desc = "Git: Toggle diff view",
+           mode = "n",
         },
-        {
-          "<leader>gD",
-          function()
-            vim.cmd("DiffviewClose")
-          end,
-          desc = "Git: Close diff view",
-          mode = "n",
-        },
+
         {
           "<leader>gh",
           function()
