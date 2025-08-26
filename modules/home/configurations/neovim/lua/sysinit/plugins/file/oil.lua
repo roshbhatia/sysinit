@@ -44,18 +44,18 @@ M.plugins = {
       return {
         {
           "<leader>eb",
-          "<CMD>Oil<CR>",
+          function() vim.cmd("Oil") end,
           desc = "Open filesystem buffer",
         },
         {
           "<leader>ee",
-          "<CMD>Oil --float --preview<CR>",
+          function() vim.cmd("Oil --float --preview") end,
           desc = "Open filesystem buffer (float and preview)",
         },
 
         {
           "<leader>eE",
-          "<CMD>Oil --float --preview .<CR>",
+          function() vim.cmd("Oil --float --preview .") end,
           desc = "Open filesystem buffer (float and preview, root)",
         },
       }

@@ -21,25 +21,25 @@ M.plugins = {
       return {
         {
           "<leader>ss",
-          "<CMD>'<,'>Sort i<CR>",
+          function() vim.cmd("'<,'>Sort i") end,
           mode = "v",
           desc = "Sort alphabetically (case insensitive)",
         },
         {
           "<leader>sS",
-          "<CMD>'<,'>Sort<CR>",
+          function() vim.cmd("'<,'>Sort") end,
           mode = "v",
           desc = "Sort alphabetically (case sensitive)",
         },
         {
           "<leader>sr",
-          "<CMD>'<,'>Sort! i<CR>",
+          function() vim.cmd("'<,'>Sort! i") end,
           mode = "v",
           desc = "Sort reverse order (case insensitive)",
         },
         {
           "<leader>sR",
-          "<CMD>'<,'>Sort!<CR>",
+          function() vim.cmd("'<,'>Sort!") end,
           mode = "v",
           desc = "Sort reverse order (case sensitive)",
         },

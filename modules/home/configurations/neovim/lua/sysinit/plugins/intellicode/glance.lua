@@ -26,7 +26,7 @@ M.plugins = {
       return {
         {
           "<leader>cd",
-          "<CMD>Glance definitions<CR>",
+          function() vim.cmd("Glance definitions") end,
           desc = "Peek at definition",
         },
         {
@@ -36,7 +36,7 @@ M.plugins = {
         },
         {
           "<leader>cu",
-          "<CMD>Glance references<CR>",
+          function() vim.cmd("Glance references") end,
           desc = "Peek at references",
         },
       }
