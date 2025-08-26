@@ -24,21 +24,7 @@ in
             environment = mcpServers.servers.memory.env;
             command = [ mcpServers.servers.memory.command ] ++ mcpServers.servers.memory.args;
           };
-          context7 = {
-            type = "local";
-            enabled = true;
-            command = [ mcpServers.servers.context7.command ] ++ mcpServers.servers.context7.args;
-          };
         };
-        agent = builtins.listToAttrs (
-          map (agent: {
-            name = agent.name;
-            value = {
-              description = agent.description;
-              prompt = agent.prompt;
-            };
-          }) agents
-        );
       });
       force = true;
     };
