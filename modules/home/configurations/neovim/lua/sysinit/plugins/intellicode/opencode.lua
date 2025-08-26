@@ -35,14 +35,6 @@ M.plugins = {
     end,
     keys = {
       {
-        "<leader>jA",
-        function()
-          require("opencode").ask()
-        end,
-        desc = "Ask opencode",
-        mode = "n",
-      },
-      {
         "<leader>ja",
         function()
           require("opencode").ask("@cursor: ")
@@ -56,7 +48,7 @@ M.plugins = {
           require("opencode").ask("@selection: ")
         end,
         desc = "Ask opencode about selection",
-        mode = { "v", "\22" },
+        mode = "v",
       },
       {
         "<leader>jj",
@@ -101,7 +93,7 @@ M.plugins = {
       {
         "<leader>jf",
         function()
-          require("opencode").fix_diagnostics_in_file()
+          require("opencode").ask("Fix @diagnostics in this file: ")
         end,
         desc = "Fix all diagnostics in file",
         mode = "n",
@@ -110,7 +102,7 @@ M.plugins = {
       {
         "<leader>jq",
         function()
-          require("opencode").send_qflist_to_opencode()
+          require("opencode").ask("Using @qflist: ")
         end,
         desc = "Send quickfix list to opencode",
         mode = "n",
@@ -134,40 +126,5 @@ M.plugins = {
     },
   }),
 }
-
--- Fix all diagnostics in file via opencode
-function M.fix_diagnostics_in_file()
-  local bufnr = vim.api.nvim_get_current_buf()
-  local diags = vim.diagnostic.get(bufnr)
-  if not diags or #diags == 0 then
-    vim.notify("No diagnostics in this file", vim.log.levels.INFO)
-    return
-  end
-  local lines = {}
-  for _, d in ipairs(diags) do
-    table.insert(lines, string.format("[%d] %s: %s", d.lnum + 1, d.source or "", d.message))
-  end
-  local prompt = "Fix all diagnostics in this file:\n" .. table.concat(lines, "\n")
-  require("opencode").prompt(prompt)
-end
-
--- Send quickfix list to opencode with a prompt
-function M.send_qflist_to_opencode()
-  local qflist = vim.fn.getqflist()
-  if not qflist or #qflist == 0 then
-    vim.notify("Quickfix list is empty", vim.log.levels.INFO)
-    return
-  end
-  local lines = {}
-  for _, item in ipairs(qflist) do
-    local fname = item.bufnr and vim.api.nvim_buf_get_name(item.bufnr) or item.filename or ""
-    table.insert(
-      lines,
-      string.format("%s:%d:%d: %s", fname, item.lnum or 0, item.col or 0, item.text or "")
-    )
-  end
-  local prompt = "Review/fix these quickfix issues:\n" .. table.concat(lines, "\n")
-  require("opencode").prompt(prompt)
-end
 
 return M
