@@ -12,6 +12,7 @@ let
   };
 in
 {
-  nushell = unstable.nushell;
   firefox-addons = inputs.firefox-addons.packages.${system};
+  goose-cli = unstable.goose-cli;
+  nushell = unstable.nushell;
 }
