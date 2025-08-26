@@ -96,13 +96,17 @@ M.plugins = {
         },
         {
           "<leader>s",
-          function() vim.cmd("split") end,
+          function()
+            vim.cmd("split")
+          end,
           mode = { "n" },
           desc = "Split horizontal",
         },
         {
           "<leader>v",
-          function() vim.cmd("vsplit") end,
+          function()
+            vim.cmd("vsplit")
+          end,
           mode = { "n" },
           desc = "Split vertical",
         },

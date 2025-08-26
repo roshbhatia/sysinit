@@ -36,7 +36,9 @@ M.plugins = {
     keys = {
       {
         "<leader>co",
-        function() vim.cmd("AerialToggle!") end,
+        function()
+          vim.cmd("AerialToggle!")
+        end,
         desc = "Toggle outline",
       },
     },

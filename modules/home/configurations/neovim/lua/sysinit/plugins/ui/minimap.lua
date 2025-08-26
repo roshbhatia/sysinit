@@ -18,7 +18,9 @@ M.plugins = {
       return {
         {
           "<leader>em",
-          function() vim.cmd("Neominimap Toggle") end,
+          function()
+            vim.cmd("Neominimap Toggle")
+          end,
           desc = "Toggle minimap",
         },
       }

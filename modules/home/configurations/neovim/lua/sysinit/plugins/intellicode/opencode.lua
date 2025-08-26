@@ -40,6 +40,7 @@ M.plugins = {
           require("opencode").ask()
         end,
         desc = "Ask opencode",
+        mode = "n",
       },
       {
         "<leader>ja",
@@ -63,6 +64,7 @@ M.plugins = {
           require("opencode").toggle()
         end,
         desc = "Toggle embedded opencode",
+        mode = "n",
       },
       {
         "<leader>jJ",
@@ -70,6 +72,7 @@ M.plugins = {
           require("opencode").command("session_new")
         end,
         desc = "New session",
+        mode = "n",
       },
       {
         "<leader>jy",
@@ -77,6 +80,7 @@ M.plugins = {
           require("opencode").command("messages_copy")
         end,
         desc = "Copy last message",
+        mode = "n",
       },
       {
         "<S-C-u>",
@@ -84,6 +88,7 @@ M.plugins = {
           require("opencode").command("messages_half_page_up")
         end,
         desc = "Scroll messages up",
+        mode = "n",
       },
       {
         "<S-C-d>",
@@ -91,6 +96,7 @@ M.plugins = {
           require("opencode").command("messages_half_page_down")
         end,
         desc = "Scroll messages down",
+        mode = "n",
       },
       {
         "<leader>jf",
@@ -98,6 +104,7 @@ M.plugins = {
           require("opencode").fix_diagnostics_in_file()
         end,
         desc = "Fix all diagnostics in file",
+        mode = "n",
         mode = "n",
       },
       {
@@ -122,6 +129,7 @@ M.plugins = {
           require("opencode").prompt("Explain @cursor and its context")
         end,
         desc = "Explain code near cursor",
+        mode = "n",
       },
     },
   }),

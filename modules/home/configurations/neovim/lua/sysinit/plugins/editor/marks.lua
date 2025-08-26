@@ -52,7 +52,9 @@ M.plugins = {
         },
         {
           "<leader>fm",
-          function() vim.cmd("Telescope recall") end,
+          function()
+            vim.cmd("Telescope recall")
+          end,
           mode = "n",
           noremap = true,
           silent = true,
