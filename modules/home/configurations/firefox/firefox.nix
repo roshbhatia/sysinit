@@ -29,7 +29,7 @@ in
     profiles.default = {
       id = 0;
       isDefault = true;
-      name = "default";
+      name = "Default User";
 
       extensions.packages = with pkgs.firefox-addons; [
         ublock-origin
