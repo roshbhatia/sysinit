@@ -60,15 +60,15 @@ M.plugins = {
           group = "Find",
         },
         {
-          "<localleader>g",
+          "<leader>g",
           group = "Git",
         },
         {
-          "<localleader>gb",
-          group = "Git Buffer/Blame",
+          "<leader>gb",
+          group = "Git Buffer || Blame",
         },
         {
-          "<localleader>gh",
+          "<leader>gh",
           group = "Hunk",
         },
         {
