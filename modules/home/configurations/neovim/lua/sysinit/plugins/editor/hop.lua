@@ -19,10 +19,16 @@ M.plugins = {
     keys = function()
       return {
         {
-          "f",
+          "<S-CR>",
           "<CMD>HopWord<CR>",
           mode = "n",
           desc = "Jump to any word",
+        },
+        {
+          "<S-CR>",
+          "<CMD>HopAnywhere<CR>",
+          mode = "v",
+          desc = "Jump to anywhere",
         },
       }
     end,

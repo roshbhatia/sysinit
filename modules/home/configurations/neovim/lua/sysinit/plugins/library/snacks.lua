@@ -193,11 +193,11 @@ M.plugins = {
           desc = "Toggle scratchpad",
         },
         {
-          "<localleader>gg",
+          "<leader>gg",
           function()
             Snacks.lazygit()
           end,
-          desc = "Open LazyGit UI",
+          desc = "Git: Toggle UI",
         },
         {
           "<localleader>ns",

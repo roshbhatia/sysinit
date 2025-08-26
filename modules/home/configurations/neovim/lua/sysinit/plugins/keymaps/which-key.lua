@@ -65,11 +65,11 @@ M.plugins = {
         },
         {
           "<leader>gb",
-          group = "Git Buffer || Blame",
+          group = "Git: Buffer || Blame",
         },
         {
           "<leader>gh",
-          group = "Hunk",
+          group = "Git: Hunk",
         },
         {
           "<leader>m",
