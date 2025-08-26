@@ -29,11 +29,11 @@ M.plugins = {
       wk.add({
         {
           "<localleader>b",
-          group = "Buffer Actions",
+          group = "Buffer",
         },
         {
           "<localleader>e",
-          group = "Editor Actions",
+          group = "Editor",
         },
         {
           "<localleader>r",
@@ -65,11 +65,11 @@ M.plugins = {
         },
         {
           "<leader>gb",
-          group = "Git: Buffer || Blame",
+          group = "Buffer",
         },
         {
           "<leader>gh",
-          group = "Git: Hunk",
+          group = "Hunk",
         },
         {
           "<leader>m",
@@ -78,10 +78,6 @@ M.plugins = {
         {
           "<localleader>n",
           group = "Notifications",
-        },
-        {
-          "<leader>t",
-          group = "Terminal",
         },
         {
           "<leader>?",
@@ -93,7 +89,7 @@ M.plugins = {
         wk.add({
           {
             "<leader>j",
-            group = "Copilot - OpenCode",
+            group = "Agent",
           },
         })
       end

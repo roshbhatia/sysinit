@@ -186,18 +186,11 @@ M.plugins = {
           desc = "Scroll down",
         },
         {
-          "<leader>bs",
-          function()
-            Snacks.scratch()
-          end,
-          desc = "Toggle scratchpad",
-        },
-        {
           "<leader>gg",
           function()
             Snacks.lazygit()
           end,
-          desc = "Git: Toggle UI",
+          desc = "Toggle UI",
         },
         {
           "<localleader>ns",
@@ -212,20 +205,6 @@ M.plugins = {
             Snacks.notifier.hide()
           end,
           desc = "Dismiss",
-        },
-        {
-          "<leader>tt",
-          function()
-            Snacks.terminal.toggle(nil, {
-              win = {
-                position = "float",
-                border = "rounded",
-                title = "",
-                title_pos = "center",
-              },
-            })
-          end,
-          desc = "Toggle Terminal",
         },
         {
           "<Esc><Esc>",
