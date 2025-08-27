@@ -191,6 +191,8 @@ rec {
       colorscheme = "catppuccin";
     };
 
+    ghostty = variant: "catppuccin-${variant}";
+
     bat = variant: "catppuccin-${variant}";
     delta = variant: "catppuccin-${variant}";
     atuin = variant: "catppuccin-${variant}";

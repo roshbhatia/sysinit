@@ -73,7 +73,7 @@ lib.mkIf claudeEnabled {
 
         editor = {
           fontSize = 14;
-          fontFamily = "JetBrains Mono";
+          fontFamily = "Berkeley Mono";
           lineNumbers = true;
           wordWrap = true;
         };

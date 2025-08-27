@@ -149,6 +149,7 @@ rec {
       colorscheme = variant: "kanagawa-${variant}";
     };
 
+    ghostty = variant: "kanagawa-${variant}";
     bat = variant: "kanagawa-${variant}";
     delta = variant: "kanagawa-${variant}";
     atuin = variant: "kanagawa-${variant}";

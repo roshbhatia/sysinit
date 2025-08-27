@@ -109,6 +109,7 @@ rec {
       colorscheme = _variant: "solarized-osaka";
     };
 
+    ghostty = variant: "solarized-${variant}";
     bat = variant: "solarized-${variant}";
     delta = variant: "solarized-${variant}";
     atuin = variant: "solarized-${variant}";

@@ -75,6 +75,7 @@ rec {
       colorscheme = _variant: "nordfox";
     };
 
+    ghostty = variant: "nord-${variant}";
     bat = variant: "nord-${variant}";
     delta = variant: "nord-${variant}";
     atuin = variant: "nord-${variant}";
