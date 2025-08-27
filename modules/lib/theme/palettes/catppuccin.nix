@@ -217,5 +217,7 @@ rec {
       muted = palettes.macchiato.subtext0;
       highlight = palettes.macchiato.pink;
     };
+    
+    zellij = variant: "catppuccin-${variant}";
   };
 }

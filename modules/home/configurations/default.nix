@@ -26,6 +26,7 @@
     ./vivid
     ./vscode
     ./wezterm
+    ./zellij
     ./zsh
   ];
 }

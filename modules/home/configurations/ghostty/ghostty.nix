@@ -26,18 +26,12 @@ let
   builtInThemes = {
     catppuccin = {
       macchiato = "catppuccin-macchiato";
-      frappe = "catppuccin-frappe";
-      latte = "catppuccin-latte";
-      mocha = "catppuccin-mocha";
     };
     rose-pine = {
       moon = "rose-pine-moon";
-      dawn = "rose-pine-dawn";
-      main = "rose-pine";
     };
     gruvbox = {
       dark = "GruvboxDark";
-      light = "GruvboxLight";
     };
     nord = {
       dark = "nord";
@@ -48,7 +42,6 @@ let
     };
     solarized = {
       dark = "Solarized Dark - Patched";
-      light = "iTerm2 Solarized Light";
     };
   };
 
@@ -110,65 +103,35 @@ in
       theme =
         if hasBuiltInTheme then builtInThemeName else "${values.theme.colorscheme}-${values.theme.variant}";
 
-      window-decoration = true;
-      window-theme = "auto";
-      window-colorspace = "srgb";
+      window-decoration = "none";
 
+      bold-is-bright = true;
       font-family = "Berkeley Mono";
       font-size = 13;
       font-feature = [
         "+zero"
+        "+calt"
+        "+liga"
+        "+dlig"
       ];
 
-      window-padding-x = 1;
-      window-padding-y = 1;
-
-      cursor-style = "block";
-      cursor-style-blink = false;
-
-      scrollback-limit = 10000;
-      mouse-hide-while-typing = true;
-      confirm-close-surface = false;
-      quit-after-last-window-closed = false;
-
-      shell-integration = "detect";
-      shell-integration-features = "cursor,sudo,title";
+      window-padding-x = 4;
+      window-padding-y = 4;
 
       background-opacity =
         if values.theme.transparency.enable then values.theme.transparency.opacity else 1.0;
 
-      macos-titlebar-style = "tabs";
-      macos-option-as-alt = true;
-      macos-titlebar-proxy-icon = "visible";
-
-      gtk-tabs-location = "top";
+      macos-icon = "custom-style";
+      macos-icon-frame = "chrome";
+      macos-icon-ghost-color = semanticColors.background.primary;
+      macos-icon-screen-color = semanticColors.foreground.primary;
+      macos-auto-secure-input = true;
+      macos-secure-input-indication = true;
 
       keybind = [
-        "cmd+t=new_tab"
-        "cmd+w=close_surface"
-        "cmd+shift+w=close_all_windows"
         "cmd+n=new_window"
-        "cmd+shift+n=new_split:right"
-        "cmd+d=new_split:down"
-        "cmd+shift+d=new_split:right"
-        "cmd+left_bracket=previous_tab"
-        "cmd+right_bracket=next_tab"
-        "cmd+1=goto_tab:1"
-        "cmd+2=goto_tab:2"
-        "cmd+3=goto_tab:3"
-        "cmd+4=goto_tab:4"
-        "cmd+5=goto_tab:5"
-        "cmd+6=goto_tab:6"
-        "cmd+7=goto_tab:7"
-        "cmd+8=goto_tab:8"
-        "cmd+9=goto_tab:9"
         "cmd+plus=increase_font_size:1"
         "cmd+minus=decrease_font_size:1"
-        "cmd+zero=reset_font_size"
-        "cmd+c=copy_to_clipboard"
-        "cmd+v=paste_from_clipboard"
-        "cmd+k=clear_screen"
-        "cmd+f=toggle_fullscreen"
       ];
     };
 

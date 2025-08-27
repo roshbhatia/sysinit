@@ -162,16 +162,18 @@ rec {
     k9s = variant: "kanagawa-${variant}";
 
     sketchybar = {
-      background = palettes.dark.sumiInk0;
-      foreground = palettes.dark.fujiWhite;
-      accent = palettes.dark.crystalBlue;
-      warning = palettes.dark.surimiOrange;
-      success = palettes.dark.springGreen;
-      error = palettes.dark.peachRed;
-      info = palettes.dark.waveAqua1;
-      muted = palettes.dark.fujiGray;
-      highlight = palettes.dark.sakuraPink;
+      background = palettes.wave.sumiInk0;
+      foreground = palettes.wave.fujiWhite;
+      accent = palettes.wave.crystalBlue;
+      warning = palettes.wave.surimiOrange;
+      success = palettes.wave.springGreen;
+      error = palettes.wave.peachRed;
+      info = palettes.wave.waveAqua1;
+      muted = palettes.wave.fujiGray;
+      highlight = palettes.wave.sakuraPink;
     };
+    
+    zellij = variant: "kanagawa-${variant}";
   };
 
 }

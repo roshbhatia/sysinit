@@ -132,5 +132,7 @@ rec {
       muted = palettes.dark.base01;
       highlight = palettes.dark.magenta;
     };
+    
+    zellij = variant: "solarized-${variant}";
   };
 }
