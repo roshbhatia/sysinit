@@ -111,8 +111,8 @@ in
     enableZshIntegration = true;
     enableFishIntegration = true;
 
-    installBatSyntax = true;
-    installVimSyntax = true;
+    installBatSyntax = false;
+    installVimSyntax = false;
 
     settings = {
       theme =
