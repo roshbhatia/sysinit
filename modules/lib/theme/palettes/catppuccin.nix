@@ -191,7 +191,12 @@ rec {
       colorscheme = "catppuccin";
     };
 
-    ghostty = variant: "catppuccin-${variant}";
+    ghostty = {
+      macchiato = "catppuccin-macchiato";
+      frappe = "catppuccin-frappe";
+      latte = "catppuccin-latte";
+      mocha = "catppuccin-mocha";
+    };
 
     bat = variant: "catppuccin-${variant}";
     delta = variant: "catppuccin-${variant}";

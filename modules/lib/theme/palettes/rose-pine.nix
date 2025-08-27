@@ -153,7 +153,11 @@ rec {
       colorscheme = _variant: "roseprime";
     };
 
-    ghostty = variant: "rose-pine-${variant}";
+    ghostty = {
+      moon = "rose-pine-moon";
+      dawn = "rose-pine-dawn";
+      main = "rose-pine";
+    };
     bat = variant: "rose-pine-${variant}";
     delta = variant: "rose-pine-${variant}";
     k9s = variant: "rose-pine-${variant}";

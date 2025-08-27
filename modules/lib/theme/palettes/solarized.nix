@@ -109,7 +109,10 @@ rec {
       colorscheme = _variant: "solarized-osaka";
     };
 
-    ghostty = variant: "solarized-${variant}";
+    ghostty = {
+      dark = "Solarized Dark - Patched";
+      light = "iTerm2 Solarized Light";
+    };
     bat = variant: "solarized-${variant}";
     delta = variant: "solarized-${variant}";
     atuin = variant: "solarized-${variant}";

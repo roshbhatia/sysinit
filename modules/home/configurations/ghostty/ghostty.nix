@@ -7,9 +7,54 @@
 let
   themes = import ../../../lib/theme { inherit lib; };
 
+  # Get theme data and check if ghostty has built-in support
+  themeData = themes.getTheme values.theme.colorscheme;
+
+  # Built-in theme mapping for Ghostty (only supported variants)
+  builtInThemes = {
+    catppuccin = {
+      macchiato = "catppuccin-macchiato";
+      frappe = "catppuccin-frappe";
+      latte = "catppuccin-latte";
+      mocha = "catppuccin-mocha";
+    };
+    rose-pine = {
+      moon = "rose-pine-moon";
+      dawn = "rose-pine-dawn";
+      main = "rose-pine";
+    };
+    gruvbox = {
+      dark = "GruvboxDark";
+      light = "GruvboxLight";
+    };
+    nord = {
+      dark = "nord";
+    };
+    kanagawa = {
+      wave = "Kanagawa Wave";
+      dragon = "Kanagawa Dragon";
+    };
+    solarized = {
+      dark = "Solarized Dark - Patched";
+      light = "iTerm2 Solarized Light";
+    };
+  };
+
+  # Check if we have a built-in theme for this colorscheme/variant combo
+  hasBuiltInTheme =
+    lib.hasAttr values.theme.colorscheme builtInThemes &&
+    lib.hasAttr values.theme.variant builtInThemes.${values.theme.colorscheme};
+
+  builtInThemeName =
+    if hasBuiltInTheme then
+      builtInThemes.${values.theme.colorscheme}.${values.theme.variant}
+    else
+      null;
+
+  # Only create custom theme if no built-in theme exists
   semanticColors = themes.getSemanticColors values.theme.colorscheme values.theme.variant;
 
-  createGhosttyTheme = {
+  customTheme = {
     background = semanticColors.background.primary;
     foreground = semanticColors.foreground.primary;
 
@@ -51,7 +96,7 @@ in
     installVimSyntax = true;
 
     settings = {
-      theme = "${values.theme.colorscheme}-${values.theme.variant}";
+      theme = if hasBuiltInTheme then builtInThemeName else "${values.theme.colorscheme}-${values.theme.variant}";
 
       window-decoration = true;
       window-theme = "auto";
@@ -117,8 +162,9 @@ in
       ];
     };
 
-    themes = {
-      "${values.theme.colorscheme}-${values.theme.variant}" = createGhosttyTheme values.theme.variant;
+    # Only create custom theme if no built-in theme exists
+    themes = lib.mkIf (!hasBuiltInTheme) {
+      "${values.theme.colorscheme}-${values.theme.variant}" = customTheme;
     };
   };
 }
