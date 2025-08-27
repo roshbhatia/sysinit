@@ -28,6 +28,7 @@ let
   baseCasks = [
     "firefox"
     "font-symbols-only-nerd-font"
+    "ghostty"
     "hammerspoon"
     "jordanbaird-ice"
     "keycastr"

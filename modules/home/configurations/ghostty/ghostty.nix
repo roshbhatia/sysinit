@@ -1,11 +1,28 @@
 {
   lib,
+  pkgs,
   values,
   ...
 }:
 
 let
   themes = import ../../../lib/theme { inherit lib; };
+
+  # Create Homebrew wrapper for Ghostty (similar to Firefox)
+  ghosttyWrapper =
+    pkgs.runCommand "ghostty-homebrew-wrapper"
+      {
+        pname = "ghostty";
+        version = "homebrew";
+      }
+      ''
+        mkdir -p $out/bin
+        cat > $out/bin/ghostty <<EOF
+        #!/bin/sh
+        exec /Applications/Ghostty.app/Contents/MacOS/ghostty "\$@"
+        EOF
+        chmod +x $out/bin/ghostty
+      '';
 
   # Get theme data and check if ghostty has built-in support
   themeData = themes.getTheme values.theme.colorscheme;
@@ -42,14 +59,11 @@ let
 
   # Check if we have a built-in theme for this colorscheme/variant combo
   hasBuiltInTheme =
-    lib.hasAttr values.theme.colorscheme builtInThemes &&
-    lib.hasAttr values.theme.variant builtInThemes.${values.theme.colorscheme};
+    lib.hasAttr values.theme.colorscheme builtInThemes
+    && lib.hasAttr values.theme.variant builtInThemes.${values.theme.colorscheme};
 
   builtInThemeName =
-    if hasBuiltInTheme then
-      builtInThemes.${values.theme.colorscheme}.${values.theme.variant}
-    else
-      null;
+    if hasBuiltInTheme then builtInThemes.${values.theme.colorscheme}.${values.theme.variant} else null;
 
   # Only create custom theme if no built-in theme exists
   semanticColors = themes.getSemanticColors values.theme.colorscheme values.theme.variant;
@@ -88,6 +102,11 @@ in
   programs.ghostty = {
     enable = true;
 
+    # Use Homebrew wrapper instead of nixpkgs (which is marked broken)
+    package = ghosttyWrapper // {
+      override = _args: ghosttyWrapper;
+    };
+
     enableBashIntegration = true;
     enableZshIntegration = true;
     enableFishIntegration = true;
@@ -96,7 +115,8 @@ in
     installVimSyntax = true;
 
     settings = {
-      theme = if hasBuiltInTheme then builtInThemeName else "${values.theme.colorscheme}-${values.theme.variant}";
+      theme =
+        if hasBuiltInTheme then builtInThemeName else "${values.theme.colorscheme}-${values.theme.variant}";
 
       window-decoration = true;
       window-theme = "auto";
