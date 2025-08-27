@@ -8,7 +8,6 @@
 let
   themes = import ../../../lib/theme { inherit lib; };
 
-  # Create Homebrew wrapper for Ghostty (similar to Firefox)
   ghosttyWrapper =
     pkgs.runCommand "ghostty-homebrew-wrapper"
       {
@@ -24,10 +23,6 @@ let
         chmod +x $out/bin/ghostty
       '';
 
-  # Get theme data and check if ghostty has built-in support
-  themeData = themes.getTheme values.theme.colorscheme;
-
-  # Built-in theme mapping for Ghostty (only supported variants)
   builtInThemes = {
     catppuccin = {
       macchiato = "catppuccin-macchiato";
@@ -57,7 +52,6 @@ let
     };
   };
 
-  # Check if we have a built-in theme for this colorscheme/variant combo
   hasBuiltInTheme =
     lib.hasAttr values.theme.colorscheme builtInThemes
     && lib.hasAttr values.theme.variant builtInThemes.${values.theme.colorscheme};
@@ -65,7 +59,6 @@ let
   builtInThemeName =
     if hasBuiltInTheme then builtInThemes.${values.theme.colorscheme}.${values.theme.variant} else null;
 
-  # Only create custom theme if no built-in theme exists
   semanticColors = themes.getSemanticColors values.theme.colorscheme values.theme.variant;
 
   customTheme = {
@@ -102,7 +95,6 @@ in
   programs.ghostty = {
     enable = true;
 
-    # Use Homebrew wrapper instead of nixpkgs (which is marked broken)
     package = ghosttyWrapper // {
       override = _args: ghosttyWrapper;
     };
@@ -128,6 +120,9 @@ in
         "+zero"
       ];
 
+      window-padding-x = 1;
+      window-padding-y = 1;
+
       cursor-style = "block";
       cursor-style-blink = false;
 
@@ -143,7 +138,7 @@ in
       shell-integration = "detect";
       shell-integration-features = "cursor,sudo,title";
 
-      window-opacity =
+      background-opacity =
         if values.theme.transparency.enable then values.theme.transparency.opacity else 1.0;
 
       macos-titlebar-style = "tabs";
@@ -151,7 +146,6 @@ in
       macos-titlebar-proxy-icon = "visible";
 
       gtk-tabs-location = "top";
-      tab-width = 8;
 
       keybind = [
         "cmd+t=new_tab"
@@ -182,7 +176,6 @@ in
       ];
     };
 
-    # Only create custom theme if no built-in theme exists
     themes = lib.mkIf (!hasBuiltInTheme) {
       "${values.theme.colorscheme}-${values.theme.variant}" = customTheme;
     };
