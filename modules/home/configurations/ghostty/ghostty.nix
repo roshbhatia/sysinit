@@ -129,11 +129,7 @@ in
       scrollback-limit = 10000;
       mouse-hide-while-typing = true;
       confirm-close-surface = false;
-      quit-after-last-window-closed = true;
-
-      audio-bell = false;
-      visual-bell = "color";
-      visual-bell-duration = "200ms";
+      quit-after-last-window-closed = false;
 
       shell-integration = "detect";
       shell-integration-features = "cursor,sudo,title";
