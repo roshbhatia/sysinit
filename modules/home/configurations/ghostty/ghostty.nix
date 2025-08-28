@@ -119,7 +119,7 @@ in
       background-opacity =
         if values.theme.transparency.enable then values.theme.transparency.opacity else 1.0;
 
-      background-blur = if values.theme.transparency.enable then 20 else 0;
+      background-blur = if values.theme.transparency.enable then values.theme.transparency.blur else 0;
 
       macos-icon = "custom-style";
       macos-icon-frame = "chrome";
