@@ -13,20 +13,20 @@ in
     enable = true;
     settings = {
       theme = zellijTheme;
-      default_shell = "zsh";
-      default_layout = "default";
-      default_mode = "normal";
-      mouse_mode = true;
-      scroll_buffer_size = 50000;
-      copy_command = "pbcopy";
-      copy_clipboard = "primary";
       pane_frames = false;
       simplified_ui = true;
-      session_serialization = false;
-      pane_viewport_serialization = false;
-      scrollback_lines_to_serialize = 10000;
-      on_force_close = "detach";
+
       scrollback_editor = "nvim";
+      scroll_buffer_size = 50000;
+
+      mouse_mode = true;
+
+      copy_command = "pbcopy";
+      copy_clipboard = "primary";
+
+      scrollback_lines_to_serialize = 100000;
+      on_force_close = "detach";
+
       plugins = {
         zjstatus-hints = {
           location = "https://github.com/b0o/zjstatus-hints/releases/latest/download/zjstatus-hints.wasm";
@@ -240,27 +240,6 @@ in
             bind = "q";
             Quit = { };
           }
-          # Added from example
-          {
-            bind = "Ctrl b";
-            SwitchToMode = "locked";
-          }
-          {
-            bind = "f";
-            ToggleFocusFullscreen = { };
-          }
-          {
-            bind = "f";
-            SwitchToMode = "locked";
-          }
-          {
-            bind = "w";
-            ToggleFloatingPanes = { };
-          }
-          {
-            bind = "w";
-            SwitchToMode = "locked";
-          }
         ];
         resize = [
           {
@@ -283,35 +262,6 @@ in
             bind = "Esc";
             SwitchToMode = "normal";
           }
-          # Added from example
-          {
-            bind = "+";
-            Resize = "Increase";
-          }
-          {
-            bind = "-";
-            Resize = "Decrease";
-          }
-          {
-            bind = "=";
-            Resize = "Increase";
-          }
-          {
-            bind = "H";
-            Resize = "Decrease left";
-          }
-          {
-            bind = "J";
-            Resize = "Decrease down";
-          }
-          {
-            bind = "K";
-            Resize = "Decrease up";
-          }
-          {
-            bind = "L";
-            Resize = "Decrease right";
-          }
         ];
         scroll = [
           {
@@ -325,112 +275,6 @@ in
           {
             bind = "Esc";
             SwitchToMode = "normal";
-          }
-          {
-            bind = "e";
-            EditScrollback = { };
-          }
-          {
-            bind = "e";
-            SwitchToMode = "locked";
-          }
-          {
-            bind = "PageDown";
-            PageScrollDown = { };
-          }
-          {
-            bind = "PageUp";
-            PageScrollUp = { };
-          }
-          {
-            bind = "Ctrl c";
-            ScrollToBottom = { };
-          }
-          {
-            bind = "Ctrl c";
-            SwitchToMode = "locked";
-          }
-        ];
-        session = [
-          {
-            bind = "w";
-            LaunchOrFocusPlugin = {
-              _args = [ "session-manager" ];
-              floating = true;
-              move_to_focused_tab = true;
-            };
-            SwitchToMode = "locked";
-          }
-        ];
-        shared_among = [
-          {
-            _args = [
-              "normal"
-              "locked"
-            ];
-            bind = "Alt h";
-            MoveFocusOrTab = "left";
-          }
-          {
-            _args = [
-              "normal"
-              "locked"
-            ];
-            bind = "Alt j";
-            MoveFocus = "down";
-          }
-          {
-            _args = [
-              "normal"
-              "locked"
-            ];
-            bind = "Alt k";
-            MoveFocus = "up";
-          }
-          {
-            _args = [
-              "normal"
-              "locked"
-            ];
-            bind = "Alt l";
-            MoveFocusOrTab = "right";
-          }
-          {
-            _args = [
-              "normal"
-              "locked"
-            ];
-            bind = "Alt +";
-            Resize = "Increase";
-          }
-          {
-            _args = [
-              "normal"
-              "locked"
-            ];
-            bind = "Alt -";
-            Resize = "Decrease";
-          }
-          {
-            _args = [
-              "normal"
-              "locked"
-            ];
-            bind = "Alt =";
-            Resize = "Increase";
-          }
-        ];
-        shared_except = [
-          {
-            _args = [
-              "locked"
-              "resize"
-              "pane"
-              "tab"
-              "scroll"
-            ];
-            bind = "o";
-            SwitchToMode = "session";
           }
         ];
       };
