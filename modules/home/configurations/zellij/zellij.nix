@@ -138,10 +138,6 @@ in
 {
   programs.zellij = {
     enable = true;
-
-    enableBashIntegration = true;
-    enableZshIntegration = true;
-    enableFishIntegration = true;
   };
 
   xdg.configFile."zellij/config.kdl".text = configKdl;
