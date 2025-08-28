@@ -4,7 +4,6 @@ local M = {}
 local terminal_font = wezterm.font_with_fallback({
   {
     family = "TX-02",
-    weight = "Light",
     harfbuzz_features = {
       "calt",
       "zero",
@@ -12,7 +11,6 @@ local terminal_font = wezterm.font_with_fallback({
   },
   {
     family = "JetBrains Mono",
-    weight = "Light",
     harfbuzz_features = {
       "calt",
       "zero",
@@ -27,7 +25,6 @@ end
 
 local function get_window_appearance_config()
   return {
-    window_decorations = "RESIZE",
     window_padding = {
       left = "1cell",
       right = "1cell",
@@ -38,6 +35,9 @@ end
 
 local function get_display_config()
   return {
+    window_frame = {
+      font = terminal_font,
+    },
     enable_tab_bar = true,
     max_fps = 240,
     animation_fps = 240,
@@ -61,7 +61,7 @@ local function get_font_config()
   return {
     font = terminal_font,
     freetype_load_target = "Light",
-    font_size = 15.0,
+    font_size = 14.0,
     line_height = 1.0,
   }
 end
