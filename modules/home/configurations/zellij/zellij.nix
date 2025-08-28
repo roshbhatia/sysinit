@@ -146,11 +146,10 @@ let
     default_mode "normal"
 
     mouse_mode true
-    scroll_buffer_size 10000
+    scroll_buffer_size 50000
     copy_command "pbcopy"
     copy_clipboard "primary"
 
-    simplified_ui false
     pane_frames true
 
     session_serialization false
@@ -179,10 +178,10 @@ let
         bind "Ctrl k" { MoveFocus "Up"; }
         bind "Ctrl l" { MoveFocus "Right"; }
 
-        bind "Ctrl+Shift h" { Resize "Increase" "Left"; }
-        bind "Ctrl+Shift j" { Resize "Increase" "Down"; }
-        bind "Ctrl+Shift k" { Resize "Increase" "Up"; }
-        bind "Ctrl+Shift l" { Resize "Increase" "Right"; }
+        bind "Ctrl Shift h" { Resize "Increase" "Left"; }
+        bind "Ctrl Shift j" { Resize "Increase" "Down"; }
+        bind "Ctrl Shift k" { Resize "Increase" "Up"; }
+        bind "Ctrl Shift l" { Resize "Increase" "Right"; }
 
         bind "Ctrl v" { NewPane "Right"; }
         bind "Ctrl s" { NewPane "Down"; }
@@ -207,8 +206,8 @@ let
         bind "Cmd 6" { GoToTab 6; }
         bind "Cmd 7" { GoToTab 7; }
         bind "Cmd 8" { GoToTab 8; }
-        bind "Cmd+Shift Left" { GoToPreviousTab; }
-        bind "Cmd+Shift Right" { GoToNextTab; }
+        bind "Cmd Shift Left" { GoToPreviousTab; }
+        bind "Cmd Shift Right" { GoToNextTab; }
 
         bind "h" { MoveFocus "Left"; }
         bind "j" { MoveFocus "Down"; }
