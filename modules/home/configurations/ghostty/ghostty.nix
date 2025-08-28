@@ -103,8 +103,6 @@ in
       theme =
         if hasBuiltInTheme then builtInThemeName else "${values.theme.colorscheme}-${values.theme.variant}";
 
-      window-decoration = "none";
-
       bold-is-bright = true;
       font-family = "Berkeley Mono";
       font-size = 13;
@@ -116,10 +114,12 @@ in
       ];
 
       window-padding-x = 4;
-      window-padding-y = 4;
+      window-padding-y = "2,0";
 
       background-opacity =
         if values.theme.transparency.enable then values.theme.transparency.opacity else 1.0;
+
+      background-blur = if values.theme.transparency.enable then 20 else 0;
 
       macos-icon = "custom-style";
       macos-icon-frame = "chrome";
@@ -136,20 +136,6 @@ in
         "cmd+0=reset_font_size"
         "cmd+n=new_window"
         "cmd+w=close_surface"
-        "cmd+t=unbind"
-        "cmd+shift+left=unbind"
-        "cmd+shift+right=unbind"
-        "cmd+1=unbind"
-        "cmd+2=unbind"
-        "cmd+3=unbind"
-        "cmd+4=unbind"
-        "cmd+5=unbind"
-        "cmd+6=unbind"
-        "cmd+7=unbind"
-        "cmd+8=unbind"
-        "cmd+9=unbind"
-        "cmd+d=unbind"
-        "cmd+shift+d=unbind"
       ];
     };
 

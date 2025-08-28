@@ -280,4 +280,8 @@ in
       };
     };
   };
+
+  xdg.configFile."zellij/zellij.sh" = {
+    source = ./zellij.sh;
+  };
 }

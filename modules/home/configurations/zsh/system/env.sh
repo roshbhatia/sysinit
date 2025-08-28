@@ -1,9 +1,7 @@
 #!/usr/bin/env zsh
 # THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-# modules/darwin/home/zsh/core/env.sh (begin)
-env.print()
-            {
+env.print() {
   local pattern=${1:-"*"}
   env | grep -E "^$pattern=" | sort | bat --style=numbers,grid
 }
@@ -14,4 +12,3 @@ export EZA_COLORS=$LS_COLORS
 export _ZO_FZF_OPTS=$FZF_DEFAULT_OPTS
 
 unset MAILCHECK
-# modules/darwin/home/zsh/core/env.sh (end)

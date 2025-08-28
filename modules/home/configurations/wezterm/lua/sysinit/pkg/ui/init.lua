@@ -3,6 +3,14 @@ local M = {}
 
 local terminal_font = wezterm.font_with_fallback({
   {
+    family = "TX-02",
+    weight = "Light",
+    harfbuzz_features = {
+      "calt",
+      "zero",
+    },
+  },
+  {
     family = "JetBrains Mono",
     weight = "Light",
     harfbuzz_features = {
