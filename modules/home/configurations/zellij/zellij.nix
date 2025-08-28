@@ -190,47 +190,229 @@ in
 {
   programs.zellij = {
     enable = true;
-    
+
     enableBashIntegration = true;
     enableZshIntegration = true;
     enableFishIntegration = true;
 
     settings = {
       theme = "${values.theme.colorscheme}-${values.theme.variant}";
-      
+
       # UI configuration
       default_shell = "zsh";
       default_layout = "default";
       default_mode = "normal";
-      
+
       # Mouse and scrollback
       mouse_mode = true;
       scroll_buffer_size = 10000;
       copy_command = "pbcopy"; # macOS clipboard
       copy_clipboard = "primary";
-      
+
       # Simplified mode
       simplified_ui = false;
       pane_frames = true;
-      
-      # Session configuration  
+
+      # Session configuration
       session_serialization = false;
       pane_viewport_serialization = false;
       scrollback_lines_to_serialize = 10000;
-      
-      # Auto start and attach
+
       on_force_close = "quit";
-      
-      # Keybinds - simplified for Vim users
+
       keybinds = {
         _props = {
           clear-defaults = true;
         };
-        
-        # Normal mode bindings
+
         normal = {
           _children = [
-            # Pane navigation (Vim-like)
+            {
+              bind = {
+                _args = ["Ctrl h"];
+                MoveFocus = ["Left"];
+              };
+            }
+            {
+              bind = {
+                _args = ["Ctrl j"];
+                MoveFocus = ["Down"];
+              };
+            }
+            {
+              bind = {
+                _args = ["Ctrl k"];
+                MoveFocus = ["Up"];
+              };
+            }
+            {
+              bind = {
+                _args = ["Ctrl l"];
+                MoveFocus = ["Right"];
+              };
+            }
+            {
+              bind = {
+                _args = ["Ctrl Shift h"];
+                Resize = ["Left" 3];
+              };
+            }
+            {
+              bind = {
+                _args = ["Ctrl Shift j"];
+                Resize = ["Down" 3];
+              };
+            }
+            {
+              bind = {
+                _args = ["Ctrl Shift k"];
+                Resize = ["Up" 3];
+              };
+            }
+            {
+              bind = {
+                _args = ["Ctrl Shift l"];
+                Resize = ["Right" 3];
+              };
+            }
+            {
+              bind = {
+                _args = ["Ctrl v"];
+                NewPane = ["Right"];
+              };
+            }
+            {
+              bind = {
+                _args = ["Ctrl s"];
+                NewPane = ["Down"];
+              };
+            }
+            {
+              bind = {
+                _args = ["Ctrl w"];
+                CloseFocus = {};
+              };
+            }
+            {
+              bind = {
+                _args = ["Ctrl t"];
+                NewTab = {};
+              };
+            }
+            {
+              bind = {
+                _args = ["Ctrl 1"];
+                GoToTab = [1];
+              };
+            }
+            {
+              bind = {
+                _args = ["Ctrl 2"];
+                GoToTab = [2];
+              };
+            }
+            {
+              bind = {
+                _args = ["Ctrl 3"];
+                GoToTab = [3];
+              };
+            }
+            {
+              bind = {
+                _args = ["Ctrl 4"];
+                GoToTab = [4];
+              };
+            }
+            {
+              bind = {
+                _args = ["Ctrl 5"];
+                GoToTab = [5];
+              };
+            }
+            {
+              bind = {
+                _args = ["Ctrl 6"];
+                GoToTab = [6];
+              };
+            }
+            {
+              bind = {
+                _args = ["Ctrl 7"];
+                GoToTab = [7];
+              };
+            }
+            {
+              bind = {
+                _args = ["Ctrl 8"];
+                GoToTab = [8];
+              };
+            }
+            {
+              bind = {
+                _args = ["Cmd t"];
+                NewTab = {};
+              };
+            }
+            {
+              bind = {
+                _args = ["Cmd 1"];
+                GoToTab = [1];
+              };
+            }
+            {
+              bind = {
+                _args = ["Cmd 2"];
+                GoToTab = [2];
+              };
+            }
+            {
+              bind = {
+                _args = ["Cmd 3"];
+                GoToTab = [3];
+              };
+            }
+            {
+              bind = {
+                _args = ["Cmd 4"];
+                GoToTab = [4];
+              };
+            }
+            {
+              bind = {
+                _args = ["Cmd 5"];
+                GoToTab = [5];
+              };
+            }
+            {
+              bind = {
+                _args = ["Cmd 6"];
+                GoToTab = [6];
+              };
+            }
+            {
+              bind = {
+                _args = ["Cmd 7"];
+                GoToTab = [7];
+              };
+            }
+            {
+              bind = {
+                _args = ["Cmd 8"];
+                GoToTab = [8];
+              };
+            }
+            {
+              bind = {
+                _args = ["Cmd Shift Left"];
+                GoToPreviousTab = {};
+              };
+            }
+            {
+              bind = {
+                _args = ["Cmd Shift Right"];
+                GoToNextTab = {};
+              };
+            }
             {
               bind = {
                 _args = ["h"];
@@ -255,8 +437,7 @@ in
                 MoveFocus = ["Right"];
               };
             }
-            
-            # Pane creation
+
             {
               bind = {
                 _args = ["|"];
@@ -269,16 +450,12 @@ in
                 NewPane = ["Down"];
               };
             }
-            
-            # Pane closing
             {
               bind = {
                 _args = ["x"];
                 CloseFocus = {};
               };
             }
-            
-            # Tab navigation
             {
               bind = {
                 _args = ["1"];
@@ -309,32 +486,25 @@ in
                 GoToTab = [5];
               };
             }
-            
-            # New tab
             {
               bind = {
                 _args = ["t"];
                 NewTab = {};
               };
             }
-            
-            # Enter resize mode
+
             {
               bind = {
                 _args = ["r"];
                 SwitchToMode = ["Resize"];
               };
             }
-            
-            # Enter scroll mode
             {
               bind = {
                 _args = ["s"];
                 SwitchToMode = ["Scroll"];
               };
             }
-            
-            # Quit
             {
               bind = {
                 _args = ["q"];
@@ -343,7 +513,7 @@ in
             }
           ];
         };
-        
+
         # Resize mode
         resize = {
           _children = [
@@ -379,7 +549,7 @@ in
             }
           ];
         };
-        
+
         # Scroll mode
         scroll = {
           _children = [

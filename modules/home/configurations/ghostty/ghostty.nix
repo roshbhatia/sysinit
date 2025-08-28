@@ -128,10 +128,28 @@ in
       macos-auto-secure-input = true;
       macos-secure-input-indication = true;
 
+      shell-integration = "zsh";
+
       keybind = [
-        "cmd+n=new_window"
         "cmd+plus=increase_font_size:1"
         "cmd+minus=decrease_font_size:1"
+        "cmd+0=reset_font_size"
+        "cmd+n=new_window"
+        "cmd+w=close_surface"
+        "cmd+t=unbind"
+        "cmd+shift+left=unbind"
+        "cmd+shift+right=unbind"
+        "cmd+1=unbind"
+        "cmd+2=unbind"
+        "cmd+3=unbind"
+        "cmd+4=unbind"
+        "cmd+5=unbind"
+        "cmd+6=unbind"
+        "cmd+7=unbind"
+        "cmd+8=unbind"
+        "cmd+9=unbind"
+        "cmd+d=unbind"
+        "cmd+shift+d=unbind"
       ];
     };
 
