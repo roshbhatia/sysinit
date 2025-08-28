@@ -4,7 +4,7 @@
 # modules/darwin/home/zsh/core/prompt.sh (begin)
 if [ -z "$ZELLIJ" ] && [ -z "$WEZTERM_CONFIG_DIR" ] && [ -z "$NVIM" ] && [ "$SHLVL" -eq 1 ]; then
   if [[ $- == *i* ]] && [ -z "$VSCODE_INJECTION" ] && [ -z "$JETBRAINS_TERMINAL" ]; then
-    if command -v zellij >/dev/null 2>&1; then
+    if command -v zellij > /dev/null 2>&1; then
       exec zellij
     fi
   fi

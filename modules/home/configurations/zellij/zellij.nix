@@ -1,6 +1,5 @@
 {
   lib,
-  pkgs,
   values,
   ...
 }:
@@ -174,8 +173,6 @@ let
     }
 
     keybinds {
-      clear-defaults true
-
       normal {
         bind "Ctrl h" { MoveFocus "Left"; }
         bind "Ctrl j" { MoveFocus "Down"; }
