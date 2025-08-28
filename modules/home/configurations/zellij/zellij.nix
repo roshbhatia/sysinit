@@ -9,7 +9,6 @@ let
   themes = import ../../../lib/theme { inherit lib; };
   semanticColors = themes.getSemanticColors values.theme.colorscheme values.theme.variant;
 
-  # Zellij theme configuration
   zellijTheme = {
     bg = semanticColors.background.primary;
     fg = semanticColors.foreground.primary;
@@ -24,168 +23,229 @@ let
     orange = semanticColors.syntax.number;
   };
 
-  # Default layout configuration
-  defaultLayout = {
-    layout = {
-      default_tab_template = {
-        _children = [
-          {
-            pane = {
-              size = 1;
-              borderless = true;
-              plugin = {
-                location = "zellij:tab-bar";
-              };
-            };
-          }
-          { "children" = { }; }
-          {
-            pane = {
-              size = 2;
-              borderless = true;
-              plugin = {
-                location = "zellij:status-bar";
-              };
-            };
-          }
-        ];
-      };
-      _children = [
-        {
-          tab = {
-            _props = {
-              name = "Editor";
-              focus = true;
-            };
-            _children = [
-              {
-                pane = {
-                  command = "nvim";
-                };
-              }
-            ];
-          };
-        }
-        {
-          tab = {
-            _props = {
-              name = "Git";
-            };
-            _children = [
-              {
-                pane = {
-                  command = "lazygit";
-                };
-              }
-            ];
-          };
-        }
-        {
-          tab = {
-            _props = {
-              name = "Files";
-            };
-            _children = [
-              {
-                pane = {
-                  command = "yazi";
-                };
-              }
-            ];
-          };
-        }
-        {
-          tab = {
-            _props = {
-              name = "Shell";
-            };
-            _children = [
-              {
-                pane = { };
-              }
-            ];
-          };
-        }
-      ];
-    };
-  };
+  defaultLayoutKdl = ''
+    layout {
+      default_tab_template {
+        pane size=1 borderless=true {
+          plugin location="https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm" {
+            format_left   "#[fg=${semanticColors.syntax.keyword},bold]{mode} #[fg=${semanticColors.semantic.info}]{session}"
+            format_center "{tabs}"
+            format_right  "{pipe_zjstatus_hints}{datetime}"
+            format_space  ""
 
-  # Development layout for focused coding
-  devLayout = {
-    layout = {
-      default_tab_template = {
-        _children = [
-          {
-            pane = {
-              size = 1;
-              borderless = true;
-              plugin = {
-                location = "zellij:tab-bar";
-              };
-            };
+            border_enabled  "false"
+            hide_frame_for_single_pane "true"
+
+            mode_normal  "#[bg=${semanticColors.semantic.success}] "
+            mode_locked  "#[bg=${semanticColors.semantic.error}] "
+            mode_resize  "#[bg=${semanticColors.semantic.warning}] "
+            mode_pane    "#[bg=${semanticColors.semantic.info}] "
+            mode_tab     "#[bg=${semanticColors.syntax.keyword}] "
+            mode_scroll  "#[bg=${semanticColors.syntax.operator}] "
+            mode_enter_search "#[bg=${semanticColors.syntax.number}] "
+            mode_search  "#[bg=${semanticColors.syntax.number}] "
+            mode_rename_tab "#[bg=${semanticColors.syntax.keyword}] "
+            mode_rename_pane "#[bg=${semanticColors.syntax.keyword}] "
+            mode_session "#[bg=${semanticColors.syntax.keyword}] "
+            mode_move    "#[bg=${semanticColors.syntax.operator}] "
+            mode_prompt  "#[bg=${semanticColors.syntax.number}] "
+            mode_tmux    "#[bg=${semanticColors.syntax.number}] "
+
+            tab_normal   "#[fg=${semanticColors.foreground.muted}] {name} "
+            tab_active   "#[fg=${semanticColors.foreground.primary},bold] {name} "
+
+            pipe_zjstatus_hints_format "#[fg=${semanticColors.foreground.muted}]{output} "
+
+            datetime        "#[fg=${semanticColors.foreground.muted}] {format} "
+            datetime_format "%H:%M"
+            datetime_timezone "America/Los_Angeles"
           }
-          { "children" = { }; }
-          {
-            pane = {
-              size = 2;
-              borderless = true;
-              plugin = {
-                location = "zellij:status-bar";
-              };
-            };
+        }
+      }
+
+      tab name="Editor" focus=true {
+        pane {
+          command "nvim"
+        }
+      }
+      tab name="Git" {
+        pane {
+          command "lazygit"
+        }
+      }
+      tab name="Files" {
+        pane {
+          command "yazi"
+        }
+      }
+      tab name="Shell" {
+        pane
+      }
+    }
+  '';
+
+  devLayoutKdl = ''
+    layout {
+      default_tab_template {
+        children
+        pane size=1 borderless=true {
+          plugin location="https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm" {
+            format_left   "#[fg=${semanticColors.syntax.keyword},bold]{mode} #[fg=${semanticColors.semantic.info}]{session}"
+            format_center "{tabs}"
+            format_right  "{pipe_zjstatus_hints}{datetime}"
+            format_space  ""
+
+            border_enabled  "false"
+            hide_frame_for_single_pane "true"
+
+            mode_normal  "#[bg=${semanticColors.semantic.success}] "
+            mode_locked  "#[bg=${semanticColors.semantic.error}] "
+            mode_resize  "#[bg=${semanticColors.semantic.warning}] "
+            mode_pane    "#[bg=${semanticColors.semantic.info}] "
+            mode_tab     "#[bg=${semanticColors.syntax.keyword}] "
+            mode_scroll  "#[bg=${semanticColors.syntax.operator}] "
+            mode_enter_search "#[bg=${semanticColors.syntax.number}] "
+            mode_search  "#[bg=${semanticColors.syntax.number}] "
+            mode_rename_tab "#[bg=${semanticColors.syntax.keyword}] "
+            mode_rename_pane "#[bg=${semanticColors.syntax.keyword}] "
+            mode_session "#[bg=${semanticColors.syntax.keyword}] "
+            mode_move    "#[bg=${semanticColors.syntax.operator}] "
+            mode_prompt  "#[bg=${semanticColors.syntax.number}] "
+            mode_tmux    "#[bg=${semanticColors.syntax.number}] "
+
+            tab_normal   "#[fg=${semanticColors.foreground.muted}] {name} "
+            tab_active   "#[fg=${semanticColors.foreground.primary},bold] {name} "
+
+            pipe_zjstatus_hints_format "#[fg=${semanticColors.foreground.muted}]{output} "
+
+            datetime        "#[fg=${semanticColors.foreground.muted}] {format} "
+            datetime_format "%H:%M"
+            datetime_timezone "America/Los_Angeles"
           }
-        ];
-      };
-      _children = [
-        {
-          tab = {
-            _props = {
-              name = "Code";
-              focus = true;
-            };
-            _children = [
-              {
-                pane = {
-                  _props = {
-                    split_direction = "vertical";
-                  };
-                  _children = [
-                    {
-                      pane = {
-                        _props = {
-                          size = "70%";
-                        };
-                        command = "nvim";
-                      };
-                    }
-                    {
-                      pane = {
-                        _props = {
-                          size = "30%";
-                        };
-                      };
-                    }
-                  ];
-                };
-              }
-            ];
-          };
         }
-        {
-          tab = {
-            _props = {
-              name = "Test";
-            };
-            _children = [
-              {
-                pane = { };
-              }
-            ];
-          };
+      }
+
+      tab name="Code" focus=true {
+        pane split_direction="vertical" {
+          pane size="70%" {
+            command "nvim"
+          }
+          pane size="30%"
         }
-      ];
-    };
-  };
+      }
+      tab name="Test" {
+        pane
+      }
+    }
+  '';
+
+  configKdl = ''
+    theme "${values.theme.colorscheme}-${values.theme.variant}"
+
+    default_shell "zsh"
+    default_layout "default"
+    default_mode "normal"
+
+    mouse_mode true
+    scroll_buffer_size 10000
+    copy_command "pbcopy"
+    copy_clipboard "primary"
+
+    simplified_ui false
+    pane_frames true
+
+    session_serialization false
+    pane_viewport_serialization false
+    scrollback_lines_to_serialize 10000
+
+    on_force_close "quit"
+
+    plugins {
+      zjstatus-hints location="https://github.com/b0o/zjstatus-hints/releases/latest/download/zjstatus-hints.wasm" {
+        max_length 50
+        overflow_str "..."
+        pipe_name "zjstatus_hints"
+        hide_in_base_mode false
+      }
+    }
+
+    load_plugins {
+      zjstatus-hints
+    }
+
+    keybinds {
+      clear-defaults true
+
+      normal {
+        bind "Ctrl h" { MoveFocus "Left"; }
+        bind "Ctrl j" { MoveFocus "Down"; }
+        bind "Ctrl k" { MoveFocus "Up"; }
+        bind "Ctrl l" { MoveFocus "Right"; }
+
+        bind "Ctrl+Shift h" { Resize "Increase" "Left"; }
+        bind "Ctrl+Shift j" { Resize "Increase" "Down"; }
+        bind "Ctrl+Shift k" { Resize "Increase" "Up"; }
+        bind "Ctrl+Shift l" { Resize "Increase" "Right"; }
+
+        bind "Ctrl v" { NewPane "Right"; }
+        bind "Ctrl s" { NewPane "Down"; }
+        bind "Ctrl w" { CloseFocus; }
+        bind "Ctrl t" { NewTab; }
+
+        bind "Ctrl 1" { GoToTab 1; }
+        bind "Ctrl 2" { GoToTab 2; }
+        bind "Ctrl 3" { GoToTab 3; }
+        bind "Ctrl 4" { GoToTab 4; }
+        bind "Ctrl 5" { GoToTab 5; }
+        bind "Ctrl 6" { GoToTab 6; }
+        bind "Ctrl 7" { GoToTab 7; }
+        bind "Ctrl 8" { GoToTab 8; }
+
+        bind "Cmd t" { NewTab; }
+        bind "Cmd 1" { GoToTab 1; }
+        bind "Cmd 2" { GoToTab 2; }
+        bind "Cmd 3" { GoToTab 3; }
+        bind "Cmd 4" { GoToTab 4; }
+        bind "Cmd 5" { GoToTab 5; }
+        bind "Cmd 6" { GoToTab 6; }
+        bind "Cmd 7" { GoToTab 7; }
+        bind "Cmd 8" { GoToTab 8; }
+        bind "Cmd+Shift Left" { GoToPreviousTab; }
+        bind "Cmd+Shift Right" { GoToNextTab; }
+
+        bind "h" { MoveFocus "Left"; }
+        bind "j" { MoveFocus "Down"; }
+        bind "k" { MoveFocus "Up"; }
+        bind "l" { MoveFocus "Right"; }
+        bind "|" { NewPane "Right"; }
+        bind "-" { NewPane "Down"; }
+        bind "x" { CloseFocus; }
+        bind "1" { GoToTab 1; }
+        bind "2" { GoToTab 2; }
+        bind "3" { GoToTab 3; }
+        bind "4" { GoToTab 4; }
+        bind "5" { GoToTab 5; }
+        bind "t" { NewTab; }
+        bind "r" { SwitchToMode "Resize"; }
+        bind "s" { SwitchToMode "Scroll"; }
+        bind "q" { Quit; }
+      }
+
+      resize {
+        bind "h" { Resize "Increase" "Left"; }
+        bind "j" { Resize "Increase" "Down"; }
+        bind "k" { Resize "Increase" "Up"; }
+        bind "l" { Resize "Increase" "Right"; }
+        bind "Esc" { SwitchToMode "Normal"; }
+      }
+
+      scroll {
+        bind "j" { ScrollDown; }
+        bind "k" { ScrollUp; }
+        bind "Esc" { SwitchToMode "Normal"; }
+      }
+    }
+  '';
 in
 {
   programs.zellij = {
@@ -197,395 +257,8 @@ in
 
     settings = {
       theme = "${values.theme.colorscheme}-${values.theme.variant}";
-
-      # UI configuration
       default_shell = "zsh";
-      default_layout = "default";
-      default_mode = "normal";
-
-      # Mouse and scrollback
-      mouse_mode = true;
-      scroll_buffer_size = 10000;
-      copy_command = "pbcopy"; # macOS clipboard
-      copy_clipboard = "primary";
-
-      # Simplified mode
       simplified_ui = false;
-      pane_frames = true;
-
-      # Session configuration
-      session_serialization = false;
-      pane_viewport_serialization = false;
-      scrollback_lines_to_serialize = 10000;
-
-      on_force_close = "quit";
-
-      keybinds = {
-        _props = {
-          clear-defaults = true;
-        };
-
-        normal = {
-          _children = [
-            {
-              bind = {
-                _args = [ "Ctrl h" ];
-                MoveFocus = [ "Left" ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Ctrl j" ];
-                MoveFocus = [ "Down" ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Ctrl k" ];
-                MoveFocus = [ "Up" ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Ctrl l" ];
-                MoveFocus = [ "Right" ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Ctrl Shift h" ];
-                Resize = [
-                  "Left"
-                  3
-                ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Ctrl Shift j" ];
-                Resize = [
-                  "Down"
-                  3
-                ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Ctrl Shift k" ];
-                Resize = [
-                  "Up"
-                  3
-                ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Ctrl Shift l" ];
-                Resize = [
-                  "Right"
-                  3
-                ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Ctrl v" ];
-                NewPane = [ "Right" ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Ctrl s" ];
-                NewPane = [ "Down" ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Ctrl w" ];
-                CloseFocus = { };
-              };
-            }
-            {
-              bind = {
-                _args = [ "Ctrl t" ];
-                NewTab = { };
-              };
-            }
-            {
-              bind = {
-                _args = [ "Ctrl 1" ];
-                GoToTab = [ 1 ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Ctrl 2" ];
-                GoToTab = [ 2 ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Ctrl 3" ];
-                GoToTab = [ 3 ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Ctrl 4" ];
-                GoToTab = [ 4 ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Ctrl 5" ];
-                GoToTab = [ 5 ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Ctrl 6" ];
-                GoToTab = [ 6 ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Ctrl 7" ];
-                GoToTab = [ 7 ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Ctrl 8" ];
-                GoToTab = [ 8 ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Cmd t" ];
-                NewTab = { };
-              };
-            }
-            {
-              bind = {
-                _args = [ "Cmd 1" ];
-                GoToTab = [ 1 ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Cmd 2" ];
-                GoToTab = [ 2 ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Cmd 3" ];
-                GoToTab = [ 3 ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Cmd 4" ];
-                GoToTab = [ 4 ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Cmd 5" ];
-                GoToTab = [ 5 ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Cmd 6" ];
-                GoToTab = [ 6 ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Cmd 7" ];
-                GoToTab = [ 7 ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Cmd 8" ];
-                GoToTab = [ 8 ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Cmd Shift Left" ];
-                GoToPreviousTab = { };
-              };
-            }
-            {
-              bind = {
-                _args = [ "Cmd Shift Right" ];
-                GoToNextTab = { };
-              };
-            }
-            {
-              bind = {
-                _args = [ "h" ];
-                MoveFocus = [ "Left" ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "j" ];
-                MoveFocus = [ "Down" ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "k" ];
-                MoveFocus = [ "Up" ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "l" ];
-                MoveFocus = [ "Right" ];
-              };
-            }
-
-            {
-              bind = {
-                _args = [ "|" ];
-                NewPane = [ "Right" ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "-" ];
-                NewPane = [ "Down" ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "x" ];
-                CloseFocus = { };
-              };
-            }
-            {
-              bind = {
-                _args = [ "1" ];
-                GoToTab = [ 1 ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "2" ];
-                GoToTab = [ 2 ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "3" ];
-                GoToTab = [ 3 ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "4" ];
-                GoToTab = [ 4 ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "5" ];
-                GoToTab = [ 5 ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "t" ];
-                NewTab = { };
-              };
-            }
-
-            {
-              bind = {
-                _args = [ "r" ];
-                SwitchToMode = [ "Resize" ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "s" ];
-                SwitchToMode = [ "Scroll" ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "q" ];
-                Quit = { };
-              };
-            }
-          ];
-        };
-
-        # Resize mode
-        resize = {
-          _children = [
-            {
-              bind = {
-                _args = [ "h" ];
-                Resize = [ "Left" ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "j" ];
-                Resize = [ "Down" ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "k" ];
-                Resize = [ "Up" ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "l" ];
-                Resize = [ "Right" ];
-              };
-            }
-            {
-              bind = {
-                _args = [ "Esc" ];
-                SwitchToMode = [ "Normal" ];
-              };
-            }
-          ];
-        };
-
-        # Scroll mode
-        scroll = {
-          _children = [
-            {
-              bind = {
-                _args = [ "j" ];
-                ScrollDown = { };
-              };
-            }
-            {
-              bind = {
-                _args = [ "k" ];
-                ScrollUp = { };
-              };
-            }
-            {
-              bind = {
-                _args = [ "Esc" ];
-                SwitchToMode = [ "Normal" ];
-              };
-            }
-          ];
-        };
-      };
     };
 
     themes = {
@@ -605,6 +278,7 @@ in
     };
   };
 
-  xdg.configFile."zellij/layouts/default.kdl".text = lib.hm.generators.toKDL { } defaultLayout;
-  xdg.configFile."zellij/layouts/dev.kdl".text = lib.hm.generators.toKDL { } devLayout;
+  xdg.configFile."zellij/config.kdl".text = configKdl;
+  xdg.configFile."zellij/layouts/default.kdl".text = defaultLayoutKdl;
+  xdg.configFile."zellij/layouts/dev.kdl".text = devLayoutKdl;
 }
