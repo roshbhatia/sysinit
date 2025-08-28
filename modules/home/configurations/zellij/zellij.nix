@@ -20,11 +20,13 @@ in
       scroll_buffer_size = 50000;
       copy_command = "pbcopy";
       copy_clipboard = "primary";
-      pane_frames = true;
+      pane_frames = false;
+      simplified_ui = true;
       session_serialization = false;
       pane_viewport_serialization = false;
       scrollback_lines_to_serialize = 10000;
-      on_force_close = "quit";
+      on_force_close = "detach";
+      scrollback_editor = "nvim";
       plugins = {
         zjstatus-hints = {
           location = "https://github.com/b0o/zjstatus-hints/releases/latest/download/zjstatus-hints.wasm";
@@ -33,11 +35,22 @@ in
           pipe_name = "zjstatus_hints";
           hide_in_base_mode = false;
         };
+        session-manager = {
+          location = "zellij:session-manager";
+        };
+        status-bar = {
+          location = "zellij:status-bar";
+        };
       };
       load_plugins = [
         "zjstatus-hints"
+        "session-manager"
+        "status-bar"
       ];
       keybinds = {
+        _props = {
+          clear-defaults = true;
+        };
         normal = [
           {
             bind = "Ctrl h";
@@ -227,6 +240,27 @@ in
             bind = "q";
             Quit = { };
           }
+          # Added from example
+          {
+            bind = "Ctrl b";
+            SwitchToMode = "locked";
+          }
+          {
+            bind = "f";
+            ToggleFocusFullscreen = { };
+          }
+          {
+            bind = "f";
+            SwitchToMode = "locked";
+          }
+          {
+            bind = "w";
+            ToggleFloatingPanes = { };
+          }
+          {
+            bind = "w";
+            SwitchToMode = "locked";
+          }
         ];
         resize = [
           {
@@ -249,6 +283,35 @@ in
             bind = "Esc";
             SwitchToMode = "normal";
           }
+          # Added from example
+          {
+            bind = "+";
+            Resize = "Increase";
+          }
+          {
+            bind = "-";
+            Resize = "Decrease";
+          }
+          {
+            bind = "=";
+            Resize = "Increase";
+          }
+          {
+            bind = "H";
+            Resize = "Decrease left";
+          }
+          {
+            bind = "J";
+            Resize = "Decrease down";
+          }
+          {
+            bind = "K";
+            Resize = "Decrease up";
+          }
+          {
+            bind = "L";
+            Resize = "Decrease right";
+          }
         ];
         scroll = [
           {
@@ -263,32 +326,113 @@ in
             bind = "Esc";
             SwitchToMode = "normal";
           }
+          {
+            bind = "e";
+            EditScrollback = { };
+          }
+          {
+            bind = "e";
+            SwitchToMode = "locked";
+          }
+          {
+            bind = "PageDown";
+            PageScrollDown = { };
+          }
+          {
+            bind = "PageUp";
+            PageScrollUp = { };
+          }
+          {
+            bind = "Ctrl c";
+            ScrollToBottom = { };
+          }
+          {
+            bind = "Ctrl c";
+            SwitchToMode = "locked";
+          }
         ];
-      };
-    };
-    layouts = {
-      default = {
-        default_tab_template = {
-          _children = [
-            {
-              pane = {
-                size = 1;
-                borderless = true;
-                plugin = {
-                  location = "https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm";
-                  format_left = "{mode} {session}";
-                  format_center = "{tabs}";
-                  format_right = "{pipe_zjstatus_hints}";
-                  format_space = "";
-                  border_enabled = "false";
-                  tab_normal = "{name} ";
-                  tab_active = "{name} ";
-                  pipe_zjstatus_hints_format = "{output} ";
-                };
-              };
-            }
-          ];
-        };
+        session = [
+          {
+            bind = "w";
+            LaunchOrFocusPlugin = {
+              _args = [ "session-manager" ];
+              floating = true;
+              move_to_focused_tab = true;
+            };
+            SwitchToMode = "locked";
+          }
+        ];
+        shared_among = [
+          {
+            _args = [
+              "normal"
+              "locked"
+            ];
+            bind = "Alt h";
+            MoveFocusOrTab = "left";
+          }
+          {
+            _args = [
+              "normal"
+              "locked"
+            ];
+            bind = "Alt j";
+            MoveFocus = "down";
+          }
+          {
+            _args = [
+              "normal"
+              "locked"
+            ];
+            bind = "Alt k";
+            MoveFocus = "up";
+          }
+          {
+            _args = [
+              "normal"
+              "locked"
+            ];
+            bind = "Alt l";
+            MoveFocusOrTab = "right";
+          }
+          {
+            _args = [
+              "normal"
+              "locked"
+            ];
+            bind = "Alt +";
+            Resize = "Increase";
+          }
+          {
+            _args = [
+              "normal"
+              "locked"
+            ];
+            bind = "Alt -";
+            Resize = "Decrease";
+          }
+          {
+            _args = [
+              "normal"
+              "locked"
+            ];
+            bind = "Alt =";
+            Resize = "Increase";
+          }
+        ];
+        shared_except = [
+          {
+            _args = [
+              "locked"
+              "resize"
+              "pane"
+              "tab"
+              "scroll"
+            ];
+            bind = "o";
+            SwitchToMode = "session";
+          }
+        ];
       };
     };
   };
