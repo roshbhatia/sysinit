@@ -6,53 +6,24 @@
 
 let
   themes = import ../../../lib/theme { inherit lib; };
-  semanticColors = themes.getSemanticColors values.theme.colorscheme values.theme.variant;
-
-  zellijTheme = {
-    bg = semanticColors.background.primary;
-    fg = semanticColors.foreground.primary;
-    red = semanticColors.semantic.error;
-    green = semanticColors.semantic.success;
-    blue = semanticColors.semantic.info;
-    yellow = semanticColors.semantic.warning;
-    magenta = semanticColors.syntax.keyword;
-    cyan = semanticColors.syntax.operator;
-    black = semanticColors.background.secondary;
-    white = semanticColors.foreground.primary;
-    orange = semanticColors.syntax.number;
-  };
+  zellijTheme = themes.getAppTheme "zellij" values.theme.colorscheme values.theme.variant;
 
   defaultLayoutKdl = ''
     layout {
       default_tab_template {
         pane size=1 borderless=true {
           plugin location="https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm" {
-            format_left   "#[fg=${semanticColors.syntax.keyword},bold]{mode} #[fg=${semanticColors.semantic.info}]{session}"
+            format_left   "{mode} {session}"
             format_center "{tabs}"
             format_right  "{pipe_zjstatus_hints}"
             format_space  ""
 
             border_enabled  "false"
 
-            mode_normal  "#[bg=${semanticColors.semantic.success}] "
-            mode_locked  "#[bg=${semanticColors.semantic.error}] "
-            mode_resize  "#[bg=${semanticColors.semantic.warning}] "
-            mode_pane    "#[bg=${semanticColors.semantic.info}] "
-            mode_tab     "#[bg=${semanticColors.syntax.keyword}] "
-            mode_scroll  "#[bg=${semanticColors.syntax.operator}] "
-            mode_enter_search "#[bg=${semanticColors.syntax.number}] "
-            mode_search  "#[bg=${semanticColors.syntax.number}] "
-            mode_rename_tab "#[bg=${semanticColors.syntax.keyword}] "
-            mode_rename_pane "#[bg=${semanticColors.syntax.keyword}] "
-            mode_session "#[bg=${semanticColors.syntax.keyword}] "
-            mode_move    "#[bg=${semanticColors.syntax.operator}] "
-            mode_prompt  "#[bg=${semanticColors.syntax.number}] "
-            mode_tmux    "#[bg=${semanticColors.syntax.number}] "
+            tab_normal   "{name} "
+            tab_active   "{name} "
 
-            tab_normal   "#[fg=${semanticColors.foreground.muted}] {name} "
-            tab_active   "#[fg=${semanticColors.foreground.primary},bold] {name} "
-
-            pipe_zjstatus_hints_format "#[fg=${semanticColors.foreground.muted}]{output} "
+            pipe_zjstatus_hints_format "{output} "
           }
         }
       }
@@ -60,7 +31,7 @@ let
   '';
 
   configKdl = ''
-    theme "${values.theme.colorscheme}-${values.theme.variant}"
+    theme "${zellijTheme}"
 
     default_shell "zsh"
     default_layout "default"
@@ -171,12 +142,6 @@ in
     enableBashIntegration = true;
     enableZshIntegration = true;
     enableFishIntegration = true;
-
-    settings = {
-      theme = "${values.theme.colorscheme}-${values.theme.variant}";
-      default_shell = "zsh";
-      simplified_ui = false;
-    };
   };
 
   xdg.configFile."zellij/config.kdl".text = configKdl;
