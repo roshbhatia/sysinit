@@ -29,11 +29,10 @@ let
           plugin location="https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm" {
             format_left   "#[fg=${semanticColors.syntax.keyword},bold]{mode} #[fg=${semanticColors.semantic.info}]{session}"
             format_center "{tabs}"
-            format_right  "{pipe_zjstatus_hints}{datetime}"
+            format_right  "{pipe_zjstatus_hints}"
             format_space  ""
 
             border_enabled  "false"
-            hide_frame_for_single_pane "true"
 
             mode_normal  "#[bg=${semanticColors.semantic.success}] "
             mode_locked  "#[bg=${semanticColors.semantic.error}] "
@@ -54,86 +53,8 @@ let
             tab_active   "#[fg=${semanticColors.foreground.primary},bold] {name} "
 
             pipe_zjstatus_hints_format "#[fg=${semanticColors.foreground.muted}]{output} "
-
-            datetime        "#[fg=${semanticColors.foreground.muted}] {format} "
-            datetime_format "%H:%M"
-            datetime_timezone "America/Los_Angeles"
           }
         }
-      }
-
-      tab name="Editor" focus=true {
-        pane {
-          command "nvim"
-        }
-      }
-      tab name="Git" {
-        pane {
-          command "lazygit"
-        }
-      }
-      tab name="Files" {
-        pane {
-          command "yazi"
-        }
-      }
-      tab name="Shell" {
-        pane
-      }
-    }
-  '';
-
-  devLayoutKdl = ''
-    layout {
-      default_tab_template {
-        children
-        pane size=1 borderless=true {
-          plugin location="https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm" {
-            format_left   "#[fg=${semanticColors.syntax.keyword},bold]{mode} #[fg=${semanticColors.semantic.info}]{session}"
-            format_center "{tabs}"
-            format_right  "{pipe_zjstatus_hints}{datetime}"
-            format_space  ""
-
-            border_enabled  "false"
-            hide_frame_for_single_pane "true"
-
-            mode_normal  "#[bg=${semanticColors.semantic.success}] "
-            mode_locked  "#[bg=${semanticColors.semantic.error}] "
-            mode_resize  "#[bg=${semanticColors.semantic.warning}] "
-            mode_pane    "#[bg=${semanticColors.semantic.info}] "
-            mode_tab     "#[bg=${semanticColors.syntax.keyword}] "
-            mode_scroll  "#[bg=${semanticColors.syntax.operator}] "
-            mode_enter_search "#[bg=${semanticColors.syntax.number}] "
-            mode_search  "#[bg=${semanticColors.syntax.number}] "
-            mode_rename_tab "#[bg=${semanticColors.syntax.keyword}] "
-            mode_rename_pane "#[bg=${semanticColors.syntax.keyword}] "
-            mode_session "#[bg=${semanticColors.syntax.keyword}] "
-            mode_move    "#[bg=${semanticColors.syntax.operator}] "
-            mode_prompt  "#[bg=${semanticColors.syntax.number}] "
-            mode_tmux    "#[bg=${semanticColors.syntax.number}] "
-
-            tab_normal   "#[fg=${semanticColors.foreground.muted}] {name} "
-            tab_active   "#[fg=${semanticColors.foreground.primary},bold] {name} "
-
-            pipe_zjstatus_hints_format "#[fg=${semanticColors.foreground.muted}]{output} "
-
-            datetime        "#[fg=${semanticColors.foreground.muted}] {format} "
-            datetime_format "%H:%M"
-            datetime_timezone "America/Los_Angeles"
-          }
-        }
-      }
-
-      tab name="Code" focus=true {
-        pane split_direction="vertical" {
-          pane size="70%" {
-            command "nvim"
-          }
-          pane size="30%"
-        }
-      }
-      tab name="Test" {
-        pane
       }
     }
   '';
@@ -173,18 +94,18 @@ let
 
     keybinds {
       normal {
-        bind "Ctrl h" { MoveFocus "Left"; }
-        bind "Ctrl j" { MoveFocus "Down"; }
-        bind "Ctrl k" { MoveFocus "Up"; }
-        bind "Ctrl l" { MoveFocus "Right"; }
+        bind "Ctrl h" { MoveFocus "left"; }
+        bind "Ctrl j" { MoveFocus "down"; }
+        bind "Ctrl k" { MoveFocus "up"; }
+        bind "Ctrl l" { MoveFocus "right"; }
 
-        bind "Ctrl Shift h" { Resize "Increase" "Left"; }
-        bind "Ctrl Shift j" { Resize "Increase" "Down"; }
-        bind "Ctrl Shift k" { Resize "Increase" "Up"; }
-        bind "Ctrl Shift l" { Resize "Increase" "Right"; }
+        bind "Ctrl Shift h" { Resize "Increase left"; }
+        bind "Ctrl Shift j" { Resize "Increase down"; }
+        bind "Ctrl Shift k" { Resize "Increase up"; }
+        bind "Ctrl Shift l" { Resize "Increase right"; }
 
-        bind "Ctrl v" { NewPane "Right"; }
-        bind "Ctrl s" { NewPane "Down"; }
+        bind "Ctrl v" { NewPane "right"; }
+        bind "Ctrl s" { NewPane "down"; }
         bind "Ctrl w" { CloseFocus; }
         bind "Ctrl t" { NewTab; }
 
@@ -209,12 +130,12 @@ let
         bind "Cmd Shift Left" { GoToPreviousTab; }
         bind "Cmd Shift Right" { GoToNextTab; }
 
-        bind "h" { MoveFocus "Left"; }
-        bind "j" { MoveFocus "Down"; }
-        bind "k" { MoveFocus "Up"; }
-        bind "l" { MoveFocus "Right"; }
-        bind "|" { NewPane "Right"; }
-        bind "-" { NewPane "Down"; }
+        bind "h" { MoveFocus "left"; }
+        bind "j" { MoveFocus "down"; }
+        bind "k" { MoveFocus "up"; }
+        bind "l" { MoveFocus "right"; }
+        bind "|" { NewPane "right"; }
+        bind "-" { NewPane "down"; }
         bind "x" { CloseFocus; }
         bind "1" { GoToTab 1; }
         bind "2" { GoToTab 2; }
@@ -228,10 +149,10 @@ let
       }
 
       resize {
-        bind "h" { Resize "Increase" "Left"; }
-        bind "j" { Resize "Increase" "Down"; }
-        bind "k" { Resize "Increase" "Up"; }
-        bind "l" { Resize "Increase" "Right"; }
+        bind "h" { Resize "Increase left"; }
+        bind "j" { Resize "Increase down"; }
+        bind "k" { Resize "Increase up"; }
+        bind "l" { Resize "Increase right"; }
         bind "Esc" { SwitchToMode "Normal"; }
       }
 
@@ -276,5 +197,4 @@ in
 
   xdg.configFile."zellij/config.kdl".text = configKdl;
   xdg.configFile."zellij/layouts/default.kdl".text = defaultLayoutKdl;
-  xdg.configFile."zellij/layouts/dev.kdl".text = devLayoutKdl;
 }
