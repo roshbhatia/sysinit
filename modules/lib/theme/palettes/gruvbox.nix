@@ -166,7 +166,7 @@ rec {
       muted = palettes.dark.gray;
       highlight = palettes.dark.orange;
     };
-    
+
     zellij = variant: "gruvbox-${variant}";
   };
 

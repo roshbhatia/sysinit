@@ -97,7 +97,7 @@ rec {
       muted = palettes.dark.nord3;
       highlight = palettes.dark.nord15;
     };
-    
+
     zellij = variant: "nord-${variant}";
   };
 
