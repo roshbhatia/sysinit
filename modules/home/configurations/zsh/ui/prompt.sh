@@ -7,7 +7,7 @@ should_run_zellij() {
 }
 
 should_show_macchina() {
-  [[ -z "$NVIM" && (-z "$WEZTERM_PANE" || "$WEZTERM_PANE" == "0") ]]
+  [[ -z "$NVIM" && "$TERM_PROGRAM" != "vscode" && (-z "$WEZTERM_PANE" || "$WEZTERM_PANE" == "0") ]]
 }
 
 if [[ -z "$ZELLIJ" && "$SHLVL" -eq 1 && $- == *i* ]]; then
