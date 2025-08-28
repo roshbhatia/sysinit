@@ -173,18 +173,6 @@ M.plugins = {
     end,
     keys = function()
       local default_keys = {
-        -- {
-        --   "<ScrollWheelUp>",
-        --   "5<C-y>",
-        --   mode = { "n", "i", "v" },
-        --   desc = "Scroll up",
-        -- },
-        -- {
-        --   "<ScrollWheelDown>",
-        --   "5<C-e>",
-        --   mode = { "n", "i", "v" },
-        --   desc = "Scroll down",
-        -- },
         {
           "<leader>gg",
           function()
