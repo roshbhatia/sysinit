@@ -177,22 +177,6 @@ in
       default_shell = "zsh";
       simplified_ui = false;
     };
-
-    themes = {
-      "${values.theme.colorscheme}-${values.theme.variant}" = {
-        fg = zellijTheme.fg;
-        bg = zellijTheme.bg;
-        red = zellijTheme.red;
-        green = zellijTheme.green;
-        blue = zellijTheme.blue;
-        yellow = zellijTheme.yellow;
-        magenta = zellijTheme.magenta;
-        cyan = zellijTheme.cyan;
-        black = zellijTheme.black;
-        white = zellijTheme.white;
-        orange = zellijTheme.orange;
-      };
-    };
   };
 
   xdg.configFile."zellij/config.kdl".text = configKdl;
