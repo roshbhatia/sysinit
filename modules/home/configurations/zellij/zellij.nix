@@ -118,17 +118,17 @@ let
         bind "Ctrl 7" { GoToTab 7; }
         bind "Ctrl 8" { GoToTab 8; }
 
-        bind "Cmd t" { NewTab; }
-        bind "Cmd 1" { GoToTab 1; }
-        bind "Cmd 2" { GoToTab 2; }
-        bind "Cmd 3" { GoToTab 3; }
-        bind "Cmd 4" { GoToTab 4; }
-        bind "Cmd 5" { GoToTab 5; }
-        bind "Cmd 6" { GoToTab 6; }
-        bind "Cmd 7" { GoToTab 7; }
-        bind "Cmd 8" { GoToTab 8; }
-        bind "Cmd Shift Left" { GoToPreviousTab; }
-        bind "Cmd Shift Right" { GoToNextTab; }
+        bind "Super t" { NewTab; }
+        bind "Super 1" { GoToTab 1; }
+        bind "Super 2" { GoToTab 2; }
+        bind "Super 3" { GoToTab 3; }
+        bind "Super 4" { GoToTab 4; }
+        bind "Super 5" { GoToTab 5; }
+        bind "Super 6" { GoToTab 6; }
+        bind "Super 7" { GoToTab 7; }
+        bind "Super 8" { GoToTab 8; }
+        bind "Super Shift Left" { GoToPreviousTab; }
+        bind "Super Shift Right" { GoToNextTab; }
 
         bind "h" { MoveFocus "left"; }
         bind "j" { MoveFocus "down"; }
@@ -143,8 +143,8 @@ let
         bind "4" { GoToTab 4; }
         bind "5" { GoToTab 5; }
         bind "t" { NewTab; }
-        bind "r" { SwitchToMode "Resize"; }
-        bind "s" { SwitchToMode "Scroll"; }
+        bind "r" { SwitchToMode "resize"; }
+        bind "s" { SwitchToMode "scroll"; }
         bind "q" { Quit; }
       }
 
@@ -153,13 +153,13 @@ let
         bind "j" { Resize "Increase down"; }
         bind "k" { Resize "Increase up"; }
         bind "l" { Resize "Increase right"; }
-        bind "Esc" { SwitchToMode "Normal"; }
+        bind "Esc" { SwitchToMode "normal"; }
       }
 
       scroll {
         bind "j" { ScrollDown; }
         bind "k" { ScrollUp; }
-        bind "Esc" { SwitchToMode "Normal"; }
+        bind "Esc" { SwitchToMode "normal"; }
       }
     }
   '';
