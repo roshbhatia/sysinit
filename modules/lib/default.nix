@@ -23,6 +23,53 @@ let
       '';
       installCmd = ''"$MANAGER_CMD" install -g "$pkg" || echo "Warning: Failed to install $pkg"'';
     };
+    uv = {
+      bin = "${pkgs.uv}/bin/uv";
+      env = ''
+        export PATH="${pkgs.uv}/bin:$PATH"
+        export UV_PYTHON_PREFERENCE=only-managed
+      '';
+      installCmd = ''"$MANAGER_CMD" tool install --force "$pkg" || echo "Warning: Failed to install $pkg"'';
+    };
+    yarn = {
+      bin = "${pkgs.yarn}/bin/yarn";
+      env = ''
+        export PATH="${pkgs.yarn}/bin:$PATH"
+      '';
+      installCmd = ''"$MANAGER_CMD" global add "$pkg" || echo "Warning: Failed to install $pkg"'';
+    };
+    pipx = {
+      bin = "${pkgs.pipx}/bin/pipx";
+      env = ''
+        export PATH="${pkgs.pipx}/bin:$PATH"
+      '';
+      installCmd = ''"$MANAGER_CMD" install "$pkg" || echo "Warning: Failed to install $pkg"'';
+    };
+    go = {
+      bin = "${pkgs.go}/bin/go";
+      env = ''
+        export PATH="${pkgs.go}/bin:$PATH"
+        export GOPATH="$HOME/go"
+        export PATH="$GOPATH/bin:$PATH"
+      '';
+      installCmd = ''"$MANAGER_CMD" install "$pkg@latest" || echo "Warning: Failed to install $pkg"'';
+    };
+    gh = {
+      bin = "${pkgs.gh}/bin/gh";
+      env = ''
+        export PATH="${pkgs.gh}/bin:$PATH"
+      '';
+      installCmd = ''"$MANAGER_CMD" extension install "$pkg" || echo "Warning: Failed to install $pkg"'';
+    };
+    kubectl = {
+      bin = "${pkgs.kubectl}/bin/kubectl";
+      env = ''
+        export PATH="${pkgs.kubectl}/bin:$PATH"
+        export KREW_ROOT="$HOME/.krew"
+        export PATH="$KREW_ROOT/bin:$PATH"
+      '';
+      installCmd = ''"$MANAGER_CMD" krew install "$pkg" || echo "Warning: Failed to install $pkg"'';
+    };
   };
 in
 rec {
