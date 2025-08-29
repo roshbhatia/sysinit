@@ -116,8 +116,8 @@ in
         "+dlig"
       ];
 
-      window-padding-x = 4;
-      window-padding-y = "2,0";
+      window-padding-x = 6;
+      window-padding-y = "4,0";
 
       background-opacity =
         if values.theme.transparency.enable then values.theme.transparency.opacity else 1.0;

@@ -9,15 +9,20 @@ let
 
   zellijThemeName = themes.getAppTheme "zellij" values.theme.colorscheme values.theme.variant;
 
+  zjstatusUrl = "https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm";
+  zjstatusHintsUrl = "https://github.com/b0o/zjstatus-hints/releases/latest/download/zjstatus-hints.wasm";
+  vimZellijNavigatorUrl = "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm";
+  roomUrl = "https://github.com/rvcas/room/releases/latest/download/room.wasm";
+
   defaultLayoutContent = ''
     layout {
         pane split_direction="vertical" {
             pane
         }
         pane size=1 borderless=true {
-            plugin location="https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm" {
+            plugin location="${zjstatusUrl}" {
                 format_left  "#[fg=foreground,bg=background][{session}]  {tabs}"
-                format_right "#[fg=foreground,bg=background]{datetime}"
+                format_right "#[fg=foreground,bg=background]{pipe_zjstatus_hints}{datetime}"
                 format_space "#[bg=background]"
                 hide_frame_for_single_pane "true"
                 tab_normal   "{index}:{name}  "
@@ -25,6 +30,7 @@ let
                 datetime          " {format} "
                 datetime_format   "%H:%M %d-%b-%y"
                 datetime_timezone "Europe/Berlin"
+                pipe_zjstatus_hints_format "{output}"
             }
         }
     }
@@ -33,9 +39,9 @@ let
   compactLayoutContent = ''
     layout {
         pane size=1 borderless=true {
-            plugin location="https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm" {
+            plugin location="${zjstatusUrl}" {
                 format_left  "#[fg=foreground,bg=background][{session}]  {tabs}"
-                format_right "#[fg=foreground,bg=background]{datetime}"
+                format_right "#[fg=foreground,bg=background]{pipe_zjstatus_hints}{datetime}"
                 format_space "#[bg=background]"
                 hide_frame_for_single_pane "true"
                 tab_normal   "{index}:{name}  "
@@ -43,6 +49,7 @@ let
                 datetime          " {format} "
                 datetime_format   "%H:%M %d-%b-%y"
                 datetime_timezone "Europe/Berlin"
+                pipe_zjstatus_hints_format "{output}"
             }
         }
         pane
@@ -84,14 +91,14 @@ let
             location "zellij:session-manager"
         }
         zjstatus-hints {
-            location "https://github.com/b0o/zjstatus-hints/releases/latest/download/zjstatus-hints.wasm"
+            location "${zjstatusHintsUrl}"
             max_length 80
             overflow_str "…"
             pipe_name "zjstatus_hints"
             hide_in_base_mode false
         }
         vim-zellij-navigator {
-            location "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm"
+            location "${vimZellijNavigatorUrl}"
         }
     }
 
@@ -101,32 +108,32 @@ let
             // Mode Switching
             bind "Ctrl a" { SwitchToMode "locked"; }
             bind "Ctrl r" { SwitchToMode "resize"; }
-            bind "Ctrl S" { SwitchToMode "scroll"; }
+            bind "Ctrl S" { SwitchToMode "scroll"; } // Enter scroll mode for scrolling keys
             bind "Ctrl :" { SwitchToMode "session"; }
             bind "Ctrl /" { SwitchToMode "search"; }
             bind "Ctrl ]" { SwitchToMode "search"; }
 
-            // Pane Navigation
+            // Pane Navigation with vim-zellij-navigator
             bind "Ctrl h" {
-                MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
+                MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "move_focus";
                     payload "left";
                 };
             }
             bind "Ctrl j" {
-                MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
+                MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "move_focus";
                     payload "down";
                 };
             }
             bind "Ctrl k" {
-                MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
+                MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "move_focus";
                     payload "up";
                 };
             }
             bind "Ctrl l" {
-                MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
+                MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "move_focus";
                     payload "right";
                 };
@@ -134,25 +141,25 @@ let
 
             // Pane Resizing
             bind "Ctrl Shift h" {
-                MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
+                MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "resize";
                     payload "left";
                 };
             }
             bind "Ctrl Shift j" {
-                MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
+                MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "resize";
                     payload "down";
                 };
             }
             bind "Ctrl Shift k" {
-                MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
+                MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "resize";
                     payload "up";
                 };
             }
             bind "Ctrl Shift l" {
-                MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
+                MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "resize";
                     payload "right";
                 };
@@ -184,11 +191,11 @@ let
             bind "Super Shift Left" { GoToPreviousTab; }
             bind "Super Shift Right" { GoToNextTab; }
 
-            // Scroll Navigation
-            bind "Ctrl a u" { HalfPageScrollUp; }
-            bind "Ctrl a d" { HalfPageScrollDown; }
-            bind "Ctrl Shift a u" { PageScrollUp; }
-            bind "Ctrl Shift a d" { PageScrollDown; }
+            // Scroll Navigation (compatible with vim-zellij-navigator)
+            bind "Ctrl u" { HalfPageScrollUp; }
+            bind "Ctrl d" { HalfPageScrollDown; }
+            bind "Ctrl Shift u" { PageScrollUp; }
+            bind "Ctrl Shift d" { PageScrollDown; }
 
             // Pane and Session Management
             bind "Ctrl w" { CloseFocus; }
@@ -205,7 +212,7 @@ let
 
             // Plugin Launch
             bind "Ctrl y" {
-                LaunchOrFocusPlugin "https://github.com/rvcas/room/releases/latest/download/room.wasm" {
+                LaunchOrFocusPlugin "${roomUrl}" {
                     floating true;
                     ignore_case true;
                     quick_jump true;
@@ -230,6 +237,7 @@ let
         }
 
         scroll {
+            // Scroll mode keybindings (no conflict with vim-zellij-navigator)
             bind "j" { ScrollDown; }
             bind "k" { ScrollUp; }
             bind "Down" { ScrollDown; }
