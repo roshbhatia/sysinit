@@ -99,33 +99,33 @@ let
     keybinds clear-defaults=true {
         normal {
             // Mode Switching
-            bind "Ctrl a a" { SwitchToMode "locked"; }
-            bind "Ctrl a r" { SwitchToMode "resize"; }
-            bind "Ctrl a S" { SwitchToMode "scroll"; }
-            bind "Ctrl a :" { SwitchToMode "session"; }
-            bind "Ctrl a /" { SwitchToMode "search"; }
-            bind "Ctrl a ]" { SwitchToMode "search"; }
+            bind "Ctrl a" { SwitchToMode "locked"; }
+            bind "r" { SwitchToMode "resize"; }
+            bind "S" { SwitchToMode "scroll"; }
+            bind ":" { SwitchToMode "session"; }
+            bind "/" { SwitchToMode "search"; }
+            bind "]" { SwitchToMode "search"; }
 
             // Pane Navigation
-            bind "Ctrl a h" {
+            bind "h" {
                 MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
                     name "move_focus";
                     payload "left";
                 };
             }
-            bind "Ctrl a j" {
+            bind "j" {
                 MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
                     name "move_focus";
                     payload "down";
                 };
             }
-            bind "Ctrl a k" {
+            bind "k" {
                 MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
                     name "move_focus";
                     payload "up";
                 };
             }
-            bind "Ctrl a l" {
+            bind "l" {
                 MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
                     name "move_focus";
                     payload "right";
@@ -133,25 +133,25 @@ let
             }
 
             // Pane Resizing
-            bind "Ctrl a Shift h" {
+            bind "Shift h" {
                 MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
                     name "resize";
                     payload "left";
                 };
             }
-            bind "Ctrl a Shift j" {
+            bind "Shift j" {
                 MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
                     name "resize";
                     payload "down";
                 };
             }
-            bind "Ctrl a Shift k" {
+            bind "Shift k" {
                 MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
                     name "resize";
                     payload "up";
                 };
             }
-            bind "Ctrl a Shift l" {
+            bind "Shift l" {
                 MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
                     name "resize";
                     payload "right";
@@ -159,19 +159,19 @@ let
             }
 
             // Pane Splitting
-            bind "Ctrl a v" { NewPane "right"; }
-            bind "Ctrl a s" { NewPane "down"; }
+            bind "v" { NewPane "right"; }
+            bind "s" { NewPane "down"; }
 
             // Tab Management
-            bind "Ctrl a t" { NewTab; }
-            bind "Ctrl a 1" { GoToTab 1; }
-            bind "Ctrl a 2" { GoToTab 2; }
-            bind "Ctrl a 3" { GoToTab 3; }
-            bind "Ctrl a 4" { GoToTab 4; }
-            bind "Ctrl a 5" { GoToTab 5; }
-            bind "Ctrl a 6" { GoToTab 6; }
-            bind "Ctrl a 7" { GoToTab 7; }
-            bind "Ctrl a 8" { GoToTab 8; }
+            bind "t" { NewTab; }
+            bind "1" { GoToTab 1; }
+            bind "2" { GoToTab 2; }
+            bind "3" { GoToTab 3; }
+            bind "4" { GoToTab 4; }
+            bind "5" { GoToTab 5; }
+            bind "6" { GoToTab 6; }
+            bind "7" { GoToTab 7; }
+            bind "8" { GoToTab 8; }
             bind "Super t" { NewTab; }
             bind "Super 1" { GoToTab 1; }
             bind "Super 2" { GoToTab 2; }
@@ -185,30 +185,39 @@ let
             bind "Super Shift Right" { GoToNextTab; }
 
             // Scroll Navigation
-            bind "Ctrl a u" { HalfPageScrollUp; }
-            bind "Ctrl a d" { HalfPageScrollDown; }
-            bind "Ctrl a Shift u" { PageScrollUp; }
-            bind "Ctrl a Shift d" { PageScrollDown; }
+            bind "u" { HalfPageScrollUp; }
+            bind "d" { HalfPageScrollDown; }
+            bind "Shift u" { PageScrollUp; }
+            bind "Shift d" { PageScrollDown; }
 
             // Pane and Session Management
-            bind "Ctrl a w" { CloseFocus; }
-            bind "Ctrl a \\" { TogglePaneFrames; ToggleActiveSyncTab; }
-            bind "Ctrl a Enter" { ToggleFloatingPanes; }
-            bind "Ctrl a f" { ToggleFocusFullscreen; }
-            bind "Ctrl a z" { TogglePaneFrames; }
-            bind "Ctrl a q" { Quit; }
-            bind "Ctrl a D" { Detach; }
+            bind "w" { CloseFocus; }
+            bind "\\" { TogglePaneFrames; ToggleActiveSyncTab; }
+            bind "Enter" { ToggleFloatingPanes; }
+            bind "f" { ToggleFocusFullscreen; }
+            bind "z" { TogglePaneFrames; }
+            bind "q" { Quit; }
+            bind "D" { Detach; }
 
             // Miscellaneous
             bind "Super k" { Clear; }
-            bind "Ctrl a k" { Clear; }
+            bind "k" { Clear; }
+
+            // Plugin Launch
+            bind "y" {
+                LaunchOrFocusPlugin "https://github.com/rvcas/room/releases/latest/download/room.wasm" {
+                    floating true;
+                    ignore_case true;
+                    quick_jump true;
+                }
+            }
         }
 
         resize {
-            bind "Ctrl h" { Resize "Increase left"; }
-            bind "Ctrl j" { Resize "Increase down"; }
-            bind "Ctrl k" { Resize "Increase up"; }
-            bind "Ctrl l" { Resize "Increase right"; }
+            bind "h" { Resize "Increase left"; }
+            bind "j" { Resize "Increase down"; }
+            bind "k" { Resize "Increase up"; }
+            bind "l" { Resize "Increase right"; }
             bind "Down" { Resize "Increase down"; }
             bind "Up" { Resize "Increase up"; }
             bind "Right" { Resize "Increase right"; }
@@ -251,17 +260,7 @@ let
         }
 
         locked {
-            bind "Ctrl a Esc" { SwitchToMode "normal"; }
-        }
-
-        shared_except "locked" {
-            bind "Ctrl a y" {
-                LaunchOrFocusPlugin "https://github.com/rvcas/room/releases/latest/download/room.wasm" {
-                    floating true;
-                    ignore_case true;
-                    quick_jump true;
-                }
-            }
+            bind "Ctrl a" { SwitchToMode "normal"; }
         }
     }
   '';
