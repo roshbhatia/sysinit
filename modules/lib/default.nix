@@ -13,6 +13,8 @@ let
       bin = "${pkgs.cargo}/bin/cargo";
       env = ''
         export PATH="${pkgs.clang}/bin:$PATH"
+        export RUSTUP_HOME="$HOME/.rustup"
+        export CARGO_HOME="$HOME/.cargo"
       '';
       installCmd = ''"$MANAGER_CMD" install --locked "$pkg" || echo "Warning: Failed to install $pkg"'';
     };
@@ -20,55 +22,65 @@ let
       bin = "${pkgs.nodejs}/bin/npm";
       env = ''
         export PATH="${pkgs.nodejs}/bin:$PATH"
+        export NPM_CONFIG_PREFIX="$HOME/.npm-global"
       '';
-      installCmd = ''"$MANAGER_CMD" install -g "$pkg" || echo "Warning: Failed to install $pkg"'';
+      installCmd = ''"$MANAGER_CMD" install -g "$pkg" --silent || echo "Warning: Failed to install $pkg"'';
     };
     uv = {
       bin = "${pkgs.uv}/bin/uv";
       env = ''
-        export PATH="${pkgs.uv}/bin:$PATH"
+        export PATH="${pkgs.uv}/bin:$HOME/.local/bin:$PATH"
         export UV_PYTHON_PREFERENCE=only-managed
+        export UV_TOOL_DIR="$HOME/.local/bin"
+        export UV_TOOL_BIN_DIR="$HOME/.local/bin"
       '';
-      installCmd = ''"$MANAGER_CMD" tool install --force "$pkg" || echo "Warning: Failed to install $pkg"'';
+      installCmd = ''"$MANAGER_CMD" tool install --force --quiet "$pkg" || echo "Warning: Failed to install $pkg"'';
     };
     yarn = {
       bin = "${pkgs.yarn}/bin/yarn";
       env = ''
         export PATH="${pkgs.yarn}/bin:$PATH"
+        export YARN_GLOBAL_FOLDER="$HOME/.yarn"
       '';
-      installCmd = ''"$MANAGER_CMD" global add "$pkg" || echo "Warning: Failed to install $pkg"'';
+      installCmd = ''"$MANAGER_CMD" global add "$pkg" --silent || echo "Warning: Failed to install $pkg"'';
     };
     pipx = {
       bin = "${pkgs.pipx}/bin/pipx";
       env = ''
-        export PATH="${pkgs.pipx}/bin:$PATH"
+        export PATH="${pkgs.pipx}/bin:$HOME/.local/bin:$PATH"
+        export PIPX_BIN_DIR="$HOME/.local/bin"
+        export PIPX_HOME="$HOME/.local/pipx"
       '';
-      installCmd = ''"$MANAGER_CMD" install "$pkg" || echo "Warning: Failed to install $pkg"'';
+      installCmd = ''"$MANAGER_CMD" install "$pkg" --quiet || echo "Warning: Failed to install $pkg"'';
     };
     go = {
       bin = "${pkgs.go}/bin/go";
       env = ''
-        export PATH="${pkgs.go}/bin:$PATH"
+        export PATH="${pkgs.go}/bin:${pkgs.git}/bin:$PATH"
         export GOPATH="$HOME/go"
+        export GOPROXY=https://proxy.golang.org,direct
+        export GOSUMDB=sum.golang.org
+        export GO111MODULE=on
         export PATH="$GOPATH/bin:$PATH"
       '';
-      installCmd = ''"$MANAGER_CMD" install "$pkg@latest" || echo "Warning: Failed to install $pkg"'';
+      installCmd = ''"$MANAGER_CMD" install -v "$pkg" || echo "Warning: Failed to install $pkg"'';
     };
     gh = {
       bin = "${pkgs.gh}/bin/gh";
       env = ''
         export PATH="${pkgs.gh}/bin:$PATH"
+        export GH_FORCE_TTY=false
       '';
-      installCmd = ''"$MANAGER_CMD" extension install "$pkg" || echo "Warning: Failed to install $pkg"'';
+      installCmd = ''"$MANAGER_CMD" extension install "$pkg" --force || echo "Warning: Failed to install $pkg"'';
     };
     kubectl = {
-      bin = "${pkgs.kubectl}/bin/kubectl";
+      bin = "${pkgs.krew}/bin/kubectl-krew";
       env = ''
-        export PATH="${pkgs.kubectl}/bin:$PATH"
+        export PATH="${pkgs.kubectl}/bin:${pkgs.krew}/bin:$PATH"
         export KREW_ROOT="$HOME/.krew"
         export PATH="$KREW_ROOT/bin:$PATH"
       '';
-      installCmd = ''"$MANAGER_CMD" krew install "$pkg" || echo "Warning: Failed to install $pkg"'';
+      installCmd = ''"$MANAGER_CMD" install "$pkg" || echo "Warning: Failed to install $pkg"'';
     };
   };
 in
