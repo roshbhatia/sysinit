@@ -185,10 +185,10 @@ let
             bind "Super Shift Right" { GoToNextTab; }
 
             // Scroll Navigation
-            bind "Ctrl u" { HalfPageScrollUp; }
-            bind "Ctrl d" { HalfPageScrollDown; }
-            bind "Ctrl Shift u" { PageScrollUp; }
-            bind "Ctrl Shift d" { PageScrollDown; }
+            bind "Ctrl a u" { HalfPageScrollUp; }
+            bind "Ctrl a d" { HalfPageScrollDown; }
+            bind "Ctrl Shift a u" { PageScrollUp; }
+            bind "Ctrl Shift a d" { PageScrollDown; }
 
             // Pane and Session Management
             bind "Ctrl w" { CloseFocus; }

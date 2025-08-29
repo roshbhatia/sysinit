@@ -134,7 +134,7 @@ M.plugins = {
           desc = "Increase width of current split",
         },
         {
-          "<C-a>v",
+          "<leader>v",
           function()
             vim.cmd("vsplit")
           end,
@@ -142,7 +142,7 @@ M.plugins = {
           desc = "Split vertical",
         },
         {
-          "<C-a>s",
+          "<leader>s",
           function()
             vim.cmd("split")
           end,
@@ -150,7 +150,7 @@ M.plugins = {
           desc = "Split horizontal",
         },
         {
-          "<C-a>w",
+          "<C-w>",
           function()
             vim.cmd("close")
           end,
