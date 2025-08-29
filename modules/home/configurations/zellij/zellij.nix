@@ -281,7 +281,7 @@ in
     };
   };
 
-  xdg.configFile."zellij/zellij.sh" = {
+  xdg.configFile."zsh/extras/zellij.sh" = {
     source = ./zellij.sh;
   };
 }
