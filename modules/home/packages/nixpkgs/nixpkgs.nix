@@ -32,6 +32,7 @@ let
     deadnix
     delta
     delve
+    direnv
     docker
     docker-compose-language-service
     docker-language-server
@@ -94,6 +95,7 @@ let
     pyright
     python311Full
     ripgrep
+    rustc
     rustup
     sad
     shellcheck

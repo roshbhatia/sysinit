@@ -26,33 +26,7 @@ let
           wmctrl
         ];
       };
-
-  commonPackages = with pkgs; [
-    atuin
-    bat
-    clang
-    direnv
-    docker
-    eza
-    fd
-    fzf
-    gh
-    git
-    go
-    helm
-    htop
-    jq
-    kubectl
-    nodejs_22
-    python3
-    ripgrep
-    rustc
-    terraform
-    tree
-    yq
-    zoxide
-  ];
 in
 {
-  inherit platformPackages commonPackages;
+  inherit platformPackages;
 }
