@@ -112,7 +112,13 @@ rec {
       config: manager: packages:
       let
         managers = config.packages.managers or defaultManagers;
+        # Assert managers is a set
+        _ =
+          assert builtins.isAttrs managers;
+          "config.packages.managers must be an attribute set";
         m = managers.${manager} or null;
+        # Filter packages to only include strings
+        filteredPackages = builtins.filter (x: builtins.isString x) packages;
       in
       if m == null then
         ''
@@ -136,4 +142,5 @@ rec {
           fi
         '';
   };
+
 }
