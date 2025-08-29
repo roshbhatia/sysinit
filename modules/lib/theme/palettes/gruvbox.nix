@@ -167,7 +167,10 @@ rec {
       highlight = palettes.dark.orange;
     };
 
-    zellij = variant: "gruvbox-${variant}";
+    zellij = {
+      dark = "gruvbox-dark";
+      light = "gruvbox-light";
+    };
   };
 
 }

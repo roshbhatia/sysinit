@@ -133,6 +133,9 @@ rec {
       highlight = palettes.dark.magenta;
     };
 
-    zellij = variant: "solarized-${variant}";
+    zellij = {
+      dark = "solarized-dark";
+      light = "solarized-light";
+    };
   };
 }

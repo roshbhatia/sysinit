@@ -218,6 +218,11 @@ rec {
       highlight = palettes.macchiato.pink;
     };
 
-    zellij = variant: "catppuccin-${variant}";
+    zellij = {
+      macchiato = "catppuccin-macchiato";
+      frappe = "catppuccin-frappe";
+      latte = "catppuccin-latte";
+      mocha = "catppuccin-mocha";
+    };
   };
 }

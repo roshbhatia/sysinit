@@ -98,7 +98,7 @@ rec {
       highlight = palettes.dark.nord15;
     };
 
-    zellij = variant: "nord-${variant}";
+    zellij = "nord";
   };
 
 }

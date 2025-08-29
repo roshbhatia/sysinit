@@ -178,6 +178,10 @@ rec {
       highlight = palettes.moon.rose;
     };
 
-    zellij = variant: "rose-pine-${variant}";
+    zellij = {
+      moon = "rose-pine-moon";
+      dawn = "rose-pine-dawn";
+      main = "rose-pine";
+    };
   };
 }

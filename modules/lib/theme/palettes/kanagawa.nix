@@ -173,7 +173,7 @@ rec {
       highlight = palettes.wave.sakuraPink;
     };
 
-    zellij = variant: "kanagawa-${variant}";
+    zellij = "kanagawa";
   };
 
 }
