@@ -67,8 +67,7 @@ let
         export GO111MODULE=on
         export PATH="$GOPATH/bin:$PATH"
         export CGO_ENABLED=1
-        export CGO_CFLAGS="-I${pkgs.darwin.apple_sdk.frameworks.CoreFoundation}/Library/Frameworks/CoreFoundation.framework/Headers"
-        export CGO_LDFLAGS="-L${pkgs.darwin.apple_sdk.frameworks.CoreFoundation}/Library/Frameworks/CoreFoundation.framework -framework CoreFoundation -lresolv"
+        export CGO_LDFLAGS="-framework CoreFoundation -framework Security"
       '';
       installCmd = ''"$MANAGER_CMD" install -v "$pkg" || echo "Warning: Failed to install $pkg"'';
     };
@@ -91,7 +90,7 @@ let
         # Initialize krew if not already done
         if [ ! -f "$KREW_ROOT/bin/kubectl-krew" ]; then
           mkdir -p "$KREW_ROOT"
-          "${pkgs.krew}/bin/kubectl-krew" install krew
+          "${pkgs.krew}/bin/krew" install krew
         fi
         "$KREW_ROOT/bin/kubectl-krew" install "$pkg" || echo "Warning: Failed to install $pkg"
       '';

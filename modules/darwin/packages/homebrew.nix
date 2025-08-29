@@ -73,6 +73,6 @@ in
   # Suppress Homebrew environment hints and auto-update notifications
   environment.variables = {
     HOMEBREW_NO_ENV_HINTS = "1";
-    HOMEBREW_AUTO_UPDATE_SECS = "86400";  # Daily instead of every time
+    HOMEBREW_AUTO_UPDATE_SECS = "86400"; # Daily instead of every time
   };
 }
