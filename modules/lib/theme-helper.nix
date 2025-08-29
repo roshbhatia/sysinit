@@ -23,7 +23,6 @@ with lib;
   deployThemeFiles =
     values:
     {
-      app,
       themeDir,
       targetPath,
       fileExtension ? null,
@@ -41,7 +40,7 @@ with lib;
     };
 
   mkThemeFileConfigs =
-    values: configs:
+    _values: configs:
     let
       mkThemeConfig =
         { condition, files }:
@@ -56,7 +55,6 @@ with lib;
   mkAllThemeFiles =
     values:
     {
-      app,
       themeDir,
       targetPath,
       themes,

@@ -28,7 +28,6 @@
 
     sessionVariables = {
       HOME = config.home.homeDirectory;
-      HOMEBREW_NO_ENV_HINTS = 1;
       XCA = config.xdg.cacheHome;
       XCO = config.xdg.configHome;
       XDA = config.xdg.dataHome;

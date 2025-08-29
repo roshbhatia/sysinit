@@ -1,5 +1,7 @@
 {
   values,
+  lib,
+  config,
   ...
 }:
 
@@ -44,7 +46,6 @@ let
   allCasks = baseCasks ++ additionalCasks;
 in
 {
-
   nix-homebrew = {
     enable = true;
     enableRosetta = true;
@@ -63,14 +64,21 @@ in
     global = {
       brewfile = true;
       lockfiles = true;
+      autoUpdate = true;
+      homebrewEnvironmentVariables = lib.mkMerge [
+        {
+          HOMEBREW_BUNDLE_FILE = lib.mkIf config.homebrew.global.brewfile "${config.homebrew.brewfile}";
+          HOMEBREW_NO_AUTO_UPDATE = lib.mkIf (!config.homebrew.global.autoUpdate) "1";
+          HOMEBREW_BUNDLE_NO_LOCK = lib.mkIf (!config.homebrew.global.lockfiles) "1";
+        }
+        {
+          HOMEBREW_NO_ENV_HINTS = "1";
+        }
+      ];
     };
 
     taps = allTaps;
     brews = allBrews;
     casks = allCasks;
-  };
-
-  environment.variables = {
-    HOMEBREW_AUTO_UPDATE_SECS = "86400";
   };
 }
