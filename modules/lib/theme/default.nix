@@ -16,7 +16,6 @@ let
 
   weztermAdapter = import ./adapters/wezterm.nix { inherit lib; };
   neovimAdapter = import ./adapters/neovim.nix { inherit lib; };
-  zellijAdapter = import ./adapters/zellij.nix { inherit lib; };
 
   transparencyPreset = import ./presets/transparency.nix { inherit lib; };
 
@@ -103,8 +102,6 @@ let
           weztermAdapter.createWeztermConfig theme finalConfig overrides
         else if app == "neovim" then
           neovimAdapter.createNeovimConfig theme finalConfig overrides
-        else if app == "zellij" then
-          zellijAdapter.createZellijTheme theme validatedConfig.variant overrides
         else
           {
             theme = getAppTheme app validatedConfig.colorscheme validatedConfig.variant;
@@ -138,19 +135,6 @@ let
       weztermAdapter.generateWeztermJSON theme validatedConfig
     else if app == "neovim" then
       neovimAdapter.generateNeovimJSON theme validatedConfig
-    else if app == "zellij" then
-      {
-        colorscheme = validatedConfig.colorscheme;
-        variant = validatedConfig.variant;
-        palette = getThemePalette validatedConfig.colorscheme validatedConfig.variant;
-        semanticColors = getSemanticColors validatedConfig.colorscheme validatedConfig.variant;
-        appTheme = getAppTheme app validatedConfig.colorscheme validatedConfig.variant;
-        ansi = utils.generateAnsiMappings semanticColors;
-        layouts = {
-          default = zellijAdapter.generateZjstatusLayout theme validatedConfig.variant { };
-          compact = zellijAdapter.generateCompactLayout theme validatedConfig.variant;
-        };
-      }
     else
       {
         colorscheme = validatedConfig.colorscheme;
@@ -221,7 +205,6 @@ in
   adapters = {
     wezterm = weztermAdapter;
     neovim = neovimAdapter;
-    zellij = zellijAdapter;
   };
 
   presets = {

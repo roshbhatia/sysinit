@@ -7,14 +7,6 @@
 let
   themes = import ../../../lib/theme { inherit lib; };
 
-  themeConfig = {
-    colorscheme = values.theme.colorscheme;
-    variant = values.theme.variant;
-    presets = [ ];
-  };
-
-  zellijTheme = themes.generateAppJSON "zellij" themeConfig;
-
   zellijThemeName = themes.getAppTheme "zellij" values.theme.colorscheme values.theme.variant;
 
   defaultLayoutContent = ''
@@ -24,9 +16,9 @@ let
         }
         pane size=1 borderless=true {
             plugin location="file:target/wasm32-wasi/debug/zjstatus.wasm" {
-                format_left  "#[fg=${zellijTheme.colors.foreground},bg=${zellijTheme.colors.background}][{session}]  {tabs}"
-                format_right "#[fg=${zellijTheme.colors.foreground},bg=${zellijTheme.colors.background}]{datetime}"
-                format_space "#[bg=${zellijTheme.colors.background}]"
+                format_left  "#[fg=foreground,bg=background][{session}]  {tabs}"
+                format_right "#[fg=foreground,bg=background]{datetime}"
+                format_space "#[bg=background]"
                 hide_frame_for_single_pane "true"
                 tab_normal   "{index}:{name}  "
                 tab_active   "{index}:{name}* "
@@ -38,7 +30,12 @@ let
     }
   '';
 
-  compactLayoutContent = zellijTheme.layouts.compact;
+  compactLayoutContent =
+    (themes.generateAppJSON "zellij" {
+      colorscheme = values.theme.colorscheme;
+      variant = values.theme.variant;
+      presets = [ ];
+    }).layouts.compact;
 
   configContent = ''
     // General Settings
@@ -69,7 +66,7 @@ let
     theme "${zellijThemeName}"
 
     // Plugin Settings
-    load_plugins "session-manager" "zjstatus-hints"
+    load_plugins "session-manager" "zjstatus-hints" "vim-zellij-navigator"
     plugins {
         session-manager {
             location "zellij:session-manager"
@@ -80,6 +77,9 @@ let
             overflow_str "…"
             pipe_name "zjstatus_hints"
             hide_in_base_mode false
+        }
+        vim-zellij-navigator {
+            location "file:/path/to/vim-zellij-navigator.wasm"
         }
     }
 
@@ -95,16 +95,56 @@ let
             bind "Ctrl a ]" { SwitchToMode "search"; }
 
             // Pane Navigation
-            bind "Ctrl a h" { MoveFocus "left"; }
-            bind "Ctrl a j" { MoveFocus "down"; }
-            bind "Ctrl a k" { MoveFocus "up"; }
-            bind "Ctrl a l" { MoveFocus "right"; }
+            bind "Ctrl a h" {
+                MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
+                    name "move_focus";
+                    payload "left";
+                };
+            }
+            bind "Ctrl a j" {
+                MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
+                    name "move_focus";
+                    payload "down";
+                };
+            }
+            bind "Ctrl a k" {
+                MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
+                    name "move_focus";
+                    payload "up";
+                };
+            }
+            bind "Ctrl a l" {
+                MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
+                    name "move_focus";
+                    payload "right";
+                };
+            }
 
             // Pane Resizing
-            bind "Ctrl Shift h" { Resize "Increase left"; }
-            bind "Ctrl Shift j" { Resize "Increase down"; }
-            bind "Ctrl Shift k" { Resize "Increase up"; }
-            bind "Ctrl Shift l" { Resize "Increase right"; }
+            bind "Ctrl a Shift h" {
+                MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
+                    name "resize";
+                    payload "left";
+                };
+            }
+            bind "Ctrl a Shift j" {
+                MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
+                    name "resize";
+                    payload "down";
+                };
+            }
+            bind "Ctrl a Shift k" {
+                MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
+                    name "resize";
+                    payload "up";
+                };
+            }
+            bind "Ctrl a Shift l" {
+                MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
+                    name "resize";
+                    payload "right";
+                };
+            }
 
             // Pane Splitting
             bind "Ctrl a v" { NewPane "right"; }
@@ -160,6 +200,7 @@ let
             bind "Down" { Resize "Increase down"; }
             bind "Up" { Resize "Increase up"; }
             bind "Right" { Resize "Increase right"; }
+            bind "Left" { Resize "Increase left"; }
             bind "=" { Resize "Increase"; }
             bind "-" { Resize "Decrease"; }
             bind "Esc" { SwitchToMode "normal"; }
