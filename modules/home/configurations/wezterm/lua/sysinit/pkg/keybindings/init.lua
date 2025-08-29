@@ -62,15 +62,39 @@ local function get_pane_keys()
       mods = "CTRL",
       action = act.SplitVertical({ domain = "CurrentPaneDomain" }),
     },
+
     {
-      key = "w",
-      mods = "CMD",
-      action = act.CloseCurrentPane({ confirm = false }),
+      key = "u",
+      mods = "CTRL",
+      action = wezterm.action_callback(function(win, pane)
+        if is_vim(pane) then
+          win:perform_action({
+            SendKey = {
+              key = "u",
+              mods = "CTRL",
+            },
+          }, pane)
+        else
+          act.CloseCurrentPane({ confirm = false })
+        end
+      end),
     },
     {
       key = "w",
       mods = "CTRL",
-      action = act.CloseCurrentPane({ confirm = false }),
+
+      action = wezterm.action_callback(function(win, pane)
+        if is_vim(pane) then
+          win:perform_action({
+            SendKey = {
+              key = "w",
+              mods = "CTRL",
+            },
+          }, pane)
+        else
+          act.CloseCurrentPane({ confirm = false })
+        end
+      end),
     },
     {
       key = "\\",
