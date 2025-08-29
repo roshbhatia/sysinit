@@ -31,10 +31,14 @@ let
       env = ''
         export PATH="${pkgs.uv}/bin:$HOME/.local/bin:$PATH"
         export UV_PYTHON_PREFERENCE=only-managed
-        export UV_TOOL_DIR="$HOME/.local/bin"
+        export UV_TOOL_DIR="$HOME/.local"
         export UV_TOOL_BIN_DIR="$HOME/.local/bin"
       '';
-      installCmd = ''"$MANAGER_CMD" tool install --force --quiet "$pkg" || echo "Warning: Failed to install $pkg"'';
+      installCmd = ''
+        # Remove any existing directory conflicts
+        [ -d "$HOME/.local/bin/$pkg" ] && rm -rf "$HOME/.local/bin/$pkg"
+        "$MANAGER_CMD" tool install --force --quiet --reinstall "$pkg" || echo "Warning: Failed to install $pkg"
+      '';
     };
     yarn = {
       bin = "${pkgs.yarn}/bin/yarn";
@@ -62,6 +66,9 @@ let
         export GOSUMDB=sum.golang.org
         export GO111MODULE=on
         export PATH="$GOPATH/bin:$PATH"
+        export CGO_ENABLED=1
+        export CGO_CFLAGS="-I${pkgs.darwin.apple_sdk.frameworks.CoreFoundation}/Library/Frameworks/CoreFoundation.framework/Headers"
+        export CGO_LDFLAGS="-L${pkgs.darwin.apple_sdk.frameworks.CoreFoundation}/Library/Frameworks/CoreFoundation.framework -framework CoreFoundation -lresolv"
       '';
       installCmd = ''"$MANAGER_CMD" install -v "$pkg" || echo "Warning: Failed to install $pkg"'';
     };
@@ -74,13 +81,20 @@ let
       installCmd = ''"$MANAGER_CMD" extension install "$pkg" --force || echo "Warning: Failed to install $pkg"'';
     };
     kubectl = {
-      bin = "${pkgs.krew}/bin/kubectl-krew";
+      bin = "${pkgs.kubectl}/bin/kubectl";
       env = ''
         export PATH="${pkgs.kubectl}/bin:${pkgs.krew}/bin:$PATH"
         export KREW_ROOT="$HOME/.krew"
         export PATH="$KREW_ROOT/bin:$PATH"
       '';
-      installCmd = ''"$MANAGER_CMD" install "$pkg" || echo "Warning: Failed to install $pkg"'';
+      installCmd = ''
+        # Initialize krew if not already done
+        if [ ! -f "$KREW_ROOT/bin/kubectl-krew" ]; then
+          mkdir -p "$KREW_ROOT"
+          "${pkgs.krew}/bin/kubectl-krew" install krew
+        fi
+        "$KREW_ROOT/bin/kubectl-krew" install "$pkg" || echo "Warning: Failed to install $pkg"
+      '';
     };
   };
 in

@@ -13,6 +13,9 @@ let
       {
         pname = "ghostty";
         version = "homebrew";
+        meta = {
+          mainProgram = "ghostty";
+        };
       }
       ''
         mkdir -p $out/bin
