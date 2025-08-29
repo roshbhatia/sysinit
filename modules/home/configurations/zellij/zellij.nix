@@ -30,12 +30,24 @@ let
     }
   '';
 
-  compactLayoutContent =
-    (themes.generateAppJSON "zellij" {
-      colorscheme = values.theme.colorscheme;
-      variant = values.theme.variant;
-      presets = [ ];
-    }).layouts.compact;
+  compactLayoutContent = ''
+    layout {
+        pane size=1 borderless=true {
+            plugin location="file:target/wasm32-wasi/debug/zjstatus.wasm" {
+                format_left  "#[fg=foreground,bg=background][{session}]  {tabs}"
+                format_right "#[fg=foreground,bg=background]{datetime}"
+                format_space "#[bg=background]"
+                hide_frame_for_single_pane "true"
+                tab_normal   "{index}:{name}  "
+                tab_active   "{index}:{name}* "
+                datetime          " {format} "
+                datetime_format   "%H:%M %d-%b-%y"
+                datetime_timezone "Europe/Berlin"
+            }
+        }
+        pane
+    }
+  '';
 
   configContent = ''
     // General Settings
