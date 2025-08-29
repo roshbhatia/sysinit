@@ -28,28 +28,29 @@ let
       };
 
   commonPackages = with pkgs; [
-    git
-    gh
-    go
-    nodejs_22
-    python3
-    rustc
+    atuin
     bat
+    clang
+    direnv
+    docker
+    eza
     fd
     fzf
-    ripgrep
-    jq
-    yq
-    tree
-    htop
-    docker
-    kubectl
+    gh
+    git
+    go
     helm
+    htop
+    jq
+    kubectl
+    nodejs_22
+    python3
+    ripgrep
+    rustc
     terraform
-    eza
-    atuin
+    tree
+    yq
     zoxide
-    direnv
   ];
 in
 {
