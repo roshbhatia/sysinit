@@ -11,7 +11,9 @@ M.plugins = {
             "stylua",
           },
           nix = {
+            "deadnix",
             "nixfmt",
+            stop_after_first = false,
           },
           markdown = {},
           javascript = {
