@@ -147,7 +147,7 @@ let
         appTheme = getAppTheme app validatedConfig.colorscheme validatedConfig.variant;
         ansi = utils.generateAnsiMappings semanticColors;
         layouts = {
-          default = zellijAdapter.generateZjstatusLayout theme validatedConfig.variant {};
+          default = zellijAdapter.generateZjstatusLayout theme validatedConfig.variant { };
           compact = zellijAdapter.generateCompactLayout theme validatedConfig.variant;
         };
       }

@@ -7,27 +7,21 @@
 }:
 
 let
-  # Import theme system (same pattern as Helix)
-  themes = import ../../lib/theme { inherit lib; };
+  themes = import ../../../lib/theme { inherit lib; };
 
-  # Get theme configuration from values (same as Helix)
   themeConfig = {
     colorscheme = values.theme.colorscheme;
     variant = values.theme.variant;
-    presets = [];
+    presets = [ ];
   };
 
-  # Generate themed Zellij configuration with full theme system integration
   zellijTheme = themes.generateAppJSON "zellij" themeConfig;
 
-  # Get the Zellij theme name (same pattern as Helix)
   zellijThemeName = themes.getAppTheme "zellij" values.theme.colorscheme values.theme.variant;
 
-  # Create themed layout content
   defaultLayoutContent = zellijTheme.layouts.default;
   compactLayoutContent = zellijTheme.layouts.compact;
 
-  # Generate dynamic config.kdl with proper theme name
   configContent = ''
     copy_clipboard "primary";
     copy_command "pbcopy";

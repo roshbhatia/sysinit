@@ -7,7 +7,8 @@ let
 in
 
 rec {
-  createZellijTheme = themeData: variant: overrides:
+  createZellijTheme =
+    themeData: variant: overrides:
     let
       palette = themeData.palettes.${variant};
       semanticColors = utils.createSemanticMapping palette;
@@ -24,14 +25,15 @@ rec {
       cyan = semanticColors.syntax.operator;
       black = semanticColors.background.overlay;
       white = semanticColors.foreground.primary;
-    } // overrides;
+    }
+    // overrides;
 
-  generateZjstatusLayout = themeData: variant: layoutConfig:
+  generateZjstatusLayout =
+    themeData: variant: layoutConfig:
     let
       palette = themeData.palettes.${variant};
       semanticColors = utils.createSemanticMapping palette;
 
-      # Generate color codes for zjstatus format strings
       colors = {
         bg_primary = semanticColors.background.primary;
         bg_secondary = semanticColors.background.secondary;
@@ -50,7 +52,6 @@ rec {
         info = semanticColors.semantic.info;
       };
 
-      # Default layout configuration
       defaultLayout = {
         format_left = "{mode} #[fg=${colors.accent_primary},bold,italic]{session} ";
         format_center = "{tabs}";
@@ -77,7 +78,6 @@ rec {
         datetime = "#[fg=${colors.fg_muted}] {format} ";
       };
 
-      # Merge with user config
       finalConfig = defaultLayout // layoutConfig;
 
       themeName =
@@ -144,7 +144,8 @@ rec {
       }
     '';
 
-  generateCompactLayout = themeData: variant:
+  generateCompactLayout =
+    themeData: variant:
     let
       palette = themeData.palettes.${variant};
       semanticColors = utils.createSemanticMapping palette;
@@ -198,7 +199,8 @@ rec {
       }
     '';
 
-  generateZellijConfig = themeData: variant: config:
+  generateZellijConfig =
+    themeData: variant: config:
     let
       themeName =
         if hasAttr "zellij" themeData.appAdapters then
