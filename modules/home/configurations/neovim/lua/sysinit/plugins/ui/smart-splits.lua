@@ -14,7 +14,7 @@ end
 M.plugins = {
   {
     "mrjones2014/smart-splits.nvim",
-    lazy = true,
+    lazy = false,
     config = function()
       require("smart-splits").setup({
         ignored_buftypes = {
@@ -23,8 +23,23 @@ M.plugins = {
           "prompt",
           "nofile",
         },
-        at_edge = "stop",
+        ignored_filetypes = { "NvimTree" },
+        default_amount = 3,
+        at_edge = function(context)
+          if context.mux then
+            context.mux.next_pane(context.direction)
+          end
+        end,
         cursor_follows_swapped_bufs = true,
+        float_win_behavior = "mux",
+        move_cursor_same_row = false,
+        ignored_events = {
+          "BufEnter",
+          "WinEnter",
+        },
+        multiplexer_integration = nil,
+        disable_multiplexer_nav_when_zoomed = true,
+        log_level = "info",
       })
     end,
     keys = function()
@@ -33,6 +48,9 @@ M.plugins = {
         {
           "<C-h>",
           function()
+            if is_floating_snacks_terminal() then
+              return
+            end
             smart_splits.move_cursor_left()
           end,
           mode = { "n", "i", "v", "t" },
@@ -41,6 +59,9 @@ M.plugins = {
         {
           "<C-j>",
           function()
+            if is_floating_snacks_terminal() then
+              return
+            end
             smart_splits.move_cursor_down()
           end,
           mode = { "n", "i", "v", "t" },
@@ -49,6 +70,9 @@ M.plugins = {
         {
           "<C-k>",
           function()
+            if is_floating_snacks_terminal() then
+              return
+            end
             smart_splits.move_cursor_up()
           end,
           mode = { "n", "i", "v", "t" },
@@ -57,6 +81,9 @@ M.plugins = {
         {
           "<C-l>",
           function()
+            if is_floating_snacks_terminal() then
+              return
+            end
             smart_splits.move_cursor_right()
           end,
           mode = { "n", "i", "v", "t" },
@@ -65,6 +92,9 @@ M.plugins = {
         {
           "<C-S-h>",
           function()
+            if is_floating_snacks_terminal() then
+              return
+            end
             smart_splits.resize_left()
           end,
           mode = { "n", "i", "v", "t" },
@@ -73,6 +103,9 @@ M.plugins = {
         {
           "<C-S-j>",
           function()
+            if is_floating_snacks_terminal() then
+              return
+            end
             smart_splits.resize_down()
           end,
           mode = { "n", "i", "v", "t" },
@@ -81,6 +114,9 @@ M.plugins = {
         {
           "<C-S-k>",
           function()
+            if is_floating_snacks_terminal() then
+              return
+            end
             smart_splits.resize_up()
           end,
           mode = { "n", "i", "v", "t" },
@@ -89,13 +125,24 @@ M.plugins = {
         {
           "<C-S-l>",
           function()
+            if is_floating_snacks_terminal() then
+              return
+            end
             smart_splits.resize_right()
           end,
           mode = { "n", "i", "v", "t" },
           desc = "Increase width of current split",
         },
         {
-          "<leader>s",
+          "<C-a>v",
+          function()
+            vim.cmd("vsplit")
+          end,
+          mode = { "n" },
+          desc = "Split vertical",
+        },
+        {
+          "<C-a>s",
           function()
             vim.cmd("split")
           end,
@@ -103,12 +150,24 @@ M.plugins = {
           desc = "Split horizontal",
         },
         {
-          "<leader>v",
+          "<C-a>w",
           function()
-            vim.cmd("vsplit")
+            vim.cmd("close")
           end,
           mode = { "n" },
-          desc = "Split vertical",
+          desc = "Close current window",
+        },
+        {
+          "<C-a><C-a>",
+          function()
+            vim.api.nvim_feedkeys(
+              vim.api.nvim_replace_termcodes("<C-a>", true, false, true),
+              "n",
+              true
+            )
+          end,
+          mode = { "n", "i", "v", "t" },
+          desc = "Send Ctrl-a to Neovim",
         },
       }
     end,

@@ -139,6 +139,20 @@ in
         "cmd+0=reset_font_size"
         "cmd+n=new_window"
         "cmd+w=close_surface"
+        "cmd+r=reload_config"
+        "cmd+d=ignore"
+        "cmd+shift+d=ignore"
+        "cmd+option+up=ignore"
+        "cmd+option+down=ignore"
+        "cmd+option+left=ignore"
+        "cmd+option+right=ignore"
+        "cmd+shift+enter=ignore"
+        "cmd+ctrl+up=ignore"
+        "cmd+ctrl+down=ignore"
+        "cmd+ctrl+left=ignore"
+        "cmd+ctrl+right=ignore"
+        "cmd+ctrl+=ignore"
+        "cmd+shift+w=ignore"
       ];
     };
 
