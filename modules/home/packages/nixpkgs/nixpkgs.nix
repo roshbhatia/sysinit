@@ -50,6 +50,7 @@ let
     gnupg
     go
     go-task
+    golangci-lint
     goose-cli
     gopls
     gum

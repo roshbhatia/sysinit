@@ -18,7 +18,6 @@ let
     "github.com/davidrjenni/reftools/cmd/fillswitch@latest"
     "github.com/davidrjenni/reftools/cmd/fillstruct@latest"
     "github.com/davidrjenni/reftools/cmd/fixplurals@latest"
-    "github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.8"
     "github.com/kyoh86/richgo@latest"
     "github.com/onsi/ginkgo/v2/ginkgo@latest"
     "github.com/tmc/json-to-struct@latest"

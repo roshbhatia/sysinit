@@ -62,13 +62,6 @@ with lib;
       themes,
     }:
     let
-      mkThemeFile = theme: {
-        name = "${targetPath}/${theme}";
-        value = {
-          source = "${themeDir}/${theme}";
-          force = true;
-        };
-      };
 
       availableThemes = filter (theme: pathExists "${themeDir}/${theme}") themes;
       currentTheme = "${values.theme.colorscheme}-${values.theme.variant}";
