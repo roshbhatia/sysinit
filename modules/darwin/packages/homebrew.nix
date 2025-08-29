@@ -20,6 +20,7 @@ let
   baseBrews = [
     "bcrypt"
     "charmbracelet/tap/crush"
+    "eza"
     "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"

@@ -7,10 +7,7 @@
 }:
 
 let
-  npmPackages = [
-    "opencode-ai@latest"
-  ]
-  ++ (values.npm.additionalPackages or [ ]);
+  npmPackages = [ ] ++ (values.npm.additionalPackages or [ ]);
 in
 {
   home.file.".npmrc" = {

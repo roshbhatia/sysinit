@@ -40,7 +40,7 @@ fi
 log_info "Creating Per-user Profile"
 if [ ! -d "$HOME/.nix-profile" ] || [ ! -L "$HOME/.nix-profile" ]; then
   log_warn "Setting up per-user profile for $(whoami)..."
-  nix-env --install --attr nixpkgs.nix || {
+  nix-env --install || {
     log_critical "Failed to create per-user profile"
     exit 1
   }
@@ -77,7 +77,7 @@ if ! command -v darwin-rebuild &> /dev/null; then
   mkdir -p ~/.nixpkgs
   if [ ! -f ~/.nixpkgs/darwin-configuration.nix ]; then
     log_warn "Linking minimal darwin configuration..."
-    ln -sf "$SCRIPT_DIR/configs/darwin-configuration.nix" ~/.nixpkgs/darwin-configuration.nix
+    sudo ln -sf "$SCRIPT_DIR/configs/darwin-configuration.nix" ~/.nixpkgs/darwin-configuration.nix
     log_success "Darwin configuration linked"
   fi
 
@@ -90,7 +90,7 @@ if ! command -v darwin-rebuild &> /dev/null; then
   fi
 
   mkdir -p /tmp/nix-darwin-bootstrap
-  ln -sf "$SCRIPT_DIR/configs/bootstrap-flake.nix" /tmp/nix-darwin-bootstrap/flake.nix
+  sudo ln -sf "$SCRIPT_DIR/configs/bootstrap-flake.nix" /tmp/nix-darwin-bootstrap/flake.nix
   log_success "Bootstrap flake configuration linked"
 
   log_warn "Building and activating bootstrap configuration..."
@@ -104,7 +104,7 @@ if ! command -v darwin-rebuild &> /dev/null; then
   if ! command -v darwin-rebuild &> /dev/null; then
     log_warn "Creating temporary darwin-rebuild command..."
     sudo mkdir -p /usr/local/bin
-    ln -sf "$SCRIPT_DIR/configs/darwin-rebuild-script" /usr/local/bin/darwin-rebuild
+    sudo ln -sf "$SCRIPT_DIR/configs/darwin-rebuild-script" /usr/local/bin/darwin-rebuild
     sudo chmod +x /usr/local/bin/darwin-rebuild
     log_success "Darwin rebuild command linked"
   fi
