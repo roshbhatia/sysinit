@@ -15,7 +15,7 @@ let
             pane
         }
         pane size=1 borderless=true {
-            plugin location="file:target/wasm32-wasi/debug/zjstatus.wasm" {
+            plugin location="https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm" {
                 format_left  "#[fg=foreground,bg=background][{session}]  {tabs}"
                 format_right "#[fg=foreground,bg=background]{datetime}"
                 format_space "#[bg=background]"
@@ -33,7 +33,7 @@ let
   compactLayoutContent = ''
     layout {
         pane size=1 borderless=true {
-            plugin location="file:target/wasm32-wasi/debug/zjstatus.wasm" {
+            plugin location="https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm" {
                 format_left  "#[fg=foreground,bg=background][{session}]  {tabs}"
                 format_right "#[fg=foreground,bg=background]{datetime}"
                 format_space "#[bg=background]"
@@ -91,7 +91,7 @@ let
             hide_in_base_mode false
         }
         vim-zellij-navigator {
-            location "file:/path/to/vim-zellij-navigator.wasm"
+            location "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm"
         }
     }
 
@@ -108,25 +108,25 @@ let
 
             // Pane Navigation
             bind "Ctrl h" {
-                MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
+                MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
                     name "move_focus";
                     payload "left";
                 };
             }
             bind "Ctrl j" {
-                MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
+                MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
                     name "move_focus";
                     payload "down";
                 };
             }
             bind "Ctrl k" {
-                MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
+                MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
                     name "move_focus";
                     payload "up";
                 };
             }
             bind "Ctrl l" {
-                MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
+                MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
                     name "move_focus";
                     payload "right";
                 };
@@ -134,25 +134,25 @@ let
 
             // Pane Resizing
             bind "Ctrl Shift h" {
-                MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
+                MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
                     name "resize";
                     payload "left";
                 };
             }
             bind "Ctrl Shift j" {
-                MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
+                MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
                     name "resize";
                     payload "down";
                 };
             }
             bind "Ctrl Shift k" {
-                MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
+                MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
                     name "resize";
                     payload "up";
                 };
             }
             bind "Ctrl Shift l" {
-                MessagePlugin "file:/path/to/vim-zellij-navigator.wasm" {
+                MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
                     name "resize";
                     payload "right";
                 };
