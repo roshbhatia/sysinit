@@ -22,46 +22,27 @@ let
         }
         pane size=1 borderless=true {
             plugin location="${zjstatusUrl}" {
-                hide_frame_for_single_pane "true"
+                hide_frame_for_single_pane "false"
 
-                format_left  "{mode}#[fg=${semanticColors.accent.primary},bg=${semanticColors.background.primary},bold] {session}#[fg=${semanticColors.semantic.warning},bg=${semanticColors.background.primary}]  {command_pwd}#[bg=${semanticColors.background.primary}] "
-                format_center "#[fg=${semanticColors.accent.primary},bg=${semanticColors.background.primary}]{tabs}"
-                format_right "#[fg=${semanticColors.foreground.muted},bg=${semanticColors.background.primary}]{pipe_zjstatus_hints}"
-                format_space "#[bg=${semanticColors.background.primary}]"
+                format_left  "{mode}#[fg=#89B4FA,bg=#181825,bold] {session}#[bg=#181825] {tabs}"
+                format_right "#[fg=#424554,bg=#181825]{pipe_zjstatus_hints}"
+                format_space "#[bg=#181825]"
 
-                mode_normal          "#[fg=${semanticColors.background.primary},bg=${semanticColors.semantic.success},bold] NORM "
-                mode_locked          "#[fg=${semanticColors.background.primary},bg=${semanticColors.semantic.error},bold] LOCK "
-                mode_resize          "#[fg=${semanticColors.background.primary},bg=${semanticColors.semantic.warning},bold] SIZE "
-                mode_pane            "#[fg=${semanticColors.background.primary},bg=${semanticColors.accent.primary},bold] PANE "
-                mode_tab             "#[fg=${semanticColors.background.primary},bg=${semanticColors.accent.tertiary},bold] TAB  "
-                mode_scroll          "#[fg=${semanticColors.background.primary},bg=${semanticColors.accent.secondary},bold] SCRL "
-                mode_enter_search    "#[fg=${semanticColors.background.primary},bg=${semanticColors.syntax.keyword},bold] SRCH "
-                mode_search          "#[fg=${semanticColors.background.primary},bg=${semanticColors.syntax.keyword},bold] SRCH "
-                mode_rename_tab      "#[fg=${semanticColors.background.primary},bg=${semanticColors.accent.tertiary},bold] REN  "
-                mode_rename_pane     "#[fg=${semanticColors.background.primary},bg=${semanticColors.accent.primary},bold] REN  "
-                mode_session         "#[fg=${semanticColors.background.primary},bg=${semanticColors.semantic.success},bold] SESS "
-                mode_move            "#[fg=${semanticColors.background.primary},bg=${semanticColors.semantic.warning},bold] MOVE "
-                mode_prompt          "#[fg=${semanticColors.background.primary},bg=${semanticColors.syntax.keyword},bold] PRMT "
-                mode_tmux            "#[fg=${semanticColors.background.primary},bg=${semanticColors.syntax.number},bold] TMUX "
-                mode_default_to_mode "normal"
+                mode_normal          "#[bg=#89B4FA] "
+                mode_tmux            "#[bg=#ffc387] "
+                mode_default_to_mode "tmux"
 
-                tab_normal               "#[fg=${semanticColors.foreground.muted},bg=${semanticColors.background.primary}] {index}:{name} {fullscreen_indicator}{sync_indicator}{floating_indicator}"
-                tab_active               "#[fg=${semanticColors.background.primary},bg=${semanticColors.accent.primary},bold] {index}:{name} {fullscreen_indicator}{sync_indicator}{floating_indicator}"
+                tab_normal               "#[fg=#6C7086,bg=#181825] {index} {name} {fullscreen_indicator}{sync_indicator}{floating_indicator}"
+                tab_active               "#[fg=#9399B2,bg=#181825,bold,italic] {index} {name} {fullscreen_indicator}{sync_indicator}{floating_indicator}"
                 tab_fullscreen_indicator "□ "
                 tab_sync_indicator       "  "
                 tab_floating_indicator   "󰉈 "
 
-                command_pwd_command    "basename $(pwd)"
-                command_pwd_format     " {stdout}"
-                command_pwd_interval   "1"
-                command_pwd_rendermode "static"
-
-                pipe_zjstatus_hints_format "#[fg=${semanticColors.foreground.muted},bg=${semanticColors.background.primary}] {output}"
+                pipe_zjstatus_hints_format "#[fg=#6C7086,bg=#181825,italic] {output}"
             }
         }
     }
   '';
-
 
   configContent = ''
     // General Settings
@@ -88,7 +69,7 @@ let
             hide_session_name false
         }
     }
-    pane_frames false
+    pane_frames true
 
     // Default to borderless for new panes
     default_mode "normal"
@@ -149,31 +130,11 @@ let
                 };
             }
 
-            // Pane Resizing
-            bind "Ctrl Shift h" {
-                MessagePlugin "${vimZellijNavigatorUrl}" {
-                    name "resize";
-                    payload "left";
-                };
-            }
-            bind "Ctrl Shift j" {
-                MessagePlugin "${vimZellijNavigatorUrl}" {
-                    name "resize";
-                    payload "down";
-                };
-            }
-            bind "Ctrl Shift k" {
-                MessagePlugin "${vimZellijNavigatorUrl}" {
-                    name "resize";
-                    payload "up";
-                };
-            }
-            bind "Ctrl Shift l" {
-                MessagePlugin "${vimZellijNavigatorUrl}" {
-                    name "resize";
-                    payload "right";
-                };
-            }
+            // Pane Resizing (matches WezTerm behavior exactly)
+            bind "Ctrl Shift h" { Resize "Decrease width"; }
+            bind "Ctrl Shift j" { Resize "Increase height"; }
+            bind "Ctrl Shift k" { Resize "Decrease height"; }
+            bind "Ctrl Shift l" { Resize "Increase width"; }
 
             // Pane Splitting
             bind "Ctrl v" { NewPane "right"; }

@@ -140,6 +140,19 @@ in
         "cmd+n=new_window"
         "cmd+w=close_surface"
         "cmd+r=reload_config"
+
+        # Disable all native tabs and panes - use Zellij instead
+        "cmd+t=ignore"
+        "cmd+shift+t=ignore"
+        "cmd+1=ignore"
+        "cmd+2=ignore"
+        "cmd+3=ignore"
+        "cmd+4=ignore"
+        "cmd+5=ignore"
+        "cmd+6=ignore"
+        "cmd+7=ignore"
+        "cmd+8=ignore"
+        "cmd+9=ignore"
         "cmd+d=ignore"
         "cmd+shift+d=ignore"
         "cmd+option+up=ignore"
@@ -153,6 +166,19 @@ in
         "cmd+ctrl+right=ignore"
         "cmd+ctrl+=ignore"
         "cmd+shift+w=ignore"
+
+        # Navigation should be handled by Zellij
+        "ctrl+h=ignore"
+        "ctrl+j=ignore"
+        "ctrl+k=ignore"
+        "ctrl+l=ignore"
+        "ctrl+shift+h=ignore"
+        "ctrl+shift+j=ignore"
+        "ctrl+shift+k=ignore"
+        "ctrl+shift+l=ignore"
+        "ctrl+v=ignore"
+        "ctrl+s=ignore"
+        "ctrl+w=ignore"
       ];
     };
 
