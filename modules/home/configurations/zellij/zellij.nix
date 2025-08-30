@@ -131,10 +131,10 @@ let
             }
 
             // Pane Resizing (matches WezTerm behavior exactly)
-            bind "Ctrl Shift h" { Resize "Decrease width"; }
-            bind "Ctrl Shift j" { Resize "Increase height"; }
-            bind "Ctrl Shift k" { Resize "Decrease height"; }
-            bind "Ctrl Shift l" { Resize "Increase width"; }
+            bind "Ctrl Shift h" { Resize "Increase Left"; }
+            bind "Ctrl Shift j" { Resize "Increase Down"; }
+            bind "Ctrl Shift k" { Resize "Increase Up"; }
+            bind "Ctrl Shift l" { Resize "Increase Right"; }
 
             // Pane Splitting
             bind "Ctrl v" { NewPane "right"; }
