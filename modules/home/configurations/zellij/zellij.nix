@@ -8,7 +8,6 @@ let
   themes = import ../../../lib/theme { inherit lib; };
 
   zellijThemeName = themes.getAppTheme "zellij" values.theme.colorscheme values.theme.variant;
-  semanticColors = themes.getSemanticColors values.theme.colorscheme values.theme.variant;
 
   zjstatusUrl = "https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm";
   zjstatusHintsUrl = "https://github.com/b0o/zjstatus-hints/releases/latest/download/zjstatus-hints.wasm";
@@ -24,28 +23,17 @@ let
             plugin location="${zjstatusUrl}" {
                 hide_frame_for_single_pane "false"
 
-                format_left  "{mode}#[fg=${semanticColors.blue},bg=${semanticColors.mantle},bold] {session}#[bg=${semanticColors.mantle}] {tabs}"
-                format_right "#[fg=${semanticColors.surface2},bg=${semanticColors.mantle}]{pipe_zjstatus_hints}"
-                format_space "#[bg=${semanticColors.mantle}]"
-
-                mode_normal          "#[bg=${semanticColors.blue}] "
-                mode_tmux            "#[bg=${semanticColors.peach}] "
                 mode_default_to_mode "tmux"
 
-                tab_normal               "#[fg=${semanticColors.surface2},bg=${semanticColors.mantle}] {index} {name} {fullscreen_indicator}{sync_indicator}{floating_indicator}"
-                tab_active               "#[fg=${semanticColors.subtext0},bg=${semanticColors.mantle},bold,italic] {index} {name} {fullscreen_indicator}{sync_indicator}{floating_indicator}"
                 tab_fullscreen_indicator "□ "
                 tab_sync_indicator       "  "
                 tab_floating_indicator   "󰉈 "
-
-                pipe_zjstatus_hints_format "#[fg=${semanticColors.surface2},bg=${semanticColors.mantle},italic] {output}"
             }
         }
     }
   '';
 
   configContent = ''
-    // General Settings
     default_shell "zsh"
     copy_clipboard "primary"
     copy_command "pbcopy"
@@ -56,13 +44,11 @@ let
     session_serialization false
     show_startup_tips false
 
-    // Scroll Settings
     scroll_buffer_size 100000
     scrollback_editor "nvim"
     scrollback_lines_to_serialize 50000
     copy_on_select true
 
-    // UI Settings
     ui {
         pane_frames {
             rounded_corners false
@@ -71,11 +57,9 @@ let
     }
     pane_frames true
 
-    // Default to borderless for new panes
     default_mode "normal"
     theme "${zellijThemeName}"
 
-    // Plugin Settings
     load_plugins "session-manager" "zjstatus-hints" "vim-zellij-navigator"
     plugins {
         session-manager {
@@ -93,18 +77,14 @@ let
         }
     }
 
-    // Keybindings
     keybinds clear-defaults=true {
         normal {
-            // Mode Switching
             bind "Ctrl a" { SwitchToMode "locked"; }
             bind "Ctrl r" { SwitchToMode "resize"; }
-            bind "Ctrl S" { SwitchToMode "scroll"; } // Enter scroll mode for scrolling keys
+            bind "Ctrl S" { SwitchToMode "scroll"; }
             bind "Ctrl :" { SwitchToMode "session"; }
             bind "Ctrl /" { SwitchToMode "search"; }
-            bind "Ctrl ]" { SwitchToMode "search"; }
 
-            // Pane Navigation with vim-zellij-navigator
             bind "Ctrl h" {
                 MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "move_focus";
@@ -130,17 +110,14 @@ let
                 };
             }
 
-            // Pane Resizing (matches WezTerm behavior exactly)
             bind "Ctrl Shift h" { Resize "Increase left"; }
             bind "Ctrl Shift j" { Resize "Increase down"; }
             bind "Ctrl Shift k" { Resize "Increase up"; }
             bind "Ctrl Shift l" { Resize "Increase right"; }
 
-            // Pane Splitting
             bind "Ctrl v" { NewPane "Right"; }
             bind "Ctrl s" { NewPane "Down"; }
 
-            // Tab Management
             bind "Ctrl t" { NewTab; }
             bind "Ctrl 1" { GoToTab 1; }
             bind "Ctrl 2" { GoToTab 2; }
@@ -162,13 +139,11 @@ let
             bind "Super Shift Left" { GoToPreviousTab; }
             bind "Super Shift Right" { GoToNextTab; }
 
-            // Scroll Navigation (compatible with vim-zellij-navigator)
             bind "Ctrl u" { HalfPageScrollUp; }
             bind "Ctrl d" { HalfPageScrollDown; }
             bind "Ctrl Shift u" { PageScrollUp; }
             bind "Ctrl Shift d" { PageScrollDown; }
 
-            // Pane and Session Management
             bind "Ctrl w" { CloseFocus; }
             bind "Ctrl \\" { TogglePaneFrames; ToggleActiveSyncTab; }
             bind "Ctrl Enter" { ToggleFloatingPanes; }
@@ -177,7 +152,6 @@ let
             bind "Ctrl q" { Quit; }
             bind "Ctrl D" { Detach; }
 
-            // Miscellaneous (Note: Ctrl+k used for navigation, only Cmd+k for clear)
             bind "Super k" { Clear; }
 
             // Plugin Launch
@@ -207,7 +181,6 @@ let
         }
 
         scroll {
-            // Scroll mode keybindings (no conflict with vim-zellij-navigator)
             bind "j" { ScrollDown; }
             bind "k" { ScrollUp; }
             bind "Down" { ScrollDown; }
