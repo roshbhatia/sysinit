@@ -24,21 +24,21 @@ let
             plugin location="${zjstatusUrl}" {
                 hide_frame_for_single_pane "false"
 
-                format_left  "{mode}#[fg=#89B4FA,bg=#181825,bold] {session}#[bg=#181825] {tabs}"
-                format_right "#[fg=#424554,bg=#181825]{pipe_zjstatus_hints}"
-                format_space "#[bg=#181825]"
+                format_left  "{mode}#[fg=${semanticColors.blue},bg=${semanticColors.mantle},bold] {session}#[bg=${semanticColors.mantle}] {tabs}"
+                format_right "#[fg=${semanticColors.surface2},bg=${semanticColors.mantle}]{pipe_zjstatus_hints}"
+                format_space "#[bg=${semanticColors.mantle}]"
 
-                mode_normal          "#[bg=#89B4FA] "
-                mode_tmux            "#[bg=#ffc387] "
+                mode_normal          "#[bg=${semanticColors.blue}] "
+                mode_tmux            "#[bg=${semanticColors.peach}] "
                 mode_default_to_mode "tmux"
 
-                tab_normal               "#[fg=#6C7086,bg=#181825] {index} {name} {fullscreen_indicator}{sync_indicator}{floating_indicator}"
-                tab_active               "#[fg=#9399B2,bg=#181825,bold,italic] {index} {name} {fullscreen_indicator}{sync_indicator}{floating_indicator}"
+                tab_normal               "#[fg=${semanticColors.surface2},bg=${semanticColors.mantle}] {index} {name} {fullscreen_indicator}{sync_indicator}{floating_indicator}"
+                tab_active               "#[fg=${semanticColors.subtext0},bg=${semanticColors.mantle},bold,italic] {index} {name} {fullscreen_indicator}{sync_indicator}{floating_indicator}"
                 tab_fullscreen_indicator "□ "
                 tab_sync_indicator       "  "
                 tab_floating_indicator   "󰉈 "
 
-                pipe_zjstatus_hints_format "#[fg=#6C7086,bg=#181825,italic] {output}"
+                pipe_zjstatus_hints_format "#[fg=${semanticColors.surface2},bg=${semanticColors.mantle},italic] {output}"
             }
         }
     }
@@ -131,14 +131,14 @@ let
             }
 
             // Pane Resizing (matches WezTerm behavior exactly)
-            bind "Ctrl Shift h" { Resize "Increase Left"; }
-            bind "Ctrl Shift j" { Resize "Increase Down"; }
-            bind "Ctrl Shift k" { Resize "Increase Up"; }
-            bind "Ctrl Shift l" { Resize "Increase Right"; }
+            bind "Ctrl Shift h" { Resize "Increase left"; }
+            bind "Ctrl Shift j" { Resize "Increase down"; }
+            bind "Ctrl Shift k" { Resize "Increase up"; }
+            bind "Ctrl Shift l" { Resize "Increase right"; }
 
             // Pane Splitting
-            bind "Ctrl v" { NewPane "right"; }
-            bind "Ctrl s" { NewPane "down"; }
+            bind "Ctrl v" { NewPane "Right"; }
+            bind "Ctrl s" { NewPane "Down"; }
 
             // Tab Management
             bind "Ctrl t" { NewTab; }
