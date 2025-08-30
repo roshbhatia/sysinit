@@ -13,8 +13,8 @@ M.plugins = {
       "nvim-telescope/telescope-live-grep-args.nvim",
       "nvim-telescope/telescope-ui-select.nvim",
       "nvim-tree/nvim-web-devicons",
-      "olimorris/persisted.nvim",
       "nvim-treesitter/nvim-treesitter",
+      "olimorris/persisted.nvim",
     },
     config = function()
       local telescope = require("telescope")
