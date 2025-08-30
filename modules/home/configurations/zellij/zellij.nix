@@ -16,21 +16,47 @@ let
 
   defaultLayoutContent = ''
     layout {
-        pane split_direction="vertical" {
-            pane
+        pane split_direction="vertical" borderless=true {
+            pane borderless=true
         }
         pane size=1 borderless=true {
             plugin location="${zjstatusUrl}" {
-                format_left  "#[fg=foreground,bg=background][{session}]  {tabs}"
-                format_right "#[fg=foreground,bg=background]{pipe_zjstatus_hints}{datetime}"
-                format_space "#[bg=background]"
+                format_left   "#[fg=cyan,bg=black,bold][{mode}] #[fg=green,bg=black]{session} #[fg=yellow,bg=black]{command_pwd}"
+                format_center "#[fg=blue,bg=black]{tabs}"
+                format_right  "#[fg=magenta,bg=black]{pipe_zjstatus_hints}"
+                format_space  "#[bg=black]"
+
                 hide_frame_for_single_pane "true"
-                tab_normal   "{index}:{name}  "
-                tab_active   "{index}:{name}* "
-                datetime          " {format} "
-                datetime_format   "%H:%M %d-%b-%y"
-                datetime_timezone "Europe/Berlin"
-                pipe_zjstatus_hints_format "{output}"
+
+                // Mode styling
+                mode_normal       "#[fg=green,bg=black,bold] NORM "
+                mode_locked       "#[fg=red,bg=black,bold] LOCK "
+                mode_resize       "#[fg=yellow,bg=black,bold] SIZE "
+                mode_pane         "#[fg=blue,bg=black,bold] PANE "
+                mode_tab          "#[fg=magenta,bg=black,bold] TAB  "
+                mode_scroll       "#[fg=cyan,bg=black,bold] SCRL "
+                mode_enter_search "#[fg=white,bg=black,bold] SRCH "
+                mode_search       "#[fg=white,bg=black,bold] SRCH "
+                mode_rename_tab   "#[fg=magenta,bg=black,bold] REN  "
+                mode_rename_pane  "#[fg=blue,bg=black,bold] REN  "
+                mode_session      "#[fg=green,bg=black,bold] SESS "
+                mode_move         "#[fg=yellow,bg=black,bold] MOVE "
+                mode_prompt       "#[fg=white,bg=black,bold] PRMT "
+                mode_tmux         "#[fg=orange,bg=black,bold] TMUX "
+
+                // Tab styling
+                tab_normal   " #[fg=white,bg=black]{index}:{name} "
+                tab_active   " #[fg=black,bg=blue,bold]{index}:{name} "
+                tab_separator "#[fg=brightblack,bg=black]│"
+
+                // Commands
+                command_pwd_command    "basename $(pwd)"
+                command_pwd_format     "{stdout}"
+                command_pwd_interval   "1"
+                command_pwd_rendermode "static"
+
+                // Pipe configuration
+                pipe_zjstatus_hints_format "#[fg=brightblack,bg=black] {output}"
             }
         }
     }
@@ -40,19 +66,45 @@ let
     layout {
         pane size=1 borderless=true {
             plugin location="${zjstatusUrl}" {
-                format_left  "#[fg=foreground,bg=background][{session}]  {tabs}"
-                format_right "#[fg=foreground,bg=background]{pipe_zjstatus_hints}{datetime}"
-                format_space "#[bg=background]"
+                format_left   "#[fg=cyan,bg=black,bold][{mode}] #[fg=green,bg=black]{session} #[fg=yellow,bg=black]{command_pwd}"
+                format_center "#[fg=blue,bg=black]{tabs}"
+                format_right  "#[fg=magenta,bg=black]{pipe_zjstatus_hints}"
+                format_space  "#[bg=black]"
+
                 hide_frame_for_single_pane "true"
-                tab_normal   "{index}:{name}  "
-                tab_active   "{index}:{name}* "
-                datetime          " {format} "
-                datetime_format   "%H:%M %d-%b-%y"
-                datetime_timezone "Europe/Berlin"
-                pipe_zjstatus_hints_format "{output}"
+
+                // Mode styling
+                mode_normal       "#[fg=green,bg=black,bold] NORM "
+                mode_locked       "#[fg=red,bg=black,bold] LOCK "
+                mode_resize       "#[fg=yellow,bg=black,bold] SIZE "
+                mode_pane         "#[fg=blue,bg=black,bold] PANE "
+                mode_tab          "#[fg=magenta,bg=black,bold] TAB  "
+                mode_scroll       "#[fg=cyan,bg=black,bold] SCRL "
+                mode_enter_search "#[fg=white,bg=black,bold] SRCH "
+                mode_search       "#[fg=white,bg=black,bold] SRCH "
+                mode_rename_tab   "#[fg=magenta,bg=black,bold] REN  "
+                mode_rename_pane  "#[fg=blue,bg=black,bold] REN  "
+                mode_session      "#[fg=green,bg=black,bold] SESS "
+                mode_move         "#[fg=yellow,bg=black,bold] MOVE "
+                mode_prompt       "#[fg=white,bg=black,bold] PRMT "
+                mode_tmux         "#[fg=orange,bg=black,bold] TMUX "
+
+                // Tab styling
+                tab_normal   " #[fg=white,bg=black]{index}:{name} "
+                tab_active   " #[fg=black,bg=blue,bold]{index}:{name} "
+                tab_separator "#[fg=brightblack,bg=black]│"
+
+                // Commands
+                command_pwd_command    "basename $(pwd)"
+                command_pwd_format     "{stdout}"
+                command_pwd_interval   "1"
+                command_pwd_rendermode "static"
+
+                // Pipe configuration
+                pipe_zjstatus_hints_format "#[fg=brightblack,bg=black] {output}"
             }
         }
-        pane
+        pane borderless=true
     }
   '';
 
@@ -82,6 +134,9 @@ let
         }
     }
     pane_frames false
+
+    // Default to borderless for new panes
+    default_mode "normal"
     theme "${zellijThemeName}"
 
     // Plugin Settings
@@ -93,7 +148,7 @@ let
         zjstatus-hints {
             location "${zjstatusHintsUrl}"
             max_length 80
-            overflow_str "…"
+            overflow_str "..."
             pipe_name "zjstatus_hints"
             hide_in_base_mode false
         }
@@ -206,9 +261,8 @@ let
             bind "Ctrl q" { Quit; }
             bind "Ctrl D" { Detach; }
 
-            // Miscellaneous
+            // Miscellaneous (Note: Ctrl+k used for navigation, only Cmd+k for clear)
             bind "Super k" { Clear; }
-            bind "Ctrl k" { Clear; }
 
             // Plugin Launch
             bind "Ctrl y" {
