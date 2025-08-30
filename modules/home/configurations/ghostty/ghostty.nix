@@ -141,7 +141,6 @@ in
         "cmd+w=close_surface"
         "cmd+r=reload_config"
 
-        # Disable all native tabs and panes - use Zellij instead
         "cmd+t=ignore"
         "cmd+shift+t=ignore"
         "cmd+1=ignore"
@@ -167,7 +166,6 @@ in
         "cmd+ctrl+=ignore"
         "cmd+shift+w=ignore"
 
-        # Navigation should be handled by Zellij
         "ctrl+h=ignore"
         "ctrl+j=ignore"
         "ctrl+k=ignore"
