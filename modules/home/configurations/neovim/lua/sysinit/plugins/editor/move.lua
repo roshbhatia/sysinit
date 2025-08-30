@@ -2,7 +2,7 @@ local M = {}
 
 M.plugins = {
   {
-    "echasnovski/mini.move",
+    "nvim-mini/mini.nvim",
     version = "*",
     config = function()
       require("mini.move").setup({
