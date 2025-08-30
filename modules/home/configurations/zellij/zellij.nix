@@ -8,6 +8,7 @@ let
   themes = import ../../../lib/theme { inherit lib; };
 
   zellijThemeName = themes.getAppTheme "zellij" values.theme.colorscheme values.theme.variant;
+  semanticColors = themes.getSemanticColors values.theme.colorscheme values.theme.variant;
 
   zjstatusUrl = "https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm";
   zjstatusHintsUrl = "https://github.com/b0o/zjstatus-hints/releases/latest/download/zjstatus-hints.wasm";
@@ -17,96 +18,50 @@ let
   defaultLayoutContent = ''
     layout {
         pane split_direction="vertical" {
-            pane borderless=true
+            pane
         }
         pane size=1 borderless=true {
             plugin location="${zjstatusUrl}" {
-                format_left   "#[fg=cyan,bg=black,bold][{mode}] #[fg=green,bg=black]{session} #[fg=yellow,bg=black]{command_pwd}"
-                format_center "#[fg=blue,bg=black]{tabs}"
-                format_right  "#[fg=magenta,bg=black]{pipe_zjstatus_hints}"
-                format_space  "#[bg=black]"
-
                 hide_frame_for_single_pane "true"
 
-                // Mode styling
-                mode_normal       "#[fg=green,bg=black,bold] NORM "
-                mode_locked       "#[fg=red,bg=black,bold] LOCK "
-                mode_resize       "#[fg=yellow,bg=black,bold] SIZE "
-                mode_pane         "#[fg=blue,bg=black,bold] PANE "
-                mode_tab          "#[fg=magenta,bg=black,bold] TAB  "
-                mode_scroll       "#[fg=cyan,bg=black,bold] SCRL "
-                mode_enter_search "#[fg=white,bg=black,bold] SRCH "
-                mode_search       "#[fg=white,bg=black,bold] SRCH "
-                mode_rename_tab   "#[fg=magenta,bg=black,bold] REN  "
-                mode_rename_pane  "#[fg=blue,bg=black,bold] REN  "
-                mode_session      "#[fg=green,bg=black,bold] SESS "
-                mode_move         "#[fg=yellow,bg=black,bold] MOVE "
-                mode_prompt       "#[fg=white,bg=black,bold] PRMT "
-                mode_tmux         "#[fg=orange,bg=black,bold] TMUX "
+                format_left  "{mode}#[fg=${semanticColors.accent.primary},bg=${semanticColors.background.primary},bold] {session}#[fg=${semanticColors.semantic.warning},bg=${semanticColors.background.primary}]  {command_pwd}#[bg=${semanticColors.background.primary}] "
+                format_center "#[fg=${semanticColors.accent.primary},bg=${semanticColors.background.primary}]{tabs}"
+                format_right "#[fg=${semanticColors.foreground.muted},bg=${semanticColors.background.primary}]{pipe_zjstatus_hints}"
+                format_space "#[bg=${semanticColors.background.primary}]"
 
-                // Tab styling
-                tab_normal   " #[fg=white,bg=black]{index}:{name} "
-                tab_active   " #[fg=black,bg=blue,bold]{index}:{name} "
-                tab_separator "#[fg=brightblack,bg=black]│"
+                mode_normal          "#[fg=${semanticColors.background.primary},bg=${semanticColors.semantic.success},bold] NORM "
+                mode_locked          "#[fg=${semanticColors.background.primary},bg=${semanticColors.semantic.error},bold] LOCK "
+                mode_resize          "#[fg=${semanticColors.background.primary},bg=${semanticColors.semantic.warning},bold] SIZE "
+                mode_pane            "#[fg=${semanticColors.background.primary},bg=${semanticColors.accent.primary},bold] PANE "
+                mode_tab             "#[fg=${semanticColors.background.primary},bg=${semanticColors.accent.tertiary},bold] TAB  "
+                mode_scroll          "#[fg=${semanticColors.background.primary},bg=${semanticColors.accent.secondary},bold] SCRL "
+                mode_enter_search    "#[fg=${semanticColors.background.primary},bg=${semanticColors.syntax.keyword},bold] SRCH "
+                mode_search          "#[fg=${semanticColors.background.primary},bg=${semanticColors.syntax.keyword},bold] SRCH "
+                mode_rename_tab      "#[fg=${semanticColors.background.primary},bg=${semanticColors.accent.tertiary},bold] REN  "
+                mode_rename_pane     "#[fg=${semanticColors.background.primary},bg=${semanticColors.accent.primary},bold] REN  "
+                mode_session         "#[fg=${semanticColors.background.primary},bg=${semanticColors.semantic.success},bold] SESS "
+                mode_move            "#[fg=${semanticColors.background.primary},bg=${semanticColors.semantic.warning},bold] MOVE "
+                mode_prompt          "#[fg=${semanticColors.background.primary},bg=${semanticColors.syntax.keyword},bold] PRMT "
+                mode_tmux            "#[fg=${semanticColors.background.primary},bg=${semanticColors.syntax.number},bold] TMUX "
+                mode_default_to_mode "normal"
 
-                // Commands
+                tab_normal               "#[fg=${semanticColors.foreground.muted},bg=${semanticColors.background.primary}] {index}:{name} {fullscreen_indicator}{sync_indicator}{floating_indicator}"
+                tab_active               "#[fg=${semanticColors.background.primary},bg=${semanticColors.accent.primary},bold] {index}:{name} {fullscreen_indicator}{sync_indicator}{floating_indicator}"
+                tab_fullscreen_indicator "□ "
+                tab_sync_indicator       "  "
+                tab_floating_indicator   "󰉈 "
+
                 command_pwd_command    "basename $(pwd)"
-                command_pwd_format     "{stdout}"
+                command_pwd_format     " {stdout}"
                 command_pwd_interval   "1"
                 command_pwd_rendermode "static"
 
-                // Pipe configuration
-                pipe_zjstatus_hints_format "#[fg=brightblack,bg=black] {output}"
+                pipe_zjstatus_hints_format "#[fg=${semanticColors.foreground.muted},bg=${semanticColors.background.primary}] {output}"
             }
         }
     }
   '';
 
-  compactLayoutContent = ''
-    layout {
-        pane size=1 borderless=true {
-            plugin location="${zjstatusUrl}" {
-                format_left   "#[fg=cyan,bg=black,bold][{mode}] #[fg=green,bg=black]{session} #[fg=yellow,bg=black]{command_pwd}"
-                format_center "#[fg=blue,bg=black]{tabs}"
-                format_right  "#[fg=magenta,bg=black]{pipe_zjstatus_hints}"
-                format_space  "#[bg=black]"
-
-                hide_frame_for_single_pane "true"
-
-                // Mode styling
-                mode_normal       "#[fg=green,bg=black,bold] NORM "
-                mode_locked       "#[fg=red,bg=black,bold] LOCK "
-                mode_resize       "#[fg=yellow,bg=black,bold] SIZE "
-                mode_pane         "#[fg=blue,bg=black,bold] PANE "
-                mode_tab          "#[fg=magenta,bg=black,bold] TAB  "
-                mode_scroll       "#[fg=cyan,bg=black,bold] SCRL "
-                mode_enter_search "#[fg=white,bg=black,bold] SRCH "
-                mode_search       "#[fg=white,bg=black,bold] SRCH "
-                mode_rename_tab   "#[fg=magenta,bg=black,bold] REN  "
-                mode_rename_pane  "#[fg=blue,bg=black,bold] REN  "
-                mode_session      "#[fg=green,bg=black,bold] SESS "
-                mode_move         "#[fg=yellow,bg=black,bold] MOVE "
-                mode_prompt       "#[fg=white,bg=black,bold] PRMT "
-                mode_tmux         "#[fg=orange,bg=black,bold] TMUX "
-
-                // Tab styling
-                tab_normal   " #[fg=white,bg=black]{index}:{name} "
-                tab_active   " #[fg=black,bg=blue,bold]{index}:{name} "
-                tab_separator "#[fg=brightblack,bg=black]│"
-
-                // Commands
-                command_pwd_command    "basename $(pwd)"
-                command_pwd_format     "{stdout}"
-                command_pwd_interval   "1"
-                command_pwd_rendermode "static"
-
-                // Pipe configuration
-                pipe_zjstatus_hints_format "#[fg=brightblack,bg=black] {output}"
-            }
-        }
-        pane borderless=true
-    }
-  '';
 
   configContent = ''
     // General Settings
@@ -334,10 +289,6 @@ in
 
   xdg.configFile."zellij/layouts/default.kdl" = {
     text = defaultLayoutContent;
-  };
-
-  xdg.configFile."zellij/layouts/compact.kdl" = {
-    text = compactLayoutContent;
   };
 
   xdg.configFile."zsh/extras/zellij.sh" = {
