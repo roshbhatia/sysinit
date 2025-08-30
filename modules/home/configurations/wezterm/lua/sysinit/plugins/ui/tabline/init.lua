@@ -1,7 +1,6 @@
 local wezterm = require("wezterm")
 local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
-local json_loader = require("sysinit.pkg.utils.json_loader")
-local theme_config = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"))
+
 local M = {}
 
 function M.setup(config)
