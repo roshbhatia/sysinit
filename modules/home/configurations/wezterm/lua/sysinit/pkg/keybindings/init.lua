@@ -74,7 +74,7 @@ local function get_pane_keys()
             },
           }, pane)
         else
-          act.CloseCurrentPane({ confirm = true })
+          win:perform_action(act.CloseCurrentPane({ confirm = true }), pane)
         end
       end),
     },
@@ -90,7 +90,7 @@ local function get_pane_keys()
             },
           }, pane)
         else
-          act.CloseCurrentPane({ confirm = true })
+          win:perform_action(act.CloseCurrentPane({ confirm = true }), pane)
         end
       end),
     },
@@ -245,6 +245,29 @@ local function get_tab_keys()
       mods = "CTRL",
       action = act.SpawnTab("CurrentPaneDomain"),
     },
+    -- Tab cycling
+    {
+      key = "Tab",
+      mods = "CTRL",
+      action = act.ActivateTabRelative(1),
+    },
+    {
+      key = "Tab",
+      mods = "CTRL|SHIFT",
+      action = act.ActivateTabRelative(-1),
+    },
+    -- Quick bracket navigation
+    {
+      key = "]",
+      mods = "CTRL|SHIFT",
+      action = act.ActivateTabRelative(1),
+    },
+    {
+      key = "[",
+      mods = "CTRL|SHIFT",
+      action = act.ActivateTabRelative(-1),
+    },
+    -- Direct tab access
     {
       key = "1",
       mods = "CTRL",
