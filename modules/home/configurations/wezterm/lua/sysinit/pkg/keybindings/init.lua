@@ -54,12 +54,12 @@ local function get_pane_keys()
   return {
     {
       key = "v",
-      mods = "CTRL",
+      mods = "CTRL|ALT",
       action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }),
     },
     {
       key = "s",
-      mods = "CTRL",
+      mods = "CTRL|ALT",
       action = act.SplitVertical({ domain = "CurrentPaneDomain" }),
     },
     {
