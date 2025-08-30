@@ -1,12 +1,9 @@
 { lib, ... }:
 
-with lib;
-
 let
   utils = import ../core/utils.nix { inherit lib; };
 in
-
-rec {
+{
   meta = {
     name = "Kanagawa";
     id = "kanagawa";
@@ -149,10 +146,6 @@ rec {
       colorscheme = variant: "kanagawa-${variant}";
     };
 
-    ghostty = {
-      wave = "Kanagawa Wave";
-      dragon = "Kanagawa Dragon";
-    };
     bat = variant: "kanagawa-${variant}";
     delta = variant: "kanagawa-${variant}";
     atuin = variant: "kanagawa-${variant}";
@@ -160,20 +153,5 @@ rec {
     helix = _variant: "kanagawa";
     nushell = variant: "kanagawa-${variant}.nu";
     k9s = variant: "kanagawa-${variant}";
-
-    sketchybar = {
-      background = palettes.wave.sumiInk0;
-      foreground = palettes.wave.fujiWhite;
-      accent = palettes.wave.crystalBlue;
-      warning = palettes.wave.surimiOrange;
-      success = palettes.wave.springGreen;
-      error = palettes.wave.peachRed;
-      info = palettes.wave.waveAqua1;
-      muted = palettes.wave.fujiGray;
-      highlight = palettes.wave.sakuraPink;
-    };
-
-    zellij = "kanagawa";
   };
-
 }

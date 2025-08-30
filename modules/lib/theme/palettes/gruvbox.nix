@@ -1,22 +1,17 @@
 { lib, ... }:
 
-with lib;
-
 let
   utils = import ../core/utils.nix { inherit lib; };
 in
-
-rec {
+{
   meta = {
     name = "Gruvbox";
     id = "gruvbox";
     variants = [
       "dark"
-      "light"
     ];
     supports = [
       "dark"
-      "light"
     ];
     author = "morhetz";
     homepage = "https://github.com/morhetz/gruvbox";
@@ -133,7 +128,6 @@ rec {
   appAdapters = {
     wezterm = {
       dark = "Gruvbox dark, hard (base16)";
-      light = "Gruvbox light, hard (base16)";
     };
 
     neovim = {
@@ -143,10 +137,6 @@ rec {
       colorscheme = _variant: "gruvbox";
     };
 
-    ghostty = {
-      dark = "GruvboxDark";
-      light = "GruvboxLight";
-    };
     bat = variant: "gruvbox-${variant}";
     delta = variant: "gruvbox-${variant}";
     atuin = variant: "gruvbox-${variant}";
@@ -154,23 +144,5 @@ rec {
     helix = _variant: "gruvbox";
     nushell = variant: "gruvbox-${variant}.nu";
     k9s = variant: "gruvbox-${variant}";
-
-    sketchybar = {
-      background = palettes.dark.bg;
-      foreground = palettes.dark.fg;
-      accent = palettes.dark.blue;
-      warning = palettes.dark.yellow;
-      success = palettes.dark.green;
-      error = palettes.dark.red;
-      info = palettes.dark.aqua;
-      muted = palettes.dark.gray;
-      highlight = palettes.dark.orange;
-    };
-
-    zellij = {
-      dark = "gruvbox-dark";
-      light = "gruvbox-light";
-    };
   };
-
 }
