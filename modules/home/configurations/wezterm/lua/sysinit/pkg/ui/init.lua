@@ -59,24 +59,6 @@ local function get_font_config()
   }
 end
 
-local function setup_nvim_ui_overrides()
-  wezterm.on("update-status", function(window, pane)
-    local should_switch = is_vim(pane)
-    local overrides = window:get_config_overrides() or {}
-    if should_switch then
-      overrides.window_padding = {
-        left = 4,
-        right = 4,
-        top = 4,
-        bottom = 0,
-      }
-    else
-      overrides.window_padding = nil
-    end
-    window:set_config_overrides(overrides)
-  end)
-end
-
 function M.setup(config)
   local configs = {
     get_window_appearance_config(),
@@ -91,8 +73,6 @@ function M.setup(config)
   end
 
   config.visual_bell = get_visual_bell_config()
-
-  setup_nvim_ui_overrides()
 end
 
 return M
