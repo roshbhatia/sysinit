@@ -23,7 +23,6 @@ in
   # Deploy custom bat theme and rebuild cache
   xdg.configFile =
     (utils.themeHelper.deployThemeFiles values {
-      app = "bat";
       themeDir = ./themes;
       targetPath = "bat/themes";
       fileExtension = "tmTheme";

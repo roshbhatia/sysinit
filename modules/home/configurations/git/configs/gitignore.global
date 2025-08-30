@@ -41,18 +41,17 @@ shell.nix
 !.aider.conf.yml
 !.aiderignore
 
-# goose
+# Agents
 .goose/
 **/.goose/
 .goosehints
 
-# Agents
 AGENTS.md
 CRUSH.md
 .crush/
 CLAUDE.md
 .claude/
+.serena/
 
 # Random stuff
 .sysinit/
-

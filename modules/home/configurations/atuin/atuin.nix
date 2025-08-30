@@ -39,7 +39,6 @@ in
   };
 
   xdg.configFile = utils.themeHelper.deployThemeFiles values {
-    app = "atuin";
     themeDir = ./themes;
     targetPath = "atuin/themes";
     fileExtension = "toml";

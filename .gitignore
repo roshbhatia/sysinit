@@ -1,9 +1,3 @@
-# Mac
-.DS_Store
-
-# Atuin
-atuin/atuin-receipt.json
-
 # Nix build outputs
 result
 result-*
@@ -14,27 +8,7 @@ result-*
 # Ignore all dist folders
 **/dist/
 
-# Aider
-.aider.chat.history.md
-.aider.input.history
-.aider.tags.cache.v4/cache.db
-.aider.tags.cache.v4/cache.db-shm
-.aider.tags.cache.v4/cache.db-wal
-.aider.chat.history.md
-.aider.input.history
-.aider.tags.cache.v4/cache.db
-.aider.tags.cache.v4/cache.db-shm
-.aider.tags.cache.v4/cache.db-wal
-
 # Nix
 **/nix-darwin-master/
 **/*.old
-
-# Claude AI
-.claude/
-
-# Crush AI
-.crush/
-CRUSH.md
-docs/
 

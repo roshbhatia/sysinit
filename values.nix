@@ -16,6 +16,10 @@
       enable = false;
     };
 
+    tailscale = {
+      enable = true;
+    };
+
     homebrew = {
       additionalPackages = {
         taps = [ ];
