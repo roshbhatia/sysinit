@@ -16,7 +16,7 @@ let
 
   defaultLayoutContent = ''
     layout {
-        pane split_direction="vertical" borderless=true {
+        pane split_direction="vertical" {
             pane borderless=true
         }
         pane size=1 borderless=true {
