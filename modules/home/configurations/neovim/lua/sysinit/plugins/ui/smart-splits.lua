@@ -158,6 +158,15 @@ M.plugins = {
           mode = { "n" },
           desc = "Close current window",
         },
+
+        {
+          "<M-w>",
+          function()
+            vim.cmd("xit")
+          end,
+          mode = { "n" },
+          desc = "Close current window",
+        },
         {
           "<C-a><C-a>",
           function()

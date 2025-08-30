@@ -79,6 +79,22 @@ local function get_pane_keys()
       end),
     },
     {
+      key = "w",
+      mods = "CMD",
+      action = wezterm.action_callback(function(win, pane)
+        if is_vim(pane) then
+          win:perform_action({
+            SendKey = {
+              key = "w",
+              mods = "CMD",
+            },
+          }, pane)
+        else
+          act.CloseCurrentPane({ confirm = true })
+        end
+      end),
+    },
+    {
       key = "\\",
       mods = "CTRL",
       action = act.RotatePanes("Clockwise"),
@@ -216,8 +232,8 @@ local function get_window_keys()
     },
     {
       key = "w",
-      mods = "CMD",
-      action = act.CloseCurrentPane({ confirm = true }),
+      mods = "CTRL|SHIFT",
+      action = act.CloseCurrentTab({ confirm = true }),
     },
   }
 end
