@@ -12,10 +12,6 @@ local terminal_font = wezterm.font_with_fallback({
   "Symbols Nerd Font",
 })
 
-local function is_vim(pane)
-  return pane:get_user_vars().IS_NVIM == "true"
-end
-
 local function get_window_appearance_config()
   return {
     window_padding = {
