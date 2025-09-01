@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
   {
     "oribarilan/lensline.nvim",
-    branch = "release/1.x",
+    branch = "main",
     event = "LspAttach",
     config = function()
       require("lensline").setup({
