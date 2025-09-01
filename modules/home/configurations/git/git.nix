@@ -73,13 +73,20 @@ in
 
       [merge]
           conflictstyle = zdiff3
+          tool = diffview
+
+      [mergetool]
+          prompt = false
+          keepBackup = false
+
+      [mergetool "diffview"]
+          cmd = nvim -n -c "DiffviewOpen" "$MERGE"
 
       [includeIf "gitdir:~/github/work/"]
           path = ~/.gitconfig.work
 
       [includeIf "gitdir:~/github/personal/"]
           path = ~/.gitconfig.personal
-
 
       [alias]
           p = pull
@@ -103,7 +110,6 @@ in
 
       [http "https://git.sr.ht"]
           sslVerify = false
-
 
       [include]
           path = ~/.config/delta/themes/${values.theme.colorscheme}-${values.theme.variant}.gitconfig
