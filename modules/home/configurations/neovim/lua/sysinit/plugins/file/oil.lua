@@ -47,14 +47,14 @@ M.plugins = {
           function()
             vim.cmd("Oil")
           end,
-          desc = "Open filesystem buffer",
+          desc = "Oil filesystem buffer",
         },
         {
           "<leader>ee",
           function()
             vim.cmd("Oil --float --preview")
           end,
-          desc = "Open filesystem buffer (float and preview)",
+          desc = "Oil float filesystem",
         },
 
         {
@@ -62,7 +62,7 @@ M.plugins = {
           function()
             vim.cmd("Oil --float --preview .")
           end,
-          desc = "Open filesystem buffer (float and preview, root)",
+          desc = "Oil float root filesystem",
         },
       }
     end,

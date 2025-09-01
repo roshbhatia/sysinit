@@ -133,7 +133,7 @@ M.plugins = {
               end,
               mode = "t",
               expr = true,
-              desc = "Double escape to normal mode",
+              desc = "Escape escape normal mode",
             },
           },
         },
@@ -178,27 +178,27 @@ M.plugins = {
           function()
             Snacks.lazygit()
           end,
-          desc = "Toggle UI",
+          desc = "Lazygit toggle UI",
         },
         {
           "<localleader>ns",
           function()
             Snacks.notifier.show_history()
           end,
-          desc = "Show",
+          desc = "Notifications show",
         },
         {
           "<localleader>nc",
           function()
             Snacks.notifier.hide()
           end,
-          desc = "Dismiss",
+          desc = "Notifications dismiss",
         },
         {
           "<Esc><Esc>",
           "<C-\\><C-n>",
           mode = "t",
-          desc = "Enter normal mode in terminal",
+          desc = "Terminal normal mode",
         },
       }
 
@@ -212,35 +212,35 @@ M.plugins = {
           function()
             Snacks.profiler.stop()
           end,
-          desc = "Stop Profiler",
+          desc = "Profiler stop",
         },
         {
           "<localleader>pf",
           function()
             Snacks.profiler.pick()
           end,
-          desc = "Profiler Picker",
+          desc = "Profiler picker",
         },
         {
           "<localleader>pp",
           function()
             Snacks.toggle.profiler()
           end,
-          desc = "Toggle Profiler",
+          desc = "Profiler toggle",
         },
         {
           "<localleader>ph",
           function()
             Snacks.toggle.profiler_highlights()
           end,
-          desc = "Toggle Profiler Highlights",
+          desc = "Profiler highlights toggle",
         },
         {
           "<localleader>ps",
           function()
             Snacks.profiler.scratch()
           end,
-          desc = "Profiler Scratch Buffer",
+          desc = "Profiler scratch buffer",
         },
       }
 

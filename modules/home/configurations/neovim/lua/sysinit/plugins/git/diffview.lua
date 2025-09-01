@@ -122,7 +122,7 @@ M.plugins = {
               vim.cmd("DiffviewOpen")
             end
           end,
-          desc = "Toggle diff view",
+          desc = "Git diff toggle view",
           mode = "n",
         },
         {
@@ -130,7 +130,7 @@ M.plugins = {
           function()
             vim.cmd("DiffviewFileHistory %")
           end,
-          desc = "File history (current)",
+          desc = "Git history current file",
           mode = "n",
         },
         {
@@ -138,7 +138,7 @@ M.plugins = {
           function()
             vim.cmd("DiffviewFileHistory")
           end,
-          desc = "File history (all)",
+          desc = "Git history all files",
           mode = "n",
         },
       }

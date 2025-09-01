@@ -68,6 +68,18 @@ M.plugins = {
           group = "Hunk",
         },
         {
+          "<leader>gd",
+          group = "Diff",
+        },
+        {
+          "<leader>gt",
+          group = "Toggle",
+        },
+        {
+          "<leader>gq",
+          group = "Quickfix",
+        },
+        {
           "<leader>m",
           group = "Marks",
         },

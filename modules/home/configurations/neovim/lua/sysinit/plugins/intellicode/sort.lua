@@ -25,7 +25,7 @@ M.plugins = {
             vim.cmd("'<,'>Sort i")
           end,
           mode = "v",
-          desc = "Sort alphabetically (case insensitive)",
+          desc = "Sort alpha case insensitive",
         },
         {
           "<leader>sS",
@@ -33,7 +33,7 @@ M.plugins = {
             vim.cmd("'<,'>Sort")
           end,
           mode = "v",
-          desc = "Sort alphabetically (case sensitive)",
+          desc = "Sort alpha case sensitive",
         },
         {
           "<leader>sr",
@@ -41,7 +41,7 @@ M.plugins = {
             vim.cmd("'<,'>Sort! i")
           end,
           mode = "v",
-          desc = "Sort reverse order (case insensitive)",
+          desc = "Sort reverse case insensitive",
         },
         {
           "<leader>sR",
@@ -49,7 +49,7 @@ M.plugins = {
             vim.cmd("'<,'>Sort!")
           end,
           mode = "v",
-          desc = "Sort reverse order (case sensitive)",
+          desc = "Sort reverse case sensitive",
         },
       }
     end,

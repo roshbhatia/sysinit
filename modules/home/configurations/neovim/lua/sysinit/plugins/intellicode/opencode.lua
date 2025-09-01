@@ -39,7 +39,7 @@ M.plugins = {
         function()
           require("opencode").ask("@cursor: ")
         end,
-        desc = "Ask about cursor location",
+        desc = "Opencode ask cursor",
         mode = "n",
       },
       {
@@ -47,7 +47,7 @@ M.plugins = {
         function()
           require("opencode").ask("@selection: ")
         end,
-        desc = "Ask about selection",
+        desc = "Opencode ask selection",
         mode = "v",
       },
       {
@@ -55,7 +55,7 @@ M.plugins = {
         function()
           require("opencode").toggle()
         end,
-        desc = "Toggle",
+        desc = "Opencode toggle",
         mode = "n",
       },
       {
@@ -63,7 +63,7 @@ M.plugins = {
         function()
           require("opencode").command("session_new")
         end,
-        desc = "New session",
+        desc = "Opencode new session",
         mode = "n",
       },
       {
@@ -71,7 +71,7 @@ M.plugins = {
         function()
           require("opencode").command("messages_copy")
         end,
-        desc = "Copy last message",
+        desc = "Opencode copy message",
         mode = "n",
       },
       {
@@ -79,7 +79,7 @@ M.plugins = {
         function()
           require("opencode").command("messages_half_page_up")
         end,
-        desc = "Scroll messages up",
+        desc = "Opencode scroll up",
         mode = "n",
       },
       {
@@ -87,7 +87,7 @@ M.plugins = {
         function()
           require("opencode").command("messages_half_page_down")
         end,
-        desc = "Scroll messages down",
+        desc = "Opencode scroll down",
         mode = "n",
       },
       {
@@ -95,7 +95,7 @@ M.plugins = {
         function()
           require("opencode").ask("Fix @diagnostics in this file: ")
         end,
-        desc = "Fix all diagnostics in file",
+        desc = "Opencode fix diagnostics",
         mode = "n",
       },
       {
@@ -103,7 +103,7 @@ M.plugins = {
         function()
           require("opencode").ask("@quickfix: ")
         end,
-        desc = "Send quickfix list to opencode",
+        desc = "Opencode quickfix send",
         mode = "n",
       },
       {
@@ -111,7 +111,7 @@ M.plugins = {
         function()
           require("opencode").select_prompt()
         end,
-        desc = "Select prompt",
+        desc = "Opencode prompt select",
         mode = { "n", "v" },
       },
       {
@@ -119,7 +119,7 @@ M.plugins = {
         function()
           require("opencode").prompt("Explain @cursor and its context")
         end,
-        desc = "Explain code near cursor",
+        desc = "Opencode explain cursor",
         mode = "n",
       },
     },

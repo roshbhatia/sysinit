@@ -191,21 +191,21 @@ M.plugins = {
           function()
             tbuiltin.find_files({ hidden = true })
           end,
-          desc = "Files",
+          desc = "Find files",
         },
         {
           "<leader>fd",
           function()
             tbuiltin.diagnostics(require("telescope.themes").get_ivy())
           end,
-          desc = "LSP Diagnostics",
+          desc = "Find diagnostics",
         },
         {
           "<leader>fg",
           function()
             textensions.live_grep_args.live_grep_args()
           end,
-          desc = "Live grep",
+          desc = "Find grep live",
         },
         {
           "<leader>fb",
@@ -218,56 +218,56 @@ M.plugins = {
               only_cwd = false,
             }))
           end,
-          desc = "Buffers",
+          desc = "Find buffers",
         },
         {
           "<leader>?",
           function()
             tbuiltin.commands(require("telescope.themes").get_ivy({ previewer = false }))
           end,
-          desc = "Commands",
+          desc = "Find commands",
         },
         {
           "<leader>fh",
           function()
             tbuiltin.help_tags(require("telescope.themes").get_ivy())
           end,
-          desc = "Help tags",
+          desc = "Find help tags",
         },
         {
           "<leader>fo",
           function()
             tbuiltin.oldfiles(require("telescope.themes").get_ivy())
           end,
-          desc = "Recent files",
+          desc = "Find recent files",
         },
         {
           "<leader>ft",
           function()
             tbuiltin.filetypes()
           end,
-          desc = "Filetypes",
+          desc = "Find filetypes",
         },
         {
           "<leader>fF",
           function()
             tbuiltin.builtin()
           end,
-          desc = "Telescope",
+          desc = "Find pickers",
         },
         {
           "<leader>fu",
           function()
             textensions.undo.undo(require("telescope.themes").get_ivy())
           end,
-          desc = "Undo history",
+          desc = "Find undo history",
         },
         {
           "<leader>fr",
           function()
             tbuiltin.resume()
           end,
-          desc = "Resume Prior Search",
+          desc = "Resume telescope search",
         },
       }
     end,

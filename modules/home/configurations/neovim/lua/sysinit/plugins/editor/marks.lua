@@ -18,7 +18,7 @@ M.plugins = {
           mode = "n",
           noremap = true,
           silent = true,
-          desc = "Add/Remove",
+          desc = "Mark add/remove",
         },
         {
           "<leader>mn",
@@ -28,7 +28,7 @@ M.plugins = {
           mode = "n",
           noremap = true,
           silent = true,
-          desc = "Next",
+          desc = "Mark next",
         },
         {
           "<leader>mN",
@@ -38,7 +38,7 @@ M.plugins = {
           mode = "n",
           noremap = true,
           silent = true,
-          desc = "Previous",
+          desc = "Mark previous",
         },
         {
           "<leader>mc",
@@ -48,7 +48,7 @@ M.plugins = {
           mode = "n",
           noremap = true,
           silent = true,
-          desc = "Clear",
+          desc = "Mark clear",
         },
         {
           "<leader>fm",
@@ -58,7 +58,7 @@ M.plugins = {
           mode = "n",
           noremap = true,
           silent = true,
-          desc = "Marks",
+          desc = "Mark list",
         },
       }
     end,

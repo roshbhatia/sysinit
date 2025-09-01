@@ -153,7 +153,7 @@ M.plugins = {
             vim.cmd("xit")
           end,
           mode = { "n" },
-          desc = "Close current window",
+          desc = "Quit window",
         },
 
         {
@@ -162,7 +162,7 @@ M.plugins = {
             vim.cmd("xit")
           end,
           mode = { "n" },
-          desc = "Close current window",
+          desc = "Quit window",
         },
         {
           "<C-a><C-a>",
@@ -174,7 +174,7 @@ M.plugins = {
             )
           end,
           mode = { "n", "i", "v", "t" },
-          desc = "Send Ctrl-a to Neovim",
+          desc = "Send Ctrl-A to Neovim",
         },
       }
     end,

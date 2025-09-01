@@ -84,7 +84,7 @@ M.plugins = {
           function()
             require("gitsigns").stage_hunk()
           end,
-          desc = "Stage hunk",
+          desc = "Git hunk stage",
           mode = "n",
         },
         {
@@ -92,7 +92,7 @@ M.plugins = {
           function()
             require("gitsigns").stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
           end,
-          desc = "Stage hunk (visual)",
+          desc = "Git hunk stage (visual)",
           mode = "v",
         },
         {
@@ -100,7 +100,7 @@ M.plugins = {
           function()
             require("gitsigns").reset_hunk()
           end,
-          desc = "Reset hunk",
+          desc = "Git hunk reset",
           mode = "n",
         },
         {
@@ -108,7 +108,7 @@ M.plugins = {
           function()
             require("gitsigns").reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
           end,
-          desc = "Reset hunk (visual)",
+          desc = "Git hunk reset (visual)",
           mode = "v",
         },
         {
@@ -116,7 +116,7 @@ M.plugins = {
           function()
             require("gitsigns").stage_buffer()
           end,
-          desc = "Stage buffer",
+          desc = "Git hunk stage buffer",
           mode = "n",
         },
         {
@@ -124,7 +124,7 @@ M.plugins = {
           function()
             require("gitsigns").reset_buffer()
           end,
-          desc = "Reset buffer",
+          desc = "Git hunk reset buffer",
           mode = "n",
         },
         {
@@ -132,7 +132,7 @@ M.plugins = {
           function()
             require("gitsigns").undo_stage_hunk()
           end,
-          desc = "Undo stage hunk",
+          desc = "Git hunk undo stage",
           mode = "n",
         },
         {
@@ -140,7 +140,7 @@ M.plugins = {
           function()
             require("gitsigns").preview_hunk()
           end,
-          desc = "Preview hunk (popup)",
+          desc = "Git hunk preview popup",
           mode = "n",
         },
         {
@@ -148,7 +148,7 @@ M.plugins = {
           function()
             require("gitsigns").preview_hunk_inline()
           end,
-          desc = "Preview hunk (inline)",
+          desc = "Git hunk inline preview",
           mode = "n",
         },
         {
@@ -156,7 +156,7 @@ M.plugins = {
           function()
             require("gitsigns").blame_line({ full = true })
           end,
-          desc = "Blame line (popup)",
+          desc = "Git blame line popup",
           mode = "n",
         },
         {
@@ -164,7 +164,7 @@ M.plugins = {
           function()
             require("gitsigns").toggle_current_line_blame()
           end,
-          desc = "Toggle line blame",
+          desc = "Git blame toggle",
           mode = "n",
         },
         {
@@ -172,7 +172,7 @@ M.plugins = {
           function()
             require("gitsigns").diffthis()
           end,
-          desc = "Diff this (index)",
+          desc = "Git diff vs index",
           mode = "n",
         },
         {
@@ -180,7 +180,7 @@ M.plugins = {
           function()
             require("gitsigns").diffthis("~")
           end,
-          desc = "Diff this (HEAD)",
+          desc = "Git diff vs HEAD",
           mode = "n",
         },
 
@@ -190,7 +190,7 @@ M.plugins = {
           function()
             require("gitsigns").setqflist()
           end,
-          desc = "Quickfix list (hunks)",
+          desc = "Git quickfix list hunks",
           mode = "n",
         },
         {
@@ -198,15 +198,17 @@ M.plugins = {
           function()
             require("gitsigns").setqflist("all")
           end,
-          desc = "Quickfix list (all hunks)",
+          desc = "Git quickfix all hunks",
           mode = "n",
         },
+
+        -- Toggles
         {
           "<leader>gts",
           function()
             require("gitsigns").toggle_signs()
           end,
-          desc = "Toggle signs",
+          desc = "Git toggle signs",
           mode = "n",
         },
         {
@@ -214,7 +216,7 @@ M.plugins = {
           function()
             require("gitsigns").toggle_word_diff()
           end,
-          desc = "Toggle word diff",
+          desc = "Git toggle word diff",
           mode = "n",
         },
         {
@@ -222,7 +224,7 @@ M.plugins = {
           function()
             require("gitsigns").toggle_numhl()
           end,
-          desc = "Toggle number highlight",
+          desc = "Git toggle number highlight",
           mode = "n",
         },
         {
@@ -230,15 +232,17 @@ M.plugins = {
           function()
             require("gitsigns").toggle_linehl()
           end,
-          desc = "Toggle line highlight",
+          desc = "Git toggle line highlight",
           mode = "n",
         },
+
+        -- Text object
         {
           "ih",
           function()
             require("gitsigns").select_hunk()
           end,
-          desc = "Select hunk",
+          desc = "Select hunk (text object)",
           mode = { "o", "x" },
         },
       }

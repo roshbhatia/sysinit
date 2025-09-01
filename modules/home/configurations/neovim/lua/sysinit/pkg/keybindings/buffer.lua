@@ -34,7 +34,7 @@ function M.setup()
   end, {
     noremap = true,
     silent = true,
-    desc = "Next loaded buffer",
+    desc = "Buffer next",
   })
 
   vim.keymap.set("n", "<leader>bp", function()
@@ -42,7 +42,7 @@ function M.setup()
   end, {
     noremap = true,
     silent = true,
-    desc = "Previous loaded buffer",
+    desc = "Buffer previous",
   })
 end
 

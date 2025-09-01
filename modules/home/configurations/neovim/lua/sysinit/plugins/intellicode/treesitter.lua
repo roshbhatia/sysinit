@@ -17,11 +17,11 @@ M.plugins = {
     keys = {
       {
         "<C-space>",
-        desc = "Increment Selection",
+        desc = "Selection increment",
       },
       {
         "<bs>",
-        desc = "Decrement Selection",
+        desc = "Selection decrement",
         mode = "x",
       },
     },

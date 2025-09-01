@@ -172,40 +172,40 @@ M.plugins = {
     end,
     keys = function()
       return {
-        { "<leader>cl", vim.lsp.codelens.run, desc = "Code lens actions" },
-        { "<leader>cL", vim.lsp.codelens.refresh, desc = "Refresh code lenses" },
+        { "<leader>cl", vim.lsp.codelens.run, desc = "Code lens run" },
+        { "<leader>cL", vim.lsp.codelens.refresh, desc = "Code lens refresh" },
         {
           "<leader>cT",
           function()
             vim.lsp.codelens.clear()
             vim.lsp.codelens.refresh()
           end,
-          desc = "Toggle code lenses refresh",
+          desc = "Code lens toggle refresh",
         },
         {
           "<leader>cI",
           function()
             vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
           end,
-          desc = "Toggle inlay hints",
+          desc = "Code inlay toggle hints",
         },
-        { "<leader>cD", vim.lsp.buf.definition, desc = "Go to definition" },
-        { "grr", vim.lsp.buf.references, desc = "View references" },
-        { "<leader>cp", vim.diagnostic.get_prev, desc = "Previous diagnostic" },
-        { "<leader>cn", vim.diagnostic.get_next, desc = "Next diagnostic" },
-        { "<leader>cr", vim.lsp.buf.rename, desc = "Rename" },
-        { "grn", vim.lsp.buf.rename, desc = "Rename" },
-        { "<leader>cs", vim.lsp.buf.document_symbol, desc = "Document symbols" },
+        { "<leader>cD", vim.lsp.buf.definition, desc = "Code definition" },
+        { "grr", vim.lsp.buf.references, desc = "Goto references" },
+        { "<leader>cp", vim.diagnostic.get_prev, desc = "Code previous diagnostic" },
+        { "<leader>cn", vim.diagnostic.get_next, desc = "Code next diagnostic" },
+        { "<leader>cr", vim.lsp.buf.rename, desc = "Code rename" },
+        { "grn", vim.lsp.buf.rename, desc = "Goto rename" },
+        { "<leader>cs", vim.lsp.buf.document_symbol, desc = "Code symbols document" },
         {
           "<leader>cj",
           function()
             vim.lsp.buf.signature_help({ border = "rounded" })
           end,
-          desc = "Signature help",
+          desc = "Code signature help",
         },
-        { "<leader>cS", vim.lsp.buf.workspace_symbol, desc = "Workspace symbols" },
-        { "gri", vim.lsp.buf.implementation, desc = "View implementations" },
-        { "gO", vim.lsp.buf.document_symbol, desc = "View document symbol" },
+        { "<leader>cS", vim.lsp.buf.workspace_symbol, desc = "Code symbols workspace" },
+        { "gri", vim.lsp.buf.implementation, desc = "Goto implementation" },
+        { "gO", vim.lsp.buf.document_symbol, desc = "Goto outline symbols" },
       }
     end,
   },

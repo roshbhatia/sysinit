@@ -24,7 +24,7 @@ M.plugins = {
             vim.cmd("HopWord")
           end,
           mode = "n",
-          desc = "Jump to any word",
+          desc = "Hop word jump",
         },
         {
           "<S-CR>",
@@ -32,7 +32,7 @@ M.plugins = {
             vim.cmd("HopAnywhere")
           end,
           mode = "v",
-          desc = "Jump to anywhere",
+          desc = "Hop anywhere jump",
         },
       }
     end,

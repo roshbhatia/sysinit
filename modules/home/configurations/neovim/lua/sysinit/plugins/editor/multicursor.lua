@@ -25,13 +25,13 @@ M.plugins = {
           "C",
           mc.toggleCursor,
           mode = "n",
-          desc = "Toggle cursor",
+          desc = "Multi cursor toggle",
         },
         {
           "X",
           mc.clearCursors,
           mode = "n",
-          desc = "Delete all cursors",
+          desc = "Multi cursor delete all",
         },
       }
     end,

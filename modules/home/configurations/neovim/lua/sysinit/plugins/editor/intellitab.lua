@@ -14,7 +14,7 @@ M.plugins = {
           mode = "i",
           noremap = true,
           silent = true,
-          desc = "Smart tab",
+          desc = "Intellitab smart",
         },
       }
     end,

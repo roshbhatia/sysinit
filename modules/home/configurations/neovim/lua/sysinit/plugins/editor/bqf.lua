@@ -63,7 +63,7 @@ M.plugins = {
           else
             vim.api.nvim_win_set_cursor(0, { math.min(qf_idx, new_count), 0 })
           end
-        end, { buffer = bufnr, desc = "Remove item from quickfix list" })
+        end, { buffer = bufnr, desc = "Quickfix remove item" })
 
         -- u: undo last qflist change
         vim.keymap.set("n", "u", function()
@@ -73,7 +73,7 @@ M.plugins = {
             local prev = undo_stack[#undo_stack]
             vim.fn.setqflist({}, "r", { items = prev })
           end
-        end, { buffer = bufnr, desc = "Undo last qflist change" })
+        end, { buffer = bufnr, desc = "Quickfix undo change" })
 
         -- U: redo last undone qflist change
         vim.keymap.set("n", "U", function()
@@ -82,7 +82,7 @@ M.plugins = {
             table.insert(undo_stack, state)
             vim.fn.setqflist({}, "r", { items = state })
           end
-        end, { buffer = bufnr, desc = "Redo last undone qflist change" })
+        end, { buffer = bufnr, desc = "Quickfix redo change" })
       end
 
       -- Setup autocmd for qf filetype

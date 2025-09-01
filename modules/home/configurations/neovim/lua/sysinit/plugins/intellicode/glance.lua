@@ -29,19 +29,19 @@ M.plugins = {
           function()
             vim.cmd("Glance definitions")
           end,
-          desc = "Peek at definition",
+          desc = "Peek definition",
         },
         {
           "<leader>ci",
           "<CMD>Glance implementations<CR>",
-          desc = "Peek at implementations",
+          desc = "Peek implementation",
         },
         {
           "<leader>cu",
           function()
             vim.cmd("Glance references")
           end,
-          desc = "Peek at references",
+          desc = "Peek references",
         },
       }
     end,
