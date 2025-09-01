@@ -31,8 +31,6 @@ in
 
   xdg.configFile."nvim/lua/sysinit/plugins/core/".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/plugins/core";
-  xdg.configFile."nvim/lua/sysinit/plugins/debugger/".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/plugins/debugger";
   xdg.configFile."nvim/lua/sysinit/plugins/editor/".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/plugins/editor";
   xdg.configFile."nvim/lua/sysinit/plugins/file/".source =
