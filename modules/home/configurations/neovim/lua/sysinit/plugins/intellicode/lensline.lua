@@ -11,18 +11,6 @@ M.plugins = {
           name = "references",
           enabled = false,
         },
-        {
-          name = "last_author",
-        },
-        {
-          name = "diagnostics",
-          enabled = true,
-          min_level = "INFO",
-        },
-        {
-          name = "complexity",
-          enabled = true,
-        },
       })
     end,
   },
