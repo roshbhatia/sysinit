@@ -52,7 +52,6 @@ let
     go
     go-task
     golangci-lint
-    goose-cli
     gopls
     gum
     helm-ls

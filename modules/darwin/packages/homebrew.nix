@@ -21,6 +21,7 @@ let
 
   baseBrews = [
     "bcrypt"
+    "block-goose-cli"
     "charmbracelet/tap/crush"
     "eza"
     "hashicorp/tap/terraform"
