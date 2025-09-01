@@ -1,11 +1,11 @@
 {
-    "diagnostics.disable": [
-        "unused-local",
-        "missing-fields",
-        "deprecated"
-    ],
-    "diagnostics.globals": [
-        "hs",
-        "Snacks"
-    ]
+  "diagnostics.disable": [
+    "unused-local",
+    "missing-fields",
+    "deprecated"
+  ],
+  "diagnostics.globals": [
+    "hs",
+    "Snacks"
+  ]
 }
