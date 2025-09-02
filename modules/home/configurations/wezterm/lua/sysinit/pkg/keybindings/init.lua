@@ -16,18 +16,60 @@ local function vim_or_wezterm_action(key, mods, wezterm_action)
   end)
 end
 
+local function pane_action_or_send_key(key, mods, wezterm_action)
+  return wezterm.action_callback(function(win, pane)
+    if is_vim(pane) then
+      win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
+    else
+      win:perform_action(wezterm_action, pane)
+    end
+  end)
+end
+
 local function get_pane_keys()
   local keys = {
     -- Navigation: ctrl-h/j/k/l
-    { key = "h", mods = "CTRL", action = act.ActivatePaneDirection("Left") },
-    { key = "j", mods = "CTRL", action = act.ActivatePaneDirection("Down") },
-    { key = "k", mods = "CTRL", action = act.ActivatePaneDirection("Up") },
-    { key = "l", mods = "CTRL", action = act.ActivatePaneDirection("Right") },
+    {
+      key = "h",
+      mods = "CTRL",
+      action = pane_action_or_send_key("h", "CTRL", act.ActivatePaneDirection("Left")),
+    },
+    {
+      key = "j",
+      mods = "CTRL",
+      action = pane_action_or_send_key("j", "CTRL", act.ActivatePaneDirection("Down")),
+    },
+    {
+      key = "k",
+      mods = "CTRL",
+      action = pane_action_or_send_key("k", "CTRL", act.ActivatePaneDirection("Up")),
+    },
+    {
+      key = "l",
+      mods = "CTRL",
+      action = pane_action_or_send_key("l", "CTRL", act.ActivatePaneDirection("Right")),
+    },
     -- Resize: ctrl+shift-h/j/k/l
-    { key = "h", mods = "CTRL|SHIFT", action = act.AdjustPaneSize({ "Left", 3 }) },
-    { key = "j", mods = "CTRL|SHIFT", action = act.AdjustPaneSize({ "Down", 3 }) },
-    { key = "k", mods = "CTRL|SHIFT", action = act.AdjustPaneSize({ "Up", 3 }) },
-    { key = "l", mods = "CTRL|SHIFT", action = act.AdjustPaneSize({ "Right", 3 }) },
+    {
+      key = "h",
+      mods = "CTRL|SHIFT",
+      action = pane_action_or_send_key("h", "CTRL|SHIFT", act.AdjustPaneSize({ "Left", 3 })),
+    },
+    {
+      key = "j",
+      mods = "CTRL|SHIFT",
+      action = pane_action_or_send_key("j", "CTRL|SHIFT", act.AdjustPaneSize({ "Down", 3 })),
+    },
+    {
+      key = "k",
+      mods = "CTRL|SHIFT",
+      action = pane_action_or_send_key("k", "CTRL|SHIFT", act.AdjustPaneSize({ "Up", 3 })),
+    },
+    {
+      key = "l",
+      mods = "CTRL|SHIFT",
+      action = pane_action_or_send_key("l", "CTRL|SHIFT", act.AdjustPaneSize({ "Right", 3 })),
+    },
     -- Splits, close, rotate, etc.
     {
       key = "v",
