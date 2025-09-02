@@ -24,98 +24,98 @@ in
   home.file.".gitconfig" = {
     text = ''
       [user]
-          name = ${cfg.userName}
-          email = ${cfg.userEmail}
+        name = ${cfg.userName}
+        email = ${cfg.userEmail}
 
       [credential]
-          helper = store
-          username = ${cfg.githubUser}
+        helper = store
+        username = ${cfg.githubUser}
 
       [github]
-          user = ${cfg.githubUser}
+        user = ${cfg.githubUser}
 
       [advice]
-        addEmptyPathspec = false
-        pushNonFastForward = false
-        statusHints = false
+      addEmptyPathspec = false
+      pushNonFastForward = false
+      statusHints = false
 
       [diff]
-          ignoreSpaceAtEol = true
+        ignoreSpaceAtEol = true
 
       [pull]
-          rebase = true
+        rebase = true
 
       [init]
-          defaultBranch = main
+        defaultBranch = main
 
       [push]
-          autoSetupRemote = true
+        autoSetupRemote = true
 
       [fetch]
-          prune = true
+        prune = true
 
       [core]
-          editor = nvim
-          excludesFile = ~/.gitignore.global
-          pager = delta
-          compression = 9
-          preloadIndex = true
-          hooksPath = .githooks
+        editor = nvim
+        excludesFile = ~/.gitignore.global
+        pager = delta
+        compression = 9
+        preloadIndex = true
+        hooksPath = .githooks
 
       [interactive]
-          diffFilter = delta --color-only
+        diffFilter = delta --color-only
 
       [delta]
-          dark = true
-          navigate = true
-          side-by-side = true
-          features = ${deltaTheme}
+        dark = true
+        navigate = true
+        side-by-side = true
+        features = ${deltaTheme}
 
       [merge]
-          conflictstyle = zdiff3
-          tool = diffview
+        conflictstyle = zdiff3
+        tool = diffview
 
       [mergetool]
-          prompt = false
-          keepBackup = false
+        prompt = false
+        keepBackup = false
 
       [mergetool "diffview"]
-          cmd = nvim -n -c "DiffviewOpen" "$MERGE"
+        cmd = nvim -n -c "DiffviewOpen" "$MERGE"
 
       [includeIf "gitdir:~/github/work/"]
-          path = ~/.gitconfig.work
+        path = ~/.gitconfig.work
 
       [includeIf "gitdir:~/github/personal/"]
-          path = ~/.gitconfig.personal
+        path = ~/.gitconfig.personal
 
       [alias]
-          p = pull
-          P = push
-          co = checkout
-          cob = checkout -b
-          br = branch
-          st = status
-          c = commit
-          cai = !git-ai-commit
-          ca = commit --amend
-          cane = commit --amend --no-edit
-          unstage = reset HEAD --
-          lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
-          last = log -1 HEAD
-          short-log = log --pretty=format:"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]" --decorate --date=short
-          current-commit-sha = rev-parse --short HEAD
-          current-branch = rev-parse --abbrev-ref HEAD
-          branches = !git --no-pager branch -a
-          root = rev-parse --show-toplevel
+        p = pull
+        P = push
+        co = checkout
+        cob = checkout -b
+        br = branch
+        st = status
+        c = commit
+        cai = !git-ai-commit
+        ca = commit --amend
+        cane = commit --amend --no-edit
+        unstage = reset HEAD --
+        lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+        last = log -1 HEAD
+        short-log = log --pretty=format:"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]" --decorate --date=short
+        current-commit-sha = rev-parse --short HEAD
+        current-branch = rev-parse --abbrev-ref HEAD
+        branches = !git --no-pager branch -a
+        root = rev-parse --show-toplevel
 
       [http "https://git.sr.ht"]
-          sslVerify = false
+        sslVerify = false
 
       [include]
-          path = ~/.config/delta/themes/${values.theme.colorscheme}-${values.theme.variant}.gitconfig
+        path = ~/.config/delta/themes/${values.theme.colorscheme}-${values.theme.variant}.gitconfig
 
       [rebase]
-          updateRefs = true
+        updateRefs = true
     '';
   };
 
@@ -135,31 +135,34 @@ in
   home.file.".gitconfig.personal" = {
     text = ''
       [user]
-          email = ${personalEmail}
+        name = ${cfg.userName}
+        email = ${personalEmail}
 
       [credential]
-          username = ${personalGithubUser}
+        helper = store
+        username = ${personalGithubUser}
 
       [github]
-          user = ${personalGithubUser}
+        user = ${personalGithubUser}
     '';
   };
 
   home.file.".gitconfig.work" = {
     text = ''
       [user]
-          email = ${workEmail}
+        name = ${cfg.userName}
+        email = ${workEmail}
 
       [credential]
-          username = ${workGithubUser}
+        helper = store
+        username = ${workGithubUser}
 
       [github]
-          user = ${workGithubUser}
+        user = ${workGithubUser}
     '';
   };
 
   home.file.".gitignore.global" = {
     source = ./configs/gitignore.global;
   };
-
 }
