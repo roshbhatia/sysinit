@@ -12,70 +12,70 @@ M.plugins = {
     end,
     keys = {
       {
-        "<localleader>db",
+        "<leader>db",
         function()
           require("dap").toggle_breakpoint()
         end,
         desc = "Toggle breakpoint",
       },
       {
-        "<localleader>dc",
+        "<leader>dc",
         function()
           require("dap").continue()
         end,
         desc = "Continue",
       },
       {
-        "<localleader>dt",
+        "<leader>dt",
         function()
           require("dap").run_to_cursor()
         end,
         desc = "Run to cursor",
       },
       {
-        "<localleader>dB",
+        "<leader>dB",
         function()
           require("dap").clear_breakpoints()
         end,
         desc = "Clear breakpoints",
       },
       {
-        "<localleader>dr",
+        "<leader>dr",
         function()
           require("dap").run()
         end,
         desc = "Run",
       },
       {
-        "<localleader>dD",
+        "<leader>dD",
         function()
           require("dap").repl.toggle()
         end,
         desc = "Toggle REPL",
       },
       {
-        "<localleader>dR",
+        "<leader>dR",
         function()
           require("dap").restart()
         end,
         desc = "Restart",
       },
       {
-        "<localleader>dx",
+        "<leader>dx",
         function()
           require("dap").terminate()
         end,
         desc = "Terminate",
       },
       {
-        "<localleader>di",
+        "<leader>di",
         function()
           require("dap").step_into()
         end,
         desc = "Step into",
       },
       {
-        "<localleader>do",
+        "<leader>do",
         function()
           require("dap").step_over()
         end,
