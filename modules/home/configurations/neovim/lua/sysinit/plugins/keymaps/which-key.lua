@@ -28,20 +28,16 @@ M.plugins = {
       })
       wk.add({
         {
-          "<localleader>b",
-          group = "Buffer",
-        },
-        {
-          "<localleader>e",
-          group = "Editor",
-        },
-        {
-          "<localleader>r",
+          "<leader>r",
           group = "Refresh",
         },
         {
           "<leader>b",
           group = "Buffer",
+        },
+        {
+          "<leader>q",
+          group = "Quit",
         },
         {
           "<leader>c",
