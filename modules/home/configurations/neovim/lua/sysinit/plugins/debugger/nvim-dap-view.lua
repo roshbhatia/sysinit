@@ -9,9 +9,9 @@ M.plugins = {
         {
           "<leader>dd",
           function()
-            vim.cmd("DapViewOpen")
+            vim.cmd("DapViewToggle")
           end,
-          desc = "UI",
+          desc = "Toggle DAP View",
         },
       }
     end,
