@@ -3,10 +3,6 @@ local M = {}
 M.plugins = {
   {
     "mfussenegger/nvim-dap",
-    dependencies = {
-      "rcarriga/nvim-dap-ui",
-      "theHamsta/nvim-dap-virtual-text",
-    },
     config = function()
       vim.api.nvim_set_hl(0, "DapStoppedLine", { default = true, link = "Visual" })
     end,
