@@ -1,3 +1,4 @@
+---@diagnostic disable: missing-parameter
 local M = {}
 
 M.plugins = {
@@ -6,9 +7,9 @@ M.plugins = {
     dependencies = {
       "nvim-treesitter/nvim-treesitter",
     },
-    lazy = true,
+    event = "VeryLazy",
     config = function()
-      require("nvim-dap-virtual-text").setup()
+      require("nvim-dap-virtual-text").setup({})
     end,
   },
 }

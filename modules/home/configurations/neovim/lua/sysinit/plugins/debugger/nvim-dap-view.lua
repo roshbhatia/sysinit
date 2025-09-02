@@ -3,6 +3,7 @@ local M = {}
 M.plugins = {
   {
     "igorlfs/nvim-dap-view",
+    event = "VeryLazy",
     opts = {},
     keys = function()
       return {
