@@ -26,18 +26,15 @@ M.plugins = {
           align = "center",
         },
       })
+
       wk.add({
         {
-          "<leader>r",
-          group = "Refresh",
+          "<leader>?",
+          group = "Commands",
         },
         {
           "<leader>b",
           group = "Buffer",
-        },
-        {
-          "<leader>q",
-          group = "Quit",
         },
         {
           "<leader>c",
@@ -64,32 +61,36 @@ M.plugins = {
           group = "Buffer",
         },
         {
-          "<leader>gh",
-          group = "Hunk",
-        },
-        {
           "<leader>gd",
           group = "Diff",
         },
         {
-          "<leader>gt",
-          group = "Toggle",
+          "<leader>gh",
+          group = "Hunk",
         },
         {
           "<leader>gq",
           group = "Quickfix",
         },
         {
+          "<leader>gt",
+          group = "Toggle",
+        },
+        {
           "<leader>m",
           group = "Marks",
         },
         {
-          "<localleader>n",
-          group = "Notifications",
+          "<leader>q",
+          group = "Quit",
         },
         {
-          "<leader>?",
-          group = "Commands",
+          "<leader>r",
+          group = "Refresh",
+        },
+        {
+          "<localleader>n",
+          group = "Notifications",
         },
       })
 
