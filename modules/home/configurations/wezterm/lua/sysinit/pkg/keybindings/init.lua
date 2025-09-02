@@ -16,80 +16,52 @@ local function vim_or_wezterm_action(key, mods, wezterm_action)
   end)
 end
 
-local function pane_action_or_send_key(key, mods, wezterm_action)
+local direction_keys = {
+  h = "Left",
+  j = "Down",
+  k = "Up",
+  l = "Right",
+}
+
+local function pane_keybinding(action_type, key, mods)
   return wezterm.action_callback(function(win, pane)
     if is_vim(pane) then
       win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
     else
-      win:perform_action(wezterm_action, pane)
+      if action_type == "resize" then
+        win:perform_action({ AdjustPaneSize = { direction_keys[key], 3 } }, pane)
+      else
+        win:perform_action({ ActivatePaneDirection = direction_keys[key] }, pane)
+      end
     end
   end)
 end
 
 local function get_pane_keys()
-  local keys = {
-    -- Navigation: ctrl-h/j/k/l
-    {
-      key = "h",
-      mods = "CTRL",
-      action = pane_action_or_send_key("h", "CTRL", act.ActivatePaneDirection("Left")),
-    },
-    {
-      key = "j",
-      mods = "CTRL",
-      action = pane_action_or_send_key("j", "CTRL", act.ActivatePaneDirection("Down")),
-    },
-    {
-      key = "k",
-      mods = "CTRL",
-      action = pane_action_or_send_key("k", "CTRL", act.ActivatePaneDirection("Up")),
-    },
-    {
-      key = "l",
-      mods = "CTRL",
-      action = pane_action_or_send_key("l", "CTRL", act.ActivatePaneDirection("Right")),
-    },
-    -- Resize: ctrl+shift-h/j/k/l
-    {
-      key = "h",
-      mods = "CTRL|SHIFT",
-      action = pane_action_or_send_key("h", "CTRL|SHIFT", act.AdjustPaneSize({ "Left", 3 })),
-    },
-    {
-      key = "j",
-      mods = "CTRL|SHIFT",
-      action = pane_action_or_send_key("j", "CTRL|SHIFT", act.AdjustPaneSize({ "Down", 3 })),
-    },
-    {
-      key = "k",
-      mods = "CTRL|SHIFT",
-      action = pane_action_or_send_key("k", "CTRL|SHIFT", act.AdjustPaneSize({ "Up", 3 })),
-    },
-    {
-      key = "l",
-      mods = "CTRL|SHIFT",
-      action = pane_action_or_send_key("l", "CTRL|SHIFT", act.AdjustPaneSize({ "Right", 3 })),
-    },
-    -- Splits, close, rotate, etc.
+  return {
+    -- Move
+    { key = "h", mods = "CTRL", action = pane_keybinding("move", "h", "CTRL") },
+    { key = "j", mods = "CTRL", action = pane_keybinding("move", "j", "CTRL") },
+    { key = "k", mods = "CTRL", action = pane_keybinding("move", "k", "CTRL") },
+    { key = "l", mods = "CTRL", action = pane_keybinding("move", "l", "CTRL") },
+    -- Resize
+    { key = "h", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "h", "CTRL|SHIFT") },
+    { key = "j", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "j", "CTRL|SHIFT") },
+    { key = "k", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "k", "CTRL|SHIFT") },
+    { key = "l", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "l", "CTRL|SHIFT") },
+    -- Splits
     {
       key = "v",
-      mods = "CTRL|ALT",
-      action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }),
-    },
-    { key = "s", mods = "CTRL|ALT", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
-    {
-      key = "w",
       mods = "CTRL",
-      action = vim_or_wezterm_action("w", "CTRL", act.CloseCurrentPane({ confirm = true })),
+      action = wezterm.action.SplitVertical({ domain = "CurrentPaneDomain" }),
     },
     {
-      key = "w",
-      mods = "CMD",
-      action = vim_or_wezterm_action("w", "CTRL", act.CloseCurrentPane({ confirm = true })),
+      key = "s",
+      mods = "CTRL",
+      action = wezterm.action.SplitHorizontal({ domain = "CurrentPaneDomain" }),
     },
-    { key = "\\", mods = "CTRL", action = act.RotatePanes("Clockwise") },
+    -- Other keys...
   }
-  return keys
 end
 
 local function get_clear_keys()
