@@ -6,100 +6,48 @@ local function is_vim(pane)
   return pane:get_user_vars().IS_NVIM == "true"
 end
 
-local direction_keys = {
-  h = "Left",
-  j = "Down",
-  k = "Up",
-  l = "Right",
-}
-
-local function split_nav(resize_or_move, key, mods)
-  return {
-    key = key,
-    mods = mods,
-    action = wezterm.action_callback(function(win, pane)
-      if is_vim(pane) then
-        win:perform_action({
-          SendKey = { key = key, mods = mods },
-        }, pane)
-      else
-        if resize_or_move == "resize" then
-          win:perform_action({
-            AdjustPaneSize = { direction_keys[key], 3 },
-          }, pane)
-        else
-          win:perform_action({
-            ActivatePaneDirection = direction_keys[key],
-          }, pane)
-        end
-      end
-    end),
-  }
-end
-
-local function get_smart_splits()
-  return {
-    split_nav("move", "h", "CTRL"),
-    split_nav("move", "j", "CTRL"),
-    split_nav("move", "k", "CTRL"),
-    split_nav("move", "l", "CTRL"),
-    split_nav("resize", "h", "CTRL|SHIFT"),
-    split_nav("resize", "j", "CTRL|SHIFT"),
-    split_nav("resize", "k", "CTRL|SHIFT"),
-    split_nav("resize", "l", "CTRL|SHIFT"),
-  }
+local function vim_or_wezterm_action(key, mods, wezterm_action)
+  return wezterm.action_callback(function(win, pane)
+    if is_vim(pane) then
+      win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
+    else
+      win:perform_action(wezterm_action, pane)
+    end
+  end)
 end
 
 local function get_pane_keys()
-  return {
+  local keys = {
+    -- Navigation: ctrl-h/j/k/l
+    { key = "h", mods = "CTRL", action = act.ActivatePaneDirection("Left") },
+    { key = "j", mods = "CTRL", action = act.ActivatePaneDirection("Down") },
+    { key = "k", mods = "CTRL", action = act.ActivatePaneDirection("Up") },
+    { key = "l", mods = "CTRL", action = act.ActivatePaneDirection("Right") },
+    -- Resize: ctrl+shift-h/j/k/l
+    { key = "h", mods = "CTRL|SHIFT", action = act.AdjustPaneSize({ "Left", 3 }) },
+    { key = "j", mods = "CTRL|SHIFT", action = act.AdjustPaneSize({ "Down", 3 }) },
+    { key = "k", mods = "CTRL|SHIFT", action = act.AdjustPaneSize({ "Up", 3 }) },
+    { key = "l", mods = "CTRL|SHIFT", action = act.AdjustPaneSize({ "Right", 3 }) },
+    -- Splits, close, rotate, etc.
     {
       key = "v",
       mods = "CTRL|ALT",
       action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }),
     },
-    {
-      key = "s",
-      mods = "CTRL|ALT",
-      action = act.SplitVertical({ domain = "CurrentPaneDomain" }),
-    },
+    { key = "s", mods = "CTRL|ALT", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
     {
       key = "w",
       mods = "CTRL",
-      action = wezterm.action_callback(function(win, pane)
-        if is_vim(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "w",
-              mods = "CTRL",
-            },
-          }, pane)
-        else
-          win:perform_action(act.CloseCurrentPane({ confirm = true }), pane)
-        end
-      end),
+      action = vim_or_wezterm_action("w", "CTRL", act.CloseCurrentPane({ confirm = true })),
     },
     {
       key = "w",
       mods = "CMD",
-      action = wezterm.action_callback(function(win, pane)
-        if is_vim(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "w",
-              mods = "CMD",
-            },
-          }, pane)
-        else
-          win:perform_action(act.CloseCurrentPane({ confirm = true }), pane)
-        end
-      end),
+      action = vim_or_wezterm_action("w", "CTRL", act.CloseCurrentPane({ confirm = true })),
     },
-    {
-      key = "\\",
-      mods = "CTRL",
-      action = act.RotatePanes("Clockwise"),
-    },
+    { key = "\\", mods = "CTRL", action = act.RotatePanes("Clockwise") },
   }
+  return keys
 end
 
 local function get_clear_keys()
@@ -370,7 +318,6 @@ function M.setup(config)
   local all_keys = {}
 
   local key_groups = {
-    get_smart_splits(),
     get_pane_keys(),
     get_clear_keys(),
     get_pallete_keys(),
