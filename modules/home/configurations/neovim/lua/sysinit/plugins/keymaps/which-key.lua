@@ -48,6 +48,10 @@ M.plugins = {
           group = "Code",
         },
         {
+          "<localleader>d",
+          group = "Debugger",
+        },
+        {
           "<leader>e",
           group = "Editor",
         },

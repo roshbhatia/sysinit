@@ -34,6 +34,11 @@ require("sysinit.pkg.utils.plugin_manager").setup_package_manager()
 require("sysinit.pkg.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.core.luarocks"),
   require("sysinit.plugins.core.plenary"),
+  require("sysinit.plugins.debugger.dap-ui"),
+  require("sysinit.plugins.debugger.dap-virtual-text"),
+  require("sysinit.plugins.debugger.dap"),
+  require("sysinit.plugins.debugger.nvim-dap-docker"),
+  require("sysinit.plugins.debugger.nvim-dap-go"),
   require("sysinit.plugins.editor.bqf"),
   require("sysinit.plugins.editor.colorizer"),
   require("sysinit.plugins.editor.comment"),
