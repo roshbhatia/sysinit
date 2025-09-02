@@ -51,16 +51,15 @@ local function get_pane_keys()
     { key = "l", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "l", "CTRL|SHIFT") },
     -- Splits
     {
-      key = "v",
+      key = "s",
       mods = "CTRL",
       action = wezterm.action.SplitVertical({ domain = "CurrentPaneDomain" }),
     },
     {
-      key = "s",
+      key = "v",
       mods = "CTRL",
       action = wezterm.action.SplitHorizontal({ domain = "CurrentPaneDomain" }),
     },
-    -- Other keys...
   }
 end
 
