@@ -267,7 +267,7 @@ M.plugins = {
           function()
             tbuiltin.resume()
           end,
-          desc = "Resume telescope search",
+          desc = "Resume last search",
         },
       }
     end,
