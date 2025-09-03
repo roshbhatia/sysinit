@@ -73,6 +73,10 @@ M.plugins = {
           group = "Refresh",
         },
         {
+          "<localleader>c",
+          group = "Centering",
+        },
+        {
           "<localleader>n",
           group = "Notifications",
         },
