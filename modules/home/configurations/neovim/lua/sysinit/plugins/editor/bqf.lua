@@ -6,8 +6,21 @@ M.plugins = {
     event = "VeryLazy",
     config = function()
       require("bqf").setup({
+        func_map = {
+          fzffilter = "",
+          ptoggleauto = "",
+          ptoggleitem = "",
+          ptogglemode = "",
+          split = "<localleader>s",
+          tabc = "",
+          vsplit = "<localleader>v",
+        },
         preview = {
           winblend = 0,
+        },
+        show_title = {
+          description = [[Show the window title]],
+          default = false,
         },
       })
     end,

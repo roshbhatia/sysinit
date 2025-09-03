@@ -145,8 +145,8 @@ M.plugins = {
             local timer = (vim.loop and vim.loop.new_timer) and vim.loop.new_timer() or nil
             if timer then
               timer:start(
-                2000,
-                2000,
+                250,
+                250,
                 vim.schedule_wrap(function()
                   if
                     vim.api.nvim_buf_is_valid(args.buf) and vim.api.nvim_buf_is_loaded(args.buf)
