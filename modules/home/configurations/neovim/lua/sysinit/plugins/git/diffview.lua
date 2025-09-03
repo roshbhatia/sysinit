@@ -119,10 +119,22 @@ M.plugins = {
             if is_diffview_open() then
               vim.cmd("DiffviewClose")
             else
-              vim.cmd("DiffviewOpen")
+              vim.cmd("DiffviewOpen --cached ")
             end
           end,
-          desc = "Git diff toggle view",
+          desc = "Diff file with cached",
+          mode = "n",
+        },
+        {
+          "<leader>gd",
+          function()
+            if is_diffview_open() then
+              vim.cmd("DiffviewClose")
+            else
+              vim.cmd("DiffviewOpen HEAD")
+            end
+          end,
+          desc = "Diff file with cached",
           mode = "n",
         },
         {
@@ -130,7 +142,7 @@ M.plugins = {
           function()
             vim.cmd("DiffviewFileHistory %")
           end,
-          desc = "Git history current file",
+          desc = "Current file history",
           mode = "n",
         },
         {
@@ -138,7 +150,7 @@ M.plugins = {
           function()
             vim.cmd("DiffviewFileHistory")
           end,
-          desc = "Git history all files",
+          desc = "Project history",
           mode = "n",
         },
       }

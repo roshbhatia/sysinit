@@ -175,7 +175,7 @@ M.plugins = {
         {
           "<leader>cl",
           vim.lsp.codelens.run,
-          desc = " Run CodeLens action",
+          desc = "Run codelens action",
         },
         {
           "<leader>cD",
@@ -239,14 +239,14 @@ M.plugins = {
           function()
             vim.diagnostic.setloclist({ severity = vim.diagnostic.severity.ERROR })
           end,
-          desc = "Loclist Diagnostics (Errors)",
+          desc = "Loclist diagnostics (errors)",
         },
         {
           "<leader>cq",
           function()
             vim.diagnostic.setqflist({ severity = vim.diagnostic.severity.ERROR })
           end,
-          desc = "Quickfix Diagnostics (Errors)",
+          desc = "Quickfix diagnostics (errors)",
         },
       }
     end,

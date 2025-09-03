@@ -39,7 +39,7 @@ M.plugins = {
         function()
           require("opencode").ask("@cursor: ")
         end,
-        desc = "Opencode ask cursor",
+        desc = "Ask at cursor",
         mode = "n",
       },
       {
@@ -47,7 +47,7 @@ M.plugins = {
         function()
           require("opencode").ask("@selection: ")
         end,
-        desc = "Opencode ask selection",
+        desc = "Ask at selection",
         mode = "v",
       },
       {
@@ -55,7 +55,7 @@ M.plugins = {
         function()
           require("opencode").toggle()
         end,
-        desc = "Opencode toggle",
+        desc = "Toggle agent ui",
         mode = "n",
       },
       {
@@ -63,31 +63,7 @@ M.plugins = {
         function()
           require("opencode").command("session_new")
         end,
-        desc = "Opencode new session",
-        mode = "n",
-      },
-      {
-        "<leader>jy",
-        function()
-          require("opencode").command("messages_copy")
-        end,
-        desc = "Opencode copy message",
-        mode = "n",
-      },
-      {
-        "<S-C-u>",
-        function()
-          require("opencode").command("messages_half_page_up")
-        end,
-        desc = "Opencode scroll up",
-        mode = "n",
-      },
-      {
-        "<S-C-d>",
-        function()
-          require("opencode").command("messages_half_page_down")
-        end,
-        desc = "Opencode scroll down",
+        desc = "New session",
         mode = "n",
       },
       {
@@ -95,7 +71,7 @@ M.plugins = {
         function()
           require("opencode").ask("Fix @diagnostics in this file: ")
         end,
-        desc = "Opencode fix diagnostics",
+        desc = "Fix diagnostics within file",
         mode = "n",
       },
       {
@@ -103,7 +79,7 @@ M.plugins = {
         function()
           require("opencode").ask("@quickfix: ")
         end,
-        desc = "Opencode quickfix send",
+        desc = "Ask with quickfix list",
         mode = "n",
       },
       {
@@ -111,7 +87,7 @@ M.plugins = {
         function()
           require("opencode").select_prompt()
         end,
-        desc = "Opencode prompt select",
+        desc = "Ask with prompt",
         mode = { "n", "v" },
       },
       {
@@ -119,7 +95,7 @@ M.plugins = {
         function()
           require("opencode").prompt("Explain @cursor and its context")
         end,
-        desc = "Opencode explain cursor",
+        desc = "Explain at cursor",
         mode = "n",
       },
     },

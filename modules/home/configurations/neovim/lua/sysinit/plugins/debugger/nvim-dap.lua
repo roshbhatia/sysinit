@@ -109,21 +109,21 @@ M.plugins = {
             config.args = vim.split(args, " ")
             dap.run(config)
           end,
-          desc = "Run with args (prompt)",
+          desc = "Run with args",
         },
         {
           "<leader>dh",
           function()
             require("dap.ui.widgets").hover()
           end,
-          desc = "DAP Hover",
+          desc = "Hover",
         },
         {
           "<leader>dp",
           function()
             require("dap.ui.widgets").preview()
           end,
-          desc = "DAP Preview",
+          desc = "Preview",
         },
       }
     end,

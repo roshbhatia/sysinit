@@ -21,7 +21,7 @@ M.plugins = {
           function()
             vim.cmd("Neominimap Toggle")
           end,
-          desc = "Minimap toggle",
+          desc = "Toggle minimap",
         },
       }
     end,

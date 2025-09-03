@@ -52,7 +52,7 @@ M.plugins = {
             smart_splits.move_cursor_left()
           end,
           mode = { "n", "i", "v", "t" },
-          desc = "Move to left split",
+          desc = "Move to left pane",
         },
         {
           "<C-j>",
@@ -63,7 +63,7 @@ M.plugins = {
             smart_splits.move_cursor_down()
           end,
           mode = { "n", "i", "v", "t" },
-          desc = "Move to bottom split",
+          desc = "Move to bottom pane",
         },
         {
           "<C-k>",
@@ -74,7 +74,7 @@ M.plugins = {
             smart_splits.move_cursor_up()
           end,
           mode = { "n", "i", "v", "t" },
-          desc = "Move to top split",
+          desc = "Move to top pane",
         },
         {
           "<C-l>",
@@ -85,7 +85,7 @@ M.plugins = {
             smart_splits.move_cursor_right()
           end,
           mode = { "n", "i", "v", "t" },
-          desc = "Move to right split",
+          desc = "Move right pane",
         },
         {
           "<C-S-h>",
@@ -96,7 +96,7 @@ M.plugins = {
             smart_splits.resize_left()
           end,
           mode = { "n", "i", "v", "t" },
-          desc = "Decrease width of current split",
+          desc = "Decrease pane width",
         },
         {
           "<C-S-j>",
@@ -107,7 +107,7 @@ M.plugins = {
             smart_splits.resize_down()
           end,
           mode = { "n", "i", "v", "t" },
-          desc = "Decrease height of current split",
+          desc = "Decrease pane height",
         },
         {
           "<C-S-k>",
@@ -118,7 +118,7 @@ M.plugins = {
             smart_splits.resize_up()
           end,
           mode = { "n", "i", "v", "t" },
-          desc = "Increase height of current split",
+          desc = "Increase pane height",
         },
         {
           "<C-S-l>",
@@ -129,7 +129,7 @@ M.plugins = {
             smart_splits.resize_right()
           end,
           mode = { "n", "i", "v", "t" },
-          desc = "Increase width of current split",
+          desc = "Increase pane width",
         },
         {
           "<leader>v",
@@ -137,7 +137,7 @@ M.plugins = {
             vim.cmd("vsplit")
           end,
           mode = { "n" },
-          desc = "Split vertical",
+          desc = "Split pane vertically",
         },
         {
           "<leader>s",
@@ -145,7 +145,7 @@ M.plugins = {
             vim.cmd("split")
           end,
           mode = { "n" },
-          desc = "Split horizontal",
+          desc = "Split pane horizontally",
         },
         {
           "<C-w>",
@@ -153,28 +153,7 @@ M.plugins = {
             vim.cmd("xit")
           end,
           mode = { "n" },
-          desc = "Quit window",
-        },
-
-        {
-          "<M-w>",
-          function()
-            vim.cmd("xit")
-          end,
-          mode = { "n" },
-          desc = "Quit window",
-        },
-        {
-          "<C-a><C-a>",
-          function()
-            vim.api.nvim_feedkeys(
-              vim.api.nvim_replace_termcodes("<C-a>", true, false, true),
-              "n",
-              true
-            )
-          end,
-          mode = { "n", "i", "v", "t" },
-          desc = "Send Ctrl-A to Neovim",
+          desc = "Close pane",
         },
       }
     end,

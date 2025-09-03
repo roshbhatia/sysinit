@@ -178,21 +178,21 @@ M.plugins = {
           function()
             Snacks.lazygit()
           end,
-          desc = "Lazygit toggle UI",
+          desc = "Toggle git ui",
         },
         {
           "<localleader>ns",
           function()
             Snacks.notifier.show_history()
           end,
-          desc = "Notifications show",
+          desc = "Show notification history",
         },
         {
           "<localleader>nc",
           function()
             Snacks.notifier.hide()
           end,
-          desc = "Notifications dismiss",
+          desc = "Dismiss notification",
         },
         {
           "<Esc><Esc>",
@@ -212,35 +212,35 @@ M.plugins = {
           function()
             Snacks.profiler.stop()
           end,
-          desc = "Profiler stop",
+          desc = "Stop profiler",
         },
         {
           "<localleader>pf",
           function()
             Snacks.profiler.pick()
           end,
-          desc = "Profiler picker",
+          desc = "Find profiler events",
         },
         {
           "<localleader>pp",
           function()
             Snacks.toggle.profiler()
           end,
-          desc = "Profiler toggle",
+          desc = "Toggle profiler",
         },
         {
           "<localleader>ph",
           function()
             Snacks.toggle.profiler_highlights()
           end,
-          desc = "Profiler highlights toggle",
+          desc = "Toggle profiler highlights",
         },
         {
           "<localleader>ps",
           function()
             Snacks.profiler.scratch()
           end,
-          desc = "Profiler scratch buffer",
+          desc = "Toggle profiler scratch buffer",
         },
       }
 

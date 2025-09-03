@@ -12,7 +12,7 @@ M.plugins = {
           function()
             vim.cmd("DapViewToggle")
           end,
-          desc = "Toggle DAP View",
+          desc = "Toggle dap view",
         },
       }
     end,

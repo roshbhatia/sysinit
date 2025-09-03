@@ -18,7 +18,7 @@ M.plugins = {
           mode = "n",
           noremap = true,
           silent = true,
-          desc = "Mark add/remove",
+          desc = "Toggle mark",
         },
         {
           "<leader>mn",
@@ -28,17 +28,17 @@ M.plugins = {
           mode = "n",
           noremap = true,
           silent = true,
-          desc = "Mark next",
+          desc = "Next mark",
         },
         {
-          "<leader>mN",
+          "<leader>mp",
           function()
             require("recall").goto_prev()
           end,
           mode = "n",
           noremap = true,
           silent = true,
-          desc = "Mark previous",
+          desc = "Previous mark",
         },
         {
           "<leader>mc",
@@ -48,7 +48,7 @@ M.plugins = {
           mode = "n",
           noremap = true,
           silent = true,
-          desc = "Mark clear",
+          desc = "Clear all marks",
         },
         {
           "<leader>fm",
@@ -58,7 +58,7 @@ M.plugins = {
           mode = "n",
           noremap = true,
           silent = true,
-          desc = "Mark list",
+          desc = "Find marks",
         },
       }
     end,

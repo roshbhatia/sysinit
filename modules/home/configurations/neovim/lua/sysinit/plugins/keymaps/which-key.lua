@@ -12,7 +12,7 @@ M.plugins = {
         preset = "helix",
         icons = {
           mappings = false,
-          separator = "➜",
+          separator = " ",
         },
         notify = false,
         win = {
@@ -30,7 +30,7 @@ M.plugins = {
       wk.add({
         {
           "<leader>?",
-          group = "Commands",
+          group = "Open command palette",
         },
         {
           "<leader>b",
@@ -55,26 +55,6 @@ M.plugins = {
         {
           "<leader>g",
           group = "Git",
-        },
-        {
-          "<leader>gb",
-          group = "Buffer",
-        },
-        {
-          "<leader>gd",
-          group = "Diff",
-        },
-        {
-          "<leader>gh",
-          group = "Hunk",
-        },
-        {
-          "<leader>gq",
-          group = "Quickfix",
-        },
-        {
-          "<leader>gt",
-          group = "Toggle",
         },
         {
           "<leader>m",

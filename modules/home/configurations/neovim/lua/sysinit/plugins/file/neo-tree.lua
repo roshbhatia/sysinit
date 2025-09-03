@@ -156,7 +156,7 @@ M.plugins = {
           vim.cmd("Neotree toggle")
           vim.cmd("wincmd p")
         end,
-        desc = "Toggle explore in tree tree",
+        desc = "Toggle explorer tree",
       },
     },
   },

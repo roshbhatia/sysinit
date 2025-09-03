@@ -39,7 +39,7 @@ M.plugins = {
           "<leader>fx",
           dropbar_api.pick,
           mode = "n",
-          desc = "Dropbar symbols",
+          desc = "Pick from winbar symbols",
         },
       }
     end,
