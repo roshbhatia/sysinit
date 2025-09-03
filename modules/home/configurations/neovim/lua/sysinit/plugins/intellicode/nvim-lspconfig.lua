@@ -53,7 +53,6 @@ M.plugins = {
             },
           },
         },
-        vale_ls = {},
       }
 
       local custom_servers = {
