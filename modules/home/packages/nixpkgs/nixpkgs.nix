@@ -60,7 +60,6 @@ let
     jq
     jq-lsp
     jqp
-    jrnl
     jsonld-cli
     k9s
     krew

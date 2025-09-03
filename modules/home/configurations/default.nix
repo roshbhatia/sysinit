@@ -13,6 +13,7 @@
     ./git
     ./hammerspoon
     ./helix
+    ./jrnl
     ./k9s
     ./llm
     ./macchina
