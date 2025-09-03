@@ -68,7 +68,6 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.intellicode.friendly-snippets"),
   require("sysinit.plugins.intellicode.glance"),
   require("sysinit.plugins.intellicode.lazydev"),
-  require("sysinit.plugins.intellicode.lensline"),
   require("sysinit.plugins.intellicode.lsp-lines"),
   require("sysinit.plugins.intellicode.lspkind"),
   require("sysinit.plugins.intellicode.luasnip"),
