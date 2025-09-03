@@ -105,6 +105,7 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
 
 require("sysinit.pkg.keybindings.buffer").setup()
 require("sysinit.pkg.keybindings.leader").setup()
+require("sysinit.pkg.keybindings.lists").setup()
 require("sysinit.pkg.keybindings.marks").setup()
 require("sysinit.pkg.keybindings.super").setup()
 require("sysinit.pkg.keybindings.undo").setup()

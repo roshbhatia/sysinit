@@ -9,7 +9,7 @@ function M.setup()
     desc = "Reload current file",
   })
 
-  vim.keymap.set("n", "<leader>q", function()
+  vim.keymap.set("n", "<leader>x", function()
     vim.cmd("wqa!")
   end, {
     noremap = true,
