@@ -1,4 +1,8 @@
-{ config, ... }:
+{
+  config,
+  values,
+  ...
+}:
 
 {
   programs.jrnl = {
@@ -22,7 +26,7 @@
           display_format = "markdown";
         };
         work = {
-          journal = "${config.home.homeDirectory}/github/work/${config.user.username}_nike/notes/jrnl";
+          journal = "${config.home.homeDirectory}/github/work/${values.user.username}_nike/notes/jrnl";
           display_format = "markdown";
         };
       };
