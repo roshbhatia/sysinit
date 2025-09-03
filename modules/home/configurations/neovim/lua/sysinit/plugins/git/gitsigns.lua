@@ -6,7 +6,6 @@ M.plugins = {
     event = "VeryLazy",
     config = function()
       require("gitsigns").setup({
-        word_diff = true,
         preview_config = {
           style = "minimal",
           relative = "cursor",

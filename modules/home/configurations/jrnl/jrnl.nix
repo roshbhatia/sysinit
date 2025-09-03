@@ -18,7 +18,12 @@
       indent_character = "|";
       journals = {
         default = {
-          journal = "${config.home.homeDirectory}/github/work/rbha18_nike/notes/journal.txt";
+          journal = "${config.home.homeDirectory}/jrnl";
+          display_format = "markdown";
+        };
+        work = {
+          journal = "${config.home.homeDirectory}/github/work/${config.user.username}_nike/notes/jrnl";
+          display_format = "markdown";
         };
       };
       linewrap = 79;
