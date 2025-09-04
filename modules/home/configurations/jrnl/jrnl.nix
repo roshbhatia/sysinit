@@ -26,7 +26,7 @@
           display_format = "markdown";
         };
         work = {
-          journal = "${config.home.homeDirectory}/github/work/${values.user.username}_nike/notes/jrnl";
+          journal = "${config.home.homeDirectory}/github/work/${values.git.workGithubUser}/notes/jrnl";
           display_format = "markdown";
         };
       };
