@@ -44,4 +44,9 @@ in
     source = jrnlYaml;
     force = true;
   };
+
+  home.file.".local/bin/j" = {
+    source = ./j.sh;
+    force = true;
+  };
 }
