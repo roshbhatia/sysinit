@@ -16,7 +16,7 @@ M.plugins = {
     keys = function()
       return {
         {
-          "<localleader>cc",
+          "<localleader><localleader>",
           function()
             vim.cmd("NoNeckPain")
           end,
@@ -24,7 +24,7 @@ M.plugins = {
           mode = "n",
         },
         {
-          "<localleader>cu",
+          "<localleader>]",
           function()
             vim.cmd("NoNeckPainWidthUp")
           end,
@@ -32,7 +32,7 @@ M.plugins = {
           mode = "n",
         },
         {
-          "<localleader>cd",
+          "<localleader>[",
           function()
             vim.cmd("NoNeckPainWidthDown")
           end,
