@@ -2,6 +2,7 @@
   description = "Roshan's macOS DevEnv System Config";
 
   inputs = {
+    sysinit.url = "github:roshbhatia/sysinit";
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-25.05-darwin";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     darwin = {
