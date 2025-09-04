@@ -22,16 +22,7 @@ M.plugins = {
       "folke/snacks.nvim",
     },
     config = function()
-      require("opencode").setup({})
-
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "OpencodeEvent",
-        callback = function(args)
-          if args.data and args.data.type == "session.idle" then
-            vim.notify("opencode finished responding", vim.log.levels.INFO)
-          end
-        end,
-      })
+      vim.g.opencode_opts = {}
     end,
     keys = {
       {
