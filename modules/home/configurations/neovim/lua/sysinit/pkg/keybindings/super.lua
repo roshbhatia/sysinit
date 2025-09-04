@@ -10,11 +10,11 @@ function M.setup()
   })
 
   vim.keymap.set("n", "<leader>x", function()
-    vim.cmd("wqa!")
+    vim.cmd("qa!")
   end, {
     noremap = true,
     silent = true,
-    desc = "Quit",
+    desc = "Force Quit",
   })
 end
 
