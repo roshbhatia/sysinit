@@ -4,14 +4,6 @@
   ...
 }:
 
-final: _prev:
-let
-  unstable = import inputs.nixpkgs-unstable {
-    inherit system;
-    config = final.config;
-  };
-in
-{
+_final: _prev: {
   firefox-addons = inputs.firefox-addons.packages.${system};
-  nushell = unstable.nushell;
 }
