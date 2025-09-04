@@ -1,4 +1,10 @@
-{ lib, pkgs, config, values, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  values,
+  ...
+}:
 
 let
   jrnlConfig = {
@@ -31,7 +37,7 @@ let
     version = "v4.2.1";
   };
 
-  jrnlYaml = pkgs.writeText "config.yaml" (lib.generators.toYAML {} jrnlConfig);
+  jrnlYaml = pkgs.writeText "config.yaml" (lib.generators.toYAML { } jrnlConfig);
 in
 {
   xdg.configFile."jrnl/config.yaml" = {
