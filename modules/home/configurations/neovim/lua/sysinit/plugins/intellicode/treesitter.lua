@@ -98,6 +98,9 @@ M.plugins = {
           node_decremental = "<bs>",
         },
       },
+      indent = {
+        enable = true,
+      },
       textobjects = {
         move = {
           enable = true,
