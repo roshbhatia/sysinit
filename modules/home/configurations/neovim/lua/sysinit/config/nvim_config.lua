@@ -1,45 +1,65 @@
 local M = {}
 
-local function get_config_path()
-  local home = vim.fn.expand("~")
-  return home .. "/.sysinit.nvim.conf.json"
+local function get_env_bool(key, default)
+  local value = vim.fn.getenv(key)
+  if value == vim.NIL or value == "" then
+    return default
+  end
+  return value:lower() == "true" or value == "1"
+end
+
+local function get_env_string(key, default)
+  local value = vim.fn.getenv(key)
+  if value == vim.NIL or value == "" then
+    return default
+  end
+  return value
 end
 
 local function default_config()
   return {
-    copilot = {
-      enabled = true,
+    debug = get_env_bool("SYSINIT_DEBUG", false),
+    agents = {
+      enabled = get_env_bool("SYSINIT_NVIM_AGENTS_ENABLED", true),
+      copilot = {
+        enabled = get_env_bool("SYSINIT_NVIM_COPILOTLUA_ENABLED", true),
+      },
+      opencode = {
+        enabled = get_env_bool("SYSINIT_NVIM_OPENCODE_ENABLED", true),
+      },
+      codecompanion = {
+        enabled = get_env_bool("SYSINIT_NVIM_CODECOMPANION_ENABLED", true),
+        adapter = get_env_string("SYSINIT_NVIM_CODECOMPANION_ADAPTER", "copilot"),
+      },
+    },
+    external = {
+      claude_code_token = get_env_string("CLAUDE_CODE_OAUTH_TOKEN", ""),
     },
   }
 end
 
-local function deep_merge(defaults, overrides)
-  for k, v in pairs(overrides) do
-    if type(v) == "table" and type(defaults[k]) == "table" then
-      defaults[k] = deep_merge(defaults[k], v)
-    else
-      defaults[k] = v
-    end
-  end
-  return defaults
+function M.is_agents_enabled()
+  return M.get().agents.enabled
 end
 
-function M.load_config()
-  local path = get_config_path()
-  local f = io.open(path, "r")
-  if not f then
-    return default_config()
-  end
+function M.is_copilot_enabled()
+  return M.get().agents.enabled and M.get().agents.copilot.enabled
+end
 
-  local content = f:read("*a")
-  f:close()
-  local ok2, parsed = pcall(vim.fn.json_decode, content)
-  if not ok2 or type(parsed) ~= "table" then
-    vim.notify("Malformed ~/.sysinit.nvim.conf.json, using defaults", vim.log.levels.WARN)
-    return default_config()
-  end
+function M.is_opencode_enabled()
+  return M.get().agents.enabled and M.get().agents.opencode.enabled
+end
 
-  return deep_merge(default_config(), parsed)
+function M.is_codecompanion_enabled()
+  return M.get().agents.enabled and M.get().agents.codecompanion.enabled
+end
+
+function M.get_codecompanion_adapter()
+  return M.get().agents.codecompanion.adapter
+end
+
+function M.get_claude_code_token()
+  return M.get().external.claude_code_token
 end
 
 return M

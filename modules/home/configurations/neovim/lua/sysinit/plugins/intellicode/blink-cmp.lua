@@ -1,5 +1,5 @@
 local M = {}
-local copilot_enabled = not vim.uv.fs_stat(vim.fn.expand("~/.nocopilot"))
+local config = require("sysinit.config.nvim_config")
 
 local deps = {
   "giuxtaposition/blink-cmp-copilot",
@@ -9,7 +9,7 @@ local deps = {
   "xzbdmw/colorful-menu.nvim",
 }
 
-if copilot_enabled then
+if config.is_copilot_enabled() then
   table.insert(deps, "giuxtaposition/blink-cmp-copilot")
 end
 
@@ -80,9 +80,14 @@ M.plugins = {
         "lsp",
         "path",
         "snippets",
+        per_filetype = {},
       }
 
-      if copilot_enabled then
+      if config.is_codecompanion_enabled() then
+        sources.per_filetype.codecompanion = { "codecompanion" }
+      end
+
+      if config.is_copilot_enabled() then
         providers.copilot = {
           name = "copilot",
           module = "blink-cmp-copilot",

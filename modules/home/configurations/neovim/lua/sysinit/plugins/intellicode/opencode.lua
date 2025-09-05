@@ -1,16 +1,9 @@
 local M = {}
-
-local function get_env_bool(key, default)
-  local value = vim.fn.getenv(key)
-  if value == vim.NIL or value == "" then
-    return default
-  end
-  return value:lower() == "true" or value == "1"
-end
+local config = require("sysinit.config.nvim_config")
 
 M.plugins = {
   {
-    enabled = get_env_bool("SYSINIT_NVIM_AGENTS_ENABLED", true),
+    enabled = config.is_opencode_enabled(),
     "NickvanDyke/opencode.nvim",
     dependencies = {
       "folke/snacks.nvim",

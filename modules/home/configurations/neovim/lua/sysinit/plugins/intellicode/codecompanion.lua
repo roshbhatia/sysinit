@@ -1,101 +1,105 @@
 local M = {}
-
-local function get_env_bool(key, default)
-  local value = vim.fn.getenv(key)
-  if value == vim.NIL or value == "" then
-    return default
-  end
-  return value:lower() == "true" or value == "1"
-end
-
-local function get_env_string(key, default)
-  local value = vim.fn.getenv(key)
-  if value == vim.NIL or value == "" then
-    return default
-  end
-  return value
-end
-
-local agents = {
-  enabled = get_env_bool("SYSINIT_NVIM_AGENTS_ENABLED", true),
-  copilot = {
-    enabled = get_env_bool("SYSINIT_NVIM_COPILOT_ENABLED", true),
-  },
-  claude_code = {
-    enabled = get_env_bool("SYSINIT_NVIM_CODECOMPANION_CLAUDE_CODE_ENABLED", false),
-  },
-  preferred_adapter = get_env_string("SYSINIT_NVIM_CODECOMPANION_PREFERRED_ADAPTER", "auto"),
-}
-
-local function get_preferred_adapter()
-  if agents.preferred_adapter ~= "auto" then
-    return agents.preferred_adapter
-  end
-
-  if agents.claude_code.enabled then
-    return "claude_code"
-  end
-
-  return "copilot"
-end
+local config = require("sysinit.config.nvim_config")
 
 M.plugins = {
   {
     "olimorris/codecompanion.nvim",
-    enabled = agents.enabled,
-    opts = {
-      strategies = {
-        chat = {
-          adapter = get_preferred_adapter(),
-        },
-        inline = {
-          adapter = get_preferred_adapter(),
-        },
-        cmd = {
-          adapter = get_preferred_adapter(),
-        },
-      },
-      adapters = {
-        acp = {
-          claude_code = function()
-            return require("codecompanion.adapters").extend("claude_code", {
-              env = {
-                CLAUDE_CODE_OAUTH_TOKEN = get_env_string("CLAUDE_CODE_OAUTH_TOKEN", ""),
-              },
-            })
-          end,
-        },
-      },
-      display = {
-        action_palette = {
-          provider = "telescope",
-        },
-        chat = {
-          icons = {
-            buffer_pin = " ",
-            buffer_watch = " ",
-          },
-        },
-        diff = {
-          provider = "mini_diff",
-        },
-      },
-      keymaps = {
-        send = {
-          modes = {
-            n = { "<CR>", "<S-CR>" },
-            i = "<S-CR>",
-          },
-          index = 2,
-          callback = "keymaps.send",
-          description = "Send",
-        },
-      },
-    },
+    enabled = config.is_codecompanion_enabled(),
     dependencies = {
+      {
+        "Davidyz/VectorCode",
+        version = "*",
+        dependencies = {
+          "nvim-lua/plenary.nvim",
+        },
+      },
       "nvim-lua/plenary.nvim",
       "nvim-treesitter/nvim-treesitter",
     },
+    config = function()
+      local opts = {
+        extensions = {
+          vectorcode = {
+            opts = {
+              tool_group = {
+                enabled = true,
+                extras = {},
+                collapse = false,
+              },
+              tool_opts = {
+                ["*"] = {},
+                ls = {},
+                vectorise = {},
+                query = {
+                  max_num = { chunk = -1, document = -1 },
+                  default_num = { chunk = 50, document = 10 },
+                  include_stderr = false,
+                  use_lsp = false,
+                  no_duplicate = true,
+                  chunk_mode = false,
+                  summarise = {
+                    enabled = false,
+                    adapter = nil,
+                    query_augmented = true,
+                  },
+                },
+                files_ls = {},
+                files_rm = {},
+              },
+            },
+          },
+        },
+        strategies = {
+          chat = {
+            adapter = config.get_codecompanion_adapter(),
+          },
+          inline = {
+            adapter = config.get_codecompanion_adapter(),
+          },
+          cmd = {
+            adapter = config.get_codecompanion_adapter(),
+          },
+        },
+        adapters = {},
+        display = {
+          action_palette = {
+            provider = "telescope",
+          },
+          chat = {
+            icons = {
+              buffer_pin = " ",
+              buffer_watch = " ",
+            },
+          },
+          diff = {
+            provider = "mini_diff",
+          },
+        },
+        keymaps = {
+          send = {
+            modes = {
+              n = { "<CR>", "<S-CR>" },
+              i = "<S-CR>",
+            },
+            index = 2,
+            callback = "keymaps.send",
+            description = "Send",
+          },
+        },
+      }
+
+      if config.get_codecompanion_adapter() == "claude_code" then
+        opts.adapters.claude_code = function()
+          return require("codecompanion.adapters").extend("claude_code", {
+            env = {
+              CLAUDE_CODE_OAUTH_TOKEN = config.get_claude_code_token(),
+            },
+          })
+        end
+      end
+
+      require("codecompanion").setup(opts)
+    end,
     keys = function()
       return {
         {
@@ -162,4 +166,5 @@ M.plugins = {
     end,
   },
 }
+
 return M
