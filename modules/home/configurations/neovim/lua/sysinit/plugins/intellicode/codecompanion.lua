@@ -6,13 +6,8 @@ M.plugins = {
     "olimorris/codecompanion.nvim",
     enabled = config.is_codecompanion_enabled(),
     dependencies = {
-      {
-        "Davidyz/VectorCode",
-        version = "*",
-        dependencies = {
-          "nvim-lua/plenary.nvim",
-        },
-      },
+      "echasnovski/mini.diff",
+      "Davidyz/VectorCode",
       "nvim-lua/plenary.nvim",
       "nvim-treesitter/nvim-treesitter",
     },
@@ -79,12 +74,189 @@ M.plugins = {
         keymaps = {
           send = {
             modes = {
-              n = { "<CR>", "<S-CR>" },
-              i = "<S-CR>",
+              n = "<localleader>ks",
+              v = "<localleader>ks",
+              i = "<localleader>ks",
             },
             index = 2,
             callback = "keymaps.send",
             description = "Send",
+          },
+          options = {
+            modes = {
+              n = "<localleader>ko",
+            },
+            callback = "keymaps.options",
+            description = "Options",
+          },
+          completion = {
+            modes = {
+              i = "<localleader>kc",
+            },
+            index = 1,
+            callback = "keymaps.completion",
+            description = "Completion Menu",
+          },
+          regenerate = {
+            modes = {
+              n = "<localleader>kr",
+            },
+            index = 3,
+            callback = "keymaps.regenerate",
+            description = "Regenerate the last response",
+          },
+          close = {
+            modes = {
+              n = "<localleader>kx",
+              i = "<localleader>kx",
+            },
+            index = 4,
+            callback = "keymaps.close",
+            description = "Close Chat",
+          },
+          stop = {
+            modes = {
+              n = "<localleader>kq",
+            },
+            index = 5,
+            callback = "keymaps.stop",
+            description = "Stop Request",
+          },
+          clear = {
+            modes = {
+              n = "<localleader>kd",
+            },
+            index = 6,
+            callback = "keymaps.clear",
+            description = "Clear Chat",
+          },
+          codeblock = {
+            modes = {
+              n = "<localleader>kb",
+            },
+            index = 7,
+            callback = "keymaps.codeblock",
+            description = "Insert Codeblock",
+          },
+          yank_code = {
+            modes = {
+              n = "<localleader>ky",
+            },
+            index = 8,
+            callback = "keymaps.yank_code",
+            description = "Yank Code",
+          },
+          pin = {
+            modes = {
+              n = "<localleader>kp",
+            },
+            index = 9,
+            callback = "keymaps.pin_context",
+            description = "Pin context",
+          },
+          watch = {
+            modes = {
+              n = "<localleader>kw",
+            },
+            index = 10,
+            callback = "keymaps.toggle_watch",
+            description = "Watch Buffer",
+          },
+          next_chat = {
+            modes = {
+              n = "<localleader>kn",
+            },
+            index = 11,
+            callback = "keymaps.next_chat",
+            description = "Next Chat",
+          },
+          previous_chat = {
+            modes = {
+              n = "<localleader>kN",
+            },
+            index = 12,
+            callback = "keymaps.previous_chat",
+            description = "Previous Chat",
+          },
+          next_header = {
+            modes = {
+              n = "<localleader>kh",
+            },
+            index = 13,
+            callback = "keymaps.next_header",
+            description = "Next Header",
+          },
+          previous_header = {
+            modes = {
+              n = "<localleader>kH",
+            },
+            index = 14,
+            callback = "keymaps.previous_header",
+            description = "Previous Header",
+          },
+          change_adapter = {
+            modes = {
+              n = "<localleader>ka",
+            },
+            index = 15,
+            callback = "keymaps.change_adapter",
+            description = "Change adapter",
+          },
+          fold_code = {
+            modes = {
+              n = "<localleader>kf",
+            },
+            index = 16,
+            callback = "keymaps.fold_code",
+            description = "Fold code",
+          },
+          debug = {
+            modes = {
+              n = "<localleader>kD",
+            },
+            index = 17,
+            callback = "keymaps.debug",
+            description = "View debug info",
+          },
+          system_prompt = {
+            modes = {
+              n = "<localleader>kS",
+            },
+            index = 18,
+            callback = "keymaps.toggle_system_prompt",
+            description = "Toggle the system prompt",
+          },
+          yolo_mode = {
+            modes = {
+              n = "<localleader>kY",
+            },
+            index = 19,
+            callback = "keymaps.yolo_mode",
+            description = "YOLO mode toggle",
+          },
+          goto_file_under_cursor = {
+            modes = {
+              n = "<localleader>kR",
+            },
+            index = 20,
+            callback = "keymaps.goto_file_under_cursor",
+            description = "Open the file under cursor in a new tab.",
+          },
+          copilot_stats = {
+            modes = {
+              n = "<localleader>kU",
+            },
+            index = 21,
+            callback = "keymaps.copilot_stats",
+            description = "Show Copilot usage statistics",
+          },
+          super_diff = {
+            modes = {
+              n = "<localleader>kM",
+            },
+            index = 22,
+            callback = "keymaps.super_diff",
+            description = "Show Super Diff",
           },
         },
       }

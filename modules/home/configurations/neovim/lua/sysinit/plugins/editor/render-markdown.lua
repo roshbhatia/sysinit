@@ -9,6 +9,7 @@ M.plugins = {
     },
     ft = {
       "markdown",
+      "codecompanion",
     },
     config = function()
       require("render-markdown").setup({
@@ -48,6 +49,7 @@ M.plugins = {
         },
         file_types = {
           "markdown",
+          "codecompanion",
         },
         sign = {
           enabled = false,

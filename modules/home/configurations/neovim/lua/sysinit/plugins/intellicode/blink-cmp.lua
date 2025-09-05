@@ -80,12 +80,7 @@ M.plugins = {
         "lsp",
         "path",
         "snippets",
-        per_filetype = {},
       }
-
-      if config.is_codecompanion_enabled() then
-        sources.per_filetype.codecompanion = { "codecompanion" }
-      end
 
       if config.is_copilot_enabled() then
         providers.copilot = {
