@@ -64,9 +64,22 @@ M.plugins = {
             provider = "telescope",
           },
           chat = {
+            intro_message = "Press ? for options...",
             icons = {
-              buffer_pin = " ",
-              buffer_watch = " ",
+              buffer_pin = " ",
+              buffer_watch = "󰂥 ",
+              chat_context = " ",
+              chat_fold = " ",
+              tool_pending = " ",
+              tool_in_progress = " ",
+              tool_failure = " ",
+              tool_success = " ",
+            },
+            window = {
+              border = "rounded",
+              opts = {
+                cursorline = true,
+              },
             },
           },
           diff = {

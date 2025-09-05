@@ -50,6 +50,9 @@ M.plugins = {
             end,
           },
           {
+            size = {
+              width = 0.33,
+            },
             title = " CodeCompanion",
             ft = "codecompanion",
           },
