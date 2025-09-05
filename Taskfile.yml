@@ -71,7 +71,7 @@ tasks:
           exit {{.ERROR_EXIT_CODE}}
         fi
         cd "${WORK_SYSINIT}"
-        if ! task nix:build:work; then
+        if ! NIX_MAX_JOBS=1 NIX_CORES=1 task nix:build:work; then
           log_error "Work build failed."
           exit {{.ERROR_EXIT_CODE}}
         fi
@@ -145,7 +145,7 @@ tasks:
           exit {{.ERROR_EXIT_CODE}}
         fi
         cd "${WORK_SYSINIT}"
-        if ! task nix:refresh:work; then
+        if ! NIX_MAX_JOBS=1 NIX_CORES=1 task nix:refresh:work; then
           log_error "Refresh failed (see logs above)"
           exit {{.ERROR_EXIT_CODE}}
         fi
