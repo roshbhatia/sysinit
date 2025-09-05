@@ -49,7 +49,9 @@ M.plugins = {
           settings = {
             yaml = {
               schemaStore = { enable = false, url = "" },
-              schemas = schemastore.yaml.schemas(),
+              schemas = vim.tbl_extend("force", schemastore.yaml.schemas(), {
+                Kubernetes = "globPattern",
+              }),
             },
           },
         },
