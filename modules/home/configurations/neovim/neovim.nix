@@ -23,11 +23,11 @@ in
   xdg.configFile."nvim/init.lua".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/init.lua";
 
-  xdg.configFile."nvim/lua/sysinit/config".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/config";
-
   xdg.configFile."nvim/lua/sysinit/pkg".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/pkg";
+
+  xdg.configFile."nvim/lua/sysinit/utils".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/utils";
 
   xdg.configFile."nvim/lua/sysinit/plugins/core/".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/plugins/core";

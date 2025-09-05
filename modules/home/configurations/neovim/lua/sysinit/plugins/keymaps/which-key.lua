@@ -1,12 +1,5 @@
 local M = {}
-
-local function get_env_bool(key, default)
-  local value = vim.fn.getenv(key)
-  if value == vim.NIL or value == "" then
-    return default
-  end
-  return value:lower() == "true" or value == "1"
-end
+local config = require("sysinit.utils.config")
 
 M.plugins = {
   {
@@ -81,16 +74,25 @@ M.plugins = {
         },
       })
 
-      if get_env_bool("SYSINIT_AGENTS_ENABLED", true) then
+      if config.is_opencode_enabled() then
         wk.add({
           {
             "<leader>j",
-            group = "Agent",
+            group = "Agents - OpenCode",
           },
         })
       end
 
-      if vim.env.SYSINIT_DEBUG == "1" then
+      if config.is_codecompanion_enabled() then
+        wk.add({
+          {
+            "<leader>k",
+            group = "Agents - CodeCompanion",
+          },
+        })
+      end
+
+      if config.get().debug then
         wk.add({
           {
             "<leader>p",
