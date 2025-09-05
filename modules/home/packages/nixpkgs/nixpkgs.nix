@@ -18,7 +18,6 @@ let
     awk-language-server
     awscli2
     bash-language-server
-    bashdb
     bat
     caddy
     carapace
