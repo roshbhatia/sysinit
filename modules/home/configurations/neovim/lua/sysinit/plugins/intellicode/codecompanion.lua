@@ -89,7 +89,10 @@ M.plugins = {
         keymaps = {
           send = {
             modes = {
-              n = { "<C-CR>" },
+              n = {
+                "CR",
+                "<C-CR>",
+              },
               i = "<C-CR>",
             },
             index = 2,
