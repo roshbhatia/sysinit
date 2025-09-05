@@ -57,10 +57,6 @@ M.plugins = {
           group = "Git",
         },
         {
-          "<leader>l",
-          group = "Loclist",
-        },
-        {
           "<leader>m",
           group = "Marks",
         },
@@ -70,7 +66,7 @@ M.plugins = {
         },
         {
           "<leader>q",
-          group = "Qflist",
+          group = "Qflist/Loclist",
         },
         {
           "<leader>r",
