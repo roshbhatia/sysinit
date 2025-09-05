@@ -60,7 +60,6 @@ M.plugins = {
             adapter = config.get_codecompanion_adapter(),
           },
         },
-        adapters = {},
         display = {
           action_palette = {
             provider = "telescope",
@@ -89,7 +88,7 @@ M.plugins = {
       }
 
       if config.get_codecompanion_adapter() == "claude_code" then
-        opts.adapters.claude_code = function()
+        opts.adapters.acp.claude_code = function()
           return require("codecompanion.adapters").extend("claude_code", {
             env = {
               CLAUDE_CODE_OAUTH_TOKEN = config.get_claude_code_token(),
