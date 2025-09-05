@@ -71,8 +71,7 @@ task: Available tasks for this project:
 | `SYSINIT_NVIM_AGENTS_ENABLED` | `true` | Enable/disable all neovim AI agent plugins |
 | `SYSINIT_NVIM_COPILOTLUA_ENABLED` | `true` | Enable GitHub Copilot integration (copilot.lua, copilot-cmp) |
 | `SYSINIT_NVIM_OPENCODE_ENABLED` | `true` | Enable OpenCode |
-| `SYSINIT_NVIM_CODECOMPANION_CLAUDE_CODE_ENABLED` | `false` | Enable CodeCompanion Claude Code via ACP |
-| `SYSINIT_NVIM_PREFERRED_ADAPTER` | `copilot` | Force specific adapter: `copilot`, `claude_code` |
+| `SYSINIT_NVIM_CODECOMPANION_ADAPTER` | `copilot` | Set specific adapter for CodeCompanion: `copilot`, `claude_code` |
 
 ### External Dependencies
 
