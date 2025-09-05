@@ -35,11 +35,6 @@ M.plugins = {
         },
         bottom = {
           {
-            title = " LSP Diagnostics",
-            ft = "trouble",
-            size = { height = 0.3 },
-          },
-          {
             title = " QuickFix",
             ft = "qf",
             size = { height = 0.3 },

@@ -7,6 +7,8 @@
 }:
 
 let
+  workGithubUser = if (values.git ? workGithubUser) then values.git.workGithubUser else values.git.githubUser;
+  
   jrnlConfig = {
     colors = {
       body = "none";
@@ -26,7 +28,7 @@ let
         display_format = "markdown";
       };
       work = {
-        journal = "${config.home.homeDirectory}/github/work/${values.git.workGithubUser}/notes/jrnl";
+        journal = "${config.home.homeDirectory}/github/work/${workGithubUser}/notes/jrnl";
         display_format = "markdown";
       };
     };

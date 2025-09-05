@@ -1,7 +1,5 @@
 {
   values,
-  lib,
-  config,
   ...
 }:
 
