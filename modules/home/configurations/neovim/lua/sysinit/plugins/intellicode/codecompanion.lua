@@ -17,14 +17,14 @@ local function get_env_string(key, default)
 end
 
 local agents = {
-  enabled = get_env_bool("SYSINIT_AGENTS_ENABLED", true),
+  enabled = get_env_bool("SYSINIT_NVIM_AGENTS_ENABLED", true),
   copilot = {
-    enabled = get_env_bool("SYSINIT_COPILOT_ENABLED", true),
+    enabled = get_env_bool("SYSINIT_NVIM_COPILOT_ENABLED", true),
   },
   claude_code = {
-    enabled = get_env_bool("SYSINIT_CLAUDE_CODE_ENABLED", false),
+    enabled = get_env_bool("SYSINIT_NVIM_CODECOMPANION_CLAUDE_CODE_ENABLED", false),
   },
-  preferred_adapter = get_env_string("SYSINIT_PREFERRED_ADAPTER", "auto"),
+  preferred_adapter = get_env_string("SYSINIT_NVIM_CODECOMPANION_PREFERRED_ADAPTER", "auto"),
 }
 
 local function get_preferred_adapter()
@@ -60,7 +60,7 @@ M.plugins = {
           claude_code = function()
             return require("codecompanion.adapters").extend("claude_code", {
               env = {
-                CLAUDE_CODE_OAUTH_TOKEN = "CLAUDE_CODE_OAUTH_TOKEN",
+                CLAUDE_CODE_OAUTH_TOKEN = get_env_string("CLAUDE_CODE_OAUTH_TOKEN", ""),
               },
             })
           end,

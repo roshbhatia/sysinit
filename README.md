@@ -68,16 +68,15 @@ task: Available tasks for this project:
 |----------|---------|-------------|
 | `SYSINIT_DEBUG` | `false` | Enable debugging for zsh/nu/nvim |
 | `SYSINIT_MACCHINA_THEME` | `varre` | Macchina theme name |
-| `SYSINIT_AGENTS_ENABLED` | `true` | Enable/disable all AI agents |
-| `SYSINIT_COPILOT_ENABLED` | `true` | Enable GitHub Copilot integration |
-| `SYSINIT_CLAUDE_CODE_ENABLED` | `false` | Enable Claude Code via ACP |
-| `SYSINIT_PREFERRED_ADAPTER` | `auto` | Force specific adapter: `auto`, `copilot`, `claude_code` |
+| `SYSINIT_NVIM_AGENTS_ENABLED` | `true` | Enable/disable all neovim AI agent plugins |
+| `SYSINIT_NVIM_COPILOTLUA_ENABLED` | `true` | Enable GitHub Copilot integration (copilot.lua, copilot-cmp) |
+| `SYSINIT_NVIM_OPENCODE_ENABLED` | `true` | Enable OpenCode |
+| `SYSINIT_NVIM_CODECOMPANION_CLAUDE_CODE_ENABLED` | `false` | Enable CodeCompanion Claude Code via ACP |
+| `SYSINIT_NVIM_PREFERRED_ADAPTER` | `copilot` | Force specific adapter: `copilot`, `claude_code` |
 
 ### External Dependencies
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `CLAUDE_CODE_OAUTH_TOKEN` | - | OAuth token for Claude Pro subscription |
-| `ANTHROPIC_API_KEY` | - | Direct Anthropic API key for Claude Code |
-| `SYSINIT_DEBUG` | - | Enable debug mode when set to `1` |
 
