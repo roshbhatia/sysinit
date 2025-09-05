@@ -16,6 +16,7 @@ M.plugins = {
       "nvim-lua/plenary.nvim",
       "nvim-treesitter/nvim-treesitter",
     },
+    event = "VeryLazy",
     config = function()
       local opts = {
         extensions = {
@@ -60,6 +61,7 @@ M.plugins = {
             adapter = config.get_codecompanion_adapter(),
           },
         },
+        adapters = {},
         display = {
           action_palette = {
             provider = "telescope",

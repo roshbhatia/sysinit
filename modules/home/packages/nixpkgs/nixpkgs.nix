@@ -121,6 +121,7 @@ let
     typescript-language-server
     uv
     vale-ls
+    vectorcode
     vivid
     vscode-langservers-extracted
     watch
