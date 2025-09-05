@@ -65,20 +65,16 @@ M.plugins = {
           group = "Marks",
         },
         {
+          "<leader>n",
+          group = "Notifications",
+        },
+        {
           "<leader>q",
           group = "Qflist",
         },
         {
           "<leader>r",
           group = "Refresh",
-        },
-        {
-          "<leader>c",
-          group = "Centering",
-        },
-        {
-          "<leader>n",
-          group = "Notifications",
         },
       })
 
