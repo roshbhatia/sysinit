@@ -181,14 +181,14 @@ M.plugins = {
           desc = "Toggle git ui",
         },
         {
-          "<localleader>ns",
+          "<leader>ns",
           function()
             Snacks.notifier.show_history()
           end,
           desc = "Show notification history",
         },
         {
-          "<localleader>nc",
+          "<leader>nc",
           function()
             Snacks.notifier.hide()
           end,
@@ -208,35 +208,35 @@ M.plugins = {
 
       local debug_keys = {
         {
-          "<localleader>px",
+          "<leader>px",
           function()
             Snacks.profiler.stop()
           end,
           desc = "Stop profiler",
         },
         {
-          "<localleader>pf",
+          "<leader>pf",
           function()
             Snacks.profiler.pick()
           end,
           desc = "Find profiler events",
         },
         {
-          "<localleader>pp",
+          "<leader>pp",
           function()
             Snacks.toggle.profiler()
           end,
           desc = "Toggle profiler",
         },
         {
-          "<localleader>ph",
+          "<leader>ph",
           function()
             Snacks.toggle.profiler_highlights()
           end,
           desc = "Toggle profiler highlights",
         },
         {
-          "<localleader>ps",
+          "<leader>ps",
           function()
             Snacks.profiler.scratch()
           end,

@@ -16,7 +16,7 @@ M.plugins = {
     keys = function()
       return {
         {
-          "<localleader><localleader>",
+          "<leader>[]",
           function()
             vim.cmd("NoNeckPain")
           end,
@@ -24,19 +24,11 @@ M.plugins = {
           mode = "n",
         },
         {
-          "<localleader>]",
+          "<leader>][",
           function()
-            vim.cmd("NoNeckPainWidthUp")
+            vim.cmd("NoNeckPain")
           end,
-          desc = "Increase centered width",
-          mode = "n",
-        },
-        {
-          "<localleader>[",
-          function()
-            vim.cmd("NoNeckPainWidthDown")
-          end,
-          desc = "Decrease centered width",
+          desc = "Toggle centering",
           mode = "n",
         },
       }

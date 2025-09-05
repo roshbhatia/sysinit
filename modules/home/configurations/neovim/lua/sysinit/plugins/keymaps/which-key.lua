@@ -73,11 +73,11 @@ M.plugins = {
           group = "Refresh",
         },
         {
-          "<localleader>c",
+          "<leader>c",
           group = "Centering",
         },
         {
-          "<localleader>n",
+          "<leader>n",
           group = "Notifications",
         },
       })
@@ -94,7 +94,7 @@ M.plugins = {
       if vim.env.SYSINIT_DEBUG == "1" then
         wk.add({
           {
-            "<localleader>p",
+            "<leader>p",
             group = "Profiler",
           },
         })

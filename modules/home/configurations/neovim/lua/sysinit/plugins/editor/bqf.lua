@@ -7,7 +7,7 @@ M.plugins = {
     config = function()
       require("bqf").setup({
         func_map = {
-          fzffilter = "",
+          fzffilter = "<localleader>f",
           ptoggleauto = "",
           ptoggleitem = "",
           ptogglemode = "",
