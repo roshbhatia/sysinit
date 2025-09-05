@@ -16,7 +16,7 @@ local function get_env_string(key, default)
   return value
 end
 
-local function default_config()
+local function get_config()
   return {
     debug = get_env_bool("SYSINIT_DEBUG", false),
     agents = {
@@ -36,6 +36,15 @@ local function default_config()
       claude_code_token = get_env_string("CLAUDE_CODE_OAUTH_TOKEN", ""),
     },
   }
+end
+
+local _config = nil
+
+function M.get()
+  if not _config then
+    _config = get_config()
+  end
+  return _config
 end
 
 function M.is_agents_enabled()

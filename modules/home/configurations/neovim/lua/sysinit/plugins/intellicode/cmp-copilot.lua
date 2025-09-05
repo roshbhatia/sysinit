@@ -1,5 +1,5 @@
 local M = {}
-local config = require("sysinit.config.nvim_config")
+local config = require("sysinit.utils.config")
 
 M.plugins = {
   {
