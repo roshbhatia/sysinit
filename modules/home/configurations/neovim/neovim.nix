@@ -54,6 +54,9 @@ in
     themes.generateAppJSON "neovim" values.theme
   );
 
+  xdg.configFile."nvim/queries".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/queries";
+
   home.activation.nvimXdgPermissions = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     run mkdir -p "${config.home.homeDirectory}/.cache/nvim"
     run mkdir -p "${config.home.homeDirectory}/.local/state/nvim"
