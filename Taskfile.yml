@@ -18,19 +18,21 @@ vars:
   SHFMT_OPTS: "-i 2 -ci -sr -kp -fn -w"
   NIX_CUSTOM_CONF: "nix.custom.conf"
   NIX_SYSTEM_CONF_DIR: "/etc/nix"
+  NIX_MAX_JOBS: 2
+  NIX_CORES: 2
 
-  # Common error handling
   ERROR_EXIT_CODE: 1
   SUCCESS_EXIT_CODE: 0
 
 tasks:
   default:
+    desc: Show all available tasks
     cmds:
       - task --list-all
-    desc: Show help information
     silent: true
 
   nix:fmt:
+    desc: Format all Nix files using nixfmt
     cmds:
       - |
         #!/usr/bin/env bash
@@ -41,70 +43,56 @@ tasks:
           exit {{.ERROR_EXIT_CODE}}
         fi
         log_success "Nix files formatted successfully"
-    desc: Format Nix files using nixfmt
     silent: true
 
   nix:build:
+    desc: Build the system configuration without applying
+    silent: true
     cmds:
       - |
         #!/usr/bin/env bash
         source {{.LOGGER_SCRIPT}}
         log_info "Building system configuration"
-        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} build --flake . --impure; then
-          log_error "Build failed."
-          exit {{.ERROR_EXIT_CODE}}
+        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} build -v --flake . --impure --show-trace --print-build-logs --max-jobs "${NIX_MAX_JOBS:-2}" --cores "${NIX_CORES:-2}"; then
+          log_error "Build failed (see logs above)"
+          exit 1
         fi
         log_success "Build completed successfully"
-    desc: Build the configuration without applying
-    silent: true
 
   nix:build:work:
+    desc: Build the work system configuration without applying
+    silent: true
+    deps: [nix:update]
     cmds:
       - |
         #!/usr/bin/env bash
         source {{.LOGGER_SCRIPT}}
-        log_info "Building work system configuration"
-        WORK_SYSINIT=$(find {{.WORK_REPO_PATH}} -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
-        if [ -z "${WORK_SYSINIT}" ]; then
-          log_error "Could not find work sysinit repository"
-          exit {{.ERROR_EXIT_CODE}}
+        log_info "Building work configuration"
+        if ! sudo -E NIXPKGS_ALLOW_UNFREE=1 darwin-rebuild build -v --flake .#default --impure --show-trace --print-build-logs --max-jobs "${NIX_MAX_JOBS:-2}" --cores "${NIX_CORES:-2}"; then
+          log_error "Build failed (see logs above)"
+          exit 1
         fi
-        cd "${WORK_SYSINIT}"
-        if ! task nix:build:work; then
-          log_error "Work build failed."
-          exit {{.ERROR_EXIT_CODE}}
-        fi
-        log_success "Work build completed successfully"
-    desc: Build the work sysinit configuration without applying
-    silent: true
+        log_success "Build completed successfully"
 
   nix:clean:
+    desc: Clean Nix store and delete old generations
     cmds:
-      - |
-        #!/usr/bin/env bash
-        source {{.LOGGER_SCRIPT}}
-        log_info "Running garbage collection"
-        if ! sudo nix-collect-garbage -d; then
-          log_error "Garbage collection failed"
-          exit {{.ERROR_EXIT_CODE}}
-        fi
-        log_success "Garbage collection completed successfully"
-    desc: Run garbage collection
+      - nix-collect-garbage -d
     silent: true
 
   nix:update:
+    desc: Update Nix flake inputs and commit lock file
+    silent: true
     cmds:
       - |
         #!/usr/bin/env bash
         source {{.LOGGER_SCRIPT}}
-        log_info "Updating flake inputs"
-        if ! sudo nix flake update; then
-          log_error "Flake update failed"
-          exit {{.ERROR_EXIT_CODE}}
+        log_info "Updating nix flake inputs"
+        if ! sudo -E nix flake update --commit-lock-file --show-trace; then
+          log_error "Flake update failed (see logs above)"
+          exit 1
         fi
-        log_success "Flake inputs updated"
-    desc: Update flake inputs
-    silent: true
+        log_success "Flake inputs updated successfully"
 
   nix:config:
     cmds:
@@ -126,41 +114,37 @@ tasks:
     silent: true
 
   nix:refresh:
+    desc: Apply the system configuration and switch to new generation
+    silent: true
     deps: [nix:update, nix:config]
     cmds:
       - |
         #!/usr/bin/env bash
         source {{.LOGGER_SCRIPT}}
         log_info "Applying system configuration"
-        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} switch --flake . --impure; then
-          log_error "Refresh failed."
-          exit {{.ERROR_EXIT_CODE}}
+        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} switch -v --flake . --impure --show-trace --print-build-logs --max-jobs "${NIX_MAX_JOBS:-2}" --cores "${NIX_CORES:-2}"; then
+          log_error "Refresh failed (see logs above)"
+          exit 1
         fi
         log_success "System configuration applied successfully"
-    desc: Apply the system configuration
-    silent: true
 
   nix:refresh:work:
+    desc: Apply the work system configuration
+    silent: true
+    deps: [nix:update]
     cmds:
       - |
         #!/usr/bin/env bash
         source {{.LOGGER_SCRIPT}}
-        log_info "Refreshing work configuration"
-        WORK_SYSINIT=$(find {{.WORK_REPO_PATH}} -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
-        if [ -z "${WORK_SYSINIT}" ]; then
-          log_error "Could not find work sysinit repository"
-          exit {{.ERROR_EXIT_CODE}}
+        log_info "Switching to new configuration"
+        if ! sudo -E NIXPKGS_ALLOW_UNFREE=1 darwin-rebuild switch -v --flake .#default --impure --offline --show-trace --print-build-logs --max-jobs "${NIX_MAX_JOBS:-2}" --cores "${NIX_CORES:-2}"; then
+          log_error "Switch failed (see logs above)"
+          exit 1
         fi
-        cd "${WORK_SYSINIT}"
-        if ! task nix:refresh:work; then
-          log_error "Work refresh failed."
-          exit {{.ERROR_EXIT_CODE}}
-        fi
-        log_success "Work configuration refreshed successfully"
-    desc: Update and rebuild work sysinit configuration
-    silent: true
+        log_success "System configuration switched successfully"
 
   sh:fmt:
+    desc: Format all shell files using shfmt
     cmds:
       - |
         #!/usr/bin/env bash
@@ -173,10 +157,10 @@ tasks:
           fi
         done
         log_success "Shell files formatted successfully"
-    desc: Format shell files using shfmt
     silent: true
 
   sh:chmod:
+    desc: Make all .sh files in the repository executable
     cmds:
       - |
         #!/usr/bin/env bash
@@ -187,10 +171,10 @@ tasks:
           exit {{.ERROR_EXIT_CODE}}
         fi
         log_success "All .sh files are now executable"
-    desc: Make all .sh files in the repository executable
     silent: true
 
   lua:fmt:
+    desc: Format all Lua files using stylua
     cmds:
       - |
         #!/usr/bin/env bash
@@ -201,10 +185,9 @@ tasks:
           exit {{.ERROR_EXIT_CODE}}
         fi
         log_success "Lua files formatted successfully"
-    desc: Format Lua files using stylua
     silent: true
 
   fmt:
-    deps: [nix:fmt, lua:fmt, sh:fmt]
     desc: Format all supported file types
+    deps: [nix:fmt, lua:fmt, sh:fmt]
     silent: true
