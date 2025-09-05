@@ -7,11 +7,9 @@ M.plugins = {
     config = function()
       require("bqf").setup({
         func_map = {
-          fzffilter = "<localleader>f",
-          ptoggleauto = "",
-          ptoggleitem = "",
-          ptogglemode = "",
+          fzffilter = "",
           split = "<localleader>s",
+          tabb = "",
           tabc = "",
           vsplit = "<localleader>v",
         },
