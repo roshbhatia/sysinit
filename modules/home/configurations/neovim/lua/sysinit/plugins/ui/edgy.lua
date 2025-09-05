@@ -50,8 +50,8 @@ M.plugins = {
             end,
           },
           {
-            title = " Symbols Outline",
-            ft = "aerial",
+            title = " CodeCompanion",
+            ft = "codecompanion",
           },
         },
         icons = {

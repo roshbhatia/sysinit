@@ -56,7 +56,9 @@ M.plugins = {
             adapter = config.get_codecompanion_adapter(),
           },
         },
-        adapters = {},
+        adapters = {
+          acp = {},
+        },
         display = {
           action_palette = {
             provider = "telescope",
@@ -74,8 +76,8 @@ M.plugins = {
         keymaps = {
           send = {
             modes = {
-              n = { "<CR>", "<S-CR>" },
-              i = "<S-CR>",
+              n = { "<C-CR>" },
+              i = "<C-CR>",
             },
             index = 2,
             callback = "keymaps.send",
