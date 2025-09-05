@@ -60,3 +60,24 @@ task: Available tasks for this project:
 * nix:refresh:work:        Update and rebuild work sysinit configuration
 ```
 
+## Environment Variables
+
+### SYSINIT Configuration
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SYSINIT_DEBUG` | `false` | Enable debugging for zsh/nu/nvim |
+| `SYSINIT_MACCHINA_THEME` | `varre` | Macchina theme name |
+| `SYSINIT_AGENTS_ENABLED` | `true` | Enable/disable all AI agents |
+| `SYSINIT_COPILOT_ENABLED` | `true` | Enable GitHub Copilot integration |
+| `SYSINIT_CLAUDE_CODE_ENABLED` | `false` | Enable Claude Code via ACP |
+| `SYSINIT_PREFERRED_ADAPTER` | `auto` | Force specific adapter: `auto`, `copilot`, `claude_code` |
+
+### External Dependencies
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CLAUDE_CODE_OAUTH_TOKEN` | - | OAuth token for Claude Pro subscription |
+| `ANTHROPIC_API_KEY` | - | Direct Anthropic API key for Claude Code |
+| `SYSINIT_DEBUG` | - | Enable debug mode when set to `1` |
+

@@ -60,6 +60,7 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.git.gitsigns"),
   require("sysinit.plugins.intellicode.blink-cmp"),
   require("sysinit.plugins.intellicode.cmp-copilot"),
+  require("sysinit.plugins.intellicode.codecompanion"),
   require("sysinit.plugins.intellicode.colorful-menu"),
   require("sysinit.plugins.intellicode.copilot"),
   require("sysinit.plugins.intellicode.conform"),

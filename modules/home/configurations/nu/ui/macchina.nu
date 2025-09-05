@@ -3,8 +3,8 @@
 # shellcheck disable=all
 # modules/darwin/home/nu/core/macchina.nu (begin)
 if ($env.WEZTERM_PANE? == "0") and ($env.NVIM? | is-empty) {
-  if ($env.MACCHINA_THEME? | is-not-empty) {
-    macchina --theme $env.MACCHINA_THEME
+  if ($env.SYSINIT_MACCHINA_THEME? | is-not-empty) {
+    macchina --theme $env.SYSINIT_MACCHINA_THEME
   } else {
     macchina --theme varre
   }

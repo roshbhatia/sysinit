@@ -1,23 +1,7 @@
-local agents_config = require("sysinit.config.agents_config").load_config()
 local M = {}
-
-local function get_plugin_spec()
-  local opencode_config = agents_config.agents.opencode
-  if opencode_config.local_path then
-    return {
-      dir = vim.fn.expand(opencode_config.local_path),
-      name = "opencode.nvim",
-    }
-  else
-    return {
-      "NickvanDyke/opencode.nvim",
-    }
-  end
-end
 
 M.plugins = {
   vim.tbl_deep_extend("force", get_plugin_spec(), {
-    enabled = agents_config.agents.enabled and agents_config.agents.opencode.enabled,
     dependencies = {
       "folke/snacks.nvim",
     },
