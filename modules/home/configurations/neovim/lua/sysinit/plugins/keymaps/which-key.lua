@@ -78,7 +78,7 @@ M.plugins = {
         wk.add({
           {
             "<leader>j",
-            group = "Agents - OpenCode",
+            group = "OpenCode",
           },
         })
       end
@@ -87,7 +87,7 @@ M.plugins = {
         wk.add({
           {
             "<leader>k",
-            group = "Agents - CodeCompanion",
+            group = "CodeCompanion",
           },
         })
       end

@@ -182,12 +182,6 @@ M.plugins = {
           chat = {
             adapter = config.get_codecompanion_adapter(),
           },
-          cmd = {
-            adapter = config.get_codecompanion_adapter(),
-          },
-          inline = {
-            adapter = config.get_codecompanion_adapter(),
-          },
         },
       }
 
@@ -206,28 +200,22 @@ M.plugins = {
     keys = function()
       return {
         {
-          "<leader>k,",
+          "<leader>kt",
           "<CMD>CodeCompanion /tests<CR>",
-          desc = "Generate tests",
+          desc = "Generate tests for selection",
           mode = "v",
         },
         {
-          "<leader>k.",
+          "<leader>kf",
           "<CMD>CodeCompanion /fix<CR>",
-          desc = "Fix code",
+          desc = "Fix diagnostics within selection",
           mode = "v",
         },
         {
-          "<leader>k/",
+          "<leader>ke",
           "<CMD>CodeCompanion /explain<CR>",
-          desc = "Explain code",
+          desc = "Explain selection",
           mode = "v",
-        },
-        {
-          "<leader>k:",
-          "<CMD>CodeCompanionCmd<CR>",
-          desc = "Generate command",
-          mode = "n",
         },
         {
           "<leader>ka",
@@ -238,31 +226,25 @@ M.plugins = {
         {
           "<leader>kc",
           "<CMD>CodeCompanionChat Add<CR>",
-          desc = "Add current file to chat",
-          mode = { "n", "v" },
-        },
-        {
-          "<leader>ke",
-          "<CMD>CodeCompanion<CR>",
-          desc = "Inline assistant",
-          mode = { "n", "v" },
+          desc = "Add selection to chat",
+          mode = { "v" },
         },
         {
           "<leader>kk",
           "<CMD>CodeCompanionChat Toggle<CR>",
           desc = "Toggle chat",
-          mode = { "n", "v" },
+          mode = { "n" },
         },
         {
           "<leader>kK",
           "<CMD>CodeCompanionChat<CR>",
           desc = "New chat",
-          mode = { "n", "v" },
+          mode = { "n" },
         },
         {
           "<leader>kl",
           "<CMD>CodeCompanion /lsp<CR>",
-          desc = "Explain LSP diagnostics",
+          desc = "Explain diagnostics within selection",
           mode = "v",
         },
       }
