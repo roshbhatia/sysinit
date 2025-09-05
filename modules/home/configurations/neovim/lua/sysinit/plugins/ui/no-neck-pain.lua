@@ -8,8 +8,11 @@ M.plugins = {
       require("no-neck-pain").setup({
         width = 200,
         noremap = true,
-        colors = {
-          blend = -0.2,
+        integrations = {
+          NeoTree = {
+            position = "left",
+            reopen = true,
+          },
         },
       })
     end,
