@@ -10,7 +10,8 @@ end
 
 M.plugins = {
   {
-    enabled = get_env_bool("SYSINIT_AGENTS_ENABLED", true) and get_env_bool("SYSINIT_COPILOT_ENABLED", true),
+    enabled = get_env_bool("SYSINIT_AGENTS_ENABLED", true)
+      and get_env_bool("SYSINIT_COPILOT_ENABLED", true),
     "giuxtaposition/blink-cmp-copilot",
     dependencies = {
       "zbirenbaum/copilot.lua",

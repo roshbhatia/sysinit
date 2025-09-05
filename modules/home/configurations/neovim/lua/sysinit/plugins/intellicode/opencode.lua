@@ -1,7 +1,8 @@
 local M = {}
 
 M.plugins = {
-  vim.tbl_deep_extend("force", get_plugin_spec(), {
+  {
+    "NickvanDyke/opencode.nvim",
     dependencies = {
       "folke/snacks.nvim",
     },
@@ -74,7 +75,7 @@ M.plugins = {
         mode = "n",
       },
     },
-  }),
+  },
 }
 
 return M
