@@ -49,13 +49,6 @@ M.plugins = {
               return vim.bo[buf].buftype == "help"
             end,
           },
-          {
-            size = {
-              width = 0.33,
-            },
-            title = " CodeCompanion",
-            ft = "codecompanion",
-          },
         },
         icons = {
           closed = "",
