@@ -102,7 +102,6 @@ local function get_window_appearance_config()
 end
 
 function M.setup(config)
-  -- Set initial theme config
   local configs = {
     get_window_appearance_config(),
   }
@@ -113,7 +112,6 @@ function M.setup(config)
     end
   end
 
-  -- Add event handler to update transparency when process changes
   if theme_config.nvim_transparency_override then
     config.window_decorations = "RESIZE"
 
