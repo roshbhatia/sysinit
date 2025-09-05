@@ -129,6 +129,8 @@ M.plugins = {
     },
     config = function(_, opts)
       require("nvim-treesitter.configs").setup(opts)
+
+      vim.g._ts_force_sync_parsing = true
     end,
   },
 }
