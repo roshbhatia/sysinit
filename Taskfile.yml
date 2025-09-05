@@ -60,19 +60,24 @@ tasks:
         log_success "Build completed successfully"
 
   nix:build:work:
-    desc: Build the work system configuration without applying
-    silent: true
-    deps: [nix:update]
     cmds:
       - |
         #!/usr/bin/env bash
         source {{.LOGGER_SCRIPT}}
-        log_info "Building work configuration"
-        if ! sudo -E NIXPKGS_ALLOW_UNFREE=1 darwin-rebuild build -v --flake .#default --impure --show-trace --print-build-logs --max-jobs "${NIX_MAX_JOBS:-2}" --cores "${NIX_CORES:-2}"; then
-          log_error "Build failed (see logs above)"
-          exit 1
+        log_info "Building work system configuration"
+        WORK_SYSINIT=$(find {{.WORK_REPO_PATH}} -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
+        if [ -z "${WORK_SYSINIT}" ]; then
+          log_error "Could not find work sysinit repository"
+          exit {{.ERROR_EXIT_CODE}}
         fi
-        log_success "Build completed successfully"
+        cd "${WORK_SYSINIT}"
+        if ! task nix:build:work; then
+          log_error "Work build failed."
+          exit {{.ERROR_EXIT_CODE}}
+        fi
+        log_success "Work build completed successfully"
+    desc: Build the work sysinit configuration without applying
+    silent: true
 
   nix:clean:
     desc: Clean Nix store and delete old generations
@@ -129,19 +134,24 @@ tasks:
         log_success "System configuration applied successfully"
 
   nix:refresh:work:
-    desc: Apply the work system configuration
-    silent: true
-    deps: [nix:update]
     cmds:
       - |
         #!/usr/bin/env bash
         source {{.LOGGER_SCRIPT}}
-        log_info "Switching to new configuration"
-        if ! sudo -E NIXPKGS_ALLOW_UNFREE=1 darwin-rebuild switch -v --flake .#default --impure --offline --show-trace --print-build-logs --max-jobs "${NIX_MAX_JOBS:-2}" --cores "${NIX_CORES:-2}"; then
-          log_error "Switch failed (see logs above)"
-          exit 1
+        log_info "Building work system configuration"
+        WORK_SYSINIT=$(find {{.WORK_REPO_PATH}} -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
+        if [ -z "${WORK_SYSINIT}" ]; then
+          log_error "Could not find work sysinit repository"
+          exit {{.ERROR_EXIT_CODE}}
         fi
-        log_success "System configuration switched successfully"
+        cd "${WORK_SYSINIT}"
+        if ! task nix:refresh:work; then
+          log_error "Refresh failed (see logs above)"
+          exit {{.ERROR_EXIT_CODE}}
+        fi
+        log_success "System configuration applied successfully"
+    desc: Apply the system configuration and switch to new generation
+    silent: true
 
   sh:fmt:
     desc: Format all shell files using shfmt
