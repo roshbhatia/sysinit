@@ -3,16 +3,13 @@ local M = {}
 
 local terminal_font = wezterm.font_with_fallback({
   {
-    family = "TX-02",
-    harfbuzz_features = {
-      "calt",
-      "zero",
-    },
-  },
-  {
     family = "JetBrains Mono",
     harfbuzz_features = {
       "calt",
+      "dlig",
+      "liga",
+      "salt",
+      "ss01",
       "zero",
     },
   },
@@ -56,9 +53,7 @@ end
 local function get_font_config()
   return {
     font = terminal_font,
-    freetype_load_target = "Light",
     font_size = 14.0,
-    line_height = 1.0,
   }
 end
 
