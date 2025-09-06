@@ -12,7 +12,7 @@ M.plugins = {
           base_sections = {
             breakpoints = {
               keymap = "<localleader>b",
-              label = "Breakpoints [<localleader>b]",
+              label = "Breakpoints [\\b]",
               short_label = " [B]",
               action = function()
                 views.switch_to_view("breakpoints")
@@ -20,7 +20,7 @@ M.plugins = {
             },
             scopes = {
               keymap = "<localleader>s",
-              label = "Scopes [<localleader>s]",
+              label = "Scopes [\\s]",
               short_label = "󰂥 [s]",
               action = function()
                 views.switch_to_view("scopes")
@@ -28,7 +28,7 @@ M.plugins = {
             },
             exceptions = {
               keymap = "<localleader>e",
-              label = "Exceptions [<localleader>e]",
+              label = "Exceptions [\\e]",
               short_label = "󰢃 [e]",
               action = function()
                 views.switch_to_view("exceptions")
@@ -36,7 +36,7 @@ M.plugins = {
             },
             watches = {
               keymap = "<localleader>w",
-              label = "Watches [<localleader>w]",
+              label = "Watches [\\w]",
               short_label = "󰛐 [w]",
               action = function()
                 views.switch_to_view("watches")
@@ -44,7 +44,7 @@ M.plugins = {
             },
             threads = {
               keymap = "<localleader>t",
-              label = "Threads [<localleader>t]",
+              label = "Threads [\\t]",
               short_label = "󱉯 [t]",
               action = function()
                 views.switch_to_view("threads")
@@ -52,7 +52,7 @@ M.plugins = {
             },
             repl = {
               keymap = "<localleader>r",
-              label = "REPL [<localleader>r]",
+              label = "REPL [\\r]",
               short_label = "󰯃 [r]",
               action = function()
                 require("dap-view.repl").show()
@@ -60,7 +60,7 @@ M.plugins = {
             },
             sessions = {
               keymap = "<localleader>k",
-              label = "Sessions [<localleader>k]",
+              label = "Sessions [\\k]",
               short_label = " [k]",
               action = function()
                 views.switch_to_view("sessions")
@@ -68,7 +68,7 @@ M.plugins = {
             },
             console = {
               keymap = "<localleader>c",
-              label = "Console [<localleader>c]",
+              label = "Console [\\c]",
               short_label = "󰆍 [c]",
               action = function()
                 require("dap-view.term").show()
