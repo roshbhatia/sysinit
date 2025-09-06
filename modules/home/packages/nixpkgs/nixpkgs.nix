@@ -114,6 +114,7 @@ let
     tflint
     tflint-plugins.tflint-ruleset-aws
     tfsec
+    tig
     tlrc
     tree
     typescript
