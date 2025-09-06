@@ -72,6 +72,10 @@ M.plugins = {
           "<leader>r",
           group = "Refresh",
         },
+        {
+          "gr",
+          group = "LSP",
+        },
       })
 
       if config.is_opencode_enabled() then

@@ -231,6 +231,11 @@ M.plugins = {
           desc = "Go to implementation",
         },
         {
+          "grt",
+          vim.lsp.buf.type_definition,
+          desc = "Go to type definition",
+        },
+        {
           "gO",
           vim.lsp.buf.document_symbol,
           desc = "Document outline",
