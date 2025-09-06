@@ -19,6 +19,7 @@ let
   ];
 
   baseBrews = [
+    "bashdb"
     "bcrypt"
     "block-goose-cli"
     "charmbracelet/tap/crush"

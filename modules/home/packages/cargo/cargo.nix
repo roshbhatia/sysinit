@@ -7,10 +7,7 @@
 }:
 
 let
-  cargoPackages = [
-    "tree-sitter-cli"
-  ]
-  ++ (values.cargo.additionalPackages or [ ]);
+  cargoPackages = [ ] ++ (values.cargo.additionalPackages or [ ]);
 in
 {
   home.activation = {

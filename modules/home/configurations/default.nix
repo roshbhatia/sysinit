@@ -21,7 +21,6 @@
     ./nix
     ./nu
     ./omp
-    ./treesitter
     ./utils
     ./vivid
     ./vscode
