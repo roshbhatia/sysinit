@@ -65,6 +65,10 @@ in
       c = "code-insiders";
       v = "nvim";
 
+      vimdiff = "nvim -d";
+      vd = "nvim -d";
+      h = "hx";
+
       kubectl = "kubecolor";
       tf = "terraform";
       y = "yazi";
