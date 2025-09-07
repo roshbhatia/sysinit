@@ -7,7 +7,10 @@
 }:
 
 let
-  yarnPackages = [ ] ++ (values.yarn.additionalPackages or [ ]);
+  yarnPackages = [
+    "@charmland/crush"
+  ]
+  ++ (values.yarn.additionalPackages or [ ]);
 in
 {
   home.activation.yarnPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
