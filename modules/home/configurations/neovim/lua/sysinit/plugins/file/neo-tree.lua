@@ -100,8 +100,8 @@ M.plugins = {
             ["m"] = "move",
             ["q"] = "close_window",
             ["?"] = "show_help",
-            ["<"] = "prev_source",
-            [">"] = "next_source",
+            ["<localleader>p"] = "prev_source",
+            ["<localleader>n"] = "next_source",
           },
         },
         filesystem = {
