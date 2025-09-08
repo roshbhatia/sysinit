@@ -26,7 +26,12 @@ in
             command = [ mcpServers.servers.memory.command ] ++ mcpServers.servers.memory.args;
           };
         };
-        lsp = lspConfig.lsp;
+         lsp = builtins.mapAttrs (
+           name: lsp: {
+             command = (lsp.command or []) ++ (lsp.args or []);
+             extensions = lsp.extensions or [];
+           }
+         ) config.lsp.lsp;
       });
       force = true;
     };

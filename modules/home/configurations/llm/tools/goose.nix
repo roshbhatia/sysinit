@@ -1,37 +1,7 @@
-{ lib, values, ... }:
+{ lib, ... }:
 let
-  gooseProvider = values.llm.goose.provider or "github_copilot";
-
-  providerConfigs = {
-    "github_copilot" = {
-      model = "gemini-2.0-flash-001";
-      plannerModel = "claude-3.7-sonnet";
-      provider = "github_copilot";
-    };
-    "claude-code" = {
-      model = "claude-3-5-sonnet-20241022";
-      plannerModel = "claude-3-5-sonnet-20241022";
-      provider = "claude-code";
-    };
-  };
-
-  config = (providerConfigs.${gooseProvider} or providerConfigs.github_copilot) // {
-    editMode = "vi";
-  };
-
+  config = import ../config/goose.nix;
   agents = import ../shared/agents.nix;
-
-  toTitleCase =
-    name:
-    let
-      words = lib.splitString "-" name;
-      capitalizeWord =
-        word: lib.toUpper (lib.substring 0 1 word) + lib.substring 1 (lib.stringLength word) word;
-    in
-    lib.concatStringsSep " " (map capitalizeWord words);
-
-  activitiesToYaml =
-    activities: lib.concatStringsSep "\n" (map (activity: "  - \"${activity}\"") activities);
 in
 {
   xdg.configFile = {
@@ -41,25 +11,7 @@ in
         GOOSE_MODEL = config.model;
         GOOSE_PLANNER_MODEL = config.plannerModel;
         GOOSE_PROVIDER = config.provider;
-        extensions = {
-          computercontroller = {
-            bundled = true;
-            display_name = "Computer Controller";
-            enabled = true;
-            name = "computercontroller";
-            timeout = 300;
-            type = "builtin";
-          };
-          developer = {
-            bundled = true;
-            display_name = "Developer Tools";
-            enabled = true;
-            name = "developer";
-            timeout = 300;
-            type = "builtin";
-            args = null;
-          };
-        };
+        extensions = config.extensions;
       };
       force = true;
     };
@@ -70,13 +22,15 @@ in
       value = {
         text = ''
           version: 1.0.0
-          title: ${toTitleCase agent.name}
+          title: ${agent.name}
           description: ${agent.description}
           instructions: |
+            <prompt>
             ${agent.prompt}
+            </prompt>
 
           activities:
-          ${activitiesToYaml agent.activities}
+          ${lib.concatStringsSep "\n" (map (activity: "  - \"${activity}\"") agent.activities)}
         '';
       };
     }) agents

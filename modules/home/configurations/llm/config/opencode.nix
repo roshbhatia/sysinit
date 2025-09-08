@@ -1,5 +1,6 @@
 {
   schema = "https://opencode.ai/config.json";
+  lsp = import ../shared/lsp.nix;
   theme = "system";
   autoupdate = true;
   agent = {
