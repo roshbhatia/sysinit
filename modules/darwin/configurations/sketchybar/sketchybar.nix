@@ -58,9 +58,9 @@ let
 
   writeAerospaceScript = pkgs.writeText "aerospace.sh" ''
     #!/usr/bin/env zsh
-    INACTIVE_BG=${toAlpha "20" semanticColors.background.secondary}
+    INACTIVE_BG=${toAlpha "60" semanticColors.background.secondary}
     ACTIVE_BG=${colors.accent}
-    INACTIVE_LABEL=${colors.muted}
+    INACTIVE_LABEL=${colors.text}
     ACTIVE_LABEL=${colors.background}
     SID=$1
     CURRENT=$(aerospace list-workspaces --focused)
@@ -77,7 +77,7 @@ let
         background.height=24 \
         background.corner_radius=8 \
         label.color="$INACTIVE_LABEL" \
-        label.font="TX-02:Medium:12.0"
+        label.font="TX-02:Bold:12.0"
     fi
   '';
 
@@ -130,7 +130,7 @@ in
       for sid in $(aerospace list-workspaces --all); do
         sketchybar --add item space.$sid left \
           --set space.$sid background.drawing=on \
-              background.color=${toAlpha "20" semanticColors.background.secondary} \
+              background.color=${toAlpha "60" semanticColors.background.secondary} \
               background.corner_radius=8 background.height=24 \
               icon.drawing=off \
               label.font="TX-02:Bold:12.0" label.color=${colors.text} label="$sid" \
@@ -148,8 +148,8 @@ in
       # Front app with enhanced styling
       sketchybar --add item front_app left \
         --set front_app background.drawing=on \
-              background.color=${toAlpha "30" semanticColors.background.secondary} \
-              background.corner_radius=8 background.height=26 \
+              background.color=${toAlpha "60" semanticColors.background.secondary} \
+              background.corner_radius=8 background.height=24 \
               icon.font="SKEYCHYBAR-Ionicons:13.0" icon.color=${colors.accent} \
               label.font="TX-02:Medium:11.0" label.color=${colors.text} \
               script="${writeFrontAppScript}" padding_left=8 padding_right=8
@@ -158,7 +158,7 @@ in
       # Right side system indicators with improved styling
       sketchybar --add item volume right \
         --set volume background.drawing=on \
-              background.color=${toAlpha "20" semanticColors.background.secondary} \
+              background.color=${toAlpha "60" semanticColors.background.secondary} \
               background.corner_radius=8 background.height=24 \
               icon.font="TX-02:Bold:13.0" icon.color=${colors.accent} \
               label.font="TX-02:Medium:11.0" label.color=${colors.text} \
@@ -172,7 +172,7 @@ in
 
       sketchybar --add item battery right \
         --set battery background.drawing=on \
-              background.color=${toAlpha "20" semanticColors.background.secondary} \
+              background.color=${toAlpha "60" semanticColors.background.secondary} \
               background.corner_radius=8 background.height=24 \
               icon.font="TX-02:Bold:13.0" label.font="TX-02:Medium:11.0" \
               script="${writeBatteryScript}" \
@@ -183,7 +183,7 @@ in
       sketchybar --add item clock right \
         --set clock icon=󰃰 icon.color=${colors.accent} icon.font="TX-02:Bold:14.0" \
               background.drawing=on \
-              background.color=${toAlpha "20" semanticColors.background.secondary} \
+              background.color=${toAlpha "60" semanticColors.background.secondary} \
               background.corner_radius=8 background.height=24 \
               label.font="TX-02:Medium:11.0" label.color=${colors.text} \
               script="sh /usr/local/share/sketchybar/plugins/clock.sh" \
