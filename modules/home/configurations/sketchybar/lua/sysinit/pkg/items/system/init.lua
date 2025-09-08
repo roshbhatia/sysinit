@@ -19,21 +19,25 @@ local function get_battery_info()
 
     local icon, color
     if charging then
-      icon, color = "󰂄", theme.colors.accent
+      icon, color = ":battery.100.bolt:", theme.colors.accent
     elseif percent >= 80 then
-      icon, color = "󰁹", theme.colors.white
+      icon, color = ":battery.100:", theme.colors.white
     elseif percent >= 60 then
-      icon, color = "󰂀", theme.colors.white
+      icon, color = ":battery.75:", theme.colors.white
     elseif percent >= 40 then
-      icon, color = "󰁾", theme.colors.accent
+      icon, color = ":battery.50:", theme.colors.accent
     elseif percent >= 20 then
-      icon, color = "󰁼", theme.colors.accent
+      icon, color = ":battery.25:", theme.colors.accent
     else
-      icon, color = "󰁺", theme.colors.accent
+      icon, color = ":battery.0:", theme.colors.accent
     end
 
     battery:set({
-      icon = { string = icon, color = color },
+      icon = {
+        string = icon,
+        color = color,
+        font = theme.fonts.system_icon
+      },
       label = { string = percent .. "%", color = color },
     })
   end)
@@ -52,17 +56,20 @@ local function get_volume_info()
 
     local icon
     if volume == 0 then
-      icon = "󰝟"
+      icon = ":speaker.slash:"
     elseif volume < 33 then
-      icon = "󰕿"
+      icon = ":speaker.wave.1:"
     elseif volume < 66 then
-      icon = "󰖀"
+      icon = ":speaker.wave.2:"
     else
-      icon = "󰕾"
+      icon = ":speaker.wave.3:"
     end
 
     volume_item:set({
-      icon = { string = icon },
+      icon = {
+        string = icon,
+        font = theme.fonts.system_icon
+      },
       label = { string = volume .. "%" },
     })
   end)
@@ -85,12 +92,12 @@ local function get_time()
       local utc_time = utc_result:gsub("%s+", " "):gsub("^%s*", ""):gsub("%s*$", "")
 
       clock:set({
-        icon = { string = "🕐" },
+        icon = { string = " " },
         label = { string = local_time },
       })
 
       utc_clock:set({
-        icon = { string = "🌐" },
+        icon = { string = " " },
         label = { string = utc_time },
       })
     end)
@@ -99,7 +106,7 @@ end
 
 local function update_clocks()
   get_time()
-  sbar.exec("sleep 60", update_clocks)
+  -- Use timer instead of blocking exec
 end
 
 function M.setup()
@@ -137,7 +144,10 @@ function M.setup()
 
   volume_item = sbar.add("item", "volume", {
     position = "right",
-    icon = { string = "󰕾" },
+    icon = {
+      string = ":speaker.wave.3:",
+      font = theme.fonts.system_icon,
+    },
     background = { drawing = false },
     padding_left = 8,
     padding_right = 8,
@@ -149,28 +159,14 @@ function M.setup()
       blur_radius = 30,
       height = 35,
       y_offset = 10,
-      padding_left = 10,
-      padding_right = 10,
     },
   })
 
-  -- Add volume slider to popup
-  local volume_slider = sbar.add("slider", "volume.slider", {
+  -- Add volume info to popup
+  local volume_popup = sbar.add("item", "volume.popup", {
     position = "popup.volume",
-    slider = {
-      highlight_color = theme.colors.accent,
-      background = {
-        height = 6,
-        corner_radius = 3,
-        color = theme.colors.item_bg,
-      },
-      knob = {
-        string = "󰐾",
-        drawing = true,
-      },
-    },
+    label = { string = "Volume Control" },
     background = { drawing = false },
-    click_script = 'sketchybar --set volume.slider slider.percentage=$PERCENTAGE && osascript -e "set volume output volume $PERCENTAGE"',
   })
 
   volume_item:subscribe("volume_change", function(env)
@@ -188,7 +184,6 @@ function M.setup()
   get_battery_info()
   get_volume_info()
   get_time()
-  update_clocks()
 end
 
 return M

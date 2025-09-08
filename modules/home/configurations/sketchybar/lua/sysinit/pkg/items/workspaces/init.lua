@@ -24,7 +24,7 @@ local function update_workspaces()
             corner_radius = theme.geometry.workspace.corner_radius,
           },
           label = {
-            string = " " .. workspace .. " ",  -- Add padding with monospace font
+            string = " " .. workspace .. " ", -- Add padding with monospace font
             color = theme.colors.white,
             font = theme.fonts.text_bold,
           },
@@ -37,7 +37,7 @@ local function update_workspaces()
             corner_radius = theme.geometry.workspace.corner_radius,
           },
           label = {
-            string = " " .. workspace .. " ",  -- Add padding with monospace font
+            string = " " .. workspace .. " ", -- Add padding with monospace font
             color = theme.colors.muted,
             font = theme.fonts.text_medium,
           },
