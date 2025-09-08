@@ -10,7 +10,7 @@ in
 {
   xdg.configFile."sketchybar/sketchybarrc" = {
     text = ''
-      #!${pkgs.lua}/bin/lua
+      #! /opt/homebrew/bin/lua
 
       package.cpath = package.cpath .. ";${pkgs.sbarlua}/lib/lua/5.4/?.so"
       package.path = package.path .. ";${config.xdg.configHome}/sketchybar/lua/?.lua;${config.xdg.configHome}/sketchybar/lua/?/init.lua"

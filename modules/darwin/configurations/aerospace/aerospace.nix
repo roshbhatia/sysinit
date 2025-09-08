@@ -5,7 +5,6 @@
 {
   services.aerospace = {
     enable = true;
-    package = pkgs.aerospace;
 
     settings = {
       enable-normalization-flatten-containers = true;
