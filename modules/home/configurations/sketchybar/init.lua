@@ -1,5 +1,0 @@
-require("sysinit.pkg.theme")
-require("sysinit.pkg.core").setup()
-require("sysinit.pkg.items.workspaces").setup()
-require("sysinit.pkg.items.front_app").setup()
-require("sysinit.pkg.items.system").setup()
