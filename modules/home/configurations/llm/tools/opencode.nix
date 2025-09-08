@@ -25,12 +25,10 @@ in
             command = [ mcpServers.servers.memory.command ] ++ mcpServers.servers.memory.args;
           };
         };
-         lsp = builtins.mapAttrs (
-           _name: lsp: {
-             command = (lsp.command or []) ++ (lsp.args or []);
-             extensions = lsp.extensions or [];
-           }
-         ) config.lsp.lsp;
+        lsp = builtins.mapAttrs (_name: lsp: {
+          command = (lsp.command or [ ]) ++ (lsp.args or [ ]);
+          extensions = lsp.extensions or [ ];
+        }) config.lsp.lsp;
       });
       force = true;
     };

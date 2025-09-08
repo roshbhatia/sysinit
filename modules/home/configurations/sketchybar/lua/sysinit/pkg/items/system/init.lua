@@ -52,13 +52,13 @@ local function get_volume_info()
 
     local icon
     if volume == 0 then
-      icon = "󰸈"
+      icon = "\udb83\ude08"
     elseif volume < 33 then
-      icon = "󰕿"
+      icon = "\udb81\udd7f"
     elseif volume < 66 then
-      icon = "󰖀"
+      icon = "\udb81\udd80"
     else
-      icon = "󰕾"
+      icon = "\udb81\udd7e"
     end
 
     volume_item:set({
@@ -116,7 +116,7 @@ function M.setup()
 
   volume_item = sbar.add("item", "volume", {
     position = "right",
-    icon = { string = "󰕾" },
+    icon = { string = "\udb81\udd7e" },
     background = {
       corner_radius = theme.geometry.item.corner_radius,
       height = theme.geometry.item.height,

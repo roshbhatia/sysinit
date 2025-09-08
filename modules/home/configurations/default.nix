@@ -21,6 +21,7 @@
     ./nix
     ./nu
     ./omp
+    ./sketchybar
     ./utils
     ./vivid
     ./vscode

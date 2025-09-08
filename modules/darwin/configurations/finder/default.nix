@@ -10,6 +10,7 @@
       QuitMenuItem = true;
       ShowPathbar = true;
     };
+
     NSGlobalDomain = {
       "com.apple.sound.beep.feedback" = 0;
       AppleInterfaceStyle = "Dark";
@@ -22,5 +23,7 @@
       NSWindowShouldDragOnGesture = true;
       _HIHideMenuBar = true;
     };
+
+    NSAutomaticWindowAnimationsEnabled = false;
   };
 }

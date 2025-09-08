@@ -1,0 +1,6 @@
+{ ... }:
+{
+  imports = [
+    ./sketchybar.nix
+  ];
+}

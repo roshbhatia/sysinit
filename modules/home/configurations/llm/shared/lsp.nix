@@ -3,12 +3,17 @@
     go = {
       command = [ "gopls" ];
       extensions = [ ".go" ];
-      env = { GOTOOLCHAIN = "go1.24.5"; };
+      env = {
+        GOTOOLCHAIN = "go1.24.5";
+      };
     };
     typescript = {
       command = [ "typescript-language-server" ];
       args = [ "--stdio" ];
-      extensions = [ ".ts" ".tsx" ];
+      extensions = [
+        ".ts"
+        ".tsx"
+      ];
     };
     nix = {
       command = [ "nil" ];
@@ -32,7 +37,10 @@
     yaml = {
       command = [ "yaml-language-server" ];
       args = [ "--stdio" ];
-      extensions = [ ".yaml" ".yml" ];
+      extensions = [
+        ".yaml"
+        ".yml"
+      ];
     };
     dockerfile = {
       command = [ "docker-langserver" ];
@@ -42,11 +50,17 @@
     terraform = {
       command = [ "terraform-language-server" ];
       args = [ "serve" ];
-      extensions = [ ".tf" ".tfvars" ];
+      extensions = [
+        ".tf"
+        ".tfvars"
+      ];
     };
     up = {
       command = [ "up" ];
-      args = [ "xpls" "serve" ];
+      args = [
+        "xpls"
+        "serve"
+      ];
       extensions = [ ".yaml" ];
     };
     systemd_lsp = {
