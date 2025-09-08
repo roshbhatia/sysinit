@@ -20,10 +20,9 @@
       AppleShowScrollBars = "Always";
       InitialKeyRepeat = 15;
       KeyRepeat = 2;
+      NSAutomaticWindowAnimationsEnabled = false;
       NSWindowShouldDragOnGesture = true;
       _HIHideMenuBar = true;
     };
-
-    NSAutomaticWindowAnimationsEnabled = false;
   };
 }
