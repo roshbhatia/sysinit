@@ -56,16 +56,24 @@ let
     INACTIVE_BG=${colors.itemBg}
     ACTIVE_BG=${colors.accent}
     WHITE=${colors.white}
+    MUTED=${colors.muted}
     SID=$1
     CURRENT=$(aerospace list-workspaces --focused)
+
     if [[ "$SID" == "$CURRENT" ]]; then
-      sketchybar --set space."$SID" \
-        background.color="$ACTIVE_BG" \
-        label.color="$WHITE"
+      # Active workspace - animate to accent color with white text
+      sketchybar --animate tanh 20 \
+                 --set space."$SID" background.color="$ACTIVE_BG" \
+                                    background.height=24 \
+                                    label.color="$WHITE" \
+                                    label.font="TX-02:Bold:13.0"
     else
-      sketchybar --set space."$SID" \
-        background.color="$INACTIVE_BG" \
-        label.color="$WHITE"
+      # Inactive workspace - animate to muted state
+      sketchybar --animate tanh 20 \
+                 --set space."$SID" background.color="$INACTIVE_BG" \
+                                    background.height=22 \
+                                    label.color="$MUTED" \
+                                    label.font="TX-02:Medium:13.0"
     fi
   '';
 
@@ -119,64 +127,97 @@ in
     package = pkgs.sketchybar;
     enable = true;
     config = ''
-      # Clean bar configuration following SketchyBar best practices
-      sketchybar --bar height=40 \
+      # Modern rounded bar configuration
+      sketchybar --bar height=34 \
                        color=${colors.bar} \
                        position=top \
-                       blur_radius=30 \
+                       blur_radius=40 \
                        sticky=on \
-                       shadow=off \
-                       padding_left=10 \
-                       padding_right=10
+                       shadow=on \
+                       corner_radius=16 \
+                       margin=8 \
+                       y_offset=6 \
+                       padding_left=12 \
+                       padding_right=12
 
-      # Proper default styling with consistent geometry
+      # Clean default styling
       sketchybar --default background.color=${colors.itemBg} \
-                           background.corner_radius=6 \
-                           background.height=28 \
+                           background.corner_radius=8 \
+                           background.height=26 \
                            background.drawing=on \
-                           icon.font="sketchybar-app-font:Regular:15.0" \
+                           icon.font="sketchybar-app-font:Regular:14.0" \
                            icon.color=${colors.white} \
-                           icon.padding_left=8 \
+                           icon.padding_left=6 \
                            icon.padding_right=4 \
-                           label.font="TX-02:Semibold:14.0" \
+                           label.font="TX-02:Semibold:12.0" \
                            label.color=${colors.white} \
-                           label.padding_left=4 \
-                           label.padding_right=8 \
-                           padding_left=4 \
-                           padding_right=4
+                           label.padding_left=2 \
+                           label.padding_right=6 \
+                           padding_left=2 \
+                           padding_right=2
 
-      # Aerospace workspace indicators
+      # Aerospace workspace indicators with proper spacing
       for sid in $(aerospace list-workspaces --all); do
         sketchybar --add item space.$sid left \
                    --set space.$sid icon.drawing=off \
                                     label="$sid" \
+                                    label.font="TX-02:Bold:13.0" \
+                                    background.corner_radius=6 \
+                                    background.height=22 \
+                                    padding_left=8 \
+                                    padding_right=8 \
                                     click_script="aerospace workspace $sid" \
                                     script="${writeAerospaceScript} $sid"
         sketchybar --subscribe space.$sid aerospace_workspace_change
       done
 
-      # Front app indicator
+      # Separator after workspaces
+      sketchybar --add item separator left \
+                 --set separator icon="|" \
+                                 icon.color=${colors.muted} \
+                                 icon.font="TX-02:Medium:12.0" \
+                                 background.drawing=off \
+                                 padding_left=6 \
+                                 padding_right=6
+
+      # Front app indicator with better spacing
       sketchybar --add item front_app left \
-                 --set front_app script="${writeFrontAppScript}"
+                 --set front_app background.corner_radius=8 \
+                                 background.height=26 \
+                                 padding_left=8 \
+                                 padding_right=8 \
+                                 script="${writeFrontAppScript}"
       sketchybar --subscribe front_app front_app_switched
 
-      # System indicators (right side)
+      # System indicators (right side) - NO CALENDAR ICON
       sketchybar --add item clock right \
-                 --set clock icon=󰃰 \
+                 --set clock label.font="TX-02:Medium:12.0" \
+                             background.corner_radius=8 \
+                             background.height=26 \
+                             padding_left=8 \
+                             padding_right=8 \
                              script="sh /usr/local/share/sketchybar/plugins/clock.sh" \
                              click_script="open /System/Applications/Calendar.app" \
                              update_freq=30
 
       sketchybar --add item battery right \
-                 --set battery script="${writeBatteryScript}" \
+                 --set battery background.corner_radius=8 \
+                               background.height=26 \
+                               padding_left=8 \
+                               padding_right=8 \
+                               script="${writeBatteryScript}" \
                                click_script="open /System/Library/PreferencePanes/Battery.prefPane" \
                                update_freq=120
       sketchybar --subscribe battery system_woke power_source_change
 
       sketchybar --add item volume right \
                  --set volume icon=󰕾 \
+                              background.corner_radius=8 \
+                              background.height=26 \
+                              padding_left=8 \
+                              padding_right=8 \
                               popup.background.color=${colors.popupBg} \
-                              popup.background.corner_radius=6 \
+                              popup.background.corner_radius=8 \
                               popup.blur_radius=30 \
                               popup.height=35 \
                               popup.y_offset=10 \
