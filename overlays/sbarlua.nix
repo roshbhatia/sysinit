@@ -1,4 +1,9 @@
-{ pkgs, lib, stdenv, fetchFromGitHub }:
+{
+  pkgs,
+  lib,
+  stdenv,
+  fetchFromGitHub,
+}:
 stdenv.mkDerivation {
   pname = "sbar-lua";
   version = "unstable-2024-08-12";
@@ -10,7 +15,10 @@ stdenv.mkDerivation {
     hash = "sha256-F0UfNxHM389GhiPQ6/GFbeKQq5EvpiqQdvyf7ygzkPg=";
   };
 
-  buildInputs = with pkgs; [ gcc readline ];
+  buildInputs = with pkgs; [
+    gcc
+    readline
+  ];
 
   buildPhase = ''
     make bin/sketchybar.so

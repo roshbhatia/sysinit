@@ -8,10 +8,7 @@
 {
   services.sketchybar = {
     package = pkgs.sketchybar;
+    extraPackages = [ pkgs.sbarlua ];
     enable = true;
-    config = ''
-      lua ~/.config/sketchybar/init.lua
-    '';
   };
-
 }
