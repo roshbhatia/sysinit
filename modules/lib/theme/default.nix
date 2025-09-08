@@ -130,6 +130,10 @@ let
     let
       validatedConfig = validateThemeConfig themeConfig;
       theme = getTheme validatedConfig.colorscheme;
+      palette = getThemePalette validatedConfig.colorscheme validatedConfig.variant;
+      semanticColors = getSemanticColors validatedConfig.colorscheme validatedConfig.variant;
+      appTheme = getAppTheme app validatedConfig.colorscheme validatedConfig.variant;
+      ansi = utils.generateAnsiMappings semanticColors;
     in
     if app == "wezterm" then
       weztermAdapter.generateWeztermJSON theme validatedConfig
@@ -139,11 +143,9 @@ let
       {
         colorscheme = validatedConfig.colorscheme;
         variant = validatedConfig.variant;
-        palette = getThemePalette validatedConfig.colorscheme validatedConfig.variant;
-        semanticColors = getSemanticColors validatedConfig.colorscheme validatedConfig.variant;
-        appTheme = getAppTheme app validatedConfig.colorscheme validatedConfig.variant;
-        ansi = utils.generateAnsiMappings semanticColors;
+        inherit palette semanticColors appTheme ansi;
       };
+
 
   getSafePalette = palette: utils.validatePalette palette;
   getUnifiedColors = palette: utils.createSemanticMapping palette;
