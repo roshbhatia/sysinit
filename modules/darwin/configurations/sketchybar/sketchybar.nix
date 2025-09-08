@@ -148,7 +148,7 @@ in
       sketchybar --subscribe battery system_woke power_source_change
 
       sketchybar --add item clock right \
-        --set clock icon=󰃰 icon.color=${colors.highlight} label.font="TX-02:Bold:13.0" \
+        --set clock icon=󰃰 icon.color=${colors.accent} label.font="TX-02:Bold:13.0" \
             background.color=${colors.bracketBg} background.corner_radius=6 background.border_width=1 \
             background.border_color=${colors.bracketBorder} background.height=26 \
             script="sh /usr/local/share/sketchybar/plugins/clock.sh" click_script="open /System/Applications/Calendar.app" \
