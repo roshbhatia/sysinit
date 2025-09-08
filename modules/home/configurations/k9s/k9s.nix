@@ -28,7 +28,6 @@ in
           reactive = true;
           defaultsToFullScreen = true;
           skin = k9sTheme;
-          useFullGVRTitle = true;
         };
         noIcons = false;
         skipLatestRevCheck = true;
