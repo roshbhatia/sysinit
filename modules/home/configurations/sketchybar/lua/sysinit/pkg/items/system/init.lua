@@ -19,17 +19,17 @@ local function get_battery_info()
 
     local icon, color
     if charging then
-      icon, color = "", theme.colors.accent
+      icon, color = "󰂄", theme.colors.accent
     elseif percent >= 80 then
-      icon, color = "", theme.colors.white
+      icon, color = "󰁹", theme.colors.white
     elseif percent >= 60 then
-      icon, color = "", theme.colors.white
+      icon, color = "󰂀", theme.colors.white
     elseif percent >= 40 then
-      icon, color = "", theme.colors.accent
+      icon, color = "󰁾", theme.colors.accent
     elseif percent >= 20 then
-      icon, color = "", theme.colors.accent
+      icon, color = "󰁼", theme.colors.accent
     else
-      icon, color = "", theme.colors.accent
+      icon, color = "󰁺", theme.colors.accent
     end
 
     battery:set({
@@ -52,13 +52,13 @@ local function get_volume_info()
 
     local icon
     if volume == 0 then
-      icon = "\udb83\ude08"
+      icon = "󰝟"
     elseif volume < 33 then
-      icon = "\udb81\udd7f"
+      icon = "󰕿"
     elseif volume < 66 then
-      icon = "\udb81\udd80"
+      icon = "󰖀"
     else
-      icon = "\udb81\udd7e"
+      icon = "󰕾"
     end
 
     volume_item:set({
@@ -116,7 +116,7 @@ function M.setup()
 
   volume_item = sbar.add("item", "volume", {
     position = "right",
-    icon = { string = "\udb81\udd7e" },
+    icon = { string = "󰕾" },
     background = {
       corner_radius = theme.geometry.item.corner_radius,
       height = theme.geometry.item.height,
