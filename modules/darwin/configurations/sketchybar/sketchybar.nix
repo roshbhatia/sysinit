@@ -119,75 +119,74 @@ in
     package = pkgs.sketchybar;
     enable = true;
     config = ''
-      # Clean, modern bar configuration inspired by yessetmurat
-      sketchybar --bar height=40 color=${colors.bar} position=top \
-        blur_radius=30 sticky=on shadow=off
+      # Clean bar configuration following SketchyBar best practices
+      sketchybar --bar height=40 \
+                       color=${colors.bar} \
+                       position=top \
+                       blur_radius=30 \
+                       sticky=on \
+                       shadow=off \
+                       padding_left=10 \
+                       padding_right=10
 
-      # Default item styling - clean and minimal
-      sketchybar --default icon.font="sketchybar-app-font:Regular:15.0" icon.color=${colors.white} \
-        label.font="TX-02:Semibold:14.0" label.color=${colors.white} \
-        background.color=${colors.itemBg} background.corner_radius=6 background.height=28 \
-        padding_left=2 padding_right=2 icon.padding_left=10 label.padding_right=4 \
-        y_offset=1
+      # Proper default styling with consistent geometry
+      sketchybar --default background.color=${colors.itemBg} \
+                           background.corner_radius=6 \
+                           background.height=28 \
+                           background.drawing=on \
+                           icon.font="sketchybar-app-font:Regular:15.0" \
+                           icon.color=${colors.white} \
+                           icon.padding_left=8 \
+                           icon.padding_right=4 \
+                           label.font="TX-02:Semibold:14.0" \
+                           label.color=${colors.white} \
+                           label.padding_left=4 \
+                           label.padding_right=8 \
+                           padding_left=4 \
+                           padding_right=4
 
-      # Aerospace workspace indicators - clean pill design
+      # Aerospace workspace indicators
       for sid in $(aerospace list-workspaces --all); do
         sketchybar --add item space.$sid left \
-          --set space.$sid background.drawing=on \
-              background.color=${colors.itemBg} background.corner_radius=6 background.height=28 \
-              icon.drawing=off label="$sid" label.color=${colors.white} \
-              label.font="TX-02:Semibold:14.0" \
-              click_script="aerospace workspace $sid" script="${writeAerospaceScript} $sid" \
-              padding_left=2 padding_right=2 icon.padding_left=10 label.padding_right=4
+                   --set space.$sid icon.drawing=off \
+                                    label="$sid" \
+                                    click_script="aerospace workspace $sid" \
+                                    script="${writeAerospaceScript} $sid"
         sketchybar --subscribe space.$sid aerospace_workspace_change
       done
 
-      # Front app indicator - using sketchybar-app-font
+      # Front app indicator
       sketchybar --add item front_app left \
-        --set front_app background.drawing=on \
-              background.color=${colors.itemBg} background.corner_radius=6 background.height=28 \
-              icon.font="sketchybar-app-font:Regular:15.0" icon.color=${colors.white} \
-              label.font="TX-02:Semibold:14.0" label.color=${colors.white} \
-              script="${writeFrontAppScript}" \
-              padding_left=2 padding_right=2 icon.padding_left=10 label.padding_right=4
+                 --set front_app script="${writeFrontAppScript}"
       sketchybar --subscribe front_app front_app_switched
 
-      # Calendar/Clock
+      # System indicators (right side)
       sketchybar --add item clock right \
-        --set clock icon=󰃰 icon.color=${colors.white} icon.font="TX-02:Semibold:15.0" \
-              background.drawing=on background.color=${colors.itemBg} \
-              background.corner_radius=6 background.height=28 \
-              label.font="TX-02:Semibold:14.0" label.color=${colors.white} \
-              script="sh /usr/local/share/sketchybar/plugins/clock.sh" \
-              click_script="open /System/Applications/Calendar.app" \
-              update_freq=30 padding_left=2 padding_right=2 \
-              icon.padding_left=10 label.padding_right=4
+                 --set clock icon=󰃰 \
+                             script="sh /usr/local/share/sketchybar/plugins/clock.sh" \
+                             click_script="open /System/Applications/Calendar.app" \
+                             update_freq=30
 
-      # Battery indicator
       sketchybar --add item battery right \
-        --set battery background.drawing=on background.color=${colors.itemBg} \
-              background.corner_radius=6 background.height=28 \
-              icon.font="TX-02:Semibold:15.0" label.font="TX-02:Semibold:14.0" \
-              script="${writeBatteryScript}" \
-              click_script="open /System/Library/PreferencePanes/Battery.prefPane" \
-              update_freq=120 padding_left=2 padding_right=2 \
-              icon.padding_left=10 label.padding_right=4
+                 --set battery script="${writeBatteryScript}" \
+                               click_script="open /System/Library/PreferencePanes/Battery.prefPane" \
+                               update_freq=120
       sketchybar --subscribe battery system_woke power_source_change
 
-      # Volume indicator
       sketchybar --add item volume right \
-        --set volume background.drawing=on background.color=${colors.itemBg} \
-              background.corner_radius=6 background.height=28 \
-              icon.font="TX-02:Semibold:15.0" icon.color=${colors.white} \
-              label.font="TX-02:Semibold:14.0" label.color=${colors.white} \
-              popup.background.color=${colors.popupBg} popup.background.corner_radius=6 \
-              popup.blur_radius=30 popup.height=35 popup.y_offset=10 \
-              popup.padding_left=10 popup.padding_right=10 \
-              script="sh /usr/local/share/sketchybar/plugins/volume.sh" \
-              click_script="sketchybar --set volume popup.drawing=toggle" \
-              padding_left=2 padding_right=2 icon.padding_left=10 label.padding_right=4
+                 --set volume icon=󰕾 \
+                              popup.background.color=${colors.popupBg} \
+                              popup.background.corner_radius=6 \
+                              popup.blur_radius=30 \
+                              popup.height=35 \
+                              popup.y_offset=10 \
+                              popup.padding_left=10 \
+                              popup.padding_right=10 \
+                              script="sh /usr/local/share/sketchybar/plugins/volume.sh" \
+                              click_script="sketchybar --set volume popup.drawing=toggle"
       sketchybar --subscribe volume volume_change
 
+      # Force initial update
       sketchybar --update
     '';
   };
