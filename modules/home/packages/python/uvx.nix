@@ -9,6 +9,7 @@
 let
   uvxPackages = [
     "hererocks"
+    "https://github.com/github/spec-kit.git"
   ]
   ++ values.uvx.additionalPackages;
 in

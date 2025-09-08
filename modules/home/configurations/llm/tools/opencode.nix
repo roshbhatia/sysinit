@@ -1,7 +1,9 @@
-_:
+{ ... }:
 let
   config = import ../config/opencode.nix;
   mcpServers = import ../shared/mcp-servers.nix;
+  agents = import ../shared/agents.nix;
+  lspConfig = import ../shared/lsp.nix;
 in
 {
   xdg.configFile = {
@@ -24,8 +26,17 @@ in
             command = [ mcpServers.servers.memory.command ] ++ mcpServers.servers.memory.args;
           };
         };
+        lsp = lspConfig.lsp;
       });
       force = true;
     };
-  };
+  }
+  // builtins.listToAttrs (
+    map (agent: {
+      name = "opencode/prompts/${agent.name}.nix";
+      value = {
+        source = toString ../. + "/prompts/${agent.name}.nix";
+      };
+    }) agents
+  );
 }

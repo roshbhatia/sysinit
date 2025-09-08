@@ -61,13 +61,14 @@ in
       ".." = "cd ..";
       "~" = "cd ~";
 
-      code = "code-insiders";
       c = "code-insiders";
-      v = "nvim";
-
-      vimdiff = "nvim -d";
-      vd = "nvim -d";
+      code = "code-insiders";
       h = "hx";
+      v = "nvim";
+      vd = "nvim -d";
+      vimdiff = "nvim -d";
+
+      cs = "claude-squad";
 
       kubectl = "kubecolor";
       tf = "terraform";
@@ -78,11 +79,11 @@ in
       ll = "ls -la";
       lt = "eza --icons=always -1 -a -T --git-ignore --ignore-glob='.git'";
 
-      sudo = "sudo -E";
+      cat = "bat -pp";
       diff = "diff --color";
       grep = "grep -s --color=auto";
+      sudo = "sudo -E";
       watch = "watch --quiet";
-      cat = "bat -pp";
 
       nu-open = "open";
       open = "^open";

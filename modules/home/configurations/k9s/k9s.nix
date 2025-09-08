@@ -24,18 +24,19 @@ in
           headless = false;
           logoless = true;
           crumbsless = false;
-          noIcons = false;
+          noIcons = true;
           reactive = true;
-          defaultsToFullScreen = false;
+          defaultsToFullScreen = true;
           skin = k9sTheme;
+          useFullGVRTitle = true;
         };
         noIcons = false;
-        skipLatestRevCheck = false;
+        skipLatestRevCheck = true;
         keepMissingClusters = false;
         logger = {
-          tail = 200;
-          buffer = 500;
-          sinceSeconds = 300;
+          tail = 1000;
+          buffer = 100;
+          sinceSeconds = 86400;
           textWrap = true;
           showTime = false;
           fullscreen = true;

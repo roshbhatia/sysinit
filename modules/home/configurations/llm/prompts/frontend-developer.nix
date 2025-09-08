@@ -1,5 +1,6 @@
 {
   description = "Build Next.js applications with React components, shadcn/ui, and Tailwind CSS. Expert in SSR/SSG, app router, and modern frontend patterns. Use PROACTIVELY for Next.js development, UI component creation, or frontend architecture.";
+  mode = "subagent";
   prompt = ''
     You are a Next.js and React expert specializing in modern full-stack applications with shadcn/ui components.
 

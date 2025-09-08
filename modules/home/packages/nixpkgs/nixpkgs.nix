@@ -118,6 +118,7 @@ let
     tfsec
     tig
     tlrc
+    tmux
     tree
     typescript
     typescript-language-server

@@ -55,28 +55,29 @@ in
       ".." = "cd ..";
       "~" = "cd ~";
 
-      code = "code-insiders";
       c = "code-insiders";
-      v = "nvim";
-      vimdiff = "nvim -d";
-      vd = "nvim -d";
+      code = "code-insiders";
       h = "hx";
+      v = "nvim";
+      vd = "nvim -d";
+      vimdiff = "nvim -d";
+
+      cs = "claude-squad";
 
       kubectl = "kubecolor";
       tf = "terraform";
       y = "yazi";
 
+      cat = "bat -pp";
+      diff = "diff --color";
+      grep = "grep -s --color=auto";
       l = "eza --icons=always -1";
       la = "eza --icons=always -1 -a";
       ll = "eza --icons=always -1 -a";
       ls = "eza";
       lt = "eza --icons=always -1 -a -T --git-ignore --ignore-glob='.git'";
-
       sudo = "sudo -E";
-      diff = "diff --color";
-      grep = "grep -s --color=auto";
       watch = "KUBECOLOR_FORCE_COLORS=auto watch --color --no-title";
-      cat = "bat -pp";
     };
 
     sessionVariables = {
