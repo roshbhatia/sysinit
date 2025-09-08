@@ -101,6 +101,7 @@ let
     shellcheck
     shfmt
     simple-completion-language-server
+    sketchybar-app-font
     socat
     sshpass
     statix
