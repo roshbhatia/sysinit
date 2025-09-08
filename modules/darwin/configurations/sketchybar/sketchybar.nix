@@ -34,15 +34,18 @@ let
     #!/usr/bin/env zsh
     PERCENT=$(pmset -g batt | grep -Eo "\\d+%" | cut -d% -f1) || exit 0
     CHARGING=$(pmset -g batt | grep 'AC Power')
+    WHITE=${colors.white}
+    ACCENT=${colors.accent}
+
     if [[ "$CHARGING" != "" ]]; then
-      ICON=""; COLOR=${colors.accent}
+      ICON=""; COLOR="$ACCENT"
     else
       case $PERCENT in
-        9[0-9]|100) ICON=""; COLOR=${colors.success} ;;
-        [6-8][0-9]) ICON=""; COLOR=${colors.warning} ;;
-        [3-5][0-9]) ICON=""; COLOR=${colors.warning} ;;
-        [1-2][0-9]) ICON=""; COLOR=${colors.error} ;;
-        *) ICON=""; COLOR=${colors.error} ;;
+        9[0-9]|100) ICON=""; COLOR="$WHITE" ;;
+        [6-8][0-9]) ICON=""; COLOR="$WHITE" ;;
+        [3-5][0-9]) ICON=""; COLOR="$ACCENT" ;;
+        [1-2][0-9]) ICON=""; COLOR="$ACCENT" ;;
+        *) ICON=""; COLOR="$ACCENT" ;;
       esac
     fi
     sketchybar --set "$NAME" icon="$ICON" label="''${PERCENT}%" icon.color="$COLOR" label.color="$COLOR"
