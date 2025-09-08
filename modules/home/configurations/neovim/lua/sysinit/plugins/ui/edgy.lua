@@ -18,7 +18,7 @@ M.plugins = {
         },
         options = {
           left = {
-            size = 0.275,
+            size = 0.225,
           },
           right = {
             size = 0.33,

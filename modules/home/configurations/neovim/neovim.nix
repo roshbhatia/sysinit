@@ -45,8 +45,6 @@ in
     "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/plugins/keymaps";
   xdg.configFile."nvim/lua/sysinit/plugins/library/".source =
     "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/plugins/library";
-  xdg.configFile."nvim/lua/sysinit/plugins/notes/".source =
-    "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/plugins/notes";
   xdg.configFile."nvim/lua/sysinit/plugins/ui/".source =
     "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/plugins/ui";
 
