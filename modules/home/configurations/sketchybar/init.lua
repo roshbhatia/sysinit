@@ -1,4 +1,3 @@
--- Main SketchyBar Lua config (user-managed)
 require("sysinit.pkg.theme")
 require("sysinit.pkg.core").setup()
 require("sysinit.pkg.items.workspaces").setup()
