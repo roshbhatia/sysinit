@@ -9,29 +9,15 @@ let
 in
 {
   xdg.configFile."sketchybar/sketchybarrc".text = ''
-    #!${pkgs.lua}/bin/lua
+    #!/usr/bin/env lua
 
-    local home_dir = "${config.home.homeDirectory}"
+    package.cpath = package.cpath .. ";/Users/" .. os.getenv("USER") .. "/.local/share/sketchybar_lua/?.so"
 
-    package.path = package.path .. ";${pkgs.lua}/share/lua/5.4/?.lua"
-    package.cpath = package.cpath .. ";${pkgs.lua}/lib/lua/5.4/?.so"
+    sbar = require("sketchybar")
 
-    package.path = package.path .. ";${pkgs.sbarlua}/share/lua/5.4/?.lua"
-    package.cpath = package.cpath .. ";${pkgs.sbarlua}/lib/lua/5.4/?.so"
+    sbar.add("item", "test_item", { label = { string = "Hello, world!" } })
 
-    package.path = package.path
-      .. ";"
-      .. home_dir
-      .. "/.config/sketchybar/lua/?.lua"
-      .. ";"
-      .. home_dir
-      .. "/.config/sketchybar/lua/?/init.lua"
-
-    require("sysinit.pkg.theme")
-    require("sysinit.pkg.core").setup()
-    require("sysinit.pkg.items.workspaces").setup()
-    require("sysinit.pkg.items.front_app").setup()
-    require("sysinit.pkg.items.system").setup()
+    sbar.event_loop()
   '';
 
   xdg.configFile."sketchybar/lua".source = mkOutOfStoreSymlink "${path}/lua";
