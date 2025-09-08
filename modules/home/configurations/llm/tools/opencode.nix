@@ -3,7 +3,6 @@ let
   config = import ../config/opencode.nix;
   mcpServers = import ../shared/mcp-servers.nix;
   agents = import ../shared/agents.nix;
-  lspConfig = import ../shared/lsp.nix;
 in
 {
   xdg.configFile = {
@@ -27,7 +26,7 @@ in
           };
         };
          lsp = builtins.mapAttrs (
-           name: lsp: {
+           _name: lsp: {
              command = (lsp.command or []) ++ (lsp.args or []);
              extensions = lsp.extensions or [];
            }

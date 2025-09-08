@@ -9,7 +9,7 @@ in
     text = builtins.toJSON {
       "$schema" = config.schema;
       lsp = builtins.mapAttrs (
-        name: lsp: {
+        _name: lsp: {
           command = if builtins.length lsp.command == 1 then builtins.elemAt lsp.command 0 else builtins.elemAt lsp.command 0;
           args = lsp.args or null;
           env = lsp.env or null;
