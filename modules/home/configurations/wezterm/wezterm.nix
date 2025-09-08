@@ -25,10 +25,10 @@ in
 
 {
   xdg.configFile."wezterm/wezterm.lua".source =
-     "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/wezterm.lua";
+    "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/wezterm.lua";
 
   xdg.configFile."wezterm/lua".source =
-     "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/lua";
+    "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/lua";
 
   xdg.configFile."wezterm/theme_config.json".text = builtins.toJSON (
     themes.generateAppJSON "wezterm" themeConfig

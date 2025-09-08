@@ -143,9 +143,13 @@ let
       {
         colorscheme = validatedConfig.colorscheme;
         variant = validatedConfig.variant;
-        inherit palette semanticColors appTheme ansi;
+        inherit
+          palette
+          semanticColors
+          appTheme
+          ansi
+          ;
       };
-
 
   getSafePalette = palette: utils.validatePalette palette;
   getUnifiedColors = palette: utils.createSemanticMapping palette;

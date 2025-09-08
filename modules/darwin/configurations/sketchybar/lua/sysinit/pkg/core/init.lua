@@ -15,7 +15,7 @@ function M.setup()
     margin = theme.geometry.bar.margin,
     y_offset = theme.geometry.bar.y_offset,
     padding_left = theme.geometry.bar.padding,
-    padding_right = theme.geometry.bar.padding
+    padding_right = theme.geometry.bar.padding,
   })
 
   sbar.default({
@@ -23,22 +23,22 @@ function M.setup()
       color = theme.colors.item_bg,
       corner_radius = theme.geometry.item.corner_radius,
       height = theme.geometry.item.height,
-      drawing = true
+      drawing = true,
     },
     icon = {
       font = theme.fonts.app_icon,
       color = theme.colors.white,
       padding_left = 6,
-      padding_right = 4
+      padding_right = 4,
     },
     label = {
       font = theme.fonts.text,
       color = theme.colors.white,
       padding_left = 2,
-      padding_right = 6
+      padding_right = 6,
     },
     padding_left = theme.geometry.item.padding,
-    padding_right = theme.geometry.item.padding
+    padding_right = theme.geometry.item.padding,
   })
 end
 

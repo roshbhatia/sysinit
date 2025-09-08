@@ -14,4 +14,5 @@ in
 {
   firefox-addons = inputs.firefox-addons.packages.${system};
   nushell = unstable.nushell;
+  sbarlua = unstable.sbarlua;
 }

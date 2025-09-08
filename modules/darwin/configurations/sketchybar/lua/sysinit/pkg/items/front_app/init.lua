@@ -29,25 +29,30 @@ local app_icons = {
   ["App Store"] = ":app_store:",
   ["System Preferences"] = ":gear:",
   ["Xcode"] = ":xcode:",
-  ["Zoom"] = ":zoom:"
+  ["Zoom"] = ":zoom:",
 }
 
 local function get_front_app()
-  sbar.exec('osascript -e \'tell application "System Events" to get name of first application process whose frontmost is true\'', function(result, exit_code)
-    if exit_code ~= 0 then return end
-    
-    local app = result:gsub("%s+", "")
-    if app == "" then
-      front_app:set({ drawing = false })
-      return
+  sbar.exec(
+    "osascript -e 'tell application \"System Events\" to get name of first application process whose frontmost is true'",
+    function(result, exit_code)
+      if exit_code ~= 0 then
+        return
+      end
+
+      local app = result:gsub("%s+", "")
+      if app == "" then
+        front_app:set({ drawing = false })
+        return
+      end
+
+      front_app:set({
+        icon = { string = app_icons[app] or ":default:" },
+        label = { string = app },
+        drawing = true,
+      })
     end
-    
-    front_app:set({
-      icon = { string = app_icons[app] or ":default:" },
-      label = { string = app },
-      drawing = true
-    })
-  end)
+  )
 end
 
 function M.setup()
@@ -55,10 +60,10 @@ function M.setup()
     position = "left",
     background = {
       corner_radius = theme.geometry.item.corner_radius,
-      height = theme.geometry.item.height
+      height = theme.geometry.item.height,
     },
     padding_left = 8,
-    padding_right = 8
+    padding_right = 8,
   })
 
   front_app:subscribe("front_app_switched", function(env)
