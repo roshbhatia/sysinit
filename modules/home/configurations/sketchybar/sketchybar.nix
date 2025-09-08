@@ -11,14 +11,13 @@ in
   xdg.configFile."sketchybar/sketchybarrc".text = ''
     #!/usr/bin/env lua
 
-    package.cpath = package.cpath .. ";/Users/" .. os.getenv("USER") .. "/.local/share/sketchybar_lua/?.so"
+    package.cpath = package.cpath .. ";${pkgs.sbarlua}/lib/?.so"
+    package.path = package.path .. ";${config.xdg.configHome}/sketchybar/lua/?.lua;${config.xdg.configHome}/sketchybar/lua/?/init.lua"
 
-    sbar = require("sketchybar")
-
-    sbar.add("item", "test_item", { label = { string = "Hello, world!" } })
-
-    sbar.event_loop()
+    require("init")
   '';
 
   xdg.configFile."sketchybar/lua".source = mkOutOfStoreSymlink "${path}/lua";
+  xdg.configFile."sketchybar/theme_config.json".source =
+    mkOutOfStoreSymlink "${path}/theme_config.json";
 }
