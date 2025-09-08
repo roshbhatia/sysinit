@@ -1,15 +1,15 @@
 { ... }:
 {
   imports = [
-    ./dock
-    ./hostname
-    ./finder
-    ./security
-    ./system
-    ./user
-    ./borders
     ./aerospace
+    ./borders
+    ./dock
+    ./finder
+    ./hostname
+    ./security
+    ./sketchybar
+    ./system
     ./tailscale
-    ./wezterm
+    ./user
   ];
 }

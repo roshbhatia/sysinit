@@ -34,7 +34,6 @@ let
     "firefox"
     "font-symbols-only-nerd-font"
     "hammerspoon"
-    "jordanbaird-ice"
     "keycastr"
     "mediosz/tap/swipeaerospace"
     "raycast"
