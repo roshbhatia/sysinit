@@ -3,41 +3,46 @@ local M = {}
 local sbar = require("sketchybar")
 local theme = require("sysinit.pkg.theme")
 
-local function update_workspace(workspace)
+local spaces = {}
+
+local function update_workspaces()
   sbar.exec("aerospace list-workspaces --focused", function(focused, exit_code)
     if exit_code ~= 0 then
       return
     end
 
-    local is_active = focused:gsub("%s+", "") == workspace
-    local space_item = sbar.add("item", "space." .. workspace)
+    local focused_workspace = focused:gsub("%s+", "")
 
-    if is_active then
-      sbar.animate("tanh", 20, function()
+    for workspace, space_item in pairs(spaces) do
+      local is_active = workspace == focused_workspace
+
+      if is_active then
         space_item:set({
           background = {
             color = theme.colors.accent,
             height = theme.geometry.workspace.height_active,
+            corner_radius = theme.geometry.workspace.corner_radius,
           },
           label = {
+            string = " " .. workspace .. " ",  -- Add padding with monospace font
             color = theme.colors.white,
             font = theme.fonts.text_bold,
           },
         })
-      end)
-    else
-      sbar.animate("tanh", 20, function()
+      else
         space_item:set({
           background = {
             color = theme.colors.item_bg,
             height = theme.geometry.workspace.height_inactive,
+            corner_radius = theme.geometry.workspace.corner_radius,
           },
           label = {
+            string = " " .. workspace .. " ",  -- Add padding with monospace font
             color = theme.colors.muted,
             font = theme.fonts.text_medium,
           },
         })
-      end)
+      end
     end
   end)
 end
@@ -53,36 +58,42 @@ function M.setup()
         position = "left",
         icon = { drawing = false },
         label = {
-          string = workspace,
-          font = theme.fonts.text_bold,
+          string = " " .. workspace .. " ",
+          font = theme.fonts.text_medium,
+          color = theme.colors.muted,
         },
         background = {
           corner_radius = theme.geometry.workspace.corner_radius,
           height = theme.geometry.workspace.height_inactive,
+          color = theme.colors.item_bg,
         },
-        padding_left = theme.geometry.workspace.padding,
-        padding_right = theme.geometry.workspace.padding,
+        padding_left = 2,
+        padding_right = 2,
         click_script = "aerospace workspace " .. workspace,
       })
 
-      space:subscribe("aerospace_workspace_change", function(env)
-        update_workspace(workspace)
-      end)
+      -- Store reference to the space item
+      spaces[workspace] = space
 
-      update_workspace(workspace)
+      space:subscribe("aerospace_workspace_change", function(env)
+        update_workspaces()
+      end)
     end
+
+    -- Initial update
+    update_workspaces()
   end)
 
   local separator = sbar.add("item", "separator", {
     position = "left",
     icon = {
-      string = "|",
+      string = "│",
       color = theme.colors.muted,
       font = theme.fonts.text_medium,
     },
     background = { drawing = false },
-    padding_left = 6,
-    padding_right = 6,
+    padding_left = 8,
+    padding_right = 8,
   })
 end
 

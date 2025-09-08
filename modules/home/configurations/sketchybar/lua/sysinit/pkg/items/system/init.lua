@@ -69,41 +69,62 @@ local function get_volume_info()
 end
 
 local function get_time()
-  sbar.exec("date +'%H:%M'", function(result, exit_code)
+  -- Get local time in 12-hour format
+  sbar.exec("date +'%I:%M %p %Z'", function(local_result, exit_code)
     if exit_code ~= 0 then
       return
     end
-    clock:set({
-      label = { string = result:gsub("%s+", "") },
-    })
+
+    -- Get UTC time
+    sbar.exec("TZ=UTC date +'%H:%M UTC'", function(utc_result, exit_code)
+      if exit_code ~= 0 then
+        return
+      end
+
+      local local_time = local_result:gsub("%s+", " "):gsub("^%s*", ""):gsub("%s*$", "")
+      local utc_time = utc_result:gsub("%s+", " "):gsub("^%s*", ""):gsub("%s*$", "")
+
+      clock:set({
+        icon = { string = "🕐" },
+        label = { string = local_time },
+      })
+
+      utc_clock:set({
+        icon = { string = "🌐" },
+        label = { string = utc_time },
+      })
+    end)
   end)
 end
 
-local function update_clock()
+local function update_clocks()
   get_time()
-  sbar.exec("sleep 60", update_clock)
+  sbar.exec("sleep 60", update_clocks)
 end
 
 function M.setup()
   clock = sbar.add("item", "clock", {
     position = "right",
     label = { font = theme.fonts.text_medium },
-    background = {
-      corner_radius = theme.geometry.item.corner_radius,
-      height = theme.geometry.item.height,
-    },
-    padding_left = 8,
-    padding_right = 8,
-    update_freq = 30,
+    background = { drawing = false },
+    padding_left = 4,
+    padding_right = 4,
+    update_freq = 60,
     click_script = "open /System/Applications/Calendar.app",
+  })
+
+  utc_clock = sbar.add("item", "utc_clock", {
+    position = "right",
+    label = { font = theme.fonts.text_medium },
+    background = { drawing = false },
+    padding_left = 4,
+    padding_right = 8,
+    update_freq = 60,
   })
 
   battery = sbar.add("item", "battery", {
     position = "right",
-    background = {
-      corner_radius = theme.geometry.item.corner_radius,
-      height = theme.geometry.item.height,
-    },
+    background = { drawing = false },
     padding_left = 8,
     padding_right = 8,
     update_freq = 120,
@@ -117,10 +138,7 @@ function M.setup()
   volume_item = sbar.add("item", "volume", {
     position = "right",
     icon = { string = "󰕾" },
-    background = {
-      corner_radius = theme.geometry.item.corner_radius,
-      height = theme.geometry.item.height,
-    },
+    background = { drawing = false },
     padding_left = 8,
     padding_right = 8,
     popup = {
@@ -134,17 +152,43 @@ function M.setup()
       padding_left = 10,
       padding_right = 10,
     },
-    click_script = "sketchybar --set volume popup.drawing=toggle",
+  })
+
+  -- Add volume slider to popup
+  local volume_slider = sbar.add("slider", "volume.slider", {
+    position = "popup.volume",
+    slider = {
+      highlight_color = theme.colors.accent,
+      background = {
+        height = 6,
+        corner_radius = 3,
+        color = theme.colors.item_bg,
+      },
+      knob = {
+        string = "󰐾",
+        drawing = true,
+      },
+    },
+    background = { drawing = false },
+    click_script = 'sketchybar --set volume.slider slider.percentage=$PERCENTAGE && osascript -e "set volume output volume $PERCENTAGE"',
   })
 
   volume_item:subscribe("volume_change", function(env)
     get_volume_info()
   end)
 
+  volume_item:subscribe("mouse.entered", function(env)
+    sbar.set("volume", { popup = { drawing = true } })
+  end)
+
+  volume_item:subscribe("mouse.exited", function(env)
+    sbar.set("volume", { popup = { drawing = false } })
+  end)
+
   get_battery_info()
   get_volume_info()
   get_time()
-  update_clock()
+  update_clocks()
 end
 
 return M

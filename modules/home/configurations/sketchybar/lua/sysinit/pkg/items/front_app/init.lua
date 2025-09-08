@@ -14,6 +14,8 @@ local app_icons = {
   ["Terminal"] = ":terminal:",
   ["iTerm2"] = ":iterm2:",
   ["Wezterm"] = ":terminal:",
+  ["wezterm-gui"] = ":terminal:",
+  [".firefox-old"] = ":firefox:",
   ["Discord"] = ":discord:",
   ["Ferdium"] = ":discord:",
   ["Slack"] = ":slack:",
@@ -32,6 +34,15 @@ local app_icons = {
   ["Zoom"] = ":zoom:",
 }
 
+local app_display_names = {
+  ["wezterm-gui"] = "WezTerm",
+  [".firefox-old"] = "Firefox",
+  ["Visual Studio Code"] = "VS Code",
+  ["Activity Monitor"] = "Activity Monitor",
+  ["System Preferences"] = "System Preferences",
+  ["App Store"] = "App Store",
+}
+
 local function get_front_app()
   sbar.exec(
     "osascript -e 'tell application \"System Events\" to get name of first application process whose frontmost is true'",
@@ -46,9 +57,10 @@ local function get_front_app()
         return
       end
 
+      local display_name = app_display_names[app] or app
       front_app:set({
         icon = { string = app_icons[app] or ":default:" },
-        label = { string = app },
+        label = { string = display_name },
         drawing = true,
       })
     end
@@ -59,8 +71,7 @@ function M.setup()
   front_app = sbar.add("item", "front_app", {
     position = "left",
     background = {
-      corner_radius = theme.geometry.item.corner_radius,
-      height = theme.geometry.item.height,
+      drawing = false,
     },
     padding_left = 8,
     padding_right = 8,
