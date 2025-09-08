@@ -58,15 +58,28 @@ let
 
   writeAerospaceScript = pkgs.writeText "aerospace.sh" ''
     #!/usr/bin/env zsh
-    BR_BG=${colors.bracketBg}; BR_BORDER=${colors.bracketBorder}
-    ACT_BG=${colors.activeWsBg}; ACT_BORDER=${colors.activeWsBorder}
-    MT=${colors.muted}; TX=${colors.text}
+    INACTIVE_BG=${toAlpha "30" semanticColors.background.secondary}
+    ACTIVE_BG=${colors.accent}
+    INACTIVE_ICON=${colors.muted}
+    ACTIVE_ICON=${colors.background}
+    INACTIVE_LABEL=${colors.muted}
+    ACTIVE_LABEL=${colors.background}
     SID=$1
     CURRENT=$(aerospace list-workspaces --focused)
     if [[ "$SID" == "$CURRENT" ]]; then
-      sketchybar --set space."$SID" background.color="$ACT_BG" background.border_color="$ACT_BORDER" icon.color="$TX" label.color="$TX"
+      sketchybar --set space."$SID" \
+        background.color="$ACTIVE_BG" \
+        background.height=24 \
+        background.corner_radius=8 \
+        icon.color="$ACTIVE_ICON" \
+        label.color="$ACTIVE_LABEL"
     else
-      sketchybar --set space."$SID" background.color="$BR_BG" background.border_color="$BR_BORDER" icon.color="$MT" label.color="$TX"
+      sketchybar --set space."$SID" \
+        background.color="$INACTIVE_BG" \
+        background.height=22 \
+        background.corner_radius=6 \
+        icon.color="$INACTIVE_ICON" \
+        label.color="$INACTIVE_LABEL"
     fi
   '';
 
@@ -98,67 +111,95 @@ in
     package = pkgs.sketchybar;
     enable = true;
     config = ''
-      sketchybar --bar height=34 color=${toAlpha "00" semanticColors.background.primary} position=top y_offset=4 \
-        margin=0 padding_left=0 padding_right=0 corner_radius=0 blur_radius=50 sticky=off shadow=off
+      # Modern bar configuration inspired by Kcraft059
+      sketchybar --bar height=34 color=${toAlpha "aa" semanticColors.background.primary} position=top \
+        margin=8 padding_left=12 padding_right=12 corner_radius=14 blur_radius=40 \
+        sticky=on shadow=on y_offset=8
 
-      sketchybar --default icon.font="TX-02:Bold:15.0" icon.color=${colors.muted} \
-        label.font="TX-02:Medium:13.0" label.color=${colors.text} background.drawing=off
+      # Enhanced default styling with modern typography
+      sketchybar --default icon.font="TX-02:Bold:14.0" icon.color=${colors.muted} \
+        label.font="TX-02:Medium:12.0" label.color=${colors.text} \
+        background.corner_radius=10 background.height=28 \
+        padding_left=8 padding_right=8 icon.padding_left=6 label.padding_right=6
 
-      sketchybar --add item left_padding left \
-        --set left_padding width=16
+      # Apple logo / system indicator (left)
+      sketchybar --add item apple.logo left \
+        --set apple.logo icon= icon.color=${colors.accent} icon.font="TX-02:Bold:16.0" \
+              background.drawing=off padding_left=4 padding_right=8 \
+              click_script="sketchybar --trigger apple_logo_clicked"
 
-      sketchybar --add item spaces left \
-        --set spaces background.color=${toAlpha "00" semanticColors.background.primary}
-
+      # Aerospace workspace indicators - modern pill design
       for sid in $(aerospace list-workspaces --all); do
         sketchybar --add item space.$sid left \
-          --set space.$sid background.drawing=on background.corner_radius=6 background.height=26 \
-              background.color=${colors.bracketBg} background.border_color=${colors.bracketBorder} background.border_width=1 \
-              icon.font="TX-02:Bold:15.0" icon.color=${colors.muted} \
-              label.font="TX-02:Medium:13.0" label.color=${colors.text} label="$sid" \
+          --set space.$sid background.drawing=on \
+              background.color=${toAlpha "30" semanticColors.background.secondary} \
+              background.corner_radius=6 background.height=22 \
+              icon.font="TX-02:Bold:11.0" icon.color=${colors.muted} \
+              label.font="TX-02:Medium:10.0" label.color=${colors.text} label="$sid" \
               click_script="aerospace workspace $sid" script="${writeAerospaceScript} $sid" \
-              padding_left=8 padding_right=8
+              padding_left=6 padding_right=6
         sketchybar --subscribe space.$sid aerospace_workspace_change
       done
 
+      # Separator after workspaces
+      sketchybar --add item spaces_separator left \
+        --set spaces_separator icon=│ icon.color=${toAlpha "40" colors.muted} \
+              icon.font="TX-02:Medium:14.0" background.drawing=off \
+              padding_left=8 padding_right=8
+
+      # Front app with enhanced styling
       sketchybar --add item front_app left \
-        --set front_app background.color=${colors.bracketBg} background.corner_radius=6 background.border_width=1 \
-            background.border_color=${colors.bracketBorder} background.height=26 \
-            icon.font="SKEYCHYBAR-Ionicons" icon.color=${colors.accent} label.color=${colors.text} \
-            script="${writeFrontAppScript}" padding_left=8 padding_right=8
+        --set front_app background.drawing=on \
+              background.color=${toAlpha "30" semanticColors.background.secondary} \
+              background.corner_radius=8 background.height=26 \
+              icon.font="SKEYCHYBAR-Ionicons:13.0" icon.color=${colors.accent} \
+              label.font="TX-02:Medium:11.0" label.color=${colors.text} \
+              script="${writeFrontAppScript}" padding_left=8 padding_right=8
       sketchybar --subscribe front_app front_app_switched
 
-      sketchybar --add item right_padding right \
-        --set right_padding width=16
-
+      # Right side system indicators with modern styling
       sketchybar --add item volume right \
-        --set volume background.color=${colors.bracketBg} background.corner_radius=6 background.border_width=1 \
-            background.border_color=${colors.bracketBorder} background.height=26 \
-            popup.background.color=${colors.popupBg} popup.background.corner_radius=6 popup.blur_radius=30 \
-            popup.height=35 popup.y_offset=10 popup.padding_left=10 popup.padding_right=10 \
-            script="sh /usr/local/share/sketchybar/plugins/volume.sh" click_script="sketchybar --set volume popup.drawing=toggle" \
-            padding_left=8 padding_right=8
+        --set volume background.drawing=on \
+              background.color=${toAlpha "30" semanticColors.background.secondary} \
+              background.corner_radius=8 background.height=26 \
+              icon.font="TX-02:Bold:12.0" icon.color=${colors.accent} \
+              label.font="TX-02:Medium:10.0" label.color=${colors.text} \
+              popup.background.color=${colors.popupBg} popup.background.corner_radius=10 \
+              popup.blur_radius=30 popup.height=36 popup.y_offset=10 \
+              popup.padding_left=12 popup.padding_right=12 \
+              script="sh /usr/local/share/sketchybar/plugins/volume.sh" \
+              click_script="sketchybar --set volume popup.drawing=toggle" \
+              padding_left=8 padding_right=8
       sketchybar --subscribe volume volume_change
 
       sketchybar --add item battery right \
-        --set battery background.color=${colors.bracketBg} background.corner_radius=6 background.border_width=1 \
-            background.border_color=${colors.bracketBorder} background.height=26 \
-            script="${writeBatteryScript}" click_script="open /System/Library/PreferencePanes/Battery.prefPane" \
-            update_freq=60 padding_left=8 padding_right=8
+        --set battery background.drawing=on \
+              background.color=${toAlpha "30" semanticColors.background.secondary} \
+              background.corner_radius=8 background.height=26 \
+              icon.font="TX-02:Bold:12.0" label.font="TX-02:Medium:10.0" \
+              script="${writeBatteryScript}" \
+              click_script="open /System/Library/PreferencePanes/Battery.prefPane" \
+              update_freq=90 padding_left=8 padding_right=8
       sketchybar --subscribe battery system_woke power_source_change
 
       sketchybar --add item clock right \
-        --set clock icon=󰃰 icon.color=${colors.accent} label.font="TX-02:Bold:13.0" \
-            background.color=${colors.bracketBg} background.corner_radius=6 background.border_width=1 \
-            background.border_color=${colors.bracketBorder} background.height=26 \
-            script="sh /usr/local/share/sketchybar/plugins/clock.sh" click_script="open /System/Applications/Calendar.app" \
-            update_freq=30 padding_left=8 padding_right=8
+        --set clock icon=󰃰 icon.color=${colors.accent} icon.font="TX-02:Bold:13.0" \
+              background.drawing=on \
+              background.color=${toAlpha "30" semanticColors.background.secondary} \
+              background.corner_radius=8 background.height=26 \
+              label.font="TX-02:Medium:10.0" label.color=${colors.text} \
+              script="sh /usr/local/share/sketchybar/plugins/clock.sh" \
+              click_script="open /System/Applications/Calendar.app" \
+              update_freq=30 padding_left=8 padding_right=8
 
-      sketchybar --add bracket left_group spaces front_app \
-        --set left_group background.color=${toAlpha "00" colors.background} y_offset=4 padding_left=8 padding_right=8
+      # Bracket groups for visual cohesion
+      sketchybar --add bracket workspace_group apple.logo '/space\..*/' \
+        --set workspace_group background.color=${toAlpha "15" colors.background} \
+              background.corner_radius=12 background.height=30
 
-      sketchybar --add bracket right_group volume battery clock \
-        --set right_group background.color=${toAlpha "00" colors.background} y_offset=4 padding_left=8 padding_right=8
+      sketchybar --add bracket system_group volume battery clock \
+        --set system_group background.color=${toAlpha "15" colors.background} \
+              background.corner_radius=12 background.height=30
 
       sketchybar --update
     '';
