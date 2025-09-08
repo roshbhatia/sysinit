@@ -1,5 +1,6 @@
 {
   config,
+  pkgs,
   ...
 }:
 let
@@ -9,7 +10,7 @@ in
 {
   xdg.configFile."sketchybar/init.lua".text =
     let
-      lua = config.pkgs.lua54Packages.lua.withPackages (_ps: [ config.pkgs.sbarLua ]);
+      lua = config.pkgs.lua54Packages.lua.withPackages (_ps: [ pkgs.sbarLua ]);
       realConfig = "${path}/init.lua";
     in
     ''
