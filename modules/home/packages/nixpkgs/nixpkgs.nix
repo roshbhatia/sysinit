@@ -98,6 +98,7 @@ let
     rustc
     rustup
     sad
+    sbarlua
     shellcheck
     shfmt
     simple-completion-language-server
