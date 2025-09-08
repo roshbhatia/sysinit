@@ -16,12 +16,8 @@
       on-focused-monitor-changed = [ "move-mouse monitor-lazy-center" ];
       automatically-unhide-macos-hidden-apps = false;
 
-      # Run Sketchybar together with AeroSpace
-      # sketchbar has a built-in detection of already running process,
-      # so it won't be run twice on AeroSpace restart
       after-startup-command = [ "exec-and-forget sketchybar" ];
 
-      # Notify Sketchybar about workspace change
       exec-on-workspace-change = [
         "/bin/bash"
         "-c"
@@ -41,7 +37,7 @@
           right = 16;
           left = 16;
           bottom = 24;
-          top = 38;
+          top = 32;
         };
       };
 

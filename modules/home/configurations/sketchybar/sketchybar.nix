@@ -9,7 +9,7 @@ let
 in
 {
   xdg.configFile."sketchybar/sketchybarrc".text = ''
-    #!/usr/bin/env lua
+    #!${pkgs.lua}/bin/lua
 
     package.cpath = package.cpath .. ";${pkgs.sbarlua}/lib/lua/5.4/?.so"
     package.path = package.path .. ";${config.xdg.configHome}/sketchybar/lua/?.lua;${config.xdg.configHome}/sketchybar/lua/?/init.lua"

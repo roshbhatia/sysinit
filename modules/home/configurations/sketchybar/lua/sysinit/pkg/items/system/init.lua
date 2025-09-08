@@ -19,24 +19,23 @@ local function get_battery_info()
 
     local icon, color
     if charging then
-      icon, color = ":battery.100.bolt:", theme.colors.accent
+      icon, color = "🔌", theme.colors.accent
     elseif percent >= 80 then
-      icon, color = ":battery.100:", theme.colors.white
+      icon, color = "🔋", theme.colors.white
     elseif percent >= 60 then
-      icon, color = ":battery.75:", theme.colors.white
+      icon, color = "🔋", theme.colors.white
     elseif percent >= 40 then
-      icon, color = ":battery.50:", theme.colors.accent
+      icon, color = "🔋", theme.colors.accent
     elseif percent >= 20 then
-      icon, color = ":battery.25:", theme.colors.accent
+      icon, color = "🪫", theme.colors.accent
     else
-      icon, color = ":battery.0:", theme.colors.accent
+      icon, color = "🪫", theme.colors.accent
     end
 
     battery:set({
       icon = {
         string = icon,
         color = color,
-        font = theme.fonts.system_icon
       },
       label = { string = percent .. "%", color = color },
     })
@@ -56,19 +55,18 @@ local function get_volume_info()
 
     local icon
     if volume == 0 then
-      icon = ":speaker.slash:"
+      icon = "🔇"
     elseif volume < 33 then
-      icon = ":speaker.wave.1:"
+      icon = "🔈"
     elseif volume < 66 then
-      icon = ":speaker.wave.2:"
+      icon = "🔉"
     else
-      icon = ":speaker.wave.3:"
+      icon = "🔊"
     end
 
     volume_item:set({
       icon = {
         string = icon,
-        font = theme.fonts.system_icon
       },
       label = { string = volume .. "%" },
     })
@@ -145,8 +143,7 @@ function M.setup()
   volume_item = sbar.add("item", "volume", {
     position = "right",
     icon = {
-      string = ":speaker.wave.3:",
-      font = theme.fonts.system_icon,
+      string = "🔊",
     },
     background = { drawing = false },
     padding_left = 8,

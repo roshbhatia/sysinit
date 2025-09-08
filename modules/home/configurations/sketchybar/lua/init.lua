@@ -9,6 +9,9 @@ local system = require("sysinit.pkg.items.system")
 -- Setup core bar configuration
 core.setup()
 
+-- Register aerospace workspace change event
+sbar.add("event", "aerospace_workspace_change")
+
 -- Setup items
 front_app.setup()
 workspaces.setup()

@@ -18,26 +18,16 @@ local function update_workspaces()
 
       if is_active then
         space_item:set({
-          background = {
-            color = theme.colors.accent,
-            height = theme.geometry.workspace.height_active,
-            corner_radius = theme.geometry.workspace.corner_radius,
-          },
           label = {
-            string = " " .. workspace .. " ", -- Add padding with monospace font
+            string = "[" .. workspace .. "]",
             color = theme.colors.white,
             font = theme.fonts.text_bold,
           },
         })
       else
         space_item:set({
-          background = {
-            color = theme.colors.item_bg,
-            height = theme.geometry.workspace.height_inactive,
-            corner_radius = theme.geometry.workspace.corner_radius,
-          },
           label = {
-            string = " " .. workspace .. " ", -- Add padding with monospace font
+            string = " " .. workspace .. " ",
             color = theme.colors.muted,
             font = theme.fonts.text_medium,
           },
@@ -62,11 +52,7 @@ function M.setup()
           font = theme.fonts.text_medium,
           color = theme.colors.muted,
         },
-        background = {
-          corner_radius = theme.geometry.workspace.corner_radius,
-          height = theme.geometry.workspace.height_inactive,
-          color = theme.colors.item_bg,
-        },
+        background = { drawing = false },
         padding_left = 2,
         padding_right = 2,
         click_script = "aerospace workspace " .. workspace,
