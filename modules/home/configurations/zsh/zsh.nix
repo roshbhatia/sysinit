@@ -81,14 +81,6 @@ in
     };
 
     sessionVariables = {
-      LANG = "en_US.UTF-8";
-      LC_ALL = "en_US.UTF-8";
-
-      SUDO_EDITOR = "nvim";
-      VISUAL = "nvim";
-
-      GIT_DISCOVERY_ACROSS_FILESYSTEM = 1;
-
       ZSH_EVALCACHE_DIR = "${config.xdg.dataHome}/zsh/evalcache";
       ZSH_AUTOSUGGEST_USE_ASYNC = 1;
       ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = 20;
@@ -96,7 +88,6 @@ in
 
       ZVM_LINE_INIT_MODE = "i";
 
-      FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
         "--bind='resize:refresh-preview'"
         "--color=bg+:-1,bg:-1,spinner:${colors.accent.primary},hl:${colors.accent.primary}"
@@ -120,7 +111,6 @@ in
         "--style='minimal'"
       ];
 
-      COLIMA_HOME = "${config.xdg.configHome}/colima";
       VIVID_THEME = appTheme;
     };
 
