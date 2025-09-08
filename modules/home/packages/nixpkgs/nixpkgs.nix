@@ -27,6 +27,7 @@ let
     checkmake
     codespell
     colima
+    copilot-cli
     copilot-language-server
     coreutils
     deadnix
