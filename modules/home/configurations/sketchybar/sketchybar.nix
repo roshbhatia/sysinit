@@ -16,6 +16,9 @@ in
     package.path = package.path .. ";${pkgs.lua}/share/lua/5.4/?.lua"
     package.cpath = package.cpath .. ";${pkgs.lua}/lib/lua/5.4/?.so"
 
+    package.path = package.path .. ";${pkgs.sbarlua}/share/lua/5.4/?.lua"
+    package.cpath = package.cpath .. ";${pkgs.sbarlua}/lib/lua/5.4/?.so"
+
     package.path = package.path
       .. ";"
       .. home_dir
