@@ -7,9 +7,8 @@ in
   xdg.configFile = {
     "goose/config.yaml" = {
       text = lib.generators.toYAML { } {
+        ALPHA_FEATURES = true;
         EDIT_MODE = config.editMode;
-        GOOSE_MODEL = config.model;
-        GOOSE_PLANNER_MODEL = config.plannerModel;
         GOOSE_PROVIDER = config.provider;
         extensions = config.extensions;
       };
@@ -18,20 +17,18 @@ in
   }
   // builtins.listToAttrs (
     map (agent: {
-      name = "goose/recipes/${agent.name}/recipe.yaml";
+      name = "goose/subagents/${agent.name}.yaml";
       value = {
-        text = ''
-          version: 1.0.0
-          title: ${agent.name}
-          description: ${agent.description}
-          instructions: |
-            <prompt>
-            ${agent.prompt}
-            </prompt>
-
-          activities:
-          ${lib.concatStringsSep "\n" (map (activity: "  - \"${activity}\"") agent.activities)}
-        '';
+        text = lib.generators.toYAML { } {
+          id = agent.name;
+          title = agent.name;
+          description = agent.description;
+          instructions = agent.instructions or "";
+          activities = agent.activities or [ ];
+          extensions = agent.extensions or [ ];
+          parameters = agent.parameters or [ ];
+          prompt = agent.prompt or "";
+        };
       };
     }) agents
   );
