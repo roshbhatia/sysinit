@@ -22,7 +22,7 @@ local function get_time()
       local utc_time = utc_result:gsub("%s+", " "):gsub("^%s*", ""):gsub("%s*$", "")
 
       clock:set({
-        icon = { string = " " },
+        icon = { string = " " },
         label = { string = local_time },
       })
 
