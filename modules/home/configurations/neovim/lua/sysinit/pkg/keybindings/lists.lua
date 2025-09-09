@@ -253,6 +253,7 @@ function M.setup()
       vim.opt_local.relativenumber = false
       vim.opt_local.wrap = false
       vim.opt_local.spell = false
+      vim.opt_local.cursorline = true
 
       vim.keymap.set("n", "q", "<cmd>close<cr>", {
         buffer = true,
