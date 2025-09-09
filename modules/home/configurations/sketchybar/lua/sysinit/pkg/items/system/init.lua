@@ -42,37 +42,6 @@ local function get_battery_info()
   end)
 end
 
-local function get_volume_info()
-  sbar.exec("osascript -e 'output volume of (get volume settings)'", function(result, exit_code)
-    if exit_code ~= 0 then
-      return
-    end
-
-    local volume = tonumber(result)
-    if not volume then
-      return
-    end
-
-    local icon
-    if volume == 0 then
-      icon = "󰝟"
-    elseif volume < 33 then
-      icon = "󰕿"
-    elseif volume < 66 then
-      icon = "󰖀"
-    else
-      icon = "󰕾"
-    end
-
-    volume_item:set({
-      icon = {
-        string = icon,
-      },
-      label = { string = volume .. "%" },
-    })
-  end)
-end
-
 local function get_time()
   sbar.exec("date +'%I:%M %p %Z'", function(local_result, exit_code)
     if exit_code ~= 0 then
@@ -137,45 +106,7 @@ function M.setup()
     get_battery_info()
   end)
 
-  volume_item = sbar.add("item", "volume", {
-    position = "right",
-    icon = {
-      string = "󰕾",
-    },
-    background = { drawing = false },
-    padding_left = 8,
-    padding_right = 8,
-    popup = {
-      background = {
-        color = theme.colors.popup_bg,
-        corner_radius = 8,
-      },
-      blur_radius = 30,
-      height = 35,
-      y_offset = 10,
-    },
-  })
-
-  local volume_popup = sbar.add("item", "volume.popup", {
-    position = "popup.volume",
-    label = { string = "Volume Control" },
-    background = { drawing = false },
-  })
-
-  volume_item:subscribe("volume_change", function(env)
-    get_volume_info()
-  end)
-
-  volume_item:subscribe("mouse.entered", function(env)
-    sbar.set("volume", { popup = { drawing = true } })
-  end)
-
-  volume_item:subscribe("mouse.exited", function(env)
-    sbar.set("volume", { popup = { drawing = false } })
-  end)
-
   get_battery_info()
-  get_volume_info()
   get_time()
 end
 

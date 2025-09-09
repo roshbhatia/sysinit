@@ -36,14 +36,19 @@ M.colors = {
         and theme_config.semantic_colors.foreground.muted
       or "#9ca0a4"
   ),
+  grey = hex_to_sketchybar("#6c7086"),
+  red = hex_to_sketchybar("#f38ba8"),
   accent = hex_to_sketchybar(
     theme_config.semantic_colors
         and theme_config.semantic_colors.accent
         and theme_config.semantic_colors.accent.primary
       or "#89b4fa"
   ),
+  blue = hex_to_sketchybar("#89b4fa"),
   bar_bg = alpha_hex_to_sketchybar("40", "000000"),
   item_bg = alpha_hex_to_sketchybar("33", "000000"),
+  bg1 = alpha_hex_to_sketchybar("cc", "1e1e2e"),
+  bg2 = alpha_hex_to_sketchybar("cc", "313244"),
   popup_bg = alpha_hex_to_sketchybar(
     "ee",
     theme_config.semantic_colors
@@ -60,6 +65,39 @@ M.fonts = {
   text_medium = "TX-02:Medium:12.0",
   text_bold = "TX-02:Bold:13.0",
   text_small = "TX-02:Medium:11.0",
+  numbers = "TX-02:Medium:12.0",
+  style_map = {
+    Regular = "Regular",
+    Semibold = "Semibold",
+    Bold = "Bold",
+  },
+}
+
+M.icons = {
+  apple = "",
+  clipboard = "󰅌",
+  volume = {
+    _0 = "󰸈",
+    _10 = "󰕿",
+    _33 = "󰖀",
+    _66 = "󰕾",
+    _100 = "󰕾",
+  },
+  battery = {
+    _0 = "󰂎",
+    _25 = "󰁻",
+    _50 = "󰁾",
+    _75 = "󰂁",
+    _100 = "󰁹",
+    charging = "󰂄",
+  },
+  wifi = {
+    upload = "󰕒",
+    download = "󰇚",
+    connected = "󰖩",
+    disconnected = "󰖪",
+    router = "󰑩",
+  },
 }
 
 M.geometry = {
@@ -81,6 +119,8 @@ M.geometry = {
     corner_radius = 6,
     padding = 8,
   },
+  paddings = 8,
+  group_paddings = 5,
 }
 
 return M
