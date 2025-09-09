@@ -3,7 +3,8 @@ local act = wezterm.action
 local M = {}
 
 local function is_vim(pane)
-  return pane:get_user_vars().IS_NVIM == "true"
+  local process_name = string.gsub(pane:get_foreground_process_name(), "(.*[/\\])(.*)", "%2")
+  return process_name == "nvim" or process_name == "vim"
 end
 
 local function vim_or_wezterm_action(key, mods, wezterm_action)
