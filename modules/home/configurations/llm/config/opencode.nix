@@ -25,4 +25,7 @@
       prompt = "{file:./prompts/typescript-expert.nix}";
     };
   };
+  keybinds = {
+    leader = "ctrl+,";
+  };
 }

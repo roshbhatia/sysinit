@@ -12,6 +12,7 @@ in
         share = "disabled";
         theme = config.theme;
         autoupdate = config.autoupdate;
+        keybinds = config.keybinds;
         mcp = {
           fetch = {
             type = "local";
