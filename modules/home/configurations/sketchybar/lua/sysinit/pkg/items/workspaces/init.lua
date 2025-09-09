@@ -55,7 +55,7 @@ function M.setup()
         background = { drawing = false },
         padding_left = 2,
         padding_right = 2,
-        click_script = "aerospace workspace " .. workspace,
+        click_script = "aerospace workspace " .. workspace .. "; sketchybar --trigger aerospace_workspace_change",
       })
 
       spaces[workspace] = space
@@ -79,6 +79,11 @@ function M.setup()
     padding_left = 8,
     padding_right = 8,
   })
+
+  -- Global aerospace workspace change subscription
+  sbar.subscribe("aerospace_workspace_change", function(env)
+    update_workspaces()
+  end)
 end
 
 return M

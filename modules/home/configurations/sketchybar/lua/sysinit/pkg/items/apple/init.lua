@@ -4,17 +4,12 @@ local sbar = require("sketchybar")
 local theme = require("sysinit.pkg.theme")
 
 function M.setup()
-  -- Padding item required because of bracket
   sbar.add("item", { width = 5 })
 
   local apple = sbar.add("item", "apple", {
     position = "left",
     icon = {
-      font = {
-        family = theme.fonts.app_icon:match("([^:]+)"),
-        style = theme.fonts.app_icon:match(":([^:]+)"),
-        size = 16.0,
-      },
+      font = theme.fonts.app_icon,
       string = theme.icons.apple,
       padding_right = 8,
       padding_left = 8,
@@ -32,7 +27,6 @@ function M.setup()
     padding_right = 1,
   })
 
-  -- Double border for apple using a single item bracket
   sbar.add("bracket", "apple_bracket", { apple.name }, {
     background = {
       color = "0x00000000", -- transparent
@@ -43,7 +37,6 @@ function M.setup()
     },
   })
 
-  -- Padding item required because of bracket
   sbar.add("item", { width = 7 })
 end
 
