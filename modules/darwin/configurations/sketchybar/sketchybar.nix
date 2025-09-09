@@ -30,7 +30,7 @@ in
 
   environment.systemPackages = with pkgs; [
     sbarlua
-    luajitPackages.cjson
+    lua54Packages.cjson
     menus
   ];
 }
