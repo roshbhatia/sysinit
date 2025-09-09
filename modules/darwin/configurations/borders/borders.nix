@@ -21,7 +21,7 @@ in
     package = pkgs.jankyborders;
 
     style = "round";
-    width = 3.0;
+    width = 4.0;
     hidpi = true;
     active_color = "0xff${activeColor}";
     inactive_color = "0xff${inactiveColor}";
