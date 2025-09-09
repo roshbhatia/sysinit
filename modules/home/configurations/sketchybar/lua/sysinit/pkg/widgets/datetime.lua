@@ -4,14 +4,17 @@ local sbar = require("sketchybar")
 local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
 
+local clock
+local utc_clock
+
 local function get_time()
-  sbar.exec("date +'%I:%M %p %Z'", function(local_result, exit_code)
-    if exit_code ~= 0 then
+  sbar.exec("date +'%I:%M %p %Z'", function(local_result, local_exit_code)
+    if local_exit_code ~= 0 then
       return
     end
 
-    sbar.exec("TZ=UTC date +'%H:%M UTC'", function(utc_result, exit_code)
-      if exit_code ~= 0 then
+    sbar.exec("TZ=UTC date +'%H:%M UTC'", function(utc_result, utc_exit_code)
+      if utc_exit_code ~= 0 then
         return
       end
 
@@ -19,7 +22,7 @@ local function get_time()
       local utc_time = utc_result:gsub("%s+", " "):gsub("^%s*", ""):gsub("%s*$", "")
 
       clock:set({
-        icon = { string = " " },
+        icon = { string = " " },
         label = { string = local_time },
       })
 
@@ -45,6 +48,8 @@ function M.setup()
     padding_right = settings.spacing.widget_spacing,
     update_freq = 60,
   })
+
+  clock:subscribe("routine", get_time)
 
   sbar.add("item", "time_separator", {
     position = "right",
@@ -72,6 +77,8 @@ function M.setup()
     padding_right = settings.spacing.widget_spacing,
     update_freq = 60,
   })
+
+  utc_clock:subscribe("routine", get_time)
 
   sbar.add("item", "clock_separator", {
     position = "right",
