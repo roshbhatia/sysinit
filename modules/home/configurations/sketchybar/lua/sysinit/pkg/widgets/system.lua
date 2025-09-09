@@ -22,7 +22,7 @@ local function get_battery_info()
     if charging then
       icon, color = "󰂅", colors.green
     elseif percent >= 80 then
-      icon, color = "󰂁", colors.white
+      icon, color = "󰂁", colors.green
     elseif percent >= 60 then
       icon, color = "󰁿", colors.white
     elseif percent >= 40 then
@@ -98,12 +98,11 @@ function M.setup()
     update_freq = 60,
   })
 
-  -- Separator between clock and battery
   sbar.add("item", "clock_separator", {
     position = "right",
     icon = {
       string = "|",
-      font = { family = "TX-02", style = "Bold", size = 18.0 },
+      font = settings.fonts.separators.bold,
       color = colors.white,
     },
     background = { drawing = false },
@@ -133,7 +132,7 @@ function M.setup()
     position = "right",
     icon = {
       string = "|",
-      font = { family = "TX-02", style = "Bold", size = 18.0 },
+      font = settings.fonts.separators.bold,
       color = colors.white,
     },
     background = { drawing = false },

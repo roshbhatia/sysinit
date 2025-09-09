@@ -26,10 +26,10 @@ for i = 1, max_items, 1 do
     drawing = false,
     icon = {
       drawing = false,
-      font = { family = "Symbols Nerd Font Mono", style = "Regular", size = 14.0 },
+      font = settings.fonts.icons.regular,
     },
     label = {
-      font = { family = "TX-02", style = "Regular", size = 13.0 },
+      font = settings.fonts.text.regular,
       color = colors.white,
       padding_left = 6,
       padding_right = 6,

@@ -11,8 +11,7 @@ local function make_label(workspace, is_focused)
   return {
     string = workspace_text,
     color = is_focused and colors.white or colors.grey,
-    font = is_focused and { family = "TX-02", style = "Bold", size = 13.0 }
-      or { family = "TX-02", style = "Regular", size = 13.0 },
+    font = is_focused and settings.fonts.text.bold or settings.fonts.text.regular,
   }
 end
 
@@ -36,19 +35,16 @@ function M.setup()
       return
     end
 
-    -- Create workspace group for proper centering
     local workspace_group = {}
-
     for workspace in workspaces_output:gmatch("%S+") do
       table.insert(workspace_group, workspace)
     end
 
-    -- Add left separator
     sbar.add("item", "workspace_left_sep", {
       position = "center",
       icon = {
         string = "|",
-        font = { family = "TX-02", style = "Bold", size = 18.0 },
+        font = settings.fonts.separators.bold,
         color = colors.white,
       },
       background = { drawing = false },
@@ -57,7 +53,6 @@ function M.setup()
       padding_right = settings.spacing.separator_spacing,
     })
 
-    -- Add workspaces
     for _, workspace in ipairs(workspace_group) do
       local item_name = "space." .. workspace
       local space = sbar.add("item", item_name, {
@@ -76,12 +71,11 @@ function M.setup()
       spaces[workspace] = space
     end
 
-    -- Add right separator
     sbar.add("item", "workspace_right_sep", {
       position = "center",
       icon = {
         string = "|",
-        font = { family = "TX-02", style = "Bold", size = 18.0 },
+        font = settings.fonts.separators.bold,
         color = colors.white,
       },
       background = { drawing = false },
@@ -91,6 +85,12 @@ function M.setup()
     })
 
     sbar.subscribe("aerospace_workspace_change", update_focused_workspace)
+    sbar.add("item", "workspace_poll", {
+      position = "popup.workspace_left_sep",
+      update_freq = 1,
+      drawing = false,
+    })
+    sbar.subscribe("routine", update_focused_workspace)
     update_focused_workspace()
   end)
 end

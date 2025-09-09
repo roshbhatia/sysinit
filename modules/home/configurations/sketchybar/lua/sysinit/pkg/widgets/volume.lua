@@ -9,7 +9,7 @@ local volume_percent = sbar.add("item", "volume.percent", {
   icon = { drawing = false },
   label = {
     string = " ??%",
-    font = { family = "TX-02", style = "Regular", size = 13.0 },
+    font = settings.fonts.text.regular,
     color = colors.white,
   },
   background = { drawing = false },
@@ -22,7 +22,7 @@ local volume_icon = sbar.add("item", "volume.icon", {
   position = "right",
   icon = {
     string = "󰕾",
-    font = { family = "Symbols Nerd Font Mono", style = "Regular", size = 14.0 },
+    font = settings.fonts.icons.regular,
     color = colors.white,
   },
   label = { drawing = false },
@@ -42,7 +42,7 @@ local volume_slider = sbar.add("slider", "volume.slider", {
     },
     knob = {
       string = "󰀵",
-      font = { family = "Symbols Nerd Font Mono", style = "Regular", size = 12.0 },
+      font = settings.fonts.icons.small,
       color = colors.accent,
     },
   },
@@ -89,12 +89,11 @@ local function get_volume()
 end
 
 function M.setup()
-  -- Add separator after volume
   sbar.add("item", "volume_separator", {
     position = "right",
     icon = {
       string = "|",
-      font = { family = "TX-02", style = "Bold", size = 18.0 },
+      font = settings.fonts.separators.bold,
       color = colors.white,
     },
     background = { drawing = false },
@@ -119,7 +118,6 @@ function M.setup()
     get_volume()
   end)
 
-  -- Load initial volume
   get_volume()
 end
 

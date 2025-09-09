@@ -68,12 +68,12 @@ local function get_front_app()
       front_app:set({
         icon = {
           string = app_icons[app] or "󰘔",
-          font = { family = "Symbols Nerd Font Mono", style = "Regular", size = 14.0 },
+          font = settings.fonts.icons.regular,
           color = colors.white,
         },
         label = {
           string = display_name,
-          font = { family = "TX-02", style = "Regular", size = 13.0 },
+          font = settings.fonts.text.regular,
           color = colors.white,
         },
         drawing = true,
@@ -86,11 +86,11 @@ function M.setup()
   front_app = sbar.add("item", "front_app", {
     position = "left",
     icon = {
-      font = { family = "Symbols Nerd Font Mono", style = "Regular", size = 14.0 },
+      font = settings.fonts.icons.regular,
       color = colors.white,
     },
     label = {
-      font = { family = "TX-02", style = "Regular", size = 13.0 },
+      font = settings.fonts.text.regular,
       color = colors.white,
     },
     background = {
