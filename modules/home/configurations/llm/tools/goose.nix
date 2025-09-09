@@ -10,6 +10,8 @@ in
         ALPHA_FEATURES = true;
         EDIT_MODE = config.editMode;
         GOOSE_PROVIDER = config.provider;
+        GOOSE_LEAD_MODEL = config.lead_model;
+        GOOSE_MODEL = config.model;
         extensions = config.extensions;
       };
       force = true;
