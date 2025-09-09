@@ -106,20 +106,6 @@ function M.setup()
     get_front_app()
   end)
 
-  front_app:subscribe("mouse.entered", function()
-    sbar.set("/menu\\..*/", { drawing = true })
-    sbar.animate("sin", 15, function()
-      sbar.set("/menu\\..*/", { background = { color = colors.popup.bg } })
-    end)
-  end)
-
-  front_app:subscribe("mouse.exited", function()
-    sbar.animate("sin", 15, function()
-      sbar.set("/menu\\..*/", { background = { color = colors.bg } })
-    end)
-    sbar.set("/menu\\..*/", { drawing = false })
-  end)
-
   get_front_app()
 end
 

@@ -33,7 +33,7 @@ local volume_icon = sbar.add("item", "volume.icon", {
 })
 
 local volume_slider = sbar.add("slider", "volume.slider", 80, {
-  position = "popup.volume.icon",
+  position = "right",
   slider = {
     highlight_color = colors.blue,
     background = {
@@ -47,6 +47,7 @@ local volume_slider = sbar.add("slider", "volume.slider", 80, {
   background = { drawing = false },
   padding_left = 6,
   padding_right = 6,
+  drawing = false,
 })
 
 local function get_volume()
@@ -100,19 +101,27 @@ function M.setup()
   })
 
   volume_icon:subscribe("mouse.entered", function()
-    volume_icon:set({ popup = { drawing = true } })
+    sbar.animate("sin", 15, function()
+      volume_slider:set({ drawing = true })
+    end)
   end)
 
   volume_icon:subscribe("mouse.exited", function()
-    volume_icon:set({ popup = { drawing = false } })
+    sbar.animate("sin", 15, function()
+      volume_slider:set({ drawing = false })
+    end)
   end)
 
   volume_slider:subscribe("mouse.entered", function()
-    volume_icon:set({ popup = { drawing = true } })
+    sbar.animate("sin", 15, function()
+      volume_slider:set({ drawing = true })
+    end)
   end)
 
   volume_slider:subscribe("mouse.exited", function()
-    volume_icon:set({ popup = { drawing = false } })
+    sbar.animate("sin", 15, function()
+      volume_slider:set({ drawing = false })
+    end)
   end)
 
   volume_icon:subscribe("mouse.scrolled", function(env)

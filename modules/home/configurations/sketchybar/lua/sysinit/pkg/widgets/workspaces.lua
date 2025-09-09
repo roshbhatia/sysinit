@@ -34,6 +34,8 @@ function M.setup()
       table.insert(workspace_group, workspace)
     end
 
+    sbar.add("event", "aerospace_workspace_change")
+
     sbar.add("item", "workspace_left_sep", {
       position = "center",
       icon = {
@@ -50,8 +52,6 @@ function M.setup()
     for _, workspace in ipairs(workspace_group) do
       local item_name = "space." .. workspace
 
-      sbar.add("event", "aerospace_workspace_change_" .. workspace)
-
       local space = sbar.add("item", item_name, {
         position = "center",
         icon = { drawing = false },
@@ -62,9 +62,9 @@ function M.setup()
         click_script = string.format("aerospace workspace %s", workspace),
       })
 
-      space:subscribe("aerospace_workspace_change_" .. workspace, function(env)
-        local focused_workspace = env.FOCUSED_WORKSPACE
-        local prev_workspace = env.PREV_WORKSPACE
+      space:subscribe("aerospace_workspace_change", function(env)
+        local focused_workspace = env.FOCUSED
+        local prev_workspace = env.PREV_FOCUSED
 
         local is_focused = (workspace == focused_workspace)
         local is_prev = (workspace == prev_workspace)
