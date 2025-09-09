@@ -12,7 +12,6 @@ function M.setup()
     icon = {
       font = settings.fonts.icons.regular,
       string = "󱄅",
-      padding_right = settings.spacing.section_spacing,
       padding_left = settings.spacing.section_spacing,
       color = colors.white,
     },

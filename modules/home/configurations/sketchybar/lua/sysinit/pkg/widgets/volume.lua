@@ -8,9 +8,10 @@ local volume_percent = sbar.add("item", "volume.percent", {
   position = "right",
   icon = { drawing = false },
   label = {
-    string = " ??%",
+    string = "100%",
     font = settings.fonts.text.regular,
     color = colors.white,
+    width = 40,
   },
   background = { drawing = false },
   update_freq = 5,

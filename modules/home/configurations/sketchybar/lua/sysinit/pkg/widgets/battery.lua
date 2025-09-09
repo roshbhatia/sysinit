@@ -50,67 +50,7 @@ local function get_battery_info()
   end)
 end
 
-local function get_time()
-  sbar.exec("date +'%I:%M %p %Z'", function(local_result, exit_code)
-    if exit_code ~= 0 then
-      return
-    end
-
-    sbar.exec("TZ=UTC date +'%H:%M UTC'", function(utc_result, exit_code)
-      if exit_code ~= 0 then
-        return
-      end
-
-      local local_time = local_result:gsub("%s+", " "):gsub("^%s*", ""):gsub("%s*$", "")
-      local utc_time = utc_result:gsub("%s+", " "):gsub("^%s*", ""):gsub("%s*$", "")
-
-      clock:set({
-        icon = { string = "" },
-        label = { string = local_time },
-      })
-
-      utc_clock:set({
-        icon = { string = "󰖟" },
-        label = { string = utc_time },
-      })
-    end)
-  end)
-end
-
-local function update_clocks()
-  get_time()
-end
-
 function M.setup()
-  clock = sbar.add("item", "clock", {
-    position = "right",
-    background = { drawing = false },
-    padding_left = settings.spacing.widget_spacing,
-    padding_right = settings.spacing.widget_spacing,
-    update_freq = 60,
-  })
-
-  utc_clock = sbar.add("item", "utc_clock", {
-    position = "right",
-    background = { drawing = false },
-    padding_left = settings.spacing.widget_spacing,
-    padding_right = settings.spacing.widget_spacing,
-    update_freq = 60,
-  })
-
-  sbar.add("item", "clock_separator", {
-    position = "right",
-    icon = {
-      string = "|",
-      font = settings.fonts.separators.bold,
-      color = colors.white,
-    },
-    background = { drawing = false },
-    label = { drawing = false },
-    padding_left = settings.spacing.separator_spacing,
-    padding_right = settings.spacing.separator_spacing,
-  })
-
   battery = sbar.add("item", "battery", {
     position = "right",
     icon = {
@@ -118,7 +58,7 @@ function M.setup()
     },
     label = {
       font = settings.fonts.text.regular,
-      width = 32,
+      width = 40,
     },
     background = { drawing = false },
     padding_left = settings.spacing.widget_spacing,
@@ -149,7 +89,6 @@ function M.setup()
   })
 
   get_battery_info()
-  get_time()
 end
 
 return M
