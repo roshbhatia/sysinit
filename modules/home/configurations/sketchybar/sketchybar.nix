@@ -26,6 +26,9 @@ in
     text = ''
       #! /opt/homebrew/bin/lua
 
+      local username = os.getenv("USER")
+      local home_dir = "/Users/" .. username
+
       package.cpath = package.cpath .. ";${pkgs.sbarlua}/lib/lua/5.4/?.so"
 
       package.path = package.path
