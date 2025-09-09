@@ -5,6 +5,7 @@ local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
 
 local spaces = {}
+local current_focused_workspace = nil
 
 local function make_label(workspace, is_focused)
   local workspace_text = is_focused and ("[" .. workspace .. "]") or workspace
@@ -22,18 +23,32 @@ local function update_focused_workspace()
     end
 
     local focused_workspace = focused_output:gsub("%s+", "")
-    for workspace, space_item in pairs(spaces) do
-      local is_focused = (workspace == focused_workspace)
-      local label_config = make_label(workspace, is_focused)
-
-      space_item:set({
-        label = label_config,
-        icon = { drawing = false },
-      })
+    if focused_workspace ~= current_focused_workspace then
+      current_focused_workspace = focused_workspace
+      for workspace, space_item in pairs(spaces) do
+        local is_focused = (workspace == focused_workspace)
+        local label_config = make_label(workspace, is_focused)
+        space_item:set({
+          label = label_config,
+          icon = { drawing = false },
+        })
+      end
     end
   end)
 end
 
+local function start_workspace_polling()
+  sbar.add("item", "workspace_updater", {
+    position = "popup." .. "hidden",
+    drawing = false,
+    update_freq = 10,
+    script = "aerospace list-workspaces --focused",
+  })
+
+  sbar.subscribe("routine", function()
+    update_focused_workspace()
+  end)
+end
 function M.setup()
   sbar.exec("aerospace list-workspaces --all", function(workspaces_output, exit_code)
     if exit_code ~= 0 then
@@ -89,7 +104,7 @@ function M.setup()
       padding_right = settings.spacing.separator_spacing,
     })
 
-    sbar.subscribe("aerospace_workspace_change", update_focused_workspace)
+    start_workspace_polling()
     update_focused_workspace()
   end)
 end
