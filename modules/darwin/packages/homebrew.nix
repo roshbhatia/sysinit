@@ -24,7 +24,6 @@ let
     "block-goose-cli"
     "charmbracelet/tap/crush"
     "claude-squad"
-    "cursor-cli"
     "eza"
     "hashicorp/tap/terraform"
     "libgit2@1.8"
@@ -33,6 +32,7 @@ let
   ];
 
   baseCasks = [
+    "cursor-cli"
     "firefox"
     "font-symbols-only-nerd-font"
     "hammerspoon"
