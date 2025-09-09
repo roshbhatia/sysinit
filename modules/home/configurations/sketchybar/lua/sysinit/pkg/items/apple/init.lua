@@ -40,7 +40,7 @@ function M.setup()
       border_color = theme.colors.accent,
       border_width = 1,
       corner_radius = theme.geometry.item.corner_radius + 2,
-    }
+    },
   })
 
   -- Padding item required because of bracket
