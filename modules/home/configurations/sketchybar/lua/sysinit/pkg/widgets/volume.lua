@@ -4,31 +4,31 @@ local sbar = require("sketchybar")
 local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
 
+local volume_percent = sbar.add("item", "volume.percent", {
+  position = "right",
+  icon = { drawing = false },
+  label = {
+    string = " ??%",
+    font = { family = "TX-02", style = "Regular", size = 13.0 },
+    color = colors.white,
+  },
+  background = { drawing = false },
+  update_freq = 5,
+  padding_left = 2,
+  padding_right = settings.spacing.widget_spacing,
+})
+
 local volume_icon = sbar.add("item", "volume.icon", {
   position = "right",
   icon = {
     string = "󰕾",
-    font = settings.fonts.icons.normal,
+    font = { family = "Symbols Nerd Font Mono", style = "Regular", size = 14.0 },
     color = colors.white,
   },
   label = { drawing = false },
   background = { drawing = false },
   padding_left = settings.spacing.widget_spacing,
-  padding_right = 2,
-})
-
-local volume_percent = sbar.add("item", "volume.percent", {
-  position = "right",
-  icon = { drawing = false },
-  label = {
-    string = "??%",
-    font = settings.fonts.text.normal,
-    color = colors.white,
-  },
-  background = { drawing = false },
-  update_freq = 5,
-  padding_left = 0,
-  padding_right = settings.spacing.widget_spacing,
+  padding_right = 0,
 })
 
 local function get_volume()
@@ -56,11 +56,31 @@ local function get_volume()
     end
 
     volume_icon:set({ icon = { string = icon } })
-    volume_percent:set({ label = { string = volume .. "%" } })
+    volume_percent:set({
+      label = {
+        string = (volume >= 100 and tostring(volume) .. "%" or
+                 volume >= 10 and " " .. tostring(volume) .. "%" or
+                 "  " .. tostring(volume) .. "%")
+      }
+    })
   end)
 end
 
 function M.setup()
+  -- Add separator after volume
+  sbar.add("item", "volume_separator", {
+    position = "right",
+    icon = {
+      string = "|",
+      font = { family = "TX-02", style = "Bold", size = 18.0 },
+      color = colors.white,
+    },
+    background = { drawing = false },
+    label = { drawing = false },
+    padding_left = settings.spacing.separator_spacing,
+    padding_right = settings.spacing.separator_spacing,
+  })
+
   volume_percent:subscribe("volume_change", function(env)
     get_volume()
   end)

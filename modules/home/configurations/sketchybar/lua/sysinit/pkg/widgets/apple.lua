@@ -10,7 +10,7 @@ function M.setup()
   local apple = sbar.add("item", "apple", {
     position = "left",
     icon = {
-      font = settings.fonts.icons.normal,
+      font = { family = "Symbols Nerd Font Mono", style = "Regular", size = 14.0 },
       string = "󱄅",
       padding_right = settings.spacing.section_spacing,
       padding_left = settings.spacing.section_spacing,
@@ -25,9 +25,9 @@ function M.setup()
   sbar.add("item", "apple_separator", {
     position = "left",
     icon = {
-      string = "│",
-      font = settings.fonts.separators.normal,
-      color = colors.grey,
+      string = "|",
+      font = { family = "TX-02", style = "Bold", size = 18.0 },
+      color = colors.white,
     },
     background = { drawing = false },
     label = { drawing = false },

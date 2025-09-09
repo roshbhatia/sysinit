@@ -38,7 +38,12 @@ local function get_battery_info()
         string = icon,
         color = color,
       },
-      label = { string = percent .. "%", color = color },
+      label = {
+        string = (percent >= 100 and tostring(percent) .. "%" or
+                 percent >= 10 and " " .. tostring(percent) .. "%" or
+                 "  " .. tostring(percent) .. "%"),
+        color = color
+      },
     })
   end)
 end
@@ -95,9 +100,9 @@ function M.setup()
   sbar.add("item", "clock_separator", {
     position = "right",
     icon = {
-      string = "│",
-      font = settings.fonts.separators.normal,
-      color = colors.grey,
+      string = "|",
+      font = { family = "TX-02", style = "Bold", size = 18.0 },
+      color = colors.white,
     },
     background = { drawing = false },
     label = { drawing = false },
@@ -125,9 +130,9 @@ function M.setup()
   sbar.add("item", "battery_separator", {
     position = "right",
     icon = {
-      string = "│",
-      font = settings.fonts.separators.normal,
-      color = colors.grey,
+      string = "|",
+      font = { family = "TX-02", style = "Bold", size = 18.0 },
+      color = colors.white,
     },
     background = { drawing = false },
     label = { drawing = false },
