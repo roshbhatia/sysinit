@@ -2,6 +2,7 @@
   config,
   lib,
   values,
+  pkgs,
   ...
 }:
 
@@ -21,6 +22,18 @@ let
 in
 
 {
+  xdg.configFile."sketchybar/sketchybarrc" = {
+    text = ''
+      #! /opt/homebrew/bin/lua
+
+      package.cpath = package.cpath .. ";${pkgs.sbarlua}/lib/lua/5.4/?.so"
+      package.path = package.path .. ";${config.xdg.configHome}/sketchybar/lua/?.lua;${config.xdg.configHome}/sketchybar/lua/?/init.lua"
+
+      require("init")
+    '';
+    executable = true;
+  };
+
   xdg.configFile."sketchybar/sketchybarrc".source = "${path}/sketchybar.lua";
 
   xdg.configFile."sketchybar/lua".source = mkOutOfStoreSymlink "${path}/lua";

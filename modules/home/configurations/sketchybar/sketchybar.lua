@@ -11,13 +11,10 @@ package.path = package.path
   .. home_dir
   .. "/.config/sketchybar/lua/?/init.lua"
 
--- Setup core configuration and defaults
 require("sysinit.pkg.core").setup()
 
--- Add custom events
 sbar.add("event", "aerospace_workspace_change")
 
--- Setup widgets in order
 require("sysinit.pkg.widgets.apple").setup()
 require("sysinit.pkg.widgets.front_app").setup()
 require("sysinit.pkg.widgets.workspaces").setup()
@@ -26,5 +23,4 @@ require("sysinit.pkg.widgets.menu").setup()
 require("sysinit.pkg.widgets.system").setup()
 require("sysinit.pkg.widgets.volume").setup()
 
--- Start the event loop
 sbar.event_loop()
