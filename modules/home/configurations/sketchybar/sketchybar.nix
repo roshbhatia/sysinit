@@ -17,25 +17,6 @@ let
     overrides = values.theme.overrides or { };
   };
 
-  menus = pkgs.stdenv.mkDerivation {
-    name = "menus";
-    src = ./helpers/menus;
-
-    buildInputs = with pkgs.darwin.apple_sdk.frameworks; [
-      Carbon
-      SkyLight
-    ];
-
-    buildPhase = ''
-      make
-    '';
-
-    installPhase = ''
-      mkdir -p $out/bin
-      cp ./bin/menus $out/bin/
-    '';
-  };
-
   mkOutOfStoreSymlink = config.lib.file.mkOutOfStoreSymlink;
   path = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/sketchybar";
 in
@@ -45,9 +26,7 @@ in
     text = ''
       #! /opt/homebrew/bin/lua
 
-      -- Add menus binary to PATH for any shell commands spawned from Lua
       local current_path = os.getenv("PATH") or ""
-      os.setenv("PATH", "${menus}/bin:" .. current_path)
 
       local username = os.getenv("USER")
       local home_dir = "/Users/" .. username
