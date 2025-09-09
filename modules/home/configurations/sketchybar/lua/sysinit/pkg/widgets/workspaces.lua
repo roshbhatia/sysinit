@@ -10,7 +10,7 @@ local function make_label(workspace, is_focused)
   local workspace_text = is_focused and ("[" .. workspace .. "]") or (" " .. workspace .. " ")
   return {
     string = workspace_text,
-    color = is_focused and colors.white or colors.grey,
+    color = is_focused and colors.blue or colors.white,
     font = is_focused and settings.fonts.text.bold or settings.fonts.text.regular,
   }
 end
