@@ -58,7 +58,6 @@ function M.setup()
         click_script = "aerospace workspace " .. workspace,
       })
 
-      -- Store reference to the space item
       spaces[workspace] = space
 
       space:subscribe("aerospace_workspace_change", function(env)
@@ -66,7 +65,6 @@ function M.setup()
       end)
     end
 
-    -- Initial update
     update_workspaces()
   end)
 

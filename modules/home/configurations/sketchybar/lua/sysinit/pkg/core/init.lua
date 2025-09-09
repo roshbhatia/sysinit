@@ -4,7 +4,6 @@ local sbar = require("sketchybar")
 local theme = require("sysinit.pkg.theme")
 
 function M.setup()
-  -- Setup bar configuration immediately (no async)
   sbar.bar({
     height = theme.geometry.bar.height,
     color = theme.colors.bar_bg,

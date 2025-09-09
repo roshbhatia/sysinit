@@ -19,17 +19,17 @@ local function get_battery_info()
 
     local icon, color
     if charging then
-      icon, color = "🔌", theme.colors.accent
+      icon, color = "bolt.fill", theme.colors.accent
     elseif percent >= 80 then
-      icon, color = "🔋", theme.colors.white
+      icon, color = "battery.100", theme.colors.white
     elseif percent >= 60 then
-      icon, color = "🔋", theme.colors.white
+      icon, color = "battery.75", theme.colors.white
     elseif percent >= 40 then
-      icon, color = "🔋", theme.colors.accent
+      icon, color = "battery.50", theme.colors.accent
     elseif percent >= 20 then
-      icon, color = "🪫", theme.colors.accent
+      icon, color = "battery.25", theme.colors.accent
     else
-      icon, color = "🪫", theme.colors.accent
+      icon, color = "battery.0", theme.colors.accent
     end
 
     battery:set({
@@ -55,13 +55,13 @@ local function get_volume_info()
 
     local icon
     if volume == 0 then
-      icon = "🔇"
+      icon = "speaker.slash.fill"
     elseif volume < 33 then
-      icon = "🔈"
+      icon = "speaker.1.fill"
     elseif volume < 66 then
-      icon = "🔉"
+      icon = "speaker.2.fill"
     else
-      icon = "🔊"
+      icon = "speaker.3.fill"
     end
 
     volume_item:set({
@@ -74,13 +74,11 @@ local function get_volume_info()
 end
 
 local function get_time()
-  -- Get local time in 12-hour format
   sbar.exec("date +'%I:%M %p %Z'", function(local_result, exit_code)
     if exit_code ~= 0 then
       return
     end
 
-    -- Get UTC time
     sbar.exec("TZ=UTC date +'%H:%M UTC'", function(utc_result, exit_code)
       if exit_code ~= 0 then
         return
@@ -90,12 +88,12 @@ local function get_time()
       local utc_time = utc_result:gsub("%s+", " "):gsub("^%s*", ""):gsub("%s*$", "")
 
       clock:set({
-        icon = { string = " " },
+        icon = { string = "clock.fill" },
         label = { string = local_time },
       })
 
       utc_clock:set({
-        icon = { string = " " },
+        icon = { string = "globe" },
         label = { string = utc_time },
       })
     end)
@@ -104,7 +102,6 @@ end
 
 local function update_clocks()
   get_time()
-  -- Use timer instead of blocking exec
 end
 
 function M.setup()
@@ -143,7 +140,7 @@ function M.setup()
   volume_item = sbar.add("item", "volume", {
     position = "right",
     icon = {
-      string = "🔊",
+      string = "speaker.3.fill",
     },
     background = { drawing = false },
     padding_left = 8,
@@ -159,7 +156,6 @@ function M.setup()
     },
   })
 
-  -- Add volume info to popup
   local volume_popup = sbar.add("item", "volume.popup", {
     position = "popup.volume",
     label = { string = "Volume Control" },
