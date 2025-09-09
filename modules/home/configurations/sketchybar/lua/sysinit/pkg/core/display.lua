@@ -1,4 +1,18 @@
 local M = {}
+local cjson = require("cjson")
+
+local NOTCH_DIMENSIONS = {
+  { w = 2056, h = 1329 },
+}
+
+local function has_notch(width, height)
+  for _, dim in ipairs(NOTCH_DIMENSIONS) do
+    if width == dim.w and height == dim.h then
+      return true
+    end
+  end
+  return false
+end
 
 local function get_displays()
   local handle = io.popen("sketchybar --query displays")
@@ -7,11 +21,22 @@ local function get_displays()
   end
   local result = handle:read("*a")
   handle:close()
+
+  local ok, displays_data = pcall(cjson.decode, result)
+  if not ok then
+    return {}
+  end
+
   local displays = {}
-  for display in result:gmatch("{(.-)}") do
-    local id = display:match("id%s*=%s*(%d+)")
-    local notch = display:match("notch%s*=%s*(%a+)")
-    table.insert(displays, { id = tonumber(id), notch = notch == "true" })
+  for _, display in ipairs(displays_data) do
+    local frame = display.frame
+    local notch = has_notch(frame.w, frame.h)
+    table.insert(displays, {
+      id = display.DirectDisplayID,
+      notch = notch,
+      width = frame.w,
+      height = frame.h,
+    })
   end
   return displays
 end
