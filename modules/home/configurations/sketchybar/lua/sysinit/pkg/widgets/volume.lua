@@ -32,25 +32,21 @@ local volume_icon = sbar.add("item", "volume.icon", {
   padding_right = 0,
 })
 
-local volume_slider = sbar.add("slider", "volume.slider", {
+local volume_slider = sbar.add("slider", "volume.slider", 80, {
   position = "popup.volume.icon",
   slider = {
-    highlight_color = colors.accent,
+    highlight_color = colors.blue,
     background = {
-      height = 6,
-      corner_radius = 3,
-      color = colors.popup.bg,
+      height = 4,
+      corner_radius = 2,
+      color = colors.grey,
     },
-    knob = {
-      string = "󰀵",
-      font = settings.fonts.icons.small,
-      color = colors.accent,
-    },
+    knob = "",
+    width = 80,
   },
   background = { drawing = false },
-  padding_left = 8,
-  padding_right = 8,
-  click_script = 'osascript -e "set volume output volume $SB_VOLUME"',
+  padding_left = 6,
+  padding_right = 6,
 })
 
 local function get_volume()
@@ -104,10 +100,18 @@ function M.setup()
   })
 
   volume_icon:subscribe("mouse.entered", function()
-    volume_icon:set({ popup = { drawing = "toggle" } })
+    volume_icon:set({ popup = { drawing = true } })
   end)
 
   volume_icon:subscribe("mouse.exited", function()
+    volume_icon:set({ popup = { drawing = false } })
+  end)
+
+  volume_slider:subscribe("mouse.entered", function()
+    volume_icon:set({ popup = { drawing = true } })
+  end)
+
+  volume_slider:subscribe("mouse.exited", function()
     volume_icon:set({ popup = { drawing = false } })
   end)
 
@@ -125,12 +129,24 @@ function M.setup()
     get_volume()
   end)
 
-  volume_percent:subscribe("volume_change", function(env)
+  volume_percent:subscribe("volume_change", function()
     get_volume()
   end)
 
-  volume_percent:subscribe("routine", function(env)
+  volume_percent:subscribe("routine", function()
     get_volume()
+  end)
+
+  volume_slider:subscribe("volume_change", function()
+    get_volume()
+  end)
+
+  volume_slider:subscribe("mouse.clicked", function(env)
+    local percentage = env.PERCENTAGE
+    if percentage then
+      os.execute('osascript -e "set volume output volume ' .. percentage .. '"')
+      get_volume()
+    end
   end)
 
   get_volume()

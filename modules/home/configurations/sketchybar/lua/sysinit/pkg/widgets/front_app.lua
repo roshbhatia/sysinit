@@ -4,41 +4,43 @@ local sbar = require("sketchybar")
 local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
 
+local front_app
+
 local app_icons = {
-  [".firefox-old"] = "",
+  [".firefox-old"] = "",
   ["Activity Monitor"] = "󰍉",
   ["App Store"] = "󰀸",
   ["Arc"] = "󰄦",
   ["Books"] = "󱉟",
-  ["Calculator"] = "",
+  ["Calculator"] = "",
   ["Calendar"] = "󰸘",
   ["Code - Insiders"] = "󰨞",
   ["Code"] = "󰨞",
   ["Discord"] = "󰙯",
   ["Ferdium"] = "󰙯",
   ["Finder"] = "󰀶",
-  ["Firefox"] = "",
-  ["Google Chrome"] = "",
+  ["Firefox"] = "",
+  ["Google Chrome"] = "",
   ["Mail"] = "󰇰",
   ["Messages"] = "󰍡",
   ["Messenger"] = "󰍡",
-  ["Music"] = "",
+  ["Music"] = "",
   ["Notes"] = "󰎞",
   ["Notion"] = "󰈙",
   ["Outlook"] = "󰇰",
-  ["Podcasts"] = "",
+  ["Podcasts"] = "",
   ["Safari"] = "󰀻",
   ["Slack"] = "󰒱",
-  ["Spotify"] = "",
-  ["System Preferences"] = "",
-  ["Terminal"] = "",
+  ["Spotify"] = "",
+  ["System Preferences"] = "",
+  ["Terminal"] = "",
   ["Visual Studio Code - Insiders"] = "󰨞",
   ["Visual Studio Code"] = "󰨞",
-  ["Wezterm"] = "",
+  ["Wezterm"] = "",
   ["Xcode"] = "󰡯",
   ["Zoom"] = "󰍫",
-  ["iTerm2"] = "",
-  ["wezterm-gui"] = "",
+  ["iTerm2"] = "",
+  ["wezterm-gui"] = "",
 }
 
 local app_display_names = {
@@ -100,8 +102,22 @@ function M.setup()
     padding_right = settings.spacing.widget_spacing,
   })
 
-  front_app:subscribe("front_app_switched", function(env)
+  front_app:subscribe("front_app_switched", function()
     get_front_app()
+  end)
+
+  front_app:subscribe("mouse.entered", function()
+    sbar.set("/menu\\..*/", { drawing = true })
+    sbar.animate("sin", 15, function()
+      sbar.set("/menu\\..*/", { background = { color = colors.popup.bg } })
+    end)
+  end)
+
+  front_app:subscribe("mouse.exited", function()
+    sbar.animate("sin", 15, function()
+      sbar.set("/menu\\..*/", { background = { color = colors.bg } })
+    end)
+    sbar.set("/menu\\..*/", { drawing = false })
   end)
 
   get_front_app()
