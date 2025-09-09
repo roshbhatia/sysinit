@@ -5,50 +5,31 @@ local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
 
 local spaces = {}
-local current_focused_workspace = nil
 
-local function make_label(workspace, is_focused)
-  local workspace_text = is_focused and ("[" .. workspace .. "]") or workspace
+local function make_label(workspace, is_focused, is_prev)
+  local workspace_text
+  if is_focused then
+    workspace_text = "[" .. workspace .. "]"
+  elseif is_prev then
+    workspace_text = "(" .. workspace .. ")"
+  else
+    workspace_text = workspace
+  end
+
+  local color = colors.white
+  if is_focused then
+    color = colors.green
+  elseif is_prev then
+    color = colors.red
+  end
+
   return {
     string = workspace_text,
-    color = colors.white,
+    color = color,
     font = is_focused and settings.fonts.text.bold or settings.fonts.text.regular,
   }
 end
 
-local function update_focused_workspace()
-  sbar.exec("aerospace list-workspaces --focused", function(focused_output, exit_code)
-    if exit_code ~= 0 then
-      return
-    end
-
-    local focused_workspace = focused_output:gsub("%s+", "")
-    if focused_workspace ~= current_focused_workspace then
-      current_focused_workspace = focused_workspace
-      for workspace, space_item in pairs(spaces) do
-        local is_focused = (workspace == focused_workspace)
-        local label_config = make_label(workspace, is_focused)
-        space_item:set({
-          label = label_config,
-          icon = { drawing = false },
-        })
-      end
-    end
-  end)
-end
-
-local function start_workspace_polling()
-  sbar.add("item", "workspace_updater", {
-    position = "popup." .. "hidden",
-    drawing = false,
-    update_freq = 10,
-    script = "aerospace list-workspaces --focused",
-  })
-
-  sbar.subscribe("routine", function()
-    update_focused_workspace()
-  end)
-end
 function M.setup()
   sbar.exec("aerospace list-workspaces --all", function(workspaces_output, exit_code)
     if exit_code ~= 0 then
@@ -75,18 +56,34 @@ function M.setup()
 
     for _, workspace in ipairs(workspace_group) do
       local item_name = "space." .. workspace
+
+      -- Add workspace-specific event
+      sbar.add("event", "aerospace_workspace_change_" .. workspace)
+
       local space = sbar.add("item", item_name, {
         position = "center",
         icon = { drawing = false },
-        label = make_label(workspace, false),
+        label = make_label(workspace, false, false),
         background = { drawing = false },
         padding_left = settings.spacing.widget_spacing,
         padding_right = settings.spacing.widget_spacing,
-        click_script = string.format(
-          "aerospace workspace %s; sketchybar --trigger aerospace_workspace_change",
-          workspace
-        ),
+        click_script = string.format("aerospace workspace %s", workspace),
       })
+
+      -- Subscribe to workspace-specific event for optimized updates
+      space:subscribe("aerospace_workspace_change_" .. workspace, function(env)
+        local focused_workspace = env.FOCUSED_WORKSPACE
+        local prev_workspace = env.PREV_WORKSPACE
+
+        local is_focused = (workspace == focused_workspace)
+        local is_prev = (workspace == prev_workspace)
+
+        local label_config = make_label(workspace, is_focused, is_prev)
+        space:set({
+          label = label_config,
+          icon = { drawing = false },
+        })
+      end)
 
       spaces[workspace] = space
     end
@@ -104,8 +101,22 @@ function M.setup()
       padding_right = settings.spacing.separator_spacing,
     })
 
-    start_workspace_polling()
-    update_focused_workspace()
+    -- Initial focused workspace detection
+    sbar.exec("aerospace list-workspaces --focused", function(focused_output, initial_exit_code)
+      if initial_exit_code == 0 then
+        local focused_workspace = focused_output:gsub("%s+", "")
+
+        -- Update initial state
+        for ws, space_item in pairs(spaces) do
+          local is_focused = (ws == focused_workspace)
+          local label_config = make_label(ws, is_focused, false)
+          space_item:set({
+            label = label_config,
+            icon = { drawing = false },
+          })
+        end
+      end
+    end)
   end)
 end
 
