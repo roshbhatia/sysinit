@@ -13,12 +13,6 @@
         "${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_workspace_change FOCUSED=$AEROSPACE_FOCUSED_WORKSPACE"
       ];
 
-      on-foucs-changed = [
-        "/bin/bash"
-        "-c"
-        "${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_workspace_change FOCUSED=$AEROSPACE_FOCUSED_WORKSPACE"
-      ];
-
       gaps = {
         inner = {
           horizontal = 8;
