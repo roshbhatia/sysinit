@@ -10,7 +10,7 @@ local volume_icon = sbar.add("item", "volume.icon", {
     string = "󰕾",
     font = {
       family = settings.icon_font,
-      style = "Regular",
+      style = "Light",
       size = 14.0,
     },
     color = colors.white,
@@ -26,7 +26,7 @@ local volume_percent = sbar.add("item", "volume.percent", {
     string = "??%",
     font = {
       family = settings.font,
-      style = "Medium",
+      style = "Light",
       size = 13.0,
     },
     color = colors.white,
@@ -46,20 +46,19 @@ local function get_volume()
       return
     end
 
-    -- Update icon based on volume level
-    local icon = "🔇"
+    local icon = ""
     if volume > 60 then
-      icon = "🔊"
+      icon = ""
     elseif volume > 30 then
-      icon = "🔉"
+      icon = "󰕾"
     elseif volume > 10 then
-      icon = "🔈"
+      icon = ""
     elseif volume > 0 then
-      icon = "🔈"
+      icon = "󰕿"
     end
 
-    volume_icon:set({ icon = { string = icon } })
     volume_percent:set({ label = { string = volume .. "%" } })
+    volume_icon:set({ icon = { string = icon } })
   end)
 end
 
@@ -72,7 +71,6 @@ function M.setup()
     get_volume()
   end)
 
-  -- Load initial volume
   get_volume()
 end
 

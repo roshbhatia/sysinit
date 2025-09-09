@@ -7,7 +7,6 @@ local colors = require("sysinit.pkg.colors")
 local spaces = {}
 
 function M.setup()
-  -- Get all workspaces from Aerospace
   sbar.exec("aerospace list-workspaces --all", function(workspaces_output, exit_code)
     if exit_code ~= 0 then
       return
@@ -37,7 +36,6 @@ function M.setup()
       spaces[workspace] = space
 
       space:subscribe("aerospace_workspace_change", function(env)
-        -- Get current focused workspace
         sbar.exec("aerospace list-workspaces --focused", function(focused, exit_code)
           if exit_code ~= 0 then
             return
@@ -65,7 +63,7 @@ function M.setup()
                 color = colors.grey,
                 font = {
                   family = settings.font,
-                  style = "Medium",
+                  style = "Light",
                   size = 13.0,
                 },
               },
@@ -75,7 +73,6 @@ function M.setup()
       end)
     end
 
-    -- Set initial focused workspace
     sbar.exec("aerospace list-workspaces --focused", function(focused_output)
       local focused_workspace = focused_output:gsub("%s+", "")
       if spaces[focused_workspace] then
@@ -94,7 +91,6 @@ function M.setup()
     end)
   end)
 
-  -- Add separator after workspaces
   local separator = sbar.add("item", "separator", {
     position = "left",
     icon = {
