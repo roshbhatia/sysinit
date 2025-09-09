@@ -35,6 +35,7 @@ for i = 1, max_items, 1 do
       padding_right = 6,
     },
     click_script = "menus -s " .. i,
+    update_freq = 60,
   })
 
   menu_items[i] = menu
