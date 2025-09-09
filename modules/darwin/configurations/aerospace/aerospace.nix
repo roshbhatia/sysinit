@@ -36,7 +36,7 @@
           right = 16;
           left = 16;
           bottom = 24;
-          top = 32;
+          top = 24;
         };
       };
 
