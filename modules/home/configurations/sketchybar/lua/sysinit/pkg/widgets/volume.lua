@@ -8,15 +8,13 @@ local volume_icon = sbar.add("item", "volume.icon", {
   position = "right",
   icon = {
     string = "󰕾",
-    font = {
-      family = settings.icon_font,
-      style = "Light",
-      size = 14.0,
-    },
+    font = settings.fonts.icons.normal,
     color = colors.white,
   },
   label = { drawing = false },
   background = { drawing = false },
+  padding_left = settings.spacing.widget_spacing,
+  padding_right = 2,
 })
 
 local volume_percent = sbar.add("item", "volume.percent", {
@@ -24,15 +22,13 @@ local volume_percent = sbar.add("item", "volume.percent", {
   icon = { drawing = false },
   label = {
     string = "??%",
-    font = {
-      family = settings.font,
-      style = "Light",
-      size = 13.0,
-    },
+    font = settings.fonts.text.normal,
     color = colors.white,
   },
   background = { drawing = false },
   update_freq = 5,
+  padding_left = 0,
+  padding_right = settings.spacing.widget_spacing,
 })
 
 local function get_volume()
@@ -46,20 +42,21 @@ local function get_volume()
       return
     end
 
+    local icon = ""
     if volume > 60 then
-      icon = ""
-    elseif volume > 30 then
       icon = "󰕾"
+    elseif volume > 30 then
+      icon = "󰖀"
     elseif volume > 10 then
-      icon = ""
+      icon = "󰕿"
     elseif volume > 0 then
       icon = "󰕿"
     else
-      icon = ""
+      icon = "󰸈"
     end
 
-    volume_percent:set({ label = { string = volume .. "%" } })
     volume_icon:set({ icon = { string = icon } })
+    volume_percent:set({ label = { string = volume .. "%" } })
   end)
 end
 
@@ -72,6 +69,7 @@ function M.setup()
     get_volume()
   end)
 
+  -- Load initial volume
   get_volume()
 end
 

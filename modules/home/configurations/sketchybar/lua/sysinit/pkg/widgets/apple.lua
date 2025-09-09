@@ -10,14 +10,10 @@ function M.setup()
   local apple = sbar.add("item", "apple", {
     position = "left",
     icon = {
-      font = {
-        family = settings.icon_font,
-        style = "Regular",
-        size = 16.0,
-      },
+      font = settings.fonts.icons.normal,
       string = "󱄅",
-      padding_right = 8,
-      padding_left = 8,
+      padding_right = settings.spacing.section_spacing,
+      padding_left = settings.spacing.section_spacing,
       color = colors.white,
     },
     label = { drawing = false },
@@ -30,17 +26,13 @@ function M.setup()
     position = "left",
     icon = {
       string = "│",
-      font = {
-        family = settings.font,
-        style = "Regular",
-        size = 12.0,
-      },
+      font = settings.fonts.separators.normal,
       color = colors.grey,
     },
     background = { drawing = false },
     label = { drawing = false },
-    padding_left = 8,
-    padding_right = 8,
+    padding_left = settings.spacing.separator_spacing,
+    padding_right = settings.spacing.separator_spacing,
   })
 end
 

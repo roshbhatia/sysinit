@@ -22,24 +22,16 @@ function M.setup()
   sbar.default({
     updates = "when_shown",
     icon = {
-      font = {
-        family = settings.icon_font,
-        style = "Regular",
-        size = 14.0,
-      },
+      font = settings.fonts.icons.normal,
       color = colors.white,
-      padding_left = settings.paddings,
-      padding_right = settings.paddings,
+      padding_left = settings.spacing.paddings,
+      padding_right = settings.spacing.paddings,
     },
     label = {
-      font = {
-        family = settings.font,
-        style = "Light",
-        size = 14.0,
-      },
+      font = settings.fonts.text.normal,
       color = colors.white,
-      padding_left = settings.paddings,
-      padding_right = settings.paddings,
+      padding_left = settings.spacing.paddings,
+      padding_right = settings.spacing.paddings,
     },
     background = {
       height = 26,

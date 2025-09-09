@@ -78,16 +78,16 @@ function M.setup()
   clock = sbar.add("item", "clock", {
     position = "right",
     background = { drawing = false },
-    padding_left = 4,
-    padding_right = 4,
+    padding_left = settings.spacing.widget_spacing,
+    padding_right = settings.spacing.widget_spacing,
     update_freq = 60,
   })
 
   utc_clock = sbar.add("item", "utc_clock", {
     position = "right",
     background = { drawing = false },
-    padding_left = 4,
-    padding_right = 4,
+    padding_left = settings.spacing.widget_spacing,
+    padding_right = settings.spacing.widget_spacing,
     update_freq = 60,
   })
 
@@ -96,24 +96,20 @@ function M.setup()
     position = "right",
     icon = {
       string = "│",
-      font = {
-        family = settings.font,
-        style = "Regular",
-        size = 12.0,
-      },
+      font = settings.fonts.separators.normal,
       color = colors.grey,
     },
     background = { drawing = false },
     label = { drawing = false },
-    padding_left = 8,
-    padding_right = 8,
+    padding_left = settings.spacing.separator_spacing,
+    padding_right = settings.spacing.separator_spacing,
   })
 
   battery = sbar.add("item", "battery", {
     position = "right",
     background = { drawing = false },
-    padding_left = 4,
-    padding_right = 4,
+    padding_left = settings.spacing.widget_spacing,
+    padding_right = settings.spacing.widget_spacing,
     update_freq = 120,
     click_script = "open /System/Library/PreferencePanes/Battery.prefPane",
   })
@@ -130,17 +126,13 @@ function M.setup()
     position = "right",
     icon = {
       string = "│",
-      font = {
-        family = settings.font,
-        style = "Regular",
-        size = 12.0,
-      },
+      font = settings.fonts.separators.normal,
       color = colors.grey,
     },
     background = { drawing = false },
     label = { drawing = false },
-    padding_left = 8,
-    padding_right = 8,
+    padding_left = settings.spacing.separator_spacing,
+    padding_right = settings.spacing.separator_spacing,
   })
 
   get_battery_info()
