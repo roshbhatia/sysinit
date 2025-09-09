@@ -16,16 +16,9 @@ local function make_label(workspace, is_focused, is_prev)
     workspace_text = workspace
   end
 
-  local color = colors.white
-  if is_focused then
-    color = colors.green
-  elseif is_prev then
-    color = colors.red
-  end
-
   return {
     string = workspace_text,
-    color = color,
+    color = colors.white,
     font = is_focused and settings.fonts.text.bold or settings.fonts.text.regular,
   }
 end
@@ -57,7 +50,6 @@ function M.setup()
     for _, workspace in ipairs(workspace_group) do
       local item_name = "space." .. workspace
 
-      -- Add workspace-specific event
       sbar.add("event", "aerospace_workspace_change_" .. workspace)
 
       local space = sbar.add("item", item_name, {
@@ -70,7 +62,6 @@ function M.setup()
         click_script = string.format("aerospace workspace %s", workspace),
       })
 
-      -- Subscribe to workspace-specific event for optimized updates
       space:subscribe("aerospace_workspace_change_" .. workspace, function(env)
         local focused_workspace = env.FOCUSED_WORKSPACE
         local prev_workspace = env.PREV_WORKSPACE
@@ -101,12 +92,10 @@ function M.setup()
       padding_right = settings.spacing.separator_spacing,
     })
 
-    -- Initial focused workspace detection
     sbar.exec("aerospace list-workspaces --focused", function(focused_output, initial_exit_code)
       if initial_exit_code == 0 then
         local focused_workspace = focused_output:gsub("%s+", "")
 
-        -- Update initial state
         for ws, space_item in pairs(spaces) do
           local is_focused = (ws == focused_workspace)
           local label_config = make_label(ws, is_focused, false)
