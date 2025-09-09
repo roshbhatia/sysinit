@@ -10,7 +10,7 @@ function M.setup()
     height = 32,
     color = colors.bar_bg,
     position = "top",
-    blur_radius = 40,
+    blur_radius = 80,
     sticky = true,
     shadow = false,
     corner_radius = 10,

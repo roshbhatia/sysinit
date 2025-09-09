@@ -143,6 +143,7 @@ let
       {
         colorscheme = validatedConfig.colorscheme;
         variant = validatedConfig.variant;
+        transparency = validatedConfig.transparency;
         inherit
           palette
           semanticColors
