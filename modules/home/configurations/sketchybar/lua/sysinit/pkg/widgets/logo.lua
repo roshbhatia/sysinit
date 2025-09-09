@@ -7,7 +7,7 @@ local colors = require("sysinit.pkg.colors")
 function M.setup()
   sbar.add("item", { width = 5 })
 
-  local apple = sbar.add("item", "apple", {
+  local logo = sbar.add("item", "logo", {
     position = "left",
     icon = {
       font = settings.fonts.icons.regular,
@@ -22,7 +22,7 @@ function M.setup()
     padding_right = 1,
   })
 
-  sbar.add("item", "apple_separator", {
+  sbar.add("item", "logo_separator", {
     position = "left",
     icon = {
       string = "|",
