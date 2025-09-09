@@ -22,8 +22,8 @@ return {
   -- Spacing configurations
   spacing = {
     paddings = 3,
-    widget_spacing = 4,
-    section_spacing = 8,
-    separator_spacing = 8,
+    widget_spacing = 6,
+    section_spacing = 10,
+    separator_spacing = 10,
   },
 }

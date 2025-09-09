@@ -11,7 +11,8 @@ local function make_label(workspace, is_focused)
   return {
     string = workspace_text,
     color = is_focused and colors.white or colors.grey,
-    font = is_focused and { family = "TX-02", style = "Bold", size = 13.0 } or { family = "TX-02", style = "Regular", size = 13.0 },
+    font = is_focused and { family = "TX-02", style = "Bold", size = 13.0 }
+      or { family = "TX-02", style = "Regular", size = 13.0 },
   }
 end
 

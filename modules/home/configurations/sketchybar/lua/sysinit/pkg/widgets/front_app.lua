@@ -66,8 +66,16 @@ local function get_front_app()
 
       local display_name = app_display_names[app] or app
       front_app:set({
-        icon = { string = app_icons[app] or "󰘔" },
-        label = { string = display_name },
+        icon = {
+          string = app_icons[app] or "󰘔",
+          font = { family = "Symbols Nerd Font Mono", style = "Regular", size = 14.0 },
+          color = colors.white,
+        },
+        label = {
+          string = display_name,
+          font = { family = "TX-02", style = "Regular", size = 13.0 },
+          color = colors.white,
+        },
         drawing = true,
       })
     end
@@ -77,11 +85,19 @@ end
 function M.setup()
   front_app = sbar.add("item", "front_app", {
     position = "left",
+    icon = {
+      font = { family = "Symbols Nerd Font Mono", style = "Regular", size = 14.0 },
+      color = colors.white,
+    },
+    label = {
+      font = { family = "TX-02", style = "Regular", size = 13.0 },
+      color = colors.white,
+    },
     background = {
       drawing = false,
     },
-    padding_left = 8,
-    padding_right = 8,
+    padding_left = settings.spacing.widget_spacing,
+    padding_right = settings.spacing.widget_spacing,
   })
 
   front_app:subscribe("front_app_switched", function(env)

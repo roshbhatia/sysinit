@@ -31,6 +31,27 @@ local volume_icon = sbar.add("item", "volume.icon", {
   padding_right = 0,
 })
 
+local volume_slider = sbar.add("slider", "volume.slider", {
+  position = "popup.volume.icon",
+  slider = {
+    highlight_color = colors.accent,
+    background = {
+      height = 6,
+      corner_radius = 3,
+      color = colors.popup.bg,
+    },
+    knob = {
+      string = "󰀵",
+      font = { family = "Symbols Nerd Font Mono", style = "Regular", size = 12.0 },
+      color = colors.accent,
+    },
+  },
+  background = { drawing = false },
+  padding_left = 8,
+  padding_right = 8,
+  click_script = 'osascript -e "set volume output volume $SB_VOLUME"',
+})
+
 local function get_volume()
   sbar.exec("osascript -e 'output volume of (get volume settings)'", function(result, exit_code)
     if exit_code ~= 0 then
@@ -58,11 +79,12 @@ local function get_volume()
     volume_icon:set({ icon = { string = icon } })
     volume_percent:set({
       label = {
-        string = (volume >= 100 and tostring(volume) .. "%" or
-                 volume >= 10 and " " .. tostring(volume) .. "%" or
-                 "  " .. tostring(volume) .. "%")
-      }
+        string = (volume >= 100 and tostring(volume) .. "%" or volume >= 10 and " " .. tostring(
+          volume
+        ) .. "%" or "  " .. tostring(volume) .. "%"),
+      },
     })
+    volume_slider:set({ slider = { percentage = volume } })
   end)
 end
 
@@ -80,6 +102,14 @@ function M.setup()
     padding_left = settings.spacing.separator_spacing,
     padding_right = settings.spacing.separator_spacing,
   })
+
+  volume_icon:subscribe("mouse.entered", function()
+    volume_icon:set({ popup = { drawing = "toggle" } })
+  end)
+
+  volume_icon:subscribe("mouse.exited", function()
+    volume_icon:set({ popup = { drawing = false } })
+  end)
 
   volume_percent:subscribe("volume_change", function(env)
     get_volume()

@@ -21,11 +21,16 @@ local menu_items = {}
 
 for i = 1, max_items, 1 do
   local menu = sbar.add("item", "menu." .. i, {
-    padding_left = settings.paddings,
-    padding_right = settings.paddings,
+    padding_left = settings.spacing.paddings,
+    padding_right = settings.spacing.paddings,
     drawing = false,
-    icon = { drawing = false },
+    icon = {
+      drawing = false,
+      font = { family = "Symbols Nerd Font Mono", style = "Regular", size = 14.0 },
+    },
     label = {
+      font = { family = "TX-02", style = "Regular", size = 13.0 },
+      color = colors.white,
       padding_left = 6,
       padding_right = 6,
     },
@@ -36,7 +41,7 @@ for i = 1, max_items, 1 do
 end
 
 sbar.add("bracket", { "/menu\\..*/" }, {
-  background = { color = colors.bg1 },
+  background = { color = colors.bg },
 })
 
 local menu_padding = sbar.add("item", "menu.padding", {

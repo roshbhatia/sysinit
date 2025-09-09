@@ -39,10 +39,12 @@ local function get_battery_info()
         color = color,
       },
       label = {
-        string = (percent >= 100 and tostring(percent) .. "%" or
-                 percent >= 10 and " " .. tostring(percent) .. "%" or
-                 "  " .. tostring(percent) .. "%"),
-        color = color
+        string = (
+          percent >= 100 and tostring(percent) .. "%"
+          or percent >= 10 and " " .. tostring(percent) .. "%"
+          or "  " .. tostring(percent) .. "%"
+        ),
+        color = color,
       },
     })
   end)

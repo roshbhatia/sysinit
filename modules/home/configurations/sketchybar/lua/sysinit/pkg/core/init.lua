@@ -22,13 +22,13 @@ function M.setup()
   sbar.default({
     updates = "when_shown",
     icon = {
-      font = settings.fonts.icons.normal,
+      font = { family = "Symbols Nerd Font Mono", style = "Regular", size = 14.0 },
       color = colors.white,
       padding_left = settings.spacing.paddings,
       padding_right = settings.spacing.paddings,
     },
     label = {
-      font = settings.fonts.text.normal,
+      font = { family = "TX-02", style = "Regular", size = 13.0 },
       color = colors.white,
       padding_left = settings.spacing.paddings,
       padding_right = settings.spacing.paddings,
