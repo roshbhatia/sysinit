@@ -23,7 +23,7 @@ in
         true-color = true;
         undercurl = true;
         clipboard-provider = "pasteboard";
-        cursorline = false;
+        cursorline = true;
 
         cursor-shape = {
           insert = "bar";

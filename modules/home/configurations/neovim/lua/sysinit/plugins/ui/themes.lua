@@ -18,10 +18,6 @@ local function get_transparent_highlights()
     BlinkCmpSignatureHelpBorder = { bg = "none" },
     ColorColumn = { bg = "none" },
     CursorColumn = { bg = "none" },
-    CursorLine = { bg = "none" },
-    CursorLineFold = { bg = "none" },
-    CursorLineNr = { bg = "none" },
-    CursorLineSign = { bg = "none" },
     DiagnosticVirtualTextError = { bg = "none" },
     DiagnosticVirtualTextHint = { bg = "none" },
     DiagnosticVirtualTextInfo = { bg = "none" },
@@ -123,7 +119,6 @@ local function get_catppuccin_config()
       [theme_config.variant] = function(colors)
         local overrides = get_transparent_highlights()
 
-        overrides.CursorLineNr = { fg = colors.lavender, style = { "bold" } }
         overrides.LineNr = { fg = colors.overlay1 }
         overrides.Visual = { bg = colors.surface1, style = { "bold" } }
         overrides.Search = { bg = colors.yellow, fg = colors.base, style = { "bold" } }
@@ -365,7 +360,6 @@ local function get_nightfox_config()
         WhichKeyFloat = { bg = "NONE" },
         WhichKeyBorder = { bg = "NONE" },
         SignColumn = { bg = "NONE" },
-        CursorLine = { bg = "NONE" },
         StatusLine = { bg = "NONE" },
         StatusLineNC = { bg = "NONE" },
         WinSeparator = { bg = "NONE" },

@@ -149,7 +149,7 @@ in
           bg = if isTransparent then "none" else semanticColors.background.primary;
         };
         CursorLine = {
-          bg = if isTransparent then "none" else semanticColors.background.secondary;
+          bg = semanticColors.background.secondary;
         };
         Visual = {
           bg = semanticColors.accent.dim;
