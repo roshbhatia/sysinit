@@ -27,14 +27,13 @@ in
       #! /opt/homebrew/bin/lua
 
       package.cpath = package.cpath .. ";${pkgs.sbarlua}/lib/lua/5.4/?.so"
-      package.path = package.path .. ";${config.xdg.configHome}/sketchybar/lua/?.lua;${config.xdg.configHome}/sketchybar/lua/?/init.lua"
 
-      require("init")
+      require("sysinit")
     '';
     executable = true;
   };
 
-  xdg.configFile."sketchybar/sketchybarrc".source = "${path}/sketchybar.lua";
+  xdg.configFile."sketchybar/sysinit.lua".source = "${path}/sysinit.lua";
 
   xdg.configFile."sketchybar/lua".source = mkOutOfStoreSymlink "${path}/lua";
 
