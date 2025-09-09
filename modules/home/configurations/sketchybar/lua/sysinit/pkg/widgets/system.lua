@@ -121,7 +121,11 @@ function M.setup()
     click_script = "open /System/Library/PreferencePanes/Battery.prefPane",
   })
 
-  battery:subscribe({ "system_woke", "power_source_change" }, function(env)
+  battery:subscribe("system_woke", function(env)
+    get_battery_info()
+  end)
+
+  battery:subscribe("power_source_change", function(env)
     get_battery_info()
   end)
 
