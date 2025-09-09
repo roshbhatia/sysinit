@@ -54,12 +54,12 @@ M.colors = {
 }
 
 M.fonts = {
-  app_icon = "sketchybar-app-font:Regular:14.0",
-  system_icon = "sketchybar-app-font:Regular:12.0", -- For system icons like battery, volume
+  app_icon = "Symbols Nerd Font Mono:Regular:14.0",
+  system_icon = "Symbols Nerd Font Mono:Regular:12.0",
   text = "TX-02:Semibold:12.0",
   text_medium = "TX-02:Medium:12.0",
   text_bold = "TX-02:Bold:13.0",
-  text_small = "TX-02:Medium:11.0", -- For secondary info
+  text_small = "TX-02:Medium:11.0",
 }
 
 M.geometry = {
