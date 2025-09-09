@@ -24,6 +24,7 @@ let
     "block-goose-cli"
     "charmbracelet/tap/crush"
     "claude-squad"
+    "cursor-cli"
     "eza"
     "hashicorp/tap/terraform"
     "libgit2@1.8"
