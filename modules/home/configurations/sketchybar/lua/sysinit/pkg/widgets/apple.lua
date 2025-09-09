@@ -1,8 +1,8 @@
 local M = {}
 
 local sbar = require("sketchybar")
-local theme = require("sysinit.pkg.theme")
-local settings = require("sysinit.pkg.config.settings")
+local settings = require("sysinit.pkg.settings")
+local colors = require("sysinit.pkg.colors")
 
 function M.setup()
   -- Padding item required because of bracket
@@ -11,28 +11,20 @@ function M.setup()
   local apple = sbar.add("item", "apple", {
     position = "left",
     icon = {
-      font = { size = 16.0 },
-      string = theme.icons.apple,
+      font = {
+        family = settings.icon_font,
+        style = "Regular",
+        size = 16.0
+      },
+      string = "󱄅",  -- Nix nerd font icon
       padding_right = 8,
       padding_left = 8,
+      color = colors.white,
     },
     label = { drawing = false },
-    background = {
-      color = theme.colors.bg2,
-      border_color = theme.colors.black or theme.colors.grey,
-      border_width = 1,
-    },
+    background = { drawing = false },
     padding_left = 1,
     padding_right = 1,
-  })
-
-  -- Double border for apple using a single item bracket
-  sbar.add("bracket", { apple.name }, {
-    background = {
-      color = 0x00000000,
-      height = 30,
-      border_color = theme.colors.grey,
-    },
   })
 
   -- Separator between apple logo and front app
@@ -41,11 +33,11 @@ function M.setup()
     icon = {
       string = "│",
       font = {
-        family = settings.font.text,
-        style = settings.font.style_map["Regular"],
+        family = settings.font,
+        style = "Regular",
         size = 12.0,
       },
-      color = theme.colors.grey,
+      color = colors.grey,
     },
     background = { drawing = false },
     label = { drawing = false },

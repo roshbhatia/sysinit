@@ -1,8 +1,8 @@
 local M = {}
 
 local sbar = require("sketchybar")
-local theme = require("sysinit.pkg.theme")
-local settings = require("sysinit.pkg.config.settings")
+local settings = require("sysinit.pkg.settings")
+local colors = require("sysinit.pkg.colors")
 
 local function get_battery_info()
   sbar.exec("pmset -g batt", function(result, exit_code)
@@ -20,17 +20,17 @@ local function get_battery_info()
 
     local icon, color
     if charging then
-      icon, color = "󰂄", theme.colors.green
+      icon, color = "⚡", colors.green
     elseif percent >= 80 then
-      icon, color = "󰁹", theme.colors.white
+      icon, color = "🔋", colors.white
     elseif percent >= 60 then
-      icon, color = "󰂀", theme.colors.white
+      icon, color = "🔋", colors.white
     elseif percent >= 40 then
-      icon, color = "󰁾", theme.colors.yellow
+      icon, color = "🔋", colors.yellow
     elseif percent >= 20 then
-      icon, color = "󰁼", theme.colors.orange
+      icon, color = "🔋", colors.orange
     else
-      icon, color = "󰁺", theme.colors.red
+      icon, color = "🪫", colors.red
     end
 
     battery:set({
@@ -99,11 +99,11 @@ function M.setup()
     icon = {
       string = "│",
       font = {
-        family = settings.font.text,
-        style = settings.font.style_map["Regular"],
+        family = settings.font,
+        style = "Regular",
         size = 12.0,
       },
-      color = theme.colors.grey,
+      color = colors.grey,
     },
     background = { drawing = false },
     label = { drawing = false },
@@ -135,11 +135,11 @@ function M.setup()
     icon = {
       string = "│",
       font = {
-        family = settings.font.text,
-        style = settings.font.style_map["Regular"],
+        family = settings.font,
+        style = "Regular",
         size = 12.0,
       },
-      color = theme.colors.grey,
+      color = colors.grey,
     },
     background = { drawing = false },
     label = { drawing = false },

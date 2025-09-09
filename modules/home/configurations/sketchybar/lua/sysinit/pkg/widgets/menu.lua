@@ -1,8 +1,8 @@
 local M = {}
 
 local sbar = require("sketchybar")
-local theme = require("sysinit.pkg.theme")
-local settings = require("sysinit.pkg.config.settings")
+local settings = require("sysinit.pkg.settings")
+local colors = require("sysinit.pkg.colors")
 
 local menu_watcher = sbar.add("item", {
   drawing = false,
@@ -26,10 +26,6 @@ for i = 1, max_items, 1 do
     drawing = false,
     icon = { drawing = false },
     label = {
-      font = {
-        family = theme.fonts.text:match("([^:]+)"),
-        style = settings.font.style_map[i == 1 and "Bold" or "Semibold"],
-      },
       padding_left = 6,
       padding_right = 6,
     },
@@ -40,7 +36,7 @@ for i = 1, max_items, 1 do
 end
 
 sbar.add("bracket", { "/menu\\..*/" }, {
-  background = { color = theme.colors.bg1 },
+  background = { color = colors.bg1 },
 })
 
 local menu_padding = sbar.add("item", "menu.padding", {
@@ -65,7 +61,9 @@ local function update_menus(env)
 end
 
 function M.setup()
-  menu_watcher:subscribe("front_app_switched", update_menus)
+  menu_watcher:subscribe("front_app_switched", function(env)
+    update_menus(env)
+  end)
 
   space_menu_swap:subscribe("swap_menus_and_spaces", function(env)
     local drawing = menu_items[1]:query().geometry.drawing == "on"

@@ -1,22 +1,22 @@
 local M = {}
 
 local sbar = require("sketchybar")
-local theme = require("sysinit.pkg.theme")
-local settings = require("sysinit.pkg.config.settings")
+local settings = require("sysinit.pkg.settings")
+local colors = require("sysinit.pkg.colors")
 
 function M.setup()
   sbar.bar({
-    height = theme.geometry.bar.height,
-    color = theme.colors.bar_bg,
+    height = 32,
+    color = colors.bar_bg,
     position = "top",
     blur_radius = 40,
     sticky = true,
     shadow = true,
-    corner_radius = theme.geometry.bar.corner_radius,
-    margin = theme.geometry.bar.margin,
-    y_offset = theme.geometry.bar.y_offset,
-    padding_left = theme.geometry.bar.padding,
-    padding_right = theme.geometry.bar.padding,
+    corner_radius = 0,
+    margin = 10,
+    y_offset = 0,
+    padding_left = 10,
+    padding_right = 10,
   })
 
   -- Equivalent to the --default domain
@@ -24,49 +24,41 @@ function M.setup()
     updates = "when_shown",
     icon = {
       font = {
-        family = settings.font.text,
-        style = settings.font.style_map["Bold"],
-        size = 14.0,
+        family = settings.icon_font,
+        style = "Regular",
+        size = 14.0
       },
-      color = theme.colors.white,
+      color = colors.white,
       padding_left = settings.paddings,
       padding_right = settings.paddings,
-      background = { image = { corner_radius = 9 } },
     },
     label = {
       font = {
-        family = settings.font.text,
-        style = settings.font.style_map["Semibold"],
-        size = 13.0,
+        family = settings.font,
+        style = "Medium",
+        size = 13.0
       },
-      color = theme.colors.white,
+      color = colors.white,
       padding_left = settings.paddings,
       padding_right = settings.paddings,
     },
     background = {
-      height = 28,
+      height = 26,
       corner_radius = 9,
       border_width = 2,
-      border_color = theme.colors.bg2,
-      image = {
-        corner_radius = 9,
-        border_color = theme.colors.grey,
-        border_width = 1,
-      },
     },
     popup = {
       background = {
         border_width = 2,
         corner_radius = 9,
-        border_color = theme.colors.accent,
-        color = theme.colors.popup_bg,
+        border_color = colors.popup.border,
+        color = colors.popup.bg,
         shadow = { drawing = true },
       },
-      blur_radius = 50,
+      blur_radius = 20,
     },
     padding_left = 5,
-    padding_right = 5,
-    scroll_texts = true,
+    padding_right = 5
   })
 end
 
