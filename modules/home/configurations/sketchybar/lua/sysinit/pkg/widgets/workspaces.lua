@@ -10,7 +10,7 @@ local function make_label(workspace, is_focused)
   local workspace_text = is_focused and ("[" .. workspace .. "]") or workspace
   return {
     string = workspace_text,
-    color = is_focused and colors.blue or colors.white,
+    color = colors.white,
     font = is_focused and settings.fonts.text.bold or settings.fonts.text.regular,
   }
 end
@@ -26,10 +26,9 @@ local function update_focused_workspace()
       local is_focused = (workspace == focused_workspace)
       local label_config = make_label(workspace, is_focused)
 
-      -- Force update by also setting a dummy property to ensure redraw
       space_item:set({
         label = label_config,
-        icon = { drawing = false }, -- Force redraw by updating icon property
+        icon = { drawing = false },
       })
     end
   end)
