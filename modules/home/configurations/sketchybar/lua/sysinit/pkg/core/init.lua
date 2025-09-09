@@ -13,10 +13,10 @@ function M.setup()
     sticky = true,
     shadow = false,
     corner_radius = 10,
-    margin = 10,
+    margin = 16,
     y_offset = 48,
-    padding_left = 10,
-    padding_right = 10,
+    padding_left = 16,
+    padding_right = 16,
   })
 
   sbar.default({
