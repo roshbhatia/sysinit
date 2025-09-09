@@ -19,17 +19,17 @@ local function get_battery_info()
 
     local icon, color
     if charging then
-      icon, color = "bolt.fill", theme.colors.accent
+      icon, color = "󰂄", theme.colors.accent
     elseif percent >= 80 then
-      icon, color = "battery.100", theme.colors.white
+      icon, color = "󰁹", theme.colors.white
     elseif percent >= 60 then
-      icon, color = "battery.75", theme.colors.white
+      icon, color = "󰂀", theme.colors.white
     elseif percent >= 40 then
-      icon, color = "battery.50", theme.colors.accent
+      icon, color = "󰁾", theme.colors.accent
     elseif percent >= 20 then
-      icon, color = "battery.25", theme.colors.accent
+      icon, color = "󰁼", theme.colors.accent
     else
-      icon, color = "battery.0", theme.colors.accent
+      icon, color = "󰁺", theme.colors.accent
     end
 
     battery:set({
@@ -55,13 +55,13 @@ local function get_volume_info()
 
     local icon
     if volume == 0 then
-      icon = "speaker.slash.fill"
+      icon = "󰝟"
     elseif volume < 33 then
-      icon = "speaker.1.fill"
+      icon = "󰕿"
     elseif volume < 66 then
-      icon = "speaker.2.fill"
+      icon = "󰖀"
     else
-      icon = "speaker.3.fill"
+      icon = "󰕾"
     end
 
     volume_item:set({
@@ -88,12 +88,12 @@ local function get_time()
       local utc_time = utc_result:gsub("%s+", " "):gsub("^%s*", ""):gsub("%s*$", "")
 
       clock:set({
-        icon = { string = "clock.fill" },
+        icon = { string = "󰃰" },
         label = { string = local_time },
       })
 
       utc_clock:set({
-        icon = { string = "globe" },
+        icon = { string = "󰖟" },
         label = { string = utc_time },
       })
     end)
@@ -140,7 +140,7 @@ function M.setup()
   volume_item = sbar.add("item", "volume", {
     position = "right",
     icon = {
-      string = "speaker.3.fill",
+      string = "󰕾",
     },
     background = { drawing = false },
     padding_left = 8,

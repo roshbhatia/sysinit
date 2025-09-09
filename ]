@@ -41,12 +41,12 @@ local app_icons = {
 }
 
 local app_display_names = {
-  [".firefox-old"] = "Firefox",
-  ["Activity Monitor"] = "Activity Monitor",
-  ["App Store"] = "App Store",
-  ["System Preferences"] = "System Preferences",
-  ["Visual Studio Code"] = "VS Code",
   ["wezterm-gui"] = "WezTerm",
+  [".firefox-old"] = "Firefox",
+  ["Visual Studio Code"] = "VS Code",
+  ["Activity Monitor"] = "Activity Monitor",
+  ["System Preferences"] = "System Preferences",
+  ["App Store"] = "App Store",
 }
 
 local function get_front_app()
