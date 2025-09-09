@@ -7,7 +7,7 @@ local colors = require("sysinit.pkg.colors")
 local spaces = {}
 
 local function make_label(workspace, is_focused)
-  local workspace_text = is_focused and ("[" .. workspace .. "]") or (" " .. workspace .. " ")
+  local workspace_text = is_focused and ("[" .. workspace .. "]") or workspace
   return {
     string = workspace_text,
     color = is_focused and colors.blue or colors.white,
@@ -24,7 +24,13 @@ local function update_focused_workspace()
     local focused_workspace = focused_output:gsub("%s+", "")
     for workspace, space_item in pairs(spaces) do
       local is_focused = (workspace == focused_workspace)
-      space_item:set({ label = make_label(workspace, is_focused) })
+      local label_config = make_label(workspace, is_focused)
+
+      -- Force update by also setting a dummy property to ensure redraw
+      space_item:set({
+        label = label_config,
+        icon = { drawing = false }, -- Force redraw by updating icon property
+      })
     end
   end)
 end
@@ -85,7 +91,6 @@ function M.setup()
     })
 
     sbar.subscribe("aerospace_workspace_change", update_focused_workspace)
-
     update_focused_workspace()
   end)
 end

@@ -30,6 +30,7 @@ in
       local home_dir = "/Users/" .. username
 
       package.cpath = package.cpath .. ";${pkgs.sbarlua}/lib/lua/5.4/?.so"
+      package.cpath = package.cpath .. ";${pkgs.cjson}/lib/lua/5.4/?.so"
 
       package.path = package.path
         .. ";"

@@ -32,6 +32,13 @@ local function load_json()
   local yellow = content:match('"semantic"[^}]*"warning":%s*"([^"]*)"')
   colors.yellow = yellow and ("0xff" .. yellow:sub(2)) or "0xffffff00"
 
+  -- Additional colors from the palette
+  local blue = content:match('"palette"[^}]*"blue":%s*"([^"]*)"')
+  colors.blue = blue and ("0xff" .. blue:sub(2)) or "0xff3e8fb0"
+
+  local orange = content:match('"palette"[^}]*"orange":%s*"([^"]*)"')
+  colors.orange = orange and ("0xff" .. orange:sub(2)) or "0xffea9a97"
+
   colors.popup = {
     bg = colors.bg,
     border = colors.accent,

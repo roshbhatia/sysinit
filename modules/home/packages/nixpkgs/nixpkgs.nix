@@ -25,6 +25,7 @@ let
     cargo-watch
     chafa
     checkmake
+    cjson
     codespell
     colima
     copilot-cli
