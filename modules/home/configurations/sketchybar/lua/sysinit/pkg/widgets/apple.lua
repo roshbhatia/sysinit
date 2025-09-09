@@ -5,7 +5,6 @@ local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
 
 function M.setup()
-  -- Padding item required because of bracket
   sbar.add("item", { width = 5 })
 
   local apple = sbar.add("item", "apple", {
@@ -16,7 +15,7 @@ function M.setup()
         style = "Regular",
         size = 16.0,
       },
-      string = "󱄅", -- Nix nerd font icon
+      string = "󱄅",
       padding_right = 8,
       padding_left = 8,
       color = colors.white,
@@ -27,7 +26,6 @@ function M.setup()
     padding_right = 1,
   })
 
-  -- Separator between apple logo and front app
   sbar.add("item", "apple_separator", {
     position = "left",
     icon = {

@@ -21,8 +21,8 @@ function M.setup()
           color = colors.grey,
           font = {
             family = settings.font,
-            style = "Medium",
-            size = 13.0,
+            style = "Light",
+            size = 14.0,
           },
         },
         background = { drawing = false },
@@ -47,12 +47,12 @@ function M.setup()
           if selected then
             space:set({
               label = {
-                string = "[" .. workspace .. "]",
+                string = " " .. workspace .. " ",
                 color = colors.white,
                 font = {
                   family = settings.font,
                   style = "Bold",
-                  size = 13.0,
+                  size = 14.0,
                 },
               },
             })
@@ -64,7 +64,7 @@ function M.setup()
                 font = {
                   family = settings.font,
                   style = "Light",
-                  size = 13.0,
+                  size = 14.0,
                 },
               },
             })
@@ -78,12 +78,12 @@ function M.setup()
       if spaces[focused_workspace] then
         spaces[focused_workspace]:set({
           label = {
-            string = "[" .. focused_workspace .. "]",
+            string = " " .. focused_workspace .. " ",
             color = colors.white,
             font = {
               family = settings.font,
               style = "Bold",
-              size = 13.0,
+              size = 14.0,
             },
           },
         })
@@ -98,8 +98,8 @@ function M.setup()
       color = colors.grey,
       font = {
         family = settings.font,
-        style = "Regular",
-        size = 12.0,
+        style = "Light",
+        size = 14.0,
       },
     },
     background = { drawing = false },

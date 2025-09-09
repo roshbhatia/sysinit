@@ -34,8 +34,8 @@ function M.setup()
     label = {
       font = {
         family = settings.font,
-        style = "Medium",
-        size = 13.0,
+        style = "Light",
+        size = 14.0,
       },
       color = colors.white,
       padding_left = settings.paddings,

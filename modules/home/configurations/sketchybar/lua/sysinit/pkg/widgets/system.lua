@@ -20,17 +20,17 @@ local function get_battery_info()
 
     local icon, color
     if charging then
-      icon, color = "⚡", colors.green
+      icon, color = "󰂅", colors.green
     elseif percent >= 80 then
-      icon, color = "🔋", colors.white
+      icon, color = "󰂁", colors.white
     elseif percent >= 60 then
-      icon, color = "🔋", colors.white
+      icon, color = "󰁿", colors.white
     elseif percent >= 40 then
-      icon, color = "🔋", colors.yellow
+      icon, color = "󰁽", colors.yellow
     elseif percent >= 20 then
-      icon, color = "🔋", colors.orange
+      icon, color = "󰁻", colors.orange
     else
-      icon, color = "🪫", colors.red
+      icon, color = "󰁺", colors.red
     end
 
     battery:set({
@@ -58,7 +58,7 @@ local function get_time()
       local utc_time = utc_result:gsub("%s+", " "):gsub("^%s*", ""):gsub("%s*$", "")
 
       clock:set({
-        icon = { string = "󰃰" },
+        icon = { string = "" },
         label = { string = local_time },
       })
 
@@ -75,14 +75,12 @@ local function update_clocks()
 end
 
 function M.setup()
-  -- Rightmost: Clock
   clock = sbar.add("item", "clock", {
     position = "right",
     background = { drawing = false },
     padding_left = 4,
     padding_right = 4,
     update_freq = 60,
-    click_script = "open /System/Applications/Calendar.app",
   })
 
   utc_clock = sbar.add("item", "utc_clock", {
@@ -111,7 +109,6 @@ function M.setup()
     padding_right = 8,
   })
 
-  -- Second right: Battery
   battery = sbar.add("item", "battery", {
     position = "right",
     background = { drawing = false },
@@ -129,7 +126,6 @@ function M.setup()
     get_battery_info()
   end)
 
-  -- Separator between battery and volume
   sbar.add("item", "battery_separator", {
     position = "right",
     icon = {

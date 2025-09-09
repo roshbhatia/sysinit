@@ -46,7 +46,6 @@ local function get_volume()
       return
     end
 
-    local icon = ""
     if volume > 60 then
       icon = ""
     elseif volume > 30 then
@@ -55,6 +54,8 @@ local function get_volume()
       icon = ""
     elseif volume > 0 then
       icon = "󰕿"
+    else
+      icon = ""
     end
 
     volume_percent:set({ label = { string = volume .. "%" } })
