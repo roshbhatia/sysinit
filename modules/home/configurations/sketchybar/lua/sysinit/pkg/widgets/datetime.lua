@@ -51,7 +51,7 @@ function M.setup()
     icon = {
       string = "•",
       font = settings.fonts.text.regular,
-      color = colors.grey,
+      color = colors.green,
     },
     background = { drawing = false },
     label = { drawing = false },

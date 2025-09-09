@@ -114,9 +114,13 @@ function M.setup()
   volume_icon:subscribe("mouse.scrolled", function(env)
     local direction = env.SCROLL_DIRECTION
     if direction == "up" then
-      os.execute('osascript -e "set volume output volume ((output volume of (get volume settings)) + 5)"')
+      os.execute(
+        'osascript -e "set volume output volume ((output volume of (get volume settings)) + 5)"'
+      )
     elseif direction == "down" then
-      os.execute('osascript -e "set volume output volume ((output volume of (get volume settings)) - 5)"')
+      os.execute(
+        'osascript -e "set volume output volume ((output volume of (get volume settings)) - 5)"'
+      )
     end
     get_volume()
   end)
