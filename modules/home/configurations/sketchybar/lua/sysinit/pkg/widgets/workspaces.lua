@@ -85,12 +85,7 @@ function M.setup()
     })
 
     sbar.subscribe("aerospace_workspace_change", update_focused_workspace)
-    sbar.add("item", "workspace_poll", {
-      position = "popup.workspace_left_sep",
-      update_freq = 1,
-      drawing = false,
-    })
-    sbar.subscribe("routine", update_focused_workspace)
+
     update_focused_workspace()
   end)
 end

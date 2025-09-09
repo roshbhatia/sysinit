@@ -3,6 +3,7 @@ local M = {}
 local sbar = require("sketchybar")
 local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
+local display = require("sysinit.pkg.core.display")
 
 function M.setup()
   sbar.bar({
@@ -14,7 +15,7 @@ function M.setup()
     shadow = false,
     corner_radius = 10,
     margin = 16,
-    y_offset = 48,
+    y_offset = display.get_y_offset(),
     padding_left = 16,
     padding_right = 16,
   })
