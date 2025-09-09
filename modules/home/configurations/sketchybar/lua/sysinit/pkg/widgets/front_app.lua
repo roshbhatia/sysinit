@@ -2,6 +2,7 @@ local M = {}
 
 local sbar = require("sketchybar")
 local theme = require("sysinit.pkg.theme")
+local settings = require("sysinit.pkg.config.settings")
 
 local app_icons = {
   [".firefox-old"] = "",

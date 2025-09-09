@@ -2,6 +2,7 @@ local M = {}
 
 local sbar = require("sketchybar")
 local theme = require("sysinit.pkg.theme")
+local settings = require("sysinit.pkg.config.settings")
 
 local menu_watcher = sbar.add("item", {
   drawing = false,
@@ -20,15 +21,14 @@ local menu_items = {}
 
 for i = 1, max_items, 1 do
   local menu = sbar.add("item", "menu." .. i, {
-    padding_left = theme.geometry.paddings,
-    padding_right = theme.geometry.paddings,
+    padding_left = settings.paddings,
+    padding_right = settings.paddings,
     drawing = false,
     icon = { drawing = false },
     label = {
       font = {
         family = theme.fonts.text:match("([^:]+)"),
-        style = theme.fonts.style_map[i == 1 and "Bold" or "Semibold"],
-        size = tonumber(theme.fonts.text:match(":([^:]+):([%d.]+)$")) or 12,
+        style = settings.font.style_map[i == 1 and "Bold" or "Semibold"],
       },
       padding_left = 6,
       padding_right = 6,

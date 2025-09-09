@@ -1,26 +1,31 @@
 {
   config,
-  pkgs,
+  lib,
+  values,
   ...
 }:
+
 let
+  themes = import ../../../lib/theme { inherit lib; };
+
+  themeConfig = {
+    colorscheme = values.theme.colorscheme;
+    variant = values.theme.variant;
+    transparency = values.theme.transparency;
+    presets = values.theme.presets or [ ];
+    overrides = values.theme.overrides or { };
+  };
+
   mkOutOfStoreSymlink = config.lib.file.mkOutOfStoreSymlink;
   path = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/sketchybar";
 in
+
 {
-  xdg.configFile."sketchybar/sketchybarrc" = {
-    text = ''
-      #! /opt/homebrew/bin/lua
-
-      package.cpath = package.cpath .. ";${pkgs.sbarlua}/lib/lua/5.4/?.so"
-      package.path = package.path .. ";${config.xdg.configHome}/sketchybar/lua/?.lua;${config.xdg.configHome}/sketchybar/lua/?/init.lua"
-
-      require("init")
-    '';
-    executable = true;
-  };
+  xdg.configFile."sketchybar/sketchybarrc".source = "${path}/sketchybar.lua";
 
   xdg.configFile."sketchybar/lua".source = mkOutOfStoreSymlink "${path}/lua";
-  xdg.configFile."sketchybar/theme_config.json".source =
-    mkOutOfStoreSymlink "${path}/theme_config.json";
+
+  xdg.configFile."sketchybar/theme_config.json".text = builtins.toJSON (
+    themes.generateAppJSON "sketchybar" themeConfig
+  );
 }

@@ -8,5 +8,6 @@
   "diagnostics.globals": [
     "hs",
     "Snacks"
-  ]
+  ],
+    "runtime.version": "Lua 5.4"
 }

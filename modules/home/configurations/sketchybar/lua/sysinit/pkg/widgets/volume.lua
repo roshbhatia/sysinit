@@ -2,6 +2,7 @@ local M = {}
 
 local sbar = require("sketchybar")
 local theme = require("sysinit.pkg.theme")
+local settings = require("sysinit.pkg.config.settings")
 
 local popup_width = 250
 
@@ -11,11 +12,7 @@ local volume_percent = sbar.add("item", "widgets.volume1", {
   label = {
     string = "??%",
     padding_left = -1,
-    font = {
-      family = theme.fonts.numbers:match("([^:]+)"),
-      style = theme.fonts.numbers:match(":([^:]+)"),
-      size = tonumber(theme.fonts.numbers:match(":([^:]+):([%d.]+)$")) or 12,
-    },
+    font = { family = settings.font.numbers },
   },
   update_freq = 5,
 })
@@ -24,24 +21,14 @@ local volume_icon = sbar.add("item", "widgets.volume2", {
   position = "right",
   padding_right = -1,
   icon = {
-    string = theme.icons.volume._100,
+    string = "󰕾",
     width = 0,
     align = "left",
     color = theme.colors.grey,
-    font = {
-      family = theme.fonts.system_icon:match("([^:]+)"),
-      style = theme.fonts.style_map["Regular"],
-      size = 14.0,
-    },
   },
   label = {
     width = 25,
     align = "left",
-    font = {
-      family = theme.fonts.text:match("([^:]+)"),
-      style = theme.fonts.style_map["Regular"],
-      size = 14.0,
-    },
   },
 })
 
@@ -55,7 +42,7 @@ local volume_bracket = sbar.add("bracket", "widgets.volume.bracket", {
 
 sbar.add("item", "widgets.volume.padding", {
   position = "right",
-  width = theme.geometry.group_paddings,
+  width = settings.group_paddings,
 })
 
 local volume_slider = sbar.add("slider", popup_width, {
@@ -78,15 +65,15 @@ local volume_slider = sbar.add("slider", popup_width, {
 
 volume_percent:subscribe("volume_change", function(env)
   local volume = tonumber(env.INFO)
-  local icon = theme.icons.volume._0
+  local icon = "󰸈"
   if volume > 60 then
-    icon = theme.icons.volume._100
+    icon = "󰕾"
   elseif volume > 30 then
-    icon = theme.icons.volume._66
+    icon = "󰖀"
   elseif volume > 10 then
-    icon = theme.icons.volume._33
+    icon = "󰕿"
   elseif volume > 0 then
-    icon = theme.icons.volume._10
+    icon = "󰕿"
   end
 
   local lead = ""
@@ -122,7 +109,6 @@ local function volume_toggle_details(env)
       current_audio_device = result:sub(1, -2)
       sbar.exec("SwitchAudioSource -a -t output", function(available)
         current = current_audio_device
-        local color = theme.colors.grey
         local counter = 0
 
         for device in string.gmatch(available, "[^\r\n]+") do

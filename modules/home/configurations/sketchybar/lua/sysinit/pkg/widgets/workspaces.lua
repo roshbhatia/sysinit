@@ -2,6 +2,7 @@ local M = {}
 
 local sbar = require("sketchybar")
 local theme = require("sysinit.pkg.theme")
+local settings = require("sysinit.pkg.config.settings")
 
 local spaces = {}
 
@@ -21,15 +22,13 @@ local function update_workspaces()
           label = {
             string = "[" .. workspace .. "]",
             color = theme.colors.white,
-            font = theme.fonts.text_bold,
           },
         })
       else
         space_item:set({
           label = {
             string = " " .. workspace .. " ",
-            color = theme.colors.muted,
-            font = theme.fonts.text_medium,
+            color = theme.colors.grey,
           },
         })
       end
@@ -49,13 +48,14 @@ function M.setup()
         icon = { drawing = false },
         label = {
           string = " " .. workspace .. " ",
-          font = theme.fonts.text_medium,
-          color = theme.colors.muted,
+          color = theme.colors.grey,
         },
         background = { drawing = false },
         padding_left = 2,
         padding_right = 2,
-        click_script = "aerospace workspace " .. workspace .. "; sketchybar --trigger aerospace_workspace_change",
+        click_script = "aerospace workspace "
+          .. workspace
+          .. "; sketchybar --trigger aerospace_workspace_change",
       })
 
       spaces[workspace] = space
@@ -72,8 +72,7 @@ function M.setup()
     position = "left",
     icon = {
       string = "│",
-      color = theme.colors.muted,
-      font = theme.fonts.text_medium,
+      color = theme.colors.grey,
     },
     background = { drawing = false },
     padding_left = 8,
