@@ -1,16 +1,5 @@
 local sbar = require("sketchybar")
 
-local username = os.getenv("USER")
-local home_dir = "/Users/" .. username
-
-package.path = package.path
-  .. ";"
-  .. home_dir
-  .. "/.config/sketchybar/lua/?.lua"
-  .. ";"
-  .. home_dir
-  .. "/.config/sketchybar/lua/?/init.lua"
-
 require("sysinit.pkg.core").setup()
 
 sbar.add("event", "aerospace_workspace_change")

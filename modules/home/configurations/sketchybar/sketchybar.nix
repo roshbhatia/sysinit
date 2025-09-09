@@ -28,12 +28,18 @@ in
 
       package.cpath = package.cpath .. ";${pkgs.sbarlua}/lib/lua/5.4/?.so"
 
+      package.path = package.path
+        .. ";"
+        .. home_dir
+        .. "/.config/sketchybar/lua/?.lua"
+        .. ";"
+        .. home_dir
+        .. "/.config/sketchybar/lua/?/init.lua"
+
       require("sysinit")
     '';
     executable = true;
   };
-
-  xdg.configFile."sketchybar/sysinit.lua".source = "${path}/sysinit.lua";
 
   xdg.configFile."sketchybar/lua".source = mkOutOfStoreSymlink "${path}/lua";
 
