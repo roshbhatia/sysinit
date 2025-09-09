@@ -8,7 +8,7 @@ let
   path = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/sketchybar";
 in
 {
-  xdg.configFile."sketchybar/icon_map.sh" = "${pkgs.sketchybar-app-font}/bin/icon_map.sh";
+  xdg.configFile."sketchybar/icon_map.sh".source = "${pkgs.sketchybar-app-font}/bin/icon_map.sh";
 
   xdg.configFile."sketchybar/sketchybarrc" = {
     text = ''
