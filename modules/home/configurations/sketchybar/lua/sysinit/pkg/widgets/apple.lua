@@ -14,9 +14,9 @@ function M.setup()
       font = {
         family = settings.icon_font,
         style = "Regular",
-        size = 16.0
+        size = 16.0,
       },
-      string = "󱄅",  -- Nix nerd font icon
+      string = "󱄅", -- Nix nerd font icon
       padding_right = 8,
       padding_left = 8,
       color = colors.white,

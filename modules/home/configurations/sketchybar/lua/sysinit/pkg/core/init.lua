@@ -11,22 +11,21 @@ function M.setup()
     position = "top",
     blur_radius = 40,
     sticky = true,
-    shadow = true,
-    corner_radius = 0,
+    shadow = false,
+    corner_radius = 10,
     margin = 10,
-    y_offset = 0,
+    y_offset = 48,
     padding_left = 10,
     padding_right = 10,
   })
 
-  -- Equivalent to the --default domain
   sbar.default({
     updates = "when_shown",
     icon = {
       font = {
         family = settings.icon_font,
         style = "Regular",
-        size = 14.0
+        size = 14.0,
       },
       color = colors.white,
       padding_left = settings.paddings,
@@ -36,7 +35,7 @@ function M.setup()
       font = {
         family = settings.font,
         style = "Medium",
-        size = 13.0
+        size = 13.0,
       },
       color = colors.white,
       padding_left = settings.paddings,
@@ -58,7 +57,7 @@ function M.setup()
       blur_radius = 20,
     },
     padding_left = 5,
-    padding_right = 5
+    padding_right = 5,
   })
 end
 

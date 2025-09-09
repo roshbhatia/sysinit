@@ -23,7 +23,7 @@ local function load_json()
   -- Extract primary background
   local bg = content:match('"background"[^}]*"primary":%s*"([^"]*)"')
   colors.bg = bg and ("0xff" .. bg:sub(2)) or "0xff000000"
-  colors.bar_bg = bg and ("0x80" .. bg:sub(2)) or "0x80000000"  -- with transparency
+  colors.bar_bg = bg and ("0x80" .. bg:sub(2)) or "0x80000000" -- with transparency
 
   -- Extract primary accent
   local accent = content:match('"accent"[^}]*"primary":%s*"([^"]*)"')

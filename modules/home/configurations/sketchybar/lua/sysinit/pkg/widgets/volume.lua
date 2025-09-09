@@ -11,7 +11,7 @@ local volume_icon = sbar.add("item", "volume.icon", {
     font = {
       family = settings.icon_font,
       style = "Regular",
-      size = 14.0
+      size = 14.0,
     },
     color = colors.white,
   },

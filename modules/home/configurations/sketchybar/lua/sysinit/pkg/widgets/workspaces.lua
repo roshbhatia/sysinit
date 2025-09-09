@@ -29,7 +29,9 @@ function M.setup()
         background = { drawing = false },
         padding_left = 2,
         padding_right = 2,
-        click_script = "aerospace workspace " .. workspace .. "; sketchybar --trigger aerospace_workspace_change",
+        click_script = "aerospace workspace "
+          .. workspace
+          .. "; sketchybar --trigger aerospace_workspace_change",
       })
 
       spaces[workspace] = space
