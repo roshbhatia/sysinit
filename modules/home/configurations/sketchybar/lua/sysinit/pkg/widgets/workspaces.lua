@@ -70,10 +70,20 @@ function M.setup()
         local is_prev = (workspace == prev_workspace)
 
         local label_config = make_label(workspace, is_focused, is_prev)
-        space:set({
-          label = label_config,
-          icon = { drawing = false },
-        })
+
+        if is_focused then
+          sbar.animate("circ", 10, function()
+            space:set({
+              label = label_config,
+              icon = { highlight = true },
+            })
+          end)
+        else
+          space:set({
+            label = label_config,
+            icon = { highlight = false },
+          })
+        end
       end)
 
       spaces[workspace] = space
@@ -99,10 +109,19 @@ function M.setup()
         for ws, space_item in pairs(spaces) do
           local is_focused = (ws == focused_workspace)
           local label_config = make_label(ws, is_focused, false)
-          space_item:set({
-            label = label_config,
-            icon = { drawing = false },
-          })
+          if is_focused then
+            sbar.animate("circ", 10, function()
+              space_item:set({
+                label = label_config,
+                icon = { highlight = true },
+              })
+            end)
+          else
+            space_item:set({
+              label = label_config,
+              icon = { highlight = false },
+            })
+          end
         end
       end
     end)

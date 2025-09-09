@@ -8,36 +8,21 @@ local function load_json()
   local content = file:read("*all")
   file:close()
 
+  local cjson = require("cjson")
+  local theme = cjson.decode(content)
+
   local colors = {}
 
-  local white = content:match('"foreground"[^}]*"primary":%s*"([^"]*)"')
-  colors.white = white and ("0xff" .. white:sub(2)) or "0xffffffff"
-
-  local grey = content:match('"foreground"[^}]*"muted":%s*"([^"]*)"')
-  colors.grey = grey and ("0xff" .. grey:sub(2)) or "0xff888888"
-
-  local bg = content:match('"background"[^}]*"primary":%s*"([^"]*)"')
-  colors.bg = bg and ("0xff" .. bg:sub(2)) or "0xff000000"
-  colors.bar_bg = bg and ("0x80" .. bg:sub(2)) or "0x80000000" -- with transparency
-
-  local accent = content:match('"accent"[^}]*"primary":%s*"([^"]*)"')
-  colors.accent = accent and ("0xff" .. accent:sub(2)) or "0xff0088ff"
-
-  local red = content:match('"semantic"[^}]*"error":%s*"([^"]*)"')
-  colors.red = red and ("0xff" .. red:sub(2)) or "0xffff0000"
-
-  local green = content:match('"semantic"[^}]*"success":%s*"([^"]*)"')
-  colors.green = green and ("0xff" .. green:sub(2)) or "0xff00ff00"
-
-  local yellow = content:match('"semantic"[^}]*"warning":%s*"([^"]*)"')
-  colors.yellow = yellow and ("0xff" .. yellow:sub(2)) or "0xffffff00"
-
-  -- Additional colors from the palette
-  local blue = content:match('"palette"[^}]*"blue":%s*"([^"]*)"')
-  colors.blue = blue and ("0xff" .. blue:sub(2)) or "0xff3e8fb0"
-
-  local orange = content:match('"palette"[^}]*"orange":%s*"([^"]*)"')
-  colors.orange = orange and ("0xff" .. orange:sub(2)) or "0xffea9a97"
+  colors.white = "0xff" .. (theme.semanticColors.foreground.primary or "#ffffff"):sub(2)
+  colors.grey = "0xff" .. (theme.semanticColors.foreground.muted or "#888888"):sub(2)
+  colors.bg = "0xff" .. (theme.semanticColors.background.primary or "#000000"):sub(2)
+  colors.bar_bg = "0xff" .. (theme.semanticColors.accent.primary or "#0088ff"):sub(2)
+  colors.accent = "0xff" .. (theme.semanticColors.accent.primary or "#0088ff"):sub(2)
+  colors.red = "0xff" .. (theme.semanticColors.semantic.error or "#ff0000"):sub(2)
+  colors.green = "0xff" .. (theme.semanticColors.semantic.success or "#00ff00"):sub(2)
+  colors.yellow = "0xff" .. (theme.semanticColors.semantic.warning or "#ffff00"):sub(2)
+  colors.blue = "0xff" .. (theme.palette.blue or "#3e8fb0"):sub(2)
+  colors.orange = "0xff" .. (theme.palette.orange or "#ea9a97"):sub(2)
 
   colors.popup = {
     bg = colors.bg,

@@ -50,6 +50,9 @@ local volume_slider = sbar.add("slider", "volume.slider", 80, {
   drawing = false,
 })
 
+local volume_group_active = false
+local hide_timer = nil
+
 local function get_volume()
   sbar.exec("osascript -e 'output volume of (get volume settings)'", function(result, exit_code)
     if exit_code ~= 0 then
@@ -86,6 +89,29 @@ local function get_volume()
   end)
 end
 
+local function show_volume_slider()
+  if hide_timer then
+    sbar.exec("pkill -f 'sleep 0.3'")
+    hide_timer = nil
+  end
+  volume_group_active = true
+  sbar.animate("sin", 15, function()
+    volume_slider:set({ drawing = true })
+  end)
+end
+
+local function hide_volume_slider()
+  volume_group_active = false
+  hide_timer = sbar.exec("sleep 0.3", function()
+    if not volume_group_active then
+      sbar.animate("sin", 15, function()
+        volume_slider:set({ drawing = false })
+      end)
+    end
+    hide_timer = nil
+  end)
+end
+
 function M.setup()
   sbar.add("item", "volume_separator", {
     position = "right",
@@ -101,27 +127,19 @@ function M.setup()
   })
 
   volume_icon:subscribe("mouse.entered", function()
-    sbar.animate("sin", 15, function()
-      volume_slider:set({ drawing = true })
-    end)
+    show_volume_slider()
   end)
 
   volume_icon:subscribe("mouse.exited", function()
-    sbar.animate("sin", 15, function()
-      volume_slider:set({ drawing = false })
-    end)
+    hide_volume_slider()
   end)
 
   volume_slider:subscribe("mouse.entered", function()
-    sbar.animate("sin", 15, function()
-      volume_slider:set({ drawing = true })
-    end)
+    show_volume_slider()
   end)
 
   volume_slider:subscribe("mouse.exited", function()
-    sbar.animate("sin", 15, function()
-      volume_slider:set({ drawing = false })
-    end)
+    hide_volume_slider()
   end)
 
   volume_icon:subscribe("mouse.scrolled", function(env)
@@ -151,6 +169,14 @@ function M.setup()
   end)
 
   volume_slider:subscribe("mouse.clicked", function(env)
+    local percentage = env.PERCENTAGE
+    if percentage then
+      os.execute('osascript -e "set volume output volume ' .. percentage .. '"')
+      get_volume()
+    end
+  end)
+
+  volume_slider:subscribe("mouse.dragged", function(env)
     local percentage = env.PERCENTAGE
     if percentage then
       os.execute('osascript -e "set volume output volume ' .. percentage .. '"')
