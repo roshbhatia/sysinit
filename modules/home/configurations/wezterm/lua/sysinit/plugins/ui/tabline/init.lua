@@ -57,7 +57,7 @@ function M.setup(config)
       tabline_a = {
         {
           "mode",
-          icon = wezterm.nerdfonts.fa_keyboard_o,
+          icon = "",
           padding = { left = 1, right = 1 },
         },
       },
