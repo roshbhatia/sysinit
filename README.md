@@ -67,7 +67,7 @@ task: Available tasks for this project:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SYSINIT_DEBUG` | `false` | Enable debugging for zsh/nu/nvim |
-| `SYSINIT_MACCHINA_THEME` | `varre` | Macchina theme name |
+| `SYSINIT_MACCHINA_THEME` | `rosh` | Macchina theme name |
 | `SYSINIT_NVIM_AGENTS_ENABLED` | `true` | Enable/disable all neovim AI agent plugins |
 | `SYSINIT_NVIM_COPILOTLUA_ENABLED` | `true` | Enable GitHub Copilot integration (copilot.lua, copilot-cmp) |
 | `SYSINIT_NVIM_OPENCODE_ENABLED` | `true` | Enable OpenCode |
