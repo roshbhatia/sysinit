@@ -32,6 +32,7 @@ let
   ];
 
   baseCasks = [
+    "cursor"
     "cursor-cli"
     "firefox"
     "font-symbols-only-nerd-font"
