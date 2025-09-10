@@ -1,8 +1,8 @@
-local M = {}
-
 local sbar = require("sketchybar")
 local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
+
+local M = {}
 
 local function get_battery_info()
   sbar.exec("pmset -g batt", function(result, exit_code)

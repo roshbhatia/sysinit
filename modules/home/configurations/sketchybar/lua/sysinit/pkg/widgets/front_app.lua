@@ -1,16 +1,15 @@
-local M = {}
-
 local sbar = require("sketchybar")
 local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
+
+local M = {}
 
 local front_app
 
 local app_icons = {
   [".firefox-old"] = "",
-  ["firefox"] = "",
-  ["Activity Monitor"] = "󰍉",
-  ["App Store"] = "󰀸",
+  ["Activity Monitor"] = "",
+  ["App Store"] = "",
   ["Arc"] = "󰄦",
   ["Books"] = "󱉟",
   ["Calculator"] = "󰪚",
@@ -18,10 +17,11 @@ local app_icons = {
   ["Code - Insiders"] = "󰨞",
   ["Code"] = "󰨞",
   ["Discord"] = "󰙯",
+  ["Electron"] = "",
   ["Ferdium"] = "󰙯",
   ["Finder"] = "󰀶",
   ["Firefox"] = "",
-  ["Google Chrome"] = "",
+  ["Google Chrome"] = "󰊯",
   ["Mail"] = "󰇰",
   ["Messages"] = "󰍡",
   ["Messenger"] = "󰍡",
@@ -30,28 +30,30 @@ local app_icons = {
   ["Notion"] = "󰈙",
   ["Outlook"] = "󰇰",
   ["Podcasts"] = "",
-  ["Safari"] = "󰀻",
+  ["Safari"] = "󰀹",
   ["Slack"] = "󰒱",
   ["System Preferences"] = "",
-  ["Terminal"] = "",
+  ["Terminal"] = "",
   ["Visual Studio Code - Insiders"] = "󰨞",
   ["Visual Studio Code"] = "󰨞",
   ["Wezterm"] = "",
-  ["Xcode"] = "󰡯",
+  ["Xcode"] = "",
   ["Zoom"] = "󰍫",
+  ["firefox"] = "",
   ["iTerm2"] = "",
-  ["wezterm-gui"] = "",
+  ["wezterm-gui"] = "",
 }
 
 local app_display_names = {
   [".firefox-old"] = "Firefox",
-  ["firefox"] = "Firefox",
   ["Activity Monitor"] = "Activity Monitor",
   ["App Store"] = "App Store",
+  ["MicrosoftOutlook"] = "Outlook",
   ["System Preferences"] = "System Preferences",
   ["Visual Studio Code"] = "VS Code",
+  ["firefox"] = "Firefox",
   ["wezterm-gui"] = "WezTerm",
-  ["MicrosoftOutlook"] = "Outlook",
+  ["zoom.us"] = "Zoom",
 }
 
 local function get_front_app()

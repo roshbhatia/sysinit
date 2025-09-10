@@ -1,9 +1,9 @@
-local M = {}
-
 local sbar = require("sketchybar")
 local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
 local display = require("sysinit.pkg.core.display")
+
+local M = {}
 
 function M.setup()
   sbar.bar({

@@ -1,24 +1,15 @@
-local M = {}
-
 local sbar = require("sketchybar")
 local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
 
+local M = {}
+
 local spaces = {}
 
-local function make_label(workspace, is_focused, is_prev)
-  local workspace_text
-  if is_focused then
-    workspace_text = "[" .. workspace .. "]"
-  elseif is_prev then
-    workspace_text = "(" .. workspace .. ")"
-  else
-    workspace_text = workspace
-  end
-
+local function make_label(workspace, is_focused)
   return {
-    string = workspace_text,
-    color = colors.white,
+    string = is_focused and "{" .. workspace .. "}" or workspace,
+    color = is_focused and colors.syntax_builtin or colors.white,
     font = is_focused and settings.fonts.text.bold or settings.fonts.text.regular,
   }
 end
@@ -64,12 +55,10 @@ function M.setup()
 
       space:subscribe("aerospace_workspace_change", function(env)
         local focused_workspace = env.FOCUSED
-        local prev_workspace = env.PREV_FOCUSED
 
         local is_focused = (workspace == focused_workspace)
-        local is_prev = (workspace == prev_workspace)
 
-        local label_config = make_label(workspace, is_focused, is_prev)
+        local label_config = make_label(workspace, is_focused)
 
         if is_focused then
           sbar.animate("circ", 10, function()
@@ -108,7 +97,7 @@ function M.setup()
 
         for ws, space_item in pairs(spaces) do
           local is_focused = (ws == focused_workspace)
-          local label_config = make_label(ws, is_focused, false)
+          local label_config = make_label(ws, is_focused)
           if is_focused then
             sbar.animate("circ", 10, function()
               space_item:set({

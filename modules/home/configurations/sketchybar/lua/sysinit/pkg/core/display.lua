@@ -1,12 +1,12 @@
-local M = {}
 local cjson = require("cjson")
+local M = {}
 
-local NOTCH_DIMENSIONS = {
+local DISPLAY_WITH_NOTCH_DIMENSIONS = {
   { w = 2056, h = 1329 },
 }
 
 local function has_notch(width, height)
-  for _, dim in ipairs(NOTCH_DIMENSIONS) do
+  for _, dim in ipairs(DISPLAY_WITH_NOTCH_DIMENSIONS) do
     if width == dim.w and height == dim.h then
       return true
     end

@@ -1,8 +1,8 @@
-local M = {}
-
 local sbar = require("sketchybar")
 local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
+
+local M = {}
 
 local volume_percent = sbar.add("item", "volume.percent", {
   position = "right",
