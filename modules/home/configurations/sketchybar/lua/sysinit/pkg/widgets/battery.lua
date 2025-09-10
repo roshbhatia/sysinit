@@ -3,6 +3,7 @@ local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
 
 local M = {}
+local battery
 
 local function get_battery_info()
   sbar.exec("pmset -g batt", function(result, exit_code)
@@ -20,17 +21,17 @@ local function get_battery_info()
 
     local icon, color
     if charging then
-      icon, color = "󰂅", colors.green
+      icon, color = "󰂅", colors.semantic_success
     elseif percent >= 80 then
-      icon, color = "󰂁", colors.green
+      icon, color = "󰂁", colors.semantic_success
     elseif percent >= 60 then
-      icon, color = "󰁿", colors.white
+      icon, color = "󰁿", colors.foreground_primary
     elseif percent >= 40 then
-      icon, color = "󰁽", colors.yellow
+      icon, color = "󰁽", colors.semantic_warning
     elseif percent >= 20 then
-      icon, color = "󰁻", colors.orange
+      icon, color = "󰁻", colors.syntax_constant
     else
-      icon, color = "󰁺", colors.red
+      icon, color = "󰁺", colors.semantic_error
     end
 
     battery:set({
@@ -80,7 +81,7 @@ function M.setup()
     icon = {
       string = "|",
       font = settings.fonts.separators.bold,
-      color = colors.white,
+      color = colors.foreground_primary,
     },
     background = { drawing = false },
     label = { drawing = false },

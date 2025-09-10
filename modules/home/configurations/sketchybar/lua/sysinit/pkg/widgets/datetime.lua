@@ -56,7 +56,7 @@ function M.setup()
     icon = {
       string = "•",
       font = settings.fonts.text.regular,
-      color = colors.green,
+      color = colors.semantic_success,
     },
     background = { drawing = false },
     label = { drawing = false },

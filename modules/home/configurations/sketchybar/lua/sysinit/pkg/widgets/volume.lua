@@ -10,7 +10,7 @@ local volume_percent = sbar.add("item", "volume.percent", {
   label = {
     string = "100%",
     font = settings.fonts.text.regular,
-    color = colors.white,
+    color = colors.foreground_primary,
     width = 40,
   },
   background = { drawing = false },
@@ -24,7 +24,7 @@ local volume_icon = sbar.add("item", "volume.icon", {
   icon = {
     string = "󰕾",
     font = settings.fonts.icons.regular,
-    color = colors.white,
+    color = colors.foreground_primary,
   },
   label = { drawing = false },
   background = { drawing = false },
@@ -35,11 +35,11 @@ local volume_icon = sbar.add("item", "volume.icon", {
 local volume_slider = sbar.add("slider", "volume.slider", 80, {
   position = "right",
   slider = {
-    highlight_color = colors.blue,
+    highlight_color = colors.syntax_function,
     background = {
       height = 4,
       corner_radius = 2,
-      color = colors.grey,
+      color = colors.foreground_muted,
     },
     knob = "",
     width = 80,
@@ -118,7 +118,7 @@ function M.setup()
     icon = {
       string = "|",
       font = settings.fonts.separators.bold,
-      color = colors.white,
+      color = colors.foreground_primary,
     },
     background = { drawing = false },
     label = { drawing = false },

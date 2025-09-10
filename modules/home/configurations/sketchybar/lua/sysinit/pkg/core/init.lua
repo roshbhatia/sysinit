@@ -8,7 +8,7 @@ local M = {}
 function M.setup()
   sbar.bar({
     height = 32,
-    color = colors.bar_bg,
+    color = colors.background_primary,
     position = "top",
     blur_radius = 80,
     sticky = true,
@@ -24,13 +24,13 @@ function M.setup()
     updates = "when_shown",
     icon = {
       font = settings.fonts.icons.regular,
-      color = colors.white,
+      color = colors.foreground_primary,
       padding_left = settings.spacing.paddings,
       padding_right = settings.spacing.paddings,
     },
     label = {
       font = settings.fonts.text.regular,
-      color = colors.white,
+      color = colors.foreground_primary,
       padding_left = settings.spacing.paddings,
       padding_right = settings.spacing.paddings,
     },
