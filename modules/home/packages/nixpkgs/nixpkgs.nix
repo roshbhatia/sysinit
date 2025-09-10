@@ -14,6 +14,8 @@ let
     ansible-lint
     argc
     argocd
+    asciinema
+    asciinema-agg
     atuin
     awk-language-server
     awscli2
