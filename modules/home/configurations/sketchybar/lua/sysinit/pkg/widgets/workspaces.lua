@@ -9,7 +9,7 @@ local spaces = {}
 local function make_label(workspace, is_focused)
   return {
     string = is_focused and "{" .. workspace .. "}" or workspace,
-    color = is_focused and colors.syntax_builtin or colors.white,
+    color = is_focused and colors.syntax_builtin or colors.foreground_primary,
     font = is_focused and settings.fonts.text.bold or settings.fonts.text.regular,
   }
 end

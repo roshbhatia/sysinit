@@ -42,6 +42,7 @@ local app_icons = {
   ["firefox"] = "",
   ["iTerm2"] = "",
   ["wezterm-gui"] = "",
+  ["zoom.us"] = "󰍫",
 }
 
 local app_display_names = {
