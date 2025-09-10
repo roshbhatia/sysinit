@@ -49,8 +49,8 @@ function M.setup(config)
         right = wezterm.nerdfonts.ple_left_half_circle_thin,
       },
       tab_separators = {
-        left = wezterm.nerdfonts.ple_right_half_circle_thick,
-        right = wezterm.nerdfonts.ple_left_half_circle_thick,
+        left = "",
+        right = "",
       },
     },
     sections = {
