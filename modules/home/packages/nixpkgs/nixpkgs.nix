@@ -32,6 +32,7 @@ let
     copilot-cli
     copilot-language-server
     coreutils
+    crossplane-cli
     deadnix
     delta
     delve
@@ -124,6 +125,7 @@ let
     tree
     typescript
     typescript-language-server
+    upbound
     uv
     vale-ls
     vectorcode
