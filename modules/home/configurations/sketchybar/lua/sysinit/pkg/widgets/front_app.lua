@@ -87,6 +87,19 @@ local function get_front_app()
 end
 
 function M.setup()
+  sbar.add("item", "front_app_seperator", {
+    position = "left",
+    icon = {
+      string = "|",
+      font = settings.fonts.separators.bold,
+      color = colors.white,
+    },
+    background = { drawing = false },
+    label = { drawing = false },
+    padding_left = settings.spacing.separator_spacing,
+    padding_right = settings.spacing.separator_spacing,
+  })
+
   front_app = sbar.add("item", "front_app", {
     position = "left",
     icon = {
