@@ -46,7 +46,7 @@ function M.setup()
       local space = sbar.add("item", item_name, {
         position = "center",
         icon = { drawing = false },
-        label = make_label(workspace, false, false),
+        label = make_label(workspace, false),
         background = { drawing = false },
         padding_left = settings.spacing.widget_spacing,
         padding_right = settings.spacing.widget_spacing,
