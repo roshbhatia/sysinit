@@ -23,12 +23,6 @@ M.plugins = {
           },
           chat = {
             intro_message = "Press ? for options...",
-            window = {
-              border = "rounded",
-              opts = {
-                cursorline = true,
-              },
-            },
           },
           diff = {
             provider = "inline",
@@ -171,10 +165,14 @@ M.plugins = {
             index = 2,
             modes = {
               n = {
-                "CR",
                 "<C-CR>",
+                "<M-CR>",
+                "CR",
               },
-              i = "<C-CR>",
+              i = {
+                "<C-CR>",
+                "<M-CR>",
+              },
             },
           },
         },
