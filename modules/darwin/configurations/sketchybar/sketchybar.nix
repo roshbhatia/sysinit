@@ -21,6 +21,30 @@ let
       cp ./bin/menus $out/bin/
     '';
   };
+
+  monitor-reload-script = pkgs.writeShellScript "sketchybar-monitor-reload" ''
+    # Store the previous hash file
+    PREV_HASH_FILE="/tmp/sketchybar-monitor-hash"
+
+    # Get current monitor configuration hash
+    current_hash=$(${pkgs.aerospace}/bin/aerospace list-monitors | ${pkgs.coreutils}/bin/sha256sum | ${pkgs.coreutils}/bin/cut -d' ' -f1)
+
+    # Read previous hash if it exists
+    if [ -f "$PREV_HASH_FILE" ]; then
+        prev_hash=$(${pkgs.coreutils}/bin/cat "$PREV_HASH_FILE")
+    else
+        prev_hash=""
+    fi
+
+    # Compare hashes
+    if [ "$current_hash" != "$prev_hash" ]; then
+        echo "$(${pkgs.coreutils}/bin/date): Monitor configuration changed, reloading sketchybar"
+        ${pkgs.sketchybar}/bin/sketchybar --reload
+        echo "$current_hash" > "$PREV_HASH_FILE"
+    else
+        echo "$(${pkgs.coreutils}/bin/date): No monitor changes detected"
+    fi
+  '';
 in
 {
   services.sketchybar = {
@@ -28,9 +52,20 @@ in
     enable = true;
   };
 
+  launchd.daemons.sketchybar-monitor-reload = {
+    serviceConfig = {
+      ProgramArguments = [ "${monitor-reload-script}" ];
+      RunAtLoad = true;
+      StartInterval = 5;
+      StandardOutPath = "/tmp/sketchybar-reload.log";
+      StandardErrorPath = "/tmp/sketchybar-reload.error.log";
+    };
+  };
+
   environment.systemPackages = with pkgs; [
     sbarlua
     lua54Packages.cjson
     menus
+    aerospace
   ];
 }
