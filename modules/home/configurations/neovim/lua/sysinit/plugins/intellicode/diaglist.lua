@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
   {
     "onsails/diaglist.nvim",
-    event = "LspAttach",
+    event = "LSPAttach",
     config = function()
       require("diaglist").setup({})
     end,
