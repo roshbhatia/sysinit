@@ -64,6 +64,7 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.intellicode.colorful-menu"),
   require("sysinit.plugins.intellicode.copilot"),
   require("sysinit.plugins.intellicode.conform"),
+  require("sysinit.plugins.intellicode.diaglist"),
   require("sysinit.plugins.intellicode.dropbar"),
   require("sysinit.plugins.intellicode.fastaction"),
   require("sysinit.plugins.intellicode.friendly-snippets"),

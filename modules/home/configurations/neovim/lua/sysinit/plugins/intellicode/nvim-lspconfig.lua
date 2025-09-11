@@ -240,20 +240,6 @@ M.plugins = {
           vim.lsp.buf.document_symbol,
           desc = "Document outline",
         },
-        {
-          "<leader>cl",
-          function()
-            vim.diagnostic.setloclist({ severity = vim.diagnostic.severity.ERROR })
-          end,
-          desc = "Loclist diagnostics (errors)",
-        },
-        {
-          "<leader>cq",
-          function()
-            vim.diagnostic.setqflist({ severity = vim.diagnostic.severity.ERROR })
-          end,
-          desc = "Quickfix diagnostics (errors)",
-        },
       }
     end,
   },
