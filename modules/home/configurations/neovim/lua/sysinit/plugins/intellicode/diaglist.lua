@@ -4,9 +4,7 @@ M.plugins = {
   {
     "onsails/diaglist.nvim",
     event = "LSPAttach",
-    config = function()
-      require("diaglist").setup({})
-    end,
+    opts = {},
     keys = function()
       local diaglist = require("diaglist")
       return {
