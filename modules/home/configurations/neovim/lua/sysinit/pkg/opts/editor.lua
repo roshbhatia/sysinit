@@ -8,7 +8,7 @@ function M.setup()
   vim.opt.relativenumber = true
   vim.opt.signcolumn = "yes:2"
   vim.opt.numberwidth = 4
-  vim.opt.fillchars:append({ eob = " " })
+  vim.opt.fillchars:append({ eob = " ", diff = "╱" })
   vim.opt.cursorline = false
   vim.opt.spell = false
   vim.opt.fixeol = false
