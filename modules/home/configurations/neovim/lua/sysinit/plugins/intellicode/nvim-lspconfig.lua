@@ -174,7 +174,7 @@ M.plugins = {
     keys = function()
       return {
         {
-          "<leader>cl",
+          "<leader>cA",
           vim.lsp.codelens.run,
           desc = "Run codelens action",
         },
