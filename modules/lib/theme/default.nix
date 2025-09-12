@@ -166,6 +166,7 @@ let
           getTheme
           getThemePalette
           getSemanticColors
+          getUnifiedColors
           getAppTheme
           createAppConfig
           generateAppJSON
