@@ -24,7 +24,7 @@ M.plugins = {
         provider = provider,
         providers = {
           copilot = {
-            model = "gpt-4.1",
+            model = "claude-sonnet-4",
           },
         },
         acp_providers = {},

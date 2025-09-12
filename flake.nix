@@ -58,16 +58,17 @@
       userValues = import ./values.nix;
 
       # Process values through the module system to apply defaults
-      processedValues = (lib.evalModules {
-        modules = [
-          {
-            options.values = lib.mkOption {
-              type = valuesLib.valuesType;
-            };
-            config.values = userValues;
-          }
-        ];
-      }).config.values;
+      processedValues =
+        (lib.evalModules {
+          modules = [
+            {
+              options.values = lib.mkOption {
+                type = valuesLib.valuesType;
+              };
+              config.values = userValues;
+            }
+          ];
+        }).config.values;
 
       mkDarwinConfiguration =
         {

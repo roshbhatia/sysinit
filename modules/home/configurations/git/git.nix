@@ -13,7 +13,8 @@ let
   personalEmail = if (cfg.personalEmail != null) then cfg.personalEmail else cfg.userEmail;
   workEmail = if (cfg.workEmail != null) then cfg.workEmail else cfg.userEmail;
 
-  personalGithubUser = if (cfg.personalGithubUser != null) then cfg.personalGithubUser else cfg.githubUser;
+  personalGithubUser =
+    if (cfg.personalGithubUser != null) then cfg.personalGithubUser else cfg.githubUser;
   workGithubUser = if (cfg.workGithubUser != null) then cfg.workGithubUser else cfg.githubUser;
 in
 {
