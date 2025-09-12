@@ -183,8 +183,20 @@ with lib;
         goose = {
           provider = mkOption {
             type = types.str;
-            default = "claude-code";
+            default = "github_copilot";
             description = "Goose provider configuration";
+          };
+
+          leadModel = mkOption {
+            type = types.str;
+            default = "claude-sonnet-4";
+            description = "Goose lead model configuration";
+          };
+
+          model = mkOption {
+            type = types.str;
+            default = "gpt-4o-mini";
+            description = "Goose model configuration";
           };
         };
       };
@@ -309,7 +321,9 @@ with lib;
         uvPackages = [ ];
       };
       goose = {
-        provider = "claude-code";
+        provider = "openrouter";
+        leadModel = "qwen/qwen3-coder:free";
+        model = "google/gemini-2.0-flash-exp:free";
       };
     };
 

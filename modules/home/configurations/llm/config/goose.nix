@@ -1,7 +1,4 @@
 {
-  provider = "github_copilot";
-  lead_model = "claude-sonnet-4";
-  model = "gpt-4o-mini";
   editMode = "vi";
   extensions = {
     computercontroller = {

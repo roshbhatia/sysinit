@@ -1,4 +1,8 @@
-{ lib, ... }:
+{
+  lib,
+  values,
+  ...
+}:
 let
   config = import ../config/goose.nix;
   agents = import ../shared/agents.nix;
@@ -9,9 +13,10 @@ in
       text = lib.generators.toYAML { } {
         ALPHA_FEATURES = true;
         EDIT_MODE = config.editMode;
-        GOOSE_PROVIDER = config.provider;
-        GOOSE_LEAD_MODEL = config.lead_model;
-        GOOSE_MODEL = config.model;
+        GOOSE_PROVIDER = values.llm.goose.provider or throw "Goose provider must be set";
+        GOOSE_LEAD_MODEL = values.llm.goose.lead_model or throw "Goose lead model must be set";
+        GOOSE_MODEL = values.llm.goose.model or throw "Goose model must be set";
+
         extensions = config.extensions;
       };
       force = true;
