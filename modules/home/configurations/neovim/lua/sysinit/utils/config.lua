@@ -21,6 +21,10 @@ local function get_config()
     debug = get_env_bool("SYSINIT_DEBUG", false),
     agents = {
       enabled = get_env_bool("SYSINIT_NVIM_AGENTS_ENABLED", true),
+      avante = {
+        enabled = get_env_bool("SYSINIT_NVIM_AVANTE_ENABLED", true),
+        provider = get_env_string("SYSINIT_NVIM_AVANTE_PROVIDER", "goose"),
+      },
       copilot = {
         enabled = get_env_bool("SYSINIT_NVIM_COPILOTLUA_ENABLED", true),
       },
@@ -45,6 +49,14 @@ function M.get()
     _config = get_config()
   end
   return _config
+end
+
+function M.is_avante_enabled()
+  return M.get().agents.enabled and M.get().agents.avante.enabled
+end
+
+function M.get_avante_provider()
+  return M.get().agents.avante.provider
 end
 
 function M.is_agents_enabled()

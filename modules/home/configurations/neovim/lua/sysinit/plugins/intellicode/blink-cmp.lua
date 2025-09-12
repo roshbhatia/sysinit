@@ -13,6 +13,10 @@ if config.is_copilot_enabled() then
   table.insert(deps, "giuxtaposition/blink-cmp-copilot")
 end
 
+if config.is_avante_enabled() then
+  table.insert(deps, "Kaiser-Yang/blink-cmp-avante")
+end
+
 M.plugins = {
   {
     "saghen/blink.cmp",
@@ -97,6 +101,23 @@ M.plugins = {
           end,
         }
         table.insert(sources, "copilot")
+      end
+
+      if config.is_avante_enabled() then
+        providers.avante = {
+          name = "Avante",
+          module = "blink-cmp-avante",
+          score_offset = 90,
+          async = true,
+          transform_items = function(ctx, items)
+            for _, item in ipairs(items) do
+              item.kind_icon = "󰚩 Avante "
+              item.kind_name = "Avante"
+            end
+            return items
+          end,
+        }
+        table.insert(sources, "avante")
       end
 
       return {
