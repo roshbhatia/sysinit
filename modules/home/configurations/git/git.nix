@@ -6,7 +6,7 @@
 
 let
   cfg = values.git;
-  inherit (utils.themes) mkThemedConfig;
+  inherit (utils.themeHelper) mkThemedConfig;
   themeCfg = mkThemedConfig values "delta" { };
   deltaTheme = themeCfg.appTheme;
 
@@ -121,7 +121,7 @@ in
   };
 
   xdg.configFile =
-    (utils.themes.deployThemeFiles values {
+    (utils.themeHelper.deployThemeFiles values {
       themeDir = ./themes;
       targetPath = "delta/themes";
       fileExtension = "gitconfig";

@@ -7,7 +7,7 @@
 }:
 
 let
-  inherit (utils.themes) mkThemedConfig;
+  inherit (utils.themeHelper) mkThemedConfig;
   themeCfg = mkThemedConfig values "macchina" { };
   semanticColors = themeCfg.themes.getSemanticColors values.theme.colorscheme values.theme.variant;
 
