@@ -6,7 +6,7 @@
 }:
 
 let
-  inherit (utils.themes) mkThemedConfig;
+  inherit (utils.themeHelper) mkThemedConfig;
   themeCfg = mkThemedConfig values "nushell" { };
   inherit (themeCfg) themes;
 

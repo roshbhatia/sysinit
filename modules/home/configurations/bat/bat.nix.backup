@@ -7,7 +7,7 @@
 }:
 
 let
-  inherit (utils.themes) mkThemedConfig;
+  inherit (utils.themeHelper) mkThemedConfig;
   themeCfg = mkThemedConfig values "bat" { };
   batTheme = themeCfg.appTheme;
 in
@@ -22,7 +22,7 @@ in
 
   # Deploy custom bat theme and rebuild cache
   xdg.configFile =
-    (utils.themes.deployThemeFiles values {
+    (utils.themeHelper.deployThemeFiles values {
       themeDir = ./themes;
       targetPath = "bat/themes";
       fileExtension = "tmTheme";

@@ -5,7 +5,7 @@
 }:
 
 let
-  inherit (utils.themes) mkThemedConfig;
+  inherit (utils.themeHelper) mkThemedConfig;
   themeCfg = mkThemedConfig values "atuin" { };
   atuinTheme = themeCfg.appTheme;
 in
@@ -38,7 +38,7 @@ in
     };
   };
 
-  xdg.configFile = utils.themes.deployThemeFiles values {
+  xdg.configFile = utils.themeHelper.deployThemeFiles values {
     themeDir = ./themes;
     targetPath = "atuin/themes";
     fileExtension = "toml";
