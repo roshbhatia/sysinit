@@ -103,6 +103,7 @@
     {
       darwinConfigurations = {
         ${processedValues.user.hostname} = mkDarwinConfiguration { };
+        default = mkDarwinConfiguration { };
       };
 
       homeConfigurations = {
