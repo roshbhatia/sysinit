@@ -22,11 +22,6 @@ M.plugins = {
       local provider = config.get_avante_provider()
       local opts = {
         provider = provider,
-        providers = {
-          copilot = {
-            model = "claude-sonnet-4",
-          },
-        },
         acp_providers = {},
         behaviour = {
           auto_suggestions = false,
