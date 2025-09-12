@@ -74,7 +74,7 @@ let
     gh = {
       bin = "${pkgs.gh}/bin/gh";
       env = ''
-        export PATH="${pkgs.gh}/bin:$PATH"
+        export PATH="${pkgs.gh}/bin:/usr/bin:$PATH"
         export GH_FORCE_TTY=false
       '';
       installCmd = ''"$MANAGER_CMD" extension install "$pkg" --force || echo "Warning: Failed to install $pkg"'';
