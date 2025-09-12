@@ -78,6 +78,15 @@ M.plugins = {
         },
       })
 
+      if config.is_avante_enabled() then
+        wk.add({
+          {
+            "<leader>h",
+            group = "Avante",
+          },
+        })
+      end
+
       if config.is_opencode_enabled() then
         wk.add({
           {
