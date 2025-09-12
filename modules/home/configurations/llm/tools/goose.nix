@@ -13,9 +13,9 @@ in
       text = lib.generators.toYAML { } {
         ALPHA_FEATURES = true;
         EDIT_MODE = config.editMode;
-        GOOSE_PROVIDER = values.llm.goose.provider or throw "Goose provider must be set";
-        GOOSE_LEAD_MODEL = values.llm.goose.lead_model or throw "Goose lead model must be set";
-        GOOSE_MODEL = values.llm.goose.model or throw "Goose model must be set";
+        GOOSE_PROVIDER = values.llm.goose.provider;
+        GOOSE_LEAD_MODEL = values.llm.goose.leadModel;
+        GOOSE_MODEL = values.llm.goose.model;
 
         extensions = config.extensions;
       };

@@ -57,11 +57,21 @@
       valuesLib = import ./modules/lib/values.nix { inherit lib; };
       userValues = import ./values.nix;
 
-      defaultValues = lib.recursiveUpdate valuesLib.defaultValues userValues;
+      # Process values through the module system to apply defaults
+      processedValues = (lib.evalModules {
+        modules = [
+          {
+            options.values = lib.mkOption {
+              type = valuesLib.valuesType;
+            };
+            config.values = userValues;
+          }
+        ];
+      }).config.values;
 
       mkDarwinConfiguration =
         {
-          values ? defaultValues,
+          customValues ? processedValues,
         }:
         darwin.lib.darwinSystem {
           inherit system;
@@ -70,15 +80,16 @@
               inputs
               system
               pkgs
-              values
               utils
               ;
+            values = customValues;
           };
           modules = [
             ./modules/darwin
             (import ./modules/darwin/home-manager.nix {
-              username = values.user.username;
-              inherit values utils;
+              username = customValues.user.username;
+              values = customValues;
+              inherit utils;
             })
             home-manager.darwinModules.home-manager
             nix-homebrew.darwinModules.nix-homebrew
@@ -90,25 +101,25 @@
     in
     {
       darwinConfigurations = {
-        ${defaultValues.user.hostname} = mkDarwinConfiguration { };
+        ${processedValues.user.hostname} = mkDarwinConfiguration { };
       };
 
       homeConfigurations = {
-        ${defaultValues.user.username} = home-manager.lib.homeManagerConfiguration {
+        ${processedValues.user.username} = home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
           extraSpecialArgs = {
             inherit utils;
-            values = defaultValues;
+            values = processedValues;
           };
           modules = [
             {
-              home.username = defaultValues.user.username;
-              home.homeDirectory = "/Users/${defaultValues.user.username}";
+              home.username = processedValues.user.username;
+              home.homeDirectory = "/Users/${processedValues.user.username}";
               home.stateVersion = "23.11";
             }
             (import ./modules/home {
-              username = defaultValues.user.username;
-              values = defaultValues;
+              username = processedValues.user.username;
+              values = processedValues;
               inherit utils;
             })
           ];
@@ -128,7 +139,7 @@
       };
 
       lib = {
-        inherit mkDarwinConfiguration defaultValues;
+        inherit mkDarwinConfiguration;
       };
     };
 }
