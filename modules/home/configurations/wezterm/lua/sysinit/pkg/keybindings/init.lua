@@ -342,13 +342,13 @@ end
 local function get_agent_keys()
   return {
     {
-      key = "Enter",
-      mods = "CMD|SHIFT",
+      key = "i",
+      mods = "CMD",
       action = wezterm.action({ SendString = "\x1b\r" }),
     },
     {
-      key = "Enter",
-      mods = "CTRL|SHIFT",
+      key = "i",
+      mods = "CTRL",
       action = wezterm.action({ SendString = "\x1b\r" }),
     },
   }
