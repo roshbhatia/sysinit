@@ -43,7 +43,7 @@ local function get_display_config()
       font = terminal_font,
     },
     enable_tab_bar = false,
-    window_decorations = "NONE",
+    window_decorations = "RESIZE",
     max_fps = 240,
     animation_fps = 240,
     scrollback_lines = 20000,
