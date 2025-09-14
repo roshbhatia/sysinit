@@ -122,12 +122,6 @@
           };
           run = [ "layout floating" ];
         }
-        {
-          "if" = {
-            app-id = "com.github.wez.wezterm";
-          };
-          run = [ "layout tiling" ];
-        }
       ];
       mode = {
         main = {
