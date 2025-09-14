@@ -5,7 +5,6 @@ should_run_zellij()
                     {
   [[ -z "$ZELLIJ" ]] &&
     [[ -z "$TMUX" ]] &&
-    [[ "$TERM_PROGRAM" != "WezTerm" ]] &&
     [[ "$TERM_PROGRAM" != "vscode" ]] &&
     [[ -z "$NVIM" ]]
 }

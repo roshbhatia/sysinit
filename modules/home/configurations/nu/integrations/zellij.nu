@@ -5,7 +5,6 @@ def should_run_zellij [] {
     (
         ($env.ZELLIJ? | default "") == "" and
         ($env.TMUX? | default "") == "" and
-        ($env.TERM_PROGRAM? | default "") != "WezTerm" and
         ($env.TERM_PROGRAM? | default "") != "vscode" and
         ($env.NVIM? | default "") == ""
     )

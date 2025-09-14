@@ -44,43 +44,6 @@ local function pane_keybinding(action_type, key, mods)
   end)
 end
 
-local function get_pane_keys()
-  return {
-    -- Move
-    { key = "h", mods = "CTRL", action = pane_keybinding("move", "h", "CTRL") },
-    { key = "j", mods = "CTRL", action = pane_keybinding("move", "j", "CTRL") },
-    { key = "k", mods = "CTRL", action = pane_keybinding("move", "k", "CTRL") },
-    { key = "l", mods = "CTRL", action = pane_keybinding("move", "l", "CTRL") },
-    -- Resize
-    { key = "h", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "h", "CTRL|SHIFT") },
-    { key = "j", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "j", "CTRL|SHIFT") },
-    { key = "k", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "k", "CTRL|SHIFT") },
-    { key = "l", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "l", "CTRL|SHIFT") },
-    -- Splits
-    {
-      key = "s",
-      mods = "CTRL",
-      action = wezterm.action.SplitVertical({ domain = "CurrentPaneDomain" }),
-    },
-    {
-      key = "v",
-      mods = "CTRL",
-      action = wezterm.action.SplitHorizontal({ domain = "CurrentPaneDomain" }),
-    },
-    -- Close
-    {
-      key = "w",
-      mods = "CTRL",
-      action = vim_or_wezterm_action("w", "CTRL", act.CloseCurrentPane({ confirm = true })),
-    },
-    {
-      key = "w",
-      mods = "CMD",
-      action = vim_or_wezterm_action("w", "CTRL", act.CloseCurrentPane({ confirm = true })),
-    },
-  }
-end
-
 local function get_clear_keys()
   return {
     {
@@ -128,75 +91,6 @@ local function get_pallete_keys()
   }
 end
 
-local function get_scroll_keys()
-  return {
-    {
-      key = "u",
-      mods = "CTRL",
-      action = wezterm.action_callback(function(win, pane)
-        if is_vim(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "u",
-              mods = "CTRL",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ScrollByLine(-40), pane)
-        end
-      end),
-    },
-    {
-      key = "d",
-      mods = "CTRL",
-      action = wezterm.action_callback(function(win, pane)
-        if is_vim(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "d",
-              mods = "CTRL",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ScrollByLine(40), pane)
-        end
-      end),
-    },
-    {
-      key = "u",
-      mods = "CTRL|SHIFT",
-      action = wezterm.action_callback(function(win, pane)
-        if is_vim(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "u",
-              mods = "CTRL|SHIFT",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ScrollByLine(-9999999999999), pane)
-        end
-      end),
-    },
-    {
-      key = "d",
-      mods = "CTRL|SHIFT",
-      action = wezterm.action_callback(function(win, pane)
-        if is_vim(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "d",
-              mods = "CTRL|SHIFT",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ScrollByLine(9999999999999), pane)
-        end
-      end),
-    },
-  }
-end
-
 local function get_window_keys()
   return {
     {
@@ -227,111 +121,6 @@ local function zellij_aware_tab_action(key, mods, wezterm_action)
       win:perform_action(wezterm_action, pane)
     end
   end)
-end
-
-local function get_tab_keys()
-  return {
-    {
-      key = "t",
-      mods = "CTRL",
-      action = zellij_aware_tab_action("t", "CTRL", act.SpawnTab("CurrentPaneDomain")),
-    },
-    -- Tab cycling
-    {
-      key = "Tab",
-      mods = "CTRL",
-      action = zellij_aware_tab_action("Tab", "CTRL", act.ActivateTabRelative(1)),
-    },
-    {
-      key = "Tab",
-      mods = "CTRL|SHIFT",
-      action = zellij_aware_tab_action("Tab", "CTRL|SHIFT", act.ActivateTabRelative(-1)),
-    },
-    -- Quick bracket navigation
-    {
-      key = "]",
-      mods = "CTRL|SHIFT",
-      action = zellij_aware_tab_action("]", "CTRL|SHIFT", act.ActivateTabRelative(1)),
-    },
-    {
-      key = "[",
-      mods = "CTRL|SHIFT",
-      action = zellij_aware_tab_action("[", "CTRL|SHIFT", act.ActivateTabRelative(-1)),
-    },
-    -- Direct tab access
-    {
-      key = "1",
-      mods = "CTRL",
-      action = zellij_aware_tab_action("1", "CTRL", act.ActivateTab(0)),
-    },
-    {
-      key = "2",
-      mods = "CTRL",
-      action = zellij_aware_tab_action("2", "CTRL", act.ActivateTab(1)),
-    },
-    {
-      key = "3",
-      mods = "CTRL",
-      action = zellij_aware_tab_action("3", "CTRL", act.ActivateTab(2)),
-    },
-    {
-      key = "4",
-      mods = "CTRL",
-      action = zellij_aware_tab_action("4", "CTRL", act.ActivateTab(3)),
-    },
-    {
-      key = "5",
-      mods = "CTRL",
-      action = zellij_aware_tab_action("5", "CTRL", act.ActivateTab(4)),
-    },
-    {
-      key = "6",
-      mods = "CTRL",
-      action = zellij_aware_tab_action("6", "CTRL", act.ActivateTab(5)),
-    },
-    {
-      key = "7",
-      mods = "CTRL",
-      action = zellij_aware_tab_action("7", "CTRL", act.ActivateTab(6)),
-    },
-    {
-      key = "8",
-      mods = "CTRL",
-      action = zellij_aware_tab_action("8", "CTRL", act.ActivateTab(7)),
-    },
-  }
-end
-
-local function get_search_keys()
-  return {
-    {
-      key = "]",
-      mods = "CTRL",
-      action = act.ActivateCopyMode,
-    },
-    {
-      key = "Enter",
-      mods = "SHIFT",
-      action = wezterm.action_callback(function(win, pane)
-        if is_vim(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "Enter",
-              mods = "SHIFT",
-            },
-          }, pane)
-        else
-          win:perform_action(act.QuickSelect)
-        end
-      end),
-    },
-
-    {
-      key = "/",
-      mods = "CTRL",
-      action = act.Search("CurrentSelectionOrEmptyString"),
-    },
-  }
 end
 
 local function get_transparency_keys()
@@ -376,13 +165,9 @@ function M.setup(config)
   local all_keys = {}
 
   local key_groups = {
-    get_pane_keys(),
     get_clear_keys(),
     get_pallete_keys(),
-    get_scroll_keys(),
     get_window_keys(),
-    get_tab_keys(),
-    get_search_keys(),
     get_transparency_keys(),
     get_agent_keys(),
   }
