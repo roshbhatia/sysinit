@@ -67,12 +67,12 @@ rec {
     [
       (validateEmail values.git.userEmail)
       {
-        assertion = values.git.userName != "";
-        message = "git.userName cannot be empty";
+        assertion = values.git.name != "";
+        message = "git.name cannot be empty";
       }
       {
-        assertion = values.git.githubUser != "";
-        message = "git.githubUser cannot be empty";
+        assertion = values.git.username != "";
+        message = "git.username cannot be empty";
       }
     ]
     ++ optionals (values.git ? personalEmail && values.git.personalEmail != null) [
