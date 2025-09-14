@@ -21,13 +21,47 @@ let
         }
         pane size=1 borderless=true {
             plugin location="${zjstatusUrl}" {
+                format_left   "{mode} #[fg=#89B4FA,bold]{session}"
+                format_center "{tabs}"
+                format_right  "{datetime}"
+                format_space  ""
+
+                border_enabled  "false"
+                border_char     "─"
+                border_format   "#[fg=#6C7086]{char}"
+                border_position "top"
+
                 hide_frame_for_single_pane "false"
 
-                mode_default_to_mode "tmux"
+                mode_normal        "#[bg=#89B4FA] NORMAL "
+                mode_locked        "#[bg=#F38BA8] LOCKED "
+                mode_resize        "#[bg=#FAB387] RESIZE "
+                mode_pane          "#[bg=#A6E3A1] PANE "
+                mode_tab           "#[bg=#F9E2AF] TAB "
+                mode_scroll        "#[bg=#CBA6F7] SCROLL "
+                mode_enter_search  "#[bg=#94E2D5] SEARCH "
+                mode_search        "#[bg=#94E2D5] SEARCH "
+                mode_rename_tab    "#[bg=#F2CDCD] RENAME "
+                mode_rename_pane   "#[bg=#F2CDCD] RENAME "
+                mode_session       "#[bg=#EBA0AC] SESSION "
+                mode_move          "#[bg=#F38BA8] MOVE "
+                mode_prompt        "#[bg=#A6E3A1] PROMPT "
+                mode_tmux          "#[bg=#FFC387] TMUX "
+
+                tab_normal              "#[fg=#6C7086] {index} {name} {floating_indicator}"
+                tab_normal_fullscreen   "#[fg=#6C7086] {index} {name} {fullscreen_indicator}"
+                tab_normal_sync         "#[fg=#6C7086] {index} {name} {sync_indicator}"
+                tab_active              "#[fg=#9399B2,bold,italic] {index} {name} {floating_indicator}"
+                tab_active_fullscreen   "#[fg=#9399B2,bold,italic] {index} {name} {fullscreen_indicator}"
+                tab_active_sync         "#[fg=#9399B2,bold,italic] {index} {name} {sync_indicator}"
 
                 tab_fullscreen_indicator "□ "
                 tab_sync_indicator       "  "
                 tab_floating_indicator   "󰉈 "
+
+                datetime        "#[fg=#6C7086,bold] {format} "
+                datetime_format "%H:%M"
+                datetime_timezone "America/Los_Angeles"
             }
         }
     }
