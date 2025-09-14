@@ -143,10 +143,6 @@ rec {
       colorscheme = _variant: "gruvbox";
     };
 
-    ghostty = {
-      dark = "GruvboxDark";
-      light = "GruvboxLight";
-    };
     bat = variant: "gruvbox-${variant}";
     delta = variant: "gruvbox-${variant}";
     atuin = variant: "gruvbox-${variant}";

@@ -10,7 +10,6 @@
     ./colima
     ./direnv
     ./firefox
-    ./ghostty
     ./git
     ./hammerspoon
     ./helix

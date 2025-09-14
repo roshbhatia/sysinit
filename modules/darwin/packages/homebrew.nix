@@ -36,7 +36,6 @@ let
     "cursor-cli"
     "firefox"
     "font-symbols-only-nerd-font"
-    "ghostty"
     "hammerspoon"
     "keycastr"
     "mediosz/tap/swipeaerospace"
