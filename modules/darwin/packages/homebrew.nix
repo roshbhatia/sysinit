@@ -24,7 +24,6 @@ let
     "block-goose-cli"
     "charmbracelet/tap/crush"
     "claude-squad"
-    "eza"
     "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"

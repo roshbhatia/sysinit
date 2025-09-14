@@ -7,7 +7,6 @@ let
   additionalPackages = (values.nix.additionalPackages or [ ]);
 
   baseNixPackages = with pkgs; [
-    _1password-cli
     actionlint
     alt-tab-macos
     ansible
@@ -21,8 +20,6 @@ let
     awscli2
     bash-language-server
     caddy
-    carapace
-    carapace-bridge
     cargo-watch
     chafa
     checkmake
@@ -41,7 +38,6 @@ let
     duf
     eslint
     fish
-    fzf
     gettext
     gh
     git-filter-repo

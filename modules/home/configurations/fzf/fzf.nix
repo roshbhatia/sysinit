@@ -17,9 +17,9 @@ in
     enableZshIntegration = true;
     enableFishIntegration = false;
 
-    defaultCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git";
-    fileWidgetCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git";
-    changeDirWidgetCommand = "${pkgs.fd}/bin/fd --type d --hidden --follow --exclude .git";
+    # defaultCommand is set in modules/home/default.nix to avoid conflicts
+    fileWidgetCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --exclude node_modules";
+    changeDirWidgetCommand = "${pkgs.fd}/bin/fd --type d --hidden --follow --exclude .git --exclude node_modules";
 
     defaultOptions = [
       "--height=60%"

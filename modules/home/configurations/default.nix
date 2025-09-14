@@ -27,7 +27,6 @@
     ./nix
     ./nu
     ./omp
-    ./onepassword
     ./sketchybar
     ./utils
     ./vivid
