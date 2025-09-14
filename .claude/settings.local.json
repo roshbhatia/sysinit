@@ -69,7 +69,8 @@
       "Read(//usr/bin/**)",
       "Bash(/usr/bin/readlink:*)",
       "Bash(task docs:values:*)",
-      "Bash(home-manager generations:*)"
+      "Bash(home-manager generations:*)",
+      "Bash(git config:*)"
     ],
     "deny": [],
     "ask": [],
