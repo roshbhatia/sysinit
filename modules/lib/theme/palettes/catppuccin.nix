@@ -1,17 +1,24 @@
 { lib, ... }:
 
+with lib;
+
 let
   utils = import ../core/utils.nix { inherit lib; };
 in
-{
+
+rec {
   meta = {
     name = "Catppuccin";
     id = "catppuccin";
     variants = [
       "macchiato"
+      "frappe"
+      "latte"
+      "mocha"
     ];
     supports = [
       "dark"
+      "light"
     ];
     author = "Catppuccin";
     homepage = "https://github.com/catppuccin/catppuccin";
@@ -172,6 +179,9 @@ in
   appAdapters = {
     wezterm = {
       macchiato = "Catppuccin Macchiato";
+      frappe = "Catppuccin Frappe";
+      latte = "Catppuccin Latte";
+      mocha = "Catppuccin Mocha";
     };
 
     neovim = {
@@ -181,6 +191,13 @@ in
       colorscheme = "catppuccin";
     };
 
+    ghostty = {
+      macchiato = "catppuccin-macchiato";
+      frappe = "catppuccin-frappe";
+      latte = "catppuccin-latte";
+      mocha = "catppuccin-mocha";
+    };
+
     bat = variant: "catppuccin-${variant}";
     delta = variant: "catppuccin-${variant}";
     atuin = variant: "catppuccin-${variant}";
@@ -188,5 +205,24 @@ in
     helix = variant: "catppuccin_${variant}";
     nushell = variant: "catppuccin-${variant}.nu";
     k9s = variant: "catppuccin-${variant}";
+
+    sketchybar = {
+      background = palettes.macchiato.base;
+      foreground = palettes.macchiato.text;
+      accent = palettes.macchiato.accent;
+      warning = palettes.macchiato.yellow;
+      success = palettes.macchiato.green;
+      error = palettes.macchiato.red;
+      info = palettes.macchiato.blue;
+      muted = palettes.macchiato.subtext0;
+      highlight = palettes.macchiato.pink;
+    };
+
+    zellij = {
+      macchiato = "catppuccin-macchiato";
+      frappe = "catppuccin-frappe";
+      latte = "catppuccin-latte";
+      mocha = "catppuccin-mocha";
+    };
   };
 }

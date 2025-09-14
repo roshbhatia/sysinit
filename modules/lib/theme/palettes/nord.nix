@@ -1,9 +1,12 @@
 { lib, ... }:
 
+with lib;
+
 let
   utils = import ../core/utils.nix { inherit lib; };
 in
-{
+
+rec {
   meta = {
     name = "Nord";
     id = "nord";
@@ -72,6 +75,9 @@ in
       colorscheme = _variant: "nordfox";
     };
 
+    ghostty = {
+      dark = "nord";
+    };
     bat = variant: "nord-${variant}";
     delta = variant: "nord-${variant}";
     atuin = variant: "nord-${variant}";
@@ -79,5 +85,20 @@ in
     k9s = variant: "nord-${variant}";
     helix = _variant: "nord";
     nushell = variant: "nord-${variant}.nu";
+
+    sketchybar = {
+      background = palettes.dark.nord0;
+      foreground = palettes.dark.nord4;
+      accent = palettes.dark.nord8;
+      warning = palettes.dark.nord13;
+      success = palettes.dark.nord14;
+      error = palettes.dark.nord11;
+      info = palettes.dark.nord10;
+      muted = palettes.dark.nord3;
+      highlight = palettes.dark.nord15;
+    };
+
+    zellij = "nord";
   };
+
 }

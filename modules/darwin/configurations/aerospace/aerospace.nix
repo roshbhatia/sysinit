@@ -122,6 +122,13 @@
           };
           run = [ "layout floating" ];
         }
+
+        {
+          "if" = {
+            app-id = "com.mitchellh.ghostty";
+          };
+          run = [ "layout tiling" ];
+        }
       ];
       mode = {
         main = {
