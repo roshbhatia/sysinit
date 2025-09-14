@@ -287,8 +287,8 @@ end
 local function get_search_keys()
   return {
     {
-      key = "]",
-      mods = "CTRL",
+      key = "5",
+      mods = "CTRL|SHIFT",
       action = act.ActivateCopyMode,
     },
     {
@@ -307,7 +307,6 @@ local function get_search_keys()
         end
       end),
     },
-
     {
       key = "/",
       mods = "CTRL",
