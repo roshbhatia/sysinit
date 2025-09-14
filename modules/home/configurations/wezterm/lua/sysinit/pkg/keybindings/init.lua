@@ -3,7 +3,7 @@ local act = wezterm.action
 
 local M = {}
 
-local function get_pallete_keys()
+local function get_palette_keys()
   return {
     {
       key = "/",
@@ -21,9 +21,19 @@ local function get_window_keys()
       action = act.SpawnWindow,
     },
     {
-      key = "r",
+      key = "CMD",
+      mods = "SHIFT",
+      action = act.SpawnWindow,
+    },
+    {
+      key = "n",
       mods = "CMD",
-      action = act.ReloadConfiguration,
+      action = act.SpawnWindow,
+    },
+    {
+      key = "n",
+      mods = "CTRL|SHIFT",
+      action = act.SpawnWindow,
     },
   }
 end
@@ -51,13 +61,76 @@ local function get_transparency_keys()
   }
 end
 
+local function get_clipboard_keys()
+  return {
+    {
+      key = "c",
+      mods = "SUPER",
+      action = act.CopyTo("Clipboard"),
+    },
+    {
+      key = "v",
+      mods = "SUPER",
+      action = act.PasteFrom("Clipboard"),
+    },
+  }
+end
+
+local function get_font_keys()
+  return {
+    {
+      key = "-",
+      mods = "SUPER",
+      action = act.DecreaseFontSize,
+    },
+    {
+      key = "-",
+      mods = "CTRL",
+      action = act.DecreaseFontSize,
+    },
+    {
+      key = "=",
+      mods = "SUPER",
+      action = act.IncreaseFontSize,
+    },
+    {
+      key = "=",
+      mods = "CTRL",
+      action = act.IncreaseFontSize,
+    },
+    {
+      key = "0",
+      mods = "SUPER",
+      action = act.ResetFontSize,
+    },
+    {
+      key = "0",
+      mods = "CTRL",
+      action = act.ResetFontSize,
+    },
+  }
+end
+
+local function get_app_control_keys()
+  return {
+    {
+      key = "h",
+      mods = "SUPER",
+      action = act.HideApplication,
+    },
+  }
+end
+
 function M.setup(config)
   local all_keys = {}
 
   local key_groups = {
-    get_pallete_keys(),
+    get_palette_keys(),
     get_window_keys(),
     get_transparency_keys(),
+    get_clipboard_keys(),
+    get_font_keys(),
+    get_app_control_keys(),
   }
 
   for _, group in ipairs(key_groups) do
