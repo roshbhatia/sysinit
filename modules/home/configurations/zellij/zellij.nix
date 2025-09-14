@@ -85,11 +85,11 @@ let
 
     ui {
         pane_frames {
-            rounded_corners false
+            rounded_corners true
             hide_session_name false
         }
     }
-    pane_frames true
+    pane_frames false
 
     default_mode "normal"
     theme "${zellijThemeName}"
