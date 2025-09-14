@@ -13,7 +13,7 @@
 
   darwin = {
     borders = {
-      enable = false;
+      enable = true;
     };
 
     tailscale = {
