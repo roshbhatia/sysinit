@@ -10,7 +10,6 @@ let
   themeCfg = mkThemedConfig values "delta" { };
   deltaTheme = themeCfg.appTheme;
 
-  # Simplified API: use defaults if personal/work not specified
   personalEmail = cfg.personalEmail or cfg.userEmail;
   workEmail = cfg.workEmail or cfg.userEmail;
   personalUsername = cfg.personalUsername or cfg.username;
@@ -95,21 +94,9 @@ in
 
       core = {
         editor = "nvim";
-        pager = "delta";
         compression = 9;
         preloadIndex = true;
         hooksPath = ".githooks";
-      };
-
-      interactive = {
-        diffFilter = "delta --color-only";
-      };
-
-      delta = {
-        dark = true;
-        navigate = true;
-        side-by-side = true;
-        features = deltaTheme;
       };
 
       merge = {
