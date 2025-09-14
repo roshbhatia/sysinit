@@ -72,6 +72,7 @@ let
     mods
     nil
     nix-prefetch
+    nix-your-shell
     nix-prefetch-docker
     nix-prefetch-git
     nix-prefetch-github

@@ -174,6 +174,11 @@ in
         PROMPT='%~%'
         RPS1=""
 
+        # nix-your-shell integration
+        if command -v nix-your-shell > /dev/null; then
+          nix-your-shell zsh | source /dev/stdin
+        fi
+
       '')
 
       (lib.mkOrder 550 ''
