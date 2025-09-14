@@ -7,7 +7,7 @@
   git = {
     name = "Roshan Bhatia";
     userEmail = "rshnbhatia@gmail.com";
-    githubUser = "roshbhatia";
+    username = "roshbhatia";
   };
 
   darwin = {
