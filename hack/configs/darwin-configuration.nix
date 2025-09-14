@@ -1,4 +1,5 @@
 { pkgs, ... }:
+
 {
   system.configurationRevision = null;
   system.stateVersion = 4;
@@ -7,18 +8,18 @@
   nix.enable = false;
 
   environment.systemPackages = with pkgs; [
-    git
+    coreutils
     curl
     findutils
+    git
     libgit2
-    coreutils
   ];
 
-  environment.extraInit = ''
-    export PATH="${pkgs.coreutils}/bin:${pkgs.findutils}/bin:$PATH"
-    # Ensure GNU readlink is available for compatibility
-    alias readlink="${pkgs.coreutils}/bin/readlink"
-  '';
+  environment.variables.PATH = [
+    "${pkgs.coreutils}/bin"
+    "${pkgs.findutils}/bin"
+    "$PATH"
+  ];
 
   security.pam.services.sudo_local.touchIdAuth = true;
 }

@@ -162,11 +162,5 @@ rec {
       muted = palettes.dark.gray;
       highlight = palettes.dark.orange;
     };
-
-    zellij = {
-      dark = "gruvbox-dark";
-      light = "gruvbox-light";
-    };
   };
-
 }

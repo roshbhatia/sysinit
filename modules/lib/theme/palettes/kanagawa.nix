@@ -168,8 +168,6 @@ rec {
       muted = palettes.wave.fujiGray;
       highlight = palettes.wave.sakuraPink;
     };
-
-    zellij = "kanagawa";
   };
 
 }

@@ -66,6 +66,5 @@ in
     sbarlua
     lua54Packages.cjson
     menus
-    aerospace
   ];
 }

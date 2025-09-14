@@ -92,9 +92,5 @@ rec {
       muted = palettes.macchiato.subtext0;
       highlight = palettes.macchiato.pink;
     };
-
-    zellij = {
-      macchiato = "catppuccin-macchiato";
-    };
   };
 }

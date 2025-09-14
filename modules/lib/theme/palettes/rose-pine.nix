@@ -94,9 +94,5 @@ rec {
       muted = palettes.moon.muted;
       highlight = palettes.moon.rose;
     };
-
-    zellij = {
-      moon = "rose-pine-moon";
-    };
   };
 }

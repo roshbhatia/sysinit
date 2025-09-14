@@ -1,7 +1,4 @@
-{
-  pkgs,
-  ...
-}:
+{ pkgs, ... }:
 
 {
   environment.systemPackages = with pkgs; [
@@ -22,5 +19,11 @@
     wget
     which
     zsh
+  ];
+
+  environment.variables.PATH = [
+    "${pkgs.coreutils}/bin"
+    "${pkgs.findutils}/bin"
+    "$PATH"
   ];
 }
