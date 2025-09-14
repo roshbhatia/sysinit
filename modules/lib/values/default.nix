@@ -22,25 +22,21 @@ with lib;
       git = {
         userName = mkOption {
           type = types.str;
-          default = "User Name";
           description = "Git user name";
         };
 
         userEmail = mkOption {
           type = types.str;
-          default = "user@example.com";
           description = "Git user email";
         };
 
         githubUser = mkOption {
           type = types.str;
-          default = "username";
           description = "GitHub username";
         };
 
         credentialUsername = mkOption {
           type = types.str;
-          default = "username";
           description = "Git credential username";
         };
 
@@ -188,8 +184,8 @@ with lib;
           };
 
           leadModel = mkOption {
-            type = types.str;
-            default = "claude-sonnet-4";
+            type = types.nullOr types.str;
+            default = null;
             description = "Goose lead model configuration";
           };
 

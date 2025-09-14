@@ -86,43 +86,96 @@ task: Available tasks for this project:
 
 ## Values Configuration Schema
 
+*Auto-generated from the Nix values type definitions*
 
 | Field | Type | Default | Required | Description |
 |-------|------|---------|----------|-------------|
-| `options.cargo.additionalPackages` | listOf /gstr | [] |  | Additional Rust/Cargo packages |
-| `options.darwin.borders.enable` | boolean | false |  | Enable window borders |
-| `options.darwin.homebrew.additionalPackages.brews` | listOf /gstr | [] |  | Additional Homebrew formulae |
-| `options.darwin.homebrew.additionalPackages.casks` | listOf /gstr | [] |  | Additional Homebrew casks |
-| `options.darwin.homebrew.additionalPackages.taps` | listOf /gstr | [] |  | Additional Homebrew taps |
-| `options.darwin.tailscale.enable` | boolean | false |  | Enable Tailscale |
-| `options.gh.additionalPackages` | listOf /gstr | [] |  | Additional GitHub CLI extensions |
-| `options.git.credentialUsername` | string | "username" | ✓ | Git credential username |
-| `options.git.githubUser` | string | "username" | ✓ | GitHub username |
-| `options.git.personalEmail` | nullOr /gstr | null |  | Personal email override |
-| `options.git.personalGithubUser` | nullOr /gstr | null |  | Personal GitHub username override |
-| `options.git.userEmail` | string | "user@example.com" | ✓ | Git user email |
-| `options.git.userName` | string | "User Name" | ✓ | Git user name |
-| `options.git.workEmail` | nullOr /gstr | null |  | Work email override |
-| `options.git.workGithubUser` | nullOr /gstr | null |  | Work GitHub username override |
-| `options.go.additionalPackages` | listOf /gstr | [] |  | Additional Go packages |
-| `options.krew.additionalPackages` | listOf /gstr | [] |  | Additional kubectl krew plugins |
-| `options.llm.claude.enabled` | boolean | false |  | Enable Claude Code integration |
-| `options.llm.claude.uvPackages` | listOf /gstr | [] |  | Additional uv packages for Claude |
-| `options.llm.claude.yarnPackages` | listOf /gstr | [] |  | Additional yarn packages for Claude |
-| `options.llm.goose.leadModel` | string | "claude-sonnet-4" | ✓ | Goose lead model configuration |
-| `options.llm.goose.model` | string | "gpt-4o-mini" | ✓ | Goose model configuration |
-| `options.llm.goose.provider` | string | "github_copilot" | ✓ | Goose provider configuration |
-| `options.nix.additionalPackages` | listOf /gstr | [] |  | Additional Nix packages |
-| `options.npm.additionalPackages` | listOf /gstr | [] |  | Additional global npm packages |
-| `options.pipx.additionalPackages` | listOf /gstr | [] |  | Additional global pipx packages |
-| `options.theme.colorscheme` | string | "catppuccin" | ✓ | Theme colorscheme |
-| `options.theme.transparency.blur` | integer | `80` |  | Background blur amount |
-| `options.theme.transparency.enable` | boolean | true |  | Enable transparency effects |
-| `options.theme.transparency.opacity` | float | `0.85` |  | Transparency opacity level |
-| `options.theme.variant` | string | "macchiato" | ✓ | Theme variant |
-| `options.user.hostname` | string | "nixos" | ✓ | System hostname |
-| `options.user.username` | string | "user" | ✓ | Username for the system user |
-| `options.uvx.additionalPackages` | listOf /gstr | [] |  | Additional global uvx packages |
-| `options.wezterm.shell` | string | "zsh" | ✓ | Default shell for wezterm |
-| `options.yarn.additionalPackages` | listOf /gstr | [] |  | Additional global yarn packages |
+| `cargo.additionalPackages` | list(string) | [] |  | Additional Rust/Cargo packages |
+| `darwin.borders.enable` | boolean | false |  | Enable window borders |
+| `darwin.homebrew.additionalPackages.brews` | list(string) | [] |  | Additional Homebrew formulae |
+| `darwin.homebrew.additionalPackages.casks` | list(string) | [] |  | Additional Homebrew casks |
+| `darwin.homebrew.additionalPackages.taps` | list(string) | [] |  | Additional Homebrew taps |
+| `darwin.tailscale.enable` | boolean | false |  | Enable Tailscale |
+| `gh.additionalPackages` | list(string) | [] |  | Additional GitHub CLI extensions |
+| `git.credentialUsername` | string | - | ✓ | Git credential username |
+| `git.githubUser` | string | - | ✓ | GitHub username |
+| `git.personalEmail` | string? | null |  | Personal email override |
+| `git.personalGithubUser` | string? | null |  | Personal GitHub username override |
+| `git.userEmail` | string | - | ✓ | Git user email |
+| `git.userName` | string | - | ✓ | Git user name |
+| `git.workEmail` | string? | null |  | Work email override |
+| `git.workGithubUser` | string? | null |  | Work GitHub username override |
+| `go.additionalPackages` | list(string) | [] |  | Additional Go packages |
+| `krew.additionalPackages` | list(string) | [] |  | Additional kubectl krew plugins |
+| `llm.claude.enabled` | boolean | false |  | Enable Claude Code integration |
+| `llm.claude.uvPackages` | list(string) | [] |  | Additional uv packages for Claude |
+| `llm.claude.yarnPackages` | list(string) | [] |  | Additional yarn packages for Claude |
+| `llm.goose.leadModel` | string? | null |  | Goose lead model configuration |
+| `llm.goose.model` | string | "gpt-4o-mini" |  | Goose model configuration |
+| `llm.goose.provider` | string | "github_copilot" |  | Goose provider configuration |
+| `nix.additionalPackages` | list(string) | [] |  | Additional Nix packages |
+| `npm.additionalPackages` | list(string) | [] |  | Additional global npm packages |
+| `pipx.additionalPackages` | list(string) | [] |  | Additional global pipx packages |
+| `theme.colorscheme` | string | "catppuccin" |  | Theme colorscheme |
+| `theme.transparency.blur` | integer | `80` |  | Background blur amount |
+| `theme.transparency.enable` | boolean | true |  | Enable transparency effects |
+| `theme.transparency.opacity` | float | `0.85` |  | Transparency opacity level |
+| `theme.variant` | string | "macchiato" |  | Theme variant |
+| `user.hostname` | string | "nixos" |  | System hostname |
+| `user.username` | string | "user" |  | Username for the system user |
+| `uvx.additionalPackages` | list(string) | [] |  | Additional global uvx packages |
+| `wezterm.shell` | string | "zsh" |  | Default shell for wezterm |
+| `yarn.additionalPackages` | list(string) | [] |  | Additional global yarn packages |
 
+### Usage Patterns
+
+**Required Values** (must be provided in your `values.nix`):
+- `user.username` and `user.hostname` - Core system identification
+- `git.*` fields - Git configuration
+- `theme.colorscheme` and `theme.variant` - Theme settings
+- `llm.goose.*` fields - LLM configuration
+
+**Optional Values** have sensible defaults and use the `or` fallback pattern:
+```nix
+# In modules, access with fallbacks
+packages = values.yarn.additionalPackages or [];
+enabled = values.feature.enable or false;
+```
+
+### Example Configuration
+
+```nix
+# values.nix
+{
+  user = {
+    username = "johndoe";
+    hostname = "macbook-pro";
+  };
+
+  git = {
+    userName = "John Doe";
+    userEmail = "john@example.com";
+    githubUser = "johndoe";
+    credentialUsername = "johndoe";
+  };
+
+  theme = {
+    colorscheme = "catppuccin";
+    variant = "macchiato";
+    transparency = {
+      enable = true;
+      opacity = 0.85;
+      blur = 80;
+    };
+  };
+
+  # Optional package lists
+  yarn.additionalPackages = [ "@vue/cli" "typescript" ];
+  npm.additionalPackages = [ "prettier" "eslint" ];
+}
+```
+
+**Validation**: The system validates email formats, hostnames, transparency values (0.0-1.0 for opacity, 0-100 for blur), and theme combinations.
+
+**Documentation**: This schema is auto-generated from `modules/lib/values/default.nix`. Run `task docs:values` to regenerate.
+<!-- VALUES_SCHEMA_END -->

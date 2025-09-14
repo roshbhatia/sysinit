@@ -27,7 +27,8 @@ EOF
 echo "Parsing values schema from $VALUES_SCHEMA_FILE..." >&2
 
 # Parse the values schema file and extract field information
-parse_schema() {
+parse_schema()
+               {
   local current_path=""
   local in_option=false
   local field_name=""
@@ -40,10 +41,14 @@ parse_schema() {
     # Detect field names (like username = mkOption {)
     if [[ "$line" =~ ^[[:space:]]*([a-zA-Z_][a-zA-Z0-9_]*)[[:space:]]*=[[:space:]]*\{[[:space:]]*$ ]]; then
       # This is a nested section, update path
-      if [[ -n "$current_path" ]]; then
-        current_path="${current_path}.${BASH_REMATCH[1]}"
-      else
-        current_path="${BASH_REMATCH[1]}"
+      section_name="${BASH_REMATCH[1]}"
+      # Skip the "options" section name
+      if [[ "$section_name" != "options" ]]; then
+        if [[ -n "$current_path" ]]; then
+          current_path="${current_path}.${section_name}"
+        else
+          current_path="${section_name}"
+        fi
       fi
     elif [[ "$line" =~ ^[[:space:]]*([a-zA-Z_][a-zA-Z0-9_]*)[[:space:]]*=[[:space:]]*mkOption[[:space:]]*\{[[:space:]]*$ ]]; then
       # This is an option definition
@@ -56,7 +61,7 @@ parse_schema() {
       field_type=""
       field_default=""
       field_description=""
-      is_required=false
+      is_required=true  # Default to required unless we find a default value
     elif [[ "$in_option" == true ]]; then
       # Parse option properties
       if [[ "$line" =~ ^[[:space:]]*type[[:space:]]*=[[:space:]]*(.+)\;[[:space:]]*$ ]]; then
@@ -64,12 +69,11 @@ parse_schema() {
         # Clean up type formatting
         field_type="${field_type#types.}"
         field_type="${field_type//types\.//g}"
+        field_type="${field_type//\/g/}"  # Remove /g artifacts
         if [[ "$field_type" == "nullOr str" ]]; then
-          field_type="string (optional)"
-          is_required=false
+          field_type="string?"
         elif [[ "$field_type" == "str" ]]; then
           field_type="string"
-          is_required=true
         elif [[ "$field_type" == "bool" ]]; then
           field_type="boolean"
         elif [[ "$field_type" == "int" ]]; then
@@ -77,12 +81,15 @@ parse_schema() {
         elif [[ "$field_type" == "float" ]]; then
           field_type="float"
         elif [[ "$field_type" =~ listOf[[:space:]]+str ]]; then
-          field_type="list of strings"
+          field_type="list(string)"
+        elif [[ "$field_type" =~ "listOf str" ]]; then
+          field_type="list(string)"
         fi
       elif [[ "$line" =~ ^[[:space:]]*default[[:space:]]*=[[:space:]]*(.+)\;[[:space:]]*$ ]]; then
         field_default="${BASH_REMATCH[1]}"
+        is_required=false  # Has a default, so not required
         if [[ "$field_default" == "null" ]]; then
-          is_required=false
+          field_default="null"
         elif [[ "$field_default" =~ ^\[[[:space:]]*\]$ ]]; then
           field_default="[]"
         elif [[ "$field_default" =~ ^\".*\"$ ]]; then
@@ -100,8 +107,11 @@ parse_schema() {
         # End of option definition
         if [[ -n "$field_name" ]]; then
           required_mark=""
-          if [[ "$is_required" == true && "$field_default" != "null" ]]; then
+          if [[ "$is_required" == true ]]; then
             required_mark="✓"
+            if [[ -z "$field_default" ]]; then
+              field_default="-"
+            fi
           fi
 
           echo "| \`$field_name\` | $field_type | $field_default | $required_mark | $field_description |"

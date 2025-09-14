@@ -8,7 +8,10 @@
 
 let
   workGithubUser =
-    if (values.git.workGithubUser or null != null) then values.git.workGithubUser else values.git.githubUser;
+    if (values.git.workGithubUser or null != null) then
+      values.git.workGithubUser
+    else
+      values.git.githubUser;
 
   jrnlConfig = {
     colors = {
