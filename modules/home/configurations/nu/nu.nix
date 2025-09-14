@@ -94,7 +94,6 @@ in
     "nushell/autoload/macchina.nu".source = ./ui/macchina.nu;
     "nushell/autoload/omp.nu".source = ./ui/omp.nu;
 
-    "nushell/autoload/nix-your-shell.nu".source = pkgs.nix-your-shell.generate-config "nu";
     "nushell/autoload/wezterm.nu".source = ./ui/wezterm.nu;
   };
 }
