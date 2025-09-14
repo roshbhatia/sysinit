@@ -7,6 +7,7 @@
     ./environment
     ./finder
     ./hostname
+    ./keyboard
     ./security
     ./sketchybar
     ./system

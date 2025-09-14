@@ -1,0 +1,4 @@
+{ ... }:
+{
+  system.keyboard.remapCapsLockToControl = true;
+}
