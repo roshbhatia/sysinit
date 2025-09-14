@@ -1,11 +1,10 @@
 {
   lib,
   pkgs,
-  platform,
   ...
 }:
 
-lib.mkIf platform.isDarwin {
+lib.mkIf pkgs.stdenv.isDarwin {
   # 1Password SSH agent configuration for macOS
   home.sessionVariables = {
     SSH_AUTH_SOCK = "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock";
@@ -21,8 +20,10 @@ lib.mkIf platform.isDarwin {
   };
 
   # 1Password CLI packages (if needed)
-  home.packages = with pkgs; lib.optionals platform.isDarwin [
-    _1password
-    _1password-gui
-  ];
+  home.packages =
+    with pkgs;
+    lib.optionals pkgs.stdenv.isDarwin [
+      _1password
+      _1password-gui
+    ];
 }
