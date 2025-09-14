@@ -21,47 +21,41 @@ let
         }
         pane size=1 borderless=true {
             plugin location="${zjstatusUrl}" {
-                format_left   "{mode} #[fg=#89B4FA,bold]{session}"
+                format_left   "{mode} {session}"
                 format_center "{tabs}"
-                format_right  "{datetime}"
                 format_space  ""
 
                 border_enabled  "false"
                 border_char     "─"
-                border_format   "#[fg=#6C7086]{char}"
                 border_position "top"
 
                 hide_frame_for_single_pane "false"
 
-                mode_normal        "#[bg=#89B4FA] NORMAL "
-                mode_locked        "#[bg=#F38BA8] LOCKED "
-                mode_resize        "#[bg=#FAB387] RESIZE "
-                mode_pane          "#[bg=#A6E3A1] PANE "
-                mode_tab           "#[bg=#F9E2AF] TAB "
-                mode_scroll        "#[bg=#CBA6F7] SCROLL "
-                mode_enter_search  "#[bg=#94E2D5] SEARCH "
-                mode_search        "#[bg=#94E2D5] SEARCH "
-                mode_rename_tab    "#[bg=#F2CDCD] RENAME "
-                mode_rename_pane   "#[bg=#F2CDCD] RENAME "
-                mode_session       "#[bg=#EBA0AC] SESSION "
-                mode_move          "#[bg=#F38BA8] MOVE "
-                mode_prompt        "#[bg=#A6E3A1] PROMPT "
-                mode_tmux          "#[bg=#FFC387] TMUX "
+                mode_normal        " NORMAL "
+                mode_locked        " LOCKED "
+                mode_resize        " RESIZE "
+                mode_pane          " PANE "
+                mode_tab           " TAB "
+                mode_scroll        " SCROLL "
+                mode_enter_search  " SEARCH "
+                mode_search        " SEARCH "
+                mode_rename_tab    " RENAME "
+                mode_rename_pane   " RENAME "
+                mode_session       " SESSION "
+                mode_move          " MOVE "
+                mode_prompt        " PROMPT "
+                mode_tmux          " TMUX "
 
-                tab_normal              "#[fg=#6C7086] {index} {name} {floating_indicator}"
-                tab_normal_fullscreen   "#[fg=#6C7086] {index} {name} {fullscreen_indicator}"
-                tab_normal_sync         "#[fg=#6C7086] {index} {name} {sync_indicator}"
-                tab_active              "#[fg=#9399B2,bold,italic] {index} {name} {floating_indicator}"
-                tab_active_fullscreen   "#[fg=#9399B2,bold,italic] {index} {name} {fullscreen_indicator}"
-                tab_active_sync         "#[fg=#9399B2,bold,italic] {index} {name} {sync_indicator}"
+                tab_normal              " {index} {name} {floating_indicator}"
+                tab_normal_fullscreen   " {index} {name} {fullscreen_indicator}"
+                tab_normal_sync         " {index} {name} {sync_indicator}"
+                tab_active              " {index} {name} {floating_indicator}"
+                tab_active_fullscreen   " {index} {name} {fullscreen_indicator}"
+                tab_active_sync         " {index} {name} {sync_indicator}"
 
                 tab_fullscreen_indicator "□ "
                 tab_sync_indicator       "  "
                 tab_floating_indicator   "󰉈 "
-
-                datetime        "#[fg=#6C7086,bold] {format} "
-                datetime_format "%H:%M"
-                datetime_timezone "America/Los_Angeles"
             }
         }
     }
@@ -123,36 +117,65 @@ let
                 MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "move_focus";
                     payload "left";
+                    move_mod "ctrl";
                 };
             }
             bind "Ctrl j" {
                 MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "move_focus";
                     payload "down";
+                    move_mod "ctrl";
                 };
             }
             bind "Ctrl k" {
                 MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "move_focus";
                     payload "up";
+                    move_mod "ctrl";
                 };
             }
             bind "Ctrl l" {
                 MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "move_focus";
                     payload "right";
+                    move_mod "ctrl";
                 };
             }
 
-            bind "Ctrl Shift h" { Resize "Increase left"; }
-            bind "Ctrl Shift j" { Resize "Increase down"; }
-            bind "Ctrl Shift k" { Resize "Increase up"; }
-            bind "Ctrl Shift l" { Resize "Increase right"; }
+            bind "Ctrl Shift h" {
+                MessagePlugin "${vimZellijNavigatorUrl}" {
+                    name "resize";
+                    payload "left";
+                    resize_mod "ctrl+shift";
+                };
+            }
+            bind "Ctrl Shift j" {
+                MessagePlugin "${vimZellijNavigatorUrl}" {
+                    name "resize";
+                    payload "down";
+                    resize_mod "ctrl+shift";
+                };
+            }
+            bind "Ctrl Shift k" {
+                MessagePlugin "${vimZellijNavigatorUrl}" {
+                    name "resize";
+                    payload "up";
+                    resize_mod "ctrl+shift";
+                };
+            }
+            bind "Ctrl Shift l" {
+                MessagePlugin "${vimZellijNavigatorUrl}" {
+                    name "resize";
+                    payload "right";
+                    resize_mod "ctrl+shift";
+                };
+            }
 
             bind "Ctrl v" { NewPane "Right"; }
             bind "Ctrl s" { NewPane "Down"; }
 
             bind "Ctrl t" { NewTab; }
+            bind "Super t" { NewTab; }
             bind "Ctrl 1" { GoToTab 1; }
             bind "Ctrl 2" { GoToTab 2; }
             bind "Ctrl 3" { GoToTab 3; }
@@ -161,7 +184,6 @@ let
             bind "Ctrl 6" { GoToTab 6; }
             bind "Ctrl 7" { GoToTab 7; }
             bind "Ctrl 8" { GoToTab 8; }
-            bind "Super t" { NewTab; }
             bind "Super 1" { GoToTab 1; }
             bind "Super 2" { GoToTab 2; }
             bind "Super 3" { GoToTab 3; }
@@ -173,12 +195,42 @@ let
             bind "Super Shift Left" { GoToPreviousTab; }
             bind "Super Shift Right" { GoToNextTab; }
 
-            bind "Ctrl u" { HalfPageScrollUp; }
-            bind "Ctrl d" { HalfPageScrollDown; }
-            bind "Ctrl Shift u" { PageScrollUp; }
-            bind "Ctrl Shift d" { PageScrollDown; }
+            bind "Ctrl u" {
+                MessagePlugin "${vimZellijNavigatorUrl}" {
+                    name "send_keys";
+                    payload "ctrl+u";
+                    move_mod "ctrl";
+                };
+            }
+            bind "Ctrl d" {
+                MessagePlugin "${vimZellijNavigatorUrl}" {
+                    name "send_keys";
+                    payload "ctrl+d";
+                    move_mod "ctrl";
+                };
+            }
+            bind "Ctrl Shift u" {
+                MessagePlugin "${vimZellijNavigatorUrl}" {
+                    name "send_keys";
+                    payload "ctrl+shift+u";
+                    move_mod "ctrl+shift";
+                };
+            }
+            bind "Ctrl Shift d" {
+                MessagePlugin "${vimZellijNavigatorUrl}" {
+                    name "send_keys";
+                    payload "ctrl+shift+d";
+                    move_mod "ctrl+shift";
+                };
+            }
+            bind "Ctrl w" {
+                MessagePlugin "${vimZellijNavigatorUrl}" {
+                    name "send_keys";
+                    payload "ctrl+w";
+                    move_mod "ctrl";
+                };
+            }
 
-            bind "Ctrl w" { CloseFocus; }
             bind "Ctrl \\" { TogglePaneFrames; ToggleActiveSyncTab; }
             bind "Ctrl Enter" { ToggleFloatingPanes; }
             bind "Ctrl f" { ToggleFocusFullscreen; }

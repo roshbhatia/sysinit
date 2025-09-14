@@ -25,6 +25,16 @@ local function get_window_keys()
       mods = "SUPER",
       action = act.SpawnWindow,
     },
+    {
+      key = "w",
+      mods = "SUPER|SHIFT",
+      action = act.CloseCurrentTab({ confirm = true }),
+    },
+    {
+      key = "w",
+      mods = "CTRL|SHIFT",
+      action = act.CloseCurrentTab({ confirm = true }),
+    },
   }
 end
 
