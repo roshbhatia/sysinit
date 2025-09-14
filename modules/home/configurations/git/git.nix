@@ -10,10 +10,10 @@ let
   themeCfg = mkThemedConfig values "delta" { };
   deltaTheme = themeCfg.appTheme;
 
-  personalEmail = if cfg.personalEmail != null then cfg.personalEmail else cfg.userEmail;
-  workEmail = if cfg.workEmail != null then cfg.workEmail else cfg.userEmail;
-  personalUsername = if cfg.personalUsername != null then cfg.personalUsername else cfg.username;
-  workUsername = if cfg.workUsername != null then cfg.workUsername else cfg.username;
+  personalEmail = cfg.personalEmail or cfg.userEmail;
+  workEmail = cfg.workEmail or cfg.userEmail;
+  personalUsername = cfg.personalUsername or cfg.username;
+  workUsername = cfg.workUsername or cfg.username;
 in
 {
   programs.git = {
@@ -58,8 +58,7 @@ in
 
     extraConfig = {
       credential = {
-        helper = "store";
-        username = cfg.username;
+        helper = "store"; # Set once globally
       };
 
       github = {
@@ -97,6 +96,7 @@ in
         compression = 9;
         preloadIndex = true;
         hooksPath = ".githooks";
+        pager = "/nix/store/vlh7747las8c0nza18yvby03jwx0ic33-delta-0.18.2/bin/delta";
       };
 
       merge = {
@@ -107,7 +107,7 @@ in
       mergetool = {
         prompt = false;
         keepBackup = false;
-        "diffview" = {
+        diffview = {
           cmd = "nvim -n -c \"DiffviewOpen\" \"$MERGE\"";
         };
       };
@@ -123,6 +123,13 @@ in
       rebase = {
         updateRefs = true;
       };
+
+      delta = {
+        dark = true;
+        navigate = true;
+        side-by-side = true;
+        features = deltaTheme;
+      };
     };
 
     includes = [
@@ -132,10 +139,6 @@ in
           user = {
             name = cfg.name;
             email = workEmail;
-          };
-          credential = {
-            helper = "store";
-            username = workUsername;
           };
           github = {
             user = workUsername;
@@ -148,10 +151,6 @@ in
           user = {
             name = cfg.name;
             email = personalEmail;
-          };
-          credential = {
-            helper = "store";
-            username = personalUsername;
           };
           github = {
             user = personalUsername;
