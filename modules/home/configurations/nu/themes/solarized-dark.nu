@@ -1,7 +1,5 @@
 #!/usr/bin/env nu
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-# modules/darwin/home/nu/core/solarized_dark.nu (begin)
 let theme = {
   base03: "#002b36"  # background
   base02: "#073642"  # background highlights
@@ -158,4 +156,3 @@ $env.config.explore = {
     },
     selected_cell: { bg: $theme.blue fg: $theme.base03 },
 }
-# modules/darwin/home/nu/core/solarized_dark.nu (end)

@@ -15,6 +15,6 @@ let
 in
 {
   home.activation.uvxPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    utils.sysinit.mkPackageManagerScript config "uv" uvxPackages
+    utils.packages.mkPackageManagerScript config "uv" uvxPackages
   );
 }

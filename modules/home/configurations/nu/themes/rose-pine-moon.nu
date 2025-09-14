@@ -1,7 +1,5 @@
 #!/usr/bin/env nu
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-# modules/darwin/home/nu/core/rose_pine_moon.nu (begin)
 let theme = {
   base: "#232136"
   surface: "#2a273f"
@@ -157,4 +155,3 @@ $env.config.explore = {
     },
     selected_cell: { bg: $theme.pine fg: $theme.base },
 }
-# modules/darwin/home/nu/core/rose_pine_moon.nu (end)

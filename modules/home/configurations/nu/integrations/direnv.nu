@@ -1,7 +1,5 @@
 #!/usr/bin/env nu
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-# modules/darwin/home/nu/core/direnv.nu (begin)
 $env.config = {
   hooks: {
     pre_prompt: [{ ||
@@ -16,5 +14,4 @@ $env.config = {
     }]
   }
 }
-# modules/darwin/home/nu/core/direnv.nu (direnv)
 

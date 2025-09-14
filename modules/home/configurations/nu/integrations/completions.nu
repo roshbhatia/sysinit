@@ -1,3 +1,5 @@
+#!/usr/bin/env nu
+# shellcheck disable=all
 $env.CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense'
 
 def --env get-env [name] { $env | get $name }

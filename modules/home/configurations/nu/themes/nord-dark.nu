@@ -1,7 +1,5 @@
 #!/usr/bin/env nu
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-# modules/darwin/home/nu/core/nord_dark.nu (begin)
 let theme = {
   # Polar Night (darker backgrounds)
   nord0: "#2e3440"
@@ -173,4 +171,3 @@ $env.config.explore = {
     },
     selected_cell: { bg: $theme.blue fg: $theme.base },
 }
-# modules/darwin/home/nu/core/nord_dark.nu (end)

@@ -1,7 +1,5 @@
 #!/usr/bin/env nu
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-# modules/darwin/home/nu/core/atuin.nu (begin)
 $env.ATUIN_SESSION = (atuin uuid)
 hide-env -i ATUIN_HISTORY_ID
 
@@ -102,5 +100,4 @@ $env.config = (
         }
     )
 )
-# modules/darwin/home/nu/core/atuin.nu (end)
 

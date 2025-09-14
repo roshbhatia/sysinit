@@ -76,6 +76,7 @@ let
     libgit2
     lua-language-server
     luajit
+    macchina
     marksman
     mermaid-cli
     mods

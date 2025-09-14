@@ -11,6 +11,6 @@ let
 in
 {
   home.activation.pipxPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    utils.sysinit.mkPackageManagerScript config "pipx" pipxPackages
+    utils.packages.mkPackageManagerScript config "pipx" pipxPackages
   );
 }

@@ -1,7 +1,5 @@
 #!/usr/bin/env nu
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-# modules/darwin/home/nu/core/catppuccin_macchiato.nu (begin)
 let theme = {
   rosewater: "#f4dbd6"
   flamingo: "#f0c6c6"
@@ -168,5 +166,4 @@ $env.config.explore = {
     },
     selected_cell: { bg: $theme.blue fg: $theme.base },
 }
-# modules/darwin/home/nu/core/catppuccin_macchiato.nu (end)
 

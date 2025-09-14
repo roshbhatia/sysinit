@@ -1,7 +1,5 @@
 #!/usr/bin/env nu
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-# modules/darwin/home/nu/core/config.nu (begin)
 $env.config = {
   show_banner: false
   edit_mode: "vi"
@@ -63,5 +61,4 @@ $env.config = {
     }
   ]
 }
-# modules/darwin/home/nu/core/config.nu (end)
 

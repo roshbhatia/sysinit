@@ -14,6 +14,6 @@ let
 in
 {
   home.activation.krewPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    utils.sysinit.mkPackageManagerScript config "kubectl" krewPackages
+    utils.packages.mkPackageManagerScript config "kubectl" krewPackages
   );
 }

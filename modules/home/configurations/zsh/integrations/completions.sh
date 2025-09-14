@@ -1,6 +1,5 @@
 #!/usr/bin/env zsh
 # shellcheck disable=all
-
 zvm_after_init_commands+="_evalcache atuin init zsh --disable-up-arrow"
 zvm_after_init_commands+="_evalcache kubectl completion zsh"
 zvm_after_init_commands+="_evalcache docker completion zsh"

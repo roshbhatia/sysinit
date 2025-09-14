@@ -106,8 +106,6 @@ let
   };
 in
 {
-  home.packages = [ pkgs.macchina ];
-
   xdg.configFile = {
     "macchina/macchina.toml" = {
       source = tomlFormat.generate "macchina.toml" {

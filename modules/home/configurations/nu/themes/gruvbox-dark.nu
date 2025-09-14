@@ -1,7 +1,5 @@
 #!/usr/bin/env nu
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-# modules/darwin/home/nu/core/gruvbox_dark.nu (begin)
 let theme = {
   bg0_h: "#1d2021"
   bg0: "#282828"
@@ -168,4 +166,3 @@ $env.config.explore = {
     },
     selected_cell: { bg: $theme.blue fg: $theme.bg0 },
 }
-# modules/darwin/home/nu/core/gruvbox_dark.nu (end)

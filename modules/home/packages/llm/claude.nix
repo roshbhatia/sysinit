@@ -22,11 +22,11 @@ let
 in
 lib.mkIf claudeEnabled {
   home.activation.claudeYarnPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    utils.sysinit.mkPackageManagerScript config "yarn" claudeYarnPackages
+    utils.packages.mkPackageManagerScript config "yarn" claudeYarnPackages
   );
 
   home.activation.claudeUvPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    utils.sysinit.mkPackageManagerScript config "uv" claudeUvPackages
+    utils.packages.mkPackageManagerScript config "uv" claudeUvPackages
   );
 
 }

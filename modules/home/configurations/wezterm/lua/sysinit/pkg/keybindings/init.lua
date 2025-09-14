@@ -7,6 +7,11 @@ local function is_vim(pane)
   return process_name == "nvim" or process_name == "vim"
 end
 
+local function is_zellij_running(pane)
+  -- Check if we're inside a zellij session
+  return os.getenv("ZELLIJ") ~= nil
+end
+
 local function vim_or_wezterm_action(key, mods, wezterm_action)
   return wezterm.action_callback(function(win, pane)
     if is_vim(pane) then
@@ -356,18 +361,23 @@ end
 
 function M.setup(config)
   local all_keys = {}
+  local zellij_running = os.getenv("ZELLIJ") ~= nil
 
   local key_groups = {
-    get_pane_keys(),
     get_clear_keys(),
     get_pallete_keys(),
     get_scroll_keys(),
     get_window_keys(),
-    get_tab_keys(),
     get_search_keys(),
     get_transparency_keys(),
     get_agent_keys(),
   }
+
+  -- Only add pane and tab keys if zellij is not running
+  if not zellij_running then
+    table.insert(key_groups, 1, get_pane_keys())
+    table.insert(key_groups, get_tab_keys())
+  end
 
   for _, group in ipairs(key_groups) do
     for _, key_binding in ipairs(group) do

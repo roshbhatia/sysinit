@@ -11,6 +11,6 @@ let
 in
 {
   home.activation.yarnPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    utils.sysinit.mkPackageManagerScript config "yarn" yarnPackages
+    utils.packages.mkPackageManagerScript config "yarn" yarnPackages
   );
 }

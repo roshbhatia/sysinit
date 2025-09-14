@@ -1,7 +1,5 @@
 #!/usr/bin/env nu
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-# modules/darwin/home/nu/core/kanagawa-dragon.nu (begin)
 let theme = {
   dragonBlack0: "#0d0c0c"
   dragonBlack1: "#12120f"
@@ -166,4 +164,3 @@ $env.config.explore = {
     },
     selected_cell: { bg: $theme.dragonBlue fg: $theme.dragonBlack3 },
 }
-# modules/darwin/home/nu/core/kanagawa-dragon.nu (end)

@@ -12,7 +12,7 @@ in
 {
   home.activation = {
     cargoPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-      utils.sysinit.mkPackageManagerScript config "cargo" cargoPackages
+      utils.packages.mkPackageManagerScript config "cargo" cargoPackages
     );
   };
 }

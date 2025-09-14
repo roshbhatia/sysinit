@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
 # modules/home/configurations/utils/gh-whoami
 
@@ -16,4 +15,3 @@ else
   log_error "GitHub CLI not installed"
   exit 1
 fi
-

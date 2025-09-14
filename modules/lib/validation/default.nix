@@ -4,8 +4,27 @@ with lib;
 
 let
   themes = import ../theme { inherit lib; };
+
+  validateHostname = hostname: {
+    assertion = builtins.match "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]?" hostname != null;
+    message = "Invalid hostname: '${hostname}'. Must be valid DNS hostname.";
+  };
+
+  validateEmail = email: {
+    assertion = builtins.match ".*@.*\\..*" email != null;
+    message = "Invalid email address: '${email}'";
+  };
+
+  validatePackageList =
+    packages: packageType:
+    map (pkg: {
+      assertion = isString pkg && pkg != "";
+      message = "Invalid ${packageType} package: '${toString pkg}' must be a non-empty string";
+    }) packages;
 in
-{
+rec {
+  inherit validateHostname validateEmail validatePackageList;
+
   validateTheme =
     colorscheme: variant:
     let
@@ -29,23 +48,6 @@ in
         '';
       }
     ];
-
-  validateEmail = email: {
-    assertion = builtins.match ".*@.*\\..*" email != null;
-    message = "Invalid email address: '${email}'";
-  };
-
-  validateHostname = hostname: {
-    assertion = builtins.match "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]?" hostname != null;
-    message = "Invalid hostname: '${hostname}'. Must be valid DNS hostname.";
-  };
-
-  validatePackageList =
-    packages: packageType:
-    map (pkg: {
-      assertion = isString pkg && pkg != "";
-      message = "Invalid ${packageType} package: '${toString pkg}' must be a non-empty string";
-    }) packages;
 
   validatePath = path: {
     assertion = isString path && path != "";

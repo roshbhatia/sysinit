@@ -1,3 +1,5 @@
+#!/usr/bin/env nu
+# shellcheck disable=all
 alias k = kubectl
 alias ksys = kubectl --namespace=kube-system
 alias ka = kubectl apply --recursive -f

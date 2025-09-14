@@ -1,6 +1,5 @@
 #!/usr/bin/env nu
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
-# modules/darwin/home/nu/core/wezterm.nu (begin)
+# shellcheck disable=all
 def wezterm_set_user_var [name: string, value: string] {
   if (which base64 | is-empty) == false {
     if not ("TMUX" in $env) {
@@ -85,5 +84,4 @@ if not ("WEZTERM_SHELL_SKIP_USER_VARS" in $env) {
 if not ("WEZTERM_SHELL_SKIP_CWD" in $env) {
   $env.PRE_PROMPT_HOOKS = (if "PRE_PROMPT_HOOKS" in $env { $env.PRE_PROMPT_HOOKS } else { [] } | append wezterm_osc7)
 }
-# modules/darwin/home/nu/core/wezterm.nu (end)
 

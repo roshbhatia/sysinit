@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
 # modules/home/configurations/utils/dns-flush
 
@@ -14,4 +13,3 @@ else
   log_error "Failed to flush DNS cache"
   exit 1
 fi
-

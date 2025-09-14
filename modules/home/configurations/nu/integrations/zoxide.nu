@@ -1,6 +1,5 @@
 #!/usr/bin/env nu
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
-# modules/darwin/home/nu/core/zoxide.nu (begin)
+# shellcheck disable=all
 use std/dirs
 
 export-env {
@@ -61,5 +60,4 @@ def --env --wrapped z [...rest: string@"nu-complete zoxide path"] {
 
 alias z = __zoxide_z
 alias zi = __zoxide_zi
-# modules/darwin/home/nu/core/zoxide.nu (end)
 

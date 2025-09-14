@@ -18,6 +18,6 @@ in
   };
 
   home.activation.npmPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    utils.sysinit.mkPackageManagerScript config "npm" npmPackages
+    utils.packages.mkPackageManagerScript config "npm" npmPackages
   );
 }

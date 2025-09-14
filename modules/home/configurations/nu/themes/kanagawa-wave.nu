@@ -1,7 +1,5 @@
 #!/usr/bin/env nu
-# THIS FILE WAS INSTALLED BY SYSINIT. MODIFICATIONS WILL BE OVERWRITTEN UPON UPDATE.
 # shellcheck disable=all
-# modules/darwin/home/nu/core/kanagawa-wave.nu (begin)
 let theme = {
   sumiInk0: "#16161d"
   sumiInk1: "#1f1f28"
@@ -171,4 +169,3 @@ $env.config.explore = {
     },
     selected_cell: { bg: $theme.crystalBlue fg: $theme.sumiInk1 },
 }
-# modules/darwin/home/nu/core/kanagawa-wave.nu (end)

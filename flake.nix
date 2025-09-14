@@ -54,7 +54,6 @@
         inherit lib pkgs system;
       };
 
-      valuesLib = import ./modules/lib/values.nix { inherit lib; };
       userValues = import ./values.nix;
 
       # Process values through the module system to apply defaults
@@ -63,7 +62,7 @@
           modules = [
             {
               options.values = lib.mkOption {
-                type = valuesLib.valuesType;
+                type = utils.values.valuesType;
               };
               config.values = userValues;
             }
