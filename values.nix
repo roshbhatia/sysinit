@@ -12,10 +12,6 @@
   };
 
   darwin = {
-    borders = {
-      enable = false;
-    };
-
     tailscale = {
       enable = true;
     };
@@ -33,24 +29,6 @@
         ];
       };
     };
-  };
-
-  yarn = {
-    additionalPackages = [ ];
-  };
-
-  theme = {
-    colorscheme = "catppuccin";
-    variant = "macchiato";
-    transparency = {
-      enable = true;
-      opacity = 0.85;
-      blur = 80;
-    };
-  };
-
-  wezterm = {
-    shell = "zsh";
   };
 
   llm = {
