@@ -86,7 +86,6 @@ task: Available tasks for this project:
 
 ## Values Configuration Schema
 
-*Auto-generated from the Nix values type definitions*
 
 | Field | Type | Default | Required | Description |
 |-------|------|---------|----------|-------------|
@@ -127,55 +126,4 @@ task: Available tasks for this project:
 | `wezterm.shell` | string | "zsh" |  | Default shell for wezterm |
 | `yarn.additionalPackages` | list(string) | [] |  | Additional global yarn packages |
 
-### Usage Patterns
-
-**Required Values** (must be provided in your `values.nix`):
-- `user.username` and `user.hostname` - Core system identification
-- `git.*` fields - Git configuration
-- `theme.colorscheme` and `theme.variant` - Theme settings
-- `llm.goose.*` fields - LLM configuration
-
-**Optional Values** have sensible defaults and use the `or` fallback pattern:
-```nix
-# In modules, access with fallbacks
-packages = values.yarn.additionalPackages or [];
-enabled = values.feature.enable or false;
-```
-
-### Example Configuration
-
-```nix
-# values.nix
-{
-  user = {
-    username = "johndoe";
-    hostname = "macbook-pro";
-  };
-
-  git = {
-    userName = "John Doe";
-    userEmail = "john@example.com";
-    githubUser = "johndoe";
-    credentialUsername = "johndoe";
-  };
-
-  theme = {
-    colorscheme = "catppuccin";
-    variant = "macchiato";
-    transparency = {
-      enable = true;
-      opacity = 0.85;
-      blur = 80;
-    };
-  };
-
-  # Optional package lists
-  yarn.additionalPackages = [ "@vue/cli" "typescript" ];
-  npm.additionalPackages = [ "prettier" "eslint" ];
-}
-```
-
-**Validation**: The system validates email formats, hostnames, transparency values (0.0-1.0 for opacity, 0-100 for blur), and theme combinations.
-
-**Documentation**: This schema is auto-generated from `modules/lib/values/default.nix`. Run `task docs:values` to regenerate.
 <!-- VALUES_SCHEMA_END -->

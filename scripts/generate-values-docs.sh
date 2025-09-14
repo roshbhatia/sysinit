@@ -14,11 +14,9 @@ END_MARKER="<!-- VALUES_SCHEMA_END -->"
 TEMP_FILE=$(mktemp)
 
 # Build the values schema documentation
-cat > "$TEMP_FILE" << 'EOF'
+cat >"$TEMP_FILE" <<'EOF'
 
 ## Values Configuration Schema
-
-*Auto-generated from the Nix values type definitions*
 
 | Field | Type | Default | Required | Description |
 |-------|------|---------|----------|-------------|
@@ -27,8 +25,7 @@ EOF
 echo "Parsing values schema from $VALUES_SCHEMA_FILE..." >&2
 
 # Parse the values schema file and extract field information
-parse_schema()
-               {
+parse_schema() {
   local current_path=""
   local in_option=false
   local field_name=""
@@ -61,7 +58,7 @@ parse_schema()
       field_type=""
       field_default=""
       field_description=""
-      is_required=true  # Default to required unless we find a default value
+      is_required=true # Default to required unless we find a default value
     elif [[ "$in_option" == true ]]; then
       # Parse option properties
       if [[ "$line" =~ ^[[:space:]]*type[[:space:]]*=[[:space:]]*(.+)\;[[:space:]]*$ ]]; then
@@ -69,7 +66,7 @@ parse_schema()
         # Clean up type formatting
         field_type="${field_type#types.}"
         field_type="${field_type//types\.//g}"
-        field_type="${field_type//\/g/}"  # Remove /g artifacts
+        field_type="${field_type//\/g/}" # Remove /g artifacts
         if [[ "$field_type" == "nullOr str" ]]; then
           field_type="string?"
         elif [[ "$field_type" == "str" ]]; then
@@ -87,7 +84,7 @@ parse_schema()
         fi
       elif [[ "$line" =~ ^[[:space:]]*default[[:space:]]*=[[:space:]]*(.+)\;[[:space:]]*$ ]]; then
         field_default="${BASH_REMATCH[1]}"
-        is_required=false  # Has a default, so not required
+        is_required=false # Has a default, so not required
         if [[ "$field_default" == "null" ]]; then
           field_default="null"
         elif [[ "$field_default" =~ ^\[[[:space:]]*\]$ ]]; then
@@ -127,65 +124,13 @@ parse_schema()
         current_path=""
       fi
     fi
-  done < "$VALUES_SCHEMA_FILE"
+  done <"$VALUES_SCHEMA_FILE"
 }
 
-parse_schema | sort >> "$TEMP_FILE"
+parse_schema | sort >>"$TEMP_FILE"
 
 # Add usage examples and patterns
-cat >> "$TEMP_FILE" << 'EOF'
-
-### Usage Patterns
-
-**Required Values** (must be provided in your `values.nix`):
-- `user.username` and `user.hostname` - Core system identification
-- `git.*` fields - Git configuration
-- `theme.colorscheme` and `theme.variant` - Theme settings
-- `llm.goose.*` fields - LLM configuration
-
-**Optional Values** have sensible defaults and use the `or` fallback pattern:
-```nix
-# In modules, access with fallbacks
-packages = values.yarn.additionalPackages or [];
-enabled = values.feature.enable or false;
-```
-
-### Example Configuration
-
-```nix
-# values.nix
-{
-  user = {
-    username = "johndoe";
-    hostname = "macbook-pro";
-  };
-
-  git = {
-    userName = "John Doe";
-    userEmail = "john@example.com";
-    githubUser = "johndoe";
-    credentialUsername = "johndoe";
-  };
-
-  theme = {
-    colorscheme = "catppuccin";
-    variant = "macchiato";
-    transparency = {
-      enable = true;
-      opacity = 0.85;
-      blur = 80;
-    };
-  };
-
-  # Optional package lists
-  yarn.additionalPackages = [ "@vue/cli" "typescript" ];
-  npm.additionalPackages = [ "prettier" "eslint" ];
-}
-```
-
-**Validation**: The system validates email formats, hostnames, transparency values (0.0-1.0 for opacity, 0-100 for blur), and theme combinations.
-
-**Documentation**: This schema is auto-generated from `modules/lib/values/default.nix`. Run `task docs:values` to regenerate.
+cat >>"$TEMP_FILE" <<'EOF'
 EOF
 
 # Inject the documentation into README.md
@@ -208,7 +153,7 @@ if [[ -f "$README_FILE" ]]; then
         next
       }
       !in_section { print $0 }
-    ' "$README_FILE" > "${README_FILE}.tmp"
+    ' "$README_FILE" >"${README_FILE}.tmp"
 
     mv "${README_FILE}.tmp" "$README_FILE"
     echo "Documentation injected into $README_FILE" >&2
