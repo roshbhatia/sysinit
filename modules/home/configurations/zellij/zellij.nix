@@ -8,6 +8,8 @@ let
   themes = import ../../../lib/theme { inherit lib; };
 
   zellijThemeName = themes.getAppTheme "zellij" values.theme.colorscheme values.theme.variant;
+  palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
+  semanticColors = themes.getSemanticColors values.theme.colorscheme values.theme.variant;
 
   zjstatusUrl = "https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm";
   zjstatusHintsUrl = "https://github.com/b0o/zjstatus-hints/releases/latest/download/zjstatus-hints.wasm";
@@ -21,41 +23,48 @@ let
         }
         pane size=1 borderless=true {
             plugin location="${zjstatusUrl}" {
-                format_left   "{mode} {session}"
+                format_left   "{mode} #[fg=${palette.blue},bold]{session}"
                 format_center "{tabs}"
+                format_right  "{datetime}"
                 format_space  ""
 
-                border_enabled  "false"
+                border_enabled  "true"
                 border_char     "─"
+                border_format   "#[fg=${palette.surface0}]{char}"
                 border_position "top"
 
                 hide_frame_for_single_pane "false"
 
-                mode_normal        " NORMAL "
-                mode_locked        " LOCKED "
-                mode_resize        " RESIZE "
-                mode_pane          " PANE "
-                mode_tab           " TAB "
-                mode_scroll        " SCROLL "
-                mode_enter_search  " SEARCH "
-                mode_search        " SEARCH "
-                mode_rename_tab    " RENAME "
-                mode_rename_pane   " RENAME "
-                mode_session       " SESSION "
-                mode_move          " MOVE "
-                mode_prompt        " PROMPT "
-                mode_tmux          " TMUX "
+                mode_normal        ""
+                mode_locked        "#[bg=${palette.red},fg=${palette.base},bold] 🔒 "
+                mode_resize        "#[bg=${palette.peach},fg=${palette.base},bold] ↔ "
+                mode_pane          "#[bg=${palette.green},fg=${palette.base},bold] ◧ "
+                mode_tab           "#[bg=${palette.yellow},fg=${palette.base},bold] ⊡ "
+                mode_scroll        "#[bg=${palette.mauve},fg=${palette.base},bold] ↕ "
+                mode_enter_search  "#[bg=${palette.teal},fg=${palette.base},bold] 🔍 "
+                mode_search        "#[bg=${palette.teal},fg=${palette.base},bold] 🔍 "
+                mode_rename_tab    "#[bg=${palette.pink},fg=${palette.base},bold] ✏ "
+                mode_rename_pane   "#[bg=${palette.pink},fg=${palette.base},bold] ✏ "
+                mode_session       "#[bg=${palette.maroon},fg=${palette.base},bold] 🗂 "
+                mode_move          "#[bg=${palette.red},fg=${palette.base},bold] ↹ "
+                mode_prompt        "#[bg=${palette.green},fg=${palette.base},bold] ❯ "
+                mode_tmux          "#[bg=${palette.peach},fg=${palette.base},bold] T "
 
-                tab_normal              " {index} {name} {floating_indicator}"
-                tab_normal_fullscreen   " {index} {name} {fullscreen_indicator}"
-                tab_normal_sync         " {index} {name} {sync_indicator}"
-                tab_active              " {index} {name} {floating_indicator}"
-                tab_active_fullscreen   " {index} {name} {fullscreen_indicator}"
-                tab_active_sync         " {index} {name} {sync_indicator}"
+                tab_normal              "#[fg=${palette.surface2}] {name} "
+                tab_normal_fullscreen   "#[fg=${palette.surface2}] {name} {fullscreen_indicator}"
+                tab_normal_sync         "#[fg=${palette.surface2}] {name} {sync_indicator}"
+                tab_active              "#[fg=${palette.blue},bold] {name} "
+                tab_active_fullscreen   "#[fg=${palette.blue},bold] {name} {fullscreen_indicator}"
+                tab_active_sync         "#[fg=${palette.blue},bold] {name} {sync_indicator}"
 
+                tab_separator           "#[fg=${palette.surface0}]│"
                 tab_fullscreen_indicator "□ "
-                tab_sync_indicator       "  "
-                tab_floating_indicator   "󰉈 "
+                tab_sync_indicator       "⟳ "
+                tab_floating_indicator   "◈ "
+
+                datetime        "#[fg=${palette.subtext0}] {format} "
+                datetime_format "%H:%M"
+                datetime_timezone "America/Los_Angeles"
             }
         }
     }
@@ -112,6 +121,8 @@ let
             bind "Ctrl S" { SwitchToMode "scroll"; }
             bind "Ctrl :" { SwitchToMode "session"; }
             bind "Ctrl /" { SwitchToMode "search"; }
+            bind "Super /" { SwitchToMode "search"; }
+            bind "Ctrl [" { SwitchToMode "scroll"; }
 
             bind "Ctrl h" {
                 MessagePlugin "${vimZellijNavigatorUrl}" {
@@ -239,6 +250,7 @@ let
             bind "Ctrl D" { Detach; }
 
             bind "Super k" { Clear; }
+            bind "Ctrl l" { Clear; }
 
             // Plugin Launch
             bind "Ctrl y" {
@@ -280,6 +292,8 @@ let
             bind "/" { SwitchToMode "search"; }
             bind "n" { Search "down"; }
             bind "N" { Search "up"; }
+            bind "v" { SwitchToMode "entersearch"; }
+            bind "s" { EditScrollback; SwitchToMode "normal"; }
             bind "Esc" { SwitchToMode "normal"; }
             bind "q" { SwitchToMode "normal"; }
             bind "Enter" { SwitchToMode "normal"; }

@@ -121,6 +121,91 @@ local function get_app_control_keys()
   }
 end
 
+local function get_zellij_passthrough_keys()
+  return {
+    {
+      key = "t",
+      mods = "CMD",
+      action = act.SendKey { key = "t", mods = "SUPER" },
+    },
+    {
+      key = "t",
+      mods = "CTRL",
+      action = act.SendKey { key = "t", mods = "CTRL" },
+    },
+    {
+      key = "k",
+      mods = "CMD",
+      action = act.SendKey { key = "k", mods = "SUPER" },
+    },
+    {
+      key = "l",
+      mods = "CTRL",
+      action = act.SendKey { key = "l", mods = "CTRL" },
+    },
+    {
+      key = "f",
+      mods = "CMD",
+      action = act.SendKey { key = "f", mods = "CTRL" },
+    },
+    {
+      key = "f",
+      mods = "CTRL",
+      action = act.SendKey { key = "f", mods = "CTRL" },
+    },
+    {
+      key = "/",
+      mods = "CMD",
+      action = act.SendKey { key = "/", mods = "CTRL" },
+    },
+    {
+      key = "/",
+      mods = "CTRL",
+      action = act.SendKey { key = "/", mods = "CTRL" },
+    },
+    {
+      key = "1",
+      mods = "CMD",
+      action = act.SendKey { key = "1", mods = "SUPER" },
+    },
+    {
+      key = "2",
+      mods = "CMD",
+      action = act.SendKey { key = "2", mods = "SUPER" },
+    },
+    {
+      key = "3",
+      mods = "CMD",
+      action = act.SendKey { key = "3", mods = "SUPER" },
+    },
+    {
+      key = "4",
+      mods = "CMD",
+      action = act.SendKey { key = "4", mods = "SUPER" },
+    },
+    {
+      key = "5",
+      mods = "CMD",
+      action = act.SendKey { key = "5", mods = "SUPER" },
+    },
+    {
+      key = "6",
+      mods = "CMD",
+      action = act.SendKey { key = "6", mods = "SUPER" },
+    },
+    {
+      key = "7",
+      mods = "CMD",
+      action = act.SendKey { key = "7", mods = "SUPER" },
+    },
+    {
+      key = "8",
+      mods = "CMD",
+      action = act.SendKey { key = "8", mods = "SUPER" },
+    },
+  }
+end
+
 function M.setup(config)
   local all_keys = {}
 
@@ -131,6 +216,7 @@ function M.setup(config)
     get_clipboard_keys(),
     get_font_keys(),
     get_app_control_keys(),
+    get_zellij_passthrough_keys(),
   }
 
   for _, group in ipairs(key_groups) do
