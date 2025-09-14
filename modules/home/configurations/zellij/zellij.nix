@@ -75,13 +75,13 @@ let
     on_force_close "detach"
     simplified_ui true
     auto_layout true
-    session_serialization false
+    session_serialization true
     show_startup_tips false
 
     scroll_buffer_size 100000
     scrollback_editor "nvim"
     scrollback_lines_to_serialize 50000
-    copy_on_select true
+    copy_on_select false
 
     ui {
         pane_frames {
@@ -89,7 +89,7 @@ let
             hide_session_name false
         }
     }
-    pane_frames false
+    pane_frames true
 
     default_mode "normal"
     theme "${zellijThemeName}"

@@ -1,48 +1,7 @@
 local wezterm = require("wezterm")
 local act = wezterm.action
+
 local M = {}
-
-local function is_vim(pane)
-  local process_name = string.gsub(pane:get_foreground_process_name(), "(.*[/\\])(.*)", "%2")
-  return process_name == "nvim" or process_name == "vim"
-end
-
-local function is_zellij_running(pane)
-  return os.getenv("ZELLIJ") ~= nil
-end
-
-local function vim_or_wezterm_action(key, mods, wezterm_action)
-  return wezterm.action_callback(function(win, pane)
-    if is_vim(pane) then
-      win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
-    else
-      win:perform_action(wezterm_action, pane)
-    end
-  end)
-end
-
-local direction_keys = {
-  h = "Left",
-  j = "Down",
-  k = "Up",
-  l = "Right",
-}
-
-local function pane_keybinding(action_type, key, mods)
-  return wezterm.action_callback(function(win, pane)
-    local zellij_running = is_zellij_running(pane)
-
-    if is_vim(pane) or zellij_running then
-      win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
-    else
-      if action_type == "resize" then
-        win:perform_action({ AdjustPaneSize = { direction_keys[key], 3 } }, pane)
-      else
-        win:perform_action({ ActivatePaneDirection = direction_keys[key] }, pane)
-      end
-    end
-  end)
-end
 
 local function get_pallete_keys()
   return {
@@ -67,18 +26,6 @@ local function get_window_keys()
       action = act.ReloadConfiguration,
     },
   }
-end
-
-local function zellij_aware_tab_action(key, mods, wezterm_action)
-  return wezterm.action_callback(function(win, pane)
-    local zellij_running = is_zellij_running(pane)
-
-    if zellij_running then
-      win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
-    else
-      win:perform_action(wezterm_action, pane)
-    end
-  end)
 end
 
 local function get_transparency_keys()
@@ -119,6 +66,7 @@ function M.setup(config)
     end
   end
 
+  config.disable_default_key_bindings = true
   config.keys = all_keys
 end
 
