@@ -133,7 +133,6 @@ let
     zig
     zls
     zoxide
-    zellij
   ];
 
   allNixPackages = baseNixPackages ++ additionalPackages;

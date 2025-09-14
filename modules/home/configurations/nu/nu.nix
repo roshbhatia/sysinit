@@ -96,7 +96,6 @@ in
     "nushell/autoload/atuin.nu".source = ./integrations/atuin.nu;
     "nushell/autoload/completions.nu".source = ./integrations/completions.nu;
     "nushell/autoload/direnv.nu".source = ./integrations/direnv.nu;
-    "nushell/autoload/zellij.nu".source = ./integrations/zellij.nu;
     "nushell/autoload/zoxide.nu".source = ./integrations/zoxide.nu;
 
     "nushell/autoload/kubectl.nu".source = ./tools/kubectl.nu;
