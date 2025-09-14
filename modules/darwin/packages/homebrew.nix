@@ -50,10 +50,6 @@ let
   allCasks = baseCasks ++ additionalCasks;
 in
 {
-  environment.variables = {
-    HOMEBREW_NO_ENV_HINTS = "1";
-  };
-
   nix-homebrew = {
     enable = true;
     enableRosetta = true;

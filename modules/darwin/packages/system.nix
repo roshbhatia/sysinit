@@ -8,22 +8,13 @@
     curl
     fd
     findutils
-    gawk
     git
     gnugrep
     gnused
-    htop
     nix-output-monitor
     ripgrep
-    tree
     wget
     which
     zsh
-  ];
-
-  environment.variables.PATH = [
-    "${pkgs.coreutils}/bin"
-    "${pkgs.findutils}/bin"
-    "$PATH"
   ];
 }

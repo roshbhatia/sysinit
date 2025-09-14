@@ -1,4 +1,7 @@
-{ pkgs, ... }:
+{
+  pkgs,
+  ...
+}:
 
 {
   system.configurationRevision = null;
@@ -13,12 +16,6 @@
     findutils
     git
     libgit2
-  ];
-
-  environment.variables.PATH = [
-    "${pkgs.coreutils}/bin"
-    "${pkgs.findutils}/bin"
-    "$PATH"
   ];
 
   security.pam.services.sudo_local.touchIdAuth = true;
