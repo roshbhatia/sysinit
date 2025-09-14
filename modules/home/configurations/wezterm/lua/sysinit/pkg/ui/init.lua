@@ -42,12 +42,13 @@ local function get_display_config()
     window_frame = {
       font = terminal_font,
     },
-    enable_tab_bar = false,
-    window_decorations = "RESIZE",
+    enable_tab_bar = true,
     max_fps = 240,
     animation_fps = 240,
     scrollback_lines = 20000,
     adjust_window_size_when_changing_font_size = false,
+    tab_bar_at_bottom = true,
+    use_fancy_tab_bar = false,
   }
 end
 

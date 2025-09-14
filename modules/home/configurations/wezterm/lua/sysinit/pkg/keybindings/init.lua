@@ -3,7 +3,8 @@ local act = wezterm.action
 local M = {}
 
 local function is_vim(pane)
-  return pane:get_user_vars().IS_NVIM == "true"
+  local process_name = string.gsub(pane:get_foreground_process_name(), "(.*[/\\])(.*)", "%2")
+  return process_name == "nvim" or process_name == "vim"
 end
 
 local function vim_or_wezterm_action(key, mods, wezterm_action)
@@ -338,6 +339,21 @@ local function get_transparency_keys()
   }
 end
 
+local function get_agent_keys()
+  return {
+    {
+      key = "i",
+      mods = "CMD",
+      action = wezterm.action({ SendString = "\x1b\r" }),
+    },
+    {
+      key = "i",
+      mods = "CTRL",
+      action = wezterm.action({ SendString = "\x1b\r" }),
+    },
+  }
+end
+
 function M.setup(config)
   local all_keys = {}
 
@@ -350,6 +366,7 @@ function M.setup(config)
     get_tab_keys(),
     get_search_keys(),
     get_transparency_keys(),
+    get_agent_keys(),
   }
 
   for _, group in ipairs(key_groups) do
