@@ -8,7 +8,6 @@ local function is_vim(pane)
 end
 
 local function is_zellij_running(pane)
-  -- Check if we're inside a zellij session
   return os.getenv("ZELLIJ") ~= nil
 end
 
@@ -31,7 +30,9 @@ local direction_keys = {
 
 local function pane_keybinding(action_type, key, mods)
   return wezterm.action_callback(function(win, pane)
-    if is_vim(pane) then
+    local zellij_running = is_zellij_running(pane)
+
+    if is_vim(pane) or zellij_running then
       win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
     else
       if action_type == "resize" then
@@ -216,75 +217,87 @@ local function get_window_keys()
   }
 end
 
+local function zellij_aware_tab_action(key, mods, wezterm_action)
+  return wezterm.action_callback(function(win, pane)
+    local zellij_running = is_zellij_running(pane)
+
+    if zellij_running then
+      win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
+    else
+      win:perform_action(wezterm_action, pane)
+    end
+  end)
+end
+
 local function get_tab_keys()
   return {
     {
       key = "t",
       mods = "CTRL",
-      action = act.SpawnTab("CurrentPaneDomain"),
+      action = zellij_aware_tab_action("t", "CTRL", act.SpawnTab("CurrentPaneDomain")),
     },
     -- Tab cycling
     {
       key = "Tab",
       mods = "CTRL",
-      action = act.ActivateTabRelative(1),
+      action = zellij_aware_tab_action("Tab", "CTRL", act.ActivateTabRelative(1)),
     },
     {
       key = "Tab",
       mods = "CTRL|SHIFT",
-      action = act.ActivateTabRelative(-1),
+      action = zellij_aware_tab_action("Tab", "CTRL|SHIFT", act.ActivateTabRelative(-1)),
     },
     -- Quick bracket navigation
     {
       key = "]",
       mods = "CTRL|SHIFT",
-      action = act.ActivateTabRelative(1),
+      action = zellij_aware_tab_action("]", "CTRL|SHIFT", act.ActivateTabRelative(1)),
     },
     {
       key = "[",
       mods = "CTRL|SHIFT",
-      action = act.ActivateTabRelative(-1),
+      action = zellij_aware_tab_action("[", "CTRL|SHIFT", act.ActivateTabRelative(-1)),
     },
     -- Direct tab access
     {
       key = "1",
       mods = "CTRL",
-      action = act.ActivateTab(0),
+      action = zellij_aware_tab_action("1", "CTRL", act.ActivateTab(0)),
     },
     {
       key = "2",
       mods = "CTRL",
-      action = act.ActivateTab(1),
+      action = zellij_aware_tab_action("2", "CTRL", act.ActivateTab(1)),
     },
     {
       key = "3",
       mods = "CTRL",
-      action = act.ActivateTab(2),
+      action = zellij_aware_tab_action("3", "CTRL", act.ActivateTab(2)),
     },
     {
       key = "4",
       mods = "CTRL",
-      action = act.ActivateTab(3),
+      action = zellij_aware_tab_action("4", "CTRL", act.ActivateTab(3)),
     },
     {
       key = "5",
       mods = "CTRL",
-      action = act.ActivateTab(4),
+      action = zellij_aware_tab_action("5", "CTRL", act.ActivateTab(4)),
     },
     {
       key = "6",
       mods = "CTRL",
-      action = act.ActivateTab(5),
+      action = zellij_aware_tab_action("6", "CTRL", act.ActivateTab(5)),
     },
     {
       key = "7",
       mods = "CTRL",
-      action = act.ActivateTab(6),
+      action = zellij_aware_tab_action("7", "CTRL", act.ActivateTab(6)),
     },
     {
       key = "8",
       mods = "CTRL",
-      action = act.ActivateTab(7),
+      action = zellij_aware_tab_action("8", "CTRL", act.ActivateTab(7)),
     },
   }
 end
@@ -361,23 +374,18 @@ end
 
 function M.setup(config)
   local all_keys = {}
-  local zellij_running = os.getenv("ZELLIJ") ~= nil
 
   local key_groups = {
+    get_pane_keys(),
     get_clear_keys(),
     get_pallete_keys(),
     get_scroll_keys(),
     get_window_keys(),
+    get_tab_keys(),
     get_search_keys(),
     get_transparency_keys(),
     get_agent_keys(),
   }
-
-  -- Only add pane and tab keys if zellij is not running
-  if not zellij_running then
-    table.insert(key_groups, 1, get_pane_keys())
-    table.insert(key_groups, get_tab_keys())
-  end
 
   for _, group in ipairs(key_groups) do
     for _, key_binding in ipairs(group) do

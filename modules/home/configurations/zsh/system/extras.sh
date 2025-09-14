@@ -1,7 +1,8 @@
 #!/usr/bin/env zsh
 # shellcheck disable=all
 # Debug logging function
-log_debug() {
+log_debug()
+            {
   [[ -n "$SYSINIT_DEBUG" ]] && echo "[DEBUG] $*" >&2
 }
 
@@ -11,14 +12,16 @@ ZCACHE_EXTRAS_DIR="$ZCACHE_DIR/extras"
 mkdir -p "$ZCACHE_EXTRAS_DIR"
 
 # Cache cleaning function
-function cache.clean() {
+function cache.clean()
+                       {
   echo "Cleaning zsh cache..."
   rm -rf "${XDG_DATA_HOME:-$HOME/.local/share}/zsh"
   mkdir -p "$ZCACHE_DIR" "$ZCACHE_EXTRAS_DIR"
 }
 
 # Check cache freshness (24h expiry)
-_cache_expired() {
+_cache_expired()
+                 {
   local cache="$1"
   local source="$2"
 
@@ -30,13 +33,13 @@ _cache_expired() {
 
   # Check if cache is older than 24h using macOS compatible stat
   local cache_mtime
-  if ! cache_mtime=$(stat -f %m "$cache" 2>/dev/null); then
+  if ! cache_mtime=$(stat -f %m "$cache" 2> /dev/null); then
     [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Failed to get cache mtime" cache="$cache"
     return 0
   fi
 
   local current_time
-  if ! current_time=$(date +%s 2>/dev/null); then
+  if ! current_time=$(date +%s 2> /dev/null); then
     [[ -n "$SYSINIT_DEBUG" ]] && log_debug "Failed to get current time"
     return 0
   fi
@@ -51,7 +54,8 @@ _cache_expired() {
 }
 
 # Source with caching
-_cached_source() {
+_cached_source()
+                 {
   local source="$1"
   local cache="${ZCACHE_EXTRAS_DIR}/${source:t}.zwc"
 

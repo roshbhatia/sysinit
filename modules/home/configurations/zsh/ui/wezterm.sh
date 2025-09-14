@@ -30,15 +30,16 @@ if [[ $- != *i* ]]; then
 fi
 
 case "$TERM" in
-linux | dumb)
-  # Avoid terminals that don't like OSC sequences
-  return 0
-  ;;
+  linux | dumb)
+    # Avoid terminals that don't like OSC sequences
+    return 0
+    ;;
 esac
 
 # This function wraps bash-preexec.sh so that it can be included verbatim
 # in this file, even though it uses `return` to short-circuit in some cases.
-__wezterm_install_bash_prexec() {
+__wezterm_install_bash_prexec()
+                                {
 
   # bash-preexec.sh -- Bash support for ZSH-like 'preexec' and 'precmd' functions.
   # https://github.com/rcaloras/bash-preexec
@@ -117,10 +118,11 @@ __wezterm_install_bash_prexec() {
 
   # Fails if any of the given variables are readonly
   # Reference https://stackoverflow.com/a/4441178
-  __bp_require_not_readonly() {
+  __bp_require_not_readonly()
+                              {
     local var
     for var; do
-      if ! (unset "$var" 2>/dev/null); then
+      if ! (unset "$var" 2> /dev/null); then
         echo "bash-preexec requires write access to ${var}" >&2
         return 1
       fi
@@ -130,7 +132,8 @@ __wezterm_install_bash_prexec() {
   # Remove ignorespace and or replace ignoreboth from HISTCONTROL
   # so we can accurately invoke preexec with a command from our
   # history even if it starts with a space.
-  __bp_adjust_histcontrol() {
+  __bp_adjust_histcontrol()
+                            {
     local histcontrol
     histcontrol="${HISTCONTROL:-}"
     histcontrol="${histcontrol//ignorespace/}"
@@ -154,7 +157,8 @@ __wezterm_install_bash_prexec() {
 
   # Trims leading and trailing whitespace from $2 and writes it to the variable
   # name passed as $1
-  __bp_trim_whitespace() {
+  __bp_trim_whitespace()
+                         {
     local var=${1:?} text=${2:-}
     text="${text#"${text%%[![:space:]]*}"}" # remove leading whitespace characters
     text="${text%"${text##*[![:space:]]}"}" # remove trailing whitespace characters
@@ -164,7 +168,8 @@ __wezterm_install_bash_prexec() {
   # Trims whitespace and removes any leading or trailing semicolons from $2 and
   # writes the resulting string to the variable name passed as $1. Used for
   # manipulating substrings in PROMPT_COMMAND
-  __bp_sanitize_string() {
+  __bp_sanitize_string()
+                         {
     local var=${1:?} text=${2:-} sanitized
     __bp_trim_whitespace sanitized "$text"
     sanitized=${sanitized%;}
@@ -176,13 +181,15 @@ __wezterm_install_bash_prexec() {
   # This function is installed as part of the PROMPT_COMMAND;
   # It sets a variable to indicate that the prompt was just displayed,
   # to allow the DEBUG trap to know that the next command is likely interactive.
-  __bp_interactive_mode() {
+  __bp_interactive_mode()
+                          {
     __bp_preexec_interactive_mode="on"
   }
 
   # This function is installed as part of the PROMPT_COMMAND.
   # It will invoke any functions defined in the precmd_functions array.
-  __bp_precmd_invoke_cmd() {
+  __bp_precmd_invoke_cmd()
+                           {
     # Save the returned value from our last command, and from each process in
     # its pipeline. Note: this MUST be the first thing done in this function.
     # BP_PIPESTATUS may be unused, ignore
@@ -204,7 +211,7 @@ __wezterm_install_bash_prexec() {
 
       # Only execute this function if it actually exists.
       # Test existence of functions with: declare -[Ff]
-      if type -t "$precmd_function" 1>/dev/null; then
+      if type -t "$precmd_function" 1> /dev/null; then
         __bp_set_ret_value "$__bp_last_ret_value" "$__bp_last_argument_prev_command"
         # Quote our function invocation to prevent issues with IFS
         "$precmd_function"
@@ -217,14 +224,16 @@ __wezterm_install_bash_prexec() {
   # Sets a return value in $?. We may want to get access to the $? variable in our
   # precmd functions. This is available for instance in zsh. We can simulate it in bash
   # by setting the value here.
-  __bp_set_ret_value() {
+  __bp_set_ret_value()
+                       {
     return ${1:+"$1"}
   }
 
-  __bp_in_prompt_command() {
+  __bp_in_prompt_command()
+                           {
 
     local prompt_command_array IFS=$'\n;'
-    read -rd '' -a prompt_command_array <<<"${PROMPT_COMMAND[*]:-}"
+    read -rd '' -a prompt_command_array <<< "${PROMPT_COMMAND[*]:-}"
 
     local trimmed_arg
     __bp_trim_whitespace trimmed_arg "${1:-}"
@@ -244,7 +253,8 @@ __wezterm_install_bash_prexec() {
   # interactive prompt display.  Its purpose is to inspect the current
   # environment to attempt to detect if the current command is being invoked
   # interactively, and invoke 'preexec' if so.
-  __bp_preexec_invoke_exec() {
+  __bp_preexec_invoke_exec()
+                             {
 
     # Save the contents of $_ so that it can be restored later on.
     # https://stackoverflow.com/questions/40944532/bash-preserve-in-a-debug-trap#40944702
@@ -308,7 +318,7 @@ __wezterm_install_bash_prexec() {
 
       # Only execute each function if it actually exists.
       # Test existence of function with: declare -[fF]
-      if type -t "$preexec_function" 1>/dev/null; then
+      if type -t "$preexec_function" 1> /dev/null; then
         __bp_set_ret_value "${__bp_last_ret_value:-}"
         # Quote our function invocation to prevent issues with IFS
         "$preexec_function" "$this_command"
@@ -328,7 +338,8 @@ __wezterm_install_bash_prexec() {
     __bp_set_ret_value "$preexec_ret_value" "$__bp_last_argument_prev_command"
   }
 
-  __bp_install() {
+  __bp_install()
+                 {
     # Exit if we already have this installed.
     if [[ "${PROMPT_COMMAND[*]:-}" == *"__bp_precmd_invoke_cmd"* ]]; then
       return 1
@@ -340,7 +351,7 @@ __wezterm_install_bash_prexec() {
     local prior_trap
     # we can't easily do this with variable expansion. Leaving as sed command.
     # shellcheck disable=SC2001
-    prior_trap=$(sed "s/[^']*'\(.*\)'[^']*/\1/" <<<"${__bp_trap_string:-}")
+    prior_trap=$(sed "s/[^']*'\(.*\)'[^']*/\1/" <<< "${__bp_trap_string:-}")
     unset __bp_trap_string
     if [[ -n "$prior_trap" ]]; then
       eval '__bp_original_debug_trap() {
@@ -359,8 +370,8 @@ __wezterm_install_bash_prexec() {
     if [[ -n "${__bp_enable_subshells:-}" ]]; then
 
       # Set so debug trap will work be invoked in subshells.
-      set -o functrace >/dev/null 2>&1
-      shopt -s extdebug >/dev/null 2>&1
+      set -o functrace > /dev/null 2>&1
+      shopt -s extdebug > /dev/null 2>&1
     fi
 
     local existing_prompt_command
@@ -399,7 +410,8 @@ __wezterm_install_bash_prexec() {
   # Sets an installation string as part of our PROMPT_COMMAND to install
   # after our session has started. This allows bash-preexec to be included
   # at any point in our bash profile.
-  __bp_install_after_session_init() {
+  __bp_install_after_session_init()
+                                    {
     # bash-preexec needs to modify these variables in order to work correctly
     # if it can't, just stop the installation
     __bp_require_not_readonly PROMPT_COMMAND HISTCONTROL HISTTIMEFORMAT || return
@@ -430,8 +442,9 @@ fi
 # This function emits an OSC 1337 sequence to set a user var
 # associated with the current terminal pane.
 # It requires the `base64` utility to be available in the path.
-__wezterm_set_user_var() {
-  if hash base64 2>/dev/null; then
+__wezterm_set_user_var()
+                         {
+  if hash base64 2> /dev/null; then
     if [[ -z "${TMUX-}" ]]; then
       printf "\033]1337;SetUserVar=%s=%s\007" "$1" $(echo -n "$2" | base64)
     else
@@ -446,9 +459,10 @@ __wezterm_set_user_var() {
 # of the current working directory.  It prefers to use a helper
 # command provided by wezterm if wezterm is installed, but falls
 # back to a simple printf command otherwise.
-__wezterm_osc7() {
-  if hash wezterm 2>/dev/null; then
-    wezterm set-working-directory 2>/dev/null && return 0
+__wezterm_osc7()
+                 {
+  if hash wezterm 2> /dev/null; then
+    wezterm set-working-directory 2> /dev/null && return 0
     # If the command failed (perhaps the installed wezterm
     # is too old?) then fall back to the simple version below.
   fi
@@ -459,7 +473,8 @@ __wezterm_osc7() {
 # zones, marking up the prompt, the user input and the command
 # output so that the terminal can better reason about the display.
 __wezterm_semantic_precmd_executing=""
-__wezterm_semantic_precmd() {
+__wezterm_semantic_precmd()
+                            {
   local ret="$?"
   if [[ "$__wezterm_semantic_precmd_executing" != "0" ]]; then
     __wezterm_save_ps1="$PS1"
@@ -490,7 +505,8 @@ __wezterm_semantic_precmd() {
   __wezterm_semantic_precmd_executing=0
 }
 
-function __wezterm_semantic_preexec() {
+function __wezterm_semantic_preexec()
+                                      {
   # Restore the original PS1/PS2 if set
   if [ -n "${__wezterm_save_ps1+1}" ]; then
     PS1="$__wezterm_save_ps1"
@@ -502,7 +518,8 @@ function __wezterm_semantic_preexec() {
   __wezterm_semantic_precmd_executing=1
 }
 
-__wezterm_user_vars_precmd() {
+__wezterm_user_vars_precmd()
+                             {
   __wezterm_set_user_var "WEZTERM_PROG" ""
   __wezterm_set_user_var "WEZTERM_USER" "$(id -un)"
 
@@ -518,9 +535,9 @@ __wezterm_user_vars_precmd() {
   if [[ -z "${WEZTERM_HOSTNAME}" ]]; then
     if [[ -r /proc/sys/kernel/hostname ]]; then
       __wezterm_set_user_var "WEZTERM_HOST" "$(cat /proc/sys/kernel/hostname)"
-    elif hash hostname 2>/dev/null; then
+    elif hash hostname 2> /dev/null; then
       __wezterm_set_user_var "WEZTERM_HOST" "$(hostname)"
-    elif hash hostnamectl 2>/dev/null; then
+    elif hash hostnamectl 2> /dev/null; then
       __wezterm_set_user_var "WEZTERM_HOST" "$(hostnamectl hostname)"
     else
       __wezterm_set_user_var "WEZTERM_HOST" "unknown"
@@ -531,7 +548,8 @@ __wezterm_user_vars_precmd() {
 
 }
 
-__wezterm_user_vars_preexec() {
+__wezterm_user_vars_preexec()
+                              {
   # Tell wezterm the full command that is being run
   __wezterm_set_user_var "WEZTERM_PROG" "$1"
 }
@@ -570,23 +588,26 @@ fi
 true
 
 # For vim mode detection
-function set_wezterm_user_vars() {
+function set_wezterm_user_vars()
+                                 {
   printf "\033]1337;SetUserVar=ZVM_MODE=%s\007" "${ZVM_MODE:-n}"
 }
 
 # Hook into zsh-vi-mode if you're using it
 if [[ -n "$ZVM_MODE" ]]; then
-  function zvm_after_select_vi_mode() {
+  function zvm_after_select_vi_mode()
+                                      {
     set_wezterm_user_vars
   }
 fi
 
 # Alternative: hook into zle if not using zsh-vi-mode
-function zle-keymap-select() {
+function zle-keymap-select()
+                             {
   case $KEYMAP in
-  vicmd) ZVM_MODE="n" ;;
-  viins | main) ZVM_MODE="i" ;;
-  visual) ZVM_MODE="v" ;;
+    vicmd) ZVM_MODE="n" ;;
+    viins | main) ZVM_MODE="i" ;;
+    visual) ZVM_MODE="v" ;;
   esac
   set_wezterm_user_vars
 }

@@ -20,7 +20,6 @@ let
     awk-language-server
     awscli2
     bash-language-server
-    bat
     caddy
     carapace
     carapace-bridge
@@ -31,7 +30,6 @@ let
     colima
     copilot-cli
     copilot-language-server
-    coreutils
     crossplane-cli
     deadnix
     delta
@@ -42,16 +40,12 @@ let
     docker-language-server
     duf
     eslint
-    fd
-    findutils
     fish
     fzf
     gettext
     gh
-    git
     git-filter-repo
     glow
-    gnugrep
     gnupg
     go
     go-task
@@ -99,7 +93,6 @@ let
     proselint
     pyright
     python311Full
-    ripgrep
     rustc
     rustup
     sad
@@ -123,7 +116,6 @@ let
     tig
     tlrc
     tmux
-    tree
     typescript
     typescript-language-server
     upbound
@@ -133,7 +125,6 @@ let
     vivid
     vscode-langservers-extracted
     watch
-    wget
     yaml-language-server
     yamllint
     yarn
