@@ -7,11 +7,6 @@ let
     name = "menus";
     src = ../../../home/configurations/sketchybar/helpers/menus;
 
-    buildInputs = with pkgs.darwin.apple_sdk.frameworks; [
-      Carbon
-      SkyLight
-    ];
-
     buildPhase = ''
       make
     '';
