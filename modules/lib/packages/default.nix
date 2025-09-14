@@ -8,7 +8,6 @@
 with lib;
 
 let
-  platform = import ../platform { inherit lib system; };
 
   defaultManagers = {
     cargo = {

@@ -7,7 +7,7 @@
     enable = true;
     enableBashIntegration = true;
     enableZshIntegration = true;
-    enableFishIntegration = false;
+    enableFishIntegration = true;
     enableNushellIntegration = true;
   };
 }

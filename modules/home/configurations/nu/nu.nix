@@ -9,8 +9,6 @@ let
   inherit (utils.themes) mkThemedConfig;
   themeCfg = mkThemedConfig values "nushell" { };
   inherit (themeCfg) themes;
-
-  vividTheme = themes.getAppTheme "vivid" values.theme.colorscheme values.theme.variant;
   nushellTheme = themeCfg.appTheme;
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
   colors = themes.getUnifiedColors palette;
@@ -24,9 +22,6 @@ in
     envFile.source = ./system/env.nu;
 
     extraEnv = ''
-      $env.LS_COLORS = (vivid generate ${vividTheme})
-      $env.EZA_COLORS = $env.LS_COLORS
-
       $env.FZF_DEFAULT_OPTS = "${
         builtins.concatStringsSep " " [
           "--bind=resize:refresh-preview"

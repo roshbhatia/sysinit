@@ -1,23 +1,17 @@
 {
-  lib,
   pkgs,
   values,
   utils,
   ...
 }:
 
-let
-  inherit (utils.themes) mkThemedConfig;
-  themeCfg = mkThemedConfig values "fzf" { };
-in
 {
   programs.fzf = {
     enable = true;
     enableBashIntegration = true;
     enableZshIntegration = true;
-    enableFishIntegration = false;
+    enableFishIntegration = true;
 
-    # defaultCommand is set in modules/home/default.nix to avoid conflicts
     fileWidgetCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --exclude node_modules";
     changeDirWidgetCommand = "${pkgs.fd}/bin/fd --type d --hidden --follow --exclude .git --exclude node_modules";
 

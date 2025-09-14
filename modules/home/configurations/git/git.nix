@@ -10,160 +10,188 @@ let
   themeCfg = mkThemedConfig values "delta" { };
   deltaTheme = themeCfg.appTheme;
 
-  personalEmail = if (cfg.personalEmail != null) then cfg.personalEmail else cfg.userEmail;
-  workEmail = if (cfg.workEmail != null) then cfg.workEmail else cfg.userEmail;
-
-  personalGithubUser =
-    if (cfg.personalGithubUser != null) then cfg.personalGithubUser else cfg.githubUser;
-  workGithubUser = if (cfg.workGithubUser != null) then cfg.workGithubUser else cfg.githubUser;
+  # Simplified API: use defaults if personal/work not specified
+  personalEmail = cfg.personalEmail or cfg.userEmail;
+  workEmail = cfg.workEmail or cfg.userEmail;
+  personalUsername = cfg.personalUsername or cfg.username;
+  workUsername = cfg.workUsername or cfg.username;
 in
 {
   programs.git = {
-    enable = false;
-  };
+    enable = true;
+    userName = cfg.name;
+    userEmail = cfg.userEmail;
 
-  home.file.".gitconfig" = {
-    text = ''
-      [user]
-        name = ${cfg.userName}
-        email = ${cfg.userEmail}
+    aliases = {
+      p = "pull";
+      P = "push";
+      co = "checkout";
+      cob = "checkout -b";
+      br = "branch";
+      st = "status";
+      c = "commit";
+      cai = "!git-ai-commit";
+      ca = "commit --amend";
+      cane = "commit --amend --no-edit";
+      unstage = "reset HEAD --";
+      lg = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit";
+      last = "log -1 HEAD";
+      short-log = "log --pretty=format:\"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]\" --decorate --date=short";
+      current-commit-sha = "rev-parse --short HEAD";
+      current-branch = "rev-parse --abbrev-ref HEAD";
+      branches = "!git --no-pager branch -a";
+      root = "rev-parse --show-toplevel";
+    };
 
-      [credential]
-        helper = store
-        username = ${cfg.githubUser}
+    ignores = [
+      ".DS_Store"
+      "*.swp"
+      "*.swo"
+      "*~"
+      ".direnv/"
+      ".devenv/"
+      ".envrc"
+      "node_modules/"
+      ".env"
+      ".env.local"
+      "*.log"
+    ];
 
-      [github]
-        user = ${cfg.githubUser}
+    extraConfig = {
+      credential = {
+        helper = "store";
+        username = cfg.username;
+      };
 
-      [advice]
-      addEmptyPathspec = false
-      pushNonFastForward = false
-      statusHints = false
+      github = {
+        user = cfg.username;
+      };
 
-      [diff]
-        ignoreSpaceAtEol = true
+      advice = {
+        addEmptyPathspec = false;
+        pushNonFastForward = false;
+        statusHints = false;
+      };
 
-      [pull]
-        rebase = true
+      diff = {
+        ignoreSpaceAtEol = true;
+      };
 
-      [init]
-        defaultBranch = main
+      pull = {
+        rebase = true;
+      };
 
-      [push]
-        autoSetupRemote = true
+      init = {
+        defaultBranch = "main";
+      };
 
-      [fetch]
-        prune = true
+      push = {
+        autoSetupRemote = true;
+      };
 
-      [core]
-        editor = nvim
-        excludesFile = ~/.gitignore.global
-        pager = delta
-        compression = 9
-        preloadIndex = true
-        hooksPath = .githooks
+      fetch = {
+        prune = true;
+      };
 
-      [interactive]
-        diffFilter = delta --color-only
+      core = {
+        editor = "nvim";
+        pager = "delta";
+        compression = 9;
+        preloadIndex = true;
+        hooksPath = ".githooks";
+      };
 
-      [delta]
-        dark = true
-        navigate = true
-        side-by-side = true
-        features = ${deltaTheme}
+      interactive = {
+        diffFilter = "delta --color-only";
+      };
 
-      [merge]
-        conflictstyle = zdiff3
-        tool = diffview
+      delta = {
+        dark = true;
+        navigate = true;
+        side-by-side = true;
+        features = deltaTheme;
+      };
 
-      [mergetool]
-        prompt = false
-        keepBackup = false
+      merge = {
+        conflictstyle = "zdiff3";
+        tool = "diffview";
+      };
 
-      [mergetool "diffview"]
-        cmd = nvim -n -c "DiffviewOpen" "$MERGE"
+      mergetool = {
+        prompt = false;
+        keepBackup = false;
+        "diffview" = {
+          cmd = "nvim -n -c \"DiffviewOpen\" \"$MERGE\"";
+        };
+      };
 
-      [includeIf "gitdir:~/github/work/"]
-        path = ~/.gitconfig.work
+      "http \"https://git.sr.ht\"" = {
+        sslVerify = false;
+      };
 
-      [includeIf "gitdir:~/github/personal/"]
-        path = ~/.gitconfig.personal
+      include = {
+        path = "~/.config/delta/themes/${values.theme.colorscheme}-${values.theme.variant}.gitconfig";
+      };
 
-      [alias]
-        p = pull
-        P = push
-        co = checkout
-        cob = checkout -b
-        br = branch
-        st = status
-        c = commit
-        cai = !git-ai-commit
-        ca = commit --amend
-        cane = commit --amend --no-edit
-        unstage = reset HEAD --
-        lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
-        last = log -1 HEAD
-        short-log = log --pretty=format:"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]" --decorate --date=short
-        current-commit-sha = rev-parse --short HEAD
-        current-branch = rev-parse --abbrev-ref HEAD
-        branches = !git --no-pager branch -a
-        root = rev-parse --show-toplevel
-
-      [http "https://git.sr.ht"]
-        sslVerify = false
-
-      [include]
-        path = ~/.config/delta/themes/${values.theme.colorscheme}-${values.theme.variant}.gitconfig
-
-      [rebase]
-        updateRefs = true
-    '';
-  };
-
-  xdg.configFile =
-    (utils.themes.deployThemeFiles values {
-      themeDir = ./themes;
-      targetPath = "delta/themes";
-      fileExtension = "gitconfig";
-    })
-    // {
-      "lazygit/config.yml" = {
-        source = ./configs/lazygit.yaml;
-        force = true;
+      rebase = {
+        updateRefs = true;
       };
     };
 
-  home.file.".gitconfig.personal" = {
-    text = ''
-      [user]
-        name = ${cfg.userName}
-        email = ${personalEmail}
+    includes = [
+      {
+        condition = "gitdir:~/github/work/";
+        contents = {
+          user = {
+            name = cfg.name;
+            email = workEmail;
+          };
+          credential = {
+            helper = "store";
+            username = workUsername;
+          };
+          github = {
+            user = workUsername;
+          };
+        };
+      }
+      {
+        condition = "gitdir:~/github/personal/";
+        contents = {
+          user = {
+            name = cfg.name;
+            email = personalEmail;
+          };
+          credential = {
+            helper = "store";
+            username = personalUsername;
+          };
+          github = {
+            user = personalUsername;
+          };
+        };
+      }
+    ];
 
-      [credential]
-        helper = store
-        username = ${personalGithubUser}
-
-      [github]
-        user = ${personalGithubUser}
-    '';
+    delta = {
+      enable = true;
+      options = {
+        dark = true;
+        navigate = true;
+        side-by-side = true;
+        features = deltaTheme;
+      };
+    };
   };
 
-  home.file.".gitconfig.work" = {
-    text = ''
-      [user]
-        name = ${cfg.userName}
-        email = ${workEmail}
-
-      [credential]
-        helper = store
-        username = ${workGithubUser}
-
-      [github]
-        user = ${workGithubUser}
-    '';
-  };
-
-  home.file.".gitignore.global" = {
-    source = ./configs/gitignore.global;
+  xdg.configFile = utils.themes.deployThemeFiles values {
+    themeDir = ./themes;
+    targetPath = "delta/themes";
+    fileExtension = "gitconfig";
+  } // {
+    "lazygit/config.yml" = {
+      source = ./configs/lazygit.yaml;
+      force = true;
+    };
   };
 }

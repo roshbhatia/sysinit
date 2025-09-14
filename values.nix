@@ -5,10 +5,9 @@
   };
 
   git = {
-    userName = "Roshan Bhatia";
+    name = "Roshan Bhatia";
     userEmail = "rshnbhatia@gmail.com";
     githubUser = "roshbhatia";
-    credentialUsername = "roshbhatia";
   };
 
   darwin = {
