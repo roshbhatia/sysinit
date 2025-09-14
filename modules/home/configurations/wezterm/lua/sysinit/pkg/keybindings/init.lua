@@ -21,18 +21,8 @@ local function get_window_keys()
       action = act.SpawnWindow,
     },
     {
-      key = "CMD",
-      mods = "SHIFT",
-      action = act.SpawnWindow,
-    },
-    {
       key = "n",
-      mods = "CMD",
-      action = act.SpawnWindow,
-    },
-    {
-      key = "n",
-      mods = "CTRL|SHIFT",
+      mods = "SUPER",
       action = act.SpawnWindow,
     },
   }
