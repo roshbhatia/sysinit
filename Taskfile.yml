@@ -201,3 +201,17 @@ tasks:
     desc: Format all supported file types
     deps: [nix:fmt, lua:fmt, sh:fmt]
     silent: true
+
+  docs:values:
+    desc: Generate and inject values.nix schema documentation into README.md
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        source {{.LOGGER_SCRIPT}}
+        log_info "Generating values.nix schema documentation"
+        if ! ./scripts/generate-values-docs.sh README.md; then
+          log_error "Failed to generate values documentation"
+          exit {{.ERROR_EXIT_CODE}}
+        fi
+        log_success "Values documentation injected into README.md"
+    silent: true

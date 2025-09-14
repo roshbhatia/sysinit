@@ -11,7 +11,7 @@ let
     "hererocks"
     "https://github.com/github/spec-kit.git"
   ]
-  ++ values.uvx.additionalPackages;
+  ++ (values.uvx.additionalPackages or [ ]);
 in
 {
   home.activation.uvxPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
