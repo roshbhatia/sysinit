@@ -7,9 +7,16 @@
     ./atuin
     ./bat
     ./btop
+    ./carapace
     ./colima
+    ./dircolors
     ./direnv
+    ./editorconfig
+    ./eza
+    ./fd
     ./firefox
+    ./fontconfig
+    ./fzf
     ./git
     ./hammerspoon
     ./helix
@@ -21,6 +28,7 @@
     ./nix
     ./nu
     ./omp
+    ./onepassword
     ./sketchybar
     ./utils
     ./vivid

@@ -1,0 +1,8 @@
+{
+  ...
+}:
+{
+  imports = [
+    ./onepassword.nix
+  ];
+}

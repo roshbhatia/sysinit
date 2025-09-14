@@ -73,10 +73,6 @@ in
       tf = "terraform";
       y = "yazi";
 
-      l = "ls";
-      la = "ls -a";
-      ll = "ls -la";
-      lt = "eza --icons=always -1 -a -T --git-ignore --ignore-glob='.git'";
 
       cat = "bat -pp";
       diff = "diff --color";
