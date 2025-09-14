@@ -15,9 +15,9 @@ if (should_run_zellij) and (which zellij | is-not-empty) {
     # Check if this is an interactive session and the first level shell
     if ($env.SHLVL? | default 1) == 1 {
         if ($env.ZELLIJ_AUTO_ATTACH? | default "false") == "true" {
-            exec zellij attach -c
+            exec zellij --config ~/.config/zellij/config.kdl attach -c
         } else {
-            exec zellij
+            exec zellij --config ~/.config/zellij/config.kdl
         }
     }
 }

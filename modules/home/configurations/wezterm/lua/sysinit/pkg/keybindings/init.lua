@@ -44,43 +44,6 @@ local function pane_keybinding(action_type, key, mods)
   end)
 end
 
-local function get_clear_keys()
-  return {
-    {
-      key = "k",
-      mods = "CMD",
-      action = wezterm.action_callback(function(win, pane)
-        if is_vim(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "k",
-              mods = "CMD",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ClearScrollback("ScrollbackAndViewport"), pane)
-        end
-      end),
-    },
-    {
-      key = "k",
-      mods = "CTRL",
-      action = wezterm.action_callback(function(win, pane)
-        if is_vim(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "k",
-              mods = "CTRL",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ClearScrollback("ScrollbackAndViewport"), pane)
-        end
-      end),
-    },
-  }
-end
-
 local function get_pallete_keys()
   return {
     {
@@ -102,11 +65,6 @@ local function get_window_keys()
       key = "r",
       mods = "CMD",
       action = act.ReloadConfiguration,
-    },
-    {
-      key = "w",
-      mods = "CTRL|SHIFT",
-      action = act.CloseCurrentTab({ confirm = true }),
     },
   }
 end
@@ -146,30 +104,13 @@ local function get_transparency_keys()
   }
 end
 
-local function get_agent_keys()
-  return {
-    {
-      key = "i",
-      mods = "CMD",
-      action = wezterm.action({ SendString = "\x1b\r" }),
-    },
-    {
-      key = "i",
-      mods = "CTRL",
-      action = wezterm.action({ SendString = "\x1b\r" }),
-    },
-  }
-end
-
 function M.setup(config)
   local all_keys = {}
 
   local key_groups = {
-    get_clear_keys(),
     get_pallete_keys(),
     get_window_keys(),
     get_transparency_keys(),
-    get_agent_keys(),
   }
 
   for _, group in ipairs(key_groups) do
