@@ -111,6 +111,8 @@ let
         }
         vim-zellij-navigator {
             location "${vimZellijNavigatorUrl}"
+            move_mod "ctrl"
+            resize_mod "ctrl+shift"
         }
     }
 
@@ -128,28 +130,24 @@ let
                 MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "move_focus";
                     payload "left";
-                    move_mod "ctrl";
                 };
             }
             bind "Ctrl j" {
                 MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "move_focus";
                     payload "down";
-                    move_mod "ctrl";
                 };
             }
             bind "Ctrl k" {
                 MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "move_focus";
                     payload "up";
-                    move_mod "ctrl";
                 };
             }
             bind "Ctrl l" {
                 MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "move_focus";
                     payload "right";
-                    move_mod "ctrl";
                 };
             }
 
@@ -157,28 +155,24 @@ let
                 MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "resize";
                     payload "left";
-                    resize_mod "ctrl+shift";
                 };
             }
             bind "Ctrl Shift j" {
                 MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "resize";
                     payload "down";
-                    resize_mod "ctrl+shift";
                 };
             }
             bind "Ctrl Shift k" {
                 MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "resize";
                     payload "up";
-                    resize_mod "ctrl+shift";
                 };
             }
             bind "Ctrl Shift l" {
                 MessagePlugin "${vimZellijNavigatorUrl}" {
                     name "resize";
                     payload "right";
-                    resize_mod "ctrl+shift";
                 };
             }
 
@@ -206,51 +200,21 @@ let
             bind "Super Shift Left" { GoToPreviousTab; }
             bind "Super Shift Right" { GoToNextTab; }
 
-            bind "Ctrl u" {
-                MessagePlugin "${vimZellijNavigatorUrl}" {
-                    name "send_keys";
-                    payload "ctrl+u";
-                    move_mod "ctrl";
-                };
-            }
-            bind "Ctrl d" {
-                MessagePlugin "${vimZellijNavigatorUrl}" {
-                    name "send_keys";
-                    payload "ctrl+d";
-                    move_mod "ctrl";
-                };
-            }
-            bind "Ctrl Shift u" {
-                MessagePlugin "${vimZellijNavigatorUrl}" {
-                    name "send_keys";
-                    payload "ctrl+shift+u";
-                    move_mod "ctrl+shift";
-                };
-            }
-            bind "Ctrl Shift d" {
-                MessagePlugin "${vimZellijNavigatorUrl}" {
-                    name "send_keys";
-                    payload "ctrl+shift+d";
-                    move_mod "ctrl+shift";
-                };
-            }
-            bind "Ctrl w" {
-                MessagePlugin "${vimZellijNavigatorUrl}" {
-                    name "send_keys";
-                    payload "ctrl+w";
-                    move_mod "ctrl";
-                };
-            }
+            bind "Ctrl u" { WriteChars "\u{0015}"; }
+            bind "Ctrl d" { WriteChars "\u{0004}"; }
+            bind "Ctrl Shift u" { WriteChars "\u{001b}[21;6u"; }
+            bind "Ctrl Shift d" { WriteChars "\u{001b}[4;6u"; }
+            bind "Ctrl w" { WriteChars "\u{0017}"; }
 
             bind "Ctrl \\" { TogglePaneFrames; ToggleActiveSyncTab; }
             bind "Ctrl Enter" { ToggleFloatingPanes; }
-            bind "Ctrl f" { ToggleFocusFullscreen; }
+            bind "Ctrl f" { WriteChars "\u{0006}"; }
             bind "Ctrl z" { TogglePaneFrames; }
             bind "Ctrl q" { Quit; }
             bind "Ctrl D" { Detach; }
+            bind "Alt f" { ToggleFocusFullscreen; }
 
             bind "Super k" { Clear; }
-            bind "Ctrl l" { Clear; }
 
             // Plugin Launch
             bind "Ctrl y" {
