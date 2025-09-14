@@ -3,6 +3,6 @@
   imports = [
     ./configurations
     ./packages
-    ../lib/validation-module.nix
+    ../lib/nixos-modules/validation.nix
   ];
 }
