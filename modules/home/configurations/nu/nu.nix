@@ -73,7 +73,6 @@ in
       tf = "terraform";
       y = "yazi";
 
-
       cat = "bat -pp";
       diff = "diff --color";
       grep = "grep -s --color=auto";

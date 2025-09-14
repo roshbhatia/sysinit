@@ -15,7 +15,6 @@
     ./eza
     ./fd
     ./firefox
-    ./fontconfig
     ./fzf
     ./git
     ./hammerspoon
