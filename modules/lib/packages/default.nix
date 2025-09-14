@@ -99,45 +99,15 @@ let
     };
   };
 
-  platformPackages =
-    if platform.isDarwin then
-      {
-        windowManager = [ "aerospace" ];
-        terminalEmulator = [ "wezterm" ];
-        browser = [ "firefox" ];
-        systemTools = [
-          "borders"
-        ];
-      }
-    else
-      {
-        windowManager = with pkgs; [
-          sway
-        ];
-        terminalEmulator = with pkgs; [
-          wezterm
-        ];
-        browser = with pkgs; [
-          firefox
-        ];
-        systemTools = with pkgs; [
-          xorg.xwininfo
-          wmctrl
-        ];
-      };
 in
 {
-  inherit defaultManagers platformPackages;
+  inherit defaultManagers;
 
   mkPackageManagerScript =
     config: manager: packages:
     let
       managers = config.packages.managers or defaultManagers;
-      _ =
-        assert builtins.isAttrs managers;
-        "config.packages.managers must be an attribute set";
       m = managers.${manager} or null;
-      filteredPackages = builtins.filter (x: builtins.isString x) packages;
     in
     if m == null then
       ''
