@@ -20,7 +20,7 @@ with lib;
       };
 
       git = {
-        userName = mkOption {
+        name = mkOption {
           type = types.str;
           description = "Git user name";
         };
@@ -30,14 +30,9 @@ with lib;
           description = "Git user email";
         };
 
-        githubUser = mkOption {
+        username = mkOption {
           type = types.str;
-          description = "GitHub username";
-        };
-
-        credentialUsername = mkOption {
-          type = types.str;
-          description = "Git credential username";
+          description = "Git/GitHub username";
         };
 
         personalEmail = mkOption {
@@ -52,16 +47,16 @@ with lib;
           description = "Work email override";
         };
 
-        personalGithubUser = mkOption {
+        personalUsername = mkOption {
           type = types.nullOr types.str;
           default = null;
-          description = "Personal GitHub username override";
+          description = "Personal username override";
         };
 
-        workGithubUser = mkOption {
+        workUsername = mkOption {
           type = types.nullOr types.str;
           default = null;
-          description = "Work GitHub username override";
+          description = "Work username override";
         };
       };
 
