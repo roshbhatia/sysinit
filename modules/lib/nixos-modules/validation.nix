@@ -1,11 +1,8 @@
 {
   lib,
-  config,
   values,
   ...
 }:
-
-with lib;
 
 let
   validation = import ../validation { inherit lib; };
