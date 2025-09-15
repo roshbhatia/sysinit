@@ -78,7 +78,15 @@ let
         export PATH="${pkgs.gh}/bin:/usr/bin:$PATH"
         export GH_FORCE_TTY=false
       '';
-      installCmd = ''"$MANAGER_CMD" extension install $pkg || echo "Warning: Failed to install $pkg"'';
+      installCmd = ''
+        output=$("$MANAGER_CMD" extension install $pkg 2>&1)
+        exit_code=$?
+        if [[ $exit_code -eq 1 && "$output" == *"there is already an installed extension that provides"* ]]; then
+          echo "Extension already installed: $pkg"
+        elif [[ $exit_code -ne 0 ]]; then
+          echo "Warning: Failed to install $pkg"
+        fi
+      '';
     };
     kubectl = {
       bin = "${pkgs.kubectl}/bin/kubectl";

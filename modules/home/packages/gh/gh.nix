@@ -9,6 +9,7 @@
 let
   ghPackages = [
     "https://github.com/github/gh-copilot"
+    "https://github.com/dlvhdr/gh-dash"
   ]
   ++ (values.gh.additionalPackages or [ ]);
 in
