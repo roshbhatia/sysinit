@@ -15,7 +15,6 @@ M.plugins = {
       "nvim-tree/nvim-web-devicons",
       "zbirenbaum/copilot.lua",
     },
-    build = "AvanteBuild",
     config = function()
       local avante = require("avante")
 
