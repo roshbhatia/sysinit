@@ -9,9 +9,9 @@
     userEmail = "rshnbhatia@gmail.com";
     username = "roshbhatia";
     workEmail = "roshan.bhatia@nike.com";
-    workGithubUser = "rbha18_nike";
+    workUsername = "rbha18_nike";
     personalEmail = "rshnbhatia@gmail.com";
-    personalGithubUser = "roshbhatia";
+    personalUsername = "roshbhatia";
   };
 
   darwin = {

@@ -7,18 +7,18 @@
 }:
 
 let
-  claudeEnabled = values.llm.claude.enabled or false;
+  claudeEnabled = values.llm.claude.enabled;
 
   claudeYarnPackages = [
     "@anthropic-ai/claude-code"
     "@owloops/claude-powerline"
   ]
-  ++ (values.llm.claude.yarnPackages or [ ]);
+  ++ values.llm.claude.yarnPackages;
 
   claudeUvPackages = [
     "SuperClaude"
   ]
-  ++ (values.llm.claude.uvPackages or [ ]);
+  ++ values.llm.claude.uvPackages;
 in
 lib.mkIf claudeEnabled {
   home.activation.claudeYarnPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (

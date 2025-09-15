@@ -11,7 +11,7 @@ let
     "https://github.com/github/gh-copilot"
     "https://github.com/dlvhdr/gh-dash"
   ]
-  ++ (values.gh.additionalPackages or [ ]);
+  ++ values.gh.additionalPackages;
 in
 {
   home.activation.ghPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (

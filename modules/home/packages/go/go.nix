@@ -24,7 +24,7 @@ let
     "github.com/twpayne/go-jsonstruct/v3/cmd/gojsonstruct@latest"
     "mvdan.cc/gofumpt@latest"
   ]
-  ++ (values.go.additionalPackages or [ ]);
+  ++ values.go.additionalPackages;
 in
 {
   home.activation.goPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (

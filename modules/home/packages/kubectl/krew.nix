@@ -10,7 +10,7 @@ let
   krewPackages = [
     "ctx"
   ]
-  ++ (values.krew.additionalPackages or [ ]);
+  ++ values.krew.additionalPackages;
 in
 {
   home.activation.krewPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (

@@ -12,8 +12,8 @@ let
 
   personalEmail = cfg.personalEmail or cfg.userEmail;
   workEmail = cfg.workEmail or cfg.userEmail;
-  personalGithubUser = cfg.personalGithubUser or cfg.username;
-  workGithubUser = cfg.workGithubUser or cfg.username;
+  personalGithubUser = cfg.personalUsername or cfg.username;
+  workGithubUser = cfg.workUsername or cfg.username;
 in
 {
   programs.git = {

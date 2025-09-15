@@ -4,9 +4,9 @@
 }:
 
 let
-  additionalTaps = (values.darwin.homebrew.additionalPackages.taps or [ ]);
-  additionalBrews = (values.darwin.homebrew.additionalPackages.brews or [ ]);
-  additionalCasks = (values.darwin.homebrew.additionalPackages.casks or [ ]);
+  additionalTaps = values.darwin.homebrew.additionalPackages.taps;
+  additionalBrews = values.darwin.homebrew.additionalPackages.brews;
+  additionalCasks = values.darwin.homebrew.additionalPackages.casks;
 
   baseTaps = [
     "charmbracelet/tap"

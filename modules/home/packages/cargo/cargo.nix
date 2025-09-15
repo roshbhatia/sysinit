@@ -7,7 +7,7 @@
 }:
 
 let
-  cargoPackages = [ ] ++ (values.cargo.additionalPackages or [ ]);
+  cargoPackages = [ ] ++ values.cargo.additionalPackages;
 in
 {
   home.activation = {

@@ -313,14 +313,6 @@ with lib;
           default = { };
           description = "Additional Firefox search engines";
         };
-
-        theme = {
-          stretchedTabs = mkOption {
-            type = types.bool;
-            default = false;
-            description = "Enable Safari-like stretched tabs";
-          };
-        };
       };
     };
   };

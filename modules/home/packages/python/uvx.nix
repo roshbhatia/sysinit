@@ -12,7 +12,7 @@ let
     "https://github.com/github/spec-kit.git"
     "vectorcode"
   ]
-  ++ (values.uvx.additionalPackages or [ ]);
+  ++ values.uvx.additionalPackages;
 in
 {
   home.activation.uvxPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (

@@ -194,7 +194,7 @@ in
               definedAliases = [ "@no" ];
             };
           }
-          // (values.firefox.searchEngines or { });
+          // values.firefox.searchEngines;
         };
       };
     };

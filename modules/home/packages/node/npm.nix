@@ -7,7 +7,7 @@
 }:
 
 let
-  npmPackages = [ ] ++ (values.npm.additionalPackages or [ ]);
+  npmPackages = [ ] ++ values.npm.additionalPackages;
 in
 {
   home.file.".npmrc" = {
