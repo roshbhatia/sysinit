@@ -133,8 +133,9 @@ M.plugins = {
           command = "npx",
           args = { "@anthropic/claude-code" },
           env = {
-            NODE_NO_WARNINGS = "1",
             CLAUDE_CODE_OAUTH_TOKEN = config.get_claude_code_token(),
+            ACP_PATH_TO_CLAUDE_CODE_EXECUTABLE = vim.fn.exepath("claude"),
+            ACP_PERMISSION_MODE = "bypassPermissions",
           },
         }
       elseif provider == "goose" then
