@@ -18,7 +18,6 @@ rec {
         else
           throw "Missing transparency configuration in firefox config";
 
-      # Generate semantic CSS variables
       semanticCSSVariables = ''
         /* Semantic theme colors for Firefox */
         :root {
@@ -64,7 +63,225 @@ rec {
         }
       '';
 
-      # Base userContent.css with semantic colors
+      baseChromeCSS = ''
+        /* --------------------------------------------------------------------------------
+        Translucent Firefox Theme with Semantic Colors
+        Based on Fluidfox, Firefox-Mod-Blur, Atom-for-Firefox, and Brave-Fox
+        --------------------------------------------------------------------------------- */
+
+        /* Tab Shadows */
+        .tabbrowser-tab:is([visuallyselected="true"],
+        [multiselected]) > .tab-stack > .tab-background {
+            box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0) !important;
+        }
+
+        /* Focused Address/URL Field */
+        #urlbar-background {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        /*--------- Translucency after FF 121 -----------*/
+
+        :root #TabsToolbar,
+        :root #titlebar,
+        :root #tabbrowser-tabs,
+        :root #PersonalToolbar,
+        :root #nav-bar,
+        :root #browser,
+        :root #navigator-toolbox {
+            -moz-default-appearance: menupopup !important;
+            appearance: auto !important;
+            background-color: transparent !important;
+        }
+
+        /*--------- Borders -----------*/
+
+        /* Themed border and rounded corners for browser content */
+        #appcontent {
+            margin-top: 1px !important;
+            margin-inline: 2px !important; /* sides */
+            margin-block-end: 2px !important; /* bottom */
+            border-radius: 12px !important;
+            border: 1px solid var(--accent-dim) !important;
+            overflow: hidden !important;
+            box-shadow: 0 0 0px 1px var(--accent-secondary) !important;
+        }
+
+        .tabbrowser-tab::after {
+            border: 0 !important;
+        }
+        .titlebar-spacer[type="pre-tabs"] {
+            border: 0 !important;
+        }
+        #navigator-toolbox {
+            border: 1 !important;
+        }
+
+        .titlebar-spacer[type="pre-tabs"] {
+            border: 0 !important;
+        }
+
+        .tabbrowser-tab::after {
+            border: 0 !important;
+        }
+
+        #urlbar-background {
+            border: 1px solid var(--accent-dim) !important;
+        }
+
+        #urlbar[open] > .urlbarView > .urlbarView-body-outer > .urlbarView-body-inner {
+            border-top: 0 !important;
+        }
+
+        /* Add Transparency */
+        :root#main-window {
+            background-color: transparent !important;
+        }
+
+        :root:not(:-moz-window-inactive) #navigator-toolbox {
+            background-color: transparent !important;
+        }
+
+        /*--------- Active tab -----------*/
+
+        .tab-background[selected],
+        .tab-background[multiselected="true"] {
+            background: var(--bg-overlay) !important;
+            border: 1px solid var(--accent-secondary) !important;
+            border-radius: 8px !important;
+        }
+
+        /*--------- Inactive Address/Search Field Background -----------*/
+
+        #urlbar-background {
+            background-color: var(--bg-overlay) !important;
+            border-radius: 8px !important;
+            backdrop-filter: blur(var(--blur-amount)) !important;
+        }
+
+        /*--------- Active Address/Search Field Dropdown -----------*/
+
+        #urlbar[breakout][breakout-extend] > #urlbar-background {
+            background: var(--bg-secondary) !important;
+            border: 1px solid var(--accent-primary) !important;
+        }
+
+        /*-------------- URL bar -----------------*/
+
+        /* Centre URL bar text input */
+        #urlbar-input {
+            height: 100%;
+            text-align: center !important;
+            color: var(--text-primary) !important;
+        }
+
+        /* Unless text input is selected like Safari */
+        #urlbar[focused] #urlbar-input {
+            position: absolute;
+            transform: translateX(0);
+            transition: all 0.2s ease;
+            width: 100%;
+            text-align: left !important;
+        }
+
+        #urlbar {
+            max-width: 70% !important;
+            margin: 0 15% !important;
+        }
+
+        /*--------- Navigation Bar Separator -----------*/
+
+        #navigator-toolbox {
+            border-color: var(--accent-dim) !important;
+        }
+
+        /*--------- Navigation bar Buttons -----------*/
+        :root, toolbar {
+            --toolbarbutton-hover-background: var(--accent-dim) !important;
+        }
+
+        /* Show Tab close button on hover */
+
+        .tabbrowser-tab:not([pinned]) .tab-close-button {
+            display: -moz-box !important;
+            opacity: 0;
+            visibility: collapse !important;
+            transition: opacity 0.25s, visibility 0.25s ease-in !important;
+        }
+        .tabbrowser-tab:not([pinned]):hover .tab-close-button {
+            opacity: 1;
+            visibility: visible !important;
+            border-radius: 3px 3px 3px 3px !important;
+        }
+
+        /*--------- Brave Icons -----------*/
+
+        /* Change Reload Button */
+        #reload-button {
+            list-style-image: url("./brave-icons/Reload.svg") !important;
+        }
+
+        /* Change Back Button */
+        #back-button {
+            list-style-image: url("./brave-icons/BackButton.svg") !important;
+        }
+
+        /* Change Forward Button */
+        #forward-button {
+            list-style-image: url("./brave-icons/ForwardButton.svg") !important;
+        }
+
+        /* Change Bookmark Icon */
+        #star-button {
+            list-style-image: url("./brave-icons/Bookmark.svg") !important;
+        }
+        #star-button[starred] {
+            list-style-image: url("./brave-icons/BookmarkFilled.svg") !important;
+        }
+
+        /* Change Search Button */
+        #urlbar[pageproxystate="invalid"] #identity-icon,
+        .searchbar-search-icon,
+        #PopupAutoCompleteRichResult .ac-type-icon[type="keyword"],
+        #PopupAutoCompleteRichResult .ac-site-icon[type="searchengine"],
+        #appMenu-find-button,
+        #panelMenu_searchBookmarks {
+            list-style-image: url("./brave-icons/Search.svg") !important;
+        }
+
+        /* Change Close Button */
+        .tab-close-button {
+            list-style-image: url("./brave-icons/CloseTab.svg") !important;
+            width: 16px !important;
+            height: 16px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /*--------- Tab Overflow -----------*/
+        .tabbrowser-tab {
+            min-width: 0px !important;
+        }
+        .tab-content {
+            overflow: hidden !important;
+        }
+
+        /* Tab text color */
+        .tab-label {
+            color: var(--text-primary) !important;
+        }
+
+        .tab-background[selected] .tab-label {
+            color: var(--text-primary) !important;
+        }
+
+        /* Toolbar button colors */
+        .toolbarbutton-1 {
+            fill: var(--text-primary) !important;
+        }
+      '';
+
       baseUserContentCSS = ''
         /* Semantic theme-aware userContent.css */
         @-moz-document url-prefix(about:home), url-prefix(about:newtab) {
@@ -150,7 +367,7 @@ rec {
 
       baseConfig = {
         userContentCSS = semanticCSSVariables + baseUserContentCSS;
-        userChromeCSS = semanticCSSVariables;
+        userChromeCSS = semanticCSSVariables + baseChromeCSS;
         semanticColors = semanticColors;
         transparency = transparency;
       };
@@ -163,7 +380,6 @@ rec {
     let
       palette = themeData.palettes.${config.variant};
       semanticColors = utils.createSemanticMapping palette;
-      firefoxConfig = (createFirefoxConfig themeData config { });
     in
     {
       colorscheme = themeData.meta.id;

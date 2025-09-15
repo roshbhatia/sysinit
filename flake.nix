@@ -56,7 +56,6 @@
 
       userValues = import ./values.nix;
 
-      # Process values through the module system to apply defaults
       processedValues =
         (lib.evalModules {
           modules = [

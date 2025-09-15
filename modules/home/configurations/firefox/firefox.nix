@@ -6,17 +6,12 @@
 }:
 
 let
-  # Create a minimal Firefox package that points to the macOS app
-
-  # Import theme system
   themeSystem = import ../../../lib/theme { inherit lib; };
 
-  # Create theme config from values
   themeConfig = {
     colorscheme = values.theme.colorscheme or "catppuccin";
     variant = values.theme.variant or "macchiato";
-    presets = [ ]; # Firefox doesn't use transparency presets
-    # Add default transparency config for theme generation
+    presets = [ ];
     transparency = {
       enable = false;
       opacity = 1.0;
@@ -24,18 +19,15 @@ let
     };
   };
 
-  # Generate Firefox theme using theme system
   firefoxTheme = themeSystem.createAppConfig "firefox" themeConfig {
     stretchedTabs = values.firefox.theme.stretchedTabs or false;
   };
 
-  # Generate userChrome.css with semantic theming and optional stretched tabs
   userChromeCSS =
     let
       stretchedTabsCSS =
         if (values.firefox.theme.stretchedTabs or false) then
           ''
-
             /* Stretched tabs configuration */
             #urlbar-background {
                 border: none !important;
@@ -51,11 +43,9 @@ let
     in
     pkgs.writeText "userChrome.css" (firefoxTheme.userChromeCSS + stretchedTabsCSS);
 
-  # Use userContent.css from theme system
   userContentCSS = pkgs.writeText "userContent.css" firefoxTheme.userContentCSS;
 in
 {
-  # Place chrome theme files in Firefox profile directory
   xdg.configFile = {
     "firefox/default/chrome/userChrome.css" = {
       source = userChromeCSS;
@@ -115,7 +105,7 @@ in
 
   programs.firefox = {
     enable = true;
-    package = null; # Use macOS Firefox.app directly, no Nix package
+    package = null;
 
     profiles = {
       default = {
@@ -123,6 +113,9 @@ in
         isDefault = true;
         extensions = with pkgs.firefox-addons; [
           ublock-origin
+          onepassword-password-manager
+          reddit-enhancement-suite
+          old-reddit-redirect
           multi-account-containers
           tridactyl
         ];
@@ -136,10 +129,8 @@ in
           "browser.newtabpage.activity-stream.feeds.topsites" = false;
           "browser.newtabpage.activity-stream.feeds.section.topstories" = false;
 
-          # Enable custom CSS
           "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
 
-          # GlassFox theme optimizations
           "layout.css.backdrop-filter.enabled" = true;
           "gfx.webrender.all" = true;
           "svg.context-properties.content.enabled" = true;
