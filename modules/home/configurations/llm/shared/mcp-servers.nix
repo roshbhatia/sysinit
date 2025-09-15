@@ -21,5 +21,12 @@
         "@upstash/context7-mcp@latest"
       ];
     };
+    neovim = {
+      command = "npx";
+      args = [
+        "-y"
+        "mcp-neovim-server"
+      ];
+    };
   };
 }
