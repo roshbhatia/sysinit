@@ -41,7 +41,7 @@ in
     enable = true;
   };
 
-  launchd.daemons.sketchybar-monitor-reload = {
+  launchd.user.agents.sketchybar-monitor-reload = {
     serviceConfig = {
       ProgramArguments = [ "${monitor-reload-script}" ];
       RunAtLoad = true;
