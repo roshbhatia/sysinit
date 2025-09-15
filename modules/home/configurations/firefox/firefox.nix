@@ -7,32 +7,6 @@
 
 let
   # Create a minimal Firefox package that points to the macOS app
-  firefoxWrapper = pkgs.stdenv.mkDerivation rec {
-    pname = "firefox";
-    version = "homebrew";
-
-    src = pkgs.writeScript "firefox" ''
-      #!/bin/sh
-      exec /Applications/Firefox.app/Contents/MacOS/firefox "$@"
-    '';
-
-    dontUnpack = true;
-    dontBuild = true;
-
-    installPhase = ''
-      mkdir -p $out/bin
-      cp $src $out/bin/firefox
-      chmod +x $out/bin/firefox
-    '';
-
-    # Add override function to satisfy Home Manager's requirements
-    override = _: firefoxWrapper;
-
-    meta = {
-      description = "Firefox browser (macOS Application)";
-      platforms = lib.platforms.darwin;
-    };
-  };
 
   # Import theme system
   themeSystem = import ../../../lib/theme { inherit lib; };
@@ -42,6 +16,12 @@ let
     colorscheme = values.theme.colorscheme or "catppuccin";
     variant = values.theme.variant or "macchiato";
     presets = [ ]; # Firefox doesn't use transparency presets
+    # Add default transparency config for theme generation
+    transparency = {
+      enable = false;
+      opacity = 1.0;
+      blur = 0;
+    };
   };
 
   # Generate Firefox theme using theme system
@@ -52,10 +32,10 @@ let
   # Generate userChrome.css with semantic theming and optional stretched tabs
   userChromeCSS =
     let
-      baseCSS = builtins.readFile ./chrome-theme/userChrome.css;
       stretchedTabsCSS =
         if (values.firefox.theme.stretchedTabs or false) then
           ''
+
             /* Stretched tabs configuration */
             #urlbar-background {
                 border: none !important;
@@ -69,7 +49,7 @@ let
         else
           "";
     in
-    pkgs.writeText "userChrome.css" (firefoxTheme.userChromeCSS + baseCSS + stretchedTabsCSS);
+    pkgs.writeText "userChrome.css" (firefoxTheme.userChromeCSS + stretchedTabsCSS);
 
   # Use userContent.css from theme system
   userContentCSS = pkgs.writeText "userContent.css" firefoxTheme.userContentCSS;
@@ -135,7 +115,7 @@ in
 
   programs.firefox = {
     enable = true;
-    package = firefoxWrapper;
+    package = null; # Use macOS Firefox.app directly, no Nix package
 
     profiles = {
       default = {
