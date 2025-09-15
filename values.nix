@@ -1,6 +1,6 @@
 {
   user = {
-    username = "rbha18";
+    username = "roshbhatia";
     hostname = "lv426";
   };
 
@@ -8,10 +8,6 @@
     name = "Roshan Bhatia";
     userEmail = "rshnbhatia@gmail.com";
     username = "roshbhatia";
-    workEmail = "roshan.bhatia@nike.com";
-    workUsername = "rbha18_nike";
-    personalEmail = "rshnbhatia@gmail.com";
-    personalUsername = "roshbhatia";
   };
 
   darwin = {

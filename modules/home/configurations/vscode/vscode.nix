@@ -513,13 +513,6 @@
         "workbench.panel.defaultLocation" = "right";
         "workbench.startupEditor" = "none";
         "workbench.statusBar.visible" = true;
-
-        "yaml.schemas" = {
-          "/Users/rbha18/.vscode-insiders/extensions/continue.continue-1.1.65-darwin-arm64/config-yaml-schema.json" =
-            [
-              ".continue/**/*.yaml"
-            ];
-        };
       };
 
       keybindings = [ ];
