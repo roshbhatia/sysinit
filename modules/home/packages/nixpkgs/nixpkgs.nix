@@ -118,7 +118,6 @@ let
     upbound
     uv
     vale-ls
-    vectorcode
     vivid
     vscode-langservers-extracted
     watch
