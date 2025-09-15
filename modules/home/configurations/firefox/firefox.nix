@@ -9,24 +9,20 @@ let
   themeSystem = import ../../../lib/theme { inherit lib; };
 
   themeConfig = {
-    colorscheme = values.theme.colorscheme or "catppuccin";
-    variant = values.theme.variant or "macchiato";
+    colorscheme = values.theme.colorscheme;
+    variant = values.theme.variant;
     presets = [ ];
-    transparency = {
-      enable = false;
-      opacity = 1.0;
-      blur = 0;
-    };
+    transparency = values.theme.transparency;
   };
 
   firefoxTheme = themeSystem.createAppConfig "firefox" themeConfig {
-    stretchedTabs = values.firefox.theme.stretchedTabs or false;
+    stretchedTabs = values.firefox.theme.stretchedTabs;
   };
 
   userChromeCSS =
     let
       stretchedTabsCSS =
-        if (values.firefox.theme.stretchedTabs or false) then
+        if values.firefox.theme.stretchedTabs then
           ''
             /* Stretched tabs configuration */
             #urlbar-background {
@@ -111,7 +107,7 @@ in
       default = {
         name = "default";
         isDefault = true;
-        extensions = with pkgs.firefox-addons; [
+        extensions = with pkgs.nur.repos.rycee.firefox-addons; [
           ublock-origin
           onepassword-password-manager
           reddit-enhancement-suite

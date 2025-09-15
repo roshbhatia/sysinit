@@ -134,13 +134,26 @@ rec {
             border-top: 0 !important;
         }
 
-        /* Add Transparency */
+        /* Add Transparency and Acrylic Effects */
         :root#main-window {
             background-color: transparent !important;
         }
 
         :root:not(:-moz-window-inactive) #navigator-toolbox {
             background-color: transparent !important;
+            backdrop-filter: blur(calc(var(--blur-amount) * 0.8)) !important;
+        }
+
+        /* Enhanced acrylic effects for tabs and toolbar */
+        #TabsToolbar {
+            background: color-mix(in srgb, var(--bg-overlay) 70%, transparent) !important;
+            backdrop-filter: blur(var(--blur-amount)) saturate(1.8) !important;
+        }
+
+        #nav-bar {
+            background: color-mix(in srgb, var(--bg-overlay) 60%, transparent) !important;
+            backdrop-filter: blur(calc(var(--blur-amount) * 0.6)) saturate(1.5) !important;
+            border-bottom: 1px solid color-mix(in srgb, var(--accent-dim) 30%, transparent) !important;
         }
 
         /*--------- Active tab -----------*/
@@ -284,9 +297,31 @@ rec {
 
       baseUserContentCSS = ''
         /* Semantic theme-aware userContent.css */
+
+        /* Acrylic background with blur wallpaper */
+        @media (prefers-color-scheme: light) {
+          :root {
+            --background-wallpaper: linear-gradient(135deg,
+              var(--bg-primary) 0%,
+              color-mix(in srgb, var(--bg-primary) 80%, var(--accent-dim) 20%) 50%,
+              var(--bg-secondary) 100%);
+          }
+        }
+
+        @media (prefers-color-scheme: dark) {
+          :root {
+            --background-wallpaper: linear-gradient(135deg,
+              var(--bg-primary) 0%,
+              color-mix(in srgb, var(--bg-primary) 85%, var(--accent-primary) 15%) 30%,
+              color-mix(in srgb, var(--bg-secondary) 90%, var(--accent-secondary) 10%) 70%,
+              var(--bg-tertiary) 100%);
+          }
+        }
+
         @-moz-document url-prefix(about:home), url-prefix(about:newtab) {
           body {
-            background: var(--bg-primary) !important;
+            background: var(--background-wallpaper) !important;
+            background-attachment: fixed !important;
             color: var(--text-primary) !important;
           }
 
