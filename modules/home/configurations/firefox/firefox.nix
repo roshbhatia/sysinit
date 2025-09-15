@@ -107,14 +107,16 @@ in
       default = {
         name = "default";
         isDefault = true;
-        extensions = with pkgs.nur.repos.rycee.firefox-addons; [
-          ublock-origin
-          onepassword-password-manager
-          reddit-enhancement-suite
-          old-reddit-redirect
-          multi-account-containers
-          tridactyl
-        ];
+        extensions = {
+          packages = with pkgs.nur.repos.rycee.firefox-addons; [
+            ublock-origin
+            onepassword-password-manager
+            reddit-enhancement-suite
+            old-reddit-redirect
+            multi-account-containers
+            tridactyl
+          ];
+        };
 
         settings = {
           "browser.search.suggest.enabled" = false;
