@@ -82,29 +82,11 @@ rec {
       (validateEmail values.git.workEmail)
     ];
 
-  validateThemeConfig =
-    values:
-    validateTheme values.theme.colorscheme values.theme.variant
-    ++ [
-      {
-        assertion = values.theme.transparency.opacity >= 0.0 && values.theme.transparency.opacity <= 1.0;
-        message = "theme.transparency.opacity must be between 0.0 and 1.0, got: ${toString values.theme.transparency.opacity}";
-      }
-      {
-        assertion = values.theme.transparency.blur >= 0 && values.theme.transparency.blur <= 100;
-        message = "theme.transparency.blur must be between 0 and 100, got: ${toString values.theme.transparency.blur}";
-      }
-    ];
-
-  validateYarnPackages = values: validatePackageList values.yarn.additionalPackages "yarn";
-
   validateAllConfigs =
     values:
     flatten [
       (validateUserConfig values)
       (validateGitConfig values)
-      (validateThemeConfig values)
-      (validateYarnPackages values)
     ];
 
   generateValidationWarnings = values: [
