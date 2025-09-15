@@ -23,7 +23,7 @@ M.plugins = {
         provider = provider,
         acp_providers = {},
         behaviour = {
-          auto_suggestions = false,
+          auto_suggestions = true,
         },
         prompt_logger = {
           next_prompt = {
