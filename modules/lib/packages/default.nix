@@ -78,7 +78,7 @@ let
         export PATH="${pkgs.gh}/bin:/usr/bin:$PATH"
         export GH_FORCE_TTY=false
       '';
-      installCmd = ''"$MANAGER_CMD" extension install "$pkg" --force || echo "Warning: Failed to install $pkg"'';
+      installCmd = ''"$MANAGER_CMD" extension install $pkg || echo "Warning: Failed to install $pkg"'';
     };
     kubectl = {
       bin = "${pkgs.kubectl}/bin/kubectl";

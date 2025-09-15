@@ -8,7 +8,7 @@
 
 let
   ghPackages = [
-    "github/gh-copilot"
+    "https://github.com/github/gh-copilot"
   ]
   ++ (values.gh.additionalPackages or [ ]);
 in
