@@ -54,6 +54,9 @@ in
       StartInterval = 5;
       StandardOutPath = "/tmp/sketchybar-reload.log";
       StandardErrorPath = "/tmp/sketchybar-reload.error.log";
+      EnvironmentVariables = {
+        PATH = "${pkgs.coreutils}/bin:${pkgs.lib.makeBinPath [ pkgs.coreutils ]}:/usr/bin:/bin";
+      };
     };
   };
 
