@@ -12,8 +12,8 @@ let
 
   personalEmail = cfg.personalEmail or cfg.userEmail;
   workEmail = cfg.workEmail or cfg.userEmail;
-  personalUsername = cfg.personalUsername or cfg.username;
-  workUsername = cfg.workUsername or cfg.username;
+  personalGithubUser = cfg.personalGithubUser or cfg.username;
+  workGithubUser = cfg.workGithubUser or cfg.username;
 in
 {
   programs.git = {
@@ -60,7 +60,8 @@ in
     extraConfig = {
       credential = {
         helper = "manager";
-        gitHubAccountFiltering = false;
+        gitHubAccountFiltering = true;
+        useHttpPath = true;
       };
 
       github = {
@@ -143,7 +144,10 @@ in
             email = workEmail;
           };
           github = {
-            user = workUsername;
+            user = workGithubUser;
+          };
+          credential."https://github.com" = {
+            account = workGithubUser;
           };
         };
       }
@@ -155,7 +159,10 @@ in
             email = personalEmail;
           };
           github = {
-            user = personalUsername;
+            user = personalGithubUser;
+          };
+          credential."https://github.com" = {
+            account = personalGithubUser;
           };
         };
       }

@@ -8,6 +8,10 @@
     name = "Roshan Bhatia";
     userEmail = "rshnbhatia@gmail.com";
     username = "roshbhatia";
+    workEmail = "roshan.bhatia@nike.com";
+    workGithubUser = "rbha18_nike";
+    personalEmail = "rshnbhatia@gmail.com";
+    personalGithubUser = "roshbhatia";
   };
 
   darwin = {

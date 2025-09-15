@@ -16,13 +16,13 @@ let
   };
 
   firefoxTheme = themeSystem.createAppConfig "firefox" themeConfig {
-    stretchedTabs = values.firefox.theme.stretchedTabs;
+    stretchedTabs = values.firefox.theme.stretchedTabs or false;
   };
 
   userChromeCSS =
     let
       stretchedTabsCSS =
-        if values.firefox.theme.stretchedTabs then
+        if values.firefox.theme.stretchedTabs or false then
           ''
             /* Stretched tabs configuration */
             #urlbar-background {
