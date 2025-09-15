@@ -255,6 +255,67 @@ with lib;
           description = "Additional Nix packages";
         };
       };
+
+      firefox = {
+        searchEngines = mkOption {
+          type = types.attrsOf (types.submodule {
+            options = {
+              urls = mkOption {
+                type = types.listOf (types.submodule {
+                  options = {
+                    template = mkOption {
+                      type = types.str;
+                      description = "URL template for the search engine";
+                    };
+                    params = mkOption {
+                      type = types.listOf (types.submodule {
+                        options = {
+                          name = mkOption {
+                            type = types.str;
+                            description = "Parameter name";
+                          };
+                          value = mkOption {
+                            type = types.str;
+                            description = "Parameter value";
+                          };
+                        };
+                      });
+                      default = [ ];
+                      description = "URL parameters";
+                    };
+                  };
+                });
+                description = "List of URLs for the search engine";
+              };
+              icon = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = "Icon URL for the search engine";
+              };
+              updateInterval = mkOption {
+                type = types.nullOr types.int;
+                default = null;
+                description = "Update interval in milliseconds";
+              };
+              definedAliases = mkOption {
+                type = types.listOf types.str;
+                default = [ ];
+                description = "Search aliases";
+              };
+            };
+          });
+          default = { };
+          description = "Additional Firefox search engines";
+        };
+
+        theme = {
+          stretchedTabs = mkOption {
+            type = types.bool;
+            default = false;
+            description = "Enable Safari-like stretched tabs";
+          };
+        };
+      };
     };
   };
 }

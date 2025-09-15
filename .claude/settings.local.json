@@ -70,7 +70,8 @@
       "Bash(/usr/bin/readlink:*)",
       "Bash(task docs:values:*)",
       "Bash(home-manager generations:*)",
-      "Bash(git config:*)"
+      "Bash(git config:*)",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "ask": [],

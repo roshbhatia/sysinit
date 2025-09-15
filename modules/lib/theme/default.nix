@@ -16,6 +16,7 @@ let
 
   weztermAdapter = import ./adapters/wezterm.nix { inherit lib; };
   neovimAdapter = import ./adapters/neovim.nix { inherit lib; };
+  firefoxAdapter = import ./adapters/firefox.nix { inherit lib; };
 
   transparencyPreset = import ./presets/transparency.nix { inherit lib; };
 
@@ -102,6 +103,8 @@ let
           weztermAdapter.createWeztermConfig theme finalConfig overrides
         else if app == "neovim" then
           neovimAdapter.createNeovimConfig theme finalConfig overrides
+        else if app == "firefox" then
+          firefoxAdapter.createFirefoxConfig theme finalConfig overrides
         else
           {
             theme = getAppTheme app validatedConfig.colorscheme validatedConfig.variant;
@@ -139,6 +142,8 @@ let
       weztermAdapter.generateWeztermJSON theme validatedConfig
     else if app == "neovim" then
       neovimAdapter.generateNeovimJSON theme validatedConfig
+    else if app == "firefox" then
+      firefoxAdapter.generateFirefoxJSON theme validatedConfig
     else
       {
         colorscheme = validatedConfig.colorscheme;
@@ -318,6 +323,7 @@ in
   adapters = {
     wezterm = weztermAdapter;
     neovim = neovimAdapter;
+    firefox = firefoxAdapter;
   };
 
   presets = {
