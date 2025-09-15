@@ -79,12 +79,17 @@ let
         export GH_FORCE_TTY=false
       '';
       installCmd = ''
-        output=$("$MANAGER_CMD" extension install $pkg 2>&1)
-        exit_code=$?
-        if [[ $exit_code -eq 1 && "$output" == *"there is already an installed extension that provides"* ]]; then
-          echo "Extension already installed: $pkg"
-        elif [[ $exit_code -ne 0 ]]; then
-          echo "Warning: Failed to install $pkg"
+        if output=$("$MANAGER_CMD" extension install "$pkg" 2>&1); then
+          true
+        else
+          case "$output" in
+            *"there is already an installed extension that provides"*)
+              echo "Extension already installed: $pkg"
+              ;;
+            *)
+              echo "Warning: Failed to install $pkg"
+              ;;
+          esac
         fi
       '';
     };
