@@ -40,6 +40,7 @@ let
     fish
     gettext
     gh
+    git-credential-manager
     git-filter-repo
     glow
     gnupg

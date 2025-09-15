@@ -43,22 +43,24 @@ in
     };
 
     ignores = [
-      ".DS_Store"
-      "*.swp"
+      "*.log"
       "*.swo"
+      "*.swp"
       "*~"
-      ".direnv/"
+      ".DS_Store"
       ".devenv/"
-      ".envrc"
-      "node_modules/"
+      ".direnv/"
       ".env"
       ".env.local"
-      "*.log"
+      ".envrc"
+      ".vectorcode/"
+      "node_modules/"
     ];
 
     extraConfig = {
       credential = {
-        helper = "store"; # Set once globally
+        helper = "manager";
+        gitHubAccountFiltering = false;
       };
 
       github = {
