@@ -52,6 +52,8 @@ M.plugins = {
             hint = "<leader>hi",
             suggestion = "<leader>hs",
             repomap = "<leader>hR",
+            selection = "<leader>hC",
+            zen = "<leader>hz",
           },
           sidebar = {
             switch_windows = "<localleader>[",
