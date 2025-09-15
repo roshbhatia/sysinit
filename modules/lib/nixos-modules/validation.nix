@@ -10,7 +10,5 @@ in
 {
   config = {
     assertions = validation.validateAllConfigs values;
-
-    warnings = validation.generateValidationWarnings values;
   };
 }
