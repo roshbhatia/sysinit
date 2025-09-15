@@ -8,14 +8,12 @@ M.plugins = {
       "nvim-tree/nvim-web-devicons",
     },
     ft = {
-      "markdown",
+      "avante",
       "codecompanion",
+      "markdown",
     },
     config = function()
       require("render-markdown").setup({
-        anti_conceal = {
-          enabled = false,
-        },
         headings = {
           border_virtual = true,
         },
@@ -43,13 +41,17 @@ M.plugins = {
           },
         },
         completions = {
+          blink = {
+            enabled = false,
+          },
           lsp = {
             enabled = true,
           },
         },
         file_types = {
-          "markdown",
+          "avante",
           "codecompanion",
+          "markdown",
         },
         sign = {
           enabled = false,

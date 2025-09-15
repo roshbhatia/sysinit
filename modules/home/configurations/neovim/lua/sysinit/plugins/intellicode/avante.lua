@@ -53,8 +53,8 @@ M.plugins = {
             suggestion = "<leader>hs",
             repomap = "<leader>hR",
             selection = "<leader>hC",
-            zen = "<leader>hz",
           },
+          zen_mode = "<leader>hz",
           sidebar = {
             switch_windows = "<localleader>[",
             reverse_switch_windows = "<localleader>]",
