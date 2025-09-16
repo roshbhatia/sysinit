@@ -7,7 +7,6 @@
 with lib;
 
 let
-
   defaultManagers = {
     cargo = {
       bin = "${pkgs.cargo}/bin/cargo";
