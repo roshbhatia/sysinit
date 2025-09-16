@@ -81,39 +81,27 @@ M.plugins = {
       if config.is_agents_enabled() then
         wk.add({
           {
-            "<leader>a",
-            group = "AI terminals",
+            "<leader>h",
+            group = "Goose",
           },
           {
-            "<leader>ac",
-            group = "Comment",
+            "<leader>y",
+            group = "Claude",
           },
           {
-            "<leader>ad",
-            group = "Diagnostics",
-          },
-          {
-            "<leader>al",
-            group = "Current file",
-          },
-          {
-            "<leader>aL",
-            group = "All buffers",
-          },
-          {
-            "<leader>ar",
-            group = "Run command",
+            "<leader>u",
+            group = "Cursor",
           },
         })
-      end
 
-      if config.is_opencode_enabled() then
-        wk.add({
-          {
-            "<leader>j",
-            group = "OpenCode",
-          },
-        })
+        if config.is_opencode_enabled() then
+          wk.add({
+            {
+              "<leader>j",
+              group = "OpenCode",
+            },
+          })
+        end
       end
 
       if config.get().debug then
