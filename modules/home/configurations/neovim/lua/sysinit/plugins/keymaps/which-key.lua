@@ -78,6 +78,15 @@ M.plugins = {
         },
       })
 
+      if config.is_agents_enabled() then
+        wk.add({
+          {
+            "<leader>h",
+            group = "AI Terminals",
+          },
+        })
+      end
+
       if config.is_opencode_enabled() then
         wk.add({
           {
