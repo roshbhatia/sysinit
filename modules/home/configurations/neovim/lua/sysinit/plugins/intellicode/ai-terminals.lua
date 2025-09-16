@@ -278,7 +278,6 @@ M.plugins = {
           },
         },
         default_position = "right",
-        enable_diffing = true,
         trigger_formatting = {
           enabled = true,
         },
@@ -306,11 +305,21 @@ M.plugins = {
 
       local function create_input(termname, agent_icon, opts)
         opts = opts or {}
-        local prompt = opts.prompt or "Input:"
+        local state = current_position()
+        local file_context =
+          string.format("%s:%d", vim.fn.fnamemodify(state.file, ":t"), state.line)
+        local prompt = opts.prompt or string.format("Input (%s):", file_context)
         local title = string.format("%s %s", agent_icon or "", termname)
         local win_opts = {
           b = { completion = true },
           bo = { filetype = "ai_terminals_input" },
+          relative = "cursor",
+          style = "minimal",
+          border = "rounded",
+          width = math.max(40, math.min(80, vim.o.columns - 20)),
+          height = 1,
+          row = 1,
+          col = 0,
         }
         local snacks_opts = {
           prompt = prompt,
@@ -330,7 +339,7 @@ M.plugins = {
         local key_prefix, termname, label, icon = agent[1], agent[2], agent[3], agent[4]
         return {
           {
-            string.format("<leader>%sh", key_prefix),
+            string.format("<leader>%s%s", key_prefix, key_prefix),
             function()
               ai_terminals.toggle(termname)
             end,
