@@ -1,0 +1,57 @@
+version: "3"
+
+vars:
+  LOGGER_SCRIPT: "hack/lib/logger.sh"
+  SHFMT_OPTS: "-i 2 -ci -sr -kp -fn -w"
+  ERROR_EXIT_CODE: 1
+  SUCCESS_EXIT_CODE: 0
+
+tasks:
+  sh:
+    desc: Format all shell files using shfmt
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        source {{.LOGGER_SCRIPT}}
+        log_info "Formatting shell files"
+        for ext in sh bash zsh; do
+          if ! fd -e $ext -x shfmt {{.SHFMT_OPTS}}; then
+            log_error "Shell formatting ($ext) failed"
+            exit {{.ERROR_EXIT_CODE}}
+          fi
+        done
+        log_success "Shell files formatted successfully"
+    silent: true
+
+  lua:
+    desc: Format all Lua files using stylua
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        source {{.LOGGER_SCRIPT}}
+        log_info "Formatting Lua files"
+        if ! fd -e lua -x stylua; then
+          log_error "Lua formatting failed"
+          exit {{.ERROR_EXIT_CODE}}
+        fi
+        log_success "Lua files formatted successfully"
+    silent: true
+
+  nix:
+    desc: Format all Nix files using nixfmt
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        source {{.LOGGER_SCRIPT}}
+        log_info "Formatting Nix files"
+        if ! fd -e nix -E result -x nixfmt --width=100; then
+          log_error "Nix formatting failed"
+          exit {{.ERROR_EXIT_CODE}}
+        fi
+        log_success "Nix files formatted successfully"
+    silent: true
+
+  all:
+    desc: Format all supported file types
+    deps: [nix, lua, sh]
+    silent: true

@@ -86,7 +86,6 @@ task: Available tasks for this project:
 
 ## Values Configuration Schema
 
-
 | Field | Type | Default | Required | Description |
 |-------|------|---------|----------|-------------|
 | `cargo.additionalPackages` | list(string) | [] |  | Additional Rust/Cargo packages |
@@ -95,16 +94,20 @@ task: Available tasks for this project:
 | `darwin.homebrew.additionalPackages.casks` | list(string) | [] |  | Additional Homebrew casks |
 | `darwin.homebrew.additionalPackages.taps` | list(string) | [] |  | Additional Homebrew taps |
 | `darwin.tailscale.enable` | boolean | false |  | Enable Tailscale |
+| `definedAliases` | list(string) | [] |  | Search aliases |
+| `firefox.name` | string | - | ✓ | Parameter name |
+| `firefox.template` | string | - | ✓ | URL template for the search engine |
+| `firefox.value` | string | - | ✓ | Parameter value |
 | `gh.additionalPackages` | list(string) | [] |  | Additional GitHub CLI extensions |
-| `git.credentialUsername` | string | - | ✓ | Git credential username |
-| `git.githubUser` | string | - | ✓ | GitHub username |
+| `git.name` | string | - | ✓ | Git user name |
 | `git.personalEmail` | string? | null |  | Personal email override |
-| `git.personalGithubUser` | string? | null |  | Personal GitHub username override |
+| `git.personalUsername` | string? | null |  | Personal username override |
 | `git.userEmail` | string | - | ✓ | Git user email |
-| `git.userName` | string | - | ✓ | Git user name |
+| `git.username` | string | - | ✓ | Git/GitHub username |
 | `git.workEmail` | string? | null |  | Work email override |
-| `git.workGithubUser` | string? | null |  | Work GitHub username override |
+| `git.workUsername` | string? | null |  | Work username override |
 | `go.additionalPackages` | list(string) | [] |  | Additional Go packages |
+| `icon` | string? | null |  | Icon URL for the search engine |
 | `krew.additionalPackages` | list(string) | [] |  | Additional kubectl krew plugins |
 | `llm.claude.enabled` | boolean | false |  | Enable Claude Code integration |
 | `llm.claude.uvPackages` | list(string) | [] |  | Additional uv packages for Claude |
@@ -120,10 +123,10 @@ task: Available tasks for this project:
 | `theme.transparency.enable` | boolean | true |  | Enable transparency effects |
 | `theme.transparency.opacity` | float | `0.85` |  | Transparency opacity level |
 | `theme.variant` | string | "macchiato" |  | Theme variant |
+| `updateInterval` | nullOr int | null |  | Update interval in milliseconds |
 | `user.hostname` | string | "nixos" |  | System hostname |
 | `user.username` | string | "user" |  | Username for the system user |
 | `uvx.additionalPackages` | list(string) | [] |  | Additional global uvx packages |
 | `wezterm.shell` | string | "zsh" |  | Default shell for wezterm |
 | `yarn.additionalPackages` | list(string) | [] |  | Additional global yarn packages |
-
 <!-- VALUES_SCHEMA_END -->

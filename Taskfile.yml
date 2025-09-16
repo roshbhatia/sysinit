@@ -31,34 +31,7 @@ tasks:
       - task --list-all
     silent: true
 
-  nix:fmt:
-    desc: Format all Nix files using nixfmt
-    cmds:
-      - |
-        #!/usr/bin/env bash
-        source {{.LOGGER_SCRIPT}}
-        log_info "Formatting Nix files"
-        if ! fd -e nix {{.FD_EXCLUDE_PATTERNS}} -x nixfmt --width={{.NIXFMT_WIDTH}}; then
-          log_error "Nix formatting failed"
-          exit {{.ERROR_EXIT_CODE}}
-        fi
-        log_success "Nix files formatted successfully"
-    silent: true
-
-  nix:build:
-    desc: Build the system configuration without applying
-    silent: true
-    cmds:
-      - |
-        #!/usr/bin/env bash
-        source {{.LOGGER_SCRIPT}}
-        log_info "Building system configuration"
-        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} build -v --flake . --impure --show-trace --print-build-logs --max-jobs "${NIX_MAX_JOBS:-2}" --cores "${NIX_CORES:-2}"; then
-          log_error "Build failed (see logs above)"
-          exit 1
-        fi
-        log_success "Build completed successfully"
-
+  # Work-specific tasks that remain in main Taskfile
   nix:build:work:
     cmds:
       - |
@@ -78,60 +51,6 @@ tasks:
         log_success "Work build completed successfully"
     desc: Build the work sysinit configuration without applying
     silent: true
-
-  nix:clean:
-    desc: Clean Nix store and delete old generations
-    cmds:
-      - nix-collect-garbage -d
-    silent: true
-
-  nix:update:
-    desc: Update Nix flake inputs and commit lock file
-    silent: true
-    cmds:
-      - |
-        #!/usr/bin/env bash
-        source {{.LOGGER_SCRIPT}}
-        log_info "Updating nix flake inputs"
-        if ! sudo -E nix flake update --commit-lock-file --show-trace; then
-          log_error "Flake update failed (see logs above)"
-          exit 1
-        fi
-        log_success "Flake inputs updated successfully"
-
-  nix:config:
-    cmds:
-      - |
-        #!/usr/bin/env bash
-        source {{.LOGGER_SCRIPT}}
-        log_info "Updating nix configuration"
-        if ! sudo cp {{.NIX_CUSTOM_CONF}} {{.NIX_SYSTEM_CONF_DIR}}/nix.custom.conf; then
-          log_error "Failed to copy nix configuration"
-          exit {{.ERROR_EXIT_CODE}}
-        fi
-        log_info "Restarting nix-daemon"
-        if ! sudo launchctl kickstart -k system/org.nixos.nix-daemon; then
-          log_error "Failed to restart nix-daemon"
-          exit {{.ERROR_EXIT_CODE}}
-        fi
-        log_success "Nix configuration updated successfully"
-    desc: Copy nix.custom.conf to /etc/nix/ with sudo
-    silent: true
-
-  nix:refresh:
-    desc: Apply the system configuration and switch to new generation
-    silent: true
-    deps: [nix:update, nix:config]
-    cmds:
-      - |
-        #!/usr/bin/env bash
-        source {{.LOGGER_SCRIPT}}
-        log_info "Applying system configuration"
-        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} switch -v --flake . --impure --show-trace --print-build-logs --max-jobs "${NIX_MAX_JOBS:-2}" --cores "${NIX_CORES:-2}"; then
-          log_error "Refresh failed (see logs above)"
-          exit 1
-        fi
-        log_success "System configuration applied successfully"
 
   nix:refresh:work:
     cmds:
@@ -153,22 +72,6 @@ tasks:
     desc: Apply the system configuration and switch to new generation
     silent: true
 
-  sh:fmt:
-    desc: Format all shell files using shfmt
-    cmds:
-      - |
-        #!/usr/bin/env bash
-        source {{.LOGGER_SCRIPT}}
-        log_info "Formatting shell files"
-        for ext in sh bash zsh; do
-          if ! fd -e $ext -x shfmt {{.SHFMT_OPTS}}; then
-            log_error "Shell formatting ($ext) failed"
-            exit {{.ERROR_EXIT_CODE}}
-          fi
-        done
-        log_success "Shell files formatted successfully"
-    silent: true
-
   sh:chmod:
     desc: Make all .sh files in the repository executable
     cmds:
@@ -183,23 +86,9 @@ tasks:
         log_success "All .sh files are now executable"
     silent: true
 
-  lua:fmt:
-    desc: Format all Lua files using stylua
-    cmds:
-      - |
-        #!/usr/bin/env bash
-        source {{.LOGGER_SCRIPT}}
-        log_info "Formatting Lua files"
-        if ! fd -e lua -x stylua; then
-          log_error "Lua formatting failed"
-          exit {{.ERROR_EXIT_CODE}}
-        fi
-        log_success "Lua files formatted successfully"
-    silent: true
-
   fmt:
     desc: Format all supported file types
-    deps: [nix:fmt, lua:fmt, sh:fmt]
+    deps: [format:all]
     silent: true
 
   docs:values:

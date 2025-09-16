@@ -3,16 +3,26 @@
     fetch = {
       command = "uvx";
       args = [ "mcp-server-fetch" ];
+      description = "Web content fetching and processing capabilities";
+      enabled = true;
     };
-    memory = {
-      command = "npx";
-      args = [
-        "-y"
-        "@modelcontextprotocol/server-memory"
+    git = {
+      command = "uvx";
+      args = [ "mcp-server-git" ];
+      description = "Git version control system integration";
+      enabled = true;
+    };
+    chroma = {
+      command = "uvx";
+      args = [ 
+        "chroma-mcp"
+        "--client-type" 
+        "persistent" 
+        "--data-dir" 
+        "~/.local/share/chroma"
       ];
-      env = {
-        MEMORY_FILE_PATH = "~/.local/state/llm-memory.json";
-      };
+      description = "Vector database for embedding storage and retrieval with Chroma";
+      enabled = true;
     };
     context7 = {
       command = "npx";
@@ -20,6 +30,8 @@
         "-y"
         "@upstash/context7-mcp@latest"
       ];
+      description = "Context7 MCP server for enhanced context management";
+      enabled = true;
     };
     neovim = {
       command = "npx";
@@ -27,6 +39,8 @@
         "-y"
         "mcp-neovim-server"
       ];
+      description = "Neovim integration for MCP";
+      enabled = true;
     };
   };
 }

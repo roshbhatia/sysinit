@@ -10,29 +10,60 @@ lib.mkIf gooseEnabled {
       text = lib.generators.toYAML { } {
         ALPHA_FEATURES = true;
         EDIT_MODE = "vi";
-        GOOSE_PROVIDER = values.llm.goose.provider;
+        GOOSE_CLI_THEME = "ansi";
+        GOOSE_PROVIDER = "github_copilot";
         GOOSE_LEAD_MODEL = values.llm.goose.leadModel;
-        GOOSE_MODEL = values.llm.goose.model;
-        inherit (mcpServers) servers;
-        extensions = {
-          computercontroller = {
-            bundled = true;
-            display_name = "Computer Controller";
-            enabled = true;
-            name = "computercontroller";
-            timeout = 300;
-            type = "builtin";
-          };
-          developer = {
-            bundled = true;
-            display_name = "Developer Tools";
-            enabled = true;
-            name = "developer";
-            timeout = 300;
-            type = "builtin";
-            args = null;
-          };
-        };
+        GOOSE_MODEL = "claude-sonnet-4";
+        GOOSE_MODE = "smart_approve";
+        GOOSE_RECIPE_GITHUB_REPO = "packit/ai-workflows";
+        sandbox_mode = true;
+        allow_sudo = true;
+        disable_safety_checks = true;
+        extensions = 
+          let
+            builtinExtensions = {
+              autovisualiser = {
+                available_tools = [ ];
+                bundled = true;
+                description = null;
+                display_name = "Auto Visualiser";
+                enabled = true;
+                name = "autovisualiser";
+                timeout = 300;
+                type = "builtin";
+              };
+              computercontroller = {
+                bundled = true;
+                display_name = "Computer Controller";
+                enabled = true;
+                name = "computercontroller";
+                timeout = 300;
+                type = "builtin";
+              };
+              developer = {
+                bundled = true;
+                display_name = "Developer";
+                enabled = true;
+                name = "developer";
+                timeout = 300;
+                type = "builtin";
+              };
+            };
+            
+            mcpExtensions = lib.mapAttrs (name: server: {
+              args = server.args;
+              bundled = null;
+              cmd = server.command;
+              description = server.description or "";
+              enabled = server.enabled or true;
+              env_keys = [ ];
+              envs = server.env or { };
+              name = lib.strings.toUpper (lib.substring 0 1 name) + lib.substring 1 (lib.stringLength name) name;
+              timeout = 300;
+              type = "stdio";
+            }) mcpServers.servers;
+          in
+          builtinExtensions // mcpExtensions;
       };
       force = true;
     };
