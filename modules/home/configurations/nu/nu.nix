@@ -2,7 +2,6 @@
   config,
   values,
   utils,
-  pkgs,
   ...
 }:
 

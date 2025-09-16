@@ -8,9 +8,10 @@
 
 let
   uvxPackages = [
+    "chromadb"
     "hererocks"
     "https://github.com/github/spec-kit.git"
-    "vectorcode"
+    "vectorcode[lsp,mcp]<1.0.0"
   ]
   ++ values.uvx.additionalPackages;
 in
