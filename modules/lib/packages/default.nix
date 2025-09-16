@@ -50,7 +50,10 @@ let
         export PATH="${pkgs.yarn}/bin:$PATH"
         export YARN_GLOBAL_FOLDER="$HOME/.yarn"
       '';
-      installCmd = ''"$MANAGER_CMD" global add "$pkg" --silent || echo "Warning: Failed to install $pkg"'';
+      installCmd = ''
+        "$MANAGER_CMD" config set strict-ssl false -g
+        "$MANAGER_CMD" global add "$pkg" --silent || echo "Warning: Failed to install $pkg"
+      '';
     };
     pipx = {
       bin = "${pkgs.pipx}/bin/pipx";
