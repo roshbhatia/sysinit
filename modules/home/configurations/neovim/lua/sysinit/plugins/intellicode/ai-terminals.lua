@@ -37,6 +37,23 @@ M.plugins = {
     end,
     keys = function()
       local ai_terminals = require("ai-terminals")
+
+      local function input_popup(opts)
+        local snacks_opts = {
+          prompt = opts.prompt or "Input:",
+          default = opts.default or "",
+          relative = "cursor",
+          border = "rounded",
+          title = opts.title,
+          conceal = opts.conceal or false,
+        }
+        vim.ui.input(snacks_opts, function(value)
+          if opts.on_submit then
+            opts.on_submit(value)
+          end
+        end)
+      end
+
       return {
         {
           "<leader>hh",
@@ -48,14 +65,21 @@ M.plugins = {
         {
           "<leader>ha",
           function()
-            ai_terminals.ask("goose")
+            input_popup({
+              prompt = "Send to goose:",
+              on_submit = function(text)
+                if text then
+                  ai_terminals.send_term("goose", text, { submit = true })
+                end
+              end,
+            })
           end,
-          desc = "Goose: Ask",
+          desc = "Goose: send",
         },
         {
           "<leader>hf",
           function()
-            ai_terminals.fix_diagnostics("goose")
+            ai_terminals.send_diagnostics("goose", { submit = true })
           end,
           desc = "Goose: Fix diagnostics",
         },
@@ -69,17 +93,27 @@ M.plugins = {
         {
           "<leader>hl",
           function()
-            ai_terminals.run("goose")
+            input_popup({
+              prompt = "Run command in goose:",
+              on_submit = function(cmd)
+                if cmd then
+                  ai_terminals.send_command_output("goose", cmd, { submit = true })
+                end
+              end,
+            })
           end,
           desc = "Goose: Run command",
         },
         {
           "<leader>ha",
           function()
-            ai_terminals.ask("goose")
+            local text = ai_terminals.get_visual_selection_with_header()
+            if text then
+              ai_terminals.send_term("goose", text, { submit = false })
+            end
           end,
           mode = "v",
-          desc = "Goose: Ask (visual)",
+          desc = "Goose: send (visual)",
         },
         {
           "<leader>hc",
@@ -99,14 +133,21 @@ M.plugins = {
         {
           "<leader>ya",
           function()
-            ai_terminals.ask("claude")
+            input_popup({
+              prompt = "Send to claude:",
+              on_submit = function(text)
+                if text then
+                  ai_terminals.send_term("claude", text, { submit = true })
+                end
+              end,
+            })
           end,
-          desc = "Claude: Ask",
+          desc = "Claude: send",
         },
         {
           "<leader>yf",
           function()
-            ai_terminals.fix_diagnostics("claude")
+            ai_terminals.send_diagnostics("claude", { submit = true })
           end,
           desc = "Claude: Fix diagnostics",
         },
@@ -120,17 +161,27 @@ M.plugins = {
         {
           "<leader>yl",
           function()
-            ai_terminals.run("claude")
+            input_popup({
+              prompt = "Run command in claude:",
+              on_submit = function(cmd)
+                if cmd then
+                  ai_terminals.send_command_output("claude", cmd, { submit = true })
+                end
+              end,
+            })
           end,
           desc = "Claude: Run command",
         },
         {
           "<leader>ya",
           function()
-            ai_terminals.ask("claude")
+            local text = ai_terminals.get_visual_selection_with_header()
+            if text then
+              ai_terminals.send_term("claude", text, { submit = false })
+            end
           end,
           mode = "v",
-          desc = "Claude: Ask (visual)",
+          desc = "Claude: send (visual)",
         },
         {
           "<leader>yc",
@@ -150,14 +201,21 @@ M.plugins = {
         {
           "<leader>ua",
           function()
-            ai_terminals.ask("cursor")
+            input_popup({
+              prompt = "Send to cursor:",
+              on_submit = function(text)
+                if text then
+                  ai_terminals.send_term("cursor", text, { submit = true })
+                end
+              end,
+            })
           end,
-          desc = "Cursor: Ask",
+          desc = "Cursor: send",
         },
         {
           "<leader>uf",
           function()
-            ai_terminals.fix_diagnostics("cursor")
+            ai_terminals.send_diagnostics("cursor", { submit = true })
           end,
           desc = "Cursor: Fix diagnostics",
         },
@@ -171,17 +229,27 @@ M.plugins = {
         {
           "<leader>ul",
           function()
-            ai_terminals.run("cursor")
+            input_popup({
+              prompt = "Run command in cursor:",
+              on_submit = function(cmd)
+                if cmd then
+                  ai_terminals.send_command_output("cursor", cmd, { submit = true })
+                end
+              end,
+            })
           end,
           desc = "Cursor: Run command",
         },
         {
           "<leader>ua",
           function()
-            ai_terminals.ask("cursor")
+            local text = ai_terminals.get_visual_selection_with_header()
+            if text then
+              ai_terminals.send_term("cursor", text, { submit = false })
+            end
           end,
           mode = "v",
-          desc = "Cursor: Ask (visual)",
+          desc = "Cursor: send (visual)",
         },
         {
           "<leader>uc",
