@@ -157,7 +157,6 @@ local function get_catppuccin_config()
     },
     integrations = {
       aerial = true,
-      avante = true,
       cmp = true,
       dap = { enabled = true, enable_ui = true },
       dap_ui = true,
@@ -181,9 +180,7 @@ local function get_catppuccin_config()
       telescope = { enabled = true, style = "nvchad" },
       treesitter = true,
       treesitter_context = true,
-      ufo = true,
       which_key = true,
-      window_picker = true,
     },
   }
 end
