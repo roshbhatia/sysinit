@@ -11,12 +11,16 @@ M.plugins = {
     config = function()
       require("ai-terminals").setup({
         window_dimensions = {
-          right = { width = 0.4, height = 1.0 },
-          border = "rounded",
+          right = {
+            width = 0.4,
+            height = 1.0,
+          },
         },
         default_position = "right",
         enable_diffing = true,
-        trigger_formatting = { enabled = true },
+        trigger_formatting = {
+          enabled = true,
+        },
         watch_cwd = {
           enabled = true,
           ignore = {
@@ -65,7 +69,18 @@ M.plugins = {
 
       local function highlight_placeholders(buf)
         local input = vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1] or ""
-        local placeholders = { "<file>", "<range>", "<cwd>" }
+        local placeholders = {
+          "<buffer>",
+          "<buffers>",
+          "<cwd>",
+          "<file>",
+          "<range>",
+          "<diagnostics>",
+          "<quickfix>",
+          "<visible>",
+          "<diff>",
+          "<tags>",
+        }
         local ns_id = vim.api.nvim_create_namespace("ai_terminals_placeholders")
         vim.api.nvim_buf_clear_namespace(buf, ns_id, 0, -1)
         for _, placeholder in ipairs(placeholders) do
@@ -84,7 +99,7 @@ M.plugins = {
         end
       end
 
-      local function ai_snacks_input(opts)
+      local function ai_snacks_input(termname, opts)
         local context = get_cursor_context()
         local diagnostics = get_diagnostics_context()
         local prompt = "󱚣 $> " .. context
@@ -95,11 +110,11 @@ M.plugins = {
 
         local snacks_opts = {
           prompt = prompt,
-          title = "󱚣",
+          title = "Ask (" .. termname .. ")",
           default = opts.default or "",
           icon = "󱚣",
           icon_pos = "left",
-          prompt_pos = "title",
+          prompt_pos = "top",
           win = {
             style = "input",
             position = "float",
@@ -128,7 +143,6 @@ M.plugins = {
           if opts.on_submit then
             opts.on_submit(value)
           end
-          -- Highlight placeholders after input
           local buf = vim.api.nvim_get_current_buf()
           highlight_placeholders(buf)
         end)
@@ -145,7 +159,7 @@ M.plugins = {
         {
           "<leader>ha",
           function()
-            ai_snacks_input({
+            ai_snacks_input("goose", {
               prompt = "",
               on_submit = function(text)
                 if text then
@@ -154,7 +168,7 @@ M.plugins = {
               end,
             })
           end,
-          desc = "Goose: send",
+          desc = "Ask",
         },
         {
           "<leader>hf",
@@ -173,7 +187,7 @@ M.plugins = {
         {
           "<leader>hl",
           function()
-            ai_snacks_input({
+            ai_snacks_input("goose", {
               prompt = "",
               on_submit = function(cmd)
                 if cmd then
@@ -182,7 +196,7 @@ M.plugins = {
               end,
             })
           end,
-          desc = "Goose: Run command",
+          desc = "Ask",
         },
         {
           "<leader>ha",
@@ -193,7 +207,7 @@ M.plugins = {
             end
           end,
           mode = "v",
-          desc = "Goose: send",
+          desc = "Ask",
         },
         {
           "<leader>hc",
@@ -213,7 +227,7 @@ M.plugins = {
         {
           "<leader>ya",
           function()
-            ai_snacks_input({
+            ai_snacks_input("claude", {
               prompt = "",
               on_submit = function(text)
                 if text then
@@ -222,7 +236,7 @@ M.plugins = {
               end,
             })
           end,
-          desc = "Claude: send",
+          desc = "Ask",
         },
         {
           "<leader>yf",
@@ -241,7 +255,7 @@ M.plugins = {
         {
           "<leader>yl",
           function()
-            ai_snacks_input({
+            ai_snacks_input("claude", {
               prompt = "",
               on_submit = function(cmd)
                 if cmd then
@@ -250,7 +264,7 @@ M.plugins = {
               end,
             })
           end,
-          desc = "Claude: Run command",
+          desc = "Ask",
         },
         {
           "<leader>ya",
@@ -261,7 +275,7 @@ M.plugins = {
             end
           end,
           mode = "v",
-          desc = "Claude: send",
+          desc = "Ask",
         },
         {
           "<leader>yc",
@@ -281,7 +295,7 @@ M.plugins = {
         {
           "<leader>ua",
           function()
-            ai_snacks_input({
+            ai_snacks_input("cursor", {
               prompt = "",
               on_submit = function(text)
                 if text then
@@ -290,7 +304,7 @@ M.plugins = {
               end,
             })
           end,
-          desc = "Cursor: send",
+          desc = "Ask",
         },
         {
           "<leader>uf",
@@ -309,7 +323,7 @@ M.plugins = {
         {
           "<leader>ul",
           function()
-            ai_snacks_input({
+            ai_snacks_input("cursor", {
               prompt = "",
               on_submit = function(cmd)
                 if cmd then
@@ -318,7 +332,7 @@ M.plugins = {
               end,
             })
           end,
-          desc = "Cursor: Run command",
+          desc = "Ask",
         },
         {
           "<leader>ua",
@@ -329,7 +343,7 @@ M.plugins = {
             end
           end,
           mode = "v",
-          desc = "Cursor: send",
+          desc = "Ask",
         },
         {
           "<leader>uc",
