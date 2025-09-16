@@ -12,8 +12,14 @@ M.plugins = {
     },
     config = function()
       require("render-markdown").setup({
+        anti_conceal = {
+          above = 5,
+          below = 5,
+        },
+        preset = "obsidian",
         headings = {
           border_virtual = true,
+          border_prefix = true,
         },
         code = {
           border = "none",
@@ -40,7 +46,7 @@ M.plugins = {
         },
         completions = {
           blink = {
-            enabled = false,
+            enabled = true,
           },
           lsp = {
             enabled = true,
