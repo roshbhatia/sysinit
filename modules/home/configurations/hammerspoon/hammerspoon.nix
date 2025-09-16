@@ -1,7 +1,9 @@
 { config, pkgs, ... }:
 {
-  home.file.".hammerspoon/init.lua".source = ./init.lua;
-  home.file.".hammerspoon/lua".source = ./lua;
+  home.file.".hammerspoon/init.lua".source =
+    "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/hammerspoon/init.lua";
+  home.file.".hammerspoon/lua".source =
+    "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/hammerspoon/lua";
 
   home.file.".hammerspoon/Spoons/VimMode.spoon" = {
     source = pkgs.fetchFromGitHub {
