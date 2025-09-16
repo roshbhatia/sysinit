@@ -78,31 +78,27 @@ M.plugins = {
         },
       })
 
-      if config.is_agents_enabled() then
-        wk.add({
-          {
-            "<leader>h",
-            group = "Goose",
-          },
-          {
-            "<leader>y",
-            group = "Claude",
-          },
-          {
-            "<leader>u",
-            group = "Cursor",
-          },
-        })
+      wk.add({
+        {
+          "<leader>h",
+          group = "Goose",
+        },
+        {
+          "<leader>y",
+          group = "Claude",
+        },
+        {
+          "<leader>u",
+          group = "Cursor",
+        },
+      })
 
-        if config.is_opencode_enabled() then
-          wk.add({
-            {
-              "<leader>j",
-              group = "OpenCode",
-            },
-          })
-        end
-      end
+      wk.add({
+        {
+          "<leader>j",
+          group = "OpenCode",
+        },
+      })
 
       if config.get().debug then
         wk.add({
