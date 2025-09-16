@@ -132,6 +132,70 @@ local function get_code_actions(state)
   return table.concat(titles, "; ")
 end
 
+local function get_visible_content(state)
+  local win = vim.api.nvim_get_current_win()
+  local top_line = vim.fn.line("w0")
+  local bottom_line = vim.fn.line("w$")
+  local bufnr = state.bufnr
+
+  local lines = vim.api.nvim_buf_get_lines(bufnr, top_line - 1, bottom_line, false)
+  return table.concat(lines, "\n")
+end
+
+local function get_quickfix_list()
+  local qflist = vim.fn.getqflist()
+  if #qflist == 0 then
+    return "No quickfix entries"
+  end
+
+  local entries = {}
+  for _, entry in ipairs(qflist) do
+    if entry.valid == 1 then
+      local bufname = vim.api.nvim_buf_get_name(entry.bufnr)
+      local filename = vim.fn.fnamemodify(bufname, ":t")
+      local text = entry.text or ""
+      table.insert(entries, string.format("%s:%d: %s", filename, entry.lnum, text))
+    end
+  end
+  return table.concat(entries, "\n")
+end
+
+local function get_location_list()
+  local loclist = vim.fn.getloclist(0)
+  if #loclist == 0 then
+    return "No location list entries"
+  end
+
+  local entries = {}
+  for _, entry in ipairs(loclist) do
+    if entry.valid == 1 then
+      local bufname = vim.api.nvim_buf_get_name(entry.bufnr)
+      local filename = vim.fn.fnamemodify(bufname, ":t")
+      local text = entry.text or ""
+      table.insert(entries, string.format("%s:%d: %s", filename, entry.lnum, text))
+    end
+  end
+  return table.concat(entries, "\n")
+end
+
+local function get_git_diff(state)
+  local bufnr = state.bufnr
+  local filepath = vim.api.nvim_buf_get_name(bufnr)
+
+  if filepath == "" then
+    return "No file path available"
+  end
+
+  local cmd = string.format("git diff %s", vim.fn.shellescape(filepath))
+  local output = vim.fn.system(cmd)
+
+  if vim.v.shell_error ~= 0 then
+    return "No git diff available"
+  end
+
+  return output
+end
+
 ---@class PlaceholderDef
 ---@field token string
 ---@field description string
@@ -139,37 +203,72 @@ end
 local PLACEHOLDERS = {
   {
     token = "@cursor",
-    description = "Current file path with line number",
+    description = "Cursor position",
     provider = function(state)
       return string.format("%s:%d", state.file, state.line)
     end,
   },
   {
-    token = "@diagnostics",
-    description = "Diagnostics messages on current line with line numbers",
-    provider = function(state)
-      return get_line_diagnostics(state)
-    end,
-  },
-  {
-    token = "@alldiagnostics",
-    description = "All diagnostics in current buffer with severity and line numbers",
-    provider = function(state)
-      return get_all_diagnostics(state)
+    token = "@selection",
+    description = "Selected text",
+    provider = function()
+      return get_visual_selection()
     end,
   },
   {
     token = "@buffer",
-    description = "Entire current buffer (truncated to 8k chars)",
+    description = "Current buffer",
     provider = function(state)
       return get_buffer_content(state)
     end,
   },
   {
     token = "@buffers",
-    description = "List of loaded buffers (paths)",
+    description = "Open buffers",
     provider = function()
       return get_all_buffers_summary()
+    end,
+  },
+  {
+    token = "@visible",
+    description = "Visible text",
+    provider = function(state)
+      return get_visible_content(state)
+    end,
+  },
+  {
+    token = "@diagnostic",
+    description = "Current line diagnostics",
+    provider = function(state)
+      return get_line_diagnostics(state)
+    end,
+  },
+  {
+    token = "@diagnostics",
+    description = "Current buffer diagnostics",
+    provider = function(state)
+      return get_all_diagnostics(state)
+    end,
+  },
+  {
+    token = "@qflist",
+    description = "Quickfix list",
+    provider = function()
+      return get_quickfix_list()
+    end,
+  },
+  {
+    token = "@loclist",
+    description = "Location list",
+    provider = function()
+      return get_location_list()
+    end,
+  },
+  {
+    token = "@diff",
+    description = "Git diff",
+    provider = function(state)
+      return get_git_diff(state)
     end,
   },
   {
@@ -184,13 +283,6 @@ local PLACEHOLDERS = {
     description = "Available LSP code action titles",
     provider = function(state)
       return get_code_actions(state)
-    end,
-  },
-  {
-    token = "@selection",
-    description = "Currently selected text in visual mode",
-    provider = function()
-      return get_visual_selection()
     end,
   },
 }
@@ -327,33 +419,30 @@ M.plugins = {
 
       local function create_input(termname, agent_icon, opts)
         opts = opts or {}
-        local state = current_position()
-        local file_context =
-          string.format("%s:%d", vim.fn.fnamemodify(state.file, ":t"), state.line)
-        local prompt = opts.prompt or string.format("Input (%s):", file_context)
         local action_name = opts.action or "Ask"
-        local title = string.format("%s %s", agent_icon or "", action_name)
-        local win_opts = {
-          b = { completion = true },
-          bo = { filetype = "ai_terminals_input" },
-          relative = "cursor",
-          style = "minimal",
-          border = "rounded",
-          width = math.max(40, math.min(80, vim.o.columns - 20)),
-          height = 1,
-          row = 1,
-          col = 0,
-        }
+        local prompt = opts.prompt or string.format("%s %s", agent_icon, action_name)
+        local title = string.format("%s %s", agent_icon or "", action_name)
+
         local snacks_opts = {
           prompt = prompt,
           title = title,
           default = opts.default or "",
-          win = win_opts,
+          win = {
+            b = { completion = true },
+            bo = { filetype = "ai_terminals_input" },
+            relative = "cursor",
+            style = "minimal",
+            border = "rounded",
+            width = math.max(40, math.min(80, vim.o.columns - 20)),
+            height = 1,
+            row = 1,
+            col = 0,
+          },
         }
+
         snacks.input(snacks_opts, function(value)
-          local cb = opts.on_confirm or opts.on_submit
-          if cb and value and value ~= "" then
-            cb(apply_placeholders(value))
+          if opts.on_confirm and value and value ~= "" then
+            opts.on_confirm(apply_placeholders(value))
           end
         end)
       end
@@ -371,11 +460,13 @@ M.plugins = {
           {
             string.format("<leader>%sa", key_prefix),
             function()
-              -- Check if we're in visual mode or have a selection
               local mode = vim.fn.mode()
-              local default_text = ""
+              local default_text
+
               if mode:match("[vV]") then
-                default_text = "Ask: @selection"
+                default_text = "@selection "
+              else
+                default_text = "@cursor "
               end
 
               create_input(termname, icon, {
@@ -386,14 +477,14 @@ M.plugins = {
                 end,
               })
             end,
-            desc = icon .. " " .. label .. "Ask: @cursor",
+            desc = icon .. " " .. label .. ": Ask",
           },
           {
             string.format("<leader>%sf", key_prefix),
             function()
               create_input(termname, icon, {
                 action = "Fix diagnostics",
-                default = "Fix the diagnostic issues in this code: @alldiagnostics",
+                default = "@diagnostic Fix ",
                 on_confirm = function(text)
                   ai_terminals.send_term(termname, text, { submit = true })
                 end,
@@ -406,7 +497,7 @@ M.plugins = {
             function()
               create_input(termname, icon, {
                 action = "Comment",
-                default = "Add comments to this code: @selection",
+                default = "@cursor Add comments for ",
                 on_confirm = function(text)
                   ai_terminals.send_term(termname, text, { submit = true })
                 end,
@@ -418,9 +509,9 @@ M.plugins = {
       end
 
       local agents = {
-        { "h", "goose", "Goose", "" },
+        { "h", "goose", "Goose", "" },
         { "y", "claude", "Claude", "󰿟󰫮" },
-        { "u", "cursor", "Cursor", "" },
+        { "u", "cursor", "Cursor", "" },
       }
 
       local mappings = {}
