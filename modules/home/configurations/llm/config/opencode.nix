@@ -13,27 +13,55 @@ lib.mkIf opencodeEnabled {
         share = "disabled";
         theme = "system";
         autoupdate = true;
+        model = {
+          provider = "anthropic";
+          name = "claude-3-5-sonnet";
+          temperature = 0.7;
+          max_tokens = 8192;
+          timeout = 300;
+        };
+        features = {
+          auto_completion = true;
+          code_analysis = true;
+          refactoring = true;
+          test_generation = true;
+          documentation = true;
+        };
+        permissions = {
+          file_operations = "prompt";
+          network_access = "allow";
+          shell_commands = "prompt";
+        };
         mcp = {
           fetch = {
             type = "local";
             enabled = true;
             command = [ mcpServers.servers.fetch.command ] ++ mcpServers.servers.fetch.args;
+            description = mcpServers.servers.fetch.description;
           };
-          memory = {
+          git = {
             type = "local";
             enabled = true;
-            environment = mcpServers.servers.memory.env;
-            command = [ mcpServers.servers.memory.command ] ++ mcpServers.servers.memory.args;
+            command = [ mcpServers.servers.git.command ] ++ mcpServers.servers.git.args;
+            description = mcpServers.servers.git.description;
+          };
+          chroma = {
+            type = "local";
+            enabled = true;
+            command = [ mcpServers.servers.chroma.command ] ++ mcpServers.servers.chroma.args;
+            description = mcpServers.servers.chroma.description;
           };
           context7 = {
             type = "local";
             enabled = true;
             command = [ mcpServers.servers.context7.command ] ++ mcpServers.servers.context7.args;
+            description = mcpServers.servers.context7.description;
           };
           neovim = {
             type = "local";
             enabled = true;
             command = [ mcpServers.servers.neovim.command ] ++ mcpServers.servers.neovim.args;
+            description = mcpServers.servers.neovim.description;
           };
         };
         lsp = builtins.mapAttrs (_name: lsp: {

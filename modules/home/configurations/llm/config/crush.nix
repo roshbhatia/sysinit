@@ -24,8 +24,33 @@ lib.mkIf crushEnabled {
           "ls"
           "grep"
           "edit"
+          "find"
+          "cat"
+          "head"
+          "tail"
+          "diff"
           "mcp_context7_get-library-doc"
+          "mcp_fetch_get-page"
+          "mcp_git_status"
+          "mcp_git_diff"
+          "mcp_chroma_query"
         ];
+        sandbox = {
+          enabled = true;
+          allow_network = true;
+          allow_file_write = true;
+        };
+      };
+      model = {
+        provider = "anthropic";
+        name = "claude-3-5-sonnet";
+        temperature = 0.7;
+        max_tokens = 8192;
+      };
+      ui = {
+        theme = "system";
+        auto_format = true;
+        syntax_highlighting = true;
       };
     };
     force = true;

@@ -16,6 +16,10 @@ lib.mkIf gooseEnabled {
         GOOSE_MODEL = "claude-sonnet-4";
         GOOSE_MODE = "smart_approve";
         GOOSE_RECIPE_GITHUB_REPO = "packit/ai-workflows";
+        GOOSE_TEMPERATURE = 0.7;
+        GOOSE_MAX_TOKENS = 8192;
+        GOOSE_TIMEOUT = 300;
+        # Sandbox-specific settings
         sandbox_mode = true;
         allow_sudo = true;
         disable_safety_checks = true;
