@@ -8,100 +8,75 @@ M.plugins = {
     dependencies = {
       "folke/snacks.nvim",
     },
-    opts = {
-      terminals = {
-        claude = {
-          cmd = function()
-            return "claude"
-          end,
+    config = function()
+      require("ai-terminals").setup({
+        window_dimensions = {
+          right = { width = 0.4, height = 1.0 },
+          border = "rounded",
         },
-        goose = {
-          cmd = function()
-            return string.format("GOOSE_CLI_THEME=%s goose", vim.o.background)
-          end,
+        default_position = "right",
+        enable_diffing = true,
+        trigger_formatting = { enabled = true },
+        watch_cwd = {
+          enabled = true,
+          ignore = {
+            "**/.git/**",
+            "**/node_modules/**",
+            "**/.venv/**",
+            "**/*.log",
+            "**/bin/**",
+            "**/dist/**",
+            "**/vendor/**",
+          },
+          gitignore = true,
         },
-        cursor = {
-          cmd = function()
-            return "cursor"
-          end,
+        env = {
+          PAGER = "bat",
         },
-        opencode = {
-          cmd = function()
-            return "opencode"
-          end,
-        },
-      },
-      window_dimensions = {
-        right = { width = 0.4, height = 1.0 },
-        border = "rounded",
-      },
-      default_position = "right",
-      enable_diffing = true,
-      trigger_formatting = { enabled = true },
-      watch_cwd = {
-        enabled = true,
-        ignore = {
-          "**/.git/**",
-          "**/node_modules/**",
-          "**/.venv/**",
-          "**/*.log",
-          "**/bin/**",
-          "**/dist/**",
-          "**/vendor/**",
-        },
-        gitignore = true,
-      },
-      env = {
-        PAGER = "bat",
-      },
-    },
-    config = function(_, opts)
-      require("ai-terminals").setup(opts)
-      local sa = require("ai-terminals.snacks_actions")
-      require("snacks").setup({})
-      sa.apply(require("snacks").config)
+      })
     end,
     keys = function()
+      local ai_terminals = require("ai-terminals")
       return {
         {
           "<leader>hh",
           function()
-            require("ai-terminals").toggle("goose")
+            ai_terminals.toggle("goose")
           end,
           desc = "Goose: Toggle terminal",
         },
         {
           "<leader>ha",
           function()
-            require("ai-terminals").ask("goose")
+            ai_terminals.ask("goose")
           end,
           desc = "Goose: Ask",
         },
         {
           "<leader>hf",
           function()
-            require("ai-terminals").fix_diagnostics("goose")
+            ai_terminals.fix_diagnostics("goose")
           end,
           desc = "Goose: Fix diagnostics",
         },
         {
           "<leader>hc",
           function()
-            require("ai-terminals").comment("goose")
+            ai_terminals.comment("goose")
           end,
           desc = "Goose: Comment",
         },
         {
           "<leader>hl",
           function()
-            require("ai-terminals").run("goose")
+            ai_terminals.run("goose")
           end,
           desc = "Goose: Run command",
         },
         {
           "<leader>ha",
           function()
-            require("ai-terminals").ask("goose")
+            ai_terminals.ask("goose")
           end,
           mode = "v",
           desc = "Goose: Ask (visual)",
@@ -109,7 +84,7 @@ M.plugins = {
         {
           "<leader>hc",
           function()
-            require("ai-terminals").comment("goose")
+            ai_terminals.comment("goose")
           end,
           mode = "v",
           desc = "Goose: Comment (visual)",
@@ -117,42 +92,42 @@ M.plugins = {
         {
           "<leader>yy",
           function()
-            require("ai-terminals").toggle("claude")
+            ai_terminals.toggle("claude")
           end,
           desc = "Claude: Toggle terminal",
         },
         {
           "<leader>ya",
           function()
-            require("ai-terminals").ask("claude")
+            ai_terminals.ask("claude")
           end,
           desc = "Claude: Ask",
         },
         {
           "<leader>yf",
           function()
-            require("ai-terminals").fix_diagnostics("claude")
+            ai_terminals.fix_diagnostics("claude")
           end,
           desc = "Claude: Fix diagnostics",
         },
         {
           "<leader>yc",
           function()
-            require("ai-terminals").comment("claude")
+            ai_terminals.comment("claude")
           end,
           desc = "Claude: Comment",
         },
         {
           "<leader>yl",
           function()
-            require("ai-terminals").run("claude")
+            ai_terminals.run("claude")
           end,
           desc = "Claude: Run command",
         },
         {
           "<leader>ya",
           function()
-            require("ai-terminals").ask("claude")
+            ai_terminals.ask("claude")
           end,
           mode = "v",
           desc = "Claude: Ask (visual)",
@@ -160,7 +135,7 @@ M.plugins = {
         {
           "<leader>yc",
           function()
-            require("ai-terminals").comment("claude")
+            ai_terminals.comment("claude")
           end,
           mode = "v",
           desc = "Claude: Comment (visual)",
@@ -168,42 +143,42 @@ M.plugins = {
         {
           "<leader>uu",
           function()
-            require("ai-terminals").toggle("cursor")
+            ai_terminals.toggle("cursor")
           end,
           desc = "Cursor: Toggle terminal",
         },
         {
           "<leader>ua",
           function()
-            require("ai-terminals").ask("cursor")
+            ai_terminals.ask("cursor")
           end,
           desc = "Cursor: Ask",
         },
         {
           "<leader>uf",
           function()
-            require("ai-terminals").fix_diagnostics("cursor")
+            ai_terminals.fix_diagnostics("cursor")
           end,
           desc = "Cursor: Fix diagnostics",
         },
         {
           "<leader>uc",
           function()
-            require("ai-terminals").comment("cursor")
+            ai_terminals.comment("cursor")
           end,
           desc = "Cursor: Comment",
         },
         {
           "<leader>ul",
           function()
-            require("ai-terminals").run("cursor")
+            ai_terminals.run("cursor")
           end,
           desc = "Cursor: Run command",
         },
         {
           "<leader>ua",
           function()
-            require("ai-terminals").ask("cursor")
+            ai_terminals.ask("cursor")
           end,
           mode = "v",
           desc = "Cursor: Ask (visual)",
@@ -211,7 +186,7 @@ M.plugins = {
         {
           "<leader>uc",
           function()
-            require("ai-terminals").comment("cursor")
+            ai_terminals.comment("cursor")
           end,
           mode = "v",
           desc = "Cursor: Comment (visual)",
