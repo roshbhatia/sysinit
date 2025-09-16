@@ -55,12 +55,12 @@ M.plugins = {
         PAGER = "bat",
       },
       auto_terminal_keymaps = {
-        prefix = "",
+        prefix = "<leader>h",
         terminals = {
-          { name = "opencode", key = "<leader>hh" },
-          { name = "goose", key = "<leader>hj" },
-          { name = "claude", key = "<leader>hl" },
-          { name = "cursor", key = "<leader>hk" },
+          { name = "opencode", key = "h" },
+          { name = "goose", key = "j" },
+          { name = "claude", key = "k" },
+          { name = "cursor", key = "l" },
         },
       },
     },
