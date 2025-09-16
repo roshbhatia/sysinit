@@ -41,323 +41,94 @@ M.plugins = {
     end,
     keys = function()
       local ai_terminals = require("ai-terminals")
-
       local snacks = require("snacks")
 
-      local function get_cursor_context()
+      local function replace_placeholders(input)
         local buf = vim.api.nvim_get_current_buf()
         local file = vim.api.nvim_buf_get_name(buf)
         local line = vim.api.nvim_win_get_cursor(0)[1]
-        return string.format("@cursor %s:%d", file, line)
-      end
+        local diagnostics = vim.diagnostic.get(buf, { lnum = line - 1 })
 
-      local function get_diagnostics_context()
-        local buf = vim.api.nvim_get_current_buf()
-        local line = vim.api.nvim_win_get_cursor(0)[1] - 1
-        local diags = vim.diagnostic.get(buf, { lnum = line })
-        if #diags == 0 then
-          return nil
-        end
-        local summary = table.concat(
-          vim.tbl_map(function(d)
-            return d.message
-          end, diags),
-          "; "
-        )
-        return "@diagnostics " .. summary
-      end
-
-      local function highlight_placeholders(buf)
-        local input = vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1] or ""
-        local placeholders = {
-          "@buffer",
-          "@buffers",
-          "@cwd",
-          "@file",
-          "@range",
-          "@diagnostics",
-          "@quickfix",
-          "@visible",
-          "@diff",
-          "@tags",
-          "@cursor",
-        }
-        local ns_id = vim.api.nvim_create_namespace("ai_terminals_placeholders")
-        vim.api.nvim_buf_clear_namespace(buf, ns_id, 0, -1)
-        for _, placeholder in ipairs(placeholders) do
-          local init = 1
-          while true do
-            local start_pos, end_pos = input:find(placeholder, init, true)
-            if not start_pos then
-              break
+        return input
+          :gsub("@cursor", string.format("%s:%d", file, line))
+          :gsub("@diagnostics", function()
+            if #diagnostics == 0 then
+              return ""
             end
-            vim.api.nvim_buf_set_extmark(buf, ns_id, 0, start_pos - 1, {
-              end_col = end_pos,
-              hl_group = "@lsp.type.enum",
-            })
-            init = end_pos + 1
-          end
-        end
+            return table.concat(
+              vim.tbl_map(function(d)
+                return d.message
+              end, diagnostics),
+              "; "
+            )
+          end)
       end
 
-      local function ai_snacks_input(termname, opts)
+      local function create_input(termname, opts)
         opts = opts or {}
-        local cursor_ctx = get_cursor_context()
-        local diagnostics = get_diagnostics_context()
-        local context_line = cursor_ctx .. (diagnostics and (" " .. diagnostics) or "")
-        local prompt = "󱚣 : " .. context_line .. "\n" .. (opts.prompt or "Input:")
-        local default_value = (opts.default and opts.default ~= "" and opts.default) or "@cursor "
-
-        local user_on_submit = opts.on_submit
-
+        local prompt = opts.prompt or "Input:"
         local snacks_opts = {
           prompt = prompt,
           title = "ask " .. termname,
-          default = default_value,
-          icon = "󱚣",
-          icon_pos = "left",
-          prompt_pos = "top",
-          win = {
-            style = "input",
-            position = "float",
-            border = "rounded",
-            title = "ask " .. termname,
-            title_pos = "center",
-            height = 1,
-            width = 60,
-            relative = "cursor",
-            row = 0,
-            wo = {
-              winhighlight = "NormalFloat:SnacksInputNormal,FloatBorder:SnacksInputBorder,FloatTitle:SnacksInputTitle",
-              cursorline = false,
-            },
-            bo = {
-              filetype = "snacks_input",
-              buftype = "prompt",
-            },
-            b = {
-              completion = false,
-            },
-          },
-          expand = true,
+          default = opts.default or "",
+          on_submit = function(value)
+            if opts.on_submit and value then
+              opts.on_submit(replace_placeholders(value))
+            end
+          end,
         }
-
-        snacks.input(snacks_opts, function(value)
-          if user_on_submit and value then
-            local final = context_line .. "\n" .. value
-            user_on_submit(final)
-          end
-          local buf = vim.api.nvim_get_current_buf()
-          highlight_placeholders(buf)
-        end)
+        snacks.input(snacks_opts)
       end
 
-      return {
-        {
-          "<leader>hh",
-          function()
-            ai_terminals.toggle("goose")
-          end,
-          desc = "Goose: Toggle terminal",
-        },
-        {
-          "<leader>ha",
-          function()
-            ai_snacks_input("goose", {
-              prompt = "",
-              on_submit = function(text)
-                if text then
-                  ai_terminals.send_term("goose", text, { submit = true })
-                end
-              end,
-            })
-          end,
-          desc = "Ask",
-        },
-        {
-          "<leader>hf",
-          function()
-            ai_terminals.send_diagnostics("goose", { submit = true })
-          end,
-          desc = "Goose: Fix diagnostics",
-        },
-        {
-          "<leader>hc",
-          function()
-            ai_terminals.comment("goose")
-          end,
-          desc = "Goose: Comment",
-        },
-        {
-          "<leader>hl",
-          function()
-            ai_snacks_input("goose", {
-              prompt = "",
-              on_submit = function(cmd)
-                if cmd then
-                  ai_terminals.send_command_output("goose", cmd, { submit = true })
-                end
-              end,
-            })
-          end,
-          desc = "Ask",
-        },
-        {
-          "<leader>ha",
-          function()
-            local text = ai_terminals.get_visual_selection_with_header()
-            if text then
-              ai_terminals.send_term("goose", text, { submit = false })
-            end
-          end,
-          mode = "v",
-          desc = "Ask",
-        },
-        {
-          "<leader>hc",
-          function()
-            ai_terminals.comment("goose")
-          end,
-          mode = "v",
-          desc = "Goose: Comment",
-        },
-        {
-          "<leader>yy",
-          function()
-            ai_terminals.toggle("claude")
-          end,
-          desc = "Claude: Toggle terminal",
-        },
-        {
-          "<leader>ya",
-          function()
-            ai_snacks_input("claude", {
-              prompt = "",
-              on_submit = function(text)
-                if text then
-                  ai_terminals.send_term("claude", text, { submit = true })
-                end
-              end,
-            })
-          end,
-          desc = "Ask",
-        },
-        {
-          "<leader>yf",
-          function()
-            ai_terminals.send_diagnostics("claude", { submit = true })
-          end,
-          desc = "Claude: Fix diagnostics",
-        },
-        {
-          "<leader>yc",
-          function()
-            ai_terminals.comment("claude")
-          end,
-          desc = "Claude: Comment",
-        },
-        {
-          "<leader>yl",
-          function()
-            ai_snacks_input("claude", {
-              prompt = "",
-              on_submit = function(cmd)
-                if cmd then
-                  ai_terminals.send_command_output("claude", cmd, { submit = true })
-                end
-              end,
-            })
-          end,
-          desc = "Ask",
-        },
-        {
-          "<leader>ya",
-          function()
-            local text = ai_terminals.get_visual_selection_with_header()
-            if text then
-              ai_terminals.send_term("claude", text, { submit = false })
-            end
-          end,
-          mode = "v",
-          desc = "Ask",
-        },
-        {
-          "<leader>yc",
-          function()
-            ai_terminals.comment("claude")
-          end,
-          mode = "v",
-          desc = "Claude: Comment",
-        },
-        {
-          "<leader>uu",
-          function()
-            ai_terminals.toggle("cursor")
-          end,
-          desc = "Cursor: Toggle terminal",
-        },
-        {
-          "<leader>ua",
-          function()
-            ai_snacks_input("cursor", {
-              prompt = "",
-              on_submit = function(text)
-                if text then
-                  ai_terminals.send_term("cursor", text, { submit = true })
-                end
-              end,
-            })
-          end,
-          desc = "Ask",
-        },
-        {
-          "<leader>uf",
-          function()
-            ai_terminals.send_diagnostics("cursor", { submit = true })
-          end,
-          desc = "Cursor: Fix diagnostics",
-        },
-        {
-          "<leader>uc",
-          function()
-            ai_terminals.comment("cursor")
-          end,
-          desc = "Cursor: Comment",
-        },
-        {
-          "<leader>ul",
-          function()
-            ai_snacks_input("cursor", {
-              prompt = "",
-              on_submit = function(cmd)
-                if cmd then
-                  ai_terminals.send_command_output("cursor", cmd, { submit = true })
-                end
-              end,
-            })
-          end,
-          desc = "Ask",
-        },
-        {
-          "<leader>ua",
-          function()
-            local text = ai_terminals.get_visual_selection_with_header()
-            if text then
-              ai_terminals.send_term("cursor", text, { submit = false })
-            end
-          end,
-          mode = "v",
-          desc = "Ask",
-        },
-        {
-          "<leader>uc",
-          function()
-            ai_terminals.comment("cursor")
-          end,
-          mode = "v",
-          desc = "Cursor: Comment",
-        },
+      local function create_keymaps(agent)
+        return {
+          {
+            string.format("<leader>%sh", agent[1]),
+            function()
+              ai_terminals.toggle(agent[2])
+            end,
+            desc = agent[3] .. ": Toggle terminal",
+          },
+          {
+            string.format("<leader>%sa", agent[1]),
+            function()
+              create_input(agent[2], {
+                on_submit = function(text)
+                  ai_terminals.send_term(agent[2], text, { submit = true })
+                end,
+              })
+            end,
+            desc = agent[3] .. ": Ask",
+          },
+          {
+            string.format("<leader>%sf", agent[1]),
+            function()
+              ai_terminals.send_diagnostics(agent[2], { submit = true })
+            end,
+            desc = agent[3] .. ": Fix diagnostics",
+          },
+          {
+            string.format("<leader>%sc", agent[1]),
+            function()
+              ai_terminals.comment(agent[2])
+            end,
+            desc = agent[3] .. ": Comment",
+          },
+        }
+      end
+
+      local agents = {
+        { "h", "goose", "Goose" },
+        { "y", "claude", "Claude" },
+        { "u", "cursor", "Cursor" },
       }
+
+      local mappings = {}
+      for _, agent in ipairs(agents) do
+        vim.list_extend(mappings, create_keymaps(agent))
+      end
+
+      return mappings
     end,
   },
 }
