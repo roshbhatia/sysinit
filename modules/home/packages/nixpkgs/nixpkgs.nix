@@ -35,7 +35,7 @@ let
     docker
     docker-compose-language-service
     docker-language-server
-    dotnet
+    dotnet-runtime
     duf
     eslint
     fish
