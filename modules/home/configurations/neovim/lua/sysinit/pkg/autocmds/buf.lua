@@ -45,24 +45,6 @@ function M.setup()
       end
     end,
   })
-
-  vim.api.nvim_create_autocmd("VimLeavePre", {
-    callback = function()
-      pcall(function()
-        local current_buf = vim.api.nvim_get_current_buf()
-        local buffers = vim.api.nvim_list_bufs()
-
-        for _, buf in ipairs(buffers) do
-          if buf ~= current_buf and vim.api.nvim_buf_is_loaded(buf) then
-            local buf_name = vim.api.nvim_buf_get_name(buf)
-            if vim.bo[buf].buftype == "" and buf_name ~= "" then
-              pcall(vim.api.nvim_buf_delete, buf, { force = true })
-            end
-          end
-        end
-      end)
-    end,
-  })
 end
 
 return M
