@@ -7,6 +7,7 @@ let
   additionalPackages = values.nix.additionalPackages;
 
   baseNixPackages = with pkgs; [
+    _1password-cli
     actionlint
     alt-tab-macos
     ansible
