@@ -71,9 +71,10 @@ M.plugins = {
           prompt = prompt,
           title = "ask " .. termname,
           default = opts.default or "",
-          on_submit = function(value)
-            if opts.on_submit and value then
-              opts.on_submit(replace_placeholders(value))
+          on_confirm = function(value)
+            local cb = opts.on_confirm or opts.on_submit
+            if cb and value then
+              cb(replace_placeholders(value))
             end
           end,
         }
