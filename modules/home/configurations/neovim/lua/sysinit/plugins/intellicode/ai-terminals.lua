@@ -70,16 +70,17 @@ M.plugins = {
       local function highlight_placeholders(buf)
         local input = vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1] or ""
         local placeholders = {
-          "<buffer>",
-          "<buffers>",
-          "<cwd>",
-          "<file>",
-          "<range>",
-          "<diagnostics>",
-          "<quickfix>",
-          "<visible>",
-          "<diff>",
-          "<tags>",
+          "@buffer",
+          "@buffers",
+          "@cwd",
+          "@file",
+          "@range",
+          "@diagnostics",
+          "@quickfix",
+          "@visible",
+          "@diff",
+          "@tags",
+          "@cursor",
         }
         local ns_id = vim.api.nvim_create_namespace("ai_terminals_placeholders")
         vim.api.nvim_buf_clear_namespace(buf, ns_id, 0, -1)
@@ -100,18 +101,19 @@ M.plugins = {
       end
 
       local function ai_snacks_input(termname, opts)
-        local context = get_cursor_context()
+        opts = opts or {}
+        local cursor_ctx = get_cursor_context()
         local diagnostics = get_diagnostics_context()
-        local prompt = "󱚣 $> " .. context
-        if diagnostics then
-          prompt = prompt .. " " .. diagnostics
-        end
-        prompt = prompt .. "\n" .. (opts.prompt or "Input:")
+        local context_line = cursor_ctx .. (diagnostics and (" " .. diagnostics) or "")
+        local prompt = "󱚣 : " .. context_line .. "\n" .. (opts.prompt or "Input:")
+        local default_value = (opts.default and opts.default ~= "" and opts.default) or "@cursor "
+
+        local user_on_submit = opts.on_submit
 
         local snacks_opts = {
           prompt = prompt,
-          title = "Ask (" .. termname .. ")",
-          default = opts.default or "",
+          title = "ask " .. termname,
+          default = default_value,
           icon = "󱚣",
           icon_pos = "left",
           prompt_pos = "top",
@@ -119,6 +121,7 @@ M.plugins = {
             style = "input",
             position = "float",
             border = "rounded",
+            title = "ask " .. termname,
             title_pos = "center",
             height = 1,
             width = 60,
@@ -140,8 +143,9 @@ M.plugins = {
         }
 
         snacks.input(snacks_opts, function(value)
-          if opts.on_submit then
-            opts.on_submit(value)
+          if user_on_submit and value then
+            local final = context_line .. "\n" .. value
+            user_on_submit(final)
           end
           local buf = vim.api.nvim_get_current_buf()
           highlight_placeholders(buf)
