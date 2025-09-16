@@ -79,7 +79,7 @@ M.plugins = {
           enabled = false,
         },
         image = {
-          enabled = true,
+          enabled = false,
         },
         indent = {
           enabled = false,
