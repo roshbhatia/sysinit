@@ -20,6 +20,7 @@ in
       };
     };
   };
+  neovim-unwrapped = unstable.neovim-unwrapped;
   nushell = unstable.nushell;
   sbarlua = unstable.sbarlua;
 }
