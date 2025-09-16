@@ -465,9 +465,9 @@ M.plugins = {
               local default_text
 
               if mode:match("[vV]") then
-                default_text = "@selection: "
+                default_text = " @selection: "
               else
-                default_text = "@cursor: "
+                default_text = " @cursor: "
               end
 
               create_input(termname, icon, {
@@ -485,7 +485,7 @@ M.plugins = {
             function()
               create_input(termname, icon, {
                 action = "Fix diagnostics",
-                default = "@diagnostic: fix ",
+                default = " Fix @diagnostic: ",
                 on_confirm = function(text)
                   ai_terminals.send_term(termname, text, { submit = true })
                 end,
@@ -496,9 +496,18 @@ M.plugins = {
           {
             string.format("<leader>%sc", key_prefix),
             function()
+              local mode = vim.fn.mode()
+              local default_text
+
+              if mode:match("[vV]") then
+                default_text = " Comment @selection: "
+              else
+                default_text = " Comment @cursor: "
+              end
+
               create_input(termname, icon, {
                 action = "Comment",
-                default = "@selection @cursor: comment ",
+                default = default_text,
                 on_confirm = function(text)
                   ai_terminals.send_term(termname, text, { submit = true })
                 end,
