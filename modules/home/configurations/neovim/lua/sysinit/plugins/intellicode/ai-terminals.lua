@@ -55,7 +55,7 @@ M.plugins = {
         PAGER = "bat",
       },
       auto_terminal_keymaps = {
-        prefix = "<leader>h",
+        prefix = "<leader>at",
         terminals = {
           { name = "opencode", key = "h" },
           { name = "goose", key = "j" },

@@ -66,7 +66,7 @@ M.plugins = {
         },
         {
           "<leader>q",
-          group = "Qflist/Loclist",
+          group = "Qflist/loclist",
         },
         {
           "<leader>r",
@@ -81,8 +81,28 @@ M.plugins = {
       if config.is_agents_enabled() then
         wk.add({
           {
-            "<leader>h",
-            group = "AI Terminals",
+            "<leader>a",
+            group = "AI terminals",
+          },
+          {
+            "<leader>ac",
+            group = "Comment",
+          },
+          {
+            "<leader>ad",
+            group = "Diagnostics",
+          },
+          {
+            "<leader>al",
+            group = "Current file",
+          },
+          {
+            "<leader>aL",
+            group = "All buffers",
+          },
+          {
+            "<leader>ar",
+            group = "Run command",
           },
         })
       end
