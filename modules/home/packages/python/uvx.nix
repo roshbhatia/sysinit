@@ -11,7 +11,7 @@ let
     "chromadb"
     "hererocks"
     "https://github.com/github/spec-kit.git"
-    "vectorcode[lsp,mcp]<1.0.0"
+    "vectorcode[lsp,mcp]"
   ]
   ++ values.uvx.additionalPackages;
 in
