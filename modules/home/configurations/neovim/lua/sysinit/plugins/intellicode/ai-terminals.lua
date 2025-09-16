@@ -44,7 +44,7 @@ M.plugins = {
         local buf = vim.api.nvim_get_current_buf()
         local file = vim.api.nvim_buf_get_name(buf)
         local line = vim.api.nvim_win_get_cursor(0)[1]
-        return string.format("@ cursor %s:%d", file, line)
+        return string.format("@cursor %s:%d", file, line)
       end
 
       local function get_diagnostics_context()
@@ -60,7 +60,7 @@ M.plugins = {
           end, diags),
           "; "
         )
-        return "@ diagnostics " .. summary
+        return "@diagnostics " .. summary
       end
 
       local function highlight_placeholders(buf)
@@ -87,7 +87,7 @@ M.plugins = {
       local function ai_snacks_input(opts)
         local context = get_cursor_context()
         local diagnostics = get_diagnostics_context()
-        local prompt = "󱚣 " .. context
+        local prompt = "󱚣 $> " .. context
         if diagnostics then
           prompt = prompt .. " " .. diagnostics
         end
@@ -95,6 +95,7 @@ M.plugins = {
 
         local snacks_opts = {
           prompt = prompt,
+          title = "󱚣",
           default = opts.default or "",
           icon = "󱚣",
           icon_pos = "left",
