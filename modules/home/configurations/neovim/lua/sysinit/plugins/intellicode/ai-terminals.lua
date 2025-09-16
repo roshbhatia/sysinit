@@ -426,6 +426,7 @@ M.plugins = {
         local snacks_opts = {
           prompt = prompt,
           title = title,
+          icon = agent_icon,
           default = opts.default or "",
           win = {
             b = { completion = true },
