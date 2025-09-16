@@ -77,6 +77,21 @@ local function get_all_buffers_summary()
   return table.concat(items, "\n")
 end
 
+local function get_visual_selection()
+  -- Save the current register
+  local save_reg = vim.fn.getreg('"')
+  local save_regtype = vim.fn.getregtype('"')
+
+  -- Get visual selection by yanking to unnamed register
+  vim.cmd('normal! gv"gy')
+  local selection = vim.fn.getreg('"')
+
+  -- Restore the register
+  vim.fn.setreg('"', save_reg, save_regtype)
+
+  return selection or ""
+end
+
 local function get_hover_docs(state)
   local params = vim.lsp.util.make_position_params()
   local result = lsp_request("textDocument/hover", params)
@@ -169,6 +184,13 @@ local PLACEHOLDERS = {
     description = "Available LSP code action titles",
     provider = function(state)
       return get_code_actions(state)
+    end,
+  },
+  {
+    token = "@selection",
+    description = "Currently selected text in visual mode",
+    provider = function()
+      return get_visual_selection()
     end,
   },
 }
@@ -309,7 +331,8 @@ M.plugins = {
         local file_context =
           string.format("%s:%d", vim.fn.fnamemodify(state.file, ":t"), state.line)
         local prompt = opts.prompt or string.format("Input (%s):", file_context)
-        local title = string.format("%s %s", agent_icon or "", termname)
+        local action_name = opts.action or "Ask"
+        local title = string.format("%s %s", agent_icon or "", action_name)
         local win_opts = {
           b = { completion = true },
           bo = { filetype = "ai_terminals_input" },
@@ -348,25 +371,46 @@ M.plugins = {
           {
             string.format("<leader>%sa", key_prefix),
             function()
+              -- Check if we're in visual mode or have a selection
+              local mode = vim.fn.mode()
+              local default_text = ""
+              if mode:match("[vV]") then
+                default_text = "Ask: @selection"
+              end
+
               create_input(termname, icon, {
+                action = "Ask",
+                default = default_text,
                 on_confirm = function(text)
                   ai_terminals.send_term(termname, text, { submit = true })
                 end,
               })
             end,
-            desc = icon .. " " .. label .. ": Ask (supports placeholders)",
+            desc = icon .. " " .. label .. "Ask: @cursor",
           },
           {
             string.format("<leader>%sf", key_prefix),
             function()
-              ai_terminals.send_diagnostics(termname, { submit = true })
+              create_input(termname, icon, {
+                action = "Fix diagnostics",
+                default = "Fix the diagnostic issues in this code: @alldiagnostics",
+                on_confirm = function(text)
+                  ai_terminals.send_term(termname, text, { submit = true })
+                end,
+              })
             end,
             desc = icon .. " " .. label .. ": Fix diagnostics",
           },
           {
             string.format("<leader>%sc", key_prefix),
             function()
-              ai_terminals.comment(termname)
+              create_input(termname, icon, {
+                action = "Comment",
+                default = "Add comments to this code: @selection",
+                on_confirm = function(text)
+                  ai_terminals.send_term(termname, text, { submit = true })
+                end,
+              })
             end,
             desc = icon .. " " .. label .. ": Comment",
           },
