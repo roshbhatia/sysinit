@@ -19,7 +19,7 @@ lib.mkIf gooseEnabled {
         sandbox_mode = true;
         allow_sudo = true;
         disable_safety_checks = true;
-        extensions = 
+        extensions =
           let
             builtinExtensions = {
               autovisualiser = {
@@ -49,7 +49,7 @@ lib.mkIf gooseEnabled {
                 type = "builtin";
               };
             };
-            
+
             mcpExtensions = lib.mapAttrs (name: server: {
               args = server.args;
               bundled = null;

@@ -14,11 +14,11 @@
     };
     chroma = {
       command = "uvx";
-      args = [ 
+      args = [
         "chroma-mcp"
-        "--client-type" 
-        "persistent" 
-        "--data-dir" 
+        "--client-type"
+        "persistent"
+        "--data-dir"
         "~/.local/share/chroma"
       ];
       description = "Vector database for embedding storage and retrieval with Chroma";
