@@ -8,6 +8,7 @@ lib.mkIf crushEnabled {
   xdg.configFile."crush/crush.json" = {
     text = builtins.toJSON {
       "$schema" = "https://charm.land/crush.json";
+
       lsp = builtins.mapAttrs (_name: lsp: {
         command =
           if builtins.length lsp.command == 1 then
@@ -17,7 +18,9 @@ lib.mkIf crushEnabled {
         args = lsp.args or null;
         env = lsp.env or null;
       }) lsp.lsp;
+
       inherit (mcpServers) servers;
+
       permissions = {
         allowed_tools = [
           "view"
@@ -35,24 +38,29 @@ lib.mkIf crushEnabled {
           "mcp_git_diff"
           "mcp_chroma_query"
         ];
+
         sandbox = {
           enabled = true;
           allow_network = true;
           allow_file_write = true;
         };
       };
+
       model = {
         provider = "anthropic";
         name = "claude-3-5-sonnet";
         temperature = 0.7;
         max_tokens = 8192;
       };
+
       ui = {
         theme = "system";
         auto_format = true;
         syntax_highlighting = true;
       };
+
     };
+
     force = true;
   };
 }

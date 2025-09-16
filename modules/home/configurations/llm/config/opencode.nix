@@ -10,9 +10,13 @@ lib.mkIf opencodeEnabled {
     "opencode/opencode.json" = {
       text = builtins.toJSON {
         "$schema" = "https://opencode.ai/config.json";
+
         share = "disabled";
+
         theme = "system";
+
         autoupdate = true;
+
         model = {
           provider = "anthropic";
           name = "claude-3-5-sonnet";
@@ -20,6 +24,7 @@ lib.mkIf opencodeEnabled {
           max_tokens = 8192;
           timeout = 300;
         };
+
         features = {
           auto_completion = true;
           code_analysis = true;
@@ -27,11 +32,13 @@ lib.mkIf opencodeEnabled {
           test_generation = true;
           documentation = true;
         };
+
         permissions = {
           file_operations = "prompt";
           network_access = "allow";
           shell_commands = "prompt";
         };
+
         mcp = {
           fetch = {
             type = "local";
@@ -64,10 +71,12 @@ lib.mkIf opencodeEnabled {
             description = mcpServers.servers.neovim.description;
           };
         };
+
         lsp = builtins.mapAttrs (_name: lsp: {
           command = (lsp.command or [ ]) ++ (lsp.args or [ ]);
           extensions = lsp.extensions or [ ];
         }) lsp.lsp;
+
         agent = {
           ai-engineer = {
             description = "Builds LLM applications, RAG systems, and prompt pipelines. Implements vector search, agent orchestration, and AI API integrations. Use PROACTIVELY for LLM features, chatbots, or AI-powered applications.";
@@ -90,16 +99,19 @@ lib.mkIf opencodeEnabled {
             prompt = "{file:./prompts/typescript-expert.nix}";
           };
         };
+
         keybinds = {
           leader = "ctrl+,";
         };
       };
+
       force = true;
     };
   }
   // builtins.listToAttrs (
     map (agent: {
       name = "opencode/prompts/${agent.name}.nix";
+
       value = {
         source = toString ../. + "/prompts/${agent.name}.nix";
       };
