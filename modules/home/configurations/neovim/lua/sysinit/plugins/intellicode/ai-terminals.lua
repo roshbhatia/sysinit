@@ -420,8 +420,8 @@ M.plugins = {
       local function create_input(termname, agent_icon, opts)
         opts = opts or {}
         local action_name = opts.action or "Ask"
-        local prompt = opts.prompt or string.format("%s %s", agent_icon, action_name)
-        local title = string.format("%s %s", agent_icon or "", action_name)
+        local prompt = opts.prompt or string.format("%s  %s", agent_icon, action_name)
+        local title = string.format("%s  %s", agent_icon or "", action_name)
 
         local snacks_opts = {
           prompt = prompt,
@@ -465,9 +465,9 @@ M.plugins = {
               local default_text
 
               if mode:match("[vV]") then
-                default_text = icon .. " @selection: "
+                default_text = "@selection: "
               else
-                default_text = icon .. " @cursor: "
+                default_text = "@cursor: "
               end
 
               create_input(termname, icon, {
