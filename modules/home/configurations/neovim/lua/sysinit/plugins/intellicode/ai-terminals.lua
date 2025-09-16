@@ -456,7 +456,7 @@ M.plugins = {
             function()
               ai_terminals.toggle(termname)
             end,
-            desc = icon .. " " .. label .. ": Toggle terminal",
+            desc = "Toggle " .. termname,
           },
           {
             string.format("<leader>%sa", key_prefix),
@@ -465,9 +465,9 @@ M.plugins = {
               local default_text
 
               if mode:match("[vV]") then
-                default_text = "@selection "
+                default_text = icon .. " @selection: "
               else
-                default_text = "@cursor "
+                default_text = icon .. " @cursor: "
               end
 
               create_input(termname, icon, {
@@ -478,41 +478,41 @@ M.plugins = {
                 end,
               })
             end,
-            desc = icon .. " " .. label .. ": Ask",
+            desc = "Ask",
           },
           {
             string.format("<leader>%sf", key_prefix),
             function()
               create_input(termname, icon, {
                 action = "Fix diagnostics",
-                default = "@diagnostic Fix ",
+                default = "@diagnostic: fix ",
                 on_confirm = function(text)
                   ai_terminals.send_term(termname, text, { submit = true })
                 end,
               })
             end,
-            desc = icon .. " " .. label .. ": Fix diagnostics",
+            desc = "Fix diagnostics",
           },
           {
             string.format("<leader>%sc", key_prefix),
             function()
               create_input(termname, icon, {
                 action = "Comment",
-                default = "@cursor Add comments for ",
+                default = "@selection @cursor: comment ",
                 on_confirm = function(text)
                   ai_terminals.send_term(termname, text, { submit = true })
                 end,
               })
             end,
-            desc = icon .. " " .. label .. ": Comment",
+            desc = "Comment",
           },
         }
       end
 
       local agents = {
-        { "h", "goose", "Goose", "" },
+        { "h", "goose", "Goose", "" },
         { "y", "claude", "Claude", "󰿟󰫮" },
-        { "u", "cursor", "Cursor", "" },
+        { "u", "cursor", "Cursor", "" },
       }
 
       local mappings = {}
