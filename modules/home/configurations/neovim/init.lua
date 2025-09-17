@@ -77,7 +77,6 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.intellicode.none-ls"),
   require("sysinit.plugins.intellicode.nvim-autopairs"),
   require("sysinit.plugins.intellicode.nvim-lspconfig"),
-  require("sysinit.plugins.intellicode.opencode"),
   require("sysinit.plugins.intellicode.pretty-hover"),
   require("sysinit.plugins.intellicode.refactoring"),
   require("sysinit.plugins.intellicode.schemastore"),

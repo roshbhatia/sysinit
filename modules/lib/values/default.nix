@@ -151,26 +151,6 @@ with lib;
       };
 
       llm = {
-        claude = {
-          enabled = mkOption {
-            type = types.bool;
-            default = false;
-            description = "Enable Claude Code integration";
-          };
-
-          yarnPackages = mkOption {
-            type = types.listOf types.str;
-            default = [ ];
-            description = "Additional yarn packages for Claude";
-          };
-
-          uvPackages = mkOption {
-            type = types.listOf types.str;
-            default = [ ];
-            description = "Additional uv packages for Claude";
-          };
-        };
-
         goose = {
           provider = mkOption {
             type = types.str;

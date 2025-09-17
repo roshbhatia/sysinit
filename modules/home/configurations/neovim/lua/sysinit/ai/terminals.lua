@@ -5,6 +5,7 @@ local logger = require("sysinit.ai.core.logger")
 local server = require("sysinit.ai.core.server")
 local protocol = require("sysinit.ai.core.protocol")
 local hooks = require("sysinit.ai.core.hooks")
+local vectorcode = require("sysinit.ai.core.vectorcode")
 
 -- Providers
 local providers = {
@@ -113,6 +114,11 @@ local function get_location_list()
   return table.concat(entries, "; ")
 end
 
+-- Get vectorcode context
+local function get_vectorcode_context(query)
+  return vectorcode.get_context(query)
+end
+
 -- Enhanced placeholder system with compact data
 local PLACEHOLDERS = {
   {
@@ -168,6 +174,15 @@ local PLACEHOLDERS = {
     description = "Location list (compact)",
     provider = function()
       return get_location_list()
+    end,
+  },
+  {
+    token = "@vectorcode",
+    description = "Vectorcode context search",
+    provider = function(state)
+      -- Use current cursor context as query
+      local query = string.format("%s context", vim.fn.fnamemodify(state.file, ":t:r"))
+      return get_vectorcode_context(query)
     end,
   },
 }
@@ -434,6 +449,9 @@ M.plugins = {
 
       -- Setup blink completion
       M.setup_blink_source()
+
+      -- Setup vectorcode integration
+      vectorcode.setup()
 
       -- Configure ai-terminals with our providers
       require("ai-terminals").setup({

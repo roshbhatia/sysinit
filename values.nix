@@ -36,8 +36,5 @@
       leadModel = "qwen/qwen3-coder:free";
       model = "google/gemini-2.0-flash-exp:free";
     };
-    claude = {
-      enabled = true;
-    };
   };
 }

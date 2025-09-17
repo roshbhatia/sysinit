@@ -85,6 +85,7 @@ M.defaults = {
       "@diff",
       "@qflist",
       "@loclist",
+      "@vectorcode",
     },
   },
 }
@@ -98,10 +99,10 @@ end
 -- Get agent configuration
 function M.get_agents()
   return {
-    { "h", "goose", "Goose", "🪿" },
-    { "y", "claude", "Claude", "🤖" },
-    { "u", "cursor", "Cursor", "" },
-    { "o", "opencode", "OpenCode", "⚡" },
+    { "h", "goose", "Goose", "" },
+    { "y", "claude", "Claude", "󰿟󰫮" },
+    { "u", "cursor", "Cursor", "" },
+    { "j", "opencode", "OpenCode", "󰫼󰫰" },
   }
 end
 

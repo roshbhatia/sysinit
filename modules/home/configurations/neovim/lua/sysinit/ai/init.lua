@@ -1,7 +1,5 @@
--- AI Module: Unified AI services for Neovim
 local M = {}
 
--- Core modules
 M.client = require("sysinit.ai.core.client")
 M.server = require("sysinit.ai.core.server")
 M.logger = require("sysinit.ai.core.logger")
@@ -10,7 +8,6 @@ M.hooks = require("sysinit.ai.core.hooks")
 M.terminals = require("sysinit.ai.terminals")
 M.config = require("sysinit.ai.config")
 
--- Providers
 M.providers = {
   goose = require("sysinit.ai.providers.goose"),
   claude = require("sysinit.ai.providers.claude"),
@@ -18,14 +15,11 @@ M.providers = {
   opencode = require("sysinit.ai.providers.opencode"),
 }
 
--- Current configuration
 local current_config = nil
 
--- Setup all AI services
 function M.setup(user_opts)
   user_opts = user_opts or {}
 
-  -- Merge with default configuration
   current_config = M.config.setup(user_opts)
 
   -- Validate configuration

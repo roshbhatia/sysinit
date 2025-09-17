@@ -1,4 +1,8 @@
-{ lib, values, ... }:
+{
+  lib,
+  values,
+  ...
+}:
 let
   mcpServers = import ../shared/mcp-servers.nix;
   claudeEnabled = values.llm.claude.enabled or false;
@@ -29,12 +33,24 @@ lib.mkIf claudeEnabled {
           disable_safety_checks = false;
         };
 
-        model = "claude-3-5-sonnet";
-
         features = {
           deep_thinking = true;
           image_processing = true;
           context_management = true;
+        };
+
+        hooks = {
+          nvimHook = {
+            enabled = true;
+            script = "uvx --python 3.12 ${../scripts/claude-nvim-hook.py}";
+            events = [
+              "PreToolUse"
+              "PostToolUse"
+              "SessionStart"
+              "UserPromptSubmit"
+            ];
+            description = "Neovim integration hook for Claude AI interactions";
+          };
         };
 
         inherit (mcpServers) servers;

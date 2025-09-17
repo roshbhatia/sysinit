@@ -8,27 +8,23 @@
 let
   themes = import ../../../lib/theme { inherit lib; };
 
-  nvimOverride =
-    if values.wezterm.nvim_transparency_override or null != null then
-      { transparency = values.wezterm.nvim_transparency_override; }
-    else
-      { };
-
   themeConfig = {
     colorscheme = values.theme.colorscheme;
     variant = values.theme.variant;
-    transparency = values.theme.transparency // (nvimOverride.transparency or { });
+    transparency = values.theme.transparency;
     presets = values.theme.presets or [ ];
     overrides = values.theme.overrides or { };
   };
+
+  mkOutOfStoreSymlink = config.lib.file.mkOutOfStoreSymlink;
 in
 
 {
   xdg.configFile."wezterm/wezterm.lua".source =
-    "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/wezterm.lua";
+    mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/wezterm.lua";
 
   xdg.configFile."wezterm/lua".source =
-    "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/lua";
+    mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/lua";
 
   xdg.configFile."wezterm/theme_config.json".text = builtins.toJSON (
     themes.generateAppJSON "wezterm" themeConfig
