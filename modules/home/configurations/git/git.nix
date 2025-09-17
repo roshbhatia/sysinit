@@ -123,6 +123,14 @@ in
         side-by-side = true;
         features = deltaTheme;
       };
+
+      credential."https://github.com" = {
+        helper = "!${pkgs.gh}/bin/gh auth git-credential";
+      };
+
+      credential."https://gist.github.com" = {
+        helper = "!${pkgs.gh}/bin/gh auth git-credential";
+      };
     };
 
     includes = [
@@ -132,14 +140,8 @@ in
           user = {
             email = workEmail;
           };
-          github = {
+          gh = {
             user = workGithubUser;
-          };
-          credential."https://github.com" = {
-            helper = "!${pkgs.gh}/bin/gh auth git-credential";
-          };
-          credential."https://gist.github.com" = {
-            helper = "!${pkgs.gh}/bin/gh auth git-credential";
           };
         };
       }
@@ -149,14 +151,8 @@ in
           user = {
             email = personalEmail;
           };
-          github = {
+          gh = {
             user = personalGithubUser;
-          };
-          credential."https://github.com" = {
-            helper = "!${pkgs.gh}/bin/gh auth git-credential";
-          };
-          credential."https://gist.github.com" = {
-            helper = "!${pkgs.gh}/bin/gh auth git-credential";
           };
         };
       }
