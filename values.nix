@@ -33,8 +33,7 @@
   llm = {
     goose = {
       provider = "openrouter";
-      leadModel = "qwen/qwen3-coder:free";
-      model = "google/gemini-2.0-flash-exp:free";
+      model = "qwen/qwen3-coder:free";
     };
   };
 }

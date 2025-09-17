@@ -169,6 +169,7 @@ M.plugins = {
       })
 
       local snacks_notify = Snacks.notifier.notify
+      ---@diagnostic disable-next-line: duplicate-set-field
       vim.notify = function(msg, level, opts)
         if opts and opts.title and string.find(string.lower(opts.title), "fswatch") then
           return
