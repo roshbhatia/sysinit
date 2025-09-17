@@ -31,7 +31,7 @@ local function setup_copilot_nes()
 
       vim.api.nvim_buf_set_extmark(bufnr, nes_namespace, row, 0, {
         virt_text = {
-          { "<leader>+tab: accept | esc: clear ", "Comment" },
+          { "<leader>+tab: accept | q: clear ", "Comment" },
         },
         virt_text_pos = "eol",
         priority = 1000,
@@ -42,7 +42,6 @@ local function setup_copilot_nes()
   vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "BufEnter" }, {
     callback = update_nes_hints,
   })
-
   vim.keymap.set("n", "<leader-tab>", function()
     local bufnr = vim.api.nvim_get_current_buf()
     local state = vim.b[bufnr].nes_state
@@ -61,7 +60,7 @@ local function setup_copilot_nes()
     end
   end, { desc = "Accept Copilot NES suggestion", expr = true })
 
-  vim.keymap.set("n", "<esc>", function()
+  vim.keymap.set("n", "q", function()
     if not require("copilot-lsp.nes").clear() then
     end
     vim.schedule(update_nes_hints)
