@@ -1,22 +1,17 @@
 -- AI Configuration: Setup and configuration for the unified AI system
 local M = {}
 
--- Default configuration
 M.defaults = {
-  -- Provider-specific settings
   providers = {
     goose = {
-      port = 9100,
       enabled = true,
       auto_start = true,
     },
     claude = {
-      port = 9101,
       enabled = true,
-      auto_start = false, -- Claude Code manages its own lifecycle
+      auto_start = false,
     },
     cursor = {
-      port = 9102,
       enabled = true,
       auto_start = true,
     },
@@ -27,26 +22,22 @@ M.defaults = {
     },
   },
 
-  -- Logging configuration
   logging = {
     enabled = true,
     use_goose_format = true,
-    session_retention_days = 30,
+    session_retention_days = 100,
   },
 
-  -- File watching
   file_watching = {
     enabled = true,
     auto_reload_clean_buffers = true,
     show_diff_for_modified = true,
   },
 
-  -- Claude Code hooks integration
   hooks = {
     enabled = true,
     load_from_settings = true,
     custom_hooks = {
-      -- Example: Log all AI interactions
       ["UserPromptSubmit"] = {
         {
           hooks = {
@@ -57,7 +48,6 @@ M.defaults = {
           },
         },
       },
-      -- Example: Notify on file changes
       ["PostToolUse"] = {
         {
           matcher = "Write|Edit",

@@ -487,10 +487,10 @@ M.plugins = {
     end,
     keys = function()
       local agents = {
-        { "h", "goose", "Goose", "🪿" },
+        { "h", "goose", "Goose", "" },
         { "y", "claude", "Claude", "󰿟󰫮" },
-        { "u", "cursor", "Cursor", "" },
-        { "o", "opencode", "OpenCode", "⚡" },
+        { "u", "cursor", "Cursor", "" },
+        { "j", "opencode", "OpenCode", "󰫼󰫰" },
       }
 
       local mappings = {}
