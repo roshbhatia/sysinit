@@ -395,7 +395,6 @@ M.plugins = {
         },
         backend = "snacks",
         default_position = "right",
-        enable_diffing = true,
         trigger_formatting = {
           enabled = true,
           notify = false,
@@ -483,6 +482,7 @@ M.plugins = {
                 end,
               })
             end,
+            mode = { "n", "v" },
             desc = "Ask",
           },
           {
@@ -518,6 +518,7 @@ M.plugins = {
                 end,
               })
             end,
+            mode = { "n", "v" },
             desc = "Comment",
           },
         }
