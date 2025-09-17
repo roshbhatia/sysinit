@@ -11,11 +11,11 @@
         "--port"
         "9786"
         "--path"
-        "/Users/${values.user.username}/Documents/chromadb/data"
+        "/Users/${values.user.username}/Documents/chromadb-data"
         "--log-path"
-        "/Users/${values.user.username}/Documents/chromadb/log"
+        "/Users/${values.user.username}/Documents/chromadb-log"
       ];
-      WorkingDirectory = "/Users/${values.user.username}/Documents/chromadb";
+      WorkingDirectory = "/Users/${values.user.username}/Documents";
       RunAtLoad = true;
       KeepAlive = true;
       StandardOutPath = "/tmp/chromadb.log";
