@@ -216,7 +216,10 @@ in
         zstyle ':fzf-tab:complete:vim:*' fzf-preview 'fzf-preview "$word"'
         zstyle ':fzf-tab:complete:vi:*' fzf-preview 'fzf-preview "$word"'
         zstyle ':fzf-tab:complete:v:*' fzf-preview 'fzf-preview "$word"'
+        zstyle ':fzf-tab:complete:ls:*' fzf-preview 'fzf-preview "$realpath"'
+        zstyle ':fzf-tab:complete:eza:*' fzf-preview 'fzf-preview "$realpath"'
 
+        compdef _ls ls
       '')
 
       ''
