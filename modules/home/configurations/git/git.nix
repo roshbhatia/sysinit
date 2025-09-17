@@ -1,5 +1,4 @@
 {
-  pkgs,
   values,
   utils,
   ...
@@ -18,167 +17,140 @@ let
 in
 {
   programs.git = {
-    enable = true;
-    userName = cfg.name;
+    enable = false;
+  };
 
-    aliases = {
-      p = "pull";
-      P = "push";
-      co = "checkout";
-      cob = "checkout -b";
-      br = "branch";
-      st = "status";
-      c = "commit";
-      cai = "!git-ai-commit";
-      ca = "commit --amend";
-      cane = "commit --amend --no-edit";
-      unstage = "reset HEAD --";
-      lg = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit";
-      last = "log -1 HEAD";
-      short-log = "log --pretty=format:\"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]\" --decorate --date=short";
-      current-commit-sha = "rev-parse --short HEAD";
-      current-branch = "rev-parse --abbrev-ref HEAD";
-      branches = "!git --no-pager branch -a";
-      root = "rev-parse --show-toplevel";
-    };
+  home.file.".gitconfig" = {
+    text = ''
+      [advice]
+      addEmptyPathspec = false
+      pushNonFastForward = false
+      statusHints = false
 
-    ignores = [
-      "*.log"
-      "*.swo"
-      "*.swp"
-      "*~"
-      ".DS_Store"
-      ".devenv/"
-      ".direnv/"
-      ".env"
-      ".env.local"
-      ".envrc"
-      ".vectorcode/"
-      "node_modules/"
-    ];
+      [diff]
+        ignoreSpaceAtEol = true
 
-    extraConfig = {
-      advice = {
-        addEmptyPathspec = false;
-        pushNonFastForward = false;
-        statusHints = false;
-      };
+      [pull]
+        rebase = true
 
-      diff = {
-        ignoreSpaceAtEol = true;
-      };
+      [init]
+        defaultBranch = main
 
-      pull = {
-        rebase = true;
-      };
+      [push]
+        autoSetupRemote = true
 
-      init = {
-        defaultBranch = "main";
-      };
+      [fetch]
+        prune = true
 
-      push = {
-        autoSetupRemote = true;
-      };
+      [core]
+        editor = nvim
+        excludesFile = ~/.gitignore.global
+        pager = delta
+        compression = 9
+        preloadIndex = true
+        hooksPath = .githooks
 
-      fetch = {
-        prune = true;
-      };
+      [interactive]
+        diffFilter = delta --color-only
 
-      core = {
-        editor = "nvim";
-        compression = 9;
-        preloadIndex = true;
-        hooksPath = ".githooks";
-        pager = "${pkgs.delta}/bin/delta";
-      };
+      [delta]
+        dark = true
+        navigate = true
+        side-by-side = true
+        features = ${deltaTheme}
 
-      merge = {
-        conflictstyle = "zdiff3";
-        tool = "diffview";
-      };
+      [merge]
+        conflictstyle = zdiff3
+        tool = diffview
 
-      mergetool = {
-        prompt = false;
-        keepBackup = false;
-        diffview = {
-          cmd = "nvim -n -c \"DiffviewOpen\" \"$MERGE\"";
-        };
-      };
+      [mergetool]
+        prompt = false
+        keepBackup = false
 
-      "http \"https://git.sr.ht\"" = {
-        sslVerify = false;
-      };
+      [mergetool "diffview"]
+        cmd = nvim -n -c "DiffviewOpen" "$MERGE"
 
-      include = {
-        path = "~/.config/delta/themes/${values.theme.colorscheme}-${values.theme.variant}.gitconfig";
-      };
+      [includeIf "gitdir:~/github/work/"]
+        path = ~/.gitconfig.work
 
-      rebase = {
-        updateRefs = true;
-      };
+      [includeIf "gitdir:~/github/personal/"]
+        path = ~/.gitconfig.personal
 
-      delta = {
-        dark = true;
-        navigate = true;
-        side-by-side = true;
-        features = deltaTheme;
-      };
+      [alias]
+        p = pull
+        P = push
+        co = checkout
+        cob = checkout -b
+        br = branch
+        st = status
+        c = commit
+        cai = !git-ai-commit
+        ca = commit --amend
+        cane = commit --amend --no-edit
+        unstage = reset HEAD --
+        lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+        last = log -1 HEAD
+        short-log = log --pretty=format:"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]" --decorate --date=short
+        current-commit-sha = rev-parse --short HEAD
+        current-branch = rev-parse --abbrev-ref HEAD
+        branches = !git --no-pager branch -a
+        root = rev-parse --show-toplevel
 
-      credential."https://github.com" = {
-        helper = "!${pkgs.gh}/bin/gh auth git-credential";
-      };
+      [http "https://git.sr.ht"]
+        sslVerify = false
 
-      credential."https://gist.github.com" = {
-        helper = "!${pkgs.gh}/bin/gh auth git-credential";
-      };
-    };
+      [include]
+        path = ~/.config/delta/themes/${values.theme.colorscheme}-${values.theme.variant}.gitconfig
 
-    includes = [
-      {
-        condition = "gitdir:~/github/work/";
-        contents = {
-          user = {
-            email = workEmail;
-          };
-          gh = {
-            user = workGithubUser;
-          };
-        };
-      }
-      {
-        condition = "gitdir:~/github/personal/";
-        contents = {
-          user = {
-            email = personalEmail;
-          };
-          gh = {
-            user = personalGithubUser;
-          };
-        };
-      }
-    ];
-
-    delta = {
-      enable = true;
-      options = {
-        dark = true;
-        navigate = true;
-        side-by-side = true;
-        features = deltaTheme;
-      };
-    };
+      [rebase]
+        updateRefs = true
+    '';
   };
 
   xdg.configFile =
-    utils.themes.deployThemeFiles values {
+    (utils.themeHelper.deployThemeFiles values {
       themeDir = ./themes;
       targetPath = "delta/themes";
       fileExtension = "gitconfig";
-    }
+    })
     // {
       "lazygit/config.yml" = {
         source = ./configs/lazygit.yaml;
         force = true;
       };
     };
+
+  home.file.".gitconfig.personal" = {
+    text = ''
+      [user]
+        name = ${cfg.name}
+        email = ${personalEmail}
+
+      [credential]
+        helper = store
+        username = ${personalGithubUser}
+
+      [github]
+        user = ${personalGithubUser}
+    '';
+  };
+
+  home.file.".gitconfig.work" = {
+    text = ''
+      [user]
+        name = ${cfg.name}
+        email = ${workEmail}
+
+      [credential]
+        helper = store
+        username = ${workGithubUser}
+
+      [github]
+        user = ${workGithubUser}
+    '';
+  };
+
+  home.file.".gitignore.global" = {
+    source = ./configs/gitignore.global;
+  };
 }

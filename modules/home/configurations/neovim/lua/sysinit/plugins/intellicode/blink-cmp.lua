@@ -2,11 +2,16 @@ local M = {}
 local config = require("sysinit.utils.config")
 
 local deps = {
+  "giuxtaposition/blink-cmp-copilot",
   "L3MON4D3/LuaSnip",
   "pta2002/intellitab.nvim",
   "rafamadriz/friendly-snippets",
   "xzbdmw/colorful-menu.nvim",
 }
+
+if config.is_copilot_enabled() then
+  table.insert(deps, "giuxtaposition/blink-cmp-copilot")
+end
 
 M.plugins = {
   {
@@ -77,6 +82,23 @@ M.plugins = {
         "snippets",
       }
 
+      if config.is_copilot_enabled() then
+        providers.copilot = {
+          name = "copilot",
+          module = "blink-cmp-copilot",
+          score_offset = 100,
+          async = true,
+          transform_items = function(ctx, items)
+            for _, item in ipairs(items) do
+              item.kind_icon = " Copilot "
+              item.kind_name = "Copilot"
+            end
+            return items
+          end,
+        }
+        table.insert(sources, "copilot")
+      end
+
       return {
         completion = {
           accept = {
@@ -134,6 +156,7 @@ M.plugins = {
               },
               treesitter = {
                 "lsp",
+                "copilot",
               },
             },
           },
@@ -154,20 +177,7 @@ M.plugins = {
             "fallback",
           },
           ["<Tab>"] = {
-            function(cmp)
-              if vim.b[vim.api.nvim_get_current_buf()].nes_state then
-                cmp.hide()
-                return (
-                  require("copilot-lsp.nes").apply_pending_nes()
-                  and require("copilot-lsp.nes").walk_cursor_end_edit()
-                )
-              end
-              if cmp.snippet_active() then
-                return cmp.accept()
-              else
-                return cmp.select_and_accept()
-              end
-            end,
+            "select_next",
             "snippet_forward",
             function()
               require("intellitab").indent()

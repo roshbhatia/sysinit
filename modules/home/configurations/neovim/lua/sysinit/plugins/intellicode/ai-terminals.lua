@@ -480,7 +480,6 @@ M.plugins = {
             height = 1.0,
           },
         },
-        enable_diffing = true,
         backend = "snacks",
         default_position = "right",
         trigger_formatting = {
