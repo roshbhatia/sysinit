@@ -108,7 +108,7 @@ in
   };
 
   xdg.configFile =
-    (utils.themeHelper.deployThemeFiles values {
+    (utils.themes.deployThemeFiles values {
       themeDir = ./themes;
       targetPath = "delta/themes";
       fileExtension = "gitconfig";
