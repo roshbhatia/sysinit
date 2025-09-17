@@ -55,7 +55,6 @@ M.plugins = {
         "jq",
         "jsdoc",
         "json",
-        "jsonc",
         "lua",
         "luadoc",
         "luap",
