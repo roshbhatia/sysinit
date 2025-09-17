@@ -16,10 +16,7 @@
     colors = "auto";
 
     extraOptions = [
-      "--group-directories-first"
-      "--header"
       "--time-style=long-iso"
-      "--classify"
     ];
   };
 
