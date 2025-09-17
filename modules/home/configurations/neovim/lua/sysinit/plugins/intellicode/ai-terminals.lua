@@ -1,12 +1,14 @@
+-- Module for AI terminals integration with Neovim
 local M = {}
 local config = require("sysinit.utils.config")
 
--- Utility function to escape Lua pattern special characters
+-- Utility Functions
+-- Escapes Lua pattern special characters for safe pattern matching
 local function escape_lua_pattern(s)
   return (s:gsub("(%W)", "%%%1"))
 end
 
--- Sends an LSP request and returns the result, with a default timeout
+-- Sends an LSP request and returns the result with a default timeout
 local function lsp_request(method, params, timeout)
   local ok, result = pcall(vim.lsp.buf_request_sync, 0, method, params, timeout or 500)
   if not ok or not result then
@@ -20,7 +22,7 @@ local function lsp_request(method, params, timeout)
   return nil
 end
 
--- Retrieves the current cursor position and buffer details
+-- Gets current cursor position and buffer details
 local function current_position()
   local buf = vim.api.nvim_get_current_buf()
   local file = vim.api.nvim_buf_get_name(buf)
@@ -28,6 +30,7 @@ local function current_position()
   return { buf = buf, file = file, line = line, col = col }
 end
 
+-- Diagnostic Functions
 -- Gets diagnostics for the current line
 local function get_line_diagnostics(state)
   local diags = vim.diagnostic.get(state.buf, { lnum = state.line - 1 }) or {}
@@ -56,9 +59,8 @@ local function get_all_diagnostics(state)
   return table.concat(grouped, "\n")
 end
 
+-- Buffer and File Functions
 -- Returns the buffer's file path prefixed with '@'
--- @param state Table containing the buffer handle (state.buf)
--- @return String with '@' prefixed to the buffer's file path, or empty string if invalid
 local function get_buffer_path(state)
   if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
     return ""
@@ -82,6 +84,7 @@ local function get_all_buffers_summary()
   return table.concat(items, "\n")
 end
 
+-- Selection and Content Functions
 -- Retrieves the current visual selection
 local function get_visual_selection()
   local save_reg = vim.fn.getreg('"')
@@ -92,6 +95,17 @@ local function get_visual_selection()
   return selection or ""
 end
 
+-- Gets the visible content in the current window
+local function get_visible_content(state)
+  local win = vim.api.nvim_get_current_win()
+  local top_line = vim.fn.line("w0")
+  local bottom_line = vim.fn.line("w$")
+  local bufnr = state.buf
+  local lines = vim.api.nvim_buf_get_lines(bufnr, top_line - 1, bottom_line, false)
+  return table.concat(lines, "\n")
+end
+
+-- LSP Functions
 -- Retrieves LSP hover documentation at the cursor
 local function get_hover_docs(state)
   local params = vim.lsp.util.make_position_params()
@@ -134,16 +148,7 @@ local function get_code_actions(state)
   return table.concat(titles, "; ")
 end
 
--- Gets the visible content in the current window
-local function get_visible_content(state)
-  local win = vim.api.nvim_get_current_win()
-  local top_line = vim.fn.line("w0")
-  local bottom_line = vim.fn.line("w$")
-  local bufnr = state.buf
-  local lines = vim.api.nvim_buf_get_lines(bufnr, top_line - 1, bottom_line, false)
-  return table.concat(lines, "\n")
-end
-
+-- Quickfix and Location List Functions
 -- Retrieves the quickfix list
 local function get_quickfix_list()
   local qflist = vim.fn.getqflist()
@@ -180,6 +185,7 @@ local function get_location_list()
   return table.concat(entries, "\n")
 end
 
+-- Git Diff and Native Diff Functions
 -- Retrieves the git diff for the current buffer
 local function get_git_diff(state)
   local bufnr = state.buf
@@ -189,17 +195,121 @@ local function get_git_diff(state)
   end
   local cmd = string.format("git diff %s", vim.fn.shellescape(filepath))
   local output = vim.fn.system(cmd)
-  if vim.v.shell_error ~= 0 then
+  if output == "" then
+    vim.notify("No git diff available for " .. filepath, vim.log.levels.WARN)
     return "No git diff available"
   end
   return output
 end
 
--- Placeholder definitions for dynamic content replacement
----@class PlaceholderDef
----@field token string
----@field description string
----@field provider fun(state: table): string
+-- Populates quickfix list with diff changes
+local function populate_qflist_with_diff(state)
+  local filepath = vim.api.nvim_buf_get_name(state.buf)
+  if filepath == "" then
+    return "No file path available"
+  end
+  local cmd = string.format("git diff --no-color %s", vim.fn.shellescape(filepath))
+  local output = vim.fn.systemlist(cmd)
+  if output == nil or #output == 0 then
+    vim.notify("No diff changes to populate for " .. filepath, vim.log.levels.WARN)
+    return "No diff changes to populate"
+  end
+
+  local qf_entries = {}
+  local current_file = filepath
+  local lnum = 0
+  for _, line in ipairs(output) do
+    -- Parse diff headers for line numbers
+    if line:match("^@@") then
+      local new_lnum = line:match("^@@ %-%d+,%d+ %+(%d+),")
+      if new_lnum then
+        lnum = tonumber(new_lnum) - 1
+      end
+    elseif line:match("^%+") and not line:match("^%+%+%+") then
+      lnum = lnum + 1
+      table.insert(qf_entries, {
+        filename = current_file,
+        lnum = lnum,
+        text = line:sub(2), -- Remove '+' prefix
+        type = "I", -- Info type for added lines
+      })
+    elseif line:match("^%-") and not line:match("^%-%-%-") then
+      table.insert(qf_entries, {
+        filename = current_file,
+        lnum = lnum,
+        text = "Removed: " .. line:sub(2), -- Remove '-' prefix
+        type = "W", -- Warning type for removed lines
+      })
+    end
+  end
+
+  if #qf_entries > 0 then
+    vim.fn.setqflist(qf_entries, "r")
+    return "Quickfix list populated with diff changes"
+  else
+    vim.notify("No diff changes to populate for " .. filepath, vim.log.levels.WARN)
+    return "No diff changes to populate"
+  end
+end
+
+-- Opens a native diff view in a vertical split
+local function open_native_diff(state)
+  local filepath = vim.api.nvim_buf_get_name(state.buf)
+  if filepath == "" then
+    return "No file path available"
+  end
+
+  -- Create a temporary file with the git HEAD version
+  local temp_file = vim.fn.tempname()
+  local cmd = string.format(
+    "git show HEAD:%s > %s",
+    vim.fn.shellescape(filepath),
+    vim.fn.shellescape(temp_file)
+  )
+  local result = vim.fn.system(cmd)
+  if result ~= "" then
+    vim.notify("Failed to retrieve git HEAD version for " .. filepath, vim.log.levels.WARN)
+    vim.fn.delete(temp_file)
+    return "Failed to retrieve git HEAD version"
+  end
+
+  -- Open a vertical split with the temporary file
+  vim.cmd("vsplit " .. temp_file)
+  local new_buf = vim.api.nvim_get_current_buf()
+  vim.api.nvim_buf_set_option(new_buf, "buftype", "nofile")
+  vim.api.nvim_buf_set_option(new_buf, "bufhidden", "wipe")
+  vim.cmd("diffthis")
+  vim.cmd("wincmd p")
+  vim.cmd("diffthis")
+
+  -- Clean up the temporary file when the buffer is closed
+  vim.api.nvim_create_autocmd("BufWipeout", {
+    buffer = new_buf,
+    callback = function()
+      vim.fn.delete(temp_file)
+    end,
+    once = true,
+  })
+
+  return "Native diff view opened"
+end
+
+-- Opens diff view using diffview.nvim if available, else falls back to native diff
+local function open_diff_view(state)
+  local has_diffview, _ = pcall(require, "diffview")
+  if has_diffview then
+    local filepath = vim.api.nvim_buf_get_name(state.buf)
+    if filepath == "" then
+      return "No file path available"
+    end
+    vim.cmd("DiffviewOpen -- " .. vim.fn.fnameescape(filepath))
+    return "Diffview opened"
+  else
+    return open_native_diff(state)
+  end
+end
+
+-- Placeholder Definitions
 local PLACEHOLDERS = {
   {
     token = "@cursor",
@@ -265,6 +375,7 @@ local PLACEHOLDERS = {
   },
 }
 
+-- Placeholder Application
 -- Applies placeholders to the input string
 local function apply_placeholders(input)
   if not input or input == "" then
@@ -286,7 +397,7 @@ M.placeholder_descriptions = vim.tbl_map(function(p)
   return { token = p.token, description = p.description }
 end, PLACEHOLDERS)
 
--- Blink completion source for AI placeholders
+-- Blink Completion Source
 local blink_source = {}
 local blink_source_setup_done = false
 
@@ -354,6 +465,7 @@ end
 M.new = blink_source.new
 M.setup_blink_source = blink_source.setup
 
+-- Plugin Configuration
 M.plugins = {
   {
     "aweis89/ai-terminals.nvim",
@@ -368,6 +480,7 @@ M.plugins = {
             height = 1.0,
           },
         },
+        enable_diffing = true,
         backend = "snacks",
         default_position = "right",
         trigger_formatting = {
@@ -396,6 +509,7 @@ M.plugins = {
       local ai_terminals = require("ai-terminals")
       local snacks = require("snacks")
 
+      -- Creates a floating input window for sending commands to a terminal
       local function create_input(termname, agent_icon, opts)
         opts = opts or {}
         local action_name = opts.action or "Ask"
@@ -425,16 +539,19 @@ M.plugins = {
         end)
       end
 
+      -- Generates keymaps for a given AI agent
       local function create_keymaps(agent)
         local key_prefix, termname, label, icon = agent[1], agent[2], agent[3], agent[4]
         return {
+          -- Toggle terminal
           {
             string.format("<leader>%s%s", key_prefix, key_prefix),
             function()
               ai_terminals.toggle(termname)
             end,
-            desc = "Toggle " .. termname,
+            desc = "Toggle " .. label,
           },
+          -- Ask with cursor or selection
           {
             string.format("<leader>%sa", key_prefix),
             function()
@@ -449,8 +566,9 @@ M.plugins = {
               })
             end,
             mode = { "n", "v" },
-            desc = "Ask",
+            desc = "Ask " .. label,
           },
+          -- Fix diagnostics
           {
             string.format("<leader>%sf", key_prefix),
             function()
@@ -462,8 +580,9 @@ M.plugins = {
                 end,
               })
             end,
-            desc = "Fix diagnostics",
+            desc = "Fix diagnostics with " .. label,
           },
+          -- Comment code
           {
             string.format("<leader>%sc", key_prefix),
             function()
@@ -479,7 +598,61 @@ M.plugins = {
               })
             end,
             mode = { "n", "v" },
-            desc = "Comment",
+            desc = "Comment with " .. label,
+          },
+          -- Send quickfix list
+          {
+            string.format("<leader>%sq", key_prefix),
+            function()
+              create_input(termname, icon, {
+                action = "Analyze quickfix list",
+                default = " Analyze @qflist: ",
+                on_confirm = function(text)
+                  ai_terminals.send_term(termname, text, { submit = true })
+                end,
+              })
+            end,
+            desc = "Send quickfix list to " .. label,
+          },
+          -- Send location list
+          {
+            string.format("<leader>%sl", key_prefix),
+            function()
+              create_input(termname, icon, {
+                action = "Analyze location list",
+                default = " Analyze @loclist: ",
+                on_confirm = function(text)
+                  ai_terminals.send_term(termname, text, { submit = true })
+                end,
+              })
+            end,
+            desc = "Send location list to " .. label,
+          },
+          -- View diff (diffview.nvim or native)
+          {
+            string.format("<leader>%sd", key_prefix),
+            function()
+              local state = current_position()
+              local result = open_diff_view(state)
+              if result ~= "Diffview opened" and result ~= "Native diff view opened" then
+                vim.notify(result, vim.log.levels.WARN)
+              end
+            end,
+            desc = "View diff with " .. label,
+          },
+          -- Populate quickfix with diff
+          {
+            string.format("<leader>%sp", key_prefix),
+            function()
+              local state = current_position()
+              local result = populate_qflist_with_diff(state)
+              if result ~= "Quickfix list populated with diff changes" then
+                vim.notify(result, vim.log.levels.WARN)
+              else
+                vim.notify(result, vim.log.levels.INFO)
+              end
+            end,
+            desc = "Populate quickfix with diff for " .. label,
           },
         }
       end
