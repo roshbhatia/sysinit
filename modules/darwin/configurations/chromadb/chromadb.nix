@@ -8,12 +8,12 @@
       ProgramArguments = [
         "/Users/${values.user.username}/.local/bin/chroma"
         "run"
-        "--host"
-        "localhost"
         "--port"
         "9786"
         "--path"
-        "/Users/${values.user.username}/Documents/chromadb"
+        "/Users/${values.user.username}/Documents/chromadb/data"
+        "--log-path"
+        "/Users/${values.user.username}/Documents/chromadb/log"
       ];
       WorkingDirectory = "/Users/${values.user.username}/Documents/chromadb";
       RunAtLoad = true;
