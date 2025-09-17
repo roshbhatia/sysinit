@@ -22,51 +22,35 @@ local function setup_copilot_highlights()
   local colors = theme_config.colors.semantic
 
   local highlights = {
-    CopilotLspNesAdd = { fg = colors.success, bg = "none", bold = true, default = true },
-    CopilotLspNesDelete = { fg = colors.error, bg = "none", strikethrough = true, default = true },
-    CopilotLspNesApply = { fg = colors.info, bg = "none", bold = true, default = true },
-    CopilotNesHint = { fg = colors.warning, bg = "none", italic = true, default = true },
+    CopilotLspNesAdd = {
+      fg = colors.success,
+      bg = "none",
+      bold = true,
+      default = true,
+    },
+    CopilotLspNesDelete = {
+      fg = colors.error,
+      bg = "none",
+      strikethrough = true,
+      default = true,
+    },
+    CopilotLspNesApply = {
+      fg = colors.info,
+      bg = "none",
+      bold = true,
+      default = true,
+    },
+    CopilotNesHint = {
+      fg = colors.warning,
+      bg = "none",
+      italic = true,
+      default = true,
+    },
   }
 
   for name, opts in pairs(highlights) do
     vim.api.nvim_set_hl(0, name, opts)
   end
-end
-
-local function get_copilot_keymaps()
-  if not config.is_copilot_enabled() then
-    return {}
-  end
-
-  vim.g.copilot_nes_debounce = 150
-
-  return {
-    ["<leader><tab>"] = {
-      function()
-        local bufnr = vim.api.nvim_get_current_buf()
-        local state = vim.b[bufnr].nes_state
-
-        if state then
-          local _ = require("copilot-lsp.nes").walk_cursor_start_edit()
-            or (
-              require("copilot-lsp.nes").apply_pending_nes()
-              and require("copilot-lsp.nes").walk_cursor_end_edit()
-            )
-          return nil
-        else
-          return "<C-i>"
-        end
-      end,
-      desc = "Accept Copilot NES suggestion",
-      mode = "n",
-      expr = true,
-    },
-    ["<leader><esc>"] = {
-      require("copilot-lsp.nes").clear,
-      desc = "Clear Copilot NES suggestion",
-      mode = "n",
-    },
-  }
 end
 
 local function get_builtin_servers()
@@ -134,7 +118,11 @@ local function get_custom_servers()
 
   if config.is_copilot_enabled() then
     servers.copilot_ls = {
-      cmd = { "copilot-language-server", "--stdio" },
+      name = "copilot_ls",
+      cmd = {
+        "copilot-language-server",
+        "--stdio",
+      },
       init_options = {
         editorInfo = {
           name = "neovim",
@@ -145,10 +133,38 @@ local function get_custom_servers()
           version = "0.0.1",
         },
       },
-      settings = { nextEditSuggestions = { enabled = true } },
+      settings = {
+        nextEditSuggestions = {
+          enabled = true,
+        },
+      },
       handlers = require("copilot-lsp.handlers"),
       root_dir = vim.uv.cwd(),
-      capabilities = {},
+      on_init = function(client)
+        local au = vim.api.nvim_create_augroup("copilotlsp.init", { clear = true })
+        local debounced_request = require("copilot-lsp.util").debounce(
+          require("copilot-lsp.nes").request_nes,
+          vim.g.copilot_nes_debounce or 500
+        )
+        vim.api.nvim_create_autocmd({ "TextChangedI", "TextChanged" }, {
+          callback = function()
+            debounced_request(client)
+          end,
+          group = au,
+        })
+
+        vim.api.nvim_create_autocmd("BufEnter", {
+          callback = function()
+            local td_params = vim.lsp.util.make_text_document_params()
+            client:notify("textDocument/didFocus", {
+              textDocument = {
+                uri = td_params.uri,
+              },
+            })
+          end,
+          group = au,
+        })
+      end,
     }
   end
 
@@ -267,7 +283,7 @@ M.plugins = {
       vim.lsp.inlay_hint.enable(true)
     end,
     keys = function()
-      local lsp_keymaps = {
+      return {
         { "<leader>cA", vim.lsp.codelens.run, desc = "Run codelens action" },
         { "<leader>cD", vim.lsp.buf.definition, desc = "Go to definition" },
         { "grr", vim.lsp.buf.references, desc = "Go to references" },
@@ -288,8 +304,6 @@ M.plugins = {
         { "grt", vim.lsp.buf.type_definition, desc = "Go to type definition" },
         { "gO", vim.lsp.buf.document_symbol, desc = "Document outline" },
       }
-
-      return vim.tbl_extend("force", lsp_keymaps, get_copilot_keymaps())
     end,
   },
 }

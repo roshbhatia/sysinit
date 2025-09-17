@@ -2,15 +2,16 @@ local M = {}
 local config = require("sysinit.utils.config")
 
 local deps = {
-  "giuxtaposition/blink-cmp-copilot",
   "L3MON4D3/LuaSnip",
   "pta2002/intellitab.nvim",
   "rafamadriz/friendly-snippets",
   "xzbdmw/colorful-menu.nvim",
+  "neovim/nvim-lspconfig",
 }
 
 if config.is_copilot_enabled() then
   table.insert(deps, "giuxtaposition/blink-cmp-copilot")
+  table.insert(deps, "copilotlsp-nvim/copilot-lsp")
 end
 
 M.plugins = {
@@ -177,6 +178,15 @@ M.plugins = {
             "fallback",
           },
           ["<Tab>"] = {
+            function(cmp)
+              if vim.b[vim.api.nvim_get_current_buf()].nes_state then
+                cmp.hide()
+                return (
+                  require("copilot-lsp.nes").apply_pending_nes()
+                  and require("copilot-lsp.nes").walk_cursor_end_edit()
+                )
+              end
+            end,
             "select_next",
             "snippet_forward",
             function()
