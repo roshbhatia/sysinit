@@ -1,16 +1,78 @@
 local M = {}
+local config = require("sysinit.utils.config")
+
+local deps = {
+  "b0o/SchemaStore.nvim",
+  "saghen/blink.cmp",
+}
+
+if config.is_copilot_enabled() then
+  table.insert(deps, "copilotlsp-nvim/copilot-lsp")
+end
 
 M.plugins = {
   {
     "neovim/nvim-lspconfig",
     lazy = false,
-    dependencies = {
-      "b0o/SchemaStore.nvim",
-      "saghen/blink.cmp",
-    },
+    dependencies = deps,
     config = function()
       local schemastore = require("schemastore")
       local lspconfig = require("lspconfig")
+
+      if config.is_copilot_enabled() then
+        vim.g.copilot_nes_debounce = 500
+
+        local nes_namespace = vim.api.nvim_create_namespace("copilot_nes_hints")
+
+        local function update_nes_hints()
+          local bufnr = vim.api.nvim_get_current_buf()
+          local state = vim.b[bufnr].nes_state
+
+          vim.api.nvim_buf_clear_namespace(bufnr, nes_namespace, 0, -1)
+
+          if state then
+            local cursor = vim.api.nvim_win_get_cursor(0)
+            local row = cursor[1] - 1
+
+            vim.api.nvim_buf_set_extmark(bufnr, nes_namespace, row, 0, {
+              virt_text = {
+                { " 󰘦 Ctrl+Tab: accept | Esc: clear ", "Comment" },
+              },
+              virt_text_pos = "eol",
+              priority = 1000,
+            })
+          end
+        end
+
+        vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "BufEnter" }, {
+          callback = update_nes_hints,
+        })
+
+        vim.keymap.set("n", "<C-tab>", function()
+          local bufnr = vim.api.nvim_get_current_buf()
+
+          local state = vim.b[bufnr].nes_state
+
+          if state then
+            local _ = require("copilot-lsp.nes").walk_cursor_start_edit()
+              or (
+                require("copilot-lsp.nes").apply_pending_nes()
+                and require("copilot-lsp.nes").walk_cursor_end_edit()
+              )
+
+            vim.schedule(update_nes_hints)
+            return nil
+          else
+            return "<C-i>"
+          end
+        end, { desc = "Accept Copilot NES suggestion", expr = true })
+
+        vim.keymap.set("n", "<esc>", function()
+          if not require("copilot-lsp.nes").clear() then
+          end
+          vim.schedule(update_nes_hints)
+        end, { desc = "Clear Copilot suggestion or fallback" })
+      end
 
       local builtin_servers = {
         eslint = {},
@@ -76,6 +138,10 @@ M.plugins = {
           single_file_support = true,
         },
       }
+
+      if config.is_copilot_enabled() then
+        custom_servers.copilot_ls = {}
+      end
 
       for server, config in pairs(builtin_servers) do
         config.capabilities = require("blink.cmp").get_lsp_capabilities()
