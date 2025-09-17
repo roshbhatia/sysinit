@@ -5,32 +5,29 @@ local uv = vim.loop
 -- Server instances
 local servers = {}
 
--- Server configurations
 local server_configs = {
   goose = {
     command = "goose",
-    args = { "session", "start", "--profile", "neovim" },
-    port = 9100,
-    env = {
-      GOOSE_LOG_LEVEL = "INFO",
-    },
   },
   claude = {
     command = "claude",
-    args = { "--no-interactive" },
-    port = 9101,
-    env = {
-      CLAUDE_PROJECT_DIR = vim.fn.getcwd(),
+    args = {
+      "--add-dir",
+      vim.fn.getcwd(),
     },
   },
   cursor = {
     command = "cursor-agent",
-    args = { "--port", "9102" },
-    port = 9102,
+    args = {
+      "--with-diffs",
+    },
   },
   opencode = {
     command = "opencode",
-    args = { "--api", "--port", "9103" },
+    args = {
+      "--port",
+      "9103",
+    },
     port = 9103,
   },
 }
