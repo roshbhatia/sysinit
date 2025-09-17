@@ -21,7 +21,6 @@ let
   baseBrews = [
     "bashdb"
     "bcrypt"
-    "block-goose"
     "block-goose-cli"
     "charmbracelet/tap/crush"
     "claude-squad"
@@ -32,6 +31,7 @@ let
   ];
 
   baseCasks = [
+    "block-goose"
     "cursor"
     "cursor-cli"
     "firefox"
