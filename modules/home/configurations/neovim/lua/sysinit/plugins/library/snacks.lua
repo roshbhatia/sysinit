@@ -168,7 +168,14 @@ M.plugins = {
         },
       })
 
-      vim.notify = Snacks.notifier.notify
+      local snacks_notify = Snacks.notifier.notify
+      vim.notify = function(msg, level, opts)
+        if opts and opts.title and string.find(string.lower(opts.title), "fswatch") then
+          return
+        end
+        snacks_notify(msg, level, opts)
+      end
+
       vim.ui.input = Snacks.input
     end,
     keys = function()

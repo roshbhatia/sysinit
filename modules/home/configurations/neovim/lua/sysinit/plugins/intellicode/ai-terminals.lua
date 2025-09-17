@@ -205,7 +205,7 @@ local PLACEHOLDERS = {
     token = "@cursor",
     description = "Cursor position (file:line)",
     provider = function(state)
-      return string.format("%s:%d", state.file, state.line)
+      return string.format("%s:%d", get_buffer_path(state), state.line)
     end,
   },
   {
