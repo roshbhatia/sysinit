@@ -111,7 +111,6 @@ function M.get_keybindings(config)
   config = config or M.defaults
 
   local keybindings = {
-    -- Global AI commands
     ["<leader>ai"] = "AI: Show status",
     ["<leader>aI"] = "AI: Setup all services",
     ["<leader>ac"] = "AI: Cleanup old sessions",
