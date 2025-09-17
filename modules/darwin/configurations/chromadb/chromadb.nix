@@ -16,18 +16,11 @@
         "--host"
         "localhost"
         "--port"
-        "8000"
+        "9786"
         "--path"
         "/Users/${values.user.username}/Documents/chromadb"
       ];
       WorkingDirectory = "/Users/${values.user.username}/Documents/chromadb";
-      EnvironmentVariables = {
-        CHROMA_DB_IMPL = "duckdb+parquet";
-        CHROMA_SERVER_HOST = "localhost";
-        CHROMA_SERVER_HTTP_PORT = "9876";
-        CHROMA_PERSIST_DIRECTORY = "/Users/${values.user.username}/Documents/chromadb";
-        PATH = "${lib.makeBinPath [ pkgs.python3 ]}:/usr/bin:/bin";
-      };
       RunAtLoad = true;
       KeepAlive = true;
       StandardOutPath = "/tmp/chromadb.log";
