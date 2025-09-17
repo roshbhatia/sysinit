@@ -88,10 +88,6 @@ M.plugins = {
         },
       }
 
-      if config.is_copilot_enabled() then
-        custom_servers.copilot_ls = {}
-      end
-
       local custom_servers = {
         up = {
           cmd = {
@@ -111,6 +107,10 @@ M.plugins = {
           single_file_support = true,
         },
       }
+
+      if config.is_copilot_enabled() then
+        custom_servers.copilot_ls = {}
+      end
 
       for server, config in pairs(builtin_servers) do
         config.capabilities = require("blink.cmp").get_lsp_capabilities()
