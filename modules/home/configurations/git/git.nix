@@ -1,4 +1,5 @@
 {
+  pkgs,
   values,
   utils,
   ...
@@ -58,11 +59,6 @@ in
     ];
 
     extraConfig = {
-      credential = {
-        helper = "manager";
-        gitHubAccountFiltering = true;
-        useHttpPath = true;
-      };
 
       github = {
         user = cfg.username;
@@ -99,7 +95,7 @@ in
         compression = 9;
         preloadIndex = true;
         hooksPath = ".githooks";
-        pager = "/nix/store/vlh7747las8c0nza18yvby03jwx0ic33-delta-0.18.2/bin/delta";
+        pager = "${pkgs.delta}/bin/delta";
       };
 
       merge = {
@@ -147,7 +143,10 @@ in
             user = workGithubUser;
           };
           credential."https://github.com" = {
-            account = workGithubUser;
+            helper = "!${pkgs.gh}/bin/gh auth git-credential";
+          };
+          credential."https://gist.github.com" = {
+            helper = "!${pkgs.gh}/bin/gh auth git-credential";
           };
         };
       }
@@ -162,7 +161,10 @@ in
             user = personalGithubUser;
           };
           credential."https://github.com" = {
-            account = personalGithubUser;
+            helper = "!${pkgs.gh}/bin/gh auth git-credential";
+          };
+          credential."https://gist.github.com" = {
+            helper = "!${pkgs.gh}/bin/gh auth git-credential";
           };
         };
       }
