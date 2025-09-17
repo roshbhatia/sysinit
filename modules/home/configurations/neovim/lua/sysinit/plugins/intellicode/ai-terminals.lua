@@ -526,7 +526,7 @@ M.plugins = {
             relative = "cursor",
             style = "minimal",
             border = "rounded",
-            width = math.max(40, math.min(80, vim.o.columns - 20)),
+            width = math.max(30, math.min(50, vim.o.columns - 30)),
             height = 1,
             row = 1,
             col = 0,
@@ -536,6 +536,18 @@ M.plugins = {
             opts.on_confirm(apply_placeholders(value))
           end
         end)
+      end
+
+      -- Ensures terminal is open and focused before sending command
+      local function ensure_terminal_and_send(termname, text)
+        -- Always open the terminal (creates if necessary, shows if hidden)
+        ai_terminals.open(termname)
+        -- Focus the terminal
+        ai_terminals.focus()
+        -- Small delay to ensure terminal is ready, then send command
+        vim.defer_fn(function()
+          ai_terminals.send_term(termname, text, { submit = true })
+        end, 50)
       end
 
       -- Generates keymaps for a given AI agent
@@ -560,7 +572,7 @@ M.plugins = {
                 action = "Ask",
                 default = default_text,
                 on_confirm = function(text)
-                  ai_terminals.send_term(termname, text, { submit = true })
+                  ensure_terminal_and_send(termname, text)
                 end,
               })
             end,
@@ -575,7 +587,7 @@ M.plugins = {
                 action = "Fix diagnostics",
                 default = " Fix @diagnostic: ",
                 on_confirm = function(text)
-                  ai_terminals.send_term(termname, text, { submit = true })
+                  ensure_terminal_and_send(termname, text)
                 end,
               })
             end,
@@ -592,7 +604,7 @@ M.plugins = {
                 action = "Comment",
                 default = default_text,
                 on_confirm = function(text)
-                  ai_terminals.send_term(termname, text, { submit = true })
+                  ensure_terminal_and_send(termname, text)
                 end,
               })
             end,
@@ -607,7 +619,7 @@ M.plugins = {
                 action = "Analyze quickfix list",
                 default = " Analyze @qflist: ",
                 on_confirm = function(text)
-                  ai_terminals.send_term(termname, text, { submit = true })
+                  ensure_terminal_and_send(termname, text)
                 end,
               })
             end,
@@ -621,7 +633,7 @@ M.plugins = {
                 action = "Analyze location list",
                 default = " Analyze @loclist: ",
                 on_confirm = function(text)
-                  ai_terminals.send_term(termname, text, { submit = true })
+                  ensure_terminal_and_send(termname, text)
                 end,
               })
             end,
