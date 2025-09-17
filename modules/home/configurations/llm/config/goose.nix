@@ -2,8 +2,9 @@
 let
   mcpServers = import ../shared/mcp-servers.nix;
   agents = import ../shared/agents.nix;
+  gooseEnabled = values.llm.goose.enabled or false;
 in
-{
+lib.mkIf gooseEnabled {
   xdg.configFile = {
     "goose/config.yaml" = {
       text = lib.generators.toYAML { } {
