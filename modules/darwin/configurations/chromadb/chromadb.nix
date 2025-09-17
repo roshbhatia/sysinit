@@ -1,17 +1,12 @@
 {
-  lib,
-  pkgs,
   values,
   ...
 }:
-
 {
   launchd.user.agents.chromadb = {
     serviceConfig = {
       ProgramArguments = [
-        "${pkgs.python3}/bin/python3"
-        "-m"
-        "chroma"
+        "/Users/${values.user.username}/.local/bin/chroma"
         "run"
         "--host"
         "localhost"
