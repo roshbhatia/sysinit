@@ -1,14 +1,45 @@
 local M = {}
+local config = require("sysinit.utils.config")
+
+local deps = {
+  "b0o/SchemaStore.nvim",
+  "saghen/blink.cmp",
+}
+
+if config.is_copilot_enabled() then
+  table.insert(deps, "copilotlsp-nvim/copilot-lsp")
+end
 
 M.plugins = {
   {
     "neovim/nvim-lspconfig",
     lazy = false,
-    dependencies = {
-      "b0o/SchemaStore.nvim",
-      "saghen/blink.cmp",
-    },
+    dependencies = deps,
     config = function()
+      if config.is_copilot_enabled() then
+        vim.g.copilot_nes_debounce = 500
+        
+        vim.keymap.set("n", "<tab>", function()
+          local bufnr = vim.api.nvim_get_current_buf()
+          local state = vim.b[bufnr].nes_state
+          if state then
+            local _ = require("copilot-lsp.nes").walk_cursor_start_edit()
+              or (
+                require("copilot-lsp.nes").apply_pending_nes()
+                and require("copilot-lsp.nes").walk_cursor_end_edit()
+              )
+            return nil
+          else
+            return "<C-i>"
+          end
+        end, { desc = "Accept Copilot NES suggestion", expr = true })
+        
+        vim.keymap.set("n", "<esc>", function()
+          if not require("copilot-lsp.nes").clear() then
+          end
+        end, { desc = "Clear Copilot suggestion or fallback" })
+      end
+
       local schemastore = require("schemastore")
       local lspconfig = require("lspconfig")
 
@@ -80,6 +111,12 @@ M.plugins = {
       for server, config in pairs(builtin_servers) do
         config.capabilities = require("blink.cmp").get_lsp_capabilities()
         lspconfig[server].setup(config)
+      end
+
+      if config.is_copilot_enabled() then
+        local copilot_config = {}
+        copilot_config.capabilities = require("blink.cmp").get_lsp_capabilities()
+        lspconfig.copilot_ls.setup(copilot_config)
       end
 
       for server, config in pairs(custom_servers) do
