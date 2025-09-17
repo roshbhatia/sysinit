@@ -77,12 +77,6 @@ M.plugins = {
         "snippets",
       }
 
-            return items
-          end,
-        }
-        table.insert(sources, "copilot")
-      end
-
       return {
         completion = {
           accept = {
