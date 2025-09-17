@@ -8,8 +8,8 @@
 
 let
   uvxPackages = [
-    "chromadb"
     "hererocks"
+    "https://github.com/chroma-core/chroma/tree/0.6.3"
     "https://github.com/github/spec-kit.git"
     "vectorcode[lsp,mcp]"
   ]
