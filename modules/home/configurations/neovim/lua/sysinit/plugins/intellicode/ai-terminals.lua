@@ -373,6 +373,7 @@ end
 M.new = function(opts)
   return blink_source.new(opts)
 end
+
 M.setup_blink_source = blink_source.setup
 
 M.plugins = {
@@ -384,6 +385,7 @@ M.plugins = {
     },
     config = function()
       M.setup_blink_source()
+
       require("ai-terminals").setup({
         window_dimensions = {
           right = {
@@ -391,9 +393,12 @@ M.plugins = {
             height = 1.0,
           },
         },
+        backend = "snacks",
         default_position = "right",
+        enable_diffing = true,
         trigger_formatting = {
           enabled = true,
+          notify = false,
         },
         watch_cwd = {
           enabled = true,
