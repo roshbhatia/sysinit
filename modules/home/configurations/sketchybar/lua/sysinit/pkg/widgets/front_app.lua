@@ -22,6 +22,7 @@ local app_icons = {
   ["Finder"] = "󰀶",
   ["Firefox"] = "",
   ["Google Chrome"] = "󰊯",
+  ["Goose"] = "",
   ["Mail"] = "󰇰",
   ["Messages"] = "󰍡",
   ["Messenger"] = "",

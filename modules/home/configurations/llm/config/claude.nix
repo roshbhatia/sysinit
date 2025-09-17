@@ -39,20 +39,6 @@ lib.mkIf claudeEnabled {
           context_management = true;
         };
 
-        hooks = {
-          nvimHook = {
-            enabled = true;
-            script = "uvx --python 3.12 ${../scripts/claude-nvim-hook.py}";
-            events = [
-              "PreToolUse"
-              "PostToolUse"
-              "SessionStart"
-              "UserPromptSubmit"
-            ];
-            description = "Neovim integration hook for Claude AI interactions";
-          };
-        };
-
         inherit (mcpServers) servers;
       };
       force = true;

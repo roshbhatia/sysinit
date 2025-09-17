@@ -1,3 +1,538 @@
-local ai = require("sysinit.ai")
+local M = {}
+local config = require("sysinit.utils.config")
 
-return ai.terminals_module()
+local function escape_lua_pattern(s)
+  return (s:gsub("(%W)", "%%%1"))
+end
+
+local function lsp_request(method, params, timeout)
+  local ok, result = pcall(vim.lsp.buf_request_sync, 0, method, params, timeout or 500)
+  if not ok or not result then
+    return nil
+  end
+  for _, res in pairs(result) do
+    if res.result then
+      return res.result
+    end
+  end
+  return nil
+end
+
+local function current_position()
+  local buf = vim.api.nvim_get_current_buf()
+  local file = vim.api.nvim_buf_get_name(buf)
+  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+  return { buf = buf, file = file, line = line, col = col }
+end
+
+local function get_line_diagnostics(state)
+  local diags = vim.diagnostic.get(state.buf, { lnum = state.line - 1 }) or {}
+  if #diags == 0 then
+    return ""
+  end
+  return table.concat(
+    vim.tbl_map(function(d)
+      return string.format("Line %d: %s", d.lnum + 1, d.message)
+    end, diags),
+    "; "
+  )
+end
+
+local function get_all_diagnostics(state)
+  local diags = vim.diagnostic.get(state.buf) or {}
+  if #diags == 0 then
+    return ""
+  end
+  local grouped = {}
+  for _, d in ipairs(diags) do
+    local severity = vim.diagnostic.severity[d.severity] or "INFO"
+    table.insert(grouped, string.format("[%s] Line %d: %s", severity, d.lnum + 1, d.message))
+  end
+  return table.concat(grouped, "\n")
+end
+
+local function get_buffer_content(state)
+  if not vim.api.nvim_buf_is_loaded(state.buf) then
+    return ""
+  end
+  local lines = vim.api.nvim_buf_get_lines(state.buf, 0, -1, false)
+  local text = table.concat(lines, "\n")
+  if #text > 8000 then
+    text = text:sub(1, 8000) .. "\n...<truncated>"
+  end
+  return text
+end
+
+local function get_all_buffers_summary()
+  local bufs = vim.api.nvim_list_bufs()
+  local items = {}
+  for _, b in ipairs(bufs) do
+    if vim.api.nvim_buf_is_loaded(b) and vim.api.nvim_buf_get_option(b, "buflisted") then
+      local name = vim.api.nvim_buf_get_name(b)
+      if name ~= "" then
+        table.insert(items, name)
+      end
+    end
+  end
+  return table.concat(items, "\n")
+end
+
+local function get_visual_selection()
+  -- Save the current register
+  local save_reg = vim.fn.getreg('"')
+  local save_regtype = vim.fn.getregtype('"')
+
+  -- Get visual selection by yanking to unnamed register
+  vim.cmd('normal! gv"gy')
+  local selection = vim.fn.getreg('"')
+
+  -- Restore the register
+  vim.fn.setreg('"', save_reg, save_regtype)
+
+  return selection or ""
+end
+
+local function get_hover_docs(state)
+  local params = vim.lsp.util.make_position_params()
+  local result = lsp_request("textDocument/hover", params)
+  if not result then
+    return ""
+  end
+  local contents = result.contents
+  local out = {}
+  if type(contents) == "string" then
+    table.insert(out, contents)
+  elseif vim.tbl_islist(contents) then
+    for _, c in ipairs(contents) do
+      if type(c) == "string" then
+        table.insert(out, c)
+      elseif type(c) == "table" and c.value then
+        table.insert(out, c.value)
+      end
+    end
+  elseif type(contents) == "table" and contents.value then
+    table.insert(out, contents.value)
+  end
+  return table.concat(out, "\n")
+end
+
+local function get_code_actions(state)
+  local params = vim.lsp.util.make_range_params()
+  params.context = { diagnostics = vim.diagnostic.get(state.buf) }
+  local result = lsp_request("textDocument/codeAction", params)
+  if not result or #result == 0 then
+    return ""
+  end
+  local titles = {}
+  for _, action in ipairs(result) do
+    if action.title then
+      table.insert(titles, action.title)
+    end
+  end
+  return table.concat(titles, "; ")
+end
+
+local function get_visible_content(state)
+  local win = vim.api.nvim_get_current_win()
+  local top_line = vim.fn.line("w0")
+  local bottom_line = vim.fn.line("w$")
+  local bufnr = state.bufnr
+
+  local lines = vim.api.nvim_buf_get_lines(bufnr, top_line - 1, bottom_line, false)
+  return table.concat(lines, "\n")
+end
+
+local function get_quickfix_list()
+  local qflist = vim.fn.getqflist()
+  if #qflist == 0 then
+    return "No quickfix entries"
+  end
+
+  local entries = {}
+  for _, entry in ipairs(qflist) do
+    if entry.valid == 1 then
+      local bufname = vim.api.nvim_buf_get_name(entry.bufnr)
+      local filename = vim.fn.fnamemodify(bufname, ":t")
+      local text = entry.text or ""
+      table.insert(entries, string.format("%s:%d: %s", filename, entry.lnum, text))
+    end
+  end
+  return table.concat(entries, "\n")
+end
+
+local function get_location_list()
+  local loclist = vim.fn.getloclist(0)
+  if #loclist == 0 then
+    return "No location list entries"
+  end
+
+  local entries = {}
+  for _, entry in ipairs(loclist) do
+    if entry.valid == 1 then
+      local bufname = vim.api.nvim_buf_get_name(entry.bufnr)
+      local filename = vim.fn.fnamemodify(bufname, ":t")
+      local text = entry.text or ""
+      table.insert(entries, string.format("%s:%d: %s", filename, entry.lnum, text))
+    end
+  end
+  return table.concat(entries, "\n")
+end
+
+local function get_git_diff(state)
+  local bufnr = state.bufnr
+  local filepath = vim.api.nvim_buf_get_name(bufnr)
+
+  if filepath == "" then
+    return "No file path available"
+  end
+
+  local cmd = string.format("git diff %s", vim.fn.shellescape(filepath))
+  local output = vim.fn.system(cmd)
+
+  if vim.v.shell_error ~= 0 then
+    return "No git diff available"
+  end
+
+  return output
+end
+
+---@class PlaceholderDef
+---@field token string
+---@field description string
+---@field provider fun(state: table): string
+local PLACEHOLDERS = {
+  {
+    token = "@cursor",
+    description = "Cursor position",
+    provider = function(state)
+      return string.format("%s:%d", state.file, state.line)
+    end,
+  },
+  {
+    token = "@selection",
+    description = "Selected text",
+    provider = function()
+      return get_visual_selection()
+    end,
+  },
+  {
+    token = "@buffer",
+    description = "Current buffer",
+    provider = function(state)
+      return get_buffer_content(state)
+    end,
+  },
+  {
+    token = "@buffers",
+    description = "Open buffers",
+    provider = function()
+      return get_all_buffers_summary()
+    end,
+  },
+  {
+    token = "@visible",
+    description = "Visible text",
+    provider = function(state)
+      return get_visible_content(state)
+    end,
+  },
+  {
+    token = "@diagnostic",
+    description = "Current line diagnostics",
+    provider = function(state)
+      return get_line_diagnostics(state)
+    end,
+  },
+  {
+    token = "@diagnostics",
+    description = "Current buffer diagnostics",
+    provider = function(state)
+      return get_all_diagnostics(state)
+    end,
+  },
+  {
+    token = "@qflist",
+    description = "Quickfix list",
+    provider = function()
+      return get_quickfix_list()
+    end,
+  },
+  {
+    token = "@loclist",
+    description = "Location list",
+    provider = function()
+      return get_location_list()
+    end,
+  },
+  {
+    token = "@diff",
+    description = "Git diff",
+    provider = function(state)
+      return get_git_diff(state)
+    end,
+  },
+  {
+    token = "@docs",
+    description = "LSP hover documentation at cursor",
+    provider = function(state)
+      return get_hover_docs(state)
+    end,
+  },
+  {
+    token = "@codeactions",
+    description = "Available LSP code action titles",
+    provider = function(state)
+      return get_code_actions(state)
+    end,
+  },
+}
+
+local function apply_placeholders(input)
+  if not input or input == "" then
+    return input
+  end
+  local state = current_position()
+  for _, ph in ipairs(PLACEHOLDERS) do
+    if input:find(ph.token, 1, true) then
+      local ok, value = pcall(ph.provider, state)
+      if not ok then
+        value = ""
+      end
+      value = value or ""
+      input = input:gsub(escape_lua_pattern(ph.token), value)
+    end
+  end
+  return input
+end
+
+M.placeholder_descriptions = vim.tbl_map(function(p)
+  return { token = p.token, description = p.description }
+end, PLACEHOLDERS)
+
+local blink_source = {}
+local blink_source_setup_done = false
+
+function blink_source.setup()
+  if blink_source_setup_done then
+    return
+  end
+  local ok, blink = pcall(require, "blink.cmp")
+  if not ok then
+    return
+  end
+  blink.add_source_provider(
+    "ai_placeholders",
+    { module = "sysinit.plugins.intellicode.ai-terminals", name = "ai_placeholders" }
+  )
+  blink.add_filetype_source("ai_terminals_input", "ai_placeholders")
+  blink_source_setup_done = true
+end
+
+function blink_source.new(opts)
+  local self = setmetatable({}, { __index = blink_source })
+  self.opts = opts or {}
+  return self
+end
+
+function blink_source:enabled()
+  return vim.bo.filetype == "ai_terminals_input"
+end
+
+function blink_source:get_trigger_characters()
+  return { "@" }
+end
+
+function blink_source:get_completions(_, callback)
+  local items = {}
+  local types_ok, types = pcall(require, "blink.cmp.types")
+  if not types_ok then
+    callback({ items = {}, is_incomplete_forward = false, is_incomplete_backward = false })
+    return function() end
+  end
+  for _, p in ipairs(M.placeholder_descriptions) do
+    table.insert(items, {
+      label = p.token,
+      kind = types.CompletionItemKind.Enum,
+      filterText = p.token,
+      insertText = p.token,
+      insertTextFormat = vim.lsp.protocol.InsertTextFormat.PlainText,
+      documentation = {
+        kind = "markdown",
+        value = string.format("`%s`\n\n%s", p.token, p.description),
+      },
+    })
+  end
+  callback({ items = items, is_incomplete_forward = false, is_incomplete_backward = false })
+  return function() end
+end
+
+function blink_source:resolve(item, callback)
+  callback(item)
+end
+
+M.new = function(opts)
+  return blink_source.new(opts)
+end
+M.setup_blink_source = blink_source.setup
+
+M.plugins = {
+  {
+    "aweis89/ai-terminals.nvim",
+    enabled = config.is_agents_enabled(),
+    dependencies = {
+      "folke/snacks.nvim",
+    },
+    config = function()
+      M.setup_blink_source()
+      require("ai-terminals").setup({
+        window_dimensions = {
+          right = {
+            width = 0.4,
+            height = 1.0,
+          },
+        },
+        default_position = "right",
+        trigger_formatting = {
+          enabled = true,
+        },
+        watch_cwd = {
+          enabled = true,
+          ignore = {
+            "**/.git/**",
+            "**/node_modules/**",
+            "**/.venv/**",
+            "**/*.log",
+            "**/bin/**",
+            "**/dist/**",
+            "**/vendor/**",
+          },
+          gitignore = true,
+        },
+        env = {
+          PAGER = "bat",
+        },
+      })
+    end,
+    keys = function()
+      local ai_terminals = require("ai-terminals")
+      local snacks = require("snacks")
+
+      local function create_input(termname, agent_icon, opts)
+        opts = opts or {}
+        local action_name = opts.action or "Ask"
+        local prompt = opts.prompt or string.format("%s  %s", agent_icon, action_name)
+        local title = string.format("%s  %s", agent_icon or "", action_name)
+
+        local snacks_opts = {
+          prompt = prompt,
+          title = title,
+          icon = agent_icon,
+          default = opts.default or "",
+          win = {
+            b = { completion = true },
+            bo = { filetype = "ai_terminals_input" },
+            relative = "cursor",
+            style = "minimal",
+            border = "rounded",
+            width = math.max(40, math.min(80, vim.o.columns - 20)),
+            height = 1,
+            row = 1,
+            col = 0,
+          },
+        }
+
+        snacks.input(snacks_opts, function(value)
+          if opts.on_confirm and value and value ~= "" then
+            opts.on_confirm(apply_placeholders(value))
+          end
+        end)
+      end
+
+      local function create_keymaps(agent)
+        local key_prefix, termname, label, icon = agent[1], agent[2], agent[3], agent[4]
+        return {
+          {
+            string.format("<leader>%s%s", key_prefix, key_prefix),
+            function()
+              ai_terminals.toggle(termname)
+            end,
+            desc = "Toggle " .. termname,
+          },
+          {
+            string.format("<leader>%sa", key_prefix),
+            function()
+              local mode = vim.fn.mode()
+              local default_text
+
+              if mode:match("[vV]") then
+                default_text = " @selection: "
+              else
+                default_text = " @cursor: "
+              end
+
+              create_input(termname, icon, {
+                action = "Ask",
+                default = default_text,
+                on_confirm = function(text)
+                  ai_terminals.send_term(termname, text, { submit = true })
+                end,
+              })
+            end,
+            desc = "Ask",
+          },
+          {
+            string.format("<leader>%sf", key_prefix),
+            function()
+              create_input(termname, icon, {
+                action = "Fix diagnostics",
+                default = " Fix @diagnostic: ",
+                on_confirm = function(text)
+                  ai_terminals.send_term(termname, text, { submit = true })
+                end,
+              })
+            end,
+            desc = "Fix diagnostics",
+          },
+          {
+            string.format("<leader>%sc", key_prefix),
+            function()
+              local mode = vim.fn.mode()
+              local default_text
+
+              if mode:match("[vV]") then
+                default_text = " Comment @selection: "
+              else
+                default_text = " Comment @cursor: "
+              end
+
+              create_input(termname, icon, {
+                action = "Comment",
+                default = default_text,
+                on_confirm = function(text)
+                  ai_terminals.send_term(termname, text, { submit = true })
+                end,
+              })
+            end,
+            desc = "Comment",
+          },
+        }
+      end
+
+      local agents = {
+        { "h", "goose", "Goose", "" },
+        { "y", "claude", "Claude", "󰿟󰫮" },
+        { "u", "cursor", "Cursor", "" },
+        { "j", "opencode", "OpenCode", "󰫼󰫰" },
+      }
+
+      local mappings = {}
+      for _, agent in ipairs(agents) do
+        vim.list_extend(mappings, create_keymaps(agent))
+      end
+
+      return mappings
+    end,
+  },
+}
+
+return M

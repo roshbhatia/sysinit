@@ -28,84 +28,32 @@ M.plugins = {
       })
 
       wk.add({
-        {
-          "<leader>?",
-          group = "Open command palette",
-        },
-        {
-          "<leader>b",
-          group = "Buffer",
-        },
-        {
-          "<leader>c",
-          group = "Code",
-        },
-        {
-          "<leader>d",
-          group = "Debugger",
-        },
-        {
-          "<leader>e",
-          group = "Editor",
-        },
-        {
-          "<leader>f",
-          group = "Find",
-        },
-        {
-          "<leader>g",
-          group = "Git",
-        },
-        {
-          "<leader>m",
-          group = "Marks",
-        },
-        {
-          "<leader>n",
-          group = "Notifications",
-        },
-        {
-          "<leader>q",
-          group = "Qflist/loclist",
-        },
-        {
-          "<leader>r",
-          group = "Refresh",
-        },
-        {
-          "gr",
-          group = "LSP",
-        },
+        { "<leader>?", group = "Open command palette" },
+        { "<leader>b", group = "Buffer" },
+        { "<leader>c", group = "Code" },
+        { "<leader>d", group = "Debugger" },
+        { "<leader>e", group = "Editor" },
+        { "<leader>f", group = "Find" },
+        { "<leader>g", group = "Git" },
+        { "<leader>m", group = "Marks" },
+        { "<leader>n", group = "Notifications" },
+        { "<leader>q", group = "Qflist/Loclist" },
+        { "<leader>r", group = "Refresh" },
+        { "gr", group = "LSP" },
       })
 
-      wk.add({
-        {
-          "<leader>h",
-          group = "Goose",
-        },
-        {
-          "<leader>y",
-          group = "Claude",
-        },
-        {
-          "<leader>u",
-          group = "Cursor",
-        },
-      })
-
-      wk.add({
-        {
-          "<leader>j",
-          group = "OpenCode",
-        },
-      })
+      if config.is_agents_enabled() then
+        wk.add({
+          { "<leader>h", group = "Goose" },
+          { "<leader>j", group = "OpenCode" },
+          { "<leader>y", group = "Claude" },
+          { "<leader>u", group = "Cursor" },
+        })
+      end
 
       if config.get().debug then
         wk.add({
-          {
-            "<leader>p",
-            group = "Profiler",
-          },
+          { "<leader>p", group = "Profiler" },
         })
       end
     end,

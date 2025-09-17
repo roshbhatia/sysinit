@@ -6,7 +6,7 @@
   xdg.configFile."vectorcode/config.json5" = {
     source = builtins.toFile "config.json5" (
       builtins.toJSON {
-        db_url = "http://127.0.0.1:8000";
+        db_url = "http://127.0.0.1:9876";
         embedding_function = "SentenceTransformerEmbeddingFunction";
         embedding_params = {
           model_name = "all-MiniLM-L6-v2";
