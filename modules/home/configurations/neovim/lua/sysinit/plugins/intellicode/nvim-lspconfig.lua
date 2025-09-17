@@ -10,31 +10,95 @@ if config.is_copilot_enabled() then
   table.insert(deps, "copilotlsp-nvim/copilot-lsp")
 end
 
+local function setup_copilot_highlight_groups()
+  if not config.is_copilot_enabled() then
+    return
+  end
+
+  vim.api.nvim_set_hl(0, "CopilotLspNesAdd", {
+    fg = "#a6e3a1",
+    bg = "#2a2a37",
+    bold = true,
+    default = true,
+  })
+  vim.api.nvim_set_hl(0, "CopilotLspNesDelete", {
+    fg = "#f38ba8",
+    bg = "#3c2a2a",
+    strikethrough = true,
+    default = true,
+  })
+  vim.api.nvim_set_hl(0, "CopilotLspNesApply", {
+    fg = "#89b4fa",
+    bg = "#2a2a3c",
+    bold = true,
+    default = true,
+  })
+  vim.api.nvim_set_hl(0, "CopilotNesHint", {
+    fg = "#cba6f7",
+    bg = "#1e1e2e",
+    italic = true,
+    default = true,
+  })
+end
+
 local function setup_copilot_nes()
   if not config.is_copilot_enabled() then
     return
   end
 
-  vim.g.copilot_nes_debounce = 500
+  vim.g.copilot_nes_debounce = 150
 
   local nes_namespace = vim.api.nvim_create_namespace("copilot_nes_hints")
+  local border_namespace = vim.api.nvim_create_namespace("copilot_nes_borders")
 
   local function update_nes_hints()
     local bufnr = vim.api.nvim_get_current_buf()
     local state = vim.b[bufnr].nes_state
 
     vim.api.nvim_buf_clear_namespace(bufnr, nes_namespace, 0, -1)
+    vim.api.nvim_buf_clear_namespace(bufnr, border_namespace, 0, -1)
 
     if state then
       local cursor = vim.api.nvim_win_get_cursor(0)
       local row = cursor[1] - 1
 
+      vim.api.nvim_buf_set_extmark(bufnr, border_namespace, row, 0, {
+        virt_lines_above = true,
+        virt_lines = {
+          {
+            {
+              "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+              "CopilotNesHint",
+            },
+          },
+        },
+        priority = 999,
+      })
+
       vim.api.nvim_buf_set_extmark(bufnr, nes_namespace, row, 0, {
         virt_text = {
-          { "<leader>+tab: accept | q: clear ", "Comment" },
+          { "  ", "CopilotNesHint" },
+          { "<leader><tab>", "CopilotLspNesApply" },
+          { ": accept", "CopilotNesHint" },
+          { " │ ", "CopilotNesHint" },
+          { "<leader><esc>", "CopilotLspNesDelete" },
+          { ": clear ", "CopilotNesHint" },
+          { " ", "CopilotNesHint" },
         },
         virt_text_pos = "eol",
         priority = 1000,
+      })
+
+      vim.api.nvim_buf_set_extmark(bufnr, border_namespace, row + 1, 0, {
+        virt_lines = {
+          {
+            {
+              "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+              "CopilotNesHint",
+            },
+          },
+        },
+        priority = 999,
       })
     end
   end
@@ -42,29 +106,39 @@ local function setup_copilot_nes()
   vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "BufEnter" }, {
     callback = update_nes_hints,
   })
-  vim.keymap.set("n", "<leader-tab>", function()
-    local bufnr = vim.api.nvim_get_current_buf()
-    local state = vim.b[bufnr].nes_state
 
-    if state then
-      local _ = require("copilot-lsp.nes").walk_cursor_start_edit()
-        or (
-          require("copilot-lsp.nes").apply_pending_nes()
-          and require("copilot-lsp.nes").walk_cursor_end_edit()
-        )
+  return {
+    ["<leader><tab>"] = {
+      function()
+        local bufnr = vim.api.nvim_get_current_buf()
+        local state = vim.b[bufnr].nes_state
 
-      vim.schedule(update_nes_hints)
-      return nil
-    else
-      return "<C-i>"
-    end
-  end, { desc = "Accept Copilot NES suggestion", expr = true })
+        if state then
+          local _ = require("copilot-lsp.nes").walk_cursor_start_edit()
+            or (
+              require("copilot-lsp.nes").apply_pending_nes()
+              and require("copilot-lsp.nes").walk_cursor_end_edit()
+            )
 
-  vim.keymap.set("n", "q", function()
-    if not require("copilot-lsp.nes").clear() then
-    end
-    vim.schedule(update_nes_hints)
-  end, { desc = "Clear Copilot suggestion or fallback" })
+          vim.schedule(update_nes_hints)
+          return nil
+        else
+          return "<C-i>"
+        end
+      end,
+      desc = "Accept Copilot NES suggestion",
+      expr = true,
+    },
+    ["<leader><esc>"] = {
+      function()
+        local success = require("copilot-lsp.nes").clear()
+        if success then
+          vim.schedule(update_nes_hints)
+        end
+      end,
+      desc = "Clear Copilot NES suggestion",
+    },
+  }
 end
 
 local function get_builtin_servers()
@@ -118,6 +192,7 @@ end
 
 local function get_custom_servers()
   local lspconfig = require("lspconfig")
+  local version = vim.version()
 
   local servers = {
     up = {
@@ -141,6 +216,27 @@ local function get_custom_servers()
 
   if config.is_copilot_enabled() then
     servers.copilot_ls = {
+      cmd = {
+        "copilot-language-server",
+        "--stdio",
+      },
+      init_options = {
+        editorInfo = {
+          name = "neovim",
+          version = string.format("%d.%d.%d", version.major, version.minor, version.patch),
+        },
+        editorPluginInfo = {
+          name = "Github Copilot LSP for Neovim",
+          version = "0.0.1",
+        },
+      },
+      settings = {
+        nextEditSuggestions = {
+          enabled = true,
+        },
+      },
+      handlers = require("copilot-lsp.handlers"),
+      root_dir = vim.uv.cwd(),
       capabilities = {},
     }
   end
@@ -269,92 +365,94 @@ local function setup_lsp_attach()
   })
 end
 
-local function get_keymaps()
-  return {
-    {
-      "<leader>cA",
-      vim.lsp.codelens.run,
-      desc = "Run codelens action",
-    },
-    {
-      "<leader>cD",
-      vim.lsp.buf.definition,
-      desc = "Go to definition",
-    },
-    {
-      "grr",
-      vim.lsp.buf.references,
-      desc = "Go to references",
-    },
-    {
-      "<leader>cp",
-      vim.diagnostic.get_prev,
-      desc = "Previous diagnostic",
-    },
-    {
-      "<leader>cn",
-      vim.diagnostic.get_next,
-      desc = "Next diagnostic",
-    },
-    {
-      "<leader>cr",
-      vim.lsp.buf.rename,
-      desc = "Rename symbol",
-    },
-    {
-      "grn",
-      vim.lsp.buf.rename,
-      desc = "Rename symbol",
-    },
-    {
-      "<leader>cs",
-      vim.lsp.buf.document_symbol,
-      desc = "Document symbols",
-    },
-    {
-      "<leader>cj",
-      function()
-        vim.lsp.buf.signature_help({ border = "rounded" })
-      end,
-      desc = "Signature help",
-    },
-    {
-      "<leader>cS",
-      vim.lsp.buf.workspace_symbol,
-      desc = "Workspace symbols",
-    },
-    {
-      "gri",
-      vim.lsp.buf.implementation,
-      desc = "Go to implementation",
-    },
-    {
-      "grt",
-      vim.lsp.buf.type_definition,
-      desc = "Go to type definition",
-    },
-    {
-      "gO",
-      vim.lsp.buf.document_symbol,
-      desc = "Document outline",
-    },
-  }
-end
-
 M.plugins = {
   {
     "neovim/nvim-lspconfig",
     lazy = false,
     dependencies = deps,
     config = function()
-      setup_copilot_nes()
+      setup_copilot_highlight_groups()
       setup_servers()
       configure_diagnostics()
       setup_lsp_attach()
 
       vim.lsp.inlay_hint.enable(true)
     end,
-    keys = get_keymaps,
+    keys = function()
+      local lsp_keymaps = {
+        {
+          "<leader>cA",
+          vim.lsp.codelens.run,
+          desc = "Run codelens action",
+        },
+        {
+          "<leader>cD",
+          vim.lsp.buf.definition,
+          desc = "Go to definition",
+        },
+        {
+          "grr",
+          vim.lsp.buf.references,
+          desc = "Go to references",
+        },
+        {
+          "<leader>cp",
+          vim.diagnostic.get_prev,
+          desc = "Previous diagnostic",
+        },
+        {
+          "<leader>cn",
+          vim.diagnostic.get_next,
+          desc = "Next diagnostic",
+        },
+        {
+          "<leader>cr",
+          vim.lsp.buf.rename,
+          desc = "Rename symbol",
+        },
+        {
+          "grn",
+          vim.lsp.buf.rename,
+          desc = "Rename symbol",
+        },
+        {
+          "<leader>cs",
+          vim.lsp.buf.document_symbol,
+          desc = "Document symbols",
+        },
+        {
+          "<leader>cj",
+          function()
+            vim.lsp.buf.signature_help({ border = "rounded" })
+          end,
+          desc = "Signature help",
+        },
+        {
+          "<leader>cS",
+          vim.lsp.buf.workspace_symbol,
+          desc = "Workspace symbols",
+        },
+        {
+          "gri",
+          vim.lsp.buf.implementation,
+          desc = "Go to implementation",
+        },
+        {
+          "grt",
+          vim.lsp.buf.type_definition,
+          desc = "Go to type definition",
+        },
+        {
+          "gO",
+          vim.lsp.buf.document_symbol,
+          desc = "Document outline",
+        },
+      }
+
+      local copilot_keymaps = setup_copilot_nes() or {}
+
+      return vim.tbl_extend("force", lsp_keymaps, copilot_keymaps)
+    end,
   },
 }
 
