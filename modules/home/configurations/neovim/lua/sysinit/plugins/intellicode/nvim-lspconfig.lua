@@ -18,7 +18,6 @@ M.plugins = {
     config = function()
       if config.is_copilot_enabled() then
         vim.g.copilot_nes_debounce = 500
-        vim.lsp.enable("copilot_ls")
 
         vim.keymap.set("n", "<C-tab>", function()
           local bufnr = vim.api.nvim_get_current_buf()
@@ -90,7 +89,7 @@ M.plugins = {
       }
 
       if config.is_copilot_enabled() then
-        builtin_servers.copilot_ls = {}
+        custom_servers.copilot_ls = {}
       end
 
       local custom_servers = {
