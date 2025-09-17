@@ -18,8 +18,9 @@ M.plugins = {
     config = function()
       if config.is_copilot_enabled() then
         vim.g.copilot_nes_debounce = 500
+        vim.lsp.enable("copilot_ls")
 
-        vim.keymap.set("n", "<tab>", function()
+        vim.keymap.set("n", "<C-tab>", function()
           local bufnr = vim.api.nvim_get_current_buf()
           local state = vim.b[bufnr].nes_state
           if state then
@@ -88,6 +89,10 @@ M.plugins = {
         },
       }
 
+      if config.is_copilot_enabled() then
+        builtin_servers.copilot_ls = {}
+      end
+
       local custom_servers = {
         up = {
           cmd = {
@@ -111,12 +116,6 @@ M.plugins = {
       for server, config in pairs(builtin_servers) do
         config.capabilities = require("blink.cmp").get_lsp_capabilities()
         lspconfig[server].setup(config)
-      end
-
-      if config.is_copilot_enabled() then
-        local copilot_config = {}
-        copilot_config.capabilities = require("blink.cmp").get_lsp_capabilities()
-        lspconfig.copilot_ls.setup(copilot_config)
       end
 
       for server, config in pairs(custom_servers) do
