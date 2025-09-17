@@ -20,7 +20,6 @@ in
   programs.git = {
     enable = true;
     userName = cfg.name;
-    userEmail = cfg.userEmail;
 
     aliases = {
       p = "pull";
@@ -59,11 +58,6 @@ in
     ];
 
     extraConfig = {
-
-      github = {
-        user = cfg.username;
-      };
-
       advice = {
         addEmptyPathspec = false;
         pushNonFastForward = false;
@@ -136,7 +130,6 @@ in
         condition = "gitdir:~/github/work/";
         contents = {
           user = {
-            name = cfg.name;
             email = workEmail;
           };
           github = {
@@ -154,7 +147,6 @@ in
         condition = "gitdir:~/github/personal/";
         contents = {
           user = {
-            name = cfg.name;
             email = personalEmail;
           };
           github = {
