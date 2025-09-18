@@ -10,10 +10,10 @@ let
   themeCfg = mkThemedConfig values "delta" { };
   deltaTheme = themeCfg.appTheme;
 
-  personalEmail = cfg.personalEmail or cfg.email;
-  workEmail = cfg.workEmail or cfg.email;
-  personalGithubUser = cfg.personalUsername or cfg.username;
-  workGithubUser = cfg.workUsername or cfg.username;
+  personalEmail = if cfg.personalEmail != null then cfg.personalEmail else cfg.email;
+  workEmail = if cfg.workEmail != null then cfg.workEmail else cfg.email;
+  personalGithubUser = if cfg.personalUsername != null then cfg.personalUsername else cfg.username;
+  workGithubUser = if cfg.workUsername != null then cfg.workUsername else cfg.username;
 in
 {
   programs.git = {
