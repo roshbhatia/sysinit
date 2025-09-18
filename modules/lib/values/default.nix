@@ -25,7 +25,7 @@ with lib;
           description = "Git user name";
         };
 
-        userEmail = mkOption {
+        email = mkOption {
           type = types.str;
           description = "Git user email";
         };
