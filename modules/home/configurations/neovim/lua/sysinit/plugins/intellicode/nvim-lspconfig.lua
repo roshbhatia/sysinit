@@ -17,6 +17,10 @@ local function setup_copilot_highlights()
     return
   end
 
+  -- Enable NES virtual text globally
+  vim.g.copilot_nes_enable = true
+  vim.g.copilot_nes_virtual_text = true
+
   local theme_config =
     json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
   local colors = theme_config.colors.semantic
@@ -40,8 +44,14 @@ local function setup_copilot_highlights()
       bold = true,
       default = true,
     },
-    CopilotNesHint = {
+    CopilotLspNesHint = {
       fg = colors.warning,
+      bg = "none",
+      italic = true,
+      default = true,
+    },
+    CopilotLspNesVirtualText = {
+      fg = colors.comment,
       bg = "none",
       italic = true,
       default = true,
@@ -138,14 +148,24 @@ local function get_custom_servers()
           enabled = true,
         },
       },
+      capabilities = {
+        workspace = {
+          didChangeWatchedFiles = {
+            dynamicRegistration = false,
+          },
+        },
+      },
       handlers = require("copilot-lsp.handlers"),
       root_dir = vim.uv.cwd(),
       on_init = function(client)
         local au = vim.api.nvim_create_augroup("copilotlsp.init", { clear = true })
+        local nes = require("copilot-lsp.nes")
         local debounced_request = require("copilot-lsp.util").debounce(
-          require("copilot-lsp.nes").request_nes,
+          nes.request_nes,
           vim.g.copilot_nes_debounce or 500
         )
+
+        -- Setup NES virtual text display
         vim.api.nvim_create_autocmd({ "TextChangedI", "TextChanged" }, {
           callback = function()
             debounced_request(client)
@@ -161,6 +181,44 @@ local function get_custom_servers()
                 uri = td_params.uri,
               },
             })
+          end,
+          group = au,
+        })
+
+        -- Setup NES keybindings for the buffer
+        vim.api.nvim_create_autocmd("BufEnter", {
+          callback = function(event)
+            local bufnr = event.buf
+
+            -- Leader Tab to navigate to NES suggestion or accept it
+            vim.keymap.set({ "n", "i" }, "<leader><Tab>", function()
+              if vim.b[bufnr].nes_state then
+                if vim.b[bufnr].nes_navigated then
+                  -- Already navigated, now accept
+                  nes.apply_pending_nes()
+                  nes.walk_cursor_end_edit()
+                  vim.b[bufnr].nes_navigated = false
+                else
+                  -- First press, navigate to suggestion
+                  local state = vim.b[bufnr].nes_state
+                  if state and state.line and state.col then
+                    vim.api.nvim_win_set_cursor(0, { state.line, state.col })
+                    vim.b[bufnr].nes_navigated = true
+                  end
+                end
+              end
+            end, { buffer = bufnr, desc = "Navigate to/Accept NES suggestion" })
+
+            -- Escape to reject NES
+            vim.keymap.set({ "n", "i" }, "<Esc>", function()
+              if vim.b[bufnr].nes_state then
+                nes.clear_nes()
+                vim.b[bufnr].nes_navigated = false
+                return "<Esc>"
+              else
+                return "<Esc>"
+              end
+            end, { buffer = bufnr, expr = true, desc = "Reject NES or escape" })
           end,
           group = au,
         })

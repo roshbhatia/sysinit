@@ -10,7 +10,7 @@ local deps = {
 }
 
 if config.is_copilot_enabled() then
-  table.insert(deps, "giuxtaposition/blink-cmp-copilot")
+  table.insert(deps, "fang2hou/blink-copilot")
   table.insert(deps, "copilotlsp-nvim/copilot-lsp")
 end
 
@@ -86,7 +86,7 @@ M.plugins = {
       if config.is_copilot_enabled() then
         providers.copilot = {
           name = "copilot",
-          module = "blink-cmp-copilot",
+          module = "blink.copilot",
           score_offset = 100,
           async = true,
           transform_items = function(ctx, items)
@@ -179,6 +179,12 @@ M.plugins = {
           },
           ["<Tab>"] = {
             function(cmp)
+              -- First check for copilot inline suggestions from blink-copilot
+              local ok, copilot = pcall(require, "blink.copilot")
+              if ok and copilot.is_visible and copilot.is_visible() then
+                return cmp.select_and_accept()
+              end
+              -- Then check for NES
               if vim.b[vim.api.nvim_get_current_buf()].nes_state then
                 cmp.hide()
                 return (
