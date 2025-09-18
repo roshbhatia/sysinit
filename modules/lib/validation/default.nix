@@ -65,7 +65,7 @@ rec {
   validateGitConfig =
     values:
     [
-      (validateEmail values.git.userEmail)
+      (validateEmail values.git.email)
       {
         assertion = values.git.name != "";
         message = "git.name cannot be empty";
