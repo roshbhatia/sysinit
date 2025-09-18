@@ -587,7 +587,7 @@ M.plugins = {
         if ai_terminals.is_open(termname) then
           if text and text ~= "" then
             -- Terminal is open, send the command
-            ensure_terminal_and_send(termname, text)
+            ensure_terminal_and_send(termname, text .. " ")
           else
             -- No text provided, just toggle (close)
             ai_terminals.toggle(termname)
