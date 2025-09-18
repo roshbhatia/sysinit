@@ -86,7 +86,7 @@ M.plugins = {
       if config.is_copilot_enabled() then
         providers.copilot = {
           name = "copilot",
-          module = "blink.copilot",
+          module = "blink-copilot",
           score_offset = 100,
           async = true,
           transform_items = function(ctx, items)
@@ -180,7 +180,7 @@ M.plugins = {
           ["<Tab>"] = {
             function(cmp)
               -- First check for copilot inline suggestions from blink-copilot
-              local ok, copilot = pcall(require, "blink.copilot")
+              local ok, copilot = pcall(require, "blink-copilot")
               if ok and copilot.is_visible and copilot.is_visible() then
                 return cmp.select_and_accept()
               end

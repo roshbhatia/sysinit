@@ -149,6 +149,11 @@ local function get_custom_servers()
         },
       },
       capabilities = {
+        textDocument = {
+          inlineCompletion = {
+            dynamicRegistration = false,
+          },
+        },
         workspace = {
           didChangeWatchedFiles = {
             dynamicRegistration = false,
