@@ -198,6 +198,44 @@ local function get_custom_servers()
         -- Create custom namespace for NES enhancements
         local custom_ns = vim.api.nvim_create_namespace("copilotlsp.nes.enhanced")
 
+        -- Populate location list with NES suggestions
+        local function populate_nes_loclist(bufnr)
+          if not vim.api.nvim_buf_is_valid(bufnr) then
+            return
+          end
+
+          local state = vim.b[bufnr].nes_state
+          if not state then
+            vim.fn.setloclist(0, {}, "r") -- Clear loclist if no NES
+            return
+          end
+
+          local filename = vim.api.nvim_buf_get_name(bufnr)
+          local range = state.range
+          local start_line = range.start.line + 1 -- Convert to 1-indexed
+          local start_col = range.start.character + 1
+
+          -- Get preview of the suggested change
+          local new_text = state.newText or ""
+          local preview = new_text:gsub("\n", " "):sub(1, 60) -- Truncate for display
+          if #new_text > 60 then
+            preview = preview .. "..."
+          end
+
+          local loclist_item = {
+            bufnr = bufnr,
+            filename = filename,
+            lnum = start_line,
+            col = start_col,
+            text = "󰌵 Copilot: " .. preview,
+            type = "I", -- Info type
+          }
+
+          -- Set location list for current window
+          vim.fn.setloclist(0, {loclist_item}, "r")
+          vim.fn.setloclist(0, {}, "a", {title = "Copilot Next Edit Suggestions"})
+        end
+
         -- Enhanced NES display with header
         local function enhance_nes_display(bufnr)
           -- Validate buffer exists before accessing buffer variables
@@ -211,7 +249,7 @@ local function get_custom_servers()
           end
 
           local start_line = state.range.start.line
-          local header_text = "  <leader><Tab>: accept | <Esc>: reject "
+          local header_text = "  <leader>aa: accept | <Esc>: reject | <leader>al: loclist "
           local divider = "─"
 
           -- Add header above the suggestion
@@ -228,6 +266,9 @@ local function get_custom_servers()
             },
             virt_lines_above = true,
           })
+
+          -- Populate location list
+          populate_nes_loclist(bufnr)
         end
 
         -- Clear enhanced display
@@ -237,6 +278,8 @@ local function get_custom_servers()
             return
           end
           vim.api.nvim_buf_clear_namespace(bufnr, custom_ns, 0, -1)
+          -- Clear location list when NES is cleared
+          vim.fn.setloclist(0, {}, "r")
         end
 
         -- Setup NES keybindings for the buffer
@@ -244,8 +287,8 @@ local function get_custom_servers()
           callback = function(event)
             local bufnr = event.buf
 
-            -- Leader Tab to navigate to NES suggestion or accept it
-            vim.keymap.set({ "n", "i" }, "<leader><Tab>", function()
+            -- Leader aa to navigate to NES suggestion or accept it
+            vim.keymap.set({ "n", "i" }, "<leader>aa", function()
               if vim.b[bufnr].nes_state then
                 if vim.b[bufnr].nes_navigated then
                   -- Already navigated, now accept
@@ -274,6 +317,14 @@ local function get_custom_servers()
                 return "<Esc>"
               end
             end, { buffer = bufnr, expr = true, desc = "Reject NES or escape" })
+
+            -- Leader al to open location list with NES suggestions
+            vim.keymap.set({ "n", "i" }, "<leader>al", function()
+              if vim.b[bufnr].nes_state then
+                populate_nes_loclist(bufnr)
+                vim.cmd("lopen")
+              end
+            end, { buffer = bufnr, desc = "Open NES location list" })
 
             -- Monitor buffer for NES state changes to add enhanced display
             local nes_timer = vim.loop.new_timer()
