@@ -56,6 +56,13 @@ local function setup_copilot_highlights()
       italic = true,
       default = true,
     },
+    CopilotLspNesHeader = {
+      fg = colors.accent,
+      bg = "none",
+      bold = true,
+      italic = true,
+      default = true,
+    },
   }
 
   for name, opts in pairs(highlights) do
@@ -165,10 +172,8 @@ local function get_custom_servers()
       on_init = function(client)
         local au = vim.api.nvim_create_augroup("copilotlsp.init", { clear = true })
         local nes = require("copilot-lsp.nes")
-        local debounced_request = require("copilot-lsp.util").debounce(
-          nes.request_nes,
-          vim.g.copilot_nes_debounce or 500
-        )
+        local debounced_request =
+          require("copilot-lsp.util").debounce(nes.request_nes, vim.g.copilot_nes_debounce or 500)
 
         -- Setup NES virtual text display
         vim.api.nvim_create_autocmd({ "TextChangedI", "TextChanged" }, {
@@ -190,6 +195,41 @@ local function get_custom_servers()
           group = au,
         })
 
+        -- Create custom namespace for NES enhancements
+        local custom_ns = vim.api.nvim_create_namespace("copilotlsp.nes.enhanced")
+
+        -- Enhanced NES display with header
+        local function enhance_nes_display(bufnr)
+          local state = vim.b[bufnr].nes_state
+          if not state then
+            return
+          end
+
+          local start_line = state.range.start.line
+          local header_text = "  <leader><Tab>: accept | <Esc>: reject "
+          local divider = "─"
+
+          -- Add header above the suggestion
+          vim.api.nvim_buf_set_extmark(bufnr, custom_ns, start_line, 0, {
+            virt_lines = {
+              {
+                {
+                  "╭─ " .. header_text .. " " .. divider:rep(
+                    math.max(0, 45 - #header_text - 4)
+                  ) .. "╮",
+                  "CopilotLspNesHeader",
+                },
+              },
+            },
+            virt_lines_above = true,
+          })
+        end
+
+        -- Clear enhanced display
+        local function clear_enhanced_display(bufnr)
+          vim.api.nvim_buf_clear_namespace(bufnr, custom_ns, 0, -1)
+        end
+
         -- Setup NES keybindings for the buffer
         vim.api.nvim_create_autocmd("BufEnter", {
           callback = function(event)
@@ -200,15 +240,20 @@ local function get_custom_servers()
               if vim.b[bufnr].nes_state then
                 if vim.b[bufnr].nes_navigated then
                   -- Already navigated, now accept
-                  nes.apply_pending_nes()
-                  nes.walk_cursor_end_edit()
+                  nes.apply_pending_nes(bufnr)
+                  clear_enhanced_display(bufnr)
                   vim.b[bufnr].nes_navigated = false
+                  vim.b[bufnr].nes_enhanced = false
                 else
                   -- First press, navigate to suggestion
-                  local state = vim.b[bufnr].nes_state
-                  if state and state.line and state.col then
-                    vim.api.nvim_win_set_cursor(0, { state.line, state.col })
+                  if nes.walk_cursor_start_edit(bufnr) then
                     vim.b[bufnr].nes_navigated = true
+                    -- Show a brief message
+                    vim.notify(
+                      "󰌵 Copilot: Press <leader><Tab> again to accept",
+                      vim.log.levels.INFO,
+                      { title = "Copilot NES" }
+                    )
                   end
                 end
               end
@@ -217,13 +262,42 @@ local function get_custom_servers()
             -- Escape to reject NES
             vim.keymap.set({ "n", "i" }, "<Esc>", function()
               if vim.b[bufnr].nes_state then
-                nes.clear_nes()
+                nes.clear()
+                clear_enhanced_display(bufnr)
                 vim.b[bufnr].nes_navigated = false
+                vim.b[bufnr].nes_enhanced = false
                 return "<Esc>"
               else
                 return "<Esc>"
               end
             end, { buffer = bufnr, expr = true, desc = "Reject NES or escape" })
+
+            -- Monitor buffer for NES state changes to add enhanced display
+            local nes_timer = vim.loop.new_timer()
+            local function check_nes_state()
+              if vim.b[bufnr].nes_state and not vim.b[bufnr].nes_enhanced then
+                enhance_nes_display(bufnr)
+                vim.b[bufnr].nes_enhanced = true
+              elseif not vim.b[bufnr].nes_state and vim.b[bufnr].nes_enhanced then
+                clear_enhanced_display(bufnr)
+                vim.b[bufnr].nes_enhanced = false
+              end
+            end
+
+            -- Check periodically for NES state changes
+            nes_timer:start(100, 100, vim.schedule_wrap(check_nes_state))
+
+            -- Clean up timer when buffer is deleted
+            vim.api.nvim_create_autocmd("BufDelete", {
+              buffer = bufnr,
+              callback = function()
+                if nes_timer then
+                  nes_timer:stop()
+                  nes_timer:close()
+                end
+              end,
+              once = true,
+            })
           end,
           group = au,
         })
