@@ -6,7 +6,7 @@
 
   git = {
     name = "Roshan Bhatia";
-    userEmail = "rshnbhatia@gmail.com";
+    email = "rshnbhatia@gmail.com";
     username = "roshbhatia";
   };
 

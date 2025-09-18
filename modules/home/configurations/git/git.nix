@@ -10,8 +10,8 @@ let
   themeCfg = mkThemedConfig values "delta" { };
   deltaTheme = themeCfg.appTheme;
 
-  personalEmail = cfg.personalEmail or cfg.userEmail;
-  workEmail = cfg.workEmail or cfg.userEmail;
+  personalEmail = cfg.personalEmail or cfg.email;
+  workEmail = cfg.workEmail or cfg.email;
   personalGithubUser = cfg.personalUsername or cfg.username;
   workGithubUser = cfg.workUsername or cfg.username;
 in

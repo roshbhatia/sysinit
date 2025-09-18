@@ -232,8 +232,8 @@ local function get_custom_servers()
           }
 
           -- Set location list for current window
-          vim.fn.setloclist(0, {loclist_item}, "r")
-          vim.fn.setloclist(0, {}, "a", {title = "Copilot Next Edit Suggestions"})
+          vim.fn.setloclist(0, { loclist_item }, "r")
+          vim.fn.setloclist(0, {}, "a", { title = "Copilot Next Edit Suggestions" })
         end
 
         -- Enhanced NES display with header
