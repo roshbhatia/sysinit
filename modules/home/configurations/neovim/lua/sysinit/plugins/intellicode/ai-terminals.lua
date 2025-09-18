@@ -29,6 +29,14 @@ end
 local function current_position()
   local buf = vim.api.nvim_get_current_buf()
   local file = vim.api.nvim_buf_get_name(buf)
+  local handle = io.popen("git rev-parse --show-toplevel")
+  local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1") -- trim whitespace
+  handle:close()
+
+  if repo_root and repo_root ~= "" then
+    file = file:sub(#repo_root + 2) -- Remove repo_root and the trailing '/'
+  end
+
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
   return { buf = buf, file = file, line = line, col = col }
 end
@@ -68,18 +76,43 @@ local function get_buffer_path(state)
   if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
     return ""
   end
+
   local path = vim.api.nvim_buf_get_name(state.buf)
-  return path ~= "" and "@" .. path or ""
+  if path == "" then
+    return ""
+  end
+
+  -- Get the Git root directory
+  local handle = io.popen("git rev-parse --show-toplevel")
+  local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1") -- trim whitespace
+  handle:close()
+
+  -- Compute the relative path if the file is within a Git repository
+  if repo_root and repo_root ~= "" then
+    path = path:sub(#repo_root + 2) -- Remove repo_root and the trailing '/'
+  end
+
+  return "@" .. path
 end
 
 -- Summarizes all loaded and listed buffers
 local function get_all_buffers_summary()
+  -- Get the Git root directory
+  local handle = io.popen("git rev-parse --show-toplevel")
+  local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1") -- trim whitespace
+  handle:close()
+
   local bufs = vim.api.nvim_list_bufs()
   local items = {}
   for _, b in ipairs(bufs) do
     if vim.api.nvim_buf_is_loaded(b) and vim.api.nvim_buf_get_option(b, "buflisted") then
       local name = vim.api.nvim_buf_get_name(b)
       if name ~= "" then
+        -- Check if the file is inside the Git repository
+        if repo_root and repo_root ~= "" and name:sub(1, #repo_root) == repo_root then
+          -- Convert the absolute path to a relative path
+          name = name:sub(#repo_root + 2) -- Remove repo_root and the trailing '/'
+        end
         table.insert(items, name)
       end
     end
