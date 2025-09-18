@@ -200,6 +200,11 @@ local function get_custom_servers()
 
         -- Enhanced NES display with header
         local function enhance_nes_display(bufnr)
+          -- Validate buffer exists before accessing buffer variables
+          if not vim.api.nvim_buf_is_valid(bufnr) then
+            return
+          end
+
           local state = vim.b[bufnr].nes_state
           if not state then
             return
@@ -227,6 +232,10 @@ local function get_custom_servers()
 
         -- Clear enhanced display
         local function clear_enhanced_display(bufnr)
+          -- Validate buffer exists before clearing namespace
+          if not vim.api.nvim_buf_is_valid(bufnr) then
+            return
+          end
           vim.api.nvim_buf_clear_namespace(bufnr, custom_ns, 0, -1)
         end
 
@@ -275,6 +284,15 @@ local function get_custom_servers()
             -- Monitor buffer for NES state changes to add enhanced display
             local nes_timer = vim.loop.new_timer()
             local function check_nes_state()
+              -- Validate buffer still exists before accessing buffer variables
+              if not vim.api.nvim_buf_is_valid(bufnr) then
+                if nes_timer then
+                  nes_timer:stop()
+                  nes_timer:close()
+                end
+                return
+              end
+
               if vim.b[bufnr].nes_state and not vim.b[bufnr].nes_enhanced then
                 enhance_nes_display(bufnr)
                 vim.b[bufnr].nes_enhanced = true
