@@ -257,12 +257,6 @@ local function get_custom_servers()
                   -- First press, navigate to suggestion
                   if nes.walk_cursor_start_edit(bufnr) then
                     vim.b[bufnr].nes_navigated = true
-                    -- Show a brief message
-                    vim.notify(
-                      "󰌵 Copilot: Press <leader><Tab> again to accept",
-                      vim.log.levels.INFO,
-                      { title = "Copilot NES" }
-                    )
                   end
                 end
               end
