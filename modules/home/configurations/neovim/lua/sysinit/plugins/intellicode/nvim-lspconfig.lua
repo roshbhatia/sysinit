@@ -249,7 +249,7 @@ local function get_custom_servers()
           end
 
           local start_line = state.range.start.line
-          local header_text = "  <leader>aa: accept | <Esc>: reject | <leader>al: loclist "
+          local header_text = "  <C-CR>: accept | <C-BS>: reject"
           local divider = "─"
 
           -- Add header above the suggestion
@@ -287,8 +287,8 @@ local function get_custom_servers()
           callback = function(event)
             local bufnr = event.buf
 
-            -- Leader aa to navigate to NES suggestion or accept it
-            vim.keymap.set({ "n", "i" }, "<leader>aa", function()
+            -- Ctrl+Enter to navigate to NES suggestion or accept it
+            vim.keymap.set({ "n", "i" }, "<C-CR>", function()
               if vim.b[bufnr].nes_state then
                 if vim.b[bufnr].nes_navigated then
                   -- Already navigated, now accept
@@ -305,18 +305,18 @@ local function get_custom_servers()
               end
             end, { buffer = bufnr, desc = "Navigate to/Accept NES suggestion" })
 
-            -- Escape to reject NES
-            vim.keymap.set({ "n", "i" }, "<Esc>", function()
+            -- Ctrl+Backspace to reject NES
+            vim.keymap.set({ "n", "i" }, "<C-BS>", function()
               if vim.b[bufnr].nes_state then
                 nes.clear()
                 clear_enhanced_display(bufnr)
                 vim.b[bufnr].nes_navigated = false
                 vim.b[bufnr].nes_enhanced = false
-                return "<Esc>"
+                return "<C-BS>"
               else
-                return "<Esc>"
+                return "<C-BS>"
               end
-            end, { buffer = bufnr, expr = true, desc = "Reject NES or escape" })
+            end, { buffer = bufnr, expr = true, desc = "Reject NES" })
 
             -- Leader al to open location list with NES suggestions
             vim.keymap.set({ "n", "i" }, "<leader>al", function()
