@@ -2,6 +2,9 @@
 local M = {}
 local config = require("sysinit.utils.config")
 
+-- Store last prompts for each terminal
+local last_prompts = {}
+
 -- Utility Functions
 -- Escapes Lua pattern special characters for safe pattern matching
 local function escape_lua_pattern(s)
@@ -476,7 +479,7 @@ M.plugins = {
       require("ai-terminals").setup({
         window_dimensions = {
           right = {
-            width = 0.4,
+            width = 1.0,
             height = 1.0,
           },
         },
@@ -540,14 +543,40 @@ M.plugins = {
 
       -- Ensures terminal is open and focused before sending command
       local function ensure_terminal_and_send(termname, text)
+        -- Store the last prompt for this terminal
+        last_prompts[termname] = text
         -- Always open the terminal (creates if necessary, shows if hidden)
         ai_terminals.open(termname)
-        -- Focus the terminal
+        -- Focus the terminal and wait for it to be ready
         ai_terminals.focus()
-        -- Small delay to ensure terminal is ready, then send command
+        -- Longer delay to ensure terminal is properly focused and cursor is positioned
         vim.defer_fn(function()
+          -- Move cursor to end of line to ensure proper positioning
+          vim.cmd("normal! G$")
           ai_terminals.send_term(termname, text, { submit = true })
-        end, 50)
+        end, 100)
+      end
+
+      -- Enhanced toggle function that can also send commands
+      local function smart_toggle(termname, text)
+        if ai_terminals.is_open(termname) then
+          if text and text ~= "" then
+            -- Terminal is open, send the command
+            ensure_terminal_and_send(termname, text)
+          else
+            -- No text provided, just toggle (close)
+            ai_terminals.toggle(termname)
+          end
+        else
+          -- Terminal is closed, open it
+          ai_terminals.toggle(termname)
+          if text and text ~= "" then
+            -- Also send command after opening
+            vim.defer_fn(function()
+              ensure_terminal_and_send(termname, text)
+            end, 150)
+          end
+        end
       end
 
       -- Generates keymaps for a given AI agent
@@ -561,6 +590,19 @@ M.plugins = {
               ai_terminals.toggle(termname)
             end,
             desc = "Toggle " .. label,
+          },
+          -- Resend last prompt
+          {
+            string.format("<leader>%sr", key_prefix),
+            function()
+              local last_prompt = last_prompts[termname]
+              if last_prompt and last_prompt ~= "" then
+                ensure_terminal_and_send(termname, last_prompt)
+              else
+                vim.notify("No previous prompt found for " .. label, vim.log.levels.WARN)
+              end
+            end,
+            desc = "Resend last prompt to " .. label,
           },
           -- Ask with cursor or selection
           {
