@@ -477,12 +477,6 @@ M.plugins = {
     config = function()
       M.setup_blink_source()
       require("ai-terminals").setup({
-        window_dimensions = {
-          right = {
-            width = 1.0,
-            height = 1.0,
-          },
-        },
         backend = "snacks",
         default_position = "right",
         trigger_formatting = {
@@ -551,8 +545,6 @@ M.plugins = {
         ai_terminals.focus()
         -- Longer delay to ensure terminal is properly focused and cursor is positioned
         vim.defer_fn(function()
-          -- Move cursor to end of line to ensure proper positioning
-          vim.cmd("normal! G$")
           ai_terminals.send_term(termname, text, { submit = true })
         end, 100)
       end
