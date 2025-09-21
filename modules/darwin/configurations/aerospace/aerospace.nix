@@ -26,19 +26,19 @@
           # Per-monitor configuration: aggressive padding for LG HDR 4K, default for others
           left = [
             { monitor."LG HDR 4K" = 480; }
-            16  # default for other monitors
+            16 # default for other monitors
           ];
           right = [
             { monitor."LG HDR 4K" = 480; }
-            16  # default for other monitors
+            16 # default for other monitors
           ];
           top = [
             { monitor."LG HDR 4K" = 200; }
-            60  # default for other monitors
+            60 # default for other monitors
           ];
           bottom = [
             { monitor."LG HDR 4K" = 200; }
-            24  # default for other monitors
+            24 # default for other monitors
           ];
         };
       };
