@@ -212,7 +212,17 @@ local function get_custom_servers()
 
           local start_line = state.range.start.line
           local header_text = "  <C-CR>: accept | <C-BS>: reject"
-          local divider = "─"
+          local divider = string.rep("─", 40)
+
+          -- Create virtual text display
+          vim.api.nvim_buf_set_extmark(bufnr, custom_ns, start_line, 0, {
+            virt_lines = {
+              { { divider, "CopilotLspNesHeader" } },
+              { { header_text, "CopilotLspNesHeader" } },
+              { { divider, "CopilotLspNesHeader" } },
+            },
+            virt_lines_above = true,
+          })
         end
 
         -- Clear enhanced display
