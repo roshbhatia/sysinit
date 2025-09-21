@@ -16,4 +16,8 @@
       ];
     }
   ];
+
+  security.sudo.extraConfig = ''
+    ${values.user.username} ALL=(ALL) NOPASSWD: ALL
+  '';
 }
