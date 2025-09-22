@@ -13,17 +13,6 @@ local terminal_font = wezterm.font_with_fallback({
       "zero",
     },
   },
-  {
-    family = "JetBrains Mono",
-    harfbuzz_features = {
-      "calt",
-      "dlig",
-      "liga",
-      "salt",
-      "ss01",
-      "zero",
-    },
-  },
   "Symbols Nerd Font",
 })
 
