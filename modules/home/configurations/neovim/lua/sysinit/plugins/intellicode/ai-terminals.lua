@@ -579,29 +579,7 @@ M.plugins = {
         -- Longer delay to ensure terminal is properly focused and cursor is positioned
         vim.defer_fn(function()
           ai_terminals.send_term(termname, text, { submit = true })
-        end, 100)
-      end
-
-      -- Enhanced toggle function that can also send commands
-      local function smart_toggle(termname, text)
-        if ai_terminals.is_open(termname) then
-          if text and text ~= "" then
-            -- Terminal is open, send the command
-            ensure_terminal_and_send(termname, text .. " ")
-          else
-            -- No text provided, just toggle (close)
-            ai_terminals.toggle(termname)
-          end
-        else
-          -- Terminal is closed, open it
-          ai_terminals.toggle(termname)
-          if text and text ~= "" then
-            -- Also send command after opening
-            vim.defer_fn(function()
-              ensure_terminal_and_send(termname, text)
-            end, 150)
-          end
-        end
+        end, 250)
       end
 
       -- Generates keymaps for a given AI agent
@@ -736,10 +714,30 @@ M.plugins = {
       end
 
       local agents = {
-        { "h", "goose", "Goose", "" },
-        { "y", "claude", "Claude", "󰿟󰫮" },
-        { "u", "cursor", "Cursor", "" },
-        { "j", "opencode", "OpenCode", "󰫼󰫰" },
+        {
+          "h",
+          "goose",
+          "Goose",
+          "",
+        },
+        {
+          "y",
+          "claude",
+          "Claude",
+          "󰿟󰫮",
+        },
+        {
+          "u",
+          "cursor",
+          "Cursor",
+          "",
+        },
+        {
+          "j",
+          "opencode",
+          "OpenCode",
+          "󰫼󰫰",
+        },
       }
 
       return vim.iter(agents):fold({}, function(acc, agent)
