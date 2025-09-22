@@ -17,7 +17,6 @@ local function setup_copilot_highlights()
     return
   end
 
-  -- Enable NES virtual text globally
   vim.g.copilot_nes_enable = true
   vim.g.copilot_nes_virtual_text = true
 
@@ -211,17 +210,18 @@ local function get_custom_servers()
           end
 
           local start_line = state.range.start.line
-          local header_text = "  <C-CR>: accept | <C-BS>: reject"
-          local divider = string.rep("─", 40)
+          local header_text = " >> <C-CR>: accept <C-BS>: reject"
 
           -- Create virtual text display
           vim.api.nvim_buf_set_extmark(bufnr, custom_ns, start_line, 0, {
             virt_lines = {
-              { { divider, "CopilotLspNesHeader" } },
-              { { header_text, "CopilotLspNesHeader" } },
-              { { divider, "CopilotLspNesHeader" } },
+              {
+                {
+                  header_text,
+                  "CopilotLspNesHeader",
+                },
+              },
             },
-            virt_lines_above = true,
           })
         end
 
