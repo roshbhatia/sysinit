@@ -579,7 +579,7 @@ M.plugins = {
         -- Longer delay to ensure terminal is properly focused and cursor is positioned
         vim.defer_fn(function()
           ai_terminals.send_term(termname, text, { submit = true })
-        end, 250)
+        end, 1000)
       end
 
       -- Generates keymaps for a given AI agent
