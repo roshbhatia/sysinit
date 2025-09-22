@@ -174,7 +174,6 @@ local function get_custom_servers()
         local debounced_request =
           require("copilot-lsp.util").debounce(nes.request_nes, vim.g.copilot_nes_debounce or 500)
 
-        -- Setup NES virtual text display
         vim.api.nvim_create_autocmd({ "TextChangedI", "TextChanged" }, {
           callback = function()
             debounced_request(client)
@@ -194,12 +193,9 @@ local function get_custom_servers()
           group = au,
         })
 
-        -- Create custom namespace for NES enhancements
         local custom_ns = vim.api.nvim_create_namespace("copilotlsp.nes.enhanced")
 
-        -- Enhanced NES display with header
         local function enhance_nes_display(bufnr)
-          -- Validate buffer exists before accessing buffer variables
           if not vim.api.nvim_buf_is_valid(bufnr) then
             return
           end
@@ -212,10 +208,8 @@ local function get_custom_servers()
           local start_line = state.range.start.line
           local header_text = "<C-CR>:  , <C-BS>: "
 
-          -- Position header above the NES suggestion
           local header_line = math.max(0, start_line - 1)
 
-          -- Create virtual text display above the suggestion
           vim.api.nvim_buf_set_extmark(bufnr, custom_ns, header_line, 0, {
             virt_lines = {
               {
@@ -225,59 +219,23 @@ local function get_custom_servers()
                 },
               },
             },
-            virt_lines_above = true, -- This positions the virtual text above the line
+            virt_lines_above = true,
           })
         end
 
-        -- Clear enhanced display
         local function clear_enhanced_display(bufnr)
-          -- Validate buffer exists before clearing namespace
           if not vim.api.nvim_buf_is_valid(bufnr) then
             return
           end
           vim.api.nvim_buf_clear_namespace(bufnr, custom_ns, 0, -1)
         end
 
-        -- Setup NES keybindings for the buffer
         vim.api.nvim_create_autocmd("BufEnter", {
           callback = function(event)
             local bufnr = event.buf
 
-            -- Ctrl+Enter to navigate to NES suggestion or accept it
-            vim.keymap.set({ "n", "i" }, "<C-CR>", function()
-              if vim.b[bufnr].nes_state then
-                if vim.b[bufnr].nes_navigated then
-                  -- Already navigated, now accept
-                  nes.apply_pending_nes(bufnr)
-                  clear_enhanced_display(bufnr)
-                  vim.b[bufnr].nes_navigated = false
-                  vim.b[bufnr].nes_enhanced = false
-                else
-                  -- First press, navigate to suggestion
-                  if nes.walk_cursor_start_edit(bufnr) then
-                    vim.b[bufnr].nes_navigated = true
-                  end
-                end
-              end
-            end, { buffer = bufnr, desc = "Navigate to/Accept NES suggestion" })
-
-            -- Ctrl+Backspace to reject NES
-            vim.keymap.set({ "n", "i" }, "<C-BS>", function()
-              if vim.b[bufnr].nes_state then
-                nes.clear()
-                clear_enhanced_display(bufnr)
-                vim.b[bufnr].nes_navigated = false
-                vim.b[bufnr].nes_enhanced = false
-                return "<C-BS>"
-              else
-                return "<C-BS>"
-              end
-            end, { buffer = bufnr, expr = true, desc = "Reject NES" })
-
-            -- Monitor buffer for NES state changes to add enhanced display
             local nes_timer = vim.loop.new_timer()
             local function check_nes_state()
-              -- Validate buffer still exists before accessing buffer variables
               if not vim.api.nvim_buf_is_valid(bufnr) then
                 if nes_timer then
                   nes_timer:stop()
@@ -295,10 +253,8 @@ local function get_custom_servers()
               end
             end
 
-            -- Check periodically for NES state changes
             nes_timer:start(100, 100, vim.schedule_wrap(check_nes_state))
 
-            -- Clean up timer when buffer is deleted
             vim.api.nvim_create_autocmd("BufDelete", {
               buffer = bufnr,
               callback = function()
@@ -431,27 +387,134 @@ M.plugins = {
       vim.lsp.inlay_hint.enable(true)
     end,
     keys = function()
-      return {
-        { "<leader>cA", vim.lsp.codelens.run, desc = "Run codelens action" },
-        { "<leader>cD", vim.lsp.buf.definition, desc = "Go to definition" },
-        { "grr", vim.lsp.buf.references, desc = "Go to references" },
-        { "<leader>cp", vim.diagnostic.get_prev, desc = "Previous diagnostic" },
-        { "<leader>cn", vim.diagnostic.get_next, desc = "Next diagnostic" },
-        { "<leader>cr", vim.lsp.buf.rename, desc = "Rename symbol" },
-        { "grn", vim.lsp.buf.rename, desc = "Rename symbol" },
-        { "<leader>cs", vim.lsp.buf.document_symbol, desc = "Document symbols" },
+      local keys = {
         {
+          "<leader>cA",
+          vim.lsp.codelens.run,
+          desc = "Run codelens action",
+        },
+        {
+          "<leader>cD",
+          vim.lsp.buf.definition,
+          desc = "Go to definition",
+        },
+        {
+          "grr",
+          vim.lsp.buf.references,
+          desc = "Go to references",
+        },
+        {
+          "<leader>cp",
+          vim.diagnostic.get_prev,
+          desc = "Previous diagnostic",
+        },
+        {
+          "<leader>cn",
+          vim.diagnostic.get_next,
+          desc = "Next diagnostic",
+        },
+        {
+          "<leader>cr",
+          vim.lsp.buf.rename,
+          desc = "Rename symbol",
+        },
+        {
+          "grn",
+          vim.lsp.buf.rename,
+          desc = "Rename symbol",
+        },
+        {
+          "<leader>cs",
+          vim.lsp.buf.document_symbol,
+          desc = "Document symbols",
+        },
+        {
+
           "<leader>cj",
           function()
             vim.lsp.buf.signature_help({ border = "rounded" })
           end,
           desc = "Signature help",
         },
-        { "<leader>cS", vim.lsp.buf.workspace_symbol, desc = "Workspace symbols" },
-        { "gri", vim.lsp.buf.implementation, desc = "Go to implementation" },
-        { "grt", vim.lsp.buf.type_definition, desc = "Go to type definition" },
-        { "gO", vim.lsp.buf.document_symbol, desc = "Document outline" },
+        {
+          "<leader>cS",
+          vim.lsp.buf.workspace_symbol,
+          desc = "Workspace symbols",
+        },
+        {
+          "gri",
+          vim.lsp.buf.implementation,
+          desc = "Go to implementation",
+        },
+        {
+          "grt",
+          vim.lsp.buf.type_definition,
+          desc = "Go to type definition",
+        },
+        {
+          "gO",
+          vim.lsp.buf.document_symbol,
+          desc = "Document outline",
+        },
       }
+
+      if config.is_copilot_enabled() then
+        table.insert(keys, {
+          "<C-CR>",
+          function()
+            local bufnr = vim.api.nvim_get_current_buf()
+            if vim.b[bufnr].nes_state then
+              local nes = require("copilot-lsp.nes")
+              if vim.b[bufnr].nes_navigated then
+                nes.apply_pending_nes(bufnr)
+                vim.api.nvim_buf_clear_namespace(
+                  bufnr,
+                  vim.api.nvim_create_namespace("copilotlsp.nes.enhanced"),
+                  0,
+                  -1
+                )
+                vim.b[bufnr].nes_navigated = false
+                vim.b[bufnr].nes_enhanced = false
+              else
+                if nes.walk_cursor_start_edit(bufnr) then
+                  vim.b[bufnr].nes_navigated = true
+                end
+              end
+            end
+          end,
+          mode = { "n", "i" },
+          desc = "Navigate to/Accept NES suggestion",
+          buffer = true,
+        })
+
+        table.insert(keys, {
+          "<C-BS>",
+          function()
+            local bufnr = vim.api.nvim_get_current_buf()
+            if vim.b[bufnr].nes_state then
+              local nes = require("copilot-lsp.nes")
+              nes.clear()
+              vim.api.nvim_buf_clear_namespace(
+                bufnr,
+                vim.api.nvim_create_namespace("copilotlsp.nes.enhanced"),
+                0,
+                -1
+              )
+              vim.b[bufnr].nes_navigated = false
+              vim.b[bufnr].nes_enhanced = false
+              return "<C-BS>"
+            else
+              return "<C-BS>"
+            end
+          end,
+          mode = { "n", "i" },
+          expr = true,
+          desc = "Reject NES",
+          buffer = true,
+        })
+      end
+
+      return keys
     end,
   },
 }
