@@ -210,10 +210,13 @@ local function get_custom_servers()
           end
 
           local start_line = state.range.start.line
-          local header_text = " >> <C-CR>: accept <C-BS>: reject"
+          local header_text = "<C-CR>:  , <C-BS>: "
 
-          -- Create virtual text display
-          vim.api.nvim_buf_set_extmark(bufnr, custom_ns, start_line, 0, {
+          -- Position header above the NES suggestion
+          local header_line = math.max(0, start_line - 1)
+
+          -- Create virtual text display above the suggestion
+          vim.api.nvim_buf_set_extmark(bufnr, custom_ns, header_line, 0, {
             virt_lines = {
               {
                 {
@@ -222,6 +225,7 @@ local function get_custom_servers()
                 },
               },
             },
+            virt_lines_above = true, -- This positions the virtual text above the line
           })
         end
 

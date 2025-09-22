@@ -2,7 +2,8 @@
   "diagnostics.disable": [
     "deprecated",
     "undefined-doc-name",
-        "need-check-nil"
+        "need-check-nil",
+        "undefined-field"
   ],
   "diagnostics.globals": [
     "hs",
