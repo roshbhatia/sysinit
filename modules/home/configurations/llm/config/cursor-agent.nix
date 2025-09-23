@@ -1,25 +1,33 @@
 {
+  lib,
   ...
 }:
-{
-  home.file."cursor/cli-config.json" = {
-    text = builtins.toJSON {
-      version = 1;
-
-      permissions = {
-        allow = [ "Shell(ls)" ];
-        deny = [ ];
-      };
-
-      editor = {
-        vimMode = true;
-      };
-
-      network = {
-        useHttp1ForAgent = true;
-      };
+let
+  cursorConfig = builtins.toJSON {
+    version = 1;
+    permissions = {
+      allow = [ "Shell(ls)" ];
+      deny = [ ];
     };
-
-    force = true;
+    editor = {
+      vimMode = true;
+    };
+    network = {
+      useHttp1ForAgent = true;
+    };
   };
+in
+{
+  home.activation.cursorCliConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        $DRY_RUN_CMD mkdir -p "$HOME/.config/cursor"
+        $DRY_RUN_CMD mkdir -p "$HOME/.cursor"
+
+        cat > "$HOME/.config/cursor/cli-config.json" << 'EOF'
+    ${cursorConfig}
+    EOF
+
+        cat > "$HOME/.cursor/cli-config.json" << 'EOF'
+    ${cursorConfig}
+    EOF
+  '';
 }
