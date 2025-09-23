@@ -1,7 +1,6 @@
 local M = {}
 local config = require("sysinit.utils.config")
 
--- Import all the modular components
 local history = require("sysinit.plugins.intellicode.ai.history")
 local context = require("sysinit.plugins.intellicode.ai.context")
 local git = require("sysinit.plugins.intellicode.ai.git")
@@ -9,13 +8,6 @@ local placeholders = require("sysinit.plugins.intellicode.ai.placeholders")
 local terminal = require("sysinit.plugins.intellicode.ai.terminal")
 local input = require("sysinit.plugins.intellicode.ai.input")
 local completion = require("sysinit.plugins.intellicode.ai.completion")
-
--- Export placeholder descriptions for backwards compatibility
-M.placeholder_descriptions = placeholders.placeholder_descriptions
-
--- Export blink source functions for backwards compatibility
-M.new = completion.new
-M.setup_blink_source = completion.setup
 
 M.plugins = {
   {
@@ -49,10 +41,7 @@ M.plugins = {
         },
       })
 
-      -- Setup keymaps for goose terminals
       terminal.setup_goose_keymaps()
-      
-      -- Setup global CTRL+L keymaps for all AI terminals
       terminal.setup_global_ctrl_l_keymaps()
     end,
     keys = function()
