@@ -53,6 +53,7 @@ local app_display_names = {
   ["App Store"] = "App Store",
   ["MicrosoftOutlook"] = "Outlook",
   ["System Preferences"] = "System Preferences",
+  ["SystemSettings"] = "System Preferences",
   ["Visual Studio Code"] = "VS Code",
   ["firefox"] = "Firefox",
   ["wezterm-gui"] = "WezTerm",

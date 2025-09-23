@@ -32,45 +32,51 @@ let
         alignment = "left";
         segments = [
           {
-            foreground = "p:os";
+            foreground = "p:lavender";
             style = "plain";
-            template = "󱄅 ";
-            type = "os";
+            template = "@{{ .UserName }} ➜";
+            type = "session";
           }
           {
             foreground = "p:blue";
+            properties = {
+              style = "agnoster_short";
+            };
             style = "plain";
-            template = "{{ .UserName }}@{{ .HostName }} ";
-            type = "session";
+            template = " {{ .Path }} ";
+            type = "path";
+          }
+          {
+            foreground = "p:blue";
+            style = "powerline";
+            template = "({{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }}) ";
+            type = "go";
+          }
+          {
+            foreground = "p:pink";
+            style = "powerline";
+            template = "( {{ if .Error }}{{ .Error }}{{ else }}{{ if .Venv }}{{ .Venv }} {{ end }}{{ .Full }}{{ end }}) ";
+            type = "python";
+          }
+          {
+            foreground = "p:blue";
+            properties = {
+              branch_icon = "";
+            };
+            style = "plain";
+            template = "<p:lavender>git(</>{{ .HEAD }}<p:lavender>) </>";
+            type = "git";
           }
           {
             foreground = "p:pink";
             properties = {
-              folder_icon = "....";
-              home_icon = "~";
-              style = "agnoster_short";
+              always_enabled = false;
+              style = "austin";
+              threshold = 100;
             };
-            style = "plain";
-            template = "{{ .Path }} ";
-            type = "path";
-          }
-          {
-            foreground = "p:lavender";
-            properties = {
-              branch_icon = " ";
-              cherry_pick_icon = " ";
-              commit_icon = " ";
-              fetch_status = true;
-              fetch_upstream_icon = " ";
-              merge_icon = " ";
-              no_commits_icon = " ";
-              rebase_icon = " ";
-              revert_icon = "󰆴 ";
-              tag_icon = " ";
-            };
-            template = "{{ .HEAD }} ";
-            style = "plain";
-            type = "git";
+            style = "powerline";
+            template = "{{ .FormattedMs }}";
+            type = "executiontime";
           }
         ];
         type = "prompt";
