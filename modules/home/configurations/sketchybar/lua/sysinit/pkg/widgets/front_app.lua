@@ -35,6 +35,7 @@ local app_icons = {
   ["Safari"] = "󰀹",
   ["Slack"] = "󰒱",
   ["System Preferences"] = "",
+  ["SystemSettings"] = "",
   ["Terminal"] = "",
   ["Visual Studio Code - Insiders"] = "󰨞",
   ["Visual Studio Code"] = "󰨞",
