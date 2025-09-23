@@ -37,9 +37,6 @@
       XDG_STATE_HOME = config.xdg.stateHome;
       XST = config.xdg.stateHome;
 
-      NODE_TLS_REJECT_UNAUTHORIZED = 0;
-      NODE_NO_WARNINGS = "1";
-
       LANG = "en_US.UTF-8";
       LC_ALL = "en_US.UTF-8";
 
