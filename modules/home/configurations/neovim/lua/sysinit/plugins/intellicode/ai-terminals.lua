@@ -653,11 +653,10 @@ M.plugins = {
             relative = "cursor",
             style = "minimal",
             border = "rounded",
-            width = 24,
-            height = math.min(5, math.floor(vim.o.lines * 0.3)),
+            width = 32,
+            height = 1,
             row = 0,
             col = 1,
-            wrap = true,
           },
         }, function(value)
           if opts.on_confirm and value and value ~= "" then
