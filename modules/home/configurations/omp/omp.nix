@@ -79,9 +79,10 @@ let
             type = "executiontime";
           }
           {
-            foreground = "p:os";
             style = "plain";
-            template = " >";
+            foreground = "p:closer";
+            template = "\uf105";
+            type = "text";
           }
         ];
         type = "prompt";
