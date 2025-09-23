@@ -78,6 +78,11 @@ let
             template = "{{ .FormattedMs }}";
             type = "executiontime";
           }
+          {
+            foreground = "p:os";
+            style = "plain";
+            template = " >";
+          }
         ];
         type = "prompt";
       }
