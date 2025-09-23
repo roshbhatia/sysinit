@@ -1,17 +1,16 @@
--- Module for AI terminals integration with Neovim
 local M = {}
 local config = require("sysinit.utils.config")
 
--- Store last prompts for each terminal
 local last_prompts = {}
 
--- Utility Functions
--- Escapes Lua pattern special characters for safe pattern matching
+local history_dir = "/tmp"
+local history_files = {}
+local current_history_index = {}
+
 local function escape_lua_pattern(s)
   return (s:gsub("(%W)", "%%%1"))
 end
 
--- Sends an LSP request and returns the result with a default timeout
 local function lsp_request(method, params, timeout)
   local ok, result = pcall(vim.lsp.buf_request_sync, 0, method, params, timeout or 500)
   if not ok or not result then
@@ -25,24 +24,150 @@ local function lsp_request(method, params, timeout)
   return nil
 end
 
--- Gets current cursor position and buffer details
+local function get_history_file(termname)
+  if not history_files[termname] then
+    history_files[termname] = string.format("%s/ai-terminals-history-%s.txt", history_dir, termname)
+  end
+  return history_files[termname]
+end
+
+local function save_to_history(termname, prompt)
+  if not prompt or prompt == "" then
+    return
+  end
+
+  local history_file = get_history_file(termname)
+  local file = io.open(history_file, "a")
+  if file then
+    file:write(string.format("%s|%s\n", os.date("%Y-%m-%d %H:%M:%S"), prompt))
+    file:close()
+  end
+end
+
+local function load_history(termname)
+  local history_file = get_history_file(termname)
+  local history = {}
+  local file = io.open(history_file, "r")
+  if file then
+    for line in file:lines() do
+      local timestamp, prompt = line:match("^(.-)|(.*)")
+      if timestamp and prompt then
+        table.insert(history, { timestamp = timestamp, prompt = prompt })
+      end
+    end
+    file:close()
+  end
+  return history
+end
+
+local function create_history_picker(termname)
+  local ok, telescope = pcall(require, "telescope")
+  if not ok then
+    vim.notify("Telescope not available", vim.log.levels.ERROR)
+    return
+  end
+
+  local pickers = require("telescope.pickers")
+  local finders = require("telescope.finders")
+  local conf = require("telescope.config").values
+  local actions = require("telescope.actions")
+  local action_state = require("telescope.actions.state")
+
+  local history_data = {}
+
+  if termname then
+    local history = load_history(termname)
+    for _, entry in ipairs(history) do
+      table.insert(history_data, {
+        display = string.format("[%s] %s: %s", termname, entry.timestamp, entry.prompt),
+        prompt = entry.prompt,
+        terminal = termname,
+        timestamp = entry.timestamp,
+      })
+    end
+  else
+    local agents = { "opencode", "goose", "claude", "cursor" }
+    for _, agent in ipairs(agents) do
+      local history = load_history(agent)
+      for _, entry in ipairs(history) do
+        table.insert(history_data, {
+          display = string.format("[%s] %s: %s", agent, entry.timestamp, entry.prompt),
+          prompt = entry.prompt,
+          terminal = agent,
+          timestamp = entry.timestamp,
+        })
+      end
+    end
+
+    table.sort(history_data, function(a, b)
+      return a.timestamp > b.timestamp
+    end)
+  end
+
+  pickers
+    .new({}, {
+      prompt_title = termname and (termname .. " History") or "AI Terminals History",
+      finder = finders.new_table({
+        results = history_data,
+        entry_maker = function(entry)
+          return {
+            value = entry,
+            display = entry.display,
+            ordinal = entry.display,
+          }
+        end,
+      }),
+      sorter = conf.generic_sorter({}),
+      attach_mappings = function(prompt_bufnr, map)
+        actions.select_default:replace(function()
+          actions.close(prompt_bufnr)
+          local selection = action_state.get_selected_entry()
+          if selection then
+            vim.fn.setreg("+", selection.value.prompt)
+            vim.notify(
+              "Copied to clipboard: " .. selection.value.prompt:sub(1, 50) .. "...",
+              vim.log.levels.INFO
+            )
+          end
+        end)
+        return true
+      end,
+    })
+    :find()
+end
+
+local function setup_goose_keymaps()
+  vim.api.nvim_create_autocmd("TermEnter", {
+    callback = function()
+      local buf = vim.api.nvim_get_current_buf()
+      local term_name = vim.api.nvim_buf_get_name(buf)
+
+      if term_name:match("goose") then
+        vim.keymap.set("t", "<S-CR>", "<C-j>", {
+          buffer = buf,
+          silent = true,
+          desc = "Send Ctrl+J in goose terminal",
+        })
+      end
+    end,
+  })
+end
+
 local function current_position()
   local buf = vim.api.nvim_get_current_buf()
   local file = vim.api.nvim_buf_get_name(buf)
   local handle = io.popen("git rev-parse --show-toplevel")
-  local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1") -- trim whitespace
+  local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
   handle:close()
 
   if repo_root and repo_root ~= "" then
-    file = file:sub(#repo_root + 2) -- Remove repo_root and the trailing '/'
+    file = file:sub(#repo_root + 2)
   end
 
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
   return { buf = buf, file = file, line = line, col = col }
 end
 
--- Diagnostic Functions
--- Gets diagnostics for the current line
 local function get_line_diagnostics(state)
   local diags = vim.diagnostic.get(state.buf, { lnum = state.line - 1 }) or {}
   if #diags == 0 then
@@ -56,7 +181,6 @@ local function get_line_diagnostics(state)
   )
 end
 
--- Gets all diagnostics for the buffer
 local function get_all_diagnostics(state)
   local diags = vim.diagnostic.get(state.buf) or {}
   if #diags == 0 then
@@ -70,8 +194,6 @@ local function get_all_diagnostics(state)
   return table.concat(grouped, "\n")
 end
 
--- Buffer and File Functions
--- Returns the buffer's file path prefixed with '@'
 local function get_buffer_path(state)
   if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
     return ""
@@ -82,24 +204,20 @@ local function get_buffer_path(state)
     return ""
   end
 
-  -- Get the Git root directory
   local handle = io.popen("git rev-parse --show-toplevel")
-  local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1") -- trim whitespace
+  local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
   handle:close()
 
-  -- Compute the relative path if the file is within a Git repository
   if repo_root and repo_root ~= "" then
-    path = path:sub(#repo_root + 2) -- Remove repo_root and the trailing '/'
+    path = path:sub(#repo_root + 2)
   end
 
   return "@" .. path
 end
 
--- Summarizes all loaded and listed buffers
 local function get_all_buffers_summary()
-  -- Get the Git root directory
   local handle = io.popen("git rev-parse --show-toplevel")
-  local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1") -- trim whitespace
+  local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
   handle:close()
 
   local bufs = vim.api.nvim_list_bufs()
@@ -108,10 +226,8 @@ local function get_all_buffers_summary()
     if vim.api.nvim_buf_is_loaded(b) and vim.api.nvim_buf_get_option(b, "buflisted") then
       local name = vim.api.nvim_buf_get_name(b)
       if name ~= "" then
-        -- Check if the file is inside the Git repository
         if repo_root and repo_root ~= "" and name:sub(1, #repo_root) == repo_root then
-          -- Convert the absolute path to a relative path
-          name = name:sub(#repo_root + 2) -- Remove repo_root and the trailing '/'
+          name = name:sub(#repo_root + 2)
         end
         table.insert(items, name)
       end
@@ -120,8 +236,6 @@ local function get_all_buffers_summary()
   return table.concat(items, "\n")
 end
 
--- Selection and Content Functions
--- Retrieves the current visual selection
 local function get_visual_selection()
   local save_reg = vim.fn.getreg('"')
   local save_regtype = vim.fn.getregtype('"')
@@ -131,7 +245,6 @@ local function get_visual_selection()
   return selection or ""
 end
 
--- Gets the visible content in the current window
 local function get_visible_content(state)
   local win = vim.api.nvim_get_current_win()
   local top_line = vim.fn.line("w0")
@@ -141,8 +254,6 @@ local function get_visible_content(state)
   return table.concat(lines, "\n")
 end
 
--- LSP Functions
--- Retrieves LSP hover documentation at the cursor
 local function get_hover_docs(state)
   local params = vim.lsp.util.make_position_params()
   local result = lsp_request("textDocument/hover", params)
@@ -167,7 +278,6 @@ local function get_hover_docs(state)
   return table.concat(out, "\n")
 end
 
--- Retrieves available LSP code actions
 local function get_code_actions(state)
   local params = vim.lsp.util.make_range_params()
   params.context = { diagnostics = vim.diagnostic.get(state.buf) }
@@ -184,8 +294,6 @@ local function get_code_actions(state)
   return table.concat(titles, "; ")
 end
 
--- Quickfix and Location List Functions
--- Retrieves the quickfix list
 local function get_quickfix_list()
   local qflist = vim.fn.getqflist()
   if #qflist == 0 then
@@ -203,7 +311,6 @@ local function get_quickfix_list()
   return table.concat(entries, "\n")
 end
 
--- Retrieves the location list
 local function get_location_list()
   local loclist = vim.fn.getloclist(0)
   if #loclist == 0 then
@@ -221,8 +328,6 @@ local function get_location_list()
   return table.concat(entries, "\n")
 end
 
--- Git Diff and Native Diff Functions
--- Retrieves the git diff for the current buffer
 local function get_git_diff(state)
   local bufnr = state.buf
   local filepath = vim.api.nvim_buf_get_name(bufnr)
@@ -238,7 +343,6 @@ local function get_git_diff(state)
   return output
 end
 
--- Populates quickfix list with diff changes
 local function populate_qflist_with_diff(state)
   local filepath = vim.api.nvim_buf_get_name(state.buf)
   if filepath == "" then
@@ -255,7 +359,6 @@ local function populate_qflist_with_diff(state)
   local current_file = filepath
   local lnum = 0
   for _, line in ipairs(output) do
-    -- Parse diff headers for line numbers
     if line:match("^@@") then
       local new_lnum = line:match("^@@ %-%d+,%d+ %+(%d+),")
       if new_lnum then
@@ -266,15 +369,15 @@ local function populate_qflist_with_diff(state)
       table.insert(qf_entries, {
         filename = current_file,
         lnum = lnum,
-        text = line:sub(2), -- Remove '+' prefix
-        type = "I", -- Info type for added lines
+        text = line:sub(2),
+        type = "I",
       })
     elseif line:match("^%-") and not line:match("^%-%-%-") then
       table.insert(qf_entries, {
         filename = current_file,
         lnum = lnum,
-        text = "Removed: " .. line:sub(2), -- Remove '-' prefix
-        type = "W", -- Warning type for removed lines
+        text = "Removed: " .. line:sub(2),
+        type = "W",
       })
     end
   end
@@ -288,14 +391,12 @@ local function populate_qflist_with_diff(state)
   end
 end
 
--- Opens a native diff view in a vertical split
 local function open_native_diff(state)
   local filepath = vim.api.nvim_buf_get_name(state.buf)
   if filepath == "" then
     return "No file path available"
   end
 
-  -- Create a temporary file with the git HEAD version
   local temp_file = vim.fn.tempname()
   local cmd = string.format(
     "git show HEAD:%s > %s",
@@ -309,7 +410,6 @@ local function open_native_diff(state)
     return "Failed to retrieve git HEAD version"
   end
 
-  -- Open a vertical split with the temporary file
   vim.cmd("vsplit " .. temp_file)
   local new_buf = vim.api.nvim_get_current_buf()
   vim.api.nvim_buf_set_option(new_buf, "buftype", "nofile")
@@ -318,7 +418,6 @@ local function open_native_diff(state)
   vim.cmd("wincmd p")
   vim.cmd("diffthis")
 
-  -- Clean up the temporary file when the buffer is closed
   vim.api.nvim_create_autocmd("BufWipeout", {
     buffer = new_buf,
     callback = function()
@@ -330,7 +429,6 @@ local function open_native_diff(state)
   return "Native diff view opened"
 end
 
--- Opens diff view using diffview.nvim if available, else falls back to native diff
 local function open_diff_view(state)
   local has_diffview, _ = pcall(require, "diffview")
   if has_diffview then
@@ -345,7 +443,6 @@ local function open_diff_view(state)
   end
 end
 
--- Placeholder Definitions
 local PLACEHOLDERS = {
   {
     token = "@cursor",
@@ -411,8 +508,6 @@ local PLACEHOLDERS = {
   },
 }
 
--- Placeholder Application
--- Applies placeholders to the input string
 local function apply_placeholders(input)
   if not input or input == "" then
     return input
@@ -433,7 +528,6 @@ M.placeholder_descriptions = vim.tbl_map(function(p)
   return { token = p.token, description = p.description }
 end, PLACEHOLDERS)
 
--- Blink Completion Source
 local blink_source = {}
 local blink_source_setup_done = false
 
@@ -501,7 +595,6 @@ end
 M.new = blink_source.new
 M.setup_blink_source = blink_source.setup
 
--- Plugin Configuration
 M.plugins = {
   {
     "aweis89/ai-terminals.nvim",
@@ -533,17 +626,21 @@ M.plugins = {
           PAGER = "bat",
         },
       })
+
+      setup_goose_keymaps()
     end,
     keys = function()
       local ai_terminals = require("ai-terminals")
       local snacks = require("snacks")
 
-      -- Creates a floating input window for sending commands to a terminal
       local function create_input(termname, agent_icon, opts)
         opts = opts or {}
         local action_name = opts.action or "Ask"
         local prompt = string.format("%s  %s", agent_icon, action_name)
         local title = string.format("%s  %s", agent_icon or "", action_name)
+
+        local history = load_history(termname)
+        current_history_index[termname] = #history + 1
 
         snacks.input({
           prompt = prompt,
@@ -556,37 +653,71 @@ M.plugins = {
             relative = "cursor",
             style = "minimal",
             border = "rounded",
-            width = math.max(30, math.min(50, vim.o.columns - 30)),
-            height = 1,
+            width = math.max(50, math.min(80, vim.o.columns - 20)),
+            height = math.max(3, math.min(10, math.floor(vim.o.lines * 0.3))),
             row = 1,
             col = 0,
+            wrap = true,
           },
         }, function(value)
           if opts.on_confirm and value and value ~= "" then
+            save_to_history(termname, value)
             opts.on_confirm(apply_placeholders(value))
           end
         end)
-      end
 
-      -- Ensures terminal is open and focused before sending command
-      local function ensure_terminal_and_send(termname, text)
-        -- Store the last prompt for this terminal
-        last_prompts[termname] = text
-        -- Always open the terminal (creates if necessary, shows if hidden)
-        ai_terminals.open(termname)
-        -- Focus the terminal and wait for it to be ready
-        ai_terminals.focus()
-        -- Longer delay to ensure terminal is properly focused and cursor is positioned
         vim.defer_fn(function()
-          ai_terminals.send_term(termname, text, { submit = true })
-        end, 1000)
+          local buf = vim.api.nvim_get_current_buf()
+          if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].filetype == "ai_terminals_input" then
+            vim.keymap.set("n", "j", function()
+              if current_history_index[termname] < #history then
+                current_history_index[termname] = current_history_index[termname] + 1
+                local entry = history[current_history_index[termname]]
+                if entry then
+                  vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(entry.prompt, "\n"))
+                end
+              end
+            end, { buffer = buf, silent = true })
+
+            vim.keymap.set("n", "k", function()
+              if current_history_index[termname] > 1 then
+                current_history_index[termname] = current_history_index[termname] - 1
+                local entry = history[current_history_index[termname]]
+                if entry then
+                  vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(entry.prompt, "\n"))
+                end
+              elseif current_history_index[termname] == 1 then
+                current_history_index[termname] = #history + 1
+                vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "" })
+              end
+            end, { buffer = buf, silent = true })
+          end
+        end, 100)
       end
 
-      -- Generates keymaps for a given AI agent
+      local function ensure_terminal_and_send(termname, text)
+        last_prompts[termname] = text
+
+        local term_info = ai_terminals.get_term_info and ai_terminals.get_term_info(termname)
+
+        if not term_info or not term_info.visible then
+          ai_terminals.open(termname)
+          ai_terminals.focus()
+
+          vim.defer_fn(function()
+            ai_terminals.send_term(termname, text, { submit = true })
+          end, 1500)
+        else
+          ai_terminals.focus()
+          vim.defer_fn(function()
+            ai_terminals.send_term(termname, text, { submit = true })
+          end, 300)
+        end
+      end
+
       local function create_keymaps(agent)
         local key_prefix, termname, label, icon = agent[1], agent[2], agent[3], agent[4]
         return {
-          -- Toggle terminal
           {
             string.format("<leader>%s%s", key_prefix, key_prefix),
             function()
@@ -594,9 +725,8 @@ M.plugins = {
             end,
             desc = "Toggle " .. label,
           },
-          -- Resend last prompt
           {
-            string.format("<leader>%sr", key_prefix),
+            string.format("<leader>%sv", key_prefix),
             function()
               local last_prompt = last_prompts[termname]
               if last_prompt and last_prompt ~= "" then
@@ -605,9 +735,8 @@ M.plugins = {
                 vim.notify("No previous prompt found for " .. label, vim.log.levels.WARN)
               end
             end,
-            desc = "Resend last prompt to " .. label,
+            desc = "Resend previous prompt to " .. label,
           },
-          -- Ask with cursor or selection
           {
             string.format("<leader>%sa", key_prefix),
             function()
@@ -624,7 +753,6 @@ M.plugins = {
             mode = { "n", "v" },
             desc = "Ask " .. label,
           },
-          -- Fix diagnostics
           {
             string.format("<leader>%sf", key_prefix),
             function()
@@ -638,7 +766,6 @@ M.plugins = {
             end,
             desc = "Fix diagnostics with " .. label,
           },
-          -- Comment code
           {
             string.format("<leader>%sc", key_prefix),
             function()
@@ -656,7 +783,6 @@ M.plugins = {
             mode = { "n", "v" },
             desc = "Comment with " .. label,
           },
-          -- Send quickfix list
           {
             string.format("<leader>%sq", key_prefix),
             function()
@@ -670,7 +796,6 @@ M.plugins = {
             end,
             desc = "Send quickfix list to " .. label,
           },
-          -- Send location list
           {
             string.format("<leader>%sl", key_prefix),
             function()
@@ -684,7 +809,6 @@ M.plugins = {
             end,
             desc = "Send location list to " .. label,
           },
-          -- View diff (diffview.nvim or native)
           {
             string.format("<leader>%sd", key_prefix),
             function()
@@ -696,7 +820,6 @@ M.plugins = {
             end,
             desc = "View diff with " .. label,
           },
-          -- Populate quickfix with diff
           {
             string.format("<leader>%sp", key_prefix),
             function()
@@ -740,9 +863,54 @@ M.plugins = {
         },
       }
 
-      return vim.iter(agents):fold({}, function(acc, agent)
+      local all_keymaps = vim.iter(agents):fold({}, function(acc, agent)
         return vim.list_extend(acc, create_keymaps(agent))
       end)
+
+      for _, agent in ipairs(agents) do
+        local key_prefix, termname, label = agent[1], agent[2], agent[3]
+        table.insert(all_keymaps, {
+          string.format("<leader>%sr", key_prefix),
+          function()
+            create_history_picker(termname)
+          end,
+          desc = "Browse " .. label .. " history",
+        })
+        table.insert(all_keymaps, {
+          string.format("<leader>%sR", key_prefix),
+          function()
+            create_history_picker(nil)
+          end,
+          desc = "Browse all AI terminals history",
+        })
+      end
+
+      vim.api.nvim_create_autocmd("TermEnter", {
+        callback = function()
+          local buf = vim.api.nvim_get_current_buf()
+          local term_name = vim.api.nvim_buf_get_name(buf)
+
+          local current_termname = nil
+          for _, agent in ipairs(agents) do
+            if term_name:match(agent[2]) then
+              current_termname = agent[2]
+              break
+            end
+          end
+
+          if current_termname then
+            vim.keymap.set("t", "<localleader>h", function()
+              create_history_picker(current_termname)
+            end, {
+              buffer = buf,
+              silent = true,
+              desc = "Browse terminal history",
+            })
+          end
+        end,
+      })
+
+      return all_keymaps
     end,
   },
 }
