@@ -11,13 +11,15 @@ lib.mkIf gooseEnabled {
         ALPHA_FEATURES = true;
         EDIT_MODE = "vi";
         GOOSE_CLI_THEME = "ansi";
-        GOOSE_PROVIDER = "github_copilot";
         GOOSE_LEAD_MODEL = values.llm.goose.leadModel;
-        GOOSE_MODEL = "claude-sonnet-4";
+        GOOSE_MAX_TOKENS = 8192;
         GOOSE_MODE = "smart_approve";
+        GOOSE_MODEL = "claude-sonnet-4";
+        GOOSE_PLANNER_MODEL = "claude-sonnet-4";
+        GOOSE_PLANNER_PROVIDER = "github_copilot";
+        GOOSE_PROVIDER = "github_copilot";
         GOOSE_RECIPE_GITHUB_REPO = "packit/ai-workflows";
         GOOSE_TEMPERATURE = 0.7;
-        GOOSE_MAX_TOKENS = 8192;
         GOOSE_TIMEOUT = 300;
         # Sandbox-specific settings
         sandbox_mode = true;
