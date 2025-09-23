@@ -40,7 +40,7 @@ function M.create_input(termname, agent_icon, opts)
     local buf = vim.api.nvim_get_current_buf()
     if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].filetype == "ai_terminals_input" then
       local current_history_index = history.get_current_history_index()
-      
+
       vim.keymap.set("n", "j", function()
         if current_history_index[termname] < #hist then
           current_history_index[termname] = current_history_index[termname] + 1

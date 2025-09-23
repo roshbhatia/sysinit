@@ -8,7 +8,7 @@ local history = require("sysinit.plugins.intellicode.ai.history")
 function M.create_agent_keymaps(agent)
   local ai_terminals = require("ai-terminals")
   local key_prefix, termname, label, icon = agent[1], agent[2], agent[3], agent[4]
-  
+
   return {
     {
       string.format("<leader>%s%s", key_prefix, key_prefix),
@@ -62,8 +62,7 @@ function M.create_agent_keymaps(agent)
       string.format("<leader>%sc", key_prefix),
       function()
         local mode = vim.fn.mode()
-        local default_text = mode:match("[vV]") and " Comment @selection: "
-          or " Comment @cursor: "
+        local default_text = mode:match("[vV]") and " Comment @selection: " or " Comment @cursor: "
         input.create_input(termname, icon, {
           action = "Comment",
           default = default_text,
@@ -130,10 +129,10 @@ end
 
 function M.create_history_keymaps(agents)
   local history_keymaps = {}
-  
+
   for _, agent in ipairs(agents) do
     local key_prefix, termname, label = agent[1], agent[2], agent[3]
-    
+
     table.insert(history_keymaps, {
       string.format("<leader>%sr", key_prefix),
       function()
@@ -141,7 +140,7 @@ function M.create_history_keymaps(agents)
       end,
       desc = "Browse " .. label .. " history",
     })
-    
+
     table.insert(history_keymaps, {
       string.format("<leader>%sR", key_prefix),
       function()
@@ -150,21 +149,21 @@ function M.create_history_keymaps(agents)
       desc = "Browse all AI terminals history",
     })
   end
-  
+
   return history_keymaps
 end
 
 function M.generate_all_keymaps(agents)
   local all_keymaps = {}
-  
+
   -- Generate agent-specific keymaps
   for _, agent in ipairs(agents) do
     vim.list_extend(all_keymaps, M.create_agent_keymaps(agent))
   end
-  
+
   -- Add history keymaps
   vim.list_extend(all_keymaps, M.create_history_keymaps(agents))
-  
+
   return all_keymaps
 end
 

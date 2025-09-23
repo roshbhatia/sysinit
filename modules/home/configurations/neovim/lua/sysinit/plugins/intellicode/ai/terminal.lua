@@ -24,7 +24,7 @@ function M.setup_global_ctrl_l_keymaps()
     callback = function()
       local buf = vim.api.nvim_get_current_buf()
       local term_name = vim.api.nvim_buf_get_name(buf)
-      
+
       -- Check if this is an AI terminal (goose, opencode, claude, cursor)
       local ai_terminals = { "goose", "opencode", "claude", "cursor" }
       local is_ai_terminal = false
@@ -34,7 +34,7 @@ function M.setup_global_ctrl_l_keymaps()
           break
         end
       end
-      
+
       if is_ai_terminal then
         vim.keymap.set("t", "<C-l>", "<C-l><CR>", {
           buffer = buf,
