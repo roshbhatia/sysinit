@@ -896,16 +896,6 @@ M.plugins = {
               break
             end
           end
-
-          if current_termname then
-            vim.keymap.set("t", "<localleader>h", function()
-              create_history_picker(current_termname)
-            end, {
-              buffer = buf,
-              silent = true,
-              desc = "Browse terminal history",
-            })
-          end
         end,
       })
 
