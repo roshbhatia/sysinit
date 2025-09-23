@@ -81,7 +81,7 @@ let
           {
             style = "plain";
             foreground = "p:closer";
-            template = "\uf105";
+            template = " > ";
             type = "text";
           }
         ];
