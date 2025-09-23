@@ -44,6 +44,9 @@
       COLIMA_HOME = "${config.xdg.configHome}/colima";
 
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
+
+      NODE_NO_WARNINGS = 1;
+      NODE_TLS_REJECT_UNAUTHORIZED = 0;
     };
 
     packages = [
