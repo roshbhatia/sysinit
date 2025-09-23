@@ -716,6 +716,12 @@ M.plugins = {
       local agents = {
         {
           "h",
+          "opencode",
+          "OpenCode",
+          "󰫼󰫰",
+        },
+        {
+          "j",
           "goose",
           "Goose",
           "",
@@ -731,12 +737,6 @@ M.plugins = {
           "cursor",
           "Cursor",
           "",
-        },
-        {
-          "j",
-          "opencode",
-          "OpenCode",
-          "󰫼󰫰",
         },
       }
 
