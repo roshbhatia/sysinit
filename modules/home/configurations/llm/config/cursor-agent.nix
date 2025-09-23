@@ -14,7 +14,12 @@
       editor = {
         vimMode = true;
       };
+
+      network = {
+        useHttp1ForAgent = true;
+      };
     };
+
     force = true;
   };
 }
