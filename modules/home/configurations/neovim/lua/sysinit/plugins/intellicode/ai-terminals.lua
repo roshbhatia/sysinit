@@ -653,10 +653,10 @@ M.plugins = {
             relative = "cursor",
             style = "minimal",
             border = "rounded",
-            width = math.max(50, math.min(80, vim.o.columns - 20)),
-            height = math.max(3, math.min(10, math.floor(vim.o.lines * 0.3))),
-            row = 1,
-            col = 0,
+            width = 24,
+            height = math.min(5, math.floor(vim.o.lines * 0.3)),
+            row = 0,
+            col = 1,
             wrap = true,
           },
         }, function(value)
@@ -706,7 +706,7 @@ M.plugins = {
 
           vim.defer_fn(function()
             ai_terminals.send_term(termname, text, { submit = true })
-          end, 1500)
+          end, 300)
         else
           ai_terminals.focus()
           vim.defer_fn(function()
