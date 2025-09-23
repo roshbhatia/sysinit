@@ -2,6 +2,27 @@ local M = {}
 local context = require("sysinit.plugins.intellicode.ai.context")
 local git = require("sysinit.plugins.intellicode.ai.git")
 
+local function get_relative_path(state)
+  if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
+    return ""
+  end
+
+  local path = vim.api.nvim_buf_get_name(state.buf)
+  if path == "" then
+    return ""
+  end
+
+  local handle = io.popen("git rev-parse --show-toplevel")
+  local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
+  handle:close()
+
+  if repo_root and repo_root ~= "" then
+    path = path:sub(#repo_root + 2)
+  end
+
+  return path
+end
+
 local function escape_lua_pattern(s)
   return (s:gsub("(%W)", "%%%1"))
 end
@@ -11,7 +32,7 @@ local PLACEHOLDERS = {
     token = "@cursor",
     description = "Cursor position (file:line)",
     provider = function(state)
-      return string.format("%s:%d", context.get_buffer_path(state), state.line)
+      return string.format("%s:%d", get_relative_path(state), state.line)
     end,
   },
   {
@@ -22,7 +43,7 @@ local PLACEHOLDERS = {
   {
     token = "@buffer",
     description = "Current buffer's file path",
-    provider = context.get_buffer_path,
+    provider = get_relative_path,
   },
   {
     token = "@buffers",

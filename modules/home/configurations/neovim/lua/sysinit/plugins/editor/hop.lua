@@ -19,20 +19,12 @@ M.plugins = {
     keys = function()
       return {
         {
-          "<S-CR>",
+          "f",
           function()
             vim.cmd("HopWord")
           end,
           mode = "n",
           desc = "Hop word jump",
-        },
-        {
-          "<S-CR>",
-          function()
-            vim.cmd("HopAnywhere")
-          end,
-          mode = "v",
-          desc = "Hop anywhere jump",
         },
       }
     end,
