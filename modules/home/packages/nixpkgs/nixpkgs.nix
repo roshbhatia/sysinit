@@ -29,7 +29,6 @@ let
     copilot-cli
     copilot-language-server
     crossplane-cli
-    cursor-cli
     deadnix
     delta
     delve

@@ -20,7 +20,6 @@ in
       };
     };
   };
-  cursor-cli = unstable.cursor-cli;
   neovim-unwrapped = unstable.neovim-unwrapped;
   nushell = unstable.nushell;
   sbarlua = unstable.sbarlua;
