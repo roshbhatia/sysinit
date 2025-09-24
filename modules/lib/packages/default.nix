@@ -120,7 +120,7 @@ let
         export PATH="${pkgs.curl}/bin:${pkgs.bashInteractive}/bin:$PATH"
       '';
       installCmd = ''
-        curl -k $pkg -fsS | bash
+        vet $pkg
       '';
     };
   };

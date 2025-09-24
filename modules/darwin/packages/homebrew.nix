@@ -16,6 +16,7 @@ let
     "noahgorstein/tap"
     "sandreas/tap"
     "sst/tap"
+    "vet-run/vet"
   ];
 
   baseBrews = [
@@ -28,6 +29,7 @@ let
     "libgit2@1.8"
     "luarocks"
     "opencode"
+    "vet-run"
   ];
 
   baseCasks = [
