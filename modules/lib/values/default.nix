@@ -236,11 +236,11 @@ with lib;
         };
       };
 
-      curlBash = {
+      vet = {
         additionalPackages = mkOption {
           type = types.listOf types.str;
           default = [ ];
-          description = "Additional Curl into Bash packages";
+          description = "Additional Vet packages";
         };
       };
 

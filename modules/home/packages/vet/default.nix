@@ -4,6 +4,6 @@
 
 {
   imports = [
-    ./curl-bash.nix
+    ./vet.nix
   ];
 }
