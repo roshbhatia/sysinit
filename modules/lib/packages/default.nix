@@ -114,7 +114,6 @@ let
         "$KREW_ROOT/bin/kubectl-krew" install "$pkg" || echo "Warning: Failed to install $pkg"
       '';
     };
-
     curlBash = {
       bin = "${pkgs.curl}/bin/curl";
       env = ''
