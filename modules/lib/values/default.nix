@@ -236,6 +236,14 @@ with lib;
         };
       };
 
+      curlBash = {
+        additionalPackages = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          description = "Additional Curl into Bash packages";
+        };
+      };
+
       firefox = {
         searchEngines = mkOption {
           type = types.attrsOf (
