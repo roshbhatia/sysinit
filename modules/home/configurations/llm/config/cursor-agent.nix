@@ -1,5 +1,6 @@
 {
   lib,
+  pkgs,
   ...
 }:
 let
@@ -19,7 +20,7 @@ let
 in
 {
   home.activation.cursorCliConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        curl -k https://cursor.com/install -fsS | bash
+        ${pkgs.curl}/bin/curl -k https://cursor.com/install -fsS | bash
 
         $DRY_RUN_CMD mkdir -p "$HOME/.config/cursor"
         $DRY_RUN_CMD mkdir -p "$HOME/.cursor"
