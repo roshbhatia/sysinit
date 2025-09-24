@@ -114,8 +114,17 @@ let
         "$KREW_ROOT/bin/kubectl-krew" install "$pkg" || echo "Warning: Failed to install $pkg"
       '';
     };
-  };
 
+    curlBash = {
+      bin = "${pkgs.curl}/bin/curl";
+      env = ''
+        export PATH="${pkgs.curl}/bin:${pkgs.bashInteractive}/bin:$PATH"
+      '';
+      installCmd = ''
+        curl -k $pkg -fsS | bash
+      '';
+    };
+  };
 in
 {
   inherit defaultManagers;

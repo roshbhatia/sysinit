@@ -7,7 +7,10 @@
 }:
 
 let
-  curlBashPackages = [ ] ++ values.curlBash.additionalPackages;
+  curlBashPackages = [
+    "https://cursor.com/install"
+  ]
+  ++ values.curlBash.additionalPackages;
 in
 {
   home.activation = {

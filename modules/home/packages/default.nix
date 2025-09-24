@@ -4,6 +4,7 @@
 {
   imports = [
     ./cargo
+    ./curl-bash
     ./gh
     ./go
     ./kubectl
