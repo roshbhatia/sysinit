@@ -3,6 +3,7 @@
   imports = [
     ./aerospace
     ./borders
+    ./colima
     ./chromadb
     ./dock
     ./environment

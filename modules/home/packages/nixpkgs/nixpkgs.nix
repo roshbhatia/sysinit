@@ -34,6 +34,7 @@ let
     delve
     direnv
     docker
+    docker-compose
     docker-compose-language-service
     docker-language-server
     dotnet-runtime
