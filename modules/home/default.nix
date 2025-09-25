@@ -43,7 +43,7 @@
 
       COLIMA_HOME = "${config.xdg.configHome}/colima";
       DOCKER_CONTEXT = "colima";
-      DOCKER_HOST = "${config.xdg.configHome}/colima/default/docker.sock";
+      DOCKER_HOST = "${config.home.homeDirectory}/.colima/default/docker.sock";
 
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
 
