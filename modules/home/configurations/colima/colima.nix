@@ -3,12 +3,10 @@
   ...
 }:
 {
-  home.sessionVariables = {
-    DOCKER_HOST = "unix://$HOME/.colima/default/docker.sock";
-  };
-
   home.activation.colimaSetup = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    # Ensure .docker directory exists
     mkdir -p "$HOME/.docker/certs.d"
+
+    sudo rm -f /var/run/docker.sock
+    sudo ln -sf $HOME/.colima/default/docker.sock /var/run/docker.sock
   '';
 }
