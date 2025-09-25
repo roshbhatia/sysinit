@@ -15,10 +15,6 @@
       enable = true;
     };
 
-    borders = {
-      enable = true;
-    };
-
     homebrew = {
       additionalPackages = {
         taps = [ ];
