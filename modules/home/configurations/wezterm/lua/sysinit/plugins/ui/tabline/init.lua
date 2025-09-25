@@ -113,9 +113,7 @@ function M.setup(config)
         " ",
       },
       tabline_y = {},
-      tabline_z = {
-        " 󱄅 ",
-      },
+      tabline_z = {},
     },
     extensions = {},
   })
