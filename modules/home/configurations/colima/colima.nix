@@ -1,12 +1,11 @@
 {
   lib,
+  config,
   ...
 }:
 {
-  home.activation.colimaSetup = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    mkdir -p "$HOME/.docker/certs.d"
-
-    rm -f /var/run/docker.sock
-    ln -sf $HOME/.colima/default/docker.sock /var/run/docker.sock
-  '';
+  home.file."docker.sock" = {
+    target = "/var/run/docker.sock";
+    source = "${config.home.homeDirectory}/.colima/default/docker.sock";
+  };
 }
