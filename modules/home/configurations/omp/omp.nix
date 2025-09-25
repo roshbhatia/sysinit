@@ -6,7 +6,7 @@
 let
   themes = import ../../../lib/theme { inherit lib; };
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
-  semanticColors = themes.createSemanticMapping palette;
+  semanticColors = themes.getSemanticColors values.theme.colorscheme values.theme.variant;
 
   ompColors = {
     primary = semanticColors.accent.primary;
