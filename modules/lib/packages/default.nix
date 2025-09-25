@@ -106,19 +106,14 @@ let
         export PATH="$KREW_ROOT/bin:$PATH"
       '';
       installCmd = ''
-        # Initialize krew if not already done
-        if [ ! -f "$KREW_ROOT/bin/kubectl-krew" ]; then
-          mkdir -p "$KREW_ROOT"
-          "${pkgs.krew}/bin/krew" install krew
-        fi
-        "$KREW_ROOT/bin/kubectl-krew" install "$pkg" || echo "Warning: Failed to install $pkg"
+        "$MANAGER_CMD" install "$pkg" || echo "Warning: Failed to install $pkg"
       '';
     };
     vet = {
       bin = "/opt/homebrew/bin/vet";
       env = "";
       installCmd = ''
-        $MANAGER_CMD $pkg
+        $MANAGER_CMD -f $pkg
       '';
     };
   };
