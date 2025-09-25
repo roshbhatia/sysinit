@@ -85,8 +85,8 @@ in
 
       ZVM_LINE_INIT_MODE = "i";
       ZVM_SYSTEM_CLIPBOARD_ENABLED = true;
-      ZVM_VI_HIGHLIGHT_BACKGROUND = colors.background.primary;
-      ZVM_VI_HIGHLIGHT_FOREGROUND = colors.foreground.secondary;
+      ZVM_VI_HIGHLIGHT_BACKGROUND = colors.foreground.primary;
+      ZVM_VI_HIGHLIGHT_FOREGROUND = colors.accent.primary;
 
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
         "--bind='resize:refresh-preview'"
