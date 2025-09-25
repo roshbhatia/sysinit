@@ -48,34 +48,12 @@ let
           }
           {
             foreground = "p:info";
-            style = "powerline";
-            template = "({{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }}) ";
-            type = "go";
-          }
-          {
-            foreground = "p:error";
-            style = "powerline";
-            template = "( {{ if .Error }}{{ .Error }}{{ else }}{{ if .Venv }}{{ .Venv }} {{ end }}{{ .Full }}{{ end }}) ";
-            type = "python";
-          }
-          {
-            foreground = "p:info";
             properties = {
               branch_icon = "";
             };
             style = "plain";
             template = "<p:accent>git(</>{{ .HEAD }}<p:accent>) </>";
             type = "git";
-          }
-          {
-            foreground = "p:accent";
-            properties = {
-              parse_kubeconfig = true;
-              display_error = false;
-            };
-            style = "powerline";
-            template = "☸ {{ .Context }}{{ if .Namespace }} :: {{ .Namespace }}{{ end }} ";
-            type = "kubectl";
           }
           {
             foreground = "p:error";
@@ -90,7 +68,7 @@ let
           }
           {
             style = "plain";
-            foreground = "p:muted";
+            foreground = "p:primary";
             template = " > ";
             type = "text";
           }
