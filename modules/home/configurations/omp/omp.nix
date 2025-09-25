@@ -3,42 +3,42 @@
   values,
   ...
 }:
-
 let
   themes = import ../../../lib/theme { inherit lib; };
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
-  colors = themes.getUnifiedColors palette;
+  semanticColors = themes.createSemanticMapping palette;
 
   ompColors = {
-    os = colors.accent.primary;
-    closer = colors.accent.primary;
-    pink = palette.pink or palette.love or palette.magenta or palette.mauve or colors.semantic.error;
-    lavender =
-      palette.lavender or palette.iris or palette.violet or palette.foam or colors.semantic.info;
-    blue = colors.semantic.info;
+    primary = semanticColors.accent.primary;
+    muted = semanticColors.accent.dim;
+    error = semanticColors.semantic.error;
+    accent =
+      palette.lavender or palette.iris or palette.violet or palette.foam
+        or semanticColors.accent.tertiary;
+    info = semanticColors.semantic.info;
   };
 
   themeConfig = {
     "$schema" = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json";
     palette = {
-      os = ompColors.os;
-      closer = "p:os";
-      pink = ompColors.pink;
-      lavender = ompColors.lavender;
-      blue = ompColors.blue;
+      primary = ompColors.primary;
+      muted = "p:primary";
+      error = ompColors.error;
+      accent = ompColors.accent;
+      info = ompColors.info;
     };
     blocks = [
       {
         alignment = "left";
         segments = [
           {
-            foreground = "p:lavender";
+            foreground = "p:accent";
             style = "plain";
             template = "@{{ .UserName }} ➜";
             type = "session";
           }
           {
-            foreground = "p:blue";
+            foreground = "p:info";
             properties = {
               style = "agnoster_short";
             };
@@ -47,28 +47,38 @@ let
             type = "path";
           }
           {
-            foreground = "p:blue";
+            foreground = "p:info";
             style = "powerline";
             template = "({{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }}) ";
             type = "go";
           }
           {
-            foreground = "p:pink";
+            foreground = "p:error";
             style = "powerline";
             template = "( {{ if .Error }}{{ .Error }}{{ else }}{{ if .Venv }}{{ .Venv }} {{ end }}{{ .Full }}{{ end }}) ";
             type = "python";
           }
           {
-            foreground = "p:blue";
+            foreground = "p:info";
             properties = {
               branch_icon = "";
             };
             style = "plain";
-            template = "<p:lavender>git(</>{{ .HEAD }}<p:lavender>) </>";
+            template = "<p:accent>git(</>{{ .HEAD }}<p:accent>) </>";
             type = "git";
           }
           {
-            foreground = "p:pink";
+            foreground = "p:accent";
+            properties = {
+              parse_kubeconfig = true;
+              display_error = false;
+            };
+            style = "powerline";
+            template = "☸ {{ .Context }}{{ if .Namespace }} :: {{ .Namespace }}{{ end }} ";
+            type = "kubectl";
+          }
+          {
+            foreground = "p:error";
             properties = {
               always_enabled = false;
               style = "austin";
@@ -80,7 +90,7 @@ let
           }
           {
             style = "plain";
-            foreground = "p:closer";
+            foreground = "p:muted";
             template = " > ";
             type = "text";
           }
@@ -92,7 +102,6 @@ let
     version = 3;
   };
 in
-
 {
   xdg.configFile."oh-my-posh/themes/sysinit.omp.json" = {
     text = builtins.toJSON themeConfig;
