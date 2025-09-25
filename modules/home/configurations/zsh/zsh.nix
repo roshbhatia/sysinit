@@ -84,6 +84,9 @@ in
       ZSH_AUTOSUGGEST_MANUAL_REBIND = 1;
 
       ZVM_LINE_INIT_MODE = "i";
+      ZVM_SYSTEM_CLIPBOARD_ENABLED = true;
+      ZVM_VI_HIGHLIGHT_BACKGROUND = colors.accent.muted;
+      ZVM_VI_HIGHLIGHT_FOREGROUND = colors.accent.primary;
 
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
         "--bind='resize:refresh-preview'"
@@ -260,18 +263,6 @@ in
       ''
 
       (lib.mkAfter ''
-        function zvm_vi_yank() {
-          zvm_yank
-          echo ''${CUTBUFFER} | pbcopy
-          zvm_exit_visual_mode
-        }
-
-        function zvm_vi_delete() {
-          zvm_replace_selection
-          echo ''${CUTBUFFER} | pbcopy
-          zvm_exit_visual_mode ''\${"1:-true"}
-        }
-
         [[ -n "$SYSINIT_DEBUG" ]] && zprof
       '')
     ];

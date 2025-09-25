@@ -1,7 +1,6 @@
 #!/usr/bin/env zsh
 # shellcheck disable=all
-env.print()
-            {
+env.print() {
   local pattern=${1:-"*"}
   env | grep -E "^$pattern=" | sort | bat --style=numbers,grid
 }
