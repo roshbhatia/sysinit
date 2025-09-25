@@ -42,6 +42,7 @@
       GIT_DISCOVERY_ACROSS_FILESYSTEM = 1;
 
       COLIMA_HOME = "${config.xdg.configHome}/colima";
+      DOCKER_CONTEXT = "colima";
 
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
 

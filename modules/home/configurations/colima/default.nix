@@ -1,9 +1,0 @@
-{
-  ...
-}:
-
-{
-  imports = [
-    ./colima.nix
-  ];
-}
