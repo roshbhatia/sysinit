@@ -1,5 +1,4 @@
 local config = require("sysinit.utils.config")
-local json_loader = require("sysinit.pkg.utils.json_loader")
 
 local M = {}
 
@@ -12,64 +11,7 @@ if config.is_copilot_enabled() then
   table.insert(deps, "copilotlsp-nvim/copilot-lsp")
 end
 
-local function setup_copilot_highlights()
-  if not config.is_copilot_enabled() then
-    return
-  end
-
-  vim.g.copilot_nes_enable = true
-  vim.g.copilot_nes_virtual_text = true
-
-  local theme_config =
-    json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
-  local colors = theme_config.colors.semantic
-
-  local highlights = {
-    CopilotLspNesAdd = {
-      fg = colors.success,
-      bg = "none",
-      bold = true,
-      default = true,
-    },
-    CopilotLspNesDelete = {
-      fg = colors.error,
-      bg = "none",
-      strikethrough = true,
-      default = true,
-    },
-    CopilotLspNesApply = {
-      fg = colors.info,
-      bg = "none",
-      bold = true,
-      default = true,
-    },
-    CopilotLspNesHint = {
-      fg = colors.warning,
-      bg = "none",
-      italic = true,
-      default = true,
-    },
-    CopilotLspNesVirtualText = {
-      fg = colors.comment,
-      bg = "none",
-      italic = true,
-      default = true,
-    },
-    CopilotLspNesHeader = {
-      fg = colors.accent,
-      bg = "none",
-      bold = true,
-      italic = true,
-      default = true,
-    },
-  }
-
-  for name, opts in pairs(highlights) do
-    vim.api.nvim_set_hl(0, name, opts)
-  end
-end
-
-local function get_builtin_servers()
+local function get_builtin_configs()
   local schemastore = require("schemastore")
 
   return {
@@ -112,33 +54,28 @@ local function get_builtin_servers()
   }
 end
 
-local function get_custom_servers()
-  local lspconfig = require("lspconfig")
+local function get_custom_configs()
   local version = vim.version()
 
-  local servers = {
+  local configs = {
     up = {
       cmd = { "up", "xpls", "serve" },
-      root_dir = function()
-        local fd = vim.fn.system("fd crossplane.yaml")
-        return fd ~= "" and vim.fn.fnamemodify(fd, ":p:h") or vim.fn.getcwd()
-      end,
+      root_markers = { "crossplane.yaml" },
     },
     systemd_lsp = {
       cmd = { "systemd-lsp" },
       filetypes = { "systemd" },
-      root_dir = lspconfig.util.root_pattern(".git"),
-      single_file_support = true,
+      root_markers = { ".git" },
     },
   }
 
   if config.is_copilot_enabled() then
-    servers.copilot_ls = {
-      name = "copilot_ls",
+    configs.copilot_ls = {
       cmd = {
         "copilot-language-server",
         "--stdio",
       },
+      filetypes = { "*" },
       init_options = {
         editorInfo = {
           name = "neovim",
@@ -167,8 +104,7 @@ local function get_custom_servers()
         },
       },
       handlers = require("copilot-lsp.handlers"),
-      root_dir = vim.uv.cwd(),
-      on_init = function(client)
+      on_attach = function(client, bufnr)
         local au = vim.api.nvim_create_augroup("copilotlsp.init", { clear = true })
         local nes = require("copilot-lsp.nes")
         local debounced_request =
@@ -179,6 +115,7 @@ local function get_custom_servers()
             debounced_request(client)
           end,
           group = au,
+          buffer = bufnr,
         })
 
         vim.api.nvim_create_autocmd("BufEnter", {
@@ -191,52 +128,52 @@ local function get_custom_servers()
             })
           end,
           group = au,
+          buffer = bufnr,
         })
 
         local custom_ns = vim.api.nvim_create_namespace("copilotlsp.nes.enhanced")
 
-        local function enhance_nes_display(bufnr)
-          if not vim.api.nvim_buf_is_valid(bufnr) then
+        local function enhance_nes_display(buf)
+          if not vim.api.nvim_buf_is_valid(buf) then
             return
           end
 
-          local state = vim.b[bufnr].nes_state
+          local state = vim.b[buf].nes_state
           if not state then
             return
           end
 
           local start_line = state.range.start.line
-          local header_text = "<C-CR>:  , <C-BS>: "
+          local line_text = vim.api.nvim_buf_get_lines(buf, start_line, start_line + 1, false)[1]
+            or ""
+          local line_length = #line_text
 
-          local header_line = math.max(0, start_line - 1)
-
-          vim.api.nvim_buf_set_extmark(bufnr, custom_ns, header_line, 0, {
-            virt_lines = {
-              {
-                {
-                  header_text,
-                  "CopilotLspNesHeader",
-                },
-              },
+          vim.api.nvim_buf_set_extmark(buf, custom_ns, start_line, line_length, {
+            virt_text = {
+              { "  ", "Normal" },
+              { "gsa", "DiagnosticHint" },
+              { ": accept, ", "Comment" },
+              { "gsr", "DiagnosticHint" },
+              { ": reject", "Comment" },
             },
-            virt_lines_above = true,
+            virt_text_pos = "eol",
           })
         end
 
-        local function clear_enhanced_display(bufnr)
-          if not vim.api.nvim_buf_is_valid(bufnr) then
+        local function clear_enhanced_display(buf)
+          if not vim.api.nvim_buf_is_valid(buf) then
             return
           end
-          vim.api.nvim_buf_clear_namespace(bufnr, custom_ns, 0, -1)
+          vim.api.nvim_buf_clear_namespace(buf, custom_ns, 0, -1)
         end
 
         vim.api.nvim_create_autocmd("BufEnter", {
           callback = function(event)
-            local bufnr = event.buf
+            local buf = event.buf
 
             local nes_timer = vim.loop.new_timer()
             local function check_nes_state()
-              if not vim.api.nvim_buf_is_valid(bufnr) then
+              if not vim.api.nvim_buf_is_valid(buf) then
                 if nes_timer then
                   nes_timer:stop()
                   nes_timer:close()
@@ -244,19 +181,19 @@ local function get_custom_servers()
                 return
               end
 
-              if vim.b[bufnr].nes_state and not vim.b[bufnr].nes_enhanced then
-                enhance_nes_display(bufnr)
-                vim.b[bufnr].nes_enhanced = true
-              elseif not vim.b[bufnr].nes_state and vim.b[bufnr].nes_enhanced then
-                clear_enhanced_display(bufnr)
-                vim.b[bufnr].nes_enhanced = false
+              if vim.b[buf].nes_state and not vim.b[buf].nes_enhanced then
+                enhance_nes_display(buf)
+                vim.b[buf].nes_enhanced = true
+              elseif not vim.b[buf].nes_state and vim.b[buf].nes_enhanced then
+                clear_enhanced_display(buf)
+                vim.b[buf].nes_enhanced = false
               end
             end
 
             nes_timer:start(100, 100, vim.schedule_wrap(check_nes_state))
 
             vim.api.nvim_create_autocmd("BufDelete", {
-              buffer = bufnr,
+              buffer = buf,
               callback = function()
                 if nes_timer then
                   nes_timer:stop()
@@ -267,27 +204,66 @@ local function get_custom_servers()
             })
           end,
           group = au,
+          buffer = bufnr,
         })
+
+        vim.keymap.set({ "n", "i" }, "gsa", function()
+          local buf = vim.api.nvim_get_current_buf()
+          if vim.b[buf].nes_state then
+            local nes_mod = require("copilot-lsp.nes")
+            if vim.b[buf].nes_navigated then
+              nes_mod.apply_pending_nes(buf)
+              vim.api.nvim_buf_clear_namespace(
+                buf,
+                vim.api.nvim_create_namespace("copilotlsp.nes.enhanced"),
+                0,
+                -1
+              )
+              vim.b[buf].nes_navigated = false
+              vim.b[buf].nes_enhanced = false
+            else
+              if nes_mod.walk_cursor_start_edit(buf) then
+                vim.b[buf].nes_navigated = true
+              end
+            end
+          end
+        end, { desc = "Navigate to/Accept NES suggestion", buffer = bufnr })
+
+        vim.keymap.set({ "n", "i" }, "gsr", function()
+          local buf = vim.api.nvim_get_current_buf()
+          if vim.b[buf].nes_state then
+            local nes_mod = require("copilot-lsp.nes")
+            nes_mod.clear()
+            vim.api.nvim_buf_clear_namespace(
+              buf,
+              vim.api.nvim_create_namespace("copilotlsp.nes.enhanced"),
+              0,
+              -1
+            )
+            vim.b[buf].nes_navigated = false
+            vim.b[buf].nes_enhanced = false
+          end
+        end, { desc = "Reject NES", buffer = bufnr })
       end,
     }
   end
 
-  return servers
+  return configs
 end
 
-local function setup_servers()
-  local lspconfig = require("lspconfig")
+local function setup_configs()
   local capabilities = require("blink.cmp").get_lsp_capabilities()
 
-  for server, config in pairs(get_builtin_servers()) do
-    config.capabilities = capabilities
-    lspconfig[server].setup(config)
+  for server, cfg in pairs(get_builtin_configs()) do
+    cfg.capabilities = capabilities
+    vim.lsp.config(server, cfg)
   end
 
-  for server, config in pairs(get_custom_servers()) do
-    config.capabilities = server == "copilot_ls" and {} or capabilities
-    vim.lsp.config(server, config)
-    vim.lsp.enable(server)
+  for server, cfg in pairs(get_custom_configs()) do
+    if server ~= "copilot_ls" then
+      cfg.capabilities = capabilities
+    end
+    vim.lsp.config(server, cfg)
   end
 end
 
@@ -374,16 +350,26 @@ local function setup_lsp_attach()
   })
 end
 
+local function enable_servers()
+  for server, _ in pairs(get_builtin_configs()) do
+    vim.lsp.enable(server)
+  end
+
+  for server, _ in pairs(get_custom_configs()) do
+    vim.lsp.enable(server)
+  end
+end
+
 M.plugins = {
   {
     "neovim/nvim-lspconfig",
     lazy = false,
     dependencies = deps,
     config = function()
-      setup_copilot_highlights()
-      setup_servers()
+      setup_configs()
       configure_diagnostics()
       setup_lsp_attach()
+      enable_servers()
       vim.lsp.inlay_hint.enable(true)
     end,
     keys = function()
@@ -429,7 +415,6 @@ M.plugins = {
           desc = "Document symbols",
         },
         {
-
           "<leader>cj",
           function()
             vim.lsp.buf.signature_help({ border = "rounded" })
@@ -457,62 +442,6 @@ M.plugins = {
           desc = "Document outline",
         },
       }
-
-      if config.is_copilot_enabled() then
-        table.insert(keys, {
-          "<C-CR>",
-          function()
-            local bufnr = vim.api.nvim_get_current_buf()
-            if vim.b[bufnr].nes_state then
-              local nes = require("copilot-lsp.nes")
-              if vim.b[bufnr].nes_navigated then
-                nes.apply_pending_nes(bufnr)
-                vim.api.nvim_buf_clear_namespace(
-                  bufnr,
-                  vim.api.nvim_create_namespace("copilotlsp.nes.enhanced"),
-                  0,
-                  -1
-                )
-                vim.b[bufnr].nes_navigated = false
-                vim.b[bufnr].nes_enhanced = false
-              else
-                if nes.walk_cursor_start_edit(bufnr) then
-                  vim.b[bufnr].nes_navigated = true
-                end
-              end
-            end
-          end,
-          mode = { "n", "i" },
-          desc = "Navigate to/Accept NES suggestion",
-          buffer = true,
-        })
-
-        table.insert(keys, {
-          "<C-BS>",
-          function()
-            local bufnr = vim.api.nvim_get_current_buf()
-            if vim.b[bufnr].nes_state then
-              local nes = require("copilot-lsp.nes")
-              nes.clear()
-              vim.api.nvim_buf_clear_namespace(
-                bufnr,
-                vim.api.nvim_create_namespace("copilotlsp.nes.enhanced"),
-                0,
-                -1
-              )
-              vim.b[bufnr].nes_navigated = false
-              vim.b[bufnr].nes_enhanced = false
-              return "<C-BS>"
-            else
-              return "<C-BS>"
-            end
-          end,
-          mode = { "n", "i" },
-          expr = true,
-          desc = "Reject NES",
-          buffer = true,
-        })
-      end
 
       return keys
     end,
