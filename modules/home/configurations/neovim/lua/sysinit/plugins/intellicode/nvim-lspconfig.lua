@@ -18,7 +18,6 @@ local function get_builtin_configs()
     eslint = {},
     gopls = {},
     tflint = {},
-    dockerls = {},
     helm_ls = {},
     jqls = {},
     lua_ls = {},
