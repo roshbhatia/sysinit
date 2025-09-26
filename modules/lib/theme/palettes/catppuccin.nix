@@ -2,25 +2,19 @@
 
 with lib;
 
-with lib;
-
 let
   utils = import ../core/utils.nix { inherit lib; };
 in
 
-{
+rec {
   meta = {
     name = "Catppuccin";
     id = "catppuccin";
     variants = [
       "macchiato"
-      "frappe"
-      "latte"
-      "mocha"
     ];
     supports = [
       "dark"
-      "light"
     ];
     author = "Catppuccin";
     homepage = "https://github.com/catppuccin/catppuccin";
@@ -70,9 +64,6 @@ in
   appAdapters = {
     wezterm = {
       macchiato = "Catppuccin Macchiato";
-      frappe = "Catppuccin Frappe";
-      latte = "Catppuccin Latte";
-      mocha = "Catppuccin Mocha";
     };
 
     neovim = {
@@ -80,13 +71,6 @@ in
       name = "catppuccin";
       setup = "catppuccin";
       colorscheme = "catppuccin";
-    };
-
-    ghostty = {
-      macchiato = "catppuccin-macchiato";
-      frappe = "catppuccin-frappe";
-      latte = "catppuccin-latte";
-      mocha = "catppuccin-mocha";
     };
 
     bat = variant: "catppuccin-${variant}";

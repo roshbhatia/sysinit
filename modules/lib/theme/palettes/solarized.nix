@@ -2,24 +2,20 @@
 
 with lib;
 
-with lib;
-
 let
   utils = import ../core/utils.nix { inherit lib; };
 in
 
-{
+rec {
   meta = {
     name = "Solarized";
     id = "solarized";
     variants = [
       "dark"
       "light"
-      "light"
     ];
     supports = [
       "dark"
-      "light"
       "light"
     ];
     author = "Ethan Schoonover";
@@ -68,7 +64,6 @@ in
   appAdapters = {
     wezterm = {
       dark = "Solarized Dark Higher Contrast (Gogh)";
-      light = "Solarized Light (Gogh)";
     };
 
     neovim = {

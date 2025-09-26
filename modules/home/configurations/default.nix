@@ -15,7 +15,6 @@
     ./fd
     ./firefox
     ./fzf
-    ./ghostty
     ./git
     ./hammerspoon
     ./helix
@@ -32,7 +31,6 @@
     ./vivid
     ./vscode
     ./wezterm
-    ./zellij
     ./zsh
   ];
 }

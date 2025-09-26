@@ -2,24 +2,19 @@
 
 with lib;
 
-with lib;
-
 let
   utils = import ../core/utils.nix { inherit lib; };
 in
 
-{
+rec {
   meta = {
     name = "Rosé Pine";
     id = "rose-pine";
     variants = [
       "moon"
-      "dawn"
-      "main"
     ];
     supports = [
       "dark"
-      "light"
     ];
     author = "Rosé Pine";
     homepage = "https://github.com/rose-pine/rose-pine";
@@ -80,11 +75,6 @@ in
       colorscheme = _variant: "roseprime";
     };
 
-    ghostty = {
-      moon = "rose-pine-moon";
-      dawn = "rose-pine-dawn";
-      main = "rose-pine";
-    };
     bat = variant: "rose-pine-${variant}";
     delta = variant: "rose-pine-${variant}";
     k9s = variant: "rose-pine-${variant}";
