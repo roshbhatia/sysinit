@@ -26,7 +26,8 @@ M.plugins = {
           "BufEnter",
           "WinEnter",
         },
-        multiplexer_integration = "wezterm",
+        multiplexer_integration = "zellij",
+        zellij_move_focus_or_tab = false,
         disable_multiplexer_nav_when_zoomed = true,
         log_level = "info",
       })

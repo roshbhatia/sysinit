@@ -2,11 +2,13 @@
 
 with lib;
 
+with lib;
+
 let
   utils = import ../core/utils.nix { inherit lib; };
 in
 
-rec {
+{
   meta = {
     name = "Kanagawa";
     id = "kanagawa";
@@ -149,6 +151,10 @@ rec {
       colorscheme = variant: "kanagawa-${variant}";
     };
 
+    ghostty = {
+      wave = "Kanagawa Wave";
+      dragon = "Kanagawa Dragon";
+    };
     bat = variant: "kanagawa-${variant}";
     delta = variant: "kanagawa-${variant}";
     atuin = variant: "kanagawa-${variant}";

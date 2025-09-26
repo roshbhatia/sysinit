@@ -2,20 +2,24 @@
 
 with lib;
 
+with lib;
+
 let
   utils = import ../core/utils.nix { inherit lib; };
 in
 
-rec {
+{
   meta = {
     name = "Gruvbox";
     id = "gruvbox";
     variants = [
       "dark"
       "light"
+      "light"
     ];
     supports = [
       "dark"
+      "light"
       "light"
     ];
     author = "morhetz";
@@ -134,6 +138,7 @@ rec {
     wezterm = {
       dark = "Gruvbox dark, hard (base16)";
       light = "Gruvbox light, hard (base16)";
+      light = "Gruvbox light, hard (base16)";
     };
 
     neovim = {
@@ -143,6 +148,10 @@ rec {
       colorscheme = _variant: "gruvbox";
     };
 
+    ghostty = {
+      dark = "GruvboxDark";
+      light = "GruvboxLight";
+    };
     bat = variant: "gruvbox-${variant}";
     delta = variant: "gruvbox-${variant}";
     atuin = variant: "gruvbox-${variant}";

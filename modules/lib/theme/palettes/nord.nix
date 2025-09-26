@@ -2,11 +2,13 @@
 
 with lib;
 
+with lib;
+
 let
   utils = import ../core/utils.nix { inherit lib; };
 in
 
-rec {
+{
   meta = {
     name = "Nord";
     id = "nord";
@@ -75,6 +77,9 @@ rec {
       colorscheme = _variant: "nordfox";
     };
 
+    ghostty = {
+      dark = "nord";
+    };
     bat = variant: "nord-${variant}";
     delta = variant: "nord-${variant}";
     atuin = variant: "nord-${variant}";
