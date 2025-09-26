@@ -18,7 +18,7 @@ local function get_builtin_configs()
     eslint = {},
     gopls = {},
     tflint = {},
-    dockerls = { cmd = { "docker-language-server", "start", "--stdio" } },
+    dockerls = {},
     helm_ls = {},
     jqls = {},
     lua_ls = {},
