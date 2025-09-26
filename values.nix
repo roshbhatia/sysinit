@@ -17,8 +17,12 @@
 
     homebrew = {
       additionalPackages = {
-        taps = [ ];
-        brews = [ ];
+        taps = [
+          "qmk/qmk"
+        ];
+        brews = [
+          "qmk"
+        ];
         casks = [
           "betterdiscord-installer"
           "calibre"
