@@ -61,11 +61,6 @@ local function get_custom_configs()
       cmd = { "up", "xpls", "serve" },
       root_markers = { "crossplane.yaml" },
     },
-    systemd_lsp = {
-      cmd = { "systemd-lsp" },
-      filetypes = { "systemd" },
-      root_markers = { ".git" },
-    },
   }
 
   if config.is_copilot_enabled() then
