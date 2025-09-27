@@ -25,6 +25,7 @@
     ./neovim
     ./nix
     ./nu
+    ./obsidian
     ./omp
     ./sketchybar
     ./utils

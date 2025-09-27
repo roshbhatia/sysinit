@@ -158,31 +158,11 @@ in
               definedAliases = [ "@np" ];
             };
 
-            "Nix Options" = {
+            "Nix Home Manager " = {
               urls = [
                 {
-                  template = "https://search.nixos.org/options";
+                  template = "https://mynixos.com/home-manager/options/programs";
                   params = [
-                    {
-                      name = "channel";
-                      value = "unstable";
-                    }
-                    {
-                      name = "from";
-                      value = "0";
-                    }
-                    {
-                      name = "size";
-                      value = "50";
-                    }
-                    {
-                      name = "sort";
-                      value = "relevance";
-                    }
-                    {
-                      name = "type";
-                      value = "packages";
-                    }
                     {
                       name = "query";
                       value = "{searchTerms}";
@@ -191,7 +171,7 @@ in
                 }
               ];
               icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
-              definedAliases = [ "@no" ];
+              definedAliases = [ "@nhm" ];
             };
           }
           // values.firefox.searchEngines;

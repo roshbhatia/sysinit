@@ -1,0 +1,9 @@
+{
+  ...
+}:
+
+{
+  programs.obsidian = {
+    enable = true;
+  };
+}
