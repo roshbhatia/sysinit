@@ -27,7 +27,6 @@
           "betterdiscord-installer"
           "calibre"
           "discord"
-          "notion"
           "steam"
         ];
       };
