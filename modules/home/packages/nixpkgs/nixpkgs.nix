@@ -92,7 +92,7 @@ let
     pkg-config
     proselint
     pyright
-    python311Full
+    python311
     rustc
     rustup
     sad
