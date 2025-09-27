@@ -40,6 +40,7 @@ let
     "hammerspoon"
     "keycastr"
     "mediosz/tap/swipeaerospace"
+    "notion"
     "raycast"
     "slack"
     "visual-studio-code@insiders"
