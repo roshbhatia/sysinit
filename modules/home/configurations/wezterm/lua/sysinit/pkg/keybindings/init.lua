@@ -40,16 +40,37 @@ end
 
 local function get_pane_keys()
   return {
-    -- Close - only keep these for closing tabs/windows, not panes
+    -- Move
+    { key = "h", mods = "CTRL", action = pane_keybinding("move", "h", "CTRL") },
+    { key = "j", mods = "CTRL", action = pane_keybinding("move", "j", "CTRL") },
+    { key = "k", mods = "CTRL", action = pane_keybinding("move", "k", "CTRL") },
+    { key = "l", mods = "CTRL", action = pane_keybinding("move", "l", "CTRL") },
+    -- Resize
+    { key = "h", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "h", "CTRL|SHIFT") },
+    { key = "j", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "j", "CTRL|SHIFT") },
+    { key = "k", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "k", "CTRL|SHIFT") },
+    { key = "l", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "l", "CTRL|SHIFT") },
+    -- Splits
+    {
+      key = "s",
+      mods = "CTRL",
+      action = wezterm.action.SplitVertical({ domain = "CurrentPaneDomain" }),
+    },
+    {
+      key = "v",
+      mods = "CTRL",
+      action = wezterm.action.SplitHorizontal({ domain = "CurrentPaneDomain" }),
+    },
+    -- Close
     {
       key = "w",
       mods = "CTRL",
-      action = vim_or_wezterm_action("w", "CTRL", act.CloseCurrentTab({ confirm = true })),
+      action = vim_or_wezterm_action("w", "CTRL", act.CloseCurrentPane({ confirm = true })),
     },
     {
       key = "w",
       mods = "CMD",
-      action = vim_or_wezterm_action("w", "CTRL", act.CloseCurrentTab({ confirm = true })),
+      action = vim_or_wezterm_action("w", "CTRL", act.CloseCurrentPane({ confirm = true })),
     },
   }
 end
