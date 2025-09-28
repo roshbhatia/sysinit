@@ -8,4 +8,4 @@ if should_show_macchina; then
   macchina --theme "${SYSINIT_MACCHINA_THEME:-rosh}"
 fi
 
-oh-my-posh init zsh --config "$XDG_CONFIG_HOME/oh-my-posh/themes/sysinit.omp.json"
+eval "$(oh-my-posh init zsh --config "$XDG_CONFIG_HOME/oh-my-posh/themes/sysinit.omp.json")"
