@@ -45,39 +45,6 @@ function M.get_builtin_configs()
 
   if config.is_copilot_enabled() then
     configs.copilot_ls = {
-      cmd = {
-        "copilot-language-server",
-        "--stdio",
-      },
-      filetypes = { "*" },
-      init_options = {
-        editorInfo = {
-          name = "neovim",
-          version = string.format("%d.%d.%d", version.major, version.minor, version.patch),
-        },
-        editorPluginInfo = {
-          name = "Github Copilot LSP for Neovim",
-          version = "0.0.1",
-        },
-      },
-      settings = {
-        nextEditSuggestions = {
-          enabled = true,
-        },
-      },
-      capabilities = {
-        textDocument = {
-          inlineCompletion = {
-            dynamicRegistration = false,
-          },
-        },
-        workspace = {
-          didChangeWatchedFiles = {
-            dynamicRegistration = false,
-          },
-        },
-      },
-      handlers = require("copilot-lsp.handlers"),
       on_attach = function(client, bufnr)
         require("sysinit.plugins.intellicode.lsp.copilot").setup(client, bufnr)
       end,
@@ -106,9 +73,7 @@ function M.setup_configs()
   end
 
   for server, cfg in pairs(M.get_custom_configs()) do
-    if server ~= "copilot_ls" then
-      cfg.capabilities = capabilities
-    end
+    cfg.capabilities = capabilities
     vim.lsp.config(server, cfg)
   end
 end
