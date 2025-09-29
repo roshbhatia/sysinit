@@ -3,8 +3,9 @@ local config = require("sysinit.utils.config")
 
 function M.get_builtin_configs()
   local schemastore = require("schemastore")
+  local version = vim.version()
 
-  return {
+  local configs = {
     eslint = {},
     gopls = {},
     tflint = {},
@@ -39,18 +40,6 @@ function M.get_builtin_configs()
           }),
         },
       },
-    },
-  }
-end
-
-function M.get_custom_configs()
-  local version = vim.version()
-
-  local configs = {
-    up = {
-      cmd = { "up", "xpls", "serve" },
-      filetypes = { "yaml" },
-      root_dir = require("lspconfig").util.root_pattern("crossplane.yaml"),
     },
   }
 
@@ -96,6 +85,16 @@ function M.get_custom_configs()
   end
 
   return configs
+end
+
+function M.get_custom_configs()
+  return {
+    up = {
+      cmd = { "up", "xpls", "serve" },
+      filetypes = { "yaml" },
+      root_dir = require("lspconfig").util.root_pattern("crossplane.yaml"),
+    },
+  }
 end
 
 function M.setup_configs()
