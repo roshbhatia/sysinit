@@ -1,15 +1,56 @@
 local wezterm = require("wezterm")
 local act = wezterm.action
 local M = {}
+local ProcessDetector = {}
 
-local function is_vim(pane)
-  local process_name = string.gsub(pane:get_foreground_process_name(), "(.*[/\\])(.*)", "%2")
+function ProcessDetector.get_process_name(pane)
+  local full_name = pane:get_foreground_process_name()
+  return string.gsub(full_name, "(.*[/\\])(.*)", "%2")
+end
+
+local process_detectors = {
+  function(pane)
+    local process_name = ProcessDetector.get_process_name(pane)
+    return process_name == "nvim" or process_name == "vim"
+  end,
+  function(pane)
+    local process_name = ProcessDetector.get_process_name(pane)
+    return process_name == "k9s"
+  end,
+  function(pane)
+    local process_name = ProcessDetector.get_process_name(pane)
+    local terminal_apps = { "htop", "btop", "top", "less", "more", "man", "git", "tmux", "screen" }
+    for _, app in ipairs(terminal_apps) do
+      if process_name == app then
+        return true
+      end
+    end
+    return false
+  end,
+}
+
+function ProcessDetector.should_send_key_directly(pane)
+  for _, detector in ipairs(process_detectors) do
+    if detector(pane) then
+      return true
+    end
+  end
+  return false
+end
+
+function ProcessDetector.is_vim(pane)
+  local process_name = ProcessDetector.get_process_name(pane)
   return process_name == "nvim" or process_name == "vim"
 end
 
-local function vim_or_wezterm_action(key, mods, wezterm_action)
+function ProcessDetector.is_k9s(pane)
+  local process_name = ProcessDetector.get_process_name(pane)
+  return process_name == "k9s"
+end
+
+local function smart_action(key, mods, wezterm_action)
   return wezterm.action_callback(function(win, pane)
-    if is_vim(pane) then
+    if ProcessDetector.should_send_key_directly(pane) then
       win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
     else
       win:perform_action(wezterm_action, pane)
@@ -26,7 +67,7 @@ local direction_keys = {
 
 local function pane_keybinding(action_type, key, mods)
   return wezterm.action_callback(function(win, pane)
-    if is_vim(pane) then
+    if ProcessDetector.should_send_key_directly(pane) then
       win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
     else
       if action_type == "resize" then
@@ -65,12 +106,12 @@ local function get_pane_keys()
     {
       key = "w",
       mods = "CTRL",
-      action = vim_or_wezterm_action("w", "CTRL", act.CloseCurrentPane({ confirm = true })),
+      action = smart_action("w", "CTRL", act.CloseCurrentPane({ confirm = true })),
     },
     {
       key = "w",
       mods = "CMD",
-      action = vim_or_wezterm_action("w", "CTRL", act.CloseCurrentPane({ confirm = true })),
+      action = smart_action("w", "CTRL", act.CloseCurrentPane({ confirm = true })),
     },
   }
 end
@@ -80,34 +121,12 @@ local function get_clear_keys()
     {
       key = "k",
       mods = "CMD",
-      action = wezterm.action_callback(function(win, pane)
-        if is_vim(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "k",
-              mods = "CMD",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ClearScrollback("ScrollbackAndViewport"), pane)
-        end
-      end),
+      action = smart_action("k", "CMD", act.ClearScrollback("ScrollbackAndViewport")),
     },
     {
       key = "k",
       mods = "CTRL",
-      action = wezterm.action_callback(function(win, pane)
-        if is_vim(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "k",
-              mods = "CTRL",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ClearScrollback("ScrollbackAndViewport"), pane)
-        end
-      end),
+      action = smart_action("k", "CTRL", act.ClearScrollback("ScrollbackAndViewport")),
     },
   }
 end
@@ -127,66 +146,22 @@ local function get_scroll_keys()
     {
       key = "u",
       mods = "CTRL",
-      action = wezterm.action_callback(function(win, pane)
-        if is_vim(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "u",
-              mods = "CTRL",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ScrollByLine(-40), pane)
-        end
-      end),
+      action = smart_action("u", "CTRL", act.ScrollByLine(-40)),
     },
     {
       key = "d",
       mods = "CTRL",
-      action = wezterm.action_callback(function(win, pane)
-        if is_vim(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "d",
-              mods = "CTRL",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ScrollByLine(40), pane)
-        end
-      end),
+      action = smart_action("d", "CTRL", act.ScrollByLine(40)),
     },
     {
       key = "u",
       mods = "CTRL|SHIFT",
-      action = wezterm.action_callback(function(win, pane)
-        if is_vim(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "u",
-              mods = "CTRL|SHIFT",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ScrollByLine(-9999999999999), pane)
-        end
-      end),
+      action = smart_action("u", "CTRL|SHIFT", act.ScrollByLine(-9999999999999)),
     },
     {
       key = "d",
       mods = "CTRL|SHIFT",
-      action = wezterm.action_callback(function(win, pane)
-        if is_vim(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "d",
-              mods = "CTRL|SHIFT",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ScrollByLine(9999999999999), pane)
-        end
-      end),
+      action = smart_action("d", "CTRL|SHIFT", act.ScrollByLine(9999999999999)),
     },
   }
 end
@@ -289,18 +264,7 @@ local function get_search_keys()
     {
       key = "Enter",
       mods = "SHIFT",
-      action = wezterm.action_callback(function(win, pane)
-        if is_vim(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "Enter",
-              mods = "SHIFT",
-            },
-          }, pane)
-        else
-          win:perform_action(act.QuickSelect)
-        end
-      end),
+      action = smart_action("Enter", "SHIFT", act.QuickSelect),
     },
     {
       key = "/",
@@ -348,6 +312,47 @@ local function get_agent_keys()
   }
 end
 
+local function get_k9s_keys()
+  return {
+    -- Ctrl+D for k9s (quit/exit)
+    {
+      key = "d",
+      mods = "CTRL",
+      action = wezterm.action_callback(function(win, pane)
+        if ProcessDetector.is_k9s(pane) then
+          win:perform_action({ SendKey = { key = "d", mods = "CTRL" } }, pane)
+        else
+          win:perform_action(act.ScrollByLine(40), pane)
+        end
+      end),
+    },
+    -- Ctrl+C for k9s (cancel/back)
+    {
+      key = "c",
+      mods = "CTRL",
+      action = wezterm.action_callback(function(win, pane)
+        if ProcessDetector.is_k9s(pane) then
+          win:perform_action({ SendKey = { key = "c", mods = "CTRL" } }, pane)
+        else
+          win:perform_action(act.CopyTo("Clipboard"), pane)
+        end
+      end),
+    },
+    -- Escape for k9s (back/cancel)
+    {
+      key = "Escape",
+      mods = "NONE",
+      action = wezterm.action_callback(function(win, pane)
+        if ProcessDetector.is_k9s(pane) then
+          win:perform_action({ SendKey = { key = "Escape", mods = "NONE" } }, pane)
+        else
+          win:perform_action(act.CopyMode("Close"), pane)
+        end
+      end),
+    },
+  }
+end
+
 function M.setup(config)
   local all_keys = {}
 
@@ -361,6 +366,7 @@ function M.setup(config)
     get_search_keys(),
     get_transparency_keys(),
     get_agent_keys(),
+    get_k9s_keys(),
   }
 
   for _, group in ipairs(key_groups) do

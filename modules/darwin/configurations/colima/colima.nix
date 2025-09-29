@@ -3,10 +3,8 @@
   ...
 }:
 let
-  # Configuration file
   colimaConfig = ./configs/colima.yaml;
 
-  # Certificate setup script with proper path substitution
   setupScript = pkgs.replaceVars ./scripts/setup-certs.sh {
     colima = "${pkgs.colima}";
   };
@@ -38,12 +36,32 @@ in
         EnvironmentVariables = {
           PATH = "${pkgs.docker}/bin:${pkgs.colima}/bin:/usr/bin:/bin:/usr/sbin:/sbin";
         };
-        RunAtLoad = false;
+        RunAtLoad = true;
         KeepAlive = false;
         StandardOutPath = "/tmp/colima-setup.log";
         StandardErrorPath = "/tmp/colima-setup.error.log";
         ProcessType = "Background";
-        StartInterval = 30;
+        StartInterval = 60;
+      };
+    };
+
+    colima-cert-watcher = {
+      serviceConfig = {
+        ProgramArguments = [
+          "${pkgs.fswatch}/bin/fswatch"
+          "-o"
+          "/System/Library/Keychains/SystemRootCertificates.keychain"
+          "--event"
+          "Updated"
+        ];
+        EnvironmentVariables = {
+          PATH = "${pkgs.docker}/bin:${pkgs.colima}/bin:/usr/bin:/bin:/usr/sbin:/sbin";
+        };
+        RunAtLoad = true;
+        KeepAlive = true;
+        StandardOutPath = "/tmp/colima-cert-watcher.log";
+        StandardErrorPath = "/tmp/colima-cert-watcher.error.log";
+        ProcessType = "Background";
       };
     };
   };

@@ -41,6 +41,7 @@ let
     duf
     eslint
     fish
+    fswatch
     gettext
     gh
     git-filter-repo
