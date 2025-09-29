@@ -49,6 +49,16 @@ M.plugins = {
           right = {
             "file_size",
             "line_column",
+            {
+              "NES",
+              function()
+                local ok, nes = pcall(require, "sysinit.plugins.intellicode.lsp.nes")
+                if ok then
+                  return nes.get_status_text()
+                end
+                return ""
+              end,
+            },
             "cool_symbol",
           },
         },

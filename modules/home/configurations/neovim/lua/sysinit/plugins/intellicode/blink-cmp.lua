@@ -184,13 +184,11 @@ M.plugins = {
               if ok and copilot.is_visible and copilot.is_visible() then
                 return cmp.select_and_accept()
               end
-              -- Then check for NES
-              if vim.b[vim.api.nvim_get_current_buf()].nes_state then
+              -- Then check for NES using the enhanced module
+              local nes = require("sysinit.plugins.intellicode.lsp.nes")
+              if nes.is_available() then
                 cmp.hide()
-                return (
-                  require("copilot-lsp.nes").apply_pending_nes()
-                  and require("copilot-lsp.nes").walk_cursor_end_edit()
-                )
+                return nes.accept()
               end
             end,
             "select_next",
