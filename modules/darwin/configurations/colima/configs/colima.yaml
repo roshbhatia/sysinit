@@ -1,5 +1,5 @@
-cpu: 4
-memory: 8
+cpu: 6
+memory: 12
 disk: 100
 arch: aarch64
 runtime: docker
@@ -11,14 +11,14 @@ mountInotify: true
 
 network:
   address: true
-  dns: 
-    - "1.1.1.1"
-    - "1.0.0.1"
 
 docker:
   insecure-registries:
     - "xpkg.crossplane.io"
     - "artifactory.nike.com:9001"
+    - "artifactory.nike.com:9001"
+    - "artifactory.nike.com.cn:9002"
+    - "artifactory.nike.com.cn:9002"
   buildkit: true
   features:
     buildkit: true

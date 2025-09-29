@@ -5,88 +5,30 @@
 let
   colimaConfig = ./configs/colima.yaml;
 
-  setupScript = pkgs.replaceVars ./scripts/setup-certs.sh {
+  colimaManager = pkgs.replaceVars ./scripts/setup-certs.sh {
     colima = "${pkgs.colima}";
+    colimaConfig = "${colimaConfig}";
   };
 in
 {
   launchd.user.agents = {
-    colima = {
+    colima-manager = {
       serviceConfig = {
-        ProgramArguments = [
-          "${pkgs.colima}/bin/colima"
-          "start"
-          "--config"
-          "${colimaConfig}"
-        ];
-        EnvironmentVariables = {
-          PATH = "${pkgs.docker}/bin:${pkgs.docker-compose}/bin:/usr/bin:/bin:/usr/sbin:/sbin";
-        };
-        RunAtLoad = true;
-        KeepAlive = false;
-        StandardOutPath = "/tmp/colima.log";
-        StandardErrorPath = "/tmp/colima.error.log";
-        ProcessType = "Background";
-      };
-    };
-
-    colima-setup = {
-      serviceConfig = {
-        ProgramArguments = [ "${setupScript}" ];
-        EnvironmentVariables = {
-          PATH = "${pkgs.docker}/bin:${pkgs.colima}/bin:/usr/bin:/bin:/usr/sbin:/sbin";
-        };
-        RunAtLoad = true;
-        KeepAlive = false;
-        StandardOutPath = "/tmp/colima-setup.log";
-        StandardErrorPath = "/tmp/colima-setup.error.log";
-        ProcessType = "Background";
-        StartInterval = 60;
-      };
-    };
-
-    colima-cert-watcher = {
-      serviceConfig = {
-        ProgramArguments = [
-          "${pkgs.fswatch}/bin/fswatch"
-          "-o"
-          "/System/Library/Keychains/SystemRootCertificates.keychain"
-          "--event"
-          "Updated"
-        ];
+        ProgramArguments = [ "${colimaManager}" "monitor" ];
         EnvironmentVariables = {
           PATH = "${pkgs.docker}/bin:${pkgs.colima}/bin:/usr/bin:/bin:/usr/sbin:/sbin";
         };
         RunAtLoad = true;
         KeepAlive = true;
-        StandardOutPath = "/tmp/colima-cert-watcher.log";
-        StandardErrorPath = "/tmp/colima-cert-watcher.error.log";
+        StandardOutPath = "/tmp/colima-manager.log";
+        StandardErrorPath = "/tmp/colima-manager.error.log";
         ProcessType = "Background";
-      };
-    };
-
-    colima-config-watcher = {
-      serviceConfig = {
-        ProgramArguments = [
-          "${pkgs.fswatch}/bin/fswatch"
-          "-o"
-          "${colimaConfig}"
-          "--event"
-          "Updated"
-        ];
-        EnvironmentVariables = {
-          PATH = "${pkgs.docker}/bin:${pkgs.colima}/bin:/usr/bin:/bin:/usr/sbin:/sbin";
-        };
-        RunAtLoad = true;
-        KeepAlive = true;
-        StandardOutPath = "/tmp/colima-config-watcher.log";
-        StandardErrorPath = "/tmp/colima-config-watcher.error.log";
-        ProcessType = "Background";
+        StartInterval = 30;
       };
     };
   };
 
   environment.systemPackages = [
-    (pkgs.writeShellScriptBin "setup-colima-certs" (builtins.readFile "${setupScript}"))
+    (pkgs.writeShellScriptBin "colima-manager" (builtins.readFile "${colimaManager}"))
   ];
 }
