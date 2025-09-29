@@ -15,7 +15,6 @@ let
     "mediosz/tap"
     "noahgorstein/tap"
     "sandreas/tap"
-    "sst/tap"
     "vet-run/vet"
   ];
 
@@ -28,7 +27,6 @@ let
     "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"
-    "opencode"
     "vet-run"
   ];
 

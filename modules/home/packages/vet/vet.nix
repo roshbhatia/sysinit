@@ -9,6 +9,7 @@
 let
   vetPackages = [
     "https://cursor.com/install"
+    "https://opencode.ai/install"
   ]
   ++ values.vet.additionalPackages;
 in
