@@ -21,6 +21,7 @@ in
     };
   };
   neovim-unwrapped = unstable.neovim-unwrapped;
+  nix-your-shell = unstable.nix-your-shell;
   nushell = unstable.nushell;
   sbarlua = unstable.sbarlua;
 }

@@ -56,6 +56,12 @@ let
             type = "git";
           }
           {
+            foreground = "p:accent";
+            style = "plain";
+            template = " {{ .Type }}-shell";
+            type = "nix-shell";
+          }
+          {
             foreground = "p:error";
             properties = {
               always_enabled = false;

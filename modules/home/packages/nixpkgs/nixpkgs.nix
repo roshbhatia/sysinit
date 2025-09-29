@@ -79,6 +79,7 @@ let
     nix-prefetch-git
     nix-prefetch-github
     nix-search-cli
+    nix-your-shell
     nixd
     nixfmt-rfc-style
     nodePackages.fkill-cli
