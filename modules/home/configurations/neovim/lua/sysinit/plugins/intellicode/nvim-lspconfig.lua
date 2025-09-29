@@ -3,7 +3,7 @@ local servers = require("sysinit.plugins.intellicode.lsp.servers")
 local diagnostics = require("sysinit.plugins.intellicode.lsp.diagnostics")
 local attach = require("sysinit.plugins.intellicode.lsp.attach")
 local keymaps = require("sysinit.plugins.intellicode.lsp.keymaps")
-local nes = require("sysinit.plugins.intellicode.lsp.nes")
+local copilot_commands = require("sysinit.plugins.intellicode.lsp.copilot-commands")
 
 local M = {}
 
@@ -28,9 +28,9 @@ M.plugins = {
       servers.enable_servers()
       vim.lsp.inlay_hint.enable(true)
       
-      -- Setup enhanced NES functionality
+      -- Setup Copilot commands
       if config.is_copilot_enabled() then
-        nes.setup_global_keymaps()
+        copilot_commands.setup_commands()
       end
     end,
     keys = keymaps.get_keymaps(),

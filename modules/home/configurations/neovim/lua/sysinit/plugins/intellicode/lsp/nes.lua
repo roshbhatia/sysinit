@@ -75,34 +75,111 @@ function M.get_status_text()
     end
   end
 
-  return string.format("NES: %s [Tab: accept, Esc: reject]", suggestion_text)
+  return string.format("NES: %s [gaa: accept, gad: reject]", suggestion_text)
 end
 
-function M.setup_global_keymaps()
-  -- Tab key handling for NES (when not in completion popup)
-  vim.keymap.set({ "n", "i" }, "<Tab>", function()
-    -- Check if completion popup is visible
-    local cmp = require("blink.cmp")
-    if cmp and cmp.is_visible and cmp.is_visible() then
-      return false -- Let completion handle it
+function M.setup_enhanced_display(bufnr)
+  local custom_ns = vim.api.nvim_create_namespace("copilotlsp.nes.enhanced")
+  
+  -- Define highlight groups for accept/reject
+  vim.api.nvim_create_autocmd("ColorScheme", {
+    callback = function()
+      vim.api.nvim_set_hl(0, "NESAccept", { fg = "#9cb380", bold = true })
+      vim.api.nvim_set_hl(0, "NESReject", { fg = "#d67b7b", bold = true })
+      vim.api.nvim_set_hl(0, "NESHint", { fg = "#a6a69c", italic = true })
+    end,
+    group = vim.api.nvim_create_augroup("NESColors", { clear = true }),
+  })
+  
+  -- Set initial colors
+  vim.api.nvim_set_hl(0, "NESAccept", { fg = "#9cb380", bold = true })
+  vim.api.nvim_set_hl(0, "NESReject", { fg = "#d67b7b", bold = true })
+  vim.api.nvim_set_hl(0, "NESHint", { fg = "#a6a69c", italic = true })
+
+  local function enhance_nes_display(buf)
+    if not vim.api.nvim_buf_is_valid(buf) then
+      return
     end
 
-    -- Check for NES availability
-    if M.is_available() then
-      return M.accept()
+    local state = vim.b[buf].nes_state
+    if not state then
+      return
     end
 
-    return false -- Let other handlers take over
-  end, { desc = "Accept NES suggestion or fallback to default Tab behavior" })
+    local start_line = state.range.start.line
+    local line_text = vim.api.nvim_buf_get_lines(buf, start_line, start_line + 1, false)[1] or ""
+    local line_length = #line_text
 
-  -- Esc key handling for NES rejection
-  vim.keymap.set({ "n", "i" }, "<Esc>", function()
-    if M.is_available() then
-      M.reject()
-      return true -- Consume the key
+    vim.api.nvim_buf_set_extmark(buf, custom_ns, start_line, line_length, {
+      virt_text = {
+        { "  ", "Normal" },
+        { "gaa", "NESAccept" },
+        { ": accept, ", "NESHint" },
+        { "gad", "NESReject" },
+        { ": reject", "NESHint" },
+      },
+      virt_text_pos = "eol",
+    })
+  end
+
+  local function clear_enhanced_display(buf)
+    if not vim.api.nvim_buf_is_valid(buf) then
+      return
     end
-    return false -- Let other handlers take over
-  end, { desc = "Reject NES suggestion or fallback to default Esc behavior" })
+    vim.api.nvim_buf_clear_namespace(buf, custom_ns, 0, -1)
+  end
+
+  local au = vim.api.nvim_create_augroup("NESDisplay", { clear = true })
+  
+  vim.api.nvim_create_autocmd("BufEnter", {
+    callback = function(event)
+      local buf = event.buf
+
+      local nes_timer = vim.loop.new_timer()
+      local function check_nes_state()
+        if not vim.api.nvim_buf_is_valid(buf) then
+          if nes_timer then
+            nes_timer:stop()
+            nes_timer:close()
+          end
+          return
+        end
+
+        if vim.b[buf].nes_state and not vim.b[buf].nes_enhanced then
+          enhance_nes_display(buf)
+          vim.b[buf].nes_enhanced = true
+        elseif not vim.b[buf].nes_state and vim.b[buf].nes_enhanced then
+          clear_enhanced_display(buf)
+          vim.b[buf].nes_enhanced = false
+        end
+      end
+
+      nes_timer:start(100, 100, vim.schedule_wrap(check_nes_state))
+
+      vim.api.nvim_create_autocmd("BufDelete", {
+        buffer = buf,
+        callback = function()
+          if nes_timer then
+            nes_timer:stop()
+            nes_timer:close()
+          end
+        end,
+        once = true,
+      })
+    end,
+    group = au,
+    buffer = bufnr,
+  })
+end
+
+function M.setup_keymaps(bufnr)
+  vim.keymap.set({ "n", "i" }, "gaa", function()
+    M.accept()
+  end, { desc = "Accept NES suggestion", buffer = bufnr })
+
+  vim.keymap.set({ "n", "i" }, "gad", function()
+    M.reject()
+  end, { desc = "Reject NES suggestion", buffer = bufnr })
 end
 
 return M

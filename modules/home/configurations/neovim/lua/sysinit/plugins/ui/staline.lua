@@ -1,5 +1,42 @@
 local M = {}
 
+-- Status line components
+local function get_git_blame_text()
+  local ok, git_blame = pcall(require, "gitblame")
+  if not ok then
+    return ""
+  end
+
+  if git_blame.is_blame_text_available and git_blame.is_blame_text_available() then
+    local text = git_blame.get_current_blame_text()
+    local by_index = string.find(text, " by ")
+    if by_index then
+      local msg = string.sub(text, 1, by_index - 1)
+      local rest = string.sub(text, by_index)
+      if #msg > 32 then
+        msg = string.sub(msg, 1, 29) .. "..."
+      end
+      return msg .. rest
+    else
+      if #text > 32 then
+        return string.sub(text, 1, 29) .. "..."
+      else
+        return text
+      end
+    end
+  else
+    return ""
+  end
+end
+
+local function get_nes_status()
+  local ok, nes = pcall(require, "sysinit.plugins.intellicode.lsp.nes")
+  if ok then
+    return nes.get_status_text()
+  end
+  return ""
+end
+
 M.plugins = {
   {
     "tamton-aquib/staline.nvim",
@@ -15,50 +52,12 @@ M.plugins = {
             "branch",
           },
           mid = {
-            {
-              "Staline",
-              function()
-                local ok, git_blame = pcall(require, "gitblame")
-                if not ok then
-                  return ""
-                end
-
-                if git_blame.is_blame_text_available and git_blame.is_blame_text_available() then
-                  local text = git_blame.get_current_blame_text()
-                  local by_index = string.find(text, " by ")
-                  if by_index then
-                    local msg = string.sub(text, 1, by_index - 1)
-                    local rest = string.sub(text, by_index)
-                    if #msg > 32 then
-                      msg = string.sub(msg, 1, 29) .. "..."
-                    end
-                    return msg .. rest
-                  else
-                    if #text > 32 then
-                      return string.sub(text, 1, 29) .. "..."
-                    else
-                      return text
-                    end
-                  end
-                else
-                  return ""
-                end
-              end,
-            },
+            { "GitBlame", get_git_blame_text },
           },
           right = {
             "file_size",
             "line_column",
-            {
-              "NES",
-              function()
-                local ok, nes = pcall(require, "sysinit.plugins.intellicode.lsp.nes")
-                if ok then
-                  return nes.get_status_text()
-                end
-                return ""
-              end,
-            },
+            { "NES", get_nes_status },
             "cool_symbol",
           },
         },
@@ -85,7 +84,7 @@ M.plugins = {
           ["no"] = "  ",
           ["niI"] = "  ",
           ["niR"] = "  ",
-          ["no"] = "  ",
+          ["no"] = "  ",
           ["niV"] = "  ",
           ["nov"] = "  ",
           ["noV"] = "  ",
@@ -96,7 +95,7 @@ M.plugins = {
           ["S"] = " 󰘧 ",
           ["v"] = " 󰈈 ",
           ["V"] = " 󰈈 ",
-          [""] = " 󰈈 ",
+          [""] = " 󰈈 ",
           ["r"] = " 󰛔 ",
           ["r?"] = "  ",
           ["c"] = "  ",
