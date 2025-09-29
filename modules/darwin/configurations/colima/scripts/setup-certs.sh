@@ -53,6 +53,7 @@ update_certificates() {
     cat >/tmp/colima/daemon.json <<'EOF'
 {
   "insecure-registries": [
+    "xpkg.upbound.io",
     "xpkg.crossplane.io",
     "artifactory.nike.com:9001"
   ],
@@ -61,7 +62,9 @@ update_certificates() {
   "log-opts": {
     "max-size": "10m",
     "max-file": "3"
-  }
+  },
+  "tlscacert": "/etc/ssl/certs/ca-certificates.crt",
+  "tlsverify": true
 }
 EOF
     run_in_colima "sudo cp /tmp/colima/daemon.json /etc/docker/daemon.json" || true
