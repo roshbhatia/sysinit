@@ -80,7 +80,7 @@ end
 
 function M.setup_enhanced_display(bufnr)
   local custom_ns = vim.api.nvim_create_namespace("copilotlsp.nes.enhanced")
-  
+
   -- Define highlight groups for accept/reject
   vim.api.nvim_create_autocmd("ColorScheme", {
     callback = function()
@@ -90,7 +90,7 @@ function M.setup_enhanced_display(bufnr)
     end,
     group = vim.api.nvim_create_augroup("NESColors", { clear = true }),
   })
-  
+
   -- Set initial colors
   vim.api.nvim_set_hl(0, "NESAccept", { fg = "#9cb380", bold = true })
   vim.api.nvim_set_hl(0, "NESReject", { fg = "#d67b7b", bold = true })
@@ -130,7 +130,7 @@ function M.setup_enhanced_display(bufnr)
   end
 
   local au = vim.api.nvim_create_augroup("NESDisplay", { clear = true })
-  
+
   vim.api.nvim_create_autocmd("BufEnter", {
     callback = function(event)
       local buf = event.buf

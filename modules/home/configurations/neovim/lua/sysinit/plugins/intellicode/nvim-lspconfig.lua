@@ -27,7 +27,7 @@ M.plugins = {
       attach.setup()
       servers.enable_servers()
       vim.lsp.inlay_hint.enable(true)
-      
+
       -- Setup Copilot commands
       if config.is_copilot_enabled() then
         copilot_commands.setup_commands()

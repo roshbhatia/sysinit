@@ -33,5 +33,4 @@ function M.setup(client, bufnr)
   enhanced_nes.setup_keymaps(bufnr)
 end
 
-
 return M
