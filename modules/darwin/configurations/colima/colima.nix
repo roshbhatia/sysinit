@@ -5,7 +5,7 @@
 let
   # Configuration file
   colimaConfig = ./configs/colima.yaml;
-  
+
   # Certificate setup script with proper path substitution
   setupScript = pkgs.replaceVars ./scripts/setup-certs.sh {
     colima = "${pkgs.colima}";
