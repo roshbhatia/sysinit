@@ -64,6 +64,26 @@ in
         ProcessType = "Background";
       };
     };
+
+    colima-config-watcher = {
+      serviceConfig = {
+        ProgramArguments = [
+          "${pkgs.fswatch}/bin/fswatch"
+          "-o"
+          "${colimaConfig}"
+          "--event"
+          "Updated"
+        ];
+        EnvironmentVariables = {
+          PATH = "${pkgs.docker}/bin:${pkgs.colima}/bin:/usr/bin:/bin:/usr/sbin:/sbin";
+        };
+        RunAtLoad = true;
+        KeepAlive = true;
+        StandardOutPath = "/tmp/colima-config-watcher.log";
+        StandardErrorPath = "/tmp/colima-config-watcher.error.log";
+        ProcessType = "Background";
+      };
+    };
   };
 
   environment.systemPackages = [

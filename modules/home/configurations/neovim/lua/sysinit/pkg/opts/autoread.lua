@@ -3,15 +3,25 @@ local M = {}
 function M.setup()
   vim.opt.shortmess:append("A")
   vim.opt.autoread = true
-  
-  vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
+
+  local function check_file_changes()
+    if vim.fn.mode() ~= "c" then
+      vim.cmd("checktime")
+    end
+  end
+
+  vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter" }, {
     pattern = "*",
-    command = "if mode() != 'c' | checktime | endif",
+    callback = check_file_changes,
   })
-  
-  vim.api.nvim_create_autocmd("BufReadPost", {
+
+  vim.api.nvim_create_autocmd("CursorHold", {
     pattern = "*",
-    command = "checktime",
+    callback = function()
+      if vim.bo.buftype == "" then
+        check_file_changes()
+      end
+    end,
   })
 end
 

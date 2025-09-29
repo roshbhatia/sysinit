@@ -8,39 +8,20 @@ function ProcessDetector.get_process_name(pane)
   return string.gsub(full_name, "(.*[/\\])(.*)", "%2")
 end
 
-local process_detectors = {
-  function(pane)
-    local process_name = ProcessDetector.get_process_name(pane)
-    return process_name == "nvim" or process_name == "vim"
-  end,
-  function(pane)
-    local process_name = ProcessDetector.get_process_name(pane)
-    return process_name == "k9s"
-  end,
-  function(pane)
-    local process_name = ProcessDetector.get_process_name(pane)
-    local terminal_apps = { "htop", "btop", "top", "less", "more", "man", "git", "tmux", "screen" }
-    for _, app in ipairs(terminal_apps) do
-      if process_name == app then
-        return true
-      end
-    end
-    return false
-  end,
-}
+local function should_send_key_directly(pane)
+  local process_name = ProcessDetector.get_process_name(pane)
+  local direct_key_apps = { "nvim", "vim", "hx", "k9s" }
 
-function ProcessDetector.should_send_key_directly(pane)
-  for _, detector in ipairs(process_detectors) do
-    if detector(pane) then
+  for _, app in ipairs(direct_key_apps) do
+    if process_name == app then
       return true
     end
   end
   return false
 end
 
-function ProcessDetector.is_vim(pane)
-  local process_name = ProcessDetector.get_process_name(pane)
-  return process_name == "nvim" or process_name == "vim"
+function ProcessDetector.should_send_key_directly(pane)
+  return should_send_key_directly(pane)
 end
 
 function ProcessDetector.is_k9s(pane)
@@ -111,7 +92,13 @@ local function get_pane_keys()
     {
       key = "w",
       mods = "CMD",
-      action = smart_action("w", "CTRL", act.CloseCurrentPane({ confirm = true })),
+      action = wezterm.action_callback(function(win, pane)
+        if ProcessDetector.should_send_key_directly(pane) then
+          win:perform_action({ SendKey = { key = "w", mods = "CTRL" } }, pane)
+        else
+          win:perform_action(act.CloseCurrentPane({ confirm = true }), pane)
+        end
+      end),
     },
   }
 end
@@ -314,19 +301,6 @@ end
 
 local function get_k9s_keys()
   return {
-    -- Ctrl+D for k9s (quit/exit)
-    {
-      key = "d",
-      mods = "CTRL",
-      action = wezterm.action_callback(function(win, pane)
-        if ProcessDetector.is_k9s(pane) then
-          win:perform_action({ SendKey = { key = "d", mods = "CTRL" } }, pane)
-        else
-          win:perform_action(act.ScrollByLine(40), pane)
-        end
-      end),
-    },
-    -- Ctrl+C for k9s (cancel/back)
     {
       key = "c",
       mods = "CTRL",
@@ -335,18 +309,6 @@ local function get_k9s_keys()
           win:perform_action({ SendKey = { key = "c", mods = "CTRL" } }, pane)
         else
           win:perform_action(act.CopyTo("Clipboard"), pane)
-        end
-      end),
-    },
-    -- Escape for k9s (back/cancel)
-    {
-      key = "Escape",
-      mods = "NONE",
-      action = wezterm.action_callback(function(win, pane)
-        if ProcessDetector.is_k9s(pane) then
-          win:perform_action({ SendKey = { key = "Escape", mods = "NONE" } }, pane)
-        else
-          win:perform_action(act.CopyMode("Close"), pane)
         end
       end),
     },
