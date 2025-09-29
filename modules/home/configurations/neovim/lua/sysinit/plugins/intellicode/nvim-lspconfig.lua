@@ -59,7 +59,8 @@ local function get_custom_configs()
   local configs = {
     up = {
       cmd = { "up", "xpls", "serve" },
-      root_markers = { "crossplane.yaml" },
+      filetypes = { "yaml" },
+      root_dir = require("lspconfig").util.root_pattern("crossplane.yaml"),
     },
   }
 

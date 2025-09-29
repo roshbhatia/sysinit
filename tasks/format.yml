@@ -2,7 +2,7 @@ version: "3"
 
 vars:
   LOGGER_SCRIPT: "hack/lib/logger.sh"
-  SHFMT_OPTS: "-i 2 -ci -sr -kp -fn -w"
+  SHFMT_OPTS: "-i 2 -ci -bn -s -w"
   ERROR_EXIT_CODE: 1
   SUCCESS_EXIT_CODE: 0
 
@@ -12,14 +12,13 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
+        set -euo pipefail
         source {{.LOGGER_SCRIPT}}
         log_info "Formatting shell files"
-        for ext in sh bash zsh; do
-          if ! fd -e $ext -x shfmt {{.SHFMT_OPTS}}; then
-            log_error "Shell formatting ($ext) failed"
-            exit {{.ERROR_EXIT_CODE}}
-          fi
-        done
+        if ! fd -e sh -e bash -e zsh -x shfmt {{.SHFMT_OPTS}}; then
+          log_error "Shell formatting failed"
+          exit {{.ERROR_EXIT_CODE}}
+        fi
         log_success "Shell files formatted successfully"
     silent: true
 
@@ -28,6 +27,7 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
+        set -euo pipefail
         source {{.LOGGER_SCRIPT}}
         log_info "Formatting Lua files"
         if ! fd -e lua -x stylua; then
@@ -42,6 +42,7 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
+        set -euo pipefail
         source {{.LOGGER_SCRIPT}}
         log_info "Formatting Nix files"
         if ! fd -e nix -E result -x nixfmt --width=100; then

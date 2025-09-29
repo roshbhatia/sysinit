@@ -53,6 +53,20 @@ fi
 # Run formatting tasks
 log_info "Running formatting tasks..."
 task fmt sh:chmod
-sudo chown -R $USER .
+
+# Change ownership based on user privileges
+if [ "$(id -u)" -eq 0 ]; then
+  # Running as root, use SUDO_USER if available, otherwise keep root
+  if [ -n "${SUDO_USER:-}" ]; then
+    log_info "Running as root, changing ownership to $SUDO_USER"
+    chown -R "$SUDO_USER" .
+  else
+    log_info "Running as root, no SUDO_USER set, skipping chown"
+  fi
+else
+  # Not root, change ownership to current user
+  log_info "Changing ownership to $USER"
+  chown -R "$USER" .
+fi
 
 log_success "Pre-commit checks passed!"
