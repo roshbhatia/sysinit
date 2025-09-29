@@ -1,0 +1,36 @@
+# Colima configuration for sysinit
+# High-performance development setup for Apple Silicon
+
+# Virtual Machine
+cpu: 4                    # Number of CPUs 
+memory: 8                 # Memory in GiB
+disk: 100                 # Disk size in GiB (cannot be changed after creation)
+arch: aarch64            # Architecture for Apple Silicon
+runtime: docker          # Container runtime
+
+# VM Type (vz for Apple Silicon with better performance)
+vmType: vz               # Use Apple's Virtualization framework
+rosetta: true            # Enable Rosetta 2 for x86_64 emulation
+mountType: sshfs         # Volume mount driver
+mountInotify: true       # Propagate inotify events to host
+
+# Network Configuration  
+network:
+  address: true          # Assign reachable IP address
+  dns: 
+    - "1.1.1.1"         # Cloudflare DNS
+    - "1.0.0.1"         # Cloudflare DNS secondary
+
+# Docker Configuration
+docker:
+  insecure-registries:
+    - "xpkg.crossplane.io"           # Crossplane package registry
+    - "artifactory.nike.com:9001"    # Corporate registry
+
+# SSH Configuration
+forwardAgent: false      # Don't forward SSH agent for security
+
+# Volume Mounts
+mounts:
+  - location: /tmp/colima  # Temporary mount for certificate setup
+    writable: true

@@ -3,10 +3,12 @@
   ...
 }:
 let
-  setupScript = pkgs.substituteAll {
-    src = ./scripts/setup-certs.sh;
-    isExecutable = true;
-    colima = pkgs.colima;
+  # Configuration file
+  colimaConfig = ./configs/colima.yaml;
+  
+  # Certificate setup script with proper path substitution
+  setupScript = pkgs.replaceVars ./scripts/setup-certs.sh {
+    colima = "${pkgs.colima}";
   };
 in
 {
@@ -16,32 +18,8 @@ in
         ProgramArguments = [
           "${pkgs.colima}/bin/colima"
           "start"
-          "--cpu"
-          "4"
-          "--memory"
-          "8"
-          "--disk"
-          "100"
-          "--arch"
-          "aarch64"
-          "--runtime"
-          "docker"
-          "--vm-type"
-          "vz"
-          "--vz-rosetta"
-          "--mount-type"
-          "sshfs"
-          "--activate"
-          "--ssh-config"
-          "--mount-inotify"
-          "--network-address"
-          "--dns"
-          "1.1.1.1"
-          "--dns"
-          "1.0.0.1"
-          "--save-config"
-          "-V"
-          "/tmp/colima:w"
+          "--config"
+          "${colimaConfig}"
         ];
         EnvironmentVariables = {
           PATH = "${pkgs.docker}/bin:${pkgs.docker-compose}/bin:/usr/bin:/bin:/usr/sbin:/sbin";
