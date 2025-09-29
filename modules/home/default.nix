@@ -45,7 +45,6 @@
       DOCKER_CONTEXT = "colima";
       DOCKER_HOST = "unix:///${config.xdg.configHome}/colima/default/docker.sock";
       DOCKER_TLS_VERIFY = "false";
-      DOCKER_CERT_PATH = "/usr/local/share/ca-certificates";
 
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
 
