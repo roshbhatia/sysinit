@@ -36,21 +36,21 @@ parse_schema() {
 
   while IFS= read -r line; do
     # Detect field names (like username = mkOption {)
-    if [[ "$line" =~ ^[[:space:]]*([a-zA-Z_][a-zA-Z0-9_]*)[[:space:]]*=[[:space:]]*\{[[:space:]]*$ ]]; then
+    if [[ $line =~ ^[[:space:]]*([a-zA-Z_][a-zA-Z0-9_]*)[[:space:]]*=[[:space:]]*\{[[:space:]]*$ ]]; then
       # This is a nested section, update path
       section_name="${BASH_REMATCH[1]}"
       # Skip the "options" section name
-      if [[ "$section_name" != "options" ]]; then
-        if [[ -n "$current_path" ]]; then
+      if [[ $section_name != "options" ]]; then
+        if [[ -n $current_path ]]; then
           current_path="${current_path}.${section_name}"
         else
           current_path="${section_name}"
         fi
       fi
-    elif [[ "$line" =~ ^[[:space:]]*([a-zA-Z_][a-zA-Z0-9_]*)[[:space:]]*=[[:space:]]*mkOption[[:space:]]*\{[[:space:]]*$ ]]; then
+    elif [[ $line =~ ^[[:space:]]*([a-zA-Z_][a-zA-Z0-9_]*)[[:space:]]*=[[:space:]]*mkOption[[:space:]]*\{[[:space:]]*$ ]]; then
       # This is an option definition
       in_option=true
-      if [[ -n "$current_path" ]]; then
+      if [[ -n $current_path ]]; then
         field_name="${current_path}.${BASH_REMATCH[1]}"
       else
         field_name="${BASH_REMATCH[1]}"
@@ -59,54 +59,54 @@ parse_schema() {
       field_default=""
       field_description=""
       is_required=true # Default to required unless we find a default value
-    elif [[ "$in_option" == true ]]; then
+    elif [[ $in_option == true ]]; then
       # Parse option properties
-      if [[ "$line" =~ ^[[:space:]]*type[[:space:]]*=[[:space:]]*(.+)\;[[:space:]]*$ ]]; then
+      if [[ $line =~ ^[[:space:]]*type[[:space:]]*=[[:space:]]*(.+)\;[[:space:]]*$ ]]; then
         field_type="${BASH_REMATCH[1]}"
         # Clean up type formatting
         field_type="${field_type#types.}"
         field_type="${field_type//types\.//g}"
         field_type="${field_type//\/g/}" # Remove /g artifacts
-        if [[ "$field_type" == "nullOr str" ]]; then
+        if [[ $field_type == "nullOr str" ]]; then
           field_type="string?"
-        elif [[ "$field_type" == "str" ]]; then
+        elif [[ $field_type == "str" ]]; then
           field_type="string"
-        elif [[ "$field_type" == "bool" ]]; then
+        elif [[ $field_type == "bool" ]]; then
           field_type="boolean"
-        elif [[ "$field_type" == "int" ]]; then
+        elif [[ $field_type == "int" ]]; then
           field_type="integer"
-        elif [[ "$field_type" == "float" ]]; then
+        elif [[ $field_type == "float" ]]; then
           field_type="float"
-        elif [[ "$field_type" =~ listOf[[:space:]]+str ]]; then
+        elif [[ $field_type =~ listOf[[:space:]]+str ]]; then
           field_type="list(string)"
-        elif [[ "$field_type" =~ "listOf str" ]]; then
+        elif [[ $field_type =~ "listOf str" ]]; then
           field_type="list(string)"
         fi
-      elif [[ "$line" =~ ^[[:space:]]*default[[:space:]]*=[[:space:]]*(.+)\;[[:space:]]*$ ]]; then
+      elif [[ $line =~ ^[[:space:]]*default[[:space:]]*=[[:space:]]*(.+)\;[[:space:]]*$ ]]; then
         field_default="${BASH_REMATCH[1]}"
         is_required=false # Has a default, so not required
-        if [[ "$field_default" == "null" ]]; then
+        if [[ $field_default == "null" ]]; then
           field_default="null"
-        elif [[ "$field_default" =~ ^\[[[:space:]]*\]$ ]]; then
+        elif [[ $field_default =~ ^\[[[:space:]]*\]$ ]]; then
           field_default="[]"
-        elif [[ "$field_default" =~ ^\".*\"$ ]]; then
+        elif [[ $field_default =~ ^\".*\"$ ]]; then
           # Keep quoted strings as-is
           :
-        elif [[ "$field_default" =~ ^(true|false)$ ]]; then
+        elif [[ $field_default =~ ^(true|false)$ ]]; then
           # Keep booleans as-is
           :
         else
           field_default="\`$field_default\`"
         fi
-      elif [[ "$line" =~ ^[[:space:]]*description[[:space:]]*=[[:space:]]*\"(.+)\"\;[[:space:]]*$ ]]; then
+      elif [[ $line =~ ^[[:space:]]*description[[:space:]]*=[[:space:]]*\"(.+)\"\;[[:space:]]*$ ]]; then
         field_description="${BASH_REMATCH[1]}"
-      elif [[ "$line" =~ ^[[:space:]]*\}\;[[:space:]]*$ ]]; then
+      elif [[ $line =~ ^[[:space:]]*\}\;[[:space:]]*$ ]]; then
         # End of option definition
-        if [[ -n "$field_name" ]]; then
+        if [[ -n $field_name ]]; then
           required_mark=""
-          if [[ "$is_required" == true ]]; then
+          if [[ $is_required == true ]]; then
             required_mark="✓"
-            if [[ -z "$field_default" ]]; then
+            if [[ -z $field_default ]]; then
               field_default="-"
             fi
           fi
@@ -116,9 +116,9 @@ parse_schema() {
         in_option=false
         field_name=""
       fi
-    elif [[ "$line" =~ ^[[:space:]]*\}\;?[[:space:]]*$ ]]; then
+    elif [[ $line =~ ^[[:space:]]*\}\;?[[:space:]]*$ ]]; then
       # End of nested section, pop from path
-      if [[ "$current_path" == *.* ]]; then
+      if [[ $current_path == *.* ]]; then
         current_path="${current_path%.*}"
       else
         current_path=""
@@ -134,7 +134,7 @@ cat >>"$TEMP_FILE" <<'EOF'
 EOF
 
 # Inject the documentation into README.md
-if [[ -f "$README_FILE" ]]; then
+if [[ -f $README_FILE ]]; then
   if grep -q "$START_MARKER" "$README_FILE" && grep -q "$END_MARKER" "$README_FILE"; then
     # Replace content between markers
     awk -v start="$START_MARKER" -v end="$END_MARKER" '

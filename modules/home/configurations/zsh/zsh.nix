@@ -176,11 +176,6 @@ in
         setopt PROMPT_SUBST
         PROMPT='%~%'
         RPS1=""
-
-        if command -v nix-your-shell > /dev/null; then
-          nix-your-shell zsh | source /dev/stdin
-        fi
-
       '')
 
       (lib.mkOrder 550 ''
