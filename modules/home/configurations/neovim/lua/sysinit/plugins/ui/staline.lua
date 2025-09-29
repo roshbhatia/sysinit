@@ -1,3 +1,7 @@
+local json_loader = require("sysinit.pkg.utils.json_loader")
+local theme_config =
+  json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
+
 local M = {}
 
 -- Status line components
@@ -58,11 +62,9 @@ M.plugins = {
             "file_size",
             "line_column",
             { "NES", get_nes_status },
-            "cool_symbol",
           },
         },
         defaults = {
-          cool_symbol = "󱄅",
           expand_null_ls = false,
           true_colors = true,
           line_column = ":%c [%l/%L]",
@@ -102,6 +104,42 @@ M.plugins = {
           ["t"] = "  ",
           ["!"] = "  ",
           ["R"] = "  ",
+        },
+        mode_colors = {
+          -- Normal modes
+          n = theme_config.colors.semantic.info,      -- Normal mode
+          no = theme_config.colors.semantic.info,     -- Normal mode (operator pending)
+          niI = theme_config.colors.semantic.info,    -- Normal mode (insert)
+          niR = theme_config.colors.semantic.info,    -- Normal mode (replace)
+          niV = theme_config.colors.semantic.info,    -- Normal mode (visual)
+          nov = theme_config.colors.semantic.info,    -- Normal mode (visual)
+          noV = theme_config.colors.semantic.info,    -- Normal mode (visual line)
+          
+          -- Insert modes
+          i = theme_config.colors.accent.primary,     -- Insert mode
+          ic = theme_config.colors.accent.primary,    -- Insert mode (completion)
+          ix = theme_config.colors.accent.primary,    -- Insert mode (completion)
+          
+          -- Select modes
+          s = theme_config.colors.semantic.warning,   -- Select mode
+          S = theme_config.colors.semantic.warning,    -- Select mode (line)
+          
+          -- Visual modes
+          v = theme_config.colors.semantic.error,      -- Visual mode
+          V = theme_config.colors.semantic.error,      -- Visual mode (line)
+          [""] = theme_config.colors.semantic.error,   -- Visual mode (block)
+          
+          -- Replace modes
+          r = theme_config.colors.semantic.warning,    -- Replace mode
+          r? = theme_config.colors.semantic.warning,   -- Replace mode (confirm)
+          R = theme_config.colors.semantic.warning,    -- Replace mode (virtual)
+          
+          -- Command mode
+          c = theme_config.colors.semantic.warning,    -- Command mode
+          
+          -- Terminal mode
+          t = theme_config.colors.accent.secondary,    -- Terminal mode
+          ["!"] = theme_config.colors.accent.secondary, -- Terminal mode (shell)
         },
       })
     end,

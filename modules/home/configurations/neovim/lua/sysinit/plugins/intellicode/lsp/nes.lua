@@ -1,3 +1,7 @@
+local json_loader = require("sysinit.pkg.utils.json_loader")
+local theme_config =
+  json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
+
 local M = {}
 
 -- Enhanced NES functionality inspired by sidekick.nvim
@@ -84,17 +88,25 @@ function M.setup_enhanced_display(bufnr)
   -- Define highlight groups for accept/reject
   vim.api.nvim_create_autocmd("ColorScheme", {
     callback = function()
-      vim.api.nvim_set_hl(0, "NESAccept", { fg = "#9cb380", bold = true })
-      vim.api.nvim_set_hl(0, "NESReject", { fg = "#d67b7b", bold = true })
-      vim.api.nvim_set_hl(0, "NESHint", { fg = "#a6a69c", italic = true })
+      vim.api.nvim_set_hl(
+        0,
+        "NESAccept",
+        { fg = theme_config.colors.semantic.success, bold = true }
+      )
+      vim.api.nvim_set_hl(0, "NESReject", { fg = theme_config.colors.semantic.error, bold = true })
+      vim.api.nvim_set_hl(
+        0,
+        "NESHint",
+        { fg = theme_config.colors.foreground.muted, italic = true }
+      )
     end,
     group = vim.api.nvim_create_augroup("NESColors", { clear = true }),
   })
 
   -- Set initial colors
-  vim.api.nvim_set_hl(0, "NESAccept", { fg = "#9cb380", bold = true })
-  vim.api.nvim_set_hl(0, "NESReject", { fg = "#d67b7b", bold = true })
-  vim.api.nvim_set_hl(0, "NESHint", { fg = "#a6a69c", italic = true })
+  vim.api.nvim_set_hl(0, "NESAccept", { fg = theme_config.colors.semantic.success, bold = true })
+  vim.api.nvim_set_hl(0, "NESReject", { fg = theme_config.colors.semantic.error, bold = true })
+  vim.api.nvim_set_hl(0, "NESHint", { fg = theme_config.colors.foreground.muted, italic = true })
 
   local function enhance_nes_display(buf)
     if not vim.api.nvim_buf_is_valid(buf) then
