@@ -1,13 +1,18 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
 
 vars:
   NIXPKGS_ALLOW_UNFREE: 1
   NIX_DARWIN_REBUILD: "darwin-rebuild"
-  LOGGER_SCRIPT: "hack/lib/logger.sh"
   NIX_MAX_JOBS: 2
   NIX_CORES: 2
   ERROR_EXIT_CODE: 1
   SUCCESS_EXIT_CODE: 0
+  LOGGING_FUNCTIONS: |
+    log_info() { echo -e "\033[0;34m[INFO]\033[0m $*"; }
+    log_warn() { echo -e "\033[1;33m[WARN]\033[0m $*" >&2; }
+    log_error() { echo -e "\033[1;31m[ERROR]\033[0m $*" >&2; }
+    log_success() { echo -e "\033[0;32m[SUCCESS]\033[0m $*"; }
 
 tasks:
   fmt:
@@ -15,7 +20,8 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
-        source {{.LOGGER_SCRIPT}}
+        set -euo pipefail
+        {{.LOGGING_FUNCTIONS}}
         log_info "Formatting Nix files"
         if ! fd -e nix -E result -x nixfmt --width=100; then
           log_error "Nix formatting failed"
@@ -30,18 +36,22 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
-        source {{.LOGGER_SCRIPT}}
+        set -euo pipefail
+        {{.LOGGING_FUNCTIONS}}
         log_info "Building system configuration"
         if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} build -v --flake . --impure --show-trace --print-build-logs --max-jobs "${NIX_MAX_JOBS:-2}" --cores "${NIX_CORES:-2}"; then
           log_error "Build failed (see logs above)"
-          exit 1
+          exit {{.ERROR_EXIT_CODE}}
         fi
         log_success "Build completed successfully"
 
   clean:
     desc: Clean Nix store and delete old generations
     cmds:
-      - nix-collect-garbage -d
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        nix-collect-garbage -d
     silent: true
 
   update:
@@ -50,19 +60,22 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
-        source {{.LOGGER_SCRIPT}}
+        set -euo pipefail
+        {{.LOGGING_FUNCTIONS}}
         log_info "Updating nix flake inputs"
         if ! sudo -E nix flake update --commit-lock-file --show-trace; then
           log_error "Flake update failed (see logs above)"
-          exit 1
+          exit {{.ERROR_EXIT_CODE}}
         fi
         log_success "Flake inputs updated successfully"
 
   config:
+    desc: Copy nix.custom.conf to /etc/nix/ with sudo
     cmds:
       - |
         #!/usr/bin/env bash
-        source {{.LOGGER_SCRIPT}}
+        set -euo pipefail
+        {{.LOGGING_FUNCTIONS}}
         log_info "Updating nix configuration"
         if ! sudo cp nix.custom.conf /etc/nix/nix.custom.conf; then
           log_error "Failed to copy nix configuration"
@@ -74,7 +87,6 @@ tasks:
           exit {{.ERROR_EXIT_CODE}}
         fi
         log_success "Nix configuration updated successfully"
-    desc: Copy nix.custom.conf to /etc/nix/ with sudo
     silent: true
 
   refresh:
@@ -84,10 +96,11 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
-        source {{.LOGGER_SCRIPT}}
+        set -euo pipefail
+        {{.LOGGING_FUNCTIONS}}
         log_info "Applying system configuration"
         if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} switch -v --flake . --impure --show-trace --print-build-logs --max-jobs "${NIX_MAX_JOBS:-2}" --cores "${NIX_CORES:-2}"; then
           log_error "Refresh failed (see logs above)"
-          exit 1
+          exit {{.ERROR_EXIT_CODE}}
         fi
         log_success "System configuration applied successfully"

@@ -1,10 +1,15 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
 
 vars:
-  LOGGER_SCRIPT: "hack/lib/logger.sh"
   SHFMT_OPTS: "-i 2 -ci -bn -s -w"
   ERROR_EXIT_CODE: 1
   SUCCESS_EXIT_CODE: 0
+  LOGGING_FUNCTIONS: |
+    log_info() { echo -e "\033[0;34m[INFO]\033[0m $*"; }
+    log_warn() { echo -e "\033[1;33m[WARN]\033[0m $*" >&2; }
+    log_error() { echo -e "\033[1;31m[ERROR]\033[0m $*" >&2; }
+    log_success() { echo -e "\033[0;32m[SUCCESS]\033[0m $*"; }
 
 tasks:
   sh:
@@ -13,7 +18,7 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGGER_SCRIPT}}
+        {{.LOGGING_FUNCTIONS}}
         log_info "Formatting shell files"
         if ! fd -e sh -e bash -e zsh -x shfmt {{.SHFMT_OPTS}}; then
           log_error "Shell formatting failed"
@@ -28,7 +33,7 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGGER_SCRIPT}}
+        {{.LOGGING_FUNCTIONS}}
         log_info "Formatting Lua files"
         if ! fd -e lua -x stylua; then
           log_error "Lua formatting failed"
@@ -43,7 +48,7 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGGER_SCRIPT}}
+        {{.LOGGING_FUNCTIONS}}
         log_info "Formatting Nix files"
         if ! fd -e nix -E result -x nixfmt --width=100; then
           log_error "Nix formatting failed"

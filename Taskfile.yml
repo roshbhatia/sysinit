@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
 
 includes:
@@ -11,7 +12,6 @@ includes:
 vars:
   NIXPKGS_ALLOW_UNFREE: 1
   NIX_DARWIN_REBUILD: "darwin-rebuild"
-  LOGGER_SCRIPT: "hack/lib/logger.sh"
   FD_EXCLUDE_PATTERNS: "-E result"
   WORK_REPO_PATH: "~/github/work"
   NIXFMT_WIDTH: 100
@@ -20,9 +20,13 @@ vars:
   NIX_SYSTEM_CONF_DIR: "/etc/nix"
   NIX_MAX_JOBS: 2
   NIX_CORES: 2
-
   ERROR_EXIT_CODE: 1
   SUCCESS_EXIT_CODE: 0
+  LOGGING_FUNCTIONS: |
+    log_info() { echo -e "\033[0;34m[INFO]\033[0m $*"; }
+    log_warn() { echo -e "\033[1;33m[WARN]\033[0m $*" >&2; }
+    log_error() { echo -e "\033[1;31m[ERROR]\033[0m $*" >&2; }
+    log_success() { echo -e "\033[0;32m[SUCCESS]\033[0m $*"; }
 
 tasks:
   default:
@@ -31,12 +35,12 @@ tasks:
       - task --list-all
     silent: true
 
-  # Work-specific tasks that remain in main Taskfile
   nix:build:work:
     cmds:
       - |
         #!/usr/bin/env bash
-        source {{.LOGGER_SCRIPT}}
+        set -euo pipefail
+        {{.LOGGING_FUNCTIONS}}
         log_info "Building work system configuration"
         WORK_SYSINIT=$(find {{.WORK_REPO_PATH}} -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
         if [ -z "${WORK_SYSINIT}" ]; then
@@ -56,7 +60,8 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
-        source {{.LOGGER_SCRIPT}}
+        set -euo pipefail
+        {{.LOGGING_FUNCTIONS}}
         log_info "Building work system configuration"
         WORK_SYSINIT=$(find {{.WORK_REPO_PATH}} -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
         if [ -z "${WORK_SYSINIT}" ]; then
@@ -77,9 +82,10 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
-        source {{.LOGGER_SCRIPT}}
+        set -euo pipefail
+        {{.LOGGING_FUNCTIONS}}
         log_info "Finding all .sh files and making them executable"
-        if ! fd -e sh -x sh -c 'source {{.LOGGER_SCRIPT}} && log_info "Making executable: {}" && chmod +x {}' _; then
+        if ! fd -e sh -x sh -c '{{.LOGGING_FUNCTIONS}} log_info "Making executable: {}" && chmod +x {}' _; then
           log_error "Failed to make .sh files executable"
           exit {{.ERROR_EXIT_CODE}}
         fi
@@ -96,9 +102,10 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
-        source {{.LOGGER_SCRIPT}}
+        set -euo pipefail
+        {{.LOGGING_FUNCTIONS}}
         log_info "Generating values.nix schema documentation"
-        if ! ./scripts/generate-values-docs.sh README.md; then
+        if ! ./hack/generate-values-docs.sh README.md; then
           log_error "Failed to generate values documentation"
           exit {{.ERROR_EXIT_CODE}}
         fi

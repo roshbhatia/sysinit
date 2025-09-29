@@ -95,19 +95,16 @@ task: Available tasks for this project:
 | `firefox.template` | string | - | ✓ | URL template for the search engine |
 | `firefox.value` | string | - | ✓ | Parameter value |
 | `gh.additionalPackages` | list(string) | [] |  | Additional GitHub CLI extensions |
+| `git.email` | string | - | ✓ | Git user email |
 | `git.name` | string | - | ✓ | Git user name |
 | `git.personalEmail` | string? | null |  | Personal email override |
 | `git.personalUsername` | string? | null |  | Personal username override |
-| `git.userEmail` | string | - | ✓ | Git user email |
 | `git.username` | string | - | ✓ | Git/GitHub username |
 | `git.workEmail` | string? | null |  | Work email override |
 | `git.workUsername` | string? | null |  | Work username override |
 | `go.additionalPackages` | list(string) | [] |  | Additional Go packages |
 | `icon` | string? | null |  | Icon URL for the search engine |
 | `krew.additionalPackages` | list(string) | [] |  | Additional kubectl krew plugins |
-| `llm.claude.enabled` | boolean | false |  | Enable Claude Code integration |
-| `llm.claude.uvPackages` | list(string) | [] |  | Additional uv packages for Claude |
-| `llm.claude.yarnPackages` | list(string) | [] |  | Additional yarn packages for Claude |
 | `llm.goose.leadModel` | string? | null |  | Goose lead model configuration |
 | `llm.goose.model` | string | "gpt-4o-mini" |  | Goose model configuration |
 | `llm.goose.provider` | string | "github_copilot" |  | Goose provider configuration |
@@ -123,6 +120,7 @@ task: Available tasks for this project:
 | `user.hostname` | string | "nixos" |  | System hostname |
 | `user.username` | string | "user" |  | Username for the system user |
 | `uvx.additionalPackages` | list(string) | [] |  | Additional global uvx packages |
+| `vet.additionalPackages` | list(string) | [] |  | Additional Vet packages |
 | `wezterm.shell` | string | "zsh" |  | Default shell for wezterm |
 | `yarn.additionalPackages` | list(string) | [] |  | Additional global yarn packages |
 <!-- VALUES_SCHEMA_END -->
