@@ -6,7 +6,6 @@ local keymaps = require("sysinit.plugins.intellicode.ai.keymaps")
 local autocmds = require("sysinit.plugins.intellicode.ai.autocmds")
 local terminal = require("sysinit.plugins.intellicode.ai.terminal")
 local completion = require("sysinit.plugins.intellicode.ai.completion")
-local rich_diffs = require("sysinit.plugins.intellicode.ai.rich-diffs")
 
 M.plugins = {
   {
