@@ -1,0 +1,8 @@
+{
+  ...
+}:
+{
+  imports = [
+    ./colima.nix
+  ];
+}

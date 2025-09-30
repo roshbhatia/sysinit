@@ -4,6 +4,7 @@ local input = require("sysinit.plugins.intellicode.ai.input")
 local context = require("sysinit.plugins.intellicode.ai.context")
 local git = require("sysinit.plugins.intellicode.ai.git")
 local history = require("sysinit.plugins.intellicode.ai.history")
+local rich_diffs = require("sysinit.plugins.intellicode.ai.rich-diffs")
 
 function M.create_agent_keymaps(agent)
   local ai_terminals = require("ai-terminals")
@@ -101,17 +102,6 @@ function M.create_agent_keymaps(agent)
       desc = "Send location list to " .. label,
     },
     {
-      string.format("<leader>%sd", key_prefix),
-      function()
-        local state = context.current_position()
-        local result = git.open_diff_view(state)
-        if result ~= "Diffview opened" and result ~= "Native diff view opened" then
-          vim.notify(result, vim.log.levels.WARN)
-        end
-      end,
-      desc = "View diff with " .. label,
-    },
-    {
       string.format("<leader>%sp", key_prefix),
       function()
         local state = context.current_position()
@@ -124,6 +114,55 @@ function M.create_agent_keymaps(agent)
       end,
       desc = "Populate quickfix with diff for " .. label,
     },
+    {
+      string.format("<leader>%sr", key_prefix),
+      function()
+        local state = context.current_position()
+        local filepath = vim.api.nvim_buf_get_name(state.buf)
+        if filepath == "" then
+          vim.notify("No file path available", vim.log.levels.WARN)
+          return
+        end
+        rich_diffs.show_rich_diff(filepath, termname, icon)
+      end,
+      desc = "Rich diff analysis with " .. label,
+    },
+    {
+      string.format("<leader>%sR", key_prefix),
+      function()
+        rich_diffs.show_staged_diff(termname, icon)
+      end,
+      desc = "Rich staged diff analysis with " .. label,
+    },
+    {
+      string.format("<leader>%sW", key_prefix),
+      function()
+        rich_diffs.show_working_diff(termname, icon)
+      end,
+      desc = "Rich working diff analysis with " .. label,
+    },
+    {
+      string.format("<leader>%sm", key_prefix),
+      function()
+        local state = context.current_position()
+        local filepath = vim.api.nvim_buf_get_name(state.buf)
+        if filepath == "" then
+          vim.notify("No file path available", vim.log.levels.WARN)
+          return
+        end
+        local cmd = string.format("git diff %s", vim.fn.shellescape(filepath))
+        local output = vim.fn.system(cmd)
+        if output == "" then
+          vim.notify("No git diff available for " .. filepath, vim.log.levels.WARN)
+          return
+        end
+        local diff_data = rich_diffs.parse_git_diff(output)
+        if diff_data then
+          rich_diffs.generate_commit_message(diff_data, termname, icon)
+        end
+      end,
+      desc = "Generate commit message with " .. label,
+    },
   }
 end
 
@@ -134,7 +173,7 @@ function M.create_history_keymaps(agents)
     local key_prefix, termname, label = agent[1], agent[2], agent[3]
 
     table.insert(history_keymaps, {
-      string.format("<leader>%sr", key_prefix),
+      string.format("<leader>%sh", key_prefix),
       function()
         history.create_history_picker(termname)
       end,
@@ -142,7 +181,7 @@ function M.create_history_keymaps(agents)
     })
 
     table.insert(history_keymaps, {
-      string.format("<leader>%sR", key_prefix),
+      string.format("<leader>%sH", key_prefix),
       function()
         history.create_history_picker(nil)
       end,
