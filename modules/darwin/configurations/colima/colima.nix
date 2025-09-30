@@ -14,7 +14,10 @@ in
   launchd.user.agents = {
     colima-manager = {
       serviceConfig = {
-        ProgramArguments = [ "${colimaManager}" "monitor" ];
+        ProgramArguments = [
+          "${colimaManager}"
+          "monitor"
+        ];
         EnvironmentVariables = {
           PATH = "${pkgs.docker}/bin:${pkgs.colima}/bin:/usr/bin:/bin:/usr/sbin:/sbin";
         };

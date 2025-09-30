@@ -58,7 +58,7 @@ let
           {
             foreground = "p:accent";
             style = "plain";
-            template = " {{ .Type }}-shell";
+            template = "󱄅 ({{ .Type }})";
             type = "nix-shell";
           }
           {
