@@ -9,6 +9,7 @@
 let
   yarnPackages = [
     "@anthropic-ai/claude-code"
+    "@github/copilot"
     "@owloops/claude-powerline"
   ]
   ++ values.yarn.additionalPackages;

@@ -26,7 +26,7 @@ function M.setup_global_ctrl_l_keymaps()
       local term_name = vim.api.nvim_buf_get_name(buf)
 
       -- Check if this is an AI terminal (goose, opencode, claude, cursor)
-      local ai_terminals = { "goose", "opencode", "claude", "cursor" }
+      local ai_terminals = { "copilot", "goose", "opencode", "claude", "cursor" }
       local is_ai_terminal = false
       for _, term in ipairs(ai_terminals) do
         if term_name:match(term) then

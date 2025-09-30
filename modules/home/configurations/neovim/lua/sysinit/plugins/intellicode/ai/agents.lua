@@ -1,6 +1,13 @@
 local M = {}
 
 M.agents = {
+
+  {
+    "o",
+    "copilot",
+    "Copilot",
+    "",
+  },
   {
     "h",
     "opencode",
