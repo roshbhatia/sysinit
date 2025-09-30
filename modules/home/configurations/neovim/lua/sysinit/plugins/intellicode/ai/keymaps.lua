@@ -105,9 +105,6 @@ function M.create_agent_keymaps(agent)
       function()
         local state = context.current_position()
         local result = git.open_diff_view(state)
-        if result ~= "Diffview opened" and result ~= "Native diff view opened" then
-          vim.notify(result, vim.log.levels.WARN)
-        end
       end,
       desc = "View diff with " .. label,
     },

@@ -63,56 +63,13 @@ function M.populate_qflist_with_diff(state)
   end
 end
 
-function M.open_native_diff(state)
+function M.open_diff_view(state)
   local filepath = vim.api.nvim_buf_get_name(state.buf)
   if filepath == "" then
     return "No file path available"
   end
-
-  local temp_file = vim.fn.tempname()
-  local cmd = string.format(
-    "git show HEAD:%s > %s",
-    vim.fn.shellescape(filepath),
-    vim.fn.shellescape(temp_file)
-  )
-  local result = vim.fn.system(cmd)
-  if result ~= "" then
-    vim.notify("Failed to retrieve git HEAD version for " .. filepath, vim.log.levels.WARN)
-    vim.fn.delete(temp_file)
-    return "Failed to retrieve git HEAD version"
-  end
-
-  vim.cmd("vsplit " .. temp_file)
-  local new_buf = vim.api.nvim_get_current_buf()
-  vim.api.nvim_buf_set_option(new_buf, "buftype", "nofile")
-  vim.api.nvim_buf_set_option(new_buf, "bufhidden", "wipe")
-  vim.cmd("diffthis")
-  vim.cmd("wincmd p")
-  vim.cmd("diffthis")
-
-  vim.api.nvim_create_autocmd("BufWipeout", {
-    buffer = new_buf,
-    callback = function()
-      vim.fn.delete(temp_file)
-    end,
-    once = true,
-  })
-
-  return "Native diff view opened"
-end
-
-function M.open_diff_view(state)
-  local has_diffview, _ = pcall(require, "diffview")
-  if has_diffview then
-    local filepath = vim.api.nvim_buf_get_name(state.buf)
-    if filepath == "" then
-      return "No file path available"
-    end
-    vim.cmd("DiffviewOpen -- " .. vim.fn.fnameescape(filepath))
-    return "Diffview opened"
-  else
-    return M.open_native_diff(state)
-  end
+  vim.cmd("DiffviewOpen -- " .. vim.fn.fnameescape(filepath))
+  return "Diffview opened"
 end
 
 return M
