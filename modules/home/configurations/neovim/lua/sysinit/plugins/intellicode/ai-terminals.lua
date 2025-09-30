@@ -17,22 +17,17 @@ M.plugins = {
       require("ai-terminals").setup({
         backend = "snacks",
         default_position = "right",
+        terminals = {
+          copilot = {
+            cmd = "copilot",
+          },
+        },
         trigger_formatting = {
           enabled = true,
           notify = false,
         },
         watch_cwd = {
-          enabled = true,
-          ignore = {
-            "**/.git/**",
-            "**/node_modules/**",
-            "**/.venv/**",
-            "**/*.log",
-            "**/bin/**",
-            "**/dist/**",
-            "**/vendor/**",
-          },
-          gitignore = true,
+          enabled = false,
         },
         env = {
           PAGER = "bat",
