@@ -58,23 +58,12 @@ let
           {
             foreground = "p:accent";
             style = "plain";
-            template = "󱄅 ({{ .Type }})";
+            template = "󱄅 ({{ .Type }}) ";
             type = "nix-shell";
           }
           {
-            foreground = "p:error";
-            properties = {
-              always_enabled = false;
-              style = "austin";
-              threshold = 100;
-            };
-            style = "powerline";
-            template = "{{ .FormattedMs }}";
-            type = "executiontime";
-          }
-          {
             style = "plain";
-            foreground = "p:primary";
+            foreground = "p:error";
             template = " > ";
             type = "text";
           }
