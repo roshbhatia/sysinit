@@ -23,7 +23,6 @@ let
     "bcrypt"
     "block-goose-cli"
     "charmbracelet/tap/crush"
-    "claude-squad"
     "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"

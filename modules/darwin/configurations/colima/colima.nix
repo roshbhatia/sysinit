@@ -5,33 +5,35 @@
 let
   colimaConfig = ./configs/colima.yaml;
 
-  colimaManager = pkgs.replaceVars ./scripts/setup-certs.sh {
-    colima = "${pkgs.colima}";
-    colimaConfig = "${colimaConfig}";
-  };
+  colimaStartScript = pkgs.writeShellScriptBin "colima-start" ''
+    #!/usr/bin/env bash
+    set -e
+
+    if ! colima status >/dev/null 2>&1; then
+      echo "Colima is not running, starting it..."
+      colima start --config "${colimaConfig}"
+    else
+      echo "Colima is already running"
+    fi
+  '';
 in
 {
-  launchd.user.agents = {
-    colima-manager = {
-      serviceConfig = {
-        ProgramArguments = [
-          "${colimaManager}"
-          "monitor"
-        ];
-        EnvironmentVariables = {
-          PATH = "${pkgs.docker}/bin:${pkgs.colima}/bin:/usr/bin:/bin:/usr/sbin:/sbin";
-        };
-        RunAtLoad = true;
-        KeepAlive = true;
-        StandardOutPath = "/tmp/colima-manager.log";
-        StandardErrorPath = "/tmp/colima-manager.error.log";
-        ProcessType = "Background";
-        StartInterval = 30;
-      };
+  environment.systemPackages = [
+    colimaStartScript
+  ];
+
+  home.file.".config/colima/config.yaml".source = colimaConfig;
+
+  launchd.agents.colima = {
+    enable = true;
+    config = {
+      ProgramArguments = [ "${colimaStartScript}/bin/colima-start" ];
+      RunAtLoad = true;
+      KeepAlive = true;
+      StandardOutPath = "/tmp/colima.log";
+      StandardErrorPath = "/tmp/colima.error.log";
+      ProcessType = "Background";
+      StartInterval = 60;
     };
   };
-
-  environment.systemPackages = [
-    (pkgs.writeShellScriptBin "colima-manager" (builtins.readFile "${colimaManager}"))
-  ];
 }
