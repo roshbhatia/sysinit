@@ -98,12 +98,6 @@
         }
         {
           "if" = {
-            app-id = "com.electron.ollama";
-          };
-          run = "move-node-to-workspace O";
-        }
-        {
-          "if" = {
             app-id = "com.apple.systempreferences";
           };
           run = [ "layout floating" ];
@@ -167,7 +161,6 @@
             alt-m = "workspace M";
             alt-s = "workspace S";
             alt-e = "workspace E";
-            alt-o = "workspace O";
 
             alt-tab = "workspace --wrap-around next";
             alt-shift-tab = "workspace --wrap-around prev";
@@ -180,7 +173,6 @@
             alt-shift-e = "move-node-to-workspace E --focus-follows-window";
             alt-shift-m = "move-node-to-workspace M --focus-follows-window";
             alt-shift-s = "move-node-to-workspace S --focus-follows-window";
-            alt-shift-o = "move-node-to-workspace O --focus-follows-window";
 
             alt-f = "fullscreen";
 
