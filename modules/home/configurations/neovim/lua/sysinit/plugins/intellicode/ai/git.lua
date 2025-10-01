@@ -68,8 +68,8 @@ function M.open_diff_view(state)
   if filepath == "" then
     return "No file path available"
   end
-  vim.cmd("DiffviewOpen -- " .. vim.fn.fnameescape(filepath))
-  return "Diffview opened"
+  vim.cmd("MiniDiffToggle " .. vim.fn.fnameescape(filepath))
+  return "MiniDiff opened"
 end
 
 return M

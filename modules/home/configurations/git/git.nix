@@ -65,14 +65,14 @@ in
 
       [merge]
         conflictstyle = zdiff3
-        tool = diffview
+        tool = minidiff
 
       [mergetool]
         prompt = false
         keepBackup = false
 
-      [mergetool "diffview"]
-        cmd = nvim -n -c "DiffviewOpen" "$MERGE"
+      [mergetool "minidiff"]
+        cmd = nvim -n -c "MiniDiffToggle" "$MERGE"
 
       [includeIf "gitdir:~/github/work/"]
         path = ~/.gitconfig.work
@@ -99,6 +99,11 @@ in
         current-branch = rev-parse --abbrev-ref HEAD
         branches = !git --no-pager branch -a
         root = rev-parse --show-toplevel
+        diff-cached = diff --cached
+        diff-staged = diff --cached
+        diff-unstaged = diff
+        diff-all = diff HEAD
+        show-diff = diff --no-color
 
       [http "https://git.sr.ht"]
         sslVerify = false
