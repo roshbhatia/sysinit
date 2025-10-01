@@ -9,13 +9,13 @@ M.agents = {
     "",
   },
   {
-    "h",
+    "j",
     "opencode",
     "OpenCode",
     "󰫼󰫰",
   },
   {
-    "j",
+    "h",
     "goose",
     "Goose",
     "",
