@@ -112,9 +112,9 @@ task: Available tasks for this project:
 | `npm.additionalPackages` | list(string) | [] |  | Additional global npm packages |
 | `pipx.additionalPackages` | list(string) | [] |  | Additional global pipx packages |
 | `theme.colorscheme` | string | "catppuccin" |  | Theme colorscheme |
-| `theme.transparency.blur` | integer | `80` |  | Background blur amount |
+| `theme.transparency.blur` | integer | `80 |  | Background blur amount |
 | `theme.transparency.enable` | boolean | true |  | Enable transparency effects |
-| `theme.transparency.opacity` | float | `0.85` |  | Transparency opacity level |
+| `theme.transparency.opacity` | float | `0.85 |  | Transparency opacity level |
 | `theme.variant` | string | "macchiato" |  | Theme variant |
 | `updateInterval` | nullOr int | null |  | Update interval in milliseconds |
 | `user.hostname` | string | "nixos" |  | System hostname |
