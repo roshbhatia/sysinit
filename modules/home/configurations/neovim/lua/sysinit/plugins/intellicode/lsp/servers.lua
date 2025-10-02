@@ -14,6 +14,7 @@ function M.get_builtin_configs()
     lua_ls = {},
     nil_ls = {},
     nushell = {},
+    openscad_lsp = {},
     pyright = {},
     terraformls = {},
     rust_analyzer = {},

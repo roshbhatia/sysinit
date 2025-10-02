@@ -88,6 +88,8 @@ let
     nodejs_22
     oh-my-posh
     ollama
+    openscad
+    openscad-lsp
     openssh
     pipx
     pkg-config
