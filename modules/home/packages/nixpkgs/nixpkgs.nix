@@ -28,7 +28,6 @@ let
     colima
     copilot-cli
     copilot-language-server
-    crossplane-cli
     deadnix
     delta
     delve
