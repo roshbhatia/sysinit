@@ -139,7 +139,15 @@ let
 
   conditionalPackages =
     (if values.darwin.colima.enable or false then [ pkgs.colima ] else [ ])
-    ++ (if values.darwin.podman.enable or false then [ pkgs.podman-desktop ] else [ ]);
+    ++ (
+      if values.darwin.podman.enable or false then
+        [
+          pkgs.podman
+          pkgs.podman-desktop
+        ]
+      else
+        [ ]
+    );
 
   allNixPackages = baseNixPackages ++ conditionalPackages ++ additionalPackages;
 in
