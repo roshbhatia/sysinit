@@ -142,7 +142,6 @@ let
     ++ (
       if values.darwin.podman.enable or false then
         [
-          pkgs.podman
           pkgs.podman-desktop
         ]
       else

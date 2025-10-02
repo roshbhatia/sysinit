@@ -26,6 +26,7 @@ let
     "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"
+    "podman"
     "vet-run"
   ];
 
