@@ -61,6 +61,22 @@ with lib;
       };
 
       darwin = {
+        colima = {
+          enable = mkOption {
+            type = types.bool;
+            default = true;
+            description = "Enable Colima (Docker Desktop alternative)";
+          };
+        };
+
+        podman = {
+          enable = mkOption {
+            type = types.bool;
+            default = false;
+            description = "Enable Podman Desktop";
+          };
+        };
+
         tailscale = {
           enable = mkOption {
             type = types.bool;

@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  values,
   ...
 }:
 
@@ -22,35 +23,39 @@
   home = {
     stateVersion = "23.11";
 
-    sessionVariables = {
-      HOME = config.home.homeDirectory;
-      XCA = config.xdg.cacheHome;
-      XCO = config.xdg.configHome;
-      XDA = config.xdg.dataHome;
-      XDG_CACHE_HOME = config.xdg.cacheHome;
-      XDG_CONFIG_HOME = config.xdg.configHome;
-      XDG_DATA_HOME = config.xdg.dataHome;
-      XDG_STATE_HOME = config.xdg.stateHome;
-      XST = config.xdg.stateHome;
+    sessionVariables =
+      {
+        HOME = config.home.homeDirectory;
+        XCA = config.xdg.cacheHome;
+        XCO = config.xdg.configHome;
+        XDA = config.xdg.dataHome;
+        XDG_CACHE_HOME = config.xdg.cacheHome;
+        XDG_CONFIG_HOME = config.xdg.configHome;
+        XDG_DATA_HOME = config.xdg.dataHome;
+        XDG_STATE_HOME = config.xdg.stateHome;
+        XST = config.xdg.stateHome;
 
-      LANG = "en_US.UTF-8";
-      LC_ALL = "en_US.UTF-8";
+        LANG = "en_US.UTF-8";
+        LC_ALL = "en_US.UTF-8";
 
-      SUDO_EDITOR = "nvim";
-      VISUAL = "nvim";
+        SUDO_EDITOR = "nvim";
+        VISUAL = "nvim";
 
-      GIT_DISCOVERY_ACROSS_FILESYSTEM = 1;
+        GIT_DISCOVERY_ACROSS_FILESYSTEM = 1;
 
-      COLIMA_HOME = "${config.xdg.configHome}/colima";
-      DOCKER_CONTEXT = "colima";
-      DOCKER_HOST = "unix:///${config.xdg.configHome}/colima/default/docker.sock";
-      DOCKER_TLS_VERIFY = "false";
+        FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
 
-      FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
-
-      NODE_NO_WARNINGS = 1;
-      NODE_TLS_REJECT_UNAUTHORIZED = 0;
-    };
+        NODE_NO_WARNINGS = 1;
+        NODE_TLS_REJECT_UNAUTHORIZED = 0;
+      }
+      // lib.optionalAttrs (values.darwin.colima.enable or false) {
+        COLIMA_HOME = "${config.xdg.configHome}/colima";
+        DOCKER_CONTEXT = "colima";
+        DOCKER_HOST = "unix:///${config.xdg.configHome}/colima/default/docker.sock";
+      }
+      // lib.optionalAttrs (values.darwin.podman.enable or false) {
+        DOCKER_CONTEXT = "podman-desktop";
+      };
 
     packages = [
       pkgs.bashInteractive

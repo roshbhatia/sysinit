@@ -11,6 +11,14 @@
   };
 
   darwin = {
+    colima = {
+      enable = true;
+    };
+
+    podman = {
+      enable = false;
+    };
+
     tailscale = {
       enable = true;
     };
