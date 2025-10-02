@@ -174,7 +174,7 @@ local function get_catppuccin_config()
       neotree = true,
       notify = true,
       nvimtree = true,
-      render_markdown = true,
+      markview = true,
       semantic_tokens = true,
       snacks = { enabled = true },
       telescope = { enabled = true, style = "nvchad" },
