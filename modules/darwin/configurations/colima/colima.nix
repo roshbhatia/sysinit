@@ -18,7 +18,9 @@ let
       
       # Set up Docker context for Colima
       echo "Setting up Docker context for Colima..."
-      docker context create colima --docker "host=unix://${config.users.users.${values.user.username}.home}/.config/colima/default/docker.sock" 2>/dev/null || true
+      docker context create colima --docker "host=unix://${
+        config.users.users.${values.user.username}.home
+      }/.config/colima/default/docker.sock" 2>/dev/null || true
       docker context use colima
     else
       echo "Colima is already running"

@@ -86,9 +86,11 @@ task: Available tasks for this project:
 |-------|------|---------|----------|-------------|
 | `cargo.additionalPackages` | list(string) | [] |  | Additional Rust/Cargo packages |
 | `darwin.borders.enable` | boolean | false |  | Enable window borders |
+| `darwin.colima.enable` | boolean | true |  | Enable Colima (Docker Desktop alternative) |
 | `darwin.homebrew.additionalPackages.brews` | list(string) | [] |  | Additional Homebrew formulae |
 | `darwin.homebrew.additionalPackages.casks` | list(string) | [] |  | Additional Homebrew casks |
 | `darwin.homebrew.additionalPackages.taps` | list(string) | [] |  | Additional Homebrew taps |
+| `darwin.podman.enable` | boolean | false |  | Enable Podman Desktop |
 | `darwin.tailscale.enable` | boolean | false |  | Enable Tailscale |
 | `definedAliases` | list(string) | [] |  | Search aliases |
 | `firefox.name` | string | - | ✓ | Parameter name |
@@ -112,9 +114,9 @@ task: Available tasks for this project:
 | `npm.additionalPackages` | list(string) | [] |  | Additional global npm packages |
 | `pipx.additionalPackages` | list(string) | [] |  | Additional global pipx packages |
 | `theme.colorscheme` | string | "catppuccin" |  | Theme colorscheme |
-| `theme.transparency.blur` | integer | `80 |  | Background blur amount |
+| `theme.transparency.blur` | integer | `80` |  | Background blur amount |
 | `theme.transparency.enable` | boolean | true |  | Enable transparency effects |
-| `theme.transparency.opacity` | float | `0.85 |  | Transparency opacity level |
+| `theme.transparency.opacity` | float | `0.85` |  | Transparency opacity level |
 | `theme.variant` | string | "macchiato" |  | Theme variant |
 | `updateInterval` | nullOr int | null |  | Update interval in milliseconds |
 | `user.hostname` | string | "nixos" |  | System hostname |
