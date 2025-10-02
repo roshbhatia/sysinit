@@ -46,14 +46,6 @@
 
       NODE_NO_WARNINGS = 1;
       NODE_TLS_REJECT_UNAUTHORIZED = 0;
-    }
-    // lib.optionalAttrs (values.darwin.colima.enable or false) {
-      COLIMA_HOME = "${config.xdg.configHome}/colima";
-      DOCKER_CONTEXT = "colima";
-      DOCKER_HOST = "unix:///${config.xdg.configHome}/colima/default/docker.sock";
-    }
-    // lib.optionalAttrs (values.darwin.podman.enable or false) {
-      DOCKER_CONTEXT = "podman-desktop";
     };
 
     packages = [
