@@ -12,20 +12,33 @@ M.plugins = {
       local presets = require("markview.presets")
 
       require("markview").setup({
-        modes = { "n", "no", "c" },
-        hybrid_modes = { "n" },
+        preview = {
+          -- Modes where preview is shown
+          modes = { "n", "no", "c" },
+          -- Modes where hybrid mode is active
+          hybrid_modes = { "n" },
 
-        callbacks = {
-          on_enable = function(_, win)
-            vim.wo[win].conceallevel = 2
-            vim.wo[win].concealcursor = "c"
-          end,
+          -- Icon provider: "internal", "mini", or "devicons"
+          icon_provider = "devicons",
+
+          callbacks = {
+            on_enable = function(_, win)
+              vim.wo[win].conceallevel = 2
+              vim.wo[win].concealcursor = "c"
+            end,
+          },
+
+          -- Filetypes to attach to
+          filetypes = {
+            "markdown",
+          },
         },
 
         markdown = {
+          -- Use simple preset for headings (similar to obsidian style)
           headings = presets.headings.simple,
 
-          -- Code blocks
+          -- Code blocks configuration
           code_blocks = {
             style = "simple",
             position = "left",
@@ -35,15 +48,14 @@ M.plugins = {
             min_width = 60,
           },
 
+          -- Use rounded borders for tables (default)
           tables = presets.tables.rounded,
 
+          -- Simple thin horizontal rules
           horizontal_rules = presets.horizontal_rules.thin,
         },
 
-        filetypes = {
-          "markdown",
-        },
-
+        -- Disable sign column icons
         sign = {
           enabled = false,
         },
