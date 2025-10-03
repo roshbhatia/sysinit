@@ -8,14 +8,24 @@ M.plugins = {
     },
     config = function()
       require("treesitter-context").setup({
-        mutliwindow = true,
         separator = "",
-        max_lines = 4,
       })
 
       vim.cmd("TSContext enable")
     end,
   },
+  keys = function()
+    return {
+      {
+        "go",
+        function()
+          require("treesitter-context").go_to_context(vim.v.count1)
+        end,
+        desc = "Go to context",
+        silent = true,
+      },
+    }
+  end,
 }
 
 return M
