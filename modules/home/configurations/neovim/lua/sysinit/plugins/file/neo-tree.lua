@@ -15,7 +15,7 @@ M.plugins = {
   {
     "nvim-neo-tree/neo-tree.nvim",
     branch = "v3.x",
-    event = "BufReadPre",
+    cmd = "Neotree",
     dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-tree/nvim-web-devicons",
