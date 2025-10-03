@@ -20,14 +20,19 @@ M.plugins = {
         terminals = {
           copilot = {
             cmd = "copilot",
+            path_header_template = "@%s",
+          },
+          claude = {
+            cmd = "claude",
           },
         },
+        enable_diffing = true,
         trigger_formatting = {
           enabled = true,
           notify = false,
         },
         watch_cwd = {
-          enabled = false,
+          enabled = true,
         },
         env = {
           PAGER = "bat",

@@ -1,20 +1,4 @@
 local M = {}
-
-function M.get_git_diff(state)
-  local bufnr = state.buf
-  local filepath = vim.api.nvim_buf_get_name(bufnr)
-  if filepath == "" then
-    return "No file path available"
-  end
-  local cmd = string.format("git diff %s", vim.fn.shellescape(filepath))
-  local output = vim.fn.system(cmd)
-  if output == "" then
-    vim.notify("No git diff available for " .. filepath, vim.log.levels.WARN)
-    return "No git diff available"
-  end
-  return output
-end
-
 function M.populate_qflist_with_diff(state)
   local filepath = vim.api.nvim_buf_get_name(state.buf)
   if filepath == "" then
@@ -61,75 +45,6 @@ function M.populate_qflist_with_diff(state)
     vim.notify("No diff changes to populate for " .. filepath, vim.log.levels.WARN)
     return "No diff changes to populate"
   end
-end
-
-function M.open_diff_view(state)
-  local filepath = vim.api.nvim_buf_get_name(state.buf)
-  if filepath == "" then
-    return "No file path available"
-  end
-  vim.cmd("MiniDiffToggle " .. vim.fn.fnameescape(filepath))
-  return "MiniDiff opened"
-end
-
--- Get current git branch
-function M.get_git_branch()
-  local handle = io.popen("git branch --show-current 2>/dev/null")
-  if not handle then
-    return ""
-  end
-  local branch = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
-  handle:close()
-  return branch
-end
-
--- Get git status for current file
-function M.get_file_git_status(state)
-  local filepath = vim.api.nvim_buf_get_name(state.buf)
-  if filepath == "" then
-    return ""
-  end
-  
-  local cmd = string.format("git status --porcelain %s 2>/dev/null", vim.fn.shellescape(filepath))
-  local output = vim.fn.system(cmd)
-  
-  if output == "" then
-    return "No changes"
-  end
-  
-  return output:gsub("^%s*(.-)%s*$", "%1")
-end
-
--- Get recent git commits for current file
-function M.get_file_git_log(state)
-  local filepath = vim.api.nvim_buf_get_name(state.buf)
-  if filepath == "" then
-    return ""
-  end
-  
-  local cmd = string.format(
-    "git log -5 --oneline --no-decorate %s 2>/dev/null",
-    vim.fn.shellescape(filepath)
-  )
-  local output = vim.fn.system(cmd)
-  
-  if output == "" then
-    return "No git history"
-  end
-  
-  return output:gsub("^%s*(.-)%s*$", "%1")
-end
-
--- Get unstaged changes summary
-function M.get_git_status_summary()
-  local cmd = "git status --short 2>/dev/null"
-  local output = vim.fn.system(cmd)
-  
-  if output == "" then
-    return "No changes"
-  end
-  
-  return output:gsub("^%s*(.-)%s*$", "%1")
 end
 
 return M

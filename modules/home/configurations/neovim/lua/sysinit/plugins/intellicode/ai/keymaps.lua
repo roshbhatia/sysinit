@@ -15,7 +15,7 @@ function M.create_agent_keymaps(agent)
       function()
         ai_terminals.toggle(termname)
       end,
-      desc = "Toggle " .. label,
+      desc = "Toggle",
     },
     {
       string.format("<leader>%sv", key_prefix),
@@ -24,10 +24,10 @@ function M.create_agent_keymaps(agent)
         if last_prompt and last_prompt ~= "" then
           terminal.ensure_terminal_and_send(termname, last_prompt)
         else
-          vim.notify("No previous prompt found for " .. label, vim.log.levels.WARN)
+          vim.notify("No previous prompt found for", vim.log.levels.WARN)
         end
       end,
-      desc = "Resend previous prompt to " .. label,
+      desc = "Resend previous prompt to",
     },
     {
       string.format("<leader>%sa", key_prefix),
@@ -43,7 +43,7 @@ function M.create_agent_keymaps(agent)
         })
       end,
       mode = { "n", "v" },
-      desc = "Ask " .. label,
+      desc = "Ask",
     },
     {
       string.format("<leader>%sf", key_prefix),
@@ -56,7 +56,7 @@ function M.create_agent_keymaps(agent)
           end,
         })
       end,
-      desc = "Fix diagnostics with " .. label,
+      desc = "Fix diagnostics",
     },
     {
       string.format("<leader>%sc", key_prefix),
@@ -72,7 +72,7 @@ function M.create_agent_keymaps(agent)
         })
       end,
       mode = { "n", "v" },
-      desc = "Comment with " .. label,
+      desc = "Comment",
     },
     {
       string.format("<leader>%sq", key_prefix),
@@ -85,7 +85,7 @@ function M.create_agent_keymaps(agent)
           end,
         })
       end,
-      desc = "Send quickfix list to " .. label,
+      desc = "Send quickfix list to",
     },
     {
       string.format("<leader>%sl", key_prefix),
@@ -98,28 +98,7 @@ function M.create_agent_keymaps(agent)
           end,
         })
       end,
-      desc = "Send location list to " .. label,
-    },
-    {
-      string.format("<leader>%sd", key_prefix),
-      function()
-        local state = context.current_position()
-        local result = git.open_diff_view(state)
-      end,
-      desc = "View diff with " .. label,
-    },
-    {
-      string.format("<leader>%sp", key_prefix),
-      function()
-        local state = context.current_position()
-        local result = git.populate_qflist_with_diff(state)
-        if result ~= "Quickfix list populated with diff changes" then
-          vim.notify(result, vim.log.levels.WARN)
-        else
-          vim.notify(result, vim.log.levels.INFO)
-        end
-      end,
-      desc = "Populate quickfix with diff for " .. label,
+      desc = "Send location list to",
     },
   }
 end
@@ -135,19 +114,48 @@ function M.create_history_keymaps(agents)
       function()
         history.create_history_picker(termname)
       end,
-      desc = "Browse " .. label .. " history",
-    })
-
-    table.insert(history_keymaps, {
-      string.format("<leader>%sR", key_prefix),
-      function()
-        history.create_history_picker(nil)
-      end,
-      desc = "Browse all AI terminals history",
+      desc = "Browse history",
     })
   end
 
   return history_keymaps
+end
+
+function M.create_shared_keymaps()
+  local ai_terminals = require("ai-terminals")
+
+  return {
+    {
+      "<leader>ad",
+      ai_terminals.diff_changes,
+      desc = "View diff",
+    },
+    {
+      "<leader>ax",
+      ai_terminals.revert_changes,
+      desc = "Revert changes",
+    },
+    {
+      "<leader>ap",
+      function()
+        local state = context.current_position()
+        local result = git.populate_qflist_with_diff(state)
+        if result ~= "Quickfix list populated with diff changes" then
+          vim.notify(result, vim.log.levels.WARN)
+        else
+          vim.notify(result, vim.log.levels.INFO)
+        end
+      end,
+      desc = "Populate quickfix with diff",
+    },
+    {
+      "<leader>ar",
+      function()
+        history.create_history_picker(nil)
+      end,
+      desc = "Browse all AI terminals history",
+    },
+  }
 end
 
 function M.generate_all_keymaps(agents)
@@ -160,6 +168,9 @@ function M.generate_all_keymaps(agents)
 
   -- Add history keymaps
   vim.list_extend(all_keymaps, M.create_history_keymaps(agents))
+
+  -- Add shared keymaps
+  vim.list_extend(all_keymaps, M.create_shared_keymaps())
 
   return all_keymaps
 end
