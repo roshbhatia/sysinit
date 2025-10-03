@@ -144,12 +144,16 @@ local PLACEHOLDERS = {
   {
     token = "@search",
     description = "Current search pattern",
-    provider = function() return context.get_search_pattern() end,
+    provider = function()
+      return context.get_search_pattern()
+    end,
   },
   {
     token = "@branch",
     description = "Current git branch",
-    provider = function() return git.get_git_branch() end,
+    provider = function()
+      return git.get_git_branch()
+    end,
   },
   {
     token = "@filestatus",
@@ -164,7 +168,9 @@ local PLACEHOLDERS = {
   {
     token = "@gitstatus",
     description = "Summary of all git changes",
-    provider = function() return git.get_git_status_summary() end,
+    provider = function()
+      return git.get_git_status_summary()
+    end,
   },
 }
 

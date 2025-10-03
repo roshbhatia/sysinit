@@ -61,15 +61,15 @@ function M.get_current_function(state)
 
   -- Common function node types across languages
   local function_types = {
-    "function_definition",      -- Python, Lua
-    "function_declaration",     -- C, C++, JavaScript, Go
-    "method_definition",        -- JavaScript, TypeScript, Python
-    "method_declaration",       -- Java, Go
-    "function_item",           -- Rust
-    "arrow_function",          -- JavaScript, TypeScript
-    "function_expression",     -- JavaScript
-    "lambda",                  -- Python
-    "func_literal",            -- Go
+    "function_definition", -- Python, Lua
+    "function_declaration", -- C, C++, JavaScript, Go
+    "method_definition", -- JavaScript, TypeScript, Python
+    "method_declaration", -- Java, Go
+    "function_item", -- Rust
+    "arrow_function", -- JavaScript, TypeScript
+    "function_expression", -- JavaScript
+    "lambda", -- Python
+    "func_literal", -- Go
   }
 
   local func_node = find_parent_node(node, function_types)
@@ -80,11 +80,11 @@ function M.get_current_function(state)
   -- Try to get function name
   local name_node = func_node:field("name")[1]
   local func_name = name_node and get_node_text(name_node, state.buf) or "anonymous"
-  
+
   -- Get the full function text (limited to first few lines for context)
   local func_text = get_node_text(func_node, state.buf) or ""
   local lines = vim.split(func_text, "\n")
-  
+
   -- If function is too long, just show signature (first 5 lines)
   if #lines > 5 then
     local signature = {}
@@ -93,7 +93,7 @@ function M.get_current_function(state)
     end
     return table.concat(signature, "\n") .. "\n  ..."
   end
-  
+
   return func_text
 end
 
@@ -106,13 +106,13 @@ function M.get_current_class(state)
 
   -- Common class/type node types across languages
   local class_types = {
-    "class_definition",        -- Python
-    "class_declaration",       -- JavaScript, TypeScript, Java, C++
-    "struct_item",            -- Rust
-    "type_declaration",       -- Go, TypeScript
-    "interface_declaration",  -- TypeScript, Java, Go
-    "impl_item",              -- Rust
-    "trait_item",             -- Rust
+    "class_definition", -- Python
+    "class_declaration", -- JavaScript, TypeScript, Java, C++
+    "struct_item", -- Rust
+    "type_declaration", -- Go, TypeScript
+    "interface_declaration", -- TypeScript, Java, Go
+    "impl_item", -- Rust
+    "trait_item", -- Rust
   }
 
   local class_node = find_parent_node(node, class_types)
@@ -123,11 +123,11 @@ function M.get_current_class(state)
   -- Try to get class name
   local name_node = class_node:field("name")[1]
   local class_name = name_node and get_node_text(name_node, state.buf) or "anonymous"
-  
+
   -- Get the class header (first few lines)
   local class_text = get_node_text(class_node, state.buf) or ""
   local lines = vim.split(class_text, "\n")
-  
+
   -- Show just the class signature and first few methods/fields
   if #lines > 10 then
     local signature = {}
@@ -136,7 +136,7 @@ function M.get_current_class(state)
     end
     return table.concat(signature, "\n") .. "\n  ..."
   end
-  
+
   return class_text
 end
 
@@ -149,12 +149,12 @@ function M.get_current_node(state)
 
   local node_type = node:type()
   local node_text = get_node_text(node, state.buf) or ""
-  
+
   -- Limit text length
   if #node_text > 200 then
     node_text = node_text:sub(1, 200) .. "..."
   end
-  
+
   return string.format("Node type: %s\n%s", node_type, node_text)
 end
 
@@ -172,7 +172,7 @@ function M.get_all_symbols(state)
 
   local symbols = {}
   local root = tree:root()
-  
+
   -- Symbol node types to look for
   local symbol_types = {
     function_definition = true,
@@ -201,7 +201,7 @@ function M.get_all_symbols(state)
         end
       end
     end
-    
+
     for child in node:iter_children() do
       traverse(child)
     end
@@ -230,15 +230,15 @@ function M.get_imports(state)
 
   local imports = {}
   local root = tree:root()
-  
+
   -- Import/require node types across languages
   local import_types = {
-    import_statement = true,        -- JavaScript, TypeScript
-    import_from_statement = true,   -- Python
-    use_declaration = true,         -- Rust
-    package_clause = true,          -- Go
-    import_declaration = true,      -- Java, Go
-    require_call = true,            -- Lua (if supported)
+    import_statement = true, -- JavaScript, TypeScript
+    import_from_statement = true, -- Python
+    use_declaration = true, -- Rust
+    package_clause = true, -- Go
+    import_declaration = true, -- Java, Go
+    require_call = true, -- Lua (if supported)
   }
 
   -- Traverse the tree to find imports
@@ -247,14 +247,14 @@ function M.get_imports(state)
     if depth > 3 then
       return
     end
-    
+
     if import_types[node:type()] then
       local import_text = get_node_text(node, state.buf)
       if import_text then
         table.insert(imports, import_text)
       end
     end
-    
+
     -- Also catch require() calls in Lua
     if node:type() == "function_call" then
       local func_name = node:field("name")
@@ -268,7 +268,7 @@ function M.get_imports(state)
         end
       end
     end
-    
+
     for child in node:iter_children() do
       traverse(child, depth + 1)
     end

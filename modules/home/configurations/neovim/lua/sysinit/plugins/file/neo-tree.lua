@@ -148,7 +148,7 @@ M.plugins = {
       local colors = get_palette_colors()
       vim.api.nvim_set_hl(0, "NeoTreeFileName_35", { fg = colors.file, bg = nil, bold = true })
       vim.api.nvim_set_hl(0, "NeoTreeRootName_35", { fg = colors.root, bg = nil, bold = true })
-      vim.api.nvim_set_hl(0, "NeoTreeMessage", { fg = colors.message, bg = nil, bold = false })
+      vim.api.nvim_set_hl(0, "NeoTreeMessage", { fg = colors.message, bg = nil, bold = true })
     end,
     keys = {
       {

@@ -188,16 +188,16 @@ end
 function M.get_surrounding_lines(state, before, after)
   before = before or 5
   after = after or 5
-  
+
   if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
     return ""
   end
-  
+
   local start_line = math.max(0, state.line - 1 - before)
   local end_line = math.min(vim.api.nvim_buf_line_count(state.buf), state.line + after)
-  
+
   local lines = vim.api.nvim_buf_get_lines(state.buf, start_line, end_line, false)
-  
+
   -- Add line numbers and mark cursor line
   local result = {}
   for i, line in ipairs(lines) do
@@ -205,7 +205,7 @@ function M.get_surrounding_lines(state, before, after)
     local marker = (line_num == state.line) and ">>> " or "    "
     table.insert(result, string.format("%s%d: %s", marker, line_num, line))
   end
-  
+
   return table.concat(result, "\n")
 end
 
@@ -214,17 +214,17 @@ function M.get_word_under_cursor(state)
   if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
     return ""
   end
-  
+
   local line = vim.api.nvim_buf_get_lines(state.buf, state.line - 1, state.line, false)[1]
   if not line then
     return ""
   end
-  
+
   -- Find word boundaries
   local col = state.col
   local before = line:sub(1, col):match("[%w_]*$") or ""
   local after = line:sub(col + 1):match("^[%w_]*") or ""
-  
+
   return before .. after
 end
 
@@ -233,29 +233,29 @@ function M.get_recent_changes(state)
   if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
     return ""
   end
-  
+
   -- Get changed lines from the changelist
   local changes = vim.fn.getchangelist(state.buf)
   if not changes or not changes[1] or #changes[1] == 0 then
     return "No recent changes"
   end
-  
+
   local result = {}
   local max_changes = 10
   local changelist = changes[1]
   local start_idx = math.max(1, #changelist - max_changes + 1)
-  
+
   for i = start_idx, #changelist do
     local change = changelist[i]
     if change.lnum and change.lnum > 0 then
       table.insert(result, string.format("Line %d", change.lnum))
     end
   end
-  
+
   if #result == 0 then
     return "No recent changes"
   end
-  
+
   return table.concat(result, ", ")
 end
 
@@ -264,12 +264,12 @@ function M.get_marks(state)
   if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
     return ""
   end
-  
+
   local marks = vim.fn.getmarklist(state.buf)
   if not marks or #marks == 0 then
     return "No marks set"
   end
-  
+
   local result = {}
   for _, mark in ipairs(marks) do
     if mark.mark:match("^'[a-zA-Z]$") and mark.pos[1] == state.buf then
@@ -278,11 +278,11 @@ function M.get_marks(state)
       table.insert(result, string.format("'%s: line %d", mark_char, line_num))
     end
   end
-  
+
   if #result == 0 then
     return "No marks set"
   end
-  
+
   return table.concat(result, ", ")
 end
 
