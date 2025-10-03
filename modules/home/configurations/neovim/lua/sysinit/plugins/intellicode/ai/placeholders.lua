@@ -1,6 +1,7 @@
 local M = {}
 local context = require("sysinit.plugins.intellicode.ai.context")
 local git = require("sysinit.plugins.intellicode.ai.git")
+local ts = require("sysinit.plugins.intellicode.ai.treesitter")
 
 local function get_relative_path(state)
   if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
@@ -89,6 +90,81 @@ local PLACEHOLDERS = {
     token = "@codeactions",
     description = "Available LSP code action titles",
     provider = context.get_code_actions,
+  },
+  {
+    token = "@function",
+    description = "Current function context (via treesitter)",
+    provider = ts.get_current_function,
+  },
+  {
+    token = "@class",
+    description = "Current class/type context (via treesitter)",
+    provider = ts.get_current_class,
+  },
+  {
+    token = "@node",
+    description = "Current treesitter node type and text",
+    provider = ts.get_current_node,
+  },
+  {
+    token = "@symbols",
+    description = "All symbols (functions, classes) in buffer",
+    provider = ts.get_all_symbols,
+  },
+  {
+    token = "@imports",
+    description = "Import/require statements in buffer",
+    provider = ts.get_imports,
+  },
+  {
+    token = "@filetype",
+    description = "Current buffer's filetype",
+    provider = context.get_filetype,
+  },
+  {
+    token = "@context",
+    description = "Lines surrounding cursor (5 before/after)",
+    provider = context.get_surrounding_lines,
+  },
+  {
+    token = "@word",
+    description = "Word under cursor",
+    provider = context.get_word_under_cursor,
+  },
+  {
+    token = "@changes",
+    description = "Recent changes in buffer",
+    provider = context.get_recent_changes,
+  },
+  {
+    token = "@marks",
+    description = "Marks set in buffer",
+    provider = context.get_marks,
+  },
+  {
+    token = "@search",
+    description = "Current search pattern",
+    provider = function() return context.get_search_pattern() end,
+  },
+  {
+    token = "@branch",
+    description = "Current git branch",
+    provider = function() return git.get_git_branch() end,
+  },
+  {
+    token = "@filestatus",
+    description = "Git status of current file",
+    provider = git.get_file_git_status,
+  },
+  {
+    token = "@commits",
+    description = "Recent git commits for current file",
+    provider = git.get_file_git_log,
+  },
+  {
+    token = "@gitstatus",
+    description = "Summary of all git changes",
+    provider = function() return git.get_git_status_summary() end,
   },
 }
 
