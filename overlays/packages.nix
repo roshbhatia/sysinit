@@ -10,6 +10,12 @@ let
     inherit system;
     config = final.config;
   };
+
+  crossplane-1-17-1 = import (
+    builtins.fetchTarball {
+      url = "https://github.com/NixOS/nixpkgs/archive/882842d2a908700540d206baa79efb922ac1c33d.tar.gz";
+    }
+  );
 in
 {
   firefox-addons = inputs.firefox-addons.packages.${system};
@@ -24,4 +30,5 @@ in
   nix-your-shell = unstable.nix-your-shell;
   nushell = unstable.nushell;
   sbarlua = unstable.sbarlua;
+  crossplane-cli = crossplane-1-17-1.crossplane-cli;
 }
