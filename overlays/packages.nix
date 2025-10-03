@@ -15,7 +15,10 @@ let
     builtins.fetchTarball {
       url = "https://github.com/NixOS/nixpkgs/archive/882842d2a908700540d206baa79efb922ac1c33d.tar.gz";
     }
-  );
+  ) {
+    inherit system;
+    config = final.config;
+  };
 in
 {
   firefox-addons = inputs.firefox-addons.packages.${system};
