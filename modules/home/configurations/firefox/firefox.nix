@@ -49,6 +49,74 @@ in
     "firefox/default/chrome/userContent.css" = {
       source = userContentCSS;
     };
+    "tridactyl/tridactylrc" = {
+      text = ''
+        " Tridactyl Configuration for Minimal Firefox Setup
+        " Tab fuzzy finding: Press 'b' or use :buffer to search tabs
+
+        " Better tab search - case insensitive fuzzy finding
+        set tabopencontaineraware true
+        set tabsort mru
+
+        " Minimal UI hints
+        set hintchars asdfghjkl
+        set hintfiltermode vimperator-reflow
+        set hintuppercase false
+
+        " Quick tab switching with 'b' command (fuzzy search)
+        " Usage: Press 'b' then type any part of tab title/URL
+        bind b fillcmdline buffer
+
+        " Quick window/tab navigation
+        bind J tabprev
+        bind K tabnext
+        bind H back
+        bind L forward
+
+        " Close tab
+        bind x tabclose
+
+        " Restore closed tab
+        bind X undo
+
+        " New tab
+        bind t tabnew
+
+        " Search with current search engine
+        bind s fillcmdline open search
+
+        " Open in new tab
+        bind S fillcmdline tabopen search
+
+        " Find mode
+        bind / fillcmdline find
+        bind ? fillcmdline find -?
+        bind n findnext 1
+        bind N findnext -1
+
+        " Smooth scroll
+        set smoothscroll true
+
+        " Theme integration - minimal UI
+        colors dark
+
+        " Don't show mode indicator (cleaner UI)
+        set modeindicatorshowkeys false
+
+        " Clear all default search engines and keep minimal set
+        " You can customize these in Firefox settings
+
+        " Quick marks for common pages
+        " Usage: go<key> to open, gn<key> to open in new tab
+        " Example: gog opens Google
+
+        " Ignore mode for certain sites (if you prefer default Firefox behavior)
+        " autocmd DocStart ^http(s?)://mail.google.com enterIgnoreMode
+
+        " Performance - lazy load
+        set allowautofocus false
+      '';
+    };
     "firefox/default/chrome/brave-icons/BackButton.svg" = {
       source = ./chrome-theme/brave-icons/BackButton.svg;
     };
@@ -119,19 +187,43 @@ in
         };
 
         settings = {
+          # Disable search suggestions for cleaner UI
           "browser.search.suggest.enabled" = false;
           "browser.urlbar.suggest.searches" = false;
           "browser.urlbar.showSearchSuggestionsFirst" = false;
+
+          # New tab page - minimal
           "browser.newtabpage.activity-stream.showSearch" = true;
           "browser.newtabpage.activity-stream.showTopSites" = false;
           "browser.newtabpage.activity-stream.feeds.topsites" = false;
           "browser.newtabpage.activity-stream.feeds.section.topstories" = false;
+          "browser.newtabpage.activity-stream.feeds.section.highlights" = false;
 
+          # Enable custom CSS
           "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
 
+          # Enable modern rendering features for blur and transparency
           "layout.css.backdrop-filter.enabled" = true;
           "gfx.webrender.all" = true;
           "svg.context-properties.content.enabled" = true;
+
+          # Compact mode for minimal aesthetic
+          "browser.compactmode.show" = true;
+          "browser.uidensity" = 1; # 0=normal, 1=compact, 2=touch
+
+          # Smooth scrolling
+          "general.smoothScroll" = true;
+          "general.smoothScroll.msdPhysics.enabled" = true;
+
+          # Hide tab manager menu button (cleaner tab bar)
+          "browser.tabs.tabmanager.enabled" = false;
+
+          # Minimal animations
+          "ui.prefersReducedMotion" = 0; # Enable smooth animations
+
+          # Color management for better theming
+          "layout.css.color-mix.enabled" = true;
+          "layout.css.has-selector.enabled" = true;
         };
 
         search = {

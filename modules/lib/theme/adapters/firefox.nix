@@ -65,23 +65,15 @@ rec {
 
       baseChromeCSS = ''
         /* --------------------------------------------------------------------------------
-        Translucent Firefox Theme with Semantic Colors
-        Based on Fluidfox, Firefox-Mod-Blur, Atom-for-Firefox, and Brave-Fox
+        Minimal Modern Firefox Theme with Semantic Colors
+        Clean, minimal aesthetic with smooth animations and blur effects
         --------------------------------------------------------------------------------- */
 
-        /* Tab Shadows */
-        .tabbrowser-tab:is([visuallyselected="true"],
-        [multiselected]) > .tab-stack > .tab-background {
-            box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0) !important;
-        }
+        /* ========== CORE TRANSPARENCY & BLUR ========== */
 
-        /* Focused Address/URL Field */
-        #urlbar-background {
-            outline: none !important;
-            box-shadow: none !important;
+        :root#main-window {
+            background-color: transparent !important;
         }
-
-        /*--------- Translucency after FF 121 -----------*/
 
         :root #TabsToolbar,
         :root #titlebar,
@@ -95,165 +87,218 @@ rec {
             background-color: transparent !important;
         }
 
-        /*--------- Borders -----------*/
-
-        /* Themed border and rounded corners for browser content */
-        #appcontent {
-            margin-top: 1px !important;
-            margin-inline: 2px !important; /* sides */
-            margin-block-end: 2px !important; /* bottom */
-            border-radius: 12px !important;
-            border: 1px solid var(--accent-dim) !important;
-            overflow: hidden !important;
-            box-shadow: 0 0 0px 1px var(--accent-secondary) !important;
-        }
-
-        .tabbrowser-tab::after {
-            border: 0 !important;
-        }
-        .titlebar-spacer[type="pre-tabs"] {
-            border: 0 !important;
-        }
-        #navigator-toolbox {
-            border: 1 !important;
-        }
-
-        .titlebar-spacer[type="pre-tabs"] {
-            border: 0 !important;
-        }
-
-        .tabbrowser-tab::after {
-            border: 0 !important;
-        }
-
-        #urlbar-background {
-            border: 1px solid var(--accent-dim) !important;
-        }
-
-        #urlbar[open] > .urlbarView > .urlbarView-body-outer > .urlbarView-body-inner {
-            border-top: 0 !important;
-        }
-
-        /* Add Transparency and Acrylic Effects */
-        :root#main-window {
-            background-color: transparent !important;
-        }
-
         :root:not(:-moz-window-inactive) #navigator-toolbox {
             background-color: transparent !important;
-            backdrop-filter: blur(calc(var(--blur-amount) * 0.8)) !important;
+            backdrop-filter: blur(calc(var(--blur-amount) * 0.8)) saturate(1.5) !important;
         }
 
-        /* Enhanced acrylic effects for tabs and toolbar */
+        /* ========== MINIMAL TOOLBAR STYLING ========== */
+
         #TabsToolbar {
-            background: color-mix(in srgb, var(--bg-overlay) 70%, transparent) !important;
+            background: color-mix(in srgb, var(--bg-overlay) 65%, transparent) !important;
             backdrop-filter: blur(var(--blur-amount)) saturate(1.8) !important;
+            padding-block: 4px !important;
+            border-bottom: none !important;
         }
 
         #nav-bar {
-            background: color-mix(in srgb, var(--bg-overlay) 60%, transparent) !important;
-            backdrop-filter: blur(calc(var(--blur-amount) * 0.6)) saturate(1.5) !important;
-            border-bottom: 1px solid color-mix(in srgb, var(--accent-dim) 30%, transparent) !important;
+            background: color-mix(in srgb, var(--bg-overlay) 55%, transparent) !important;
+            backdrop-filter: blur(calc(var(--blur-amount) * 0.7)) saturate(1.5) !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding-block: 6px !important;
         }
 
-        /*--------- Active tab -----------*/
+        #navigator-toolbox {
+            border: none !important;
+        }
 
+        /* ========== MINIMAL TABS ========== */
+
+        /* Remove all tab borders and separators */
+        .tabbrowser-tab::after,
+        .tabbrowser-tab::before {
+            display: none !important;
+        }
+
+        /* Minimal tab styling */
+        .tabbrowser-tab {
+            min-width: 0px !important;
+            padding-inline: 4px !important;
+        }
+
+        .tab-background {
+            border: none !important;
+            box-shadow: none !important;
+            border-radius: 6px !important;
+            margin-block: 2px !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        /* Inactive tabs - nearly invisible */
+        .tab-background:not([selected]) {
+            background: transparent !important;
+        }
+
+        .tabbrowser-tab:not([selected]):hover .tab-background {
+            background: color-mix(in srgb, var(--bg-overlay) 40%, transparent) !important;
+        }
+
+        /* Active tab - subtle highlight */
         .tab-background[selected],
         .tab-background[multiselected="true"] {
-            background: var(--bg-overlay) !important;
-            border: 1px solid var(--accent-secondary) !important;
-            border-radius: 8px !important;
+            background: color-mix(in srgb, var(--bg-overlay) 80%, transparent) !important;
+            box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-secondary) 30%, transparent) !important;
         }
 
-        /*--------- Inactive Address/Search Field Background -----------*/
-
-        #urlbar-background {
-            background-color: var(--bg-overlay) !important;
-            border-radius: 8px !important;
-            backdrop-filter: blur(var(--blur-amount)) !important;
+        /* Tab content */
+        .tab-content {
+            overflow: hidden !important;
+            padding-inline: 8px !important;
         }
 
-        /*--------- Active Address/Search Field Dropdown -----------*/
-
-        #urlbar[breakout][breakout-extend] > #urlbar-background {
-            background: var(--bg-secondary) !important;
-            border: 1px solid var(--accent-primary) !important;
+        /* Tab labels - clean typography */
+        .tab-label {
+            color: var(--text-secondary) !important;
+            font-weight: 400 !important;
+            transition: color 0.2s ease !important;
         }
 
-        /*-------------- URL bar -----------------*/
-
-        /* Centre URL bar text input */
-        #urlbar-input {
-            height: 100%;
-            text-align: center !important;
+        .tab-background[selected] .tab-label {
             color: var(--text-primary) !important;
+            font-weight: 500 !important;
         }
 
-        /* Unless text input is selected like Safari */
-        #urlbar[focused] #urlbar-input {
-            position: absolute;
-            transform: translateX(0);
-            transition: all 0.2s ease;
-            width: 100%;
-            text-align: left !important;
+        /* Tab close button - only show on hover */
+        .tabbrowser-tab:not([pinned]) .tab-close-button {
+            display: -moz-box !important;
+            opacity: 0 !important;
+            visibility: collapse !important;
+            transition: opacity 0.2s ease, visibility 0.2s ease !important;
+            list-style-image: url("./brave-icons/CloseTab.svg") !important;
+            width: 16px !important;
+            height: 16px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border-radius: 3px !important;
+        }
+
+        .tabbrowser-tab:not([pinned]):hover .tab-close-button {
+            opacity: 0.7 !important;
+            visibility: visible !important;
+        }
+
+        .tabbrowser-tab:not([pinned]) .tab-close-button:hover {
+            opacity: 1 !important;
+            background: var(--accent-dim) !important;
+        }
+
+        /* Remove tab separators */
+        .titlebar-spacer[type="pre-tabs"] {
+            border: none !important;
+        }
+
+        /* ========== MINIMAL URL BAR ========== */
+
+        #urlbar-container {
+            max-width: 65% !important;
+            margin: 0 auto !important;
         }
 
         #urlbar {
-            max-width: 70% !important;
-            margin: 0 15% !important;
+            border: none !important;
         }
 
-        /*--------- Navigation Bar Separator -----------*/
-
-        #navigator-toolbox {
-            border-color: var(--accent-dim) !important;
+        #urlbar-background {
+            background: color-mix(in srgb, var(--bg-overlay) 70%, transparent) !important;
+            border: 1px solid color-mix(in srgb, var(--accent-dim) 40%, transparent) !important;
+            border-radius: 8px !important;
+            backdrop-filter: blur(var(--blur-amount)) !important;
+            box-shadow: none !important;
+            outline: none !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }
 
-        /*--------- Navigation bar Buttons -----------*/
+        /* URL bar on hover/focus */
+        #urlbar:hover > #urlbar-background,
+        #urlbar[focused] > #urlbar-background {
+            background: color-mix(in srgb, var(--bg-overlay) 85%, transparent) !important;
+            border-color: var(--accent-secondary) !important;
+            box-shadow: 0 2px 8px color-mix(in srgb, var(--accent-primary) 15%, transparent) !important;
+        }
+
+        /* URL bar dropdown */
+        #urlbar[breakout][breakout-extend] > #urlbar-background {
+            background: var(--bg-secondary) !important;
+            border-color: var(--accent-primary) !important;
+        }
+
+        #urlbar[open] > .urlbarView > .urlbarView-body-outer > .urlbarView-body-inner {
+            border-top: none !important;
+        }
+
+        /* Center URL text (Safari style) */
+        #urlbar-input {
+            text-align: center !important;
+            color: var(--text-primary) !important;
+            transition: text-align 0.2s ease !important;
+        }
+
+        #urlbar[focused] #urlbar-input {
+            text-align: left !important;
+        }
+
+        /* ========== MINIMAL CONTENT AREA ========== */
+
+        #appcontent {
+            margin-top: 0px !important;
+            margin-inline: 1px !important;
+            margin-block-end: 1px !important;
+            border-radius: 10px !important;
+            border: 1px solid color-mix(in srgb, var(--accent-dim) 25%, transparent) !important;
+            overflow: hidden !important;
+            box-shadow: 0 1px 3px color-mix(in srgb, var(--accent-secondary) 10%, transparent) !important;
+        }
+
+        /* ========== TOOLBAR BUTTONS ========== */
+
         :root, toolbar {
-            --toolbarbutton-hover-background: var(--accent-dim) !important;
+            --toolbarbutton-hover-background: color-mix(in srgb, var(--accent-dim) 60%, transparent) !important;
+            --toolbarbutton-active-background: var(--accent-dim) !important;
         }
 
-        /* Show Tab close button on hover */
-
-        .tabbrowser-tab:not([pinned]) .tab-close-button {
-            display: -moz-box !important;
-            opacity: 0;
-            visibility: collapse !important;
-            transition: opacity 0.25s, visibility 0.25s ease-in !important;
-        }
-        .tabbrowser-tab:not([pinned]):hover .tab-close-button {
-            opacity: 1;
-            visibility: visible !important;
-            border-radius: 3px 3px 3px 3px !important;
+        .toolbarbutton-1 {
+            fill: var(--text-secondary) !important;
+            border-radius: 6px !important;
+            transition: all 0.2s ease !important;
         }
 
-        /*--------- Brave Icons -----------*/
-
-        /* Change Reload Button */
-        #reload-button {
-            list-style-image: url("./brave-icons/Reload.svg") !important;
+        .toolbarbutton-1:hover {
+            fill: var(--text-primary) !important;
+            background: var(--toolbarbutton-hover-background) !important;
         }
 
-        /* Change Back Button */
+        /* Navigation button icons */
         #back-button {
             list-style-image: url("./brave-icons/BackButton.svg") !important;
         }
 
-        /* Change Forward Button */
         #forward-button {
             list-style-image: url("./brave-icons/ForwardButton.svg") !important;
         }
 
-        /* Change Bookmark Icon */
+        #reload-button {
+            list-style-image: url("./brave-icons/Reload.svg") !important;
+        }
+
         #star-button {
             list-style-image: url("./brave-icons/Bookmark.svg") !important;
         }
+
         #star-button[starred] {
             list-style-image: url("./brave-icons/BookmarkFilled.svg") !important;
         }
 
-        /* Change Search Button */
         #urlbar[pageproxystate="invalid"] #identity-icon,
         .searchbar-search-icon,
         #PopupAutoCompleteRichResult .ac-type-icon[type="keyword"],
@@ -263,35 +308,57 @@ rec {
             list-style-image: url("./brave-icons/Search.svg") !important;
         }
 
-        /* Change Close Button */
-        .tab-close-button {
-            list-style-image: url("./brave-icons/CloseTab.svg") !important;
-            width: 16px !important;
-            height: 16px !important;
+        /* ========== CLEAN UP VISUAL NOISE ========== */
+
+        /* Remove unnecessary shadows */
+        .tabbrowser-tab:is([visuallyselected="true"], [multiselected]) > .tab-stack > .tab-background {
+            box-shadow: none !important;
+        }
+
+        /* Hide bookmark bar by default (can be toggled with Cmd+Shift+B) */
+        #PersonalToolbar {
+            min-height: 0 !important;
+            max-height: 0 !important;
             margin: 0 !important;
             padding: 0 !important;
         }
 
-        /*--------- Tab Overflow -----------*/
+        /* Show bookmark bar when customizing or when explicitly shown */
+        #PersonalToolbar:not([collapsed="true"]) {
+            min-height: auto !important;
+            max-height: none !important;
+            padding-block: 4px !important;
+        }
+
+        /* ========== SMOOTH ANIMATIONS ========== */
+
+        * {
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        /* Smooth tab animations */
         .tabbrowser-tab {
-            min-width: 0px !important;
-        }
-        .tab-content {
-            overflow: hidden !important;
+            transition: opacity 0.2s ease !important;
         }
 
-        /* Tab text color */
-        .tab-label {
-            color: var(--text-primary) !important;
+        /* Smooth toolbar transitions */
+        #nav-bar, #TabsToolbar {
+            transition: background 0.2s ease, backdrop-filter 0.2s ease !important;
         }
 
-        .tab-background[selected] .tab-label {
-            color: var(--text-primary) !important;
+        /* ========== COMPACT MODE REFINEMENTS ========== */
+
+        /* Reduce padding in compact mode */
+        :root[uidensity="compact"] #TabsToolbar {
+            padding-block: 2px !important;
         }
 
-        /* Toolbar button colors */
-        .toolbarbutton-1 {
-            fill: var(--text-primary) !important;
+        :root[uidensity="compact"] #nav-bar {
+            padding-block: 4px !important;
+        }
+
+        :root[uidensity="compact"] .tab-content {
+            padding-inline: 6px !important;
         }
       '';
 
