@@ -98,6 +98,20 @@ tasks:
           log_error "Failed to restart nix-daemon"
           exit {{.ERROR_EXIT_CODE}}
         fi
+
+        log_info "Waiting for nix-daemon to start..."
+        for i in {1..10}; do
+          if nix store ping --store daemon >/dev/null 2>&1; then
+            break
+          fi
+          sleep 1
+        done
+
+        if ! nix store ping --store daemon >/dev/null 2>&1; then
+          log_error "nix-daemon failed to start"
+          exit {{.ERROR_EXIT_CODE}}
+        fi
+
         log_success "Nix configuration updated successfully"
     silent: true
 
