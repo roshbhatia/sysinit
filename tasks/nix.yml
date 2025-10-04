@@ -62,31 +62,18 @@ tasks:
         #!/usr/bin/env bash
         set -euo pipefail
         {{.LOGGING_FUNCTIONS}}
-
-        # Determine the actual user (handle sudo context)
-        ACTUAL_USER="${SUDO_USER:-$USER}"
-
-        # Function to run commands as the actual user
-        run_as_user() {
-          if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_USER:-}" ]; then
-            sudo -u "$SUDO_USER" "$@"
-          else
-            "$@"
-          fi
-        }
-
         log_info "Updating nix flake inputs"
 
-        if ! run_as_user nix flake update --show-trace; then
+        if ! nix flake update --show-trace; then
           log_error "Flake update failed (see logs above)"
           exit {{.ERROR_EXIT_CODE}}
         fi
 
-        if run_as_user git diff --quiet flake.lock; then
+        if git diff --quiet flake.lock; then
           log_info "No changes to flake.lock"
         else
-          run_as_user git add flake.lock
-          run_as_user git commit -m "flake.lock: Update"
+          git add flake.lock
+          git commit -m "flake.lock: Update"
           log_info "Committed flake.lock changes"
         fi
 
@@ -109,27 +96,13 @@ tasks:
           log_error "Failed to restart nix-daemon"
           exit {{.ERROR_EXIT_CODE}}
         fi
-
-        log_info "Waiting for nix-daemon to start..."
-        for i in {1..10}; do
-          if nix store ping --store daemon >/dev/null 2>&1; then
-            break
-          fi
-          sleep 1
-        done
-
-        if ! nix store ping --store daemon >/dev/null 2>&1; then
-          log_error "nix-daemon failed to start"
-          exit {{.ERROR_EXIT_CODE}}
-        fi
-
         log_success "Nix configuration updated successfully"
     silent: true
 
   refresh:
     desc: Apply the system configuration and switch to new generation
     silent: true
-    deps: [update, config]
+    deps: [update]
     cmds:
       - |
         #!/usr/bin/env bash
