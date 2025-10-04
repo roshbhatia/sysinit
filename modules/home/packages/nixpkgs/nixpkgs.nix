@@ -53,7 +53,6 @@ let
     gopls
     gum
     helm-ls
-    intelli-shell
     jetbrains-mono
     jq
     jq-lsp
