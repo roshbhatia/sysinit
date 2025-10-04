@@ -36,8 +36,49 @@ let
           ''
         else
           "";
+
+      autohideToolbarCSS =
+        if values.firefox.theme.autohideToolbar or false then
+          ''
+            /* Auto-hide toolbar - inspired by minimalFOX */
+            :root {
+              --uc-autohide-toolbox-delay: 100ms;
+              --uc-autohide-toolbox-reveal-delay: 33ms;
+            }
+
+            #navigator-toolbox {
+              position: fixed !important;
+              transition: transform 100ms linear, opacity 100ms linear !important;
+              transition-delay: var(--uc-autohide-toolbox-delay) !important;
+              transform-origin: top;
+              transform: translateY(-100%);
+              opacity: 0;
+              z-index: 1;
+              pointer-events: none;
+              width: 100vw;
+            }
+
+            /* Show toolbar on hover or focus */
+            #mainPopupSet:has(> [panelopen]:not(#ask-chat-shortcuts,#selection-shortcut-action-panel,#chat-shortcuts-options-panel,#tab-preview-panel)) ~ toolbox,
+            #navigator-toolbox:has(#urlbar:is([open],[focus-within])),
+            #navigator-toolbox:is(:hover,:focus-within,[movingtab]) {
+              transition-delay: var(--uc-autohide-toolbox-reveal-delay) !important;
+              transform: translateY(0);
+              opacity: 1;
+              pointer-events: auto;
+            }
+
+            /* Adjust content area to fill space */
+            #appcontent {
+              margin-top: calc(-1 * var(--uc-toolbox-height, 0px)) !important;
+            }
+          ''
+        else
+          "";
     in
-    pkgs.writeText "userChrome.css" (firefoxTheme.userChromeCSS + stretchedTabsCSS);
+    pkgs.writeText "userChrome.css" (
+      firefoxTheme.userChromeCSS + stretchedTabsCSS + autohideToolbarCSS
+    );
 
   userContentCSS = pkgs.writeText "userContent.css" firefoxTheme.userContentCSS;
 in
@@ -51,7 +92,7 @@ in
     };
     "tridactyl/tridactylrc" = {
       text = ''
-        " Tridactyl Configuration for Minimal Firefox Setup
+        " Tridactyl Configuration for Arc-Inspired Minimal Firefox
         " Tab fuzzy finding: Press 'b' or use :buffer to search tabs
 
         " Better tab search - case insensitive fuzzy finding
@@ -63,29 +104,61 @@ in
         set hintfiltermode vimperator-reflow
         set hintuppercase false
 
+        " ========== SMOOTH SCROLLING ==========
+
+        " Enable smooth scrolling
+        set smoothscroll true
+        set scrollduration 150
+
+        " Smooth scroll with j/k (Arc-style)
+        bind j scrollline 4
+        bind k scrollline -4
+
+        " Faster scrolling with Shift
+        bind <C-d> scrollpage 0.5
+        bind <C-u> scrollpage -0.5
+
+        " Top and bottom
+        bind gg scrollto 0
+        bind G scrollto 100
+
+        " ========== TAB MANAGEMENT ==========
+
         " Quick tab switching with 'b' command (fuzzy search)
         " Usage: Press 'b' then type any part of tab title/URL
         bind b fillcmdline buffer
 
-        " Quick window/tab navigation
+        " Navigate tabs (using uppercase to avoid conflict with scrolling)
         bind J tabprev
         bind K tabnext
-        bind H back
-        bind L forward
+        bind gT tabprev
+        bind gt tabnext
 
         " Close tab
         bind x tabclose
+        bind d tabclose
 
         " Restore closed tab
         bind X undo
+        bind u undo
 
         " New tab
         bind t tabnew
 
+        " Move tabs
+        bind < tabmove -1
+        bind > tabmove +1
+
+        " ========== NAVIGATION ==========
+
+        " History navigation
+        bind H back
+        bind L forward
+
+        " ========== SEARCH ==========
+
         " Search with current search engine
         bind s fillcmdline open search
-
-        " Open in new tab
         bind S fillcmdline tabopen search
 
         " Find mode
@@ -94,8 +167,7 @@ in
         bind n findnext 1
         bind N findnext -1
 
-        " Smooth scroll
-        set smoothscroll true
+        " ========== VISUAL & THEME ==========
 
         " Theme integration - minimal UI
         colors dark
@@ -103,8 +175,13 @@ in
         " Don't show mode indicator (cleaner UI)
         set modeindicatorshowkeys false
 
-        " Clear all default search engines and keep minimal set
-        " You can customize these in Firefox settings
+        " ========== MISC ==========
+
+        " Performance - lazy load
+        set allowautofocus false
+
+        " Disable annoying behaviors
+        set newtabfocus page
 
         " Quick marks for common pages
         " Usage: go<key> to open, gn<key> to open in new tab
@@ -113,8 +190,20 @@ in
         " Ignore mode for certain sites (if you prefer default Firefox behavior)
         " autocmd DocStart ^http(s?)://mail.google.com enterIgnoreMode
 
-        " Performance - lazy load
-        set allowautofocus false
+        " ========== HINTS & SELECTION ==========
+
+        " Follow hints
+        bind f hint
+        bind F hint -b
+
+        " Yank (copy)
+        bind yy clipboard yank
+        bind yt clipboard tabopen
+        bind yl clipboard yank canonical
+
+        " Open in new tab
+        bind O fillcmdline tabopen
+        bind o fillcmdline open
       '';
     };
     "firefox/default/chrome/brave-icons/BackButton.svg" = {
