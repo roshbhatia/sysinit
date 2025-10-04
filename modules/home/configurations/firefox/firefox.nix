@@ -129,18 +129,22 @@ in
     "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/Warning.svg" = {
       source = ./chrome-theme/brave-icons/Warning.svg;
     };
-    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/folder-locked-symbolic.svg" = {
-      source = ./chrome-theme/brave-icons/folder-locked-symbolic.svg;
-    };
-    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/tracking-protection-animatable.svg" = {
-      source = ./chrome-theme/brave-icons/tracking-protection-animatable.svg;
-    };
-    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/tracking-protection.svg" = {
-      source = ./chrome-theme/brave-icons/tracking-protection.svg;
-    };
-    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/view-refresh-symbolic.svg" = {
-      source = ./chrome-theme/brave-icons/view-refresh-symbolic.svg;
-    };
+    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/folder-locked-symbolic.svg" =
+      {
+        source = ./chrome-theme/brave-icons/folder-locked-symbolic.svg;
+      };
+    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/tracking-protection-animatable.svg" =
+      {
+        source = ./chrome-theme/brave-icons/tracking-protection-animatable.svg;
+      };
+    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/tracking-protection.svg" =
+      {
+        source = ./chrome-theme/brave-icons/tracking-protection.svg;
+      };
+    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/view-refresh-symbolic.svg" =
+      {
+        source = ./chrome-theme/brave-icons/view-refresh-symbolic.svg;
+      };
   };
 
   xdg.configFile = {

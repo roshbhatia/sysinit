@@ -65,8 +65,8 @@ rec {
 
       baseChromeCSS = ''
         /* --------------------------------------------------------------------------------
-        Arc Browser-Inspired Firefox Theme
-        The Browser Company aesthetic with transparency, blur, and square tabs
+        Minimal Firefox Theme - Clean, Ghostty-inspired
+        Simple, functional, minimal design with theme integration
         --------------------------------------------------------------------------------- */
 
         /* ========== TYPOGRAPHY ========== */
@@ -75,16 +75,15 @@ rec {
             font-family: "TX-02", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
 
-        /* ========== CORE TRANSPARENCY & BLUR ========== */
-
-        :root#main-window {
-            background-color: transparent !important;
-        }
+        /* ========== BASE STYLING ========== */
 
         :root {
-            --arc-transparency: ${toString (transparency.opacity * 0.5)};
-            --arc-blur: ${toString (transparency.blur * 1.5)}px;
-            --arc-sidebar-width: 0px;
+            --minimal-bg: ${semanticColors.background.primary};
+            --minimal-bg-secondary: ${semanticColors.background.secondary};
+            --minimal-text: ${semanticColors.foreground.primary};
+            --minimal-text-secondary: ${semanticColors.foreground.secondary};
+            --minimal-accent: ${semanticColors.accent.primary};
+            --minimal-border: ${semanticColors.accent.dim};
         }
 
         :root #TabsToolbar,
@@ -94,311 +93,202 @@ rec {
         :root #nav-bar,
         :root #browser,
         :root #navigator-toolbox {
-            -moz-default-appearance: none !important;
+            -moz-appearance: none !important;
             appearance: none !important;
-            background-color: transparent !important;
-        }
-
-        :root:not(:-moz-window-inactive) #navigator-toolbox {
-            background-color: transparent !important;
-            backdrop-filter: blur(var(--arc-blur)) saturate(2) !important;
-        }
-
-        /* ========== ARC-STYLE TOOLBAR ========== */
-
-        #TabsToolbar {
-            background: color-mix(in srgb, var(--bg-primary) calc(var(--arc-transparency) * 100%), transparent) !important;
-            backdrop-filter: blur(var(--arc-blur)) saturate(2.2) !important;
-            padding-block: 8px !important;
-            padding-inline: 12px !important;
-            border: none !important;
-            box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--accent-dim) 15%, transparent) !important;
-        }
-
-        #nav-bar {
-            background: color-mix(in srgb, var(--bg-secondary) calc(var(--arc-transparency) * 80%), transparent) !important;
-            backdrop-filter: blur(calc(var(--arc-blur) * 0.9)) saturate(2) !important;
-            border: none !important;
-            box-shadow: none !important;
-            padding-block: 12px !important;
-            padding-inline: 16px !important;
         }
 
         #navigator-toolbox {
             border: none !important;
-            background: linear-gradient(
-                180deg,
-                color-mix(in srgb, var(--bg-primary) calc(var(--arc-transparency) * 100%), transparent) 0%,
-                color-mix(in srgb, var(--bg-secondary) calc(var(--arc-transparency) * 80%), transparent) 50%,
-                transparent 100%
-            ) !important;
+            background-color: var(--minimal-bg) !important;
         }
 
-        /* ========== ARC-STYLE SQUARE TABS ========== */
+        /* ========== MINIMAL TOOLBAR ========== */
 
-        /* Remove all tab borders and separators */
+        #TabsToolbar {
+            background: var(--minimal-bg) !important;
+            padding-block: 4px !important;
+            padding-inline: 8px !important;
+            border: none !important;
+            min-height: 32px !important;
+            max-height: 32px !important;
+        }
+
+        #nav-bar {
+            background: var(--minimal-bg) !important;
+            border: none !important;
+            padding-block: 4px !important;
+            padding-inline: 8px !important;
+            min-height: 32px !important;
+        }
+
+        .tabbrowser-arrowscrollbox {
+            height: 32px !important;
+            min-height: 32px !important;
+        }
+
+        /* ========== MINIMAL SQUARE TABS ========== */
+
+        /* Remove tab separators */
         .tabbrowser-tab::after,
         .tabbrowser-tab::before {
             display: none !important;
+            border-left: none !important;
         }
 
-        /* Square tab container */
+        .titlebar-spacer[type="pre-tabs"],
+        .titlebar-spacer[type="post-tabs"] {
+            display: none !important;
+        }
+
+        /* Square tabs - clean and simple */
         .tabbrowser-tab {
             min-width: 0px !important;
-            max-width: 200px !important;
-            padding-inline: 3px !important;
-            margin-inline-end: 2px !important;
+            padding-inline: 2px !important;
         }
 
-        /* Square tabs with top rounded corners (Arc style) */
         .tab-background {
             border: none !important;
             box-shadow: none !important;
-            border-radius: 8px 8px 0 0 !important;
-            margin-block: 0px !important;
-            margin-bottom: -1px !important;
-            transition: all 0.15s cubic-bezier(0.2, 0, 0, 1) !important;
-            position: relative !important;
+            border-radius: 0 !important;
+            margin: 0 !important;
+            transition: background-color 0.1s ease !important;
         }
 
-        /* Inactive tabs - glass morphism effect */
+        /* Inactive tabs - subtle */
         .tab-background:not([selected]) {
-            background: color-mix(in srgb, var(--bg-overlay) 20%, transparent) !important;
-            backdrop-filter: blur(calc(var(--arc-blur) * 0.3)) !important;
+            background: var(--minimal-bg) !important;
         }
 
         .tabbrowser-tab:not([selected]):hover .tab-background {
-            background: color-mix(in srgb, var(--bg-overlay) 45%, transparent) !important;
-            backdrop-filter: blur(calc(var(--arc-blur) * 0.5)) !important;
-            transform: translateY(-1px) !important;
+            background: var(--minimal-bg-secondary) !important;
         }
 
-        /* Active tab - Arc-style elevation and glow */
+        /* Active tab - simple highlight */
         .tab-background[selected],
         .tab-background[multiselected="true"] {
-            background: color-mix(in srgb, var(--bg-secondary) 90%, transparent) !important;
-            backdrop-filter: blur(var(--arc-blur)) saturate(1.5) !important;
-            box-shadow:
-                0 0 0 1px color-mix(in srgb, var(--accent-secondary) 40%, transparent),
-                0 2px 12px color-mix(in srgb, var(--accent-primary) 12%, transparent),
-                inset 0 1px 0 0 color-mix(in srgb, var(--accent-primary) 20%, transparent) !important;
-            transform: translateY(0px) !important;
+            background: var(--minimal-bg-secondary) !important;
         }
 
-        /* Tab content - Arc spacing */
+        /* Tab content - minimal spacing */
         .tab-content {
             overflow: hidden !important;
-            padding-inline: 12px !important;
-            padding-block: 8px !important;
+            padding-inline: 8px !important;
+            padding-block: 4px !important;
         }
 
-        /* Tab labels - Arc typography */
+        /* Tab labels - clean, centered like minimalfox */
         .tab-label {
-            color: var(--text-secondary) !important;
-            font-weight: 450 !important;
-            font-size: 12.5px !important;
-            letter-spacing: -0.01em !important;
-            transition: color 0.15s ease !important;
+            -moz-box-flex: 1 !important;
+            text-align: center !important;
+            color: var(--minimal-text-secondary) !important;
+            font-weight: 400 !important;
+            font-size: 11px !important;
         }
 
         .tab-background[selected] .tab-label {
-            color: var(--text-primary) !important;
-            font-weight: 550 !important;
+            color: var(--minimal-text) !important;
+            font-weight: 600 !important;
         }
 
-        /* Tab favicon - subtle glow on active */
-        .tab-icon-image {
-            transition: all 0.15s ease !important;
-        }
-
-        .tab-background[selected] .tab-icon-image {
-            filter: drop-shadow(0 0 4px color-mix(in srgb, var(--accent-primary) 30%, transparent)) !important;
-        }
-
-        /* Tab close button - Arc style */
-        .tabbrowser-tab:not([pinned]) .tab-close-button {
-            display: -moz-box !important;
-            opacity: 0 !important;
+        /* Tab close button - only show on hover */
+        .tabbrowser-tab:not([pinned]):not(:hover) .tab-close-button {
             visibility: collapse !important;
-            transition: opacity 0.15s ease, visibility 0.15s ease, background 0.15s ease !important;
-            list-style-image: url("./brave-icons/CloseTab.svg") !important;
-            width: 18px !important;
-            height: 18px !important;
-            margin: 0 !important;
-            padding: 3px !important;
-            border-radius: 4px !important;
         }
 
-        .tabbrowser-tab:not([pinned]):hover .tab-close-button,
-        .tab-background[selected] .tab-close-button {
-            opacity: 0.6 !important;
+        .tabbrowser-tab:not([pinned]):hover .tab-close-button {
             visibility: visible !important;
+            display: block !important;
         }
 
-        .tabbrowser-tab:not([pinned]) .tab-close-button:hover {
-            opacity: 1 !important;
-            background: color-mix(in srgb, var(--accent-dim) 70%, transparent) !important;
-            transform: scale(1.05) !important;
+        .tab-close-button {
+            list-style-image: url("./brave-icons/CloseTab.svg") !important;
+            width: 16px !important;
+            height: 16px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border-radius: 2px !important;
         }
 
-        /* Remove tab separators */
-        .titlebar-spacer[type="pre-tabs"] {
-            border: none !important;
+        .tab-close-button:hover {
+            background: var(--minimal-border) !important;
         }
 
-        .titlebar-spacer[type="post-tabs"] {
-            border: none !important;
-        }
-
-        /* ========== ARC-STYLE FLOATING COMMAND BAR ========== */
+        /* ========== MINIMAL URL BAR ========== */
 
         #urlbar-container {
-            max-width: 60% !important;
-            margin: 0 auto !important;
+            min-width: 169px !important;
         }
 
         #urlbar {
-            border: none !important;
-            min-height: 38px !important;
-        }
-
-        /* Floating command bar with heavy blur */
-        #urlbar-background {
-            background: color-mix(in srgb, var(--bg-secondary) 75%, transparent) !important;
-            border: 1px solid color-mix(in srgb, var(--accent-dim) 30%, transparent) !important;
-            border-radius: 10px !important;
-            backdrop-filter: blur(var(--arc-blur)) saturate(1.8) !important;
-            box-shadow:
-                0 2px 16px color-mix(in srgb, var(--bg-primary) 5%, transparent),
-                0 0 0 0.5px color-mix(in srgb, var(--accent-secondary) 10%, transparent),
-                inset 0 1px 0 0 color-mix(in srgb, var(--accent-primary) 8%, transparent) !important;
-            outline: none !important;
-            transition: all 0.2s cubic-bezier(0.2, 0, 0, 1) !important;
-        }
-
-        /* URL bar on hover - Arc glow effect */
-        #urlbar:hover > #urlbar-background {
-            background: color-mix(in srgb, var(--bg-secondary) 85%, transparent) !important;
-            border-color: color-mix(in srgb, var(--accent-secondary) 50%, transparent) !important;
-            box-shadow:
-                0 4px 24px color-mix(in srgb, var(--accent-primary) 8%, transparent),
-                0 0 0 0.5px color-mix(in srgb, var(--accent-secondary) 20%, transparent),
-                inset 0 1px 0 0 color-mix(in srgb, var(--accent-primary) 12%, transparent) !important;
-            transform: translateY(-1px) !important;
-        }
-
-        /* URL bar on focus - Arc active state */
-        #urlbar[focused] > #urlbar-background {
-            background: color-mix(in srgb, var(--bg-secondary) 95%, transparent) !important;
-            border-color: var(--accent-primary) !important;
-            box-shadow:
-                0 8px 32px color-mix(in srgb, var(--accent-primary) 15%, transparent),
-                0 0 0 1px var(--accent-primary),
-                inset 0 1px 0 0 color-mix(in srgb, var(--accent-primary) 20%, transparent) !important;
-            transform: translateY(-2px) scale(1.01) !important;
-        }
-
-        /* URL bar dropdown - Arc style */
-        #urlbar[breakout][breakout-extend] > #urlbar-background {
-            background: color-mix(in srgb, var(--bg-secondary) 98%, transparent) !important;
-            border-color: var(--accent-primary) !important;
-        }
-
-        #urlbar[open] > .urlbarView > .urlbarView-body-outer > .urlbarView-body-inner {
-            border-top: none !important;
-        }
-
-        /* Dropdown results - Arc glass effect */
-        .urlbarView {
-            background: color-mix(in srgb, var(--bg-secondary) 95%, transparent) !important;
-            backdrop-filter: blur(var(--arc-blur)) saturate(1.5) !important;
-            border-radius: 0 0 10px 10px !important;
-            border: 1px solid var(--accent-primary) !important;
-            border-top: none !important;
-            margin-inline: 0 !important;
-        }
-
-        .urlbarView-row {
             background: transparent !important;
-            border-radius: 6px !important;
-            transition: background 0.15s ease !important;
+            border: none !important;
+            box-shadow: none !important;
         }
 
-        .urlbarView-row:hover {
-            background: color-mix(in srgb, var(--accent-dim) 40%, transparent) !important;
+        #urlbar-background {
+            background: var(--minimal-bg-secondary) !important;
+            border: none !important;
+            border-radius: 4px !important;
+            box-shadow: none !important;
         }
 
-        .urlbarView-row[selected] {
-            background: color-mix(in srgb, var(--accent-secondary) 30%, transparent) !important;
+        #urlbar[focused="true"] > #urlbar-background,
+        #urlbar:hover > #urlbar-background {
+            border-color: var(--minimal-border) !important;
         }
 
-        /* Center URL text (Arc command bar style) */
-        #urlbar-input {
-            text-align: center !important;
-            color: var(--text-primary) !important;
-            font-size: 13px !important;
-            font-weight: 450 !important;
-            transition: text-align 0.2s ease !important;
+        #urlbar[open] > #urlbar-background {
+            border-color: transparent !important;
         }
 
-        #urlbar[focused] #urlbar-input {
+        /* Clean URL input */
+        #urlbar .urlbar-input-box {
             text-align: left !important;
         }
 
-        /* URL bar placeholder */
-        #urlbar-input::placeholder {
-            color: var(--text-muted) !important;
-            opacity: 0.6 !important;
+        #urlbar-input {
+            color: var(--minimal-text) !important;
+            font-size: 12px !important;
         }
 
-        /* ========== ARC-STYLE CONTENT AREA ========== */
+        .urlbar-input-box > .urlbar-input::placeholder {
+            opacity: 0 !important;
+        }
+
+        /* ========== MINIMAL CONTENT AREA ========== */
 
         #appcontent {
-            margin-top: 0px !important;
-            margin-inline: 0px !important;
-            margin-block-end: 0px !important;
-            border-radius: 12px 12px 0 0 !important;
-            border: 1px solid color-mix(in srgb, var(--accent-dim) 20%, transparent) !important;
-            border-bottom: none !important;
-            overflow: hidden !important;
-            box-shadow:
-                0 -2px 24px color-mix(in srgb, var(--bg-primary) 10%, transparent),
-                inset 0 1px 0 0 color-mix(in srgb, var(--accent-secondary) 8%, transparent) !important;
+            margin: 0 !important;
+            border: none !important;
+            border-radius: 0 !important;
         }
 
-        /* ========== ARC-STYLE TOOLBAR BUTTONS ========== */
+        .browserContainer {
+            background-color: var(--minimal-bg) !important;
+        }
 
-        :root, toolbar {
-            --toolbarbutton-hover-background: color-mix(in srgb, var(--accent-dim) 50%, transparent) !important;
-            --toolbarbutton-active-background: color-mix(in srgb, var(--accent-dim) 70%, transparent) !important;
-            --toolbarbutton-border-radius: 7px !important;
+        /* ========== MINIMAL TOOLBAR BUTTONS ========== */
+
+        toolbar .toolbarbutton-1 {
+            -moz-appearance: none !important;
+            appearance: none !important;
+            margin: -1px !important;
+            padding: 0 var(--toolbarbutton-outer-padding) !important;
         }
 
         .toolbarbutton-1 {
-            fill: var(--text-secondary) !important;
-            border-radius: var(--toolbarbutton-border-radius) !important;
-            transition: all 0.15s cubic-bezier(0.2, 0, 0, 1) !important;
-            padding: 6px !important;
+            fill: var(--minimal-text-secondary) !important;
+            border-radius: 2px !important;
         }
 
         .toolbarbutton-1:hover {
-            fill: var(--text-primary) !important;
-            background: var(--toolbarbutton-hover-background) !important;
-            transform: scale(1.05) !important;
+            background: var(--minimal-bg-secondary) !important;
         }
 
-        .toolbarbutton-1:active {
-            background: var(--toolbarbutton-active-background) !important;
-            transform: scale(0.98) !important;
-        }
-
-        /* Navigation button icons */
-        #back-button {
-            list-style-image: url("./brave-icons/BackButton.svg") !important;
-        }
-
+        /* Hide back/forward buttons for clean look */
+        #back-button,
         #forward-button {
-            list-style-image: url("./brave-icons/ForwardButton.svg") !important;
+            display: none !important;
         }
 
         #reload-button {
@@ -413,192 +303,142 @@ rec {
             list-style-image: url("./brave-icons/BookmarkFilled.svg") !important;
         }
 
-        #urlbar[pageproxystate="invalid"] #identity-icon,
-        .searchbar-search-icon,
-        #PopupAutoCompleteRichResult .ac-type-icon[type="keyword"],
-        #PopupAutoCompleteRichResult .ac-site-icon[type="searchengine"],
-        #appMenu-find-button,
-        #panelMenu_searchBookmarks {
-            list-style-image: url("./brave-icons/Search.svg") !important;
+        /* Hide page action buttons for minimal look */
+        #page-action-buttons {
+            display: none !important;
         }
 
-        /* ========== ARC CLEAN AESTHETIC ========== */
+        /* Hide hamburger menu button */
+        #PanelUI-button {
+            display: none !important;
+        }
 
-        /* Completely hide bookmarks toolbar - Arc doesn't show it */
+        /* ========== MINIMAL CLEAN UI ========== */
+
+        /* Hide bookmarks toolbar */
         #PersonalToolbar {
             display: none !important;
-            visibility: collapse !important;
         }
 
-        /* Hide tab manager button - cleaner look */
-        #alltabs-button {
+        /* Hide window controls container for cleaner titlebar */
+        .titlebar-buttonbox-container {
             display: none !important;
         }
 
-        /* Hide new tab button in tab bar - use Cmd+T instead */
+        /* Hide new tab button */
         #tabs-newtab-button {
             display: none !important;
         }
 
-        /* Minimal scrollbar for tab overflow */
-        .scrollbutton-up,
-        .scrollbutton-down {
-            opacity: 0 !important;
-            transition: opacity 0.15s ease !important;
+        /* Hide identity icon extensions */
+        #identity-icon {
+            visibility: visible !important;
         }
 
-        #tabbrowser-tabs:hover .scrollbutton-up,
-        #tabbrowser-tabs:hover .scrollbutton-down {
-            opacity: 0.5 !important;
+        #tracking-protection-icon-container {
+            visibility: collapse !important;
         }
 
-        /* ========== ARC ANIMATIONS ========== */
+        /* ========== MINIMAL CONTEXT MENUS ========== */
 
-        * {
-            transition-timing-function: cubic-bezier(0.2, 0, 0, 1) !important;
+        :root {
+            --uc-menu-bkgnd: var(--minimal-bg-secondary);
+            --uc-menu-color: var(--minimal-text);
+            --uc-menu-dimmed: var(--minimal-border);
+            --uc-menu-disabled: var(--minimal-text-secondary);
         }
 
-        /* Smooth tab animations */
-        .tabbrowser-tab {
-            transition: all 0.15s cubic-bezier(0.2, 0, 0, 1) !important;
-        }
-
-        /* Smooth toolbar transitions */
-        #nav-bar, #TabsToolbar {
-            transition: all 0.2s cubic-bezier(0.2, 0, 0, 1) !important;
-        }
-
-        /* ========== CONTEXT MENUS & POPUPS ========== */
-
-        /* Arc-style context menus */
+        panel richlistbox,
+        panel tree,
+        panel button,
+        panel menulist,
+        panel textbox,
+        panel input,
         menupopup,
-        panel {
-            background: color-mix(in srgb, var(--bg-secondary) 95%, transparent) !important;
-            backdrop-filter: blur(var(--arc-blur)) saturate(1.5) !important;
-            border: 1px solid color-mix(in srgb, var(--accent-secondary) 30%, transparent) !important;
-            border-radius: 10px !important;
-            box-shadow:
-                0 8px 32px color-mix(in srgb, var(--bg-primary) 20%, transparent),
-                0 0 0 0.5px color-mix(in srgb, var(--accent-primary) 10%, transparent) !important;
-            padding: 4px !important;
+        menu,
+        menuitem {
+            -moz-appearance: none !important;
         }
 
+        menulist,
         menuitem,
         menu {
-            background: transparent !important;
-            border-radius: 6px !important;
-            transition: background 0.15s ease !important;
-            margin: 1px 0 !important;
+            min-height: 1.8em !important;
         }
 
+        panel richlistbox,
+        panel tree,
+        panel button,
+        panel menulist,
+        panel textbox,
+        panel input,
+        menupopup,
+        #main-menubar > menu > menupopup,
+        #context-navigation {
+            color: var(--uc-menu-color) !important;
+            padding: 2px !important;
+            background-color: var(--uc-menu-bkgnd) !important;
+            border-color: var(--uc-menu-disabled) !important;
+            border-radius: 4px !important;
+        }
+
+        menu:hover,
+        menu[_moz-menuactive],
+        menu[open],
         menuitem:hover,
-        menu:hover {
-            background: color-mix(in srgb, var(--accent-dim) 50%, transparent) !important;
+        menuitem[_moz-menuactive] {
+            background-color: var(--uc-menu-dimmed) !important;
+            color: inherit !important;
         }
 
-        menuitem[_moz-menuactive="true"],
-        menu[_moz-menuactive="true"] {
-            background: color-mix(in srgb, var(--accent-secondary) 40%, transparent) !important;
+        menu[disabled="true"],
+        menuitem[disabled="true"] {
+            color: var(--uc-menu-disabled) !important;
         }
 
-        /* ========== NOTIFICATION & ALERTS ========== */
+        /* ========== MINIMAL SIDEBAR ========== */
 
-        .notificationbox-stack,
-        notification {
-            background: color-mix(in srgb, var(--bg-secondary) 90%, transparent) !important;
-            backdrop-filter: blur(var(--arc-blur)) !important;
-            border-radius: 8px !important;
+        #sidebar-box,
+        #sidebar,
+        .sidebar-placesTree {
+            -moz-appearance: none !important;
+            color: var(--minimal-text) !important;
+            background-color: var(--minimal-bg) !important;
         }
 
-        /* ========== COMPACT MODE REFINEMENTS ========== */
+        /* ========== MINIMAL TOOLTIPS ========== */
 
-        :root[uidensity="compact"] #TabsToolbar {
-            padding-block: 6px !important;
-        }
-
-        :root[uidensity="compact"] #nav-bar {
-            padding-block: 10px !important;
-        }
-
-        :root[uidensity="compact"] .tab-content {
-            padding-inline: 10px !important;
-            padding-block: 6px !important;
-        }
-
-        /* ========== WINDOW CONTROLS (macOS) ========== */
-
-        /* Style window controls to match Arc */
-        .titlebar-buttonbox-container {
-            margin-left: 8px !important;
-        }
-
-        /* ========== SIDEBAR (if enabled) ========== */
-
-        #sidebar-box {
-            background: color-mix(in srgb, var(--bg-primary) 95%, transparent) !important;
-            backdrop-filter: blur(var(--arc-blur)) saturate(1.5) !important;
-            border-right: 1px solid color-mix(in srgb, var(--accent-dim) 20%, transparent) !important;
-        }
-
-        #sidebar-header {
-            background: color-mix(in srgb, var(--bg-secondary) 90%, transparent) !important;
-            border-bottom: 1px solid color-mix(in srgb, var(--accent-dim) 20%, transparent) !important;
-        }
-
-        /* ========== FINDBAR ========== */
-
-        .findbar-container {
-            background: color-mix(in srgb, var(--bg-secondary) 95%, transparent) !important;
-            backdrop-filter: blur(var(--arc-blur)) !important;
-            border: 1px solid color-mix(in srgb, var(--accent-dim) 30%, transparent) !important;
-            border-radius: 8px !important;
+        tooltip {
+            -moz-appearance: none !important;
+            color: var(--minimal-text) !important;
+            background-color: var(--minimal-bg-secondary) !important;
+            padding: 6px !important;
+            border-radius: 4px !important;
+            box-shadow: none !important;
+            text-align: center !important;
         }
 
         /* ========== FINAL POLISH ========== */
 
-        /* Remove any remaining visual noise */
         #navigator-toolbox::after {
             display: none !important;
         }
 
-        .titlebar-spacer {
-            background: transparent !important;
-        }
-
-        /* Ensure smooth rendering */
-        * {
-            -moz-font-smoothing: antialiased !important;
-            -webkit-font-smoothing: antialiased !important;
+        :root {
+            --toolbox-border-bottom-color: transparent !important;
         }
       '';
 
       baseUserContentCSS = ''
-        /* Arc-Inspired New Tab & Content Pages */
+        /* Minimal New Tab & Content Pages */
 
-        /* Enhanced Arc-style background gradients */
-        @media (prefers-color-scheme: light) {
-          :root {
-            --background-wallpaper:
-              radial-gradient(circle at 20% 30%, color-mix(in srgb, var(--accent-primary) 8%, transparent) 0%, transparent 50%),
-              radial-gradient(circle at 80% 70%, color-mix(in srgb, var(--accent-secondary) 6%, transparent) 0%, transparent 50%),
-              linear-gradient(135deg,
-                var(--bg-primary) 0%,
-                color-mix(in srgb, var(--bg-primary) 95%, var(--accent-dim) 5%) 50%,
-                var(--bg-secondary) 100%);
-          }
-        }
-
-        @media (prefers-color-scheme: dark) {
-          :root {
-            --background-wallpaper:
-              radial-gradient(circle at 20% 30%, color-mix(in srgb, var(--accent-primary) 12%, transparent) 0%, transparent 50%),
-              radial-gradient(circle at 80% 70%, color-mix(in srgb, var(--accent-secondary) 10%, transparent) 0%, transparent 50%),
-              linear-gradient(135deg,
-                var(--bg-primary) 0%,
-                color-mix(in srgb, var(--bg-primary) 92%, var(--accent-primary) 8%) 30%,
-                color-mix(in srgb, var(--bg-secondary) 94%, var(--accent-secondary) 6%) 70%,
-                var(--bg-tertiary) 100%);
-          }
+        :root {
+            --minimal-bg: ${semanticColors.background.primary};
+            --minimal-bg-secondary: ${semanticColors.background.secondary};
+            --minimal-text: ${semanticColors.foreground.primary};
+            --minimal-text-secondary: ${semanticColors.foreground.secondary};
+            --minimal-accent: ${semanticColors.accent.primary};
+            --minimal-border: ${semanticColors.accent.dim};
         }
 
         @-moz-document url-prefix(about:home), url-prefix(about:newtab) {
@@ -607,135 +447,66 @@ rec {
           }
 
           body {
-            background: var(--background-wallpaper) !important;
+            background: var(--minimal-bg) !important;
             background-attachment: fixed !important;
-            color: var(--text-primary) !important;
+            color: var(--minimal-text) !important;
           }
 
-          /* Arc-style search bar */
+          /* Minimal search bar */
           .search-wrapper {
             background: transparent !important;
-            border-radius: 14px !important;
           }
 
           .search-handoff-button {
-            background: color-mix(in srgb, var(--bg-secondary) 80%, transparent) !important;
-            backdrop-filter: blur(var(--blur-amount)) saturate(1.5) !important;
-            border: 1px solid color-mix(in srgb, var(--accent-dim) 30%, transparent) !important;
-            color: var(--text-primary) !important;
-            border-radius: 12px !important;
-            padding: 16px 20px !important;
-            font-size: 14px !important;
-            font-weight: 450 !important;
-            box-shadow:
-              0 4px 20px color-mix(in srgb, var(--bg-primary) 8%, transparent),
-              inset 0 1px 0 0 color-mix(in srgb, var(--accent-primary) 10%, transparent) !important;
-            transition: all 0.2s cubic-bezier(0.2, 0, 0, 1) !important;
+            background: var(--minimal-bg-secondary) !important;
+            border: 1px solid var(--minimal-border) !important;
+            color: var(--minimal-text) !important;
+            border-radius: 4px !important;
+            padding: 12px 16px !important;
+            font-size: 12px !important;
           }
 
           .search-handoff-button:hover {
-            background: color-mix(in srgb, var(--bg-secondary) 90%, transparent) !important;
-            border-color: color-mix(in srgb, var(--accent-secondary) 50%, transparent) !important;
-            transform: translateY(-2px) scale(1.01) !important;
-            box-shadow:
-              0 8px 32px color-mix(in srgb, var(--accent-primary) 12%, transparent),
-              inset 0 1px 0 0 color-mix(in srgb, var(--accent-primary) 15%, transparent) !important;
+            background: var(--minimal-border) !important;
           }
 
-          /* Arc-style top sites */
+          /* Minimal top sites */
           .top-site-outer {
-            background: color-mix(in srgb, var(--bg-overlay) 70%, transparent) !important;
-            backdrop-filter: blur(calc(var(--blur-amount) * 0.8)) saturate(1.3) !important;
-            border: 1px solid color-mix(in srgb, var(--accent-dim) 20%, transparent) !important;
-            border-radius: 10px !important;
-            box-shadow: 0 2px 12px color-mix(in srgb, var(--bg-primary) 5%, transparent) !important;
-            transition: all 0.2s cubic-bezier(0.2, 0, 0, 1) !important;
+            background: var(--minimal-bg-secondary) !important;
+            border: 1px solid var(--minimal-border) !important;
+            border-radius: 4px !important;
           }
 
           .top-site-outer:hover {
-            background: color-mix(in srgb, var(--bg-overlay) 85%, transparent) !important;
-            border-color: color-mix(in srgb, var(--accent-secondary) 40%, transparent) !important;
-            transform: translateY(-3px) scale(1.02) !important;
-            box-shadow:
-              0 8px 24px color-mix(in srgb, var(--accent-primary) 10%, transparent),
-              inset 0 1px 0 0 color-mix(in srgb, var(--accent-primary) 12%, transparent) !important;
+            background: var(--minimal-border) !important;
           }
 
-          .top-site-outer .tile {
-            background: transparent !important;
-          }
-
-          .top-site-icon {
-            background: transparent !important;
-            filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent-primary) 15%, transparent)) !important;
-          }
-
-          /* Arc-style menus and context elements */
-          .customize-menu, .context-menu {
-            background: color-mix(in srgb, var(--bg-secondary) 95%, transparent) !important;
-            backdrop-filter: blur(var(--blur-amount)) saturate(1.5) !important;
-            border: 1px solid color-mix(in srgb, var(--accent-secondary) 30%, transparent) !important;
-            border-radius: 10px !important;
-            box-shadow:
-              0 12px 40px color-mix(in srgb, var(--bg-primary) 15%, transparent),
-              0 0 0 0.5px color-mix(in srgb, var(--accent-primary) 10%, transparent) !important;
+          /* Minimal menus */
+          .customize-menu,
+          .context-menu {
+            background: var(--minimal-bg-secondary) !important;
+            border: 1px solid var(--minimal-border) !important;
+            border-radius: 4px !important;
             padding: 4px !important;
           }
 
           .context-menu-item {
-            border-radius: 6px !important;
-            transition: all 0.15s ease !important;
+            border-radius: 2px !important;
           }
 
           .context-menu-item:hover {
-            background: color-mix(in srgb, var(--accent-secondary) 40%, transparent) !important;
-            color: var(--text-primary) !important;
+            background: var(--minimal-border) !important;
           }
 
-          /* Customize interface elements */
-          .customize-item {
-            background: color-mix(in srgb, var(--bg-overlay) 70%, transparent) !important;
-            backdrop-filter: blur(calc(var(--blur-amount) * 0.5)) !important;
-            border-radius: 8px !important;
-            border: 1px solid color-mix(in srgb, var(--accent-dim) 25%, transparent) !important;
-            transition: all 0.15s ease !important;
-          }
-
-          .customize-item:hover {
-            border-color: color-mix(in srgb, var(--accent-secondary) 50%, transparent) !important;
-            background: color-mix(in srgb, var(--bg-overlay) 85%, transparent) !important;
-            transform: scale(1.02) !important;
-          }
-
-          /* Activity stream cards - Arc glassmorphism */
+          /* Minimal cards */
           .ds-card {
-            background: color-mix(in srgb, var(--bg-overlay) 75%, transparent) !important;
-            backdrop-filter: blur(var(--blur-amount)) saturate(1.4) !important;
-            border: 1px solid color-mix(in srgb, var(--accent-dim) 25%, transparent) !important;
-            border-radius: 10px !important;
-            box-shadow: 0 4px 16px color-mix(in srgb, var(--bg-primary) 6%, transparent) !important;
-            transition: all 0.2s ease !important;
+            background: var(--minimal-bg-secondary) !important;
+            border: 1px solid var(--minimal-border) !important;
+            border-radius: 4px !important;
           }
 
           .ds-card:hover {
-            border-color: color-mix(in srgb, var(--accent-secondary) 45%, transparent) !important;
-            background: color-mix(in srgb, var(--bg-overlay) 90%, transparent) !important;
-            transform: translateY(-2px) !important;
-            box-shadow:
-              0 8px 28px color-mix(in srgb, var(--accent-primary) 8%, transparent),
-              inset 0 1px 0 0 color-mix(in srgb, var(--accent-primary) 10%, transparent) !important;
-          }
-
-          /* Hide unnecessary elements for cleaner Arc look */
-          .prefs-button,
-          .context-menu-button {
-            opacity: 0.6 !important;
-            transition: opacity 0.15s ease !important;
-          }
-
-          .prefs-button:hover,
-          .context-menu-button:hover {
-            opacity: 1 !important;
+            background: var(--minimal-border) !important;
           }
         }
       '';
