@@ -15,9 +15,48 @@ let
     transparency = values.theme.transparency;
   };
 
-  firefoxTheme = themeSystem.createAppConfig "firefox" themeConfig { };
+  firefoxTheme = themeSystem.createAppConfig "firefox" themeConfig {
+    stretchedTabs = values.firefox.theme.stretchedTabs or false;
+  };
 
-  userChromeCSS = pkgs.writeText "userChrome.css" firefoxTheme.userChromeCSS;
+  userChromeCSS =
+    let
+      stretchedTabsCSS =
+        if values.firefox.theme.stretchedTabs or false then
+          ''
+            /* Stretched tabs configuration */
+            #urlbar-background {
+                border: none !important;
+            }
+
+            /* Stretch Tabs */
+            .tabbrowser-tab[fadein]:not([pinned]) {
+                max-width: none !important;
+            }
+          ''
+        else
+          "";
+
+      hideTabsCSS =
+        if values.firefox.theme.hideTabs or true then
+          ''
+            /* Hide tab bar completely - use Tridactyl 'b' for fuzzy finding */
+            #TabsToolbar {
+              display: none !important;
+            }
+
+            /* Adjust nav-bar to use full width when tabs are hidden */
+            #nav-bar {
+              margin-top: 0 !important;
+              margin-right: 0 !important;
+            }
+          ''
+        else
+          "";
+    in
+    pkgs.writeText "userChrome.css" (
+      firefoxTheme.userChromeCSS + stretchedTabsCSS + hideTabsCSS
+    );
 
   userContentCSS = pkgs.writeText "userContent.css" firefoxTheme.userContentCSS;
 in
