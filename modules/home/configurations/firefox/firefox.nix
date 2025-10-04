@@ -37,49 +37,25 @@ let
         else
           "";
 
-      autohideToolbarCSS =
-        if values.firefox.theme.autohideToolbar or false then
+      hideTabsCSS =
+        if values.firefox.theme.hideTabs or true then
           ''
-            /* Auto-hide toolbar - inspired by minimalFOX */
-            :root {
-              --uc-autohide-toolbox-delay: 200ms;
-              --uc-autohide-toolbox-reveal-delay: 33ms;
-              --uc-toolbox-rotation: 82deg;
+            /* Hide tab bar completely - use Tridactyl 'b' for fuzzy finding */
+            #TabsToolbar {
+              display: none !important;
             }
 
-            :root[sizemode="maximized"] {
-              --uc-toolbox-rotation: 88.5deg;
-            }
-
-            #navigator-toolbox {
-              position: fixed !important;
-              background-color: var(--lwt-accent-color, transparent) !important;
-              transition: transform 82ms linear, opacity 82ms linear !important;
-              transition-delay: var(--uc-autohide-toolbox-delay) !important;
-              transform-origin: top;
-              transform: rotateX(var(--uc-toolbox-rotation));
-              opacity: 0;
-              line-height: 0;
-              z-index: 1;
-              pointer-events: none;
-              width: 100vw;
-            }
-
-            /* Show toolbar on hover, focus, or when URL bar is active */
-            #mainPopupSet:has(> [panelopen]:not(#ask-chat-shortcuts,#selection-shortcut-action-panel,#chat-shortcuts-options-panel,#tab-preview-panel)) ~ toolbox,
-            #navigator-toolbox:has(#urlbar:is([open],[focus-within])),
-            #navigator-toolbox:is(:hover,:focus-within,[movingtab]) {
-              transition-delay: var(--uc-autohide-toolbox-reveal-delay) !important;
-              transform: rotateX(0);
-              opacity: 1;
-              pointer-events: auto;
+            /* Adjust nav-bar to use full width when tabs are hidden */
+            #nav-bar {
+              margin-top: 0 !important;
+              margin-right: 0 !important;
             }
           ''
         else
           "";
     in
     pkgs.writeText "userChrome.css" (
-      firefoxTheme.userChromeCSS + stretchedTabsCSS + autohideToolbarCSS
+      firefoxTheme.userChromeCSS + stretchedTabsCSS + hideTabsCSS
     );
 
   userContentCSS = pkgs.writeText "userContent.css" firefoxTheme.userContentCSS;
