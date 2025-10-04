@@ -4,7 +4,6 @@ local theme_config =
 
 local M = {}
 
--- Status line components
 local function get_git_blame_text()
   local ok, git_blame = pcall(require, "gitblame")
   if not ok then
@@ -47,7 +46,7 @@ M.plugins = {
     dependencies = {
       "nvim-tree/nvim-web-devicons",
     },
-    lazy = false,
+    event = "BufReadPost",
     config = function()
       require("staline").setup({
         sections = {

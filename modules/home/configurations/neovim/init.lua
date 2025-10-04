@@ -86,7 +86,6 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.library.nio"),
   require("sysinit.plugins.library.nui"),
   require("sysinit.plugins.library.snacks"),
-  require("sysinit.plugins.library.volt"),
   require("sysinit.plugins.ui.auto-cmdheight"),
   require("sysinit.plugins.ui.devicons"),
   require("sysinit.plugins.ui.dressing"),

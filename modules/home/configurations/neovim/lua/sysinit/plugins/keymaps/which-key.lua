@@ -4,7 +4,7 @@ local config = require("sysinit.utils.config")
 M.plugins = {
   {
     "folke/which-key.nvim",
-    lazy = false,
+    event = "VeryLazy",
     config = function()
       local wk = require("which-key")
 
