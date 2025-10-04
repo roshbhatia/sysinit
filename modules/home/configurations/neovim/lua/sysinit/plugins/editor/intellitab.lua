@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
   {
     "pta2002/intellitab.nvim",
-    lazy = false,
+    event = "InsertEnter",
     keys = function()
       return {
         {

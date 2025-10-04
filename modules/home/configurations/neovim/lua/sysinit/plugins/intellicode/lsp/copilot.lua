@@ -27,7 +27,6 @@ function M.setup(client, bufnr)
     buffer = bufnr,
   })
 
-  -- Use the enhanced NES module
   local enhanced_nes = require("sysinit.plugins.intellicode.lsp.nes")
   enhanced_nes.setup_enhanced_display(bufnr)
   enhanced_nes.setup_keymaps(bufnr)

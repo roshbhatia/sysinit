@@ -1,11 +1,8 @@
-local json_loader = require("sysinit.pkg.utils.json_loader")
+local json_loader = require("sysinit.utils.json_loader")
 local theme_config =
   json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
 
 local M = {}
-
--- Enhanced NES functionality inspired by sidekick.nvim
--- Provides better integration with completion and status line
 
 function M.is_available()
   local buf = vim.api.nvim_get_current_buf()
@@ -85,7 +82,6 @@ end
 function M.setup_enhanced_display(bufnr)
   local custom_ns = vim.api.nvim_create_namespace("copilotlsp.nes.enhanced")
 
-  -- Define highlight groups for accept/reject
   vim.api.nvim_create_autocmd("ColorScheme", {
     callback = function()
       vim.api.nvim_set_hl(
@@ -103,7 +99,6 @@ function M.setup_enhanced_display(bufnr)
     group = vim.api.nvim_create_augroup("NESColors", { clear = true }),
   })
 
-  -- Set initial colors
   vim.api.nvim_set_hl(0, "NESAccept", { fg = theme_config.colors.semantic.success, bold = true })
   vim.api.nvim_set_hl(0, "NESReject", { fg = theme_config.colors.semantic.error, bold = true })
   vim.api.nvim_set_hl(0, "NESHint", { fg = theme_config.colors.foreground.muted, italic = true })

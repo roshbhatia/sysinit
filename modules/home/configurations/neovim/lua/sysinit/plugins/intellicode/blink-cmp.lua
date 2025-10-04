@@ -179,12 +179,10 @@ M.plugins = {
           },
           ["<Tab>"] = {
             function(cmp)
-              -- First check for copilot inline suggestions from blink-copilot
               local ok, copilot = pcall(require, "blink-copilot")
               if ok and copilot.is_visible and copilot.is_visible() then
                 return cmp.select_and_accept()
               end
-              -- Then check for NES using the enhanced module
               local nes = require("sysinit.plugins.intellicode.lsp.nes")
               if nes.is_available() then
                 cmp.hide()

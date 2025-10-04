@@ -3,10 +3,10 @@ local M = {}
 M.plugins = {
   {
     "windwp/nvim-autopairs",
-    deppendencies = {
+    dependencies = {
       "nvim-treesitter/nvim-treesitter",
     },
-    lazy = false,
+    event = "InsertEnter",
     config = true,
     opts = {
       check_ts = true,

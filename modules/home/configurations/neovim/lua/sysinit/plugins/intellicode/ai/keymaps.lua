@@ -161,15 +161,15 @@ end
 function M.generate_all_keymaps(agents)
   local all_keymaps = {}
 
-  -- Generate agent-specific keymaps
+
   for _, agent in ipairs(agents) do
     vim.list_extend(all_keymaps, M.create_agent_keymaps(agent))
   end
 
-  -- Add history keymaps
+
   vim.list_extend(all_keymaps, M.create_history_keymaps(agents))
 
-  -- Add shared keymaps
+
   vim.list_extend(all_keymaps, M.create_shared_keymaps())
 
   return all_keymaps

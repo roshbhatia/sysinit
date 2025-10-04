@@ -1,6 +1,5 @@
 local M = {}
 
--- Helper function to get the copilot-lsp client
 local function get_copilot_client()
   local clients = vim.lsp.get_clients({ name = "copilot_ls" })
   if #clients > 0 then
@@ -9,7 +8,6 @@ local function get_copilot_client()
   return nil
 end
 
--- Sign-in function based on nvim-lspconfig implementation
 local function sign_in(bufnr, client)
   client:request("signIn", vim.empty_dict(), function(err, result)
     if err then
@@ -48,7 +46,6 @@ local function sign_in(bufnr, client)
   end)
 end
 
--- Sign-out function based on nvim-lspconfig implementation
 local function sign_out(bufnr, client)
   client:request("signOut", vim.empty_dict(), function(err, result)
     if err then
@@ -64,7 +61,6 @@ local function sign_out(bufnr, client)
 end
 
 function M.setup_commands()
-  -- Copilot sign-in command
   vim.api.nvim_create_user_command("CopilotSignIn", function()
     local client = get_copilot_client()
     if not client then
@@ -80,7 +76,6 @@ function M.setup_commands()
     desc = "Sign in to GitHub Copilot",
   })
 
-  -- Copilot sign-out command
   vim.api.nvim_create_user_command("CopilotSignOut", function()
     local client = get_copilot_client()
     if not client then
@@ -96,7 +91,6 @@ function M.setup_commands()
     desc = "Sign out of GitHub Copilot",
   })
 
-  -- Copilot status command
   vim.api.nvim_create_user_command("CopilotStatus", function()
     local client = get_copilot_client()
     if not client then
@@ -107,7 +101,6 @@ function M.setup_commands()
       return
     end
 
-    -- Check if there are any pending requests
     local has_pending_signin = false
     for _, req in pairs(client.requests) do
       if req.method == "signIn" and req.type == "pending" then

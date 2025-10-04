@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
   {
     "jake-stewart/auto-cmdheight.nvim",
-    lazy = "VeryLazy",
+    event = "VeryLazy",
     opts = {
       max_lines = 2,
       duration = 2,

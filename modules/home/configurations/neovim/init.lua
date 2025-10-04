@@ -1,4 +1,4 @@
-require("sysinit.pkg.pre.profiler").setup()
+require("sysinit.config.pre.profiler").setup()
 
 vim.env.PATH = vim.fn.getenv("PATH")
 package.path = package.path
@@ -9,29 +9,29 @@ package.path = package.path
   .. vim.fn.stdpath("config")
   .. "/lua/?.lua"
 
-require("sysinit.pkg.opts.leader").setup()
-require("sysinit.pkg.opts.environment").setup()
-require("sysinit.pkg.opts.editor").setup()
-require("sysinit.pkg.opts.search").setup()
-require("sysinit.pkg.opts.indentation").setup()
-require("sysinit.pkg.opts.wrapping").setup()
-require("sysinit.pkg.opts.split_behavior").setup()
-require("sysinit.pkg.opts.performance").setup()
-require("sysinit.pkg.opts.scroll").setup()
-require("sysinit.pkg.opts.ui").setup()
-require("sysinit.pkg.opts.folding").setup()
-require("sysinit.pkg.opts.completion").setup()
-require("sysinit.pkg.opts.autoread").setup()
-require("sysinit.pkg.opts.undo").setup()
+require("sysinit.config.opts.leader").setup()
+require("sysinit.config.opts.environment").setup()
+require("sysinit.config.opts.editor").setup()
+require("sysinit.config.opts.search").setup()
+require("sysinit.config.opts.indentation").setup()
+require("sysinit.config.opts.wrapping").setup()
+require("sysinit.config.opts.split_behavior").setup()
+require("sysinit.config.opts.performance").setup()
+require("sysinit.config.opts.scroll").setup()
+require("sysinit.config.opts.ui").setup()
+require("sysinit.config.opts.folding").setup()
+require("sysinit.config.opts.completion").setup()
+require("sysinit.config.opts.autoread").setup()
+require("sysinit.config.opts.undo").setup()
 
-require("sysinit.pkg.autocmds.buf").setup()
-require("sysinit.pkg.autocmds.force_transparency").setup()
-require("sysinit.pkg.autocmds.help").setup()
-require("sysinit.pkg.autocmds.msg-dump").setup()
-require("sysinit.pkg.autocmds.wezterm").setup()
+require("sysinit.config.autocmds.buf").setup()
+require("sysinit.config.autocmds.force_transparency").setup()
+require("sysinit.config.autocmds.help").setup()
+require("sysinit.config.autocmds.msg-dump").setup()
+require("sysinit.config.autocmds.wezterm").setup()
 
-require("sysinit.pkg.utils.plugin_manager").setup_package_manager()
-require("sysinit.pkg.utils.plugin_manager").setup_plugins({
+require("sysinit.utils.plugin_manager").setup_package_manager()
+require("sysinit.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.core.luarocks"),
   require("sysinit.plugins.core.plenary"),
   require("sysinit.plugins.debugger.nvim-dap-docker"),
@@ -102,8 +102,8 @@ require("sysinit.pkg.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.ui.wilder"),
 })
 
-require("sysinit.pkg.keybindings.buffer").setup()
-require("sysinit.pkg.keybindings.lists").setup()
-require("sysinit.pkg.keybindings.marks").setup()
-require("sysinit.pkg.keybindings.super").setup()
-require("sysinit.pkg.keybindings.undo").setup()
+require("sysinit.config.keybindings.buffer").setup()
+require("sysinit.config.keybindings.lists").setup()
+require("sysinit.config.keybindings.marks").setup()
+require("sysinit.config.keybindings.super").setup()
+require("sysinit.config.keybindings.undo").setup()
