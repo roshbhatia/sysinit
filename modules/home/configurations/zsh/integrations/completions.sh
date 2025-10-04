@@ -8,7 +8,6 @@ zvm_after_init_commands+="complete -C '/etc/profiles/per-user/$USER/bin/aws_comp
 zvm_after_init_commands+="_evalcache zoxide init zsh"
 zvm_after_init_commands+="_evalcache gh copilot alias -- zsh"
 zvm_after_init_commands+="_evalcache uv generate-shell-completion zsh"
-zvm_after_init_commands+="_evalcache intelli-shell init zsh"
 zvm_after_init_commands+=$'\nfunction z() { local dir; dir=$(zoxide query "$@"); pushd "$dir"; }'
 
 zvm_after_init_commands+="enable-fzf-tab"

@@ -10,7 +10,6 @@ let
   vetPackages = [
     "https://cursor.com/install"
     "https://opencode.ai/install"
-    "https://raw.githubusercontent.com/lasantosr/intelli-shell/main/install.sh"
   ]
   ++ values.vet.additionalPackages;
 in
