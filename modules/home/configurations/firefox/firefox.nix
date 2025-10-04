@@ -38,57 +38,125 @@ let
           "";
 
       bottomTabsCSS = ''
-        /* Move tabs and URL bar to bottom with minimal height */
+        /* ========== OVERRIDE: BOTTOM TABS & URL BAR ========== */
+
+        /* Disable auto-hide and move to bottom */
         #navigator-toolbox {
+          position: fixed !important;
+          bottom: 0 !important;
+          top: auto !important;
+          left: 0 !important;
+          right: 0 !important;
+          width: 100vw !important;
+          transform: none !important;
+          opacity: 1 !important;
+          transition: none !important;
+          z-index: 1000 !important;
+          pointer-events: auto !important;
           display: flex !important;
-          flex-direction: column-reverse !important;
+          flex-direction: column !important;
+          background-color: var(--minimal-bg) !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          border: none !important;
         }
 
-        /* Minimal tab bar height */
+        /* Keep toolbox visible always */
+        #navigator-toolbox:hover,
+        #navigator-toolbox:focus-within {
+          transform: none !important;
+          opacity: 1 !important;
+          transition: none !important;
+        }
+
+        /* URL bar on bottom */
+        #nav-bar {
+          order: 2 !important;
+          height: 28px !important;
+          min-height: 28px !important;
+          max-height: 28px !important;
+          padding: 0 4px !important;
+          margin: 0 !important;
+          background: var(--minimal-bg) !important;
+        }
+
+        /* Tabs above URL bar (but still at bottom of screen) */
         #TabsToolbar {
+          order: 1 !important;
           height: 28px !important;
           min-height: 28px !important;
           max-height: 28px !important;
           padding: 0 !important;
           margin: 0 !important;
+          margin-left: 0 !important;
+          background: var(--minimal-bg) !important;
         }
 
-        /* Minimal URL bar height */
-        #nav-bar {
-          height: 28px !important;
-          min-height: 28px !important;
-          max-height: 28px !important;
-          padding: 0 2px !important;
-          margin: 0 !important;
-        }
-
-        /* Compact tabs */
+        /* Compact tab dimensions */
         .tabbrowser-tab {
           min-height: 28px !important;
           max-height: 28px !important;
         }
 
-        .tab-content {
-          padding: 0 6px !important;
+        .tabbrowser-arrowscrollbox {
+          height: 28px !important;
+          min-height: 28px !important;
+          max-height: 28px !important;
         }
 
-        /* Compact URL bar elements */
+        .tab-content {
+          padding: 0 8px !important;
+        }
+
+        /* Compact URL bar */
         #urlbar {
           min-height: 24px !important;
           max-height: 24px !important;
         }
 
         #urlbar-input-container {
-          padding: 0 !important;
+          padding: 0 4px !important;
         }
 
         #urlbar-background {
           border: none !important;
         }
 
-        /* Hide unnecessary spacing */
+        #urlbar-container {
+          min-width: 200px !important;
+        }
+
+        /* Adjust content area for bottom toolbar */
+        #browser {
+          margin-bottom: 56px !important;
+        }
+
+        /* Remove titlebar spacers */
         #TabsToolbar .titlebar-spacer {
           display: none !important;
+        }
+
+        /* Fix dropdown panels - NO transparency */
+        panel,
+        menupopup,
+        .panel-arrowcontainer,
+        #urlbar-results {
+          opacity: 1 !important;
+          background-color: var(--minimal-bg-secondary) !important;
+          backdrop-filter: none !important;
+        }
+
+        .urlbarView {
+          background-color: var(--minimal-bg-secondary) !important;
+          opacity: 1 !important;
+        }
+
+        .urlbarView-row {
+          background-color: var(--minimal-bg-secondary) !important;
+        }
+
+        .urlbarView-row:hover {
+          background-color: var(--minimal-border) !important;
         }
       '';
     in
