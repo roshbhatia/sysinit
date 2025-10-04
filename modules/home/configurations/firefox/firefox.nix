@@ -37,26 +37,62 @@ let
         else
           "";
 
-      hideTabsCSS =
-        if values.firefox.theme.hideTabs or true then
-          ''
-            /* Hide tab bar completely - use Tridactyl 'b' for fuzzy finding */
-            #TabsToolbar {
-              display: none !important;
-            }
+      bottomTabsCSS = ''
+        /* Move tabs and URL bar to bottom with minimal height */
+        #navigator-toolbox {
+          display: flex !important;
+          flex-direction: column-reverse !important;
+        }
 
-            /* Adjust nav-bar to use full width when tabs are hidden */
-            #nav-bar {
-              margin-top: 0 !important;
-              margin-right: 0 !important;
-            }
-          ''
-        else
-          "";
+        /* Minimal tab bar height */
+        #TabsToolbar {
+          height: 28px !important;
+          min-height: 28px !important;
+          max-height: 28px !important;
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+
+        /* Minimal URL bar height */
+        #nav-bar {
+          height: 28px !important;
+          min-height: 28px !important;
+          max-height: 28px !important;
+          padding: 0 2px !important;
+          margin: 0 !important;
+        }
+
+        /* Compact tabs */
+        .tabbrowser-tab {
+          min-height: 28px !important;
+          max-height: 28px !important;
+        }
+
+        .tab-content {
+          padding: 0 6px !important;
+        }
+
+        /* Compact URL bar elements */
+        #urlbar {
+          min-height: 24px !important;
+          max-height: 24px !important;
+        }
+
+        #urlbar-input-container {
+          padding: 0 !important;
+        }
+
+        #urlbar-background {
+          border: none !important;
+        }
+
+        /* Hide unnecessary spacing */
+        #TabsToolbar .titlebar-spacer {
+          display: none !important;
+        }
+      '';
     in
-    pkgs.writeText "userChrome.css" (
-      firefoxTheme.userChromeCSS + stretchedTabsCSS + hideTabsCSS
-    );
+    pkgs.writeText "userChrome.css" (firefoxTheme.userChromeCSS + stretchedTabsCSS + bottomTabsCSS);
 
   userContentCSS = pkgs.writeText "userContent.css" firefoxTheme.userContentCSS;
 in
