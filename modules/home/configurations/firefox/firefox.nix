@@ -42,35 +42,37 @@ let
           ''
             /* Auto-hide toolbar - inspired by minimalFOX */
             :root {
-              --uc-autohide-toolbox-delay: 100ms;
+              --uc-autohide-toolbox-delay: 200ms;
               --uc-autohide-toolbox-reveal-delay: 33ms;
+              --uc-toolbox-rotation: 82deg;
+            }
+
+            :root[sizemode="maximized"] {
+              --uc-toolbox-rotation: 88.5deg;
             }
 
             #navigator-toolbox {
               position: fixed !important;
-              transition: transform 100ms linear, opacity 100ms linear !important;
+              background-color: var(--lwt-accent-color, transparent) !important;
+              transition: transform 82ms linear, opacity 82ms linear !important;
               transition-delay: var(--uc-autohide-toolbox-delay) !important;
               transform-origin: top;
-              transform: translateY(-100%);
+              transform: rotateX(var(--uc-toolbox-rotation));
               opacity: 0;
+              line-height: 0;
               z-index: 1;
               pointer-events: none;
               width: 100vw;
             }
 
-            /* Show toolbar on hover or focus */
+            /* Show toolbar on hover, focus, or when URL bar is active */
             #mainPopupSet:has(> [panelopen]:not(#ask-chat-shortcuts,#selection-shortcut-action-panel,#chat-shortcuts-options-panel,#tab-preview-panel)) ~ toolbox,
             #navigator-toolbox:has(#urlbar:is([open],[focus-within])),
             #navigator-toolbox:is(:hover,:focus-within,[movingtab]) {
               transition-delay: var(--uc-autohide-toolbox-reveal-delay) !important;
-              transform: translateY(0);
+              transform: rotateX(0);
               opacity: 1;
               pointer-events: auto;
-            }
-
-            /* Adjust content area to fill space */
-            #appcontent {
-              margin-top: calc(-1 * var(--uc-toolbox-height, 0px)) !important;
             }
           ''
         else
@@ -83,13 +85,65 @@ let
   userContentCSS = pkgs.writeText "userContent.css" firefoxTheme.userContentCSS;
 in
 {
-  xdg.configFile = {
-    "firefox/default/chrome/userChrome.css" = {
+  # Use home.file for macOS Firefox installed via Homebrew
+  home.file = {
+    "Library/Application Support/Firefox/Profiles/default/chrome/userChrome.css" = {
       source = userChromeCSS;
     };
-    "firefox/default/chrome/userContent.css" = {
+    "Library/Application Support/Firefox/Profiles/default/chrome/userContent.css" = {
       source = userContentCSS;
     };
+    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/BackButton.svg" = {
+      source = ./chrome-theme/brave-icons/BackButton.svg;
+    };
+    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/Bookmark.svg" = {
+      source = ./chrome-theme/brave-icons/Bookmark.svg;
+    };
+    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/BookmarkFilled.svg" = {
+      source = ./chrome-theme/brave-icons/BookmarkFilled.svg;
+    };
+    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/CloseTab.svg" = {
+      source = ./chrome-theme/brave-icons/CloseTab.svg;
+    };
+    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/ForwardButton.svg" = {
+      source = ./chrome-theme/brave-icons/ForwardButton.svg;
+    };
+    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/Lock.svg" = {
+      source = ./chrome-theme/brave-icons/Lock.svg;
+    };
+    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/Menu.svg" = {
+      source = ./chrome-theme/brave-icons/Menu.svg;
+    };
+    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/NewTab.svg" = {
+      source = ./chrome-theme/brave-icons/NewTab.svg;
+    };
+    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/Plugins.svg" = {
+      source = ./chrome-theme/brave-icons/Plugins.svg;
+    };
+    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/Reload.svg" = {
+      source = ./chrome-theme/brave-icons/Reload.svg;
+    };
+    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/Search.svg" = {
+      source = ./chrome-theme/brave-icons/Search.svg;
+    };
+    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/Warning.svg" = {
+      source = ./chrome-theme/brave-icons/Warning.svg;
+    };
+    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/folder-locked-symbolic.svg" = {
+      source = ./chrome-theme/brave-icons/folder-locked-symbolic.svg;
+    };
+    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/tracking-protection-animatable.svg" = {
+      source = ./chrome-theme/brave-icons/tracking-protection-animatable.svg;
+    };
+    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/tracking-protection.svg" = {
+      source = ./chrome-theme/brave-icons/tracking-protection.svg;
+    };
+    "Library/Application Support/Firefox/Profiles/default/chrome/brave-icons/view-refresh-symbolic.svg" = {
+      source = ./chrome-theme/brave-icons/view-refresh-symbolic.svg;
+    };
+  };
+
+  xdg.configFile = {
     "tridactyl/tridactylrc" = {
       text = ''
         " Tridactyl Configuration for Arc-Inspired Minimal Firefox
@@ -205,54 +259,6 @@ in
         bind O fillcmdline tabopen
         bind o fillcmdline open
       '';
-    };
-    "firefox/default/chrome/brave-icons/BackButton.svg" = {
-      source = ./chrome-theme/brave-icons/BackButton.svg;
-    };
-    "firefox/default/chrome/brave-icons/Bookmark.svg" = {
-      source = ./chrome-theme/brave-icons/Bookmark.svg;
-    };
-    "firefox/default/chrome/brave-icons/BookmarkFilled.svg" = {
-      source = ./chrome-theme/brave-icons/BookmarkFilled.svg;
-    };
-    "firefox/default/chrome/brave-icons/CloseTab.svg" = {
-      source = ./chrome-theme/brave-icons/CloseTab.svg;
-    };
-    "firefox/default/chrome/brave-icons/ForwardButton.svg" = {
-      source = ./chrome-theme/brave-icons/ForwardButton.svg;
-    };
-    "firefox/default/chrome/brave-icons/Lock.svg" = {
-      source = ./chrome-theme/brave-icons/Lock.svg;
-    };
-    "firefox/default/chrome/brave-icons/Menu.svg" = {
-      source = ./chrome-theme/brave-icons/Menu.svg;
-    };
-    "firefox/default/chrome/brave-icons/NewTab.svg" = {
-      source = ./chrome-theme/brave-icons/NewTab.svg;
-    };
-    "firefox/default/chrome/brave-icons/Plugins.svg" = {
-      source = ./chrome-theme/brave-icons/Plugins.svg;
-    };
-    "firefox/default/chrome/brave-icons/Reload.svg" = {
-      source = ./chrome-theme/brave-icons/Reload.svg;
-    };
-    "firefox/default/chrome/brave-icons/Search.svg" = {
-      source = ./chrome-theme/brave-icons/Search.svg;
-    };
-    "firefox/default/chrome/brave-icons/Warning.svg" = {
-      source = ./chrome-theme/brave-icons/Warning.svg;
-    };
-    "firefox/default/chrome/brave-icons/folder-locked-symbolic.svg" = {
-      source = ./chrome-theme/brave-icons/folder-locked-symbolic.svg;
-    };
-    "firefox/default/chrome/brave-icons/tracking-protection-animatable.svg" = {
-      source = ./chrome-theme/brave-icons/tracking-protection-animatable.svg;
-    };
-    "firefox/default/chrome/brave-icons/tracking-protection.svg" = {
-      source = ./chrome-theme/brave-icons/tracking-protection.svg;
-    };
-    "firefox/default/chrome/brave-icons/view-refresh-symbolic.svg" = {
-      source = ./chrome-theme/brave-icons/view-refresh-symbolic.svg;
     };
   };
 
