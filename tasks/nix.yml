@@ -62,20 +62,31 @@ tasks:
         #!/usr/bin/env bash
         set -euo pipefail
         {{.LOGGING_FUNCTIONS}}
+
+        # Determine the actual user (handle sudo context)
+        ACTUAL_USER="${SUDO_USER:-$USER}"
+
+        # Function to run commands as the actual user
+        run_as_user() {
+          if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_USER:-}" ]; then
+            sudo -u "$SUDO_USER" "$@"
+          else
+            "$@"
+          fi
+        }
+
         log_info "Updating nix flake inputs"
 
-        # Run flake update without sudo to keep git ownership clean
-        if ! nix flake update --show-trace; then
+        if ! run_as_user nix flake update --show-trace; then
           log_error "Flake update failed (see logs above)"
           exit {{.ERROR_EXIT_CODE}}
         fi
 
-        # Commit the lock file as the actual user
-        if git diff --quiet flake.lock; then
+        if run_as_user git diff --quiet flake.lock; then
           log_info "No changes to flake.lock"
         else
-          git add flake.lock
-          git commit -m "flake.lock: Update"
+          run_as_user git add flake.lock
+          run_as_user git commit -m "flake.lock: Update"
           log_info "Committed flake.lock changes"
         fi
 
