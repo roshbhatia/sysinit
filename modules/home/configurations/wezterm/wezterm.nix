@@ -2,11 +2,12 @@
   config,
   lib,
   values,
+  utils,
   ...
 }:
 
 let
-  themes = import ../../../lib/theme { inherit lib; };
+  inherit (utils.themes) generateAppJSON;
 
   themeConfig = {
     colorscheme = values.theme.colorscheme;
@@ -18,7 +19,6 @@ let
 
   mkOutOfStoreSymlink = config.lib.file.mkOutOfStoreSymlink;
 in
-
 {
   xdg.configFile."wezterm/wezterm.lua".source =
     mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/wezterm.lua";
@@ -27,7 +27,7 @@ in
     mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/lua";
 
   xdg.configFile."wezterm/theme_config.json".text = builtins.toJSON (
-    themes.generateAppJSON "wezterm" themeConfig
+    generateAppJSON "wezterm" themeConfig
   );
 
   xdg.configFile."wezterm/core_config.json".text = builtins.toJSON {

@@ -2,13 +2,15 @@
   lib,
   values,
   pkgs,
+  utils,
   ...
 }:
 
 let
-  themes = import ../../../lib/theme { inherit lib; };
-  palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
-  semanticColors = themes.utils.createSemanticMapping palette;
+  inherit (utils.themes) getThemePalette;
+
+  palette = getThemePalette values.theme.colorscheme values.theme.variant;
+  semanticColors = utils.themes.utils.createSemanticMapping palette;
   activeColorRaw = semanticColors.semantic.error or (throw "Missing error color in theme palette");
   inactiveColorRaw =
     semanticColors.accent.primary or (throw "Missing primary accent color in theme palette");

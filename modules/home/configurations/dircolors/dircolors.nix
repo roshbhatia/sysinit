@@ -7,6 +7,7 @@
 
 let
   inherit (utils.themes) mkThemedConfig;
+
   themeCfg = mkThemedConfig values "vivid" { };
   vividTheme = themeCfg.appTheme;
 in

@@ -36,7 +36,6 @@ let
         export UV_TOOL_BIN_DIR="$HOME/.local/bin"
       '';
       installCmd = ''
-        # Remove any existing directory conflicts
         [ -d "$HOME/.local/bin/$pkg" ] && rm -rf "$HOME/.local/bin/$pkg"
         "$MANAGER_CMD" tool install --force --quiet --reinstall "$pkg" || echo "Warning: Failed to install $pkg"
       '';

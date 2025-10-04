@@ -15,8 +15,7 @@ let
     if ! colima status >/dev/null 2>&1; then
       echo "Colima is not running, starting it..."
       colima start --config "/etc/colima/config.yaml"
-      
-      # Set up Docker context for Colima
+
       echo "Setting up Docker context for Colima..."
       docker context create colima --docker "host=unix://${
         config.users.users.${values.user.username}.home
@@ -24,7 +23,6 @@ let
       docker context use colima
     else
       echo "Colima is already running"
-      # Ensure we're using the colima context
       docker context use colima 2>/dev/null || true
     fi
   '';

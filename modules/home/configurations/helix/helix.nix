@@ -1,12 +1,14 @@
 {
   lib,
   values,
+  utils,
   ...
 }:
 
 let
-  themes = import ../../../lib/theme { inherit lib; };
-  helixTheme = themes.getAppTheme "helix" values.theme.colorscheme values.theme.variant;
+  inherit (utils.themes) getAppTheme;
+
+  helixTheme = getAppTheme "helix" values.theme.colorscheme values.theme.variant;
 in
 {
   programs.helix = {

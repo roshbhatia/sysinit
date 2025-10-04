@@ -1,5 +1,4 @@
 { ... }:
-
 {
   defaultThemeConfig = {
     colorscheme = "catppuccin";

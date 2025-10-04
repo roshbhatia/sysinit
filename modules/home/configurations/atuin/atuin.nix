@@ -6,10 +6,10 @@
 
 let
   inherit (utils.themes) mkThemedConfig;
+
   themeCfg = mkThemedConfig values "atuin" { };
   atuinTheme = themeCfg.appTheme;
 in
-
 {
   programs.atuin = {
     enable = true;

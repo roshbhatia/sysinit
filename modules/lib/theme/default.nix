@@ -157,7 +157,6 @@ let
           ;
       };
 
-  # Helper functions from theme-helper.nix
   mkThemedConfig =
     values: app: extraConfig:
     let
@@ -311,7 +310,6 @@ in
     ansiMappings
     ;
 
-  # Helper functions
   inherit
     mkThemedConfig
     deployThemeFiles

@@ -8,9 +8,9 @@
 
 let
   inherit (utils.themes) mkThemedConfig;
+
   themeCfg = mkThemedConfig values "macchina" { };
   semanticColors = themeCfg.themes.getSemanticColors values.theme.colorscheme values.theme.variant;
-
   tomlFormat = pkgs.formats.toml { };
 
   commonTheme = {

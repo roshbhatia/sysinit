@@ -1,9 +1,7 @@
 { lib, ... }:
 
 with lib;
-
 {
-
   themeType = types.submodule {
     options = {
       meta = mkOption {
