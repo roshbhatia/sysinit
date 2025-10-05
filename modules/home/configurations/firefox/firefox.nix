@@ -54,6 +54,9 @@ in
         old-reddit-redirect
         multi-account-containers
         tridactyl
+        sponsorblock
+        decentraleyes
+        tabliss
       ];
 
       settings = {
