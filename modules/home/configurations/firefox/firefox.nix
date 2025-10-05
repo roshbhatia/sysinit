@@ -54,7 +54,7 @@ in
         old-reddit-redirect
         multi-account-containers
         tridactyl
-        darkreader
+        stylus
       ];
 
       settings = {

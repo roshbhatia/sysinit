@@ -87,70 +87,10 @@ rec {
             --minimal-border: ${semanticColors.accent.dim};
         }
 
-        /* ========== AUTO-HIDE TOOLBAR ========== */
-
-        :root {
-            --uc-autohide-toolbox-delay: 200ms;
-            --uc-toolbox-rotation: 65deg;
-        }
-
-        :root[sizemode="maximized"] {
-            --uc-toolbox-rotation: 63deg;
-        }
-
-        @media (-moz-os-version: windows-win10) {
-            :root[tabsintitlebar][sizemode="maximized"]:not([inDOMFullscreen]) > body > box {
-                margin-top: 9px !important;
-            }
-            :root[tabsintitlebar][sizemode="maximized"] #navigator-toolbox {
-                margin-top: -1px;
-            }
-        }
-
-        :root[sizemode="fullscreen"] {
-            margin-top: 0px !important;
-        }
+        /* ========== TOOLBAR ALWAYS VISIBLE ========== */
 
         #navigator-toolbox {
-            position: fixed !important;
-            display: block;
             background-color: var(--minimal-bg) !important;
-            transition: transform 82ms linear, opacity 82ms linear !important;
-            transition-delay: var(--uc-autohide-toolbox-delay) !important;
-            transform-origin: top;
-            transform: rotateX(var(--uc-toolbox-rotation));
-            opacity: 0;
-            line-height: 0;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        #navigator-toolbox:hover,
-        #navigator-toolbox:focus-within {
-            transition-delay: 33ms !important;
-            transform: rotateX(0);
-            opacity: 1;
-        }
-
-        #navigator-toolbox > * {
-            line-height: normal;
-            pointer-events: auto;
-        }
-
-        #navigator-toolbox,
-        #navigator-toolbox > * {
-            width: 100vw;
-            -moz-appearance: none !important;
-        }
-
-        :root:not([sessionrestored]) #navigator-toolbox {
-            transform: none !important;
-        }
-
-        :root[customizing] #navigator-toolbox {
-            position: relative !important;
-            transform: none !important;
-            opacity: 1 !important;
         }
 
         #navigator-toolbox[inFullscreen] > #PersonalToolbar,
@@ -176,32 +116,12 @@ rec {
             -moz-box-pack: center;
         }
 
-        #TabsToolbar {
-            margin-top: -1px !important;
-            margin-bottom: 1px !important;
-            margin-left: 26vw !important;
-            max-height: 32px !important;
-        }
-
-        .tabbrowser-arrowscrollbox {
-            height: 32px !important;
-            min-height: 32px !important;
-        }
-
         .titlebar-placeholder[type="pre-tabs"] {
             display: none !important;
         }
 
         :root {
             --toolbox-border-bottom-color: transparent !important;
-        }
-
-        #nav-bar {
-            background: transparent !important;
-            margin-top: -32px !important;
-            margin-bottom: -1px !important;
-            margin-right: 72vw !important;
-            height: 32px !important;
         }
 
         /* ========== TABS ========== */
@@ -289,17 +209,8 @@ rec {
             display: none !important;
         }
 
-        #back-button,
-        #forward-button {
-            display: none !important;
-        }
-
         #urlbar .urlbar-input-box {
             text-align: left;
-        }
-
-        #PanelUI-button {
-            display: none;
         }
 
         .bookmark-item > .toolbarbutton-icon {
@@ -478,10 +389,10 @@ rec {
             display: none !important;
         }
 
-        /* Extensions button */
-        #unified-extensions-button {
+        /* Extensions button - visible for 1Password and other extensions */
+        /* #unified-extensions-button {
             display: none !important;
-        }
+        } */
 
         /* Extension name inside URL bar */
         #identity-box.extensionPage #identity-icon-label {
