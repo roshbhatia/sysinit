@@ -24,8 +24,8 @@ in
   xdg.configFile."nvim/init.lua".source =
     mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/init.lua";
 
-  xdg.configFile."nvim/lua/sysinit/pkg".source =
-    mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/pkg";
+  xdg.configFile."nvim/lua/sysinit/config".source =
+    mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/config";
 
   xdg.configFile."nvim/lua/sysinit/utils".source =
     mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/utils";
