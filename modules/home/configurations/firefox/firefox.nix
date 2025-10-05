@@ -60,14 +60,8 @@ in
       ];
 
       settings = {
-        # Enable userChrome.css and userContent.css
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
 
-        # Disable Firefox default new tab page to allow Tabliss to take over
-        "browser.newtabpage.enabled" = false;
-        "browser.startup.page" = 1;
-
-        # Disable all Firefox Home content to let Tabliss fully control
         "browser.newtabpage.activity-stream.enabled" = false;
 
         "browser.search.suggest.enabled" = false;
@@ -171,18 +165,10 @@ in
       DisableFirefoxAccounts = false;
       DisableAccounts = false;
       DisableFirefoxScreenshots = true;
-      OverrideFirstRunPage = "";
-      OverridePostUpdatePage = "";
       DontCheckDefaultBrowser = true;
       DisplayBookmarksToolbar = "never";
       DisplayMenuBar = "default-off";
       SearchBar = "unified";
     };
   };
-
-  # Configure Tridactyl to not override new tab page (allow Tabliss to take over)
-  xdg.configFile."tridactyl/tridactylrc".text = ''
-    " Disable Tridactyl's new tab page to allow Tabliss to work
-    set newtab about:blank
-  '';
 }
