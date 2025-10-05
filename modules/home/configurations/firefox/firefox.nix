@@ -63,10 +63,15 @@ in
         # Enable userChrome.css and userContent.css
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
 
+        # Set home and new tab to use Tabliss
+        "browser.startup.homepage" = "about:newtab";
+        "browser.startup.page" = 1; # Show homepage on startup
+        "browser.newtabpage.enabled" = true;
+
         "browser.search.suggest.enabled" = false;
         "browser.urlbar.suggest.searches" = false;
         "browser.urlbar.showSearchSuggestionsFirst" = false;
-        "browser.newtabpage.activity-stream.showSearch" = true;
+        "browser.newtabpage.activity-stream.showSearch" = false;
         "browser.newtabpage.activity-stream.showTopSites" = false;
         "browser.newtabpage.activity-stream.feeds.topsites" = false;
         "browser.newtabpage.activity-stream.feeds.section.topstories" = false;
