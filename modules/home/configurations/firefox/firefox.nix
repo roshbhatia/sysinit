@@ -1,9 +1,22 @@
 {
   pkgs,
+  values,
+  utils,
   ...
 }:
 
 let
+  inherit (utils.themes) createAppConfig;
+
+  themeConfig = {
+    colorscheme = values.theme.colorscheme;
+    variant = values.theme.variant;
+    transparency = values.theme.transparency;
+    presets = values.theme.presets or [ ];
+  };
+
+  firefoxTheme = createAppConfig "firefox" themeConfig { };
+
   firefoxWrapper =
     pkgs.runCommand "firefox-homebrew-wrapper"
       {
@@ -31,6 +44,9 @@ in
       isDefault = true;
       name = "default";
 
+      userChrome = firefoxTheme.userChromeCSS or "";
+      userContent = firefoxTheme.userContentCSS or "";
+
       extensions.packages = with pkgs.firefox-addons; [
         ublock-origin
         onepassword-password-manager
@@ -42,6 +58,9 @@ in
       ];
 
       settings = {
+        # Enable userChrome.css and userContent.css
+        "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+
         "browser.search.suggest.enabled" = false;
         "browser.urlbar.suggest.searches" = false;
         "browser.urlbar.showSearchSuggestionsFirst" = false;
