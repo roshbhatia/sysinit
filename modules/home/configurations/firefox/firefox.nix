@@ -63,10 +63,12 @@ in
         # Enable userChrome.css and userContent.css
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
 
-        # Set home and new tab to use Tabliss
-        "browser.startup.homepage" = "about:newtab";
-        "browser.startup.page" = 1; # Show homepage on startup
-        "browser.newtabpage.enabled" = true;
+        # Disable Firefox default new tab page to allow Tabliss to take over
+        "browser.newtabpage.enabled" = false;
+        "browser.startup.page" = 1;
+
+        # Disable all Firefox Home content to let Tabliss fully control
+        "browser.newtabpage.activity-stream.enabled" = false;
 
         "browser.search.suggest.enabled" = false;
         "browser.urlbar.suggest.searches" = false;
@@ -177,4 +179,10 @@ in
       SearchBar = "unified";
     };
   };
+
+  # Configure Tridactyl to not override new tab page (allow Tabliss to take over)
+  xdg.configFile."tridactyl/tridactylrc".text = ''
+    " Disable Tridactyl's new tab page to allow Tabliss to work
+    set newtab about:blank
+  '';
 }
