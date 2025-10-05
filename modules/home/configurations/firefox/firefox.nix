@@ -54,7 +54,6 @@ in
         old-reddit-redirect
         multi-account-containers
         tridactyl
-        stylus
       ];
 
       settings = {

@@ -381,9 +381,7 @@ rec {
             margin-right: 12px !important;
         }
 
-        /* Page back, forward, home and reload buttons */
-        #back-button,
-        #forward-button,
+        /* Hide home and reload buttons (keep back/forward visible) */
         #home-button,
         #reload-button {
             display: none !important;
