@@ -14,6 +14,7 @@ local app_icons = {
   ["Books"] = "󱉟",
   ["Calculator"] = "󰪚",
   ["Calendar"] = "󰸘",
+  ["Claude"] = "",
   ["Code - Insiders"] = "󰨞",
   ["Code"] = "󰨞",
   ["Discord"] = "󰙯",
