@@ -1,6 +1,5 @@
 local M = {}
 
-
 local function get_parser(bufnr)
   local ok, parser = pcall(vim.treesitter.get_parser, bufnr)
   if not ok or not parser then
@@ -8,7 +7,6 @@ local function get_parser(bufnr)
   end
   return parser
 end
-
 
 local function get_node_at_cursor(bufnr, row, col)
   local parser = get_parser(bufnr)
@@ -23,7 +21,6 @@ local function get_node_at_cursor(bufnr, row, col)
 
   return tree:root():named_descendant_for_range(row, col, row, col)
 end
-
 
 local function find_parent_node(node, node_types)
   if not node then
@@ -40,7 +37,6 @@ local function find_parent_node(node, node_types)
   return nil
 end
 
-
 local function get_node_text(node, bufnr)
   if not node then
     return nil
@@ -52,13 +48,11 @@ local function get_node_text(node, bufnr)
   return text
 end
 
-
 function M.get_current_function(state)
   local node = get_node_at_cursor(state.buf, state.line - 1, state.col)
   if not node then
     return ""
   end
-
 
   local function_types = {
     "function_definition", -- Python, Lua
@@ -77,14 +71,11 @@ function M.get_current_function(state)
     return ""
   end
 
-
   local name_node = func_node:field("name")[1]
   local func_name = name_node and get_node_text(name_node, state.buf) or "anonymous"
 
-
   local func_text = get_node_text(func_node, state.buf) or ""
   local lines = vim.split(func_text, "\n")
-
 
   if #lines > 5 then
     local signature = {}
@@ -97,13 +88,11 @@ function M.get_current_function(state)
   return func_text
 end
 
-
 function M.get_current_class(state)
   local node = get_node_at_cursor(state.buf, state.line - 1, state.col)
   if not node then
     return ""
   end
-
 
   local class_types = {
     "class_definition", -- Python
@@ -120,14 +109,11 @@ function M.get_current_class(state)
     return ""
   end
 
-
   local name_node = class_node:field("name")[1]
   local class_name = name_node and get_node_text(name_node, state.buf) or "anonymous"
 
-
   local class_text = get_node_text(class_node, state.buf) or ""
   local lines = vim.split(class_text, "\n")
-
 
   if #lines > 10 then
     local signature = {}
@@ -140,7 +126,6 @@ function M.get_current_class(state)
   return class_text
 end
 
-
 function M.get_current_node(state)
   local node = get_node_at_cursor(state.buf, state.line - 1, state.col)
   if not node then
@@ -150,14 +135,12 @@ function M.get_current_node(state)
   local node_type = node:type()
   local node_text = get_node_text(node, state.buf) or ""
 
-
   if #node_text > 200 then
     node_text = node_text:sub(1, 200) .. "..."
   end
 
   return string.format("Node type: %s\n%s", node_type, node_text)
 end
-
 
 function M.get_all_symbols(state)
   local parser = get_parser(state.buf)
@@ -173,7 +156,6 @@ function M.get_all_symbols(state)
   local symbols = {}
   local root = tree:root()
 
-
   local symbol_types = {
     function_definition = true,
     function_declaration = true,
@@ -188,7 +170,6 @@ function M.get_all_symbols(state)
     impl_item = true,
     trait_item = true,
   }
-
 
   local function traverse(node)
     if symbol_types[node:type()] then
@@ -216,7 +197,6 @@ function M.get_all_symbols(state)
   return table.concat(symbols, "\n")
 end
 
-
 function M.get_imports(state)
   local parser = get_parser(state.buf)
   if not parser then
@@ -231,7 +211,6 @@ function M.get_imports(state)
   local imports = {}
   local root = tree:root()
 
-
   local import_types = {
     import_statement = true, -- JavaScript, TypeScript
     import_from_statement = true, -- Python
@@ -241,9 +220,7 @@ function M.get_imports(state)
     require_call = true, -- Lua (if supported)
   }
 
-
   local function traverse(node, depth)
-
     if depth > 3 then
       return
     end
@@ -254,7 +231,6 @@ function M.get_imports(state)
         table.insert(imports, import_text)
       end
     end
-
 
     if node:type() == "function_call" then
       local func_name = node:field("name")

@@ -25,7 +25,6 @@ function M.setup_global_ctrl_l_keymaps()
       local buf = vim.api.nvim_get_current_buf()
       local term_name = vim.api.nvim_buf_get_name(buf)
 
-
       local ai_terminals = { "copilot", "goose", "opencode", "claude", "cursor" }
       local is_ai_terminal = false
       for _, term in ipairs(ai_terminals) do

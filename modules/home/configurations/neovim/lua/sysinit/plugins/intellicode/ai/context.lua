@@ -176,14 +176,12 @@ function M.get_location_list()
   return table.concat(entries, "\n")
 end
 
-
 function M.get_filetype(state)
   if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
     return ""
   end
   return vim.api.nvim_buf_get_option(state.buf, "filetype")
 end
-
 
 function M.get_surrounding_lines(state, before, after)
   before = before or 5
@@ -198,7 +196,6 @@ function M.get_surrounding_lines(state, before, after)
 
   local lines = vim.api.nvim_buf_get_lines(state.buf, start_line, end_line, false)
 
-
   local result = {}
   for i, line in ipairs(lines) do
     local line_num = start_line + i
@@ -208,7 +205,6 @@ function M.get_surrounding_lines(state, before, after)
 
   return table.concat(result, "\n")
 end
-
 
 function M.get_word_under_cursor(state)
   if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
@@ -220,7 +216,6 @@ function M.get_word_under_cursor(state)
     return ""
   end
 
-
   local col = state.col
   local before = line:sub(1, col):match("[%w_]*$") or ""
   local after = line:sub(col + 1):match("^[%w_]*") or ""
@@ -228,12 +223,10 @@ function M.get_word_under_cursor(state)
   return before .. after
 end
 
-
 function M.get_recent_changes(state)
   if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
     return ""
   end
-
 
   local changes = vim.fn.getchangelist(state.buf)
   if not changes or not changes[1] or #changes[1] == 0 then
@@ -258,7 +251,6 @@ function M.get_recent_changes(state)
 
   return table.concat(result, ", ")
 end
-
 
 function M.get_marks(state)
   if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
@@ -285,7 +277,6 @@ function M.get_marks(state)
 
   return table.concat(result, ", ")
 end
-
 
 function M.get_search_pattern()
   local pattern = vim.fn.getreg("/")

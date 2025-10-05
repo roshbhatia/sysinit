@@ -14,7 +14,6 @@ function M.setup_terminal_autocmds(agents)
         end
       end
 
-
       if current_termname then
         vim.b[buf].ai_terminal_name = current_termname
       end
