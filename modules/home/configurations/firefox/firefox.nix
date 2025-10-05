@@ -53,7 +53,7 @@ in
         reddit-enhancement-suite
         old-reddit-redirect
         multi-account-containers
-        tridactyl
+        vimium
         sponsorblock
         decentraleyes
         tabliss
