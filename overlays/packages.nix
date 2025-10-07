@@ -21,7 +21,6 @@ let
         config = final.config;
       };
 
-  # Pin dotnet and awscli2 to stable versions that build successfully
   stable-nixpkgs =
     import
       (builtins.fetchTarball {
@@ -46,8 +45,5 @@ in
   nushell = unstable.nushell;
   sbarlua = unstable.sbarlua;
   crossplane-cli = crossplane-1-17-1.crossplane-cli;
-
-  # Override broken packages with stable versions
-  dotnet-sdk_8 = stable-nixpkgs.dotnet-sdk_8;
   awscli2 = stable-nixpkgs.awscli2;
 }
