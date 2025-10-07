@@ -125,7 +125,6 @@ let
     uv
     vale-ls
     vivid
-    vscode-langservers-extracted
     watch
     yaml-language-server
     yamllint

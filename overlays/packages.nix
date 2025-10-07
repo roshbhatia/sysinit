@@ -4,7 +4,7 @@
   ...
 }:
 
-final: prev:
+final: _prev:
 let
   unstable = import inputs.nixpkgs-unstable {
     inherit system;
@@ -46,11 +46,4 @@ in
   sbarlua = unstable.sbarlua;
   crossplane-cli = crossplane-1-17-1.crossplane-cli;
   awscli2 = stable-nixpkgs.awscli2;
-
-  # Override vscode-extensions to use stable rust-analyzer that doesn't depend on broken dotnet
-  vscode-extensions = prev.vscode-extensions // {
-    rust-lang = prev.vscode-extensions.rust-lang // {
-      rust-analyzer = stable-nixpkgs.vscode-extensions.rust-lang.rust-analyzer;
-    };
-  };
 }
