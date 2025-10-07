@@ -65,14 +65,23 @@ in
 
       [merge]
         conflictstyle = zdiff3
-        tool = minidiff
+        tool = diffview
 
       [mergetool]
         prompt = false
         keepBackup = false
 
-      [mergetool "minidiff"]
-        cmd = nvim -n -c "MiniDiffToggle" "$MERGE"
+      [mergetool "diffview"]
+        cmd = nvim -n -c "DiffviewOpen"
+
+      [diff]
+        tool = diffview
+
+      [difftool]
+        prompt = false
+
+      [difftool "diffview"]
+        cmd = nvim -n -c "DiffviewOpen" "$LOCAL" "$REMOTE"
 
       [includeIf "gitdir:~/github/work/"]
         path = ~/.gitconfig.work
