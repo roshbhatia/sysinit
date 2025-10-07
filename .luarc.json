@@ -3,7 +3,8 @@
     "deprecated",
     "undefined-doc-name",
         "need-check-nil",
-        "undefined-field"
+        "undefined-field",
+        "missing-parameter"
   ],
   "diagnostics.globals": [
     "hs",

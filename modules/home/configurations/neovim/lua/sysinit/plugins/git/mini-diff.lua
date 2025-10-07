@@ -59,25 +59,25 @@ M.plugins = {
       -- Function to populate quickfix list with files that have changes
       local function populate_quickfix_with_changes()
         local qf_list = {}
-        
+
         -- Get all listed buffers
         for _, buf in ipairs(vim.api.nvim_list_bufs()) do
           if vim.api.nvim_buf_is_loaded(buf) and vim.api.nvim_buf_get_option(buf, "buflisted") then
             local buf_data = require("mini.diff").get_buf_data(buf)
-            
+
             -- Check if buffer has diff data and hunks
             if buf_data and buf_data.hunks and #buf_data.hunks > 0 then
               local filepath = vim.api.nvim_buf_get_name(buf)
-              
+
               if filepath ~= "" then
                 local summary = buf_data.summary or { add = 0, change = 0, delete = 0 }
                 local total_changes = summary.add + summary.change + summary.delete
-                
+
                 -- Add entry for each hunk
                 for _, hunk in ipairs(buf_data.hunks) do
                   local hunk_type = hunk.type or "change"
                   local line_start = hunk.buf_start or 1
-                  
+
                   table.insert(qf_list, {
                     bufnr = buf,
                     filename = filepath,
