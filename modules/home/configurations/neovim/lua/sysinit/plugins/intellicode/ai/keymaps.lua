@@ -136,19 +136,6 @@ function M.create_shared_keymaps()
       desc = "Revert changes",
     },
     {
-      "<leader>ap",
-      function()
-        local state = context.current_position()
-        local result = git.populate_qflist_with_diff(state)
-        if result ~= "Quickfix list populated with diff changes" then
-          vim.notify(result, vim.log.levels.WARN)
-        else
-          vim.notify(result, vim.log.levels.INFO)
-        end
-      end,
-      desc = "Populate quickfix with diff",
-    },
-    {
       "<leader>ar",
       function()
         history.create_history_picker(nil)
