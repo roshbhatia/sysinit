@@ -1,6 +1,5 @@
 local M = {}
 local context = require("sysinit.plugins.intellicode.ai.context")
-local git = require("sysinit.plugins.intellicode.ai.git")
 local ts = require("sysinit.plugins.intellicode.ai.treesitter")
 
 local function get_relative_path(state)
@@ -77,11 +76,6 @@ local PLACEHOLDERS = {
     provider = context.get_location_list,
   },
   {
-    token = "@diff",
-    description = "Git diff for the current buffer",
-    provider = git.get_git_diff,
-  },
-  {
     token = "@docs",
     description = "LSP hover documentation at cursor",
     provider = context.get_hover_docs,
@@ -146,30 +140,6 @@ local PLACEHOLDERS = {
     description = "Current search pattern",
     provider = function()
       return context.get_search_pattern()
-    end,
-  },
-  {
-    token = "@branch",
-    description = "Current git branch",
-    provider = function()
-      return git.get_git_branch()
-    end,
-  },
-  {
-    token = "@filestatus",
-    description = "Git status of current file",
-    provider = git.get_file_git_status,
-  },
-  {
-    token = "@commits",
-    description = "Recent git commits for current file",
-    provider = git.get_file_git_log,
-  },
-  {
-    token = "@gitstatus",
-    description = "Summary of all git changes",
-    provider = function()
-      return git.get_git_status_summary()
     end,
   },
 }

@@ -2,7 +2,6 @@ local M = {}
 local terminal = require("sysinit.plugins.intellicode.ai.terminal")
 local input = require("sysinit.plugins.intellicode.ai.input")
 local context = require("sysinit.plugins.intellicode.ai.context")
-local git = require("sysinit.plugins.intellicode.ai.git")
 local history = require("sysinit.plugins.intellicode.ai.history")
 
 function M.create_agent_keymaps(agent)
