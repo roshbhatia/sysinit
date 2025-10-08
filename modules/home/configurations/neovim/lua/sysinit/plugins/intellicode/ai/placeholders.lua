@@ -1,6 +1,7 @@
 local M = {}
 local context = require("sysinit.plugins.intellicode.ai.context")
 local ts = require("sysinit.plugins.intellicode.ai.treesitter")
+local specify = require("sysinit.plugins.intellicode.ai.specify")
 
 local function get_relative_path(state)
   if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
@@ -140,6 +141,35 @@ local PLACEHOLDERS = {
     description = "Current search pattern",
     provider = function()
       return context.get_search_pattern()
+    end,
+  },
+  -- Specify-specific placeholders
+  {
+    token = "@spec",
+    description = "Current specification file (from .specify/specs/*/spec.md)",
+    provider = function()
+      return specify.read_spec_file("spec.md") or ""
+    end,
+  },
+  {
+    token = "@plan",
+    description = "Current implementation plan (from .specify/specs/*/plan.md)",
+    provider = function()
+      return specify.read_spec_file("plan.md") or ""
+    end,
+  },
+  {
+    token = "@tasks",
+    description = "Current task list (from .specify/specs/*/tasks.md)",
+    provider = function()
+      return specify.read_spec_file("tasks.md") or ""
+    end,
+  },
+  {
+    token = "@constitution",
+    description = "Project constitution and principles (from .specify/memory/constitution.md)",
+    provider = function()
+      return specify.get_constitution() or ""
     end,
   },
 }

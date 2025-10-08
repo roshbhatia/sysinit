@@ -20,29 +20,8 @@ function M.setup_goose_keymaps()
 end
 
 function M.setup_global_ctrl_l_keymaps()
-  vim.api.nvim_create_autocmd("TermEnter", {
-    callback = function()
-      local buf = vim.api.nvim_get_current_buf()
-      local term_name = vim.api.nvim_buf_get_name(buf)
-
-      local ai_terminals = { "copilot", "goose", "opencode", "claude", "cursor" }
-      local is_ai_terminal = false
-      for _, term in ipairs(ai_terminals) do
-        if term_name:match(term) then
-          is_ai_terminal = true
-          break
-        end
-      end
-
-      if is_ai_terminal then
-        vim.keymap.set("t", "<C-l>", "<C-l><CR>", {
-          buffer = buf,
-          silent = true,
-          desc = "Clear screen and add newline in AI terminals",
-        })
-      end
-    end,
-  })
+  -- Ctrl+L is bound to something else, so we don't set it for AI terminals
+  -- Keeping this function for backward compatibility but it does nothing now
 end
 
 function M.ensure_terminal_and_send(termname, text)

@@ -144,6 +144,158 @@ function M.create_shared_keymaps()
   }
 end
 
+function M.create_specify_keymaps()
+  local specify = require("sysinit.plugins.intellicode.ai.specify")
+  
+  return {
+    -- Spec Kit workflow commands (send to Claude terminal)
+    {
+      "<leader>ass",
+      function()
+        if not specify.is_specify_project() then
+          vim.notify("Not in a Specify project (.specify directory not found)", vim.log.levels.WARN)
+          return
+        end
+        terminal.ensure_terminal_and_send("claude", "/speckit.specify ")
+      end,
+      desc = "SpecKit: Define requirements",
+    },
+    {
+      "<leader>asc",
+      function()
+        if not specify.is_specify_project() then
+          vim.notify("Not in a Specify project (.specify directory not found)", vim.log.levels.WARN)
+          return
+        end
+        terminal.ensure_terminal_and_send("claude", "/speckit.constitution ")
+      end,
+      desc = "SpecKit: Create constitution",
+    },
+    {
+      "<leader>asl",
+      function()
+        if not specify.is_specify_project() then
+          vim.notify("Not in a Specify project (.specify directory not found)", vim.log.levels.WARN)
+          return
+        end
+        terminal.ensure_terminal_and_send("claude", "/speckit.clarify")
+      end,
+      desc = "SpecKit: Clarify requirements",
+    },
+    {
+      "<leader>asp",
+      function()
+        if not specify.is_specify_project() then
+          vim.notify("Not in a Specify project (.specify directory not found)", vim.log.levels.WARN)
+          return
+        end
+        terminal.ensure_terminal_and_send("claude", "/speckit.plan ")
+      end,
+      desc = "SpecKit: Create implementation plan",
+    },
+    {
+      "<leader>ast",
+      function()
+        if not specify.is_specify_project() then
+          vim.notify("Not in a Specify project (.specify directory not found)", vim.log.levels.WARN)
+          return
+        end
+        terminal.ensure_terminal_and_send("claude", "/speckit.tasks")
+      end,
+      desc = "SpecKit: Generate task list",
+    },
+    {
+      "<leader>asa",
+      function()
+        if not specify.is_specify_project() then
+          vim.notify("Not in a Specify project (.specify directory not found)", vim.log.levels.WARN)
+          return
+        end
+        terminal.ensure_terminal_and_send("claude", "/speckit.analyze")
+      end,
+      desc = "SpecKit: Analyze consistency",
+    },
+    {
+      "<leader>ask",
+      function()
+        if not specify.is_specify_project() then
+          vim.notify("Not in a Specify project (.specify directory not found)", vim.log.levels.WARN)
+          return
+        end
+        terminal.ensure_terminal_and_send("claude", "/speckit.checklist ")
+      end,
+      desc = "SpecKit: Generate checklist",
+    },
+    {
+      "<leader>asi",
+      function()
+        if not specify.is_specify_project() then
+          vim.notify("Not in a Specify project (.specify directory not found)", vim.log.levels.WARN)
+          return
+        end
+        terminal.ensure_terminal_and_send("claude", "/speckit.implement")
+      end,
+      desc = "SpecKit: Execute implementation",
+    },
+    -- Navigation helpers
+    {
+      "<leader>asf",
+      function()
+        local spec_dir = specify.get_current_spec_dir()
+        if spec_dir then
+          vim.cmd("edit " .. spec_dir .. "/spec.md")
+        else
+          vim.notify("Not in a spec directory", vim.log.levels.WARN)
+        end
+      end,
+      desc = "SpecKit: Open spec.md",
+    },
+    {
+      "<leader>asP",
+      function()
+        local spec_dir = specify.get_current_spec_dir()
+        if spec_dir then
+          vim.cmd("edit " .. spec_dir .. "/plan.md")
+        else
+          vim.notify("Not in a spec directory", vim.log.levels.WARN)
+        end
+      end,
+      desc = "SpecKit: Open plan.md",
+    },
+    {
+      "<leader>asT",
+      function()
+        local spec_dir = specify.get_current_spec_dir()
+        if spec_dir then
+          vim.cmd("edit " .. spec_dir .. "/tasks.md")
+        else
+          vim.notify("Not in a spec directory", vim.log.levels.WARN)
+        end
+      end,
+      desc = "SpecKit: Open tasks.md",
+    },
+    {
+      "<leader>aso",
+      function()
+        local repo_root = specify.get_repo_root()
+        if repo_root then
+          vim.cmd("edit " .. repo_root .. "/.specify/memory/constitution.md")
+        else
+          vim.notify("Not in a Specify project", vim.log.levels.WARN)
+        end
+      end,
+      desc = "SpecKit: Open constitution",
+    },
+    {
+      "<leader>as<leader>",
+      function()
+        specify.pick_spec_directory()
+      end,
+      desc = "SpecKit: Browse features",
+    },
+  }
+end
+
 function M.generate_all_keymaps(agents)
   local all_keymaps = {}
 
@@ -154,6 +306,8 @@ function M.generate_all_keymaps(agents)
   vim.list_extend(all_keymaps, M.create_history_keymaps(agents))
 
   vim.list_extend(all_keymaps, M.create_shared_keymaps())
+
+  vim.list_extend(all_keymaps, M.create_specify_keymaps())
 
   return all_keymaps
 end
