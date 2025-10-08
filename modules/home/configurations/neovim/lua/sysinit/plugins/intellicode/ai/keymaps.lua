@@ -207,7 +207,20 @@ function M.create_specify_keymaps()
   local specify = require("sysinit.plugins.intellicode.ai.specify")
 
   local keymaps = {
-    create_speckit_keymap("<leader>ass", "/speckit.init ", "Initialize project"),
+    {
+      "<leader>ass",
+      function()
+        Snacks.terminal.open("specify init --here", {
+          win = {
+            title = " Specify Init ",
+            title_pos = "center",
+            width = 0.9,
+            height = 0.9,
+          },
+        })
+      end,
+      desc = "SpecKit: Initialize project in current directory",
+    },
     create_speckit_keymap("<leader>asc", "/speckit.constitution ", "Create constitution"),
     create_speckit_keymap("<leader>asr", "/speckit.specify ", "Define requirements"),
     create_speckit_keymap("<leader>asl", "/speckit.clarify", "Clarify requirements"),

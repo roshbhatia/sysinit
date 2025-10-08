@@ -1,6 +1,5 @@
 local M = {}
 
--- Spec Kit slash commands from the README
 M.speckit_commands = {
   {
     command = "/speckit.constitution",
@@ -44,7 +43,6 @@ M.speckit_commands = {
   },
 }
 
--- Placeholder tokens specific to Specify workflows
 M.specify_placeholders = {
   {
     token = "@spec",
@@ -72,14 +70,12 @@ M.specify_placeholders = {
   },
 }
 
--- Get the repository root
 function M.get_repo_root()
   local handle = io.popen("git rev-parse --show-toplevel 2>/dev/null")
   local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
   handle:close()
 
   if not repo_root or repo_root == "" then
-    -- Try to find .specify directory going up from current dir
     local current_dir = vim.fn.getcwd()
     while current_dir ~= "/" do
       if vim.fn.isdirectory(current_dir .. "/.specify") == 1 then
@@ -93,7 +89,6 @@ function M.get_repo_root()
   return repo_root
 end
 
--- Get the current .specify spec directory if we're in one
 function M.get_current_spec_dir()
   local repo_root = M.get_repo_root()
   if not repo_root then
@@ -103,7 +98,6 @@ function M.get_current_spec_dir()
   local spec_file = vim.fn.expand("%:p")
   local specs_dir = repo_root .. "/specs"
 
-  -- Check if current file is under specs/
   if spec_file:match(specs_dir .. "/") then
     local spec_dir = spec_file:match("(.*/specs/[^/]+)/")
     return spec_dir
@@ -125,7 +119,6 @@ function M.get_current_spec_dir()
   return nil
 end
 
--- Check if we're in a Specify project
 function M.is_specify_project()
   local repo_root = M.get_repo_root()
   if not repo_root then
@@ -134,7 +127,6 @@ function M.is_specify_project()
   return vim.fn.isdirectory(repo_root .. "/.specify") == 1
 end
 
--- Get all spec directories
 function M.get_all_spec_dirs()
   local repo_root = M.get_repo_root()
   if not repo_root then
@@ -144,7 +136,8 @@ function M.get_all_spec_dirs()
   local specs_dir = repo_root .. "/specs"
   local spec_dirs = {}
 
-  local handle = io.popen("find " .. specs_dir .. " -maxdepth 1 -type d -name '[0-9][0-9][0-9]-*' 2>/dev/null")
+  local handle =
+    io.popen("find " .. specs_dir .. " -maxdepth 1 -type d -name '[0-9][0-9][0-9]-*' 2>/dev/null")
   if handle then
     for line in handle:lines() do
       table.insert(spec_dirs, line)
@@ -155,7 +148,6 @@ function M.get_all_spec_dirs()
   return spec_dirs
 end
 
--- Read a file from the current spec directory
 function M.read_spec_file(filename)
   local spec_dir = M.get_current_spec_dir()
   if not spec_dir then
@@ -173,7 +165,6 @@ function M.read_spec_file(filename)
   return content
 end
 
--- Get constitution file
 function M.get_constitution()
   local handle = io.popen("git rev-parse --show-toplevel 2>/dev/null")
   local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
@@ -194,7 +185,6 @@ function M.get_constitution()
   return content
 end
 
--- Apply Specify-specific placeholders
 function M.apply_specify_placeholders(input)
   if not input or input == "" then
     return input
@@ -202,7 +192,6 @@ function M.apply_specify_placeholders(input)
 
   local result = input
 
-  -- @spec placeholder
   if result:find("@spec", 1, true) then
     local spec_content = M.read_spec_file("spec.md")
     if spec_content then
@@ -210,7 +199,6 @@ function M.apply_specify_placeholders(input)
     end
   end
 
-  -- @plan placeholder
   if result:find("@plan", 1, true) then
     local plan_content = M.read_spec_file("plan.md")
     if plan_content then
@@ -218,7 +206,6 @@ function M.apply_specify_placeholders(input)
     end
   end
 
-  -- @tasks placeholder
   if result:find("@tasks", 1, true) then
     local tasks_content = M.read_spec_file("tasks.md")
     if tasks_content then
@@ -226,7 +213,6 @@ function M.apply_specify_placeholders(input)
     end
   end
 
-  -- @constitution placeholder
   if result:find("@constitution", 1, true) then
     local constitution_content = M.get_constitution()
     if constitution_content then
@@ -234,7 +220,6 @@ function M.apply_specify_placeholders(input)
     end
   end
 
-  -- @contracts placeholder - list all contract files
   if result:find("@contracts", 1, true) then
     local spec_dir = M.get_current_spec_dir()
     if spec_dir then
@@ -248,7 +233,6 @@ function M.apply_specify_placeholders(input)
     end
   end
 
-  -- @research placeholder - list all research files
   if result:find("@research", 1, true) then
     local spec_dir = M.get_current_spec_dir()
     if spec_dir then
@@ -265,7 +249,6 @@ function M.apply_specify_placeholders(input)
   return result
 end
 
--- Create a telescope picker for spec directories
 function M.pick_spec_directory()
   local ok, telescope = pcall(require, "telescope")
   if not ok then
@@ -316,12 +299,10 @@ function M.pick_spec_directory()
           actions.close(prompt_bufnr)
           local selection = action_state.get_selected_entry()
           if selection then
-            -- Open spec.md by default
             vim.cmd("edit " .. selection.value.spec_file)
           end
         end)
 
-        -- Add custom mappings for other files
         map("i", "<C-p>", function()
           local selection = action_state.get_selected_entry()
           if selection then

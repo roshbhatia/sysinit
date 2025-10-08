@@ -14,3 +14,5 @@ result-*
 
 .claude/settings.local.json
 .serena/cache/nix/document_symbols_cache_v23-06-25.pkl
+.cursor/
+.specify/
