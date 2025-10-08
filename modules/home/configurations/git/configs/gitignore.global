@@ -52,6 +52,8 @@ CRUSH.md
 CLAUDE.md
 .claude/
 .serena/
+.cursor/
+.specify/
 
 # Random stuff
 .sysinit/
