@@ -2,148 +2,175 @@
 
 ## Core Principles
 
-### I. Modular Configuration Architecture
+### I. Nix-First Architecture
+All system configurations, package management, and dotfiles are declared in Nix. This ensures:
+- **Declarative configuration**: System state is explicitly defined, not implied
+- **Reproducibility**: Same configuration produces identical results across machines
+- **Atomic updates**: Changes are applied atomically with rollback capability
+- **Single source of truth**: `values.nix` is the central configuration point
 
-All system configurations MUST follow the modular structure:
-- Each configuration module lives in `modules/{platform}/configurations/{tool}/`
-- Modules MUST have a `default.nix` that imports configuration files
-- Modules MUST be self-contained with their own configs, themes, and dependencies
-- Each module exports configuration via Nix home-manager or darwin-nix APIs
-- Configuration files (YAML, TOML, Lua, etc.) belong alongside their module, not scattered
+**NON-NEGOTIABLE**: New features MUST be implemented as Nix modules in the appropriate directory structure (`modules/darwin/`, `modules/home/`, or `modules/lib/`).
 
-### II. Declarative Values Schema
+### II. Modular Organization
+Each tool/application gets its own module with clear boundaries:
+- **Self-contained modules**: Each configuration lives in `modules/[domain]/configurations/[tool]/`
+- **Separation of concerns**: Darwin (system-level) vs Home Manager (user-level) configurations are distinct
+- **Reusable utilities**: Shared logic lives in `modules/lib/` (theme, validation, packages, etc.)
+- **Clear imports**: Each module explicitly declares its dependencies
 
-All user-configurable values MUST be:
-- Defined in `modules/lib/values/default.nix` with proper type annotations
-- Validated in `modules/lib/validation/default.nix` with clear error messages
-- Documented automatically via `hack/generate-values-docs.sh` → README.md
-- Set by users in root-level `values.nix` file only
-- Never hardcoded - use the `values` parameter passed to modules
+### III. Values-Driven Configuration
+User-specific settings are centralized in `values.nix` with strict validation:
+- **Schema-first**: All configuration options are defined in `modules/lib/values/default.nix`
+- **Type safety**: Use Nix type system (`types.str`, `types.bool`, `types.listOf`, etc.)
+- **Validation rules**: Critical values (hostname, email, etc.) have validators in `modules/lib/validation/`
+- **Defaults with overrides**: Sensible defaults are provided, user can override per-machine
+- **Documentation**: Values schema auto-generates README documentation via `hack/generate-values-docs.sh`
 
-### III. Theme System Consistency
+### IV. Theme System
+Consistent theming across all applications through abstraction:
+- **Palette definitions**: Color schemes defined in `modules/lib/theme/palettes/`
+- **Semantic mapping**: Colors mapped to semantic roles (background, foreground, accent, etc.)
+- **Application adapters**: Each app (wezterm, neovim, firefox) has an adapter in `modules/lib/theme/adapters/`
+- **Runtime generation**: Theme configs are generated at build time from palette + adapter + user preferences
+- **Multi-theme support**: Supports Catppuccin, Kanagawa, Rose Pine, Gruvbox, Solarized, Nord
 
-All applications with visual configuration MUST:
-- Use the centralized theme system in `modules/lib/theme/`
-- Support theme variants (catppuccin, kanagawa, rose-pine, gruvbox, solarized, nord)
-- Deploy theme files via `utils.themes.deployThemeFiles` or similar helpers
-- Store theme files in `{module}/themes/{colorscheme}-{variant}.{ext}` format
-- Respect transparency settings from `values.theme.transparency`
+### V. Symlink-Based Live Development
+For rapid iteration, certain configurations use out-of-store symlinks:
+- **Neovim configs**: Point directly to repo for instant updates without rebuild
+- **Development efficiency**: Changes to Lua/shell configs take effect immediately
+- **Build-time artifacts**: Generated configs (theme JSONs) still go through Nix
+- **Selective use**: Only apply to frequently-iterated configs (editor, shell integrations)
 
-### IV. Task Automation via go-task
+## Architectural Constraints
 
-Build, format, and deployment automation MUST use:
-- Root `Taskfile.yml` for project-wide tasks with clear descriptions
-- Subtasks in `tasks/` directory (e.g., `nix.yml`, `format.yml`)
-- Consistent logging via `LOGGING_FUNCTIONS` (log_info, log_warn, log_error, log_success)
-- Error handling with proper exit codes (`ERROR_EXIT_CODE=1`, `SUCCESS_EXIT_CODE=0`)
-- Silent mode by default, with structured output only
+### Directory Structure
+```
+modules/
+├── darwin/           # System-level (macOS) configurations
+│   ├── configurations/
+│   └── packages/
+├── home/             # User-level configurations (home-manager)
+│   ├── configurations/
+│   └── packages/
+└── lib/              # Shared utilities and libraries
+    ├── packages/     # Package management utilities
+    ├── paths/        # Path helpers
+    ├── platform/     # Platform detection
+    ├── shell/        # Shell script utilities
+    ├── theme/        # Theme system
+    ├── validation/   # Configuration validators
+    └── values/       # Values schema definitions
+```
 
-### V. Nix-First Dependency Management
+### Package Management
+Multiple package managers coexist, managed through Nix activation scripts:
+- **Nix packages**: Declared in `modules/home/packages/nixpkgs/`
+- **Homebrew**: System packages via `nix-homebrew` in `modules/darwin/packages/homebrew.nix`
+- **Language-specific**: Go, Cargo, npm, pipx, uvx, etc. via activation hooks
+- **Extensibility**: Each manager has `additionalPackages` list in values.nix
+- **Idempotency**: Package install scripts check before installing
 
-Package management MUST follow this hierarchy:
-1. **Nix packages**: Primary source via `nixpkgs` (in `modules/{platform}/packages/`)
-2. **Language-specific managers**: For languages that need latest versions
-   - Go: via `go.additionalPackages` (go install)
-   - Rust: via `cargo.additionalPackages` (cargo install)
-   - Python: via `pipx.additionalPackages` or `uvx.additionalPackages`
-   - Node: via `npm.additionalPackages` or `yarn.additionalPackages`
-   - Homebrew (macOS only): via `darwin.homebrew.additionalPackages` for GUI apps
-3. All additional packages configured via `values.nix` schema, never hardcoded
-
-### VI. Utility Library Pattern
-
-Reusable functionality MUST be extracted to `modules/lib/`:
-- `paths/`: Path manipulation helpers
-- `platform/`: Platform detection (Darwin vs Linux)
-- `shell/`: Shell script utilities (e.g., `stripHeaders`)
-- `theme/`: Theme system (palettes, adapters, presets)
-- `validation/`: Input validation functions
-- `values/`: Values schema definitions
-- Export via `modules/lib/default.nix` for use as `utils.{category}.{function}`
-
-### VII. Documentation as Code
-
-Documentation MUST be:
-- Generated from source where possible (see `hack/generate-values-docs.sh`)
-- Injected into README.md between marker comments (`<!-- MARKER_START -->` / `<!-- MARKER_END -->`)
-- ASCII art and visual elements encouraged for engagement
-- Environment variables documented in a standardized table format
-- Up-to-date with schema changes via automation (`task docs:values`)
-
-## Platform-Specific Constraints
-
-### macOS (Darwin)
-
-- Use `nix-darwin` for system-level configuration (Dock, Finder, keyboard, etc.)
-- System configurations live in `modules/darwin/configurations/`
-- GUI applications via Homebrew Casks when not available in nixpkgs
-- Services (borders, sketchybar, aerospace) configured as launch agents
-- Integration with macOS-specific tools (Hammerspoon, AeroSpace, etc.)
-
-### Home Manager
-
-- User-level configurations live in `modules/home/configurations/`
-- All dotfiles managed declaratively via `home.file` or `xdg.configFile`
-- Shell configurations (zsh, nu) with modular imports for ui/system/tools
-- Editor configurations (neovim, helix, vscode) with full plugin management
-- XDG Base Directory compliance required
+### Configuration Validation
+All user configurations are validated at eval time:
+- **Hostname validation**: Must be valid DNS hostname format
+- **Email validation**: Basic email format checking
+- **Theme validation**: Colorscheme and variant must exist
+- **Package lists**: Non-empty strings only
+- **Early failure**: Invalid configs fail at `nix build` time, not runtime
 
 ## Development Workflow
 
-### Feature Development (.specify workflow)
+### Adding New Tool Configuration
+1. Determine if it's system-level (Darwin) or user-level (Home Manager)
+2. Create `modules/[domain]/configurations/[tool]/` directory
+3. Create `default.nix` (imports sub-configs) and `[tool].nix` (main config)
+4. If theming: add theme files in `themes/` subdirectory
+5. If packages: add to appropriate package manager in `modules/home/packages/`
+6. Add values schema entries in `modules/lib/values/default.nix` if needed
+7. Update `modules/[domain]/configurations/default.nix` to import new module
+8. Run `task docs:values` to update README
 
-When adding features using the `.specify` workflow:
+### Testing Changes
+- **Build without apply**: `task nix:build` validates configuration
+- **Apply changes**: `task nix:refresh` rebuilds and switches generations
+- **Format code**: `task fmt` formats all Nix files with nixfmt
+- **Rollback**: `darwin-rebuild --rollback` reverts to previous generation
 
-1. **Feature Specification**: Follow `spec-template.md` structure
-   - User stories MUST be prioritized (P1, P2, P3) and independently testable
-   - Requirements MUST use FR-### format with clear "MUST" statements
-   - Success criteria MUST be measurable and technology-agnostic
-   
-2. **Implementation Planning**: Follow `plan-template.md` structure
-   - Technical context MUST document all technology choices
-   - Constitution Check MUST verify compliance before Phase 0
-   - Project structure MUST match repository conventions
-   - Complexity violations MUST be justified with alternatives considered
-   
-3. **Branch Naming**: Use `###-feature-name` format (e.g., `001-agent-cli-hooks`)
-   - Corresponding spec directory at `specs/###-feature-name/`
-   - All planning artifacts (spec.md, plan.md, research.md, etc.) live there
+### Values Schema Updates
+When adding new configuration options:
+1. Add to `modules/lib/values/default.nix` with proper type and description
+2. Add validation if needed in `modules/lib/validation/default.nix`
+3. Run `task docs:values` to auto-generate documentation in README
+4. Update `values.nix` with new values (or rely on defaults)
 
-### Code Quality
+## Quality Standards
 
-- **Formatting**: Use `task fmt` to format all supported file types
-- **Nix code**: Must pass `nix flake check` and format with nixfmt (width=100)
-- **Shell scripts**: Must pass shellcheck, formatted with shfmt (options: `-i 2 -ci -sr -kp -fn`)
-- **Validation**: All user-facing values must have validation in `modules/lib/validation/`
-- **Error messages**: Must be actionable with clear next steps
+### Nix Code Style
+- **Formatting**: Use nixfmt with 100-character line width
+- **Imports**: Group by category (lib, config, pkgs, values, utils)
+- **Let bindings**: Extract complex logic into named variables
+- **Attribute sets**: Use recursive `rec` only when necessary
+- **Functions**: Prefer attribute set arguments with explicit destructuring
 
-### Git Configuration
+### Documentation
+- **README**: Maintains task list, environment variables, and values schema
+- **Comments**: Use for non-obvious logic or constraints
+- **Inline docs**: `description` field required for all mkOption definitions
+- **Examples**: Provide in comments for complex configurations
 
-- Default branch: `main`
-- Hooks directory: `.githooks/` (set in gitconfig)
-- Commits: Use conventional format, amend freely before push
-- Auto-setup remote on push enabled
-- Rebase on pull by default
-- Merge strategy: zdiff3 conflict style
+### Git Practices
+- **Hooks directory**: `.githooks/` contains setup scripts
+- **Commit hooks**: Can enforce validation before commits
+- **Branch naming**: Not enforced (personal repo, may have work fork)
+- **Configuration snapshots**: Lock file (`flake.lock`) tracked for reproducibility
+
+## Non-Goals & Boundaries
+
+### What This System Does NOT Do
+- **Multi-user support**: Optimized for single user per machine
+- **Cross-platform**: macOS (darwin) only, not NixOS/Linux
+- **Server deployments**: Desktop development environment, not server configs
+- **Secrets management**: External OAuth tokens and credentials via environment variables
+- **Testing frameworks**: No automated tests for Nix configurations (validated at build time)
+
+### Complexity Justification Required For
+Adding any of the following requires documented rationale:
+- New top-level `modules/` subdirectory
+- New theme palette (vs. using existing)
+- New package manager integration
+- Breaking changes to values schema
+- Alternatives to symlink-based configs
+
+## Feature Specification Process
+
+### Using `.specify/` Directory
+The `.specify/` directory contains templates and scripts for structured feature planning:
+- **Templates**: Spec, plan, tasks, and checklist templates
+- **Scripts**: Setup, context update, and prerequisite checking
+- **Memory**: Constitution (this file) and project-specific context
+
+### Feature Branch Workflow (Optional)
+For major changes:
+1. Run `.specify/scripts/bash/create-new-feature.sh` to generate feature branch and spec
+2. Fill out `specs/[###-feature]/spec.md` with user stories and requirements
+3. Run `/speckit.plan` (if agent integration configured) to generate implementation plan
+4. Implement changes following the constitution
+5. Validate with `task nix:build` before committing
+
+**NOTE**: Feature branch naming (`001-feature-name`) is advisory, not enforced in personal repo.
 
 ## Governance
 
-This constitution defines the architectural patterns and constraints for sysinit. All changes to configurations, modules, and tooling MUST:
+**Constitution Authority**: This constitution guides all development decisions for the sysinit repository. Changes to core principles require documentation and validation that the change improves the system's maintainability, reproducibility, or usability.
 
-1. Follow the modular architecture patterns defined above
-2. Validate user inputs with clear error messages
-3. Integrate with the theme system when visual configuration is involved
-4. Be documented in code where possible (schemas, types, validation)
-5. Use the task automation system for any repeated operations
+**Validation Enforcement**: All configuration changes MUST pass Nix evaluation and validation checks. Invalid configurations that fail `task nix:build` MUST NOT be merged.
 
-**Complexity Justification**: Any deviation from these patterns requires documented justification explaining:
-- What simpler alternative was considered
-- Why the simpler alternative is insufficient
-- What specific problem the complexity solves
+**Documentation Currency**: The README.md values schema section is auto-generated and MUST be kept in sync with `modules/lib/values/default.nix` by running `task docs:values` before committing values schema changes.
 
-**Constitution Amendments**: Changes to these principles require:
-- Update to this file with rationale
-- Update to affected templates and scripts
-- Migration guide for existing configurations
+**Simplicity First**: When choosing between multiple valid approaches, prefer the simpler, more explicit solution. Complex abstractions require clear justification in commit messages.
+
+**Work Fork Compatibility**: Some users maintain work-specific forks. Breaking changes to the values schema or module structure should be considered carefully and documented in commit messages.
+
+---
 
 **Version**: 1.0.0 | **Ratified**: 2025-10-08 | **Last Amended**: 2025-10-08
