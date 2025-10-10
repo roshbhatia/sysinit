@@ -3,9 +3,9 @@
   imports = [
     ./aerospace
     ./borders
-    ./colima
     ./chromadb
     ./dock
+    ./docker
     ./environment
     ./finder
     ./hostname

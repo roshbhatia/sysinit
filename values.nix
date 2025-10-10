@@ -11,12 +11,13 @@
   };
 
   darwin = {
-    colima = {
+    docker = {
       enable = true;
+      backend = "colima";
     };
 
     podman = {
-      enable = false;
+      desktop = false;
     };
 
     tailscale = {

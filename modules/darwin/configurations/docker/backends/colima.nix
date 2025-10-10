@@ -6,7 +6,13 @@
   ...
 }:
 let
-  colimaConfig = ./configs/colima.yaml;
+  inherit (lib) mkIf;
+  
+  dockerEnabled = values.darwin.docker.enable or false;
+  backend = values.darwin.docker.backend or "colima";
+  isColimaBackend = backend == "colima";
+  
+  colimaConfig = ../configs/colima.yaml;
 
   colimaStartScript = pkgs.writeShellScriptBin "colima-start" ''
     #!/usr/bin/env bash
@@ -28,8 +34,9 @@ let
   '';
 in
 {
-  config = lib.mkIf values.darwin.colima.enable {
+  config = mkIf (dockerEnabled && isColimaBackend) {
     environment.systemPackages = [
+      pkgs.colima
       colimaStartScript
     ];
 

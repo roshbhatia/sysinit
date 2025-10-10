@@ -61,19 +61,25 @@ with lib;
       };
 
       darwin = {
-        colima = {
+        docker = {
           enable = mkOption {
             type = types.bool;
             default = true;
-            description = "Enable Colima (Docker Desktop alternative)";
+            description = "Enable container runtime (Docker/Podman)";
+          };
+
+          backend = mkOption {
+            type = types.enum [ "colima" "podman" ];
+            default = "colima";
+            description = "Container backend to use (colima or podman)";
           };
         };
 
         podman = {
-          enable = mkOption {
+          desktop = mkOption {
             type = types.bool;
             default = false;
-            description = "Enable Podman Desktop";
+            description = "Enable Podman Desktop GUI (only applies when backend is podman)";
           };
         };
 
