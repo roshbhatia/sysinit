@@ -62,6 +62,8 @@ in
       vd = "nvim -d";
       vimdiff = "nvim -d";
 
+      g = "git";
+      lg = "lazygit";
       cs = "claude-squad";
 
       kubectl = "kubecolor";
