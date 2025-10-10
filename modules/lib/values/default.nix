@@ -69,7 +69,10 @@ with lib;
           };
 
           backend = mkOption {
-            type = types.enum [ "colima" "podman" ];
+            type = types.enum [
+              "colima"
+              "podman"
+            ];
             default = "colima";
             description = "Container backend to use (colima or podman)";
           };

@@ -7,11 +7,11 @@
 }:
 let
   inherit (lib) mkIf;
-  
+
   dockerEnabled = values.darwin.docker.enable or false;
   backend = values.darwin.docker.backend or "colima";
   isColimaBackend = backend == "colima";
-  
+
   colimaConfig = ../configs/colima.yaml;
 
   colimaStartScript = pkgs.writeShellScriptBin "colima-start" ''

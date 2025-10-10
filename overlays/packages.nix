@@ -6,6 +6,11 @@
 
 final: prev:
 let
+  unstable = import inputs.nixpkgs-unstable {
+    inherit system;
+    config = final.config;
+  };
+
   crossplane-1-17-1 =
     import
       (builtins.fetchTarball {
@@ -35,6 +40,10 @@ in
       };
     };
   };
+  neovim-unwrapped = unstable.neovim-unwrapped;
+  nix-your-shell = unstable.nix-your-shell;
+  nushell = unstable.nushell;
+  sbarlua = unstable.sbarlua;
   crossplane-cli = crossplane-1-17-1.crossplane-cli;
   awscli2 = stable-nixpkgs.awscli2;
 

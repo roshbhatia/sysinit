@@ -137,8 +137,9 @@ let
     zoxide
   ];
 
-  conditionalPackages =
-    (if values.darwin.podman.desktop or false then [ pkgs.podman-desktop ] else [ ]);
+  conditionalPackages = (
+    if values.darwin.podman.desktop or false then [ pkgs.podman-desktop ] else [ ]
+  );
 
   allNixPackages = baseNixPackages ++ conditionalPackages ++ additionalPackages;
 in

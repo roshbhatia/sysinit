@@ -86,11 +86,12 @@ task: Available tasks for this project:
 |-------|------|---------|----------|-------------|
 | `cargo.additionalPackages` | list(string) | [] |  | Additional Rust/Cargo packages |
 | `darwin.borders.enable` | boolean | false |  | Enable window borders |
-| `darwin.colima.enable` | boolean | true |  | Enable Colima (Docker Desktop alternative) |
+| `darwin.docker.backend` |  | "colima" |  | Container backend to use (colima or podman) |
+| `darwin.docker.enable` | boolean | true |  | Enable container runtime (Docker/Podman) |
 | `darwin.homebrew.additionalPackages.brews` | list(string) | [] |  | Additional Homebrew formulae |
 | `darwin.homebrew.additionalPackages.casks` | list(string) | [] |  | Additional Homebrew casks |
 | `darwin.homebrew.additionalPackages.taps` | list(string) | [] |  | Additional Homebrew taps |
-| `darwin.podman.enable` | boolean | false |  | Enable Podman Desktop |
+| `darwin.podman.desktop` | boolean | false |  | Enable Podman Desktop GUI (only applies when backend is podman) |
 | `darwin.tailscale.enable` | boolean | false |  | Enable Tailscale |
 | `definedAliases` | list(string) | [] |  | Search aliases |
 | `firefox.name` | string | - | ✓ | Parameter name |

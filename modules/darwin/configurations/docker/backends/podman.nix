@@ -7,7 +7,7 @@
 }:
 let
   inherit (lib) mkIf;
-  
+
   dockerEnabled = values.darwin.docker.enable or false;
   backend = values.darwin.docker.backend or "colima";
   isPodmanBackend = backend == "podman";
