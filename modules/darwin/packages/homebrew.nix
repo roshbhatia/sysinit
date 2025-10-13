@@ -16,6 +16,7 @@ let
     "noahgorstein/tap"
     "sandreas/tap"
     "slp/krunkit"
+    "sst/tap"
     "vet-run/vet"
   ];
 
@@ -24,11 +25,13 @@ let
     "bcrypt"
     "block-goose-cli"
     "charmbracelet/tap/crush"
+    "grc"
     "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"
     "podman"
     "slp/krunkit/krunkit"
+    "sst/tap/opencode"
     "vet-run"
   ];
 

@@ -9,5 +9,5 @@ zvm_after_init_commands+="_evalcache zoxide init zsh"
 zvm_after_init_commands+="_evalcache gh copilot alias -- zsh"
 zvm_after_init_commands+="_evalcache uv generate-shell-completion zsh"
 zvm_after_init_commands+=$'\nfunction z() { local dir; dir=$(zoxide query "$@"); pushd "$dir"; }'
-zvm_after_init_commands+='[[ -s "/user/local/etc/grc.zsh" ]] && source /usr/local/etc/grc.zsh'
+zvm_after_init_commands+='[[ -s "/usr/local/etc/grc.zsh" ]] && source /usr/local/etc/grc.zsh'
 zvm_after_init_commands+="enable-fzf-tab"
