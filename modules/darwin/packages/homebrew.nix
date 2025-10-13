@@ -15,6 +15,7 @@ let
     "mediosz/tap"
     "noahgorstein/tap"
     "sandreas/tap"
+    "slp/krunkit"
     "vet-run/vet"
   ];
 
@@ -27,6 +28,7 @@ let
     "libgit2@1.8"
     "luarocks"
     "podman"
+    "slp/krunkit/krunkit"
     "vet-run"
   ];
 
