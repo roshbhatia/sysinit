@@ -8,7 +8,6 @@ let
 
   baseNixPackages = with pkgs; [
     _1password-cli
-    actionlint
     alt-tab-macos
     ansible
     ansible-lint
