@@ -89,6 +89,8 @@ M.plugins = {
             "**/dist/",
             "^%node_modules/",
             "^%out/",
+            "^%development/render",
+            "^%development/validate",
           },
         },
         extensions = {
