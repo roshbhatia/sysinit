@@ -3,6 +3,8 @@ local M = {}
 M.plugins = {
   {
     "mrjones2014/smart-splits.nvim",
+    lazy = false,
+    priority = 1000,
     config = function()
       require("smart-splits").setup({
         ignored_buftypes = {
@@ -13,11 +15,7 @@ M.plugins = {
         },
         ignored_filetypes = { "NvimTree" },
         default_amount = 3,
-        at_edge = function(context)
-          if context.mux then
-            context.mux.next_pane(context.direction)
-          end
-        end,
+        at_edge = "wrap",
         cursor_follows_swapped_bufs = true,
         float_win_behavior = "mux",
         move_cursor_same_row = false,

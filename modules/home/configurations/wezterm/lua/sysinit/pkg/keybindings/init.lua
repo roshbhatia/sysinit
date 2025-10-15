@@ -30,6 +30,7 @@ local direction_keys = {
 local function pane_keybinding(action_type, key, mods)
   return wezterm.action_callback(function(win, pane)
     if should_passthrough(pane) then
+      -- Send the key to nvim - this will be picked up by smart-splits
       win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
     else
       if action_type == "resize" then
