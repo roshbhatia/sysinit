@@ -26,7 +26,7 @@ M.plugins = {
             cmd = "claude",
           },
           cursor = {
-            cmd = "cursor-agent --force --background",
+            cmd = "cursor-agent --background",
           },
         },
         enable_diffing = true,
