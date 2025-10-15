@@ -30,7 +30,6 @@ local direction_keys = {
 local function pane_keybinding(action_type, key, mods)
   return wezterm.action_callback(function(win, pane)
     if should_passthrough(pane) then
-      -- Send the key to nvim - this will be picked up by smart-splits
       win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
     else
       if action_type == "resize" then
@@ -90,22 +89,6 @@ local function get_clear_keys()
             SendKey = {
               key = "k",
               mods = "CMD",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ClearScrollback("ScrollbackAndViewport"), pane)
-        end
-      end),
-    },
-    {
-      key = "k",
-      mods = "CTRL",
-      action = wezterm.action_callback(function(win, pane)
-        if should_passthrough(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "k",
-              mods = "CTRL",
             },
           }, pane)
         else
@@ -337,20 +320,6 @@ local function get_transparency_keys()
   }
 end
 
-local function get_agent_keys()
-  return {
-    {
-      key = "i",
-      mods = "CMD",
-      action = wezterm.action({ SendString = "\x1b\r" }),
-    },
-    {
-      key = "i",
-      mods = "CTRL",
-      action = wezterm.action({ SendString = "\x1b\r" }),
-    },
-  }
-end
 
 function M.setup(config)
   local all_keys = {}
@@ -364,7 +333,6 @@ function M.setup(config)
     get_tab_keys(),
     get_search_keys(),
     get_transparency_keys(),
-    get_agent_keys(),
   }
 
   for _, group in ipairs(key_groups) do

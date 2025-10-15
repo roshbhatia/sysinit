@@ -7,6 +7,11 @@ M.plugins = {
     priority = 1000,
     config = function()
       require("smart-splits").setup({
+        ignored_buftypes = {
+          "terminal",
+        },
+        cursor_follows_swapped_bufs = true,
+        float_win_behavior = "mux",
         multiplexer_integration = "wezterm",
       })
     end,
