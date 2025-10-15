@@ -11,9 +11,4 @@ zvm_after_init_commands+="_evalcache uv generate-shell-completion zsh"
 zvm_after_init_commands+=$'\nfunction z() { local dir; dir=$(zoxide query "$@"); pushd "$dir"; }'
 zvm_after_init_commands+='[[ -s "/usr/local/etc/grc.zsh" ]] && source /usr/local/etc/grc.zsh'
 zvm_after_init_commands+="enable-fzf-tab"
-
-# Load cursor-agent integration after zsh-vi-mode is initialized
-# This must be done in a zvm_after_init function to ensure proper key binding
-function zvm_after_init() {
-  eval "$($HOME/.local/bin/cursor-agent shell-integration zsh)"
-}
+zvm_after_init_commands+="_evalcache ~/.local/bin/cursor-agent shell-integration zsh"

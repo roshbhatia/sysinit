@@ -7,25 +7,7 @@ M.plugins = {
     priority = 1000,
     config = function()
       require("smart-splits").setup({
-        ignored_buftypes = {
-          "terminal",
-          "quickfix",
-          "prompt",
-          "nofile",
-        },
-        ignored_filetypes = { "NvimTree" },
-        default_amount = 3,
-        at_edge = "wrap",
-        cursor_follows_swapped_bufs = true,
-        float_win_behavior = "mux",
-        move_cursor_same_row = false,
-        ignored_events = {
-          "BufEnter",
-          "WinEnter",
-        },
         multiplexer_integration = "wezterm",
-        disable_multiplexer_nav_when_zoomed = true,
-        log_level = "info",
       })
     end,
     keys = function()
