@@ -136,9 +136,9 @@ let
     zoxide
   ];
 
-  conditionalPackages =
-    (if values.darwin.docker.backend == "podman" then [ pkgs.podman-desktop ] else [ ])
-    ++ (if values.darwin.docker.backend == "rancher-desktop" then [ pkgs.rancher-desktop ] else [ ]);
+  conditionalPackages = (
+    if values.darwin.docker.backend == "podman" then [ pkgs.podman-desktop ] else [ ]
+  );
 
   allNixPackages = baseNixPackages ++ conditionalPackages ++ additionalPackages;
 in

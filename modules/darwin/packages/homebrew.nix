@@ -50,9 +50,11 @@ let
     "wezterm"
   ];
 
+  conditionalCasks = (if values.darwin.docker.backend == "rancher" then [ "rancher" ] else [ ]);
+
   allTaps = baseTaps ++ additionalTaps;
   allBrews = baseBrews ++ additionalBrews;
-  allCasks = baseCasks ++ additionalCasks;
+  allCasks = baseCasks ++ conditionalCasks ++ additionalCasks;
 in
 {
   nix-homebrew = {
