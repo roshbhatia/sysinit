@@ -1,10 +1,11 @@
 {
   pkgs,
+  lib,
   values,
-  mkIf,
   ...
 }:
 let
+  inherit (lib) mkIf;
   dockerEnabled = values.darwin.docker.enable or true;
 in
 {
