@@ -1,15 +1,11 @@
 {
-  config,
   pkgs,
-  lib,
   values,
+  mkIf,
   ...
 }:
 let
-  inherit (lib) mkIf mkMerge;
-
-  dockerEnabled = values.darwin.docker.enable or false;
-  backend = values.darwin.docker.backend or "colima";
+  dockerEnabled = values.darwin.docker.enable or true;
 in
 {
   config = mkIf dockerEnabled {

@@ -8,7 +8,7 @@ M.agents = {
     "",
   },
   {
-    "i",
+    "j",
     "opencode",
     "OpenCode",
     "󰫼󰫰",
@@ -26,7 +26,7 @@ M.agents = {
     "󰿟󰫮",
   },
   {
-    "j",
+    "i",
     "cursor",
     "Cursor",
     "{}",
