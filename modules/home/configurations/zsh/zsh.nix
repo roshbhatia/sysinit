@@ -48,34 +48,9 @@ in
       share = true;
     };
 
-    shellAliases = {
-      "....." = "cd ../../../..";
-      "...." = "cd ../../..";
-      "..." = "cd ../..";
-      ".." = "cd ..";
-      "~" = "cd ~";
-
-      c = "code-insiders";
-      code = "code-insiders";
-      h = "hx";
-      v = "nvim";
-      vd = "nvim -d";
-      vimdiff = "nvim -d";
-      g = "git";
-      lg = "lazygit";
-
-      cs = "claude-squad";
-
-      kubectl = "kubecolor";
-      tf = "terraform";
-      y = "yazi";
-
+    shellAliases = config.home.shellAliases // {
+      # Zsh-specific overrides
       ls = "eza";
-
-      cat = "bat -pp";
-      diff = "diff --color";
-      grep = "grep -s --color=auto";
-      sudo = "sudo -E";
       watch = "KUBECOLOR_FORCE_COLORS=auto watch --color --no-title";
     };
 

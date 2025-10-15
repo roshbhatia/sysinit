@@ -48,34 +48,9 @@ in
       }"
     '';
 
-    shellAliases = {
-      "....." = "cd ../../../..";
-      "...." = "cd ../../..";
-      "..." = "cd ../..";
-      ".." = "cd ..";
-      "~" = "cd ~";
-
-      c = "code-insiders";
-      code = "code-insiders";
-      h = "hx";
-      v = "nvim";
-      vd = "nvim -d";
-      vimdiff = "nvim -d";
-
-      g = "git";
-      lg = "lazygit";
-      cs = "claude-squad";
-
-      kubectl = "kubecolor";
-      tf = "terraform";
-      y = "yazi";
-
-      cat = "bat -pp";
-      diff = "diff --color";
-      grep = "grep -s --color=auto";
-      sudo = "sudo -E";
+    shellAliases = config.home.shellAliases // {
+      # Nushell-specific overrides
       watch = "watch --quiet";
-
       nu-open = "open";
       open = "^open";
     };

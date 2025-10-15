@@ -48,6 +48,39 @@
       NODE_TLS_REJECT_UNAUTHORIZED = 0;
     };
 
+    shellAliases = {
+      # Navigation
+      "....." = "cd ../../../..";
+      "...." = "cd ../../..";
+      "..." = "cd ../..";
+      ".." = "cd ..";
+      "~" = "cd ~";
+
+      # Editors
+      c = "code-insiders";
+      code = "code-insiders";
+      h = "hx";
+      v = "nvim";
+      vd = "nvim -d";
+      vimdiff = "nvim -d";
+
+      # Git
+      g = "git";
+      lg = "lazygit";
+
+      # Tools
+      cs = "claude-squad";
+      kubectl = "kubecolor";
+      tf = "terraform";
+      y = "yazi";
+
+      # Command enhancements
+      cat = "bat -pp";
+      diff = "diff --color";
+      grep = "grep -s --color=auto";
+      sudo = "sudo -E";
+    };
+
     packages = [
       pkgs.bashInteractive
     ];
