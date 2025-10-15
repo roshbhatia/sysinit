@@ -320,7 +320,6 @@ local function get_transparency_keys()
   }
 end
 
-
 function M.setup(config)
   local all_keys = {}
 
