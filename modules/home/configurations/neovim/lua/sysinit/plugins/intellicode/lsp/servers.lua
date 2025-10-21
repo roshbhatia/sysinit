@@ -7,9 +7,8 @@ function M.get_builtin_configs()
 
   local configs = {
     ast_grep = {
-      root_markers = {
-        ".git",
-      },
+      cmd = { "ast-grep", "lsp", "-c", vim.fn.expand("~/.config/ast-grep/sgconfig.yml") },
+      root_markers = { ".git" },
     },
     eslint = {},
     gopls = {},
