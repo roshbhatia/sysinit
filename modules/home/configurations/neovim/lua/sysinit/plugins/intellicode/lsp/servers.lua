@@ -1,6 +1,5 @@
 local M = {}
 local config = require("sysinit.utils.config")
-local util = require("lspconfig.util")
 
 function M.get_builtin_configs()
   local schemastore = require("schemastore")
@@ -25,7 +24,7 @@ function M.get_builtin_configs()
         "lua",
       },
       root_dir = function(fname)
-        return util.root_pattern("~/.config/ast-grep/sgconfig.yml")(fname)
+        return true
       end,
     },
     eslint = {},
