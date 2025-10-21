@@ -2,7 +2,6 @@
   config,
   pkgs,
   lib,
-  values,
   ...
 }:
 
@@ -63,13 +62,12 @@
       v = "nvim";
       vd = "nvim -d";
       vimdiff = "nvim -d";
+      sg = "ast-grep";
 
       # Git
       g = "git";
       lg = "lazygit";
 
-      # Tools
-      cs = "claude-squad";
       kubectl = "kubecolor";
       tf = "terraform";
       y = "yazi";
