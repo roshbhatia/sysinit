@@ -37,6 +37,9 @@ lib.mkIf crushEnabled {
           "mcp_git_status"
           "mcp_git_diff"
           "mcp_chroma_query"
+          "mcp_astgrep_search"
+          "mcp_astgrep_rewrite"
+          "mcp_astgrep_scan"
         ];
 
         sandbox = {

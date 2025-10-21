@@ -48,5 +48,14 @@
       description = "Local RAG implementation for querying about codebase information";
       enabled = true;
     };
+    astgrep = {
+      command = "npx";
+      args = [
+        "-y"
+        "@ast-grep/cli-mcp-server"
+      ];
+      description = "Structural code search and refactoring with ast-grep. Provides AST-based pattern matching for semantic code search across multiple languages.";
+      enabled = true;
+    };
   };
 }

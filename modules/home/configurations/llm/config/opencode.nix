@@ -70,6 +70,12 @@ lib.mkIf opencodeEnabled {
             command = [ mcpServers.servers.neovim.command ] ++ mcpServers.servers.neovim.args;
             description = mcpServers.servers.neovim.description;
           };
+          astgrep = {
+            type = "local";
+            enabled = true;
+            command = [ mcpServers.servers.astgrep.command ] ++ mcpServers.servers.astgrep.args;
+            description = mcpServers.servers.astgrep.description;
+          };
         };
 
         lsp = builtins.mapAttrs (_name: lsp: {

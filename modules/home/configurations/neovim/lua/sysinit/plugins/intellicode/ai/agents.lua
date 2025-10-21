@@ -5,7 +5,7 @@ M.agents = {
     "u",
     "copilot",
     "Copilot",
-    "",
+    "",
   },
   {
     "j",
@@ -17,7 +17,7 @@ M.agents = {
     "k",
     "goose",
     "Goose",
-    "",
+    "",
   },
   {
     "h",
@@ -29,7 +29,7 @@ M.agents = {
     "i",
     "cursor",
     "Cursor",
-    "{}",
+    "{}",
   },
 }
 
