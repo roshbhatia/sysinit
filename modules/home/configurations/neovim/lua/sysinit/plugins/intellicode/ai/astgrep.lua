@@ -4,18 +4,18 @@ local M = {}
 function M.execute(cmd, args)
   local full_cmd = string.format("ast-grep %s %s 2>/dev/null", cmd, args or "")
   local handle = io.popen(full_cmd)
-  
+
   if not handle then
     return nil, "Failed to execute ast-grep"
   end
-  
+
   local result = handle:read("*a")
   local success = handle:close()
-  
+
   if not success then
     return nil, "ast-grep command failed"
   end
-  
+
   return result, nil
 end
 
@@ -23,11 +23,11 @@ end
 function M.search_current_file(pattern)
   local buf = vim.api.nvim_get_current_buf()
   local path = vim.api.nvim_buf_get_name(buf)
-  
+
   if path == "" then
     return nil, "No file open"
   end
-  
+
   local args = string.format("-p '%s' '%s'", pattern, path)
   return M.execute("search", args)
 end
@@ -36,11 +36,11 @@ end
 function M.search_project(pattern, file_pattern)
   local cwd = vim.fn.getcwd()
   local args = string.format("-p '%s'", pattern)
-  
+
   if file_pattern then
     args = args .. string.format(" -g '%s'", file_pattern)
   end
-  
+
   return M.execute("search", args)
 end
 
@@ -59,11 +59,11 @@ end
 -- Get language-specific search
 function M.search_lang(lang, pattern, file_pattern)
   local args = string.format("-l %s -p '%s'", lang, pattern)
-  
+
   if file_pattern then
     args = args .. string.format(" -g '%s'", file_pattern)
   end
-  
+
   return M.execute("search", args)
 end
 
@@ -73,10 +73,10 @@ function M.is_available()
   if not handle then
     return false
   end
-  
+
   local result = handle:read("*a")
   handle:close()
-  
+
   return result ~= ""
 end
 

@@ -4,7 +4,6 @@
 
 {
   imports = [
-    ./astgrep
     ./atuin
     ./bat
     ./btop

@@ -178,20 +178,20 @@ local PLACEHOLDERS = {
     provider = function(state)
       local context = require("sysinit.plugins.intellicode.ai.context")
       local path = vim.api.nvim_buf_get_name(state.buf)
-      
+
       if path == "" then
         return "No file open"
       end
-      
+
       -- Use ast-grep to find structural patterns in current file
       local handle = io.popen(string.format("ast-grep scan '%s' 2>/dev/null", path))
       if not handle then
         return "ast-grep not available"
       end
-      
+
       local result = handle:read("*a")
       handle:close()
-      
+
       return result ~= "" and result or "No patterns found"
     end,
   },
@@ -219,7 +219,7 @@ function M.apply_placeholders(input)
   end
   local state = context.current_position()
   local result = input
-  
+
   -- Handle dynamic ast-grep-pattern placeholders
   result = result:gsub("@astgrep%-pattern:([^%s]+)", function(pattern)
     local handle = io.popen(string.format("ast-grep -p '%s' 2>/dev/null", pattern))
@@ -230,7 +230,7 @@ function M.apply_placeholders(input)
     handle:close()
     return output ~= "" and output or "No matches found"
   end)
-  
+
   -- Handle language-specific ast-grep searches
   result = result:gsub("@astgrep%-lang:([^:]+):([^%s]+)", function(lang, pattern)
     local handle = io.popen(string.format("ast-grep -l %s -p '%s' 2>/dev/null", lang, pattern))
@@ -241,7 +241,7 @@ function M.apply_placeholders(input)
     handle:close()
     return output ~= "" and output or "No matches found"
   end)
-  
+
   -- Handle regular placeholders
   for _, ph in ipairs(PLACEHOLDERS) do
     if result:find(ph.token, 1, true) then
@@ -250,7 +250,7 @@ function M.apply_placeholders(input)
       result = result:gsub(escape_lua_pattern(ph.token), value)
     end
   end
-  
+
   return result
 end
 
