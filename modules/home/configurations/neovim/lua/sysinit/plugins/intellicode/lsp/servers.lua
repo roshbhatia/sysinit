@@ -6,6 +6,7 @@ function M.get_builtin_configs()
   local version = vim.version()
 
   local configs = {
+    ast_grep = {},
     eslint = {},
     gopls = {},
     tflint = {},

@@ -7,6 +7,7 @@ M.plugins = {
     event = "VeryLazy",
     dependencies = {
       "debugloop/telescope-undo.nvim",
+      "Marskey/telescope-sg",
       "nvim-lua/plenary.nvim",
       "nvim-telescope/telescope-dap.nvim",
       "nvim-telescope/telescope-fzy-native.nvim",
@@ -113,6 +114,14 @@ M.plugins = {
               preview_height = 0.8,
             },
           },
+          ast_grep = {
+            command = {
+              "ast-grep",
+              "--json=stream",
+            },
+            grep_open_files = false,
+            lang = nil,
+          },
         },
         pickers = {
           find_files = {
@@ -181,6 +190,12 @@ M.plugins = {
         pattern = "TelescopePersisted",
         callback = function()
           lazy_load_ext("persisted")
+        end,
+      })
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "TelescopeAstGrep",
+        callback = function()
+          lazy_load_ext("ast_grep")
         end,
       })
     end,
@@ -270,6 +285,14 @@ M.plugins = {
             tbuiltin.resume()
           end,
           desc = "Resume last search",
+        },
+        {
+          "<leader>fs",
+          function()
+            vim.api.nvim_exec_autocmds("User", { pattern = "TelescopeAstGrep" })
+            textensions.ast_grep.ast_grep()
+          end,
+          desc = "Find structural pattern (AST)",
         },
       }
     end,

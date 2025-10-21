@@ -41,14 +41,6 @@ M.plugins = {
     end,
     keys = {
       {
-        "<leader>fs",
-        function()
-          require("ast-grep").search()
-        end,
-        desc = "Find structural pattern (AST)",
-        mode = { "n", "v" },
-      },
-      {
         "<leader>fS",
         function()
           require("ast-grep").search_in_files()
