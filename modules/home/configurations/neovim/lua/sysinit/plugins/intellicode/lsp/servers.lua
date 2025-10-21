@@ -7,25 +7,9 @@ function M.get_builtin_configs()
 
   local configs = {
     ast_grep = {
-      cmd = { "ast-grep", "lsp" },
-      filetypes = {
-        "c",
-        "cpp",
-        "rust",
-        "go",
-        "java",
-        "python",
-        "javascript",
-        "typescript",
-        "html",
-        "css",
-        "kotlin",
-        "dart",
-        "lua",
+      root_markers = {
+        ".git",
       },
-      root_dir = function(fname)
-        return true
-      end,
     },
     eslint = {},
     gopls = {},
