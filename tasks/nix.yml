@@ -102,7 +102,6 @@ tasks:
   refresh:
     desc: Apply the system configuration and switch to new generation
     silent: true
-    deps: [update]
     cmds:
       - |
         #!/usr/bin/env bash
