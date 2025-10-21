@@ -15,6 +15,7 @@ let
     argocd
     asciinema
     asciinema-agg
+    ast-grep
     atuin
     awk-language-server
     awscli2
