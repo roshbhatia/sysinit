@@ -48,9 +48,9 @@ M.plugins = {
         wk.add({
           { "<leader>a", group = "AI" },
           { "<leader>k", group = "Goose" },
-          { "<leader>i", group = "OpenCode" },
+          { "<leader>i", group = "Cursor" },
           { "<leader>u", group = "Copilot" },
-          { "<leader>j", group = "Cursor" },
+          { "<leader>j", group = "OpenCode" },
           { "<leader>h", group = "Claude" },
         })
       end
