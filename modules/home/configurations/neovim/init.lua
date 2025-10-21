@@ -9,6 +9,7 @@ package.path = package.path
   .. vim.fn.stdpath("config")
   .. "/lua/?.lua"
 
+require("sysinit.config.opts.socket").setup()
 require("sysinit.config.opts.leader").setup()
 require("sysinit.config.opts.environment").setup()
 require("sysinit.config.opts.editor").setup()

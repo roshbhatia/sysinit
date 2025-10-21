@@ -1,0 +1,7 @@
+{
+  "hooks": {
+    "beforeReadFile": "~/.local/bin/agent-hook-before-read",
+    "afterWriteFile": "~/.local/bin/agent-hook-after-write",
+    "beforeShellExecution": "~/.local/bin/agent-hook-before-shell"
+  }
+}
