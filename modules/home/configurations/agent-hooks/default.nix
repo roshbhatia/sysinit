@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   agentHooksPath = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/agent-hooks";
