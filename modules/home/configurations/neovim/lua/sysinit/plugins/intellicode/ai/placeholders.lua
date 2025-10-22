@@ -28,6 +28,93 @@ local function escape_lua_pattern(s)
   return (s:gsub("(%W)", "%%%1"))
 end
 
+-- Helper function to run ast-grep with proper error handling and formatting
+local function run_astgrep(pattern, lang, options)
+  options = options or {}
+  local cmd_parts = { "ast-grep" }
+
+  if lang then
+    table.insert(cmd_parts, string.format("-l %s", lang))
+  end
+
+  table.insert(cmd_parts, string.format("-p '%s'", pattern:gsub("'", "'\\''")))
+
+  if options.json then
+    table.insert(cmd_parts, "--json=stream")
+  end
+
+  if options.files_only then
+    table.insert(cmd_parts, "--files-with-matches")
+  end
+
+  table.insert(cmd_parts, "2>/dev/null")
+
+  local cmd = table.concat(cmd_parts, " ")
+  local handle = io.popen(cmd)
+  if not handle then
+    return nil, "ast-grep not available"
+  end
+
+  local output = handle:read("*a")
+  local success = handle:close()
+
+  if not success or output == "" then
+    return nil, "No matches found"
+  end
+
+  return output, nil
+end
+
+-- Preview ast-grep results in a floating window
+local function preview_astgrep_results(pattern, lang)
+  local output, err = run_astgrep(pattern, lang, { json = false })
+  if err then
+    vim.notify("ast-grep: " .. err, vim.log.levels.WARN)
+    return
+  end
+
+  -- Create a scratch buffer for preview
+  local buf = vim.api.nvim_create_buf(false, true)
+  local lines = vim.split(output, "\n")
+
+  -- Limit preview to 50 lines
+  if #lines > 50 then
+    table.insert(lines, 51, "... (" .. (#lines - 50) .. " more lines)")
+    lines = vim.list_slice(lines, 1, 51)
+  end
+
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+  vim.api.nvim_buf_set_option(buf, "modifiable", false)
+  vim.api.nvim_buf_set_option(buf, "filetype", "astgrep")
+
+  -- Calculate window size
+  local width = math.min(120, vim.o.columns - 4)
+  local height = math.min(#lines + 2, math.floor(vim.o.lines * 0.8))
+
+  -- Create floating window
+  local win = vim.api.nvim_open_win(buf, true, {
+    relative = "editor",
+    width = width,
+    height = height,
+    col = math.floor((vim.o.columns - width) / 2),
+    row = math.floor((vim.o.lines - height) / 2),
+    style = "minimal",
+    border = "rounded",
+    title = string.format(" ast-grep: %s ", pattern),
+    title_pos = "center",
+  })
+
+  -- Set keymaps for the preview window
+  vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = buf, silent = true })
+  vim.keymap.set("n", "<Esc>", "<cmd>close<cr>", { buffer = buf, silent = true })
+  vim.keymap.set("n", "y", function()
+    vim.fn.setreg("+", output)
+    vim.notify("Copied to clipboard", vim.log.levels.INFO)
+  end, { buffer = buf, silent = true, desc = "Yank results to clipboard" })
+
+  return output
+end
+
 local PLACEHOLDERS = {
   {
     token = "@cursor",
@@ -211,7 +298,17 @@ local PLACEHOLDERS = {
       return ""
     end,
   },
+  {
+    token = "@astgrep-preview",
+    description = "Preview ast-grep results before submitting (usage: @astgrep-preview:pattern)",
+    provider = function(state)
+      return ""
+    end,
+  },
 }
+
+-- Export preview function for use in keymaps
+M.preview_astgrep = preview_astgrep_results
 
 function M.apply_placeholders(input)
   if not input or input == "" then
@@ -220,26 +317,34 @@ function M.apply_placeholders(input)
   local state = context.current_position()
   local result = input
 
+  -- Handle ast-grep preview placeholders (shows preview then expands)
+  result = result:gsub("@astgrep%-preview:([^%s]+)", function(pattern)
+    local output = preview_astgrep_results(pattern, nil)
+    return output or "Preview cancelled"
+  end)
+
+  -- Handle ast-grep preview with language
+  result = result:gsub("@astgrep%-preview%-lang:([^:]+):([^%s]+)", function(lang, pattern)
+    local output = preview_astgrep_results(pattern, lang)
+    return output or "Preview cancelled"
+  end)
+
   -- Handle dynamic ast-grep-pattern placeholders
   result = result:gsub("@astgrep%-pattern:([^%s]+)", function(pattern)
-    local handle = io.popen(string.format("ast-grep -p '%s' 2>/dev/null", pattern))
-    if not handle then
-      return "ast-grep not available"
+    local output, err = run_astgrep(pattern, nil, {})
+    if err then
+      return err
     end
-    local output = handle:read("*a")
-    handle:close()
-    return output ~= "" and output or "No matches found"
+    return output
   end)
 
   -- Handle language-specific ast-grep searches
   result = result:gsub("@astgrep%-lang:([^:]+):([^%s]+)", function(lang, pattern)
-    local handle = io.popen(string.format("ast-grep -l %s -p '%s' 2>/dev/null", lang, pattern))
-    if not handle then
-      return "ast-grep not available"
+    local output, err = run_astgrep(pattern, lang, {})
+    if err then
+      return err
     end
-    local output = handle:read("*a")
-    handle:close()
-    return output ~= "" and output or "No matches found"
+    return output
   end)
 
   -- Handle regular placeholders

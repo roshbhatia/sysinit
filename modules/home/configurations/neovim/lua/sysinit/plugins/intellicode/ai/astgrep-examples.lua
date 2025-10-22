@@ -93,4 +93,43 @@ function M.generate_prompt_template(lang, pattern_name)
   )
 end
 
+-- Generate a placeholder for use in AI terminals
+function M.generate_placeholder(lang, pattern_name, preview)
+  local pattern = M.examples[lang] and M.examples[lang][pattern_name]
+
+  if not pattern then
+    return nil
+  end
+
+  if preview then
+    return string.format("@astgrep-preview-lang:%s:%s", lang, pattern)
+  else
+    return string.format("@astgrep-lang:%s:%s", lang, pattern)
+  end
+end
+
+-- Get all available languages
+function M.get_languages()
+  local langs = {}
+  for lang, _ in pairs(M.examples) do
+    table.insert(langs, lang)
+  end
+  table.sort(langs)
+  return langs
+end
+
+-- Get all pattern names for a language
+function M.get_patterns(lang)
+  if not M.examples[lang] then
+    return {}
+  end
+
+  local patterns = {}
+  for name, _ in pairs(M.examples[lang]) do
+    table.insert(patterns, name)
+  end
+  table.sort(patterns)
+  return patterns
+end
+
 return M
