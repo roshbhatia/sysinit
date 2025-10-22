@@ -32,6 +32,14 @@ function M.create_input(termname, agent_icon, opts)
   }, function(value)
     if opts.on_confirm and value and value ~= "" then
       history.save_to_history(termname, value)
+
+      -- Check if value contains @astgrep - if so, handle interactively
+      if placeholders.handle_interactive_astgrep(value, opts.on_confirm) then
+        -- Interactive picker opened, callback will be called after selection
+        return
+      end
+
+      -- No @astgrep, apply placeholders normally
       opts.on_confirm(placeholders.apply_placeholders(value))
     end
   end)

@@ -28,93 +28,6 @@ local function escape_lua_pattern(s)
   return (s:gsub("(%W)", "%%%1"))
 end
 
--- Helper function to run ast-grep with proper error handling and formatting
-local function run_astgrep(pattern, lang, options)
-  options = options or {}
-  local cmd_parts = { "ast-grep" }
-
-  if lang then
-    table.insert(cmd_parts, string.format("-l %s", lang))
-  end
-
-  table.insert(cmd_parts, string.format("-p '%s'", pattern:gsub("'", "'\\''")))
-
-  if options.json then
-    table.insert(cmd_parts, "--json=stream")
-  end
-
-  if options.files_only then
-    table.insert(cmd_parts, "--files-with-matches")
-  end
-
-  table.insert(cmd_parts, "2>/dev/null")
-
-  local cmd = table.concat(cmd_parts, " ")
-  local handle = io.popen(cmd)
-  if not handle then
-    return nil, "ast-grep not available"
-  end
-
-  local output = handle:read("*a")
-  local success = handle:close()
-
-  if not success or output == "" then
-    return nil, "No matches found"
-  end
-
-  return output, nil
-end
-
--- Preview ast-grep results in a floating window
-local function preview_astgrep_results(pattern, lang)
-  local output, err = run_astgrep(pattern, lang, { json = false })
-  if err then
-    vim.notify("ast-grep: " .. err, vim.log.levels.WARN)
-    return
-  end
-
-  -- Create a scratch buffer for preview
-  local buf = vim.api.nvim_create_buf(false, true)
-  local lines = vim.split(output, "\n")
-
-  -- Limit preview to 50 lines
-  if #lines > 50 then
-    table.insert(lines, 51, "... (" .. (#lines - 50) .. " more lines)")
-    lines = vim.list_slice(lines, 1, 51)
-  end
-
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-  vim.api.nvim_buf_set_option(buf, "modifiable", false)
-  vim.api.nvim_buf_set_option(buf, "filetype", "astgrep")
-
-  -- Calculate window size
-  local width = math.min(120, vim.o.columns - 4)
-  local height = math.min(#lines + 2, math.floor(vim.o.lines * 0.8))
-
-  -- Create floating window
-  local win = vim.api.nvim_open_win(buf, true, {
-    relative = "editor",
-    width = width,
-    height = height,
-    col = math.floor((vim.o.columns - width) / 2),
-    row = math.floor((vim.o.lines - height) / 2),
-    style = "minimal",
-    border = "rounded",
-    title = string.format(" ast-grep: %s ", pattern),
-    title_pos = "center",
-  })
-
-  -- Set keymaps for the preview window
-  vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = buf, silent = true })
-  vim.keymap.set("n", "<Esc>", "<cmd>close<cr>", { buffer = buf, silent = true })
-  vim.keymap.set("n", "y", function()
-    vim.fn.setreg("+", output)
-    vim.notify("Copied to clipboard", vim.log.levels.INFO)
-  end, { buffer = buf, silent = true, desc = "Yank results to clipboard" })
-
-  return output
-end
-
 local PLACEHOLDERS = {
   {
     token = "@cursor",
@@ -261,54 +174,45 @@ local PLACEHOLDERS = {
   },
   {
     token = "@astgrep",
-    description = "AST-based pattern search results for current file",
+    description = "Interactive ast-grep search (opens picker)",
     provider = function(state)
-      local context = require("sysinit.plugins.intellicode.ai.context")
-      local path = vim.api.nvim_buf_get_name(state.buf)
-
-      if path == "" then
-        return "No file open"
-      end
-
-      -- Use ast-grep to find structural patterns in current file
-      local handle = io.popen(string.format("ast-grep scan '%s' 2>/dev/null", path))
-      if not handle then
-        return "ast-grep not available"
-      end
-
-      local result = handle:read("*a")
-      handle:close()
-
-      return result ~= "" and result or "No patterns found"
-    end,
-  },
-  {
-    token = "@astgrep-pattern",
-    description = "Search codebase for AST pattern (usage: @astgrep-pattern:your-pattern)",
-    provider = function(state)
-      -- This is a dynamic placeholder that expects a pattern argument
-      -- Will be expanded in apply_placeholders with regex matching
-      return ""
-    end,
-  },
-  {
-    token = "@astgrep-lang",
-    description = "Language-specific AST search (usage: @astgrep-lang:typescript:pattern)",
-    provider = function(state)
-      return ""
-    end,
-  },
-  {
-    token = "@astgrep-preview",
-    description = "Preview ast-grep results before submitting (usage: @astgrep-preview:pattern)",
-    provider = function(state)
-      return ""
+      -- This is a special placeholder that triggers an interactive picker
+      -- It will be handled specially in apply_placeholders
+      return "__ASTGREP_INTERACTIVE__"
     end,
   },
 }
 
--- Export preview function for use in keymaps
-M.preview_astgrep = preview_astgrep_results
+-- Handle interactive @astgrep placeholder
+-- This function checks if input contains @astgrep and opens an interactive picker
+-- Returns: true if @astgrep was found (will be handled async), false otherwise
+function M.handle_interactive_astgrep(input, callback)
+  if not input:find("@astgrep", 1, true) then
+    -- No @astgrep placeholder
+    return false
+  end
+
+  -- Found @astgrep - open interactive picker
+  local picker = require("sysinit.plugins.editor.astgrep-picker")
+  picker.start_picker(function(results)
+    if results then
+      -- Replace @astgrep with the results
+      local replaced = input:gsub("@astgrep", function()
+        return results
+      end)
+
+      -- Now apply other placeholders
+      if callback then
+        callback(M.apply_placeholders(replaced))
+      end
+    else
+      -- User cancelled picker
+      vim.notify("ast-grep search cancelled", vim.log.levels.INFO)
+    end
+  end)
+
+  return true
+end
 
 function M.apply_placeholders(input)
   if not input or input == "" then
@@ -317,35 +221,8 @@ function M.apply_placeholders(input)
   local state = context.current_position()
   local result = input
 
-  -- Handle ast-grep preview placeholders (shows preview then expands)
-  result = result:gsub("@astgrep%-preview:([^%s]+)", function(pattern)
-    local output = preview_astgrep_results(pattern, nil)
-    return output or "Preview cancelled"
-  end)
-
-  -- Handle ast-grep preview with language
-  result = result:gsub("@astgrep%-preview%-lang:([^:]+):([^%s]+)", function(lang, pattern)
-    local output = preview_astgrep_results(pattern, lang)
-    return output or "Preview cancelled"
-  end)
-
-  -- Handle dynamic ast-grep-pattern placeholders
-  result = result:gsub("@astgrep%-pattern:([^%s]+)", function(pattern)
-    local output, err = run_astgrep(pattern, nil, {})
-    if err then
-      return err
-    end
-    return output
-  end)
-
-  -- Handle language-specific ast-grep searches
-  result = result:gsub("@astgrep%-lang:([^:]+):([^%s]+)", function(lang, pattern)
-    local output, err = run_astgrep(pattern, lang, {})
-    if err then
-      return err
-    end
-    return output
-  end)
+  -- Note: @astgrep is now handled interactively via handle_interactive_astgrep
+  -- and should not normally reach this function with @astgrep still in it
 
   -- Handle regular placeholders
   for _, ph in ipairs(PLACEHOLDERS) do

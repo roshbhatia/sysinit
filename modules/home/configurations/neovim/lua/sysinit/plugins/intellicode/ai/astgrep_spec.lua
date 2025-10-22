@@ -1,168 +1,197 @@
--- Tests for ast-grep integration improvements
+-- Tests for improved ast-grep integration
 -- Run with: nvim --headless -c "PlenaryBustedDirectory lua/sysinit/plugins/intellicode/ai/ {minimal_init = 'init.lua'}"
 
 local placeholders = require("sysinit.plugins.intellicode.ai.placeholders")
-local terminal = require("sysinit.plugins.intellicode.ai.terminal")
+local examples = require("sysinit.plugins.intellicode.ai.astgrep-examples")
 
-describe("ast-grep placeholders", function()
-  it("should include @astgrep-preview placeholder", function()
+describe("ast-grep placeholder", function()
+  it("should have single @astgrep placeholder", function()
     local found = false
     for _, ph in ipairs(placeholders.placeholder_descriptions) do
-      if ph.token == "@astgrep-preview" then
+      if ph.token == "@astgrep" then
         found = true
+        assert.equals("Interactive ast-grep search (opens picker)", ph.description)
         break
       end
     end
-    assert.is_true(found, "@astgrep-preview placeholder should be registered")
+    assert.is_true(found, "@astgrep placeholder should be registered")
   end)
 
-  it("should expand @astgrep-pattern placeholder", function()
-    local input = "Find patterns: @astgrep-pattern:console.log($$$)"
-    local result = placeholders.apply_placeholders(input)
-    -- Result should either have matches or "No matches found"
-    assert.is_not_nil(result)
-    assert.is_not.equal(result, input) -- Should be expanded
+  it("should not have old placeholder variations", function()
+    local old_placeholders = { "@astgrep-pattern", "@astgrep-lang", "@astgrep-preview" }
+    for _, old_token in ipairs(old_placeholders) do
+      local found = false
+      for _, ph in ipairs(placeholders.placeholder_descriptions) do
+        if ph.token == old_token then
+          found = true
+          break
+        end
+      end
+      assert.is_false(found, string.format("%s should not exist", old_token))
+    end
   end)
 
-  it("should expand @astgrep-lang placeholder with language", function()
-    local input = "Find TS patterns: @astgrep-lang:typescript:function $NAME($$$) { $$$ }"
-    local result = placeholders.apply_placeholders(input)
-    assert.is_not_nil(result)
+  it("should detect @astgrep placeholder", function()
+    local input = "test @astgrep query"
+    local contains_astgrep = input:find("@astgrep", 1, true) ~= nil
+    assert.is_true(contains_astgrep)
   end)
 
-  it("should handle multiple placeholders in one input", function()
-    local input = "@buffer @astgrep-pattern:test"
+  it("should not interfere with other placeholders", function()
+    local input = "@buffer @cursor"
     local result = placeholders.apply_placeholders(input)
     assert.is_not_nil(result)
-    -- Should have expanded both placeholders
+    -- Should have expanded other placeholders
     assert.is_not.equal(result, input)
   end)
 end)
 
-describe("terminal validation", function()
-  it("should validate ast-grep patterns in prompts", function()
-    local text = "@astgrep-pattern:test-pattern"
-    local errors, warnings = terminal.validate_prompt(text)
-    assert.is_table(errors)
-    assert.is_table(warnings)
+describe("ast-grep picker module", function()
+  local picker = require("sysinit.plugins.editor.astgrep-picker")
+
+  it("should expose start_picker function", function()
+    assert.is_function(picker.start_picker)
   end)
 
-  it("should warn about unsupported languages", function()
-    local text = "@astgrep-lang:invalid-lang:pattern"
-    local errors, warnings = terminal.validate_prompt(text)
-    assert.is_true(#warnings > 0)
+  it("should expose repeat_last_search function", function()
+    assert.is_function(picker.repeat_last_search)
   end)
 
-  it("should warn about patterns with quotes", function()
-    local text = "@astgrep-pattern:test'with'quotes"
-    local errors, warnings = terminal.validate_prompt(text)
-    assert.is_true(#warnings > 0)
-  end)
-
-  it("should accept valid patterns without warnings", function()
-    local text = "@astgrep-lang:typescript:function"
-    local errors, warnings = terminal.validate_prompt(text)
-    assert.is_true(#errors == 0)
+  it("should expose search_with_pattern function", function()
+    assert.is_function(picker.search_with_pattern)
   end)
 end)
 
 describe("ast-grep examples", function()
-  local examples = require("sysinit.plugins.intellicode.ai.astgrep-examples")
-
-  it("should have examples for typescript", function()
+  it("should have examples for multiple languages", function()
     assert.is_table(examples.examples.typescript)
-    assert.is_not_nil(examples.examples.typescript.async_functions)
-  end)
-
-  it("should have examples for python", function()
     assert.is_table(examples.examples.python)
-    assert.is_not_nil(examples.examples.python.classes)
-  end)
-
-  it("should have examples for go", function()
     assert.is_table(examples.examples.go)
-    assert.is_not_nil(examples.examples.go.error_check)
-  end)
-
-  it("should have examples for lua", function()
     assert.is_table(examples.examples.lua)
-    assert.is_not_nil(examples.examples.lua.requires)
-  end)
-
-  it("should have examples for nix", function()
     assert.is_table(examples.examples.nix)
-    assert.is_not_nil(examples.examples.nix.packages)
   end)
 
-  it("should generate prompt templates", function()
-    local prompt = examples.generate_prompt_template("typescript", "async_functions")
-    assert.is_string(prompt)
-    assert.is_true(prompt:match("ast%-grep") ~= nil)
-  end)
-end)
-
-describe("run_astgrep helper", function()
-  -- Test the helper function indirectly through placeholders
-  it("should handle simple patterns", function()
-    local input = "@astgrep-pattern:test"
-    local result = placeholders.apply_placeholders(input)
-    -- Should return either matches or "No matches found"
-    assert.is_string(result)
+  it("should have helper functions", function()
+    assert.is_function(examples.get_languages)
+    assert.is_function(examples.get_patterns)
+    assert.is_function(examples.generate_placeholder)
   end)
 
-  it("should handle language-specific patterns", function()
-    local input = "@astgrep-lang:lua:require"
-    local result = placeholders.apply_placeholders(input)
-    assert.is_string(result)
-  end)
-end)
-
-describe("preview functionality", function()
-  -- These tests validate that the preview function exists and is callable
-  -- Full UI testing would require integration tests
-
-  it("should expose preview_astgrep function", function()
-    assert.is_function(placeholders.preview_astgrep)
+  it("should return list of languages", function()
+    local languages = examples.get_languages()
+    assert.is_table(languages)
+    assert.is_true(#languages > 0)
+    assert.is_true(vim.tbl_contains(languages, "typescript"))
+    assert.is_true(vim.tbl_contains(languages, "python"))
   end)
 
-  it("should expose send_astgrep_to_terminal function", function()
-    assert.is_function(terminal.send_astgrep_to_terminal)
+  it("should return patterns for a language", function()
+    local patterns = examples.get_patterns("typescript")
+    assert.is_table(patterns)
+    assert.is_true(#patterns > 0)
   end)
 
-  it("should expose preview_prompt function", function()
-    assert.is_function(terminal.preview_prompt)
+  it("should return empty table for unknown language", function()
+    local patterns = examples.get_patterns("nonexistent")
+    assert.is_table(patterns)
+    assert.equals(0, #patterns)
   end)
-end)
 
--- Integration test for the full workflow
-describe("ast-grep workflow integration", function()
-  it("should support the complete pattern search workflow", function()
-    -- 1. Pattern exists in examples
-    local examples = require("sysinit.plugins.intellicode.ai.astgrep-examples")
-    local ts_pattern = examples.examples.typescript.async_functions
-    assert.is_string(ts_pattern)
-
-    -- 2. Placeholder can be constructed
-    local placeholder = string.format("@astgrep-lang:typescript:%s", ts_pattern)
+  it("should generate placeholders", function()
+    local placeholder = examples.generate_placeholder("typescript", "async_functions", false)
     assert.is_string(placeholder)
-
-    -- 3. Validation passes
-    local errors, warnings = terminal.validate_prompt(placeholder)
-    assert.is_true(#errors == 0)
-
-    -- 4. Placeholder expands (though may have no matches in test env)
-    local result = placeholders.apply_placeholders(placeholder)
-    assert.is_string(result)
+    assert.is_true(placeholder:match("@astgrep") ~= nil)
   end)
 
-  it("should support preview workflow", function()
-    local examples = require("sysinit.plugins.intellicode.ai.astgrep-examples")
-    local pattern = examples.examples.lua.functions
+  it("should generate preview placeholders", function()
+    local placeholder = examples.generate_placeholder("typescript", "async_functions", true)
+    assert.is_string(placeholder)
+    assert.is_true(placeholder:match("@astgrep") ~= nil)
+  end)
+end)
 
-    -- Construct preview placeholder
-    local placeholder = string.format("@astgrep-preview:%s", pattern)
+describe("interactive placeholder handler", function()
+  it("should export handle_interactive_astgrep", function()
+    assert.is_function(placeholders.handle_interactive_astgrep)
+  end)
 
-    -- Validate it would be recognized
-    assert.is_true(placeholder:match("@astgrep%-preview") ~= nil)
+  it("should detect @astgrep in input", function()
+    local input = "test @astgrep query"
+    local has_astgrep = input:find("@astgrep", 1, true) ~= nil
+    assert.is_true(has_astgrep)
+  end)
+
+  it("should not detect @astgrep when not present", function()
+    local input = "test @buffer @cursor"
+    local has_astgrep = input:find("@astgrep", 1, true) ~= nil
+    assert.is_false(has_astgrep)
+  end)
+end)
+
+-- Integration test for the improved workflow
+describe("improved ast-grep workflow", function()
+  it("should support simplified pattern access", function()
+    -- 1. Examples are organized by language
+    local languages = examples.get_languages()
+    assert.is_true(#languages > 0)
+
+    -- 2. Patterns are accessible per language
+    local patterns = examples.get_patterns("typescript")
+    assert.is_true(#patterns > 0)
+
+    -- 3. Pattern content is accessible
+    local pattern_name = patterns[1]
+    local pattern = examples.examples.typescript[pattern_name]
+    assert.is_string(pattern)
+    assert.is_true(#pattern > 0)
+  end)
+
+  it("should provide cleaner API surface", function()
+    -- Single placeholder token
+    assert.is_not_nil(placeholders.handle_interactive_astgrep)
+
+    -- Picker module with clear functions
+    local picker = require("sysinit.plugins.editor.astgrep-picker")
+    assert.is_function(picker.start_picker)
+    assert.is_function(picker.repeat_last_search)
+
+    -- Examples module with query functions
+    assert.is_function(examples.get_languages)
+    assert.is_function(examples.get_patterns)
+  end)
+
+  it("should have no syntax to memorize", function()
+    -- User only needs to know: @astgrep
+    -- Everything else is interactive via picker
+
+    local description = nil
+    for _, ph in ipairs(placeholders.placeholder_descriptions) do
+      if ph.token == "@astgrep" then
+        description = ph.description
+        break
+      end
+    end
+
+    assert.is_string(description)
+    assert.is_true(description:match("[Ii]nteractive") ~= nil)
+  end)
+end)
+
+describe("backward compatibility", function()
+  it("should still support non-ast-grep placeholders", function()
+    local input = "@buffer @cursor @diagnostic"
+    local result = placeholders.apply_placeholders(input)
+    assert.is_string(result)
+    -- At minimum should not crash
+  end)
+
+  it("should handle empty input", function()
+    local result = placeholders.apply_placeholders("")
+    assert.equals("", result)
+  end)
+
+  it("should handle nil input", function()
+    local result = placeholders.apply_placeholders(nil)
+    assert.is_nil(result)
   end)
 end)
