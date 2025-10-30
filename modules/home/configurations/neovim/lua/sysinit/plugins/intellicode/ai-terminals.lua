@@ -34,9 +34,6 @@ M.plugins = {
           enabled = true,
           notify = false,
         },
-        watch_cwd = {
-          enabled = true,
-        },
         env = {
           PAGER = "bat",
         },
