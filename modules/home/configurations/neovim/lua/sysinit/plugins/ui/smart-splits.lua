@@ -13,6 +13,7 @@ M.plugins = {
         cursor_follows_swapped_bufs = true,
         float_win_behavior = "mux",
         multiplexer_integration = "wezterm",
+        at_edge = "stop",
       })
     end,
     keys = function()
