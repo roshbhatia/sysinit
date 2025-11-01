@@ -19,11 +19,6 @@ function M.setup_goose_keymaps()
   })
 end
 
-function M.setup_global_ctrl_l_keymaps()
-  -- Ctrl+L is bound to something else, so we don't set it for AI terminals
-  -- Keeping this function for backward compatibility but it does nothing now
-end
-
 function M.ensure_terminal_and_send(termname, text)
   last_prompts[termname] = text
 

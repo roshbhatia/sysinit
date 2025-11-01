@@ -40,7 +40,6 @@ M.plugins = {
       })
 
       terminal.setup_goose_keymaps()
-      terminal.setup_global_ctrl_l_keymaps()
       autocmds.setup_terminal_autocmds(agents.get_agents())
     end,
     keys = function()
