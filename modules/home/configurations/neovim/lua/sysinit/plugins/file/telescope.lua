@@ -95,6 +95,7 @@ M.plugins = {
             "^%development/render",
             "^%development/validate",
             "^%dist/",
+            "^%models/",
             "^%node_modules/",
             "^%out/",
             "^%target/",
