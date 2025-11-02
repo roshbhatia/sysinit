@@ -1,6 +1,5 @@
 {
   pkgs,
-  lib,
   values,
   ...
 }:
@@ -36,9 +35,13 @@ in
 {
   home.packages = [ pkgs.postgresql17Packages.pgvector ];
 
-  home.activation.initCudgelPostgres = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    $DRY_RUN_CMD ${initScript} || true
-  '';
+  home.activation.initCudgelPostgres = {
+    after = [ "writeBoundary" ];
+    before = [ ];
+    data = ''
+      $DRY_RUN_CMD ${initScript} || true
+    '';
+  };
 
   launchd.user.agents."cudgel-postgres" = {
     description = "Cudgel PostgreSQL with pgvector on port ${port}";
