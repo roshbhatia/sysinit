@@ -39,7 +39,7 @@ tasks:
         set -euo pipefail
         {{.LOGGING_FUNCTIONS}}
         log_info "Building system configuration"
-        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} build -v --flake . --impure --show-trace --print-build-logs --max-jobs "${NIX_MAX_JOBS:-2}" --cores "${NIX_CORES:-2}"; then
+        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} build -v --flake . --impure --max-jobs "${NIX_MAX_JOBS:-2}" --cores "${NIX_CORES:-2}"; then
           log_error "Build failed (see logs above)"
           exit {{.ERROR_EXIT_CODE}}
         fi
@@ -64,7 +64,7 @@ tasks:
         {{.LOGGING_FUNCTIONS}}
         log_info "Updating nix flake inputs"
 
-        if ! nix flake update --show-trace; then
+        if ! nix flake update; then
           log_error "Flake update failed (see logs above)"
           exit {{.ERROR_EXIT_CODE}}
         fi
@@ -109,7 +109,7 @@ tasks:
         set -euo pipefail
         {{.LOGGING_FUNCTIONS}}
         log_info "Applying system configuration"
-        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} switch -v --flake . --impure --show-trace --print-build-logs --max-jobs "${NIX_MAX_JOBS:-2}" --cores "${NIX_CORES:-2}"; then
+        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} switch -v --flake . --impure --max-jobs "${NIX_MAX_JOBS:-2}" --cores "${NIX_CORES:-2}"; then
           log_error "Refresh failed (see logs above)"
           exit {{.ERROR_EXIT_CODE}}
         fi
