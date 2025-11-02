@@ -42,6 +42,7 @@ in
 
       [push]
         autoSetupRemote = true
+        followTags = true
 
       [fetch]
         prune = true
@@ -89,30 +90,39 @@ in
       [includeIf "gitdir:~/github/personal/"]
         path = ~/.gitconfig.personal
 
+      [rerere]
+        enabled = true
+
       [alias]
-        p = pull
         P = push
+        br = branch
+        branches = !git --no-pager branch -a
+        c = commit
+        ca = commit --amend
+        cai = !git-ai-commit
+        cane = commit --amend --no-edit
         co = checkout
         cob = checkout -b
-        br = branch
-        st = status
-        c = commit
-        cai = !git-ai-commit
-        ca = commit --amend
-        cane = commit --amend --no-edit
-        unstage = reset HEAD --
-        lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
-        last = log -1 HEAD
-        short-log = log --pretty=format:"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]" --decorate --date=short
-        current-commit-sha = rev-parse --short HEAD
+        commit-chore = "!f() { git commit -m \"chore: $@\"; }; f"
+        commit-docs  = "!f() { git commit -m \"docs: $@\"; }; f"
+        commit-feat  = "!f() { git commit -m \"feat: $@\"; }; f"
+        commit-fix   = "!f() { git commit -m \"fix: $@\"; }; f"
         current-branch = rev-parse --abbrev-ref HEAD
-        branches = !git --no-pager branch -a
-        root = rev-parse --show-toplevel
+        current-commit-sha = rev-parse --short HEAD
+        diff-all = diff HEAD
         diff-cached = diff --cached
         diff-staged = diff --cached
         diff-unstaged = diff
-        diff-all = diff HEAD
+        fixup = "!git log -n50 --oneline | fzf | cut -d' ' -f1 | xargs -I{} git commit --fixup={}"
+        last = log -1 HEAD
+        lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+        p = pull
+        root = rev-parse --show-toplevel
+        short-log = log --pretty=format:"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]" --decorate --date=short
         show-diff = diff --no-color
+        squash = "!git rebase -i --autosquash HEAD~$(git rev-list --count HEAD ^$(git merge-base HEAD @{u}))"
+        st = status
+        unstage = reset HEAD --
 
       [http "https://git.sr.ht"]
         sslVerify = false
