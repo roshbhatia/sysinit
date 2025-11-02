@@ -1,8 +1,4 @@
-{
-  pkgs,
-  values,
-  ...
-}:
+{ pkgs, values, ... }:
 
 let
   username = values.user.username;
@@ -10,8 +6,9 @@ let
   dataDir = "${appDir}/postgres";
   port = "45678";
 
-  initScript = pkgs.writeShellScript "init-cudgel-postgres" ''
+  startScript = pkgs.writeShellScript "cudgel-postgres-start" ''
     set -euo pipefail
+
     mkdir -p "${dataDir}"
 
     if [ ! -f "${dataDir}/PG_VERSION" ]; then
@@ -19,9 +16,11 @@ let
       ${pkgs.postgresql_17}/bin/initdb -D "${dataDir}" \
         --username="${username}" --encoding=UTF8 --locale=C --no-instructions
 
-      echo "port = ${port}" >> "${dataDir}/postgresql.conf"
-      echo "unix_socket_directories = '/tmp'" >> "${dataDir}/postgresql.conf"
-      echo "shared_preload_libraries = 'vector'" >> "${dataDir}/postgresql.conf"
+      cat >> "${dataDir}/postgresql.conf" <<EOF
+    port = ${port}
+    unix_socket_directories = '/tmp'
+    shared_preload_libraries = 'vector'
+    EOF
 
       ${pkgs.postgresql_17}/bin/pg_ctl -D "${dataDir}" -l /tmp/cudgel-pgctl.log start
       sleep 2
@@ -30,35 +29,23 @@ let
         -c "CREATE EXTENSION IF NOT EXISTS vector;"
       ${pkgs.postgresql_17}/bin/pg_ctl -D "${dataDir}" stop
     fi
+
+    exec ${pkgs.postgresql_17}/bin/postgres -D "${dataDir}" -p ${port}
   '';
 in
 {
-  home.packages = [ pkgs.postgresql17Packages.pgvector ];
-
-  home.activation.initCudgelPostgres = {
-    after = [ "writeBoundary" ];
-    before = [ ];
-    data = ''
-      $DRY_RUN_CMD ${initScript} || true
-    '';
-  };
-
   launchd.user.agents."cudgel-postgres" = {
     description = "Cudgel PostgreSQL with pgvector on port ${port}";
     serviceConfig = {
-      ProgramArguments = [
-        "${pkgs.postgresql_17}/bin/postgres"
-        "-D"
-        dataDir
-        "-p"
-        port
-      ];
+      Program = "${startScript}";
       WorkingDirectory = appDir;
       RunAtLoad = true;
       KeepAlive = true;
       StandardOutPath = "/tmp/cudgel-postgres.log";
       StandardErrorPath = "/tmp/cudgel-postgres.error.log";
-      EnvironmentVariables.PGDATA = dataDir;
+      EnvironmentVariables = {
+        PGDATA = dataDir;
+      };
     };
   };
 }
