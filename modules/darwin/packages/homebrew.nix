@@ -17,6 +17,7 @@ let
     "sandreas/tap"
     "slp/krunkit"
     "sst/tap"
+    "tattoy-org/tap"
     "vet-run/vet"
   ];
 
@@ -32,6 +33,7 @@ let
     "podman"
     "slp/krunkit/krunkit"
     "sst/tap/opencode"
+    "tattoy-org/tap/tattoy"
     "vet-run"
   ];
 
