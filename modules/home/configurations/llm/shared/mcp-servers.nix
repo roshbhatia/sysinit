@@ -42,12 +42,6 @@
       description = "Neovim integration for MCP";
       enabled = true;
     };
-    vectorcode = {
-      command = "vectorcode-mcp-server";
-      args = [ ];
-      description = "Local RAG implementation for querying about codebase information";
-      enabled = true;
-    };
     astgrep = {
       command = "npx";
       args = [

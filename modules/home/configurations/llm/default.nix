@@ -6,6 +6,5 @@
     ./config/cursor-agent.nix
     ./config/goose.nix
     ./config/opencode.nix
-    ./config/vectorcode.nix
   ];
 }
