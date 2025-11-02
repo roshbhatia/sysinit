@@ -39,6 +39,7 @@ M.plugins = {
         { "<leader>n", group = "Notifications" },
         { "<leader>q", group = "Qflist/Loclist" },
         { "<leader>r", group = "Refresh" },
+        { "<leader>y", group = "Github (Review)" },
         { "<localleader>m", group = "Markdown", ft = "markdown" },
         { "ga", group = "Copilot" },
         { "gr", group = "LSP" },
