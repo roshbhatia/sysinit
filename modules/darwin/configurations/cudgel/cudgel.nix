@@ -34,8 +34,7 @@ let
   '';
 in
 {
-  launchd.user.agents."cudgel-postgres" = {
-    description = "Cudgel PostgreSQL with pgvector on port ${port}";
+  launchd.user.agents.cudgel_postgres = {
     serviceConfig = {
       Program = "${startScript}";
       WorkingDirectory = appDir;
