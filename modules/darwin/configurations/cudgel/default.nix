@@ -1,5 +1,5 @@
 {
   imports = [
-    ./chromadb.nix
+    ./cudgel.nix
   ];
 }

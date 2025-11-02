@@ -3,7 +3,7 @@
   imports = [
     ./aerospace
     ./borders
-    ./chromadb
+    ./cudgel
     ./dock
     ./docker
     ./environment
