@@ -62,12 +62,12 @@ description: "Task list for theme configuration propagation implementation"
 
 ### Implementation for User Story 1
 
-- [ ] T010 [P] [US1] Update Catppuccin palette in modules/lib/theme/palettes/catppuccin.nix with appearanceMapping (light: "latte", dark: "macchiato")
-- [ ] T011 [P] [US1] Update Rose Pine palette in modules/lib/theme/palettes/rose-pine.nix with appearanceMapping (light: "dawn", dark: "moon")
-- [ ] T012 [P] [US1] Update Gruvbox palette in modules/lib/theme/palettes/gruvbox.nix with appearanceMapping (light: "light", dark: "dark")
-- [ ] T013 [P] [US1] Update Solarized palette in modules/lib/theme/palettes/solarized.nix with appearanceMapping (light: "light", dark: "dark")
-- [ ] T014 [P] [US1] Update Kanagawa palette in modules/lib/theme/palettes/kanagawa.nix with appearanceMapping (light: null, dark: "wave")
-- [ ] T015 [P] [US1] Update Nord palette in modules/lib/theme/palettes/nord.nix with appearanceMapping (light: null, dark: "nord")
+- [X] T010 [P] [US1] Update Catppuccin palette in modules/lib/theme/palettes/catppuccin.nix with appearanceMapping (light: "latte", dark: "macchiato")
+- [X] T011 [P] [US1] Update Rose Pine palette in modules/lib/theme/palettes/rose-pine.nix with appearanceMapping (light: "dawn", dark: "moon")
+- [X] T012 [P] [US1] Update Gruvbox palette in modules/lib/theme/palettes/gruvbox.nix with appearanceMapping (light: "light", dark: "dark")
+- [X] T013 [P] [US1] Update Solarized palette in modules/lib/theme/palettes/solarized.nix with appearanceMapping (light: "light", dark: "dark")
+- [X] T014 [P] [US1] Update Kanagawa palette in modules/lib/theme/palettes/kanagawa.nix with appearanceMapping (light: null, dark: "wave")
+- [X] T015 [P] [US1] Update Nord palette in modules/lib/theme/palettes/nord.nix with appearanceMapping (light: null, dark: "nord")
 - [X] T016 [US1] Implement appearance-to-variant derivation logic in modules/lib/theme/default.nix (if user sets explicit variant use that; else derive from palette.meta.appearanceMapping[appearance] - see research.md Section 1 and data-model.md derivation strategy)
 - [X] T017 [US1] Update Wezterm adapter in modules/lib/theme/adapters/wezterm.nix to include appearance field in generated JSON
 - [X] T018 [US1] Update Neovim adapter in modules/lib/theme/adapters/neovim.nix to include appearance and background field in generated JSON
