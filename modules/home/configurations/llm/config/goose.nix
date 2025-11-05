@@ -10,7 +10,6 @@ lib.mkIf gooseEnabled {
         ALPHA_FEATURES = true;
         EDIT_MODE = "vi";
         GOOSE_CLI_THEME = "ansi";
-        GOOSE_LEAD_MODEL = values.llm.goose.leadModel;
         GOOSE_MAX_TOKENS = 8192;
         GOOSE_MODE = "smart_approve";
         GOOSE_MODEL = "claude-sonnet-4";
