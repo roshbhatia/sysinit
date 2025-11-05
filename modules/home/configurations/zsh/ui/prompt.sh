@@ -7,7 +7,7 @@ should_show_macchina() {
 }
 
 if should_show_macchina; then
-  macchina --theme "${SYSINIT_MACCHINA_THEME:-rosh}"
+  macchina --theme "${SYSINIT_MACCHINA_THEME:-nix}"
   export MACCHINA_SHOWN=1
 fi
 
