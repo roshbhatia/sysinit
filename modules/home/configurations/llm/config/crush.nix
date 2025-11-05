@@ -1,7 +1,8 @@
 { lib, values, ... }:
 let
-  mcpServers = import ../shared/mcp-servers.nix;
+  mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   lsp = import ../shared/lsp.nix;
+  common = import ../shared/common.nix;
   crushEnabled = values.llm.crush.enabled or false;
 in
 lib.mkIf crushEnabled {
@@ -9,15 +10,7 @@ lib.mkIf crushEnabled {
     text = builtins.toJSON {
       "$schema" = "https://charm.land/crush.json";
 
-      lsp = builtins.mapAttrs (_name: lsp: {
-        command =
-          if builtins.length lsp.command == 1 then
-            builtins.elemAt lsp.command 0
-          else
-            builtins.elemAt lsp.command 0;
-        args = lsp.args or null;
-        env = lsp.env or null;
-      }) lsp.lsp;
+      lsp = common.formatLspForCrush lsp.lsp;
 
       inherit (mcpServers) servers;
 
@@ -41,26 +34,12 @@ lib.mkIf crushEnabled {
           "mcp_astgrep_scan"
         ];
 
-        sandbox = {
-          enabled = true;
-          allow_network = true;
-          allow_file_write = true;
-        };
+        sandbox = common.permissions.sandbox;
       };
 
-      model = {
-        provider = "anthropic";
-        name = "claude-3-5-sonnet";
-        temperature = 0.7;
-        max_tokens = 8192;
-      };
+      model = common.defaultModel;
 
-      ui = {
-        theme = "system";
-        auto_format = true;
-        syntax_highlighting = true;
-      };
-
+      ui = common.ui;
     };
 
     force = true;

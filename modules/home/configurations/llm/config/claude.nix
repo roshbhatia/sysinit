@@ -4,7 +4,8 @@
   ...
 }:
 let
-  mcpServers = import ../shared/mcp-servers.nix;
+  mcpServers = import ../shared/mcp-servers.nix { inherit values; };
+  common = import ../shared/common.nix;
   claudeEnabled = values.llm.claude.enabled or true;
 in
 lib.mkIf claudeEnabled {
@@ -39,7 +40,7 @@ lib.mkIf claudeEnabled {
           context_management = true;
         };
 
-        inherit (mcpServers) servers;
+        servers = common.formatMcpForClaude mcpServers.servers;
       };
       force = true;
     };
