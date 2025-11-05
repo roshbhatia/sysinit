@@ -38,18 +38,48 @@ let
       throw "Theme '${themeId}' not found. Available themes: ${concatStringsSep ", " (attrNames themes)}";
 
   deriveVariantFromAppearance =
-    colorscheme: appearance: explicitVariant:
+    colorscheme: appearance: currentVariant:
     let
       theme = getTheme colorscheme;
-      mapping = theme.meta.appearanceMapping.${appearance} or null;
+      # If appearance is null, use the currentVariant as-is (backward compat)
+      effectiveAppearance = if appearance == null then null else appearance;
+      mapping =
+        if effectiveAppearance != null then
+          theme.meta.appearanceMapping.${effectiveAppearance} or null
+        else
+          null;
+
+      # Check if current variant matches the requested appearance
+      variantMatchesAppearance =
+        if effectiveAppearance == null then
+          true # No appearance specified, use current variant
+        else if elem currentVariant theme.meta.variants then
+          # Check if this variant supports the requested appearance
+          # by seeing if the appearance maps to this or compatible variant
+          if isList mapping then
+            elem currentVariant mapping
+          else if mapping != null then
+            currentVariant == mapping
+          else
+            false
+        else
+          false;
     in
-    if explicitVariant != null then
-      explicitVariant
+    if effectiveAppearance == null then
+      # No appearance specified, use current variant (backward compat mode)
+      currentVariant
+    else if variantMatchesAppearance then
+      # Current variant is compatible with appearance, use it
+      currentVariant
     else if mapping == null then
-      throw "Cannot derive variant: colorscheme '${colorscheme}' does not support appearance mode '${appearance}'"
+      # Appearance specified but palette doesn't support it
+      throw
+        "Cannot derive variant: colorscheme '${colorscheme}' does not support appearance mode '${effectiveAppearance}'"
     else if isList mapping then
+      # Use first variant from mapping
       head mapping
     else
+      # Use the mapped variant
       mapping;
 
   validateThemeConfig =
@@ -58,27 +88,26 @@ let
       theme = getTheme config.colorscheme;
       validVariants = theme.meta.variants;
 
-      # Derive effective variant from appearance if not explicitly set
-      effectiveVariant =
-        if hasAttr "appearance" config then
-          deriveVariantFromAppearance config.colorscheme config.appearance (
-            if hasAttr "variant" config then config.variant else null
-          )
-        else if hasAttr "variant" config then
-          config.variant
-        else
-          throw "Theme configuration must specify either 'variant' or 'appearance'";
+      # Derive effective variant from appearance
+      # If appearance is specified, check if current variant is compatible
+      # If not compatible or not valid, derive from appearance mapping
+      effectiveVariant = deriveVariantFromAppearance config.colorscheme (
+        if hasAttr "appearance" config then config.appearance else null
+      ) config.variant;
 
-      # Validate appearance mode if present
+      # Validate appearance mode if present and non-null
       appearanceCheck =
-        if hasAttr "appearance" config then validators.validateAppearanceMode config.appearance else null;
+        if hasAttr "appearance" config && config.appearance != null then
+          validators.validateAppearanceMode config.appearance
+        else
+          null;
 
       # Validate font config if present
       fontChecks = if hasAttr "font" config then validators.validateFont config.font else [ ];
 
-      # Validate palette supports appearance mode if both are present
+      # Validate palette supports appearance mode if present and non-null
       paletteAppearanceCheck =
-        if hasAttr "appearance" config then
+        if hasAttr "appearance" config && config.appearance != null then
           validators.validatePaletteAppearance config.colorscheme config.appearance
         else
           null;
