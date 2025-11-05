@@ -16,9 +16,10 @@ let
     semanticColors.accent.primary or (throw "Missing primary accent color in theme palette");
   activeColor = lib.toLower (lib.removePrefix "#" activeColorRaw);
   inactiveColor = lib.toLower (lib.removePrefix "#" inactiveColorRaw);
+  bordersEnabled = values.darwin.borders.enable or true;
 in
-{
-  services.jankyborders = lib.mkIf values.darwin.borders.enable {
+lib.mkIf bordersEnabled {
+  services.jankyborders = {
     enable = true;
     package = pkgs.jankyborders;
 
