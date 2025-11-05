@@ -3,7 +3,7 @@ let
   mcpServers = import ../shared/mcp-servers.nix;
   lsp = import ../shared/lsp.nix;
   agents = import ../shared/agents.nix;
-  opencodeEnabled = values.llm.opencode.enabled or false;
+  opencodeEnabled = values.llm.opencode.enabled or true;
 in
 lib.mkIf opencodeEnabled {
   xdg.configFile = {
@@ -51,12 +51,6 @@ lib.mkIf opencodeEnabled {
             enabled = true;
             command = [ mcpServers.servers.git.command ] ++ mcpServers.servers.git.args;
             description = mcpServers.servers.git.description;
-          };
-          chroma = {
-            type = "local";
-            enabled = true;
-            command = [ mcpServers.servers.chroma.command ] ++ mcpServers.servers.chroma.args;
-            description = mcpServers.servers.chroma.description;
           };
           context7 = {
             type = "local";

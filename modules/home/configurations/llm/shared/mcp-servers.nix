@@ -12,18 +12,6 @@
       description = "Git version control system integration";
       enabled = true;
     };
-    chroma = {
-      command = "uvx";
-      args = [
-        "chroma-mcp"
-        "--client-type"
-        "persistent"
-        "--data-dir"
-        "~/.local/share/chroma"
-      ];
-      description = "Vector database for embedding storage and retrieval with Chroma";
-      enabled = true;
-    };
     context7 = {
       command = "npx";
       args = [
