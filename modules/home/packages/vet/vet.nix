@@ -10,7 +10,7 @@ let
   vetPackages = [
     "https://cursor.com/install"
   ]
-  ++ values.vet.additionalPackages;
+  ++ (values.vet.additionalPackages or [ ]);
 in
 {
   home.activation = {
