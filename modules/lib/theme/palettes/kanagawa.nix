@@ -150,7 +150,7 @@ rec {
       plugin = "cdmill/neomodern.nvim";
       name = "neomodern";
       setup = "neomodern";
-      colorscheme = _variant: "hojicha";
+      colorscheme = _variant: "gyokuro";
     };
 
     bat = variant: "kanagawa-${variant}";
