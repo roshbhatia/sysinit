@@ -24,14 +24,6 @@ lib.mkIf opencodeEnabled {
           timeout = 300;
         };
 
-        features = {
-          auto_completion = true;
-          code_analysis = true;
-          refactoring = true;
-          test_generation = true;
-          documentation = true;
-        };
-
         permissions = {
           file_operations = "prompt";
           network_access = "allow";
