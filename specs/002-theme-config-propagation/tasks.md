@@ -47,7 +47,7 @@ description: "Task list for theme configuration propagation implementation"
 - [ ] T005 [P] Add font configuration fields to theme values schema in modules/lib/values/default.nix (font.monospace, font.nerdfontFallback with defaults)
 - [ ] T006 Create theme validators in modules/lib/validation/default.nix (validateAppearanceMode, validatePaletteAppearance, validateFont)
 - [ ] T007 Update validateThemeConfig function in modules/lib/theme/default.nix to use new validators with clear error messages
-- [ ] T008 Add appearanceMapping to all palette meta sections in modules/lib/theme/palettes/*.nix (maps light/dark to variant names)
+- [ ] T008 Add appearanceMapping to all palette meta sections in modules/lib/theme/palettes/*.nix (structure: `appearanceMapping = { light = "variant-name" | null; dark = "variant-name" | null; }` - see research.md Section 3 for palette-specific mappings)
 - [ ] T009 Test Nix evaluation succeeds with new schema via task nix:build
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -68,7 +68,7 @@ description: "Task list for theme configuration propagation implementation"
 - [ ] T013 [P] [US1] Update Solarized palette in modules/lib/theme/palettes/solarized.nix with appearanceMapping (light: "light", dark: "dark")
 - [ ] T014 [P] [US1] Update Kanagawa palette in modules/lib/theme/palettes/kanagawa.nix with appearanceMapping (light: null, dark: "wave")
 - [ ] T015 [P] [US1] Update Nord palette in modules/lib/theme/palettes/nord.nix with appearanceMapping (light: null, dark: "nord")
-- [ ] T016 [US1] Implement appearance-to-variant derivation logic in modules/lib/theme/default.nix (auto-derive variant from appearance + colorscheme)
+- [ ] T016 [US1] Implement appearance-to-variant derivation logic in modules/lib/theme/default.nix (if user sets explicit variant use that; else derive from palette.meta.appearanceMapping[appearance] - see research.md Section 1 and data-model.md derivation strategy)
 - [ ] T017 [US1] Update Wezterm adapter in modules/lib/theme/adapters/wezterm.nix to include appearance field in generated JSON
 - [ ] T018 [US1] Update Neovim adapter in modules/lib/theme/adapters/neovim.nix to include appearance and background field in generated JSON
 - [ ] T019 [US1] Update Firefox adapter in modules/lib/theme/adapters/firefox.nix to include appearance field in generated JSON

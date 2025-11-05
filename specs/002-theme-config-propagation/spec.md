@@ -83,16 +83,15 @@ As a system user, I want to switch between different system fonts (e.g., TX-02 o
 - **FR-003a**: System MUST use JetBrainsMono Nerd Font as default fallback when specified font is unavailable
 - **FR-003b**: System MUST use Symbols Nerd Font as secondary fallback for nerd font glyphs when primary font doesn't support them
 - **FR-004**: System MUST propagate theme configuration changes to all configured applications through Nix rebuild/activation process
-- **FR-005**: System MUST apply theme changes consistently across all applications after rebuild/activation
-- **FR-006**: System MUST maintain theme consistency across all configured applications: Wezterm (terminal), Neovim (editor), Firefox (browser), and shell integrations
-- **FR-007**: System MUST validate theme configuration values at build time to catch errors early
-- **FR-007a**: System MUST fail the build with a clear error message when selected palette lacks the requested appearance mode variant
-- **FR-007b**: System MUST provide error messages that include the invalid value and field name for failed validations
-- **FR-008**: System MUST provide sensible fallback behavior when theme values are invalid or missing
-- **FR-009**: System MUST preserve user's theme settings across system restarts
-- **FR-010**: System MUST handle multiple theme configuration changes in values.nix without breaking the build process
-- **FR-011**: System MUST ensure theme changes are atomic through Nix's generation-based activation - either fully applied or rollback to previous generation
-- **FR-012**: System MUST generate correct theme configuration files for all applications during build phase
+- **FR-005**: System MUST apply theme changes consistently across all configured applications (Wezterm, Neovim, Firefox, shell integrations) after rebuild/activation
+- **FR-006**: System MUST validate theme configuration values at build time to catch errors early
+- **FR-006a**: System MUST fail the build with a clear error message when selected palette lacks the requested appearance mode variant
+- **FR-006b**: System MUST provide error messages that include the invalid value and field name for failed validations
+- **FR-007**: System MUST provide sensible fallback behavior when theme values are invalid or missing
+- **FR-008**: System MUST preserve user's theme settings across system restarts
+- **FR-009**: System MUST handle multiple theme configuration changes in values.nix without breaking the build process
+- **FR-010**: System MUST ensure theme changes are atomic through Nix's generation-based activation - either fully applied or rollback to previous generation
+- **FR-011**: System MUST generate correct theme configuration files for all applications during build phase
 
 ### Key Entities
 
