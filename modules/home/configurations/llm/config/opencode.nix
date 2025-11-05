@@ -3,7 +3,7 @@ let
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   lsp = import ../shared/lsp.nix;
   common = import ../shared/common.nix;
-  prompts = import ../shared/prompts.nix { inherit lib; };
+  prompts = import ../shared/prompts.nix { };
   opencodeEnabled = values.llm.opencode.enabled or true;
 in
 lib.mkIf opencodeEnabled {
