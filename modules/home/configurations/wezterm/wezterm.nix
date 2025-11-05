@@ -31,6 +31,6 @@ in
   );
 
   xdg.configFile."wezterm/core_config.json".text = builtins.toJSON {
-    wezterm_entrypoint = values.wezterm.shell;
+    wezterm_entrypoint = values.wezterm.shell or "zsh";
   };
 }
