@@ -11,7 +11,7 @@ M.plugins = {
     enabled = true,
     opts = function()
       return {
-        stiffness = 0.9,
+        stiffness = 0.7,
         trailing_stiffness = 0.95,
         damping = 0.8,
         max_length = 3,
@@ -21,7 +21,7 @@ M.plugins = {
         matrix_pixel_threshold = 0.9,
         matrix_pixel_threshold_vertical_bar = 0.8,
         legacy_computing_symbols_support = true,
-        smear_between_buffers = false,
+        smear_between_buffers = true,
         smear_replace_mode = false,
         smear_insert_mode = false,
         smear_terminal_mode = false,
