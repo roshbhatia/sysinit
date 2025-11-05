@@ -11,6 +11,7 @@ let
     "@anthropic-ai/claude-code"
     "@github/copilot"
     "@owloops/claude-powerline"
+    "opencode-ai"
   ]
   ++ (values.yarn.additionalPackages or [ ]);
 
