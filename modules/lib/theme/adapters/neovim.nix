@@ -103,10 +103,15 @@ in
           pluginInfo.colorscheme config.variant
         else
           pluginInfo.colorscheme;
+
+      # Derive background from appearance for Neovim's background setting
+      background = if hasAttr "appearance" config then config.appearance else null;
     in
     {
       colorscheme = colorscheme;
       variant = config.variant;
+      appearance = if hasAttr "appearance" config then config.appearance else null;
+      background = background;
       transparency =
         if hasAttr "transparency" config then
           config.transparency

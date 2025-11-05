@@ -68,10 +68,10 @@ description: "Task list for theme configuration propagation implementation"
 - [ ] T013 [P] [US1] Update Solarized palette in modules/lib/theme/palettes/solarized.nix with appearanceMapping (light: "light", dark: "dark")
 - [ ] T014 [P] [US1] Update Kanagawa palette in modules/lib/theme/palettes/kanagawa.nix with appearanceMapping (light: null, dark: "wave")
 - [ ] T015 [P] [US1] Update Nord palette in modules/lib/theme/palettes/nord.nix with appearanceMapping (light: null, dark: "nord")
-- [ ] T016 [US1] Implement appearance-to-variant derivation logic in modules/lib/theme/default.nix (if user sets explicit variant use that; else derive from palette.meta.appearanceMapping[appearance] - see research.md Section 1 and data-model.md derivation strategy)
-- [ ] T017 [US1] Update Wezterm adapter in modules/lib/theme/adapters/wezterm.nix to include appearance field in generated JSON
-- [ ] T018 [US1] Update Neovim adapter in modules/lib/theme/adapters/neovim.nix to include appearance and background field in generated JSON
-- [ ] T019 [US1] Update Firefox adapter in modules/lib/theme/adapters/firefox.nix to include appearance field in generated JSON
+- [X] T016 [US1] Implement appearance-to-variant derivation logic in modules/lib/theme/default.nix (if user sets explicit variant use that; else derive from palette.meta.appearanceMapping[appearance] - see research.md Section 1 and data-model.md derivation strategy)
+- [X] T017 [US1] Update Wezterm adapter in modules/lib/theme/adapters/wezterm.nix to include appearance field in generated JSON
+- [X] T018 [US1] Update Neovim adapter in modules/lib/theme/adapters/neovim.nix to include appearance and background field in generated JSON
+- [X] T019 [US1] Update Firefox adapter in modules/lib/theme/adapters/firefox.nix to include appearance field in generated JSON
 - [ ] T020 [US1] Test light mode with Catppuccin using quickstart.md Scenario 1 (edit values.nix, task nix:refresh, verify all apps)
 - [ ] T021 [US1] Test dark mode with Rose Pine using quickstart.md Scenario 1 (edit values.nix, task nix:refresh, verify all apps)
 - [ ] T022 [US1] Test invalid appearance + palette combination using quickstart.md Scenario 4 (expect build failure with clear error)

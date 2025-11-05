@@ -121,6 +121,7 @@ rec {
     {
       colorscheme = themeData.meta.id;
       variant = config.variant;
+      appearance = if hasAttr "appearance" config then config.appearance else null;
       transparency =
         if hasAttr "transparency" config then
           config.transparency

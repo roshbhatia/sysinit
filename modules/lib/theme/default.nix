@@ -37,11 +37,37 @@ let
     else
       throw "Theme '${themeId}' not found. Available themes: ${concatStringsSep ", " (attrNames themes)}";
 
+  deriveVariantFromAppearance =
+    colorscheme: appearance: explicitVariant:
+    let
+      theme = getTheme colorscheme;
+      mapping = theme.meta.appearanceMapping.${appearance} or null;
+    in
+    if explicitVariant != null then
+      explicitVariant
+    else if mapping == null then
+      throw "Cannot derive variant: colorscheme '${colorscheme}' does not support appearance mode '${appearance}'"
+    else if isList mapping then
+      head mapping
+    else
+      mapping;
+
   validateThemeConfig =
     config:
     let
       theme = getTheme config.colorscheme;
       validVariants = theme.meta.variants;
+
+      # Derive effective variant from appearance if not explicitly set
+      effectiveVariant =
+        if hasAttr "appearance" config then
+          deriveVariantFromAppearance config.colorscheme config.appearance (
+            if hasAttr "variant" config then config.variant else null
+          )
+        else if hasAttr "variant" config then
+          config.variant
+        else
+          throw "Theme configuration must specify either 'variant' or 'appearance'";
 
       # Validate appearance mode if present
       appearanceCheck =
@@ -65,16 +91,21 @@ let
           paletteAppearanceCheck != null && !paletteAppearanceCheck.assertion
         ) paletteAppearanceCheck.message);
 
-      # Original variant check
+      # Variant check using derived effective variant
       variantFailure =
-        if !elem config.variant validVariants then
-          "Variant '${config.variant}' not available for theme '${config.colorscheme}'. Available variants: ${concatStringsSep ", " validVariants}"
+        if !elem effectiveVariant validVariants then
+          "Variant '${effectiveVariant}' not available for theme '${config.colorscheme}'. Available variants: ${concatStringsSep ", " validVariants}"
         else
           null;
 
       allFailures = validationFailures ++ (optional (variantFailure != null) variantFailure);
+
+      # Return config with effective variant injected
+      finalConfig = config // {
+        variant = effectiveVariant;
+      };
     in
-    if length allFailures > 0 then throw (concatStringsSep "\n\n" allFailures) else config;
+    if length allFailures > 0 then throw (concatStringsSep "\n\n" allFailures) else finalConfig;
 
   getThemePalette =
     colorscheme: variant:
@@ -321,6 +352,7 @@ in
     createAppConfig
     generateAppJSON
     validateThemeConfig
+    deriveVariantFromAppearance
     ;
 
   inherit
