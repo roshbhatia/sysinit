@@ -289,6 +289,18 @@ local function get_kanagawa_config()
     overrides.TelescopeSelection = { bg = "subtle", fg = "muted" }
   end
 
+  local code_style = {
+    comments = "none",
+    conditionals = "none",
+    functions = "bold",
+    keywords = "bold",
+    headings = "italic",
+    operators = "none",
+    keyword_return = "bold",
+    strings = "italic",
+    variables = "none",
+  }
+
   return {
     theme = "gyokuro",
     transparent = theme_config.transparency.enable,
@@ -296,6 +308,7 @@ local function get_kanagawa_config()
     alt_bg = true,
     show_eob = false,
     favor_treesitter_hl = true,
+    code_style = code_style,
     highlights = overrides,
   }
 end
@@ -403,7 +416,7 @@ local function setup_theme()
       require("nightfox").setup(get_nightfox_config())
     end,
     kanagawa = function()
-      require("kanagawa").setup(get_kanagawa_config())
+      require("neomodern").setup(get_kanagawa_config())
     end,
   }
 
