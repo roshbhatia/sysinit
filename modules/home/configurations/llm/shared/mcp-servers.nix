@@ -91,11 +91,31 @@ let
     };
   };
 
-  # Additional servers from values file
-  additionalServers = values.llm.mcp.servers or { };
+  # Additional servers from values file (attrset format)
+  additionalServersAttrset = values.llm.mcp.servers or { };
 
-  # Merge default and additional servers (additional servers can override defaults)
-  allServers = defaultServers // additionalServers;
+  # Additional servers from values file (list format)
+  # Format: [{ name = "server-name"; url = "..."; type = "http"; description = "..."; }]
+  additionalServersList = values.llm.mcp.additionalServers or [ ];
+
+  # Convert list format to attrset
+  additionalServersFromList = builtins.listToAttrs (
+    map (server: {
+      name = server.name;
+      value = {
+        inherit (server) type description;
+        url = server.url or null;
+        command = server.command or null;
+        args = server.args or [ ];
+        env = server.env or { };
+        enabled = server.enabled or true;
+      };
+    }) additionalServersList
+  );
+
+  # Merge all servers (default + attrset format + list format)
+  # Priority: list format > attrset format > defaults
+  allServers = defaultServers // additionalServersAttrset // additionalServersFromList;
 in
 {
   servers = allServers;
