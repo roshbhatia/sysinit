@@ -2,7 +2,7 @@
 let
   mcpServers = import ../shared/mcp-servers.nix;
   agents = import ../shared/agents.nix;
-  gooseEnabled = values.llm.goose.enabled or false;
+  gooseEnabled = values.llm.goose.enabled or true;
 in
 lib.mkIf gooseEnabled {
   xdg.configFile = {

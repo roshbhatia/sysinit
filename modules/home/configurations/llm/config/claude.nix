@@ -5,7 +5,7 @@
 }:
 let
   mcpServers = import ../shared/mcp-servers.nix;
-  claudeEnabled = values.llm.claude.enabled or false;
+  claudeEnabled = values.llm.claude.enabled or true;
 in
 lib.mkIf claudeEnabled {
   home.file = {
