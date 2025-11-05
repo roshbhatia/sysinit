@@ -1,3 +1,34 @@
+<!--
+SYNC IMPACT REPORT
+==================
+Version Change: 1.0.0 → 1.0.1
+Date: 2025-11-04
+
+Modified Principles:
+- None (restoration of concrete content from template)
+
+Added Sections:
+- None
+
+Removed Sections:
+- None
+
+Change Summary:
+- PATCH version bump: Restored sysinit-specific constitution content that was
+  accidentally replaced with template placeholders. This is a non-semantic fix
+  that returns the constitution to its proper state without changing governance
+  rules or principles.
+
+Templates Requiring Updates:
+✅ plan-template.md - Reviewed, constitution check section aligns
+✅ tasks-template.md - Reviewed, task structure aligns with principles
+✅ spec-template.md - Reviewed, requirements format aligns
+✅ agent-file-template.md - Reviewed, no agent-specific references to update
+
+Follow-up TODOs:
+- None
+-->
+
 # sysinit Constitution
 
 ## Core Principles
@@ -173,4 +204,4 @@ For major changes:
 
 ---
 
-**Version**: 1.0.0 | **Ratified**: 2025-10-08 | **Last Amended**: 2025-10-08
+**Version**: 1.0.1 | **Ratified**: 2024-08-07 | **Last Amended**: 2025-11-04
