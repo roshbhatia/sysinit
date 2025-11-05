@@ -1,7 +1,14 @@
 { lib, values, ... }:
 let
-  mcpServers = import ../shared/mcp-servers.nix;
+  mcpServers = import ../shared/mcp-servers.nix { inherit values; };
+  common = import ../shared/common.nix;
   gooseEnabled = values.llm.goose.enabled or true;
+
+  # Allow customizing goose settings via values
+  gooseProvider = values.llm.goose.provider or "github_copilot";
+  gooseModel = values.llm.goose.model or "claude-sonnet-4";
+  goosePlannerProvider = values.llm.goose.plannerProvider or gooseProvider;
+  goosePlannerModel = values.llm.goose.plannerModel or gooseModel;
 in
 lib.mkIf gooseEnabled {
   xdg.configFile = {
@@ -10,64 +17,22 @@ lib.mkIf gooseEnabled {
         ALPHA_FEATURES = true;
         EDIT_MODE = "vi";
         GOOSE_CLI_THEME = "ansi";
-        GOOSE_MAX_TOKENS = 8192;
+        GOOSE_MAX_TOKENS = common.defaultModel.max_tokens;
         GOOSE_MODE = "smart_approve";
-        GOOSE_MODEL = "claude-sonnet-4";
-        GOOSE_PLANNER_MODEL = "claude-sonnet-4";
-        GOOSE_PLANNER_PROVIDER = "github_copilot";
-        GOOSE_PROVIDER = "github_copilot";
+        GOOSE_MODEL = gooseModel;
+        GOOSE_PLANNER_MODEL = goosePlannerModel;
+        GOOSE_PLANNER_PROVIDER = goosePlannerProvider;
+        GOOSE_PROVIDER = gooseProvider;
         GOOSE_RECIPE_GITHUB_REPO = "packit/ai-workflows";
-        GOOSE_TEMPERATURE = 0.7;
-        GOOSE_TIMEOUT = 300;
+        GOOSE_TEMPERATURE = common.defaultModel.temperature;
+        GOOSE_TIMEOUT = common.defaultTimeout;
+
         # Sandbox-specific settings
         sandbox_mode = true;
         allow_sudo = true;
         disable_safety_checks = true;
-        extensions =
-          let
-            builtinExtensions = {
-              autovisualiser = {
-                available_tools = [ ];
-                bundled = true;
-                description = null;
-                display_name = "Auto Visualiser";
-                enabled = true;
-                name = "autovisualiser";
-                timeout = 300;
-                type = "builtin";
-              };
-              computercontroller = {
-                bundled = true;
-                display_name = "Computer Controller";
-                enabled = true;
-                name = "computercontroller";
-                timeout = 300;
-                type = "builtin";
-              };
-              developer = {
-                bundled = true;
-                display_name = "Developer";
-                enabled = true;
-                name = "developer";
-                timeout = 300;
-                type = "builtin";
-              };
-            };
 
-            mcpExtensions = lib.mapAttrs (name: server: {
-              args = server.args;
-              bundled = null;
-              cmd = server.command;
-              description = server.description or "";
-              enabled = server.enabled or true;
-              env_keys = [ ];
-              envs = server.env or { };
-              name = lib.strings.toUpper (lib.substring 0 1 name) + lib.substring 1 (lib.stringLength name) name;
-              timeout = 300;
-              type = "stdio";
-            }) mcpServers.servers;
-          in
-          builtinExtensions // mcpExtensions;
+        extensions = common.gooseBuiltinExtensions // (common.formatMcpForGoose lib mcpServers.servers);
       };
       force = true;
     };
