@@ -289,26 +289,13 @@ local function get_kanagawa_config()
     overrides.TelescopeSelection = { bg = "subtle", fg = "muted" }
   end
 
-  local code_style = {
-    comments = "none",
-    conditionals = "none",
-    functions = "bold",
-    keywords = "bold",
-    headings = "italic",
-    operators = "none",
-    keyword_return = "bold",
-    strings = "italic",
-    variables = "none",
-  }
-
   return {
-    theme = "hojicha",
+    theme = "gyokuro",
     transparent = theme_config.transparency.enable,
     term_colors = true,
     alt_bg = true,
     show_eob = false,
     favor_treesitter_hl = true,
-    code_style = code_style,
     highlights = overrides,
   }
 end
