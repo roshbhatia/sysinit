@@ -18,6 +18,10 @@ rec {
       "dark"
       "light"
     ];
+    appearanceMapping = {
+      light = "light";
+      dark = "dark";
+    };
     author = "Ethan Schoonover";
     homepage = "https://ethanschoonover.com/solarized/";
   };

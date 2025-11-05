@@ -16,6 +16,10 @@ rec {
     supports = [
       "dark"
     ];
+    appearanceMapping = {
+      light = null;
+      dark = "macchiato";
+    };
     author = "Catppuccin";
     homepage = "https://github.com/catppuccin/catppuccin";
   };

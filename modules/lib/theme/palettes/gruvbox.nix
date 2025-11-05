@@ -18,6 +18,10 @@ rec {
       "dark"
       "light"
     ];
+    appearanceMapping = {
+      light = "light";
+      dark = "dark";
+    };
     author = "morhetz";
     homepage = "https://github.com/morhetz/gruvbox";
   };

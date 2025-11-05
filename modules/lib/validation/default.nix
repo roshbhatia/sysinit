@@ -21,9 +21,75 @@ let
       assertion = isString pkg && pkg != "";
       message = "Invalid ${packageType} package: '${toString pkg}' must be a non-empty string";
     }) packages;
+
+  validateAppearanceMode = appearance: {
+    assertion = elem appearance [
+      "light"
+      "dark"
+    ];
+    message = "Invalid appearance mode: '${appearance}'. Must be 'light' or 'dark'.";
+  };
+
+  validateFont = fontConfig: [
+    {
+      assertion = isString fontConfig.monospace && fontConfig.monospace != "";
+      message = "Font name cannot be empty: font.monospace must be a non-empty string";
+    }
+    {
+      assertion = isString fontConfig.nerdfontFallback && fontConfig.nerdfontFallback != "";
+      message = "Font name cannot be empty: font.nerdfontFallback must be a non-empty string";
+    }
+  ];
+
+  validatePaletteAppearance =
+    colorscheme: appearance:
+    let
+      palette = if hasAttr colorscheme themes.themes then themes.themes.${colorscheme} else null;
+      hasAppearanceMapping = palette != null && hasAttr "appearanceMapping" palette.meta;
+      appearanceMapping = if hasAppearanceMapping then palette.meta.appearanceMapping else { };
+      supportsAppearance =
+        hasAppearanceMapping
+        && hasAttr appearance appearanceMapping
+        && appearanceMapping.${appearance} != null;
+      availableModes =
+        if hasAppearanceMapping then
+          (filter (mode: appearanceMapping.${mode} != null) (attrNames appearanceMapping))
+        else
+          [ ];
+      supportedPalettes = filter (
+        pName:
+        let
+          p = themes.themes.${pName};
+        in
+        hasAttr "appearanceMapping" p.meta
+        && hasAttr appearance p.meta.appearanceMapping
+        && p.meta.appearanceMapping.${appearance} != null
+      ) (attrNames themes.themes);
+    in
+    {
+      assertion = supportsAppearance;
+      message = ''
+        Theme validation failed: Palette '${colorscheme}' does not support appearance mode '${appearance}'.
+
+        Available appearance modes for '${colorscheme}': ${concatStringsSep ", " availableModes}
+
+        Palettes supporting '${appearance}' mode: ${concatStringsSep ", " supportedPalettes}
+
+        Please either:
+          1. Change appearance to one of: ${concatStringsSep ", " availableModes}, or
+          2. Change colorscheme to a palette that supports '${appearance}' mode
+      '';
+    };
 in
 rec {
-  inherit validateHostname validateEmail validatePackageList;
+  inherit
+    validateHostname
+    validateEmail
+    validatePackageList
+    validateAppearanceMode
+    validateFont
+    validatePaletteAppearance
+    ;
 
   validateTheme =
     colorscheme: variant:

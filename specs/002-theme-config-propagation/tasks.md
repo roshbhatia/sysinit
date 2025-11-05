@@ -31,9 +31,9 @@ description: "Task list for theme configuration propagation implementation"
 
 **Purpose**: Project initialization and documentation updates
 
-- [ ] T001 Review current theme system structure and identify files requiring changes in modules/lib/theme/
-- [ ] T002 [P] Create backup branch before making changes via git branch theme-config-backup
-- [ ] T003 [P] Document current theme configuration behavior in specs/002-theme-config-propagation/IMPLEMENTATION.md
+- [X] T001 Review current theme system structure and identify files requiring changes in modules/lib/theme/
+- [X] T002 [P] Create backup branch before making changes via git branch theme-config-backup
+- [X] T003 [P] Document current theme configuration behavior in specs/002-theme-config-propagation/IMPLEMENTATION.md
 
 ---
 
@@ -43,12 +43,12 @@ description: "Task list for theme configuration propagation implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Add appearance field to theme values schema in modules/lib/values/default.nix (enum: "light" | "dark", default: "dark")
-- [ ] T005 [P] Add font configuration fields to theme values schema in modules/lib/values/default.nix (font.monospace, font.nerdfontFallback with defaults)
-- [ ] T006 Create theme validators in modules/lib/validation/default.nix (validateAppearanceMode, validatePaletteAppearance, validateFont)
-- [ ] T007 Update validateThemeConfig function in modules/lib/theme/default.nix to use new validators with clear error messages
-- [ ] T008 Add appearanceMapping to all palette meta sections in modules/lib/theme/palettes/*.nix (structure: `appearanceMapping = { light = "variant-name" | null; dark = "variant-name" | null; }` - see research.md Section 3 for palette-specific mappings)
-- [ ] T009 Test Nix evaluation succeeds with new schema via task nix:build
+- [X] T004 Add appearance field to theme values schema in modules/lib/values/default.nix (enum: "light" | "dark", default: "dark")
+- [X] T005 [P] Add font configuration fields to theme values schema in modules/lib/values/default.nix (font.monospace, font.nerdfontFallback with defaults)
+- [X] T006 Create theme validators in modules/lib/validation/default.nix (validateAppearanceMode, validatePaletteAppearance, validateFont)
+- [X] T007 Update validateThemeConfig function in modules/lib/theme/default.nix to use new validators with clear error messages
+- [X] T008 Add appearanceMapping to all palette meta sections in modules/lib/theme/palettes/*.nix (structure: `appearanceMapping = { light = "variant-name" | null; dark = "variant-name" | null; }` - see research.md Section 3 for palette-specific mappings)
+- [X] T009 Test Nix evaluation succeeds with new schema via task nix:build
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

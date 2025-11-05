@@ -16,6 +16,10 @@ rec {
     supports = [
       "dark"
     ];
+    appearanceMapping = {
+      light = null;
+      dark = "moon";
+    };
     author = "Rosé Pine";
     homepage = "https://github.com/rose-pine/rose-pine";
   };

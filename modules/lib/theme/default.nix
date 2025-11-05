@@ -6,6 +6,7 @@ let
   types = import ./core/types.nix { inherit lib; };
   constants = import ./core/constants.nix { inherit lib; };
   utils = import ./core/utils.nix { inherit lib; };
+  validators = import ../validation { inherit lib; };
 
   catppuccin = import ./palettes/catppuccin.nix { inherit lib; };
   kanagawa = import ./palettes/kanagawa.nix { inherit lib; };
@@ -41,11 +42,39 @@ let
     let
       theme = getTheme config.colorscheme;
       validVariants = theme.meta.variants;
+
+      # Validate appearance mode if present
+      appearanceCheck =
+        if hasAttr "appearance" config then validators.validateAppearanceMode config.appearance else null;
+
+      # Validate font config if present
+      fontChecks = if hasAttr "font" config then validators.validateFont config.font else [ ];
+
+      # Validate palette supports appearance mode if both are present
+      paletteAppearanceCheck =
+        if hasAttr "appearance" config then
+          validators.validatePaletteAppearance config.colorscheme config.appearance
+        else
+          null;
+
+      # Collect all validation failures
+      validationFailures =
+        (optional (appearanceCheck != null && !appearanceCheck.assertion) appearanceCheck.message)
+        ++ (map (check: check.message) (filter (check: !check.assertion) fontChecks))
+        ++ (optional (
+          paletteAppearanceCheck != null && !paletteAppearanceCheck.assertion
+        ) paletteAppearanceCheck.message);
+
+      # Original variant check
+      variantFailure =
+        if !elem config.variant validVariants then
+          "Variant '${config.variant}' not available for theme '${config.colorscheme}'. Available variants: ${concatStringsSep ", " validVariants}"
+        else
+          null;
+
+      allFailures = validationFailures ++ (optional (variantFailure != null) variantFailure);
     in
-    if !elem config.variant validVariants then
-      throw "Variant '${config.variant}' not available for theme '${config.colorscheme}'. Available variants: ${concatStringsSep ", " validVariants}"
-    else
-      config;
+    if length allFailures > 0 then throw (concatStringsSep "\n\n" allFailures) else config;
 
   getThemePalette =
     colorscheme: variant:

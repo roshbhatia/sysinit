@@ -12,6 +12,10 @@ rec {
     id = "nord";
     variants = [ "dark" ];
     supports = [ "dark" ];
+    appearanceMapping = {
+      light = null;
+      dark = "dark";
+    };
     author = "Arctic Ice Studio";
     homepage = "https://www.nordtheme.com/";
   };

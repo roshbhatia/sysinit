@@ -15,6 +15,10 @@ rec {
       "dragon"
     ];
     supports = [ "dark" ];
+    appearanceMapping = {
+      light = null;
+      dark = "wave";
+    };
     author = "rebelot";
     homepage = "https://github.com/rebelot/kanagawa.nvim";
   };
