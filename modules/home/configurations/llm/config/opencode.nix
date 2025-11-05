@@ -18,10 +18,6 @@ lib.mkIf opencodeEnabled {
 
         autoupdate = true;
 
-        model = common.defaultModel // {
-          timeout = common.defaultTimeout;
-        };
-
         mcp = common.formatMcpForOpencode mcpServers.servers;
 
         lsp = common.formatLspForOpencode lsp.lsp;

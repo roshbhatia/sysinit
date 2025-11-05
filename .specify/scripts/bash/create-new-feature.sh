@@ -10,53 +10,53 @@ i=1
 while [ $i -le $# ]; do
   arg="${!i}"
   case "$arg" in
-    --json)
-      JSON_MODE=true
-      ;;
-    --short-name)
-      if [ $((i + 1)) -gt $# ]; then
-        echo 'Error: --short-name requires a value' >&2
-        exit 1
-      fi
-      i=$((i + 1))
-      next_arg="${!i}"
-      # Check if the next argument is another option (starts with --)
-      if [[ $next_arg == --* ]]; then
-        echo 'Error: --short-name requires a value' >&2
-        exit 1
-      fi
-      SHORT_NAME="$next_arg"
-      ;;
-    --number)
-      if [ $((i + 1)) -gt $# ]; then
-        echo 'Error: --number requires a value' >&2
-        exit 1
-      fi
-      i=$((i + 1))
-      next_arg="${!i}"
-      if [[ $next_arg == --* ]]; then
-        echo 'Error: --number requires a value' >&2
-        exit 1
-      fi
-      BRANCH_NUMBER="$next_arg"
-      ;;
-    --help | -h)
-      echo "Usage: $0 [--json] [--short-name <name>] [--number N] <feature_description>"
-      echo ""
-      echo "Options:"
-      echo "  --json              Output in JSON format"
-      echo "  --short-name <name> Provide a custom short name (2-4 words) for the branch"
-      echo "  --number N          Specify branch number manually (overrides auto-detection)"
-      echo "  --help, -h          Show this help message"
-      echo ""
-      echo "Examples:"
-      echo "  $0 'Add user authentication system' --short-name 'user-auth'"
-      echo "  $0 'Implement OAuth2 integration for API' --number 5"
-      exit 0
-      ;;
-    *)
-      ARGS+=("$arg")
-      ;;
+  --json)
+    JSON_MODE=true
+    ;;
+  --short-name)
+    if [ $((i + 1)) -gt $# ]; then
+      echo 'Error: --short-name requires a value' >&2
+      exit 1
+    fi
+    i=$((i + 1))
+    next_arg="${!i}"
+    # Check if the next argument is another option (starts with --)
+    if [[ $next_arg == --* ]]; then
+      echo 'Error: --short-name requires a value' >&2
+      exit 1
+    fi
+    SHORT_NAME="$next_arg"
+    ;;
+  --number)
+    if [ $((i + 1)) -gt $# ]; then
+      echo 'Error: --number requires a value' >&2
+      exit 1
+    fi
+    i=$((i + 1))
+    next_arg="${!i}"
+    if [[ $next_arg == --* ]]; then
+      echo 'Error: --number requires a value' >&2
+      exit 1
+    fi
+    BRANCH_NUMBER="$next_arg"
+    ;;
+  --help | -h)
+    echo "Usage: $0 [--json] [--short-name <name>] [--number N] <feature_description>"
+    echo ""
+    echo "Options:"
+    echo "  --json              Output in JSON format"
+    echo "  --short-name <name> Provide a custom short name (2-4 words) for the branch"
+    echo "  --number N          Specify branch number manually (overrides auto-detection)"
+    echo "  --help, -h          Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0 'Add user authentication system' --short-name 'user-auth'"
+    echo "  $0 'Implement OAuth2 integration for API' --number 5"
+    exit 0
+    ;;
+  *)
+    ARGS+=("$arg")
+    ;;
   esac
   i=$((i + 1))
 done
