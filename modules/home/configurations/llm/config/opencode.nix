@@ -99,12 +99,7 @@ lib.mkIf opencodeEnabled {
             prompt = "{file:./prompts/typescript-expert.nix}";
           };
         };
-
-        keybinds = {
-          leader = "ctrl+,";
-        };
       };
-
       force = true;
     };
   }
