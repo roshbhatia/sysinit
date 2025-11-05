@@ -22,8 +22,6 @@ lib.mkIf opencodeEnabled {
           timeout = common.defaultTimeout;
         };
 
-        permissions = common.permissions.conservative;
-
         mcp = common.formatMcpForOpencode mcpServers.servers;
 
         lsp = common.formatLspForOpencode lsp.lsp;
