@@ -1,7 +1,6 @@
 { lib, values, ... }:
 let
   mcpServers = import ../shared/mcp-servers.nix;
-  agents = import ../shared/agents.nix;
   gooseEnabled = values.llm.goose.enabled or true;
 in
 lib.mkIf gooseEnabled {
@@ -73,22 +72,5 @@ lib.mkIf gooseEnabled {
       };
       force = true;
     };
-  }
-  // builtins.listToAttrs (
-    map (agent: {
-      name = "goose/subagents/${agent.name}.yaml";
-      value = {
-        text = lib.generators.toYAML { } {
-          id = agent.name;
-          title = agent.name;
-          description = agent.description;
-          instructions = agent.instructions or "";
-          activities = agent.activities or [ ];
-          extensions = agent.extensions or [ ];
-          parameters = agent.parameters or [ ];
-          prompt = agent.prompt or "";
-        };
-      };
-    }) agents
-  );
+  };
 }
