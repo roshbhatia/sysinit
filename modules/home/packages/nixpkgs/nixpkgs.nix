@@ -4,7 +4,7 @@
   ...
 }:
 let
-  additionalPackages = values.nix.additionalPackages;
+  additionalPackages = values.nix.additionalPackages or [];
 
   baseNixPackages = with pkgs; [
     _1password-cli
@@ -140,7 +140,7 @@ let
   ];
 
   conditionalPackages = (
-    if values.darwin.docker.backend == "podman" then [ pkgs.podman-desktop ] else [ ]
+    if (values.darwin.docker.backend or "colima") == "podman" then [ pkgs.podman-desktop ] else [ ]
   );
 
   allNixPackages = baseNixPackages ++ conditionalPackages ++ additionalPackages;

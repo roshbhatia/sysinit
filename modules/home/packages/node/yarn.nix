@@ -12,7 +12,7 @@ let
     "@github/copilot"
     "@owloops/claude-powerline"
   ]
-  ++ values.yarn.additionalPackages;
+  ++ (values.yarn.additionalPackages or []);
 
 in
 {
