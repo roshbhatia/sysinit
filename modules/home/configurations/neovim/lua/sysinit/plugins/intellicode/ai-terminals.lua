@@ -15,8 +15,6 @@ M.plugins = {
     config = function()
       completion.setup()
       require("ai-terminals").setup({
-        backend = "snacks",
-        default_position = "right",
         terminals = {
           copilot = {
             cmd = "copilot",
@@ -32,7 +30,6 @@ M.plugins = {
         enable_diffing = true,
         trigger_formatting = {
           enabled = true,
-          notify = false,
         },
         env = {
           PAGER = "bat",
