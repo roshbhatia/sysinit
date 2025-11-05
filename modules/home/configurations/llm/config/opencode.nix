@@ -14,7 +14,7 @@ lib.mkIf opencodeEnabled {
 
         share = "disabled";
 
-        theme = common.ui.theme;
+        theme = "rosepine";
 
         autoupdate = true;
 
