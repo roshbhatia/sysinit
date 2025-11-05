@@ -53,18 +53,19 @@
       _name: server:
       if (server.type or "local") == "http" then
         {
-          type = "http";
+          type = "remote";
           enabled = server.enabled or true;
           url = server.url;
-          description = server.description or "";
         }
+        // (if (server.headers or null) != null then { headers = server.headers; } else { })
+        // (if (server.timeout or null) != null then { timeout = server.timeout; } else { })
       else
         {
           type = "local";
           enabled = server.enabled or true;
           command = [ server.command ] ++ server.args;
-          description = server.description or "";
         }
+        // (if (server.env or { }) != { } then { environment = server.env; } else { })
     ) mcpServers;
 
   formatMcpForGoose =

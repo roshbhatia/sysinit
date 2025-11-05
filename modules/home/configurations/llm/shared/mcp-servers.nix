@@ -7,10 +7,12 @@ let
     fetch = {
       command = "uvx";
       args = [ "mcp-server-fetch" ];
+      description = "Web content fetching and processing capabilities";
     };
     git = {
       command = "uvx";
       args = [ "mcp-server-git" ];
+      description = "Git version control system integration";
     };
     context7 = {
       command = "npx";
@@ -18,6 +20,7 @@ let
         "-y"
         "@upstash/context7-mcp@latest"
       ];
+      description = "Context7 MCP server for enhanced context management";
     };
     astgrep = {
       command = "npx";
@@ -25,6 +28,7 @@ let
         "-y"
         "@ast-grep/cli-mcp-server"
       ];
+      description = "Structural code search and refactoring with ast-grep. Provides AST-based pattern matching for semantic code search across multiple languages.";
     };
     serena = {
       command = "nix";
@@ -59,7 +63,6 @@ let
         "--allow-sensitive-data-access"
       ];
       env = {
-        AWS_PROFILE = "your-profile";
         AWS_REGION = "us-east-1";
       };
     };
@@ -67,7 +70,6 @@ let
       command = "uvx";
       args = [ "awslabs.cloudtrail-mcp-server@latest" ];
       env = {
-        AWS_PROFILE = "[The AWS Profile Name to use for AWS access]";
         FASTMCP_LOG_LEVEL = "ERROR";
       };
     };
