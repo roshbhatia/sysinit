@@ -11,13 +11,10 @@
   };
 
   theme = {
-    appearance = "light";
+    appearance = "dark";
     colorscheme = "gruvbox";
     font = {
       monospace = "CenturySchoolMonospace Nerd Font Mono";
-    };
-    transparency = {
-      enable = false;
     };
   };
 

@@ -8,18 +8,18 @@ ARGS=()
 
 for arg in "$@"; do
   case "$arg" in
-  --json)
-    JSON_MODE=true
-    ;;
-  --help | -h)
-    echo "Usage: $0 [--json]"
-    echo "  --json    Output results in JSON format"
-    echo "  --help    Show this help message"
-    exit 0
-    ;;
-  *)
-    ARGS+=("$arg")
-    ;;
+    --json)
+      JSON_MODE=true
+      ;;
+    --help | -h)
+      echo "Usage: $0 [--json]"
+      echo "  --json    Output results in JSON format"
+      echo "  --help    Show this help message"
+      exit 0
+      ;;
+    *)
+      ARGS+=("$arg")
+      ;;
   esac
 done
 

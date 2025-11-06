@@ -29,20 +29,20 @@ PATHS_ONLY=false
 
 for arg in "$@"; do
   case "$arg" in
-  --json)
-    JSON_MODE=true
-    ;;
-  --require-tasks)
-    REQUIRE_TASKS=true
-    ;;
-  --include-tasks)
-    INCLUDE_TASKS=true
-    ;;
-  --paths-only)
-    PATHS_ONLY=true
-    ;;
-  --help | -h)
-    cat <<'EOF'
+    --json)
+      JSON_MODE=true
+      ;;
+    --require-tasks)
+      REQUIRE_TASKS=true
+      ;;
+    --include-tasks)
+      INCLUDE_TASKS=true
+      ;;
+    --paths-only)
+      PATHS_ONLY=true
+      ;;
+    --help | -h)
+      cat <<'EOF'
 Usage: check-prerequisites.sh [OPTIONS]
 
 Consolidated prerequisite checking for Spec-Driven Development workflow.
@@ -65,12 +65,12 @@ EXAMPLES:
   ./check-prerequisites.sh --paths-only
 
 EOF
-    exit 0
-    ;;
-  *)
-    echo "ERROR: Unknown option '$arg'. Use --help for usage information." >&2
-    exit 1
-    ;;
+      exit 0
+      ;;
+    *)
+      echo "ERROR: Unknown option '$arg'. Use --help for usage information." >&2
+      exit 1
+      ;;
   esac
 done
 
