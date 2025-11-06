@@ -1,5 +1,4 @@
-{ ... }:
-{
+_: {
   defaultThemeConfig = {
     colorscheme = "catppuccin";
     variant = "macchiato";

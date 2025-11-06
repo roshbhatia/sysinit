@@ -8,7 +8,7 @@ final: prev:
 let
   unstable = import inputs.nixpkgs-unstable {
     inherit system;
-    config = final.config;
+    inherit (final) config;
   };
 
   crossplane-1-17-1 =
@@ -18,7 +18,7 @@ let
       })
       {
         inherit system;
-        config = final.config;
+        inherit (final) config;
       };
 
   stable-nixpkgs =
@@ -28,7 +28,7 @@ let
       })
       {
         inherit system;
-        config = final.config;
+        inherit (final) config;
       };
 in
 {
@@ -40,16 +40,16 @@ in
       };
     };
   };
-  neovim-unwrapped = unstable.neovim-unwrapped;
-  nix-your-shell = unstable.nix-your-shell;
-  nushell = unstable.nushell;
-  sbarlua = unstable.sbarlua;
-  crossplane-cli = crossplane-1-17-1.crossplane-cli;
-  awscli2 = stable-nixpkgs.awscli2;
+  inherit (unstable) neovim-unwrapped;
+  inherit (unstable) nix-your-shell;
+  inherit (unstable) nushell;
+  inherit (unstable) sbarlua;
+  inherit (crossplane-1-17-1) crossplane-cli;
+  inherit (stable-nixpkgs) awscli2;
 
   vscode-extensions = prev.vscode-extensions // {
     rust-lang = prev.vscode-extensions.rust-lang // {
-      rust-analyzer = stable-nixpkgs.vscode-extensions.rust-lang.rust-analyzer;
+      inherit (stable-nixpkgs.vscode-extensions.rust-lang) rust-analyzer;
     };
   };
 }

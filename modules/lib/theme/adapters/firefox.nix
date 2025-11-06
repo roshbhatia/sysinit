@@ -63,6 +63,12 @@ rec {
         }
       '';
 
+      monospaceFont =
+        if hasAttr "font" config && hasAttr "monospace" config.font then
+          config.font.monospace
+        else
+          "JetBrainsMono Nerd Font";
+
       baseChromeCSS = ''
         /* --------------------------------------------------------------------------------
         minimalFOX - Compact & Minimal Firefox Theme
@@ -73,7 +79,7 @@ rec {
         /* ========== TYPOGRAPHY ========== */
 
         * {
-            font-family: "TX-02", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+            font-family: "${monospaceFont}", "TX-02", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
 
         /* ========== THEME COLORS ========== */
@@ -585,7 +591,7 @@ rec {
 
         @-moz-document url-prefix(about:home), url-prefix(about:newtab) {
           * {
-            font-family: "TX-02", -apple-system, BlinkMacSystemFont, sans-serif !important;
+            font-family: "${monospaceFont}", "TX-02", -apple-system, BlinkMacSystemFont, sans-serif !important;
           }
 
           body {
@@ -656,8 +662,8 @@ rec {
       baseConfig = {
         userContentCSS = semanticCSSVariables + baseUserContentCSS;
         userChromeCSS = semanticCSSVariables + baseChromeCSS;
-        semanticColors = semanticColors;
-        transparency = transparency;
+        inherit semanticColors;
+        inherit transparency;
       };
 
     in
@@ -671,7 +677,9 @@ rec {
     in
     {
       colorscheme = themeData.meta.id;
-      variant = config.variant;
+      inherit (config) variant;
+      appearance = if hasAttr "appearance" config then config.appearance else null;
+      font = if hasAttr "font" config then config.font else null;
       transparency =
         if hasAttr "transparency" config then
           config.transparency

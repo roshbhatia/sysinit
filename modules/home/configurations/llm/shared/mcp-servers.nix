@@ -85,7 +85,7 @@ let
   # Convert list format to attrset
   additionalServersFromList = builtins.listToAttrs (
     map (server: {
-      name = server.name;
+      inherit (server) name;
       value = {
         inherit (server) type description;
         url = server.url or null;

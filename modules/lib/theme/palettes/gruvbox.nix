@@ -18,6 +18,10 @@ rec {
       "dark"
       "light"
     ];
+    appearanceMapping = {
+      light = "light";
+      dark = "dark";
+    };
     author = "morhetz";
     homepage = "https://github.com/morhetz/gruvbox";
   };
@@ -150,6 +154,7 @@ rec {
     helix = _variant: "gruvbox";
     nushell = variant: "gruvbox-${variant}.nu";
     k9s = variant: "gruvbox-${variant}";
+    opencode = "gruvbox";
 
     sketchybar = {
       background = palettes.dark.bg;

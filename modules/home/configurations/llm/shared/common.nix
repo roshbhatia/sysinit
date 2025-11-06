@@ -55,10 +55,10 @@
         {
           type = "remote";
           enabled = server.enabled or true;
-          url = server.url;
+          inherit (server) url;
         }
-        // (if (server.headers or null) != null then { headers = server.headers; } else { })
-        // (if (server.timeout or null) != null then { timeout = server.timeout; } else { })
+        // (if (server.headers or null) != null then { inherit (server) headers; } else { })
+        // (if (server.timeout or null) != null then { inherit (server) timeout; } else { })
       else
         {
           type = "local";
@@ -71,7 +71,7 @@
   formatMcpForGoose =
     lib: mcpServers:
     lib.mapAttrs (name: server: {
-      args = server.args;
+      inherit (server) args;
       bundled = null;
       cmd = server.command;
       description = server.description or "";
@@ -90,14 +90,14 @@
       if (server.type or "local") == "http" then
         {
           type = "http";
-          url = server.url;
+          inherit (server) url;
           description = server.description or "";
           enabled = server.enabled or true;
         }
       else
         {
-          command = server.command;
-          args = server.args;
+          inherit (server) command;
+          inherit (server) args;
           description = server.description or "";
           enabled = server.enabled or true;
           env = server.env or { };

@@ -8,11 +8,11 @@
 let
   inherit (utils.themes) createAppConfig;
 
-  themeConfig = {
-    colorscheme = values.theme.colorscheme;
-    variant = values.theme.variant;
-    transparency = values.theme.transparency;
+  # Pass entire theme config to enable appearance-to-variant derivation
+  # Note: using 'or' pattern to provide defaults for optional fields
+  themeConfig = values.theme // {
     presets = values.theme.presets or [ ];
+    overrides = values.theme.overrides or { };
   };
 
   firefoxTheme = createAppConfig "firefox" themeConfig { };
@@ -61,6 +61,13 @@ in
 
       settings = {
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+
+        # Theme appearance settings - sync with system theme
+        "ui.systemUsesDarkTheme" = if values.theme.appearance == "dark" then 1 else 0;
+        "browser.theme.content-theme" = if values.theme.appearance == "dark" then 0 else 1;
+        "browser.theme.toolbar-theme" = if values.theme.appearance == "dark" then 0 else 1;
+        "layout.css.prefers-color-scheme.content-override" =
+          if values.theme.appearance == "dark" then 0 else 1;
 
         "browser.newtabpage.activity-stream.enabled" = false;
 

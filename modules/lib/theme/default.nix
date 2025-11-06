@@ -6,6 +6,7 @@ let
   types = import ./core/types.nix { inherit lib; };
   constants = import ./core/constants.nix { inherit lib; };
   utils = import ./core/utils.nix { inherit lib; };
+  validators = import ../validation { inherit lib; };
 
   catppuccin = import ./palettes/catppuccin.nix { inherit lib; };
   kanagawa = import ./palettes/kanagawa.nix { inherit lib; };
@@ -21,12 +22,12 @@ let
   transparencyPreset = import ./presets/transparency.nix { inherit lib; };
 
   themes = {
-    catppuccin = catppuccin;
-    kanagawa = kanagawa;
+    inherit catppuccin;
+    inherit kanagawa;
     rose-pine = rosePine;
-    gruvbox = gruvbox;
-    solarized = solarized;
-    nord = nord;
+    inherit gruvbox;
+    inherit solarized;
+    inherit nord;
   };
 
   getTheme =
@@ -36,16 +37,104 @@ let
     else
       throw "Theme '${themeId}' not found. Available themes: ${concatStringsSep ", " (attrNames themes)}";
 
+  deriveVariantFromAppearance =
+    colorscheme: appearance: currentVariant:
+    let
+      theme = getTheme colorscheme;
+      # If appearance is null, use the currentVariant as-is (backward compat)
+      effectiveAppearance = if appearance == null then null else appearance;
+      mapping =
+        if effectiveAppearance != null then
+          theme.meta.appearanceMapping.${effectiveAppearance} or null
+        else
+          null;
+
+      # Check if current variant matches the requested appearance
+      variantMatchesAppearance =
+        if effectiveAppearance == null then
+          true # No appearance specified, use current variant
+        else if elem currentVariant theme.meta.variants then
+          # Check if this variant supports the requested appearance
+          # by seeing if the appearance maps to this or compatible variant
+          if isList mapping then
+            elem currentVariant mapping
+          else if mapping != null then
+            currentVariant == mapping
+          else
+            false
+        else
+          false;
+    in
+    if effectiveAppearance == null then
+      # No appearance specified, use current variant (backward compat mode)
+      currentVariant
+    else if variantMatchesAppearance then
+      # Current variant is compatible with appearance, use it
+      currentVariant
+    else if mapping == null then
+      # Appearance specified but palette doesn't support it
+      throw
+        "Cannot derive variant: colorscheme '${colorscheme}' does not support appearance mode '${effectiveAppearance}'"
+    else if isList mapping then
+      # Use first variant from mapping
+      head mapping
+    else
+      # Use the mapped variant
+      mapping;
+
   validateThemeConfig =
     config:
     let
       theme = getTheme config.colorscheme;
       validVariants = theme.meta.variants;
+
+      # Derive effective variant from appearance
+      # If appearance is specified, check if current variant is compatible
+      # If not compatible or not valid, derive from appearance mapping
+      effectiveVariant = deriveVariantFromAppearance config.colorscheme (
+        if hasAttr "appearance" config then config.appearance else null
+      ) (config.variant or null);
+
+      # Validate appearance mode if present and non-null
+      appearanceCheck =
+        if hasAttr "appearance" config && config.appearance != null then
+          validators.validateAppearanceMode config.appearance
+        else
+          null;
+
+      # Validate font config if present
+      fontChecks = if hasAttr "font" config then validators.validateFont config.font else [ ];
+
+      # Validate palette supports appearance mode if present and non-null
+      paletteAppearanceCheck =
+        if hasAttr "appearance" config && config.appearance != null then
+          validators.validatePaletteAppearance config.colorscheme config.appearance
+        else
+          null;
+
+      # Collect all validation failures
+      validationFailures =
+        (optional (appearanceCheck != null && !appearanceCheck.assertion) appearanceCheck.message)
+        ++ (map (check: check.message) (filter (check: !check.assertion) fontChecks))
+        ++ (optional (
+          paletteAppearanceCheck != null && !paletteAppearanceCheck.assertion
+        ) paletteAppearanceCheck.message);
+
+      # Variant check using derived effective variant
+      variantFailure =
+        if !elem effectiveVariant validVariants then
+          "Variant '${effectiveVariant}' not available for theme '${config.colorscheme}'. Available variants: ${concatStringsSep ", " validVariants}"
+        else
+          null;
+
+      allFailures = validationFailures ++ (optional (variantFailure != null) variantFailure);
+
+      # Return config with effective variant injected
+      finalConfig = config // {
+        variant = effectiveVariant;
+      };
     in
-    if !elem config.variant validVariants then
-      throw "Variant '${config.variant}' not available for theme '${config.colorscheme}'. Available variants: ${concatStringsSep ", " validVariants}"
-    else
-      config;
+    if length allFailures > 0 then throw (concatStringsSep "\n\n" allFailures) else finalConfig;
 
   getThemePalette =
     colorscheme: variant:
@@ -69,7 +158,7 @@ let
     app: colorscheme: variant:
     let
       theme = getTheme colorscheme;
-      appAdapters = theme.appAdapters;
+      inherit (theme) appAdapters;
     in
     if hasAttr app appAdapters then
       let
@@ -77,12 +166,10 @@ let
       in
       if isFunction adapter then
         adapter variant
-      else if hasAttr variant adapter then
-        adapter.${variant}
       else if isAttrs adapter then
-        adapter
+        if hasAttr variant adapter then adapter.${variant} else adapter
       else
-        "${colorscheme}-${variant}"
+        adapter
     else
       "${colorscheme}-${variant}";
 
@@ -96,7 +183,7 @@ let
 
       finalConfig = fold (
         preset: _config: transparencyPreset.createAppTransparency app preset { }
-      ) validatedConfig (validatedConfig.presets);
+      ) validatedConfig validatedConfig.presets;
 
       appConfig =
         if app == "wezterm" then
@@ -114,12 +201,12 @@ let
 
     in
     {
-      meta = theme.meta;
-      palette = palette;
-      semanticColors = semanticColors;
+      inherit (theme) meta;
+      inherit palette;
+      inherit semanticColors;
       config = finalConfig;
       colorscheme = "${validatedConfig.colorscheme}-${validatedConfig.variant}";
-      variant = validatedConfig.variant;
+      inherit (validatedConfig) variant;
       transparency =
         if hasAttr "transparency" finalConfig then
           finalConfig.transparency
@@ -146,9 +233,10 @@ let
       firefoxAdapter.generateFirefoxJSON theme validatedConfig
     else
       {
-        colorscheme = validatedConfig.colorscheme;
-        variant = validatedConfig.variant;
-        transparency = validatedConfig.transparency;
+        inherit (validatedConfig) colorscheme;
+        inherit (validatedConfig) variant;
+        font = if hasAttr "font" validatedConfig then validatedConfig.font else null;
+        inherit (validatedConfig) transparency;
         inherit
           palette
           semanticColors
@@ -160,7 +248,9 @@ let
   mkThemedConfig =
     values: app: extraConfig:
     let
-      appTheme = getAppTheme app values.theme.colorscheme values.theme.variant;
+      # Validate theme config to derive variant from appearance
+      validatedTheme = validateThemeConfig values.theme;
+      appTheme = getAppTheme app validatedTheme.colorscheme validatedTheme.variant;
     in
     extraConfig
     // {
@@ -179,9 +269,9 @@ let
       };
 
       themeConfig = {
-        colorscheme = values.theme.colorscheme;
-        variant = values.theme.variant;
-        transparency = values.theme.transparency;
+        inherit (validatedTheme) colorscheme;
+        inherit (validatedTheme) variant;
+        inherit (validatedTheme) transparency;
       };
     };
 
@@ -258,10 +348,10 @@ let
   mergeThemeConfig = utils.mergeThemeConfigs;
 
   listAvailableThemes = map (theme: {
-    id = theme.meta.id;
-    name = theme.meta.name;
-    variants = theme.meta.variants;
-    supports = theme.meta.supports;
+    inherit (theme.meta) id;
+    inherit (theme.meta) name;
+    inherit (theme.meta) variants;
+    inherit (theme.meta) supports;
   }) (attrValues themes);
 
   getThemeInfo =
@@ -292,6 +382,7 @@ in
     createAppConfig
     generateAppJSON
     validateThemeConfig
+    deriveVariantFromAppearance
     ;
 
   inherit

@@ -1,7 +1,7 @@
 { pkgs, values, ... }:
 
 let
-  username = values.user.username;
+  inherit (values.user) username;
   cudgelBaseDir = "/Users/${username}/.local/share/cudgel";
   pgDataDir = "${cudgelBaseDir}/postgres";
   pgPort = "45678";

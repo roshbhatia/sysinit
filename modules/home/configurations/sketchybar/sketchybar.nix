@@ -9,15 +9,14 @@
 let
   themes = import ../../../lib/theme { inherit lib; };
 
-  themeConfig = {
-    colorscheme = values.theme.colorscheme;
-    variant = values.theme.variant;
-    transparency = values.theme.transparency;
+  # Pass entire theme config to enable appearance-to-variant derivation
+  # Note: using 'or' pattern to provide defaults for optional fields
+  themeConfig = values.theme // {
     presets = values.theme.presets or [ ];
     overrides = values.theme.overrides or { };
   };
 
-  mkOutOfStoreSymlink = config.lib.file.mkOutOfStoreSymlink;
+  inherit (config.lib.file) mkOutOfStoreSymlink;
   path = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/sketchybar";
 in
 

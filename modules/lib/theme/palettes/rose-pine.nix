@@ -16,6 +16,10 @@ rec {
     supports = [
       "dark"
     ];
+    appearanceMapping = {
+      light = null;
+      dark = "moon";
+    };
     author = "Rosé Pine";
     homepage = "https://github.com/rose-pine/rose-pine";
   };
@@ -82,6 +86,7 @@ rec {
     vivid = variant: "rose-pine-${variant}";
     helix = variant: "rose_pine_${variant}";
     nushell = variant: "rose-pine-${variant}.nu";
+    opencode = "system";
 
     sketchybar = {
       background = palettes.moon.base;
@@ -91,7 +96,7 @@ rec {
       success = palettes.moon.foam;
       error = palettes.moon.love;
       info = palettes.moon.pine;
-      muted = palettes.moon.muted;
+      inherit (palettes.moon) muted;
       highlight = palettes.moon.rose;
     };
   };

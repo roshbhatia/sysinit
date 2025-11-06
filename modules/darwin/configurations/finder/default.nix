@@ -1,4 +1,4 @@
-{ ... }:
+{ lib, values, ... }:
 {
   system.defaults = {
     finder = {
@@ -13,7 +13,9 @@
 
     NSGlobalDomain = {
       "com.apple.sound.beep.feedback" = 0;
-      AppleInterfaceStyle = "Dark";
+      # Sync macOS system appearance with theme appearance
+      # "Dark" for dark mode, null for light mode (requires manual defaults delete)
+      AppleInterfaceStyle = if values.theme.appearance == "dark" then "Dark" else null;
       ApplePressAndHoldEnabled = false;
       AppleShowAllExtensions = true;
       AppleShowAllFiles = true;

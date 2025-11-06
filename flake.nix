@@ -48,7 +48,7 @@
         };
       };
 
-      lib = pkgs.lib;
+      inherit (pkgs) lib;
 
       utils = import ./modules/lib {
         inherit lib pkgs system;
@@ -86,7 +86,7 @@
           modules = [
             ./modules/darwin
             (import ./modules/darwin/home-manager.nix {
-              username = customValues.user.username;
+              inherit (customValues.user) username;
               values = customValues;
               inherit utils;
             })
@@ -118,7 +118,7 @@
               home.stateVersion = "23.11";
             }
             (import ./modules/home {
-              username = processedValues.user.username;
+              inherit (processedValues.user) username;
               values = processedValues;
               inherit utils;
             })

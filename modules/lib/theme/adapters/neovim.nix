@@ -28,9 +28,9 @@ in
           };
 
       baseConfig = {
-        plugin = pluginInfo.plugin;
-        name = pluginInfo.name;
-        setup = pluginInfo.setup;
+        inherit (pluginInfo) plugin;
+        inherit (pluginInfo) name;
+        inherit (pluginInfo) setup;
         colorscheme =
           if isFunction pluginInfo.colorscheme then
             pluginInfo.colorscheme config.variant
@@ -103,10 +103,15 @@ in
           pluginInfo.colorscheme config.variant
         else
           pluginInfo.colorscheme;
+
+      # Derive background from appearance for Neovim's background setting
+      background = if hasAttr "appearance" config then config.appearance else null;
     in
     {
-      colorscheme = colorscheme;
-      variant = config.variant;
+      inherit colorscheme;
+      inherit (config) variant;
+      appearance = if hasAttr "appearance" config then config.appearance else null;
+      inherit background;
       transparency =
         if hasAttr "transparency" config then
           config.transparency
@@ -115,13 +120,13 @@ in
       theme_name = themeData.meta.name + " " + (utils.capitalizeFirst config.variant);
 
       plugins.${colorscheme} = {
-        plugin = pluginInfo.plugin;
-        name = pluginInfo.name;
-        setup = pluginInfo.setup;
-        colorscheme = colorscheme;
+        inherit (pluginInfo) plugin;
+        inherit (pluginInfo) name;
+        inherit (pluginInfo) setup;
+        inherit colorscheme;
       };
 
-      palette = palette;
+      inherit palette;
       colors = semanticColors;
       ansi = utils.generateAnsiMappings semanticColors;
     };

@@ -23,7 +23,7 @@ if ! check_command "task"; then
   exit 0
 fi
 
-for cmd in "nixfmt" "stylua" "deadnix"; do
+for cmd in "nixfmt" "stylua" "deadnix" "statix"; do
   if ! check_command "$cmd"; then
     log_warn "$cmd not found, skipping hooks"
     exit 0
@@ -44,6 +44,13 @@ if [ -n "$nix_files" ]; then
     log_info "Modified files:"
     git diff --name-only -- "*.nix"
     exit 1
+  fi
+fi
+
+log_info "Linting Nix files..."
+if [ -n "$nix_files" ]; then
+  if ! statix check . 2>&1 | grep -v "^\[33m\[W" ; then
+    log_warn "statix found linting warnings (non-blocking)"
   fi
 fi
 

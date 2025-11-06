@@ -15,6 +15,10 @@ rec {
       "dragon"
     ];
     supports = [ "dark" ];
+    appearanceMapping = {
+      light = null;
+      dark = "wave";
+    };
     author = "rebelot";
     homepage = "https://github.com/rebelot/kanagawa.nvim";
   };
@@ -156,6 +160,7 @@ rec {
     helix = _variant: "kanagawa";
     nushell = variant: "kanagawa-${variant}.nu";
     k9s = variant: "kanagawa-${variant}";
+    opencode = "kanagawa";
 
     sketchybar = {
       background = palettes.wave.sumiInk0;

@@ -1,4 +1,4 @@
-{ }:
+_:
 let
   promptFiles = [
     "ai-engineer"
@@ -13,7 +13,7 @@ let
 
   importPrompts = builtins.listToAttrs (
     map (name: {
-      name = name;
+      inherit name;
       value = import ../prompts/${name}.nix;
     }) promptFiles
   );
@@ -21,9 +21,9 @@ let
   promptsToAgents =
     prompts:
     builtins.mapAttrs (_name: prompt: {
-      description = prompt.description;
-      mode = prompt.mode;
-      prompt = prompt.prompt;
+      inherit (prompt) description;
+      inherit (prompt) mode;
+      inherit (prompt) prompt;
     }) prompts;
 in
 {

@@ -134,6 +134,15 @@ with lib;
       };
 
       theme = {
+        appearance = mkOption {
+          type = types.enum [
+            "light"
+            "dark"
+          ];
+          default = "dark";
+          description = "Appearance mode (light or dark)";
+        };
+
         colorscheme = mkOption {
           type = types.str;
           default = "catppuccin";
@@ -144,6 +153,20 @@ with lib;
           type = types.str;
           default = "macchiato";
           description = "Theme variant";
+        };
+
+        font = {
+          monospace = mkOption {
+            type = types.str;
+            default = "JetBrainsMono Nerd Font";
+            description = "Monospace font for terminal and editor";
+          };
+
+          nerdfontFallback = mkOption {
+            type = types.str;
+            default = "Symbols Nerd Font";
+            description = "Fallback font for nerd font glyphs";
+          };
         };
 
         transparency = {

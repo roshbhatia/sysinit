@@ -114,7 +114,10 @@ task: Available tasks for this project:
 | `nix.additionalPackages` | list(string) | [] |  | Additional Nix packages |
 | `npm.additionalPackages` | list(string) | [] |  | Additional global npm packages |
 | `pipx.additionalPackages` | list(string) | [] |  | Additional global pipx packages |
+| `theme.appearance` |  | "dark" |  | Appearance mode (light or dark) |
 | `theme.colorscheme` | string | "catppuccin" |  | Theme colorscheme |
+| `theme.font.monospace` | string | "JetBrainsMono Nerd Font" |  | Monospace font for terminal and editor |
+| `theme.font.nerdfontFallback` | string | "Symbols Nerd Font" |  | Fallback font for nerd font glyphs |
 | `theme.transparency.blur` | integer | `80` |  | Background blur amount |
 | `theme.transparency.enable` | boolean | true |  | Enable transparency effects |
 | `theme.transparency.opacity` | float | `0.85` |  | Transparency opacity level |

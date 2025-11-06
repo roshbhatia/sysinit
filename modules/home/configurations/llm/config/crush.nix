@@ -34,12 +34,12 @@ lib.mkIf crushEnabled {
           "mcp_astgrep_scan"
         ];
 
-        sandbox = common.permissions.sandbox;
+        inherit (common.permissions) sandbox;
       };
 
       model = common.defaultModel;
 
-      ui = common.ui;
+      inherit (common) ui;
     };
 
     force = true;

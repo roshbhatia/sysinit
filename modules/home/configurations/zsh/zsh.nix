@@ -10,8 +10,10 @@ let
   themes = import ../../../lib/theme { inherit lib; };
   paths_lib = import ../../../lib/paths { inherit config lib; };
 
-  appTheme = themes.getAppTheme "vivid" values.theme.colorscheme values.theme.variant;
-  palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
+  # Validate theme config to derive variant from appearance
+  validatedTheme = themes.validateThemeConfig values.theme;
+  appTheme = themes.getAppTheme "vivid" validatedTheme.colorscheme validatedTheme.variant;
+  palette = themes.getThemePalette validatedTheme.colorscheme validatedTheme.variant;
   colors = themes.getUnifiedColors palette;
 
   pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;
@@ -167,7 +169,7 @@ in
 
         zstyle ':completion:*:git-checkout:*' sort false
         zstyle ':completion:*:descriptions' format '[%d]'
-        zstyle ':completion:*' list-colors ''\${(s.:.)LS_COLORS}
+        zstyle ':completion:*' list-colors ''\${"s.:."LS_COLORS}
         zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
         zstyle ':completion:*:complete:*' use-cache on
         zstyle ':completion:*' menu no

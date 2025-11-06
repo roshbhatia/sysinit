@@ -25,6 +25,7 @@ let
     "bcrypt"
     "block-goose-cli"
     "charmbracelet/tap/crush"
+    "colima"
     "grc"
     "hashicorp/tap/terraform"
     "libgit2@1.8"
@@ -50,7 +51,7 @@ let
     "wezterm"
   ];
 
-  conditionalCasks = (if values.darwin.docker.backend == "rancher" then [ "rancher" ] else [ ]);
+  conditionalCasks = if values.darwin.docker.backend == "rancher" then [ "rancher" ] else [ ];
 
   allTaps = baseTaps ++ additionalTaps;
   allBrews = baseBrews ++ additionalBrews;

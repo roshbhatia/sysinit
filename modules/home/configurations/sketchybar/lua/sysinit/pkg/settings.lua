@@ -1,15 +1,41 @@
+local function load_theme_config()
+  local config_path = os.getenv("HOME") .. "/.config/sketchybar/theme_config.json"
+  local file = io.open(config_path, "r")
+  if not file then
+    return {}
+  end
+  local content = file:read("*all")
+  file:close()
+
+  local cjson = require("cjson")
+  local success, result = pcall(function()
+    return cjson.decode(content)
+  end)
+
+  if success and result then
+    return result
+  else
+    return {}
+  end
+end
+
+local theme_config = load_theme_config()
+local monospace_font = (theme_config.font and theme_config.font.monospace) or "TX-02"
+local nerdfont_fallback = (theme_config.font and theme_config.font.nerdfontFallback)
+  or "Symbols Nerd Font Mono"
+
 return {
   fonts = {
     text = {
-      regular = { family = "TX-02", style = "Regular", size = 13.0 },
-      bold = { family = "TX-02", style = "Bold", size = 13.0 },
+      regular = { family = monospace_font, style = "Regular", size = 13.0 },
+      bold = { family = monospace_font, style = "Bold", size = 13.0 },
     },
     icons = {
-      regular = { family = "Symbols Nerd Font Mono", style = "Regular", size = 14.0 },
-      small = { family = "Symbols Nerd Font Mono", style = "Regular", size = 12.0 },
+      regular = { family = nerdfont_fallback, style = "Regular", size = 14.0 },
+      small = { family = nerdfont_fallback, style = "Regular", size = 12.0 },
     },
     separators = {
-      bold = { family = "TX-02", style = "Bold", size = 18.0 },
+      bold = { family = monospace_font, style = "Bold", size = 18.0 },
     },
   },
 

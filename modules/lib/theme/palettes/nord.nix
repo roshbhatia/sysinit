@@ -12,6 +12,10 @@ rec {
     id = "nord";
     variants = [ "dark" ];
     supports = [ "dark" ];
+    appearanceMapping = {
+      light = null;
+      dark = "dark";
+    };
     author = "Arctic Ice Studio";
     homepage = "https://www.nordtheme.com/";
   };
@@ -82,6 +86,7 @@ rec {
     k9s = variant: "nord-${variant}";
     helix = _variant: "nord";
     nushell = variant: "nord-${variant}.nu";
+    opencode = "nord";
 
     sketchybar = {
       background = palettes.dark.nord0;
