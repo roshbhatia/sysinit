@@ -6,20 +6,23 @@
 
 let
   themes = import ../../../lib/theme { inherit lib; };
-  btopTheme = themes.getAppTheme "btop" values.theme.colorscheme values.theme.variant;
+
+  # Validate theme config to derive variant from appearance
+  validatedTheme = themes.validateThemeConfig values.theme;
+  btopTheme = themes.getAppTheme "btop" validatedTheme.colorscheme validatedTheme.variant;
 in
 {
   programs.btop = {
     enable = true;
     settings = {
-      color_theme = "${values.theme.colorscheme}-${values.theme.variant}";
+      color_theme = "${validatedTheme.colorscheme}-${validatedTheme.variant}";
       vim_keys = true;
       force_tty = true;
       theme_background = false;
       shown_boxes = "cpu proc";
     };
     themes = {
-      "${values.theme.colorscheme}-${values.theme.variant}" = btopTheme;
+      "${validatedTheme.colorscheme}-${validatedTheme.variant}" = btopTheme;
     };
   };
 }

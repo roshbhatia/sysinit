@@ -5,8 +5,11 @@
 }:
 let
   themes = import ../../../lib/theme { inherit lib; };
-  palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
-  semanticColors = themes.getSemanticColors values.theme.colorscheme values.theme.variant;
+
+  # Validate theme config to derive variant from appearance
+  validatedTheme = themes.validateThemeConfig values.theme;
+  palette = themes.getThemePalette validatedTheme.colorscheme validatedTheme.variant;
+  semanticColors = themes.getSemanticColors validatedTheme.colorscheme validatedTheme.variant;
 
   ompColors = {
     primary = semanticColors.accent.primary;

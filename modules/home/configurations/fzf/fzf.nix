@@ -7,9 +7,11 @@
 }:
 
 let
-  inherit (utils.themes) getThemePalette;
+  inherit (utils.themes) getThemePalette validateThemeConfig;
 
-  palette = getThemePalette values.theme.colorscheme values.theme.variant;
+  # Validate theme config to derive variant from appearance
+  validatedTheme = validateThemeConfig values.theme;
+  palette = getThemePalette validatedTheme.colorscheme validatedTheme.variant;
   semanticColors = utils.themes.utils.createSemanticMapping palette;
 
   # Build fzf color strings from theme palette

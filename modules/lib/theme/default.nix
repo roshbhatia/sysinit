@@ -249,7 +249,9 @@ let
   mkThemedConfig =
     values: app: extraConfig:
     let
-      appTheme = getAppTheme app values.theme.colorscheme values.theme.variant;
+      # Validate theme config to derive variant from appearance
+      validatedTheme = validateThemeConfig values.theme;
+      appTheme = getAppTheme app validatedTheme.colorscheme validatedTheme.variant;
     in
     extraConfig
     // {
@@ -268,9 +270,9 @@ let
       };
 
       themeConfig = {
-        colorscheme = values.theme.colorscheme;
-        variant = values.theme.variant;
-        transparency = values.theme.transparency;
+        colorscheme = validatedTheme.colorscheme;
+        variant = validatedTheme.variant;
+        transparency = validatedTheme.transparency;
       };
     };
 

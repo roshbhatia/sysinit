@@ -6,11 +6,14 @@
 }:
 
 let
-  inherit (utils.themes) mkThemedConfig;
+  inherit (utils.themes) mkThemedConfig validateThemeConfig;
+  # Validate theme config to derive variant from appearance
+  validatedTheme = validateThemeConfig values.theme;
   themeCfg = mkThemedConfig values "nushell" { };
   inherit (themeCfg) themes;
   nushellTheme = themeCfg.appTheme;
-  palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
+  # Use validated colorscheme and variant (which may be auto-derived)
+  palette = themes.getThemePalette validatedTheme.colorscheme validatedTheme.variant;
   colors = themes.getUnifiedColors palette;
 
 in
