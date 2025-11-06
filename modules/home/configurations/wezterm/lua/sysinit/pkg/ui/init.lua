@@ -1,9 +1,16 @@
 local wezterm = require("wezterm")
+local json_loader = require("sysinit.pkg.utils.json_loader")
+local theme_config = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"))
 local M = {}
+
+local font_name = "TX-02"
+if theme_config.font and theme_config.font.monospace then
+  font_name = theme_config.font.monospace
+end
 
 local terminal_font = wezterm.font_with_fallback({
   {
-    family = "TX-02",
+    family = font_name,
     harfbuzz_features = {
       "calt",
       "liga",
