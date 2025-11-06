@@ -13,6 +13,9 @@
   theme = {
     appearance = "dark";
     colorscheme = "catppuccin";
+    font = {
+      monospace = "TX-02";
+    };
   };
 
   darwin = {
