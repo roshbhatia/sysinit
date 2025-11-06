@@ -11,7 +11,8 @@ end
 
 local theme_config = load_theme_config()
 local monospace_font = (theme_config.font and theme_config.font.monospace) or "TX-02"
-local nerdfont_fallback = (theme_config.font and theme_config.font.nerdfontFallback) or "Symbols Nerd Font Mono"
+local nerdfont_fallback = (theme_config.font and theme_config.font.nerdfontFallback)
+  or "Symbols Nerd Font Mono"
 
 return {
   fonts = {

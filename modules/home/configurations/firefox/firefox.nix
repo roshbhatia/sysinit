@@ -62,6 +62,13 @@ in
       settings = {
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
 
+        # Theme appearance settings - sync with system theme
+        "ui.systemUsesDarkTheme" = if values.theme.appearance == "dark" then 1 else 0;
+        "browser.theme.content-theme" = if values.theme.appearance == "dark" then 0 else 1;
+        "browser.theme.toolbar-theme" = if values.theme.appearance == "dark" then 0 else 1;
+        "layout.css.prefers-color-scheme.content-override" =
+          if values.theme.appearance == "dark" then 0 else 1;
+
         "browser.newtabpage.activity-stream.enabled" = false;
 
         "browser.search.suggest.enabled" = false;

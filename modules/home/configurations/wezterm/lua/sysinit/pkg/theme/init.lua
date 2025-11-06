@@ -38,7 +38,9 @@ local function get_window_appearance_config()
   local config = {
     macos_window_background_blur = blur,
     color_scheme = theme_name,
-    font = wezterm.font(theme_config.font and theme_config.font.monospace or "JetBrainsMono Nerd Font"),
+    font = wezterm.font(
+      theme_config.font and theme_config.font.monospace or "JetBrainsMono Nerd Font"
+    ),
     font_size = 14.0,
     colors = {
       foreground = theme_config.palette.fg_primary,
