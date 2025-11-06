@@ -237,6 +237,7 @@ let
       {
         colorscheme = validatedConfig.colorscheme;
         variant = validatedConfig.variant;
+        font = if hasAttr "font" validatedConfig then validatedConfig.font else null;
         transparency = validatedConfig.transparency;
         inherit
           palette

@@ -122,6 +122,7 @@ rec {
       colorscheme = themeData.meta.id;
       variant = config.variant;
       appearance = if hasAttr "appearance" config then config.appearance else null;
+      font = if hasAttr "font" config then config.font else null;
       transparency =
         if hasAttr "transparency" config then
           config.transparency

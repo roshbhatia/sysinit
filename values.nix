@@ -19,23 +19,6 @@
   };
 
   darwin = {
-    docker = {
-      enable = true;
-      backend = "colima";
-    };
-
-    podman = {
-      desktop = false;
-    };
-
-    tailscale = {
-      enable = true;
-    };
-
-    borders = {
-      enable = true;
-    };
-
     homebrew = {
       additionalPackages = {
         taps = [
@@ -48,16 +31,10 @@
           "betterdiscord-installer"
           "calibre"
           "discord"
+          "orbstack"
           "steam"
         ];
       };
-    };
-  };
-
-  llm = {
-    goose = {
-      provider = "openrouter";
-      model = "qwen/qwen3-coder:free";
     };
   };
 }
