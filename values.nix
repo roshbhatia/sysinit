@@ -11,8 +11,8 @@
   };
 
   theme = {
-    appearance = "dark";
-    colorscheme = "catppuccin";
+    appearance = "light";
+    colorscheme = "gruvbox";
   };
 
   darwin = {
