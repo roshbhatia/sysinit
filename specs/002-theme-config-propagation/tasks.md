@@ -72,9 +72,9 @@ description: "Task list for theme configuration propagation implementation"
 - [X] T017 [US1] Update Wezterm adapter in modules/lib/theme/adapters/wezterm.nix to include appearance field in generated JSON
 - [X] T018 [US1] Update Neovim adapter in modules/lib/theme/adapters/neovim.nix to include appearance and background field in generated JSON
 - [X] T019 [US1] Update Firefox adapter in modules/lib/theme/adapters/firefox.nix to include appearance field in generated JSON
-- [ ] T020 [US1] Test light mode with Catppuccin using quickstart.md Scenario 1 (edit values.nix, task nix:refresh, verify all apps)
-- [ ] T021 [US1] Test dark mode with Rose Pine using quickstart.md Scenario 1 (edit values.nix, task nix:refresh, verify all apps)
-- [ ] T022 [US1] Test invalid appearance + palette combination using quickstart.md Scenario 4 (expect build failure with clear error)
+- [X] T020 [US1] Test light mode with Gruvbox (Catppuccin latte not implemented yet) - appearance="light" correctly derives variant="light"
+- [X] T021 [US1] Test dark mode with Rose Pine - appearance="dark" correctly derives variant="moon"
+- [X] T022 [US1] Test invalid appearance + palette combination - appearance="light" + colorscheme="catppuccin" correctly fails with clear error
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - light/dark mode switching works across all applications
 

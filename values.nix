@@ -10,12 +10,12 @@
     username = "roshbhatia";
   };
 
-  # T020: Testing light mode with Gruvbox (Catppuccin latte not yet implemented)
-  # Testing auto-derivation: variant should derive to "light" from appearance
+  # Theme configuration with appearance-to-variant auto-derivation
+  # appearance="dark" + colorscheme="catppuccin" → variant="macchiato"
   theme = {
-    appearance = "light";
-    colorscheme = "gruvbox";
-    # variant omitted to test appearance-to-variant derivation
+    appearance = "dark";
+    colorscheme = "catppuccin";
+    # variant is automatically derived from appearance
   };
 
   darwin = {
