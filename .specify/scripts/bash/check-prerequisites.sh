@@ -42,7 +42,7 @@ for arg in "$@"; do
       PATHS_ONLY=true
       ;;
     --help | -h)
-      cat <<'EOF'
+      cat << 'EOF'
 Usage: check-prerequisites.sh [OPTIONS]
 
 Consolidated prerequisite checking for Spec-Driven Development workflow.
@@ -127,7 +127,7 @@ docs=()
 [[ -f $DATA_MODEL ]] && docs+=("data-model.md")
 
 # Check contracts directory (only if it exists and has files)
-if [[ -d $CONTRACTS_DIR ]] && [[ -n "$(ls -A "$CONTRACTS_DIR" 2>/dev/null)" ]]; then
+if [[ -d $CONTRACTS_DIR ]] && [[ -n "$(ls -A "$CONTRACTS_DIR" 2> /dev/null)" ]]; then
   docs+=("contracts/")
 fi
 

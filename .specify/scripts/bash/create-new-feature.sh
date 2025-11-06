@@ -85,18 +85,18 @@ check_existing_branches() {
   local short_name="$1"
 
   # Fetch all remotes to get latest branch info (suppress errors if no remotes)
-  git fetch --all --prune 2>/dev/null || true
+  git fetch --all --prune 2> /dev/null || true
 
   # Find all branches matching the pattern using git ls-remote (more reliable)
-  local remote_branches=$(git ls-remote --heads origin 2>/dev/null | grep -E "refs/heads/[0-9]+-${short_name}$" | sed 's/.*\/\([0-9]*\)-.*/\1/' | sort -n)
+  local remote_branches=$(git ls-remote --heads origin 2> /dev/null | grep -E "refs/heads/[0-9]+-${short_name}$" | sed 's/.*\/\([0-9]*\)-.*/\1/' | sort -n)
 
   # Also check local branches
-  local local_branches=$(git branch 2>/dev/null | grep -E "^[* ]*[0-9]+-${short_name}$" | sed 's/^[* ]*//' | sed 's/-.*//' | sort -n)
+  local local_branches=$(git branch 2> /dev/null | grep -E "^[* ]*[0-9]+-${short_name}$" | sed 's/^[* ]*//' | sed 's/-.*//' | sort -n)
 
   # Check specs directory as well
   local spec_dirs=""
   if [ -d "$SPECS_DIR" ]; then
-    spec_dirs=$(find "$SPECS_DIR" -maxdepth 1 -type d -name "[0-9]*-${short_name}" 2>/dev/null | xargs -n1 basename 2>/dev/null | sed 's/-.*//' | sort -n)
+    spec_dirs=$(find "$SPECS_DIR" -maxdepth 1 -type d -name "[0-9]*-${short_name}" 2> /dev/null | xargs -n1 basename 2> /dev/null | sed 's/-.*//' | sort -n)
   fi
 
   # Combine all sources and get the highest number
@@ -116,7 +116,7 @@ check_existing_branches() {
 # were initialised with --no-git.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-if git rev-parse --show-toplevel >/dev/null 2>&1; then
+if git rev-parse --show-toplevel > /dev/null 2>&1; then
   REPO_ROOT=$(git rev-parse --show-toplevel)
   HAS_GIT=true
 else

@@ -30,35 +30,59 @@ for cmd in "nixfmt" "stylua" "deadnix" "statix"; do
   fi
 done
 
-log_info "Checking and fixing line endings..."
-staged_files=$(git diff --cached --name-only --diff-filter=ACM)
-files_fixed=0
+# Track if we need to re-stage files
+files_modified=0
 
 log_info "Checking for dead Nix code..."
-nix_files=$(find . -name "*.nix" -type f | grep -v result | head -20)
-if [ -n "$nix_files" ]; then
-  echo "$nix_files" | xargs deadnix --edit
+# Get all staged .nix files
+staged_nix_files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.nix$' || true)
+if [ -n "$staged_nix_files" ]; then
+  # Run deadnix on each file individually
+  while IFS= read -r file; do
+    if [ -f "$file" ]; then
+      deadnix --edit "$file" || true
+    fi
+  done <<<"$staged_nix_files"
 
-  if ! git diff --quiet --exit-code -- "*.nix"; then
-    log_warn "deadnix found and removed dead code. Please review and commit the changes."
-    log_info "Modified files:"
-    git diff --name-only -- "*.nix"
-    exit 1
+  # Check if deadnix modified any files
+  if ! git diff --quiet --exit-code -- $staged_nix_files; then
+    log_info "deadnix removed dead code from staged files"
+    files_modified=1
   fi
 fi
 
 log_info "Linting Nix files..."
-if [ -n "$nix_files" ]; then
-  if ! statix check . 2>&1 | grep -v "^\[33m\[W" ; then
-    log_warn "statix found linting warnings (non-blocking)"
+if [ -n "$staged_nix_files" ]; then
+  # statix check only on staged files
+  statix_output=$(statix check $staged_nix_files 2>&1 || true)
+  if echo "$statix_output" | grep -q "^\["; then
+    log_warn "statix found linting issues (non-blocking):"
+    echo "$statix_output" | grep "^\["
   fi
 fi
 
 log_info "Running formatting tasks..."
 task fmt sh:chmod
 
+# Check if formatting changed any staged files
+staged_files=$(git diff --cached --name-only --diff-filter=ACM)
+if [ -n "$staged_files" ]; then
+  for file in $staged_files; do
+    if [ -f "$file" ] && ! git diff --quiet -- "$file"; then
+      files_modified=1
+      break
+    fi
+  done
+fi
+
 log_info "Regenerating values.nix docs..."
 task docs:values
+
+# Check if docs were modified
+if ! git diff --quiet README.md 2>/dev/null; then
+  log_info "README.md was updated with new values.nix documentation"
+  files_modified=1
+fi
 
 log_info "Checking for root-owned files..."
 root_files=$(find . -path ./.git -prune -o -user root -print 2>/dev/null || true)
@@ -70,4 +94,11 @@ if [ -n "$root_files" ]; then
   exit 1
 fi
 
-log_success "Pre-commit checks passed!"
+# If files were modified, re-stage them
+if [ "$files_modified" -eq 1 ]; then
+  log_info "Re-staging modified files..."
+  git add -u
+  log_success "Pre-commit checks completed - files were formatted and re-staged"
+else
+  log_success "Pre-commit checks passed!"
+fi

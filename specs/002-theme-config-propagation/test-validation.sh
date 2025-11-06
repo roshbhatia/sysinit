@@ -28,7 +28,7 @@ test_invalid_config() {
   echo "----------------------------------------------------------------------"
 
   # Write test configuration
-  cat >values.nix <<EOF
+  cat > values.nix << EOF
 {
   user = {
     username = "rshnbhatia";
@@ -99,7 +99,7 @@ test_invalid_config \
 echo "----------------------------------------------------------------------"
 echo "Test: Valid configuration (Gruvbox + Light)"
 echo "----------------------------------------------------------------------"
-cat >values.nix <<EOF
+cat > values.nix << EOF
 {
   user = {
     username = "rshnbhatia";

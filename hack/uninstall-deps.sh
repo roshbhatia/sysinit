@@ -1,9 +1,12 @@
 #!/usr/bin/env zsh
 # shellcheck disable=all
-log_info() { echo -e "\033[0;34m[INFO]\033[0m $*"; }
-log_warn() { echo -e "\033[1;33m[WARN]\033[0m $*" >&2; }
-log_error() { echo -e "\033[1;31m[ERROR]\033[0m $*" >&2; }
-log_success() { echo -e "\033[0;32m[SUCCESS]\033[0m $*"; }
+
+# Get script directory for sourcing shared utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-${0}}")" && pwd)"
+
+# Source shared logging library
+# shellcheck source=../modules/home/configurations/utils/system/loglib.sh
+source "${SCRIPT_DIR}/../modules/home/configurations/utils/system/loglib.sh"
 
 if [ "$EUID" -eq 0 ]; then
   log_error "Please do not run this script as root or with sudo."
@@ -23,20 +26,20 @@ fi
 log_info "Stopping Nix services"
 if sudo launchctl list | grep -q org.nixos.nix-daemon; then
   log_warn "Stopping nix-daemon service..."
-  sudo launchctl unload /Library/LaunchDaemons/org.nixos.nix-daemon.plist 2>/dev/null || true
+  sudo launchctl unload /Library/LaunchDaemons/org.nixos.nix-daemon.plist 2> /dev/null || true
   log_success "nix-daemon service stopped"
 fi
 
 for service in org.nixos.activate-system org.nixos.darwin-store; do
   if sudo launchctl list | grep -q $service; then
     log_warn "Stopping $service service..."
-    sudo launchctl unload /Library/LaunchDaemons/$service.plist 2>/dev/null || true
+    sudo launchctl unload /Library/LaunchDaemons/$service.plist 2> /dev/null || true
     log_success "$service service stopped"
   fi
 done
 
 log_warn "Checking for processes using Nix store..."
-if pgrep -f "/nix" >/dev/null; then
+if pgrep -f "/nix" > /dev/null; then
   log_warn "Found processes using Nix store, attempting to terminate..."
   sudo pkill -f "/nix" || true
   sleep 2
@@ -100,7 +103,7 @@ for dir in /nix /var/root/.nix-profile /var/root/.nix-defexpr /var/root/.nix-cha
     log_warn "Removing $dir..."
     if [ "$dir" = "/nix" ] && [ -d "/nix/.Trashes" ]; then
       log_warn "Removing /nix/.Trashes directory with special permissions..."
-      sudo rm -rf /nix/.Trashes 2>/dev/null || true
+      sudo rm -rf /nix/.Trashes 2> /dev/null || true
     fi
     sudo rm -rf "$dir" || log_warn "Warning: Could not fully remove $dir, continuing anyway"
     if [ ! -e "$dir" ]; then
@@ -123,7 +126,7 @@ sudo rm -f /etc/*.before-nix-darwin || true
 log_success "Removed system backup files"
 
 log_warn "Removing home directory backup files..."
-sudo rm -f "$HOME/.*.backup""*"" """"$HO"M"E"/.*.bak || true
+sudo rm -f "$HOME"/.*.backup* "$HOME"/.*.bak || true
 log_success "Removed home directory backup files"
 
 log_warn "Removing XDG config backup files..."

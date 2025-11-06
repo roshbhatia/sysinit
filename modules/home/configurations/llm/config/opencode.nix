@@ -6,7 +6,6 @@ let
   prompts = import ../shared/prompts.nix { };
   opencodeEnabled = values.llm.opencode.enabled or true;
 
-  # Import theme library directly
   themes = import ../../../../lib/theme { inherit lib; };
 
   # Validate theme config to derive variant from appearance

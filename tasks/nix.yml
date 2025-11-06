@@ -8,28 +8,9 @@ vars:
   NIX_CORES: 2
   ERROR_EXIT_CODE: 1
   SUCCESS_EXIT_CODE: 0
-  LOGGING_FUNCTIONS: |
-    log_info() { echo -e "\033[0;34m[INFO]\033[0m $*"; }
-    log_warn() { echo -e "\033[1;33m[WARN]\033[0m $*" >&2; }
-    log_error() { echo -e "\033[1;31m[ERROR]\033[0m $*" >&2; }
-    log_success() { echo -e "\033[0;32m[SUCCESS]\033[0m $*"; }
+  LOGLIB_PATH: "{{.ROOT_DIR}}/modules/home/configurations/utils/system/loglib.sh"
 
 tasks:
-  fmt:
-    desc: Format all Nix files using nixfmt
-    cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        {{.LOGGING_FUNCTIONS}}
-        log_info "Formatting Nix files"
-        if ! fd -e nix -E result -x nixfmt --width=100; then
-          log_error "Nix formatting failed"
-          exit {{.ERROR_EXIT_CODE}}
-        fi
-        log_success "Nix files formatted successfully"
-    silent: true
-
   build:
     desc: Build the system configuration without applying
     silent: true
@@ -37,7 +18,7 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        {{.LOGGING_FUNCTIONS}}
+        source {{.LOGLIB_PATH}}
 
         # Clean up old result symlinks to prevent ownership issues
         sudo rm -f result result-* 2>/dev/null || true
@@ -59,7 +40,7 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        {{.LOGGING_FUNCTIONS}}
+        source {{.LOGLIB_PATH}}
 
         log_info "Cleaning old result symlinks"
         sudo rm -f result result-* 2>/dev/null || true
@@ -80,7 +61,7 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        {{.LOGGING_FUNCTIONS}}
+        source {{.LOGLIB_PATH}}
         log_info "Updating nix flake inputs"
 
         if ! nix flake update; then
@@ -104,7 +85,7 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        {{.LOGGING_FUNCTIONS}}
+        source {{.LOGLIB_PATH}}
         log_info "Updating nix configuration"
         if ! sudo cp nix.custom.conf /etc/nix/nix.custom.conf; then
           log_error "Failed to copy nix configuration"
@@ -126,7 +107,7 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        {{.LOGGING_FUNCTIONS}}
+        source {{.LOGLIB_PATH}}
 
         # Clean up old result symlinks to prevent ownership issues
         sudo rm -f result result-* 2>/dev/null || true
