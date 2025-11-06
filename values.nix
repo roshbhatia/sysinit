@@ -17,7 +17,7 @@
       monospace = "CenturySchoolMonospace Nerd Font Mono";
     };
     transparency = {
-      opacity = 1;
+      opacity = 1.0;
       blur = 100;
     };
   };

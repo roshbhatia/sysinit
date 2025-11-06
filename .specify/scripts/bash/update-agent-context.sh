@@ -154,12 +154,12 @@ extract_plan_field() {
   local field_pattern="$1"
   local plan_file="$2"
 
-  grep "^\*\*${field_pattern}\*\*: " "$plan_file" 2>/dev/null |
-    head -1 |
-    sed "s|^\*\*${field_pattern}\*\*: ||" |
-    sed 's/^[ \t]*//;s/[ \t]*$//' |
-    grep -v "NEEDS CLARIFICATION" |
-    grep -v "^N/A$" || echo ""
+  grep "^\*\*${field_pattern}\*\*: " "$plan_file" 2>/dev/null \
+    | head -1 \
+    | sed "s|^\*\*${field_pattern}\*\*: ||" \
+    | sed 's/^[ \t]*//;s/[ \t]*$//' \
+    | grep -v "NEEDS CLARIFICATION" \
+    | grep -v "^N/A$" || echo ""
 }
 
 parse_plan_data() {
@@ -244,18 +244,18 @@ get_commands_for_language() {
   local lang="$1"
 
   case "$lang" in
-  *"Python"*)
-    echo "cd src && pytest && ruff check ."
-    ;;
-  *"Rust"*)
-    echo "cargo test && cargo clippy"
-    ;;
-  *"JavaScript"* | *"TypeScript"*)
-    echo 'npm test \&\& npm run lint'
-    ;;
-  *)
-    echo "# Add commands for $lang"
-    ;;
+    *"Python"*)
+      echo "cd src && pytest && ruff check ."
+      ;;
+    *"Rust"*)
+      echo "cargo test && cargo clippy"
+      ;;
+    *"JavaScript"* | *"TypeScript"*)
+      echo 'npm test \&\& npm run lint'
+      ;;
+    *)
+      echo "# Add commands for $lang"
+      ;;
   esac
 }
 
@@ -576,53 +576,53 @@ update_specific_agent() {
   local agent_type="$1"
 
   case "$agent_type" in
-  claude)
-    update_agent_file "$CLAUDE_FILE" "Claude Code"
-    ;;
-  gemini)
-    update_agent_file "$GEMINI_FILE" "Gemini CLI"
-    ;;
-  copilot)
-    update_agent_file "$COPILOT_FILE" "GitHub Copilot"
-    ;;
-  cursor-agent)
-    update_agent_file "$CURSOR_FILE" "Cursor IDE"
-    ;;
-  qwen)
-    update_agent_file "$QWEN_FILE" "Qwen Code"
-    ;;
-  opencode)
-    update_agent_file "$AGENTS_FILE" "opencode"
-    ;;
-  codex)
-    update_agent_file "$AGENTS_FILE" "Codex CLI"
-    ;;
-  windsurf)
-    update_agent_file "$WINDSURF_FILE" "Windsurf"
-    ;;
-  kilocode)
-    update_agent_file "$KILOCODE_FILE" "Kilo Code"
-    ;;
-  auggie)
-    update_agent_file "$AUGGIE_FILE" "Auggie CLI"
-    ;;
-  roo)
-    update_agent_file "$ROO_FILE" "Roo Code"
-    ;;
-  codebuddy)
-    update_agent_file "$CODEBUDDY_FILE" "CodeBuddy CLI"
-    ;;
-  amp)
-    update_agent_file "$AMP_FILE" "Amp"
-    ;;
-  q)
-    update_agent_file "$Q_FILE" "Amazon Q Developer CLI"
-    ;;
-  *)
-    log_error "Unknown agent type '$agent_type'"
-    log_error "Expected: claude|gemini|copilot|cursor-agent|qwen|opencode|codex|windsurf|kilocode|auggie|roo|amp|q"
-    exit 1
-    ;;
+    claude)
+      update_agent_file "$CLAUDE_FILE" "Claude Code"
+      ;;
+    gemini)
+      update_agent_file "$GEMINI_FILE" "Gemini CLI"
+      ;;
+    copilot)
+      update_agent_file "$COPILOT_FILE" "GitHub Copilot"
+      ;;
+    cursor-agent)
+      update_agent_file "$CURSOR_FILE" "Cursor IDE"
+      ;;
+    qwen)
+      update_agent_file "$QWEN_FILE" "Qwen Code"
+      ;;
+    opencode)
+      update_agent_file "$AGENTS_FILE" "opencode"
+      ;;
+    codex)
+      update_agent_file "$AGENTS_FILE" "Codex CLI"
+      ;;
+    windsurf)
+      update_agent_file "$WINDSURF_FILE" "Windsurf"
+      ;;
+    kilocode)
+      update_agent_file "$KILOCODE_FILE" "Kilo Code"
+      ;;
+    auggie)
+      update_agent_file "$AUGGIE_FILE" "Auggie CLI"
+      ;;
+    roo)
+      update_agent_file "$ROO_FILE" "Roo Code"
+      ;;
+    codebuddy)
+      update_agent_file "$CODEBUDDY_FILE" "CodeBuddy CLI"
+      ;;
+    amp)
+      update_agent_file "$AMP_FILE" "Amp"
+      ;;
+    q)
+      update_agent_file "$Q_FILE" "Amazon Q Developer CLI"
+      ;;
+    *)
+      log_error "Unknown agent type '$agent_type'"
+      log_error "Expected: claude|gemini|copilot|cursor-agent|qwen|opencode|codex|windsurf|kilocode|auggie|roo|amp|q"
+      exit 1
+      ;;
   esac
 }
 

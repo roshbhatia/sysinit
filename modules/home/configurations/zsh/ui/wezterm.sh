@@ -30,10 +30,10 @@ if [[ $- != *i* ]]; then
 fi
 
 case "$TERM" in
-linux | dumb)
-  # Avoid terminals that don't like OSC sequences
-  return 0
-  ;;
+  linux | dumb)
+    # Avoid terminals that don't like OSC sequences
+    return 0
+    ;;
 esac
 
 # This function wraps bash-preexec.sh so that it can be included verbatim
@@ -584,9 +584,9 @@ fi
 # Alternative: hook into zle if not using zsh-vi-mode
 function zle-keymap-select() {
   case $KEYMAP in
-  vicmd) ZVM_MODE="n" ;;
-  viins | main) ZVM_MODE="i" ;;
-  visual) ZVM_MODE="v" ;;
+    vicmd) ZVM_MODE="n" ;;
+    viins | main) ZVM_MODE="i" ;;
+    visual) ZVM_MODE="v" ;;
   esac
   set_wezterm_user_vars
 }
