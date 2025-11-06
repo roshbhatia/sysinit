@@ -116,11 +116,11 @@ rec {
     let
       palette = themeData.palettes.${config.variant};
       semanticColors = utils.createSemanticMapping palette;
-      weztermConfig = (createWeztermConfig themeData config { });
+      weztermConfig = createWeztermConfig themeData config { };
     in
     {
       colorscheme = themeData.meta.id;
-      variant = config.variant;
+      inherit (config) variant;
       appearance = if hasAttr "appearance" config then config.appearance else null;
       font = if hasAttr "font" config then config.font else null;
       transparency =

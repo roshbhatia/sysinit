@@ -138,9 +138,8 @@ let
     zoxide
   ];
 
-  conditionalPackages = (
-    if (values.darwin.docker.backend or "colima") == "podman" then [ pkgs.podman-desktop ] else [ ]
-  );
+  conditionalPackages =
+    if (values.darwin.docker.backend or "colima") == "podman" then [ pkgs.podman-desktop ] else [ ];
 
   allNixPackages = baseNixPackages ++ conditionalPackages ++ additionalPackages;
 in

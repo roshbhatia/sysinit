@@ -109,11 +109,11 @@ in
     home.file.".config/sysinit/theme_config.json" = {
       text = builtins.toJSON (
         themes.generateAppJSON "neovim" {
-          colorscheme = cfg.colorscheme;
-          variant = cfg.variant;
-          transparency = cfg.transparency;
-          presets = cfg.presets;
-          overrides = cfg.overrides;
+          inherit (cfg) colorscheme;
+          inherit (cfg) variant;
+          inherit (cfg) transparency;
+          inherit (cfg) presets;
+          inherit (cfg) overrides;
         }
       );
     };

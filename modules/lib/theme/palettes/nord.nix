@@ -86,6 +86,7 @@ rec {
     k9s = variant: "nord-${variant}";
     helix = _variant: "nord";
     nushell = variant: "nord-${variant}.nu";
+    opencode = "nord";
 
     sketchybar = {
       background = palettes.dark.nord0;

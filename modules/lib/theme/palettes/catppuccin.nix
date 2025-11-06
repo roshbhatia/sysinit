@@ -84,11 +84,12 @@ rec {
     helix = variant: "catppuccin_${variant}";
     nushell = variant: "catppuccin-${variant}.nu";
     k9s = variant: "catppuccin-${variant}";
+    opencode = "catppuccin";
 
     sketchybar = {
       background = palettes.macchiato.base;
       foreground = palettes.macchiato.text;
-      accent = palettes.macchiato.accent;
+      inherit (palettes.macchiato) accent;
       warning = palettes.macchiato.yellow;
       success = palettes.macchiato.green;
       error = palettes.macchiato.red;

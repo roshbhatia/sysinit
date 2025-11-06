@@ -38,11 +38,19 @@ tasks:
         #!/usr/bin/env bash
         set -euo pipefail
         {{.LOGGING_FUNCTIONS}}
+
+        # Clean up old result symlinks to prevent ownership issues
+        sudo rm -f result result-* 2>/dev/null || true
+
         log_info "Building system configuration"
         if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} build -v --flake . --impure --max-jobs "${NIX_MAX_JOBS:-2}" --cores "${NIX_CORES:-2}"; then
           log_error "Build failed (see logs above)"
           exit {{.ERROR_EXIT_CODE}}
         fi
+
+        # Clean up result symlink after build
+        sudo rm -f result result-* 2>/dev/null || true
+
         log_success "Build completed successfully"
 
   clean:
@@ -51,7 +59,18 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
+        {{.LOGGING_FUNCTIONS}}
+
+        log_info "Cleaning old result symlinks"
+        sudo rm -f result result-* 2>/dev/null || true
+
+        log_info "Collecting garbage and deleting old generations"
         nix-collect-garbage -d
+
+        log_info "Optimizing Nix store (deduplicating files)"
+        nix-store --optimise
+
+        log_success "Nix store cleaned and optimized"
     silent: true
 
   update:
@@ -108,9 +127,17 @@ tasks:
         #!/usr/bin/env bash
         set -euo pipefail
         {{.LOGGING_FUNCTIONS}}
+
+        # Clean up old result symlinks to prevent ownership issues
+        sudo rm -f result result-* 2>/dev/null || true
+
         log_info "Applying system configuration"
         if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} switch -v --flake . --impure --max-jobs "${NIX_MAX_JOBS:-2}" --cores "${NIX_CORES:-2}"; then
           log_error "Refresh failed (see logs above)"
           exit {{.ERROR_EXIT_CODE}}
         fi
+
+        # Clean up result symlink after switch
+        sudo rm -f result result-* 2>/dev/null || true
+
         log_success "System configuration applied successfully"

@@ -16,7 +16,7 @@ let
     overrides = values.theme.overrides or { };
   };
 
-  mkOutOfStoreSymlink = config.lib.file.mkOutOfStoreSymlink;
+  inherit (config.lib.file) mkOutOfStoreSymlink;
 in
 {
   xdg.configFile."wezterm/wezterm.lua".source =

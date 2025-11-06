@@ -12,23 +12,23 @@ let
   semanticColors = themes.getSemanticColors validatedTheme.colorscheme validatedTheme.variant;
 
   ompColors = {
-    primary = semanticColors.accent.primary;
+    inherit (semanticColors.accent) primary;
     muted = semanticColors.accent.dim;
-    error = semanticColors.semantic.error;
+    inherit (semanticColors.semantic) error;
     accent =
       palette.lavender or palette.iris or palette.violet or palette.foam
         or semanticColors.accent.tertiary;
-    info = semanticColors.semantic.info;
+    inherit (semanticColors.semantic) info;
   };
 
   themeConfig = {
     "$schema" = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json";
     palette = {
-      primary = ompColors.primary;
+      inherit (ompColors) primary;
       muted = "p:primary";
-      error = ompColors.error;
-      accent = ompColors.accent;
-      info = ompColors.info;
+      inherit (ompColors) error;
+      inherit (ompColors) accent;
+      inherit (ompColors) info;
     };
     blocks = [
       {

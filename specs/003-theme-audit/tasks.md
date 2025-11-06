@@ -26,8 +26,8 @@ This document provides a dependency-ordered task list for implementing the theme
 
 **Goal**: Initialize validation and documentation directories
 
-- [ ] T001 Create validation tests directory at specs/003-theme-audit/validation-tests/
-- [ ] T002 Create documentation directory at specs/003-theme-audit/documentation/
+- [x] T001 Create validation tests directory at specs/003-theme-audit/validation-tests/
+- [x] T002 Create documentation directory at specs/003-theme-audit/documentation/
 
 **Duration**: 5 minutes
 
@@ -60,17 +60,17 @@ This document provides a dependency-ordered task list for implementing the theme
 
 **Palette Adapters** (Parallel - different files):
 
-- [ ] T003 [P] [US1] Add opencode adapter to Catppuccin palette in modules/lib/theme/palettes/catppuccin.nix
-- [ ] T004 [P] [US1] Add opencode adapter to Gruvbox palette in modules/lib/theme/palettes/gruvbox.nix
-- [ ] T005 [P] [US1] Add opencode adapter to Kanagawa palette in modules/lib/theme/palettes/kanagawa.nix
-- [ ] T006 [P] [US1] Add opencode adapter to Nord palette in modules/lib/theme/palettes/nord.nix
-- [ ] T007 [P] [US1] Add opencode adapter to Rose Pine palette (fallback to "system") in modules/lib/theme/palettes/rose-pine.nix
-- [ ] T008 [P] [US1] Add opencode adapter to Solarized palette (fallback to "system") in modules/lib/theme/palettes/solarized.nix
+- [x] T003 [P] [US1] Add opencode adapter to Catppuccin palette in modules/lib/theme/palettes/catppuccin.nix
+- [x] T004 [P] [US1] Add opencode adapter to Gruvbox palette in modules/lib/theme/palettes/gruvbox.nix
+- [x] T005 [P] [US1] Add opencode adapter to Kanagawa palette in modules/lib/theme/palettes/kanagawa.nix
+- [x] T006 [P] [US1] Add opencode adapter to Nord palette in modules/lib/theme/palettes/nord.nix
+- [x] T007 [P] [US1] Add opencode adapter to Rose Pine palette (fallback to "system") in modules/lib/theme/palettes/rose-pine.nix
+- [x] T008 [P] [US1] Add opencode adapter to Solarized palette (fallback to "system") in modules/lib/theme/palettes/solarized.nix
 
 **OpenCode Configuration** (Depends on T003-T008):
 
-- [ ] T009 [US1] Update OpenCode config to import theme library in modules/home/configurations/llm/config/opencode.nix
-- [ ] T010 [US1] Replace hardcoded "system" with getAppTheme call in modules/home/configurations/llm/config/opencode.nix
+- [x] T009 [US1] Update OpenCode config to import theme library in modules/home/configurations/llm/config/opencode.nix
+- [x] T010 [US1] Replace hardcoded "system" with getAppTheme call in modules/home/configurations/llm/config/opencode.nix
 
 **Build Validation**:
 

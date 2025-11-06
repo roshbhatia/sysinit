@@ -22,12 +22,12 @@ let
   transparencyPreset = import ./presets/transparency.nix { inherit lib; };
 
   themes = {
-    catppuccin = catppuccin;
-    kanagawa = kanagawa;
+    inherit catppuccin;
+    inherit kanagawa;
     rose-pine = rosePine;
-    gruvbox = gruvbox;
-    solarized = solarized;
-    nord = nord;
+    inherit gruvbox;
+    inherit solarized;
+    inherit nord;
   };
 
   getTheme =
@@ -93,7 +93,7 @@ let
       # If not compatible or not valid, derive from appearance mapping
       effectiveVariant = deriveVariantFromAppearance config.colorscheme (
         if hasAttr "appearance" config then config.appearance else null
-      ) config.variant;
+      ) (config.variant or null);
 
       # Validate appearance mode if present and non-null
       appearanceCheck =
@@ -158,7 +158,7 @@ let
     app: colorscheme: variant:
     let
       theme = getTheme colorscheme;
-      appAdapters = theme.appAdapters;
+      inherit (theme) appAdapters;
     in
     if hasAttr app appAdapters then
       let
@@ -166,12 +166,10 @@ let
       in
       if isFunction adapter then
         adapter variant
-      else if hasAttr variant adapter then
-        adapter.${variant}
       else if isAttrs adapter then
-        adapter
+        if hasAttr variant adapter then adapter.${variant} else adapter
       else
-        "${colorscheme}-${variant}"
+        adapter
     else
       "${colorscheme}-${variant}";
 
@@ -185,7 +183,7 @@ let
 
       finalConfig = fold (
         preset: _config: transparencyPreset.createAppTransparency app preset { }
-      ) validatedConfig (validatedConfig.presets);
+      ) validatedConfig validatedConfig.presets;
 
       appConfig =
         if app == "wezterm" then
@@ -203,12 +201,12 @@ let
 
     in
     {
-      meta = theme.meta;
-      palette = palette;
-      semanticColors = semanticColors;
+      inherit (theme) meta;
+      inherit palette;
+      inherit semanticColors;
       config = finalConfig;
       colorscheme = "${validatedConfig.colorscheme}-${validatedConfig.variant}";
-      variant = validatedConfig.variant;
+      inherit (validatedConfig) variant;
       transparency =
         if hasAttr "transparency" finalConfig then
           finalConfig.transparency
@@ -235,10 +233,10 @@ let
       firefoxAdapter.generateFirefoxJSON theme validatedConfig
     else
       {
-        colorscheme = validatedConfig.colorscheme;
-        variant = validatedConfig.variant;
+        inherit (validatedConfig) colorscheme;
+        inherit (validatedConfig) variant;
         font = if hasAttr "font" validatedConfig then validatedConfig.font else null;
-        transparency = validatedConfig.transparency;
+        inherit (validatedConfig) transparency;
         inherit
           palette
           semanticColors
@@ -271,9 +269,9 @@ let
       };
 
       themeConfig = {
-        colorscheme = validatedTheme.colorscheme;
-        variant = validatedTheme.variant;
-        transparency = validatedTheme.transparency;
+        inherit (validatedTheme) colorscheme;
+        inherit (validatedTheme) variant;
+        inherit (validatedTheme) transparency;
       };
     };
 
@@ -350,10 +348,10 @@ let
   mergeThemeConfig = utils.mergeThemeConfigs;
 
   listAvailableThemes = map (theme: {
-    id = theme.meta.id;
-    name = theme.meta.name;
-    variants = theme.meta.variants;
-    supports = theme.meta.supports;
+    inherit (theme.meta) id;
+    inherit (theme.meta) name;
+    inherit (theme.meta) variants;
+    inherit (theme.meta) supports;
   }) (attrValues themes);
 
   getThemeInfo =

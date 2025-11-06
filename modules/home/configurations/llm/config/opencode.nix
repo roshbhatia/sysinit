@@ -5,6 +5,13 @@ let
   common = import ../shared/common.nix;
   prompts = import ../shared/prompts.nix { };
   opencodeEnabled = values.llm.opencode.enabled or true;
+
+  # Import theme library directly
+  themes = import ../../../../lib/theme { inherit lib; };
+
+  # Validate theme config to derive variant from appearance
+  validatedTheme = themes.validateThemeConfig values.theme;
+  opencodeTheme = themes.getAppTheme "opencode" validatedTheme.colorscheme validatedTheme.variant;
 in
 lib.mkIf opencodeEnabled {
   xdg.configFile = {
@@ -14,7 +21,7 @@ lib.mkIf opencodeEnabled {
 
         share = "disabled";
 
-        theme = "system";
+        theme = opencodeTheme;
 
         autoupdate = true;
 

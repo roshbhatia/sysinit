@@ -7,7 +7,7 @@
 
 let
   themes = import ../../../lib/theme { inherit lib; };
-  mkOutOfStoreSymlink = config.lib.file.mkOutOfStoreSymlink;
+  inherit (config.lib.file) mkOutOfStoreSymlink;
 in
 
 {

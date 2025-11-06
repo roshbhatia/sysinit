@@ -22,16 +22,16 @@ in
     in
     if app == "wezterm" then
       {
-        enable = finalConfig.enable;
-        opacity = finalConfig.opacity;
-        blur = finalConfig.blur;
+        inherit (finalConfig) enable;
+        inherit (finalConfig) opacity;
+        inherit (finalConfig) blur;
 
         window_decorations = if finalConfig.enable then "RESIZE" else "TITLE_BAR | RESIZE";
         macos_window_background_blur = finalConfig.blur;
       }
     else if app == "neovim" then
       {
-        enable = finalConfig.enable;
+        inherit (finalConfig) enable;
 
         transparent_background = finalConfig.enable;
         show_end_of_buffer = !finalConfig.enable;

@@ -662,8 +662,8 @@ rec {
       baseConfig = {
         userContentCSS = semanticCSSVariables + baseUserContentCSS;
         userChromeCSS = semanticCSSVariables + baseChromeCSS;
-        semanticColors = semanticColors;
-        transparency = transparency;
+        inherit semanticColors;
+        inherit transparency;
       };
 
     in
@@ -677,7 +677,7 @@ rec {
     in
     {
       colorscheme = themeData.meta.id;
-      variant = config.variant;
+      inherit (config) variant;
       appearance = if hasAttr "appearance" config then config.appearance else null;
       font = if hasAttr "font" config then config.font else null;
       transparency =
