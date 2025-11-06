@@ -25,7 +25,6 @@ let
     chafa
     checkmake
     codespell
-    colima
     copilot-cli
     copilot-language-server
     crossplane-cli

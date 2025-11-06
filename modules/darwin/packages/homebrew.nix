@@ -25,6 +25,7 @@ let
     "bcrypt"
     "block-goose-cli"
     "charmbracelet/tap/crush"
+    "colima"
     "grc"
     "hashicorp/tap/terraform"
     "libgit2@1.8"

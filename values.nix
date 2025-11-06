@@ -10,12 +10,9 @@
     username = "roshbhatia";
   };
 
-  # Theme configuration with appearance-to-variant auto-derivation
-  # appearance="dark" + colorscheme="catppuccin" → variant="macchiato"
   theme = {
-    appearance = "dark";
-    colorscheme = "catppuccin";
-    # variant is automatically derived from appearance
+    appearance = "light";
+    colorscheme = "gruvbox";
   };
 
   darwin = {
