@@ -169,7 +169,7 @@ in
 
         zstyle ':completion:*:git-checkout:*' sort false
         zstyle ':completion:*:descriptions' format '[%d]'
-        zstyle ':completion:*' list-colors "s.:.''${LS_COLORS}"
+        zstyle ':completion:*' list-colors ''${(s.:.)LS_COLORS}
         zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
         zstyle ':completion:*:complete:*' use-cache on
         zstyle ':completion:*' menu no
@@ -183,7 +183,7 @@ in
 
         zstyle ':fzf-tab:*' query-string ""
         zstyle ':fzf-tab:*' continuous-trigger "/"
-        zstyle ':fzf-tab:*' fzf-bindings "tab:down" "btab:up"
+        zstyle ':fzf-tab:*' fzf-bindings "tab:down" "btab:up" "enter:accept"
 
 
         zstyle ':fzf-tab:complete:cd:*' fzf-preview 'fzf-preview "$realpath"'
