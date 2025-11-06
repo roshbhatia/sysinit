@@ -6,7 +6,17 @@ local function load_theme_config()
   end
   local content = file:read("*all")
   file:close()
-  return require("json").decode(content) or {}
+
+  local cjson = require("cjson")
+  local success, result = pcall(function()
+    return cjson.decode(content)
+  end)
+
+  if success and result then
+    return result
+  else
+    return {}
+  end
 end
 
 local theme_config = load_theme_config()

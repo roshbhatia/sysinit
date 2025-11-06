@@ -35,12 +35,15 @@ local function get_window_appearance_config()
   local blur = transparency.enable and 80 or 0
   local theme_name = theme_config.theme_name
 
+  local font_name = "JetBrainsMono Nerd Font"
+  if theme_config.font and theme_config.font.monospace then
+    font_name = theme_config.font.monospace
+  end
+
   local config = {
     macos_window_background_blur = blur,
     color_scheme = theme_name,
-    font = wezterm.font(
-      theme_config.font and theme_config.font.monospace or "JetBrainsMono Nerd Font"
-    ),
+    font = wezterm.font(font_name),
     font_size = 14.0,
     colors = {
       foreground = theme_config.palette.fg_primary,
