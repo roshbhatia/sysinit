@@ -20,9 +20,11 @@ local function load_theme_config()
 end
 
 local theme_config = load_theme_config()
-local monospace_font = (theme_config.font and theme_config.font.monospace) or "TX-02"
-local nerdfont_fallback = (theme_config.font and theme_config.font.nerdfontFallback)
-  or "Symbols Nerd Font Mono"
+local monospace_font = (
+  theme_config.font
+  and type(theme_config.font) == "table"
+  and theme_config.font.monospace
+) or "TX-02"
 
 return {
   fonts = {
@@ -31,8 +33,8 @@ return {
       bold = { family = monospace_font, style = "Bold", size = 13.0 },
     },
     icons = {
-      regular = { family = nerdfont_fallback, style = "Regular", size = 14.0 },
-      small = { family = nerdfont_fallback, style = "Regular", size = 12.0 },
+      regular = { family = "Symbols Nerd Font Mono", style = "Regular", size = 14.0 },
+      regular = { family = "Symbols Nerd Font Mono", style = "Regular", size = 12.0 },
     },
     separators = {
       bold = { family = monospace_font, style = "Bold", size = 18.0 },
