@@ -36,6 +36,7 @@ let
   ];
 
   baseCasks = [
+    "1password"
     "block-goose"
     "cursor"
     "firefox"
