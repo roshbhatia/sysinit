@@ -17,14 +17,16 @@ M.plugins = {
       require("ai-terminals").setup({
         terminals = {
           copilot = {
-            cmd = "copilot",
-            path_header_template = "@%s",
+            cmd = "copilot --allow-all-paths --resume",
           },
           claude = {
-            cmd = "claude",
+            cmd = "claude --replay-user-messages -r --permission-mode plan",
           },
           cursor = {
-            cmd = "cursor-agent --background",
+            cmd = "cursor-agent --approve-mcps --browser",
+          },
+          opencode = {
+            cmd = "opencode run --continue",
           },
         },
         enable_diffing = true,
