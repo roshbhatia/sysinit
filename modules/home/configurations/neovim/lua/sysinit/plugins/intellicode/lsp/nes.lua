@@ -15,6 +15,11 @@ function M.accept()
     return false
   end
 
+  local cmp = require("cmp")
+  if cmp.visible() then
+    return false
+  end
+
   local nes_mod = require("copilot-lsp.nes")
   if vim.b[buf].nes_navigated then
     nes_mod.apply_pending_nes(buf)
@@ -34,6 +39,11 @@ end
 function M.reject()
   local buf = vim.api.nvim_get_current_buf()
   if not M.is_available() then
+    return false
+  end
+
+  local cmp = require("cmp")
+  if cmp.visible() then
     return false
   end
 
@@ -76,7 +86,7 @@ function M.get_status_text()
     end
   end
 
-  return string.format("NES: %s [gaa: accept, gad: reject]", suggestion_text)
+  return string.format("NES: %s [<Tab>: accept, <Esc>: reject]", suggestion_text)
 end
 
 function M.setup_enhanced_display(bufnr)
@@ -120,9 +130,9 @@ function M.setup_enhanced_display(bufnr)
     vim.api.nvim_buf_set_extmark(buf, custom_ns, start_line, line_length, {
       virt_text = {
         { "  ", "Normal" },
-        { "gaa", "NESAccept" },
+        { "<Tab>", "NESAccept" },
         { ": accept, ", "NESHint" },
-        { "gad", "NESReject" },
+        { "<Esc>", "NESReject" },
         { ": reject", "NESHint" },
       },
       virt_text_pos = "eol",
@@ -180,11 +190,11 @@ function M.setup_enhanced_display(bufnr)
 end
 
 function M.setup_keymaps(bufnr)
-  vim.keymap.set({ "n", "i" }, "gaa", function()
+  vim.keymap.set({ "n", "i" }, "<Tab>", function()
     M.accept()
   end, { desc = "Accept NES suggestion", buffer = bufnr })
 
-  vim.keymap.set({ "n", "i" }, "gad", function()
+  vim.keymap.set({ "n", "i" }, "<Esc>", function()
     M.reject()
   end, { desc = "Reject NES suggestion", buffer = bufnr })
 end
