@@ -86,7 +86,7 @@ rec {
     vivid = variant: "rose-pine-${variant}";
     helix = variant: "rose_pine_${variant}";
     nushell = variant: "rose-pine-${variant}.nu";
-    opencode = "system";
+    opencode = "rosepine";
 
     sketchybar = {
       background = palettes.moon.base;
