@@ -76,7 +76,7 @@ function M.get_status_text()
     end
   end
 
-  return string.format("NES: %s [gaa: accept, gad: reject]", suggestion_text)
+  return string.format("NES: %s [<C-Tab>: accept, <C-Esc>: reject]", suggestion_text)
 end
 
 function M.setup_enhanced_display(bufnr)
@@ -120,9 +120,9 @@ function M.setup_enhanced_display(bufnr)
     vim.api.nvim_buf_set_extmark(buf, custom_ns, start_line, line_length, {
       virt_text = {
         { "  ", "Normal" },
-        { "gaa", "NESAccept" },
+        { "<C-Tab>", "NESAccept" },
         { ": accept, ", "NESHint" },
-        { "gad", "NESReject" },
+        { "<C-Esc>", "NESReject" },
         { ": reject", "NESHint" },
       },
       virt_text_pos = "eol",
@@ -180,11 +180,11 @@ function M.setup_enhanced_display(bufnr)
 end
 
 function M.setup_keymaps(bufnr)
-  vim.keymap.set({ "n", "i" }, "gaa", function()
+  vim.keymap.set({ "n", "i" }, "<C-Tab>", function()
     M.accept()
   end, { desc = "Accept NES suggestion", buffer = bufnr })
 
-  vim.keymap.set({ "n", "i" }, "gad", function()
+  vim.keymap.set({ "n", "i" }, "<C-Esc>", function()
     M.reject()
   end, { desc = "Reject NES suggestion", buffer = bufnr })
 end
