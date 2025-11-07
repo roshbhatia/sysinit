@@ -154,9 +154,13 @@ in
         name = ${cfg.name}
         email = ${personalEmail}
 
-      [credential]
-        helper = store
-        username = ${personalGithubUser}
+      [credential "https://github.com"]
+        helper = 
+        helper = !/usr/bin/env gh auth git-credential
+
+      [credential "https://gist.github.com"]
+        helper = 
+        helper = !/usr/bin/env gh auth git-credential
 
       [github]
         user = ${personalGithubUser}
@@ -169,9 +173,13 @@ in
         name = ${cfg.name}
         email = ${workEmail}
 
-      [credential]
-        helper = store
-        username = ${workGithubUser}
+      [credential "https://github.com"]
+        helper = 
+        helper = !/usr/bin/env gh auth git-credential
+
+      [credential "https://gist.github.com"]
+        helper = 
+        helper = !/usr/bin/env gh auth git-credential
 
       [github]
         user = ${workGithubUser}
