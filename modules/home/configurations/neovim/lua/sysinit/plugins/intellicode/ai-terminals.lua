@@ -26,7 +26,7 @@ M.plugins = {
             cmd = "cursor-agent --approve-mcps --browser",
           },
           opencode = {
-            cmd = "opencode run --continue",
+            cmd = "opencode",
           },
         },
         enable_diffing = true,
