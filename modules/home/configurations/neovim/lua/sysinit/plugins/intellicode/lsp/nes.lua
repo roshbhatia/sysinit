@@ -120,9 +120,9 @@ function M.setup_enhanced_display(bufnr)
     vim.api.nvim_buf_set_extmark(buf, custom_ns, start_line, line_length, {
       virt_text = {
         { "  ", "Normal" },
-        { "<C-Tab>", "NESAccept" },
+        { "<S-Tab>", "NESAccept" },
         { ": accept, ", "NESHint" },
-        { "<C-Esc>", "NESReject" },
+        { "<S-Esc>", "NESReject" },
         { ": reject", "NESHint" },
       },
       virt_text_pos = "eol",
@@ -180,11 +180,11 @@ function M.setup_enhanced_display(bufnr)
 end
 
 function M.setup_keymaps(bufnr)
-  vim.keymap.set({ "n", "i" }, "<C-Tab>", function()
+  vim.keymap.set({ "n", "i" }, "<S-Tab>", function()
     M.accept()
   end, { desc = "Accept NES suggestion", buffer = bufnr })
 
-  vim.keymap.set({ "n", "i" }, "<C-Esc>", function()
+  vim.keymap.set({ "n", "i" }, "<S-Esc>", function()
     M.reject()
   end, { desc = "Reject NES suggestion", buffer = bufnr })
 end

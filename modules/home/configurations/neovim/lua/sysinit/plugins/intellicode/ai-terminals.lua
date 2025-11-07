@@ -1,5 +1,4 @@
 local M = {}
-local config = require("sysinit.utils.config")
 
 local agents = require("sysinit.plugins.intellicode.ai.agents")
 local keymaps = require("sysinit.plugins.intellicode.ai.keymaps")
@@ -10,7 +9,6 @@ local completion = require("sysinit.plugins.intellicode.ai.completion")
 M.plugins = {
   {
     "aweis89/ai-terminals.nvim",
-    enabled = config.is_agents_enabled(),
     dependencies = { "folke/snacks.nvim" },
     config = function()
       completion.setup()
