@@ -14,6 +14,7 @@ lib.mkIf gooseEnabled {
   xdg.configFile = {
     "goose/config.yaml" = {
       text = lib.generators.toYAML { } {
+        # Core Goose settings (GOOSE_* environment variables style)
         ALPHA_FEATURES = true;
         EDIT_MODE = "vi";
         GOOSE_CLI_THEME = "ansi";
@@ -27,11 +28,7 @@ lib.mkIf gooseEnabled {
         GOOSE_TEMPERATURE = common.defaultModel.temperature;
         GOOSE_TIMEOUT = common.defaultTimeout;
 
-        # Sandbox-specific settings
-        sandbox_mode = true;
-        allow_sudo = true;
-        disable_safety_checks = true;
-
+        # MCP extensions (the only other valid top-level field)
         extensions = common.gooseBuiltinExtensions // (common.formatMcpForGoose lib mcpServers.servers);
       };
       force = true;

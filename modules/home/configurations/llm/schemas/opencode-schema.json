@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OpenCode Configuration",
+  "description": "Configuration schema for OpenCode AI coding agent",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "agent": {
+      "type": "object",
+      "description": "Agent configuration with subagents",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Description of the agent's purpose"
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["agentic", "chat", "edit"],
+          "description": "Operational mode for the agent"
+        },
+        "prompt": {
+          "type": "string",
+          "description": "System prompt for the agent"
+        },
+        "subagents": {
+          "type": "object",
+          "description": "Specialized subagents for specific tasks",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string"
+              },
+              "mode": {
+                "type": "string",
+                "enum": ["agentic", "chat", "edit"]
+              },
+              "prompt": {
+                "type": "string"
+              }
+            },
+            "required": ["description", "mode", "prompt"]
+          }
+        }
+      },
+      "required": ["description", "mode", "prompt"]
+    },
+    "autoupdate": {
+      "type": "boolean",
+      "description": "Enable automatic updates"
+    },
+    "lsp": {
+      "type": "object",
+      "description": "Language Server Protocol configurations",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "command": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Command and arguments to start the LSP server"
+          },
+          "extensions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "File extensions handled by this LSP server"
+          }
+        },
+        "required": ["command", "extensions"]
+      }
+    },
+    "mcp": {
+      "type": "object",
+      "description": "Model Context Protocol server configurations",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "command": {
+            "type": "string",
+            "description": "Command to start the MCP server"
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Arguments for the MCP server command"
+          },
+          "env": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Environment variables for the MCP server"
+          }
+        },
+        "required": ["command"]
+      }
+    }
+  },
+  "required": ["agent"]
+}

@@ -83,7 +83,6 @@ M.plugins = {
             "Build",
             "^%.bin/",
             "^%.claude/",
-            "^%.crush/",
             "^%.cursor/",
             "^%.direnv/",
             "^%.dist/",

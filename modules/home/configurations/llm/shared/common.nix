@@ -8,43 +8,11 @@
 
   defaultTimeout = 300;
 
-  permissions = {
-    conservative = {
-      file_operations = "prompt";
-      network_access = "allow";
-      shell_commands = "prompt";
-    };
-
-    sandbox = {
-      enabled = true;
-      allow_network = true;
-      allow_file_write = true;
-    };
-  };
-
-  ui = {
-    theme = "system";
-    auto_format = true;
-    syntax_highlighting = true;
-  };
-
   formatLspForOpencode =
     lspConfig:
     builtins.mapAttrs (_name: lsp: {
       command = (lsp.command or [ ]) ++ (lsp.args or [ ]);
       extensions = lsp.extensions or [ ];
-    }) lspConfig;
-
-  formatLspForCrush =
-    lspConfig:
-    builtins.mapAttrs (_name: lsp: {
-      command =
-        if builtins.length lsp.command == 1 then
-          builtins.elemAt lsp.command 0
-        else
-          builtins.elemAt lsp.command 0;
-      args = lsp.args or null;
-      env = lsp.env or null;
     }) lspConfig;
 
   formatMcpForOpencode =

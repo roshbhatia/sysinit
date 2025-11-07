@@ -24,7 +24,6 @@ let
     "bashdb"
     "bcrypt"
     "block-goose-cli"
-    "charmbracelet/tap/crush"
     "colima"
     "grc"
     "hashicorp/tap/terraform"

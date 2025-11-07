@@ -47,8 +47,6 @@ shell.nix
 .goosehints
 
 AGENTS.md
-CRUSH.md
-.crush/
 CLAUDE.md
 .claude/
 .serena/

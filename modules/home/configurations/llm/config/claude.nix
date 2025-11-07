@@ -10,37 +10,9 @@ let
 in
 lib.mkIf claudeEnabled {
   home.file = {
-    "claude/settings.json" = {
+    ".config/Claude/claude_desktop_config.json" = {
       text = builtins.toJSON {
-        includeCoAuthoredBy = false;
-        permissions = {
-          defaultMode = "plan";
-          toolPermissions = {
-            Bash = "prompt";
-            Edit = "allow";
-            Read = "allow";
-            Write = "prompt";
-          };
-        };
-
-        context = {
-          compression = true;
-          description = "Compress context to save credits";
-        };
-
-        sandbox = {
-          mode = "secure";
-          allow_sudo = false;
-          disable_safety_checks = false;
-        };
-
-        features = {
-          deep_thinking = true;
-          image_processing = true;
-          context_management = true;
-        };
-
-        servers = common.formatMcpForClaude mcpServers.servers;
+        mcpServers = common.formatMcpForClaude mcpServers.servers;
       };
       force = true;
     };
