@@ -117,16 +117,19 @@ function M.setup_enhanced_display(bufnr)
     local line_text = vim.api.nvim_buf_get_lines(buf, start_line, start_line + 1, false)[1] or ""
     local line_length = #line_text
 
-    vim.api.nvim_buf_set_extmark(buf, custom_ns, start_line, line_length, {
-      virt_text = {
-        { "  ", "Normal" },
-        { "<S-Tab>", "NESAccept" },
-        { ": accept, ", "NESHint" },
-        { "<S-Esc>", "NESReject" },
-        { ": reject", "NESHint" },
-      },
-      virt_text_pos = "eol",
-    })
+    -- Safely set extmark with error handling
+    pcall(function()
+      vim.api.nvim_buf_set_extmark(buf, custom_ns, start_line, line_length, {
+        virt_text = {
+          { "  ", "Normal" },
+          { "<S-Tab>", "NESAccept" },
+          { ": accept, ", "NESHint" },
+          { "<S-Esc>", "NESReject" },
+          { ": reject", "NESHint" },
+        },
+        virt_text_pos = "eol",
+      })
+    end)
   end
 
   local function clear_enhanced_display(buf)
