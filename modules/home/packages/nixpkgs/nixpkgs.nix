@@ -88,7 +88,7 @@ let
     oh-my-posh
     ollama
     openscad
-    ojkkkkkkkkjjjjkkkjjjjjpenscad-lsp
+    openscad-lsp
     openssh
     pipx
     pkg-config
