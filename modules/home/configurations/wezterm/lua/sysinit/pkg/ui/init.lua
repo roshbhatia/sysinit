@@ -14,11 +14,8 @@ local terminal_font = wezterm.font_with_fallback({
     harfbuzz_features = {
       "calt",
       "liga",
-      "ss01",
     },
   },
-  "JetBrains Mono",
-  "Noto Color Emoji",
   "Symbols Nerd Font Mono",
 })
 
