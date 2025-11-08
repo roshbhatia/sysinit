@@ -14,8 +14,8 @@
     appearance = "dark";
     colorscheme = "catppuccin";
     font = {
-      monospace = "Wumpus Mono";
-      nerdfontFallback = "JetBrainsMono Nerd Font";
+      monospace = "TX-02";
+      nerdfontFallback = "Wumpus Mono";
     };
   };
 
