@@ -32,14 +32,6 @@ local function get_git_blame_text()
   end
 end
 
-local function get_nes_status()
-  local ok, nes = pcall(require, "sysinit.plugins.intellicode.lsp.nes")
-  if ok then
-    return nes.get_status_text()
-  end
-  return ""
-end
-
 M.plugins = {
   {
     "tamton-aquib/staline.nvim",

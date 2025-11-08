@@ -183,11 +183,6 @@ M.plugins = {
               if ok and copilot.is_visible and copilot.is_visible() then
                 return cmp.select_and_accept()
               end
-              local nes = require("sysinit.plugins.intellicode.lsp.nes")
-              if nes.is_available() then
-                cmp.hide()
-                return nes.accept()
-              end
             end,
             "select_next",
             "snippet_forward",
