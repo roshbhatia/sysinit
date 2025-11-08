@@ -52,7 +52,6 @@ M.plugins = {
           right = {
             "file_size",
             "line_column",
-            { "NES", get_nes_status },
           },
         },
         defaults = {
