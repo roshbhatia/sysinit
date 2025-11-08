@@ -1,7 +1,7 @@
 {
   user = {
-    username = "rbha18";
-    hostname = "APKR2N5D495296";
+    username = "rshnbhatia";
+    hostname = "lv426";
   };
 
   git = {
