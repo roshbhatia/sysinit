@@ -83,7 +83,6 @@ let
     nixd
     nixfmt-rfc-style
     nodePackages.fkill-cli
-    nodePackages.jsonlint
     nodejs_22
     oh-my-posh
     ollama
