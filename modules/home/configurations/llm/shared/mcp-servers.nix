@@ -66,14 +66,6 @@ let
         AWS_REGION = "us-east-1";
       };
     };
-    shadcn = {
-      command = "uv";
-      args = [
-        "-y"
-        "mcp-remote"
-        "https://www.shadcn.io/api/mcp"
-      ];
-    };
     "awslabs.cloudtrail-mcp-server" = {
       command = "uvx";
       args = [ "awslabs.cloudtrail-mcp-server@latest" ];
