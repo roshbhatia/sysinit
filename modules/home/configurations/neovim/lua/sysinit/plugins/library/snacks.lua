@@ -353,59 +353,18 @@ M.plugins = {
           desc = "Terminal normal mode",
         },
         {
-          "<leader>yi",
-          function()
-            Snacks.picker.gh_issue()
-          end,
-          desc = "GitHub Issues (open)",
-        },
-        {
-          "<leader>yI",
-          function()
-            Snacks.picker.gh_issue({ state = "all" })
-          end,
-          desc = "GitHub Issues (all)",
-        },
-        {
-          "<leader>yp",
-          function()
-            Snacks.picker.gh_pr()
-          end,
-          desc = "GitHub Pull Requests (open)",
-        },
-        {
-          "<leader>yP",
-          function()
-            Snacks.picker.gh_pr({ state = "all" })
-          end,
-          desc = "GitHub Pull Requests (all)",
-        },
-        {
-          "<leader>yd",
-          function()
-            vim.ui.input({ prompt = "PR number:" }, function(input)
-              if input and tonumber(input) then
-                Snacks.picker.gh_diff({ pr = tonumber(input) })
-              else
-                Snacks.notify.warn("Invalid PR number")
-              end
-            end)
-          end,
-          desc = "GitHub PR diff",
-        },
-        {
           "<leader>yy",
           function()
-            local last = vim.b.snacks_last_github_picker
-            if last == "pr" then
-              Snacks.picker.gh_issue()
-              vim.b.snacks_last_github_picker = "issue"
-            else
-              Snacks.picker.gh_pr()
-              vim.b.snacks_last_github_picker = "pr"
-            end
+            Snacks.terminal.open("gh dash", {
+              win = {
+                title = "gh dash",
+                title_pos = "center",
+                width = 0.9,
+                height = 0.9,
+              },
+            })
           end,
-          desc = "GitHub toggle (issue <-> PR)",
+          desc = "GitHub",
         },
       }
 
