@@ -176,12 +176,149 @@ M.plugins = {
       })
 
       local snacks_notify = Snacks.notifier.notify
+
+      -- global dedupe state
+      local _notify_state = {
+        last = {}, -- key -> timestamp
+      }
+
+      local function _ts()
+        return (vim.uv or vim.loop).now()
+      end
+
+      local function _dedupe_key(msg, level, title)
+        return string.format("%s|%s|%s", level or "", title or "", msg)
+      end
+
+      _notify_state.intervals = {
+        [vim.log.levels.ERROR] = 4000,
+        [vim.log.levels.WARN] = 2500,
+        [vim.log.levels.INFO] = 1500,
+        default = 1000,
+      }
+
+      local function _should_emit(msg, level, title)
+        local key = _dedupe_key(msg, level, title)
+        local now = _ts()
+        local prev = _notify_state.last[key] or 0
+        local interval = _notify_state.intervals[level] or _notify_state.intervals.default
+        if (now - prev) < interval then
+          return false
+        end
+        _notify_state.last[key] = now
+        return true
+      end
+
+      local function _sanitize(msg)
+        if type(msg) == "table" then
+          local ok, json = pcall(vim.json.encode, msg)
+          if ok then
+            return json
+          end
+          return vim.inspect(msg)
+        end
+        return tostring(msg)
+      end
+
       ---@diagnostic disable-next-line: duplicate-set-field
       vim.notify = function(msg, level, opts)
-        if opts and opts.title and string.find(string.lower(opts.title), "fswatch") then
+        level = level or vim.log.levels.INFO
+        opts = opts or {}
+        local title = opts.title or "SysInit"
+        if title and string.find(string.lower(title), "fswatch") then
+          return -- suppress noisy fswatch messages
+        end
+        msg = _sanitize(msg)
+        if not _should_emit(msg, level, title) then
           return
         end
+        opts.title = title
         snacks_notify(msg, level, opts)
+      end
+
+      -- route error writes
+      local _orig_err_write = vim.api.nvim_err_writeln
+      vim.api.nvim_err_writeln = function(msg)
+        msg = _sanitize(msg)
+        vim.notify(msg, vim.log.levels.ERROR, { title = "Error" })
+      end
+
+      -- helper API
+      vim.sysinit_notify = {
+        info = function(msg, o)
+          vim.notify(msg, vim.log.levels.INFO, o)
+        end,
+        warn = function(msg, o)
+          vim.notify(msg, vim.log.levels.WARN, o)
+        end,
+        error = function(msg, o)
+          vim.notify(msg, vim.log.levels.ERROR, o)
+        end,
+        debug = function(msg, o)
+          vim.notify(msg, vim.log.levels.DEBUG, o)
+        end,
+        raw = function(msg, level, o)
+          level = level or vim.log.levels.INFO
+          o = o or {}
+          snacks_notify(_sanitize(msg), level, o) -- bypass dedupe intentionally
+        end,
+        clear = function()
+          _notify_state.last = {}
+          snacks_notify("Notification cache cleared", vim.log.levels.INFO, { title = "SysInit" })
+        end,
+        stats = function()
+          local count = 0
+          for _ in pairs(_notify_state.last) do
+            count = count + 1
+          end
+          return { entries = count }
+        end,
+      }
+
+      if not vim.api.nvim_get_commands({})["SysNotifyClear"] then
+        vim.api.nvim_create_user_command("SysNotifyClear", function()
+          vim.sysinit_notify.clear()
+        end, { desc = "Clear SysInit notification dedupe cache" })
+      end
+
+      local lsp_level_map = {
+        ERROR = vim.log.levels.ERROR,
+        WARNING = vim.log.levels.WARN,
+        INFO = vim.log.levels.INFO,
+        LOG = vim.log.levels.INFO,
+        DEBUG = vim.log.levels.DEBUG,
+      }
+
+      local function _lsp_notify(method, params)
+        if not params or not params.message then
+          return
+        end
+        local lsp_level = params.type and lsp_level_map[params.type] or vim.log.levels.INFO
+        vim.notify(params.message, lsp_level, { title = method })
+      end
+
+      local lsp = vim.lsp
+      if lsp and lsp.handlers then
+        lsp.handlers["window/showMessage"] = function(err, method, params, client_id, bufnr, config)
+          _lsp_notify("LSP Message", params)
+        end
+        lsp.handlers["window/logMessage"] = function(err, method, params, client_id, bufnr, config)
+          _lsp_notify("LSP Log", params)
+        end
+      end
+
+      -- optional override of vim.print for consistency (non-intrusive)
+      local _orig_print = vim.print
+      vim.print = function(...)
+        local parts = {}
+        for i = 1, select("#", ...) do
+          parts[#parts + 1] = _sanitize(select(i, ...))
+        end
+        local combined = table.concat(parts, " ")
+        if _should_emit(combined, vim.log.levels.DEBUG, "Print") then
+          snacks_notify(combined, vim.log.levels.DEBUG, { title = "Print" })
+        end
+        return ...
       end
 
       vim.ui.input = Snacks.input
