@@ -22,7 +22,7 @@ end
 function M.ensure_terminal_and_send(termname, text)
   last_prompts[termname] = text
 
-  local ai_terminals = require("ai-terminals")
+  local ai_terminals = require("sysinit.plugins.intellicode.ai.sidekick_adapter")
   local term_info = ai_terminals.get_term_info and ai_terminals.get_term_info(termname)
 
   if not term_info or not term_info.visible then

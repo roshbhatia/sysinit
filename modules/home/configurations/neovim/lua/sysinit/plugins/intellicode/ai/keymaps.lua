@@ -11,7 +11,7 @@ local function get_current_terminal()
     return current_termname
   end
 
-  local ai_terminals = require("ai-terminals")
+  local ai_terminals = require("sysinit.plugins.intellicode.ai.sidekick_adapter")
   local agents = require("sysinit.plugins.intellicode.ai.agents").get_agents()
 
   for _, agent in ipairs(agents) do
@@ -61,7 +61,7 @@ local function create_mode_context_input(termname, icon, action, normal_default,
 end
 
 function M.create_agent_keymaps(agent)
-  local ai_terminals = require("ai-terminals")
+  local ai_terminals = require("sysinit.plugins.intellicode.ai.sidekick_adapter")
   local key_prefix, termname, label, icon = agent[1], agent[2], agent[3], agent[4]
 
   return {
@@ -152,18 +152,18 @@ function M.create_agent_keymaps(agent)
 end
 
 function M.create_shared_keymaps()
-  local ai_terminals = require("ai-terminals")
+  local ai_terminals = require("sysinit.plugins.intellicode.ai.sidekick_adapter")
 
   return {
     {
       "<leader>ad",
       ai_terminals.diff_changes,
-      desc = "AI: View diff",
+      desc = "AI: View diff (legacy)",
     },
     {
       "<leader>ax",
       ai_terminals.revert_changes,
-      desc = "AI: Revert changes",
+      desc = "AI: Revert changes (legacy)",
     },
     {
       "<leader>ar",
