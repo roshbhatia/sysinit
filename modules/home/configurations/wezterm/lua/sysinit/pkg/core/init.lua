@@ -33,7 +33,7 @@ local function get_basic_config(config_data)
       XDG_CONFIG_HOME = xdg_config_home,
     },
     automatically_reload_config = true,
-    pane_focus_follows_mouse = true,
+    pane_focus_follows_mouse = false,
     status_update_interval = 20,
     default_prog = shells[wezterm_entrypoint] or shells.zsh,
   }
