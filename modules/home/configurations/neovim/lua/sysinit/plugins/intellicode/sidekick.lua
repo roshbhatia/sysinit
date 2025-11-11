@@ -17,6 +17,13 @@ M.plugins = {
         -- Enable NES (Next Edit Suggestions) with Copilot
         nes = {
           enabled = true,
+          keys = {
+            -- Disable default NES keys to avoid conflicts
+            apply = false,
+            clear = false,
+            jump = false,
+            update = false,
+          },
         },
 
         -- CLI configuration for AI tools
@@ -55,19 +62,9 @@ M.plugins = {
 
           -- Multiplexer support for persistent sessions
           mux = {
-            enabled = true,
-            backend = "tmux", -- or "zellij"
+            enabled = false, -- Disable for now to simplify debugging
+            backend = "tmux",
             create = "terminal",
-          },
-
-          -- Default keymaps (we'll override most in our keymaps module)
-          keys = {
-            toggle = "<leader>aa",
-            send_selection = "<leader>at",
-            send_file = "<leader>af",
-            send_visual = "<leader>av",
-            pick_tool = "<leader>as",
-            detach = "<leader>ad",
           },
         },
 
@@ -79,10 +76,20 @@ M.plugins = {
 
       terminal.setup_goose_keymaps()
       autocmds.setup_terminal_autocmds(agents.get_agents())
+
+      -- Register all custom keymaps
+      local all_keymaps = keymaps.generate_all_keymaps(agents.get_agents())
+      for _, keymap in ipairs(all_keymaps) do
+        local modes = keymap.mode or "n"
+        local opts = {
+          desc = keymap.desc,
+          silent = keymap.silent ~= false,
+        }
+        vim.keymap.set(modes, keymap[1], keymap[2], opts)
+      end
     end,
-    keys = function()
-      return keymaps.generate_all_keymaps(agents.get_agents())
-    end,
+    -- Load plugin immediately, not lazy-loaded by keys
+    lazy = false,
   },
 }
 

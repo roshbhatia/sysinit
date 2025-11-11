@@ -23,7 +23,7 @@ local tool_name_map = {
 local function get_cli()
   local ok, cli = pcall(require, "sidekick.cli")
   if not ok then
-    vim.notify("Sidekick CLI not available", vim.log.levels.ERROR)
+    vim.notify("Sidekick CLI not available: " .. tostring(cli), vim.log.levels.ERROR)
     return nil
   end
   return cli
@@ -38,9 +38,8 @@ function M.open(termname)
 
   local tool_name = tool_name_map[termname] or termname
 
-  -- Use sidekick's tool selection to open the specific tool
-  -- If the tool is already active, this will show it
-  cli.toggle({ tool = tool_name })
+  -- Use sidekick's show to display the terminal for a specific tool
+  cli.show(tool_name)
   active_tools[termname] = true
 end
 
@@ -52,7 +51,9 @@ function M.toggle(termname)
   end
 
   local tool_name = tool_name_map[termname] or termname
-  cli.toggle({ tool = tool_name })
+
+  -- Use sidekick's toggle function with tool name
+  cli.toggle(tool_name)
   active_tools[termname] = not active_tools[termname]
 end
 
@@ -63,9 +64,8 @@ function M.focus()
     return
   end
 
-  -- Sidekick automatically focuses when you interact with it
-  -- We can trigger a toggle to ensure focus
-  cli.toggle()
+  -- Use sidekick's focus function
+  cli.focus()
 end
 
 -- Send text to a terminal
@@ -83,9 +83,11 @@ function M.send_term(termname, text, opts)
     M.open(termname)
     -- Give it time to open
     vim.defer_fn(function()
+      -- Send message with tool specification
       cli.send({ msg = text, tool = tool_name })
     end, 500)
   else
+    -- Send message directly
     cli.send({ msg = text, tool = tool_name })
   end
 end
