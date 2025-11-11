@@ -36,9 +36,6 @@ let
   ];
 
   baseCasks = [
-    "1password"
-    "block-goose"
-    "cursor"
     "firefox"
     "font-symbols-only-nerd-font"
     "hammerspoon"
@@ -47,7 +44,6 @@ let
     "notion"
     "raycast"
     "slack"
-    "visual-studio-code@insiders"
     "wezterm"
   ];
 
