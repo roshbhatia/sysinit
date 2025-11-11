@@ -11,26 +11,23 @@ let
   # Validate theme config to derive variant from appearance
   validatedTheme = themes.validateThemeConfig values.theme;
   opencodeTheme = themes.getAppTheme "opencode" validatedTheme.colorscheme validatedTheme.variant;
+
+  opencodeConfig = builtins.toJSON {
+    "$schema" = "https://opencode.ai/config.json";
+    share = "disabled";
+    theme = opencodeTheme;
+    autoupdate = true;
+    mcp = common.formatMcpForOpencode mcpServers.servers;
+    lsp = common.formatLspForOpencode lsp.lsp;
+    agent = prompts.toAgents;
+  };
 in
 lib.mkIf opencodeEnabled {
-  xdg.configFile = {
-    "opencode/opencode.json" = {
-      text = builtins.toJSON {
-        "$schema" = "https://opencode.ai/config.json";
+  home.activation.opencodeConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    $DRY_RUN_CMD mkdir -p "$HOME/.config/opencode"
 
-        share = "disabled";
-
-        theme = opencodeTheme;
-
-        autoupdate = true;
-
-        mcp = common.formatMcpForOpencode mcpServers.servers;
-
-        lsp = common.formatLspForOpencode lsp.lsp;
-
-        agent = prompts.toAgents;
-      };
-      force = true;
-    };
-  };
+    cat > "$HOME/.config/opencode/opencode.json" << 'EOF'
+    ${opencodeConfig}
+    EOF
+  '';
 }
