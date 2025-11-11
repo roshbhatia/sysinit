@@ -48,10 +48,10 @@ M.plugins = {
       if config.is_agents_enabled() then
         wk.add({
           { "<leader>a", group = "AI" },
-          { "<leader>k", group = "Goose" },
+          { "<leader>j", group = "Goose" },
           { "<leader>i", group = "Cursor" },
           { "<leader>u", group = "Copilot" },
-          { "<leader>j", group = "OpenCode" },
+          { "<leader>k", group = "OpenCode" },
           { "<leader>h", group = "Claude" },
         })
       end
