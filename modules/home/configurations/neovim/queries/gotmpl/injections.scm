@@ -25,9 +25,19 @@
  
 ; JSON interior key lines (quoted key typical of JSON object entries)
 ((text) @injection.content
-  (#match? @injection.content "^[\t ]*\"[A-Za-z0-9_.-]\+\"[ \t]*:")
+  (#match? @injection.content "^[\t ]*\"[^\"]\+\"[ \t]*:")
   (#set! injection.language "json"))
 
+; JSON closing brace or bracket (optionally followed by comma)
+((text) @injection.content
+  (#match? @injection.content "^[\t ]*[}\]],?$")
+  (#set! injection.language "json"))
+
+; JSON primitive array values (boolean, null, number) optionally with trailing comma
+((text) @injection.content
+  (#match? @injection.content "^[\t ]*\(true\|false\|null\|[0-9][0-9]*\),?$")
+  (#set! injection.language "json"))
+ 
 ; YAML key-value heuristic: lines with key: value or just key:
 ((text) @injection.content
   (#match? @injection.content "^[\t ]*[A-Za-z0-9_-]+:[ ]")
@@ -63,7 +73,8 @@
   (#not-match? @injection.content "}}")
   (#not-match? @injection.content "^[\t ]*{")
    (#not-match? @injection.content "^[\t ]*\\[")
-   (#not-match? @injection.content "^[\t ]*\"[A-Za-z0-9_.-]\+\"[ \t]*:")
+   (#not-match? @injection.content "^[\t ]*\"[^\"]\+\"[ \t]*:")
     (#set! injection.language "yaml"))
   
+
 
