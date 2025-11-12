@@ -148,12 +148,22 @@ M.plugins = {
       vim.g._ts_force_sync_parsing = true
 
       -- Auto-promote kustomization.yaml to gotmpl if delimiters present
-      vim.api.nvim_create_autocmd({"BufReadPost","TextChanged","TextChangedI"}, {
-        pattern = {"kustomization.yaml","kustomization.yml"},
+      vim.api.nvim_create_autocmd({ "BufReadPost", "TextChanged", "TextChangedI" }, {
+        pattern = { "kustomization.yaml", "kustomization.yml" },
         callback = function(ev)
           local bufnr = ev.buf
-          if vim.bo[bufnr].filetype ~= "yaml" then return end
-          local first_1k = table.concat(vim.api.nvim_buf_get_lines(bufnr, 0, math.min(1000, vim.api.nvim_buf_line_count(bufnr)), false), "\n")
+          if vim.bo[bufnr].filetype ~= "yaml" then
+            return
+          end
+          local first_1k = table.concat(
+            vim.api.nvim_buf_get_lines(
+              bufnr,
+              0,
+              math.min(1000, vim.api.nvim_buf_line_count(bufnr)),
+              false
+            ),
+            "\n"
+          )
           if first_1k:find("{{") then
             vim.bo[bufnr].filetype = "gotmpl"
           end
