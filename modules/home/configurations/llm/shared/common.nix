@@ -1,13 +1,4 @@
 {
-  defaultModel = {
-    provider = "anthropic";
-    name = "claude-3-5-sonnet";
-    temperature = 0.7;
-    max_tokens = 8192;
-  };
-
-  defaultTimeout = 300;
-
   formatLspForOpencode =
     lspConfig:
     builtins.mapAttrs (_name: lsp: {
