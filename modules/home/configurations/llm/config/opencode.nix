@@ -8,7 +8,6 @@ let
 
   themes = import ../../../../lib/theme { inherit lib; };
 
-  # Validate theme config to derive variant from appearance
   validatedTheme = themes.validateThemeConfig values.theme;
   opencodeTheme = themes.getAppTheme "opencode" validatedTheme.colorscheme validatedTheme.variant;
 

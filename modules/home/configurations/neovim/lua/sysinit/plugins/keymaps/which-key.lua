@@ -29,32 +29,27 @@ M.plugins = {
 
       wk.add({
         { "<leader>?", group = "Open command palette" },
+        { "<leader>a", group = "AI" },
         { "<leader>b", group = "Buffer" },
         { "<leader>c", group = "Code" },
         { "<leader>d", group = "Debugger" },
         { "<leader>e", group = "Editor" },
         { "<leader>f", group = "Find" },
         { "<leader>g", group = "Git" },
+        { "<leader>h", group = "Claude" },
+        { "<leader>i", group = "Cursor" },
+        { "<leader>j", group = "Goose" },
+        { "<leader>k", group = "OpenCode" },
         { "<leader>m", group = "Marks" },
         { "<leader>n", group = "Notifications" },
         { "<leader>q", group = "Qflist/Loclist" },
         { "<leader>r", group = "Refresh" },
+        { "<leader>u", group = "Copilot" },
         { "<leader>y", group = "Github (Review)" },
         { "<localleader>m", group = "Markdown", ft = "markdown" },
         { "ga", group = "Copilot" },
         { "gr", group = "LSP" },
       })
-
-      if config.is_agents_enabled() then
-        wk.add({
-          { "<leader>a", group = "AI" },
-          { "<leader>j", group = "Goose" },
-          { "<leader>i", group = "Cursor" },
-          { "<leader>u", group = "Copilot" },
-          { "<leader>k", group = "OpenCode" },
-          { "<leader>h", group = "Claude" },
-        })
-      end
 
       if config.get().debug then
         wk.add({

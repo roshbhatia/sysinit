@@ -1,30 +1,25 @@
 local M = {}
-local config = require("sysinit.utils.config")
-
-local deps = {
-  "L3MON4D3/LuaSnip",
-  "pta2002/intellitab.nvim",
-  "rafamadriz/friendly-snippets",
-  "xzbdmw/colorful-menu.nvim",
-  "neovim/nvim-lspconfig",
-}
-
-if config.is_copilot_enabled() then
-  table.insert(deps, "fang2hou/blink-copilot")
-  table.insert(deps, "copilotlsp-nvim/copilot-lsp")
-end
 
 M.plugins = {
   {
     "saghen/blink.cmp",
     version = "1.*",
-    dependencies = deps,
+    dependencies = {
+      "L3MON4D3/LuaSnip",
+      "pta2002/intellitab.nvim",
+      "rafamadriz/friendly-snippets",
+      "xzbdmw/colorful-menu.nvim",
+      "neovim/nvim-lspconfig",
+      "fang2hou/blink-copilot",
+      "copilotlsp-nvim/copilot-lsp",
+    },
+
     lazy = false,
     opts = function()
       local providers = {
         buffer = {
           score_offset = 3,
-          transform_items = function(ctx, items)
+          transform_items = function(items)
             for _, item in ipairs(items) do
               item.kind_icon = " Buffer "
               item.kind_name = "Buffer"
@@ -42,7 +37,7 @@ M.plugins = {
         },
         lsp = {
           score_offset = 0,
-          transform_items = function(ctx, items)
+          transform_items = function(items)
             for _, item in ipairs(items) do
               item.kind_icon = "󰘧 LSP "
               item.kind_name = "LSP"
@@ -52,7 +47,7 @@ M.plugins = {
         },
         path = {
           score_offset = 1,
-          transform_items = function(ctx, items)
+          transform_items = function(items)
             for _, item in ipairs(items) do
               item.kind_icon = " Path "
               item.kind_name = "Path"
@@ -65,10 +60,23 @@ M.plugins = {
         },
         snippets = {
           score_offset = 2,
-          transform_items = function(ctx, items)
+          transform_items = function(items)
             for _, item in ipairs(items) do
               item.kind_icon = "󰩫 Snippets "
               item.kind_name = "Snippets"
+            end
+            return items
+          end,
+        },
+        copilot = {
+          name = "copilot",
+          module = "blink-copilot",
+          score_offset = 100,
+          async = true,
+          transform_items = function(items)
+            for _, item in ipairs(items) do
+              item.kind_icon = " Copilot "
+              item.kind_name = "Copilot"
             end
             return items
           end,
@@ -82,23 +90,6 @@ M.plugins = {
         "path",
         "snippets",
       }
-
-      if config.is_copilot_enabled() then
-        providers.copilot = {
-          name = "copilot",
-          module = "blink-copilot",
-          score_offset = 100,
-          async = true,
-          transform_items = function(ctx, items)
-            for _, item in ipairs(items) do
-              item.kind_icon = " Copilot "
-              item.kind_name = "Copilot"
-            end
-            return items
-          end,
-        }
-        table.insert(sources, "copilot")
-      end
 
       return {
         completion = {

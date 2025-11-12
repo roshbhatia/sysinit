@@ -1,15 +1,19 @@
 local M = {}
-local config = require("sysinit.utils.config")
 
 function M.get_builtin_configs()
   local schemastore = require("schemastore")
-  local version = vim.version()
 
   local configs = {
     ast_grep = {
       cmd = { "ast-grep", "lsp", "-c", vim.fn.expand("~/.config/ast-grep/sgconfig.yml") },
       root_markers = { ".git" },
     },
+    copilot_ls = {
+      on_attach = function(client, bufnr)
+        require("sysinit.plugins.intellicode.lsp.copilot").setup(client, bufnr)
+      end,
+    },
+
     eslint = {},
     gopls = {},
     tflint = {},
@@ -47,14 +51,6 @@ function M.get_builtin_configs()
       },
     },
   }
-
-  if config.is_copilot_enabled() then
-    configs.copilot_ls = {
-      on_attach = function(client, bufnr)
-        require("sysinit.plugins.intellicode.lsp.copilot").setup(client, bufnr)
-      end,
-    }
-  end
 
   return configs
 end
