@@ -71,9 +71,6 @@ function M.get_current_function(state)
     return ""
   end
 
-  local name_node = func_node:field("name")[1]
-  local func_name = name_node and get_node_text(name_node, state.buf) or "anonymous"
-
   local func_text = get_node_text(func_node, state.buf) or ""
   local lines = vim.split(func_text, "\n")
 
@@ -108,9 +105,6 @@ function M.get_current_class(state)
   if not class_node then
     return ""
   end
-
-  local name_node = class_node:field("name")[1]
-  local class_name = name_node and get_node_text(name_node, state.buf) or "anonymous"
 
   local class_text = get_node_text(class_node, state.buf) or ""
   local lines = vim.split(class_text, "\n")

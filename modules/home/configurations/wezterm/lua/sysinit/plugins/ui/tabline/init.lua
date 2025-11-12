@@ -81,7 +81,7 @@ function M.setup(config)
           "process",
           padding = { left = 1, right = 1 },
         },
-        function(tab)
+        function()
           local close_btn = wezterm.nerdfonts.fa_times_circle
           return {
             { Foreground = { Color = colors.ansi[1] } },
@@ -100,7 +100,7 @@ function M.setup(config)
           "process",
           padding = { left = 1, right = 1 },
         },
-        function(tab)
+        function()
           local close_btn = wezterm.nerdfonts.fa_times_circle_o
           return {
             { Foreground = { Color = colors.tab_bar.inactive_tab.fg_color } },

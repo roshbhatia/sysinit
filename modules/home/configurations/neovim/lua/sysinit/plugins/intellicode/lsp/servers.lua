@@ -13,7 +13,6 @@ function M.get_builtin_configs()
         require("sysinit.plugins.intellicode.lsp.copilot").setup(client, bufnr)
       end,
     },
-
     eslint = {},
     gopls = {},
     tflint = {},

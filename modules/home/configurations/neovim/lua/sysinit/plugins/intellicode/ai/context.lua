@@ -94,7 +94,6 @@ function M.get_visual_selection()
 end
 
 function M.get_visible_content(state)
-  local win = vim.api.nvim_get_current_win()
   local top_line = vim.fn.line("w0")
   local bottom_line = vim.fn.line("w$")
   local bufnr = state.buf
@@ -102,7 +101,7 @@ function M.get_visible_content(state)
   return table.concat(lines, "\n")
 end
 
-function M.get_hover_docs(state)
+function M.get_hover_docs()
   local params = vim.lsp.util.make_position_params()
   local result = lsp.request("textDocument/hover", params)
   if not result then
@@ -124,22 +123,6 @@ function M.get_hover_docs(state)
     table.insert(out, contents.value)
   end
   return table.concat(out, "\n")
-end
-
-function M.get_code_actions(state)
-  local params = vim.lsp.util.make_range_params()
-  params.context = { diagnostics = vim.diagnostic.get(state.buf) }
-  local result = lsp.request("textDocument/codeAction", params)
-  if not result or #result == 0 then
-    return ""
-  end
-  local titles = {}
-  for _, action in ipairs(result) do
-    if action.title then
-      table.insert(titles, action.title)
-    end
-  end
-  return table.concat(titles, "; ")
 end
 
 function M.get_quickfix_list()

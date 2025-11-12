@@ -1,7 +1,6 @@
 # Implementation Plan: Neovim Agent CLI Hooks Integration
 
-**Branch**: `001-agent-cli-hooks` | **Date**: 2025-10-11 | **Spec**: [specs/001-agent-cli-hooks/spec.md](./spec.md)
-**Input**: Feature specification from `/specs/001-agent-cli-hooks/spec.md`
+**Branch**: `001-agent-cli-hooks` | **Date**: 2025-10-11 | spec.md`
 
 **Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
 
@@ -284,7 +283,6 @@ SYSINIT_AGENT_HOOKS_AUTO_RELOAD=true      # Auto-reload on external changes
 ### Nix Module Integration
 ```nix
 # modules/home/configurations/agent-hooks/default.nix
-{ config, lib, pkgs, ... }:
 
 let
   agentHooksPath = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/agent-hooks";

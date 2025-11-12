@@ -82,11 +82,6 @@ local PLACEHOLDERS = {
     provider = context.get_hover_docs,
   },
   {
-    token = "@codeactions",
-    description = "Available LSP code action titles",
-    provider = context.get_code_actions,
-  },
-  {
     token = "@function",
     description = "Current function context (via treesitter)",
     provider = ts.get_current_function,
@@ -172,45 +167,6 @@ local PLACEHOLDERS = {
       return specify.get_constitution() or ""
     end,
   },
-  {
-    token = "@astgrep",
-    description = "AST-based pattern search results for current file",
-    provider = function(state)
-      local context = require("sysinit.plugins.intellicode.ai.context")
-      local path = vim.api.nvim_buf_get_name(state.buf)
-
-      if path == "" then
-        return "No file open"
-      end
-
-      -- Use ast-grep to find structural patterns in current file
-      local handle = io.popen(string.format("ast-grep scan '%s' 2>/dev/null", path))
-      if not handle then
-        return "ast-grep not available"
-      end
-
-      local result = handle:read("*a")
-      handle:close()
-
-      return result ~= "" and result or "No patterns found"
-    end,
-  },
-  {
-    token = "@astgrep-pattern",
-    description = "Search codebase for AST pattern (usage: @astgrep-pattern:your-pattern)",
-    provider = function(state)
-      -- This is a dynamic placeholder that expects a pattern argument
-      -- Will be expanded in apply_placeholders with regex matching
-      return ""
-    end,
-  },
-  {
-    token = "@astgrep-lang",
-    description = "Language-specific AST search (usage: @astgrep-lang:typescript:pattern)",
-    provider = function(state)
-      return ""
-    end,
-  },
 }
 
 function M.apply_placeholders(input)
@@ -220,29 +176,6 @@ function M.apply_placeholders(input)
   local state = context.current_position()
   local result = input
 
-  -- Handle dynamic ast-grep-pattern placeholders
-  result = result:gsub("@astgrep%-pattern:([^%s]+)", function(pattern)
-    local handle = io.popen(string.format("ast-grep -p '%s' 2>/dev/null", pattern))
-    if not handle then
-      return "ast-grep not available"
-    end
-    local output = handle:read("*a")
-    handle:close()
-    return output ~= "" and output or "No matches found"
-  end)
-
-  -- Handle language-specific ast-grep searches
-  result = result:gsub("@astgrep%-lang:([^:]+):([^%s]+)", function(lang, pattern)
-    local handle = io.popen(string.format("ast-grep -l %s -p '%s' 2>/dev/null", lang, pattern))
-    if not handle then
-      return "ast-grep not available"
-    end
-    local output = handle:read("*a")
-    handle:close()
-    return output ~= "" and output or "No matches found"
-  end)
-
-  -- Handle regular placeholders
   for _, ph in ipairs(PLACEHOLDERS) do
     if result:find(ph.token, 1, true) then
       local ok, value = pcall(ph.provider, state)

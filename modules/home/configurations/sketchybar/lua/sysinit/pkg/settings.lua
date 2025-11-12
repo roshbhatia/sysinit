@@ -33,7 +33,6 @@ return {
       bold = { family = monospace_font, style = "Bold", size = 13.0 },
     },
     icons = {
-      regular = { family = "Symbols Nerd Font Mono", style = "Regular", size = 14.0 },
       regular = { family = "Symbols Nerd Font Mono", style = "Regular", size = 12.0 },
     },
     separators = {

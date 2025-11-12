@@ -20,7 +20,6 @@ M.plugins = {
     config = function()
       local telescope = require("telescope")
       local actions = require("telescope.actions")
-      local action_state = require("telescope.actions.state")
       local themes = require("telescope.themes")
 
       telescope.setup({
@@ -257,13 +256,6 @@ M.plugins = {
             tbuiltin.help_tags(require("telescope.themes").get_ivy())
           end,
           desc = "Find help tags",
-        },
-        {
-          "<leader>fo",
-          function()
-            tbuiltin.oldfiles(require("telescope.themes").get_ivy())
-          end,
-          desc = "Find recent files",
         },
         {
           "<leader>ft",
