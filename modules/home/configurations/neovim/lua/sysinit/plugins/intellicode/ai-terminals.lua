@@ -2,7 +2,6 @@ local M = {}
 
 local agents = require("sysinit.plugins.intellicode.ai.agents")
 local keymaps = require("sysinit.plugins.intellicode.ai.keymaps")
-local autocmds = require("sysinit.plugins.intellicode.ai.autocmds")
 local terminal = require("sysinit.plugins.intellicode.ai.terminal")
 local completion = require("sysinit.plugins.intellicode.ai.completion")
 
@@ -37,7 +36,6 @@ M.plugins = {
       })
 
       terminal.setup_goose_keymaps()
-      autocmds.setup_terminal_autocmds(agents.get_agents())
     end,
     keys = function()
       return keymaps.generate_all_keymaps(agents.get_agents())

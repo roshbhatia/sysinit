@@ -1,6 +1,5 @@
 local M = {}
 local context = require("sysinit.plugins.intellicode.ai.context")
-local ts = require("sysinit.plugins.intellicode.ai.treesitter")
 
 local function get_relative_path(state)
   if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
@@ -79,31 +78,6 @@ local PLACEHOLDERS = {
     token = "@docs",
     description = "LSP hover documentation at cursor",
     provider = context.get_hover_docs,
-  },
-  {
-    token = "@function",
-    description = "Current function context (via treesitter)",
-    provider = ts.get_current_function,
-  },
-  {
-    token = "@class",
-    description = "Current class/type context (via treesitter)",
-    provider = ts.get_current_class,
-  },
-  {
-    token = "@node",
-    description = "Current treesitter node type and text",
-    provider = ts.get_current_node,
-  },
-  {
-    token = "@symbols",
-    description = "All symbols (functions, classes) in buffer",
-    provider = ts.get_all_symbols,
-  },
-  {
-    token = "@imports",
-    description = "Import/require statements in buffer",
-    provider = ts.get_imports,
   },
   {
     token = "@filetype",
