@@ -37,12 +37,12 @@
  
 ; Explicit override comment to force YAML: {{/* yaml */}}
 ((text) @injection.content
-  (#match? @injection.content "{{/\* *yaml *\*/}}")
+  (#match? @injection.content "{{/\* yaml \*/}}")
   (#set! injection.language "yaml"))
  
 ; Explicit override comment to force JSON: {{/* json */}}
 ((text) @injection.content
-  (#match? @injection.content "{{/\* *json *\*/}}")
+  (#match? @injection.content "{{/\* json \*/}}")
   (#set! injection.language "json"))
  
 ; Explicit override comment to force raw (disable nested injection): {{/* raw */}}
@@ -50,7 +50,7 @@
 ; other rules from re-injecting by ordering (place late so higher-priority earlier
 ; matches won't override explicit raw hint).
 ((text) @injection.content
-  (#match? @injection.content "{{/\* *raw *\*/}}")
+  (#match? @injection.content "{{/\* raw \*/}}")
   (#set! injection.language "gotmpl"))
  
 ; Narrow fallback: only if typical Kubernetes structural keys present somewhere in line
