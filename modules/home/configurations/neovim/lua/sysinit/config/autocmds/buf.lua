@@ -1,10 +1,6 @@
 local M = {}
 
 function M.setup()
-  vim.api.nvim_create_autocmd("VimResized", {
-    callback = function() end,
-  })
-
   vim.api.nvim_create_autocmd("WinEnter", {
     callback = function()
       local win = vim.api.nvim_get_current_win()
