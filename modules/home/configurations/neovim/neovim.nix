@@ -53,6 +53,6 @@ in
     themes.generateAppJSON "neovim" values.theme
   );
 
-  xdg.configFile."nvim/after/queries".source =
-    mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/after/queries";
+  xdg.configFile."nvim/queries".source =
+    mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/queries";
 }
