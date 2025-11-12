@@ -13,6 +13,37 @@ end
 
 M.plugins = {
   {
+    "s1n7ax/nvim-window-picker",
+    version = "2.*",
+    config = function()
+      require("window-picker").setup({
+        hint = "floating-big-letter",
+        picker_config = {
+          handle_mouse_click = true,
+        },
+        filter_rules = {
+          include_current_win = false,
+          autoselect_one = true,
+          bo = {
+            filetype = { "neo-tree", "neo-tree-popup", "notify" },
+            buftype = { "terminal", "quickfix" },
+          },
+        },
+        show_prompt = false,
+      })
+    end,
+  },
+  {
+    "antosha417/nvim-lsp-file-operations",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-neo-tree/neo-tree.nvim",
+    },
+    config = function()
+      require("lsp-file-operations").setup()
+    end,
+  },
+  {
     "nvim-neo-tree/neo-tree.nvim",
     branch = "v3.x",
     cmd = "Neotree",
