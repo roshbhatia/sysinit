@@ -60,7 +60,7 @@ M.plugins = {
         },
 
         hooks = {
-          diff_buf_read = function(bufnr)
+          diff_buf_read = function()
             vim.opt_local.wrap = false
             vim.opt_local.list = false
             vim.opt_local.colorcolumn = ""

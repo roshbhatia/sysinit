@@ -1,6 +1,8 @@
 local M = {}
 
 function M.configure()
+  vim.lsp.inlay_hint.enable(true)
+
   vim.diagnostic.config({
     severity_sort = true,
     virtual_text = false,
@@ -13,7 +15,7 @@ function M.configure()
       source = "if_many",
     },
     underline = {
-      severity = vim.diagnostic.severity.WARN,
+      severity = vim.diagnostic.severity.HINT,
     },
     signs = {
       text = {

@@ -1,6 +1,5 @@
 local servers = require("sysinit.plugins.intellicode.lsp.servers")
 local diagnostics = require("sysinit.plugins.intellicode.lsp.diagnostics")
-local attach = require("sysinit.plugins.intellicode.lsp.attach")
 local keymaps = require("sysinit.plugins.intellicode.lsp.keymaps")
 
 local M = {}
@@ -17,7 +16,6 @@ M.plugins = {
     config = function()
       servers.setup_configs()
       diagnostics.configure()
-      attach.setup()
       servers.enable_servers()
       vim.lsp.inlay_hint.enable(true)
     end,

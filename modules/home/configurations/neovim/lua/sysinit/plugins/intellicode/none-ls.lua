@@ -11,7 +11,6 @@ M.plugins = {
     },
     config = function()
       local null_ls = require("null-ls")
-      local helpers = require("null-ls.helpers")
 
       null_ls.setup({
         border = "rounded",
@@ -45,7 +44,7 @@ M.plugins = {
         method = null_ls.methods.CODE_ACTION,
         filetypes = {},
         generator = {
-          fn = function(context)
+          fn = function()
             local actions = {}
             local node = vim.treesitter.get_node()
             if not node then
@@ -115,7 +114,7 @@ M.plugins = {
               )
 
               for _, mark in ipairs(extmarks) do
-                local mark_row, mark_col = mark[2], mark[3]
+                local mark_col = mark[3]
                 local details = mark[4]
 
                 if details and details.end_col then
@@ -216,7 +215,7 @@ M.plugins = {
         method = null_ls.methods.CODE_ACTION,
         filetypes = { "yaml", "yml" },
         generator = {
-          fn = function(context)
+          fn = function()
             local actions = {}
 
             table.insert(actions, {
@@ -250,7 +249,7 @@ M.plugins = {
         method = null_ls.methods.CODE_ACTION,
         filetypes = { "json" },
         generator = {
-          fn = function(context)
+          fn = function()
             local actions = {}
 
             table.insert(actions, {

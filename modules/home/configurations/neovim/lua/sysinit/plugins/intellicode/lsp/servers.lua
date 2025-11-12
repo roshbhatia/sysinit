@@ -19,7 +19,17 @@ function M.get_builtin_configs()
     helm_ls = {},
     jqls = {},
     lua_ls = {},
-    nil_ls = {},
+    nil_ls = {
+      settings = {
+        ["nil"] = {
+          nix = {
+            flake = {
+              autoArchive = false,
+            },
+          },
+        },
+      },
+    },
     nushell = {},
     openscad_lsp = {},
     pyright = {},
