@@ -1,6 +1,7 @@
 {
   values,
   utils,
+  pkgs,
   ...
 }:
 
@@ -132,6 +133,14 @@ in
 
       [rebase]
         updateRefs = true
+
+      [credential "https://github.com"]
+        helper =
+        helper = !${pkgs.gh} auth git-credential
+
+      [credential "https://gist.github.com"]
+        helper =
+        helper = !${pkgs.gh} auth git-credential
     '';
   };
 
@@ -154,14 +163,6 @@ in
         name = ${cfg.name}
         email = ${personalEmail}
 
-      [credential "https://github.com"]
-        helper = 
-        helper = !/usr/bin/env gh auth git-credential
-
-      [credential "https://gist.github.com"]
-        helper = 
-        helper = !/usr/bin/env gh auth git-credential
-
       [github]
         user = ${personalGithubUser}
     '';
@@ -172,14 +173,6 @@ in
       [user]
         name = ${cfg.name}
         email = ${workEmail}
-
-      [credential "https://github.com"]
-        helper = 
-        helper = !/usr/bin/env gh auth git-credential
-
-      [credential "https://gist.github.com"]
-        helper = 
-        helper = !/usr/bin/env gh auth git-credential
 
       [github]
         user = ${workGithubUser}
