@@ -4,7 +4,8 @@
     "undefined-doc-name",
         "need-check-nil",
         "undefined-field",
-        "missing-parameter"
+        "missing-parameter",
+        "duplicate-set-field"
   ],
   "diagnostics.globals": [
     "hs",
@@ -14,7 +15,8 @@
         "ipairs",
         "table",
         "package",
-        "string"
+        "string",
+        "type"
   ],
   "runtime.version": "Lua 5.4"
 }
