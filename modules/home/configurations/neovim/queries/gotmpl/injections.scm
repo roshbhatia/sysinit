@@ -23,7 +23,10 @@
   (#match? @injection.content "^[\t ]*\\[")
   (#set! injection.language "json"))
  
-; (Temporarily removed multi-line JSON interior/closing heuristics due to Vim regex E871 parse error; reconsider simpler patterns later.)
+; JSON interior key lines (quoted key typical of JSON object entries)
+((text) @injection.content
+  (#match? @injection.content "^[\t ]*\"[A-Za-z0-9_.-]\+\"[ \t]*:")
+  (#set! injection.language "json"))
 
 ; YAML key-value heuristic: lines with key: value or just key:
 ((text) @injection.content
@@ -60,6 +63,7 @@
   (#not-match? @injection.content "}}")
   (#not-match? @injection.content "^[\t ]*{")
    (#not-match? @injection.content "^[\t ]*\\[")
-   (#set! injection.language "yaml"))
+   (#not-match? @injection.content "^[\t ]*\"[A-Za-z0-9_.-]\+\"[ \t]*:")
+    (#set! injection.language "yaml"))
   
 
