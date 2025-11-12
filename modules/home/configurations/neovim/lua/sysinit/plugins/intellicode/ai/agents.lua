@@ -5,19 +5,19 @@ M.agents = {
     "u",
     "copilot",
     "Copilot",
-    "<C>",
+    "",
   },
   {
-    "k",
+    "j",
     "opencode",
     "OpenCode",
     "󰫼󰫰",
   },
   {
-    "j",
+    "k",
     "goose",
     "Goose",
-    "(;)>",
+    "",
   },
   {
     "h",
