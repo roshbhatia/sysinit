@@ -73,9 +73,9 @@ end
 
 local function next_item()
   if is_qf_win() or (get_qf_winid() and not get_loc_winid()) then
-    pcall(vim.cmd, "cnext")
+    vim.cmd("cnext")
   elseif is_loc_win() or get_loc_winid() then
-    pcall(vim.cmd, "lnext")
+    vim.cmd("lnext")
   else
     vim.notify("No quickfix or location list open", vim.log.levels.INFO)
   end
@@ -83,9 +83,9 @@ end
 
 local function prev_item()
   if is_qf_win() or (get_qf_winid() and not get_loc_winid()) then
-    pcall(vim.cmd, "cprev")
+    vim.cmd("cprev")
   elseif is_loc_win() or get_loc_winid() then
-    pcall(vim.cmd, "lprev")
+    vim.cmd("lprev")
   else
     vim.notify("No quickfix or location list open", vim.log.levels.INFO)
   end
@@ -93,9 +93,9 @@ end
 
 local function first_item()
   if is_qf_win() or (get_qf_winid() and not get_loc_winid()) then
-    pcall(vim.cmd, "cfirst")
+    vim.cmd("cfirst")
   elseif is_loc_win() or get_loc_winid() then
-    pcall(vim.cmd, "lfirst")
+    vim.cmd("lfirst")
   else
     vim.notify("No quickfix or location list open", vim.log.levels.INFO)
   end
@@ -103,9 +103,9 @@ end
 
 local function last_item()
   if is_qf_win() or (get_qf_winid() and not get_loc_winid()) then
-    pcall(vim.cmd, "clast")
+    vim.cmd("clast")
   elseif is_loc_win() or get_loc_winid() then
-    pcall(vim.cmd, "llast")
+    vim.cmd("llast")
   else
     vim.notify("No quickfix or location list open", vim.log.levels.INFO)
   end

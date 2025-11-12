@@ -166,7 +166,6 @@ local function get_catppuccin_config()
       grug_far = true,
       hop = true,
       indent_blankline = { enabled = true, scope_color = "lavender", colored_indent_levels = true },
-      mason = true,
       native_lsp = {
         enabled = true,
         virtual_text = { errors = { "italic" }, hints = { "italic" } },

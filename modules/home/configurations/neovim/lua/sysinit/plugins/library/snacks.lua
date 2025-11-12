@@ -145,8 +145,13 @@ M.plugins = {
         },
       })
 
-      vim.notify = Snacks.notifier.notify
       vim.ui.input = Snacks.input
+      vim.notify = function(msg, level, opts)
+        if type(msg) == "string" and (msg:find("^Reloaded %d+ file")) then
+          return
+        end
+        return Snacks.notifier.notify(msg, level, opts or {})
+      end
     end,
     keys = function()
       local default_keys = {
@@ -204,19 +209,6 @@ M.plugins = {
             Snacks.picker.gh_pr({ state = "all" })
           end,
           desc = "GitHub Pull Requests (all)",
-        },
-        {
-          "<leader>yd",
-          function()
-            vim.ui.input({ prompt = "PR number:" }, function(input)
-              if input and tonumber(input) then
-                Snacks.picker.gh_diff({ pr = tonumber(input) })
-              else
-                Snacks.notify.warn("Invalid PR number")
-              end
-            end)
-          end,
-          desc = "GitHub PR diff",
         },
         {
           "<leader>yy",
