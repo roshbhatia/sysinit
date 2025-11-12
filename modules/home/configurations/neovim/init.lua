@@ -25,7 +25,6 @@ require("sysinit.config.opts.autoread").setup()
 require("sysinit.config.opts.undo").setup()
 
 require("sysinit.config.autocmds.buf").setup()
-require("sysinit.config.autocmds.force_transparency").setup()
 require("sysinit.config.autocmds.help").setup()
 require("sysinit.config.autocmds.msg-dump").setup()
 require("sysinit.config.autocmds.wezterm").setup()

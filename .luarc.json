@@ -9,7 +9,8 @@
   "diagnostics.globals": [
     "hs",
     "Snacks",
-    "require"
+    "require",
+        "vim"
   ],
   "runtime.version": "Lua 5.4"
 }
