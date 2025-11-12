@@ -60,23 +60,12 @@ task: Available tasks for this project:
 * nix:refresh:work:        Update and rebuild work sysinit configuration
 ```
 
-## Environment Variables
-
-### SYSINIT Configuration
+## Environment Variables Schema
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SYSINIT_DEBUG` | `false` | Enable debugging for zsh/nu/nvim |
 | `SYSINIT_MACCHINA_THEME` | `rosh` | Macchina theme name |
-| `SYSINIT_NVIM_AGENTS_ENABLED` | `true` | Enable/disable all neovim AI agent plugins |
-| `SYSINIT_NVIM_COPILOTLUA_ENABLED` | `true` | Enable GitHub Copilot integration (copilot.lua, copilot-cmp) |
-| `SYSINIT_NVIM_OPENCODE_ENABLED` | `true` | Enable OpenCode |
-
-### External Dependencies
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `CLAUDE_CODE_OAUTH_TOKEN` | - | OAuth token for Claude Pro subscription |
 
 <!-- VALUES_SCHEMA_START -->
 
