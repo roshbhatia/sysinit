@@ -25,7 +25,7 @@
  
 ; JSON interior key lines (quoted key typical of JSON object entries)
 ((text) @injection.content
-  (#match? @injection.content "^[\t ]*\"[^\"]\+\"[ \t]*:")
+  (#match? @injection.content "^[\t ]*\"[^\"]+\"[ \t]*:")
   (#set! injection.language "json"))
 
 ; JSON closing brace or bracket (optionally followed by comma)
@@ -73,7 +73,7 @@
   (#not-match? @injection.content "}}")
   (#not-match? @injection.content "^[\t ]*{")
    (#not-match? @injection.content "^[\t ]*\\[")
-   (#not-match? @injection.content "^[\t ]*\"[^\"]\+\"[ \t]*:")
+   (#not-match? @injection.content "^[\t ]*\"[^\"]+\"[ \t]*:")
     (#set! injection.language "yaml"))
   
 
