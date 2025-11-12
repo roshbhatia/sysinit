@@ -41,7 +41,6 @@ let
     "firefox"
     "font-symbols-only-nerd-font"
     "hammerspoon"
-    "keycastr"
     "mediosz/tap/swipeaerospace"
     "notion"
     "raycast"
