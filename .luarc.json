@@ -10,7 +10,11 @@
     "hs",
     "Snacks",
     "require",
-        "vim"
+        "vim",
+        "ipairs",
+        "table",
+        "package",
+        "string"
   ],
   "runtime.version": "Lua 5.4"
 }

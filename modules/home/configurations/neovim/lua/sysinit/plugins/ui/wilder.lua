@@ -61,7 +61,7 @@ M.plugins = {
 
       local gradient_colors = get_gradient_colors()
       local gradient_hls = {}
-      for i, color in ipairs(gradient_colors) do
+      for i, _ in ipairs(gradient_colors) do
         gradient_hls[i] = "WilderGradient" .. i
       end
 
@@ -89,13 +89,13 @@ M.plugins = {
         left = {
           " ",
           wilder.popupmenu_devicons({
-            get_icon = function(ctx, file_name, is_dir)
+            get_icon = function(file_name, is_dir)
               if is_dir then
                 return " "
               end
               local devicons_ok, devicons = pcall(require, "nvim-web-devicons")
               if devicons_ok then
-                local icon, hl = devicons.get_icon(file_name, vim.fn.fnamemodify(file_name, ":e"))
+                local icon, _ = devicons.get_icon(file_name, vim.fn.fnamemodify(file_name, ":e"))
                 return icon or " "
               end
               return " "
