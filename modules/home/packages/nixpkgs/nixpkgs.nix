@@ -37,8 +37,6 @@ let
     docker-language-server
     duf
     eslint
-    fish
-    fswatch
     gettext
     gh
     git-filter-repo

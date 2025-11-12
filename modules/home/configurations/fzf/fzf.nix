@@ -32,7 +32,6 @@ in
     enable = true;
     enableBashIntegration = true;
     enableZshIntegration = true;
-    enableFishIntegration = true;
 
     fileWidgetCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --exclude node_modules";
     changeDirWidgetCommand = "${pkgs.fd}/bin/fd --type d --hidden --follow --exclude .git --exclude node_modules";

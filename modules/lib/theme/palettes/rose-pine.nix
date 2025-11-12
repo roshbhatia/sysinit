@@ -85,7 +85,6 @@ rec {
     atuin = variant: "rose-pine-${variant}";
     vivid = variant: "rose-pine-${variant}";
     helix = variant: "rose_pine_${variant}";
-    nushell = variant: "rose-pine-${variant}.nu";
     opencode = "rosepine";
 
     sketchybar = {

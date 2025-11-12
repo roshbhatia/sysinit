@@ -158,7 +158,6 @@ rec {
     atuin = variant: "kanagawa-${variant}";
     vivid = variant: "kanagawa-${variant}";
     helix = _variant: "kanagawa";
-    nushell = variant: "kanagawa-${variant}.nu";
     k9s = variant: "kanagawa-${variant}";
     opencode = "kanagawa";
 

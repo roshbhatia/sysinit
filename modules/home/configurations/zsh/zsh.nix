@@ -10,7 +10,6 @@ let
   themes = import ../../../lib/theme { inherit lib; };
   paths_lib = import ../../../lib/paths { inherit config lib; };
 
-  # Validate theme config to derive variant from appearance
   validatedTheme = themes.validateThemeConfig values.theme;
   appTheme = themes.getAppTheme "vivid" validatedTheme.colorscheme validatedTheme.variant;
   palette = themes.getThemePalette validatedTheme.colorscheme validatedTheme.variant;
@@ -22,8 +21,6 @@ let
   prompt = shell.stripHeaders ./ui/prompt.sh;
 
   completions = shell.stripHeaders ./integrations/completions.sh;
-
-  kubectl = shell.stripHeaders ./tools/kubectl.sh;
 
   env = shell.stripHeaders ./system/env.sh;
   extras = shell.stripHeaders ./system/extras.sh;
@@ -232,7 +229,6 @@ in
           nix-your-shell zsh | source /dev/stdin
         fi
 
-        ${kubectl}
         ${env}
         ${extras}
         ${completions}

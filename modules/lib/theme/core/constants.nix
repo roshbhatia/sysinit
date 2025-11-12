@@ -19,7 +19,6 @@ _: {
     "atuin"
     "vivid"
     "helix"
-    "nushell"
     "k9s"
   ];
 

@@ -82,7 +82,6 @@ rec {
     atuin = variant: "catppuccin-${variant}";
     vivid = variant: "catppuccin-${variant}";
     helix = variant: "catppuccin_${variant}";
-    nushell = variant: "catppuccin-${variant}.nu";
     k9s = variant: "catppuccin-${variant}";
     opencode = "catppuccin";
 

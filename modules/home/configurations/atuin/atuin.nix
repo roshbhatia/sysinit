@@ -16,8 +16,6 @@ in
 
     enableZshIntegration = false;
 
-    enableNushellIntegration = false;
-
     settings = {
       update_check = false;
       inline_height = 15;

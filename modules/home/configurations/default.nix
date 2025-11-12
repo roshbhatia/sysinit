@@ -24,13 +24,10 @@
     ./macchina
     ./neovim
     ./nix
-    ./nu
-    ./obsidian
     ./omp
     ./sketchybar
     ./utils
     ./vivid
-    ./vscode
     ./wezterm
     ./zsh
   ];
