@@ -19,30 +19,47 @@
   )
 )
 
-; Inject JSON with Go template for assumeRolePolicy: | blocks (AWS IAM policies)
-; These are JSON documents but often contain Go template syntax
-; Example:
-;   assumeRolePolicy: |
-;     {
-;       "Version": "2012-10-17",
-;       "Statement": [...]
-;     }
+; Inject JSON or gotmpl for assumeRolePolicy: | blocks (AWS IAM policies)
+; If Go template delimiters are present, use gotmpl to retain template highlighting.
+; Otherwise default to json.
 (block_mapping_pair
-  key: (flow_node) @_key
-  (#eq? @_key "assumeRolePolicy")
+  key: (flow_node) @_assume_key
+  (#eq? @_assume_key "assumeRolePolicy")
   value: (block_node
     (block_scalar) @injection.content
+    (#match? @injection.content "{{")
+    (#set! injection.language "gotmpl")
+    (#set! injection.include-children)
+  )
+)
+(block_mapping_pair
+  key: (flow_node) @_assume_key
+  (#eq? @_assume_key "assumeRolePolicy")
+  value: (block_node
+    (block_scalar) @injection.content
+    (#not-match? @injection.content "{{")
     (#set! injection.language "json")
     (#set! injection.include-children)
   )
 )
 
-; Inject JSON for policy: | blocks (AWS IAM policies)
+; Inject JSON or gotmpl for policy: | blocks (AWS IAM policies)
 (block_mapping_pair
-  key: (flow_node) @_key
-  (#eq? @_key "policy")
+  key: (flow_node) @_policy_key
+  (#eq? @_policy_key "policy")
   value: (block_node
     (block_scalar) @injection.content
+    (#match? @injection.content "{{")
+    (#set! injection.language "gotmpl")
+    (#set! injection.include-children)
+  )
+)
+(block_mapping_pair
+  key: (flow_node) @_policy_key
+  (#eq? @_policy_key "policy")
+  value: (block_node
+    (block_scalar) @injection.content
+    (#not-match? @injection.content "{{")
     (#set! injection.language "json")
     (#set! injection.include-children)
   )

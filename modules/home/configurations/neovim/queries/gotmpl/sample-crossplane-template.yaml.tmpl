@@ -1,0 +1,38 @@
+{{ $bucketName := printf "%s-%s" .metadata.name .metadata.uid }}
+apiVersion: s3.aws.upbound.io/v1beta1
+kind: Bucket
+metadata:
+  name: {{ $bucketName }}
+spec:
+  forProvider:
+    region: us-east-1
+---
+apiVersion: iam.aws.upbound.io/v1beta1
+kind: Role
+metadata:
+  name: {{ printf "%s-role" .metadata.name }}
+spec:
+  forProvider:
+    assumeRolePolicy: |
+      {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {"Service": "ec2.amazonaws.com"},
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      }
+    inlinePolicy: |
+      {{- /* templated JSON inline policy */ -}}
+      {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": ["s3:ListBucket"],
+            "Resource": ["arn:aws:s3:::{{ $bucketName }}"]
+          }
+        ]
+      }

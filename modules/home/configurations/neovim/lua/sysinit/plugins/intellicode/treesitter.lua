@@ -129,7 +129,36 @@ M.plugins = {
     config = function(_, opts)
       require("nvim-treesitter.configs").setup(opts)
 
+      -- Filetype mappings for templated YAML / kustomization with optional Go templating
+      vim.filetype.add({
+        extension = {
+          ["yaml.tmpl"] = "gotmpl",
+          ["yml.tmpl"] = "gotmpl",
+        },
+        filename = {
+          ["kustomization.yaml"] = "yaml", -- default YAML unless template delimiters force gotmpl injection
+          ["kustomization.yml"] = "yaml",
+        },
+        pattern = {
+          [".*%.yaml%.tmpl"] = "gotmpl",
+          [".*%.yml%.tmpl"] = "gotmpl",
+        },
+      })
+
       vim.g._ts_force_sync_parsing = true
+
+      -- Auto-promote kustomization.yaml to gotmpl if delimiters present
+      vim.api.nvim_create_autocmd({"BufReadPost","TextChanged","TextChangedI"}, {
+        pattern = {"kustomization.yaml","kustomization.yml"},
+        callback = function(ev)
+          local bufnr = ev.buf
+          if vim.bo[bufnr].filetype ~= "yaml" then return end
+          local first_1k = table.concat(vim.api.nvim_buf_get_lines(bufnr, 0, math.min(1000, vim.api.nvim_buf_line_count(bufnr)), false), "\n")
+          if first_1k:find("{{") then
+            vim.bo[bufnr].filetype = "gotmpl"
+          end
+        end,
+      })
     end,
   },
 }
