@@ -20,7 +20,7 @@
   (#set! injection.language "json"))
  
 ((text) @injection.content
-  (#match? @injection.content "^[\t ]*[")
+  (#match? @injection.content "^[\t ]*\\[")
   (#set! injection.language "json"))
  
 ; (Temporarily removed multi-line JSON interior/closing heuristics due to Vim regex E871 parse error; reconsider simpler patterns later.)
@@ -59,6 +59,7 @@
   (#not-match? @injection.content "{{")
   (#not-match? @injection.content "}}")
   (#not-match? @injection.content "^[\t ]*{")
-  (#set! injection.language "yaml"))
+   (#not-match? @injection.content "^[\t ]*\\[")
+   (#set! injection.language "yaml"))
   
 
