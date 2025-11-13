@@ -109,7 +109,7 @@ tasks:
         log_success "Nix configuration updated successfully"
 
   secrets:init:
-    desc: Initialize nix.secrets.conf with GitHub token for private repositories
+    desc: Initialize nix.secrets.conf with GitHub token (automatic, idempotent)
     silent: true
     cmds:
       - |
@@ -120,78 +120,84 @@ tasks:
         SECRETS_FILE="{{.ROOT_DIR}}/nix.secrets.conf"
         SYSTEM_SECRETS_FILE="{{.NIX_SYSTEM_CONF_DIR}}/nix.secrets.conf"
 
-        # Check if already exists
-        if [ -f "${SECRETS_FILE}" ]; then
-          log_warn "nix.secrets.conf already exists in repository root"
-          read -p "Do you want to overwrite it? (y/N): " -n 1 -r
-          echo
-          if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            log_info "Keeping existing secrets file"
-            exit 0
-          fi
-        fi
+        # Function to check if secrets file is valid
+        is_secrets_file_valid() {
+          [ -f "$1" ] && grep -q '^[^#]*access-tokens[[:space:]]*=' "$1"
+        }
 
-        # Prompt for token
-        log_info "Creating nix.secrets.conf for GitHub authentication"
-        log_info ""
-        log_info "To create a GitHub Personal Access Token:"
-        log_info "  1. Go to: https://github.com/settings/tokens"
-        log_info "  2. Click 'Generate new token (classic)'"
-        log_info "  3. Select scope: 'repo' (Full control of private repositories)"
-        log_info "  4. Generate and copy the token"
-        log_info ""
-
-        read -sp "Enter your GitHub Personal Access Token (or press Enter to skip): " GITHUB_TOKEN
-        echo
-
-        if [ -z "${GITHUB_TOKEN}" ]; then
-          log_warn "No token provided. Creating empty secrets file."
-          {
-            echo "# Nix secrets configuration"
-            echo "# Add your GitHub token here for private repository access"
-            echo "# Format: access-tokens = github.com=ghp_xxxxxxxxxxxx"
-            echo ""
-            echo "# Uncomment and add your token:"
-            echo "# access-tokens = github.com=YOUR_TOKEN_HERE"
-          } > "${SECRETS_FILE}"
-        else
+        # Function to create secrets file with token
+        create_secrets_file() {
+          local token="$1"
           {
             echo "# Nix secrets configuration"
             echo "# GitHub Personal Access Token for private repository access"
-            echo "access-tokens = github.com=${GITHUB_TOKEN}"
+            echo "access-tokens = github.com=${token}"
           } > "${SECRETS_FILE}"
-          log_success "Created nix.secrets.conf with GitHub token"
+          chmod 600 "${SECRETS_FILE}"
+        }
+
+        # Function to deploy secrets to system
+        deploy_secrets() {
+          log_info "Deploying secrets to ${SYSTEM_SECRETS_FILE}"
+          if ! sudo cp "${SECRETS_FILE}" "${SYSTEM_SECRETS_FILE}"; then
+            log_error "Failed to copy secrets to system directory"
+            return 1
+          fi
+          sudo chmod 600 "${SYSTEM_SECRETS_FILE}"
+
+          log_info "Restarting nix-daemon"
+          if ! sudo launchctl kickstart -k system/org.nixos.nix-daemon; then
+            log_error "Failed to restart nix-daemon"
+            return 1
+          fi
+          return 0
+        }
+
+        log_info "Initializing nix secrets configuration"
+
+        # Check if valid secrets file already exists
+        if is_secrets_file_valid "${SECRETS_FILE}"; then
+          log_success "Valid nix.secrets.conf already exists"
+
+          # Ensure it's deployed to system (use sudo for reading system file)
+          if [ ! -f "${SYSTEM_SECRETS_FILE}" ] || ! sudo grep -q '^[^#]*access-tokens[[:space:]]*=' "${SYSTEM_SECRETS_FILE}" 2>/dev/null; then
+            if deploy_secrets; then
+              log_success "Secrets deployed to system"
+            fi
+          else
+            log_info "Secrets already deployed to system"
+          fi
+          exit 0
         fi
 
-        # Set restrictive permissions
-        chmod 600 "${SECRETS_FILE}"
-        log_info "Set permissions to 600 (owner read/write only)"
+        # Try to get token from gh CLI
+        log_info "Attempting to get GitHub token from gh CLI"
+        if command -v gh >/dev/null 2>&1; then
+          if GITHUB_TOKEN=$(gh auth token 2>/dev/null); then
+            log_success "Retrieved token from gh CLI"
+            create_secrets_file "${GITHUB_TOKEN}"
 
-        # Copy to system location
-        log_info "Copying secrets to ${SYSTEM_SECRETS_FILE}"
-        if ! sudo cp "${SECRETS_FILE}" "${SYSTEM_SECRETS_FILE}"; then
-          log_error "Failed to copy secrets to system directory"
-          exit {{.ERROR_EXIT_CODE}}
+            if deploy_secrets; then
+              log_success "Secrets initialized and deployed successfully"
+              exit 0
+            else
+              exit {{.ERROR_EXIT_CODE}}
+            fi
+          else
+            log_warn "gh CLI is installed but not authenticated"
+            log_info "Run 'gh auth login' to authenticate, then re-run this task"
+          fi
+        else
+          log_warn "gh CLI not found in PATH"
+          log_info "Authenticate with gh CLI: gh auth login"
         fi
 
-        # Set system file permissions
-        sudo chmod 600 "${SYSTEM_SECRETS_FILE}"
-
-        log_info "Restarting nix-daemon"
-        if ! sudo launchctl kickstart -k system/org.nixos.nix-daemon; then
-          log_error "Failed to restart nix-daemon"
-          exit {{.ERROR_EXIT_CODE}}
-        fi
-
-        log_success "Secrets initialized successfully"
-        log_info ""
-        log_info "Next steps:"
-        log_info "  1. Verify nix.secrets.conf is in .gitignore"
-        log_info "  2. Test with: nix flake metadata github:your-org/private-repo"
-        log_info "  3. Run 'task nix:config' to update nix.custom.conf"
+        # If we get here, we couldn't auto-configure
+        log_warn "Could not automatically configure GitHub authentication"
+        exit 0
 
   secrets:check:
-    desc: Check if nix.secrets.conf exists and is properly configured
+    desc: Check if nix.secrets.conf exists and is properly configured (read-only)
     silent: true
     cmds:
       - |
@@ -202,28 +208,61 @@ tasks:
         SECRETS_FILE="{{.ROOT_DIR}}/nix.secrets.conf"
         SYSTEM_SECRETS_FILE="{{.NIX_SYSTEM_CONF_DIR}}/nix.secrets.conf"
 
-        if [ ! -f "${SECRETS_FILE}" ]; then
-          log_warn "nix.secrets.conf not found in repository root"
-          log_info "Run 'task nix:secrets:init' to create it"
+        # Function to check if secrets file is valid
+        is_secrets_file_valid() {
+          [ -f "$1" ] && grep -q '^[^#]*access-tokens[[:space:]]*=' "$1"
+        }
+
+        log_info "Checking nix secrets configuration"
+        ISSUES=0
+
+        # Check repository file
+        if ! is_secrets_file_valid "${SECRETS_FILE}"; then
+          log_error "nix.secrets.conf not found or invalid in repository root"
+          ISSUES=$((ISSUES + 1))
+        else
+          # Check permissions (support both GNU and BSD stat)
+          if [ -f "${SECRETS_FILE}" ]; then
+            PERMS=$(stat -c %a "${SECRETS_FILE}" 2>/dev/null || stat -f "%Lp" "${SECRETS_FILE}" 2>/dev/null || echo "000")
+            if [ "${PERMS}" != "600" ]; then
+              log_warn "Incorrect permissions on nix.secrets.conf: ${PERMS} (should be 600)"
+              ISSUES=$((ISSUES + 1))
+            fi
+          fi
+        fi
+
+        # Check system deployment (use sudo for reading root-owned file)
+        if [ ! -f "${SYSTEM_SECRETS_FILE}" ] || ! sudo grep -q '^[^#]*access-tokens[[:space:]]*=' "${SYSTEM_SECRETS_FILE}" 2>/dev/null; then
+          log_error "Secrets not deployed to ${SYSTEM_SECRETS_FILE}"
+          ISSUES=$((ISSUES + 1))
+        else
+          PERMS=$(sudo stat -c %a "${SYSTEM_SECRETS_FILE}" 2>/dev/null || sudo stat -f "%Lp" "${SYSTEM_SECRETS_FILE}" 2>/dev/null || echo "000")
+          if [ "${PERMS}" != "600" ]; then
+            log_warn "Incorrect permissions on system secrets: ${PERMS} (should be 600)"
+            ISSUES=$((ISSUES + 1))
+          fi
+        fi
+
+        # Check gh CLI auth status (informational only)
+        if command -v gh >/dev/null 2>&1; then
+          if gh auth token >/dev/null 2>&1; then
+            log_info "gh CLI is authenticated"
+          else
+            log_info "gh CLI is installed but not authenticated"
+          fi
+        else
+          log_info "gh CLI not found in PATH"
+        fi
+
+        # Report results
+        if [ ${ISSUES} -eq 0 ]; then
+          log_success "Nix secrets configuration is valid"
+          exit 0
+        else
+          log_error "Found ${ISSUES} issue(s) with secrets configuration"
+          log_info "Run 'task nix:secrets:init' to fix"
           exit 1
         fi
-
-        # Check permissions
-        PERMS=$(stat -f "%Lp" "${SECRETS_FILE}")
-        if [ "${PERMS}" != "600" ]; then
-          log_warn "Incorrect permissions on nix.secrets.conf (${PERMS})"
-          log_info "Setting to 600..."
-          chmod 600 "${SECRETS_FILE}"
-        fi
-
-        # Check if deployed to system
-        if [ ! -f "${SYSTEM_SECRETS_FILE}" ]; then
-          log_warn "Secrets not deployed to system directory"
-          log_info "Run 'task nix:secrets:init' to deploy"
-          exit 1
-        fi
-
-        log_success "nix.secrets.conf is properly configured"
 
   refresh:
     desc: Apply the system configuration and switch to new generation

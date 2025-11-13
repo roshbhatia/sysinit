@@ -1,4 +1,9 @@
-{ lib, utils, values, ... }:
+{
+  lib,
+  utils,
+  values,
+  ...
+}:
 
 let
   inherit (utils.themes) validateThemeConfig getThemePalette;
@@ -7,8 +12,7 @@ let
   palette = getThemePalette validatedTheme.colorscheme validatedTheme.variant;
   semanticColors = utils.themes.utils.createSemanticMapping palette;
 
-  getColor = color: fallback:
-    if color != null then color else fallback;
+  getColor = color: fallback: if color != null then color else fallback;
 
   themeColors = {
     text = {
@@ -51,11 +55,13 @@ let
     };
   };
 
-  toYAML = config:
+  toYAML =
+    config:
     let
       indent = n: lib.concatStrings (lib.genList (_: "  ") n);
 
-      valueToYAML = level: value:
+      valueToYAML =
+        level: value:
         if builtins.isAttrs value then
           attrsToYAML level value
         else if builtins.isList value then
@@ -63,52 +69,62 @@ let
         else if builtins.isBool value then
           if value then "true" else "false"
         else if builtins.isString value then
-          if builtins.match "^(true|false|yes|no|[0-9]+)$" value != null then
-            ''"${value}"''
-          else
-            value
+          if builtins.match "^(true|false|yes|no|[0-9]+)$" value != null then ''"${value}"'' else value
         else
           toString value;
 
-      attrsToYAML = level: attrs:
-        lib.concatStringsSep "\n" (lib.mapAttrsToList (name: value:
-          let
-            key = "${indent level}${name}:";
-          in
-          if builtins.isAttrs value && value != {} then
-            "${key}\n${valueToYAML (level + 1) value}"
-          else if builtins.isList value then
-            "${key}\n${valueToYAML (level + 1) value}"
-          else
-            "${key} ${valueToYAML level value}"
-        ) attrs);
-
-      listToYAML = level: list:
-        lib.concatStringsSep "\n" (lib.imap0 (idx: item:
-          if builtins.isAttrs item then
+      attrsToYAML =
+        level: attrs:
+        lib.concatStringsSep "\n" (
+          lib.mapAttrsToList (
+            name: value:
             let
-              attrs = lib.mapAttrsToList (name: value:
-                let key = "${name}:";
-                in
-                if builtins.isAttrs value && value != {} then
-                  "${key}\n${valueToYAML (level + 2) value}"
-                else if builtins.isList value then
-                  "${key}\n${valueToYAML (level + 2) value}"
-                else
-                  "${key} ${valueToYAML (level + 1) value}"
-              ) item;
-              firstAttr = lib.head attrs;
-              restAttrs = lib.tail attrs;
+              key = "${indent level}${name}:";
             in
-            if restAttrs == [] then
-              "${indent level}- ${firstAttr}"
+            if builtins.isAttrs value && value != { } then
+              "${key}\n${valueToYAML (level + 1) value}"
+            else if builtins.isList value then
+              "${key}\n${valueToYAML (level + 1) value}"
             else
-              "${indent level}- ${firstAttr}\n${indent (level + 1)}${lib.concatStringsSep ("\n" + indent (level + 1)) restAttrs}"
-          else
-            "${indent level}- ${valueToYAML level item}"
-        ) list);
+              "${key} ${valueToYAML level value}"
+          ) attrs
+        );
 
-    in ''
+      listToYAML =
+        level: list:
+        lib.concatStringsSep "\n" (
+          lib.imap0 (
+            _idx: item:
+            if builtins.isAttrs item then
+              let
+                attrs = lib.mapAttrsToList (
+                  name: value:
+                  let
+                    key = "${name}:";
+                  in
+                  if builtins.isAttrs value && value != { } then
+                    "${key}\n${valueToYAML (level + 2) value}"
+                  else if builtins.isList value then
+                    "${key}\n${valueToYAML (level + 2) value}"
+                  else
+                    "${key} ${valueToYAML (level + 1) value}"
+                ) item;
+                firstAttr = lib.head attrs;
+                restAttrs = lib.tail attrs;
+              in
+              if restAttrs == [ ] then
+                "${indent level}- ${firstAttr}"
+              else
+                "${indent level}- ${firstAttr}\n${indent (level + 1)}${
+                  lib.concatStringsSep ("\n" + indent (level + 1)) restAttrs
+                }"
+            else
+              "${indent level}- ${valueToYAML level item}"
+          ) list
+        );
+
+    in
+    ''
       # yaml-language-server: $schema=https://gh-dash.dev/schema.json
 
       ${valueToYAML 0 config}

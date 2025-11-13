@@ -29,7 +29,7 @@ let
 in
 {
   xdg.configFile."lazygit/config.yml" = {
-    text = lib.generators.toYAML {} lazygitConfig;
+    text = lib.generators.toYAML { } lazygitConfig;
     force = true;
   };
 }
