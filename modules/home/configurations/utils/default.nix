@@ -17,11 +17,6 @@ _:
       executable = true;
     };
 
-    ".local/bin/git-ai-commit" = {
-      source = ./git/git-ai-commit;
-      executable = true;
-    };
-
     ".local/bin/loglib.sh" = {
       source = ./system/loglib.sh;
       executable = true;

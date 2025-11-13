@@ -22,7 +22,6 @@
     ./llm
     ./macchina
     ./neovim
-    ./nix
     ./omp
     ./sketchybar
     ./utils

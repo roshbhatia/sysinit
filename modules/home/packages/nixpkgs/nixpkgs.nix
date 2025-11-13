@@ -70,6 +70,7 @@ let
     mermaid-cli
     mods
     nil
+    nix-output-monitor
     nix-prefetch
     nix-prefetch-docker
     nix-prefetch-git
@@ -87,8 +88,9 @@ let
     openssh
     pipx
     pkg-config
-    postgresql_17
+    podman-desktop
     postgresql17Packages.pgvector
+    postgresql_17
     proselint
     pyright
     python311
@@ -133,10 +135,7 @@ let
     zoxide
   ];
 
-  conditionalPackages =
-    if (values.darwin.docker.backend or "colima") == "podman" then [ pkgs.podman-desktop ] else [ ];
-
-  allNixPackages = baseNixPackages ++ conditionalPackages ++ additionalPackages;
+  allNixPackages = baseNixPackages ++ additionalPackages;
 in
 {
   home.packages = allNixPackages;
