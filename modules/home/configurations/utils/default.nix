@@ -2,7 +2,6 @@ _:
 
 {
   home.file = {
-
     ".local/bin/dns-flush" = {
       source = ./network/dns-flush;
       executable = true;

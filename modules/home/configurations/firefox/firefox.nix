@@ -8,8 +8,6 @@
 let
   inherit (utils.themes) createAppConfig;
 
-  # Pass entire theme config to enable appearance-to-variant derivation
-  # Note: using 'or' pattern to provide defaults for optional fields
   themeConfig = values.theme // {
     presets = values.theme.presets or [ ];
     overrides = values.theme.overrides or { };
@@ -49,7 +47,7 @@ in
 
       extensions.packages = with pkgs.firefox-addons; [
         ublock-origin
-        # onepassword-password-manager  # Removed due to unfree license - install manually from 1Password.com
+        onepassword-password-manager
         reddit-enhancement-suite
         old-reddit-redirect
         multi-account-containers
@@ -61,16 +59,12 @@ in
 
       settings = {
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-
-        # Theme appearance settings - sync with system theme
         "ui.systemUsesDarkTheme" = if values.theme.appearance == "dark" then 1 else 0;
         "browser.theme.content-theme" = if values.theme.appearance == "dark" then 0 else 1;
         "browser.theme.toolbar-theme" = if values.theme.appearance == "dark" then 0 else 1;
         "layout.css.prefers-color-scheme.content-override" =
           if values.theme.appearance == "dark" then 0 else 1;
-
         "browser.newtabpage.activity-stream.enabled" = false;
-
         "browser.search.suggest.enabled" = false;
         "browser.urlbar.suggest.searches" = false;
         "browser.urlbar.showSearchSuggestionsFirst" = false;

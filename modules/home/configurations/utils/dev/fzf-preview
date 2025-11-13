@@ -41,4 +41,3 @@ else
   # Text file preview
   bat --style=numbers --color=always --pager=never -- "$target"
 fi
-

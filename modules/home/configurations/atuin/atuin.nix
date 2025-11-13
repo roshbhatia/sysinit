@@ -13,7 +13,7 @@ in
 {
   programs.atuin = {
     enable = true;
-
+    # This is enabled manually
     enableZshIntegration = false;
 
     settings = {
@@ -24,7 +24,7 @@ in
       enter_accept = true;
       invert = true;
       keymap_mode = "vim-normal";
-      show_preview = false;
+      show_preview = true;
       style = "compact";
       theme = {
         name = atuinTheme;

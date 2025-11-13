@@ -30,10 +30,10 @@ if [[ $- != *i* ]]; then
 fi
 
 case "$TERM" in
-linux | dumb)
-  # Avoid terminals that don't like OSC sequences
-  return 0
-  ;;
+  linux | dumb)
+    # Avoid terminals that don't like OSC sequences
+    return 0
+    ;;
 esac
 
 # This function wraps bash-preexec.sh so that it can be included verbatim
@@ -120,7 +120,7 @@ __wezterm_install_bash_prexec() {
   __bp_require_not_readonly() {
     local var
     for var; do
-      if ! (unset "$var" 2>/dev/null); then
+      if ! (unset "$var" 2> /dev/null); then
         echo "bash-preexec requires write access to ${var}" >&2
         return 1
       fi
@@ -204,7 +204,7 @@ __wezterm_install_bash_prexec() {
 
       # Only execute this function if it actually exists.
       # Test existence of functions with: declare -[Ff]
-      if type -t "$precmd_function" 1>/dev/null; then
+      if type -t "$precmd_function" 1> /dev/null; then
         __bp_set_ret_value "$__bp_last_ret_value" "$__bp_last_argument_prev_command"
         # Quote our function invocation to prevent issues with IFS
         "$precmd_function"
@@ -224,7 +224,7 @@ __wezterm_install_bash_prexec() {
   __bp_in_prompt_command() {
 
     local prompt_command_array IFS=$'\n;'
-    read -rd '' -a prompt_command_array <<<"${PROMPT_COMMAND[*]:-}"
+    read -rd '' -a prompt_command_array <<< "${PROMPT_COMMAND[*]:-}"
 
     local trimmed_arg
     __bp_trim_whitespace trimmed_arg "${1:-}"
@@ -308,7 +308,7 @@ __wezterm_install_bash_prexec() {
 
       # Only execute each function if it actually exists.
       # Test existence of function with: declare -[fF]
-      if type -t "$preexec_function" 1>/dev/null; then
+      if type -t "$preexec_function" 1> /dev/null; then
         __bp_set_ret_value "${__bp_last_ret_value:-}"
         # Quote our function invocation to prevent issues with IFS
         "$preexec_function" "$this_command"
@@ -340,7 +340,7 @@ __wezterm_install_bash_prexec() {
     local prior_trap
     # we can't easily do this with variable expansion. Leaving as sed command.
     # shellcheck disable=SC2001
-    prior_trap=$(sed "s/[^']*'\(.*\)'[^']*/\1/" <<<"${__bp_trap_string:-}")
+    prior_trap=$(sed "s/[^']*'\(.*\)'[^']*/\1/" <<< "${__bp_trap_string:-}")
     unset __bp_trap_string
     if [[ -n $prior_trap ]]; then
       eval '__bp_original_debug_trap() {
@@ -359,8 +359,8 @@ __wezterm_install_bash_prexec() {
     if [[ -n ${__bp_enable_subshells:-} ]]; then
 
       # Set so debug trap will work be invoked in subshells.
-      set -o functrace >/dev/null 2>&1
-      shopt -s extdebug >/dev/null 2>&1
+      set -o functrace > /dev/null 2>&1
+      shopt -s extdebug > /dev/null 2>&1
     fi
 
     local existing_prompt_command
@@ -431,7 +431,7 @@ fi
 # associated with the current terminal pane.
 # It requires the `base64` utility to be available in the path.
 __wezterm_set_user_var() {
-  if hash base64 2>/dev/null; then
+  if hash base64 2> /dev/null; then
     if [[ -z ${TMUX-} ]]; then
       printf "\033]1337;SetUserVar=%s=%s\007" "$1" $(echo -n "$2" | base64)
     else
@@ -447,8 +447,8 @@ __wezterm_set_user_var() {
 # command provided by wezterm if wezterm is installed, but falls
 # back to a simple printf command otherwise.
 __wezterm_osc7() {
-  if hash wezterm 2>/dev/null; then
-    wezterm set-working-directory 2>/dev/null && return 0
+  if hash wezterm 2> /dev/null; then
+    wezterm set-working-directory 2> /dev/null && return 0
     # If the command failed (perhaps the installed wezterm
     # is too old?) then fall back to the simple version below.
   fi
@@ -518,9 +518,9 @@ __wezterm_user_vars_precmd() {
   if [[ -z ${WEZTERM_HOSTNAME} ]]; then
     if [[ -r /proc/sys/kernel/hostname ]]; then
       __wezterm_set_user_var "WEZTERM_HOST" "$(cat /proc/sys/kernel/hostname)"
-    elif hash hostname 2>/dev/null; then
+    elif hash hostname 2> /dev/null; then
       __wezterm_set_user_var "WEZTERM_HOST" "$(hostname)"
-    elif hash hostnamectl 2>/dev/null; then
+    elif hash hostnamectl 2> /dev/null; then
       __wezterm_set_user_var "WEZTERM_HOST" "$(hostnamectl hostname)"
     else
       __wezterm_set_user_var "WEZTERM_HOST" "unknown"
@@ -584,9 +584,9 @@ fi
 # Alternative: hook into zle if not using zsh-vi-mode
 function zle-keymap-select() {
   case $KEYMAP in
-  vicmd) ZVM_MODE="n" ;;
-  viins | main) ZVM_MODE="i" ;;
-  visual) ZVM_MODE="v" ;;
+    vicmd) ZVM_MODE="n" ;;
+    viins | main) ZVM_MODE="i" ;;
+    visual) ZVM_MODE="v" ;;
   esac
   set_wezterm_user_vars
 }
