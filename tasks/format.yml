@@ -1,12 +1,6 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
 
-vars:
-  SHFMT_OPTS: "-i 2 -ci -sr -s -w"
-  ERROR_EXIT_CODE: 1
-  SUCCESS_EXIT_CODE: 0
-  LOGLIB_PATH: "{{.ROOT_DIR}}/modules/home/configurations/utils/system/loglib.sh"
-
 tasks:
   sh:
     desc: Format all shell files using shfmt

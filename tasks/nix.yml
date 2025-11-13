@@ -1,49 +1,42 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
 
-vars:
-  NIXPKGS_ALLOW_UNFREE: 1
-  NIX_DARWIN_REBUILD: "darwin-rebuild"
-  NIX_MAX_JOBS: 2
-  NIX_CORES: 2
-  ERROR_EXIT_CODE: 1
-  SUCCESS_EXIT_CODE: 0
-  LOGLIB_PATH: "{{.ROOT_DIR}}/modules/home/configurations/utils/system/loglib.sh"
-
 tasks:
+  clean-results:
+    desc: Clean up result symlinks (internal helper)
+    internal: true
+    cmds:
+      - sudo rm -f result result-* 2>/dev/null || true
+    silent: true
+
   build:
     desc: Build the system configuration without applying
     silent: true
+    deps: [clean-results]
     cmds:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
         source {{.LOGLIB_PATH}}
 
-        # Clean up old result symlinks to prevent ownership issues
-        sudo rm -f result result-* 2>/dev/null || true
-
         log_info "Building system configuration"
-        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} build -v --flake . --impure --max-jobs "${NIX_MAX_JOBS:-2}" --cores "${NIX_CORES:-2}"; then
+        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} build -v --flake . --impure; then
           log_error "Build failed (see logs above)"
           exit {{.ERROR_EXIT_CODE}}
         fi
 
-        # Clean up result symlink after build
-        sudo rm -f result result-* 2>/dev/null || true
-
         log_success "Build completed successfully"
+      - task: clean-results
 
   clean:
     desc: Clean Nix store and delete old generations
+    silent: true
+    deps: [clean-results]
     cmds:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
         source {{.LOGLIB_PATH}}
-
-        log_info "Cleaning old result symlinks"
-        sudo rm -f result result-* 2>/dev/null || true
 
         log_info "Collecting garbage and deleting old generations"
         nix-collect-garbage -d
@@ -52,7 +45,6 @@ tasks:
         nix-store --optimise
 
         log_success "Nix store cleaned and optimized"
-    silent: true
 
   update:
     desc: Update Nix flake inputs and commit lock file
@@ -80,45 +72,174 @@ tasks:
         log_success "Flake inputs updated successfully"
 
   config:
-    desc: Copy nix.custom.conf to /etc/nix/ with sudo
+    desc: Copy nix configs (custom and secrets) to /etc/nix/ with sudo
+    silent: true
     cmds:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
         source {{.LOGLIB_PATH}}
+
         log_info "Updating nix configuration"
+
+        # Copy custom config
         if ! sudo cp nix.custom.conf /etc/nix/nix.custom.conf; then
-          log_error "Failed to copy nix configuration"
+          log_error "Failed to copy nix.custom.conf"
           exit {{.ERROR_EXIT_CODE}}
         fi
+
+        # Copy secrets if they exist
+        if [ -f "nix.secrets.conf" ]; then
+          if ! sudo cp nix.secrets.conf /etc/nix/nix.secrets.conf; then
+            log_error "Failed to copy nix.secrets.conf"
+            exit {{.ERROR_EXIT_CODE}}
+          fi
+          sudo chmod 600 /etc/nix/nix.secrets.conf
+          log_info "Deployed nix.secrets.conf with restrictive permissions"
+        else
+          log_warn "nix.secrets.conf not found (run 'task nix:secrets:init' to create)"
+        fi
+
         log_info "Restarting nix-daemon"
         if ! sudo launchctl kickstart -k system/org.nixos.nix-daemon; then
           log_error "Failed to restart nix-daemon"
           exit {{.ERROR_EXIT_CODE}}
         fi
-        log_success "Nix configuration updated successfully"
-    silent: true
 
-  refresh:
-    desc: Apply the system configuration and switch to new generation
+        log_success "Nix configuration updated successfully"
+
+  secrets:init:
+    desc: Initialize nix.secrets.conf with GitHub token for private repositories
     silent: true
-    deps: [update]
     cmds:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
         source {{.LOGLIB_PATH}}
 
-        # Clean up old result symlinks to prevent ownership issues
-        sudo rm -f result result-* 2>/dev/null || true
+        SECRETS_FILE="{{.ROOT_DIR}}/nix.secrets.conf"
+        SYSTEM_SECRETS_FILE="{{.NIX_SYSTEM_CONF_DIR}}/nix.secrets.conf"
+
+        # Check if already exists
+        if [ -f "${SECRETS_FILE}" ]; then
+          log_warn "nix.secrets.conf already exists in repository root"
+          read -p "Do you want to overwrite it? (y/N): " -n 1 -r
+          echo
+          if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            log_info "Keeping existing secrets file"
+            exit 0
+          fi
+        fi
+
+        # Prompt for token
+        log_info "Creating nix.secrets.conf for GitHub authentication"
+        log_info ""
+        log_info "To create a GitHub Personal Access Token:"
+        log_info "  1. Go to: https://github.com/settings/tokens"
+        log_info "  2. Click 'Generate new token (classic)'"
+        log_info "  3. Select scope: 'repo' (Full control of private repositories)"
+        log_info "  4. Generate and copy the token"
+        log_info ""
+
+        read -sp "Enter your GitHub Personal Access Token (or press Enter to skip): " GITHUB_TOKEN
+        echo
+
+        if [ -z "${GITHUB_TOKEN}" ]; then
+          log_warn "No token provided. Creating empty secrets file."
+          {
+            echo "# Nix secrets configuration"
+            echo "# Add your GitHub token here for private repository access"
+            echo "# Format: access-tokens = github.com=ghp_xxxxxxxxxxxx"
+            echo ""
+            echo "# Uncomment and add your token:"
+            echo "# access-tokens = github.com=YOUR_TOKEN_HERE"
+          } > "${SECRETS_FILE}"
+        else
+          {
+            echo "# Nix secrets configuration"
+            echo "# GitHub Personal Access Token for private repository access"
+            echo "access-tokens = github.com=${GITHUB_TOKEN}"
+          } > "${SECRETS_FILE}"
+          log_success "Created nix.secrets.conf with GitHub token"
+        fi
+
+        # Set restrictive permissions
+        chmod 600 "${SECRETS_FILE}"
+        log_info "Set permissions to 600 (owner read/write only)"
+
+        # Copy to system location
+        log_info "Copying secrets to ${SYSTEM_SECRETS_FILE}"
+        if ! sudo cp "${SECRETS_FILE}" "${SYSTEM_SECRETS_FILE}"; then
+          log_error "Failed to copy secrets to system directory"
+          exit {{.ERROR_EXIT_CODE}}
+        fi
+
+        # Set system file permissions
+        sudo chmod 600 "${SYSTEM_SECRETS_FILE}"
+
+        log_info "Restarting nix-daemon"
+        if ! sudo launchctl kickstart -k system/org.nixos.nix-daemon; then
+          log_error "Failed to restart nix-daemon"
+          exit {{.ERROR_EXIT_CODE}}
+        fi
+
+        log_success "Secrets initialized successfully"
+        log_info ""
+        log_info "Next steps:"
+        log_info "  1. Verify nix.secrets.conf is in .gitignore"
+        log_info "  2. Test with: nix flake metadata github:your-org/private-repo"
+        log_info "  3. Run 'task nix:config' to update nix.custom.conf"
+
+  secrets:check:
+    desc: Check if nix.secrets.conf exists and is properly configured
+    silent: true
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+
+        SECRETS_FILE="{{.ROOT_DIR}}/nix.secrets.conf"
+        SYSTEM_SECRETS_FILE="{{.NIX_SYSTEM_CONF_DIR}}/nix.secrets.conf"
+
+        if [ ! -f "${SECRETS_FILE}" ]; then
+          log_warn "nix.secrets.conf not found in repository root"
+          log_info "Run 'task nix:secrets:init' to create it"
+          exit 1
+        fi
+
+        # Check permissions
+        PERMS=$(stat -f "%Lp" "${SECRETS_FILE}")
+        if [ "${PERMS}" != "600" ]; then
+          log_warn "Incorrect permissions on nix.secrets.conf (${PERMS})"
+          log_info "Setting to 600..."
+          chmod 600 "${SECRETS_FILE}"
+        fi
+
+        # Check if deployed to system
+        if [ ! -f "${SYSTEM_SECRETS_FILE}" ]; then
+          log_warn "Secrets not deployed to system directory"
+          log_info "Run 'task nix:secrets:init' to deploy"
+          exit 1
+        fi
+
+        log_success "nix.secrets.conf is properly configured"
+
+  refresh:
+    desc: Apply the system configuration and switch to new generation
+    silent: true
+    deps: [update, clean-results]
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
 
         log_info "Applying system configuration"
-        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} switch -v --flake . --impure --max-jobs "${NIX_MAX_JOBS:-2}" --cores "${NIX_CORES:-2}"; then
+        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} switch -v --flake . --impure; then
           log_error "Refresh failed (see logs above)"
           exit {{.ERROR_EXIT_CODE}}
         fi
 
-        # Clean up result symlink after switch
-        sudo rm -f result result-* 2>/dev/null || true
-
         log_success "System configuration applied successfully"
+      - task: clean-results

@@ -14,5 +14,9 @@ result-*
 
 .claude/settings.local.json
 .serena/cache/nix/document_symbols_cache_v23-06-25.pkl
+
+# Local Nix configuration with secrets (GitHub tokens, etc.)
+nix.secrets.conf
+*.secrets.conf
 !.specify/
 !specs/
