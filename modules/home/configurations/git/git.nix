@@ -157,7 +157,7 @@ in
       };
 
       "gh-dash/config.yml" = {
-        source = ./configs/gh-dash..yaml;
+        source = ./configs/gh-dash.yaml;
         force = true;
       };
     };
