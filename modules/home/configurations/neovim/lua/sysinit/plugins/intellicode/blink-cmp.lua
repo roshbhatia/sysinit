@@ -18,6 +18,7 @@ M.plugins = {
       local providers = {
         buffer = {
           score_offset = 3,
+          ---@diagnostic disable-next-line: unused-local
           transform_items = function(ctx, items)
             for _, item in ipairs(items) do
               item.kind_icon = " Buffer "
