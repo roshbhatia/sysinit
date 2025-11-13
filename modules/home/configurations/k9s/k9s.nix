@@ -7,7 +7,6 @@
 let
   themes = import ../../../lib/theme { inherit lib; };
 
-  # Validate theme config to derive variant from appearance
   validatedTheme = themes.validateThemeConfig values.theme;
   k9sTheme = themes.getAppTheme "k9s" validatedTheme.colorscheme validatedTheme.variant;
 in

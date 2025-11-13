@@ -9,7 +9,6 @@
 let
   inherit (utils.themes) mkThemedConfig validateThemeConfig;
 
-  # Validate theme config to derive variant from appearance
   validatedTheme = validateThemeConfig values.theme;
   themeCfg = mkThemedConfig values "macchina" { };
   semanticColors = themeCfg.themes.getSemanticColors validatedTheme.colorscheme validatedTheme.variant;
