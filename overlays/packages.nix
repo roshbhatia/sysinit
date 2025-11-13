@@ -4,7 +4,7 @@
   ...
 }:
 
-final:
+final: _prev:
 let
   unstable = import inputs.nixpkgs-unstable {
     inherit system;
