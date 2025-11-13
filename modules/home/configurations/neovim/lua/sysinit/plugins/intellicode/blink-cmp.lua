@@ -3,18 +3,15 @@ local M = {}
 M.plugins = {
   {
     "saghen/blink.cmp",
-    version = "1.*",
+    commit = "de573225b473eb053c356b2c2f5d65aead24b66d",
+    build = "cargo build --release",
     dependencies = {
       "L3MON4D3/LuaSnip",
       "pta2002/intellitab.nvim",
       "rafamadriz/friendly-snippets",
       "xzbdmw/colorful-menu.nvim",
-      "neovim/nvim-lspconfig",
       "fang2hou/blink-copilot",
-      "copilotlsp-nvim/copilot-lsp",
     },
-
-    lazy = false,
     opts = function()
       local providers = {
         buffer = {

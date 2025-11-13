@@ -9,10 +9,8 @@ M.plugins = {
   {
     "rachartier/tiny-glimmer.nvim",
     event = "VeryLazy",
-    priority = 10,
     config = function()
       require("tiny-glimmer").setup({
-        enabled = true,
         overwrite = {
           search = {
             enabled = true,
