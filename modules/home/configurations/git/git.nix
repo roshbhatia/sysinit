@@ -155,6 +155,11 @@ in
         source = ./configs/lazygit.yaml;
         force = true;
       };
+
+      "gh-dash/config.yml" = {
+        source = ./configs/gh-dash..yaml;
+        force = true;
+      };
     };
 
   home.file.".gitconfig.personal" = {
