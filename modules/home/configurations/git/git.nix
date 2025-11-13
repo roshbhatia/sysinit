@@ -144,23 +144,11 @@ in
     '';
   };
 
-  xdg.configFile =
-    (utils.themes.deployThemeFiles values {
-      themeDir = ./themes;
-      targetPath = "delta/themes";
-      fileExtension = "gitconfig";
-    })
-    // {
-      "lazygit/config.yml" = {
-        source = ./configs/lazygit.yaml;
-        force = true;
-      };
-
-      "gh-dash/config.yml" = {
-        source = ./configs/gh-dash.yaml;
-        force = true;
-      };
-    };
+  xdg.configFile = utils.themes.deployThemeFiles values {
+    themeDir = ./themes;
+    targetPath = "delta/themes";
+    fileExtension = "gitconfig";
+  };
 
   home.file.".gitconfig.personal" = {
     text = ''
@@ -182,9 +170,5 @@ in
       [github]
         user = ${workGithubUser}
     '';
-  };
-
-  home.file.".gitignore.global" = {
-    source = ./configs/gitignore.global;
   };
 }
