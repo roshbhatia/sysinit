@@ -17,7 +17,7 @@ M.plugins = {
             cmd = "copilot --allow-all-paths --resume",
           },
           claude = {
-            cmd = "claude -r --permission-mode plan",
+            cmd = "claude --permission-mode plan",
           },
           cursor = {
             cmd = "cursor-agent --approve-mcps --browser",
