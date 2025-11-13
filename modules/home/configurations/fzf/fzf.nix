@@ -9,12 +9,10 @@
 let
   inherit (utils.themes) getThemePalette validateThemeConfig;
 
-  # Validate theme config to derive variant from appearance
   validatedTheme = validateThemeConfig values.theme;
   palette = getThemePalette validatedTheme.colorscheme validatedTheme.variant;
   semanticColors = utils.themes.utils.createSemanticMapping palette;
 
-  # Build fzf color strings from theme palette
   fg = lib.removePrefix "#" semanticColors.foreground.primary;
   bg = lib.removePrefix "#" semanticColors.background.primary;
   hl = lib.removePrefix "#" (palette.magenta or semanticColors.accent.primary);

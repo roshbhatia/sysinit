@@ -248,7 +248,6 @@ let
   mkThemedConfig =
     values: app: extraConfig:
     let
-      # Validate theme config to derive variant from appearance
       validatedTheme = validateThemeConfig values.theme;
       appTheme = getAppTheme app validatedTheme.colorscheme validatedTheme.variant;
     in

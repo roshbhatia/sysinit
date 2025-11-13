@@ -1,5 +1,4 @@
 {
-  lib,
   values,
   utils,
   ...
@@ -8,7 +7,6 @@
 let
   inherit (utils.themes) getAppTheme validateThemeConfig;
 
-  # Validate theme config to derive variant from appearance
   validatedTheme = validateThemeConfig values.theme;
   helixTheme = getAppTheme "helix" validatedTheme.colorscheme validatedTheme.variant;
 in

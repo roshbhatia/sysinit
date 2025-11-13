@@ -9,7 +9,6 @@
 let
   inherit (utils.themes) getThemePalette validateThemeConfig;
 
-  # Validate theme config to derive variant from appearance
   validatedTheme = validateThemeConfig values.theme;
   palette = getThemePalette validatedTheme.colorscheme validatedTheme.variant;
   semanticColors = utils.themes.utils.createSemanticMapping palette;
