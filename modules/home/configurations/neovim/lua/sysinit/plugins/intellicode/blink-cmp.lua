@@ -3,21 +3,22 @@ local M = {}
 M.plugins = {
   {
     "saghen/blink.cmp",
-    commit = "de573225b473eb053c356b2c2f5d65aead24b66d",
-    build = "cargo build --release",
+    version = "1.*",
     lazy = false,
     dependencies = {
       "L3MON4D3/LuaSnip",
       "pta2002/intellitab.nvim",
       "rafamadriz/friendly-snippets",
       "xzbdmw/colorful-menu.nvim",
+      "neovim/nvim-lspconfig",
       "fang2hou/blink-copilot",
+      "copilotlsp-nvim/copilot-lsp",
     },
     opts = function()
       local providers = {
         buffer = {
           score_offset = 3,
-          transform_items = function(items)
+          transform_items = function(ctx, items)
             for _, item in ipairs(items) do
               item.kind_icon = " Buffer "
               item.kind_name = "Buffer"
@@ -35,7 +36,8 @@ M.plugins = {
         },
         lsp = {
           score_offset = 0,
-          transform_items = function(items)
+          ---@diagnostic disable-next-line: unused-local
+          transform_items = function(ctx, items)
             for _, item in ipairs(items) do
               item.kind_icon = "󰘧 LSP "
               item.kind_name = "LSP"
@@ -45,7 +47,8 @@ M.plugins = {
         },
         path = {
           score_offset = 1,
-          transform_items = function(items)
+          ---@diagnostic disable-next-line: unused-local
+          transform_items = function(ctx, items)
             for _, item in ipairs(items) do
               item.kind_icon = " Path "
               item.kind_name = "Path"
@@ -58,7 +61,8 @@ M.plugins = {
         },
         snippets = {
           score_offset = 2,
-          transform_items = function(items)
+          ---@diagnostic disable-next-line: unused-local
+          transform_items = function(ctx, items)
             for _, item in ipairs(items) do
               item.kind_icon = "󰩫 Snippets "
               item.kind_name = "Snippets"
@@ -71,7 +75,8 @@ M.plugins = {
           module = "blink-copilot",
           score_offset = 100,
           async = true,
-          transform_items = function(items)
+          ---@diagnostic disable-next-line: unused-local
+          transform_items = function(ctx, items)
             for _, item in ipairs(items) do
               item.kind_icon = " Copilot "
               item.kind_name = "Copilot"
@@ -87,6 +92,7 @@ M.plugins = {
         "lsp",
         "path",
         "snippets",
+        "copilot",
       }
 
       return {
@@ -118,7 +124,7 @@ M.plugins = {
           list = {
             selection = {
               preselect = false,
-              auto_insert = true,
+              auto_insert = false,
             },
           },
           menu = {
@@ -158,7 +164,7 @@ M.plugins = {
           implementation = "prefer_rust",
         },
         keymap = {
-          preset = "none",
+          preset = "super-tab",
           ["<C-Space>"] = {
             "show",
           },
@@ -200,6 +206,9 @@ M.plugins = {
         },
       }
     end,
+    opts_extend = {
+      "sources.default",
+    },
   },
 }
 
