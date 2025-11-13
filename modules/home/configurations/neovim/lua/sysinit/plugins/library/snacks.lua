@@ -47,10 +47,6 @@ M.plugins = {
               unselected = " ",
             },
           },
-          sources = {
-            gh_issue = {},
-            gh_pr = {},
-          },
         },
         rename = {
           enabled = true,
@@ -140,9 +136,6 @@ M.plugins = {
         zen = {
           enabled = false,
         },
-        gh = {
-          enabled = true,
-        },
       })
 
       vim.ui.input = Snacks.input
@@ -183,46 +176,11 @@ M.plugins = {
           desc = "Terminal normal mode",
         },
         {
-          "<leader>yi",
+          "<leader>gG",
           function()
-            Snacks.picker.gh_issue()
+            Snacks.terminal.toggle("gh dash", {})
           end,
-          desc = "GitHub Issues (open)",
-        },
-        {
-          "<leader>yI",
-          function()
-            Snacks.picker.gh_issue({ state = "all" })
-          end,
-          desc = "GitHub Issues (all)",
-        },
-        {
-          "<leader>yp",
-          function()
-            Snacks.picker.gh_pr()
-          end,
-          desc = "GitHub Pull Requests (open)",
-        },
-        {
-          "<leader>yP",
-          function()
-            Snacks.picker.gh_pr({ state = "all" })
-          end,
-          desc = "GitHub Pull Requests (all)",
-        },
-        {
-          "<leader>yy",
-          function()
-            local last = vim.b.snacks_last_github_picker
-            if last == "pr" then
-              Snacks.picker.gh_issue()
-              vim.b.snacks_last_github_picker = "issue"
-            else
-              Snacks.picker.gh_pr()
-              vim.b.snacks_last_github_picker = "pr"
-            end
-          end,
-          desc = "GitHub toggle (issue <-> PR)",
+          desc = "Toggle github ui",
         },
       }
 
