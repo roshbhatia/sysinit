@@ -4,12 +4,7 @@ M.plugins = {
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
-    lazy = vim.fn.argc(-1) == 0,
-    cmd = {
-      "TSUpdateSync",
-      "TSUpdate",
-      "TSInstall",
-    },
+    event = "VimEnter",
     init = function(plugin)
       require("lazy.core.loader").add_to_rtp(plugin)
       require("nvim-treesitter.query_predicates")
@@ -68,7 +63,8 @@ M.plugins = {
         },
         sync_install = false,
         auto_install = true,
-        ignore_install = false,
+        ignore_install = {},
+        modules = {},
         highlight = {
           enable = true,
           additional_vim_regex_highlighting = false,
@@ -115,6 +111,53 @@ M.plugins = {
             },
           },
         },
+      })
+
+      -- Auto-fix treesitter highlighting if not active
+      vim.api.nvim_create_autocmd({ "BufReadPost", "BufEnter" }, {
+        group = vim.api.nvim_create_augroup("TreesitterHighlightFix", { clear = true }),
+        callback = function(args)
+          local buf = args.buf
+
+          -- Skip if we've already tried to fix this buffer
+          if vim.b[buf].treesitter_highlight_fixed then
+            return
+          end
+
+          -- Only process real files
+          local bufname = vim.api.nvim_buf_get_name(buf)
+          if bufname == "" or not vim.fn.filereadable(bufname) == 1 then
+            return
+          end
+
+          -- Skip special buffer types
+          local buftype = vim.bo[buf].buftype
+          if buftype ~= "" and buftype ~= "acwrite" then
+            return
+          end
+
+          -- Check if treesitter highlighting is active
+          vim.defer_fn(function()
+            if not vim.api.nvim_buf_is_valid(buf) then
+              return
+            end
+
+            local has_ts = vim.treesitter.highlighter.active[buf] ~= nil
+            if not has_ts then
+              -- Mark that we've attempted to fix this buffer
+              vim.b[buf].treesitter_highlight_fixed = true
+
+              -- Reload the buffer to trigger treesitter
+              local ok = pcall(vim.cmd.edit)
+              if not ok then
+                vim.notify("Failed to reload buffer for treesitter", vim.log.levels.WARN)
+              end
+            else
+              -- Highlighting is active, mark as fixed to skip future checks
+              vim.b[buf].treesitter_highlight_fixed = true
+            end
+          end, 100)
+        end,
       })
     end,
     keys = {
