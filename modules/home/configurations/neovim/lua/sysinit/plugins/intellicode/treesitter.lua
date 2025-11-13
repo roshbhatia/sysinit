@@ -16,13 +16,12 @@ M.plugins = {
     end,
     keys = {
       {
-        "<C-space>",
+        "gx",
         desc = "Selection increment",
       },
       {
-        "<bs>",
+        "gX",
         desc = "Selection decrement",
-        mode = "x",
       },
     },
     opts = {
