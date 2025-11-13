@@ -11,7 +11,6 @@ M.plugins = {
     dependencies = {
       "b0o/SchemaStore.nvim",
       "saghen/blink.cmp",
-      "copilotlsp-nvim/copilot-lsp",
     },
     config = function()
       servers.setup_configs()

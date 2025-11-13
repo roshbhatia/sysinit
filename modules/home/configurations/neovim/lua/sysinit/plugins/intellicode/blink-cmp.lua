@@ -5,6 +5,7 @@ M.plugins = {
     "saghen/blink.cmp",
     commit = "de573225b473eb053c356b2c2f5d65aead24b66d",
     build = "cargo build --release",
+    lazy = false,
     dependencies = {
       "L3MON4D3/LuaSnip",
       "pta2002/intellitab.nvim",
@@ -157,7 +158,7 @@ M.plugins = {
           implementation = "prefer_rust",
         },
         keymap = {
-          preset = "super-tab",
+          preset = "none",
           ["<C-Space>"] = {
             "show",
           },
@@ -199,9 +200,6 @@ M.plugins = {
         },
       }
     end,
-    opts_extend = {
-      "sources.default",
-    },
   },
 }
 
