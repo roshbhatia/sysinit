@@ -16,7 +16,6 @@ let
     "noahgorstein/tap"
     "sandreas/tap"
     "slp/krunkit"
-    "sst/tap"
     "tattoy-org/tap"
     "vet-run/vet"
   ];
@@ -30,6 +29,7 @@ let
     "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"
+    "opencode"
     "slp/krunkit/krunkit"
     "tattoy-org/tap/tattoy"
     "vet-run"
@@ -46,7 +46,6 @@ let
     "rancher"
     "raycast"
     "slack"
-    "sst/tap/opencode"
     "wezterm"
   ];
 
