@@ -120,7 +120,7 @@
             (import ./modules/home {
               inherit (processedValues.user) username;
               values = processedValues;
-              inherit utils;
+              inherit utils pkgs;
             })
           ];
         };

@@ -13,6 +13,21 @@
       inherit utils values;
     };
 
-    users.${values.user.username} = import ../home;
+    users.${values.user.username} =
+      {
+        pkgs,
+        lib,
+        config,
+        ...
+      }:
+      import ../home {
+        inherit
+          config
+          pkgs
+          lib
+          utils
+          values
+          ;
+      };
   };
 }
