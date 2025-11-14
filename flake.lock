@@ -101,22 +101,6 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1763137067,
-        "narHash": "sha256-bs0Gh7QzfNOmZhvPvTeY5o9lJjaALo9xWzi7431yNMo=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "4fa1cb00e546ae8d8407086bee13f4ef112a936f",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "master",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs-unstable": {
-      "locked": {
         "lastModified": 1762943920,
         "narHash": "sha256-ITeH8GBpQTw9457ICZBddQEBjlXMmilML067q0e6vqY=",
         "owner": "NixOS",
@@ -137,8 +121,7 @@
         "firefox-addons": "firefox-addons",
         "home-manager": "home-manager",
         "nix-homebrew": "nix-homebrew",
-        "nixpkgs": "nixpkgs",
-        "nixpkgs-unstable": "nixpkgs-unstable"
+        "nixpkgs": "nixpkgs"
       }
     }
   },

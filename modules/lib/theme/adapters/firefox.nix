@@ -138,8 +138,14 @@ in
         #PersonalToolbar,
         #urlbar,
         #urlbar-container,
-        #nav-bar {
+        #nav-bar,
+        #urlbar-background {
             background: var(--minimal-bg) !important;
+        }
+
+        /* Urlbar inner background should be secondary */
+        #urlbar-background {
+            background: var(--minimal-bg-secondary) !important;
         }
 
         /* Centered tab labels */
@@ -198,11 +204,14 @@ in
             border: none !important;
         }
 
-        :root:-moz-lwtheme-brighttext {
+        /* Set toolbar field colors for both light and dark themes */
+        :root {
             --lwt-toolbar-field-background-color: var(--minimal-bg-secondary) !important;
             --lwt-toolbar-field-border-color: var(--minimal-bg-secondary) !important;
             --lwt-toolbar-field-focus: var(--minimal-bg-secondary) !important;
-            --toolbar-bgcolor: var(--minimal-bg-secondary) !important;
+            --toolbar-bgcolor: var(--minimal-bg) !important;
+            --toolbar-field-background-color: var(--minimal-bg-secondary) !important;
+            --toolbar-field-focus-background-color: var(--minimal-bg-secondary) !important;
         }
 
         #page-action-buttons {
@@ -336,10 +345,24 @@ in
 
         #sidebar-box,
         #sidebar,
-        .sidebar-placesTree {
+        #sidebar-header,
+        .sidebar-placesTree,
+        .sidebar-placesTreechildren {
             -moz-appearance: none !important;
             color: var(--minimal-text) !important;
             background-color: var(--minimal-bg) !important;
+            border: none !important;
+        }
+
+        /* Ensure sidebar items use proper theme colors */
+        .sidebar-placesTree treechildren::-moz-tree-cell,
+        .sidebar-placesTree treechildren::-moz-tree-row {
+            background-color: var(--minimal-bg) !important;
+        }
+
+        .sidebar-placesTree treechildren::-moz-tree-cell(selected),
+        .sidebar-placesTree treechildren::-moz-tree-row(selected) {
+            background-color: var(--minimal-bg-secondary) !important;
         }
 
         /* ========== MINIMAL TOOLTIPS ========== */
@@ -490,7 +513,7 @@ in
             }
 
         #nav-bar, #PersonalToolbar {
-            background-color: #0000 !important;
+            background-color: var(--minimal-bg) !important;
             background-image: none !important;
             box-shadow: none !important;
         }
@@ -510,10 +533,10 @@ in
             transition: .15s !important;
         }
 
-        /* Removes the background from the urlbar while not in use */
+        /* Keep urlbar background visible with theme colors */
         #urlbar:not(:hover):not([breakout][breakout-extend]) > #urlbar-background {
             box-shadow: none !important;
-            background: #0000 !important;
+            background: var(--minimal-bg-secondary) !important;
         }
 
         /* Removes annoying border */

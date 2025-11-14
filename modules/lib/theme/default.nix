@@ -14,6 +14,7 @@ let
   gruvbox = import ./palettes/gruvbox.nix { inherit lib; };
   solarized = import ./palettes/solarized.nix { inherit lib; };
   nord = import ./palettes/nord.nix { inherit lib; };
+  everforest = import ./palettes/everforest.nix { inherit lib; };
 
   weztermAdapter = import ./adapters/wezterm.nix { inherit lib; };
   neovimAdapter = import ./adapters/neovim.nix { inherit lib; };
@@ -28,6 +29,7 @@ let
     inherit gruvbox;
     inherit solarized;
     inherit nord;
+    inherit everforest;
   };
 
   getTheme =
