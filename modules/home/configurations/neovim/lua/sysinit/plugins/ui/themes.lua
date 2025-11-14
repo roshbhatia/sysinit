@@ -392,7 +392,6 @@ local function get_nightfox_config()
 end
 
 local function get_everforest_config()
-  -- Extract background contrast from variant (e.g., "dark-medium" -> "medium")
   local background = "medium"
   if theme_config.variant then
     local variant_parts = vim.split(theme_config.variant, "-")
@@ -401,7 +400,6 @@ local function get_everforest_config()
     end
   end
 
-  -- Set up vim globals before loading the colorscheme
   vim.g.everforest_background = background
   vim.g.everforest_better_performance = 1
   vim.g.everforest_enable_italic = 1
@@ -435,6 +433,9 @@ local function setup_theme()
     rosepine = function()
       require("neomodern").setup(get_rose_pine_config())
     end,
+    roseprime = function()
+      require("neomodern").setup(get_rose_pine_config())
+    end,
     gruvbox = function()
       require("gruvbox").setup(get_gruvbox_config())
     end,
@@ -459,11 +460,9 @@ local function setup_theme()
 
   vim.cmd("colorscheme " .. plugin_config.colorscheme)
 
-  -- Apply Everforest-specific transparency overrides after colorscheme loads
   if base_scheme == "everforest" and theme_config.transparency.enable then
     vim.schedule(function()
       local overrides = get_transparent_highlights()
-      -- Add specific UI element overrides similar to rosepine/kanagawa
       overrides.WinBar = { bg = "none" }
       overrides.WinBarNC = { bg = "none" }
       overrides.NeoTreeWinSeparator = { bg = "none" }
