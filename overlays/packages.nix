@@ -6,11 +6,6 @@
 
 final: _prev:
 let
-  unstable = import inputs.nixpkgs-unstable {
-    inherit system;
-    inherit (final) config;
-  };
-
   crossplane-1-17-1 =
     import
       (builtins.fetchTarball {
@@ -22,7 +17,7 @@ let
         inherit (final) config;
       };
 
-  stable-nixpkgs =
+  stable =
     import
       (builtins.fetchTarball {
         url = "https://github.com/NixOS/nixpkgs/archive/nixos-24.05.tar.gz";
@@ -44,9 +39,6 @@ in
   };
 
   inherit (crossplane-1-17-1) crossplane-cli;
-  inherit (stable-nixpkgs) awscli2;
-  inherit (stable-nixpkgs) fish;
-  inherit (unstable) neovim-unwrapped;
-  inherit (unstable) nix-your-shell;
-  inherit (unstable) sbarlua;
+  inherit (stable) awscli2;
+  inherit (stable) fish;
 }

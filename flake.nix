@@ -2,8 +2,7 @@
   description = "Roshan's macOS DevEnv System Config";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/master";
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     darwin = {
       # url = "github:nix-darwin/nix-darwin/master";
       url = "github:qowoz/nix-darwin/applications";
