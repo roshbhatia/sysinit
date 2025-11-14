@@ -53,7 +53,7 @@ tasks:
 
         # Run the build task in the work repository
         # Use reduced resources for work builds
-        if ! NIX_MAX_JOBS=1 NIX_CORES=1 task nix:build; then
+        if ! NIX_MAX_JOBS=1 NIX_CORES=1 task nix:build:work; then
           log_error "Work build failed"
           exit {{.ERROR_EXIT_CODE}}
         fi
@@ -82,7 +82,7 @@ tasks:
 
         # Run the refresh task in the work repository
         # Use reduced resources for work builds
-        if ! NIX_MAX_JOBS=1 NIX_CORES=1 task nix:refresh; then
+        if ! NIX_MAX_JOBS=1 NIX_CORES=1 task nix:refresh:work; then
           log_error "Work refresh failed"
           exit {{.ERROR_EXIT_CODE}}
         fi
