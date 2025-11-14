@@ -10,6 +10,7 @@
     ./finder
     ./hostname
     ./keyboard
+    ./op
     ./security
     ./sketchybar
     ./system
