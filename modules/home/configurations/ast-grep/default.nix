@@ -2,6 +2,6 @@
 
 {
   imports = [
-    ./astgrep.nix
+    ./ast-grep.nix
   ];
 }
