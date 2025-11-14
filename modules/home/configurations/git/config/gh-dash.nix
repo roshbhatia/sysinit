@@ -92,12 +92,78 @@ let
         {
           key = "g";
           name = "lazygit";
-          command = "lazygit";
+          command = ''
+            cd {{.RepoPath}} && lazygit
+          '';
+        }
+      ];
+
+      prs = [
+        {
+          key = "O";
+          builtin = "checkout";
         }
         {
-          key = "\\";
-          name = "Code Review";
-          command = "if [ -n \"$NVIM\" ]; then nvim --server \"$NVIM\" --remote-send '<Cmd>Octo pr edit {{.PrNumber}}<CR>'; else nvim -c ':silent Octo pr edit {{.PrNumber}}'; fi";
+          key = "r";
+          name = "Review PR";
+          command = ''
+            cd {{.RepoPath}}
+            if [ -n "$NVIM" ]; then
+              nvim --server "$NVIM" --remote-send ':Octo review {{.PrNumber}}<CR>'
+            else
+              nvim -c 'Octo review {{.PrNumber}}'
+            fi
+          '';
+        }
+        {
+          key = "m";
+          name = "Merge (squash)";
+          command = ''
+            gh pr merge --squash --delete-branch --repo {{.RepoName}} {{.PrNumber}}
+          '';
+        }
+        {
+          key = "v";
+          name = "Approve";
+          command = ''
+            gh pr review --repo {{.RepoName}} --approve --body "$(gum input --prompt='Approval Comment: ')" {{.PrNumber}}
+          '';
+        }
+        {
+          key = "a";
+          name = "Add & LazyGit";
+          command = ''
+            cd {{.RepoPath}}
+            git add -A
+            lazygit
+          '';
+        }
+      ];
+
+      issues = [
+        {
+          key = "e";
+          name = "Edit Issue";
+          command = ''
+            cd {{.RepoPath}}
+            if [ -n "$NVIM" ]; then
+              nvim --server "$NVIM" --remote-send ':Octo issue edit {{.IssueNumber}}<CR>'
+            else
+              nvim -c 'Octo issue edit {{.IssueNumber}}'
+            fi
+          '';
+        }
+        {
+          key = "i";
+          name = "Create Issue";
+          command = ''
+            cd {{.RepoPath}}
+            if [ -n "$NVIM" ]; then
+              nvim --server "$NVIM" --remote-send ':Octo issue create<CR>'
+            else
+              nvim -c 'Octo issue create'
+            fi
+          '';
         }
       ];
     };

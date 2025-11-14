@@ -149,9 +149,12 @@ in
 
       [credential "https://github.com"]
         helper = !${pkgs.gh}/bin/gh auth git-credential
+        username = ${personalGithubUser}
+        useHttpPath = true
 
       [credential "https://gist.github.com"]
         helper = !${pkgs.gh}/bin/gh auth git-credential
+        username = ${personalGithubUser}
     '';
   };
 
@@ -166,9 +169,12 @@ in
 
       [credential "https://github.com"]
         helper = !${pkgs.gh}/bin/gh auth git-credential
+        username = ${workGithubUser}
+        useHttpPath = true
 
       [credential "https://gist.github.com"]
         helper = !${pkgs.gh}/bin/gh auth git-credential
+        username = ${workGithubUser}
     '';
   };
 }
