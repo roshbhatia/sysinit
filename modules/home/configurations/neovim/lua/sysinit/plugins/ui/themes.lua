@@ -422,6 +422,34 @@ local function get_everforest_config()
   return {}
 end
 
+local function apply_post_colorscheme_overrides(base_scheme)
+  local overrides = get_transparent_highlights()
+
+  if base_scheme == "everforest" then
+    -- Explicit, stable accent color from everforest palette (purple/pink)
+    local accent = "#d699b6"
+
+    overrides.WinBar = { bg = "NONE" }
+    overrides.WinBarNC = { bg = "NONE" }
+    overrides.NeoTreeWinSeparator = { bg = "NONE" }
+    overrides.NeoTreeVertSplit = { bg = "NONE" }
+    overrides.NeoTreeEndOfBuffer = { bg = "NONE", fg = "NONE" }
+    overrides.DropBarMenuFloatBorder = { bg = "NONE" }
+    overrides.WilderWildmenuAccent = { fg = accent, bg = "NONE" }
+    overrides.WilderWildmenuSelectedAccent = { fg = accent, bg = "NONE", bold = true, underline = true }
+    overrides.WilderWildmenuSelected = { link = "WilderWildmenuSelectedAccent" }
+    overrides.WilderWildmenuSeparator = { fg = accent, bg = "NONE" }
+    -- If plugin links WildMenu -> PmenuSel we neutralize that blast effect for transparency.
+    overrides.WildMenu = { link = "WilderWildmenuSelectedAccent" }
+    overrides.PmenuSel = { fg = accent, bg = "NONE", bold = true }
+    overrides.TelescopeSelection = { bg = "NONE" }
+  end
+
+  for name, hl in pairs(overrides) do
+    vim.api.nvim_set_hl(0, name, hl)
+  end
+end
+
 local function setup_theme()
   local plugin_config = theme_config.plugins[theme_config.colorscheme]
   local base_scheme = plugin_config.base_scheme or theme_config.colorscheme
@@ -460,24 +488,13 @@ local function setup_theme()
 
   vim.cmd("colorscheme " .. plugin_config.colorscheme)
 
-  if base_scheme == "everforest" and theme_config.transparency.enable then
-    vim.schedule(function()
-      local overrides = get_transparent_highlights()
-      overrides.WinBar = { bg = "none" }
-      overrides.WinBarNC = { bg = "none" }
-      overrides.NeoTreeWinSeparator = { bg = "none" }
-      overrides.NeoTreeVertSplit = { bg = "none" }
-      overrides.NeoTreeEndOfBuffer = { bg = "none", fg = "none" }
-      overrides.DropBarMenuFloatBorder = { bg = "none" }
-      overrides.WilderWildmenuAccent = { bg = "none" }
-      overrides.WilderWildmenuSelectedAccent = { bg = "none" }
-      overrides.TelescopeSelection = { bg = "none" }
-
-      for name, hl in pairs(overrides) do
-        vim.api.nvim_set_hl(0, name, hl)
-      end
-    end)
-  end
+  apply_post_colorscheme_overrides(base_scheme)
+  vim.api.nvim_create_autocmd({ "ColorScheme", "CmdLineEnter" }, {
+    pattern = plugin_config.colorscheme,
+    callback = function()
+      apply_post_colorscheme_overrides(base_scheme)
+    end,
+  })
 end
 
 M.plugins = {
