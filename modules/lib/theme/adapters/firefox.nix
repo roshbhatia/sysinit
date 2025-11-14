@@ -6,7 +6,7 @@ let
   utils = import ../core/utils.nix { inherit lib; };
 in
 
-rec {
+{
   createFirefoxConfig =
     themeData: config: overrides:
     let
@@ -79,7 +79,7 @@ rec {
         /* ========== TYPOGRAPHY ========== */
 
         * {
-            font-family: "${monospaceFont}", "TX-02", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+            font-family: "${monospaceFont}", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
 
         /* ========== THEME COLORS ========== */
@@ -190,7 +190,7 @@ rec {
         /* ========== URL BAR ========== */
 
         #urlbar-container {
-            min-width: 169px !important;
+            min-width: 340px !important;
         }
 
         #urlbar {
@@ -494,7 +494,6 @@ rec {
             #TabsToolbar, #nav-bar {
                 transition: margin-top .25s !important;
             }
-        }
 
         #nav-bar, #PersonalToolbar {
             background-color: #0000 !important;
@@ -591,7 +590,7 @@ rec {
 
         @-moz-document url-prefix(about:home), url-prefix(about:newtab) {
           * {
-            font-family: "${monospaceFont}", "TX-02", -apple-system, BlinkMacSystemFont, sans-serif !important;
+            font-family: "${monospaceFont}", -apple-system, BlinkMacSystemFont, sans-serif !important;
           }
 
           body {
