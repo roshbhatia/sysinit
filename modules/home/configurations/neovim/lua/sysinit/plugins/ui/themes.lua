@@ -463,6 +463,17 @@ local function setup_theme()
   if base_scheme == "everforest" and theme_config.transparency.enable then
     vim.schedule(function()
       local overrides = get_transparent_highlights()
+      -- Add specific UI element overrides similar to rosepine/kanagawa
+      overrides.WinBar = { bg = "none" }
+      overrides.WinBarNC = { bg = "none" }
+      overrides.NeoTreeWinSeparator = { bg = "none" }
+      overrides.NeoTreeVertSplit = { bg = "none" }
+      overrides.NeoTreeEndOfBuffer = { bg = "none", fg = "none" }
+      overrides.DropBarMenuFloatBorder = { bg = "none" }
+      overrides.WilderWildmenuAccent = { bg = "none" }
+      overrides.WilderWildmenuSelectedAccent = { bg = "none" }
+      overrides.TelescopeSelection = { bg = "none" }
+
       for name, hl in pairs(overrides) do
         vim.api.nvim_set_hl(0, name, hl)
       end
