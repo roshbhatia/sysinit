@@ -17,10 +17,10 @@ function M.configure()
     },
     signs = {
       text = {
-        [vim.diagnostic.severity.ERROR] = "󰅙 ",
+        [vim.diagnostic.severity.ERROR] = "",
         [vim.diagnostic.severity.HINT] = "", -- Empty on purpose, so it doesn't show in the sign column
         [vim.diagnostic.severity.INFO] = "", -- Empty on purpose, so it doesn't show in the sign column
-        [vim.diagnostic.severity.WARN] = "󰀨 ",
+        [vim.diagnostic.severity.WARN] = "",
       },
       numhl = {
         [vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
