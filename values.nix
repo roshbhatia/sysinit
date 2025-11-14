@@ -22,7 +22,6 @@
   darwin = {
     docker = {
       enable = true;
-      backend = "colima";
     };
     homebrew = {
       additionalPackages = {

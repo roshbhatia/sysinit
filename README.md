@@ -74,14 +74,12 @@ task: Available tasks for this project:
 | Field | Type | Default | Required | Description |
 |-------|------|---------|----------|-------------|
 | `cargo.additionalPackages` | list(string) | [] |  | Additional Rust/Cargo packages |
-| `darwin.borders.enable` | boolean | false |  | Enable window borders |
-| `darwin.docker.backend` |  | "colima" |  | Container backend to use (colima or podman) |
+| `darwin.borders.enable` | boolean | true |  | Enable window borders |
 | `darwin.docker.enable` | boolean | true |  | Enable container runtime (Docker/Podman) |
 | `darwin.homebrew.additionalPackages.brews` | list(string) | [] |  | Additional Homebrew formulae |
 | `darwin.homebrew.additionalPackages.casks` | list(string) | [] |  | Additional Homebrew casks |
 | `darwin.homebrew.additionalPackages.taps` | list(string) | [] |  | Additional Homebrew taps |
-| `darwin.podman.desktop` | boolean | false |  | Enable Podman Desktop GUI (only applies when backend is podman) |
-| `darwin.tailscale.enable` | boolean | false |  | Enable Tailscale |
+| `darwin.tailscale.enable` | boolean | true |  | Enable Tailscale |
 | `definedAliases` | list(string) | [] |  | Search aliases |
 | `firefox.name` | string | - | ✓ | Parameter name |
 | `firefox.template` | string | - | ✓ | URL template for the search engine |

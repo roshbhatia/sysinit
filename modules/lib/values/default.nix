@@ -67,29 +67,12 @@ with lib;
             default = true;
             description = "Enable container runtime (Docker/Podman)";
           };
-
-          backend = mkOption {
-            type = types.enum [
-              "colima"
-              "podman"
-            ];
-            default = "colima";
-            description = "Container backend to use (colima or podman)";
-          };
-        };
-
-        podman = {
-          desktop = mkOption {
-            type = types.bool;
-            default = false;
-            description = "Enable Podman Desktop GUI (only applies when backend is podman)";
-          };
         };
 
         tailscale = {
           enable = mkOption {
             type = types.bool;
-            default = false;
+            default = true;
             description = "Enable Tailscale";
           };
         };
@@ -97,7 +80,7 @@ with lib;
         borders = {
           enable = mkOption {
             type = types.bool;
-            default = false;
+            default = true;
             description = "Enable window borders";
           };
         };
