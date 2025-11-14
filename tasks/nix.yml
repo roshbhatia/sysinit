@@ -275,7 +275,7 @@ tasks:
         source {{.LOGLIB_PATH}}
 
         log_info "Applying system configuration"
-        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} switch -v --flake . --impure; then
+        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} switch --flake . --impure; then
           log_error "Refresh failed (see logs above)"
           exit {{.ERROR_EXIT_CODE}}
         fi
