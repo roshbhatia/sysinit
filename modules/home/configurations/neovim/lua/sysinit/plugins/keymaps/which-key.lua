@@ -36,6 +36,10 @@ M.plugins = {
         { "<leader>e", group = "Editor" },
         { "<leader>f", group = "Find" },
         { "<leader>g", group = "Git" },
+        { "<leader>gb", group = "Git: buffer" },
+        { "<leader>gd", group = "Git: diffview" },
+        { "<leader>gh", group = "Git: hunk" },
+        { "<leader>gr", group = "Git: review" },
         { "<leader>h", group = "Claude" },
         { "<leader>i", group = "Cursor" },
         { "<leader>j", group = "OpenCode" },
@@ -46,7 +50,6 @@ M.plugins = {
         { "<leader>r", group = "Refresh" },
         { "<leader>u", group = "Copilot" },
         { "<localleader>m", group = "Markdown", ft = "markdown" },
-        { "ga", group = "Copilot" },
         { "gr", group = "LSP" },
       })
 
