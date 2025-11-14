@@ -10,7 +10,6 @@ let
   yarnPackages = [
     "@anthropic-ai/claude-code"
     "@github/copilot"
-    "opencode-ai"
   ]
   ++ (values.yarn.additionalPackages or [ ]);
 
