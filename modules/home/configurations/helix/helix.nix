@@ -231,10 +231,6 @@ in
           args = [ "--stdio" ];
         };
 
-        systemd-lsp = {
-          command = "systemd-lsp";
-        };
-
         lua-language-server = {
           command = "lua-language-server";
         };
@@ -699,26 +695,6 @@ in
             "copilot"
           ];
           auto-format = false;
-        }
-        {
-          name = "systemd";
-          scope = "source.systemd";
-          file-types = [
-            "service"
-            "socket"
-            "timer"
-            "target"
-            "mount"
-            "automount"
-            "swap"
-            "path"
-            "slice"
-          ];
-          language-servers = [
-            "systemd-lsp"
-            "copilot"
-          ];
-          auto-format = true;
         }
         {
           name = "lua";

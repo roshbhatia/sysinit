@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+# shellcheck disable=all
+# modules/home/configurations/utils/gh-auth-setup
+# Helper script to set up separate GitHub CLI authentication for personal and work accounts
+
+source "$(dirname "$0")/loglib.sh"
+
+if ! command -v gh &>/dev/null; then
+  log_error "GitHub CLI not installed"
+  exit 1
+fi
+
+setup_account() {
+  local account_type="$1"
+  local gh_config_dir="$HOME/.config/gh-${account_type}"
+  
+  log_info "Setting up ${account_type} GitHub account..."
+  log_info "This will authenticate using gh CLI with a separate config directory: ${gh_config_dir}"
+  
+  # Create config directory if it doesn't exist
+  mkdir -p "$gh_config_dir"
+  
+  # Authenticate with the specified config directory
+  GH_CONFIG_DIR="$gh_config_dir" gh auth login
+  
+  if [ $? -eq 0 ]; then
+    log_success "${account_type} GitHub account authenticated successfully"
+    
+    # Show the authenticated user
+    local username=$(GH_CONFIG_DIR="$gh_config_dir" gh api user --jq '.login' 2>/dev/null)
+    if [[ -n "$username" ]]; then
+      log_info "Authenticated as: $username"
+    fi
+  else
+    log_error "Failed to authenticate ${account_type} GitHub account"
+    return 1
+  fi
+}
+
+show_status() {
+  log_info "Checking authentication status..."
+  
+  for account_type in personal work; do
+    local gh_config_dir="$HOME/.config/gh-${account_type}"
+    
+    if [ -d "$gh_config_dir" ]; then
+      local username=$(GH_CONFIG_DIR="$gh_config_dir" gh api user --jq '.login' 2>/dev/null)
+      if [[ -n "$username" ]]; then
+        log_success "${account_type}: $username"
+      else
+        log_warn "${account_type}: Not authenticated"
+      fi
+    else
+      log_warn "${account_type}: Config directory not found"
+    fi
+  done
+}
+
+print_usage() {
+  cat <<EOF
+Usage: gh-auth-setup [command]
+
+Commands:
+  personal    Set up personal GitHub account authentication
+  work        Set up work GitHub account authentication
+  both        Set up both personal and work accounts
+  status      Show authentication status for both accounts
+  help        Show this help message
+
+Examples:
+  gh-auth-setup personal
+  gh-auth-setup work
+  gh-auth-setup both
+  gh-auth-setup status
+EOF
+}
+
+case "${1:-help}" in
+  personal)
+    setup_account "personal"
+    ;;
+  work)
+    setup_account "work"
+    ;;
+  both)
+    setup_account "personal"
+    echo ""
+    setup_account "work"
+    ;;
+  status)
+    show_status
+    ;;
+  help|--help|-h)
+    print_usage
+    ;;
+  *)
+    log_error "Unknown command: $1"
+    echo ""
+    print_usage
+    exit 1
+    ;;
+esac

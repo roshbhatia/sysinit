@@ -4,6 +4,7 @@
 
 {
   imports = [
+    ./ast-grep
     ./atuin
     ./bat
     ./btop

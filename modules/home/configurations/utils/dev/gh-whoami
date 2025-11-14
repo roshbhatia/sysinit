@@ -3,15 +3,35 @@
 # modules/home/configurations/utils/gh-whoami
 
 source "$(dirname "$0")/loglib.sh"
-if command -v gh &>/dev/null; then
-  username=$(gh api user --jq '.login' 2>/dev/null)
-  if [[ -n "$username" ]]; then
-    echo "$username"
-  else
-    log_warn "GitHub user not logged in"
-    exit 1
-  fi
-else
+
+if ! command -v gh &>/dev/null; then
   log_error "GitHub CLI not installed"
+  exit 1
+fi
+
+# Get the current directory
+CURRENT_DIR="$(pwd)"
+
+# Determine which gh config to use based on the path
+if [[ "$CURRENT_DIR" == "$HOME/github/work"* ]]; then
+  GH_CONFIG_DIR="$HOME/.config/gh-work"
+  ACCOUNT_TYPE="work"
+elif [[ "$CURRENT_DIR" == "$HOME/github/personal"* ]]; then
+  GH_CONFIG_DIR="$HOME/.config/gh-personal"
+  ACCOUNT_TYPE="personal"
+else
+  # Default to personal for repositories outside these paths
+  GH_CONFIG_DIR="$HOME/.config/gh-personal"
+  ACCOUNT_TYPE="personal (default)"
+fi
+
+# Export the config directory for gh to use
+export GH_CONFIG_DIR
+
+username=$(gh api user --jq '.login' 2>/dev/null)
+if [[ -n "$username" ]]; then
+  echo "$username ($ACCOUNT_TYPE)"
+else
+  log_warn "GitHub user not logged in for $ACCOUNT_TYPE account"
   exit 1
 fi

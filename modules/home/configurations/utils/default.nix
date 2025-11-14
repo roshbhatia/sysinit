@@ -12,6 +12,11 @@ _:
       executable = true;
     };
 
+    ".local/bin/gh-auth-setup" = {
+      source = ./dev/gh-auth-setup;
+      executable = true;
+    };
+
     ".local/bin/gh-whoami" = {
       source = ./dev/gh-whoami;
       executable = true;

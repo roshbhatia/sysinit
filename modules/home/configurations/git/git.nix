@@ -128,14 +128,6 @@ in
 
       [rebase]
         updateRefs = true
-
-      [credential "https://github.com"]
-        helper =
-        helper = !/etc/profiles/per-user/${values.user.username}/bin/gh auth git-credential
-
-      [credential "https://gist.github.com"]
-        helper =
-        helper = !/etc/profiles/per-user/${values.user.username}/bin/gh auth git-credential
     '';
   };
 
@@ -153,6 +145,14 @@ in
 
       [github]
         user = ${personalGithubUser}
+
+      [credential "https://github.com"]
+        helper =
+        helper = !gh auth git-credential
+
+      [credential "https://gist.github.com"]
+        helper =
+        helper = !gh auth git-credential
     '';
   };
 
@@ -164,6 +164,14 @@ in
 
       [github]
         user = ${workGithubUser}
+
+      [credential "https://github.com"]
+        helper =
+        helper = !gh auth git-credential
+
+      [credential "https://gist.github.com"]
+        helper =
+        helper = !gh auth git-credential
     '';
   };
 }
