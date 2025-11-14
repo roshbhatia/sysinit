@@ -16,6 +16,7 @@ let
     "noahgorstein/tap"
     "sandreas/tap"
     "slp/krunkit"
+    "sst/tap"
     "tattoy-org/tap"
     "vet-run/vet"
   ];
@@ -42,10 +43,10 @@ let
     "hammerspoon"
     "mediosz/tap/swipeaerospace"
     "notion"
-    "opencode"
     "rancher"
     "raycast"
     "slack"
+    "sst/tap/opencode"
     "wezterm"
   ];
 
