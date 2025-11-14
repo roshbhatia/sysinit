@@ -81,6 +81,10 @@ let
 
     defaults = {
       refetchIntervalMinutes = 1;
+      prApproveComment = "Approved 👍🏽";
+      preview = {
+        grow = true;
+      };
     };
 
     keybindings = {
