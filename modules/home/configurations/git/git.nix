@@ -1,7 +1,6 @@
 {
   values,
   utils,
-  pkgs,
   ...
 }:
 
@@ -136,11 +135,11 @@ in
 
       [credential "https://github.com"]
         helper =
-        helper = !${pkgs.gh} auth git-credential
+        helper = !/etc/profiles/per-user/${values.user.username}/bin/gh auth git-credential
 
       [credential "https://gist.github.com"]
         helper =
-        helper = !${pkgs.gh} auth git-credential
+        helper = !/etc/profiles/per-user/${values.user.username}/bin/gh auth git-credential
     '';
   };
 
