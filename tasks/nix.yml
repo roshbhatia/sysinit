@@ -38,11 +38,8 @@ tasks:
         set -euo pipefail
         source {{.LOGLIB_PATH}}
 
-        log_info "Collecting garbage and deleting old generations"
-        nix-collect-garbage -d
-
-        log_info "Optimizing Nix store (deduplicating files)"
-        nix-store --optimise
+        log_info "Collecting garbage"
+        nix-collect-garbage
 
         log_success "Nix store cleaned and optimized"
 
