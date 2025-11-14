@@ -55,81 +55,6 @@ let
     };
   };
 
-  toYAML =
-    config:
-    let
-      indent = n: lib.concatStrings (lib.genList (_: "  ") n);
-
-      valueToYAML =
-        level: value:
-        if builtins.isAttrs value then
-          attrsToYAML level value
-        else if builtins.isList value then
-          listToYAML level value
-        else if builtins.isBool value then
-          if value then "true" else "false"
-        else if builtins.isString value then
-          if builtins.match "^(true|false|yes|no|[0-9]+)$" value != null then ''"${value}"'' else value
-        else
-          toString value;
-
-      attrsToYAML =
-        level: attrs:
-        lib.concatStringsSep "\n" (
-          lib.mapAttrsToList (
-            name: value:
-            let
-              key = "${indent level}${name}:";
-            in
-            if builtins.isAttrs value && value != { } then
-              "${key}\n${valueToYAML (level + 1) value}"
-            else if builtins.isList value then
-              "${key}\n${valueToYAML (level + 1) value}"
-            else
-              "${key} ${valueToYAML level value}"
-          ) attrs
-        );
-
-      listToYAML =
-        level: list:
-        lib.concatStringsSep "\n" (
-          lib.imap0 (
-            _idx: item:
-            if builtins.isAttrs item then
-              let
-                attrs = lib.mapAttrsToList (
-                  name: value:
-                  let
-                    key = "${name}:";
-                  in
-                  if builtins.isAttrs value && value != { } then
-                    "${key}\n${valueToYAML (level + 2) value}"
-                  else if builtins.isList value then
-                    "${key}\n${valueToYAML (level + 2) value}"
-                  else
-                    "${key} ${valueToYAML (level + 1) value}"
-                ) item;
-                firstAttr = lib.head attrs;
-                restAttrs = lib.tail attrs;
-              in
-              if restAttrs == [ ] then
-                "${indent level}- ${firstAttr}"
-              else
-                "${indent level}- ${firstAttr}\n${indent (level + 1)}${
-                  lib.concatStringsSep ("\n" + indent (level + 1)) restAttrs
-                }"
-            else
-              "${indent level}- ${valueToYAML level item}"
-          ) list
-        );
-
-    in
-    ''
-      # yaml-language-server: $schema=https://gh-dash.dev/schema.json
-
-      ${valueToYAML 0 config}
-    '';
-
   ghDashConfig = {
     prSections = [
       {
@@ -163,7 +88,7 @@ let
         {
           key = "g";
           name = "lazygit";
-          command = "cd {{.RepoPath}} && lazygit";
+          command = "lazygit";
         }
         {
           key = "C";
@@ -196,7 +121,7 @@ let
 in
 {
   xdg.configFile."gh-dash/config.yml" = {
-    text = toYAML ghDashConfig;
+    text = lib.generators.toYAML { } ghDashConfig;
     force = true;
   };
 }
