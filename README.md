@@ -75,7 +75,7 @@ task: Available tasks for this project:
 |-------|------|---------|----------|-------------|
 | `cargo.additionalPackages` | list(string) | [] |  | Additional Rust/Cargo packages |
 | `darwin.borders.enable` | boolean | true |  | Enable window borders |
-| `darwin.docker.enable` | boolean | true |  | Enable container runtime (Docker/Podman) |
+| `darwin.docker.enable` | boolean | true |  | Enable container runtime |
 | `darwin.homebrew.additionalPackages.brews` | list(string) | [] |  | Additional Homebrew formulae |
 | `darwin.homebrew.additionalPackages.casks` | list(string) | [] |  | Additional Homebrew casks |
 | `darwin.homebrew.additionalPackages.taps` | list(string) | [] |  | Additional Homebrew taps |

@@ -29,7 +29,6 @@ let
     "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"
-    "podman"
     "slp/krunkit/krunkit"
     "tattoy-org/tap/tattoy"
     "vet-run"

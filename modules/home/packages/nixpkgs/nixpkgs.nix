@@ -89,7 +89,6 @@ let
     openssh
     pipx
     pkg-config
-    podman-desktop
     postgresql17Packages.pgvector
     postgresql_17
     proselint

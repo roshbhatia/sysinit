@@ -65,7 +65,7 @@ with lib;
           enable = mkOption {
             type = types.bool;
             default = true;
-            description = "Enable container runtime (Docker/Podman)";
+            description = "Enable container runtime";
           };
         };
 
