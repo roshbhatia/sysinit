@@ -95,9 +95,9 @@ let
           command = "lazygit";
         }
         {
-          key = "C";
+          key = "\\";
           name = "Code Review";
-          command = "nvim -c ':silent Octo pr edit {{.PrNumber}}'";
+          command = "if [ -n \"$NVIM\" ]; then nvim --server \"$NVIM\" --remote-send '<Cmd>Octo pr edit {{.PrNumber}}<CR>'; else nvim -c ':silent Octo pr edit {{.PrNumber}}'; fi";
         }
       ];
     };

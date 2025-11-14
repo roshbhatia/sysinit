@@ -178,7 +178,11 @@ M.plugins = {
         {
           "<leader>gG",
           function()
-            Snacks.terminal.toggle("gh dash", {})
+            Snacks.terminal.toggle("gh dash", {
+              win = {
+                border = "rounded",
+              },
+            })
           end,
           desc = "Toggle github ui",
         },
