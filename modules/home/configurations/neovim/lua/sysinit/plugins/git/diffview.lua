@@ -88,7 +88,7 @@ M.plugins = {
     end,
     keys = {
       {
-        "<leader>gv",
+        "<leader>gdd",
         function()
           local lib = require("diffview.lib")
           local view = lib.get_current_view()
@@ -101,12 +101,12 @@ M.plugins = {
         desc = "Toggle Diffview",
       },
       {
-        "<leader>gh",
+        "<leader>gdh",
         "<cmd>DiffviewFileHistory %<CR>",
         desc = "File history (current)",
       },
       {
-        "<leader>gH",
+        "<leader>gdH",
         "<cmd>DiffviewFileHistory<CR>",
         desc = "File history (all)",
       },

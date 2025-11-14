@@ -1,3 +1,4 @@
+---@diagnostic disable: param-type-mismatch
 local M = {}
 
 M.plugins = {
@@ -42,7 +43,7 @@ M.plugins = {
           mode = "n",
         },
         {
-          "<leader>gs",
+          "<leader>ghs",
           function()
             require("gitsigns").stage_hunk()
           end,
@@ -50,7 +51,7 @@ M.plugins = {
           mode = "n",
         },
         {
-          "<leader>gs",
+          "<leader>ghs",
           function()
             require("gitsigns").stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
           end,
@@ -58,7 +59,7 @@ M.plugins = {
           mode = "v",
         },
         {
-          "<leader>gr",
+          "<leader>ghr",
           function()
             require("gitsigns").reset_hunk()
           end,
@@ -66,7 +67,7 @@ M.plugins = {
           mode = "n",
         },
         {
-          "<leader>gr",
+          "<leader>ghr",
           function()
             require("gitsigns").reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
           end,
@@ -74,7 +75,7 @@ M.plugins = {
           mode = "v",
         },
         {
-          "<leader>gS",
+          "<leader>gbs",
           function()
             require("gitsigns").stage_buffer()
           end,
@@ -82,7 +83,7 @@ M.plugins = {
           mode = "n",
         },
         {
-          "<leader>gR",
+          "<leader>gbr",
           function()
             require("gitsigns").reset_buffer()
           end,
@@ -90,7 +91,7 @@ M.plugins = {
           mode = "n",
         },
         {
-          "<leader>gU",
+          "<leader>ghu",
           function()
             require("gitsigns").undo_stage_hunk()
           end,
@@ -98,7 +99,7 @@ M.plugins = {
           mode = "n",
         },
         {
-          "<leader>gp",
+          "<leader>ghp",
           function()
             require("gitsigns").preview_hunk()
           end,
@@ -106,7 +107,7 @@ M.plugins = {
           mode = "n",
         },
         {
-          "<leader>gq",
+          "<leader>ghq",
           function()
             require("gitsigns").setqflist("all")
           end,
