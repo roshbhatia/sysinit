@@ -1,7 +1,5 @@
 { lib, ... }:
 
-with lib;
-
 let
   utils = import ../core/utils.nix { inherit lib; };
 in
