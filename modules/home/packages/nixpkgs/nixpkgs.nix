@@ -39,6 +39,7 @@ let
     eslint
     gettext
     gh
+    gh-dash
     git-filter-repo
     glow
     gnupg
