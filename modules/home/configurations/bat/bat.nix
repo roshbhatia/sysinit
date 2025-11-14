@@ -8,9 +8,23 @@
 
 let
   inherit (utils.themes) mkThemedConfig;
+  inherit (lib) listToAttrs nameValuePair;
 
   themeCfg = mkThemedConfig values "bat" { };
   batTheme = themeCfg.appTheme;
+
+  # Get all theme files from the themes directory
+  themeFiles = builtins.readDir ./themes;
+
+  # Create xdg.configFile entries for all theme files
+  themeConfigFiles = listToAttrs (
+    lib.mapAttrsToList (
+      name: _type:
+      nameValuePair "bat/themes/${name}" {
+        source = ./themes + "/${name}";
+      }
+    ) themeFiles
+  );
 in
 {
   programs.bat = {
@@ -21,19 +35,13 @@ in
     };
   };
 
-  xdg.configFile =
-    (utils.themes.deployThemeFiles values {
-      themeDir = ./themes;
-      targetPath = "bat/themes";
-      fileExtension = "tmTheme";
-    })
-    // {
-      "bat/config".text = ''
-        --theme="${batTheme}"
-        --style=numbers,changes,header
-        --pager="less -FR"
-      '';
-    };
+  xdg.configFile = themeConfigFiles // {
+    "bat/config".text = ''
+      --theme="${batTheme}"
+      --style=numbers,changes,header
+      --pager="less -FR"
+    '';
+  };
 
   home.activation.buildBatCache = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
     if [ -f "${pkgs.bat}/bin/bat" ]; then
