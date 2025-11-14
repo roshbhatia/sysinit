@@ -51,7 +51,7 @@ in
       [core]
         editor = nvim
         excludesFile = ~/.gitignore.global
-        pager = delta
+        pager = diffnav
         compression = 9
         preloadIndex = true
         hooksPath = .githooks

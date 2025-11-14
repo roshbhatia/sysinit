@@ -29,6 +29,7 @@ let
     crossplane-cli
     deadnix
     delta
+    diffnav
     delve
     direnv
     docker

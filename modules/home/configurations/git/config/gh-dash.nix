@@ -151,11 +151,26 @@ let
     ];
 
     pager = {
-      diff = "delta";
+      diff = "diffnav";
     };
 
     defaults = {
       refetchIntervalMinutes = 1;
+    };
+
+    keybindings = {
+      universal = [
+        {
+          key = "g";
+          name = "lazygit";
+          command = "cd {{.RepoPath}} && lazygit";
+        }
+        {
+          key = "C";
+          name = "Code Review";
+          command = "nvim -c ':silent Octo pr edit {{.PrNumber}}'";
+        }
+      ];
     };
 
     theme = {
