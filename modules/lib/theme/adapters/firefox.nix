@@ -70,12 +70,6 @@ in
           "JetBrainsMono Nerd Font";
 
       baseChromeCSS = ''
-        /* --------------------------------------------------------------------------------
-        minimalFOX - Compact & Minimal Firefox Theme
-        Based on https://github.com/marmmaz/FirefoxCSS
-        With theme color integration
-        --------------------------------------------------------------------------------- */
-
         /* ========== TYPOGRAPHY ========== */
 
         * {
