@@ -35,13 +35,13 @@ in
       '';
     };
 
-  home.activation.buildBatCache = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+  home.activation.buildBatCache = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
     if [ -f "${pkgs.bat}/bin/bat" ]; then
-      echo "Building bat cache..."
-      "${pkgs.bat}/bin/bat" cache --build || echo "Warning: Failed to build bat cache"
-      echo "Completed bat cache build"
+      $DRY_RUN_CMD echo "Building bat cache..."
+      $DRY_RUN_CMD "${pkgs.bat}/bin/bat" cache --build 2>&1 || echo "Warning: Failed to build bat cache"
+      $DRY_RUN_CMD echo "Completed bat cache build"
     else
-      echo "Warning: bat not available at ${pkgs.bat}/bin/bat, skipping cache build"
+      echo "Warning: bat not available, skipping cache build"
     fi
   '';
 }

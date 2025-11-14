@@ -1,6 +1,7 @@
 {
   values,
   utils,
+  pkgs,
   ...
 }:
 
@@ -147,12 +148,10 @@ in
         user = ${personalGithubUser}
 
       [credential "https://github.com"]
-        helper =
-        helper = !gh auth git-credential
+        helper = !${pkgs.gh}/bin/gh auth git-credential
 
       [credential "https://gist.github.com"]
-        helper =
-        helper = !gh auth git-credential
+        helper = !${pkgs.gh}/bin/gh auth git-credential
     '';
   };
 
@@ -166,12 +165,10 @@ in
         user = ${workGithubUser}
 
       [credential "https://github.com"]
-        helper =
-        helper = !gh auth git-credential
+        helper = !${pkgs.gh}/bin/gh auth git-credential
 
       [credential "https://gist.github.com"]
-        helper =
-        helper = !gh auth git-credential
+        helper = !${pkgs.gh}/bin/gh auth git-credential
     '';
   };
 }
