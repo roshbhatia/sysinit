@@ -391,6 +391,39 @@ local function get_nightfox_config()
   }
 end
 
+local function get_everforest_config()
+  -- Extract background contrast from variant (e.g., "dark-medium" -> "medium")
+  local background = "medium"
+  if theme_config.variant then
+    local variant_parts = vim.split(theme_config.variant, "-")
+    if #variant_parts >= 2 then
+      background = variant_parts[2] -- "hard", "medium", or "soft"
+    end
+  end
+
+  -- Set up vim globals before loading the colorscheme
+  vim.g.everforest_background = background
+  vim.g.everforest_better_performance = 1
+  vim.g.everforest_enable_italic = 1
+  vim.g.everforest_disable_italic_comment = 0
+  vim.g.everforest_cursor = "auto"
+  vim.g.everforest_transparent_background = theme_config.transparency.enable and 2 or 0
+  vim.g.everforest_dim_inactive_windows = 0
+  vim.g.everforest_sign_column_background = "none"
+  vim.g.everforest_spell_foreground = "none"
+  vim.g.everforest_ui_contrast = "low"
+  vim.g.everforest_show_eob = 0
+  vim.g.everforest_float_style = "bright"
+  vim.g.everforest_diagnostic_text_highlight = 0
+  vim.g.everforest_diagnostic_line_highlight = 0
+  vim.g.everforest_diagnostic_virtual_text = "grey"
+  vim.g.everforest_current_word = theme_config.transparency.enable and "bold" or "grey background"
+  vim.g.everforest_inlay_hints_background = "dimmed"
+  vim.g.everforest_disable_terminal_colors = 0
+
+  return {}
+end
+
 local function setup_theme()
   local plugin_config = theme_config.plugins[theme_config.colorscheme]
   local base_scheme = plugin_config.base_scheme or theme_config.colorscheme
@@ -414,6 +447,9 @@ local function setup_theme()
     kanagawa = function()
       require("neomodern").setup(get_kanagawa_config())
     end,
+    everforest = function()
+      get_everforest_config()
+    end,
   }
 
   local setup_fn = theme_setups[base_scheme]
@@ -422,6 +458,16 @@ local function setup_theme()
   end
 
   vim.cmd("colorscheme " .. plugin_config.colorscheme)
+
+  -- Apply Everforest-specific transparency overrides after colorscheme loads
+  if base_scheme == "everforest" and theme_config.transparency.enable then
+    vim.schedule(function()
+      local overrides = get_transparent_highlights()
+      for name, hl in pairs(overrides) do
+        vim.api.nvim_set_hl(0, name, hl)
+      end
+    end)
+  end
 end
 
 M.plugins = {

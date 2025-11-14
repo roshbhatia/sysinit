@@ -22,10 +22,6 @@ in
 
   home.file.".gitconfig" = {
     text = ''
-      [user]
-        name = ${cfg.name}
-        email = ${personalEmail}
-
       [advice]
       addEmptyPathspec = false
       pushNonFastForward = false

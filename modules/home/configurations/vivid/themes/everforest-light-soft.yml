@@ -1,0 +1,152 @@
+# Everforest Light Soft theme for vivid
+# Based on everforest light soft colors
+colors:
+  background_color: 'F3EAD3'
+  black: '5C6A72'
+  white: 'E5DFC5'
+  gray: '939F91'
+  lightgray: 'A6B0A0'
+
+  # Core everforest colors
+  bg_dim: 'E5DFC5'
+  bg0: 'F3EAD3'
+  bg1: 'EAE4CA'
+  bg2: 'E5DFC5'
+  bg3: 'DDD8BE'
+  bg4: 'D8D3BA'
+  
+  # Foreground
+  fg: '5C6A72'
+  
+  # Accent colors
+  red: 'F85552'
+  orange: 'F57D26'
+  yellow: 'DFA000'
+  green: '8DA101'
+  aqua: '35A77C'
+  blue: '3A94C5'
+  purple: 'DF69BA'
+  
+  # Greys
+  grey0: 'A6B0A0'
+  grey1: '939F91'
+  grey2: '829181'
+
+core:
+  normal_text: {}
+  regular_file: {}
+  reset_to_normal: {}
+
+  directory:
+    foreground: blue
+    font-style: bold
+
+  symlink:
+    foreground: aqua
+
+  multi_hard_link:
+    foreground: aqua
+
+  fifo:
+    foreground: white
+    background: blue
+
+  socket:
+    foreground: white
+    background: purple
+
+  door:
+    foreground: white
+    background: purple
+
+  block_device:
+    foreground: white
+    background: red
+
+  character_device:
+    foreground: white
+    background: green
+
+  broken_symlink:
+    foreground: white
+    background: red
+
+  missing_symlink_target:
+    foreground: white
+    background: red
+
+  setuid:
+    foreground: black
+    background: red
+
+  setgid:
+    foreground: black
+    background: yellow
+
+  file_with_capability:
+    foreground: white
+    background: purple
+
+  sticky_other_writable:
+    foreground: white
+    background: green
+
+  other_writable:
+    foreground: blue
+    background: bg0
+
+  sticky:
+    foreground: white
+    background: blue
+
+  executable_file:
+    foreground: green
+    font-style: bold
+
+text:
+  special:
+    foreground: white
+    background: yellow
+
+  todo:
+    foreground: red
+    font-style: bold
+
+  licenses:
+    foreground: grey1
+
+  configuration:
+    foreground: yellow
+
+  other:
+    foreground: yellow
+
+markup:
+  foreground: purple
+
+programming:
+  source:
+    foreground: green
+
+  tooling:
+    foreground: green
+
+    continuous-integration:
+      foreground: blue
+
+media:
+  foreground: purple
+
+office:
+  foreground: orange
+
+archives:
+  foreground: yellow
+  font-style: underline
+
+executable:
+  foreground: green
+  font-style: bold
+
+unimportant:
+  foreground: grey1

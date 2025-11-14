@@ -1,0 +1,12 @@
+[theme]
+name = "everforest-light-soft"
+
+[colors]
+AlertInfo = "#8DA101"
+AlertWarn = "#DFA000"
+AlertError = "#F85552"
+Annotation = "#3A94C5"
+Base = "#5C6A72"
+Guidance = "#939F91"
+Important = "#F85552"
+Title = "#3A94C5"

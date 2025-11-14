@@ -1,0 +1,12 @@
+[theme]
+name = "everforest-dark-hard"
+
+[colors]
+AlertInfo = "#A7C080"
+AlertWarn = "#DBBC7F"
+AlertError = "#E67E80"
+Annotation = "#7FBBB3"
+Base = "#D3C6AA"
+Guidance = "#859289"
+Important = "#E67E80"
+Title = "#7FBBB3"
