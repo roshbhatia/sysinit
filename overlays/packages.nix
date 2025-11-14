@@ -45,7 +45,7 @@ in
 
   inherit (crossplane-1-17-1) crossplane-cli;
   inherit (stable-nixpkgs) awscli2;
-  inherit (unstable) fish;
+  inherit (stable-nixpkgs) fish;
   inherit (unstable) neovim-unwrapped;
   inherit (unstable) nix-your-shell;
   inherit (unstable) sbarlua;
