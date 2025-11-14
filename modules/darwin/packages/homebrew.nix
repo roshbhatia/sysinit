@@ -43,6 +43,7 @@ let
     "hammerspoon"
     "mediosz/tap/swipeaerospace"
     "notion"
+    "opencode"
     "raycast"
     "slack"
     "wezterm"
