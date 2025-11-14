@@ -44,16 +44,15 @@ let
     "mediosz/tap/swipeaerospace"
     "notion"
     "opencode"
+    "rancher"
     "raycast"
     "slack"
     "wezterm"
   ];
 
-  conditionalCasks = if values.darwin.docker.backend == "rancher" then [ "rancher" ] else [ ];
-
   allTaps = baseTaps ++ additionalTaps;
   allBrews = baseBrews ++ additionalBrews;
-  allCasks = baseCasks ++ conditionalCasks ++ additionalCasks;
+  allCasks = baseCasks ++ additionalCasks;
 in
 {
   nix-homebrew = {
