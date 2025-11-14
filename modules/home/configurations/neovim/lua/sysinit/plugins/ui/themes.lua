@@ -399,10 +399,7 @@ local function setup_theme()
     catppuccin = function()
       require("catppuccin").setup(get_catppuccin_config())
     end,
-    rose = function()
-      require("neomodern").setup(get_rose_pine_config())
-    end,
-    roseprime = function()
+    rosepine = function()
       require("neomodern").setup(get_rose_pine_config())
     end,
     gruvbox = function()
