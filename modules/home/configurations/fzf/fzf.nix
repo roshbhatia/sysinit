@@ -65,12 +65,5 @@ in
       "--sort"
       "--exact"
     ];
-
-    tmux = {
-      enableShellIntegration = true;
-      shellIntegrationOptions = [
-        "-p 80%,60%"
-      ];
-    };
   };
 }

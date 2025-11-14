@@ -7,7 +7,6 @@ let
   additionalPackages = values.nix.additionalPackages or [ ];
 
   baseNixPackages = with pkgs; [
-    alt-tab-macos
     ansible
     ansible-lint
     argc
@@ -117,7 +116,6 @@ let
     tfsec
     tig
     tlrc
-    tmux
     typescript
     typescript-language-server
     upbound
