@@ -1,22 +1,14 @@
 {
   "diagnostics.disable": [
-    "deprecated",
-    "undefined-doc-name",
-        "need-check-nil",
-        "undefined-field",
-        "missing-parameter",
-        "duplicate-set-field"
+    "undefined-doc-name"
   ],
   "diagnostics.globals": [
     "hs",
+    "sbar",
     "Snacks",
-    "require",
-        "vim",
-        "ipairs",
-        "table",
-        "package",
-        "string",
-        "type"
+    "vim",
+    "wezterm"
   ],
-  "runtime.version": "Lua 5.4"
+  "runtime.version": "Lua 5.4",
+  "workspace.checkThirdParty": false
 }

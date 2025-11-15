@@ -32,6 +32,78 @@ tasks:
         log_success "Lua files formatted successfully"
     silent: true
 
+  lua:check:
+    desc: Check Lua formatting without modifying files
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+        log_info "Checking Lua formatting"
+        if ! fd -e lua -x stylua --check; then
+          log_error "Lua formatting check failed. Run 'task format:lua' to fix"
+          exit {{.ERROR_EXIT_CODE}}
+        fi
+        log_success "Lua formatting is correct"
+    silent: true
+
+  lua:lint:
+    desc: Run lua-language-server diagnostics on all Lua files
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+        log_info "Running Lua LSP diagnostics"
+
+        total_warnings=0
+        total_errors=0
+
+        for dir in modules/home/configurations/neovim \
+                   modules/home/configurations/wezterm \
+                   modules/home/configurations/hammerspoon \
+                   modules/home/configurations/sketchybar; do
+          if [ -d "$dir" ]; then
+            log_info "Checking $dir"
+            output=$(lua-language-server --check "$dir" 2>&1 || true)
+
+            # Count actual errors (not warnings)
+            error_count=$(echo "$output" | grep -c "\[Error\]" || true)
+            warning_count=$(echo "$output" | grep -c "\[Warning\]" || true)
+
+            total_errors=$((total_errors + error_count))
+            total_warnings=$((total_warnings + warning_count))
+
+            if [ $error_count -gt 0 ]; then
+              log_error "Found $error_count errors in $dir"
+            elif [ $warning_count -gt 0 ]; then
+              log_info "Found $warning_count warnings in $dir (non-blocking)"
+            fi
+          fi
+        done
+
+        if [ $total_errors -gt 0 ]; then
+          log_error "Lua LSP found $total_errors errors across all directories"
+          exit {{.ERROR_EXIT_CODE}}
+        fi
+
+        if [ $total_warnings -gt 0 ]; then
+          log_success "Lua LSP complete: $total_warnings warnings, 0 errors"
+        else
+          log_success "All Lua files passed LSP checks with no issues"
+        fi
+    silent: true
+
+  lua:validate:
+    desc: Validate Lua code (format check + LSP diagnostics)
+    deps: [lua:check, lua:lint]
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        source {{.LOGLIB_PATH}}
+        log_success "Lua validation complete"
+    silent: true
+
   nix:
     desc: Format all Nix files using nixfmt
     cmds:
