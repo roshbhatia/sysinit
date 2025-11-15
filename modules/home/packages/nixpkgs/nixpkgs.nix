@@ -17,6 +17,7 @@ let
     atuin
     awk-language-server
     awscli2
+    bash
     bashInteractive
     bash-language-server
     caddy
@@ -26,6 +27,8 @@ let
     codespell
     copilot-cli
     copilot-language-server
+    coreutils
+    curl
     crossplane-cli
     deadnix
     delta
@@ -39,12 +42,16 @@ let
     duf
     eslint
     fd
+    findutils
     gettext
     gh
     gh-dash
+    git
     git-filter-repo
     glow
+    gnugrep
     gnupg
+    gnused
     go
     go-task
     golangci-lint
@@ -125,6 +132,8 @@ let
     vivid
     vscode-langservers-extracted
     watch
+    wget
+    which
     yaml-language-server
     yamllint
     yarn
@@ -133,6 +142,7 @@ let
     zig
     zls
     zoxide
+    zsh
   ];
 
   allNixPackages = baseNixPackages ++ additionalPackages;
