@@ -7,104 +7,88 @@
 let
   cfg = values.llm.withContext or { };
 
-  # Generate Obsidian API key if not provided
-  generateApiKey = pkgs.writeShellScriptBin "generate-obsidian-api-key" ''
+  # Activation script for WithContext MCP server
+  activationScript = pkgs.writeShellScript "with-context-activation" ''
     set -euo pipefail
 
-    API_KEY_FILE="$HOME/.config/obsidian/api-key"
-    VAULT_NAME="''${OBSIDIAN_VAULT:-Default}"
+    echo "Setting up WithContext MCP server for Obsidian integration..."
 
-    # Generate a secure random API key
+    # Configuration
+    VAULT_NAME="''${OBSIDIAN_VAULT:-${lib.optionalString (cfg.vault or null) cfg.vault "Main"}"
+    PROJECT_BASE_PATH="''${PROJECT_BASE_PATH:-${
+      lib.optionalString (cfg.projectBasePath or null) cfg.projectBasePath "Projects"
+    }"
+    API_URL="''${OBSIDIAN_API_URL:-${
+      lib.optionalString (cfg.apiUrl or null) cfg.apiUrl "https://127.0.0.1:27124"
+    }"
+
+    # Generate API key if not exists
+    API_KEY_FILE="$HOME/.config/obsidian/api-key"
     if [[ ! -f "$API_KEY_FILE" ]]; then
       echo "Generating Obsidian API key..."
       mkdir -p "$(dirname "$API_KEY_FILE")"
-      openssl rand -hex 32 > "$API_KEY_FILE"
+      ${pkgs.openssl}/bin/openssl rand -hex 32 > "$API_KEY_FILE"
       chmod 600 "$API_KEY_FILE"
       echo "API key generated and stored at $API_KEY_FILE"
     else
       echo "API key already exists at $API_KEY_FILE"
     fi
 
-    cat "$API_KEY_FILE"
-  '';
+    API_KEY=$(cat "$API_KEY_FILE")
 
-  # Install Obsidian REST API plugin automatically
-  installObsidianPlugin = pkgs.writeShellScriptBin "install-obsidian-rest-api" ''
-    set -euo pipefail
-
+    # Install Obsidian Local REST API plugin
     OBSIDIAN_CONFIG="$HOME/Library/Application Support/Obsidian"
     PLUGINS_DIR="$OBSIDIAN_CONFIG/plugins"
     REST_API_PLUGIN_DIR="$PLUGINS_DIR/obsidian-local-rest-api"
 
-    # Create plugins directory if it doesn't exist
+    echo "Installing Obsidian Local REST API plugin..."
     mkdir -p "$PLUGINS_DIR"
 
-    # Install plugin if not already installed
     if [[ ! -d "$REST_API_PLUGIN_DIR" ]]; then
-      echo "Installing Obsidian Local REST API plugin..."
       cd "$PLUGINS_DIR"
-      
-      # Clone the plugin repository
       ${pkgs.git}/bin/git clone "https://github.com/czottmann/obsidian-local-rest-api.git"
-      
-      # Install dependencies
       cd "$REST_API_PLUGIN_DIR"
       ${pkgs.nodejs}/bin/npm install
-      
-      # Build the plugin
       ${pkgs.nodejs}/bin/npm run build
-      
       echo "Plugin installed successfully"
     else
       echo "Plugin already installed"
     fi
 
-    # Enable plugin in configuration
+    # Enable plugin in Obsidian configuration
     CONFIG_FILE="$OBSIDIAN_CONFIG/obsidian.json"
     if [[ -f "$CONFIG_FILE" ]]; then
-      # Check if plugin is already enabled
       if ! ${pkgs.jq}/bin/jq -e '.enabledPlugins | contains(["obsidian-local-rest-api"])' "$CONFIG_FILE" >/dev/null; then
         echo "Enabling Local REST API plugin in Obsidian configuration..."
         ${pkgs.jq}/bin/jq '.enabledPlugins += ["obsidian-local-rest-api"]' "$CONFIG_FILE" > "$CONFIG_FILE.tmp" && mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
+        echo "Plugin enabled in configuration"
+      else
+        echo "Plugin already enabled in configuration"
       fi
+    else
+      echo "Warning: Obsidian configuration file not found. Please enable Local REST API plugin manually in Obsidian settings."
     fi
-  '';
 
-  # Setup script for with-context
-  setupWithContext = pkgs.writeShellScriptBin "setup-with-context" ''
-    set -euo pipefail
-
-    echo "Setting up WithContext MCP server..."
-
-    # Generate API key
-    API_KEY=$(${generateApiKey}/bin/generate-obsidian-api-key)
-
-    # Install Obsidian plugin
-    ${installObsidianPlugin}/bin/install-obsidian-rest-api
-
-    # Export environment variables
-    export OBSIDIAN_API_KEY="$API_KEY"
-    export OBSIDIAN_API_URL="''${OBSIDIAN_API_URL:-https://127.0.0.1:27124}"
-    export OBSIDIAN_VAULT="''${OBSIDIAN_VAULT:-Default}"
-    export PROJECT_BASE_PATH="''${PROJECT_BASE_PATH:-Projects}"
-
-    echo "WithContext setup complete!"
-    echo "API Key: $API_KEY"
-    echo "Vault: $OBSIDIAN_VAULT"
-    echo "API URL: $OBSIDIAN_API_URL"
-    echo "Project Base Path: $PROJECT_BASE_PATH"
-
-    # Add to shell profile if not already present
-    PROFILE_FILE="$HOME/.zshrc"
-    if ! grep -q "OBSIDIAN_API_KEY" "$PROFILE_FILE" 2>/dev/null; then
-      echo "" >> "$PROFILE_FILE"
-      echo "# WithContext MCP Server Environment Variables" >> "$PROFILE_FILE"
-      echo "export OBSIDIAN_API_KEY=\"$API_KEY\"" >> "$PROFILE_FILE"
-      echo "export OBSIDIAN_API_URL=\"$OBSIDIAN_API_URL\"" >> "$PROFILE_FILE"
-      echo "export OBSIDIAN_VAULT=\"$OBSIDIAN_VAULT\"" >> "$PROFILE_FILE"
-      echo "export PROJECT_BASE_PATH=\"$PROJECT_BASE_PATH\"" >> "$PROFILE_FILE"
-      echo "Environment variables added to $PROFILE_FILE"
+    # Test API connection
+    echo "Testing Obsidian API connection..."
+    if ${pkgs.curl}/bin/curl -s -H "Authorization: Bearer $API_KEY" "$API_URL" >/dev/null 2>&1; then
+      echo "API connection successful"
+    else
+      echo "Warning: API connection failed. Please ensure:"
+      echo "   1. Obsidian is running"
+      echo "   2. Local REST API plugin is enabled"
+      echo "   3. API is running on $API_URL"
     fi
+
+    echo ""
+    echo "WithContext MCP server setup complete!"
+    echo ""
+    echo "Configuration:"
+    echo "  Vault: $VAULT_NAME"
+    echo "  API URL: $API_URL"
+    echo "  Project Base Path: $PROJECT_BASE_PATH"
+    echo ""
+    echo "The with-context MCP server will now be available in your AI clients!"
   '';
 
 in
@@ -112,9 +96,6 @@ in
   home.packages = with pkgs; [
     nodejs
     npm
-    generateApiKey
-    installObsidianPlugin
-    setupWithContext
   ];
 
   # Add with-context to additional packages if enabled
@@ -130,5 +111,10 @@ in
       OBSIDIAN_VAULT = cfg.vault or "Default";
       PROJECT_BASE_PATH = cfg.projectBasePath or "Projects";
     };
+
+    # Run activation script
+    home.activation.withContext = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      ${activationScript}
+    '';
   };
 }
