@@ -4,7 +4,8 @@ M.plugins = {
   {
     "saghen/blink.cmp",
     version = "1.*",
-    lazy = false,
+    event = "InsertEnter",
+    priority = 1000,
     dependencies = {
       "L3MON4D3/LuaSnip",
       "pta2002/intellitab.nvim",

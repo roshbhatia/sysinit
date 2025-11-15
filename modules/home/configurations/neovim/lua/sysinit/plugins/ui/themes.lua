@@ -241,14 +241,30 @@ end
 local function get_rose_pine_config()
   local overrides = get_transparent_highlights()
   if theme_config.transparency.enable then
-    overrides.WinBar = { bg = "none", fg = "subtle" }
-    overrides.WinBarNC = { bg = "none", fg = "muted" }
-    overrides.NeoTreeWinSeparator = { bg = "none", fg = "muted" }
-    overrides.NeoTreeVertSplit = { bg = "none", fg = "muted" }
+    -- Enhanced transparency overrides for better legibility
+    overrides.WinBar = { bg = "none", fg = "#9ccfd8" } -- Use pine color for better contrast
+    overrides.WinBarNC = { bg = "none", fg = "#6b98a4" } -- Muted pine for inactive
+    overrides.NeoTreeWinSeparator = { bg = "none", fg = "#6b98a4" }
+    overrides.NeoTreeVertSplit = { bg = "none", fg = "#6b98a4" }
     overrides.NeoTreeEndOfBuffer = { bg = "none", fg = "none" }
-    overrides.DropBarMenuFloatBorder = { bg = "none", fg = "muted" }
-    overrides.WilderWildmenuSelectedAccent = { bg = "subtle", fg = "muted" }
-    overrides.TelescopeSelection = { bg = "subtle", fg = "muted" }
+    overrides.DropBarMenuFloatBorder = { bg = "none", fg = "#6b98a4" }
+    overrides.WilderWildmenuSelectedAccent = { bg = "#2a273f", fg = "#9ccfd8" } -- Subtle bg with pine fg
+    overrides.TelescopeSelection = { bg = "#2a273f", fg = "#9ccfd8" } -- Better contrast for selection
+    overrides.TelescopeBorder = { bg = "none", fg = "#6b98a4" }
+    overrides.TelescopeTitle = { bg = "none", fg = "#ebbcba", bold = true } -- Rose for title
+    overrides.NormalFloat = { bg = "none", fg = "#e0def4" } -- Ensure text is visible
+    overrides.FloatBorder = { bg = "none", fg = "#6b98a4" }
+    overrides.FloatTitle = { bg = "none", fg = "#ebbcba", bold = true }
+    overrides.Pmenu = { bg = "#2a273f", fg = "#e0def4" } -- Subtle menu background
+    overrides.PmenuSel = { bg = "#3a374f", fg = "#9ccfd8", bold = true } -- Enhanced selection
+    overrides.PmenuBorder = { bg = "none", fg = "#6b98a4" }
+    overrides.StatusLine = { bg = "none", fg = "#e0def4" }
+    overrides.StatusLineNC = { bg = "none", fg = "#908caa" }
+    overrides.LineNr = { bg = "none", fg = "#6b98a4" }
+    overrides.CursorLineNr = { bg = "none", fg = "#9ccfd8", bold = true }
+    overrides.Visual = { bg = "#3a374f", fg = "#e0def4" } -- Better visual selection
+    overrides.Search = { bg = "#f6c177", fg = "#191724", bold = true } -- Gold search
+    overrides.IncSearch = { bg = "#eb6f92", fg = "#191724", bold = true } -- Rose inc search
   end
 
   local code_style = {

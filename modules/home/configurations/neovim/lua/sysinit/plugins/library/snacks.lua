@@ -105,7 +105,9 @@ M.plugins = {
           bo = {
             filetype = "snacks_terminal",
           },
-          wo = {},
+          wo = {
+            sidescroll = 0,
+          },
         },
         scope = {
           enabled = false,

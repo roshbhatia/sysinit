@@ -7,7 +7,8 @@ local M = {}
 M.plugins = {
   {
     "neovim/nvim-lspconfig",
-    lazy = false,
+    event = { "BufReadPre", "BufNewFile" },
+    priority = 900,
     dependencies = {
       "b0o/SchemaStore.nvim",
       "saghen/blink.cmp",
