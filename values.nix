@@ -33,6 +33,8 @@
           "betterdiscord-installer"
           "calibre"
           "discord"
+          "notion"
+          "notion-mail"
           "orbstack"
           "steam"
         ];

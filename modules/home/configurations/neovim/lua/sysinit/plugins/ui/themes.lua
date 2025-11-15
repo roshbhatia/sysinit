@@ -436,7 +436,8 @@ local function apply_post_colorscheme_overrides(base_scheme)
     overrides.NeoTreeEndOfBuffer = { bg = "NONE", fg = "NONE" }
     overrides.DropBarMenuFloatBorder = { bg = "NONE" }
     overrides.WilderWildmenuAccent = { fg = accent, bg = "NONE" }
-    overrides.WilderWildmenuSelectedAccent = { fg = accent, bg = "NONE", bold = true, underline = true }
+    overrides.WilderWildmenuSelectedAccent =
+      { fg = accent, bg = "NONE", bold = true, underline = true }
     overrides.WilderWildmenuSelected = { link = "WilderWildmenuSelectedAccent" }
     overrides.WilderWildmenuSeparator = { fg = accent, bg = "NONE" }
     -- If plugin links WildMenu -> PmenuSel we neutralize that blast effect for transparency.
