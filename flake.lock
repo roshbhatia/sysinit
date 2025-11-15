@@ -24,16 +24,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1763078072,
+        "lastModified": 1763136804,
         "narHash": "sha256-6p2ljK42s0S8zS0UU59EsEqupz0GVCaBYRylpUadeBM=",
-        "owner": "qowoz",
+        "owner": "nix-darwin",
         "repo": "nix-darwin",
-        "rev": "31e3a7544466c4402784723791cf005d7e18b66f",
+        "rev": "973db96394513fd90270ea5a1211a82a4a0ba47f",
         "type": "github"
       },
       "original": {
-        "owner": "qowoz",
-        "ref": "applications",
+        "owner": "nix-darwin",
+        "ref": "master",
         "repo": "nix-darwin",
         "type": "github"
       }
