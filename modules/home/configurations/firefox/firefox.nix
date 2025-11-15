@@ -6,7 +6,7 @@
 }:
 
 let
-  inherit (utils.themes) createAppConfig;
+  inherit (utils.theme) createAppConfig;
 
   themeConfig = values.theme // {
     presets = values.theme.presets or [ ];

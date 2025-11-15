@@ -132,7 +132,7 @@ in
     '';
   };
 
-  xdg.configFile = utils.themes.deployThemeFiles values {
+  xdg.configFile = utils.theme.deployThemeFiles values {
     themeDir = ./themes;
     targetPath = "delta/themes";
     fileExtension = "gitconfig";

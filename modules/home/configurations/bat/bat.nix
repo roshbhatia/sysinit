@@ -7,7 +7,7 @@
 }:
 
 let
-  inherit (utils.themes) mkThemedConfig;
+  inherit (utils.theme) mkThemedConfig;
   inherit (lib) listToAttrs nameValuePair;
 
   themeCfg = mkThemedConfig values "bat" { };

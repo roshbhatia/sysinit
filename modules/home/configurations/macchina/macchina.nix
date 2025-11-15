@@ -7,7 +7,7 @@
 }:
 
 let
-  inherit (utils.themes) mkThemedConfig validateThemeConfig;
+  inherit (utils.theme) mkThemedConfig validateThemeConfig;
 
   validatedTheme = validateThemeConfig values.theme;
   themeCfg = mkThemedConfig values "macchina" { };

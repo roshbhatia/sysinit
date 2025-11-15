@@ -7,11 +7,11 @@
 }:
 
 let
-  inherit (utils.themes) getThemePalette validateThemeConfig;
+  inherit (utils.theme) getThemePalette validateThemeConfig;
 
   validatedTheme = validateThemeConfig values.theme;
   palette = getThemePalette validatedTheme.colorscheme validatedTheme.variant;
-  semanticColors = utils.themes.utils.createSemanticMapping palette;
+  semanticColors = utils.theme.utils.createSemanticMapping palette;
   activeColorRaw = semanticColors.semantic.error or (throw "Missing error color in theme palette");
   inactiveColorRaw =
     semanticColors.accent.primary or (throw "Missing primary accent color in theme palette");

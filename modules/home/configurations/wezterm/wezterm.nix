@@ -7,7 +7,7 @@
 }:
 
 let
-  inherit (utils.themes) generateAppJSON;
+  inherit (utils.theme) generateAppJSON;
 
   # Pass entire theme config to enable appearance-to-variant derivation
   # Note: using 'or' pattern to provide defaults for optional fields
