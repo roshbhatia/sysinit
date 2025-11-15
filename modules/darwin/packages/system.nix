@@ -3,10 +3,8 @@
 {
   environment.systemPackages = with pkgs; [
     bash
-    bat
     coreutils
     curl
-    fd
     findutils
     git
     gnugrep

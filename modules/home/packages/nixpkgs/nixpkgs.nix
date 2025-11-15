@@ -78,7 +78,6 @@ let
     nix-prefetch-github
     nix-search-cli
     nix-your-shell
-    nixd
     nixfmt-rfc-style
     nodePackages.fkill-cli
     nodejs_22
@@ -109,7 +108,6 @@ let
     swift
     taplo
     terraform-ls
-    terraform-lsp
     textlint
     tflint
     tflint-plugins.tflint-ruleset-aws
