@@ -261,6 +261,25 @@ tasks:
           exit 1
         fi
 
+  validate:
+    desc: Validate Nix configuration (format checks via flake check)
+    silent: true
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+
+        log_info "Running Nix validation checks"
+
+        # Run flake check (validates format for Nix, Lua, Shell)
+        if ! nix flake check --no-build; then
+          log_error "Flake check failed (see logs above)"
+          exit {{.ERROR_EXIT_CODE}}
+        fi
+
+        log_success "Nix validation passed (format checks complete)"
+
   refresh:
     desc: Apply the system configuration and switch to new generation
     silent: true

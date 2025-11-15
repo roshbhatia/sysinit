@@ -140,5 +140,31 @@
       lib = {
         inherit mkDarwinConfiguration;
       };
+
+      checks.${system} = {
+        # Check Nix formatting
+        nix-format = pkgs.runCommand "check-nix-format" { } ''
+          ${pkgs.fd}/bin/fd -e nix -E result . ${./.} \
+            -x ${pkgs.nixfmt-rfc-style}/bin/nixfmt --width=100 --check {} \
+            || (echo "Nix formatting check failed. Run 'task format:nix' to fix." && exit 1)
+          touch $out
+        '';
+
+        # Check Lua formatting
+        lua-format = pkgs.runCommand "check-lua-format" { } ''
+          ${pkgs.fd}/bin/fd -e lua . ${./.} \
+            -x ${pkgs.stylua}/bin/stylua --check {} \
+            || (echo "Lua formatting check failed. Run 'task format:lua' to fix." && exit 1)
+          touch $out
+        '';
+
+        # Check shell formatting
+        shell-format = pkgs.runCommand "check-shell-format" { } ''
+          ${pkgs.fd}/bin/fd -e sh -e bash -e zsh . ${./.} \
+            -x ${pkgs.shfmt}/bin/shfmt -i 2 -ci -bn -d {} \
+            || (echo "Shell formatting check failed. Run 'task format:sh' to fix." && exit 1)
+          touch $out
+        '';
+      };
     };
 }
