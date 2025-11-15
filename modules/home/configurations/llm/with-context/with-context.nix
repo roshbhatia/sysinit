@@ -16,13 +16,13 @@ let
     # Configuration
     VAULT_NAME="''${OBSIDIAN_VAULT:-${
       lib.escapeShellArg (if cfg.vault or null != null then cfg.vault else "Main")
-    }"
+    }}"
     PROJECT_BASE_PATH="''${PROJECT_BASE_PATH:-${
       lib.escapeShellArg (if cfg.projectBasePath or null != null then cfg.projectBasePath else "Projects")
-    }"
+    }}"
     API_URL="''${OBSIDIAN_API_URL:-${
       lib.escapeShellArg (if cfg.apiUrl or null != null then cfg.apiUrl else "https://127.0.0.1:27124")
-    }"
+    }}"
 
     # Generate API key if not exists
     API_KEY_FILE="$HOME/.config/obsidian/api-key"
