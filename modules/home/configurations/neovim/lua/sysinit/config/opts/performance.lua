@@ -3,14 +3,14 @@ local M = {}
 function M.setup()
   vim.opt.updatetime = 100
   vim.opt.timeoutlen = 300
-  
+
   -- Performance optimizations
   vim.opt.lazyredraw = true
   vim.opt.synmaxcol = 240
   vim.opt.swapfile = false
   vim.opt.writebackup = false
   vim.opt.backup = false
-  
+
   -- Optimize for large files
   vim.api.nvim_create_autocmd("BufReadPre", {
     callback = function()
@@ -21,7 +21,7 @@ function M.setup()
       end
     end,
   })
-  
+
   -- Garbage collection tuning
   local gc_interval = 1000
   local function set_gc()

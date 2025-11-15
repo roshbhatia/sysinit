@@ -182,7 +182,125 @@ with lib;
       };
 
       llm = {
+        # Global LLM configuration
+        agentsMd = {
+          enabled = mkOption {
+            type = types.bool;
+            default = true;
+            description = "Enable AGENTS.md integration across all LLM configurations";
+          };
+
+          autoUpdate = mkOption {
+            type = types.bool;
+            default = true;
+            description = "Automatically update AGENTS.md when configuration changes";
+          };
+        };
+
+        # Execution environment configuration
+        execution = {
+          nixShell = {
+            enabled = mkOption {
+              type = types.bool;
+              default = true;
+              description = "Enable nix-shell integration for dynamic dependency management";
+            };
+
+            autoDeps = mkOption {
+              type = types.bool;
+              default = true;
+              description = "Automatically download dependencies via nix-shell when needed";
+            };
+
+            sandbox = mkOption {
+              type = types.bool;
+              default = true;
+              description = "Use nix-shell sandboxing for isolation";
+            };
+          };
+
+          terminal = {
+            wezterm = {
+              enabled = mkOption {
+                type = types.bool;
+                default = true;
+                description = "Enable wezterm session spawning for visibility";
+              };
+
+              newWindow = mkOption {
+                type = types.bool;
+                default = true;
+                description = "Spawn commands in new wezterm windows";
+              };
+
+              monitor = mkOption {
+                type = types.bool;
+                default = true;
+                description = "Monitor command execution in terminal";
+              };
+            };
+          };
+
+          isolation = {
+            enabled = mkOption {
+              type = types.bool;
+              default = true;
+              description = "Enable execution isolation for security";
+            };
+
+            monitoring = mkOption {
+              type = types.bool;
+              default = true;
+              description = "Monitor resource usage during execution";
+            };
+
+            timeout = mkOption {
+              type = types.int;
+              default = 300;
+              description = "Default execution timeout in seconds";
+            };
+          };
+        };
+
+        # Claude Desktop configuration
+        claude = {
+          enabled = mkOption {
+            type = types.bool;
+            default = true;
+            description = "Enable Claude Desktop configuration";
+          };
+
+          mcp = {
+            aws = {
+              region = mkOption {
+                type = types.str;
+                default = "us-east-1";
+                description = "Default AWS region for MCP servers";
+              };
+
+              enabled = mkOption {
+                type = types.bool;
+                default = true;
+                description = "Enable AWS MCP servers";
+              };
+            };
+
+            additionalServers = mkOption {
+              type = types.attrsOf (types.attrsOf types.any);
+              default = { };
+              description = "Additional MCP servers for Claude";
+            };
+          };
+        };
+
+        # Goose AI assistant configuration
         goose = {
+          enabled = mkOption {
+            type = types.bool;
+            default = true;
+            description = "Enable Goose AI assistant configuration";
+          };
+
           provider = mkOption {
             type = types.str;
             default = "github_copilot";
@@ -199,6 +317,118 @@ with lib;
             type = types.str;
             default = "gpt-4o-mini";
             description = "Goose model configuration";
+          };
+
+          alphaFeatures = mkOption {
+            type = types.bool;
+            default = true;
+            description = "Enable Goose alpha features";
+          };
+
+          mode = mkOption {
+            type = types.str;
+            default = "smart_approve";
+            description = "Goose interaction mode";
+          };
+        };
+
+        # Opencode IDE configuration
+        opencode = {
+          enabled = mkOption {
+            type = types.bool;
+            default = true;
+            description = "Enable Opencode IDE configuration";
+          };
+
+          theme = mkOption {
+            type = types.str;
+            default = "auto";
+            description = "Opencode theme configuration";
+          };
+
+          autoupdate = mkOption {
+            type = types.bool;
+            default = true;
+            description = "Enable Opencode auto-update";
+          };
+
+          share = mkOption {
+            type = types.str;
+            default = "disabled";
+            description = "Opencode sharing configuration";
+          };
+        };
+
+        # Cursor CLI configuration
+        cursor = {
+          enabled = mkOption {
+            type = types.bool;
+            default = true;
+            description = "Enable Cursor CLI configuration";
+          };
+
+          vimMode = mkOption {
+            type = types.bool;
+            default = true;
+            description = "Enable Vim mode in Cursor";
+          };
+
+          permissions = {
+            shell = {
+              allowed = mkOption {
+                type = types.listOf types.str;
+                default = [
+                  "ls"
+                  "rg"
+                  "head"
+                  "git"
+                  "wc"
+                  "grep"
+                  "cd"
+                  "make"
+                  "pwd"
+                  "mkdir"
+                  "cat"
+                  "which"
+                  "tail"
+                ];
+                description = "Allowed shell commands for Cursor";
+              };
+            };
+
+            kubectl = {
+              allowed = mkOption {
+                type = types.listOf types.str;
+                default = [
+                  "get"
+                  "describe"
+                  "logs"
+                  "explain"
+                  "api-resources"
+                  "api-versions"
+                  "cluster-info"
+                  "version"
+                  "config"
+                  "top"
+                ];
+                description = "Allowed kubectl commands for Cursor";
+              };
+            };
+          };
+        };
+
+        # MCP servers configuration
+        mcp = {
+          servers = mkOption {
+            type = types.attrsOf (types.attrsOf types.any);
+            default = { };
+            description = "Additional MCP servers configuration";
+          };
+
+          additionalServers = mkOption {
+            type = types.listOf (types.attrsOf types.any);
+            default = [ ];
+            description = "Additional MCP servers in list format";
           };
         };
       };

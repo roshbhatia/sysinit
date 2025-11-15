@@ -19,7 +19,7 @@ let
         "-y"
         "@upstash/context7-mcp@latest"
       ];
-      description = "Context7 MCP server for enhanced context management";
+      description = "Context7 MCP server for enhanced context management with AGENTS.md support";
     };
     astgrep = {
       command = "uvx";
@@ -40,6 +40,7 @@ let
         "--context"
         "ide-assistant"
       ];
+      description = "Serena IDE assistant with AGENTS.md integration for project-aware coding assistance";
     };
     "awslabs.aws-api-mcp-server" = {
       command = "uvx";

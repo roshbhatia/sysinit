@@ -95,9 +95,37 @@ task: Available tasks for this project:
 | `go.additionalPackages` | list(string) | [] |  | Additional Go packages |
 | `icon` | string? | null |  | Icon URL for the search engine |
 | `krew.additionalPackages` | list(string) | [] |  | Additional kubectl krew plugins |
+| `llm.agentsMd.autoUpdate` | boolean | true |  | Automatically update AGENTS.md when configuration changes |
+| `llm.agentsMd.enabled` | boolean | true |  | Enable AGENTS.md integration across all LLM configurations |
+| `llm.claude.enabled` | boolean | true |  | Enable Claude Desktop configuration |
+| `llm.claude.mcp.additionalServers` | attrsOf (attrsOf any) | `{ }` |  | Additional MCP servers for Claude |
+| `llm.claude.mcp.aws.enabled` | boolean | true |  | Enable AWS MCP servers |
+| `llm.claude.mcp.aws.region` | string | "us-east-1" |  | Default AWS region for MCP servers |
+| `llm.cursor.enabled` | boolean | true |  | Enable Cursor CLI configuration |
+| `llm.cursor.permissions.kubectl.allowed` | list(string) | - | ✓ | Allowed kubectl commands for Cursor |
+| `llm.cursor.permissions.shell.allowed` | list(string) | - | ✓ | Allowed shell commands for Cursor |
+| `llm.cursor.vimMode` | boolean | true |  | Enable Vim mode in Cursor |
+| `llm.execution.isolation.enabled` | boolean | true |  | Enable execution isolation for security |
+| `llm.execution.isolation.monitoring` | boolean | true |  | Monitor resource usage during execution |
+| `llm.execution.isolation.timeout` | integer | `300` |  | Default execution timeout in seconds |
+| `llm.execution.nixShell.autoDeps` | boolean | true |  | Automatically download dependencies via nix-shell when needed |
+| `llm.execution.nixShell.enabled` | boolean | true |  | Enable nix-shell integration for dynamic dependency management |
+| `llm.execution.nixShell.sandbox` | boolean | true |  | Use nix-shell sandboxing for isolation |
+| `llm.execution.terminal.wezterm.enabled` | boolean | true |  | Enable wezterm session spawning for visibility |
+| `llm.execution.terminal.wezterm.monitor` | boolean | true |  | Monitor command execution in terminal |
+| `llm.execution.terminal.wezterm.newWindow` | boolean | true |  | Spawn commands in new wezterm windows |
+| `llm.goose.alphaFeatures` | boolean | true |  | Enable Goose alpha features |
+| `llm.goose.enabled` | boolean | true |  | Enable Goose AI assistant configuration |
 | `llm.goose.leadModel` | string? | null |  | Goose lead model configuration |
+| `llm.goose.mode` | string | "smart_approve" |  | Goose interaction mode |
 | `llm.goose.model` | string | "gpt-4o-mini" |  | Goose model configuration |
 | `llm.goose.provider` | string | "github_copilot" |  | Goose provider configuration |
+| `llm.mcp.additionalServers` | listOf (attrsOf any) | [] |  | Additional MCP servers in list format |
+| `llm.mcp.servers` | attrsOf (attrsOf any) | `{ }` |  | Additional MCP servers configuration |
+| `llm.opencode.autoupdate` | boolean | true |  | Enable Opencode auto-update |
+| `llm.opencode.enabled` | boolean | true |  | Enable Opencode IDE configuration |
+| `llm.opencode.share` | string | "disabled" |  | Opencode sharing configuration |
+| `llm.opencode.theme` | string | "auto" |  | Opencode theme configuration |
 | `nix.additionalPackages` | list(string) | [] |  | Additional Nix packages |
 | `npm.additionalPackages` | list(string) | [] |  | Additional global npm packages |
 | `pipx.additionalPackages` | list(string) | [] |  | Additional global pipx packages |
