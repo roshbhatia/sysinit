@@ -71,32 +71,22 @@ let
       echo "Warning: Obsidian configuration file not found. Please enable Local REST API plugin manually in Obsidian settings."
     fi
 
-    # Test API connection
     echo "Testing Obsidian API connection..."
     if ${pkgs.curl}/bin/curl -s -H "Authorization: Bearer $API_KEY" "$API_URL" >/dev/null 2>&1; then
       echo "API connection successful"
-    else
-      echo "Warning: API connection failed. Please ensure:"
-      echo "   1. Obsidian is running"
-      echo "   2. Local REST API plugin is enabled"
-      echo "   3. API is running on $API_URL"
     fi
 
-    echo ""
-    echo "WithContext MCP server setup complete!"
     echo ""
     echo "Configuration:"
     echo "  Vault: $VAULT_NAME"
     echo "  API URL: $API_URL"
     echo "  Project Base Path: $PROJECT_BASE_PATH"
     echo ""
-    echo "The with-context MCP server will now be available in your AI clients!"
   '';
 
 in
 {
   config = lib.mkIf (cfg.enable or false) {
-    # Environment variables for with-context
     home.sessionVariables = {
       OBSIDIAN_API_KEY = if cfg.apiKey or null != null then cfg.apiKey else "";
       OBSIDIAN_API_URL = cfg.apiUrl or "https://127.0.0.1:27124";
