@@ -128,20 +128,20 @@ with lib;
 
         colorscheme = mkOption {
           type = types.str;
-          default = "catppuccin";
+          default = "rose-pine";
           description = "Theme colorscheme";
         };
 
         variant = mkOption {
           type = types.str;
-          default = "macchiato";
+          default = "moon";
           description = "Theme variant";
         };
 
         font = {
           monospace = mkOption {
             type = types.str;
-            default = "JetBrainsMono Nerd Font";
+            default = "TX-02";
             description = "Monospace font for terminal and editor";
           };
 
@@ -161,13 +161,13 @@ with lib;
 
           opacity = mkOption {
             type = types.float;
-            default = 0.65;
+            default = 0.5;
             description = "Transparency opacity level";
           };
 
           blur = mkOption {
             type = types.int;
-            default = 40;
+            default = 0;
             description = "Background blur amount";
           };
         };

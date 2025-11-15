@@ -10,16 +10,6 @@
     username = "roshbhatia";
   };
 
-  theme = {
-    colorscheme = "rose-pine";
-    variant = "moon";
-    appearance = "dark";
-    font = {
-      monospace = "TX-02";
-      nerdfontFallback = "Wumpus Mono";
-    };
-  };
-
   darwin = {
     homebrew = {
       additionalPackages = {

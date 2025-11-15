@@ -102,13 +102,13 @@ task: Available tasks for this project:
 | `npm.additionalPackages` | list(string) | [] |  | Additional global npm packages |
 | `pipx.additionalPackages` | list(string) | [] |  | Additional global pipx packages |
 | `theme.appearance` |  | "dark" |  | Appearance mode (light or dark) |
-| `theme.colorscheme` | string | "catppuccin" |  | Theme colorscheme |
-| `theme.font.monospace` | string | "JetBrainsMono Nerd Font" |  | Monospace font for terminal and editor |
+| `theme.colorscheme` | string | "rose-pine" |  | Theme colorscheme |
+| `theme.font.monospace` | string | "TX-02" |  | Monospace font for terminal and editor |
 | `theme.font.nerdfontFallback` | string | "Symbols Nerd Font" |  | Fallback font for nerd font glyphs |
-| `theme.transparency.blur` | integer | `40` |  | Background blur amount |
+| `theme.transparency.blur` | integer | `0` |  | Background blur amount |
 | `theme.transparency.enable` | boolean | true |  | Enable transparency effects |
-| `theme.transparency.opacity` | float | `0.65` |  | Transparency opacity level |
-| `theme.variant` | string | "macchiato" |  | Theme variant |
+| `theme.transparency.opacity` | float | `0.5` |  | Transparency opacity level |
+| `theme.variant` | string | "moon" |  | Theme variant |
 | `updateInterval` | nullOr int | null |  | Update interval in milliseconds |
 | `user.hostname` | string | "nixos" |  | System hostname |
 | `user.username` | string | "user" |  | Username for the system user |
