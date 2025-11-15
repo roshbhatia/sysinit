@@ -93,17 +93,7 @@ let
 
 in
 {
-  home.packages = with pkgs; [
-    nodejs
-    npm
-  ];
-
-  # Add with-context to additional packages if enabled
   config = lib.mkIf (cfg.enable or false) {
-    home.packages = with pkgs; [
-      nodePackages.with-context-mcp
-    ];
-
     # Environment variables for with-context
     home.sessionVariables = {
       OBSIDIAN_API_KEY = cfg.apiKey or "";
