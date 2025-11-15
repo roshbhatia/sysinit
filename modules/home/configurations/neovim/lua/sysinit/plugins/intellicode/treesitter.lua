@@ -126,7 +126,7 @@ M.plugins = {
 
           -- Only process real files
           local bufname = vim.api.nvim_buf_get_name(buf)
-          if bufname == "" or not vim.fn.filereadable(bufname) == 1 then
+          if bufname == "" or vim.fn.filereadable(bufname) ~= 1 then
             return
           end
 

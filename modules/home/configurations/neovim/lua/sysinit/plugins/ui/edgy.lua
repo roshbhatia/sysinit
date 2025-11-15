@@ -35,7 +35,7 @@ M.plugins = {
         },
         bottom = {
           {
-            title = " QuickFix",
+            title = "",
             ft = "qf",
             size = { height = 0.3 },
           },

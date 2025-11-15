@@ -16,7 +16,6 @@ M.plugins = {
       servers.setup_configs()
       diagnostics.configure()
       servers.enable_servers()
-      vim.lsp.inlay_hint.enable(true)
     end,
     keys = keymaps.get_keymaps(),
   },

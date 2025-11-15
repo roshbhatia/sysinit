@@ -19,12 +19,12 @@ function M.get_keymaps()
     },
     {
       "<leader>cp",
-      vim.diagnostic.get_prev,
+      vim.diagnostic.goto_prev,
       desc = "Previous diagnostic",
     },
     {
       "<leader>cn",
-      vim.diagnostic.get_next,
+      vim.diagnostic.goto_next,
       desc = "Next diagnostic",
     },
     {
