@@ -34,6 +34,7 @@
           "calibre"
           "discord"
           "notion"
+          "notion-calendar"
           "notion-mail"
           "orbstack"
           "steam"
