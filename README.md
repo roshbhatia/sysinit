@@ -105,9 +105,9 @@ task: Available tasks for this project:
 | `theme.colorscheme` | string | "catppuccin" |  | Theme colorscheme |
 | `theme.font.monospace` | string | "JetBrainsMono Nerd Font" |  | Monospace font for terminal and editor |
 | `theme.font.nerdfontFallback` | string | "Symbols Nerd Font" |  | Fallback font for nerd font glyphs |
-| `theme.transparency.blur` | integer | `80` |  | Background blur amount |
+| `theme.transparency.blur` | integer | `40` |  | Background blur amount |
 | `theme.transparency.enable` | boolean | true |  | Enable transparency effects |
-| `theme.transparency.opacity` | float | `0.85` |  | Transparency opacity level |
+| `theme.transparency.opacity` | float | `0.65` |  | Transparency opacity level |
 | `theme.variant` | string | "macchiato" |  | Theme variant |
 | `updateInterval` | nullOr int | null |  | Update interval in milliseconds |
 | `user.hostname` | string | "nixos" |  | System hostname |
