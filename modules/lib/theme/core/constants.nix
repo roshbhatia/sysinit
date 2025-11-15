@@ -70,4 +70,59 @@ _: {
     reduced_motion = {
     };
   };
+
+  # LLM configuration defaults
+  llmDefaults = {
+    goose = {
+      provider = "github_copilot";
+      leadModel = null;
+      model = "gpt-4o-mini";
+      alphaFeatures = true;
+      mode = "smart_approve";
+    };
+
+    opencode = {
+      theme = "auto";
+      autoupdate = true;
+      share = "disabled";
+    };
+
+    cursor = {
+      vimMode = true;
+      permissions = {
+        shell = {
+          allowed = [
+            "ls"
+            "rg"
+            "head"
+            "git"
+            "wc"
+            "grep"
+            "cd"
+            "make"
+            "pwd"
+            "mkdir"
+            "cat"
+            "which"
+            "tail"
+          ];
+        };
+
+        kubectl = {
+          allowed = [
+            "get"
+            "describe"
+            "logs"
+            "explain"
+            "api-resources"
+            "api-versions"
+            "cluster-info"
+            "version"
+            "config"
+            "top"
+          ];
+        };
+      };
+    };
+  };
 }

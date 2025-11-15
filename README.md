@@ -102,9 +102,9 @@ task: Available tasks for this project:
 | `llm.claude.mcp.aws.enabled` | boolean | true |  | Enable AWS MCP servers |
 | `llm.claude.mcp.aws.region` | string | "us-east-1" |  | Default AWS region for MCP servers |
 | `llm.cursor.enabled` | boolean | true |  | Enable Cursor CLI configuration |
-| `llm.cursor.permissions.kubectl.allowed` | list(string) | - | ✓ | Allowed kubectl commands for Cursor |
-| `llm.cursor.permissions.shell.allowed` | list(string) | - | ✓ | Allowed shell commands for Cursor |
-| `llm.cursor.vimMode` | boolean | true |  | Enable Vim mode in Cursor |
+| `llm.cursor.permissions.kubectl.allowed` | list(string) | `constants.llmDefaults.cursor.permissions.kubectl.allowed` |  | Allowed kubectl commands for Cursor |
+| `llm.cursor.permissions.shell.allowed` | list(string) | `constants.llmDefaults.cursor.permissions.shell.allowed` |  | Allowed shell commands for Cursor |
+| `llm.cursor.vimMode` | boolean | `constants.llmDefaults.cursor.vimMode` |  | Enable Vim mode in Cursor |
 | `llm.execution.isolation.enabled` | boolean | true |  | Enable execution isolation for security |
 | `llm.execution.isolation.monitoring` | boolean | true |  | Monitor resource usage during execution |
 | `llm.execution.isolation.timeout` | integer | `300` |  | Default execution timeout in seconds |
@@ -114,18 +114,18 @@ task: Available tasks for this project:
 | `llm.execution.terminal.wezterm.enabled` | boolean | true |  | Enable wezterm session spawning for visibility |
 | `llm.execution.terminal.wezterm.monitor` | boolean | true |  | Monitor command execution in terminal |
 | `llm.execution.terminal.wezterm.newWindow` | boolean | true |  | Spawn commands in new wezterm windows |
-| `llm.goose.alphaFeatures` | boolean | true |  | Enable Goose alpha features |
+| `llm.goose.alphaFeatures` | boolean | `constants.llmDefaults.goose.alphaFeatures` |  | Enable Goose alpha features |
 | `llm.goose.enabled` | boolean | true |  | Enable Goose AI assistant configuration |
-| `llm.goose.leadModel` | string? | null |  | Goose lead model configuration |
-| `llm.goose.mode` | string | "smart_approve" |  | Goose interaction mode |
-| `llm.goose.model` | string | "gpt-4o-mini" |  | Goose model configuration |
-| `llm.goose.provider` | string | "github_copilot" |  | Goose provider configuration |
+| `llm.goose.leadModel` | string? | `constants.llmDefaults.goose.leadModel` |  | Goose lead model configuration |
+| `llm.goose.mode` | string | `constants.llmDefaults.goose.mode` |  | Goose interaction mode |
+| `llm.goose.model` | string | `constants.llmDefaults.goose.model` |  | Goose model configuration |
+| `llm.goose.provider` | string | `constants.llmDefaults.goose.provider` |  | Goose provider configuration |
 | `llm.mcp.additionalServers` | listOf (attrsOf anything) | [] |  | Additional MCP servers in list format |
 | `llm.mcp.servers` | attrsOf (attrsOf anything) | `{ }` |  | Additional MCP servers configuration |
-| `llm.opencode.autoupdate` | boolean | true |  | Enable Opencode auto-update |
+| `llm.opencode.autoupdate` | boolean | `constants.llmDefaults.opencode.autoupdate` |  | Enable Opencode auto-update |
 | `llm.opencode.enabled` | boolean | true |  | Enable Opencode IDE configuration |
-| `llm.opencode.share` | string | "disabled" |  | Opencode sharing configuration |
-| `llm.opencode.theme` | string | "auto" |  | Opencode theme configuration |
+| `llm.opencode.share` | string | `constants.llmDefaults.opencode.share` |  | Opencode sharing configuration |
+| `llm.opencode.theme` | string | `constants.llmDefaults.opencode.theme` |  | Opencode theme configuration |
 | `nix.additionalPackages` | list(string) | [] |  | Additional Nix packages |
 | `npm.additionalPackages` | list(string) | [] |  | Additional global npm packages |
 | `pipx.additionalPackages` | list(string) | [] |  | Additional global pipx packages |

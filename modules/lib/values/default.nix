@@ -1,7 +1,9 @@
 { lib }:
 
 with lib;
-
+let
+  constants = import ../theme/core/constants.nix;
+in
 {
   valuesType = types.submodule {
     options = {
@@ -303,31 +305,31 @@ with lib;
 
           provider = mkOption {
             type = types.str;
-            default = "github_copilot";
+            default = constants.llmDefaults.goose.provider;
             description = "Goose provider configuration";
           };
 
           leadModel = mkOption {
             type = types.nullOr types.str;
-            default = null;
+            default = constants.llmDefaults.goose.leadModel;
             description = "Goose lead model configuration";
           };
 
           model = mkOption {
             type = types.str;
-            default = "gpt-4o-mini";
+            default = constants.llmDefaults.goose.model;
             description = "Goose model configuration";
           };
 
           alphaFeatures = mkOption {
             type = types.bool;
-            default = true;
+            default = constants.llmDefaults.goose.alphaFeatures;
             description = "Enable Goose alpha features";
           };
 
           mode = mkOption {
             type = types.str;
-            default = "smart_approve";
+            default = constants.llmDefaults.goose.mode;
             description = "Goose interaction mode";
           };
         };
@@ -342,19 +344,19 @@ with lib;
 
           theme = mkOption {
             type = types.str;
-            default = "auto";
+            default = constants.llmDefaults.opencode.theme;
             description = "Opencode theme configuration";
           };
 
           autoupdate = mkOption {
             type = types.bool;
-            default = true;
+            default = constants.llmDefaults.opencode.autoupdate;
             description = "Enable Opencode auto-update";
           };
 
           share = mkOption {
             type = types.str;
-            default = "disabled";
+            default = constants.llmDefaults.opencode.share;
             description = "Opencode sharing configuration";
           };
         };
@@ -369,7 +371,7 @@ with lib;
 
           vimMode = mkOption {
             type = types.bool;
-            default = true;
+            default = constants.llmDefaults.cursor.vimMode;
             description = "Enable Vim mode in Cursor";
           };
 
@@ -377,21 +379,7 @@ with lib;
             shell = {
               allowed = mkOption {
                 type = types.listOf types.str;
-                default = [
-                  "ls"
-                  "rg"
-                  "head"
-                  "git"
-                  "wc"
-                  "grep"
-                  "cd"
-                  "make"
-                  "pwd"
-                  "mkdir"
-                  "cat"
-                  "which"
-                  "tail"
-                ];
+                default = constants.llmDefaults.cursor.permissions.shell.allowed;
                 description = "Allowed shell commands for Cursor";
               };
             };
@@ -399,18 +387,7 @@ with lib;
             kubectl = {
               allowed = mkOption {
                 type = types.listOf types.str;
-                default = [
-                  "get"
-                  "describe"
-                  "logs"
-                  "explain"
-                  "api-resources"
-                  "api-versions"
-                  "cluster-info"
-                  "version"
-                  "config"
-                  "top"
-                ];
+                default = constants.llmDefaults.cursor.permissions.kubectl.allowed;
                 description = "Allowed kubectl commands for Cursor";
               };
             };
