@@ -112,8 +112,13 @@ in
             -moz-appearance: none !important;
             appearance: none !important;
             margin: -1px;
-            padding: 0 var(--toolbarbutton-outer-padding);
+            padding: 4px var(--toolbarbutton-outer-padding) 0 !important;
             -moz-box-pack: center;
+        }
+
+        /* Extra breathing room for nav-bar icons */
+        #nav-bar .toolbarbutton-1 {
+            padding-top: 6px !important;
         }
 
         .titlebar-placeholder[type="pre-tabs"] {
@@ -190,7 +195,8 @@ in
         /* ========== URL BAR ========== */
 
         #urlbar-container {
-            min-width: 340px !important;
+            min-width: 500px !important;
+            flex: 1 !important;
         }
 
         #urlbar {
@@ -341,28 +347,15 @@ in
             color: var(--uc-menu-disabled) !important;
         }
 
-        /* ========== MINIMAL SIDEBAR ========== */
+        /* ========== HIDE SIDEBAR ALWAYS ========== */
 
-        #sidebar-box,
-        #sidebar,
-        #sidebar-header,
-        .sidebar-placesTree,
-        .sidebar-placesTreechildren {
-            -moz-appearance: none !important;
-            color: var(--minimal-text) !important;
-            background-color: var(--minimal-bg) !important;
-            border: none !important;
+        #sidebar-box {
+            display: none !important;
+            visibility: hidden !important;
         }
 
-        /* Ensure sidebar items use proper theme colors */
-        .sidebar-placesTree treechildren::-moz-tree-cell,
-        .sidebar-placesTree treechildren::-moz-tree-row {
-            background-color: var(--minimal-bg) !important;
-        }
-
-        .sidebar-placesTree treechildren::-moz-tree-cell(selected),
-        .sidebar-placesTree treechildren::-moz-tree-row(selected) {
-            background-color: var(--minimal-bg-secondary) !important;
+        #sidebar-splitter {
+            display: none !important;
         }
 
         /* ========== MINIMAL TOOLTIPS ========== */
@@ -673,10 +666,60 @@ in
             background: var(--minimal-border) !important;
           }
         }
+
+        /* ========== TABLISS NEW TAB THEMING ========== */
+
+        @-moz-document url-prefix("moz-extension://") {
+          :root {
+            --tabliss-bg: var(--minimal-bg) !important;
+            --tabliss-fg: var(--minimal-text) !important;
+            --tabliss-accent: var(--minimal-accent) !important;
+          }
+
+          body {
+            background-color: var(--minimal-bg) !important;
+            color: var(--minimal-text) !important;
+          }
+
+          /* Match toolbar appearance */
+          .widgets,
+          .toolbar,
+          .settings-panel,
+          [class*="Widget"],
+          [class*="Settings"] {
+            background-color: var(--minimal-bg) !important;
+            color: var(--minimal-text) !important;
+          }
+
+          /* Style Tabliss inputs and buttons */
+          input,
+          select,
+          button {
+            background-color: var(--minimal-bg-secondary) !important;
+            color: var(--minimal-text) !important;
+            border: 1px solid var(--minimal-border) !important;
+          }
+
+          button:hover {
+            background-color: var(--minimal-border) !important;
+          }
+        }
       '';
 
+      # Allow custom per-website CSS overrides
+      customWebsiteCSS =
+        if hasAttr "websiteCSS" overrides then
+          ''
+
+            /* ========== CUSTOM WEBSITE CSS ========== */
+
+            ${overrides.websiteCSS}
+          ''
+        else
+          "";
+
       baseConfig = {
-        userContentCSS = semanticCSSVariables + baseUserContentCSS;
+        userContentCSS = semanticCSSVariables + baseUserContentCSS + customWebsiteCSS;
         userChromeCSS = semanticCSSVariables + baseChromeCSS;
         inherit semanticColors;
         inherit transparency;
