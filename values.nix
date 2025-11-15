@@ -10,14 +10,6 @@
     username = "roshbhatia";
   };
 
-  llm = {
-    withContext = {
-      enable = true;
-      vault = "Main";
-      projectBasePath = "Projects";
-    };
-  };
-
   darwin = {
     homebrew = {
       additionalPackages = {

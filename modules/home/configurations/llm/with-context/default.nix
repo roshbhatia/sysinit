@@ -1,3 +1,0 @@
-{
-  imports = [ ./with-context.nix ];
-}

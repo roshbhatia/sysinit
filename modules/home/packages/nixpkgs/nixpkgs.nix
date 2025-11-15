@@ -17,6 +17,7 @@ let
     atuin
     awk-language-server
     awscli2
+    bashInteractive
     bash-language-server
     caddy
     cargo-watch

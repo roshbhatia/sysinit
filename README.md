@@ -126,11 +126,6 @@ task: Available tasks for this project:
 | `llm.opencode.enabled` | boolean | true |  | Enable Opencode IDE configuration |
 | `llm.opencode.share` | string | `constants.llmDefaults.opencode.share` |  | Opencode sharing configuration |
 | `llm.opencode.theme` | string | `constants.llmDefaults.opencode.theme` |  | Opencode theme configuration |
-| `llm.withContext.apiKey` | string? | null |  | Obsidian API key (auto-generated if not provided) |
-| `llm.withContext.apiUrl` | string | "https://127.0.0.1:27124" |  | Obsidian Local REST API URL |
-| `llm.withContext.enable` | boolean | false |  | Enable WithContext MCP server for Obsidian integration |
-| `llm.withContext.projectBasePath` | string | "Projects" |  | Base path for project folders in vault |
-| `llm.withContext.vault` | string | "Default" |  | Obsidian vault name |
 | `nix.additionalPackages` | list(string) | [] |  | Additional Nix packages |
 | `npm.additionalPackages` | list(string) | [] |  | Additional global npm packages |
 | `pipx.additionalPackages` | list(string) | [] |  | Additional global pipx packages |

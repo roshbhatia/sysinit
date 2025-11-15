@@ -394,39 +394,6 @@ in
           };
         };
 
-        # WithContext MCP server configuration
-        withContext = {
-          enable = mkOption {
-            type = types.bool;
-            default = false;
-            description = "Enable WithContext MCP server for Obsidian integration";
-          };
-
-          apiKey = mkOption {
-            type = types.nullOr types.str;
-            default = null;
-            description = "Obsidian API key (auto-generated if not provided)";
-          };
-
-          apiUrl = mkOption {
-            type = types.str;
-            default = "https://127.0.0.1:27124";
-            description = "Obsidian Local REST API URL";
-          };
-
-          vault = mkOption {
-            type = types.str;
-            default = "Default";
-            description = "Obsidian vault name";
-          };
-
-          projectBasePath = mkOption {
-            type = types.str;
-            default = "Projects";
-            description = "Base path for project folders in vault";
-          };
-        };
-
         # MCP servers configuration
         mcp = {
           servers = mkOption {

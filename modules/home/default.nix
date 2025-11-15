@@ -285,10 +285,6 @@
       tree = "eza --tree --icons=never";
     };
 
-    packages = [
-      pkgs.bashInteractive
-    ];
-
     activation.setBash = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
       export PATH="${pkgs.bashInteractive}/bin:$PATH"
     '';
