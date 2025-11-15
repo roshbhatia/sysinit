@@ -45,7 +45,6 @@ require("sysinit.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.editor.marks"),
   require("sysinit.plugins.editor.markview"),
   require("sysinit.plugins.editor.move"),
-  require("sysinit.plugins.editor.multicursor"),
   require("sysinit.plugins.file.neo-tree"),
   require("sysinit.plugins.file.oil"),
   require("sysinit.plugins.file.persisted"),
