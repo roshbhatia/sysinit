@@ -1,6 +1,6 @@
 { lib, values, ... }:
 let
-  mcpServers = import ../shared/mcp-servers.nix { inherit lib values; };
+  mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   common = import ../shared/common.nix;
   gooseEnabled = values.llm.goose.enabled or true;
 
