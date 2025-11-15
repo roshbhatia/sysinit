@@ -1,6 +1,5 @@
 {
   values ? { },
-  lib,
 }:
 let
   defaultServers = {
@@ -85,7 +84,7 @@ let
   additionalServersList = values.llm.mcp.additionalServers or [ ];
 
   # Convert list format to attrset
-  additionalServersFromList = lib.builtins.listToAttrs (
+  additionalServersFromList = builtins.listToAttrs (
     map (server: {
       inherit (server) name;
       value = {
