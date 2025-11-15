@@ -38,6 +38,7 @@ let
     docker-language-server
     duf
     eslint
+    fd
     gettext
     gh
     gh-dash
@@ -94,6 +95,7 @@ let
     proselint
     pyright
     python311
+    ripgrep
     rustc
     rustup
     sad
