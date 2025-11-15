@@ -15,13 +15,13 @@ function M.setup()
     desc = "Force Quit",
   })
 
-  vim.keymap.set("n", "<C-q>", "<C-v>", {
+  vim.keymap.set("n", "<C-S-v>", "<C-v>", {
     noremap = true,
     silent = true,
     desc = "Enter Visual-Block mode",
   })
 
-  vim.keymap.set("v", "<C-q>", "<C-v>", {
+  vim.keymap.set("v", "<C-S-v>", "<C-v>", {
     noremap = true,
     silent = true,
     desc = "Visual-Block mode from Visual",
