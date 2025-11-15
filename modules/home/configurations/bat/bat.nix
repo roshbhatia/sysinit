@@ -13,10 +13,8 @@ let
   themeCfg = mkThemedConfig values "bat" { };
   batTheme = themeCfg.appTheme;
 
-  # Get all theme files from the themes directory
   themeFiles = builtins.readDir ./themes;
 
-  # Create xdg.configFile entries for all theme files
   themeConfigFiles = listToAttrs (
     lib.mapAttrsToList (
       name: _type:
