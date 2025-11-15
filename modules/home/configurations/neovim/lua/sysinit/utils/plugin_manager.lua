@@ -43,11 +43,21 @@ function plugin_manager.setup_plugins(modules)
           "tohtml",
           "tutor",
           "zipPlugin",
+          "matchit",
+          "matchparen",
+          "shada_plugin",
         },
       },
+      reset_packpath = true,
+      reset_rtp = true,
     },
     change_detection = {
       notify = false,
+      enabled = false, -- Disable for better performance
+    },
+    concurrency = 4, -- Optimize for modern systems
+    dev = {
+      path = vim.fn.stdpath("data") .. "/lazy-dev",
     },
     install = {
       colorscheme = {

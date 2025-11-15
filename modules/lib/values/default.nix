@@ -286,7 +286,7 @@ with lib;
             };
 
             additionalServers = mkOption {
-              type = types.attrsOf (types.attrsOf types.any);
+              type = types.attrsOf (types.attrsOf types.anything);
               default = { };
               description = "Additional MCP servers for Claude";
             };
@@ -418,15 +418,15 @@ with lib;
         };
 
         # MCP servers configuration
-        mcp = {
-          servers = mkOption {
-            type = types.attrsOf (types.attrsOf types.any);
-            default = { };
-            description = "Additional MCP servers configuration";
-          };
+          mcp = {
+            servers = mkOption {
+              type = types.attrsOf (types.attrsOf types.anything);
+              default = { };
+              description = "Additional MCP servers configuration";
+            };
 
           additionalServers = mkOption {
-            type = types.listOf (types.attrsOf types.any);
+            type = types.listOf (types.attrsOf types.anything);
             default = [ ];
             description = "Additional MCP servers in list format";
           };

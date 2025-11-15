@@ -162,46 +162,55 @@ M.plugins = {
           return
         end
       end
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "TelescopeFindFiles",
-        callback = function()
-          lazy_load_ext("fzy_native")
-        end,
-      })
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "TelescopeLiveGrep",
-        callback = function()
-          lazy_load_ext("live_grep_args")
-        end,
-      })
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "TelescopeUndo",
-        callback = function()
-          lazy_load_ext("undo")
-        end,
-      })
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "TelescopeDap",
-        callback = function()
-          lazy_load_ext("dap")
-        end,
-      })
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "TelescopeUiSelect",
-        callback = function()
-          lazy_load_ext("ui-select")
-        end,
-      })
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "TelescopePersisted",
+      
+      -- Optimized extension loading with better triggers
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "gitcommit", "gitrebase" },
         callback = function()
           lazy_load_ext("persisted")
         end,
       })
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "TelescopeAstGrep",
+      
+      vim.api.nvim_create_autocmd("BufRead", {
+        callback = function()
+          if vim.fn.exists(":Telescope") == 2 then
+            lazy_load_ext("fzy_native")
+            lazy_load_ext("ui-select")
+          end
+        end,
+        once = true,
+      })
+      
+      -- Load debug extensions only when needed
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "dap-repl", "dapui_watches", "dapui_scopes" },
+        callback = function()
+          lazy_load_ext("dap")
+        end,
+      })
+      
+      -- Load undo extension only for buffers with undo
+      vim.api.nvim_create_autocmd("BufRead", {
+        callback = function()
+          if vim.fn.undotree() ~= "" then
+            lazy_load_ext("undo")
+          end
+        end,
+      })
+      
+      -- Load ast-grep only for code files
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "javascript", "typescript", "python", "lua", "rust", "go", "java", "cpp", "c" },
         callback = function()
           lazy_load_ext("ast_grep")
+        end,
+      })
+      
+      -- Fallback to User events for compatibility
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "TelescopeLiveGrep",
+        callback = function()
+          lazy_load_ext("live_grep_args")
         end,
       })
     end,

@@ -81,6 +81,7 @@ let
     nixfmt-rfc-style
     nodePackages.fkill-cli
     nodejs_22
+    obsidian
     oh-my-posh
     ollama
     openscad

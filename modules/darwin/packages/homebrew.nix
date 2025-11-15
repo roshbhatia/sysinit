@@ -40,6 +40,7 @@ let
     "1password-cli"
     "firefox"
     "font-symbols-only-nerd-font"
+    "handy"
     "hammerspoon"
     "mediosz/tap/swipeaerospace"
     "notion"
