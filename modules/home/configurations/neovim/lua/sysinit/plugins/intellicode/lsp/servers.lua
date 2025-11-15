@@ -4,10 +4,6 @@ function M.get_builtin_configs()
   local schemastore = require("schemastore")
 
   local configs = {
-    ast_grep = {
-      cmd = { "ast-grep", "lsp", "-c", vim.fn.expand("~/.config/ast-grep/sgconfig.yml") },
-      root_markers = { ".git" },
-    },
     copilot_ls = {
       on_attach = function(client, bufnr)
         require("sysinit.plugins.intellicode.lsp.copilot").setup(client, bufnr)
