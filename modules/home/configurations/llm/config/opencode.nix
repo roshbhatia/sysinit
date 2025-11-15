@@ -1,6 +1,6 @@
 { lib, values, ... }:
 let
-  mcpServers = import ../shared/mcp-servers.nix { inherit values; };
+  mcpServers = import ../shared/mcp-servers.nix { inherit lib values; };
   lsp = import ../shared/lsp.nix;
   common = import ../shared/common.nix;
   prompts = import ../shared/prompts.nix { };

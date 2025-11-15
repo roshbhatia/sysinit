@@ -14,12 +14,14 @@ let
     echo "Setting up WithContext MCP server for Obsidian integration..."
 
     # Configuration
-    VAULT_NAME="''${OBSIDIAN_VAULT:-${lib.optionalString (cfg.vault or null) cfg.vault "Main"}"
+    VAULT_NAME="''${OBSIDIAN_VAULT:-${
+      lib.escapeShellArg (if cfg.vault or null != null then cfg.vault else "Main")
+    }"
     PROJECT_BASE_PATH="''${PROJECT_BASE_PATH:-${
-      lib.optionalString (cfg.projectBasePath or null) cfg.projectBasePath "Projects"
+      lib.escapeShellArg (if cfg.projectBasePath or null != null then cfg.projectBasePath else "Projects")
     }"
     API_URL="''${OBSIDIAN_API_URL:-${
-      lib.optionalString (cfg.apiUrl or null) cfg.apiUrl "https://127.0.0.1:27124"
+      lib.escapeShellArg (if cfg.apiUrl or null != null then cfg.apiUrl else "https://127.0.0.1:27124")
     }"
 
     # Generate API key if not exists
@@ -96,7 +98,7 @@ in
   config = lib.mkIf (cfg.enable or false) {
     # Environment variables for with-context
     home.sessionVariables = {
-      OBSIDIAN_API_KEY = cfg.apiKey or "";
+      OBSIDIAN_API_KEY = if cfg.apiKey or null != null then cfg.apiKey else "";
       OBSIDIAN_API_URL = cfg.apiUrl or "https://127.0.0.1:27124";
       OBSIDIAN_VAULT = cfg.vault or "Default";
       PROJECT_BASE_PATH = cfg.projectBasePath or "Projects";
