@@ -4,6 +4,7 @@ local agents = require("sysinit.plugins.intellicode.ai.agents")
 local keymaps = require("sysinit.plugins.intellicode.ai.keymaps")
 local terminal = require("sysinit.plugins.intellicode.ai.terminal")
 local completion = require("sysinit.plugins.intellicode.ai.completion")
+local file_refresh = require("sysinit.plugins.intellicode.ai.file_refresh")
 
 M.plugins = {
   {
@@ -28,14 +29,25 @@ M.plugins = {
         },
         enable_diffing = true,
         trigger_formatting = {
-          enabled = true,
+          enabled = false,
         },
         env = {
           PAGER = "bat",
         },
+        file_refresh = {
+          enable = false,
+        },
       })
 
       terminal.setup_goose_keymaps()
+      file_refresh.setup({
+        file_refresh = {
+          enable = true,
+          timer_interval = 1000,
+          updatetime = 100,
+          show_notifications = true,
+        },
+      })
     end,
     keys = function()
       return keymaps.generate_all_keymaps(agents.get_agents())
