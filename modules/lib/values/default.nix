@@ -161,13 +161,13 @@ with lib;
 
           opacity = mkOption {
             type = types.float;
-            default = 0.5;
+            default = 0.8;
             description = "Transparency opacity level";
           };
 
           blur = mkOption {
             type = types.int;
-            default = 0;
+            default = 80;
             description = "Background blur amount";
           };
         };
@@ -418,12 +418,12 @@ with lib;
         };
 
         # MCP servers configuration
-          mcp = {
-            servers = mkOption {
-              type = types.attrsOf (types.attrsOf types.anything);
-              default = { };
-              description = "Additional MCP servers configuration";
-            };
+        mcp = {
+          servers = mkOption {
+            type = types.attrsOf (types.attrsOf types.anything);
+            default = { };
+            description = "Additional MCP servers configuration";
+          };
 
           additionalServers = mkOption {
             type = types.listOf (types.attrsOf types.anything);

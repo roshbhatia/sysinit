@@ -1,4 +1,9 @@
-{ lib, values, pkgs, ... }:
+{
+  lib,
+  values,
+  pkgs,
+  ...
+}:
 let
   cfg = values.llm.execution;
   enabled = cfg.enabled or true;

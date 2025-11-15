@@ -88,6 +88,7 @@ M.plugins = {
             "^%.git/",
             "^%.githooks/",
             "^%.out/",
+            "^%.serena/",
             "^%.venv/",
             "^%bin/",
             "^%development/render",
@@ -162,7 +163,7 @@ M.plugins = {
           return
         end
       end
-      
+
       -- Optimized extension loading with better triggers
       vim.api.nvim_create_autocmd("FileType", {
         pattern = { "gitcommit", "gitrebase" },
@@ -170,7 +171,7 @@ M.plugins = {
           lazy_load_ext("persisted")
         end,
       })
-      
+
       vim.api.nvim_create_autocmd("BufRead", {
         callback = function()
           if vim.fn.exists(":Telescope") == 2 then
@@ -180,7 +181,7 @@ M.plugins = {
         end,
         once = true,
       })
-      
+
       -- Load debug extensions only when needed
       vim.api.nvim_create_autocmd("FileType", {
         pattern = { "dap-repl", "dapui_watches", "dapui_scopes" },
@@ -188,7 +189,7 @@ M.plugins = {
           lazy_load_ext("dap")
         end,
       })
-      
+
       -- Load undo extension only for buffers with undo
       vim.api.nvim_create_autocmd("BufRead", {
         callback = function()
@@ -197,7 +198,7 @@ M.plugins = {
           end
         end,
       })
-      
+
       -- Load ast-grep only for code files
       vim.api.nvim_create_autocmd("FileType", {
         pattern = { "javascript", "typescript", "python", "lua", "rust", "go", "java", "cpp", "c" },
@@ -205,7 +206,7 @@ M.plugins = {
           lazy_load_ext("ast_grep")
         end,
       })
-      
+
       -- Fallback to User events for compatibility
       vim.api.nvim_create_autocmd("User", {
         pattern = "TelescopeLiveGrep",

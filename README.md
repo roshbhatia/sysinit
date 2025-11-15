@@ -98,7 +98,7 @@ task: Available tasks for this project:
 | `llm.agentsMd.autoUpdate` | boolean | true |  | Automatically update AGENTS.md when configuration changes |
 | `llm.agentsMd.enabled` | boolean | true |  | Enable AGENTS.md integration across all LLM configurations |
 | `llm.claude.enabled` | boolean | true |  | Enable Claude Desktop configuration |
-| `llm.claude.mcp.additionalServers` | attrsOf (attrsOf any) | `{ }` |  | Additional MCP servers for Claude |
+| `llm.claude.mcp.additionalServers` | attrsOf (attrsOf anything) | `{ }` |  | Additional MCP servers for Claude |
 | `llm.claude.mcp.aws.enabled` | boolean | true |  | Enable AWS MCP servers |
 | `llm.claude.mcp.aws.region` | string | "us-east-1" |  | Default AWS region for MCP servers |
 | `llm.cursor.enabled` | boolean | true |  | Enable Cursor CLI configuration |
@@ -120,8 +120,8 @@ task: Available tasks for this project:
 | `llm.goose.mode` | string | "smart_approve" |  | Goose interaction mode |
 | `llm.goose.model` | string | "gpt-4o-mini" |  | Goose model configuration |
 | `llm.goose.provider` | string | "github_copilot" |  | Goose provider configuration |
-| `llm.mcp.additionalServers` | listOf (attrsOf any) | [] |  | Additional MCP servers in list format |
-| `llm.mcp.servers` | attrsOf (attrsOf any) | `{ }` |  | Additional MCP servers configuration |
+| `llm.mcp.additionalServers` | listOf (attrsOf anything) | [] |  | Additional MCP servers in list format |
+| `llm.mcp.servers` | attrsOf (attrsOf anything) | `{ }` |  | Additional MCP servers configuration |
 | `llm.opencode.autoupdate` | boolean | true |  | Enable Opencode auto-update |
 | `llm.opencode.enabled` | boolean | true |  | Enable Opencode IDE configuration |
 | `llm.opencode.share` | string | "disabled" |  | Opencode sharing configuration |
@@ -133,9 +133,9 @@ task: Available tasks for this project:
 | `theme.colorscheme` | string | "rose-pine" |  | Theme colorscheme |
 | `theme.font.monospace` | string | "TX-02" |  | Monospace font for terminal and editor |
 | `theme.font.nerdfontFallback` | string | "Symbols Nerd Font" |  | Fallback font for nerd font glyphs |
-| `theme.transparency.blur` | integer | `0` |  | Background blur amount |
+| `theme.transparency.blur` | integer | `80` |  | Background blur amount |
 | `theme.transparency.enable` | boolean | true |  | Enable transparency effects |
-| `theme.transparency.opacity` | float | `0.5` |  | Transparency opacity level |
+| `theme.transparency.opacity` | float | `0.8` |  | Transparency opacity level |
 | `theme.variant` | string | "moon" |  | Theme variant |
 | `updateInterval` | nullOr int | null |  | Update interval in milliseconds |
 | `user.hostname` | string | "nixos" |  | System hostname |
