@@ -17,6 +17,21 @@ tasks:
         log_success "Shell files formatted successfully"
     silent: true
 
+  sh:check:
+    desc: Check shell formatting without modifying files
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+        log_info "Checking shell formatting"
+        if ! fd -e sh -e bash -e zsh -x shfmt {{.SHFMT_OPTS}} -d; then
+          log_error "Shell formatting check failed. Run 'task format:sh' to fix"
+          exit {{.ERROR_EXIT_CODE}}
+        fi
+        log_success "Shell formatting is correct"
+    silent: true
+
   lua:
     desc: Format all Lua files using stylua
     cmds:
@@ -119,7 +134,32 @@ tasks:
         log_success "Nix files formatted successfully"
     silent: true
 
+  nix:check:
+    desc: Check Nix formatting without modifying files
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+        log_info "Checking Nix formatting"
+        if ! fd -e nix -E result -x nixfmt --width=100 --check; then
+          log_error "Nix formatting check failed. Run 'task format:nix' to fix"
+          exit {{.ERROR_EXIT_CODE}}
+        fi
+        log_success "Nix formatting is correct"
+    silent: true
+
   all:
     desc: Format all supported file types
     deps: [nix, lua, sh]
+    silent: true
+
+  all:check:
+    desc: Check formatting for all file types without modifying
+    deps: [nix:check, lua:check, sh:check]
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        source {{.LOGLIB_PATH}}
+        log_success "All formatting checks passed"
     silent: true
