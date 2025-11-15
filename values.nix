@@ -11,8 +11,9 @@
   };
 
   theme = {
+    colorscheme = "rose-pine";
+    variant = "moon";
     appearance = "dark";
-    colorscheme = "catppuccin";
     font = {
       monospace = "TX-02";
       nerdfontFallback = "Wumpus Mono";
@@ -20,9 +21,6 @@
   };
 
   darwin = {
-    docker = {
-      enable = true;
-    };
     homebrew = {
       additionalPackages = {
         taps = [
