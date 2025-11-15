@@ -75,20 +75,6 @@ let
         FASTMCP_LOG_LEVEL = "ERROR";
       };
     };
-    "with-context" = lib.mkIf (values.llm.withContext.enable or false) {
-      command = "npx";
-      args = [
-        "-y"
-        "with-context-mcp@latest"
-      ];
-      env = {
-        OBSIDIAN_API_KEY = values.llm.withContext.apiKey or "";
-        OBSIDIAN_API_URL = values.llm.withContext.apiUrl or "https://127.0.0.1:27124";
-        OBSIDIAN_VAULT = values.llm.withContext.vault or "Default";
-        PROJECT_BASE_PATH = values.llm.withContext.projectBasePath or "Projects";
-      };
-      description = "WithContext MCP server for Obsidian integration with project-scoped note management";
-    };
   };
 
   # Additional servers from values file (attrset format)
@@ -113,9 +99,28 @@ let
     }) additionalServersList
   );
 
-  # Merge all servers (default + attrset format + list format)
-  # Priority: list format > attrset format > defaults
-  allServers = defaultServers // additionalServersAttrset // additionalServersFromList;
+  # Conditional with-context server
+  withContextServer = lib.optionalAttrs (values.llm.withContext.enable or false) {
+    "with-context" = {
+      command = "npx";
+      args = [
+        "-y"
+        "with-context-mcp@latest"
+      ];
+      env = {
+        OBSIDIAN_API_KEY = values.llm.withContext.apiKey or "";
+        OBSIDIAN_API_URL = values.llm.withContext.apiUrl or "https://127.0.0.1:27124";
+        OBSIDIAN_VAULT = values.llm.withContext.vault or "Default";
+        PROJECT_BASE_PATH = values.llm.withContext.projectBasePath or "Projects";
+      };
+      description = "WithContext MCP server for Obsidian integration with project-scoped note management";
+    };
+  };
+
+  # Merge all servers (default + attrset format + list format + conditional)
+  # Priority: list format > attrset format > with-context > defaults
+  allServers =
+    defaultServers // additionalServersAttrset // additionalServersFromList // withContextServer;
 in
 {
   servers = allServers;
