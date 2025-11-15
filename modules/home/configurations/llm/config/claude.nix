@@ -4,7 +4,7 @@
   ...
 }:
 let
-  mcpServers = import ../shared/mcp-servers.nix { inherit lib values; };
+  mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   common = import ../shared/common.nix;
   claudeEnabled = values.llm.claude.enabled or true;
 
