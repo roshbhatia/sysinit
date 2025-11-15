@@ -1,6 +1,7 @@
 {
-  values ? { },
+  values,
 }:
+
 let
   defaultServers = {
     fetch = {
