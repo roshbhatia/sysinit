@@ -7,7 +7,7 @@
 
 let
   cfg = values.git;
-  inherit (utils.themes) mkThemedConfig;
+  inherit (utils.theme) mkThemedConfig;
   themeCfg = mkThemedConfig values "delta" { };
   deltaTheme = themeCfg.appTheme;
 
