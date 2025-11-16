@@ -78,6 +78,148 @@ rec {
     palette: colorName: fallback:
     palette.${colorName} or fallback;
 
+  # Convert hex color to RGB components (0-255)
+  hexToRgb =
+    color:
+    let
+      expanded = expandHexColor color;
+      cleaned = removePrefix "#" expanded;
+      r = substring 0 2 cleaned;
+      g = substring 2 2 cleaned;
+      b = substring 4 2 cleaned;
+      hexToInt =
+        hex:
+        let
+          chars = stringToCharacters (toLower hex);
+          hexDigit =
+            c:
+            if c == "0" then
+              0
+            else if c == "1" then
+              1
+            else if c == "2" then
+              2
+            else if c == "3" then
+              3
+            else if c == "4" then
+              4
+            else if c == "5" then
+              5
+            else if c == "6" then
+              6
+            else if c == "7" then
+              7
+            else if c == "8" then
+              8
+            else if c == "9" then
+              9
+            else if c == "a" then
+              10
+            else if c == "b" then
+              11
+            else if c == "c" then
+              12
+            else if c == "d" then
+              13
+            else if c == "e" then
+              14
+            else if c == "f" then
+              15
+            else
+              0;
+        in
+        (hexDigit (elemAt chars 0) * 16) + (hexDigit (elemAt chars 1));
+    in
+    {
+      r = hexToInt r;
+      g = hexToInt g;
+      b = hexToInt b;
+    };
+
+  # Convert RGB components to hex color
+  rgbToHex =
+    {
+      r,
+      g,
+      b,
+    }:
+    let
+      intToHex =
+        n:
+        let
+          digits = [
+            "0"
+            "1"
+            "2"
+            "3"
+            "4"
+            "5"
+            "6"
+            "7"
+            "8"
+            "9"
+            "a"
+            "b"
+            "c"
+            "d"
+            "e"
+            "f"
+          ];
+          high = n / 16;
+          low = mod n 16;
+        in
+        "${elemAt digits high}${elemAt digits low}";
+    in
+    "#${intToHex r}${intToHex g}${intToHex b}";
+
+  # Blend two colors with alpha (0.0 = base color, 1.0 = overlay color)
+  # Uses alpha * overlay + (1-alpha) * base for each channel
+  blendColor =
+    baseColor: overlayColor: alpha:
+    let
+      base = hexToRgb baseColor;
+      overlay = hexToRgb overlayColor;
+      # Clamp value between 0 and 255
+      clamp =
+        v:
+        if v < 0 then
+          0
+        else if v > 255 then
+          255
+        else
+          v;
+      # Integer alpha (0-100)
+      alphaInt = builtins.floor (alpha * 100);
+      blendChannel = b: o: clamp (builtins.floor (((alphaInt * o) + ((100 - alphaInt) * b)) / 100));
+    in
+    rgbToHex {
+      r = blendChannel base.r overlay.r;
+      g = blendChannel base.g overlay.g;
+      b = blendChannel base.b overlay.b;
+    };
+
+  # Adjust brightness of a color by percentage (-100 to 100)
+  # Positive values lighten, negative values darken
+  adjustBrightness =
+    color: percent:
+    let
+      rgb = hexToRgb color;
+      clamp =
+        v:
+        if v < 0 then
+          0
+        else if v > 255 then
+          255
+        else
+          v;
+      adjust = v: clamp (builtins.floor (v * (100 + percent) / 100));
+    in
+    rgbToHex {
+      r = adjust rgb.r;
+      g = adjust rgb.g;
+      b = adjust rgb.b;
+    };
+
   createSemanticMapping = palette: {
     background = {
       primary = safeGetColor palette "base" (safeGetColor palette "bg" "#000000");
@@ -120,6 +262,42 @@ rec {
       constant = safeGetColor palette "peach" (safeGetColor palette "orange" "#ff8000");
       builtin = safeGetColor palette "red" "#ff0000";
     };
+
+    ui = {
+      cursor = safeGetColor palette "accent" (safeGetColor palette "blue" "#0080ff");
+      cursor_line = blendColor (safeGetColor palette "base" (safeGetColor palette "bg" "#000000")) (
+        safeGetColor
+        palette
+        "surface"
+        (safeGetColor palette "bg_alt" "#111111")
+      ) 0.5;
+      visual_selection = safeGetColor palette "highlight_high" (
+        safeGetColor palette "surface2" (safeGetColor palette "surface" "#333333")
+      );
+      match_paren = safeGetColor palette "accent" (safeGetColor palette "blue" "#0080ff");
+      line_number = safeGetColor palette "comment" (safeGetColor palette "overlay1" "#888888");
+      line_number_active = safeGetColor palette "accent" (
+        safeGetColor palette "foam" (safeGetColor palette "cyan" "#00ffff")
+      );
+    };
+
+    diff =
+      let
+        base = safeGetColor palette "base" (safeGetColor palette "bg" "#000000");
+        green = safeGetColor palette "green" "#00ff00";
+        yellow = safeGetColor palette "yellow" "#ffff00";
+        red = safeGetColor palette "red" "#ff0000";
+        blue = safeGetColor palette "blue" "#0000ff";
+      in
+      {
+        add = green;
+        add_bg = blendColor base green 0.15;
+        change = yellow;
+        change_bg = blendColor base yellow 0.15;
+        delete = red;
+        delete_bg = blendColor base red 0.15;
+        text = blue;
+      };
 
     extended = removeAttrs palette [
       "base"

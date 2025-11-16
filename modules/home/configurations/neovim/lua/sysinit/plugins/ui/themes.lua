@@ -1,4 +1,5 @@
 local json_loader = require("sysinit.utils.json_loader")
+local highlight_gen = require("sysinit.utils.highlight_generator")
 local theme_config =
   json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
 
@@ -535,7 +536,15 @@ local function get_everforest_config()
 end
 
 local function apply_post_colorscheme_overrides(base_scheme)
-  local overrides = get_transparent_highlights()
+  -- Generate core highlights from Nix-provided semantic colors
+  local core_highlights = highlight_gen.generate_core_highlights(
+    theme_config.colors,
+    theme_config.palette,
+    theme_config.transparency
+  )
+
+  -- Start with transparency overrides, then merge core highlights
+  local overrides = vim.tbl_extend("force", get_transparent_highlights(), core_highlights)
 
   if base_scheme == "everforest" then
     -- Everforest semantic palette colors (work across hard/medium/soft variants)
