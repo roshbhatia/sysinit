@@ -483,45 +483,39 @@ local function apply_post_colorscheme_overrides(base_scheme)
   end
 end
 
+-- Theme configuration table: maps theme names to their plugin modules and config functions
+local THEME_CONFIGS = {
+  catppuccin = { module = "catppuccin", config = get_catppuccin_config },
+  rosepine = { module = "neomodern", config = get_rose_pine_config },
+  roseprime = { module = "neomodern", config = get_rose_pine_config },
+  gruvbox = { module = "gruvbox", config = get_gruvbox_config },
+  solarized = { module = "solarized-osaka", config = get_solarized_config },
+  nord = { module = "nightfox", config = get_nightfox_config },
+  kanagawa = { module = "neomodern", config = get_kanagawa_config },
+  everforest = { module = nil, config = get_everforest_config }, -- Uses vim.g only
+}
+
 local function setup_theme()
   local plugin_config = theme_config.plugins[theme_config.colorscheme]
   local base_scheme = plugin_config.base_scheme or theme_config.colorscheme
 
-  local theme_setups = {
-    catppuccin = function()
-      require("catppuccin").setup(get_catppuccin_config())
-    end,
-    rosepine = function()
-      require("neomodern").setup(get_rose_pine_config())
-    end,
-    roseprime = function()
-      require("neomodern").setup(get_rose_pine_config())
-    end,
-    gruvbox = function()
-      require("gruvbox").setup(get_gruvbox_config())
-    end,
-    solarized = function()
-      require("solarized-osaka").setup(get_solarized_config())
-    end,
-    nord = function()
-      require("nightfox").setup(get_nightfox_config())
-    end,
-    kanagawa = function()
-      require("neomodern").setup(get_kanagawa_config())
-    end,
-    everforest = function()
-      get_everforest_config()
-    end,
-  }
-
-  local setup_fn = theme_setups[base_scheme]
-  if setup_fn then
-    setup_fn()
+  -- Setup theme configuration if available
+  local theme_cfg = THEME_CONFIGS[base_scheme]
+  if theme_cfg then
+    local config = theme_cfg.config()
+    -- Only call setup if theme has a module (everforest uses vim.g only)
+    if theme_cfg.module then
+      require(theme_cfg.module).setup(config)
+    end
   end
 
+  -- Apply colorscheme
   vim.cmd("colorscheme " .. plugin_config.colorscheme)
 
+  -- Apply post-colorscheme overrides (highlights from generator)
   apply_post_colorscheme_overrides(base_scheme)
+
+  -- Reapply overrides on colorscheme change or cmdline enter
   vim.api.nvim_create_autocmd({ "ColorScheme", "CmdLineEnter" }, {
     pattern = plugin_config.colorscheme,
     callback = function()

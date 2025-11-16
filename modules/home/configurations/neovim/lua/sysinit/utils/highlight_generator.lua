@@ -315,6 +315,39 @@ function M.generate_transparency_highlights(transparency)
   return highlights
 end
 
+-- Generate LSP semantic token highlights
+function M.generate_lsp_highlights(colors)
+  return {
+    -- LSP type highlights
+    ["@lsp.type.class"] = { link = "@type" },
+    ["@lsp.type.decorator"] = { link = "@function" },
+    ["@lsp.type.enum"] = { link = "@type" },
+    ["@lsp.type.enumMember"] = { link = "@constant" },
+    ["@lsp.type.function"] = { link = "@function" },
+    ["@lsp.type.interface"] = { link = "@type" },
+    ["@lsp.type.macro"] = { link = "@macro" },
+    ["@lsp.type.method"] = { link = "@method" },
+    ["@lsp.type.namespace"] = { link = "@namespace" },
+    ["@lsp.type.parameter"] = { link = "@parameter" },
+    ["@lsp.type.property"] = { link = "@property" },
+    ["@lsp.type.struct"] = { link = "@structure" },
+    ["@lsp.type.type"] = { link = "@type" },
+    ["@lsp.type.typeParameter"] = { link = "@type.definition" },
+    ["@lsp.type.variable"] = { link = "@variable" },
+
+    -- LSP modifier highlights
+    ["@lsp.mod.readonly"] = { fg = colors.syntax.constant, italic = true },
+    ["@lsp.mod.deprecated"] = { fg = colors.foreground.muted, strikethrough = true },
+    ["@lsp.mod.static"] = { fg = colors.syntax.keyword, bold = true },
+    ["@lsp.mod.abstract"] = { italic = true },
+
+    -- Combined type + modifier
+    ["@lsp.typemod.function.defaultLibrary"] = { link = "@function.builtin" },
+    ["@lsp.typemod.variable.defaultLibrary"] = { link = "@variable.builtin" },
+    ["@lsp.typemod.variable.readonly"] = { fg = colors.syntax.constant },
+  }
+end
+
 -- Get all core highlights in one call
 function M.generate_core_highlights(colors, palette, transparency)
   return vim.tbl_extend(
@@ -323,7 +356,8 @@ function M.generate_core_highlights(colors, palette, transparency)
     M.generate_cursor_highlights(colors),
     M.generate_diff_highlights(colors),
     M.generate_treesitter_highlights(colors),
-    M.generate_diagnostic_highlights(colors, transparency)
+    M.generate_diagnostic_highlights(colors, transparency),
+    M.generate_lsp_highlights(colors)
   )
 end
 

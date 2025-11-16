@@ -299,6 +299,60 @@ rec {
         text = blue;
       };
 
+    # Plugin UI semantic colors
+    plugins =
+      let
+        base = safeGetColor palette "base" (safeGetColor palette "bg" "#000000");
+        surface = safeGetColor palette "surface" (safeGetColor palette "bg_alt" "#111111");
+        text = safeGetColor palette "text" (safeGetColor palette "fg" "#ffffff");
+        accent = safeGetColor palette "accent" (safeGetColor palette "blue" "#0080ff");
+        muted = safeGetColor palette "comment" (safeGetColor palette "overlay1" "#888888");
+      in
+      {
+        # Telescope
+        telescope = {
+          border = accent;
+          selection_bg = blendColor base accent 0.2;
+          selection_fg = text;
+          title = safeGetColor palette "pink" (safeGetColor palette "magenta" "#ff00ff");
+        };
+
+        # NeoTree / File explorer
+        filetree = {
+          border = muted;
+          separator = muted;
+          title = accent;
+        };
+
+        # Completion menu
+        completion = {
+          border = accent;
+          menu_bg = surface;
+          selection_bg = blendColor base accent 0.25;
+          selection_fg = accent;
+        };
+
+        # Search highlights
+        search = {
+          match_bg = safeGetColor palette "yellow" "#ffff00";
+          match_fg = base;
+          incremental_bg = safeGetColor palette "orange" (safeGetColor palette "peach" "#ff8000");
+          incremental_fg = base;
+        };
+
+        # Status and window UI
+        window = {
+          border = accent;
+          separator = muted;
+          statusline_active = text;
+          statusline_inactive = muted;
+          winbar_active = text;
+          winbar_inactive = muted;
+          float_border = accent;
+          float_title = safeGetColor palette "pink" (safeGetColor palette "magenta" "#ff00ff");
+        };
+      };
+
     extended = removeAttrs palette [
       "base"
       "bg"
