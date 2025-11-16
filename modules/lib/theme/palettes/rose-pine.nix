@@ -24,7 +24,6 @@ rec {
 
   palettes = {
     moon = utils.validatePalette {
-
       base = "#232136";
       surface = "#2a273f";
       overlay = "#393552";
@@ -60,7 +59,6 @@ rec {
       accent = "#c4a7e7";
       accent_dim = "#393552";
     };
-
   };
 
   semanticMapping = palette: utils.createSemanticMapping palette;
