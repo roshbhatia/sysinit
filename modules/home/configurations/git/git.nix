@@ -54,7 +54,7 @@ in
 
       [delta]
         features = ${deltaTheme}
-        hunk-header-decoration-style = ul
+        hunk-header-decoration-style = omit
         side-by-side = true
 
       [merge]
@@ -112,7 +112,6 @@ in
         p = pull
         root = rev-parse --show-toplevel
         short-log = log --pretty=format:"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]" --decorate --date=short
-        show-diff = diff --no-color
         squash = "!git rebase -i --autosquash HEAD~$(git rev-list --count HEAD ^$(git merge-base HEAD @{u}))"
         st = status
         unstage = reset HEAD --
