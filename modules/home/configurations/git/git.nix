@@ -56,8 +56,9 @@ in
         diffFilter = delta --color-only
 
       [delta]
-        dark = true
         features = ${deltaTheme}
+        hunk-header-decoration-style = ul
+        side-by-side = true
 
       [merge]
         conflictstyle = zdiff3
