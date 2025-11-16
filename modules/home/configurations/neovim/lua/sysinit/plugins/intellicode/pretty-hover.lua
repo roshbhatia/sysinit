@@ -10,13 +10,6 @@ M.plugins = {
     keys = function()
       return {
         {
-          "<leader>ch",
-          function()
-            require("pretty_hover").hover()
-          end,
-          desc = "Hover documentation",
-        },
-        {
           "<S-k>",
           function()
             require("pretty_hover").hover()

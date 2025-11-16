@@ -14,13 +14,15 @@ M.plugins = {
       border = {
         enable = true,
       },
-      theme = {
-        mode = "darken",
-      },
       folds = {
         folded = false,
       },
-      use_trouble_qf = true,
+      list = {
+        position = "left",
+      },
+      preview_win_opts = {
+        cursorline = false,
+      },
     },
     keys = function()
       return {

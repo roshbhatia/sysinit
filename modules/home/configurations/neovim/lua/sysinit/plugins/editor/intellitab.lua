@@ -12,7 +12,6 @@ M.plugins = {
             require("intellitab").indent()
           end,
           mode = "i",
-          noremap = true,
           silent = true,
           desc = "Intellitab smart",
         },
