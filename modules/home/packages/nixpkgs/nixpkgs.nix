@@ -137,7 +137,6 @@ let
     yaml-language-server
     yamllint
     yarn
-    yazi
     yq
     zig
     zls

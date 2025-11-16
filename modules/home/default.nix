@@ -67,7 +67,6 @@
 
       kubectl = "kubecolor";
       tf = "terraform";
-      y = "yazi";
 
       cat = "bat -pp";
       diff = "diff --color";
