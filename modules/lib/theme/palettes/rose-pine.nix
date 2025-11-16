@@ -67,7 +67,7 @@ rec {
 
   appAdapters = {
     wezterm = {
-      moon = "Rouge 2";
+      moon = "roseprime";
     };
 
     neovim = {

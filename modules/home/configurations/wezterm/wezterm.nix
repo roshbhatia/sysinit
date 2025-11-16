@@ -1,6 +1,5 @@
 {
   config,
-  lib,
   values,
   utils,
   ...
@@ -9,8 +8,6 @@
 let
   inherit (utils.theme) generateAppJSON;
 
-  # Pass entire theme config to enable appearance-to-variant derivation
-  # Note: using 'or' pattern to provide defaults for optional fields
   themeConfig = values.theme // {
     presets = values.theme.presets or [ ];
     overrides = values.theme.overrides or { };
@@ -32,4 +29,6 @@ in
   xdg.configFile."wezterm/core_config.json".text = builtins.toJSON {
     wezterm_entrypoint = values.wezterm.shell or "zsh";
   };
+
+  xdg.configFile."wezterm/colors".source = ./colors;
 }
