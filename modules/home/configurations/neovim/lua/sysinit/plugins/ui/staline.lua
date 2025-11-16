@@ -38,7 +38,7 @@ M.plugins = {
     dependencies = {
       "nvim-tree/nvim-web-devicons",
     },
-    event = "BufReadPost",
+    event = "VeryLazy",
     config = function()
       require("staline").setup({
         sections = {

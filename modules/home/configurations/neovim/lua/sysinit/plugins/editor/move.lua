@@ -3,6 +3,7 @@ local M = {}
 M.plugins = {
   {
     "nvim-mini/mini.nvim",
+    event = "CursorMoved",
     version = "*",
     config = function()
       require("mini.move").setup({

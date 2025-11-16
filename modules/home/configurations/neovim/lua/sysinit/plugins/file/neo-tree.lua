@@ -15,6 +15,7 @@ M.plugins = {
   {
     "s1n7ax/nvim-window-picker",
     version = "2.*",
+    cmd = "Neotree",
     config = function()
       require("window-picker").setup({
         hint = "floating-big-letter",
@@ -35,6 +36,7 @@ M.plugins = {
   },
   {
     "antosha417/nvim-lsp-file-operations",
+    cmd = "Neotree",
     dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-neo-tree/neo-tree.nvim",

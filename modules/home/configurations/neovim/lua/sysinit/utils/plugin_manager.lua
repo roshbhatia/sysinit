@@ -52,17 +52,12 @@ function plugin_manager.setup_plugins(modules)
       reset_rtp = true,
     },
     change_detection = {
-      notify = false,
-      enabled = false, -- Disable for better performance
+      notify = true,
+      enabled = true,
     },
-    concurrency = 4, -- Optimize for modern systems
+    concurrency = 12,
     dev = {
       path = vim.fn.stdpath("data") .. "/lazy-dev",
-    },
-    install = {
-      colorscheme = {
-        "catppuccin",
-      },
     },
     ui = {
       border = "rounded",

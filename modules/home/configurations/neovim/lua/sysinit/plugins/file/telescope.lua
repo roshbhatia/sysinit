@@ -4,7 +4,6 @@ M.plugins = {
   {
     "nvim-telescope/telescope.nvim",
     branch = "master",
-    event = { "BufReadPre", "BufNewFile" },
     dependencies = {
       "debugloop/telescope-undo.nvim",
       "Marskey/telescope-sg",
