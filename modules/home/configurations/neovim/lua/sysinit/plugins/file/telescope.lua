@@ -227,6 +227,13 @@ M.plugins = {
           desc = "Find files",
         },
         {
+          "<leader>fj",
+          function()
+            tbuiltin.jumplist(require("telescope.themes").get_ivy())
+          end,
+          desc = "Find files",
+        },
+        {
           "<leader>fd",
           function()
             tbuiltin.diagnostics(require("telescope.themes").get_ivy())
