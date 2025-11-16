@@ -192,56 +192,46 @@ end
 local function get_rose_pine_config()
   local overrides = {}
 
-  -- Use plugin semantic colors from Nix theme system
+  -- Rosé Pine Moon actual hex colors for transparency overrides
+  local colors = {
+    base = "#232136",
+    surface = "#2a273f",
+    overlay = "#393552",
+    muted = "#6e6a86",
+    subtle = "#908caa",
+    text = "#e0def4",
+    love = "#eb6f92",
+    gold = "#f6c177",
+    rose = "#ea9a97",
+    pine = "#3e8fb0",
+    foam = "#9ccfd8",
+    iris = "#c4a7e7",
+  }
+
   if theme_config.transparency.enable then
-    local plugins = theme_config.colors.plugins
-    local fg = theme_config.colors.foreground
-
-    -- Window UI using semantic colors
-    overrides.WinBar = { bg = "none", fg = plugins.window.winbar_active }
-    overrides.WinBarNC = { bg = "none", fg = plugins.window.winbar_inactive }
-    overrides.WinSeparator = { bg = "none", fg = plugins.window.separator }
-
-    -- File tree using semantic colors
-    overrides.NeoTreeWinSeparator = { bg = "none", fg = plugins.filetree.separator }
-    overrides.NeoTreeVertSplit = { bg = "none", fg = plugins.filetree.separator }
+    -- Enhanced transparency overrides for better legibility
+    overrides.WinBar = { bg = "none", fg = colors.foam }
+    overrides.WinBarNC = { bg = "none", fg = colors.subtle }
+    overrides.NeoTreeWinSeparator = { bg = "none", fg = colors.subtle }
+    overrides.NeoTreeVertSplit = { bg = "none", fg = colors.subtle }
     overrides.NeoTreeEndOfBuffer = { bg = "none", fg = "none" }
-
-    -- Telescope using semantic colors
-    overrides.TelescopeSelection =
-      { bg = plugins.telescope.selection_bg, fg = plugins.telescope.selection_fg, bold = true }
-    overrides.TelescopeBorder = { bg = "none", fg = plugins.telescope.border }
-    overrides.TelescopeTitle = { bg = "none", fg = plugins.telescope.title, bold = true }
-
-    -- Float windows using semantic colors
-    overrides.NormalFloat = { bg = "none", fg = fg.primary }
-    overrides.FloatBorder = { bg = "none", fg = plugins.window.float_border }
-    overrides.FloatTitle = { bg = "none", fg = plugins.window.float_title, bold = true }
-
-    -- Completion menu using semantic colors
-    overrides.Pmenu = { bg = plugins.completion.menu_bg, fg = fg.primary }
-    overrides.PmenuSel =
-      { bg = plugins.completion.selection_bg, fg = plugins.completion.selection_fg, bold = true }
-    overrides.PmenuBorder = { bg = "none", fg = plugins.completion.border }
-
-    -- Status line using semantic colors
-    overrides.StatusLine = { bg = "none", fg = plugins.window.statusline_active }
-    overrides.StatusLineNC = { bg = "none", fg = plugins.window.statusline_inactive }
-
-    -- Line numbers using semantic colors
-    overrides.LineNr = { bg = "none", fg = theme_config.colors.ui.line_number }
-    overrides.CursorLineNr =
-      { bg = "none", fg = theme_config.colors.ui.line_number_active, bold = true }
-
-    -- Search using semantic colors
-    overrides.Search = { bg = plugins.search.match_bg, fg = plugins.search.match_fg, bold = true }
-    overrides.IncSearch =
-      { bg = plugins.search.incremental_bg, fg = plugins.search.incremental_fg, bold = true }
-
-    -- Additional plugin integrations
-    overrides.DropBarMenuFloatBorder = { bg = "none", fg = plugins.window.float_border }
-    overrides.WilderWildmenuSelectedAccent =
-      { bg = plugins.completion.selection_bg, fg = plugins.completion.selection_fg }
+    overrides.DropBarMenuFloatBorder = { bg = "none", fg = colors.subtle }
+    overrides.WilderWildmenuSelectedAccent = { bg = colors.surface, fg = colors.foam }
+    overrides.TelescopeSelection = { bg = colors.surface, fg = colors.foam, bold = true }
+    overrides.TelescopeBorder = { bg = "none", fg = colors.muted }
+    overrides.TelescopeTitle = { bg = "none", fg = colors.rose, bold = true }
+    overrides.NormalFloat = { bg = "none", fg = colors.text }
+    overrides.FloatBorder = { bg = "none", fg = colors.muted }
+    overrides.FloatTitle = { bg = "none", fg = colors.rose, bold = true }
+    overrides.Pmenu = { bg = colors.surface, fg = colors.text }
+    overrides.PmenuSel = { bg = colors.overlay, fg = colors.foam, bold = true }
+    overrides.PmenuBorder = { bg = "none", fg = colors.muted }
+    overrides.StatusLine = { bg = "none", fg = colors.text }
+    overrides.StatusLineNC = { bg = "none", fg = colors.subtle }
+    overrides.LineNr = { bg = "none", fg = colors.muted }
+    overrides.CursorLineNr = { bg = "none", fg = colors.foam, bold = true }
+    overrides.Search = { bg = colors.gold, fg = colors.base, bold = true }
+    overrides.IncSearch = { bg = colors.love, fg = colors.base, bold = true }
   end
 
   local code_style = {
