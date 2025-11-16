@@ -17,10 +17,6 @@ let
   workGithubUser = if cfg.workUsername != null then cfg.workUsername else cfg.username;
 in
 {
-  programs.git = {
-    enable = false;
-  };
-
   home.file.".gitconfig" = {
     text = ''
       [advice]
@@ -54,16 +50,21 @@ in
 
       [delta]
         features = ${deltaTheme}
+        file-decoration-style = none
+        file-style = omit
         hunk-header-decoration-style = omit
+        line-numbers-left-format = "{nm:>4} "
+        line-numbers-right-format = "│ {np:>4} "
         side-by-side = true
+        tabs = 2
 
       [merge]
         conflictstyle = zdiff3
         tool = diffview
 
       [mergetool]
-        prompt = false
         keepBackup = false
+        prompt = false
 
       [mergetool "diffview"]
         cmd = nvim -n -c "DiffviewOpen"
