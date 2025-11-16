@@ -3,6 +3,7 @@ local M = {}
 M.plugins = {
   {
     "yaocccc/nvim-foldsign",
+    event = "VeryLazy",
     config = function()
       local foldsign = require("nvim-foldsign")
       foldsign.setup({
