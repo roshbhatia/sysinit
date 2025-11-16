@@ -210,10 +210,116 @@ function M.generate_diagnostic_highlights(colors, transparency)
   return highlights
 end
 
+-- Generate transparency overrides for plugins and UI elements
+function M.generate_transparency_highlights(transparency)
+  if not transparency.enable then
+    return {}
+  end
+
+  -- List of all groups that should have transparent backgrounds
+  local transparent_groups = {
+    -- Completion
+    "BlinkCmpDoc",
+    "BlinkCmpDocBorder",
+    "BlinkCmpMenu",
+    "BlinkCmpMenuBorder",
+    "BlinkCmpSignatureHelp",
+    "BlinkCmpSignatureHelpBorder",
+    -- Core UI
+    "ColorColumn",
+    "CursorColumn",
+    "CursorLine",
+    "CursorLineFold",
+    "CursorLineNr",
+    "CursorLineSign",
+    -- Diagnostics
+    "DiagnosticVirtualTextError",
+    "DiagnosticVirtualTextHint",
+    "DiagnosticVirtualTextInfo",
+    "DiagnosticVirtualTextWarn",
+    -- Dropbar
+    "DropBarCurrentContext",
+    "DropBarIconKindDefault",
+    "DropBarIconKindDefaultNC",
+    "DropBarMenuFloatBorder",
+    "DropBarMenuNormalFloat",
+    -- Edgy
+    "EdgyIcon",
+    "EdgyIconActive",
+    "EdgyTitle",
+    -- Floats
+    "FloatBorder",
+    "FloatTitle",
+    "FoldColumn",
+    -- Git Signs
+    "GitSignsAdd",
+    "GitSignsAddCul",
+    "GitSignsChange",
+    "GitSignsChangeCul",
+    "GitSignsDelete",
+    "GitSignsDeleteCul",
+    -- Lazy
+    "LazyNormal",
+    -- Line numbers
+    "LineNr",
+    "LineNrAbove",
+    "LineNrBelow",
+    -- Messages
+    "MsgSeparator",
+    -- NeoTree
+    "NeoTreeEndOfBuffer",
+    "NeoTreeNormal",
+    "NeoTreeNormalNC",
+    "NeoTreeVertSplit",
+    "NeoTreeWinSeparator",
+    -- Normal
+    "Normal",
+    "NormalFloat",
+    "NormalNC",
+    -- Popup menu
+    "Pmenu",
+    "PmenuBorder",
+    "PmenuSbar",
+    "PmenuThumb",
+    -- Sign column
+    "SignColumn",
+    -- Status line
+    "StatusLine",
+    "StatusLineNC",
+    "StatusLineTerm",
+    "StatusLineTermNC",
+    -- Tabs
+    "TabLine",
+    "TabLineFill",
+    -- Telescope
+    "TelescopeBorder",
+    "TelescopeNormal",
+    "TelescopeSelection",
+    -- Treesitter
+    "TreesitterContext",
+    "TreesitterContextLineNumber",
+    -- Which-key
+    "WhichKeyBorder",
+    "WhichKeyFloat",
+    -- Window
+    "WinBar",
+    "WinBarNC",
+    "WinSeparator",
+  }
+
+  local highlights = {}
+  for _, group in ipairs(transparent_groups) do
+    highlights[group] = { bg = "none" }
+  end
+
+  return highlights
+end
+
 -- Get all core highlights in one call
 function M.generate_core_highlights(colors, palette, transparency)
   return vim.tbl_extend(
     "force",
+    M.generate_transparency_highlights(transparency),
     M.generate_cursor_highlights(colors),
     M.generate_diff_highlights(colors),
     M.generate_treesitter_highlights(colors),

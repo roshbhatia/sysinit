@@ -5,85 +5,6 @@ local theme_config =
 
 local M = {}
 
-local function get_transparent_highlights()
-  local highlights = {
-    BlinkCmpDoc = { bg = "none" },
-    BlinkCmpDocBorder = { bg = "none" },
-    BlinkCmpMenu = { bg = "none" },
-    BlinkCmpMenuBorder = { bg = "none" },
-    BlinkCmpSignatureHelp = { bg = "none" },
-    BlinkCmpSignatureHelpBorder = { bg = "none" },
-    ColorColumn = { bg = "none" },
-    CursorColumn = { bg = "none" },
-    CursorLine = { bg = "none" },
-    CursorLineFold = { bg = "none" },
-    CursorLineNr = { bg = "none" },
-    CursorLineSign = { bg = "none" },
-    DiagnosticVirtualTextError = { bg = "none" },
-    DiagnosticVirtualTextHint = { bg = "none" },
-    DiagnosticVirtualTextInfo = { bg = "none" },
-    DiagnosticVirtualTextWarn = { bg = "none" },
-    DropBarCurrentContext = { bg = "none" },
-    DropBarIconKindDefault = { bg = "none" },
-    DropBarIconKindDefaultNC = { bg = "none" },
-    DropBarMenuFloatBorder = { bg = "none" },
-    DropBarMenuNormalFloat = { bg = "none" },
-    EdgyIcon = { bg = "none" },
-    EdgyIconActive = { bg = "none" },
-    EdgyTitle = { bg = "none" },
-    FloatBorder = { bg = "none" },
-    FloatTitle = { bg = "none" },
-    FoldColumn = { bg = "none" },
-    GitSignsAdd = { bg = "none" },
-    GitSignsAddCul = { bg = "none" },
-    GitSignsChange = { bg = "none" },
-    GitSignsChangeCul = { bg = "none" },
-    GitSignsDelete = { bg = "none" },
-    GitSignsDeleteCul = { bg = "none" },
-    LazyNormal = { bg = "none" },
-    LineNr = { bg = "none" },
-    LineNrAbove = { bg = "none" },
-    LineNrBelow = { bg = "none" },
-    MsgSeparator = { bg = "none" },
-    NeoTreeEndOfBuffer = { bg = "none" },
-    NeoTreeNormal = { bg = "none" },
-    NeoTreeNormalNC = { bg = "none" },
-    NeoTreeVertSplit = { bg = "none" },
-    NeoTreeWinSeparator = { bg = "none" },
-    Normal = { bg = "none" },
-    NormalFloat = { bg = "none" },
-    NormalNC = { bg = "none" },
-    Pmenu = { bg = "none" },
-    PmenuBorder = { bg = "none" },
-    PmenuSbar = { bg = "none" },
-    PmenuThumb = { bg = "none" },
-    SignColumn = { bg = "none" },
-    StatusLine = { bg = "none" },
-    StatusLineNC = { bg = "none" },
-    StatusLineTerm = { bg = "none" },
-    StatusLineTermNC = { bg = "none" },
-    TabLine = { bg = "none" },
-    TabLineFill = { bg = "none" },
-    TelescopeBorder = { bg = "none" },
-    TelescopeNormal = { bg = "none" },
-    TelescopeSelection = { bg = "none" },
-    TreesitterContext = { bg = "none" },
-    TreesitterContextLineNumber = { bg = "none" },
-    WhichKeyBorder = { bg = "none" },
-    WhichKeyFloat = { bg = "none" },
-    WinBar = { bg = "none" },
-    WinBarNC = { bg = "none" },
-    WinSeparator = { bg = "none" },
-  }
-
-  -- Only return transparency overrides when enabled
-  if not theme_config.transparency.enable then
-    return {}
-  end
-
-  return highlights
-end
-
 local function get_catppuccin_config()
   return {
     flavour = theme_config.variant,
@@ -125,12 +46,10 @@ local function get_catppuccin_config()
     },
     highlight_overrides = {
       [theme_config.variant] = function(colors)
-        local overrides = get_transparent_highlights()
+        local overrides = {}
 
         overrides.CursorLineNr = { fg = colors.lavender, style = { "bold" } }
         overrides.LineNr = { fg = colors.overlay1 }
-        overrides.Visual = { bg = colors.surface2, fg = colors.text, style = { "bold" } }
-        overrides.VisualNOS = { bg = colors.surface1, fg = colors.text, style = { "bold" } }
         overrides.Search = { bg = colors.yellow, fg = colors.base, style = { "bold" } }
         overrides.IncSearch = { bg = colors.red, fg = colors.base, style = { "bold" } }
         overrides.PmenuSel = { bg = colors.surface0, fg = colors.lavender, style = { "bold" } }
@@ -190,9 +109,9 @@ local function get_catppuccin_config()
 end
 
 local function get_gruvbox_config()
-  local overrides = get_transparent_highlights()
+  local overrides = {}
 
-  -- Gruvbox hard variant actual hex colors - SOLID backgrounds for visibility
+  -- Gruvbox hard variant actual hex colors for transparency overrides
   local colors = {
     bg0 = "#1d2021",
     bg1 = "#3c3836",
@@ -201,10 +120,6 @@ local function get_gruvbox_config()
     orange = "#fe8019",
     yellow = "#fabd2f",
   }
-
-  -- Enhanced visual mode highlighting - SOLID backgrounds
-  overrides.Visual = { bg = colors.bg2, fg = colors.fg1, bold = true, reverse = false }
-  overrides.VisualNOS = { bg = colors.bg1, fg = colors.fg1, bold = true }
 
   if theme_config.transparency.enable then
     -- Enhanced contrast for transparent background
@@ -254,11 +169,6 @@ local function get_solarized_config()
       types = { bold = true },
     },
     on_highlights = function(highlights, colors)
-      local overrides = get_transparent_highlights()
-      for name, hl in pairs(overrides) do
-        highlights[name] = hl
-      end
-
       -- Enhanced visual mode highlighting with better contrast
       highlights.Visual = { bg = colors.base02, fg = colors.base1, bold = true }
       highlights.VisualNOS = { bg = colors.base01, fg = colors.base1, bold = true }
@@ -280,10 +190,9 @@ local function get_solarized_config()
 end
 
 local function get_rose_pine_config()
-  local overrides = get_transparent_highlights()
+  local overrides = {}
 
-  -- Rosé Pine Moon actual hex colors (from theme_config.json palette)
-  -- These are solid colors that will always be visible
+  -- Rosé Pine Moon actual hex colors for transparency overrides
   local colors = {
     base = "#232136",
     surface = "#2a273f",
@@ -297,14 +206,7 @@ local function get_rose_pine_config()
     pine = "#3e8fb0",
     foam = "#9ccfd8",
     iris = "#c4a7e7",
-    highlight_low = "#2a283e",
-    highlight_med = "#44415a",
-    highlight_high = "#56526e",
   }
-
-  -- Enhanced visual mode highlighting - SOLID backgrounds for visibility
-  overrides.Visual = { bg = colors.highlight_high, fg = colors.text, bold = true }
-  overrides.VisualNOS = { bg = colors.highlight_med, fg = colors.text, bold = true }
 
   if theme_config.transparency.enable then
     -- Enhanced transparency overrides for better legibility
@@ -357,9 +259,9 @@ local function get_rose_pine_config()
 end
 
 local function get_kanagawa_config()
-  local overrides = get_transparent_highlights()
+  local overrides = {}
 
-  -- Kanagawa Gyokuro actual hex colors - SOLID backgrounds for visibility
+  -- Kanagawa Gyokuro actual hex colors for transparency overrides
   local colors = {
     fujiWhite = "#dcd7ba",
     waveBlue1 = "#2d4f67",
@@ -368,10 +270,6 @@ local function get_kanagawa_config()
     sumiInk4 = "#54546D",
     winterBlue = "#7e9cd8",
   }
-
-  -- Enhanced visual mode highlighting - SOLID backgrounds
-  overrides.Visual = { bg = colors.waveBlue1, fg = colors.fujiWhite, bold = true }
-  overrides.VisualNOS = { bg = colors.waveBlue2, fg = colors.fujiWhite, bold = true }
 
   if theme_config.transparency.enable then
     overrides.WinBar = { bg = "none", fg = colors.fujiWhite }
@@ -537,14 +435,12 @@ end
 
 local function apply_post_colorscheme_overrides(base_scheme)
   -- Generate core highlights from Nix-provided semantic colors
-  local core_highlights = highlight_gen.generate_core_highlights(
+  -- (includes transparency, cursor, diff, treesitter, and diagnostics)
+  local overrides = highlight_gen.generate_core_highlights(
     theme_config.colors,
     theme_config.palette,
     theme_config.transparency
   )
-
-  -- Start with transparency overrides, then merge core highlights
-  local overrides = vim.tbl_extend("force", get_transparent_highlights(), core_highlights)
 
   if base_scheme == "everforest" then
     -- Everforest semantic palette colors (work across hard/medium/soft variants)
@@ -561,10 +457,6 @@ local function apply_post_colorscheme_overrides(base_scheme)
       orange = "#e69875",
       red = "#e67e80",
     }
-
-    -- Enhanced visual mode highlighting
-    overrides.Visual = { bg = colors.bg4, fg = colors.fg, bold = true }
-    overrides.VisualNOS = { bg = colors.bg2, fg = colors.fg, bold = true }
 
     if theme_config.transparency.enable then
       overrides.WinBar = { bg = "NONE", fg = colors.fg }
