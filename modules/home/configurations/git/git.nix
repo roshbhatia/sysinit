@@ -52,9 +52,6 @@ in
         preloadIndex = true
         hooksPath = .githooks
 
-      [interactive]
-        diffFilter = delta --color-only
-
       [delta]
         features = ${deltaTheme}
         hunk-header-decoration-style = ul
