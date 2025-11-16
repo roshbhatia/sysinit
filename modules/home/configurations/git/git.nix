@@ -57,8 +57,6 @@ in
 
       [delta]
         dark = true
-        navigate = true
-        side-by-side = true
         features = ${deltaTheme}
 
       [merge]
