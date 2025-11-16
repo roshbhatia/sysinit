@@ -52,7 +52,6 @@ M.plugins = {
               ["<CR>"] = actions.select_default,
               ["<localleader>s"] = actions.select_horizontal,
               ["<localleader>v"] = actions.select_vertical,
-              ["<localleader>t"] = actions.select_tab,
             },
             i = {
               ["<Tab>"] = actions.move_selection_next,
