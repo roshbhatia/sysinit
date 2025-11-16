@@ -102,7 +102,7 @@ M.plugins = {
         },
         extensions = {
           ["ui-select"] = {
-            themes.get_dropdown(),
+            themes.get_ivy(),
           },
           persisted = {
             layout_config = { width = 0.55, height = 0.55 },
@@ -308,6 +308,28 @@ M.plugins = {
             textensions.ast_grep.ast_grep()
           end,
           desc = "Find structural pattern (AST)",
+        },
+        {
+          "<leader>ca",
+          vim.lsp.buf.code_action,
+          desc = "Code action",
+        },
+        {
+          "gra",
+          vim.lsp.buf.code_action,
+          desc = "Code action",
+        },
+        {
+          "<leader>ca",
+          vim.lsp.buf.code_action,
+          mode = "v",
+          desc = "Code action",
+        },
+        {
+          "gra",
+          vim.lsp.buf.code_action,
+          mode = "v",
+          desc = "Code action",
         },
       }
     end,

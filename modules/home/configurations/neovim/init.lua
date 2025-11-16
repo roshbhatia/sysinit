@@ -59,7 +59,6 @@ require("sysinit.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.intellicode.conform"),
   require("sysinit.plugins.intellicode.diaglist"),
   require("sysinit.plugins.intellicode.dropbar"),
-  require("sysinit.plugins.intellicode.fastaction"),
   require("sysinit.plugins.intellicode.friendly-snippets"),
   require("sysinit.plugins.intellicode.glance"),
   require("sysinit.plugins.intellicode.lazydev"),
