@@ -14,6 +14,7 @@ let
     "jakehilborn/jakehilborn"
     "mediosz/tap"
     "noahgorstein/tap"
+    "osx-cross/avr"
     "sandreas/tap"
     "slp/krunkit"
     "tattoy-org/tap"
