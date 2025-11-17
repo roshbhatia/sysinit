@@ -143,7 +143,7 @@ in
         font = {
           monospace = mkOption {
             type = types.str;
-            default = "MonaspiceKr Nerd Font Mono";
+            default = "Agave";
             description = "Monospace font for terminal and editor";
           };
 

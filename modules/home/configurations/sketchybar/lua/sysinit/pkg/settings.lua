@@ -24,7 +24,7 @@ local monospace_font = (
   theme_config.font
   and type(theme_config.font) == "table"
   and theme_config.font.monospace
-) or "MonaspiceKr Nerd Font Mono"
+) or "Agave"
 
 return {
   fonts = {
