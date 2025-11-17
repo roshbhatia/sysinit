@@ -3,7 +3,7 @@ local json_loader = require("sysinit.pkg.utils.json_loader")
 local theme_config = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"))
 local M = {}
 
-local font_name = "TX-02"
+local font_name = "MonaspiceKr Nerd Font Mono"
 if theme_config.font and theme_config.font.monospace then
   font_name = theme_config.font.monospace
 end
@@ -14,6 +14,16 @@ local terminal_font = wezterm.font_with_fallback({
     harfbuzz_features = {
       "calt",
       "liga",
+      "ss01",
+      "ss02",
+      "ss03",
+      "ss04",
+      "ss05",
+      "ss06",
+      "ss07",
+      "ss08",
+      "ss09",
+      "ss10",
     },
   },
   "Symbols Nerd Font Mono",
