@@ -43,7 +43,7 @@ in
       [core]
         editor = nvim
         excludesFile = ~/.gitignore.global
-        pager = diffnav
+        pager = bat
         compression = 9
         preloadIndex = true
         hooksPath = .githooks
@@ -98,9 +98,9 @@ in
         co = checkout
         cob = checkout -b
         commit-chore = "!f() { git commit -m \"chore: $@\"; }; f"
-        commit-docs  = "!f() { git commit -m \"docs: $@\"; }; f"
-        commit-feat  = "!f() { git commit -m \"feat: $@\"; }; f"
-        commit-fix   = "!f() { git commit -m \"fix: $@\"; }; f"
+        commit-docs = "!f() { git commit -m \"docs: $@\"; }; f"
+        commit-feat = "!f() { git commit -m \"feat: $@\"; }; f"
+        commit-fix = "!f() { git commit -m \"fix: $@\"; }; f"
         current-branch = rev-parse --abbrev-ref HEAD
         current-commit-sha = rev-parse --short HEAD
         diff-all = diff HEAD
@@ -109,10 +109,10 @@ in
         diff-unstaged = diff
         fixup = "!git log -n50 --oneline | fzf | cut -d' ' -f1 | xargs -I{} git commit --fixup={}"
         last = log -1 HEAD
-        lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+        log = -c core.pager=less log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
         p = pull
         root = rev-parse --show-toplevel
-        short-log = log --pretty=format:"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]" --decorate --date=short
+        short-log = -c core.pager=less log --pretty=format:"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]" --decorate --date=short
         squash = "!git rebase -i --autosquash HEAD~$(git rev-list --count HEAD ^$(git merge-base HEAD @{u}))"
         st = status
         unstage = reset HEAD --
