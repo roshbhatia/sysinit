@@ -88,33 +88,25 @@ in
         enabled = true
 
       [alias]
-        P = push
-        br = branch
-        branches = !git --no-pager branch -a
-        c = commit
-        ca = commit --amend
-        cai = !git-ai-commit
-        cane = commit --amend --no-edit
-        co = checkout
-        cob = checkout -b
-        commit-chore = "!f() { git commit -m \"chore: $@\"; }; f"
-        commit-docs = "!f() { git commit -m \"docs: $@\"; }; f"
-        commit-feat = "!f() { git commit -m \"feat: $@\"; }; f"
-        commit-fix = "!f() { git commit -m \"fix: $@\"; }; f"
-        current-branch = rev-parse --abbrev-ref HEAD
-        current-commit-sha = rev-parse --short HEAD
-        diff-all = diff HEAD
-        diff-cached = diff --cached
-        diff-staged = diff --cached
-        diff-unstaged = diff
+        branch.all = !git --no-pager branch -a
+        branch.current = rev-parse --abbrev-ref HEAD
+        commit.ai = !git-ai-commit
+        commit.amend = commit --amend
+        commit.amend.noedit = commit --amend --no-edit
+        commit.chore = "!f() { git commit -m \"chore: $@\"; }; f"
+        commit.current = rev-parse --short HEAD
+        commit.docs = "!f() { git commit -m \"docs: $@\"; }; f"
+        commit.feat = "!f() { git commit -m \"feat: $@\"; }; f"
+        commit.fix = "!f() { git commit -m \"fix: $@\"; }; f"
+        diff.all = diff HEAD
+        diff.cached = diff --cached
+        diff.staged = diff --cached
+        diff.unstaged = diff
         fixup = "!git log -n50 --oneline | fzf | cut -d' ' -f1 | xargs -I{} git commit --fixup={}"
         last = log -1 HEAD
-        log = -c core.pager=less log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
-        p = pull
-        root = rev-parse --show-toplevel
-        short-log = -c core.pager=less log --pretty=format:"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]" --decorate --date=short
-        squash = "!git rebase -i --autosquash HEAD~$(git rev-list --count HEAD ^$(git merge-base HEAD @{u}))"
-        st = status
+        log = -c core.pager='bat --style=plain --paging=always' log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+        git.root = rev-parse --show-toplevel
+        commit.squash = "!git rebase -i --autosquash HEAD~$(git rev-list --count HEAD ^$(git merge-base HEAD @{u}))"
         unstage = reset HEAD --
 
       [http "https://git.sr.ht"]
