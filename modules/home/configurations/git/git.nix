@@ -17,6 +17,8 @@ let
   workGithubUser = if cfg.workUsername != null then cfg.workUsername else cfg.username;
 in
 {
+  programs.git.enable = false;
+
   home.file.".gitconfig" = {
     text = ''
       [advice]
@@ -105,7 +107,7 @@ in
         fixup = "!git log -n50 --oneline | fzf | cut -d' ' -f1 | xargs -I{} git commit --fixup={}"
         last = log -1 HEAD
         log = -c core.pager='bat --style=plain --paging=always' log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
-        git.root = rev-parse --show-toplevel
+        root = rev-parse --show-toplevel
         commit.squash = "!git rebase -i --autosquash HEAD~$(git rev-list --count HEAD ^$(git merge-base HEAD @{u}))"
         unstage = reset HEAD --
 
