@@ -108,7 +108,6 @@ in
         commit-fix   = "!f() { git commit -m \"fix: $@\"; }; f"
         current-branch = rev-parse --abbrev-ref HEAD
         current-commit-sha = rev-parse --short HEAD
-        diff = "!git diff $@ | diffnav"
         fixup = "!git log -n50 --oneline | fzf | cut -d' ' -f1 | xargs -I{} git commit --fixup={}"
         last = log -1 HEAD
         root = rev-parse --show-toplevel
