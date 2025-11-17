@@ -108,14 +108,13 @@ in
         commit-fix   = "!f() { git commit -m \"fix: $@\"; }; f"
         current-branch = rev-parse --abbrev-ref HEAD
         current-commit-sha = rev-parse --short HEAD
-        diff-all = diff HEAD
-        diff-cached = diff --cached
-        diff-staged = diff --cached
-        diff-unstaged = diff
+        diff = -c core.pager="diffnav" diff
+        diff-all = -c core.pager="diffnav" diff HEAD
+        diff-staged = -c core.pager="diffnav" diff --cached
         fixup = "!git log -n50 --oneline | fzf | cut -d' ' -f1 | xargs -I{} git commit --fixup={}"
         last = log -1 HEAD
         root = rev-parse --show-toplevel
-        short-log = -c core.pager="bat --style=plain" log --graph --pretty=format:"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]" --decorate --date=short
+        short-log = log --graph --pretty=format:"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]" --decorate --date=short
         squash = "!git rebase -i --autosquash HEAD~$(git rev-list --count HEAD ^$(git merge-base HEAD @{u}))"
         st = status
         unstage = reset HEAD --
