@@ -143,7 +143,7 @@ in
         font = {
           monospace = mkOption {
             type = types.str;
-            default = "Wumpus Mono Pro";
+            default = "TX-02";
             description = "Monospace font for terminal and editor";
           };
 
