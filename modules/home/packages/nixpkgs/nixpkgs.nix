@@ -79,6 +79,7 @@ let
     marksman
     mermaid-cli
     mods
+    nerd-fonts.monaspace
     nil
     nix-output-monitor
     nix-prefetch
