@@ -46,10 +46,13 @@ in
       [core]
         editor = nvim
         excludesFile = ~/.gitignore.global
-        pager = bat
+        pager = delta
         compression = 9
         preloadIndex = true
         hooksPath = .githooks
+
+      [interactive]
+        diffFilter = delta --color-only
 
       [delta]
         features = ${deltaTheme}
@@ -91,7 +94,7 @@ in
         enabled = true
 
       [alias]
-        log = -c core.pager=less log
+        log = -c core.pager="bat --style=plain" log
         branches = !git --no-pager branch -a
         c = commit
         ca = commit --amend
@@ -112,7 +115,7 @@ in
         fixup = "!git log -n50 --oneline | fzf | cut -d' ' -f1 | xargs -I{} git commit --fixup={}"
         last = log -1 HEAD
         root = rev-parse --show-toplevel
-        short-log = -c core.pager=less log --graph --pretty=format:"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]" --decorate --date=short
+        short-log = -c core.pager="bat --style=plain" log --graph --pretty=format:"%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]" --decorate --date=short
         squash = "!git rebase -i --autosquash HEAD~$(git rev-list --count HEAD ^$(git merge-base HEAD @{u}))"
         st = status
         unstage = reset HEAD --
