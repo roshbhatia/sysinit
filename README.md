@@ -131,7 +131,7 @@ task: Available tasks for this project:
 | `pipx.additionalPackages` | list(string) | [] |  | Additional global pipx packages |
 | `theme.appearance` |  | "dark" |  | Appearance mode (light or dark) |
 | `theme.colorscheme` | string | "rose-pine" |  | Theme colorscheme |
-| `theme.font.monospace` | string | "TX-02" |  | Monospace font for terminal and editor |
+| `theme.font.monospace` | string | "Wumpus Mono Pro" |  | Monospace font for terminal and editor |
 | `theme.font.nerdfontFallback` | string | "Symbols Nerd Font" |  | Fallback font for nerd font glyphs |
 | `theme.transparency.blur` | integer | `80` |  | Background blur amount |
 | `theme.transparency.enable` | boolean | true |  | Enable transparency effects |
