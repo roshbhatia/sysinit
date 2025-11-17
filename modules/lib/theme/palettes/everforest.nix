@@ -398,7 +398,8 @@ rec {
     };
 
     bat = variant: "everforest-${variant}";
-    delta = variant: "everforest-${variant}";
+    # Explicitly using gruvbox here
+    delta = variant: "gruvbox-${variant}";
     atuin = variant: "everforest-${variant}";
     vivid = variant: "everforest-${variant}";
     helix = _variant: "everforest";
