@@ -92,7 +92,7 @@ let
     nodePackages.fkill-cli
     nodejs_22
     oh-my-posh
-    ollama
+    # ollama
     openscad
     openscad-lsp
     openssh
