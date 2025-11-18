@@ -75,6 +75,10 @@
       type = "builtin";
     };
     computercontroller = {
+      available_tools = [
+        "browser_action"
+        "computer_use"
+      ];
       bundled = true;
       display_name = "Computer Controller";
       enabled = true;
@@ -83,6 +87,13 @@
       type = "builtin";
     };
     developer = {
+      available_tools = [
+        "text_editor"
+        "shell"
+        "analyze"
+        "screen_capture"
+        "image_processor"
+      ];
       bundled = true;
       display_name = "Developer";
       enabled = true;

@@ -14,14 +14,6 @@ let
       args = [ "mcp-server-git" ];
       description = "Git version control system integration";
     };
-    context7 = {
-      command = "npx";
-      args = [
-        "-y"
-        "@upstash/context7-mcp@latest"
-      ];
-      description = "Context7 MCP server for enhanced context management with AGENTS.md support";
-    };
     astgrep = {
       command = "uvx";
       args = [
