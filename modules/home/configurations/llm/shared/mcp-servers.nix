@@ -4,11 +4,6 @@
 
 let
   defaultServers = {
-    fetch = {
-      command = "uvx";
-      args = [ "mcp-server-fetch" ];
-      description = "Web content fetching and processing capabilities";
-    };
     git = {
       command = "uvx";
       args = [ "mcp-server-git" ];
@@ -34,6 +29,11 @@ let
         "ide-assistant"
       ];
       description = "Serena IDE assistant with AGENTS.md integration for project-aware coding assistance";
+    };
+    "microsoft/markitdown" = {
+      command = "uvx";
+      args = [ "markitdown-mcp" ];
+      description = "Microsoft MarkItDown for converting various document formats to Markdown";
     };
     "awslabs.aws-api-mcp-server" = {
       command = "uvx";

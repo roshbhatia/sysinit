@@ -41,4 +41,5 @@ in
   inherit (crossplane-1-17-1) crossplane-cli;
   inherit (stable) awscli2;
   inherit (stable) fish;
+  inherit (stable) ollama;
 }

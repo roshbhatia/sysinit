@@ -2,7 +2,12 @@
 let
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   common = import ../shared/common.nix;
+  directives = import ../shared/directives.nix;
   gooseEnabled = values.llm.goose.enabled or true;
+
+  gooseHintsMd = ''
+    ${directives.general}
+  '';
 
   gooseConfig = lib.generators.toYAML { } {
     ALPHA_FEATURES = true;
@@ -15,11 +20,21 @@ let
   };
 in
 lib.mkIf gooseEnabled {
-  home.activation.gooseConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    $DRY_RUN_CMD mkdir -p "$HOME/.config/goose"
+  home.activation = {
+    gooseConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      $DRY_RUN_CMD mkdir -p "$HOME/.config/goose"
 
-    cat > "$HOME/.config/goose/config.yaml" << 'EOF'
-    ${gooseConfig}
-    EOF
-  '';
+      cat > "$HOME/.config/goose/config.yaml" << 'EOF'
+      ${gooseConfig}
+      EOF
+    '';
+
+    gooseHints = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      $DRY_RUN_CMD mkdir -p "$HOME/.config/goose"
+
+      cat > "$HOME/.config/goose/goosehints.md" << 'EOF'
+      ${gooseHintsMd}
+      EOF
+    '';
+  };
 }
