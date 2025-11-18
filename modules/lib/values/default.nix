@@ -130,13 +130,13 @@ in
 
         colorscheme = mkOption {
           type = types.str;
-          default = "rose-pine";
+          default = "catppuccin";
           description = "Theme colorscheme";
         };
 
         variant = mkOption {
           type = types.str;
-          default = "moon";
+          default = "macchiato";
           description = "Theme variant";
         };
 
