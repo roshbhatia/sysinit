@@ -1,78 +1,84 @@
 {
   general = ''
-    # Best Practices and Enforced Guidelines
+    # Development Guidelines (RFC 2119)
 
-    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
-    "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be
-    interpreted as described in RFC 2119.
+    Keywords "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
+    "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" per RFC 2119.
 
-    ## General Rules
+    ## Core Requirements
 
-    1. **Scope Awareness**: Fully understand the project and tech stack before executing.
-    2. **Proactive Error Handling**: Fix errors preemptively and clarify stack assumptions.
-    3. **Context Utilization**: Read relevant context files and project documentation.
-    4. **Commenting Standards**:
-       - Start code with a path/filename comment.
-       - Include comments that explain the purpose of the code, not just its effects.
-    5. **Coding Principles**: Emphasize modularity, DRY principles, performance, and security.
-    6. **Task Prioritization**: Complete one file before starting on another.
-    7. **Handling Unfinished Work**: Use TODO comments for unfinished sections and confirm before proceeding.
-    8. **Precision in Editing**: Deliver fully refined, complete files; methodically handle code changes.
-    9. **Symbol Editing Focus**: Return only the modified symbol's definition in your edits.
+    1. **Scope**: You MUST understand project and tech stack before execution.
+    2. **Errors**: You MUST fix errors preemptively and clarify stack assumptions.
+    3. **Context**: You MUST read relevant context files and project documentation.
+    4. **Comments**: You MUST start code with path/filename and include purpose explanations.
+    5. **Principles**: You MUST apply modularity, DRY, performance, and security.
+    6. **Tasks**: You MUST complete one file before starting another.
+    7. **Incomplete Work**: You MUST use TODO comments and confirm before proceeding.
+    8. **Edits**: You MUST deliver fully refined, complete files; return only modified symbols.
 
     ## Verbosity Levels
 
-    | Level | Description |
-    |-------|-------------|
+    | Level | Behavior |
+    |-------|----------|
     | V=0   | Code golf (ultra-condensed) |
     | V=1   | Concise |
     | V=2   | Simple |
-    | V=3   | Verbose, DRY with extracted functions |
+    | V=3   | Verbose, DRY with extracted functions/modules |
 
-    When V=3, extract common functionality into shared modules/files for reusability.
+    ## Communication
 
-    ## Communication Style
-    - Be concise in your output; avoid unnecessary verbosity
-    - Get straight to the point with actionable information
-    - Use clear, direct language
+    - You MUST be concise and use clear, direct language.
+    - You MUST provide actionable information without unnecessary verbosity.
 
-    ## Development Principles
-    - Prefer Test-Driven Development (TDD) when implementing new features
-    - Write tests first, then implement functionality
-    - Always use existing patterns and conventions found in the codebase
-    - Maintain consistency with established architecture and style
+    ## Development Standards
 
-    ## When Uncertain
-    - Ask clarifying questions rather than making assumptions
-    - Elicit requirements when implementation details are ambiguous
-    - Request examples or additional context when patterns are unclear
-    - Confirm understanding before proceeding with significant changes
+    - You SHOULD prefer TDD: write tests first, then implement functionality.
+    - You MUST use existing patterns and conventions found in the codebase.
+    - You MUST maintain consistency with established architecture and style.
 
-    ## Memory Management
-    - Use memory tools to persist important project context and decisions
-    - Reference existing memory entries for project-specific patterns and conventions
-    - Update memory when discovering new patterns or making architectural decisions
-    - Document non-obvious implementation details for future reference
+    ## Uncertainty Handling
 
-    ## MCP Servers
-    - Utilize the available MCP servers for enhanced capabilities
-    - Leverage specialized servers for domain-specific tasks (AWS, Terraform, EKS, etc.)
-    - Use the ast-grep MCP server for structural code analysis and refactoring
+    - You MUST ask clarifying questions rather than make assumptions.
+    - You MUST request examples when patterns are unclear.
+    - You MUST confirm understanding before significant changes.
 
-    ## Code Analysis
-    - When querying code, prefer ast-grep for AST-based pattern matching
-    - Use ast-grep for language-agnostic code search and transformations
-    - Leverage semantic code search over simple text matching when possible
+    ## Memory & Context
 
-    ## Tool Usage with Nix
-    - Before using external tools, check availability via `nix-shell -p <package>`
-    - Use `nix search nixpkgs <query>` to discover available packages
-    - Prefer running tools in isolated nix-shell environments for reproducibility
-    - Example: `nix-shell -p jq --run "jq '.field' file.json"`
+    - You SHOULD persist important project context using memory tools.
+    - You MUST reference existing memory entries for project patterns.
+    - You SHOULD update memory when discovering new patterns or architectural decisions.
 
-    ## Development Workflow
-    - Use nix flakes for project dependencies when applicable
-    - Leverage direnv for automatic environment activation
-    - Test commands in nix-shell before committing to scripts
+    ## Tool Usage
+
+    - You SHOULD utilize MCP servers for domain-specific tasks (AWS, Terraform, EKS).
+    - You SHOULD use ast-grep for AST-based pattern matching and code transformations.
+    - You MUST check tool availability via `nix-shell -p <package>` before use.
+    - You SHOULD run tools in isolated nix-shell environments for reproducibility.
+
+    ## Nix Workflow
+
+    - You SHOULD use nix flakes for project dependencies.
+    - You SHOULD leverage direnv for automatic environment activation.
+    - You MUST test commands in nix-shell before committing to scripts.
+
+    ## Validation Rules
+
+    **Pre-execution**:
+    - [ ] Project scope and tech stack understood
+    - [ ] Context files and documentation reviewed
+    - [ ] Required tools available in nix-shell
+
+    **During execution**:
+    - [ ] Comments include path/filename and purpose
+    - [ ] Code follows DRY, modularity, security principles
+    - [ ] One file completed before starting next
+    - [ ] Existing patterns and conventions maintained
+
+    **Pre-commit**:
+    - [ ] All errors fixed and tested
+    - [ ] TODO comments added for incomplete work
+    - [ ] Edits deliver complete, refined code
+    - [ ] Changes tested in nix-shell environment
+    - [ ] Memory updated with new patterns/decisions
   '';
 }
