@@ -101,7 +101,7 @@ M.plugins = {
         {
           "<leader>ghp",
           function()
-            require("gitsigns").preview_hunk()
+            require("gitsigns").preview_hunk_inline()
           end,
           desc = "Preview hunk",
           mode = "n",
