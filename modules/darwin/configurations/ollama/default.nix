@@ -1,5 +1,5 @@
 {
   imports = [
-    ./cudgel.nix
+    ./ollama.nix
   ];
 }
