@@ -27,7 +27,7 @@ M.plugins = {
             cmd = "opencode",
           },
         },
-        enable_diffing = true,
+        enable_diffing = false,
         trigger_formatting = {
           enabled = false,
         },
