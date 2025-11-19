@@ -9,6 +9,7 @@
 let
   yarnPackages = [
     "@anthropic-ai/claude-code"
+    "@fission-ai/openspec@latest"
     "@github/copilot"
   ]
   ++ (values.yarn.additionalPackages or [ ]);
