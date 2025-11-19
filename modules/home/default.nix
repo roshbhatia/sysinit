@@ -54,12 +54,8 @@
       ".." = "cd ..";
       "~" = "cd ~";
 
-      c = "code-insiders";
-      code = "code-insiders";
       h = "hx";
       v = "nvim";
-      vd = "nvim -d";
-      vimdiff = "nvim -d";
       sg = "ast-grep";
 
       g = "git";
