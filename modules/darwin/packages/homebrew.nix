@@ -17,7 +17,6 @@ let
     "osx-cross/avr"
     "sandreas/tap"
     "slp/krunkit"
-    "tattoy-org/tap"
     "vet-run/vet"
   ];
 
@@ -32,7 +31,6 @@ let
     "luarocks"
     "opencode"
     "slp/krunkit/krunkit"
-    "tattoy-org/tap/tattoy"
     "vet-run"
   ];
 
@@ -44,7 +42,6 @@ let
     "handy"
     "hammerspoon"
     "mediosz/tap/swipeaerospace"
-    "notion"
     "rancher"
     "raycast"
     "slack"
