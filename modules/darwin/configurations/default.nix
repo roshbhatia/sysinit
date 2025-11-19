@@ -10,6 +10,7 @@
     ./finder
     ./hostname
     ./keyboard
+    ./ollama
     ./op
     ./security
     ./sketchybar

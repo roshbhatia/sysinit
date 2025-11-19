@@ -42,6 +42,7 @@ let
     "handy"
     "hammerspoon"
     "mediosz/tap/swipeaerospace"
+    "ollama"
     "rancher"
     "raycast"
     "slack"
