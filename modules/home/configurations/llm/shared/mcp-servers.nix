@@ -35,38 +35,6 @@ let
       args = [ "markitdown-mcp" ];
       description = "Microsoft MarkItDown for converting various document formats to Markdown";
     };
-    "awslabs.aws-api-mcp-server" = {
-      command = "uvx";
-      args = [ "awslabs.aws-api-mcp-server@latest" ];
-      env = {
-        AWS_REGION = "us-east-1";
-      };
-    };
-    "awslabs.terraform-mcp-server" = {
-      command = "uvx";
-      args = [ "awslabs.terraform-mcp-server@latest" ];
-      env = {
-        FASTMCP_LOG_LEVEL = "ERROR";
-      };
-    };
-    "awslabs.eks-mcp-server" = {
-      command = "uvx";
-      args = [
-        "awslabs.eks-mcp-server@latest"
-        "--allow-write"
-        "--allow-sensitive-data-access"
-      ];
-      env = {
-        AWS_REGION = "us-east-1";
-      };
-    };
-    "awslabs.cloudtrail-mcp-server" = {
-      command = "uvx";
-      args = [ "awslabs.cloudtrail-mcp-server@latest" ];
-      env = {
-        FASTMCP_LOG_LEVEL = "ERROR";
-      };
-    };
   };
 
   # Additional servers from values file (attrset format)
