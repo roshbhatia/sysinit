@@ -22,15 +22,9 @@ M.plugins = {
         lazygit = {
           enabled = true,
           win = {
-            style = "float",
-            width = 0.95,
-            height = 0.95,
-            border = "rounded",
-            title = " Lazygit ",
-            title_pos = "center",
-            backdrop = 80,
+            border = "none",
             wo = {
-              winblend = 10,
+              winblend = 0,
             },
           },
         },
