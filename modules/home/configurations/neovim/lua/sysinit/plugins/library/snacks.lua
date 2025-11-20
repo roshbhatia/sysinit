@@ -22,7 +22,16 @@ M.plugins = {
         lazygit = {
           enabled = true,
           win = {
-            style = "lazygit",
+            style = "float",
+            width = 0.95,
+            height = 0.95,
+            border = "rounded",
+            title = " Lazygit ",
+            title_pos = "center",
+            backdrop = 80,
+            wo = {
+              winblend = 10,
+            },
           },
         },
         notifier = {
@@ -102,8 +111,16 @@ M.plugins = {
         terminal = {
           enabled = true,
           win = {
-            title = "",
+            style = "float",
+            width = 0.9,
+            height = 0.8,
+            border = "rounded",
+            title = " Terminal ",
             title_pos = "center",
+            backdrop = 80,
+            wo = {
+              winblend = 10,
+            },
           },
           bo = {
             filetype = "snacks_terminal",
@@ -152,7 +169,6 @@ M.plugins = {
           },
         },
       })
-
       vim.ui.input = Snacks.input
       vim.notify = function(msg, level, opts)
         if type(msg) == "string" and (msg:find("^Reloaded %d+ file")) then
@@ -168,7 +184,7 @@ M.plugins = {
           function()
             Snacks.lazygit()
           end,
-          desc = "Toggle git ui",
+          desc = "Toggle lazygit (floating)",
         },
         {
           "<leader>ns",
@@ -195,26 +211,29 @@ M.plugins = {
           function()
             Snacks.terminal.toggle("gh dash", {
               win = {
+                style = "float",
+                width = 0.9,
+                height = 0.8,
                 border = "rounded",
-                wo = {
-                  winblend = 0,
-                },
+                title = " GitHub CLI ",
+                title_pos = "center",
+                backdrop = 80,
+                wo = { winblend = 10 },
               },
             })
           end,
-          desc = "Toggle github ui",
+          desc = "Toggle GitHub CLI (floating)",
         },
         {
           "<leader>tt",
           function()
             Snacks.terminal.toggle(nil, { cwd = vim.fn.getcwd() })
           end,
-          desc = "Toggle terminal (cwd)",
+          desc = "Toggle terminal (floating)",
         },
         {
           "<leader>tT",
           function()
-            -- Close existing terminal and create new one
             local terms = Snacks.terminal.get()
             if terms and #terms > 0 then
               for _, term in ipairs(terms) do
@@ -225,14 +244,12 @@ M.plugins = {
             end
             Snacks.terminal.toggle(nil, { cwd = vim.fn.getcwd() })
           end,
-          desc = "Recreate terminal",
+          desc = "Recreate terminal (floating)",
         },
       }
-
       if vim.env.SYSINIT_DEBUG ~= "1" then
         return default_keys
       end
-
       local debug_keys = {
         {
           "<leader>px",
@@ -270,14 +287,11 @@ M.plugins = {
           desc = "Toggle profiler scratch buffer",
         },
       }
-
       for _, key in ipairs(debug_keys) do
         table.insert(default_keys, key)
       end
-
       return default_keys
     end,
   },
 }
-
 return M
