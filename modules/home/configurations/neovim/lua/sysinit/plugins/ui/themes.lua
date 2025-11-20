@@ -65,9 +65,6 @@ local function get_catppuccin_config()
         overrides.DiagnosticWarn = { fg = colors.yellow, style = { "bold" } }
         overrides.DiagnosticInfo = { fg = colors.blue, style = { "bold" } }
         overrides.DiagnosticHint = { fg = colors.teal, style = { "bold" } }
-        overrides.GitSignsAdd = { fg = colors.green, style = { "bold" } }
-        overrides.GitSignsChange = { fg = colors.yellow, style = { "bold" } }
-        overrides.GitSignsDelete = { fg = colors.red, style = { "bold" } }
         overrides.WinSeparator = { fg = colors.blue, style = { "bold" } }
 
         if not theme_config.transparency.enable then

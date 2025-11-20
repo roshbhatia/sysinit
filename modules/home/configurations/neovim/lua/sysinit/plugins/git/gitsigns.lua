@@ -14,10 +14,7 @@ M.plugins = {
           row = 0,
           col = 1,
         },
-        diff_opts = {
-          internal = true, -- Use built-in diff for better inline highlighting
-        },
-        word_diff = true,
+        linehl = true,
       })
     end,
     keys = function()
