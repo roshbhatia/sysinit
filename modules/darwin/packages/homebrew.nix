@@ -29,6 +29,7 @@ let
     "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"
+    "lunchy"
     "ollama"
     "opencode"
     "slp/krunkit/krunkit"

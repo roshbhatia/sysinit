@@ -17,8 +17,7 @@ M.plugins = {
         diff_opts = {
           internal = true, -- Use built-in diff for better inline highlighting
         },
-        word_diff = true, -- Enable word-level diff highlighting
-        show_deleted = true, -- Show deleted lines in preview
+        word_diff = true,
       })
     end,
     keys = function()
