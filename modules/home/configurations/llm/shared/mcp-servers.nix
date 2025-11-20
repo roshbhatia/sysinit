@@ -4,11 +4,6 @@
 
 let
   defaultServers = {
-    git = {
-      command = "uvx";
-      args = [ "mcp-server-git" ];
-      description = "Git version control system integration";
-    };
     astgrep = {
       command = "uvx";
       args = [
@@ -29,11 +24,6 @@ let
         "ide-assistant"
       ];
       description = "Serena IDE assistant with AGENTS.md integration for project-aware coding assistance";
-    };
-    "microsoft/markitdown" = {
-      command = "uvx";
-      args = [ "markitdown-mcp" ];
-      description = "Microsoft MarkItDown for converting various document formats to Markdown";
     };
   };
 
