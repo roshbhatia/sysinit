@@ -1,5 +1,24 @@
 {
   lsp = {
+    ast_grep = {
+      command = [ "ast-grep" ];
+      args = "lsp";
+      extensions = [
+        ".c"
+        ".cpp"
+        ".css"
+        ".go"
+        ".nix"
+        ".py"
+        ".rs"
+        ".sh"
+        ".tmpl"
+        ".ts"
+        ".yaml"
+        ".yml"
+        ".zsh"
+      ];
+    };
     go = {
       command = [ "gopls" ];
       extensions = [ ".go" ];
