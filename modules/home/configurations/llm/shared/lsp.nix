@@ -2,7 +2,7 @@
   lsp = {
     ast_grep = {
       command = [ "ast-grep" ];
-      args = "lsp";
+      args = [ "lsp" ];
       extensions = [
         ".c"
         ".cpp"

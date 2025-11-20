@@ -50,6 +50,30 @@ function M.generate_diff_highlights(colors)
   }
 end
 
+-- Generate GitSigns highlight groups with tinted backgrounds (VSCode-style)
+function M.generate_gitsigns_highlights(colors)
+  return {
+    -- Sign column highlights (left gutter)
+    GitSignsAdd = { fg = colors.diff.add, bold = true },
+    GitSignsChange = { fg = colors.diff.change, bold = true },
+    GitSignsDelete = { fg = colors.diff.delete, bold = true },
+
+    -- Inline diff highlights (preview and inline diffs)
+    GitSignsAddInline = { bg = colors.diff.add_bg, fg = colors.diff.add },
+    GitSignsChangeInline = { bg = colors.diff.change_bg, fg = colors.diff.change },
+    GitSignsDeleteInline = { bg = colors.diff.delete_bg, fg = colors.diff.delete },
+
+    -- Line number highlights
+    GitSignsAddLn = { bg = colors.diff.add_bg },
+    GitSignsChangeLn = { bg = colors.diff.change_bg },
+    GitSignsDeleteLn = { bg = colors.diff.delete_bg },
+
+    -- Preview window highlights
+    GitSignsAddPreview = { link = "DiffAdd" },
+    GitSignsDeletePreview = { link = "DiffDelete" },
+  }
+end
+
 -- Generate essential Treesitter syntax highlight groups
 function M.generate_treesitter_highlights(colors)
   return {
@@ -251,13 +275,10 @@ function M.generate_transparency_highlights(transparency)
     "FloatBorder",
     "FloatTitle",
     "FoldColumn",
-    -- Git Signs
+    -- Git Signs (only sign column, not line/inline highlights)
     "GitSignsAdd",
-    "GitSignsAddCul",
     "GitSignsChange",
-    "GitSignsChangeCul",
     "GitSignsDelete",
-    "GitSignsDeleteCul",
     -- Lazy
     "LazyNormal",
     -- Line numbers
@@ -355,6 +376,7 @@ function M.generate_core_highlights(colors, palette, transparency)
     M.generate_transparency_highlights(transparency),
     M.generate_cursor_highlights(colors),
     M.generate_diff_highlights(colors),
+    M.generate_gitsigns_highlights(colors),
     M.generate_treesitter_highlights(colors),
     M.generate_diagnostic_highlights(colors, transparency),
     M.generate_lsp_highlights(colors)

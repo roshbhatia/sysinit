@@ -21,6 +21,9 @@ M.plugins = {
         },
         lazygit = {
           enabled = true,
+          win = {
+            style = "lazygit",
+          },
         },
         notifier = {
           enabled = true,
@@ -138,6 +141,16 @@ M.plugins = {
         zen = {
           enabled = false,
         },
+        styles = {
+          lazygit = {
+            width = 0,
+            height = 0,
+            backdrop = false,
+            wo = {
+              winblend = 0,
+            },
+          },
+        },
       })
 
       vim.ui.input = Snacks.input
@@ -183,10 +196,36 @@ M.plugins = {
             Snacks.terminal.toggle("gh dash", {
               win = {
                 border = "rounded",
+                wo = {
+                  winblend = 0,
+                },
               },
             })
           end,
           desc = "Toggle github ui",
+        },
+        {
+          "<leader>tt",
+          function()
+            Snacks.terminal.toggle(nil, { cwd = vim.fn.getcwd() })
+          end,
+          desc = "Toggle terminal (cwd)",
+        },
+        {
+          "<leader>tT",
+          function()
+            -- Close existing terminal and create new one
+            local terms = Snacks.terminal.get()
+            if terms and #terms > 0 then
+              for _, term in ipairs(terms) do
+                if term.buf and vim.api.nvim_buf_is_valid(term.buf) then
+                  vim.api.nvim_buf_delete(term.buf, { force = true })
+                end
+              end
+            end
+            Snacks.terminal.toggle(nil, { cwd = vim.fn.getcwd() })
+          end,
+          desc = "Recreate terminal",
         },
       }
 
