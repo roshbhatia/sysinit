@@ -3,26 +3,25 @@
 # Purpose: Intelligent file/directory preview for fzf-tab
 # Handles files (bat), directories (eza), and images (chafa)
 
-# Debug: uncomment to see what's being passed
-# echo "DEBUG: word=[$word] realpath=[$realpath] \$1=[$1]" >&2
+target=""
 
-# fzf-tab passes the actual completion result as the first positional argument
-# The $word and $realpath variables are for context but the actual target is $1
-target="${1}"
-
-# If no argument, try the environment variables (fallback for direct invocation)
-if [[ -z "$target" ]]; then
-  if [[ -n "$realpath" ]]; then
-    target="$realpath"
-  elif [[ -n "$word" ]]; then
-    target="$word"
-  fi
+# Priority: realpath (canonical) > word (raw input) > first argument
+if [[ -n "$realpath" ]]; then
+  target="$realpath"
+elif [[ -n "$word" ]]; then
+  target="$word"
+elif [[ -n "$1" ]]; then
+  target="$1"
 fi
 
 # Exit if target is empty or a literal variable reference
 if [[ -z "$target" || "$target" == "\$word" || "$target" == "\$realpath" ]]; then
   exit 0
 fi
+
+# Strip trailing whitespace/spaces (fzf-tab display artifacts)
+target="${target%% }"
+target="${target% }"
 
 # Expand tilde (~) to home directory
 target="${target/#\~/$HOME}"
