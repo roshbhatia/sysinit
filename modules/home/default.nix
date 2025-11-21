@@ -61,6 +61,8 @@
       g = "git";
       lg = "lazygit";
 
+      f = "yazi";
+
       kubectl = "kubecolor";
       tf = "terraform";
 
