@@ -89,7 +89,7 @@ in
 
       VIVID_THEME = appTheme;
 
-      ZK_NOTEBOOK_DIR = "~/github/personal/roshbhatia/zeek";
+      ZK_NOTEBOOK_DIR = "$HOME/github/personal/roshbhatia/zeek/";
     };
 
     plugins = [
