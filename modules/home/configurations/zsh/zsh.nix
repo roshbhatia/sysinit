@@ -176,6 +176,7 @@ in
         zstyle ':fzf-tab:*' fzf-pad 4
         zstyle ':fzf-tab:*' single-group color header
         zstyle ':fzf-tab:*' show-group full
+        zstyle ':fzf-tab:*' fzf-flags --marker=" " --pointer="" --no-separator
 
 
         zstyle ':fzf-tab:*' query-string ""
