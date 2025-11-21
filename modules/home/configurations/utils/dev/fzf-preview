@@ -2,43 +2,21 @@
 # modules/home/configurations/utils/dev/fzf-preview
 # Purpose: Intelligent file/directory preview for fzf-tab
 # Handles files (bat), directories (eza), and images (chafa)
-# Supports smart preview: shows parent directory when navigating into subdirectories
 
-# Determine the target path from realpath, word, or first argument
-# Strategy: Use realpath if available (canonical), otherwise resolve word
-target=""
-parent_dir=""
+# Debug: uncomment to see what's being passed
+# echo "DEBUG: word=[$word] realpath=[$realpath] \$1=[$1]" >&2
 
-# If both word and realpath exist, check if we're navigating into a directory
-if [[ -n "$word" && -n "$realpath" ]]; then
-  # Normalize both paths for comparison (only if they exist)
-  word_normalized="${word/#\~/$HOME}"
-  [[ "$word_normalized" != /* ]] && word_normalized="$(pwd)/$word_normalized"
+# fzf-tab passes the actual completion result as the first positional argument
+# The $word and $realpath variables are for context but the actual target is $1
+target="${1}"
 
-  # Only use :A if path exists, otherwise keep as-is
-  if [[ -e "$word_normalized" ]]; then
-    word_normalized="${word_normalized:A}"
+# If no argument, try the environment variables (fallback for direct invocation)
+if [[ -z "$target" ]]; then
+  if [[ -n "$realpath" ]]; then
+    target="$realpath"
+  elif [[ -n "$word" ]]; then
+    target="$word"
   fi
-
-  # realpath from fzf-tab should already exist
-  if [[ -e "$realpath" ]]; then
-    realpath_normalized="${realpath:A}"
-  else
-    realpath_normalized="$realpath"
-  fi
-
-  # If word is a directory and realpath is inside it, preview the directory
-  if [[ -d "$word_normalized" && "$realpath_normalized" == "$word_normalized"/* ]]; then
-    target="$word_normalized"
-  else
-    target="$realpath_normalized"
-  fi
-elif [[ -n "$realpath" ]]; then
-  target="$realpath"
-elif [[ -n "$word" ]]; then
-  target="$word"
-else
-  target="${1}"
 fi
 
 # Exit if target is empty or a literal variable reference
@@ -57,6 +35,11 @@ fi
 # Normalize path only if it exists (avoid :A failing on non-existent paths)
 if [[ -e "$target" ]]; then
   target="${target:A}"
+fi
+
+# Exit silently if target doesn't exist (completion in progress)
+if [[ ! -e "$target" ]]; then
+  exit 0
 fi
 
 # Handle directories
@@ -102,5 +85,5 @@ fi
 
 # Handle other file types (symlinks, devices, etc.)
 echo "Special file: $target"
-ls -lh "$target"
+file "$target"
 exit 0
