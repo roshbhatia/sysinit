@@ -47,7 +47,7 @@ let
     "rancher"
     "raycast"
     "slack"
-    "wezterm"
+    "wezterm@nightly"
   ];
 
   allTaps = baseTaps ++ additionalTaps;
