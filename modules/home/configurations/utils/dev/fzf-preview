@@ -14,19 +14,19 @@ if [[ -n "$word" && -n "$realpath" ]]; then
   # Normalize both paths for comparison (only if they exist)
   word_normalized="${word/#\~/$HOME}"
   [[ "$word_normalized" != /* ]] && word_normalized="$(pwd)/$word_normalized"
-  
+
   # Only use :A if path exists, otherwise keep as-is
   if [[ -e "$word_normalized" ]]; then
     word_normalized="${word_normalized:A}"
   fi
-  
+
   # realpath from fzf-tab should already exist
   if [[ -e "$realpath" ]]; then
     realpath_normalized="${realpath:A}"
   else
     realpath_normalized="$realpath"
   fi
-  
+
   # If word is a directory and realpath is inside it, preview the directory
   if [[ -d "$word_normalized" && "$realpath_normalized" == "$word_normalized"/* ]]; then
     target="$word_normalized"
@@ -59,12 +59,6 @@ if [[ -e "$target" ]]; then
   target="${target:A}"
 fi
 
-# Exit if target doesn't exist
-if [[ ! -e "$target" ]]; then
-  echo "Path does not exist: $target" >&2
-  exit 1
-fi
-
 # Handle directories
 if [[ -d "$target" ]]; then
   if command -v eza &>/dev/null; then
@@ -79,7 +73,7 @@ fi
 if [[ -f "$target" ]]; then
   # Detect file type using MIME
   mime_type="$(file --brief --mime-type -- "$target" 2>/dev/null)"
-  
+
   # Handle images
   if [[ "$mime_type" == image/* ]]; then
     if command -v chafa &>/dev/null; then
@@ -95,7 +89,7 @@ if [[ -f "$target" ]]; then
       exit 0
     fi
   fi
-  
+
   # Handle text/code files with bat
   if command -v bat &>/dev/null; then
     bat --style=numbers --color=always --pager=never -- "$target" 2>/dev/null
