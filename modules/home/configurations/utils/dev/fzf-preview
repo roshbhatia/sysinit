@@ -11,12 +11,21 @@ parent_dir=""
 
 # If both word and realpath exist, check if we're navigating into a directory
 if [[ -n "$word" && -n "$realpath" ]]; then
-  # Normalize both paths for comparison
+  # Normalize both paths for comparison (only if they exist)
   word_normalized="${word/#\~/$HOME}"
   [[ "$word_normalized" != /* ]] && word_normalized="$(pwd)/$word_normalized"
-  word_normalized="${word_normalized:A}"
   
-  realpath_normalized="${realpath:A}"
+  # Only use :A if path exists, otherwise keep as-is
+  if [[ -e "$word_normalized" ]]; then
+    word_normalized="${word_normalized:A}"
+  fi
+  
+  # realpath from fzf-tab should already exist
+  if [[ -e "$realpath" ]]; then
+    realpath_normalized="${realpath:A}"
+  else
+    realpath_normalized="$realpath"
+  fi
   
   # If word is a directory and realpath is inside it, preview the directory
   if [[ -d "$word_normalized" && "$realpath_normalized" == "$word_normalized"/* ]]; then
@@ -45,8 +54,10 @@ if [[ "$target" != /* ]]; then
   target="$(pwd)/$target"
 fi
 
-# Normalize path (remove ./ and ../)
-target="${target:A}"
+# Normalize path only if it exists (avoid :A failing on non-existent paths)
+if [[ -e "$target" ]]; then
+  target="${target:A}"
+fi
 
 # Exit if target doesn't exist
 if [[ ! -e "$target" ]]; then
