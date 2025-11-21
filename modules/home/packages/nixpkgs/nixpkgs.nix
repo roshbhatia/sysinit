@@ -140,6 +140,7 @@ let
     yarn
     yq
     zig
+    zk
     zls
     zoxide
     zsh
