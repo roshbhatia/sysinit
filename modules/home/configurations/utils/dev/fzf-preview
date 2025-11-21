@@ -1,8 +1,30 @@
 #!/usr/bin/env zsh
+# modules/home/configurations/utils/dev/fzf-preview
+# Purpose: Intelligent file/directory preview for fzf-tab
+# Handles files (bat), directories (eza), and images (chafa)
+# Supports smart preview: shows parent directory when navigating into subdirectories
 
-# Determine the target path
-local target
-if [[ -n "$realpath" ]]; then
+# Determine the target path from realpath, word, or first argument
+# Strategy: Use realpath if available (canonical), otherwise resolve word
+target=""
+parent_dir=""
+
+# If both word and realpath exist, check if we're navigating into a directory
+if [[ -n "$word" && -n "$realpath" ]]; then
+  # Normalize both paths for comparison
+  word_normalized="${word/#\~/$HOME}"
+  [[ "$word_normalized" != /* ]] && word_normalized="$(pwd)/$word_normalized"
+  word_normalized="${word_normalized:A}"
+  
+  realpath_normalized="${realpath:A}"
+  
+  # If word is a directory and realpath is inside it, preview the directory
+  if [[ -d "$word_normalized" && "$realpath_normalized" == "$word_normalized"/* ]]; then
+    target="$word_normalized"
+  else
+    target="$realpath_normalized"
+  fi
+elif [[ -n "$realpath" ]]; then
   target="$realpath"
 elif [[ -n "$word" ]]; then
   target="$word"
@@ -10,34 +32,70 @@ else
   target="${1}"
 fi
 
-# Expand tilde (~) in the target path
-target="${target/#\~\/$HOME/}"
-
-# Exit if target is empty or a literal "$word"
-if [[ -z "$target" || "$target" == "\$word" ]]; then
+# Exit if target is empty or a literal variable reference
+if [[ -z "$target" || "$target" == "\$word" || "$target" == "\$realpath" ]]; then
   exit 0
 fi
 
-# Directory listing
+# Expand tilde (~) to home directory
+target="${target/#\~/$HOME}"
+
+# Resolve to absolute path if relative
+if [[ "$target" != /* ]]; then
+  target="$(pwd)/$target"
+fi
+
+# Normalize path (remove ./ and ../)
+target="${target:A}"
+
+# Exit if target doesn't exist
+if [[ ! -e "$target" ]]; then
+  echo "Path does not exist: $target" >&2
+  exit 1
+fi
+
+# Handle directories
 if [[ -d "$target" ]]; then
-  eza --color=always --icons=always -1 "$target"
+  if command -v eza &>/dev/null; then
+    eza --color=always --icons=always --group-directories-first -1 "$target"
+  else
+    ls -1 --color=always "$target" 2>/dev/null || ls -1 "$target"
+  fi
   exit 0
 fi
 
-# Exit if file doesn't exist
-[[ ! -f "$target" ]] && exit 1
-
-# Image preview
-if file --brief --mime -- "$target" | grep -q "image/"; then
-  if [[ -n "$FZF_PREVIEW_COLUMNS" && -n "$FZF_PREVIEW_LINES" ]]; then
-    dim="${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}"
-  else
-    dim="$(tput cols)x$(tput lines)"
+# Handle regular files
+if [[ -f "$target" ]]; then
+  # Detect file type using MIME
+  mime_type="$(file --brief --mime-type -- "$target" 2>/dev/null)"
+  
+  # Handle images
+  if [[ "$mime_type" == image/* ]]; then
+    if command -v chafa &>/dev/null; then
+      if [[ -n "$FZF_PREVIEW_COLUMNS" && -n "$FZF_PREVIEW_LINES" ]]; then
+        dim="${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}"
+      else
+        dim="$(tput cols 2>/dev/null || echo 80)x$(tput lines 2>/dev/null || echo 24)"
+      fi
+      chafa --size "$dim" "$target" 2>/dev/null
+      exit 0
+    else
+      echo "Image file: $target (install chafa for preview)" >&2
+      exit 0
+    fi
   fi
-
-  chafa -s "$dim" "$target"
-  echo
-else
-  # Text file preview
-  bat --style=numbers --color=always --pager=never -- "$target"
+  
+  # Handle text/code files with bat
+  if command -v bat &>/dev/null; then
+    bat --style=numbers --color=always --pager=never -- "$target" 2>/dev/null
+  else
+    # Fallback to cat with line numbers
+    cat -n "$target" 2>/dev/null || cat "$target"
+  fi
+  exit 0
 fi
+
+# Handle other file types (symlinks, devices, etc.)
+echo "Special file: $target"
+ls -lh "$target"
+exit 0
