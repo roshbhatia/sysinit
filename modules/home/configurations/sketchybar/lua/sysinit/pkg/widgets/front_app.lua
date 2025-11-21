@@ -30,7 +30,6 @@ local app_icons = {
   ["MicrosoftOutlook"] = "󰴢",
   ["Music"] = "",
   ["Notes"] = "󰎞",
-  ["Notion"] = "",
   ["Outlook"] = "󰴢",
   ["Podcasts"] = "",
   ["Safari"] = "󰀹",
