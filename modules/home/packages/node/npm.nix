@@ -7,7 +7,10 @@
 }:
 
 let
-  npmPackages = values.npm.additionalPackages or [ ];
+  npmPackages = [
+    "osgrep"
+  ]
+  ++ (values.npm.additionalPackages or [ ]);
 in
 {
   home.file.".npmrc" = {

@@ -11,7 +11,6 @@ let
     "@anthropic-ai/claude-code"
     "@fission-ai/openspec@latest"
     "@github/copilot"
-    "osgrep"
   ]
   ++ (values.yarn.additionalPackages or [ ]);
 
