@@ -45,8 +45,8 @@ let
     "hammerspoon"
     "mediosz/tap/swipeaerospace"
     "rancher"
-    "raycast"
     "slack"
+    "sol"
     "wezterm@nightly"
   ];
 
