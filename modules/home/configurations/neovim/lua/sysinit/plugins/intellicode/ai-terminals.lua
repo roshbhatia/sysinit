@@ -26,6 +26,9 @@ M.plugins = {
           opencode = {
             cmd = "opencode",
           },
+          amp = {
+            cmd = "amp",
+          },
         },
         enable_diffing = false,
         trigger_formatting = {

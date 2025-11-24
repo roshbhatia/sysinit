@@ -11,6 +11,7 @@ let
     "@anthropic-ai/claude-code"
     "@fission-ai/openspec@latest"
     "@github/copilot"
+    "@sourcegraph/amp@latest"
   ]
   ++ (values.yarn.additionalPackages or [ ]);
 

@@ -31,6 +31,12 @@ M.agents = {
     "Cursor",
     "{}",
   },
+  {
+    "y",
+    "amp",
+    "Amp",
+    "󰮼",
+  },
 }
 
 function M.get_agents()
