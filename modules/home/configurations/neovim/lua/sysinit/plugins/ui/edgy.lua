@@ -26,7 +26,7 @@ M.plugins = {
         },
         left = {
           {
-            title = " File Explorer",
+            title = "File Explorer",
             ft = "neo-tree",
             filter = function(buf)
               return vim.b[buf].neo_tree_source == "filesystem"
@@ -35,14 +35,14 @@ M.plugins = {
         },
         bottom = {
           {
-            title = "",
+            title = "(Qf/Loc) List",
             ft = "qf",
             size = { height = 0.3 },
           },
         },
         right = {
           {
-            title = " Help",
+            title = "Help",
             ft = "help",
             size = { height = 0.5 },
             filter = function(buf)
