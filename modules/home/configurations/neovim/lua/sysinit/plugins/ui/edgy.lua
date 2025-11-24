@@ -26,9 +26,9 @@ M.plugins = {
         },
         left = {
           {
-            title = "File Explorer",
+            title = "",
             ft = "fyler",
-            size = { width = 0.33 },
+            size = { width = 0.3 },
           },
         },
         bottom = {
@@ -40,7 +40,7 @@ M.plugins = {
         },
         right = {
           {
-            title = "Help",
+            title = "",
             ft = "help",
             size = { height = 0.5 },
             filter = function(buf)
@@ -49,8 +49,8 @@ M.plugins = {
           },
         },
         icons = {
-          closed = "",
-          open = "",
+          closed = "",
+          open = "",
         },
         wo = {
           winbar = true,
