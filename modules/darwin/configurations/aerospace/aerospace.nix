@@ -175,6 +175,7 @@
             alt-shift-s = "move-node-to-workspace S --focus-follows-window";
 
             alt-f = "fullscreen";
+            alt-enter = "exec-and-forget sketchybar --reload";
 
             alt-esc = [
               "reload-config"
