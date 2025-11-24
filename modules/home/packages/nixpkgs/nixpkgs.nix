@@ -60,6 +60,7 @@ let
     helm-ls
     intelli-shell
     jetbrains-mono
+    jira-cli-go
     jq
     jq-lsp
     jqp
