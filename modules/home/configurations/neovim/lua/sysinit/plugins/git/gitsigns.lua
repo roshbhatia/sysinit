@@ -14,7 +14,7 @@ M.plugins = {
           row = 0,
           col = 1,
         },
-        linehl = true,
+        numhl = true,
       })
     end,
     keys = function()
