@@ -78,15 +78,8 @@ function M.open(termname)
 
   local term = Snacks.terminal.toggle(agent_config.cmd, {
     win = {
-      title = string.format(" AI: %s ", termname),
-      title_pos = "center",
-      width = 0.9,
-      height = 0.8,
-      border = "rounded",
-      backdrop = 80,
-      wo = {
-        winblend = 10,
-      },
+      position = "right",
+      width = 0.5,
     },
     env = config.env,
     bo = {

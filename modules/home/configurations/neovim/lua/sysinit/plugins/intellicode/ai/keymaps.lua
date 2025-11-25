@@ -38,31 +38,13 @@ function M.generate_all_keymaps()
   table.insert(keymaps, {
     "<leader>jj",
     picker.pick_agent,
-    desc = "AI: Pick agent",
+    desc = "AI: Toggle/Pick agent",
   })
 
-  for _, agent in ipairs(agents.get_all()) do
-    table.insert(keymaps, {
-      string.format("<leader>j%s", agent.key),
-      function()
-        ai_manager.activate(agent.name)
-        vim.notify(string.format("%s %s activated", agent.icon, agent.label), vim.log.levels.INFO)
-      end,
-      desc = string.format("AI: Activate %s", agent.label),
-    })
-  end
-
   table.insert(keymaps, {
-    "<leader>jt",
-    function()
-      local active = ai_manager.get_active()
-      if not active then
-        vim.notify("No active AI terminal", vim.log.levels.WARN)
-        return
-      end
-      ai_manager.toggle(active)
-    end,
-    desc = "AI: Toggle active terminal",
+    "<leader>jJ",
+    picker.kill_and_pick,
+    desc = "AI: Kill session and pick new",
   })
 
   table.insert(keymaps, {

@@ -170,8 +170,43 @@ M.plugins = {
         end
         return Snacks.notifier.notify(msg, level, opts or {})
       end
+
+      local agents = require("sysinit.plugins.intellicode.agents")
+      local ai_manager = require("sysinit.plugins.intellicode.ai.ai_manager")
+      local terminal = require("sysinit.plugins.intellicode.ai.terminal")
+      local completion = require("sysinit.plugins.intellicode.ai.completion")
+      local file_refresh = require("sysinit.plugins.intellicode.ai.file_refresh")
+
+      completion.setup()
+
+      local terminals_config = {}
+      for _, agent in ipairs(agents.get_all()) do
+        terminals_config[agent.name] = {
+          cmd = agent.cmd,
+        }
+      end
+
+      ai_manager.setup({
+        terminals = terminals_config,
+        env = {
+          PAGER = "bat",
+        },
+      })
+
+      terminal.setup_goose_keymaps()
+      file_refresh.setup({
+        file_refresh = {
+          enable = true,
+          timer_interval = 1000,
+          updatetime = 100,
+          show_notifications = true,
+        },
+      })
     end,
     keys = function()
+      local keymaps = require("sysinit.plugins.intellicode.ai.keymaps")
+      local ai_keys = keymaps.generate_all_keymaps()
+
       local default_keys = {
         {
           "<leader>gg",
@@ -241,6 +276,10 @@ M.plugins = {
           desc = "Recreate terminal (floating)",
         },
       }
+      for _, key in ipairs(ai_keys) do
+        table.insert(default_keys, key)
+      end
+
       if vim.env.SYSINIT_DEBUG ~= "1" then
         return default_keys
       end

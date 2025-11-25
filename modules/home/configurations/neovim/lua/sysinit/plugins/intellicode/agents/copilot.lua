@@ -2,6 +2,6 @@ return {
   name = "copilot",
   key = "g",
   label = "Copilot",
-  icon = "",
+  icon = "",
   cmd = "copilot --allow-all-paths --resume",
 }

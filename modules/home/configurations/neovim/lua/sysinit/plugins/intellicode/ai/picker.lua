@@ -5,6 +5,17 @@ function M.pick_agent()
   local ai_manager = require("sysinit.plugins.intellicode.ai.ai_manager")
   local active = ai_manager.get_active()
 
+  if active then
+    local term_info = ai_manager.get_info(active)
+    if term_info and term_info.win and vim.api.nvim_win_is_valid(term_info.win) then
+      ai_manager.toggle(active)
+      return
+    elseif term_info then
+      ai_manager.activate(active)
+      return
+    end
+  end
+
   local items = {}
   for _, agent in ipairs(agents.get_all()) do
     local is_active = agent.name == active
@@ -25,6 +36,20 @@ function M.pick_agent()
       vim.notify(string.format("%s %s activated", choice.agent.icon, choice.agent.label), vim.log.levels.INFO)
     end
   end)
+end
+
+function M.kill_and_pick()
+  local ai_manager = require("sysinit.plugins.intellicode.ai.ai_manager")
+  local active = ai_manager.get_active()
+
+  if active then
+    local term_info = ai_manager.get_info(active)
+    if term_info and term_info.buf then
+      vim.api.nvim_buf_delete(term_info.buf, { force = true })
+    end
+  end
+
+  M.pick_agent()
 end
 
 return M

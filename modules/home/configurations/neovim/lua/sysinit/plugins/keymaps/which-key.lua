@@ -29,7 +29,6 @@ M.plugins = {
 
       wk.add({
         { "<leader>?", group = "Open command palette" },
-        { "<leader>a", group = "AI" },
         { "<leader>b", group = "Buffer" },
         { "<leader>c", group = "Code" },
         { "<leader>d", group = "Debugger" },
@@ -40,17 +39,12 @@ M.plugins = {
         { "<leader>gd", group = "Git: diffview" },
         { "<leader>gh", group = "Git: hunk" },
         { "<leader>gr", group = "Git: review" },
-        { "<leader>y", group = "Claude" },
-        { "<leader>i", group = "Cursor" },
-        { "<leader>j", group = "OpenCode" },
-        { "<leader>k", group = "Goose" },
+        { "<leader>j", group = "AI Agents" },
         { "<leader>m", group = "Marks" },
         { "<leader>n", group = "Notifications" },
         { "<leader>q", group = "Qflist/Loclist" },
         { "<leader>r", group = "Refresh" },
         { "<leader>t", group = "Terminal" },
-        { "<leader>u", group = "Copilot" },
-        { "<leader>h", group = "Amp" },
         { "<localleader>m", group = "Markdown", ft = "markdown" },
         { "gr", group = "LSP" },
       })

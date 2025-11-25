@@ -2,6 +2,6 @@ return {
   name = "claude",
   key = "c",
   label = "Claude",
-  icon = "󰿟󰫮",
+  icon = "",
   cmd = "claude --permission-mode plan",
 }
