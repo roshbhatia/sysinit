@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
   {
     "Bekaboo/dropbar.nvim",
-    version = "v14.1.0",
+    branch = "master",
     event = "BufReadPost",
     dependencies = {
       "nvim-telescope/telescope-fzf-native.nvim",
@@ -20,7 +20,6 @@ M.plugins = {
           },
         },
         menu = {
-          preview = false,
           scrollbar = {
             enable = false,
           },
