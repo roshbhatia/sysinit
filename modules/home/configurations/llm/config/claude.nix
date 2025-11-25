@@ -1,5 +1,4 @@
 {
-  lib,
   values,
   ...
 }:
@@ -23,21 +22,8 @@ let
       ];
     };
   };
-in
-{
-  home.activation.claudeDesktopConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    $DRY_RUN_CMD mkdir -p "$HOME/.config/Claude"
 
-    cat > "$HOME/.config/Claude/claude_desktop_config.json" << 'EOF'
-    ${claudeConfig}
-    EOF
-  '';
-
-  home.activation.claudeHooks = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        # Create Claude hooks directory and script
-        $DRY_RUN_CMD mkdir -p "$HOME/.claude/hooks"
-
-        cat > "$HOME/.claude/hooks/append_agentsmd_context.sh" << 'EOF'
+  claudeHookScript = ''
     #!/bin/bash
     # Find all AGENTS.md files in current directory and subdirectories
     # This is a temporary solution for case that Claude Code not satisfies with AGENTS.md usage case.
@@ -47,9 +33,12 @@ in
         cat "$file"
         echo ""
     done
-    EOF
-
-        # Make the hook script executable
-        $DRY_RUN_CMD chmod +x "$HOME/.claude/hooks/append_agentsmd_context.sh"
   '';
+in
+{
+  xdg.configFile."Claude/claude_desktop_config.json".text = claudeConfig;
+  xdg.configFile."claude/hooks/append_agentsmd_context.sh" = {
+    text = claudeHookScript;
+    executable = true;
+  };
 }

@@ -1,5 +1,4 @@
 {
-  lib,
   values,
   ...
 }:
@@ -44,11 +43,5 @@ let
   };
 in
 {
-  home.activation.ampConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    $DRY_RUN_CMD mkdir -p "$HOME/.config/amp"
-
-    cat > "$HOME/.config/amp/amp.json" << 'EOF'
-    ${ampConfig}
-    EOF
-  '';
+  xdg.configFile."amp/settings.json".text = ampConfig;
 }

@@ -20,21 +20,6 @@ let
   };
 in
 lib.mkIf gooseEnabled {
-  home.activation = {
-    gooseConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      $DRY_RUN_CMD mkdir -p "$HOME/.config/goose"
-
-      cat > "$HOME/.config/goose/config.yaml" << 'EOF'
-      ${gooseConfig}
-      EOF
-    '';
-
-    gooseHints = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      $DRY_RUN_CMD mkdir -p "$HOME/.config/goose"
-
-      cat > "$HOME/.config/goose/goosehints.md" << 'EOF'
-      ${gooseHintsMd}
-      EOF
-    '';
-  };
+  xdg.configFile."goose/config.yaml".text = gooseConfig;
+  xdg.configFile."goose/goosehints.md".text = gooseHintsMd;
 }

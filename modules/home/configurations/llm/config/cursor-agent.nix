@@ -1,5 +1,4 @@
 {
-  lib,
   ...
 }:
 let
@@ -50,16 +49,6 @@ let
   };
 in
 {
-  home.activation.cursorCliConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    $DRY_RUN_CMD mkdir -p "$HOME/.config/cursor"
-    $DRY_RUN_CMD mkdir -p "$HOME/.cursor"
-
-    cat > "$HOME/.config/cursor/cli-config.json" << 'EOF'
-    ${cursorConfig}
-    EOF
-
-    cat > "$HOME/.cursor/cli-config.json" << 'EOF'
-    ${cursorConfig}
-    EOF
-  '';
+  xdg.configFile."cursor/cli-config.json".text = cursorConfig;
+  home.file.".cursor/cli-config.json".text = cursorConfig;
 }
