@@ -28,6 +28,7 @@
     ./utils
     ./vivid
     ./wezterm
+    ./yazi
     ./zsh
   ];
 }
