@@ -57,8 +57,7 @@ local function main()
 
   -- Get related menu/selection groups
   local menu_groups = {}
-  local menu_patterns =
-    { "Pmenu", "PmenuSel", "WildMenu", "Visual", "Search", "IncSearch", "FloatBorder" }
+  local menu_patterns = { "Pmenu", "PmenuSel", "WildMenu", "Visual", "Search", "IncSearch", "FloatBorder" }
   for _, pattern in ipairs(menu_patterns) do
     local groups = get_highlight_groups(pattern)
     for key, val in pairs(groups) do

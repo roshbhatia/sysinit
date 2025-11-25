@@ -4,10 +4,7 @@ local M = {}
 
 local function should_passthrough(pane)
   local process_name = string.gsub(pane:get_foreground_process_name(), "(.*[/\\])(.*)", "%2")
-  return process_name == "nvim"
-    or process_name == "vim"
-    or process_name == "hx"
-    or process_name == "k9s"
+  return process_name == "nvim" or process_name == "vim" or process_name == "hx" or process_name == "k9s"
 end
 
 local function vim_or_wezterm_action(key, mods, wezterm_action)

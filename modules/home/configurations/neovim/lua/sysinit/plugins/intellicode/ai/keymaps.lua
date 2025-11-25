@@ -62,13 +62,7 @@ function M.create_agent_keymaps(agent)
     },
     {
       string.format("<leader>%sc", key_prefix),
-      create_mode_context_input(
-        termname,
-        icon,
-        "Comment",
-        " Comment @cursor: ",
-        " Comment @selection: "
-      ),
+      create_mode_context_input(termname, icon, "Comment", " Comment @cursor: ", " Comment @selection: "),
       mode = { "n", "v" },
       desc = string.format("%s: Comment", label),
     },
