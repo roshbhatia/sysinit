@@ -6,15 +6,16 @@
 let
   tomlFormat = pkgs.formats.toml { };
 
+  yaziConfig = {
+    show_hidden = true;
+  };
+
 in
 {
   xdg.configFile = {
-    "macchina/macchina.toml" = {
-      source = tomlFormat.generate "macchina.toml" {
-        theme = "rosh";
-      };
+    "yazi/yazi.toml" = {
+      source = tomlFormat.generate "yazi.toml" yaziConfig;
       force = true;
     };
-
   };
 }
