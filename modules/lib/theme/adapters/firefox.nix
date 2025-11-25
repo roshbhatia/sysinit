@@ -197,6 +197,7 @@ in
         #urlbar-container {
             min-width: 500px !important;
             flex: 1 !important;
+            padding-top: 3px !important;
         }
 
         #urlbar {
