@@ -64,25 +64,47 @@ function M.generate_gitsigns_highlights(colors)
   }
 end
 
--- Generate essential Treesitter syntax highlight groups
+function M.generate_telescope_highlights(colors)
+  return {
+    TelescopeNormal = { link = "Normal" },
+    TelescopeBorder = { link = "FloatBorder" },
+    TelescopeSelection = { link = "PmenuSel" },
+    TelescopeSelectionCaret = { link = "PmenuSel" },
+
+    TelescopePromptNormal = { link = "Normal" },
+    TelescopePromptBorder = { link = "FloatBorder" },
+    TelescopePromptTitle = { link = "FloatTitle" },
+    TelescopePromptPrefix = { fg = colors.accent.primary, bold = true },
+    TelescopePromptCounter = { fg = colors.foreground.secondary },
+
+    TelescopeResultsNormal = { link = "Normal" },
+    TelescopeResultsBorder = { link = "FloatBorder" },
+    TelescopeResultsTitle = { link = "FloatTitle" },
+    TelescopeResultsLineNr = { link = "LineNr" },
+
+    TelescopePreviewNormal = { link = "Normal" },
+    TelescopePreviewBorder = { link = "FloatBorder" },
+    TelescopePreviewTitle = { link = "FloatTitle" },
+    TelescopePreviewLine = { bg = colors.ui.cursor_line },
+    TelescopePreviewMatch = {
+      bg = colors.semantic.warning,
+      fg = colors.background.primary,
+      bold = true,
+    },
+  }
+end
+
 function M.generate_treesitter_highlights(colors)
   return {
-    -- Variables
     ["@variable"] = { fg = colors.syntax.variable },
     ["@variable.builtin"] = { fg = colors.syntax.builtin, bold = true },
     ["@variable.parameter"] = { fg = colors.syntax.variable, italic = true },
     ["@variable.member"] = { fg = colors.syntax.variable },
-
-    -- Constants
     ["@constant"] = { fg = colors.syntax.constant },
     ["@constant.builtin"] = { fg = colors.syntax.builtin, bold = true },
     ["@constant.macro"] = { fg = colors.syntax.constant, bold = true },
-
-    -- Modules/Namespaces
     ["@module"] = { fg = colors.syntax.type },
     ["@module.builtin"] = { fg = colors.syntax.builtin },
-
-    -- Strings & Characters
     ["@string"] = { fg = colors.syntax.string },
     ["@string.escape"] = { fg = colors.syntax.operator, bold = true },
     ["@string.special"] = { fg = colors.syntax.string, italic = true },
@@ -90,24 +112,16 @@ function M.generate_treesitter_highlights(colors)
     ["@string.special.url"] = { fg = colors.accent.secondary, underline = true },
     ["@character"] = { fg = colors.syntax.string },
     ["@character.special"] = { fg = colors.syntax.operator },
-
-    -- Numbers & Booleans
     ["@number"] = { fg = colors.syntax.number, bold = true },
     ["@number.float"] = { fg = colors.syntax.number, bold = true },
     ["@boolean"] = { fg = colors.syntax.constant, bold = true },
-
-    -- Functions
     ["@function"] = { fg = colors.syntax["function"], bold = true },
     ["@function.builtin"] = { fg = colors.syntax.builtin, bold = true },
     ["@function.call"] = { fg = colors.syntax["function"] },
     ["@function.macro"] = { fg = colors.syntax["function"], italic = true },
     ["@function.method"] = { fg = colors.syntax["function"] },
     ["@function.method.call"] = { fg = colors.syntax["function"] },
-
-    -- Constructors
     ["@constructor"] = { fg = colors.syntax.type, bold = true },
-
-    -- Keywords
     ["@keyword"] = { fg = colors.syntax.keyword, bold = true },
     ["@keyword.conditional"] = { fg = colors.syntax.keyword, bold = true },
     ["@keyword.repeat"] = { fg = colors.syntax.keyword, bold = true },
@@ -121,39 +135,27 @@ function M.generate_treesitter_highlights(colors)
     ["@keyword.coroutine"] = { fg = colors.syntax.keyword },
     ["@keyword.debug"] = { fg = colors.semantic.error },
     ["@keyword.exception"] = { fg = colors.semantic.error, bold = true },
-
-    -- Operators & Punctuation
     ["@operator"] = { fg = colors.syntax.operator },
     ["@punctuation.delimiter"] = { fg = colors.foreground.secondary },
     ["@punctuation.bracket"] = { fg = colors.foreground.secondary },
     ["@punctuation.special"] = { fg = colors.syntax.operator },
-
-    -- Types
     ["@type"] = { fg = colors.syntax.type, bold = true },
     ["@type.builtin"] = { fg = colors.syntax.builtin, bold = true },
     ["@type.definition"] = { fg = colors.syntax.type },
     ["@type.qualifier"] = { fg = colors.syntax.keyword, italic = true },
-
-    -- Attributes/Properties
     ["@attribute"] = { fg = colors.syntax.type, italic = true },
     ["@attribute.builtin"] = { fg = colors.syntax.builtin, italic = true },
     ["@property"] = { fg = colors.syntax.variable },
-
-    -- Comments & Documentation
     ["@comment"] = { fg = colors.syntax.comment, italic = true },
     ["@comment.documentation"] = { fg = colors.syntax.comment, italic = true },
     ["@comment.error"] = { fg = colors.semantic.error, bold = true },
     ["@comment.warning"] = { fg = colors.semantic.warning, bold = true },
     ["@comment.todo"] = { fg = colors.semantic.info, bold = true },
     ["@comment.note"] = { fg = colors.semantic.info, italic = true },
-
-    -- Labels & Tags
     ["@label"] = { fg = colors.accent.primary },
     ["@tag"] = { fg = colors.syntax.keyword },
     ["@tag.attribute"] = { fg = colors.syntax.type },
     ["@tag.delimiter"] = { fg = colors.foreground.secondary },
-
-    -- Markup (Markdown, etc.)
     ["@markup.strong"] = { bold = true },
     ["@markup.italic"] = { italic = true },
     ["@markup.strikethrough"] = { strikethrough = true },
@@ -175,44 +177,33 @@ function M.generate_treesitter_highlights(colors)
     ["@markup.list"] = { fg = colors.accent.primary },
     ["@markup.list.checked"] = { fg = colors.semantic.success },
     ["@markup.list.unchecked"] = { fg = colors.foreground.muted },
-
-    -- Diff highlighting for Treesitter
     ["@diff.plus"] = { link = "DiffAdd" },
     ["@diff.minus"] = { link = "DiffDelete" },
     ["@diff.delta"] = { link = "DiffChange" },
   }
 end
 
--- Generate diagnostic highlight groups
 function M.generate_diagnostic_highlights(colors, transparency)
   local highlights = {
-    -- Diagnostic text
     DiagnosticError = { fg = colors.semantic.error, bold = true },
     DiagnosticWarn = { fg = colors.semantic.warning, bold = true },
     DiagnosticInfo = { fg = colors.semantic.info, bold = true },
     DiagnosticHint = { fg = colors.accent.secondary, bold = true },
     DiagnosticOk = { fg = colors.semantic.success, bold = true },
-
-    -- Diagnostic underlines
     DiagnosticUnderlineError = { sp = colors.semantic.error, underline = true },
     DiagnosticUnderlineWarn = { sp = colors.semantic.warning, underline = true },
     DiagnosticUnderlineInfo = { sp = colors.semantic.info, underline = true },
     DiagnosticUnderlineHint = { sp = colors.accent.secondary, underline = true },
     DiagnosticUnderlineOk = { sp = colors.semantic.success, underline = true },
-
-    -- Diagnostic signs
     DiagnosticSignError = { fg = colors.semantic.error, bold = true },
     DiagnosticSignWarn = { fg = colors.semantic.warning, bold = true },
     DiagnosticSignInfo = { fg = colors.semantic.info, bold = true },
     DiagnosticSignHint = { fg = colors.accent.secondary, bold = true },
     DiagnosticSignOk = { fg = colors.semantic.success, bold = true },
-
-    -- Special styles
     DiagnosticDeprecated = { fg = colors.foreground.muted, strikethrough = true },
     DiagnosticUnnecessary = { fg = colors.foreground.muted, italic = true },
   }
 
-  -- Add virtual text highlights (respect transparency)
   if not transparency.enable then
     highlights.DiagnosticVirtualTextError = { fg = colors.semantic.error }
     highlights.DiagnosticVirtualTextWarn = { fg = colors.semantic.warning }
@@ -224,95 +215,79 @@ function M.generate_diagnostic_highlights(colors, transparency)
   return highlights
 end
 
--- Generate transparency overrides for plugins and UI elements
 function M.generate_transparency_highlights(transparency)
   if not transparency.enable then
     return {}
   end
 
-  -- List of all groups that should have transparent backgrounds
   local transparent_groups = {
-    -- Completion
     "BlinkCmpDoc",
     "BlinkCmpDocBorder",
     "BlinkCmpMenu",
     "BlinkCmpMenuBorder",
     "BlinkCmpSignatureHelp",
     "BlinkCmpSignatureHelpBorder",
-    -- Core UI
     "ColorColumn",
     "CursorColumn",
     "CursorLine",
     "CursorLineFold",
     "CursorLineNr",
     "CursorLineSign",
-    -- Diagnostics
     "DiagnosticVirtualTextError",
     "DiagnosticVirtualTextHint",
     "DiagnosticVirtualTextInfo",
     "DiagnosticVirtualTextWarn",
-    -- Dropbar
     "DropBarCurrentContext",
     "DropBarIconKindDefault",
     "DropBarIconKindDefaultNC",
     "DropBarMenuFloatBorder",
     "DropBarMenuNormalFloat",
-    -- Edgy
     "EdgyIcon",
     "EdgyIconActive",
     "EdgyTitle",
-    -- Floats
     "FloatBorder",
     "FloatTitle",
     "FoldColumn",
-    -- Git Signs (only sign column, not line/inline highlights)
     "GitSignsAdd",
     "GitSignsChange",
     "GitSignsDelete",
-    -- Lazy
     "LazyNormal",
-    -- Line numbers
     "LineNr",
     "LineNrAbove",
     "LineNrBelow",
-    -- Messages
     "MsgSeparator",
-    -- NeoTree
     "NeoTreeEndOfBuffer",
     "NeoTreeNormal",
     "NeoTreeNormalNC",
     "NeoTreeVertSplit",
     "NeoTreeWinSeparator",
-    -- Normal
     "Normal",
     "NormalFloat",
     "NormalNC",
-    -- Popup menu
     "Pmenu",
     "PmenuBorder",
     "PmenuSbar",
     "PmenuThumb",
-    -- Sign column
     "SignColumn",
-    -- Status line
     "StatusLine",
     "StatusLineNC",
     "StatusLineTerm",
     "StatusLineTermNC",
-    -- Tabs
     "TabLine",
     "TabLineFill",
-    -- Telescope
     "TelescopeBorder",
     "TelescopeNormal",
+    "TelescopePromptBorder",
+    "TelescopePromptNormal",
+    "TelescopeResultsBorder",
+    "TelescopeResultsNormal",
+    "TelescopePreviewBorder",
+    "TelescopePreviewNormal",
     "TelescopeSelection",
-    -- Treesitter
     "TreesitterContext",
     "TreesitterContextLineNumber",
-    -- Which-key
     "WhichKeyBorder",
     "WhichKeyFloat",
-    -- Window
     "WinBar",
     "WinBarNC",
     "WinSeparator",
@@ -326,10 +301,8 @@ function M.generate_transparency_highlights(transparency)
   return highlights
 end
 
--- Generate LSP semantic token highlights
 function M.generate_lsp_highlights(colors)
   return {
-    -- LSP type highlights
     ["@lsp.type.class"] = { link = "@type" },
     ["@lsp.type.decorator"] = { link = "@function" },
     ["@lsp.type.enum"] = { link = "@type" },
@@ -345,14 +318,10 @@ function M.generate_lsp_highlights(colors)
     ["@lsp.type.type"] = { link = "@type" },
     ["@lsp.type.typeParameter"] = { link = "@type.definition" },
     ["@lsp.type.variable"] = { link = "@variable" },
-
-    -- LSP modifier highlights
     ["@lsp.mod.readonly"] = { fg = colors.syntax.constant, italic = true },
     ["@lsp.mod.deprecated"] = { fg = colors.foreground.muted, strikethrough = true },
     ["@lsp.mod.static"] = { fg = colors.syntax.keyword, bold = true },
     ["@lsp.mod.abstract"] = { italic = true },
-
-    -- Combined type + modifier
     ["@lsp.typemod.function.defaultLibrary"] = { link = "@function.builtin" },
     ["@lsp.typemod.variable.defaultLibrary"] = { link = "@variable.builtin" },
     ["@lsp.typemod.variable.readonly"] = { fg = colors.syntax.constant },
@@ -364,9 +333,10 @@ function M.generate_core_highlights(colors, transparency)
     "force",
     M.generate_transparency_highlights(transparency),
     M.generate_cursor_highlights(colors),
-    M.generate_menu_highlights(colors, transparency),
+    M.generate_menu_highlights(colors),
     M.generate_diff_highlights(colors),
     M.generate_gitsigns_highlights(colors),
+    M.generate_telescope_highlights(colors),
     M.generate_treesitter_highlights(colors),
     M.generate_diagnostic_highlights(colors, transparency),
     M.generate_lsp_highlights(colors)
