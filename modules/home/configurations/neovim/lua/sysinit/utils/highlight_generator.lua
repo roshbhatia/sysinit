@@ -68,8 +68,8 @@ function M.generate_telescope_highlights(colors)
   return {
     TelescopeNormal = { link = "Normal" },
     TelescopeBorder = { link = "FloatBorder" },
-    TelescopeSelection = { link = "PmenuSel" },
-    TelescopeSelectionCaret = { link = "PmenuSel" },
+    TelescopeSelection = { fg = colors.semantic.error, bold = true },
+    telescopeselectionCaret = { link = "pmenusel" },
 
     TelescopePromptNormal = { link = "Normal" },
     TelescopePromptBorder = { link = "FloatBorder" },
