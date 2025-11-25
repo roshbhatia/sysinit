@@ -8,7 +8,6 @@ M.plugins = {
     priority = 1000,
     dependencies = {
       "L3MON4D3/LuaSnip",
-      "pta2002/intellitab.nvim",
       "rafamadriz/friendly-snippets",
       "xzbdmw/colorful-menu.nvim",
       "neovim/nvim-lspconfig",
@@ -183,9 +182,7 @@ M.plugins = {
             end,
             "select_next",
             "snippet_forward",
-            function()
-              require("intellitab").indent()
-            end,
+            "fallback",
           },
           ["<S-Tab>"] = {
             "select_prev",
