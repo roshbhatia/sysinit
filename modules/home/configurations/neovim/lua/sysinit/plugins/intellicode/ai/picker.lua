@@ -6,13 +6,17 @@ function M.pick_agent()
   local active = ai_manager.get_active()
 
   if active then
-    local term_info = ai_manager.get_info(active)
-    if term_info and term_info.win and vim.api.nvim_win_is_valid(term_info.win) then
-      ai_manager.toggle(active)
-      return
-    elseif term_info then
-      ai_manager.activate(active)
-      return
+    if not ai_manager.is_session_valid(active) then
+      ai_manager.cleanup_terminal(active)
+    else
+      local term_info = ai_manager.get_info(active)
+      if term_info and term_info.win and vim.api.nvim_win_is_valid(term_info.win) then
+        ai_manager.toggle(active)
+        return
+      elseif term_info then
+        ai_manager.activate(active)
+        return
+      end
     end
   end
 

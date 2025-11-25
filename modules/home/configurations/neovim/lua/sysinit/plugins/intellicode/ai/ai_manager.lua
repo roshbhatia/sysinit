@@ -5,8 +5,22 @@ local terminals = {}
 local active_terminal = nil
 local augroup = nil
 
+local function get_repo_id()
+  local git_root = vim.fn.system("git rev-parse --show-toplevel 2>/dev/null"):gsub("\n", "")
+  local base_dir
+
+  if vim.v.shell_error == 0 and git_root ~= "" then
+    base_dir = vim.fn.fnamemodify(git_root, ":t")
+  else
+    base_dir = vim.fn.fnamemodify(vim.fn.getcwd(), ":t")
+  end
+
+  return base_dir:gsub("[^%w%-]", "-"):lower()
+end
+
 local function get_tmux_session_name(termname)
-  return string.format("ai-%s", termname)
+  local repo_id = get_repo_id()
+  return string.format("ai-%s-%s", repo_id, termname)
 end
 
 local function tmux_session_exists(session_name)
@@ -86,7 +100,16 @@ function M.open(termname)
   end
 
   local tmux_session = get_tmux_session_name(termname)
-  local tmux_cmd = string.format("tmux new-session -A -s %s %s", tmux_session, agent_config.cmd)
+  local tmux_cmd = string.format(
+    "tmux new-session -A -s %s %s \\; set-option -t %s status off",
+    tmux_session,
+    agent_config.cmd,
+    tmux_session
+  )
+
+  local agents = require("sysinit.plugins.intellicode.agents")
+  local agent = agents.get_by_name(termname)
+  local title = agent and string.format("%s %s", agent.icon, agent.label) or string.format("AI: %s", termname)
 
   local term = Snacks.terminal.toggle(tmux_cmd, {
     win = {
@@ -97,6 +120,7 @@ function M.open(termname)
     bo = {
       filetype = "snacks_terminal",
     },
+    id = tmux_session,
   })
 
   terminals[termname] = {
@@ -169,24 +193,17 @@ function M.send(termname, text, opts)
     M.open(termname)
   end
 
-  if not term_data.term.buf or not vim.api.nvim_buf_is_valid(term_data.term.buf) then
-    vim.notify(string.format("Terminal buffer invalid: %s", termname), vim.log.levels.ERROR)
+  local tmux_session = term_data.tmux_session
+  if not tmux_session or not tmux_session_exists(tmux_session) then
+    vim.notify(string.format("Tmux session not found: %s", termname), vim.log.levels.ERROR)
     return
   end
 
-  if not term_data.term.job_id then
-    vim.notify(string.format("Terminal job not found: %s", termname), vim.log.levels.ERROR)
-    return
-  end
-
-  local ok, err = pcall(vim.api.nvim_chan_send, term_data.term.job_id, text)
-  if not ok then
-    vim.notify(string.format("Failed to send text to %s: %s", termname, err), vim.log.levels.ERROR)
-    return
-  end
+  local cmd = string.format("tmux send-keys -t %s -l %s", tmux_session, vim.fn.shellescape(text))
+  vim.fn.system(cmd)
 
   if opts.submit then
-    vim.api.nvim_chan_send(term_data.term.job_id, "\n")
+    vim.fn.system(string.format("tmux send-keys -t %s Enter", tmux_session))
   end
 end
 
@@ -243,6 +260,27 @@ function M.list_tmux_sessions()
   end
 
   return sessions
+end
+
+function M.is_session_valid(termname)
+  local term_data = terminals[termname]
+  if not term_data then
+    return false
+  end
+
+  local tmux_session = term_data.tmux_session
+  if not tmux_session then
+    return false
+  end
+
+  return tmux_session_exists(tmux_session)
+end
+
+function M.cleanup_terminal(termname)
+  terminals[termname] = nil
+  if active_terminal == termname then
+    active_terminal = nil
+  end
 end
 
 function M.get_active()

@@ -21,13 +21,14 @@ function M.create_input(termname, agent_icon, opts)
     win = {
       b = { completion = true },
       bo = { filetype = "ai_terminals_input" },
+      wo = { wrap = false },
       relative = "cursor",
       style = "minimal",
       border = "rounded",
-      width = 32,
+      width = 60,
       height = 1,
-      row = 0,
-      col = 1,
+      row = 1,
+      col = 0,
     },
   }, function(value)
     if opts.on_confirm and value and value ~= "" then
@@ -39,6 +40,10 @@ function M.create_input(termname, agent_icon, opts)
   vim.defer_fn(function()
     local buf = vim.api.nvim_get_current_buf()
     if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].filetype == "ai_terminals_input" then
+      vim.api.nvim_buf_call(buf, function()
+        vim.fn.matchadd("Special", "@\\w\\+")
+      end)
+
       local current_history_index = history.get_current_history_index()
 
       vim.keymap.set("n", "j", function()
