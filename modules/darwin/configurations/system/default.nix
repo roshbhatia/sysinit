@@ -3,8 +3,9 @@
   nix.enable = false;
 
   system = {
-    primaryUser = values.user.username;
-    stateVersion = 4;
     defaults.LaunchServices.LSQuarantine = false;
+    primaryUser = values.user.username;
+    spaces.spans-display = true;
+    stateVersion = 4;
   };
 }
