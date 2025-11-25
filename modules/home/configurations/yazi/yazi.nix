@@ -1,6 +1,5 @@
 {
   pkgs,
-  lib,
   ...
 }:
 
@@ -22,7 +21,7 @@ let
     owner = "yazi-rs";
     repo = "plugins";
     rev = "f9b3f8876eaa74d8b76e5b8356aca7e6a81c0fb7";
-    hash = lib.fakeHash;
+    hash = "sha256-0cu5YuuuWqsDbPjyqkVu/dkIBxyhMkR7KbPavzExQtM=";
     sparseCheckout = plugins;
   };
 
