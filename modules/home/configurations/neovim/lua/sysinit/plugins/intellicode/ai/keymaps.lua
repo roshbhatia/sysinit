@@ -48,6 +48,12 @@ function M.generate_all_keymaps()
   })
 
   table.insert(keymaps, {
+    "<leader>jx",
+    picker.kill_active,
+    desc = "AI: Kill active session",
+  })
+
+  table.insert(keymaps, {
     "<leader>ja",
     create_mode_context_input("Ask", " @cursor: ", " @selection: "),
     mode = { "n", "v" },

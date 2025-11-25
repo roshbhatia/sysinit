@@ -126,6 +126,7 @@ let
     tfsec
     tig
     tlrc
+    tmux
     typescript
     typescript-language-server
     upbound
