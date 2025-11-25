@@ -7,7 +7,7 @@ let
   tomlFormat = pkgs.formats.toml { };
 
   yaziConfig = {
-    "[mgr]" = {
+    mgr = {
       show_hidden = true;
     };
   };
