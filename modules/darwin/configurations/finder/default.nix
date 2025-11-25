@@ -1,4 +1,7 @@
-{ lib, values, ... }:
+{
+  values,
+  ...
+}:
 {
   system.defaults = {
     finder = {
