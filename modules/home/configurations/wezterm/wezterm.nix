@@ -26,9 +26,5 @@ in
     generateAppJSON "wezterm" themeConfig
   );
 
-  xdg.configFile."wezterm/core_config.json".text = builtins.toJSON {
-    wezterm_entrypoint = values.wezterm.shell or "zsh";
-  };
-
   xdg.configFile."wezterm/colors".source = ./colors;
 }

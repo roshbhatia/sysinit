@@ -14,8 +14,6 @@ local function get_basic_config()
     zsh = { nix_bin .. "/zsh" },
   }
 
-  local wezterm_entrypoint = core_config.wezterm_entrypoint or "zsh"
-
   return {
     set_environment_variables = {
       TERM = "wezterm",
@@ -24,7 +22,7 @@ local function get_basic_config()
     automatically_reload_config = true,
     pane_focus_follows_mouse = false,
     status_update_interval = 20,
-    default_prog = shells[wezterm_entrypoint] or shells.zsh,
+    default_prog = shells.zsh,
   }
 end
 
