@@ -43,13 +43,31 @@ function M.kill_and_pick()
   local active = ai_manager.get_active()
 
   if active then
+    ai_manager.kill_tmux_session(active)
     local term_info = ai_manager.get_info(active)
-    if term_info and term_info.buf then
+    if term_info and term_info.buf and vim.api.nvim_buf_is_valid(term_info.buf) then
       vim.api.nvim_buf_delete(term_info.buf, { force = true })
     end
   end
 
   M.pick_agent()
+end
+
+function M.kill_active()
+  local ai_manager = require("sysinit.plugins.intellicode.ai.ai_manager")
+  local active = ai_manager.get_active()
+
+  if not active then
+    vim.notify("No active AI session", vim.log.levels.WARN)
+    return
+  end
+
+  ai_manager.kill_tmux_session(active)
+  local term_info = ai_manager.get_info(active)
+  if term_info and term_info.buf and vim.api.nvim_buf_is_valid(term_info.buf) then
+    vim.api.nvim_buf_delete(term_info.buf, { force = true })
+  end
+  vim.notify("AI session killed", vim.log.levels.INFO)
 end
 
 return M

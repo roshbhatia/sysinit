@@ -5,6 +5,15 @@ local terminals = {}
 local active_terminal = nil
 local augroup = nil
 
+local function get_tmux_session_name(termname)
+  return string.format("ai-%s", termname)
+end
+
+local function tmux_session_exists(session_name)
+  local result = vim.fn.system(string.format("tmux has-session -t %s 2>/dev/null", session_name))
+  return vim.v.shell_error == 0
+end
+
 function M.setup(opts)
   config = opts or {}
   config.terminals = config.terminals or {}
@@ -76,7 +85,10 @@ function M.open(termname)
     end
   end
 
-  local term = Snacks.terminal.toggle(agent_config.cmd, {
+  local tmux_session = get_tmux_session_name(termname)
+  local tmux_cmd = string.format("tmux new-session -A -s %s %s", tmux_session, agent_config.cmd)
+
+  local term = Snacks.terminal.toggle(tmux_cmd, {
     win = {
       position = "right",
       width = 0.5,
@@ -90,6 +102,7 @@ function M.open(termname)
   terminals[termname] = {
     term = term,
     cmd = agent_config.cmd,
+    tmux_session = tmux_session,
     visible = true,
   }
 
@@ -207,6 +220,29 @@ function M.exists(termname)
     return false
   end
   return term_data.term.buf and vim.api.nvim_buf_is_valid(term_data.term.buf)
+end
+
+function M.kill_tmux_session(termname)
+  local tmux_session = get_tmux_session_name(termname)
+  if tmux_session_exists(tmux_session) then
+    vim.fn.system(string.format("tmux kill-session -t %s", tmux_session))
+  end
+end
+
+function M.list_tmux_sessions()
+  local sessions = {}
+  local output = vim.fn.system("tmux list-sessions -F '#{session_name}' 2>/dev/null")
+
+  if vim.v.shell_error == 0 then
+    for session in output:gmatch("[^\r\n]+") do
+      if session:match("^ai%-") then
+        local agent_name = session:gsub("^ai%-", "")
+        table.insert(sessions, agent_name)
+      end
+    end
+  end
+
+  return sessions
 end
 
 function M.get_active()
