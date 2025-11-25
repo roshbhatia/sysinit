@@ -30,4 +30,7 @@ in
         userLocal = "/usr/local/bin";
         userProfiles = "/nix/var/nix/profiles/per-user";
       };
+
+  # Helper function to get home directory based on platform
+  homeDirectory = username: if isDarwin then "/Users/${username}" else "/home/${username}";
 }

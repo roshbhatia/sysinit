@@ -1,8 +1,11 @@
 # sysinit
 
 - [sysinit](#sysinit)
+  - [Overview](#overview)
+  - [Supported Systems](#supported-systems)
   - [Install Dependencies](#install-dependencies)
   - [Usage](#usage)
+  - [Multi-Host Setup](#multi-host-setup)
   - [Project Structure](#project-structure)
 
 ```ascii
@@ -28,7 +31,16 @@
          ▝▀▀▀    ▀▀▀▀▘       ▀▀▀▘
 ```
 
-This comprises most of my dotfiles, managed (mostly) by `nix`.
+## Overview
+
+This comprises most of my dotfiles, managed by `nix`. It supports both **macOS** (via nix-darwin) and **NixOS** (Linux) with a unified configuration system.
+
+## Supported Systems
+
+- **macOS (nix-darwin)**: aarch64-darwin, x86_64-darwin
+- **NixOS (Linux)**: aarch64-linux, x86_64-linux
+
+All systems share the same home-manager configuration for consistent dotfiles across platforms.
 
 ## Install Dependencies
 
@@ -59,6 +71,69 @@ task: Available tasks for this project:
 * nix:refresh:             Apply the system configuration
 * nix:refresh:work:        Update and rebuild work sysinit configuration
 ```
+
+## Multi-Host Setup
+
+This repository supports multiple hosts with a unified configuration system. Host configurations are defined in `hosts/values.nix`.
+
+### Configured Hosts
+
+- **lv426** - Personal MacBook Pro (aarch64-darwin)
+- **arrakis** - Gaming Desktop (x86_64-linux) with Steam/gaming support
+- **urth** - Home Server (x86_64-linux) with k3s Kubernetes
+
+### Building for macOS (nix-darwin)
+
+```bash
+# Build for lv426 (personal MacBook)
+darwin-rebuild switch --flake .#lv426
+
+# Or use values.nix (backward compatible)
+darwin-rebuild switch --flake .
+```
+
+### Building for NixOS
+
+```bash
+# First time setup on a new NixOS machine:
+# 1. Generate hardware configuration
+sudo nixos-generate-config --show-hardware-config > hosts/<hostname>/hardware-configuration.nix
+
+# 2. Build and switch
+sudo nixos-rebuild switch --flake .#arrakis  # For gaming desktop
+sudo nixos-rebuild switch --flake .#urth     # For home server
+```
+
+### Adding a New Host
+
+1. Create a directory in `hosts/` with your hostname:
+   ```bash
+   mkdir -p hosts/newhostname
+   ```
+
+2. Add configuration to `hosts/values.nix`:
+   ```nix
+   hosts = {
+     newhostname = {
+       system = "x86_64-linux";  # or "aarch64-darwin" for Mac
+       hostname = "newhostname";
+       # Add host-specific config here
+     };
+   };
+   ```
+
+3. Create host-specific module in `hosts/newhostname/default.nix`:
+   ```nix
+   { config, pkgs, ... }:
+   {
+     # Host-specific configuration
+   }
+   ```
+
+4. For NixOS hosts, generate hardware config:
+   ```bash
+   nixos-generate-config --show-hardware-config > hosts/newhostname/hardware-configuration.nix
+   ```
 
 ## Environment Variables Schema
 
