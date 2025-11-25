@@ -36,9 +36,13 @@ let
   '';
 in
 {
-  xdg.configFile."Claude/claude_desktop_config.json".text = claudeConfig;
+  xdg.configFile."Claude/claude_desktop_config.json" = {
+    text = claudeConfig;
+    force = true;
+  };
   xdg.configFile."claude/hooks/append_agentsmd_context.sh" = {
     text = claudeHookScript;
     executable = true;
+    force = true;
   };
 }

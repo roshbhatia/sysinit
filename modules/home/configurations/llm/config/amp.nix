@@ -43,5 +43,8 @@ let
   };
 in
 {
-  xdg.configFile."amp/settings.json".text = ampConfig;
+  xdg.configFile."amp/settings.json" = {
+    text = ampConfig;
+    force = true;
+  };
 }

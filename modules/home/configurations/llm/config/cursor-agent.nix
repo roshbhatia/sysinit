@@ -49,6 +49,12 @@ let
   };
 in
 {
-  xdg.configFile."cursor/cli-config.json".text = cursorConfig;
-  home.file.".cursor/cli-config.json".text = cursorConfig;
+  xdg.configFile."cursor/cli-config.json" = {
+    text = cursorConfig;
+    force = true;
+  };
+  home.file.".cursor/cli-config.json" = {
+    text = cursorConfig;
+    force = true;
+  };
 }

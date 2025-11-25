@@ -39,6 +39,12 @@ let
   };
 in
 lib.mkIf opencodeEnabled {
-  xdg.configFile."opencode/opencode.json".text = opencodeConfig;
-  xdg.configFile."opencode/AGENTS.md".text = agentsMd;
+  xdg.configFile."opencode/opencode.json" = {
+    text = opencodeConfig;
+    force = true;
+  };
+  xdg.configFile."opencode/AGENTS.md" = {
+    text = agentsMd;
+    force = true;
+  };
 }

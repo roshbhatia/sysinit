@@ -20,6 +20,12 @@ let
   };
 in
 lib.mkIf gooseEnabled {
-  xdg.configFile."goose/config.yaml".text = gooseConfig;
-  xdg.configFile."goose/goosehints.md".text = gooseHintsMd;
+  xdg.configFile."goose/config.yaml" = {
+    text = gooseConfig;
+    force = true;
+  };
+  xdg.configFile."goose/goosehints.md" = {
+    text = gooseHintsMd;
+    force = true;
+  };
 }
