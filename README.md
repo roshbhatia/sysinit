@@ -97,6 +97,13 @@ task: Available tasks for this project:
 | `krew.additionalPackages` | list(string) | [] |  | Additional kubectl krew plugins |
 | `llm.agentsMd.autoUpdate` | boolean | true |  | Automatically update AGENTS.md when configuration changes |
 | `llm.agentsMd.enabled` | boolean | true |  | Enable AGENTS.md integration across all LLM configurations |
+| `llm.amp.enabled` | boolean | false |  | Enable Amp CLI configuration and MCP setup |
+| `llm.amp.mcp.additionalServers` | attrsOf (attrsOf anything) | `{ }` |  | Additional MCP servers for Amp |
+| `llm.amp.mcp.aws.enabled` | boolean | true |  | Enable AWS MCP servers for Amp |
+| `llm.amp.mcp.aws.region` | string | "us-east-1" |  | Default AWS region for Amp MCP servers |
+| `llm.amp.permissions.bash` | boolean | true |  | Ask before running arbitrary bash commands |
+| `llm.amp.permissions.git` | boolean | true |  | Ask before running git commit commands |
+| `llm.amp.permissions.mcp` | boolean | true |  | Ask before running MCP tools |
 | `llm.claude.enabled` | boolean | true |  | Enable Claude Desktop configuration |
 | `llm.claude.mcp.additionalServers` | attrsOf (attrsOf anything) | `{ }` |  | Additional MCP servers for Claude |
 | `llm.claude.mcp.aws.enabled` | boolean | true |  | Enable AWS MCP servers |

@@ -40,7 +40,7 @@ M.plugins = {
         { "<leader>gd", group = "Git: diffview" },
         { "<leader>gh", group = "Git: hunk" },
         { "<leader>gr", group = "Git: review" },
-        { "<leader>h", group = "Claude" },
+        { "<leader>y", group = "Claude" },
         { "<leader>i", group = "Cursor" },
         { "<leader>j", group = "OpenCode" },
         { "<leader>k", group = "Goose" },
@@ -50,7 +50,7 @@ M.plugins = {
         { "<leader>r", group = "Refresh" },
         { "<leader>t", group = "Terminal" },
         { "<leader>u", group = "Copilot" },
-        { "<leader>y", group = "Amp" },
+        { "<leader>h", group = "Amp" },
         { "<localleader>m", group = "Markdown", ft = "markdown" },
         { "gr", group = "LSP" },
       })

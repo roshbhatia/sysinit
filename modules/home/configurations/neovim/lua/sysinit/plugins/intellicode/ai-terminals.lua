@@ -27,7 +27,7 @@ M.plugins = {
             cmd = "opencode",
           },
           amp = {
-            cmd = "amp",
+            cmd = "amp --ide",
           },
         },
         enable_diffing = false,

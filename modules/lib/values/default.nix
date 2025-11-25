@@ -295,6 +295,57 @@ in
           };
         };
 
+        # Amp CLI configuration
+        amp = {
+          enabled = mkOption {
+            type = types.bool;
+            default = false;
+            description = "Enable Amp CLI configuration and MCP setup";
+          };
+
+          mcp = {
+            aws = {
+              region = mkOption {
+                type = types.str;
+                default = "us-east-1";
+                description = "Default AWS region for Amp MCP servers";
+              };
+
+              enabled = mkOption {
+                type = types.bool;
+                default = true;
+                description = "Enable AWS MCP servers for Amp";
+              };
+            };
+
+            additionalServers = mkOption {
+              type = types.attrsOf (types.attrsOf types.anything);
+              default = { };
+              description = "Additional MCP servers for Amp";
+            };
+          };
+
+          permissions = {
+            git = mkOption {
+              type = types.bool;
+              default = true;
+              description = "Ask before running git commit commands";
+            };
+
+            bash = mkOption {
+              type = types.bool;
+              default = true;
+              description = "Ask before running arbitrary bash commands";
+            };
+
+            mcp = mkOption {
+              type = types.bool;
+              default = true;
+              description = "Ask before running MCP tools";
+            };
+          };
+        };
+
         # Goose AI assistant configuration
         goose = {
           enabled = mkOption {

@@ -67,6 +67,14 @@ local function get_catppuccin_config()
         overrides.DiagnosticHint = { fg = colors.teal, style = { "bold" } }
         overrides.WinSeparator = { fg = colors.blue, style = { "bold" } }
 
+        overrides.WildMenu = { fg = colors.pink, style = { "bold" } }
+        overrides.WilderWildmenuAccent = { fg = colors.pink, style = { "bold" } }
+        overrides.WilderWildmenuSelectedAccent =
+          { fg = colors.pink, bg = colors.surface0, style = { "bold" } }
+        overrides.WilderWildmenuSelected =
+          { fg = colors.pink, bg = colors.surface0, style = { "bold" } }
+        overrides.WilderWildmenuSeparator = { fg = colors.overlay1 }
+
         if not theme_config.transparency.enable then
           overrides.Pmenu = { bg = colors.surface0, fg = colors.text }
           overrides.StatusLine = { bg = colors.base, fg = colors.text }
@@ -462,12 +470,6 @@ local function apply_post_colorscheme_overrides(base_scheme)
       overrides.NeoTreeVertSplit = { bg = "NONE" }
       overrides.NeoTreeEndOfBuffer = { bg = "NONE", fg = "NONE" }
       overrides.DropBarMenuFloatBorder = { bg = "NONE" }
-      overrides.WilderWildmenuAccent = { fg = colors.accent, bg = "NONE" }
-      overrides.WilderWildmenuSelectedAccent =
-        { fg = colors.accent, bg = "NONE", bold = true, underline = true }
-      overrides.WilderWildmenuSelected = { link = "WilderWildmenuSelectedAccent" }
-      overrides.WilderWildmenuSeparator = { fg = colors.accent, bg = "NONE" }
-      overrides.WildMenu = { link = "WilderWildmenuSelectedAccent" }
       overrides.PmenuSel = { fg = colors.accent, bg = colors.bg2, bold = true }
       overrides.TelescopeSelection = { bg = colors.bg2, fg = colors.blue, bold = true }
       overrides.Search = { bg = colors.yellow, fg = colors.bg0, bold = true }
