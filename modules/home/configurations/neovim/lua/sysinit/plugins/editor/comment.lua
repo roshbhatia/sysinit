@@ -2,7 +2,7 @@ local M = {}
 
 M.plugins = {
   {
-    "echasnovski/mini.comment",
+    "nvim-mini/mini.comment",
     event = "BufReadPost",
     version = "*",
   },
