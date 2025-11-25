@@ -10,7 +10,7 @@ function M.setup()
   })
 
   vim.keymap.set("n", "<leader>x", function()
-    vim.cmd("wqa!")
+    vim.cmd("silent! qa")
   end, {
     noremap = true,
     silent = true,
