@@ -1,46 +1,44 @@
--- Highlight Generator Utility
--- Generates comprehensive highlight groups from Nix-provided semantic colors
--- Themes can use this helper to reduce boilerplate while maintaining customization flexibility
-
 local M = {}
 
--- Generate cursor and selection highlight groups
 function M.generate_cursor_highlights(colors)
   return {
-    -- Cursor
     Cursor = { bg = colors.ui.cursor, fg = colors.background.primary },
     lCursor = { link = "Cursor" },
     CursorIM = { link = "Cursor" },
     TermCursor = { link = "Cursor" },
     TermCursorNC = { bg = colors.ui.cursor, fg = colors.background.primary },
-
-    -- Cursor Line/Column
     CursorLine = { bg = colors.ui.cursor_line },
     CursorColumn = { bg = colors.ui.cursor_line },
     CursorLineNr = { fg = colors.ui.line_number_active, bold = true },
     CursorLineFold = { link = "FoldColumn" },
     CursorLineSign = { link = "SignColumn" },
-
-    -- Line Numbers
     LineNr = { fg = colors.ui.line_number },
     LineNrAbove = { fg = colors.ui.line_number },
     LineNrBelow = { fg = colors.ui.line_number },
-
-    -- Visual Mode
     Visual = { bg = colors.ui.visual_selection, fg = colors.foreground.primary, bold = true },
     VisualNOS = { bg = colors.ui.visual_selection, fg = colors.foreground.primary },
-
-    -- Search
     Search = { bg = colors.semantic.warning, fg = colors.background.primary, bold = true },
     IncSearch = { bg = colors.semantic.error, fg = colors.background.primary, bold = true },
     CurSearch = { link = "IncSearch" },
-
-    -- Matching
     MatchParen = { bg = colors.ui.match_paren, fg = colors.background.primary, bold = true },
   }
 end
 
--- Generate Git diff highlight groups
+function M.generate_menu_highlights(colors)
+  return {
+    WildMenu = { bg = "NONE", fg = colors.semantic.error, bold = true },
+
+    PmenuSel = { bg = "NONE", fg = colors.accent.primary, bold = true },
+
+    WilderWildmenuAccent = { fg = colors.semantic.error, bold = true },
+    WilderWildmenuSelectedAccent = {
+      bg = "NONE",
+      fg = colors.semantic.error,
+      bold = true,
+    },
+  }
+end
+
 function M.generate_diff_highlights(colors)
   return {
     DiffAdd = { bg = colors.diff.add_bg, fg = colors.diff.add },
@@ -50,25 +48,17 @@ function M.generate_diff_highlights(colors)
   }
 end
 
--- Generate GitSigns highlight groups with tinted backgrounds (VSCode-style)
 function M.generate_gitsigns_highlights(colors)
   return {
-    -- Sign column highlights (left gutter)
     GitSignsAdd = { fg = colors.diff.add, bold = true },
     GitSignsChange = { fg = colors.diff.change, bold = true },
     GitSignsDelete = { fg = colors.diff.delete, bold = true },
-
-    -- Inline diff highlights (preview and inline diffs)
     GitSignsAddInline = { bg = colors.diff.add_bg, fg = colors.diff.add },
     GitSignsChangeInline = { bg = colors.diff.change_bg, fg = colors.diff.change },
     GitSignsDeleteInline = { bg = colors.diff.delete_bg, fg = colors.diff.delete },
-
-    -- Line number highlights
     GitSignsAddLn = { bg = colors.diff.add_bg },
     GitSignsChangeLn = { bg = colors.diff.change_bg },
     GitSignsDeleteLn = { bg = colors.diff.delete_bg },
-
-    -- Preview window highlights
     GitSignsAddPreview = { link = "DiffAdd" },
     GitSignsDeletePreview = { link = "DiffDelete" },
   }
@@ -369,12 +359,12 @@ function M.generate_lsp_highlights(colors)
   }
 end
 
--- Get all core highlights in one call
-function M.generate_core_highlights(colors, palette, transparency)
+function M.generate_core_highlights(colors, transparency)
   return vim.tbl_extend(
     "force",
     M.generate_transparency_highlights(transparency),
     M.generate_cursor_highlights(colors),
+    M.generate_menu_highlights(colors, transparency),
     M.generate_diff_highlights(colors),
     M.generate_gitsigns_highlights(colors),
     M.generate_treesitter_highlights(colors),
@@ -383,7 +373,6 @@ function M.generate_core_highlights(colors, palette, transparency)
   )
 end
 
--- Apply highlight groups
 function M.apply_highlights(highlights)
   for name, hl in pairs(highlights) do
     vim.api.nvim_set_hl(0, name, hl)

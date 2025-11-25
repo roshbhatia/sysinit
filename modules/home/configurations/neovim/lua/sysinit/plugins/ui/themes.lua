@@ -67,12 +67,12 @@ local function get_catppuccin_config()
         overrides.DiagnosticHint = { fg = colors.teal, style = { "bold" } }
         overrides.WinSeparator = { fg = colors.blue, style = { "bold" } }
 
-        overrides.WildMenu = { fg = colors.pink, style = { "bold" } }
+        overrides.WildMenu = { fg = colors.base, bg = colors.pink, style = { "bold" } }
         overrides.WilderWildmenuAccent = { fg = colors.pink, style = { "bold" } }
         overrides.WilderWildmenuSelectedAccent =
-          { fg = colors.pink, bg = colors.surface0, style = { "bold" } }
+          { fg = colors.base, bg = colors.pink, style = { "bold" } }
         overrides.WilderWildmenuSelected =
-          { fg = colors.pink, bg = colors.surface0, style = { "bold" } }
+          { fg = colors.base, bg = colors.pink, style = { "bold" } }
         overrides.WilderWildmenuSeparator = { fg = colors.overlay1 }
 
         if not theme_config.transparency.enable then
@@ -116,7 +116,6 @@ end
 local function get_gruvbox_config()
   local overrides = {}
 
-  -- Gruvbox hard variant actual hex colors for transparency overrides
   local colors = {
     bg0 = "#1d2021",
     bg1 = "#3c3836",
@@ -127,8 +126,10 @@ local function get_gruvbox_config()
   }
 
   if theme_config.transparency.enable then
-    -- Enhanced contrast for transparent background
     overrides.Pmenu = { bg = colors.bg1, fg = colors.fg1 }
+    overrides.WildMenu = { bg = colors.bg2, fg = colors.orange, bold = true }
+    overrides.WilderWildmenuSelected = { bg = colors.bg2, fg = colors.orange, bold = true }
+    overrides.WilderWildmenuSelectedAccent = { bg = colors.bg2, fg = colors.orange, bold = true }
     overrides.PmenuSel = { bg = colors.bg2, fg = colors.orange, bold = true }
     overrides.TelescopeSelection = { bg = colors.bg2, fg = colors.orange, bold = true }
     overrides.Search = { bg = colors.yellow, fg = colors.bg0, bold = true }
@@ -174,13 +175,15 @@ local function get_solarized_config()
       types = { bold = true },
     },
     on_highlights = function(highlights, colors)
-      -- Enhanced visual mode highlighting with better contrast
       highlights.Visual = { bg = colors.base02, fg = colors.base1, bold = true }
       highlights.VisualNOS = { bg = colors.base01, fg = colors.base1, bold = true }
 
       if theme_config.transparency.enable then
-        -- Enhanced contrast for transparent background
         highlights.Pmenu = { bg = colors.base02, fg = colors.base0 }
+        highlights.WildMenu = { bg = colors.base01, fg = colors.blue, bold = true }
+        highlights.WilderWildmenuSelected = { bg = colors.base01, fg = colors.blue, bold = true }
+        highlights.WilderWildmenuSelectedAccent =
+          { bg = colors.base01, fg = colors.blue, bold = true }
         highlights.PmenuSel = { bg = colors.base01, fg = colors.blue, bold = true }
         highlights.TelescopeSelection = { bg = colors.base01, fg = colors.blue, bold = true }
         highlights.Search = { bg = colors.yellow, fg = colors.base03, bold = true }
@@ -197,7 +200,6 @@ end
 local function get_rose_pine_config()
   local overrides = {}
 
-  -- Rosé Pine Moon actual hex colors for transparency overrides
   local colors = {
     base = "#232136",
     surface = "#2a273f",
@@ -214,14 +216,15 @@ local function get_rose_pine_config()
   }
 
   if theme_config.transparency.enable then
-    -- Enhanced transparency overrides for better legibility
     overrides.WinBar = { bg = "none", fg = colors.foam }
     overrides.WinBarNC = { bg = "none", fg = colors.subtle }
     overrides.NeoTreeWinSeparator = { bg = "none", fg = colors.subtle }
     overrides.NeoTreeVertSplit = { bg = "none", fg = colors.subtle }
     overrides.NeoTreeEndOfBuffer = { bg = "none", fg = "none" }
     overrides.DropBarMenuFloatBorder = { bg = "none", fg = colors.subtle }
-    overrides.WilderWildmenuSelectedAccent = { bg = colors.surface, fg = colors.foam }
+    overrides.WildMenu = { bg = colors.rose, fg = colors.base, bold = true }
+    overrides.WilderWildmenuSelected = { bg = colors.rose, fg = colors.base, bold = true }
+    overrides.WilderWildmenuSelectedAccent = { bg = colors.rose, fg = colors.base, bold = true }
     overrides.TelescopeSelection = { bg = colors.surface, fg = colors.foam, bold = true }
     overrides.TelescopeBorder = { bg = "none", fg = colors.muted }
     overrides.TelescopeTitle = { bg = "none", fg = colors.rose, bold = true }
@@ -266,7 +269,6 @@ end
 local function get_kanagawa_config()
   local overrides = {}
 
-  -- Kanagawa Gyokuro actual hex colors for transparency overrides
   local colors = {
     fujiWhite = "#dcd7ba",
     waveBlue1 = "#2d4f67",
@@ -283,8 +285,10 @@ local function get_kanagawa_config()
     overrides.NeoTreeVertSplit = { bg = "none", fg = colors.sumiInk4 }
     overrides.NeoTreeEndOfBuffer = { bg = "none", fg = "none" }
     overrides.DropBarMenuFloatBorder = { bg = "none", fg = colors.sumiInk4 }
+    overrides.WildMenu = { bg = colors.waveBlue1, fg = colors.fujiWhite, bold = true }
+    overrides.WilderWildmenuSelected = { bg = colors.waveBlue1, fg = colors.fujiWhite, bold = true }
     overrides.WilderWildmenuSelectedAccent =
-      { bg = colors.waveBlue2, fg = colors.fujiWhite, bold = true }
+      { bg = colors.waveBlue1, fg = colors.fujiWhite, bold = true }
     overrides.TelescopeSelection = { bg = colors.waveBlue2, fg = colors.fujiWhite, bold = true }
     overrides.Pmenu = { bg = colors.sumiInk3, fg = colors.fujiWhite }
     overrides.PmenuSel = { bg = colors.waveBlue1, fg = colors.fujiWhite, bold = true }
@@ -364,45 +368,51 @@ local function get_nightfox_config()
     palettes = {},
     specs = {},
     groups = {
-      all = theme_config.transparency.enable
-          and {
-            Normal = { bg = "NONE" },
-            NormalNC = { bg = "NONE" },
-            NormalFloat = { bg = "NONE" },
-            FloatBorder = { bg = "NONE" },
-            FloatTitle = { bg = "NONE" },
-            Pmenu = { bg = "NONE" },
-            PmenuBorder = { bg = "NONE" },
-            TelescopeNormal = { bg = "NONE" },
-            TelescopeBorder = { bg = "NONE" },
-            WhichKeyFloat = { bg = "NONE" },
-            WhichKeyBorder = { bg = "NONE" },
-            SignColumn = { bg = "NONE" },
-            CursorLine = { bg = "NONE" },
-            StatusLine = { bg = "NONE" },
-            StatusLineNC = { bg = "NONE" },
-            WinSeparator = { bg = "NONE" },
-            WinBar = { bg = "NONE" },
-            WinBarNC = { bg = "NONE" },
-            NeoTreeNormal = { bg = "NONE" },
-            NeoTreeNormalNC = { bg = "NONE" },
-            NeoTreeWinSeparator = { bg = "NONE" },
-            NeoTreeVertSplit = { bg = "NONE" },
-            NeoTreeEndOfBuffer = { bg = "NONE" },
-            -- Enhanced visual selection with bg for better visibility
-            Visual = { bg = "palette.sel0", bold = true },
-            VisualNOS = { bg = "palette.sel1", bold = true },
-            -- Better contrast for selections
-            PmenuSel = { bg = "palette.sel0", fg = "palette.blue.bright", bold = true },
-            TelescopeSelection = { bg = "palette.sel0", fg = "palette.blue.bright", bold = true },
-            Search = { bg = "palette.yellow.base", fg = "palette.bg1", bold = true },
-            IncSearch = { bg = "palette.orange.base", fg = "palette.bg1", bold = true },
-          }
-        or {
-          -- Non-transparent mode still gets enhanced visual selection
-          Visual = { bg = "palette.sel0", bold = true },
-          VisualNOS = { bg = "palette.sel1", bold = true },
+      all = theme_config.transparency.enable and {
+        Normal = { bg = "NONE" },
+        NormalNC = { bg = "NONE" },
+        NormalFloat = { bg = "NONE" },
+        FloatBorder = { bg = "NONE" },
+        FloatTitle = { bg = "NONE" },
+        Pmenu = { bg = "NONE" },
+        PmenuBorder = { bg = "NONE" },
+        TelescopeNormal = { bg = "NONE" },
+        TelescopeBorder = { bg = "NONE" },
+        WhichKeyFloat = { bg = "NONE" },
+        WhichKeyBorder = { bg = "NONE" },
+        SignColumn = { bg = "NONE" },
+        CursorLine = { bg = "NONE" },
+        StatusLine = { bg = "NONE" },
+        StatusLineNC = { bg = "NONE" },
+        WinSeparator = { bg = "NONE" },
+        WinBar = { bg = "NONE" },
+        WinBarNC = { bg = "NONE" },
+        NeoTreeNormal = { bg = "NONE" },
+        NeoTreeNormalNC = { bg = "NONE" },
+        NeoTreeWinSeparator = { bg = "NONE" },
+        NeoTreeVertSplit = { bg = "NONE" },
+        NeoTreeEndOfBuffer = { bg = "NONE" },
+        Visual = { bg = "palette.sel0", bold = true },
+        VisualNOS = { bg = "palette.sel1", bold = true },
+        WildMenu = { bg = "palette.sel0", fg = "palette.blue.bright", bold = true },
+        WilderWildmenuSelected = {
+          bg = "palette.sel0",
+          fg = "palette.blue.bright",
+          bold = true,
         },
+        WilderWildmenuSelectedAccent = {
+          bg = "palette.sel0",
+          fg = "palette.blue.bright",
+          bold = true,
+        },
+        PmenuSel = { bg = "palette.sel0", fg = "palette.blue.bright", bold = true },
+        TelescopeSelection = { bg = "palette.sel0", fg = "palette.blue.bright", bold = true },
+        Search = { bg = "palette.yellow.base", fg = "palette.bg1", bold = true },
+        IncSearch = { bg = "palette.orange.base", fg = "palette.bg1", bold = true },
+      } or {
+        Visual = { bg = "palette.sel0", bold = true },
+        VisualNOS = { bg = "palette.sel1", bold = true },
+      },
     },
   }
 end
@@ -412,7 +422,7 @@ local function get_everforest_config()
   if theme_config.variant then
     local variant_parts = vim.split(theme_config.variant, "-")
     if #variant_parts >= 2 then
-      background = variant_parts[2] -- "hard", "medium", or "soft"
+      background = variant_parts[2]
     end
   end
 
@@ -439,23 +449,16 @@ local function get_everforest_config()
 end
 
 local function apply_post_colorscheme_overrides(base_scheme)
-  -- Generate core highlights from Nix-provided semantic colors
-  -- (includes transparency, cursor, diff, treesitter, and diagnostics)
-  local overrides = highlight_gen.generate_core_highlights(
-    theme_config.colors,
-    theme_config.palette,
-    theme_config.transparency
-  )
+  local overrides =
+    highlight_gen.generate_core_highlights(theme_config.colors, theme_config.transparency)
 
   if base_scheme == "everforest" then
-    -- Everforest semantic palette colors (work across hard/medium/soft variants)
     local colors = {
-      -- Get colors from the actual colorscheme after it loads
       bg0 = vim.fn.synIDattr(vim.fn.synIDtrans(vim.fn.hlID("Normal")), "bg"),
-      bg2 = "#3d484d", -- Hard variant bg2
-      bg4 = "#56635f", -- Visual selection background
-      fg = "#d3c6aa", -- Main foreground
-      accent = "#d699b6", -- Purple accent
+      bg2 = "#3d484d",
+      bg4 = "#56635f",
+      fg = "#d3c6aa",
+      accent = "#d699b6",
       green = "#a7c080",
       blue = "#7fbbb3",
       yellow = "#dbbc7f",
@@ -470,6 +473,9 @@ local function apply_post_colorscheme_overrides(base_scheme)
       overrides.NeoTreeVertSplit = { bg = "NONE" }
       overrides.NeoTreeEndOfBuffer = { bg = "NONE", fg = "NONE" }
       overrides.DropBarMenuFloatBorder = { bg = "NONE" }
+      overrides.WildMenu = { fg = colors.accent, bg = colors.bg2, bold = true }
+      overrides.WilderWildmenuSelected = { fg = colors.accent, bg = colors.bg2, bold = true }
+      overrides.WilderWildmenuSelectedAccent = { fg = colors.accent, bg = colors.bg2, bold = true }
       overrides.PmenuSel = { fg = colors.accent, bg = colors.bg2, bold = true }
       overrides.TelescopeSelection = { bg = colors.bg2, fg = colors.blue, bold = true }
       overrides.Search = { bg = colors.yellow, fg = colors.bg0, bold = true }
@@ -482,7 +488,6 @@ local function apply_post_colorscheme_overrides(base_scheme)
   end
 end
 
--- Theme configuration table: maps theme names to their plugin modules and config functions
 local THEME_CONFIGS = {
   catppuccin = { module = "catppuccin", config = get_catppuccin_config },
   rosepine = { module = "neomodern", config = get_rose_pine_config },
@@ -491,30 +496,25 @@ local THEME_CONFIGS = {
   solarized = { module = "solarized-osaka", config = get_solarized_config },
   nord = { module = "nightfox", config = get_nightfox_config },
   kanagawa = { module = "neomodern", config = get_kanagawa_config },
-  everforest = { module = nil, config = get_everforest_config }, -- Uses vim.g only
+  everforest = { module = nil, config = get_everforest_config },
 }
 
 local function setup_theme()
   local plugin_config = theme_config.plugins[theme_config.colorscheme]
   local base_scheme = plugin_config.base_scheme or theme_config.colorscheme
 
-  -- Setup theme configuration if available
   local theme_cfg = THEME_CONFIGS[base_scheme]
   if theme_cfg then
     local config = theme_cfg.config()
-    -- Only call setup if theme has a module (everforest uses vim.g only)
     if theme_cfg.module then
       require(theme_cfg.module).setup(config)
     end
   end
 
-  -- Apply colorscheme
   vim.cmd("colorscheme " .. plugin_config.colorscheme)
 
-  -- Apply post-colorscheme overrides (highlights from generator)
   apply_post_colorscheme_overrides(base_scheme)
 
-  -- Reapply overrides on colorscheme change or cmdline enter
   vim.api.nvim_create_autocmd({ "ColorScheme", "CmdLineEnter" }, {
     pattern = plugin_config.colorscheme,
     callback = function()

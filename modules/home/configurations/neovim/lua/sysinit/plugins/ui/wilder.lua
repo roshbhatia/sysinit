@@ -80,8 +80,8 @@ M.plugins = {
           default = "Pmenu",
           selected = "PmenuSel",
           border = "FloatBorder",
-          accent = "Special",
-          selected_accent = "IncSearch",
+          accent = "WilderWildmenuAccent",
+          selected_accent = "WilderWildmenuSelectedAccent",
           gradient = gradient_hls,
           selected_gradient = gradient_hls,
         },
@@ -130,14 +130,7 @@ M.plugins = {
         highlights = {
           default = "StatusLine",
           selected = "WildMenu",
-          accent = wilder.make_hl("WilderWildmenuAccent", "StatusLine", {
-            {},
-            {},
-            {
-              foreground = get_accent_color(),
-              bold = true,
-            },
-          }),
+          accent = "WilderWildmenuAccent",
         },
         separator = " · ",
         left = {
