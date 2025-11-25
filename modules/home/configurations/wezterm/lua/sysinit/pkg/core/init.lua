@@ -1,8 +1,4 @@
 local M = {}
-
-local json_loader = require("sysinit.pkg.utils.json_loader")
-local core_config = json_loader.load_json_file(json_loader.get_config_path("core_config.json"))
-
 local home = os.getenv("HOME") or ""
 local xdg_config_home = os.getenv("XDG_CONFIG_HOME") or (home .. "/.config")
 
