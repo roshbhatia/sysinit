@@ -5,11 +5,14 @@
 }:
 let
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
-  ampEnabled = values.llm.amp.enabled or false;
+  common = import ../shared/common.nix;
 
   ampConfig = builtins.toJSON {
-    mcpServers = mcpServers.servers;
-    permissions = [
+    "amp.git.commit.ampThread.enabled" = false;
+    "amp.experimental.planMode" = true;
+    "amp.git.commit.coauthor.enabled" = false;
+    "amp.mcpServers" = common.formatMcpForAmp mcpServers.servers;
+    "amp.permissions" = [
       {
         tool = "Bash";
         matches = {
@@ -40,7 +43,7 @@ let
     ];
   };
 in
-lib.mkIf ampEnabled {
+{
   home.activation.ampConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     $DRY_RUN_CMD mkdir -p "$HOME/.config/amp"
 

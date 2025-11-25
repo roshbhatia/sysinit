@@ -63,6 +63,22 @@
         }
     ) mcpServers;
 
+  formatMcpForAmp =
+    mcpServers:
+    builtins.mapAttrs (
+      _name: server:
+      if (server.type or "local") == "http" then
+        {
+          inherit (server) url;
+        }
+      else
+        {
+          inherit (server) command;
+          inherit (server) args;
+          env = server.env or { };
+        }
+    ) mcpServers;
+
   gooseBuiltinExtensions = {
     autovisualiser = {
       available_tools = [ ];
