@@ -22,8 +22,23 @@ M.plugins = {
           },
         },
         hooks = {
+          view_enter = function()
+            vim.cmd("silent! DisableHLChunk")
+          end,
           diff_buf_read = function()
-            vim.opt_local.signcolumn = "number"
+            vim.opt_local.signcolumn = "no"
+
+            vim.opt_local.number = true
+            vim.opt_local.relativenumber = false
+
+            local ok, foldsign = pcall(require, "nvim-foldsign")
+            if ok then
+              vim.api.nvim_buf_clear_namespace(0, foldsign.ns, 0, -1)
+            end
+          end,
+
+          view_closed = function()
+            vim.cmd("silent! EnableHLChunk")
           end,
         },
         keymaps = {
