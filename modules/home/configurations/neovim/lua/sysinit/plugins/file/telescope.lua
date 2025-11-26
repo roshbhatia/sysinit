@@ -219,28 +219,28 @@ M.plugins = {
           function()
             tbuiltin.find_files({ hidden = true })
           end,
-          desc = "Find files",
+          desc = "Find: Files",
         },
         {
           "<leader>fj",
           function()
             tbuiltin.jumplist(require("telescope.themes").get_ivy())
           end,
-          desc = "Find files",
+          desc = "Find: Jumplist",
         },
         {
           "<leader>fd",
           function()
             tbuiltin.diagnostics(require("telescope.themes").get_ivy())
           end,
-          desc = "Find diagnostics",
+          desc = "Find: Diagnostics",
         },
         {
           "<leader>fg",
           function()
             textensions.live_grep_args.live_grep_args()
           end,
-          desc = "Find grep live",
+          desc = "Find: Grep",
         },
         {
           "<leader>fb",
@@ -253,49 +253,49 @@ M.plugins = {
               only_cwd = false,
             }))
           end,
-          desc = "Find buffers",
+          desc = "Find: Buffers",
         },
         {
           "<leader>?",
           function()
             tbuiltin.commands(require("telescope.themes").get_ivy({ previewer = false }))
           end,
-          desc = "Find commands",
+          desc = "Find: Commands",
         },
         {
           "<leader>fh",
           function()
             tbuiltin.help_tags(require("telescope.themes").get_ivy())
           end,
-          desc = "Find help tags",
+          desc = "Find: Help tags",
         },
         {
           "<leader>ft",
           function()
             tbuiltin.filetypes()
           end,
-          desc = "Find filetypes",
+          desc = "Find: Filetypes",
         },
         {
           "<leader>fF",
           function()
             tbuiltin.builtin()
           end,
-          desc = "Find pickers",
+          desc = "Find: Pickers",
         },
         {
           "<leader>fu",
           function()
             textensions.undo.undo(require("telescope.themes").get_ivy())
           end,
-          desc = "Find undo history",
+          desc = "Find: Undo history",
         },
         {
           "<leader>fr",
           function()
             tbuiltin.resume()
           end,
-          desc = "Resume last search",
+          desc = "Find: Resume last search",
         },
         {
           "<leader>fs",
@@ -303,7 +303,7 @@ M.plugins = {
             vim.api.nvim_exec_autocmds("User", { pattern = "TelescopeAstGrep" })
             textensions.ast_grep.ast_grep()
           end,
-          desc = "Find structural pattern (AST)",
+          desc = "Find: Grep AST",
         },
         {
           "<leader>ca",
