@@ -72,6 +72,8 @@ end
 function M.setup_configs()
   local capabilities = require("blink.cmp").get_lsp_capabilities()
 
+  require("sysinit.plugins.intellicode.lsp.copilot").suppress_limit_notifications()
+
   for server, cfg in pairs(M.get_builtin_configs()) do
     cfg.capabilities = capabilities
     vim.lsp.config(server, cfg)

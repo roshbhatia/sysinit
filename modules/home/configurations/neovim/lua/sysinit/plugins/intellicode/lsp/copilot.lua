@@ -76,6 +76,20 @@ local function sign_out(client)
   end)
 end
 
+function M.suppress_limit_notifications()
+  local original_request_handler = vim.lsp.handlers["window/showMessageRequest"]
+  vim.lsp.handlers["window/showMessageRequest"] = function(err, result, ctx, config)
+    if result and result.message and result.message:match("reached your monthly code completion limit") then
+      vim.notify(result.message, vim.log.levels.WARN)
+      if result.actions and #result.actions > 0 then
+        return result.actions[2]
+      end
+      return nil
+    end
+    return original_request_handler(err, result, ctx, config)
+  end
+end
+
 function M.setup_commands()
   vim.api.nvim_create_user_command("CopilotSignIn", function()
     local client = get_copilot_client()
