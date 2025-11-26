@@ -30,7 +30,7 @@ M.plugins = {
         },
         notifier = {
           enabled = true,
-          top_down = false,
+          top_down = true,
           margin = {
             top = 2,
             right = 1,
