@@ -58,7 +58,7 @@ M.plugins = {
           mode = "n",
           noremap = true,
           silent = true,
-          desc = "Find marks",
+          desc = "Find: Marks",
         },
       }
     end,
