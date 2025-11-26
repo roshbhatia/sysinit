@@ -8,7 +8,6 @@ M.plugins = {
       "debugloop/telescope-undo.nvim",
       "Marskey/telescope-sg",
       "nvim-lua/plenary.nvim",
-      "nvim-telescope/telescope-dap.nvim",
       "nvim-telescope/telescope-fzy-native.nvim",
       "nvim-telescope/telescope-live-grep-args.nvim",
       "nvim-telescope/telescope-ui-select.nvim",
@@ -110,7 +109,6 @@ M.plugins = {
             override_generic_sorter = true,
             override_file_sorter = true,
           },
-          dap = {},
           live_grep_args = {},
           undo = {
             side_by_side = true,
@@ -175,14 +173,6 @@ M.plugins = {
           end
         end,
         once = true,
-      })
-
-      -- Load debug extensions only when needed
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = { "dap-repl", "dapui_watches", "dapui_scopes" },
-        callback = function()
-          lazy_load_ext("dap")
-        end,
       })
 
       -- Load undo extension only for buffers with undo
