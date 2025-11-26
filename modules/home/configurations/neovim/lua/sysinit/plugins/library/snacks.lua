@@ -253,28 +253,6 @@ M.plugins = {
           end,
           desc = "Toggle GitHub CLI (floating)",
         },
-        {
-          "<leader>tt",
-          function()
-            Snacks.terminal.toggle(nil, { cwd = vim.fn.getcwd() })
-          end,
-          desc = "Toggle terminal (floating)",
-        },
-        {
-          "<leader>tT",
-          function()
-            local terms = Snacks.terminal.get()
-            if terms and #terms > 0 then
-              for _, term in ipairs(terms) do
-                if term.buf and vim.api.nvim_buf_is_valid(term.buf) then
-                  vim.api.nvim_buf_delete(term.buf, { force = true })
-                end
-              end
-            end
-            Snacks.terminal.toggle(nil, { cwd = vim.fn.getcwd() })
-          end,
-          desc = "Recreate terminal (floating)",
-        },
       }
       for _, key in ipairs(ai_keys) do
         table.insert(default_keys, key)

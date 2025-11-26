@@ -44,7 +44,6 @@ M.plugins = {
         { "<leader>n", group = "Notifications" },
         { "<leader>q", group = "Qflist/Loclist" },
         { "<leader>r", group = "Refresh" },
-        { "<leader>t", group = "Terminal" },
         { "<localleader>m", group = "Markdown", ft = "markdown" },
         { "gr", group = "LSP" },
       })
