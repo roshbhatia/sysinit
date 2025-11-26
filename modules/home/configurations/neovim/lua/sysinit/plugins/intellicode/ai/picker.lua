@@ -29,17 +29,43 @@ function M.pick_agent()
     })
   end
 
-  vim.ui.select(items, {
-    prompt = "Select AI Agent:",
-    format_item = function(item)
-      return item.text
-    end,
-  }, function(choice)
-    if choice then
-      ai_manager.activate(choice.agent.name)
-      vim.notify(string.format("%s %s activated", choice.agent.icon, choice.agent.label), vim.log.levels.INFO)
-    end
-  end)
+  local pickers = require("telescope.pickers")
+  local finders = require("telescope.finders")
+  local conf = require("telescope.config").values
+  local actions = require("telescope.actions")
+  local action_state = require("telescope.actions.state")
+  local themes = require("telescope.themes")
+
+  pickers
+    .new(themes.get_dropdown({}), {
+      prompt_title = "Select AI Agent",
+      finder = finders.new_table({
+        results = items,
+        entry_maker = function(item)
+          return {
+            value = item,
+            display = item.text,
+            ordinal = item.text,
+          }
+        end,
+      }),
+      sorter = conf.generic_sorter({}),
+      attach_mappings = function(prompt_bufnr)
+        actions.select_default:replace(function()
+          actions.close(prompt_bufnr)
+          local selection = action_state.get_selected_entry()
+          if selection then
+            ai_manager.activate(selection.value.agent.name)
+            vim.notify(
+              string.format("%s %s activated", selection.value.agent.icon, selection.value.agent.label),
+              vim.log.levels.INFO
+            )
+          end
+        end)
+        return true
+      end,
+    })
+    :find()
 end
 
 function M.kill_and_pick()
