@@ -47,12 +47,6 @@ in
       share = true;
     };
 
-    shellAliases = config.home.shellAliases // {
-      # Zsh-specific overrides
-      ls = "eza";
-      watch = "KUBECOLOR_FORCE_COLORS=auto watch --color --no-title";
-    };
-
     sessionVariables = {
       ZSH_EVALCACHE_DIR = "${config.xdg.dataHome}/zsh/evalcache";
       ZSH_AUTOSUGGEST_USE_ASYNC = 1;
