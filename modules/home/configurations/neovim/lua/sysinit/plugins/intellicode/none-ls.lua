@@ -7,7 +7,6 @@ M.plugins = {
     dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-treesitter/nvim-treesitter",
-      "zioroboco/nu-ls.nvim",
     },
     config = function()
       local null_ls = require("null-ls")
@@ -24,18 +23,15 @@ M.plugins = {
           null_ls.builtins.code_actions.textlint,
           null_ls.builtins.diagnostics.actionlint,
           null_ls.builtins.diagnostics.checkmake,
-          null_ls.builtins.diagnostics.codespell,
           null_ls.builtins.diagnostics.deadnix,
           null_ls.builtins.diagnostics.golangci_lint,
           null_ls.builtins.diagnostics.kube_linter,
-          null_ls.builtins.diagnostics.proselint,
           null_ls.builtins.diagnostics.staticcheck,
           null_ls.builtins.diagnostics.terraform_validate,
           null_ls.builtins.diagnostics.tfsec,
           null_ls.builtins.diagnostics.zsh,
           null_ls.builtins.hover.dictionary,
           null_ls.builtins.hover.printenv,
-          require("nu-ls"),
         },
       })
 
