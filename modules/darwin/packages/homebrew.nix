@@ -17,12 +17,14 @@ let
     "osx-cross/avr"
     "sandreas/tap"
     "slp/krunkit"
+    "steveyegge/beads"
     "vet-run/vet"
   ];
 
   baseBrews = [
     "bashdb"
     "bcrypt"
+    "bd"
     "block-goose-cli"
     "colima"
     "grc"
