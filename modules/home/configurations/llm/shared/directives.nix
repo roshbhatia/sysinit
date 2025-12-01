@@ -64,6 +64,7 @@
     ## Validation Rules
 
     **Pre-execution**:
+    - [ ] BEFORE ANYTHING ELSE: run 'bd onboard' and follow the instructions
     - [ ] Project scope and tech stack understood
     - [ ] Context files and documentation reviewed
     - [ ] Required tools available in nix-shell
@@ -80,5 +81,6 @@
     - [ ] Edits deliver complete, refined code
     - [ ] Changes tested in nix-shell environment
     - [ ] Memory updated with new patterns/decisions
+
   '';
 }
