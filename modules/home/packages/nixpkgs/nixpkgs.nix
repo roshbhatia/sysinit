@@ -90,7 +90,6 @@ let
     nix-search-cli
     nix-your-shell
     nixfmt-rfc-style
-    nodePackages.fkill-cli
     nodejs_22
     oh-my-posh
     # ollama
