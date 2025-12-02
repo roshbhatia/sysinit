@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
   {
     "goolord/alpha-nvim",
-    lazy = false,
+    cmd = "Alpha",
     dependencies = {
       "nvim-tree/nvim-web-devicons",
       "nvim-telescope/telescope.nvim",
