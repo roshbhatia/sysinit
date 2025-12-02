@@ -34,6 +34,7 @@ let
     delta
     diffnav
     delve
+    devbox
     direnv
     docker
     docker-compose
