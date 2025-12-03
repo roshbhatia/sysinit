@@ -4,37 +4,64 @@ local config = {}
 local terminals = {}
 local active_terminal = nil
 local augroup = nil
+local parent_pane_id = nil
 
-local function pane_exists(pane_id)
+-- Get the current WezTerm pane ID from environment
+local function get_current_pane_id()
+  return tonumber(vim.env.WEZTERM_PANE)
+end
+
+-- Get pane information from WezTerm
+local function get_pane_info(pane_id)
   if not pane_id then
-    return false
+    return nil
   end
 
-  -- Check if pane still exists via wezterm CLI
-  local result = vim.fn.system(string.format("wezterm cli list --format json 2>/dev/null"))
-
+  local result = vim.fn.system("wezterm cli list --format json 2>/dev/null")
   if vim.v.shell_error ~= 0 then
-    return false
+    return nil
   end
 
   local ok, panes = pcall(vim.fn.json_decode, result)
   if not ok or not panes then
-    return false
+    return nil
   end
 
   for _, pane in ipairs(panes) do
     if pane.pane_id == pane_id then
-      return true
+      return pane
     end
   end
 
-  return false
+  return nil
+end
+
+-- Check if pane exists and belongs to the same window/tab as parent
+local function pane_exists(pane_id)
+  local pane_info = get_pane_info(pane_id)
+  if not pane_info then
+    return false
+  end
+
+  -- Verify it's in the same window/tab as the parent neovim instance
+  local parent_info = get_pane_info(parent_pane_id)
+  if not parent_info then
+    return true -- Parent check failed, assume pane is valid
+  end
+
+  return pane_info.window_id == parent_info.window_id and pane_info.tab_id == parent_info.tab_id
 end
 
 function M.setup(opts)
   config = opts or {}
   config.terminals = config.terminals or {}
   config.env = config.env or {}
+
+  -- Store the parent pane ID (the neovim instance)
+  parent_pane_id = get_current_pane_id()
+  if not parent_pane_id then
+    vim.notify("Warning: Unable to determine WezTerm pane ID. AI terminals may not work correctly.", vim.log.levels.WARN)
+  end
 
   if not augroup then
     augroup = vim.api.nvim_create_augroup("AIManager", { clear = true })
@@ -82,6 +109,12 @@ function M.open(termname)
     return
   end
 
+  -- Verify we have a parent pane ID
+  if not parent_pane_id then
+    vim.notify("Cannot spawn AI terminal: parent pane ID not available", vim.log.levels.ERROR)
+    return
+  end
+
   local agents = require("sysinit.plugins.intellicode.agents")
   local agent = agents.get_by_name(termname)
   local cwd = vim.fn.getcwd()
@@ -92,9 +125,10 @@ function M.open(termname)
     env_str = env_str .. string.format("export %s=%s; ", key, vim.fn.shellescape(value))
   end
 
-  -- Spawn new pane on the right with 50% width
+  -- Spawn new pane on the right with 50% width, explicitly from parent pane
   local spawn_cmd = string.format(
-    "wezterm cli split-pane --right --percent 50 --cwd %s -- sh -c %s 2>&1",
+    "wezterm cli split-pane --pane-id %d --right --percent 50 --cwd %s -- sh -c %s 2>/dev/null",
+    parent_pane_id,
     vim.fn.shellescape(cwd),
     vim.fn.shellescape(env_str .. agent_config.cmd)
   )
@@ -102,11 +136,20 @@ function M.open(termname)
   local result = vim.fn.system(spawn_cmd)
 
   if vim.v.shell_error == 0 then
-    local pane_id = tonumber(vim.trim(result))
+    -- Extract numeric pane ID from result (ignoring any non-numeric lines)
+    local pane_id = nil
+    for line in vim.gsplit(vim.trim(result), "\n") do
+      local id = tonumber(line)
+      if id then
+        pane_id = id
+        break
+      end
+    end
 
     if pane_id then
       terminals[termname] = {
         pane_id = pane_id,
+        parent_pane_id = parent_pane_id,
         cmd = agent_config.cmd,
         cwd = cwd,
         visible = true,
@@ -120,7 +163,7 @@ function M.open(termname)
         end, 100)
       end
     else
-      vim.notify("Failed to parse pane ID: " .. result, vim.log.levels.ERROR)
+      vim.notify("Failed to parse pane ID from output: " .. result, vim.log.levels.ERROR)
     end
   else
     vim.notify("Failed to spawn pane: " .. result, vim.log.levels.ERROR)
