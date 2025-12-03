@@ -5,22 +5,13 @@ function M.pick_agent()
   local ai_manager = require("sysinit.plugins.intellicode.ai.ai_manager")
   local active = ai_manager.get_active()
 
-  -- If there's an active terminal, toggle its visibility
-  if active then
-    if not ai_manager.exists(active) then
-      ai_manager.cleanup_terminal(active)
-    else
-      -- Check if the active terminal is currently visible
-      if ai_manager.is_visible(active) then
-        ai_manager.hide(active)
-        return
-      else
-        ai_manager.focus(active)
-        return
-      end
-    end
+  -- If there's an active terminal and it exists, toggle it (close it)
+  if active and ai_manager.exists(active) then
+    ai_manager.close(active)
+    return
   end
 
+  -- Otherwise show picker to select an agent
   local items = {}
   for _, agent in ipairs(agents.get_all()) do
     local is_active = agent.name == active

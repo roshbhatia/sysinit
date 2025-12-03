@@ -1,13 +1,18 @@
 local M = {}
 
 local agents = {
-  require("sysinit.plugins.intellicode.agents.copilot"),
   require("sysinit.plugins.intellicode.agents.opencode"),
-  require("sysinit.plugins.intellicode.agents.claude"),
-  require("sysinit.plugins.intellicode.agents.cursor"),
   require("sysinit.plugins.intellicode.agents.amp"),
   require("sysinit.plugins.intellicode.agents.goose"),
+  require("sysinit.plugins.intellicode.agents.claude"),
+  require("sysinit.plugins.intellicode.agents.cursor"),
+  require("sysinit.plugins.intellicode.agents.copilot"),
 }
+
+-- Sort agents by priority (lower number = higher priority)
+table.sort(agents, function(a, b)
+  return (a.priority or 999) < (b.priority or 999)
+end)
 
 function M.get_all()
   return agents

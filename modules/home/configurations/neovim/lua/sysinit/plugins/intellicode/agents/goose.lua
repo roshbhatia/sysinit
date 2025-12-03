@@ -3,4 +3,5 @@ return {
   label = "Goose",
   icon = " ",
   cmd = "goose",
+  priority = 3,
 }

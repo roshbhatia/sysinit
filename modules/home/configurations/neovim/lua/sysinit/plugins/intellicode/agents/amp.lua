@@ -3,4 +3,5 @@ return {
   label = "Amp",
   icon = "󰮼 ",
   cmd = "amp --ide",
+  priority = 2,
 }

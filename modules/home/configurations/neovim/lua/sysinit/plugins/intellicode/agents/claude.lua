@@ -3,4 +3,5 @@ return {
   label = "Claude",
   icon = " ",
   cmd = "claude --permission-mode plan",
+  priority = 4,
 }

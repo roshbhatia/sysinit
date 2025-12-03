@@ -3,4 +3,5 @@ return {
   label = "OpenCode",
   icon = "󰫼 ",
   cmd = "opencode",
+  priority = 1,
 }

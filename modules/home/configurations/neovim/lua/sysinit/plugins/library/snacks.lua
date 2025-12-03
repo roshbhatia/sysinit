@@ -173,7 +173,6 @@ M.plugins = {
 
       local agents = require("sysinit.plugins.intellicode.agents")
       local ai_manager = require("sysinit.plugins.intellicode.ai.ai_manager")
-      local terminal = require("sysinit.plugins.intellicode.ai.terminal")
       local completion = require("sysinit.plugins.intellicode.ai.completion")
       local file_refresh = require("sysinit.plugins.intellicode.ai.file_refresh")
 
@@ -193,7 +192,6 @@ M.plugins = {
         },
       })
 
-      terminal.setup_goose_keymaps()
       file_refresh.setup({
         file_refresh = {
           enable = true,

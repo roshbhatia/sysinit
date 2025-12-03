@@ -3,4 +3,5 @@ return {
   label = "Cursor",
   icon = " ",
   cmd = "cursor-agent",
+  priority = 5,
 }

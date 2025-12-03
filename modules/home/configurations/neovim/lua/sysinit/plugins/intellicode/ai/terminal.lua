@@ -2,23 +2,6 @@ local M = {}
 
 local last_prompts = {}
 
-function M.setup_goose_keymaps()
-  vim.api.nvim_create_autocmd("TermEnter", {
-    callback = function()
-      local buf = vim.api.nvim_get_current_buf()
-      local term_name = vim.api.nvim_buf_get_name(buf)
-
-      if term_name:match("goose") then
-        vim.keymap.set("t", "<S-CR>", "<C-j>", {
-          buffer = buf,
-          silent = true,
-          desc = "Send Ctrl+J in goose terminal",
-        })
-      end
-    end,
-  })
-end
-
 function M.ensure_terminal_and_send(termname, text)
   last_prompts[termname] = text
 
