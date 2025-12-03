@@ -38,15 +38,6 @@ let
     keybinds = {
       leader = "ctrl+f";
     };
-    # These are disabled in favor of the serena MCP native tools
-    tools = {
-      read = false;
-      write = false;
-      edit = false;
-      list = false;
-      glob = false;
-      grep = false;
-    };
     permission = {
       webfetch = "allow";
       bash = common.formatPermissionsForOpencode common.commonShellPermissions;
