@@ -50,10 +50,19 @@
 
     ## Tool Usage
 
-    - You SHOULD utilize MCP servers for domain-specific tasks (AWS, Terraform, EKS).
-    - You SHOULD use ast-grep for AST-based pattern matching and code transformations.
-    - You MUST check tool availability via `nix-shell -p <package>` before use.
-    - You SHOULD run tools in isolated nix-shell environments for reproducibility.
+    **Serena MCP (Semantic Code Operations):**
+    - `serena_get_symbols_overview` - MUST use first when exploring files
+    - `serena_find_symbol` - Find classes/functions/methods by name
+    - `serena_find_referencing_symbols` - Find all symbol usages
+    - `serena_rename_symbol` - Safe refactoring across codebase
+    - `serena_*_memory` - Persist/retrieve project context
+    - File ops: `serena_read_file`, `serena_create_text_file`, `serena_find_file`
+    - Code edits: `serena_replace_symbol_body`, `serena_insert_*`, `serena_replace_content`
+
+    **Other:**
+    - You SHOULD use ast-grep for AST pattern matching
+    - You MUST check tool availability via `nix-shell -p <package>` before use
+    - You SHOULD run tools in isolated nix-shell environments
 
     ## Nix Workflow
 

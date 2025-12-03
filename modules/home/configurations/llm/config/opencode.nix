@@ -5,7 +5,6 @@ let
   common = import ../shared/common.nix;
   prompts = import ../shared/prompts.nix { };
   directives = import ../shared/directives.nix;
-  opencodeEnabled = values.llm.opencode.enabled or true;
 
   themes = import ../../../../lib/theme { inherit lib; };
 
@@ -36,9 +35,25 @@ let
     lsp = common.formatLspForOpencode lsp.lsp;
     agent = prompts.toAgents;
     instructions = instructions;
+    keybinds = {
+      leader = "ctrl+f";
+    };
+    # These are disabled in favor of the serena MCP native tools
+    tools = {
+      read = false;
+      write = false;
+      edit = false;
+      list = false;
+      glob = false;
+      grep = false;
+    };
+    permission = {
+      webfetch = "allow";
+      bash = common.formatPermissionsForOpencode common.commonShellPermissions;
+    };
   };
 in
-lib.mkIf opencodeEnabled {
+{
   xdg.configFile."opencode/opencode.json" = {
     text = opencodeConfig;
     force = true;
