@@ -1,5 +1,6 @@
 local M = {}
 local context = require("sysinit.plugins.intellicode.ai.context")
+local lsp = require("sysinit.plugins.intellicode.ai.lsp")
 
 local function get_relative_path(state)
   if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
@@ -26,13 +27,133 @@ local function escape_lua_pattern(s)
   return (s:gsub("(%W)", "%%%1"))
 end
 
+-- Get intelligent context for "this" - uses treesitter, LSP, or falls back to cursor
+local function get_this_context(state)
+  if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
+    return string.format("@%s:%d", get_relative_path(state), state.line)
+  end
+
+  -- Try treesitter first
+  local ok, ts_utils = pcall(require, "nvim-treesitter.ts_utils")
+  if ok then
+    local node = ts_utils.get_node_at_cursor()
+    if node then
+      -- Walk up to find a named node (function, class, method, etc.)
+      while node do
+        local node_type = node:type()
+        -- Common semantic node types across languages
+        if node_type:match("function")
+          or node_type:match("method")
+          or node_type:match("class")
+          or node_type:match("struct")
+          or node_type:match("interface")
+          or node_type:match("declaration")
+        then
+          local start_row, start_col, end_row, end_col = node:range()
+          local path = get_relative_path(state)
+          -- Get node text for better context
+          local lines = vim.api.nvim_buf_get_lines(state.buf, start_row, start_row + 1, false)
+          if lines and lines[1] then
+            local node_text = lines[1]:match("^%s*(.-)%s*$") -- trim whitespace
+            if #node_text > 60 then
+              node_text = node_text:sub(1, 57) .. "..."
+            end
+            return string.format("@%s:%d-%d (%s)", path, start_row + 1, end_row + 1, node_text)
+          end
+          return string.format("@%s:%d-%d", path, start_row + 1, end_row + 1)
+        end
+        node = node:parent()
+      end
+    end
+  end
+
+  -- Try LSP symbol information
+  local params = vim.lsp.util.make_position_params()
+  local lsp_result = lsp.request("textDocument/documentSymbol", params, 500)
+  if lsp_result then
+    local function find_symbol_at_position(symbols, line, col)
+      for _, symbol in ipairs(symbols) do
+        local range = symbol.range or symbol.location and symbol.location.range
+        if range then
+          local start_line = range.start.line
+          local end_line = range["end"].line
+          if line >= start_line and line <= end_line then
+            -- Check if symbol has children (for nested symbols)
+            if symbol.children then
+              local child_symbol = find_symbol_at_position(symbol.children, line, col)
+              if child_symbol then
+                return child_symbol
+              end
+            end
+            return symbol
+          end
+        end
+      end
+      return nil
+    end
+
+    local symbol = find_symbol_at_position(lsp_result, state.line - 1, state.col)
+    if symbol then
+      local path = get_relative_path(state)
+      local range = symbol.range or symbol.location and symbol.location.range
+      if range then
+        return string.format(
+          "@%s:%d-%d (%s)",
+          path,
+          range.start.line + 1,
+          range["end"].line + 1,
+          symbol.name
+        )
+      end
+    end
+  end
+
+  -- Fallback to cursor position
+  return string.format("@%s:%d", get_relative_path(state), state.line)
+end
+
+-- Get the current folder path
+local function get_folder_context(state)
+  if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
+    return ""
+  end
+
+  local path = vim.api.nvim_buf_get_name(state.buf)
+  if path == "" then
+    return ""
+  end
+
+  local handle = io.popen("git rev-parse --show-toplevel")
+  local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
+  handle:close()
+
+  -- Get directory path
+  local dir = vim.fn.fnamemodify(path, ":h")
+
+  if repo_root and repo_root ~= "" then
+    dir = dir:sub(#repo_root + 2)
+  end
+
+  return "@" .. dir
+end
+
 local PLACEHOLDERS = {
   {
     token = "@cursor",
     description = "Cursor position (file:line)",
     provider = function(state)
-      return string.format("%s:%d", get_relative_path(state), state.line)
+      return string.format("@%s:%d", get_relative_path(state), state.line)
     end,
+  },
+  {
+    token = "@this",
+    description = "Current semantic context (function/class/method via treesitter/LSP, falls back to cursor)",
+    provider = get_this_context,
+  },
+  {
+    token = "@folder",
+    description = "Current folder path",
+    provider = get_folder_context,
   },
   {
     token = "@selection",
@@ -42,7 +163,10 @@ local PLACEHOLDERS = {
   {
     token = "@buffer",
     description = "Current buffer's file path",
-    provider = get_relative_path,
+    provider = function(state)
+      local path = get_relative_path(state)
+      return path ~= "" and "@" .. path or ""
+    end,
   },
   {
     token = "@buffers",
@@ -109,6 +233,32 @@ local PLACEHOLDERS = {
     description = "Current search pattern",
     provider = function()
       return context.get_search_pattern()
+    end,
+  },
+  {
+    token = "@git",
+    description = "Git status for current repository",
+    provider = function()
+      return context.get_git_status()
+    end,
+  },
+  {
+    token = "@diff",
+    description = "Git diff for current file",
+    provider = function()
+      return context.get_git_diff()
+    end,
+  },
+  {
+    token = "@imports",
+    description = "Import statements in current file",
+    provider = context.get_imports,
+  },
+  {
+    token = "@clipboard",
+    description = "System clipboard content",
+    provider = function()
+      return context.get_clipboard()
     end,
   },
 }

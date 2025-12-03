@@ -197,7 +197,52 @@ function M.focus(termname)
 
   -- Activate the pane
   vim.fn.system(string.format("wezterm cli activate-pane --pane-id %d 2>/dev/null", term_data.pane_id))
+  term_data.visible = true
   active_terminal = termname
+end
+
+function M.hide(termname)
+  local term_data = terminals[termname]
+
+  if not term_data then
+    return
+  end
+
+  if not pane_exists(term_data.pane_id) then
+    return
+  end
+
+  -- Zoom back to the parent pane (neovim), effectively hiding the AI pane
+  if parent_pane_id then
+    vim.fn.system(string.format("wezterm cli activate-pane --pane-id %d 2>/dev/null", parent_pane_id))
+    term_data.visible = false
+  end
+end
+
+function M.is_visible(termname)
+  local term_data = terminals[termname]
+  if not term_data then
+    return false
+  end
+
+  -- Check if the pane is currently active
+  local result = vim.fn.system("wezterm cli list --format json 2>/dev/null")
+  if vim.v.shell_error ~= 0 then
+    return false
+  end
+
+  local ok, panes = pcall(vim.fn.json_decode, result)
+  if not ok or not panes then
+    return false
+  end
+
+  for _, pane in ipairs(panes) do
+    if pane.pane_id == term_data.pane_id and pane.is_active then
+      return true
+    end
+  end
+
+  return false
 end
 
 function M.send(termname, text, opts)

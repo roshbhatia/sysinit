@@ -269,4 +269,107 @@ function M.get_search_pattern()
   return pattern
 end
 
+function M.get_git_status()
+  -- Get git status for current buffer's file
+  local buf = vim.api.nvim_get_current_buf()
+  local filepath = vim.api.nvim_buf_get_name(buf)
+  
+  if filepath == "" then
+    return "Not in a git repository or no file"
+  end
+
+  local result = vim.fn.system("git -C " .. vim.fn.shellescape(vim.fn.fnamemodify(filepath, ":h")) .. " status --short --branch 2>/dev/null")
+  
+  if vim.v.shell_error ~= 0 then
+    return "Not in a git repository"
+  end
+
+  if result == "" or result == "## " then
+    return "No changes"
+  end
+
+  return vim.trim(result)
+end
+
+function M.get_git_diff()
+  -- Get git diff for current buffer's file
+  local buf = vim.api.nvim_get_current_buf()
+  local filepath = vim.api.nvim_buf_get_name(buf)
+  
+  if filepath == "" then
+    return "No file"
+  end
+
+  local handle = io.popen("git rev-parse --show-toplevel 2>/dev/null")
+  local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
+  handle:close()
+
+  if repo_root == "" then
+    return "Not in a git repository"
+  end
+
+  -- Get relative path from repo root
+  local rel_path = filepath:sub(#repo_root + 2)
+  
+  local result = vim.fn.system("git -C " .. vim.fn.shellescape(repo_root) .. " diff " .. vim.fn.shellescape(rel_path) .. " 2>/dev/null")
+  
+  if vim.v.shell_error ~= 0 or result == "" then
+    return "No changes in current file"
+  end
+
+  return vim.trim(result)
+end
+
+function M.get_imports(state)
+  if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
+    return ""
+  end
+
+  local filetype = vim.api.nvim_buf_get_option(state.buf, "filetype")
+  local lines = vim.api.nvim_buf_get_lines(state.buf, 0, 100, false) -- Check first 100 lines
+  local imports = {}
+
+  -- Pattern matching based on filetype
+  local patterns = {
+    python = "^import%s+.+$|^from%s+.+import",
+    javascript = "^import%s+.+$|^const%s+.+%s*=%s*require",
+    typescript = "^import%s+.+$|^const%s+.+%s*=%s*require",
+    lua = "^local%s+.+%s*=%s*require",
+    go = "^import%s+",
+    rust = "^use%s+",
+    java = "^import%s+",
+  }
+
+  local pattern = patterns[filetype]
+  if not pattern then
+    return ""
+  end
+
+  -- Split pattern by | and check each
+  for pat in vim.gsplit(pattern, "|", { plain = true }) do
+    for _, line in ipairs(lines) do
+      if line:match(pat) then
+        table.insert(imports, line)
+      end
+    end
+  end
+
+  if #imports == 0 then
+    return "No imports found"
+  end
+
+  return table.concat(imports, "\n")
+end
+
+function M.get_clipboard()
+  local clipboard = vim.fn.getreg("+")
+  if not clipboard or clipboard == "" then
+    clipboard = vim.fn.getreg("*")
+  end
+  if not clipboard or clipboard == "" then
+    return "Clipboard empty"
+  end
+  return clipboard
+end
+
 return M

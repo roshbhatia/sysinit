@@ -1,95 +1,64 @@
 {
   general = ''
-    # Development Guidelines (RFC 2119)
+    # Development Guidelines
 
-    Keywords "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
-    "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" per RFC 2119.
+    Keywords: MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD, SHOULD NOT, RECOMMENDED, MAY, OPTIONAL. (RFC 2119)
 
-    ## Core Requirements
-
-    1. **Scope**: You MUST understand project and tech stack before execution.
-    2. **Errors**: You MUST fix errors preemptively and clarify stack assumptions.
-    3. **Context**: You MUST read relevant context files and project documentation.
-    4. **Comments**: You MUST start code with path/filename and include purpose explanations.
-    5. **Principles**: You MUST apply modularity, DRY, performance, and security.
-    6. **Tasks**: You MUST complete one file before starting another.
-    7. **Incomplete Work**: You MUST use TODO comments and confirm before proceeding.
-    8. **Edits**: You MUST deliver fully refined, complete files; return only modified symbols.
-
-    ## Verbosity Levels
-
-    | Level | Behavior |
-    |-------|----------|
-    | V=0   | Code golf (ultra-condensed) |
-    | V=1   | Concise |
-    | V=2   | Simple |
-    | V=3   | Verbose, DRY with extracted functions/modules |
+    Core Requirements:
+    MUST understand project scope and tech stack before execution.
+    MUST fix errors proactively and clarify stack assumptions.
+    MUST read context files and documentation.
+    MUST start code with path/filename and include purpose comments.
+    MUST apply modularity, DRY, performance, security principles.
+    MUST finish one file before starting another.
+    MUST use TODO for incomplete work and confirm before proceeding.
+    MUST deliver refined, complete files; return only modified symbols.
+    NEVER create ad-hoc documentaiton. You MAY create applicable documentation, but only that which a human would write.
+    NEVER use emojis in code.
 
     ## Communication
-
-    - You MUST be concise and use clear, direct language.
-    - You MUST provide actionable information without unnecessary verbosity.
+    MUST be concise and clear in communication.
+    MUST provide actionable info without verbosity.
+    MUST NEVER use emojis.
 
     ## Development Standards
-
-    - You SHOULD prefer TDD: write tests first, then implement functionality.
-    - You MUST use existing patterns and conventions found in the codebase.
-    - You MUST maintain consistency with established architecture and style.
+    SHOULD prefer TDD (tests first).
+    MUST follow existing patterns and conventions.
+    MUST maintain architecture and style consistency.
+    NEVER use emojis in code.
 
     ## Uncertainty Handling
-
-    - You MUST ask clarifying questions rather than make assumptions.
-    - You MUST request examples when patterns are unclear.
-    - You MUST confirm understanding before significant changes.
+    MUST ask clarifying questions instead of assuming.
+    MUST request examples when patterns unclear.
+    MUST confirm understanding before major changes.
 
     ## Memory & Context
-
-    - You SHOULD persist important project context using memory tools.
-    - You MUST reference existing memory entries for project patterns.
-    - You SHOULD update memory when discovering new patterns or architectural decisions.
+    SHOULD persist important context using memory tools.
+    MUST reference existing memory entries for patterns.
+    SHOULD update memory with new patterns/decisions.
 
     ## Tool Usage
-
-    **Serena MCP (Semantic Code Operations):**
-    - `serena_get_symbols_overview` - MUST use first when exploring files
-    - `serena_find_symbol` - Find classes/functions/methods by name
-    - `serena_find_referencing_symbols` - Find all symbol usages
-    - `serena_rename_symbol` - Safe refactoring across codebase
-    - `serena_*_memory` - Persist/retrieve project context
-    - File ops: `serena_read_file`, `serena_create_text_file`, `serena_find_file`
-    - Code edits: `serena_replace_symbol_body`, `serena_insert_*`, `serena_replace_content`
-
-    **Other:**
-    - You SHOULD use ast-grep for AST pattern matching
-    - You MUST check tool availability via `nix-shell -p <package>` before use
-    - You SHOULD run tools in isolated nix-shell environments
-
-    ## Nix Workflow
-
-    - You SHOULD use nix flakes for project dependencies.
-    - You SHOULD leverage direnv for automatic environment activation.
-    - You MUST test commands in nix-shell before committing to scripts.
+    MUST use serena_get_symbols_overview first when exploring files.
+    MUST check tool availability via nix-shell -p <package> before use.
+    SHOULD run tools in isolated nix-shell environments.
 
     ## Validation Rules
+    ### Pre-execution
+    MUST run bd onboard before anything else.
+    MUST ensure tools available in nix-shell.
 
-    **Pre-execution**:
-    - [ ] You MUST run 'bd onboard' and follow the instructions BEFORE doing anything else.
-    - [ ] Project scope and tech stack understood
-    - [ ] Context files and documentation reviewed
-    - [ ] Required tools available in nix-shell
+    ### During execution
+    MUST include path/filename and purpose in comments.
+    MUST follow DRY, modularity, security principles.
+    MUST maintain existing patterns and conventions.
+    It is RECOMMENDED to fix LSP diagnostics if available.
 
-    **During execution**:
-    - [ ] Comments include path/filename and purpose
-    - [ ] Code follows DRY, modularity, security principles
-    - [ ] One file completed before starting next
-    - [ ] Existing patterns and conventions maintained
-
-    **Pre-commit**:
-    - [ ] All errors fixed and tested
-    - [ ] TODO comments added for incomplete work
-    - [ ] Edits deliver complete, refined code
-    - [ ] Changes tested in nix-shell environment
-    - [ ] Memory updated with new patterns/decisions
-
+    ### Pre-commit
+    MUST fix all errors and test before commit.
+    MUST add TODO for incomplete work.
+    MUST deliver complete, refined code.
+    MUST test changes in nix-shell.
+    MUST update memory with new patterns/decisions.
+    ALWAYS remove emojis in code.
   '';
 }
