@@ -6,17 +6,11 @@ function M.pick_agent()
   local active = ai_manager.get_active()
 
   if active then
-    if not ai_manager.is_session_valid(active) then
+    if not ai_manager.exists(active) then
       ai_manager.cleanup_terminal(active)
     else
-      local term_info = ai_manager.get_info(active)
-      if term_info and term_info.win and vim.api.nvim_win_is_valid(term_info.win) then
-        ai_manager.toggle(active)
-        return
-      elseif term_info then
-        ai_manager.activate(active)
-        return
-      end
+      ai_manager.activate(active)
+      return
     end
   end
 
@@ -73,11 +67,7 @@ function M.kill_and_pick()
   local active = ai_manager.get_active()
 
   if active then
-    ai_manager.kill_tmux_session(active)
-    local term_info = ai_manager.get_info(active)
-    if term_info and term_info.buf and vim.api.nvim_buf_is_valid(term_info.buf) then
-      vim.api.nvim_buf_delete(term_info.buf, { force = true })
-    end
+    ai_manager.close(active)
   end
 
   M.pick_agent()
@@ -92,11 +82,7 @@ function M.kill_active()
     return
   end
 
-  ai_manager.kill_tmux_session(active)
-  local term_info = ai_manager.get_info(active)
-  if term_info and term_info.buf and vim.api.nvim_buf_is_valid(term_info.buf) then
-    vim.api.nvim_buf_delete(term_info.buf, { force = true })
-  end
+  ai_manager.close(active)
   vim.notify("AI session killed", vim.log.levels.INFO)
 end
 
