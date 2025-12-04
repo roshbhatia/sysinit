@@ -185,6 +185,22 @@ with lib;
             default = [ ];
             description = "Additional MCP servers in list format";
           };
+
+          neovim = {
+            socketDir = mkOption {
+              type = types.str;
+              default = "/tmp/nvim";
+              description = "Directory for Neovim socket files";
+            };
+            
+            enableDynamicSockets = mkOption {
+              type = types.bool;
+              default = true;
+              description = "Enable process-specific socket paths to avoid collisions";
+            };
+          };
+
+          
         };
       };
 

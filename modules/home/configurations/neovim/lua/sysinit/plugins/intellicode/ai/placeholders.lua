@@ -156,6 +156,49 @@ local PLACEHOLDERS = {
     provider = context.get_visual_selection,
   },
   {
+    token = "@osgrep",
+    description = "osgrep results for current search (top matches)",
+    provider = function(state)
+      local q = context.get_search_pattern()
+      if not q or q == "" then
+        return ""
+      end
+      -- shell-escape the query
+      local esc = vim.fn.shellescape(q)
+      local cmd = "osgrep -n --max 10 " .. esc .. " . 2>/dev/null"
+      local handle = io.popen(cmd)
+      if not handle then return "" end
+      local out = handle:read("*a") or ""
+      handle:close()
+      return out:gsub("^%s*(.-)%s*$", "%1")
+    end,
+  },
+  {
+    token = "@osgrep_paths",
+    description = "Files matching current osgrep search",
+    provider = function(state)
+      local q = context.get_search_pattern()
+      if not q or q == "" then
+        return ""
+      end
+      local esc = vim.fn.shellescape(q)
+      local cmd = "osgrep -n --max 50 " .. esc .. " . 2>/dev/null"
+      local handle = io.popen(cmd)
+      if not handle then return "" end
+      local out = handle:read("*a") or ""
+      handle:close()
+      local seen = {}
+      for line in out:gmatch("[^\r\n]+") do
+        local p = line:match("^([^:]+):")
+        if p and p ~= "" then seen[p] = true end
+      end
+      local paths = {}
+      for p,_ in pairs(seen) do table.insert(paths, p) end
+      table.sort(paths)
+      return table.concat(paths, ", ")
+    end,
+  },
+  {
     token = "@buffer",
     description = "Current buffer's file path",
     provider = function(state)

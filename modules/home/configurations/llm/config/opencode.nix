@@ -44,16 +44,8 @@ let
 
     permission = {
       webfetch = "allow";
-    };
-
-    # Disable internal tools to force usage of serena
-    tools = {
-      bash = false;
-      edit = false;
-      grep = false;
-      patch = false;
-      read = false;
-      write = false;
+      grep = "allow";
+      read = "allow";
     };
   };
 in
