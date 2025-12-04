@@ -20,7 +20,7 @@ let
         "mcp-neovim-server"
       ];
       env = {
-        ALLOW_SHELL_COMMANDS = true;
+        "ALLOW_SHELL_COMMANDS" = true;
       };
     };
     serena = {
