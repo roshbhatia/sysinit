@@ -92,7 +92,6 @@ let
     nix-your-shell
     nixfmt-rfc-style
     nodejs_22
-    nushell
     oh-my-posh
     openscad
     openscad-lsp

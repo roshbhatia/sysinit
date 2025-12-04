@@ -24,23 +24,45 @@ rec {
 
   palettes = {
     macchiato = utils.validatePalette {
-
+      # Core background colors
       base = "#24273a";
       mantle = "#1e2030";
       crust = "#181926";
 
+      # Surface colors (for UI elements)
+      surface = "#363a4f";
       surface0 = "#363a4f";
       surface1 = "#494d64";
       surface2 = "#5b6078";
+      surface_alt = "#494d64";
 
+      # Overlay colors (for floating elements)
+      overlay = "#494d64";
       overlay0 = "#6e738d";
       overlay1 = "#8087a2";
       overlay2 = "#939ab7";
 
+      # Text colors
       text = "#cad3f5";
       subtext0 = "#a5adcb";
       subtext1 = "#b8c0e0";
 
+      # Semantic aliases for compatibility
+      bg = "#24273a";
+      bg_alt = "#363a4f";
+      bg1 = "#494d64";
+      fg = "#cad3f5";
+      fg_alt = "#b8c0e0";
+      comment = "#6e738d";
+      subtle = "#8087a2";
+      muted = "#6e738d";
+
+      # Highlight colors for selections
+      highlight_low = "#363a4f";
+      highlight_med = "#494d64";
+      highlight_high = "#5b6078";
+
+      # Palette colors
       rosewater = "#f4dbd6";
       flamingo = "#f0c6c6";
       pink = "#f5bde6";
@@ -55,8 +77,15 @@ rec {
       sapphire = "#7dc4e4";
       blue = "#8aadf4";
       lavender = "#b7bdf8";
+      purple = "#c6a0f6";
+      orange = "#f5a97f";
+      cyan = "#8bd5ca";
+      magenta = "#f5bde6";
 
+      # Accent colors
       accent = "#8aadf4";
+      accent_secondary = "#8bd5ca";
+      accent_tertiary = "#c6a0f6";
       accent_dim = "#494d64";
     };
   };
@@ -86,12 +115,12 @@ rec {
     sketchybar = {
       background = palettes.macchiato.base;
       foreground = palettes.macchiato.text;
-      inherit (palettes.macchiato) accent;
+      accent = palettes.macchiato.accent;
       warning = palettes.macchiato.yellow;
       success = palettes.macchiato.green;
       error = palettes.macchiato.red;
       info = palettes.macchiato.blue;
-      muted = palettes.macchiato.subtext0;
+      muted = palettes.macchiato.muted;
       highlight = palettes.macchiato.pink;
     };
   };
