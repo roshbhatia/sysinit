@@ -30,6 +30,7 @@
     ./vivid
     ./wezterm
     ./yazi
+    ./zoxide
     ./zsh
   ];
 }

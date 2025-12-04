@@ -13,8 +13,9 @@ in
 {
   programs.atuin = {
     enable = true;
-    # This is enabled manually
+    # These are enabled manually for zsh, but we let home-manager handle nushell
     enableZshIntegration = false;
+    enableNushellIntegration = true;
 
     settings = {
       update_check = false;
