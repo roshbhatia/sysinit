@@ -93,7 +93,6 @@ let
     nixfmt-rfc-style
     nodejs_22
     oh-my-posh
-    # ollama
     openscad
     openscad-lsp
     openssh
@@ -126,7 +125,6 @@ let
     tfsec
     tig
     tlrc
-    tmux
     typescript
     typescript-language-server
     upbound
