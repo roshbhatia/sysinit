@@ -1,7 +1,5 @@
 require("sysinit.config.pre.profiler").setup()
 
-vim.fn.serverstart("/tmp/nvim/" .. vim.uv.os_getpid())
-
 vim.env.PATH = vim.fn.getenv("PATH")
 ---@diagnostic disable-next-line: inject-field
 package.path = package.path
