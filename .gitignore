@@ -1,22 +1,18 @@
 # Nix build outputs
 result
 result-*
+**/dist/
 
 # Flake outputs
 .direnv/
 
-# Ignore all dist folders
-**/dist/
-
 # Nix
 **/nix-darwin-master/
 **/*.old
-
-.claude/settings.local.json
-.serena/cache/nix/document_symbols_cache_v23-06-25.pkl
-
-# Local Nix configuration with secrets (GitHub tokens, etc.)
 nix.secrets.conf
-*.secrets.conf
-!.specify/
-!specs/
+
+# AI Tooling
+.claude/settings.local.json
+.serena
+!AGENTS.md
+
