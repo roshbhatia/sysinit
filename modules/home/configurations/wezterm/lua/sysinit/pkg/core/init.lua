@@ -7,7 +7,7 @@ local function get_basic_config()
   local nix_bin = "/etc/profiles/per-user/" .. username .. "/bin"
 
   local shells = {
-    zsh = { nix_bin .. "/zsh" },
+    nu = { nix_bin .. "/nu" },
   }
 
   return {
@@ -18,7 +18,7 @@ local function get_basic_config()
     automatically_reload_config = true,
     pane_focus_follows_mouse = false,
     status_update_interval = 20,
-    default_prog = shells.zsh,
+    default_prog = shells.nu,
   }
 end
 
