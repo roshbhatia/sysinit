@@ -26,13 +26,13 @@ in
   programs.nushell = {
     enable = true;
 
-    shellAliases = lib.foldl' (acc: aliases: acc // aliases) { } (
+    shellAliases = lib.mkForce (lib.foldl' (acc: aliases: acc // aliases) { } (
       lib.flatten [
         sharedAliases.navigation
-        sharedAliases.listing
-        sharedAliases.tools
+        (builtins.removeAttrs sharedAliases.listing [ "ls" ])
+        (sharedAliases.tools // { cat = "bat -pp"; })
       ]
-    );
+    ));
 
     environmentVariables = {
       LANG = sharedEnv.LANG;

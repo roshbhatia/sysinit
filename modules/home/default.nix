@@ -51,14 +51,36 @@
     shellAliases = {
       sudo = "sudo -E";
 
+      "....." = "cd ../../../..";
+      "...." = "cd ../../..";
+      "..." = "cd ../..";
+      ".." = "cd ..";
+      "~" = "cd ~";
+
+      cat = "bat -pp";
+      l = "eza --icons=always -1";
+      la = "eza --icons=always -1 -a";
+      ll = "eza --icons=always -l -a";
+      ls = "eza";
+      lt = "eza --icons=always -1 -a -T --git-ignore --ignore-glob='.git'";
+      tree = "eza --tree --icons=never";
+      zi = "__zoxide_zi";
+
+      diff = "diff --color";
       f = "yazi";
       h = "hx";
+      v = "nvim";
       vimdiff = "nvim -n -c 'DiffviewOpen'";
 
+      grep = "grep -s --color=auto";
       sg = "ast-grep";
 
+      g = "git";
       lg = "lazygit";
 
+      tf = "terraform";
+
+      kubectl = "kubecolor";
       k = "kubectl";
       kg = "kubectl get";
       kd = "kubectl describe";
