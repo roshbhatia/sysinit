@@ -13,6 +13,16 @@ let
       ];
       description = "Structural code search and refactoring with ast-grep. Provides AST-based pattern matching for semantic code search across multiple languages.";
     };
+    neovim = {
+      command = "npx";
+      args = [
+        "-y"
+        "mcp-neovim-server"
+      ];
+      env = {
+        ALLOW_SHELL_COMMANDS = true;
+      };
+    };
     serena = {
       command = "nix";
       args = [

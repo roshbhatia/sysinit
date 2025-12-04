@@ -39,8 +39,9 @@
 
     ## Tool Usage
     MUST use serena_get_symbols_overview first when exploring files.
-    MUST check tool availability via nix-shell -p <package> before use.
+    MUST use serena and astgrep over internal tools exploring files.
     SHOULD run tools in isolated nix-shell environments.
+    MUST use the neovim mcp server to allow the user to follow along with your changes.
 
     ## Validation Rules
     ### Pre-execution
@@ -51,7 +52,7 @@
     MUST include path/filename and purpose in comments.
     MUST follow DRY, modularity, security principles.
     MUST maintain existing patterns and conventions.
-    It is RECOMMENDED to fix LSP diagnostics if available.
+    MUST fix LSP diagnostics if available.
 
     ### Pre-commit
     MUST fix all errors and test before commit.
