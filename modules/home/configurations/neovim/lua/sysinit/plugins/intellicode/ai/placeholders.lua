@@ -167,7 +167,9 @@ local PLACEHOLDERS = {
       local esc = vim.fn.shellescape(q)
       local cmd = "osgrep -n --max 10 " .. esc .. " . 2>/dev/null"
       local handle = io.popen(cmd)
-      if not handle then return "" end
+      if not handle then
+        return ""
+      end
       local out = handle:read("*a") or ""
       handle:close()
       return out:gsub("^%s*(.-)%s*$", "%1")
@@ -184,16 +186,22 @@ local PLACEHOLDERS = {
       local esc = vim.fn.shellescape(q)
       local cmd = "osgrep -n --max 50 " .. esc .. " . 2>/dev/null"
       local handle = io.popen(cmd)
-      if not handle then return "" end
+      if not handle then
+        return ""
+      end
       local out = handle:read("*a") or ""
       handle:close()
       local seen = {}
       for line in out:gmatch("[^\r\n]+") do
         local p = line:match("^([^:]+):")
-        if p and p ~= "" then seen[p] = true end
+        if p and p ~= "" then
+          seen[p] = true
+        end
       end
       local paths = {}
-      for p,_ in pairs(seen) do table.insert(paths, p) end
+      for p, _ in pairs(seen) do
+        table.insert(paths, p)
+      end
       table.sort(paths)
       return table.concat(paths, ", ")
     end,

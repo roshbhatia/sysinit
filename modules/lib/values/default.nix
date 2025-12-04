@@ -192,7 +192,7 @@ with lib;
               default = "/tmp/nvim";
               description = "Directory for Neovim socket files";
             };
-            
+
             enableDynamicSockets = mkOption {
               type = types.bool;
               default = true;
@@ -200,7 +200,6 @@ with lib;
             };
           };
 
-          
         };
       };
 

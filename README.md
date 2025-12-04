@@ -96,6 +96,8 @@ task: Available tasks for this project:
 | `icon` | string? | null |  | Icon URL for the search engine |
 | `krew.additionalPackages` | list(string) | [] |  | Additional kubectl krew plugins |
 | `llm.mcp.additionalServers` | listOf (attrsOf anything) | [] |  | Additional MCP servers in list format |
+| `llm.mcp.neovim.enableDynamicSockets` | boolean | true |  | Enable process-specific socket paths to avoid collisions |
+| `llm.mcp.neovim.socketDir` | string | "/tmp/nvim" |  | Directory for Neovim socket files |
 | `llm.mcp.servers` | attrsOf (attrsOf anything) | `{ }` |  | Additional MCP servers configuration |
 | `nix.additionalPackages` | list(string) | [] |  | Additional Nix packages |
 | `npm.additionalPackages` | list(string) | [] |  | Additional global npm packages |
