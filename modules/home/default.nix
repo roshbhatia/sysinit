@@ -81,14 +81,14 @@
       tf = "terraform";
 
       kubectl = "kubecolor";
-      k = "kubectl";
-      kg = "kubectl get";
-      kd = "kubectl describe";
-      ke = "kubectl edit";
-      ka = "kubectl apply";
-      kpf = "kubectl port-forward";
-      kdel = "kubectl delete";
-      klog = "kubectl logs";
+      k = "kubecolor";
+      kg = "kubecolor get";
+      kd = "kubecolor describe";
+      ke = "kubecolor edit";
+      ka = "kubecolor apply";
+      kpf = "kubecolor port-forward";
+      kdel = "kubecolor delete";
+      klog = "kubecolor logs";
     };
 
     activation.setBash = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''

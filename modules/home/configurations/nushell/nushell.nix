@@ -16,10 +16,8 @@ let
   appTheme = themes.getAppTheme "vivid" validatedTheme.colorscheme validatedTheme.variant;
   sharedAliases = shell.aliases;
 
-  # Get all paths for PATH variable
   pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;
 
-  # FZF options as a single string
   fzfOpts = builtins.concatStringsSep " " [
     "--bind='resize:refresh-preview'"
     "--color=bg+:-1,bg:-1,spinner:${colors.accent.primary},hl:${colors.accent.primary}"
@@ -47,16 +45,16 @@ in
   programs.nushell = {
     enable = true;
 
-    # Aliases - use mkForce to override home.shellAliases conflicts
-    shellAliases = lib.mkForce (lib.foldl' (acc: aliases: acc // aliases) { } (
-      lib.flatten [
-        sharedAliases.navigation
-        (builtins.removeAttrs sharedAliases.listing [ "ls" ])
-        (sharedAliases.tools // { cat = "bat -pp"; })
-      ]
-    ));
+    shellAliases = lib.mkForce (
+      lib.foldl' (acc: aliases: acc // aliases) { } (
+        lib.flatten [
+          sharedAliases.navigation
+          (builtins.removeAttrs sharedAliases.listing [ "ls" ])
+          (sharedAliases.tools // { cat = "bat -pp"; })
+        ]
+      )
+    );
 
-    # Environment variables - properly typed for nushell
     environmentVariables = {
       LANG = "en_US.UTF-8";
       LC_ALL = "en_US.UTF-8";
@@ -150,7 +148,6 @@ in
       }
     '';
 
-    # Environment file - PATH setup and shortcuts
     envFile.text = ''
       # PATH configuration
       # Add paths that exist to the PATH
@@ -165,10 +162,10 @@ in
 
       # Directory shortcuts - define as functions
       ${lib.concatStringsSep "\n" (
-        lib.mapAttrsToList (name: value: 
+        lib.mapAttrsToList (
+          name: value:
           let
-            # Replace $HOME with $env.HOME for nushell compatibility
-            nuValue = lib.replaceStrings ["$HOME"] ["$env.HOME"] value;
+            nuValue = lib.replaceStrings [ "$HOME" ] [ "$env.HOME" ] value;
           in
           "def --env ${name} [] { ${nuValue} }"
         ) sharedAliases.shortcuts
