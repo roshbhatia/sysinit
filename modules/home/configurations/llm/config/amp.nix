@@ -1,10 +1,14 @@
 {
+  lib,
+  pkgs,
+  config,
   values,
   ...
 }:
 let
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   common = import ../shared/common.nix;
+  writableConfigs = import ../shared/writable-configs.nix { inherit lib pkgs config; };
 
   ampConfig = builtins.toJSON {
     "amp.git.commit.ampThread.enabled" = false;
@@ -41,10 +45,14 @@ let
       }
     ];
   };
+
+  # Create writable config file
+  ampConfigFile = writableConfigs.mkWritableConfig {
+    path = "amp/settings.json";
+    text = ampConfig;
+    force = false; # Preserve user edits when source unchanged
+  };
 in
 {
-  xdg.configFile."amp/settings.json" = {
-    text = ampConfig;
-    force = true;
-  };
+  home.activation.ampConfig = ampConfigFile.activation;
 }

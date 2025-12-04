@@ -1,10 +1,17 @@
-{ lib, values, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  values,
+  ...
+}:
 let
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   lsp = import ../shared/lsp.nix;
   common = import ../shared/common.nix;
   prompts = import ../shared/prompts.nix { };
   directives = import ../shared/directives.nix;
+  writableConfigs = import ../shared/writable-configs.nix { inherit lib pkgs config; };
 
   themes = import ../../../../lib/theme { inherit lib; };
 
@@ -48,14 +55,23 @@ let
       read = "allow";
     };
   };
+
+  # Create writable config files
+  opencodeConfigFile = writableConfigs.mkWritableConfig {
+    path = "opencode/opencode.json";
+    text = opencodeConfig;
+    force = false; # Preserve user edits when source unchanged
+  };
+
+  opencodeAgentsFile = writableConfigs.mkWritableConfig {
+    path = "opencode/AGENTS.md";
+    text = agentsMd;
+    force = false; # Preserve user edits when source unchanged
+  };
 in
 {
-  xdg.configFile."opencode/opencode.json" = {
-    text = opencodeConfig;
-    force = true;
-  };
-  xdg.configFile."opencode/AGENTS.md" = {
-    text = agentsMd;
-    force = true;
+  home.activation = {
+    opencodeConfig = opencodeConfigFile.activation;
+    opencodeAgents = opencodeAgentsFile.activation;
   };
 }

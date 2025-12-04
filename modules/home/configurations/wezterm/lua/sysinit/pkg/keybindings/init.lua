@@ -40,17 +40,14 @@ end
 
 local function get_pane_keys()
   return {
-    -- Move
     { key = "h", mods = "CTRL", action = pane_keybinding("move", "h", "CTRL") },
     { key = "j", mods = "CTRL", action = pane_keybinding("move", "j", "CTRL") },
     { key = "k", mods = "CTRL", action = pane_keybinding("move", "k", "CTRL") },
     { key = "l", mods = "CTRL", action = pane_keybinding("move", "l", "CTRL") },
-    -- Resize
     { key = "h", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "h", "CTRL|SHIFT") },
     { key = "j", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "j", "CTRL|SHIFT") },
     { key = "k", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "k", "CTRL|SHIFT") },
     { key = "l", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "l", "CTRL|SHIFT") },
-    -- Splits
     {
       key = "s",
       mods = "CTRL",
@@ -61,15 +58,9 @@ local function get_pane_keys()
       mods = "CTRL",
       action = wezterm.action.SplitHorizontal({ domain = "CurrentPaneDomain" }),
     },
-    -- Close
     {
       key = "w",
       mods = "CTRL",
-      action = vim_or_wezterm_action("w", "CTRL", act.CloseCurrentPane({ confirm = true })),
-    },
-    {
-      key = "w",
-      mods = "CMD",
       action = vim_or_wezterm_action("w", "CTRL", act.CloseCurrentPane({ confirm = true })),
     },
   }
@@ -79,7 +70,7 @@ local function get_clear_keys()
   return {
     {
       key = "k",
-      mods = "CMD",
+      mods = "CTRL",
       action = wezterm.action_callback(function(win, pane)
         if should_passthrough(pane) then
           win:perform_action({
@@ -99,7 +90,7 @@ end
 local function get_pallete_keys()
   return {
     {
-      key = "/",
+      key = "Space",
       mods = "CTRL|SHIFT",
       action = act.ActivateCommandPalette,
     },
@@ -183,14 +174,9 @@ local function get_window_keys()
       action = act.SpawnWindow,
     },
     {
-      key = "r",
-      mods = "CMD",
-      action = act.ReloadConfiguration,
-    },
-    {
       key = "w",
       mods = "CTRL|SHIFT",
-      action = act.CloseCurrentTab({ confirm = true }),
+      action = act.CloseCurrentTab({ confirm = false }),
     },
   }
 end
@@ -202,21 +188,14 @@ local function get_tab_keys()
       mods = "CTRL",
       action = act.SpawnTab("CurrentPaneDomain"),
     },
-    -- Tab cycling
     {
-      key = "Tab",
-      mods = "CTRL|SHIFT",
-      action = act.ActivateTabRelative(-1),
-    },
-    -- Quick bracket navigation
-    {
-      key = "]",
-      mods = "CTRL|SHIFT",
+      key = ",",
+      mods = "CTRL",
       action = act.ActivateTabRelative(1),
     },
     {
-      key = "[",
-      mods = "CTRL|SHIFT",
+      key = ".",
+      mods = "CTRL",
       action = act.ActivateTabRelative(-1),
     },
     -- Direct tab access
@@ -266,25 +245,14 @@ end
 local function get_search_keys()
   return {
     {
-      key = "5",
-      mods = "CTRL|SHIFT",
+      key = "Escape",
+      mods = "CTRL",
       action = act.ActivateCopyMode,
     },
     {
-      key = "Enter",
-      mods = "SHIFT",
-      action = wezterm.action_callback(function(win, pane)
-        if should_passthrough(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "Enter",
-              mods = "SHIFT",
-            },
-          }, pane)
-        else
-          win:perform_action(act.QuickSelect)
-        end
-      end),
+      key = "f",
+      mods = "CTRL",
+      action = act.QuickSelect,
     },
     {
       key = "/",
@@ -299,7 +267,7 @@ local function get_transparency_keys()
     {
       key = "t",
       mods = "CTRL|ALT",
-      action = wezterm.action_callback(function(win, pane)
+      action = wezterm.action_callback(function(win)
         local overrides = win:get_config_overrides() or {}
         local current_opacity = overrides.window_background_opacity or 1.0
 

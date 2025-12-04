@@ -1,8 +1,15 @@
-{ lib, values, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  values,
+  ...
+}:
 let
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   common = import ../shared/common.nix;
   directives = import ../shared/directives.nix;
+  writableConfigs = import ../shared/writable-configs.nix { inherit lib pkgs config; };
 
   gooseHintsMd = ''
     ${directives.general}
@@ -20,15 +27,23 @@ let
     }
     // (common.formatPermissionsForGoose common.commonShellPermissions)
   );
-in
-{
-  xdg.configFile."goose/config.yaml" = {
+
+  # Create writable config files
+  gooseConfigFile = writableConfigs.mkWritableConfig {
+    path = "goose/config.yaml";
     text = gooseConfig;
-    force = true;
+    force = false; # Preserve user edits when source unchanged
   };
 
-  xdg.configFile."goose/goosehints.md" = {
+  gooseHintsFile = writableConfigs.mkWritableConfig {
+    path = "goose/goosehints.md";
     text = gooseHintsMd;
-    force = true;
+    force = false; # Preserve user edits when source unchanged
+  };
+in
+{
+  home.activation = {
+    gooseConfig = gooseConfigFile.activation;
+    gooseHints = gooseHintsFile.activation;
   };
 }

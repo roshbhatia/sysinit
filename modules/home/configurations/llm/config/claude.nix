@@ -1,10 +1,14 @@
 {
+  lib,
+  pkgs,
+  config,
   values,
   ...
 }:
 let
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   common = import ../shared/common.nix;
+  writableConfigs = import ../shared/writable-configs.nix { inherit lib pkgs config; };
 
   claudeConfig = builtins.toJSON {
     mcpServers = common.formatMcpForClaude mcpServers.servers;
@@ -34,15 +38,24 @@ let
         echo ""
     done
   '';
-in
-{
-  xdg.configFile."Claude/claude_desktop_config.json" = {
+
+  # Create writable config files
+  claudeConfigFile = writableConfigs.mkWritableConfig {
+    path = "Claude/claude_desktop_config.json";
     text = claudeConfig;
-    force = true;
+    force = false; # Preserve user edits when source unchanged
   };
-  xdg.configFile."claude/hooks/append_agentsmd_context.sh" = {
+
+  claudeHookScriptFile = writableConfigs.mkWritableConfig {
+    path = "claude/hooks/append_agentsmd_context.sh";
     text = claudeHookScript;
     executable = true;
-    force = true;
+    force = false; # Preserve user edits when source unchanged
+  };
+in
+{
+  home.activation = {
+    claudeConfig = claudeConfigFile.activation;
+    claudeHook = claudeHookScriptFile.activation;
   };
 }

@@ -7,7 +7,6 @@ let
   additionalPackages = values.nix.additionalPackages or [ ];
 
   baseNixPackages = with pkgs; [
-    _3270font
     ansible
     ansible-lint
     argc
@@ -60,8 +59,6 @@ let
     gopls
     gum
     helm-ls
-    intelli-shell
-    jetbrains-mono
     jira-cli-go
     jq
     jq-lsp
