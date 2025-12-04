@@ -31,16 +31,29 @@ let
     share = "disabled";
     theme = opencodeTheme;
     autoupdate = true;
+
     mcp = common.formatMcpForOpencode mcpServers.servers;
     lsp = common.formatLspForOpencode lsp.lsp;
+
     agent = prompts.toAgents;
     instructions = instructions;
+
     keybinds = {
       leader = "ctrl+f";
     };
+
     permission = {
       webfetch = "allow";
-      bash = common.formatPermissionsForOpencode common.commonShellPermissions;
+    };
+
+    # Disable internal tools to force usage of serena
+    tools = {
+      bash = false;
+      edit = false;
+      grep = false;
+      patch = false;
+      read = false;
+      write = false;
     };
   };
 in
