@@ -20,7 +20,7 @@ let
         "mcp-neovim-server"
       ];
       env = {
-        "ALLOW_SHELL_COMMANDS" = true;
+        "ALLOW_SHELL_COMMANDS" = "true";
       };
     };
     serena = {
@@ -37,14 +37,9 @@ let
     };
   };
 
-  # Additional servers from values file (attrset format)
   additionalServersAttrset = values.llm.mcp.servers or { };
-
-  # Additional servers from values file (list format)
-  # Format: [{ name = "server-name"; url = "..."; type = "http"; description = "..."; }]
   additionalServersList = values.llm.mcp.additionalServers or [ ];
 
-  # Convert list format to attrset
   additionalServersFromList = builtins.listToAttrs (
     map (server: {
       inherit (server) name;
