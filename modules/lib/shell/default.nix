@@ -10,4 +10,10 @@
       nonHeaderLines = builtins.filter (line: !(isHeaderLine line)) lines;
     in
     lib.concatStringsSep "\n" nonHeaderLines;
+
+  aliases = import ./aliases.nix;
+
+  env =
+    { config, colors, appTheme }:
+    import ./env.nix { inherit config lib colors appTheme; };
 }

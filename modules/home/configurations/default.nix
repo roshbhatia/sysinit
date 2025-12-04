@@ -23,6 +23,7 @@
     ./llm
     ./macchina
     ./neovim
+    ./nushell
     ./omp
     ./sketchybar
     ./utils
