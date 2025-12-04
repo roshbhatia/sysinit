@@ -195,9 +195,10 @@ in
         /* ========== URL BAR ========== */
 
         #urlbar-container {
-            min-width: 500px !important;
+            min-width: 600px !important;
             flex: 1 !important;
-            padding-top: 3px !important;
+            padding-top: 6px !important;
+            margin-top: 2px !important;
         }
 
         #urlbar {
@@ -443,7 +444,7 @@ in
         /* Navbar size calc */
         :root {
             --tab-border-radius: 6px !important;
-            --NavbarWidth: 43;
+            --NavbarWidth: 50;
             --TabsHeight: 36;
             --TabsBorder: 8;
             --NavbarHeightSmall: calc(var(--TabsHeight) + var(--TabsBorder));
