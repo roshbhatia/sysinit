@@ -14,6 +14,17 @@
   aliases = import ./aliases.nix;
 
   env =
-    { config, colors, appTheme }:
-    import ./env.nix { inherit config lib colors appTheme; };
+    {
+      config,
+      colors,
+      appTheme,
+    }:
+    import ./env.nix {
+      inherit
+        config
+        lib
+        colors
+        appTheme
+        ;
+    };
 }

@@ -273,13 +273,15 @@ function M.get_git_status()
   -- Get git status for current buffer's file
   local buf = vim.api.nvim_get_current_buf()
   local filepath = vim.api.nvim_buf_get_name(buf)
-  
+
   if filepath == "" then
     return "Not in a git repository or no file"
   end
 
-  local result = vim.fn.system("git -C " .. vim.fn.shellescape(vim.fn.fnamemodify(filepath, ":h")) .. " status --short --branch 2>/dev/null")
-  
+  local result = vim.fn.system(
+    "git -C " .. vim.fn.shellescape(vim.fn.fnamemodify(filepath, ":h")) .. " status --short --branch 2>/dev/null"
+  )
+
   if vim.v.shell_error ~= 0 then
     return "Not in a git repository"
   end
@@ -295,7 +297,7 @@ function M.get_git_diff()
   -- Get git diff for current buffer's file
   local buf = vim.api.nvim_get_current_buf()
   local filepath = vim.api.nvim_buf_get_name(buf)
-  
+
   if filepath == "" then
     return "No file"
   end
@@ -310,9 +312,11 @@ function M.get_git_diff()
 
   -- Get relative path from repo root
   local rel_path = filepath:sub(#repo_root + 2)
-  
-  local result = vim.fn.system("git -C " .. vim.fn.shellescape(repo_root) .. " diff " .. vim.fn.shellescape(rel_path) .. " 2>/dev/null")
-  
+
+  local result = vim.fn.system(
+    "git -C " .. vim.fn.shellescape(repo_root) .. " diff " .. vim.fn.shellescape(rel_path) .. " 2>/dev/null"
+  )
+
   if vim.v.shell_error ~= 0 or result == "" then
     return "No changes in current file"
   end

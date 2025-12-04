@@ -60,7 +60,10 @@ function M.setup(opts)
   -- Store the parent pane ID (the neovim instance)
   parent_pane_id = get_current_pane_id()
   if not parent_pane_id then
-    vim.notify("Warning: Unable to determine WezTerm pane ID. AI terminals may not work correctly.", vim.log.levels.WARN)
+    vim.notify(
+      "Warning: Unable to determine WezTerm pane ID. AI terminals may not work correctly.",
+      vim.log.levels.WARN
+    )
   end
 
   if not augroup then
@@ -159,7 +162,13 @@ function M.open(termname)
       -- Set pane title if agent info available
       if agent then
         vim.defer_fn(function()
-          vim.fn.system(string.format("wezterm cli set-tab-title --pane-id %d %s 2>/dev/null", pane_id, vim.fn.shellescape(string.format("%s %s", agent.icon, agent.label))))
+          vim.fn.system(
+            string.format(
+              "wezterm cli set-tab-title --pane-id %d %s 2>/dev/null",
+              pane_id,
+              vim.fn.shellescape(string.format("%s %s", agent.icon, agent.label))
+            )
+          )
         end, 100)
       end
     else
@@ -260,7 +269,11 @@ function M.send(termname, text, opts)
   end
 
   -- Send text to the pane
-  local send_cmd = string.format("wezterm cli send-text --pane-id %d --no-paste %s 2>/dev/null", term_data.pane_id, vim.fn.shellescape(text))
+  local send_cmd = string.format(
+    "wezterm cli send-text --pane-id %d --no-paste %s 2>/dev/null",
+    term_data.pane_id,
+    vim.fn.shellescape(text)
+  )
   vim.fn.system(send_cmd)
 
   -- Submit if requested

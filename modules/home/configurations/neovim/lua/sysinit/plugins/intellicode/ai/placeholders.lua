@@ -42,7 +42,8 @@ local function get_this_context(state)
       while node do
         local node_type = node:type()
         -- Common semantic node types across languages
-        if node_type:match("function")
+        if
+          node_type:match("function")
           or node_type:match("method")
           or node_type:match("class")
           or node_type:match("struct")
@@ -97,13 +98,7 @@ local function get_this_context(state)
       local path = get_relative_path(state)
       local range = symbol.range or symbol.location and symbol.location.range
       if range then
-        return string.format(
-          "@%s:%d-%d (%s)",
-          path,
-          range.start.line + 1,
-          range["end"].line + 1,
-          symbol.name
-        )
+        return string.format("@%s:%d-%d (%s)", path, range.start.line + 1, range["end"].line + 1, symbol.name)
       end
     end
   end

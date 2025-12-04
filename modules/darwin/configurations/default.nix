@@ -3,7 +3,6 @@
   imports = [
     ./aerospace
     ./borders
-    ./cudgel
     ./dock
     ./docker
     ./environment
