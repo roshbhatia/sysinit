@@ -13,13 +13,13 @@ in
   options.sysinit.theme = {
     colorscheme = mkOption {
       type = types.enum (attrNames themes.themes);
-      default = "catppuccin";
+      default = "rose-pine";
       description = "The color scheme to use system-wide";
     };
 
     variant = mkOption {
       type = types.enum allVariants;
-      default = "macchiato";
+      default = "moon";
       description = "The variant of the chosen color scheme";
     };
 
