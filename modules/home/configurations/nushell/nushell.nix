@@ -112,7 +112,6 @@ in
         }
       ]
 
-      # Wezterm shell integration - update working directory on PWD changes
       if (which wezterm | is-not-empty) {
         $env.config.hooks.env_change.PWD = (
           $env.config.hooks.env_change.PWD?
@@ -123,26 +122,15 @@ in
         )
       }
 
-      # Macchina greeting (only in interactive terminal, not in nvim or wezterm pane)
-      if ($env.WEZTERM_PANE? | is-empty) and ($env.NVIM? | is-empty) {
-        if (which macchina | is-not-empty) {
-          let macchina_theme = ($env.MACCHINA_THEME? | default "rosh")
-          macchina --theme $macchina_theme
-        }
-      }
-
-      # oh-my-posh initialization (if available)
-      # Note: We use a fixed path since `source` requires parse-time constants
       const omp_cache = "~/.cache/omp.nu"
       if (which oh-my-posh | is-not-empty) {
-        # Generate the init script if it doesn't exist
         if not ($omp_cache | path expand | path exists) {
           try {
             oh-my-posh init nu --config ~/.config/oh-my-posh/themes/sysinit.omp.json | save --force ($omp_cache | path expand)
           } catch { }
         }
       }
-      # Source the cached script if it exists
+
       if ($omp_cache | path expand | path exists) {
         source ~/.cache/omp.nu
       }
