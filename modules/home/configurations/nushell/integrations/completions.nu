@@ -1,6 +1,15 @@
-try { source ~/.local/share/atuin/init.nu } catch { print "atuin not available" }
-try { source ~/.nix-profile/share/zoxide/init.nu } catch { print "zoxide not available" }
-try { source ~/.nix-profile/share/direnv/direnv.nu } catch { print "direnv not available" }
+# Conditionally source tool integrations if they're available
+if (which atuin | is-not-empty) {
+  source ($nu.config-dir | path join "integrations/atuin.nu")
+}
+
+if (which zoxide | is-not-empty) {
+  source ($nu.config-dir | path join "integrations/zoxide.nu")
+}
+
+if (which direnv | is-not-empty) {
+  source ($nu.config-dir | path join "integrations/direnv.nu")
+}
 
 if (which carapace | is-not-empty) {
   let carapace_completer = {|spans| carapace $spans.0 nushell ...$spans | from json }

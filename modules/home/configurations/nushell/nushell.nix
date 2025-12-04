@@ -97,7 +97,13 @@ in
     envFile.text = ''
       # Shortcuts - define as functions in env file
       ${lib.concatStringsSep "\n" (
-        lib.mapAttrsToList (name: value: "def --env ${name} [] { ${value} }") sharedAliases.shortcuts
+        lib.mapAttrsToList (name: value: 
+          let
+            # Replace $HOME with $env.HOME for nushell compatibility
+            nuValue = lib.replaceStrings ["$HOME"] ["$env.HOME"] value;
+          in
+          "def --env ${name} [] { ${nuValue} }"
+        ) sharedAliases.shortcuts
       )}
     '';
   };
