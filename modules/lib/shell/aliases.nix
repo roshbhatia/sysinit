@@ -23,16 +23,30 @@
   tools = {
     code = "code-insiders";
     c = "code-insiders";
-    kubectl = "kubecolor";
     tf = "terraform";
     y = "yazi";
     v = "nvim";
     g = "git";
+    lg = "lazygit";
     diff = "diff --color";
     grep = "grep -s --color=auto";
     watch = "watch --quiet";
     cat = "bat";
     find = "fd";
+    sg = "ast-grep";
+  };
+
+  # Kubernetes aliases
+  kubernetes = {
+    kubectl = "kubecolor";
+    k = "kubecolor";
+    kg = "kubecolor get";
+    kd = "kubecolor describe";
+    ke = "kubecolor edit";
+    ka = "kubecolor apply";
+    kpf = "kubecolor port-forward";
+    kdel = "kubecolor delete";
+    klog = "kubecolor logs";
   };
 
   # Shortcuts (environment-changing functions)

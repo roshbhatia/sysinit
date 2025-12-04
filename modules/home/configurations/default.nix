@@ -20,6 +20,7 @@
     ./hammerspoon
     ./helix
     ./k9s
+    ./kubectl
     ./llm
     ./macchina
     ./neovim
