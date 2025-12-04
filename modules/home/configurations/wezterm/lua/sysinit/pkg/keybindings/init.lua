@@ -189,13 +189,13 @@ local function get_tab_keys()
       action = act.SpawnTab("CurrentPaneDomain"),
     },
     {
-      key = ".",
+      key = "p",
       mods = "CTRL",
       action = act.ActivateTabRelative(1),
     },
     {
-      key = ",",
-      mods = "CTRL",
+      key = "p",
+      mods = "CTRL|SHIFT",
       action = act.ActivateTabRelative(-1),
     },
     -- Direct tab access
