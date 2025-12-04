@@ -7,6 +7,7 @@ let
   additionalPackages = values.nix.additionalPackages or [ ];
 
   baseNixPackages = with pkgs; [
+    _3270font
     ansible
     ansible-lint
     argc
