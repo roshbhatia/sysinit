@@ -67,22 +67,29 @@ local function get_pane_keys()
 end
 
 local function get_clear_keys()
+  local clear_action = wezterm.action_callback(function(win, pane)
+    if should_passthrough(pane) then
+      win:perform_action({
+        SendKey = {
+          key = "k",
+          mods = "CMD",
+        },
+      }, pane)
+    else
+      win:perform_action(act.ClearScrollback("ScrollbackAndViewport"), pane)
+    end
+  end)
+
   return {
     {
       key = "k",
       mods = "CTRL",
-      action = wezterm.action_callback(function(win, pane)
-        if should_passthrough(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "k",
-              mods = "CMD",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ClearScrollback("ScrollbackAndViewport"), pane)
-        end
-      end),
+      action = clear_action,
+    },
+    {
+      key = "k",
+      mods = "CMD",
+      action = clear_action,
     },
   }
 end
