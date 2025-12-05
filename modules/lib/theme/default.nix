@@ -15,6 +15,7 @@ let
   solarized = import ./palettes/solarized.nix { inherit lib; };
   nord = import ./palettes/nord.nix { inherit lib; };
   everforest = import ./palettes/everforest.nix { inherit lib; };
+  blackMetal = import ./palettes/black-metal.nix { inherit lib; };
 
   weztermAdapter = import ./adapters/wezterm.nix { inherit lib; };
   neovimAdapter = import ./adapters/neovim.nix { inherit lib; };
@@ -30,6 +31,7 @@ let
     inherit solarized;
     inherit nord;
     inherit everforest;
+    black-metal = blackMetal;
   };
 
   getTheme =

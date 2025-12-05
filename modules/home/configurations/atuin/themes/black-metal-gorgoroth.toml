@@ -1,0 +1,12 @@
+[theme]
+name = "black-metal-gorgoroth"
+
+[colors]
+AlertInfo = "#888888"
+AlertWarn = "#8c7f70"
+AlertError = "#5f8787"
+Annotation = "#999999"
+Base = "#c1c1c1"
+Guidance = "#999999"
+Important = "#5f8787"
+Title = "#888888"
