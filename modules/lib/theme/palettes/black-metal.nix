@@ -34,6 +34,22 @@ rec {
       base08 = "#cc6666"; # Red - distinct washed red
       base09 = "#de935f"; # Orange - distinct washed orange
       base0A = "#f0c674"; # Yellow - distinct washed yellow
+      base0B = "#a5c25a"; # Green - distinct washed green (brighter)
+      base0C = "#8abeb7"; # Cyan - distinct washed cyan
+      base0D = "#81a2be"; # Blue - distinct washed blue
+      base0E = "#b294bb"; # Purple - distinct washed purple
+      base0F = "#444444"; # Deprecated/Special
+
+      # Compatibility aliases for semantic mapping
+      bg = "#000000";
+      bg_alt = "#121212";
+      surface = "#222222";
+      surface_alt = "#555555";
+      text = "#c1c1c1";
+      fg = "#c1c1c1";
+      fg_alt = "#aaaaaa";
+      comment = "#555555";
+
       # Semantic colors - expanded with distinct washed-out colors
       # Following industry standards:
       # - Red: errors, deletions, destructive actions
