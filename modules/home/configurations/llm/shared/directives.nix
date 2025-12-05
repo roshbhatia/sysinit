@@ -53,6 +53,7 @@
     MUST follow DRY, modularity, security principles.
     MUST maintain existing patterns and conventions.
     MUST fix LSP diagnostics if available.
+    RECCOMENDED that if attached to an existing neovim-mcp session, that you use the neovim-mcp if available to demonstrate what you are doing.
 
     ### Pre-commit
     MUST fix all errors and test before commit.
