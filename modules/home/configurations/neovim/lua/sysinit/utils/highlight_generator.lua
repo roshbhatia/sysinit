@@ -7,6 +7,7 @@ function M.generate_cursor_highlights(colors)
     CursorIM = { link = "Cursor" },
     TermCursor = { link = "Cursor" },
     TermCursorNC = { bg = colors.ui.cursor, fg = colors.background.primary },
+    -- Subtle greenish highlight for cursor line
     CursorLine = { bg = colors.ui.cursor_line },
     CursorColumn = { bg = colors.ui.cursor_line },
     CursorLineNr = { fg = colors.ui.line_number_active, bold = true },
@@ -232,8 +233,7 @@ function M.generate_transparency_highlights(transparency)
     "BlinkCmpSignatureHelp",
     "BlinkCmpSignatureHelpBorder",
     "ColorColumn",
-    "CursorColumn",
-    "CursorLine",
+    -- Removed CursorColumn and CursorLine to preserve subtle greenish highlight
     "CursorLineFold",
     "CursorLineNr",
     "CursorLineSign",

@@ -115,7 +115,7 @@ local function get_scroll_keys()
             SendKey = {
               key = "u",
               mods = "CTRL",
-            },
+            }fkj
           }, pane)
         else
           win:perform_action(act.ScrollByLine(-40), pane)

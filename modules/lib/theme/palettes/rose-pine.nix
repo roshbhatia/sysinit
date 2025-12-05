@@ -42,6 +42,9 @@ rec {
       highlight_low = "#2a283e";
       highlight_med = "#44415a";
       highlight_high = "#56526e";
+      
+      # Subtle greenish highlight for cursor line (works with transparency)
+      cursor_line_highlight = "#2a3a3a";
 
       bg = "#232136";
       bg_alt = "#2a273f";

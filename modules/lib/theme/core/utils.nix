@@ -265,12 +265,11 @@ rec {
 
     ui = {
       cursor = safeGetColor palette "accent" (safeGetColor palette "blue" "#0080ff");
-      cursor_line = blendColor (safeGetColor palette "base" (safeGetColor palette "bg" "#000000")) (
-        safeGetColor
-        palette
-        "surface"
-        (safeGetColor palette "bg_alt" "#111111")
-      ) 0.5;
+      cursor_line = safeGetColor palette "cursor_line_highlight" (
+        blendColor (safeGetColor palette "base" (safeGetColor palette "bg" "#000000")) (
+          safeGetColor palette "foam" (safeGetColor palette "green" "#00ff00")
+        ) 0.15
+      );
       visual_selection = safeGetColor palette "highlight_high" (
         safeGetColor palette "surface2" (safeGetColor palette "surface" "#333333")
       );

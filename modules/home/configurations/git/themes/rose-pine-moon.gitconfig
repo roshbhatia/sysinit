@@ -10,17 +10,18 @@
 	hunk-header-style = file line-number syntax
 	line-numbers-left-style = "#908caa"
 	line-numbers-minus-style = bold "#eb6f92"
+	# Greenish for additions - consistent with theme
 	line-numbers-plus-style = bold "#9ccfd8"
 	line-numbers-right-style = "#908caa"
 	line-numbers-zero-style = "#908caa"
-	# 25% red 75% base
-	minus-emph-style = bold syntax "#593947"
-	# 10% red 90% base
-	minus-style = syntax "#3e2e38"
-	# 25% green/blue 75% base
-	plus-emph-style = bold syntax "#3a4a4e"
-	# 10% green/blue 90% base
-	plus-style = syntax "#2e3c3e"
+	# Stronger red backgrounds for deletions - 30% red 70% base for better visibility
+	minus-emph-style = bold syntax "#6b3947"
+	# More subtle deletion background - 15% red 85% base
+	minus-style = syntax "#4a3238"
+	# Stronger greenish backgrounds for additions - 30% cyan/foam 70% base
+	plus-emph-style = bold syntax "#3d5a5e"
+	# More subtle addition background - 15% cyan/foam 85% base
+	plus-style = syntax "#314a4e"
 	map-styles = \
 		bold purple => syntax "#c4a7e7", \
 		bold blue => syntax "#9ccfd8", \
