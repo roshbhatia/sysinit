@@ -2,11 +2,11 @@
 name = "black-metal-gorgoroth"
 
 [colors]
-AlertInfo = "#81a2be"
-AlertWarn = "#f0c674"
-AlertError = "#cc6666"
+AlertInfo = "#8fb9d3"
+AlertWarn = "#ffd966"
+AlertError = "#e67373"
 Annotation = "#b294bb"
 Base = "#c1c1c1"
 Guidance = "#aaaaaa"
-Important = "#cc6666"
-Title = "#81a2be"
+Important = "#e67373"
+Title = "#8fb9d3"

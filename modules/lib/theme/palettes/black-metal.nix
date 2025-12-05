@@ -72,6 +72,15 @@ rec {
       pink = "#d0879f"; # Soft accent - washed pink
       lime = "#a5b76e"; # Success variant - washed lime
 
+      # Vibrant variants - for critical UX elements where visibility matters
+      # These are 30-40% more saturated while maintaining the palette harmony
+      red_vibrant = "#e67373"; # Vibrant red for LSP errors, critical diffs
+      orange_vibrant = "#f0a563"; # Vibrant orange for warnings, visual selection
+      yellow_vibrant = "#ffd966"; # Vibrant yellow for caution states
+      green_vibrant = "#b8d96b"; # Vibrant green for success, additions
+      blue_vibrant = "#8fb9d3"; # Vibrant blue for info, primary highlights
+      cyan_vibrant = "#96cec5"; # Vibrant cyan for focus states
+
       # UI semantic mappings following best practices
       accent = "#81a2be"; # Primary accent (blue - safe, neutral)
       accent_dim = "#222222"; # Dimmed background

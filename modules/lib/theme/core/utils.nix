@@ -244,10 +244,10 @@ rec {
     };
 
     semantic = {
-      success = safeGetColor palette "green" "#00ff00";
-      warning = safeGetColor palette "yellow" "#ffff00";
-      error = safeGetColor palette "red" "#ff0000";
-      info = safeGetColor palette "blue" "#0000ff";
+      success = safeGetColor palette "green_vibrant" (safeGetColor palette "green" "#00ff00");
+      warning = safeGetColor palette "yellow_vibrant" (safeGetColor palette "yellow" "#ffff00");
+      error = safeGetColor palette "red_vibrant" (safeGetColor palette "red" "#ff0000");
+      info = safeGetColor palette "blue_vibrant" (safeGetColor palette "blue" "#0000ff");
     };
 
     syntax = {
@@ -284,18 +284,18 @@ rec {
     diff =
       let
         base = safeGetColor palette "base" (safeGetColor palette "bg" "#000000");
-        green = safeGetColor palette "green" "#00ff00";
-        yellow = safeGetColor palette "yellow" "#ffff00";
-        red = safeGetColor palette "red" "#ff0000";
-        blue = safeGetColor palette "blue" "#0000ff";
+        green = safeGetColor palette "green_vibrant" (safeGetColor palette "green" "#00ff00");
+        yellow = safeGetColor palette "yellow_vibrant" (safeGetColor palette "yellow" "#ffff00");
+        red = safeGetColor palette "red_vibrant" (safeGetColor palette "red" "#ff0000");
+        blue = safeGetColor palette "blue_vibrant" (safeGetColor palette "blue" "#0000ff");
       in
       {
         add = green;
-        add_bg = blendColor base green 0.15;
+        add_bg = blendColor base green 0.20;
         change = yellow;
-        change_bg = blendColor base yellow 0.15;
+        change_bg = blendColor base yellow 0.20;
         delete = red;
-        delete_bg = blendColor base red 0.15;
+        delete_bg = blendColor base red 0.20;
         text = blue;
       };
 
