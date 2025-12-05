@@ -1,29 +1,25 @@
 [delta "black-metal-gorgoroth"]
-	blame-palette = "#121212 #000000 #222222 #333333 #444444"
-	commit-decoration-style = "#999999" bold box ul
+	blame-palette = "#121212 #000000 #222222 #555555 #444444"
+	commit-decoration-style = "#b294bb" bold box ul
 	dark = true
-	file-decoration-style = "#999999"
+	file-decoration-style = "#aaaaaa"
 	file-style = "#c1c1c1"
-	hunk-header-decoration-style = "#999999" box ul
+	hunk-header-decoration-style = "#81a2be" box ul
 	hunk-header-file-style = bold
-	hunk-header-line-number-style = bold "#333333"
+	hunk-header-line-number-style = bold "#555555"
 	hunk-header-style = file line-number syntax
-	line-numbers-left-style = "#999999"
-	line-numbers-minus-style = bold "#5f8787"
-	line-numbers-plus-style = bold "#9b8d7f"
-	line-numbers-right-style = "#999999"
-	line-numbers-zero-style = "#999999"
-	# 25% red 75% base
-	minus-emph-style = bold syntax "#2e3535"
-	# 10% red 90% base
-	minus-style = syntax "#181e1e"
-	# 25% green 75% base
-	plus-emph-style = bold syntax "#3e3935"
-	# 10% green 90% base
-	plus-style = syntax "#201f1c"
+	line-numbers-left-style = "#aaaaaa"
+	line-numbers-minus-style = bold "#cc6666"
+	line-numbers-plus-style = bold "#a5c25a"
+	line-numbers-right-style = "#aaaaaa"
+	line-numbers-zero-style = "#aaaaaa"
+	minus-emph-style = bold syntax "#4d1a1a"
+	minus-style = syntax "#260d0d"
+	plus-emph-style = bold syntax "#2a3d1a"
+	plus-style = syntax "#151e0d"
 	map-styles = \
-		bold purple => syntax "#999999", \
-		bold blue => syntax "#888888", \
-		bold cyan => syntax "#aaaaaa", \
-		bold yellow => syntax "#8c7f70"
+		bold purple => syntax "#b294bb", \
+		bold blue => syntax "#81a2be", \
+		bold cyan => syntax "#8abeb7", \
+		bold yellow => syntax "#f0c674"
 	syntax-theme = black-metal-gorgoroth

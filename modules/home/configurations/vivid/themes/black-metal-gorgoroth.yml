@@ -1,30 +1,35 @@
 # Black Metal (Gorgoroth) theme for vivid
-# Pure black background with muted, desaturated accent colors
+# Pure black background with enhanced contrast colors for better differentiation
 colors:
   background_color: '000000'
   black: '000000'
   white: 'c1c1c1'
-  gray: '333333'
-  lightgray: '999999'
+  gray: '444444'
+  lightgray: 'aaaaaa'
 
   # Base16 colors
   base00: '000000'
   base01: '121212'
   base02: '222222'
-  base03: '333333'
-  base04: '999999'
+  base03: '555555'
+  base04: 'aaaaaa'
   base05: 'c1c1c1'
-  base06: '999999'
-  base07: 'c1c1c1'
+  base06: 'bbbbbb'
+  base07: 'd0d0d0'
   
-  # Accent colors
-  red: '5f8787'
-  orange: 'aaaaaa'
-  yellow: '8c7f70'
-  green: '9b8d7f'
-  cyan: 'aaaaaa'
-  blue: '888888'
-  purple: '999999'
+  # Enhanced accent colors with better differentiation
+  red: 'cc6666'
+  orange: 'de935f'
+  yellow: 'f0c674'
+  green: '81a559'
+  cyan: '8abeb7'
+  blue: '81a2be'
+  purple: 'b294bb'
+  magenta: 'b777e0'
+  teal: '5e8d87'
+  brown: 'a88654'
+  pink: 'd0879f'
+  lime: 'a5b76e'
 
 core:
   normal_text: {}
@@ -37,16 +42,17 @@ core:
 
   symlink:
     foreground: cyan
+    font-style: italic
 
   multi_hard_link:
-    foreground: cyan
+    foreground: pink
 
   fifo:
     foreground: yellow
     font-style: bold
 
   socket:
-    foreground: purple
+    foreground: magenta
     font-style: bold
 
   door:
@@ -54,11 +60,11 @@ core:
     font-style: bold
 
   block_device:
-    foreground: yellow
+    foreground: orange
     font-style: bold
 
   character_device:
-    foreground: orange
+    foreground: brown
     font-style: bold
 
   broken_symlink:
@@ -74,26 +80,26 @@ core:
 
   setgid:
     foreground: black
-    background: yellow
+    background: orange
 
   file_with_capability:
     foreground: white
-    background: purple
+    background: magenta
 
   sticky:
-    foreground: white
-    background: blue
-
-  other_writable:
-    foreground: black
-    background: green
-
-  sticky_other_writable:
     foreground: black
     background: cyan
 
+  other_writable:
+    foreground: black
+    background: lime
+
+  sticky_other_writable:
+    foreground: black
+    background: teal
+
   executable_file:
-    foreground: green
+    foreground: lime
     font-style: bold
 
 text:
@@ -109,31 +115,31 @@ text:
     foreground: lightgray
 
   configuration:
-    foreground: orange
+    foreground: brown
 
   other:
     foreground: base05
 
 markup:
-  foreground: yellow
+  foreground: orange
 
 programming:
   source:
-    foreground: cyan
+    foreground: teal
 
   tooling:
-    foreground: blue
+    foreground: purple
     font-style: bold
 
   continuous-integration:
-    foreground: green
+    foreground: lime
 
 media:
   image:
-    foreground: purple
+    foreground: pink
 
   audio:
-    foreground: purple
+    foreground: magenta
 
   video:
     foreground: purple
@@ -142,14 +148,14 @@ media:
     foreground: lightgray
 
 office:
-  foreground: orange
+  foreground: brown
 
 archives:
   foreground: red
   font-style: bold
 
 executable:
-  foreground: green
+  foreground: lime
 
 unimportant:
   foreground: gray

@@ -1,14 +1,13 @@
 {
   lib,
   pkgs,
-  config,
   values,
   ...
 }:
 let
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   common = import ../shared/common.nix;
-  writableConfigs = import ../shared/writable-configs.nix { inherit lib pkgs config; };
+  writableConfigs = import ../shared/writable-configs.nix { inherit lib pkgs; };
 
   ampConfig = builtins.toJSON {
     "amp.git.commit.ampThread.enabled" = false;

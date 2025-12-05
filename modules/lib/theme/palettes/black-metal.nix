@@ -26,43 +26,45 @@ rec {
       base00 = "#000000"; # Pure black background
       base01 = "#121212"; # Lighter black
       base02 = "#222222"; # Selection background
-      base03 = "#333333"; # Comments, invisibles
-      base04 = "#999999"; # Dark foreground
+      base03 = "#555555"; # Comments, invisibles (brighter)
+      base04 = "#aaaaaa"; # Dark foreground (brighter)
       base05 = "#c1c1c1"; # Default foreground
-      base06 = "#999999"; # Light foreground
-      base07 = "#c1c1c1"; # Lightest foreground
-      base08 = "#5f8787"; # Red/Variables (muted teal)
-      base09 = "#aaaaaa"; # Orange/Integers
-      base0A = "#8c7f70"; # Yellow/Classes (brownish)
-      base0B = "#9b8d7f"; # Green/Strings (tan)
-      base0C = "#aaaaaa"; # Cyan/Support
-      base0D = "#888888"; # Blue/Functions
-      base0E = "#999999"; # Purple/Keywords
-      base0F = "#444444"; # Deprecated/Special
+      base06 = "#bbbbbb"; # Light foreground
+      base07 = "#d0d0d0"; # Lightest foreground
+      base08 = "#cc6666"; # Red - distinct washed red
+      base09 = "#de935f"; # Orange - distinct washed orange
+      base0A = "#f0c674"; # Yellow - distinct washed yellow
+      # Semantic colors - expanded with distinct washed-out colors
+      # Following industry standards:
+      # - Red: errors, deletions, destructive actions
+      # - Orange: warnings, moderate priority
+      # - Yellow: caution, information that needs attention
+      # - Green: success, additions, confirmations
+      # - Blue: info, primary actions, links
+      # - Purple: special, unique elements
+      # - Cyan: highlights, secondary info
+      red = "#cc6666"; # Error/destructive - washed red
+      orange = "#de935f"; # Warning/moderate - washed orange
+      yellow = "#f0c674"; # Caution/attention - washed yellow
+      green = "#a5c25a"; # Success/safe - washed green (brighter for visibility)
+      cyan = "#8abeb7"; # Highlight/secondary - washed cyan
+      blue = "#81a2be"; # Info/primary - washed blue
+      purple = "#b294bb"; # Special/unique - washed purple
+      magenta = "#b777e0"; # Accent/tertiary - washed magenta
+      teal = "#5e8d87"; # Muted accent - washed teal
+      brown = "#a88654"; # Neutral/data - washed brown
+      pink = "#d0879f"; # Soft accent - washed pink
+      lime = "#a5b76e"; # Success variant - washed lime
 
-      # Compatibility aliases for semantic mapping
-      bg = "#000000";
-      bg_alt = "#121212";
-      surface = "#222222";
-      surface_alt = "#333333";
-      text = "#c1c1c1";
-      fg = "#c1c1c1";
-      fg_alt = "#999999";
-      comment = "#333333";
-
-      # Semantic colors
-      red = "#5f8787";
-      orange = "#aaaaaa";
-      yellow = "#8c7f70";
-      green = "#9b8d7f";
-      cyan = "#aaaaaa";
-      blue = "#888888";
-      purple = "#999999";
-      teal = "#aaaaaa";
-
-      # Additional semantic mappings
-      accent = "#888888";
-      accent_dim = "#222222";
+      # UI semantic mappings following best practices
+      accent = "#81a2be"; # Primary accent (blue - safe, neutral)
+      accent_dim = "#222222"; # Dimmed background
+      border_active = "#81a2be"; # Active border (blue - clearly visible)
+      border_inactive = "#555555"; # Inactive border (dark gray - subtle)
+      border_focus = "#8abeb7"; # Focus border (cyan - distinct from active)
+      border_active = "#81a2be"; # Active border (blue - clearly visible)
+      border_inactive = "#555555"; # Inactive border (dark gray - subtle)
+      border_focus = "#8abeb7"; # Focus border (cyan - distinct from active)
     };
   };
 

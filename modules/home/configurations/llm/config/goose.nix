@@ -1,7 +1,6 @@
 {
   lib,
   pkgs,
-  config,
   values,
   ...
 }:
@@ -9,7 +8,7 @@ let
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   common = import ../shared/common.nix;
   directives = import ../shared/directives.nix;
-  writableConfigs = import ../shared/writable-configs.nix { inherit lib pkgs config; };
+  writableConfigs = import ../shared/writable-configs.nix { inherit lib pkgs; };
 
   gooseHintsMd = ''
     ${directives.general}

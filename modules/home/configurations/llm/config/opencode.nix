@@ -1,7 +1,6 @@
 {
   lib,
   pkgs,
-  config,
   values,
   ...
 }:
@@ -11,7 +10,7 @@ let
   common = import ../shared/common.nix;
   prompts = import ../shared/prompts.nix { };
   directives = import ../shared/directives.nix;
-  writableConfigs = import ../shared/writable-configs.nix { inherit lib pkgs config; };
+  writableConfigs = import ../shared/writable-configs.nix { inherit lib pkgs; };
 
   themes = import ../../../../lib/theme { inherit lib; };
 
