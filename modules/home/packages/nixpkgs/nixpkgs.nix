@@ -29,6 +29,7 @@ let
     copilot-language-server
     coreutils
     curl
+    cursor-cli
     crossplane-cli
     deadnix
     delta

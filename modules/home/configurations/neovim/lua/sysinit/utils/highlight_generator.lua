@@ -15,8 +15,9 @@ function M.generate_cursor_highlights(colors)
     LineNr = { fg = colors.ui.line_number },
     LineNrAbove = { fg = colors.ui.line_number },
     LineNrBelow = { fg = colors.ui.line_number },
-    Visual = { bg = colors.ui.visual_selection, fg = colors.foreground.primary, bold = true },
-    VisualNOS = { bg = colors.ui.visual_selection, fg = colors.foreground.primary },
+    -- Much starker visual selection - use accent color with high contrast
+    Visual = { bg = colors.accent.primary, fg = colors.background.primary, bold = true },
+    VisualNOS = { bg = colors.accent.secondary, fg = colors.background.primary },
     Search = { bg = colors.semantic.warning, fg = colors.background.primary, bold = true },
     IncSearch = { bg = colors.semantic.error, fg = colors.background.primary, bold = true },
     CurSearch = { link = "IncSearch" },
@@ -41,21 +42,24 @@ end
 
 function M.generate_diff_highlights(colors)
   return {
-    DiffAdd = { bg = colors.diff.add_bg, fg = colors.diff.add },
-    DiffChange = { bg = colors.diff.change_bg, fg = colors.diff.change },
-    DiffDelete = { bg = colors.diff.delete_bg, fg = colors.diff.delete },
-    DiffText = { bg = colors.diff.text, fg = colors.background.primary, bold = true },
+    -- Much starker diff highlighting with stronger backgrounds
+    DiffAdd = { bg = colors.semantic.success, fg = colors.background.primary, bold = true },
+    DiffChange = { bg = colors.semantic.warning, fg = colors.background.primary, bold = true },
+    DiffDelete = { bg = colors.semantic.error, fg = colors.background.primary, bold = true },
+    DiffText = { bg = colors.accent.primary, fg = colors.background.primary, bold = true, underline = true },
   }
 end
 
 function M.generate_gitsigns_highlights(colors)
   return {
-    GitSignsAdd = { fg = colors.diff.add, bold = true },
-    GitSignsChange = { fg = colors.diff.change, bold = true },
-    GitSignsDelete = { fg = colors.diff.delete, bold = true },
-    GitSignsAddInline = { bg = colors.diff.add_bg, fg = colors.diff.add },
-    GitSignsChangeInline = { bg = colors.diff.change_bg, fg = colors.diff.change },
-    GitSignsDeleteInline = { bg = colors.diff.delete_bg, fg = colors.diff.delete },
+    GitSignsAdd = { fg = colors.semantic.success, bold = true },
+    GitSignsChange = { fg = colors.semantic.warning, bold = true },
+    GitSignsDelete = { fg = colors.semantic.error, bold = true },
+    -- Much starker inline diff highlighting
+    GitSignsAddInline = { bg = colors.semantic.success, fg = colors.background.primary, bold = true },
+    GitSignsChangeInline = { bg = colors.semantic.warning, fg = colors.background.primary, bold = true },
+    GitSignsDeleteInline = { bg = colors.semantic.error, fg = colors.background.primary, bold = true },
+    -- Stronger line backgrounds for changed lines
     GitSignsAddLn = { bg = colors.diff.add_bg },
     GitSignsChangeLn = { bg = colors.diff.change_bg },
     GitSignsDeleteLn = { bg = colors.diff.delete_bg },

@@ -100,7 +100,7 @@ rec {
     k9s = variant: "black-metal-${variant}";
     atuin = variant: "black-metal-${variant}";
     vivid = variant: "black-metal-${variant}";
-    helix = _variant: "black-metal";
+    helix = _variant: "base16_transparent";
     opencode = "system";
 
     sketchybar = {
