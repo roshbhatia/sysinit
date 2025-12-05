@@ -9,7 +9,6 @@
 {
   lib,
   pkgs,
-  config,
 }:
 let
   inherit (lib) hm;
@@ -51,6 +50,8 @@ let
             $DRY_RUN_CMD mkdir -p "$(dirname "$DEST_PATH")"
             $DRY_RUN_CMD echo "Installing writable config: ${path}"
             if [[ -f "$DEST_PATH" && ! -L "$DEST_PATH" ]]; then
+              # Make backup file writable if it exists (prevents permission errors)
+              [[ -f "$DEST_PATH${backupSuffix}" ]] && $DRY_RUN_CMD chmod u+w "$DEST_PATH${backupSuffix}"
               $DRY_RUN_CMD cp "$DEST_PATH" "$DEST_PATH${backupSuffix}"
             fi
             $DRY_RUN_CMD cp -f "${sourceFile}" "$DEST_PATH"
@@ -67,6 +68,8 @@ let
               # File exists - check if source changed
               if ! cmp -s "${sourceFile}" "$DEST_PATH"; then
                 $DRY_RUN_CMD echo "Config source changed, backing up and updating: ${path}"
+                # Make backup file writable if it exists (prevents permission errors)
+                [[ -f "$DEST_PATH${backupSuffix}" ]] && $DRY_RUN_CMD chmod u+w "$DEST_PATH${backupSuffix}"
                 $DRY_RUN_CMD cp "$DEST_PATH" "$DEST_PATH${backupSuffix}"
                 $DRY_RUN_CMD cp -f "${sourceFile}" "$DEST_PATH"
                 ${if executable then ''$DRY_RUN_CMD chmod +x "$DEST_PATH"'' else ""}
