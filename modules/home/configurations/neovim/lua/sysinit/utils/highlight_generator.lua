@@ -15,9 +15,9 @@ function M.generate_cursor_highlights(colors)
     LineNr = { fg = colors.ui.line_number },
     LineNrAbove = { fg = colors.ui.line_number },
     LineNrBelow = { fg = colors.ui.line_number },
-    -- Semi-transparent orange for visual selection - vibrant but not overwhelming
-    Visual = { bg = colors.semantic.warning, fg = colors.background.primary, bold = true, blend = 30 },
-    VisualNOS = { bg = colors.accent.secondary, fg = colors.background.primary, blend = 40 },
+    -- Muted cyan for visual selection - subtle and complementary
+    Visual = { bg = colors.accent.secondary, bold = true },
+    VisualNOS = { bg = colors.ui.visual_selection },
     Search = { bg = colors.semantic.warning, fg = colors.background.primary, bold = true },
     IncSearch = { bg = colors.semantic.error, fg = colors.background.primary, bold = true },
     CurSearch = { link = "IncSearch" },
