@@ -56,17 +56,16 @@ let
     };
   };
 
-  # Create writable config files
   opencodeConfigFile = writableConfigs.mkWritableConfig {
     path = "opencode/opencode.json";
     text = opencodeConfig;
-    force = false; # Preserve user edits when source unchanged
+    force = false;
   };
 
   opencodeAgentsFile = writableConfigs.mkWritableConfig {
     path = "opencode/AGENTS.md";
     text = agentsMd;
-    force = false; # Preserve user edits when source unchanged
+    force = false;
   };
 in
 {
