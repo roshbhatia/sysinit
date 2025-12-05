@@ -7,7 +7,7 @@ function M.generate_cursor_highlights(colors)
     CursorIM = { link = "Cursor" },
     TermCursor = { link = "Cursor" },
     TermCursorNC = { bg = colors.ui.cursor, fg = colors.background.primary },
-    -- Subtle greenish highlight for cursor line
+    -- Greenish highlight for cursor line
     CursorLine = { bg = colors.ui.cursor_line },
     CursorColumn = { bg = colors.ui.cursor_line },
     CursorLineNr = { fg = colors.ui.line_number_active, bold = true },
@@ -16,6 +16,8 @@ function M.generate_cursor_highlights(colors)
     LineNr = { fg = colors.ui.line_number },
     LineNrAbove = { fg = colors.ui.line_number },
     LineNrBelow = { fg = colors.ui.line_number },
+    -- Grey scrollbar
+    ScrollView = { bg = colors.ui.scrollbar },
     -- Muted cyan for visual selection - subtle and complementary
     Visual = { bg = colors.accent.secondary, bold = true },
     VisualNOS = { bg = colors.ui.visual_selection },

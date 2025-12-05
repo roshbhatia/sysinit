@@ -42,9 +42,12 @@ rec {
       highlight_low = "#2a283e";
       highlight_med = "#44415a";
       highlight_high = "#56526e";
-      
-      # Subtle greenish highlight for cursor line (works with transparency)
-      cursor_line_highlight = "#2a3a3a";
+
+      # Greenish highlight for cursor line (foam-based, works with transparency)
+      cursor_line_highlight = "#2d3f3f";
+
+      # Grey cursor color
+      cursor_grey = "#6e6a86";
 
       bg = "#232136";
       bg_alt = "#2a273f";

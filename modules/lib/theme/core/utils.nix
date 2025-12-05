@@ -264,10 +264,11 @@ rec {
     };
 
     ui = {
-      cursor = safeGetColor palette "accent" (safeGetColor palette "blue" "#0080ff");
+      cursor = safeGetColor palette "cursor_grey" (safeGetColor palette "muted" "#888888");
       cursor_line = safeGetColor palette "cursor_line_highlight" (
-        blendColor (safeGetColor palette "base" (safeGetColor palette "bg" "#000000")) (
-          safeGetColor palette "foam" (safeGetColor palette "green" "#00ff00")
+        blendColor (safeGetColor palette "base" (safeGetColor palette "bg" "#000000")) (safeGetColor palette
+          "foam"
+          (safeGetColor palette "green" "#00ff00")
         ) 0.15
       );
       visual_selection = safeGetColor palette "highlight_high" (
@@ -278,6 +279,7 @@ rec {
       line_number_active = safeGetColor palette "accent" (
         safeGetColor palette "foam" (safeGetColor palette "cyan" "#00ffff")
       );
+      scrollbar = safeGetColor palette "cursor_grey" (safeGetColor palette "muted" "#888888");
     };
 
     diff =
