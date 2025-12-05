@@ -135,17 +135,7 @@ programming:
     foreground: lime
 
 media:
-  image:
-    foreground: pink
-
-  audio:
-    foreground: magenta
-
-  video:
-    foreground: purple
-
-  fonts:
-    foreground: lightgray
+  foreground: purple
 
 office:
   foreground: brown
