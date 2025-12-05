@@ -46,7 +46,7 @@ let
     instructions = instructions;
 
     keybinds = {
-      leader = "ctrl+f";
+      leader = "ctrl+j";
     };
 
     permission = {

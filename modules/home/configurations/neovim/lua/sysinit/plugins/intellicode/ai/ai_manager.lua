@@ -40,8 +40,38 @@ local function get_pane_info(pane_id)
 end
 
 -- Get tmux session name for an agent
-local function get_session_name(termname)
-  return "ai-" .. termname
+-- Format: ai-<agent>-<folder>-<timestamp>
+-- Example: ai-opencode-sysinit-20251205-123045
+local function get_session_name(termname, cwd)
+  local folder = vim.fn.fnamemodify(cwd, ":t") -- Get last component of path
+  local timestamp = os.date("%Y%m%d-%H%M%S")
+  return string.format("ai-%s-%s-%s", termname, folder, timestamp)
+end
+
+-- Find existing session for agent+folder combo (most recent)
+local function find_existing_session(termname, cwd)
+  local folder = vim.fn.fnamemodify(cwd, ":t")
+  local prefix = string.format("ai-%s-%s-", termname, folder)
+
+  local result = vim.fn.system("tmux list-sessions -F '#{session_name}' 2>/dev/null")
+  if vim.v.shell_error ~= 0 then
+    return nil
+  end
+
+  local sessions = {}
+  for line in vim.gsplit(vim.trim(result), "\n") do
+    if line:match("^" .. vim.pesc(prefix)) then
+      table.insert(sessions, line)
+    end
+  end
+
+  -- Return most recent (last in sorted list)
+  if #sessions > 0 then
+    table.sort(sessions)
+    return sessions[#sessions]
+  end
+
+  return nil
 end
 
 -- Check if tmux session exists
@@ -81,7 +111,10 @@ function M.setup(opts)
 
   parent_pane_id = get_current_pane_id()
   if not parent_pane_id then
-    vim.notify("Warning: Unable to determine WezTerm pane ID. AI terminals may not work correctly.", vim.log.levels.WARN)
+    vim.notify(
+      "Warning: Unable to determine WezTerm pane ID. AI terminals may not work correctly.",
+      vim.log.levels.WARN
+    )
   end
 
   if not augroup then
@@ -134,7 +167,15 @@ function M.open(termname)
   local agents = require("sysinit.plugins.intellicode.agents")
   local agent = agents.get_by_name(termname)
   local cwd = vim.fn.getcwd()
-  local session_name = get_session_name(termname)
+
+  -- Find existing session or create new one
+  local session_name = find_existing_session(termname, cwd)
+  local is_new_session = false
+
+  if not session_name then
+    session_name = get_session_name(termname, cwd)
+    is_new_session = true
+  end
 
   -- Build env vars string
   local env_str = ""
@@ -149,18 +190,19 @@ function M.open(termname)
 
   -- Create or attach to tmux session
   local tmux_cmd
-  if tmux_session_exists(session_name) then
-    -- Session exists, attach to it
-    tmux_cmd = string.format("tmux attach-session -t %s", vim.fn.shellescape(session_name))
-  else
-    -- Create new session with the AI agent command
+  if is_new_session then
+    -- Create new session with the AI agent command and hide status bar
     tmux_cmd = string.format(
-      "tmux new-session -s %s -c %s '%s%s'",
+      "tmux new-session -s %s -c %s 'tmux set-option -t %s status off; %s%s'",
       vim.fn.shellescape(session_name),
       vim.fn.shellescape(cwd),
+      vim.fn.shellescape(session_name),
       env_str,
       agent_config.cmd
     )
+  else
+    -- Session exists, attach to it
+    tmux_cmd = string.format("tmux attach-session -t %s", vim.fn.shellescape(session_name))
   end
 
   -- Spawn WezTerm pane that attaches to tmux session
@@ -194,7 +236,13 @@ function M.open(termname)
 
       if agent then
         vim.defer_fn(function()
-          vim.fn.system(string.format("wezterm cli set-tab-title --pane-id %d %s 2>/dev/null", pane_id, vim.fn.shellescape(string.format("%s %s", agent.icon, agent.label))))
+          vim.fn.system(
+            string.format(
+              "wezterm cli set-tab-title --pane-id %d %s 2>/dev/null",
+              pane_id,
+              vim.fn.shellescape(string.format("%s %s", agent.icon, agent.label))
+            )
+          )
         end, 100)
       end
     else
@@ -299,7 +347,13 @@ function M.show(termname)
       local agent = agents.get_by_name(termname)
       if agent then
         vim.defer_fn(function()
-          vim.fn.system(string.format("wezterm cli set-tab-title --pane-id %d %s 2>/dev/null", pane_id, vim.fn.shellescape(string.format("%s %s", agent.icon, agent.label))))
+          vim.fn.system(
+            string.format(
+              "wezterm cli set-tab-title --pane-id %d %s 2>/dev/null",
+              pane_id,
+              vim.fn.shellescape(string.format("%s %s", agent.icon, agent.label))
+            )
+          )
         end, 100)
       end
     else
@@ -330,7 +384,8 @@ function M.send(termname, text, opts)
   end
 
   -- Send to tmux session directly (works even if not visible)
-  local send_cmd = string.format("tmux send-keys -t %s %s", vim.fn.shellescape(term_data.session_name), vim.fn.shellescape(text))
+  local send_cmd =
+    string.format("tmux send-keys -t %s %s", vim.fn.shellescape(term_data.session_name), vim.fn.shellescape(text))
   vim.fn.system(send_cmd)
 
   if opts.submit then

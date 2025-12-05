@@ -30,15 +30,6 @@ function M.setup()
 
       -- Export socket path to environment for child processes
       vim.env.NVIM_SOCKET_PATH = socket_path
-
-      -- Verify socket was created
-      vim.defer_fn(function()
-        if vim.fn.filereadable(socket_path) == 1 then
-          vim.notify(string.format("Neovim RPC socket created: %s", socket_path), vim.log.levels.INFO)
-        else
-          vim.notify(string.format("Failed to create RPC socket: %s", socket_path), vim.log.levels.ERROR)
-        end
-      end, 100)
     end,
   })
 
