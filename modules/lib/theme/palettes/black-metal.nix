@@ -62,21 +62,16 @@ rec {
       border_active = "#81a2be"; # Active border (blue - clearly visible)
       border_inactive = "#555555"; # Inactive border (dark gray - subtle)
       border_focus = "#8abeb7"; # Focus border (cyan - distinct from active)
-      border_active = "#81a2be"; # Active border (blue - clearly visible)
-      border_inactive = "#555555"; # Inactive border (dark gray - subtle)
-      border_focus = "#8abeb7"; # Focus border (cyan - distinct from active)
     };
   };
 
   semanticMapping = palette: utils.createSemanticMapping palette;
 
   appAdapters = {
-    # Wezterm uses base16 built-in theme
     wezterm = {
       gorgoroth = "Black Metal (Gorgoroth)";
     };
 
-    # Neovim uses metalelf0's black-metal-theme-neovim plugin
     neovim = {
       plugin = "metalelf0/black-metal-theme-neovim";
       name = "black-metal";
@@ -84,7 +79,6 @@ rec {
       colorscheme = _variant: "gorgoroth";
     };
 
-    # Custom theme files for other tools
     bat = variant: "black-metal-${variant}";
     delta = variant: "black-metal-${variant}";
     k9s = variant: "black-metal-${variant}";
@@ -93,7 +87,6 @@ rec {
     helix = _variant: "black-metal";
     opencode = "system";
 
-    # Sketchybar colors
     sketchybar = {
       background = palettes.gorgoroth.base00;
       foreground = palettes.gorgoroth.base05;
