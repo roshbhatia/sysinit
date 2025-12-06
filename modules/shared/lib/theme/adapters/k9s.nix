@@ -1,4 +1,8 @@
 {
+  lib,
+}:
+
+{
   createK9sTheme =
     theme: validatedConfig:
     let

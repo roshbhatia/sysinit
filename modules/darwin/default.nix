@@ -3,7 +3,7 @@
   imports = [
     ./configurations
     ./packages
-    ../shared/lib/nixos-modules/validation.nix
+    ../shared/lib/modules/validation.nix
   ];
 
   # macOS applications directory - platform-specific

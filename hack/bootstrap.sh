@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Bootstrap nix and nix-darwin from sysinit project
-# This script handles the initial setup of Nix and nix-darwin
-
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
@@ -18,7 +15,7 @@ fi
 log_info "Bootstrapping Nix and nix-darwin"
 
 # Install Determinate Nix if not present
-if ! command -v nix &> /dev/null; then
+if ! command -v nix &>/dev/null; then
   log_warn "Installing Nix using Determinate Systems installer..."
   curl -L https://install.determinate.systems/nix | sh -s -- install --no-confirm || {
     log_critical "Failed to install Nix"
@@ -67,6 +64,3 @@ sudo ./result/activate || {
   log_critical "Failed to apply system configuration"
   exit 1
 }
-
-log_success "System configuration applied successfully"
-log_warn "You may need to restart your terminal or run 'exec \$SHELL' to refresh your environment"
