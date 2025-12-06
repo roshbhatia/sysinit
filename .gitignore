@@ -16,3 +16,13 @@ nix.secrets.conf
 .serena
 !AGENTS.md
 
+## Important project documentation (explicitly tracked)
+!README.md
+!ARCHITECTURE.md
+!MIGRATION_GUIDE.md
+!PR_REFACTORING.md
+!REFACTORING_SUMMARY.md
+!CHECKLIST.md
+
+## Agents tend to spit out docs that don't need to be committed
+**/*.md
