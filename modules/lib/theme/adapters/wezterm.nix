@@ -1,23 +1,24 @@
-{ lib, ... }:
+{
+  lib,
+  utils,
+  ...
+}:
 
 with lib;
 
-let
-  utils = import ../core/utils.nix { inherit lib; };
-in
+{
+  /*
+    Create Wezterm theme configuration.
 
-rec {
-
+    Uses the adapter base pattern:
+    1. Define color mapping (semantic → wezterm config keys)
+    2. Define config builder function
+    3. Use adapterBase.createAdapter for common logic
+  */
   createWeztermConfig =
     themeData: config: overrides:
     let
-      palette = themeData.palettes.${config.variant};
-      semanticColors = utils.createSemanticMapping palette;
-      transparency =
-        if hasAttr "transparency" config then
-          config.transparency
-        else
-          throw "Missing transparency configuration in wezterm config";
+      transparency = config.transparency or (throw "Missing transparency configuration");
 
       themeName =
         if hasAttr "wezterm" themeData.appAdapters then
@@ -28,7 +29,7 @@ rec {
         else
           "${themeData.meta.id}-${config.variant}";
 
-      baseConfig = {
+      configBuilder = semanticColors: _mapping: {
         color_scheme = themeName;
 
         colors = {
@@ -108,27 +109,37 @@ rec {
         else
           { };
 
+      baseConfig = configBuilder (utils.createSemanticMapping (themeData.palettes.${config.variant})) { };
     in
     utils.mergeThemeConfigs baseConfig (transparencyConfig // overrides);
 
+  /*
+    Generate Wezterm JSON export.
+
+    Exports theme configuration suitable for Wezterm setup scripts.
+  */
   generateWeztermJSON =
     themeData: config:
     let
       palette = themeData.palettes.${config.variant};
       semanticColors = utils.createSemanticMapping palette;
-      weztermConfig = createWeztermConfig themeData config { };
+
+      themeName =
+        if hasAttr "wezterm" themeData.appAdapters then
+          if hasAttr config.variant themeData.appAdapters.wezterm then
+            themeData.appAdapters.wezterm.${config.variant}
+          else
+            throw "Wezterm theme variant '${config.variant}' not found for theme '${themeData.meta.id}'"
+        else
+          "${themeData.meta.id}-${config.variant}";
     in
     {
       colorscheme = themeData.meta.id;
       inherit (config) variant;
       appearance = if hasAttr "appearance" config then config.appearance else null;
       font = if hasAttr "font" config then config.font else null;
-      transparency =
-        if hasAttr "transparency" config then
-          config.transparency
-        else
-          throw "Missing transparency configuration in wezterm config";
-      theme_name = weztermConfig.color_scheme;
+      transparency = config.transparency or (throw "Missing transparency configuration");
+      theme_name = themeName;
       palette = palette // {
         bg_primary = semanticColors.background.primary;
         bg_secondary = semanticColors.background.secondary;

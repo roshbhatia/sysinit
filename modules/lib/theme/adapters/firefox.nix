@@ -1,22 +1,26 @@
-{ lib, ... }:
+{
+  lib,
+  utils,
+  ...
+}:
 
 with lib;
 
-let
-  utils = import ../core/utils.nix { inherit lib; };
-in
-
 {
+  /*
+    Create Firefox theme configuration.
+
+    Uses the adapter base pattern:
+    1. Define color mapping (semantic → firefox CSS variables)
+    2. Define config builder function
+    3. Use adapterBase.createAdapter for common logic
+  */
   createFirefoxConfig =
     themeData: config: overrides:
     let
       palette = themeData.palettes.${config.variant};
       semanticColors = utils.createSemanticMapping palette;
-      transparency =
-        if hasAttr "transparency" config then
-          config.transparency
-        else
-          throw "Missing transparency configuration in firefox config";
+      transparency = config.transparency or (throw "Missing transparency configuration");
 
       semanticCSSVariables = ''
         /* Semantic theme colors for Firefox */
@@ -730,6 +734,11 @@ in
     in
     utils.mergeThemeConfigs baseConfig overrides;
 
+  /*
+    Generate Firefox JSON export.
+
+    Exports theme configuration suitable for Firefox setup scripts.
+  */
   generateFirefoxJSON =
     themeData: config:
     let
@@ -741,11 +750,7 @@ in
       inherit (config) variant;
       appearance = if hasAttr "appearance" config then config.appearance else null;
       font = if hasAttr "font" config then config.font else null;
-      transparency =
-        if hasAttr "transparency" config then
-          config.transparency
-        else
-          throw "Missing transparency configuration in firefox config";
+      transparency = config.transparency or (throw "Missing transparency configuration");
       inherit semanticColors palette;
       theme_identifier = "${themeData.meta.id}-${config.variant}";
     };
