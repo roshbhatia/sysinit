@@ -1,4 +1,10 @@
-_: {
+{ lib }:
+
+let
+  presets = import ./presets.nix { inherit lib; };
+in
+
+{
   supportedApps = [
     "neovim"
     "wezterm"
@@ -29,26 +35,6 @@ _: {
     bright_white = 15;
   };
 
-  transparencyPresets = {
-    none = {
-      enable = false;
-      opacity = 1.0;
-      blur = 0;
-    };
-    light = {
-      enable = true;
-      opacity = 0.95;
-      blur = 20;
-    };
-    medium = {
-      enable = true;
-      opacity = 0.85;
-      blur = 80;
-    };
-    heavy = {
-      enable = true;
-      opacity = 0.70;
-      blur = 120;
-    };
-  };
+  # Re-export transparency presets from core/presets.nix for backward compatibility
+  inherit (presets) transparencyPresets;
 }
