@@ -85,6 +85,20 @@
               email = "rshnbhatia@gmail.com";
               username = "roshbhatia";
             };
+            nixos = {
+              desktop = {
+                displayServer = "wayland";
+                desktopEnvironment = "gnome";
+              };
+              gpu = {
+                vendor = "nvidia";
+                enable = true;
+              };
+              audio = {
+                enable = true;
+                server = "pipewire";
+              };
+            };
           };
         };
       };
@@ -174,15 +188,12 @@
             inherit
               inputs
               system
-              utils
               values
               ;
+            customUtils = utils;
           };
           modules = [
             ./modules/nixos
-            {
-              _module.args.utils = utils;
-            }
           ];
         };
 
@@ -235,9 +246,30 @@
       # Darwin configurations
       darwinConfigurations = mkConfigurations mkDarwinConfiguration;
 
-      # NixOS configurations (framework in place, requires host hardware-configuration.nix)
-      # Uncomment when arrakis hardware configuration is available
-      # nixosConfigurations = mkNixosConfigurations;
+      # NixOS configurations
+      nixosConfigurations = lib.mapAttrs (
+        hostname: hostConfig:
+        let
+          overlays = mkOverlays hostConfig.system;
+          pkgs = mkPkgs {
+            system = hostConfig.system;
+            inherit overlays;
+          };
+          utils = mkUtils {
+            system = hostConfig.system;
+            inherit pkgs;
+          };
+          processedVals = processValues {
+            inherit utils;
+            userValues = hostConfig.values;
+          };
+        in
+        mkNixosConfiguration {
+          inherit hostname pkgs utils;
+          system = hostConfig.system;
+          values = processedVals;
+        }
+      ) (lib.filterAttrs (_: cfg: cfg.platform == "linux") hostConfigs);
 
       # Home manager standalone (for non-NixOS/Darwin systems)
       homeConfigurations = {

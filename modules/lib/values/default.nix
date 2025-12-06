@@ -107,6 +107,66 @@ with lib;
         };
       };
 
+      nixos = {
+        desktop = {
+          displayServer = mkOption {
+            type = types.enum [
+              "x11"
+              "wayland"
+            ];
+            default = "x11";
+            description = "Display server to use (X11 or Wayland)";
+          };
+
+          desktopEnvironment = mkOption {
+            type = types.enum [
+              "gnome"
+              "kde"
+              "sway"
+              "xfce"
+            ];
+            default = "gnome";
+            description = "Desktop environment to use";
+          };
+        };
+
+        gpu = {
+          enable = mkOption {
+            type = types.bool;
+            default = false;
+            description = "Enable GPU support";
+          };
+
+          vendor = mkOption {
+            type = types.enum [
+              "nvidia"
+              "amd"
+              "intel"
+              "none"
+            ];
+            default = "none";
+            description = "GPU vendor";
+          };
+        };
+
+        audio = {
+          enable = mkOption {
+            type = types.bool;
+            default = true;
+            description = "Enable audio support";
+          };
+
+          server = mkOption {
+            type = types.enum [
+              "pipewire"
+              "pulseaudio"
+            ];
+            default = "pipewire";
+            description = "Audio server to use";
+          };
+        };
+      };
+
       yarn = {
         additionalPackages = mkOption {
           type = types.listOf types.str;

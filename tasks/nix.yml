@@ -298,3 +298,53 @@ tasks:
 
         log_success "System configuration applied successfully"
       - task: clean-results
+
+  build:lv426:
+    desc: Build the lv426 (macOS) system configuration
+    silent: true
+    deps: [clean-results]
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+
+        log_info "Building lv426 configuration"
+        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} nix build .#darwinConfigurations.lv426.system; then
+          log_error "lv426 build failed"
+          exit {{.ERROR_EXIT_CODE}}
+        fi
+
+        log_success "lv426 build completed successfully"
+      - task: clean-results
+
+  build:arrakis:
+    desc: Build the arrakis (NixOS) system configuration
+    silent: true
+    deps: [clean-results]
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+
+        log_info "Building arrakis configuration"
+        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} nix build .#nixosConfigurations.arrakis.config.system.build.toplevel; then
+          log_error "arrakis build failed"
+          exit {{.ERROR_EXIT_CODE}}
+        fi
+
+        log_success "arrakis build completed successfully"
+      - task: clean-results
+
+  build:all:
+    desc: Build all system configurations (lv426 and arrakis)
+    silent: true
+    cmds:
+      - task: build:lv426
+      - task: build:arrakis
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+        log_success "All configurations built successfully"

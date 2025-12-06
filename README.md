@@ -100,6 +100,12 @@ task: Available tasks for this project:
 | `llm.mcp.neovim.socketDir` | string | "/tmp/nvim" |  | Directory for Neovim socket files |
 | `llm.mcp.servers` | attrsOf (attrsOf anything) | `{ }` |  | Additional MCP servers configuration |
 | `nix.additionalPackages` | list(string) | [] |  | Additional Nix packages |
+| `nixos.audio.enable` | boolean | true |  | Enable audio support |
+| `nixos.audio.server` |  | "pipewire" |  | Audio server to use |
+| `nixos.desktop.desktopEnvironment` |  | "gnome" |  | Desktop environment to use |
+| `nixos.desktop.displayServer` |  | "x11" |  | Display server to use (X11 or Wayland) |
+| `nixos.gpu.enable` | boolean | false |  | Enable GPU support |
+| `nixos.gpu.vendor` |  | "none" |  | GPU vendor |
 | `npm.additionalPackages` | list(string) | [] |  | Additional global npm packages |
 | `pipx.additionalPackages` | list(string) | [] |  | Additional global pipx packages |
 | `theme.appearance` |  | "dark" |  | Appearance mode (light or dark) |

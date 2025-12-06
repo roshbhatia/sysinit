@@ -2,12 +2,10 @@
 
 {
   imports = [
-    ./hardware
-    # Platform-specific configurations will be added here
-    # Examples:
-    # ./boot
-    # ./display
-    # ./audio
-    # ./gaming
+    ./boot.nix
+    ./display.nix
+    ./gpu.nix
+    ./audio.nix
+    # ./hardware.nix is included separately by the NixOS build system
   ];
 }
