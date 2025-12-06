@@ -40,7 +40,6 @@ tasks:
         set -euo pipefail
         source {{.LOGLIB_PATH}}
 
-        log_info "Locating work sysinit repository"
         WORK_SYSINIT=$(find {{.WORK_REPO_PATH}} -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
 
         if [ -z "${WORK_SYSINIT}" ]; then
@@ -48,17 +47,13 @@ tasks:
           exit {{.ERROR_EXIT_CODE}}
         fi
 
-        log_info "Building work configuration at: ${WORK_SYSINIT}"
         cd "${WORK_SYSINIT}"
-
         # Run the build task in the work repository
         # Use reduced resources for work builds
         if ! NIX_MAX_JOBS=1 NIX_CORES=1 task nix:build:work; then
           log_error "Work build failed"
           exit {{.ERROR_EXIT_CODE}}
         fi
-
-        log_success "Work build completed successfully"
 
   nix:refresh:work:
     desc: Apply the work sysinit configuration and switch to new generation
@@ -69,7 +64,6 @@ tasks:
         set -euo pipefail
         source {{.LOGLIB_PATH}}
 
-        log_info "Locating work sysinit repository"
         WORK_SYSINIT=$(find {{.WORK_REPO_PATH}} -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
 
         if [ -z "${WORK_SYSINIT}" ]; then
@@ -86,9 +80,6 @@ tasks:
           log_error "Work refresh failed"
           exit {{.ERROR_EXIT_CODE}}
         fi
-
-        log_success "Work system configuration applied successfully"
-
   sh:chmod:
     desc: Make all .sh files in the repository executable
     cmds:
@@ -96,12 +87,10 @@ tasks:
         #!/usr/bin/env bash
         set -euo pipefail
         source {{.LOGLIB_PATH}}
-        log_info "Finding all .sh files and making them executable"
-        if ! fd -e sh -x sh -c 'source {{.LOGLIB_PATH}}; log_info "Making executable: {}" && chmod +x {}' _; then
+        if ! fd -e sh -x sh -c 'source {{.LOGLIB_PATH}}; chmod +x {}' _; then
           log_error "Failed to make .sh files executable"
           exit {{.ERROR_EXIT_CODE}}
         fi
-        log_success "All .sh files are now executable"
     silent: true
 
   fmt:
@@ -116,10 +105,8 @@ tasks:
         #!/usr/bin/env bash
         set -euo pipefail
         source {{.LOGLIB_PATH}}
-        log_info "Generating values.nix schema documentation"
         if ! ./hack/generate-values-docs.sh README.md; then
           log_error "Failed to generate values documentation"
           exit {{.ERROR_EXIT_CODE}}
         fi
-        log_success "Values documentation injected into README.md"
     silent: true
