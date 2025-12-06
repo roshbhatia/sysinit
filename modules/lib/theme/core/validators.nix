@@ -300,6 +300,23 @@ with lib;
     };
 
   /*
+    Validate variant is supported for a specific palette.
+
+    Arguments:
+      paletteId: string - Palette identifier
+      variant: string - Variant name to validate
+
+    Returns:
+      bool - True if valid
+  */
+  variantSupported =
+    paletteId: variant:
+    let
+      result = builtins.tryEval (validateVariant paletteId variant);
+    in
+    result.success;
+
+  /*
     Create a type that validates on construction.
 
     Useful for inline validation in Nix modules.
