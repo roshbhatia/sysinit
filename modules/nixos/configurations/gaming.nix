@@ -1,10 +1,7 @@
 {
-  lib,
   pkgs,
   ...
 }:
-
-with lib;
 
 {
   programs.steam = {
@@ -29,7 +26,6 @@ with lib;
   hardware.steam-hardware.enable = true;
 
   environment.sessionVariables = {
-    # Force Electron apps (and some games) to use Wayland
     NIXOS_OZONE_WL = "1";
   };
 }

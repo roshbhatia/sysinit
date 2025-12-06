@@ -73,12 +73,12 @@
       "$modShift" = "ALT SHIFT";
 
       bind = [
-        "$mod, slash, togglesplit, # alt-slash: toggle split layout"
-        "$mod, f, fullscreen, 0 # alt-f: fullscreen"
-        "$mod, h, movefocus, l # alt-h: focus left"
-        "$mod, j, movefocus, d # alt-j: focus down"
-        "$mod, k, movefocus, u # alt-k: focus up"
-        "$mod, l, movefocus, r # alt-l: focus right"
+        "$mod, slash, togglesplit,"
+        "$mod, f, fullscreen, 0"
+        "$mod, h, movefocus, l"
+        "$mod, j, movefocus, d"
+        "$mod, k, movefocus, u"
+        "$mod, l, movefocus, r"
         "$mod, 1, workspace, 1"
         "$mod, 2, workspace, 2"
         "$mod, 3, workspace, 3"
@@ -86,17 +86,17 @@
         "$mod, m, workspace, name:M"
         "$mod, s, workspace, name:S"
         "$mod, e, workspace, name:E"
-        "$mod, Tab, workspace, next # alt-tab: cycle next"
-        "$modShift, Tab, workspace, prev # alt-shift-tab: cycle prev"
-        "$mod, space, togglespecialworkspace, # alt-space: toggle workspace"
-        "$mod, Return, exec, hyprctl reload # alt-enter: reload config"
+        "$mod, Tab, workspace, next"
+        "$modShift, Tab, workspace, prev"
+        "$mod, space, togglespecialworkspace,"
+        "$mod, Return, exec, hyprctl reload"
       ];
 
       binde = [
-        "$mod, minus, resizeactive, -70 0 # alt-minus: resize left"
-        "$mod, equal, resizeactive, 70 0 # alt-equal: resize right"
-        "$modShift, minus, resizeactive, -210 0 # alt-shift-minus: large resize left"
-        "$modShift, equal, resizeactive, 210 0 # alt-shift-equal: large resize right"
+        "$mod, minus, resizeactive, -70 0"
+        "$mod, equal, resizeactive, 70 0"
+        "$modShift, minus, resizeactive, -210 0"
+        "$modShift, equal, resizeactive, 210 0"
       ];
 
       bindm = [

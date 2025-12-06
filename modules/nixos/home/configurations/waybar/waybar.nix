@@ -30,7 +30,6 @@
           "clock"
         ];
 
-        # Hyprland workspaces module
         "hyprland/workspaces" = {
           format = "{name}";
           format-icons = {
@@ -57,14 +56,12 @@
           };
         };
 
-        # Active window title
         "hyprland/window" = {
           format = "{}";
           max-length = 50;
           separate-outputs = false;
         };
 
-        # Clock module
         clock = {
           format = "{:%H:%M   %a %b %d}";
           format-alt = "{:%Y-%m-%d}";
@@ -72,27 +69,23 @@
           tooltip-format = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
         };
 
-        # System tray
         tray = {
           icon-size = 16;
           spacing = 8;
         };
 
-        # CPU monitoring
         cpu = {
           format = " {usage}%";
           tooltip = true;
           interval = 5;
         };
 
-        # Memory monitoring
         memory = {
           format = " {used:0.1f}GB";
           tooltip = true;
           interval = 5;
         };
 
-        # Temperature monitoring
         temperature = {
           format = "󰔏 {temperatureC}°C";
           thermal-zone = 0;
@@ -101,7 +94,6 @@
           format-critical = "󰸌 {temperatureC}°C";
         };
 
-        # Pulseaudio (for NVIDIA audio if available)
         pulseaudio = {
           format = "{icon} {volume}%";
           format-muted = "󰝟";
@@ -121,7 +113,6 @@
       };
     };
 
-    # Waybar styling
     style = builtins.readFile ./style.css;
   };
 }

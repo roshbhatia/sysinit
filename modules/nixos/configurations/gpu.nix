@@ -18,8 +18,8 @@
   services.xserver.videoDrivers = [ "nvidia" ];
 
   hardware.nvidia = {
-    modesetting.enable = true; # Required for Wayland support
-    open = false; # Nvidia GPUs use a proprietary driver
-    nvidiaSettings = true; # Enable nvidia-settings utility
+    modesetting.enable = true;
+    open = false;
+    nvidiaSettings = true;
   };
 }
