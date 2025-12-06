@@ -14,10 +14,8 @@
     ./editorconfig
     ./eza
     ./fd
-    ./firefox
     ./fzf
     ./git
-    ./hammerspoon
     ./helix
     ./k9s
     ./kubectl
@@ -26,7 +24,6 @@
     ./neovim
     ./nushell
     ./omp
-    ./sketchybar
     ./utils
     ./vivid
     ./wezterm

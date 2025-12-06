@@ -30,7 +30,7 @@
       inherit (nixpkgs) lib;
 
       # Platform utilities for system-agnostic paths
-      platformUtils = import ./modules/lib/platform { inherit lib; };
+      platformUtils = import ./modules/shared/lib/platform { inherit lib; };
 
       # Multi-system support configuration
       systems = {
@@ -38,8 +38,8 @@
         nixos-desktop = "aarch64-linux"; # NixOS desktop
       };
 
-      # Centralized user/host configuration - replaces values.nix
-      # Centralized user/host configuration - replaces values.nix
+      # Centralized user/host configuration
+      # Centralized user/host configuration
       hostConfigs = {
         lv426 = {
           # macOS laptop
@@ -129,7 +129,7 @@
       mkOverlays = system: import ./overlays { inherit inputs system; };
 
       # Build utils for a system/pkgs combo
-      mkUtils = { system, pkgs }: import ./modules/lib { inherit lib pkgs system; };
+      mkUtils = { system, pkgs }: import ./modules/shared/lib { inherit lib pkgs system; };
 
       # Process and validate values against schema
       processValues =

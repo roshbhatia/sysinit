@@ -15,19 +15,13 @@
 
     users.${values.user.username} =
       {
-        pkgs,
-        lib,
-        config,
         ...
       }:
-      import ../home {
-        inherit
-          config
-          pkgs
-          lib
-          utils
-          values
-          ;
+      {
+        imports = [
+          ../home # Cross-platform configurations
+          ./home # Darwin-specific configurations
+        ];
       };
   };
 }

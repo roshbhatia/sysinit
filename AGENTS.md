@@ -42,18 +42,20 @@ task nix:refresh:work
 ## Architecture
 
 ### Module System
-- `modules/darwin/` - System-level configurations (requires sudo)
-- `modules/home/` - User-level configurations  
-- `modules/lib/` - Shared utilities and theme system
+- `modules/shared/lib/` - Shared utilities and theme system (cross-platform)
+- `modules/darwin/` - macOS system-level configurations (nix-darwin)
+  - `system/` - System-level config (requires sudo)
+  - `home/` - macOS home-manager configurations
+- `modules/home/` - Cross-platform user-level configurations (home-manager)
 
 ### Values-Based Configuration
 All user settings centralized in `values.nix`:
-- Type-checked against schema in `modules/lib/values/default.nix`
-- Validated at build-time in `modules/lib/nixos-modules/validation.nix`
+- Type-checked against schema in `modules/shared/lib/values/default.nix`
+- Validated at build-time in `modules/shared/lib/nixos-modules/validation.nix`
 - Auto-documented in README.md
 
 ### Theme System
-Centralized in `modules/lib/theme/` with three layers:
+Centralized in `modules/shared/lib/theme/` with three layers:
 1. **Palette Layer** - Color definitions (rose-pine, catppuccin, gruvbox, etc.)
 2. **Semantic Layer** - Color role mapping  
 3. **Adapter Layer** - App-specific transformation

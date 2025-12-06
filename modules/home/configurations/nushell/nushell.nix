@@ -6,9 +6,9 @@
   ...
 }:
 let
-  shell = import ../../../lib/shell { inherit lib; };
-  themes = import ../../../lib/theme { inherit lib; };
-  paths_lib = import ../../../lib/paths { inherit config lib; };
+  shell = import ../../../../shared/lib/shell { inherit lib; };
+  themes = import ../../../../shared/lib/theme { inherit lib; };
+  paths_lib = import ../../../../shared/lib/paths { inherit config lib; };
 
   validatedTheme = themes.validateThemeConfig values.theme;
   palette = themes.getThemePalette validatedTheme.colorscheme validatedTheme.variant;

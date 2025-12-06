@@ -6,7 +6,7 @@
 }:
 
 let
-  themes = import ../../../lib/theme { inherit lib; };
+  themes = import ../../../../shared/lib/theme { inherit lib; };
 
   validatedTheme = themes.validateThemeConfig values.theme;
   theme = themes.getTheme validatedTheme.colorscheme;

@@ -6,7 +6,7 @@
 set -euo pipefail
 
 README_FILE="${1:-README.md}"
-VALUES_SCHEMA_FILE="modules/lib/values/default.nix"
+VALUES_SCHEMA_FILE="modules/shared/lib/values/default.nix"
 START_MARKER="<!-- VALUES_SCHEMA_START -->"
 END_MARKER="<!-- VALUES_SCHEMA_END -->"
 

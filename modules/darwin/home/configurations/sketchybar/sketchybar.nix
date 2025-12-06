@@ -7,7 +7,7 @@
 }:
 
 let
-  themes = import ../../../lib/theme { inherit lib; };
+  themes = import ../../../../../../shared/lib/theme { inherit lib; };
 
   # Pass entire theme config to enable appearance-to-variant derivation
   # Note: using 'or' pattern to provide defaults for optional fields
