@@ -7,7 +7,6 @@ function M.generate_cursor_highlights(colors)
     CursorIM = { link = "Cursor" },
     TermCursor = { link = "Cursor" },
     TermCursorNC = { bg = colors.ui.cursor, fg = colors.background.primary },
-    -- Greenish highlight for cursor line
     CursorLine = { bg = colors.ui.cursor_line },
     CursorColumn = { bg = colors.ui.cursor_line },
     CursorLineNr = { fg = colors.ui.line_number_active, bold = true },
@@ -16,11 +15,8 @@ function M.generate_cursor_highlights(colors)
     LineNr = { fg = colors.ui.line_number },
     LineNrAbove = { fg = colors.ui.line_number },
     LineNrBelow = { fg = colors.ui.line_number },
-    -- Grey scrollbar
-    ScrollView = { bg = colors.ui.scrollbar },
-    -- Muted cyan for visual selection - subtle and complementary
-    Visual = { bg = colors.accent.secondary, bold = true },
-    VisualNOS = { bg = colors.ui.visual_selection },
+    Visual = { bg = colors.ui.visual_selection, fg = colors.foreground.primary, bold = true },
+    VisualNOS = { bg = colors.ui.visual_selection, fg = colors.foreground.primary },
     Search = { bg = colors.semantic.warning, fg = colors.background.primary, bold = true },
     IncSearch = { bg = colors.semantic.error, fg = colors.background.primary, bold = true },
     CurSearch = { link = "IncSearch" },
@@ -45,24 +41,21 @@ end
 
 function M.generate_diff_highlights(colors)
   return {
-    -- Much starker diff highlighting with stronger backgrounds
-    DiffAdd = { bg = colors.semantic.success, fg = colors.background.primary, bold = true },
-    DiffChange = { bg = colors.semantic.warning, fg = colors.background.primary, bold = true },
-    DiffDelete = { bg = colors.semantic.error, fg = colors.background.primary, bold = true },
-    DiffText = { bg = colors.accent.primary, fg = colors.background.primary, bold = true, underline = true },
+    DiffAdd = { bg = colors.diff.add_bg, fg = colors.diff.add },
+    DiffChange = { bg = colors.diff.change_bg, fg = colors.diff.change },
+    DiffDelete = { bg = colors.diff.delete_bg, fg = colors.diff.delete },
+    DiffText = { bg = colors.diff.text, fg = colors.background.primary, bold = true },
   }
 end
 
 function M.generate_gitsigns_highlights(colors)
   return {
-    GitSignsAdd = { fg = colors.semantic.success, bold = true },
-    GitSignsChange = { fg = colors.semantic.warning, bold = true },
-    GitSignsDelete = { fg = colors.semantic.error, bold = true },
-    -- Much starker inline diff highlighting
-    GitSignsAddInline = { bg = colors.semantic.success, fg = colors.background.primary, bold = true },
-    GitSignsChangeInline = { bg = colors.semantic.warning, fg = colors.background.primary, bold = true },
-    GitSignsDeleteInline = { bg = colors.semantic.error, fg = colors.background.primary, bold = true },
-    -- Stronger line backgrounds for changed lines
+    GitSignsAdd = { fg = colors.diff.add, bold = true },
+    GitSignsChange = { fg = colors.diff.change, bold = true },
+    GitSignsDelete = { fg = colors.diff.delete, bold = true },
+    GitSignsAddInline = { bg = colors.diff.add_bg, fg = colors.diff.add },
+    GitSignsChangeInline = { bg = colors.diff.change_bg, fg = colors.diff.change },
+    GitSignsDeleteInline = { bg = colors.diff.delete_bg, fg = colors.diff.delete },
     GitSignsAddLn = { bg = colors.diff.add_bg },
     GitSignsChangeLn = { bg = colors.diff.change_bg },
     GitSignsDeleteLn = { bg = colors.diff.delete_bg },
@@ -235,7 +228,8 @@ function M.generate_transparency_highlights(transparency)
     "BlinkCmpSignatureHelp",
     "BlinkCmpSignatureHelpBorder",
     "ColorColumn",
-    -- Removed CursorColumn and CursorLine to preserve subtle greenish highlight
+    "CursorColumn",
+    "CursorLine",
     "CursorLineFold",
     "CursorLineNr",
     "CursorLineSign",

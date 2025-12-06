@@ -34,12 +34,12 @@ rec {
         colors = {
           foreground = semanticColors.foreground.primary;
           background = semanticColors.background.primary;
-          cursor_bg = semanticColors.ui.cursor;
+          cursor_bg = semanticColors.accent.primary;
           cursor_fg = semanticColors.background.primary;
-          cursor_border = semanticColors.ui.cursor;
+          cursor_border = semanticColors.accent.primary;
           selection_fg = semanticColors.background.primary;
           selection_bg = semanticColors.accent.primary;
-          scrollbar_thumb = semanticColors.ui.scrollbar;
+          scrollbar_thumb = semanticColors.background.overlay;
           split = semanticColors.background.overlay;
 
           ansi = [

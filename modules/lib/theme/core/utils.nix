@@ -264,7 +264,7 @@ rec {
     };
 
     ui = {
-      cursor = safeGetColor palette "cursor_grey" (safeGetColor palette "muted" "#888888");
+      cursor = safeGetColor palette "accent" (safeGetColor palette "blue" "#0080ff");
       cursor_line = safeGetColor palette "cursor_line_highlight" (
         blendColor (safeGetColor palette "base" (safeGetColor palette "bg" "#000000")) (safeGetColor palette
           "foam"
@@ -279,7 +279,6 @@ rec {
       line_number_active = safeGetColor palette "accent" (
         safeGetColor palette "foam" (safeGetColor palette "cyan" "#00ffff")
       );
-      scrollbar = safeGetColor palette "cursor_grey" (safeGetColor palette "muted" "#888888");
     };
 
     diff =
