@@ -11,6 +11,9 @@ result-*
 **/*.old
 nix.secrets.conf
 
+# Editor configs
+.luarc.json
+
 # AI Tooling
 .claude/settings.local.json
 .serena
