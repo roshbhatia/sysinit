@@ -20,8 +20,13 @@ function M.load_json_file(filepath)
 end
 
 function M.get_config_path(filename)
-  local username = os.getenv("USER")
-  local home_dir = "/Users/" .. username
+  -- Use HOME environment variable for platform-agnostic home directory
+  local home_dir = os.getenv("HOME")
+  if not home_dir then
+    -- Fallback for systems without HOME set
+    local username = os.getenv("USER")
+    home_dir = "/Users/" .. username
+  end
   return home_dir .. "/.config/wezterm/" .. filename
 end
 

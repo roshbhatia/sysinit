@@ -27,8 +27,13 @@ in
 
       local current_path = os.getenv("PATH") or ""
 
-      local username = os.getenv("USER")
-      local home_dir = "/Users/" .. username
+      -- Use HOME environment variable for platform-agnostic home directory
+      local home_dir = os.getenv("HOME")
+      if not home_dir then
+        -- Fallback for systems without HOME set
+        local username = os.getenv("USER")
+        home_dir = "/Users/" .. username
+      end
 
       package.cpath = package.cpath .. ";${pkgs.sbarlua}/lib/lua/5.4/?.so"
       package.cpath = package.cpath .. ";${pkgs.lua54Packages.cjson}/lib/lua/5.4/?.so"

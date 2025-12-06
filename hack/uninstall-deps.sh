@@ -1,6 +1,10 @@
 #!/usr/bin/env zsh
 # shellcheck disable=all
 
+# macOS-specific Nix uninstall script
+# This script uses macOS-specific tools (launchctl, dscl) and paths (/Library/LaunchDaemons)
+# For NixOS, implement a separate uninstall script using systemctl
+
 # Get script directory for sourcing shared utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-${0}}")" && pwd)"
 

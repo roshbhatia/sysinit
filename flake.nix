@@ -29,6 +29,9 @@
     let
       inherit (nixpkgs) lib;
 
+      # Platform utilities for system-agnostic paths
+      platformUtils = import ./modules/lib/platform { inherit lib; };
+
       # Multi-system support configuration
       systems = {
         laptop = "aarch64-darwin"; # macOS laptop
@@ -282,7 +285,7 @@
           modules = [
             {
               home.username = defaultConfig.username;
-              home.homeDirectory = "/Users/${defaultConfig.username}";
+              home.homeDirectory = platformUtils.getUserHome defaultConfig.username defaultSystem;
               home.stateVersion = "23.11";
             }
             (import ./modules/home {
