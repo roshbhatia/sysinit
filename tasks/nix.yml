@@ -98,10 +98,13 @@ tasks:
         fi
 
         log_info "Restarting nix-daemon"
-        if ! sudo launchctl kickstart -k system/org.nixos.nix-daemon; then
-          log_error "Failed to restart nix-daemon"
+        sudo launchctl stop org.nixos.nix-daemon 2>/dev/null || true
+        sleep 2
+        if ! sudo launchctl start org.nixos.nix-daemon; then
+          log_error "Failed to start nix-daemon"
           exit {{.ERROR_EXIT_CODE}}
         fi
+        sleep 5
 
         log_success "Nix configuration updated successfully"
 
@@ -179,10 +182,13 @@ tasks:
           sudo chmod 600 "${SYSTEM_SECRETS_FILE}"
 
           log_info "Restarting nix-daemon"
-          if ! sudo launchctl kickstart -k system/org.nixos.nix-daemon; then
-            log_error "Failed to restart nix-daemon"
+          sudo launchctl stop org.nixos.nix-daemon 2>/dev/null || true
+          sleep 2
+          if ! sudo launchctl start org.nixos.nix-daemon; then
+            log_error "Failed to start nix-daemon"
             return 1
           fi
+          sleep 5
           return 0
         }
 
