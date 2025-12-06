@@ -12,7 +12,7 @@ let
   directives = import ../shared/directives.nix;
   writableConfigs = import ../shared/writable-configs.nix { inherit lib pkgs; };
 
-  themes = import ../../../../../shared/lib/theme { inherit lib; };
+  themes = import ../../../../shared/lib/theme { inherit lib; };
 
   validatedTheme = themes.validateThemeConfig values.theme;
   opencodeTheme = themes.getAppTheme "opencode" validatedTheme.colorscheme validatedTheme.variant;

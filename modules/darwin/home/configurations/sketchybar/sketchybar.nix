@@ -7,7 +7,7 @@
 }:
 
 let
-  themes = import ../../../../../../shared/lib/theme { inherit lib; };
+  themes = import ../../../../shared/lib/theme { inherit lib; };
 
   # Pass entire theme config to enable appearance-to-variant derivation
   # Note: using 'or' pattern to provide defaults for optional fields
@@ -17,7 +17,7 @@ let
   };
 
   inherit (config.lib.file) mkOutOfStoreSymlink;
-  path = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/sketchybar";
+  path = "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/configurations/sketchybar";
 in
 
 {
