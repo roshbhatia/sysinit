@@ -264,13 +264,19 @@ rec {
     };
 
     ui = {
-      cursor = safeGetColor palette "accent" (safeGetColor palette "blue" "#0080ff");
-      cursor_line = safeGetColor palette "cursor_line_highlight" (
-        blendColor (safeGetColor palette "base" (safeGetColor palette "bg" "#000000")) (safeGetColor palette
-          "foam"
-          (safeGetColor palette "green" "#00ff00")
-        ) 0.15
-      );
+      cursor =
+        if palette ? cursor_grey then
+          safeGetColor palette "cursor_grey" "#888888"
+        else
+          safeGetColor palette "accent" (safeGetColor palette "blue" "#0080ff");
+      cursor_line =
+        if palette ? cursor_line_highlight then
+          safeGetColor palette "cursor_line_highlight" "#1a1a1a"
+        else
+          blendColor (safeGetColor palette "base" (safeGetColor palette "bg" "#000000")) (safeGetColor palette
+            "foam"
+            (safeGetColor palette "green" "#00ff00")
+          ) 0.15;
       visual_selection = safeGetColor palette "highlight_high" (
         safeGetColor palette "surface2" (safeGetColor palette "surface" "#333333")
       );

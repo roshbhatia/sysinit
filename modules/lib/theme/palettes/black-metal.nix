@@ -87,6 +87,12 @@ rec {
       border_active = "#81a2be"; # Active border (blue - clearly visible)
       border_inactive = "#555555"; # Inactive border (dark gray - subtle)
       border_focus = "#8abeb7"; # Focus border (cyan - distinct from active)
+
+      # Cursor line highlight for black metal theme
+      cursor_line_highlight = "#1a1a1a";
+
+      # Grey cursor for black metal theme
+      cursor_grey = "#555555";
     };
   };
 
