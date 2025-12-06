@@ -97,16 +97,8 @@ tasks:
           log_warn "nix.secrets.conf not found (run 'task nix:secrets:init' to create)"
         fi
 
-        log_info "Restarting nix-daemon"
-        sudo launchctl stop org.nixos.nix-daemon 2>/dev/null || true
-        sleep 2
-        if ! sudo launchctl start org.nixos.nix-daemon; then
-          log_error "Failed to start nix-daemon"
-          exit {{.ERROR_EXIT_CODE}}
-        fi
-        sleep 5
-
         log_success "Nix configuration updated successfully"
+        log_info "Run 'sudo launchctl stop org.nixos.nix-daemon && sleep 2 && sudo launchctl start org.nixos.nix-daemon' to restart daemon with new config"
 
   config:user:
     desc: Setup user-level nix.conf to include system nix.custom.conf
@@ -181,14 +173,8 @@ tasks:
           fi
           sudo chmod 600 "${SYSTEM_SECRETS_FILE}"
 
-          log_info "Restarting nix-daemon"
-          sudo launchctl stop org.nixos.nix-daemon 2>/dev/null || true
-          sleep 2
-          if ! sudo launchctl start org.nixos.nix-daemon; then
-            log_error "Failed to start nix-daemon"
-            return 1
-          fi
-          sleep 5
+          log_info "To apply new secrets, restart nix-daemon:"
+          log_info "sudo launchctl stop org.nixos.nix-daemon && sleep 2 && sudo launchctl start org.nixos.nix-daemon"
           return 0
         }
 
@@ -325,7 +311,7 @@ tasks:
   refresh:
     desc: Apply the system configuration and switch to new generation
     silent: true
-    deps: [update, clean-results, config, config:user]
+    deps: [clean-results]
     cmds:
       - |
         #!/usr/bin/env bash
