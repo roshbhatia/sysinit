@@ -201,7 +201,7 @@
       mkConfigurations =
         f:
         lib.mapAttrs (
-          hostname: hostConfig:
+          _hostname: hostConfig:
           let
             overlays = mkOverlays hostConfig.system;
             pkgs = mkPkgs {
@@ -218,7 +218,7 @@
             };
           in
           f {
-            inherit hostname pkgs utils;
+            inherit pkgs utils;
             system = hostConfig.system;
             values = processedVals;
           }
