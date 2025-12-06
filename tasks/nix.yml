@@ -105,6 +105,42 @@ tasks:
 
         log_success "Nix configuration updated successfully"
 
+  config:user:
+    desc: Setup user-level nix.conf to include system nix.custom.conf
+    silent: true
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+
+        NIX_CONFIG_DIR="${HOME}/.config/nix"
+        NIX_CONFIG="${NIX_CONFIG_DIR}/nix.conf"
+        SYSTEM_CUSTOM_CONF="/etc/nix/nix.custom.conf"
+
+        log_info "Setting up user-level nix.conf"
+
+        # Create directory if needed
+        mkdir -p "${NIX_CONFIG_DIR}"
+
+        # Create/update nix.conf to include system custom config
+        {
+          echo "# User-level Nix configuration"
+          echo "# Includes system-wide configuration from /etc/nix/"
+          echo ""
+          echo "# Enable Nix 2.0 features"
+          echo "experimental-features = nix-command flakes auto-allocate-uids impure-derivations dynamic-derivations"
+          echo ""
+          echo "# Trust current user for operations"
+          echo "trusted-users = root $(whoami)"
+          echo ""
+          echo "# Include system-wide configuration (caches, substituters, secrets)"
+          echo "!include ${SYSTEM_CUSTOM_CONF}"
+        } > "${NIX_CONFIG}"
+
+        log_success "User nix.conf configured at ${NIX_CONFIG}"
+        log_info "Access tokens from nix.secrets.conf will now be loaded when nix runs"
+
   secrets:init:
     desc: Initialize nix.secrets.conf with GitHub token (automatic, idempotent)
     silent: true
@@ -283,7 +319,7 @@ tasks:
   refresh:
     desc: Apply the system configuration and switch to new generation
     silent: true
-    deps: [update, clean-results]
+    deps: [update, clean-results, config, config:user]
     cmds:
       - |
         #!/usr/bin/env bash

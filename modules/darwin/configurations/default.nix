@@ -9,6 +9,7 @@
     ./finder
     ./hostname
     ./keyboard
+    ./nix
     ./ollama
     ./op
     ./security
