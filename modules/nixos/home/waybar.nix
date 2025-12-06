@@ -1,7 +1,18 @@
 {
+  config,
+  lib,
+  pkgs,
+  values,
   ...
 }:
 
+let
+  themes = import ../../../../shared/lib/theme { inherit lib; };
+  themeConfig = values.theme // {
+    presets = values.theme.presets or [ ];
+    overrides = values.theme.overrides or { };
+  };
+in
 {
   programs.waybar = {
     enable = true;
@@ -113,6 +124,6 @@
       };
     };
 
-    style = builtins.readFile ./style.css;
+    style = builtins.readFile ./waybar.css;
   };
 }
