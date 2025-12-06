@@ -3,21 +3,21 @@
 with lib;
 
 let
-  constants = import ../core/constants.nix { inherit lib; };
+  presets_core = import ../core/presets.nix { inherit lib; };
 in
 
 {
 
-  presets = constants.transparencyPresets;
+  presets = presets_core.transparencyPresets;
 
   createAppTransparency =
     app: preset: overrides:
     let
       baseConfig =
-        if hasAttr preset constants.transparencyPresets then
-          constants.transparencyPresets.${preset}
+        if hasAttr preset presets_core.transparencyPresets then
+          presets_core.transparencyPresets.${preset}
         else
-          throw "Transparency preset '${preset}' not found. Available presets: ${concatStringsSep ", " (attrNames constants.transparencyPresets)}";
+          throw "Transparency preset '${preset}' not found. Available presets: ${concatStringsSep ", " (attrNames presets_core.transparencyPresets)}";
       finalConfig = baseConfig // overrides;
     in
     if app == "wezterm" then
@@ -57,38 +57,10 @@ in
     else
       baseConfig // { transparency = transparencyConfig; };
 
-  contextualTransparency = {
-
-    coding = {
-      enable = true;
-      opacity = 0.90;
-      blur = 60;
-    };
-    reading = {
-      enable = true;
-      opacity = 0.85;
-      blur = 80;
-    };
-    presentation = {
-      enable = false;
-      opacity = 1.0;
-      blur = 0;
-    };
-    focus = {
-      enable = true;
-      opacity = 0.95;
-      blur = 40;
-    };
-  };
+  # Use contextual presets from core/presets.nix
+  contextualTransparency = presets_core.contextualPresets;
 
   createConditionalTransparency =
     condition: baseTransparency:
-    if condition.nvim_running then
-      contextualTransparency.coding
-    else if condition.presentation_mode then
-      contextualTransparency.presentation
-    else if condition.focus_mode then
-      contextualTransparency.focus
-    else
-      baseTransparency;
+    presets_core.selectTransparencyForConditions condition baseTransparency;
 }

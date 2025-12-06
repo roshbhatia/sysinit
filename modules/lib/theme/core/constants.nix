@@ -1,10 +1,4 @@
-{ lib }:
-
-let
-  presets = import ./presets.nix { inherit lib; };
-in
-
-{
+_: {
   supportedApps = [
     "neovim"
     "wezterm"
@@ -34,7 +28,4 @@ in
     bright_cyan = 14;
     bright_white = 15;
   };
-
-  # Re-export transparency presets from core/presets.nix for backward compatibility
-  inherit (presets) transparencyPresets;
 }
