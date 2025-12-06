@@ -25,6 +25,7 @@ nix.secrets.conf
 !CHECKLIST.md
 !PLATFORM_ANALYSIS.md
 !THEME_CONSOLIDATION_PLAN.md
+!SESSION_SUMMARY.md
 
 ## Agents tend to spit out docs that don't need to be committed
 **/*.md
