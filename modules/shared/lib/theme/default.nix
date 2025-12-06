@@ -189,7 +189,7 @@ let
       palette = getThemePalette validatedConfig.colorscheme validatedConfig.variant;
       semanticColors = getSemanticColors validatedConfig.colorscheme validatedConfig.variant;
 
-      finalConfig = fold (
+      finalConfig = lib.foldr (
         preset: _config: transparencyPreset.createAppTransparency app preset { }
       ) validatedConfig validatedConfig.presets;
 
