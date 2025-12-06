@@ -1,23 +1,4 @@
 {
-  lib,
-  ...
-}:
-
-with lib;
-
-{
-  /*
-    Create K9s theme configuration.
-
-    K9s is a CLI tool for Kubernetes. This adapter generates theme files
-    dynamically from semantic colors, mapping them to K9s color structure.
-
-    Structure:
-    - Generate YAML configuration files
-    - Map semantic colors to K9s UI elements
-    - Return configuration that can be deployed to ~/.config/k9s/skins/
-  */
-
   createK9sTheme =
     theme: validatedConfig:
     let
