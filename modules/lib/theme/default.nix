@@ -17,9 +17,10 @@ let
   everforest = import ./palettes/everforest.nix { inherit lib; };
   blackMetal = import ./palettes/black-metal.nix { inherit lib; };
 
-  weztermAdapter = import ./adapters/wezterm.nix { inherit lib; };
-  neovimAdapter = import ./adapters/neovim.nix { inherit lib; };
-  firefoxAdapter = import ./adapters/firefox.nix { inherit lib; };
+  adapterBase = import ./core/adapter-base.nix { inherit lib utils; };
+  weztermAdapter = import ./adapters/wezterm.nix { inherit lib utils adapterBase; };
+  neovimAdapter = import ./adapters/neovim.nix { inherit lib utils adapterBase; };
+  firefoxAdapter = import ./adapters/firefox.nix { inherit lib utils adapterBase; };
 
   transparencyPreset = import ./presets/transparency.nix { inherit lib; };
 
