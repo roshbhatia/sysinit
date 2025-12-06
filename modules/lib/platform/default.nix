@@ -191,4 +191,95 @@ with lib;
       throw "Paths invalid for system ${system}: ${concatStringsSep ", " invalidPaths}"
     else
       true;
+
+  /*
+    Extract architecture from system type.
+
+    Arguments:
+      system: string - Full system type (e.g., aarch64-darwin, x86_64-linux)
+
+    Returns:
+      string - Architecture component (aarch64, x86_64, arm64, etc.)
+  */
+  getArchitecture =
+    system:
+    let
+      parts = builtins.split "-" system;
+    in
+    if length parts > 0 then elemAt parts 0 else system;
+
+  /*
+    Determine CPU architecture name for Homebrew.
+
+    Homebrew uses different architecture names on different systems.
+
+    Arguments:
+      system: string - System type
+
+    Returns:
+      string - Homebrew-style architecture name
+  */
+  getBrewArchitecture =
+    system:
+    let
+      arch = getArchitecture system;
+    in
+    if arch == "aarch64" then
+      "arm64"
+    else if arch == "x86_64" then
+      "x86_64"
+    else
+      arch;
+
+  /*
+    Get Homebrew installation prefix for the system.
+
+    Arguments:
+      system: string - System type
+
+    Returns:
+      string - Homebrew prefix path
+  */
+  getBrewPrefix =
+    system:
+    if isDarwin system then
+      let
+        arch = getBrewArchitecture system;
+      in
+      if arch == "arm64" then "/opt/homebrew" else "/usr/local"
+    else
+      "/usr/local";
+
+  /*
+    Get Homebrew binary directory for the system.
+
+    Arguments:
+      system: string - System type
+
+    Returns:
+      string - Path to Homebrew bin directory
+  */
+  getBrewBinDir = system: "${getBrewPrefix system}/bin";
+
+  /*
+    Is this an x86_64 system?
+
+    Arguments:
+      system: string - System type
+
+    Returns:
+      bool - True if x86_64 architecture
+  */
+  isX86_64 = system: getArchitecture system == "x86_64";
+
+  /*
+    Is this an ARM-based system (aarch64)?
+
+    Arguments:
+      system: string - System type
+
+    Returns:
+      bool - True if ARM/aarch64 architecture
+  */
+  isARM = system: getArchitecture system == "aarch64";
 }
