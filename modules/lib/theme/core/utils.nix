@@ -220,80 +220,73 @@ rec {
       b = adjust rgb.b;
     };
 
+  /*
+    Create semantic color mapping from palette.
+
+    Expects palette to use standard keys (base, surface, overlay, text, accent, etc.)
+    Reduces need for fallback chains by normalizing palette keys upfront.
+  */
   createSemanticMapping = palette: {
     background = {
-      primary = safeGetColor palette "base" (safeGetColor palette "bg" "#000000");
-      secondary = safeGetColor palette "surface" (safeGetColor palette "bg_alt" "#111111");
-      tertiary = safeGetColor palette "surface_alt" (safeGetColor palette "bg1" "#222222");
-      overlay = safeGetColor palette "overlay" (safeGetColor palette "surface0" "#333333");
+      primary = palette.base;
+      secondary = palette.surface;
+      tertiary = safeGetColor palette "surface_alt" palette.surface;
+      overlay = palette.overlay;
     };
 
     foreground = {
-      primary = safeGetColor palette "text" (safeGetColor palette "fg" "#ffffff");
-      secondary = safeGetColor palette "subtext1" (safeGetColor palette "fg_alt" "#cccccc");
-      muted = safeGetColor palette "subtext0" (safeGetColor palette "comment" "#888888");
-      subtle = safeGetColor palette "overlay1" (safeGetColor palette "subtle" "#aaaaaa");
+      primary = palette.text;
+      secondary = safeGetColor palette "subtext1" palette.text;
+      muted = safeGetColor palette "subtext0" palette.text;
+      subtle = safeGetColor palette "subtle" palette.overlay;
     };
 
     accent = {
-      primary = safeGetColor palette "accent" (safeGetColor palette "blue" "#0080ff");
-      secondary = safeGetColor palette "accent_secondary" (safeGetColor palette "cyan" "#00ffff");
-      tertiary = safeGetColor palette "accent_tertiary" (safeGetColor palette "purple" "#8000ff");
-      quaternary = safeGetColor palette "accent_quaternary" (safeGetColor palette "magenta" "#ff00ff");
-      dim = safeGetColor palette "accent_dim" (safeGetColor palette "surface" "#333333");
+      primary = palette.accent;
+      secondary = safeGetColor palette "accent_secondary" palette.accent;
+      tertiary = safeGetColor palette "accent_tertiary" palette.accent;
+      quaternary = safeGetColor palette "accent_quaternary" palette.accent;
+      dim = safeGetColor palette "accent_dim" palette.overlay;
     };
 
     semantic = {
-      success = safeGetColor palette "green_vibrant" (safeGetColor palette "green" "#00ff00");
-      warning = safeGetColor palette "yellow_vibrant" (safeGetColor palette "yellow" "#ffff00");
-      error = safeGetColor palette "red_vibrant" (safeGetColor palette "red" "#ff0000");
-      info = safeGetColor palette "blue_vibrant" (safeGetColor palette "blue" "#0000ff");
+      success = safeGetColor palette "green_vibrant" palette.green;
+      warning = safeGetColor palette "yellow_vibrant" palette.yellow;
+      error = safeGetColor palette "red_vibrant" palette.red;
+      info = safeGetColor palette "blue_vibrant" palette.blue;
     };
 
     syntax = {
-      keyword = safeGetColor palette "mauve" (safeGetColor palette "purple" "#800080");
-      string = safeGetColor palette "green" "#00ff00";
-      number = safeGetColor palette "peach" (safeGetColor palette "orange" "#ff8000");
-      comment = safeGetColor palette "overlay1" (safeGetColor palette "comment" "#888888");
-      function = safeGetColor palette "blue" "#0000ff";
-      variable = safeGetColor palette "text" (safeGetColor palette "fg" "#ffffff");
-      type = safeGetColor palette "yellow" "#ffff00";
-      operator = safeGetColor palette "sky" (safeGetColor palette "cyan" "#00ffff");
-      constant = safeGetColor palette "peach" (safeGetColor palette "orange" "#ff8000");
-      builtin = safeGetColor palette "red" "#ff0000";
+      keyword = safeGetColor palette "mauve" palette.blue;
+      string = palette.green;
+      number = safeGetColor palette "peach" palette.orange;
+      comment = safeGetColor palette "comment" palette.overlay;
+      function = palette.blue;
+      variable = palette.text;
+      type = palette.yellow;
+      operator = safeGetColor palette "sky" palette.cyan;
+      constant = safeGetColor palette "peach" palette.orange;
+      builtin = palette.red;
     };
 
     ui = {
-      cursor =
-        if palette ? cursor_grey then
-          safeGetColor palette "cursor_grey" "#888888"
-        else
-          safeGetColor palette "accent" (safeGetColor palette "blue" "#0080ff");
-      cursor_line =
-        if palette ? cursor_line_highlight then
-          safeGetColor palette "cursor_line_highlight" "#1a1a1a"
-        else
-          blendColor (safeGetColor palette "base" (safeGetColor palette "bg" "#000000")) (safeGetColor palette
-            "foam"
-            (safeGetColor palette "green" "#00ff00")
-          ) 0.15;
-      visual_selection = safeGetColor palette "highlight_high" (
-        safeGetColor palette "surface2" (safeGetColor palette "surface" "#333333")
+      cursor = safeGetColor palette "cursor_grey" palette.accent;
+      cursor_line = safeGetColor palette "cursor_line_highlight" (
+        blendColor palette.base (safeGetColor palette "foam" palette.green) 0.15
       );
-      match_paren = safeGetColor palette "accent" (safeGetColor palette "blue" "#0080ff");
-      line_number = safeGetColor palette "comment" (safeGetColor palette "overlay1" "#888888");
-      line_number_active = safeGetColor palette "accent" (
-        safeGetColor palette "foam" (safeGetColor palette "cyan" "#00ffff")
-      );
+      visual_selection = safeGetColor palette "highlight_high" palette.surface;
+      match_paren = palette.accent;
+      line_number = safeGetColor palette "comment" palette.overlay;
+      line_number_active = safeGetColor palette "line_number_active" palette.accent;
     };
 
     diff =
       let
-        base = safeGetColor palette "base" (safeGetColor palette "bg" "#000000");
-        green = safeGetColor palette "green_vibrant" (safeGetColor palette "green" "#00ff00");
-        yellow = safeGetColor palette "yellow_vibrant" (safeGetColor palette "yellow" "#ffff00");
-        red = safeGetColor palette "red_vibrant" (safeGetColor palette "red" "#ff0000");
-        blue = safeGetColor palette "blue_vibrant" (safeGetColor palette "blue" "#0000ff");
+        base = palette.base;
+        green = safeGetColor palette "green_vibrant" palette.green;
+        yellow = safeGetColor palette "yellow_vibrant" palette.yellow;
+        red = safeGetColor palette "red_vibrant" palette.red;
+        blue = safeGetColor palette "blue_vibrant" palette.blue;
       in
       {
         add = green;
@@ -308,11 +301,11 @@ rec {
     # Plugin UI semantic colors
     plugins =
       let
-        base = safeGetColor palette "base" (safeGetColor palette "bg" "#000000");
-        surface = safeGetColor palette "surface" (safeGetColor palette "bg_alt" "#111111");
-        text = safeGetColor palette "text" (safeGetColor palette "fg" "#ffffff");
-        accent = safeGetColor palette "accent" (safeGetColor palette "blue" "#0080ff");
-        muted = safeGetColor palette "comment" (safeGetColor palette "overlay1" "#888888");
+        base = palette.base;
+        surface = palette.surface;
+        text = palette.text;
+        accent = palette.accent;
+        muted = safeGetColor palette "comment" palette.overlay;
       in
       {
         # Telescope
@@ -320,7 +313,7 @@ rec {
           border = accent;
           selection_bg = blendColor base accent 0.2;
           selection_fg = text;
-          title = safeGetColor palette "pink" (safeGetColor palette "magenta" "#ff00ff");
+          title = safeGetColor palette "magenta" palette.accent;
         };
 
         # NeoTree / File explorer
@@ -340,9 +333,9 @@ rec {
 
         # Search highlights
         search = {
-          match_bg = safeGetColor palette "yellow" "#ffff00";
+          match_bg = palette.yellow;
           match_fg = base;
-          incremental_bg = safeGetColor palette "orange" (safeGetColor palette "peach" "#ff8000");
+          incremental_bg = safeGetColor palette "orange" palette.yellow;
           incremental_fg = base;
         };
 
@@ -355,27 +348,21 @@ rec {
           winbar_active = text;
           winbar_inactive = muted;
           float_border = accent;
-          float_title = safeGetColor palette "pink" (safeGetColor palette "magenta" "#ff00ff");
+          float_title = safeGetColor palette "magenta" palette.accent;
         };
       };
 
     extended = removeAttrs palette [
       "base"
-      "bg"
       "surface"
+      "surface_alt"
+      "overlay"
       "text"
-      "fg"
       "accent"
       "red"
       "green"
       "yellow"
       "blue"
-      "purple"
-      "orange"
-      "cyan"
-      "comment"
-      "overlay1"
-      "subtext1"
     ];
   };
 
