@@ -49,9 +49,7 @@ in
   xdg.configFile."nvim/lua/sysinit/plugins/ui/".source =
     mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/plugins/ui";
 
-  xdg.configFile."nvim/theme_config.json".text = builtins.toJSON (
-    themes.generateAppJSON "neovim" values.theme
-  );
+  xdg.configFile."nvim/theme_config.json".text = themes.generateAppJSON "neovim" values.theme;
 
   xdg.configFile."nvim/queries".source =
     mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/queries";

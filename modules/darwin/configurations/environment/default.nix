@@ -1,7 +1,6 @@
 { pkgs, ... }:
 
 {
-  # Fixes "readlink: illegal option -- m" error during setupLaunchAgents
   environment.variables = {
     PATH = pkgs.lib.mkForce (
       pkgs.lib.concatStringsSep ":" [

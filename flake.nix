@@ -246,8 +246,19 @@
       };
     in
     {
-      # Darwin configurations
-      darwinConfigurations = mkConfigurations mkDarwinConfiguration;
+      # Darwin configurations (includes bootstrap)
+      darwinConfigurations = mkConfigurations mkDarwinConfiguration // {
+        bootstrap = darwin.lib.darwinSystem {
+          system = "aarch64-darwin";
+          modules = [
+            {
+              system.defaults.finder.AppleShowAllExtensions = true;
+              system.stateVersion = 4;
+              programs.zsh.enable = true;
+            }
+          ];
+        };
+      };
 
       # NixOS configurations
       nixosConfigurations = lib.mapAttrs (

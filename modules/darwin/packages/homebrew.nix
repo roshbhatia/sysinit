@@ -15,6 +15,7 @@ let
     "mediosz/tap"
     "noahgorstein/tap"
     "osx-cross/avr"
+    "osx-cross/arm"
     "sandreas/tap"
     "slp/krunkit"
     "steveyegge/beads"
@@ -34,6 +35,8 @@ let
     "lunchy"
     "ollama"
     "opencode"
+    "osx-cross/arm/arm-none-eabi-binutils"
+    "osx-cross/arm/arm-none-eabi-gcc@8"
     "slp/krunkit/krunkit"
     "vet-run"
   ];
@@ -70,7 +73,7 @@ in
     onActivation = {
       autoUpdate = true;
       upgrade = true;
-      cleanup = "zap";
+      cleanup = "uninstall";
     };
     global = {
       brewfile = true;

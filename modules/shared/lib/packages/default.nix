@@ -105,7 +105,7 @@ let
         export PATH="$KREW_ROOT/bin:$PATH"
       '';
       installCmd = ''
-        "$MANAGER_CMD" install "$pkg" || echo "Warning: Failed to install $pkg"
+        "$MANAGER_CMD" krew install "$pkg" || echo "Warning: Failed to install $pkg"
       '';
     };
     vet = {

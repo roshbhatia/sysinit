@@ -15,6 +15,7 @@ M.plugins = {
         border = "rounded",
         debounce = 150,
         default_timeout = 5000,
+        temp_dir = vim.fn.stdpath("cache") .. "/null-ls",
         sources = {
           null_ls.builtins.code_actions.gitrebase,
           null_ls.builtins.code_actions.impl,
