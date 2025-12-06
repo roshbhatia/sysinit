@@ -25,14 +25,14 @@ let
       description = "Neovim MCP server for enhanced code understanding and assistance within Neovim.";
     };
     serena = {
-      command = "nix";
+      command = "uvx";
       args = [
-        "run"
-        "github:oraios/serena"
-        "--"
+        "--from"
+        "git+https://github.com/oraios/serena"
+        "serena"
         "start-mcp-server"
-        "--context"
-        "ide-assistant"
+        "--enable-web-dashboard"
+        "false"
       ];
       description = "Serena IDE assistant with AGENTS.md integration for project-aware coding assistance";
     };
