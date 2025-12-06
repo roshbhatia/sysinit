@@ -23,6 +23,8 @@ nix.secrets.conf
 !PR_REFACTORING.md
 !REFACTORING_SUMMARY.md
 !CHECKLIST.md
+!PLATFORM_ANALYSIS.md
+!THEME_CONSOLIDATION_PLAN.md
 
 ## Agents tend to spit out docs that don't need to be committed
 **/*.md
