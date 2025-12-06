@@ -21,7 +21,6 @@
 {
   lib,
   pkgs,
-  config,
   ...
 }:
 let

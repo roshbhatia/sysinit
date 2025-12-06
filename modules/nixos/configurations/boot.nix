@@ -1,16 +1,21 @@
-{ lib, ... }:
+{ ... }:
 
 {
-  # Placeholder boot configuration
-  # To be customized per-host based on hardware
+  # Boot loader configuration for UEFI systems
   boot = {
     loader = {
-      efi.canTouchEfiVariables = lib.mkDefault true;
+      # Allow NixOS to manage EFI variables (required for modern UEFI systems)
+      efi.canTouchEfiVariables = true;
+
+      # GRUB bootloader with EFI support
       grub = {
-        enable = lib.mkDefault true;
-        device = lib.mkDefault "nodev";
-        efiSupport = lib.mkDefault true;
-        useOSProber = lib.mkDefault true;
+        enable = true;
+        # "nodev" installs GRUB to EFI partition (standard for UEFI desktops)
+        device = "nodev";
+        # Enable EFI boot support
+        efiSupport = true;
+        # Disable OS probing - single NixOS system, no need to scan for other OSes
+        useOSProber = false;
       };
     };
   };

@@ -1,23 +1,43 @@
-{ lib, values, ... }:
+{ pkgs, ... }:
 
-with lib;
+{
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
 
-mkMerge [
-  # Only configure audio if enabled
-  (mkIf values.nixos.audio.enable {
-    # PipeWire configuration
-    services.pipewire = {
-      enable = true;
-      alsa.enable = true;
-      alsa.support32Bit = true;
-      pulse.enable = true;
+    extraConfig.pipewire = {
+      "context.properties" = {
+        "log.level" = 2;
+        "core.daemon.priority" = 80;
+      };
     };
 
-    # Disable PulseAudio daemon when using PipeWire
-    services.pulseaudio.enable = false;
-    hardware.pulseaudio.enable = false;
+    extraConfig."99-pipewire-default.conf" = {
+      "context.objects" = [
+        {
+          factory = "metadata";
+          args = "";
+        }
+      ];
+      "stream.properties" = {
+        "node.latency" = "32/48000";
+        "resample.quality" = 7;
+      };
+    };
+  };
 
-    # Enable real-time audio support
-    security.rtkit.enable = true;
-  })
-]
+  services.pulseaudio.enable = false;
+  hardware.pulseaudio.enable = false;
+
+  security.rtkit.enable = true;
+
+  environment.systemPackages = with pkgs; [
+    pavucontrol
+    alsa-utils
+    pipecontrol
+  ];
+
+  users.groups.audio = { };
+}

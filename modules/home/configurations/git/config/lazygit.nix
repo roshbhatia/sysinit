@@ -1,16 +1,9 @@
 {
   lib,
-  utils,
-  values,
   ...
 }:
 
 let
-  inherit (utils.theme) validateThemeConfig getThemePalette;
-
-  validatedTheme = validateThemeConfig values.theme;
-  palette = getThemePalette validatedTheme.colorscheme validatedTheme.variant;
-  semanticColors = utils.theme.utils.createSemanticMapping palette;
 
   lazygitConfig = {
     gui = {

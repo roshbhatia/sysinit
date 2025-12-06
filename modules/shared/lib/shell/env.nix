@@ -1,11 +1,8 @@
 {
-  config,
-  lib,
   colors,
   appTheme,
 }:
 {
-  # Core environment variables (POSIX compatible)
   LANG = "en_US.UTF-8";
   LC_ALL = "en_US.UTF-8";
   SUDO_EDITOR = "nvim";
@@ -15,7 +12,6 @@
   COLIMA_HOME = "\${config.xdg.configHome}/colima";
   ZK_NOTEBOOK_DIR = "$HOME/github/personal/roshbhatia/zeek/notes";
 
-  # FZF colors (theme-aware)
   FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
     "--bind='resize:refresh-preview'"
     "--color=bg+:-1,bg:-1,spinner:${colors.accent.primary},hl:${colors.accent.primary}"
@@ -41,6 +37,5 @@
 
   FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
 
-  # Vivid theme
   VIVID_THEME = appTheme;
 }

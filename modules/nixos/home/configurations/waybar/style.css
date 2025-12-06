@@ -1,0 +1,137 @@
+/* Waybar Styling */
+
+* {
+  border: none;
+  border-radius: 0;
+  font-family: "JetBrains Mono", "Noto Sans", sans-serif;
+  font-size: 13px;
+  min-height: 0;
+}
+
+window#waybar {
+  background-color: rgba(30, 30, 46, 0.8);
+  color: #cdd6f4;
+  transition-property: background-color;
+  transition-duration: 0.5s;
+}
+
+window#waybar.hidden {
+  opacity: 0.2;
+}
+
+/* Modules */
+#workspaces,
+#window,
+#clock,
+#tray,
+#cpu,
+#memory,
+#temperature,
+#pulseaudio {
+  padding: 0 10px;
+  margin: 0 4px;
+}
+
+/* Workspaces */
+#workspaces {
+  padding: 0;
+  margin: 0;
+}
+
+#workspaces button {
+  padding: 8px 10px;
+  color: #89b4fa;
+  background-color: transparent;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+}
+
+#workspaces button:hover {
+  background-color: rgba(137, 180, 250, 0.1);
+  color: #89b4fa;
+}
+
+#workspaces button.active {
+  color: #89b4fa;
+  border-bottom: 3px solid #89b4fa;
+}
+
+#workspaces button.persistent {
+  color: #6c7086;
+}
+
+/* Window title */
+#window {
+  padding-left: 15px;
+  padding-right: 15px;
+  color: #cdd6f4;
+}
+
+/* Clock */
+#clock {
+  background-color: rgba(137, 180, 250, 0.1);
+  color: #89b4fa;
+  border-radius: 8px;
+  padding: 8px 15px;
+}
+
+/* System tray */
+#tray {
+  background-color: rgba(137, 180, 250, 0.1);
+  border-radius: 8px;
+}
+
+/* CPU */
+#cpu {
+  background-color: rgba(166, 218, 149, 0.1);
+  color: #a6da95;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+/* Memory */
+#memory {
+  background-color: rgba(230, 163, 109, 0.1);
+  color: #e6a35f;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+/* Temperature */
+#temperature {
+  background-color: rgba(249, 226, 175, 0.1);
+  color: #f9e2af;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+#temperature.critical {
+  background-color: rgba(243, 139, 168, 0.2);
+  color: #f38ba8;
+}
+
+/* Pulseaudio */
+#pulseaudio {
+  background-color: rgba(179, 182, 238, 0.1);
+  color: #b3b6ee;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+#pulseaudio.muted {
+  background-color: rgba(88, 91, 112, 0.1);
+  color: #585b70;
+}
+
+/* Tooltips */
+tooltip {
+  background-color: rgba(30, 30, 46, 0.95);
+  color: #cdd6f4;
+  border-radius: 8px;
+  border: 1px solid rgba(137, 180, 250, 0.2);
+  padding: 8px 12px;
+}
+
+tooltip label {
+  color: #cdd6f4;
+}

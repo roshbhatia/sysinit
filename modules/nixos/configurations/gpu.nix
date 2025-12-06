@@ -1,37 +1,25 @@
 {
-  lib,
-  values,
   pkgs,
   ...
 }:
 
-with lib;
-
 {
-  # GPU configuration - only apply if GPU is enabled
-  hardware.graphics = mkIf values.nixos.gpu.enable {
+  hardware.graphics = {
     enable = true;
-
-    # AMD GPU packages
-    extraPackages = mkIf (values.nixos.gpu.vendor == "amd") [
-      pkgs.libva
-      pkgs.vaapiVdpau
+    enable32Bit = true;
+    extraPackages = with pkgs; [
+      libva
     ];
-
-    # Generic GPU accelerated packages (32-bit)
-    extraPackages32 = if pkgs.stdenv.isx86_64 then [ pkgs.driversi686Linux.libva ] else [ ];
+    extraPackages32 = with pkgs.driversi686Linux; [
+      libva
+    ];
   };
 
-  # NVIDIA GPU specific configuration
-  services.xserver.videoDrivers =
-    mkIf (values.nixos.gpu.vendor == "nvidia" && values.nixos.gpu.enable)
-      [
-        "nvidia"
-      ];
+  services.xserver.videoDrivers = [ "nvidia" ];
 
-  hardware.nvidia = mkIf (values.nixos.gpu.vendor == "nvidia" && values.nixos.gpu.enable) {
-    modesetting.enable = true;
-    open = false; # Use proprietary driver
-    nvidiaSettings = true;
+  hardware.nvidia = {
+    modesetting.enable = true; # Required for Wayland support
+    open = false; # Nvidia GPUs use a proprietary driver
+    nvidiaSettings = true; # Enable nvidia-settings utility
   };
 }

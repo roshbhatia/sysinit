@@ -197,6 +197,19 @@
           };
           modules = [
             ./modules/nixos
+            home-manager.nixosModules.home-manager
+            {
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                users.${values.user.username} = {
+                  imports = [ ./modules/nixos/home ];
+                };
+                extraSpecialArgs = {
+                  inherit values;
+                };
+              };
+            }
           ];
         };
 

@@ -1,5 +1,4 @@
 {
-  lib,
 }:
 
 {
@@ -9,32 +8,23 @@
       palette = theme.palettes.${validatedConfig.variant};
       semanticColors = theme.semanticMapping palette;
 
-      # Map semantic colors to k9s-friendly format
       k9sColors = {
-        # Primary colors
         primary = semanticColors.foreground.primary;
         background = semanticColors.background.primary;
         secondary = semanticColors.foreground.secondary;
         muted = semanticColors.foreground.muted;
-
-        # Semantic colors
         accent = semanticColors.accent.primary;
         error = semanticColors.semantic.error;
         warning = semanticColors.semantic.warning;
         success = semanticColors.semantic.success;
         info = semanticColors.semantic.info;
-
-        # UI colors
         border = semanticColors.accent.primary;
         selection = semanticColors.accent.primary;
         highlight = semanticColors.accent.secondary;
-
-        # Additional shades
         muted_light = semanticColors.background.tertiary;
         muted_dark = semanticColors.background.overlay;
       };
 
-      # Generate K9s YAML theme
       generateK9sYaml = _themeId: ''
         k9s:
           body:
