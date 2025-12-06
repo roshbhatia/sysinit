@@ -21,9 +21,9 @@ let
   weztermAdapter = import ./adapters/wezterm.nix { inherit lib utils adapterBase; };
   neovimAdapter = import ./adapters/neovim.nix { inherit lib utils adapterBase; };
   firefoxAdapter = import ./adapters/firefox.nix { inherit lib utils adapterBase; };
-  k9sAdapter = import ./adapters/k9s.nix { inherit lib utils adapterBase; };
-  batAdapter = import ./adapters/bat.nix { inherit lib utils adapterBase; };
-  atuinAdapter = import ./adapters/atuin.nix { inherit lib utils adapterBase; };
+  k9sAdapter = import ./adapters/k9s.nix { inherit lib; };
+  batAdapter = import ./adapters/bat.nix { inherit lib; };
+  atuinAdapter = import ./adapters/atuin.nix { inherit lib; };
 
   transparencyPreset = import ./presets/transparency.nix { inherit lib; };
 
