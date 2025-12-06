@@ -2,27 +2,20 @@
   lib,
   pkgs,
   values,
-  utils,
   ...
 }:
 
 let
-  inherit (utils.theme) mkThemedConfig;
-  inherit (lib) listToAttrs nameValuePair;
+  themes = import ../../../lib/theme { inherit lib; };
 
-  themeCfg = mkThemedConfig values "bat" { };
-  batTheme = themeCfg.appTheme;
+  validatedTheme = themes.validateThemeConfig values.theme;
+  theme = themes.getTheme validatedTheme.colorscheme;
 
-  themeFiles = builtins.readDir ./themes;
+  batAdapter = themes.adapters.bat;
+  batThemeConfig = batAdapter.createBatTheme theme validatedTheme;
 
-  themeConfigFiles = listToAttrs (
-    lib.mapAttrsToList (
-      name: _type:
-      nameValuePair "bat/themes/${name}" {
-        source = ./themes + "/${name}";
-      }
-    ) themeFiles
-  );
+  # Determine the bat theme name to use
+  batThemeName = batThemeConfig.batThemeName;
 in
 {
   programs.bat = {
@@ -33,9 +26,9 @@ in
     };
   };
 
-  xdg.configFile = themeConfigFiles // {
+  xdg.configFile = {
     "bat/config".text = ''
-      --theme="${batTheme}"
+      --theme="${batThemeName}"
       --style=numbers,changes,header
       --pager="less -FR"
     '';

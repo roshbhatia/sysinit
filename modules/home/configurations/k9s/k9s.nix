@@ -8,7 +8,13 @@ let
   themes = import ../../../lib/theme { inherit lib; };
 
   validatedTheme = themes.validateThemeConfig values.theme;
-  k9sTheme = themes.getAppTheme "k9s" validatedTheme.colorscheme validatedTheme.variant;
+  theme = themes.getTheme validatedTheme.colorscheme;
+
+  k9sAdapter = themes.adapters.k9s;
+  k9sThemeConfig = k9sAdapter.createK9sTheme theme validatedTheme;
+
+  # Use theme name for k9s skin (k9s expects a filename-safe name)
+  themeName = "${validatedTheme.colorscheme}-${validatedTheme.variant}";
 in
 {
   programs.k9s = {
@@ -29,7 +35,7 @@ in
           noIcons = true;
           reactive = true;
           defaultsToFullScreen = true;
-          skin = k9sTheme;
+          skin = themeName;
         };
         noIcons = false;
         skipLatestRevCheck = true;
@@ -67,8 +73,9 @@ in
     };
   };
 
-  xdg.configFile."k9s/skins/${k9sTheme}.yaml" = {
-    source = ./skins/${k9sTheme}.yaml;
+  # Generate k9s skin YAML from semantic colors
+  xdg.configFile."k9s/skins/${themeName}.yaml" = {
+    text = k9sThemeConfig.themeYaml;
     force = true;
   };
 }

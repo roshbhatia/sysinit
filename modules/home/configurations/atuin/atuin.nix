@@ -1,14 +1,20 @@
 {
+  lib,
   values,
-  utils,
   ...
 }:
 
 let
-  inherit (utils.theme) mkThemedConfig;
+  themes = import ../../../lib/theme { inherit lib; };
 
-  themeCfg = mkThemedConfig values "atuin" { };
-  atuinTheme = themeCfg.appTheme;
+  validatedTheme = themes.validateThemeConfig values.theme;
+  theme = themes.getTheme validatedTheme.colorscheme;
+
+  atuinAdapter = themes.adapters.atuin;
+  atuinThemeConfig = atuinAdapter.createAtuinTheme theme validatedTheme;
+
+  # Theme name for atuin
+  themeName = atuinThemeConfig.atuinThemeName;
 in
 {
   programs.atuin = {
@@ -28,7 +34,7 @@ in
       show_preview = true;
       style = "compact";
       theme = {
-        name = atuinTheme;
+        name = themeName;
       };
 
       history_filter = [
@@ -37,9 +43,9 @@ in
     };
   };
 
-  xdg.configFile = utils.theme.deployThemeFiles values {
-    themeDir = ./themes;
-    targetPath = "atuin/themes";
-    fileExtension = "toml";
+  # Generate atuin theme TOML from semantic colors
+  xdg.configFile."atuin/themes/${themeName}.toml" = {
+    text = atuinThemeConfig.atuinToml;
+    force = true;
   };
 }
