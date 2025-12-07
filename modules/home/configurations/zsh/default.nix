@@ -7,7 +7,6 @@
 }:
 with lib;
 let
-  cfg = config.programs.zsh;
   shell = import ../../../shared/lib/shell { inherit lib; };
   themes = import ../../../shared/lib/theme { inherit lib; };
   paths_lib = import ../../../shared/lib/paths { inherit config lib; };
@@ -28,7 +27,7 @@ let
   extras = shell.stripHeaders ./system/extras.sh;
 in
 {
-  config = mkIf cfg.enable {
+  config = {
     programs.zsh = {
 
       autocd = true;
@@ -232,10 +231,18 @@ in
 
           ${env}
           ${extras}
-          ${completions}
-          ${prompt}
 
         ''
+
+        (lib.mkOrder 700 ''
+          # Load completions after plugins are fully initialized
+          ${completions}
+        '')
+
+        (lib.mkOrder 800 ''
+          # Load prompt last
+          ${prompt}
+        '')
 
         (lib.mkAfter ''
           [[ -n "$SYSINIT_DEBUG" ]] && zprof

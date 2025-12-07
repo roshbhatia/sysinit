@@ -7,14 +7,11 @@
     alsa.support32Bit = true;
     pulse.enable = true;
 
-    extraConfig.pipewire = {
+    extraConfig.pipewire."99-pipewire-default.conf" = {
       "context.properties" = {
         "log.level" = 2;
         "core.daemon.priority" = 80;
       };
-    };
-
-    extraConfig."99-pipewire-default.conf" = {
       "context.objects" = [
         {
           factory = "metadata";

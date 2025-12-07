@@ -1,6 +1,7 @@
 {
   values,
   utils,
+  pkgs,
   ...
 }:
 
@@ -21,6 +22,10 @@
         imports = [
           ../home # Cross-platform configurations
           ./home-specific # Darwin-specific configurations
+        ];
+
+        home.packages = with pkgs; [
+          wezterm
         ];
       };
   };

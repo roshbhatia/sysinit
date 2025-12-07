@@ -91,6 +91,12 @@
       klog = "kubecolor logs";
     };
 
+    packages = with pkgs; [
+      # Essential packages that should always be available
+      bashInteractive
+      neovim
+    ];
+
     activation.setBash = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
       export PATH="${pkgs.bashInteractive}/bin:$PATH"
     '';

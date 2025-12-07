@@ -1,11 +1,11 @@
-{ ... }:
+{ lib, ... }:
 
 {
   boot = {
     loader = {
       efi.canTouchEfiVariables = true;
       grub = {
-        enable = true;
+        enable = lib.mkForce true;
         device = "nodev";
         efiSupport = true;
         useOSProber = false;

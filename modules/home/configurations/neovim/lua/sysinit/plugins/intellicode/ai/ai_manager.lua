@@ -21,25 +21,14 @@ local function get_pane_info(pane_id)
     return nil
   end
 
-  local result = vim.fn.system("wezterm cli list --format json")
+  -- Suppress stderr (wezterm warnings) but capture stdout (JSON)
+  local result = vim.fn.system("wezterm cli list --format json 2>/dev/null")
   if vim.v.shell_error ~= 0 then
-    vim.notify(
-      string.format("Failed to list wezterm panes: %s", vim.trim(result)),
-      vim.log.levels.ERROR
-    )
     return nil
   end
 
   local ok, panes = pcall(vim.fn.json_decode, result)
-  if not ok then
-    vim.notify(
-      string.format("Failed to parse wezterm output: %s", tostring(panes)),
-      vim.log.levels.ERROR
-    )
-    return nil
-  end
-
-  if not panes then
+  if not ok or not panes then
     return nil
   end
 
@@ -66,7 +55,7 @@ local function find_existing_session(termname, cwd)
   local folder = vim.fn.fnamemodify(cwd, ":t")
   local prefix = string.format("ai-%s-%s-", termname, folder)
 
-  local result = vim.fn.system("tmux list-sessions -F '#{session_name}'")
+  local result = vim.fn.system("tmux list-sessions -F '#{session_name}' 2>/dev/null")
   if vim.v.shell_error ~= 0 then
     -- No sessions exist, this is not an error
     return nil
@@ -90,7 +79,7 @@ end
 
 -- Check if tmux session exists
 local function tmux_session_exists(session_name)
-  vim.fn.system(string.format("tmux has-session -t %s", vim.fn.shellescape(session_name)))
+  vim.fn.system(string.format("tmux has-session -t %s 2>/dev/null", vim.fn.shellescape(session_name)))
   return vim.v.shell_error == 0
 end
 
@@ -137,17 +126,9 @@ end
 -- Set tab title with proper error handling and retries
 local function set_tab_title(pane_id, title)
   local result = vim.fn.system(
-    string.format(
-      "wezterm cli set-tab-title --pane-id %d %s",
-      pane_id,
-      vim.fn.shellescape(title)
-    )
+    string.format("wezterm cli set-tab-title --pane-id %d %s 2>/dev/null", pane_id, vim.fn.shellescape(title))
   )
   if vim.v.shell_error ~= 0 then
-    vim.notify(
-      string.format("Failed to set tab title: %s", vim.trim(result)),
-      vim.log.levels.WARN
-    )
     return false
   end
   return true
@@ -155,28 +136,14 @@ end
 
 -- Activate pane with proper error handling
 local function activate_pane(pane_id)
-  local result = vim.fn.system(string.format("wezterm cli activate-pane --pane-id %d", pane_id))
-  if vim.v.shell_error ~= 0 then
-    vim.notify(
-      string.format("Failed to activate pane %d: %s", pane_id, vim.trim(result)),
-      vim.log.levels.ERROR
-    )
-    return false
-  end
-  return true
+  vim.fn.system(string.format("wezterm cli activate-pane --pane-id %d 2>/dev/null", pane_id))
+  return vim.v.shell_error == 0
 end
 
 -- Kill pane with proper error handling
 local function kill_pane(pane_id)
-  local result = vim.fn.system(string.format("wezterm cli kill-pane --pane-id %d", pane_id))
-  if vim.v.shell_error ~= 0 then
-    vim.notify(
-      string.format("Failed to kill pane %d: %s", pane_id, vim.trim(result)),
-      vim.log.levels.WARN
-    )
-    return false
-  end
-  return true
+  vim.fn.system(string.format("wezterm cli kill-pane --pane-id %d 2>/dev/null", pane_id))
+  return vim.v.shell_error == 0
 end
 
 function M.setup(opts)
@@ -186,20 +153,7 @@ function M.setup(opts)
 
   parent_pane_id = get_current_pane_id()
   if not parent_pane_id then
-    vim.notify(
-      "ERROR: Not running inside WezTerm. AI terminal integration requires WezTerm.",
-      vim.log.levels.ERROR
-    )
-    return
-  end
-
-  -- Validate parent pane actually exists
-  if not get_pane_info(parent_pane_id) then
-    vim.notify(
-      "ERROR: Cannot find parent pane. WezTerm environment corrupted.",
-      vim.log.levels.ERROR
-    )
-    parent_pane_id = nil
+    vim.notify("Warning: Not running inside WezTerm. AI terminal features disabled.", vim.log.levels.WARN)
     return
   end
 
@@ -293,7 +247,7 @@ function M.open(termname)
 
   -- Spawn WezTerm pane that attaches to tmux session
   local spawn_cmd = string.format(
-    "wezterm cli split-pane --pane-id %d --right --percent 50 --cwd %s -- %s",
+    "wezterm cli split-pane --pane-id %d --right --percent 50 --cwd %s -- %s 2>/dev/null",
     parent_pane_id,
     vim.fn.shellescape(cwd),
     tmux_cmd
@@ -302,22 +256,18 @@ function M.open(termname)
   local result = vim.fn.system(spawn_cmd)
 
   if vim.v.shell_error ~= 0 then
-    vim.notify("Failed to spawn pane: " .. vim.trim(result), vim.log.levels.ERROR)
+    vim.notify("Failed to spawn pane", vim.log.levels.ERROR)
     return
   end
 
   local pane_id = tonumber(vim.trim(result))
   if not pane_id then
-    vim.notify("Failed to parse pane ID from output: " .. vim.trim(result), vim.log.levels.ERROR)
+    vim.notify("Failed to parse pane ID from wezterm", vim.log.levels.ERROR)
     return
   end
 
   -- Wait for pane to actually exist before using it
   if not wait_for_pane(pane_id, 5) then
-    vim.notify(
-      string.format("Pane %d created but not accessible after spawn", pane_id),
-      vim.log.levels.ERROR
-    )
     return
   end
 
@@ -360,16 +310,7 @@ function M.focus(termname)
     return
   end
 
-  if not activate_pane(term_data.pane_id) then
-    vim.notify(
-      string.format("Failed to focus pane for %s. Reopening...", termname),
-      vim.log.levels.WARN
-    )
-    term_data.pane_id = nil
-    M.open(termname)
-    return
-  end
-
+  activate_pane(term_data.pane_id)
   active_terminal = termname
 end
 
@@ -386,9 +327,8 @@ function M.hide(termname)
   end
 
   -- Kill the WezTerm pane (tmux session stays alive in background)
-  if kill_pane(term_data.pane_id) then
-    term_data.pane_id = nil
-  end
+  kill_pane(term_data.pane_id)
+  term_data.pane_id = nil
 
   -- Focus back to neovim
   if parent_pane_id then
@@ -422,7 +362,7 @@ function M.show(termname)
   local tmux_cmd = string.format("tmux attach-session -t %s", vim.fn.shellescape(term_data.session_name))
 
   local spawn_cmd = string.format(
-    "wezterm cli split-pane --pane-id %d --right --percent 50 --cwd %s -- %s",
+    "wezterm cli split-pane --pane-id %d --right --percent 50 --cwd %s -- %s 2>/dev/null",
     parent_pane_id,
     vim.fn.shellescape(term_data.cwd),
     tmux_cmd
@@ -431,22 +371,18 @@ function M.show(termname)
   local result = vim.fn.system(spawn_cmd)
 
   if vim.v.shell_error ~= 0 then
-    vim.notify("Failed to spawn pane: " .. vim.trim(result), vim.log.levels.ERROR)
+    vim.notify("Failed to spawn pane", vim.log.levels.ERROR)
     return
   end
 
   local pane_id = tonumber(vim.trim(result))
   if not pane_id then
-    vim.notify("Failed to parse pane ID: " .. vim.trim(result), vim.log.levels.ERROR)
+    vim.notify("Failed to parse pane ID from wezterm", vim.log.levels.ERROR)
     return
   end
 
   -- Wait for pane to actually exist
   if not wait_for_pane(pane_id, 5) then
-    vim.notify(
-      string.format("Pane %d created but not accessible after respawn", pane_id),
-      vim.log.levels.ERROR
-    )
     return
   end
 
@@ -483,22 +419,10 @@ function M.send(termname, text, opts)
   -- Send to tmux session directly (works even if not visible)
   local send_cmd =
     string.format("tmux send-keys -t %s %s", vim.fn.shellescape(term_data.session_name), vim.fn.shellescape(text))
-  local result = vim.fn.system(send_cmd)
-
-  if vim.v.shell_error ~= 0 then
-    vim.notify(string.format("Failed to send text to %s: %s", termname, vim.trim(result)), vim.log.levels.ERROR)
-    return
-  end
+  vim.fn.system(send_cmd)
 
   if opts.submit then
-    local submit_cmd = string.format("tmux send-keys -t %s Enter", vim.fn.shellescape(term_data.session_name))
-    result = vim.fn.system(submit_cmd)
-    if vim.v.shell_error ~= 0 then
-      vim.notify(
-        string.format("Failed to submit in %s: %s", termname, vim.trim(result)),
-        vim.log.levels.ERROR
-      )
-    end
+    vim.fn.system(string.format("tmux send-keys -t %s Enter", vim.fn.shellescape(term_data.session_name)))
   end
 end
 
@@ -549,13 +473,7 @@ function M.close(termname)
 
   -- Kill tmux session
   if tmux_session_exists(term_data.session_name) then
-    local result = vim.fn.system(string.format("tmux kill-session -t %s", vim.fn.shellescape(term_data.session_name)))
-    if vim.v.shell_error ~= 0 then
-      vim.notify(
-        string.format("Failed to kill session %s: %s", term_data.session_name, vim.trim(result)),
-        vim.log.levels.WARN
-      )
-    end
+    vim.fn.system(string.format("tmux kill-session -t %s", vim.fn.shellescape(term_data.session_name)))
   end
 
   terminals[termname] = nil

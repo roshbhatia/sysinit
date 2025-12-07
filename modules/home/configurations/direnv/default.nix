@@ -4,11 +4,8 @@
   ...
 }:
 with lib;
-let
-  cfg = config.programs.direnv;
-in
 {
-  config = mkIf cfg.enable {
+  config = {
     programs = {
       direnv = {
         enableZshIntegration = true;

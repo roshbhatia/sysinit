@@ -4,13 +4,10 @@
   ...
 }:
 with lib;
-let
-  cfg = config.utils;
-in
 {
   options.utils.enable = mkEnableOption "utility scripts and tools";
 
-  config = mkIf cfg.enable {
+  config = {
     home.file = {
       ".local/bin/dns-flush" = {
         source = ./network/dns-flush;

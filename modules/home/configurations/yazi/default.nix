@@ -6,7 +6,6 @@
 }:
 with lib;
 let
-  cfg = config.programs.yazi;
   tomlFormat = pkgs.formats.toml { };
 
   yaziConfig = {
@@ -40,7 +39,7 @@ let
 
 in
 {
-  config = mkIf cfg.enable {
+  config = {
     xdg.configFile = mkPluginConfigs // {
       "yazi/yazi.toml".source = ./yazi.toml;
       "yazi/theme.toml" = {

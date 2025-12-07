@@ -6,13 +6,12 @@
 }:
 with lib;
 let
-  cfg = config.programs.neovim;
   themes = import ../../../shared/lib/theme { inherit lib; };
   inherit (config.lib.file) mkOutOfStoreSymlink;
 in
 
 {
-  config = mkIf cfg.enable {
+  config = {
     programs.neovim = {
       defaultEditor = true;
       vimAlias = true;

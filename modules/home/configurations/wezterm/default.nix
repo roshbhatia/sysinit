@@ -7,7 +7,6 @@
 }:
 with lib;
 let
-  cfg = config.programs.wezterm;
   inherit (utils.theme) generateAppJSON;
 
   themeConfig = values.theme // {
@@ -18,7 +17,7 @@ let
   inherit (config.lib.file) mkOutOfStoreSymlink;
 in
 {
-  config = mkIf cfg.enable {
+  config = {
     xdg.configFile."wezterm/wezterm.lua".source =
       mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/wezterm.lua";
 

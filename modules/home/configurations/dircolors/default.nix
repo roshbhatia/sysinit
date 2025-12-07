@@ -8,14 +8,13 @@
 }:
 with lib;
 let
-  cfg = config.programs.dircolors;
   inherit (utils.theme) mkThemedConfig;
 
   themeCfg = mkThemedConfig values "vivid" { };
   vividTheme = themeCfg.appTheme;
 in
 {
-  config = mkIf cfg.enable {
+  config = {
     programs.dircolors = {
       enableBashIntegration = true;
       enableZshIntegration = true;

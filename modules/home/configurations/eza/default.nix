@@ -4,11 +4,8 @@
   ...
 }:
 with lib;
-let
-  cfg = config.programs.eza;
-in
 {
-  config = mkIf cfg.enable {
+  config = {
     programs.eza = {
       enableBashIntegration = true;
       enableZshIntegration = true;

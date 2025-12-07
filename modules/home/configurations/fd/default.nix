@@ -4,11 +4,8 @@
   ...
 }:
 with lib;
-let
-  cfg = config.programs.fd;
-in
 {
-  config = mkIf cfg.enable {
+  config = {
     programs.fd = {
       hidden = true;
       extraOptions = [

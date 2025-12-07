@@ -6,7 +6,6 @@
 }:
 with lib;
 let
-  cfg = config.programs.atuin;
   themes = import ../../../shared/lib/theme { inherit lib; };
 
   validatedTheme = themes.validateThemeConfig values.theme;
@@ -19,7 +18,7 @@ let
   themeName = atuinThemeConfig.atuinThemeName;
 in
 {
-  config = mkIf cfg.enable {
+  config = {
     programs.atuin = {
       # These are enabled manually for zsh, but we let home-manager handle nushell
       enableZshIntegration = false;

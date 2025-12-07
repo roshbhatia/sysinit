@@ -173,7 +173,7 @@
             ./modules/darwin
             (import ./modules/darwin/home-manager.nix {
               inherit (values.user) username;
-              inherit values utils;
+              inherit values utils pkgs;
             })
             home-manager.darwinModules.home-manager
             nix-homebrew.darwinModules.nix-homebrew
@@ -280,7 +280,7 @@
 
       # NixOS configurations
       nixosConfigurations = lib.mapAttrs (
-        hostname: hostConfig:
+        _hostname: hostConfig:
         let
           overlays = mkOverlays hostConfig.system;
           pkgs = mkPkgs {
@@ -297,7 +297,7 @@
           };
         in
         mkNixosConfiguration {
-          inherit hostname pkgs utils;
+          inherit utils;
           system = hostConfig.system;
           values = processedVals;
         }

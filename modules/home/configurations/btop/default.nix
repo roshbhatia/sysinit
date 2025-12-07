@@ -6,14 +6,13 @@
 }:
 with lib;
 let
-  cfg = config.programs.btop;
   themes = import ../../../shared/lib/theme { inherit lib; };
 
   validatedTheme = themes.validateThemeConfig values.theme;
   btopTheme = themes.getAppTheme "btop" validatedTheme.colorscheme validatedTheme.variant;
 in
 {
-  config = mkIf cfg.enable {
+  config = {
     programs.btop = {
       settings = {
         color_theme = "${validatedTheme.colorscheme}-${validatedTheme.variant}";

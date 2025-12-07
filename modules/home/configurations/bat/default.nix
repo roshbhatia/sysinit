@@ -7,7 +7,6 @@
 }:
 with lib;
 let
-  cfg = config.programs.bat;
   themes = import ../../../shared/lib/theme { inherit lib; };
 
   validatedTheme = themes.validateThemeConfig values.theme;
@@ -20,7 +19,7 @@ let
   batThemeName = batThemeConfig.batThemeName;
 in
 {
-  config = mkIf cfg.enable {
+  config = {
     programs.bat = {
       config = {
         style = "numbers,changes,header";

@@ -4,11 +4,8 @@
   ...
 }:
 with lib;
-let
-  cfg = config.programs.zoxide;
-in
 {
-  config = mkIf cfg.enable {
+  config = {
     programs.zoxide = {
       enableZshIntegration = false; # Handled manually in zsh config
       enableNushellIntegration = true;
