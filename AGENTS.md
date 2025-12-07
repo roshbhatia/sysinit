@@ -1,6 +1,8 @@
 # AGENTS.md
 
-Comprehensive configuration and guidance for AI coding agents working with this Nix-based macOS development environment.
+Comprehensive configuration and guidance for AI coding agents working with this Nix-based multi-system development environment.
+
+> **Project Structure**: See `STRUCTURE.md` for high-level overview and `modules/README.md` for detailed module documentation.
 
 ## Project Overview
 

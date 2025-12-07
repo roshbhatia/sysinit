@@ -20,7 +20,7 @@
       {
         imports = [
           ../home # Cross-platform configurations
-          ./home # Darwin-specific configurations
+          ./home-specific # Darwin-specific configurations
         ];
       };
   };

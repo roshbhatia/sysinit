@@ -1,9 +1,9 @@
 { config, pkgs, ... }:
 {
   home.file.".hammerspoon/init.lua".source =
-    "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/configurations/hammerspoon/init.lua";
+    "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home-specific/configurations/hammerspoon/init.lua";
   home.file.".hammerspoon/lua".source =
-    "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home/configurations/hammerspoon/lua";
+    "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/darwin/home-specific/configurations/hammerspoon/lua";
 
   home.file.".hammerspoon/Spoons/VimMode.spoon" = {
     source = pkgs.fetchFromGitHub {
