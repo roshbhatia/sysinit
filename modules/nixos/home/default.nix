@@ -7,6 +7,8 @@
 {
   imports = [
     ./mako.nix
+    ./niri.nix
+    ./waybar.nix
   ];
 
   home.stateVersion = lib.mkForce "24.11";

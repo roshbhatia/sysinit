@@ -16,6 +16,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
+    niri = {
+      url = "github:sodiboo/niri-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # TODO: Re-enable when upstream gitlab.common-lisp.net issue is fixed
+    # See: https://github.com/hraban/mac-app-util/issues/39
+    # mac-app-util = {
+    #   url = "github:hraban/mac-app-util";
+    # };
   };
 
   outputs =
@@ -24,6 +33,8 @@
       darwin,
       home-manager,
       nix-homebrew,
+      niri,
+      # mac-app-util,
       ...
     }:
     let
@@ -172,8 +183,14 @@
             })
             home-manager.darwinModules.home-manager
             nix-homebrew.darwinModules.nix-homebrew
+            # TODO: Re-enable when upstream gitlab.common-lisp.net issue is fixed
+            # mac-app-util.darwinModules.default
             {
               _module.args.utils = utils;
+              # TODO: Re-enable with mac-app-util
+              # home-manager.sharedModules = [
+              #   mac-app-util.homeManagerModules.default
+              # ];
             }
           ];
         };
@@ -199,6 +216,7 @@
           modules = [
             ./modules/nixos
             home-manager.nixosModules.home-manager
+            niri.nixosModules.niri
             (import ./modules/nixos/home-manager.nix {
               inherit values utils pkgs;
             })

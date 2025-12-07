@@ -1,5 +1,4 @@
 {
-  lib,
   values,
   utils,
   ...
@@ -16,127 +15,72 @@ let
   niriThemeConfig = niriAdapter.createNiriTheme themeObj validatedTheme;
 in
 {
-  wayland.windowManager.niri = {
-    enable = true;
+  programs.niri.settings = {
+    input = {
+      keyboard.xkb.layout = "us";
 
-    settings = {
-      input = {
-        keyboard = {
-          xkb = {
-            layout = "us";
-          };
-        };
-        touchpad = {
-          natural-scroll = false;
-          tap = true;
-        };
+      touchpad = {
+        natural-scroll = false;
+        tap = true;
+      };
+    };
+
+    layout = {
+      gaps = 12;
+
+      border = {
+        width = 2;
+        active.color = niriThemeConfig.niriColors.activeBorder;
+        inactive.color = niriThemeConfig.niriColors.inactiveBorder;
       };
 
-      output = {
-        default-scale = 1.0;
+      focus-ring = {
+        width = 2;
+        active.color = niriThemeConfig.niriColors.activeBorder;
+        inactive.color = niriThemeConfig.niriColors.inactiveBorder;
       };
+    };
 
-      layout = {
-        gaps = 12;
-        border = {
-          width = 2;
-          active-color = niriThemeConfig.niriColors.activeBorder;
-          inactive-color = niriThemeConfig.niriColors.inactiveBorder;
-        };
-        focus-ring = {
-          width = 2;
-          active-color = niriThemeConfig.niriColors.activeBorder;
-          inactive-color = niriThemeConfig.niriColors.inactiveBorder;
-        };
-      };
+    spawn-at-startup = [
+      { command = [ "waybar" ]; }
+    ];
 
-      spawn-at-startup = [
-        { command = [ "waybar" ]; }
+    binds = {
+      "Mod+Return".action.spawn = [ "foot" ];
+      "Mod+Space".action.spawn = [
+        "wofi"
+        "--show=drun"
       ];
 
-      binds = with lib; {
-        "Mod+Return" = {
-          action = "Spawn";
-          command = [ "foot" ];
-        };
-        "Mod+Space" = {
-          action = "Spawn";
-          command = [
-            "wofi"
-            "--show=drun"
-          ];
-        };
-        "Mod+H" = {
-          action = "FocusColumnLeft";
-        };
-        "Mod+J" = {
-          action = "FocusWindowDown";
-        };
-        "Mod+K" = {
-          action = "FocusWindowUp";
-        };
-        "Mod+L" = {
-          action = "FocusColumnRight";
-        };
-        "Mod+Shift+H" = {
-          action = "MoveColumnLeft";
-        };
-        "Mod+Shift+J" = {
-          action = "MoveWindowDown";
-        };
-        "Mod+Shift+K" = {
-          action = "MoveWindowUp";
-        };
-        "Mod+Shift+L" = {
-          action = "MoveColumnRight";
-        };
-        "Mod+Plus" = {
-          action = "IncreaseColumnWidth";
-          data = 50;
-        };
-        "Mod+Minus" = {
-          action = "DecreaseColumnWidth";
-          data = 50;
-        };
-        "Mod+1" = {
-          action = "GoToWorkspace";
-          workspace = 1;
-        };
-        "Mod+2" = {
-          action = "GoToWorkspace";
-          workspace = 2;
-        };
-        "Mod+3" = {
-          action = "GoToWorkspace";
-          workspace = 3;
-        };
-        "Mod+Shift+1" = {
-          action = "MoveWindowToWorkspace";
-          workspace = 1;
-        };
-        "Mod+Shift+2" = {
-          action = "MoveWindowToWorkspace";
-          workspace = 2;
-        };
-        "Mod+Shift+3" = {
-          action = "MoveWindowToWorkspace";
-          workspace = 3;
-        };
-        "Mod+Tab" = {
-          action = "GoToWorkspace";
-          relative = 1;
-        };
-        "Mod+Shift+Tab" = {
-          action = "GoToWorkspace";
-          relative = -1;
-        };
-        "Mod+F" = {
-          action = "Fullscreen";
-        };
-        "Mod+Slash" = {
-          action = "SwitchLayout";
-        };
-      };
+      "Mod+H".action.focus-column-left = { };
+      "Mod+J".action.focus-window-down = { };
+      "Mod+K".action.focus-window-up = { };
+      "Mod+L".action.focus-column-right = { };
+
+      "Mod+Shift+H".action.move-column-left = { };
+      "Mod+Shift+J".action.move-window-down = { };
+      "Mod+Shift+K".action.move-window-up = { };
+      "Mod+Shift+L".action.move-column-right = { };
+
+      "Mod+Equal".action.set-column-width = "+10%";
+      "Mod+Minus".action.set-column-width = "-10%";
+
+      "Mod+1".action.focus-workspace = 1;
+      "Mod+2".action.focus-workspace = 2;
+      "Mod+3".action.focus-workspace = 3;
+
+      "Mod+Shift+1".action.move-column-to-workspace = 1;
+      "Mod+Shift+2".action.move-column-to-workspace = 2;
+      "Mod+Shift+3".action.move-column-to-workspace = 3;
+
+      "Mod+Tab".action.focus-workspace-down = { };
+      "Mod+Shift+Tab".action.focus-workspace-up = { };
+
+      "Mod+F".action.maximize-column = { };
+      "Mod+Shift+F".action.fullscreen-window = { };
+      "Mod+Slash".action.switch-preset-column-width = { };
+
+      "Mod+Q".action.close-window = { };
     };
   };
 }

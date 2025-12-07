@@ -25,8 +25,8 @@ in
         spacing = 4;
 
         modules-left = [
-          "hyprland/workspaces"
-          "hyprland/window"
+          "niri/workspaces"
+          "niri/window"
         ];
 
         modules-center = [
@@ -39,39 +39,16 @@ in
           "memory"
           "temperature"
           "pulseaudio"
-          "clock"
         ];
 
-        "hyprland/workspaces" = {
+        "niri/workspaces" = {
           format = "{name}";
-          format-icons = {
-            "1" = "";
-            "2" = "";
-            "3" = "";
-            "C" = "";
-            "M" = "";
-            "S" = "";
-            "E" = "";
-            default = "";
-          };
           on-click = "activate";
-          active-only = false;
-          all-outputs = true;
-          persistent-workspaces = {
-            "1" = [ ];
-            "2" = [ ];
-            "3" = [ ];
-            "C" = [ ];
-            "M" = [ ];
-            "S" = [ ];
-            "E" = [ ];
-          };
         };
 
-        "hyprland/window" = {
+        "niri/window" = {
           format = "{}";
           max-length = 50;
-          separate-outputs = false;
         };
 
         clock = {
