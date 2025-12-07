@@ -29,19 +29,15 @@
     let
       inherit (nixpkgs) lib;
 
-      # Platform utilities for system-agnostic paths
       platformUtils = import ./modules/shared/lib/platform { inherit lib; };
 
-      # Multi-system support configuration
       systems = {
-        laptop = "aarch64-darwin"; # macOS laptop
-        nixos-desktop = "aarch64-linux"; # NixOS desktop
+        laptop = "aarch64-darwin";
+        nixos-desktop = "aarch64-linux";
       };
 
-      # User and host configuration definitions
       hostConfigs = {
         lv426 = {
-          # macOS laptop
           system = systems.laptop;
           platform = "darwin";
           username = "rshnbhatia";
@@ -76,7 +72,6 @@
           };
         };
         arrakis = {
-          # NixOS desktop
           system = systems.nixos-desktop;
           platform = "linux";
           username = "rshnbhatia";

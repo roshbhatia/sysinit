@@ -133,6 +133,7 @@ let
     vivid
     vscode-langservers-extracted
     watch
+    wezterm
     wget
     which
     yaml-language-server

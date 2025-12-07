@@ -92,9 +92,7 @@
     };
 
     packages = with pkgs; [
-      # Essential packages that should always be available
       bashInteractive
-      # neovim is managed by programs.neovim in configurations/neovim
     ];
 
     activation.setBash = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''

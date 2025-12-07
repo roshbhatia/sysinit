@@ -1,4 +1,3 @@
-# This module ensures lib.hm is available to all home-manager modules
 {
   inputs,
   lib,
