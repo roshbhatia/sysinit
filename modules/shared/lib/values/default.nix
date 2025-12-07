@@ -4,6 +4,13 @@ with lib;
 {
   valuesType = types.submodule {
     options = {
+      config = {
+        root = mkOption {
+          type = types.path;
+          description = "Root path to the configuration flake directory";
+        };
+      };
+
       user = {
         username = mkOption {
           type = types.str;

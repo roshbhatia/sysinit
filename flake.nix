@@ -38,8 +38,7 @@
         nixos-desktop = "aarch64-linux"; # NixOS desktop
       };
 
-      # Centralized user/host configuration
-      # Centralized user/host configuration
+      # User and host configuration definitions
       hostConfigs = {
         lv426 = {
           # macOS laptop
@@ -47,6 +46,9 @@
           platform = "darwin";
           username = "rshnbhatia";
           values = {
+            config = {
+              root = ./.;
+            };
             user = {
               username = "rshnbhatia";
               hostname = "lv426";
@@ -79,6 +81,9 @@
           platform = "linux";
           username = "rshnbhatia";
           values = {
+            config = {
+              root = ./.;
+            };
             user = {
               username = "rshnbhatia";
               hostname = "arrakis";
