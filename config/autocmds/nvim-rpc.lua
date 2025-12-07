@@ -1,7 +1,3 @@
--- modules/home/configurations/neovim/lua/sysinit/config/autocmds/nvim-rpc.lua
--- Manages neovim RPC socket for MCP server integration
--- Fixed: Added socket validation and proper error handling
-
 local M = {}
 
 function M.setup()
