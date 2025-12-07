@@ -1,9 +1,18 @@
 {
+  config,
+  lib,
+  values,
+  utils,
   ...
 }:
 
+let
+  cargoPackages = values.cargo.additionalPackages or [ ];
+in
 {
-  imports = [
-    ./cargo.nix
-  ];
+  home.activation = {
+    cargoPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+      utils.packages.mkPackageManagerScript config "cargo" cargoPackages
+    );
+  };
 }

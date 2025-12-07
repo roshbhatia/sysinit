@@ -1,9 +1,18 @@
 {
+  config,
+  lib,
+  values,
+  utils,
   ...
 }:
 
+let
+  vetPackages = [ ] ++ (values.vet.additionalPackages or [ ]);
+in
 {
-  imports = [
-    ./vet.nix
-  ];
+  home.activation = {
+    vetPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+      utils.packages.mkPackageManagerScript config "vet" vetPackages
+    );
+  };
 }

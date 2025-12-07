@@ -1,8 +1,10 @@
+_:
+
 {
-  ...
-}:
-{
-  imports = [
-    ./carapace.nix
-  ];
+  programs.carapace = {
+    enable = true;
+    enableBashIntegration = true;
+    enableZshIntegration = true;
+    enableNushellIntegration = true;
+  };
 }
