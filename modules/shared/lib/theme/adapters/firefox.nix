@@ -7,14 +7,6 @@
 with lib;
 
 {
-  /*
-    Create Firefox theme configuration.
-
-    Uses the adapter base pattern:
-    1. Define color mapping (semantic → firefox CSS variables)
-    2. Define config builder function
-    3. Use adapterBase.createAdapter for common logic
-  */
   createFirefoxConfig =
     themeData: config: overrides:
     let
@@ -712,7 +704,6 @@ with lib;
         }
       '';
 
-      # Allow custom per-website CSS overrides
       customWebsiteCSS =
         if hasAttr "websiteCSS" overrides then
           ''
@@ -734,11 +725,6 @@ with lib;
     in
     utils.mergeThemeConfigs baseConfig overrides;
 
-  /*
-    Generate Firefox JSON export.
-
-    Exports theme configuration suitable for Firefox setup scripts.
-  */
   generateFirefoxJSON =
     themeData: config:
     let
