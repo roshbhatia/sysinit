@@ -156,7 +156,6 @@ in
     '';
 
     envFile.text = ''
-      # Environment variables - set using proper nushell syntax
       $env.LANG = "en_US.UTF-8"
       $env.LC_ALL = "en_US.UTF-8"
       $env.EDITOR = "nvim"
