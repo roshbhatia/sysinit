@@ -1,10 +1,9 @@
 {
-  config,
   lib,
   values,
   ...
 }:
-with lib;
+
 let
   themes = import ../../../shared/lib/theme { inherit lib; };
 
@@ -18,36 +17,35 @@ let
   themeName = atuinThemeConfig.atuinThemeName;
 in
 {
-  config = {
-    programs.atuin = {
-      # These are enabled manually for zsh, but we let home-manager handle nushell
-      enableZshIntegration = false;
-      enableNushellIntegration = true;
+  programs.atuin = {
+    enable = true;
+    # These are enabled manually for zsh, but we let home-manager handle nushell
+    enableZshIntegration = false;
+    enableNushellIntegration = true;
 
-      settings = {
-        update_check = false;
-        inline_height = 15;
-        show_help = false;
-        show_tabs = false;
-        enter_accept = true;
-        invert = true;
-        keymap_mode = "vim-normal";
-        show_preview = true;
-        style = "compact";
-        theme = {
-          name = themeName;
-        };
-
-        history_filter = [
-          "with-env .*atuin search.*"
-        ];
+    settings = {
+      update_check = false;
+      inline_height = 15;
+      show_help = false;
+      show_tabs = false;
+      enter_accept = true;
+      invert = true;
+      keymap_mode = "vim-normal";
+      show_preview = true;
+      style = "compact";
+      theme = {
+        name = themeName;
       };
-    };
 
-    # Generate atuin theme TOML from semantic colors
-    xdg.configFile."atuin/themes/${themeName}.toml" = {
-      text = atuinThemeConfig.atuinToml;
-      force = true;
+      history_filter = [
+        "with-env .*atuin search.*"
+      ];
     };
+  };
+
+  # Generate atuin theme TOML from semantic colors
+  xdg.configFile."atuin/themes/${themeName}.toml" = {
+    text = atuinThemeConfig.atuinToml;
+    force = true;
   };
 }

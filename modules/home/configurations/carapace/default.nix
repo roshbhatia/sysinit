@@ -1,15 +1,10 @@
+_:
+
 {
-  config,
-  lib,
-  ...
-}:
-with lib;
-{
-  config = {
-    programs.carapace = {
-      enableBashIntegration = true;
-      enableZshIntegration = true;
-      enableNushellIntegration = true;
-    };
+  programs.carapace = {
+    enable = true;
+    enableBashIntegration = true;
+    enableZshIntegration = true;
+    enableNushellIntegration = true;
   };
 }

@@ -1,17 +1,12 @@
+_:
+
 {
-  config,
-  lib,
-  ...
-}:
-with lib;
-{
-  config = {
-    programs.zoxide = {
-      enableZshIntegration = false; # Handled manually in zsh config
-      enableNushellIntegration = true;
-      options = [
-        "--cmd cd"
-      ];
-    };
+  programs.zoxide = {
+    enable = true;
+    enableZshIntegration = false; # Handled manually in zsh config
+    enableNushellIntegration = true;
+    options = [
+      "--cmd cd"
+    ];
   };
 }

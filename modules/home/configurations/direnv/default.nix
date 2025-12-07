@@ -1,17 +1,12 @@
+_:
+
 {
-  config,
-  lib,
-  ...
-}:
-with lib;
-{
-  config = {
-    programs = {
-      direnv = {
-        enableZshIntegration = true;
-        enableNushellIntegration = true;
-        nix-direnv.enable = true;
-      };
+  programs = {
+    direnv = {
+      enable = true;
+      enableZshIntegration = true;
+      enableNushellIntegration = true;
+      nix-direnv.enable = true;
     };
   };
 }

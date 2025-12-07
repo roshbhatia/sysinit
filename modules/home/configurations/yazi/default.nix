@@ -1,10 +1,8 @@
 {
-  config,
-  lib,
   pkgs,
   ...
 }:
-with lib;
+
 let
   tomlFormat = pkgs.formats.toml { };
 
@@ -39,12 +37,12 @@ let
 
 in
 {
-  config = {
-    xdg.configFile = mkPluginConfigs // {
-      "yazi/yazi.toml".source = ./yazi.toml;
-      "yazi/theme.toml" = {
-        source = tomlFormat.generate "theme.toml" yaziConfig;
-      };
+  xdg.configFile = mkPluginConfigs // {
+    "yazi/yazi.toml" = {
+      source = tomlFormat.generate "yazi.toml" yaziConfig;
+      force = true;
     };
+
+    "yazi/init.lua".source = ./init.lua;
   };
 }
