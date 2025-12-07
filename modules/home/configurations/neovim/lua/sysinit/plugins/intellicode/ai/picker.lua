@@ -5,9 +5,15 @@ function M.pick_agent()
   local ai_manager = require("sysinit.plugins.intellicode.ai.ai_manager")
   local active = ai_manager.get_active()
 
-  -- If there's an active terminal and it exists, toggle it (hide it)
+  -- If there's an active terminal and its tmux session exists, toggle visibility
   if active and ai_manager.exists(active) then
-    ai_manager.hide(active)
+    if ai_manager.is_visible(active) then
+      -- Pane is visible -> hide it (kill WezTerm pane, keep tmux session)
+      ai_manager.hide(active)
+    else
+      -- Pane is hidden but session exists -> bring it back
+      ai_manager.activate(active)
+    end
     return
   end
 
