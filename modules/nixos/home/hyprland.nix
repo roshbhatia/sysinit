@@ -1,17 +1,17 @@
 {
   lib,
-  values,
+  theme,
   ...
 }:
 
 let
   themes = import ../../../../shared/lib/theme { inherit lib; };
 
-  validatedTheme = themes.validateThemeConfig values.theme;
-  theme = themes.getTheme validatedTheme.colorscheme;
+  validatedTheme = themes.validateThemeConfig theme;
+  themeObj = themes.getTheme validatedTheme.colorscheme;
 
   hyprlandAdapter = themes.adapters.hyprland;
-  hyprlandThemeConfig = hyprlandAdapter.createHyprlandTheme theme validatedTheme;
+  hyprlandThemeConfig = hyprlandAdapter.createHyprlandTheme themeObj validatedTheme;
 in
 {
   wayland.windowManager.hyprland = {

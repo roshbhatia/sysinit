@@ -1,17 +1,17 @@
 {
   lib,
-  values,
+  username,
   ...
 }:
 
 {
   imports = [
-    ./hyprland.nix
+    ./niri.nix
     ./waybar.nix
   ];
 
   home.stateVersion = "24.11";
 
-  home.username = values.user.username;
-  home.homeDirectory = lib.mkDefault "/home/${values.user.username}";
+  home.username = username;
+  home.homeDirectory = lib.mkDefault "/home/${username}";
 }

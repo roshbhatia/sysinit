@@ -211,7 +211,9 @@
                   imports = [ ./modules/nixos/home ];
                 };
                 extraSpecialArgs = {
-                  inherit values;
+                 inherit lib;
+                 theme = values.theme;
+                 username = values.user.username;
                 };
               };
             }

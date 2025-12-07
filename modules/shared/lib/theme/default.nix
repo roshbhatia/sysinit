@@ -26,6 +26,7 @@ let
   atuinAdapter = import ./adapters/atuin.nix { inherit lib; };
   waybarAdapter = import ./adapters/waybar.nix { inherit lib; };
   hyprlandAdapter = import ./adapters/hyprland.nix { inherit lib; };
+  niriAdapter = import ./adapters/niri.nix { inherit lib; };
 
   transparencyPreset = import ./presets/transparency.nix { inherit lib; };
 
@@ -427,6 +428,7 @@ in
     atuin = atuinAdapter;
     waybar = waybarAdapter;
     hyprland = hyprlandAdapter;
+    niri = niriAdapter;
   };
 
   presets = {

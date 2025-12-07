@@ -4,19 +4,17 @@
 }:
 
 {
-  programs.hyprland = {
+  programs.niri = {
     enable = true;
-    withUWSM = true;
-    xwayland.enable = true;
   };
 
   xdg.portal = {
     enable = true;
-    extraPortals = with pkgs; [ xdg-desktop-portal-hyprland ];
+    extraPortals = with pkgs; [ xdg-desktop-portal-wlr ];
   };
 
-  services.displayManager.sddm = {
+  services.displayManager.gdm = {
     enable = true;
-    wayland.enable = true;
+    wayland = true;
   };
 }

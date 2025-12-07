@@ -2,18 +2,18 @@
   config,
   lib,
   pkgs,
-  values,
+  theme,
   ...
 }:
 
 let
   themes = import ../../../../shared/lib/theme { inherit lib; };
 
-  validatedTheme = themes.validateThemeConfig values.theme;
-  theme = themes.getTheme validatedTheme.colorscheme;
+  validatedTheme = themes.validateThemeConfig theme;
+  themeObj = themes.getTheme validatedTheme.colorscheme;
 
   waybarAdapter = themes.adapters.waybar;
-  waybarThemeConfig = waybarAdapter.createWaybarTheme theme validatedTheme;
+  waybarThemeConfig = waybarAdapter.createWaybarTheme themeObj validatedTheme;
 in
 {
   programs.waybar = {
