@@ -2,6 +2,7 @@ local M = {}
 
 local last_prompts = {}
 
+-- Wait for pane to be available before sending (polling instead of defer)
 function M.ensure_terminal_and_send(termname, text)
   last_prompts[termname] = text
 
@@ -12,14 +13,24 @@ function M.ensure_terminal_and_send(termname, text)
     ai_manager.open(termname)
     ai_manager.focus(termname)
 
-    vim.defer_fn(function()
-      ai_manager.send(termname, text, { submit = true })
-    end, 300)
+    -- Poll for pane to be ready (instead of arbitrary defer delay)
+    local max_retries = 10
+    local retry = 0
+    while retry < max_retries do
+      vim.fn.system("sleep 0.05")
+      if ai_manager.is_visible(termname) then
+        ai_manager.send(termname, text, { submit = true })
+        return
+      end
+      retry = retry + 1
+    end
+
+    -- If we get here, pane never became visible
+    vim.notify("Pane failed to become ready for sending text", vim.log.levels.ERROR)
   else
     ai_manager.focus(termname)
-    vim.defer_fn(function()
-      ai_manager.send(termname, text, { submit = true })
-    end, 300)
+    -- Already visible, send immediately
+    ai_manager.send(termname, text, { submit = true })
   end
 end
 
