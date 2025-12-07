@@ -29,6 +29,10 @@ nix.secrets.conf
 !PLATFORM_ANALYSIS.md
 !THEME_CONSOLIDATION_PLAN.md
 !SESSION_SUMMARY.md
+!STRUCTURE.md
+!CODE_AUDIT.md
+!IMPROVEMENT_GUIDE.md
+!STRUCTURE_VALIDATION.md
 
 ## Agents tend to spit out docs that don't need to be committed
 **/*.md
