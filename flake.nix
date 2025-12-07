@@ -20,11 +20,11 @@
       url = "github:sodiboo/niri-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # TODO: Re-enable when upstream gitlab.common-lisp.net issue is fixed
-    # See: https://github.com/hraban/mac-app-util/issues/39
-    # mac-app-util = {
-    #   url = "github:hraban/mac-app-util";
-    # };
+    mac-app-util = {
+      url = "github:hraban/mac-app-util";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.cl-nix-lite.url = "github:r4v3n6101/cl-nix-lite/url-fix";
+    };
   };
 
   outputs =
@@ -34,7 +34,7 @@
       home-manager,
       nix-homebrew,
       niri,
-      # mac-app-util,
+      mac-app-util,
       ...
     }:
     let
@@ -183,14 +183,12 @@
             })
             home-manager.darwinModules.home-manager
             nix-homebrew.darwinModules.nix-homebrew
-            # TODO: Re-enable when upstream gitlab.common-lisp.net issue is fixed
-            # mac-app-util.darwinModules.default
+            mac-app-util.darwinModules.default
             {
               _module.args.utils = utils;
-              # TODO: Re-enable with mac-app-util
-              # home-manager.sharedModules = [
-              #   mac-app-util.homeManagerModules.default
-              # ];
+              home-manager.sharedModules = [
+                mac-app-util.homeManagerModules.default
+              ];
             }
           ];
         };
