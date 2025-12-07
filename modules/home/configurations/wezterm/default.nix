@@ -1,11 +1,13 @@
 {
   config,
+  lib,
   values,
   utils,
   ...
 }:
-
+with lib;
 let
+  cfg = config.programs.wezterm;
   inherit (utils.theme) generateAppJSON;
 
   themeConfig = values.theme // {
@@ -16,15 +18,17 @@ let
   inherit (config.lib.file) mkOutOfStoreSymlink;
 in
 {
-  xdg.configFile."wezterm/wezterm.lua".source =
-    mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/wezterm.lua";
+  config = mkIf cfg.enable {
+    xdg.configFile."wezterm/wezterm.lua".source =
+      mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/wezterm.lua";
 
-  xdg.configFile."wezterm/lua".source =
-    mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/lua";
+    xdg.configFile."wezterm/lua".source =
+      mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/lua";
 
-  xdg.configFile."wezterm/theme_config.json".text = builtins.toJSON (
-    generateAppJSON "wezterm" themeConfig
-  );
+    xdg.configFile."wezterm/theme_config.json".text = builtins.toJSON (
+      generateAppJSON "wezterm" themeConfig
+    );
 
-  xdg.configFile."wezterm/colors".source = ./colors;
+    xdg.configFile."wezterm/colors".source = ./colors;
+  };
 }
