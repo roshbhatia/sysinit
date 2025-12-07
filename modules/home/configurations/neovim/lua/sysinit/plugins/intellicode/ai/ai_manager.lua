@@ -1,7 +1,3 @@
--- modules/home/configurations/neovim/lua/sysinit/plugins/intellicode/ai/ai_manager.lua
--- AI terminal manager using tmux sessions for persistence + WezTerm panes for UI
--- Fixed: Removed all error suppression, added proper error handling, replaced defer with polling
-
 local M = {}
 
 local config = {}
@@ -10,18 +6,15 @@ local active_terminal = nil
 local augroup = nil
 local parent_pane_id = nil
 
--- Get the current WezTerm pane ID from environment
 local function get_current_pane_id()
   return tonumber(vim.env.WEZTERM_PANE)
 end
 
--- Get pane information from WezTerm - now with proper error handling
 local function get_pane_info(pane_id)
   if not pane_id then
     return nil
   end
 
-  -- Suppress stderr (wezterm warnings) but capture stdout (JSON)
   local result = vim.fn.system("wezterm cli list --format json 2>/dev/null")
   if vim.v.shell_error ~= 0 then
     return nil
@@ -41,23 +34,18 @@ local function get_pane_info(pane_id)
   return nil
 end
 
--- Get tmux session name for an agent
--- Format: ai-<agent>-<folder>-<timestamp>
--- Example: ai-opencode-sysinit-20251205-123045
 local function get_session_name(termname, cwd)
   local folder = vim.fn.fnamemodify(cwd, ":t") -- Get last component of path
   local timestamp = os.date("%Y%m%d-%H%M%S")
   return string.format("ai-%s-%s-%s", termname, folder, timestamp)
 end
 
--- Find existing session for agent+folder combo (most recent)
 local function find_existing_session(termname, cwd)
   local folder = vim.fn.fnamemodify(cwd, ":t")
   local prefix = string.format("ai-%s-%s-", termname, folder)
 
   local result = vim.fn.system("tmux list-sessions -F '#{session_name}' 2>/dev/null")
   if vim.v.shell_error ~= 0 then
-    -- No sessions exist, this is not an error
     return nil
   end
 
@@ -68,7 +56,6 @@ local function find_existing_session(termname, cwd)
     end
   end
 
-  -- Return most recent (last in sorted list)
   if #sessions > 0 then
     table.sort(sessions)
     return sessions[#sessions]
@@ -77,7 +64,6 @@ local function find_existing_session(termname, cwd)
   return nil
 end
 
--- Check if tmux session exists
 local function tmux_session_exists(session_name)
   vim.fn.system(
     string.format("tmux has-session -t %s 2>/dev/null", vim.fn.shellescape(session_name))
@@ -85,7 +71,6 @@ local function tmux_session_exists(session_name)
   return vim.v.shell_error == 0
 end
 
--- Check if WezTerm pane exists and belongs to same window/tab
 local function pane_exists(pane_id)
   local pane_info = get_pane_info(pane_id)
   if not pane_info then
@@ -100,7 +85,6 @@ local function pane_exists(pane_id)
   return pane_info.window_id == parent_info.window_id and pane_info.tab_id == parent_info.tab_id
 end
 
--- Check if terminal is visible (has active WezTerm pane)
 local function is_visible(termname)
   local term_data = terminals[termname]
   if not term_data or not term_data.pane_id then
@@ -109,7 +93,6 @@ local function is_visible(termname)
   return pane_exists(term_data.pane_id)
 end
 
--- Wait for pane to be created and available (polling with backoff)
 local function wait_for_pane(pane_id, max_retries)
   max_retries = max_retries or 5
   local retry = 0
@@ -125,7 +108,6 @@ local function wait_for_pane(pane_id, max_retries)
   return false
 end
 
--- Set tab title with proper error handling and retries
 local function set_tab_title(pane_id, title)
   local result = vim.fn.system(
     string.format(
@@ -140,13 +122,11 @@ local function set_tab_title(pane_id, title)
   return true
 end
 
--- Activate pane with proper error handling
 local function activate_pane(pane_id)
   vim.fn.system(string.format("wezterm cli activate-pane --pane-id %d 2>/dev/null", pane_id))
   return vim.v.shell_error == 0
 end
 
--- Kill pane with proper error handling
 local function kill_pane(pane_id)
   vim.fn.system(string.format("wezterm cli kill-pane --pane-id %d 2>/dev/null", pane_id))
   return vim.v.shell_error == 0
@@ -169,7 +149,6 @@ function M.setup(opts)
   if not augroup then
     augroup = vim.api.nvim_create_augroup("AIManager", { clear = true })
 
-    -- Periodically clean up closed panes (but keep tmux sessions alive)
     vim.api.nvim_create_autocmd("CursorHold", {
       group = augroup,
       callback = function()
@@ -181,7 +160,6 @@ function M.setup(opts)
       end,
     })
 
-    -- Close all AI panes when neovim exits (tmux sessions persist)
     vim.api.nvim_create_autocmd("VimLeavePre", {
       group = augroup,
       callback = function()
@@ -205,7 +183,6 @@ function M.open(termname)
     return
   end
 
-  -- If already visible, just focus it
   if is_visible(termname) then
     M.focus(termname)
     return
@@ -220,7 +197,6 @@ function M.open(termname)
   local agent = agents.get_by_name(termname)
   local cwd = vim.fn.getcwd()
 
-  -- Find existing session or create new one
   local session_name = find_existing_session(termname, cwd)
   local is_new_session = false
 
@@ -229,22 +205,18 @@ function M.open(termname)
     is_new_session = true
   end
 
-  -- Build env vars string
   local env_str = ""
   for key, value in pairs(config.env) do
     env_str = env_str .. string.format("export %s=%s; ", key, vim.fn.shellescape(value))
   end
 
-  -- Add NVIM_SOCKET_PATH to environment if available
   if vim.env.NVIM_SOCKET_PATH then
     env_str = env_str
       .. string.format("export NVIM_SOCKET_PATH=%s; ", vim.fn.shellescape(vim.env.NVIM_SOCKET_PATH))
   end
 
-  -- Create or attach to tmux session
   local tmux_cmd
   if is_new_session then
-    -- Create new session with the AI agent command and hide status bar
     tmux_cmd = string.format(
       "tmux new-session -s %s -c %s 'tmux set-option -t %s status off; %s%s'",
       vim.fn.shellescape(session_name),
@@ -254,11 +226,9 @@ function M.open(termname)
       agent_config.cmd
     )
   else
-    -- Session exists, attach to it
     tmux_cmd = string.format("tmux attach-session -t %s", vim.fn.shellescape(session_name))
   end
 
-  -- Spawn WezTerm pane that attaches to tmux session
   local spawn_cmd = string.format(
     "wezterm cli split-pane --pane-id %d --right --percent 50 --cwd %s -- %s 2>/dev/null",
     parent_pane_id,
@@ -279,7 +249,6 @@ function M.open(termname)
     return
   end
 
-  -- Wait for pane to actually exist before using it
   if not wait_for_pane(pane_id, 5) then
     return
   end
@@ -292,7 +261,6 @@ function M.open(termname)
   }
   active_terminal = termname
 
-  -- Set tab title only after pane confirmed to exist
   if agent then
     set_tab_title(pane_id, string.format("%s %s", agent.icon, agent.label))
   end
@@ -345,11 +313,9 @@ function M.hide(termname)
     return
   end
 
-  -- Kill the WezTerm pane (tmux session stays alive in background)
   kill_pane(term_data.pane_id)
   term_data.pane_id = nil
 
-  -- Focus back to neovim
   if parent_pane_id then
     activate_pane(parent_pane_id)
   end
@@ -363,7 +329,6 @@ function M.show(termname)
     return
   end
 
-  -- Check if tmux session exists
   if not tmux_session_exists(term_data.session_name) then
     vim.notify(
       string.format("Session no longer exists for %s. Reopening...", termname),
@@ -374,13 +339,11 @@ function M.show(termname)
     return
   end
 
-  -- If already visible, just focus
   if is_visible(termname) then
     M.focus(termname)
     return
   end
 
-  -- Spawn new WezTerm pane and attach to existing tmux session
   local tmux_cmd =
     string.format("tmux attach-session -t %s", vim.fn.shellescape(term_data.session_name))
 
@@ -404,7 +367,6 @@ function M.show(termname)
     return
   end
 
-  -- Wait for pane to actually exist
   if not wait_for_pane(pane_id, 5) then
     return
   end
@@ -412,7 +374,6 @@ function M.show(termname)
   term_data.pane_id = pane_id
   active_terminal = termname
 
-  -- Set tab title
   local agents = require("sysinit.plugins.intellicode.agents")
   local agent = agents.get_by_name(termname)
   if agent then
@@ -436,13 +397,11 @@ function M.send(termname, text, opts)
     return
   end
 
-  -- Check if session exists
   if not tmux_session_exists(term_data.session_name) then
     vim.notify(string.format("Session no longer exists for %s", termname), vim.log.levels.ERROR)
     return
   end
 
-  -- Send to tmux session directly (works even if not visible)
   local send_cmd = string.format(
     "tmux send-keys -t %s %s",
     vim.fn.shellescape(term_data.session_name),
@@ -497,12 +456,10 @@ function M.close(termname)
     return
   end
 
-  -- Kill WezTerm pane if exists
   if term_data.pane_id then
     kill_pane(term_data.pane_id)
   end
 
-  -- Kill tmux session
   if tmux_session_exists(term_data.session_name) then
     vim.fn.system(
       string.format("tmux kill-session -t %s", vim.fn.shellescape(term_data.session_name))
@@ -555,7 +512,6 @@ function M.send_to_active(text, opts)
   M.send(active_terminal, text, opts)
 end
 
--- Improved: Poll for pane to be ready instead of arbitrary delay
 function M.ensure_active_and_send(text)
   if not active_terminal then
     vim.notify("No active AI terminal. Select one with <leader>jj", vim.log.levels.WARN)
@@ -567,7 +523,6 @@ function M.ensure_active_and_send(text)
     M.open(active_terminal)
     M.focus(active_terminal)
 
-    -- Wait for pane to be ready, then send
     vim.fn.system("sleep 0.2")
     if M.exists(active_terminal) then
       M.send(active_terminal, text, { submit = true })
@@ -575,7 +530,6 @@ function M.ensure_active_and_send(text)
   else
     if not is_visible(active_terminal) then
       M.show(active_terminal)
-      -- Give pane a moment to be ready
       vim.fn.system("sleep 0.1")
     else
       M.focus(active_terminal)
