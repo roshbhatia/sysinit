@@ -8,10 +8,12 @@
 
 let
   themes = import ../../../../shared/lib/theme { inherit lib; };
-  themeConfig = values.theme // {
-    presets = values.theme.presets or [ ];
-    overrides = values.theme.overrides or { };
-  };
+
+  validatedTheme = themes.validateThemeConfig values.theme;
+  theme = themes.getTheme validatedTheme.colorscheme;
+
+  waybarAdapter = themes.adapters.waybar;
+  waybarThemeConfig = waybarAdapter.createWaybarTheme theme validatedTheme;
 in
 {
   programs.waybar = {
@@ -124,6 +126,6 @@ in
       };
     };
 
-    style = builtins.readFile ./waybar.css;
+    style = waybarThemeConfig.themeCSS;
   };
 }

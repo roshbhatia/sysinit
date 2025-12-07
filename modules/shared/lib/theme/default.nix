@@ -24,6 +24,8 @@ let
   k9sAdapter = import ./adapters/k9s.nix { inherit lib; };
   batAdapter = import ./adapters/bat.nix { inherit lib; };
   atuinAdapter = import ./adapters/atuin.nix { inherit lib; };
+  waybarAdapter = import ./adapters/waybar.nix { inherit lib; };
+  hyprlandAdapter = import ./adapters/hyprland.nix { inherit lib; };
 
   transparencyPreset = import ./presets/transparency.nix { inherit lib; };
 
@@ -423,6 +425,8 @@ in
     k9s = k9sAdapter;
     bat = batAdapter;
     atuin = atuinAdapter;
+    waybar = waybarAdapter;
+    hyprland = hyprlandAdapter;
   };
 
   presets = {
