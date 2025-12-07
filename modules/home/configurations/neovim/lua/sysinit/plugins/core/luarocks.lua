@@ -9,10 +9,9 @@ M.plugins = {
     },
     opts = {
       rocks_path = vim.fn.stdpath("data") .. "/luarocks",
-      lua_path = vim.fn.stdpath("data")
-        .. "/luarocks/share/lua/5.1/?.lua;"
-        .. vim.fn.stdpath("data")
-        .. "/luarocks/share/lua/5.1/?/init.lua",
+      lua_path = vim.fn.stdpath("data") .. "/luarocks/share/lua/5.1/?.lua;" .. vim.fn.stdpath(
+        "data"
+      ) .. "/luarocks/share/lua/5.1/?/init.lua",
       lua_cpath = vim.fn.stdpath("data") .. "/luarocks/lib/lua/5.1/?.so",
       create_dirs = true,
       install = {

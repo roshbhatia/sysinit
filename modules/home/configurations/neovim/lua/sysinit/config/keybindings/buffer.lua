@@ -7,7 +7,11 @@ function M.setup()
     callback = function()
       local cur = vim.api.nvim_get_current_buf()
       -- Only remember real file buffers
-      if vim.bo[cur].buflisted and vim.bo[cur].buftype == "" and vim.api.nvim_buf_get_name(cur) ~= "" then
+      if
+        vim.bo[cur].buflisted
+        and vim.bo[cur].buftype == ""
+        and vim.api.nvim_buf_get_name(cur) ~= ""
+      then
         prev_buf = cur
       end
     end,
@@ -15,7 +19,12 @@ function M.setup()
 
   local function goto_previous()
     local cur = vim.api.nvim_get_current_buf()
-    if not prev_buf or prev_buf == cur or not vim.api.nvim_buf_is_valid(prev_buf) or not vim.bo[prev_buf].buflisted then
+    if
+      not prev_buf
+      or prev_buf == cur
+      or not vim.api.nvim_buf_is_valid(prev_buf)
+      or not vim.bo[prev_buf].buflisted
+    then
       return
     end
     vim.api.nvim_set_current_buf(prev_buf)

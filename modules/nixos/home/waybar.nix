@@ -3,11 +3,12 @@
   lib,
   pkgs,
   theme,
+  utils,
   ...
 }:
 
 let
-  themes = import ../../../../shared/lib/theme { inherit lib; };
+  themes = utils.theme;
 
   validatedTheme = themes.validateThemeConfig theme;
   themeObj = themes.getTheme validatedTheme.colorscheme;

@@ -38,7 +38,8 @@ local function sign_in(bufnr, client)
       vim.fn.setreg("+", code)
       vim.fn.setreg("*", code)
       local continue = vim.fn.confirm(
-        "Copied your one-time code to clipboard.\n" .. "Open the browser to complete the sign-in process?",
+        "Copied your one-time code to clipboard.\n"
+          .. "Open the browser to complete the sign-in process?",
         "&Yes\n&No"
       )
       if continue == 1 then
@@ -79,7 +80,11 @@ end
 function M.suppress_limit_notifications()
   local original_request_handler = vim.lsp.handlers["window/showMessageRequest"]
   vim.lsp.handlers["window/showMessageRequest"] = function(err, result, ctx, config)
-    if result and result.message and result.message:match("reached your monthly code completion limit") then
+    if
+      result
+      and result.message
+      and result.message:match("reached your monthly code completion limit")
+    then
       vim.notify(result.message, vim.log.levels.WARN)
       if result.actions and #result.actions > 0 then
         return result.actions[2]
@@ -94,7 +99,10 @@ function M.setup_commands()
   vim.api.nvim_create_user_command("CopilotSignIn", function()
     local client = get_copilot_client()
     if not client then
-      vim.notify("Copilot LSP client not found. Make sure copilot_ls is running.", vim.log.levels.ERROR)
+      vim.notify(
+        "Copilot LSP client not found. Make sure copilot_ls is running.",
+        vim.log.levels.ERROR
+      )
       return
     end
 
@@ -106,7 +114,10 @@ function M.setup_commands()
   vim.api.nvim_create_user_command("CopilotSignOut", function()
     local client = get_copilot_client()
     if not client then
-      vim.notify("Copilot LSP client not found. Make sure copilot_ls is running.", vim.log.levels.ERROR)
+      vim.notify(
+        "Copilot LSP client not found. Make sure copilot_ls is running.",
+        vim.log.levels.ERROR
+      )
       return
     end
 
@@ -118,7 +129,10 @@ function M.setup_commands()
   vim.api.nvim_create_user_command("CopilotStatus", function()
     local client = get_copilot_client()
     if not client then
-      vim.notify("Copilot LSP client not found. Make sure copilot_ls is running.", vim.log.levels.ERROR)
+      vim.notify(
+        "Copilot LSP client not found. Make sure copilot_ls is running.",
+        vim.log.levels.ERROR
+      )
       return
     end
 
@@ -133,7 +147,10 @@ function M.setup_commands()
     if has_pending_signin then
       vim.notify("Sign-in in progress...", vim.log.levels.INFO)
     else
-      vim.notify("Copilot LSP client is running. Use :CopilotSignIn to authenticate.", vim.log.levels.INFO)
+      vim.notify(
+        "Copilot LSP client is running. Use :CopilotSignIn to authenticate.",
+        vim.log.levels.INFO
+      )
     end
   end, {
     desc = "Check Copilot authentication status",

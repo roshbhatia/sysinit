@@ -20,7 +20,11 @@ local function load_theme_config()
 end
 
 local theme_config = load_theme_config()
-local monospace_font = (theme_config.font and type(theme_config.font) == "table" and theme_config.font.monospace)
+local monospace_font = (
+  theme_config.font
+  and type(theme_config.font) == "table"
+  and theme_config.font.monospace
+)
 
 return {
   fonts = {

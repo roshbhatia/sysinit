@@ -1,6 +1,7 @@
 local json_loader = require("sysinit.utils.json_loader")
 local highlight_gen = require("sysinit.utils.highlight_generator")
-local theme_config = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
+local theme_config =
+  json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
 
 local M = {}
 
@@ -56,7 +57,8 @@ local function get_catppuccin_config()
         overrides.FloatBorder = { fg = colors.lavender }
         overrides.FloatTitle = { fg = colors.pink, style = { "bold" } }
         overrides.TelescopeBorder = { fg = colors.blue }
-        overrides.TelescopeSelection = { bg = colors.surface0, fg = colors.lavender, style = { "bold" } }
+        overrides.TelescopeSelection =
+          { bg = colors.surface0, fg = colors.lavender, style = { "bold" } }
         overrides.TelescopeTitle = { fg = colors.pink, style = { "bold" } }
         overrides.WhichKeyBorder = { fg = colors.lavender }
         overrides.DiagnosticError = { fg = colors.red, style = { "bold" } }
@@ -67,8 +69,10 @@ local function get_catppuccin_config()
 
         overrides.WildMenu = { fg = colors.base, bg = colors.pink, style = { "bold" } }
         overrides.WilderWildmenuAccent = { fg = colors.pink, style = { "bold" } }
-        overrides.WilderWildmenuSelectedAccent = { fg = colors.base, bg = colors.pink, style = { "bold" } }
-        overrides.WilderWildmenuSelected = { fg = colors.base, bg = colors.pink, style = { "bold" } }
+        overrides.WilderWildmenuSelectedAccent =
+          { fg = colors.base, bg = colors.pink, style = { "bold" } }
+        overrides.WilderWildmenuSelected =
+          { fg = colors.base, bg = colors.pink, style = { "bold" } }
         overrides.WilderWildmenuSeparator = { fg = colors.overlay1 }
 
         if not theme_config.transparency.enable then
@@ -178,7 +182,8 @@ local function get_solarized_config()
         highlights.Pmenu = { bg = colors.base02, fg = colors.base0 }
         highlights.WildMenu = { bg = colors.base01, fg = colors.blue, bold = true }
         highlights.WilderWildmenuSelected = { bg = colors.base01, fg = colors.blue, bold = true }
-        highlights.WilderWildmenuSelectedAccent = { bg = colors.base01, fg = colors.blue, bold = true }
+        highlights.WilderWildmenuSelectedAccent =
+          { bg = colors.base01, fg = colors.blue, bold = true }
         highlights.PmenuSel = { bg = colors.base01, fg = colors.blue, bold = true }
         highlights.TelescopeSelection = { bg = colors.base01, fg = colors.blue, bold = true }
         highlights.Search = { bg = colors.yellow, fg = colors.base03, bold = true }
@@ -282,7 +287,8 @@ local function get_kanagawa_config()
     overrides.DropBarMenuFloatBorder = { bg = "none", fg = colors.sumiInk4 }
     overrides.WildMenu = { bg = colors.waveBlue1, fg = colors.fujiWhite, bold = true }
     overrides.WilderWildmenuSelected = { bg = colors.waveBlue1, fg = colors.fujiWhite, bold = true }
-    overrides.WilderWildmenuSelectedAccent = { bg = colors.waveBlue1, fg = colors.fujiWhite, bold = true }
+    overrides.WilderWildmenuSelectedAccent =
+      { bg = colors.waveBlue1, fg = colors.fujiWhite, bold = true }
     overrides.TelescopeSelection = { bg = colors.waveBlue2, fg = colors.fujiWhite, bold = true }
     overrides.Pmenu = { bg = colors.sumiInk3, fg = colors.fujiWhite }
     overrides.PmenuSel = { bg = colors.waveBlue1, fg = colors.fujiWhite, bold = true }
@@ -443,7 +449,8 @@ local function get_everforest_config()
 end
 
 local function apply_post_colorscheme_overrides(base_scheme)
-  local overrides = highlight_gen.generate_core_highlights(theme_config.colors, theme_config.transparency)
+  local overrides =
+    highlight_gen.generate_core_highlights(theme_config.colors, theme_config.transparency)
 
   if base_scheme == "everforest" then
     local colors = {

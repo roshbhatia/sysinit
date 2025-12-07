@@ -41,10 +41,13 @@ local function load_json()
   local alpha = string.format("0x%02x", math.floor(opacity * 255))
   local colors = {}
 
-  colors.foreground_primary = safeColor(theme.semanticColors.foreground.primary, "foreground_primary")
+  colors.foreground_primary =
+    safeColor(theme.semanticColors.foreground.primary, "foreground_primary")
   colors.foreground_muted = safeColor(theme.semanticColors.foreground.muted, "foreground_muted")
-  colors.background_primary = safeColor(theme.semanticColors.background.primary, "background_primary", alpha)
-  colors.background_secondary = safeColor(theme.semanticColors.background.secondary, "background_primary", alpha)
+  colors.background_primary =
+    safeColor(theme.semanticColors.background.primary, "background_primary", alpha)
+  colors.background_secondary =
+    safeColor(theme.semanticColors.background.secondary, "background_primary", alpha)
   colors.accent_primary = safeColor(theme.semanticColors.accent.primary, "accent_primary")
   colors.semantic_error = safeColor(theme.semanticColors.semantic.error, "semantic_error")
   colors.semantic_success = safeColor(theme.semanticColors.semantic.success, "semantic_success")

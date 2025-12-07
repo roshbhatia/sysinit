@@ -10,6 +10,46 @@
       palette = theme.palettes.${validatedConfig.variant};
       semanticColors = theme.semanticMapping palette;
 
+      # Helper to convert hex digit to integer
+      hexDigitToInt =
+        digit:
+        let
+          digits = {
+            "0" = 0;
+            "1" = 1;
+            "2" = 2;
+            "3" = 3;
+            "4" = 4;
+            "5" = 5;
+            "6" = 6;
+            "7" = 7;
+            "8" = 8;
+            "9" = 9;
+            "a" = 10;
+            "b" = 11;
+            "c" = 12;
+            "d" = 13;
+            "e" = 14;
+            "f" = 15;
+            "A" = 10;
+            "B" = 11;
+            "C" = 12;
+            "D" = 13;
+            "E" = 14;
+            "F" = 15;
+          };
+        in
+        digits.${digit};
+
+      # Helper to convert 2-char hex string to integer
+      hexToInt =
+        hex:
+        let
+          high = hexDigitToInt (lib.substring 0 1 hex);
+          low = hexDigitToInt (lib.substring 1 1 hex);
+        in
+        high * 16 + low;
+
       # Helper to convert hex color to RGB values for use in rgba()
       # e.g., "#ff0000" -> "255, 0, 0"
       hexToRgb =
@@ -20,9 +60,9 @@
           # Ensure 6-character hex
           normalizedHex = lib.fixedWidthString 6 "0" cleanHex;
           # Extract RGB components
-          r = lib.hexToInt (lib.substring 0 2 normalizedHex);
-          g = lib.hexToInt (lib.substring 2 2 normalizedHex);
-          b = lib.hexToInt (lib.substring 4 2 normalizedHex);
+          r = hexToInt (lib.substring 0 2 normalizedHex);
+          g = hexToInt (lib.substring 2 2 normalizedHex);
+          b = hexToInt (lib.substring 4 2 normalizedHex);
         in
         "${toString r}, ${toString g}, ${toString b}";
 

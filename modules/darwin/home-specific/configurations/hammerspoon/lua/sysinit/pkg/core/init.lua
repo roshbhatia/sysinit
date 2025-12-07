@@ -8,8 +8,10 @@ local tapCmdTab = nil
 
 local function initWindowSwitcher()
   switcherUIPrefs = theme.getWindowSwitcherPrefs()
-  windowSwitcher =
-    hs.window.switcher.new(hs.window.filter.new():setCurrentSpace(true):setDefaultFilter({}), switcherUIPrefs)
+  windowSwitcher = hs.window.switcher.new(
+    hs.window.filter.new():setCurrentSpace(true):setDefaultFilter({}),
+    switcherUIPrefs
+  )
 end
 
 local function mapCmdTab(event)

@@ -14,7 +14,7 @@ END_MARKER="<!-- VALUES_SCHEMA_END -->"
 TEMP_FILE=$(mktemp)
 
 # Build the values schema documentation
-cat > "$TEMP_FILE" << 'EOF'
+cat >"$TEMP_FILE" <<'EOF'
 
 ## Values Configuration Schema
 
@@ -124,13 +124,13 @@ parse_schema() {
         current_path=""
       fi
     fi
-  done < "$VALUES_SCHEMA_FILE"
+  done <"$VALUES_SCHEMA_FILE"
 }
 
-parse_schema | sort >> "$TEMP_FILE"
+parse_schema | sort >>"$TEMP_FILE"
 
 # Add usage examples and patterns
-cat >> "$TEMP_FILE" << 'EOF'
+cat >>"$TEMP_FILE" <<'EOF'
 EOF
 
 # Inject the documentation into README.md
@@ -153,7 +153,7 @@ if [[ -f $README_FILE ]]; then
         next
       }
       !in_section { print $0 }
-    ' "$README_FILE" > "${README_FILE}.tmp"
+    ' "$README_FILE" >"${README_FILE}.tmp"
 
     mv "${README_FILE}.tmp" "$README_FILE"
     echo "Documentation injected into $README_FILE" >&2

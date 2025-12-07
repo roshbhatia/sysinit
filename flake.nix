@@ -202,21 +202,23 @@
           };
           modules = [
             ./modules/nixos
-            home-manager.nixosModules.home-manager
-            {
-              home-manager = {
-                useGlobalPkgs = true;
-                useUserPackages = true;
-                users.${values.user.username} = {
-                  imports = [ ./modules/nixos/home ];
-                };
-                extraSpecialArgs = {
-                 inherit lib;
-                 theme = values.theme;
-                 username = values.user.username;
-                };
-              };
-            }
+            # TODO: Re-enable home-manager integration once lib.hm issue is resolved
+            # home-manager.nixosModules.home-manager
+            # {
+            #   home-manager = {
+            #     useGlobalPkgs = true;
+            #     useUserPackages = true;
+            #     users.${values.user.username} = {
+            #       imports = [ ./modules/nixos/home ];
+            #     };
+            #     extraSpecialArgs = {
+            #       lib = lib // { hm = inputs.home-manager.lib.hm; };
+            #       inherit inputs utils;
+            #       theme = values.theme;
+            #       username = values.user.username;
+            #     };
+            #   };
+            # }
           ];
         };
 

@@ -33,7 +33,9 @@
           # Convert alpha float (0-1) to decimal (0.0-1.0)
           alphaDecimal = alpha;
         in
-        "rgba(0x${cleanColor}${lib.fixedWidthString 2 "0" (lib.toHexString (builtins.floor (alphaDecimal * 255)))})";
+        "rgba(0x${cleanColor}${
+          lib.fixedWidthString 2 "0" (lib.toHexString (builtins.floor (alphaDecimal * 255)))
+        })";
 
       # Format color for niri (return as-is for niri's format)
       formatNiriColor = color: color;

@@ -8,6 +8,16 @@
 
   system.stateVersion = "24.11";
 
+  users.users.${values.user.username} = {
+    isNormalUser = true;
+    createHome = true;
+    home = "/home/${values.user.username}";
+    group = values.user.username;
+    shell = pkgs.zsh;
+  };
+
+  users.groups.${values.user.username} = { };
+
   networking.hostName = values.user.hostname;
   networking.networkmanager.enable = true;
 
