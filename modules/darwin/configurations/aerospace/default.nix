@@ -94,7 +94,7 @@
           "if" = {
             app-id = "com.tinyspeck.slackmacgap";
           };
-          run = "move-node-to-workspace S";
+          run = "move-node-to-workspace C";
         }
         {
           "if" = {
@@ -159,7 +159,6 @@
             alt-3 = "workspace 3";
             alt-c = "workspace C";
             alt-m = "workspace M";
-            alt-s = "workspace S";
             alt-e = "workspace E";
 
             alt-tab = "workspace --wrap-around next";
@@ -172,7 +171,6 @@
             alt-shift-c = "move-node-to-workspace C --focus-follows-window";
             alt-shift-e = "move-node-to-workspace E --focus-follows-window";
             alt-shift-m = "move-node-to-workspace M --focus-follows-window";
-            alt-shift-s = "move-node-to-workspace S --focus-follows-window";
 
             alt-f = "fullscreen";
             alt-enter = "exec-and-forget sketchybar --reload";

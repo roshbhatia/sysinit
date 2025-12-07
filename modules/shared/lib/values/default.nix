@@ -11,6 +11,7 @@ with lib;
           description = "Username for the system user";
         };
 
+        # no default for hostname here. this should just be set upstream anyways
         hostname = mkOption {
           type = types.str;
           default = "nixos";
@@ -109,6 +110,7 @@ with lib;
 
       nixos = {
         desktop = {
+          # should always be wayland
           displayServer = mkOption {
             type = types.enum [
               "x11"
@@ -117,7 +119,7 @@ with lib;
             default = "x11";
             description = "Display server to use (X11 or Wayland)";
           };
-
+          # idk here but hwatever is used by hyprland
           desktopEnvironment = mkOption {
             type = types.enum [
               "gnome"
@@ -130,6 +132,7 @@ with lib;
           };
         };
 
+        # not needed. always will be nvidia for now.
         gpu = {
           enable = mkOption {
             type = types.bool;
@@ -148,7 +151,7 @@ with lib;
             description = "GPU vendor";
           };
         };
-
+        # not needed. audio is always going to be enabled. choose one between pipewire and pulseaudio
         audio = {
           enable = mkOption {
             type = types.bool;
@@ -197,6 +200,18 @@ with lib;
           description = "Theme variant";
         };
 
+        presets = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          description = "Theme presets to apply (e.g., transparency)";
+        };
+
+        overrides = mkOption {
+          type = types.attrsOf types.anything;
+          default = { };
+          description = "Theme color overrides";
+        };
+
         font = {
           monospace = mkOption {
             type = types.str;
@@ -237,29 +252,46 @@ with lib;
           servers = mkOption {
             type = types.attrsOf (types.attrsOf types.anything);
             default = { };
-            description = "Additional MCP servers configuration";
+            description = "MCP servers configuration";
+          };
+        };
+
+        agents = {
+          opencode = mkOption {
+            type = types.bool;
+            default = true;
+            description = "Enable Opencode AI agent";
           };
 
-          additionalServers = mkOption {
-            type = types.listOf (types.attrsOf types.anything);
-            default = [ ];
-            description = "Additional MCP servers in list format";
+          claude = mkOption {
+            type = types.bool;
+            default = true;
+            description = "Enable Claude AI agent";
           };
 
-          neovim = {
-            socketDir = mkOption {
-              type = types.str;
-              default = "/tmp/nvim";
-              description = "Directory for Neovim socket files";
-            };
-
-            enableDynamicSockets = mkOption {
-              type = types.bool;
-              default = true;
-              description = "Enable process-specific socket paths to avoid collisions";
-            };
+          amp = mkOption {
+            type = types.bool;
+            default = true;
+            description = "Enable Amp AI agent";
           };
 
+          goose = mkOption {
+            type = types.bool;
+            default = true;
+            description = "Enable Goose AI agent";
+          };
+
+          cursor = mkOption {
+            type = types.bool;
+            default = true;
+            description = "Enable Cursor AI agent";
+          };
+
+          copilot = mkOption {
+            type = types.bool;
+            default = true;
+            description = "Enable GitHub Copilot";
+          };
         };
       };
 

@@ -5,6 +5,7 @@
   ...
 }:
 let
+  inherit (lib) mkIf;
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   common = import ../shared/common.nix;
   writableConfigs = import ../shared/writable-configs.nix { inherit lib pkgs; };
@@ -53,5 +54,7 @@ let
   };
 in
 {
-  home.activation.ampConfig = ampConfigFile.activation;
+  home.activation = mkIf values.llm.agents.amp {
+    ampConfig = ampConfigFile.activation;
+  };
 }

@@ -14,6 +14,7 @@
     ./editorconfig
     ./eza
     ./fd
+    ./fonts
     ./fzf
     ./git
     ./helix

@@ -51,6 +51,10 @@ in
 
   xdg.configFile."nvim/theme_config.json".text = themes.generateAppJSON "neovim" values.theme;
 
+  xdg.configFile."nvim/agents_config.json".text = builtins.toJSON {
+    agents = values.llm.agents;
+  };
+
   xdg.configFile."nvim/queries".source =
     mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/queries";
 }

@@ -21,9 +21,11 @@
 {
   lib,
   pkgs,
+  values,
   ...
 }:
 let
+  inherit (lib) mkIf;
   common = import ../shared/common.nix;
 
   # Copilot CLI permissions configuration
@@ -99,5 +101,7 @@ let
   '';
 in
 {
-  home.activation.copilotConfig = activationScript;
+  home.activation = mkIf values.llm.agents.copilot {
+    copilotConfig = activationScript;
+  };
 }

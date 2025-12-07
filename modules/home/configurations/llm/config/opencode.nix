@@ -5,6 +5,7 @@
   ...
 }:
 let
+  inherit (lib) mkIf;
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   lsp = import ../shared/lsp.nix;
   common = import ../shared/common.nix;
@@ -68,7 +69,7 @@ let
   };
 in
 {
-  home.activation = {
+  home.activation = mkIf values.llm.agents.opencode {
     opencodeConfig = opencodeConfigFile.activation;
     opencodeAgents = opencodeAgentsFile.activation;
   };

@@ -38,24 +38,8 @@ let
     };
   };
 
-  additionalServersAttrset = values.llm.mcp.servers or { };
-  additionalServersList = values.llm.mcp.additionalServers or [ ];
-
-  additionalServersFromList = builtins.listToAttrs (
-    map (server: {
-      inherit (server) name;
-      value = {
-        inherit (server) type description;
-        url = server.url or null;
-        command = server.command or null;
-        args = server.args or [ ];
-        env = server.env or { };
-        enabled = server.enabled or true;
-      };
-    }) additionalServersList
-  );
-
-  allServers = defaultServers // additionalServersAttrset // additionalServersFromList;
+  additionalServers = values.llm.mcp.servers or { };
+  allServers = defaultServers // additionalServers;
 in
 {
   servers = allServers;
