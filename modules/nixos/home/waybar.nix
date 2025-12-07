@@ -1,14 +1,12 @@
 {
-  config,
-  lib,
-  pkgs,
-  theme,
+  values,
   utils,
   ...
 }:
 
 let
   themes = utils.theme;
+  theme = values.theme;
 
   validatedTheme = themes.validateThemeConfig theme;
   themeObj = themes.getTheme validatedTheme.colorscheme;

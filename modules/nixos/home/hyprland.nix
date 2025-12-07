@@ -1,11 +1,12 @@
 {
-  lib,
-  theme,
+  values,
+  utils,
   ...
 }:
 
 let
-  themes = import ../../../../shared/lib/theme { inherit lib; };
+  themes = utils.theme;
+  theme = values.theme;
 
   validatedTheme = themes.validateThemeConfig theme;
   themeObj = themes.getTheme validatedTheme.colorscheme;
@@ -132,10 +133,10 @@ in
         "name:M, gapsIn:12, gapsOut:16"
         "name:E, gapsIn:12, gapsOut:16"
       ];
-    };
 
-    exec-once = [
-      "waybar &"
-    ];
+      exec-once = [
+        "waybar &"
+      ];
+    };
   };
 }

@@ -1,19 +1,16 @@
 {
   lib,
-  username,
+  values,
   ...
 }:
 
 {
   imports = [
-    ./lib-hm-setup.nix
-    # TODO: Fix home-manager lib.hm issue in NixOS integration
-    # ./niri.nix
-    # ./waybar.nix
+    ./mako.nix
   ];
 
-  home.stateVersion = "24.11";
+  home.stateVersion = lib.mkForce "24.11";
 
-  home.username = username;
-  home.homeDirectory = lib.mkDefault "/home/${username}";
+  home.username = values.user.username;
+  home.homeDirectory = lib.mkDefault "/home/${values.user.username}";
 }

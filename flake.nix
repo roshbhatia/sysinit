@@ -183,6 +183,7 @@
         {
           values,
           utils,
+          pkgs,
           system,
         }:
         lib.nixosSystem {
@@ -197,23 +198,10 @@
           };
           modules = [
             ./modules/nixos
-            # TODO: Re-enable home-manager integration once lib.hm issue is resolved
-            # home-manager.nixosModules.home-manager
-            # {
-            #   home-manager = {
-            #     useGlobalPkgs = true;
-            #     useUserPackages = true;
-            #     users.${values.user.username} = {
-            #       imports = [ ./modules/nixos/home ];
-            #     };
-            #     extraSpecialArgs = {
-            #       lib = lib // { hm = inputs.home-manager.lib.hm; };
-            #       inherit inputs utils;
-            #       theme = values.theme;
-            #       username = values.user.username;
-            #     };
-            #   };
-            # }
+            home-manager.nixosModules.home-manager
+            (import ./modules/nixos/home-manager.nix {
+              inherit values utils pkgs;
+            })
           ];
         };
 
@@ -296,7 +284,7 @@
           };
         in
         mkNixosConfiguration {
-          inherit utils;
+          inherit utils pkgs;
           system = hostConfig.system;
           values = processedVals;
         }
