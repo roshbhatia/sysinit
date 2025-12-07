@@ -24,7 +24,8 @@ in
         gaps_in = 12;
         gaps_out = 16;
         border_size = 2;
-        "col.active_border" = "rgba(${hyprlandThemeConfig.hyprlandColors.activeBorder}ee) rgba(${hyprlandThemeConfig.hyprlandColors.activeBorder}99) 45deg";
+        "col.active_border" =
+          "rgba(${hyprlandThemeConfig.hyprlandColors.activeBorder}ee) rgba(${hyprlandThemeConfig.hyprlandColors.activeBorder}99) 45deg";
         "col.inactive_border" = "rgba(${hyprlandThemeConfig.hyprlandColors.inactiveBorder}aa)";
         resize_on_border = true;
         allow_tearing = false;

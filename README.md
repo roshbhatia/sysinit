@@ -95,10 +95,13 @@ task: Available tasks for this project:
 | `go.additionalPackages` | list(string) | [] |  | Additional Go packages |
 | `icon` | string? | null |  | Icon URL for the search engine |
 | `krew.additionalPackages` | list(string) | [] |  | Additional kubectl krew plugins |
-| `llm.mcp.additionalServers` | listOf (attrsOf anything) | [] |  | Additional MCP servers in list format |
-| `llm.mcp.neovim.enableDynamicSockets` | boolean | true |  | Enable process-specific socket paths to avoid collisions |
-| `llm.mcp.neovim.socketDir` | string | "/tmp/nvim" |  | Directory for Neovim socket files |
-| `llm.mcp.servers` | attrsOf (attrsOf anything) | `{ }` |  | Additional MCP servers configuration |
+| `llm.agents.amp` | boolean | true |  | Enable Amp AI agent |
+| `llm.agents.claude` | boolean | true |  | Enable Claude AI agent |
+| `llm.agents.copilot` | boolean | true |  | Enable GitHub Copilot |
+| `llm.agents.cursor` | boolean | true |  | Enable Cursor AI agent |
+| `llm.agents.goose` | boolean | true |  | Enable Goose AI agent |
+| `llm.agents.opencode` | boolean | true |  | Enable Opencode AI agent |
+| `llm.mcp.servers` | attrsOf (attrsOf anything) | `{ }` |  | MCP servers configuration |
 | `nix.additionalPackages` | list(string) | [] |  | Additional Nix packages |
 | `nixos.audio.enable` | boolean | true |  | Enable audio support |
 | `nixos.audio.server` |  | "pipewire" |  | Audio server to use |
@@ -112,6 +115,8 @@ task: Available tasks for this project:
 | `theme.colorscheme` | string | "rose-pine" |  | Theme colorscheme |
 | `theme.font.monospace` | string | "TX-02" |  | Monospace font for terminal and editor |
 | `theme.font.nerdfontFallback` | string | "Symbols Nerd Font" |  | Fallback font for nerd font glyphs |
+| `theme.overrides` | attrsOf anything | `{ }` |  | Theme color overrides |
+| `theme.presets` | list(string) | [] |  | Theme presets to apply (e.g., transparency) |
 | `theme.transparency.blur` | integer | `80` |  | Background blur amount |
 | `theme.transparency.enable` | boolean | true |  | Enable transparency effects |
 | `theme.transparency.opacity` | float | `0.8` |  | Transparency opacity level |

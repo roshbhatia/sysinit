@@ -29,7 +29,8 @@
         color: alpha:
         let
           # Remove # if present
-          cleanColor = if lib.hasPrefix "#" color then lib.substring 1 (lib.stringLength color - 1) color else color;
+          cleanColor =
+            if lib.hasPrefix "#" color then lib.substring 1 (lib.stringLength color - 1) color else color;
           # Convert alpha float (0-1) to hex byte (00-ff)
           alphaHex =
             let
@@ -44,14 +45,12 @@
       formatHyprlandColor = color: "${color}ee";
     in
     {
-      hyprlandColors =
-        hyprlandColors
-        // {
-          # Pre-formatted for hyprland's col. format (rgba with alpha)
-          activeBorderFormatted = formatHyprlandColor hyprlandColors.activeBorder;
-          inactiveBorderFormatted = formatHyprlandColor hyprlandColors.inactiveBorder;
-          shadowColorFormatted = formatHyprlandColor hyprlandColors.shadowColor;
-        };
+      hyprlandColors = hyprlandColors // {
+        # Pre-formatted for hyprland's col. format (rgba with alpha)
+        activeBorderFormatted = formatHyprlandColor hyprlandColors.activeBorder;
+        inactiveBorderFormatted = formatHyprlandColor hyprlandColors.inactiveBorder;
+        shadowColorFormatted = formatHyprlandColor hyprlandColors.shadowColor;
+      };
 
       # Return raw hex colors for use in Nix expressions
       inherit hyprlandColors;
