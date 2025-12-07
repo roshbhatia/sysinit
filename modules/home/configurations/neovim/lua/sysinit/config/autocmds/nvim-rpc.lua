@@ -58,10 +58,6 @@ function M.setup()
 
       -- Export socket path to environment for child processes
       vim.env.NVIM_SOCKET_PATH = socket_path
-      vim.notify(
-        string.format("RPC socket ready at %s (pane %s)", socket_path, wezterm_pane),
-        vim.log.levels.INFO
-      )
     end,
   })
 
