@@ -1,11 +1,10 @@
 {
-  config,
   pkgs,
   values,
   ...
 }:
 let
-  configRoot = "${values.config.root}/modules/darwin/home-specific/configurations/hammerspoon";
+  configRoot = "${values.config.root}/modules/darwin/home/configurations/hammerspoon";
 in
 {
   home.file.".hammerspoon/init.lua".source = "${configRoot}/init.lua";

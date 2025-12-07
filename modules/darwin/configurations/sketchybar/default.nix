@@ -5,7 +5,7 @@
 let
   menus = pkgs.stdenv.mkDerivation {
     name = "menus";
-    src = ../../../darwin/home-specific/configurations/sketchybar/helpers/menus;
+    src = ../../../darwin/home/configurations/sketchybar/helpers/menus;
 
     buildPhase = ''
       make

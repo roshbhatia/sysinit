@@ -15,7 +15,7 @@ let
   };
 
   inherit (config.lib.file) mkOutOfStoreSymlink;
-  path = "${values.config.root}/modules/darwin/home-specific/configurations/sketchybar";
+  path = "${values.config.root}/modules/darwin/home/configurations/sketchybar";
 in
 
 {

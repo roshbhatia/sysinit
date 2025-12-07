@@ -15,7 +15,7 @@ fi
 log_info "Bootstrapping Nix and nix-darwin"
 
 # Install Determinate Nix if not present
-if ! command -v nix &>/dev/null; then
+if ! command -v nix &> /dev/null; then
   log_warn "Installing Nix using Determinate Systems installer..."
   curl -L https://install.determinate.systems/nix | sh -s -- install --no-confirm || {
     log_critical "Failed to install Nix"
