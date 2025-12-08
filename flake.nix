@@ -264,6 +264,21 @@
         utils = defaultUtils;
         userValues = defaultConfig.values;
       };
+
+      # Build arrakis ISO
+
+      arrakisIso =
+        (lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
+            (import ./modules/nixos {
+              inherit inputs;
+              system = "x86_64-linux";
+              values = (defaultProcessedValues);
+            })
+          ];
+        }).config.system.build.isoImage;
     in
     {
       # Darwin configurations (includes bootstrap)
@@ -305,16 +320,6 @@
         }
       ) (lib.filterAttrs (_: cfg: cfg.platform == "linux") hostConfigs);
 
-      # ISO outputs for NixOS installations
-      images.x86_64-linux.arrakis-iso =
-        (lib.nixosSystem {
-          system = "x86_64-linux";
-          modules = [
-            "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
-            nixosConfigurations.arrakis.config
-          ];
-        }).config.system.build.isoImage;
-
       # Home manager standalone (for non-NixOS/Darwin systems)
       homeConfigurations = {
         ${defaultConfig.username} = home-manager.lib.homeManagerConfiguration {
@@ -350,6 +355,9 @@
           system = defaultSystem;
         };
       };
+
+      # ISO images
+      images.x86_64-linux.arrakis-iso = arrakisIso;
 
       # Library exports for external consumption
       # External flakes can use: personal-sysinit.lib.mkDarwinConfiguration
