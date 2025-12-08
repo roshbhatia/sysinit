@@ -23,7 +23,6 @@ rec {
     # Pure black background with muted, desaturated accent colors
     gorgoroth = utils.validatePalette {
       # Base16 colors
-      base = "#000000"; # Pure black background
       base00 = "#000000"; # Pure black background
       base01 = "#121212"; # Lighter black
       base02 = "#222222"; # Selection background
@@ -42,6 +41,8 @@ rec {
       base0F = "#444444"; # Deprecated/Special
 
       # Compatibility aliases for semantic mapping
+      base = "#000000"; # Required by createSemanticMapping
+      overlay = "#555555"; # Required by createSemanticMapping
       bg = "#000000";
       bg_alt = "#121212";
       surface = "#222222";
