@@ -1,7 +1,7 @@
-{ values, ... }:
+{ lib, values, ... }:
 {
   nix = {
-    enable = true;
+    enable = lib.mkForce true;
     settings = {
       trusted-users = [
         "root"
