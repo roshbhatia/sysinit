@@ -16,6 +16,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
+    niri = {
+      url = "github:sodiboo/niri-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     mac-app-util = {
       url = "github:hraban/mac-app-util";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -29,6 +33,7 @@
       darwin,
       home-manager,
       nix-homebrew,
+      niri,
       mac-app-util,
       ...
     }:
@@ -209,6 +214,7 @@
           modules = [
             ./modules/nixos
             home-manager.nixosModules.home-manager
+            niri.nixosModules.niri
             (import ./modules/nixos/home-manager.nix {
               inherit values utils pkgs;
             })

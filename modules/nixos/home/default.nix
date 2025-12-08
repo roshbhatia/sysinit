@@ -7,6 +7,7 @@
 {
   imports = [
     ./mako.nix
+    ./niri.nix
     ./waybar.nix
   ];
 
