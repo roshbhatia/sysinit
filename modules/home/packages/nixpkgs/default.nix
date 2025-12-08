@@ -114,7 +114,6 @@ let
     statix
     stern
     stylua
-    swift
     taplo
     terraform-ls
     textlint
