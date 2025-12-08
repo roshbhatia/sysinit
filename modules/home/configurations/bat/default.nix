@@ -14,8 +14,10 @@ let
   batAdapter = themes.adapters.bat;
   batThemeConfig = batAdapter.createBatTheme theme validatedTheme;
 
-  # Determine the bat theme name to use
   batThemeName = batThemeConfig.batThemeName;
+  hasNativeTheme = batThemeConfig.hasNativeTheme;
+
+  themeKey = "${validatedTheme.colorscheme}-${validatedTheme.variant}";
 in
 {
   programs.bat = {
@@ -32,6 +34,12 @@ in
       --style=numbers,changes,header
       --pager="less -FR"
     '';
+  }
+  // lib.optionalAttrs (!hasNativeTheme) {
+    "bat/themes/${themeKey}.tmTheme" = {
+      text = batThemeConfig.tmTheme;
+      force = true;
+    };
   };
 
   home.activation.buildBatCache = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
