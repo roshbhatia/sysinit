@@ -17,7 +17,12 @@ let
   workGithubUser = if cfg.workUsername != null then cfg.workUsername else cfg.username;
 in
 {
-  # Use MacOS's native git here to take advantage of lazygit
+  imports = [
+    ./config/gh-dash.nix
+    ./config/lazygit.nix
+    ./config/gitignore.nix
+  ];
+
   programs.git.enable = false;
 
   home.file.".gitconfig" = {

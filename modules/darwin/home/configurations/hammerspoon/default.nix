@@ -1,14 +1,10 @@
 {
   pkgs,
-  values,
   ...
 }:
-let
-  configRoot = "${values.config.root}/modules/darwin/home/configurations/hammerspoon";
-in
 {
-  home.file.".hammerspoon/init.lua".source = "${configRoot}/init.lua";
-  home.file.".hammerspoon/lua".source = "${configRoot}/lua";
+  home.file.".hammerspoon/init.lua".source = ./init.lua;
+  home.file.".hammerspoon/lua".source = ./lua;
 
   home.file.".hammerspoon/Spoons/VimMode.spoon" = {
     source = pkgs.fetchFromGitHub {
