@@ -55,40 +55,62 @@ with lib;
         else
           themeKey;
 
-      # Helper to convert color to RGB format for tmTheme
-      hexToRgb =
+      # Helper to convert color to uppercase hex for tmTheme
+      normalizeHex =
         hex:
         let
           cleaned = lib.removePrefix "#" hex;
-          r = builtins.substring 0 2 cleaned;
-          g = builtins.substring 2 2 cleaned;
-          b = builtins.substring 4 2 cleaned;
         in
-        "#${lib.toUpper r}${lib.toUpper g}${lib.toUpper b}";
+        "#${lib.toUpper cleaned}";
 
-      # Generate TextMate theme XML for bat
+      # Map semantic colors to Rose Pine-style variables for comprehensive syntax highlighting
+      # Based on https://github.com/rose-pine/tm-theme/blob/main/templates/template.tmTheme
+      colors = {
+        base = normalizeHex semanticColors.background.primary;
+        surface = normalizeHex semanticColors.background.secondary;
+        overlay = normalizeHex semanticColors.background.tertiary;
+
+        muted = normalizeHex semanticColors.foreground.muted;
+        subtle = normalizeHex (palette.subtle or semanticColors.foreground.secondary);
+        text = normalizeHex semanticColors.foreground.primary;
+
+        love = normalizeHex semanticColors.semantic.error;
+        gold = normalizeHex semanticColors.semantic.warning;
+        rose = normalizeHex (palette.rose or palette.orange or semanticColors.syntax.function);
+        pine = normalizeHex (palette.pine or palette.green or semanticColors.syntax.keyword);
+        foam = normalizeHex (palette.foam or palette.cyan or semanticColors.syntax.type);
+        iris = normalizeHex (palette.iris or palette.purple or semanticColors.syntax.constant);
+
+        highlightLow = normalizeHex (palette.highlight_low or semanticColors.background.secondary);
+        highlightMed = normalizeHex (palette.highlight_med or semanticColors.accent.dim);
+        highlightHigh = normalizeHex (palette.highlight_high or semanticColors.accent.primary);
+      };
+
+      # Generate complete TextMate theme XML following Rose Pine's structure
       generateTmTheme = ''
         <?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
         <plist version="1.0">
         <dict>
           <key>name</key>
-          <string>\${batThemeName}</string>
+          <string>${batThemeName}</string>
           <key>settings</key>
           <array>
             <dict>
               <key>settings</key>
               <dict>
                 <key>background</key>
-                <string>\${hexToRgb semanticColors.background.primary}</string>
-                <key>foreground</key>
-                <string>\${hexToRgb semanticColors.foreground.primary}</string>
+                <string>${colors.base}</string>
                 <key>caret</key>
-                <string>\${hexToRgb semanticColors.accent.primary}</string>
+                <string>${colors.highlightHigh}</string>
+                <key>foreground</key>
+                <string>${colors.text}</string>
+                <key>invisibles</key>
+                <string>${colors.surface}</string>
                 <key>lineHighlight</key>
-                <string>\${hexToRgb semanticColors.background.secondary}</string>
+                <string>${colors.highlightLow}</string>
                 <key>selection</key>
-                <string>\${hexToRgb semanticColors.accent.dim}</string>
+                <string>${colors.highlightMed}</string>
               </dict>
             </dict>
             <dict>
@@ -98,21 +120,21 @@ with lib;
               <string>comment</string>
               <key>settings</key>
               <dict>
-                <key>foreground</key>
-                <string>\${hexToRgb semanticColors.foreground.muted}</string>
                 <key>fontStyle</key>
                 <string>italic</string>
+                <key>foreground</key>
+                <string>${colors.subtle}</string>
               </dict>
             </dict>
             <dict>
               <key>name</key>
               <string>String</string>
               <key>scope</key>
-              <string>string</string>
+              <string>string, punctuation.definition.string</string>
               <key>settings</key>
               <dict>
                 <key>foreground</key>
-                <string>\${hexToRgb semanticColors.syntax.string}</string>
+                <string>${colors.gold}</string>
               </dict>
             </dict>
             <dict>
@@ -123,40 +145,31 @@ with lib;
               <key>settings</key>
               <dict>
                 <key>foreground</key>
-                <string>\${hexToRgb semanticColors.semantic.warning}</string>
+                <string>${colors.gold}</string>
               </dict>
             </dict>
             <dict>
               <key>name</key>
-              <string>Keyword</string>
+              <string>Built-in constant</string>
               <key>scope</key>
-              <string>keyword, storage</string>
+              <string>constant.language</string>
               <key>settings</key>
               <dict>
+                <key>fontStyle</key>
+                <string>bold</string>
                 <key>foreground</key>
-                <string>\${hexToRgb semanticColors.syntax.keyword}</string>
+                <string>${colors.gold}</string>
               </dict>
             </dict>
             <dict>
               <key>name</key>
-              <string>Operator</string>
+              <string>User-defined constant</string>
               <key>scope</key>
-              <string>keyword.operator</string>
+              <string>constant.character, constant.other</string>
               <key>settings</key>
               <dict>
                 <key>foreground</key>
-                <string>\${hexToRgb semanticColors.syntax.operator}</string>
-              </dict>
-            </dict>
-            <dict>
-              <key>name</key>
-              <string>Function</string>
-              <key>scope</key>
-              <string>entity.name.function, support.function</string>
-              <key>settings</key>
-              <dict>
-                <key>foreground</key>
-                <string>\${hexToRgb semanticColors.syntax.function}</string>
+                <string>${colors.gold}</string>
               </dict>
             </dict>
             <dict>
@@ -166,63 +179,177 @@ with lib;
               <string>variable</string>
               <key>settings</key>
               <dict>
+                <key>fontStyle</key>
+                <string>italic</string>
                 <key>foreground</key>
-                <string>\${hexToRgb semanticColors.foreground.primary}</string>
+                <string>${colors.text}</string>
               </dict>
             </dict>
             <dict>
               <key>name</key>
-              <string>Type</string>
+              <string>Keyword</string>
               <key>scope</key>
-              <string>entity.name.type, support.type, support.class</string>
+              <string>keyword</string>
               <key>settings</key>
               <dict>
                 <key>foreground</key>
-                <string>\${hexToRgb semanticColors.syntax.type}</string>
+                <string>${colors.pine}</string>
               </dict>
             </dict>
             <dict>
               <key>name</key>
-              <string>Constant</string>
+              <string>Storage</string>
               <key>scope</key>
-              <string>constant, support.constant</string>
+              <string>storage</string>
               <key>settings</key>
               <dict>
+                <key>fontStyle</key>
+                <string></string>
                 <key>foreground</key>
-                <string>\${hexToRgb semanticColors.syntax.constant}</string>
+                <string>${colors.foam}</string>
               </dict>
             </dict>
             <dict>
               <key>name</key>
-              <string>Punctuation</string>
+              <string>Storage type</string>
               <key>scope</key>
-              <string>punctuation</string>
+              <string>storage.type</string>
               <key>settings</key>
               <dict>
+                <key>fontStyle</key>
+                <string></string>
                 <key>foreground</key>
-                <string>\${hexToRgb semanticColors.foreground.secondary}</string>
+                <string>${colors.foam}</string>
               </dict>
             </dict>
             <dict>
               <key>name</key>
-              <string>Tag</string>
+              <string>Class name</string>
+              <key>scope</key>
+              <string>entity.name.class</string>
+              <key>settings</key>
+              <dict>
+                <key>fontStyle</key>
+                <string>bold</string>
+                <key>foreground</key>
+                <string>${colors.pine}</string>
+              </dict>
+            </dict>
+            <dict>
+              <key>name</key>
+              <string>Inherited class</string>
+              <key>scope</key>
+              <string>entity.other.inherited-class</string>
+              <key>settings</key>
+              <dict>
+                <key>fontStyle</key>
+                <string>italic </string>
+                <key>foreground</key>
+                <string>${colors.pine}</string>
+              </dict>
+            </dict>
+            <dict>
+              <key>name</key>
+              <string>Function name</string>
+              <key>scope</key>
+              <string>entity.name.function</string>
+              <key>settings</key>
+              <dict>
+                <key>fontStyle</key>
+                <string>italic</string>
+                <key>foreground</key>
+                <string>${colors.rose}</string>
+              </dict>
+            </dict>
+            <dict>
+              <key>name</key>
+              <string>Function argument</string>
+              <key>scope</key>
+              <string>variable.parameter</string>
+              <key>settings</key>
+              <dict>
+                <key>fontStyle</key>
+                <string></string>
+                <key>foreground</key>
+                <string>${colors.iris}</string>
+              </dict>
+            </dict>
+            <dict>
+              <key>name</key>
+              <string>Tag name</string>
               <key>scope</key>
               <string>entity.name.tag</string>
               <key>settings</key>
               <dict>
+                <key>fontStyle</key>
+                <string>bold</string>
                 <key>foreground</key>
-                <string>\${hexToRgb semanticColors.syntax.keyword}</string>
+                <string>${colors.pine}</string>
               </dict>
             </dict>
             <dict>
               <key>name</key>
-              <string>Attribute</string>
+              <string>Tag attribute</string>
               <key>scope</key>
               <string>entity.other.attribute-name</string>
               <key>settings</key>
               <dict>
+                <key>fontStyle</key>
+                <string></string>
                 <key>foreground</key>
-                <string>\${hexToRgb semanticColors.syntax.function}</string>
+                <string>${colors.iris}</string>
+              </dict>
+            </dict>
+            <dict>
+              <key>name</key>
+              <string>Library function</string>
+              <key>scope</key>
+              <string>support.function</string>
+              <key>settings</key>
+              <dict>
+                <key>fontStyle</key>
+                <string>bold</string>
+                <key>foreground</key>
+                <string>${colors.rose}</string>
+              </dict>
+            </dict>
+            <dict>
+              <key>name</key>
+              <string>Library constant</string>
+              <key>scope</key>
+              <string>support.constant</string>
+              <key>settings</key>
+              <dict>
+                <key>fontStyle</key>
+                <string>bold</string>
+                <key>foreground</key>
+                <string>${colors.gold}</string>
+              </dict>
+            </dict>
+            <dict>
+              <key>name</key>
+              <string>Library class/type</string>
+              <key>scope</key>
+              <string>support.type, support.class</string>
+              <key>settings</key>
+              <dict>
+                <key>fontStyle</key>
+                <string>bold</string>
+                <key>foreground</key>
+                <string>${colors.foam}</string>
+              </dict>
+            </dict>
+            <dict>
+              <key>name</key>
+              <string>Library variable</string>
+              <key>scope</key>
+              <string>support.other.variable</string>
+              <key>settings</key>
+              <dict>
+                <key>fontStyle</key>
+                <string>bold</string>
+                <key>foreground</key>
+                <string>${colors.love}</string>
               </dict>
             </dict>
             <dict>
@@ -232,11 +359,47 @@ with lib;
               <string>invalid</string>
               <key>settings</key>
               <dict>
+                <key>background</key>
+                <string>${colors.love}</string>
+                <key>fontStyle</key>
+                <string></string>
                 <key>foreground</key>
-                <string>\${hexToRgb semanticColors.semantic.error}</string>
+                <string>${colors.text}</string>
+              </dict>
+            </dict>
+            <dict>
+              <key>name</key>
+              <string>Invalid deprecated</string>
+              <key>scope</key>
+              <string>invalid.deprecated</string>
+              <key>settings</key>
+              <dict>
+                <key>background</key>
+                <string>${colors.iris}</string>
+                <key>foreground</key>
+                <string>${colors.text}</string>
+              </dict>
+            </dict>
+            <dict>
+              <key>name</key>
+              <string>Punctuation, Operators</string>
+              <key>scope</key>
+              <string>punctuation, keyword.operator</string>
+              <key>settings</key>
+              <dict>
+                <key>foreground</key>
+                <string>${colors.subtle}</string>
               </dict>
             </dict>
           </array>
+          <key>colorSpaceName</key>
+          <string>sRGB</string>
+          <key>semanticClass</key>
+          <string>theme.${validatedConfig.appearance}.${themeKey}</string>
+          <key>author</key>
+          <string>Generated from ${validatedConfig.colorscheme} theme</string>
+          <key>comment</key>
+          <string>Dynamically generated bat theme from Nix theme system</string>
         </dict>
         </plist>
       '';
