@@ -23,6 +23,7 @@ rec {
     # Pure black background with muted, desaturated accent colors
     gorgoroth = utils.validatePalette {
       # Base16 colors
+      base = "#000000"; # Pure black background
       base00 = "#000000"; # Pure black background
       base01 = "#121212"; # Lighter black
       base02 = "#222222"; # Selection background
