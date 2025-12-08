@@ -354,6 +354,18 @@
           ;
         inherit hostConfigs systems;
       };
+      # ISO outputs for NixOS installations
+      images.x86_64-linux = {
+        arrakis-iso =
+          (lib.nixosSystem {
+            system = "x86_64-linux";
+            modules = [
+              "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
+              nixosConfigurations.arrakis.config
+            ];
+          }).config.system.build.isoImage;
+      };
+
       # Checks - only for default system
       checks.${defaultSystem} = {
         nix-format = defaultPkgs.runCommand "check-nix-format" { } ''
