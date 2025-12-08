@@ -18,7 +18,6 @@
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
     niri = {
       url = "github:sodiboo/niri-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
     mac-app-util = {
       url = "github:hraban/mac-app-util";
