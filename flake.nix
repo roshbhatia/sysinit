@@ -44,7 +44,7 @@
 
       systems = {
         laptop = "aarch64-darwin";
-        nixos-desktop = "aarch64-linux";
+        nixos-desktop = "x86_64-linux";
       };
 
       hostConfigs = {
