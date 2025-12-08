@@ -1,6 +1,7 @@
 { values, ... }:
 {
   nix = {
+    enable = true;
     settings = {
       trusted-users = [
         "root"
