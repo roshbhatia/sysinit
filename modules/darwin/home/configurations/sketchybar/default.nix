@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   values,
   pkgs,
@@ -13,9 +12,6 @@ let
     presets = values.theme.presets or [ ];
     overrides = values.theme.overrides or { };
   };
-
-  inherit (config.lib.file) mkOutOfStoreSymlink;
-  path = "${values.config.root}/modules/darwin/home/configurations/sketchybar";
 in
 
 {
@@ -49,7 +45,7 @@ in
     executable = true;
   };
 
-  xdg.configFile."sketchybar/lua".source = mkOutOfStoreSymlink "${path}/lua";
+  xdg.configFile."sketchybar/lua".source = ./lua;
 
   xdg.configFile."sketchybar/theme_config.json".text = builtins.toJSON (
     themes.generateAppJSON "sketchybar" themeConfig
