@@ -281,20 +281,26 @@
         userValues = arrakisConfig.values;
       };
 
-      arrakisNixosConfig = mkNixosConfiguration {
-        pkgs = arrakisPkgs;
-        utils = arrakisUtils;
-        system = arrakisConfig.system;
-        values = arrakisProcessedVals;
-      };
-
       # Build ISO with arrakis config
       arrakisIso =
         (lib.nixosSystem {
           system = "x86_64-linux";
+          specialArgs = {
+            inherit inputs;
+            system = "x86_64-linux";
+            values = arrakisProcessedVals;
+            customUtils = arrakisUtils;
+          };
           modules = [
             "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
-            arrakisNixosConfig
+            ./modules/nixos
+            home-manager.nixosModules.home-manager
+            niri.nixosModules.niri
+            (import ./modules/nixos/home-manager.nix {
+              values = arrakisProcessedVals;
+              utils = arrakisUtils;
+              pkgs = arrakisPkgs;
+            })
           ];
         }).config.system.build.isoImage;
     in
