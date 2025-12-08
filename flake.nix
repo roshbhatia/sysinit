@@ -264,21 +264,6 @@
         utils = defaultUtils;
         userValues = defaultConfig.values;
       };
-
-      # Build arrakis ISO
-
-      arrakisIso =
-        (lib.nixosSystem {
-          system = "x86_64-linux";
-          modules = [
-            "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
-            (import ./modules/nixos {
-              inherit inputs;
-              system = "x86_64-linux";
-              values = (defaultProcessedValues);
-            })
-          ];
-        }).config.system.build.isoImage;
     in
     {
       # Darwin configurations (includes bootstrap)
@@ -355,9 +340,6 @@
           system = defaultSystem;
         };
       };
-
-      # ISO images
-      images.x86_64-linux.arrakis-iso = arrakisIso;
 
       # Library exports for external consumption
       # External flakes can use: personal-sysinit.lib.mkDarwinConfiguration
