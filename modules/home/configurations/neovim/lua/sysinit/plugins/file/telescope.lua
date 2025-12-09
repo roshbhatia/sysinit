@@ -171,9 +171,11 @@ M.plugins = {
           "<leader>fo",
           function()
             tbuiltin.find_files({
-              cwd = "~/org",
+              cwd = vim.fn.expand("~/org"),
               hidden = true,
-              search_dirs = { "~/org" },
+              no_ignore = false,
+              follow = true,
+              find_command = { "rg", "--files", "--glob", "*.org", "--hidden" },
             })
           end,
           desc = "Find: Org files",

@@ -8,8 +8,8 @@ M.plugins = {
     ft = { "org" },
     config = function()
       require("orgmode").setup({
-        org_agenda_files = { "~/org/**/*" },
-        org_default_notes_file = "~/org/kanban.org",
+        org_agenda_files = { "~/org/notes/**/*" },
+        org_default_notes_file = "~/org/notes/kanban.org",
         mappings = {
           disable_all = false,
         },
@@ -111,7 +111,7 @@ M.plugins = {
     },
     config = function()
       require("org-super-agenda").setup({
-        org_directories = { "~/org" },
+        org_directories = { "~/org/notes" },
 
         todo_states = {
           {

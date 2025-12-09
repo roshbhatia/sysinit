@@ -17,6 +17,11 @@ function cache.clean() {
   mkdir -p "$ZCACHE_DIR" "$ZCACHE_EXTRAS_DIR"
 }
 
+# Org-mode wrapper
+function org() {
+  nvim ~/org/notes +'lua vim.defer_fn(function() require("telescope.builtin").find_files({ cwd = vim.fn.expand("~/org"), hidden = true, find_command = { "rg", "--files", "--glob", "*.org", "--hidden" } }) end, 100)'
+}
+
 # Check cache freshness (24h expiry)
 function _cache_expired() {
   local cache="$1"
