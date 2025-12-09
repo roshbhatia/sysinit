@@ -86,11 +86,6 @@ local function get_clear_keys()
   return {
     {
       key = "k",
-      mods = "CTRL",
-      action = clear_action,
-    },
-    {
-      key = "k",
       mods = "CMD",
       action = clear_action,
     },
