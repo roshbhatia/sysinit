@@ -80,15 +80,16 @@
 
       tf = "terraform";
 
-      kubectl = "kubecolor";
-      k = "kubecolor";
-      kg = "kubecolor get";
-      kd = "kubecolor describe";
-      ke = "kubecolor edit";
-      ka = "kubecolor apply";
-      kpf = "kubecolor port-forward";
-      kdel = "kubecolor delete";
-      klog = "kubecolor logs";
+      k = "kubectl";
+      kg = "kubectl get";
+      kgA = "kubectl get -A";
+      kgN = "kubectl get -n";
+      kd = "kubectl describe";
+      ke = "kubectl edit";
+      ka = "kubectl apply";
+      kpf = "kubectl port-forward";
+      kdel = "kubectl delete";
+      klog = "kubectl logs";
     };
 
     packages = with pkgs; [

@@ -17,10 +17,18 @@ function cache.clean() {
   mkdir -p "$ZCACHE_DIR" "$ZCACHE_EXTRAS_DIR"
 }
 
-# Org-mode wrapper
+# Org-mode launcher: opens kanban with telescope file finder
 function org() {
-  nvim ~/org/notes +'lua vim.defer_fn(function() require("telescope.builtin").find_files({ cwd = vim.fn.expand("~/org/notes"), hidden = true, find_command = { "rg", "--files", "--glob", "*.org", "--hidden" } }) end, 100)'
+  nvim ~/org/notes/kanban.org +'lua vim.defer_fn(function() require("telescope.builtin").find_files({ cwd = vim.fn.expand("~/org"), hidden = true, find_command = { "rg", "--files", "--glob", "*.org", "--hidden" } }) end, 100)'
 }
+
+# Kubectl function that uses kubecolor but preserves kubectl completions
+function kubectl() {
+  command kubecolor "$@"
+}
+
+# Ensure compdef is available for kubectl
+compdef kubectl=kubectl
 
 # Check cache freshness (24h expiry)
 function _cache_expired() {

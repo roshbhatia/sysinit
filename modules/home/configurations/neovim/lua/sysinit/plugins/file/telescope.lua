@@ -175,7 +175,7 @@ M.plugins = {
               hidden = true,
               no_ignore = false,
               follow = true,
-              find_command = { "rg", "--files", "--glob", "*.org", "--hidden" },
+              find_command = { "fd", "--files", "--glob", "*.org", "--hidden" },
             })
           end,
           desc = "Find: Org files",
