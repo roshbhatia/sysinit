@@ -85,6 +85,13 @@ M.plugins = {
             return items
           end,
         },
+        providers = {
+          orgmode = {
+            name = "Orgmode",
+            module = "orgmode.org.autocompletion.blink",
+            fallbacks = { "buffer" },
+          },
+        },
       }
 
       local sources = {
@@ -94,6 +101,9 @@ M.plugins = {
         "path",
         "snippets",
         "copilot",
+        per_filetype = {
+          org = { "orgmode" },
+        },
       }
 
       return {
