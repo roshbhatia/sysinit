@@ -95,6 +95,9 @@ in
       [includeIf "gitdir:~/github/personal/"]
         path = ~/.gitconfig.personal
 
+      [includeIf "gitdir:~/org/"]
+        path = ~/.gitconfig.personal
+
       [rerere]
         enabled = true
 
