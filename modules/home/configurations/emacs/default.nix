@@ -10,31 +10,25 @@
 
     extraPackages =
       epkgs: with epkgs; [
+        all-the-icons
+        counsel
+        doom-modeline
+        doom-themes
         evil
         evil-collection
         evil-org
-        org
-        doom-themes
-        doom-modeline
         general
-        which-key
-        projectile
-        counsel
         ivy
-        swiper
-        neotree
-        all-the-icons
-
-        # Git integration
-        magit
-        transient
-        
-        # Org extensions
-        org-jira
         kanban
-        
-        # Ligatures
         ligature
+        magit
+        neotree
+        org
+        org-jira
+        projectile
+        swiper
+        transient
+        which-key
       ];
 
     extraConfig = ''
