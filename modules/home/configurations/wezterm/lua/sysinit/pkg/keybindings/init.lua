@@ -66,6 +66,11 @@ local function get_pane_keys()
       mods = "CTRL",
       action = vim_or_wezterm_action("w", "CTRL", act.CloseCurrentPane({ confirm = true })),
     },
+    {
+      key = "w",
+      mods = "CMD",
+      action = vim_or_wezterm_action("w", "CTRL", act.CloseCurrentPane({ confirm = true })),
+    },
   }
 end
 
