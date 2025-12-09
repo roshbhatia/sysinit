@@ -85,12 +85,10 @@ M.plugins = {
             return items
           end,
         },
-        providers = {
-          orgmode = {
-            name = "Orgmode",
-            module = "orgmode.org.autocompletion.blink",
-            fallbacks = { "buffer" },
-          },
+        orgmode = {
+          name = "Orgmode",
+          module = "orgmode.org.autocompletion.blink",
+          fallbacks = { "buffer" },
         },
       }
 

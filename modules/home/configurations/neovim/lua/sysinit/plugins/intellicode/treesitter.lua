@@ -46,7 +46,6 @@ M.plugins = {
           "markdown",
           "markdown_inline",
           "nix",
-          "org",
           "python",
           "query",
           "regex",
@@ -64,7 +63,9 @@ M.plugins = {
         },
         sync_install = false,
         auto_install = true,
-        ignore_install = {},
+        ignore_install = {
+          "org",
+        },
         modules = {},
         highlight = {
           enable = true,
