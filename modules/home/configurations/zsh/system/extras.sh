@@ -17,11 +17,6 @@ function cache.clean() {
   mkdir -p "$ZCACHE_DIR" "$ZCACHE_EXTRAS_DIR"
 }
 
-# Org-mode launcher: opens kanban with telescope file finder
-function org() {
-  nvim ~/org/notes/kanban.org +'lua vim.defer_fn(function() require("telescope.builtin").find_files({ cwd = vim.fn.expand("~/org"), hidden = true, find_command = { "rg", "--files", "--glob", "*.org", "--hidden" } }) end, 100)'
-}
-
 # Kubectl function that uses kubecolor but preserves kubectl completions
 function kubectl() {
   command kubecolor "$@"
@@ -43,13 +38,13 @@ function _cache_expired() {
 
   # Check if cache is older than 24h using macOS compatible stat
   local cache_mtime
-  if ! cache_mtime=$(stat -f %m "$cache" 2> /dev/null); then
+  if ! cache_mtime=$(stat -f %m "$cache" 2>/dev/null); then
     [[ -n $SYSINIT_DEBUG ]] && log_debug "Failed to get cache mtime" cache="$cache"
     return 0
   fi
 
   local current_time
-  if ! current_time=$(date +%s 2> /dev/null); then
+  if ! current_time=$(date +%s 2>/dev/null); then
     [[ -n $SYSINIT_DEBUG ]] && log_debug "Failed to get current time"
     return 0
   fi
