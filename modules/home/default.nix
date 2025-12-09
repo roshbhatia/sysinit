@@ -71,7 +71,7 @@
       h = "hx";
       v = "nvim";
       vimdiff = "nvim -n -c 'DiffviewOpen'";
-      emacs = "emacs -nw";
+      org = "emacs -nw";
 
       grep = "grep -s --color=auto";
       sg = "ast-grep";
