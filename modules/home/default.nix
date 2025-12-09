@@ -71,6 +71,7 @@
       h = "hx";
       v = "nvim";
       vimdiff = "nvim -n -c 'DiffviewOpen'";
+      org = "nvim ~/org/notes";
 
       grep = "grep -s --color=auto";
       sg = "ast-grep";
