@@ -12,6 +12,7 @@
     ./dircolors
     ./direnv
     ./editorconfig
+    ./emacs
     ./eza
     ./fd
     ./fonts

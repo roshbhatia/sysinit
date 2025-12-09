@@ -45,7 +45,6 @@ let
     docker-credential-helpers
     docker-language-server
     duf
-    emacs
     eslint
     fd
     findutils
