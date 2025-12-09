@@ -46,6 +46,7 @@ M.plugins = {
           "markdown",
           "markdown_inline",
           "nix",
+          "org",
           "python",
           "query",
           "regex",
