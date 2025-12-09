@@ -38,8 +38,11 @@ let
     devbox
     direnv
     docker
+    docker-buildx
+    docker-color-output
     docker-compose
     docker-compose-language-service
+    docker-credential-helpers
     docker-language-server
     duf
     eslint
