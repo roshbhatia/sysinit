@@ -3,18 +3,22 @@ local M = {}
 M.plugins = {
   {
     "nvim-orgmode/orgmode",
-    event = "VeryLazy",
+    lazy = false,
+    priority = 1000,
     ft = { "org" },
     config = function()
       require("orgmode").setup({
-        org_agenda_files = "~/org/notes/**/*",
-        org_default_notes_file = "~/org/notes/kanban.org",
+        org_agenda_files = { "~/org/**/*" },
+        org_default_notes_file = "~/org/kanban.org",
+        mappings = {
+          disable_all = false,
+        },
       })
     end,
   },
   {
     "nvim-orgmode/telescope-orgmode.nvim",
-    event = "VeryLazy",
+    lazy = true,
     dependencies = {
       "nvim-orgmode/orgmode",
       "nvim-telescope/telescope.nvim",
@@ -26,38 +30,32 @@ M.plugins = {
       local orgmode = require("telescope").extensions.orgmode
       return {
         {
-          "<leader>r",
+          "<leader>or",
           function()
             orgmode.refile_heading()
           end,
           desc = "Org: Refile heading",
         },
         {
-          "<leader>foh",
+          "<leader>oh",
           function()
             orgmode.search_headings()
           end,
           desc = "Org: Search headings",
         },
         {
-          "<leader>foi",
+          "<leader>oi",
           function()
             orgmode.insert_link()
           end,
           desc = "Org: Insert link",
-        },
-        {
-          "<leader>fot",
-          function()
-            orgmode.search_tags()
-          end,
-          desc = "Org: Search tags",
         },
       }
     end,
   },
   {
     "chipsenkbeil/org-roam.nvim",
+    lazy = true,
     dependencies = {
       "nvim-orgmode/orgmode",
       "nvim-telescope/telescope.nvim",
@@ -66,7 +64,7 @@ M.plugins = {
       require("org-roam").setup({
         directory = "~/org/roam",
         org_files = {
-          "~/org/roam/*.org",
+          "~/org/roam/**/*.org",
         },
       })
     end,
@@ -92,41 +90,21 @@ M.plugins = {
           function()
             require("org-roam").capture()
           end,
-          desc = "Roam: Capture new node",
+          desc = "Roam: Capture",
         },
         {
           "<leader>nb",
           function()
             require("org-roam").toggle_roam_buffer()
           end,
-          desc = "Roam: Toggle backlinks buffer",
-        },
-        {
-          "<leader>nd",
-          function()
-            require("org-roam").goto_today()
-          end,
-          desc = "Roam: Go to daily note",
-        },
-        {
-          "<leader>nD",
-          function()
-            require("org-roam").goto_date()
-          end,
-          desc = "Roam: Go to date",
-        },
-        {
-          "<leader>ng",
-          function()
-            require("org-roam").sync()
-          end,
-          desc = "Roam: Sync database",
+          desc = "Roam: Backlinks",
         },
       }
     end,
   },
   {
     "hamidi-dev/org-super-agenda.nvim",
+    lazy = true,
     dependencies = {
       "nvim-orgmode/orgmode",
       { "lukas-reineke/headlines.nvim", config = true },
@@ -134,8 +112,6 @@ M.plugins = {
     config = function()
       require("org-super-agenda").setup({
         org_directories = { "~/org" },
-        exclude_files = {},
-        exclude_directories = {},
 
         todo_states = {
           {
@@ -143,7 +119,7 @@ M.plugins = {
             keymap = "ot",
             color = "#FF5555",
             strike_through = false,
-            fields = { "filename", "todo", "headline", "priority", "date", "tags" },
+            fields = { "todo", "headline", "priority", "tags" },
           },
           {
             name = "IN PROGRESS",
@@ -151,26 +127,22 @@ M.plugins = {
             keymap = "op",
             color = "#FFAA00",
             strike_through = false,
-            fields = { "filename", "todo", "headline", "priority", "date", "tags" },
+            fields = { "todo", "headline", "priority", "tags" },
           },
           {
             name = "DONE",
             keymap = "od",
             color = "#50FA7B",
             strike_through = true,
-            fields = { "filename", "todo", "headline", "priority", "date", "tags" },
+            fields = { "todo", "headline", "priority", "tags" },
           },
         },
 
         keymaps = {
           filter_reset = "oa",
-          toggle_other = "oo",
           filter = "of",
           filter_fuzzy = "oz",
-          filter_query = "oq",
           undo = "u",
-          reschedule = "cs",
-          set_deadline = "cd",
           cycle_todo = "t",
           set_state = "s",
           reload = "r",
@@ -178,19 +150,15 @@ M.plugins = {
           hide_item = "x",
           preview = "K",
           reset_hidden = "X",
-          toggle_duplicates = "D",
           cycle_view = "ov",
         },
 
         window = {
-          width = 0.9,
-          height = 0.9,
+          width = 0.85,
+          height = 0.85,
           border = "rounded",
-          title = "Kanban Board",
+          title = "Kanban",
           title_pos = "center",
-          margin_left = 0,
-          margin_right = 0,
-          fullscreen_border = "none",
         },
 
         groups = {
@@ -217,12 +185,9 @@ M.plugins = {
           },
         },
 
-        upcoming_days = 10,
         hide_empty_groups = false,
-        keep_order = false,
         allow_duplicates = false,
         group_format = "* %s",
-        other_group_name = "Other",
         show_other_group = false,
         show_tags = true,
         show_filename = false,
@@ -235,18 +200,8 @@ M.plugins = {
           short_date_labels = false,
           inline_dates = true,
         },
-        compact = {
-          filename_min_width = 10,
-          label_min_width = 12,
-        },
 
         group_sort = { by = "priority", order = "desc" },
-
-        popup_mode = {
-          enabled = false,
-          hide_command = nil,
-        },
-
         debug = false,
       })
     end,
@@ -255,12 +210,7 @@ M.plugins = {
         {
           "<leader>oa",
           "<cmd>OrgSuperAgenda<cr>",
-          desc = "Org: Kanban board",
-        },
-        {
-          "<leader>oA",
-          "<cmd>OrgSuperAgenda!<cr>",
-          desc = "Org: Kanban board (fullscreen)",
+          desc = "Org: Kanban",
         },
       }
     end,

@@ -71,7 +71,7 @@
       h = "hx";
       v = "nvim";
       vimdiff = "nvim -n -c 'DiffviewOpen'";
-      org = "nvim ~/org/notes";
+      org = "nvim ~/org/kanban.org +'lua vim.defer_fn(function() require(\"telescope.builtin\").find_files({ cwd = \"~/org\", hidden = true }) end, 100)'";
 
       grep = "grep -s --color=auto";
       sg = "ast-grep";

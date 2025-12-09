@@ -168,6 +168,17 @@ M.plugins = {
           desc = "Find: Files",
         },
         {
+          "<leader>fo",
+          function()
+            tbuiltin.find_files({
+              cwd = "~/org",
+              hidden = true,
+              search_dirs = { "~/org" },
+            })
+          end,
+          desc = "Find: Org files",
+        },
+        {
           "<leader>fj",
           function()
             tbuiltin.jumplist(require("telescope.themes").get_ivy())
