@@ -71,7 +71,7 @@
       h = "hx";
       v = "nvim";
       vimdiff = "nvim -n -c 'DiffviewOpen'";
-      org = "emacs -nw";
+      org = "emacs -nw ''$(zoxide query org)";
 
       grep = "grep -s --color=auto";
       sg = "ast-grep";
