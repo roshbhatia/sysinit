@@ -25,8 +25,16 @@
         neotree
         all-the-icons
 
+        # Git integration
+        magit
+        transient
+        
+        # Org extensions
         org-jira
         kanban
+        
+        # Ligatures
+        ligature
       ];
 
     extraConfig = ''
@@ -157,6 +165,10 @@
                                    (shell-quote-argument (buffer-file-name))
                                    (file-name-nondirectory (buffer-file-name)))))))
       (add-hook 'after-save-hook 'auto-commit-org)
+
+      ;; Ligature support
+      (when (fboundp 'global-ligature-mode)
+        (global-ligature-mode 1))
 
       ;; Org-jira settings
       (setq jiralib-url (getenv "JIRA_URL"))
