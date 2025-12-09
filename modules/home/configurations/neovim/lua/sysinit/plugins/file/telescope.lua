@@ -83,6 +83,7 @@ M.plugins = {
             "^%.direnv/",
             "^%.dist/",
             "^%.git/",
+            "^%.git-crypt/",
             "^%.githooks/",
             "^%.out/",
             "^%.serena/",
