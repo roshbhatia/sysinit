@@ -52,6 +52,7 @@ let
     gh
     gh-dash
     git
+    git-crypt
     git-filter-repo
     glow
     gnugrep
