@@ -49,8 +49,8 @@ function M.setup(config)
         right = wezterm.nerdfonts.ple_left_half_circle_thin,
       },
       tab_separators = {
-        left = "",
-        right = "",
+        left = wezterm.nerdfonts.ple_right_half_circle_thin,
+        right = wezterm.nerdfonts.ple_left_half_circle_thin,
       },
     },
     sections = {
@@ -62,14 +62,7 @@ function M.setup(config)
         },
       },
       tabline_b = {
-        {
-          "hostname",
-          icon = wezterm.nerdfonts.cod_server,
-          padding = { left = 1, right = 1 },
-        },
-      },
-      tabline_c = {
-        " ",
+        "  ",
       },
       tab_active = {
         {
@@ -109,9 +102,7 @@ function M.setup(config)
           }
         end,
       },
-      tabline_x = {
-        " ",
-      },
+      tabline_x = {},
       tabline_y = {},
       tabline_z = {},
     },
