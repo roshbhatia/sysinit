@@ -100,85 +100,16 @@ local function get_pallete_keys()
   }
 end
 
-local function get_scroll_keys()
-  return {
-    {
-      key = "u",
-      mods = "CTRL",
-      action = wezterm.action_callback(function(win, pane)
-        if should_passthrough(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "u",
-              mods = "CTRL",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ScrollByLine(-40), pane)
-        end
-      end),
-    },
-    {
-      key = "d",
-      mods = "CTRL",
-      action = wezterm.action_callback(function(win, pane)
-        if should_passthrough(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "d",
-              mods = "CTRL",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ScrollByLine(40), pane)
-        end
-      end),
-    },
-    {
-      key = "u",
-      mods = "CTRL|SHIFT",
-      action = wezterm.action_callback(function(win, pane)
-        if should_passthrough(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "u",
-              mods = "CTRL|SHIFT",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ScrollByLine(-9999999999999), pane)
-        end
-      end),
-    },
-    {
-      key = "d",
-      mods = "CTRL|SHIFT",
-      action = wezterm.action_callback(function(win, pane)
-        if should_passthrough(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "d",
-              mods = "CTRL|SHIFT",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ScrollByLine(9999999999999), pane)
-        end
-      end),
-    },
-  }
-end
-
 local function get_window_keys()
   return {
     {
       key = "n",
-      mods = "CTRL",
+      mods = "CMD",
       action = act.SpawnWindow,
     },
     {
       key = "w",
-      mods = "CTRL|SHIFT",
+      mods = "CMD",
       action = act.CloseCurrentTab({ confirm = false }),
     },
   }
@@ -188,61 +119,68 @@ local function get_tab_keys()
   return {
     {
       key = "t",
-      mods = "CTRL",
+      mods = "CMD",
       action = act.SpawnTab("CurrentPaneDomain"),
     },
     {
-      key = "p",
-      mods = "CTRL",
+      key = "]",
+      mods = "CMD|SHIFT",
       action = act.ActivateTabRelative(1),
     },
     {
-      key = "p",
-      mods = "CTRL|SHIFT",
+      key = "[",
+      mods = "CMD|SHIFT",
       action = act.ActivateTabRelative(-1),
     },
     -- Direct tab access
     {
       key = "1",
-      mods = "CTRL",
+      mods = "CMD",
       action = act.ActivateTab(0),
     },
     {
       key = "2",
-      mods = "CTRL",
+      mods = "CMD",
       action = act.ActivateTab(1),
     },
     {
       key = "3",
-      mods = "CTRL",
+      mods = "CMD",
       action = act.ActivateTab(2),
     },
     {
       key = "4",
-      mods = "CTRL",
+      mods = "CMD",
       action = act.ActivateTab(3),
     },
     {
       key = "5",
-      mods = "CTRL",
+      mods = "CMD",
       action = act.ActivateTab(4),
     },
     {
       key = "6",
-      mods = "CTRL",
+      mods = "CMD",
       action = act.ActivateTab(5),
     },
     {
       key = "7",
-      mods = "CTRL",
+      mods = "CMD",
       action = act.ActivateTab(6),
     },
     {
       key = "8",
-      mods = "CTRL",
+      mods = "CMD",
       action = act.ActivateTab(7),
     },
   }
+end
+
+local function with_tattoy_disabled(action)
+  return act.Multiple({
+    act.SendKey({ key = "F1" }),
+    action,
+  })
 end
 
 local function get_search_keys()
@@ -250,17 +188,32 @@ local function get_search_keys()
     {
       key = "Escape",
       mods = "CTRL",
-      action = act.ActivateCopyMode,
+      action = with_tattoy_disabled(act.ActivateCopyMode),
+    },
+    {
+      key = "Escape",
+      mods = "CMD",
+      action = with_tattoy_disabled(act.ActivateCopyMode),
     },
     {
       key = "f",
       mods = "CTRL",
-      action = act.QuickSelect,
+      action = with_tattoy_disabled(act.QuickSelect),
+    },
+    {
+      key = "f",
+      mods = "CMD",
+      action = with_tattoy_disabled(act.QuickSelect),
     },
     {
       key = "/",
       mods = "CTRL",
-      action = act.Search("CurrentSelectionOrEmptyString"),
+      action = with_tattoy_disabled(act.Search("CurrentSelectionOrEmptyString")),
+    },
+    {
+      key = "/",
+      mods = "CMD",
+      action = with_tattoy_disabled(act.Search("CurrentSelectionOrEmptyString")),
     },
   }
 end
@@ -288,6 +241,50 @@ local function get_transparency_keys()
   }
 end
 
+local function get_key_tables()
+  if not wezterm.gui then
+    return {}
+  end
+
+  local defaults = wezterm.gui.default_key_tables()
+
+  local function patch_exit_keys(key_table, exit_keys)
+    for i, binding in ipairs(key_table) do
+      local key = binding.key
+      local mods = binding.mods or "NONE"
+
+      for _, exit_def in ipairs(exit_keys) do
+        if key == exit_def.key and mods == (exit_def.mods or "NONE") then
+          key_table[i].action = act.Multiple({
+            binding.action,
+            act.SendKey({ key = "F1" }),
+          })
+          break
+        end
+      end
+    end
+    return key_table
+  end
+
+  local copy_mode_exits = {
+    { key = "Escape" },
+    { key = "q" },
+    { key = "c", mods = "CTRL" },
+    { key = "g", mods = "CTRL" },
+  }
+
+  local search_mode_exits = {
+    { key = "Escape" },
+    { key = "Enter" },
+    { key = "r", mods = "CTRL" },
+  }
+
+  return {
+    copy_mode = patch_exit_keys(defaults.copy_mode, copy_mode_exits),
+    search_mode = patch_exit_keys(defaults.search_mode, search_mode_exits),
+  }
+end
+
 function M.setup(config)
   local all_keys = {}
 
@@ -295,7 +292,6 @@ function M.setup(config)
     get_pane_keys(),
     get_clear_keys(),
     get_pallete_keys(),
-    get_scroll_keys(),
     get_window_keys(),
     get_tab_keys(),
     get_search_keys(),
@@ -309,6 +305,7 @@ function M.setup(config)
   end
 
   config.keys = all_keys
+  config.key_tables = get_key_tables()
 end
 
 return M

@@ -78,7 +78,7 @@ function M.setup(config)
           padding = { left = 0, right = 0 },
         },
         {
-          "process",
+          "cwd",
           padding = { left = 1, right = 1 },
         },
         function()
@@ -97,7 +97,7 @@ function M.setup(config)
           padding = { left = 0, right = 0 },
         },
         {
-          "process",
+          "cwd",
           padding = { left = 1, right = 1 },
         },
         function()
