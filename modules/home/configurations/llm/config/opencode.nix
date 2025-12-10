@@ -8,7 +8,7 @@ let
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   lsp = import ../shared/lsp.nix;
   common = import ../shared/common.nix;
-  directives = import ../shared/directives.nix { };
+  directives = import ../shared/directives.nix;
   prompts = import ../shared/prompts.nix { };
   writableConfigs = import ../shared/writable-configs.nix { inherit lib pkgs; };
 
