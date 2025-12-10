@@ -31,7 +31,7 @@ in
     toggle_scrolling = { key = "Numpad1" }
     toggle_minimap = { mods = "CTRL", key = "m" }
     scroll_up = { key = "Numpad2" }
-    scroll_down = { key = "Numapd3" }
+    scroll_down = { key = "Numpad3" }
     scroll_exit = { key = "Numpad4" }
     shader_prev = { key = "Numpad5" }
     shader_next = { key = "Numpad6" }
