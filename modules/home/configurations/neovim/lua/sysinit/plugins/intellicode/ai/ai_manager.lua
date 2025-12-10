@@ -117,20 +117,6 @@ local function wait_for_pane(pane_id, max_retries)
   return false
 end
 
-local function set_tab_title(pane_id, title)
-  local result = vim.fn.system(
-    string.format(
-      "wezterm cli set-tab-title --pane-id %d %s 2>/dev/null",
-      pane_id,
-      vim.fn.shellescape(title)
-    )
-  )
-  if vim.v.shell_error ~= 0 then
-    return false
-  end
-  return true
-end
-
 local function activate_pane(pane_id)
   vim.fn.system(string.format("wezterm cli activate-pane --pane-id %d 2>/dev/null", pane_id))
   return vim.v.shell_error == 0
@@ -269,10 +255,6 @@ function M.open(termname)
     cwd = cwd,
   }
   active_terminal = termname
-
-  if agent then
-    set_tab_title(pane_id, string.format("%s %s", agent.icon, agent.label))
-  end
 end
 
 function M.toggle(termname)
