@@ -49,62 +49,42 @@ function M.setup(config)
         right = wezterm.nerdfonts.ple_left_half_circle_thin,
       },
       tab_separators = {
-        left = wezterm.nerdfonts.ple_right_half_circle_thin,
-        right = wezterm.nerdfonts.ple_left_half_circle_thin,
+        left = " ",
+        right = " ",
       },
     },
     sections = {
       tabline_a = {
         {
           "mode",
-          icon = "",
+          icon = "  ",
           padding = { left = 1, right = 1 },
         },
       },
-      tabline_b = {
-        "  ",
-      },
+      tabline_b = {},
+      tabline_x = {},
+      tabline_y = {},
+      tabline_z = {},
       tab_active = {
         {
           "index",
-          icon = wezterm.nerdfonts.cod_circle_filled,
-          padding = { left = 0, right = 0 },
+          padding = { left = 1, right = 0 },
         },
         {
           "cwd",
           padding = { left = 1, right = 1 },
         },
-        function()
-          local close_btn = wezterm.nerdfonts.fa_times_circle
-          return {
-            { Foreground = { Color = colors.ansi[1] } },
-            { Background = { Color = colors.tab_bar.active_tab.bg_color } },
-            { Text = " " .. close_btn },
-          }
-        end,
       },
       tab_inactive = {
         {
           "index",
-          icon = wezterm.nerdfonts.cod_circle_outline,
-          padding = { left = 0, right = 0 },
+          padding = { left = 1, right = 0 },
         },
         {
           "cwd",
-          padding = { left = 1, right = 1 },
+          padding = { left = 1, right = 0 },
         },
-        function()
-          local close_btn = wezterm.nerdfonts.fa_times_circle_o
-          return {
-            { Foreground = { Color = colors.tab_bar.inactive_tab.fg_color } },
-            { Background = { Color = colors.tab_bar.inactive_tab.bg_color } },
-            { Text = " " .. close_btn },
-          }
-        end,
       },
-      tabline_x = {},
-      tabline_y = {},
-      tabline_z = {},
     },
     extensions = {},
   })
