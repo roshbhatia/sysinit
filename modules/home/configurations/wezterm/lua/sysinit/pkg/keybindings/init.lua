@@ -126,6 +126,11 @@ local function get_default_keys()
       mods = "SUPER",
       action = act.HideApplication,
     },
+    {
+      key = "q",
+      mods = "SUPER",
+      action = act.QuitApplication,
+    },
   }
 end
 
