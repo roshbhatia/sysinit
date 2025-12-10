@@ -74,7 +74,7 @@ function M.setup(config)
           "parent",
           padding = { left = 1, right = 0 },
         },
-        "/.../",
+        "/",
         {
           "cwd",
           padding = { left = 0, right = 1 },
@@ -89,7 +89,7 @@ function M.setup(config)
           "parent",
           padding = { left = 1, right = 0 },
         },
-        "/.../",
+        "/",
         {
           "cwd",
           padding = { left = 0, right = 1 },
