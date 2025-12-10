@@ -25,15 +25,15 @@ in
     target_contrast = 2.0
     apply_to_readable_text_only = true
 
-    # Keybindings - use F-keys to avoid conflicts with wezterm/apps
+    # Keybindings - use numpad keys to avoid conflicts with wezterm
     [keybindings]
-    toggle_tattoy = { key = "F1" }
-    toggle_scrolling = { key = "F2" }
+    toggle_tattoy = { key = "Numpad0" }
+    toggle_scrolling = { key = "Numpad1" }
     toggle_minimap = { mods = "CTRL", key = "m" }
-    scroll_up = { key = "UpArrow" }
-    scroll_down = { key = "DownArrow" }
-    scroll_exit = { key = "Escape" }
-    shader_prev = { key = "F11" }
-    shader_next = { key = "F12" }
+    scroll_up = { key = "Numpad2" }
+    scroll_down = { key = "Numapd3" }
+    scroll_exit = { key = "Numpad4" }
+    shader_prev = { key = "Numpad5" }
+    shader_next = { key = "Numpad6" }
   '';
 }

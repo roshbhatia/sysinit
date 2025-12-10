@@ -178,7 +178,7 @@ end
 
 local function with_tattoy_disabled(action)
   return act.Multiple({
-    act.SendKey({ key = "F1" }),
+    act.SendKey({ key = "Numpad0" }),
     action,
   })
 end
