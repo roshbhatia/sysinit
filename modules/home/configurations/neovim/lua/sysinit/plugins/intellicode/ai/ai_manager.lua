@@ -42,12 +42,30 @@ local function get_session_name(termname, cwd)
   return string.format("ai-%s-%s-%s", termname, safe, timestamp)
 end
 
+-- Return a list of tmux session names
+local function get_all_sessions()
+  local out = vim.fn.system("tmux list-sessions -F '#S' 2>/dev/null")
+  if vim.v.shell_error ~= 0 or not out or out == "" then
+    return {}
+  end
+  local sessions = {}
+  for s in string.gmatch(out, "[^\n]+") do
+    table.insert(sessions, vim.trim(s))
+  end
+  return sessions
+end
+
 local function find_existing_session(termname, cwd)
   -- Use full, sanitized path for prefix matching
   local full = vim.fn.fnamemodify(cwd, ":p")
   local safe = full:gsub("[/:%s]", "_")
   local prefix = string.format("ai-%s-%s-", termname, safe)
-  for _, name in ipairs(get_all_sessions()) do
+  local out = vim.fn.system("tmux list-sessions -F '#S' 2>/dev/null")
+  if vim.v.shell_error ~= 0 or not out or out == "" then
+    return nil
+  end
+  for s in string.gmatch(out, "[^\n]+") do
+    local name = vim.trim(s)
     if vim.startswith(name, prefix) then
       return name
     end
