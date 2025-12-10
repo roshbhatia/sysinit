@@ -102,7 +102,6 @@ in
     };
 
     plugins = [
-      # evalcache first - core infra used by other init scripts
       {
         name = "evalcache";
         src = pkgs.fetchFromGitHub {
@@ -143,7 +142,6 @@ in
         };
         file = "fzf-tab.plugin.zsh";
       }
-      # zsh-vi-mode last - handles keybindings after other plugins loaded
       {
         name = "zsh-vi-mode";
         src = pkgs.fetchFromGitHub {
@@ -157,23 +155,14 @@ in
     ];
 
     initContent = lib.mkMerge [
-      # ============================================================
-      # ORDER 100: Debug profiling (earliest)
-      # ============================================================
       (lib.mkOrder 100 ''
         [[ -n "$SYSINIT_DEBUG" ]] && zmodload zsh/zprof
       '')
 
-      # ============================================================
-      # ORDER 200: Core initialization
-      # ============================================================
       (lib.mkOrder 200 ''
         ${coreInit}
       '')
 
-      # ============================================================
-      # ORDER 300: PATH management
-      # ============================================================
       (lib.mkOrder 300 ''
         ${corePath}
 
@@ -182,17 +171,11 @@ in
           ${lib.concatStringsSep " \\\n          " (map (path: "\"${path}\"") pathsList)}
       '')
 
-      # ============================================================
-      # ORDER 400: Library utilities (cache, functions)
-      # ============================================================
       (lib.mkOrder 400 ''
         ${libCache}
         ${libFunctions}
       '')
 
-      # ============================================================
-      # ORDER 500: Completion system
-      # ============================================================
       (lib.mkOrder 500 ''
         mkdir -p ${config.xdg.cacheHome}/zsh
         autoload -Uz compinit
@@ -234,9 +217,6 @@ in
         compdef _ls ls
       '')
 
-      # ============================================================
-      # ORDER 600: Integrations
-      # ============================================================
       (lib.mkOrder 600 ''
         ${integrationsWezterm}
         ${integrationsTools}
@@ -245,17 +225,11 @@ in
         ${env}
       '')
 
-      # ============================================================
-      # ORDER 700: UI (prompt, vim-mode)
-      # ============================================================
       (lib.mkOrder 700 ''
         ${uiPrompt}
         ${uiVimMode}
       '')
 
-      # ============================================================
-      # ORDER 900: Debug profiling output (latest)
-      # ============================================================
       (lib.mkOrder 900 ''
         [[ -n "$SYSINIT_DEBUG" ]] && zprof
       '')

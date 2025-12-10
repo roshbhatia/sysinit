@@ -1,8 +1,6 @@
 #!/usr/bin/env zsh
 # shellcheck disable=all
 
-# Load completions after zsh-vi-mode initializes
-# Consolidated into single multiline block for efficiency
 zvm_after_init_commands+=$'
 _evalcache atuin init zsh --disable-up-arrow
 _evalcache docker completion zsh

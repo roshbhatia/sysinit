@@ -2,6 +2,7 @@ local wezterm = require("wezterm")
 local act = wezterm.action
 local M = {}
 
+-- General passthrough for navigation and other keys (vim/nvim/hx/k9s)
 local function should_passthrough(pane)
   local process_name = string.gsub(pane:get_foreground_process_name(), "(.*[/\\])(.*)", "%2")
   return process_name == "nvim"
@@ -10,9 +11,16 @@ local function should_passthrough(pane)
     or process_name == "k9s"
 end
 
-local function vim_or_wezterm_action(key, mods, wezterm_action)
+-- Specific passthrough for Ctrl+W (only vim/nvim use window commands)
+local function should_passthrough_ctrl_w(pane)
+  local process_name = string.gsub(pane:get_foreground_process_name(), "(.*[/\\])(.*)", "%2")
+  return process_name == "nvim" or process_name == "vim"
+end
+
+-- Special action builder for Ctrl+W (only vim/nvim)
+local function vim_w_or_wezterm_action(key, mods, wezterm_action)
   return wezterm.action_callback(function(win, pane)
-    if should_passthrough(pane) then
+    if should_passthrough_ctrl_w(pane) then
       win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
     else
       win:perform_action(wezterm_action, pane)
@@ -42,17 +50,18 @@ local function pane_keybinding(action_type, key, mods)
 end
 
 local function get_pane_keys()
-  vim_or_wezterm_action("w", "CTRL", act.CloseCurrentPane({ confirm = true }))
-
   return {
+    -- Navigation
     { key = "h", mods = "CTRL", action = pane_keybinding("move", "h", "CTRL") },
     { key = "j", mods = "CTRL", action = pane_keybinding("move", "j", "CTRL") },
     { key = "k", mods = "CTRL", action = pane_keybinding("move", "k", "CTRL") },
     { key = "l", mods = "CTRL", action = pane_keybinding("move", "l", "CTRL") },
+    -- Resize
     { key = "h", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "h", "CTRL|SHIFT") },
     { key = "j", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "j", "CTRL|SHIFT") },
     { key = "k", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "k", "CTRL|SHIFT") },
     { key = "l", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "l", "CTRL|SHIFT") },
+    -- Split
     {
       key = "s",
       mods = "CTRL",
@@ -63,26 +72,69 @@ local function get_pane_keys()
       mods = "CTRL",
       action = wezterm.action.SplitHorizontal({ domain = "CurrentPaneDomain" }),
     },
+    -- Close pane (only passthrough to vim/nvim)
+    {
+      key = "w",
+      mods = "CTRL",
+      action = vim_w_or_wezterm_action("w", "CTRL", act.CloseCurrentPane({ confirm = true })),
+    },
   }
 end
 
 local function get_clear_keys()
+  local clear_action = wezterm.action_callback(function(win, pane)
+    if should_passthrough(pane) then
+      win:perform_action({
+        SendKey = {
+          key = "k",
+          mods = "CTRL",
+        },
+      }, pane)
+    else
+      win:perform_action(act.ClearScrollback("ScrollbackAndViewport"), pane)
+    end
+  end)
+
   return {
     {
       key = "k",
+      mods = "CTRL|SHIFT",
+      action = clear_action,
+    },
+  }
+end
+
+local function get_clipboard_keys()
+  return {
+    {
+      key = "c",
+      mods = "CMD",
+      action = act.CopyTo("Clipboard"),
+    },
+    {
+      key = "v",
+      mods = "CMD",
+      action = act.PasteFrom("Clipboard"),
+    },
+  }
+end
+
+local function get_font_keys()
+  return {
+    {
+      key = "-",
       mods = "CTRL",
-      action = wezterm.action_callback(function(win, pane)
-        if should_passthrough(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "k",
-              mods = "CTRL",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ClearScrollback("ScrollbackAndViewport"), pane)
-        end
-      end),
+      action = act.DecreaseFontSize,
+    },
+    {
+      key = "=",
+      mods = "CTRL",
+      action = act.IncreaseFontSize,
+    },
+    {
+      key = "0",
+      mods = "CTRL",
+      action = act.ResetFontSize,
     },
   }
 end
@@ -91,8 +143,13 @@ local function get_pallete_keys()
   return {
     {
       key = "Space",
-      mods = "CTRL|SHIFT",
+      mods = "CTRL|ALT",
       action = act.ActivateCommandPalette,
+    },
+    {
+      key = "l",
+      mods = "CTRL|SHIFT",
+      action = act.ShowDebugOverlay,
     },
   }
 end
@@ -101,13 +158,8 @@ local function get_window_keys()
   return {
     {
       key = "n",
-      mods = "CTRL",
+      mods = "CTRL|SHIFT",
       action = act.SpawnWindow,
-    },
-    {
-      key = "w",
-      mods = "CTRL",
-      action = act.CloseCurrentTab({ confirm = false }),
     },
   }
 end
@@ -120,54 +172,75 @@ local function get_tab_keys()
       action = act.SpawnTab("CurrentPaneDomain"),
     },
     {
+      key = "w",
+      mods = "CTRL|SHIFT",
+      action = act.CloseCurrentTab({ confirm = true }),
+    },
+    {
       key = "]",
-      mods = "CTRL",
+      mods = "CTRL|SHIFT",
       action = act.ActivateTabRelative(1),
     },
     {
       key = "[",
-      mods = "CTRL",
+      mods = "CTRL|SHIFT",
       action = act.ActivateTabRelative(-1),
     },
     {
-      key = "1",
+      key = "Tab",
       mods = "CTRL",
+      action = act.ActivateTabRelative(1),
+    },
+    {
+      key = "Tab",
+      mods = "CTRL|SHIFT",
+      action = act.ActivateTabRelative(-1),
+    },
+    -- Direct tab access
+    {
+      key = "1",
+      mods = "CTRL|SHIFT",
       action = act.ActivateTab(0),
     },
     {
       key = "2",
-      mods = "CTRL",
+      mods = "CTRL|SHIFT",
       action = act.ActivateTab(1),
     },
     {
       key = "3",
-      mods = "CTRL",
+      mods = "CTRL|SHIFT",
       action = act.ActivateTab(2),
     },
     {
       key = "4",
-      mods = "CTRL",
+      mods = "CTRL|SHIFT",
       action = act.ActivateTab(3),
     },
     {
       key = "5",
-      mods = "CTRL",
+      mods = "CTRL|SHIFT",
       action = act.ActivateTab(4),
     },
     {
       key = "6",
-      mods = "CTRL",
+      mods = "CTRL|SHIFT",
       action = act.ActivateTab(5),
     },
     {
       key = "7",
-      mods = "CTRL",
+      mods = "CTRL|SHIFT",
       action = act.ActivateTab(6),
     },
     {
       key = "8",
-      mods = "CTRL",
+      mods = "CTRL|SHIFT",
       action = act.ActivateTab(7),
+    },
+    {
+      key = "9",
+      mods = "CTRL|SHIFT",
+      action = act.ActivateTab(-1),
     },
   }
 end
@@ -175,28 +248,43 @@ end
 local function get_search_keys()
   return {
     {
-      key = "Escape",
-      mods = "CTRL",
+      key = "x",
+      mods = "CTRL|SHIFT",
       action = act.ActivateCopyMode,
     },
     {
       key = "f",
-      mods = "CTRL",
-      action = act.QuickSelect,
+      mods = "CTRL|SHIFT",
+      action = act.Search("CurrentSelectionOrEmptyString"),
     },
     {
-      key = "/",
-      mods = "CTRL",
-      action = act.Search("CurrentSelectionOrEmptyString"),
+      key = "Space",
+      mods = "CTRL|SHIFT",
+      action = act.QuickSelect,
     },
   }
 end
 
-local function get_transparency_keys()
+local function get_misc_keys()
   return {
     {
-      key = "t",
+      key = "r",
       mods = "CTRL|SHIFT",
+      action = act.ReloadConfiguration,
+    },
+    {
+      key = "PageUp",
+      mods = "SHIFT",
+      action = act.ScrollByPage(-1),
+    },
+    {
+      key = "PageDown",
+      mods = "SHIFT",
+      action = act.ScrollByPage(1),
+    },
+    {
+      key = "t",
+      mods = "CTRL|ALT",
       action = wezterm.action_callback(function(win)
         local overrides = win:get_config_overrides() or {}
         local current_opacity = overrides.window_background_opacity or 1.0
@@ -224,18 +312,21 @@ local function get_key_tables()
 end
 
 function M.setup(config)
+  -- Disable all default key bindings for clean slate
   config.disable_default_key_bindings = true
 
   local all_keys = {}
 
   local key_groups = {
+    get_clipboard_keys(),
+    get_font_keys(),
     get_pane_keys(),
     get_clear_keys(),
     get_pallete_keys(),
     get_window_keys(),
     get_tab_keys(),
     get_search_keys(),
-    get_transparency_keys(),
+    get_misc_keys(),
   }
 
   for _, group in ipairs(key_groups) do
