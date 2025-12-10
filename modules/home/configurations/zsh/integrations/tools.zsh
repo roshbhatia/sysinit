@@ -4,7 +4,7 @@
 
 # nix-your-shell integration
 if command -v nix-your-shell &> /dev/null; then
-  if (($ + functions[_evalcache])); then
+  if type _evalcache &> /dev/null; then
     _evalcache nix-your-shell zsh
   else
     nix-your-shell zsh | source /dev/stdin
