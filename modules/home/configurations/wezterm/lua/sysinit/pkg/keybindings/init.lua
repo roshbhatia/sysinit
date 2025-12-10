@@ -98,7 +98,7 @@ local function get_clear_keys()
   return {
     {
       key = "k",
-      mods = "CTRL|SHIFT",
+      mods = "CMD",
       action = clear_action,
     },
   }
