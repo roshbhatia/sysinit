@@ -37,7 +37,7 @@ let
     "$schema" = "https://opencode.ai/config.json";
     share = "disabled";
     theme = opencodeTheme;
-    autoupdate = true;
+    autoupdate = false;
 
     mcp = common.formatMcpForOpencode mcpServers.servers;
     lsp = common.formatLspForOpencode lsp.lsp;
