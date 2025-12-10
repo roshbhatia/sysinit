@@ -74,15 +74,15 @@ let
     text = agentsMd;
     force = false;
   };
-in
-rec {
+
   openagentsSrc = pkgs.fetchFromGitHub {
     owner = "darrenhinde";
     repo = "OpenAgents";
     rev = "bad7b8f58a5f36a8bfa89663781c4337303d5677";
     sha256 = "1pjfbncq6n43y5f0xqs9pq3mn1z75aad75fgg0nhjxp6dkjsjfpy";
   };
-
+in
+{
   home.activation = {
     opencodeConfig = opencodeConfigFile.activation;
     opencodeAgents = opencodeAgentsFile.activation;
