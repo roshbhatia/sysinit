@@ -43,5 +43,5 @@ bg_color = "#121315"
 [metadata]
 aliases = []
 name = "roseprime"
-url = "https://wezfurlong.org/wezterm/config/files.html"
+origin_url = "https://wezfurlong.org/wezterm/config/files.html"
 author = "Casey Miller"
