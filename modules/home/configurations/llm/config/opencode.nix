@@ -1,7 +1,9 @@
 {
   lib,
   pkgs,
+  config,
   values,
+  utils,
   ...
 }:
 let
@@ -10,7 +12,6 @@ let
   common = import ../shared/common.nix;
   directives = import ../shared/directives.nix;
   prompts = import ../shared/prompts.nix { };
-  writableConfigs = import ../shared/writable-configs.nix { inherit lib pkgs; };
 
   themes = import ../../../../shared/lib/theme { inherit lib; };
 
@@ -63,13 +64,15 @@ let
     };
   };
 
-  opencodeConfigFile = writableConfigs.mkWritableConfig {
+  opencodeConfigFile = utils.xdg.mkWritableXdgConfig {
+    inherit config;
     path = "opencode/opencode.json";
     text = opencodeConfig;
     force = false;
   };
 
-  opencodeAgentsFile = writableConfigs.mkWritableConfig {
+  opencodeAgentsFile = utils.xdg.mkWritableXdgConfig {
+    inherit config;
     path = "opencode/AGENTS.md";
     text = agentsMd;
     force = false;

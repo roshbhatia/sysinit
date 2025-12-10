@@ -1,10 +1,10 @@
-# modules/home/configurations/llm/shared/writable-configs.nix
+# modules/shared/lib/xdg/default.nix
 #
-# Purpose: Helper functions for creating writable configuration files for LLM tools.
-# Many LLM tools (goose, claude, etc.) need to mutate their config files at runtime.
+# Purpose: Utilities for creating writable XDG configuration files.
+# Many tools (LLM agents, IDEs, etc.) need to mutate their config files at runtime.
 # This module provides utilities to:
 # 1. Write initial config to Nix store (via pkgs.writeText)
-# 2. Copy to writable location during home-manager activation
+# 2. Copy to writable XDG location during home-manager activation
 # 3. Only overwrite if source changed (preserves user edits when possible)
 # 4. Clean up legacy backup files (.nix-prev, .bak, .backup)
 {
@@ -12,20 +12,22 @@
   pkgs,
 }:
 let
-  inherit (lib) hm;
+  inherit (lib.hm) dag;
 
-  # Creates a writable config file setup
+  # Creates a writable XDG config file setup
   # Returns an attribute set with:
   # - source: path to source file in Nix store
   # - activation: home.activation entry (copies to writable location)
   #
   # Parameters:
-  # - path: config path relative to ~/.config (e.g., "goose/config.yaml")
+  # - config: home-manager config object (to access xdg.configHome)
+  # - path: config path relative to XDG_CONFIG_HOME (e.g., "goose/config.yaml")
   # - text: content of the config file
   # - executable: whether file should be executable (default: false)
   # - force: whether to force overwrite on every activation (default: false)
-  mkWritableConfig =
+  mkWritableXdgConfig =
     {
+      config,
       path,
       text,
       executable ? false,
@@ -38,12 +40,15 @@ let
       # Create source file in Nix store
       sourceFile = pkgs.writeText "${activationName}-source" text;
 
+      # Get XDG config home from home-manager configuration
+      xdgConfigHome = config.xdg.configHome;
+
       # Script to copy file to writable location
       copyScript =
         if force then
           # Force mode: always overwrite
           ''
-            DEST_PATH="$HOME/.config/${path}"
+            DEST_PATH="${xdgConfigHome}/${path}"
             $DRY_RUN_CMD mkdir -p "$(dirname "$DEST_PATH")"
             $DRY_RUN_CMD echo "Installing writable config: ${path}"
 
@@ -58,7 +63,7 @@ let
         else
           # Smart mode: only update if source changed
           ''
-            DEST_PATH="$HOME/.config/${path}"
+            DEST_PATH="${xdgConfigHome}/${path}"
             $DRY_RUN_CMD mkdir -p "$(dirname "$DEST_PATH")"
 
             # Remove legacy backup files
@@ -92,15 +97,15 @@ let
       source = sourceFile;
 
       # Activation script to copy file
-      activation = hm.dag.entryAfter [ "linkGeneration" ] copyScript;
+      activation = dag.entryAfter [ "linkGeneration" ] copyScript;
     };
 
   # Convenience function to create multiple writable configs
-  # Returns attribute sets for xdg.configFile and home.activation
-  mkWritableConfigs =
+  # Returns attribute sets for home.activation
+  mkWritableXdgConfigs =
     configs:
     let
-      results = builtins.map mkWritableConfig configs;
+      results = builtins.map mkWritableXdgConfig configs;
     in
     {
       activations = builtins.listToAttrs (
@@ -112,5 +117,5 @@ let
     };
 in
 {
-  inherit mkWritableConfig mkWritableConfigs;
+  inherit mkWritableXdgConfig mkWritableXdgConfigs;
 }

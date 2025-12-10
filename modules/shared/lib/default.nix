@@ -13,4 +13,5 @@
   theme = import ./theme { inherit lib; };
   validation = import ./validation { inherit lib; };
   values = import ./values { inherit lib; };
+  xdg = import ./xdg { inherit lib pkgs; };
 }

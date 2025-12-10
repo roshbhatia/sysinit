@@ -1,14 +1,14 @@
 {
   lib,
-  pkgs,
+  config,
   values,
+  utils,
   ...
 }:
 let
   inherit (lib) mkIf;
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   common = import ../shared/common.nix;
-  writableConfigs = import ../shared/writable-configs.nix { inherit lib pkgs; };
 
   claudeConfig = builtins.toJSON {
     mcpServers = common.formatMcpForClaude mcpServers.servers;
@@ -40,13 +40,15 @@ let
   '';
 
   # Create writable config files
-  claudeConfigFile = writableConfigs.mkWritableConfig {
+  claudeConfigFile = utils.xdg.mkWritableXdgConfig {
+    inherit config;
     path = "Claude/claude_desktop_config.json";
     text = claudeConfig;
     force = false; # Preserve user edits when source unchanged
   };
 
-  claudeHookScriptFile = writableConfigs.mkWritableConfig {
+  claudeHookScriptFile = utils.xdg.mkWritableXdgConfig {
+    inherit config;
     path = "claude/hooks/append_agentsmd_context.sh";
     text = claudeHookScript;
     executable = true;

@@ -1,7 +1,8 @@
 {
   lib,
-  pkgs,
+  config,
   values,
+  utils,
   ...
 }:
 let
@@ -9,7 +10,6 @@ let
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   common = import ../shared/common.nix;
   directives = import ../shared/directives.nix;
-  writableConfigs = import ../shared/writable-configs.nix { inherit lib pkgs; };
 
   gooseHintsMd = ''
     ${directives.general}
@@ -29,13 +29,15 @@ let
   );
 
   # Create writable config files
-  gooseConfigFile = writableConfigs.mkWritableConfig {
+  gooseConfigFile = utils.xdg.mkWritableXdgConfig {
+    inherit config;
     path = "goose/config.yaml";
     text = gooseConfig;
     force = false; # Preserve user edits when source unchanged
   };
 
-  gooseHintsFile = writableConfigs.mkWritableConfig {
+  gooseHintsFile = utils.xdg.mkWritableXdgConfig {
+    inherit config;
     path = "goose/goosehints.md";
     text = gooseHintsMd;
     force = false; # Preserve user edits when source unchanged
