@@ -176,44 +176,37 @@ local function get_tab_keys()
   }
 end
 
-local function with_tattoy_disabled(action)
-  return act.Multiple({
-    act.SendKey({ key = "Numpad0" }),
-    action,
-  })
-end
-
 local function get_search_keys()
   return {
     {
       key = "Escape",
       mods = "CTRL",
-      action = with_tattoy_disabled(act.ActivateCopyMode),
+      action = act.ActivateCopyMode,
     },
     {
       key = "Escape",
       mods = "CMD",
-      action = with_tattoy_disabled(act.ActivateCopyMode),
+      action = act.ActivateCopyMode,
     },
     {
       key = "f",
       mods = "CTRL",
-      action = with_tattoy_disabled(act.QuickSelect),
+      action = act.QuickSelect,
     },
     {
       key = "f",
       mods = "CMD",
-      action = with_tattoy_disabled(act.QuickSelect),
+      action = act.QuickSelect,
     },
     {
       key = "/",
       mods = "CTRL",
-      action = with_tattoy_disabled(act.Search("CurrentSelectionOrEmptyString")),
+      action = act.Search("CurrentSelectionOrEmptyString"),
     },
     {
       key = "/",
       mods = "CMD",
-      action = with_tattoy_disabled(act.Search("CurrentSelectionOrEmptyString")),
+      action = act.Search("CurrentSelectionOrEmptyString"),
     },
   }
 end
@@ -276,7 +269,6 @@ local function get_key_tables()
   local search_mode_exits = {
     { key = "Escape" },
     { key = "Enter" },
-    { key = "r", mods = "CTRL" },
   }
 
   return {

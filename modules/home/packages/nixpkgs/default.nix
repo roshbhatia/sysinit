@@ -119,7 +119,6 @@ let
     stern
     stylua
     taplo
-    tattoy
     terraform-ls
     textlint
     tflint
