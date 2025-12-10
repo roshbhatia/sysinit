@@ -88,7 +88,10 @@ in
     opencodeAgents = opencodeAgentsFile.activation;
   };
 
-  home.file.".opencode/agent/openagent.md" = {
-    source = "${openagentsSrc}/.opencode/agent/openagent.md";
-  };
+  xdg.configFile.".opencode/agent".source = "${openagentsSrc}/.opencode/agent";
+  xdg.configFile.".opencode/command".source = "${openagentsSrc}/.opencode/command";
+  xdg.configFile.".opencode/context".source = "${openagentsSrc}/.opencode/context";
+  xdg.configFile.".opencode/plugin".source = "${openagentsSrc}/.opencode/plugin";
+  xdg.configFile.".opencode/prompts".source = "${openagentsSrc}/.opencode/prompts";
+  xdg.configFile.".opencode/tool".source = "${openagentsSrc}/.opencode/tool";
 }
