@@ -22,6 +22,9 @@ in
     # Notifications
     [notifications]
     enabled = false
+    opacity = 0.9
+    level = "info"
+    duration = 5.0
 
     # Animated cursor with trail effect
     [animated_cursor]

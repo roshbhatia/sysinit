@@ -6,11 +6,6 @@ local function get_basic_config()
   local username = os.getenv("USER") or ""
   local nix_bin = "/etc/profiles/per-user/" .. username .. "/bin"
 
-  local shells = {
-    zsh = { nix_bin .. "/zsh" },
-    tattoy = { nix_bin .. "/tattoy" },
-  }
-
   return {
     set_environment_variables = {
       TERM = "wezterm",
@@ -19,7 +14,7 @@ local function get_basic_config()
     automatically_reload_config = true,
     pane_focus_follows_mouse = false,
     status_update_interval = 20,
-    default_prog = shells.tattoy,
+    default_prog = { nix_bin .. "/zsh", "-l" },
   }
 end
 
