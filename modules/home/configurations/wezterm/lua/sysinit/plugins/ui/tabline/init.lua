@@ -68,21 +68,31 @@ function M.setup(config)
       tab_active = {
         {
           "index",
-          padding = { left = 1, right = 0 },
+          padding = { left = 1 },
         },
         {
+          "parent",
+          padding = { left = 1, right = 0 },
+        },
+        "/.../",
+        {
           "cwd",
-          padding = { left = 1, right = 1 },
+          padding = { left = 0, right = 1 },
         },
       },
       tab_inactive = {
         {
           "index",
-          padding = { left = 1, right = 0 },
+          padding = { left = 1 },
         },
         {
-          "cwd",
+          "parent",
           padding = { left = 1, right = 0 },
+        },
+        "/.../",
+        {
+          "cwd",
+          padding = { left = 0, right = 1 },
         },
       },
     },
