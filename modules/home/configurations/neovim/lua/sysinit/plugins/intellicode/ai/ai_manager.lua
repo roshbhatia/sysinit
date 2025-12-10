@@ -35,32 +35,23 @@ local function get_pane_info(pane_id)
 end
 
 local function get_session_name(termname, cwd)
-  local folder = vim.fn.fnamemodify(cwd, ":t") -- Get last component of path
+  -- Use full, sanitized path to avoid collisions
+  local full = vim.fn.fnamemodify(cwd, ":p")
+  local safe = full:gsub("[/:%s]", "_")
   local timestamp = os.date("%Y%m%d-%H%M%S")
-  return string.format("ai-%s-%s-%s", termname, folder, timestamp)
+  return string.format("ai-%s-%s-%s", termname, safe, timestamp)
 end
 
 local function find_existing_session(termname, cwd)
-  local folder = vim.fn.fnamemodify(cwd, ":t")
-  local prefix = string.format("ai-%s-%s-", termname, folder)
-
-  local result = vim.fn.system("tmux list-sessions -F '#{session_name}' 2>/dev/null")
-  if vim.v.shell_error ~= 0 then
-    return nil
-  end
-
-  local sessions = {}
-  for line in vim.gsplit(vim.trim(result), "\n") do
-    if line:match("^" .. vim.pesc(prefix)) then
-      table.insert(sessions, line)
+  -- Use full, sanitized path for prefix matching
+  local full = vim.fn.fnamemodify(cwd, ":p")
+  local safe = full:gsub("[/:%s]", "_")
+  local prefix = string.format("ai-%s-%s-", termname, safe)
+  for _, name in ipairs(get_all_sessions()) do
+    if vim.startswith(name, prefix) then
+      return name
     end
   end
-
-  if #sessions > 0 then
-    table.sort(sessions)
-    return sessions[#sessions]
-  end
-
   return nil
 end
 

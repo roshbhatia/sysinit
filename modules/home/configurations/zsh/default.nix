@@ -26,7 +26,10 @@ let
   libFunctions = shell.stripHeaders ./lib/functions.zsh;
 
   # Integration modules
-  integrationsWezterm = shell.stripHeaders ./integrations/wezterm.zsh;
+  integrationsWezterm = builtins.readFile (pkgs.fetchurl {
+    url = "https://raw.githubusercontent.com/wezterm/wezterm/refs/heads/main/assets/shell-integration/wezterm.sh";
+    sha256 = lib.fakeSha256;
+  });
   integrationsCompletions = shell.stripHeaders ./integrations/completions.zsh;
   integrationsTools = shell.stripHeaders ./integrations/tools.zsh;
   integrationsExtras = shell.stripHeaders ./integrations/extras.zsh;

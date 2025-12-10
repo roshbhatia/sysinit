@@ -27,7 +27,6 @@ let
     "bd"
     "block-goose-cli"
     "colima"
-    "grc"
     "hashicorp/tap/terraform"
     "libgit2@1.8"
     "luarocks"
