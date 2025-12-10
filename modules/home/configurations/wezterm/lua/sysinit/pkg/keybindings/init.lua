@@ -98,23 +98,33 @@ local function get_clear_keys()
   return {
     {
       key = "k",
-      mods = "CMD",
+      mods = "SUPER",
       action = clear_action,
     },
   }
 end
 
-local function get_clipboard_keys()
+local function get_default_keys()
   return {
     {
       key = "c",
-      mods = "CMD",
+      mods = "SUPER",
       action = act.CopyTo("Clipboard"),
     },
     {
       key = "v",
-      mods = "CMD",
+      mods = "SUPER",
       action = act.PasteFrom("Clipboard"),
+    },
+    {
+      key = "m",
+      mods = "SUPER",
+      action = act.Hide,
+    },
+    {
+      key = "h",
+      mods = "SUPER",
+      action = act.HideApplication,
     },
   }
 end
@@ -123,12 +133,12 @@ local function get_font_keys()
   return {
     {
       key = "-",
-      mods = "CMD",
+      mods = "SUPER",
       action = act.DecreaseFontSize,
     },
     {
       key = "=",
-      mods = "CMD",
+      mods = "SUPER",
       action = act.IncreaseFontSize,
     },
   }
@@ -356,22 +366,21 @@ local function get_key_tables()
 end
 
 function M.setup(config)
-  -- Disable all default key bindings for clean slate
   config.disable_default_key_bindings = true
 
   local all_keys = {}
 
   local key_groups = {
-    get_clipboard_keys(),
-    get_font_keys(),
-    get_pane_keys(),
     get_clear_keys(),
-    get_pallete_keys(),
-    get_scroll_keys(),
-    get_window_keys(),
-    get_tab_keys(),
-    get_search_keys(),
+    get_default_keys(),
+    get_font_keys(),
     get_misc_keys(),
+    get_pallete_keys(),
+    get_pane_keys(),
+    get_scroll_keys(),
+    get_search_keys(),
+    get_tab_keys(),
+    get_window_keys(),
   }
 
   for _, group in ipairs(key_groups) do
