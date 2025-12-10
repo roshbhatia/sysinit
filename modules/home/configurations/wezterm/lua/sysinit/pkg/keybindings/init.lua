@@ -123,18 +123,13 @@ local function get_font_keys()
   return {
     {
       key = "-",
-      mods = "CTRL",
+      mods = "CMD",
       action = act.DecreaseFontSize,
     },
     {
       key = "=",
-      mods = "CTRL",
+      mods = "CMD",
       action = act.IncreaseFontSize,
-    },
-    {
-      key = "0",
-      mods = "CTRL",
-      action = act.ResetFontSize,
     },
   }
 end
@@ -143,7 +138,7 @@ local function get_pallete_keys()
   return {
     {
       key = "Space",
-      mods = "CTRL|ALT",
+      mods = "CTRL|SHIFT",
       action = act.ActivateCommandPalette,
     },
     {
@@ -158,7 +153,7 @@ local function get_window_keys()
   return {
     {
       key = "n",
-      mods = "CTRL|SHIFT",
+      mods = "CTRL",
       action = act.SpawnWindow,
     },
   }
@@ -175,16 +170,6 @@ local function get_tab_keys()
       key = "w",
       mods = "CTRL|SHIFT",
       action = act.CloseCurrentTab({ confirm = true }),
-    },
-    {
-      key = "]",
-      mods = "CTRL|SHIFT",
-      action = act.ActivateTabRelative(1),
-    },
-    {
-      key = "[",
-      mods = "CTRL|SHIFT",
-      action = act.ActivateTabRelative(-1),
     },
     {
       key = "Tab",
@@ -253,13 +238,13 @@ local function get_search_keys()
       action = act.ActivateCopyMode,
     },
     {
-      key = "f",
+      key = "/",
       mods = "CTRL",
       action = act.Search("CurrentSelectionOrEmptyString"),
     },
     {
-      key = "Space",
-      mods = "CTRL|SHIFT",
+      key = "f",
+      mods = "CTRL",
       action = act.QuickSelect,
     },
   }
@@ -327,7 +312,7 @@ local function get_scroll_keys()
             },
           }, pane)
         else
-          win:perform_action(act.ScrollToPrompt, pane)
+          win:perform_action(act.ScrollToBottom, pane)
         end
       end),
     },
