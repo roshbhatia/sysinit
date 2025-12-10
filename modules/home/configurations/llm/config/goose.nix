@@ -45,7 +45,7 @@ let
 in
 {
   home.activation = mkIf values.llm.agents.goose {
-    gooseConfig = gooseConfigFile.activation;
-    gooseHints = gooseHintsFile.activation;
+    gooseConfig = lib.hm.dag.entryAfter [ "linkGeneration" ] gooseConfigFile.script;
+    gooseHints = lib.hm.dag.entryAfter [ "linkGeneration" ] gooseHintsFile.script;
   };
 }

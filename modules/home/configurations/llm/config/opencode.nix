@@ -87,8 +87,8 @@ let
 in
 {
   home.activation = {
-    opencodeConfig = opencodeConfigFile.activation;
-    opencodeAgents = opencodeAgentsFile.activation;
+    opencodeConfig = lib.hm.dag.entryAfter [ "linkGeneration" ] opencodeConfigFile.script;
+    opencodeAgents = lib.hm.dag.entryAfter [ "linkGeneration" ] opencodeAgentsFile.script;
   };
 
   xdg.configFile.".opencode/agent".source = "${openagentsSrc}/.opencode/agent";

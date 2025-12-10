@@ -12,12 +12,10 @@
   pkgs,
 }:
 let
-  inherit (lib.hm) dag;
-
   # Creates a writable XDG config file setup
   # Returns an attribute set with:
   # - source: path to source file in Nix store
-  # - activation: home.activation entry (copies to writable location)
+  # - script: activation script (caller wraps with hm.dag.entryAfter)
   #
   # Parameters:
   # - config: home-manager config object (to access xdg.configHome)
@@ -96,8 +94,8 @@ let
       # Store the source file path for reference
       source = sourceFile;
 
-      # Activation script to copy file
-      activation = dag.entryAfter [ "linkGeneration" ] copyScript;
+      # Return raw script - caller wraps with hm.dag.entryAfter
+      script = copyScript;
     };
 
   # Convenience function to create multiple writable configs
@@ -111,7 +109,7 @@ let
       activations = builtins.listToAttrs (
         lib.imap0 (i: result: {
           name = "writable-config-${toString i}";
-          value = result.activation;
+          value = result.script;
         }) results
       );
     };

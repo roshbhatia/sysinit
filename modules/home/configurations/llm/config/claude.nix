@@ -57,7 +57,7 @@ let
 in
 {
   home.activation = mkIf values.llm.agents.claude {
-    claudeConfig = claudeConfigFile.activation;
-    claudeHook = claudeHookScriptFile.activation;
+    claudeConfig = lib.hm.dag.entryAfter [ "linkGeneration" ] claudeConfigFile.script;
+    claudeHook = lib.hm.dag.entryAfter [ "linkGeneration" ] claudeHookScriptFile.script;
   };
 }

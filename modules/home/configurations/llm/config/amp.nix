@@ -56,6 +56,6 @@ let
 in
 {
   home.activation = mkIf values.llm.agents.amp {
-    ampConfig = ampConfigFile.activation;
+    ampConfig = lib.hm.dag.entryAfter [ "linkGeneration" ] ampConfigFile.script;
   };
 }
