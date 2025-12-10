@@ -42,6 +42,9 @@ local function pane_keybinding(action_type, key, mods)
 end
 
 local function get_pane_keys()
+  vim_or_wezterm_action("w", "CTRL", act.CloseCurrentPane({ confirm = true }))
+  vim_or_wezterm_action("w", "CMD", act.CloseCurrentPane({ confirm = true }))
+
   return {
     { key = "h", mods = "CTRL", action = pane_keybinding("move", "h", "CTRL") },
     { key = "j", mods = "CTRL", action = pane_keybinding("move", "j", "CTRL") },
@@ -60,11 +63,6 @@ local function get_pane_keys()
       key = "v",
       mods = "CTRL",
       action = wezterm.action.SplitHorizontal({ domain = "CurrentPaneDomain" }),
-    },
-    {
-      key = "w",
-      mods = "CTRL|CMD",
-      action = vim_or_wezterm_action("w", "CTRL", act.CloseCurrentPane({ confirm = true })),
     },
   }
 end

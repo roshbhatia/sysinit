@@ -25,6 +25,7 @@
     ./neovim
     ./nushell
     ./omp
+    ./tattoy
     ./utils
     ./vivid
     ./wezterm

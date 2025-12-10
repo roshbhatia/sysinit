@@ -8,6 +8,7 @@ local function get_basic_config()
 
   local shells = {
     zsh = { nix_bin .. "/zsh" },
+    tattoy = { nix_bin .. "/tattoy" },
   }
 
   return {
@@ -18,7 +19,7 @@ local function get_basic_config()
     automatically_reload_config = true,
     pane_focus_follows_mouse = false,
     status_update_interval = 20,
-    default_prog = shells.zsh,
+    default_prog = shells.tattoy,
   }
 end
 

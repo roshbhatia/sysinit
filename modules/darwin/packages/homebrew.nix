@@ -18,7 +18,6 @@ let
     "osx-cross/arm"
     "sandreas/tap"
     "slp/krunkit"
-    "steveyegge/beads"
     "vet-run/vet"
   ];
 
