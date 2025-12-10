@@ -54,13 +54,13 @@ let
       read = "allow";
     };
 
-    plugin = [
-      "@tarquinen/opencode-dcp@latest"
-    ];
-
-    experimental = {
-      primary_tools = [ "prune" ];
-    };
+    # plugin = [
+    #   "@tarquinen/opencode-dcp@latest"
+    # ];
+    #
+    # experimental = {
+    #   primary_tools = [ "prune" ];
+    # };
   };
 
   opencodeConfigFile = utils.xdg.mkWritableXdgConfig {
