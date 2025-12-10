@@ -5,12 +5,11 @@
   ...
 }:
 let
-  inherit (lib) mkIf;
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   lsp = import ../shared/lsp.nix;
   common = import ../shared/common.nix;
+  directives = import ../shared/directives.nix { };
   prompts = import ../shared/prompts.nix { };
-  directives = import ../shared/directives.nix;
   writableConfigs = import ../shared/writable-configs.nix { inherit lib pkgs; };
 
   themes = import ../../../../shared/lib/theme { inherit lib; };
@@ -31,7 +30,7 @@ let
     ${directives.general}
   '';
 
-  instructions = values.llm.opencode.instructions or defaultInstructions;
+  instructions = defaultInstructions;
 
   opencodeConfig = builtins.toJSON {
     "$schema" = "https://opencode.ai/config.json";
@@ -46,14 +45,13 @@ let
     instructions = instructions;
 
     keybinds = {
-      leader = "ctrl+j";
+      leader = "ctrl+a";
     };
 
     permission = {
       webfetch = "allow";
       grep = "allow";
       read = "allow";
-      prune = "allow";
     };
 
     plugin = [
@@ -77,9 +75,20 @@ let
     force = false;
   };
 in
-{
-  home.activation = mkIf values.llm.agents.opencode {
+rec {
+  openagentsSrc = pkgs.fetchFromGitHub {
+    owner = "darrenhinde";
+    repo = "OpenAgents";
+    rev = "bad7b8f58a5f36a8bfa89663781c4337303d5677";
+    sha256 = "1pjfbncq6n43y5f0xqs9pq3mn1z75aad75fgg0nhjxp6dkjsjfpy";
+  };
+
+  home.activation = {
     opencodeConfig = opencodeConfigFile.activation;
     opencodeAgents = opencodeAgentsFile.activation;
+  };
+
+  home.file.".opencode/agent/openagent.md" = {
+    source = "${openagentsSrc}/.opencode/agent/openagent.md";
   };
 }

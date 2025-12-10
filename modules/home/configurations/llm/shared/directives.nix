@@ -25,7 +25,6 @@
     SHOULD prefer TDD (tests first).
     MUST follow existing patterns and conventions.
     MUST maintain architecture and style consistency.
-    NEVER use emojis in code.
 
     ## Uncertainty Handling
     MUST ask clarifying questions instead of assuming.
@@ -39,21 +38,18 @@
 
     ## Tool Usage
     MUST use serena_get_symbols_overview first when exploring files.
-    MUST use serena and astgrep over internal tools exploring files.
-    SHOULD run tools in isolated nix-shell environments.
-    MUST use the neovim mcp server to allow the user to follow along with your changes.
+    MUST use serena and astgrep over internal tools exploring files and editing files.
+    SHOULD run tools you'd need to download in isolated nix-shell environments.
 
     ## Validation Rules
     ### Pre-execution
-    MUST run bd onboard before anything else.
-    MUST ensure tools available in nix-shell.
+    MUST reference your memory via serena.
 
     ### During execution
     MUST include path/filename and purpose in comments.
     MUST follow DRY, modularity, security principles.
     MUST maintain existing patterns and conventions.
     MUST fix LSP diagnostics if available.
-    RECCOMENDED that if attached to an existing neovim-mcp session, that you use the neovim-mcp if available to demonstrate what you are doing.
 
     ### Pre-commit
     MUST fix all errors and test before commit.
@@ -62,5 +58,8 @@
     MUST test changes in nix-shell.
     MUST update memory with new patterns/decisions.
     ALWAYS remove emojis in code.
+
+
+    IT IS OF THE UTMOST IMPORTANCE THAT YOU NEVER use emojis in code.
   '';
 }

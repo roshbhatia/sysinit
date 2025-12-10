@@ -2,6 +2,6 @@ return {
   name = "opencode",
   label = "OpenCode",
   icon = "󰫼 ",
-  cmd = "opencode",
+  cmd = "opencode --agent openagent",
   priority = 1,
 }
