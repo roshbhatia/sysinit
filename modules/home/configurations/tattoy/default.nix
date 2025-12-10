@@ -7,24 +7,10 @@ let
 in
 {
   home.file."${configDir}/tattoy.toml".text = ''
-    # Tattoy configuration
-    # https://github.com/tattoy-org/tattoy
-
-    # General settings
-    log_level = "off"
-    frame_rate = 60
+    frame_rate = 144
     scrollback_size = 10000
-
-    # Disable visual indicators - wezterm handles tab/title
     show_tattoy_indicator = false
     show_startup_logo = false
-
-    # Notifications
-    [notifications]
-    enabled = false
-    opacity = 0.9
-    level = "info"
-    duration = 5.0
 
     # Animated cursor with trail effect
     [animated_cursor]
@@ -38,12 +24,6 @@ in
     enabled = true
     target_contrast = 2.0
     apply_to_readable_text_only = true
-
-    # Color adjustments (neutral by default)
-    [color]
-    saturation = 0.0
-    brightness = 0.0
-    hue = 0.0
 
     # Keybindings - use F-keys to avoid conflicts with wezterm/apps
     [keybindings]
