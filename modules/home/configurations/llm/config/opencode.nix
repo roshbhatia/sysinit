@@ -53,6 +53,15 @@ let
       webfetch = "allow";
       grep = "allow";
       read = "allow";
+      prune = "allow";
+    };
+
+    plugin = [
+      "@tarquinen/opencode-dcp@latest"
+    ];
+
+    experimental = {
+      primary_tools = [ "prune" ];
     };
   };
 
