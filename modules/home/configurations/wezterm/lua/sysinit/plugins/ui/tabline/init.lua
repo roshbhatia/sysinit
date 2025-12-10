@@ -70,6 +70,7 @@ function M.setup(config)
           "index",
           padding = { left = 1 },
         },
+        ":",
         {
           "parent",
           padding = { left = 1, right = 0 },
@@ -85,6 +86,7 @@ function M.setup(config)
           "index",
           padding = { left = 1 },
         },
+        ":",
         {
           "parent",
           padding = { left = 1, right = 0 },
