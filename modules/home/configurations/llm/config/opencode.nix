@@ -1,6 +1,5 @@
 {
   lib,
-  pkgs,
   config,
   values,
   utils,
@@ -78,12 +77,12 @@ let
     force = false;
   };
 
-  openagentsSrc = pkgs.fetchFromGitHub {
-    owner = "darrenhinde";
-    repo = "OpenAgents";
-    rev = "bad7b8f58a5f36a8bfa89663781c4337303d5677";
-    sha256 = "1pjfbncq6n43y5f0xqs9pq3mn1z75aad75fgg0nhjxp6dkjsjfpy";
-  };
+  # openagentsSrc = pkgs.fetchFromGitHub {
+  #   owner = "darrenhinde";
+  #   repo = "OpenAgents";
+  #   rev = "bad7b8f58a5f36a8bfa89663781c4337303d5677";
+  #   sha256 = "1pjfbncq6n43y5f0xqs9pq3mn1z75aad75fgg0nhjxp6dkjsjfpy";
+  # };
 in
 {
   home.activation = {
@@ -91,10 +90,10 @@ in
     opencodeAgents = lib.hm.dag.entryAfter [ "linkGeneration" ] opencodeAgentsFile.script;
   };
 
-  xdg.configFile."opencode/agent".source = "${openagentsSrc}/.opencode/agent";
-  xdg.configFile."opencode/command".source = "${openagentsSrc}/.opencode/command";
-  xdg.configFile."opencode/context".source = "${openagentsSrc}/.opencode/context";
-  xdg.configFile."opencode/plugin".source = "${openagentsSrc}/.opencode/plugin";
-  xdg.configFile."opencode/prompts".source = "${openagentsSrc}/.opencode/prompts";
-  xdg.configFile."opencode/tool".source = "${openagentsSrc}/.opencode/tool";
+  # xdg.configFile."opencode/agent".source = "${openagentsSrc}/.opencode/agent";
+  # xdg.configFile."opencode/command".source = "${openagentsSrc}/.opencode/command";
+  # xdg.configFile."opencode/context".source = "${openagentsSrc}/.opencode/context";
+  # xdg.configFile."opencode/plugin".source = "${openagentsSrc}/.opencode/plugin";
+  # xdg.configFile."opencode/prompts".source = "${openagentsSrc}/.opencode/prompts";
+  # xdg.configFile."opencode/tool".source = "${openagentsSrc}/.opencode/tool";
 }
