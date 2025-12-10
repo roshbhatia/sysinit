@@ -248,7 +248,7 @@ end
 local function get_search_keys()
   return {
     {
-      key = "x",
+      key = "Escape",
       mods = "CTRL",
       action = act.ActivateCopyMode,
     },
@@ -265,22 +265,81 @@ local function get_search_keys()
   }
 end
 
+local function get_scroll_keys()
+  return {
+    {
+      key = "u",
+      mods = "CTRL",
+      action = wezterm.action_callback(function(win, pane)
+        if should_passthrough(pane) then
+          win:perform_action({
+            SendKey = {
+              key = "u",
+              mods = "CTRL",
+            },
+          }, pane)
+        else
+          win:perform_action(act.ScrollByLine(-40), pane)
+        end
+      end),
+    },
+    {
+      key = "d",
+      mods = "CTRL",
+      action = wezterm.action_callback(function(win, pane)
+        if should_passthrough(pane) then
+          win:perform_action({
+            SendKey = {
+              key = "d",
+              mods = "CTRL",
+            },
+          }, pane)
+        else
+          win:perform_action(act.ScrollByLine(40), pane)
+        end
+      end),
+    },
+    {
+      key = "u",
+      mods = "CTRL|SHIFT",
+      action = wezterm.action_callback(function(win, pane)
+        if should_passthrough(pane) then
+          win:perform_action({
+            SendKey = {
+              key = "u",
+              mods = "CTRL|SHIFT",
+            },
+          }, pane)
+        else
+          win:perform_action(act.ScrollToTop, pane)
+        end
+      end),
+    },
+    {
+      key = "d",
+      mods = "CTRL|SHIFT",
+      action = wezterm.action_callback(function(win, pane)
+        if should_passthrough(pane) then
+          win:perform_action({
+            SendKey = {
+              key = "d",
+              mods = "CTRL|SHIFT",
+            },
+          }, pane)
+        else
+          win:perform_action(act.ScrollToPrompt, pane)
+        end
+      end),
+    },
+  }
+end
+
 local function get_misc_keys()
   return {
     {
       key = "r",
       mods = "CTRL|SHIFT",
       action = act.ReloadConfiguration,
-    },
-    {
-      key = "PageUp",
-      mods = "SHIFT",
-      action = act.ScrollByPage(-1),
-    },
-    {
-      key = "PageDown",
-      mods = "SHIFT",
-      action = act.ScrollByPage(1),
     },
     {
       key = "t",
@@ -323,6 +382,7 @@ function M.setup(config)
     get_pane_keys(),
     get_clear_keys(),
     get_pallete_keys(),
+    get_scroll_keys(),
     get_window_keys(),
     get_tab_keys(),
     get_search_keys(),
