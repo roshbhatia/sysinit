@@ -6,26 +6,19 @@
 }:
 let
   commonFzfOpts = [
-    "--bind=resize:refresh-preview"
-    "--color=bg+:-1,bg:-1,spinner:${colors.accent.primary},hl:${colors.accent.primary}"
-    "--color=border:${colors.background.overlay},label:${colors.foreground.primary}"
-    "--color=fg:${colors.foreground.primary},header:${colors.accent.primary},info:${colors.foreground.muted},pointer:${colors.accent.primary}"
-    "--color=marker:${colors.accent.primary},fg+:${colors.foreground.primary},prompt:${colors.accent.primary},hl+:${colors.accent.primary}"
-    "--color=preview-bg:-1,query:${colors.foreground.primary}"
-    "--cycle"
-    "--height=30"
-    "--highlight-line"
-    "--ignore-case"
-    "--info=inline"
-    "--input-border=rounded"
-    "--layout=reverse"
-    "--list-border=rounded"
-    "--no-scrollbar"
-    "--pointer=>"
-    "--preview-border=rounded"
-    "--prompt=>> "
-    "--scheme=history"
     "--style=minimal"
+    "--layout=reverse"
+    "--height=40%"
+    "--info=inline"
+    "--scheme=history"
+    "--bind=resize:refresh-preview"
+    "--bind=ctrl-/:toggle-preview"
+    "--color=bg+:-1,bg:-1,spinner:${colors.accent.primary},hl:${colors.accent.primary}"
+    "--color=fg:${colors.foreground.primary},fg+:${colors.foreground.primary}"
+    "--color=border:${colors.background.overlay},header:${colors.accent.primary}"
+    "--color=info:${colors.foreground.muted},marker:${colors.accent.primary}"
+    "--color=pointer:${colors.accent.primary},prompt:${colors.accent.primary}"
+    "--color=preview-bg:-1"
   ];
 in
 {
@@ -42,6 +35,7 @@ in
       commonFzfOpts
       ++ [
         "--preview=fzf-preview {}"
+        "--preview-window=right:50%:wrap"
       ]
     )
   );
