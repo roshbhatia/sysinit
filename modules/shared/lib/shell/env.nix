@@ -34,7 +34,7 @@ in
     builtins.concatStringsSep " " (
       commonFzfOpts
       ++ [
-        "--preview=fzf-preview {}"
+        "--preview='fzf-preview {}'"
         "--preview-window=right:50%:wrap"
       ]
     )
