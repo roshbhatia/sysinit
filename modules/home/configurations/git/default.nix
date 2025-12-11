@@ -77,14 +77,11 @@ in
         keepBackup = false
         prompt = false
 
-      [diff]
-        tool = nvim-diff
-
       [difftool]
         prompt = false
 
-      [difftool "nvim-diff"]
-        cmd = nvim -c "CodeDiff file $LOCAL $REMOTE"
+      [difftool "nvim"]
+        cmd = nvim -d "$LOCAL" "$REMOTE"
 
       [includeIf "gitdir:~/github/work/"]
         path = ~/.gitconfig.work
