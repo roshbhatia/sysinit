@@ -81,6 +81,7 @@ let
     lua-language-server
     luajit
     macchina
+    meld
     marksman
     mermaid-cli
     mods
