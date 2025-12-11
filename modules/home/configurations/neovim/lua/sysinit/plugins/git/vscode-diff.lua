@@ -4,12 +4,10 @@ M.plugins = {
   {
     "esmuellert/vscode-diff.nvim",
     dependencies = { "MunifTanjim/nui.nvim" },
-    build = "make",
     cmd = "CodeDiff",
     config = function()
       require("vscode-diff").setup({})
     end,
-
     keys = {
       {
         "<leader>gdd",
