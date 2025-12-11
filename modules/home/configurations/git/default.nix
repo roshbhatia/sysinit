@@ -77,6 +77,9 @@ in
         keepBackup = false
         prompt = false
 
+      [diff]
+        tool = nvim-diff
+
       [difftool]
         prompt = false
 
