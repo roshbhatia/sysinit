@@ -10,7 +10,6 @@ let
   themes = import ../../../shared/lib/theme { inherit lib; };
   paths_lib = import ../../../shared/lib/paths { inherit config lib; };
 
-  appTheme = themes.getAppTheme "vivid" values.theme.colorscheme values.theme.variant;
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
   colors = themes.getUnifiedColors palette;
 
@@ -163,7 +162,6 @@ in
         zstyle ':completion:*' menu no
 
         # fzf-tab styles
-        zstyle ':fzf-tab:*' use-fzf-default-opts yes
         zstyle ':fzf-tab:*' fzf-pad 4
         zstyle ':fzf-tab:*' single-group color header
         zstyle ':fzf-tab:*' show-group full
