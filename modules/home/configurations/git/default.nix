@@ -77,10 +77,13 @@ in
         keepBackup = false
         prompt = false
 
+      [diff]
+        tool = vimdiff
+
       [difftool]
         prompt = false
 
-      [difftool "nvim"]
+      [difftool "vimdiff"]
         cmd = nvim -d "$LOCAL" "$REMOTE"
 
       [includeIf "gitdir:~/github/work/"]
