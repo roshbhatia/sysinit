@@ -6,7 +6,23 @@ local M = {}
 local font_name = theme_config.font.monospace
 
 local terminal_font = wezterm.font_with_fallback({
-  font_name,
+  {
+    family = font_name,
+    harfbuzz_features = {
+      "calt",
+      "liga",
+      "ss01",
+      "ss02",
+      "ss03",
+      "ss04",
+      "ss05",
+      "ss06",
+      "ss07",
+      "ss08",
+      "ss09",
+      "ss10",
+    },
+  },
   "Symbols Nerd Font Mono",
 })
 
@@ -48,23 +64,7 @@ local function get_font_config()
   return {
     font = terminal_font,
     font_size = 14.0,
-    harfbuzz_features = {
-      "kern=1",
-      "liga=1",
-      "clig=1",
-      "calt=1",
-      "ss01=1",
-      "ss02=1",
-      "ss03=1",
-      "ss04=1",
-      "ss05=1",
-      "ss06=1",
-      "ss07=1",
-      "ss08=1",
-      "ss09=1",
-      "ss10=1",
-      "opsz=14",
-    },
+    freetype_load_target = "HorizontalLcd",
   }
 end
 
