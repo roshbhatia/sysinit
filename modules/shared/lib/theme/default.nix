@@ -92,8 +92,6 @@ let
       # Use the mapped variant
       mapping;
 
-
-
   getThemePalette =
     colorscheme: variant:
     let
