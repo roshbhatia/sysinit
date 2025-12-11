@@ -1,88 +1,118 @@
 #!/usr/bin/env zsh
-# modules/home/configurations/utils/dev/fzf-preview
-# Purpose: Intelligent file/directory preview for fzf-tab
-# Handles files (bat), directories (eza), and images (chafa)
 
-target=""
+set -euo pipefail
 
-# Priority: realpath (canonical) > word (raw input) > first argument
-if [[ -n "$realpath" ]]; then
-  target="$realpath"
-elif [[ -n "$word" ]]; then
-  target="$word"
-elif [[ -n "$1" ]]; then
-  target="$1"
-fi
+get_target() {
+  local target=""
+  target="${realpath:-${word:-$1}}"
+  [[ -n "$target" && "$target" != "\$word" && "$target" != "\$realpath" ]] && echo "$target" || return 1
+}
 
-# Exit if target is empty or a literal variable reference
-if [[ -z "$target" || "$target" == "\$word" || "$target" == "\$realpath" ]]; then
-  exit 0
-fi
+normalize_target() {
+  local target="$1"
+  target="${target%% }"
+  target="${target/#\~/$HOME}"
+  [[ "$target" != /* ]] && target="$(pwd)/$target"
+  [[ -e "$target" ]] && target="${target:A}"
+  [[ -e "$target" ]] && echo "$target" || return 1
+}
 
-# Strip trailing whitespace/spaces (fzf-tab display artifacts)
-target="${target%% }"
-target="${target% }"
-
-# Expand tilde (~) to home directory
-target="${target/#\~/$HOME}"
-
-# Resolve to absolute path if relative
-if [[ "$target" != /* ]]; then
-  target="$(pwd)/$target"
-fi
-
-# Normalize path only if it exists (avoid :A failing on non-existent paths)
-if [[ -e "$target" ]]; then
-  target="${target:A}"
-fi
-
-# Exit silently if target doesn't exist (completion in progress)
-if [[ ! -e "$target" ]]; then
-  exit 0
-fi
-
-# Handle directories
-if [[ -d "$target" ]]; then
+preview_dir() {
   if command -v eza &>/dev/null; then
-    eza --color=always --icons=always --group-directories-first -1 "$target"
+    eza --color=always --icons=always --group-directories-first -1 "$1"
   else
-    ls -1 --color=always "$target" 2>/dev/null || ls -1 "$target"
+    ls -1 --color=always "$1" 2>/dev/null || ls -1 "$1"
   fi
-  exit 0
-fi
+}
 
-# Handle regular files
-if [[ -f "$target" ]]; then
-  # Detect file type using MIME
-  mime_type="$(file --brief --mime-type -- "$target" 2>/dev/null)"
-
-  # Handle images
-  if [[ "$mime_type" == image/* ]]; then
-    if command -v chafa &>/dev/null; then
-      if [[ -n "$FZF_PREVIEW_COLUMNS" && -n "$FZF_PREVIEW_LINES" ]]; then
-        dim="${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}"
-      else
-        dim="$(tput cols 2>/dev/null || echo 80)x$(tput lines 2>/dev/null || echo 24)"
-      fi
-      chafa --size "$dim" "$target" 2>/dev/null
-      exit 0
-    else
-      echo "Image file: $target (install chafa for preview)" >&2
-      exit 0
-    fi
+preview_image() {
+  if ! command -v chafa &>/dev/null; then
+    echo "Image: $1 (install chafa for preview)"
+    return 0
   fi
+  
+  local dim="${FZF_PREVIEW_COLUMNS:-$(tput cols 2>/dev/null || echo 80)}x${FZF_PREVIEW_LINES:-$(tput lines 2>/dev/null || echo 24)}"
+  chafa --size "$dim" "$1" 2>/dev/null
+}
 
-  # Handle text/code files with bat
+preview_text() {
   if command -v bat &>/dev/null; then
-    bat --style=numbers --color=always --pager=never -- "$target" 2>/dev/null
+    bat --style=numbers --color=always --pager=never -- "$1" 2>/dev/null
   else
-    # Fallback to cat with line numbers
-    cat -n "$target" 2>/dev/null || cat "$target"
+    cat -n "$1" 2>/dev/null || cat "$1"
   fi
-  exit 0
-fi
+}
 
-# Handle other file types (symlinks, devices, etc.)
-echo "Special file: $target"
-file "$target"
-exit 0
+preview_executable() {
+  local basename="${1##*/}"
+  if man "$basename" &>/dev/null; then
+    if command -v bat &>/dev/null; then
+      man "$basename" | bat --language=man --style=numbers --color=always --pager=never 2>/dev/null
+    else
+      man "$basename"
+    fi
+  else
+    echo "Executable: $basename (no man page available)"
+  fi
+}
+
+preview_archive() {
+  local file="$1"
+  case "$file" in
+    *.tar.gz | *.tgz)
+      tar -tzvf "$file" 2>/dev/null | head -20 || echo "Unable to read archive"
+      ;;
+    *.tar | *.tar.bz2 | *.tbz2)
+      tar -tzvf "$file" 2>/dev/null | head -20 || echo "Unable to read archive"
+      ;;
+    *.zip)
+      unzip -l "$file" 2>/dev/null || echo "Unable to read archive"
+      ;;
+    *.7z)
+      7z l "$file" 2>/dev/null || echo "Unable to read archive"
+      ;;
+    *)
+      echo "Archive: $file"
+      ;;
+  esac
+}
+
+preview_symlink() {
+  local target
+  target=$(readlink -f "$1" 2>/dev/null) || target="broken symlink"
+  echo "Symlink: $1 -> $target"
+  [[ -e "$target" ]] && [[ ! -d "$target" ]] && preview_text "$target"
+}
+
+target=$(get_target "$@") || exit 0
+target=$(normalize_target "$target") || exit 0
+
+if [[ -d "$target" ]]; then
+  preview_dir "$target"
+elif [[ -L "$target" ]]; then
+  preview_symlink "$target"
+elif [[ -f "$target" ]]; then
+  mime_type=$(file --brief --mime-type -- "$target" 2>/dev/null)
+  
+  case "$mime_type" in
+    image/*)
+      preview_image "$target"
+      ;;
+    application/json | application/x-yaml | text/*)
+      preview_text "$target"
+      ;;
+    application/pdf)
+      echo "PDF: $target (text extraction not supported)"
+      ;;
+    application/x-tar | application/gzip | application/x-7z-compressed | application/zip)
+      preview_archive "$target"
+      ;;
+    *)
+      preview_text "$target" || echo "No preview available for: $target"
+      ;;
+  esac
+elif [[ -x "$target" ]]; then
+  preview_executable "$target"
+else
+  echo "No preview available"
+fi
