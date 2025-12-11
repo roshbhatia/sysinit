@@ -13,7 +13,6 @@ let
   atuinAdapter = themes.adapters.atuin;
   atuinThemeConfig = atuinAdapter.createAtuinTheme theme validatedTheme;
 
-  # Theme name for atuin
   themeName = atuinThemeConfig.atuinThemeName;
 in
 {
@@ -43,7 +42,6 @@ in
     };
   };
 
-  # Generate atuin theme TOML from semantic colors
   xdg.configFile."atuin/themes/${themeName}.toml" = {
     text = atuinThemeConfig.atuinToml;
     force = true;

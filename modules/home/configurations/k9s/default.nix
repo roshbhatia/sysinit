@@ -13,7 +13,6 @@ let
   k9sAdapter = themes.adapters.k9s;
   k9sThemeConfig = k9sAdapter.createK9sTheme theme validatedTheme;
 
-  # Use theme name for k9s skin (k9s expects a filename-safe name)
   themeName = "${validatedTheme.colorscheme}-${validatedTheme.variant}";
 in
 {
@@ -73,7 +72,6 @@ in
     };
   };
 
-  # Generate k9s skin YAML from semantic colors
   xdg.configFile."k9s/skins/${themeName}.yaml" = {
     text = k9sThemeConfig.themeYaml;
     force = true;

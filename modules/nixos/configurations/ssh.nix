@@ -9,6 +9,5 @@
     };
   };
 
-  # Allow SSH through firewall if enabled
   networking.firewall.allowedTCPPorts = [ 22 ];
 }

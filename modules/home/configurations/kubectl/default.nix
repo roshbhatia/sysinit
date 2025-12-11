@@ -1,7 +1,6 @@
 { config, ... }:
 
 {
-  # kubectl user preferences (kuberc)
   # https://kubernetes.io/docs/reference/kubectl/kuberc/
   home.file."${config.home.homeDirectory}/.kube/kuberc".text = ''
     apiVersion: kubectl.config.k8s.io/v1beta1

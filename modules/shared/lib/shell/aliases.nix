@@ -1,7 +1,4 @@
-# Shared shell aliases and shortcuts
-# This is a data structure that can be adapted for both zsh and nushell
 {
-  # Navigation aliases
   navigation = {
     ".." = "cd ..";
     "..." = "cd ../..";
@@ -10,7 +7,6 @@
     "~" = "cd ~";
   };
 
-  # File listing aliases
   listing = {
     l = "eza --icons=always -1";
     la = "eza --icons=always -1 -a";
@@ -19,7 +15,6 @@
     lt = "eza --icons=always -1 -a -T --git-ignore --ignore-glob='.git'";
   };
 
-  # Tool shortcuts
   tools = {
     code = "code-insiders";
     c = "code-insiders";
@@ -36,7 +31,6 @@
     sg = "ast-grep";
   };
 
-  # Kubernetes aliases
   kubernetes = {
     kubectl = "kubecolor";
     k = "kubecolor";
@@ -49,7 +43,6 @@
     klog = "kubecolor logs";
   };
 
-  # Shortcuts (environment-changing functions)
   shortcuts = {
     dl = "cd $HOME/Downloads";
     docs = "cd $HOME/Documents";
