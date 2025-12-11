@@ -4,7 +4,36 @@
   lib,
   ...
 }:
-
+let
+  shellLib = import ../shared/lib/shell {
+    inherit lib;
+  };
+  shellEnv = shellLib.env {
+    inherit config;
+    colors = config.lib.stylix.colors;
+    appTheme = config.values.theme.colorscheme;
+  };
+  allAliases = lib.attrsets.foldAttrs (a: b: a // b) { } [
+    shellLib.aliases.navigation
+    shellLib.aliases.listing
+    shellLib.aliases.tools
+    shellLib.aliases.kubernetes
+    shellLib.aliases.shortcuts
+    {
+      sudo = "sudo -E";
+      h = "hx";
+      f = "yazi";
+      tree = "eza --tree --icons=never";
+      zi = "__zoxide_zi";
+      vimdiff = "nvim -n -c 'DiffviewOpen'";
+      org = "nvim ~/org/notes";
+      cat = "bat -pp";
+      ll = "eza --icons=always -l -a";
+      kgA = "kubectl get -A";
+      kgN = "kubectl get -n";
+    }
+  ];
+in
 {
   imports = [
     ./configurations
@@ -33,65 +62,12 @@
       XDG_STATE_HOME = config.xdg.stateHome;
       XST = config.xdg.stateHome;
 
-      LANG = "en_US.UTF-8";
-      LC_ALL = "en_US.UTF-8";
-
-      EDITOR = "nvim";
-      SUDO_EDITOR = "nvim";
-      VISUAL = "nvim";
-
-      GIT_DISCOVERY_ACROSS_FILESYSTEM = 1;
-
-      FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
-
       NODE_NO_WARNINGS = 1;
       NODE_TLS_REJECT_UNAUTHORIZED = 0;
-    };
+    }
+    // shellEnv;
 
-    shellAliases = {
-      sudo = "sudo -E";
-
-      "....." = "cd ../../../..";
-      "...." = "cd ../../..";
-      "..." = "cd ../..";
-      ".." = "cd ..";
-      "~" = "cd ~";
-
-      cat = "bat -pp";
-      l = "eza --icons=always -1";
-      la = "eza --icons=always -1 -a";
-      ll = "eza --icons=always -l -a";
-      ls = "eza";
-      lt = "eza --icons=always -1 -a -T --git-ignore --ignore-glob='.git'";
-      tree = "eza --tree --icons=never";
-      zi = "__zoxide_zi";
-
-      diff = "diff --color";
-      f = "yazi";
-      h = "hx";
-      v = "nvim";
-      vimdiff = "nvim -n -c 'DiffviewOpen'";
-      org = "nvim ~/org/notes";
-
-      grep = "grep -s --color=auto";
-      sg = "ast-grep";
-
-      g = "git";
-      lg = "lazygit";
-
-      tf = "terraform";
-
-      k = "kubectl";
-      kg = "kubectl get";
-      kgA = "kubectl get -A";
-      kgN = "kubectl get -n";
-      kd = "kubectl describe";
-      ke = "kubectl edit";
-      ka = "kubectl apply";
-      kpf = "kubectl port-forward";
-      kdel = "kubectl delete";
-      klog = "kubectl logs";
-    };
+    shellAliases = allAliases;
 
     packages = with pkgs; [
       bashInteractive
