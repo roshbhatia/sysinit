@@ -8,10 +8,14 @@ let
   shellLib = import ../shared/lib/shell {
     inherit lib;
   };
+  themes = import ../shared/lib/theme {
+    inherit lib;
+  };
+  palette = themes.getThemePalette config.values.theme.colorscheme config.values.theme.variant;
+  colors = themes.getUnifiedColors palette;
+  appTheme = themes.getAppTheme "vivid" config.values.theme.colorscheme config.values.theme.variant;
   shellEnv = shellLib.env {
-    inherit config;
-    colors = config.lib.stylix.colors;
-    appTheme = config.values.theme.colorscheme;
+    inherit config colors appTheme;
   };
   allAliases = lib.attrsets.foldAttrs (a: b: a // b) { } [
     shellLib.aliases.navigation
