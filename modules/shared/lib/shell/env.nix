@@ -13,7 +13,6 @@ let
     "--color=marker:${colors.accent.primary},fg+:${colors.foreground.primary},prompt:${colors.accent.primary},hl+:${colors.accent.primary}"
     "--color=preview-bg:-1,query:${colors.foreground.primary}"
     "--cycle"
-    "--gutter= "
     "--height=30"
     "--highlight-line"
     "--ignore-case"
