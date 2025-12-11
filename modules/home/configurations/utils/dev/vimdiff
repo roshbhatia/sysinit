@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# vimdiff wrapper for vscode-diff.nvim
+# Provides git-idiomatic diff interface
+
+set -euo pipefail
+
+show_usage() {
+  cat <<EOF
+Usage: vimdiff [options] [<rev1> [<rev2>]] [-- <path>]
+
+Compare files or revisions using nvim with vscode-diff.
+
+Options:
+  -h, --help     Show this help message
+
+Examples:
+  vimdiff                          # Explorer for working dir changes
+  vimdiff HEAD                     # Explorer comparing working dir to HEAD
+  vimdiff main                     # Explorer comparing working dir to main branch
+  vimdiff main HEAD                # Explorer comparing main to HEAD
+  vimdiff HEAD~5 HEAD~1            # Explorer comparing two revisions
+  vimdiff -- file.txt              # Compare current file.txt with HEAD
+  vimdiff HEAD -- file.txt         # Compare file.txt with HEAD
+  vimdiff main -- file.txt         # Compare file.txt with main branch
+  vimdiff file1.txt file2.txt      # Compare two arbitrary files
+EOF
+}
+
+# Parse arguments
+rev1=""
+rev2=""
+filepath=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)
+      show_usage
+      exit 0
+      ;;
+    --)
+      shift
+      if [[ $# -gt 0 ]]; then
+        filepath="$1"
+      fi
+      shift || true
+      ;;
+    *)
+      if [[ -f "$1" ]]; then
+        # It's a file path
+        if [[ -z "$filepath" ]]; then
+          filepath="$1"
+        else
+          # Two files specified
+          nvim -c "CodeDiff file $filepath $1"
+          exit 0
+        fi
+      else
+        # Assume it's a revision
+        if [[ -z "$rev1" ]]; then
+          rev1="$1"
+        elif [[ -z "$rev2" ]]; then
+          rev2="$1"
+        else
+          echo "Error: Too many arguments" >&2
+          show_usage
+          exit 1
+        fi
+      fi
+      shift
+      ;;
+  esac
+done
+
+# Build the CodeDiff command
+if [[ -n "$filepath" ]]; then
+  # File comparison mode
+  if [[ -z "$rev1" ]]; then
+    rev1="HEAD"
+  fi
+  nvim -c "CodeDiff file $rev1" "$filepath"
+elif [[ -n "$rev2" ]]; then
+  # Two revision comparison
+  nvim -c "CodeDiff $rev1 $rev2"
+elif [[ -n "$rev1" ]]; then
+  # Single revision comparison
+  nvim -c "CodeDiff $rev1"
+else
+  # Default: show explorer for working dir
+  nvim -c "CodeDiff"
+fi

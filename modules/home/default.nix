@@ -30,7 +30,6 @@ let
       f = "yazi";
       tree = "eza --tree --icons=never";
       zi = "__zoxide_zi";
-      vimdiff = "nvim -c 'CodeDiff'";
       org = "nvim ~/org/notes";
       cat = "bat -pp";
       ll = "eza --icons=always -l -a";
