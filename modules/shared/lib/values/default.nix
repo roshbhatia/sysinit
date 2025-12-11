@@ -222,7 +222,7 @@ with lib;
         font = {
           monospace = mkOption {
             type = types.str;
-            default = "Paper Mono";
+            default = "Fantasma";
             description = "Monospace font for terminal and editor";
           };
 
