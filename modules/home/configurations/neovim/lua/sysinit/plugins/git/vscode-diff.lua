@@ -19,9 +19,9 @@ M.plugins = {
       {
         "<leader>gdm",
         function()
-          vim.cmd("CodeDiff file origin/main")
+          vim.cmd("CodeDiff file main")
         end,
-        desc = "Diff current file (origin/main)",
+        desc = "Diff current file (main)",
       },
       {
         "<leader>gdH",
@@ -33,9 +33,9 @@ M.plugins = {
       {
         "leader>gdM",
         function()
-          vim.cmd("CodeDiff origin/main")
+          vim.cmd("CodeDiff main")
         end,
-        desc = "Diff all (origin/main)",
+        desc = "Diff all (main)",
       },
     },
   },
