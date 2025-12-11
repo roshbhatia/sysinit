@@ -57,7 +57,7 @@ in
         hooksPath = .githooks
 
       [interactive]
-        diffFilter = nvim-diff
+        diffFilter = delta --color-only
 
       [delta]
         features = ${deltaTheme}
@@ -76,9 +76,6 @@ in
       [mergetool]
         keepBackup = false
         prompt = false
-
-      [diff]
-        tool = nvim-diff
 
       [difftool]
         prompt = false
