@@ -158,23 +158,6 @@ with lib;
             description = "GPU vendor";
           };
         };
-        # not needed. audio is always going to be enabled. choose one between pipewire and pulseaudio
-        audio = {
-          enable = mkOption {
-            type = types.bool;
-            default = true;
-            description = "Enable audio support";
-          };
-
-          server = mkOption {
-            type = types.enum [
-              "pipewire"
-              "pulseaudio"
-            ];
-            default = "pipewire";
-            description = "Audio server to use";
-          };
-        };
       };
 
       yarn = {
