@@ -10,34 +10,6 @@ M.plugins = {
     end,
     keys = {
       {
-        "<leader>gdd",
-        function()
-          local current_tab = vim.api.nvim_get_current_tabpage()
-          local tabs = vim.api.nvim_list_tabpages()
-          local found_diff_tab = false
-
-          for _, tab in ipairs(tabs) do
-            local win = vim.api.nvim_tabpage_get_win(tab)
-            local buf = vim.api.nvim_win_get_buf(win)
-            local bufname = vim.api.nvim_buf_get_name(buf)
-            if bufname:match("CodeDiff") then
-              found_diff_tab = true
-              if tab == current_tab then
-                vim.cmd("tabclose")
-              else
-                vim.api.nvim_set_current_tabpage(tab)
-              end
-              break
-            end
-          end
-
-          if not found_diff_tab then
-            vim.cmd("CodeDiff")
-          end
-        end,
-        desc = "Toggle CodeDiff",
-      },
-      {
         "<leader>gdh",
         function()
           vim.cmd("CodeDiff file HEAD")
@@ -45,11 +17,25 @@ M.plugins = {
         desc = "Diff current file (HEAD)",
       },
       {
+        "<leader>gdm",
+        function()
+          vim.cmd("CodeDiff file origin/main")
+        end,
+        desc = "Diff current file (origin/main)",
+      },
+      {
         "<leader>gdH",
         function()
           vim.cmd("CodeDiff HEAD")
         end,
-        desc = "Diff explorer (HEAD)",
+        desc = "Diff all (HEAD)",
+      },
+      {
+        "leader>gdM",
+        function()
+          vim.cmd("CodeDiff origin/main")
+        end,
+        desc = "Diff all (origin/main)",
       },
     },
   },
