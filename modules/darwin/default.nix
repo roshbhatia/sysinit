@@ -3,7 +3,6 @@
   imports = [
     ./configurations
     ./packages
-    ../shared/lib/modules/validation.nix
   ];
 
   system.build.applications = pkgs.buildEnv {

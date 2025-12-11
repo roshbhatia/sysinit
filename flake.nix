@@ -57,7 +57,6 @@
             };
             user = {
               username = "rshnbhatia";
-              hostname = "lv426";
             };
             git = {
               name = "Roshan Bhatia";
@@ -91,7 +90,6 @@
             };
             user = {
               username = "rshnbhatia";
-              hostname = "arrakis";
             };
             git = {
               name = "Roshan Bhatia";

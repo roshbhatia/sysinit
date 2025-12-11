@@ -1,4 +1,4 @@
-{ values, ... }:
+{ lib, ... }:
 {
-  networking.hostName = values.user.hostname;
+  networking.hostName = lib.mkDefault "MacBook";
 }

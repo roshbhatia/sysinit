@@ -6,7 +6,6 @@
   ...
 }:
 let
-  inherit (lib) mkIf;
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   common = import ../shared/common.nix;
 
@@ -56,7 +55,7 @@ let
   };
 in
 {
-  home.activation = mkIf values.llm.agents.claude {
+  home.activation = {
     claudeConfig = lib.hm.dag.entryAfter [ "linkGeneration" ] claudeConfigFile.script;
     claudeHook = lib.hm.dag.entryAfter [ "linkGeneration" ] claudeHookScriptFile.script;
   };

@@ -1,4 +1,9 @@
-{ values, pkgs, ... }:
+{
+  values,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   imports = [
@@ -18,7 +23,7 @@
 
   users.groups.${values.user.username} = { };
 
-  networking.hostName = values.user.hostname;
+  networking.hostName = lib.mkDefault "nixos";
   networking.networkmanager.enable = true;
 
   time.timeZone = "America/Chicago";

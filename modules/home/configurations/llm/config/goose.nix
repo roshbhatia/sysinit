@@ -6,7 +6,6 @@
   ...
 }:
 let
-  inherit (lib) mkIf;
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   common = import ../shared/common.nix;
   directives = import ../shared/directives.nix;
@@ -44,7 +43,7 @@ let
   };
 in
 {
-  home.activation = mkIf values.llm.agents.goose {
+  home.activation = {
     gooseConfig = lib.hm.dag.entryAfter [ "linkGeneration" ] gooseConfigFile.script;
     gooseHints = lib.hm.dag.entryAfter [ "linkGeneration" ] gooseHintsFile.script;
   };

@@ -11,7 +11,6 @@
   platform = import ./platform { inherit lib system; };
   shell = import ./shell { inherit lib; };
   theme = import ./theme { inherit lib; };
-  validation = import ./validation { inherit lib; };
   values = import ./values { inherit lib; };
   xdg = import ./xdg { inherit lib pkgs; };
 }

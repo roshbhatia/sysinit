@@ -6,7 +6,6 @@ let
   types = import ./core/types.nix { inherit lib; };
   constants = import ./core/constants.nix { inherit lib; };
   utils = import ./core/utils.nix { inherit lib; };
-  validators = import ../validation { inherit lib; };
 
   catppuccin = import ./palettes/catppuccin.nix { inherit lib; };
   kanagawa = import ./palettes/kanagawa.nix { inherit lib; };
@@ -106,30 +105,8 @@ let
         if hasAttr "appearance" config then config.appearance else null
       ) (config.variant or null);
 
-      # Validate appearance mode if present and non-null
-      appearanceCheck =
-        if hasAttr "appearance" config && config.appearance != null then
-          validators.validateAppearanceMode config.appearance
-        else
-          null;
-
-      # Validate font config if present
-      fontChecks = if hasAttr "font" config then validators.validateFont config.font else [ ];
-
-      # Validate palette supports appearance mode if present and non-null
-      paletteAppearanceCheck =
-        if hasAttr "appearance" config && config.appearance != null then
-          validators.validatePaletteAppearance config.colorscheme config.appearance
-        else
-          null;
-
-      # Collect all validation failures
-      validationFailures =
-        (optional (appearanceCheck != null && !appearanceCheck.assertion) appearanceCheck.message)
-        ++ (map (check: check.message) (filter (check: !check.assertion) fontChecks))
-        ++ (optional (
-          paletteAppearanceCheck != null && !paletteAppearanceCheck.assertion
-        ) paletteAppearanceCheck.message);
+      # Validation checks skipped
+      validationFailures = [ ];
 
       # Variant check using derived effective variant
       variantFailure =

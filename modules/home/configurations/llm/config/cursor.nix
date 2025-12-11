@@ -1,11 +1,9 @@
 {
   lib,
   pkgs,
-  values,
   ...
 }:
 let
-  inherit (lib) mkIf;
   common = import ../shared/common.nix;
 
   cursorConfig = builtins.toJSON {
@@ -55,7 +53,7 @@ let
   '';
 in
 {
-  home.activation = mkIf values.llm.agents.cursor {
+  home.activation = {
     cursorConfig = activationScript;
   };
 }

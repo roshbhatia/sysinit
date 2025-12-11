@@ -6,7 +6,6 @@
   ...
 }:
 let
-  inherit (lib) mkIf;
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   common = import ../shared/common.nix;
 
@@ -55,7 +54,7 @@ let
   };
 in
 {
-  home.activation = mkIf values.llm.agents.amp {
+  home.activation = {
     ampConfig = lib.hm.dag.entryAfter [ "linkGeneration" ] ampConfigFile.script;
   };
 }
