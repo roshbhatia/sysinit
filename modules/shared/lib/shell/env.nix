@@ -30,15 +30,7 @@ in
   GIT_DISCOVERY_ACROSS_FILESYSTEM = "1";
   COLIMA_HOME = "${config.xdg.configHome}/colima";
 
-  FZF_DEFAULT_OPTS = lib.mkForce (
-    builtins.concatStringsSep " " (
-      commonFzfOpts
-      ++ [
-        "--preview='fzf-preview {}'"
-        "--preview-window=right:50%:wrap"
-      ]
-    )
-  );
+  FZF_DEFAULT_OPTS = lib.mkForce builtins.concatStringsSep " " commonFzfOpts;
 
   _ZO_FZF_OPTS = builtins.concatStringsSep " " commonFzfOpts;
 

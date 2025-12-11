@@ -162,6 +162,7 @@ in
         zstyle ':completion:*' menu no
 
         # fzf-tab styles
+        zstyle ':fzf-tab:*' use-fzf-default-opts yes
         zstyle ':fzf-tab:*' fzf-pad 4
         zstyle ':fzf-tab:*' single-group color header
         zstyle ':fzf-tab:*' show-group full
