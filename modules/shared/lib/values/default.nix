@@ -161,13 +161,13 @@ with lib;
 
           opacity = mkOption {
             type = types.float;
-            default = 0.8;
+            default = 0.1;
             description = "Transparency opacity level";
           };
 
           blur = mkOption {
             type = types.int;
-            default = 80;
+            default = 10;
             description = "Background blur amount";
           };
         };
