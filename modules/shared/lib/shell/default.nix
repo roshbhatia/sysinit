@@ -22,7 +22,6 @@
     import ./env.nix {
       inherit
         config
-        lib
         colors
         appTheme
         ;
