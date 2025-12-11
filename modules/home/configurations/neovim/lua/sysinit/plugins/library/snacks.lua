@@ -20,6 +20,7 @@ M.plugins = {
           enabled = true,
         },
         lazygit = {
+          configure = false,
           enabled = true,
           win = {
             border = "none",

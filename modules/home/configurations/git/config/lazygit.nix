@@ -16,12 +16,6 @@ let
           "red"
         ];
 
-        # Bright green for staged changes - very clear
-        selectedLineBgColor = [
-          "green"
-        ];
-
-        # Active border color to show focus
         activeBorderColor = [
           "cyan"
           "bold"

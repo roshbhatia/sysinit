@@ -96,34 +96,19 @@ task: Available tasks for this project:
 | `go.additionalPackages` | list(string) | [] |  | Additional Go packages |
 | `icon` | string? | null |  | Icon URL for the search engine |
 | `krew.additionalPackages` | list(string) | [] |  | Additional kubectl krew plugins |
-| `llm.agents.amp` | boolean | true |  | Enable Amp AI agent |
-| `llm.agents.claude` | boolean | true |  | Enable Claude AI agent |
-| `llm.agents.copilot` | boolean | true |  | Enable GitHub Copilot |
-| `llm.agents.cursor` | boolean | true |  | Enable Cursor AI agent |
-| `llm.agents.goose` | boolean | true |  | Enable Goose AI agent |
-| `llm.agents.opencode` | boolean | true |  | Enable Opencode AI agent |
 | `llm.mcp.servers` | attrsOf (attrsOf anything) | `{ }` |  | MCP servers configuration |
 | `nix.additionalPackages` | list(string) | [] |  | Additional Nix packages |
-| `nixos.audio.enable` | boolean | true |  | Enable audio support |
-| `nixos.audio.server` |  | "pipewire" |  | Audio server to use |
-| `nixos.desktop.desktopEnvironment` |  | "gnome" |  | Desktop environment to use |
-| `nixos.desktop.displayServer` |  | "x11" |  | Display server to use (X11 or Wayland) |
-| `nixos.gpu.enable` | boolean | false |  | Enable GPU support |
-| `nixos.gpu.vendor` |  | "none" |  | GPU vendor |
 | `npm.additionalPackages` | list(string) | [] |  | Additional global npm packages |
 | `pipx.additionalPackages` | list(string) | [] |  | Additional global pipx packages |
 | `theme.appearance` |  | "dark" |  | Appearance mode (light or dark) |
 | `theme.colorscheme` | string | "catppuccin" |  | Theme colorscheme |
 | `theme.font.monospace` | string | "TX-02" |  | Monospace font for terminal and editor |
 | `theme.font.nerdfontFallback` | string | "Symbols Nerd Font" |  | Fallback font for nerd font glyphs |
-| `theme.overrides` | attrsOf anything | `{ }` |  | Theme color overrides |
-| `theme.presets` | list(string) | [] |  | Theme presets to apply (e.g., transparency) |
 | `theme.transparency.blur` | integer | `80` |  | Background blur amount |
 | `theme.transparency.enable` | boolean | true |  | Enable transparency effects |
 | `theme.transparency.opacity` | float | `0.8` |  | Transparency opacity level |
 | `theme.variant` | string | "macchiato" |  | Theme variant |
 | `updateInterval` | nullOr int | null |  | Update interval in milliseconds |
-| `user.hostname` | string | "nixos" |  | System hostname |
 | `user.username` | string | "user" |  | Username for the system user |
 | `uvx.additionalPackages` | list(string) | [] |  | Additional global uvx packages |
 | `vet.additionalPackages` | list(string) | [] |  | Additional Vet packages |
