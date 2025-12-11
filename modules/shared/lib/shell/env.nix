@@ -11,7 +11,7 @@ let
     "--color=marker:${colors.accent.primary},fg+:${colors.foreground.primary},prompt:${colors.accent.primary},hl+:${colors.accent.primary}"
     "--color=preview-bg:-1,query:${colors.foreground.primary}"
     "--cycle"
-    "--gutter= "
+    "--gutter=' '"
     "--height=30"
     "--highlight-line"
     "--ignore-case"
@@ -20,9 +20,9 @@ let
     "--layout=reverse"
     "--list-border=rounded"
     "--no-scrollbar"
-    "--pointer=>"
+    "--pointer='>'"
     "--preview-border=rounded"
-    "--prompt=>> "
+    "--prompt='>> '"
     "--scheme=history"
     "--style=minimal"
   ];
@@ -39,7 +39,7 @@ in
   FZF_DEFAULT_OPTS = builtins.concatStringsSep " " (
     commonFzfOpts
     ++ [
-      "--preview=fzf-preview {}"
+      "--preview='fzf-preview {}'"
     ]
   );
 
