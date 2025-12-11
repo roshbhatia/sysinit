@@ -158,7 +158,6 @@ with lib;
             default = true;
             description = "Enable transparency effects";
           };
-
           opacity = mkOption {
             type = types.float;
             default = 0.1;

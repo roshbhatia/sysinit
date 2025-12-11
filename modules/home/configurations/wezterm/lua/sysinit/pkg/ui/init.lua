@@ -64,7 +64,6 @@ local function get_font_config()
   return {
     font = terminal_font,
     font_size = 14.0,
-    freetype_load_target = "HorizontalLcd",
   }
 end
 
