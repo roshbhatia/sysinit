@@ -50,7 +50,6 @@
     ghp = "cd $HOME/github/personal";
     ghpr = "cd $HOME/github/personal/roshbhatia";
     ghw = "cd $HOME/github/work";
-    nvim = "cd $HOME/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim";
     sysinit = "cd $HOME/github/personal/roshbhatia/sysinit";
   };
 }
