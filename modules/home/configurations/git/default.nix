@@ -57,7 +57,7 @@ in
         hooksPath = .githooks
 
       [interactive]
-        diffFilter = delta --color-only
+        diffFilter = nvim-diff
 
       [delta]
         features = ${deltaTheme}
