@@ -8,7 +8,7 @@ let
   themes = utils.theme;
   theme = values.theme;
 
-  validatedTheme = themes.validateThemeConfig theme;
+  validatedTheme = values.theme theme;
   themeObj = themes.getTheme validatedTheme.colorscheme;
 
   waybarAdapter = themes.adapters.waybar;

@@ -84,9 +84,12 @@
             system = hostConfig.system;
             inherit pkgs;
           };
+          userValuesWithUsername = hostConfig.values // {
+            user.username = hostConfig.username;
+          };
           values = processValues {
             inherit utils;
-            userValues = hostConfig.values;
+            userValues = userValuesWithUsername;
           };
         in
         if hostConfig.platform == "darwin" then

@@ -5,10 +5,9 @@
 }:
 
 let
-  inherit (utils.theme) getAppTheme validateThemeConfig;
+  inherit (utils.theme) getAppTheme;
 
-  validatedTheme = validateThemeConfig values.theme;
-  helixTheme = getAppTheme "helix" validatedTheme.colorscheme validatedTheme.variant;
+  helixTheme = getAppTheme "helix" values.theme.colorscheme values.theme.variant;
 in
 {
   programs.helix = {

@@ -8,8 +8,7 @@ let
   themes = utils.theme;
   theme = values.theme;
 
-  validatedTheme = themes.validateThemeConfig theme;
-  themeObj = themes.getTheme validatedTheme.colorscheme;
+  themeObj = themes.getTheme theme.colorscheme;
 
   niriAdapter = themes.adapters.niri;
   niriThemeConfig = niriAdapter.createNiriTheme themeObj validatedTheme;

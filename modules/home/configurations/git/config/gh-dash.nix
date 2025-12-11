@@ -6,10 +6,9 @@
 }:
 
 let
-  inherit (utils.theme) validateThemeConfig getThemePalette;
+  inherit (utils.theme) getThemePalette;
 
-  validatedTheme = validateThemeConfig values.theme;
-  palette = getThemePalette validatedTheme.colorscheme validatedTheme.variant;
+  palette = getThemePalette values.theme.colorscheme values.theme.variant;
   semanticColors = utils.theme.utils.createSemanticMapping palette;
 
   getColor = color: fallback: if color != null then color else fallback;

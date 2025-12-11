@@ -8,9 +8,8 @@
 let
   themes = import ../../../shared/lib/theme { inherit lib; };
 
-  validatedTheme = themes.validateThemeConfig values.theme;
-  theme = themes.getTheme validatedTheme.colorscheme;
-  palette = theme.palettes.${validatedTheme.variant};
+  theme = themes.getTheme values.theme.colorscheme;
+  palette = theme.palettes.${values.theme.variant};
   semanticColors = theme.semanticMapping palette;
 
   activeColorRaw = semanticColors.semantic.error or (throw "Missing error color in theme palette");

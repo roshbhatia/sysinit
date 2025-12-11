@@ -7,7 +7,7 @@
 let
   themes = import ../../../shared/lib/theme { inherit lib; };
 
-  validatedTheme = themes.validateThemeConfig values.theme;
+  validatedTheme = values.theme;
   theme = themes.getTheme validatedTheme.colorscheme;
 
   k9sAdapter = themes.adapters.k9s;

@@ -14,7 +14,7 @@ let
 
   themes = import ../../../../shared/lib/theme { inherit lib; };
 
-  validatedTheme = themes.validateThemeConfig values.theme;
+  validatedTheme = values.theme;
   opencodeTheme = themes.getAppTheme "opencode" validatedTheme.colorscheme validatedTheme.variant;
 
   defaultInstructions = [

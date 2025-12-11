@@ -6,7 +6,7 @@
 let
   themes = import ../../../shared/lib/theme { inherit lib; };
 
-  validatedTheme = themes.validateThemeConfig values.theme;
+  validatedTheme = values.theme;
   palette = themes.getThemePalette validatedTheme.colorscheme validatedTheme.variant;
   semanticColors = themes.getSemanticColors validatedTheme.colorscheme validatedTheme.variant;
 

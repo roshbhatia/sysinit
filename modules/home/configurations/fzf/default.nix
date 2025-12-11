@@ -7,10 +7,9 @@
 }:
 
 let
-  inherit (utils.theme) getThemePalette validateThemeConfig;
+  inherit (utils.theme) getThemePalette;
 
-  validatedTheme = validateThemeConfig values.theme;
-  palette = getThemePalette validatedTheme.colorscheme validatedTheme.variant;
+  palette = getThemePalette values.theme.colorscheme values.theme.variant;
   semanticColors = utils.theme.utils.createSemanticMapping palette;
 
   fg = lib.removePrefix "#" semanticColors.foreground.primary;

@@ -92,37 +92,7 @@ let
       # Use the mapped variant
       mapping;
 
-  validateThemeConfig =
-    config:
-    let
-      theme = getTheme config.colorscheme;
-      validVariants = theme.meta.variants;
 
-      # Derive effective variant from appearance
-      # If appearance is specified, check if current variant is compatible
-      # If not compatible or not valid, derive from appearance mapping
-      effectiveVariant = deriveVariantFromAppearance config.colorscheme (
-        if hasAttr "appearance" config then config.appearance else null
-      ) (config.variant or null);
-
-      # Validation checks skipped
-      validationFailures = [ ];
-
-      # Variant check using derived effective variant
-      variantFailure =
-        if !elem effectiveVariant validVariants then
-          "Variant '${effectiveVariant}' not available for theme '${config.colorscheme}'. Available variants: ${concatStringsSep ", " validVariants}"
-        else
-          null;
-
-      allFailures = validationFailures ++ (optional (variantFailure != null) variantFailure);
-
-      # Return config with effective variant injected
-      finalConfig = config // {
-        variant = effectiveVariant;
-      };
-    in
-    if length allFailures > 0 then throw (concatStringsSep "\n\n" allFailures) else finalConfig;
 
   getThemePalette =
     colorscheme: variant:
@@ -164,7 +134,7 @@ let
   createAppConfig =
     app: themeConfig: overrides:
     let
-      validatedConfig = validateThemeConfig themeConfig;
+      validatedConfig = themeConfig;
       theme = getTheme validatedConfig.colorscheme;
       palette = getThemePalette validatedConfig.colorscheme validatedConfig.variant;
       semanticColors = getSemanticColors validatedConfig.colorscheme validatedConfig.variant;
@@ -206,7 +176,7 @@ let
   generateAppJSON =
     app: themeConfig:
     let
-      validatedConfig = validateThemeConfig themeConfig;
+      validatedConfig = themeConfig;
       theme = getTheme validatedConfig.colorscheme;
       palette = getThemePalette validatedConfig.colorscheme validatedConfig.variant;
       semanticColors = getSemanticColors validatedConfig.colorscheme validatedConfig.variant;
@@ -236,7 +206,7 @@ let
   mkThemedConfig =
     values: app: extraConfig:
     let
-      validatedTheme = validateThemeConfig values.theme;
+      validatedTheme = values.theme;
       appTheme = getAppTheme app validatedTheme.colorscheme validatedTheme.variant;
     in
     extraConfig
@@ -251,7 +221,6 @@ let
           getAppTheme
           createAppConfig
           generateAppJSON
-          validateThemeConfig
           ;
       };
 
@@ -368,7 +337,6 @@ in
     getAppTheme
     createAppConfig
     generateAppJSON
-    validateThemeConfig
     deriveVariantFromAppearance
     ;
 

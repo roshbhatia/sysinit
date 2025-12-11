@@ -7,11 +7,10 @@
 }:
 
 let
-  inherit (utils.theme) mkThemedConfig validateThemeConfig;
+  inherit (utils.theme) mkThemedConfig;
 
-  validatedTheme = validateThemeConfig values.theme;
   themeCfg = mkThemedConfig values "macchina" { };
-  semanticColors = themeCfg.themes.getSemanticColors validatedTheme.colorscheme validatedTheme.variant;
+  semanticColors = themeCfg.themes.getSemanticColors values.theme.colorscheme values.theme.variant;
   tomlFormat = pkgs.formats.toml { };
 
   commonTheme = {

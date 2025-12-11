@@ -10,7 +10,7 @@ let
   themes = import ../../../shared/lib/theme { inherit lib; };
   paths_lib = import ../../../shared/lib/paths { inherit config lib; };
 
-  validatedTheme = themes.validateThemeConfig values.theme;
+  validatedTheme = values.theme;
   palette = themes.getThemePalette validatedTheme.colorscheme validatedTheme.variant;
   colors = themes.getUnifiedColors palette;
 
