@@ -17,13 +17,6 @@ with lib;
           default = "user";
           description = "Username for the system user";
         };
-
-        # no default for hostname here. this should just be set upstream anyways
-        hostname = mkOption {
-          type = types.str;
-          default = "nixos";
-          description = "System hostname";
-        };
       };
 
       git = {
@@ -115,51 +108,6 @@ with lib;
         };
       };
 
-      nixos = {
-        desktop = {
-          # should always be wayland
-          displayServer = mkOption {
-            type = types.enum [
-              "x11"
-              "wayland"
-            ];
-            default = "x11";
-            description = "Display server to use (X11 or Wayland)";
-          };
-          # idk here but hwatever is used by hyprland
-          desktopEnvironment = mkOption {
-            type = types.enum [
-              "gnome"
-              "kde"
-              "sway"
-              "xfce"
-            ];
-            default = "gnome";
-            description = "Desktop environment to use";
-          };
-        };
-
-        # not needed. always will be nvidia for now.
-        gpu = {
-          enable = mkOption {
-            type = types.bool;
-            default = false;
-            description = "Enable GPU support";
-          };
-
-          vendor = mkOption {
-            type = types.enum [
-              "nvidia"
-              "amd"
-              "intel"
-              "none"
-            ];
-            default = "none";
-            description = "GPU vendor";
-          };
-        };
-      };
-
       yarn = {
         additionalPackages = mkOption {
           type = types.listOf types.str;
@@ -188,18 +136,6 @@ with lib;
           type = types.str;
           default = "macchiato";
           description = "Theme variant";
-        };
-
-        presets = mkOption {
-          type = types.listOf types.str;
-          default = [ ];
-          description = "Theme presets to apply (e.g., transparency)";
-        };
-
-        overrides = mkOption {
-          type = types.attrsOf types.anything;
-          default = { };
-          description = "Theme color overrides";
         };
 
         font = {
@@ -243,44 +179,6 @@ with lib;
             type = types.attrsOf (types.attrsOf types.anything);
             default = { };
             description = "MCP servers configuration";
-          };
-        };
-
-        agents = {
-          opencode = mkOption {
-            type = types.bool;
-            default = true;
-            description = "Enable Opencode AI agent";
-          };
-
-          claude = mkOption {
-            type = types.bool;
-            default = true;
-            description = "Enable Claude AI agent";
-          };
-
-          amp = mkOption {
-            type = types.bool;
-            default = true;
-            description = "Enable Amp AI agent";
-          };
-
-          goose = mkOption {
-            type = types.bool;
-            default = true;
-            description = "Enable Goose AI agent";
-          };
-
-          cursor = mkOption {
-            type = types.bool;
-            default = true;
-            description = "Enable Cursor AI agent";
-          };
-
-          copilot = mkOption {
-            type = types.bool;
-            default = true;
-            description = "Enable GitHub Copilot";
           };
         };
       };
