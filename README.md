@@ -114,7 +114,7 @@ task: Available tasks for this project:
 | `pipx.additionalPackages` | list(string) | [] |  | Additional global pipx packages |
 | `theme.appearance` |  | "dark" |  | Appearance mode (light or dark) |
 | `theme.colorscheme` | string | "catppuccin" |  | Theme colorscheme |
-| `theme.font.monospace` | string | "Fantasma" |  | Monospace font for terminal and editor |
+| `theme.font.monospace` | string | "TX-02" |  | Monospace font for terminal and editor |
 | `theme.font.nerdfontFallback` | string | "Symbols Nerd Font" |  | Fallback font for nerd font glyphs |
 | `theme.overrides` | attrsOf anything | `{ }` |  | Theme color overrides |
 | `theme.presets` | list(string) | [] |  | Theme presets to apply (e.g., transparency) |
