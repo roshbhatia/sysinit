@@ -7,10 +7,14 @@ M.plugins = {
     keys = function()
       return {
         {
-          "<leader>dd",
+          "<leader>ced",
           function()
             vim.cmd("DapViewToggle")
           end,
+          desc = "Toggle DAP View",
+        },
+      }
+    end,
           desc = "Toggle DAP View",
         },
       }

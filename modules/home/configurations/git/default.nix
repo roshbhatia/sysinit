@@ -71,20 +71,23 @@ in
 
       [merge]
         conflictstyle = zdiff3
-        tool = meld
+        tool = diffview
 
       [mergetool]
         keepBackup = false
         prompt = false
 
+      [mergetool "diffview"]
+        cmd = nvim -n -c "DiffviewOpen"
+
       [diff]
-        tool = vimdiff
+        tool = diffview
 
       [difftool]
         prompt = false
 
-      [difftool "vimdiff"]
-        cmd = nvim -d "$LOCAL" "$REMOTE"
+      [difftool "diffview"]
+        cmd = nvim -n -c "DiffviewOpen" "$LOCAL" "$REMOTE"
 
       [includeIf "gitdir:~/github/work/"]
         path = ~/.gitconfig.work
@@ -101,24 +104,11 @@ in
       [alias]
         log = -c core.pager="bat --style=plain" log
         branches = !git --no-pager branch -a
-        c = commit
-        ca = commit --amend
-        cai = !git-ai-commit
-        cane = commit --amend --no-edit
-        co = checkout
-        cob = checkout -b
-        commit-chore = "!f() { git commit -m \"chore: $@\"; }; f"
-        commit-docs  = "!f() { git commit -m \"docs: $@\"; }; f"
-        commit-feat  = "!f() { git commit -m \"feat: $@\"; }; f"
-        commit-fix   = "!f() { git commit -m \"fix: $@\"; }; f"
         current-branch = rev-parse --abbrev-ref HEAD
         current-commit-sha = rev-parse --short HEAD
-        fixup = "!git log -n50 --oneline | fzf | cut -d' ' -f1 | xargs -I{} git commit --fixup={}"
         last = log -1 HEAD
         root = rev-parse --show-toplevel
         short-log = log --graph --pretty=format:'%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]' --decorate --date=short
-        squash = "!git rebase -i --autosquash HEAD~$(git rev-list --count HEAD ^$(git merge-base HEAD @{u}))"
-        st = status
         unstage = reset HEAD --
 
       [http "https://git.sr.ht"]

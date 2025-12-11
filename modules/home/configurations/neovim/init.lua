@@ -59,7 +59,7 @@ require("sysinit.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.git.blamer"),
   require("sysinit.plugins.git.gitsigns"),
   require("sysinit.plugins.git.octo"),
-  require("sysinit.plugins.git.vscode-diff"),
+  require("sysinit.plugins.git.diffview"),
   require("sysinit.plugins.intellicode.blink-cmp"),
   require("sysinit.plugins.intellicode.colorful-menu"),
   require("sysinit.plugins.intellicode.conform"),
