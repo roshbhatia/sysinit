@@ -1,5 +1,5 @@
 {
-  description = "Multi-system Nix configuration supporting macOS and NixOS";
+  description = "Personal macOS and NixOS system configurations";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -16,9 +16,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
-    niri = {
-      url = "github:sodiboo/niri-flake";
-    };
+    niri.url = "github:sodiboo/niri-flake";
     mac-app-util = {
       url = "github:hraban/mac-app-util";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -39,82 +37,6 @@
     let
       inherit (nixpkgs) lib;
 
-      platformUtils = import ./modules/shared/lib/platform { inherit lib; };
-
-      systems = {
-        laptop = "aarch64-darwin";
-        nixos-desktop = "x86_64-linux";
-      };
-
-      hostConfigs = {
-        lv426 = {
-          system = systems.laptop;
-          platform = "darwin";
-          username = "rshnbhatia";
-          values = {
-            config = {
-              root = ./.;
-            };
-            user = {
-              username = "rshnbhatia";
-            };
-            git = {
-              name = "Roshan Bhatia";
-              email = "rshnbhatia@gmail.com";
-              username = "roshbhatia";
-            };
-            darwin = {
-              homebrew = {
-                additionalPackages = {
-                  taps = [ "qmk/qmk" ];
-                  brews = [ "qmk" ];
-                  casks = [
-                    "betterdiscord-installer"
-                    "calibre"
-                    "discord"
-                    "orbstack"
-                    "steam"
-                  ];
-                };
-              };
-            };
-          };
-        };
-        arrakis = {
-          system = systems.nixos-desktop;
-          platform = "linux";
-          username = "rshnbhatia";
-          values = {
-            config = {
-              root = ./.;
-            };
-            user = {
-              username = "rshnbhatia";
-            };
-            git = {
-              name = "Roshan Bhatia";
-              email = "rshnbhatia@gmail.com";
-              username = "roshbhatia";
-            };
-            nixos = {
-              desktop = {
-                displayServer = "wayland";
-                desktopEnvironment = "gnome";
-              };
-              gpu = {
-                vendor = "nvidia";
-                enable = true;
-              };
-              audio = {
-                enable = true;
-                server = "pipewire";
-              };
-            };
-          };
-        };
-      };
-
-      # Helper to build pkgs for a specific system
       mkPkgs =
         {
           system,
@@ -133,13 +55,10 @@
           };
         };
 
-      # Build overlays
-      mkOverlays = system: import ./overlays { inherit inputs system; };
-
-      # Build utils for a system/pkgs combo
       mkUtils = { system, pkgs }: import ./modules/shared/lib { inherit lib pkgs system; };
 
-      # Process and validate values against schema
+      mkOverlays = system: import ./overlays { inherit inputs system; };
+
       processValues =
         { utils, userValues }:
         (lib.evalModules {
@@ -153,137 +72,8 @@
           ];
         }).config.values;
 
-      # Build a Darwin configuration
-      mkDarwinConfiguration =
-        {
-          values,
-          utils,
-          pkgs,
-          system,
-        }:
-        darwin.lib.darwinSystem {
-          inherit system;
-          specialArgs = {
-            inherit
-              inputs
-              system
-              pkgs
-              utils
-              values
-              ;
-          };
-          modules = [
-            ./modules/darwin
-            (import ./modules/darwin/home-manager.nix {
-              inherit (values.user) username;
-              inherit values utils pkgs;
-            })
-            home-manager.darwinModules.home-manager
-            nix-homebrew.darwinModules.nix-homebrew
-            mac-app-util.darwinModules.default
-            {
-              _module.args.utils = utils;
-              home-manager.sharedModules = [
-                mac-app-util.homeManagerModules.default
-              ];
-            }
-          ];
-        };
-
-      # Build a NixOS configuration
-      mkNixosConfiguration =
-        {
-          values,
-          utils,
-          pkgs,
-          system,
-        }:
-        lib.nixosSystem {
-          inherit system;
-          specialArgs = {
-            inherit
-              inputs
-              system
-              values
-              ;
-            customUtils = utils;
-          };
-          modules = [
-            ./modules/nixos
-            home-manager.nixosModules.home-manager
-            niri.nixosModules.niri
-            (import ./modules/nixos/home-manager.nix {
-              inherit values utils pkgs;
-            })
-          ];
-        };
-
-      # Generate all configurations dynamically
-      mkConfigurations =
-        f:
-        lib.mapAttrs (
-          _hostname: hostConfig:
-          let
-            overlays = mkOverlays hostConfig.system;
-            pkgs = mkPkgs {
-              system = hostConfig.system;
-              inherit overlays;
-            };
-            utils = mkUtils {
-              system = hostConfig.system;
-              inherit pkgs;
-            };
-            processedVals = processValues {
-              inherit utils;
-              userValues = hostConfig.values;
-            };
-          in
-          f {
-            inherit pkgs utils;
-            system = hostConfig.system;
-            values = processedVals;
-          }
-        ) (lib.filterAttrs (_: cfg: cfg.platform == "darwin") hostConfigs);
-
-      # Default config for local builds
-      defaultHostname = "lv426";
-      defaultConfig = hostConfigs.${defaultHostname};
-      defaultSystem = defaultConfig.system;
-      defaultOverlays = mkOverlays defaultSystem;
-      defaultPkgs = mkPkgs {
-        system = defaultSystem;
-        overlays = defaultOverlays;
-      };
-      defaultUtils = mkUtils {
-        system = defaultSystem;
-        pkgs = defaultPkgs;
-      };
-      defaultProcessedValues = processValues {
-        utils = defaultUtils;
-        userValues = defaultConfig.values;
-      };
-
-      # Build arrakis config
-
-    in
-    {
-      # Darwin configurations (includes bootstrap)
-      darwinConfigurations = mkConfigurations mkDarwinConfiguration // {
-        bootstrap = darwin.lib.darwinSystem {
-          system = "aarch64-darwin";
-          modules = [
-            {
-              system.defaults.finder.AppleShowAllExtensions = true;
-              system.stateVersion = 4;
-              programs.zsh.enable = true;
-            }
-          ];
-        };
-      };
-
-      # NixOS configurations
-      nixosConfigurations = lib.mapAttrs (
-        _hostname: hostConfig:
+      buildConfiguration =
+        { hostConfig }:
         let
           overlays = mkOverlays hostConfig.system;
           pkgs = mkPkgs {
@@ -294,90 +84,135 @@
             system = hostConfig.system;
             inherit pkgs;
           };
-          processedVals = processValues {
+          values = processValues {
             inherit utils;
             userValues = hostConfig.values;
           };
         in
-        mkNixosConfiguration {
-          inherit utils pkgs;
-          system = hostConfig.system;
-          values = processedVals;
-        }
-      ) (lib.filterAttrs (_: cfg: cfg.platform == "linux") hostConfigs);
-
-      # Home manager standalone (for non-NixOS/Darwin systems)
-      homeConfigurations = {
-        ${defaultConfig.username} = home-manager.lib.homeManagerConfiguration {
-          pkgs = defaultPkgs;
-          extraSpecialArgs = {
-            inherit defaultUtils;
-            values = defaultProcessedValues;
+        if hostConfig.platform == "darwin" then
+          darwin.lib.darwinSystem {
+            system = hostConfig.system;
+            specialArgs = {
+              inherit
+                inputs
+                values
+                utils
+                pkgs
+                ;
+              system = hostConfig.system;
+            };
+            modules = [
+              ./modules/darwin
+              (import ./modules/darwin/home-manager.nix {
+                inherit (values.user) username;
+                inherit values utils pkgs;
+              })
+              home-manager.darwinModules.home-manager
+              nix-homebrew.darwinModules.nix-homebrew
+              mac-app-util.darwinModules.default
+              {
+                _module.args.utils = utils;
+                home-manager.sharedModules = [
+                  mac-app-util.homeManagerModules.default
+                ];
+              }
+            ];
+          }
+        else
+          lib.nixosSystem {
+            system = hostConfig.system;
+            specialArgs = {
+              inherit
+                inputs
+                values
+                utils
+                pkgs
+                ;
+              customUtils = utils;
+            };
+            modules = [
+              ./modules/nixos
+              home-manager.nixosModules.home-manager
+              niri.nixosModules.niri
+              (import ./modules/nixos/home-manager.nix {
+                inherit values utils pkgs;
+              })
+            ];
           };
-          modules = [
-            {
-              home.username = defaultConfig.username;
-              home.homeDirectory = platformUtils.getUserHome defaultConfig.username defaultSystem;
-              home.stateVersion = "23.11";
-            }
-            (import ./modules/home {
-              inherit (defaultConfig.username) username;
-              values = defaultProcessedValues;
-              pkgs = defaultPkgs;
-              utils = defaultUtils;
-            })
-          ];
+
+      hostConfigs = {
+        lv426 = {
+          system = "aarch64-darwin";
+          platform = "darwin";
+          username = "rshnbhatia";
+          values = {
+            config.root = ./.;
+            user.username = "rshnbhatia";
+            git = {
+              name = "Roshan Bhatia";
+              email = "rshnbhatia@gmail.com";
+              username = "roshbhatia";
+            };
+            darwin.homebrew.additionalPackages = {
+              taps = [ "qmk/qmk" ];
+              brews = [ "qmk" ];
+              casks = [
+                "betterdiscord-installer"
+                "calibre"
+                "discord"
+                "orbstack"
+                "steam"
+              ];
+            };
+          };
+        };
+        arrakis = {
+          system = "x86_64-linux";
+          platform = "linux";
+          username = "rshnbhatia";
+          values = {
+            config.root = ./.;
+            user.username = "rshnbhatia";
+            git = {
+              name = "Roshan Bhatia";
+              email = "rshnbhatia@gmail.com";
+              username = "roshbhatia";
+            };
+          };
         };
       };
 
-      # Overlays
-      overlays = {
-        default =
-          final: prev:
-          builtins.foldl' (acc: overlay: acc // overlay final prev) { } (mkOverlays defaultSystem);
+      darwinConfigs = lib.filterAttrs (_: cfg: cfg.platform == "darwin") hostConfigs;
+      nixosConfigs = lib.filterAttrs (_: cfg: cfg.platform == "linux") hostConfigs;
 
-        packages = import (./overlays + "/packages.nix") {
-          inherit inputs;
-          system = defaultSystem;
+    in
+    {
+      darwinConfigurations =
+        lib.mapAttrs (_: cfg: buildConfiguration { hostConfig = cfg; }) darwinConfigs
+        // {
+          bootstrap = darwin.lib.darwinSystem {
+            system = "aarch64-darwin";
+            modules = [
+              {
+                system.defaults.finder.AppleShowAllExtensions = true;
+                system.stateVersion = 4;
+                programs.zsh.enable = true;
+              }
+            ];
+          };
         };
-      };
 
-      # Library exports for external consumption
-      # External flakes can use: personal-sysinit.lib.mkDarwinConfiguration
+      nixosConfigurations = lib.mapAttrs (_: cfg: buildConfiguration { hostConfig = cfg; }) nixosConfigs;
+
       lib = {
         inherit
-          mkDarwinConfiguration
-          mkNixosConfiguration
-          processValues
           mkPkgs
           mkUtils
           mkOverlays
+          processValues
+          buildConfiguration
+          hostConfigs
           ;
-        inherit hostConfigs systems;
-      };
-
-      # Checks - only for default system
-      checks.${defaultSystem} = {
-        nix-format = defaultPkgs.runCommand "check-nix-format" { } ''
-          ${defaultPkgs.fd}/bin/fd -e nix -E result . ${./.} \
-            -x ${defaultPkgs.nixfmt-rfc-style}/bin/nixfmt --width=100 --check {} \
-            || (echo "Nix formatting check failed. Run 'task format:nix' to fix." && exit 1)
-          touch $out
-        '';
-
-        lua-format = defaultPkgs.runCommand "check-lua-format" { } ''
-          ${defaultPkgs.fd}/bin/fd -e lua . ${./.} \
-            -x ${defaultPkgs.stylua}/bin/stylua --check {} \
-            || (echo "Lua formatting check failed. Run 'task format:lua' to fix." && exit 1)
-          touch $out
-        '';
-
-        shell-format = defaultPkgs.runCommand "check-shell-format" { } ''
-          ${defaultPkgs.fd}/bin/fd -e sh -e bash -e zsh . ${./.} \
-            -x ${defaultPkgs.shfmt}/bin/shfmt -i 2 -ci -bn -d {} \
-            || (echo "Shell formatting check failed. Run 'task format:sh' to fix." && exit 1)
-          touch $out
-        '';
       };
     };
 }
