@@ -146,16 +146,18 @@
           platform = "darwin";
           username = "rshnbhatia";
           values = {
-            config.root = ./.;
-            user.username = "rshnbhatia";
             git = {
               name = "Roshan Bhatia";
               email = "rshnbhatia@gmail.com";
               username = "roshbhatia";
             };
             darwin.homebrew.additionalPackages = {
-              taps = [ "qmk/qmk" ];
-              brews = [ "qmk" ];
+              taps = [
+                "qmk/qmk"
+              ];
+              brews = [
+                "qmk"
+              ];
               casks = [
                 "betterdiscord-installer"
                 "calibre"
@@ -171,8 +173,6 @@
           platform = "linux";
           username = "rshnbhatia";
           values = {
-            config.root = ./.;
-            user.username = "rshnbhatia";
             git = {
               name = "Roshan Bhatia";
               email = "rshnbhatia@gmail.com";
