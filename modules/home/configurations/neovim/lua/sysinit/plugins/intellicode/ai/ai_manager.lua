@@ -364,12 +364,6 @@ function M.show(termname)
 
   term_data.pane_id = pane_id
   active_terminal = termname
-
-  local agents = require("sysinit.plugins.intellicode.agents")
-  local agent = agents.get_by_name(termname)
-  if agent then
-    set_tab_title(pane_id, string.format("%s %s", agent.icon, agent.label))
-  end
 end
 
 function M.is_visible(termname)
