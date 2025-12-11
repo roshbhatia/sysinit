@@ -1,6 +1,7 @@
 {
   colors,
   appTheme,
+  config,
 }:
 let
   commonFzfOpts = [
