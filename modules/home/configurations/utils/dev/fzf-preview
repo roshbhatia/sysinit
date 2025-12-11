@@ -46,11 +46,7 @@ preview_text() {
 preview_executable() {
   local basename="${1##*/}"
   if man "$basename" &>/dev/null; then
-    if command -v bat &>/dev/null; then
-      man "$basename" | bat --language=man --style=numbers --color=always --pager=never 2>/dev/null
-    else
-      man "$basename"
-    fi
+    PAGER=cat man "$basename" 2>/dev/null
   else
     echo "Executable: $basename (no man page available)"
   fi
