@@ -31,7 +31,7 @@ M.plugins = {
         desc = "Diff all (HEAD)",
       },
       {
-        "leader>gdM",
+        "<leader>gdM",
         function()
           vim.cmd("CodeDiff main")
         end,
