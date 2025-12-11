@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  values,
   ...
 }:
 let
@@ -11,9 +12,9 @@ let
   themes = import ../shared/lib/theme {
     inherit lib;
   };
-  palette = themes.getThemePalette config.values.theme.colorscheme config.values.theme.variant;
+  palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
   colors = themes.getUnifiedColors palette;
-  appTheme = themes.getAppTheme "vivid" config.values.theme.colorscheme config.values.theme.variant;
+  appTheme = themes.getAppTheme "vivid" values.theme.colorscheme values.theme.variant;
   shellEnv = shellLib.env {
     inherit config colors appTheme;
   };
