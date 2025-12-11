@@ -8,7 +8,7 @@ let
   commonFzfOpts = [
     "--style=minimal"
     "--layout=reverse"
-    "--height=40%"
+    "--height=80%"
     "--info=inline"
     "--scheme=history"
     "--bind=resize:refresh-preview"
