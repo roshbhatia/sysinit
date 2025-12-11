@@ -231,14 +231,14 @@ rec {
       primary = palette.base;
       secondary = palette.surface;
       tertiary = safeGetColor palette "surface_alt" palette.surface;
-      overlay = palette.overlay;
+      overlay = safeGetColor palette "overlay" palette.surface;
     };
 
     foreground = {
       primary = palette.text;
       secondary = safeGetColor palette "subtext1" palette.text;
       muted = safeGetColor palette "subtext0" palette.text;
-      subtle = safeGetColor palette "subtle" palette.overlay;
+      subtle = safeGetColor palette "subtle" (safeGetColor palette "overlay" palette.surface);
     };
 
     accent = {
@@ -246,7 +246,7 @@ rec {
       secondary = safeGetColor palette "accent_secondary" palette.accent;
       tertiary = safeGetColor palette "accent_tertiary" palette.accent;
       quaternary = safeGetColor palette "accent_quaternary" palette.accent;
-      dim = safeGetColor palette "accent_dim" palette.overlay;
+      dim = safeGetColor palette "accent_dim" (safeGetColor palette "overlay" palette.surface);
     };
 
     semantic = {
@@ -260,7 +260,7 @@ rec {
       keyword = safeGetColor palette "mauve" palette.blue;
       string = palette.green;
       number = safeGetColor palette "peach" palette.orange;
-      comment = safeGetColor palette "comment" palette.overlay;
+      comment = safeGetColor palette "comment" (safeGetColor palette "overlay" palette.surface);
       function = palette.blue;
       variable = palette.text;
       type = palette.yellow;
@@ -276,7 +276,7 @@ rec {
       );
       visual_selection = safeGetColor palette "highlight_high" palette.surface;
       match_paren = palette.accent;
-      line_number = safeGetColor palette "comment" palette.overlay;
+      line_number = safeGetColor palette "comment" (safeGetColor palette "overlay" palette.surface);
       line_number_active = safeGetColor palette "line_number_active" palette.accent;
     };
 
@@ -305,7 +305,7 @@ rec {
         surface = palette.surface;
         text = palette.text;
         accent = palette.accent;
-        muted = safeGetColor palette "comment" palette.overlay;
+        muted = safeGetColor palette "comment" (safeGetColor palette "overlay" palette.surface);
       in
       {
         # Telescope
