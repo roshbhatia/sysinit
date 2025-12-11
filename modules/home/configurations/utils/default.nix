@@ -22,11 +22,6 @@ _:
       executable = true;
     };
 
-    ".local/bin/vimdiff" = {
-      source = ./dev/vimdiff;
-      executable = true;
-    };
-
     ".local/bin/loglib.sh" = {
       source = ./system/loglib.sh;
       executable = true;
