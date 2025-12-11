@@ -18,13 +18,13 @@ let
   shellEnv = shellLib.env {
     inherit config colors appTheme;
   };
-  allAliases = lib.attrsets.foldAttrs (a: b: a // b) { } [
-    shellLib.aliases.navigation
-    shellLib.aliases.listing
-    shellLib.aliases.tools
-    shellLib.aliases.kubernetes
-    shellLib.aliases.shortcuts
-    {
+  allAliases =
+    (shellLib.aliases.navigation or { })
+    // (shellLib.aliases.listing or { })
+    // (shellLib.aliases.tools or { })
+    // (shellLib.aliases.kubernetes or { })
+    // (shellLib.aliases.shortcuts or { })
+    // {
       sudo = "sudo -E";
       h = "hx";
       f = "yazi";
@@ -36,8 +36,7 @@ let
       ll = "eza --icons=always -l -a";
       kgA = "kubectl get -A";
       kgN = "kubectl get -n";
-    }
-  ];
+    };
 in
 {
   imports = [
