@@ -9,7 +9,7 @@ if [[ -d $EXTRAS_DIR ]]; then
   unsetopt nullglob
 
   for file in "${extra_files[@]}"; do
-    if type cached_source &> /dev/null; then
+    if type cached_source &>/dev/null; then
       cached_source "$file"
     else
       source "$file"
@@ -17,5 +17,4 @@ if [[ -d $EXTRAS_DIR ]]; then
   done
 fi
 
-# Load secrets if present
 [[ -f "$HOME/.zshsecrets" ]] && source "$HOME/.zshsecrets"

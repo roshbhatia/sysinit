@@ -10,22 +10,18 @@ let
   themes = import ../../../shared/lib/theme { inherit lib; };
   paths_lib = import ../../../shared/lib/paths { inherit config lib; };
 
-  validatedTheme = values.theme;
-  appTheme = themes.getAppTheme "vivid" validatedTheme.colorscheme validatedTheme.variant;
-  palette = themes.getThemePalette validatedTheme.colorscheme validatedTheme.variant;
+  appTheme = themes.getAppTheme "vivid" values.theme.colorscheme values.theme.variant;
+  palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
   colors = themes.getUnifiedColors palette;
 
   pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;
 
-  # Core modules - loaded earliest
   coreInit = shell.stripHeaders ./core/init.zsh;
   corePath = shell.stripHeaders ./core/path.zsh;
 
-  # Library modules - utilities available to other scripts
   libCache = shell.stripHeaders ./lib/cache.zsh;
   libFunctions = shell.stripHeaders ./lib/functions.zsh;
 
-  # Integration modules
   integrationsWezterm = builtins.readFile (
     pkgs.fetchurl {
       url = "https://raw.githubusercontent.com/wezterm/wezterm/refs/heads/main/assets/shell-integration/wezterm.sh";
@@ -36,11 +32,8 @@ let
   integrationsTools = shell.stripHeaders ./integrations/tools.zsh;
   integrationsExtras = shell.stripHeaders ./integrations/extras.zsh;
 
-  # UI modules - loaded last
   uiPrompt = shell.stripHeaders ./ui/prompt.zsh;
-  uiVimMode = shell.stripHeaders ./ui/vim-mode.zsh;
 
-  # Environment (kept separate due to potential secrets)
   env = shell.stripHeaders ./system/env.sh;
 in
 {
@@ -75,35 +68,6 @@ in
       ZVM_SYSTEM_CLIPBOARD_ENABLED = true;
       ZVM_VI_HIGHLIGHT_BACKGROUND = colors.foreground.primary;
       ZVM_VI_HIGHLIGHT_FOREGROUND = colors.accent.primary;
-
-      FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
-        "--bind='resize:refresh-preview'"
-        "--color=bg+:-1,bg:-1,spinner:${colors.accent.primary},hl:${colors.accent.primary}"
-        "--color=border:${colors.background.overlay},label:${colors.foreground.primary}"
-        "--color=fg:${colors.foreground.primary},header:${colors.accent.primary},info:${colors.foreground.muted},pointer:${colors.accent.primary}"
-        "--color=marker:${colors.accent.primary},fg+:${colors.foreground.primary},prompt:${colors.accent.primary},hl+:${colors.accent.primary}"
-        "--color=preview-bg:-1,query:${colors.foreground.primary}"
-        "--cycle"
-        "--gutter=' '"
-        "--height=30"
-        "--highlight-line"
-        "--ignore-case"
-        "--info=inline"
-        "--input-border=rounded"
-        "--layout=reverse"
-        "--list-border=rounded"
-        "--no-scrollbar"
-        "--pointer='>'"
-        "--preview 'fzf-preview {}'"
-        "--preview-border=rounded"
-        "--prompt='>> '"
-        "--scheme='history'"
-        "--style='minimal'"
-      ];
-
-      VIVID_THEME = appTheme;
-
-      ZK_NOTEBOOK_DIR = "$HOME/github/personal/roshbhatia/zeek/notes";
     };
 
     plugins = [
@@ -232,7 +196,6 @@ in
 
       (lib.mkOrder 700 ''
         ${uiPrompt}
-        ${uiVimMode}
       '')
 
       (lib.mkOrder 900 ''
