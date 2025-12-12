@@ -59,6 +59,41 @@ rec {
       accent = "#268bd2";
       accent_dim = "#073642";
     };
+
+    light = utils.validatePalette {
+
+      base03 = "#002b36";
+      base02 = "#073642";
+      base01 = "#586e75";
+      base00 = "#657b83";
+      base0 = "#839496";
+      base1 = "#93a1a1";
+      base2 = "#eee8d5";
+      base3 = "#fdf6e3";
+
+      yellow = "#b58900";
+      orange = "#cb4b16";
+      red = "#dc322f";
+      magenta = "#d33682";
+      violet = "#6c71c4";
+      blue = "#268bd2";
+      cyan = "#2aa198";
+      green = "#859900";
+
+      base = "#fdf6e3";
+      bg = "#fdf6e3";
+      bg_alt = "#eee8d5";
+      surface = "#eee8d5";
+      surface_alt = "#93a1a1";
+      text = "#657b83";
+      fg = "#657b83";
+      fg_alt = "#839496";
+      comment = "#93a1a1";
+      purple = "#6c71c4";
+      teal = "#2aa198";
+      accent = "#268bd2";
+      accent_dim = "#eee8d5";
+    };
   };
 
   semanticMapping = palette: utils.createSemanticMapping palette;
@@ -66,6 +101,7 @@ rec {
   appAdapters = {
     wezterm = {
       dark = "Solarized Dark Higher Contrast (Gogh)";
+      light = "Solarized Light (Gogh)";
     };
 
     neovim = {
