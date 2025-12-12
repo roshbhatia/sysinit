@@ -386,10 +386,6 @@ rec {
     "15" = semanticColors.foreground.primary;
   };
 
-  applyTransparencyPreset =
-    config: presetName: presets:
-    if hasAttr presetName presets then config // { transparency = presets.${presetName}; } else config;
-
   capitalizeFirst =
     str:
     let
@@ -408,10 +404,6 @@ rec {
     // {
       transparency = mergeTransparency (if hasAttr "transparency" base then base.transparency else { }) (
         if hasAttr "transparency" override then override.transparency else { }
-      );
-      presets = unique (
-        (if hasAttr "presets" base then base.presets else [ ])
-        ++ (if hasAttr "presets" override then override.presets else [ ])
       );
       overrides =
         (if hasAttr "overrides" base then base.overrides else { })

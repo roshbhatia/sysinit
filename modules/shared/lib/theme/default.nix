@@ -27,8 +27,6 @@ let
   hyprlandAdapter = import ./adapters/hyprland.nix { inherit lib; };
   niriAdapter = import ./adapters/niri.nix { inherit lib; };
 
-  transparencyPreset = import ./presets/transparency.nix { inherit lib; };
-
   themes = {
     inherit catppuccin;
     inherit kanagawa;
@@ -137,22 +135,18 @@ let
       palette = getThemePalette validatedConfig.colorscheme validatedConfig.variant;
       semanticColors = getSemanticColors validatedConfig.colorscheme validatedConfig.variant;
 
-      finalConfig = lib.foldr (
-        preset: _config: transparencyPreset.createAppTransparency app preset { }
-      ) validatedConfig validatedConfig.presets;
-
       appConfig =
         if app == "wezterm" then
-          weztermAdapter.createWeztermConfig theme finalConfig overrides
+          weztermAdapter.createWeztermConfig theme validatedConfig overrides
         else if app == "neovim" then
-          neovimAdapter.createNeovimConfig theme finalConfig overrides
+          neovimAdapter.createNeovimConfig theme validatedConfig overrides
         else if app == "firefox" then
-          firefoxAdapter.createFirefoxConfig theme finalConfig overrides
+          firefoxAdapter.createFirefoxConfig theme validatedConfig overrides
         else
           {
             theme = getAppTheme app validatedConfig.colorscheme validatedConfig.variant;
             inherit palette semanticColors;
-            config = finalConfig;
+            config = validatedConfig;
           };
 
     in
@@ -160,12 +154,12 @@ let
       inherit (theme) meta;
       inherit palette;
       inherit semanticColors;
-      config = finalConfig;
+      config = validatedConfig;
       colorscheme = "${validatedConfig.colorscheme}-${validatedConfig.variant}";
       inherit (validatedConfig) variant;
       transparency =
-        if hasAttr "transparency" finalConfig then
-          finalConfig.transparency
+        if hasAttr "transparency" validatedConfig then
+          validatedConfig.transparency
         else
           throw "Missing transparency configuration in theme config";
     }
@@ -372,9 +366,5 @@ in
     waybar = waybarAdapter;
     hyprland = hyprlandAdapter;
     niri = niriAdapter;
-  };
-
-  presets = {
-    transparency = transparencyPreset;
   };
 }
