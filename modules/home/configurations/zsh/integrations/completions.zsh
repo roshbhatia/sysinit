@@ -39,7 +39,7 @@ __setup_completions() {
 
   _evalcache gh copilot alias -- zsh
   _evalcache uv generate-shell-completion zsh
-  _evalcache command kubecolor completion zsh
+  _evalcache kubecolor completion zsh
 
   compdef kubectl=kubecolor
   compdef k=kubecolor
