@@ -136,8 +136,8 @@
       mode = {
         main = {
           binding = {
-            alt-slash = "layout tiles horizontal vertical";
-            alt-comma = "layout accordion horizontal vertical";
+            alt-t = "layout tiles horizontal vertical";
+            alt-a = "layout accordion horizontal vertical";
 
             alt-h = "focus left";
             alt-j = "focus down";
@@ -154,24 +154,23 @@
             alt-shift-minus = "resize smart -210";
             alt-shift-equal = "resize smart +210";
 
-            alt-p = "workspace P";
-            alt-s = "workspace S";
+            alt-1 = "workspace 1";
+            alt-2 = "workspace 2";
             alt-c = "workspace C";
-            alt-m = "workspace M";
             alt-e = "workspace E";
+            alt-m = "workspace M";
 
             alt-tab = "workspace --wrap-around next";
             alt-shift-tab = "workspace --wrap-around prev";
             alt-space = "workspace-back-and-forth";
 
-            alt-shift-p = "move-node-to-workspace P --focus-follows-window";
-            alt-shift-s = "move-node-to-workspace S --focus-follows-window";
+            alt-shift-1 = "move-node-to-workspace 1 --focus-follows-window";
+            alt-shift-2 = "move-node-to-workspace 2 --focus-follows-window";
             alt-shift-c = "move-node-to-workspace C --focus-follows-window";
             alt-shift-e = "move-node-to-workspace E --focus-follows-window";
             alt-shift-m = "move-node-to-workspace M --focus-follows-window";
 
             alt-f = "fullscreen";
-            alt-enter = "exec-and-forget /bin/bash -c ${pkgs.sketchybar}/bin/sketchybar sketchybar --reload";
 
             alt-esc = [
               "reload-config"
