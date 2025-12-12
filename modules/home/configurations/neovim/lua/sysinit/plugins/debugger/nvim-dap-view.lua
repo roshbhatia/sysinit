@@ -15,10 +15,6 @@ M.plugins = {
         },
       }
     end,
-          desc = "Toggle DAP View",
-        },
-      }
-    end,
   },
 }
 
