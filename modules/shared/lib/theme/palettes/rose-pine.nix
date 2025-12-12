@@ -9,13 +9,15 @@ rec {
     name = "Rosé Pine";
     id = "rose-pine";
     variants = [
+      "dawn"
       "moon"
     ];
     supports = [
+      "light"
       "dark"
     ];
     appearanceMapping = {
-      light = null;
+      light = "dawn";
       dark = "moon";
     };
     author = "Rosé Pine";
@@ -23,6 +25,43 @@ rec {
   };
 
   palettes = {
+    dawn = utils.validatePalette {
+      base = "#faf4ed";
+      surface = "#fffaf3";
+      overlay = "#f2e9e1";
+
+      muted = "#9893a5";
+      subtle = "#797593";
+      text = "#575279";
+
+      love = "#b4637a";
+      gold = "#ea9d34";
+      rose = "#d7827e";
+      pine = "#286983";
+      foam = "#56949f";
+      iris = "#907aa9";
+
+      highlight_low = "#f4ede8";
+      highlight_med = "#dfdad9";
+      highlight_high = "#cecacd";
+
+      bg = "#faf4ed";
+      bg_alt = "#fffaf3";
+      fg = "#575279";
+      fg_alt = "#797593";
+      comment = "#9893a5";
+      red = "#b4637a";
+      green = "#286983";
+      yellow = "#ea9d34";
+      blue = "#286983";
+      purple = "#907aa9";
+      orange = "#d7827e";
+      cyan = "#56949f";
+      teal = "#56949f";
+      accent = "#907aa9";
+      accent_dim = "#f2e9e1";
+    };
+
     moon = utils.validatePalette {
       base = "#232136";
       surface = "#2a273f";
@@ -65,6 +104,7 @@ rec {
 
   appAdapters = {
     wezterm = {
+      dawn = "rose-pine-dawn";
       moon = "roseprime";
     };
 

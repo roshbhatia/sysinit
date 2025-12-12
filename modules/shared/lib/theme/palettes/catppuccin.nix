@@ -9,13 +9,15 @@ rec {
     name = "Catppuccin";
     id = "catppuccin";
     variants = [
+      "latte"
       "macchiato"
     ];
     supports = [
+      "light"
       "dark"
     ];
     appearanceMapping = {
-      light = null;
+      light = "latte";
       dark = "macchiato";
     };
     author = "Catppuccin";
@@ -23,6 +25,72 @@ rec {
   };
 
   palettes = {
+    latte = utils.validatePalette {
+      # Core background colors
+      base = "#eff1f5";
+      mantle = "#e6e9ef";
+      crust = "#dce0e8";
+
+      # Surface colors (for UI elements)
+      surface = "#ccd0da";
+      surface0 = "#ccd0da";
+      surface1 = "#bcc0cc";
+      surface2 = "#acb0be";
+      surface_alt = "#bcc0cc";
+
+      # Overlay colors (for floating elements)
+      overlay = "#bcc0cc";
+      overlay0 = "#9ca0b0";
+      overlay1 = "#8c8fa1";
+      overlay2 = "#7c7f93";
+
+      # Text colors
+      text = "#4c4f69";
+      subtext0 = "#6c6f85";
+      subtext1 = "#5c5f77";
+
+      # Semantic aliases for compatibility
+      bg = "#eff1f5";
+      bg_alt = "#ccd0da";
+      bg1 = "#bcc0cc";
+      fg = "#4c4f69";
+      fg_alt = "#5c5f77";
+      comment = "#9ca0b0";
+      subtle = "#8c8fa1";
+      muted = "#9ca0b0";
+
+      # Highlight colors for selections
+      highlight_low = "#ccd0da";
+      highlight_med = "#bcc0cc";
+      highlight_high = "#acb0be";
+
+      # Palette colors
+      rosewater = "#dc8a78";
+      flamingo = "#dd7878";
+      pink = "#ea76cb";
+      mauve = "#8839ef";
+      red = "#d20f39";
+      maroon = "#e64553";
+      peach = "#fe640b";
+      yellow = "#df8e1d";
+      green = "#40a02b";
+      teal = "#179299";
+      sky = "#04a5e5";
+      sapphire = "#209fb5";
+      blue = "#1e66f5";
+      lavender = "#7287fd";
+      purple = "#8839ef";
+      orange = "#fe640b";
+      cyan = "#179299";
+      magenta = "#ea76cb";
+
+      # Accent colors
+      accent = "#1e66f5";
+      accent_secondary = "#179299";
+      accent_tertiary = "#8839ef";
+      accent_dim = "#bcc0cc";
+    };
+
     macchiato = utils.validatePalette {
       # Core background colors
       base = "#24273a";
@@ -94,6 +162,7 @@ rec {
 
   appAdapters = {
     wezterm = {
+      latte = "Catppuccin Latte";
       macchiato = "Catppuccin Macchiato";
     };
 
