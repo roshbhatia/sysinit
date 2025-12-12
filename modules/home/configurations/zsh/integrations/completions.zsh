@@ -5,21 +5,21 @@
 __zoxide_z_pushd() {
   __zoxide_doctor
   if [[ $# -eq 0 ]]; then
-    pushd ~ > /dev/null
+    pushd ~ >/dev/null
   elif [[ $# -eq 1 ]] && { [[ -d $1 ]] || [[ $1 == '-' ]] || [[ $1 =~ ^[-+][0-9]$ ]]; }; then
-    pushd "$1" > /dev/null
+    pushd "$1" >/dev/null
   elif [[ $# -eq 2 ]] && [[ $1 == "--" ]]; then
-    pushd "$2" > /dev/null
+    pushd "$2" >/dev/null
   else
     \builtin local result
-    result="$(\command zoxide query --exclude "$(__zoxide_pwd)" -- "$@")" && pushd "${result}" > /dev/null
+    result="$(\command zoxide query --exclude "$(__zoxide_pwd)" -- "$@")" && pushd "${result}" >/dev/null
   fi
 }
 
 __zoxide_zi_pushd() {
   __zoxide_doctor
   \builtin local result
-  result="$(\command zoxide query --interactive -- "$@")" && pushd "${result}" > /dev/null
+  result="$(\command zoxide query --interactive -- "$@")" && pushd "${result}" >/dev/null
 }
 
 __setup_completions() {
@@ -39,18 +39,17 @@ __setup_completions() {
 
   _evalcache gh copilot alias -- zsh
   _evalcache uv generate-shell-completion zsh
-  _evalcache command kubectl completion zsh
+  _evalcache command kubecolor completion zsh
 
-  # kubectl alias completions (aliases defined in shellAliases)
-  compdef kubectl=kubectl
-  compdef k=kubectl
-  compdef kg=kubectl
-  compdef kd=kubectl
-  compdef ke=kubectl
-  compdef ka=kubectl
-  compdef kpf=kubectl
-  compdef kdel=kubectl
-  compdef klog=kubectl
+  compdef kubectl=kubecolor
+  compdef k=kubecolor
+  compdef kg=kubecolor
+  compdef kd=kubecolor
+  compdef ke=kubecolor
+  compdef ka=kubecolor
+  compdef kpf=kubecolor
+  compdef kdel=kubecolor
+  compdef klog=kubecolor
 
   enable-fzf-tab
 }
