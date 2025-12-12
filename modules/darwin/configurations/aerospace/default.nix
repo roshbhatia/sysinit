@@ -154,9 +154,8 @@
             alt-shift-minus = "resize smart -210";
             alt-shift-equal = "resize smart +210";
 
-            alt-1 = "workspace 1";
-            alt-2 = "workspace 2";
-            alt-3 = "workspace 3";
+            alt-p = "workspace P";
+            alt-s = "workspace S";
             alt-c = "workspace C";
             alt-m = "workspace M";
             alt-e = "workspace E";
@@ -165,15 +164,14 @@
             alt-shift-tab = "workspace --wrap-around prev";
             alt-space = "workspace-back-and-forth";
 
-            alt-shift-1 = "move-node-to-workspace 1 --focus-follows-window";
-            alt-shift-2 = "move-node-to-workspace 2 --focus-follows-window";
-            alt-shift-3 = "move-node-to-workspace 3 --focus-follows-window";
+            alt-shift-p = "move-node-to-workspace P --focus-follows-window";
+            alt-shift-s = "move-node-to-workspace S --focus-follows-window";
             alt-shift-c = "move-node-to-workspace C --focus-follows-window";
             alt-shift-e = "move-node-to-workspace E --focus-follows-window";
             alt-shift-m = "move-node-to-workspace M --focus-follows-window";
 
             alt-f = "fullscreen";
-            alt-enter = "exec-and-forget sketchybar --reload";
+            alt-enter = "exec-and-forget /bin/bash -c ${pkgs.sketchybar}/bin/sketchybar sketchybar --reload";
 
             alt-esc = [
               "reload-config"
