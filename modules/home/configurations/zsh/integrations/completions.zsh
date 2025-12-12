@@ -41,15 +41,16 @@ __setup_completions() {
   _evalcache uv generate-shell-completion zsh
   _evalcache kubecolor completion zsh
 
-  compdef kubectl=kubecolor
-  compdef k=kubecolor
-  compdef kg=kubecolor
-  compdef kd=kubecolor
-  compdef ke=kubecolor
-  compdef ka=kubecolor
-  compdef kpf=kubecolor
-  compdef kdel=kubecolor
-  compdef klog=kubecolor
+  # kubectl alias completions (aliases defined in shellAliases)
+  compdef _kubectl kubectl
+  compdef _kubectl k
+  compdef _kubectl kg
+  compdef _kubectl kd
+  compdef _kubectl ke
+  compdef _kubectl ka
+  compdef _kubectl kpf
+  compdef _kubectl kdel
+  compdef _kubectl klog
 
   enable-fzf-tab
 }
