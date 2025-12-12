@@ -9,6 +9,7 @@
     ./bat
     ./btop
     ./carapace
+    ./colima
     ./dircolors
     ./direnv
     ./editorconfig

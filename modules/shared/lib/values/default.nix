@@ -61,13 +61,6 @@ with lib;
       };
 
       darwin = {
-        docker = {
-          enable = mkOption {
-            type = types.bool;
-            default = true;
-            description = "Enable container runtime";
-          };
-        };
 
         tailscale = {
           enable = mkOption {

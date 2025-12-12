@@ -1,22 +1,7 @@
+{ pkgs, ... }:
 {
-  pkgs,
-  lib,
-  values,
-  ...
-}:
-let
-  inherit (lib) mkIf;
-  dockerEnabled = values.darwin.docker.enable or true;
-in
-{
-  imports = [
-    ./docker/backends
+  environment.systemPackages = with pkgs; [
+    docker
+    docker-compose
   ];
-
-  config = mkIf dockerEnabled {
-    environment.systemPackages = with pkgs; [
-      docker
-      docker-compose
-    ];
-  };
 }
