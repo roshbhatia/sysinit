@@ -2,7 +2,20 @@ local wezterm = require("wezterm")
 local act = wezterm.action
 local M = {}
 
--- General passthrough for navigation and other keys (vim/nvim/hx/k9s)
+
+local function multi_bind(key, modifiers_list, action)
+  local bindings = {}
+  for _, mods in ipairs(modifiers_list) do
+    table.insert(bindings, {
+      key = key,
+      mods = mods,
+      action = action,
+    })
+  end
+  return bindings
+end
+
+
 local function should_passthrough(pane)
   local process_name = string.gsub(pane:get_foreground_process_name(), "(.*[/\\])(.*)", "%2")
   return process_name == "nvim"
@@ -11,13 +24,13 @@ local function should_passthrough(pane)
     or process_name == "k9s"
 end
 
--- Specific passthrough for Ctrl+W (only vim/nvim use window commands)
+
 local function should_passthrough_ctrl_w(pane)
   local process_name = string.gsub(pane:get_foreground_process_name(), "(.*[/\\])(.*)", "%2")
   return process_name == "nvim" or process_name == "vim"
 end
 
--- Special action builder for Ctrl+W (only vim/nvim)
+
 local function vim_w_or_wezterm_action(key, mods, wezterm_action)
   return wezterm.action_callback(function(win, pane)
     if should_passthrough_ctrl_w(pane) then
@@ -51,17 +64,17 @@ end
 
 local function get_pane_keys()
   return {
-    -- Navigation
+    
     { key = "h", mods = "CTRL", action = pane_keybinding("move", "h", "CTRL") },
     { key = "j", mods = "CTRL", action = pane_keybinding("move", "j", "CTRL") },
     { key = "k", mods = "CTRL", action = pane_keybinding("move", "k", "CTRL") },
     { key = "l", mods = "CTRL", action = pane_keybinding("move", "l", "CTRL") },
-    -- Resize
+    
     { key = "h", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "h", "CTRL|SHIFT") },
     { key = "j", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "j", "CTRL|SHIFT") },
     { key = "k", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "k", "CTRL|SHIFT") },
     { key = "l", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "l", "CTRL|SHIFT") },
-    -- Split
+    
     {
       key = "s",
       mods = "CTRL",
@@ -72,11 +85,16 @@ local function get_pane_keys()
       mods = "CTRL",
       action = wezterm.action.SplitHorizontal({ domain = "CurrentPaneDomain" }),
     },
-    -- Close pane (only passthrough to vim/nvim)
+    
     {
       key = "w",
       mods = "CTRL",
       action = vim_w_or_wezterm_action("w", "CTRL", act.CloseCurrentPane({ confirm = true })),
+    },
+    {
+      key = "w",
+      mods = "SUPER",
+      action = vim_w_or_wezterm_action("w", "SUPER", act.CloseCurrentPane({ confirm = true })),
     },
   }
 end
@@ -135,18 +153,19 @@ local function get_default_keys()
 end
 
 local function get_font_keys()
-  return {
-    {
-      key = "-",
-      mods = "SUPER",
-      action = act.DecreaseFontSize,
-    },
-    {
-      key = "=",
-      mods = "SUPER",
-      action = act.IncreaseFontSize,
-    },
-  }
+  local keys = {}
+
+  
+  for _, binding in ipairs(multi_bind("-", { "CTRL", "SUPER" }, act.DecreaseFontSize)) do
+    table.insert(keys, binding)
+  end
+
+  
+  for _, binding in ipairs(multi_bind("=", { "CTRL", "SUPER" }, act.IncreaseFontSize)) do
+    table.insert(keys, binding)
+  end
+
+  return keys
 end
 
 local function get_pallete_keys()
@@ -165,84 +184,56 @@ local function get_pallete_keys()
 end
 
 local function get_window_keys()
-  return {
-    {
-      key = "n",
-      mods = "CTRL",
-      action = act.SpawnWindow,
-    },
-  }
+  local keys = {}
+
+  
+  for _, binding in ipairs(multi_bind("n", { "CTRL", "SUPER" }, act.SpawnWindow)) do
+    table.insert(keys, binding)
+  end
+
+  return keys
 end
 
 local function get_tab_keys()
-  return {
-    {
-      key = "t",
-      mods = "CTRL",
-      action = act.SpawnTab("CurrentPaneDomain"),
-    },
-    {
-      key = "w",
-      mods = "CTRL|SHIFT",
-      action = act.CloseCurrentTab({ confirm = true }),
-    },
-    {
-      key = "Tab",
-      mods = "CTRL",
-      action = act.ActivateTabRelative(1),
-    },
-    {
-      key = "Tab",
-      mods = "CTRL|SHIFT",
-      action = act.ActivateTabRelative(-1),
-    },
-    -- Direct tab access
-    {
-      key = "1",
-      mods = "CTRL",
-      action = act.ActivateTab(0),
-    },
-    {
-      key = "2",
-      mods = "CTRL",
-      action = act.ActivateTab(1),
-    },
-    {
-      key = "3",
-      mods = "CTRL",
-      action = act.ActivateTab(2),
-    },
-    {
-      key = "4",
-      mods = "CTRL",
-      action = act.ActivateTab(3),
-    },
-    {
-      key = "5",
-      mods = "CTRL",
-      action = act.ActivateTab(4),
-    },
-    {
-      key = "6",
-      mods = "CTRL",
-      action = act.ActivateTab(5),
-    },
-    {
-      key = "7",
-      mods = "CTRL",
-      action = act.ActivateTab(6),
-    },
-    {
-      key = "8",
-      mods = "CTRL",
-      action = act.ActivateTab(7),
-    },
-    {
-      key = "9",
-      mods = "CTRL",
-      action = act.ActivateTab(-1),
-    },
-  }
+  local keys = {}
+
+  
+  for _, binding in ipairs(multi_bind("t", { "CTRL", "SUPER" }, act.SpawnTab("CurrentPaneDomain"))) do
+    table.insert(keys, binding)
+  end
+
+  
+  table.insert(keys, {
+    key = "w",
+    mods = "CTRL|SHIFT",
+    action = act.CloseCurrentTab({ confirm = true }),
+  })
+
+  
+  table.insert(keys, {
+    key = "Tab",
+    mods = "CTRL",
+    action = act.ActivateTabRelative(1),
+  })
+  table.insert(keys, {
+    key = "Tab",
+    mods = "CTRL|SHIFT",
+    action = act.ActivateTabRelative(-1),
+  })
+
+  
+  for i = 1, 8 do
+    for _, binding in ipairs(multi_bind(tostring(i), { "CTRL", "SUPER" }, act.ActivateTab(i - 1))) do
+      table.insert(keys, binding)
+    end
+  end
+
+  
+  for _, binding in ipairs(multi_bind("9", { "CTRL", "SUPER" }, act.ActivateTab(-1))) do
+    table.insert(keys, binding)
+  end
+
+  return keys
 end
 
 local function get_search_keys()
