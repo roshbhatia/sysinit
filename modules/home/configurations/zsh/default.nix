@@ -19,7 +19,6 @@ let
   corePath = shell.stripHeaders ./core/path.zsh;
 
   libCache = shell.stripHeaders ./lib/cache.zsh;
-  libFunctions = shell.stripHeaders ./lib/functions.zsh;
 
   integrationsWezterm = builtins.readFile (
     pkgs.fetchurl {
@@ -141,7 +140,6 @@ in
 
       (lib.mkOrder 400 ''
         ${libCache}
-        ${libFunctions}
       '')
 
       (lib.mkOrder 500 ''
