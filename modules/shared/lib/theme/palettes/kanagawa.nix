@@ -9,12 +9,16 @@ rec {
     name = "Kanagawa";
     id = "kanagawa";
     variants = [
+      "lotus"
       "wave"
       "dragon"
     ];
-    supports = [ "dark" ];
+    supports = [
+      "light"
+      "dark"
+    ];
     appearanceMapping = {
-      light = null;
+      light = "lotus";
       dark = "wave";
     };
     author = "rebelot";
@@ -22,6 +26,78 @@ rec {
   };
 
   palettes = {
+    lotus = utils.validatePalette {
+
+      lotusWhite0 = "#d5cea3";
+      lotusWhite1 = "#dcd5ac";
+      lotusWhite2 = "#e5ddb0";
+      lotusWhite3 = "#f2ecbc";
+      lotusWhite4 = "#e7dba0";
+      lotusWhite5 = "#e4d794";
+
+      oldWhite = "#545464";
+      fujiWhite = "#545464";
+      fujiGray = "#a6a69c";
+
+      lotusGray = "#716e61";
+      lotusGray2 = "#8a8980";
+      lotusGray3 = "#b1b1a7";
+
+      lotusViolet1 = "#a09cac";
+      lotusViolet2 = "#766b90";
+      lotusViolet3 = "#c9cbd1";
+      lotusViolet4 = "#624c83";
+
+      lotusBlue1 = "#c7d7e0";
+      lotusBlue2 = "#b5cbd2";
+      lotusBlue3 = "#9fb5c9";
+      lotusBlue4 = "#4d699b";
+      lotusBlue5 = "#5d57a3";
+
+      lotusGreen = "#6f894e";
+      lotusGreen2 = "#6e915f";
+      lotusGreen3 = "#b7d0ae";
+
+      lotusYellow = "#77713f";
+      lotusYellow2 = "#836f4a";
+      lotusYellow3 = "#dca561";
+      lotusYellow4 = "#c8ae6d";
+
+      lotusOrange = "#cc6d00";
+      lotusOrange2 = "#e98a00";
+
+      lotusPink = "#b35b79";
+      lotusRed = "#c84053";
+      lotusRed2 = "#d7474b";
+      lotusRed3 = "#e82424";
+      lotusRed4 = "#d9a594";
+
+      lotusCyan = "#597b75";
+      lotusTeal1 = "#4e8ca2";
+      lotusTeal2 = "#5e857a";
+      lotusTeal3 = "#6693bf";
+
+      base = "#f2ecbc";
+      bg = "#f2ecbc";
+      bg_alt = "#e5ddb0";
+      surface = "#dcd5ac";
+      surface_alt = "#d5cea3";
+      text = "#545464";
+      fg = "#545464";
+      fg_alt = "#716e61";
+      comment = "#8a8980";
+      blue = "#4d699b";
+      cyan = "#597b75";
+      teal = "#5e857a";
+      green = "#6f894e";
+      yellow = "#c8ae6d";
+      orange = "#cc6d00";
+      red = "#c84053";
+      purple = "#624c83";
+      accent = "#4d699b";
+      accent_dim = "#dcd5ac";
+    };
+
     wave = utils.validatePalette {
 
       sumiInk0 = "#16161d";
@@ -140,6 +216,7 @@ rec {
 
   appAdapters = {
     wezterm = {
+      lotus = "Kanagawa Lotus (Gogh)";
       wave = "Kanagawa (Gogh)";
       dragon = "Kanagawa Dragon (Gogh)";
     };

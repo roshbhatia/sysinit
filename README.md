@@ -127,7 +127,7 @@ The following themes are available for use in your configuration. Each theme may
 | Catppuccin | `catppuccin` | 2 (latte, macchiato) | ✅ | ✅ | [Catppuccin](https://github.com/catppuccin/catppuccin) |
 | Everforest | `everforest` | 6 (dark-hard, dark-medium, dark-soft, light-hard, light-medium, light-soft) | ✅ | ✅ | [sainnhe](https://github.com/sainnhe/everforest) |
 | Gruvbox | `gruvbox` | 2 (dark, light) | ✅ | ✅ | [morhetz](https://github.com/morhetz/gruvbox) |
-| Kanagawa | `kanagawa` | 2 (wave, dragon) | ❌ | ✅ | [rebelot](https://github.com/rebelot/kanagawa.nvim) |
+| Kanagawa | `kanagawa` | 3 (lotus, wave, dragon) | ✅ | ✅ | [rebelot](https://github.com/rebelot/kanagawa.nvim) |
 | Nord | `nord` | 1 (dark) | ❌ | ✅ | [Arctic Ice Studio](https://www.nordtheme.com/) |
 | Rosé Pine | `rose-pine` | 2 (dawn, moon) | ✅ | ✅ | [Rosé Pine](https://github.com/rose-pine/rose-pine) |
 | Solarized | `solarized` | 2 (dark, light) | ✅ | ✅ | [Ethan Schoonover](https://ethanschoonover.com/solarized/) |
