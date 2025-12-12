@@ -24,7 +24,6 @@ let
   baseBrews = [
     "bashdb"
     "bcrypt"
-    "bd"
     "block-goose-cli"
     "colima"
     "hashicorp/tap/terraform"
@@ -47,7 +46,6 @@ let
     "handy"
     "hammerspoon"
     "mediosz/tap/swipeaerospace"
-    "rancher"
     "raycast"
     "slack"
     "wezterm@nightly"
