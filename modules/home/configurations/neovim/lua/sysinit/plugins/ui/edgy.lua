@@ -32,6 +32,10 @@ M.plugins = {
               return vim.b[buf].neo_tree_source == "filesystem"
             end,
           },
+          {
+            title = "File Explorer",
+            ft = "DiffViewFiles",
+          },
         },
         bottom = {
           {
