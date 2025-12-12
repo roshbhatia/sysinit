@@ -216,30 +216,31 @@ local function get_rose_pine_config()
   }
 
   if theme_config.transparency.enable then
-    overrides.WinBar = { bg = "none", fg = colors.foam }
-    overrides.WinBarNC = { bg = "none", fg = colors.subtle }
-    overrides.NeoTreeWinSeparator = { bg = "none", fg = colors.subtle }
-    overrides.NeoTreeVertSplit = { bg = "none", fg = colors.subtle }
-    overrides.NeoTreeEndOfBuffer = { bg = "none", fg = "none" }
+    overrides.CursorLineNr = { bg = "none", fg = colors.foam, bold = true }
+    overrides.DiffAdd = { bg = colors.foam }
     overrides.DropBarMenuFloatBorder = { bg = "none", fg = colors.subtle }
+    overrides.FloatBorder = { bg = "none", fg = colors.muted }
+    overrides.FloatTitle = { bg = "none", fg = colors.rose, bold = true }
+    overrides.IncSearch = { bg = colors.love, fg = colors.base, bold = true }
+    overrides.LineNr = { bg = "none", fg = colors.muted }
+    overrides.NeoTreeEndOfBuffer = { bg = "none", fg = "none" }
+    overrides.NeoTreeVertSplit = { bg = "none", fg = colors.subtle }
+    overrides.NeoTreeWinSeparator = { bg = "none", fg = colors.subtle }
+    overrides.NormalFloat = { bg = "none", fg = colors.text }
+    overrides.Pmenu = { bg = colors.surface, fg = colors.text }
+    overrides.PmenuBorder = { bg = "none", fg = colors.muted }
+    overrides.PmenuSel = { bg = colors.overlay, fg = colors.foam, bold = true }
+    overrides.Search = { bg = colors.gold, fg = colors.base, bold = true }
+    overrides.StatusLine = { bg = "none", fg = colors.text }
+    overrides.StatusLineNC = { bg = "none", fg = colors.subtle }
+    overrides.TelescopeBorder = { bg = "none", fg = colors.muted }
+    overrides.TelescopeSelection = { bg = colors.surface, fg = colors.foam, bold = true }
+    overrides.TelescopeTitle = { bg = "none", fg = colors.rose, bold = true }
     overrides.WildMenu = { bg = colors.rose, fg = colors.base, bold = true }
     overrides.WilderWildmenuSelected = { bg = colors.rose, fg = colors.base, bold = true }
     overrides.WilderWildmenuSelectedAccent = { bg = colors.rose, fg = colors.base, bold = true }
-    overrides.TelescopeSelection = { bg = colors.surface, fg = colors.foam, bold = true }
-    overrides.TelescopeBorder = { bg = "none", fg = colors.muted }
-    overrides.TelescopeTitle = { bg = "none", fg = colors.rose, bold = true }
-    overrides.NormalFloat = { bg = "none", fg = colors.text }
-    overrides.FloatBorder = { bg = "none", fg = colors.muted }
-    overrides.FloatTitle = { bg = "none", fg = colors.rose, bold = true }
-    overrides.Pmenu = { bg = colors.surface, fg = colors.text }
-    overrides.PmenuSel = { bg = colors.overlay, fg = colors.foam, bold = true }
-    overrides.PmenuBorder = { bg = "none", fg = colors.muted }
-    overrides.StatusLine = { bg = "none", fg = colors.text }
-    overrides.StatusLineNC = { bg = "none", fg = colors.subtle }
-    overrides.LineNr = { bg = "none", fg = colors.muted }
-    overrides.CursorLineNr = { bg = "none", fg = colors.foam, bold = true }
-    overrides.Search = { bg = colors.gold, fg = colors.base, bold = true }
-    overrides.IncSearch = { bg = colors.love, fg = colors.base, bold = true }
+    overrides.WinBar = { bg = "none", fg = colors.foam }
+    overrides.WinBarNC = { bg = "none", fg = colors.subtle }
   end
 
   local code_style = {
