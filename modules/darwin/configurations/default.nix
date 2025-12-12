@@ -4,7 +4,6 @@
     ./aerospace
     ./borders
     ./dock
-    ./docker
     ./environment
     ./finder
     ./hostname
