@@ -341,24 +341,6 @@ local function get_misc_keys()
       mods = "CTRL|SHIFT",
       action = act.ReloadConfiguration,
     },
-    {
-      key = "t",
-      mods = "CTRL|ALT",
-      action = wezterm.action_callback(function(win)
-        local overrides = win:get_config_overrides() or {}
-        local current_opacity = overrides.window_background_opacity or 1.0
-
-        if current_opacity == 1.0 then
-          overrides.window_background_opacity = 0.85
-          overrides.macos_window_background_blur = 80
-        else
-          overrides.window_background_opacity = 1.0
-          overrides.macos_window_background_blur = 0
-        end
-
-        win:set_config_overrides(overrides)
-      end),
-    },
   }
 end
 
