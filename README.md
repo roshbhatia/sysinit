@@ -114,3 +114,65 @@ task: Available tasks for this project:
 | `vet.additionalPackages` | list(string) | [] |  | Additional Vet packages |
 | `yarn.additionalPackages` | list(string) | [] |  | Additional global yarn packages |
 <!-- VALUES_SCHEMA_END -->
+
+<!-- THEME_DOCS_START -->
+
+## Available Themes
+
+The following themes are available for use in your configuration. Each theme may have multiple variants supporting different appearance modes (light/dark).
+
+| Theme | ID | Variants | Light Mode | Dark Mode | Author |
+|-------|----|---------:|:----------:|:---------:|--------|
+| Black Metal | `black-metal` | 1 (gorgoroth) | ❌ | ✅ | [metalelf0](https://github.com/metalelf0/base16-black-metal-scheme) |
+| Catppuccin | `catppuccin` | 1 (macchiato) | ❌ | ✅ | [Catppuccin](https://github.com/catppuccin/catppuccin) |
+| Everforest | `everforest` | 6 (dark-hard, dark-medium, dark-soft, light-hard, light-medium, light-soft) | ✅ | ✅ | [sainnhe](https://github.com/sainnhe/everforest) |
+| Gruvbox | `gruvbox` | 2 (dark, light) | ✅ | ✅ | [morhetz](https://github.com/morhetz/gruvbox) |
+| Kanagawa | `kanagawa` | 2 (wave, dragon) | ❌ | ✅ | [rebelot](https://github.com/rebelot/kanagawa.nvim) |
+| Nord | `nord` | 1 (dark) | ❌ | ✅ | [Arctic Ice Studio](https://www.nordtheme.com/) |
+| Rosé Pine | `rose-pine` | 1 (moon) | ❌ | ✅ | [Rosé Pine](https://github.com/rose-pine/rose-pine) |
+| Solarized | `solarized` | 2 (dark, light) | ✅ | ✅ | [Ethan Schoonover](https://ethanschoonover.com/solarized/) |
+
+### Usage
+
+To use a theme, set the following in your `values.nix`:
+
+```nix
+{
+  theme = {
+    colorscheme = "theme-id";  # Use ID from table above
+    variant = "variant-name";   # Use one of the available variants
+    appearance = "dark";        # or "light" - auto-selects appropriate variant
+  };
+}
+```
+
+### Theme Variant Selection
+
+The theme system supports both explicit variant selection and automatic appearance-based selection:
+
+- **Explicit**: Set `variant` to a specific variant name (e.g., `"macchiato"`, `"moon"`)
+- **Automatic**: Set `appearance` to `"light"` or `"dark"` and the system will choose an appropriate variant
+
+Example configurations:
+
+```nix
+# Explicit variant selection
+theme = {
+  colorscheme = "catppuccin";
+  variant = "macchiato";
+};
+
+# Automatic appearance-based selection
+theme = {
+  colorscheme = "gruvbox";
+  appearance = "dark";  # Automatically selects "dark" variant
+};
+
+# Appearance-based with variant preference
+theme = {
+  colorscheme = "everforest";
+  appearance = "dark";
+  variant = "dark-soft";  # Prefers this variant if compatible with appearance
+};
+```
+<!-- THEME_DOCS_END -->
