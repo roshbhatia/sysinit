@@ -24,7 +24,9 @@
     ./macchina
     ./neovim
     ./nushell
+    ./onepassword
     ./omp
+    ./ssh
     ./utils
     ./vivid
     ./wezterm
