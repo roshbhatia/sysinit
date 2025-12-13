@@ -1,9 +1,12 @@
 {
   values,
-  utils,
+  customUtils ? null,
   ...
 }:
 
+let
+  utils = customUtils;
+in
 {
   home-manager = {
     useGlobalPkgs = true;

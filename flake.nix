@@ -130,17 +130,16 @@
                 values
                 pkgs
                 ;
+              customUtils = utils;
             };
             modules = [
               ./modules/nixos
               home-manager.nixosModules.home-manager
               niri.nixosModules.niri
               (import ./modules/nixos/home-manager.nix {
-                inherit values utils pkgs;
+                inherit values;
+                customUtils = utils;
               })
-              {
-                _module.args.customUtils = utils;
-              }
             ];
           };
 
