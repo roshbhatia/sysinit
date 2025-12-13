@@ -131,7 +131,6 @@
                 utils
                 pkgs
                 ;
-              customUtils = utils;
             };
             modules = [
               ./modules/nixos
