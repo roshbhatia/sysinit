@@ -1,29 +1,36 @@
 {
+  config,
+  lib,
   pkgs,
   ...
 }:
 
+let
+  isDesktop = config.networking.hostName == "arrakis";
+in
 {
   programs.steam = {
-    enable = true;
-    remotePlay.openFirewall = true;
-    dedicatedServer.openFirewall = true;
-    gamescopeSession.enable = true;
+    enable = isDesktop;
+    remotePlay.openFirewall = isDesktop;
+    dedicatedServer.openFirewall = isDesktop;
+    gamescopeSession.enable = isDesktop;
   };
 
-  programs.gamemode.enable = true;
+  programs.gamemode.enable = isDesktop;
 
-  environment.systemPackages = with pkgs; [
-    goverlay
-    heroic
-    lutris
-    mangohud
-    protonup-qt
-    vkBasalt
-    vulkan-tools
-  ];
+  environment.systemPackages =
+    with pkgs;
+    lib.optionals isDesktop [
+      goverlay
+      heroic
+      lutris
+      mangohud
+      protonup-qt
+      vkBasalt
+      vulkan-tools
+    ];
 
-  hardware.steam-hardware.enable = true;
+  hardware.steam-hardware.enable = isDesktop;
 
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";
