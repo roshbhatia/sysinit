@@ -36,6 +36,16 @@
   ];
 
   services.resolved.enable = true;
+
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = true;
+      PubkeyAuthentication = true;
+      PermitRootLogin = "yes";
+    };
+  };
+
   nix = {
     settings = {
       experimental-features = [
