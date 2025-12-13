@@ -17,7 +17,11 @@ in
       inherit utils values inputs;
     };
     sharedModules = [
-      (inputs.stylix.homeManagerModules.stylix or { })
+      {
+        stylix.targets.neovim.enable = false;
+        stylix.targets.vim.enable = false;
+        stylix.targets.firefox.enable = false;
+      }
     ];
 
     users.${values.user.username} =

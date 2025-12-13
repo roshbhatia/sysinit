@@ -1,19 +1,11 @@
 {
-  values,
-  utils,
   ...
 }:
 
-let
-  inherit (utils.theme) getAppTheme;
-
-  helixTheme = getAppTheme "helix" values.theme.colorscheme values.theme.variant;
-in
 {
   programs.helix = {
     enable = true;
     settings = {
-      theme = helixTheme;
 
       editor = {
         line-number = "relative";

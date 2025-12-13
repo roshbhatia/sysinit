@@ -12,6 +12,13 @@
     extraSpecialArgs = {
       inherit utils values;
     };
+    sharedModules = [
+      {
+        stylix.targets.neovim.enable = false;
+        stylix.targets.vim.enable = false;
+        stylix.targets.firefox.enable = false;
+      }
+    ];
 
     users.${values.user.username} =
       {

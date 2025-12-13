@@ -13,6 +13,7 @@
     ./op
     ./security
     ./sketchybar
+    ./stylix
     ./system
     ./tailscale
     ./user

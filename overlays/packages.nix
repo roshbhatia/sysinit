@@ -42,8 +42,4 @@ in
   inherit (stable) awscli2;
   inherit (stable) fish;
   inherit (stable) ollama;
-
-  niri = _prev.niri.overrideAttrs (_: {
-    doCheck = false;
-  });
 }

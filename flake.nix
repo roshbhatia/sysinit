@@ -16,7 +16,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
-    niri.url = "github:sodiboo/niri-flake/30374d29ee04aca07f0384c2c664dea9487c0feb";
+    niri = {
+      url = "github:sodiboo/niri-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     stylix = {
       url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -117,7 +120,7 @@
                 inherit values utils pkgs;
               })
               home-manager.darwinModules.home-manager
-              stylix.homeManagerModules.stylix
+              stylix.darwinModules.stylix
               nix-homebrew.darwinModules.nix-homebrew
               mac-app-util.darwinModules.default
               {

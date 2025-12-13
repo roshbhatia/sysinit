@@ -1,104 +1,87 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-log_info() { echo -e "\033[0;34m[INFO]\033[0m $*"; }
-log_warn() { echo -e "\033[1;33m[WARN]\033[0m $*" >&2; }
 log_error() { echo -e "\033[1;31m[ERROR]\033[0m $*" >&2; }
-log_success() { echo -e "\033[0;32m[SUCCESS]\033[0m $*"; }
+log_success() { echo -e "\033[0;32m[OK]\033[0m $*"; }
 
-# Prevent git operations as root (unless via sudo -u)
 if [ "$(id -u)" -eq 0 ] && [ -z "${SUDO_USER:-}" ]; then
   log_error "Git operations should not run as root"
-  log_error "This prevents .git ownership issues"
-  log_error "Please run git commands as your normal user"
   exit 1
 fi
 
-check_command() {
-  command -v "$1" >/dev/null 2>&1
-}
+check_command() { command -v "$1" >/dev/null 2>&1; }
 
-if ! check_command "task"; then
-  log_warn "task not found, skipping hooks"
-  exit 0
-fi
-
-for cmd in "nixfmt" "stylua" "deadnix" "statix"; do
+for cmd in "task" "nixfmt" "stylua" "deadnix" "statix" "nix"; do
   if ! check_command "$cmd"; then
-    log_warn "$cmd not found, skipping hooks"
+    echo "Skipping hooks: $cmd not found"
     exit 0
   fi
 done
 
-# Track if we need to re-stage files
 files_modified=0
-
-log_info "Checking for dead Nix code..."
-# Get all staged .nix files
 staged_nix_files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.nix$' || true)
-if [ -n "$staged_nix_files" ]; then
-  # Run deadnix on each file individually
-  while IFS= read -r file; do
-    if [ -f "$file" ]; then
-      deadnix --edit "$file" || true
-    fi
-  done <<<"$staged_nix_files"
 
-  # Check if deadnix modified any files
-  if ! git diff --quiet --exit-code -- $staged_nix_files; then
-    log_info "deadnix removed dead code from staged files"
+# Validate flake evaluates (critical - blocks commit)
+# Only check darwin on macOS, nixos on Linux
+echo -n "Validating nix flake... "
+if [[ "$(uname)" == "Darwin" ]]; then
+  if ! nix build .#darwinConfigurations.lv426.system --dry-run 2>/dev/null; then
+    log_error "Darwin config failed - fix errors before committing"
+    exit 1
+  fi
+else
+  if ! nix build .#nixosConfigurations.arrakis.config.system.build.toplevel --dry-run 2>/dev/null; then
+    log_error "NixOS config failed - fix errors before committing"
+    exit 1
+  fi
+fi
+log_success "flake valid"
+
+# Dead code removal
+if [ -n "$staged_nix_files" ]; then
+  echo -n "Removing dead nix code... "
+  while IFS= read -r file; do
+    [ -f "$file" ] && deadnix --edit "$file" 2>/dev/null || true
+  done <<<"$staged_nix_files"
+  if ! git diff --quiet --exit-code -- $staged_nix_files 2>/dev/null; then
     files_modified=1
   fi
+  log_success "done"
 fi
 
-log_info "Linting Nix files..."
-if [ -n "$staged_nix_files" ]; then
-  # statix check only on staged files
-  statix_output=$(statix check $staged_nix_files 2>&1 || true)
-  if echo "$statix_output" | grep -q "^\["; then
-    log_warn "statix found linting issues (non-blocking):"
-    echo "$statix_output" | grep "^\["
-  fi
-fi
-
-log_info "Running formatting tasks..."
-task fmt sh:chmod
-
-# Check if formatting changed any staged files
+# Formatting
+echo -n "Formatting... "
+task fmt sh:chmod >/dev/null 2>&1
 staged_files=$(git diff --cached --name-only --diff-filter=ACM)
 if [ -n "$staged_files" ]; then
   for file in $staged_files; do
-    if [ -f "$file" ] && ! git diff --quiet -- "$file"; then
+    if [ -f "$file" ] && ! git diff --quiet -- "$file" 2>/dev/null; then
       files_modified=1
       break
     fi
   done
 fi
+log_success "done"
 
-log_info "Regenerating values.nix docs..."
-task docs:values
-
-# Check if docs were modified
+# Docs regeneration
+echo -n "Updating docs... "
+task docs:values >/dev/null 2>&1
 if ! git diff --quiet README.md 2>/dev/null; then
-  log_info "README.md was updated with new values.nix documentation"
   files_modified=1
 fi
+log_success "done"
 
-log_info "Checking for root-owned files..."
+# Root-owned files check
 root_files=$(find . -path ./.git -prune -o -user root -print 2>/dev/null || true)
 if [ -n "$root_files" ]; then
-  log_error "Found root-owned files in repository:"
-  echo "$root_files"
-  log_error "Please fix ownership before committing"
-  log_error "Run: sudo chown -R \$USER:\$(id -gn) ."
+  log_error "Found root-owned files - run: sudo chown -R \$USER:\$(id -gn) ."
   exit 1
 fi
 
-# If files were modified, re-stage them
+# Re-stage if needed
 if [ "$files_modified" -eq 1 ]; then
-  log_info "Re-staging modified files..."
   git add -u
-  log_success "Pre-commit checks completed - files were formatted and re-staged"
+  log_success "Pre-commit complete (files reformatted)"
 else
-  log_success "Pre-commit checks passed!"
+  log_success "Pre-commit complete"
 fi

@@ -1,29 +1,8 @@
 {
-  lib,
   pkgs,
-  values,
-  utils,
   ...
 }:
 
-let
-  inherit (utils.theme) getThemePalette;
-
-  palette = getThemePalette values.theme.colorscheme values.theme.variant;
-  semanticColors = utils.theme.utils.createSemanticMapping palette;
-
-  fg = lib.removePrefix "#" semanticColors.foreground.primary;
-  bg = lib.removePrefix "#" semanticColors.background.primary;
-  hl = lib.removePrefix "#" (palette.magenta or semanticColors.accent.primary);
-  hlPlus = lib.removePrefix "#" (palette.cyan or semanticColors.accent.secondary);
-  info = lib.removePrefix "#" (palette.blue or semanticColors.semantic.info);
-  marker = lib.removePrefix "#" (palette.green or semanticColors.semantic.success);
-  prompt = lib.removePrefix "#" (palette.cyan or semanticColors.accent.secondary);
-  spinner = lib.removePrefix "#" (palette.green or semanticColors.semantic.success);
-  pointer = lib.removePrefix "#" (palette.cyan or semanticColors.accent.secondary);
-  header = lib.removePrefix "#" (palette.green or semanticColors.semantic.success);
-  border = lib.removePrefix "#" (palette.cyan or semanticColors.accent.secondary);
-in
 {
   programs.fzf = {
     enable = true;
@@ -46,10 +25,6 @@ in
       "--bind=ctrl-b:page-up"
       "--bind=ctrl-a:select-all"
       "--bind=ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort"
-      "--color=fg:${fg},bg:${bg},hl:${hl}"
-      "--color=fg+:${fg},bg+:${bg},hl+:${hlPlus}"
-      "--color=info:${info},marker:${marker},prompt:${prompt},spinner:${spinner}"
-      "--color=pointer:${pointer},header:${header},gutter:${bg},border:${border}"
     ];
 
     fileWidgetOptions = [

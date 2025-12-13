@@ -1,20 +1,7 @@
 {
-  lib,
-  values,
   ...
 }:
 
-let
-  themes = import ../../../shared/lib/theme { inherit lib; };
-
-  validatedTheme = values.theme;
-  theme = themes.getTheme validatedTheme.colorscheme;
-
-  k9sAdapter = themes.adapters.k9s;
-  k9sThemeConfig = k9sAdapter.createK9sTheme theme validatedTheme;
-
-  themeName = "${validatedTheme.colorscheme}-${validatedTheme.variant}";
-in
 {
   programs.k9s = {
     enable = true;
@@ -34,7 +21,6 @@ in
           noIcons = true;
           reactive = true;
           defaultsToFullScreen = true;
-          skin = themeName;
         };
         noIcons = false;
         skipLatestRevCheck = true;
@@ -70,10 +56,5 @@ in
       np = "networkpolicies";
       app = "applications";
     };
-  };
-
-  xdg.configFile."k9s/skins/${themeName}.yaml" = {
-    text = k9sThemeConfig.themeYaml;
-    force = true;
   };
 }

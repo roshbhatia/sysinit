@@ -24,7 +24,7 @@ let
   batAdapter = import ./adapters/bat.nix { inherit lib; };
   atuinAdapter = import ./adapters/atuin.nix { inherit lib; };
   waybarAdapter = import ./adapters/waybar.nix { inherit lib; };
-  hyprlandAdapter = import ./adapters/hyprland.nix { inherit lib; };
+
   niriAdapter = import ./adapters/niri.nix { inherit lib; };
 
   themes = {
@@ -364,7 +364,7 @@ in
     bat = batAdapter;
     atuin = atuinAdapter;
     waybar = waybarAdapter;
-    hyprland = hyprlandAdapter;
+
     niri = niriAdapter;
   };
 }
