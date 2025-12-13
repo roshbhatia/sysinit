@@ -16,7 +16,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
-    niri.url = "github:sodiboo/niri-flake/b0ebfba3a0774cc0b3f3b9a345ebad57de04b666";
+    niri.url = "github:sodiboo/niri-flake/30374d29ee04aca07f0384c2c664dea9487c0feb";
     stylix = {
       url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
