@@ -1,19 +1,7 @@
 {
-  values,
-  utils,
   ...
 }:
 
-let
-  themes = utils.theme;
-  theme = values.theme;
-
-  validatedTheme = values.theme theme;
-  themeObj = themes.getTheme validatedTheme.colorscheme;
-
-  waybarAdapter = themes.adapters.waybar;
-  waybarThemeConfig = waybarAdapter.createWaybarTheme themeObj validatedTheme;
-in
 {
   programs.waybar = {
     enable = true;
@@ -102,6 +90,30 @@ in
       };
     };
 
-    style = waybarThemeConfig.themeCSS;
+    style = ''
+      * {
+        all: unset;
+        font-family: "JetBrains Mono";
+        font-size: 12px;
+        color: #cdd6f4;
+        background-color: #1e1e2e;
+      }
+
+      window#waybar {
+        background-color: #1e1e2e;
+        border-bottom: 1px solid #45475a;
+      }
+
+      #workspaces button {
+        padding: 5px 10px;
+        margin: 5px 2px;
+        border-radius: 5px;
+      }
+
+      #workspaces button.active {
+        background-color: #89b4fa;
+        color: #1e1e2e;
+      }
+    '';
   };
 }
