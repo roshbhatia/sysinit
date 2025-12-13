@@ -128,7 +128,6 @@
               inherit
                 inputs
                 values
-                utils
                 pkgs
                 ;
             };
@@ -139,6 +138,9 @@
               (import ./modules/nixos/home-manager.nix {
                 inherit values utils pkgs;
               })
+              {
+                _module.args.customUtils = utils;
+              }
             ];
           };
 
