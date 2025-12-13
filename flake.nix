@@ -36,6 +36,7 @@
       home-manager,
       nix-homebrew,
       niri,
+      stylix,
       mac-app-util,
       ...
     }:
@@ -116,6 +117,7 @@
                 inherit values utils pkgs;
               })
               home-manager.darwinModules.home-manager
+              stylix.homeManagerModules.stylix
               nix-homebrew.darwinModules.nix-homebrew
               mac-app-util.darwinModules.default
               {
@@ -140,9 +142,10 @@
             modules = [
               ./modules/nixos
               home-manager.nixosModules.home-manager
+              stylix.nixosModules.stylix
               niri.nixosModules.niri
               (import ./modules/nixos/home-manager.nix {
-                inherit values;
+                inherit values inputs;
                 customUtils = utils;
               })
             ];

@@ -1,6 +1,7 @@
 {
   values,
   customUtils ? null,
+  inputs ? { },
   ...
 }:
 
@@ -13,8 +14,11 @@ in
     useUserPackages = true;
     backupFileExtension = "backup";
     extraSpecialArgs = {
-      inherit utils values;
+      inherit utils values inputs;
     };
+    sharedModules = [
+      (inputs.stylix.homeManagerModules.stylix or { })
+    ];
 
     users.${values.user.username} =
       {
