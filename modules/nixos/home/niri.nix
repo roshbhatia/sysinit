@@ -1,18 +1,7 @@
 {
-  values,
-  utils,
   ...
 }:
 
-let
-  themes = utils.theme;
-  theme = values.theme;
-
-  themeObj = themes.getTheme theme.colorscheme;
-
-  niriAdapter = themes.adapters.niri;
-  niriThemeConfig = niriAdapter.createNiriTheme themeObj validatedTheme;
-in
 {
   programs.niri.settings = {
     input = {
@@ -29,14 +18,14 @@ in
 
       border = {
         width = 2;
-        active.color = niriThemeConfig.niriColors.activeBorder;
-        inactive.color = niriThemeConfig.niriColors.inactiveBorder;
+        active.color = "#7f7f7f";
+        inactive.color = "#3f3f3f";
       };
 
       focus-ring = {
         width = 2;
-        active.color = niriThemeConfig.niriColors.activeBorder;
-        inactive.color = niriThemeConfig.niriColors.inactiveBorder;
+        active.color = "#7f7f7f";
+        inactive.color = "#3f3f3f";
       };
     };
 
