@@ -166,7 +166,10 @@ M.plugins = {
       })
       vim.ui.input = Snacks.input
       vim.notify = function(msg, level, opts)
-        if type(msg) == "string" and (msg:find("^Reloaded %d+ file") or msg:find("failed to run generator")) then
+        if
+          type(msg) == "string"
+          and (msg:find("^Reloaded %d+ file") or msg:find("failed to run generator"))
+        then
           return
         end
         return Snacks.notifier.notify(msg, level, opts or {})
