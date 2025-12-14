@@ -45,6 +45,7 @@
       niri,
       stylix,
       mac-app-util,
+      onepassword-shell-plugins,
       ...
     }:
     let
@@ -131,6 +132,7 @@
                 _module.args.utils = utils;
                 home-manager.sharedModules = [
                   mac-app-util.homeManagerModules.default
+                  onepassword-shell-plugins.hmModules.default
                 ];
               }
             ];

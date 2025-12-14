@@ -23,20 +23,16 @@ in
       _1password
     ];
 
-  # Initialize 1Password shell plugins
-  programs.bash.initExtra = ''
-    # 1Password shell integration
-    if command -v op &> /dev/null; then
-      eval "$(op shell-plugins init --shell bash 2>/dev/null)" || true
-    fi
-  '';
-
-  programs.zsh.initExtra = ''
-    # 1Password shell integration
-    if command -v op &> /dev/null; then
-      eval "$(op shell-plugins init --shell zsh 2>/dev/null)" || true
-    fi
-  '';
+  # Configure 1Password shell plugins using the home-manager module
+  # This automatically integrates 1Password shell plugins for bash, zsh, and fish
+  programs._1password-shell-plugins = {
+    enable = true;
+    # Specify which tools should use 1Password shell plugins
+    plugins = with pkgs; [
+      gh
+      awscli2
+    ];
+  };
 
   # SSH agent configuration for 1Password
   # On macOS, 1Password Desktop handles SSH agent
