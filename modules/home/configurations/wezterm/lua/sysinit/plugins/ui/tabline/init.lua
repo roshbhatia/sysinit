@@ -57,7 +57,7 @@ function M.setup(config)
       tabline_a = {
         {
           "mode",
-          icon = "  ",
+          icon = "  ",
           padding = { left = 1, right = 1 },
         },
       },
@@ -80,6 +80,7 @@ function M.setup(config)
           "cwd",
           padding = { left = 0, right = 1 },
         },
+        { "zoomed", padding = { left = 1, right = 1 } },
       },
       tab_inactive = {
         {
@@ -102,6 +103,14 @@ function M.setup(config)
   })
 
   tabline.apply_to_config(config)
+
+  -- Mouse bindings for tab management
+  config.mouse_bindings = config.mouse_bindings or {}
+  table.insert(config.mouse_bindings, {
+    event = { Down = { streak = 1, button = "Right" } },
+    mods = "NONE",
+    action = wezterm.action.CloseCurrentTab({ confirm = false }),
+  })
 end
 
 return M
