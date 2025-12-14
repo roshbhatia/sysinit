@@ -110,3 +110,37 @@ tasks:
           exit {{.ERROR_EXIT_CODE}}
         fi
     silent: true
+
+  remote:build:
+    desc: "Build NixOS configuration on remote host (usage: task remote:build -- arrakis)"
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+        HOSTNAME="${1:-arrakis}"
+        
+        log_info "Building configuration on $HOSTNAME..."
+        git pull
+        git push
+        
+        ssh -t "rshnbhatia@${HOSTNAME}" "cd /home/rshnbhatia/sysinit && git pull && nix flake update && nix build '.#nixosConfigurations.${HOSTNAME}.config.system.build.toplevel'"
+        log_success "Build complete on $HOSTNAME"
+    silent: true
+
+  remote:switch:
+    desc: "Apply NixOS configuration on remote host (usage: task remote:switch -- arrakis)"
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+        HOSTNAME="${1:-arrakis}"
+        
+        log_info "Applying configuration on $HOSTNAME..."
+        git pull
+        git push
+        
+        ssh -t "rshnbhatia@${HOSTNAME}" "cd /home/rshnbhatia/sysinit && git pull && nix flake update && sudo nixos-rebuild switch --flake '.#${HOSTNAME}'"
+        log_success "Configuration applied on $HOSTNAME"
+    silent: true
