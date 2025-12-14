@@ -27,50 +27,14 @@ git push
 echo ""
 echo "🚀 Rebuilding on $HOSTNAME..."
 
-REBUILD_CMD=$(
-  cat << 'EOFCMD'
-set -euo pipefail
-cd /home/rshnbhatia/sysinit || cd /root/sysinit
-
-echo "📥 Pulling latest from git..."
-git pull
-
-echo "🔄 Updating flake inputs..."
-nix flake update
-
-ACTION="$ACTION_VAR"
+# Build the command as a single string to pass to SSH
 if [ "$ACTION" = "build" ]; then
-    echo "🏗️  Building configuration (no activation)..."
-    nix build ".#nixosConfigurations.$HOSTNAME_VAR.config.system.build.toplevel"
+  REBUILD_CMD="cd /home/rshnbhatia/sysinit && git pull && nix flake update && nix build '.#nixosConfigurations.${HOSTNAME}.config.system.build.toplevel'"
 else
-    echo "🚀 Building and applying configuration..."
-    sudo nixos-rebuild switch --flake ".#$HOSTNAME_VAR"
+  REBUILD_CMD="cd /home/rshnbhatia/sysinit && git pull && nix flake update && sudo nixos-rebuild switch --flake '.#${HOSTNAME}'"
 fi
 
-echo "✅ Done!"
-EOFCMD
-)
-
-ssh "rshnbhatia@${HOSTNAME}" "ACTION_VAR='$ACTION' HOSTNAME_VAR='$HOSTNAME' bash -s" << 'EOFCMD'
-set -euo pipefail
-cd /home/rshnbhatia/sysinit || cd /root/sysinit
-
-echo "📥 Pulling latest from git..."
-git pull
-
-echo "🔄 Updating flake inputs..."
-nix flake update
-
-if [ "$ACTION_VAR" = "build" ]; then
-    echo "🏗️  Building configuration (no activation)..."
-    nix build ".#nixosConfigurations.$HOSTNAME_VAR.config.system.build.toplevel"
-else
-    echo "🚀 Building and applying configuration..."
-    sudo nixos-rebuild switch --flake ".#$HOSTNAME_VAR"
-fi
-
-echo "✅ Done!"
-EOFCMD
+ssh "rshnbhatia@${HOSTNAME}" "$REBUILD_CMD"
 
 echo ""
 echo "✅ Remote rebuild complete!"
