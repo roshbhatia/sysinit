@@ -21,6 +21,10 @@ in
         stylix.targets.neovim.enable = false;
         stylix.targets.vim.enable = false;
         stylix.targets.firefox.enable = false;
+        stylix.targets.mako.enable = false;
+        stylix.targets.foot.enable = false;
+        stylix.targets.waybar.enable = false;
+        stylix.targets.wofi.enable = false;
       }
     ];
 

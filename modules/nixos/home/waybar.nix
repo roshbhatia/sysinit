@@ -1,15 +1,23 @@
 {
+  lib,
+  values,
   ...
 }:
 
+let
+  themes = import ../../shared/lib/theme { inherit lib; };
+  theme = themes.getTheme values.theme.colorscheme;
+  waybarTheme = themes.adapters.waybar.createWaybarTheme theme values.theme;
+in
 {
   programs.waybar = {
     enable = true;
 
     settings = {
       mainBar = {
+        layer = "top";
         position = "top";
-        height = 40;
+        height = 36;
         spacing = 4;
 
         modules-left = [
@@ -27,6 +35,7 @@
           "memory"
           "temperature"
           "pulseaudio"
+          "network"
         ];
 
         "niri/workspaces" = {
@@ -42,7 +51,6 @@
         clock = {
           format = "{:%H:%M   %a %b %d}";
           format-alt = "{:%Y-%m-%d}";
-          on-click-right = "timedatectl set-ntp true";
           tooltip-format = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
         };
 
@@ -66,7 +74,6 @@
         temperature = {
           format = "󰔏 {temperatureC}°C";
           thermal-zone = 0;
-          hwmon-path = "/sys/class/hwmon/hwmon0/temp1_input";
           critical-threshold = 80;
           format-critical = "󰸌 {temperatureC}°C";
         };
@@ -87,33 +94,17 @@
           scroll-step = 1;
           on-click = "pavucontrol";
         };
+
+        network = {
+          format-wifi = "󰤨 {signalStrength}%";
+          format-ethernet = "󰈀";
+          format-disconnected = "󰤭";
+          tooltip-format = "{ifname}: {ipaddr}/{cidr}";
+          on-click = "nm-connection-editor";
+        };
       };
     };
 
-    style = ''
-      * {
-        all: unset;
-        font-family: "JetBrains Mono";
-        font-size: 12px;
-        color: #cdd6f4;
-        background-color: #1e1e2e;
-      }
-
-      window#waybar {
-        background-color: #1e1e2e;
-        border-bottom: 1px solid #45475a;
-      }
-
-      #workspaces button {
-        padding: 5px 10px;
-        margin: 5px 2px;
-        border-radius: 5px;
-      }
-
-      #workspaces button.active {
-        background-color: #89b4fa;
-        color: #1e1e2e;
-      }
-    '';
+    style = waybarTheme.themeCSS;
   };
 }

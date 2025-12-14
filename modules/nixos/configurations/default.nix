@@ -8,6 +8,7 @@
     ./audio.nix
     ./gaming.nix
     ./shell.nix
+    ./ssh.nix
     ./stylix
   ];
 }
