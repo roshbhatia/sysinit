@@ -149,8 +149,8 @@
             alt-cmd-k = "move up";
             alt-cmd-l = "move right";
 
-            alt-shift-h = "resize smart -72";
-            alt-shift-l = "resize smart +72";
+            alt-shift-j = "resize smart -72";
+            alt-shift-k = "resize smart +72";
 
             alt-1 = "workspace 1";
             alt-2 = "workspace 2";
