@@ -11,36 +11,11 @@ let
   paths_lib = import ../../../shared/lib/paths { inherit config lib; };
 
   validatedTheme = values.theme;
-  palette = themes.getThemePalette validatedTheme.colorscheme validatedTheme.variant;
-  colors = themes.getUnifiedColors palette;
 
   appTheme = themes.getAppTheme "vivid" validatedTheme.colorscheme validatedTheme.variant;
   sharedAliases = shell.aliases;
 
   pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;
-
-  fzfOpts = builtins.concatStringsSep " " [
-    "--bind='resize:refresh-preview'"
-    "--color=bg+:-1,bg:-1,spinner:${colors.accent.primary},hl:${colors.accent.primary}"
-    "--color=border:${colors.background.overlay},label:${colors.foreground.primary}"
-    "--color=fg:${colors.foreground.primary},header:${colors.accent.primary},info:${colors.foreground.muted},pointer:${colors.accent.primary}"
-    "--color=marker:${colors.accent.primary},fg+:${colors.foreground.primary},prompt:${colors.accent.primary},hl+:${colors.accent.primary}"
-    "--color=preview-bg:-1,query:${colors.foreground.primary}"
-    "--cycle"
-    "--height=30"
-    "--highlight-line"
-    "--ignore-case"
-    "--info=inline"
-    "--input-border=rounded"
-    "--layout=reverse"
-    "--list-border=rounded"
-    "--no-scrollbar"
-    "--pointer='>'"
-    "--preview-border=rounded"
-    "--prompt='>> '"
-    "--scheme='history'"
-    "--style='minimal'"
-  ];
 
   nushellBuiltins = [
     "find"
@@ -164,7 +139,6 @@ in
       $env.GIT_DISCOVERY_ACROSS_FILESYSTEM = "1"
       $env.COLIMA_HOME = "${config.xdg.configHome}/colima"
       $env.FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules"
-      $env.FZF_DEFAULT_OPTS = "${fzfOpts}"
       $env.VIVID_THEME = "${appTheme}"
       $env.ZK_NOTEBOOK_DIR = "${config.home.homeDirectory}/github/personal/roshbhatia/zeek/notes"
 
