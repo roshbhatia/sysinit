@@ -20,14 +20,7 @@ M.plugins = {
           enabled = true,
         },
         lazygit = {
-          configure = false,
-          enabled = true,
-          win = {
-            border = "none",
-            wo = {
-              winblend = 0,
-            },
-          },
+          enabled = false,
         },
         notifier = {
           enabled = true,
@@ -211,13 +204,6 @@ M.plugins = {
 
       local default_keys = {
         {
-          "<leader>gg",
-          function()
-            Snacks.lazygit()
-          end,
-          desc = "Toggle lazygit (floating)",
-        },
-        {
           "<leader>ns",
           function()
             Snacks.notifier.show_history()
@@ -253,7 +239,7 @@ M.plugins = {
               },
             })
           end,
-          desc = "Toggle GitHub CLI (floating)",
+          desc = "GitHub: Toggle",
         },
       }
       for _, key in ipairs(ai_keys) do
