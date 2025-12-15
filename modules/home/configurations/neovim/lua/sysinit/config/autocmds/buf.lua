@@ -9,11 +9,12 @@ function M.setup()
       local ft = vim.api.nvim_get_option_value("filetype", { buf = buf })
 
       local special_filetypes = {
+        "NeogitCommitView",
+        "help",
         "oil",
         "oil_preview",
         "opencode",
         "quickfix",
-        "help",
       }
 
       local should_disable = config.relative ~= "" or vim.tbl_contains(special_filetypes, ft)
