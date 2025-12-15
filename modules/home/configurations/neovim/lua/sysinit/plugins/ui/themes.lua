@@ -26,7 +26,7 @@ local function get_common_styles()
 end
 
 local function get_catppuccin_config()
-  local c = theme_config.colors
+  local c = theme_config.semanticColors
   local p = theme_config.palette
 
   return {
@@ -113,7 +113,7 @@ local function get_catppuccin_config()
 end
 
 local function get_gruvbox_config()
-  local c = theme_config.colors
+  local c = theme_config.semanticColors
   local overrides = {}
 
   overrides.Pmenu = { bg = c.background.secondary, fg = c.foreground.primary }
@@ -156,7 +156,7 @@ local function get_gruvbox_config()
 end
 
 local function get_solarized_config()
-  local c = theme_config.colors
+  local c = theme_config.semanticColors
 
   return {
     transparent = true,
@@ -205,8 +205,7 @@ local function get_rose_pine_config()
     variables = "none",
   }
 
-  local plugin_config = theme_config.plugins[theme_config.colorscheme]
-  local colorscheme = plugin_config and plugin_config.colorscheme or theme_config.colorscheme
+  local colorscheme = theme_config.theme_colorscheme or theme_config.colorscheme
 
   return {
     theme = colorscheme,
@@ -220,7 +219,7 @@ local function get_rose_pine_config()
 end
 
 local function get_kanagawa_config()
-  local c = theme_config.colors
+  local c = theme_config.semanticColors
   local overrides = {}
 
   overrides.WinBar = { bg = "none", fg = c.foreground.primary }
@@ -252,8 +251,7 @@ local function get_kanagawa_config()
     variables = "none",
   }
 
-  local plugin_config = theme_config.plugins[theme_config.colorscheme]
-  local colorscheme = plugin_config and plugin_config.colorscheme or theme_config.colorscheme
+  local colorscheme = theme_config.theme_colorscheme or theme_config.colorscheme
 
   return {
     theme = colorscheme,
@@ -268,7 +266,7 @@ local function get_kanagawa_config()
 end
 
 local function get_nightfox_config()
-  local c = theme_config.colors
+  local c = theme_config.semanticColors
 
   return {
     options = {
@@ -394,7 +392,7 @@ local function get_everforest_config()
 end
 
 local function apply_post_colorscheme_overrides(base_scheme)
-  local c = theme_config.colors
+  local c = theme_config.semanticColors
   local overrides = highlight_gen.generate_core_highlights(c, theme_config.transparency)
 
   overrides.CursorLineNr = { bg = "NONE", fg = c.ui.line_number_active, bold = true }
@@ -464,8 +462,7 @@ local THEME_CONFIGS = {
 }
 
 local function setup_theme()
-  local plugin_config = theme_config.plugins[theme_config.colorscheme]
-  local base_scheme = plugin_config.base_scheme or theme_config.colorscheme
+  local base_scheme = theme_config.colorscheme
 
   local theme_cfg = THEME_CONFIGS[base_scheme]
   if theme_cfg then
@@ -475,12 +472,12 @@ local function setup_theme()
     end
   end
 
-  vim.cmd("colorscheme " .. plugin_config.colorscheme)
+  vim.cmd("colorscheme " .. theme_config.theme_colorscheme)
 
   apply_post_colorscheme_overrides(base_scheme)
 
   vim.api.nvim_create_autocmd({ "ColorScheme", "CmdLineEnter" }, {
-    pattern = plugin_config.colorscheme,
+    pattern = theme_config.theme_colorscheme,
     callback = function()
       apply_post_colorscheme_overrides(base_scheme)
     end,
@@ -489,8 +486,8 @@ end
 
 M.plugins = {
   {
-    theme_config.plugins[theme_config.colorscheme].plugin,
-    name = theme_config.plugins[theme_config.colorscheme].name,
+    theme_config.plugin,
+    name = theme_config.name,
     lazy = false,
     priority = 1000,
     config = setup_theme,
