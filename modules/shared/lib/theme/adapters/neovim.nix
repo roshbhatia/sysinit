@@ -119,6 +119,7 @@ with lib;
           inherit (pluginInfo) name;
           inherit (pluginInfo) setup;
           inherit colorscheme;
+          base_scheme = themeData.meta.id;
         };
 
         inherit palette;

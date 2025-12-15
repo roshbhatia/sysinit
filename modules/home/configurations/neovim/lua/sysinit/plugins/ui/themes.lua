@@ -1,3 +1,6 @@
+-- modules/home/configurations/neovim/lua/sysinit/plugins/ui/themes.lua
+-- Purpose: Theme configuration using shared theme system (no hardcoded colors)
+
 local json_loader = require("sysinit.utils.json_loader")
 local highlight_gen = require("sysinit.utils.highlight_generator")
 local theme_config =
@@ -5,7 +8,27 @@ local theme_config =
 
 local M = {}
 
+local function get_common_styles()
+  return {
+    comments = { "italic" },
+    conditionals = { "italic" },
+    loops = { "bold" },
+    functions = { "bold" },
+    keywords = { "bold" },
+    strings = { "italic" },
+    variables = {},
+    numbers = { "bold" },
+    booleans = { "bold", "italic" },
+    properties = { "italic" },
+    types = { "bold" },
+    operators = { "bold" },
+  }
+end
+
 local function get_catppuccin_config()
+  local c = theme_config.colors
+  local p = theme_config.palette
+
   return {
     flavour = theme_config.variant,
     show_end_of_buffer = false,
@@ -14,66 +37,48 @@ local function get_catppuccin_config()
       transparent = true,
       solid = false,
     },
-    styles = {
-      comments = { "italic" },
-      conditionals = { "italic" },
-      loops = { "bold" },
-      functions = { "bold" },
-      keywords = { "bold" },
-      strings = {},
-      variables = {},
-      numbers = { "bold" },
-      booleans = { "bold", "italic" },
-      properties = {},
-      types = { "bold" },
-      operators = { "bold" },
-    },
-    color_overrides = {
-      [theme_config.variant] = {
-        base = "#1e1e2e",
-        mantle = "#181825",
-        crust = "#11111b",
-        blue = "#7287c7",
-        green = "#9cb380",
-        yellow = "#d4c481",
-        red = "#d67b7b",
-        pink = "#d19bc4",
-        teal = "#7fb3aa",
-        lavender = "#9da3d4",
-        peach = "#c7a584",
-        mauve = "#b39bc7",
-      },
-    },
+    styles = get_common_styles(),
+    color_overrides = {},
     highlight_overrides = {
       [theme_config.variant] = function(colors)
         local overrides = {}
 
-        overrides.CursorLineNr = { fg = colors.lavender, style = { "bold" } }
-        overrides.LineNr = { fg = colors.overlay1 }
-        overrides.Search = { bg = colors.yellow, fg = colors.base, style = { "bold" } }
-        overrides.IncSearch = { bg = colors.red, fg = colors.base, style = { "bold" } }
-        overrides.PmenuSel = { bg = colors.surface0, fg = colors.lavender, style = { "bold" } }
-        overrides.PmenuBorder = { fg = colors.lavender }
-        overrides.FloatBorder = { fg = colors.lavender }
-        overrides.FloatTitle = { fg = colors.pink, style = { "bold" } }
-        overrides.TelescopeBorder = { fg = colors.blue }
-        overrides.TelescopeSelection =
-          { bg = colors.surface0, fg = colors.lavender, style = { "bold" } }
-        overrides.TelescopeTitle = { fg = colors.pink, style = { "bold" } }
-        overrides.WhichKeyBorder = { fg = colors.lavender }
-        overrides.DiagnosticError = { fg = colors.red, style = { "bold" } }
-        overrides.DiagnosticWarn = { fg = colors.yellow, style = { "bold" } }
-        overrides.DiagnosticInfo = { fg = colors.blue, style = { "bold" } }
-        overrides.DiagnosticHint = { fg = colors.teal, style = { "bold" } }
-        overrides.WinSeparator = { fg = colors.blue, style = { "bold" } }
+        overrides.CursorLineNr = { fg = c.accent.primary, style = { "bold" } }
+        overrides.LineNr = { fg = c.ui.line_number }
+        overrides.Search =
+          { bg = c.semantic.warning, fg = c.background.primary, style = { "bold" } }
+        overrides.IncSearch =
+          { bg = c.semantic.error, fg = c.background.primary, style = { "bold" } }
+        overrides.PmenuSel = {
+          bg = c.plugins.completion.selection_bg,
+          fg = c.plugins.completion.selection_fg,
+          style = { "bold" },
+        }
+        overrides.PmenuBorder = { fg = c.plugins.completion.border }
+        overrides.FloatBorder = { fg = c.plugins.window.float_border }
+        overrides.FloatTitle = { fg = c.plugins.window.float_title, style = { "bold" } }
+        overrides.TelescopeBorder = { fg = c.plugins.telescope.border }
+        overrides.TelescopeSelection = {
+          bg = c.plugins.telescope.selection_bg,
+          fg = c.plugins.telescope.selection_fg,
+          style = { "bold" },
+        }
+        overrides.TelescopeTitle = { fg = c.plugins.telescope.title, style = { "bold" } }
+        overrides.WhichKeyBorder = { fg = c.plugins.window.border }
+        overrides.DiagnosticError = { fg = c.semantic.error, style = { "bold" } }
+        overrides.DiagnosticWarn = { fg = c.semantic.warning, style = { "bold" } }
+        overrides.DiagnosticInfo = { fg = c.semantic.info, style = { "bold" } }
+        overrides.DiagnosticHint = { fg = c.semantic.info, style = { "bold" } }
+        overrides.WinSeparator = { fg = c.plugins.window.separator, style = { "bold" } }
 
-        overrides.WildMenu = { fg = colors.base, bg = colors.pink, style = { "bold" } }
-        overrides.WilderWildmenuAccent = { fg = colors.pink, style = { "bold" } }
+        overrides.WildMenu =
+          { fg = c.background.primary, bg = c.accent.primary, style = { "bold" } }
+        overrides.WilderWildmenuAccent = { fg = c.accent.primary, style = { "bold" } }
         overrides.WilderWildmenuSelectedAccent =
-          { fg = colors.base, bg = colors.pink, style = { "bold" } }
+          { fg = c.background.primary, bg = c.accent.primary, style = { "bold" } }
         overrides.WilderWildmenuSelected =
-          { fg = colors.base, bg = colors.pink, style = { "bold" } }
-        overrides.WilderWildmenuSeparator = { fg = colors.overlay1 }
+          { fg = c.background.primary, bg = c.accent.primary, style = { "bold" } }
+        overrides.WilderWildmenuSeparator = { fg = c.ui.line_number }
 
         return overrides
       end,
@@ -108,25 +113,21 @@ local function get_catppuccin_config()
 end
 
 local function get_gruvbox_config()
+  local c = theme_config.colors
   local overrides = {}
 
-  local colors = {
-    bg0 = "#1d2021",
-    bg1 = "#3c3836",
-    bg2 = "#504945",
-    fg1 = "#ebdbb2",
-    orange = "#fe8019",
-    yellow = "#fabd2f",
-  }
-
-  overrides.Pmenu = { bg = colors.bg1, fg = colors.fg1 }
-  overrides.WildMenu = { bg = colors.bg2, fg = colors.orange, bold = true }
-  overrides.WilderWildmenuSelected = { bg = colors.bg2, fg = colors.orange, bold = true }
-  overrides.WilderWildmenuSelectedAccent = { bg = colors.bg2, fg = colors.orange, bold = true }
-  overrides.PmenuSel = { bg = colors.bg2, fg = colors.orange, bold = true }
-  overrides.TelescopeSelection = { bg = colors.bg2, fg = colors.orange, bold = true }
-  overrides.Search = { bg = colors.yellow, fg = colors.bg0, bold = true }
-  overrides.IncSearch = { bg = colors.orange, fg = colors.bg0, bold = true }
+  overrides.Pmenu = { bg = c.background.secondary, fg = c.foreground.primary }
+  overrides.WildMenu = { bg = c.background.tertiary, fg = c.accent.primary, bold = true }
+  overrides.WilderWildmenuSelected =
+    { bg = c.background.tertiary, fg = c.accent.primary, bold = true }
+  overrides.WilderWildmenuSelectedAccent =
+    { bg = c.background.tertiary, fg = c.accent.primary, bold = true }
+  overrides.PmenuSel =
+    { bg = c.plugins.completion.selection_bg, fg = c.plugins.completion.selection_fg, bold = true }
+  overrides.TelescopeSelection =
+    { bg = c.plugins.telescope.selection_bg, fg = c.plugins.telescope.selection_fg, bold = true }
+  overrides.Search = { bg = c.semantic.warning, fg = c.background.primary, bold = true }
+  overrides.IncSearch = { bg = c.semantic.error, fg = c.background.primary, bold = true }
 
   return {
     terminal_colors = true,
@@ -155,32 +156,38 @@ local function get_gruvbox_config()
 end
 
 local function get_solarized_config()
+  local c = theme_config.colors
+
   return {
     transparent = true,
     terminal_colors = true,
-    styles = {
-      comments = { italic = true },
-      keywords = { italic = true },
-      functions = { bold = true },
-      variables = {},
-      constants = { bold = true },
-      types = { bold = true },
-    },
+    styles = get_common_styles(),
     on_highlights = function(highlights, colors)
-      highlights.Visual = { bg = colors.base02, fg = colors.base1, bold = true }
-      highlights.VisualNOS = { bg = colors.base01, fg = colors.base1, bold = true }
+      highlights.Visual = { bg = c.ui.selection, fg = c.foreground.primary, bold = true }
+      highlights.VisualNOS = { bg = c.ui.selection, fg = c.foreground.primary, bold = true }
 
-      highlights.Pmenu = { bg = colors.base02, fg = colors.base0 }
-      highlights.WildMenu = { bg = colors.base01, fg = colors.blue, bold = true }
-      highlights.WilderWildmenuSelected = { bg = colors.base01, fg = colors.blue, bold = true }
+      highlights.Pmenu = { bg = c.background.secondary, fg = c.foreground.primary }
+      highlights.WildMenu = { bg = c.background.tertiary, fg = c.accent.primary, bold = true }
+      highlights.WilderWildmenuSelected =
+        { bg = c.background.tertiary, fg = c.accent.primary, bold = true }
       highlights.WilderWildmenuSelectedAccent =
-        { bg = colors.base01, fg = colors.blue, bold = true }
-      highlights.PmenuSel = { bg = colors.base01, fg = colors.blue, bold = true }
-      highlights.TelescopeSelection = { bg = colors.base01, fg = colors.blue, bold = true }
-      highlights.Search = { bg = colors.yellow, fg = colors.base03, bold = true }
-      highlights.IncSearch = { bg = colors.orange, fg = colors.base03, bold = true }
-      highlights.CursorLineNr = { fg = colors.blue, bold = true }
-      highlights.LineNr = { fg = colors.base01 }
+        { bg = c.background.tertiary, fg = c.accent.primary, bold = true }
+      highlights.PmenuSel = {
+        bg = c.plugins.completion.selection_bg,
+        fg = c.plugins.completion.selection_fg,
+        bold = true,
+      }
+      highlights.TelescopeSelection = {
+        bg = c.plugins.telescope.selection_bg,
+        fg = c.plugins.telescope.selection_fg,
+        bold = true,
+      }
+      highlights.Search =
+        { bg = c.plugins.search.match_bg, fg = c.plugins.search.match_fg, bold = true }
+      highlights.IncSearch =
+        { bg = c.plugins.search.incremental_bg, fg = c.plugins.search.incremental_fg, bold = true }
+      highlights.CursorLineNr = { fg = c.ui.line_number_active, bold = true }
+      highlights.LineNr = { fg = c.ui.line_number }
     end,
   }
 end
@@ -198,8 +205,11 @@ local function get_rose_pine_config()
     variables = "none",
   }
 
+  local plugin_config = theme_config.plugins[theme_config.colorscheme]
+  local colorscheme = plugin_config and plugin_config.colorscheme or theme_config.colorscheme
+
   return {
-    theme = "roseprime",
+    theme = colorscheme,
     transparent = true,
     term_colors = true,
     alt_bg = true,
@@ -210,30 +220,25 @@ local function get_rose_pine_config()
 end
 
 local function get_kanagawa_config()
+  local c = theme_config.colors
   local overrides = {}
 
-  local colors = {
-    fujiWhite = "#dcd7ba",
-    waveBlue1 = "#2d4f67",
-    waveBlue2 = "#223249",
-    sumiInk3 = "#363646",
-    sumiInk4 = "#54546D",
-    winterBlue = "#7e9cd8",
-  }
-
-  overrides.WinBar = { bg = "none", fg = colors.fujiWhite }
-  overrides.WinBarNC = { bg = "none", fg = colors.sumiInk4 }
-  overrides.NeoTreeWinSeparator = { bg = "none", fg = colors.sumiInk4 }
-  overrides.NeoTreeVertSplit = { bg = "none", fg = colors.sumiInk4 }
+  overrides.WinBar = { bg = "none", fg = c.foreground.primary }
+  overrides.WinBarNC = { bg = "none", fg = c.foreground.subtle }
+  overrides.NeoTreeWinSeparator = { bg = "none", fg = c.plugins.filetree.separator }
+  overrides.NeoTreeVertSplit = { bg = "none", fg = c.plugins.filetree.separator }
   overrides.NeoTreeEndOfBuffer = { bg = "none", fg = "none" }
-  overrides.DropBarMenuFloatBorder = { bg = "none", fg = colors.sumiInk4 }
-  overrides.WildMenu = { bg = colors.waveBlue1, fg = colors.fujiWhite, bold = true }
-  overrides.WilderWildmenuSelected = { bg = colors.waveBlue1, fg = colors.fujiWhite, bold = true }
+  overrides.DropBarMenuFloatBorder = { bg = "none", fg = c.plugins.window.border }
+  overrides.WildMenu = { bg = c.background.secondary, fg = c.foreground.primary, bold = true }
+  overrides.WilderWildmenuSelected =
+    { bg = c.background.secondary, fg = c.foreground.primary, bold = true }
   overrides.WilderWildmenuSelectedAccent =
-    { bg = colors.waveBlue1, fg = colors.fujiWhite, bold = true }
-  overrides.TelescopeSelection = { bg = colors.waveBlue2, fg = colors.fujiWhite, bold = true }
-  overrides.Pmenu = { bg = colors.sumiInk3, fg = colors.fujiWhite }
-  overrides.PmenuSel = { bg = colors.waveBlue1, fg = colors.fujiWhite, bold = true }
+    { bg = c.background.secondary, fg = c.foreground.primary, bold = true }
+  overrides.TelescopeSelection =
+    { bg = c.plugins.telescope.selection_bg, fg = c.plugins.telescope.selection_fg, bold = true }
+  overrides.Pmenu = { bg = c.plugins.completion.menu_bg, fg = c.foreground.primary }
+  overrides.PmenuSel =
+    { bg = c.plugins.completion.selection_bg, fg = c.plugins.completion.selection_fg, bold = true }
 
   local code_style = {
     comments = "none",
@@ -247,8 +252,11 @@ local function get_kanagawa_config()
     variables = "none",
   }
 
+  local plugin_config = theme_config.plugins[theme_config.colorscheme]
+  local colorscheme = plugin_config and plugin_config.colorscheme or theme_config.colorscheme
+
   return {
-    theme = "gyokuro",
+    theme = colorscheme,
     transparent = true,
     term_colors = true,
     alt_bg = true,
@@ -260,6 +268,8 @@ local function get_kanagawa_config()
 end
 
 local function get_nightfox_config()
+  local c = theme_config.colors
+
   return {
     options = {
       compile_path = vim.fn.stdpath("cache") .. "/nightfox",
@@ -268,18 +278,7 @@ local function get_nightfox_config()
       terminal_colors = true,
       dim_inactive = false,
       module_default = true,
-      styles = {
-        comments = "italic",
-        conditionals = "NONE",
-        constants = "bold",
-        functions = "bold",
-        keywords = "italic",
-        numbers = "bold",
-        operators = "NONE",
-        strings = "italic",
-        types = "bold",
-        variables = "NONE",
-      },
+      styles = get_common_styles(),
       inverse = {
         match_paren = false,
         visual = false,
@@ -333,23 +332,31 @@ local function get_nightfox_config()
         NeoTreeWinSeparator = { bg = "NONE" },
         NeoTreeVertSplit = { bg = "NONE" },
         NeoTreeEndOfBuffer = { bg = "NONE" },
-        Visual = { bg = "palette.sel0", bold = true },
-        VisualNOS = { bg = "palette.sel1", bold = true },
-        WildMenu = { bg = "palette.sel0", fg = "palette.blue.bright", bold = true },
-        WilderWildmenuSelected = {
-          bg = "palette.sel0",
-          fg = "palette.blue.bright",
-          bold = true,
-        },
+        Visual = { bg = c.ui.selection, bold = true },
+        VisualNOS = { bg = c.ui.selection, bold = true },
+        WildMenu = { bg = c.background.secondary, fg = c.accent.primary, bold = true },
+        WilderWildmenuSelected = { bg = c.background.secondary, fg = c.accent.primary, bold = true },
         WilderWildmenuSelectedAccent = {
-          bg = "palette.sel0",
-          fg = "palette.blue.bright",
+          bg = c.background.secondary,
+          fg = c.accent.primary,
           bold = true,
         },
-        PmenuSel = { bg = "palette.sel0", fg = "palette.blue.bright", bold = true },
-        TelescopeSelection = { bg = "palette.sel0", fg = "palette.blue.bright", bold = true },
-        Search = { bg = "palette.yellow.base", fg = "palette.bg1", bold = true },
-        IncSearch = { bg = "palette.orange.base", fg = "palette.bg1", bold = true },
+        PmenuSel = {
+          bg = c.plugins.completion.selection_bg,
+          fg = c.plugins.completion.selection_fg,
+          bold = true,
+        },
+        TelescopeSelection = {
+          bg = c.plugins.telescope.selection_bg,
+          fg = c.plugins.telescope.selection_fg,
+          bold = true,
+        },
+        Search = { bg = c.plugins.search.match_bg, fg = c.plugins.search.match_fg, bold = true },
+        IncSearch = {
+          bg = c.plugins.search.incremental_bg,
+          fg = c.plugins.search.incremental_fg,
+          bold = true,
+        },
       },
     },
   }
@@ -387,95 +394,59 @@ local function get_everforest_config()
 end
 
 local function apply_post_colorscheme_overrides(base_scheme)
-  local overrides =
-    highlight_gen.generate_core_highlights(theme_config.colors, theme_config.transparency)
+  local c = theme_config.colors
+  local overrides = highlight_gen.generate_core_highlights(c, theme_config.transparency)
 
-  if base_scheme == "rosepine" or base_scheme == "roseprime" then
-    local semantic = theme_config.colors.semantic
-    local diff = theme_config.colors.diff
-    local ui = theme_config.colors.ui
-    local accent = theme_config.colors.accent
-    local fg = theme_config.colors.foreground
-    local bg = theme_config.colors.background
-    local syntax = theme_config.colors.syntax
+  overrides.CursorLineNr = { bg = "NONE", fg = c.ui.line_number_active, bold = true }
+  overrides.LineNr = { bg = "NONE", fg = c.ui.line_number }
 
-    overrides.CursorLineNr = { bg = "NONE", fg = ui.line_number_active, bold = true }
-    overrides.LineNr = { bg = "NONE", fg = ui.line_number }
+  overrides.DiffAdd = { bg = c.diff.add_bg }
+  overrides.DiffChange = { bg = c.diff.change_bg }
+  overrides.DiffDelete = { bg = c.diff.delete_bg }
 
-    overrides.DiffAdd = { bg = diff.add_bg }
-    overrides.DiffChange = { bg = diff.change_bg }
-    overrides.DiffDelete = { bg = diff.delete_bg }
+  overrides.FloatBorder = { bg = "NONE", fg = c.syntax.comment }
+  overrides.FloatTitle = { bg = "NONE", fg = c.accent.primary, bold = true }
+  overrides.NormalFloat = { bg = "NONE", fg = c.foreground.primary }
+  overrides.DropBarMenuFloatBorder = { bg = "NONE", fg = c.foreground.subtle }
 
-    overrides.FloatBorder = { bg = "NONE", fg = syntax.comment }
-    overrides.FloatTitle = { bg = "NONE", fg = accent.primary, bold = true }
-    overrides.NormalFloat = { bg = "NONE", fg = fg.primary }
-    overrides.DropBarMenuFloatBorder = { bg = "NONE", fg = fg.subtle }
+  overrides.Search = { bg = c.plugins.search.match_bg, fg = c.plugins.search.match_fg, bold = true }
+  overrides.IncSearch =
+    { bg = c.plugins.search.incremental_bg, fg = c.plugins.search.incremental_fg, bold = true }
 
-    overrides.Search = { bg = semantic.warning, fg = bg.primary, bold = true }
-    overrides.IncSearch = { bg = semantic.error, fg = bg.primary, bold = true }
+  overrides.Pmenu = { bg = "NONE", fg = c.foreground.primary }
+  overrides.PmenuBorder = { bg = "NONE", fg = c.plugins.completion.border }
+  overrides.PmenuSel =
+    { bg = c.plugins.completion.selection_bg, fg = c.plugins.completion.selection_fg, bold = true }
 
-    overrides.Pmenu = { bg = "NONE", fg = fg.primary }
-    overrides.PmenuBorder = { bg = "NONE", fg = syntax.comment }
-    overrides.PmenuSel = { bg = accent.dim, fg = accent.primary, bold = true }
+  overrides.StatusLine = { bg = "NONE", fg = c.plugins.window.statusline_active }
+  overrides.StatusLineNC = { bg = "NONE", fg = c.plugins.window.statusline_inactive }
 
-    overrides.StatusLine = { bg = "NONE", fg = fg.primary }
-    overrides.StatusLineNC = { bg = "NONE", fg = fg.subtle }
+  overrides.TelescopeBorder = { bg = "NONE", fg = c.plugins.telescope.border }
+  overrides.TelescopeSelection =
+    { bg = c.plugins.telescope.selection_bg, fg = c.plugins.telescope.selection_fg, bold = true }
+  overrides.TelescopeTitle = { bg = "NONE", fg = c.plugins.telescope.title, bold = true }
 
-    overrides.TelescopeBorder = { bg = "NONE", fg = syntax.comment }
-    overrides.TelescopeSelection = { bg = bg.secondary, fg = accent.primary, bold = true }
-    overrides.TelescopeTitle = { bg = "NONE", fg = accent.primary, bold = true }
+  overrides.WildMenu = { bg = "NONE", fg = c.accent.primary, bold = true }
+  overrides.WilderWildmenuAccent = { fg = c.accent.primary, bold = true }
+  overrides.WilderWildmenuSelected = { bg = "NONE", fg = c.accent.primary, bold = true }
+  overrides.WilderWildmenuSelectedAccent = { fg = c.accent.primary, bold = true }
 
-    overrides.WildMenu = { bg = "NONE", fg = accent.primary, bold = true }
-    overrides.WilderWildmenuAccent = { fg = accent.primary, bold = true }
-    overrides.WilderWildmenuSelected = { bg = "NONE", fg = accent.primary, bold = true }
-    overrides.WilderWildmenuSelectedAccent = { fg = accent.primary, bold = true }
+  overrides.WinBar = { bg = "NONE", fg = c.plugins.window.winbar_active }
+  overrides.WinBarNC = { bg = "NONE", fg = c.plugins.window.winbar_inactive }
 
-    overrides.WinBar = { bg = "NONE", fg = semantic.info }
-    overrides.WinBarNC = { bg = "NONE", fg = fg.subtle }
+  overrides.NeoTreeEndOfBuffer = { bg = "NONE", fg = "NONE" }
+  overrides.NeoTreeVertSplit = { bg = "NONE", fg = c.plugins.filetree.separator }
+  overrides.NeoTreeWinSeparator = { bg = "NONE", fg = c.plugins.filetree.separator }
 
-    overrides.NeoTreeEndOfBuffer = { bg = "NONE", fg = "NONE" }
-    overrides.NeoTreeVertSplit = { bg = "NONE", fg = fg.subtle }
-    overrides.NeoTreeWinSeparator = { bg = "NONE", fg = fg.subtle }
-
-    overrides.NeogitDiffContext = { bg = "NONE", fg = fg.primary }
-    overrides.NeogitDiffContextCursor = { bg = "NONE" }
-    overrides.NeogitDiffContextHighlight = { bg = "NONE" }
-    overrides.NeogitDiffAdd = { bg = diff.add_bg, fg = diff.add }
-    overrides.NeogitDiffAddCursor = { bg = diff.add_bg }
-    overrides.NeogitDiffAddHighlight = { bg = diff.add_bg }
-    overrides.NeogitDiffDelete = { bg = diff.delete_bg, fg = diff.delete }
-    overrides.NeogitDiffDeleteCursor = { bg = diff.delete_bg }
-    overrides.NeogitDiffDeleteHighlight = { bg = diff.delete_bg }
-  end
-
-  if base_scheme == "everforest" then
-    local colors = {
-      bg0 = vim.fn.synIDattr(vim.fn.synIDtrans(vim.fn.hlID("Normal")), "bg"),
-      bg2 = "#3d484d",
-      bg4 = "#56635f",
-      fg = "#d3c6aa",
-      accent = "#d699b6",
-      green = "#a7c080",
-      blue = "#7fbbb3",
-      yellow = "#dbbc7f",
-      orange = "#e69875",
-      red = "#e67e80",
-    }
-
-    overrides.WinBar = { bg = "NONE", fg = colors.fg }
-    overrides.WinBarNC = { bg = "NONE", fg = colors.bg4 }
-    overrides.NeoTreeWinSeparator = { bg = "NONE" }
-    overrides.NeoTreeVertSplit = { bg = "NONE" }
-    overrides.NeoTreeEndOfBuffer = { bg = "NONE", fg = "NONE" }
-    overrides.DropBarMenuFloatBorder = { bg = "NONE" }
-    overrides.WildMenu = { fg = colors.accent, bg = colors.bg2, bold = true }
-    overrides.WilderWildmenuSelected = { fg = colors.accent, bg = colors.bg2, bold = true }
-    overrides.WilderWildmenuSelectedAccent = { fg = colors.accent, bg = colors.bg2, bold = true }
-    overrides.PmenuSel = { fg = colors.accent, bg = colors.bg2, bold = true }
-    overrides.TelescopeSelection = { bg = colors.bg2, fg = colors.blue, bold = true }
-    overrides.Search = { bg = colors.yellow, fg = colors.bg0, bold = true }
-    overrides.IncSearch = { bg = colors.orange, fg = colors.bg0, bold = true }
-  end
+  overrides.NeogitDiffContext = { bg = "NONE", fg = c.foreground.primary }
+  overrides.NeogitDiffContextCursor = { bg = "NONE" }
+  overrides.NeogitDiffContextHighlight = { bg = "NONE" }
+  overrides.NeogitDiffAdd = { bg = c.diff.add_bg, fg = c.diff.add }
+  overrides.NeogitDiffAddCursor = { bg = c.diff.add_bg }
+  overrides.NeogitDiffAddHighlight = { bg = c.diff.add_bg }
+  overrides.NeogitDiffDelete = { bg = c.diff.delete_bg, fg = c.diff.delete }
+  overrides.NeogitDiffDeleteCursor = { bg = c.diff.delete_bg }
+  overrides.NeogitDiffDeleteHighlight = { bg = c.diff.delete_bg }
 
   for name, hl in pairs(overrides) do
     vim.api.nvim_set_hl(0, name, hl)
