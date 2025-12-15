@@ -16,7 +16,7 @@ let
   inherit (config.lib.file) mkOutOfStoreSymlink;
 in
 {
-  stylix.targets.wezterm.enable = true;
+  stylix.targets.wezterm.enable = false;
 
   xdg.configFile."wezterm/wezterm.lua".source =
     mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/wezterm/wezterm.lua";
