@@ -104,7 +104,7 @@ in
       [alias]
         log = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)'
         branches = !git --no-pager branch -vv
-        branches-all = !git --no-pager branch -a -vv
+        all-branches = !git --no-pager branch -a -vv
         current-branch = rev-parse --abbrev-ref HEAD
         current-commit-sha = rev-parse --short HEAD
         last = log -1 HEAD --stat
