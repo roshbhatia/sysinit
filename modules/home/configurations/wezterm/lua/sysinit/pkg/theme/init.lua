@@ -28,11 +28,8 @@ end
 
 local function get_window_appearance_config()
   local transparency = get_effective_transparency()
-  local opacity = nil
-  if transparency.enable then
-    opacity = transparency.opacity or 0.85
-  end
-  local blur = transparency.enable and 80 or 0
+  local opacity = transparency.opacity or 0.85
+  local blur = transparency.blur or 80
   local theme_name = theme_config.theme_name
 
   local font_name = "JetBrainsMono Nerd Font"
@@ -126,12 +123,8 @@ function M.setup(config)
       local overrides = window:get_config_overrides() or {}
       local transparency = get_effective_transparency()
 
-      if transparency.enable then
-        overrides.window_background_opacity = transparency.opacity or 0.85
-      else
-        overrides.window_background_opacity = nil
-      end
-      overrides.macos_window_background_blur = transparency.enable and 80 or 0
+      overrides.window_background_opacity = transparency.opacity or 0.85
+      overrides.macos_window_background_blur = transparency.blur or 80
 
       window:set_config_overrides(overrides)
     end)
@@ -140,11 +133,8 @@ function M.setup(config)
       local overrides = window:get_config_overrides() or {}
       local transparency = get_effective_transparency()
 
-      local new_opacity = nil
-      if transparency.enable then
-        new_opacity = transparency.opacity or 0.85
-      end
-      local new_blur = transparency.enable and 80 or 0
+      local new_opacity = transparency.opacity or 0.85
+      local new_blur = transparency.blur or 80
 
       if overrides.window_background_opacity ~= new_opacity then
         overrides.window_background_opacity = new_opacity

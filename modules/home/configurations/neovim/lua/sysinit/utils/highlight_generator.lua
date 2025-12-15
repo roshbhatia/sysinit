@@ -204,22 +204,10 @@ function M.generate_diagnostic_highlights(colors, transparency)
     DiagnosticUnnecessary = { fg = colors.foreground.muted, italic = true },
   }
 
-  if not transparency.enable then
-    highlights.DiagnosticVirtualTextError = { fg = colors.semantic.error }
-    highlights.DiagnosticVirtualTextWarn = { fg = colors.semantic.warning }
-    highlights.DiagnosticVirtualTextInfo = { fg = colors.semantic.info }
-    highlights.DiagnosticVirtualTextHint = { fg = colors.accent.secondary }
-    highlights.DiagnosticVirtualTextOk = { fg = colors.semantic.success }
-  end
-
   return highlights
 end
 
 function M.generate_transparency_highlights(transparency)
-  if not transparency.enable then
-    return {}
-  end
-
   local transparent_groups = {
     "BlinkCmpDoc",
     "BlinkCmpDocBorder",
