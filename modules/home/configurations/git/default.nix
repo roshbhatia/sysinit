@@ -102,13 +102,14 @@ in
         enabled = true
 
       [alias]
-        log = -c core.pager="bat --style=plain" log
-        branches = !git --no-pager branch -a
+        log = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)'
+        branches = !git --no-pager branch -vv
+        branches-all = !git --no-pager branch -a -vv
         current-branch = rev-parse --abbrev-ref HEAD
         current-commit-sha = rev-parse --short HEAD
-        last = log -1 HEAD
+        last = log -1 HEAD --stat
         root = rev-parse --show-toplevel
-        short-log = log --graph --pretty=format:'%C(yellow)%h %ad%Cred%d %Creset%s%Cblue [%cn]' --decorate --date=short
+        short-log = log --oneline --decorate --graph -20
         unstage = reset HEAD --
 
       [http "https://git.sr.ht"]
