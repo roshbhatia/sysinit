@@ -455,8 +455,7 @@ end
 
 local THEME_CONFIGS = {
   catppuccin = { module = "catppuccin", config = get_catppuccin_config },
-  rosepine = { module = "neomodern", config = get_rose_pine_config },
-  roseprime = { module = "neomodern", config = get_rose_pine_config },
+  ["rose-pine"] = { module = "neomodern", config = get_rose_pine_config },
   gruvbox = { module = "gruvbox", config = get_gruvbox_config },
   solarized = { module = "solarized-osaka", config = get_solarized_config },
   nord = { module = "nightfox", config = get_nightfox_config },
