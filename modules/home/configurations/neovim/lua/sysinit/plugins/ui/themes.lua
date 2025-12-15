@@ -409,33 +409,61 @@ local function apply_post_colorscheme_overrides(base_scheme)
 
   if base_scheme == "rosepine" or base_scheme == "roseprime" then
     if theme_config.transparency.enable then
-      local c = theme_config.palette
-      overrides.CursorLineNr = { bg = "NONE", fg = c.cyan, bold = true }
-      overrides.DiffAdd = { bg = c.cyan }
-      overrides.DropBarMenuFloatBorder = { bg = "NONE", fg = c.fg_alt }
-      overrides.FloatBorder = { bg = "NONE", fg = c.comment }
-      overrides.FloatTitle = { bg = "NONE", fg = c.orange, bold = true }
-      overrides.IncSearch = { bg = c.red, fg = c.bg, bold = true }
-      overrides.LineNr = { bg = "NONE", fg = c.comment }
+      local semantic = theme_config.colors.semantic
+      local diff = theme_config.colors.diff
+      local ui = theme_config.colors.ui
+      local accent = theme_config.colors.accent
+      local fg = theme_config.colors.foreground
+      local bg = theme_config.colors.background
+      local syntax = theme_config.colors.syntax
+
+      overrides.CursorLineNr = { bg = "NONE", fg = ui.line_number_active, bold = true }
+      overrides.LineNr = { bg = "NONE", fg = ui.line_number }
+
+      overrides.DiffAdd = { bg = diff.add_bg }
+      overrides.DiffChange = { bg = diff.change_bg }
+      overrides.DiffDelete = { bg = diff.delete_bg }
+
+      overrides.FloatBorder = { bg = "NONE", fg = syntax.comment }
+      overrides.FloatTitle = { bg = "NONE", fg = accent.primary, bold = true }
+      overrides.NormalFloat = { bg = "NONE", fg = fg.primary }
+      overrides.DropBarMenuFloatBorder = { bg = "NONE", fg = fg.subtle }
+
+      overrides.Search = { bg = semantic.warning, fg = bg.primary, bold = true }
+      overrides.IncSearch = { bg = semantic.error, fg = bg.primary, bold = true }
+
+      overrides.Pmenu = { bg = "NONE", fg = fg.primary }
+      overrides.PmenuBorder = { bg = "NONE", fg = syntax.comment }
+      overrides.PmenuSel = { bg = accent.dim, fg = accent.primary, bold = true }
+
+      overrides.StatusLine = { bg = "NONE", fg = fg.primary }
+      overrides.StatusLineNC = { bg = "NONE", fg = fg.subtle }
+
+      overrides.TelescopeBorder = { bg = "NONE", fg = syntax.comment }
+      overrides.TelescopeSelection = { bg = bg.secondary, fg = accent.primary, bold = true }
+      overrides.TelescopeTitle = { bg = "NONE", fg = accent.primary, bold = true }
+
+      overrides.WildMenu = { bg = "NONE", fg = accent.primary, bold = true }
+      overrides.WilderWildmenuAccent = { fg = accent.primary, bold = true }
+      overrides.WilderWildmenuSelected = { bg = "NONE", fg = accent.primary, bold = true }
+      overrides.WilderWildmenuSelectedAccent = { fg = accent.primary, bold = true }
+
+      overrides.WinBar = { bg = "NONE", fg = semantic.info }
+      overrides.WinBarNC = { bg = "NONE", fg = fg.subtle }
+
       overrides.NeoTreeEndOfBuffer = { bg = "NONE", fg = "NONE" }
-      overrides.NeoTreeVertSplit = { bg = "NONE", fg = c.fg_alt }
-      overrides.NeoTreeWinSeparator = { bg = "NONE", fg = c.fg_alt }
-      overrides.NormalFloat = { bg = "NONE", fg = c.fg }
-      overrides.Pmenu = { bg = c.bg_alt, fg = c.fg }
-      overrides.PmenuBorder = { bg = "NONE", fg = c.comment }
-      overrides.PmenuSel = { bg = c.accent_dim, fg = c.cyan, bold = true }
-      overrides.Search = { bg = c.yellow, fg = c.bg, bold = true }
-      overrides.StatusLine = { bg = "NONE", fg = c.fg }
-      overrides.StatusLineNC = { bg = "NONE", fg = c.fg_alt }
-      overrides.TelescopeBorder = { bg = "NONE", fg = c.comment }
-      overrides.TelescopeSelection = { bg = c.bg_alt, fg = c.cyan, bold = true }
-      overrides.TelescopeTitle = { bg = "NONE", fg = c.orange, bold = true }
-      overrides.WildMenu = { bg = c.orange, fg = c.bg, bold = true }
-      overrides.WilderWildmenuSelected = { bg = c.orange, fg = c.bg, bold = true }
-      overrides.WilderWildmenuSelectedAccent = { bg = c.orange, fg = c.bg, bold = true }
-      overrides.WinBar = { bg = "NONE", fg = c.cyan }
-      overrides.WinBarNC = { bg = "NONE", fg = c.fg_alt }
-      overrides.NeogitDiffContext = { bg = "NONE", fg = c.fg }
+      overrides.NeoTreeVertSplit = { bg = "NONE", fg = fg.subtle }
+      overrides.NeoTreeWinSeparator = { bg = "NONE", fg = fg.subtle }
+
+      overrides.NeogitDiffContext = { bg = "NONE", fg = fg.primary }
+      overrides.NeogitDiffContextCursor = { bg = "NONE" }
+      overrides.NeogitDiffContextHighlight = { bg = "NONE" }
+      overrides.NeogitDiffAdd = { bg = diff.add_bg, fg = diff.add }
+      overrides.NeogitDiffAddCursor = { bg = diff.add_bg }
+      overrides.NeogitDiffAddHighlight = { bg = diff.add_bg }
+      overrides.NeogitDiffDelete = { bg = diff.delete_bg, fg = diff.delete }
+      overrides.NeogitDiffDeleteCursor = { bg = diff.delete_bg }
+      overrides.NeogitDiffDeleteHighlight = { bg = diff.delete_bg }
     end
   end
 
