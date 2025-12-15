@@ -1,6 +1,8 @@
 _:
 
 {
+  stylix.targets.vivid.enable = true;
+
   xdg.configFile = {
     "vivid/themes/black-metal-gorgoroth.yml".source = ./themes/black-metal-gorgoroth.yml;
     "vivid/themes/everforest-dark-hard.yml".source = ./themes/everforest-dark-hard.yml;

@@ -3,6 +3,8 @@
 }:
 
 {
+  stylix.targets.helix.enable = true;
+
   programs.helix = {
     enable = true;
     settings = {

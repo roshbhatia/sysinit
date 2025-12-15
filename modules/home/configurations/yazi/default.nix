@@ -37,6 +37,8 @@ let
 
 in
 {
+  stylix.targets.yazi.enable = true;
+
   xdg.configFile = mkPluginConfigs // {
     "yazi/yazi.toml" = {
       source = tomlFormat.generate "yazi.toml" yaziConfig;

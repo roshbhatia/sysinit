@@ -5,6 +5,7 @@
   pkgs,
   ...
 }:
+
 let
   shell = import ../../../shared/lib/shell { inherit lib; };
   themes = import ../../../shared/lib/theme { inherit lib; };
@@ -30,6 +31,8 @@ let
   kubernetesAliases = sharedAliases.kubernetes;
 in
 {
+  stylix.targets.nushell.enable = true;
+
   programs.nushell = {
     enable = true;
     package = pkgs.nushell.override {
