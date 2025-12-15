@@ -1,10 +1,5 @@
 # sysinit
 
-- [sysinit](#sysinit)
-  - [Install Dependencies](#install-dependencies)
-  - [Usage](#usage)
-  - [Project Structure](#project-structure)
-
 ```ascii
           ▗▄▄▄       ▗▄▄▄▄    ▄▄▄▖
           ▜███▙       ▜███▙  ▟███▛

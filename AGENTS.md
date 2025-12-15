@@ -282,40 +282,54 @@ config-name/
 # Build and apply configuration
 task nix:refresh          # Apply full system configuration
 task nix:build           # Build without applying (check errors)
+task nix:build:lv426     # Build macOS configuration only
+task nix:build:arrakis   # Build NixOS configuration only
+task nix:build:all       # Build all system configurations
 task nix:update          # Update flake inputs and apply
 task nix:clean           # Clean old generations
 
 # Format all code
 task fmt                 # Format Nix, Lua, Shell files
 task format:all:check    # Check formatting without modifying
+task format:nix          # Format Nix files only
+task format:lua          # Format Lua files only
+task format:sh           # Format shell files only
 
 # Validation
 task nix:validate        # Run flake check (format validation)
 task format:lua:validate # Lua format check + LSP diagnostics
+task format:lua:lint     # Run lua-language-server diagnostics only
+
+# Testing single configurations
+nix build .#darwinConfigurations.lv426.system              # Test macOS build
+nix build .#nixosConfigurations.arrakis.config.system.build.toplevel  # Test NixOS build
 ```
 
 ## Code Style Guidelines
 
 ### Nix Files
-- Use `nixfmt --width=100` for formatting
-- Follow module structure: `default.nix` (entry) + `[name].nix` (implementation)
-- Import paths: `modules/{darwin,home}/configurations/` for configs, `modules/lib/` for utilities
-- Type definitions in `modules/lib/values/default.nix` schema
+- Format with `nixfmt --width=100` (enforced by `task format:nix`)
+- Module structure: `default.nix` (entry point) + `[name].nix` (implementation)
+- Import paths: `modules/{darwin,home}/configurations/` for configs, `modules/shared/lib/` for utilities
+- Type definitions go in `modules/shared/lib/values/default.nix` schema
+- All user settings centralized in `values.nix` with type checking
 
 ### Lua Files  
-- Use `stylua` for formatting
-- Run `lua-language-server` diagnostics via `task format:lua:lint`
-- Located in: `modules/home/configurations/{neovim,wezterm,hammerspoon,sketchybar}/`
+- Format with `stylua` using config from `.stylua.toml` (column_width=100, indent_width=2, quote_style=AutoPreferDouble)
+- Run LSP diagnostics via `task format:lua:lint` before committing
+- Located in: `modules/home/configurations/{neovim,wezterm,hammerspoon,sketchybar}/lua/`
 
 ### Shell Files
-- Use `shfmt -i 2 -ci -sr -s -w` for formatting
-- Make all `.sh` files executable: `task sh:chmod`
-- Use `set -euo pipefail` and source `{{.LOGLIB_PATH}}` for logging
+- Format with `shfmt -i 2 -ci -sr -s -w` (2-space indent, switch case indent, simplify redirects)
+- All `.sh` files MUST be executable (run `task sh:chmod`)
+- ALWAYS use `set -euo pipefail` at start and source `{{.LOGLIB_PATH}}` for logging functions
+- Use logging functions: `log_info`, `log_success`, `log_error`, `log_warn`
 
 ### General Conventions
-- No emojis in code
-- Use `mkOutOfStoreSymlink` for live-editable config files
-- Test changes with `task nix:build` before applying
-- Follow existing patterns and module structure
+- NEVER use emojis in code (enforced strictly)
+- Use `mkOutOfStoreSymlink` for live-editable config files (neovim, wezterm, zsh, etc.)
+- ALWAYS test with `task nix:build` before applying changes
+- Follow existing module patterns and directory structure
+- Validate against values schema before committing
 
 This AGENTS.md file serves as the primary guide for AI agents working with this configuration system. It complements the human-focused README.md by providing the detailed technical context needed for effective automated development assistance.
