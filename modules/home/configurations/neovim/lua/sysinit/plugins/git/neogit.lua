@@ -8,6 +8,16 @@ M.plugins = {
       "sindrets/diffview.nvim",
       "nvim-telescope/telescope.nvim",
     },
+    config = function()
+      require("neogit").setup({
+        graph_style = "kitty",
+        process_spinner = true,
+        use_per_project_settings = false,
+        commit_editor = {
+          staged_diff_split_kind = "auto",
+        },
+      })
+    end,
     keys = {
       {
         "<leader>gg",
@@ -58,9 +68,6 @@ M.plugins = {
         mode = "n",
       },
     },
-    config = function()
-      require("neogit").setup({})
-    end,
   },
 }
 

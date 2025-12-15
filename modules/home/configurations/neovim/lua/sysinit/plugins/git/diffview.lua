@@ -69,19 +69,19 @@ M.plugins = {
             vim.cmd("DiffviewOpen")
           end
         end,
-        desc = "Toggle Diffview",
+        desc = "Diff: Toggle (HEAD)",
       },
       {
         "<leader>dm",
         function()
           vim.cmd("DiffviewOpen main")
         end,
-        desc = "Diff vs main",
+        desc = "Diff: Main",
       },
       {
         "<leader>dD",
         "<cmd>DiffviewFileHistory<CR>",
-        desc = "File history (all)",
+        desc = "Diff: History (File)",
       },
     },
   },

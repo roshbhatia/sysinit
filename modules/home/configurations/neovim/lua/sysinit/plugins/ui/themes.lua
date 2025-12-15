@@ -198,51 +198,6 @@ local function get_solarized_config()
 end
 
 local function get_rose_pine_config()
-  local overrides = {}
-
-  local colors = {
-    base = "#232136",
-    surface = "#2a273f",
-    overlay = "#393552",
-    muted = "#6e6a86",
-    subtle = "#908caa",
-    text = "#e0def4",
-    love = "#eb6f92",
-    gold = "#f6c177",
-    rose = "#ea9a97",
-    pine = "#3e8fb0",
-    foam = "#9ccfd8",
-    iris = "#c4a7e7",
-  }
-
-  if theme_config.transparency.enable then
-    overrides.CursorLineNr = { bg = "none", fg = colors.foam, bold = true }
-    overrides.DiffAdd = { bg = colors.foam }
-    overrides.DropBarMenuFloatBorder = { bg = "none", fg = colors.subtle }
-    overrides.FloatBorder = { bg = "none", fg = colors.muted }
-    overrides.FloatTitle = { bg = "none", fg = colors.rose, bold = true }
-    overrides.IncSearch = { bg = colors.love, fg = colors.base, bold = true }
-    overrides.LineNr = { bg = "none", fg = colors.muted }
-    overrides.NeoTreeEndOfBuffer = { bg = "none", fg = "none" }
-    overrides.NeoTreeVertSplit = { bg = "none", fg = colors.subtle }
-    overrides.NeoTreeWinSeparator = { bg = "none", fg = colors.subtle }
-    overrides.NormalFloat = { bg = "none", fg = colors.text }
-    overrides.Pmenu = { bg = colors.surface, fg = colors.text }
-    overrides.PmenuBorder = { bg = "none", fg = colors.muted }
-    overrides.PmenuSel = { bg = colors.overlay, fg = colors.foam, bold = true }
-    overrides.Search = { bg = colors.gold, fg = colors.base, bold = true }
-    overrides.StatusLine = { bg = "none", fg = colors.text }
-    overrides.StatusLineNC = { bg = "none", fg = colors.subtle }
-    overrides.TelescopeBorder = { bg = "none", fg = colors.muted }
-    overrides.TelescopeSelection = { bg = colors.surface, fg = colors.foam, bold = true }
-    overrides.TelescopeTitle = { bg = "none", fg = colors.rose, bold = true }
-    overrides.WildMenu = { bg = colors.rose, fg = colors.base, bold = true }
-    overrides.WilderWildmenuSelected = { bg = colors.rose, fg = colors.base, bold = true }
-    overrides.WilderWildmenuSelectedAccent = { bg = colors.rose, fg = colors.base, bold = true }
-    overrides.WinBar = { bg = "none", fg = colors.foam }
-    overrides.WinBarNC = { bg = "none", fg = colors.subtle }
-  end
-
   local code_style = {
     comments = "none",
     conditionals = "none",
@@ -263,7 +218,6 @@ local function get_rose_pine_config()
     show_eob = false,
     favor_treesitter_hl = true,
     code_style = code_style,
-    highlights = overrides,
   }
 end
 
@@ -452,6 +406,38 @@ end
 local function apply_post_colorscheme_overrides(base_scheme)
   local overrides =
     highlight_gen.generate_core_highlights(theme_config.colors, theme_config.transparency)
+
+  if base_scheme == "rosepine" or base_scheme == "roseprime" then
+    if theme_config.transparency.enable then
+      local c = theme_config.palette
+      overrides.CursorLineNr = { bg = "NONE", fg = c.cyan, bold = true }
+      overrides.DiffAdd = { bg = c.cyan }
+      overrides.DropBarMenuFloatBorder = { bg = "NONE", fg = c.fg_alt }
+      overrides.FloatBorder = { bg = "NONE", fg = c.comment }
+      overrides.FloatTitle = { bg = "NONE", fg = c.orange, bold = true }
+      overrides.IncSearch = { bg = c.red, fg = c.bg, bold = true }
+      overrides.LineNr = { bg = "NONE", fg = c.comment }
+      overrides.NeoTreeEndOfBuffer = { bg = "NONE", fg = "NONE" }
+      overrides.NeoTreeVertSplit = { bg = "NONE", fg = c.fg_alt }
+      overrides.NeoTreeWinSeparator = { bg = "NONE", fg = c.fg_alt }
+      overrides.NormalFloat = { bg = "NONE", fg = c.fg }
+      overrides.Pmenu = { bg = c.bg_alt, fg = c.fg }
+      overrides.PmenuBorder = { bg = "NONE", fg = c.comment }
+      overrides.PmenuSel = { bg = c.accent_dim, fg = c.cyan, bold = true }
+      overrides.Search = { bg = c.yellow, fg = c.bg, bold = true }
+      overrides.StatusLine = { bg = "NONE", fg = c.fg }
+      overrides.StatusLineNC = { bg = "NONE", fg = c.fg_alt }
+      overrides.TelescopeBorder = { bg = "NONE", fg = c.comment }
+      overrides.TelescopeSelection = { bg = c.bg_alt, fg = c.cyan, bold = true }
+      overrides.TelescopeTitle = { bg = "NONE", fg = c.orange, bold = true }
+      overrides.WildMenu = { bg = c.orange, fg = c.bg, bold = true }
+      overrides.WilderWildmenuSelected = { bg = c.orange, fg = c.bg, bold = true }
+      overrides.WilderWildmenuSelectedAccent = { bg = c.orange, fg = c.bg, bold = true }
+      overrides.WinBar = { bg = "NONE", fg = c.cyan }
+      overrides.WinBarNC = { bg = "NONE", fg = c.fg_alt }
+      overrides.NeogitDiffContext = { bg = "NONE", fg = c.fg }
+    end
+  end
 
   if base_scheme == "everforest" then
     local colors = {
