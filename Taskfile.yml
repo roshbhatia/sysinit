@@ -20,8 +20,6 @@ vars:
   NIX_SYSTEM_CONF_DIR: "/etc/nix"
   NIX_MAX_JOBS: 2
   NIX_CORES: 2
-  ERROR_EXIT_CODE: 1
-  SUCCESS_EXIT_CODE: 0
   LOGLIB_PATH: "{{.ROOT_DIR}}/modules/home/configurations/utils/system/loglib.sh"
 
 tasks:
@@ -44,7 +42,7 @@ tasks:
 
         if [ -z "${WORK_SYSINIT}" ]; then
           log_error "Could not find work sysinit repository in {{.WORK_REPO_PATH}}"
-          exit {{.ERROR_EXIT_CODE}}
+          exit 1
         fi
 
         cd "${WORK_SYSINIT}"
@@ -52,7 +50,7 @@ tasks:
         # Use reduced resources for work builds
         if ! NIX_MAX_JOBS=1 NIX_CORES=1 task nix:build:work; then
           log_error "Work build failed"
-          exit {{.ERROR_EXIT_CODE}}
+          exit 1
         fi
 
   nix:refresh:work:
@@ -68,7 +66,7 @@ tasks:
 
         if [ -z "${WORK_SYSINIT}" ]; then
           log_error "Could not find work sysinit repository in {{.WORK_REPO_PATH}}"
-          exit {{.ERROR_EXIT_CODE}}
+          exit 1
         fi
 
         log_info "Refreshing work configuration at: ${WORK_SYSINIT}"
@@ -78,7 +76,7 @@ tasks:
         # Use reduced resources for work builds
         if ! NIX_MAX_JOBS=1 NIX_CORES=1 task nix:refresh:work; then
           log_error "Work refresh failed"
-          exit {{.ERROR_EXIT_CODE}}
+          exit 1
         fi
   sh:chmod:
     desc: Make all .sh files in the repository executable
@@ -89,7 +87,7 @@ tasks:
         source {{.LOGLIB_PATH}}
         if ! fd -e sh -x sh -c 'source {{.LOGLIB_PATH}}; chmod +x {}' _; then
           log_error "Failed to make .sh files executable"
-          exit {{.ERROR_EXIT_CODE}}
+          exit 1
         fi
     silent: true
 
@@ -107,7 +105,7 @@ tasks:
         source {{.LOGLIB_PATH}}
         if ! ./hack/generate-values-docs.sh README.md; then
           log_error "Failed to generate values documentation"
-          exit {{.ERROR_EXIT_CODE}}
+          exit 1
         fi
     silent: true
 
@@ -119,11 +117,11 @@ tasks:
         set -euo pipefail
         source {{.LOGLIB_PATH}}
         HOSTNAME="${1:-arrakis}"
-        
+
         log_info "Building configuration on $HOSTNAME..."
         git pull
         git push
-        
+
         ssh -t "rshnbhatia@${HOSTNAME}" "cd /home/rshnbhatia/sysinit && git pull && nix flake update && nix build '.#nixosConfigurations.${HOSTNAME}.config.system.build.toplevel'"
         log_success "Build complete on $HOSTNAME"
     silent: true
@@ -136,11 +134,11 @@ tasks:
         set -euo pipefail
         source {{.LOGLIB_PATH}}
         HOSTNAME="${1:-arrakis}"
-        
+
         log_info "Applying configuration on $HOSTNAME..."
         git pull
         git push
-        
+
         ssh -t "rshnbhatia@${HOSTNAME}" "cd /home/rshnbhatia/sysinit && git pull && nix flake update && sudo nixos-rebuild switch --flake '.#${HOSTNAME}'"
         log_success "Configuration applied on $HOSTNAME"
     silent: true
