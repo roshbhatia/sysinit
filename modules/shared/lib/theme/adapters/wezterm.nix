@@ -91,23 +91,11 @@ with lib;
         };
       };
 
-      transparencyConfig =
-        if (hasAttr "enable" transparency && transparency.enable) then
-          {
-            window_background_opacity =
-              if hasAttr "opacity" transparency then
-                transparency.opacity
-              else
-                throw "Missing opacity in transparency configuration";
-            macos_window_background_blur =
-              if hasAttr "blur" transparency then
-                transparency.blur
-              else
-                throw "Missing blur in transparency configuration";
-            window_decorations = "RESIZE";
-          }
-        else
-          { };
+      transparencyConfig = {
+        window_background_opacity = if hasAttr "opacity" transparency then transparency.opacity else 1.0;
+        macos_window_background_blur = if hasAttr "blur" transparency then transparency.blur else 0;
+        window_decorations = "RESIZE";
+      };
 
       baseConfig = configBuilder (utils.createSemanticMapping (themeData.palettes.${config.variant})) { };
     in

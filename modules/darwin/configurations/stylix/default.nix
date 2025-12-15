@@ -1,37 +1,104 @@
 {
   pkgs,
+  lib,
+  values,
   ...
 }:
 
-{
-  stylix.enable = true;
-  stylix.autoEnable = true;
-  stylix.polarity = "dark";
+let
+  themeConfig = values.theme;
 
-  stylix.base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-macchiato.yaml";
-
-  stylix.fonts = {
-    monospace = {
-      name = "Agave Nerd Font";
-      package = pkgs.nerd-fonts.agave;
+  schemeMapping = {
+    "rose-pine" = {
+      "moon" = ./schemes/rose-pine-moon.yaml;
+      "dawn" = ./schemes/rose-pine-dawn.yaml;
     };
-    sansSerif = {
-      name = "DejaVu Sans";
-      package = pkgs.dejavu_fonts;
+    "catppuccin" = {
+      "mocha" = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
+      "latte" = "${pkgs.base16-schemes}/share/themes/catppuccin-latte.yaml";
+      "frappe" = "${pkgs.base16-schemes}/share/themes/catppuccin-frappe.yaml";
+      "macchiato" = "${pkgs.base16-schemes}/share/themes/catppuccin-macchiato.yaml";
     };
-    serif = {
-      name = "DejaVu Serif";
-      package = pkgs.dejavu_fonts;
+    "gruvbox" = {
+      "dark-hard" = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
+      "dark-medium" = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-medium.yaml";
+      "dark-soft" = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-soft.yaml";
+      "light-hard" = "${pkgs.base16-schemes}/share/themes/gruvbox-light-hard.yaml";
+      "light-medium" = "${pkgs.base16-schemes}/share/themes/gruvbox-light-medium.yaml";
+      "light-soft" = "${pkgs.base16-schemes}/share/themes/gruvbox-light-soft.yaml";
     };
-    sizes = {
-      terminal = 11;
-      applications = 11;
-      desktop = 11;
-      popups = 11;
+    "kanagawa" = {
+      "wave" = "${pkgs.base16-schemes}/share/themes/kanagawa.yaml";
+      "dragon" = "${pkgs.base16-schemes}/share/themes/kanagawa.yaml";
+      "lotus" = "${pkgs.base16-schemes}/share/themes/kanagawa.yaml";
+    };
+    "solarized" = {
+      "dark" = "${pkgs.base16-schemes}/share/themes/solarized-dark.yaml";
+      "light" = "${pkgs.base16-schemes}/share/themes/solarized-light.yaml";
+    };
+    "nord" = {
+      "dark" = "${pkgs.base16-schemes}/share/themes/nord.yaml";
+    };
+    "everforest" = {
+      "dark-hard" = "${pkgs.base16-schemes}/share/themes/everforest.yaml";
+      "dark-medium" = "${pkgs.base16-schemes}/share/themes/everforest.yaml";
+      "dark-soft" = "${pkgs.base16-schemes}/share/themes/everforest.yaml";
+      "light-hard" = "${pkgs.base16-schemes}/share/themes/everforest.yaml";
+      "light-medium" = "${pkgs.base16-schemes}/share/themes/everforest.yaml";
+      "light-soft" = "${pkgs.base16-schemes}/share/themes/everforest.yaml";
+    };
+    "black-metal" = {
+      "gorgoroth" = "${pkgs.base16-schemes}/share/themes/black-metal.yaml";
     };
   };
 
-  stylix.targets = {
-    jankyborders.enable = true;
+  selectedScheme =
+    if lib.hasAttrByPath [ themeConfig.colorscheme themeConfig.variant ] schemeMapping then
+      schemeMapping.${themeConfig.colorscheme}.${themeConfig.variant}
+    else
+      throw "No base16 scheme found for theme '${themeConfig.colorscheme}' variant '${themeConfig.variant}'";
+
+  polarityValue = if themeConfig.appearance == "light" then "light" else "dark";
+
+in
+{
+  stylix = {
+    enable = true;
+    autoEnable = true;
+
+    polarity = polarityValue;
+    base16Scheme = selectedScheme;
+
+    fonts = {
+      monospace = {
+        name = "Agave Nerd Font";
+        package = pkgs.nerd-fonts.agave;
+      };
+      sansSerif = {
+        name = "DejaVu Sans";
+        package = pkgs.dejavu_fonts;
+      };
+      serif = {
+        name = "DejaVu Serif";
+        package = pkgs.dejavu_fonts;
+      };
+      sizes = {
+        terminal = 11;
+        applications = 11;
+        desktop = 11;
+        popups = 11;
+      };
+    };
+
+    opacity = {
+      terminal = themeConfig.transparency.opacity;
+      applications = themeConfig.transparency.opacity;
+      desktop = 1.0;
+      popups = themeConfig.transparency.opacity;
+    };
+
+    targets = {
+      jankyborders.enable = true;
+    };
   };
 }

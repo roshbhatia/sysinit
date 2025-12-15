@@ -153,11 +153,8 @@ with lib;
   validateTransparency =
     transparency:
     let
-      hasEnable = hasAttr "enable" transparency;
       hasOpacity = hasAttr "opacity" transparency;
       hasBlur = hasAttr "blur" transparency;
-
-      enableValid = hasEnable && isBool transparency.enable;
       opacityValid =
         hasOpacity
         && isFloat transparency.opacity
@@ -165,11 +162,7 @@ with lib;
         && transparency.opacity <= 1;
       blurValid = hasBlur && isInt transparency.blur && transparency.blur >= 0;
     in
-    if !hasEnable then
-      throw "Transparency config missing 'enable' field"
-    else if !enableValid then
-      throw "Transparency 'enable' must be a boolean"
-    else if hasOpacity && !opacityValid then
+    if hasOpacity && !opacityValid then
       throw "Transparency 'opacity' must be a float between 0 and 1, got: ${toString transparency.opacity}"
     else if hasBlur && !blurValid then
       throw "Transparency 'blur' must be a non-negative integer, got: ${toString transparency.blur}"

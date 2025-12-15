@@ -104,7 +104,6 @@ task: Available tasks for this project:
 | `theme.font.monospace` | string | "TX-02" |  | Monospace font for terminal and editor |
 | `theme.font.nerdfontFallback` | string | "Symbols Nerd Font" |  | Fallback font for nerd font glyphs |
 | `theme.transparency.blur` | integer | `10` |  | Background blur amount |
-| `theme.transparency.enable` | boolean | true |  | Enable transparency effects |
 | `theme.transparency.opacity` | float | `0.1` |  | Transparency opacity level |
 | `theme.variant` | string | "macchiato" |  | Theme variant |
 | `updateInterval` | nullOr int | null |  | Update interval in milliseconds |

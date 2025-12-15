@@ -18,7 +18,6 @@ with lib;
   createNeovimConfig =
     themeData: config: overrides:
     let
-      transparency = config.transparency or (throw "Missing transparency configuration");
 
       pluginInfo =
         themeData.appAdapters.neovim or {
@@ -41,7 +40,7 @@ with lib;
         inherit colorscheme;
 
         config = {
-          transparent = transparency.enable or false;
+          transparent = true;
           terminal_colors = true;
           styles = {
             comments = {

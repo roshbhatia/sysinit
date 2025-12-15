@@ -146,11 +146,6 @@ with lib;
         };
 
         transparency = {
-          enable = mkOption {
-            type = types.bool;
-            default = true;
-            description = "Enable transparency effects";
-          };
           opacity = mkOption {
             type = types.float;
             default = 0.1;
