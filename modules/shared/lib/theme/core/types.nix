@@ -59,11 +59,6 @@ with lib;
         description = "Function to map palette to semantic colors";
       };
 
-      appAdapters = mkOption {
-        type = types.attrsOf types.attrs;
-        default = { };
-        description = "App-specific theme adapters";
-      };
     };
   };
 

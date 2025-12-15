@@ -17,7 +17,6 @@
       palette = theme.palettes.${validatedConfig.variant};
       semanticColors = theme.semanticMapping palette;
 
-      # Map semantic colors to Atuin color names
       atuinColors = {
         # Base colors
         base = semanticColors.foreground.primary;
@@ -44,7 +43,6 @@
         background = semanticColors.background.primary;
       };
 
-      # Generate Atuin TOML theme
       generateAtuinToml = themeId: ''
         [theme]
         name = "${themeId}"

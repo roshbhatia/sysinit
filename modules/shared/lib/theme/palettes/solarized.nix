@@ -25,8 +25,7 @@ rec {
   };
 
   palettes = {
-    dark = utils.validatePalette {
-
+    dark = utils.validatePalette (rec {
       base03 = "#002b36";
       base02 = "#073642";
       base01 = "#586e75";
@@ -45,23 +44,22 @@ rec {
       cyan = "#2aa198";
       green = "#859900";
 
-      base = "#002b36";
-      bg = "#002b36";
-      bg_alt = "#073642";
-      surface = "#073642";
-      surface_alt = "#586e75";
-      text = "#839496";
-      fg = "#839496";
-      fg_alt = "#657b83";
-      comment = "#586e75";
-      purple = "#6c71c4";
-      teal = "#2aa198";
-      accent = "#268bd2";
-      accent_dim = "#073642";
-    };
+      base = base03;
+      bg = base03;
+      bg_alt = base02;
+      surface = base02;
+      surface_alt = base01;
+      text = base0;
+      fg = base0;
+      fg_alt = base00;
+      comment = base01;
+      purple = violet;
+      teal = cyan;
+      accent = blue;
+      accent_dim = base02;
+    });
 
-    light = utils.validatePalette {
-
+    light = utils.validatePalette (rec {
       base03 = "#002b36";
       base02 = "#073642";
       base01 = "#586e75";
@@ -80,54 +78,21 @@ rec {
       cyan = "#2aa198";
       green = "#859900";
 
-      base = "#fdf6e3";
-      bg = "#fdf6e3";
-      bg_alt = "#eee8d5";
-      surface = "#eee8d5";
-      surface_alt = "#93a1a1";
-      text = "#657b83";
-      fg = "#657b83";
-      fg_alt = "#839496";
-      comment = "#93a1a1";
-      purple = "#6c71c4";
-      teal = "#2aa198";
-      accent = "#268bd2";
-      accent_dim = "#eee8d5";
-    };
+      base = base3;
+      bg = base3;
+      bg_alt = base2;
+      surface = base2;
+      surface_alt = base1;
+      text = base00;
+      fg = base00;
+      fg_alt = base0;
+      comment = base1;
+      purple = violet;
+      teal = cyan;
+      accent = blue;
+      accent_dim = base2;
+    });
   };
 
   semanticMapping = palette: utils.createSemanticMapping palette;
-
-  appAdapters = {
-    wezterm = {
-      dark = "Solarized Dark Higher Contrast (Gogh)";
-      light = "Solarized Light (Gogh)";
-    };
-
-    neovim = {
-      plugin = "craftzdog/solarized-osaka.nvim";
-      name = "solarized-osaka";
-      setup = "solarized-osaka";
-      colorscheme = _variant: "solarized-osaka";
-    };
-    bat = variant: "solarized-${variant}";
-    delta = variant: "solarized-${variant}";
-    atuin = variant: "solarized-${variant}";
-    k9s = variant: "solarized-${variant}";
-    vivid = variant: "solarized-${variant}";
-    helix = variant: "solarized_${variant}";
-    opencode = "system";
-
-    sketchybar = {
-      background = palettes.dark.base03;
-      foreground = palettes.dark.base0;
-      accent = palettes.dark.blue;
-      warning = palettes.dark.yellow;
-      success = palettes.dark.green;
-      error = palettes.dark.red;
-      info = palettes.dark.cyan;
-      muted = palettes.dark.base01;
-      highlight = palettes.dark.magenta;
-    };
-  };
 }

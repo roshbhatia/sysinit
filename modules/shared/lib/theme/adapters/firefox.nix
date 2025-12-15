@@ -704,19 +704,8 @@ with lib;
         }
       '';
 
-      customWebsiteCSS =
-        if hasAttr "websiteCSS" overrides then
-          ''
-
-            /* ========== CUSTOM WEBSITE CSS ========== */
-
-            ${overrides.websiteCSS}
-          ''
-        else
-          "";
-
       baseConfig = {
-        userContentCSS = semanticCSSVariables + baseUserContentCSS + customWebsiteCSS;
+        userContentCSS = semanticCSSVariables + baseUserContentCSS;
         userChromeCSS = semanticCSSVariables + baseChromeCSS;
         inherit semanticColors;
         inherit transparency;

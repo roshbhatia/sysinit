@@ -25,8 +25,7 @@ rec {
   };
 
   palettes = {
-    dark = utils.validatePalette {
-
+    dark = utils.validatePalette (rec {
       bg0_h = "#1d2021";
       bg0 = "#282828";
       bg0_s = "#32302f";
@@ -65,23 +64,22 @@ rec {
       dark_purple = "#4a3650";
       dark_aqua = "#36473a";
 
-      base = "#282828";
-      bg = "#282828";
-      bg_alt = "#1d2021";
-      surface = "#3c3836";
-      surface_alt = "#504945";
-      text = "#ebdbb2";
-      fg = "#ebdbb2";
-      fg_alt = "#d5c4a1";
-      comment = "#928374";
-      cyan = "#8ec07c";
-      teal = "#8ec07c";
-      accent = "#83a598";
-      accent_dim = "#3c3836";
-    };
+      base = bg0;
+      bg = bg0;
+      bg_alt = bg0_h;
+      surface = bg1;
+      surface_alt = bg2;
+      text = fg1;
+      fg = fg1;
+      fg_alt = fg2;
+      comment = gray;
+      cyan = aqua;
+      teal = aqua;
+      accent = blue;
+      accent_dim = bg1;
+    });
 
-    light = utils.validatePalette {
-
+    light = utils.validatePalette (rec {
       bg0_h = "#f9f5d7";
       bg0 = "#fbf1c7";
       bg0_s = "#f2e5bc";
@@ -114,55 +112,21 @@ rec {
       bright_aqua = "#427b58";
       bright_orange = "#af3a03";
 
-      base = "#fbf1c7";
-      bg = "#fbf1c7";
-      bg_alt = "#f9f5d7";
-      surface = "#ebdbb2";
-      surface_alt = "#d5c4a1";
-      text = "#3c3836";
-      fg = "#3c3836";
-      fg_alt = "#504945";
-      comment = "#928374";
-      cyan = "#689d6a";
-      teal = "#689d6a";
-      accent = "#458588";
-      accent_dim = "#ebdbb2";
-    };
+      base = bg0;
+      bg = bg0;
+      bg_alt = bg0_h;
+      surface = bg1;
+      surface_alt = bg2;
+      text = fg1;
+      fg = fg1;
+      fg_alt = fg2;
+      comment = gray;
+      cyan = aqua;
+      teal = aqua;
+      accent = blue;
+      accent_dim = bg1;
+    });
   };
 
   semanticMapping = palette: utils.createSemanticMapping palette;
-
-  appAdapters = {
-    wezterm = {
-      dark = "Gruvbox dark, hard (base16)";
-      light = "Gruvbox light, hard (base16)";
-    };
-
-    neovim = {
-      plugin = "ellisonleao/gruvbox.nvim";
-      name = "gruvbox";
-      setup = "gruvbox";
-      colorscheme = _variant: "gruvbox";
-    };
-
-    bat = variant: "gruvbox-${variant}";
-    delta = variant: "gruvbox-${variant}";
-    atuin = variant: "gruvbox-${variant}";
-    vivid = variant: "gruvbox-${variant}";
-    helix = _variant: "gruvbox";
-    k9s = variant: "gruvbox-${variant}";
-    opencode = "gruvbox";
-
-    sketchybar = {
-      background = palettes.dark.bg;
-      foreground = palettes.dark.fg;
-      accent = palettes.dark.blue;
-      warning = palettes.dark.yellow;
-      success = palettes.dark.green;
-      error = palettes.dark.red;
-      info = palettes.dark.aqua;
-      muted = palettes.dark.gray;
-      highlight = palettes.dark.orange;
-    };
-  };
 }

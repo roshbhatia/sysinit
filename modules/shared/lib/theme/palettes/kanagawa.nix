@@ -26,8 +26,7 @@ rec {
   };
 
   palettes = {
-    lotus = utils.validatePalette {
-
+    lotus = utils.validatePalette (rec {
       lotusWhite0 = "#d5cea3";
       lotusWhite1 = "#dcd5ac";
       lotusWhite2 = "#e5ddb0";
@@ -77,29 +76,28 @@ rec {
       lotusTeal2 = "#5e857a";
       lotusTeal3 = "#6693bf";
 
-      base = "#f2ecbc";
-      bg = "#f2ecbc";
-      bg_alt = "#e5ddb0";
-      surface = "#dcd5ac";
-      surface_alt = "#d5cea3";
-      text = "#545464";
-      fg = "#545464";
-      fg_alt = "#716e61";
-      comment = "#8a8980";
-      blue = "#4d699b";
-      cyan = "#597b75";
-      teal = "#5e857a";
-      green = "#6f894e";
-      yellow = "#c8ae6d";
-      orange = "#cc6d00";
-      red = "#c84053";
-      purple = "#624c83";
-      accent = "#4d699b";
-      accent_dim = "#dcd5ac";
-    };
+      base = lotusWhite3;
+      bg = lotusWhite3;
+      bg_alt = lotusWhite2;
+      surface = lotusWhite1;
+      surface_alt = lotusWhite0;
+      text = fujiWhite;
+      fg = fujiWhite;
+      fg_alt = lotusGray;
+      comment = lotusGray2;
+      blue = lotusBlue4;
+      cyan = lotusCyan;
+      teal = lotusTeal2;
+      green = lotusGreen;
+      yellow = lotusYellow4;
+      orange = lotusOrange;
+      red = lotusRed;
+      purple = lotusViolet4;
+      accent = lotusBlue4;
+      accent_dim = lotusWhite1;
+    });
 
-    wave = utils.validatePalette {
-
+    wave = utils.validatePalette (rec {
       sumiInk0 = "#16161d";
       sumiInk1 = "#1f1f28";
       sumiInk2 = "#2a2a37";
@@ -141,29 +139,28 @@ rec {
       surimiOrange = "#ffa066";
       oniViolet = "#957fb8";
 
-      base = "#1f1f28";
-      bg = "#1f1f28";
-      bg_alt = "#16161d";
-      surface = "#2a2a37";
-      surface_alt = "#363646";
-      text = "#dcd7ba";
-      fg = "#dcd7ba";
-      fg_alt = "#c8c093";
-      comment = "#727169";
-      blue = "#7e9cd8";
-      cyan = "#7fb4ca";
-      teal = "#6a9589";
-      green = "#98bb6c";
-      yellow = "#e6c384";
-      orange = "#ffa066";
-      red = "#c34043";
-      purple = "#957fb8";
-      accent = "#7e9cd8";
-      accent_dim = "#2a2a37";
-    };
+      base = sumiInk1;
+      bg = sumiInk1;
+      bg_alt = sumiInk0;
+      surface = sumiInk2;
+      surface_alt = sumiInk3;
+      text = fujiWhite;
+      fg = fujiWhite;
+      fg_alt = oldWhite;
+      comment = fujiGray;
+      blue = crystalBlue;
+      cyan = springBlue;
+      teal = waveAqua1;
+      green = springGreen;
+      yellow = carpYellow;
+      orange = surimiOrange;
+      red = autumnRed;
+      purple = oniViolet;
+      accent = crystalBlue;
+      accent_dim = sumiInk2;
+    });
 
-    dragon = utils.validatePalette {
-
+    dragon = utils.validatePalette (rec {
       dragonBlack0 = "#0d0c0c";
       dragonBlack1 = "#12120f";
       dragonBlack2 = "#1d1c19";
@@ -190,63 +187,27 @@ rec {
       dragonTeal = "#949fb5";
       dragonYellow = "#c4b28a";
 
-      base = "#181616";
-      bg = "#181616";
-      bg_alt = "#12120f";
-      surface = "#1d1c19";
-      surface_alt = "#282727";
-      text = "#c5c9c5";
-      fg = "#c5c9c5";
-      fg_alt = "#a6a69c";
-      comment = "#7a8382";
-      blue = "#8ba4b0";
-      cyan = "#8ea4a2";
-      teal = "#949fb5";
-      green = "#87a987";
-      yellow = "#c4b28a";
-      orange = "#b6927b";
-      red = "#c4746e";
-      purple = "#8992a7";
-      accent = "#8ba4b0";
-      accent_dim = "#1d1c19";
-    };
+      base = dragonBlack3;
+      bg = dragonBlack3;
+      bg_alt = dragonBlack1;
+      surface = dragonBlack2;
+      surface_alt = dragonBlack4;
+      text = dragonWhite;
+      fg = dragonWhite;
+      fg_alt = dragonGray;
+      comment = dragonGray3;
+      blue = dragonBlue;
+      cyan = dragonAqua;
+      teal = dragonTeal;
+      green = dragonGreen;
+      yellow = dragonYellow;
+      orange = dragonOrange;
+      red = dragonRed;
+      purple = dragonViolet;
+      accent = dragonBlue;
+      accent_dim = dragonBlack2;
+    });
   };
 
   semanticMapping = palette: utils.createSemanticMapping palette;
-
-  appAdapters = {
-    wezterm = {
-      lotus = "Kanagawa Lotus (Gogh)";
-      wave = "Kanagawa (Gogh)";
-      dragon = "Kanagawa Dragon (Gogh)";
-    };
-
-    neovim = {
-      plugin = "cdmill/neomodern.nvim";
-      name = "neomodern";
-      setup = "neomodern";
-      colorscheme = _variant: "gyokuro";
-    };
-
-    bat = variant: "kanagawa-${variant}";
-    delta = variant: "kanagawa-${variant}";
-    atuin = variant: "kanagawa-${variant}";
-    vivid = variant: "kanagawa-${variant}";
-    helix = _variant: "kanagawa";
-    k9s = variant: "kanagawa-${variant}";
-    opencode = "kanagawa";
-
-    sketchybar = {
-      background = palettes.wave.sumiInk0;
-      foreground = palettes.wave.fujiWhite;
-      accent = palettes.wave.crystalBlue;
-      warning = palettes.wave.surimiOrange;
-      success = palettes.wave.springGreen;
-      error = palettes.wave.peachRed;
-      info = palettes.wave.waveAqua1;
-      muted = palettes.wave.fujiGray;
-      highlight = palettes.wave.sakuraPink;
-    };
-  };
-
 }

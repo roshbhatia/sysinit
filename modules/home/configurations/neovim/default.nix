@@ -55,7 +55,9 @@ in
   xdg.configFile."nvim/lua/sysinit/plugins/orgmode/".source =
     mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/lua/sysinit/plugins/orgmode";
 
-  xdg.configFile."nvim/theme_config.json".text = themes.generateAppJSON "neovim" values.theme;
+  xdg.configFile."nvim/theme_config.json".text = builtins.toJSON (
+    themes.generateAppJSON "neovim" values.theme
+  );
 
   xdg.configFile."nvim/queries".source =
     mkOutOfStoreSymlink "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit/modules/home/configurations/neovim/queries";

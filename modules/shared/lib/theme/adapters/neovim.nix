@@ -6,38 +6,23 @@
 
 with lib;
 
-{
-  /*
-    Create Neovim theme configuration.
+let
+  themeNames = import ./theme-names.nix { inherit lib; };
+in
 
-    Uses the adapter base pattern to reduce boilerplate:
-    1. Define color mapping (semantic colors → neovim config keys)
-    2. Define config builder function
-    3. Use adapterBase.createAdapter for common logic
-  */
+{
   createNeovimConfig =
     themeData: config: overrides:
     let
-
-      pluginInfo =
-        themeData.appAdapters.neovim or {
-          plugin = "${themeData.meta.id}/${themeData.meta.id}.nvim";
-          name = themeData.meta.id;
-          setup = themeData.meta.id;
-          colorscheme = variant: "${themeData.meta.id}-${variant}";
-        };
-
-      colorscheme =
-        if isFunction pluginInfo.colorscheme then
-          pluginInfo.colorscheme config.variant
-        else
-          pluginInfo.colorscheme;
+      pluginInfo = themeNames.getNeovimConfig themeData.meta.id config.variant;
 
       baseConfig = {
-        inherit (pluginInfo) plugin;
-        inherit (pluginInfo) name;
-        inherit (pluginInfo) setup;
-        inherit colorscheme;
+        inherit (pluginInfo)
+          plugin
+          name
+          setup
+          colorscheme
+          ;
 
         config = {
           transparent = true;
@@ -78,54 +63,24 @@ with lib;
     in
     utils.mergeThemeConfigs baseConfig overrides;
 
-  /*
-    Generate Neovim JSON export.
-
-    Exports theme configuration suitable for Neovim setup scripts.
-  */
   generateNeovimJSON =
     themeData: config:
     let
       palette = themeData.palettes.${config.variant};
-      semanticColors = themeData.semanticMapping palette;
-
-      pluginInfo =
-        themeData.appAdapters.neovim or {
-          plugin = "${themeData.meta.id}/${themeData.meta.id}.nvim";
-          name = themeData.meta.id;
-          setup = themeData.meta.id;
-          colorscheme = variant: "${themeData.meta.id}-${variant}";
-        };
-
-      colorscheme =
-        if isFunction pluginInfo.colorscheme then
-          pluginInfo.colorscheme config.variant
-        else
-          pluginInfo.colorscheme;
-
-      background = config.appearance or null;
-      transparency = config.transparency or { };
-
-      exported = {
-        inherit colorscheme;
-        inherit (config) variant;
-        appearance = config.appearance or null;
-        inherit background;
-        inherit transparency;
-        theme_name = "${themeData.meta.name} ${utils.capitalizeFirst config.variant}";
-
-        plugins.${colorscheme} = {
-          inherit (pluginInfo) plugin;
-          inherit (pluginInfo) name;
-          inherit (pluginInfo) setup;
-          inherit colorscheme;
-          base_scheme = themeData.meta.id;
-        };
-
-        inherit palette;
-        colors = semanticColors;
-        ansi = utils.generateAnsiMappings semanticColors;
-      };
+      semanticColors = utils.createSemanticMapping palette;
+      pluginInfo = themeNames.getNeovimConfig themeData.meta.id config.variant;
     in
-    builtins.toJSON exported;
+    {
+      inherit (config) colorscheme variant;
+      appearance = if hasAttr "appearance" config then config.appearance else null;
+      font = if hasAttr "font" config then config.font else null;
+      transparency = config.transparency or (throw "Missing transparency configuration");
+      inherit (pluginInfo) plugin name setup;
+      theme_colorscheme = pluginInfo.colorscheme;
+      inherit palette;
+      semanticColors = semanticColors // {
+        extended = palette;
+      };
+      ansi = utils.generateAnsiMappings semanticColors;
+    };
 }

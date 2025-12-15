@@ -5,42 +5,6 @@
 with lib;
 
 {
-  /*
-    Unified adapter creation pattern to reduce duplication across app adapters.
-
-    Each adapter (neovim, wezterm, firefox) follows the same pattern:
-    1. Get theme data (palette, semantic colors)
-    2. Define color mapping (semantic colors → app-specific colors)
-    3. Build app-specific config from mapped colors
-    4. Optionally export to JSON format
-
-    This module provides the common scaffolding to reduce boilerplate from ~100 LOC
-    per adapter to ~30-40 LOC by extracting the pattern.
-  */
-
-  /*
-    Create an adapter configuration.
-
-    Arguments:
-      appName: string - Name of the application (e.g. "neovim")
-      themeData: attrs - Theme data including semanticColors, palette, etc.
-      colorMapping: attrs - Maps semantic color names to app-specific color variables
-                            e.g. { "text.primary" = "foreground"; }
-      configBuilder: function - Builds app config from semantic colors and mapping
-                                Signature: (semanticColors, colorMapping) → config
-      jsonBuilder: function - Optional builder for JSON export
-                              Signature: (config, appName) → string (JSON)
-      transparent: bool - Whether to apply transparency effects (default: false)
-      transparencyConfig: attrs - Transparency settings (opacity, blur) if transparent=true
-
-    Returns:
-      {
-        config: attrs - The application configuration
-        json: string - JSON export (if jsonBuilder provided)
-        appName: string - Name of the app
-        metadata: attrs - Generated metadata
-      }
-  */
   createAdapter =
     {
       appName,

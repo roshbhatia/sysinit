@@ -19,8 +19,7 @@ rec {
   };
 
   palettes = {
-    dark = utils.validatePalette {
-
+    dark = utils.validatePalette (rec {
       nord0 = "#2e3440";
       nord1 = "#3b4252";
       nord2 = "#434c5e";
@@ -41,60 +40,27 @@ rec {
       nord14 = "#a3be8c";
       nord15 = "#b48ead";
 
-      base = "#2e3440";
-      bg = "#2e3440";
-      bg_alt = "#3b4252";
-      surface = "#434c5e";
-      surface_alt = "#4c566a";
-      text = "#eceff4";
-      fg = "#eceff4";
-      fg_alt = "#e5e9f0";
-      comment = "#4c566a";
-      blue = "#5e81ac";
-      cyan = "#88c0d0";
-      teal = "#8fbcbb";
-      green = "#a3be8c";
-      yellow = "#ebcb8b";
-      orange = "#d08770";
-      red = "#bf616a";
-      purple = "#b48ead";
-      accent = "#5e81ac";
-      accent_dim = "#434c5e";
-    };
+      base = nord0;
+      bg = nord0;
+      bg_alt = nord1;
+      surface = nord2;
+      surface_alt = nord3;
+      text = nord6;
+      fg = nord6;
+      fg_alt = nord5;
+      comment = nord3;
+      blue = nord10;
+      cyan = nord8;
+      teal = nord7;
+      green = nord14;
+      yellow = nord13;
+      orange = nord12;
+      red = nord11;
+      purple = nord15;
+      accent = nord10;
+      accent_dim = nord2;
+    });
   };
 
   semanticMapping = palette: utils.createSemanticMapping palette;
-
-  appAdapters = {
-    wezterm = {
-      dark = "Nord (base16)";
-    };
-
-    neovim = {
-      plugin = "EdenEast/nightfox.nvim";
-      name = "nightfox";
-      setup = "nightfox";
-      colorscheme = _variant: "nordfox";
-    };
-
-    bat = variant: "nord-${variant}";
-    delta = variant: "nord-${variant}";
-    atuin = variant: "nord-${variant}";
-    vivid = _variant: "nord";
-    k9s = variant: "nord-${variant}";
-    helix = _variant: "nord";
-    opencode = "nord";
-
-    sketchybar = {
-      background = palettes.dark.nord0;
-      foreground = palettes.dark.nord4;
-      accent = palettes.dark.nord8;
-      warning = palettes.dark.nord13;
-      success = palettes.dark.nord14;
-      error = palettes.dark.nord11;
-      info = palettes.dark.nord10;
-      muted = palettes.dark.nord3;
-      highlight = palettes.dark.nord15;
-    };
-  };
 }

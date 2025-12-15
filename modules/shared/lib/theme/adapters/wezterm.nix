@@ -6,28 +6,17 @@
 
 with lib;
 
-{
-  /*
-    Create Wezterm theme configuration.
+let
+  themeNames = import ./theme-names.nix { inherit lib; };
+in
 
-    Uses the adapter base pattern:
-    1. Define color mapping (semantic → wezterm config keys)
-    2. Define config builder function
-    3. Use adapterBase.createAdapter for common logic
-  */
+{
   createWeztermConfig =
     themeData: config: overrides:
     let
       transparency = config.transparency or (throw "Missing transparency configuration");
 
-      themeName =
-        if hasAttr "wezterm" themeData.appAdapters then
-          if hasAttr config.variant themeData.appAdapters.wezterm then
-            themeData.appAdapters.wezterm.${config.variant}
-          else
-            throw "Wezterm theme variant '${config.variant}' not found for theme '${themeData.meta.id}'"
-        else
-          "${themeData.meta.id}-${config.variant}";
+      themeName = themeNames.getWeztermTheme themeData.meta.id config.variant;
 
       configBuilder = semanticColors: _mapping: {
         color_scheme = themeName;
@@ -101,25 +90,13 @@ with lib;
     in
     utils.mergeThemeConfigs baseConfig (transparencyConfig // overrides);
 
-  /*
-    Generate Wezterm JSON export.
-
-    Exports theme configuration suitable for Wezterm setup scripts.
-  */
   generateWeztermJSON =
     themeData: config:
     let
       palette = themeData.palettes.${config.variant};
       semanticColors = utils.createSemanticMapping palette;
 
-      themeName =
-        if hasAttr "wezterm" themeData.appAdapters then
-          if hasAttr config.variant themeData.appAdapters.wezterm then
-            themeData.appAdapters.wezterm.${config.variant}
-          else
-            throw "Wezterm theme variant '${config.variant}' not found for theme '${themeData.meta.id}'"
-        else
-          "${themeData.meta.id}-${config.variant}";
+      themeName = themeNames.getWeztermTheme themeData.meta.id config.variant;
     in
     {
       colorscheme = themeData.meta.id;

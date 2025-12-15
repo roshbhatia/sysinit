@@ -6,6 +6,7 @@ let
   types = import ./core/types.nix { inherit lib; };
   constants = import ./core/constants.nix { inherit lib; };
   utils = import ./core/utils.nix { inherit lib; };
+  themeNames = import ./adapters/theme-names.nix { inherit lib; };
 
   catppuccin = import ./palettes/catppuccin.nix { inherit lib; };
   kanagawa = import ./palettes/kanagawa.nix { inherit lib; };
@@ -20,11 +21,8 @@ let
   weztermAdapter = import ./adapters/wezterm.nix { inherit lib utils adapterBase; };
   neovimAdapter = import ./adapters/neovim.nix { inherit lib utils adapterBase; };
   firefoxAdapter = import ./adapters/firefox.nix { inherit lib utils adapterBase; };
-  k9sAdapter = import ./adapters/k9s.nix { inherit lib; };
-  batAdapter = import ./adapters/bat.nix { inherit lib; };
   atuinAdapter = import ./adapters/atuin.nix { inherit lib; };
   waybarAdapter = import ./adapters/waybar.nix { inherit lib; };
-
   niriAdapter = import ./adapters/niri.nix { inherit lib; };
 
   themes = {
@@ -111,19 +109,16 @@ let
   getAppTheme =
     app: colorscheme: variant:
     let
-      theme = getTheme colorscheme;
-      inherit (theme) appAdapters;
+      appThemeFunctions = {
+        wezterm = themeNames.getWeztermTheme;
+        neovim = _cs: _v: (themeNames.getNeovimConfig _cs _v).colorscheme;
+        delta = themeNames.getDeltaTheme;
+        atuin = themeNames.getAtuinTheme;
+        opencode = themeNames.getOpencodeTheme;
+      };
     in
-    if hasAttr app appAdapters then
-      let
-        adapter = appAdapters.${app};
-      in
-      if isFunction adapter then
-        adapter variant
-      else if isAttrs adapter then
-        if hasAttr variant adapter then adapter.${variant} else adapter
-      else
-        adapter
+    if hasAttr app appThemeFunctions then
+      appThemeFunctions.${app} colorscheme variant
     else
       "${colorscheme}-${variant}";
 
@@ -360,11 +355,8 @@ in
     wezterm = weztermAdapter;
     neovim = neovimAdapter;
     firefox = firefoxAdapter;
-    k9s = k9sAdapter;
-    bat = batAdapter;
     atuin = atuinAdapter;
     waybar = waybarAdapter;
-
     niri = niriAdapter;
   };
 }

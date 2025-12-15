@@ -25,7 +25,7 @@ rec {
   };
 
   palettes = {
-    dawn = utils.validatePalette {
+    dawn = utils.validatePalette (rec {
       base = "#faf4ed";
       surface = "#fffaf3";
       overlay = "#f2e9e1";
@@ -46,24 +46,24 @@ rec {
       highlight_med = "#dfdad9";
       highlight_high = "#cecacd";
 
-      bg = "#faf4ed";
-      bg_alt = "#fffaf3";
-      fg = "#575279";
-      fg_alt = "#797593";
-      comment = "#9893a5";
-      red = "#b4637a";
-      green = "#6d8f89";
-      yellow = "#ea9d34";
-      blue = "#286983";
-      purple = "#907aa9";
-      orange = "#d7827e";
-      cyan = "#56949f";
-      teal = "#56949f";
-      accent = "#907aa9";
-      accent_dim = "#f2e9e1";
-    };
+      bg = base;
+      bg_alt = surface;
+      fg = text;
+      fg_alt = subtle;
+      comment = muted;
+      red = love;
+      green = leaf;
+      yellow = gold;
+      blue = pine;
+      purple = iris;
+      orange = rose;
+      cyan = foam;
+      teal = foam;
+      accent = iris;
+      accent_dim = overlay;
+    });
 
-    moon = utils.validatePalette {
+    moon = utils.validatePalette (rec {
       base = "#232136";
       surface = "#2a273f";
       overlay = "#393552";
@@ -84,57 +84,23 @@ rec {
       highlight_med = "#44415a";
       highlight_high = "#56526e";
 
-      bg = "#232136";
-      bg_alt = "#2a273f";
-      fg = "#e0def4";
-      fg_alt = "#908caa";
-      comment = "#6e6a86";
-      red = "#eb6f92";
-      green = "#95b1ac";
-      yellow = "#f6c177";
-      blue = "#3e8fb0";
-      purple = "#c4a7e7";
-      orange = "#ea9a97";
-      cyan = "#9ccfd8";
-      teal = "#9ccfd8";
-      accent = "#c4a7e7";
-      accent_dim = "#393552";
-    };
+      bg = base;
+      bg_alt = surface;
+      fg = text;
+      fg_alt = subtle;
+      comment = muted;
+      red = love;
+      green = leaf;
+      yellow = gold;
+      blue = pine;
+      purple = iris;
+      orange = rose;
+      cyan = foam;
+      teal = foam;
+      accent = iris;
+      accent_dim = overlay;
+    });
   };
 
   semanticMapping = palette: utils.createSemanticMapping palette;
-
-  appAdapters = {
-    wezterm = {
-      dawn = "rose-pine-dawn";
-      moon = "roseprime";
-    };
-
-    neovim = {
-      plugin = "cdmill/neomodern.nvim";
-      name = "neomodern";
-      setup = "neomodern";
-      colorscheme = _variant: "roseprime";
-    };
-
-    bat = variant: "rose-pine-${variant}";
-    delta = variant: "rose-pine-${variant}";
-    k9s = variant: "rose-pine-${variant}";
-    atuin = variant: "rose-pine-${variant}";
-    vivid = variant: "rose-pine-${variant}";
-    helix = variant: "rose_pine_${variant}";
-    opencode = "rosepine";
-
-    sketchybar = {
-      background = palettes.moon.base;
-      foreground = palettes.moon.text;
-      accent = palettes.moon.iris;
-      warning = palettes.moon.gold;
-      success = palettes.moon.foam;
-      error = palettes.moon.love;
-      info = palettes.moon.pine;
-      inherit (palettes.moon) muted;
-      highlight = palettes.moon.rose;
-    };
-  };
 }

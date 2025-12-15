@@ -10,7 +10,6 @@
       palette = theme.palettes.${validatedConfig.variant};
       semanticColors = theme.semanticMapping palette;
 
-      # Helper to convert hex digit to integer
       hexDigitToInt =
         digit:
         let
@@ -41,7 +40,6 @@
         in
         digits.${digit};
 
-      # Helper to convert 2-char hex string to integer
       hexToInt =
         hex:
         let
@@ -50,8 +48,6 @@
         in
         high * 16 + low;
 
-      # Helper to convert hex color to RGB values for use in rgba()
-      # e.g., "#ff0000" -> "255, 0, 0"
       hexToRgb =
         hex:
         let
@@ -87,7 +83,6 @@
         mutedBgRgb = hexToRgb semanticColors.background.tertiary;
       };
 
-      # Generate CSS with theme colors
       generateWaybarCSS = _themeId: ''
         /* Waybar Styling */
 
