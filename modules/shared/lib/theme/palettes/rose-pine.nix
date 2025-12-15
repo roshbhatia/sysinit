@@ -40,6 +40,7 @@ rec {
       pine = "#286983";
       foam = "#56949f";
       iris = "#907aa9";
+      leaf = "#6d8f89";
 
       highlight_low = "#f4ede8";
       highlight_med = "#dfdad9";
@@ -51,7 +52,7 @@ rec {
       fg_alt = "#797593";
       comment = "#9893a5";
       red = "#b4637a";
-      green = "#286983";
+      green = "#6d8f89";
       yellow = "#ea9d34";
       blue = "#286983";
       purple = "#907aa9";
@@ -77,6 +78,7 @@ rec {
       pine = "#3e8fb0";
       foam = "#9ccfd8";
       iris = "#c4a7e7";
+      leaf = "#95b1ac";
 
       highlight_low = "#2a283e";
       highlight_med = "#44415a";
@@ -88,7 +90,7 @@ rec {
       fg_alt = "#908caa";
       comment = "#6e6a86";
       red = "#eb6f92";
-      green = "#3e8fb0";
+      green = "#95b1ac";
       yellow = "#f6c177";
       blue = "#3e8fb0";
       purple = "#c4a7e7";
