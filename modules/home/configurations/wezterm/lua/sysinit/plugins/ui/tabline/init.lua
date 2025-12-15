@@ -57,7 +57,7 @@ function M.setup(config)
       tabline_a = {
         {
           "mode",
-          icon = "  ",
+          icon = "  ",
           padding = { left = 1, right = 1 },
         },
       },
