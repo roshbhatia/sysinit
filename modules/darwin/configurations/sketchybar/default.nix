@@ -20,11 +20,12 @@ let
   monitor-reload-script = pkgs.writeShellScript "sketchybar-monitor-reload" ''
     set -euo pipefail
 
+    HOME="''${HOME:-/Users/$(whoami)}"
     CACHE_DIR="''${XDG_CACHE_HOME:-$HOME/.cache}/sketchybar"
     PREV_HASH_FILE="$CACHE_DIR/monitor-hash"
     LOG_FILE="/tmp/sketchybar-reload.log"
 
-    mkdir -p "$CACHE_DIR"
+    mkdir -p "$CACHE_DIR" 2>/dev/null || true
 
     if ! current_monitors=$(${pkgs.aerospace}/bin/aerospace list-monitors 2>/dev/null); then
         echo "[$(${pkgs.coreutils}/bin/date '+%Y-%m-%d %H:%M:%S')] ERROR: Failed to get monitor list" >> "$LOG_FILE"
@@ -79,8 +80,7 @@ in
             pkgs.sketchybar
             pkgs.coreutils
           ]
-        }/bin:/usr/bin:/bin";
-        XDG_CACHE_HOME = "$HOME/.cache";
+        }:/usr/bin:/bin";
       };
     };
   };
