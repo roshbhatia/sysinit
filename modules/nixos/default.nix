@@ -34,7 +34,8 @@
 
   users.groups.${values.user.username} = { };
 
-  # Allow wheel group to use sudo
+  # Sudo configuration
+  security.sudo.enable = true;
   security.sudo.wheelNeedsPassword = true;
 
   # Hostname - override per-host in hostConfigs
