@@ -49,7 +49,6 @@ require("sysinit.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.editor.hop"),
   require("sysinit.plugins.editor.markdown-preview"),
   require("sysinit.plugins.editor.marks"),
-  require("sysinit.plugins.editor.markview"),
   require("sysinit.plugins.editor.move"),
   require("sysinit.plugins.editor.surround"),
   require("sysinit.plugins.file.neo-tree"),
