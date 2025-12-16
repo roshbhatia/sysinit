@@ -183,6 +183,8 @@
               username = "roshbhatia";
             };
             theme = {
+              colorscheme = "everforest";
+              variant = "dark-medium";
               font = {
                 monospace = "CommitMono Nerd Font";
               };
