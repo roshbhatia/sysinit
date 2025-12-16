@@ -14,6 +14,11 @@ function M.setup()
         "oil_preview",
         "opencode",
         "quickfix",
+        "neogit",
+        "NeogitStatus",
+        "NeogitCommitView",
+        "NeogitPopup",
+        "NeogitPreview",
       }
 
       local should_disable = config.relative ~= "" or vim.tbl_contains(special_filetypes, ft)
