@@ -2,10 +2,12 @@
   pkgs,
   lib,
   values,
+  utils,
   ...
 }:
 
 let
+  inherit (utils.theme) fontNames;
   themeConfig = values.theme;
 
   schemeMapping = {
@@ -60,6 +62,9 @@ let
 
   polarityValue = if themeConfig.appearance == "light" then "light" else "dark";
 
+  monospaceFontName = themeConfig.font.monospace;
+  monospaceFontPackage = fontNames.getFontPackage pkgs monospaceFontName;
+
 in
 {
   stylix = {
@@ -71,8 +76,8 @@ in
 
     fonts = {
       monospace = {
-        name = "Agave Nerd Font";
-        package = pkgs.nerd-fonts.agave;
+        name = monospaceFontName;
+        package = monospaceFontPackage;
       };
       sansSerif = {
         name = "DejaVu Sans";
