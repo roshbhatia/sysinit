@@ -53,4 +53,19 @@ in
   inherit (stable) awscli2;
   inherit (stable) fish;
   inherit (stable) ollama;
+
+  # Custom font: IoskeleyMono - Iosevka configured to mimic Berkeley Mono
+  ioskeleymono = final.stdenv.mkDerivation {
+    pname = "ioskeleymono";
+    version = "2025.10.09-6";
+    src = final.fetchzip {
+      url = "https://github.com/ahatem/IoskeleyMono/releases/download/2025.10.09-6/IoskeleyMono-Build.zip";
+      hash = "sha256-ABnfxLMtY8E5KqJkrtIlPB4ML7CSFvjizCabv7i7SbU=";
+      stripRoot = false;
+    };
+    installPhase = ''
+      mkdir -p $out/share/fonts/opentype
+      cp -r $src/IoskeleyMono/* $out/share/fonts/opentype/ 2>/dev/null || cp $src/*.otf $out/share/fonts/opentype/
+    '';
+  };
 }

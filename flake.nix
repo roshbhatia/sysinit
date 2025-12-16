@@ -182,6 +182,11 @@
               email = "rshnbhatia@gmail.com";
               username = "roshbhatia";
             };
+            theme = {
+              font = {
+                monospace = "IoskeleyMono";
+              };
+            };
           };
         };
       };

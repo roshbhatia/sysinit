@@ -57,7 +57,7 @@ in
 
     binds = {
       # Launchers (similar to macOS Spotlight/Alfred)
-      "Mod+Return".action.spawn = [ "foot" ];
+      # Super+Space opens the app picker (like Raycast/Spotlight)
       "Mod+Space".action.spawn = [
         "wofi"
         "--show=drun"

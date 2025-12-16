@@ -27,6 +27,9 @@ with lib;
         "Iosevka Nerd Font Mono" = pkgs.nerd-fonts.iosevka;
         "IosevkaTerm Nerd Font" = pkgs.nerd-fonts.iosevka-term;
 
+        "IoskeleyMono" = pkgs.ioskeleymono;
+        "Ioskeley Mono" = pkgs.ioskeleymono;
+
         "Hack Nerd Font" = pkgs.nerd-fonts.hack;
         "Hack Nerd Font Mono" = pkgs.nerd-fonts.hack;
 
