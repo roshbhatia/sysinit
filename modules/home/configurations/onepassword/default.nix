@@ -19,11 +19,17 @@ in
       _1password
     ];
 
+  # SSH configuration with 1Password agent on Linux
   programs.ssh = {
     enable = true;
     extraConfig = lib.mkIf isLinux ''
       IdentityAgent ~/.1password/agent.sock
     '';
+  };
+
+  # Configure 1Password CLI for Linux
+  home.shellAliases = lib.mkIf isLinux {
+    op = "op";
   };
 
 }

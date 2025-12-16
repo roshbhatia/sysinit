@@ -1,13 +1,10 @@
 {
   pkgs,
   values,
-  customUtils,
   ...
 }:
 
 let
-  inherit (customUtils.theme) fontNames;
-
   base16SchemeMap = {
     "catppuccin-latte" = "catppuccin-latte";
     "catppuccin-frappe" = "catppuccin-frappe";
@@ -34,7 +31,6 @@ let
   polarity = values.theme.appearance;
 
   monospaceFontName = values.theme.font.monospace;
-  monospaceFontPackage = fontNames.getFontPackage pkgs monospaceFontName;
 in
 {
   stylix.enable = true;
@@ -46,7 +42,6 @@ in
   stylix.fonts = {
     monospace = {
       name = monospaceFontName;
-      package = monospaceFontPackage;
     };
     sansSerif = {
       name = "DejaVu Sans";

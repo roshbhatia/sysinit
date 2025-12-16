@@ -184,7 +184,7 @@
             };
             theme = {
               font = {
-                monospace = "IoskeleyMono";
+                monospace = "CommitMono Nerd Font";
               };
             };
           };

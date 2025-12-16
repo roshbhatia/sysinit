@@ -7,7 +7,6 @@ let
   constants = import ./core/constants.nix { inherit lib; };
   utils = import ./core/utils.nix { inherit lib; };
   themeNames = import ./adapters/theme-names.nix { inherit lib; };
-  fontNames = import ./adapters/font-names.nix { inherit lib; };
 
   catppuccin = import ./palettes/catppuccin.nix { inherit lib; };
   kanagawa = import ./palettes/kanagawa.nix { inherit lib; };
@@ -332,7 +331,6 @@ in
     utils
     constants
     types
-    fontNames
     ;
 
   inherit themes listAvailableThemes getThemeInfo;
