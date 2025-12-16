@@ -9,7 +9,6 @@ function M.setup()
       local ft = vim.api.nvim_get_option_value("filetype", { buf = buf })
 
       local special_filetypes = {
-        "NeogitCommitView",
         "help",
         "oil",
         "oil_preview",
