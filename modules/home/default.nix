@@ -25,7 +25,6 @@ let
     // (shellLib.aliases.kubernetes or { })
     // (shellLib.aliases.shortcuts or { })
     // {
-      sudo = "sudo -E";
       h = "hx";
       f = "yazi";
       tree = "eza --tree --icons=never";
