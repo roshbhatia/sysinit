@@ -437,14 +437,15 @@ local function apply_post_colorscheme_overrides(base_scheme)
   overrides.NeoTreeWinSeparator = { bg = "NONE", fg = c.plugins.filetree.separator }
 
   overrides.NeogitDiffContext = { bg = "NONE", fg = c.foreground.primary }
-  overrides.NeogitDiffContextCursor = { bg = "NONE" }
-  overrides.NeogitDiffContextHighlight = { bg = "NONE" }
+  overrides.NeogitDiffContextCursor =
+    { bg = c.background.secondary, fg = c.foreground.primary, bold = true }
+  overrides.NeogitDiffContextHighlight = { bg = c.background.secondary, fg = c.foreground.primary }
   overrides.NeogitDiffAdd = { bg = c.diff.add_bg, fg = c.diff.add }
-  overrides.NeogitDiffAddCursor = { bg = c.diff.add_bg }
-  overrides.NeogitDiffAddHighlight = { bg = c.diff.add_bg }
+  overrides.NeogitDiffAddCursor = { bg = c.diff.add_bg, fg = c.diff.add, bold = true }
+  overrides.NeogitDiffAddHighlight = { bg = c.diff.add_bg, fg = c.diff.add }
   overrides.NeogitDiffDelete = { bg = c.diff.delete_bg, fg = c.diff.delete }
-  overrides.NeogitDiffDeleteCursor = { bg = c.diff.delete_bg }
-  overrides.NeogitDiffDeleteHighlight = { bg = c.diff.delete_bg }
+  overrides.NeogitDiffDeleteCursor = { bg = c.diff.delete_bg, fg = c.diff.delete, bold = true }
+  overrides.NeogitDiffDeleteHighlight = { bg = c.diff.delete_bg, fg = c.diff.delete }
 
   for name, hl in pairs(overrides) do
     vim.api.nvim_set_hl(0, name, hl)
