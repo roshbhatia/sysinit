@@ -187,6 +187,9 @@
                 monospace = "CommitMono Nerd Font";
               };
             };
+            tailscale = {
+              enable = true;
+            };
           };
         };
       };

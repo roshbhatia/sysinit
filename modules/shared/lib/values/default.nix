@@ -60,16 +60,15 @@ with lib;
         };
       };
 
-      darwin = {
-
-        tailscale = {
-          enable = mkOption {
-            type = types.bool;
-            default = true;
-            description = "Enable Tailscale";
-          };
+      tailscale = {
+        enable = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Enable Tailscale";
         };
+      };
 
+      darwin = {
         borders = {
           enable = mkOption {
             type = types.bool;

@@ -74,7 +74,6 @@ task: Available tasks for this project:
 | `darwin.homebrew.additionalPackages.brews` | list(string) | [] |  | Additional Homebrew formulae |
 | `darwin.homebrew.additionalPackages.casks` | list(string) | [] |  | Additional Homebrew casks |
 | `darwin.homebrew.additionalPackages.taps` | list(string) | [] |  | Additional Homebrew taps |
-| `darwin.tailscale.enable` | boolean | true |  | Enable Tailscale |
 | `definedAliases` | list(string) | [] |  | Search aliases |
 | `firefox.name` | string | - | ✓ | Parameter name |
 | `firefox.template` | string | - | ✓ | URL template for the search engine |
@@ -94,6 +93,7 @@ task: Available tasks for this project:
 | `nix.additionalPackages` | list(string) | [] |  | Additional Nix packages |
 | `npm.additionalPackages` | list(string) | [] |  | Additional global npm packages |
 | `pipx.additionalPackages` | list(string) | [] |  | Additional global pipx packages |
+| `tailscale.enable` | boolean | false |  | Enable Tailscale |
 | `theme.appearance` |  | "dark" |  | Appearance mode (light or dark) |
 | `theme.colorscheme` | string | "catppuccin" |  | Theme colorscheme |
 | `theme.font.monospace` | string | "TX-02" |  | Monospace font for terminal and editor |

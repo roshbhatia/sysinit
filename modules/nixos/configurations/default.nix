@@ -9,6 +9,7 @@
     ./gaming.nix
     ./shell.nix
     ./ssh.nix
+    ./tailscale.nix
     ./stylix
   ];
 }
