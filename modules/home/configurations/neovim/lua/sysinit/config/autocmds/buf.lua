@@ -1,46 +1,27 @@
 local M = {}
 
-local function disable_ui_elements(win)
-  local ok, config = pcall(vim.api.nvim_win_get_config, win)
-  if not ok then
-    return
-  end
-
-  local buf = vim.api.nvim_win_get_buf(win)
-  local ft = vim.api.nvim_get_option_value("filetype", { buf = buf })
-
-  local special_filetypes = {
-    "help",
-    "oil",
-    "oil_preview",
-    "opencode",
-    "quickfix",
-    "neogit",
-    "NeogitStatus",
-    "NeogitCommitView",
-    "NeogitPopup",
-    "NeogitPreview",
-  }
-
-  local should_disable = config.relative ~= "" or vim.tbl_contains(special_filetypes, ft)
-
-  if should_disable then
-    pcall(function()
-      vim.wo[win].foldcolumn = "0"
-      vim.wo[win].signcolumn = "no"
-    end)
-  else
-    pcall(function()
-      vim.wo[win].foldcolumn = "1"
-      vim.wo[win].signcolumn = "auto"
-    end)
-  end
-end
-
 function M.setup()
-  vim.api.nvim_create_autocmd({ "WinEnter", "WinNew" }, {
+  vim.api.nvim_create_autocmd("WinEnter", {
     callback = function()
-      disable_ui_elements(vim.api.nvim_get_current_win())
+      local win = vim.api.nvim_get_current_win()
+      local config = vim.api.nvim_win_get_config(win)
+      local buf = vim.api.nvim_win_get_buf(win)
+      local ft = vim.api.nvim_get_option_value("filetype", { buf = buf })
+
+      local special_filetypes = {
+        "oil",
+        "oil_preview",
+        "opencode",
+        "quickfix",
+        "help",
+      }
+
+      local should_disable = config.relative ~= "" or vim.tbl_contains(special_filetypes, ft)
+
+      if should_disable then
+        vim.wo[win].foldcolumn = "0"
+        vim.wo[win].signcolumn = "no"
+      end
     end,
   })
 
