@@ -1,7 +1,11 @@
 local M = {}
 
 local function disable_ui_elements(win)
-  local config = vim.api.nvim_win_get_config(win)
+  local ok, config = pcall(vim.api.nvim_win_get_config, win)
+  if not ok then
+    return
+  end
+
   local buf = vim.api.nvim_win_get_buf(win)
   local ft = vim.api.nvim_get_option_value("filetype", { buf = buf })
 
@@ -21,11 +25,15 @@ local function disable_ui_elements(win)
   local should_disable = config.relative ~= "" or vim.tbl_contains(special_filetypes, ft)
 
   if should_disable then
-    vim.wo[win].foldcolumn = "-1"
-    vim.wo[win].signcolumn = "no"
+    pcall(function()
+      vim.wo[win].foldcolumn = "0"
+      vim.wo[win].signcolumn = "no"
+    end)
   else
-    vim.wo[win].foldcolumn = "1"
-    vim.wo[win].signcolumn = "auto"
+    pcall(function()
+      vim.wo[win].foldcolumn = "1"
+      vim.wo[win].signcolumn = "auto"
+    end)
   end
 end
 
