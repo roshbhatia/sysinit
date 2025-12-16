@@ -21,6 +21,9 @@ function M.setup()
       if should_disable then
         vim.wo[win].foldcolumn = "0"
         vim.wo[win].signcolumn = "no"
+      else
+        vim.wo[win].foldcolumn = "1"
+        vim.wo[win].signcolumn = "auto"
       end
     end,
   })
