@@ -34,7 +34,25 @@ in
     };
 
     # Low-latency audio for better gaming experience
-    services.pipewire.lowLatency.enable = true;
+    services.pipewire = {
+      extraConfig.pipewire = {
+        "context.modules" = [
+          {
+            name = "libpipewire-module-rt";
+            args = {
+              "nice.level" = -15;
+              "rt.prio" = 88;
+              "rt.time.soft" = 200000;
+              "rt.time.hard" = 200000;
+            };
+            flags = [
+              "ifexists"
+              "nofail"
+            ];
+          }
+        ];
+      };
+    };
 
     # GameMode - Optimise Linux system performance on demand
     # https://github.com/FeralInteractive/GameMode
