@@ -120,11 +120,15 @@
                 values
                 utils
                 pkgs
-                hostname
                 ;
               inherit (hostConfig) system;
             };
             modules = [
+              {
+                _module.args = {
+                  inherit utils hostname;
+                };
+              }
               ./modules/darwin
               (import ./modules/darwin/home-manager.nix {
                 inherit (values.user) username;
@@ -155,6 +159,11 @@
               customUtils = utils;
             };
             modules = [
+              {
+                _module.args = {
+                  inherit hostname;
+                };
+              }
               ./modules/nixos
               home-manager.nixosModules.home-manager
               stylix.nixosModules.stylix
