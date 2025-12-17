@@ -44,7 +44,9 @@ in
     # Gaming packages
     environment.systemPackages = with pkgs; [
       # Heroic Games Launcher - GOG, Epic Games Store, Amazon Prime Games
-      heroic
+      (heroic.override {
+        extraPkgs = pkgs: [ pkgs.gamescope ];
+      })
       # Lutris - Game launcher/manager
       lutris
       # Manage Proton versions

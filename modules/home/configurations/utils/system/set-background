@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 set -euo pipefail
 
 # Script to select and set desktop background with chafa preview
@@ -50,13 +50,18 @@ fi
 log_info "Scanning for wallpapers..."
 images=$(fd --type f --extension jpg --extension jpeg --extension png --extension webp . "$WALLPAPERS_DIR" | sort)
 
-image_count=$(echo "$images" | wc -l | xargs)
-if [ "$image_count" -eq 0 ]; then
+if [ -z "$images" ]; then
   log_error "No images found in $WALLPAPERS_DIR"
   exit 1
 fi
 
-log_success "Found $image_count wallpapers"
+log_success "Found wallpapers"
+
+# Check if running interactively
+if [ ! -t 0 ]; then
+  log_error "Script must be run interactively (fzf requires a TTY)"
+  exit 1
+fi
 
 # FZF preview with chafa
 selected=$(
