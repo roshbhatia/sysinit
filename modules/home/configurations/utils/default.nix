@@ -28,7 +28,7 @@ _:
     };
 
     ".local/bin/set-background" = {
-      source = ./system/set-background;
+      source = ./system/set-background.sh;
       executable = true;
     };
   };
