@@ -40,7 +40,7 @@
     description = values.git.name;
   };
 
-  # Allow wheel group to use sudo without password for system rebuilds
+  # Allow wheel group to use sudo without password
   security.sudo.enable = true;
-  security.sudo.wheelNeedsPassword = true;
+  security.sudo.wheelNeedsPassword = false;
 }
