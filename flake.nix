@@ -154,7 +154,6 @@
               inherit
                 inputs
                 values
-                pkgs
                 ;
               customUtils = utils;
             };
@@ -163,6 +162,10 @@
                 _module.args = {
                   inherit hostname;
                 };
+              }
+              "${inputs.nixpkgs}/nixos/modules/misc/nixpkgs/read-only.nix"
+              {
+                nixpkgs.pkgs = pkgs;
               }
               ./modules/nixos
               home-manager.nixosModules.home-manager
