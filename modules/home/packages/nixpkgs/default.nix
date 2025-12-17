@@ -93,6 +93,7 @@ let
     nix-prefetch-git
     nix-prefetch-github
     nix-search-cli
+    nix-tree
     nix-your-shell
     nixfmt-rfc-style
     nodejs_22
