@@ -61,7 +61,9 @@ function M.setup(config)
           padding = { left = 1, right = 1 },
         },
       },
-      tabline_b = {},
+      tabline_b = {
+        "domain",
+      },
       tabline_x = {},
       tabline_y = {},
       tabline_z = {},
