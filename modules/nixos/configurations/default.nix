@@ -12,6 +12,11 @@
     ./tailscale.nix
     ./sunshine.nix
     ./users.nix
+    ./networking.nix
+    ./virtualisation.nix
+    ./xdg.nix
+    ./services.nix
+    ./compat.nix
     ./stylix
   ];
 }

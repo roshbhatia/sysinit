@@ -8,11 +8,11 @@
     enable = true;
     ports = [ 22 ];
     settings = {
-      # Security hardening - disable password auth once keys are working
-      PasswordAuthentication = true;
+      # Security hardening
+      PasswordAuthentication = false;
       PubkeyAuthentication = true;
       PermitRootLogin = "prohibit-password";
-      X11Forwarding = false;
+      X11Forwarding = true;
       PermitEmptyPasswords = false;
       ChallengeResponseAuthentication = false;
       UsePAM = true;
@@ -32,4 +32,10 @@
   ];
 
   networking.firewall.allowedTCPPorts = [ 22 ];
+
+  # The OpenSSH agent remembers private keys for you
+  # so that you don't have to type in passphrases every time you make an SSH connection.
+  # Use `ssh-add` to add a key to the agent.
+  programs.ssh.startAgent = true;
+  security.pam.services.greetd.enableGnomeKeyring = true;
 }
