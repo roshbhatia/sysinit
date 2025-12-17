@@ -97,8 +97,7 @@ selected=$(
     fzf \
       --preview "chafa --size 80x24 --colors 256 {}" \
       --preview-window "right:50%" \
-      --height 50% \
-      --multi=false
+      --height 50%
 )
 
 if [ -z "$selected" ]; then
