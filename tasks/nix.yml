@@ -10,7 +10,7 @@ tasks:
     silent: true
 
   build:
-    desc: Build the system configuration without applying
+    desc: Build the system configuration without applying (defaults to lv426)
     silent: true
     deps: [clean-results]
     cmds:
@@ -22,11 +22,164 @@ tasks:
         log_info "Building system configuration"
         if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} build -v --flake .#lv426 --impure; then
           log_error "Build failed (see logs above)"
-          exit {{.ERROR_EXIT_CODE}}
+          exit 1
         fi
 
         log_success "Build completed successfully"
       - task: clean-results
+
+  build:lv426:
+    desc: Build lv426 (macOS) system configuration
+    silent: true
+    deps: [clean-results]
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+
+        log_info "Building lv426 configuration"
+        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} nix build .#darwinConfigurations.lv426.system; then
+          log_error "lv426 build failed"
+          exit 1
+        fi
+
+        log_success "lv426 build completed successfully"
+      - task: clean-results
+
+  build:arrakis:
+    desc: Build arrakis (NixOS) system configuration
+    silent: true
+    deps: [clean-results]
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+
+        log_info "Building arrakis configuration"
+        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} nix build .#nixosConfigurations.arrakis.config.system.build.toplevel; then
+          log_error "arrakis build failed"
+          exit 1
+        fi
+
+        log_success "arrakis build completed successfully"
+      - task: clean-results
+
+  build:all:
+    desc: Build all system configurations (lv426 and arrakis)
+    silent: true
+    cmds:
+      - task: build:lv426
+      - task: build:arrakis
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+        log_success "All configurations built successfully"
+
+  refresh:
+    desc: Apply system configuration and switch to new generation (defaults to lv426)
+    silent: true
+    deps: [clean-results]
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+
+        log_info "Applying system configuration"
+        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} switch --flake .#lv426 --impure; then
+          log_error "Refresh failed (see logs above)"
+          exit 1
+        fi
+
+        log_success "System configuration applied successfully"
+      - task: clean-results
+
+  refresh:lv426:
+    desc: Apply lv426 (macOS) system configuration
+    silent: true
+    deps: [clean-results]
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+
+        log_info "Applying lv426 system configuration"
+        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} switch --flake .#lv426 --impure; then
+          log_error "lv426 refresh failed (see logs above)"
+          exit 1
+        fi
+
+        log_success "lv426 system configuration applied successfully"
+      - task: clean-results
+
+  refresh:arrakis:
+    desc: Apply arrakis (NixOS) system configuration
+    silent: true
+    deps: [clean-results]
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+
+        log_info "Applying arrakis system configuration"
+        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo nixos-rebuild switch --flake .#arrakis; then
+          log_error "arrakis refresh failed (see logs above)"
+          exit 1
+        fi
+
+        log_success "arrakis system configuration applied successfully"
+      - task: clean-results
+
+  refresh:work:
+    desc: Apply work system configuration (builds and applies in work repo)
+    silent: true
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+
+        WORK_SYSINIT=$(find {{.WORK_REPO_PATH}} -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
+
+        if [ -z "${WORK_SYSINIT}" ]; then
+          log_error "Could not find work sysinit repository in {{.WORK_REPO_PATH}}"
+          exit 1
+        fi
+
+        log_info "Refreshing work configuration at: ${WORK_SYSINIT}"
+        cd "${WORK_SYSINIT}"
+
+        if ! NIX_MAX_JOBS=1 NIX_CORES=1 task refresh:work; then
+          log_error "Work refresh failed"
+          exit 1
+        fi
+
+  build:work:
+    desc: Build work system configuration (builds in work repo with reduced resources)
+    silent: true
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+
+        WORK_SYSINIT=$(find {{.WORK_REPO_PATH}} -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
+
+        if [ -z "${WORK_SYSINIT}" ]; then
+          log_error "Could not find work sysinit repository in {{.WORK_REPO_PATH}}"
+          exit 1
+        fi
+
+        cd "${WORK_SYSINIT}"
+        if ! NIX_MAX_JOBS=1 NIX_CORES=1 task build:work; then
+          log_error "Work build failed"
+          exit 1
+        fi
 
   clean:
     desc: Clean Nix store and delete old generations
@@ -55,7 +208,7 @@ tasks:
 
         if ! nix flake update; then
           log_error "Flake update failed (see logs above)"
-          exit {{.ERROR_EXIT_CODE}}
+          exit 1
         fi
 
         if git diff --quiet flake.lock; then
@@ -82,14 +235,14 @@ tasks:
         # Copy custom config
         if ! sudo cp nix.custom.conf /etc/nix/nix.custom.conf; then
           log_error "Failed to copy nix.custom.conf"
-          exit {{.ERROR_EXIT_CODE}}
+          exit 1
         fi
 
         # Copy secrets if they exist
         if [ -f "nix.secrets.conf" ]; then
           if ! sudo cp nix.secrets.conf /etc/nix/nix.secrets.conf; then
             log_error "Failed to copy nix.secrets.conf"
-            exit {{.ERROR_EXIT_CODE}}
+            exit 1
           fi
           sudo chmod 600 /etc/nix/nix.secrets.conf
           log_info "Deployed nix.secrets.conf with restrictive permissions"
@@ -206,7 +359,7 @@ tasks:
               log_success "Secrets initialized and deployed successfully"
               exit 0
             else
-              exit {{.ERROR_EXIT_CODE}}
+              exit 1
             fi
           else
             log_warn "gh CLI is installed but not authenticated"
@@ -222,7 +375,7 @@ tasks:
         exit 0
 
   secrets:check:
-    desc: Check if nix.secrets.conf exists and is properly configured (read-only)
+    desc: Check if nix.secrets.conf exists and is properly configured
     silent: true
     cmds:
       - |
@@ -303,114 +456,7 @@ tasks:
         # Run flake check (validates format for Nix, Lua, Shell)
         if ! nix flake check --no-build; then
           log_error "Flake check failed (see logs above)"
-          exit {{.ERROR_EXIT_CODE}}
+          exit 1
         fi
 
         log_success "Nix validation passed (format checks complete)"
-
-  refresh:
-    desc: Apply the system configuration and switch to new generation
-    silent: true
-    deps: [clean-results]
-    cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        source {{.LOGLIB_PATH}}
-
-        log_info "Applying system configuration"
-        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} switch --flake .#lv426 --impure; then
-          log_error "Refresh failed (see logs above)"
-          exit {{.ERROR_EXIT_CODE}}
-        fi
-
-        log_success "System configuration applied successfully"
-      - task: clean-results
-
-  refresh:lv426:
-    desc: Apply lv426 (macOS) system configuration
-    silent: true
-    deps: [clean-results]
-    cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        source {{.LOGLIB_PATH}}
-
-        log_info "Applying lv426 system configuration"
-        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} switch --flake .#lv426 --impure; then
-          log_error "lv426 refresh failed (see logs above)"
-          exit {{.ERROR_EXIT_CODE}}
-        fi
-
-        log_success "lv426 system configuration applied successfully"
-      - task: clean-results
-
-  refresh:arrakis:
-    desc: Apply arrakis (NixOS) system configuration
-    silent: true
-    deps: [clean-results]
-    cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        source {{.LOGLIB_PATH}}
-
-        log_info "Applying arrakis system configuration"
-        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo nixos-rebuild switch --flake .#arrakis; then
-          log_error "arrakis refresh failed (see logs above)"
-          exit {{.ERROR_EXIT_CODE}}
-        fi
-
-        log_success "arrakis system configuration applied successfully"
-      - task: clean-results
-
-  build:lv426:
-    desc: Build the lv426 (macOS) system configuration
-    silent: true
-    deps: [clean-results]
-    cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        source {{.LOGLIB_PATH}}
-
-        log_info "Building lv426 configuration"
-        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} nix build .#darwinConfigurations.lv426.system; then
-          log_error "lv426 build failed"
-          exit {{.ERROR_EXIT_CODE}}
-        fi
-
-        log_success "lv426 build completed successfully"
-      - task: clean-results
-
-  build:arrakis:
-    desc: Build the arrakis (NixOS) system configuration
-    silent: true
-    deps: [clean-results]
-    cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        source {{.LOGLIB_PATH}}
-
-        log_info "Building arrakis configuration"
-        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} nix build .#nixosConfigurations.arrakis.config.system.build.toplevel; then
-          log_error "arrakis build failed"
-          exit {{.ERROR_EXIT_CODE}}
-        fi
-
-        log_success "arrakis build completed successfully"
-      - task: clean-results
-
-  build:all:
-    desc: Build all system configurations (lv426 and arrakis)
-    silent: true
-    cmds:
-      - task: build:lv426
-      - task: build:arrakis
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        source {{.LOGLIB_PATH}}
-        log_success "All configurations built successfully"

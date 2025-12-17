@@ -2,34 +2,34 @@
 version: "3"
 
 tasks:
-  sh:
-    desc: Format all shell files using shfmt
+  nix:
+    desc: Format all Nix files using nixfmt
     cmds:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
         source {{.LOGLIB_PATH}}
-        log_info "Formatting shell files"
-        if ! fd -e sh -e bash -e zsh -x shfmt {{.SHFMT_OPTS}}; then
-          log_error "Shell formatting failed"
-          exit {{.ERROR_EXIT_CODE}}
+        log_info "Formatting Nix files"
+        if ! fd -e nix -E result -x nixfmt --width=100; then
+          log_error "Nix formatting failed"
+          exit 1
         fi
-        log_success "Shell files formatted successfully"
+        log_success "Nix files formatted successfully"
     silent: true
 
-  sh:check:
-    desc: Check shell formatting without modifying files
+  nix:check:
+    desc: Check Nix formatting without modifying files
     cmds:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
         source {{.LOGLIB_PATH}}
-        log_info "Checking shell formatting"
-        if ! fd -e sh -e bash -e zsh -x shfmt {{.SHFMT_OPTS}} -d; then
-          log_error "Shell formatting check failed. Run 'task format:sh' to fix"
-          exit {{.ERROR_EXIT_CODE}}
+        log_info "Checking Nix formatting"
+        if ! fd -e nix -E result -x nixfmt --width=100 --check; then
+          log_error "Nix formatting check failed. Run 'task fmt:nix' to fix"
+          exit 1
         fi
-        log_success "Shell formatting is correct"
+        log_success "Nix formatting is correct"
     silent: true
 
   lua:
@@ -42,7 +42,7 @@ tasks:
         log_info "Formatting Lua files"
         if ! fd -e lua -x stylua; then
           log_error "Lua formatting failed"
-          exit {{.ERROR_EXIT_CODE}}
+          exit 1
         fi
         log_success "Lua files formatted successfully"
     silent: true
@@ -56,8 +56,8 @@ tasks:
         source {{.LOGLIB_PATH}}
         log_info "Checking Lua formatting"
         if ! fd -e lua -x stylua --check; then
-          log_error "Lua formatting check failed. Run 'task format:lua' to fix"
-          exit {{.ERROR_EXIT_CODE}}
+          log_error "Lua formatting check failed. Run 'task fmt:lua' to fix"
+          exit 1
         fi
         log_success "Lua formatting is correct"
     silent: true
@@ -99,7 +99,7 @@ tasks:
 
         if [ $total_errors -gt 0 ]; then
           log_error "Lua LSP found $total_errors errors across all directories"
-          exit {{.ERROR_EXIT_CODE}}
+          exit 1
         fi
 
         if [ $total_warnings -gt 0 ]; then
@@ -119,38 +119,38 @@ tasks:
         log_success "Lua validation complete"
     silent: true
 
-  nix:
-    desc: Format all Nix files using nixfmt
+  sh:
+    desc: Format all shell files using shfmt
     cmds:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
         source {{.LOGLIB_PATH}}
-        log_info "Formatting Nix files"
-        if ! fd -e nix -E result -x nixfmt --width=100; then
-          log_error "Nix formatting failed"
-          exit {{.ERROR_EXIT_CODE}}
+        log_info "Formatting shell files"
+        if ! fd -e sh -e bash -e zsh -x shfmt {{.SHFMT_OPTS}}; then
+          log_error "Shell formatting failed"
+          exit 1
         fi
-        log_success "Nix files formatted successfully"
+        log_success "Shell files formatted successfully"
     silent: true
 
-  nix:check:
-    desc: Check Nix formatting without modifying files
+  sh:check:
+    desc: Check shell formatting without modifying files
     cmds:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
         source {{.LOGLIB_PATH}}
-        log_info "Checking Nix formatting"
-        if ! fd -e nix -E result -x nixfmt --width=100 --check; then
-          log_error "Nix formatting check failed. Run 'task format:nix' to fix"
-          exit {{.ERROR_EXIT_CODE}}
+        log_info "Checking shell formatting"
+        if ! fd -e sh -e bash -e zsh -x shfmt {{.SHFMT_OPTS}} -d; then
+          log_error "Shell formatting check failed. Run 'task fmt:sh' to fix"
+          exit 1
         fi
-        log_success "Nix formatting is correct"
+        log_success "Shell formatting is correct"
     silent: true
 
   all:
-    desc: Format all supported file types
+    desc: Format all supported file types (Nix, Lua, Shell)
     deps: [nix, lua, sh]
     silent: true
 

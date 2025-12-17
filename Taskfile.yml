@@ -5,14 +5,13 @@ includes:
   nix:
     taskfile: ./tasks/nix.yml
     optional: true
-  format:
+  fmt:
     taskfile: ./tasks/format.yml
     optional: true
 
 vars:
   NIXPKGS_ALLOW_UNFREE: 1
   NIX_DARWIN_REBUILD: "darwin-rebuild"
-  FD_EXCLUDE_PATTERNS: "-E result"
   WORK_REPO_PATH: "~/github/work"
   NIXFMT_WIDTH: 100
   SHFMT_OPTS: "-i 2 -ci -sr -s -w"
@@ -29,55 +28,6 @@ tasks:
       - task --list-all
     silent: true
 
-  nix:build:work:
-    desc: Build the work sysinit configuration without applying
-    silent: true
-    cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        source {{.LOGLIB_PATH}}
-
-        WORK_SYSINIT=$(find {{.WORK_REPO_PATH}} -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
-
-        if [ -z "${WORK_SYSINIT}" ]; then
-          log_error "Could not find work sysinit repository in {{.WORK_REPO_PATH}}"
-          exit 1
-        fi
-
-        cd "${WORK_SYSINIT}"
-        # Run the build task in the work repository
-        # Use reduced resources for work builds
-        if ! NIX_MAX_JOBS=1 NIX_CORES=1 task nix:build:work; then
-          log_error "Work build failed"
-          exit 1
-        fi
-
-  nix:refresh:work:
-    desc: Apply the work sysinit configuration and switch to new generation
-    silent: true
-    cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        source {{.LOGLIB_PATH}}
-
-        WORK_SYSINIT=$(find {{.WORK_REPO_PATH}} -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
-
-        if [ -z "${WORK_SYSINIT}" ]; then
-          log_error "Could not find work sysinit repository in {{.WORK_REPO_PATH}}"
-          exit 1
-        fi
-
-        log_info "Refreshing work configuration at: ${WORK_SYSINIT}"
-        cd "${WORK_SYSINIT}"
-
-        # Run the refresh task in the work repository
-        # Use reduced resources for work builds
-        if ! NIX_MAX_JOBS=1 NIX_CORES=1 task nix:refresh:work; then
-          log_error "Work refresh failed"
-          exit 1
-        fi
   sh:chmod:
     desc: Make all .sh files in the repository executable
     cmds:
@@ -93,7 +43,7 @@ tasks:
 
   fmt:
     desc: Format all supported file types
-    deps: [format:all]
+    deps: [fmt:all]
     silent: true
 
   docs:values:
@@ -107,38 +57,4 @@ tasks:
           log_error "Failed to generate values documentation"
           exit 1
         fi
-    silent: true
-
-  remote:build:
-    desc: "Build NixOS configuration on remote host (usage: task remote:build -- arrakis)"
-    cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        source {{.LOGLIB_PATH}}
-        HOSTNAME="${1:-arrakis}"
-
-        log_info "Building configuration on $HOSTNAME..."
-        git pull
-        git push
-
-        ssh -t "rshnbhatia@${HOSTNAME}" "cd /home/rshnbhatia/sysinit && git pull && nix flake update && nix build '.#nixosConfigurations.${HOSTNAME}.config.system.build.toplevel'"
-        log_success "Build complete on $HOSTNAME"
-    silent: true
-
-  remote:switch:
-    desc: "Apply NixOS configuration on remote host (usage: task remote:switch -- arrakis)"
-    cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        source {{.LOGLIB_PATH}}
-        HOSTNAME="${1:-arrakis}"
-
-        log_info "Applying configuration on $HOSTNAME..."
-        git pull
-        git push
-
-        ssh -t "rshnbhatia@${HOSTNAME}" "cd /home/rshnbhatia/sysinit && git pull && nix flake update && sudo nixos-rebuild switch --flake '.#${HOSTNAME}'"
-        log_success "Configuration applied on $HOSTNAME"
     silent: true

@@ -47,12 +47,40 @@ cp -r /tmp/sysinit/modules/home/configurations/neovim/ ~/.config/nvim/
 
 ```text
 task: Available tasks for this project:
-* default:                 Show help information
-* nix:fmt:                 Format the Nix configuration
-* nix:build:               Build the configuration without applying
-* nix:clean:               Run garbage collection
-* nix:refresh:             Apply the system configuration
-* nix:refresh:work:        Update and rebuild work sysinit configuration
+* default:                Show all available tasks
+* fmt:                    Format all supported file types
+* sh:chmod:               Make all .sh files executable
+* docs:values:            Generate and inject values documentation into README
+
+* nix:build:              Build system configuration (defaults to lv426)
+* nix:build:lv426:        Build lv426 (macOS) system configuration
+* nix:build:arrakis:      Build arrakis (NixOS) system configuration
+* nix:build:all:          Build all system configurations
+* nix:build:work:         Build work system configuration
+
+* nix:refresh:            Apply system configuration (defaults to lv426)
+* nix:refresh:lv426:      Apply lv426 (macOS) system configuration
+* nix:refresh:arrakis:    Apply arrakis (NixOS) system configuration
+* nix:refresh:work:       Apply work system configuration
+
+* nix:config:             Copy nix configs to /etc/nix/
+* nix:config:user:        Setup user-level nix.conf
+* nix:secrets:init:       Initialize nix.secrets.conf with GitHub token
+* nix:secrets:check:      Check nix secrets configuration
+* nix:clean:              Clean Nix store and delete old generations
+* nix:update:             Update Nix flake inputs and commit lock file
+* nix:validate:           Validate Nix configuration
+
+* fmt:nix:                Format all Nix files
+* fmt:nix:check:          Check Nix formatting without modifying
+* fmt:lua:                Format all Lua files
+* fmt:lua:check:          Check Lua formatting without modifying
+* fmt:lua:lint:           Run lua-language-server diagnostics
+* fmt:lua:validate:       Validate Lua code (format + lint)
+* fmt:sh:                 Format all shell files
+* fmt:sh:check:           Check shell formatting without modifying
+* fmt:all:                Format all file types
+* fmt:all:check:          Check formatting for all file types
 ```
 
 ## Environment Variables Schema
