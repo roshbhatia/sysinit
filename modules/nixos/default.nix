@@ -36,7 +36,6 @@
 
   # Sudo configuration
   security.sudo.enable = true;
-  security.sudo.wheelNeedsPassword = true;
 
   # Hostname - override per-host in hostConfigs
   networking.hostName = lib.mkDefault "nixos";
