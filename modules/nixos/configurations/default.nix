@@ -10,6 +10,7 @@
     ./shell.nix
     ./ssh.nix
     ./tailscale.nix
+    ./sunshine.nix
     ./stylix
   ];
 }
