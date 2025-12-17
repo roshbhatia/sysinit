@@ -186,6 +186,9 @@
               email = "rshnbhatia@gmail.com";
               username = "roshbhatia";
             };
+            sysinit = {
+              path = "/Users/rshnbhatia/github/personal/roshbhatia/sysinit";
+            };
           };
         };
         arrakis = {
@@ -207,6 +210,9 @@
             };
             tailscale = {
               enable = true;
+            };
+            sysinit = {
+              path = "/root/sysinit";
             };
           };
         };

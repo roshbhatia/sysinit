@@ -18,6 +18,7 @@
     ./fzf
     ./git
     ./helix
+    ./hushlogin
     ./k9s
     ./kubectl
     ./llm

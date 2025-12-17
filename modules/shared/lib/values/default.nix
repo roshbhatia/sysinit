@@ -68,6 +68,13 @@ with lib;
         };
       };
 
+      sysinit = {
+        path = mkOption {
+          type = types.str;
+          description = "Path to sysinit configuration repository";
+        };
+      };
+
       darwin = {
         borders = {
           enable = mkOption {
