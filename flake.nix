@@ -89,7 +89,10 @@
         }).config.values;
 
       buildConfiguration =
-        { hostConfig }:
+        {
+          hostConfig,
+          hostname ? "nixos",
+        }:
         let
           overlays = mkOverlays hostConfig.system;
           pkgs = mkPkgs {
@@ -117,6 +120,7 @@
                 values
                 utils
                 pkgs
+                hostname
                 ;
               inherit (hostConfig) system;
             };
@@ -205,7 +209,13 @@
     in
     {
       darwinConfigurations =
-        lib.mapAttrs (_: cfg: buildConfiguration { hostConfig = cfg; }) darwinConfigs
+        lib.mapAttrs (
+          name: cfg:
+          buildConfiguration {
+            hostConfig = cfg;
+            hostname = name;
+          }
+        ) darwinConfigs
         // {
           bootstrap = darwin.lib.darwinSystem {
             system = "aarch64-darwin";
@@ -219,7 +229,13 @@
           };
         };
 
-      nixosConfigurations = lib.mapAttrs (_: cfg: buildConfiguration { hostConfig = cfg; }) nixosConfigs;
+      nixosConfigurations = lib.mapAttrs (
+        name: cfg:
+        buildConfiguration {
+          hostConfig = cfg;
+          hostname = name;
+        }
+      ) nixosConfigs;
 
       lib = {
         inherit

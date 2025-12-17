@@ -3,6 +3,7 @@
   values,
   pkgs,
   lib,
+  hostname ? "nixos",
   ...
 }:
 
@@ -37,8 +38,8 @@
   # Sudo configuration
   security.sudo.enable = true;
 
-  # Hostname - override per-host in hostConfigs
-  networking.hostName = lib.mkDefault "nixos";
+  # Hostname - set from system configuration
+  networking.hostName = hostname;
   networking.networkmanager.enable = true;
 
   # Timezone and locale

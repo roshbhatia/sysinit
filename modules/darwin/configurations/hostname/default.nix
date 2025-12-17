@@ -1,4 +1,7 @@
-{ lib, ... }:
 {
-  networking.hostName = lib.mkDefault "MacBook";
+  hostname ? "MacBook",
+  ...
+}:
+{
+  networking.hostName = hostname;
 }
