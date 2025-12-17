@@ -36,7 +36,25 @@ let
           {
             foreground = "p:accent";
             style = "plain";
-            template = "{{ .UserName }}@[{{.HostName}}] ➜";
+            template = "{{ .UserName }}";
+            type = "session";
+          }
+          {
+            foreground = "p:info";
+            style = "plain";
+            template = "@[";
+            type = "session";
+          }
+          {
+            foreground = "p:accent";
+            style = "plain";
+            template = "{{.HostName}}";
+            type = "path";
+          }
+          {
+            foreground = "p:info";
+            style = "plain";
+            template = "] ➜";
             type = "session";
           }
           {
