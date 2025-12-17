@@ -17,8 +17,6 @@
 
   tools = {
     sudo = "sudo -E";
-    code = "code-insiders";
-    c = "code-insiders";
     tf = "terraform";
     y = "yazi";
     v = "nvim";
