@@ -1,0 +1,107 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+# Script to select and set desktop background with chafa preview
+# Supports macOS and NixOS
+
+# Color output functions
+log_info() { echo -e "\033[0;36mℹ\033[0m $*" >&2; }
+log_success() { echo -e "\033[0;32m✓\033[0m $*" >&2; }
+log_error() { echo -e "\033[0;31m✗\033[0m $*" >&2; }
+
+# Check required commands
+check_command() {
+  if ! command -v "$1" &>/dev/null; then
+    log_error "Required command not found: $1"
+    exit 1
+  fi
+}
+
+check_command "fzf"
+check_command "chafa"
+check_command "git"
+
+# Determine OS
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  OS="macos"
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  OS="linux"
+else
+  log_error "Unsupported OS: $OSTYPE"
+  exit 1
+fi
+
+# Setup wallpapers directory
+WALLPAPERS_DIR="${HOME}/.local/share/wallpapers"
+WALLPAPERS_REPO="https://github.com/roshbhatia/wallpapers.git"
+
+log_info "Checking wallpapers repository..."
+if [ ! -d "$WALLPAPERS_DIR" ]; then
+  log_info "Cloning wallpapers repository to $WALLPAPERS_DIR"
+  mkdir -p "$(dirname "$WALLPAPERS_DIR")"
+  git clone "$WALLPAPERS_REPO" "$WALLPAPERS_DIR"
+else
+  log_info "Updating wallpapers repository"
+  git -C "$WALLPAPERS_DIR" pull --quiet 2>/dev/null || true
+fi
+
+# Find image files
+log_info "Scanning for wallpapers..."
+mapfile -t images < <(
+  find "$WALLPAPERS_DIR" \
+    -type f \
+    \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) \
+    | sort
+)
+
+if [ ${#images[@]} -eq 0 ]; then
+  log_error "No images found in $WALLPAPERS_DIR"
+  exit 1
+fi
+
+log_success "Found ${#images[@]} wallpapers"
+
+# FZF preview with chafa
+selected=$(
+  printf '%s\n' "${images[@]}" \
+    | fzf \
+      --preview "chafa --size 80x24 --colors 256 {}" \
+      --preview-window "right:50%" \
+      --height 50% \
+      --multi=false
+)
+
+if [ -z "$selected" ]; then
+  log_info "No wallpaper selected"
+  exit 0
+fi
+
+log_info "Setting background to: $(basename "$selected")"
+
+case "$OS" in
+  macos)
+    # Set desktop background on macOS
+    # Requires the image to be in the right location for System Preferences
+    osascript -e "tell application \"System Events\" to set picture of every desktop to \"$selected\""
+    log_success "Background set on macOS"
+    ;;
+  linux)
+    # Copy to standard location and set for NixOS
+    mkdir -p "$HOME/.config/background"
+    cp "$selected" "$HOME/.config/background/current"
+    ln -sf "$HOME/.config/background/current" "$HOME/.background-image"
+    
+    # For NixOS with Stylix, update the background file
+    if [ -n "${XDG_CONFIG_HOME:-}" ]; then
+      CONFIG_DIR="$XDG_CONFIG_HOME"
+    else
+      CONFIG_DIR="$HOME/.config"
+    fi
+    
+    # Notify about manual steps if needed
+    log_success "Background image set to: $HOME/.background-image"
+    log_info "You may need to update your display manager or window manager configuration"
+    ;;
+esac
+
+log_success "Done!"
