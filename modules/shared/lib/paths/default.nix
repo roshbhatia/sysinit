@@ -5,6 +5,9 @@ rec {
     nix = [
       "/nix/var/nix/profiles/default/bin"
       "/etc/profiles/per-user/${username}/bin"
+      # NixOS: /run/wrappers/bin must come before /run/current-system/sw/bin
+      # to prioritize wrapper implementations (sudo, etc)
+      "/run/wrappers/bin"
       "/run/current-system/sw/bin"
     ];
     system = [

@@ -26,7 +26,6 @@ __setup_completions() {
   _evalcache atuin init zsh --disable-up-arrow
   _evalcache docker completion zsh
   _evalcache task --completion zsh
-  complete -C "/etc/profiles/per-user/$USER/bin/aws_completer" aws
   _evalcache zoxide init zsh
 
   # Override zoxide default z/zi with pushd versions
