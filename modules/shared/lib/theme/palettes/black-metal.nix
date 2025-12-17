@@ -19,7 +19,7 @@ rec {
   };
 
   palettes = {
-    gorgoroth = utils.validatePalette (rec {
+    gorgoroth = utils.validatePalette rec {
       base00 = "#000000";
       base01 = "#121212";
       base02 = "#222222";
@@ -76,7 +76,7 @@ rec {
 
       cursor_line_highlight = "#1a1a1a";
       cursor_grey = base03;
-    });
+    };
   };
 
   semanticMapping = palette: utils.createSemanticMapping palette;

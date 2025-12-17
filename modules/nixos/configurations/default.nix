@@ -10,7 +10,6 @@
     ./shell.nix
     ./ssh.nix
     ./tailscale.nix
-    ./sunshine.nix
     ./users.nix
     ./networking.nix
     ./virtualisation.nix

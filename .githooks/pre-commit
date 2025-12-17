@@ -37,6 +37,15 @@ else
 fi
 log_success "flake valid"
 
+# Lint with statix and fix issues
+if [ -n "$staged_nix_files" ]; then
+  echo -n "Linting nix code... "
+  while IFS= read -r file; do
+    [ -f "$file" ] && statix fix "$file" 2>/dev/null || true
+  done <<<"$staged_nix_files"
+  log_success "done"
+fi
+
 # Dead code removal
 if [ -n "$staged_nix_files" ]; then
   echo -n "Removing dead nix code... "

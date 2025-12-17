@@ -19,7 +19,7 @@ rec {
   };
 
   palettes = {
-    dark = utils.validatePalette (rec {
+    dark = utils.validatePalette rec {
       nord0 = "#2e3440";
       nord1 = "#3b4252";
       nord2 = "#434c5e";
@@ -59,7 +59,7 @@ rec {
       purple = nord15;
       accent = nord10;
       accent_dim = nord2;
-    });
+    };
   };
 
   semanticMapping = palette: utils.createSemanticMapping palette;

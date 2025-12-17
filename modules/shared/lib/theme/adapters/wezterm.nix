@@ -86,7 +86,7 @@ in
         window_decorations = "RESIZE";
       };
 
-      baseConfig = configBuilder (utils.createSemanticMapping (themeData.palettes.${config.variant})) { };
+      baseConfig = configBuilder (utils.createSemanticMapping themeData.palettes.${config.variant}) { };
     in
     utils.mergeThemeConfigs baseConfig (transparencyConfig // overrides);
 

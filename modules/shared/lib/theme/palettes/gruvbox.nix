@@ -25,7 +25,7 @@ rec {
   };
 
   palettes = {
-    dark = utils.validatePalette (rec {
+    dark = utils.validatePalette rec {
       bg0_h = "#1d2021";
       bg0 = "#282828";
       bg0_s = "#32302f";
@@ -77,9 +77,9 @@ rec {
       teal = aqua;
       accent = blue;
       accent_dim = bg1;
-    });
+    };
 
-    light = utils.validatePalette (rec {
+    light = utils.validatePalette rec {
       bg0_h = "#f9f5d7";
       bg0 = "#fbf1c7";
       bg0_s = "#f2e5bc";
@@ -125,7 +125,7 @@ rec {
       teal = aqua;
       accent = blue;
       accent_dim = bg1;
-    });
+    };
   };
 
   semanticMapping = palette: utils.createSemanticMapping palette;

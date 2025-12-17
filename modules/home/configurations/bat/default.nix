@@ -1,6 +1,4 @@
-{
-  ...
-}:
+_:
 
 {
   stylix.targets.bat.enable = true;

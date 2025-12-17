@@ -33,6 +33,9 @@
       url = "github:1Password/shell-plugins";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nix-gaming = {
+      url = "github:fufexan/nix-gaming";
+    };
   };
 
   outputs =
@@ -90,11 +93,11 @@
         let
           overlays = mkOverlays hostConfig.system;
           pkgs = mkPkgs {
-            system = hostConfig.system;
+            inherit (hostConfig) system;
             inherit overlays;
           };
           utils = mkUtils {
-            system = hostConfig.system;
+            inherit (hostConfig) system;
             inherit pkgs;
           };
           userValuesWithUsername = hostConfig.values // {
@@ -107,7 +110,7 @@
         in
         if hostConfig.platform == "darwin" then
           darwin.lib.darwinSystem {
-            system = hostConfig.system;
+            inherit (hostConfig) system;
             specialArgs = {
               inherit
                 inputs
@@ -115,7 +118,7 @@
                 utils
                 pkgs
                 ;
-              system = hostConfig.system;
+              inherit (hostConfig) system;
             };
             modules = [
               ./modules/darwin
@@ -138,7 +141,7 @@
           }
         else
           lib.nixosSystem {
-            system = hostConfig.system;
+            inherit (hostConfig) system;
             specialArgs = {
               inherit
                 inputs

@@ -25,7 +25,7 @@ with lib;
           applyTransparency {
             inherit config;
             transparency = transparencyConfig;
-            applyFn = (configBuilder.applyTransparency or (c: _t: c));
+            applyFn = configBuilder.applyTransparency or (c: _t: c);
           }
         else
           config;
@@ -64,8 +64,8 @@ with lib;
         app = appName;
         version = "1.0";
         type = "theme-config";
-        theme = theme;
-        config = config;
+        inherit theme;
+        inherit config;
         exportedAt = builtins.toString (builtins.floor (builtins.now / 1000));
       };
     in

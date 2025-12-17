@@ -42,7 +42,7 @@ let
     lsp = common.formatLspForOpencode lsp.lsp;
 
     agent = prompts.toAgents;
-    instructions = instructions;
+    inherit instructions;
 
     keybinds = {
       leader = "ctrl+a";

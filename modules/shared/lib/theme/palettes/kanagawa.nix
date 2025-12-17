@@ -26,7 +26,7 @@ rec {
   };
 
   palettes = {
-    lotus = utils.validatePalette (rec {
+    lotus = utils.validatePalette rec {
       lotusWhite0 = "#d5cea3";
       lotusWhite1 = "#dcd5ac";
       lotusWhite2 = "#e5ddb0";
@@ -95,9 +95,9 @@ rec {
       purple = lotusViolet4;
       accent = lotusBlue4;
       accent_dim = lotusWhite1;
-    });
+    };
 
-    wave = utils.validatePalette (rec {
+    wave = utils.validatePalette rec {
       sumiInk0 = "#16161d";
       sumiInk1 = "#1f1f28";
       sumiInk2 = "#2a2a37";
@@ -158,9 +158,9 @@ rec {
       purple = oniViolet;
       accent = crystalBlue;
       accent_dim = sumiInk2;
-    });
+    };
 
-    dragon = utils.validatePalette (rec {
+    dragon = utils.validatePalette rec {
       dragonBlack0 = "#0d0c0c";
       dragonBlack1 = "#12120f";
       dragonBlack2 = "#1d1c19";
@@ -206,7 +206,7 @@ rec {
       purple = dragonViolet;
       accent = dragonBlue;
       accent_dim = dragonBlack2;
-    });
+    };
   };
 
   semanticMapping = palette: utils.createSemanticMapping palette;

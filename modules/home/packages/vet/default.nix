@@ -7,7 +7,7 @@
 }:
 
 let
-  vetPackages = [ ] ++ (values.vet.additionalPackages or [ ]);
+  vetPackages = values.vet.additionalPackages or [ ];
 in
 {
   home.activation = {

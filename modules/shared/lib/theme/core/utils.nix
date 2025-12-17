@@ -282,7 +282,7 @@ rec {
 
     diff =
       let
-        base = palette.base;
+        inherit (palette) base;
         green = safeGetColor palette "green_vibrant" palette.green;
         yellow = safeGetColor palette "yellow_vibrant" palette.yellow;
         red = safeGetColor palette "red_vibrant" palette.red;
@@ -301,10 +301,10 @@ rec {
     # Plugin UI semantic colors
     plugins =
       let
-        base = palette.base;
-        surface = palette.surface;
-        text = palette.text;
-        accent = palette.accent;
+        inherit (palette) base;
+        inherit (palette) surface;
+        inherit (palette) text;
+        inherit (palette) accent;
         muted = safeGetColor palette "comment" (safeGetColor palette "overlay" palette.surface);
       in
       {

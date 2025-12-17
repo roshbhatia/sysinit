@@ -4,35 +4,67 @@
   pkgs,
   ...
 }:
-
 let
   isDesktop = config.networking.hostName == "arrakis";
 in
 {
-  programs.steam = {
-    enable = isDesktop;
-    remotePlay.openFirewall = isDesktop;
-    dedicatedServer.openFirewall = isDesktop;
-    gamescopeSession.enable = isDesktop;
-  };
 
-  programs.gamemode.enable = isDesktop;
+  config = lib.mkIf isDesktop {
+    # ==========================================================================
+    # Gaming on Linux
+    #
+    # Steam and Heroic Launcher for gaming
+    # https://www.protondb.com/ - Check game compatibility
+    # https://www.reddit.com/r/linux_gaming/wiki/faq/ - Beginners guide
+    # ==========================================================================
 
-  environment.systemPackages =
-    with pkgs;
-    lib.optionals isDesktop [
-      goverlay
+    # Steam - Native and Proton games
+    # https://github.com/NixOS/nixpkgs/blob/master/doc/packages/steam.section.md
+    programs.steam = {
+      enable = true;
+      # Run GameScope driven Steam session for better performance
+      gamescopeSession.enable = true;
+      # Protontricks wrapper for Proton-enabled games
+      protontricks.enable = true;
+      # Steam Input on Wayland support
+      extest.enable = true;
+      # Enable remote play and dedicated server support
+      remotePlay.openFirewall = true;
+      dedicatedServer.openFirewall = true;
+    };
+
+    # Low-latency audio for better gaming experience
+    services.pipewire.lowLatency.enable = true;
+
+    # GameMode - Optimise Linux system performance on demand
+    # https://github.com/FeralInteractive/GameMode
+    # Auto-activates for games with GameMode integration
+    programs.gamemode.enable = true;
+
+    # Gaming packages
+    environment.systemPackages = with pkgs; [
+      # Heroic Games Launcher - GOG, Epic Games Store, Amazon Prime Games
       heroic
+      # Lutris - Game launcher/manager
       lutris
-      mangohud
+      # Manage Proton versions
       protonup-qt
-      vkBasalt
+      # Performance monitoring overlay
+      mangohud
+      # GPU overlay
+      goverlay
+      # Vulkan tools
       vulkan-tools
+      # Post-process enhancements
+      vkBasalt
     ];
 
-  hardware.steam-hardware.enable = isDesktop;
+    # Steam hardware support
+    hardware.steam-hardware.enable = true;
 
-  environment.sessionVariables = {
-    NIXOS_OZONE_WL = "1";
+    # Wayland support for games
+    environment.sessionVariables = {
+      NIXOS_OZONE_WL = "1";
+    };
   };
 }

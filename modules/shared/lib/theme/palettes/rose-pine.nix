@@ -25,7 +25,7 @@ rec {
   };
 
   palettes = {
-    dawn = utils.validatePalette (rec {
+    dawn = utils.validatePalette rec {
       base = "#faf4ed";
       surface = "#fffaf3";
       overlay = "#f2e9e1";
@@ -61,9 +61,9 @@ rec {
       teal = foam;
       accent = iris;
       accent_dim = overlay;
-    });
+    };
 
-    moon = utils.validatePalette (rec {
+    moon = utils.validatePalette rec {
       base = "#232136";
       surface = "#2a273f";
       overlay = "#393552";
@@ -99,7 +99,7 @@ rec {
       teal = foam;
       accent = iris;
       accent_dim = overlay;
-    });
+    };
   };
 
   semanticMapping = palette: utils.createSemanticMapping palette;

@@ -17,25 +17,13 @@
         background = semanticColors.background.primary;
         foreground = semanticColors.foreground.primary;
         accent = semanticColors.accent.primary;
-        success = semanticColors.semantic.success;
-        warning = semanticColors.semantic.warning;
-        error = semanticColors.semantic.error;
-        info = semanticColors.semantic.info;
+        inherit (semanticColors.semantic) success;
+        inherit (semanticColors.semantic) warning;
+        inherit (semanticColors.semantic) error;
+        inherit (semanticColors.semantic) info;
       };
 
       # Convert hex color to rgba format for niri
-      rgbaColor =
-        color: alpha:
-        let
-          # Remove # if present
-          cleanColor =
-            if lib.hasPrefix "#" color then lib.substring 1 (lib.stringLength color - 1) color else color;
-          # Convert alpha float (0-1) to decimal (0.0-1.0)
-          alphaDecimal = alpha;
-        in
-        "rgba(0x${cleanColor}${
-          lib.fixedWidthString 2 "0" (lib.toHexString (builtins.floor (alphaDecimal * 255)))
-        })";
 
       # Format color for niri (return as-is for niri's format)
       formatNiriColor = color: color;

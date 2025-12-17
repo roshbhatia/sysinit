@@ -29,7 +29,7 @@ rec {
   };
 
   palettes = {
-    dark-hard = utils.validatePalette (rec {
+    dark-hard = utils.validatePalette rec {
       bg_dim = "#1E2326";
       bg0 = "#272E33";
       bg1 = "#2E383C";
@@ -76,9 +76,9 @@ rec {
       teal = aqua;
       accent = green;
       accent_dim = bg1;
-    });
+    };
 
-    dark-medium = utils.validatePalette (rec {
+    dark-medium = utils.validatePalette rec {
       bg_dim = "#232A2E";
       bg0 = "#2D353B";
       bg1 = "#343F44";
@@ -125,9 +125,9 @@ rec {
       teal = aqua;
       accent = green;
       accent_dim = bg1;
-    });
+    };
 
-    dark-soft = utils.validatePalette (rec {
+    dark-soft = utils.validatePalette rec {
       bg_dim = "#293136";
       bg0 = "#333C43";
       bg1 = "#3A464C";
@@ -174,9 +174,9 @@ rec {
       teal = aqua;
       accent = green;
       accent_dim = bg1;
-    });
+    };
 
-    light-hard = utils.validatePalette (rec {
+    light-hard = utils.validatePalette rec {
       bg_dim = "#F2EFDF";
       bg0 = "#FFFBEF";
       bg1 = "#F8F5E4";
@@ -223,9 +223,9 @@ rec {
       teal = aqua;
       accent = green;
       accent_dim = bg1;
-    });
+    };
 
-    light-medium = utils.validatePalette (rec {
+    light-medium = utils.validatePalette rec {
       bg_dim = "#EFEBD4";
       bg0 = "#FDF6E3";
       bg1 = "#F4F0D9";
@@ -272,9 +272,9 @@ rec {
       teal = aqua;
       accent = green;
       accent_dim = bg1;
-    });
+    };
 
-    light-soft = utils.validatePalette (rec {
+    light-soft = utils.validatePalette rec {
       bg_dim = "#E5DFC5";
       bg0 = "#F3EAD3";
       bg1 = "#EAE4CA";
@@ -321,7 +321,7 @@ rec {
       teal = aqua;
       accent = green;
       accent_dim = bg1;
-    });
+    };
   };
 
   semanticMapping = palette: utils.createSemanticMapping palette;

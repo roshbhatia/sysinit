@@ -1,6 +1,4 @@
-{
-  ...
-}:
+_:
 
 {
   stylix.targets.btop.enable = true;

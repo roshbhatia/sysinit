@@ -1,6 +1,4 @@
-{
-  ...
-}:
+_:
 
 {
   stylix.targets.k9s.enable = true;

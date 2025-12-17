@@ -1,6 +1,4 @@
-{
-  ...
-}:
+_:
 
 {
   /*
@@ -25,10 +23,10 @@
         base_alt = semanticColors.background.overlay;
 
         # Status/semantic colors
-        info = semanticColors.semantic.info;
-        warning = semanticColors.semantic.warning;
-        error = semanticColors.semantic.error;
-        success = semanticColors.semantic.success;
+        inherit (semanticColors.semantic) info;
+        inherit (semanticColors.semantic) warning;
+        inherit (semanticColors.semantic) error;
+        inherit (semanticColors.semantic) success;
 
         # UI colors
         accent = semanticColors.accent.primary;

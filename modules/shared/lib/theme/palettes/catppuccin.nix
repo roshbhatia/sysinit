@@ -25,7 +25,7 @@ rec {
   };
 
   palettes = {
-    latte = utils.validatePalette (rec {
+    latte = utils.validatePalette rec {
       base = "#eff1f5";
       mantle = "#e6e9ef";
       crust = "#dce0e8";
@@ -81,9 +81,9 @@ rec {
       accent_secondary = teal;
       accent_tertiary = mauve;
       accent_dim = surface1;
-    });
+    };
 
-    macchiato = utils.validatePalette (rec {
+    macchiato = utils.validatePalette rec {
       base = "#24273a";
       mantle = "#1e2030";
       crust = "#181926";
@@ -139,7 +139,7 @@ rec {
       accent_secondary = teal;
       accent_tertiary = mauve;
       accent_dim = surface1;
-    });
+    };
   };
 
   semanticMapping = palette: utils.createSemanticMapping palette;

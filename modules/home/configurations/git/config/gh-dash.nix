@@ -15,12 +15,12 @@ let
 
   themeColors = {
     text = {
-      primary = semanticColors.foreground.primary;
-      secondary = semanticColors.foreground.secondary;
+      inherit (semanticColors.foreground) primary;
+      inherit (semanticColors.foreground) secondary;
       inverted = semanticColors.background.primary;
       faint = semanticColors.foreground.muted;
       warning = semanticColors.semantic.error;
-      success = semanticColors.semantic.success;
+      inherit (semanticColors.semantic) success;
     };
 
     background = {
@@ -177,9 +177,9 @@ let
       };
 
       colors = {
-        text = themeColors.text;
-        background = themeColors.background;
-        border = themeColors.border;
+        inherit (themeColors) text;
+        inherit (themeColors) background;
+        inherit (themeColors) border;
         inline.icons = themeColors.inline.icons;
       };
 
