@@ -1,11 +1,12 @@
 local M = {}
+
 local home = os.getenv("HOME") or ""
+local username = os.getenv("USER") or ""
 local xdg_config_home = os.getenv("XDG_CONFIG_HOME") or (home .. "/.config")
 
-local function get_basic_config()
-  local username = os.getenv("USER") or ""
-  local nix_bin = "/etc/profiles/per-user/" .. username .. "/bin"
+local nix_bin = "/etc/profiles/per-user/" .. username .. "/bin"
 
+local function get_basic_config()
   return {
     set_environment_variables = {
       TERM = "wezterm",
@@ -15,6 +16,26 @@ local function get_basic_config()
     pane_focus_follows_mouse = false,
     status_update_interval = 20,
     default_prog = { nix_bin .. "/zsh", "-l" },
+    -- Will only work when connected to the tailnet.
+    -- As such, can safely ignore this when we're on the work machine.
+    -- I'm fine hardcoding the list of systems here for now.
+    ssh_domains = {
+      {
+        name = "arrakis",
+        remote_address = "arrakis",
+        username = username,
+      },
+      {
+        name = "varre",
+        remote_address = "varre",
+        username = username,
+      },
+      {
+        name = "lv426",
+        remote_address = "lv426",
+        username = username,
+      },
+    },
   }
 end
 
