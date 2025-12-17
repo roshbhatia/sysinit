@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   values,
   ...
@@ -6,7 +7,9 @@
 
 let
   themes = import ../../../shared/lib/theme { inherit lib; };
-  nvimConfigPath = ./.;
+  inherit (config.lib.file) mkOutOfStoreSymlink;
+  sysinitPath = builtins.getEnv "PWD";
+  nvimConfigPath = "${sysinitPath}/modules/home/configurations/neovim";
 in
 
 {
@@ -23,35 +26,39 @@ in
     withRuby = true;
   };
 
-  xdg.configFile."nvim/init.lua".source = "${nvimConfigPath}/init.lua";
+  xdg.configFile."nvim/init.lua".source = mkOutOfStoreSymlink "${nvimConfigPath}/init.lua";
 
-  xdg.configFile."nvim/lua/sysinit/config".source = "${nvimConfigPath}/lua/sysinit/config";
+  xdg.configFile."nvim/lua/sysinit/config".source =
+    mkOutOfStoreSymlink "${nvimConfigPath}/lua/sysinit/config";
 
-  xdg.configFile."nvim/lua/sysinit/utils".source = "${nvimConfigPath}/lua/sysinit/utils";
+  xdg.configFile."nvim/lua/sysinit/utils".source =
+    mkOutOfStoreSymlink "${nvimConfigPath}/lua/sysinit/utils";
 
   xdg.configFile."nvim/lua/sysinit/plugins/core/".source =
-    "${nvimConfigPath}/lua/sysinit/plugins/core";
+    mkOutOfStoreSymlink "${nvimConfigPath}/lua/sysinit/plugins/core";
   xdg.configFile."nvim/lua/sysinit/plugins/debugger/".source =
-    "${nvimConfigPath}/lua/sysinit/plugins/debugger";
+    mkOutOfStoreSymlink "${nvimConfigPath}/lua/sysinit/plugins/debugger";
   xdg.configFile."nvim/lua/sysinit/plugins/editor/".source =
-    "${nvimConfigPath}/lua/sysinit/plugins/editor";
+    mkOutOfStoreSymlink "${nvimConfigPath}/lua/sysinit/plugins/editor";
   xdg.configFile."nvim/lua/sysinit/plugins/file/".source =
-    "${nvimConfigPath}/lua/sysinit/plugins/file";
-  xdg.configFile."nvim/lua/sysinit/plugins/git/".source = "${nvimConfigPath}/lua/sysinit/plugins/git";
+    mkOutOfStoreSymlink "${nvimConfigPath}/lua/sysinit/plugins/file";
+  xdg.configFile."nvim/lua/sysinit/plugins/git/".source =
+    mkOutOfStoreSymlink "${nvimConfigPath}/lua/sysinit/plugins/git";
   xdg.configFile."nvim/lua/sysinit/plugins/intellicode/".source =
-    "${nvimConfigPath}/lua/sysinit/plugins/intellicode";
+    mkOutOfStoreSymlink "${nvimConfigPath}/lua/sysinit/plugins/intellicode";
   xdg.configFile."nvim/lua/sysinit/plugins/keymaps/".source =
-    "${nvimConfigPath}/lua/sysinit/plugins/keymaps";
+    mkOutOfStoreSymlink "${nvimConfigPath}/lua/sysinit/plugins/keymaps";
   xdg.configFile."nvim/lua/sysinit/plugins/library/".source =
-    "${nvimConfigPath}/lua/sysinit/plugins/library";
-  xdg.configFile."nvim/lua/sysinit/plugins/ui/".source = "${nvimConfigPath}/lua/sysinit/plugins/ui";
+    mkOutOfStoreSymlink "${nvimConfigPath}/lua/sysinit/plugins/library";
+  xdg.configFile."nvim/lua/sysinit/plugins/ui/".source =
+    mkOutOfStoreSymlink "${nvimConfigPath}/lua/sysinit/plugins/ui";
 
   xdg.configFile."nvim/lua/sysinit/plugins/orgmode/".source =
-    "${nvimConfigPath}/lua/sysinit/plugins/orgmode";
+    mkOutOfStoreSymlink "${nvimConfigPath}/lua/sysinit/plugins/orgmode";
 
   xdg.configFile."nvim/theme_config.json".text = builtins.toJSON (
     themes.generateAppJSON "neovim" values.theme
   );
 
-  xdg.configFile."nvim/queries".source = "${nvimConfigPath}/queries";
+  xdg.configFile."nvim/queries".source = mkOutOfStoreSymlink "${nvimConfigPath}/queries";
 }
