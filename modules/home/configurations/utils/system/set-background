@@ -20,6 +20,7 @@ check_command() {
 check_command "fzf"
 check_command "chafa"
 check_command "git"
+check_command "fd"
 
 # Determine OS
 if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -47,23 +48,19 @@ fi
 
 # Find image files
 log_info "Scanning for wallpapers..."
-mapfile -t images < <(
-  find "$WALLPAPERS_DIR" \
-    -type f \
-    \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) \
-    | sort
-)
+images=$(fd --type f --extension jpg --extension jpeg --extension png --extension webp . "$WALLPAPERS_DIR" | sort)
 
-if [ ${#images[@]} -eq 0 ]; then
+image_count=$(echo "$images" | wc -l)
+if [ "$image_count" -eq 0 ]; then
   log_error "No images found in $WALLPAPERS_DIR"
   exit 1
 fi
 
-log_success "Found ${#images[@]} wallpapers"
+log_success "Found $image_count wallpapers"
 
 # FZF preview with chafa
 selected=$(
-  printf '%s\n' "${images[@]}" \
+  echo "$images" \
     | fzf \
       --preview "chafa --size 80x24 --colors 256 {}" \
       --preview-window "right:50%" \
