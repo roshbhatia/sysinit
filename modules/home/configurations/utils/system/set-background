@@ -50,7 +50,7 @@ fi
 log_info "Scanning for wallpapers..."
 images=$(fd --type f --extension jpg --extension jpeg --extension png --extension webp . "$WALLPAPERS_DIR" | sort)
 
-image_count=$(echo "$images" | wc -l)
+image_count=$(echo "$images" | wc -l | xargs)
 if [ "$image_count" -eq 0 ]; then
   log_error "No images found in $WALLPAPERS_DIR"
   exit 1
