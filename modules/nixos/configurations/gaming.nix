@@ -76,7 +76,7 @@ in
       # Vulkan tools
       vulkan-tools
       # Post-process enhancements
-      vkBasalt
+      vkbasalt
     ];
 
     # Steam hardware support
