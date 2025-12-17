@@ -26,5 +26,10 @@ _:
       source = ./system/loglib.sh;
       executable = true;
     };
+
+    ".local/bin/set-background" = {
+      source = ./system/set-background;
+      executable = true;
+    };
   };
 }
