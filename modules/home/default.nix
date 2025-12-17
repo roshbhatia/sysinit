@@ -63,7 +63,6 @@ in
       XDG_DATA_HOME = config.xdg.dataHome;
       XDG_STATE_HOME = config.xdg.stateHome;
       XST = config.xdg.stateHome;
-      SYSINIT_PATH = values.sysinit.path;
 
       NODE_NO_WARNINGS = 1;
       NODE_TLS_REJECT_UNAUTHORIZED = 0;

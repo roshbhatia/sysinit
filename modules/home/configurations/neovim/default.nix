@@ -8,13 +8,8 @@
 let
   themes = import ../../../shared/lib/theme { inherit lib; };
   inherit (config.lib.file) mkOutOfStoreSymlink;
-  sysinitPath = builtins.getEnv "SYSINIT_PATH";
-  pathOrDefault =
-    if sysinitPath != "" then
-      sysinitPath
-    else
-      "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit";
-  nvimConfigPath = "${pathOrDefault}/modules/home/configurations/neovim";
+  sysinitPath = builtins.getEnv "PWD";
+  nvimConfigPath = "${sysinitPath}/modules/home/configurations/neovim";
 in
 
 {

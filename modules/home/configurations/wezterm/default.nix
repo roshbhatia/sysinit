@@ -14,13 +14,8 @@ let
   };
 
   inherit (config.lib.file) mkOutOfStoreSymlink;
-  sysinitPath = builtins.getEnv "SYSINIT_PATH";
-  pathOrDefault =
-    if sysinitPath != "" then
-      sysinitPath
-    else
-      "${config.home.homeDirectory}/github/personal/roshbhatia/sysinit";
-  wezConfigPath = "${pathOrDefault}/modules/home/configurations/wezterm";
+  sysinitPath = builtins.getEnv "PWD";
+  wezConfigPath = "${sysinitPath}/modules/home/configurations/wezterm";
 in
 {
   stylix.targets.wezterm.enable = false;

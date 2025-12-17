@@ -327,6 +327,44 @@ tasks:
         log_success "System configuration applied successfully"
       - task: clean-results
 
+  refresh:lv426:
+    desc: Apply lv426 (macOS) system configuration
+    silent: true
+    deps: [clean-results]
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+
+        log_info "Applying lv426 system configuration"
+        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} switch --flake .#lv426 --impure; then
+          log_error "lv426 refresh failed (see logs above)"
+          exit {{.ERROR_EXIT_CODE}}
+        fi
+
+        log_success "lv426 system configuration applied successfully"
+      - task: clean-results
+
+  refresh:arrakis:
+    desc: Apply arrakis (NixOS) system configuration
+    silent: true
+    deps: [clean-results]
+    cmds:
+      - |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        source {{.LOGLIB_PATH}}
+
+        log_info "Applying arrakis system configuration"
+        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo nixos-rebuild switch --flake .#arrakis; then
+          log_error "arrakis refresh failed (see logs above)"
+          exit {{.ERROR_EXIT_CODE}}
+        fi
+
+        log_success "arrakis system configuration applied successfully"
+      - task: clean-results
+
   build:lv426:
     desc: Build the lv426 (macOS) system configuration
     silent: true
