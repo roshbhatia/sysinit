@@ -1,37 +1,38 @@
-#!/usr/bin/env bash
-# shellcheck disable=all
-# modules/home/configurations/utils/gh-whoami
+#!/usr/bin/env nu
 
-source "$(dirname "$0")/loglib.sh"
+def main [] {
+    let loglib = ($env.HOME + "/.local/bin/loglib.nu")
+    source $loglib
 
-if ! command -v gh &>/dev/null; then
-  log_error "GitHub CLI not installed"
-  exit 1
-fi
+    if (which gh | is-empty) {
+        log_error "GitHub CLI not installed"
+        exit 1
+    }
 
-# Get the current directory
-CURRENT_DIR="$(pwd)"
+    # Get the current directory
+    let current_dir = (pwd)
 
-# Determine which gh config to use based on the path
-if [[ "$CURRENT_DIR" == "$HOME/github/work"* ]]; then
-  GH_CONFIG_DIR="$HOME/.config/gh-work"
-  ACCOUNT_TYPE="work"
-elif [[ "$CURRENT_DIR" == "$HOME/github/personal"* ]]; then
-  GH_CONFIG_DIR="$HOME/.config/gh-personal"
-  ACCOUNT_TYPE="personal"
-else
-  # Default to personal for repositories outside these paths
-  GH_CONFIG_DIR="$HOME/.config/gh-personal"
-  ACCOUNT_TYPE="personal (default)"
-fi
+    # Determine which gh config to use based on the path
+    let [gh_config_dir, account_type] = if ($current_dir | str contains "$($env.HOME)/github/work") {
+        [($env.HOME + "/.config/gh-work"), "work"]
+    } else if ($current_dir | str contains "$($env.HOME)/github/personal") {
+        [($env.HOME + "/.config/gh-personal"), "personal"]
+    } else {
+        [($env.HOME + "/.config/gh-personal"), "personal (default)"]
+    }
 
-# Export the config directory for gh to use
-export GH_CONFIG_DIR
+    # Export the config directory for gh to use
+    let result = (
+        with-env { GH_CONFIG_DIR: $gh_config_dir } {
+            gh api user --jq '.login' 2> /dev/null | complete
+        }
+    )
 
-username=$(gh api user --jq '.login' 2>/dev/null)
-if [[ -n "$username" ]]; then
-  echo "$username ($ACCOUNT_TYPE)"
-else
-  log_warn "GitHub user not logged in for $ACCOUNT_TYPE account"
-  exit 1
-fi
+    if $result.exit_code == 0 {
+        let username = $result.stdout | str trim
+        print $"($username) ($account_type)"
+    } else {
+        log_warn $"GitHub user not logged in for ($account_type) account"
+        exit 1
+    }
+}

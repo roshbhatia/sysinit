@@ -1,15 +1,32 @@
-#!/usr/bin/env bash
-# shellcheck disable=all
-# modules/home/configurations/utils/dns-flush
+#!/usr/bin/env nu
 
-source "$(dirname "$0")/loglib.sh"
+use std
 
-gum spin --spinner dot --title "Flushing DNS cache..." -- \
-  sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder
+def main [] {
+    let loglib = ($env.HOME + "/.local/bin/loglib.nu")
+    source $loglib
 
-if [[ $? -eq 0 ]]; then
-  log_success "DNS cache flushed successfully"
-else
-  log_error "Failed to flush DNS cache"
-  exit 1
-fi
+    if $nu.os.family == "macos" {
+        let result = (
+            gum spin --spinner dot --title "Flushing DNS cache..." -- bash -c "sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder" | complete
+        )
+
+        if $result.exit_code == 0 {
+            log_success "DNS cache flushed successfully"
+        } else {
+            log_error "Failed to flush DNS cache"
+            exit 1
+        }
+    } else if $nu.os.family == "linux" {
+        let result = (
+            gum spin --spinner dot --title "Flushing DNS cache..." -- bash -c "sudo systemctl restart systemd-resolved" | complete
+        )
+
+        if $result.exit_code == 0 {
+            log_success "DNS cache flushed successfully"
+        } else {
+            log_error "Failed to flush DNS cache"
+            exit 1
+        }
+    }
+}
