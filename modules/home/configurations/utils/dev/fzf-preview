@@ -4,7 +4,7 @@ def get-target [target_arg: string] {
     let target = if ($target_arg | is-empty) { "" } else { $target_arg }
     
     if ($target | is-empty) or ($target == "$word") or ($target == "$realpath") {
-        error make { msg: "No target" }
+        null
     } else {
         $target
     }
@@ -27,13 +27,13 @@ def normalize-target [target: string] {
     if ($target | path exists) {
         $target | path expand
     } else {
-        error make { msg: "Path does not exist" }
+        null
     }
 }
 
 def preview-dir [path: string] {
     if (which eza | is-empty) {
-        ls -la $path | table
+        ls -la $path
     } else {
         eza --color=always --icons=always --group-directories-first -1 $path
     }
@@ -100,8 +100,11 @@ def preview-symlink [path: string] {
 }
 
 def main [target_arg?: string] {
-    let target = (get-target ($target_arg | default "") | catch { return })
-    let target = (normalize-target $target | catch { return })
+    let target = (get-target ($target_arg | default ""))
+    if ($target == null) { return }
+    
+    let target = (normalize-target $target)
+    if ($target == null) { return }
 
     if ($target | path type --long | str contains "directory") {
         preview-dir $target

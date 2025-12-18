@@ -22,11 +22,6 @@ _:
       executable = true;
     };
 
-    ".local/bin/loglib.nu" = {
-      source = ./system/loglib.nu;
-      executable = true;
-    };
-
     ".local/bin/set-background" = {
       source = ./system/set-background.nu;
       executable = true;

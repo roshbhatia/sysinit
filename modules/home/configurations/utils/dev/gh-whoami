@@ -1,18 +1,13 @@
 #!/usr/bin/env nu
 
 def main [] {
-    let loglib = ($env.HOME + "/.local/bin/loglib.nu")
-    source $loglib
-
     if (which gh | is-empty) {
-        log_error "GitHub CLI not installed"
+        print "✗ GitHub CLI not installed"
         exit 1
     }
 
-    # Get the current directory
     let current_dir = (pwd)
 
-    # Determine which gh config to use based on the path
     let [gh_config_dir, account_type] = if ($current_dir | str contains "$($env.HOME)/github/work") {
         [($env.HOME + "/.config/gh-work"), "work"]
     } else if ($current_dir | str contains "$($env.HOME)/github/personal") {
@@ -21,7 +16,6 @@ def main [] {
         [($env.HOME + "/.config/gh-personal"), "personal (default)"]
     }
 
-    # Export the config directory for gh to use
     let result = (
         with-env { GH_CONFIG_DIR: $gh_config_dir } {
             gh api user --jq '.login' 2> /dev/null | complete
@@ -32,7 +26,7 @@ def main [] {
         let username = $result.stdout | str trim
         print $"($username) ($account_type)"
     } else {
-        log_warn $"GitHub user not logged in for ($account_type) account"
+        print $"⚠ GitHub user not logged in for ($account_type) account" | ignore
         exit 1
     }
 }

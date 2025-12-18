@@ -1,24 +1,19 @@
 #!/usr/bin/env nu
 
 def main [command?: string] {
-    let loglib = ($env.HOME + "/.local/bin/loglib.nu")
-    source $loglib
-
     if (which gh | is-empty) {
-        log_error "GitHub CLI not installed"
+        print "✗ GitHub CLI not installed"
         exit 1
     }
 
     def setup_account [account_type: string] {
         let gh_config_dir = $env.HOME + "/.config/gh-" + $account_type
         
-        log_info $"Setting up ($account_type) GitHub account..."
-        log_info $"This will authenticate using gh CLI with a separate config directory: ($gh_config_dir)"
+        print $"Setting up ($account_type) GitHub account..."
+        print $"Authenticating with config directory: ($gh_config_dir)"
         
-        # Create config directory if it doesn't exist
         mkdir -p $gh_config_dir
         
-        # Authenticate with the specified config directory
         let result = (
             with-env { GH_CONFIG_DIR: $gh_config_dir } {
                 gh auth login | complete
@@ -26,9 +21,8 @@ def main [command?: string] {
         )
 
         if $result.exit_code == 0 {
-            log_success $"($account_type) GitHub account authenticated successfully"
+            print $"✓ ($account_type) GitHub account authenticated successfully"
             
-            # Show the authenticated user
             let user_result = (
                 with-env { GH_CONFIG_DIR: $gh_config_dir } {
                     gh api user --jq '.login' 2> /dev/null | complete
@@ -37,16 +31,16 @@ def main [command?: string] {
             
             if $user_result.exit_code == 0 {
                 let username = ($user_result.stdout | str trim)
-                log_info $"Authenticated as: ($username)"
+                print $"Authenticated as: ($username)"
             }
         } else {
-            log_error $"Failed to authenticate ($account_type) GitHub account"
+            print $"✗ Failed to authenticate ($account_type) GitHub account"
             return 1
         }
     }
 
     def show_status [] {
-        log_info "Checking authentication status..."
+        print "Checking authentication status..."
         
         for account_type in ["personal" "work"] {
             let gh_config_dir = $env.HOME + "/.config/gh-" + $account_type
@@ -60,12 +54,12 @@ def main [command?: string] {
                 
                 if $user_result.exit_code == 0 {
                     let username = ($user_result.stdout | str trim)
-                    log_success $"($account_type): ($username)"
+                    print $"✓ ($account_type): ($username)"
                 } else {
-                    log_warn $"($account_type): Not authenticated"
+                    print $"⚠ ($account_type): Not authenticated"
                 }
             } else {
-                log_warn $"($account_type): Config directory not found"
+                print $"⚠ ($account_type): Config directory not found"
             }
         }
     }
@@ -98,7 +92,7 @@ Examples:
         "status" => { show_status }
         "help" | "--help" | "-h" => { print_usage }
         _ => {
-            log_error $"Unknown command: ($command)"
+            print $"✗ Unknown command: ($command)"
             print ""
             print_usage
             exit 1

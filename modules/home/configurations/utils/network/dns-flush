@@ -1,20 +1,15 @@
 #!/usr/bin/env nu
 
-use std
-
 def main [] {
-    let loglib = ($env.HOME + "/.local/bin/loglib.nu")
-    source $loglib
-
     if $nu.os.family == "macos" {
         let result = (
             gum spin --spinner dot --title "Flushing DNS cache..." -- bash -c "sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder" | complete
         )
 
         if $result.exit_code == 0 {
-            log_success "DNS cache flushed successfully"
+            print "✓ DNS cache flushed successfully"
         } else {
-            log_error "Failed to flush DNS cache"
+            print "✗ Failed to flush DNS cache" | ignore
             exit 1
         }
     } else if $nu.os.family == "linux" {
@@ -23,9 +18,9 @@ def main [] {
         )
 
         if $result.exit_code == 0 {
-            log_success "DNS cache flushed successfully"
+            print "✓ DNS cache flushed successfully"
         } else {
-            log_error "Failed to flush DNS cache"
+            print "✗ Failed to flush DNS cache" | ignore
             exit 1
         }
     }
