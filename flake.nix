@@ -199,8 +199,8 @@
               username = "roshbhatia";
             };
             theme = {
-              colorscheme = "black-metal";
-              variant = "gorgoroth";
+              colorscheme = "kanagawa";
+              variant = "dragon";
               font = {
                 monospace = "CommitMono Nerd Font";
               };
