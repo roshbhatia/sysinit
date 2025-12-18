@@ -6,6 +6,5 @@ def main [session: string] {
         exit 1
     }
 
-    let _ = (^(nohup wezterm connect $session) o>/dev/null e>/dev/null)
-    exit 0
+    ^nohup wezterm connect $session out+err> /dev/null
 }
