@@ -31,5 +31,10 @@ _:
       source = ./system/set-background.sh;
       executable = true;
     };
+
+    ".local/bin/connect" = {
+      source = ./dev/connect.nu;
+      executable = true;
+    };
   };
 }
