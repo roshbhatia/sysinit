@@ -34,6 +34,7 @@ let
       ll = "eza --icons=always -l -a";
       kgA = "kubectl get -A";
       kgN = "kubectl get -n";
+      connect = "wezterm connect $1 > /dev/null 2>&1 &";
     };
 in
 {
