@@ -12,6 +12,7 @@ let
     "@fission-ai/openspec@latest"
     "@github/copilot"
     "@sourcegraph/amp@latest"
+    "@Ryandonofrio3/osgrep"
   ]
   ++ (values.yarn.additionalPackages or [ ]);
 
