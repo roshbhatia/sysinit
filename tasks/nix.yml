@@ -154,7 +154,7 @@ tasks:
         log_info "Refreshing work configuration at: ${WORK_SYSINIT}"
         cd "${WORK_SYSINIT}"
 
-        if ! NIX_MAX_JOBS=1 NIX_CORES=1 task refresh:work; then
+        if ! NIX_MAX_JOBS=1 NIX_CORES=1 task nix:refresh:work; then
           log_error "Work refresh failed"
           exit 1
         fi
@@ -176,7 +176,7 @@ tasks:
         fi
 
         cd "${WORK_SYSINIT}"
-        if ! NIX_MAX_JOBS=1 NIX_CORES=1 task build:work; then
+        if ! NIX_MAX_JOBS=1 NIX_CORES=1 task nix:build:work; then
           log_error "Work build failed"
           exit 1
         fi
