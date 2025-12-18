@@ -18,7 +18,7 @@ function M.setup()
     "linematch:200",
   }
   vim.opt.cursorline = false
-  vim.opt.spell = false
+  vim.opt.spell = true
   vim.opt.fixeol = false
 end
 
