@@ -19,7 +19,6 @@ vars:
   NIX_SYSTEM_CONF_DIR: "/etc/nix"
   NIX_MAX_JOBS: 2
   NIX_CORES: 2
-  LOGLIB_PATH: "/dev/null"
 
 tasks:
   default:
@@ -32,11 +31,13 @@ tasks:
     desc: Make all .sh files in the repository executable
     cmds:
       - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-          echo "Failed to make .sh files executable"
+        #!/usr/bin/env nu
+        try {
+          fd -e sh -x chmod +x {}
+        } catch {
+          print "✗ Failed to make .sh files executable"
           exit 1
-        fi
+        }
     silent: true
 
   fmt:
@@ -48,10 +49,11 @@ tasks:
     desc: Generate and inject values.nix schema documentation into README.md
     cmds:
       - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        if ! ./hack/generate-values-docs.sh README.md; then
-          echo "Failed to generate values documentation"
+        #!/usr/bin/env nu
+        try {
+          bash ./hack/generate-values-docs.sh README.md
+        } catch {
+          print "✗ Failed to generate values documentation"
           exit 1
-        fi
+        }
     silent: true
