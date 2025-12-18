@@ -8,13 +8,12 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
-        log_info "Formatting Nix files"
+        echo "Formatting Nix files"
         if ! fd -e nix -E result -x nixfmt --width=100; then
-          log_error "Nix formatting failed"
+          echo "Nix formatting failed"
           exit 1
         fi
-        log_success "Nix files formatted successfully"
+        echo "Nix files formatted successfully"
     silent: true
 
   nix:check:
@@ -23,13 +22,12 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
-        log_info "Checking Nix formatting"
+        echo "Checking Nix formatting"
         if ! fd -e nix -E result -x nixfmt --width=100 --check; then
-          log_error "Nix formatting check failed. Run 'task fmt:nix' to fix"
+          echo "Nix formatting check failed. Run 'task fmt:nix' to fix"
           exit 1
         fi
-        log_success "Nix formatting is correct"
+        echo "Nix formatting is correct"
     silent: true
 
   lua:
@@ -38,13 +36,12 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
-        log_info "Formatting Lua files"
+        echo "Formatting Lua files"
         if ! fd -e lua -x stylua; then
-          log_error "Lua formatting failed"
+          echo "Lua formatting failed"
           exit 1
         fi
-        log_success "Lua files formatted successfully"
+        echo "Lua files formatted successfully"
     silent: true
 
   lua:check:
@@ -53,13 +50,12 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
-        log_info "Checking Lua formatting"
+        echo "Checking Lua formatting"
         if ! fd -e lua -x stylua --check; then
-          log_error "Lua formatting check failed. Run 'task fmt:lua' to fix"
+          echo "Lua formatting check failed. Run 'task fmt:lua' to fix"
           exit 1
         fi
-        log_success "Lua formatting is correct"
+        echo "Lua formatting is correct"
     silent: true
 
   lua:lint:
@@ -68,8 +64,7 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
-        log_info "Running Lua LSP diagnostics"
+        echo "Running Lua LSP diagnostics"
 
         total_warnings=0
         total_errors=0
@@ -79,7 +74,7 @@ tasks:
                    modules/home/configurations/hammerspoon \
                    modules/home/configurations/sketchybar; do
           if [ -d "$dir" ]; then
-            log_info "Checking $dir"
+            echo "Checking $dir"
             output=$(lua-language-server --check "$dir" 2>&1 || true)
 
             # Count actual errors (not warnings)
@@ -90,22 +85,22 @@ tasks:
             total_warnings=$((total_warnings + warning_count))
 
             if [ $error_count -gt 0 ]; then
-              log_error "Found $error_count errors in $dir"
+              echo "Found $error_count errors in $dir"
             elif [ $warning_count -gt 0 ]; then
-              log_info "Found $warning_count warnings in $dir (non-blocking)"
+              echo "Found $warning_count warnings in $dir (non-blocking)"
             fi
           fi
         done
 
         if [ $total_errors -gt 0 ]; then
-          log_error "Lua LSP found $total_errors errors across all directories"
+          echo "Lua LSP found $total_errors errors across all directories"
           exit 1
         fi
 
         if [ $total_warnings -gt 0 ]; then
-          log_success "Lua LSP complete: $total_warnings warnings, 0 errors"
+          echo "Lua LSP complete: $total_warnings warnings, 0 errors"
         else
-          log_success "All Lua files passed LSP checks with no issues"
+          echo "All Lua files passed LSP checks with no issues"
         fi
     silent: true
 
@@ -115,8 +110,7 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
-        source {{.LOGLIB_PATH}}
-        log_success "Lua validation complete"
+        echo "Lua validation complete"
     silent: true
 
   sh:
@@ -125,13 +119,12 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
-        log_info "Formatting shell files"
+        echo "Formatting shell files"
         if ! fd -e sh -e bash -e zsh -x shfmt {{.SHFMT_OPTS}}; then
-          log_error "Shell formatting failed"
+          echo "Shell formatting failed"
           exit 1
         fi
-        log_success "Shell files formatted successfully"
+        echo "Shell files formatted successfully"
     silent: true
 
   sh:check:
@@ -140,13 +133,12 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
-        log_info "Checking shell formatting"
+        echo "Checking shell formatting"
         if ! fd -e sh -e bash -e zsh -x shfmt {{.SHFMT_OPTS}} -d; then
-          log_error "Shell formatting check failed. Run 'task fmt:sh' to fix"
+          echo "Shell formatting check failed. Run 'task fmt:sh' to fix"
           exit 1
         fi
-        log_success "Shell formatting is correct"
+        echo "Shell formatting is correct"
     silent: true
 
   all:
@@ -160,6 +152,5 @@ tasks:
     cmds:
       - |
         #!/usr/bin/env bash
-        source {{.LOGLIB_PATH}}
-        log_success "All formatting checks passed"
+        echo "All formatting checks passed"
     silent: true
