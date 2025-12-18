@@ -1,124 +1,89 @@
 # AGENTS.md
 
-Comprehensive configuration and guidance for AI coding agents working with this Nix-based multi-system development environment.
+Nix-flakes configuration for macOS (Apple Silicon) and NixOS. Reproducible system setup via nix-darwin + home-manager.
 
-> **Project Structure**: See `STRUCTURE.md` for high-level overview and `modules/README.md` for detailed module documentation.
+## Quick Reference
 
-## Project Overview
-
-This is a Nix-flakes based macOS development environment using:
-- **nix-darwin** for system-level configuration  
-- **home-manager** for user environment management
-- **Nix flakes** for reproducible configuration
-- Target platform: macOS (Apple Silicon / `aarch64-darwin`)
-
-## Essential Commands
-
-### Building and Applying Changes
+### Essential Commands
 ```bash
-# Apply full system configuration (recommended workflow)
-task nix:refresh
-
-# Build without applying (check for errors)
-task nix:build
-
-# Update flake inputs and apply
-task nix:update
-
-# Clean up old generations
-task nix:clean
+task nix:build       # Test configuration
+task nix:refresh     # Apply configuration
+task fmt            # Format Nix/Lua/Shell
+task nix:clean      # Cleanup old generations
+task nix:update     # Update dependencies
 ```
 
-### Development Workflow
-```bash
-# Format all code (Nix, Lua, Shell)
-task fmt
-
-# Test configuration changes
-task nix:build && task nix:refresh
-
-# Work configuration (reduced resource footprint)
-task nix:refresh:work
-```
+### Key Files
+- **`values.nix`** - All user settings (centralized, type-checked)
+- **`flake.nix`** - Main entry point
+- **`modules/shared/lib/values/default.nix`** - Schema/types
+- **`Taskfile.yml`** - Task runner config
 
 ## Architecture
 
-### Module System
-- `modules/shared/lib/` - Shared utilities and theme system (cross-platform)
-- `modules/darwin/` - macOS system-level configurations (nix-darwin)
-  - `system/` - System-level config (requires sudo)
-  - `home/` - macOS home-manager configurations
-- `modules/home/` - Cross-platform user-level configurations (home-manager)
+### Directory Structure
+```
+modules/
+├── shared/lib/           # Shared utilities, theme system
+├── darwin/
+│   ├── system/          # System-level config (nix-darwin)
+│   └── home/            # macOS home-manager
+└── home/                # Cross-platform user config
+```
 
-### Values-Based Configuration
-All user settings centralized in `values.nix`:
-- Type-checked against schema in `modules/shared/lib/values/default.nix`
-- Validated at build-time in `modules/shared/lib/nixos-modules/validation.nix`
-- Auto-documented in README.md
+### Core Concepts
+- **Values-driven**: All config in `values.nix`, type-checked against schema
+- **Out-of-store symlinks**: Live editing for neovim/wezterm/zsh (no rebuild)
+- **Module pattern**: `default.nix` (entry) + `name.nix` (impl)
+- **Multi-ecosystem**: Nix, Homebrew, Cargo, npm, Go, pipx, etc.
 
 ### Theme System
-Centralized in `modules/shared/lib/theme/` with three layers:
-1. **Palette Layer** - Color definitions (rose-pine, catppuccin, gruvbox, etc.)
-2. **Semantic Layer** - Color role mapping  
-3. **Adapter Layer** - App-specific transformation
+Three-layer system in `modules/shared/lib/theme/`:
+1. **Palette** - Color definitions
+2. **Semantic** - Role mapping (background, foreground, etc.)
+3. **Adapter** - App-specific transforms
 
-### Out-of-Store Symlinks
-Critical for development - configuration files use `mkOutOfStoreSymlink` for live editing without rebuilds.
+## Code Style
 
-## LLM Configuration System
+### Nix
+- Format: `nixfmt --width=100` (via `task fmt:nix`)
+- Structure: `default.nix` imports `name.nix`
+- Types: Define in `modules/shared/lib/values/default.nix`
+- Settings: Put user-configurable options in `values.nix`
 
-### Structure
-```
-modules/home/configurations/llm/
-├── config/           # LLM client configurations
-│   ├── claude.nix    # Claude Desktop MCP configuration
-│   ├── goose.nix     # Goose AI assistant configuration  
-│   ├── opencode.nix  # Opencode IDE configuration
-│   └── cursor-agent.nix # Cursor CLI permissions
-├── prompts/          # Specialized agent prompts
-│   ├── ai-engineer.nix
-│   ├── agent-organizer.nix
-│   ├── backend-architect.nix
-│   ├── frontend-developer.nix
-│   ├── typescript-expert.nix
-│   ├── platform-engineer.nix
-│   ├── api-documenter.nix
-│   └── context-manager.nix
-├── shared/           # Common configurations
-│   ├── prompts.nix    # Prompt management
-│   ├── lsp.nix       # Language server configuration
-│   ├── mcp-servers.nix # MCP server definitions
-│   └── common.nix    # Utility functions
-└── default.nix       # Main entry point
-```
+### Lua
+- Format: `stylua` (column_width=100, indent_width=2)
+- Lint: `task fmt:lua:lint` before commit
+- Location: `modules/home/configurations/{neovim,wezterm,hammerspoon,sketchybar}/lua/`
 
-### MCP Servers
-Comprehensive MCP server setup including:
-- **AWS Services**: EKS, CloudTrail, Terraform, API
-- **Development Tools**: Git, fetch, ast-grep, context7
-- **Project Integration**: Serena (project-aware coding assistant)
+### Shell
+- Format: `shfmt -i 2 -ci -sr -s -w`
+- Required: `set -euo pipefail` at start
+- Required: Source `{{.LOGLIB_PATH}}` for logging functions
+- Required: All `.sh` files executable (`task sh:chmod`)
+- Log functions: `log_info`, `log_success`, `log_error`, `log_warn`
 
-### Agent Prompts
-Specialized prompts for different roles with:
-- Structured instruction format
-- Tool integration guidance
-- Best practices and requirements
-- Activity-specific focus areas
+### General
+- No emojis in code (enforced)
+- Use `mkOutOfStoreSymlink` for live-editable configs
+- Always test: `task nix:build` before changes
+- Validate: Check against schema before commit
 
-## Development Guidelines
+## Configuration Workflows
 
-### Editing Configurations
-1. **Neovim, Wezterm, Zsh**: Edit directly - changes apply immediately via out-of-store symlinks
-2. **System Configuration**: Edit `values.nix` then run `task nix:refresh`
-3. **LLM Prompts**: Edit prompt files in `modules/home/configurations/llm/prompts/`
+### Editing Config Files
+- **Live-edit** (neovim, wezterm, zsh): Edit directly → changes immediate
+- **System config**: Edit `values.nix` → `task nix:refresh`
+- **LLM prompts**: Edit `modules/home/configurations/llm/prompts/`
 
 ### Adding Packages
 Edit `values.nix`:
 ```nix
 {
-  nix.additionalPackages = [ "new-package" ];
-  cargo.additionalPackages = [ "cargo-new" ];
-  npm.additionalPackages = [ "typescript" ];
+  nix.additionalPackages = [ "pkg-name" ];
+  cargo.additionalPackages = [ "cargo-pkg" ];
+  npm.additionalPackages = [ "npm-pkg" ];
+  # Also: go, pipx, uvx, krew, yarn, gh
 }
 ```
 
@@ -127,9 +92,9 @@ Edit `values.nix`:
 ```nix
 {
   theme = {
-    colorscheme = "catppuccin";  # rose-pine, gruvbox, nord, kanagawa, etc.
-    variant = "mocha";            # theme-specific variant
-    appearance = "dark";          # light or dark
+    colorscheme = "catppuccin";      # ID from themes table in README
+    variant = "macchiato";             # variant name
+    appearance = "dark";               # or "light"
     transparency = {
       enable = true;
       opacity = 0.65;
@@ -139,197 +104,126 @@ Edit `values.nix`:
 }
 ```
 
-## Testing and Validation
+## LLM Configuration
 
-### Pre-commit Checks
-Always test before applying:
-```bash
-# Build to check for errors
-task nix:build
-
-# If successful, apply
-task nix:refresh
+### Structure
 ```
+modules/home/configurations/llm/
+├── config/           # Client configs (claude, goose, opencode, cursor-agent)
+├── prompts/          # Agent prompts
+├── shared/           # Common (prompts.nix, lsp.nix, mcp-servers.nix)
+└── default.nix
+```
+
+### MCP Servers
+Configured in `modules/home/configurations/llm/shared/mcp-servers.nix`:
+- AWS: EKS, CloudTrail, Terraform, API
+- Dev Tools: Git, fetch, ast-grep, context7
+- Project: Serena (coding assistant)
+
+### Agent Prompts
+Located in `modules/home/configurations/llm/prompts/`:
+- Structure: instructions, requirements, best_practices sections
+- Integrated with LLM tools and code symbols
+- Test with LLM client of choice
+
+## Testing & Validation
 
 ### Validation Levels
-1. **Type checking** - Values schema enforces types
-2. **Build-time validation** - Assertions check compatibility  
-3. **Theme validation** - Ensures variant availability
-4. **Nix evaluation** - Catches syntax errors
+1. Type checking (values schema)
+2. Build-time assertions
+3. Theme variant compatibility
+4. Nix evaluation errors
 
-## Security Considerations
-
-### MCP Server Security
-- AWS servers use regional isolation (us-east-1)
-- Sensitive data access flags are explicitly enabled
-- Environment variables properly scoped
-- Error logging levels configured
-
-### Execution Environment
-- Nix provides sandboxed package management
-- Out-of-store symlinks prevent rebuild surprises
-- Configuration validation at multiple levels
-- Git hooks ensure code quality
-
-## Multi-Ecosystem Package Management
-
-Packages installed from multiple ecosystems:
-- **Nix** - Primary package manager (CLI tools)
-- **Homebrew** - macOS-specific packages and GUI apps
-- **Cargo** - Rust development tools
-- **Go** - Go binaries
-- **npm/yarn** - Node.js global packages
-- **pipx/uvx** - Python isolated applications
-- **gh extensions** - GitHub CLI plugins
-- **krew** - kubectl plugins
-
-## Agent-Specific Instructions
-
-### For Code Generation
-1. Use existing module patterns and conventions
-2. Follow the established file structure
-3. Include proper type definitions in values schema
-4. Add validation where appropriate
-5. Update documentation strings
-
-### For Configuration Changes
-1. Check if change affects system or user level
-2. Determine if rebuild is required
-3. Use appropriate configuration pattern
-4. Test with `task nix:build` before applying
-5. Update relevant documentation
-
-### For Dependency Management
-1. Check if dependency exists in nixpkgs first
-2. Use overlays for version overrides if needed
-3. Consider multi-ecosystem approach
-4. Add to appropriate `additionalPackages` field
-5. Test with clean environment
-
-## Common Workflows
-
-### Adding New LLM Configuration
-1. Create config file in `modules/home/configurations/llm/config/`
-2. Import in `modules/home/configurations/llm/default.nix`
-3. Add values schema options in `modules/lib/values/default.nix`
-4. Add to `values.nix` if user-configurable
-5. Test with `task nix:build`
-
-### Adding New Agent Prompt
-1. Create prompt file in `modules/home/configurations/llm/prompts/`
-2. Follow established prompt structure with instruction/requirements/best_practices
-3. Add to prompt list in `modules/home/configurations/llm/shared/prompts.nix`
-4. Test with LLM client of choice
-
-### Debugging Configuration Issues
-1. Check `task nix:build` output for specific errors
-2. Validate values.nix against schema
-3. Check for missing imports or circular dependencies
-4. Verify theme/variant compatibility
-5. Review Nix evaluation logs
-
-## File Organization Conventions
-
-### Module Structure Pattern
+### Before Committing
+```bash
+task nix:build          # Check for errors
+task fmt:all:check      # Check formatting
+task format:lua:lint    # Lua diagnostics
 ```
-config-name/
-├── default.nix          # Entry point that imports implementation
-└── [name].nix          # Implementation with actual config
-```
-
-### Naming Conventions
-- **Configurations**: `modules/{darwin,home}/configurations/`
-- **Packages**: `modules/{darwin,home}/packages/`
-- **Libraries**: `modules/lib/`
-- **Overlays**: `overlays/packages.nix`
-
-## Special Files
-
-- **`flake.nix`** - Main flake entry point
-- **`values.nix`** - User configuration (most edited file)
-- **`Taskfile.yml`** - Task runner configuration
-- **`AGENTS.md`** - This file - agent-specific guidance
-
-## Performance Optimization
-
-### Build Performance
-- Use `task nix:build:work` for reduced resource footprint
-- Clean old generations with `task nix:clean`
-- Use binary cache where possible
-
-### Runtime Performance  
-- Out-of-store symlinks for live editing
-- Lazy loading in application configurations
-- Optimized theme generation
 
 ## Troubleshooting
 
-### Common Issues
-1. **Build failures**: Check values.nix syntax and schema compliance
-2. **Theme issues**: Verify variant availability for colorscheme
-3. **MCP server failures**: Check AWS credentials and network connectivity
-4. **Permission errors**: Ensure proper file permissions for symlinks
+| Issue | Solution |
+|-------|----------|
+| Build failure | Check `values.nix` syntax and schema compliance |
+| Theme issues | Verify variant exists for colorscheme |
+| MCP server fails | Check AWS credentials and network |
+| Permission errors | Verify symlink file permissions |
 
-### Getting Help
-- Check Nix evaluation logs for detailed error messages
-- Review validation output for specific issues
-- Consult schema definitions for required fields
-- Test changes incrementally
+## Debugging Configuration Issues
+1. Check `task nix:build` output for errors
+2. Validate `values.nix` against schema
+3. Check for missing imports or circular deps
+4. Verify theme/variant compatibility
+5. Review Nix evaluation logs
 
-## Build/Lint/Test Commands
+## Common Tasks
 
+### Add LLM Configuration
+1. Create config in `modules/home/configurations/llm/config/`
+2. Import in `modules/home/configurations/llm/default.nix`
+3. Add schema options if needed
+4. Add to `values.nix` if user-configurable
+5. Test: `task nix:build`
+
+### Add Agent Prompt
+1. Create file in `modules/home/configurations/llm/prompts/`
+2. Follow structure: instructions/requirements/best_practices
+3. Add to `modules/home/configurations/llm/shared/prompts.nix`
+4. Test with LLM client
+
+### Add Code to Module
+1. Use existing patterns and conventions
+2. Add type definitions to schema
+3. Include validation
+4. Update docs
+5. Test: `task nix:build`
+
+### Manage Dependencies
+1. Check nixpkgs first
+2. Use overlays for version overrides if needed
+3. Prefer multi-ecosystem approach
+4. Add to appropriate `additionalPackages` field
+5. Test in clean environment
+
+## All Commands
 ```bash
-# Build and apply configuration
-task nix:refresh          # Apply full system configuration
-task nix:build           # Build without applying (check errors)
-task nix:build:lv426     # Build macOS configuration only
-task nix:build:arrakis   # Build NixOS configuration only
-task nix:build:all       # Build all system configurations
-task nix:update          # Update flake inputs and apply
-task nix:clean           # Clean old generations
+# Build & apply
+task nix:refresh              # Apply current (lv426/macOS)
+task nix:refresh:lv426        # Apply macOS
+task nix:refresh:arrakis      # Apply NixOS
+task nix:refresh:work         # Apply work config
+task nix:build                # Test build
+task nix:build:work           # Test work config
+task nix:update               # Update flake & apply
+task nix:clean                # Cleanup store & generations
 
-# Format all code
-task fmt                 # Format Nix, Lua, Shell files
-task format:all:check    # Check formatting without modifying
-task format:nix          # Format Nix files only
-task format:lua          # Format Lua files only
-task format:sh           # Format shell files only
+# Format
+task fmt                      # Format all
+task fmt:nix                  # Format Nix only
+task fmt:lua                  # Format Lua only
+task fmt:sh                   # Format Shell only
+task fmt:all:check            # Check without modifying
 
-# Validation
-task nix:validate        # Run flake check (format validation)
-task format:lua:validate # Lua format check + LSP diagnostics
-task format:lua:lint     # Run lua-language-server diagnostics only
+# Validate
+task nix:validate             # Check flake validity
+task format:lua:lint          # Run Lua LSP diagnostics
 
-# Testing single configurations
-nix build .#darwinConfigurations.lv426.system              # Test macOS build
-nix build .#nixosConfigurations.arrakis.config.system.build.toplevel  # Test NixOS build
+# Setup
+task nix:config               # Copy nix configs to /etc/nix
+task nix:secrets:init         # Setup GitHub token
+task sh:chmod                 # Make .sh files executable
 ```
 
-## Code Style Guidelines
+## Multi-System Setup
 
-### Nix Files
-- Format with `nixfmt --width=100` (enforced by `task format:nix`)
-- Module structure: `default.nix` (entry point) + `[name].nix` (implementation)
-- Import paths: `modules/{darwin,home}/configurations/` for configs, `modules/shared/lib/` for utilities
-- Type definitions go in `modules/shared/lib/values/default.nix` schema
-- All user settings centralized in `values.nix` with type checking
+Structure supports:
+- **lv426** (macOS, Apple Silicon) 
+- **arrakis** (NixOS) 
 
-### Lua Files  
-- Format with `stylua` using config from `.stylua.toml` (column_width=100, indent_width=2, quote_style=AutoPreferDouble)
-- Run LSP diagnostics via `task format:lua:lint` before committing
-- Located in: `modules/home/configurations/{neovim,wezterm,hammerspoon,sketchybar}/lua/`
+Each has system and home-manager configs in appropriate modules.
 
-### Shell Files
-- Format with `shfmt -i 2 -ci -sr -s -w` (2-space indent, switch case indent, simplify redirects)
-- All `.sh` files MUST be executable (run `task sh:chmod`)
-- ALWAYS use `set -euo pipefail` at start and source `{{.LOGLIB_PATH}}` for logging functions
-- Use logging functions: `log_info`, `log_success`, `log_error`, `log_warn`
+---
 
-### General Conventions
-- NEVER use emojis in code (enforced strictly)
-- Use `mkOutOfStoreSymlink` for live-editable config files (neovim, wezterm, zsh, etc.)
-- ALWAYS test with `task nix:build` before applying changes
-- Follow existing module patterns and directory structure
-- Validate against values schema before committing
-
-This AGENTS.md file serves as the primary guide for AI agents working with this configuration system. It complements the human-focused README.md by providing the detailed technical context needed for effective automated development assistance.
+This file is a reference for LLM agents. See README.md for user-facing documentation and project overview.
