@@ -72,7 +72,7 @@ let
               branch_icon = "";
             };
             style = "plain";
-            template = "<p:accent>󰘬</> ({{ .HEAD }}) ";
+            template = "<p:accent>git</>({{ .HEAD }}) ";
             type = "git";
           }
           {
