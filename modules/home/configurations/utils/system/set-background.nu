@@ -14,8 +14,8 @@ def main [] {
     }
 
     # Determine OS
-    let os = if $nu.os.family == "macos" { "macos" } else if $nu.os.family == "linux" { "linux" } else {
-        print $"(ansi red_bold)[ERROR](ansi reset) Unsupported OS: ($nu.os.family)"
+    let os = if $nu.os-info.name == "macos" { "macos" } else if $nu.os-info.name == "linux" { "linux" } else {
+        print $"(ansi red_bold)[ERROR](ansi reset) Unsupported OS: ($nu.os-info.name)"
         exit 1
     }
 
