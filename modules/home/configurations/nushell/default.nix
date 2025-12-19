@@ -12,10 +12,8 @@ let
   paths_lib = import ../../../shared/lib/paths { inherit config lib; };
 
   validatedTheme = values.theme;
-
   appTheme = themes.getAppTheme "vivid" validatedTheme.colorscheme validatedTheme.variant;
   sharedAliases = shell.aliases;
-
   pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;
 
   nushellBuiltins = [
@@ -29,6 +27,14 @@ let
   };
   listingAliases = builtins.removeAttrs sharedAliases.listing [ "ls" ];
   kubernetesAliases = sharedAliases.kubernetes;
+
+  promptConfig = builtins.readFile ./ui/prompt.nu;
+  keybindingsConfig = builtins.readFile ./ui/keybindings.nu;
+  wezTermConfig = builtins.readFile ./integrations/wezterm.nu;
+  macchinaConfig = builtins.readFile ./integrations/macchina.nu;
+  nixConfig = builtins.readFile ./integrations/nix.nu;
+  completionsConfig = builtins.readFile ./integrations/completions.nu;
+  functionsConfig = builtins.readFile ./core/functions.nu;
 in
 {
   stylix.targets.nushell.enable = true;
@@ -66,90 +72,31 @@ in
       };
     };
 
+    environmentVariables = {
+      LANG = "en_US.UTF-8";
+      LC_ALL = "en_US.UTF-8";
+      EDITOR = "nvim";
+      VISUAL = "nvim";
+      SUDO_EDITOR = "nvim";
+      GIT_DISCOVERY_ACROSS_FILESYSTEM = "1";
+      COLIMA_HOME = "${config.xdg.configHome}/colima";
+      FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
+      VIVID_THEME = appTheme;
+      OMP_CONFIG = "${config.xdg.configHome}/oh-my-posh/themes/sysinit.omp.json";
+    };
+
     extraConfig = ''
-      # Keybindings
-      $env.config.keybindings = [
-        {
-          name: completion_menu
-          modifier: none
-          keycode: tab
-          mode: [emacs vi_normal vi_insert]
-          event: {
-            until: [
-              { send: menu name: completion_menu }
-              { send: menunext }
-              { edit: complete }
-            ]
-          }
-        }
-      ]
+      ${promptConfig}
+      ${keybindingsConfig}
+      ${wezTermConfig}
+      ${macchinaConfig}
+      ${nixConfig}
+      ${completionsConfig}
+      ${functionsConfig}
 
-      # Wezterm shell integration - update working directory on PWD changes
-      if (which wezterm | is-not-empty) {
-        $env.config.hooks.env_change.PWD = (
-          $env.config.hooks.env_change.PWD?
-          | default []
-          | append { ||
-              try { wezterm set-working-directory } catch { }
-            }
-        )
-      }
-
-      # Macchina greeting (only in interactive terminal, not in nvim or wezterm pane)
-      if ($env.WEZTERM_PANE? | is-empty) and ($env.NVIM? | is-empty) {
-        if (which macchina | is-not-empty) {
-          let macchina_theme = ($env.MACCHINA_THEME? | default "rosh")
-          macchina --theme $macchina_theme
-        }
-      }
-
-      # oh-my-posh initialization (if available)
-      # Note: We use a fixed path since `source` requires parse-time constants
-      const omp_cache = "~/.cache/omp.nu"
-      if (which oh-my-posh | is-not-empty) {
-        # Generate the init script if it doesn't exist
-        if not ($omp_cache | path expand | path exists) {
-          try {
-            oh-my-posh init nu --config ~/.config/oh-my-posh/themes/sysinit.omp.json | save --force ($omp_cache | path expand)
-          } catch { }
-        }
-      }
-      # Source the cached script if it exists
-      if ($omp_cache | path expand | path exists) {
-        source ~/.cache/omp.nu
-      }
-
-      # knu - kubectl for nushell with structured JSON output
-      # Usage: knu get pods, knu get nodes, knu describe pod/mypod, etc.
-      def knu [
-        ...args: string  # kubectl arguments
-      ] {
-        kubecolor --kuberc=off ...$args -o json | from json
-      }
-
-      # Convenience wrappers for common knu operations
-      def "knu get" [...args: string] { knu get ...$args }
-      def "knu describe" [...args: string] { knu describe ...$args }
-      def "knu logs" [...args: string] { kubecolor logs ...$args }  # logs don't need JSON
-    '';
-
-    envFile.text = ''
-      $env.LANG = "en_US.UTF-8"
-      $env.LC_ALL = "en_US.UTF-8"
-      $env.EDITOR = "nvim"
-      $env.VISUAL = "nvim"
-      $env.SUDO_EDITOR = "nvim"
-      $env.GIT_DISCOVERY_ACROSS_FILESYSTEM = "1"
-      $env.COLIMA_HOME = "${config.xdg.configHome}/colima"
-      $env.FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules"
-      $env.VIVID_THEME = "${appTheme}"
-      $env.ZK_NOTEBOOK_DIR = "${config.home.homeDirectory}/github/personal/roshbhatia/zeek/notes"
-
-      # PATH configuration using nushell's path add from std library
       use std/util "path add"
       ${lib.concatMapStringsSep "\n" (path: "path add \"${path}\"") pathsList}
 
-      # Navigation commands - these need to be def --env, not aliases
       ${lib.concatStringsSep "\n" (
         lib.mapAttrsToList (
           name: value:

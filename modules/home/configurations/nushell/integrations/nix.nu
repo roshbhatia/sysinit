@@ -1,0 +1,1 @@
+nix-your-shell nu

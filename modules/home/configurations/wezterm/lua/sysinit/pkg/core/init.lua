@@ -17,6 +17,7 @@ local function get_basic_config()
     status_update_interval = 20,
     default_prog = {
       nix_bin .. "/nu",
+      "-i",
     },
     -- Will only work when connected to the tailnet.
     -- As such, can safely ignore this when we're on the work machine.
