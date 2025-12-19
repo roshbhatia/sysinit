@@ -1,14 +1,6 @@
 _:
 
 {
-  /*
-    Create Atuin theme configuration.
-
-    Atuin is a shell history management tool. This adapter generates theme
-    configurations dynamically from semantic colors, producing TOML-formatted
-    theme files that map semantic colors to Atuin's color names.
-  */
-
   createAtuinTheme =
     theme: validatedConfig:
     let

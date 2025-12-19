@@ -31,9 +31,6 @@ let
   promptConfig = builtins.readFile ./ui/prompt.nu;
   keybindingsConfig = builtins.readFile ./ui/keybindings.nu;
   wezTermConfig = builtins.readFile ./integrations/wezterm.nu;
-  macchinaConfig = builtins.readFile ./integrations/macchina.nu;
-  nixConfig = builtins.readFile ./integrations/nix.nu;
-  completionsConfig = builtins.readFile ./integrations/completions.nu;
   functionsConfig = builtins.readFile ./core/functions.nu;
 in
 {
@@ -89,9 +86,6 @@ in
       ${promptConfig}
       ${keybindingsConfig}
       ${wezTermConfig}
-      ${macchinaConfig}
-      ${nixConfig}
-      ${completionsConfig}
       ${functionsConfig}
 
       use std/util "path add"
