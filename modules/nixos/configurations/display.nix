@@ -9,8 +9,5 @@
     package = pkgs.niri;
   };
 
-  services.displayManager.gdm = {
-    enable = true;
-    wayland = true;
-  };
+  services.displayManager.ly.enable = true;
 }
