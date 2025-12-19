@@ -147,7 +147,6 @@ in
         autoload -Uz compinit
         compinit -C -d "${config.xdg.cacheHome}/zsh/zcompdump/.zcompdump"
 
-        # Completion styles
         zstyle ':completion:*:git-checkout:*' sort false
         zstyle ':completion:*:descriptions' format '[%d]'
         zstyle ':completion:*' list-colors ''${(s.:.)LS_COLORS}
@@ -155,7 +154,6 @@ in
         zstyle ':completion:*:complete:*' use-cache on
         zstyle ':completion:*' menu no
 
-        # fzf-tab styles
         zstyle ':fzf-tab:*' use-fzf-default-opts yes
         zstyle ':fzf-tab:*' fzf-pad 4
         zstyle ':fzf-tab:*' single-group color header
@@ -165,17 +163,22 @@ in
         zstyle ':fzf-tab:*' continuous-trigger "/"
         zstyle ':fzf-tab:*' fzf-bindings "tab:down" "btab:up" "enter:accept"
 
-        # fzf-tab previews
-        zstyle ':fzf-tab:complete:bat:*' fzf-preview 'fzf-preview --kind bat ''$realpath'
-        zstyle ':fzf-tab:complete:cat:*' fzf-preview 'fzf-preview --kind bat ''$realpath'
-        zstyle ':fzf-tab:complete:cd:*' fzf-preview 'fzf-preview --kind cd ''$realpath'
-        zstyle ':fzf-tab:complete:chafa:*' fzf-preview 'fzf-preview --kind chafa ''$realpath'
-        zstyle ':fzf-tab:complete:eza:*' fzf-preview 'fzf-preview --kind ls ''$realpath'
-        zstyle ':fzf-tab:complete:ls:*' fzf-preview 'fzf-preview --kind ls ''$realpath'
-        zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'fzf-preview --kind nvim ''$realpath'
-        zstyle ':fzf-tab:complete:v:*' fzf-preview 'fzf-preview --kind nvim ''$realpath'
-        zstyle ':fzf-tab:complete:vi:*' fzf-preview 'fzf-preview --kind nvim ''$realpath'
-        zstyle ':fzf-tab:complete:vim:*' fzf-preview 'fzf-preview --kind nvim ''$realpath'
+        _fzf_preview_bat() { fzf-preview --kind bat "''${realpath:-$word}"; }
+        _fzf_preview_cd() { fzf-preview --kind cd "''${realpath:-$word}"; }
+        _fzf_preview_chafa() { fzf-preview --kind chafa "''${realpath:-$word}"; }
+        _fzf_preview_ls() { fzf-preview --kind ls "''${realpath:-$word}"; }
+        _fzf_preview_nvim() { fzf-preview --kind nvim "''${realpath:-$word}"; }
+
+        zstyle ':fzf-tab:complete:bat:*' fzf-preview '_fzf_preview_bat'
+        zstyle ':fzf-tab:complete:cat:*' fzf-preview '_fzf_preview_bat'
+        zstyle ':fzf-tab:complete:cd:*' fzf-preview '_fzf_preview_cd'
+        zstyle ':fzf-tab:complete:chafa:*' fzf-preview '_fzf_preview_chafa'
+        zstyle ':fzf-tab:complete:eza:*' fzf-preview '_fzf_preview_ls'
+        zstyle ':fzf-tab:complete:ls:*' fzf-preview '_fzf_preview_ls'
+        zstyle ':fzf-tab:complete:nvim:*' fzf-preview '_fzf_preview_nvim'
+        zstyle ':fzf-tab:complete:v:*' fzf-preview '_fzf_preview_nvim'
+        zstyle ':fzf-tab:complete:vi:*' fzf-preview '_fzf_preview_nvim'
+        zstyle ':fzf-tab:complete:vim:*' fzf-preview '_fzf_preview_nvim'
       '')
 
       (lib.mkOrder 600 ''
