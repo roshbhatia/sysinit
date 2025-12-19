@@ -83,7 +83,7 @@ in
       transparencyConfig = {
         window_background_opacity = if hasAttr "opacity" transparency then transparency.opacity else 1.0;
         macos_window_background_blur = if hasAttr "blur" transparency then transparency.blur else 0;
-        window_decorations = "RESIZE";
+        window_decorations = "MACOS_FORCE_SQUARE_CORNERS|MACOS_FORCE_ENABLE_SHADOW|RESIZE";
       };
 
       baseConfig = configBuilder (utils.createSemanticMapping themeData.palettes.${config.variant}) { };

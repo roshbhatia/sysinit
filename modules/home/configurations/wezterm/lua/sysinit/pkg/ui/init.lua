@@ -41,12 +41,19 @@ local function get_display_config()
     window_frame = {
       font = terminal_font,
     },
-    enable_tab_bar = true,
-    max_fps = 240,
-    animation_fps = 240,
-    scrollback_lines = 20000,
     adjust_window_size_when_changing_font_size = false,
+    animation_fps = 240,
+    cursor_blink_ease_in = "EaseIn",
+    cursor_blink_ease_out = "EaseInOut",
+    cursor_thickness = 1,
+    dpi = 144,
+    enable_tab_bar = true,
+    front_end = "WebGpu",
+    max_fps = 240,
+    quick_select_alphabet = "fjdkslaghrueiwoncmv",
+    scrollback_lines = 20000,
     tab_bar_at_bottom = true,
+    text_min_contrast_ratio = 4.5,
     use_fancy_tab_bar = false,
   }
 end
@@ -63,7 +70,7 @@ end
 local function get_font_config()
   return {
     font = terminal_font,
-    font_size = 14.0,
+    font_size = 13.0,
   }
 end
 
