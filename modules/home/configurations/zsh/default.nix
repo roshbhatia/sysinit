@@ -6,19 +6,64 @@
   ...
 }:
 let
-  shell = import ../../../shared/lib/shell { inherit lib; };
   themes = import ../../../shared/lib/theme { inherit lib; };
-  paths_lib = import ../../../shared/lib/paths { inherit config lib; };
+
+  stripHeaders =
+    file:
+    let
+      content = builtins.readFile file;
+      lines = lib.splitString "\n" content;
+      isHeaderLine =
+        line: lib.hasPrefix "#!/usr/bin/env" line || lib.hasPrefix "# shellcheck disable" line;
+      nonHeaderLines = builtins.filter (line: !(isHeaderLine line)) lines;
+    in
+    lib.concatStringsSep "\n" nonHeaderLines;
 
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
   colors = themes.getUnifiedColors palette;
 
-  pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;
+  systemPaths = {
+    nix = [
+      "/nix/var/nix/profiles/default/bin"
+      "/etc/profiles/per-user/${config.home.username}/bin"
+      "/run/wrappers/bin"
+      "/run/current-system/sw/bin"
+    ];
+    system = [
+      "/opt/homebrew/bin"
+      "/opt/homebrew/opt/libgit2@1.8/bin"
+      "/opt/homebrew/sbin"
+      "/usr/bin"
+      "/usr/local/opt/cython/bin"
+      "/usr/sbin"
+    ];
+    user = [
+      "${config.home.homeDirectory}/.cargo/bin"
+      "${config.home.homeDirectory}/.krew/bin"
+      "${config.home.homeDirectory}/.local/bin"
+      "${config.home.homeDirectory}/.npm-global/bin"
+      "${config.home.homeDirectory}/.npm-global/bin/yarn"
+      "${config.home.homeDirectory}/.rvm/bin"
+      "${config.home.homeDirectory}/.uv/bin"
+      "${config.home.homeDirectory}/.yarn/bin"
+      "${config.home.homeDirectory}/.yarn/global/node_modules/.bin"
+      "${config.home.homeDirectory}/bin"
+      "${config.home.homeDirectory}/go/bin"
+    ];
+    xdg = [
+      "${config.home.homeDirectory}/.config/.cargo/bin"
+      "${config.home.homeDirectory}/.config/yarn/global/node_modules/.bin"
+      "${config.home.homeDirectory}/.config/zsh/bin"
+      "${config.home.homeDirectory}/.local/share/.npm-packages/bin"
+    ];
+  };
 
-  coreInit = shell.stripHeaders ./core/init.zsh;
-  corePath = shell.stripHeaders ./core/path.zsh;
+  pathsList = systemPaths.nix ++ systemPaths.system ++ systemPaths.user ++ systemPaths.xdg;
 
-  libCache = shell.stripHeaders ./lib/cache.zsh;
+  coreInit = stripHeaders ./core/init.zsh;
+  corePath = stripHeaders ./core/path.zsh;
+
+  libCache = stripHeaders ./lib/cache.zsh;
 
   integrationsWezterm = builtins.readFile (
     pkgs.fetchurl {
@@ -26,12 +71,12 @@ let
       sha256 = "sha256-GQGDcxMHv04TEaFguHXi0dOoOX5VUR2He4XjTxPuuaw=";
     }
   );
-  integrationsCompletions = shell.stripHeaders ./integrations/completions.zsh;
-  integrationsExtras = shell.stripHeaders ./integrations/extras.zsh;
+  integrationsCompletions = stripHeaders ./integrations/completions.zsh;
+  integrationsExtras = stripHeaders ./integrations/extras.zsh;
 
-  uiPrompt = shell.stripHeaders ./ui/prompt.zsh;
+  uiPrompt = stripHeaders ./ui/prompt.zsh;
 
-  env = shell.stripHeaders ./system/env.sh;
+  env = stripHeaders ./system/env.sh;
 in
 {
   programs.zsh = {
@@ -163,22 +208,16 @@ in
         zstyle ':fzf-tab:*' continuous-trigger "/"
         zstyle ':fzf-tab:*' fzf-bindings "tab:down" "btab:up" "enter:accept"
 
-        _fzf_preview_bat() { fzf-preview --kind bat "''${realpath:-$word}"; }
-        _fzf_preview_cd() { fzf-preview --kind cd "''${realpath:-$word}"; }
-        _fzf_preview_chafa() { fzf-preview --kind chafa "''${realpath:-$word}"; }
-        _fzf_preview_ls() { fzf-preview --kind ls "''${realpath:-$word}"; }
-        _fzf_preview_nvim() { fzf-preview --kind nvim "''${realpath:-$word}"; }
-
-        zstyle ':fzf-tab:complete:bat:*' fzf-preview '_fzf_preview_bat'
-        zstyle ':fzf-tab:complete:cat:*' fzf-preview '_fzf_preview_bat'
-        zstyle ':fzf-tab:complete:cd:*' fzf-preview '_fzf_preview_cd'
-        zstyle ':fzf-tab:complete:chafa:*' fzf-preview '_fzf_preview_chafa'
-        zstyle ':fzf-tab:complete:eza:*' fzf-preview '_fzf_preview_ls'
-        zstyle ':fzf-tab:complete:ls:*' fzf-preview '_fzf_preview_ls'
-        zstyle ':fzf-tab:complete:nvim:*' fzf-preview '_fzf_preview_nvim'
-        zstyle ':fzf-tab:complete:v:*' fzf-preview '_fzf_preview_nvim'
-        zstyle ':fzf-tab:complete:vi:*' fzf-preview '_fzf_preview_nvim'
-        zstyle ':fzf-tab:complete:vim:*' fzf-preview '_fzf_preview_nvim'
+        zstyle ':fzf-tab:complete:bat:*' fzf-preview 'fzf-preview --kind bat "''${realpath:-$word}"'
+        zstyle ':fzf-tab:complete:cat:*' fzf-preview 'fzf-preview --kind bat "''${realpath:-$word}"'
+        zstyle ':fzf-tab:complete:cd:*' fzf-preview 'fzf-preview --kind cd "''${realpath:-$word}"'
+        zstyle ':fzf-tab:complete:chafa:*' fzf-preview 'fzf-preview --kind chafa "''${realpath:-$word}"'
+        zstyle ':fzf-tab:complete:eza:*' fzf-preview 'fzf-preview --kind ls "''${realpath:-$word}"'
+        zstyle ':fzf-tab:complete:ls:*' fzf-preview 'fzf-preview --kind ls "''${realpath:-$word}"'
+        zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'fzf-preview --kind nvim "''${realpath:-$word}"'
+        zstyle ':fzf-tab:complete:v:*' fzf-preview 'fzf-preview --kind nvim "''${realpath:-$word}"'
+        zstyle ':fzf-tab:complete:vi:*' fzf-preview 'fzf-preview --kind nvim "''${realpath:-$word}"'
+        zstyle ':fzf-tab:complete:vim:*' fzf-preview 'fzf-preview --kind nvim "''${realpath:-$word}"'
       '')
 
       (lib.mkOrder 600 ''
