@@ -42,7 +42,13 @@ let
           {
             foreground = "p:info";
             style = "plain";
-            template = "@[";
+            template = "@";
+            type = "session";
+          }
+          {
+            foreground = "p:error";
+            style = "plain";
+            template = "[";
             type = "session";
           }
           {
@@ -52,9 +58,15 @@ let
             type = "path";
           }
           {
+            foreground = "p:error";
+            style = "plain";
+            template = "] ";
+            type = "session";
+          }
+          {
             foreground = "p:info";
             style = "plain";
-            template = "] ➜";
+            template = "➜";
             type = "session";
           }
           {
@@ -72,7 +84,7 @@ let
               branch_icon = "";
             };
             style = "plain";
-            template = "<p:accent>󰘬</>({{ .HEAD }}) ";
+            template = "<p:error>󰘬</> ({{ .HEAD }}) ";
             type = "git";
           }
           {
@@ -84,7 +96,7 @@ let
           {
             style = "plain";
             foreground = "p:error";
-            template = "<f> > </f>";
+            template = " > ";
             type = "text";
           }
         ];
