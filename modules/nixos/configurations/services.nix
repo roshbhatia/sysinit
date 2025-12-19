@@ -4,8 +4,9 @@
 }:
 {
   environment.systemPackages = with pkgs; [
-    rustdesk
     pulseaudio
+    flatpak
+    wezterm
   ];
 
   services.pipewire = {
@@ -25,8 +26,9 @@
   services.blueman.enable = true;
 
   services = {
-    printing.enable = true;
+    printing.enable = false;
     geoclue2.enable = true;
+    flatpak.enable = true;
 
     udev.packages = with pkgs; [
       gnome-settings-daemon
@@ -43,27 +45,15 @@
     };
   };
 
-  systemd.services.rustdesk = {
-    enable = true;
-    path = with pkgs; [
-      rustdesk
-      procps
-    ];
-    description = "RustDesk";
-    requires = [ "network.target" ];
-    after = [ "systemd-user-sessions.service" ];
-    script = ''
-      export PATH=/run/wrappers/bin:$PATH
-      ${pkgs.rustdesk}/bin/rustdesk --service
-    '';
+  systemd.user.services.wezterm-mux-server = {
+    description = "Wezterm Mux Server";
+    after = [ "default.target" ];
+    wantedBy = [ "default.target" ];
     serviceConfig = {
-      ExecStop = "${pkgs.procps}/bin/pkill -f 'rustdesk --'";
-      PIDFile = "/run/rustdesk.pid";
-      KillMode = "mixed";
-      TimeoutStopSec = "30";
-      User = "root";
-      LimitNOFILE = "100000";
+      Type = "simple";
+      ExecStart = "${pkgs.wezterm}/bin/wezterm-mux-server --daemonize";
+      Restart = "always";
+      RestartSec = 5;
     };
-    wantedBy = [ "multi-user.target" ];
   };
 }
