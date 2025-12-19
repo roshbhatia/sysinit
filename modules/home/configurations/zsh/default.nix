@@ -32,6 +32,8 @@ let
   uiPrompt = shell.stripHeaders ./ui/prompt.zsh;
 
   env = shell.stripHeaders ./system/env.sh;
+
+  fzf-preview = pkgs.writeScriptBin "fzf-preview" (builtins.readFile ../utils/dev/fzf-preview.nu);
 in
 {
   programs.zsh = {
@@ -166,15 +168,16 @@ in
         zstyle ':fzf-tab:*' fzf-bindings "tab:down" "btab:up" "enter:accept"
 
         # fzf-tab previews
-        zstyle ':fzf-tab:complete:cd:*' fzf-preview 'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:cat:*' fzf-preview 'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:bat:*' fzf-preview 'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:vim:*' fzf-preview 'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:vi:*' fzf-preview 'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:v:*' fzf-preview 'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:ls:*' fzf-preview 'fzf-preview $realpath'
-        zstyle ':fzf-tab:complete:eza:*' fzf-preview 'fzf-preview $realpath'
+        zstyle ':fzf-tab:complete:bat:*' fzf-preview '${fzf-preview}/bin/fzf-preview --kind bat $realpath'
+        zstyle ':fzf-tab:complete:cat:*' fzf-preview '${fzf-preview}/bin/fzf-preview --kind bat $realpath'
+        zstyle ':fzf-tab:complete:cd:*' fzf-preview '${fzf-preview}/bin/fzf-preview --kind cd $realpath'
+        zstyle ':fzf-tab:complete:chafa:*' fzf-preview '${fzf-preview}/bin/fzf-preview --kind chafa $realpath'
+        zstyle ':fzf-tab:complete:eza:*' fzf-preview '${fzf-preview}/bin/fzf-preview --kind ls $realpath'
+        zstyle ':fzf-tab:complete:ls:*' fzf-preview '${fzf-preview}/bin/fzf-preview --kind ls $realpath'
+        zstyle ':fzf-tab:complete:nvim:*' fzf-preview '${fzf-preview}/bin/fzf-preview --kind nvim $realpath'
+        zstyle ':fzf-tab:complete:v:*' fzf-preview '${fzf-preview}/bin/fzf-preview --kind nvim $realpath'
+        zstyle ':fzf-tab:complete:vi:*' fzf-preview '${fzf-preview}/bin/fzf-preview --kind nvim $realpath'
+        zstyle ':fzf-tab:complete:vim:*' fzf-preview '${fzf-preview}/bin/fzf-preview --kind nvim $realpath'
       '')
 
       (lib.mkOrder 600 ''

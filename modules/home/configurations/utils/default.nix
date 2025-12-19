@@ -1,14 +1,14 @@
-_:
+{ pkgs, ... }:
 
+let
+  fzf-preview = pkgs.writeScriptBin "fzf-preview" (builtins.readFile ./dev/fzf-preview.nu);
+in
 {
+  home.packages = [ fzf-preview ];
+
   home.file = {
     ".local/bin/dns-flush" = {
       source = ./network/dns-flush.nu;
-      executable = true;
-    };
-
-    ".local/bin/fzf-preview" = {
-      source = ./dev/fzf-preview.nu;
       executable = true;
     };
 
