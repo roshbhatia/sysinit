@@ -8,7 +8,7 @@ export def cobra_completer [spans: list<string>] {
     let ShellCompDirectiveFilterDirs = 16
     let ShellCompDirectiveKeepOrder = 32
 
-    let cmd = $spans | first 
+    let cmd = $spans | first
     let rest = $spans | skip
 
     def cobra_log [message: string] {
@@ -21,18 +21,18 @@ export def cobra_completer [spans: list<string>] {
     cobra_log $"External Completer called for cmd ($cmd)"
 
     def exec_complete [spans: list<string>] {
-        let result = do --ignore-errors { 
-            COBRA_ACTIVE_HELP=0 run-external $cmd "__complete" ...$spans | complete 
+        let result = do --ignore-errors {
+            COBRA_ACTIVE_HELP=0 run-external $cmd "__complete" ...$spans | complete
         }
 
         if $result != null and $result.exit_code == 0 {
             let completions = $result.stdout | lines
 
-            let directive = do -i { 
-                $completions | last | str replace ':' '' | into int 
+            let directive = do -i {
+                $completions | last | str replace ':' '' | into int
             }
 
-            let completions = $completions | drop | each { |it| 
+            let completions = $completions | drop | each { |it|
                 let words = $it | split row -r '\s{1}'
 
                 let last_span = $spans | last
@@ -60,7 +60,7 @@ export def cobra_completer [spans: list<string>] {
         let directive = $result.directive
 
         let completions = if $directive != $ShellCompDirectiveNoSpace {
-            $completions | each {|it| 
+            $completions | each {|it|
                 { value: $"($it.value) ", description: $it.description }
             }
         } else {

@@ -9,18 +9,18 @@ export def knu [
 }
 
 # Get resources with JSON output
-export def "knu get" [...args: string] { 
-  knu get ...$args 
+export def "knu get" [...args: string] {
+  knu get ...$args
 }
 
 # Describe resources with JSON output
-export def "knu describe" [...args: string] { 
-  knu describe ...$args 
+export def "knu describe" [...args: string] {
+  knu describe ...$args
 }
 
 # Stream logs (doesn't need JSON)
-export def "knu logs" [...args: string] { 
-  kubecolor logs ...$args 
+export def "knu logs" [...args: string] {
+  kubecolor logs ...$args
 }
 
 # List all pods in all namespaces

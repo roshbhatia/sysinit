@@ -6,9 +6,6 @@
 
 final: _prev:
 let
-  # HACK: Pin crossplane-cli to specific nixpkgs revision
-  # The unstable channel version has compatibility issues.
-  # TODO: Remove when nixpkgs-unstable has crossplane-cli >= 1.17.1
   crossplane-1-17-1 =
     import
       (builtins.fetchTarball {
@@ -20,12 +17,6 @@ let
         inherit (final) config;
       };
 
-  # HACK: Pin some packages to nixos-24.05 stable
-  # These packages have issues in unstable:
-  # - awscli2: Frequent breakage due to Python dependency updates
-  # - fish: Shell stability is critical, prefer stable releases
-  # - ollama: Model compatibility requires stable versioning
-  # TODO: Revisit periodically and move to unstable when stable
   stable =
     import
       (builtins.fetchTarball {
@@ -38,7 +29,6 @@ let
       };
 in
 {
-  # Firefox addons from nur-combined
   firefox-addons = inputs.firefox-addons.packages.${system};
   nur = {
     repos = {
@@ -48,7 +38,6 @@ in
     };
   };
 
-  # Pinned package versions
   inherit (crossplane-1-17-1) crossplane-cli;
   inherit (stable) awscli2;
   inherit (stable) fish;
