@@ -31,7 +31,7 @@ local function get_window_appearance_config()
     window_padding = {
       left = "2cell",
       right = "2cell",
-      top = "2cell",
+      top = "1cell",
     },
   }
 end
@@ -49,6 +49,7 @@ local function get_display_config()
     cursor_thickness = 1,
     display_pixel_geometry = "BGR",
     dpi = 144,
+    enable_scroll_bar = false,
     enable_tab_bar = true,
     front_end = "WebGpu",
     max_fps = 240,
