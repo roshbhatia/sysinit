@@ -208,16 +208,16 @@ in
         zstyle ':fzf-tab:*' continuous-trigger "/"
         zstyle ':fzf-tab:*' fzf-bindings "tab:down" "btab:up" "enter:accept"
 
-        zstyle ':fzf-tab:complete:bat:*' fzf-preview 'fzf-preview --kind bat "''${realpath:-$word}"'
-        zstyle ':fzf-tab:complete:cat:*' fzf-preview 'fzf-preview --kind bat "''${realpath:-$word}"'
-        zstyle ':fzf-tab:complete:cd:*' fzf-preview 'fzf-preview --kind cd "''${realpath:-$word}"'
-        zstyle ':fzf-tab:complete:chafa:*' fzf-preview 'fzf-preview --kind chafa "''${realpath:-$word}"'
-        zstyle ':fzf-tab:complete:eza:*' fzf-preview 'fzf-preview --kind ls "''${realpath:-$word}"'
-        zstyle ':fzf-tab:complete:ls:*' fzf-preview 'fzf-preview --kind ls "''${realpath:-$word}"'
-        zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'fzf-preview --kind nvim "''${realpath:-$word}"'
-        zstyle ':fzf-tab:complete:v:*' fzf-preview 'fzf-preview --kind nvim "''${realpath:-$word}"'
-        zstyle ':fzf-tab:complete:vi:*' fzf-preview 'fzf-preview --kind nvim "''${realpath:-$word}"'
-        zstyle ':fzf-tab:complete:vim:*' fzf-preview 'fzf-preview --kind nvim "''${realpath:-$word}"'
+        zstyle ':fzf-tab:complete:bat:*' fzf-preview 'fzf-preview "''${realpath:-$word}"'
+        zstyle ':fzf-tab:complete:cat:*' fzf-preview 'fzf-preview "''${realpath:-$word}"'
+        zstyle ':fzf-tab:complete:cd:*' fzf-preview 'fzf-preview "''${realpath:-$word}"'
+        zstyle ':fzf-tab:complete:chafa:*' fzf-preview 'fzf-preview "''${realpath:-$word}"'
+        zstyle ':fzf-tab:complete:eza:*' fzf-preview 'fzf-preview "''${realpath:-$word}"'
+        zstyle ':fzf-tab:complete:ls:*' fzf-preview 'fzf-preview "''${realpath:-$word}"'
+        zstyle ':fzf-tab:complete:nvim:*' fzf-preview 'fzf-preview "''${realpath:-$word}"'
+        zstyle ':fzf-tab:complete:v:*' fzf-preview 'fzf-preview "''${realpath:-$word}"'
+        zstyle ':fzf-tab:complete:vi:*' fzf-preview 'fzf-preview "''${realpath:-$word}"'
+        zstyle ':fzf-tab:complete:vim:*' fzf-preview 'fzf-preview "''${realpath:-$word}"'
       '')
 
       (lib.mkOrder 600 ''
