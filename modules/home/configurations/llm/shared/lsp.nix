@@ -38,6 +38,11 @@
       command = [ "nil" ];
       extensions = [ ".nix" ];
     };
+    nu = {
+      command = [ "nu" ];
+      args = [ "--lsp" ];
+      extensions = [ ".nu" ];
+    };
     lua = {
       command = [ "lua-language-server" ];
       args = [ "--stdio" ];

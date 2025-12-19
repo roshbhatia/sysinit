@@ -13,6 +13,13 @@ let
       ];
       description = "Structural code search and refactoring with ast-grep. Provides AST-based pattern matching for semantic code search across multiple languages.";
     };
+    nu = {
+      command = "nu";
+      args = [
+        "--mcp"
+      ];
+      description = "Nushell MCP server for enhanced shell scripting assistance and command suggestions. A preferable alternative to standard shell tools.";
+    };
     serena = {
       command = "uvx";
       args = [
