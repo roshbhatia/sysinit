@@ -2,7 +2,6 @@ local M = {}
 
 local home = os.getenv("HOME") or ""
 local username = os.getenv("USER") or ""
-local xdg_config_home = os.getenv("XDG_CONFIG_HOME") or (home .. "/.config")
 
 local nix_bin = "/etc/profiles/per-user/" .. username .. "/bin"
 
@@ -10,14 +9,13 @@ local function get_basic_config()
   return {
     set_environment_variables = {
       TERM = "wezterm",
-      XDG_CONFIG_HOME = xdg_config_home,
     },
     automatically_reload_config = true,
     pane_focus_follows_mouse = false,
     status_update_interval = 20,
     default_prog = {
-      nix_bin .. "/nu",
-      "-i",
+      nix_bin .. "/zsh",
+      "-l",
     },
     -- Will only work when connected to the tailnet.
     -- As such, can safely ignore this when we're on the work machine.
