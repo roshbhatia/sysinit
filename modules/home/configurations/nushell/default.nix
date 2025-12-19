@@ -185,17 +185,18 @@ in
       }
 
       # oh-my-posh initialization (if available)
-      const omp_cache = "~/.cache/omp.nu"
-      if (which oh-my-posh | is-not-empty) {
-        if not ($omp_cache | path expand | path exists) {
-          try {
-            oh-my-posh init nu --config ~/.config/oh-my-posh/themes/sysinit.omp.json | save --force ($omp_cache | path expand)
-          } catch { }
-        }
-      }
-      if ($omp_cache | path expand | path exists) {
-        source ~/.cache/omp.nu
-      }
+      # TODO: Fix omp.nu caching for current Nushell version
+      # const omp_cache = "~/.cache/omp.nu"
+      # if (which oh-my-posh | is-not-empty) {
+      #   if not ($omp_cache | path expand | path exists) {
+      #     try {
+      #       oh-my-posh init nu --config ~/.config/oh-my-posh/themes/sysinit.omp.json | save --force ($omp_cache | path expand)
+      #     } catch { }
+      #   }
+      # }
+      # if ($omp_cache | path expand | path exists) {
+      #   source ~/.cache/omp.nu
+      # }
 
       # Load custom utilities
       if ("~/.config/nushell/ext/k8s-utils.nu" | path expand | path exists) {

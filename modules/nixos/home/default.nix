@@ -6,7 +6,6 @@
 
 {
   imports = [
-    ./foot.nix
     ./mako.nix
     ./niri.nix
     ./waybar.nix

@@ -9,10 +9,7 @@
     package = pkgs.niri;
   };
 
-  services.displayManager.ly = {
-    enable = true;
-    recommendedSession = "niri";
-  };
+  services.displayManager.ly.enable = true;
 
   services.xserver.enable = false;
 }

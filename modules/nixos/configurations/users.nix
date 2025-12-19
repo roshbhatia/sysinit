@@ -11,9 +11,12 @@
     extraGroups = [
       "wheel"
       "networkmanager"
+      "keyd"
     ];
     description = values.git.name;
   };
+
+  users.groups.keyd = { };
 
   security.sudo = {
     enable = true;
