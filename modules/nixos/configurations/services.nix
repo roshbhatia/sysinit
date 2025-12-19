@@ -45,6 +45,16 @@
       enable = true;
       defaultWindowManager = "niri";
       openFirewall = true;
+      sesman = {
+        allowUserLogon = "true";
+        socketDir = "/run/xrdp";
+        sessionMaxAliveTime = 0;
+        reconnectIfNewer = false;
+      };
+    };
+
+    greetd = {
+      enable = false;
     };
   };
 }
