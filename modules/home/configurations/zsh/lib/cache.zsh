@@ -24,8 +24,8 @@ _cache_expired() {
   [[ $source -nt $cache ]] && return 0
 
   local cache_mtime current_time
-  cache_mtime=$(stat -f %m "$cache" 2>/dev/null) || return 0
-  current_time=$(date +%s 2>/dev/null) || return 0
+  cache_mtime=$(stat -f %m "$cache" 2> /dev/null) || return 0
+  current_time=$(date +%s 2> /dev/null) || return 0
 
   ((current_time - cache_mtime > 86400)) && return 0
   return 1
@@ -37,7 +37,7 @@ cached_source() {
 
   if _cache_expired "$cache" "$source"; then
     _cache_debug "Compiling $source"
-    zcompile "$source" 2>/dev/null || true
+    zcompile "$source" 2> /dev/null || true
   fi
 
   source "$source"

@@ -183,7 +183,7 @@ in
         ${env}
       '')
 
-      (lib.mkOrder 700 ''
+      (lib.mkOrder 899 ''
         ${uiPrompt}
       '')
 
