@@ -4,6 +4,7 @@
 }:
 {
   environment.systemPackages = with pkgs; [
+    rustdesk
     pulseaudio
   ];
 
@@ -40,11 +41,29 @@
         };
       };
     };
+  };
 
-    xrdp = {
-      enable = false;
+  systemd.services.rustdesk = {
+    enable = true;
+    path = with pkgs; [
+      rustdesk
+      procps
+    ];
+    description = "RustDesk";
+    requires = [ "network.target" ];
+    after = [ "systemd-user-sessions.service" ];
+    script = ''
+      export PATH=/run/wrappers/bin:$PATH
+      ${pkgs.rustdesk}/bin/rustdesk --service
+    '';
+    serviceConfig = {
+      ExecStop = "${pkgs.procps}/bin/pkill -f 'rustdesk --'";
+      PIDFile = "/run/rustdesk.pid";
+      KillMode = "mixed";
+      TimeoutStopSec = "30";
+      User = "root";
+      LimitNOFILE = "100000";
     };
-
-    x2goserver.enable = true;
+    wantedBy = [ "multi-user.target" ];
   };
 }
