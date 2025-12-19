@@ -15,8 +15,12 @@ local function get_basic_config()
     automatically_reload_config = true,
     pane_focus_follows_mouse = false,
     status_update_interval = 20,
+    -- default_prog = {
+    --   nix_bin .. "/nu",
+    -- },
     default_prog = {
-      nix_bin .. "/nu",
+      nix_bin .. "/zsh",
+      "-l",
     },
     -- Will only work when connected to the tailnet.
     -- As such, can safely ignore this when we're on the work machine.
