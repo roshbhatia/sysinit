@@ -29,8 +29,8 @@ local terminal_font = wezterm.font_with_fallback({
 local function get_window_appearance_config()
   return {
     window_padding = {
-      left = "2cell",
-      right = "2cell",
+      left = "1cell",
+      right = "1cell",
       top = "1cell",
     },
   }
