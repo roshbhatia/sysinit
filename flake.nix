@@ -199,10 +199,10 @@
               username = "roshbhatia";
             };
             theme = {
-              colorscheme = "kanagawa";
-              variant = "dragon";
+              colorscheme = "black-metal";
+              variant = "gorgoroth";
               font = {
-                monospace = "CommitMono Nerd Font";
+                monospace = "MonaspiceKr Nerd Font Mono";
               };
             };
             tailscale = {
