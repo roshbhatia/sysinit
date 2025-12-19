@@ -1,8 +1,6 @@
 local M = {}
 
-local home = os.getenv("HOME") or ""
 local username = os.getenv("USER") or ""
-
 local nix_bin = "/etc/profiles/per-user/" .. username .. "/bin"
 
 local function get_basic_config()
