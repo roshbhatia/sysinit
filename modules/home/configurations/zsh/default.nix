@@ -63,7 +63,7 @@ in
 
       ZVM_LINE_INIT_MODE = "i";
       ZVM_SYSTEM_CLIPBOARD_ENABLED = true;
-      ZVM_INSERT_MODE_CURSOR = "$ZVM_BLINKING_BEAM";
+      ZVM_INSERT_MODE_CURSOR = "bbe";
       ZVM_VI_HIGHLIGHT_BACKGROUND = colors.foreground.primary;
       ZVM_VI_HIGHLIGHT_FOREGROUND = colors.accent.primary;
     };

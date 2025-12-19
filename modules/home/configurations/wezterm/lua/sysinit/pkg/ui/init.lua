@@ -29,9 +29,9 @@ local terminal_font = wezterm.font_with_fallback({
 local function get_window_appearance_config()
   return {
     window_padding = {
-      left = "1cell",
-      right = "1cell",
-      top = "1cell",
+      left = "2cell",
+      right = "2cell",
+      top = "2cell",
     },
   }
 end
@@ -45,7 +45,9 @@ local function get_display_config()
     animation_fps = 240,
     cursor_blink_ease_in = "EaseIn",
     cursor_blink_ease_out = "EaseInOut",
+    cursor_blink_rate = 600,
     cursor_thickness = 1,
+    display_pixel_geometry = "BGR",
     dpi = 144,
     enable_tab_bar = true,
     front_end = "WebGpu",

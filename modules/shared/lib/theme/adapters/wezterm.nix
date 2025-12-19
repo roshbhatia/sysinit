@@ -81,9 +81,10 @@ in
       };
 
       transparencyConfig = {
-        window_background_opacity = if hasAttr "opacity" transparency then transparency.opacity else 1.0;
+        command_palette_bg_color = semanticColors.background.primary;
         macos_window_background_blur = if hasAttr "blur" transparency then transparency.blur else 0;
-        window_decorations = "MACOS_FORCE_SQUARE_CORNERS|MACOS_FORCE_ENABLE_SHADOW|RESIZE";
+        window_background_opacity = if hasAttr "opacity" transparency then transparency.opacity else 1.0;
+        window_decorations = "MACOS_FORCE_ENABLE_SHADOW|RESIZE";
       };
 
       baseConfig = configBuilder (utils.createSemanticMapping themeData.palettes.${config.variant}) { };
