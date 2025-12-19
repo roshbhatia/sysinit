@@ -42,13 +42,12 @@
     };
 
     xrdp = {
-      enable = true;
-      defaultWindowManager = "niri";
-      openFirewall = true;
+      enable = false;
     };
 
-    greetd = {
-      enable = false;
+    wayvnc = {
+      enable = true;
+      openFirewall = true;
     };
   };
 }
