@@ -5,26 +5,25 @@
 __zoxide_z_pushd() {
   __zoxide_doctor
   if [[ $# -eq 0 ]]; then
-    pushd ~ > /dev/null
+    pushd ~ >/dev/null
   elif [[ $# -eq 1 ]] && { [[ -d $1 ]] || [[ $1 == '-' ]] || [[ $1 =~ ^[-+][0-9]$ ]]; }; then
-    pushd "$1" > /dev/null
+    pushd "$1" >/dev/null
   elif [[ $# -eq 2 ]] && [[ $1 == "--" ]]; then
-    pushd "$2" > /dev/null
+    pushd "$2" >/dev/null
   else
     \builtin local result
-    result="$(\command zoxide query --exclude "$(__zoxide_pwd)" -- "$@")" && pushd "${result}" > /dev/null
+    result="$(\command zoxide query --exclude "$(__zoxide_pwd)" -- "$@")" && pushd "${result}" >/dev/null
   fi
 }
 
 __zoxide_zi_pushd() {
   __zoxide_doctor
   \builtin local result
-  result="$(\command zoxide query --interactive -- "$@")" && pushd "${result}" > /dev/null
+  result="$(\command zoxide query --interactive -- "$@")" && pushd "${result}" >/dev/null
 }
 
 __setup_completions() {
   _evalcache atuin init zsh --disable-up-arrow
-  _evalcache docker completion zsh
   _evalcache task --completion zsh
   _evalcache zoxide init zsh
 
@@ -38,8 +37,8 @@ __setup_completions() {
 
   _evalcache uv generate-shell-completion zsh
   _evalcache kubecolor completion zsh
+  _evalcache nix-your-shell zsh
 
-  # kubectl alias completions (aliases defined in shellAliases)
   compdef _kubectl kubectl
   compdef _kubectl k
   compdef _kubectl kg

@@ -27,7 +27,6 @@ let
     }
   );
   integrationsCompletions = shell.stripHeaders ./integrations/completions.zsh;
-  integrationsTools = shell.stripHeaders ./integrations/tools.zsh;
   integrationsExtras = shell.stripHeaders ./integrations/extras.zsh;
 
   uiPrompt = shell.stripHeaders ./ui/prompt.zsh;
@@ -145,11 +144,7 @@ in
       (lib.mkOrder 500 ''
         mkdir -p ${config.xdg.cacheHome}/zsh
         autoload -Uz compinit
-        if [[ -n ${config.xdg.cacheHome}/zsh/zcompdump/.zcompdump(#qN.mh+24) ]]; then
-          compinit -d "${config.xdg.cacheHome}/zsh/zcompdump/.zcompdump"
-        else
-          compinit -C -d "${config.xdg.cacheHome}/zsh/zcompdump/.zcompdump"
-        fi
+        compinit -C -d "${config.xdg.cacheHome}/zsh/zcompdump/.zcompdump"
 
         # Completion styles
         zstyle ':completion:*:git-checkout:*' sort false
@@ -179,13 +174,10 @@ in
         zstyle ':fzf-tab:complete:v:*' fzf-preview 'word="$word" realpath="$realpath" fzf-preview'
         zstyle ':fzf-tab:complete:ls:*' fzf-preview 'word="$word" realpath="$realpath" fzf-preview'
         zstyle ':fzf-tab:complete:eza:*' fzf-preview 'word="$word" realpath="$realpath" fzf-preview'
-
-        compdef _ls ls
       '')
 
       (lib.mkOrder 600 ''
         ${integrationsWezterm}
-        ${integrationsTools}
         ${integrationsCompletions}
         ${integrationsExtras}
         ${env}
