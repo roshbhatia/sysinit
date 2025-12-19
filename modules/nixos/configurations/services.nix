@@ -45,9 +45,6 @@
       enable = false;
     };
 
-    wayvnc = {
-      enable = true;
-      openFirewall = true;
-    };
+    x2goserver.enable = true;
   };
 }
