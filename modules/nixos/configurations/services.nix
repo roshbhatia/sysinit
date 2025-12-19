@@ -35,7 +35,7 @@
     ];
 
     keyd = {
-      enable = true;
+      enable = false;
     };
   };
 

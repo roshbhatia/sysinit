@@ -51,7 +51,6 @@ local function get_display_config()
     dpi = 144,
     enable_scroll_bar = false,
     enable_tab_bar = true,
-    front_end = "WebGpu",
     max_fps = 240,
     quick_select_alphabet = "fjdkslaghrueiwoncmv",
     scrollback_lines = 20000,
