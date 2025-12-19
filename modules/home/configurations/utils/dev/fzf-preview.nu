@@ -49,14 +49,14 @@ def preview-image [path: string] {
     let lines = (try { tput lines } catch { "24" })
     let dim = $"($cols)x($lines)"
     
-    chafa --size $dim $path 2> /dev/null
+    chafa --size $dim $path err> /dev/null
 }
 
 def preview-text [path: string] {
     if (which bat | is-empty) {
         open $path
     } else {
-        bat --style=numbers --color=always --pager=never $path 2> /dev/null
+        bat --style=numbers --color=always --pager=never $path err> /dev/null
     }
 }
 
@@ -66,7 +66,7 @@ def preview-executable [path: string] {
         print $"Executable: ($basename) (no man page available)"
     } else {
         try {
-            man $basename 2> /dev/null
+            man $basename err> /dev/null
         } catch {
             print $"Executable: ($basename) (no man page available)"
         }
@@ -74,15 +74,16 @@ def preview-executable [path: string] {
 }
 
 def preview-archive [path: string] {
-    match ($path | path extension) {
+    let ext = $path | path parse | get extension
+    match $ext {
         "gz" | "tgz" | "tar" | "tbz2" | "bz2" => {
-            tar -tzvf $path 2> /dev/null | head -20
+            tar -tzvf $path err> /dev/null | head -20
         }
         "zip" => {
-            unzip -l $path 2> /dev/null
+            unzip -l $path err> /dev/null
         }
         "7z" => {
-            7z l $path 2> /dev/null
+            7z l $path err> /dev/null
         }
         _ => {
             print $"Archive: ($path)"
@@ -91,10 +92,10 @@ def preview-archive [path: string] {
 }
 
 def preview-symlink [path: string] {
-    let target = (readlink -f $path 2> /dev/null | default "broken symlink")
+    let target = (readlink -f $path err> /dev/null | default "broken symlink")
     print $"Symlink: ($path) -> ($target)"
     
-    if ($target | path exists) and not ($target | path type --long | str contains "directory") {
+    if ($target | path exists) and (($target | path type) != "dir") {
         preview-text $target
     }
 }
@@ -106,12 +107,12 @@ def main [target_arg?: string] {
     let target = (normalize-target $target)
     if ($target == null) { return }
 
-    if ($target | path type --long | str contains "directory") {
+    if (($target | path type) == "dir") {
         preview-dir $target
-    } else if ($target | path type --long | str contains "symlink") {
+    } else if (($target | path type) == "symlink") {
         preview-symlink $target
-    } else if ($target | path type --long | str contains "file") {
-        let mime_type = (file --brief --mime-type $target 2> /dev/null | default "text/plain")
+    } else if (($target | path type) == "file") {
+        let mime_type = (file --brief --mime-type $target err> /dev/null | default "text/plain")
         
         if ($mime_type | str contains "image") {
             preview-image $target

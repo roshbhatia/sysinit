@@ -1,4 +1,4 @@
-!/usr/bin/env nu
+#!/usr/bin/env nu
 
 def main [command?: string] {
     if (which gh | is-empty) {
@@ -7,12 +7,12 @@ def main [command?: string] {
     }
 
     def setup_account [account_type: string] {
-        let gh_config_dir = $env.HOME + "/.config/gh-" + $account_type
+        let gh_config_dir = $env.HOME | path join ".config" $"gh-($account_type)"
 
         print $"Setting up ($account_type) GitHub account..."
         print $"Authenticating with config directory: ($gh_config_dir)"
 
-        mkdir -p $gh_config_dir
+        mkdir $gh_config_dir
 
         let result = (
             with-env { GH_CONFIG_DIR: $gh_config_dir } {
@@ -25,7 +25,7 @@ def main [command?: string] {
 
             let user_result = (
                 with-env { GH_CONFIG_DIR: $gh_config_dir } {
-                    gh api user --jq '.login' 2> /dev/null | complete
+                    gh api user --jq '.login' err> /dev/null | complete
                 }
             )
 
@@ -43,12 +43,12 @@ def main [command?: string] {
         print "Checking authentication status..."
 
         for account_type in ["personal" "work"] {
-            let gh_config_dir = $env.HOME + "/.config/gh-" + $account_type
+            let gh_config_dir = $env.HOME | path join ".config" $"gh-($account_type)"
 
             if ($gh_config_dir | path exists) {
                 let user_result = (
                     with-env { GH_CONFIG_DIR: $gh_config_dir } {
-                        gh api user --jq '.login' 2> /dev/null | complete
+                        gh api user --jq '.login' err> /dev/null | complete
                     }
                 )
 

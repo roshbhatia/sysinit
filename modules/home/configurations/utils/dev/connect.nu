@@ -1,10 +1,13 @@
 #!/usr/bin/env nu
 
-def main [session: string] {
+# Connect to a Wezterm session
+def main [
+    session: string  # Session name to connect to
+] {
     if ($session | is-empty) {
-        print $"Usage: connect <session-name>"
+        print "Usage: connect <session-name>"
         exit 1
     }
 
-    ^nohup wezterm connect $session out+err> /dev/null
+    nohup wezterm connect $session out+err> /dev/null
 }
