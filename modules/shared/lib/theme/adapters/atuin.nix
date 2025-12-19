@@ -38,38 +38,14 @@ _:
         name = "${themeId}"
 
         [colors]
-        # Base colors
         AlertInfo = "${atuinColors.info}"
         AlertWarn = "${atuinColors.warning}"
         AlertError = "${atuinColors.error}"
-        Annotation = "${atuinColors.accent}"
+        Annotation = "${atuinColors.text_secondary}"
         Base = "${atuinColors.text_primary}"
         Guidance = "${atuinColors.text_muted}"
         Important = "${atuinColors.accent}"
-        Title = "${atuinColors.accent}"
-
-        # Status colors
-        Success = "${atuinColors.success}"
-        Warning = "${atuinColors.warning}"
-        Error = "${atuinColors.error}"
-        Info = "${atuinColors.info}"
-
-        # UI elements
-        Accent = "${atuinColors.accent}"
-        AccentSecondary = "${atuinColors.accent_secondary}"
-
-        # Text variants
-        TextPrimary = "${atuinColors.text_primary}"
-        TextSecondary = "${atuinColors.text_secondary}"
-        TextMuted = "${atuinColors.text_muted}"
-
-        # Background
-        Background = "${atuinColors.background}"
-        BackgroundAlt = "${atuinColors.base_alt}"
-
-        # Mantle (secondary background)
-        Mantle = "${atuinColors.mantle}"
-        Surface = "${atuinColors.surface}"
+        Title = "${atuinColors.accent_secondary}"
       '';
     in
     {
