@@ -162,7 +162,7 @@ in
         zstyle ':fzf-tab:*' fzf-pad 4
         zstyle ':fzf-tab:*' single-group color header
         zstyle ':fzf-tab:*' show-group full
-        zstyle ':fzf-tab:*' fzf-flags --gutter=" "
+        zstyle ':fzf-tab:*' fzf-flags --gutter=" " --preview-window=right:50%:wrap
         zstyle ':fzf-tab:*' query-string ""
         zstyle ':fzf-tab:*' continuous-trigger "/"
         zstyle ':fzf-tab:*' fzf-bindings "tab:down" "btab:up" "enter:accept"

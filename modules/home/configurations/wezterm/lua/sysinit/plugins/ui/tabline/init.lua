@@ -41,12 +41,12 @@ function M.setup(config)
         },
       },
       section_separators = {
-        left = wezterm.nerdfonts.ple_right_half_circle_thick,
-        right = wezterm.nerdfonts.ple_left_half_circle_thick,
+        left = "",
+        right = "",
       },
       component_separators = {
-        left = wezterm.nerdfonts.ple_right_half_circle_thin,
-        right = wezterm.nerdfonts.ple_left_half_circle_thin,
+        left = "",
+        right = "",
       },
       tab_separators = {
         left = " ",
