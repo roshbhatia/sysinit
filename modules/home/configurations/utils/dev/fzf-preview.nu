@@ -37,7 +37,7 @@ def infer-kind [path: string]: nothing -> string {
     } else if (($path | path type) == "symlink") {
         "symlink"
     } else if (($path | path type) == "file") {
-        let mime_type = (file --brief --mime-type $path err> /dev/null | default "text/plain")
+        let mime_type = (^file --brief --mime-type $path | complete | get stdout | str trim | default "text/plain")
         
         if ($mime_type | str contains "image") {
             "chafa"
@@ -53,9 +53,9 @@ def infer-kind [path: string]: nothing -> string {
 
 def preview-dir [path: string] {
     if (which eza | is-empty) {
-        ls -la $path
+        ^ls -la $path
     } else {
-        eza --color=always --icons=always --group-directories-first -1 $path
+        ^eza --color=always --icons=always --group-directories-first -1 $path
     }
 }
 
@@ -65,18 +65,18 @@ def preview-image [path: string] {
         return
     }
     
-    let cols = (try { tput cols } catch { "80" })
-    let lines = (try { tput lines } catch { "24" })
+    let cols = (try { ^tput cols | str trim } catch { "80" })
+    let lines = (try { ^tput lines | str trim } catch { "24" })
     let dim = $"($cols)x($lines)"
     
-    chafa --size $dim $path err> /dev/null
+    ^chafa --size $dim $path
 }
 
 def preview-text [path: string] {
     if (which bat | is-empty) {
         open $path
     } else {
-        bat --style=numbers --color=always --pager=never $path err> /dev/null
+        ^bat --style=numbers --color=always --pager=never $path
     }
 }
 
@@ -86,7 +86,7 @@ def preview-executable [path: string] {
         print $"Executable: ($basename) (no man page available)"
     } else {
         try {
-            man $basename err> /dev/null
+            ^man $basename
         } catch {
             print $"Executable: ($basename) (no man page available)"
         }
@@ -97,13 +97,13 @@ def preview-archive [path: string] {
     let ext = $path | path parse | get extension
     match $ext {
         "gz" | "tgz" | "tar" | "tbz2" | "bz2" => {
-            tar -tzvf $path err> /dev/null | head -20
+            ^tar -tzvf $path | lines | first 20
         }
         "zip" => {
-            unzip -l $path err> /dev/null
+            ^unzip -l $path
         }
         "7z" => {
-            7z l $path err> /dev/null
+            ^7z l $path
         }
         _ => {
             print $"Archive: ($path)"
@@ -112,7 +112,7 @@ def preview-archive [path: string] {
 }
 
 def preview-symlink [path: string] {
-    let target = (readlink -f $path err> /dev/null | default "broken symlink")
+    let target = (^readlink -f $path | complete | get stdout | str trim | default "broken symlink")
     print $"Symlink: ($path) -> ($target)"
     
     if ($target | path exists) and (($target | path type) != "dir") {

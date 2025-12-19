@@ -57,11 +57,12 @@ function M.setup(config)
       tabline_a = {
         {
           "mode",
-          icon = "  ",
+          icon = "",
           padding = { left = 1, right = 1 },
         },
       },
       tabline_b = {
+        icon = " ",
         "domain",
       },
       tabline_x = {},
