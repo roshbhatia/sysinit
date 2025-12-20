@@ -19,26 +19,12 @@ vars:
   NIX_SYSTEM_CONF_DIR: "/etc/nix"
   NIX_MAX_JOBS: 2
   NIX_CORES: 2
-  LOGLIB_PATH: "{{.ROOT_DIR}}/modules/home/configurations/utils/system/loglib.sh"
 
 tasks:
   default:
     desc: Show all available tasks
     cmds:
       - task --list-all
-    silent: true
-
-  sh:chmod:
-    desc: Make all .sh files in the repository executable
-    cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        source {{.LOGLIB_PATH}}
-        if ! fd -e sh -x sh -c 'source {{.LOGLIB_PATH}}; chmod +x {}' _; then
-          log_error "Failed to make .sh files executable"
-          exit 1
-        fi
     silent: true
 
   fmt:
@@ -52,9 +38,9 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
+
         if ! ./hack/generate-values-docs.sh README.md; then
-          log_error "Failed to generate values documentation"
+          echo "Failed to generate values documentation"
           exit 1
         fi
     silent: true

@@ -5,14 +5,17 @@
 }:
 
 {
-  mkPkgs = { system, overlays ? [ ] }:
+  mkPkgs =
+    {
+      system,
+      overlays ? [ ],
+    }:
     import nixpkgs {
       inherit system overlays;
       config = {
         allowUnfree = true;
         allowUnsupportedSystem = true;
-        allowUnfreePredicate = pkg:
-          builtins.elem (nixpkgs.lib.getName pkg) [ "_1password-gui" ];
+        allowUnfreePredicate = pkg: builtins.elem (nixpkgs.lib.getName pkg) [ "_1password-gui" ];
       };
     };
 
@@ -20,7 +23,8 @@
 
   mkOverlays = system: import ../overlays { inherit inputs system; };
 
-  processValues = { utils, userValues }:
+  processValues =
+    { utils, userValues }:
     (lib.evalModules {
       modules = [
         {
@@ -32,19 +36,23 @@
       ];
     }).config.values;
 
-  buildConfiguration = {
-    darwin,
-    home-manager,
-    stylix,
-    nix-homebrew,
-    mac-app-util,
-    onepassword-shell-plugins,
-    mkPkgs,
-    mkUtils,
-    mkOverlays,
-    processValues,
-  }:
-  { hostConfig, hostname ? "nixos" }:
+  buildConfiguration =
+    {
+      darwin,
+      home-manager,
+      stylix,
+      nix-homebrew,
+      mac-app-util,
+      onepassword-shell-plugins,
+      mkPkgs,
+      mkUtils,
+      mkOverlays,
+      processValues,
+    }:
+    {
+      hostConfig,
+      hostname ? "nixos",
+    }:
     let
       overlays = mkOverlays hostConfig.system;
       pkgs = mkPkgs {

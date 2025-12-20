@@ -3,5 +3,6 @@
     ./firefox
     ./hammerspoon
     ./sketchybar
+    ./packages.nix
   ];
 }

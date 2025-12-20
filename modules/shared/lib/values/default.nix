@@ -170,24 +170,26 @@ with lib;
       llm = {
         mcp = {
           servers = mkOption {
-            type = types.attrsOf (types.submodule {
-              options = {
-                command = mkOption {
-                  type = types.str;
-                  description = "MCP server command";
+            type = types.attrsOf (
+              types.submodule {
+                options = {
+                  command = mkOption {
+                    type = types.str;
+                    description = "MCP server command";
+                  };
+                  args = mkOption {
+                    type = types.listOf types.str;
+                    default = [ ];
+                    description = "MCP server arguments";
+                  };
+                  env = mkOption {
+                    type = types.attrsOf types.str;
+                    default = { };
+                    description = "Environment variables for MCP server";
+                  };
                 };
-                args = mkOption {
-                  type = types.listOf types.str;
-                  default = [ ];
-                  description = "MCP server arguments";
-                };
-                env = mkOption {
-                  type = types.attrsOf types.str;
-                  default = { };
-                  description = "Environment variables for MCP server";
-                };
-              };
-            });
+              }
+            );
             default = { };
             description = "MCP servers configuration";
           };

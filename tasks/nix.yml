@@ -9,25 +9,6 @@ tasks:
       - sudo rm -f result result-* 2>/dev/null || true
     silent: true
 
-  build:
-    desc: Build the system configuration without applying (defaults to lv426)
-    silent: true
-    deps: [clean-results]
-    cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        source {{.LOGLIB_PATH}}
-
-        log_info "Building system configuration"
-        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} build -v --flake .#lv426 --impure; then
-          log_error "Build failed (see logs above)"
-          exit 1
-        fi
-
-        log_success "Build completed successfully"
-      - task: clean-results
-
   build:lv426:
     desc: Build lv426 (macOS) system configuration
     silent: true
@@ -36,15 +17,14 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
 
-        log_info "Building lv426 configuration"
+        echo "Building lv426 configuration"
         if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} nix build .#darwinConfigurations.lv426.system; then
-          log_error "lv426 build failed"
+          echo "lv426 build failed"
           exit 1
         fi
 
-        log_success "lv426 build completed successfully"
+        echo "lv426 build completed successfully"
       - task: clean-results
 
   build:arrakis:
@@ -55,15 +35,14 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
 
-        log_info "Building arrakis configuration"
+        echo "Building arrakis configuration"
         if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} nix build .#nixosConfigurations.arrakis.config.system.build.toplevel; then
-          log_error "arrakis build failed"
+          echo "arrakis build failed"
           exit 1
         fi
 
-        log_success "arrakis build completed successfully"
+        echo "arrakis build completed successfully"
       - task: clean-results
 
   build:all:
@@ -75,27 +54,8 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
-        log_success "All configurations built successfully"
 
-  refresh:
-    desc: Apply system configuration and switch to new generation (defaults to lv426)
-    silent: true
-    deps: [clean-results]
-    cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        source {{.LOGLIB_PATH}}
-
-        log_info "Applying system configuration"
-        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} switch --flake .#lv426 --impure; then
-          log_error "Refresh failed (see logs above)"
-          exit 1
-        fi
-
-        log_success "System configuration applied successfully"
-      - task: clean-results
+        echo "All configurations built successfully"
 
   refresh:lv426:
     desc: Apply lv426 (macOS) system configuration
@@ -105,15 +65,15 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
 
-        log_info "Applying lv426 system configuration"
+
+        echo "Applying lv426 system configuration"
         if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} switch --flake .#lv426 --impure; then
-          log_error "lv426 refresh failed (see logs above)"
+          echo "lv426 refresh failed (see s above)"
           exit 1
         fi
 
-        log_success "lv426 system configuration applied successfully"
+        echo "lv426 system configuration applied successfully"
       - task: clean-results
 
   refresh:arrakis:
@@ -124,15 +84,15 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
 
-        log_info "Applying arrakis system configuration"
+
+        echo "Applying arrakis system configuration"
         if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo nixos-rebuild switch --flake .#arrakis; then
-          log_error "arrakis refresh failed (see logs above)"
+          echo "arrakis refresh failed (see s above)"
           exit 1
         fi
 
-        log_success "arrakis system configuration applied successfully"
+        echo "arrakis system configuration applied successfully"
       - task: clean-results
 
   refresh:work:
@@ -142,20 +102,20 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
+
 
         WORK_SYSINIT=$(find {{.WORK_REPO_PATH}} -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
 
         if [ -z "${WORK_SYSINIT}" ]; then
-          log_error "Could not find work sysinit repository in {{.WORK_REPO_PATH}}"
+          echo "Could not find work sysinit repository in {{.WORK_REPO_PATH}}"
           exit 1
         fi
 
-        log_info "Refreshing work configuration at: ${WORK_SYSINIT}"
+        echo "Refreshing work configuration at: ${WORK_SYSINIT}"
         cd "${WORK_SYSINIT}"
 
         if ! NIX_MAX_JOBS=1 NIX_CORES=1 task nix:refresh:work; then
-          log_error "Work refresh failed"
+          echo "Work refresh failed"
           exit 1
         fi
 
@@ -166,18 +126,18 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
+
 
         WORK_SYSINIT=$(find {{.WORK_REPO_PATH}} -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
 
         if [ -z "${WORK_SYSINIT}" ]; then
-          log_error "Could not find work sysinit repository in {{.WORK_REPO_PATH}}"
+          echo "Could not find work sysinit repository in {{.WORK_REPO_PATH}}"
           exit 1
         fi
 
         cd "${WORK_SYSINIT}"
         if ! NIX_MAX_JOBS=1 NIX_CORES=1 task nix:build:work; then
-          log_error "Work build failed"
+          echo "Work build failed"
           exit 1
         fi
 
@@ -189,12 +149,12 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
 
-        log_info "Collecting garbage"
+
+        echo "Collecting garbage"
         nix-collect-garbage
 
-        log_success "Nix store cleaned and optimized"
+        echo "Nix store cleaned and optimized"
 
   update:
     desc: Update Nix flake inputs and commit lock file
@@ -203,23 +163,23 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
-        log_info "Updating nix flake inputs"
+
+        echo "Updating nix flake inputs"
 
         if ! nix flake update; then
-          log_error "Flake update failed (see logs above)"
+          echo "Flake update failed (see s above)"
           exit 1
         fi
 
         if git diff --quiet flake.lock; then
-          log_info "No changes to flake.lock"
+          echo "No changes to flake.lock"
         else
           git add flake.lock
           git commit -m "flake.lock: Update"
-          log_info "Committed flake.lock changes"
+          echo "Committed flake.lock changes"
         fi
 
-        log_success "Flake inputs updated successfully"
+        echo "Flake inputs updated successfully"
 
   config:
     desc: Copy nix configs (custom and secrets) to /etc/nix/ with sudo
@@ -228,30 +188,30 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
 
-        log_info "Updating nix configuration"
+
+        echo "Updating nix configuration"
 
         # Copy custom config
         if ! sudo cp nix.custom.conf /etc/nix/nix.custom.conf; then
-          log_error "Failed to copy nix.custom.conf"
+          echo "Failed to copy nix.custom.conf"
           exit 1
         fi
 
         # Copy secrets if they exist
         if [ -f "nix.secrets.conf" ]; then
           if ! sudo cp nix.secrets.conf /etc/nix/nix.secrets.conf; then
-            log_error "Failed to copy nix.secrets.conf"
+            echo "Failed to copy nix.secrets.conf"
             exit 1
           fi
           sudo chmod 600 /etc/nix/nix.secrets.conf
-          log_info "Deployed nix.secrets.conf with restrictive permissions"
+          echo "Deployed nix.secrets.conf with restrictive permissions"
         else
-          log_warn "nix.secrets.conf not found (run 'task nix:secrets:init' to create)"
+          echo "nix.secrets.conf not found (run 'task nix:secrets:init' to create)"
         fi
 
-        log_success "Nix configuration updated successfully"
-        log_info "Run 'sudo launchctl stop org.nixos.nix-daemon && sleep 2 && sudo launchctl start org.nixos.nix-daemon' to restart daemon with new config"
+        echo "Nix configuration updated successfully"
+        echo "Run 'sudo launchctl stop org.nixos.nix-daemon && sleep 2 && sudo launchctl start org.nixos.nix-daemon' to restart daemon with new config"
 
   config:user:
     desc: Setup user-level nix.conf to include system nix.custom.conf
@@ -260,13 +220,13 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
+
 
         NIX_CONFIG_DIR="${HOME}/.config/nix"
         NIX_CONFIG="${NIX_CONFIG_DIR}/nix.conf"
         SYSTEM_CUSTOM_CONF="/etc/nix/nix.custom.conf"
 
-        log_info "Setting up user-level nix.conf"
+        echo "Setting up user-level nix.conf"
 
         # Create directory if needed
         mkdir -p "${NIX_CONFIG_DIR}"
@@ -286,8 +246,8 @@ tasks:
           echo "!include ${SYSTEM_CUSTOM_CONF}"
         } > "${NIX_CONFIG}"
 
-        log_success "User nix.conf configured at ${NIX_CONFIG}"
-        log_info "Access tokens from nix.secrets.conf will now be loaded when nix runs"
+        echo "User nix.conf configured at ${NIX_CONFIG}"
+        echo "Access tokens from nix.secrets.conf will now be loaded when nix runs"
 
   secrets:init:
     desc: Initialize nix.secrets.conf with GitHub token (automatic, idempotent)
@@ -296,7 +256,7 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
+
 
         SECRETS_FILE="{{.ROOT_DIR}}/nix.secrets.conf"
         SYSTEM_SECRETS_FILE="{{.NIX_SYSTEM_CONF_DIR}}/nix.secrets.conf"
@@ -319,59 +279,59 @@ tasks:
 
         # Function to deploy secrets to system
         deploy_secrets() {
-          log_info "Deploying secrets to ${SYSTEM_SECRETS_FILE}"
+          echo "Deploying secrets to ${SYSTEM_SECRETS_FILE}"
           if ! sudo cp "${SECRETS_FILE}" "${SYSTEM_SECRETS_FILE}"; then
-            log_error "Failed to copy secrets to system directory"
+            echo "Failed to copy secrets to system directory"
             return 1
           fi
           sudo chmod 600 "${SYSTEM_SECRETS_FILE}"
 
-          log_info "To apply new secrets, restart nix-daemon:"
-          log_info "sudo launchctl stop org.nixos.nix-daemon && sleep 2 && sudo launchctl start org.nixos.nix-daemon"
+          echo "To apply new secrets, restart nix-daemon:"
+          echo "sudo launchctl stop org.nixos.nix-daemon && sleep 2 && sudo launchctl start org.nixos.nix-daemon"
           return 0
         }
 
-        log_info "Initializing nix secrets configuration"
+        echo "Initializing nix secrets configuration"
 
         # Check if valid secrets file already exists
         if is_secrets_file_valid "${SECRETS_FILE}"; then
-          log_success "Valid nix.secrets.conf already exists"
+          echo "Valid nix.secrets.conf already exists"
 
           # Ensure it's deployed to system (use sudo for reading system file)
           if [ ! -f "${SYSTEM_SECRETS_FILE}" ] || ! sudo grep -q '^[^#]*access-tokens[[:space:]]*=' "${SYSTEM_SECRETS_FILE}" 2>/dev/null; then
             if deploy_secrets; then
-              log_success "Secrets deployed to system"
+              echo "Secrets deployed to system"
             fi
           else
-            log_info "Secrets already deployed to system"
+            echo "Secrets already deployed to system"
           fi
           exit 0
         fi
 
         # Try to get token from gh CLI
-        log_info "Attempting to get GitHub token from gh CLI"
+        echo "Attempting to get GitHub token from gh CLI"
         if command -v gh >/dev/null 2>&1; then
           if GITHUB_TOKEN=$(gh auth token 2>/dev/null); then
-            log_success "Retrieved token from gh CLI"
+            echo "Retrieved token from gh CLI"
             create_secrets_file "${GITHUB_TOKEN}"
 
             if deploy_secrets; then
-              log_success "Secrets initialized and deployed successfully"
+              echo "Secrets initialized and deployed successfully"
               exit 0
             else
               exit 1
             fi
           else
-            log_warn "gh CLI is installed but not authenticated"
-            log_info "Run 'gh auth login' to authenticate, then re-run this task"
+            echo "gh CLI is installed but not authenticated"
+            echo "Run 'gh auth in' to authenticate, then re-run this task"
           fi
         else
-          log_warn "gh CLI not found in PATH"
-          log_info "Authenticate with gh CLI: gh auth login"
+          echo "gh CLI not found in PATH"
+          echo "Authenticate with gh CLI: gh auth in"
         fi
 
         # If we get here, we couldn't auto-configure
-        log_warn "Could not automatically configure GitHub authentication"
+        echo "Could not automatically configure GitHub authentication"
         exit 0
 
   secrets:check:
@@ -381,7 +341,7 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
+
 
         SECRETS_FILE="{{.ROOT_DIR}}/nix.secrets.conf"
         SYSTEM_SECRETS_FILE="{{.NIX_SYSTEM_CONF_DIR}}/nix.secrets.conf"
@@ -391,19 +351,19 @@ tasks:
           [ -f "$1" ] && grep -q '^[^#]*access-tokens[[:space:]]*=' "$1"
         }
 
-        log_info "Checking nix secrets configuration"
+        echo "Checking nix secrets configuration"
         ISSUES=0
 
         # Check repository file
         if ! is_secrets_file_valid "${SECRETS_FILE}"; then
-          log_error "nix.secrets.conf not found or invalid in repository root"
+          echo "nix.secrets.conf not found or invalid in repository root"
           ISSUES=$((ISSUES + 1))
         else
           # Check permissions (support both GNU and BSD stat)
           if [ -f "${SECRETS_FILE}" ]; then
             PERMS=$(stat -c %a "${SECRETS_FILE}" 2>/dev/null || stat -f "%Lp" "${SECRETS_FILE}" 2>/dev/null || echo "000")
             if [ "${PERMS}" != "600" ]; then
-              log_warn "Incorrect permissions on nix.secrets.conf: ${PERMS} (should be 600)"
+              echo "Incorrect permissions on nix.secrets.conf: ${PERMS} (should be 600)"
               ISSUES=$((ISSUES + 1))
             fi
           fi
@@ -411,12 +371,12 @@ tasks:
 
         # Check system deployment (use sudo for reading root-owned file)
         if [ ! -f "${SYSTEM_SECRETS_FILE}" ] || ! sudo grep -q '^[^#]*access-tokens[[:space:]]*=' "${SYSTEM_SECRETS_FILE}" 2>/dev/null; then
-          log_error "Secrets not deployed to ${SYSTEM_SECRETS_FILE}"
+          echo "Secrets not deployed to ${SYSTEM_SECRETS_FILE}"
           ISSUES=$((ISSUES + 1))
         else
           PERMS=$(sudo stat -c %a "${SYSTEM_SECRETS_FILE}" 2>/dev/null || sudo stat -f "%Lp" "${SYSTEM_SECRETS_FILE}" 2>/dev/null || echo "000")
           if [ "${PERMS}" != "600" ]; then
-            log_warn "Incorrect permissions on system secrets: ${PERMS} (should be 600)"
+            echo "Incorrect permissions on system secrets: ${PERMS} (should be 600)"
             ISSUES=$((ISSUES + 1))
           fi
         fi
@@ -424,21 +384,21 @@ tasks:
         # Check gh CLI auth status (informational only)
         if command -v gh >/dev/null 2>&1; then
           if gh auth token >/dev/null 2>&1; then
-            log_info "gh CLI is authenticated"
+            echo "gh CLI is authenticated"
           else
-            log_info "gh CLI is installed but not authenticated"
+            echo "gh CLI is installed but not authenticated"
           fi
         else
-          log_info "gh CLI not found in PATH"
+          echo "gh CLI not found in PATH"
         fi
 
         # Report results
         if [ ${ISSUES} -eq 0 ]; then
-          log_success "Nix secrets configuration is valid"
+          echo "Nix secrets configuration is valid"
           exit 0
         else
-          log_error "Found ${ISSUES} issue(s) with secrets configuration"
-          log_info "Run 'task nix:secrets:init' to fix"
+          echo "Found ${ISSUES} issue(s) with secrets configuration"
+          echo "Run 'task nix:secrets:init' to fix"
           exit 1
         fi
 
@@ -449,14 +409,13 @@ tasks:
       - |
         #!/usr/bin/env bash
         set -euo pipefail
-        source {{.LOGLIB_PATH}}
 
-        log_info "Running Nix validation checks"
+        echo "Running Nix validation checks"
 
         # Run flake check (validates format for Nix, Lua, Shell)
         if ! nix flake check --no-build; then
-          log_error "Flake check failed (see logs above)"
+          echo "Flake check failed (see s above)"
           exit 1
         fi
 
-        log_success "Nix validation passed (format checks complete)"
+        echo "Nix validation passed (format checks complete)"

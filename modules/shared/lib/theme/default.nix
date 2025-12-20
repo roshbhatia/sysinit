@@ -71,8 +71,7 @@ let
     else if variantMatchesAppearance then
       currentVariant
     else if mapping == null then
-      throw
-        "Cannot derive variant: colorscheme '${colorscheme}' does not support appearance mode '${effectiveAppearance}'"
+      throw "Cannot derive variant: colorscheme '${colorscheme}' does not support appearance mode '${effectiveAppearance}'"
     else if isList mapping then
       head mapping
     else

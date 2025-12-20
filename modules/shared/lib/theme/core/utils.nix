@@ -80,23 +80,40 @@ rec {
 
   hexDigitValue =
     c:
-    if c == "0" then 0
-    else if c == "1" then 1
-    else if c == "2" then 2
-    else if c == "3" then 3
-    else if c == "4" then 4
-    else if c == "5" then 5
-    else if c == "6" then 6
-    else if c == "7" then 7
-    else if c == "8" then 8
-    else if c == "9" then 9
-    else if c == "a" then 10
-    else if c == "b" then 11
-    else if c == "c" then 12
-    else if c == "d" then 13
-    else if c == "e" then 14
-    else if c == "f" then 15
-    else 0;
+    if c == "0" then
+      0
+    else if c == "1" then
+      1
+    else if c == "2" then
+      2
+    else if c == "3" then
+      3
+    else if c == "4" then
+      4
+    else if c == "5" then
+      5
+    else if c == "6" then
+      6
+    else if c == "7" then
+      7
+    else if c == "8" then
+      8
+    else if c == "9" then
+      9
+    else if c == "a" then
+      10
+    else if c == "b" then
+      11
+    else if c == "c" then
+      12
+    else if c == "d" then
+      13
+    else if c == "e" then
+      14
+    else if c == "f" then
+      15
+    else
+      0;
 
   hexToRgb =
     color:
@@ -196,7 +213,8 @@ rec {
       b = adjust rgb.b;
     };
 
-  createSemanticMapping = palette:
+  createSemanticMapping =
+    palette:
     let
       get = name: fallback: safeGetColor palette name fallback;
       getOr = name: fallback: get name fallback;
@@ -322,18 +340,18 @@ rec {
         };
 
       extended = removeAttrs palette [
-      "base"
-      "surface"
-      "surface_alt"
-      "overlay"
-      "text"
-      "accent"
-      "red"
-      "green"
-      "yellow"
-      "blue"
-    ];
-  };
+        "base"
+        "surface"
+        "surface_alt"
+        "overlay"
+        "text"
+        "accent"
+        "red"
+        "green"
+        "yellow"
+        "blue"
+      ];
+    };
 
   generateAnsiMappings = semanticColors: {
 
