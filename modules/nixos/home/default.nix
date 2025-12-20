@@ -6,10 +6,10 @@
 
 {
   imports = [
-    ./mako.nix
-    ./hyprland.nix
-    ./waybar.nix
-    ./wofi.nix
+    ./configurations/mako
+    ./configurations/hyprland
+    ./configurations/waybar
+    ./configurations/wofi
   ];
 
   home.stateVersion = lib.mkForce "24.11";

@@ -5,7 +5,7 @@
 }:
 
 let
-  themes = import ../../shared/lib/theme { inherit lib; };
+  themes = import ../../../shared/lib/theme { inherit lib; };
   theme = themes.getTheme values.theme.colorscheme;
   palette = theme.palettes.${values.theme.variant};
   semanticColors = theme.semanticMapping palette;
