@@ -7,7 +7,8 @@
 let
   themes = import ../../shared/lib/theme { inherit lib; };
   theme = themes.getTheme values.theme.colorscheme;
-  waybarTheme = themes.adapters.waybar.createWaybarTheme theme values.theme;
+  palette = theme.palettes.${values.theme.variant};
+  semanticColors = theme.semanticMapping palette;
 in
 {
   programs.waybar = {
@@ -17,39 +18,41 @@ in
       mainBar = {
         layer = "top";
         position = "top";
-        height = 36;
-        spacing = 4;
+        height = 32;
+        margin = "6 12 0 12";
+        spacing = 12;
 
         modules-left = [
           "hyprland/workspaces"
-          "hyprland/window"
         ];
 
         modules-center = [
-          "clock"
+          "hyprland/window"
         ];
 
         modules-right = [
-          "tray"
+          "clock"
           "cpu"
           "memory"
           "temperature"
           "pulseaudio"
           "network"
+          "tray"
         ];
 
         "hyprland/workspaces" = {
           format = "{name}";
           on-click = "activate";
+          all-outputs = false;
         };
 
         "hyprland/window" = {
           format = "{}";
-          max-length = 50;
+          max-length = 80;
         };
 
         clock = {
-          format = "{:%H:%M   %a %b %d}";
+          format = "{:%H:%M}";
           format-alt = "{:%Y-%m-%d}";
           tooltip-format = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
         };
@@ -105,6 +108,78 @@ in
       };
     };
 
-    style = waybarTheme.themeCSS;
+    style = ''
+      * {
+        font-family: "${values.theme.font.monospace}", monospace;
+        font-size: 13px;
+        border-radius: 6px;
+        min-height: 0;
+        padding: 0;
+        margin: 0;
+      }
+
+      window#waybar {
+        background-color: ${semanticColors.background.primary}cc;
+        border: 2px solid ${semanticColors.accent.primary};
+        border-radius: 6px;
+        padding: 6px 12px;
+      }
+
+      #workspaces {
+        background-color: ${semanticColors.background.primary}99;
+        border-radius: 6px;
+        padding: 0 8px;
+        margin-right: 12px;
+      }
+
+      #workspaces button {
+        color: ${semanticColors.foreground.secondary};
+        padding: 4px 10px;
+        border-radius: 4px;
+        margin: 0 2px;
+      }
+
+      #workspaces button.active {
+        background-color: ${semanticColors.accent.primary};
+        color: ${semanticColors.background.primary};
+        border: 1px solid ${semanticColors.accent.primary};
+      }
+
+      #workspaces button:hover {
+        background-color: ${semanticColors.accent.secondary};
+      }
+
+      #window {
+        color: ${semanticColors.foreground.primary};
+        padding: 0 12px;
+      }
+
+      #clock,
+      #cpu,
+      #memory,
+      #temperature,
+      #pulseaudio,
+      #network,
+      #tray {
+        background-color: ${semanticColors.background.secondary}99;
+        color: ${semanticColors.foreground.primary};
+        padding: 4px 10px;
+        margin-left: 4px;
+        border-radius: 4px;
+      }
+
+      #clock {
+        padding: 4px 12px;
+      }
+
+      #temperature.critical {
+        background-color: ${semanticColors.semantic.error};
+        color: ${semanticColors.background.primary};
+      }
+
+      #tray {
+        margin-left: 12px;
+      }
+    '';
   };
 }

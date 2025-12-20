@@ -33,12 +33,20 @@ in
       };
 
       decoration = {
-        rounding = 0;
+        rounding = 8;
+        active_opacity = 0.95;
+        inactive_opacity = 0.85;
         blur = {
           enabled = true;
+          size = 3;
+          passes = 1;
+          ignore_opacity = false;
         };
         shadow = {
-          enabled = false;
+          enabled = true;
+          range = 4;
+          render_power = 3;
+          color = lib.mkForce "rgba(0000001a)";
         };
       };
 
