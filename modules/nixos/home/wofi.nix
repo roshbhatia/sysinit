@@ -28,6 +28,7 @@ in
       allow_images = true;
       image_size = 24;
       gtk_dark = values.theme.appearance == "dark";
+      layers = "overlay";
     };
 
     style = ''

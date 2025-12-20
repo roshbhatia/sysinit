@@ -21,8 +21,8 @@ in
         spacing = 4;
 
         modules-left = [
-          "niri/workspaces"
-          "niri/window"
+          "hyprland/workspaces"
+          "hyprland/window"
         ];
 
         modules-center = [
@@ -38,12 +38,12 @@ in
           "network"
         ];
 
-        "niri/workspaces" = {
+        "hyprland/workspaces" = {
           format = "{name}";
           on-click = "activate";
         };
 
-        "niri/window" = {
+        "hyprland/window" = {
           format = "{}";
           max-length = 50;
         };

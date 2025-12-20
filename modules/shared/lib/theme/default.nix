@@ -23,7 +23,7 @@ let
   firefoxAdapter = import ./adapters/firefox.nix { inherit lib utils adapterBase; };
   atuinAdapter = import ./adapters/atuin.nix { inherit lib; };
   waybarAdapter = import ./adapters/waybar.nix { inherit lib; };
-  niriAdapter = import ./adapters/niri.nix { inherit lib; };
+  hyprlandAdapter = import ./adapters/hyprland.nix { inherit lib; };
 
   themes = {
     inherit catppuccin;
@@ -357,6 +357,6 @@ in
     firefox = firefoxAdapter;
     atuin = atuinAdapter;
     waybar = waybarAdapter;
-    niri = niriAdapter;
+    hyprland = hyprlandAdapter;
   };
 }

@@ -68,6 +68,7 @@
     file
     pciutils
     usbutils
+    firefox
   ];
 
   # DNS resolution

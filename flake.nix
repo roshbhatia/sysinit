@@ -16,10 +16,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
-    niri = {
-      url = "github:sodiboo/niri-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     stylix = {
       url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -44,7 +40,6 @@
       darwin,
       home-manager,
       nix-homebrew,
-      niri,
       stylix,
       mac-app-util,
       onepassword-shell-plugins,
@@ -167,7 +162,6 @@
               ./modules/nixos
               home-manager.nixosModules.home-manager
               stylix.nixosModules.stylix
-              niri.nixosModules.niri
               (import ./modules/nixos/home-manager.nix {
                 inherit values inputs;
                 customUtils = utils;
@@ -199,8 +193,8 @@
               username = "roshbhatia";
             };
             theme = {
-              colorscheme = "everforest";
-              variant = "dark-hard";
+              colorscheme = "gruvbox";
+              variant = "dark";
               font = {
                 monospace = "MonaspiceKr Nerd Font Mono";
               };

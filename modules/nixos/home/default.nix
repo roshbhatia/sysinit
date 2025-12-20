@@ -7,7 +7,7 @@
 {
   imports = [
     ./mako.nix
-    ./niri.nix
+    ./hyprland.nix
     ./waybar.nix
     ./wofi.nix
   ];

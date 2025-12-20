@@ -4,7 +4,7 @@ use std
 
 def main [] {
     # Check required commands
-    let required_commands = ["fzf" "chafa" "git" "fd"]
+    let required_commands = ["fzf" "chafa" "gh" "fd"]
     for cmd in $required_commands {
         if (which $cmd | is-empty) {
             print $"(ansi red_bold)[ERROR](ansi reset) Required command not found: ($cmd)"
@@ -21,13 +21,13 @@ def main [] {
 
     # Setup wallpapers directory
     let wallpapers_dir = $env.HOME | path join ".local" "share" "wallpapers"
-    let wallpapers_repo = "https://github.com/roshbhatia/wallpapers.git"
+    let wallpapers_repo = "roshbhatia/wallpapers"
 
     print $"(ansi blue)[INFO](ansi reset) Checking wallpapers repository..."
     if not ($wallpapers_dir | path exists) {
         print $"(ansi blue)[INFO](ansi reset) Cloning wallpapers repository to ($wallpapers_dir)"
         mkdir ($wallpapers_dir | path dirname)
-        if (git clone $wallpapers_repo $wallpapers_dir err> /dev/null | complete).exit_code != 0 {
+        if (gh repo clone $wallpapers_repo $wallpapers_dir err> /dev/null | complete).exit_code != 0 {
             print $"(ansi red_bold)[ERROR](ansi reset) Failed to clone wallpapers repository"
             exit 1
         }
@@ -35,7 +35,7 @@ def main [] {
         print $"(ansi blue)[INFO](ansi reset) Updating wallpapers repository"
         let fetch = (cd $wallpapers_dir; git fetch --quiet err> /dev/null | complete)
         let pull = (cd $wallpapers_dir; git pull --quiet err> /dev/null | complete)
-        
+
         if $fetch.exit_code != 0 {
             print $"(ansi yellow_bold)[WARN](ansi reset) Could not fetch updates - continuing with local version"
         } else if $pull.exit_code != 0 {
@@ -65,13 +65,13 @@ def main [] {
             ]
         }
 
-        let found_images = $fallback_dirs 
+        let found_images = $fallback_dirs
             | where {|dir| $dir | path exists}
             | each {|dir| fd --type f --extension jpg --extension jpeg --extension png --extension webp . $dir}
             | flatten
             | sort
             | uniq
-        
+
         if ($found_images | is-empty) {
             print $"(ansi red_bold)[ERROR](ansi reset) No images found in any location"
             print $"(ansi blue)[INFO](ansi reset) Try adding some images to ~/Pictures or ensure the wallpapers repo is accessible"
@@ -104,7 +104,7 @@ def main [] {
         }
 
         let result = (osascript -e $"tell application \"System Events\" to set picture of every desktop to \"($selected)\"" err> /dev/null | complete)
-        
+
         if $result.exit_code != 0 {
             print $"(ansi yellow_bold)[WARN](ansi reset) osascript failed - may need accessibility permissions"
 
