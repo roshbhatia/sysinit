@@ -68,6 +68,14 @@ with lib;
         };
       };
 
+      nix = {
+        additionalPackages = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          description = "Additional Nix packages";
+        };
+      };
+
       darwin = {
         borders = {
           enable = mkOption {
@@ -162,7 +170,24 @@ with lib;
       llm = {
         mcp = {
           servers = mkOption {
-            type = types.attrsOf (types.attrsOf types.anything);
+            type = types.attrsOf (types.submodule {
+              options = {
+                command = mkOption {
+                  type = types.str;
+                  description = "MCP server command";
+                };
+                args = mkOption {
+                  type = types.listOf types.str;
+                  default = [ ];
+                  description = "MCP server arguments";
+                };
+                env = mkOption {
+                  type = types.attrsOf types.str;
+                  default = { };
+                  description = "Environment variables for MCP server";
+                };
+              };
+            });
             default = { };
             description = "MCP servers configuration";
           };
@@ -222,14 +247,6 @@ with lib;
           type = types.listOf types.str;
           default = [ ];
           description = "Additional Rust/Cargo packages";
-        };
-      };
-
-      nix = {
-        additionalPackages = mkOption {
-          type = types.listOf types.str;
-          default = [ ];
-          description = "Additional Nix packages";
         };
       };
 

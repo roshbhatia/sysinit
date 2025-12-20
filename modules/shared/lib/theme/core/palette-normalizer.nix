@@ -3,27 +3,6 @@
 with lib;
 
 {
-  /*
-    Palette Normalizer - Converts all palette variants to a standard color key structure.
-
-    This ensures that all palettes (catppuccin, gruvbox, rose-pine, etc.) use consistent
-    color names, making semantic color mapping deterministic and easier to maintain.
-
-    Standard keys all palettes must provide (or derive via conversion):
-    - background: primary background color
-    - foreground: primary foreground/text color
-    - surface: secondary background
-    - overlay: tertiary background (floating elements)
-    - text_primary: main text color
-    - text_secondary: secondary text
-    - text_muted: muted/dim text
-    - accent: primary accent color
-    - accent_secondary: secondary accent
-    - accent_dim: dimmed accent
-    - success, warning, error, info: semantic colors
-  */
-
-  # Standard keys that normalized palettes must provide
   standardKeys = {
     background = "primary background color";
     foreground = "primary text/foreground color";
@@ -48,13 +27,6 @@ with lib;
     highlight_high = "high emphasis highlight";
   };
 
-  /*
-    Conversion maps: Define how to extract standard keys from each palette variant.
-
-    Each map is { oldKey = newKey } where:
-    - oldKey: the key from the original palette
-    - newKey: the standard key name
-  */
   conversionMaps = {
     catppuccin_macchiato = {
       base = "background";
@@ -297,37 +269,19 @@ with lib;
     };
   };
 
-  /*
-    Normalize a palette using its conversion map.
-
-    Arguments:
-      paletteId: string - Identifier for the palette variant (e.g. "catppuccin_macchiato")
-      originalPalette: attrs - The original palette with theme-specific keys
-
-    Returns:
-      attrs - Normalized palette with standard keys
-  */
   normalizePalette =
     paletteId: originalPalette:
     let
-
-      # Extract standard keys from original palette
       normalized = mapAttrs (
         standardKey: _:
         originalPalette.${(attrByPath [ paletteId standardKey ] null conversionMaps)} or throw
           "Required color for standard key '${standardKey}' not found in palette '${paletteId}'"
       ) standardKeys;
 
-      # Also keep original keys as extended colors (for backwards compatibility)
       extended = filterAttrs (key: _: !(hasAttr key normalized)) originalPalette;
     in
     normalized // extended;
 
-  /*
-    Simpler version: normalize using direct conversion map lookup.
-
-    This reverses the conversion map to go from standard key to original key.
-  */
   normalizePaletteSimple =
     paletteId: originalPalette:
     let
@@ -351,28 +305,10 @@ with lib;
     else
       reverseMap // originalPalette;
 
-  /*
-    Get the conversion map for a specific palette.
-
-    Arguments:
-      paletteId: string - Palette identifier
-
-    Returns:
-      attrs - Conversion map or throws error
-  */
   getConversionMap =
     paletteId:
     conversionMaps.${paletteId} or (throw "No conversion map defined for palette: ${paletteId}");
 
-  /*
-    Validate that a normalized palette has all required standard keys.
-
-    Arguments:
-      normalizedPalette: attrs - Palette after normalization
-
-    Returns:
-      bool - True if valid, throws error otherwise
-  */
   validateNormalizedPalette =
     normalizedPalette:
     let

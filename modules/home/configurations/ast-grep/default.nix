@@ -4,7 +4,6 @@
     "ast-grep/sgconfig.yml" = {
       text = lib.generators.toYAML { } {
         rules = [
-          # TypeScript/JavaScript rules
           {
             id = "no-console-log";
             message = "Avoid console.log in production code";
@@ -22,7 +21,6 @@
             fix = "await $PROMISE";
           }
 
-          # Go rules
           {
             id = "go-error-ignore";
             message = "Never ignore errors silently";
@@ -67,7 +65,6 @@
             fix = "any";
           }
 
-          # Shell script rules (bash/sh/zsh)
           {
             id = "shell-unquoted-variable";
             message = "Always quote variables to prevent word splitting";
@@ -116,7 +113,6 @@
             note = "Use: cd $DIR || exit 1";
           }
 
-          # Kubernetes YAML rules
           {
             id = "k8s-no-latest-tag";
             message = "Avoid using 'latest' tag in production";

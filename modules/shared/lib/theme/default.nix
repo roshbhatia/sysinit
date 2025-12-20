@@ -47,21 +47,16 @@ let
     colorscheme: appearance: currentVariant:
     let
       theme = getTheme colorscheme;
-      # If appearance is null, use the currentVariant as-is (backward compat)
-      effectiveAppearance = if appearance == null then null else appearance;
+      effectiveAppearance = appearance;
       mapping =
         if effectiveAppearance != null then
           theme.meta.appearanceMapping.${effectiveAppearance} or null
         else
           null;
-
-      # Check if current variant matches the requested appearance
       variantMatchesAppearance =
         if effectiveAppearance == null then
-          true # No appearance specified, use current variant
+          true
         else if elem currentVariant theme.meta.variants then
-          # Check if this variant supports the requested appearance
-          # by seeing if the appearance maps to this or compatible variant
           if isList mapping then
             elem currentVariant mapping
           else if mapping != null then
@@ -72,20 +67,15 @@ let
           false;
     in
     if effectiveAppearance == null then
-      # No appearance specified, use current variant (backward compat mode)
       currentVariant
     else if variantMatchesAppearance then
-      # Current variant is compatible with appearance, use it
       currentVariant
     else if mapping == null then
-      # Appearance specified but palette doesn't support it
       throw
         "Cannot derive variant: colorscheme '${colorscheme}' does not support appearance mode '${effectiveAppearance}'"
     else if isList mapping then
-      # Use first variant from mapping
       head mapping
     else
-      # Use the mapped variant
       mapping;
 
   getThemePalette =

@@ -78,7 +78,26 @@ rec {
     palette: colorName: fallback:
     palette.${colorName} or fallback;
 
-  # Convert hex color to RGB components (0-255)
+  hexDigitValue =
+    c:
+    if c == "0" then 0
+    else if c == "1" then 1
+    else if c == "2" then 2
+    else if c == "3" then 3
+    else if c == "4" then 4
+    else if c == "5" then 5
+    else if c == "6" then 6
+    else if c == "7" then 7
+    else if c == "8" then 8
+    else if c == "9" then 9
+    else if c == "a" then 10
+    else if c == "b" then 11
+    else if c == "c" then 12
+    else if c == "d" then 13
+    else if c == "e" then 14
+    else if c == "f" then 15
+    else 0;
+
   hexToRgb =
     color:
     let
@@ -91,44 +110,8 @@ rec {
         hex:
         let
           chars = stringToCharacters (toLower hex);
-          hexDigit =
-            c:
-            if c == "0" then
-              0
-            else if c == "1" then
-              1
-            else if c == "2" then
-              2
-            else if c == "3" then
-              3
-            else if c == "4" then
-              4
-            else if c == "5" then
-              5
-            else if c == "6" then
-              6
-            else if c == "7" then
-              7
-            else if c == "8" then
-              8
-            else if c == "9" then
-              9
-            else if c == "a" then
-              10
-            else if c == "b" then
-              11
-            else if c == "c" then
-              12
-            else if c == "d" then
-              13
-            else if c == "e" then
-              14
-            else if c == "f" then
-              15
-            else
-              0;
         in
-        (hexDigit (elemAt chars 0) * 16) + (hexDigit (elemAt chars 1));
+        (hexDigitValue (elemAt chars 0) * 16) + (hexDigitValue (elemAt chars 1));
     in
     {
       r = hexToInt r;
@@ -136,7 +119,6 @@ rec {
       b = hexToInt b;
     };
 
-  # Convert RGB components to hex color
   rgbToHex =
     {
       r,
@@ -172,14 +154,11 @@ rec {
     in
     "#${intToHex r}${intToHex g}${intToHex b}";
 
-  # Blend two colors with alpha (0.0 = base color, 1.0 = overlay color)
-  # Uses alpha * overlay + (1-alpha) * base for each channel
   blendColor =
     baseColor: overlayColor: alpha:
     let
       base = hexToRgb baseColor;
       overlay = hexToRgb overlayColor;
-      # Clamp value between 0 and 255
       clamp =
         v:
         if v < 0 then
@@ -188,7 +167,6 @@ rec {
           255
         else
           v;
-      # Integer alpha (0-100)
       alphaInt = builtins.floor (alpha * 100);
       blendChannel = b: o: clamp (builtins.floor (((alphaInt * o) + ((100 - alphaInt) * b)) / 100));
     in
@@ -198,8 +176,6 @@ rec {
       b = blendChannel base.b overlay.b;
     };
 
-  # Adjust brightness of a color by percentage (-100 to 100)
-  # Positive values lighten, negative values darken
   adjustBrightness =
     color: percent:
     let
@@ -220,139 +196,132 @@ rec {
       b = adjust rgb.b;
     };
 
-  /*
-    Create semantic color mapping from palette.
-
-    Expects palette to use standard keys (base, surface, overlay, text, accent, etc.)
-    Reduces need for fallback chains by normalizing palette keys upfront.
-  */
-  createSemanticMapping = palette: {
-    background = {
-      primary = palette.base;
-      secondary = palette.surface;
-      tertiary = safeGetColor palette "surface_alt" palette.surface;
-      overlay = safeGetColor palette "overlay" palette.surface;
-    };
-
-    foreground = {
-      primary = palette.text;
-      secondary = safeGetColor palette "subtext1" palette.text;
-      muted = safeGetColor palette "subtext0" palette.text;
-      subtle = safeGetColor palette "subtle" (safeGetColor palette "overlay" palette.surface);
-    };
-
-    accent = {
-      primary = palette.accent;
-      secondary = safeGetColor palette "accent_secondary" palette.accent;
-      tertiary = safeGetColor palette "accent_tertiary" palette.accent;
-      quaternary = safeGetColor palette "accent_quaternary" palette.accent;
-      dim = safeGetColor palette "accent_dim" (safeGetColor palette "overlay" palette.surface);
-    };
-
-    semantic = {
-      success = safeGetColor palette "green_vibrant" palette.green;
-      warning = safeGetColor palette "yellow_vibrant" palette.yellow;
-      error = safeGetColor palette "red_vibrant" palette.red;
-      info = safeGetColor palette "blue_vibrant" palette.blue;
-    };
-
-    syntax = {
-      keyword = safeGetColor palette "mauve" palette.blue;
-      string = palette.green;
-      number = safeGetColor palette "peach" palette.orange;
-      comment = safeGetColor palette "comment" (safeGetColor palette "overlay" palette.surface);
-      function = palette.blue;
-      variable = palette.text;
-      type = palette.yellow;
-      operator = safeGetColor palette "sky" palette.cyan;
-      constant = safeGetColor palette "peach" palette.orange;
-      builtin = palette.red;
-    };
-
-    ui = {
-      cursor = safeGetColor palette "cursor_grey" palette.accent;
-      cursor_line = safeGetColor palette "cursor_line_highlight" (
-        blendColor palette.base (safeGetColor palette "foam" palette.green) 0.15
-      );
-      visual_selection = safeGetColor palette "highlight_high" palette.surface;
-      match_paren = palette.accent;
-      line_number = safeGetColor palette "comment" (safeGetColor palette "overlay" palette.surface);
-      line_number_active = safeGetColor palette "line_number_active" palette.accent;
-    };
-
-    diff =
-      let
-        inherit (palette) base;
-        green = safeGetColor palette "green_vibrant" palette.green;
-        yellow = safeGetColor palette "yellow_vibrant" palette.yellow;
-        red = safeGetColor palette "red_vibrant" palette.red;
-        blue = safeGetColor palette "blue_vibrant" palette.blue;
-      in
-      {
-        add = green;
-        add_bg = blendColor base green 0.20;
-        change = yellow;
-        change_bg = blendColor base yellow 0.20;
-        delete = red;
-        delete_bg = blendColor base red 0.20;
-        text = blue;
+  createSemanticMapping = palette:
+    let
+      get = name: fallback: safeGetColor palette name fallback;
+      getOr = name: fallback: get name fallback;
+    in
+    {
+      background = {
+        primary = palette.base;
+        secondary = palette.surface;
+        tertiary = getOr "surface_alt" palette.surface;
+        overlay = getOr "overlay" palette.surface;
       };
 
-    # Plugin UI semantic colors
-    plugins =
-      let
-        inherit (palette) base;
-        inherit (palette) surface;
-        inherit (palette) text;
-        inherit (palette) accent;
-        muted = safeGetColor palette "comment" (safeGetColor palette "overlay" palette.surface);
-      in
-      {
-        # Telescope
-        telescope = {
-          border = accent;
-          selection_bg = blendColor base accent 0.2;
-          selection_fg = text;
-          title = safeGetColor palette "magenta" palette.accent;
-        };
-
-        # NeoTree / File explorer
-        filetree = {
-          border = muted;
-          separator = muted;
-          title = accent;
-        };
-
-        # Completion menu
-        completion = {
-          border = accent;
-          menu_bg = surface;
-          selection_bg = blendColor base accent 0.25;
-          selection_fg = accent;
-        };
-
-        # Search highlights
-        search = {
-          match_bg = palette.yellow;
-          match_fg = base;
-          incremental_bg = safeGetColor palette "orange" palette.yellow;
-          incremental_fg = base;
-        };
-
-        # Status and window UI
-        window = {
-          border = accent;
-          separator = muted;
-          statusline_active = text;
-          statusline_inactive = muted;
-          winbar_active = text;
-          winbar_inactive = muted;
-          float_border = accent;
-          float_title = safeGetColor palette "magenta" palette.accent;
-        };
+      foreground = {
+        primary = palette.text;
+        secondary = getOr "subtext1" palette.text;
+        muted = getOr "subtext0" palette.text;
+        subtle = getOr "subtle" (getOr "overlay" palette.surface);
       };
 
-    extended = removeAttrs palette [
+      accent = {
+        primary = palette.accent;
+        secondary = getOr "accent_secondary" palette.accent;
+        tertiary = getOr "accent_tertiary" palette.accent;
+        quaternary = getOr "accent_quaternary" palette.accent;
+        dim = getOr "accent_dim" (getOr "overlay" palette.surface);
+      };
+
+      semantic = {
+        success = getOr "green_vibrant" palette.green;
+        warning = getOr "yellow_vibrant" palette.yellow;
+        error = getOr "red_vibrant" palette.red;
+        info = getOr "blue_vibrant" palette.blue;
+      };
+
+      syntax = {
+        keyword = getOr "mauve" palette.blue;
+        string = palette.green;
+        number = getOr "peach" palette.orange;
+        comment = getOr "comment" (getOr "overlay" palette.surface);
+        function = palette.blue;
+        variable = palette.text;
+        type = palette.yellow;
+        operator = getOr "sky" palette.cyan;
+        constant = getOr "peach" palette.orange;
+        builtin = palette.red;
+      };
+
+      ui = {
+        cursor = getOr "cursor_grey" palette.accent;
+        cursor_line = getOr "cursor_line_highlight" (
+          blendColor palette.base (getOr "foam" palette.green) 0.15
+        );
+        visual_selection = getOr "highlight_high" palette.surface;
+        match_paren = palette.accent;
+        line_number = getOr "comment" (getOr "overlay" palette.surface);
+        line_number_active = getOr "line_number_active" palette.accent;
+      };
+
+      diff =
+        let
+          inherit (palette) base;
+          green = getOr "green_vibrant" palette.green;
+          yellow = getOr "yellow_vibrant" palette.yellow;
+          red = getOr "red_vibrant" palette.red;
+          blue = getOr "blue_vibrant" palette.blue;
+        in
+        {
+          add = green;
+          add_bg = blendColor base green 0.20;
+          change = yellow;
+          change_bg = blendColor base yellow 0.20;
+          delete = red;
+          delete_bg = blendColor base red 0.20;
+          text = blue;
+        };
+
+      plugins =
+        let
+          inherit (palette) base;
+          inherit (palette) surface;
+          inherit (palette) text;
+          inherit (palette) accent;
+          muted = getOr "comment" (getOr "overlay" palette.surface);
+        in
+        {
+          telescope = {
+            border = accent;
+            selection_bg = blendColor base accent 0.2;
+            selection_fg = text;
+            title = getOr "magenta" palette.accent;
+          };
+
+          filetree = {
+            border = muted;
+            separator = muted;
+            title = accent;
+          };
+
+          completion = {
+            border = accent;
+            menu_bg = surface;
+            selection_bg = blendColor base accent 0.25;
+            selection_fg = accent;
+          };
+
+          search = {
+            match_bg = palette.yellow;
+            match_fg = base;
+            incremental_bg = getOr "orange" palette.yellow;
+            incremental_fg = base;
+          };
+
+          window = {
+            border = accent;
+            separator = muted;
+            statusline_active = text;
+            statusline_inactive = muted;
+            winbar_active = text;
+            winbar_inactive = muted;
+            float_border = accent;
+            float_title = getOr "magenta" palette.accent;
+          };
+        };
+
+      extended = removeAttrs palette [
       "base"
       "surface"
       "surface_alt"
