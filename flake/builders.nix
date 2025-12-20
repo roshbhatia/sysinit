@@ -104,6 +104,7 @@
               mac-app-util.homeManagerModules.default
               onepassword-shell-plugins.hmModules.default
             ];
+            documentation.enable = false;
           }
         ];
       }
@@ -131,6 +132,9 @@
             inherit values inputs;
             customUtils = utils;
           })
+          {
+            documentation.enable = false;
+          }
         ];
       };
 }

@@ -2,184 +2,55 @@
 version: "3"
 
 tasks:
-  clean-results:
-    desc: Clean up result symlinks (internal helper)
-    internal: true
-    cmds:
-      - sudo rm -f result result-* 2>/dev/null || true
-    silent: true
-
   build:lv426:
     desc: Build lv426 (macOS) system configuration
-    silent: true
-    deps: [clean-results]
     cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-
-        echo "Building lv426 configuration"
-        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} nix build .#darwinConfigurations.lv426.system; then
-          echo "lv426 build failed"
-          exit 1
-        fi
-
-        echo "lv426 build completed successfully"
-      - task: clean-results
+      - hack/nix-build.sh lv426
+      - rm -f result result-* 2>/dev/null || true
 
   build:arrakis:
     desc: Build arrakis (NixOS) system configuration
-    silent: true
-    deps: [clean-results]
     cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-
-        echo "Building arrakis configuration"
-        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} nix build .#nixosConfigurations.arrakis.config.system.build.toplevel; then
-          echo "arrakis build failed"
-          exit 1
-        fi
-
-        echo "arrakis build completed successfully"
-      - task: clean-results
+      - hack/nix-build.sh arrakis
+      - rm -f result result-* 2>/dev/null || true
 
   build:all:
     desc: Build all system configurations (lv426 and arrakis)
-    silent: true
     cmds:
       - task: build:lv426
       - task: build:arrakis
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-
-        echo "All configurations built successfully"
 
   refresh:lv426:
     desc: Apply lv426 (macOS) system configuration
-    silent: true
-    deps: [clean-results]
     cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-
-
-        echo "Applying lv426 system configuration"
-        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo -E {{.NIX_DARWIN_REBUILD}} switch --flake .#lv426 --impure; then
-          echo "lv426 refresh failed (see s above)"
-          exit 1
-        fi
-
-        echo "lv426 system configuration applied successfully"
-      - task: clean-results
+      - hack/nix-refresh.sh lv426
+      - rm -f result result-* 2>/dev/null || true
 
   refresh:arrakis:
     desc: Apply arrakis (NixOS) system configuration
-    silent: true
-    deps: [clean-results]
     cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-
-
-        echo "Applying arrakis system configuration"
-        if ! NIXPKGS_ALLOW_UNFREE={{.NIXPKGS_ALLOW_UNFREE}} sudo nixos-rebuild switch --flake .#arrakis; then
-          echo "arrakis refresh failed (see s above)"
-          exit 1
-        fi
-
-        echo "arrakis system configuration applied successfully"
-      - task: clean-results
+      - hack/nix-refresh.sh arrakis
+      - rm -f result result-* 2>/dev/null || true
 
   refresh:work:
     desc: Apply work system configuration (builds and applies in work repo)
-    silent: true
     cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-
-
-        WORK_SYSINIT=$(find {{.WORK_REPO_PATH}} -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
-
-        if [ -z "${WORK_SYSINIT}" ]; then
-          echo "Could not find work sysinit repository in {{.WORK_REPO_PATH}}"
-          exit 1
-        fi
-
-        echo "Refreshing work configuration at: ${WORK_SYSINIT}"
-        cd "${WORK_SYSINIT}"
-
-        if ! NIX_MAX_JOBS=1 NIX_CORES=1 task nix:refresh:work; then
-          echo "Work refresh failed"
-          exit 1
-        fi
+      - hack/nix-refresh.sh work
 
   build:work:
     desc: Build work system configuration (builds in work repo with reduced resources)
-    silent: true
     cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-
-
-        WORK_SYSINIT=$(find {{.WORK_REPO_PATH}} -maxdepth 2 -type d -name "sysinit" 2>/dev/null | head -n 1)
-
-        if [ -z "${WORK_SYSINIT}" ]; then
-          echo "Could not find work sysinit repository in {{.WORK_REPO_PATH}}"
-          exit 1
-        fi
-
-        cd "${WORK_SYSINIT}"
-        if ! NIX_MAX_JOBS=1 NIX_CORES=1 task nix:build:work; then
-          echo "Work build failed"
-          exit 1
-        fi
+      - hack/nix-build.sh work --dry-run
 
   clean:
     desc: Clean Nix store and delete old generations
-    silent: true
-    deps: [clean-results]
     cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-
-
-        echo "Collecting garbage"
-        nix-collect-garbage
-
-        echo "Nix store cleaned and optimized"
+      - hack/nix-clean.sh
 
   update:
     desc: Update Nix flake inputs and commit lock file
-    silent: true
     cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-
-        echo "Updating nix flake inputs"
-
-        if ! nix flake update; then
-          echo "Flake update failed (see s above)"
-          exit 1
-        fi
-
-        if git diff --quiet flake.lock; then
-          echo "No changes to flake.lock"
-        else
-          git add flake.lock
-          git commit -m "flake.lock: Update"
-          echo "Committed flake.lock changes"
-        fi
-
-        echo "Flake inputs updated successfully"
+      - hack/nix-update.sh
 
   config:
     desc: Copy nix configs (custom and secrets) to /etc/nix/ with sudo

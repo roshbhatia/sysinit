@@ -7,9 +7,10 @@ sharedValues:
     username = "rshnbhatia";
     values = sharedValues // {
       darwin.homebrew.additionalPackages.casks = [
-        "discord"
         "betterdiscord-installer"
         "calibre"
+        "discord"
+        "steam"
       ];
     };
   };
