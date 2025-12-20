@@ -14,6 +14,21 @@ with lib;
       semanticColors = utils.createSemanticMapping palette;
       transparency = config.transparency or (throw "Missing transparency configuration");
 
+      paletteBaseColors = 
+        let
+          extendedPalette = semanticColors.extended or { };
+          getColor = name: fallback: extendedPalette.${name} or fallback;
+        in
+        {
+          red = getColor "red" semanticColors.semantic.error;
+          orange = getColor "orange" semanticColors.accent.secondary;
+          yellow = getColor "yellow" semanticColors.semantic.warning;
+          green = getColor "green" semanticColors.semantic.success;
+          cyan = getColor "cyan" semanticColors.accent.secondary;
+          blue = getColor "blue" semanticColors.accent.primary;
+          purple = getColor "purple" semanticColors.accent.tertiary;
+        };
+
       semanticCSSVariables = ''
         /* Semantic theme colors for Firefox */
         :root {
@@ -23,7 +38,7 @@ with lib;
           --bg-tertiary: ${semanticColors.background.tertiary};
           --bg-overlay: ${semanticColors.background.overlay};
 
-          /* Text colors */
+          /* Text colors - semantic hierarchy */
           --text-primary: ${semanticColors.foreground.primary};
           --text-secondary: ${semanticColors.foreground.secondary};
           --text-muted: ${semanticColors.foreground.muted};
@@ -53,9 +68,24 @@ with lib;
           --syntax-constant: ${semanticColors.syntax.constant};
           --syntax-builtin: ${semanticColors.syntax.builtin};
 
+          /* Base16-style colors (for advanced customization) */
+          --color-red: ${paletteBaseColors.red};
+          --color-orange: ${paletteBaseColors.orange};
+          --color-yellow: ${paletteBaseColors.yellow};
+          --color-green: ${paletteBaseColors.green};
+          --color-cyan: ${paletteBaseColors.cyan};
+          --color-blue: ${paletteBaseColors.blue};
+          --color-purple: ${paletteBaseColors.purple};
+
           /* Transparency and blur effects */
           --opacity: ${toString transparency.opacity};
           --blur-amount: ${toString transparency.blur}px;
+
+          /* Interactive element states - derived for better contrast */
+          --interactive-hover-bg: var(--bg-secondary);
+          --interactive-active-bg: var(--accent-primary);
+          --interactive-active-fg: var(--bg-primary);
+          --interactive-focus-outline: var(--accent-primary);
         }
       '';
 
@@ -117,6 +147,27 @@ with lib;
             padding-top: 6px !important;
         }
 
+        /* ========== BUTTON & INTERACTIVE ELEMENTS ========== */
+
+        /* Toolbar buttons - better hover/active states */
+        toolbar .toolbarbutton-1:hover {
+            background-color: var(--minimal-border) !important;
+            color: var(--minimal-text) !important;
+        }
+
+        toolbar .toolbarbutton-1[open],
+        toolbar .toolbarbutton-1[checked],
+        toolbar .toolbarbutton-1:active {
+            background-color: var(--minimal-accent) !important;
+            color: var(--minimal-bg) !important;
+        }
+
+        /* Focus states for accessibility */
+        toolbar .toolbarbutton-1:focus-visible {
+            outline: 2px solid var(--minimal-accent) !important;
+            outline-offset: 1px !important;
+        }
+
         .titlebar-placeholder[type="pre-tabs"] {
             display: none !important;
         }
@@ -149,18 +200,31 @@ with lib;
             background: var(--minimal-bg-secondary) !important;
         }
 
-        /* Centered tab labels */
+        /* Centered tab labels - with better contrast */
         .tab-label {
             -moz-box-flex: 1 !important;
             text-align: center !important;
             font-size: 10px !important;
             color: var(--minimal-text-secondary) !important;
+            transition: color 150ms ease !important;
         }
 
-        #TabsToolbar .tabbrowser-tab[selected] {
+        /* Unselected tab hover state */
+        .tabbrowser-tab:not([selected]):hover .tab-label {
+            color: var(--minimal-text) !important;
+        }
+
+        /* Selected tab - better visibility */
+        #TabsToolbar .tabbrowser-tab[selected] .tab-label {
             color: var(--minimal-text) !important;
             font-weight: bold !important;
             font-size: 10px !important;
+        }
+
+        /* Selected tab background with accent */
+        .tabbrowser-tab[selected] {
+            background-color: var(--minimal-bg-secondary) !important;
+            border-bottom: 2px solid var(--minimal-accent) !important;
         }
 
         /* Tab close button - only on hover */
@@ -205,17 +269,26 @@ with lib;
 
         #urlbar-background {
             background: var(--minimal-bg-secondary) !important;
-            border: none !important;
+            border: 1px solid var(--minimal-border) !important;
+            border-radius: 4px !important;
+            transition: border-color 150ms ease !important;
+        }
+
+        /* Urlbar focus state for better contrast & visibility */
+        #urlbar:focus-within > #urlbar-background {
+            border-color: var(--minimal-accent) !important;
+            box-shadow: 0 0 0 2px var(--minimal-bg) !important;
         }
 
         /* Set toolbar field colors for both light and dark themes */
         :root {
             --lwt-toolbar-field-background-color: var(--minimal-bg-secondary) !important;
-            --lwt-toolbar-field-border-color: var(--minimal-bg-secondary) !important;
+            --lwt-toolbar-field-border-color: var(--minimal-border) !important;
             --lwt-toolbar-field-focus: var(--minimal-bg-secondary) !important;
             --toolbar-bgcolor: var(--minimal-bg) !important;
             --toolbar-field-background-color: var(--minimal-bg-secondary) !important;
             --toolbar-field-focus-background-color: var(--minimal-bg-secondary) !important;
+            --toolbar-field-focus-border-color: var(--minimal-accent) !important;
         }
 
         #page-action-buttons {
@@ -295,6 +368,9 @@ with lib;
             --uc-menu-color: var(--minimal-text);
             --uc-menu-dimmed: var(--minimal-border);
             --uc-menu-disabled: var(--minimal-text-secondary);
+            --uc-menu-hover-bg: var(--accent-dim);
+            --uc-menu-active-bg: var(--accent-primary);
+            --uc-menu-active-fg: var(--minimal-bg);
         }
 
         panel richlistbox,
@@ -336,13 +412,21 @@ with lib;
         menu[open],
         menuitem:hover,
         menuitem[_moz-menuactive] {
-            background-color: var(--uc-menu-dimmed) !important;
-            color: inherit !important;
+            background-color: var(--uc-menu-hover-bg) !important;
+            color: var(--uc-menu-color) !important;
+            transition: background-color 150ms ease !important;
+        }
+
+        menu[_moz-menuactive],
+        menuitem[_moz-menuactive][selected="true"] {
+            background-color: var(--uc-menu-active-bg) !important;
+            color: var(--uc-menu-active-fg) !important;
         }
 
         menu[disabled="true"],
         menuitem[disabled="true"] {
             color: var(--uc-menu-disabled) !important;
+            opacity: 0.6 !important;
         }
 
         /* ========== HIDE SIDEBAR ALWAYS ========== */

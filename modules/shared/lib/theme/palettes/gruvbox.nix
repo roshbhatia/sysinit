@@ -70,6 +70,8 @@ rec {
       surface = bg1;
       surface_alt = bg2;
       text = fg1;
+      subtext1 = fg2;
+      subtext0 = fg3;
       fg = fg1;
       fg_alt = fg2;
       comment = gray;
@@ -118,6 +120,8 @@ rec {
       surface = bg1;
       surface_alt = bg2;
       text = fg1;
+      subtext1 = fg2;
+      subtext0 = fg3;
       fg = fg1;
       fg_alt = fg2;
       comment = gray;

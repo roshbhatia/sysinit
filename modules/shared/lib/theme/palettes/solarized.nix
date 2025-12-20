@@ -50,6 +50,8 @@ rec {
       surface = base02;
       surface_alt = base01;
       text = base0;
+      subtext1 = base00;
+      subtext0 = base01;
       fg = base0;
       fg_alt = base00;
       comment = base01;
@@ -83,9 +85,11 @@ rec {
       bg_alt = base2;
       surface = base2;
       surface_alt = base1;
-      text = base00;
-      fg = base00;
-      fg_alt = base0;
+      text = base02;
+      subtext1 = base01;
+      subtext0 = base00;
+      fg = base02;
+      fg_alt = base00;
       comment = base1;
       purple = violet;
       teal = cyan;

@@ -1,4 +1,5 @@
 {
+  lib,
   values,
   utils,
   pkgs,
@@ -7,9 +8,8 @@
 
 let
   cfg = values.git;
-  inherit (utils.theme) mkThemedConfig;
-  themeCfg = mkThemedConfig values "delta" { };
-  deltaTheme = themeCfg.appTheme;
+  deltaAdapter = import ./delta-lib.nix { inherit lib; };
+  deltaTheme = deltaAdapter.getDeltaTheme values.theme.colorscheme values.theme.variant;
 
   personalEmail = if cfg.personalEmail != null then cfg.personalEmail else cfg.email;
   workEmail = if cfg.workEmail != null then cfg.workEmail else cfg.email;

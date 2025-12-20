@@ -82,6 +82,8 @@ rec {
       surface = lotusWhite1;
       surface_alt = lotusWhite0;
       text = fujiWhite;
+      subtext1 = lotusGray;
+      subtext0 = lotusGray2;
       fg = fujiWhite;
       fg_alt = lotusGray;
       comment = lotusGray2;
@@ -145,6 +147,8 @@ rec {
       surface = sumiInk2;
       surface_alt = sumiInk3;
       text = fujiWhite;
+      subtext1 = oldWhite;
+      subtext0 = fujiGray;
       fg = fujiWhite;
       fg_alt = oldWhite;
       comment = fujiGray;
@@ -193,6 +197,8 @@ rec {
       surface = dragonBlack2;
       surface_alt = dragonBlack4;
       text = dragonWhite;
+      subtext1 = dragonGray;
+      subtext0 = dragonGray3;
       fg = dragonWhite;
       fg_alt = dragonGray;
       comment = dragonGray3;

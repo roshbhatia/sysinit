@@ -13,6 +13,11 @@
       export CGO_ENABLED=1
       export CGO_LDFLAGS="-framework CoreFoundation -framework Security"
     '';
-    installCmd = ''"$MANAGER_CMD" install -v "$pkg" || echo "Warning: Failed to install $pkg"'';
+    installCmd = ''"$MANAGER_CMD" install "$pkg" 2>/dev/null || echo "Warning: Failed to install $pkg"'';
+    cleanupCmd = ''
+      comm -23 <(ls "$HOME/go/bin" 2>/dev/null | sort) <(sort "$managed_pkg_file") | while read bin; do
+        rm -f "$HOME/go/bin/$bin"
+      done
+    '';
   };
 }

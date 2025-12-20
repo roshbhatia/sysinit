@@ -6,11 +6,11 @@
 
 let
   themes = import ../../../shared/lib/theme { inherit lib; };
+  atuinAdapter = import ./lib.nix { inherit lib; };
 
   validatedTheme = values.theme;
   theme = themes.getTheme validatedTheme.colorscheme;
 
-  atuinAdapter = themes.adapters.atuin;
   atuinThemeConfig = atuinAdapter.createAtuinTheme theme validatedTheme;
 
   themeName = atuinThemeConfig.atuinThemeName;

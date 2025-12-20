@@ -21,9 +21,6 @@ let
   weztermAdapter = import ./adapters/wezterm.nix { inherit lib utils adapterBase; };
   neovimAdapter = import ./adapters/neovim.nix { inherit lib utils adapterBase; };
   firefoxAdapter = import ./adapters/firefox.nix { inherit lib utils adapterBase; };
-  atuinAdapter = import ./adapters/atuin.nix { inherit lib; };
-  waybarAdapter = import ./adapters/waybar.nix { inherit lib; };
-  hyprlandAdapter = import ./adapters/hyprland.nix { inherit lib; };
 
   themes = {
     inherit catppuccin;
@@ -344,8 +341,5 @@ in
     wezterm = weztermAdapter;
     neovim = neovimAdapter;
     firefox = firefoxAdapter;
-    atuin = atuinAdapter;
-    waybar = waybarAdapter;
-    hyprland = hyprlandAdapter;
   };
 }

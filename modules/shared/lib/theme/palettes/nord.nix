@@ -46,6 +46,8 @@ rec {
       surface = nord2;
       surface_alt = nord3;
       text = nord6;
+      subtext1 = nord5;
+      subtext0 = nord4;
       fg = nord6;
       fg_alt = nord5;
       comment = nord3;

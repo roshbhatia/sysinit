@@ -12,7 +12,7 @@ fi
 echo "Bootstrapping Nix and nix-darwin"
 
 # Install Determinate Nix if not present
-if ! command -v nix &>/dev/null; then
+if ! command -v nix &> /dev/null; then
   echo "Installing Nix using Determinate Systems installer..."
   curl -L https://install.determinate.systems/nix | sh -s -- install --no-confirm || {
     echo "Failed to install Nix"

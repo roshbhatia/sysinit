@@ -70,6 +70,8 @@ rec {
       surface = bg1;
       surface_alt = bg2;
       text = fg;
+      subtext1 = grey1;
+      subtext0 = grey2;
       fg_alt = grey1;
       comment = grey1;
       cyan = aqua;
@@ -119,6 +121,8 @@ rec {
       surface = bg1;
       surface_alt = bg2;
       text = fg;
+      subtext1 = grey1;
+      subtext0 = grey2;
       fg_alt = grey1;
       comment = grey1;
       cyan = aqua;
@@ -168,6 +172,8 @@ rec {
       surface = bg1;
       surface_alt = bg2;
       text = fg;
+      subtext1 = grey1;
+      subtext0 = grey2;
       fg_alt = grey1;
       comment = grey1;
       cyan = aqua;
@@ -217,6 +223,8 @@ rec {
       surface = bg1;
       surface_alt = bg2;
       text = fg;
+      subtext1 = grey1;
+      subtext0 = grey2;
       fg_alt = grey1;
       comment = grey1;
       cyan = aqua;
@@ -266,6 +274,8 @@ rec {
       surface = bg1;
       surface_alt = bg2;
       text = fg;
+      subtext1 = grey1;
+      subtext0 = grey2;
       fg_alt = grey1;
       comment = grey1;
       cyan = aqua;
@@ -315,6 +325,8 @@ rec {
       surface = bg1;
       surface_alt = bg2;
       text = fg;
+      subtext1 = grey1;
+      subtext0 = grey2;
       fg_alt = grey1;
       comment = grey1;
       cyan = aqua;

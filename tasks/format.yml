@@ -5,141 +5,44 @@ tasks:
   nix:
     desc: Format all Nix files using nixfmt
     cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        echo "Formatting Nix files"
-        if ! fd -e nix -E result -x nixfmt --width=100; then
-          echo "Nix formatting failed"
-          exit 1
-        fi
-        echo "Nix files formatted successfully"
-    silent: true
+      - hack/fmt-nix.sh
 
   nix:check:
     desc: Check Nix formatting without modifying files
     cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        echo "Checking Nix formatting"
-        if ! fd -e nix -E result -x nixfmt --width=100 --check; then
-          echo "Nix formatting check failed. Run 'task fmt:nix' to fix"
-          exit 1
-        fi
-        echo "Nix formatting is correct"
-    silent: true
+      - hack/fmt-nix-check.sh
 
   lua:
     desc: Format all Lua files using stylua
     cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        echo "Formatting Lua files"
-        if ! fd -e lua -x stylua; then
-          echo "Lua formatting failed"
-          exit 1
-        fi
-        echo "Lua files formatted successfully"
-    silent: true
+      - hack/fmt-lua.sh
 
   lua:check:
     desc: Check Lua formatting without modifying files
     cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        echo "Checking Lua formatting"
-        if ! fd -e lua -x stylua --check; then
-          echo "Lua formatting check failed. Run 'task fmt:lua' to fix"
-          exit 1
-        fi
-        echo "Lua formatting is correct"
-    silent: true
+      - hack/fmt-lua-check.sh
 
   lua:lint:
     desc: Run lua-language-server diagnostics on all Lua files
     cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        echo "Running Lua LSP diagnostics"
-
-        total_warnings=0
-        total_errors=0
-
-        for dir in modules/home/configurations/neovim \
-                   modules/home/configurations/wezterm \
-                   modules/home/configurations/hammerspoon \
-                   modules/home/configurations/sketchybar; do
-          if [ -d "$dir" ]; then
-            echo "Checking $dir"
-            output=$(lua-language-server --check "$dir" 2>&1 || true)
-
-            # Count actual errors (not warnings)
-            error_count=$(echo "$output" | grep -c "\[Error\]" || true)
-            warning_count=$(echo "$output" | grep -c "\[Warning\]" || true)
-
-            total_errors=$((total_errors + error_count))
-            total_warnings=$((total_warnings + warning_count))
-
-            if [ $error_count -gt 0 ]; then
-              echo "Found $error_count errors in $dir"
-            elif [ $warning_count -gt 0 ]; then
-              echo "Found $warning_count warnings in $dir (non-blocking)"
-            fi
-          fi
-        done
-
-        if [ $total_errors -gt 0 ]; then
-          echo "Lua LSP found $total_errors errors across all directories"
-          exit 1
-        fi
-
-        if [ $total_warnings -gt 0 ]; then
-          echo "Lua LSP complete: $total_warnings warnings, 0 errors"
-        else
-          echo "All Lua files passed LSP checks with no issues"
-        fi
-    silent: true
+      - hack/fmt-lua-lint.sh
 
   lua:validate:
     desc: Validate Lua code (format check + LSP diagnostics)
     deps: [lua:check, lua:lint]
     cmds:
-      - |
-        #!/usr/bin/env bash
-        echo "Lua validation complete"
+      - echo "Lua validation complete"
     silent: true
 
   sh:
     desc: Format all shell files using shfmt
     cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        echo "Formatting shell files"
-        if ! fd -e sh -e bash -e zsh -x shfmt {{.SHFMT_OPTS}}; then
-          echo "Shell formatting failed"
-          exit 1
-        fi
-        echo "Shell files formatted successfully"
-    silent: true
+      - hack/fmt-sh.sh
 
   sh:check:
     desc: Check shell formatting without modifying files
     cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        echo "Checking shell formatting"
-        if ! fd -e sh -e bash -e zsh -x shfmt {{.SHFMT_OPTS}} -d; then
-          echo "Shell formatting check failed. Run 'task fmt:sh' to fix"
-          exit 1
-        fi
-        echo "Shell formatting is correct"
-    silent: true
+      - hack/fmt-sh-check.sh
 
   all:
     desc: Format all supported file types (Nix, Lua, Shell)
@@ -150,7 +53,5 @@ tasks:
     desc: Check formatting for all file types without modifying
     deps: [nix:check, lua:check, sh:check]
     cmds:
-      - |
-        #!/usr/bin/env bash
-        echo "All formatting checks passed"
+      - echo "All formatting checks passed"
     silent: true

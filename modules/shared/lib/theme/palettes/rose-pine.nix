@@ -33,6 +33,8 @@ rec {
       muted = "#9893a5";
       subtle = "#797593";
       text = "#575279";
+      subtext1 = "#797593";
+      subtext0 = "#9893a5";
 
       love = "#b4637a";
       gold = "#ea9d34";
@@ -71,6 +73,8 @@ rec {
       muted = "#6e6a86";
       subtle = "#908caa";
       text = "#e0def4";
+      subtext1 = "#908caa";
+      subtext0 = "#6e6a86";
 
       love = "#eb6f92";
       gold = "#f6c177";

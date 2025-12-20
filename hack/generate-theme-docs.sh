@@ -13,7 +13,7 @@ END_MARKER="<!-- THEME_DOCS_END -->"
 
 TEMP_FILE=$(mktemp)
 
-cat >"$TEMP_FILE" <<'EOF'
+cat > "$TEMP_FILE" << 'EOF'
 
 | Theme | ID | Variants | Light Mode | Dark Mode | Author |
 |-------|----|---------:|:----------:|:---------:|--------|
@@ -52,10 +52,10 @@ for theme_file in "$THEME_DIR"/*.nix; do
     author_link="$author"
   fi
 
-  echo "| $theme_name | \`$theme_id\` | $variant_count ($variants) | $supports_light | $supports_dark | $author_link |" >>"$TEMP_FILE"
+  echo "| $theme_name | \`$theme_id\` | $variant_count ($variants) | $supports_light | $supports_dark | $author_link |" >> "$TEMP_FILE"
 done
 
-cat >>"$TEMP_FILE" <<'EOF'
+cat >> "$TEMP_FILE" << 'EOF'
 
 ### Usage
 
@@ -120,7 +120,7 @@ if [[ -f $README_FILE ]]; then
         next
       }
       !in_section { print $0 }
-    ' "$README_FILE" >"${README_FILE}.tmp"
+    ' "$README_FILE" > "${README_FILE}.tmp"
 
     mv "${README_FILE}.tmp" "$README_FILE"
     echo "Theme documentation injected into $README_FILE" >&2

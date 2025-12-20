@@ -3,7 +3,7 @@
 with lib;
 
 {
-  getThemeName =
+  getDeltaTheme =
     colorscheme: variant:
     let
       themeMap = {

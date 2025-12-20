@@ -44,6 +44,8 @@ rec {
       surface = base02;
       surface_alt = base03;
       text = base05;
+      subtext1 = base04;
+      subtext0 = base03;
       fg = base05;
       fg_alt = base04;
       comment = base03;

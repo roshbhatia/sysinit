@@ -10,7 +10,6 @@
 {
   imports = [
     ./configurations
-    ./configurations/hardware.nix
   ];
 
   system.stateVersion = "24.11";
