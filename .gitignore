@@ -39,6 +39,7 @@ nix.secrets.conf
 !FIREFOX_COLOR_GUIDE.md
 !FIREFOX_QUICK_TEST.md
 !FIREFOX_THEME_TESTING_RESULTS.md
+!FIREFOX_NEXT_STEPS.md
 !PHASE4_STATUS.md
 
 ## Agents tend to spit out docs that don't need to be committed
