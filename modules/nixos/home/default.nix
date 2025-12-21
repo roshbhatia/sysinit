@@ -7,7 +7,7 @@
 {
   imports = [
     ./configurations/mako
-    ./configurations/sway
+    ./configurations/mangowc
     ./configurations/waybar
     ./configurations/wofi
     ./configurations/nixpkgs

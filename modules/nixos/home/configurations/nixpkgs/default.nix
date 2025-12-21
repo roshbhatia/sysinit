@@ -8,8 +8,7 @@
     quickshell
     nemo
     nwg-look
-    hyprshot
-    hyprpaper
+    mangowc
     swaybg
     grim
     slurp

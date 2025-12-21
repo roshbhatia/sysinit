@@ -318,6 +318,7 @@ with lib;
           description = "Additional Firefox search engines";
         };
       };
-    };
-  };
-}
+
+      };
+      };
+      }
