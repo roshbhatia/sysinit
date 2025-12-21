@@ -10,6 +10,10 @@
     nwg-look
     hyprshot
     hyprpaper
+    swaybg
+    grim
+    slurp
+    swappy
     mako
     dconf
     jq

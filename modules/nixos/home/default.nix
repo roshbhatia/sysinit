@@ -7,7 +7,7 @@
 {
   imports = [
     ./configurations/mako
-    ./configurations/hyprland
+    ./configurations/sway
     ./configurations/waybar
     ./configurations/wofi
     ./configurations/nixpkgs
