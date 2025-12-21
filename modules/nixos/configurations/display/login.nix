@@ -15,7 +15,23 @@ let
     export __GLX_VENDOR_LIBRARY_NAME=nvidia
     export __EGL_VENDOR_LIBRARY_FILENAMES=/run/opengl-driver/lib/libEGL_nvidia.so.0
 
-    exec ${pkgs.sway}/bin/sway --unsupported-gpu "''${@}"
+    # Log all output for debugging
+    LOG_FILE="$HOME/.local/state/sway-debug.log"
+    mkdir -p "$(dirname "$LOG_FILE")"
+
+    {
+      echo "=== Sway session started at $(date) ==="
+      echo "Environment:"
+      env | grep -E "(NVIDIA|WAYLAND|GBM|EGL|LIBVA|XDG_SESSION)" || true
+      echo ""
+      echo "=== Sway output ==="
+    } >> "$LOG_FILE" 2>&1
+
+    ${pkgs.sway}/bin/sway --unsupported-gpu "''${@}" >> "$LOG_FILE" 2>&1 || {
+      EXIT_CODE=$?
+      echo "Sway exited with code $EXIT_CODE at $(date)" >> "$LOG_FILE" 2>&1
+      exit $EXIT_CODE
+    }
   '';
 in
 {
