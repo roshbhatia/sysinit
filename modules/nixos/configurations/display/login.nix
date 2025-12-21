@@ -1,6 +1,5 @@
 {
   pkgs,
-  values,
   ...
 }:
 
@@ -20,21 +19,13 @@ let
   '';
 in
 {
-  # Disable greetd, use automatic login instead
-  services.greetd.enable = false;
-
-  # Configure getty for autologin
-  systemd.services."getty@tty1" = {
-    serviceConfig.ExecStart = [
-      ""
-      "${pkgs.util-linux}/sbin/agetty --autologin ${values.user.username} --noclear %I $TERM"
-    ];
+  services.greetd = {
+    enable = true;
+    settings = {
+      default_session = {
+        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --time-format '%R' --cmd ${swayNvidiaWrapper}/bin/sway-nvidia";
+        user = "greeter";
+      };
+    };
   };
-
-  # Auto-start Sway on login
-  environment.loginShellInit = ''
-    if [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]]; then
-      exec ${swayNvidiaWrapper}/bin/sway-nvidia
-    fi
-  '';
 }
