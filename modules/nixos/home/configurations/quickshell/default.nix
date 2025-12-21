@@ -10,7 +10,6 @@
   
   home.packages = with pkgs; [
     quickshell
-    qt6.full
   ];
 
   # QML files for quickshell desktop shell
