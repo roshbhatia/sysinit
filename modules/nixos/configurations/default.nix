@@ -13,6 +13,7 @@
     ./virtualisation
     ./xdg
     ./services
+    ./system
     ./compat
     ./stylix
     ./hardware
