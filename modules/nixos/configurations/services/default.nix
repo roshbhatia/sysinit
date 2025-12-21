@@ -1,43 +1,8 @@
 {
-  pkgs,
   ...
 }:
 
 {
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    jack.enable = true;
-    wireplumber.enable = true;
-  };
-
-  security.rtkit.enable = true;
-
+  # PipeWire is now consolidated in audio/default.nix
   services.pulseaudio.enable = false;
-
-  hardware.bluetooth.enable = true;
-  services.blueman.enable = true;
-
-  services = {
-    geoclue2.enable = true;
-    flatpak.enable = true;
-
-    udev.packages = with pkgs; [
-      gnome-settings-daemon
-    ];
-  };
-
-  systemd.user.services.wezterm-mux-server = {
-    description = "Wezterm Mux Server";
-    after = [ "default.target" ];
-    wantedBy = [ "default.target" ];
-    serviceConfig = {
-      Type = "simple";
-      ExecStart = "${pkgs.wezterm}/bin/wezterm-mux-server --daemonize";
-      Restart = "always";
-      RestartSec = 5;
-    };
-  };
 }

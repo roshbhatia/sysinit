@@ -17,12 +17,13 @@
     sharedModules = [
       {
         stylix.targets = {
+          # We do this stuff more manually
           neovim.enable = false;
-          vim.enable = false;
           firefox.enable = false;
-          mako.enable = false;
-          waybar.enable = false;
-          wofi.enable = false;
+
+          mako.enable = true;
+          waybar.enable = true;
+          wofi.enable = true;
         };
       }
     ];

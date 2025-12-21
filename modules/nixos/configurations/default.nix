@@ -18,5 +18,6 @@
     ./stylix
     ./hardware
     ./user
+    ./packages
   ];
 }

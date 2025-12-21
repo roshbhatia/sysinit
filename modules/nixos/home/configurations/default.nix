@@ -5,7 +5,7 @@
     ./mako
     ./nemo
     ./quickshell
-    # ./sway  # Disabled - conflicts with shared sway config
+    ./sway
     ./waybar
     ./wofi
   ];

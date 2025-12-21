@@ -123,7 +123,7 @@ task: Available tasks for this project:
 | `nix.additionalPackages` | list(string) | [] |  | Additional Nix packages |
 | `npm.additionalPackages` | list(string) | [] |  | Additional global npm packages |
 | `pipx.additionalPackages` | list(string) | [] |  | Additional global pipx packages |
-| `tailscale.enable` | boolean | false |  | Enable Tailscale |
+| `tailscale.enable` | boolean | true |  | Enable Tailscale |
 | `theme.appearance` |  | "dark" |  | Appearance mode (light or dark) |
 | `theme.colorscheme` | string | "catppuccin" |  | Theme colorscheme |
 | `theme.font.monospace` | string | "TX-02" |  | Monospace font for terminal and editor |

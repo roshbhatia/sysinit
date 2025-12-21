@@ -151,41 +151,6 @@ in
         };
       };
 
-      # Bar configuration
-      bars = [
-        {
-          position = "top";
-          statusCommand = "waybar";
-          colors = {
-            background = semanticColors.background.primary;
-            statusline = semanticColors.foreground.primary;
-            focusedBackground = semanticColors.accent.primary;
-            focusedStatusline = semanticColors.background.primary;
-            focusedBorder = semanticColors.accent.primary;
-            focusedWorkspace = {
-              background = semanticColors.accent.primary;
-              border = semanticColors.accent.primary;
-              text = semanticColors.background.primary;
-            };
-            activeWorkspace = {
-              background = semanticColors.background.secondary;
-              border = semanticColors.foreground.primary;
-              text = semanticColors.foreground.primary;
-            };
-            inactiveWorkspace = {
-              background = semanticColors.background.secondary;
-              border = semanticColors.background.tertiary;
-              text = semanticColors.foreground.muted;
-            };
-            urgentWorkspace = {
-              background = semanticColors.semantic.error;
-              border = semanticColors.semantic.error;
-              text = semanticColors.foreground.primary;
-            };
-          };
-        }
-      ];
-
       # Window rules
       floating = {
         criteria = [
@@ -200,11 +165,15 @@ in
       # Startup commands
       startup = [
         {
-          command = "swaybg -i ~/.background-image";
+          command = "swaybg -i ~/.background-image || swaybg -c ${semanticColors.background.primary}";
           always = true;
         }
         {
           command = "waybar";
+          always = true;
+        }
+        {
+          command = "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP";
           always = true;
         }
       ];

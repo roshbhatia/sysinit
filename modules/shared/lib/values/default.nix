@@ -63,7 +63,7 @@ with lib;
       tailscale = {
         enable = mkOption {
           type = types.bool;
-          default = false;
+          default = true;
           description = "Enable Tailscale";
         };
       };

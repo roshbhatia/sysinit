@@ -14,9 +14,19 @@
   xdg.portal = {
     enable = true;
 
+    # Wayland-friendly portal config
     config = {
       common = {
-        default = [ "gtk" ];
+        default = [
+          "wlr"
+          "gtk"
+        ];
+      };
+      sway = {
+        default = [
+          "wlr"
+          "gtk"
+        ];
       };
     };
 
@@ -24,6 +34,7 @@
 
     extraPortals = with pkgs; [
       xdg-desktop-portal-gtk
+      xdg-desktop-portal-wlr
     ];
 
     wlr.enable = true;
