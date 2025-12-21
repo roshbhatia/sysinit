@@ -7,7 +7,6 @@
     ./gpu
     ./audio
     ./gaming
-    ./shell
     ./ssh
     ./tailscale
     ./users
