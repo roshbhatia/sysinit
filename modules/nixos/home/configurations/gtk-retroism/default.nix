@@ -38,8 +38,8 @@
   dconf.settings = {
     "org/gnome/desktop/interface" = {
       # Use system defaults, styling done via Hyprland/Wezterm colors
-      font-name = "${values.theme.font.monospace} 10";
-      monospace-font-name = "${values.theme.font.monospace} 10";
+      font-name = lib.mkDefault "${values.theme.font.monospace} 10";
+      monospace-font-name = lib.mkDefault "${values.theme.font.monospace} 10";
     };
   };
 }
