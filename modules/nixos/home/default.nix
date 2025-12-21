@@ -11,6 +11,7 @@
     ./configurations/waybar
     ./configurations/wofi
     ./configurations/nixpkgs
+    ./configurations/quickshell
   ];
 
   home.stateVersion = lib.mkForce "24.11";
