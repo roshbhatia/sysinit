@@ -84,62 +84,60 @@ in
 
       keybindings =
         let
-          mod = "Mod4";
+          mod = "Mod4"; # Super key
+          alt = "Mod1"; # Alt key
         in
         {
-          # macOS-style keybindings
-          "${mod}+space" = "exec wofi --show=drun"; # Search/launcher (Spotlight-like)
-          "${mod}+t" = "exec wezterm"; # New terminal window
-          "${mod}+n" = "exec nemo"; # New file manager window
-          "${mod}+w" = "kill"; # Close window
-          "${mod}+m" = "move scratchpad"; # Hide/minimize
-          "${mod}+h" = "move scratchpad"; # Hide window
+          # Launcher (Spotlight-style)
+          "${mod}+space" = "exec wofi --show=drun";
 
-          # Focus movement (hjkl)
-          "${mod}+Alt+h" = "focus left";
-          "${mod}+Alt+j" = "focus down";
-          "${mod}+Alt+k" = "focus up";
-          "${mod}+Alt+l" = "focus right";
-
-          # Move windows (Super+Shift+hjkl)
-          "${mod}+Shift+h" = "move left";
-          "${mod}+Shift+j" = "move down";
-          "${mod}+Shift+k" = "move up";
-          "${mod}+Shift+l" = "move right";
+          # Application launchers
+          "${mod}+t" = "exec wezterm";
+          "${mod}+n" = "exec nemo";
+          "${mod}+Return" = "exec wezterm";
 
           # Window management
-          "${mod}+f" = "fullscreen toggle"; # Fullscreen
-          "${mod}+Return" = "exec wezterm"; # Alt terminal opener
+          "${mod}+w" = "kill";
+          "${mod}+f" = "fullscreen toggle";
+          "${mod}+h" = "move scratchpad";
+          "${mod}+m" = "move scratchpad";
 
-          # Workspaces (Super+1-9)
-          "${mod}+1" = "workspace number 1";
-          "${mod}+2" = "workspace number 2";
-          "${mod}+3" = "workspace number 3";
-          "${mod}+4" = "workspace number 4";
-          "${mod}+5" = "workspace number 5";
-          "${mod}+6" = "workspace number 6";
-          "${mod}+7" = "workspace number 7";
-          "${mod}+8" = "workspace number 8";
-          "${mod}+9" = "workspace number 9";
+          # Focus movement (hjkl) - Alt+hjkl like aerospace
+          "${alt}+h" = "focus left";
+          "${alt}+j" = "focus down";
+          "${alt}+k" = "focus up";
+          "${alt}+l" = "focus right";
 
-          # Move to workspace (Super+Shift+1-9)
-          "${mod}+Shift+1" = "move container to workspace number 1";
-          "${mod}+Shift+2" = "move container to workspace number 2";
-          "${mod}+Shift+3" = "move container to workspace number 3";
-          "${mod}+Shift+4" = "move container to workspace number 4";
-          "${mod}+Shift+5" = "move container to workspace number 5";
-          "${mod}+Shift+6" = "move container to workspace number 6";
-          "${mod}+Shift+7" = "move container to workspace number 7";
-          "${mod}+Shift+8" = "move container to workspace number 8";
-          "${mod}+Shift+9" = "move container to workspace number 9";
+          # Move windows (Alt+Cmd+hjkl like aerospace)
+          "${alt}+${mod}+h" = "move left";
+          "${alt}+${mod}+j" = "move down";
+          "${alt}+${mod}+k" = "move up";
+          "${alt}+${mod}+l" = "move right";
 
-          # Cycle workspaces (Super+Tab/Super+Shift+Tab)
-          "${mod}+Tab" = "workspace next";
-          "${mod}+Shift+Tab" = "workspace prev";
+          # Resize in resize mode
+          "${mod}+r" = "mode resize";
+
+          # Workspaces - Alt+number/letter (like aerospace)
+          # General workspaces
+          "${alt}+1" = "workspace number 1";
+          "${alt}+2" = "workspace number 2";
+          # Chat workspace
+          "${alt}+c" = "workspace C";
+          # Steam workspace
+          "${alt}+s" = "workspace S";
+
+          # Move to workspace (Alt+Shift+number/letter)
+          "${alt}+Shift+1" = "move container to workspace number 1; workspace number 1";
+          "${alt}+Shift+2" = "move container to workspace number 2; workspace number 2";
+          "${alt}+Shift+c" = "move container to workspace C; workspace C";
+          "${alt}+Shift+s" = "move container to workspace S; workspace S";
+
+          # Cycle workspaces
+          "${alt}+Tab" = "workspace next";
+          "${alt}+Shift+Tab" = "workspace prev";
 
           # System
-          "${mod}+Escape" = "exit"; # Exit sway
-          "${mod}+r" = "mode resize"; # Resize mode
+          "${mod}+Escape" = "exit";
         };
 
       modes = {
@@ -202,7 +200,7 @@ in
       # Startup commands
       startup = [
         {
-          command = "swaybg -i ~/.config/sway/background.png";
+          command = "swaybg -i ~/.background-image";
           always = true;
         }
         {

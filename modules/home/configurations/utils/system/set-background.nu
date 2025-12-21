@@ -126,7 +126,18 @@ def main [] {
         ln -sf ($env.HOME | path join ".config" "background" "current") ($env.HOME | path join ".background-image")
 
         print $"(ansi green)[SUCCESS](ansi reset) Background image set to: ($env.HOME)/.background-image"
-        print $"(ansi blue)[INFO](ansi reset) You may need to update your display manager or window manager configuration"
+
+        # Try to reload background in Sway if running
+        if (($env | any { |it| $it.name == "SWAYSOCK" }) == true) {
+            try {
+                swaymsg reload
+                print $"(ansi blue)[INFO](ansi reset) Reloaded Sway config to apply background"
+            } catch {
+                print $"(ansi yellow_bold)[WARN](ansi reset) Could not reload Sway - background will update on next Sway restart"
+            }
+        } else {
+            print $"(ansi blue)[INFO](ansi reset) Sway not detected - background will apply when Sway starts"
+        }
     }
 
     print $"(ansi green)[SUCCESS](ansi reset) Done!"

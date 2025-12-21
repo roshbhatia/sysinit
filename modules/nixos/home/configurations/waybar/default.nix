@@ -18,16 +18,17 @@ in
       mainBar = {
         layer = "top";
         position = "top";
-        height = 32;
-        margin = "6 12 0 12";
-        spacing = 12;
+        height = 40;
+        margin = "8 12 0 12";
+        spacing = 10;
 
         modules-left = [
-          "hyprland/workspaces"
+          "sway/workspaces"
+          "sway/mode"
         ];
 
         modules-center = [
-          "hyprland/window"
+          "sway/window"
         ];
 
         modules-right = [
@@ -40,15 +41,26 @@ in
           "tray"
         ];
 
-        "hyprland/workspaces" = {
-          format = "{name}";
+        "sway/workspaces" = {
+          format = "{icon}";
           on-click = "activate";
-          all-outputs = false;
+          format-icons = {
+            "1" = "󰲠";
+            "2" = "󰲢";
+            "C" = "󰭹";
+            "S" = "󰓓";
+            default = "󰄛";
+          };
         };
 
-        "hyprland/window" = {
+        "sway/mode" = {
           format = "{}";
-          max-length = 80;
+          tooltip = false;
+        };
+
+        "sway/window" = {
+          format = "{}";
+          max-length = 100;
         };
 
         clock = {
@@ -112,73 +124,155 @@ in
       * {
         font-family: "${values.theme.font.monospace}", monospace;
         font-size: 13px;
-        border-radius: 6px;
+        border-radius: 8px;
         min-height: 0;
         padding: 0;
         margin: 0;
       }
 
       window#waybar {
-        background-color: ${semanticColors.background.primary}cc;
-        border: 2px solid ${semanticColors.accent.primary};
-        border-radius: 6px;
-        padding: 6px 12px;
+        background-color: ${semanticColors.background.primary}f0;
+        border: 1px solid ${semanticColors.accent.primary}40;
+        border-radius: 12px;
+        padding: 8px 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       }
 
       #workspaces {
-        background-color: ${semanticColors.background.primary}99;
-        border-radius: 6px;
-        padding: 0 8px;
-        margin-right: 12px;
+        background-color: ${semanticColors.background.secondary}60;
+        border-radius: 8px;
+        padding: 6px 10px;
+        margin-right: 16px;
+        border: 1px solid ${semanticColors.accent.primary}20;
       }
 
       #workspaces button {
-        color: ${semanticColors.foreground.secondary};
-        padding: 4px 10px;
-        border-radius: 4px;
-        margin: 0 2px;
+        color: ${semanticColors.foreground.muted};
+        padding: 6px 10px;
+        border-radius: 6px;
+        margin: 0 4px;
+        transition: all 0.3s ease;
+        font-size: 16px;
+      }
+
+      #workspaces button:hover {
+        background-color: ${semanticColors.accent.primary}20;
+        color: ${semanticColors.accent.primary};
       }
 
       #workspaces button.active {
         background-color: ${semanticColors.accent.primary};
         color: ${semanticColors.background.primary};
         border: 1px solid ${semanticColors.accent.primary};
+        box-shadow: 0 0 12px ${semanticColors.accent.primary}60;
       }
 
-      #workspaces button:hover {
-        background-color: ${semanticColors.accent.secondary};
+      #mode {
+        background-color: ${semanticColors.semantic.warning}30;
+        color: ${semanticColors.semantic.warning};
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: 1px solid ${semanticColors.semantic.warning};
+        margin-right: 12px;
       }
 
       #window {
         color: ${semanticColors.foreground.primary};
-        padding: 0 12px;
-      }
-
-      #clock,
-      #cpu,
-      #memory,
-      #temperature,
-      #pulseaudio,
-      #network,
-      #tray {
-        background-color: ${semanticColors.background.secondary}99;
-        color: ${semanticColors.foreground.primary};
-        padding: 4px 10px;
-        margin-left: 4px;
-        border-radius: 4px;
+        padding: 6px 16px;
+        margin: 0 12px;
+        background-color: ${semanticColors.background.secondary}40;
+        border-radius: 6px;
+        flex-grow: 1;
       }
 
       #clock {
-        padding: 4px 12px;
+        background-color: ${semanticColors.accent.primary}20;
+        color: ${semanticColors.accent.primary};
+        padding: 6px 14px;
+        margin-left: 8px;
+        border-radius: 8px;
+        border: 1px solid ${semanticColors.accent.primary}40;
+        font-weight: bold;
+      }
+
+      #cpu {
+        background-color: ${semanticColors.semantic.success}20;
+        color: ${semanticColors.semantic.success};
+        padding: 6px 12px;
+        margin-left: 6px;
+        border-radius: 6px;
+        border: 1px solid ${semanticColors.semantic.success}40;
+      }
+
+      #memory {
+        background-color: ${semanticColors.semantic.warning}20;
+        color: ${semanticColors.semantic.warning};
+        padding: 6px 12px;
+        margin-left: 6px;
+        border-radius: 6px;
+        border: 1px solid ${semanticColors.semantic.warning}40;
+      }
+
+      #temperature {
+        background-color: ${semanticColors.semantic.info}20;
+        color: ${semanticColors.semantic.info};
+        padding: 6px 12px;
+        margin-left: 6px;
+        border-radius: 6px;
+        border: 1px solid ${semanticColors.semantic.info}40;
       }
 
       #temperature.critical {
-        background-color: ${semanticColors.semantic.error};
+        background-color: ${semanticColors.semantic.error}40;
         color: ${semanticColors.background.primary};
+        border: 1px solid ${semanticColors.semantic.error};
+        animation: critical-pulse 1s infinite;
+      }
+
+      @keyframes critical-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+      }
+
+      #pulseaudio {
+        background-color: ${semanticColors.accent.secondary}20;
+        color: ${semanticColors.accent.secondary};
+        padding: 6px 12px;
+        margin-left: 6px;
+        border-radius: 6px;
+        border: 1px solid ${semanticColors.accent.secondary}40;
+      }
+
+      #pulseaudio.muted {
+        background-color: ${semanticColors.foreground.muted}20;
+        color: ${semanticColors.foreground.muted};
+        border-color: ${semanticColors.foreground.muted}40;
+      }
+
+      #network {
+        background-color: ${semanticColors.semantic.info}20;
+        color: ${semanticColors.semantic.info};
+        padding: 6px 12px;
+        margin-left: 6px;
+        border-radius: 6px;
+        border: 1px solid ${semanticColors.semantic.info}40;
       }
 
       #tray {
-        margin-left: 12px;
+        background-color: ${semanticColors.background.secondary}60;
+        padding: 6px 10px;
+        margin-left: 8px;
+        border-radius: 6px;
+        border: 1px solid ${semanticColors.accent.primary}20;
+      }
+
+      #tray > .passive {
+        -gtk-icon-effect: dim;
+      }
+
+      #tray > .needs-attention {
+        -gtk-icon-effect: highlight;
+        background-color: ${semanticColors.semantic.warning}20;
       }
     '';
   };
