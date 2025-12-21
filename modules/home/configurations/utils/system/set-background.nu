@@ -46,7 +46,7 @@ def main [] {
     # Find image files
     print $"(ansi blue)[INFO](ansi reset) Scanning for wallpapers..."
     let images = (
-        fd --type f --extension jpg --extension jpeg --extension png --extension webp . $wallpapers_dir | sort
+        fd --type f --extension jpg --extension jpeg --extension png --extension webp . $wallpapers_dir
     )
 
     let images = if ($images | is-empty) {

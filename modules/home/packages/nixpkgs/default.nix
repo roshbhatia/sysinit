@@ -22,6 +22,7 @@ let
     bash-language-server
     caddy
     cargo-watch
+    cachix
     chafa
     checkmake
     codespell
