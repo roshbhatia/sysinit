@@ -5,16 +5,8 @@ _:
     enable = true;
   };
 
-  services.xserver.videoDrivers = [ "nvidia" ];
+  # Use open-source nouveau driver for better Wayland support
+  services.xserver.videoDrivers = [ "nouveau" ];
 
-  hardware.nvidia = {
-    modesetting.enable = true;
-    nvidiaSettings = true;
-    open = false;
-    # Required for Wayland/Sway support
-    forceFullCompositionPipeline = true;
-  };
-
-  # Enable KMS for NVIDIA (required for Wayland)
-  boot.kernelParams = [ "nvidia_drm.modeset=1" ];
+  # Nouveau handles Wayland natively without special configuration
 }
