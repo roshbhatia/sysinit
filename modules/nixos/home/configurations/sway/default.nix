@@ -17,14 +17,12 @@ in
     systemd.enable = true;
 
     config = {
-      # Display configuration
       output = {
         "*" = {
           bg = "#${lib.strings.removePrefix "#" semanticColors.background.primary} solid_color";
         };
       };
 
-      # Keyboard configuration
       input = {
         "*" = {
           xkb_layout = "us";
@@ -37,7 +35,6 @@ in
         };
       };
 
-      # General settings
       gaps = {
         inner = 4;
         outer = 8;
@@ -47,7 +44,6 @@ in
       focus.wrapping = "yes";
       focus.mouseWarping = "output";
 
-      # Colors with retroism theme
       colors = {
         background = semanticColors.background.primary;
         focused = {
@@ -204,17 +200,22 @@ in
 
       # Floating window settings
       floatingModifier = "Mod4";
-      floating.border = 2;
+      "floating.border" = 2;
 
       # Startup commands
       startup = [
-        { command = "swaybg -i ~/.config/sway/background.png"; always = true; }
-        { command = "waybar"; always = true; }
+        {
+          command = "swaybg -i ~/.config/sway/background.png";
+          always = true;
+        }
+        {
+          command = "waybar";
+          always = true;
+        }
       ];
     };
 
     extraConfig = ''
-      # Default font
       font ${values.theme.font.monospace} 10
     '';
   };

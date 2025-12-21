@@ -1,29 +1,28 @@
 {
   values,
-  customUtils ? null,
   inputs ? { },
   ...
 }:
 
-let
-  utils = customUtils;
-in
 {
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
     backupFileExtension = "backup";
     extraSpecialArgs = {
-      inherit utils values inputs;
+      inherit values inputs;
     };
+
     sharedModules = [
       {
-        stylix.targets.neovim.enable = false;
-        stylix.targets.vim.enable = false;
-        stylix.targets.firefox.enable = false;
-        stylix.targets.mako.enable = false;
-        stylix.targets.waybar.enable = false;
-        stylix.targets.wofi.enable = false;
+        stylix.targets = {
+          neovim.enable = false;
+          vim.enable = false;
+          firefox.enable = false;
+          mako.enable = false;
+          waybar.enable = false;
+          wofi.enable = false;
+        };
       }
     ];
 

@@ -4,8 +4,13 @@
 }:
 
 {
-  services.displayManager.ly = {
+  services.greetd = {
     enable = true;
-    package = pkgs.ly;
+    settings = {
+      default_session = {
+        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --time-format '%R' --cmd sway";
+        user = "greeter";
+      };
+    };
   };
 }
