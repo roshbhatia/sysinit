@@ -30,6 +30,18 @@ sharedValues:
       tailscale = {
         enable = true;
       };
+      nix.additionalPackages = [
+        "quickshell"
+        "nemo"
+        "nwg-look"
+        "hyprshot"
+        "hyprpaper"
+        "mako"
+        "dconf"
+        "jq"
+        "socat"
+        "wl-clipboard"
+      ];
     };
   };
 }
