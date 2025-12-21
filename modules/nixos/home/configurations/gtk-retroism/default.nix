@@ -38,16 +38,16 @@ in
   # GNOME/dconf settings for theme application
   dconf.settings = {
     "org/gnome/desktop/interface" = {
-      gtk-theme = "ClassicPlatinumStreamlined";
-      icon-theme = "RetroismIcons";
-      cursor-theme = "Adwaita";
-      font-name = "${values.theme.font.monospace} 10";
-      monospace-font-name = "${values.theme.font.monospace} 10";
+      gtk-theme = lib.mkForce "ClassicPlatinumStreamlined";
+      icon-theme = lib.mkForce "RetroismIcons";
+      cursor-theme = lib.mkForce "Adwaita";
+      font-name = lib.mkForce "${values.theme.font.monospace} 10";
+      monospace-font-name = lib.mkForce "${values.theme.font.monospace} 10";
     };
     
     # Additional GNOME tweaks for retro aesthetic
     "org/gnome/desktop/wm/preferences" = {
-      button-layout = "appmenu:minimize,maximize,close";
+      button-layout = lib.mkForce "appmenu:minimize,maximize,close";
     };
   };
 
