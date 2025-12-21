@@ -92,19 +92,26 @@ in
           mod = "Mod4";
         in
         {
-          # Focus movement
+          # Focus movement (hjkl)
           "${mod}+h" = "focus left";
           "${mod}+j" = "focus down";
           "${mod}+k" = "focus up";
           "${mod}+l" = "focus right";
 
-          # Move windows
+          # Move windows (Super+Shift+hjkl)
           "${mod}+Shift+h" = "move left";
           "${mod}+Shift+j" = "move down";
           "${mod}+Shift+k" = "move up";
           "${mod}+Shift+l" = "move right";
 
-          # Workspaces
+          # Window management
+          "${mod}+q" = "kill"; # Close window
+          "${mod}+w" = "layout tabbed"; # Tab layout
+          "${mod}+space" = "floating toggle"; # Float/tile toggle
+          "${mod}+f" = "fullscreen toggle"; # Fullscreen
+          "${mod}+m" = "layout toggle split"; # Toggle split layout (master)
+
+          # Workspaces (Super+1-9)
           "${mod}+1" = "workspace number 1";
           "${mod}+2" = "workspace number 2";
           "${mod}+3" = "workspace number 3";
@@ -115,7 +122,7 @@ in
           "${mod}+8" = "workspace number 8";
           "${mod}+9" = "workspace number 9";
 
-          # Move to workspace
+          # Move to workspace (Super+Shift+1-9)
           "${mod}+Shift+1" = "move container to workspace number 1";
           "${mod}+Shift+2" = "move container to workspace number 2";
           "${mod}+Shift+3" = "move container to workspace number 3";
@@ -126,28 +133,18 @@ in
           "${mod}+Shift+8" = "move container to workspace number 8";
           "${mod}+Shift+9" = "move container to workspace number 9";
 
-          # Cycle workspaces
+          # Cycle workspaces (Super+Tab/Super+Shift+Tab)
           "${mod}+Tab" = "workspace next";
           "${mod}+Shift+Tab" = "workspace prev";
 
-          # Window management
-          "${mod}+f" = "fullscreen toggle";
-          "${mod}+q" = "kill";
-          "${mod}+v" = "split v";
-          "${mod}+b" = "split h";
-          "${mod}+w" = "layout tabbed";
-          "${mod}+e" = "layout toggle split";
-          "${mod}+space" = "floating toggle";
-          "${mod}+Shift+space" = "focus mode_toggle";
-
           # Applications
-          "${mod}+t" = "exec wezterm";
-          "${mod}+d" = "exec wofi --show=drun";
-          "${mod}+s" = "exec grim -g \"$(slurp)\" - | swappy -f -";
+          "${mod}+t" = "exec wezterm"; # Terminal
+          "${mod}+n" = "exec nemo"; # File manager (n for nemo)
+          "${mod}+d" = "exec wofi --show=drun"; # Application launcher
 
           # System
-          "${mod}+Escape" = "exit";
-          "${mod}+r" = "mode resize";
+          "${mod}+Escape" = "exit"; # Exit sway
+          "${mod}+r" = "mode resize"; # Resize mode
         };
 
       modes = {

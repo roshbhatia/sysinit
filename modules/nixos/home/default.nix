@@ -11,7 +11,6 @@
     ./configurations/wofi
     ./configurations/nixpkgs
     ./configurations/quickshell
-    ./configurations/wezterm-retroism
     ./configurations/gtk-retroism
     ./configurations/nemo
   ];
