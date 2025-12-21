@@ -21,6 +21,7 @@ let
   weztermAdapter = import ./adapters/wezterm.nix { inherit lib utils adapterBase; };
   neovimAdapter = import ./adapters/neovim.nix { inherit lib utils adapterBase; };
   firefoxAdapter = import ./adapters/firefox.nix { inherit lib utils adapterBase; };
+  base16Schemes = import ./adapters/base16-schemes.nix { inherit lib; };
 
   themes = {
     inherit catppuccin;
@@ -342,4 +343,6 @@ in
     neovim = neovimAdapter;
     firefox = firefoxAdapter;
   };
+
+  inherit base16Schemes;
 }

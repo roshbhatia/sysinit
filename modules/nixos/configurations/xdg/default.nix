@@ -25,5 +25,7 @@
     extraPortals = with pkgs; [
       xdg-desktop-portal-gtk
     ];
+
+    wlr.enable = true;
   };
 }

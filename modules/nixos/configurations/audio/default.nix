@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+_:
 
 {
   services.pipewire = {
@@ -26,12 +26,6 @@
   };
 
   security.rtkit.enable = true;
-
-  environment.systemPackages = with pkgs; [
-    pavucontrol
-    alsa-utils
-    pipecontrol
-  ];
 
   users.groups.audio = { };
 }

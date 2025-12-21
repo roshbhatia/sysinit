@@ -1,5 +1,6 @@
 {
   values,
+  utils,
   inputs ? { },
   ...
 }:
@@ -10,7 +11,7 @@
     useUserPackages = true;
     backupFileExtension = "backup";
     extraSpecialArgs = {
-      inherit values inputs;
+      inherit utils values inputs;
     };
 
     sharedModules = [

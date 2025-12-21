@@ -1,14 +1,6 @@
+_:
 {
-  config,
-  lib,
-  pkgs,
-  ...
-}:
-let
-  isDesktop = config.networking.hostName == "arrakis";
-in
-{
-  config = lib.mkIf isDesktop {
+  config = {
     programs.steam = {
       enable = true;
       gamescopeSession.enable = true;
@@ -39,18 +31,6 @@ in
     };
 
     programs.gamemode.enable = true;
-
-    environment.systemPackages = with pkgs; [
-      (heroic.override {
-        extraPkgs = pkgs: [ pkgs.gamescope ];
-      })
-      lutris
-      protonup-qt
-      mangohud
-      goverlay
-      vulkan-tools
-      vkbasalt
-    ];
 
     hardware.steam-hardware.enable = true;
 

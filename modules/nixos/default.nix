@@ -2,8 +2,9 @@
 
 {
   imports = [
-    ./system.nix
-    ./home-manager.nix
     ./configurations
+    ./home-manager.nix
+    ./packages
+    ./system.nix
   ];
 }

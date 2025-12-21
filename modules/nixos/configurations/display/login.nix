@@ -8,7 +8,7 @@
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --time-format '%R' --cmd sway";
+        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --time-format '%R' --cmd ${pkgs.sway}/bin/sway";
         user = "greeter";
       };
     };

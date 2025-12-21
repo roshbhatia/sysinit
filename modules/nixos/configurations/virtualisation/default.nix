@@ -1,7 +1,4 @@
-{
-  pkgs,
-  ...
-}:
+_:
 {
   boot.kernelModules = [
     "kvm-amd"
@@ -28,9 +25,4 @@
       backend = "podman";
     };
   };
-
-  environment.systemPackages = with pkgs; [
-    qemu_kvm
-    qemu
-  ];
 }

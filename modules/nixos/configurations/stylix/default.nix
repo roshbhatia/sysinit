@@ -1,35 +1,15 @@
 {
   pkgs,
   values,
+  lib,
   ...
 }:
 
 let
-  base16SchemeMap = {
-    "catppuccin-latte" = "catppuccin-latte";
-    "catppuccin-frappe" = "catppuccin-frappe";
-    "catppuccin-macchiato" = "catppuccin-macchiato";
-    "catppuccin-mocha" = "catppuccin-mocha";
-    "rose-pine-main" = "rose-pine";
-    "rose-pine-moon" = "rose-pine-moon";
-    "rose-pine-dawn" = "rose-pine-dawn";
-    "gruvbox-dark" = "gruvbox-dark-medium";
-    "gruvbox-light" = "gruvbox-light-medium";
-    "nord-dark" = "nord";
-    "solarized-dark" = "solarized-dark";
-    "solarized-light" = "solarized-light";
-    "kanagawa-wave" = "kanagawa";
-    "kanagawa-dragon" = "kanagawa";
-    "kanagawa-lotus" = "kanagawa";
-    "everforest-dark" = "everforest";
-    "everforest-light" = "everforest";
-    "black-metal-dark" = "black-metal";
-  };
-
+  themeLib = import ../../shared/lib/theme { inherit lib; };
   themeKey = "${values.theme.colorscheme}-${values.theme.variant}";
-  base16Scheme = base16SchemeMap.${themeKey} or "catppuccin-macchiato";
+  base16Scheme = themeLib.base16Schemes.getBase16Scheme themeKey;
   polarity = values.theme.appearance;
-
   monospaceFontName = values.theme.font.monospace;
 in
 {

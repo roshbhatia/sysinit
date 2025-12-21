@@ -1,14 +1,5 @@
+_:
 {
-  pkgs,
-  ...
-}:
-{
-  environment.systemPackages = with pkgs; [
-    pulseaudio
-    flatpak
-    wezterm
-  ];
-
   services.pipewire = {
     enable = true;
     alsa.enable = true;
