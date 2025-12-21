@@ -57,7 +57,7 @@ fi
 
 # Formatting
 echo -n "Formatting... "
-task fmt sh:chmod >/dev/null 2>&1
+task fmt >/dev/null 2>&1
 staged_files=$(git diff --cached --name-only --diff-filter=ACM)
 if [ -n "$staged_files" ]; then
   for file in $staged_files; do

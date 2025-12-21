@@ -117,7 +117,9 @@ task: Available tasks for this project:
 | `go.additionalPackages` | list(string) | [] |  | Additional Go packages |
 | `icon` | string? | null |  | Icon URL for the search engine |
 | `krew.additionalPackages` | list(string) | [] |  | Additional kubectl krew plugins |
-| `llm.mcp.servers` | attrsOf (attrsOf anything) | `{ }` |  | MCP servers configuration |
+| `llm.mcp.args` | list(string) | [] |  | MCP server arguments |
+| `llm.mcp.command` | string | - | ✓ | MCP server command |
+| `llm.mcp.env` | attrsOf str | `{ }` |  | Environment variables for MCP server |
 | `nix.additionalPackages` | list(string) | [] |  | Additional Nix packages |
 | `npm.additionalPackages` | list(string) | [] |  | Additional global npm packages |
 | `pipx.additionalPackages` | list(string) | [] |  | Additional global pipx packages |

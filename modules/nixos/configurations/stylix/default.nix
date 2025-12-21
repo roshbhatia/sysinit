@@ -6,7 +6,7 @@
 }:
 
 let
-  themeLib = import ../../shared/lib/theme { inherit lib; };
+  themeLib = import ../../../shared/lib/theme { inherit lib; };
   themeKey = "${values.theme.colorscheme}-${values.theme.variant}";
   base16Scheme = themeLib.base16Schemes.getBase16Scheme themeKey;
   polarity = values.theme.appearance;

@@ -14,7 +14,7 @@ with lib;
       semanticColors = utils.createSemanticMapping palette;
       transparency = config.transparency or (throw "Missing transparency configuration");
 
-      paletteBaseColors = 
+      paletteBaseColors =
         let
           extendedPalette = semanticColors.extended or { };
           getColor = name: fallback: extendedPalette.${name} or fallback;

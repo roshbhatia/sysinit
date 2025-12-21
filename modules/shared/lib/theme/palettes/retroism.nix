@@ -45,7 +45,7 @@ rec {
       # Cyan/blue accents
       cyan = "#00e5ff";
       cyan_dim = "#0097a7";
-      
+
       # Purple/magenta accents
       purple = "#e040fb";
       purple_dim = "#9c27b0";
@@ -96,7 +96,7 @@ rec {
       # Muted accent colors
       cyan = "#ffcc00";
       cyan_dim = "#cc9900";
-      
+
       purple = "#ff6600";
       purple_dim = "#dd4400";
 
@@ -143,7 +143,7 @@ rec {
 
       cyan = "#00ffff";
       cyan_dim = "#00cccc";
-      
+
       purple = "#00ff99";
       purple_dim = "#00cc66";
 

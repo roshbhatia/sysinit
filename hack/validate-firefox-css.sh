@@ -9,9 +9,9 @@ echo
 
 # Test 1: Check semantic CSS variables exist
 echo "Test 1: Semantic CSS Variables"
-if grep -q "^\s*--bg-primary:" "$FIREFOX_ADAPTER" && \
-   grep -q "^\s*--text-primary:" "$FIREFOX_ADAPTER" && \
-   grep -q "^\s*--accent-primary:" "$FIREFOX_ADAPTER"; then
+if grep -q "^\s*--bg-primary:" "$FIREFOX_ADAPTER" &&
+  grep -q "^\s*--text-primary:" "$FIREFOX_ADAPTER" &&
+  grep -q "^\s*--accent-primary:" "$FIREFOX_ADAPTER"; then
   echo "✓ All semantic background, text, and accent variables defined"
 else
   echo "✗ Missing semantic CSS variables"
@@ -20,9 +20,9 @@ fi
 
 # Test 2: Check base16 color variables (new)
 echo "Test 2: Base16 Color Variables"
-if grep -q "^\s*--color-red:" "$FIREFOX_ADAPTER" && \
-   grep -q "^\s*--color-blue:" "$FIREFOX_ADAPTER" && \
-   grep -q "^\s*--color-purple:" "$FIREFOX_ADAPTER"; then
+if grep -q "^\s*--color-red:" "$FIREFOX_ADAPTER" &&
+  grep -q "^\s*--color-blue:" "$FIREFOX_ADAPTER" &&
+  grep -q "^\s*--color-purple:" "$FIREFOX_ADAPTER"; then
   echo "✓ Base16 color variables defined"
 else
   echo "✗ Missing base16 color variables"
@@ -31,9 +31,9 @@ fi
 
 # Test 3: Check interactive element variables (new)
 echo "Test 3: Interactive Element Variables"
-if grep -q "^\s*--interactive-hover-bg:" "$FIREFOX_ADAPTER" && \
-   grep -q "^\s*--interactive-active-bg:" "$FIREFOX_ADAPTER" && \
-   grep -q "^\s*--interactive-focus-outline:" "$FIREFOX_ADAPTER"; then
+if grep -q "^\s*--interactive-hover-bg:" "$FIREFOX_ADAPTER" &&
+  grep -q "^\s*--interactive-active-bg:" "$FIREFOX_ADAPTER" &&
+  grep -q "^\s*--interactive-focus-outline:" "$FIREFOX_ADAPTER"; then
   echo "✓ Interactive element state variables defined"
 else
   echo "✗ Missing interactive element variables"
@@ -42,9 +42,9 @@ fi
 
 # Test 4: Check menu styling enhancements
 echo "Test 4: Menu Styling Enhancements"
-if grep -q "^\s*--uc-menu-hover-bg:" "$FIREFOX_ADAPTER" && \
-   grep -q "^\s*--uc-menu-active-bg:" "$FIREFOX_ADAPTER" && \
-   grep -q "menu:hover," "$FIREFOX_ADAPTER"; then
+if grep -q "^\s*--uc-menu-hover-bg:" "$FIREFOX_ADAPTER" &&
+  grep -q "^\s*--uc-menu-active-bg:" "$FIREFOX_ADAPTER" &&
+  grep -q "menu:hover," "$FIREFOX_ADAPTER"; then
   echo "✓ Menu hover and active states enhanced"
 else
   echo "✗ Menu styling not enhanced"
@@ -53,9 +53,9 @@ fi
 
 # Test 5: Check button styling enhancements
 echo "Test 5: Button Styling Enhancements"
-if grep -q "toolbar .toolbarbutton-1:hover" "$FIREFOX_ADAPTER" && \
-   grep -q "toolbar .toolbarbutton-1:focus-visible" "$FIREFOX_ADAPTER" && \
-   grep -q "toolbar .toolbarbutton-1\[open\]" "$FIREFOX_ADAPTER"; then
+if grep -q "toolbar .toolbarbutton-1:hover" "$FIREFOX_ADAPTER" &&
+  grep -q "toolbar .toolbarbutton-1:focus-visible" "$FIREFOX_ADAPTER" &&
+  grep -q "toolbar .toolbarbutton-1\[open\]" "$FIREFOX_ADAPTER"; then
   echo "✓ Button hover, focus, and active states enhanced"
 else
   echo "✗ Button styling not enhanced"
@@ -64,8 +64,8 @@ fi
 
 # Test 6: Check urlbar styling enhancements
 echo "Test 6: Urlbar Focus States"
-if grep -q "#urlbar:focus-within" "$FIREFOX_ADAPTER" && \
-   grep -q "border-color: var(--minimal-accent)" "$FIREFOX_ADAPTER"; then
+if grep -q "#urlbar:focus-within" "$FIREFOX_ADAPTER" &&
+  grep -q "border-color: var(--minimal-accent)" "$FIREFOX_ADAPTER"; then
   echo "✓ Urlbar focus states have accent border and shadow"
 else
   echo "✗ Urlbar focus states not enhanced"
@@ -74,9 +74,9 @@ fi
 
 # Test 7: Check tab styling enhancements
 echo "Test 7: Tab Styling Enhancements"
-if grep -q ".tabbrowser-tab\[selected\] {" "$FIREFOX_ADAPTER" && \
-   grep -q "border-bottom: 2px solid var(--minimal-accent)" "$FIREFOX_ADAPTER" && \
-   grep -q ".tabbrowser-tab:not(\[selected\]):hover .tab-label" "$FIREFOX_ADAPTER"; then
+if grep -q ".tabbrowser-tab\[selected\] {" "$FIREFOX_ADAPTER" &&
+  grep -q "border-bottom: 2px solid var(--minimal-accent)" "$FIREFOX_ADAPTER" &&
+  grep -q ".tabbrowser-tab:not(\[selected\]):hover .tab-label" "$FIREFOX_ADAPTER"; then
   echo "✓ Tab selected state and hover states enhanced"
 else
   echo "✗ Tab styling not enhanced"

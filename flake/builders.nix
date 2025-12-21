@@ -130,7 +130,7 @@
           stylix.nixosModules.stylix
           (import ../modules/nixos/home-manager.nix {
             inherit values inputs;
-            customUtils = utils;
+            inherit utils;
           })
           {
             documentation.enable = false;

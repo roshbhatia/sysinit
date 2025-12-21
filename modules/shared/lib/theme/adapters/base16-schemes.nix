@@ -1,6 +1,6 @@
 _:
 
-{
+let
   schemeMap = {
     "catppuccin-latte" = "catppuccin-latte";
     "catppuccin-frappe" = "catppuccin-frappe";
@@ -21,6 +21,8 @@ _:
     "everforest-light" = "everforest";
     "black-metal-dark" = "black-metal";
   };
-
+in
+{
+  inherit schemeMap;
   getBase16Scheme = themeKey: schemeMap.${themeKey} or "catppuccin-macchiato";
 }

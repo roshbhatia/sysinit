@@ -25,22 +25,22 @@ let
     wl-clipboard
     wlr-randr
     xwayland
-    
+
     # Services
     pulseaudio
     flatpak
     wezterm
     tailscale
-    
+
     # Audio
     pavucontrol
     alsa-utils
     pipecontrol
-    
+
     # Virtualization
     qemu_kvm
     qemu
-    
+
     # Gaming
     (heroic.override {
       extraPkgs = pkgs: [ pkgs.gamescope ];
@@ -51,7 +51,7 @@ let
     goverlay
     vulkan-tools
     vkbasalt
-    
+
     # Compat
     fhsEnv
   ];

@@ -1,5 +1,4 @@
-_:
-{
+_: {
   boot.kernelModules = [
     "kvm-amd"
     "vfio-pci"

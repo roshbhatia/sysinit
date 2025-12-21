@@ -10,9 +10,9 @@ in
 {
   # GTK theme settings for retroism
   # These configure the gtk.extraConfig with retroism-appropriate settings
-  
+
   themeName = "ClassicPlatinumStreamlined";
-  
+
   # GTK configuration
   gtk3Settings = {
     gtk-application-prefer-dark-theme = true;
