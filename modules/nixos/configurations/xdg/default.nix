@@ -22,12 +22,6 @@
           "gtk"
         ];
       };
-      sway = {
-        default = [
-          "wlr"
-          "gtk"
-        ];
-      };
     };
 
     xdgOpenUsePortal = true;

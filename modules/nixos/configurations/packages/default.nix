@@ -15,7 +15,6 @@
     # Required utilities
     pavucontrol
     networkmanager
-    network-manager-applet
     dbus
 
     # System utils
@@ -31,7 +30,7 @@
 
     # Display and GPU tools
     vulkan-tools
-    glxinfo
+    mesa-demos
 
     # Debugging
     jq

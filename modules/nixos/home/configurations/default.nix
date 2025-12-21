@@ -2,7 +2,6 @@
 {
   imports = [
     ./gtk
-    ./mako
     ./nemo
     ./quickshell
     ./sway
