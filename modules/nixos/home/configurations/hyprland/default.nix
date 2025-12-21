@@ -99,7 +99,11 @@ in
       };
 
       # Startup commands
-      exec-once = [ "waybar" ];
+      exec-once = [
+        "waybar"
+        # TODO: Setup default retroism wallpaper with hyprpaper
+        # "hyprpaper &"
+      ];
 
       # Keybindings - Aerospace-style
       bind = [
@@ -146,7 +150,9 @@ in
         "SUPER SHIFT, f, fullscreen, 1"
         "SUPER, q, killactive"
 
-        # App launcher (Super+Space)
+        # App launcher - Quickshell (Super+Space)
+        # TODO: Replace with quickshell launcher once QML is configured
+        # "SUPER, space, exec, quickshell --launcher"
         "SUPER, space, exec, wofi --show=drun"
 
         # Terminal

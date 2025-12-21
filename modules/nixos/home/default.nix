@@ -12,6 +12,9 @@
     ./configurations/wofi
     ./configurations/nixpkgs
     ./configurations/quickshell
+    ./configurations/wezterm-retroism
+    ./configurations/gtk-retroism
+    ./configurations/nemo
   ];
 
   home.stateVersion = lib.mkForce "24.11";
