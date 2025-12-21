@@ -18,29 +18,5 @@ nix.secrets.conf
 .claude/settings.local.json
 .serena
 !AGENTS.md
-
-## Important project documentation (explicitly tracked)
-!README.md
-!ARCHITECTURE.md
-!MIGRATION_GUIDE.md
-!PR_REFACTORING.md
-!REFACTORING_SUMMARY.md
-!CHECKLIST.md
-!PLATFORM_ANALYSIS.md
-!THEME_CONSOLIDATION_PLAN.md
-!SESSION_SUMMARY.md
-!STRUCTURE.md
-!CODE_AUDIT.md
-!IMPROVEMENT_GUIDE.md
-!STRUCTURE_VALIDATION.md
-!FIREFOX_THEME_AUDIT.md
-!FIREFOX_THEME_AUDIT_PHASE3.md
-!FIREFOX_THEME_TESTING.md
-!FIREFOX_COLOR_GUIDE.md
-!FIREFOX_QUICK_TEST.md
-!FIREFOX_THEME_TESTING_RESULTS.md
-!FIREFOX_NEXT_STEPS.md
-!PHASE4_STATUS.md
-
-## Agents tend to spit out docs that don't need to be committed
 **/*.md
+
