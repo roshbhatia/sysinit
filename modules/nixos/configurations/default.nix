@@ -9,7 +9,6 @@
     ./gaming
     ./ssh
     ./tailscale
-    ./users
     ./networking
     ./virtualisation
     ./xdg
