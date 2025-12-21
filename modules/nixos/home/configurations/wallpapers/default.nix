@@ -13,7 +13,7 @@
   ];
 
   # Create wallpaper directory
-  home.file.".config/mangowc/wallpapers/.gitkeep".text = "";
+  home.file.".config/sway/wallpapers/.gitkeep".text = "";
 
   # Wallpaper switcher script - interactive selection
   home.file.".local/bin/switch-wallpaper.sh" = {
@@ -23,7 +23,7 @@
 
       source {{.LOGLIB_PATH}}
 
-      WALLPAPER_DIR="''${HOME}/.config/mangowc/wallpapers"
+      WALLPAPER_DIR="''${HOME}/.config/sway/wallpapers"
 
       if [[ $# -eq 0 ]]; then
         # Interactive selection via fzf
@@ -33,9 +33,9 @@
       fi
 
       if [[ -f "''${selected}" ]]; then
-        ln -sf "''${selected}" "''${HOME}/.config/mangowc/background.png"
+        ln -sf "''${selected}" "''${HOME}/.config/sway/background.png"
         
-        # Reload wallpaper on MangoWC
+        # Reload wallpaper on Sway
         pkill -SIGUSR2 swaybg 2>/dev/null || true
         swaybg -i "''${selected}" &
         
@@ -56,7 +56,7 @@
 
       source {{.LOGLIB_PATH}}
 
-      WALLPAPER_DIR="''${HOME}/.config/mangowc/wallpapers"
+      WALLPAPER_DIR="''${HOME}/.config/sway/wallpapers"
       INTERVAL=''${1:-300} # Default 5 minutes
 
       log_info "Starting wallpaper rotation every $INTERVAL seconds"
@@ -65,7 +65,7 @@
         wallpaper=$(find "''${WALLPAPER_DIR}" -maxdepth 1 -type f \( -name "*.png" -o -name "*.jpg" \) | shuf -n 1)
         
         if [[ -f "''${wallpaper}" ]]; then
-          ln -sf "''${wallpaper}" "''${HOME}/.config/mangowc/background.png"
+          ln -sf "''${wallpaper}" "''${HOME}/.config/sway/background.png"
           pkill -SIGUSR2 swaybg 2>/dev/null || true
           swaybg -i "''${wallpaper}" &
           log_info "Rotated to: $(basename "''${wallpaper}")"

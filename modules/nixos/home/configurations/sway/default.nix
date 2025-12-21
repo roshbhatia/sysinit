@@ -7,7 +7,6 @@
 
 let
   themes = import ../../../../shared/lib/theme { inherit lib; };
-  theme = themes.getTheme values.theme.colorscheme;
   semanticColors = themes.getSemanticColors values.theme.colorscheme values.theme.variant;
 in
 
