@@ -98,6 +98,9 @@ in
       [includeIf "gitdir:~/org/"]
         path = ~/.gitconfig.personal
 
+      [includeIf "gitdir:~/.local/share/"]
+        path = ~/.gitconfig.personal
+
       [rerere]
         enabled = true
 
