@@ -1,4 +1,8 @@
-{ pkgs }:
+{
+  pkgs,
+  ...
+}:
+
 {
   services.pipewire = {
     enable = true;
@@ -17,17 +21,12 @@
   services.blueman.enable = true;
 
   services = {
-    printing.enable = false;
     geoclue2.enable = true;
     flatpak.enable = true;
 
     udev.packages = with pkgs; [
       gnome-settings-daemon
     ];
-
-    keyd = {
-      enable = false;
-    };
   };
 
   systemd.user.services.wezterm-mux-server = {
