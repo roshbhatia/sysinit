@@ -124,7 +124,7 @@ in
       * {
         font-family: "${values.theme.font.monospace}", monospace;
         font-size: 13px;
-        border-radius: 8px;
+        border-radius: 2px;
         min-height: 0;
         padding: 0;
         margin: 0;
@@ -133,14 +133,14 @@ in
       window#waybar {
         background-color: ${semanticColors.background.primary}f0;
         border: 1px solid ${semanticColors.accent.primary}40;
-        border-radius: 12px;
+        border-radius: 2px;
         padding: 8px 16px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       }
 
       #workspaces {
         background-color: ${semanticColors.background.secondary}60;
-        border-radius: 8px;
+        border-radius: 2px;
         padding: 6px 10px;
         margin-right: 16px;
         border: 1px solid ${semanticColors.accent.primary}20;
@@ -149,7 +149,7 @@ in
       #workspaces button {
         color: ${semanticColors.foreground.muted};
         padding: 6px 10px;
-        border-radius: 6px;
+        border-radius: 2px;
         margin: 0 4px;
         transition: all 0.3s ease;
         font-size: 16px;
@@ -171,7 +171,7 @@ in
         background-color: ${semanticColors.semantic.warning}30;
         color: ${semanticColors.semantic.warning};
         padding: 6px 12px;
-        border-radius: 6px;
+        border-radius: 2px;
         border: 1px solid ${semanticColors.semantic.warning};
         margin-right: 12px;
       }
@@ -181,7 +181,7 @@ in
         padding: 6px 16px;
         margin: 0 12px;
         background-color: ${semanticColors.background.secondary}40;
-        border-radius: 6px;
+        border-radius: 2px;
         flex-grow: 1;
       }
 
@@ -190,7 +190,7 @@ in
         color: ${semanticColors.accent.primary};
         padding: 6px 14px;
         margin-left: 8px;
-        border-radius: 8px;
+        border-radius: 2px;
         border: 1px solid ${semanticColors.accent.primary}40;
         font-weight: bold;
       }
@@ -200,7 +200,7 @@ in
         color: ${semanticColors.semantic.success};
         padding: 6px 12px;
         margin-left: 6px;
-        border-radius: 6px;
+        border-radius: 2px;
         border: 1px solid ${semanticColors.semantic.success}40;
       }
 
@@ -209,7 +209,7 @@ in
         color: ${semanticColors.semantic.warning};
         padding: 6px 12px;
         margin-left: 6px;
-        border-radius: 6px;
+        border-radius: 2px;
         border: 1px solid ${semanticColors.semantic.warning}40;
       }
 
@@ -218,7 +218,7 @@ in
         color: ${semanticColors.semantic.info};
         padding: 6px 12px;
         margin-left: 6px;
-        border-radius: 6px;
+        border-radius: 2px;
         border: 1px solid ${semanticColors.semantic.info}40;
       }
 
@@ -239,7 +239,7 @@ in
         color: ${semanticColors.accent.secondary};
         padding: 6px 12px;
         margin-left: 6px;
-        border-radius: 6px;
+        border-radius: 2px;
         border: 1px solid ${semanticColors.accent.secondary}40;
       }
 
@@ -254,7 +254,7 @@ in
         color: ${semanticColors.semantic.info};
         padding: 6px 12px;
         margin-left: 6px;
-        border-radius: 6px;
+        border-radius: 2px;
         border: 1px solid ${semanticColors.semantic.info}40;
       }
 

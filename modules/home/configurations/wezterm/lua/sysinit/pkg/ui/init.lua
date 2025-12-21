@@ -33,6 +33,9 @@ local function get_window_appearance_config()
       right = "1cell",
       top = "1cell",
     },
+    window_decorations = "RESIZE",
+    enable_wayland = true,
+    x11_implementor = "wayland",
   }
 end
 

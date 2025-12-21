@@ -151,6 +151,9 @@ in
         };
       };
 
+      # Window border settings
+      # hide_edge_borders set in extraConfig
+
       # Window rules
       floating = {
         criteria = [
@@ -181,6 +184,8 @@ in
 
     extraConfig = ''
       font ${values.theme.font.monospace} 10
+      default_border pixel 2
+      default_floating_border pixel 2
     '';
   };
 }
