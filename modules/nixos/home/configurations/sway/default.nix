@@ -40,7 +40,6 @@ in
         outer = 8;
       };
 
-      border = 2;
       focus.wrapping = "yes";
       focus.mouseWarping = "output";
 
@@ -190,17 +189,15 @@ in
       ];
 
       # Window rules
-      floating = [
-        { class = "pavucontrol"; }
-        { class = "nm-connection-editor"; }
-        { class = "blueman-manager"; }
-        { class = "file-roller"; }
-        { class = "1Password"; }
-      ];
-
-      # Floating window settings
-      floatingModifier = "Mod4";
-      "floating.border" = 2;
+      floating = {
+        criteria = [
+          { class = "pavucontrol"; }
+          { class = "nm-connection-editor"; }
+          { class = "blueman-manager"; }
+          { class = "file-roller"; }
+          { class = "1Password"; }
+        ];
+      };
 
       # Startup commands
       startup = [

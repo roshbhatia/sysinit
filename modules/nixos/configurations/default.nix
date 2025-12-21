@@ -16,5 +16,6 @@
     ./compat
     ./stylix
     ./hardware
+    ./user
   ];
 }

@@ -7,6 +7,8 @@
 }:
 
 {
+  programs.zsh.enable = true;
+
   users.users.${values.user.username} = {
     isNormalUser = true;
     createHome = true;
