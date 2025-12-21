@@ -33,7 +33,7 @@ in
     
     font = {
       name = lib.mkForce values.theme.font.monospace;
-      size = 10;
+      size = lib.mkForce 10;
     };
   };
 
