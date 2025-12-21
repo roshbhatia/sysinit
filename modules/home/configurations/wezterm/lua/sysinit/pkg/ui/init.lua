@@ -41,7 +41,6 @@ local function get_display_config()
     window_frame = {
       font = terminal_font,
     },
-    adjust_window_size_when_changing_font_size = false,
     animation_fps = 240,
     cursor_blink_ease_in = "EaseIn",
     cursor_blink_ease_out = "EaseInOut",
