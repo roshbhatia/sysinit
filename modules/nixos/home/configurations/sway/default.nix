@@ -87,8 +87,6 @@ in
 
       # Key bindings - Super key
       modifier = "Mod4";
-      floating.modifier = "Mod4";
-      floating.border = 2;
 
       keybindings =
         let
@@ -207,6 +205,10 @@ in
         { class = "file-roller"; }
         { class = "1Password"; }
       ];
+
+      # Floating window settings
+      floatingModifier = "Mod4";
+      floating.border = 2;
 
       # Startup commands
       startup = [
