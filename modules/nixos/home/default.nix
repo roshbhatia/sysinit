@@ -10,6 +10,7 @@
     ./configurations/hyprland
     ./configurations/waybar
     ./configurations/wofi
+    ./configurations/nixpkgs
   ];
 
   home.stateVersion = lib.mkForce "24.11";
