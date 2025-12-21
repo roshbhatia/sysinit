@@ -5,6 +5,5 @@
     ./configurations
     ./home-manager.nix
     ./packages
-    ./system.nix
   ];
 }
