@@ -1,24 +1,7 @@
 {
-  pkgs,
-  ...
-}:
-
-{
-  programs.hyprland = {
-    enable = true;
-    package = pkgs.hyprland;
-    xwayland.enable = true;
-  };
-
-  services.displayManager.ly = {
-    enable = true;
-    package = pkgs.ly;
-  };
-
-  environment.systemPackages = with pkgs; [
-    hyprland
-    xwayland
+  imports = [
+    ./packages.nix
+    ./compositor.nix
+    ./login.nix
   ];
-
-  services.xserver.enable = false;
 }
