@@ -14,25 +14,25 @@ in
 {
   # GTK theme configuration for retroism
   gtk = {
-    enable = true;
+    enable = lib.mkForce true;
     
     theme = {
-      name = "ClassicPlatinumStreamlined";
+      name = lib.mkForce "ClassicPlatinumStreamlined";
       package = null; # Provided by system or installed manually
     };
     
     iconTheme = {
-      name = "RetroismIcons";
+      name = lib.mkForce "RetroismIcons";
       package = null; # Provided by system or installed manually
     };
     
     cursorTheme = {
-      name = "Adwaita";
+      name = lib.mkForce "Adwaita";
       size = 24;
     };
     
     font = {
-      name = values.theme.font.monospace;
+      name = lib.mkForce values.theme.font.monospace;
       size = 10;
     };
   };
