@@ -29,7 +29,7 @@ local terminal_font = wezterm.font_with_fallback({
 local function get_window_appearance_config()
   return {
     window_padding = {
-      left = "1cell",
+      left = "2cell",
       right = "1cell",
       top = "1cell",
     },
@@ -41,6 +41,7 @@ local function get_display_config()
     window_frame = {
       font = terminal_font,
     },
+    adjust_window_size_when_changing_font_size = false,
     animation_fps = 240,
     cursor_blink_ease_in = "EaseIn",
     cursor_blink_ease_out = "EaseInOut",
