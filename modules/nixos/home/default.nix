@@ -13,8 +13,7 @@
     ./configurations/nixpkgs
     ./configurations/quickshell
     ./configurations/wezterm-retroism
-    # gtk-retroism disabled - manual theme installation required
-    # ./configurations/gtk-retroism
+    ./configurations/gtk-retroism
     ./configurations/nemo
   ];
 
