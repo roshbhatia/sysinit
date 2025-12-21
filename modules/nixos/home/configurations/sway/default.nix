@@ -92,11 +92,19 @@ in
           mod = "Mod4";
         in
         {
+          # macOS-style keybindings
+          "${mod}+space" = "exec wofi --show=drun"; # Search/launcher (Spotlight-like)
+          "${mod}+t" = "exec wezterm"; # New terminal window
+          "${mod}+n" = "exec nemo"; # New file manager window
+          "${mod}+w" = "kill"; # Close window
+          "${mod}+m" = "move scratchpad"; # Hide/minimize
+          "${mod}+h" = "move scratchpad"; # Hide window
+
           # Focus movement (hjkl)
-          "${mod}+h" = "focus left";
-          "${mod}+j" = "focus down";
-          "${mod}+k" = "focus up";
-          "${mod}+l" = "focus right";
+          "${mod}+Alt+h" = "focus left";
+          "${mod}+Alt+j" = "focus down";
+          "${mod}+Alt+k" = "focus up";
+          "${mod}+Alt+l" = "focus right";
 
           # Move windows (Super+Shift+hjkl)
           "${mod}+Shift+h" = "move left";
@@ -105,11 +113,8 @@ in
           "${mod}+Shift+l" = "move right";
 
           # Window management
-          "${mod}+q" = "kill"; # Close window
-          "${mod}+w" = "layout tabbed"; # Tab layout
-          "${mod}+space" = "floating toggle"; # Float/tile toggle
           "${mod}+f" = "fullscreen toggle"; # Fullscreen
-          "${mod}+m" = "layout toggle split"; # Toggle split layout (master)
+          "${mod}+Return" = "exec wezterm"; # Alt terminal opener
 
           # Workspaces (Super+1-9)
           "${mod}+1" = "workspace number 1";
@@ -136,11 +141,6 @@ in
           # Cycle workspaces (Super+Tab/Super+Shift+Tab)
           "${mod}+Tab" = "workspace next";
           "${mod}+Shift+Tab" = "workspace prev";
-
-          # Applications
-          "${mod}+t" = "exec wezterm"; # Terminal
-          "${mod}+n" = "exec nemo"; # File manager (n for nemo)
-          "${mod}+d" = "exec wofi --show=drun"; # Application launcher
 
           # System
           "${mod}+Escape" = "exit"; # Exit sway

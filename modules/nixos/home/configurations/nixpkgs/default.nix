@@ -8,7 +8,6 @@
     quickshell
     nemo
     nwg-look
-    mangowc
     swaybg
     grim
     slurp
