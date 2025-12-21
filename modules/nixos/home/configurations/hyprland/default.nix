@@ -6,7 +6,7 @@
 }:
 
 let
-  themes = import ../../../shared/lib/theme { inherit lib; };
+  themes = import ../../../../shared/lib/theme { inherit lib; };
   hyprlandAdapter = import ./lib.nix { inherit lib; };
   theme = themes.getTheme values.theme.colorscheme;
   hyprlandTheme = hyprlandAdapter.createHyprlandTheme theme values.theme;
