@@ -6,10 +6,19 @@
 {
   nix = {
     settings = {
-      experimental-features = [ "nix-command" "flakes" ];
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
       warn-dirty = false;
-      trusted-users = [ "root" "@wheel" values.user.username ];
+      trusted-users = [
+        "root"
+        "@wheel"
+        values.user.username
+      ];
+      builders-use-substitutes = true;
     };
+
     gc = {
       automatic = true;
       dates = "weekly";
