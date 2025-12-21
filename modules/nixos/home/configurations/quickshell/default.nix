@@ -5,30 +5,13 @@
 }:
 
 {
-  programs.quickshell = {
-    enable = true;
-    
-    # Define package with all necessary settings
-    settings = {
-      # Panel/taskbar configuration
-      panel = {
-        enabled = true;
-        autoHide = false;
-        position = "top";
-        height = 40;
-      };
-      
-      # Application launcher
-      launcher = {
-        enabled = true;
-        keybind = "Super_L Space";
-      };
-      
-      # Settings menu
-      settings = {
-        enabled = true;
-        keybind = "Super_L S";
-      };
-    };
-  };
+  # Quickshell placeholder - QML configs managed via home.file with mkOutOfStoreSymlink
+  # This allows live-editing without rebuilds
+  
+  home.packages = [ ];
+  
+  # TODO: Configure quickshell QML files in ~/.config/quickshell/ via home.file
+  # - Panel/taskbar: shell.qml
+  # - Application launcher: launcher.qml
+  # - Settings menu: settings.qml
 }
