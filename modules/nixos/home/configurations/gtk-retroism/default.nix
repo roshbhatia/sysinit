@@ -18,12 +18,10 @@ in
     
     theme = {
       name = lib.mkForce "ClassicPlatinumStreamlined";
-      package = null; # Provided by system or installed manually
     };
     
     iconTheme = {
       name = lib.mkForce "RetroismIcons";
-      package = null; # Provided by system or installed manually
     };
     
     cursorTheme = {
