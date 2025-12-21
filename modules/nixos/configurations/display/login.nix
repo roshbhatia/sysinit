@@ -39,7 +39,7 @@ in
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --time-format '%R' --cmd ${swayNvidiaWrapper}/bin/sway-nvidia";
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --time-format '%R' --cmd ${swayNvidiaWrapper}/bin/sway-nvidia";
         user = "greeter";
       };
     };
