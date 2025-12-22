@@ -4,10 +4,11 @@
   imports = [
     ./boot
     ./display
+    ./firewall
     ./gpu
     ./audio
     ./gaming
-    ./ssh
+    ./security
     ./tailscale
     ./networking
     ./virtualisation

@@ -1,6 +1,6 @@
 { ... }:
 {
   imports = [
-    ./nemo
+    ./nemo # File manager configuration
   ];
 }
