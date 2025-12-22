@@ -1,5 +1,19 @@
 {
-  # Firewall is disabled by default in networking/default.nix via lib.mkDefault false
-  # This allows all traffic - fine for internal/development setup
-  # If needed in future, enable via: networking.firewall.enable = true;
+  networking.firewall = {
+    enable = true;
+
+    # SSH, Steam p2p
+    allowedTCPPorts = [
+      22
+      27015
+      27016
+    ];
+    allowedUDPPorts = [
+      27015
+      27016
+    ];
+
+    # Tailscale (UDP 41641) is handled by Tailscale service
+    # mDNS/Avahi (UDP 5353) is handled by avahi service
+  };
 }

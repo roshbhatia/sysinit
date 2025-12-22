@@ -27,6 +27,9 @@ sharedValues:
           monospace = "MonaspiceKr Nerd Font Mono";
         };
       };
+      tailscale = {
+        enable = true;
+      };
     };
   };
 }
