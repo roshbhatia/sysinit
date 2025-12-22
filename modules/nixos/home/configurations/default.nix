@@ -1,7 +1,6 @@
 { ... }:
 {
   imports = [
-    ./dmenu
     ./nemo
   ];
 }

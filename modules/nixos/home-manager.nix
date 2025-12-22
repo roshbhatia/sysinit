@@ -21,7 +21,6 @@
           neovim.enable = false;
           firefox.enable = false;
           vim.enable = false;
-          sway.enable = false;
           mako.enable = true;
           waybar.enable = true;
         };

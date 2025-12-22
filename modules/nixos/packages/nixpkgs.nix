@@ -18,35 +18,80 @@ let
     }
   );
 
-  allPackages = with pkgs; [
-    alsa-utils
+  # Core system utilities
+  basePkgs = with pkgs; [
+    brightnessctl
+    dbus
+    grim
+    jq
+    mesa-demos
+    networkmanager
+    slurp
+    wl-clipboard
+    xclip
+    xsel
+  ];
+
+  # Display and compositor
+  displayPkgs = with pkgs; [
     dmenu
     dmenu-wayland
-    fhsEnv
-    flatpak
-    goverlay
+    swaybg
+    waybar
+    wlr-randr
+    xwayland
+  ];
+
+  # Audio
+  audioPkgs = with pkgs; [
+    alsa-utils
+    pavucontrol
+    pipecontrol
+    pulseaudio
+  ];
+
+  # Gaming tools
+  gamingPkgs = with pkgs; [
     (heroic.override {
       extraPkgs = pkgs: [ pkgs.gamescope ];
     })
-    lutris
     mangohud
-    pavucontrol
-    pipecontrol
-    protonup-qt
-    pulseaudio
-    qemu
-    qemu_kvm
-    tailscale
     vkbasalt
     vulkan-extension-layer
     vulkan-loader
     vulkan-tools
     vulkan-validation-layers
-    wezterm
-    wl-clipboard
-    wlr-randr
-    xwayland
   ];
+
+  # Terminal and shells
+  terminalPkgs = with pkgs; [
+    wezterm
+  ];
+
+  # Development and virtualization
+  devPkgs = with pkgs; [
+    fhsEnv
+  ];
+
+  # System utilities
+  utilityPkgs = with pkgs; [
+    tailscale
+  ];
+
+  # File manager
+  fileMgrPkgs = with pkgs; [
+    nemo
+  ];
+
+  allPackages =
+    basePkgs
+    ++ displayPkgs
+    ++ audioPkgs
+    ++ gamingPkgs
+    ++ terminalPkgs
+    ++ devPkgs
+    ++ utilityPkgs
+    ++ fileMgrPkgs;
 in
 {
   environment.systemPackages = allPackages;
