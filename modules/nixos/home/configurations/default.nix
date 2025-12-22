@@ -1,8 +1,7 @@
 { ... }:
 {
   imports = [
-    ./gtk
+    ./dmenu
     ./nemo
-    ./waybar
   ];
 }

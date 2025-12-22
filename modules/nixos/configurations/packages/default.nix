@@ -5,34 +5,22 @@
 
 {
   environment.systemPackages = with pkgs; [
-    # Wayland/Sway essentials
-    sway
-    waybar
-    wofi
-    wezterm
-    swaybg
-
-    # Required utilities
-    pavucontrol
-    networkmanager
-    dbus
-
-    # System utils
     brightnessctl
+    dbus
+    dmenu
     grim
+    jq
+    mesa-demos
+    nemo
+    networkmanager
+    pavucontrol
     slurp
+    swaybg
+    vulkan-tools
+    waybar
+    wezterm
+    wl-clipboard
     xclip
     xsel
-    wl-clipboard
-
-    # File manager
-    nemo
-
-    # Display and GPU tools
-    vulkan-tools
-    mesa-demos
-
-    # Debugging
-    jq
   ];
 }

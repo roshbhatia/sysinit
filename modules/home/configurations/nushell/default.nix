@@ -35,8 +35,6 @@ let
   hooksConfig = builtins.readFile ./core/hooks.nu;
 in
 {
-  stylix.targets.nushell.enable = true;
-
   programs.nushell = {
     enable = true;
     package = pkgs.nushell.override {
