@@ -3,41 +3,79 @@
   values,
   ...
 }:
+
 let
   additionalPackages = values.nix.additionalPackages or [ ];
 
-  baseNixPackages = with pkgs; [
-    ansible
-    ansible-lint
+  # Core system utilities
+  basePkgs = with pkgs; [
+    coreutils
+    curl
+    findutils
+    gettext
+    gnugrep
+    gnused
+    jq
+    socat
+    watch
+    wget
+    which
+  ];
+
+  # Terminal and shells
+  terminalPkgs = with pkgs; [
+    atuin
+    bash
+    bashInteractive
+    direnv
+    macchina
+    oh-my-posh
+    tmux
+    wezterm
+    zoxide
+    zsh
+  ];
+
+  # Development tools
+  devPkgs = with pkgs; [
     argc
-    argocd
     asciinema
     asciinema-agg
     ast-grep
-    atuin
-    awk-language-server
-    awscli2
-    bash
-    bashInteractive
-    bash-language-server
-    caddy
-    cargo-watch
     cachix
+    caddy
     chafa
-    checkmake
-    codespell
-    copilot-cli
-    copilot-language-server
-    coreutils
-    curl
-    cursor-cli
-    crossplane-cli
-    deadnix
-    delta
-    diffnav
-    delve
     devbox
-    direnv
+    diffnav
+    duf
+    fd
+    glow
+    gum
+    lazygit
+    libgit2
+    meld
+    mods
+    ripgrep
+    sad
+    tig
+    tlrc
+    vivid
+    yazi
+    yq
+  ];
+
+  # Git and version control
+  gitPkgs = with pkgs; [
+    delta
+    gh
+    gh-dash
+    git
+    git-crypt
+    git-filter-repo
+  ];
+
+  # Container and Docker
+  containerPkgs = with pkgs; [
     docker
     docker-buildx
     docker-color-output
@@ -45,49 +83,105 @@ let
     docker-compose-language-service
     docker-credential-helpers
     docker-language-server
-    duf
-    eslint
-    fd
-    findutils
-    gettext
-    gh
-    gh-dash
-    git
-    git-crypt
-    git-filter-repo
-    glow
-    gnugrep
-    gnupg
-    gnused
-    go
-    go-task
-    golangci-lint
-    gopls
-    gum
+  ];
+
+  # Kubernetes tools
+  k8sPkgs = with pkgs; [
+    argocd
+    crossplane-cli
     helm-ls
-    jira-cli-go
-    jq
-    jq-lsp
-    jqp
-    jsonld-cli
     k9s
     krew
     kube-linter
     kubecolor
     kubectl
     kubernetes-helm
+    kubernetes-zeitgeist
     kustomize
-    lazygit
-    libgit2
-    lua-language-server
+    stern
+    upbound
+  ];
+
+  # Cloud and infrastructure
+  cloudPkgs = with pkgs; [
+    ansible
+    ansible-lint
+    awscli2
+    copilot-cli
+    terraform-ls
+    tflint
+    tflint-plugins.tflint-ruleset-aws
+    tfsec
+  ];
+
+  # Programming languages
+  langPkgs = with pkgs; [
+    go
     luajit
-    macchina
-    meld
+    nodejs_22
+    python311
+    rustc
+    rustup
+    typescript
+    zig
+  ];
+
+  # Language servers
+  lspPkgs = with pkgs; [
+    awk-language-server
+    bash-language-server
+    copilot-language-server
+    eslint
+    gopls
+    jq-lsp
+    lua-language-server
     marksman
-    mermaid-cli
-    mods
-    nerd-fonts.monaspace
     nil
+    openscad-lsp
+    pyright
+    shellcheck
+    simple-completion-language-server
+    typescript-language-server
+    vscode-langservers-extracted
+    vale-ls
+    yaml-language-server
+    zls
+  ];
+
+  # Linters and formatters
+  linterPkgs = with pkgs; [
+    checkmake
+    codespell
+    deadnix
+    golangci-lint
+    nixfmt-rfc-style
+    proselint
+    shfmt
+    statix
+    stylua
+    taplo
+    textlint
+    yamllint
+  ];
+
+  # Build tools and package managers
+  buildPkgs = with pkgs; [
+    cargo-watch
+    go-task
+    pkg-config
+    pipx
+    uv
+    yarn
+  ];
+
+  # Database
+  databasePkgs = with pkgs; [
+    postgresql17Packages.pgvector
+    postgresql_17
+  ];
+
+  # Nix tools
+  nixPkgs = with pkgs; [
     nix-output-monitor
     nix-prefetch
     nix-prefetch-docker
@@ -96,65 +190,66 @@ let
     nix-search-cli
     nix-tree
     nix-your-shell
-    nixfmt-rfc-style
-    nodejs_22
-    oh-my-posh
-    openscad
-    openscad-lsp
-    openssh
-    pipx
-    pkg-config
-    postgresql17Packages.pgvector
-    postgresql_17
-    proselint
-    pyright
-    python311
-    ripgrep
-    rustc
-    rustup
-    sad
-    shellcheck
-    shfmt
-    simple-completion-language-server
-    socat
-    sshpass
-    statix
-    stern
-    stylua
-    taplo
-    terraform-ls
-    textlint
-    tflint
-    tflint-plugins.tflint-ruleset-aws
-    tfsec
-    tig
-    tlrc
-    tmux
-    typescript
-    typescript-language-server
-    upbound
-    uv
-    vale-ls
-    vivid
-    vscode-langservers-extracted
-    watch
-    wezterm
-    wget
-    which
-    yaml-language-server
-    yamllint
-    yarn
-    yazi
-    yq
-    zig
-    zk
-    zls
-    zoxide
-    zsh
   ];
 
-  allNixPackages = baseNixPackages ++ additionalPackages;
+  # Project management and collaboration
+  projectPkgs = with pkgs; [
+    jira-cli-go
+    mermaid-cli
+    zk
+  ];
+
+  # Documentation and utilities
+  docPkgs = with pkgs; [
+    cursor-cli
+    jqp
+    jsonld-cli
+  ];
+
+  # Security
+  securityPkgs = with pkgs; [
+    gnupg
+    openssh
+    sshpass
+  ];
+
+  # Fonts
+  fontPkgs = with pkgs; [
+    nerd-fonts.monaspace
+  ];
+
+  # Debug tools
+  debugPkgs = with pkgs; [
+    delve
+  ];
+
+  # CAD tools
+  cadPkgs = with pkgs; [
+    openscad
+  ];
+
+  allPackages =
+    basePkgs
+    ++ terminalPkgs
+    ++ devPkgs
+    ++ gitPkgs
+    ++ containerPkgs
+    ++ k8sPkgs
+    ++ cloudPkgs
+    ++ langPkgs
+    ++ lspPkgs
+    ++ linterPkgs
+    ++ buildPkgs
+    ++ databasePkgs
+    ++ nixPkgs
+    ++ projectPkgs
+    ++ docPkgs
+    ++ securityPkgs
+    ++ fontPkgs
+    ++ debugPkgs
+    ++ cadPkgs
+    ++ additionalPackages;
 in
 {
-  home.packages = allNixPackages;
+  home.packages = allPackages;
 }
