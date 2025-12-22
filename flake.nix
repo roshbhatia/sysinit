@@ -29,7 +29,6 @@
     mac-app-util = {
       url = "github:hraban/mac-app-util";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.cl-nix-lite.url = "github:r4v3n6101/cl-nix-lite/url-fix";
     };
 
     onepassword-shell-plugins = {
@@ -39,6 +38,11 @@
 
     nix-gaming = {
       url = "github:fufexan/nix-gaming";
+    };
+
+    niri-flake = {
+      url = "github:sodiboo/niri-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
