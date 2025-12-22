@@ -16,8 +16,9 @@
 
     sharedModules = [
       {
+        # NixOS-specific home-manager configuration
+        # Manage Stylix targets manually for neovim and firefox
         stylix.targets = {
-          # We do this stuff more manually
           neovim.enable = false;
           firefox.enable = false;
           vim.enable = false;
