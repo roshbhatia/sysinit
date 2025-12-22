@@ -3,7 +3,17 @@ local json_loader = require("sysinit.pkg.utils.json_loader")
 local theme_config = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"))
 local M = {}
 
-local font_name = theme_config.font.monospace
+local font_name = theme_config.font and theme_config.font.monospace or "MonoLisa"
+
+local function is_linux()
+  local handle = io.popen("uname -s 2>/dev/null")
+  if not handle then
+    return false
+  end
+  local result = handle:read("*a")
+  handle:close()
+  return result:match("Linux") ~= nil
+end
 
 local terminal_font = wezterm.font_with_fallback({
   {
@@ -27,7 +37,7 @@ local terminal_font = wezterm.font_with_fallback({
 })
 
 local function get_window_appearance_config()
-  return {
+  local config = {
     window_padding = {
       left = "2cell",
       right = "1cell",
@@ -37,6 +47,13 @@ local function get_window_appearance_config()
     enable_wayland = true,
     x11_implementor = "wayland",
   }
+
+  if is_linux() then
+    config.window_decorations = "RESIZE"
+    config.enable_wayland = true
+  end
+
+  return config
 end
 
 local function get_display_config()
