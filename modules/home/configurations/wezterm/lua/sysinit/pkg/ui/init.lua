@@ -39,13 +39,10 @@ local terminal_font = wezterm.font_with_fallback({
 local function get_window_appearance_config()
   local config = {
     window_padding = {
-      left = "2cell",
+      left = "1cell",
       right = "1cell",
       top = "1cell",
     },
-    window_decorations = "RESIZE",
-    enable_wayland = true,
-    x11_implementor = "wayland",
   }
 
   if is_linux() then
