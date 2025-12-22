@@ -39,11 +39,6 @@
     nix-gaming = {
       url = "github:fufexan/nix-gaming";
     };
-
-    niri-flake = {
-      url = "github:sodiboo/niri-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
