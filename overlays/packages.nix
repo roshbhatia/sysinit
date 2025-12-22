@@ -54,7 +54,7 @@ in
       sha256 = "sha256-8vVqX6V0IMJk4GTksWEB88gwpG0Bp/LUI+LOcAQB1Gw=";
     };
 
-    vendorHash = null;
+    vendorHash = "sha256-E7ntN/BqDzgj9nJ7rKMDq8EBOvbvKQxQRI3/4mvkHQM=";
 
     ldflags = [
       "-s"
