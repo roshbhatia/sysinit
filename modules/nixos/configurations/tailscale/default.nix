@@ -1,10 +1,6 @@
 {
-  values,
-  ...
-}:
-{
   services.tailscale = {
-    inherit (values.tailscale) enable;
+    enable = true;
     port = 41641;
     interfaceName = "tailscale0";
     openFirewall = true;
