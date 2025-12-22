@@ -17,6 +17,8 @@
         values.user.username
       ];
       builders-use-substitutes = true;
+      max-jobs = "auto";
+      cores = 0;
     };
 
     gc = {
@@ -25,4 +27,7 @@
       options = "--delete-older-than 30d";
     };
   };
+
+  # Apply nix configuration from repo
+  environment.etc."nix/nix.conf.d/custom.conf".source = ../../../../nix.custom.conf;
 }
