@@ -3,9 +3,7 @@
   imports = [
     ./gtk
     ./nemo
-    ./quickshell
-    ./sway
+    ./niri
     ./waybar
-    ./wofi
   ];
 }

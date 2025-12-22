@@ -19,41 +19,33 @@ let
   );
 
   allPackages = with pkgs; [
-    # Display/WM
-    sway
-    swaybg
-    wl-clipboard
-    wlr-randr
-    xwayland
-
-    # Services
-    pulseaudio
-    flatpak
-    wezterm
-    tailscale
-
-    # Audio
-    pavucontrol
     alsa-utils
-    pipecontrol
-
-    # Virtualization
-    qemu_kvm
-    qemu
-
-    # Gaming
+    dmenu
+    dmenu-wayland
+    fhsEnv
+    flatpak
+    goverlay
     (heroic.override {
       extraPkgs = pkgs: [ pkgs.gamescope ];
     })
     lutris
-    protonup-qt
     mangohud
-    goverlay
-    vulkan-tools
+    pavucontrol
+    pipecontrol
+    protonup-qt
+    pulseaudio
+    qemu
+    qemu_kvm
+    tailscale
     vkbasalt
-
-    # Compat
-    fhsEnv
+    vulkan-extension-layer
+    vulkan-loader
+    vulkan-tools
+    vulkan-validation-layers
+    wezterm
+    wl-clipboard
+    wlr-randr
+    xwayland
   ];
 in
 {
