@@ -56,6 +56,8 @@ in
 
     vendorHash = "sha256-E7ntN/BqDzgj9nJ7rKMDq8EBOvbvKQxQRI3/4mvkHQM=";
 
+    subPackages = [ "." ];
+
     ldflags = [
       "-s"
       "-w"
