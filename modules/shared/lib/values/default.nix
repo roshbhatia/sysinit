@@ -168,6 +168,83 @@ with lib;
       };
 
       llm = {
+        crush = {
+          enable = mkOption {
+            type = types.bool;
+            default = false;
+            description = "Enable Crush AI coding assistant";
+          };
+
+          providers = mkOption {
+            type = types.attrsOf (
+              types.submodule {
+                options = {
+                  id = mkOption {
+                    type = types.str;
+                    description = "Provider identifier";
+                  };
+                  name = mkOption {
+                    type = types.str;
+                    description = "Provider display name";
+                  };
+                  base_url = mkOption {
+                    type = types.str;
+                    description = "Provider base URL";
+                  };
+                  type = mkOption {
+                    type = types.str;
+                    description = "Provider type (e.g., openai, anthropic)";
+                  };
+                  api_key = mkOption {
+                    type = types.str;
+                    description = "API key for the provider";
+                  };
+                  models = mkOption {
+                    type = types.listOf (
+                      types.submodule {
+                        options = {
+                          id = mkOption {
+                            type = types.str;
+                            description = "Model identifier";
+                          };
+                          name = mkOption {
+                            type = types.str;
+                            description = "Model display name";
+                          };
+                        };
+                      }
+                    );
+                    default = [ ];
+                    description = "Available models for this provider";
+                  };
+                };
+              }
+            );
+            default = { };
+            description = "AI provider configurations for Crush";
+          };
+
+          contextPaths = mkOption {
+            type = types.listOf types.str;
+            default = [ ];
+            description = "Paths to include in Crush context";
+          };
+
+          tui = {
+            compactMode = mkOption {
+              type = types.bool;
+              default = true;
+              description = "Enable compact TUI mode";
+            };
+          };
+
+          debug = mkOption {
+            type = types.bool;
+            default = false;
+            description = "Enable debug mode";
+          };
+        };
+
         mcp = {
           servers = mkOption {
             type = types.attrsOf (

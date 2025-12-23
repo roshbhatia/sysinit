@@ -35,6 +35,7 @@ in
       rycee = {
         firefox-addons = inputs.firefox-addons.packages.${system};
       };
+      inherit (inputs.nur.legacyPackages.${system}.repos) charmbracelet;
     };
   };
 

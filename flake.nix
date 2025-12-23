@@ -39,6 +39,8 @@
     nix-gaming = {
       url = "github:fufexan/nix-gaming";
     };
+
+    nur.url = "github:nix-community/NUR";
   };
 
   outputs =
@@ -50,6 +52,7 @@
       stylix,
       mac-app-util,
       onepassword-shell-plugins,
+      nur,
       ...
     }:
     let
@@ -72,6 +75,7 @@
           nix-homebrew
           mac-app-util
           onepassword-shell-plugins
+          nur
           ;
         inherit (builders) mkPkgs;
         inherit (builders) mkUtils;

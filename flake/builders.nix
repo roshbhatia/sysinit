@@ -103,6 +103,7 @@
             home-manager.sharedModules = [
               mac-app-util.homeManagerModules.default
               onepassword-shell-plugins.hmModules.default
+              pkgs.nur.repos.charmbracelet.modules.homeManager.crush
             ];
             documentation.enable = false;
           }
@@ -128,6 +129,7 @@
           ../modules/nixos
           home-manager.nixosModules.home-manager
           stylix.nixosModules.stylix
+          pkgs.nur.repos.charmbracelet.modules.nixos.crush
           (import ../modules/nixos/home-manager.nix {
             inherit values inputs;
             inherit utils;

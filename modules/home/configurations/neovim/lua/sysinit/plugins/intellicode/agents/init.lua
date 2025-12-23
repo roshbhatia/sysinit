@@ -15,6 +15,7 @@ local all_agents = {
   require("sysinit.plugins.intellicode.agents.amp"),
   require("sysinit.plugins.intellicode.agents.goose"),
   require("sysinit.plugins.intellicode.agents.claude"),
+  require("sysinit.plugins.intellicode.agents.crush"),
   require("sysinit.plugins.intellicode.agents.cursor"),
   require("sysinit.plugins.intellicode.agents.copilot"),
 }
