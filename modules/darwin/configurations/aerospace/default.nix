@@ -160,7 +160,7 @@
 
             alt-tab = "workspace --wrap-around next";
             alt-shift-tab = "workspace --wrap-around prev";
-            alt-space = "workspace-back-and-forth";
+            alt-p = "workspace-back-and-forth";
 
             alt-shift-1 = "move-node-to-workspace 1 --focus-follows-window";
             alt-shift-2 = "move-node-to-workspace 2 --focus-follows-window";

@@ -165,7 +165,7 @@ end
 local function get_pallete_keys()
   return {
     {
-      key = "Space",
+      key = ";",
       mods = "CTRL|SHIFT",
       action = act.ActivateCommandPalette,
     },
