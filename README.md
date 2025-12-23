@@ -98,12 +98,10 @@ task: Available tasks for this project:
 |-------|------|---------|----------|-------------|
 | `cargo.additionalPackages` | list(string) | [] |  | Additional Rust/Cargo packages |
 | `config.root` | path | - | ✓ | Root path to the configuration flake directory |
-| `contextPaths` | list(string) | [] |  | Paths to include in Crush context |
 | `darwin.borders.enable` | boolean | true |  | Enable window borders |
 | `darwin.homebrew.additionalPackages.brews` | list(string) | [] |  | Additional Homebrew formulae |
 | `darwin.homebrew.additionalPackages.casks` | list(string) | [] |  | Additional Homebrew casks |
 | `darwin.homebrew.additionalPackages.taps` | list(string) | [] |  | Additional Homebrew taps |
-| `debug` | boolean | false |  | Enable debug mode |
 | `definedAliases` | list(string) | [] |  | Search aliases |
 | `firefox.name` | string | - | ✓ | Parameter name |
 | `firefox.template` | string | - | ✓ | URL template for the search engine |
@@ -119,17 +117,9 @@ task: Available tasks for this project:
 | `go.additionalPackages` | list(string) | [] |  | Additional Go packages |
 | `icon` | string? | null |  | Icon URL for the search engine |
 | `krew.additionalPackages` | list(string) | [] |  | Additional kubectl krew plugins |
-| `llm.crush.api_key` | string | - | ✓ | API key for the provider |
-| `llm.crush.base_url` | string | - | ✓ | Provider base URL |
-| `llm.crush.enable` | boolean | false |  | Enable Crush AI coding assistant |
-| `llm.crush.id` | string | - | ✓ | Model identifier |
-| `llm.crush.id` | string | - | ✓ | Provider identifier |
-| `llm.crush.name` | string | - | ✓ | Model display name |
-| `llm.crush.name` | string | - | ✓ | Provider display name |
-| `llm.crush.type` | string | - | ✓ | Provider type (e.g., openai, anthropic) |
-| `mcp.args` | list(string) | [] |  | MCP server arguments |
-| `mcp.command` | string | - | ✓ | MCP server command |
-| `mcp.env` | attrsOf str | `{ }` |  | Environment variables for MCP server |
+| `llm.mcp.args` | list(string) | [] |  | MCP server arguments |
+| `llm.mcp.command` | string | - | ✓ | MCP server command |
+| `llm.mcp.env` | attrsOf str | `{ }` |  | Environment variables for MCP server |
 | `nix.additionalPackages` | list(string) | [] |  | Additional Nix packages |
 | `npm.additionalPackages` | list(string) | [] |  | Additional global npm packages |
 | `pipx.additionalPackages` | list(string) | [] |  | Additional global pipx packages |
@@ -141,7 +131,6 @@ task: Available tasks for this project:
 | `theme.transparency.blur` | integer | `20` |  | Background blur amount |
 | `theme.transparency.opacity` | float | `0.8` |  | Transparency opacity level |
 | `theme.variant` | string | "macchiato" |  | Theme variant |
-| `tui.compactMode` | boolean | true |  | Enable compact TUI mode |
 | `updateInterval` | nullOr int | null |  | Update interval in milliseconds |
 | `user.username` | string | "user" |  | Username for the system user |
 | `uvx.additionalPackages` | list(string) | [] |  | Additional global uvx packages |

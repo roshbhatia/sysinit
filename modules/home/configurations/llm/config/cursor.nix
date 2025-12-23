@@ -20,17 +20,15 @@ let
     };
   };
 
-  # Source file in Nix store
   sourceFile = pkgs.writeText "cursor-cli-config" cursorConfig;
 
-  # Activation script for both locations
   activationScript = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
     # Helper function to install writable config
     install_cursor_config() {
       local source_file="$1"
       local dest_path="$2"
       local config_name="$3"
-      
+
       $DRY_RUN_CMD mkdir -p "$(dirname "$dest_path")"
       if [[ -f "$dest_path" && ! -L "$dest_path" ]]; then
         if ! cmp -s "$source_file" "$dest_path"; then
