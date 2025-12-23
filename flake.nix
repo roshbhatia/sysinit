@@ -52,14 +52,13 @@
       stylix,
       mac-app-util,
       onepassword-shell-plugins,
-      nur,
       ...
     }:
     let
       inherit (nixpkgs) lib;
 
-      sharedValues = import ./flake/shared-values.nix;
-      hostConfigs = (import ./flake/hosts.nix) sharedValues;
+      common = import ./flake/common.nix;
+      hostConfigs = (import ./flake/hosts.nix) common;
       builders = import ./flake/builders.nix {
         inherit lib nixpkgs inputs;
       };
@@ -75,7 +74,6 @@
           nix-homebrew
           mac-app-util
           onepassword-shell-plugins
-          nur
           ;
         inherit (builders) mkPkgs;
         inherit (builders) mkUtils;
@@ -111,7 +109,7 @@
         inherit
           builders
           hostConfigs
-          sharedValues
+          common
           ;
       };
     };

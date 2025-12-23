@@ -1,11 +1,11 @@
-sharedValues:
+common:
 
 {
   lv426 = {
     system = "aarch64-darwin";
     platform = "darwin";
-    username = "rshnbhatia";
-    values = sharedValues // {
+    inherit (common) username;
+    values = common.values // {
       darwin.homebrew.additionalPackages.casks = [
         "betterdiscord-installer"
         "calibre"
@@ -18,8 +18,8 @@ sharedValues:
   arrakis = {
     system = "x86_64-linux";
     platform = "linux";
-    username = "rshnbhatia";
-    values = sharedValues // {
+    inherit (common) username;
+    values = common.values // {
       theme = {
         colorscheme = "gruvbox";
         variant = "dark";
