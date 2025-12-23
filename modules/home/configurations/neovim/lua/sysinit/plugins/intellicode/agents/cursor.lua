@@ -1,7 +1,9 @@
+local common = require("sysinit.plugins.intellicode.agents.common")
+
 return {
   name = "cursor",
   label = "Cursor",
-  icon = " ",
+  icon = " ",
   cmd = "cursor-agent",
-  priority = 5,
+  priority = common.priorities.cursor,
 }

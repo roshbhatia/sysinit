@@ -1,7 +1,9 @@
+local common = require("sysinit.plugins.intellicode.agents.common")
+
 return {
   name = "crush",
   label = "Crush",
   icon = "󱝁 ",
   cmd = "crush",
-  priority = 9,
+  priority = common.priorities.crush,
 }

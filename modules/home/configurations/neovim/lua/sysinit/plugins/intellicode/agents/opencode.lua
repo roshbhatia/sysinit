@@ -1,8 +1,9 @@
+local common = require("sysinit.plugins.intellicode.agents.common")
+
 return {
   name = "opencode",
   label = "OpenCode",
   icon = "󰫼 ",
-  -- cmd = "opencode --agent openagent",
   cmd = "opencode",
-  priority = 1,
+  priority = common.priorities.opencode,
 }

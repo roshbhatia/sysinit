@@ -53,6 +53,19 @@ function M.generate_all_keymaps()
     desc = "AI: Kill active session",
   })
 
+  -- Direct agent activation keymaps (leader j + priority number)
+  local all_agents = agents.get_all()
+  for _, agent in ipairs(all_agents) do
+    table.insert(keymaps, {
+      "<leader>j" .. agent.priority,
+      function()
+        ai_manager.activate(agent.name)
+        vim.notify(string.format("%s %s activated", agent.icon, agent.label), vim.log.levels.INFO)
+      end,
+      desc = string.format("AI: Activate %s", agent.label),
+    })
+  end
+
   table.insert(keymaps, {
     "<leader>ja",
     create_mode_context_input("Ask", " @this: ", " @selection: "),

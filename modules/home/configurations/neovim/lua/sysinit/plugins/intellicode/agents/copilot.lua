@@ -1,7 +1,9 @@
+local common = require("sysinit.plugins.intellicode.agents.common")
+
 return {
   name = "copilot",
   label = "Copilot",
-  icon = " ",
+  icon = " ",
   cmd = "copilot --allow-all-paths",
-  priority = 6,
+  priority = common.priorities.copilot,
 }
