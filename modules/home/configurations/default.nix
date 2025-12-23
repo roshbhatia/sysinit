@@ -17,6 +17,7 @@
     ./fd
     ./fzf
     ./git
+    ./ghostty
     ./helix
     ./hushlogin
     ./k9s
