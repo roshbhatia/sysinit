@@ -100,8 +100,18 @@ local function get_mode_name(mode)
   return mode:upper()
 end
 
-local function get_mode_color()
-  return theme_config.palette.primary
+local function get_mode_color(mode)
+  local p = theme_config.palette
+  local mode_lower = mode:lower()
+
+  if mode_lower:find("copy") then
+    return p.green
+  elseif mode_lower:find("search") then
+    return p.yellow
+  elseif mode_lower:find("window") then
+    return p.magenta
+  end
+  return p.primary
 end
 
 wezterm.on("format-tab-title", function(tab)
@@ -120,7 +130,7 @@ end)
 wezterm.on("update-status", function(window, pane)
   local mode = get_mode(window)
   local mode_name = get_mode_name(mode)
-  local mode_color = get_mode_color()
+  local mode_color = get_mode_color(mode)
 
   local dims = pane:get_dimensions()
   local mode_text = "[" .. mode_name .. "]"
