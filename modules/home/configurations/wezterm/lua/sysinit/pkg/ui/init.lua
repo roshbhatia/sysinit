@@ -105,13 +105,13 @@ local function get_mode_color(mode)
   local mode_lower = mode:lower()
 
   if mode_lower:find("copy") then
-    return p.green
+    return p.error
   elseif mode_lower:find("search") then
-    return p.yellow
+    return p.warning
   elseif mode_lower:find("window") then
-    return p.magenta
+    return p.primary
   end
-  return p.primary
+  return p.info
 end
 
 wezterm.on("format-tab-title", function(tab)
