@@ -169,7 +169,7 @@ local function get_display_config()
     scrollback_lines = 20000,
     tab_bar_at_bottom = true,
     text_min_contrast_ratio = 4.5,
-    use_fancy_tab_bar = false,
+    use_fancy_tab_bar = true,
     show_new_tab_button_in_tab_bar = false,
     tab_max_width = 24,
     status_update_interval = 1000,
@@ -196,18 +196,18 @@ local function get_tab_bar_colors()
   local p = theme_config.palette
   return {
     tab_bar = {
-      background = p.highlight,
+      background = p.primary,
       active_tab = {
-        bg_color = p.highlight,
+        bg_color = p.primary,
         fg_color = p.fg_primary,
         underline = "Single",
       },
       inactive_tab = {
-        bg_color = p.highlight,
+        bg_color = p.primary,
         fg_color = p.fg_primary,
       },
       inactive_tab_hover = {
-        bg_color = p.highlight,
+        bg_color = p.primary,
         fg_color = p.fg_primary,
       },
     },
@@ -229,7 +229,10 @@ function M.setup(config)
 
   config.visual_bell = get_visual_bell_config()
 
-  config.colors = config.colors or {}
+  -- Set tab_bar colors
+  if not config.colors then
+    config.colors = {}
+  end
   config.colors.tab_bar = get_tab_bar_colors().tab_bar
 
   config.mouse_bindings = config.mouse_bindings or {}
