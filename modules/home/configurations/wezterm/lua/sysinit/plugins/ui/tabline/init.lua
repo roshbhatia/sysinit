@@ -1,113 +1,40 @@
 local wezterm = require("wezterm")
-local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
+local theme = require("sysinit.plugins.ui.tabline.theme")
+local tabs = require("sysinit.plugins.ui.tabline.tabs")
+local status = require("sysinit.plugins.ui.tabline.status")
 
 local M = {}
 
-function M.setup(config)
-  local colors = config.colors
+function M.setup(config, opts)
+  opts = opts or {}
+  opts.max_tab_width = opts.max_tab_width or 24
+  opts.show_mode = opts.show_mode ~= false
+  opts.show_userhost = opts.show_userhost ~= false
 
-  tabline.setup({
-    options = {
-      theme = colors,
-      theme_overrides = {
-        normal_mode = {
-          a = { fg = colors.tab_bar.active_tab.fg_color, bg = colors.ansi[5] },
-          b = { fg = colors.ansi[5], bg = colors.tab_bar.inactive_tab.bg_color },
-          c = { fg = colors.foreground, bg = colors.background },
-        },
-        copy_mode = {
-          a = { fg = colors.background, bg = colors.ansi[4] },
-          b = { fg = colors.ansi[4], bg = colors.tab_bar.inactive_tab.bg_color },
-          c = { fg = colors.foreground, bg = colors.background },
-        },
-        search_mode = {
-          a = { fg = colors.background, bg = colors.ansi[2] },
-          b = { fg = colors.ansi[2], bg = colors.tab_bar.inactive_tab.bg_color },
-          c = { fg = colors.foreground, bg = colors.background },
-        },
-        tab = {
-          active = {
-            fg = colors.tab_bar.active_tab.fg_color,
-            bg = colors.tab_bar.active_tab.bg_color,
-          },
-          inactive = {
-            fg = colors.tab_bar.inactive_tab.fg_color,
-            bg = colors.tab_bar.inactive_tab.bg_color,
-          },
-          inactive_hover = {
-            fg = colors.tab_bar.inactive_tab_hover.fg_color,
-            bg = colors.tab_bar.inactive_tab_hover.bg_color,
-          },
-        },
-      },
-      section_separators = {
-        left = "",
-        right = "",
-      },
-      component_separators = {
-        left = "",
-        right = "",
-      },
-      tab_separators = {
-        left = " ",
-        right = " ",
-      },
-    },
-    sections = {
-      tabline_a = {
-        {
-          "mode",
-          icon = "",
-          padding = { left = 1, right = 1 },
-        },
-      },
-      tabline_b = {
-        icon = " ",
-        "domain",
-      },
-      tabline_x = {},
-      tabline_y = {},
-      tabline_z = {},
-      tab_active = {
-        {
-          "index",
-          padding = { left = 1 },
-        },
-        ":",
-        {
-          "parent",
-          padding = { left = 1, right = 0 },
-        },
-        "/",
-        {
-          "cwd",
-          padding = { left = 0, right = 1 },
-        },
-        { "zoomed", padding = { left = 1, right = 1 } },
-      },
-      tab_inactive = {
-        {
-          "index",
-          padding = { left = 1 },
-        },
-        ":",
-        {
-          "parent",
-          padding = { left = 1, right = 0 },
-        },
-        "/",
-        {
-          "cwd",
-          padding = { left = 0, right = 1 },
-        },
-      },
-    },
-    extensions = {},
-  })
+  config.use_fancy_tab_bar = false
+  config.show_new_tab_button_in_tab_bar = false
+  config.tab_bar_at_bottom = true
+  config.tab_max_width = opts.max_tab_width
 
-  tabline.apply_to_config(config)
+  config.window_padding = config.window_padding or {}
+  config.window_padding.top = 0
 
-  -- Mouse bindings for tab management
+  config.colors = config.colors or {}
+  config.colors.tab_bar = config.colors.tab_bar or {}
+  config.colors.tab_bar.background = theme.get_background()
+
+  config.status_update_interval = 1000
+
+  wezterm.on("format-tab-title", function(tab, tabs_list, panes, cfg, hover, max_width)
+    return tabs.format_tab_title(tab, tabs_list, panes, cfg, hover, max_width)
+  end)
+
+  wezterm.on("update-status", function(window, pane)
+    if opts.show_mode or opts.show_userhost then
+      status.update_status(window, pane)
+    end
+  end)
+
   config.mouse_bindings = config.mouse_bindings or {}
   table.insert(config.mouse_bindings, {
     event = { Down = { streak = 1, button = "Right" } },
