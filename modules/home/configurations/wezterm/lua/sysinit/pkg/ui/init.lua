@@ -82,13 +82,13 @@ local function get_mode_color(mode)
   local mode_lower = mode:lower()
 
   if mode_lower:find("copy") then
-    return p.green
+    return p.error
   elseif mode_lower:find("search") then
-    return p.yellow
+    return p.warning
   elseif mode_lower:find("window") then
-    return p.magenta
+    return p.primary
   end
-  return p.primary
+  return p.info
 end
 
 wezterm.on("format-tab-title", function(tab)
@@ -200,20 +200,15 @@ local function get_font_config()
 end
 
 local function get_tab_bar_colors()
-  local p = theme_config.palette
   return {
-    background = p.primary,
     active_tab = {
-      bg_color = p.primary,
       fg_color = "#000000",
       intensity = "Bold",
     },
     inactive_tab = {
-      bg_color = p.primary,
       fg_color = "#000000",
     },
     inactive_tab_hover = {
-      bg_color = p.primary,
       fg_color = "#000000",
     },
   }
