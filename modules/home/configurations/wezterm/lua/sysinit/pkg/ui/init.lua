@@ -90,7 +90,6 @@ local function get_mode_color(mode)
 end
 
 wezterm.on("format-tab-title", function(tab)
-  local p = theme_config.palette
   local index = tab.tab_index + 1
   local content = get_tab_content(tab)
   content = truncate(content, 19)
@@ -99,7 +98,9 @@ wezterm.on("format-tab-title", function(tab)
 
   local format = {
     { Text = "  " },
-    { Foreground = { Color = p.fg_primary } },
+    { Foreground = {
+      Color = "#000000",
+    } },
   }
 
   if is_active then
