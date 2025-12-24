@@ -36,17 +36,146 @@ local terminal_font = wezterm.font_with_fallback({
   "Symbols Nerd Font Mono",
 })
 
+local function truncate(str, max_len)
+  if #str <= max_len then
+    return str
+  end
+  return str:sub(1, max_len - 1) .. "…"
+end
+
+local function get_tab_content(tab)
+  local cwd_uri = tab.active_pane.current_working_dir
+  if cwd_uri then
+    local cwd_url = tostring(cwd_uri)
+    local cwd_path = cwd_url:gsub("file://[^/]*/", "/")
+    local basename = cwd_path:match("([^/]+)/?$")
+    if basename and basename ~= "" then
+      return basename
+    end
+  end
+
+  local process = tab.active_pane.foreground_process_name
+  if process then
+    return process:match("([^/]+)$")
+  end
+
+  return "shell"
+end
+
+local function get_mode(window)
+  local mode = window:active_key_table()
+  if not mode or mode == "" then
+    return "default"
+  end
+  return mode
+end
+
+local function get_username()
+  local username = os.getenv("USER") or os.getenv("USERNAME") or "unknown"
+  return username
+end
+
+local function get_hostname()
+  local hostname = wezterm.hostname() or "localhost"
+  return hostname:match("^([^%.]+)") or hostname
+end
+
+wezterm.on("format-tab-title", function(tab)
+  local p = theme_config.palette
+  local index = tab.tab_index + 1
+  local content = get_tab_content(tab)
+  content = truncate(content, 19)
+
+  local is_active = tab.is_active
+  local left_bracket = is_active and "{" or "["
+  local right_bracket = is_active and "}" or "]"
+
+  local fg = is_active and p.bg_primary or p.fg_muted
+  local bg = is_active and p.primary or p.bg_secondary
+
+  local format = {
+    { Foreground = { Color = fg } },
+    { Background = { Color = bg } },
+    { Text = left_bracket },
+  }
+
+  if is_active then
+    table.insert(format, { Attribute = { Underline = "Single" } })
+  end
+
+  table.insert(format, { Text = index .. ":" .. content })
+
+  if is_active then
+    table.insert(format, { Attribute = { Underline = "None" } })
+  end
+
+  table.insert(format, { Text = right_bracket })
+  table.insert(format, { Background = { Color = p.bg_secondary } })
+  table.insert(format, { Foreground = { Color = p.bg_secondary } })
+  table.insert(format, { Text = " " })
+
+  return format
+end)
+
+wezterm.on("update-status", function(window, pane)
+  local p = theme_config.palette
+  local mode = get_mode(window)
+  local mode_upper = mode:upper()
+  if mode == "default" then
+    mode_upper = "INSERT"
+  elseif mode:lower():find("copy") then
+    mode_upper = "NORMAL"
+  end
+
+  local username = get_username()
+  local hostname = get_hostname()
+
+  local dims = pane:get_dimensions()
+  local screen_width = dims.cols
+
+  local mode_text = "[" .. mode_upper .. "]"
+  local userhost_text = "[" .. username .. "@" .. hostname .. "]"
+
+  local mode_len = wezterm.column_width(mode_text)
+  local userhost_len = wezterm.column_width(userhost_text)
+
+  local total_width = mode_len + userhost_len + 2
+  local left_padding = math.floor((screen_width - total_width) / 2)
+
+  local cells = {}
+
+  table.insert(cells, { Background = { Color = p.bg_secondary } })
+  table.insert(cells, { Foreground = { Color = p.bg_secondary } })
+  table.insert(cells, { Text = string.rep(" ", math.max(0, left_padding)) })
+
+  table.insert(cells, { Foreground = { Color = p.fg_secondary } })
+  table.insert(cells, { Background = { Color = p.bg_secondary } })
+  table.insert(cells, { Attribute = { Intensity = "Bold" } })
+  table.insert(cells, { Text = " " .. mode_text .. " " })
+
+  table.insert(cells, { Background = { Color = p.bg_secondary } })
+  table.insert(cells, { Text = "  " })
+
+  table.insert(cells, { Foreground = { Color = p.fg_secondary } })
+  table.insert(cells, { Background = { Color = p.bg_secondary } })
+  table.insert(cells, { Text = " " .. userhost_text .. " " })
+
+  window:set_left_status("")
+  window:set_right_status(wezterm.format(cells))
+end)
+
 local function get_window_appearance_config()
   local config = {
     window_padding = {
       left = "1cell",
       right = "1cell",
-      top = "1cell",
+      top = 0,
+      bottom = "1cell",
     },
+    window_decorations = "RESIZE",
   }
 
   if is_linux() then
-    config.window_decorations = "RESIZE"
     config.enable_wayland = true
   end
 
@@ -74,6 +203,9 @@ local function get_display_config()
     tab_bar_at_bottom = true,
     text_min_contrast_ratio = 4.5,
     use_fancy_tab_bar = false,
+    show_new_tab_button_in_tab_bar = false,
+    tab_max_width = 24,
+    status_update_interval = 1000,
   }
 end
 
@@ -93,6 +225,29 @@ local function get_font_config()
   }
 end
 
+local function get_tab_bar_colors()
+  local p = theme_config.palette
+  return {
+    tab_bar = {
+      background = p.bg_secondary,
+      active_tab = {
+        bg_color = p.primary,
+        fg_color = p.bg_primary,
+        intensity = "Bold",
+        underline = "Single",
+      },
+      inactive_tab = {
+        bg_color = p.bg_secondary,
+        fg_color = p.fg_muted,
+      },
+      inactive_tab_hover = {
+        bg_color = p.bg_secondary,
+        fg_color = p.fg_primary,
+      },
+    },
+  }
+end
+
 function M.setup(config)
   local configs = {
     get_window_appearance_config(),
@@ -107,6 +262,16 @@ function M.setup(config)
   end
 
   config.visual_bell = get_visual_bell_config()
+
+  config.colors = config.colors or {}
+  config.colors.tab_bar = get_tab_bar_colors().tab_bar
+
+  config.mouse_bindings = config.mouse_bindings or {}
+  table.insert(config.mouse_bindings, {
+    event = { Down = { streak = 1, button = "Right" } },
+    mods = "NONE",
+    action = wezterm.action.CloseCurrentTab({ confirm = false }),
+  })
 end
 
 return M

@@ -72,29 +72,6 @@ local function get_window_appearance_config()
         theme_config.ansi["14"],
         theme_config.ansi["15"],
       },
-      tab_bar = {
-        background = theme_config.palette.bg_primary,
-        active_tab = {
-          bg_color = theme_config.palette.primary,
-          fg_color = theme_config.palette.bg_primary,
-        },
-        inactive_tab = {
-          bg_color = theme_config.palette.bg_secondary,
-          fg_color = theme_config.palette.fg_muted,
-        },
-        inactive_tab_hover = {
-          bg_color = theme_config.palette.bg_tertiary,
-          fg_color = theme_config.palette.fg_primary,
-        },
-        new_tab = {
-          bg_color = theme_config.palette.bg_secondary,
-          fg_color = theme_config.palette.fg_muted,
-        },
-        new_tab_hover = {
-          bg_color = theme_config.palette.bg_tertiary,
-          fg_color = theme_config.palette.fg_primary,
-        },
-      },
     },
   }
 
