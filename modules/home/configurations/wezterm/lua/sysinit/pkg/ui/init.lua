@@ -60,8 +60,8 @@ local terminal_font = wezterm.font_with_fallback({
   "Symbols Nerd Font Mono",
 })
 
-local function truncate(str, max_len)
-  str = tostring(str or "shell")
+local function truncate_component(str, max_len)
+  str = tostring(str or "")
   if #str <= max_len then
     return str
   end
@@ -69,29 +69,87 @@ local function truncate(str, max_len)
 end
 
 local function get_tab_content(tab)
-  local cwd_uri = tab.active_pane.current_working_dir
+  local hostname = ""
+  local process_name = ""
+  local path_display = ""
+
+  -- Get hostname from remote mux connection (skip for localhost)
+  local pane = tab.active_pane
+  if pane and pane.domain_id then
+    local domain_id = pane.domain_id
+    if domain_id ~= "local" and domain_id ~= "localhost" then
+      local domain = wezterm.mux.get_domain(domain_id)
+      if domain then
+        local domain_name = domain:name()
+        if
+          domain_name
+          and domain_name ~= ""
+          and domain_name ~= "local"
+          and domain_name ~= "localhost"
+        then
+          hostname = domain_name
+        end
+      end
+    end
+  end
+
+  -- Get process name
+  local proc = pane:get_foreground_process_name()
+  if proc then
+    process_name = proc:match("([^/]+)$") or ""
+  end
+
+  -- Get path: parent/dir format
+  local cwd_uri = pane.current_working_dir
   if cwd_uri then
     local cwd_url = tostring(cwd_uri)
     local cwd_path = cwd_url:gsub("file://[^/]*/", "/")
     local parent, child = cwd_path:match("([^/]+)/([^/]+)/?$")
     if child then
-      return parent .. "/" .. child
+      path_display = parent .. "/" .. child
+    else
+      local basename = cwd_path:match("([^/]+)/?$")
+      if basename and basename ~= "" then
+        path_display = basename
+      else
+        path_display = "shell"
+      end
     end
-    local basename = cwd_path:match("([^/]+)/?$")
-    if basename and basename ~= "" then
-      return basename
-    end
+  else
+    path_display = process_name ~= "" and process_name or "shell"
   end
 
-  local process = tab.active_pane.foreground_process_name
-  if process then
-    local proc_name = process:match("([^/]+)$")
-    if proc_name then
-      return proc_name
+  -- Build final display with component truncation
+  -- Allocate character budget: 19 chars max
+  local max_total = 19
+  local separators = (hostname ~= "" and 1 or 0) + (process_name ~= "" and 1 or 0)
+  local separator_width = separators * 1 -- '|' separator
+
+  -- Build components list
+  local components = {}
+  if hostname ~= "" then
+    table.insert(components, hostname)
+  end
+  if process_name ~= "" then
+    table.insert(components, process_name)
+  end
+  table.insert(components, path_display)
+
+  -- Distribute character budget among components
+  local available = max_total - separator_width
+  local num_components = #components
+  local per_component = math.floor(available / num_components)
+
+  for i, comp in ipairs(components) do
+    local max_len = per_component
+    -- Give remaining chars to last component
+    if i == num_components then
+      max_len = available - (per_component * (num_components - 1))
     end
+    components[i] = truncate_component(comp, math.max(1, max_len))
   end
 
-  return "shell"
+  return table.concat(components, "|")
 end
 
 local function get_mode(window)
@@ -123,15 +181,18 @@ local function get_mode_color(mode)
 end
 
 wezterm.on("format-tab-title", function(tab)
+  local p = theme_config.palette
   local index = tab.tab_index + 1
-  local content = truncate(get_tab_content(tab), 19)
+  local content = get_tab_content(tab)
   local bracket = tab.is_active and "[" or ""
   local bracket_close = tab.is_active and "]" or ""
 
   return {
     { Text = "  " },
-    { Foreground = { Color = "#000000" } },
-    { Text = bracket .. index .. ":" .. content .. bracket_close .. " " },
+    { Foreground = { Color = p.fg_primary } },
+    {
+      Text = bracket .. index .. ":" .. content .. bracket_close .. " ",
+    },
   }
 end)
 
