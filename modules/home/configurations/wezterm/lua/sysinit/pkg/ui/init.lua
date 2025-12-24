@@ -139,7 +139,6 @@ wezterm.on("update-status", function(window, pane)
   table.insert(cells, { Text = string.rep(" ", math.max(0, screen_width - mode_len - 2)) })
   table.insert(cells, { Text = mode_text .. "  " })
 
-  -- Update tab bar color based on mode
   local mode_color = get_mode_color(mode)
   local overrides = window:get_config_overrides() or {}
   overrides.colors = overrides.colors or {}
@@ -147,16 +146,16 @@ wezterm.on("update-status", function(window, pane)
     background = mode_color,
     active_tab = {
       bg_color = mode_color,
-      fg_color = p.fg_primary,
-      underline = "Single",
+      fg_color = "#000000",
+      intensity = "Bold",
     },
     inactive_tab = {
       bg_color = mode_color,
-      fg_color = p.fg_primary,
+      fg_color = "#000000",
     },
     inactive_tab_hover = {
       bg_color = mode_color,
-      fg_color = p.fg_primary,
+      fg_color = "#000000",
     },
   }
   window:set_config_overrides(overrides)
