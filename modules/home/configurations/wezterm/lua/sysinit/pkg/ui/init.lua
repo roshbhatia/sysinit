@@ -79,15 +79,6 @@ end
 
 local function get_mode_color(mode)
   local p = theme_config.palette
-  local mode_lower = mode:lower()
-
-  if mode_lower:find("copy") then
-    return p.green
-  elseif mode_lower:find("search") then
-    return p.yellow
-  elseif mode_lower:find("window") then
-    return p.magenta
-  end
   return p.primary
 end
 
@@ -114,12 +105,8 @@ wezterm.on("update-status", function(window, pane)
   local padding = string.rep(" ", math.max(0, dims.cols - wezterm.column_width(mode_text) - 2))
 
   local overrides = window:get_config_overrides() or {}
-  if not overrides.colors then
-    overrides.colors = {}
-  end
-  if not overrides.colors.tab_bar then
-    overrides.colors.tab_bar = {}
-  end
+  overrides.colors = overrides.colors or {}
+  overrides.colors.tab_bar = overrides.colors.tab_bar or {}
   overrides.colors.tab_bar.background = mode_color
   overrides.colors.tab_bar.active_tab = {
     bg_color = mode_color,
