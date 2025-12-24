@@ -43,6 +43,7 @@ let
     "1password-cli"
     "firefox"
     "font-symbols-only-nerd-font"
+    "ghostty@tip"
     "hammerspoon"
     "handy"
     "mediosz/tap/swipeaerospace"

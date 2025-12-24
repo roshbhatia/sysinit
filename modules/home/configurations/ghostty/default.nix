@@ -1,10 +1,15 @@
-_:
+{
+  ...
+}:
 
 {
   stylix.targets.ghostty = {
     enable = true;
   };
 
+  # Ghostty package:
+  # - Linux: Installed via Nix flake (pkgs.ghostty from overlay)
+  # - macOS: Installed via Homebrew cask (ghostty@tip)
   programs.ghostty = {
     enable = true;
     settings = {
