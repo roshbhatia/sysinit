@@ -47,16 +47,16 @@ in
   programs.ghostty = {
     enable = true;
     settings = {
+      auto-update-channel = "tip";
       custom-shader = "${cursorTailShader}";
 
       font-size = 13;
       window-padding-x = "10";
-      window-padding-y = "10,0";
+      window-padding-y = "10,5";
 
       background-opacity = transparency.opacity;
       background-blur-radius = 20;
 
-      window-decoration = "none";
       macos-titlebar-style = "hidden";
       window-title-font-family = font.monospace;
 
@@ -69,7 +69,6 @@ in
       shell-integration = "detect";
 
       keybind = [
-        # Quick terminal
         "ctrl+shift+t=toggle_quick_terminal"
 
         # New tab (both ctrl and cmd)
