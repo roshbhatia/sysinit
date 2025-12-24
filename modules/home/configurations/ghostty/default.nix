@@ -13,21 +13,30 @@ let
     sha256 = "1g9vsbsxnvcj0y6rzdkxrd4mj0ldl9aha7381g8nfs3bz829y46w";
   };
 
-  themeConfig = values.theme;
-  inherit (themeConfig) transparency;
-  fontConfig = themeConfig.font;
-  palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
+  inherit (values.theme)
+    colorscheme
+    variant
+    transparency
+    font
+    appearance
+    ;
+  palette = themes.getThemePalette colorscheme variant;
 
   stripHash = color: lib.removePrefix "#" color;
 
-  iconFrame = if themeConfig.appearance == "dark" then "plastic" else "aluminum";
+  iconFrame = if appearance == "dark" then "plastic" else "aluminum";
 
   iconGhostColor = stripHash palette.accent;
 
+  accentSecondary =
+    palette.accent_secondary or palette.blue or palette.cyan or palette.teal or palette.accent;
+  accentTertiary =
+    palette.accent_tertiary or palette.purple or palette.mauve or palette.magenta or palette.accent;
+
   iconScreenColors = lib.concatStringsSep "," [
     (stripHash palette.accent)
-    (stripHash palette.accent_secondary)
-    (stripHash palette.accent_tertiary)
+    (stripHash accentSecondary)
+    (stripHash accentTertiary)
   ];
 in
 {
@@ -48,7 +57,7 @@ in
 
       window-decoration = "none";
       macos-titlebar-style = "hidden";
-      window-title-font-family = fontConfig.monospace;
+      window-title-font-family = font.monospace;
 
       macos-icon = "custom-style";
       macos-icon-frame = iconFrame;
