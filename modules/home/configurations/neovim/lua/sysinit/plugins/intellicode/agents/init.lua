@@ -1,6 +1,5 @@
 local M = {}
 
--- Load agents config from nix
 local config_path = vim.fn.stdpath("config") .. "/agents_config.json"
 local agents_config = {}
 if vim.fn.filereadable(config_path) == 1 then
@@ -20,7 +19,6 @@ local all_agents = {
   require("sysinit.plugins.intellicode.agents.copilot"),
 }
 
--- Filter agents based on config
 local agents = {}
 for _, agent in ipairs(all_agents) do
   if agents_config[agent.name] ~= false then
@@ -28,7 +26,6 @@ for _, agent in ipairs(all_agents) do
   end
 end
 
--- Sort agents by priority (lower number = higher priority)
 table.sort(agents, function(a, b)
   return (a.priority or 999) < (b.priority or 999)
 end)

@@ -136,6 +136,13 @@
       mode = {
         main = {
           binding = {
+            alt-enter = ''
+              exec-and-forget osascript -e '
+                            tell application "WezTerm"
+                              activate
+                            end tell'
+            '';
+
             alt-t = "layout tiles horizontal vertical";
             alt-a = "layout accordion horizontal vertical";
 
@@ -160,7 +167,7 @@
 
             alt-tab = "workspace --wrap-around next";
             alt-shift-tab = "workspace --wrap-around prev";
-            alt-p = "workspace-back-and-forth";
+            alt-space = "workspace-back-and-forth";
 
             alt-shift-1 = "move-node-to-workspace 1 --focus-follows-window";
             alt-shift-2 = "move-node-to-workspace 2 --focus-follows-window";
