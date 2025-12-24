@@ -49,8 +49,9 @@ in
     settings = {
       custom-shader = "${cursorTailShader}";
 
-      window-padding-x = 3;
-      window-padding-y = 3;
+      font-size = 13;
+      window-padding-x = "4";
+      window-padding-y = "4,0";
 
       background-opacity = transparency.opacity;
       background-blur-radius = 20;
