@@ -199,21 +199,6 @@ local function get_font_config()
   }
 end
 
-local function get_tab_bar_colors()
-  return {
-    active_tab = {
-      fg_color = "#000000",
-      intensity = "Bold",
-    },
-    inactive_tab = {
-      fg_color = "#000000",
-    },
-    inactive_tab_hover = {
-      fg_color = "#000000",
-    },
-  }
-end
-
 function M.setup(config)
   for _, cfg in ipairs({
     get_window_appearance_config(),
@@ -226,8 +211,25 @@ function M.setup(config)
   end
 
   config.visual_bell = get_visual_bell_config()
+
+  local p = theme_config.palette
   config.colors = config.colors or {}
-  config.colors.tab_bar = get_tab_bar_colors()
+  config.colors.tab_bar = {
+    background = p.primary,
+    active_tab = {
+      bg_color = p.primary,
+      fg_color = "#000000",
+      intensity = "Bold",
+    },
+    inactive_tab = {
+      bg_color = p.primary,
+      fg_color = "#000000",
+    },
+    inactive_tab_hover = {
+      bg_color = p.primary,
+      fg_color = "#000000",
+    },
+  }
 
   config.mouse_bindings = config.mouse_bindings or {}
   table.insert(config.mouse_bindings, {
