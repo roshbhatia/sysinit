@@ -26,11 +26,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    mac-app-util = {
-      url = "github:hraban/mac-app-util";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     onepassword-shell-plugins = {
       url = "github:1Password/shell-plugins";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -50,7 +45,6 @@
       home-manager,
       nix-homebrew,
       stylix,
-      mac-app-util,
       onepassword-shell-plugins,
       ...
     }:
@@ -72,7 +66,6 @@
           home-manager
           stylix
           nix-homebrew
-          mac-app-util
           onepassword-shell-plugins
           ;
         inherit (builders) mkPkgs;

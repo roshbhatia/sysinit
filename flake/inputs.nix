@@ -23,12 +23,6 @@
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  mac-app-util = {
-    url = "github:hraban/mac-app-util";
-    inputs.nixpkgs.follows = "nixpkgs";
-    inputs.cl-nix-lite.url = "github:r4v3n6101/cl-nix-lite/url-fix";
-  };
-
   onepassword-shell-plugins = {
     url = "github:1Password/shell-plugins";
     inputs.nixpkgs.follows = "nixpkgs";

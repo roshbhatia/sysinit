@@ -42,7 +42,6 @@
       home-manager,
       stylix,
       nix-homebrew,
-      mac-app-util,
       onepassword-shell-plugins,
       mkPkgs,
       mkUtils,
@@ -97,11 +96,9 @@
           home-manager.darwinModules.home-manager
           stylix.darwinModules.stylix
           nix-homebrew.darwinModules.nix-homebrew
-          mac-app-util.darwinModules.default
           {
             _module.args.utils = utils;
             home-manager.sharedModules = [
-              mac-app-util.homeManagerModules.default
               onepassword-shell-plugins.hmModules.default
               pkgs.nur.repos.charmbracelet.modules.homeManager.crush
             ];
