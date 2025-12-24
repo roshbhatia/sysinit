@@ -49,11 +49,11 @@ in
     settings = {
       custom-shader = "${cursorTailShader}";
 
-      window-padding-x = 1;
-      window-padding-y = 1;
+      window-padding-x = 3;
+      window-padding-y = 3;
 
       background-opacity = transparency.opacity;
-      background-blur = "macos-glass-regular";
+      background-blur-radius = 20;
 
       window-decoration = "none";
       macos-titlebar-style = "hidden";
@@ -64,7 +64,7 @@ in
       macos-icon-ghost-color = iconGhostColor;
       macos-icon-screen-color = iconScreenColors;
 
-      quick-terminal-position = "center";
+      quick-terminal-position = "top";
       shell-integration = "detect";
 
       keybind = [
