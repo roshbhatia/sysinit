@@ -103,24 +103,19 @@ local function get_tab_content(tab)
     process_name = proc:match("([^/]+)$") or ""
   end
 
-  -- Get path: parent/dir format
-  local cwd_uri = pane.current_working_dir
-  if cwd_uri then
-    local cwd_url = tostring(cwd_uri)
-    -- Extract path from file:// URL (handles file://hostname/path or file:///path)
-    local cwd_path = cwd_url:match("file://[^/]*(/.*)") or cwd_url:match("file://(.*)")
-
-    if cwd_path and cwd_path ~= "" then
-      local parent, child = cwd_path:match("([^/]+)/([^/]+)/?$")
-      if child then
-        path_display = parent .. "/" .. child
+  -- Get path from pane title (usually contains cwd)
+  local pane_title = pane.title or ""
+  if pane_title and pane_title ~= "" then
+    -- Try to extract parent/child from path
+    local parent, child = pane_title:match("([^/]+)/([^/]+)/?$")
+    if child then
+      path_display = parent .. "/" .. child
+    else
+      local basename = pane_title:match("([^/]+)/?$")
+      if basename and basename ~= "" then
+        path_display = basename
       else
-        local basename = cwd_path:match("([^/]+)/?$")
-        if basename and basename ~= "" then
-          path_display = basename
-        else
-          path_display = "root"
-        end
+        path_display = "root"
       end
     end
   end
@@ -191,7 +186,7 @@ local function get_mode_color(mode)
   return p.info
 end
 
-wezterm.on("format-tab-title", function(tab)
+wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
   local p = theme_config.palette
   local index = tab.tab_index + 1
   local content = get_tab_content(tab)
