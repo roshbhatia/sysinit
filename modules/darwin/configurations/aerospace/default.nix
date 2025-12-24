@@ -49,6 +49,12 @@
       on-window-detected = [
         {
           "if" = {
+            app-id = "com.mitchellh.ghostty";
+          };
+          run = [ "layout tiling" ];
+        }
+        {
+          "if" = {
             app-id = "org.ferdium.ferdium-app";
           };
           run = "move-node-to-workspace C";
@@ -136,13 +142,6 @@
       mode = {
         main = {
           binding = {
-            alt-enter = ''
-              exec-and-forget osascript -e '
-                            tell application "WezTerm"
-                              activate
-                            end tell'
-            '';
-
             alt-t = "layout tiles horizontal vertical";
             alt-a = "layout accordion horizontal vertical";
 

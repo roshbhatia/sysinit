@@ -69,7 +69,7 @@ in
       shell-integration = "detect";
 
       keybind = [
-        "ctrl+shift+t=toggle_quick_terminal"
+        "alt+enter=global:toggle_quick_terminal"
 
         # New tab (both ctrl and cmd)
         "ctrl+t=new_tab"
