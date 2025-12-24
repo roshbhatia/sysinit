@@ -48,6 +48,10 @@ local function get_tab_content(tab)
   if cwd_uri then
     local cwd_url = tostring(cwd_uri)
     local cwd_path = cwd_url:gsub("file://[^/]*/", "/")
+    local parent, child = cwd_path:match("([^/]+)/([^/]+)/?$")
+    if child then
+      return parent .. "/" .. child
+    end
     local basename = cwd_path:match("([^/]+)/?$")
     if basename and basename ~= "" then
       return basename
@@ -68,6 +72,21 @@ local function get_mode(window)
     return "default"
   end
   return mode
+end
+
+local function get_mode_color(mode)
+  local p = theme_config.palette
+  local mode_lower = mode:lower()
+
+  if mode_lower:find("copy") then
+    return p.green
+  elseif mode_lower:find("search") then
+    return p.yellow
+  elseif mode_lower:find("window") then
+    return p.magenta
+  else
+    return p.primary
+  end
 end
 
 local function get_username()
@@ -94,13 +113,13 @@ wezterm.on("format-tab-title", function(tab)
   }
 
   if is_active then
-    table.insert(format, { Attribute = { Underline = "Single" } })
+    table.insert(format, { Text = "[" })
   end
 
   table.insert(format, { Text = index .. ":" .. content })
 
   if is_active then
-    table.insert(format, { Attribute = { Underline = "None" } })
+    table.insert(format, { Text = "]" })
   end
 
   table.insert(format, { Text = " " })
@@ -129,6 +148,28 @@ wezterm.on("update-status", function(window, pane)
   table.insert(cells, { Foreground = { Color = p.fg_primary } })
   table.insert(cells, { Text = string.rep(" ", math.max(0, screen_width - mode_len - 2)) })
   table.insert(cells, { Text = mode_text .. "  " })
+
+  -- Update tab bar color based on mode
+  local mode_color = get_mode_color(mode)
+  local overrides = window:get_config_overrides() or {}
+  overrides.colors = overrides.colors or {}
+  overrides.colors.tab_bar = {
+    background = mode_color,
+    active_tab = {
+      bg_color = mode_color,
+      fg_color = p.fg_primary,
+      underline = "Single",
+    },
+    inactive_tab = {
+      bg_color = mode_color,
+      fg_color = p.fg_primary,
+    },
+    inactive_tab_hover = {
+      bg_color = mode_color,
+      fg_color = p.fg_primary,
+    },
+  }
+  window:set_config_overrides(overrides)
 
   window:set_left_status("")
   window:set_right_status(wezterm.format(cells))
