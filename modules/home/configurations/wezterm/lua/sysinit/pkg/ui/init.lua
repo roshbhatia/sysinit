@@ -75,12 +75,16 @@ local function get_tab_content(tab)
 
   -- Get hostname from remote mux connection (skip for localhost)
   local pane = tab.active_pane
-  if pane and pane.domain_id then
+  if not pane then
+    return "shell"
+  end
+
+  if pane.domain_id then
     local domain_id = pane.domain_id
     if domain_id ~= "local" and domain_id ~= "localhost" then
       local domain = wezterm.mux.get_domain(domain_id)
       if domain then
-        local domain_name = domain:name()
+        local domain_name = domain.name
         if
           domain_name
           and domain_name ~= ""
@@ -103,23 +107,20 @@ local function get_tab_content(tab)
   local cwd_uri = pane.current_working_dir
   if cwd_uri then
     local cwd_url = tostring(cwd_uri)
-    -- Remove file:// prefix and everything up to the first /
-    local cwd_path = cwd_url:gsub("^file://", "")
-    -- Remove any hostname if present (e.g., file://hostname/path -> /path)
-    cwd_path = cwd_path:gsub("^[^/]+", "")
-    if cwd_path == "" then
-      cwd_path = "/"
-    end
+    -- Extract path from file:// URL (handles file://hostname/path or file:///path)
+    local cwd_path = cwd_url:match("file://[^/]*(/.*)") or cwd_url:match("file://(.*)")
 
-    local parent, child = cwd_path:match("([^/]+)/([^/]+)/?$")
-    if child then
-      path_display = parent .. "/" .. child
-    else
-      local basename = cwd_path:match("([^/]+)/?$")
-      if basename and basename ~= "" then
-        path_display = basename
+    if cwd_path and cwd_path ~= "" then
+      local parent, child = cwd_path:match("([^/]+)/([^/]+)/?$")
+      if child then
+        path_display = parent .. "/" .. child
       else
-        path_display = "shell"
+        local basename = cwd_path:match("([^/]+)/?$")
+        if basename and basename ~= "" then
+          path_display = basename
+        else
+          path_display = "root"
+        end
       end
     end
   end
