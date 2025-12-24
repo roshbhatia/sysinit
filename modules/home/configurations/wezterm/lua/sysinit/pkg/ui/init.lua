@@ -192,12 +192,6 @@ local function get_display_config()
     show_new_tab_button_in_tab_bar = false,
     tab_max_width = 24,
     status_update_interval = 1000,
-    tab_bar_style = {
-      border_bottom = "none",
-      border_top = "single",
-      border_left = "none",
-      border_right = "none",
-    },
   }
 end
 

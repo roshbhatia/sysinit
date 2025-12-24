@@ -3,7 +3,7 @@ local common = require("sysinit.plugins.intellicode.agents.common")
 return {
   name = "goose",
   label = "Goose",
-  icon = " ",
+  icon = "  ",
   cmd = "goose",
   priority = common.priorities.goose,
 }
