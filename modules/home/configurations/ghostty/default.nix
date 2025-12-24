@@ -49,8 +49,8 @@ in
     settings = {
       custom-shader = "${cursorTailShader}";
 
-      window-padding-x = "1cell";
-      window-padding-y = "1cell";
+      window-padding-x = 1;
+      window-padding-y = 1;
 
       background-opacity = transparency.opacity;
       background-blur = "macos-glass-regular";
@@ -65,7 +65,7 @@ in
       macos-icon-screen-color = iconScreenColors;
 
       quick-terminal-position = "center";
-      shell-integration = true;
+      shell-integration = "detect";
 
       keybind = [
         # Quick terminal
@@ -102,8 +102,8 @@ in
         # macOS standard keybinds
         "super+w=close_surface"
         "super+q=quit"
-        "super+h=hide_application"
-        "super+m=minimize_window"
+        "super+h=toggle_visibility"
+        "super+m=toggle_visibility"
 
         # Vim mode
         "ctrl+escape=activate_key_table:vim"
