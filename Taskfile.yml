@@ -35,12 +35,5 @@ tasks:
   docs:values:
     desc: Generate and inject values.nix schema documentation into README.md
     cmds:
-      - |
-        #!/usr/bin/env bash
-        set -euo pipefail
-
-        if ! ./hack/generate-values-docs.sh README.md; then
-          echo "Failed to generate values documentation"
-          exit 1
-        fi
+      - ./hack/generate-values-docs.sh README.md
     silent: true
