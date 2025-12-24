@@ -1,22 +1,27 @@
 {
+  pkgs,
   ...
 }:
 
+let
+  cursorTailShader = pkgs.fetchurl {
+    url = "https://raw.githubusercontent.com/sahaj-b/ghostty-cursor-shaders/main/cursor_tail.glsl";
+    sha256 = "1g9vsbsxnvcj0y6rzdkxrd4mj0ldl9aha7381g8nfs3bz829y46w";
+  };
+in
 {
   stylix.targets.ghostty = {
     enable = true;
   };
 
-  # Ghostty package:
-  # - Linux: Installed via Nix flake (pkgs.ghostty from overlay)
-  # - macOS: Installed via Homebrew cask (ghostty@tip)
   programs.ghostty = {
     enable = true;
     settings = {
-      keybind = [
-        "alt+v=activate_key_table:vim"
+      custom-shader = "${cursorTailShader}";
 
-        # Key table definition
+      keybind = [
+        "ctrl+escape=activate_key_table:vim"
+
         "vim/"
 
         # Line movement
