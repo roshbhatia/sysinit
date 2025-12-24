@@ -41,11 +41,11 @@ let
 in
 {
   stylix.targets.ghostty = {
-    enable = true;
+    enable = false;
   };
 
   programs.ghostty = {
-    enable = true;
+    enable = false;
     settings = {
       auto-update-channel = "tip";
       custom-shader = "${cursorTailShader}";
