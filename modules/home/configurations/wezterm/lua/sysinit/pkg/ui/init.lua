@@ -89,7 +89,7 @@ wezterm.on("format-tab-title", function(tab)
   local is_active = tab.is_active
 
   local format = {
-    { Text = " " },
+    { Text = "  " },
     { Foreground = { Color = p.fg_primary } },
   }
 
@@ -127,8 +127,8 @@ wezterm.on("update-status", function(window, pane)
   local cells = {}
 
   table.insert(cells, { Foreground = { Color = p.fg_primary } })
-  table.insert(cells, { Text = string.rep(" ", math.max(0, screen_width - mode_len)) })
-  table.insert(cells, { Text = mode_text })
+  table.insert(cells, { Text = string.rep(" ", math.max(0, screen_width - mode_len - 2)) })
+  table.insert(cells, { Text = mode_text .. "  " })
 
   window:set_left_status("")
   window:set_right_status(wezterm.format(cells))
