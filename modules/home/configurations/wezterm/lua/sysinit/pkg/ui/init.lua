@@ -89,6 +89,7 @@ wezterm.on("format-tab-title", function(tab)
   local is_active = tab.is_active
 
   local format = {
+    { Text = " " },
     { Foreground = { Color = p.fg_primary } },
   }
 
@@ -117,35 +118,17 @@ wezterm.on("update-status", function(window, pane)
     mode_upper = "NORMAL"
   end
 
-  local username = get_username()
-  local hostname = get_hostname()
-
   local dims = pane:get_dimensions()
   local screen_width = dims.cols
 
-  local mode_text = mode_upper
-  local userhost_text = username .. "@" .. hostname
-
+  local mode_text = "[" .. mode_upper .. "]"
   local mode_len = wezterm.column_width(mode_text)
-  local userhost_len = wezterm.column_width(userhost_text)
-  local spacing = 4
-
-  local total_width = mode_len + userhost_len + spacing
-  local left_padding = math.floor((screen_width - total_width) / 2)
-  local right_padding = screen_width - left_padding - total_width
 
   local cells = {}
 
   table.insert(cells, { Foreground = { Color = p.fg_primary } })
-  table.insert(cells, { Text = string.rep(" ", math.max(0, left_padding)) })
-
+  table.insert(cells, { Text = string.rep(" ", math.max(0, screen_width - mode_len)) })
   table.insert(cells, { Text = mode_text })
-
-  table.insert(cells, { Text = "  " })
-
-  table.insert(cells, { Text = userhost_text })
-
-  table.insert(cells, { Text = string.rep(" ", math.max(0, right_padding)) })
 
   window:set_left_status("")
   window:set_right_status(wezterm.format(cells))
@@ -170,9 +153,7 @@ end
 
 local function get_display_config()
   return {
-    window_frame = {
-      font = terminal_font,
-    },
+    window_decorations = "RESIZE",
     adjust_window_size_when_changing_font_size = false,
     animation_fps = 240,
     cursor_blink_ease_in = "EaseIn",
@@ -215,18 +196,18 @@ local function get_tab_bar_colors()
   local p = theme_config.palette
   return {
     tab_bar = {
-      background = p.bg_primary,
+      background = p.highlight,
       active_tab = {
-        bg_color = p.bg_primary,
+        bg_color = p.highlight,
         fg_color = p.fg_primary,
         underline = "Single",
       },
       inactive_tab = {
-        bg_color = p.bg_primary,
+        bg_color = p.highlight,
         fg_color = p.fg_primary,
       },
       inactive_tab_hover = {
-        bg_color = p.bg_primary,
+        bg_color = p.highlight,
         fg_color = p.fg_primary,
       },
     },
