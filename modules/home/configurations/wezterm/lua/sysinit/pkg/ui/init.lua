@@ -103,19 +103,25 @@ local function get_tab_content(tab)
     process_name = proc:match("([^/]+)$") or ""
   end
 
-  -- Get path from pane title (usually contains cwd)
-  local pane_title = pane.title or ""
-  if pane_title and pane_title ~= "" then
-    -- Try to extract parent/child from path
-    local parent, child = pane_title:match("([^/]+)/([^/]+)/?$")
-    if child then
-      path_display = parent .. "/" .. child
-    else
-      local basename = pane_title:match("([^/]+)/?$")
-      if basename and basename ~= "" then
-        path_display = basename
+  -- Get path from pane's current working directory
+  local cwd = pane:get_current_working_dir()
+  if cwd then
+    -- cwd is a Url object, convert to string
+    local cwd_path = tostring(cwd)
+    -- Extract path from file:// URL
+    local path = cwd_path:match("file://([^/].*)") or cwd_path:match("file://(.*)")
+    if path then
+      -- Try to extract parent/child from path
+      local parent, child = path:match("([^/]+)/([^/]+)/?$")
+      if child then
+        path_display = parent .. "/" .. child
       else
-        path_display = "root"
+        local basename = path:match("([^/]+)/?$")
+        if basename and basename ~= "" then
+          path_display = basename
+        else
+          path_display = "root"
+        end
       end
     end
   end
