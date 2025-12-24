@@ -103,7 +103,14 @@ local function get_tab_content(tab)
   local cwd_uri = pane.current_working_dir
   if cwd_uri then
     local cwd_url = tostring(cwd_uri)
-    local cwd_path = cwd_url:gsub("file://[^/]*/", "/")
+    -- Remove file:// prefix and everything up to the first /
+    local cwd_path = cwd_url:gsub("^file://", "")
+    -- Remove any hostname if present (e.g., file://hostname/path -> /path)
+    cwd_path = cwd_path:gsub("^[^/]+", "")
+    if cwd_path == "" then
+      cwd_path = "/"
+    end
+
     local parent, child = cwd_path:match("([^/]+)/([^/]+)/?$")
     if child then
       path_display = parent .. "/" .. child
@@ -342,7 +349,7 @@ local function get_display_config()
     scrollback_lines = 20000,
     tab_bar_at_bottom = true,
     text_min_contrast_ratio = 4.5,
-    use_fancy_tab_bar = false,
+    use_fancy_tab_bar = true,
     show_new_tab_button_in_tab_bar = false,
     tab_max_width = 24,
     status_update_interval = 1000,
