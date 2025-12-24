@@ -15,7 +15,11 @@ local function multi_bind(key, modifiers_list, action)
 end
 
 local function should_passthrough(pane)
-  local process_name = string.gsub(pane:get_foreground_process_name(), "(.*[/\\])(.*)", "%2")
+  local proc = pane:get_foreground_process_name()
+  if not proc then
+    return false
+  end
+  local process_name = string.gsub(proc, "(.*[/\\])(.*)", "%2")
   return process_name == "nvim"
     or process_name == "vim"
     or process_name == "hx"
@@ -23,7 +27,11 @@ local function should_passthrough(pane)
 end
 
 local function should_passthrough_ctrl_w(pane)
-  local process_name = string.gsub(pane:get_foreground_process_name(), "(.*[/\\])(.*)", "%2")
+  local proc = pane:get_foreground_process_name()
+  if not proc then
+    return false
+  end
+  local process_name = string.gsub(proc, "(.*[/\\])(.*)", "%2")
   return process_name == "nvim" or process_name == "vim"
 end
 

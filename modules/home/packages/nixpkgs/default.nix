@@ -45,6 +45,7 @@ let
     cachix
     caddy
     chafa
+    crush
     devbox
     diffnav
     duf

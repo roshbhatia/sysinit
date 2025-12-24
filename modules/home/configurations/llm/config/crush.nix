@@ -63,10 +63,6 @@ let
   };
 in
 {
-  # Enable Crush via NUR module - without settings
-  programs.crush.enable = true;
-
-  # Create writable config files using home activation
   home.activation = {
     crushConfig = lib.hm.dag.entryAfter [ "linkGeneration" ] crushConfigFile.script;
     crushAgents = lib.hm.dag.entryAfter [ "linkGeneration" ] crushAgentsFile.script;

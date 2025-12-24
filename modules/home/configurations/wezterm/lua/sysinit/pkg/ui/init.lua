@@ -61,6 +61,7 @@ local terminal_font = wezterm.font_with_fallback({
 })
 
 local function truncate(str, max_len)
+  str = tostring(str or "shell")
   if #str <= max_len then
     return str
   end
@@ -72,6 +73,10 @@ local function get_tab_content(tab)
   if cwd_uri then
     local cwd_url = tostring(cwd_uri)
     local cwd_path = cwd_url:gsub("file://[^/]*/", "/")
+    local parent, child = cwd_path:match("([^/]+)/([^/]+)/?$")
+    if child then
+      return parent .. "/" .. child
+    end
     local basename = cwd_path:match("([^/]+)/?$")
     if basename and basename ~= "" then
       return basename
@@ -80,7 +85,10 @@ local function get_tab_content(tab)
 
   local process = tab.active_pane.foreground_process_name
   if process then
-    return process:match("([^/]+)$")
+    local proc_name = process:match("([^/]+)$")
+    if proc_name then
+      return proc_name
+    end
   end
 
   return "shell"
