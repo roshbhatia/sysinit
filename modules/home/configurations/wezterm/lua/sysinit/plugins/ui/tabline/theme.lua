@@ -14,7 +14,7 @@ function M.load()
     local p = theme_config.palette
 
     colors = {
-      tab_bar_background = p.bg_primary,
+      tab_bar_background = p.bg_secondary,
 
       active_tab = {
         fg = p.bg_primary,
@@ -29,27 +29,12 @@ function M.load()
 
       hover_tab = {
         fg = p.fg_primary,
-        bg = p.bg_tertiary,
+        bg = p.bg_secondary,
       },
 
-      mode_normal = {
-        fg = p.bg_primary,
-        bg = p.primary,
-      },
-
-      mode_copy = {
-        fg = p.bg_primary,
-        bg = p.yellow,
-      },
-
-      mode_search = {
-        fg = p.bg_primary,
-        bg = p.green,
-      },
-
-      mode_other = {
-        fg = p.bg_primary,
-        bg = p.blue,
+      mode = {
+        fg = p.fg_secondary,
+        bg = p.bg_secondary,
       },
 
       userhost = {
@@ -73,19 +58,9 @@ function M.get_tab_colors(state)
   end
 end
 
-function M.get_mode_colors(mode)
+function M.get_mode_colors()
   local c = M.load()
-  local mode_lower = mode:lower()
-
-  if mode_lower:find("copy") then
-    return c.mode_copy
-  elseif mode_lower:find("search") then
-    return c.mode_search
-  elseif mode_lower == "default" or mode_lower == "" then
-    return c.mode_normal
-  else
-    return c.mode_other
-  end
+  return c.mode
 end
 
 function M.get_userhost_colors()

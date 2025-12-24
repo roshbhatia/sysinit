@@ -15,9 +15,13 @@ function M.setup(config, opts)
   config.show_new_tab_button_in_tab_bar = false
   config.tab_bar_at_bottom = true
   config.tab_max_width = opts.max_tab_width
+  config.window_decorations = "RESIZE"
 
   config.window_padding = config.window_padding or {}
   config.window_padding.top = 0
+  config.window_padding.left = "2px"
+  config.window_padding.right = "2px"
+  config.window_padding.bottom = "2px"
 
   config.colors = config.colors or {}
   config.colors.tab_bar = config.colors.tab_bar or {}

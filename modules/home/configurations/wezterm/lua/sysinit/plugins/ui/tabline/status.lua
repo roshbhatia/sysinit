@@ -24,6 +24,8 @@ end
 local function format_mode(mode, colors)
   local mode_upper = mode:upper()
   if mode == "default" then
+    mode_upper = "INSERT"
+  elseif mode:lower():find("copy") then
     mode_upper = "NORMAL"
   end
 
@@ -49,22 +51,38 @@ end
 
 function M.update_status(window, pane)
   local mode = get_mode(window)
-  local mode_colors = theme.get_mode_colors(mode)
+  local mode_colors = theme.get_mode_colors()
   local userhost_colors = theme.get_userhost_colors()
   local bg = theme.get_background()
 
   local mode_str = format_mode(mode, mode_colors)
   local userhost_str = format_userhost(userhost_colors)
 
+  local tab_info = ""
+  local tabs = window:mux_window():tabs_with_info()
+  for _, item in ipairs(tabs) do
+    local tab = item.tab
+    local tab_index = tab:tab_id()
+    tab_info = tab_info .. "[" .. tab_index .. "] "
+  end
+
+  local screen_width = window:active_pane():get_dimensions().cols
+  local mode_width = #mode + 4
+  local userhost_width = #get_username() + #get_hostname() + 5
+  local tab_width = #tab_info
+
+  local left_space = math.floor((screen_width - mode_width - userhost_width - tab_width) / 2)
+  local padding_str = string.rep(" ", math.max(0, left_space))
+
   window:set_left_status("")
 
-  local right_status = wezterm.format({
-    { Background = { Color = bg } },
-    { Text = " " },
-  }) .. mode_str .. wezterm.format({
-    { Background = { Color = bg } },
-    { Text = "  " },
-  }) .. userhost_str
+  local right_status = padding_str
+    .. mode_str
+    .. wezterm.format({
+      { Background = { Color = bg } },
+      { Text = "  " },
+    })
+    .. userhost_str
 
   window:set_right_status(right_status)
 end
