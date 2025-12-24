@@ -4,7 +4,7 @@ local theme_config = json_loader.load_json_file(json_loader.get_config_path("the
 
 local M = {}
 
-local font_name = theme_config.font and theme_config.font.monospace or "MonoLisa"
+local font_name = theme_config.font and theme_config.font.monospace
 
 local function is_linux()
   local handle = io.popen("uname -s 2>/dev/null")
@@ -350,7 +350,7 @@ local function get_display_config()
     scrollback_lines = 20000,
     tab_bar_at_bottom = true,
     text_min_contrast_ratio = 4.5,
-    use_fancy_tab_bar = true,
+    use_fancy_tab_bar = false,
     show_new_tab_button_in_tab_bar = false,
     tab_max_width = 24,
     status_update_interval = 1000,
