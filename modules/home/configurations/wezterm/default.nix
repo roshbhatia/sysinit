@@ -22,6 +22,4 @@ in
   xdg.configFile."wezterm/theme_config.json".text = builtins.toJSON (
     generateAppJSON "wezterm" themeConfig
   );
-
-  xdg.configFile."wezterm/colors".source = ./colors;
 }

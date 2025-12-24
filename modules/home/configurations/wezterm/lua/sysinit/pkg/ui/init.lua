@@ -16,6 +16,29 @@ local function is_linux()
   return result:match("Linux") ~= nil
 end
 
+local function is_nvim_running()
+  local pane = wezterm.mux.get_active_pane()
+  if not pane then
+    return false
+  end
+
+  local proc = pane:get_foreground_process_name()
+  if proc then
+    local basename = proc:match("([^/]+)$")
+    if basename and (basename:match("^n?vim$") or basename:match("^n?vim%.")) then
+      return true
+    end
+  end
+  return false
+end
+
+local function get_effective_transparency()
+  if theme_config.nvim_transparency_override and is_nvim_running() then
+    return theme_config.nvim_transparency_override
+  end
+  return theme_config.transparency
+end
+
 local terminal_font = wezterm.font_with_fallback({
   {
     family = font_name,
@@ -77,9 +100,8 @@ local function get_mode_name(mode)
   return mode:upper()
 end
 
-local function get_mode_color(mode)
-  local p = theme_config.palette
-  return p.primary
+local function get_mode_color()
+  return theme_config.palette.primary
 end
 
 wezterm.on("format-tab-title", function(tab)
@@ -98,7 +120,7 @@ end)
 wezterm.on("update-status", function(window, pane)
   local mode = get_mode(window)
   local mode_name = get_mode_name(mode)
-  local mode_color = get_mode_color(mode)
+  local mode_color = get_mode_color()
 
   local dims = pane:get_dimensions()
   local mode_text = "[" .. mode_name .. "]"
@@ -121,6 +143,18 @@ wezterm.on("update-status", function(window, pane)
     bg_color = mode_color,
     fg_color = "#000000",
   }
+
+  if theme_config.nvim_transparency_override then
+    local transparency = get_effective_transparency()
+    local new_opacity = transparency.opacity or 0.85
+    local new_blur = transparency.blur or 80
+
+    if overrides.window_background_opacity ~= new_opacity then
+      overrides.window_background_opacity = new_opacity
+      overrides.macos_window_background_blur = new_blur
+    end
+  end
+
   window:set_config_overrides(overrides)
 
   window:set_left_status("")
@@ -131,8 +165,69 @@ wezterm.on("update-status", function(window, pane)
   }))
 end)
 
-local function get_window_appearance_config()
+local function get_theme_colors()
+  local transparency = get_effective_transparency()
+  local opacity = transparency.opacity or 0.85
+  local blur = transparency.blur or 80
+  local theme_name = theme_config.theme_name
+
+  return {
+    macos_window_background_blur = blur,
+    window_background_opacity = opacity,
+    color_scheme = theme_name,
+    colors = {
+      foreground = theme_config.palette.fg_primary,
+      background = theme_config.palette.bg_primary,
+      cursor_bg = theme_config.palette.primary,
+      cursor_fg = theme_config.palette.bg_primary,
+      cursor_border = theme_config.palette.primary,
+      selection_fg = theme_config.palette.bg_primary,
+      selection_bg = theme_config.palette.primary,
+      scrollbar_thumb = theme_config.palette.bg_overlay,
+      split = theme_config.palette.bg_overlay,
+      ansi = {
+        theme_config.ansi["0"],
+        theme_config.ansi["1"],
+        theme_config.ansi["2"],
+        theme_config.ansi["3"],
+        theme_config.ansi["4"],
+        theme_config.ansi["5"],
+        theme_config.ansi["6"],
+        theme_config.ansi["7"],
+      },
+      brights = {
+        theme_config.ansi["8"],
+        theme_config.ansi["9"],
+        theme_config.ansi["10"],
+        theme_config.ansi["11"],
+        theme_config.ansi["12"],
+        theme_config.ansi["13"],
+        theme_config.ansi["14"],
+        theme_config.ansi["15"],
+      },
+      tab_bar = {
+        background = theme_config.palette.primary,
+        active_tab = {
+          bg_color = theme_config.palette.primary,
+          fg_color = "#000000",
+          intensity = "Bold",
+        },
+        inactive_tab = {
+          bg_color = theme_config.palette.primary,
+          fg_color = "#000000",
+        },
+        inactive_tab_hover = {
+          bg_color = theme_config.palette.primary,
+          fg_color = "#000000",
+        },
+      },
+    },
+  }
+end
+
+local function get_window_config()
   local config = {
+    window_decorations = "RESIZE",
     window_padding = {
       left = "1cell",
       right = "1cell",
@@ -141,7 +236,6 @@ local function get_window_appearance_config()
   }
 
   if is_linux() then
-    config.window_decorations = "RESIZE"
     config.enable_wayland = true
   end
 
@@ -150,7 +244,6 @@ end
 
 local function get_display_config()
   return {
-    window_decorations = "RESIZE",
     window_frame = { font = terminal_font },
     adjust_window_size_when_changing_font_size = false,
     animation_fps = 240,
@@ -171,15 +264,12 @@ local function get_display_config()
     show_new_tab_button_in_tab_bar = false,
     tab_max_width = 24,
     status_update_interval = 1000,
-  }
-end
-
-local function get_visual_bell_config()
-  return {
-    fade_in_function = "EaseIn",
-    fade_in_duration_ms = 70,
-    fade_out_function = "EaseOut",
-    fade_out_duration_ms = 100,
+    visual_bell = {
+      fade_in_function = "EaseIn",
+      fade_in_duration_ms = 70,
+      fade_out_function = "EaseOut",
+      fade_out_duration_ms = 100,
+    },
   }
 end
 
@@ -192,7 +282,8 @@ end
 
 function M.setup(config)
   for _, cfg in ipairs({
-    get_window_appearance_config(),
+    get_theme_colors(),
+    get_window_config(),
     get_display_config(),
     get_font_config(),
   }) do
@@ -201,26 +292,17 @@ function M.setup(config)
     end
   end
 
-  config.visual_bell = get_visual_bell_config()
+  if theme_config.nvim_transparency_override then
+    wezterm.on("window-config-reloaded", function(window)
+      local overrides = window:get_config_overrides() or {}
+      local transparency = get_effective_transparency()
 
-  local p = theme_config.palette
-  config.colors = config.colors or {}
-  config.colors.tab_bar = {
-    background = p.primary,
-    active_tab = {
-      bg_color = p.primary,
-      fg_color = "#000000",
-      intensity = "Bold",
-    },
-    inactive_tab = {
-      bg_color = p.primary,
-      fg_color = "#000000",
-    },
-    inactive_tab_hover = {
-      bg_color = p.primary,
-      fg_color = "#000000",
-    },
-  }
+      overrides.window_background_opacity = transparency.opacity or 0.85
+      overrides.macos_window_background_blur = transparency.blur or 80
+
+      window:set_config_overrides(overrides)
+    end)
+  end
 
   config.mouse_bindings = config.mouse_bindings or {}
   table.insert(config.mouse_bindings, {

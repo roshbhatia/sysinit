@@ -3,7 +3,6 @@
 with lib;
 
 {
-  # Wezterm - Custom theme system (Stylix disabled)
   getWeztermTheme =
     colorscheme: variant:
     let
@@ -13,8 +12,8 @@ with lib;
           macchiato = "Catppuccin Macchiato";
         };
         "rose-pine" = {
-          dawn = "rose-pine-dawn";
-          moon = "roseprime";
+          dawn = "Rosé Pine Dawn (base16)";
+          moon = "Rosé Pine Moon (base16)";
         };
         gruvbox = {
           dark = "Gruvbox dark, hard (base16)";
