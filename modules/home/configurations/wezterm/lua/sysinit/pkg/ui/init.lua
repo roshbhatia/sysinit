@@ -115,29 +115,32 @@ local function get_tab_content(tab)
         path_display = "shell"
       end
     end
-  else
+  end
+
+  -- If no path, use process name as fallback
+  if path_display == "" then
     path_display = process_name ~= "" and process_name or "shell"
   end
 
-  -- Build final display with component truncation
-  -- Allocate character budget: 19 chars max
-  local max_total = 19
-  local separators = (hostname ~= "" and 1 or 0) + (process_name ~= "" and 1 or 0)
-  local separator_width = separators * 1 -- '|' separator
-
   -- Build components list
+  -- Only show process_name if it differs from path_display
   local components = {}
   if hostname ~= "" then
     table.insert(components, hostname)
   end
-  if process_name ~= "" then
+  if process_name ~= "" and process_name ~= path_display then
     table.insert(components, process_name)
   end
   table.insert(components, path_display)
 
+  -- Build final display with component truncation
+  -- Allocate character budget: 19 chars max
+  local max_total = 19
+  local num_components = #components
+  local separator_width = math.max(0, (num_components - 1) * 1) -- '|' separators between components
+
   -- Distribute character budget among components
   local available = max_total - separator_width
-  local num_components = #components
   local per_component = math.floor(available / num_components)
 
   for i, comp in ipairs(components) do
