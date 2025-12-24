@@ -89,16 +89,6 @@ local function get_mode_color(mode)
   end
 end
 
-local function get_username()
-  local username = os.getenv("USER") or os.getenv("USERNAME") or "unknown"
-  return username
-end
-
-local function get_hostname()
-  local hostname = wezterm.hostname() or "localhost"
-  return hostname:match("^([^%.]+)") or hostname
-end
-
 wezterm.on("format-tab-title", function(tab)
   local p = theme_config.palette
   local index = tab.tab_index + 1
@@ -240,16 +230,16 @@ local function get_tab_bar_colors()
       background = p.primary,
       active_tab = {
         bg_color = p.primary,
-        fg_color = p.fg_primary,
-        underline = "Single",
+        fg_color = "#000000",
+        intensity = "Bold",
       },
       inactive_tab = {
         bg_color = p.primary,
-        fg_color = p.fg_primary,
+        fg_color = "#000000",
       },
       inactive_tab_hover = {
         bg_color = p.primary,
-        fg_color = p.fg_primary,
+        fg_color = "#000000",
       },
     },
   }
