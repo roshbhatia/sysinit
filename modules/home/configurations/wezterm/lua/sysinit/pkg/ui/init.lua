@@ -1,6 +1,7 @@
 local wezterm = require("wezterm")
 local json_loader = require("sysinit.pkg.utils.json_loader")
 local theme_config = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"))
+
 local M = {}
 
 local font_name = theme_config.font and theme_config.font.monospace or "MonoLisa"
@@ -48,10 +49,6 @@ local function get_tab_content(tab)
   if cwd_uri then
     local cwd_url = tostring(cwd_uri)
     local cwd_path = cwd_url:gsub("file://[^/]*/", "/")
-    local parent, child = cwd_path:match("([^/]+)/([^/]+)/?$")
-    if child then
-      return parent .. "/" .. child
-    end
     local basename = cwd_path:match("([^/]+)/?$")
     if basename and basename ~= "" then
       return basename
@@ -68,10 +65,16 @@ end
 
 local function get_mode(window)
   local mode = window:active_key_table()
-  if not mode or mode == "" then
-    return "default"
+  return mode and mode ~= "" and mode or "default"
+end
+
+local function get_mode_name(mode)
+  if mode == "default" then
+    return "INSERT"
+  elseif mode:lower():find("copy") then
+    return "NORMAL"
   end
-  return mode
+  return mode:upper()
 end
 
 local function get_mode_color(mode)
@@ -84,63 +87,32 @@ local function get_mode_color(mode)
     return p.yellow
   elseif mode_lower:find("window") then
     return p.magenta
-  else
-    return p.primary
   end
+  return p.primary
 end
 
 wezterm.on("format-tab-title", function(tab)
   local index = tab.tab_index + 1
-  local content = get_tab_content(tab)
-  content = truncate(content, 19)
+  local content = truncate(get_tab_content(tab), 19)
+  local bracket = tab.is_active and "[" or ""
+  local bracket_close = tab.is_active and "]" or ""
 
-  local is_active = tab.is_active
-
-  local format = {
+  return {
     { Text = "  " },
-    { Foreground = {
-      Color = "#000000",
-    } },
+    { Foreground = { Color = "#000000" } },
+    { Text = bracket .. index .. ":" .. content .. bracket_close .. " " },
   }
-
-  if is_active then
-    table.insert(format, { Text = "[" })
-  end
-
-  table.insert(format, { Text = index .. ":" .. content })
-
-  if is_active then
-    table.insert(format, { Text = "]" })
-  end
-
-  table.insert(format, { Text = " " })
-
-  return format
 end)
 
 wezterm.on("update-status", function(window, pane)
-  local p = theme_config.palette
   local mode = get_mode(window)
-  local mode_upper = mode:upper()
-  if mode == "default" then
-    mode_upper = "INSERT"
-  elseif mode:lower():find("copy") then
-    mode_upper = "NORMAL"
-  end
+  local mode_name = get_mode_name(mode)
+  local mode_color = get_mode_color(mode)
 
   local dims = pane:get_dimensions()
-  local screen_width = dims.cols
+  local mode_text = "[" .. mode_name .. "]"
+  local padding = string.rep(" ", math.max(0, dims.cols - wezterm.column_width(mode_text) - 2))
 
-  local mode_text = "[" .. mode_upper .. "]"
-  local mode_len = wezterm.column_width(mode_text)
-
-  local cells = {}
-
-  table.insert(cells, { Foreground = { Color = p.fg_primary } })
-  table.insert(cells, { Text = string.rep(" ", math.max(0, screen_width - mode_len - 2)) })
-  table.insert(cells, { Text = mode_text .. "  " })
-
-  local mode_color = get_mode_color(mode)
   local overrides = window:get_config_overrides() or {}
   overrides.colors = overrides.colors or {}
   overrides.colors.tab_bar = {
@@ -162,7 +134,10 @@ wezterm.on("update-status", function(window, pane)
   window:set_config_overrides(overrides)
 
   window:set_left_status("")
-  window:set_right_status(wezterm.format(cells))
+  window:set_right_status(wezterm.format({
+    { Foreground = { Color = "#000000" } },
+    { Text = padding .. mode_text .. "  " },
+  }))
 end)
 
 local function get_window_appearance_config()
@@ -185,6 +160,7 @@ end
 local function get_display_config()
   return {
     window_decorations = "RESIZE",
+    window_frame = { font = terminal_font },
     adjust_window_size_when_changing_font_size = false,
     animation_fps = 240,
     cursor_blink_ease_in = "EaseIn",
@@ -226,45 +202,37 @@ end
 local function get_tab_bar_colors()
   local p = theme_config.palette
   return {
-    tab_bar = {
-      background = p.primary,
-      active_tab = {
-        bg_color = p.primary,
-        fg_color = "#000000",
-        intensity = "Bold",
-      },
-      inactive_tab = {
-        bg_color = p.primary,
-        fg_color = "#000000",
-      },
-      inactive_tab_hover = {
-        bg_color = p.primary,
-        fg_color = "#000000",
-      },
+    background = p.primary,
+    active_tab = {
+      bg_color = p.primary,
+      fg_color = "#000000",
+      intensity = "Bold",
+    },
+    inactive_tab = {
+      bg_color = p.primary,
+      fg_color = "#000000",
+    },
+    inactive_tab_hover = {
+      bg_color = p.primary,
+      fg_color = "#000000",
     },
   }
 end
 
 function M.setup(config)
-  local configs = {
+  for _, cfg in ipairs({
     get_window_appearance_config(),
     get_display_config(),
     get_font_config(),
-  }
-
-  for _, cfg in ipairs(configs) do
+  }) do
     for key, value in pairs(cfg) do
       config[key] = value
     end
   end
 
   config.visual_bell = get_visual_bell_config()
-
-  -- Set tab_bar colors
-  if not config.colors then
-    config.colors = {}
-  end
-  config.colors.tab_bar = get_tab_bar_colors().tab_bar
+  config.colors = config.colors or {}
+  config.colors.tab_bar = get_tab_bar_colors()
 
   config.mouse_bindings = config.mouse_bindings or {}
   table.insert(config.mouse_bindings, {
