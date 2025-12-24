@@ -50,8 +50,8 @@ in
       custom-shader = "${cursorTailShader}";
 
       font-size = 13;
-      window-padding-x = "4";
-      window-padding-y = "4,0";
+      window-padding-x = "10";
+      window-padding-y = "10,0";
 
       background-opacity = transparency.opacity;
       background-blur-radius = 20;
