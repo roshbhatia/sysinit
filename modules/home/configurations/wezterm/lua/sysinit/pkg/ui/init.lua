@@ -87,16 +87,9 @@ wezterm.on("format-tab-title", function(tab)
   content = truncate(content, 19)
 
   local is_active = tab.is_active
-  local left_bracket = is_active and "{" or "["
-  local right_bracket = is_active and "}" or "]"
-
-  local fg = is_active and p.bg_primary or p.fg_muted
-  local bg = is_active and p.primary or p.bg_secondary
 
   local format = {
-    { Foreground = { Color = fg } },
-    { Background = { Color = bg } },
-    { Text = left_bracket },
+    { Foreground = { Color = p.fg_primary } },
   }
 
   if is_active then
@@ -109,9 +102,6 @@ wezterm.on("format-tab-title", function(tab)
     table.insert(format, { Attribute = { Underline = "None" } })
   end
 
-  table.insert(format, { Text = right_bracket })
-  table.insert(format, { Background = { Color = p.bg_secondary } })
-  table.insert(format, { Foreground = { Color = p.bg_secondary } })
   table.insert(format, { Text = " " })
 
   return format
@@ -133,32 +123,29 @@ wezterm.on("update-status", function(window, pane)
   local dims = pane:get_dimensions()
   local screen_width = dims.cols
 
-  local mode_text = "[" .. mode_upper .. "]"
-  local userhost_text = "[" .. username .. "@" .. hostname .. "]"
+  local mode_text = mode_upper
+  local userhost_text = username .. "@" .. hostname
 
   local mode_len = wezterm.column_width(mode_text)
   local userhost_len = wezterm.column_width(userhost_text)
+  local spacing = 4
 
-  local total_width = mode_len + userhost_len + 2
+  local total_width = mode_len + userhost_len + spacing
   local left_padding = math.floor((screen_width - total_width) / 2)
+  local right_padding = screen_width - left_padding - total_width
 
   local cells = {}
 
-  table.insert(cells, { Background = { Color = p.bg_secondary } })
-  table.insert(cells, { Foreground = { Color = p.bg_secondary } })
+  table.insert(cells, { Foreground = { Color = p.fg_primary } })
   table.insert(cells, { Text = string.rep(" ", math.max(0, left_padding)) })
 
-  table.insert(cells, { Foreground = { Color = p.fg_secondary } })
-  table.insert(cells, { Background = { Color = p.bg_secondary } })
-  table.insert(cells, { Attribute = { Intensity = "Bold" } })
-  table.insert(cells, { Text = " " .. mode_text .. " " })
+  table.insert(cells, { Text = mode_text })
 
-  table.insert(cells, { Background = { Color = p.bg_secondary } })
   table.insert(cells, { Text = "  " })
 
-  table.insert(cells, { Foreground = { Color = p.fg_secondary } })
-  table.insert(cells, { Background = { Color = p.bg_secondary } })
-  table.insert(cells, { Text = " " .. userhost_text .. " " })
+  table.insert(cells, { Text = userhost_text })
+
+  table.insert(cells, { Text = string.rep(" ", math.max(0, right_padding)) })
 
   window:set_left_status("")
   window:set_right_status(wezterm.format(cells))
@@ -169,13 +156,12 @@ local function get_window_appearance_config()
     window_padding = {
       left = "1cell",
       right = "1cell",
-      top = 0,
-      bottom = "1cell",
+      top = "1cell",
     },
-    window_decorations = "RESIZE",
   }
 
   if is_linux() then
+    config.window_decorations = "RESIZE"
     config.enable_wayland = true
   end
 
@@ -206,6 +192,12 @@ local function get_display_config()
     show_new_tab_button_in_tab_bar = false,
     tab_max_width = 24,
     status_update_interval = 1000,
+    tab_bar_style = {
+      border_bottom = "none",
+      border_top = "single",
+      border_left = "none",
+      border_right = "none",
+    },
   }
 end
 
@@ -229,19 +221,18 @@ local function get_tab_bar_colors()
   local p = theme_config.palette
   return {
     tab_bar = {
-      background = p.bg_secondary,
+      background = p.bg_primary,
       active_tab = {
-        bg_color = p.primary,
-        fg_color = p.bg_primary,
-        intensity = "Bold",
+        bg_color = p.bg_primary,
+        fg_color = p.fg_primary,
         underline = "Single",
       },
       inactive_tab = {
-        bg_color = p.bg_secondary,
-        fg_color = p.fg_muted,
+        bg_color = p.bg_primary,
+        fg_color = p.fg_primary,
       },
       inactive_tab_hover = {
-        bg_color = p.bg_secondary,
+        bg_color = p.bg_primary,
         fg_color = p.fg_primary,
       },
     },
