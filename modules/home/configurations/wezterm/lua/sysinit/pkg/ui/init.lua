@@ -142,9 +142,6 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 
   return {
     {
-      Text = "  ",
-    },
-    {
       Foreground = {
         Color = "#000000",
       },
