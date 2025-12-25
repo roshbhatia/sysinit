@@ -14,16 +14,14 @@ in
     enableDefaultConfig = false;
     matchBlocks = {
       "*" = {
-        identityFile = "~/.ssh/id_ed25519";
-        identitiesOnly = true;
         addKeysToAgent = "yes";
         hashKnownHosts = true;
+        identitiesOnly = true;
+        identityFile = "~/.ssh/id_ed25519";
       };
     };
   };
 
-  # Only set authorized_keys on Linux (NixOS)
-  # Note: This is also set at system level in modules/nixos/configurations/ssh.nix
   home.file = lib.optionalAttrs isLinux {
     ".ssh/authorized_keys" = {
       text = ''
