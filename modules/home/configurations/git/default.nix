@@ -49,7 +49,7 @@ in
         prune = true
 
       [core]
-        editor = nvim
+        editor = nvim -n -f -c "Neogit"
         excludesFile = ~/.gitignore.global
         pager = delta
         compression = 9
@@ -78,7 +78,7 @@ in
         prompt = false
 
       [mergetool "diffview"]
-        cmd = nvim -n -c "DiffviewOpen"
+        cmd = nvim -n -f -c "DiffviewOpen"
 
       [diff]
         tool = diffview

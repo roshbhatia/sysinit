@@ -8,6 +8,7 @@ M.plugins = {
       "sindrets/diffview.nvim",
       "nvim-telescope/telescope.nvim",
     },
+    lazy = false,
     config = function()
       require("neogit").setup({
         graph_style = "kitty",
