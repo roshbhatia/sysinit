@@ -1,6 +1,5 @@
 {
   values,
-  utils,
   pkgs,
   ...
 }:
@@ -88,7 +87,7 @@ in
         enabled = true
 
       [alias]
-        log = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) %C(dim white)[%p]%C(reset) - %C(dim white)%ae%C(reset) - %C(bold green)%ad%C(reset) %C(white)%s%C(reset)%C(auto)%d%C(reset)' --date=short
+        short-log = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) %C(dim white)[%p]%C(reset) - %C(dim white)%ae%C(reset) - %C(bold green)%ad%C(reset) %C(white)%s%C(reset)%C(auto)%d%C(reset)' --date=short
         branches = !git --no-pager branch -vv
         all-branches = !git --no-pager branch -a -vv
         current-branch = rev-parse --abbrev-ref HEAD
