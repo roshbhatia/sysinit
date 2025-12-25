@@ -1,31 +1,10 @@
 local wezterm = require("wezterm")
 local json_loader = require("sysinit.pkg.utils.json_loader")
+local theme_config = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"))
+
+local bar = wezterm.plugin.require("https://github.com/hikarisakamoto/bar.wezterm")
 
 local M = {}
-
-local theme_config = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"))
-local font_name = theme_config.font and theme_config.font.monospace
-
-local terminal_font = wezterm.font_with_fallback({
-  {
-    family = font_name,
-    harfbuzz_features = {
-      "calt",
-      "liga",
-      "ss01",
-      "ss02",
-      "ss03",
-      "ss04",
-      "ss05",
-      "ss06",
-      "ss07",
-      "ss08",
-      "ss09",
-      "ss10",
-    },
-  },
-  "Symbols Nerd Font Mono",
-})
 
 local function is_linux()
   local handle = io.popen("uname -s 2>/dev/null")
@@ -38,8 +17,30 @@ local function is_linux()
 end
 
 function M.setup(config)
-  config.font = terminal_font
+  local font = wezterm.font_with_fallback({
+    {
+      family = theme_config.font.monospace,
+      harfbuzz_features = {
+        "calt",
+        "liga",
+        "ss01",
+        "ss02",
+        "ss03",
+        "ss04",
+        "ss05",
+        "ss06",
+        "ss07",
+        "ss08",
+        "ss09",
+        "ss10",
+      },
+    },
+    theme_config.font.nerdfontFallback,
+  })
+
+  config.font = font
   config.font_size = 13.0
+  config.window_frame = { font = font }
 
   config.window_decorations = "RESIZE"
   config.window_padding = {
@@ -52,7 +53,6 @@ function M.setup(config)
     config.enable_wayland = true
   end
 
-  config.window_frame = { font = terminal_font }
   config.adjust_window_size_when_changing_font_size = false
   config.animation_fps = 240
   config.cursor_blink_ease_in = "EaseIn"
@@ -74,18 +74,10 @@ function M.setup(config)
     fade_out_duration_ms = 100,
   }
 
-  local transparency = true
-  ---@diagnostic disable-next-line: undefined-field
-  local opacity = transparency.opacity or 0.85
-  ---@diagnostic disable-next-line: undefined-field
-  local blur = transparency.blur or 80
-  local theme_name = theme_config.theme_name
+  config.color_scheme = theme_config.theme_name
+  config.macos_window_background_blur = theme_config.transparency.blur
+  config.window_background_opacity = theme_config.transparency.opacity
 
-  config.macos_window_background_blur = blur
-  config.window_background_opacity = opacity
-  config.color_scheme = theme_name
-
-  local bar = wezterm.plugin.require("https://github.com/hikarisakamoto/bar.wezterm")
   bar.apply_to_config(config, {
     modules = {
       clock = {
