@@ -118,33 +118,5 @@ with lib;
         colorscheme = "${colorscheme}-${variant}";
       };
 
-  getOpencodeTheme =
-    colorscheme: _variant:
-    let
-      themeMap = {
-        catppuccin = "catppuccin";
-        "rose-pine" = "rosepine";
-        gruvbox = "gruvbox";
-        solarized = "system";
-        nord = "nord";
-        everforest = "everforest";
-        kanagawa = "kanagawa";
-        "black-metal" = "system";
-      };
-    in
-    themeMap.${colorscheme} or colorscheme;
-
-  getDeltaTheme =
-    colorscheme: variant:
-    let
-      themeMap = {
-        everforest = _v: "nord-dark";
-      };
-    in
-    if hasAttr colorscheme themeMap then
-      themeMap.${colorscheme} variant
-    else
-      "${colorscheme}-${variant}";
-
   getAtuinTheme = colorscheme: variant: "${colorscheme}-${variant}";
 }

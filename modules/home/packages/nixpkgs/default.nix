@@ -67,7 +67,6 @@ let
 
   # Git and version control
   gitPkgs = with pkgs; [
-    delta
     gh
     gh-dash
     git

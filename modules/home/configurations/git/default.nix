@@ -1,5 +1,4 @@
 {
-  lib,
   values,
   utils,
   pkgs,
@@ -8,8 +7,6 @@
 
 let
   cfg = values.git;
-  deltaAdapter = import ./delta-lib.nix { inherit lib; };
-  deltaTheme = deltaAdapter.getDeltaTheme values.theme.colorscheme values.theme.variant;
 
   personalEmail = if cfg.personalEmail != null then cfg.personalEmail else cfg.email;
   workEmail = if cfg.workEmail != null then cfg.workEmail else cfg.email;
@@ -51,23 +48,9 @@ in
       [core]
         editor = nvim
         excludesFile = ~/.gitignore.global
-        pager = delta
         compression = 9
         preloadIndex = true
         hooksPath = .githooks
-
-      [interactive]
-        diffFilter = delta --color-only
-
-      [delta]
-        features = ${deltaTheme}
-        file-decoration-style = none
-        file-style = omit
-        hunk-header-decoration-style = omit
-        line-numbers-left-format = "{nm:>4} "
-        line-numbers-right-format = "│ {np:>4} "
-        side-by-side = true
-        tabs = 2
 
       [merge]
         conflictstyle = zdiff3
@@ -117,18 +100,9 @@ in
       [http "https://git.sr.ht"]
         sslVerify = false
 
-      [include]
-        path = ~/.config/delta/themes/${values.theme.colorscheme}-${values.theme.variant}.gitconfig
-
       [rebase]
         updateRefs = true
     '';
-  };
-
-  xdg.configFile = utils.theme.deployThemeFiles values {
-    themeDir = ./themes;
-    targetPath = "delta/themes";
-    fileExtension = "gitconfig";
   };
 
   home.file.".gitconfig.personal" = {
