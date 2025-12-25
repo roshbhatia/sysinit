@@ -34,7 +34,7 @@ function M.setup(config)
   config.color_scheme = config_data.color_scheme
   config.cursor_blink_ease_in = "EaseIn"
   config.cursor_blink_ease_out = "EaseInOut"
-  config.cursor_blink_rate = 600
+  config.cursor_blink_rate = 225
   config.cursor_thickness = 1
   config.display_pixel_geometry = "BGR"
   config.dpi = 144
@@ -50,7 +50,7 @@ function M.setup(config)
   config.text_min_contrast_ratio = 4.5
   config.window_background_opacity = config_data.transparency.opacity
   config.window_decorations = platform.is_darwin()
-      and "RESIZE|MACOS_FORCE_ENABLE_SHADOW|MACOS_FORCE_SQUARE_CORNERS|MACOS_USE_BACKGROUND_COLOR_AS_TITLEBAR_COLOR"
+      and "RESIZE|MACOS_FORCE_ENABLE_SHADOW|MACOS_FORCE_SQUARE_CORNERS"
     or "RESIZE"
   config.window_frame = {
     font = font,
@@ -70,8 +70,6 @@ function M.setup(config)
 
   bar.apply_to_config(config, {
     padding = {
-      left = 1,
-      right = 1,
       tabs = {
         left = 1,
       },
