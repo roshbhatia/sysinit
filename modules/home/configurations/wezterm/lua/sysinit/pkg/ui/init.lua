@@ -33,6 +33,7 @@ function M.setup(config)
   config.animation_fps = 240
   config.color_scheme = config_data.color_scheme
   config.cursor_blink_rate = 320
+  config.cursor_thickness = 1
   config.dpi = 144
   config.enable_scroll_bar = true
   config.font = font
