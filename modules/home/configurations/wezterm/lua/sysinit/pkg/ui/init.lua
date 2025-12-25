@@ -71,14 +71,14 @@ end
 local function get_tab_content(tab)
   local pane_info = tab.active_pane
   local pane = wezterm.mux.get_pane(pane_info.pane_id)
+  local domain = pane:get_domain() or ""
 
-  local hostname = pane:get_domain_name() or ""
   local path = wezterm.url.parse(pane:get_current_working_dir() or "").file_path
   local process = (pane:get_foreground_process_name() or "")
 
   local components = {}
-  if hostname ~= "" and hostname ~= "local" then
-    table.insert(components, "(" .. hostname .. ")")
+  if domain ~= "" and domain ~= "local" then
+    table.insert(components, "(" .. domain .. ")")
   end
   if process ~= "" then
     table.insert(components, process)
