@@ -40,7 +40,7 @@ M.plugins = {
             ["<localleader>q"] = "Abort",
           },
           finder = {
-            ["<localleader>q"] = "Abort",
+            ["<localleader>q"] = "Close",
             ["<localleader>n"] = "Next",
             ["<localleader>p"] = "Previous",
             ["<down>"] = "Next",
