@@ -73,29 +73,23 @@ local function get_tab_content(tab)
   local process_name = ""
   local path_display = ""
 
-  -- In format-tab-title event, tab.active_pane is already a PaneInformation object
   local pane_info = tab.active_pane
   if not pane_info then
     return "shell"
   end
 
-  -- Use pane_info.title if available, otherwise fall back to process name
-  local title = pane_info.title or ""
-  if title and title ~= "" then
-    path_display = title
-  else
-    path_display = "shell"
-  end
-
-  -- If no path, use process name as fallback
-  if path_display == "" then
-    path_display = process_name ~= "" and process_name or "shell"
-  end
+  local pane = wezterm.mux.get_pane(pane_info.pane_id)
+  path_display = pane:get_current_working_dir() or ""
+  process_name = string.gsub(pane:get_foreground_process_name(), "(.*[/\\])(.*)", "%2")
+  hostname = pane:get_domain_name() or ""
 
   -- Build components list
   local components = {}
   if hostname ~= "" then
     table.insert(components, hostname)
+  end
+  if process_name ~= "" then
+    table.insert(components, process_name)
   end
   if path_display ~= "" then
     table.insert(components, path_display)
