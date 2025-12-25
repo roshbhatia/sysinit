@@ -70,7 +70,6 @@ end
 
 local function get_tab_content(tab)
   local hostname = ""
-  local process_name = ""
   local path_display = ""
 
   local pane_info = tab.active_pane
@@ -83,23 +82,23 @@ local function get_tab_content(tab)
   process_name = string.gsub(pane:get_foreground_process_name(), "(.*[/\\])(.*)", "%2")
   hostname = pane:get_domain_name() or ""
 
-  -- Build components list
   local components = {}
-  if hostname ~= "" then
-    table.insert(components, hostname)
+  if path_display ~= "" then
+    table.insert(components, path_display)
+  end
+  if hostname ~= "" or hostname ~= "local" then
+    table.insert(components, "(" .. hostname .. ")")
   end
   if process_name ~= "" then
     table.insert(components, process_name)
   end
   if path_display ~= "" then
-    table.insert(components, path_display)
-  else
-    table.insert(components, "shell")
+    table.insert(components, path_display:sub(8))
   end
 
   -- Build final display with component truncation
   -- Allocate character budget: 19 chars max
-  local max_total = 19
+  local max_total = 36
   local num_components = #components
   local separator_width = math.max(0, (num_components - 1) * 1)
 
@@ -149,17 +148,22 @@ end
 
 ---@diagnostic disable-next-line: unused-local
 wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
-  local p = theme_config.palette
   local index = tab.tab_index + 1
   local content = get_tab_content(tab)
   local bracket = tab.is_active and "[" or ""
   local bracket_close = tab.is_active and "]" or ""
 
   return {
-    { Text = "  " },
-    { Foreground = { Color = p.fg_primary } },
     {
-      Text = bracket .. index .. ":" .. content .. bracket_close .. " ",
+      Text = "  ",
+    },
+    {
+      Foreground = {
+        Color = "#000000",
+      },
+    },
+    {
+      Text = bracket .. index .. ": " .. content .. bracket_close .. " ",
     },
   }
 end)
