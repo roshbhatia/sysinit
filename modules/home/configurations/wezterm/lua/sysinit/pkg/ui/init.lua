@@ -94,15 +94,11 @@ local function truncate_component(str, max_len)
     return str
   end
 
-  -- We need to fit: left_part + "…" + right_part
-  -- Total length must be <= max_len
-  -- Prefer to keep roughly equal amounts on both sides
-  local ellipsis = "…"
-  local ellipsis_len = #ellipsis -- 3 in UTF-8 for "…"
+  local ellipsis = "..."
+  local ellipsis_len = #ellipsis
 
   local available_for_parts = max_len - ellipsis_len
   if available_for_parts < 2 then
-    -- Not enough space for meaningful left + right; fall back to left truncation
     return str:sub(1, max_len)
   end
 
@@ -110,7 +106,7 @@ local function truncate_component(str, max_len)
   local right_len = available_for_parts - left_len
 
   local left = str:sub(1, left_len)
-  local right = str:sub(-right_len) -- negative index counts from end
+  local right = str:sub(-right_len)
 
   return left .. ellipsis .. right
 end
