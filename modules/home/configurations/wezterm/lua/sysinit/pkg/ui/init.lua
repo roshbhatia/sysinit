@@ -79,8 +79,22 @@ function M.setup(config)
   config.window_background_opacity = theme_config.transparency.opacity
 
   bar.apply_to_config(config, {
+    padding = {
+      tabs = {
+        left = 1,
+      },
+    },
     modules = {
       clock = {
+        enabled = false,
+      },
+      leader = {
+        enabled = false,
+      },
+      username = {
+        enabled = false,
+      },
+      workspace = {
         enabled = false,
       },
     },
