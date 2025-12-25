@@ -59,10 +59,11 @@ M.plugins = {
       vim.g.neo_tree_remove_legacy_commands = 1
 
       require("neo-tree").setup({
-        open_files_do_not_replace_types = { "terminal", "qf", "edgy" },
+        open_files_do_not_replace_types = { "terminal", "qf" },
         event_handlers = {
           {
             event = "neo_tree_buffer_enter",
+            ---@diagnostic disable-next-line: unused-local
             handler = function(arg)
               vim.opt_local.statuscolumn = "%s"
               vim.opt_local.number = false

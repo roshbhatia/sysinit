@@ -45,7 +45,6 @@ M.plugins = {
         { "<leader>o", group = "Org" },
         { "<leader>q", group = "Qflist/Loclist" },
         { "<leader>r", group = "Refresh" },
-        { "<leader>t", group = "Tab" },
         { "<localleader>m", group = "Markdown", ft = "markdown" },
         { "gr", group = "LSP" },
       })
