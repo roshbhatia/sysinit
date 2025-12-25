@@ -49,7 +49,6 @@ with lib;
     else
       "${colorscheme}-${variant}";
 
-  # Neovim - Custom theme system (Stylix disabled)
   getNeovimConfig =
     colorscheme: variant:
     let
@@ -119,7 +118,6 @@ with lib;
         colorscheme = "${colorscheme}-${variant}";
       };
 
-  # Opencode - Uses specific theme identifiers
   getOpencodeTheme =
     colorscheme: _variant:
     let
@@ -136,11 +134,9 @@ with lib;
     in
     themeMap.${colorscheme} or colorscheme;
 
-  # Git delta - Not in Stylix, needs theme name
   getDeltaTheme =
     colorscheme: variant:
     let
-      # Everforest explicitly uses nord for delta (as seen in palette)
       themeMap = {
         everforest = _v: "nord-dark";
       };
@@ -150,6 +146,5 @@ with lib;
     else
       "${colorscheme}-${variant}";
 
-  # Atuin - Uses theme name reference
   getAtuinTheme = colorscheme: variant: "${colorscheme}-${variant}";
 }

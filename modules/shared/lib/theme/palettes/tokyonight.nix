@@ -4,7 +4,7 @@ let
   utils = import ../core/utils.nix { inherit lib; };
 in
 
-rec {
+{
   meta = {
     name = "Tokyonight";
     id = "tokyonight";
@@ -66,11 +66,9 @@ rec {
       accent = blue;
       accent_dim = border;
 
-      # Fallbacks for semantic mapping
       fg_alt = fg_dark;
       bg_alt = bg_dark;
       surface_alt = bg_visual;
-      inherit cyan;
       teal = cyan;
     };
 
@@ -160,7 +158,6 @@ rec {
       fg_alt = fg_dark;
       bg_alt = bg_dark;
       surface_alt = bg_visual;
-      inherit cyan;
       teal = cyan;
     };
   };

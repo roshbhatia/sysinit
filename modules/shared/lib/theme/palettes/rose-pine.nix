@@ -4,7 +4,7 @@ let
   utils = import ../core/utils.nix { inherit lib; };
 in
 
-rec {
+{
   meta = {
     name = "Rosé Pine";
     id = "rose-pine";

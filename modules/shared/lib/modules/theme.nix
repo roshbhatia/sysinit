@@ -75,7 +75,6 @@ in
       default = {
         neovim = themes.getAppTheme "neovim" cfg.colorscheme cfg.variant;
         wezterm = themes.getAppTheme "wezterm" cfg.colorscheme cfg.variant;
-        bat = themes.getAppTheme "bat" cfg.colorscheme cfg.variant;
         git = themes.getAppTheme "delta" cfg.colorscheme cfg.variant;
         atuin = themes.getAppTheme "atuin" cfg.colorscheme cfg.variant;
         vivid = themes.getAppTheme "vivid" cfg.colorscheme cfg.variant;
