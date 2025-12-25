@@ -13,7 +13,7 @@ lib.mkIf bordersEnabled {
     enable = true;
     package = pkgs.jankyborders;
     style = "round";
-    width = 2.0;
+    width = 4.0;
     hidpi = true;
   };
 }
