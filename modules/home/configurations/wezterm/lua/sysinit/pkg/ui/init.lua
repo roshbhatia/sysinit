@@ -32,10 +32,7 @@ function M.setup(config)
   config.adjust_window_size_when_changing_font_size = not platform.is_darwin()
   config.animation_fps = 240
   config.color_scheme = config_data.color_scheme
-  config.cursor_blink_ease_in = "EaseIn"
-  config.cursor_blink_ease_out = "EaseInOut"
   config.cursor_blink_rate = 320
-  config.cursor_thickness = 1
   config.dpi = 144
   config.enable_scroll_bar = true
   config.font = font
