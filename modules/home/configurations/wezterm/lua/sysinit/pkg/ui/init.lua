@@ -235,7 +235,7 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
     },
     {
       Attribute = {
-        Underline = hover and "Dotted" or "None",
+        Underline = hover and "Single" or "None",
       },
     },
     {
