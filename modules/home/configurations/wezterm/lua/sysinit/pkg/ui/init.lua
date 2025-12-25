@@ -73,21 +73,18 @@ local function get_tab_content(tab)
   local pane = wezterm.mux.get_pane(pane_info.pane_id)
 
   local hostname = pane:get_domain_name() or ""
-  local path_display = (pane:get_current_working_dir() or ""):match("([^/]+)$")
-  local process_name = (pane:get_foreground_process_name() or ""):match("([^/]+)$")
+  local path = wezterm.url.parse(pane:get_current_working_dir() or "").file_path
+  local process = (pane:get_foreground_process_name() or "")
 
   local components = {}
-  if path_display ~= "" then
-    table.insert(components, path_display)
-  end
   if hostname ~= "" and hostname ~= "local" then
     table.insert(components, "(" .. hostname .. ")")
   end
-  if process_name ~= "" then
-    table.insert(components, process_name)
+  if process ~= "" then
+    table.insert(components, process)
   end
-  if path_display ~= "" then
-    table.insert(components, path_display)
+  if path ~= "" then
+    table.insert(components, path)
   end
 
   local max_total = 36
