@@ -76,8 +76,8 @@ local function get_tab_content(tab)
   wezterm.log_info("CWD: " .. tostring(pane:get_current_working_dir()))
   wezterm.log_info("Process: " .. tostring(pane:get_foreground_process_name()))
 
-  local path = wezterm.url.parse(pane:get_current_working_dir() or "").file_path
-  local process = (pane:get_foreground_process_name() or "")
+  local path = wezterm.url.parse(pane:get_current_working_dir().file_path) or ""
+  local process = pane:get_foreground_process_name() or ""
 
   local components = {}
   if domain ~= "" and domain ~= "local" then
