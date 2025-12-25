@@ -211,13 +211,18 @@ end
 ---@diagnostic disable-next-line: unused-local
 wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
   local index = tab.tab_index + 1
-  local content = get_tab_content(tab, max_width - 7)
-  local bracket_open = tab.is_active and " [" or ""
-  local bracket_close = tab.is_active and "] " or ""
+  local content = get_tab_content(tab, max_width - 5)
+
   return {
-    { Foreground = { Color = "#000000" } },
-    { Attribute = { Underline = hover and "Single" or "None" } },
-    { Text = bracket_open .. index .. bracket_close(":") .. content },
+    {
+      Foreground = { Color = "#000000" },
+    },
+    {
+      Underline = hover and "Single" or "None",
+    },
+    {
+      Text = index .. ": " .. content,
+    },
   }
 end)
 
