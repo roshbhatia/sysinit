@@ -98,14 +98,17 @@ end
 local function get_tab_content(tab, max_width)
   local pane_info = tab.active_pane
   local pane = wezterm.mux.get_pane(pane_info.pane_id)
+
   local domain = wezterm.mux.get_domain(pane:get_domain_name()):name()
   local path = pane:get_current_working_dir()
   path = path and path.file_path or ""
+
   local process = basename(pane:get_foreground_process_name() or "")
+
   local components = {}
 
   if domain ~= "" and domain ~= "local" then
-    table.insert(components, "(" .. domain .. ")")
+    table.insert(components, "󰇝" .. domain .. "󰇝")
   end
 
   local show_dir = path ~= ""
@@ -122,37 +125,60 @@ local function get_tab_content(tab, max_width)
   if show_dir then
     local parent_name = parent_basename(path)
     local current_name = basename(path)
-
-    local dir_part = ""
-    if current_name ~= "" then
-      if parent_name ~= "" then
-        dir_part = parent_name .. "/" .. current_name
-      else
-        dir_part = current_name
-      end
+    local dir_part = current_name or ""
+    if parent_name ~= "" and parent_name ~= "/" then
+      dir_part = parent_name .. "/" .. dir_part
     end
-
     if dir_part ~= "" then
       table.insert(components, dir_part)
     end
   else
-    table.insert(components, process)
+    if process ~= "" then
+      table.insert(components, process)
+    end
   end
 
   local num = #components
   if num == 0 then
     return ""
   end
-  local separator_width = num - 1
-  local available = max_width - separator_width
-  local per = math.floor(available / num)
-  for i, comp in ipairs(components) do
-    local max_len = (i == num) and (available - per * (num - 1)) or per
-    components[i] = truncate_component(comp, math.max(1, max_len))
-  end
-  return table.concat(components, "|")
-end
 
+  local separator = "|"
+  local separator_cost = (num - 1) * #separator
+
+  local available = max_width - separator_cost
+  if available <= 0 then
+    return string.rep(" ", max_width) -- shouldn't happen, but safe
+  end
+
+  if num == 1 then
+    return truncate_component(components[1], available)
+  end
+
+  local first_max = math.max(10, math.floor(available * 0.55)) -- at least 10, up to ~55%
+  local remaining_after_first = available - first_max
+
+  local rest_num = num - 1
+  local per_rest = rest_num > 0 and math.floor(remaining_after_first / rest_num) or 0
+  local extra = rest_num > 0 and (remaining_after_first - per_rest * rest_num) or 0
+
+  local lengths = {}
+  table.insert(lengths, first_max)
+
+  for i = 1, rest_num do
+    local len = per_rest
+    if i <= extra then
+      len = len + 1
+    end
+    table.insert(lengths, len)
+  end
+
+  for i, comp in ipairs(components) do
+    components[i] = truncate_component(comp, math.max(1, lengths[i]))
+  end
+
+  return table.concat(components, separator)
+end
 local function get_mode(window)
   local mode = window:active_key_table()
   return mode and mode ~= "" and mode or "default"
@@ -185,13 +211,13 @@ end
 ---@diagnostic disable-next-line: unused-local
 wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
   local index = tab.tab_index + 1
-  local content = get_tab_content(tab, max_width - 5)
-  local bracket_open = tab.is_active and " [" or "  "
-  local bracket_close = tab.is_active and "] " or "  "
+  local content = get_tab_content(tab, max_width - 7)
+  local bracket_open = tab.is_active and " [" or ""
+  local bracket_close = tab.is_active and "] " or ""
   return {
     { Foreground = { Color = "#000000" } },
     { Attribute = { Underline = hover and "Single" or "None" } },
-    { Text = bracket_open .. index .. "|" .. content .. bracket_close },
+    { Text = bracket_open .. index .. bracket_close(":") .. content },
   }
 end)
 
