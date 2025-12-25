@@ -33,12 +33,12 @@ M.plugins = {
           layout_config = {
             horizontal = {
               prompt_position = "top",
-              width = 1,
-              height = 1,
+              width = 0.9,
+              height = 0.9,
             },
             vertical = {
-              width = 1,
-              height = 1,
+              width = 0.9,
+              height = 0.9,
             },
           },
           mappings = {
