@@ -113,13 +113,14 @@ end
 
 local function get_tab_content(tab, max_width)
   local pane_info = tab.active_pane
-  local pane = wezterm.mux.get_pane(pane_info.pane_id)
 
+  local pane = wezterm.mux.get_pane(pane_info.pane_id)
   local domain = wezterm.mux.get_domain(pane:get_domain_name()):name()
-  local path = pane:get_current_working_dir()
+
+  local path = pane_info.current_working_dir
   path = path and path.file_path or ""
 
-  local process = basename(pane:get_foreground_process_name() or "")
+  local process = basename(pane.foreground_process_name)
 
   local components = {}
 
