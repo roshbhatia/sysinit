@@ -227,7 +227,7 @@ end
 ---@diagnostic disable-next-line: unused-local
 wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
   local index = tab.tab_index + 1
-  local content = get_tab_content(tab, max_width - 5)
+  local content = get_tab_content(tab, max_width - 4)
 
   return {
     {
@@ -235,7 +235,7 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
     },
     {
       Attribute = {
-        Underline = hover and "Single" or "None",
+        Underline = hover and "Dotted" or "None",
       },
     },
     {
