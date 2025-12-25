@@ -41,11 +41,6 @@ function M.setup(config)
     top = "1cell",
   }
 
-  if platform.is_linux() then
-    config.enable_wayland = true
-  end
-
-  config.adjust_window_size_when_changing_font_size = false
   config.animation_fps = 240
   config.cursor_blink_ease_in = "EaseIn"
   config.cursor_blink_ease_out = "EaseInOut"
@@ -53,7 +48,7 @@ function M.setup(config)
   config.cursor_thickness = 1
   config.display_pixel_geometry = "BGR"
   config.dpi = 144
-  config.enable_scroll_bar = false
+  config.enable_scroll_bar = true
   config.enable_tab_bar = true
   config.max_fps = 240
   config.quick_select_alphabet = "fjdkslaghrueiwoncmv"
@@ -68,8 +63,16 @@ function M.setup(config)
 
   config.color_scheme = config_data.color_scheme
   config.window_background_opacity = config_data.transparency.opacity
-  if config_data.transparency.blur then
-    config.macos_window_background_blur = config_data.transparency.blur
+
+  if platform.is_linux() then
+    config.enable_wayland = true
+  end
+
+  if platform.is_macos() then
+    config.adjust_window_size_when_changing_font_size = false
+    if config_data.transparency.blur then
+      config.macos_window_background_blur = config_data.transparency.blur
+    end
   end
 
   bar.apply_to_config(config, {
