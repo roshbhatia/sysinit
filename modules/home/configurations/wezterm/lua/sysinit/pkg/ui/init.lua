@@ -4,7 +4,6 @@ local theme_config = json_loader.load_json_file(json_loader.get_config_path("the
 local M = {}
 
 local font_name = theme_config.font and theme_config.font.monospace
-
 local terminal_font = wezterm.font_with_fallback({
   {
     family = font_name,
@@ -26,23 +25,26 @@ local terminal_font = wezterm.font_with_fallback({
   "Symbols Nerd Font Mono",
 })
 
-local function basename(str)
-  if not str or str == "" then
-    return ""
-  end
-  return string.gsub(str, "(.*/)(.*)", "%2")
-end
-
-local function parent_dir(path)
+local function basename(path)
   if not path or path == "" then
     return ""
   end
-  local parent = string.gsub(path, "(.*[/\\])([^/\\]+[/\\]?)$", "%1")
-  if parent == path or parent == "" then
+  path = path:gsub("[\\/]+$", "")
+  local name = path:match("[\\/]?([^%\\/]+)$")
+  return name or ""
+end
+
+local function parent_basename(path)
+  if not path or path == "" then
     return ""
   end
-  parent = string.gsub(parent, "(.*/)([^/]+[/\\]?)$", "%2")
-  return parent == "" and "" or parent .. "/"
+  path = path:gsub("[\\/]+$", "")
+  local parent_path = path:match("^(.*)[\\/][^\\/]*$")
+  if not parent_path or parent_path == "" then
+    return ""
+  end
+  local name = parent_path:match("[\\/]?([^%\\/]+)$")
+  return name or ""
 end
 
 local function is_linux()
@@ -100,7 +102,6 @@ local function get_tab_content(tab)
   local path = pane:get_current_working_dir()
   path = path and path.file_path or ""
   local process = basename(pane:get_foreground_process_name() or "")
-
   local components = {}
 
   if domain ~= "" and domain ~= "local" then
@@ -119,12 +120,23 @@ local function get_tab_content(tab)
     )
 
   if show_dir then
-    local parent = parent_dir(path)
-    local base = basename(path)
-    local dir_part = parent .. base
+    local parent_name = parent_basename(path)
+    local current_name = basename(path)
+
+    local dir_part = ""
+    if current_name ~= "" then
+      if parent_name ~= "" then
+        dir_part = ".../" .. parent_name .. "/" .. current_name
+      else
+        dir_part = ".../" .. current_name
+      end
+    end
+
     if dir_part ~= "" then
       table.insert(components, dir_part)
     end
+  else
+    table.insert(components, process)
   end
 
   local max_total = 19
@@ -135,12 +147,10 @@ local function get_tab_content(tab)
   local separator_width = num - 1
   local available = max_total - separator_width
   local per = math.floor(available / num)
-
   for i, comp in ipairs(components) do
     local max_len = (i == num) and (available - per * (num - 1)) or per
     components[i] = truncate_component(comp, math.max(1, max_len))
   end
-
   return table.concat(components, "|")
 end
 
@@ -173,26 +183,15 @@ local function get_mode_color(mode)
   end
 end
 
----@diagnostic disable-next-line: unused-local
 wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
   local index = tab.tab_index + 1
   local content = get_tab_content(tab)
   local bracket_open = tab.is_active and " [" or " "
   local bracket_close = tab.is_active and "] " or " "
   return {
-    {
-      Foreground = {
-        Color = "#000000",
-      },
-    },
-    {
-      Attribute = {
-        Underline = hover and "Single" or "None",
-      },
-    },
-    {
-      Text = bracket_open .. index .. ": " .. content .. bracket_close .. " ",
-    },
+    { Foreground = { Color = "#000000" } },
+    { Attribute = { Underline = hover and "Single" or "None" } },
+    { Text = bracket_open .. index .. ": " .. content .. bracket_close .. " " },
   }
 end)
 
@@ -200,11 +199,9 @@ wezterm.on("update-status", function(window, pane)
   local mode = get_mode(window)
   local mode_name = get_mode_name(mode)
   local mode_color = get_mode_color(mode)
-
   local dims = pane:get_dimensions()
   local mode_text = "[" .. mode_name .. "]"
   local padding = string.rep(" ", math.max(0, dims.cols - wezterm.column_width(mode_text) - 2))
-
   local overrides = window:get_config_overrides() or {}
   overrides.colors = overrides.colors or {}
   overrides.colors.tab_bar = overrides.colors.tab_bar or {}
@@ -213,13 +210,10 @@ wezterm.on("update-status", function(window, pane)
     { bg_color = mode_color, fg_color = "#000000", intensity = "Bold" }
   overrides.colors.tab_bar.inactive_tab = { bg_color = mode_color, fg_color = "#000000" }
   overrides.colors.tab_bar.inactive_tab_hover = { bg_color = mode_color, fg_color = "#000000" }
-
   if theme_config.nvim_transparency_override then
     apply_transparency_overrides(overrides)
   end
-
   window:set_config_overrides(overrides)
-
   window:set_left_status("")
   window:set_right_status(wezterm.format({
     { Foreground = { Color = "#000000" } },
@@ -232,7 +226,6 @@ local function get_base_config()
   local transparency = get_effective_transparency()
   local opacity = transparency.opacity or 0.85
   local blur = transparency.blur or 80
-
   return {
     macos_window_background_blur = blur,
     window_background_opacity = opacity,
@@ -276,7 +269,6 @@ function M.setup(config)
   for k, v in pairs(base) do
     config[k] = v
   end
-
   if theme_config.nvim_transparency_override then
     wezterm.on("window-config-reloaded", function(window)
       local overrides = window:get_config_overrides() or {}
@@ -284,7 +276,6 @@ function M.setup(config)
       window:set_config_overrides(overrides)
     end)
   end
-
   config.mouse_bindings = config.mouse_bindings or {}
   table.insert(config.mouse_bindings, {
     event = { Down = { streak = 1, button = "Right" } },
