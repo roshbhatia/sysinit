@@ -218,7 +218,9 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
       Foreground = { Color = "#000000" },
     },
     {
-      Underline = hover and "Single" or "None",
+      Attribute = {
+        Underline = hover and "Single" or "None",
+      },
     },
     {
       Text = index .. ": " .. content,
