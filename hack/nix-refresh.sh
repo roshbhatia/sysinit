@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 set -euo pipefail
 
 config="${1:-lv426}"
@@ -16,7 +16,7 @@ case "${config}" in
     ;;
   arrakis)
     if [ "${hostname}" != "arrakis" ]; then
-      ssh arrakis.stork-eel.ts.net "cd ~/github/personal/roshbhatia/sysinit && git reset --hard && git pull && task nix:refresh:arrakis"
+      ssh arrkis "cd ~/github/personal/roshbhatia/sysinit && git reset --hard && git pull && task nix:refresh:arrakis"
     else
       NIXPKGS_ALLOW_UNFREE=1 sudo nixos-rebuild switch --flake ".#${config}"
     fi
