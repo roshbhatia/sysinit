@@ -71,13 +71,14 @@ end
 local function get_tab_content(tab)
   local pane_info = tab.active_pane
   local pane = wezterm.mux.get_pane(pane_info.pane_id)
-  local domain = wezterm.mux.get_domain(pane:get_domain_name()):name()
-  wezterm.log_info("Domain: " .. domain)
-  wezterm.log_info("CWD: " .. tostring(pane:get_current_working_dir()))
-  wezterm.log_info("Process: " .. tostring(pane:get_foreground_process_name()))
 
+  local domain = wezterm.mux.get_domain(pane:get_domain_name()):name()
   local path = wezterm.url.parse(pane:get_current_working_dir().file_path) or ""
   local process = pane:get_foreground_process_name() or ""
+
+  wezterm.log_info("domain: " .. domain)
+  wezterm.log_info("path: " .. path)
+  wezterm.log_info("process: " .. process)
 
   local components = {}
   if domain ~= "" and domain ~= "local" then
