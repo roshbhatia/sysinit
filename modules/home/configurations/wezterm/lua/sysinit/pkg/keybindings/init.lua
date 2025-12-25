@@ -220,6 +220,23 @@ function M.setup(config)
       mods = "CTRL",
       action = act.OpenLinkAtMouseCursor,
     },
+
+    {
+      event = { Up = { streak = 1, button = "Left" } },
+      mods = "SUPER",
+      action = act.OpenLinkAtMouseCursor,
+    },
+    {
+      event = { Down = { streak = 1, button = "Left" } },
+      mods = "CTRL",
+      action = act.Nop,
+    },
+
+    {
+      event = { Down = { streak = 1, button = "Left" } },
+      mods = "SUPER",
+      action = act.Nop,
+    },
   }
 end
 
