@@ -5,9 +5,9 @@
 
 {
   stylix.targets.wezterm.enable = true;
+  stylix.targets.wezterm.opacity.enable = true;
 
   xdg.configFile."wezterm/wezterm.lua".source = ./wezterm.lua;
-
   xdg.configFile."wezterm/lua".source = ./lua;
 
   xdg.configFile."wezterm/config.json".text = builtins.toJSON {
