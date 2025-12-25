@@ -107,17 +107,15 @@ local function get_tab_content(tab)
     table.insert(components, "(" .. domain .. ")")
   end
 
-  if process ~= "" then
-    table.insert(components, process)
-  end
-
   local show_dir = path ~= ""
     and (
-      process == "zsh"
+      process == "git"
+      or process == "hx"
+      or process == "task"
       or process == "wezterm-gui"
       or process:match("^n?vim$")
       or process:match("^n?vim%.")
-      or process == "hx"
+      or process == "zsh"
     )
 
   if show_dir then
@@ -175,14 +173,26 @@ local function get_mode_color(mode)
   end
 end
 
+---@diagnostic disable-next-line: unused-local
 wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
   local index = tab.tab_index + 1
   local content = get_tab_content(tab)
-  local bracket_open = tab.is_active and "[" or ""
-  local bracket_close = tab.is_active and "]" or ""
+  local bracket_open = tab.is_active and " [" or " "
+  local bracket_close = tab.is_active and "] " or " "
   return {
-    { Foreground = { Color = "#000000" } },
-    { Text = bracket_open .. index .. ": " .. content .. bracket_close .. " " },
+    {
+      Foreground = {
+        Color = "#000000",
+      },
+    },
+    {
+      Attribute = {
+        Underline = hover and "Single" or "None",
+      },
+    },
+    {
+      Text = bracket_open .. index .. ": " .. content .. bracket_close .. " ",
+    },
   }
 end)
 
