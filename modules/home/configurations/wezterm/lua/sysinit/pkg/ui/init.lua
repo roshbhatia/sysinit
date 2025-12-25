@@ -95,7 +95,7 @@ local function truncate_component(str, max_len)
   return str:sub(1, max_len - 1) .. "…"
 end
 
-local function get_tab_content(tab)
+local function get_tab_content(tab, max_width)
   local pane_info = tab.active_pane
   local pane = wezterm.mux.get_pane(pane_info.pane_id)
   local domain = wezterm.mux.get_domain(pane:get_domain_name()):name()
@@ -126,9 +126,9 @@ local function get_tab_content(tab)
     local dir_part = ""
     if current_name ~= "" then
       if parent_name ~= "" then
-        dir_part = ".../" .. parent_name .. "/" .. current_name
+        dir_part = parent_name .. "/" .. current_name
       else
-        dir_part = ".../" .. current_name
+        dir_part = current_name
       end
     end
 
@@ -139,13 +139,12 @@ local function get_tab_content(tab)
     table.insert(components, process)
   end
 
-  local max_total = 19
   local num = #components
   if num == 0 then
     return ""
   end
   local separator_width = num - 1
-  local available = max_total - separator_width
+  local available = max_width - separator_width
   local per = math.floor(available / num)
   for i, comp in ipairs(components) do
     local max_len = (i == num) and (available - per * (num - 1)) or per
@@ -183,15 +182,16 @@ local function get_mode_color(mode)
   end
 end
 
+---@diagnostic disable-next-line: unused-local
 wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
   local index = tab.tab_index + 1
-  local content = get_tab_content(tab)
-  local bracket_open = tab.is_active and " [" or " "
-  local bracket_close = tab.is_active and "] " or " "
+  local content = get_tab_content(tab, max_width - 5)
+  local bracket_open = tab.is_active and " [" or "  "
+  local bracket_close = tab.is_active and "] " or "  "
   return {
     { Foreground = { Color = "#000000" } },
     { Attribute = { Underline = hover and "Single" or "None" } },
-    { Text = bracket_open .. index .. ": " .. content .. bracket_close .. " " },
+    { Text = bracket_open .. index .. "|" .. content .. bracket_close },
   }
 end)
 
