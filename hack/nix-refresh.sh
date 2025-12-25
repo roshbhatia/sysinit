@@ -16,7 +16,7 @@ case "${config}" in
     ;;
   arrakis)
     if [ "${hostname}" != "arrakis" ]; then
-      ssh -t arrakis "fd -t d -d 2 '^sysinit$' ~/github/personal/roshbhatia 2>/dev/null | head -n 1 | xargs -I {} sh -c 'cd {} && git reset --hard && git pull && task nix:refresh:arrakis'"
+      ssh arrakis "cd ~/github/personal/roshbhatia/sysinit && git reset --hard && git pull && task nix:refresh:arrakis"
     else
       NIXPKGS_ALLOW_UNFREE=1 sudo nixos-rebuild switch --flake ".#${config}"
     fi
