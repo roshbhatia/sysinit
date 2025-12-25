@@ -1,43 +1,35 @@
 local wezterm = require("wezterm")
 local act = wezterm.action
+
 local M = {}
 
-local function multi_bind(key, modifiers_list, action)
-  local bindings = {}
-  for _, mods in ipairs(modifiers_list) do
-    table.insert(bindings, {
-      key = key,
-      mods = mods,
-      action = action,
-    })
-  end
-  return bindings
-end
+local PASSTHROUGH_PROCESSES = { "nvim", "vim", "hx", "k9s" }
+local VIM_PROCESSES = { "nvim", "vim" }
 
-local function should_passthrough(pane)
+local function get_process_name(pane)
   local proc = pane:get_foreground_process_name()
   if not proc then
-    return false
+    return nil
   end
-  local process_name = string.gsub(proc, "(.*[/\\])(.*)", "%2")
-  return process_name == "nvim"
-    or process_name == "vim"
-    or process_name == "hx"
-    or process_name == "k9s"
+  return proc:match("([^/\\]+)$")
 end
 
-local function should_passthrough_ctrl_w(pane)
-  local proc = pane:get_foreground_process_name()
-  if not proc then
+local function is_process_in_list(pane, process_list)
+  local process_name = get_process_name(pane)
+  if not process_name then
     return false
   end
-  local process_name = string.gsub(proc, "(.*[/\\])(.*)", "%2")
-  return process_name == "nvim" or process_name == "vim"
+  for _, proc in ipairs(process_list) do
+    if process_name == proc then
+      return true
+    end
+  end
+  return false
 end
 
-local function vim_w_or_wezterm_action(key, mods, wezterm_action)
+local function create_passthrough_action(key, mods, wezterm_action, process_list)
   return wezterm.action_callback(function(win, pane)
-    if should_passthrough_ctrl_w(pane) then
+    if is_process_in_list(pane, process_list or PASSTHROUGH_PROCESSES) then
       win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
     else
       win:perform_action(wezterm_action, pane)
@@ -45,210 +37,133 @@ local function vim_w_or_wezterm_action(key, mods, wezterm_action)
   end)
 end
 
-local direction_keys = {
+local DIRECTION_KEYS = {
   h = "Left",
   j = "Down",
   k = "Up",
   l = "Right",
 }
 
-local function pane_keybinding(action_type, key, mods)
+local function create_pane_action(action_type, key, mods)
   return wezterm.action_callback(function(win, pane)
-    if should_passthrough(pane) then
+    if is_process_in_list(pane, PASSTHROUGH_PROCESSES) then
       win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
     else
-      if action_type == "resize" then
-        win:perform_action({ AdjustPaneSize = { direction_keys[key], 3 } }, pane)
-      else
-        win:perform_action({ ActivatePaneDirection = direction_keys[key] }, pane)
-      end
+      local action = action_type == "resize" and { AdjustPaneSize = { DIRECTION_KEYS[key], 3 } }
+        or { ActivatePaneDirection = DIRECTION_KEYS[key] }
+      win:perform_action(action, pane)
     end
   end)
+end
+
+local function create_multi_bindings(key, mods_list, action)
+  local bindings = {}
+  for _, mods in ipairs(mods_list) do
+    table.insert(bindings, { key = key, mods = mods, action = action })
+  end
+  return bindings
 end
 
 local function get_pane_keys()
-  return {
-
-    { key = "h", mods = "CTRL", action = pane_keybinding("move", "h", "CTRL") },
-    { key = "j", mods = "CTRL", action = pane_keybinding("move", "j", "CTRL") },
-    { key = "k", mods = "CTRL", action = pane_keybinding("move", "k", "CTRL") },
-    { key = "l", mods = "CTRL", action = pane_keybinding("move", "l", "CTRL") },
-
-    { key = "h", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "h", "CTRL|SHIFT") },
-    { key = "j", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "j", "CTRL|SHIFT") },
-    { key = "k", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "k", "CTRL|SHIFT") },
-    { key = "l", mods = "CTRL|SHIFT", action = pane_keybinding("resize", "l", "CTRL|SHIFT") },
-
-    {
-      key = "s",
-      mods = "CTRL",
-      action = wezterm.action.SplitVertical({ domain = "CurrentPaneDomain" }),
-    },
-    {
-      key = "v",
-      mods = "CTRL",
-      action = wezterm.action.SplitHorizontal({ domain = "CurrentPaneDomain" }),
-    },
-
-    {
-      key = "w",
-      mods = "CTRL",
-      action = vim_w_or_wezterm_action("w", "CTRL", act.CloseCurrentPane({ confirm = true })),
-    },
-    {
-      key = "w",
-      mods = "SUPER",
-      action = vim_w_or_wezterm_action("w", "SUPER", act.CloseCurrentPane({ confirm = true })),
-    },
+  local keys = {
+    { key = "s", mods = "CTRL", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
+    { key = "v", mods = "CTRL", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
   }
+
+  for _, key in ipairs({ "h", "j", "k", "l" }) do
+    table.insert(
+      keys,
+      { key = key, mods = "CTRL", action = create_pane_action("move", key, "CTRL") }
+    )
+    table.insert(
+      keys,
+      { key = key, mods = "CTRL|SHIFT", action = create_pane_action("resize", key, "CTRL|SHIFT") }
+    )
+  end
+
+  for _, mods in ipairs({ "CTRL", "SUPER" }) do
+    table.insert(keys, {
+      key = "w",
+      mods = mods,
+      action = create_passthrough_action(
+        "w",
+        mods,
+        act.CloseCurrentPane({ confirm = true }),
+        VIM_PROCESSES
+      ),
+    })
+  end
+
+  return keys
 end
 
-local function get_clear_keys()
-  local clear_action = wezterm.action_callback(function(win, pane)
-    if should_passthrough(pane) then
-      win:perform_action({
-        SendKey = {
-          key = "k",
-          mods = "CTRL",
-        },
-      }, pane)
-    else
-      win:perform_action(act.ClearScrollback("ScrollbackAndViewport"), pane)
-    end
-  end)
-
+local function get_system_keys()
   return {
+    { key = "c", mods = "SUPER", action = act.CopyTo("Clipboard") },
+    { key = "v", mods = "SUPER", action = act.PasteFrom("Clipboard") },
+    { key = "m", mods = "SUPER", action = act.Hide },
+    { key = "h", mods = "SUPER", action = act.HideApplication },
+    { key = "q", mods = "SUPER", action = act.QuitApplication },
+    { key = ";", mods = "CTRL|SHIFT", action = act.ActivateCommandPalette },
+    { key = "l", mods = "CTRL|SHIFT", action = act.ShowDebugOverlay },
+    { key = "r", mods = "CTRL|SHIFT", action = act.ReloadConfiguration },
     {
       key = "k",
       mods = "SUPER",
-      action = clear_action,
-    },
-  }
-end
-
-local function get_default_keys()
-  return {
-    {
-      key = "c",
-      mods = "SUPER",
-      action = act.CopyTo("Clipboard"),
-    },
-    {
-      key = "v",
-      mods = "SUPER",
-      action = act.PasteFrom("Clipboard"),
-    },
-    {
-      key = "m",
-      mods = "SUPER",
-      action = act.Hide,
-    },
-    {
-      key = "h",
-      mods = "SUPER",
-      action = act.HideApplication,
-    },
-    {
-      key = "q",
-      mods = "SUPER",
-      action = act.QuitApplication,
+      action = create_passthrough_action("k", "CTRL", act.ClearScrollback("ScrollbackAndViewport")),
     },
   }
 end
 
 local function get_font_keys()
   local keys = {}
-
-  for _, binding in ipairs(multi_bind("-", { "CTRL", "SUPER" }, act.DecreaseFontSize)) do
+  for _, binding in ipairs(create_multi_bindings("-", { "CTRL", "SUPER" }, act.DecreaseFontSize)) do
     table.insert(keys, binding)
   end
-
-  for _, binding in ipairs(multi_bind("=", { "CTRL", "SUPER" }, act.IncreaseFontSize)) do
+  for _, binding in ipairs(create_multi_bindings("=", { "CTRL", "SUPER" }, act.IncreaseFontSize)) do
     table.insert(keys, binding)
   end
-
-  return keys
-end
-
-local function get_pallete_keys()
-  return {
-    {
-      key = ";",
-      mods = "CTRL|SHIFT",
-      action = act.ActivateCommandPalette,
-    },
-    {
-      key = "l",
-      mods = "CTRL|SHIFT",
-      action = act.ShowDebugOverlay,
-    },
-  }
-end
-
-local function get_window_keys()
-  local keys = {}
-
-  for _, binding in ipairs(multi_bind("n", { "CTRL", "SUPER" }, act.SpawnWindow)) do
-    table.insert(keys, binding)
-  end
-
   return keys
 end
 
 local function get_tab_keys()
-  local keys = {}
+  local keys = {
+    { key = "w", mods = "CTRL|SHIFT", action = act.CloseCurrentTab({ confirm = true }) },
+    { key = "Tab", mods = "CTRL", action = act.ActivateTabRelative(1) },
+    { key = "Tab", mods = "CTRL|SHIFT", action = act.ActivateTabRelative(-1) },
+    { key = "o", mods = "CTRL|SHIFT", action = act.ActivateLastTab },
+  }
 
-  for _, binding in ipairs(multi_bind("t", { "CTRL", "SUPER" }, act.SpawnTab("CurrentPaneDomain"))) do
+  for _, binding in
+    ipairs(create_multi_bindings("t", { "CTRL", "SUPER" }, act.SpawnTab("CurrentPaneDomain")))
+  do
     table.insert(keys, binding)
   end
 
-  table.insert(keys, {
-    key = "w",
-    mods = "CTRL|SHIFT",
-    action = act.CloseCurrentTab({ confirm = true }),
-  })
-
-  table.insert(keys, {
-    key = "Tab",
-    mods = "CTRL",
-    action = act.ActivateTabRelative(1),
-  })
-  table.insert(keys, {
-    key = "Tab",
-    mods = "CTRL|SHIFT",
-    action = act.ActivateTabRelative(-1),
-  })
-
   for i = 1, 8 do
-    for _, binding in ipairs(multi_bind(tostring(i), { "CTRL", "SUPER" }, act.ActivateTab(i - 1))) do
+    for _, binding in
+      ipairs(create_multi_bindings(tostring(i), { "CTRL", "SUPER" }, act.ActivateTab(i - 1)))
+    do
       table.insert(keys, binding)
     end
   end
 
-  for _, binding in ipairs(multi_bind("9", { "CTRL", "SUPER" }, act.ActivateTab(-1))) do
+  for _, binding in ipairs(create_multi_bindings("9", { "CTRL", "SUPER" }, act.ActivateTab(-1))) do
     table.insert(keys, binding)
   end
 
   return keys
 end
 
+local function get_window_keys()
+  return create_multi_bindings("n", { "CTRL", "SUPER" }, act.SpawnWindow)
+end
+
 local function get_search_keys()
   return {
-    {
-      key = "Escape",
-      mods = "CTRL",
-      action = act.ActivateCopyMode,
-    },
-    {
-      key = "/",
-      mods = "CTRL",
-      action = act.Search("CurrentSelectionOrEmptyString"),
-    },
-    {
-      key = "f",
-      mods = "CTRL",
-      action = act.QuickSelect,
-    },
+    { key = "Escape", mods = "CTRL", action = act.ActivateCopyMode },
+    { key = "/", mods = "CTRL", action = act.Search("CurrentSelectionOrEmptyString") },
+    { key = "f", mods = "CTRL", action = act.PaneSelect },
   }
 end
 
@@ -257,99 +172,33 @@ local function get_scroll_keys()
     {
       key = "u",
       mods = "CTRL",
-      action = wezterm.action_callback(function(win, pane)
-        if should_passthrough(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "u",
-              mods = "CTRL",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ScrollByLine(-40), pane)
-        end
-      end),
+      action = create_passthrough_action("u", "CTRL", act.ScrollByLine(-40)),
     },
     {
       key = "d",
       mods = "CTRL",
-      action = wezterm.action_callback(function(win, pane)
-        if should_passthrough(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "d",
-              mods = "CTRL",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ScrollByLine(40), pane)
-        end
-      end),
+      action = create_passthrough_action("d", "CTRL", act.ScrollByLine(40)),
     },
     {
       key = "u",
       mods = "CTRL|SHIFT",
-      action = wezterm.action_callback(function(win, pane)
-        if should_passthrough(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "u",
-              mods = "CTRL|SHIFT",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ScrollToTop, pane)
-        end
-      end),
+      action = create_passthrough_action("u", "CTRL|SHIFT", act.ScrollToTop),
     },
     {
       key = "d",
       mods = "CTRL|SHIFT",
-      action = wezterm.action_callback(function(win, pane)
-        if should_passthrough(pane) then
-          win:perform_action({
-            SendKey = {
-              key = "d",
-              mods = "CTRL|SHIFT",
-            },
-          }, pane)
-        else
-          win:perform_action(act.ScrollToBottom, pane)
-        end
-      end),
+      action = create_passthrough_action("d", "CTRL|SHIFT", act.ScrollToBottom),
     },
   }
-end
-
-local function get_misc_keys()
-  return {
-    {
-      key = "r",
-      mods = "CTRL|SHIFT",
-      action = act.ReloadConfiguration,
-    },
-  }
-end
-
-local function get_key_tables()
-  if not wezterm.gui then
-    return {}
-  end
-
-  return wezterm.gui.default_key_tables()
 end
 
 function M.setup(config)
   config.disable_default_key_bindings = true
 
   local all_keys = {}
-
   local key_groups = {
-    get_clear_keys(),
-    get_default_keys(),
+    get_system_keys(),
     get_font_keys(),
-    get_misc_keys(),
-    get_pallete_keys(),
     get_pane_keys(),
     get_scroll_keys(),
     get_search_keys(),
@@ -364,7 +213,14 @@ function M.setup(config)
   end
 
   config.keys = all_keys
-  config.key_tables = get_key_tables()
+  config.key_tables = wezterm.gui and wezterm.gui.default_key_tables() or {}
+  config.mouse_bindings = {
+    {
+      event = { Up = { streak = 1, button = "Left" } },
+      mods = "CTRL",
+      action = act.OpenLinkAtMouseCursor,
+    },
+  }
 end
 
 return M

@@ -49,8 +49,13 @@ function M.setup(config)
   config.scrollback_lines = 20000
   config.text_min_contrast_ratio = 4.5
   config.window_background_opacity = config_data.transparency.opacity
-  config.window_decorations = "RESIZE"
-  config.window_frame.font = font
+  config.window_decorations = platform.is_darwin()
+      and "RESIZE|MACOS_FORCE_ENABLE_SHADOW|MACOS_FORCE_SQUARE_CORNERS|MACOS_USE_BACKGROUND_COLOR_AS_TITLEBAR_COLOR"
+    or "RESIZE"
+  config.window_frame = {
+    font = font,
+    font_size = 13.0,
+  }
   config.window_padding = {
     left = "1cell",
     right = "1cell",
@@ -65,8 +70,8 @@ function M.setup(config)
 
   bar.apply_to_config(config, {
     padding = {
-      left = 2,
-      right = 2,
+      left = 1,
+      right = 1,
       tabs = {
         left = 1,
       },
