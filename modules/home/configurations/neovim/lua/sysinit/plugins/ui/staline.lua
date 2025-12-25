@@ -117,6 +117,10 @@ M.plugins = {
           ["!"] = theme_config.semanticColors.accent.secondary,
         },
       })
+      require("stabline").setup({
+        style = "slant",
+        stab_right = "",
+      })
     end,
   },
 }
