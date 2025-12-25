@@ -1,43 +1,9 @@
 local wezterm = require("wezterm")
 local json_loader = require("sysinit.pkg.utils.json_loader")
 local theme_config = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"))
-
 local M = {}
 
 local font_name = theme_config.font and theme_config.font.monospace
-
-local function is_linux()
-  local handle = io.popen("uname -s 2>/dev/null")
-  if not handle then
-    return false
-  end
-  local result = handle:read("*a")
-  handle:close()
-  return result:match("Linux") ~= nil
-end
-
-local function is_nvim_running()
-  local pane = wezterm.mux.get_active_pane()
-  if not pane then
-    return false
-  end
-
-  local proc = pane:get_foreground_process_name()
-  if proc then
-    local basename = proc:match("([^/]+)$")
-    if basename and (basename:match("^n?vim$") or basename:match("^n?vim%.")) then
-      return true
-    end
-  end
-  return false
-end
-
-local function get_effective_transparency()
-  if theme_config.nvim_transparency_override and is_nvim_running() then
-    return theme_config.nvim_transparency_override
-  end
-  return theme_config.transparency
-end
 
 local terminal_font = wezterm.font_with_fallback({
   {
@@ -60,6 +26,50 @@ local terminal_font = wezterm.font_with_fallback({
   "Symbols Nerd Font Mono",
 })
 
+local function basename(str)
+  return string.gsub(str, "(.*/)(.*)", "%2")
+end
+
+local function is_linux()
+  local handle = io.popen("uname -s 2>/dev/null")
+  if not handle then
+    return false
+  end
+  local result = handle:read("*a")
+  handle:close()
+  return result:match("Linux") ~= nil
+end
+
+local function is_nvim_running()
+  local pane = wezterm.mux.get_active_pane()
+  if not pane then
+    return false
+  end
+  local proc = pane:get_foreground_process_name()
+  if not proc then
+    return false
+  end
+  local name = basename(proc)
+  return name:match("^n?vim$") or name:match("^n?vim%.")
+end
+
+local function get_effective_transparency()
+  if theme_config.nvim_transparency_override and is_nvim_running() then
+    return theme_config.nvim_transparency_override
+  end
+  return theme_config.transparency
+end
+
+local function apply_transparency_overrides(overrides)
+  local transparency = get_effective_transparency()
+  local opacity = transparency.opacity or 0.85
+  local blur = transparency.blur or 80
+  if overrides.window_background_opacity ~= opacity then
+    overrides.window_background_opacity = opacity
+    overrides.macos_window_background_blur = blur
+  end
+end
+
 local function truncate_component(str, max_len)
   str = tostring(str or "")
   if #str <= max_len then
@@ -71,14 +81,9 @@ end
 local function get_tab_content(tab)
   local pane_info = tab.active_pane
   local pane = wezterm.mux.get_pane(pane_info.pane_id)
-
   local domain = wezterm.mux.get_domain(pane:get_domain_name()):name()
   local path = pane:get_current_working_dir().file_path or ""
-  local process = pane:get_foreground_process_name() or ""
-
-  wezterm.log_info("domain: " .. domain)
-  wezterm.log_info("path: " .. path)
-  wezterm.log_info("process: " .. process)
+  local process = basename(pane:get_foreground_process_name() or "")
 
   local components = {}
   if domain ~= "" and domain ~= "local" then
@@ -92,17 +97,16 @@ local function get_tab_content(tab)
   end
 
   local max_total = 36
-  local num_components = #components
-  local separator_width = math.max(0, (num_components - 1) * 1)
-
+  local num = #components
+  if num == 0 then
+    return ""
+  end
+  local separator_width = math.max(0, num - 1)
   local available = max_total - separator_width
-  local per_component = math.floor(available / num_components)
+  local per = math.floor(available / num)
 
   for i, comp in ipairs(components) do
-    local max_len = per_component
-    if i == num_components then
-      max_len = available - (per_component * (num_components - 1))
-    end
+    local max_len = (i == num) and (available - per * (num - 1)) or per
     components[i] = truncate_component(comp, math.max(1, max_len))
   end
 
@@ -117,7 +121,8 @@ end
 local function get_mode_name(mode)
   if mode == "default" then
     return "INSERT"
-  elseif mode:lower():find("copy") then
+  end
+  if mode:lower():find("copy") then
     return "NORMAL"
   end
   return mode:upper()
@@ -125,34 +130,33 @@ end
 
 local function get_mode_color(mode)
   local p = theme_config.palette
-  local mode_lower = mode:lower()
-
-  if mode_lower:find("copy") then
+  local lower = mode:lower()
+  if lower:find("copy") then
     return p.error
-  elseif mode_lower:find("search") then
+  elseif lower:find("search") then
     return p.warning
-  elseif mode_lower:find("window") then
+  elseif lower:find("window") then
     return p.primary
+  else
+    return p.info
   end
-  return p.info
 end
 
----@diagnostic disable-next-line: unused-local
+local base_tab_bar_colors = {
+  background = theme_config.palette.primary,
+  active_tab = { bg_color = theme_config.palette.primary, fg_color = "#000000", intensity = "Bold" },
+  inactive_tab = { bg_color = theme_config.palette.primary, fg_color = "#000000" },
+  inactive_tab_hover = { bg_color = theme_config.palette.primary, fg_color = "#000000" },
+}
+
 wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
   local index = tab.tab_index + 1
   local content = get_tab_content(tab)
-  local bracket = tab.is_active and "[" or ""
+  local bracket_open = tab.is_active and "[" or ""
   local bracket_close = tab.is_active and "]" or ""
-
   return {
-    {
-      Foreground = {
-        Color = "#000000",
-      },
-    },
-    {
-      Text = bracket .. index .. ": " .. content .. bracket_close .. " ",
-    },
+    { Foreground = { Color = "#000000" } },
+    { Text = bracket_open .. index .. ": " .. content .. bracket_close .. " " },
   }
 end)
 
@@ -168,30 +172,15 @@ wezterm.on("update-status", function(window, pane)
   local overrides = window:get_config_overrides() or {}
   overrides.colors = overrides.colors or {}
   overrides.colors.tab_bar = overrides.colors.tab_bar or {}
+
   overrides.colors.tab_bar.background = mode_color
-  overrides.colors.tab_bar.active_tab = {
-    bg_color = mode_color,
-    fg_color = "#000000",
-    intensity = "Bold",
-  }
-  overrides.colors.tab_bar.inactive_tab = {
-    bg_color = mode_color,
-    fg_color = "#000000",
-  }
-  overrides.colors.tab_bar.inactive_tab_hover = {
-    bg_color = mode_color,
-    fg_color = "#000000",
-  }
+  overrides.colors.tab_bar.active_tab =
+    { bg_color = mode_color, fg_color = "#000000", intensity = "Bold" }
+  overrides.colors.tab_bar.inactive_tab = { bg_color = mode_color, fg_color = "#000000" }
+  overrides.colors.tab_bar.inactive_tab_hover = { bg_color = mode_color, fg_color = "#000000" }
 
   if theme_config.nvim_transparency_override then
-    local transparency = get_effective_transparency()
-    local new_opacity = transparency.opacity or 0.85
-    local new_blur = transparency.blur or 80
-
-    if overrides.window_background_opacity ~= new_opacity then
-      overrides.window_background_opacity = new_opacity
-      overrides.macos_window_background_blur = new_blur
-    end
+    apply_transparency_overrides(overrides)
   end
 
   window:set_config_overrides(overrides)
@@ -200,20 +189,19 @@ wezterm.on("update-status", function(window, pane)
   window:set_right_status(wezterm.format({
     { Foreground = { Color = "#000000" } },
     { Attribute = { Intensity = "Bold" } },
-    { Text = padding .. mode_text .. "  " },
+    { Text = padding .. mode_text .. " " },
   }))
 end)
 
-local function get_theme_colors()
+local function get_base_config()
   local transparency = get_effective_transparency()
   local opacity = transparency.opacity or 0.85
   local blur = transparency.blur or 80
-  local theme_name = theme_config.theme_name
 
   return {
     macos_window_background_blur = blur,
     window_background_opacity = opacity,
-    color_scheme = theme_name,
+    color_scheme = theme_config.theme_name,
     colors = {
       foreground = theme_config.palette.fg_primary,
       background = theme_config.palette.bg_primary,
@@ -244,45 +232,11 @@ local function get_theme_colors()
         theme_config.ansi["14"],
         theme_config.ansi["15"],
       },
-      tab_bar = {
-        background = theme_config.palette.primary,
-        active_tab = {
-          bg_color = theme_config.palette.primary,
-          fg_color = "#000000",
-          intensity = "Bold",
-        },
-        inactive_tab = {
-          bg_color = theme_config.palette.primary,
-          fg_color = "#000000",
-        },
-        inactive_tab_hover = {
-          bg_color = theme_config.palette.primary,
-          fg_color = "#000000",
-        },
-      },
+      tab_bar = base_tab_bar_colors,
     },
-  }
-end
-
-local function get_window_config()
-  local config = {
     window_decorations = "RESIZE",
-    window_padding = {
-      left = "1cell",
-      right = "1cell",
-      top = "1cell",
-    },
-  }
-
-  if is_linux() then
-    config.enable_wayland = true
-  end
-
-  return config
-end
-
-local function get_display_config()
-  return {
+    window_padding = { left = "1cell", right = "1cell", top = "1cell" },
+    enable_wayland = is_linux(),
     window_frame = { font = terminal_font },
     adjust_window_size_when_changing_font_size = false,
     animation_fps = 240,
@@ -309,36 +263,21 @@ local function get_display_config()
       fade_out_function = "EaseOut",
       fade_out_duration_ms = 100,
     },
-  }
-end
-
-local function get_font_config()
-  return {
     font = terminal_font,
     font_size = 13.0,
   }
 end
 
 function M.setup(config)
-  for _, cfg in ipairs({
-    get_theme_colors(),
-    get_window_config(),
-    get_display_config(),
-    get_font_config(),
-  }) do
-    for key, value in pairs(cfg) do
-      config[key] = value
-    end
+  local base = get_base_config()
+  for k, v in pairs(base) do
+    config[k] = v
   end
 
   if theme_config.nvim_transparency_override then
     wezterm.on("window-config-reloaded", function(window)
       local overrides = window:get_config_overrides() or {}
-      local transparency = get_effective_transparency()
-
-      overrides.window_background_opacity = transparency.opacity or 0.85
-      overrides.macos_window_background_blur = transparency.blur or 80
-
+      apply_transparency_overrides(overrides)
       window:set_config_overrides(overrides)
     end)
   end
