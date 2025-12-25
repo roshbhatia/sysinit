@@ -69,18 +69,12 @@ local function truncate_component(str, max_len)
 end
 
 local function get_tab_content(tab)
-  local hostname = ""
-  local path_display = ""
-
   local pane_info = tab.active_pane
-  if not pane_info then
-    return "shell"
-  end
-
   local pane = wezterm.mux.get_pane(pane_info.pane_id)
-  path_display = pane:get_current_working_dir() or ""
-  process_name = string.gsub(pane:get_foreground_process_name(), "(.*[/\\])(.*)", "%2")
-  hostname = pane:get_domain_name() or ""
+
+  local path_display = pane:get_current_working_dir() or ""
+  local process_name = string.gsub(pane:get_foreground_process_name(), "(.*[/\\])(.*)", "%2")
+  local hostname = pane:get_domain_name() or ""
 
   local components = {}
   if path_display ~= "" then
@@ -96,19 +90,15 @@ local function get_tab_content(tab)
     table.insert(components, path_display:sub(8))
   end
 
-  -- Build final display with component truncation
-  -- Allocate character budget: 19 chars max
   local max_total = 36
   local num_components = #components
   local separator_width = math.max(0, (num_components - 1) * 1)
 
-  -- Distribute character budget among components
   local available = max_total - separator_width
   local per_component = math.floor(available / num_components)
 
   for i, comp in ipairs(components) do
     local max_len = per_component
-    -- Give remaining chars to last component
     if i == num_components then
       max_len = available - (per_component * (num_components - 1))
     end
