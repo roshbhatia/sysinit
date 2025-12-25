@@ -34,9 +34,13 @@ M.plugins = {
             horizontal = {
               prompt_position = "top",
               preview_width = 0.55,
+              width = 0.9,
+              height = 0.9,
             },
-            width = 0.87,
-            height = 0.80,
+            vertical = {
+              width = 0.9,
+              height = 0.9,
+            },
           },
           mappings = {
             n = {
