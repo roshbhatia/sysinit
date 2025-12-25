@@ -80,6 +80,8 @@ function M.setup(config)
 
   bar.apply_to_config(config, {
     padding = {
+      left = 2,
+      right = 2,
       tabs = {
         left = 1,
       },
