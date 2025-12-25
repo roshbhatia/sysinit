@@ -49,8 +49,7 @@ function M.setup(config)
   config.scrollback_lines = 20000
   config.text_min_contrast_ratio = 4.5
   config.window_background_opacity = config_data.transparency.opacity
-  config.window_decorations = platform.is_darwin()
-      and "RESIZE|MACOS_FORCE_ENABLE_SHADOW|MACOS_FORCE_SQUARE_CORNERS"
+  config.window_decorations = platform.is_darwin() and "RESIZE|MACOS_FORCE_ENABLE_SHADOW"
     or "RESIZE"
   config.window_frame = {
     font = font,
