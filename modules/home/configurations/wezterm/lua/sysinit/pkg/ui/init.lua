@@ -36,11 +36,8 @@ function M.setup(config)
   config.cursor_blink_ease_out = "EaseInOut"
   config.cursor_blink_rate = 320
   config.cursor_thickness = 1
-  config.display_pixel_geometry = "BGR"
   config.dpi = 144
   config.enable_scroll_bar = true
-  config.enable_tab_bar = true
-  config.enable_wayland = platform.is_linux()
   config.font = font
   config.font_size = 13.0
   config.line_height = 0.98
