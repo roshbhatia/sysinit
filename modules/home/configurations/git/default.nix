@@ -49,7 +49,7 @@ in
         prune = true
 
       [core]
-        editor = nvim -n -f -c "Neogit"
+        editor = nvim
         excludesFile = ~/.gitignore.global
         pager = delta
         compression = 9
