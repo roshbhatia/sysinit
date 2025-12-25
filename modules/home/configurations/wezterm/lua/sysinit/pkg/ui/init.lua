@@ -27,7 +27,22 @@ local terminal_font = wezterm.font_with_fallback({
 })
 
 local function basename(str)
+  if not str or str == "" then
+    return ""
+  end
   return string.gsub(str, "(.*/)(.*)", "%2")
+end
+
+local function parent_dir(path)
+  if not path or path == "" then
+    return ""
+  end
+  local parent = string.gsub(path, "(.*[/\\])([^/\\]+[/\\]?)$", "%1")
+  if parent == path or parent == "" then
+    return ""
+  end
+  parent = string.gsub(parent, "(.*/)([^/]+[/\\]?)$", "%2")
+  return parent == "" and "" or parent .. "/"
 end
 
 local function is_linux()
@@ -82,26 +97,44 @@ local function get_tab_content(tab)
   local pane_info = tab.active_pane
   local pane = wezterm.mux.get_pane(pane_info.pane_id)
   local domain = wezterm.mux.get_domain(pane:get_domain_name()):name()
-  local path = pane:get_current_working_dir().file_path or ""
+  local path = pane:get_current_working_dir()
+  path = path and path.file_path or ""
   local process = basename(pane:get_foreground_process_name() or "")
 
   local components = {}
+
   if domain ~= "" and domain ~= "local" then
     table.insert(components, "(" .. domain .. ")")
   end
+
   if process ~= "" then
     table.insert(components, process)
   end
-  if path ~= "" then
-    table.insert(components, path)
+
+  local show_dir = path ~= ""
+    and (
+      process == "zsh"
+      or process == "wezterm-gui"
+      or process:match("^n?vim$")
+      or process:match("^n?vim%.")
+      or process == "hx"
+    )
+
+  if show_dir then
+    local parent = parent_dir(path)
+    local base = basename(path)
+    local dir_part = parent .. base
+    if dir_part ~= "" then
+      table.insert(components, dir_part)
+    end
   end
 
-  local max_total = 36
+  local max_total = 19
   local num = #components
   if num == 0 then
     return ""
   end
-  local separator_width = math.max(0, num - 1)
+  local separator_width = num - 1
   local available = max_total - separator_width
   local per = math.floor(available / num)
 
@@ -142,13 +175,6 @@ local function get_mode_color(mode)
   end
 end
 
-local base_tab_bar_colors = {
-  background = theme_config.palette.primary,
-  active_tab = { bg_color = theme_config.palette.primary, fg_color = "#000000", intensity = "Bold" },
-  inactive_tab = { bg_color = theme_config.palette.primary, fg_color = "#000000" },
-  inactive_tab_hover = { bg_color = theme_config.palette.primary, fg_color = "#000000" },
-}
-
 wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
   local index = tab.tab_index + 1
   local content = get_tab_content(tab)
@@ -172,7 +198,6 @@ wezterm.on("update-status", function(window, pane)
   local overrides = window:get_config_overrides() or {}
   overrides.colors = overrides.colors or {}
   overrides.colors.tab_bar = overrides.colors.tab_bar or {}
-
   overrides.colors.tab_bar.background = mode_color
   overrides.colors.tab_bar.active_tab =
     { bg_color = mode_color, fg_color = "#000000", intensity = "Bold" }
@@ -202,38 +227,6 @@ local function get_base_config()
     macos_window_background_blur = blur,
     window_background_opacity = opacity,
     color_scheme = theme_config.theme_name,
-    colors = {
-      foreground = theme_config.palette.fg_primary,
-      background = theme_config.palette.bg_primary,
-      cursor_bg = theme_config.palette.primary,
-      cursor_fg = theme_config.palette.bg_primary,
-      cursor_border = theme_config.palette.primary,
-      selection_fg = theme_config.palette.bg_primary,
-      selection_bg = theme_config.palette.primary,
-      scrollbar_thumb = theme_config.palette.bg_overlay,
-      split = theme_config.palette.bg_overlay,
-      ansi = {
-        theme_config.ansi["0"],
-        theme_config.ansi["1"],
-        theme_config.ansi["2"],
-        theme_config.ansi["3"],
-        theme_config.ansi["4"],
-        theme_config.ansi["5"],
-        theme_config.ansi["6"],
-        theme_config.ansi["7"],
-      },
-      brights = {
-        theme_config.ansi["8"],
-        theme_config.ansi["9"],
-        theme_config.ansi["10"],
-        theme_config.ansi["11"],
-        theme_config.ansi["12"],
-        theme_config.ansi["13"],
-        theme_config.ansi["14"],
-        theme_config.ansi["15"],
-      },
-      tab_bar = base_tab_bar_colors,
-    },
     window_decorations = "RESIZE",
     window_padding = { left = "1cell", right = "1cell", top = "1cell" },
     enable_wayland = is_linux(),
