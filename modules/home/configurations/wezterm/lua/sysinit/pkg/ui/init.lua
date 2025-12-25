@@ -249,7 +249,7 @@ wezterm.on("update-status", function(window, pane)
   local mode_name = get_mode_name(mode)
   local mode_color = get_mode_color(mode)
   local dims = pane:get_dimensions()
-  local mode_text = "[" .. mode_name .. "]"
+  local mode_text = " " .. mode_name .. " "
   local padding = string.rep(" ", math.max(0, dims.cols - wezterm.column_width(mode_text) - 2))
   local overrides = window:get_config_overrides() or {}
   overrides.colors = overrides.colors or {}
