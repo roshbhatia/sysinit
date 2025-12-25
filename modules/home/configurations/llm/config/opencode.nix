@@ -12,11 +12,6 @@ let
   directives = import ../shared/directives.nix;
   prompts = import ../shared/prompts.nix { };
 
-  themes = import ../../../../shared/lib/theme { inherit lib; };
-
-  validatedTheme = values.theme;
-  opencodeTheme = themes.getAppTheme "opencode" validatedTheme.colorscheme validatedTheme.variant;
-
   defaultInstructions = [
     "**/CONTRIBUTING.md"
     "**/docs/guidelines.md"
@@ -35,7 +30,6 @@ let
   opencodeConfig = builtins.toJSON {
     "$schema" = "https://opencode.ai/config.json";
     share = "disabled";
-    theme = opencodeTheme;
     autoupdate = false;
 
     mcp = common.formatMcpForOpencode mcpServers.servers;

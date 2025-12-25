@@ -73,45 +73,18 @@ local function get_tab_content(tab)
   local process_name = ""
   local path_display = ""
 
-  -- Get hostname from remote mux connection (skip for localhost)
-  local pane = tab:active_pane()
-  if not pane then
+  -- In format-tab-title event, tab.active_pane is already a PaneInformation object
+  local pane_info = tab.active_pane
+  if not pane_info then
     return "shell"
   end
 
-  local domain_name = pane:get_domain_name()
-  if domain_name and domain_name ~= "local" and domain_name ~= "localhost" then
-    local domain = wezterm.mux.get_domain(domain_name)
-    if domain and domain.name and domain.name ~= "" then
-      hostname = domain.name
-    end
-  end
-
-  -- Get process name
-  local proc = pane:get_foreground_process_name()
-  if proc then
-    process_name = proc:match("([^/]+)$") or ""
-  end
-
-  -- Get path from pane's current working directory
-  local cwd = pane:get_current_working_dir()
-  if cwd and cwd.scheme == "file" then
-    -- Use Url object's file_path field which handles URL decoding automatically
-    local path = cwd.file_path
-    if path then
-      -- Try to extract parent/child from path
-      local parent, child = path:match("([^/]+)/([^/]+)/?$")
-      if child then
-        path_display = parent .. "/" .. child
-      else
-        local basename = path:match("([^/]+)/?$")
-        if basename and basename ~= "" then
-          path_display = basename
-        else
-          path_display = "root"
-        end
-      end
-    end
+  -- Use pane_info.title if available, otherwise fall back to process name
+  local title = pane_info.title or ""
+  if title and title ~= "" then
+    path_display = title
+  else
+    path_display = "shell"
   end
 
   -- If no path, use process name as fallback
@@ -120,21 +93,21 @@ local function get_tab_content(tab)
   end
 
   -- Build components list
-  -- Only show process_name if it differs from path_display
   local components = {}
   if hostname ~= "" then
     table.insert(components, hostname)
   end
-  if process_name ~= "" and process_name ~= path_display then
-    table.insert(components, process_name)
+  if path_display ~= "" then
+    table.insert(components, path_display)
+  else
+    table.insert(components, "shell")
   end
-  table.insert(components, path_display)
 
   -- Build final display with component truncation
   -- Allocate character budget: 19 chars max
   local max_total = 19
   local num_components = #components
-  local separator_width = math.max(0, (num_components - 1) * 1) -- '|' separators between components
+  local separator_width = math.max(0, (num_components - 1) * 1)
 
   -- Distribute character budget among components
   local available = max_total - separator_width

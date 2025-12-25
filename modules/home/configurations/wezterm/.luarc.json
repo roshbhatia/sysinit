@@ -4,7 +4,8 @@
   },
   "diagnostics": {
     "disable": ["undefined-doc-name"],
-    "globals": ["wezterm"]
+    "globals": ["wezterm",
+            "process_name"]
   },
   "workspace": {
     "checkThirdParty": false
