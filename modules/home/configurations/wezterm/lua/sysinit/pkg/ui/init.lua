@@ -94,7 +94,7 @@ local function truncate_component(str, max_len)
     return str
   end
 
-  local ellipsis = "..."
+  local ellipsis = "…"
   local ellipsis_len = #ellipsis
 
   local available_for_parts = max_len - ellipsis_len
@@ -124,7 +124,7 @@ local function get_tab_content(tab, max_width)
   local components = {}
 
   if domain ~= "" and domain ~= "local" then
-    table.insert(components, "󰇝" .. domain .. "󰇝")
+    table.insert(components, "<" .. domain .. ">")
   end
 
   local show_dir = path ~= ""
