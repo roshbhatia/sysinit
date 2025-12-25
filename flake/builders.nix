@@ -50,7 +50,7 @@
     }:
     {
       hostConfig,
-      hostname ? "nixos",
+      hostname,
     }:
     let
       overlays = mkOverlays hostConfig.system;

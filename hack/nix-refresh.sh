@@ -2,7 +2,6 @@
 set -euo pipefail
 
 config="${1:-lv426}"
-hostname=$(hostname)
 
 case "${config}" in
   work)
@@ -15,11 +14,7 @@ case "${config}" in
     task nix:refresh:work
     ;;
   arrakis)
-    if [ "${hostname}" != "arrakis" ]; then
-      ssh arrakis "cd ~/github/personal/roshbhatia/sysinit && git reset --hard && git pull && task nix:refresh:arrakis"
-    else
-      NIXPKGS_ALLOW_UNFREE=1 sudo nixos-rebuild switch --flake ".#${config}"
-    fi
+    NIXPKGS_ALLOW_UNFREE=1 sudo nixos-rebuild switch --flake ".#${config}"
     ;;
   *)
     NIXPKGS_ALLOW_UNFREE=1 sudo -E darwin-rebuild switch --flake ".#${config}" --impure
