@@ -89,10 +89,30 @@ end
 
 local function truncate_component(str, max_len)
   str = tostring(str or "")
-  if #str <= max_len then
+  local len = #str
+  if len <= max_len then
     return str
   end
-  return str:sub(1, max_len - 1) .. "…"
+
+  -- We need to fit: left_part + "…" + right_part
+  -- Total length must be <= max_len
+  -- Prefer to keep roughly equal amounts on both sides
+  local ellipsis = "…"
+  local ellipsis_len = #ellipsis -- 3 in UTF-8 for "…"
+
+  local available_for_parts = max_len - ellipsis_len
+  if available_for_parts < 2 then
+    -- Not enough space for meaningful left + right; fall back to left truncation
+    return str:sub(1, max_len)
+  end
+
+  local left_len = math.floor(available_for_parts / 2)
+  local right_len = available_for_parts - left_len
+
+  local left = str:sub(1, left_len)
+  local right = str:sub(-right_len) -- negative index counts from end
+
+  return left .. ellipsis .. right
 end
 
 local function get_tab_content(tab, max_width)
@@ -223,7 +243,7 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
       },
     },
     {
-      Text = index .. ": " .. content,
+      Text = " " .. index .. ": " .. content .. " ",
     },
   }
 end)
