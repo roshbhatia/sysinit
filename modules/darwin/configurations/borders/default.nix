@@ -12,8 +12,6 @@ lib.mkIf bordersEnabled {
   services.jankyborders = {
     enable = true;
     package = pkgs.jankyborders;
-    style = "square";
     width = 2.0;
-    hidpi = true;
   };
 }
