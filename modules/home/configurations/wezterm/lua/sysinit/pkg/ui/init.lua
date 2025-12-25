@@ -74,26 +74,16 @@ local function get_tab_content(tab)
   local path_display = ""
 
   -- Get hostname from remote mux connection (skip for localhost)
-  local pane = tab.active_pane
+  local pane = tab:active_pane()
   if not pane then
     return "shell"
   end
 
-  if pane.domain_id then
-    local domain_id = pane.domain_id
-    if domain_id ~= "local" and domain_id ~= "localhost" then
-      local domain = wezterm.mux.get_domain(domain_id)
-      if domain then
-        local domain_name = domain.name
-        if
-          domain_name
-          and domain_name ~= ""
-          and domain_name ~= "local"
-          and domain_name ~= "localhost"
-        then
-          hostname = domain_name
-        end
-      end
+  local domain_name = pane:get_domain_name()
+  if domain_name and domain_name ~= "local" and domain_name ~= "localhost" then
+    local domain = wezterm.mux.get_domain(domain_name)
+    if domain and domain.name and domain.name ~= "" then
+      hostname = domain.name
     end
   end
 
@@ -105,11 +95,9 @@ local function get_tab_content(tab)
 
   -- Get path from pane's current working directory
   local cwd = pane:get_current_working_dir()
-  if cwd then
-    -- cwd is a Url object, convert to string
-    local cwd_path = tostring(cwd)
-    -- Extract path from file:// URL
-    local path = cwd_path:match("file://([^/].*)") or cwd_path:match("file://(.*)")
+  if cwd and cwd.scheme == "file" then
+    -- Use Url object's file_path field which handles URL decoding automatically
+    local path = cwd.file_path
     if path then
       -- Try to extract parent/child from path
       local parent, child = path:match("([^/]+)/([^/]+)/?$")
@@ -192,6 +180,7 @@ local function get_mode_color(mode)
   return p.info
 end
 
+---@diagnostic disable-next-line: unused-local
 wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
   local p = theme_config.palette
   local index = tab.tab_index + 1
