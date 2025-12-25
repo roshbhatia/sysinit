@@ -72,6 +72,9 @@ local function get_tab_content(tab)
   local pane_info = tab.active_pane
   local pane = wezterm.mux.get_pane(pane_info.pane_id)
   local domain = pane:get_domain() or ""
+  wezterm.log_info("Domain: " .. domain)
+  wezterm.log_info("CWD: " .. tostring(pane:get_current_working_dir()))
+  wezterm.log_info("Process: " .. tostring(pane:get_foreground_process_name()))
 
   local path = wezterm.url.parse(pane:get_current_working_dir() or "").file_path
   local process = (pane:get_foreground_process_name() or "")
