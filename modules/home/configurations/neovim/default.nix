@@ -10,7 +10,6 @@ in
 
 {
   stylix.targets.neovim.enable = false;
-  stylix.targets.vim.enable = false;
 
   programs.neovim = {
     enable = true;

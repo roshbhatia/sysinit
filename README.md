@@ -102,10 +102,6 @@ task: Available tasks for this project:
 | `darwin.homebrew.additionalPackages.brews` | list(string) | [] |  | Additional Homebrew formulae |
 | `darwin.homebrew.additionalPackages.casks` | list(string) | [] |  | Additional Homebrew casks |
 | `darwin.homebrew.additionalPackages.taps` | list(string) | [] |  | Additional Homebrew taps |
-| `definedAliases` | list(string) | [] |  | Search aliases |
-| `firefox.name` | string | - | ✓ | Parameter name |
-| `firefox.template` | string | - | ✓ | URL template for the search engine |
-| `firefox.value` | string | - | ✓ | Parameter value |
 | `gh.additionalPackages` | list(string) | [] |  | Additional GitHub CLI extensions |
 | `git.email` | string | - | ✓ | Git user email |
 | `git.name` | string | - | ✓ | Git user name |
@@ -115,7 +111,6 @@ task: Available tasks for this project:
 | `git.workEmail` | string? | null |  | Work email override |
 | `git.workUsername` | string? | null |  | Work username override |
 | `go.additionalPackages` | list(string) | [] |  | Additional Go packages |
-| `icon` | string? | null |  | Icon URL for the search engine |
 | `krew.additionalPackages` | list(string) | [] |  | Additional kubectl krew plugins |
 | `llm.mcp.args` | list(string) | [] |  | MCP server arguments |
 | `llm.mcp.command` | string | - | ✓ | MCP server command |
@@ -127,11 +122,10 @@ task: Available tasks for this project:
 | `theme.appearance` |  | "dark" |  | Appearance mode (light or dark) |
 | `theme.colorscheme` | string | "catppuccin" |  | Theme colorscheme |
 | `theme.font.monospace` | string | "TX-02" |  | Monospace font for terminal and editor |
-| `theme.font.nerdfontFallback` | string | "Symbols Nerd Font" |  | Fallback font for nerd font glyphs |
+| `theme.font.symbols` | string | "Symbols Nerd Font" |  | Fallback font for nerd font glyphs |
 | `theme.transparency.blur` | integer | `20` |  | Background blur amount |
 | `theme.transparency.opacity` | float | `0.8` |  | Transparency opacity level |
 | `theme.variant` | string | "macchiato" |  | Theme variant |
-| `updateInterval` | nullOr int | null |  | Update interval in milliseconds |
 | `user.username` | string | "user" |  | Username for the system user |
 | `uvx.additionalPackages` | list(string) | [] |  | Additional global uvx packages |
 | `vet.additionalPackages` | list(string) | [] |  | Additional Vet packages |

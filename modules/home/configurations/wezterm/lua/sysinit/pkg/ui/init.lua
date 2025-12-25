@@ -27,7 +27,7 @@ function M.setup(config)
         "ss10",
       },
     },
-    "Noto Color Emoji",
+    config_data.font.symbols,
   })
 
   config.font = font
@@ -65,6 +65,12 @@ function M.setup(config)
     fade_out_function = "EaseOut",
     fade_out_duration_ms = 100,
   }
+
+  config.color_scheme = config_data.color_scheme
+  config.window_background_opacity = config_data.transparency.opacity
+  if config_data.transparency.blur then
+    config.macos_window_background_blur = config_data.transparency.blur
+  end
 
   bar.apply_to_config(config, {
     padding = {
