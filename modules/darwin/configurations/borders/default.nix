@@ -6,12 +6,12 @@
 }:
 
 let
-  bordersEnabled = values.darwin.borders.enable or true;
+  bordersEnabled = values.darwin.borders.enable;
 in
 lib.mkIf bordersEnabled {
   services.jankyborders = {
     enable = true;
     package = pkgs.jankyborders;
-    width = 2.0;
+    width = 3.0;
   };
 }
