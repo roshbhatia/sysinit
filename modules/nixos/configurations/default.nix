@@ -8,6 +8,7 @@
     ./gpu
     ./audio
     ./gaming
+    ./hostname
     ./security
     ./tailscale
     ./networking
