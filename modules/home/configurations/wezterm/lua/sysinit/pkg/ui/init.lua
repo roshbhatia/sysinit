@@ -124,7 +124,7 @@ local function get_tab_content(tab, max_width)
   local components = {}
 
   if domain ~= "" and domain ~= "local" then
-    table.insert(components, "<" .. domain .. ">")
+    table.insert(components, domain .. "|")
   end
 
   local show_dir = path ~= ""
@@ -195,6 +195,7 @@ local function get_tab_content(tab, max_width)
 
   return table.concat(components, separator)
 end
+
 local function get_mode(window)
   local mode = window:active_key_table()
   return mode and mode ~= "" and mode or "default"
@@ -297,7 +298,6 @@ local function get_base_config()
     quick_select_alphabet = "fjdkslaghrueiwoncmv",
     scrollback_lines = 20000,
     tab_bar_at_bottom = true,
-    text_min_contrast_ratio = 4.5,
     use_fancy_tab_bar = false,
     show_new_tab_button_in_tab_bar = false,
     tab_max_width = 24,
