@@ -1,25 +1,17 @@
 local wezterm = require("wezterm")
+local platform = require("sysinit.pkg.utils.platform")
 local json_loader = require("sysinit.pkg.utils.json_loader")
-local theme_config = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"))
 
 local bar = wezterm.plugin.require("https://github.com/hikarisakamoto/bar.wezterm")
 
 local M = {}
 
-local function is_linux()
-  local handle = io.popen("uname -s 2>/dev/null")
-  if not handle then
-    return false
-  end
-  local result = handle:read("*a")
-  handle:close()
-  return result:match("Linux") ~= nil
-end
-
 function M.setup(config)
+  local config_data = json_loader.load_json_file(json_loader.get_config_path("config.json"))
+
   local font = wezterm.font_with_fallback({
     {
-      family = theme_config.font.monospace,
+      family = config_data.font.monospace,
       harfbuzz_features = {
         "calt",
         "liga",
@@ -35,7 +27,7 @@ function M.setup(config)
         "ss10",
       },
     },
-    theme_config.font.nerdfontFallback,
+    "Noto Color Emoji",
   })
 
   config.font = font
@@ -49,7 +41,7 @@ function M.setup(config)
     top = "1cell",
   }
 
-  if is_linux() then
+  if platform.is_linux() then
     config.enable_wayland = true
   end
 
@@ -73,10 +65,6 @@ function M.setup(config)
     fade_out_function = "EaseOut",
     fade_out_duration_ms = 100,
   }
-
-  config.color_scheme = theme_config.theme_name
-  config.macos_window_background_blur = theme_config.transparency.blur
-  config.window_background_opacity = theme_config.transparency.opacity
 
   bar.apply_to_config(config, {
     padding = {

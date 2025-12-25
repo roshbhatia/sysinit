@@ -1,25 +1,18 @@
 {
   values,
-  utils,
   ...
 }:
 
-let
-  inherit (utils.theme) generateAppJSON;
-
-  themeConfig = values.theme // {
-    presets = values.theme.presets or [ ];
-    overrides = values.theme.overrides or { };
-  };
-in
 {
-  stylix.targets.wezterm.enable = false;
+  stylix.targets.wezterm.enable = true;
 
   xdg.configFile."wezterm/wezterm.lua".source = ./wezterm.lua;
 
   xdg.configFile."wezterm/lua".source = ./lua;
 
-  xdg.configFile."wezterm/theme_config.json".text = builtins.toJSON (
-    generateAppJSON "wezterm" themeConfig
-  );
+  xdg.configFile."wezterm/config.json".text = builtins.toJSON {
+    font = {
+      inherit (values.theme.font) monospace;
+    };
+  };
 }
