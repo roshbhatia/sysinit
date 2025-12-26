@@ -9,17 +9,6 @@ includes:
     taskfile: ./tasks/format.yml
     optional: true
 
-vars:
-  NIXPKGS_ALLOW_UNFREE: 1
-  NIX_DARWIN_REBUILD: "darwin-rebuild"
-  WORK_REPO_PATH: "~/github/work"
-  NIXFMT_WIDTH: 100
-  SHFMT_OPTS: "-i 2 -ci -sr -s -w"
-  NIX_CUSTOM_CONF: "nix.custom.conf"
-  NIX_SYSTEM_CONF_DIR: "/etc/nix"
-  NIX_MAX_JOBS: 2
-  NIX_CORES: 2
-
 tasks:
   default:
     desc: Show all available tasks

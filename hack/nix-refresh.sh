@@ -6,7 +6,7 @@ hostname=$(hostname)
 
 case "${config}" in
   work)
-    WORK_SYSINIT=$(fd -t d -d 2 "^sysinit$" ~/github/work 2>/dev/null | head -n 1)
+    WORK_SYSINIT=$(fd -t d -d 2 "^sysinit$" ~/github/work 2> /dev/null | head -n 1)
     [ -z "${WORK_SYSINIT}" ] && {
       echo "Error: Could not find work sysinit directory" >&2
       exit 1
