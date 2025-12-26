@@ -182,12 +182,12 @@ let
 
   # Nix tools
   nixPkgs = with pkgs; [
+    nh
     nix-output-monitor
     nix-prefetch
     nix-prefetch-docker
     nix-prefetch-git
     nix-prefetch-github
-    nix-search-cli
     nix-tree
     nix-your-shell
   ];
