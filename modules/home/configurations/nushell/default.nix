@@ -94,7 +94,6 @@ in
 
       # Application-specific
       $env.GIT_DISCOVERY_ACROSS_FILESYSTEM = "1"
-      $env.COLIMA_HOME = "${config.xdg.configHome}/colima"
       $env.FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules"
       $env.VIVID_THEME = "${appTheme}"
       $env.ZK_NOTEBOOK_DIR = "${config.home.homeDirectory}/github/personal/roshbhatia/zeek/notes"

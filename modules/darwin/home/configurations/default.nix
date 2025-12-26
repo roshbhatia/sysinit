@@ -1,8 +1,9 @@
 {
   imports = [
+    ./colima
     ./firefox
     ./hammerspoon
-    ./sketchybar
     ./packages.nix
+    ./sketchybar
   ];
 }

@@ -1,7 +1,6 @@
 {
   colors,
   appTheme,
-  config,
   lib,
 }:
 let
@@ -28,7 +27,6 @@ in
   VISUAL = "nvim";
   EDITOR = "nvim";
   GIT_DISCOVERY_ACROSS_FILESYSTEM = "1";
-  COLIMA_HOME = "${config.xdg.configHome}/colima";
 
   FZF_DEFAULT_OPTS = lib.mkForce (builtins.concatStringsSep " " commonFzfOpts);
 
