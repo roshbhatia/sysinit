@@ -30,6 +30,7 @@ M.plugins = {
           results_title = "",
           prompt_title = "",
           preview_title = "",
+          wrap_results = true,
           sorting_strategy = "ascending",
           layout_config = {
             horizontal = {
@@ -114,6 +115,7 @@ M.plugins = {
           },
           live_grep_args = {
             auto_quoting = true,
+            theme = "dropdown",
             mappings = {
               i = {
                 ["<C-i>"] = lga_actions.quote_prompt({ postfix = " --iglob " }),
@@ -132,8 +134,6 @@ M.plugins = {
               "ast-grep",
               "--json=stream",
             },
-            grep_open_files = false,
-            lang = nil,
           },
         },
         pickers = {

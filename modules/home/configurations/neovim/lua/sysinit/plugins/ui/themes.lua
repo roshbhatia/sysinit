@@ -254,11 +254,6 @@ local function apply_global_overrides()
     },
     TelescopeTitle = { bg = "NONE", fg = c.plugins.telescope.title, bold = true },
 
-    WildMenu = { bg = "NONE", fg = c.accent.primary, bold = true },
-    WilderWildmenuAccent = { fg = c.accent.primary, bold = true },
-    WilderWildmenuSelected = { bg = "NONE", fg = c.accent.primary, bold = true },
-    WilderWildmenuSelectedAccent = { fg = c.accent.primary, bold = true },
-
     WinBar = { bg = "NONE", fg = c.plugins.window.winbar_active },
     WinBarNC = { bg = "NONE", fg = c.plugins.window.winbar_inactive },
     WinSeparator = { fg = c.plugins.window.separator, bold = true },

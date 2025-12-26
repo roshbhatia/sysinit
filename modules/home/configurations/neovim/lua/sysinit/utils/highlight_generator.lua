@@ -26,16 +26,12 @@ end
 
 function M.generate_menu_highlights(colors)
   return {
-    WildMenu = { bg = "NONE", fg = colors.semantic.error, bold = true },
+    WildMenu = { bg = "NONE", fg = colors.accent.primary, bold = true },
+    WilderWildmenuAccent = { fg = colors.accent.primary, bold = true },
+    WilderWildmenuSelected = { bg = "NONE", fg = colors.accent.primary, bold = true },
+    WilderWildmenuSelectedAccent = { bg = "NONE", fg = colors.accent.primary, bold = true },
 
     PmenuSel = { bg = "NONE", fg = colors.accent.primary, bold = true },
-
-    WilderWildmenuAccent = { fg = colors.semantic.error, bold = true },
-    WilderWildmenuSelectedAccent = {
-      bg = "NONE",
-      fg = colors.semantic.error,
-      bold = true,
-    },
   }
 end
 
@@ -254,6 +250,16 @@ function M.generate_transparency_highlights(transparency)
     "PmenuSbar",
     "PmenuThumb",
     "SignColumn",
+    "WilderGradient1",
+    "WilderGradient2",
+    "WilderGradient3",
+    "WilderGradient4",
+    "WilderSeparator",
+    "WilderSpinner",
+    "WilderWildmenuAccent",
+    "WilderWildmenuSelected",
+    "WilderWildmenuSelectedAccent",
+    "WildMenu",
     "StatusLine",
     "StatusLineNC",
     "StatusLineTerm",

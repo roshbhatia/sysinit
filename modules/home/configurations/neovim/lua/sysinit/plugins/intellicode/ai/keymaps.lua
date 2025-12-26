@@ -68,7 +68,7 @@ function M.generate_all_keymaps()
 
   table.insert(keymaps, {
     "<leader>ja",
-    create_mode_context_input("Ask", " @this: ", " @selection: "),
+    create_mode_context_input("Ask", " @cursor: ", " @selection: "),
     mode = { "n", "v" },
     desc = "AI: Ask active",
   })

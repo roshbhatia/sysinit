@@ -6,7 +6,17 @@ M.plugins = {
     version = "*",
     config = function()
       local recall = require("recall")
-      recall.setup({})
+      recall.setup({
+        telescope = {
+          autoload = true,
+          mappings = {
+            unmark_selected_entry = {
+              normal = "dd",
+              insert = "<C-d>",
+            },
+          },
+        },
+      })
     end,
     keys = function()
       return {
