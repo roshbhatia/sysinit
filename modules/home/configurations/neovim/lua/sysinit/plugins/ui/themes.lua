@@ -71,13 +71,9 @@ local function get_catppuccin_config()
         overrides.DiagnosticInfo = { fg = c.semantic.info, style = { "bold" } }
         overrides.DiagnosticHint = { fg = c.semantic.info, style = { "bold" } }
         overrides.WinSeparator = { fg = c.plugins.window.separator, style = { "bold" } }
-
-        overrides.WildMenu = { bg = c.accent.primary, style = { "bold" } }
         overrides.WilderWildmenuAccent = { style = { "bold" } }
-        overrides.WilderWildmenuSelectedAccent =
-          { fg = c.background.primary, bg = c.accent.primary, style = { "bold" } }
-        overrides.WilderWildmenuSelected =
-          { fg = c.background.primary, bg = c.accent.primary, style = { "bold" } }
+        overrides.WilderWildmenuSelectedAccent = { bg = c.accent.primary, style = { "bold" } }
+        overrides.WilderWildmenuSelected = { bg = c.accent.primary, style = { "bold" } }
 
         return overrides
       end,
@@ -422,11 +418,6 @@ local function apply_post_colorscheme_overrides(base_scheme)
   overrides.TelescopeSelection =
     { bg = c.plugins.telescope.selection_bg, fg = c.plugins.telescope.selection_fg, bold = true }
   overrides.TelescopeTitle = { bg = "NONE", fg = c.plugins.telescope.title, bold = true }
-
-  overrides.WildMenu = { fg = c.accent.primary, bold = true }
-  overrides.WilderWildmenuAccent = { fg = c.accent.primary, bold = true }
-  overrides.WilderWildmenuSelected = { fg = c.accent.primary, bold = true }
-  overrides.WilderWildmenuSelectedAccent = { fg = c.accent.primary, bold = true }
 
   overrides.WinBar = { bg = "NONE", fg = c.plugins.window.winbar_active }
   overrides.WinBarNC = { bg = "NONE", fg = c.plugins.window.winbar_inactive }
