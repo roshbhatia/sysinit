@@ -11,9 +11,9 @@ case "${config}" in
       exit 1
     }
     cd "${WORK_SYSINIT}"
-    nh darwin switch ".#darwinConfigurations.work" --commit-lock-file --commit-lock-file --use-substitutes --quiet
+    nh darwin switch ".#darwinConfigurations.work" --commit-lock-file --fallback --quiet
     ;;
   *)
-    nh darwin switch ".#darwinConfigurations.${config}" --commit-lock-file --use-substitutes --quiet
+    nh darwin switch ".#darwinConfigurations.${config}" --commit-lock-file --fallback --quiet
     ;;
 esac
