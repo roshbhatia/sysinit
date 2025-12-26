@@ -5,7 +5,7 @@ function M.setup()
   vim.opt.pumblend = 0
   vim.opt.shortmess:append("sIWc")
   vim.opt.showmode = false
-  vim.opt.showtabline = 2
+  vim.opt.showtabline = 0
   vim.opt.splitkeep = "topline"
   vim.opt.termguicolors = true
   vim.opt.winblend = 0
