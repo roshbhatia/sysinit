@@ -117,7 +117,6 @@ M.plugins = {
             mappings = {
               i = {
                 ["<C-i>"] = lga_actions.quote_prompt({ postfix = " --iglob " }),
-                ["<C-q>"] = lga_actions.quote_prompt(),
                 ["<C-space>"] = lga_actions.to_fuzzy_refine,
                 ["<S-Tab>"] = actions.move_selection_previous,
                 ["<Tab>"] = actions.move_selection_next,
