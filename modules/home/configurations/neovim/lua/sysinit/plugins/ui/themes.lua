@@ -40,6 +40,7 @@ local function get_catppuccin_config()
     styles = get_common_styles(),
     color_overrides = {},
     highlight_overrides = {
+      ---@diagnostic disable-next-line: unused-local
       [theme_config.variant] = function(colors)
         local overrides = {}
 
@@ -426,7 +427,7 @@ local function apply_post_colorscheme_overrides(base_scheme)
 
   overrides.WildMenu = { bg = "NONE", fg = c.accent.primary, bold = true }
   overrides.WilderWildmenuAccent = { fg = c.accent.primary, bold = true }
-  overrides.WilderWildmenuSelected = { bg = "NONE", fg = c.accent.primary, bold = true }
+  overrides.WilderWildmenuSelected = { fg = c.accent.primary, bold = true }
   overrides.WilderWildmenuSelectedAccent = { fg = c.accent.primary, bold = true }
 
   overrides.WinBar = { bg = "NONE", fg = c.plugins.window.winbar_active }
