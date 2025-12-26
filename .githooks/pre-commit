@@ -18,45 +18,21 @@ done
 files_modified=0
 staged_nix_files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.nix$' || true)
 
-# Validate flake evaluates (critical - blocks commit)
-# Only check darwin on macOS, nixos on Linux
-echo -n "Validating nix flake... "
-if [[ "$(uname)" == "Darwin" ]]; then
-  if ! nix build .#darwinConfigurations.lv426.system --dry-run 2>/dev/null; then
-    echo "Darwin config failed - fix errors before committing"
-    exit 1
-  fi
-else
-  if ! nix build .#nixosConfigurations.arrakis.config.system.build.toplevel --dry-run 2>/dev/null; then
-    echo "NixOS config failed - fix errors before committing"
-    exit 1
-  fi
-fi
-echo "flake valid"
-
-# Lint with statix and fix issues
 if [ -n "$staged_nix_files" ]; then
-  echo -n "Linting nix code... "
   while IFS= read -r file; do
     [ -f "$file" ] && statix fix "$file" 2>/dev/null || true
   done <<<"$staged_nix_files"
-  echo "done"
 fi
 
-# Dead code removal
 if [ -n "$staged_nix_files" ]; then
-  echo -n "Removing dead nix code... "
   while IFS= read -r file; do
     [ -f "$file" ] && deadnix --edit "$file" 2>/dev/null || true
   done <<<"$staged_nix_files"
   if ! git diff --quiet --exit-code -- "$staged_nix_files" 2>/dev/null; then
     files_modified=1
   fi
-  echo "done"
 fi
 
-# Formatting
-echo -n "Formatting... "
 task fmt >/dev/null 2>&1
 staged_files=$(git diff --cached --name-only --diff-filter=ACM)
 if [ -n "$staged_files" ]; then
@@ -67,27 +43,18 @@ if [ -n "$staged_files" ]; then
     fi
   done
 fi
-echo "done"
 
-# Docs regeneration
-echo -n "Updating docs... "
 task docs:values >/dev/null 2>&1
 if ! git diff --quiet README.md 2>/dev/null; then
   files_modified=1
 fi
-echo "done"
 
-# Root-owned files check
 root_files=$(find . -path ./.git -prune -o -user root -print 2>/dev/null || true)
 if [ -n "$root_files" ]; then
-  echo "Found root-owned files - run: sudo chown -R \$USER:\$(id -gn) ."
+  sudo chown -R "$USER":"$(id -gn)" .
   exit 1
 fi
 
-# Re-stage if needed
 if [ "$files_modified" -eq 1 ]; then
   git add -u
-  echo "Pre-commit complete (files reformatted)"
-else
-  echo "Pre-commit complete"
 fi

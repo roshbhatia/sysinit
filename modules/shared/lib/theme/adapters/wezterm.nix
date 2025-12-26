@@ -94,36 +94,13 @@ in
   generateWeztermJSON =
     themeData: config:
     let
-      palette = themeData.palettes.${config.variant};
-      semanticColors = utils.createSemanticMapping palette;
-
+      semanticColors = utils.createSemanticMapping themeData.palettes.${config.variant};
       themeName = themeNames.getWeztermTheme themeData.meta.id config.variant;
     in
     {
-      colorscheme = themeData.meta.id;
       inherit (config) variant;
-      appearance = if hasAttr "appearance" config then config.appearance else null;
-      font = if hasAttr "font" config then config.font else null;
       transparency = config.transparency or (throw "Missing transparency configuration");
       theme_name = themeName;
-      palette = palette // {
-        bg_primary = semanticColors.background.primary;
-        bg_secondary = semanticColors.background.secondary;
-        bg_tertiary = semanticColors.background.tertiary;
-        bg_overlay = semanticColors.background.overlay;
-
-        fg_primary = semanticColors.foreground.primary;
-        fg_secondary = semanticColors.foreground.secondary;
-        fg_muted = semanticColors.foreground.muted;
-        fg_subtle = semanticColors.foreground.subtle;
-        inherit (semanticColors.accent) primary secondary dim;
-        inherit (semanticColors.semantic)
-          success
-          warning
-          error
-          info
-          ;
-      };
-      ansi = utils.generateAnsiMappings semanticColors;
+      inherit semanticColors;
     };
 }

@@ -801,16 +801,11 @@ with lib;
   generateFirefoxJSON =
     themeData: config:
     let
-      palette = themeData.palettes.${config.variant};
-      semanticColors = utils.createSemanticMapping palette;
+      semanticColors = utils.createSemanticMapping themeData.palettes.${config.variant};
     in
     {
-      colorscheme = themeData.meta.id;
       inherit (config) variant;
-      appearance = if hasAttr "appearance" config then config.appearance else null;
-      font = if hasAttr "font" config then config.font else null;
       transparency = config.transparency or (throw "Missing transparency configuration");
-      inherit semanticColors palette;
-      theme_identifier = "${themeData.meta.id}-${config.variant}";
+      inherit semanticColors;
     };
 }

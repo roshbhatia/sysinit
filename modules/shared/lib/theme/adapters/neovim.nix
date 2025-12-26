@@ -8,13 +8,30 @@ with lib;
 
 let
   themeNames = import ./theme-names.nix { inherit lib; };
+
+  escapeString = s: "\"${lib.escape [ ''"'' "\\" ''\$'' ] s}\"";
+
+  luaTable =
+    attrs:
+    let
+      entries = mapAttrsToList (
+        k: v:
+        if isString v then
+          "${k} = ${escapeString v}"
+        else if isAttrs v then
+          "${k} = ${luaTable v}"
+        else
+          "${k} = ${toString v}"
+      ) attrs;
+    in
+    "{ ${concatStringsSep ", " entries} }";
 in
 
 {
   createNeovimConfig =
     themeData: config: overrides:
     let
-      pluginInfo = themeNames.getNeovimConfig themeData.meta.id config.variant;
+      pluginInfo = themeNames.getNeovimMetadata themeData.meta.id config.variant;
 
       baseConfig = {
         inherit (pluginInfo)
@@ -78,33 +95,23 @@ in
   generateThemeLuaMap =
     allThemes:
     let
-      buildThemeEntry =
+      buildMetadata =
         themeId: themeData:
         let
           inherit (themeData.meta) variants;
-          buildVariant =
-            variant:
-            let
-              pluginInfo = themeNames.getNeovimConfig themeId variant;
-            in
-            ''
-              ${variant} = {
-                plugin = "${pluginInfo.plugin}",
-                name = "${pluginInfo.name}",
-                setup = "${pluginInfo.setup}",
-                colorscheme = "${pluginInfo.colorscheme}",
-              }'';
+          variantEntries = listToAttrs (
+            map (
+              variant:
+              let
+                meta = themeNames.getNeovimMetadata themeId variant;
+              in
+              nameValuePair variant meta
+            ) variants
+          );
         in
-        ''
-            ${themeId} = {
-          ${concatStringsSep ",\n" (map buildVariant variants)}
-            }'';
-    in
-    ''
-          local THEME_CONFIG_MAP = {
-      ${concatStringsSep ",\n" (mapAttrsToList buildThemeEntry allThemes)}
-          }
+        nameValuePair themeId variantEntries;
 
-          return THEME_CONFIG_MAP
-    '';
+      themeMap = listToAttrs (mapAttrsToList buildMetadata allThemes);
+    in
+    "local THEME_CONFIG_MAP = " + luaTable themeMap + "\n\nreturn THEME_CONFIG_MAP\n";
 }
