@@ -56,7 +56,7 @@ M.plugins = {
           buttons,
           dashboard.button("l", "󱙝 Load last session", ":ene | SessionLoad<CR>")
         )
-        table.insert(buttons, dashboard.button("i", "󱡃  New file", ":ene | startinsert<CR>"))
+        table.insert(buttons, dashboard.button("i", "󱡃 New file", ":ene | startinsert<CR>"))
         table.insert(
           buttons,
           dashboard.button("f", "󰜃 Find file", ":ene | Telescope find_files<CR>")
