@@ -26,12 +26,7 @@ end
 
 function M.generate_menu_highlights(colors)
   return {
-    WildMenu = { bg = "NONE", fg = colors.accent.primary, bold = true },
-    WilderWildmenuAccent = { fg = colors.accent.primary, bold = true },
-    WilderWildmenuSelected = { bg = "NONE", fg = colors.accent.primary, bold = true },
-    WilderWildmenuSelectedAccent = { bg = "NONE", fg = colors.accent.primary, bold = true },
-
-    PmenuSel = { bg = "NONE", fg = colors.accent.primary, bold = true },
+    PmenuSel = { bg = "NONE", fg = colors.plugins.completion.selection_fg, bold = true },
   }
 end
 

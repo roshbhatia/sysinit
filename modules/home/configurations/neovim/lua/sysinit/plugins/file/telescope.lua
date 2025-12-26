@@ -115,7 +115,6 @@ M.plugins = {
           },
           live_grep_args = {
             auto_quoting = true,
-            theme = "dropdown",
             mappings = {
               i = {
                 ["<C-i>"] = lga_actions.quote_prompt({ postfix = " --iglob " }),
@@ -267,6 +266,15 @@ M.plugins = {
             tbuiltin.resume()
           end,
           desc = "Find: Resume last search",
+        },
+        {
+          "<leader>fi",
+          function()
+            tbuiltin.current_buffer_fuzzy_find(
+              require("telescope.themes").get_ivy({ previewer = false })
+            )
+          end,
+          desc = "Find: In Buffer",
         },
         {
           "<leader>fs",
