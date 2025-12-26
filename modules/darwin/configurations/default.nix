@@ -4,7 +4,6 @@
     ./aerospace
     ./borders
     ./builders
-    ./colima
     ./dock
     ./environment
     ./finder
