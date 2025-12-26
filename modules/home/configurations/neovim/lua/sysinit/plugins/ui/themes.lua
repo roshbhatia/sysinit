@@ -1,5 +1,6 @@
 local json_loader = require("sysinit.utils.json_loader")
 local highlight_gen = require("sysinit.utils.highlight_generator")
+local theme_map = require("sysinit.generated.theme_map")
 
 local theme_config =
   json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
@@ -94,10 +95,8 @@ local function get_neomodern_config()
     variables = "none",
   }
 
-  local colorscheme = theme_config.theme_colorscheme or theme_config.colorscheme
-
   return {
-    theme = colorscheme,
+    theme = theme_config.colorscheme,
     transparent = true,
     term_colors = true,
     alt_bg = true,
@@ -254,44 +253,73 @@ local function apply_global_overrides()
   end
 end
 
-local THEME_REGISTRY = {
-  catppuccin = { module = "catppuccin", config = get_catppuccin_config },
-  gruvbox = { module = "gruvbox", config = get_gruvbox_config },
-  solarized = { module = "solarized-osaka", config = get_solarized_config },
-  nord = { module = "nightfox", config = get_nightfox_config },
-  everforest = { module = nil, config = get_everforest_config },
-  ["rose-pine"] = { module = "neomodern", config = get_neomodern_config },
-  kanagawa = { module = "neomodern", config = get_neomodern_config },
-}
+local function get_plugin_config()
+  local scheme = theme_config.colorscheme
+  local variant = theme_config.variant
+  local scheme_map = theme_map[scheme]
+
+  if not scheme_map then
+    return nil
+  end
+
+  local variant_config = scheme_map[variant]
+  if not variant_config then
+    return nil
+  end
+
+  return variant_config
+end
 
 local function setup_theme()
   local active_scheme = theme_config.colorscheme
-  local theme_setup = THEME_REGISTRY[active_scheme]
+  local plugin_config = get_plugin_config()
 
-  if theme_setup then
-    local config = theme_setup.config()
-    if theme_setup.module then
-      require(theme_setup.module).setup(config)
+  if not plugin_config then
+    error("No theme config found for: " .. active_scheme)
+  end
+
+  local config_funcs = {
+    catppuccin = get_catppuccin_config,
+    gruvbox = get_gruvbox_config,
+    solarized = get_solarized_config,
+    nord = get_nightfox_config,
+    everforest = get_everforest_config,
+    ["rose-pine"] = get_neomodern_config,
+    kanagawa = get_neomodern_config,
+  }
+  local config_func = config_funcs[active_scheme]
+
+  if config_func then
+    local config = config_func()
+    if plugin_config.setup ~= "everforest" then
+      require(plugin_config.setup).setup(config)
     end
   end
 
-  vim.cmd.colorscheme(theme_config.theme_colorscheme)
+  vim.cmd.colorscheme(plugin_config.colorscheme)
   apply_global_overrides()
 
   vim.api.nvim_create_autocmd(
     { "ColorScheme", "CmdLineEnter" },
-    { pattern = theme_config.theme_colorscheme, callback = apply_global_overrides }
+    { pattern = plugin_config.colorscheme, callback = apply_global_overrides }
   )
 end
 
-M.plugins = {
-  {
-    theme_config.plugin,
-    name = theme_config.name,
-    lazy = false,
-    priority = 1000,
-    config = setup_theme,
-  },
-}
+local function build_plugins()
+  local scheme = theme_config.colorscheme
+  local variant = theme_config.variant
+  local plugin_name = theme_map[scheme][variant].plugin
+
+  return {
+    {
+      plugin_name,
+      lazy = false,
+      priority = 1000,
+      config = setup_theme,
+    },
+  }
+end
+
+M.plugins = build_plugins()
 
 return M

@@ -68,19 +68,43 @@ in
     let
       palette = themeData.palettes.${config.variant};
       semanticColors = utils.createSemanticMapping palette;
-      pluginInfo = themeNames.getNeovimConfig themeData.meta.id config.variant;
     in
     {
       inherit (config) colorscheme variant;
-      appearance = if hasAttr "appearance" config then config.appearance else null;
-      font = if hasAttr "font" config then config.font else null;
       transparency = config.transparency or (throw "Missing transparency configuration");
-      inherit (pluginInfo) plugin name setup;
-      theme_colorscheme = pluginInfo.colorscheme;
-      inherit palette;
-      semanticColors = semanticColors // {
-        extended = palette;
-      };
-      ansi = utils.generateAnsiMappings semanticColors;
+      inherit semanticColors;
     };
+
+  generateThemeLuaMap =
+    allThemes:
+    let
+      buildThemeEntry =
+        themeId: themeData:
+        let
+          inherit (themeData.meta) variants;
+          buildVariant =
+            variant:
+            let
+              pluginInfo = themeNames.getNeovimConfig themeId variant;
+            in
+            ''
+              ${variant} = {
+                plugin = "${pluginInfo.plugin}",
+                name = "${pluginInfo.name}",
+                setup = "${pluginInfo.setup}",
+                colorscheme = "${pluginInfo.colorscheme}",
+              }'';
+        in
+        ''
+            ${themeId} = {
+          ${concatStringsSep ",\n" (map buildVariant variants)}
+            }'';
+    in
+    ''
+          local THEME_CONFIG_MAP = {
+      ${concatStringsSep ",\n" (mapAttrsToList buildThemeEntry allThemes)}
+          }
+
+          return THEME_CONFIG_MAP
+    '';
 }
