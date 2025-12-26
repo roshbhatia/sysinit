@@ -129,9 +129,6 @@ let
       };
     };
   };
-in
-
-{
   getAppMetadata =
     app: colorscheme: variant: fallback:
     let
@@ -155,4 +152,13 @@ in
 
   getAtuinTheme =
     colorscheme: variant: getAppMetadata "atuin" colorscheme variant "${colorscheme}-${variant}";
+in
+
+{
+  inherit
+    getAppMetadata
+    getWeztermTheme
+    getNeovimMetadata
+    getAtuinTheme
+    ;
 }
