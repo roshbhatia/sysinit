@@ -1,5 +1,6 @@
 {
   pkgs,
+  values,
   ...
 }:
 {
@@ -15,6 +16,7 @@
 
       EnvironmentVariables = {
         PATH = "${pkgs.colima}/bin:${pkgs.docker}/bin:/usr/bin:/bin:/usr/sbin:/sbin";
+        HOME = "/Users/${values.user.username}";
       };
     };
   };
