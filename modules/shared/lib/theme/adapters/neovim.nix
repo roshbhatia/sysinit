@@ -14,14 +14,19 @@ let
   luaTable =
     attrs:
     let
+      needsQuoting = k: builtins.match "[a-zA-Z_][a-zA-Z0-9_]*" k == null;
+      quoteKey = k: if needsQuoting k then "\"${k}\"" else k;
       entries = mapAttrsToList (
         k: v:
+        let
+          quotedKey = quoteKey k;
+        in
         if isString v then
-          "${k} = ${escapeString v}"
+          "${quotedKey} = ${escapeString v}"
         else if isAttrs v then
-          "${k} = ${luaTable v}"
+          "${quotedKey} = ${luaTable v}"
         else
-          "${k} = ${toString v}"
+          "${quotedKey} = ${toString v}"
       ) attrs;
     in
     "{ ${concatStringsSep ", " entries} }";
