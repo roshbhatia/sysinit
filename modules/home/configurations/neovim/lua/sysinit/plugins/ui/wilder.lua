@@ -1,20 +1,5 @@
 local M = {}
 
-local function get_accent_color()
-  local hl = vim.api.nvim_get_hl(0, { name = "@variable", link = false })
-  return hl and hl.fg and string.format("#%06x", hl.fg) or "#f38ba8"
-end
-
-local function get_gradient_colors()
-  local accent = get_accent_color()
-  return {
-    accent,
-    accent .. "dd",
-    accent .. "bb",
-    accent .. "99",
-  }
-end
-
 M.plugins = {
   {
     "gelguy/wilder.nvim",
@@ -59,31 +44,33 @@ M.plugins = {
         ),
       })
 
-      local gradient_colors = get_gradient_colors()
-      local gradient_hls = {}
-      for i, _ in ipairs(gradient_colors) do
-        gradient_hls[i] = "WilderGradient" .. i
-      end
-
       local popupmenu_renderer = wilder.popupmenu_renderer(wilder.popupmenu_palette_theme({
         border = "rounded",
         max_height = "50%",
         min_height = 0,
         prompt_position = "top",
         reverse = 0,
-
         highlighter = {
           wilder.lua_fzy_highlighter(),
         },
-
         highlights = {
           default = "Pmenu",
           selected = "PmenuSel",
           border = "FloatBorder",
           accent = "WilderWildmenuAccent",
           selected_accent = "WilderWildmenuSelectedAccent",
-          gradient = gradient_hls,
-          selected_gradient = gradient_hls,
+          gradient = {
+            "WilderGradient1",
+            "WilderGradient2",
+            "WilderGradient3",
+            "WilderGradient4",
+          },
+          selected_gradient = {
+            "WilderGradient1",
+            "WilderGradient2",
+            "WilderGradient3",
+            "WilderGradient4",
+          },
         },
 
         left = {
@@ -104,11 +91,7 @@ M.plugins = {
           }),
           {
             " ",
-            wilder.make_hl("WilderSeparator", "Comment", {
-              {},
-              {},
-              { foreground = "#6c7086" },
-            }),
+            "WilderSeparator",
           },
         },
 
@@ -122,7 +105,7 @@ M.plugins = {
 
         empty_message = wilder.popupmenu_empty_message_with_spinner({
           message = " No matches found ",
-          spinner_hl = wilder.make_hl("WilderSpinner", "Comment"),
+          spinner_hl = "WilderSpinner",
         }),
       }))
 
@@ -136,10 +119,21 @@ M.plugins = {
         left = {
           " ",
           wilder.wildmenu_spinner({
-            frames = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" },
+            frames = {
+              "⠋",
+              "⠙",
+              "⠹",
+              "⠸",
+              "⠼",
+              "⠴",
+              "⠦",
+              "⠧",
+              "⠇",
+              "⠏",
+            },
             done = "●",
-            delay = 50,
-            interval = 80,
+            delay = 15,
+            interval = 20,
           }),
           " ",
         },
@@ -162,20 +156,6 @@ M.plugins = {
           substitute = wildmenu_renderer,
         })
       )
-
-      vim.opt.wildignorecase = true
-      vim.opt.wildmenu = true
-      vim.opt.wildmode = "longest:full,full"
-
-      local wilder_group = vim.api.nvim_create_augroup("WilderColorUpdate", { clear = true })
-      vim.api.nvim_create_autocmd("ColorScheme", {
-        group = wilder_group,
-        callback = function()
-          vim.defer_fn(function()
-            wilder.set_option("renderer", wilder.get_option("renderer"))
-          end, 100)
-        end,
-      })
     end,
   },
 }

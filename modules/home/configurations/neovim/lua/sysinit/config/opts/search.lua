@@ -5,6 +5,7 @@ function M.setup()
   vim.opt.hlsearch = false
   vim.opt.inccommand = "nosplit"
   vim.opt.incsearch = true
+  vim.opt.wildignorecase = true
 end
 
 return M
