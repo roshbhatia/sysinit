@@ -12,16 +12,16 @@ case "${config}" in
       exit 1
     }
     cd "${WORK_SYSINIT}"
-    nh darwin switch ".#work"
+    nh darwin switch ".#darwinConfigurations.work"
     ;;
   arrakis)
     if [ "${hostname}" != "arrakis" ]; then
-      ssh arrakis "cd ~/github/personal/roshbhatia/sysinit && git reset --hard && git pull && nh os switch '.#arrakis'"
+      ssh arrakis "cd ~/github/personal/roshbhatia/sysinit && git reset --hard && git pull && nh os switch '.#nixosConfigurations.arrakis'"
     else
-      nh os switch ".#arrakis"
+      nh os switch ".#nixosConfigurations.arrakis"
     fi
     ;;
   *)
-    nh darwin switch ".#${config}"
+    nh darwin switch ".#darwinConfigurations.${config}"
     ;;
 esac
