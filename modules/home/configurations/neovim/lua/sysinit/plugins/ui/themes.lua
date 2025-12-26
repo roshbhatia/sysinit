@@ -243,10 +243,10 @@ local function apply_global_overrides()
       bold = true,
     },
 
-    WildMenu = { bg = "NONE", fg = c.plugins.completion.selection_fg, bold = true },
+    WildMenu = { bg = "NONE", fg = c.foreground.primary },
     WilderWildmenuAccent = { fg = c.plugins.completion.border, bold = true },
     WilderWildmenuSelected = { bg = "NONE", fg = c.plugins.completion.selection_fg, bold = true },
-    WilderWildmenuSelectedAccent = { fg = c.plugins.completion.border, bold = true },
+    WilderWildmenuSelectedAccent = { fg = c.accent.secondary, underline = true },
 
     StatusLine = { bg = "NONE", fg = c.plugins.window.statusline_active },
     StatusLineNC = { bg = "NONE", fg = c.plugins.window.statusline_inactive },

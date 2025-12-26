@@ -3,6 +3,42 @@ local M = {}
 function M.get_keymaps()
   return {
     {
+      "gra",
+      vim.lsp.buf.code_action,
+      desc = "Code action",
+    },
+    {
+      "gra",
+      vim.lsp.buf.code_action,
+      mode = "v",
+      desc = "Code action",
+    },
+    {
+      "grn",
+      vim.lsp.buf.rename,
+      desc = "Rename symbol",
+    },
+    {
+      "gri",
+      vim.lsp.buf.implementation,
+      desc = "Go to implementation",
+    },
+    {
+      "gO",
+      vim.lsp.buf.document_symbol,
+      desc = "Document outline",
+    },
+    {
+      "grr",
+      vim.lsp.buf.references,
+      desc = "Go to references",
+    },
+    {
+      "grt",
+      vim.lsp.buf.type_definition,
+      desc = "Go to type definition",
+    },
+    {
       "<leader>cA",
       vim.lsp.codelens.run,
       desc = "Run codelens action",
@@ -13,34 +49,20 @@ function M.get_keymaps()
       desc = "Go to definition",
     },
     {
-      "grr",
-      vim.lsp.buf.references,
-      desc = "Go to references",
+      "<leader>cS",
+      vim.lsp.buf.workspace_symbol,
+      desc = "Workspace symbols",
     },
     {
-      "<leader>cp",
-      vim.diagnostic.goto_prev,
-      desc = "Previous diagnostic",
+      "<leader>ca",
+      vim.lsp.buf.code_action,
+      desc = "Code action",
     },
     {
-      "<leader>cn",
-      vim.diagnostic.goto_next,
-      desc = "Next diagnostic",
-    },
-    {
-      "<leader>cr",
-      vim.lsp.buf.rename,
-      desc = "Rename symbol",
-    },
-    {
-      "grn",
-      vim.lsp.buf.rename,
-      desc = "Rename symbol",
-    },
-    {
-      "<leader>cs",
-      vim.lsp.buf.document_symbol,
-      desc = "Document symbols",
+      "<leader>ca",
+      vim.lsp.buf.code_action,
+      mode = "v",
+      desc = "Code action",
     },
     {
       "<leader>cj",
@@ -50,24 +72,24 @@ function M.get_keymaps()
       desc = "Signature help",
     },
     {
-      "<leader>cS",
-      vim.lsp.buf.workspace_symbol,
-      desc = "Workspace symbols",
+      "<leader>cn",
+      vim.diagnostic.goto_next,
+      desc = "Next diagnostic",
     },
     {
-      "gri",
-      vim.lsp.buf.implementation,
-      desc = "Go to implementation",
+      "<leader>cp",
+      vim.diagnostic.goto_prev,
+      desc = "Previous diagnostic",
     },
     {
-      "grt",
-      vim.lsp.buf.type_definition,
-      desc = "Go to type definition",
+      "<leader>cr",
+      vim.lsp.buf.rename,
+      desc = "Rename symbol",
     },
     {
-      "gO",
+      "<leader>cs",
       vim.lsp.buf.document_symbol,
-      desc = "Document outline",
+      desc = "Document symbols",
     },
   }
 end

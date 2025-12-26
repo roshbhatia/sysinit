@@ -284,28 +284,6 @@ M.plugins = {
           end,
           desc = "Find: Grep AST",
         },
-        {
-          "<leader>ca",
-          vim.lsp.buf.code_action,
-          desc = "Code action",
-        },
-        {
-          "gra",
-          vim.lsp.buf.code_action,
-          desc = "Code action",
-        },
-        {
-          "<leader>ca",
-          vim.lsp.buf.code_action,
-          mode = "v",
-          desc = "Code action",
-        },
-        {
-          "gra",
-          vim.lsp.buf.code_action,
-          mode = "v",
-          desc = "Code action",
-        },
       }
     end,
   },
