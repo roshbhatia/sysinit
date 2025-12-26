@@ -28,7 +28,6 @@ function M.setup(config)
   config.cursor_blink_rate = 320
   config.cursor_thickness = 1
   config.dpi = 144
-  config.enable_scroll_bar = true
   config.font = font
   config.font_size = 13.0
   config.line_height = 0.98
