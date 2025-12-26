@@ -65,6 +65,7 @@ in
 
   launchd.user.agents.sketchybar-monitor-reload = {
     serviceConfig = {
+      Label = "com.sketchybar-monitor-reload.default";
       ProgramArguments = [
         "${pkgs.bash}/bin/bash"
         "${monitor-reload-script}"

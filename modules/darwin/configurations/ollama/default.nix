@@ -9,6 +9,7 @@ in
 {
   launchd.user.agents.ollama = {
     serviceConfig = {
+      Label = "com.ollama.default";
       Program = toString startScript;
       RunAtLoad = true;
       KeepAlive = true;

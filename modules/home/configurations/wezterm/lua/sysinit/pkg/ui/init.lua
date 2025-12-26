@@ -30,7 +30,6 @@ function M.setup(config)
   config.dpi = 144
   config.font = font
   config.font_size = 13.0
-  config.line_height = 0.98
   config.macos_window_background_blur = platform.is_darwin() and config_data.transparency.blur or 0
   config.max_fps = 240
   config.quick_select_alphabet = "fjdkslaghrueiwoncmv"

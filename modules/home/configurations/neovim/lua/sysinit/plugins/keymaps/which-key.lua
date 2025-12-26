@@ -29,7 +29,6 @@ M.plugins = {
 
       wk.add({
         { "<leader>?", group = "Open command palette" },
-        { "<leader>b", group = "Buffer" },
         { "<leader>c", group = "Code" },
         { "<leader>ce", group = "Code: Execute/Debug" },
         { "<leader>d", group = "Diff" },

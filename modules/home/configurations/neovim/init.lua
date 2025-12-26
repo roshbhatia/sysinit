@@ -101,7 +101,6 @@ require("sysinit.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.ui.wilder"),
 })
 
-require("sysinit.config.keybindings.buffer").setup()
 require("sysinit.config.keybindings.lists").setup()
 require("sysinit.config.keybindings.marks").setup()
 require("sysinit.config.keybindings.super").setup()
