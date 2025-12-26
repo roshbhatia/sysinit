@@ -115,7 +115,7 @@ M.plugins = {
           live_grep_args = {
             auto_quoting = true,
             mappings = {
-              n = {
+              i = {
                 ["<C-q>"] = lga_actions.quote_prompt(),
                 ["<C-i>"] = lga_actions.quote_prompt({ postfix = " --iglob " }),
                 ["<C-space>"] = lga_actions.to_fuzzy_refine,
