@@ -19,6 +19,7 @@ M.plugins = {
       local telescope = require("telescope")
       local actions = require("telescope.actions")
       local themes = require("telescope.themes")
+      local lga_actions = require("telescope-live-grep-args.actions")
 
       telescope.setup({
         defaults = {
@@ -111,7 +112,16 @@ M.plugins = {
             override_generic_sorter = true,
             override_file_sorter = true,
           },
-          live_grep_args = {},
+          live_grep_args = {
+            auto_quoting = true,
+            mappings = {
+              n = {
+                ["<C-q>"] = lga_actions.quote_prompt(),
+                ["<C-i>"] = lga_actions.quote_prompt({ postfix = " --iglob " }),
+                ["<C-space>"] = lga_actions.to_fuzzy_refine,
+              },
+            },
+          },
           undo = {
             side_by_side = true,
             layout_strategy = "vertical",
