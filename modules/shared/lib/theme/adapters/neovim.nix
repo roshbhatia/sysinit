@@ -8,28 +8,6 @@ with lib;
 
 let
   themeNames = import ./theme-names.nix { inherit lib; };
-
-  escapeString = s: "\"${lib.escape [ ''"'' "\\" ''\$'' ] s}\"";
-
-  luaTable =
-    attrs:
-    let
-      needsQuoting = k: builtins.match "[a-zA-Z_][a-zA-Z0-9_]*" k == null;
-      formatKey = k: if needsQuoting k then "[\"${k}\"]" else k;
-      entries = mapAttrsToList (
-        k: v:
-        let
-          formattedKey = formatKey k;
-        in
-        if isString v then
-          "${formattedKey} = ${escapeString v}"
-        else if isAttrs v then
-          "${formattedKey} = ${luaTable v}"
-        else
-          "${formattedKey} = ${toString v}"
-      ) attrs;
-    in
-    "{ ${concatStringsSep ", " entries} }";
 in
 
 {
@@ -96,27 +74,4 @@ in
       transparency = config.transparency or (throw "Missing transparency configuration");
       inherit semanticColors;
     };
-
-  generateThemeLuaMap =
-    allThemes:
-    let
-      buildMetadata =
-        themeId: themeData:
-        let
-          inherit (themeData.meta) variants;
-          variantEntries = listToAttrs (
-            map (
-              variant:
-              let
-                meta = themeNames.getNeovimMetadata themeId variant;
-              in
-              nameValuePair variant meta
-            ) variants
-          );
-        in
-        nameValuePair themeId variantEntries;
-
-      themeMap = listToAttrs (mapAttrsToList buildMetadata allThemes);
-    in
-    "local THEME_CONFIG_MAP = " + luaTable themeMap + "\n\nreturn THEME_CONFIG_MAP\n";
 }

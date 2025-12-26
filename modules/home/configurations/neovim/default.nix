@@ -51,8 +51,5 @@ in
     themes.generateAppJSON "neovim" values.theme
   );
 
-  xdg.configFile."nvim/lua/sysinit/generated/theme_map.lua".text =
-    themes.adapters.neovim.generateThemeLuaMap themes.themes;
-
   xdg.configFile."nvim/queries".source = ./queries;
 }

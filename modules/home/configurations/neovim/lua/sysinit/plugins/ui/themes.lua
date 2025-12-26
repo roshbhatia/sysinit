@@ -1,12 +1,55 @@
 local json_loader = require("sysinit.utils.json_loader")
 local highlight_gen = require("sysinit.utils.highlight_generator")
-local theme_map = require("sysinit.generated.theme_map")
 
 local theme_config =
   json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
 
 local c = theme_config.semanticColors
 local M = {}
+
+-- Simple theme metadata mapping
+local theme_metadata = {
+  catppuccin = {
+    plugin = "catppuccin/nvim",
+    setup = "catppuccin",
+    colorscheme = "catppuccin",
+  },
+  gruvbox = {
+    plugin = "ellisonleao/gruvbox.nvim",
+    setup = "gruvbox",
+    colorscheme = "gruvbox",
+  },
+  solarized = {
+    plugin = "craftzdog/solarized-osaka.nvim",
+    setup = "solarized-osaka",
+    colorscheme = "solarized-osaka",
+  },
+  ["rose-pine"] = {
+    plugin = "rose-pine/rose-pine.nvim",
+    setup = "rose-pine",
+    colorscheme = "roseprime",
+  },
+  kanagawa = {
+    plugin = "rebelot/kanagawa.nvim",
+    setup = "kanagawa",
+    colorscheme = "kanagawa",
+  },
+  nord = {
+    plugin = "EdenEast/nightfox.nvim",
+    setup = "nightfox",
+    colorscheme = "nordfox",
+  },
+  everforest = {
+    plugin = "sainnhe/everforest",
+    setup = "everforest",
+    colorscheme = "everforest",
+  },
+  ["black-metal"] = {
+    plugin = "metalelf0/black-metal-theme-neovim",
+    setup = "black-metal",
+    colorscheme = "gorgoroth",
+  },
+}
 
 local styles = {
   comments = { "italic" },
@@ -255,19 +298,13 @@ end
 
 local function get_plugin_config()
   local scheme = theme_config.colorscheme
-  local variant = theme_config.variant
-  local scheme_map = theme_map[scheme]
+  local metadata = theme_metadata[scheme]
 
-  if not scheme_map then
+  if not metadata then
     return nil
   end
 
-  local variant_config = scheme_map[variant]
-  if not variant_config then
-    return nil
-  end
-
-  return variant_config
+  return metadata
 end
 
 local function setup_theme()
@@ -307,12 +344,15 @@ end
 
 local function build_plugins()
   local scheme = theme_config.colorscheme
-  local variant = theme_config.variant
-  local plugin_name = theme_map[scheme][variant].plugin
+  local metadata = theme_metadata[scheme]
+
+  if not metadata then
+    error("Unknown theme: " .. scheme)
+  end
 
   return {
     {
-      plugin_name,
+      metadata.plugin,
       lazy = false,
       priority = 1000,
       config = setup_theme,
