@@ -16,7 +16,7 @@ let
   colors = themes.getUnifiedColors palette;
   appTheme = themes.getAppTheme "vivid" values.theme.colorscheme values.theme.variant;
   shellEnv = shellLib.env {
-    inherit config colors appTheme;
+    inherit colors appTheme;
   };
   allAliases =
     (shellLib.aliases.navigation or { })
