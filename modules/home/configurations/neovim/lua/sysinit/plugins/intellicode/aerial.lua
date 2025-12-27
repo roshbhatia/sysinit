@@ -17,6 +17,7 @@ M.plugins = {
         lsp = {
           diagnostics_trigger_update = true,
         },
+        default_direction = "prefer_left",
         backends = {
           "treesitter",
         },
