@@ -17,11 +17,32 @@ M.plugins = {
         lsp = {
           diagnostics_trigger_update = true,
         },
-        default_direction = "prefer_left",
+        default_direction = "left",
         attach_mode = "global",
         placement = "edge",
         backends = {
-          "treesitter",
+          ["_"] = {
+            "lsp",
+            "treesitter",
+          },
+          bash = {
+            "treesitter",
+          },
+          lua = {
+            "treesitter",
+            "lsp",
+          },
+          nix = {
+            "treesitter",
+          },
+          tmpl = {
+            "treesitter",
+            "lsp",
+          },
+          yaml = {
+            "treesitter",
+            "lsp",
+          },
         },
         keymaps = {
           ["?"] = "actions.show_help",
