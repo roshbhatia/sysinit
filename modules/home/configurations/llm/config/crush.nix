@@ -13,10 +13,18 @@ let
   # Convert LSP config to Crush format
   formatLspForCrush =
     lspCfg:
-    builtins.mapAttrs (_name: lsp: {
-      command = builtins.head lsp.command;
-      enabled = true;
-    }) lspCfg;
+    builtins.mapAttrs (
+      _name: lsp:
+      if lsp ? command then
+        {
+          command = if builtins.isList lsp.command then builtins.head lsp.command else lsp.command;
+          enabled = true;
+        }
+      else
+        {
+          enabled = false;
+        }
+    ) lspCfg;
 
   # Convert MCP servers to Crush format - simplified
   formatMcpForCrush =

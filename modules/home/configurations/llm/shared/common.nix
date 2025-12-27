@@ -1,10 +1,17 @@
 {
   formatLspForOpencode =
     lspConfig:
-    builtins.mapAttrs (_name: lsp: {
-      command = (lsp.command or [ ]) ++ (lsp.args or [ ]);
-      extensions = lsp.extensions or [ ];
-    }) lspConfig;
+    builtins.mapAttrs (
+      _name: lsp:
+      let
+        cmd =
+          if lsp ? command then if builtins.isList lsp.command then lsp.command else [ lsp.command ] else [ ];
+      in
+      {
+        command = cmd ++ (lsp.args or [ ]);
+        extensions = lsp.extensions or [ ];
+      }
+    ) lspConfig;
 
   formatMcpForOpencode =
     mcpServers:
