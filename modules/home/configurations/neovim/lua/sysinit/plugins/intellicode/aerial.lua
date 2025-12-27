@@ -18,11 +18,7 @@ M.plugins = {
           diagnostics_trigger_update = true,
         },
         backends = {
-          "treesitter",
-          "lsp",
-          "markdown",
-          "asciidoc",
-          "man",
+          ["_"] = "treesitter",
         },
         keymaps = {
           ["?"] = "actions.show_help",
