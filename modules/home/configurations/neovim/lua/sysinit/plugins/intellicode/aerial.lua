@@ -17,9 +17,11 @@ M.plugins = {
         lsp = {
           diagnostics_trigger_update = true,
         },
-        default_direction = "left",
+        layout = {
+          default_direction = "left",
+          placement = "edge",
+        },
         attach_mode = "global",
-        placement = "edge",
         backends = {
           ["_"] = {
             "treesitter",
