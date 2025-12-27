@@ -15,8 +15,20 @@
     '';
     installCmd = ''"$MANAGER_CMD" install "$pkg" 2>/dev/null || echo "Warning: Failed to install $pkg"'';
     cleanupCmd = ''
-      comm -23 <(ls "$HOME/go/bin" 2>/dev/null | sort) <(sort "$managed_pkg_file") | while read bin; do
-        rm -f "$HOME/go/bin/$bin"
+      local gopath=$("$MANAGER_CMD" env GOPATH)
+
+      local installed=$(
+        /bin/ls -l "$gopath/bin" 2>/dev/null \
+          | tail -n +2 \
+          | awk '{print $9}' \
+          | grep -v "^$" \
+          | sort
+      )
+
+      local managed=$(sort "$managed_pkg_file")
+
+      comm -23 <(echo "$installed") <(echo "$managed") | while read pkg; do
+        [ -n "$pkg" ] && rm -f "$gopath/bin/$pkg" 2>/dev/null || true
       done
     '';
   };

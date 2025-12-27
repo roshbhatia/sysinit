@@ -10,8 +10,16 @@
     '';
     installCmd = ''"$MANAGER_CMD" install --locked "$pkg" || echo "Warning: Failed to install $pkg"'';
     cleanupCmd = ''
-      comm -23 <(ls "$HOME/.cargo/bin" 2>/dev/null | sort) <(sort "$managed_pkg_file") | while read bin; do
-        rm -f "$HOME/.cargo/bin/$bin"
+      local installed=$(
+        "$MANAGER_CMD" install --list 2>/dev/null \
+          | awk '/^[a-zA-Z]/ {print $1}' \
+          | sort
+      )
+
+      local managed=$(sort "$managed_pkg_file")
+
+      comm -23 <(echo "$installed") <(echo "$managed") | while read pkg; do
+        [ -n "$pkg" ] && "$MANAGER_CMD" uninstall "$pkg" 2>/dev/null || true
       done
     '';
   };
