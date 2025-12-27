@@ -14,7 +14,6 @@
   };
 
   gopls = {
-    command = "gopls";
     config = {
       gofumpt = true;
       staticcheck = true;
@@ -194,7 +193,7 @@
   };
 
   ast-grep = {
-    command = [ "ast-grep" ];
+    command = "ast-grep";
     args = [ "lsp" ];
     extensions = [
       ".c"
@@ -214,13 +213,13 @@
   };
 
   nu = {
-    command = [ "nu" ];
+    command = "nu";
     args = [ "--lsp" ];
     extensions = [ ".nu" ];
   };
 
   up = {
-    command = [ "up" ];
+    command = "up";
     args = [
       "xpls"
       "serve"

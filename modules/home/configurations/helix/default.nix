@@ -1,5 +1,26 @@
 let
-  lsp = import ../../../shared/lib/lsp;
+  lspLib = import ../../../shared/lib/lsp;
+
+  # Convert generic LSP config to Helix format
+  formatLspForHelix =
+    lspConfig:
+    builtins.mapAttrs (
+      _name: lsp:
+      let
+        baseConfig = builtins.removeAttrs lsp [ "extensions" ];
+        cmdConfig =
+          if lsp ? command then
+            if builtins.isList lsp.command then
+              baseConfig // { command = builtins.head lsp.command; }
+            else
+              baseConfig
+          else
+            baseConfig;
+      in
+      cmdConfig
+    ) lspConfig;
+
+  lsp = formatLspForHelix lspLib;
 in
 _:
 
