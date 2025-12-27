@@ -1,6 +1,4 @@
-{
-  ...
-}:
+_:
 
 {
   # PipeWire is now consolidated in audio/default.nix

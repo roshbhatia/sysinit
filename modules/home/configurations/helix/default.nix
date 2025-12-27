@@ -1,7 +1,6 @@
 let
   lspLib = import ../../../shared/lib/lsp;
 
-  # Convert generic LSP config to Helix format
   formatLspForHelix =
     lspConfig:
     builtins.mapAttrs (
@@ -111,9 +110,11 @@ _:
             "file-line-ending"
           ];
           separator = " ";
-          mode.normal = "  ";
-          mode.insert = " 󰘧 ";
-          mode.select = " 󰈈 ";
+          mode = {
+            normal = "  ";
+            insert = " 󰘧 ";
+            select = " 󰈈 ";
+          };
         };
       };
     };

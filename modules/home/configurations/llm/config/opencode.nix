@@ -11,7 +11,6 @@ let
   directives = import ../shared/directives.nix;
   prompts = import ../shared/prompts.nix { };
 
-  # OpenCode-specific formatters
   formatLspForOpencode =
     lspConfig:
     builtins.mapAttrs (

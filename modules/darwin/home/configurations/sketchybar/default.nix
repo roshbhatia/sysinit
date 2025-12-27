@@ -15,8 +15,8 @@ let
 in
 
 {
-  xdg.configFile."sketchybar/sketchybarrc" = {
-    text = ''
+  xdg.configFile = {
+    "sketchybar/sketchybarrc".text = ''
       #! /opt/homebrew/bin/lua
 
       local current_path = os.getenv("PATH") or ""
@@ -42,12 +42,13 @@ in
 
       require("sysinit")
     '';
-    executable = true;
+
+    "sketchybar/sketchybarrc".executable = true;
+
+    "sketchybar/lua".source = ./lua;
+
+    "sketchybar/theme_config.json".text = builtins.toJSON (
+      themes.generateAppJSON "sketchybar" themeConfig
+    );
   };
-
-  xdg.configFile."sketchybar/lua".source = ./lua;
-
-  xdg.configFile."sketchybar/theme_config.json".text = builtins.toJSON (
-    themes.generateAppJSON "sketchybar" themeConfig
-  );
 }

@@ -9,8 +9,6 @@ let
 in
 
 {
-  stylix.targets.neovim.enable = false;
-
   programs.neovim = {
     enable = true;
     defaultEditor = true;
@@ -21,35 +19,23 @@ in
     withRuby = true;
   };
 
-  xdg.configFile."nvim/init.lua".source = ./init.lua;
-
-  xdg.configFile."nvim/lua/sysinit/config".source = ./lua/sysinit/config;
-
-  xdg.configFile."nvim/lua/sysinit/utils".source = ./lua/sysinit/utils;
-
-  xdg.configFile."nvim/lua/sysinit/plugins/core/".source = ./lua/sysinit/plugins/core;
-
-  xdg.configFile."nvim/lua/sysinit/plugins/debugger/".source = ./lua/sysinit/plugins/debugger;
-
-  xdg.configFile."nvim/lua/sysinit/plugins/editor/".source = ./lua/sysinit/plugins/editor;
-
-  xdg.configFile."nvim/lua/sysinit/plugins/file/".source = ./lua/sysinit/plugins/file;
-
-  xdg.configFile."nvim/lua/sysinit/plugins/git/".source = ./lua/sysinit/plugins/git;
-
-  xdg.configFile."nvim/lua/sysinit/plugins/intellicode/".source = ./lua/sysinit/plugins/intellicode;
-
-  xdg.configFile."nvim/lua/sysinit/plugins/keymaps/".source = ./lua/sysinit/plugins/keymaps;
-
-  xdg.configFile."nvim/lua/sysinit/plugins/library/".source = ./lua/sysinit/plugins/library;
-
-  xdg.configFile."nvim/lua/sysinit/plugins/ui/".source = ./lua/sysinit/plugins/ui;
-
-  xdg.configFile."nvim/lua/sysinit/plugins/orgmode/".source = ./lua/sysinit/plugins/orgmode;
-
-  xdg.configFile."nvim/theme_config.json".text = builtins.toJSON (
-    themes.generateAppJSON "neovim" values.theme
-  );
-
-  xdg.configFile."nvim/queries".source = ./queries;
+  xdg = {
+    configFile = {
+      "nvim/init.lua".source = ./init.lua;
+      "nvim/lua/sysinit/config".source = ./lua/sysinit/config;
+      "nvim/lua/sysinit/plugins/core/".source = ./lua/sysinit/plugins/core;
+      "nvim/lua/sysinit/plugins/debugger/".source = ./lua/sysinit/plugins/debugger;
+      "nvim/lua/sysinit/plugins/editor/".source = ./lua/sysinit/plugins/editor;
+      "nvim/lua/sysinit/plugins/file/".source = ./lua/sysinit/plugins/file;
+      "nvim/lua/sysinit/plugins/git/".source = ./lua/sysinit/plugins/git;
+      "nvim/lua/sysinit/plugins/intellicode/".source = ./lua/sysinit/plugins/intellicode;
+      "nvim/lua/sysinit/plugins/keymaps/".source = ./lua/sysinit/plugins/keymaps;
+      "nvim/lua/sysinit/plugins/library/".source = ./lua/sysinit/plugins/library;
+      "nvim/lua/sysinit/plugins/orgmode/".source = ./lua/sysinit/plugins/orgmode;
+      "nvim/lua/sysinit/plugins/ui/".source = ./lua/sysinit/plugins/ui;
+      "nvim/lua/sysinit/utils".source = ./lua/sysinit/utils;
+      "nvim/queries".source = ./queries;
+      "nvim/theme_config.json".text = builtins.toJSON (themes.generateAppJSON "neovim" values.theme);
+    };
+  };
 }
