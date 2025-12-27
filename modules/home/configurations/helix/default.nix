@@ -1,7 +1,13 @@
+let
+  lsp = import ../../../shared/lib/lsp;
+in
 _:
 
 {
-  stylix.targets.helix.enable = true;
+  stylix.targets.helix = {
+    enable = true;
+    opacity.enable = false;
+  };
 
   programs.helix = {
     enable = true;
@@ -92,164 +98,7 @@ _:
     };
 
     languages = {
-      language-server = {
-        rust-analyzer = {
-          config = {
-            checkOnSave = {
-              command = "clippy";
-            };
-            procMacro = {
-              enable = true;
-            };
-          };
-        };
-
-        gopls = {
-          command = "gopls";
-          config = {
-            gofumpt = true;
-            staticcheck = true;
-            analyses = {
-              unusedparams = true;
-              nilness = true;
-            };
-          };
-        };
-
-        golangci-lint-ls = {
-          command = "golangci-lint-langserver";
-          args = [
-            "-debug"
-            "false"
-          ];
-        };
-
-        pyright = {
-          command = "pyright-langserver";
-          args = [ "--stdio" ];
-          config = {
-            python.analysis = {
-              typeCheckingMode = "basic";
-              autoImportCompletions = true;
-            };
-          };
-        };
-
-        nil = {
-          command = "nil";
-          config.nil = {
-            formatting.command = [ "nixfmt" ];
-            diagnostics.ignored = [
-              "unused_binding"
-              "unused_with"
-            ];
-          };
-        };
-
-        typescript-language-server = {
-          config = {
-            preferences = {
-              includeInlayParameterNameHints = "all";
-              includeInlayParameterNameHintsWhenArgumentMatchesName = true;
-              includeInlayFunctionParameterTypeHints = true;
-              includeInlayVariableTypeHints = true;
-              includeInlayPropertyDeclarationTypeHints = true;
-              includeInlayFunctionLikeReturnTypeHints = true;
-            };
-          };
-        };
-
-        vscode-eslint-language-server = {
-          command = "vscode-eslint-language-server";
-          args = [ "--stdio" ];
-        };
-
-        vscode-json-language-server = {
-          command = "vscode-json-language-server";
-          args = [ "--stdio" ];
-        };
-
-        yaml-language-server = {
-          command = "yaml-language-server";
-          args = [ "--stdio" ];
-          config = {
-            yaml = {
-              schemas = {
-                "https://json.schemastore.org/github-workflow.json" = ".github/workflows/*.{yml,yaml}";
-                "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/tasks" =
-                  "roles/*/tasks/*.{yml,yaml}";
-                "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/playbook" =
-                  "*play*.{yml,yaml}";
-              };
-            };
-          };
-        };
-
-        ansible-language-server = {
-          command = "ansible-language-server";
-          args = [ "--stdio" ];
-        };
-
-        dockerfile-language-server = {
-          command = "docker-langserver";
-          args = [ "--stdio" ];
-        };
-
-        docker-compose-langserver = {
-          command = "docker-compose-langserver";
-          args = [ "--stdio" ];
-        };
-
-        jdtls = {
-          command = "jdtls";
-        };
-
-        zls = {
-          command = "zls";
-        };
-
-        bash-language-server = {
-          command = "bash-language-server";
-          args = [ "start" ];
-        };
-
-        awk-language-server = {
-          command = "awk-language-server";
-        };
-
-        vscode-css-language-server = {
-          command = "vscode-css-language-server";
-          args = [ "--stdio" ];
-        };
-
-        lua-language-server = {
-          command = "lua-language-server";
-        };
-
-        terraform-ls = {
-          command = "terraform-ls";
-          args = [ "serve" ];
-        };
-
-        copilot = {
-          command = "copilot-language-server";
-          args = [ "--stdio" ];
-        };
-
-        scls = {
-          command = "simple-completion-language-server";
-          config = {
-            max_completion_items = 100;
-            feature_words = false;
-            feature_snippets = true;
-            snippets_first = true;
-            snippets_inline_by_word_tail = false;
-            feature_unicode_input = false;
-            feature_paths = false;
-            feature_citations = false;
-          };
-        };
-      };
+      language-server = lsp;
 
       language = [
         {
