@@ -6,7 +6,7 @@
     env = ''
       export NODE_NO_WARNINGS=1
       export NODE_TLS_REJECT_UNAUTHORIZED=0
-      export PATH="${pkgs.nodejs}/bin:$PATH"
+      export PATH="${pkgs.nodejs}/bin:${pkgs.jq}/bin:$PATH"
       export NPM_CONFIG_PREFIX="$HOME/.npm-global"
     '';
     installCmd = ''"$MANAGER_CMD" install -g "$pkg" --silent || echo "Warning: Failed to install $pkg"'';

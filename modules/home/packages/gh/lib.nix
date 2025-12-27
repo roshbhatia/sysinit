@@ -21,5 +21,18 @@
         esac
       fi
     '';
+    cleanupCmd = ''
+      local installed=$(
+        "$MANAGER_CMD" extension list 2>/dev/null \
+          | awk 'NR>1 {print $2}' \
+          | sort
+      )
+
+      local managed=$(sort "$managed_pkg_file")
+
+      comm -23 <(echo "$installed") <(echo "$managed") | while read pkg; do
+        [ -n "$pkg" ] && "$MANAGER_CMD" extension remove "$pkg" 2>/dev/null || true
+      done
+    '';
   };
 }
