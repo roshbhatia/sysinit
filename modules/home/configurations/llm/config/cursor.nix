@@ -6,7 +6,6 @@
 let
   common = import ../shared/common.nix;
 
-  # Cursor-specific permission formatter
   formatPermissionsForCursor =
     perms:
     let

@@ -48,7 +48,6 @@ let
       };
     };
 
-  # Goose builtin extensions
   gooseBuiltinExtensions = {
     autovisualiser = {
       available_tools = [ ];

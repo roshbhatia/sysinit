@@ -31,7 +31,6 @@ let
     permissions = formatPermissionsForCopilotCli common.commonShellPermissions;
   };
 
-  # MCP server configuration for Copilot CLI
   mcpConfig = builtins.toJSON {
     mcpServers = { };
   };
