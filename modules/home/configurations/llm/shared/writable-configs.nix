@@ -1,12 +1,3 @@
-# modules/home/configurations/llm/shared/writable-configs.nix
-#
-# Purpose: Helper functions for creating writable configuration files for LLM tools.
-# Many LLM tools (goose, claude, etc.) need to mutate their config files at runtime.
-# This module provides utilities to:
-# 1. Write initial config to Nix store (via pkgs.writeText)
-# 2. Copy to writable location during home-manager activation
-# 3. Only overwrite if source changed (preserves user edits when possible)
-# 4. Clean up legacy backup files (.nix-prev, .bak, .backup)
 {
   lib,
   pkgs,
@@ -14,89 +5,53 @@
 let
   inherit (lib) hm;
 
-  # Creates a writable config file setup
-  # Returns an attribute set with:
-  # - source: path to source file in Nix store
-  # - activation: home.activation entry (copies to writable location)
-  #
-  # Parameters:
-  # - path: config path relative to ~/.config (e.g., "goose/config.yaml")
-  # - text: content of the config file
-  # - executable: whether file should be executable (default: false)
-  # - force: whether to force overwrite on every activation (default: false)
   mkWritableConfig =
     {
       path,
       text,
       executable ? false,
-      force ? false,
     }:
     let
-      # Generate unique name for this config
       activationName = "writable-${builtins.replaceStrings [ "/" "." ] [ "-" "-" ] path}";
 
-      # Create source file in Nix store
       sourceFile = pkgs.writeText "${activationName}-source" text;
 
-      # Script to copy file to writable location
-      copyScript =
-        if force then
-          # Force mode: always overwrite
-          ''
-            DEST_PATH="$HOME/.config/${path}"
-            $DRY_RUN_CMD mkdir -p "$(dirname "$DEST_PATH")"
-            $DRY_RUN_CMD echo "Installing writable config: ${path}"
+      copyScript = ''
+        DEST_PATH="$HOME/.config/${path}"
+        $DRY_RUN_CMD mkdir -p "$(dirname "$DEST_PATH")"
 
-            # Remove legacy backup files
-            for backup_ext in .nix-prev .bak .backup; do
-              [[ -f "$DEST_PATH$backup_ext" ]] && $DRY_RUN_CMD rm -f "$DEST_PATH$backup_ext"
-            done
+        # Remove legacy backup files
+        for backup_ext in .nix-prev .bak .backup; do
+          [[ -f "$DEST_PATH$backup_ext" ]] && $DRY_RUN_CMD rm -f "$DEST_PATH$backup_ext"
+        done
 
+        # Check if destination exists and is not a symlink
+        if [[ -f "$DEST_PATH" && ! -L "$DEST_PATH" ]]; then
+          # File exists - check if source changed
+          if ! cmp -s "${sourceFile}" "$DEST_PATH"; then
+            $DRY_RUN_CMD echo "Config source changed, updating: ${path}"
             $DRY_RUN_CMD cp -f "${sourceFile}" "$DEST_PATH"
             ${if executable then ''$DRY_RUN_CMD chmod +x "$DEST_PATH"'' else ""}
-          ''
+          else
+            $DRY_RUN_CMD echo "Config unchanged, preserving: ${path}"
+          fi
         else
-          # Smart mode: only update if source changed
-          ''
-            DEST_PATH="$HOME/.config/${path}"
-            $DRY_RUN_CMD mkdir -p "$(dirname "$DEST_PATH")"
-
-            # Remove legacy backup files
-            for backup_ext in .nix-prev .bak .backup; do
-              [[ -f "$DEST_PATH$backup_ext" ]] && $DRY_RUN_CMD rm -f "$DEST_PATH$backup_ext"
-            done
-
-            # Check if destination exists and is not a symlink
-            if [[ -f "$DEST_PATH" && ! -L "$DEST_PATH" ]]; then
-              # File exists - check if source changed
-              if ! cmp -s "${sourceFile}" "$DEST_PATH"; then
-                $DRY_RUN_CMD echo "Config source changed, updating: ${path}"
-                $DRY_RUN_CMD cp -f "${sourceFile}" "$DEST_PATH"
-                ${if executable then ''$DRY_RUN_CMD chmod +x "$DEST_PATH"'' else ""}
-              else
-                $DRY_RUN_CMD echo "Config unchanged, preserving: ${path}"
-              fi
-            else
-              # First install or was a symlink
-              $DRY_RUN_CMD echo "Installing new writable config: ${path}"
-              if [[ -L "$DEST_PATH" ]]; then
-                $DRY_RUN_CMD rm "$DEST_PATH"
-              fi
-              $DRY_RUN_CMD cp "${sourceFile}" "$DEST_PATH"
-              ${if executable then ''$DRY_RUN_CMD chmod +x "$DEST_PATH"'' else ""}
-            fi
-          '';
+          # First install or was a symlink
+          $DRY_RUN_CMD echo "Installing new writable config: ${path}"
+          if [[ -L "$DEST_PATH" ]]; then
+            $DRY_RUN_CMD rm "$DEST_PATH"
+          fi
+          $DRY_RUN_CMD cp "${sourceFile}" "$DEST_PATH"
+          ${if executable then ''$DRY_RUN_CMD chmod +x "$DEST_PATH"'' else ""}
+        fi
+      '';
     in
     {
-      # Store the source file path for reference
       source = sourceFile;
 
-      # Activation script to copy file
       activation = hm.dag.entryAfter [ "linkGeneration" ] copyScript;
     };
 
-  # Convenience function to create multiple writable configs
-  # Returns attribute sets for xdg.configFile and home.activation
   mkWritableConfigs =
     configs:
     let

@@ -7,10 +7,31 @@
 }:
 let
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
-  common = import ../shared/common.nix;
+
+  # Claude-specific MCP formatter
+  formatMcpForClaude =
+    mcpServers:
+    builtins.mapAttrs (
+      _name: server:
+      if (server.type or "local") == "http" then
+        {
+          type = "http";
+          inherit (server) url;
+          description = server.description or "";
+          enabled = server.enabled or true;
+        }
+      else
+        {
+          inherit (server) command;
+          inherit (server) args;
+          description = server.description or "";
+          enabled = server.enabled or true;
+          env = server.env or { };
+        }
+    ) mcpServers;
 
   claudeConfig = builtins.toJSON {
-    mcpServers = common.formatMcpForClaude mcpServers.servers;
+    mcpServers = formatMcpForClaude mcpServers.servers;
     hooks = {
       SessionStart = [
         {

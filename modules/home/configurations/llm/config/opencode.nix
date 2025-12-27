@@ -8,9 +8,47 @@
 let
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   lsp = import ../shared/lsp.nix;
-  common = import ../shared/common.nix;
   directives = import ../shared/directives.nix;
   prompts = import ../shared/prompts.nix { };
+
+  # OpenCode-specific formatters
+  formatLspForOpencode =
+    lspConfig:
+    builtins.mapAttrs (
+      _name: lspCfg:
+      let
+        cmd =
+          if lspCfg ? command then
+            if builtins.isList lspCfg.command then lspCfg.command else [ lspCfg.command ]
+          else
+            [ ];
+      in
+      {
+        command = cmd ++ (lspCfg.args or [ ]);
+        extensions = lspCfg.extensions or [ ];
+      }
+    ) lspConfig;
+
+  formatMcpForOpencode =
+    mcpServers:
+    builtins.mapAttrs (
+      _name: server:
+      if (server.type or "local") == "http" then
+        {
+          type = "remote";
+          enabled = server.enabled or true;
+          inherit (server) url;
+        }
+        // (if (server.headers or null) != null then { inherit (server) headers; } else { })
+        // (if (server.timeout or null) != null then { inherit (server) timeout; } else { })
+      else
+        {
+          type = "local";
+          enabled = server.enabled or true;
+          command = [ server.command ] ++ server.args;
+        }
+        // (if (server.env or { }) != { } then { environment = server.env; } else { })
+    ) mcpServers;
 
   defaultInstructions = [
     "**/CONTRIBUTING.md"
@@ -33,8 +71,8 @@ let
     share = "disabled";
     theme = "system";
 
-    mcp = common.formatMcpForOpencode mcpServers.servers;
-    lsp = common.formatLspForOpencode lsp.lsp;
+    mcp = formatMcpForOpencode mcpServers.servers;
+    lsp = formatLspForOpencode lsp.lsp;
 
     agent = prompts.toAgents;
     inherit instructions;
@@ -54,14 +92,12 @@ let
     inherit config;
     path = "opencode/opencode.json";
     text = opencodeConfig;
-    force = false;
   };
 
   opencodeAgentsFile = utils.xdg.mkWritableXdgConfig {
     inherit config;
     path = "opencode/AGENTS.md";
     text = agentsMd;
-    force = false;
   };
 in
 {

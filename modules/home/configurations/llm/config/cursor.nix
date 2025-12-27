@@ -6,10 +6,34 @@
 let
   common = import ../shared/common.nix;
 
+  # Cursor-specific permission formatter
+  formatPermissionsForCursor =
+    perms:
+    let
+      allPerms =
+        perms.git
+        ++ perms.github
+        ++ perms.docker
+        ++ perms.kubernetes
+        ++ perms.nix
+        ++ perms.darwin
+        ++ perms.navigation
+        ++ perms.utilities
+        ++ perms.crossplane;
+
+      toCursorFormat =
+        cmd:
+        let
+          cleanCmd = builtins.replaceStrings [ "*" ] [ "" ] cmd;
+        in
+        "Shell(${cleanCmd})";
+    in
+    map toCursorFormat allPerms;
+
   cursorConfig = builtins.toJSON {
     version = 1;
     permissions = {
-      allow = common.formatPermissionsForCursor common.commonShellPermissions;
+      allow = formatPermissionsForCursor common.commonShellPermissions;
       deny = [ ];
     };
     editor = {

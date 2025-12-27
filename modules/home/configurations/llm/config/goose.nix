@@ -10,6 +10,46 @@ let
   common = import ../shared/common.nix;
   directives = import ../shared/directives.nix;
 
+  # Goose-specific MCP formatter
+  formatMcpForGoose =
+    mcpServers:
+    lib.mapAttrs (name: server: {
+      inherit (server) args;
+      bundled = null;
+      cmd = server.command;
+      description = server.description or "";
+      enabled = server.enabled or true;
+      env_keys = [ ];
+      envs = server.env or { };
+      name = lib.strings.toUpper (lib.substring 0 1 name) + lib.substring 1 (lib.stringLength name) name;
+      timeout = 300;
+      type = "stdio";
+    }) mcpServers;
+
+  # Goose-specific permission formatter
+  formatPermissionsForGoose =
+    perms:
+    let
+      allPerms =
+        perms.git
+        ++ perms.github
+        ++ perms.docker
+        ++ perms.kubernetes
+        ++ perms.nix
+        ++ perms.darwin
+        ++ perms.navigation
+        ++ perms.utilities
+        ++ perms.crossplane;
+
+      toRegexPattern = cmd: builtins.replaceStrings [ "*" ] [ ".*" ] cmd;
+    in
+    {
+      shell = {
+        allow = map toRegexPattern allPerms;
+        deny = [ ];
+      };
+    };
+
   gooseHintsMd = ''
     ${directives.general}
   '';
@@ -22,9 +62,9 @@ let
       GOOSE_MODE = "smart_approve";
       GOOSE_RECIPE_GITHUB_REPO = "packit/ai-workflows";
 
-      extensions = common.gooseBuiltinExtensions // (common.formatMcpForGoose lib mcpServers.servers);
+      extensions = common.gooseBuiltinExtensions // (formatMcpForGoose mcpServers.servers);
     }
-    // (common.formatPermissionsForGoose common.commonShellPermissions)
+    // (formatPermissionsForGoose common.commonShellPermissions)
   );
 
   # Create writable config files

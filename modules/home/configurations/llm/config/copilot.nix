@@ -26,9 +26,31 @@
 let
   common = import ../shared/common.nix;
 
+  # Copilot CLI-specific permission formatter
+  formatPermissionsForCopilotCli =
+    perms:
+    let
+      allPerms =
+        perms.git
+        ++ perms.github
+        ++ perms.docker
+        ++ perms.kubernetes
+        ++ perms.nix
+        ++ perms.darwin
+        ++ perms.navigation
+        ++ perms.utilities
+        ++ perms.crossplane;
+
+      cleanCmd = cmd: builtins.replaceStrings [ "*" ] [ "" ] cmd;
+    in
+    {
+      allow = map cleanCmd allPerms;
+      deny = [ ];
+    };
+
   # Copilot CLI permissions configuration
   copilotCliConfig = builtins.toJSON {
-    permissions = common.formatPermissionsForCopilotCli common.commonShellPermissions;
+    permissions = formatPermissionsForCopilotCli common.commonShellPermissions;
   };
 
   # MCP server configuration

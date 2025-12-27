@@ -7,13 +7,29 @@
 }:
 let
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
-  common = import ../shared/common.nix;
+
+  # Amp-specific MCP formatter
+  formatMcpForAmp =
+    mcpServers:
+    builtins.mapAttrs (
+      _name: server:
+      if (server.type or "local") == "http" then
+        {
+          inherit (server) url;
+        }
+      else
+        {
+          inherit (server) command;
+          inherit (server) args;
+          env = server.env or { };
+        }
+    ) mcpServers;
 
   ampConfig = builtins.toJSON {
     "amp.git.commit.ampThread.enabled" = false;
     "amp.experimental.planMode" = true;
     "amp.git.commit.coauthor.enabled" = false;
-    "amp.mcpServers" = common.formatMcpForAmp mcpServers.servers;
+    "amp.mcpServers" = formatMcpForAmp mcpServers.servers;
     "amp.permissions" = [
       {
         tool = "Bash";
