@@ -10,7 +10,6 @@ let
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   directives = import ../shared/directives.nix;
 
-  # Convert LSP config to Crush format
   formatLspForCrush =
     lspCfg:
     builtins.mapAttrs (
@@ -26,7 +25,6 @@ let
         }
     ) lspCfg;
 
-  # Convert MCP servers to Crush format - simplified
   formatMcpForCrush =
     mcpServers:
     builtins.mapAttrs (
@@ -55,7 +53,6 @@ let
 
   crushConfig = builtins.toJSON crushSettings;
 
-  # Create writable config files
   crushConfigFile = utils.xdg.mkWritableXdgConfig {
     inherit config;
     path = "crush/crush.json";

@@ -8,7 +8,6 @@
 let
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
 
-  # Claude-specific MCP formatter
   formatMcpForClaude =
     mcpServers:
     builtins.mapAttrs (
@@ -59,12 +58,10 @@ let
     done
   '';
 
-  # Create writable config files
   claudeConfigFile = utils.xdg.mkWritableXdgConfig {
     inherit config;
     path = "Claude/claude_desktop_config.json";
     text = claudeConfig;
-    force = false; # Preserve user edits when source unchanged
   };
 
   claudeHookScriptFile = utils.xdg.mkWritableXdgConfig {
@@ -72,7 +69,6 @@ let
     path = "claude/hooks/append_agentsmd_context.sh";
     text = claudeHookScript;
     executable = true;
-    force = false; # Preserve user edits when source unchanged
   };
 in
 {

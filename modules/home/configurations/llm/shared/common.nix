@@ -1,5 +1,4 @@
 {
-  # Common shell permissions configuration shared across all LLM tools
   commonShellPermissions = {
     git = [
       "git status"
@@ -115,45 +114,5 @@
       "crossplane beta trace*"
       "crossplane beta validate*"
     ];
-  };
-
-  gooseBuiltinExtensions = {
-    autovisualiser = {
-      available_tools = [ ];
-      bundled = true;
-      description = null;
-      display_name = "Auto Visualiser";
-      enabled = true;
-      name = "autovisualiser";
-      timeout = 300;
-      type = "builtin";
-    };
-    computercontroller = {
-      available_tools = [
-        "browser_action"
-        "computer_use"
-      ];
-      bundled = true;
-      display_name = "Computer Controller";
-      enabled = true;
-      name = "computercontroller";
-      timeout = 300;
-      type = "builtin";
-    };
-    developer = {
-      available_tools = [
-        "text_editor"
-        "shell"
-        "analyze"
-        "screen_capture"
-        "image_processor"
-      ];
-      bundled = true;
-      display_name = "Developer";
-      enabled = true;
-      name = "developer";
-      timeout = 300;
-      type = "builtin";
-    };
   };
 }

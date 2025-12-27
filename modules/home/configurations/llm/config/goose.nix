@@ -10,7 +10,6 @@ let
   common = import ../shared/common.nix;
   directives = import ../shared/directives.nix;
 
-  # Goose-specific MCP formatter
   formatMcpForGoose =
     mcpServers:
     lib.mapAttrs (name: server: {
@@ -26,7 +25,6 @@ let
       type = "stdio";
     }) mcpServers;
 
-  # Goose-specific permission formatter
   formatPermissionsForGoose =
     perms:
     let
@@ -50,6 +48,47 @@ let
       };
     };
 
+  # Goose builtin extensions
+  gooseBuiltinExtensions = {
+    autovisualiser = {
+      available_tools = [ ];
+      bundled = true;
+      description = null;
+      display_name = "Auto Visualiser";
+      enabled = true;
+      name = "autovisualiser";
+      timeout = 300;
+      type = "builtin";
+    };
+    computercontroller = {
+      available_tools = [
+        "browser_action"
+        "computer_use"
+      ];
+      bundled = true;
+      display_name = "Computer Controller";
+      enabled = true;
+      name = "computercontroller";
+      timeout = 300;
+      type = "builtin";
+    };
+    developer = {
+      available_tools = [
+        "text_editor"
+        "shell"
+        "analyze"
+        "screen_capture"
+        "image_processor"
+      ];
+      bundled = true;
+      display_name = "Developer";
+      enabled = true;
+      name = "developer";
+      timeout = 300;
+      type = "builtin";
+    };
+  };
+
   gooseHintsMd = ''
     ${directives.general}
   '';
@@ -62,24 +101,21 @@ let
       GOOSE_MODE = "smart_approve";
       GOOSE_RECIPE_GITHUB_REPO = "packit/ai-workflows";
 
-      extensions = common.gooseBuiltinExtensions // (formatMcpForGoose mcpServers.servers);
+      extensions = gooseBuiltinExtensions // (formatMcpForGoose mcpServers.servers);
     }
     // (formatPermissionsForGoose common.commonShellPermissions)
   );
 
-  # Create writable config files
   gooseConfigFile = utils.xdg.mkWritableXdgConfig {
     inherit config;
     path = "goose/config.yaml";
     text = gooseConfig;
-    force = false; # Preserve user edits when source unchanged
   };
 
   gooseHintsFile = utils.xdg.mkWritableXdgConfig {
     inherit config;
     path = "goose/goosehints.md";
     text = gooseHintsMd;
-    force = false; # Preserve user edits when source unchanged
   };
 in
 {

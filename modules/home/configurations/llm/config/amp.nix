@@ -8,7 +8,6 @@
 let
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
 
-  # Amp-specific MCP formatter
   formatMcpForAmp =
     mcpServers:
     builtins.mapAttrs (
@@ -61,12 +60,10 @@ let
     ];
   };
 
-  # Create writable config file
   ampConfigFile = utils.xdg.mkWritableXdgConfig {
     inherit config;
     path = "amp/settings.json";
     text = ampConfig;
-    force = false; # Preserve user edits when source unchanged
   };
 in
 {
