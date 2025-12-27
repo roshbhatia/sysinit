@@ -22,8 +22,8 @@ M.plugins = {
         placement = "edge",
         backends = {
           ["_"] = {
-            "lsp",
             "treesitter",
+            "lsp",
           },
           bash = {
             "treesitter",
