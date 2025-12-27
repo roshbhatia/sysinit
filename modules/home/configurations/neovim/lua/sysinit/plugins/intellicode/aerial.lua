@@ -18,6 +18,8 @@ M.plugins = {
           diagnostics_trigger_update = true,
         },
         default_direction = "prefer_left",
+        attach_mode = "global",
+        placement = "edge",
         backends = {
           "treesitter",
         },
