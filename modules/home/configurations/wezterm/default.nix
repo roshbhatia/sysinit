@@ -7,6 +7,7 @@
 let
   themeNames = import ../../../shared/lib/theme/adapters/theme-names.nix { inherit lib; };
   themeName = themeNames.getWeztermTheme values.theme.colorscheme values.theme.variant;
+  configGen = import ../../../shared/lib/config-gen.nix { inherit lib; };
 in
 {
   stylix.targets.wezterm.enable = false;
@@ -14,14 +15,10 @@ in
   xdg.configFile = {
     "wezterm/wezterm.lua".source = ./wezterm.lua;
     "wezterm/lua".source = ./lua;
-    "wezterm/config.json".text = builtins.toJSON {
-      font = {
-        inherit (values.theme.font) monospace symbols;
-      };
-      color_scheme = themeName;
-      transparency = {
-        inherit (values.theme.transparency) opacity blur;
-      };
-    };
+    "wezterm/config.json".text = configGen.toJsonFile (
+      configGen.makeThemeJsonConfig values {
+        color_scheme = themeName;
+      }
+    );
   };
 }
