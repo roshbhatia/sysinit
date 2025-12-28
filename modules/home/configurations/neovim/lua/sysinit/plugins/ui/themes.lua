@@ -249,19 +249,14 @@ local function apply_global_overrides()
     },
     WilderWildmenuAccent = {
       bg = "NONE",
-      fg = c.plugins.completion.selection_bg,
-      bold = true,
+      fg = c.plugins.semantic.info,
     },
     WilderWildmenuSelected = {
       bg = "NONE",
-      fg = c.plugins.completion.selection_fg,
-      bold = true,
     },
     WilderWildmenuSelectedAccent = {
       bg = "NONE",
-      fg = c.accent.secondary,
-      bold = true,
-      underline = true,
+      fg = c.plugins.semantic.error,
     },
 
     StatusLine = { bg = "NONE", fg = c.plugins.window.statusline_active },
