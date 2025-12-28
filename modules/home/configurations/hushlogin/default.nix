@@ -1,5 +1,8 @@
 _:
 
 {
-  home.file.".hushlogin".text = "";
+  home.file.".hushlogin" = {
+    text = "";
+    force = true;
+  };
 }
