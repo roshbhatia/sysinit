@@ -51,15 +51,7 @@ M.plugins = {
         prompt_position = "top",
         reverse = 0,
         highlighter = {
-          wilder.lua_pcre2_highlighter(),
           wilder.lua_fzy_highlighter(),
-        },
-        highlights = {
-          accent = "WilderWildmenuAccent",
-          border = "FloatBorder",
-          default = "Pmenu",
-          select = "WilderWildmenuSelectedAccent",
-          selected_accent = "WilderWildmenuSelectedAccent",
         },
         left = {
           " ",
@@ -126,15 +118,7 @@ M.plugins = {
           " ",
         },
         highlighter = {
-          wilder.lua_pcre2_highlighter(),
           wilder.lua_fzy_highlighter(),
-        },
-        highlights = {
-          accent = "WilderWildmenuAccent",
-          border = "FloatBorder",
-          default = "Pmenu",
-          select = "WilderWildmenuSelectedAccent",
-          selected_accent = "WilderWildmenuSelectedAccent",
         },
       })
 
