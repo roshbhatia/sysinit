@@ -279,6 +279,26 @@ local function apply_global_overrides()
     DiagnosticWarn = { fg = c.semantic.warning, bold = true },
     DiagnosticInfo = { fg = c.semantic.info, bold = true },
     DiagnosticHint = { fg = c.semantic.info, bold = true },
+
+    WilderSelected = {
+      fg = c.plugins.completion.selection_fg,
+      bold = true,
+    },
+    WilderAccent = {
+      fg = c.accent.primary,
+      bold = true,
+    },
+    WilderWildmenuSelected = {
+      fg = c.plugins.completion.selection_fg,
+      bold = true,
+      bg = "NONE",
+    },
+    WilderWildmenuAccent = {
+      fg = c.accent.primary,
+      bold = true,
+    },
+    WilderSeparator = { fg = c.syntax.comment },
+    WilderSpinner = { fg = c.syntax.comment, bold = true },
   }
 
   for group, opts in pairs(manual_overrides) do

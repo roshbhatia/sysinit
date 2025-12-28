@@ -53,6 +53,12 @@ M.plugins = {
         highlighter = {
           wilder.lua_fzy_highlighter(),
         },
+        highlights = {
+          default = "Pmenu",
+          selected = "WilderSelected",
+          border = "FloatBorder",
+          accent = "WilderAccent",
+        },
         left = {
           " ",
           wilder.popupmenu_devicons({
@@ -90,6 +96,11 @@ M.plugins = {
       }))
 
       local wildmenu_renderer = wilder.wildmenu_renderer({
+        highlights = {
+          default = "StatusLine",
+          selected = "WilderWildmenuSelected",
+          accent = "WilderWildmenuAccent",
+        },
         separator = " · ",
         left = {
           " ",
