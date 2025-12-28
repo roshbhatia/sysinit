@@ -55,9 +55,10 @@ M.plugins = {
           wilder.lua_fzy_highlighter(),
         },
         highlights = {
-          default = "Pmenu",
-          border = "FloatBorder",
           accent = "WilderWildmenuAccent",
+          border = "FloatBorder",
+          default = "Pmenu",
+          select = "WilderWildmenuSelectedAccent",
           selected_accent = "WilderWildmenuSelectedAccent",
         },
         left = {
@@ -129,9 +130,10 @@ M.plugins = {
           wilder.lua_fzy_highlighter(),
         },
         highlights = {
-          default = "Pmenu",
-          border = "FloatBorder",
           accent = "WilderWildmenuAccent",
+          border = "FloatBorder",
+          default = "Pmenu",
+          select = "WilderWildmenuSelectedAccent",
           selected_accent = "WilderWildmenuSelectedAccent",
         },
       })

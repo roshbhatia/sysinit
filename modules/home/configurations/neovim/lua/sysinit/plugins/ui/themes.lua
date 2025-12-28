@@ -243,9 +243,11 @@ local function apply_global_overrides()
     },
 
     WilderWildmenuAccent = {
+      bg = "NONE",
       fg = c.semantic.info,
     },
     WilderWildmenuSelectedAccent = {
+      bg = "NONE",
       fg = c.semantic.error,
       bold = true,
     },
