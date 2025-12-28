@@ -243,16 +243,26 @@ local function apply_global_overrides()
       bold = true,
     },
 
-    WildMenu = { bg = "NONE", fg = c.foreground.primary },
-    WilderWildmenuAccent = { fg = c.plugins.completion.border, bold = true },
-    WilderWildmenuSelected = { bg = "NONE", fg = c.plugins.completion.selection_fg, bold = true },
-    WilderWildmenuSelectedAccent = { fg = c.accent.secondary, underline = true },
-    WilderGradient1 = { fg = c.plugins.completion.border },
-    WilderGradient2 = { fg = c.plugins.completion.border },
-    WilderGradient3 = { fg = c.plugins.completion.border },
-    WilderGradient4 = { fg = c.plugins.completion.border },
-    WilderSeparator = { fg = c.syntax.comment },
-    WilderSpinner = { fg = c.syntax.comment },
+    WildMenu = {
+      bg = "NONE",
+      fg = c.foreground.primary,
+    },
+    WilderWildmenuAccent = {
+      bg = "NONE",
+      fg = c.plugins.completion.selection_bg,
+      bold = true,
+    },
+    WilderWildmenuSelected = {
+      bg = "NONE",
+      fg = c.plugins.completion.selection_fg,
+      bold = true,
+    },
+    WilderWildmenuSelectedAccent = {
+      bg = "NONE",
+      fg = c.accent.secondary,
+      bold = true,
+      underline = true,
+    },
 
     StatusLine = { bg = "NONE", fg = c.plugins.window.statusline_active },
     StatusLineNC = { bg = "NONE", fg = c.plugins.window.statusline_inactive },
