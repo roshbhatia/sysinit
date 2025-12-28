@@ -99,9 +99,9 @@ task: Available tasks for this project:
 | `cargo.additionalPackages` | list(string) | [] |  | Additional Rust/Cargo packages |
 | `config.root` | path | - | ✓ | Root path to the configuration flake directory |
 | `darwin.borders.enable` | boolean | true |  | Enable window borders |
-| `darwin.dock.options` | string | "" |  | Additional dockutil options |
-| `darwin.dock.path` | string | - | ✓ | Path to application or item for dock |
-| `darwin.dock.section` |  | "apps" |  | Dock section (apps or others) |
+| `darwin.homebrew.additionalPackages.brews` | list(string) | [] |  | Additional Homebrew formulae |
+| `darwin.homebrew.additionalPackages.casks` | list(string) | [] |  | Additional Homebrew casks |
+| `darwin.homebrew.additionalPackages.taps` | list(string) | [] |  | Additional Homebrew taps |
 | `gh.additionalPackages` | list(string) | [] |  | Additional GitHub CLI extensions |
 | `git.email` | string | - | ✓ | Git user email |
 | `git.name` | string | - | ✓ | Git user name |
@@ -111,9 +111,6 @@ task: Available tasks for this project:
 | `git.workEmail` | string? | null |  | Work email override |
 | `git.workUsername` | string? | null |  | Work username override |
 | `go.additionalPackages` | list(string) | [] |  | Additional Go packages |
-| `homebrew.additionalPackages.brews` | list(string) | [] |  | Additional Homebrew formulae |
-| `homebrew.additionalPackages.casks` | list(string) | [] |  | Additional Homebrew casks |
-| `homebrew.additionalPackages.taps` | list(string) | [] |  | Additional Homebrew taps |
 | `krew.additionalPackages` | list(string) | [] |  | Additional kubectl krew plugins |
 | `llm.mcp.args` | list(string) | [] |  | MCP server arguments |
 | `llm.mcp.command` | string | - | ✓ | MCP server command |

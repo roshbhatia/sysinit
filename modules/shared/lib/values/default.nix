@@ -85,49 +85,6 @@ with lib;
           };
         };
 
-        dock = {
-          entries = mkOption {
-            type = types.listOf (
-              types.submodule {
-                options = {
-                  path = mkOption {
-                    type = types.str;
-                    description = "Path to application or item for dock";
-                  };
-                  section = mkOption {
-                    type = types.enum [
-                      "apps"
-                      "others"
-                    ];
-                    default = "apps";
-                    description = "Dock section (apps or others)";
-                  };
-                  options = mkOption {
-                    type = types.str;
-                    default = "";
-                    description = "Additional dockutil options";
-                  };
-                };
-              }
-            );
-            default = [
-              { path = "/System/Applications/Finder.app"; }
-              { path = "/Applications/1Password 7 - Password Manager.app"; }
-              { path = "/System/Applications/Music.app"; }
-              { path = "/Applications/Audible.app"; }
-              { path = "/Applications/Books.app"; }
-              { path = "/Applications/Podcasts.app"; }
-              { path = "/Applications/WezTerm.app"; }
-              { path = "/Applications/Firefox.app"; }
-              {
-                path = "/System/Applications/System Preferences.app";
-                section = "others";
-              }
-            ];
-            description = "Dock entries configuration";
-          };
-        };
-
         homebrew = {
           additionalPackages = {
             taps = mkOption {

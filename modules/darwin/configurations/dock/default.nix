@@ -1,8 +1,5 @@
-{ values, ... }:
+{ ... }:
 
-let
-  dockEntries = values.darwin.dock.entries;
-in
 {
   system.defaults.dock = {
     autohide = true;
@@ -14,10 +11,5 @@ in
     persistent-others = [ ];
     show-recents = false;
     tilesize = 30;
-  };
-
-  local.dock = {
-    enable = true;
-    entries = dockEntries;
   };
 }
