@@ -33,9 +33,9 @@ modules/
 
 ### Core Concepts
 - **Values-driven**: All config in `values.nix`, type-checked against schema
-- **Out-of-store symlinks**: Live editing for neovim/wezterm/zsh (no rebuild)
 - **Module pattern**: `default.nix` (entry) + `name.nix` (impl)
 - **Multi-ecosystem**: Nix, Homebrew, Cargo, npm, Go, pipx, etc.
+- **Declarative config**: All config files declared in `xdg.configFile` or similar
 
 ### Theme System
 Three-layer system in `modules/shared/lib/theme/`:
@@ -65,15 +65,15 @@ Three-layer system in `modules/shared/lib/theme/`:
 
 ### General
 - No emojis in code (enforced)
-- Use `mkOutOfStoreSymlink` for live-editable configs
 - Always test: `task nix:build` before changes
 - Validate: Check against schema before commit
+- Keep DRY: Extract repeated patterns into shared utilities
 
 ## Configuration Workflows
 
 ### Editing Config Files
-- **Live-edit** (neovim, wezterm, zsh): Edit directly → changes immediate
-- **System config**: Edit `values.nix` → `task nix:refresh`
+- **Config files**: Declare in `xdg.configFile` → rebuild with `task nix:refresh`
+- **System settings**: Edit `values.nix` → `task nix:refresh`
 - **LLM prompts**: Edit `modules/home/configurations/llm/prompts/`
 
 ### Adding Packages
