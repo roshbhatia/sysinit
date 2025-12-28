@@ -51,6 +51,7 @@ M.plugins = {
         prompt_position = "top",
         reverse = 0,
         highlighter = {
+          wilder.lua_pcre2_highlighter(),
           wilder.lua_fzy_highlighter(),
         },
         highlights = {
@@ -110,11 +111,6 @@ M.plugins = {
       }))
 
       local wildmenu_renderer = wilder.wildmenu_renderer({
-        highlights = {
-          default = "StatusLine",
-          selected = "WildMenu",
-          accent = "WilderWildmenuAccent",
-        },
         separator = " · ",
         left = {
           " ",
@@ -143,7 +139,27 @@ M.plugins = {
           " ",
         },
         highlighter = {
+          wilder.lua_pcre2_highlighter(),
           wilder.lua_fzy_highlighter(),
+        },
+        highlights = {
+          default = "Pmenu",
+          selected = "PmenuSel",
+          border = "FloatBorder",
+          accent = "WilderWildmenuAccent",
+          selected_accent = "WilderWildmenuSelectedAccent",
+          gradient = {
+            "WilderGradient1",
+            "WilderGradient2",
+            "WilderGradient3",
+            "WilderGradient4",
+          },
+          selected_gradient = {
+            "WilderGradient1",
+            "WilderGradient2",
+            "WilderGradient3",
+            "WilderGradient4",
+          },
         },
       })
 

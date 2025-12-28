@@ -39,7 +39,6 @@
 
     darwin-custom-icons = {
       url = "github:ryanccn/nix-darwin-custom-icons";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     neovim-nightly-overlay = {
