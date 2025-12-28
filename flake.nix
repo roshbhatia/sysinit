@@ -31,83 +31,17 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nix-gaming = {
-      url = "github:fufexan/nix-gaming";
-    };
+    nix-gaming.url = "github:fufexan/nix-gaming";
 
-    ghostty = {
-      url = "github:ghostty-org/ghostty";
-    };
+    ghostty.url = "github:ghostty-org/ghostty";
 
     nur.url = "github:nix-community/NUR";
+
+    darwin-custom-icons = {
+      url = "github:ryanccn/nix-darwin-custom-icons";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs =
-    inputs@{
-      nixpkgs,
-      darwin,
-      home-manager,
-      nix-homebrew,
-      stylix,
-      onepassword-shell-plugins,
-      ...
-    }:
-    let
-      inherit (nixpkgs) lib;
-
-      common = import ./flake/common.nix;
-      hostConfigs = (import ./flake/hosts.nix) common;
-      builders = import ./flake/builders.nix {
-        inherit lib nixpkgs inputs;
-      };
-
-      darwinConfigs = lib.filterAttrs (_: cfg: cfg.platform == "darwin") hostConfigs;
-      nixosConfigs = lib.filterAttrs (_: cfg: cfg.platform == "linux") hostConfigs;
-
-      buildConfig = builders.buildConfiguration {
-        inherit
-          darwin
-          home-manager
-          stylix
-          nix-homebrew
-          onepassword-shell-plugins
-          ;
-        inherit (builders) mkPkgs;
-        inherit (builders) mkUtils;
-        inherit (builders) mkOverlays;
-        inherit (builders) processValues;
-      };
-    in
-    {
-      darwinConfigurations =
-        lib.mapAttrs (
-          name: cfg:
-          buildConfig {
-            hostConfig = cfg;
-            hostname = name;
-          }
-        ) darwinConfigs
-        // {
-          bootstrap = darwin.lib.darwinSystem {
-            system = "aarch64-darwin";
-            modules = [ (import ./flake/bootstrap.nix) ];
-          };
-        };
-
-      nixosConfigurations = lib.mapAttrs (
-        name: cfg:
-        buildConfig {
-          hostConfig = cfg;
-          hostname = name;
-        }
-      ) nixosConfigs;
-
-      lib = {
-        inherit
-          builders
-          hostConfigs
-          common
-          ;
-      };
-    };
+  outputs = inputs: (import ./flake/outputs.nix inputs);
 }

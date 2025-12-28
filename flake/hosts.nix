@@ -6,12 +6,18 @@ common:
     platform = "darwin";
     inherit (common) username;
     values = common.values // {
-      darwin.homebrew.additionalPackages.casks = [
-        "betterdiscord-installer"
-        "calibre"
-        "discord"
-        "steam"
-      ];
+      darwin = {
+        dock.entries = common.values.darwin.dock.entries ++ [
+          { path = "/Applications/Messages.app"; }
+          { path = "/Applications/Discord.app"; }
+        ];
+        homebrew.additionalPackages.casks = [
+          "betterdiscord-installer"
+          "calibre"
+          "discord"
+          "steam"
+        ];
+      };
     };
   };
 
