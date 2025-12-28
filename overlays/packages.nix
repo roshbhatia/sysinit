@@ -48,6 +48,9 @@ in
   inherit (stable) fish;
   inherit (stable) ollama;
 
+  # Use neovim-nightly from nix-community overlay
+  neovim = inputs.neovim-nightly-overlay.packages.${system}.default;
+
   kubernetes-zeitgeist = final.buildGoModule rec {
     pname = "kubernetes-zeitgeist";
     version = "0.5.3";

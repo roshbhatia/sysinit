@@ -41,6 +41,10 @@
       url = "github:ryanccn/nix-darwin-custom-icons";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    neovim-nightly-overlay = {
+      url = "github:nix-community/neovim-nightly-overlay/master";
+    };
   };
 
   outputs = inputs: (import ./flake/outputs.nix inputs);

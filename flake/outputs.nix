@@ -23,6 +23,7 @@ let
       nix-homebrew
       onepassword-shell-plugins
       darwin-custom-icons
+      neovim-nightly-overlay
       ;
     inherit (builders) mkPkgs;
     inherit (builders) mkUtils;
