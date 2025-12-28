@@ -56,12 +56,10 @@ M.plugins = {
         },
         highlights = {
           default = "Pmenu",
-          selected = "PmenuSel",
           border = "FloatBorder",
           accent = "WilderWildmenuAccent",
           selected_accent = "WilderWildmenuSelectedAccent",
         },
-
         left = {
           " ",
           wilder.popupmenu_devicons({
@@ -132,7 +130,6 @@ M.plugins = {
         },
         highlights = {
           default = "Pmenu",
-          selected = "PmenuSel",
           border = "FloatBorder",
           accent = "WilderWildmenuAccent",
           selected_accent = "WilderWildmenuSelectedAccent",

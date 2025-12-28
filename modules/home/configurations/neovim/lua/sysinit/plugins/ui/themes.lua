@@ -7,7 +7,6 @@ local theme_config =
 local c = theme_config.semanticColors
 local M = {}
 
--- Simple theme metadata mapping
 local theme_metadata = {
   catppuccin = {
     plugin = "catppuccin/nvim",
