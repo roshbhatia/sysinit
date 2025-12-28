@@ -243,15 +243,6 @@ local function apply_global_overrides()
       bold = true,
     },
 
-    WilderWildmenuAccent = {
-      bg = "NONE",
-      fg = c.plugins.semanticColors.semantic.info,
-    },
-    WilderWildmenuSelectedAccent = {
-      bg = "NONE",
-      fg = c.plugins.semanticColors.semantic.error,
-    },
-
     StatusLine = { bg = "NONE", fg = c.plugins.window.statusline_active },
     StatusLineNC = { bg = "NONE", fg = c.plugins.window.statusline_inactive },
 
