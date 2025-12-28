@@ -59,7 +59,7 @@ local app_display_names = {
   ["Visual Studio Code"] = "VS Code",
   ["firefox"] = "Firefox",
   ["ghostty"] = "Ghostty",
-  ["wezterm-gui"] = "WezTerm",
+  ["wezterm-gui"] = "Terminal",
   ["zoom.us"] = "Zoom",
 }
 
