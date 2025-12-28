@@ -6,7 +6,7 @@
 }:
 
 let
-  themes = import ../../../shared/lib/theme { inherit lib; };
+  themeConfig = import ../../../shared/lib/theme-config.nix { inherit lib; };
 
   cursorTailShader = pkgs.fetchurl {
     url = "https://raw.githubusercontent.com/sahaj-b/ghostty-cursor-shaders/main/cursor_tail.glsl";
@@ -20,7 +20,7 @@ let
     font
     appearance
     ;
-  palette = themes.getThemePalette colorscheme variant;
+  palette = themeConfig.getThemePalette colorscheme variant;
 
   stripHash = color: lib.removePrefix "#" color;
 

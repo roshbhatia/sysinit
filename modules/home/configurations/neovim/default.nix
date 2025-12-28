@@ -5,7 +5,7 @@
 }:
 
 let
-  themes = import ../../../shared/lib/theme { inherit lib; };
+  themeConfig = import ../../../shared/lib/theme-config.nix { inherit lib; };
   configGen = import ../../../shared/lib/config-gen.nix { inherit lib; };
 in
 
@@ -36,7 +36,9 @@ in
       "nvim/lua/sysinit/plugins/ui/".source = ./lua/sysinit/plugins/ui;
       "nvim/lua/sysinit/utils".source = ./lua/sysinit/utils;
       "nvim/queries".source = ./queries;
-      "nvim/theme_config.json".text = configGen.toJsonFile (themes.generateAppJSON "neovim" values.theme);
+      "nvim/theme_config.json".text = configGen.toJsonFile (
+        themeConfig.generateAppJSON "neovim" values.theme
+      );
     };
   };
 }
