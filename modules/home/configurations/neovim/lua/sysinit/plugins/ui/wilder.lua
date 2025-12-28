@@ -60,18 +60,6 @@ M.plugins = {
           border = "FloatBorder",
           accent = "WilderWildmenuAccent",
           selected_accent = "WilderWildmenuSelectedAccent",
-          gradient = {
-            "WilderGradient1",
-            "WilderGradient2",
-            "WilderGradient3",
-            "WilderGradient4",
-          },
-          selected_gradient = {
-            "WilderGradient1",
-            "WilderGradient2",
-            "WilderGradient3",
-            "WilderGradient4",
-          },
         },
 
         left = {
@@ -148,18 +136,6 @@ M.plugins = {
           border = "FloatBorder",
           accent = "WilderWildmenuAccent",
           selected_accent = "WilderWildmenuSelectedAccent",
-          gradient = {
-            "WilderGradient1",
-            "WilderGradient2",
-            "WilderGradient3",
-            "WilderGradient4",
-          },
-          selected_gradient = {
-            "WilderGradient1",
-            "WilderGradient2",
-            "WilderGradient3",
-            "WilderGradient4",
-          },
         },
       })
 

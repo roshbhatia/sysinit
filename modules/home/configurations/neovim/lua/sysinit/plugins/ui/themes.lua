@@ -243,22 +243,13 @@ local function apply_global_overrides()
       bold = true,
     },
 
-    WildMenu = {
-      bg = "NONE",
-      fg = c.foreground.primary,
-    },
     WilderWildmenuAccent = {
-      bg = "NONE",
-      fg = c.semantic.info,
-    },
-    WilderWildmenuSelected = {
       bg = "NONE",
       fg = c.semantic.info,
     },
     WilderWildmenuSelectedAccent = {
       bg = "NONE",
       fg = c.semantic.error,
-      underline = true,
     },
 
     StatusLine = { bg = "NONE", fg = c.plugins.window.statusline_active },
