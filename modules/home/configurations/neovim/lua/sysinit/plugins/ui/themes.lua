@@ -243,10 +243,6 @@ local function apply_global_overrides()
       bold = true,
     },
 
-    WildMenu = {
-      bg = "NONE",
-      fg = c.foreground.primary,
-    },
     WilderWildmenuAccent = {
       bg = "NONE",
       fg = c.plugins.semantic.info,
