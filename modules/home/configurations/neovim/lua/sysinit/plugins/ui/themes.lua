@@ -289,7 +289,7 @@ local function apply_global_overrides()
       bold = true,
     },
     WilderWildmenuSelected = {
-      fg = c.semantic.error,
+      fg = c.plugins.completion.selection_fg,
       bold = true,
       bg = "NONE",
     },
