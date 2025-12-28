@@ -10,6 +10,7 @@ let
     inherit (inputs) nixpkgs;
     inherit inputs;
   };
+  outputBuilders = import ./output-builders.nix { inherit lib; };
 
   darwinConfigs = lib.filterAttrs (_: cfg: cfg.platform == "darwin") hostConfigs;
   nixosConfigs = lib.filterAttrs (_: cfg: cfg.platform == "linux") hostConfigs;
@@ -30,28 +31,21 @@ let
   };
 in
 {
-  darwinConfigurations =
-    lib.mapAttrs (
-      name: cfg:
-      buildConfig {
-        hostConfig = cfg;
-        hostname = name;
-      }
-    ) darwinConfigs
-    // {
+  darwinConfigurations = outputBuilders.mkConfigurations {
+    configs = darwinConfigs;
+    inherit buildConfig;
+    extras = {
       bootstrap = inputs.darwin.lib.darwinSystem {
         system = "aarch64-darwin";
         modules = [ (import ./bootstrap.nix) ];
       };
     };
+  };
 
-  nixosConfigurations = lib.mapAttrs (
-    name: cfg:
-    buildConfig {
-      hostConfig = cfg;
-      hostname = name;
-    }
-  ) nixosConfigs;
+  nixosConfigurations = outputBuilders.mkConfigurations {
+    configs = nixosConfigs;
+    inherit buildConfig;
+  };
 
   lib = {
     inherit
