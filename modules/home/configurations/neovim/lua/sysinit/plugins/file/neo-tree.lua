@@ -111,7 +111,6 @@ M.plugins = {
             ["<localleader>n"] = "next_source",
           },
         },
-
         filesystem = {
           follow_current_file = { enabled = true },
           use_libuv_file_watcher = true,
