@@ -44,10 +44,10 @@ M.plugins = {
         sections = {
           left = {
             "mode",
-            "branch",
+            { "GitBlame", get_git_blame_text },
           },
           mid = {
-            { "GitBlame", get_git_blame_text },
+            "branch",
           },
           right = {
             "file_size",
@@ -105,16 +105,16 @@ M.plugins = {
           i = theme_config.semanticColors.accent.primary,
           ic = theme_config.semanticColors.accent.primary,
           ix = theme_config.semanticColors.accent.primary,
-          s = theme_config.semanticColors.semantic.warning,
-          S = theme_config.semanticColors.semantic.warning,
+          s = theme_config.semanticColors.accent.secondary,
+          S = theme_config.semanticColors.accent.secondary,
           v = theme_config.semanticColors.semantic.error,
           V = theme_config.semanticColors.semantic.error,
           [""] = theme_config.semanticColors.semantic.error,
-          r = theme_config.semanticColors.semantic.warning,
-          R = theme_config.semanticColors.semantic.warning,
+          r = theme_config.semanticColors.semantic.error,
+          R = theme_config.semanticColors.semantic.error,
           c = theme_config.semanticColors.semantic.warning,
-          t = theme_config.semanticColors.accent.secondary,
-          ["!"] = theme_config.semanticColors.accent.secondary,
+          t = theme_config.semanticColors.semantic.success,
+          ["!"] = theme_config.semanticColors.semantic.success,
         },
       })
     end,
