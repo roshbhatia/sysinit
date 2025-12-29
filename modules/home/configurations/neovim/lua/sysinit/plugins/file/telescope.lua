@@ -30,8 +30,7 @@ M.plugins = {
           prompt_title = "",
           preview_title = "",
           path_display = {
-            "filename_first",
-            shorten = 3,
+            shorten = 2,
             "truncate",
           },
           mappings = {
