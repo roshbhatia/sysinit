@@ -56,9 +56,6 @@ M.plugins = {
         enable_opened_markers = false,
         sort_case_insensitive = true,
         auto_clean_after_session_restore = true,
-        source_selector = {
-          winbar = true,
-        },
         sources = { "filesystem" },
         default_component_configs = {
           indent = {
