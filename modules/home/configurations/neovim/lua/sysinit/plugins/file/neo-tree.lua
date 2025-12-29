@@ -88,7 +88,6 @@ M.plugins = {
         },
 
         window = {
-          width = 60,
           mappings = {
             ["<2-LeftMouse>"] = "open",
             ["<CR>"] = "open",
