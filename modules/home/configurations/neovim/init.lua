@@ -51,6 +51,7 @@ require("sysinit.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.editor.marks"),
   require("sysinit.plugins.editor.move"),
   require("sysinit.plugins.editor.surround"),
+  require("sysinit.plugins.file.flyer"),
   require("sysinit.plugins.file.fzf"),
   require("sysinit.plugins.file.oil"),
   require("sysinit.plugins.file.persisted"),
