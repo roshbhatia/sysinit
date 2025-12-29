@@ -8,7 +8,7 @@ M.plugins = {
     },
     opts = {
       integrations = {
-        icon = "nvim-web-devicons",
+        icon = "nvim_web_devicons",
       },
       views = {
         finder = {
