@@ -33,42 +33,7 @@ M.plugins = {
           style = "minimal",
         },
         picker = {
-          enabled = true,
-          ui_select = false,
-          formatters = {
-            d = {
-              show_always = false,
-              unselected = false,
-            },
-          },
-          sources = {
-            explorer = {
-              win = {
-                input = {
-                  keys = {
-                    ["<c-h>"] = false,
-                    ["<c-j>"] = false,
-                    ["<c-k>"] = false,
-                    ["<c-l>"] = false,
-                  },
-                },
-                list = {
-                  keys = {
-                    ["<c-h>"] = false,
-                    ["<c-j>"] = false,
-                    ["<c-k>"] = false,
-                    ["<c-l>"] = false,
-                  },
-                },
-              },
-            },
-          },
-          icons = {
-            ui = {
-              selected = " ",
-              unselected = " ",
-            },
-          },
+          enabled = false,
         },
         rename = {
           enabled = true,
@@ -92,8 +57,7 @@ M.plugins = {
           enabled = false,
         },
         explorer = {
-          replace_netrw = false,
-          trash = true,
+          enabled = false,
         },
         git = {
           enabled = false,
@@ -236,13 +200,7 @@ M.plugins = {
       local ai_keys = keymaps.generate_all_keymaps()
 
       local default_keys = {
-        {
-          "<leader>et",
-          function()
-            Snacks.explorer()
-          end,
-          desc = "Toggle explore tree",
-        },
+
         {
           "<leader>ns",
           function()
