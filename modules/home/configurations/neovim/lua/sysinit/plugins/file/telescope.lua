@@ -23,25 +23,16 @@ M.plugins = {
 
       telescope.setup({
         defaults = {
-          prompt_prefix = "   ",
           selection_caret = "",
           entry_prefix = "",
           borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
           results_title = "",
           prompt_title = "",
           preview_title = "",
-          wrap_results = true,
-          sorting_strategy = "ascending",
-          layout_config = {
-            horizontal = {
-              prompt_position = "top",
-              width = 0.9,
-              height = 0.9,
-            },
-            vertical = {
-              width = 0.9,
-              height = 0.9,
-            },
+          path_display = {
+            "filename_first",
+            shorten = 3,
+            "truncate",
           },
           mappings = {
             n = {
@@ -114,13 +105,6 @@ M.plugins = {
             override_file_sorter = true,
           },
           live_grep_args = {
-            layout_strategy = "vertical",
-            layout_config = {
-              width = 0.9,
-              height = 0.9,
-              preview_cutoff = 1,
-              mirror = true,
-            },
             auto_quoting = true,
             mappings = {
               i = {
