@@ -70,7 +70,8 @@ M.plugins = {
           enabled = false,
         },
         explorer = {
-          enabled = false,
+          replace_netrw = false,
+          trash = true,
         },
         git = {
           enabled = false,
@@ -213,6 +214,13 @@ M.plugins = {
       local ai_keys = keymaps.generate_all_keymaps()
 
       local default_keys = {
+        {
+          "<leader>et",
+          function()
+            Snacks.explorer()
+          end,
+          desc = "Toggle explore tree",
+        },
         {
           "<leader>ns",
           function()
