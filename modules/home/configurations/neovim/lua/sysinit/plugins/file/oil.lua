@@ -43,26 +43,18 @@ M.plugins = {
     keys = function()
       return {
         {
-          "<leader>eb",
+          "<leader>ee",
           function()
-            vim.cmd("Oil")
+            vim.cmd("Oil --preview")
           end,
           desc = "Toggle explore in filesystem buffer",
         },
         {
-          "<leader>ee",
-          function()
-            vim.cmd("Oil --float --preview")
-          end,
-          desc = "Toggle explore in filesystem buffer (float)",
-        },
-
-        {
           "<leader>eE",
           function()
-            vim.cmd("Oil --float --preview .")
+            vim.cmd("Oil --preview .")
           end,
-          desc = "Toggle explore in filesystem buffer in project root (float)",
+          desc = "Toggle explore in filesystem buffer in project root",
         },
       }
     end,

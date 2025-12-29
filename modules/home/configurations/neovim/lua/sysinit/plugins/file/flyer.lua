@@ -31,6 +31,15 @@ M.plugins = {
         },
       },
     },
+    keys = function()
+      return {
+        {
+          "<leader>et",
+          require("flyer").open,
+          desc = "Toggle explorer tree",
+        },
+      }
+    end,
   },
 }
 
