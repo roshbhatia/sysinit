@@ -62,9 +62,7 @@ M.plugins = {
           winbar = true,
         },
 
-        sources = {
-          { source = "filesystem" },
-        },
+        sources = { "filesystem" },
 
         default_component_configs = {
           indent = {
