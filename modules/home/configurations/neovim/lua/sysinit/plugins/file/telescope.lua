@@ -114,14 +114,27 @@ M.plugins = {
             override_file_sorter = true,
           },
           live_grep_args = {
+            layout_strategy = "vertical",
+            layout_config = {
+              width = 0.9,
+              height = 0.9,
+              preview_cutoff = 1,
+              mirror = true,
+            },
             auto_quoting = true,
             mappings = {
               i = {
-                ["<C-i>"] = lga_actions.quote_prompt({ postfix = " --iglob " }),
+                ["<C-i>"] = lga_actions.quote_prompt({ postfix = " --iglob **/*" }),
                 ["<C-space>"] = lga_actions.to_fuzzy_refine,
                 ["<S-Tab>"] = actions.move_selection_previous,
                 ["<Tab>"] = actions.move_selection_next,
               },
+            },
+            additional_args = {
+              "--hidden",
+              "--mmap",
+              "--smart-case",
+              "--threads=6",
             },
           },
           undo = {
@@ -139,14 +152,6 @@ M.plugins = {
           find_files = {
             hidden = true,
             no_ignore = true,
-          },
-          live_grep = {
-            additional_args = function()
-              return { "--hidden" }
-            end,
-          },
-          colorscheme = {
-            enable_preview = true,
           },
         },
         vimgrep_arguments = {
