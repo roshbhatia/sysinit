@@ -73,7 +73,6 @@ local function get_catppuccin_config()
     float = { transparent = true, solid = false },
     styles = styles,
     integrations = {
-      aerial = true,
       cmp = true,
       dap = { enabled = true, enable_ui = true },
       dap_ui = true,
@@ -160,7 +159,6 @@ local function get_nightfox_config()
       styles = styles,
       inverse = { match_paren = false, visual = false, search = false },
       modules = {
-        aerial = true,
         cmp = true,
         dap_ui = true,
         fzf = true,
@@ -299,6 +297,13 @@ local function apply_global_overrides()
     },
     WilderSeparator = { fg = c.syntax.comment },
     WilderSpinner = { fg = c.syntax.comment, bold = true },
+
+    OutlineCurrent = { fg = c.accent.primary, bold = true, bg = c.background.secondary },
+    OutlineGuides = { fg = c.syntax.comment },
+    OutlineFoldMarker = { fg = c.foreground.subtle },
+    OutlineDetails = { fg = c.syntax.comment },
+    OutlineLineno = { fg = c.ui.line_number },
+    OutlineJumpHighlight = { fg = c.background.primary, bg = c.accent.primary },
   }
 
   for group, opts in pairs(manual_overrides) do
