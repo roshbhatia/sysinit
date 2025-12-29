@@ -33,6 +33,17 @@ M.plugins = {
             shorten = 2,
             "truncate",
           },
+          layout_config = {
+            horizontal = {
+              prompt_position = "top",
+              width = 0.9,
+              height = 0.9,
+            },
+            vertical = {
+              width = 0.9,
+              height = 0.9,
+            },
+          },
           mappings = {
             n = {
               ["<CR>"] = actions.select_default,
