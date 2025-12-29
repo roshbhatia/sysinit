@@ -86,7 +86,6 @@ local function get_catppuccin_config()
         enabled = true,
         virtual_text = { errors = { "italic" }, hints = { "italic" } },
       },
-      neotree = true,
       notify = true,
       nvimtree = true,
       markview = true,
@@ -166,7 +165,6 @@ local function get_nightfox_config()
         hop = true,
         indent_blankline = true,
         native_lsp = { enabled = true, background = true },
-        neotree = true,
         notify = true,
         nvimtree = true,
         telescope = true,
@@ -254,10 +252,6 @@ local function apply_global_overrides()
     WinBar = { bg = "NONE", fg = c.plugins.window.winbar_active },
     WinBarNC = { bg = "NONE", fg = c.plugins.window.winbar_inactive },
     WinSeparator = { fg = c.plugins.window.separator, bold = true },
-
-    NeoTreeEndOfBuffer = { bg = "NONE", fg = "NONE" },
-    NeoTreeVertSplit = { bg = "NONE", fg = c.plugins.filetree.separator },
-    NeoTreeWinSeparator = { bg = "NONE", fg = c.plugins.filetree.separator },
 
     NeogitDiffContext = { bg = "NONE", fg = c.foreground.primary },
     NeogitDiffContextCursor = {
