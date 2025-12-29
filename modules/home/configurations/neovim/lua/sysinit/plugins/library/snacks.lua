@@ -41,6 +41,28 @@ M.plugins = {
               unselected = false,
             },
           },
+          sources = {
+            explorer = {
+              win = {
+                input = {
+                  keys = {
+                    ["<c-h>"] = false,
+                    ["<c-j>"] = false,
+                    ["<c-k>"] = false,
+                    ["<c-l>"] = false,
+                  },
+                },
+                list = {
+                  keys = {
+                    ["<c-h>"] = false,
+                    ["<c-j>"] = false,
+                    ["<c-k>"] = false,
+                    ["<c-l>"] = false,
+                  },
+                },
+              },
+            },
+          },
           icons = {
             ui = {
               selected = " ",
