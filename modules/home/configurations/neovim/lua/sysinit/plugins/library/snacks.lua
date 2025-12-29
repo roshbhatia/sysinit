@@ -161,7 +161,8 @@ M.plugins = {
       vim.notify = function(msg, level, opts)
         if
           type(msg) == "string"
-          and (msg:find("^Reloaded %d+ file") or msg:find("failed to run generator"))
+            and (msg:find("^Reloaded %d+ file") or msg:find("failed to run generator"))
+          or msg:find("reload buffer")
         then
           return
         end
