@@ -24,7 +24,7 @@ local theme_metadata = {
     colorscheme = "solarized-osaka",
   },
   ["rose-pine"] = {
-    plugin = "rose-pine/rose-pine.nvim",
+    plugin = "casedami/neomodern.nvim",
     setup = "rose-pine",
     colorscheme = "roseprime",
   },
