@@ -2,31 +2,16 @@ local M = {}
 
 function M.get_keymaps()
   return {
+    -- Navigation: Go to definitions/implementations
     {
-      "gra",
-      vim.lsp.buf.code_action,
-      desc = "Code action",
-    },
-    {
-      "gra",
-      vim.lsp.buf.code_action,
-      mode = "v",
-      desc = "Code action",
-    },
-    {
-      "grn",
-      vim.lsp.buf.rename,
-      desc = "Rename symbol",
+      "<leader>cD",
+      vim.lsp.buf.definition,
+      desc = "Go to definition",
     },
     {
       "gri",
       vim.lsp.buf.implementation,
       desc = "Go to implementation",
-    },
-    {
-      "gO",
-      vim.lsp.buf.document_symbol,
-      desc = "Document outline",
     },
     {
       "grr",
@@ -38,39 +23,38 @@ function M.get_keymaps()
       vim.lsp.buf.type_definition,
       desc = "Go to type definition",
     },
+
+    -- Symbols and outline
     {
-      "<leader>cA",
-      vim.lsp.codelens.run,
-      desc = "Run codelens action",
-    },
-    {
-      "<leader>cD",
-      vim.lsp.buf.definition,
-      desc = "Go to definition",
+      "gO",
+      vim.lsp.buf.document_symbol,
+      desc = "Document outline",
     },
     {
       "<leader>cS",
       vim.lsp.buf.workspace_symbol,
       desc = "Workspace symbols",
     },
+
+    -- Code actions and refactoring
     {
-      "<leader>ca",
-      vim.lsp.buf.code_action,
-      desc = "Code action",
-    },
-    {
-      "<leader>ca",
+      "gra",
       vim.lsp.buf.code_action,
       mode = "v",
       desc = "Code action",
     },
     {
-      "<leader>cj",
-      function()
-        vim.lsp.buf.signature_help({ border = "rounded" })
-      end,
-      desc = "Signature help",
+      "<leader>cA",
+      vim.lsp.codelens.run,
+      desc = "Run codelens action",
     },
+    {
+      "grn",
+      vim.lsp.buf.rename,
+      desc = "Rename symbol",
+    },
+
+    -- Diagnostics
     {
       "<leader>cn",
       vim.diagnostic.goto_next,
@@ -81,15 +65,14 @@ function M.get_keymaps()
       vim.diagnostic.goto_prev,
       desc = "Previous diagnostic",
     },
+
+    -- Help
     {
-      "<leader>cr",
-      vim.lsp.buf.rename,
-      desc = "Rename symbol",
-    },
-    {
-      "<leader>cs",
-      vim.lsp.buf.document_symbol,
-      desc = "Document symbols",
+      "<leader>cj",
+      function()
+        vim.lsp.buf.signature_help({ border = "rounded" })
+      end,
+      desc = "Signature help",
     },
   }
 end

@@ -26,7 +26,7 @@ function M.get_builtin_configs()
         },
       },
     },
-    nushell = {},
+    nixd = {},
     openscad_lsp = {},
     pyright = {},
     terraformls = {},
