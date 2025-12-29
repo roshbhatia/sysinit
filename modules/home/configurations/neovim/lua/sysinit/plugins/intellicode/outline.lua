@@ -22,7 +22,7 @@ M.plugins = {
         },
         keymaps = {
           rename_symbol = "grn",
-          code_actionzas = "gra",
+          code_actions = "gra",
           fold = {},
           fold_toggle = { "<Tab", "za" },
           fold_toggle_all = {},
