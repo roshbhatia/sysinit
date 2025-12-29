@@ -20,12 +20,6 @@ M.plugins = {
             bottom = "╰",
           },
         },
-
-        preview_window = {
-          auto_preview = true,
-          open_hover_on_preview = true,
-          live = true,
-        },
         keymaps = {
           rename_symbol = "grn",
           code_actionzas = "gra",
