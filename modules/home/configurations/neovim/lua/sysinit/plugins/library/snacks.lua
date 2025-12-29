@@ -159,13 +159,22 @@ M.plugins = {
       })
       vim.ui.input = Snacks.input
       vim.notify = function(msg, level, opts)
-        if
-          type(msg) == "string"
-            and (msg:find("^Reloaded %d+ file") or msg:find("failed to run generator"))
-          or msg:find("reload buffer")
-        then
-          return
+        if type(msg) ~= "string" then
+          return Snacks.notifier.notify(msg, level, opts or {})
         end
+
+        local ignore_patterns = {
+          "^Reloaded %d+ file",
+          "failed to run generator",
+          "reload buffer",
+        }
+
+        for _, pattern in ipairs(ignore_patterns) do
+          if msg:find(pattern) then
+            return
+          end
+        end
+
         return Snacks.notifier.notify(msg, level, opts or {})
       end
 
