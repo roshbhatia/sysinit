@@ -14,6 +14,10 @@ M.plugins = {
       require("outline").setup({
         outline_items = {
           show_symbol_lineno = true,
+          show_symbol_details = false,
+        },
+        preview_window = {
+          live = true,
         },
         guides = {
           markers = {
