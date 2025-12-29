@@ -6,7 +6,7 @@ M.plugins = {
     dependencies = {
       "nvim-tree/nvim-web-devicons",
     },
-    event = "VeryLazy",
+    cmd = "Flyer",
     opts = {
       integrations = {
         icon = "nvim_web_devicons",
@@ -36,7 +36,9 @@ M.plugins = {
       return {
         {
           "<leader>et",
-          require("flyer").open,
+          function()
+            vim.cmd(":Flyer")
+          end,
           desc = "Toggle explorer tree",
         },
       }
