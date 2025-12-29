@@ -56,14 +56,10 @@ M.plugins = {
         enable_opened_markers = false,
         sort_case_insensitive = true,
         auto_clean_after_session_restore = true,
-        open_files_do_not_replace_types = { "terminal", "qf" },
-
         source_selector = {
           winbar = true,
         },
-
         sources = { "filesystem" },
-
         default_component_configs = {
           indent = {
             with_expanders = true,
