@@ -44,10 +44,13 @@ M.plugins = {
         sections = {
           left = {
             "mode",
-            { "GitBlame", get_git_blame_text },
+            "branch",
           },
           mid = {
-            "branch",
+            {
+              "mode",
+              get_git_blame_text,
+            },
           },
           right = {
             "file_size",
