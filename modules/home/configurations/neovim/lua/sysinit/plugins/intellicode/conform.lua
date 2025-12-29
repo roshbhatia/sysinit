@@ -1,4 +1,4 @@
-3local M = {}
+local M = {}
 
 M.plugins = {
   {
