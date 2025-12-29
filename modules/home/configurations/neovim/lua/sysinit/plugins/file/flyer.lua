@@ -3,6 +3,7 @@ local M = {}
 M.plugins = {
   {
     "A7Lavinraj/fyler.nvim",
+    branch = "stable",
     dependencies = {
       "nvim-tree/nvim-web-devicons",
     },
@@ -37,7 +38,7 @@ M.plugins = {
         {
           "<leader>et",
           function()
-            vim.cmd(":Flyer")
+            vim.cmd("Flyer")
           end,
           desc = "Toggle explorer tree",
         },
