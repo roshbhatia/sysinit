@@ -6,6 +6,7 @@ M.plugins = {
     dependencies = {
       "nvim-tree/nvim-web-devicons",
     },
+    event = "VeryLazy",
     opts = {
       integrations = {
         icon = "nvim_web_devicons",
