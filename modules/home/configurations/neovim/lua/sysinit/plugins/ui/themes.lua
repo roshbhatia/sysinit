@@ -301,6 +301,7 @@ local function apply_global_overrides()
 
     NeoTreeNormal = { bg = "NONE", fg = c.foreground.primary },
     NeoTreeNormalNC = { bg = "NONE", fg = c.foreground.primary },
+    NeoTreeEndOfBuffer = { bg = "NONE", fg = "NONE" },
     NeoTreeFloatBorder = { bg = "NONE", fg = c.syntax.comment },
     NeoTreeFloatTitle = { bg = "NONE", fg = c.accent.primary, bold = true },
     NeoTreeTitleBar = { bg = "NONE", fg = c.accent.primary, bold = true },
