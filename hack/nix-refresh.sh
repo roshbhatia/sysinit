@@ -11,7 +11,7 @@ case "${config}" in
       exit 1
     }
     cd "${WORK_SYSINIT}"
-    nh darwin switch ".#darwinConfigurations.work" --commit-lock-file --fallback --quiet
+    task nix:refresh:work
     ;;
   arrakis)
     nh os switch ".#nixosConfigurations.${config}" --commit-lock-file --fallback --quiet
