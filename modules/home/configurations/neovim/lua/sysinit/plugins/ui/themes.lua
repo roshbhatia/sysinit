@@ -25,7 +25,7 @@ local theme_metadata = {
   },
   ["rose-pine"] = {
     plugin = "casedami/neomodern.nvim",
-    setup = "rose-pine",
+    setup = "neomodern",
     colorscheme = "roseprime",
   },
   kanagawa = {
