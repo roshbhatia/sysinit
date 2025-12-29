@@ -144,7 +144,7 @@ M.plugins = {
           },
         },
       })
-      vim.ui.input = Snacks.input
+
       vim.notify = function(msg, level, opts)
         if type(msg) ~= "string" then
           return Snacks.notifier.notify(msg, level, opts or {})

@@ -82,7 +82,6 @@ require("sysinit.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.intellicode.treesitter-context"),
   require("sysinit.plugins.intellicode.treesitter"),
   require("sysinit.plugins.intellicode.typescript-tools"),
-  require("sysinit.plugins.intellicode.zk-nvim"),
   require("sysinit.plugins.keymaps.which-key"),
   require("sysinit.plugins.library.nio"),
   require("sysinit.plugins.library.nui"),
