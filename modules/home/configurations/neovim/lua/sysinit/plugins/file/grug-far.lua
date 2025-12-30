@@ -3,7 +3,6 @@ local M = {}
 M.plugins = {
   {
     "MagicDuck/grug-far.nvim",
-    event = "VeryLazy",
     config = function()
       require("grug-far").setup({
         normalModeSearch = true,
@@ -12,7 +11,6 @@ M.plugins = {
             extraArgs = "--hidden",
           },
         },
-        windowCreationCommand = "left split",
       })
     end,
     keys = function()
