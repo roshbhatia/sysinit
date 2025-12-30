@@ -6,10 +6,8 @@ M.plugins = {
     branch = "master",
     dependencies = {
       "debugloop/telescope-undo.nvim",
-      "Marskey/telescope-sg",
       "nvim-lua/plenary.nvim",
       "nvim-telescope/telescope-fzy-native.nvim",
-      "nvim-telescope/telescope-live-grep-args.nvim",
       "nvim-telescope/telescope-ui-select.nvim",
       "nvim-tree/nvim-web-devicons",
       "nvim-treesitter/nvim-treesitter",
@@ -19,7 +17,6 @@ M.plugins = {
       local telescope = require("telescope")
       local actions = require("telescope.actions")
       local themes = require("telescope.themes")
-      local lga_actions = require("telescope-live-grep-args.actions")
 
       telescope.setup({
         defaults = {
@@ -114,32 +111,9 @@ M.plugins = {
             override_generic_sorter = true,
             override_file_sorter = true,
           },
-          live_grep_args = {
-            auto_quoting = true,
-            mappings = {
-              i = {
-                ["<C-i>"] = lga_actions.quote_prompt({ postfix = " --iglob **/*" }),
-                ["<C-space>"] = lga_actions.to_fuzzy_refine,
-                ["<S-Tab>"] = actions.move_selection_previous,
-                ["<Tab>"] = actions.move_selection_next,
-              },
-            },
-            additional_args = {
-              "--hidden",
-              "--mmap",
-              "--smart-case",
-              "--threads=6",
-            },
-          },
           undo = {
             side_by_side = true,
             layout_strategy = "vertical",
-          },
-          ast_grep = {
-            command = {
-              "ast-grep",
-              "--json=stream",
-            },
           },
         },
         pickers = {
@@ -161,7 +135,7 @@ M.plugins = {
         },
       })
 
-      local exts = { "fzy_native", "ui-select", "live_grep_args", "undo", "ast_grep", "persisted" }
+      local exts = { "fzy_native", "ui-select", "undo", "persisted" }
       for _, ext in ipairs(exts) do
         pcall(telescope.load_extension, ext)
       end
@@ -258,30 +232,6 @@ M.plugins = {
             textensions.undo.undo(require("telescope.themes").get_ivy())
           end,
           desc = "Find: Undo history",
-        },
-        {
-          "<leader>fr",
-          function()
-            tbuiltin.resume()
-          end,
-          desc = "Find: Resume last search",
-        },
-        {
-          "<leader>fi",
-          function()
-            tbuiltin.current_buffer_fuzzy_find(
-              require("telescope.themes").get_ivy({ previewer = false })
-            )
-          end,
-          desc = "Find: In Buffer",
-        },
-        {
-          "<leader>fs",
-          function()
-            vim.api.nvim_exec_autocmds("User", { pattern = "TelescopeAstGrep" })
-            textensions.ast_grep.ast_grep()
-          end,
-          desc = "Find: Grep AST",
         },
       }
     end,

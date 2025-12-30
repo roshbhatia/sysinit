@@ -51,6 +51,7 @@ require("sysinit.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.editor.move"),
   require("sysinit.plugins.editor.surround"),
   require("sysinit.plugins.file.neo-tree"),
+  require("sysinit.plugins.file.grug-far"),
   require("sysinit.plugins.file.oil"),
   require("sysinit.plugins.file.persisted"),
   require("sysinit.plugins.file.telescope"),
