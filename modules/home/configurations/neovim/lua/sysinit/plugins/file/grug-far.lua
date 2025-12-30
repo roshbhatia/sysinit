@@ -7,6 +7,12 @@ M.plugins = {
     config = function()
       require("grug-far").setup({
         normalModeSearch = true,
+        engines = {
+          ripgrep = {
+            extraArgs = "--hidden",
+          },
+        },
+        windowCreationCommand = "left split",
       })
     end,
     keys = function()
