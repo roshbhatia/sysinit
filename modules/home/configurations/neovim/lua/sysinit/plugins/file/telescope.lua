@@ -5,13 +5,11 @@ M.plugins = {
     "nvim-telescope/telescope.nvim",
     branch = "master",
     dependencies = {
-      "debugloop/telescope-undo.nvim",
       "nvim-lua/plenary.nvim",
       "nvim-telescope/telescope-fzy-native.nvim",
       "nvim-telescope/telescope-ui-select.nvim",
       "nvim-tree/nvim-web-devicons",
       "nvim-treesitter/nvim-treesitter",
-      "olimorris/persisted.nvim",
     },
     config = function()
       local telescope = require("telescope")
@@ -104,16 +102,9 @@ M.plugins = {
           ["ui-select"] = {
             themes.get_ivy(),
           },
-          persisted = {
-            layout_config = { width = 0.55, height = 0.55 },
-          },
           fzy_native = {
             override_generic_sorter = true,
             override_file_sorter = true,
-          },
-          undo = {
-            side_by_side = true,
-            layout_strategy = "vertical",
           },
         },
         pickers = {
@@ -122,27 +113,15 @@ M.plugins = {
             no_ignore = true,
           },
         },
-        vimgrep_arguments = {
-          "rg",
-          "--color=never",
-          "--no-heading",
-          "--hidden",
-          "--with-filename",
-          "--line-number",
-          "--column",
-          "--smart-case",
-          "--trim",
-        },
       })
 
-      local exts = { "fzy_native", "ui-select", "undo", "persisted" }
+      local exts = { "fzy_native", "ui-select" }
       for _, ext in ipairs(exts) do
         pcall(telescope.load_extension, ext)
       end
     end,
     keys = function()
       local tbuiltin = require("telescope.builtin")
-      local textensions = require("telescope").extensions
       return {
         {
           "<leader>ff",
@@ -150,19 +129,6 @@ M.plugins = {
             tbuiltin.find_files({ hidden = true })
           end,
           desc = "Find: Files",
-        },
-        {
-          "<leader>fo",
-          function()
-            tbuiltin.find_files({
-              cwd = vim.fn.expand("~/org"),
-              hidden = true,
-              no_ignore = false,
-              follow = true,
-              find_command = { "fd", "--files", "--glob", "*.org", "--hidden" },
-            })
-          end,
-          desc = "Find: Org files",
         },
         {
           "<leader>fj",
@@ -177,13 +143,6 @@ M.plugins = {
             tbuiltin.diagnostics(require("telescope.themes").get_ivy())
           end,
           desc = "Find: Diagnostics",
-        },
-        {
-          "<leader>fg",
-          function()
-            textensions.live_grep_args.live_grep_args()
-          end,
-          desc = "Find: Grep",
         },
         {
           "<leader>fb",
@@ -204,34 +163,6 @@ M.plugins = {
             tbuiltin.commands(require("telescope.themes").get_ivy({ previewer = false }))
           end,
           desc = "Find: Commands",
-        },
-        {
-          "<leader>fh",
-          function()
-            tbuiltin.help_tags(require("telescope.themes").get_ivy())
-          end,
-          desc = "Find: Help tags",
-        },
-        {
-          "<leader>ft",
-          function()
-            tbuiltin.filetypes()
-          end,
-          desc = "Find: Filetypes",
-        },
-        {
-          "<leader>fF",
-          function()
-            tbuiltin.builtin()
-          end,
-          desc = "Find: Pickers",
-        },
-        {
-          "<leader>fu",
-          function()
-            textensions.undo.undo(require("telescope.themes").get_ivy())
-          end,
-          desc = "Find: Undo history",
         },
       }
     end,
