@@ -23,17 +23,15 @@ M.plugins = {
 
       telescope.setup({
         defaults = {
-          selection_caret = "> ",
+          selection_caret = "",
           entry_prefix = "",
           borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
-          results_title = "Results",
+          results_title = "",
           prompt_title = "",
-          preview_title = "Preview",
+          preview_title = "",
           sorting_strategy = "ascending",
           path_display = {
             "filename_first",
-            "truncate",
-            "shorten",
           },
           layout_config = {
             horizontal = {
