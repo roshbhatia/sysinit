@@ -4,7 +4,7 @@ M.plugins = {
   {
     "s1n7ax/nvim-window-picker",
     version = "2.*",
-    cmd = "Neotree",
+    event = "VeryLazy",
     config = function()
       require("window-picker").setup({
         hint = "floating-big-letter",
@@ -25,7 +25,7 @@ M.plugins = {
   },
   {
     "antosha417/nvim-lsp-file-operations",
-    cmd = "Neotree",
+    event = "VeryLazy",
     dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-neo-tree/neo-tree.nvim",
@@ -37,7 +37,7 @@ M.plugins = {
   {
     "nvim-neo-tree/neo-tree.nvim",
     branch = "v3.x",
-    cmd = "Neotree",
+    event = "VeryLazy",
     dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-tree/nvim-web-devicons",
