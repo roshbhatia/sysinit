@@ -16,7 +16,7 @@
     "Find examples of [library] usage"
     "Working with unfamiliar npm/pip/cargo packages"
   ];
-  description = "Specialized codebase understanding agent for multi-repository analysis, searching remote codebases, retrieving official documentation, and finding implementation examples using GitHub CLI, Context7, and Web Search. MUST BE USED when users ask to look up code in remote repositories, explain library internals, or find usage examples in open source.";
+  description = "Specialized codebase understanding agent for multi-repository analysis, searching remote codebases, retrieving official documentation, and finding implementation examples using GitHub CLI, Web Search, and local cloning to /tmp. MUST BE USED when users ask to look up code in remote repositories, explain library internals, or find usage examples in open source.";
   temperature = 0.1;
   tools = {
     write = false;

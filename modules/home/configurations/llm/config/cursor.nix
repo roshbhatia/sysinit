@@ -1,13 +1,17 @@
 {
   lib,
+  values,
   ...
 }:
 let
-  llmLib = import ../../../../shared/lib/llm { inherit lib; };
+  mcpServers = import ../shared/mcp.nix { inherit lib values; };
+
+  formatPermissionsForCursor = _perms: map (cmd: "Shell(${cmd})") mcpServers.allPermissions;
+
   cursorConfig = builtins.toJSON {
     version = 1;
     permissions = {
-      allow = llmLib.formatPermissionsForCursor llmLib.permissions;
+      allow = formatPermissionsForCursor mcpServers.allPermissions;
       deny = [ ];
     };
     editor = {
@@ -17,6 +21,7 @@ let
       useHttp1ForAgent = true;
     };
   };
+
 in
 {
   xdg.configFile = {

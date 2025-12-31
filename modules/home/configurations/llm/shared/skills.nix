@@ -1,5 +1,48 @@
 {
-  general = ''
+  pkgs,
+  ...
+}:
+
+let
+  skillsRepo = pkgs.fetchgit {
+    url = "https://github.com/obra/superpowers.git";
+    rev = "main";
+    sha256 = "sha256-0000000000000000000000000000000000000000000000000000";
+  };
+
+  allSkills = [
+    "brainstorming"
+    "dispatching-parallel-agents"
+    "executing-plans"
+    "finishing-a-development-branch"
+    "receiving-code-review"
+    "requesting-code-review"
+    "subagent-driven-development"
+    "systematic-debugging"
+    "test-driven-development"
+    "using-git-worktrees"
+    "using-superpowers"
+    "verification-before-completion"
+    "writing-plans"
+    "writing-skills"
+  ];
+
+  skillContent =
+    skillName:
+    pkgs.writeText "${skillName}-skill.md" (
+      builtins.readFile "${skillsRepo}/skills/${skillName}/${skillName}.md"
+    );
+
+in
+{
+  allSkills = builtins.listToAttrs (
+    map (skillName: {
+      name = skillName;
+      value = skillContent skillName;
+    }) allSkills
+  );
+
+  agentsMd = ''
     Keywords: MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD, SHOULD NOT, RECOMMENDED, MAY, OPTIONAL. (RFC 2119)
 
     MUST be concise and clear in communication.
@@ -18,4 +61,3 @@
     NEVER use emojis in code.
   '';
 }
-// (import ./subagents)

@@ -98,11 +98,6 @@ task: Available tasks for this project:
 |-------|------|---------|----------|-------------|
 | `cargo.additionalPackages` | list(string) | [] |  | Additional Rust/Cargo packages |
 | `config.root` | path | - | ✓ | Root path to the configuration flake directory |
-| `copilot.banner` |  | "never" |  | Banner display mode |
-| `copilot.renderMarkdown` | boolean | true |  | Enable markdown rendering |
-| `copilot.screenReader` | boolean | false |  | Screen reader mode |
-| `copilot.theme` |  | "auto" |  | Theme mode |
-| `copilot.trustedFolders` | listOf path | [] |  | Trusted folder paths |
 | `darwin.borders.enable` | boolean | true |  | Enable window borders |
 | `darwin.homebrew.additionalPackages.brews` | list(string) | [] |  | Additional Homebrew formulae |
 | `darwin.homebrew.additionalPackages.casks` | list(string) | [] |  | Additional Homebrew casks |
@@ -126,7 +121,6 @@ task: Available tasks for this project:
 | `llm.mcp.url` | string? | null |  | HTTP server URL (if type = http) |
 | `nix.additionalPackages` | list(string) | [] |  | Additional Nix packages |
 | `npm.additionalPackages` | list(string) | [] |  | Additional global npm packages |
-| `opencode.agents` | attrsOf anything | `{ }` |  | Additional OpenCode agents |
 | `pipx.additionalPackages` | list(string) | [] |  | Additional global pipx packages |
 | `tailscale.enable` | boolean | true |  | Enable Tailscale |
 | `theme.appearance` |  | "dark" |  | Appearance mode (light or dark) |

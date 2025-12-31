@@ -1,12 +1,11 @@
 {
   lib,
-  values,
   ...
 }:
 let
-  llmLib = import ../../../../shared/lib/llm { inherit lib; };
-  mcpServers = import ../shared/mcp-servers.nix { inherit values; };
+  mcp = import ../shared/mcp.nix { inherit lib; };
   directives = import ../shared/directives.nix;
+  skills = import ../shared/skills { inherit lib; };
 
   gooseBuiltinExtensions = {
     autovisualiser = {
@@ -52,19 +51,56 @@ let
     ${directives.general}
   '';
 
+  capitalizeFirst =
+    str:
+    let
+      firstChar = builtins.substring 0 1 str;
+      rest = builtins.substring 1 (-1) str;
+    in
+    (builtins.strings.toUpper firstChar) + rest;
+
+  formatMcpForGoose =
+    mcp:
+    builtins.mapAttrs (_name: server: {
+      inherit (server) args;
+      bundled = null;
+      cmd = server.command;
+      description = server.description or "";
+      enabled = server.enabled or true;
+      env_keys = [ ];
+      envs = server.env or { };
+      name =
+        capitalizeFirst (builtins.substring 0 1 _name)
+        + builtins.substring 1 (builtins.stringLength _name) _name;
+      timeout = 300;
+      type = "stdio";
+    }) mcp;
+
+  formatPermissionsForGoose = _perms: {
+    shell = {
+      allow = map (cmd: builtins.replaceStrings [ "*" ] [ ".*" ] cmd) mcp.allPermissions;
+      deny = [ ];
+    };
+  };
+
   gooseConfig = builtins.toJSON {
     ALPHA_FEATURES = true;
     EDIT_MODE = "vi";
     GOOSE_CLI_THEME = "ansi";
     GOOSE_MODE = "smart_approve";
     GOOSE_RECIPE_GITHUB_REPO = "packit/ai-workflows";
-    extensions = gooseBuiltinExtensions // (llmLib.formatMcpForGoose mcpServers.servers);
-    shell = llmLib.formatPermissionsForGoose llmLib.permissions;
+    extensions = gooseBuiltinExtensions // formatMcpForGoose mcp.servers;
+    shell = formatPermissionsForGoose mcp.allPermissions;
   };
+
 in
 {
   xdg.configFile = {
     "goose/config.yaml".text = gooseConfig;
     "goose/goosehints.md".text = gooseHintsMd;
+    ".goose/skills" = {
+      source = skills.gooseSkills;
+      recursive = true;
+    };
   };
 }

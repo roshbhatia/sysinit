@@ -1,14 +1,36 @@
 {
   lib,
+  pkgs,
   values,
   ...
 }:
 let
-  llmLib = import ../../../../shared/lib/llm { inherit lib; };
-  mcpServers = import ../shared/mcp-servers.nix { inherit values; };
+  skillsLib = import ../shared/skills { inherit lib pkgs; };
+  mcpServers = import ../shared/mcp.nix { inherit lib values; };
+
+  formatMcpForClaude =
+    mcpServers:
+    builtins.mapAttrs (
+      _name: server:
+      if (server.type or "local") == "http" then
+        {
+          type = "http";
+          inherit (server) url;
+          description = server.description or "";
+          enabled = server.enabled or true;
+        }
+      else
+        {
+          inherit (server) command;
+          inherit (server) args;
+          description = server.description or "";
+          enabled = server.enabled or true;
+          env = server.env or { };
+        }
+    ) mcpServers;
 
   claudeConfig = builtins.toJSON {
-    mcpServers = llmLib.formatMcpForClaude mcpServers.servers;
+    mcpServers = formatMcpForClaude mcpServers.servers;
     hooks = {
       SessionStart = [
         {
@@ -33,11 +55,26 @@ let
         echo ""
     done
   '';
+
+  skillLinks = builtins.listToAttrs (
+    lib.flatten (
+      lib.mapAttrsToList (name: path: [
+        {
+          name = "claude/skills/${name}/SKILL.md";
+          value.source = path;
+        }
+      ]) skillsLib.allSkills
+    )
+  );
+
 in
 {
-  xdg.configFile = {
-    "Claude/claude_desktop_config.json".text = claudeConfig;
-  };
+  xdg.configFile = lib.mkMerge [
+    {
+      "Claude/claude_desktop_config.json".text = claudeConfig;
+    }
+    skillLinks
+  ];
 
   xdg.dataFile = {
     "Claude/hooks/append_agentsmd_context.sh" = {

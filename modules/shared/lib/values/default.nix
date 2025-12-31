@@ -169,7 +169,7 @@ with lib;
 
       llm = {
         mcp = {
-          servers = mkOption {
+          additionalServers = mkOption {
             type = types.attrsOf (
               types.submodule {
                 options = {
@@ -217,6 +217,7 @@ with lib;
             description = "MCP servers configuration";
           };
         };
+      };
 
       uvx = {
         additionalPackages = mkOption {
