@@ -46,15 +46,16 @@ let
     ${directives.general}
   '';
 
-  skillDirs = builtins.mapAttrs (skillName: _skillMeta: {
-    source = "../shared/skills/" + skillName;
-    recursive = true;
-  }) (import ../shared/skills).metadata;
 in
 {
   xdg.configFile = {
     "opencode/opencode.json".text = opencodeConfigJson;
     "opencode/AGENTS.md".text = agentsMd;
-  }
-  // skillDirs;
+  };
+
+  xdg.configFile = builtins.mapAttrs (skillName: _skillMeta: {
+    name = "opencode/skills/" + skillName;
+    source = ../shared/skills/. + skillName;
+    recursive = true;
+  }) (import ../shared/skills).metadata;
 }
