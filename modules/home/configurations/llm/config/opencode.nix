@@ -7,6 +7,7 @@
 }:
 let
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
+  opencodeConfig = import ../shared/opencode.nix { inherit values; };
   lsp = import ../shared/lsp.nix;
   directives = import ../shared/directives.nix;
   prompts = import ../shared/prompts.nix { };
@@ -64,7 +65,7 @@ let
 
   instructions = defaultInstructions;
 
-  opencodeConfig = builtins.toJSON {
+  opencodeConfigJson = builtins.toJSON {
     "$schema" = "https://opencode.ai/config.json";
     autoupdate = false;
     share = "disabled";
@@ -73,7 +74,7 @@ let
     mcp = formatMcpForOpencode mcpServers.servers;
     lsp = formatLspForOpencode lsp.lsp;
 
-    agent = prompts.toAgents;
+    agent = prompts.toAgents // opencodeConfig.agents;
     inherit instructions;
 
     keybinds = {
@@ -84,13 +85,16 @@ let
       webfetch = "allow";
       grep = "allow";
       read = "allow";
+      skill = {
+        "*" = "allow";
+      };
     };
   };
 
   opencodeConfigFile = utils.xdg.mkWritableXdgConfig {
     inherit config;
     path = "opencode/opencode.json";
-    text = opencodeConfig;
+    text = opencodeConfigJson;
   };
 
   opencodeAgentsFile = utils.xdg.mkWritableXdgConfig {
