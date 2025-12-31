@@ -10,7 +10,7 @@ let
   mcpServers = import ../shared/mcp.nix { inherit lib values; };
   skills = import ../shared/skills.nix { inherit lib pkgs; };
   subagents = import ../shared/subagents;
-  formatSubagentAsMarkdown = subagents.formatSubagentAsMarkdown;
+  inherit (subagents) formatSubagentAsMarkdown;
 
   formatMcpForOpencode =
     mcpServers:

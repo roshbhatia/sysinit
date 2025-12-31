@@ -6,6 +6,81 @@
 let
   mcp = import ../shared/mcp.nix { inherit lib values; };
   agents = import ../shared/agents.nix;
+  subagents = import ../shared/subagents;
+
+  formatSubagentAsGooseRecipe =
+    {
+      name,
+      config,
+    }:
+    let
+      capitalizeFirst =
+        str:
+        let
+          firstChar = builtins.substring 0 1 str;
+          rest = builtins.substring 1 (-1) str;
+        in
+        (lib.strings.toUpper firstChar) + rest;
+      title = capitalizeFirst name;
+      description = config.description or "";
+      content = config.instructions or config.description or "";
+      triggers = builtins.concatStringsSep "\n" (map (t: "- ${t}") (config.useWhen or [ ]));
+      avoid = builtins.concatStringsSep "\n" (map (t: "- ${t}") (config.avoidWhen or [ ]));
+      tools = config.tools or { };
+      formatTool =
+        toolName: if builtins.hasAttr toolName tools then builtins.toString tools.${toolName} else "true";
+    in
+    ''
+      title: ${title}
+      description: ${description}
+      prompt: |
+        ${content}
+
+        ${
+          if config.triggers or [ ] != [ ] then
+            ''
+              Key triggers:
+              ${builtins.concatStringsSep "\n" (map (t: "  - ${t.trigger or t}") (config.triggers or [ ]))}
+            ''
+          else
+            ""
+        }
+        ${
+          if config.useWhen or [ ] != [ ] then
+            ''
+              Use when:
+              ${triggers}
+            ''
+          else
+            ""
+        }
+        ${
+          if config.avoidWhen or [ ] != [ ] then
+            ''
+              Avoid when:
+              ${avoid}
+            ''
+          else
+            ""
+        }
+        ${
+          if config.category or "" != "" then
+            ''
+              Category: ${config.category}
+            ''
+          else
+            ""
+        }
+        ${
+          if config.temperature or 0.1 != 0.1 then
+            ''
+              Temperature: ${builtins.toString config.temperature}
+            ''
+          else
+            ""
+        }
+        Tools: write=${formatTool "write"}, edit=${formatTool "edit"}, background_task=${formatTool "background_task"}
+    '';
 
   gooseBuiltinExtensions = {
     autovisualiser = {
@@ -93,10 +168,29 @@ let
     shell = formatPermissionsForGoose mcp.allPermissions;
   };
 
+  subagentRecipeLinksGoose =
+    let
+      subagentNames = builtins.attrNames (builtins.removeAttrs subagents [ "formatSubagentAsMarkdown" ]);
+    in
+    lib.listToAttrs (
+      builtins.map (
+        name:
+        lib.nameValuePair "goose/recipes/${name}.yaml" {
+          text = formatSubagentAsGooseRecipe {
+            inherit name;
+            config = subagents.${name};
+          };
+        }
+      ) subagentNames
+    );
+
 in
 {
-  xdg.configFile = {
-    "goose/config.yaml".text = gooseConfig;
-    "goose/goosehints.md".text = gooseHintsMd;
-  };
+  xdg.configFile = lib.mkMerge [
+    {
+      "goose/config.yaml".text = gooseConfig;
+      "goose/goosehints.md".text = gooseHintsMd;
+    }
+    subagentRecipeLinksGoose
+  ];
 }
