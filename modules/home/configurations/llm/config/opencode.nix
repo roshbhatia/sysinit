@@ -7,6 +7,7 @@ let
   llmLib = import ../../../../shared/lib/llm { inherit lib; };
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   subagents = import ../shared/subagents;
+  skillsMetadata = import ../shared/skills;
   lsp = import ../shared/lsp.nix;
   directives = import ../shared/directives.nix;
 
@@ -46,16 +47,16 @@ let
     ${directives.general}
   '';
 
+  skillDirs = builtins.mapAttrs (skillName: _skillMeta: {
+    name = "opencode/skills/" + skillName;
+    source = ../shared/skills/. + skillName;
+    recursive = true;
+  }) skillsMetadata.metadata;
 in
 {
   xdg.configFile = {
     "opencode/opencode.json".text = opencodeConfigJson;
     "opencode/AGENTS.md".text = agentsMd;
-  };
-
-  xdg.configFile = builtins.mapAttrs (skillName: _skillMeta: {
-    name = "opencode/skills/" + skillName;
-    source = ../shared/skills/. + skillName;
-    recursive = true;
-  }) (import ../shared/skills).metadata;
+  }
+  // skillDirs;
 }
