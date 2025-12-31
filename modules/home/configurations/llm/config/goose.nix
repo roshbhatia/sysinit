@@ -57,7 +57,7 @@ let
       firstChar = builtins.substring 0 1 str;
       rest = builtins.substring 1 (-1) str;
     in
-    (builtins.strings.toUpper firstChar) + rest;
+    (lib.strings.toUpper firstChar) + rest;
 
   formatMcpForGoose =
     mcp:
