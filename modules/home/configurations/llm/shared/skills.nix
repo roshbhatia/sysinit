@@ -7,7 +7,7 @@ let
   skillsRepo = pkgs.fetchgit {
     url = "https://github.com/obra/superpowers.git";
     rev = "main";
-    sha256 = "sha256-0000000000000000000000000000000000000000000000000000";
+    sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
   };
 
   allSkills = [
