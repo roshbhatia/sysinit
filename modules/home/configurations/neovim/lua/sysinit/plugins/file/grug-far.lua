@@ -7,6 +7,12 @@ M.plugins = {
       require("grug-far").setup({
         normalModeSearch = true,
         windowCreationCommand = "aboveleft vsplit | wincmd H | silent! Neotree close",
+        openTargetWindow = { preferredLocation = "right" },
+        onStatusChange = function()
+          vim.defer_fn(function()
+            vim.fn.execute("redraw")
+          end, 50)
+        end,
       })
     end,
     keys = function()
