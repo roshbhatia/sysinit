@@ -52,7 +52,7 @@ with lib;
         type = "theme-config";
         inherit theme;
         inherit config;
-        exportedAt = builtins.toString (builtins.floor (builtins.now / 1000));
+        exportedAt = toString (builtins.floor (now / 1000));
       };
     in
     builtins.toJSON exported;

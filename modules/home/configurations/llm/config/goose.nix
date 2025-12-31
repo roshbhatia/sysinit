@@ -28,7 +28,7 @@ let
       avoid = builtins.concatStringsSep "\n" (map (t: "- ${t}") (config.avoidWhen or [ ]));
       tools = config.tools or { };
       formatTool =
-        toolName: if builtins.hasAttr toolName tools then builtins.toString tools.${toolName} else "true";
+        toolName: if builtins.hasAttr toolName tools then toString tools.${toolName} else "true";
     in
     ''
       title: ${title}
@@ -74,7 +74,7 @@ let
         ${
           if config.temperature or 0.1 != 0.1 then
             ''
-              Temperature: ${builtins.toString config.temperature}
+              Temperature: ${toString config.temperature}
             ''
           else
             ""
@@ -170,10 +170,10 @@ let
 
   subagentRecipeLinksGoose =
     let
-      subagentNames = builtins.attrNames (builtins.removeAttrs subagents [ "formatSubagentAsMarkdown" ]);
+      subagentNames = builtins.attrNames (removeAttrs subagents [ "formatSubagentAsMarkdown" ]);
     in
     lib.listToAttrs (
-      builtins.map (
+      map (
         name:
         lib.nameValuePair "goose/recipes/${name}.yaml" {
           text = formatSubagentAsGooseRecipe {

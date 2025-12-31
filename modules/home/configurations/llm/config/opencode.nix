@@ -57,7 +57,7 @@ let
     theme = "system";
     mcp = formatMcpForOpencode mcpServers.servers;
     lsp = formatLspForOpencode lsp.lsp;
-    agent = builtins.removeAttrs agents [ "formatSubagentAsMarkdown" ];
+    agent = removeAttrs agents [ "formatSubagentAsMarkdown" ];
     instructions = [
       "**/CONTRIBUTING.md"
       "**/docs/guidelines.md"
@@ -99,10 +99,10 @@ let
 
   subagentLinksOpencode =
     let
-      subagentNames = builtins.attrNames (builtins.removeAttrs subagents [ "formatSubagentAsMarkdown" ]);
+      subagentNames = builtins.attrNames (removeAttrs subagents [ "formatSubagentAsMarkdown" ]);
     in
     lib.listToAttrs (
-      builtins.map (
+      map (
         name:
         lib.nameValuePair "opencode/agent/${name}.md" {
           text = formatSubagentAsMarkdown {
