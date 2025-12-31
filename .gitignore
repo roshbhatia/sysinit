@@ -18,5 +18,10 @@ nix.secrets.conf
 .claude/settings.local.json
 .serena
 !AGENTS.md
+!**/skills/**/SKILL.md
+!**/skills/**/*.md
+!**/skills/**/*.sh
+!**/skills/**/*.ts
+!**/skills/**/*.js
 **/*.md
 
