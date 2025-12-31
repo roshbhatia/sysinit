@@ -7,10 +7,13 @@
 }:
 let
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
-  opencodeConfig = import ../shared/opencode.nix { inherit values; };
+  subagents = import ../shared/subagents;
+  skillsMetadata = import ../shared/skills;
   lsp = import ../shared/lsp.nix;
   directives = import ../shared/directives.nix;
-  prompts = import ../shared/prompts.nix { };
+
+  additionalAgents = values.llm.opencode.agents or { };
+  agents = subagents // additionalAgents;
 
   formatLspForOpencode =
     lspConfig:
@@ -74,7 +77,7 @@ let
     mcp = formatMcpForOpencode mcpServers.servers;
     lsp = formatLspForOpencode lsp.lsp;
 
-    agent = prompts.toAgents // opencodeConfig.agents;
+    agent = agents;
     inherit instructions;
 
     keybinds = {
@@ -102,8 +105,19 @@ let
     path = "opencode/AGENTS.md";
     text = agentsMd;
   };
+
 in
 {
+  # Symlink skill directories to OpenCode config
+  xdg.configFile =
+    let
+      skillDirs = builtins.mapAttrs (skillName: _skillMeta: {
+        source = ../shared/skills/${skillName};
+        recursive = true;
+      }) skillsMetadata.metadata;
+    in
+    skillDirs;
+
   home.activation = {
     opencodeConfig = lib.hm.dag.entryAfter [ "linkGeneration" ] opencodeConfigFile.script;
     opencodeAgents = lib.hm.dag.entryAfter [ "linkGeneration" ] opencodeAgentsFile.script;

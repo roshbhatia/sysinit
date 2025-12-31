@@ -32,7 +32,11 @@
     "Things you can infer from existing code patterns"
   ];
   description = "Expert technical advisor with deep reasoning for architecture decisions, code analysis, and engineering guidance.";
-  model = "openai/gpt-5.2";
   temperature = 0.1;
-  tools = { write = false; edit = false; task = false; background_task = false; };
+  tools = {
+    write = false;
+    edit = false;
+    task = false;
+    background_task = false;
+  };
 }
