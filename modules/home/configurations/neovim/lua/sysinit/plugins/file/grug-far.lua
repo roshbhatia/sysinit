@@ -14,12 +14,6 @@ M.plugins = {
           end, 50)
         end,
         onStatusChangeThrottleTime = 500,
-        resultLocation = {
-          showNumberLabel = false,
-        },
-        showCompactInputs = true,
-        showInputsBottomPadding = false,
-        showInputsTopPadding = false,
       })
     end,
     keys = function()
