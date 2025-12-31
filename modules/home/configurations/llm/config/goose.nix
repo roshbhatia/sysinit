@@ -1,11 +1,12 @@
 {
   lib,
+  pkgs,
   ...
 }:
 let
   mcp = import ../shared/mcp.nix { inherit lib; };
   directives = import ../shared/directives.nix;
-  skills = import ../shared/skills.nix { inherit lib; };
+  skills = import ../shared/skills.nix { inherit pkgs; };
 
   gooseBuiltinExtensions = {
     autovisualiser = {
