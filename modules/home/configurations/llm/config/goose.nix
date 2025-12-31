@@ -5,6 +5,7 @@
 }:
 let
   mcp = import ../shared/mcp.nix { inherit lib values; };
+  agents = import ../shared/agents.nix;
 
   gooseBuiltinExtensions = {
     autovisualiser = {
@@ -47,7 +48,7 @@ let
   };
 
   gooseHintsMd = ''
-    ${directives.general}
+    ${agents.general}
   '';
 
   capitalizeFirst =

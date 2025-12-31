@@ -5,13 +5,12 @@
   ...
 }:
 let
-  skills = import ../shared/skills.nix { inherit lib pkgs; };
-  mcpServers = import ../shared/mcp.nix { inherit lib values; };
-  subagents = import ../shared/subagents;
-  lsp = import ../shared/lsp.nix;
   agents = import ../shared/agents.nix;
-
-  agents = subagents;
+  lsp = import ../shared/lsp.nix;
+  mcpServers = import ../shared/mcp.nix { inherit lib values; };
+  skills = import ../shared/skills.nix { inherit lib pkgs; };
+  subagents = import ../shared/subagents;
+  formatSubagentAsMarkdown = subagents.formatSubagentAsMarkdown;
 
   formatMcpForOpencode =
     mcpServers:
@@ -58,7 +57,7 @@ let
     theme = "system";
     mcp = formatMcpForOpencode mcpServers.servers;
     lsp = formatLspForOpencode lsp.lsp;
-    agent = agents;
+    agent = builtins.removeAttrs agents [ "formatSubagentAsMarkdown" ];
     instructions = [
       "**/CONTRIBUTING.md"
       "**/docs/guidelines.md"
@@ -91,12 +90,29 @@ let
   };
 
   agentsMd = ''
-    ${directives.general}
+    ${agents.general}
   '';
 
   skillLinksOpencode = lib.mapAttrs' (
     name: _path: lib.nameValuePair "opencode/skill/${name}/SKILL.md" { source = _path; }
   ) skills.allSkills;
+
+  subagentLinksOpencode =
+    let
+      subagentNames = builtins.attrNames (builtins.removeAttrs subagents [ "formatSubagentAsMarkdown" ]);
+    in
+    lib.listToAttrs (
+      builtins.map (
+        name:
+        lib.nameValuePair "opencode/agent/${name}.md" {
+          text = formatSubagentAsMarkdown {
+            inherit name;
+            config = subagents.${name};
+          };
+        }
+      ) subagentNames
+    );
+
 in
 {
   xdg.configFile = lib.mkMerge [
@@ -105,5 +121,6 @@ in
       "opencode/AGENTS.md".text = agentsMd;
     }
     skillLinksOpencode
+    subagentLinksOpencode
   ];
 }

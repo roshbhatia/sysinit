@@ -4,11 +4,12 @@
   ...
 }:
 let
-  mcpServers = import ../shared/mcp.nix { inherit lib values; };
+  agents = import ../shared/agents.nix;
   lspConfig = (import ../shared/lsp.nix).lsp;
+  mcpServers = import ../shared/mcp.nix { inherit lib values; };
 
   agentsMd = ''
-    ${directives.general}
+    ${agents.general}
   '';
 
   formatMcpForCrush =
@@ -49,7 +50,6 @@ let
   };
 
   crushConfig = builtins.toJSON crushSettings;
-
 in
 {
   xdg.configFile = {
