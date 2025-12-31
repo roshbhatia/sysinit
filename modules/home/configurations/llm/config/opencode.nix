@@ -11,8 +11,7 @@ let
   lsp = import ../shared/lsp.nix;
   directives = import ../shared/directives.nix;
 
-  additionalAgents = values.llm.opencode.agents or { };
-  agents = subagents // additionalAgents;
+  agents = subagents;
 
   opencodeConfigJson = builtins.toJSON {
     "$schema" = "https://opencode.ai/config.json";
