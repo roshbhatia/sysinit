@@ -39,10 +39,6 @@ in
     };
   };
 
-  # Use ghostty from official flake on Linux only
-  # On macOS, use Homebrew cask instead (ghostty@tip)
-  ghostty = if final.stdenv.isLinux then inputs.ghostty.packages.${system}.default else null;
-
   inherit (crossplane-1-17-1) crossplane-cli;
   inherit (stable) awscli2;
   inherit (stable) fish;

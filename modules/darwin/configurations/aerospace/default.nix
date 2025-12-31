@@ -49,12 +49,6 @@
       on-window-detected = [
         {
           "if" = {
-            app-id = "com.mitchellh.ghostty";
-          };
-          run = [ "layout tiling" ];
-        }
-        {
-          "if" = {
             app-id = "org.ferdium.ferdium-app";
           };
           run = "move-node-to-workspace C";

@@ -33,8 +33,6 @@
 
     nix-gaming.url = "github:fufexan/nix-gaming";
 
-    ghostty.url = "github:ghostty-org/ghostty";
-
     nur.url = "github:nix-community/NUR";
 
     darwin-custom-icons = {
