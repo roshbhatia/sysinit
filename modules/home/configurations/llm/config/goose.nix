@@ -6,7 +6,6 @@
 let
   mcp = import ../shared/mcp.nix { inherit lib; };
   directives = import ../shared/directives.nix;
-  skills = import ../shared/skills.nix { inherit pkgs; };
 
   gooseBuiltinExtensions = {
     autovisualiser = {
@@ -99,9 +98,5 @@ in
   xdg.configFile = {
     "goose/config.yaml".text = gooseConfig;
     "goose/goosehints.md".text = gooseHintsMd;
-    ".goose/skills" = {
-      source = skills.gooseSkills;
-      recursive = true;
-    };
   };
 }
