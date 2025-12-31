@@ -1,17 +1,11 @@
 {
-  lib,
   pkgs,
   ...
 }:
 {
-  home.packages =
-    with pkgs;
-    [
-      _1password-cli
-    ]
-    ++ lib.optionals pkgs.stdenv.isDarwin [
-      _1password
-    ];
+  home.packages = with pkgs; [
+    _1password-cli
+  ];
 
   programs.ssh = {
     extraConfig = ''
