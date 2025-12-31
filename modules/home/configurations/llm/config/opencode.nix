@@ -1,89 +1,37 @@
 {
   lib,
-  config,
   values,
-  utils,
   ...
 }:
 let
+  llmLib = import ../../../../shared/lib/llm { inherit lib; };
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
   subagents = import ../shared/subagents;
-  skillsMetadata = import ../shared/skills;
   lsp = import ../shared/lsp.nix;
   directives = import ../shared/directives.nix;
 
   additionalAgents = values.llm.opencode.agents or { };
   agents = subagents // additionalAgents;
 
-  formatLspForOpencode =
-    lspConfig:
-    builtins.mapAttrs (
-      _name: lspCfg:
-      let
-        cmd =
-          if lspCfg ? command then
-            if builtins.isList lspCfg.command then lspCfg.command else [ lspCfg.command ]
-          else
-            [ ];
-      in
-      {
-        command = cmd ++ (lspCfg.args or [ ]);
-        extensions = lspCfg.extensions or [ ];
-      }
-    ) lspConfig;
-
-  formatMcpForOpencode =
-    mcpServers:
-    builtins.mapAttrs (
-      _name: server:
-      if (server.type or "local") == "http" then
-        {
-          type = "remote";
-          enabled = server.enabled or true;
-          inherit (server) url;
-        }
-        // (if (server.headers or null) != null then { inherit (server) headers; } else { })
-        // (if (server.timeout or null) != null then { inherit (server) timeout; } else { })
-      else
-        {
-          type = "local";
-          enabled = server.enabled or true;
-          command = [ server.command ] ++ server.args;
-        }
-        // (if (server.env or { }) != { } then { environment = server.env; } else { })
-    ) mcpServers;
-
-  defaultInstructions = [
-    "**/CONTRIBUTING.md"
-    "**/docs/guidelines.md"
-    "**/.cursor/rules/*.md"
-    "**/COPILOT.md"
-    "**/CLAUDE.md"
-    "**/CONSTITUTION.md"
-  ];
-
-  agentsMd = ''
-    ${directives.general}
-  '';
-
-  instructions = defaultInstructions;
-
   opencodeConfigJson = builtins.toJSON {
     "$schema" = "https://opencode.ai/config.json";
     autoupdate = false;
     share = "disabled";
     theme = "system";
-
-    mcp = formatMcpForOpencode mcpServers.servers;
-    lsp = formatLspForOpencode lsp.lsp;
-
+    mcp = llmLib.formatMcpForOpencode mcpServers.servers;
+    lsp = llmLib.formatLspForOpencode lsp.lsp;
     agent = agents;
-    inherit instructions;
-
+    instructions = [
+      "**/CONTRIBUTING.md"
+      "**/docs/guidelines.md"
+      "**/.cursor/rules/*.md"
+      "**/COPILOT.md"
+      "**/CLAUDE.md"
+      "**/CONSTITUTION.md"
+    ];
     keybinds = {
       leader = "ctrl+a";
     };
-
     permission = {
       webfetch = "allow";
       grep = "allow";
@@ -94,32 +42,19 @@ let
     };
   };
 
-  opencodeConfigFile = utils.xdg.mkWritableXdgConfig {
-    inherit config;
-    path = "opencode/opencode.json";
-    text = opencodeConfigJson;
-  };
+  agentsMd = ''
+    ${directives.general}
+  '';
 
-  opencodeAgentsFile = utils.xdg.mkWritableXdgConfig {
-    inherit config;
-    path = "opencode/AGENTS.md";
-    text = agentsMd;
-  };
-
+  skillDirs = builtins.mapAttrs (skillName: _skillMeta: {
+    source = "../shared/skills/" + skillName;
+    recursive = true;
+  }) (import ../shared/skills).metadata;
 in
 {
-  # Symlink skill directories to OpenCode config
-  xdg.configFile =
-    let
-      skillDirs = builtins.mapAttrs (skillName: _skillMeta: {
-        source = ../shared/skills/${skillName};
-        recursive = true;
-      }) skillsMetadata.metadata;
-    in
-    skillDirs;
-
-  home.activation = {
-    opencodeConfig = lib.hm.dag.entryAfter [ "linkGeneration" ] opencodeConfigFile.script;
-    opencodeAgents = lib.hm.dag.entryAfter [ "linkGeneration" ] opencodeAgentsFile.script;
-  };
+  xdg.configFile = {
+    "opencode/opencode.json".text = opencodeConfigJson;
+    "opencode/AGENTS.md".text = agentsMd;
+  }
+  // skillDirs;
 }
