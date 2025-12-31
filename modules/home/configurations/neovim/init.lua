@@ -42,7 +42,6 @@ require("sysinit.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.editor.bqf"),
   require("sysinit.plugins.editor.colorizer"),
   require("sysinit.plugins.editor.comment"),
-  require("sysinit.plugins.editor.foldsign"),
   require("sysinit.plugins.editor.guess-indent"),
   require("sysinit.plugins.editor.hlchunk"),
   require("sysinit.plugins.editor.hop"),
