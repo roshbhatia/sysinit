@@ -5,7 +5,7 @@
 let
   mcp = import ../shared/mcp.nix { inherit lib; };
   directives = import ../shared/directives.nix;
-  skills = import ../shared/skills { inherit lib; };
+  skills = import ../shared/skills.nix { inherit lib; };
 
   gooseBuiltinExtensions = {
     autovisualiser = {

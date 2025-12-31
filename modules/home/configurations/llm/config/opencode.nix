@@ -5,7 +5,7 @@
   ...
 }:
 let
-  skills = import ../shared/skills { inherit lib pkgs; };
+  skills = import ../shared/skills.nix { inherit lib pkgs; };
   mcpServers = import ../shared/mcp.nix { inherit lib values; };
   subagents = import ../shared/subagents;
   lsp = import ../shared/lsp.nix;

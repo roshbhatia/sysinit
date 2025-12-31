@@ -5,7 +5,7 @@
   ...
 }:
 let
-  skillsLib = import ../shared/skills { inherit lib pkgs; };
+  skillsLib = import ../shared/skills.nix { inherit lib pkgs; };
   mcpServers = import ../shared/mcp.nix { inherit lib values; };
 
   formatMcpForClaude =
