@@ -23,5 +23,4 @@ nix.secrets.conf
 !**/skills/**/*.sh
 !**/skills/**/*.ts
 !**/skills/**/*.js
-**/*.md
 
