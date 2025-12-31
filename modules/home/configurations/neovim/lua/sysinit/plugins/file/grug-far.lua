@@ -6,11 +6,6 @@ M.plugins = {
     config = function()
       require("grug-far").setup({
         normalModeSearch = true,
-        engines = {
-          ripgrep = {
-            extraArgs = "--hidden",
-          },
-        },
       })
     end,
     keys = function()
