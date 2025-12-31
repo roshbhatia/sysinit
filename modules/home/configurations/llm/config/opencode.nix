@@ -111,13 +111,13 @@ let
     ${directives.general}
   '';
 
-  skillLinksOpencode = builtins.listToAttrs (
-    lib.mapAttrs' (name: _path: "opencode/skill/${name}/SKILL.md") skills.allSkills
-  );
+  skillLinksOpencode = lib.mapAttrs' (
+    name: _path: lib.nameValuePair "opencode/skill/${name}/SKILL.md" { source = _path; }
+  ) skills.allSkills;
 
-  skillLinksClaude = builtins.listToAttrs (
-    lib.mapAttrs' (name: _path: "claude/skills/${name}/SKILL.md") skills.allSkills
-  );
+  skillLinksClaude = lib.mapAttrs' (
+    name: _path: lib.nameValuePair "claude/skills/${name}/SKILL.md" { source = _path; }
+  ) skills.allSkills;
 
 in
 {
