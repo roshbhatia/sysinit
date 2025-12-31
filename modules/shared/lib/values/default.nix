@@ -187,11 +187,78 @@ with lib;
                     default = { };
                     description = "Environment variables for MCP server";
                   };
+                  type = mkOption {
+                    type = types.enum [
+                      "local"
+                      "http"
+                    ];
+                    default = "local";
+                    description = "MCP server type";
+                  };
+                  url = mkOption {
+                    type = types.nullOr types.str;
+                    default = null;
+                    description = "HTTP server URL (if type = http)";
+                  };
+                  description = mkOption {
+                    type = types.str;
+                    default = "";
+                    description = "Server description";
+                  };
+                  enabled = mkOption {
+                    type = types.bool;
+                    default = true;
+                    description = "Enable this server";
+                  };
                 };
               }
             );
             default = { };
             description = "MCP servers configuration";
+          };
+        };
+
+        opencode = {
+          agents = mkOption {
+            type = types.attrsOf types.anything;
+            default = { };
+            description = "Additional OpenCode agents";
+          };
+        };
+
+        copilot = {
+          banner = mkOption {
+            type = types.enum [
+              "never"
+              "always"
+              "auto"
+            ];
+            default = "never";
+            description = "Banner display mode";
+          };
+          renderMarkdown = mkOption {
+            type = types.bool;
+            default = true;
+            description = "Enable markdown rendering";
+          };
+          screenReader = mkOption {
+            type = types.bool;
+            default = false;
+            description = "Screen reader mode";
+          };
+          theme = mkOption {
+            type = types.enum [
+              "auto"
+              "dark"
+              "light"
+            ];
+            default = "auto";
+            description = "Theme mode";
+          };
+          trustedFolders = mkOption {
+            type = types.listOf types.path;
+            default = [ ];
+            description = "Trusted folder paths";
           };
         };
       };
