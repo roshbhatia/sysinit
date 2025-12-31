@@ -218,51 +218,6 @@ with lib;
           };
         };
 
-        opencode = {
-          agents = mkOption {
-            type = types.attrsOf types.anything;
-            default = { };
-            description = "Additional OpenCode agents";
-          };
-        };
-
-        copilot = {
-          banner = mkOption {
-            type = types.enum [
-              "never"
-              "always"
-              "auto"
-            ];
-            default = "never";
-            description = "Banner display mode";
-          };
-          renderMarkdown = mkOption {
-            type = types.bool;
-            default = true;
-            description = "Enable markdown rendering";
-          };
-          screenReader = mkOption {
-            type = types.bool;
-            default = false;
-            description = "Screen reader mode";
-          };
-          theme = mkOption {
-            type = types.enum [
-              "auto"
-              "dark"
-              "light"
-            ];
-            default = "auto";
-            description = "Theme mode";
-          };
-          trustedFolders = mkOption {
-            type = types.listOf types.path;
-            default = [ ];
-            description = "Trusted folder paths";
-          };
-        };
-      };
-
       uvx = {
         additionalPackages = mkOption {
           type = types.listOf types.str;
