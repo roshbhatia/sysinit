@@ -14,6 +14,9 @@ M.plugins = {
           end, 50)
         end,
         onStatusChangeThrottleTime = 500,
+        resultLocation = {
+          showNumberLabel = false,
+        },
       })
     end,
     keys = function()
