@@ -6,7 +6,7 @@ M.plugins = {
     config = function()
       require("grug-far").setup({
         normalModeSearch = true,
-        windowCreationCommand = "aboveleft vsplit | wincmd H",
+        windowCreationCommand = "aboveleft vsplit | wincmd H | silent! Neotree close",
       })
     end,
     keys = function()
