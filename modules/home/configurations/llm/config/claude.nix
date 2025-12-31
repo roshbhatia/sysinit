@@ -4,7 +4,7 @@
   ...
 }:
 let
-  llmLib = import ../../../shared/lib/llm { inherit lib; };
+  llmLib = import ../../../../shared/lib/llm { inherit lib; };
   mcpServers = import ../shared/mcp-servers.nix { inherit values; };
 
   claudeConfig = builtins.toJSON {
