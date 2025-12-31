@@ -4,8 +4,9 @@
 }:
 
 let
-  skillsRepo = pkgs.fetchgit {
-    url = "https://github.com/obra/superpowers.git";
+  skillsRepo = pkgs.fetchFromGitHub {
+    owner = "obra";
+    repo = "superpowers";
     rev = "main";
     sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
   };
