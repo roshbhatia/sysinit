@@ -28,18 +28,12 @@ let
     "writing-skills"
   ];
 
-  skillContent =
-    skillName:
-    pkgs.writeText "${skillName}-skill.md" (
-      builtins.readFile "${skillsRepo}/skills/${skillName}/${skillName}.md"
-    );
-
 in
 {
   allSkills = builtins.listToAttrs (
     map (skillName: {
       name = skillName;
-      value = skillContent skillName;
+      value = "${skillsRepo}/skills/${skillName}";
     }) allSkills
   );
 
