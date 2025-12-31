@@ -9,7 +9,7 @@ let
   mcpServers = import ../shared/mcp.nix { inherit lib values; };
   subagents = import ../shared/subagents;
   lsp = import ../shared/lsp.nix;
-  directives = import ../shared/directives.nix;
+  agents = import ../shared/agents.nix;
 
   agents = subagents;
 
@@ -79,30 +79,13 @@ let
       };
     };
     formatter = {
-      prettier = {
+      deadnix = {
         command = [
-          "npx"
-          "prettier"
-          "--write"
+          "${pkgs.deadnix}/bin/deadnix"
+          "--edit"
           "$FILE"
         ];
-        environment = {
-          NODE_ENV = "development";
-        };
-        extensions = [
-          ".js"
-          ".ts"
-          ".jsx"
-          ".tsx"
-        ];
-      };
-      custom-markdown-formatter = {
-        command = [
-          "deno"
-          "fmt"
-          "$FILE"
-        ];
-        extensions = [ ".md" ];
+        extensions = [ ".nix" ];
       };
     };
   };
@@ -114,11 +97,6 @@ let
   skillLinksOpencode = lib.mapAttrs' (
     name: _path: lib.nameValuePair "opencode/skill/${name}/SKILL.md" { source = _path; }
   ) skills.allSkills;
-
-  skillLinksClaude = lib.mapAttrs' (
-    name: _path: lib.nameValuePair "claude/skills/${name}/SKILL.md" { source = _path; }
-  ) skills.allSkills;
-
 in
 {
   xdg.configFile = lib.mkMerge [
@@ -127,6 +105,5 @@ in
       "opencode/AGENTS.md".text = agentsMd;
     }
     skillLinksOpencode
-    skillLinksClaude
   ];
 }

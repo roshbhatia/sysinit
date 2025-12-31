@@ -5,7 +5,6 @@
 }:
 let
   mcp = import ../shared/mcp.nix { inherit lib values; };
-  directives = import ../shared/directives.nix;
 
   gooseBuiltinExtensions = {
     autovisualiser = {

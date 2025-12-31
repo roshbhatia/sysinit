@@ -6,7 +6,6 @@
 let
   mcpServers = import ../shared/mcp.nix { inherit lib values; };
   lspConfig = (import ../shared/lsp.nix).lsp;
-  directives = import ../shared/directives.nix;
 
   agentsMd = ''
     ${directives.general}

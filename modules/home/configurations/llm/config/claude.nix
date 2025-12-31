@@ -5,7 +5,7 @@
   ...
 }:
 let
-  skillsLib = import ../shared/skills.nix { inherit lib pkgs; };
+  skills = import ../shared/skills.nix { inherit lib pkgs; };
   mcpServers = import ../shared/mcp.nix { inherit lib values; };
 
   formatMcpForClaude =
@@ -56,24 +56,16 @@ let
     done
   '';
 
-  skillLinks = builtins.listToAttrs (
-    lib.flatten (
-      lib.mapAttrsToList (name: path: [
-        {
-          name = "claude/skills/${name}/SKILL.md";
-          value.source = path;
-        }
-      ]) skillsLib.allSkills
-    )
-  );
-
+  skillLinksClaude = lib.mapAttrs' (
+    name: _path: lib.nameValuePair "Claude/skill/${name}/SKILL.md" { source = _path; }
+  ) skills.allSkills;
 in
 {
   xdg.configFile = lib.mkMerge [
     {
       "Claude/claude_desktop_config.json".text = claudeConfig;
     }
-    skillLinks
+    skillLinksClaude
   ];
 
   xdg.dataFile = {

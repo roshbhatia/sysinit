@@ -23,15 +23,9 @@ let
     trusted_folders = cfg.trustedFolders or [ ];
     mcpServers = formatMcpForCopilot mcpServers.servers;
   };
-
-  mcpConfig = builtins.toJSON {
-    mcpServers = { };
-  };
-
 in
 {
   xdg.configFile = {
     "github-copilot/cli/config.json".text = copilotConfig;
-    "github-copilot/cli/mcp-config.json".text = mcpConfig;
   };
 }
