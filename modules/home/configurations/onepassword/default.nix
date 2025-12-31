@@ -9,7 +9,7 @@
     [
       _1password-cli
     ]
-    ++ lib.optionals isMacOS [
+    ++ lib.optionals pkgs.stdenv.isDarwin [
       _1password
     ];
 
