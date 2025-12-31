@@ -3,7 +3,7 @@ local M = {}
 
 -- Configuration
 local config = {
-  offset = -2,
+  offset = -3,
   foldsigns = {
     close = "-",
     open = "*",
