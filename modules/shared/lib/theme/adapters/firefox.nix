@@ -149,6 +149,12 @@ with lib;
 
         /* ========== BUTTON & INTERACTIVE ELEMENTS ========== */
 
+        /* Toolbar buttons - explicit text colors for light mode */
+        toolbar .toolbarbutton-1,
+        toolbar .toolbarbutton-text {
+            color: var(--minimal-text) !important;
+        }
+
         /* Toolbar buttons - better hover/active states */
         toolbar .toolbarbutton-1:hover {
             background-color: var(--minimal-border) !important;
@@ -159,6 +165,12 @@ with lib;
         toolbar .toolbarbutton-1[checked],
         toolbar .toolbarbutton-1:active {
             background-color: var(--minimal-accent) !important;
+            color: var(--minimal-bg) !important;
+        }
+
+        toolbar .toolbarbutton-1[open] .toolbarbutton-text,
+        toolbar .toolbarbutton-1[checked] .toolbarbutton-text,
+        toolbar .toolbarbutton-1:active .toolbarbutton-text {
             color: var(--minimal-bg) !important;
         }
 
@@ -200,7 +212,7 @@ with lib;
             background: var(--minimal-bg-secondary) !important;
         }
 
-        /* Centered tab labels - with better contrast */
+        /* Tab labels - ensure good contrast in both light and dark modes */
         .tab-label {
             -moz-box-flex: 1 !important;
             text-align: center !important;
@@ -209,19 +221,24 @@ with lib;
             transition: color 150ms ease !important;
         }
 
-        /* Unselected tab hover state */
+        /* Unselected tab - improve readability */
+        .tabbrowser-tab:not([selected]) .tab-label {
+            color: var(--minimal-text-secondary) !important;
+        }
+
+        /* Unselected tab hover state - full contrast */
         .tabbrowser-tab:not([selected]):hover .tab-label {
             color: var(--minimal-text) !important;
         }
 
-        /* Selected tab - better visibility */
+        /* Selected tab - maximum visibility with bold text */
         #TabsToolbar .tabbrowser-tab[selected] .tab-label {
             color: var(--minimal-text) !important;
             font-weight: bold !important;
             font-size: 10px !important;
         }
 
-        /* Selected tab background with accent */
+        /* Selected tab background with accent underline */
         .tabbrowser-tab[selected] {
             background-color: var(--minimal-bg-secondary) !important;
             border-bottom: 2px solid var(--minimal-accent) !important;
@@ -297,6 +314,18 @@ with lib;
 
         #urlbar .urlbar-input-box {
             text-align: left;
+        }
+
+        /* URLbar input text - explicit color for light mode visibility */
+        #urlbar .urlbar-input,
+        #urlbar .urlbar-input-box input {
+            color: var(--minimal-text) !important;
+            caret-color: var(--minimal-accent) !important;
+        }
+
+        #urlbar .urlbar-input::selection {
+            background-color: var(--minimal-accent) !important;
+            color: var(--minimal-bg) !important;
         }
 
         .bookmark-item > .toolbarbutton-icon {
@@ -389,6 +418,7 @@ with lib;
         menuitem,
         menu {
             min-height: 1.8em !important;
+            color: var(--uc-menu-color) !important;
         }
 
         panel richlistbox,
@@ -405,6 +435,12 @@ with lib;
             background-color: var(--uc-menu-bkgnd) !important;
             border-color: var(--uc-menu-disabled) !important;
             border-radius: 4px !important;
+        }
+
+        /* Ensure menu items have proper text color in light mode */
+        panel richlistitem,
+        panel richlistitem label {
+            color: var(--uc-menu-color) !important;
         }
 
         menu:hover,
