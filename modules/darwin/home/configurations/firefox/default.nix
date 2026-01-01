@@ -63,18 +63,18 @@ in
 
       settings = {
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-        
+
         # Theme appearance settings - let custom CSS drive the UI
         # ui.systemUsesDarkTheme: 0=light, 1=dark, 2=auto
         # Using 2 (auto) allows custom CSS to override while respecting system preference
         "ui.systemUsesDarkTheme" = 2;
-        
+
         # Content theme: 0=dark, 1=light, 2=auto (follows content scheme preference)
         "browser.theme.content-theme" = 2;
-        
+
         # Toolbar theme: 0=dark, 1=light, 2=auto
         "browser.theme.toolbar-theme" = 2;
-        
+
         # CSS color scheme override: 0=auto, 1=light, 2=dark
         # Using 0 (auto) lets media queries and CSS vars handle appearance
         "layout.css.prefers-color-scheme.content-override" = 0;

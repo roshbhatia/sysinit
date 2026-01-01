@@ -13,8 +13,8 @@ common:
         "steam"
       ];
       theme = {
-        colorscheme = "catppuccin";
-        variant = "latte";
+        colorscheme = "gruvbox";
+        variant = "light";
         appearance = "light";
       };
     };
