@@ -11,7 +11,8 @@ let
     "rose-pine-dawn" = "rose-pine-dawn";
     "gruvbox-dark" = "gruvbox-dark-medium";
     "gruvbox-light" = "gruvbox-light-medium";
-    "nord-dark" = "nord";
+    "nord-default" = "nord";
+    "nord-light" = "nord";
     "solarized-dark" = "solarized-dark";
     "solarized-light" = "solarized-light";
     "kanagawa-wave" = "kanagawa";

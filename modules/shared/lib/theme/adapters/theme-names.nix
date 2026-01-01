@@ -72,7 +72,8 @@ let
         light = "Solarized Light (Gogh)";
       };
       nord = {
-        dark = "Nord (base16)";
+        default = "Nord (base16)";
+        light = "Nord Light (base16)";
       };
       everforest = {
         dark-hard = "Everforest Dark Hard (Gogh)";
@@ -109,7 +110,8 @@ let
         light = "solarized-light";
       };
       nord = {
-        dark = "nord";
+        default = "nord";
+        light = "nord";
       };
       everforest = {
         dark-hard = "everforest";

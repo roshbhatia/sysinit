@@ -98,7 +98,10 @@ with lib;
           "dark"
           "light"
         ];
-        nord = [ "default" ];
+        nord = [
+          "default"
+          "light"
+        ];
         everforest = [
           "dark-soft"
           "dark-medium"

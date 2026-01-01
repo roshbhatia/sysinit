@@ -37,7 +37,8 @@ let
       "light" = "${pkgs.base16-schemes}/share/themes/solarized-light.yaml";
     };
     "nord" = {
-      "dark" = "${pkgs.base16-schemes}/share/themes/nord.yaml";
+      "default" = "${pkgs.base16-schemes}/share/themes/nord.yaml";
+      "light" = "${pkgs.base16-schemes}/share/themes/nord.yaml";
     };
     "everforest" = {
       "dark-hard" = "${pkgs.base16-schemes}/share/themes/everforest.yaml";

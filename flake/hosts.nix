@@ -14,7 +14,7 @@ common:
       ];
       theme = {
         colorscheme = "nord";
-        variant = "dark";
+        variant = "default";
       };
     };
   };
