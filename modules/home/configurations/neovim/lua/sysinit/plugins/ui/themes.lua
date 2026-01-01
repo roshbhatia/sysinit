@@ -146,6 +146,19 @@ local function get_neomodern_config()
   }
 end
 
+local function convert_styles_for_nightfox(styles)
+  local converted = {}
+  for k, v in pairs(styles) do
+    if type(v) == "table" and #v > 0 then
+      converted[k] = table.concat(v, ",")
+    elseif type(v) == "table" and #v == 0 then
+      converted[k] = "NONE"
+    else
+      converted[k] = v
+    end
+  end
+  return converted
+end
 local function get_nightfox_config()
   return {
     options = {
@@ -155,7 +168,7 @@ local function get_nightfox_config()
       terminal_colors = true,
       dim_inactive = false,
       module_default = true,
-      styles = styles,
+      styles = convert_styles_for_nightfox(styles),
       inverse = { match_paren = false, visual = false, search = false },
       modules = {
         cmp = true,
