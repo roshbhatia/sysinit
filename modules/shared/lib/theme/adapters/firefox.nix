@@ -254,7 +254,7 @@ with lib;
             display: block !important;
         }
 
-        /* Auto-hide scrollbar */
+        /* Auto-hide scrollbar - with visible thumb for light mode */
         scrollbar {
             -moz-appearance: none !important;
             background: transparent !important;
@@ -262,11 +262,17 @@ with lib;
         }
 
         scrollbar thumb {
-            background-color: var(--minimal-border) !important;
+            background-color: var(--minimal-text-secondary) !important;
+            border-radius: 4px !important;
+        }
+
+        scrollbar thumb:hover {
+            background-color: var(--minimal-text) !important;
         }
 
         * {
-            scrollbar-width: none !important;
+            scrollbar-width: thin !important;
+            scrollbar-color: var(--minimal-text-secondary) transparent !important;
         }
 
         /* ========== URL BAR ========== */
@@ -328,6 +334,36 @@ with lib;
             color: var(--minimal-bg) !important;
         }
 
+        /* URLbar suggestion popup - ensure dark text on light backgrounds */
+        #urlbar-results {
+            background-color: var(--minimal-bg-secondary) !important;
+        }
+
+        .urlbarView-row {
+            background-color: var(--minimal-bg-secondary) !important;
+            color: var(--minimal-text) !important;
+        }
+
+        .urlbarView-row:hover,
+        .urlbarView-row[selected] {
+            background-color: var(--minimal-border) !important;
+            color: var(--minimal-text) !important;
+        }
+
+        .urlbarView-row-inner {
+            color: var(--minimal-text) !important;
+        }
+
+        .urlbarView-title,
+        .urlbarView-url,
+        .urlbarView-action {
+            color: var(--minimal-text) !important;
+        }
+
+        .urlbarView-url {
+            color: var(--minimal-text-secondary) !important;
+        }
+
         .bookmark-item > .toolbarbutton-icon {
             display: none !important;
         }
@@ -382,6 +418,86 @@ with lib;
         #urlbar[focused="true"] > #urlbar-background,
         #searchbar:focus-within {
             border-color: var(--lwt-toolbar-field-border-color, hsla(240, 5%, 5%, 0.35)) !important;
+        }
+
+        /* ========== FIND BAR ========== */
+
+        #findbar {
+            background-color: var(--minimal-bg-secondary) !important;
+            color: var(--minimal-text) !important;
+            border-color: var(--minimal-border) !important;
+        }
+
+        #findbar-textbox,
+        #findbar input {
+            background-color: var(--minimal-bg) !important;
+            color: var(--minimal-text) !important;
+            border-color: var(--minimal-border) !important;
+        }
+
+        #findbar-textbox::placeholder {
+            color: var(--minimal-text-secondary) !important;
+        }
+
+        #findbar button,
+        #findbar-find-next,
+        #findbar-find-previous,
+        #findbar-close-button {
+            background-color: transparent !important;
+            color: var(--minimal-text) !important;
+            border-color: transparent !important;
+        }
+
+        #findbar button:hover {
+            background-color: var(--minimal-border) !important;
+        }
+
+        #findbar .found {
+            background-color: var(--color-success) !important;
+            color: var(--minimal-bg) !important;
+        }
+
+        #findbar .notfound {
+            background-color: var(--color-error) !important;
+            color: var(--minimal-bg) !important;
+        }
+
+        /* ========== NOTIFICATION BARS ========== */
+
+        .notification,
+        .infobar {
+            background-color: var(--minimal-bg-secondary) !important;
+            color: var(--minimal-text) !important;
+            border-color: var(--minimal-border) !important;
+        }
+
+        .notification[type="warning"],
+        .infobar[type="warning"] {
+            background-color: var(--color-warning) !important;
+            color: var(--minimal-bg) !important;
+            border-color: var(--minimal-border) !important;
+        }
+
+        .notification[type="critical"],
+        .infobar[type="critical"],
+        .notification[type="error"],
+        .infobar[type="error"] {
+            background-color: var(--color-error) !important;
+            color: var(--minimal-bg) !important;
+            border-color: var(--minimal-border) !important;
+        }
+
+        .notification button,
+        .infobar button {
+            background-color: var(--minimal-border) !important;
+            color: var(--minimal-text) !important;
+            border-color: var(--minimal-text-secondary) !important;
+        }
+
+        .notification button:hover,
+        .infobar button:hover {
+            background-color: var(--minimal-accent) !important;
+            color: var(--minimal-bg) !important;
         }
 
         /* ========== CONTENT AREA ========== */
@@ -465,7 +581,13 @@ with lib;
             opacity: 0.6 !important;
         }
 
-        /* ========== HIDE SIDEBAR ALWAYS ========== */
+        /* ========== SIDEBAR STYLING (Fallback if shown) ========== */
+
+        #sidebar,
+        #sidebar-box {
+            background-color: var(--minimal-bg) !important;
+            color: var(--minimal-text) !important;
+        }
 
         #sidebar-box {
             display: none !important;
@@ -474,6 +596,105 @@ with lib;
 
         #sidebar-splitter {
             display: none !important;
+        }
+
+        /* Fallback colors if sidebar becomes visible */
+        #sidebar-tree,
+        #sidebar-listbox {
+            background-color: var(--minimal-bg) !important;
+            color: var(--minimal-text) !important;
+        }
+
+        #sidebar treeitem,
+        #sidebar listitem {
+            color: var(--minimal-text) !important;
+        }
+
+        /* ========== DIALOGS & MODALS ========== */
+
+        dialog,
+        .dialog {
+            background-color: var(--minimal-bg) !important;
+            color: var(--minimal-text) !important;
+            border-color: var(--minimal-border) !important;
+        }
+
+        dialog button,
+        .dialog button {
+            background-color: var(--minimal-bg-secondary) !important;
+            color: var(--minimal-text) !important;
+            border-color: var(--minimal-border) !important;
+        }
+
+        dialog button:hover,
+        .dialog button:hover {
+            background-color: var(--minimal-border) !important;
+        }
+
+        dialog input,
+        dialog textarea,
+        dialog select,
+        .dialog input,
+        .dialog textarea,
+        .dialog select {
+            background-color: var(--minimal-bg) !important;
+            color: var(--minimal-text) !important;
+            border-color: var(--minimal-border) !important;
+        }
+
+        /* ========== GLOBAL INPUT ELEMENTS ========== */
+
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        input[type="url"],
+        input[type="number"],
+        textarea,
+        select {
+            background-color: var(--minimal-bg) !important;
+            color: var(--minimal-text) !important;
+            border-color: var(--minimal-border) !important;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: var(--minimal-text-secondary) !important;
+            opacity: 0.7 !important;
+        }
+
+        input:disabled,
+        textarea:disabled,
+        select:disabled,
+        button:disabled {
+            color: var(--minimal-text-secondary) !important;
+            opacity: 0.6 !important;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: 2px solid var(--minimal-accent) !important;
+            outline-offset: 1px !important;
+            background-color: var(--minimal-bg) !important;
+        }
+
+        /* ========== LISTBOX & TREE ELEMENTS ========== */
+
+        listbox,
+        tree {
+            background-color: var(--minimal-bg) !important;
+            color: var(--minimal-text) !important;
+        }
+
+        listitem,
+        treeitem {
+            color: var(--minimal-text) !important;
+        }
+
+        listitem[selected],
+        treeitem[selected] {
+            background-color: var(--minimal-border) !important;
+            color: var(--minimal-text) !important;
         }
 
         /* ========== MINIMAL TOOLTIPS ========== */
@@ -660,10 +881,22 @@ with lib;
             filter: contrast(90%);
         }
 
-        /* Remove fullscreen warning border */
+        /* Fullscreen warning - use semantic colors */
         #fullscreen-warning {
-            border: none !important;
-            background: -moz-Dialog !important;
+            border: 1px solid var(--minimal-border) !important;
+            background: var(--minimal-bg-secondary) !important;
+            color: var(--minimal-text) !important;
+        }
+
+        #fullscreen-warning button {
+            background-color: var(--minimal-border) !important;
+            color: var(--minimal-text) !important;
+            border-color: var(--minimal-text-secondary) !important;
+        }
+
+        #fullscreen-warning button:hover {
+            background-color: var(--minimal-accent) !important;
+            color: var(--minimal-bg) !important;
         }
 
         /* Tabs close button */
