@@ -57,7 +57,11 @@ let
     theme = "system";
     mcp = formatMcpForOpencode mcpServers.servers;
     lsp = formatLspForOpencode lsp.lsp;
-    agent = removeAttrs agents [ "formatSubagentAsMarkdown" ];
+    agent = {
+      general = {
+        instructions = agents.general;
+      };
+    };
     instructions = [
       "**/CONTRIBUTING.md"
       "**/docs/guidelines.md"
