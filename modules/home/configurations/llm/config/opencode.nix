@@ -9,8 +9,6 @@ let
   lsp = import ../shared/lsp.nix;
   mcpServers = import ../shared/mcp.nix { inherit lib values; };
   skills = import ../shared/skills.nix { inherit lib pkgs; };
-  subagents = import ../shared/subagents;
-  inherit (subagents) formatSubagentAsMarkdown;
 
   formatMcpForOpencode =
     mcpServers:
@@ -101,22 +99,6 @@ let
     name: _path: lib.nameValuePair "opencode/skill/${name}/SKILL.md" { source = _path; }
   ) skills.allSkills;
 
-  subagentLinksOpencode =
-    let
-      subagentNames = builtins.attrNames (removeAttrs subagents [ "formatSubagentAsMarkdown" ]);
-    in
-    lib.listToAttrs (
-      map (
-        name:
-        lib.nameValuePair "opencode/agent/${name}.md" {
-          text = formatSubagentAsMarkdown {
-            inherit name;
-            config = subagents.${name};
-          };
-        }
-      ) subagentNames
-    );
-
 in
 {
   xdg.configFile = lib.mkMerge [
@@ -125,6 +107,5 @@ in
       "opencode/AGENTS.md".text = agentsMd;
     }
     skillLinksOpencode
-    subagentLinksOpencode
   ];
 }
