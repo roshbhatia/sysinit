@@ -13,8 +13,9 @@ common:
         "steam"
       ];
       theme = {
-        colorscheme = "nord";
-        variant = "default";
+        colorscheme = "catppuccin";
+        variant = "latte";
+        appearance = "light";
       };
     };
   };
