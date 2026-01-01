@@ -27,7 +27,6 @@ require("sysinit.config.opts.undo").setup()
 
 require("sysinit.config.autocmds.buf").setup()
 require("sysinit.config.autocmds.msg-dump").setup()
-require("sysinit.config.autocmds.wezterm").setup()
 require("sysinit.config.autocmds.nvim-rpc").setup()
 
 require("sysinit.utils.plugin_manager").setup_package_manager()

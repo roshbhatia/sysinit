@@ -6,6 +6,16 @@ local bar = wezterm.plugin.require("https://github.com/hikarisakamoto/bar.wezter
 
 local M = {}
 
+local function should_be_opaque(pane)
+  local info = pane:get_foreground_process_info()
+  if not info then
+    return false
+  end
+
+  local executable = string.gsub(info.executable, "(.*[/\\])(.*)", "%2")
+  return executable == "nvim" or executable == "tmux"
+end
+
 function M.setup(config)
   local config_data = json_loader.load_json_file(json_loader.get_config_path("config.json"))
   local font = wezterm.font_with_fallback({
@@ -75,6 +85,17 @@ function M.setup(config)
       },
     },
   })
+
+  wezterm.on("update-status", function(window, pane)
+    local should_switch = should_be_opaque(pane)
+    local overrides = window:get_config_overrides() or {}
+    if should_switch then
+      overrides.window_background_opacity = 1.0
+    else
+      overrides.window_background_opacity = nil
+    end
+    window:set_config_overrides(overrides)
+  end)
 end
 
 return M
