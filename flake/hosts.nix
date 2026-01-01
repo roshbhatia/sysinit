@@ -13,8 +13,8 @@ common:
         "steam"
       ];
       theme = {
-        colorscheme = "everforest";
-        variant = "dark-medium";
+        colorscheme = "nord";
+        variant = "dark";
       };
     };
   };
