@@ -27,12 +27,12 @@ let
 
     mkdir -p "$CACHE_DIR" 2>/dev/null || true
 
-    if ! current_monitors=$(${pkgs.aerospace}/bin/aerospace list-monitors 2>/dev/null); then
+    current_monitors=$(${pkgs.aerospace}/bin/aerospace list-monitors 2>/dev/null) || {
         echo "[$(${pkgs.coreutils}/bin/date '+%Y-%m-%d %H:%M:%S')] ERROR: Failed to get monitor list" >> "$LOG_FILE"
         exit 1
-    fi
+    }
 
-    current_hash=$(echo "$current_monitors" | ${pkgs.coreutils}/bin/sort | ${pkgs.coreutils}/bin/tr -s '[:space:]' '\n' | ${pkgs.coreutils}/bin/sha256sum | ${pkgs.coreutils}/bin/cut -d' ' -f1)
+    current_hash=$(printf '%s' "$current_monitors" | ${pkgs.coreutils}/bin/sort | ${pkgs.coreutils}/bin/tr -s '[:space:]' '\n' | ${pkgs.coreutils}/bin/sha256sum | ${pkgs.coreutils}/bin/cut -d' ' -f1)
 
     if [ -f "$PREV_HASH_FILE" ]; then
         prev_hash=$(${pkgs.coreutils}/bin/cat "$PREV_HASH_FILE")
@@ -45,7 +45,7 @@ let
         echo "Previous hash: $prev_hash" >> "$LOG_FILE"
         echo "Current hash:  $current_hash" >> "$LOG_FILE"
         echo "Monitor list:" >> "$LOG_FILE"
-        echo "$current_monitors" | ${pkgs.coreutils}/bin/sed 's/^/  /' >> "$LOG_FILE"
+        echo "$current_monitors" | ${pkgs.gnused}/bin/sed 's/^/  /' >> "$LOG_FILE"
 
         if ${pkgs.sketchybar}/bin/sketchybar --reload 2>>"$LOG_FILE"; then
             echo "[$(${pkgs.coreutils}/bin/date '+%Y-%m-%d %H:%M:%S')] Sketchybar reload successful" >> "$LOG_FILE"
@@ -80,6 +80,7 @@ in
             pkgs.aerospace
             pkgs.sketchybar
             pkgs.coreutils
+            pkgs.gnused
           ]
         }:/usr/bin:/bin";
       };
