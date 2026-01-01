@@ -13,8 +13,8 @@ common:
         "steam"
       ];
       theme = {
-        colorscheme = "black-metal";
-        variant = "gorgoroth";
+        colorscheme = "catppuccin";
+        variant = "macchiato";
       };
     };
   };
