@@ -128,13 +128,11 @@ with lib;
 
         colorscheme = mkOption {
           type = types.str;
-          default = "catppuccin";
           description = "Theme colorscheme";
         };
 
         variant = mkOption {
           type = types.str;
-          default = "macchiato";
           description = "Theme variant";
         };
 

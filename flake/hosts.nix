@@ -12,6 +12,10 @@ common:
         "discord"
         "steam"
       ];
+      theme = {
+        colorscheme = "everforest";
+        variant = "dark-medium";
+      };
     };
   };
 
