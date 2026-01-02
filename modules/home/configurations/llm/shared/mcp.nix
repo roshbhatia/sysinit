@@ -17,7 +17,7 @@ let
         "--enable-web-dashboard"
         "false"
         "--context"
-        "--ide"
+        "claude-code"
       ];
       description = "Serena IDE assistant with AGENTS.md integration for project-aware coding assistance";
     };
