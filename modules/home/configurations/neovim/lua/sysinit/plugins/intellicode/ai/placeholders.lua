@@ -30,7 +30,7 @@ end
 -- Get intelligent context for "this" - uses treesitter, LSP, or falls back to cursor
 local function get_this_context(state)
   if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
-    return string.format("@%s:%d", get_relative_path(state), state.line)
+    return string.format("@%s :%d", get_relative_path(state), state.line)
   end
 
   -- Try treesitter first
@@ -59,9 +59,9 @@ local function get_this_context(state)
             if #node_text > 60 then
               node_text = node_text:sub(1, 57) .. "..."
             end
-            return string.format("@%s:%d-%d (%s)", path, start_row + 1, end_row + 1, node_text)
+            return string.format("@%s :%d-%d (%s)", path, start_row + 1, end_row + 1, node_text)
           end
-          return string.format("@%s:%d-%d", path, start_row + 1, end_row + 1)
+          return string.format("@%s :%d-%d", path, start_row + 1, end_row + 1)
         end
         node = node:parent()
       end
@@ -99,7 +99,7 @@ local function get_this_context(state)
       local range = symbol.range or symbol.location and symbol.location.range
       if range then
         return string.format(
-          "@%s:%d-%d (%s)",
+          "@%s :%d-%d (%s)",
           path,
           range.start.line + 1,
           range["end"].line + 1,
@@ -110,7 +110,7 @@ local function get_this_context(state)
   end
 
   -- Fallback to cursor position
-  return string.format("@%s:%d", get_relative_path(state), state.line)
+  return string.format("@%s :%d", get_relative_path(state), state.line)
 end
 
 -- Get the current folder path
@@ -143,7 +143,7 @@ local PLACEHOLDERS = {
     token = "@cursor",
     description = "Cursor position (file:line)",
     provider = function(state)
-      return string.format("@%s:%d", get_relative_path(state), state.line)
+      return string.format("@%s :%d", get_relative_path(state), state.line)
     end,
   },
   {
