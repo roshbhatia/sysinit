@@ -7,22 +7,6 @@ let
   flattenList = lists: lib.lists.flatten (map (x: if builtins.isList x then x else [ x ]) lists);
 
   defaultServers = {
-    astgrep = {
-      command = "uvx";
-      args = [
-        "--from"
-        "git+https://github.com/ast-grep/ast-grep-mcp"
-        "ast-grep-server"
-      ];
-      description = "Structural code search and refactoring with ast-grep. Provides AST-based pattern matching for semantic code search across multiple languages.";
-    };
-    nu = {
-      command = "nu";
-      args = [
-        "--mcp"
-      ];
-      description = "Nushell MCP server for enhanced shell scripting assistance and command suggestions. A preferable alternative to standard shell tools.";
-    };
     serena = {
       command = "uvx";
       args = [
@@ -34,13 +18,6 @@ let
         "false"
       ];
       description = "Serena IDE assistant with AGENTS.md integration for project-aware coding assistance";
-    };
-    playwright = {
-      command = "npx";
-      args = [
-        "playwriter@latest"
-      ];
-      description = "A Model Context Protocol (MCP) server that provides browser automation capabilities using Playwright. This server enables LLMs to interact with web pages through structured accessibility snapshots, bypassing the need for screenshots or visually-tuned models.";
     };
   };
 

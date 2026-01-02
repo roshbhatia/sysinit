@@ -1,3 +1,6 @@
+let
+  subagents = import ./subagents;
+in
 {
   general = ''
     Keywords: MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD, SHOULD NOT, RECOMMENDED, MAY, OPTIONAL. (RFC 2119)
@@ -17,5 +20,7 @@
     MUST reference your memory via serena.
     NEVER use emojis in code.
   '';
+
+  inherit subagents;
+  inherit (subagents) formatSubagentAsMarkdown;
 }
-// (import ./subagents)

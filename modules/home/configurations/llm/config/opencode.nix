@@ -55,11 +55,6 @@ let
     theme = "system";
     mcp = formatMcpForOpencode mcpServers.servers;
     lsp = formatLspForOpencode lsp.lsp;
-    agent = {
-      general = {
-        instructions = agents.general;
-      };
-    };
     instructions = [
       "**/CONTRIBUTING.md"
       "**/docs/guidelines.md"
@@ -91,9 +86,13 @@ let
     };
   };
 
-  agentsMd = ''
-    ${agents.general}
-  '';
+  # Format subagents as individual markdown files
+  subagentFiles = lib.mapAttrs' (
+    name: config:
+    lib.nameValuePair "opencode/agent/${name}.md" {
+      text = agents.formatSubagentAsMarkdown { inherit name config; };
+    }
+  ) (lib.filterAttrs (n: _: n != "formatSubagentAsMarkdown") agents.subagents);
 
   skillLinksOpencode = lib.mapAttrs' (
     name: _path: lib.nameValuePair "opencode/skill/${name}/SKILL.md" { source = _path; }
@@ -104,8 +103,8 @@ in
   xdg.configFile = lib.mkMerge [
     {
       "opencode/opencode.json".text = opencodeConfigJson;
-      "opencode/AGENTS.md".text = agentsMd;
     }
+    subagentFiles
     skillLinksOpencode
   ];
 }

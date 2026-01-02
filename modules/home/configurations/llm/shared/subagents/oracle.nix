@@ -1,21 +1,7 @@
 {
-  category = "advisor";
-  cost = "EXPENSIVE";
-  promptAlias = "Oracle";
-  triggers = [
-    {
-      domain = "Architecture decisions";
-      trigger = "Multi-system tradeoffs, unfamiliar patterns";
-    }
-    {
-      domain = "Self-review";
-      trigger = "After completing significant implementation";
-    }
-    {
-      domain = "Hard debugging";
-      trigger = "After 2+ failed fix attempts";
-    }
-  ];
+  description = "Expert technical advisor with deep reasoning for architecture decisions, code analysis, and engineering guidance.";
+  temperature = 0.1;
+
   useWhen = [
     "Complex architecture design"
     "After completing significant work"
@@ -24,6 +10,7 @@
     "Security/performance concerns"
     "Multi-system tradeoffs"
   ];
+
   avoidWhen = [
     "Simple file operations (use direct tools)"
     "First attempt at any fix (try yourself first)"
@@ -31,12 +18,18 @@
     "Trivial decisions (variable names, formatting)"
     "Things you can infer from existing code patterns"
   ];
-  description = "Expert technical advisor with deep reasoning for architecture decisions, code analysis, and engineering guidance.";
-  temperature = 0.1;
+
   tools = {
+    read = true;
+    grep = true;
+    glob = true;
+    list = true;
+    lsp = true;
     write = false;
     edit = false;
-    task = false;
-    background_task = false;
+    patch = false;
+    bash = false;
+    webfetch = false;
+    skill = false;
   };
 }
