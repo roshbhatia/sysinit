@@ -11,6 +11,7 @@ M.plugins = {
     lazy = false,
     config = function()
       require("neogit").setup({
+        kind = "floating",
         graph_style = "kitty",
         process_spinner = true,
         use_per_project_settings = false,
