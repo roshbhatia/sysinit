@@ -6,10 +6,8 @@ local nix_bin = "/etc/profiles/per-user/" .. username .. "/bin"
 local function get_basic_config()
   return {
     pane_focus_follows_mouse = false,
-    -- We use a nix-installed zsh as the default shell.
-    -- On darwin there's a /bin/zsh that we choose to not mess with
     default_prog = {
-      nix_bin .. "/zsh",
+      nix_bin .. "/nu",
       "--login",
     },
   }
