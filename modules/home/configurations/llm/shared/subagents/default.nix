@@ -2,13 +2,11 @@
   librarian = import ./librarian.nix;
   oracle = import ./oracle.nix;
 
-  # Render subagent markdown configuration
   formatSubagentAsMarkdown =
     { name, config }:
     let
       inherit name;
 
-      # Format tools section dynamically
       toolsLines =
         if config.tools == null || config.tools == { } then
           [ ]
@@ -19,13 +17,12 @@
       toolsSection =
         if toolsLines == [ ] then "" else "tools:\n" + (builtins.concatStringsSep "\n" toolsLines);
 
-      # Build prompt from metadata
       descriptionSection = [ (config.description or "") ];
       useWhenSection =
         if config.useWhen or null != null then
           [
             "\n## Use When:"
-            (builtins.concatStringsSep "\n" (builtins.map (item: "- ${item}") config.useWhen))
+            (builtins.concatStringsSep "\n" (map (item: "- ${item}") config.useWhen))
           ]
         else
           [ ];
@@ -33,7 +30,7 @@
         if config.avoidWhen or null != null then
           [
             "\n## Avoid When:"
-            (builtins.concatStringsSep "\n" (builtins.map (item: "- ${item}") config.avoidWhen))
+            (builtins.concatStringsSep "\n" (map (item: "- ${item}") config.avoidWhen))
           ]
         else
           [ ];
@@ -41,7 +38,6 @@
         builtins.filter (s: s != "") (descriptionSection ++ useWhenSection ++ avoidWhenSection)
       );
 
-      # Build frontmatter
       frontmatterLines = [
         "name: ${name}"
         "description: ${config.description or ""}"

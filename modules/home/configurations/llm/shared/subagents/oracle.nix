@@ -20,22 +20,23 @@
   ];
 
   tools = {
-    read = true;
-    grep = true;
+    bash = false;
+    edit = false;
     glob = true;
+    grep = true;
     list = true;
     lsp = true;
-    find_symbol = true;
-    find_referencing_symbols = true;
-    get_symbols_overview = true;
-    write = false;
-    edit = false;
     patch = false;
-    bash = false;
-    webfetch = false;
+    read = true;
+    serena_find_file = false;
+    serena_find_referencing_symbols = true;
+    serena_find_symbol = true;
+    serena_get_symbols_overview = true;
+    serena_list_dir = false;
+    serena_replace_content = false;
+    serena_search_for_pattern = false;
     skill = false;
-    find_file = false;
-    search_for_pattern = false;
-    replace_content = false;
+    webfetch = false;
+    write = false;
   };
 }

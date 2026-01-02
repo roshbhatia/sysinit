@@ -16,6 +16,8 @@ let
         "start-mcp-server"
         "--enable-web-dashboard"
         "false"
+        "--context"
+        "--ide"
       ];
       description = "Serena IDE assistant with AGENTS.md integration for project-aware coding assistance";
     };
