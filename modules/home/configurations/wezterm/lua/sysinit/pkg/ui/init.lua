@@ -6,14 +6,17 @@ local bar = wezterm.plugin.require("https://github.com/hikarisakamoto/bar.wezter
 
 local M = {}
 
-local function should_be_opaque(pane)
-  local info = pane:get_foreground_process_info()
-  if not info then
-    return false
+local function should_be_opaque(tab)
+  for _, pane in ipairs(tab:panes()) do
+    local info = pane:get_foreground_process_info()
+    if info then
+      local executable = string.gsub(info.executable, "(.*[/\\])(.*)", "%2")
+      if executable == "nvim" or executable == "tmux" then
+        return true
+      end
+    end
   end
-
-  local executable = string.gsub(info.executable, "(.*[/\\])(.*)", "%2")
-  return executable == "nvim" or executable == "tmux"
+  return false
 end
 
 function M.setup(config)
@@ -87,7 +90,8 @@ function M.setup(config)
   })
 
   wezterm.on("update-status", function(window, pane)
-    local should_switch = should_be_opaque(pane)
+    local tab = pane:tab()
+    local should_switch = should_be_opaque(tab)
     local overrides = window:get_config_overrides() or {}
     if should_switch then
       overrides.window_background_opacity = 1.0
