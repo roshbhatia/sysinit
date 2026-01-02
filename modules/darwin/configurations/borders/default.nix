@@ -12,6 +12,6 @@ lib.mkIf bordersEnabled {
   services.jankyborders = {
     enable = true;
     package = pkgs.jankyborders;
-    width = 3.0;
+    width = 4.0;
   };
 }
