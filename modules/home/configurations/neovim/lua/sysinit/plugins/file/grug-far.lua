@@ -19,7 +19,7 @@ M.plugins = {
         },
         engines = {
           ripgrep = {
-            extraArgs = { "--hidden" },
+            extraArgs = "--hidden",
           },
         },
       })
