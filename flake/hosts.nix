@@ -14,8 +14,8 @@ common:
       ];
       theme = {
         colorscheme = "catppuccin";
-        variant = "latte";
-        appearance = "light";
+        variant = "macchiato";
+        appearance = "dark";
       };
     };
   };
