@@ -177,9 +177,8 @@ M.plugins = {
           ["<C-Space>"] = {
             "show",
           },
-          ["<Space>"] = {
+          ["<S-Space>"] = {
             "accept",
-            "fallback",
           },
           ["<CR>"] = {
             "accept",
