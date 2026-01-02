@@ -1,57 +1,7 @@
-{ }:
+_:
 
 let
   appMetadata = {
-    neovim = {
-      catppuccin = {
-        plugin = "catppuccin/nvim";
-        name = "catppuccin";
-        setup = "catppuccin";
-        colorscheme = "catppuccin";
-      };
-      "rose-pine" = {
-        plugin = "cdmill/neomodern.nvim";
-        name = "neomodern";
-        setup = "neomodern";
-        colorscheme = "roseprime";
-      };
-      gruvbox = {
-        plugin = "sainnhe/gruvbox-material";
-        name = "gruvbox";
-        setup = "gruvbox";
-        colorscheme = "gruvbox";
-      };
-      solarized = {
-        plugin = "craftzdog/solarized-osaka.nvim";
-        name = "solarized-osaka";
-        setup = "solarized-osaka";
-        colorscheme = "solarized-osaka";
-      };
-      nord = {
-        plugin = "EdenEast/nightfox.nvim";
-        name = "nightfox";
-        setup = "nightfox";
-        colorscheme = "nordfox";
-      };
-      everforest = {
-        plugin = "sainnhe/everforest";
-        name = "everforest";
-        setup = "everforest";
-        colorscheme = "everforest";
-      };
-      kanagawa = {
-        plugin = "cdmill/neomodern.nvim";
-        name = "neomodern";
-        setup = "neomodern";
-        colorscheme = "gyokuro";
-      };
-      "black-metal" = {
-        plugin = "metalelf0/black-metal-theme-neovim";
-        name = "black-metal";
-        setup = "black-metal";
-        colorscheme = "gorgoroth";
-      };
-    };
     wezterm = {
       catppuccin = {
         latte = "Catppuccin Latte";
