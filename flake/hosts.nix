@@ -14,7 +14,7 @@ common:
       ];
       theme = {
         colorscheme = "gruvbox";
-        variant = "light";
+        variant = "light-soft";
         appearance = "light";
       };
     };
