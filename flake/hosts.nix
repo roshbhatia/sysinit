@@ -13,8 +13,8 @@ common:
         "steam"
       ];
       theme = {
-        colorscheme = "gruvbox";
-        variant = "light";
+        colorscheme = "rose-pine";
+        variant = "dawn";
         appearance = "light";
       };
     };
