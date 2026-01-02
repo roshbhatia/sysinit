@@ -13,9 +13,9 @@ common:
         "steam"
       ];
       theme = {
-        colorscheme = "rose-pine";
-        variant = "dawn";
-        appearance = "light";
+        colorscheme = "catppuccin";
+        variant = "macchiato";
+        appearance = "dark";
       };
     };
   };
