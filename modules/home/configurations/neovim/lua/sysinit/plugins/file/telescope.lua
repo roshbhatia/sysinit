@@ -20,14 +20,15 @@ M.plugins = {
         defaults = {
           selection_caret = "",
           entry_prefix = "",
-          borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
-          results_title = "",
-          prompt_title = "",
-          preview_title = "",
+          results_title = false,
+          prompt_title = false,
+          prompt_prefix = "",
+          preview_title = false,
           sorting_strategy = "ascending",
           path_display = {
             "filename_first",
           },
+          wrap_results = true,
           layout_config = {
             horizontal = {
               prompt_position = "top",
@@ -40,26 +41,26 @@ M.plugins = {
             },
           },
           mappings = {
+            i = {
+              ["<Down>"] = actions.move_selection_next,
+              ["<S-Tab>"] = actions.move_selection_previous,
+              ["<Tab>"] = actions.move_selection_next,
+              ["<Up>"] = actions.move_selection_previous,
+            },
             n = {
               ["<CR>"] = actions.select_default,
               ["<Down>"] = actions.move_selection_next,
               ["<S-Tab>"] = actions.move_selection_previous,
+              ["<S-j>"] = actions.preview_scrolling_down,
+              ["<S-k>"] = actions.preview_scrolling_up,
               ["<Tab>"] = actions.move_selection_next,
               ["<Up>"] = actions.move_selection_previous,
               ["<localleader>s"] = actions.select_horizontal,
               ["<localleader>v"] = actions.select_vertical,
               ["j"] = actions.move_selection_next,
               ["k"] = actions.move_selection_previous,
-              ["<S-j>"] = actions.preview_scrolling_down,
-              ["<S-k>"] = actions.preview_scrolling_up,
               ["q"] = actions.close,
               ["x"] = actions.close,
-            },
-            i = {
-              ["<Down>"] = actions.move_selection_next,
-              ["<S-Tab>"] = actions.move_selection_previous,
-              ["<Tab>"] = actions.move_selection_next,
-              ["<Up>"] = actions.move_selection_previous,
             },
           },
           file_ignore_patterns = {
@@ -188,25 +189,11 @@ M.plugins = {
       local tbuiltin = require("telescope.builtin")
       return {
         {
-          "<leader>ff",
+          "<leader>?",
           function()
-            tbuiltin.find_files({ hidden = true })
+            tbuiltin.commands(require("telescope.themes").get_ivy({ previewer = false }))
           end,
-          desc = "Find: Files",
-        },
-        {
-          "<leader>fj",
-          function()
-            tbuiltin.jumplist(require("telescope.themes").get_ivy())
-          end,
-          desc = "Find: Jumplist",
-        },
-        {
-          "<leader>fd",
-          function()
-            tbuiltin.diagnostics(require("telescope.themes").get_ivy())
-          end,
-          desc = "Find: Diagnostics",
+          desc = "Find: Commands",
         },
         {
           "<leader>fb",
@@ -222,11 +209,25 @@ M.plugins = {
           desc = "Find: Buffers",
         },
         {
-          "<leader>?",
+          "<leader>fd",
           function()
-            tbuiltin.commands(require("telescope.themes").get_ivy({ previewer = false }))
+            tbuiltin.diagnostics(require("telescope.themes").get_ivy())
           end,
-          desc = "Find: Commands",
+          desc = "Find: Diagnostics",
+        },
+        {
+          "<leader>ff",
+          function()
+            tbuiltin.find_files({ hidden = true })
+          end,
+          desc = "Find: Files",
+        },
+        {
+          "<leader>fj",
+          function()
+            tbuiltin.jumplist(require("telescope.themes").get_ivy())
+          end,
+          desc = "Find: Jumplist",
         },
       }
     end,
