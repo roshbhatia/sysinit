@@ -25,11 +25,17 @@
     glob = true;
     list = true;
     lsp = true;
+    find_symbol = true;
+    find_referencing_symbols = true;
+    get_symbols_overview = true;
     write = false;
     edit = false;
     patch = false;
     bash = false;
     webfetch = false;
     skill = false;
+    find_file = false;
+    search_for_pattern = false;
+    replace_content = false;
   };
 }

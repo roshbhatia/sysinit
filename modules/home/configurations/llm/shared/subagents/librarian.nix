@@ -22,11 +22,17 @@
     glob = true;
     list = true;
     webfetch = true;
+    find_file = true;
+    find_symbol = true;
+    find_referencing_symbols = true;
+    search_for_pattern = true;
+    get_symbols_overview = true;
     write = false;
     edit = false;
     patch = false;
     bash = false;
     lsp = false;
     skill = false;
+    replace_content = false;
   };
 }
