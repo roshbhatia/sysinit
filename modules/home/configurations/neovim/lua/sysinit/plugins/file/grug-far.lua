@@ -17,6 +17,11 @@ M.plugins = {
         resultLocation = {
           showNumberLabel = false,
         },
+        engines = {
+          ripgrep = {
+            extraArgs = { "--hidden" },
+          },
+        },
       })
     end,
     keys = function()
