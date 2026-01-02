@@ -20,12 +20,8 @@ let
       "macchiato" = "${pkgs.base16-schemes}/share/themes/catppuccin-macchiato.yaml";
     };
     "gruvbox" = {
-      "dark-hard" = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
-      "dark-medium" = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-medium.yaml";
-      "dark-soft" = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-soft.yaml";
-      "light-hard" = "${pkgs.base16-schemes}/share/themes/gruvbox-light-hard.yaml";
-      "light-medium" = "${pkgs.base16-schemes}/share/themes/gruvbox-light-medium.yaml";
-      "light-soft" = "${pkgs.base16-schemes}/share/themes/gruvbox-light-soft.yaml";
+      "dark" = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
+      "light" = "${pkgs.base16-schemes}/share/themes/gruvbox-light-hard.yaml";
     };
     "kanagawa" = {
       "wave" = "${pkgs.base16-schemes}/share/themes/kanagawa.yaml";
