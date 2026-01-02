@@ -1,6 +1,4 @@
-{ lib }:
-
-with lib;
+{ }:
 
 let
   appMetadata = {
@@ -18,7 +16,7 @@ let
         colorscheme = "roseprime";
       };
       gruvbox = {
-        plugin = "ellisonleao/gruvbox.nvim";
+        plugin = "sainnhe/gruvbox-material";
         name = "gruvbox";
         setup = "gruvbox";
         colorscheme = "gruvbox";
