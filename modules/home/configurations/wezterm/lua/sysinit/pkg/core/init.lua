@@ -8,7 +8,6 @@ local function get_basic_config()
     pane_focus_follows_mouse = false,
     default_prog = {
       nix_bin .. "/nu",
-      "--login",
     },
   }
 end
