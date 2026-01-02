@@ -6,7 +6,7 @@ in
 
 {
   meta = {
-    name = "Gruvbox";
+    name = "Gruvbox Material";
     id = "gruvbox";
     variants = [
       "dark"
@@ -20,21 +20,22 @@ in
       light = "light";
       dark = "dark";
     };
-    author = "morhetz";
-    homepage = "https://github.com/morhetz/gruvbox";
+    author = "sainnhe";
+    homepage = "https://github.com/sainnhe/gruvbox-material";
   };
 
   palettes = {
     dark = utils.validatePalette rec {
-      bg0_h = "#1d2021";
+      # Gruvbox Material Dark (medium contrast)
+      bg0_h = "#202020";
       bg0 = "#282828";
       bg0_s = "#32302f";
-      bg1 = "#3c3836";
-      bg2 = "#504945";
-      bg3 = "#665c54";
-      bg4 = "#7c6f64";
+      bg1 = "#3a3a3a";
+      bg2 = "#45403d";
+      bg3 = "#524f45";
+      bg4 = "#5a5047";
 
-      fg0 = "#fbf1c7";
+      fg0 = "#fdf4c1";
       fg1 = "#ebdbb2";
       fg2 = "#d5c4a1";
       fg3 = "#bdae93";
@@ -42,17 +43,18 @@ in
 
       gray = "#928374";
 
-      red = "#fb4934";
-      green = "#b8bb26";
-      yellow = "#fabd2f";
-      blue = "#83a598";
+      # Material-inspired colors (warmer, more muted)
+      red = "#ea6962";
+      green = "#a9b665";
+      yellow = "#d8b356";
+      blue = "#7daea3";
       purple = "#d3869b";
-      aqua = "#8ec07c";
-      orange = "#fe8019";
+      aqua = "#89b482";
+      orange = "#e78a4e";
 
-      neutral_red = "#cc241d";
-      neutral_green = "#98971a";
-      neutral_yellow = "#d79921";
+      neutral_red = "#c14a4a";
+      neutral_green = "#8b9d2f";
+      neutral_yellow = "#b8860b";
       neutral_blue = "#458588";
       neutral_purple = "#b16286";
       neutral_aqua = "#689d6a";
@@ -82,29 +84,31 @@ in
     };
 
     light = utils.validatePalette rec {
-      bg0_h = "#f9f5d7";
-      bg0 = "#fbf1c7";
-      bg0_s = "#f2e5bc";
-      bg1 = "#ebdbb2";
-      bg2 = "#d5c4a1";
-      bg3 = "#bdae93";
-      bg4 = "#a89984";
+      # Gruvbox Material Light (hard contrast)
+      bg0_h = "#f2f0e5";
+      bg0 = "#faf6f1";
+      bg0_s = "#ede6d3";
+      bg1 = "#eae2b7";
+      bg2 = "#d8cdb4";
+      bg3 = "#c9bfa6";
+      bg4 = "#bab090";
 
-      fg0 = "#282828";
-      fg1 = "#3c3836";
-      fg2 = "#504945";
-      fg3 = "#665c54";
-      fg4 = "#7c6f64";
+      fg0 = "#3d3d3d";
+      fg1 = "#654735";
+      fg2 = "#654735";
+      fg3 = "#8d7c6e";
+      fg4 = "#9d8a7c";
 
-      gray = "#928374";
+      gray = "#8d7c6e";
 
-      red = "#cc241d";
-      green = "#98971a";
-      yellow = "#d79921";
-      blue = "#458588";
-      purple = "#b16286";
-      aqua = "#689d6a";
-      orange = "#d65d0e";
+      # Material-inspired colors for light (warm, slightly desaturated)
+      red = "#c14a4a";
+      green = "#8b9d2f";
+      yellow = "#b8860b";
+      blue = "#2b7a78";
+      purple = "#a85e9e";
+      aqua = "#6b9c7a";
+      orange = "#d8860b";
 
       bright_red = "#9d0006";
       bright_green = "#79740e";
