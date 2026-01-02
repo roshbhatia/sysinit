@@ -2,7 +2,7 @@
 
 use std
 
-def main [] {
+def main [--update] {
     # Check required commands
     let required_commands = ["fzf" "chafa" "gh" "fd"]
     for cmd in $required_commands {
@@ -32,14 +32,16 @@ def main [] {
             exit 1
         }
     } else {
-        print $"(ansi blue)[INFO](ansi reset) Updating wallpapers repository"
-        let fetch = (cd $wallpapers_dir; git fetch --quiet err> /dev/null | complete)
-        let pull = (cd $wallpapers_dir; git pull --quiet err> /dev/null | complete)
+        if $update {
+            print $"(ansi blue)[INFO](ansi reset) Updating wallpapers repository"
+            let fetch = (cd $wallpapers_dir; git fetch --quiet err> /dev/null | complete)
+            let pull = (cd $wallpapers_dir; git pull --quiet err> /dev/null | complete)
 
-        if $fetch.exit_code != 0 {
-            print $"(ansi yellow_bold)[WARN](ansi reset) Could not fetch updates - continuing with local version"
-        } else if $pull.exit_code != 0 {
-            print $"(ansi yellow_bold)[WARN](ansi reset) Could not pull updates - continuing with local version"
+            if $fetch.exit_code != 0 {
+                print $"(ansi yellow_bold)[WARN](ansi reset) Could not fetch updates - continuing with local version"
+            } else if $pull.exit_code != 0 {
+                print $"(ansi yellow_bold)[WARN](ansi reset) Could not pull updates - continuing with local version"
+            }
         }
     }
 
