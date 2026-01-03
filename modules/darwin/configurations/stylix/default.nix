@@ -28,6 +28,12 @@ let
       "wave" = "${pkgs.base16-schemes}/share/themes/kanagawa.yaml";
       "dragon" = "${pkgs.base16-schemes}/share/themes/kanagawa.yaml";
     };
+    "kanso" = {
+      "zen" = "${pkgs.base16-schemes}/share/themes/kanagawa.yaml";
+      "ink" = "${pkgs.base16-schemes}/share/themes/kanagawa.yaml";
+      "mist" = "${pkgs.base16-schemes}/share/themes/kanagawa.yaml";
+      "pearl" = "${pkgs.base16-schemes}/share/themes/kanagawa.yaml";
+    };
     "solarized" = {
       "dark" = "${pkgs.base16-schemes}/share/themes/solarized-dark.yaml";
       "light" = "${pkgs.base16-schemes}/share/themes/solarized-light.yaml";

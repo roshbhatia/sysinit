@@ -13,7 +13,7 @@ common:
         "steam"
       ];
       theme = {
-        colorscheme = "kanagawa";
+        colorscheme = "kanso";
         variant = "ink";
       };
       llm.mcp.additionalServers = {
