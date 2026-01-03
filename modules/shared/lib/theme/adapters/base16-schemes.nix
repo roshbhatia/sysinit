@@ -18,8 +18,13 @@ let
     "nord-light" = "nord";
     "solarized-dark" = "solarized-dark";
     "solarized-light" = "solarized-light";
+    "kanagawa-lotus" = "kanagawa";
     "kanagawa-wave" = "kanagawa";
     "kanagawa-dragon" = "kanagawa";
+    "kanso-zen" = "kanagawa";
+    "kanso-ink" = "kanagawa";
+    "kanso-mist" = "kanagawa";
+    "kanso-pearl" = "kanagawa";
     "everforest-dark" = "everforest";
     "everforest-light" = "everforest";
     "black-metal-dark" = "black-metal";

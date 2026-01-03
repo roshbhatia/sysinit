@@ -32,11 +32,18 @@ let
         light-soft = "Everforest Light Soft (Gogh)";
       };
       kanagawa = {
-        wave = "kanso-ink";
-        dragon = "kanso-mist";
+        lotus = "Kanagawa Lotus (Gogh)";
+        wave = "Kanagawa (Gogh)";
+        dragon = "Kanagawa Dragon (Gogh)";
       };
       "black-metal" = {
         gorgoroth = "Black Metal (Gorgoroth)";
+      };
+      kanso = {
+        zen = "kanso-zen";
+        ink = "kanso-ink";
+        mist = "kanso-mist";
+        pearl = "kanso-pearl";
       };
     };
     atuin = {
@@ -69,11 +76,18 @@ let
         light-soft = "everforest";
       };
       kanagawa = {
+        lotus = "kanagawa";
         wave = "kanagawa";
         dragon = "kanagawa";
       };
       "black-metal" = {
         gorgoroth = "black-metal";
+      };
+      kanso = {
+        zen = "kanso";
+        ink = "kanso";
+        mist = "kanso";
+        pearl = "kanso";
       };
     };
   };

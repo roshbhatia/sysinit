@@ -267,6 +267,58 @@ with lib;
       blue = "accent_secondary";
       bg4 = "accent_dim";
     };
+
+    kanso_zen = {
+      bg1 = "background";
+      bg0 = "background";
+      fg0 = "text_primary";
+      fg1 = "text_secondary";
+      fg2 = "text_muted";
+      bg2 = "surface";
+      bg3 = "overlay";
+      blue = "accent";
+      purple = "accent_secondary";
+      bg1 = "accent_dim";
+    };
+
+    kanso_ink = {
+      bg1 = "background";
+      bg0 = "background";
+      fg0 = "text_primary";
+      fg1 = "text_secondary";
+      fg2 = "text_muted";
+      bg2 = "surface";
+      bg3 = "overlay";
+      blue = "accent";
+      purple = "accent_secondary";
+      bg1 = "accent_dim";
+    };
+
+    kanso_mist = {
+      bg1 = "background";
+      bg0 = "background";
+      fg0 = "text_primary";
+      fg1 = "text_secondary";
+      fg2 = "text_muted";
+      bg2 = "surface";
+      bg3 = "overlay";
+      blue = "accent";
+      purple = "accent_secondary";
+      bg1 = "accent_dim";
+    };
+
+    kanso_pearl = {
+      bg1 = "background";
+      bg0 = "background";
+      fg0 = "text_primary";
+      fg1 = "text_secondary";
+      fg2 = "text_muted";
+      bg2 = "surface";
+      bg3 = "overlay";
+      blue = "accent";
+      purple = "accent_secondary";
+      bg1 = "accent_dim";
+    };
   };
 
   normalizePalette =

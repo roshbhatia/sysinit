@@ -49,6 +49,7 @@ with lib;
         "catppuccin"
         "gruvbox"
         "kanagawa"
+        "kanso"
         "rose-pine"
         "solarized"
         "nord"
@@ -86,8 +87,15 @@ with lib;
           "light"
         ];
         kanagawa = [
+          "lotus"
           "wave"
           "dragon"
+        ];
+        kanso = [
+          "zen"
+          "ink"
+          "mist"
+          "pearl"
         ];
         rose-pine = [
           "dawn"

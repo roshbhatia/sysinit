@@ -10,6 +10,7 @@ let
 
   catppuccin = import ./palettes/catppuccin.nix { inherit lib; };
   kanagawa = import ./palettes/kanagawa.nix { inherit lib; };
+  kanso = import ./palettes/kanso.nix { inherit lib; };
   rosePine = import ./palettes/rose-pine.nix { inherit lib; };
   gruvbox = import ./palettes/gruvbox.nix { inherit lib; };
   solarized = import ./palettes/solarized.nix { inherit lib; };
@@ -26,6 +27,7 @@ let
   themes = {
     inherit catppuccin;
     inherit kanagawa;
+    inherit kanso;
     rose-pine = rosePine;
     inherit gruvbox;
     inherit solarized;

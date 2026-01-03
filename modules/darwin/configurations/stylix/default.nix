@@ -24,9 +24,9 @@ let
       "light" = "${pkgs.base16-schemes}/share/themes/gruvbox-light-hard.yaml";
     };
     "kanagawa" = {
+      "lotus" = "${pkgs.base16-schemes}/share/themes/kanagawa.yaml";
       "wave" = "${pkgs.base16-schemes}/share/themes/kanagawa.yaml";
       "dragon" = "${pkgs.base16-schemes}/share/themes/kanagawa.yaml";
-      "lotus" = "${pkgs.base16-schemes}/share/themes/kanagawa.yaml";
     };
     "solarized" = {
       "dark" = "${pkgs.base16-schemes}/share/themes/solarized-dark.yaml";
