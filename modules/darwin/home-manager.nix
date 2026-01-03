@@ -14,10 +14,6 @@
       inherit utils values inputs;
     };
 
-    sharedModules = [
-      # Platform-specific shared modules (empty for Darwin)
-    ];
-
     users.${values.user.username} =
       {
         ...
