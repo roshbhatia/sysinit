@@ -32,9 +32,8 @@ let
         light-soft = "Everforest Light Soft (Gogh)";
       };
       kanagawa = {
-        lotus = "Kanagawa Lotus (Gogh)";
-        wave = "Kanagawa (Gogh)";
-        dragon = "Kanagawa Dragon (Gogh)";
+        wave = "kanso-ink";
+        dragon = "kanso-mist";
       };
       "black-metal" = {
         gorgoroth = "Black Metal (Gorgoroth)";
@@ -70,7 +69,6 @@ let
         light-soft = "everforest";
       };
       kanagawa = {
-        lotus = "kanagawa";
         wave = "kanagawa";
         dragon = "kanagawa";
       };

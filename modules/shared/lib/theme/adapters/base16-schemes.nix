@@ -20,7 +20,6 @@ let
     "solarized-light" = "solarized-light";
     "kanagawa-wave" = "kanagawa";
     "kanagawa-dragon" = "kanagawa";
-    "kanagawa-lotus" = "kanagawa";
     "everforest-dark" = "everforest";
     "everforest-light" = "everforest";
     "black-metal-dark" = "black-metal";

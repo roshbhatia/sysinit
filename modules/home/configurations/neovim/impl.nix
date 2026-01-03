@@ -27,8 +27,8 @@ let
       setup = "rose-pine";
     };
     kanagawa = {
-      plugin = "rebelot/kanagawa.nvim";
-      setup = "kanagawa";
+      plugin = "webhooked/kanso.nvim";
+      setup = "kanso";
     };
     nord = {
       plugin = "EdenEast/nightfox.nvim";
