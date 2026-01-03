@@ -22,7 +22,7 @@ M.plugins = {
           entry_prefix = "",
           results_title = false,
           prompt_title = false,
-          prompt_prefix = "",
+          prompt_prefix = false,
           preview_title = false,
           sorting_strategy = "ascending",
           path_display = {
@@ -32,12 +32,12 @@ M.plugins = {
           layout_config = {
             horizontal = {
               prompt_position = "top",
-              width = 0.9,
-              height = 0.9,
+              width = 0.95,
+              height = 0.95,
             },
             vertical = {
-              width = 0.9,
-              height = 0.9,
+              width = 0.95,
+              height = 0.95,
             },
           },
           mappings = {
