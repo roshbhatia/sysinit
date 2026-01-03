@@ -18,7 +18,7 @@ M.plugins = {
 
       telescope.setup({
         defaults = {
-          selection_caret = "> ",
+          selection_caret = "",
           entry_prefix = "",
           results_title = false,
           prompt_title = false,
