@@ -1,4 +1,3 @@
-_:
 let
   lsp = builtins.mapAttrs (
     _: cfg:
@@ -378,7 +377,7 @@ let
     }
   ];
 in
-_: {
+{
   stylix.targets.helix = {
     enable = true;
   };
