@@ -11,7 +11,7 @@ local function should_be_opaque(tab)
     local info = pane:get_foreground_process_info()
     if info then
       local executable = string.gsub(info.executable, "(.*[/\\])(.*)", "%2")
-      if executable == "nvim" or executable == "tmux" then
+      if executable == "nvim" or executable == "tmux" or executable == "hx" then
         return true
       end
     end
