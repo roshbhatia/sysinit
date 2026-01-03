@@ -113,7 +113,6 @@ in
       fg_alt = fg_dark;
       bg_alt = bg_dark;
       surface_alt = bg_visual;
-      inherit cyan;
       teal = cyan;
     };
 

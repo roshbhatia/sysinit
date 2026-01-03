@@ -28,6 +28,9 @@ let
     "everforest-dark" = "everforest";
     "everforest-light" = "everforest";
     "black-metal-dark" = "black-metal";
+    "tokyonight-night" = "tokyo-night-dark";
+    "tokyonight-storm" = "tokyo-night-storm";
+    "tokyonight-day" = "tokyo-night-light";
   };
 in
 {

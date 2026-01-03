@@ -53,6 +53,11 @@ let
     "black-metal" = {
       "gorgoroth" = "${pkgs.base16-schemes}/share/themes/black-metal.yaml";
     };
+    "tokyonight" = {
+      "night" = "${pkgs.base16-schemes}/share/themes/tokyo-night-dark.yaml";
+      "storm" = "${pkgs.base16-schemes}/share/themes/tokyo-night-storm.yaml";
+      "day" = "${pkgs.base16-schemes}/share/themes/tokyo-night-light.yaml";
+    };
   };
 
   selectedScheme =
