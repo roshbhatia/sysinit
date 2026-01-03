@@ -1,5 +1,5 @@
 let
-  lspLib = import ../../../../shared/lib/lsp;
+  lspLib = import ../../../shared/lib/lsp;
 in
 {
   lsp = lspLib;

@@ -9,7 +9,7 @@ let
         else
           cfg.command or null;
     }
-  ) (import ../../../../shared/lib/lsp);
+  ) (import ../../../../modules/shared/lib/lsp);
   languages = [
     {
       name = "nix";
