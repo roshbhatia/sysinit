@@ -18,11 +18,11 @@ M.plugins = {
 
       telescope.setup({
         defaults = {
-          selection_caret = "",
+          selection_caret = "> ",
           entry_prefix = "",
           results_title = false,
           prompt_title = false,
-          prompt_prefix = false,
+          prompt_prefix = "",
           preview_title = false,
           sorting_strategy = "ascending",
           path_display = {
