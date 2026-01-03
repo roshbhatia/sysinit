@@ -14,7 +14,7 @@ common:
       ];
       theme = {
         colorscheme = "kanagawa";
-        variant = "dragon";
+        variant = "lotus";
       };
       llm.mcp.additionalServers = {
         playwright = {

@@ -156,25 +156,11 @@ local function get_neomodern_config()
 end
 
 local function get_kanso_config()
-  local background_map = {
-    dark = "ink",
-    light = "pearl",
-  }
   return {
     bold = true,
     italics = true,
-    compile = false,
-    undercurl = true,
     transparent = true,
-    dimInactive = false,
     terminalColors = true,
-    commentStyle = { italic = true },
-    keywordStyle = { italic = true },
-    foreground = theme_config.variant or "default",
-    background = {
-      dark = theme_config.variant or "ink",
-      light = "pearl",
-    },
   }
 end
 
@@ -419,14 +405,10 @@ local function setup_theme()
 
   if config_func then
     local config = config_func()
-    if
-      plugin_config.setup ~= "everforest"
-      and plugin_config.setup ~= "gruvbox-material"
-      and plugin_config.setup ~= "kanso"
-    then
+    if plugin_config.setup == "everforest" or plugin_config.setup == "gruvbox-material" then
+      -- These themes use vim.g variables instead of setup
+    else
       require(plugin_config.setup).setup(config)
-    elseif plugin_config.setup == "kanso" then
-      require("kanso").setup(config)
     end
   end
 
