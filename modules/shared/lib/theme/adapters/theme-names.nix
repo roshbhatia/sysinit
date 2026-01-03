@@ -4,15 +4,15 @@ let
   appMetadata = {
     wezterm = {
       catppuccin = {
-        latte = "Catppuccin Latte";
-        macchiato = "Catppuccin Macchiato";
+        latte = "Catppuccin Latte (Gogh)";
+        macchiato = "Catppuccin Macchiato (Gogh)";
       };
       "rose-pine" = {
         dawn = "Rosé Pine Dawn (base16)";
         moon = "Rosé Pine Moon (base16)";
       };
       gruvbox = {
-        dark = "Gruvbox dark, hard (base16)";
+        dark = "Gruvbox Material (Gogh)";
         light = "Gruvbox light, hard (base16)";
       };
       solarized = {
@@ -20,8 +20,8 @@ let
         light = "Solarized Light (Gogh)";
       };
       nord = {
-        default = "Nord (base16)";
-        light = "Nord Light (base16)";
+        default = "Nord (Gogh)";
+        light = "Nord Light (Gogh)";
       };
       everforest = {
         dark-hard = "Everforest Dark Hard (Gogh)";
@@ -37,7 +37,7 @@ let
         dragon = "Kanagawa Dragon (Gogh)";
       };
       "black-metal" = {
-        gorgoroth = "Black Metal (Gorgoroth)";
+        gorgoroth = "Black Metal (Gorgoroth) (base16)";
       };
       kanso = {
         zen = "kanso-zen";
@@ -47,8 +47,8 @@ let
       };
       tokyonight = {
         night = "Tokyo Night (Gogh)";
-        storm = "Tokyo Night (Gogh)";
-        day = "Tokyo Night (Gogh)";
+        storm = "Tokyo Night Storm (Gogh)";
+        day = "Tokyo Night Day (Gogh)";
       };
     };
     atuin = {
