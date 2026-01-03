@@ -1,6 +1,6 @@
 let
-  lspLib = import ../../../shared/lib/lsp;
+  lspLib = import ../../../../shared/lib/lsp/default.nix;
 in
 {
-  lsp = lspLib;
+  lsp = lspLib.lsp;
 }

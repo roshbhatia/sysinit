@@ -1,15 +1,15 @@
 let
   lsp = builtins.mapAttrs (
     _: cfg:
-    (removeAttrs cfg [ "extensions" ])
-    // {
-      command =
+    let
+      cmd =
         if cfg ? command && builtins.isList cfg.command then
           builtins.head cfg.command
         else
           cfg.command or null;
-    }
-  ) (import ../../../shared/lib/lsp/default.nix);
+    in
+    (removeAttrs cfg [ "extensions" ]) // (if cmd != null then { command = cmd; } else { })
+  ) ((import ../../../shared/lib/lsp).lsp);
 in
 {
   stylix.targets.helix = {
