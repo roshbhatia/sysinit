@@ -48,6 +48,11 @@ local theme_metadata = {
     setup = "black-metal",
     colorscheme = "gorgoroth",
   },
+  tokyonight = {
+    plugin = "folke/tokyonight.nvim",
+    setup = "tokyonight",
+    colorscheme = "tokyonight",
+  },
 }
 
 local styles = {
@@ -238,6 +243,15 @@ local function get_everforest_config()
   return {}
 end
 
+local function get_tokyonight_config()
+  return {
+    style = theme_config.variant,
+    transparent = true,
+    terminal_colors = true,
+    styles = styles,
+  }
+end
+
 local function apply_global_overrides()
   local overrides = highlight_gen.generate_core_highlights(c, theme_config.transparency)
 
@@ -400,6 +414,7 @@ local function setup_theme()
     everforest = get_everforest_config,
     ["rose-pine"] = get_neomodern_config,
     kanagawa = get_kanso_config,
+    tokyonight = get_tokyonight_config,
   }
   local config_func = config_funcs[active_scheme]
 

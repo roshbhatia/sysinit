@@ -45,6 +45,11 @@ let
         mist = "kanso-mist";
         pearl = "kanso-pearl";
       };
+      tokyonight = {
+        night = "Tokyo Night (Gogh)";
+        storm = "Tokyo Night (Gogh)";
+        day = "Tokyo Night (Gogh)";
+      };
     };
     atuin = {
       catppuccin = {
@@ -88,6 +93,11 @@ let
         ink = "kanso";
         mist = "kanso";
         pearl = "kanso";
+      };
+      tokyonight = {
+        night = "tokyonight";
+        storm = "tokyonight";
+        day = "tokyonight";
       };
     };
   };

@@ -17,6 +17,7 @@ let
   nord = import ./palettes/nord.nix { inherit lib; };
   everforest = import ./palettes/everforest.nix { inherit lib; };
   blackMetal = import ./palettes/black-metal.nix { inherit lib; };
+  tokyonight = import ./palettes/tokyonight.nix { inherit lib; };
 
   adapterBase = import ./core/adapter-base.nix { inherit lib utils; };
   weztermAdapter = import ./adapters/wezterm.nix { inherit lib utils adapterBase; };
@@ -34,6 +35,7 @@ let
     inherit nord;
     inherit everforest;
     black-metal = blackMetal;
+    inherit tokyonight;
   };
 
   getTheme =
