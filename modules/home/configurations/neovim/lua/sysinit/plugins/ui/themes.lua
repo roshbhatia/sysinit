@@ -29,9 +29,9 @@ local theme_metadata = {
     colorscheme = "roseprime",
   },
   kanagawa = {
-    plugin = "rebelot/kanagawa.nvim",
-    setup = "kanagawa",
-    colorscheme = "kanagawa",
+    plugin = "webhooked/kanso.nvim",
+    setup = "kanso",
+    colorscheme = "kanso",
   },
   nord = {
     plugin = "EdenEast/nightfox.nvim",
@@ -152,6 +152,29 @@ local function get_neomodern_config()
     show_eob = false,
     favor_treesitter_hl = true,
     code_style = code_style,
+  }
+end
+
+local function get_kanso_config()
+  local background_map = {
+    dark = "ink",
+    light = "pearl",
+  }
+  return {
+    bold = true,
+    italics = true,
+    compile = false,
+    undercurl = true,
+    transparent = true,
+    dimInactive = false,
+    terminalColors = true,
+    commentStyle = { italic = true },
+    keywordStyle = { italic = true },
+    foreground = theme_config.variant or "default",
+    background = {
+      dark = theme_config.variant or "ink",
+      light = "pearl",
+    },
   }
 end
 
@@ -390,14 +413,20 @@ local function setup_theme()
     nord = get_nightfox_config,
     everforest = get_everforest_config,
     ["rose-pine"] = get_neomodern_config,
-    kanagawa = get_neomodern_config,
+    kanagawa = get_kanso_config,
   }
   local config_func = config_funcs[active_scheme]
 
   if config_func then
     local config = config_func()
-    if plugin_config.setup ~= "everforest" and plugin_config.setup ~= "gruvbox-material" then
+    if
+      plugin_config.setup ~= "everforest"
+      and plugin_config.setup ~= "gruvbox-material"
+      and plugin_config.setup ~= "kanso"
+    then
       require(plugin_config.setup).setup(config)
+    elseif plugin_config.setup == "kanso" then
+      require("kanso").setup(config)
     end
   end
 
