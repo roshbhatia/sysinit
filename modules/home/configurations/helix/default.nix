@@ -1,4 +1,4 @@
-{ }:
+_:
 let
   lsp = builtins.mapAttrs (
     _: cfg:
