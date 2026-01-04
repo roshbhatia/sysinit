@@ -8,7 +8,7 @@ final: _prev:
 let
   crossplane-1-17-1 =
     import
-      (builtins.fetchTarball {
+      (fetchTarball {
         url = "https://github.com/NixOS/nixpkgs/archive/882842d2a908700540d206baa79efb922ac1c33d.tar.gz";
         sha256 = "105v2h9gpaxq6b5035xb10ykw9i3b3k1rwfq4s6inblphiz5yw7q";
       })
@@ -19,7 +19,7 @@ let
 
   stable =
     import
-      (builtins.fetchTarball {
+      (fetchTarball {
         url = "https://github.com/NixOS/nixpkgs/archive/nixos-24.05.tar.gz";
         sha256 = "0zydsqiaz8qi4zd63zsb2gij2p614cgkcaisnk11wjy3nmiq0x1s";
       })
@@ -39,15 +39,21 @@ in
     };
   };
 
+  karabiner-elements = final.karabiner-elements.overrideAttrs (old: {
+    version = "14.13.0";
+    src = final.fetchurl {
+      inherit (old.src) url;
+      hash = "sha256-gmJwoht/Tfm5qMecmq1N6PSAIfWOqsvuHU8VDJY8bLw=";
+    };
+  });
+
   inherit (crossplane-1-17-1) crossplane-cli;
   inherit (stable) awscli2;
   inherit (stable) fish;
   inherit (stable) ollama;
 
-  # Use neovim-nightly from nix-community overlay
   neovim = inputs.neovim-nightly-overlay.packages.${system}.default;
 
-  # Beads Viewer
   bv = inputs.bv.packages.${system}.default;
 
   kubernetes-zeitgeist = final.buildGoModule rec {
