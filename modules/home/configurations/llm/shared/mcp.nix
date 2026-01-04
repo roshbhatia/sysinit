@@ -1,5 +1,6 @@
 {
   lib,
+  # ^ Optional parameter for clients that pass pkgs (opencode, copilot-cli)
   values,
 }:
 
