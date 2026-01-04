@@ -10,5 +10,6 @@
     ./config/goose.nix
     ./config/opencode.nix
     ./config/copilot-cli.nix
+    ./config/serena.nix
   ];
 }

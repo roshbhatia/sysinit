@@ -6,7 +6,7 @@ let
   flattenPermissions =
     perms: lib.lists.flatten (map (x: if builtins.isList x then x else [ x ]) perms);
 
-  serenaConfig = import ../config/serena.nix { inherit lib; };
+  serenaConfig = import ./serena.nix { inherit lib; };
 
   defaultServers = {
     serena = serenaConfig.server;
