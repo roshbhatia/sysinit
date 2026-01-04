@@ -23,7 +23,6 @@ let
       nix-homebrew
       onepassword-shell-plugins
       darwin-custom-icons
-      determinate
       ;
     inherit (builders) mkPkgs;
     inherit (builders) mkUtils;
