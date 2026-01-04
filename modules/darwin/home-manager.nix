@@ -19,6 +19,7 @@
         ...
       }:
       {
+        home.enableNixpkgsReleaseCheck = false;
         imports = [
           ../home
           ./home

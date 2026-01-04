@@ -75,6 +75,7 @@ in
   stylix = {
     enable = true;
     autoEnable = true;
+    enableReleaseChecks = false;
 
     polarity = polarityValue;
     base16Scheme = selectedScheme;
