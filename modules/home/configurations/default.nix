@@ -4,6 +4,7 @@
 
 {
   imports = [
+    ./_1password
     ./ast-grep
     ./atuin
     ./bat
@@ -24,7 +25,6 @@
     ./macchina
     ./neovim
     ./nushell
-    ./onepassword
     ./omp
     ./ssh
     ./utils

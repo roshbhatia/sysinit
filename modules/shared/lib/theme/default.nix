@@ -332,6 +332,11 @@ in
     ansiMappings
     ;
 
+  extractThemeValues = theme: {
+    inherit (theme) font transparency appearance;
+  };
+  stripHashColor = removePrefix "#";
+
   inherit
     mkThemedConfig
     deployThemeFiles
