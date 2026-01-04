@@ -6,10 +6,21 @@ let
   flattenPermissions =
     perms: lib.lists.flatten (map (x: if builtins.isList x then x else [ x ]) perms);
 
-  serenaConfig = import ./serena.nix { inherit lib; };
-
   defaultServers = {
-    serena = serenaConfig.server;
+    serena = {
+      command = "uvx";
+      args = [
+        "--from"
+        "git+https://github.com/oraios/serena"
+        "serena"
+        "start-mcp-server"
+        "--enable-web-dashboard"
+        "false"
+        "--context"
+        "claude-code"
+      ];
+      description = "Serena IDE assistant with AGENTS.md integration for project-aware coding assistance";
+    };
   };
 
   permissions = {
@@ -25,27 +36,15 @@ let
       "git describe*"
       "git rev-parse*"
     ];
+
     github = [
-      "gh auth status"
-      "gh repo view*"
-      "gh repo list*"
-      "gh pr list*"
-      "gh pr view*"
-      "gh pr checks*"
-      "gh issue list*"
-      "gh issue view*"
-      "gh run list*"
-      "gh run view*"
-      "gh api*"
+      "gh*"
     ];
+
     docker = [
-      "docker ps*"
-      "docker images*"
-      "docker inspect*"
-      "docker logs*"
-      "docker version"
-      "docker info"
+      "docker*"
     ];
+
     kubernetes = [
       "kubectl get*"
       "kubectl describe*"
@@ -60,73 +59,75 @@ let
       "kubectl explain*"
       "kubectl top*"
     ];
-    filesystem = [
-      "ls*"
-      "cat*"
-      "find*"
-      "grep*"
-      "fd*"
-      "rg*"
-    ];
+
     nix = [
+      "darwin-rebuild*"
       "nh*"
-      "nix-shell --run*"
-      "nix eval*"
-      "nix show-config"
-      "nix search*"
-      "nix flake show*"
-      "nix flake metadata*"
-      "nix flake check*"
-      "nix build --dry-run*"
+      "nix*"
       "nix-instantiate*"
-      "nix-search*"
+      "nix-prefetch*"
+      "nix-shell*"
     ];
-    darwin = [
-      "darwin-rebuild switch*"
-      "darwin-rebuild build*"
-      "darwin-rebuild check*"
-    ];
-    navigation = [
-      "zoxide query*"
-      "z *"
-      "zi*"
-      "fd*"
-      "rg*"
-      "ripgrep*"
-    ];
+
     utilities = [
-      "pwd"
-      "ls*"
-      "cat*"
-      "grep*"
-      "find*"
-      "which*"
-      "env"
-      "echo*"
-      "tree*"
       "bat*"
-      "eza*"
-      "exa*"
-      "head*"
-      "tail*"
-      "less*"
-      "more*"
-      "wc*"
-      "du*"
-      "df*"
-      "uname*"
-      "hostname"
-      "date"
-      "whoami"
-      "cd*"
-      "mkdir*"
       "bd*"
+      "cat*"
+      "cd*"
+      "date"
+      "df*"
+      "du*"
+      "echo*"
+      "env"
+      "exa*"
+      "eza*"
+      "fd*"
+      "find*"
+      "grep*"
+      "head*"
+      "hostname"
+      "less*"
+      "ls*"
+      "mkdir*"
+      "more*"
+      "pwd"
+      "rg*"
+      "tail*"
+      "tree*"
+      "uname*"
+      "wc*"
+      "which*"
+      "whoami"
+      "zoxide*"
     ];
+
     crossplane = [
       "crossplane*"
       "up*"
     ];
-    serena = serenaConfig.serenaAllowedTools;
+
+    serena = [
+      "serena_check_onboarding_performed"
+      "serena_find_file"
+      "serena_find_referencing_symbols"
+      "serena_find_symbol"
+      "serena_get_current_config"
+      "serena_get_symbols_overview"
+      "serena_initial_instructions"
+      "serena_jet_brains_find_referencing_symbols"
+      "serena_jet_brains_find_symbol"
+      "serena_jet_brains_get_symbols_overview"
+      "serena_list_dir"
+      "serena_list_memories"
+      "serena_read_file"
+      "serena_read_memory"
+      "serena_search_for_pattern"
+      "serena_summarize_changes"
+      "serena_think_about_collected_information"
+      "serena_think_about_task_adherence"
+      "serena_think_about_whether_you_are_done"
+      "serena_write_memory"
+    ];
   };
 
   allPermissions = flattenPermissions (builtins.attrValues permissions);
