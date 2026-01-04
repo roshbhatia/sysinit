@@ -4,7 +4,6 @@
   ...
 }:
 let
-  configGen = import ../../../shared/lib/config-gen.nix { inherit lib; };
   themes = import ../../../shared/lib/theme { inherit lib; };
 
   validatedTheme = values.theme;
@@ -98,7 +97,7 @@ let
 in
 {
   xdg.configFile."oh-my-posh/themes/sysinit.omp.json" = {
-    text = configGen.toJsonFile themeConfig;
+    text = themes.toJsonFile themeConfig;
     force = true;
   };
 }

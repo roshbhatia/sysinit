@@ -299,6 +299,21 @@ let
     ) theme.palettes
   ) themes;
 
+  # Helper functions for generating application configuration files
+  makeThemeJsonConfig =
+    values: overrides:
+    lib.recursiveUpdate {
+      font = {
+        inherit (values.theme.font) monospace symbols;
+      };
+      transparency = {
+        inherit (values.theme.transparency) opacity blur;
+      };
+    } overrides;
+
+  # Wrap a Nix value as JSON for use in xdg.configFile
+  toJsonFile = builtins.toJSON;
+
 in
 {
   inherit
@@ -323,6 +338,8 @@ in
     getUnifiedColors
     mergeThemeConfig
     ansiMappings
+    makeThemeJsonConfig
+    toJsonFile
     ;
 
   inherit

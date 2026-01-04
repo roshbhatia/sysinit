@@ -62,8 +62,11 @@ let
 
   coreInit = stripHeaders ./core/init.zsh;
   corePath = stripHeaders ./core/path.zsh;
-
+  env = stripHeaders ./system/env.zsh;
+  integrationsCompletions = stripHeaders ./integrations/completions.zsh;
+  integrationsExtras = stripHeaders ./integrations/extras.zsh;
   libCache = stripHeaders ./lib/cache.zsh;
+  uiPrompt = stripHeaders ./ui/prompt.zsh;
 
   integrationsWezterm = builtins.readFile (
     pkgs.fetchurl {
@@ -71,12 +74,6 @@ let
       sha256 = "sha256-GQGDcxMHv04TEaFguHXi0dOoOX5VUR2He4XjTxPuuaw=";
     }
   );
-  integrationsCompletions = stripHeaders ./integrations/completions.zsh;
-  integrationsExtras = stripHeaders ./integrations/extras.zsh;
-
-  uiPrompt = stripHeaders ./ui/prompt.zsh;
-
-  env = stripHeaders ./system/env.sh;
 in
 {
   programs.zsh = {
@@ -176,13 +173,9 @@ in
         ${coreInit}
       '')
 
-      (lib.mkOrder 300 ''
-        ${corePath}
-
-        # Add configured paths
-        path.add.bulk \
-          ${lib.concatStringsSep " \\\n          " (map (path: "\"${path}\"") pathsList)}
-      '')
+      (lib.mkOrder 300 "${corePath}\n\n# Add configured paths\npath.add.bulk \\\n  ${
+        lib.concatStringsSep " \\\n          " (map (path: "\"${path}\"") pathsList)
+      }\n")
 
       (lib.mkOrder 400 ''
         ${libCache}
