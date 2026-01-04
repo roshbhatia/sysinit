@@ -5,32 +5,11 @@
   ...
 }:
 let
-  skills = import ../shared/skills.nix { inherit lib pkgs; };
   mcpServers = import ../shared/mcp.nix { inherit lib values; };
-
-  formatMcpForClaude =
-    mcpServers:
-    builtins.mapAttrs (
-      _name: server:
-      if (server.type or "local") == "http" then
-        {
-          type = "http";
-          inherit (server) url;
-          description = server.description or "";
-          enabled = server.enabled or true;
-        }
-      else
-        {
-          inherit (server) command;
-          inherit (server) args;
-          description = server.description or "";
-          enabled = server.enabled or true;
-          env = server.env or { };
-        }
-    ) mcpServers;
+  skills = import ../shared/skills.nix { inherit lib pkgs; };
 
   claudeConfig = builtins.toJSON {
-    mcpServers = formatMcpForClaude mcpServers.servers;
+    mcpServers = mcpFormatters.formatMcpFor "claude" mcpServers.servers;
     hooks = {
       SessionStart = [
         {

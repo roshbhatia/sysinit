@@ -38,6 +38,10 @@ in
         fi
       '';
 
+  mkPackageActivation =
+    manager: packages: config:
+    lib.hm.dag.entryAfter [ "writeBoundary" ] (mkPackageManagerScript config manager packages);
+
   mkPackageManagerScript =
     config: manager: packages:
     let
@@ -58,18 +62,18 @@ in
                   ${m.env}
                   if command -v "$MANAGER_CMD" >/dev/null 2>&1; then
                     ${m.setupCmd or ""}
-                    
+
                     # Track managed packages for cleanup
                     mkdir -p "$(dirname "$managed_pkg_file")"
                     cat > "$managed_pkg_file.tmp" << 'MANAGED_PKGS'
         ${concatStringsSep "\n" packages}
         MANAGED_PKGS
-                    
+
                     # Install new/updated packages
                     for pkg in ${concatStringsSep " " packages}; do
                       ${m.installCmd}
                     done
-                    
+
                     # Replace tracking file only after successful installation
                     mv "$managed_pkg_file.tmp" "$managed_pkg_file"
                     echo "Completed ${manager} package installation"

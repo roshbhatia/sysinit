@@ -1,6 +1,5 @@
 {
   config,
-  lib,
   values,
   utils,
   ...
@@ -10,7 +9,5 @@ let
   pipxPackages = values.pipx.additionalPackages or [ ];
 in
 {
-  home.activation.pipxPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    utils.packages.mkPackageManagerScript config "pipx" pipxPackages
-  );
+  home.activation.pipxPackages = utils.packages.mkPackageActivation "pipx" pipxPackages config;
 }

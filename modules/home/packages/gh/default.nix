@@ -1,6 +1,5 @@
 {
   config,
-  lib,
   values,
   utils,
   ...
@@ -13,7 +12,5 @@ let
   ++ (values.gh.additionalPackages or [ ]);
 in
 {
-  home.activation.ghPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    utils.packages.mkPackageManagerScript config "gh" ghPackages
-  );
+  home.activation.ghPackages = utils.packages.mkPackageActivation "gh" ghPackages config;
 }
