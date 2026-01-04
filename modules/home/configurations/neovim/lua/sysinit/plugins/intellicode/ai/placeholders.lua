@@ -1,7 +1,6 @@
 local M = {}
 local context = require("sysinit.plugins.intellicode.ai.context")
 
--- Cache git root to avoid repeated syscalls
 local git_root_cache = {}
 
 local function get_git_root()
@@ -49,7 +48,6 @@ local function normalize_path(path, strip_root)
     return path
   end
 
-  -- Handle trailing slash properly
   local git_root_normalized = git_root:gsub("/$", "")
   if path:sub(1, #git_root_normalized) == git_root_normalized then
     local remainder = path:sub(#git_root_normalized + 1)
@@ -96,23 +94,6 @@ local PLACEHOLDERS = {
     provider = context.get_all_buffers_summary,
   },
   {
-    token = "@changes",
-    description = "Recent changes in buffer",
-    provider = context.get_recent_changes,
-  },
-  {
-    token = "@clipboard",
-    description = "System clipboard content",
-    provider = function()
-      return context.get_clipboard()
-    end,
-  },
-  {
-    token = "!context",
-    description = "Lines surrounding cursor (5 before/after)",
-    provider = context.get_surrounding_lines,
-  },
-  {
     token = "!cursor",
     description = "Cursor position (file:line)",
     provider = function(state)
@@ -127,14 +108,47 @@ local PLACEHOLDERS = {
     token = "@diagnostic",
     description = "Diagnostics for the current line",
     provider = function(state)
-      return context.get_line_diagnostics(state)
+      if not validate_state(state) or not state.line then
+        return ""
+      end
+      local diags = vim.diagnostic.get(state.buf, { lnum = state.line - 1 })
+      local severity_names = {
+        [vim.diagnostic.severity.ERROR] = "ERROR",
+        [vim.diagnostic.severity.WARN] = "WARN",
+        [vim.diagnostic.severity.INFO] = "INFO",
+        [vim.diagnostic.severity.HINT] = "HINT",
+      }
+      local lines = {}
+      for _, diag in ipairs(diags) do
+        local severity = severity_names[diag.severity] or tostring(diag.severity)
+        table.insert(lines, string.format("[%s] %s", severity, diag.message))
+      end
+      return table.concat(lines, "\n")
     end,
   },
   {
     token = "@diagnostics",
     description = "All diagnostics in the current buffer",
     provider = function(state)
-      return context.get_all_diagnostics(state)
+      if not validate_state(state) then
+        return ""
+      end
+      local diags = vim.diagnostic.get(state.buf)
+      local severity_names = {
+        [vim.diagnostic.severity.ERROR] = "ERROR",
+        [vim.diagnostic.severity.WARN] = "WARN",
+        [vim.diagnostic.severity.INFO] = "INFO",
+        [vim.diagnostic.severity.HINT] = "HINT",
+      }
+      local lines = {}
+      for _, diag in ipairs(diags) do
+        local severity = severity_names[diag.severity] or tostring(diag.severity)
+        table.insert(
+          lines,
+          string.format("[%d:%d %s] %s", diag.lnum + 1, diag.col + 1, severity, diag.message)
+        )
+      end
+      return table.concat(lines, "\n")
     end,
   },
   {
@@ -143,16 +157,6 @@ local PLACEHOLDERS = {
     provider = function()
       return context.get_git_diff()
     end,
-  },
-  {
-    token = "@docs",
-    description = "LSP hover documentation at cursor",
-    provider = context.get_hover_docs,
-  },
-  {
-    token = "@filetype",
-    description = "Current buffer's filetype",
-    provider = context.get_filetype,
   },
   {
     token = "@folder",
@@ -168,11 +172,6 @@ local PLACEHOLDERS = {
     provider = function()
       return context.get_git_status()
     end,
-  },
-  {
-    token = "@imports",
-    description = "Import statements in current file",
-    provider = context.get_imports,
   },
   {
     token = "@loclist",
@@ -200,11 +199,6 @@ local PLACEHOLDERS = {
     token = "@selection",
     description = "Selected text",
     provider = context.get_visual_selection,
-  },
-  {
-    token = "@visible",
-    description = "Visible text in the current window",
-    provider = context.get_visible_content,
   },
   {
     token = "@word",

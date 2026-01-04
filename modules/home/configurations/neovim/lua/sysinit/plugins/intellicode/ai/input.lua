@@ -40,7 +40,7 @@ function M.create_input(termname, agent_icon, opts)
     local buf = vim.api.nvim_get_current_buf()
     if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].filetype == "ai_terminals_input" then
       vim.api.nvim_buf_call(buf, function()
-        vim.fn.matchadd("Special", "@\\w\\+")
+        vim.fn.matchadd("Special", "[@!]\\w\\+")
       end)
 
       local current_history_index = history.get_current_history_index()
