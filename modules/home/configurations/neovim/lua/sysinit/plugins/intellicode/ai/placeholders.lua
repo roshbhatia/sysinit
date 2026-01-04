@@ -83,7 +83,7 @@ end
 
 local PLACEHOLDERS = {
   {
-    token = "!buffer",
+    token = "@buffer",
     description = "Current buffer's file path",
     provider = function(state)
       local path = get_relative_path(state)
@@ -91,17 +91,17 @@ local PLACEHOLDERS = {
     end,
   },
   {
-    token = "!buffers",
+    token = "@buffers",
     description = "List of open buffers",
     provider = context.get_all_buffers_summary,
   },
   {
-    token = "!changes",
+    token = "@changes",
     description = "Recent changes in buffer",
     provider = context.get_recent_changes,
   },
   {
-    token = "!clipboard",
+    token = "@clipboard",
     description = "System clipboard content",
     provider = function()
       return context.get_clipboard()
@@ -124,38 +124,38 @@ local PLACEHOLDERS = {
     end,
   },
   {
-    token = "!diagnostic",
+    token = "@diagnostic",
     description = "Diagnostics for the current line",
     provider = function(state)
       return context.get_line_diagnostics(state)
     end,
   },
   {
-    token = "!diagnostics",
+    token = "@diagnostics",
     description = "All diagnostics in the current buffer",
     provider = function(state)
       return context.get_all_diagnostics(state)
     end,
   },
   {
-    token = "!diff",
+    token = "@diff",
     description = "Git diff for current file",
     provider = function()
       return context.get_git_diff()
     end,
   },
   {
-    token = "!docs",
+    token = "@docs",
     description = "LSP hover documentation at cursor",
     provider = context.get_hover_docs,
   },
   {
-    token = "!filetype",
+    token = "@filetype",
     description = "Current buffer's filetype",
     provider = context.get_filetype,
   },
   {
-    token = "!folder",
+    token = "@folder",
     description = "Current folder path",
     provider = function(state)
       local dir = get_folder_context(state)
@@ -163,51 +163,51 @@ local PLACEHOLDERS = {
     end,
   },
   {
-    token = "!git",
+    token = "@git",
     description = "Git status for current repository",
     provider = function()
       return context.get_git_status()
     end,
   },
   {
-    token = "!imports",
+    token = "@imports",
     description = "Import statements in current file",
     provider = context.get_imports,
   },
   {
-    token = "!loclist",
+    token = "@loclist",
     description = "Location list entries",
     provider = context.get_location_list,
   },
   {
-    token = "!marks",
+    token = "@marks",
     description = "Marks set in buffer",
     provider = context.get_marks,
   },
   {
-    token = "!qflist",
+    token = "@qflist",
     description = "Quickfix list entries",
     provider = context.get_quickfix_list,
   },
   {
-    token = "!search",
+    token = "@search",
     description = "Current search pattern",
     provider = function()
       return context.get_search_pattern()
     end,
   },
   {
-    token = "!selection",
+    token = "@selection",
     description = "Selected text",
     provider = context.get_visual_selection,
   },
   {
-    token = "!visible",
+    token = "@visible",
     description = "Visible text in the current window",
     provider = context.get_visible_content,
   },
   {
-    token = "!word",
+    token = "@word",
     description = "Word under cursor",
     provider = context.get_word_under_cursor,
   },
