@@ -39,8 +39,6 @@ let
   ];
 
   baseCasks = [
-    "1password"
-    "1password-cli"
     "firefox"
     "font-symbols-only-nerd-font"
     "hammerspoon"
