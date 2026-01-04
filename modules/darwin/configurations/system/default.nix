@@ -6,7 +6,6 @@
 {
   nix.enable = false;
 
-  # Determinate Nix custom settings
   determinate-nix.customSettings = {
     experimental-features = "nix-command flakes";
     lazy-trees = true;
