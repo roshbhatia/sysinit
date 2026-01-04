@@ -7,17 +7,7 @@
 }:
 let
   themes = import ../../../shared/lib/theme { inherit lib; };
-
-  stripHeaders =
-    file:
-    let
-      content = builtins.readFile file;
-      lines = lib.splitString "\n" content;
-      isHeaderLine =
-        line: lib.hasPrefix "#!/usr/bin/env" line || lib.hasPrefix "# shellcheck disable" line;
-      nonHeaderLines = builtins.filter (line: !(isHeaderLine line)) lines;
-    in
-    lib.concatStringsSep "\n" nonHeaderLines;
+  shellUtils = import ../../../shared/lib/shell { inherit lib; };
 
   palette = themes.getThemePalette values.theme.colorscheme values.theme.variant;
   colors = themes.getUnifiedColors palette;
@@ -60,13 +50,13 @@ let
 
   pathsList = systemPaths.nix ++ systemPaths.system ++ systemPaths.user ++ systemPaths.xdg;
 
-  coreInit = stripHeaders ./core/init.zsh;
-  corePath = stripHeaders ./core/path.zsh;
-  env = stripHeaders ./system/env.zsh;
-  integrationsCompletions = stripHeaders ./integrations/completions.zsh;
-  integrationsExtras = stripHeaders ./integrations/extras.zsh;
-  libCache = stripHeaders ./lib/cache.zsh;
-  uiPrompt = stripHeaders ./ui/prompt.zsh;
+  coreInit = shellUtils.stripHeaders ./core/init.zsh;
+  corePath = shellUtils.stripHeaders ./core/path.zsh;
+  env = shellUtils.stripHeaders ./system/env.zsh;
+  integrationsCompletions = shellUtils.stripHeaders ./integrations/completions.zsh;
+  integrationsExtras = shellUtils.stripHeaders ./integrations/extras.zsh;
+  libCache = shellUtils.stripHeaders ./lib/cache.zsh;
+  uiPrompt = shellUtils.stripHeaders ./ui/prompt.zsh;
 
   integrationsWezterm = builtins.readFile (
     pkgs.fetchurl {
