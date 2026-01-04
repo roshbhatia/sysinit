@@ -8,6 +8,8 @@ function M.create_input(termname, agent_icon, opts)
   local prompt = string.format("%s  %s", agent_icon, action_name)
   local title = string.format("%s  %s", agent_icon or "", action_name)
 
+  local initial_state = require("sysinit.plugins.intellicode.ai.context").current_position()
+
   local snacks = require("snacks")
   local hist = history.load_history(termname)
   history.set_current_history_index(termname, #hist + 1)
@@ -32,7 +34,7 @@ function M.create_input(termname, agent_icon, opts)
   }, function(value)
     if opts.on_confirm and value and value ~= "" then
       history.save_to_history(termname, value)
-      opts.on_confirm(placeholders.apply_placeholders(value))
+      opts.on_confirm(placeholders.apply_placeholders(value, initial_state))
     end
   end)
 
@@ -45,22 +47,22 @@ function M.create_input(termname, agent_icon, opts)
 
       local current_history_index = history.get_current_history_index()
 
-      vim.keymap.set("n", "j", function()
+      vim.keymap.set("i", "<C-j>", function()
         if current_history_index[termname] < #hist then
           current_history_index[termname] = current_history_index[termname] + 1
           local entry = hist[current_history_index[termname]]
           if entry then
-            vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(entry.prompt, "\n"))
+            vim.api.nvim_buf_set_lines(buf, 0, -1, false, { entry.prompt })
           end
         end
       end, { buffer = buf, silent = true })
 
-      vim.keymap.set("n", "k", function()
+      vim.keymap.set("i", "<C-k>", function()
         if current_history_index[termname] > 1 then
           current_history_index[termname] = current_history_index[termname] - 1
           local entry = hist[current_history_index[termname]]
           if entry then
-            vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(entry.prompt, "\n"))
+            vim.api.nvim_buf_set_lines(buf, 0, -1, false, { entry.prompt })
           end
         elseif current_history_index[termname] == 1 then
           current_history_index[termname] = #hist + 1

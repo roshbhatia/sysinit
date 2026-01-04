@@ -207,11 +207,11 @@ local PLACEHOLDERS = {
   },
 }
 
-function M.apply_placeholders(input)
+function M.apply_placeholders(input, state)
   if not input or input == "" then
     return input
   end
-  local state = context.current_position()
+  state = state or context.current_position()
   local result = input
 
   for _, ph in ipairs(PLACEHOLDERS) do
