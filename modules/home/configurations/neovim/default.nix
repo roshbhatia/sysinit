@@ -5,6 +5,7 @@
 }:
 
 let
+  themes = import ../../../shared/lib/theme { inherit lib; };
   configGen = import ../../../shared/lib/config-gen.nix { inherit lib; };
 in
 

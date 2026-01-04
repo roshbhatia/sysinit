@@ -275,7 +275,6 @@ let
     else
       { };
 
-  getSafePalette = palette: utils.validatePalette palette;
   getUnifiedColors = palette: utils.createSemanticMapping palette;
   mergeThemeConfig = utils.mergeThemeConfigs;
 
@@ -292,10 +291,6 @@ let
       theme = getTheme themeId;
     in
     theme.meta;
-
-  withThemeOverrides =
-    baseConfig: app: overrides:
-    createAppConfig app baseConfig overrides;
 
   ansiMappings = mapAttrs (
     _themeId: theme:
@@ -325,17 +320,10 @@ in
   inherit themes listAvailableThemes getThemeInfo;
 
   inherit
-    getSafePalette
     getUnifiedColors
     mergeThemeConfig
-    withThemeOverrides
     ansiMappings
     ;
-
-  extractThemeValues = theme: {
-    inherit (theme) font transparency appearance;
-  };
-  stripHashColor = removePrefix "#";
 
   inherit
     mkThemedConfig
