@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   values,
   utils,
   ...
@@ -16,5 +17,7 @@ let
 
 in
 {
-  home.activation.yarnPackages = utils.packages.mkPackageActivation "yarn" yarnPackages config;
+  home.activation.yarnPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+    utils.packages.mkPackageActivationScript "yarn" yarnPackages config
+  );
 }

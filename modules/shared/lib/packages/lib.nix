@@ -38,9 +38,9 @@ in
         fi
       '';
 
-  mkPackageActivation =
+  mkPackageActivationScript =
     manager: packages: config:
-    lib.hm.dag.entryAfter [ "writeBoundary" ] (mkPackageManagerScript config manager packages);
+    mkPackageManagerScript config manager packages;
 
   mkPackageManagerScript =
     config: manager: packages:
