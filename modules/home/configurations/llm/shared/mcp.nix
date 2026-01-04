@@ -4,7 +4,8 @@
 }:
 
 let
-  flattenList = lists: lib.lists.flatten (map (x: if builtins.isList x then x else [ x ]) lists);
+  flattenPermissions =
+    perms: lib.lists.flatten (map (x: if builtins.isList x then x else [ x ]) perms);
 
   defaultServers = {
     serena = {
@@ -75,6 +76,16 @@ let
       "kubectl top*"
     ];
 
+    # For reading/exploring project structure and code
+    filesystem = [
+      "ls*"
+      "cat*"
+      "find*"
+      "grep*"
+      "fd*"
+      "rg*"
+    ];
+
     nix = [
       "nix-shell --run*"
       "nix eval*"
@@ -130,6 +141,7 @@ let
       "cd*"
       "mkdir*"
       "make*"
+      "bd*"
     ];
 
     crossplane = [
@@ -138,9 +150,19 @@ let
       "crossplane beta trace*"
       "crossplane beta validate*"
     ];
+
+    # MCP servers for code understanding
+    serena = [
+      "serena_get_symbols_overview"
+      "serena_find_symbol"
+      "serena_find_referencing_symbols"
+      "serena_find_file"
+      "serena_search_for_pattern"
+      "serena_list_dir"
+    ];
   };
 
-  allPermissions = flattenList (builtins.attrValues permissions);
+  allPermissions = flattenPermissions (builtins.attrValues permissions);
 
   allServers = defaultServers // values.llm.mcp.additionalServers or { };
 in

@@ -7,7 +7,7 @@
 let
   agents = import ../shared/agents.nix;
   lsp = import ../shared/lsp.nix;
-  mcpServers = import ../shared/mcp.nix { inherit lib values; };
+  mcpServers = import ../shared/mcp.nix { inherit lib pkgs values; };
   skills = import ../shared/skills.nix { inherit lib pkgs; };
 
   formatMcpForOpencode =
@@ -84,9 +84,12 @@ let
         extensions = [ ".nix" ];
       };
     };
+
+    plugin = [
+      "opencode-beads"
+    ];
   };
 
-  # Format subagents as individual markdown files
   subagentFiles = lib.mapAttrs' (
     name: config:
     lib.nameValuePair "opencode/agent/${name}.md" {

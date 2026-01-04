@@ -47,6 +47,9 @@ in
   # Use neovim-nightly from nix-community overlay
   neovim = inputs.neovim-nightly-overlay.packages.${system}.default;
 
+  # Beads Viewer
+  bv = inputs.bv.packages.${system}.default;
+
   kubernetes-zeitgeist = final.buildGoModule rec {
     pname = "kubernetes-zeitgeist";
     version = "0.5.3";

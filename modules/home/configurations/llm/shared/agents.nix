@@ -17,8 +17,9 @@ in
     NEVER create ad-hoc documentaiton. You MAY create applicable documentation, but only that which a human would write.
     MUST use serena_get_symbols_overview first when exploring files.
     MUST use serena and astgrep over internal tools exploring files and editing files.
-    MUST reference your memory via serena.
     NEVER use emojis in code.
+
+    ALWAYS use beads (bd) for tracking issues, memory, and task planning.
   '';
 
   inherit subagents;
