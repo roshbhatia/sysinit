@@ -195,9 +195,10 @@ let
 
   # Project management and collaboration
   projectPkgs = with pkgs; [
+    beads
     jira-cli-go
     mermaid-cli
-    zk
+    bv.packages.${system}.default
   ];
 
   # Documentation and utilities
