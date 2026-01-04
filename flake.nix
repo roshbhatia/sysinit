@@ -39,5 +39,10 @@
     opencode.url = "github:anomalyco/opencode";
   };
 
-  outputs = inputs: (import ./flake/outputs.nix inputs);
+  outputs =
+    inputs:
+    (import ./flake/outputs.nix inputs)
+    // {
+      formatter.aarch64-darwin = inputs.nixpkgs.legacyPackages.aarch64-darwin.nixfmt;
+    };
 }
