@@ -19,7 +19,7 @@ M.plugins = {
         },
         engines = {
           ripgrep = {
-            extraArgs = "--hidden --glob '!.git/'",
+            extraArgs = "--hidden --iglob '!.git/'",
           },
         },
       })
