@@ -5,6 +5,7 @@
 }:
 
 let
+  themes = import ../../../shared/lib/theme { inherit lib; };
   themeNames = import ../../../shared/lib/theme/adapters/theme-names.nix { inherit lib; };
   themeName = themeNames.getWeztermTheme values.theme.colorscheme values.theme.variant;
 in
