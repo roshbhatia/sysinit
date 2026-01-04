@@ -1,6 +1,7 @@
 { ... }:
 {
   imports = [
+    ./_1password
     ./aerospace
     ./borders
     ./builders
