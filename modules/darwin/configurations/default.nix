@@ -11,9 +11,7 @@
     ./hostname
     ./karabiner-elements
     ./keyboard
-    ./nix
     ./ollama
-    ./op
     ./security
     ./sketchybar
     ./stylix

@@ -1,5 +1,5 @@
 {
-  hostname ? "MacBook",
+  hostname,
   ...
 }:
 {

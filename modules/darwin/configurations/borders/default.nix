@@ -1,7 +1,6 @@
 {
   lib,
   values,
-  pkgs,
   ...
 }:
 
@@ -11,7 +10,6 @@ in
 lib.mkIf bordersEnabled {
   services.jankyborders = {
     enable = true;
-    package = pkgs.jankyborders;
     width = 4.0;
   };
 }

@@ -14,9 +14,4 @@
       ]
     );
   };
-
-  environment.systemPackages = with pkgs; [
-    coreutils
-    findutils
-  ];
 }

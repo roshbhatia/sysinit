@@ -16,6 +16,9 @@ let
     gnugrep
     gnused
     jq
+    lua54Packages.cjson
+    menus
+    sbarlua
     socat
     watch
     wget

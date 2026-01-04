@@ -24,8 +24,11 @@ let
     dbus
     grim
     jq
+    lua54Packages.cjson
+    menus
     mesa-demos
     networkmanager
+    sbarlua
     slurp
     wl-clipboard
     xclip

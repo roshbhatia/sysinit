@@ -2,12 +2,14 @@
   description = "Personal system configuration";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0";
 
     darwin = {
-      url = "github:nix-darwin/nix-darwin/master";
+      url = "https://flakehub.com/f/nix-darwin/nix-darwin/0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/3";
 
     home-manager = {
       url = "github:nix-community/home-manager/master";
