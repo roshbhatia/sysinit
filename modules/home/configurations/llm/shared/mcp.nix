@@ -2,10 +2,38 @@
   lib,
   values,
 }:
-
 let
   flattenPermissions =
     perms: lib.lists.flatten (map (x: if builtins.isList x then x else [ x ]) perms);
+
+  serenaExcludedTools = [
+    "serena_jet_brains_find_referencing_symbols"
+    "serena_jet_brains_find_symbol"
+    "serena_jet_brains_get_symbols_overview"
+    "serena_delete_memory"
+    "serena_read_memory"
+    "serena_write_memory"
+    "serena_list_memories"
+    "serena_edit_memory"
+    "serena_insert_after_symbol"
+    "serena_insert_at_line"
+    "serena_insert_before_symbol"
+    "serena_replace_lines"
+    "serena_replace_content"
+    "serena_replace_symbol_body"
+    "serena_delete_lines"
+    "serena_create_text_file"
+    "serena_remove_project"
+  ];
+
+  serenaAllowedTools = [
+    "serena_get_symbols_overview"
+    "serena_find_symbol"
+    "serena_find_referencing_symbols"
+    "serena_find_file"
+    "serena_search_for_pattern"
+    "serena_list_dir"
+  ];
 
   defaultServers = {
     serena = {
@@ -15,12 +43,10 @@ let
         "git+https://github.com/oraios/serena"
         "serena"
         "start-mcp-server"
-        "--web-dashboard"
-        "true"
-        "--web-dashboard-open-on-launch"
+        "--enable-web-dashboard"
         "false"
         "--excluded-tools"
-        "serena_jet_brains_find_referencing_symbols,serena_jet_brains_find_symbol,serena_jet_brains_get_symbols_overview,serena_delete_memory,serena_read_memory,serena_write_memory,serena_list_memories,serena_edit_memory,serena_insert_after_symbol,serena_insert_at_line,serena_insert_before_symbol,serena_replace_lines,serena_replace_content,serena_replace_symbol_body,serena_delete_lines,serena_rename_symbol,serena_create_text_file,serena_remove_project"
+        (lib.strings.concatStringsSep "," serenaExcludedTools)
         "--context"
         "claude-code"
       ];
@@ -41,7 +67,6 @@ let
       "git describe*"
       "git rev-parse*"
     ];
-
     github = [
       "gh auth status"
       "gh repo view*"
@@ -55,7 +80,6 @@ let
       "gh run view*"
       "gh api*"
     ];
-
     docker = [
       "docker ps*"
       "docker images*"
@@ -64,7 +88,6 @@ let
       "docker version"
       "docker info"
     ];
-
     kubernetes = [
       "kubectl get*"
       "kubectl describe*"
@@ -79,7 +102,6 @@ let
       "kubectl explain*"
       "kubectl top*"
     ];
-
     filesystem = [
       "ls*"
       "cat*"
@@ -88,7 +110,6 @@ let
       "fd*"
       "rg*"
     ];
-
     nix = [
       "nh*"
       "nix-shell --run*"
@@ -102,13 +123,11 @@ let
       "nix-instantiate*"
       "nix-search*"
     ];
-
     darwin = [
       "darwin-rebuild switch*"
       "darwin-rebuild build*"
       "darwin-rebuild check*"
     ];
-
     navigation = [
       "zoxide query*"
       "z *"
@@ -117,7 +136,6 @@ let
       "rg*"
       "ripgrep*"
     ];
-
     utilities = [
       "pwd"
       "ls*"
@@ -146,24 +164,14 @@ let
       "mkdir*"
       "bd*"
     ];
-
     crossplane = [
       "crossplane*"
       "up*"
     ];
-
-    serena = [
-      "serena_get_symbols_overview"
-      "serena_find_symbol"
-      "serena_find_referencing_symbols"
-      "serena_find_file"
-      "serena_search_for_pattern"
-      "serena_list_dir"
-    ];
+    serena = serenaAllowedTools;
   };
 
   allPermissions = flattenPermissions (builtins.attrValues permissions);
-
   allServers = defaultServers // values.llm.mcp.additionalServers or { };
 in
 {

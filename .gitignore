@@ -19,3 +19,6 @@ nix.secrets.conf
 .serena
 !AGENTS.md
 
+
+# bv (beads viewer) local config and caches
+.bv/
