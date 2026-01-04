@@ -7,6 +7,7 @@
 let
   mcpServers = import ../shared/mcp.nix { inherit lib values; };
   skills = import ../shared/skills.nix { inherit lib pkgs; };
+  mcpFormatters = import ../shared/mcp-formatters.nix { inherit lib; };
 
   claudeConfig = builtins.toJSON {
     mcpServers = mcpFormatters.formatMcpFor "claude" mcpServers.servers;
