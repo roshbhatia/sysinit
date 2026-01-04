@@ -1,23 +1,22 @@
 {
   pkgs,
   values,
-  lib,
   ...
 }:
 
 let
-  themeLib = import ../../../shared/lib/theme { inherit lib; };
-  themeKey = "${values.theme.colorscheme}-${values.theme.variant}";
-  base16Scheme = themeLib.base16Schemes.getBase16Scheme themeKey;
-  polarity = values.theme.appearance;
-  monospaceFontName = values.theme.font.monospace;
+  themeConfig = values.theme;
+  polarityValue = themeConfig.appearance;
+  monospaceFontName = themeConfig.font.monospace;
+  base16Scheme = "catppuccin-mocha";
 in
 {
   stylix = {
     enable = true;
     autoEnable = true;
-    inherit polarity;
+    enableReleaseChecks = false;
 
+    polarity = polarityValue;
     base16Scheme = "${pkgs.base16-schemes}/share/themes/${base16Scheme}.yaml";
 
     fonts = {
@@ -38,6 +37,13 @@ in
         desktop = 11;
         popups = 11;
       };
+    };
+
+    opacity = {
+      terminal = themeConfig.transparency.opacity;
+      applications = themeConfig.transparency.opacity;
+      desktop = 1.0;
+      popups = themeConfig.transparency.opacity;
     };
 
     targets = {

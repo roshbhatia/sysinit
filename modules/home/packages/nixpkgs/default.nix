@@ -7,6 +7,11 @@
 let
   additionalPackages = values.nix.additionalPackages or [ ];
 
+  # Custom scripts
+  fzf-preview = pkgs.writeScriptBin "fzf-preview" (
+    builtins.readFile ../../../home/configurations/utils/dev/fzf-preview.nu
+  );
+
   # Core system utilities
   basePkgs = with pkgs; [
     coreutils
@@ -209,11 +214,13 @@ let
     jsonld-cli
   ];
 
-  # Security
+  # Security and password management
   securityPkgs = with pkgs; [
     gnupg
     openssh
     sshpass
+    _1password-cli
+    _1password-gui
   ];
 
   # Fonts
@@ -224,6 +231,7 @@ let
   # Debug tools
   debugPkgs = with pkgs; [
     delve
+    fzf-preview
   ];
 
   # CAD tools
@@ -251,7 +259,8 @@ let
     ++ fontPkgs
     ++ debugPkgs
     ++ cadPkgs
-    ++ additionalPackages;
+    ++ additionalPackages
+    ++ [ fzf-preview ];
 in
 {
   home.packages = allPackages;
