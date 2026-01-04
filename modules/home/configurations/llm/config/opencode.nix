@@ -87,6 +87,7 @@ let
 
     plugin = [
       "opencode-beads"
+      "opencode-pty"
     ];
   };
 
