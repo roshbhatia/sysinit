@@ -17,11 +17,6 @@ M.plugins = {
         resultLocation = {
           showNumberLabel = false,
         },
-        engines = {
-          ripgrep = {
-            extraArgs = "--hidden --iglob '!.git/'",
-          },
-        },
       })
     end,
     keys = function()
