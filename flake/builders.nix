@@ -89,7 +89,7 @@
               inherit utils hostname;
             };
           }
-          determinate.darwinModules.default
+          inputs.determinate.darwinModules.default
           {
             # Let Determinate Nix handle Nix configuration rather than nix-darwin
             nix.enable = false;

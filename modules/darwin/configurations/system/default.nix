@@ -6,6 +6,18 @@
 {
   nix.enable = false;
 
+  # Determinate Nix custom settings
+  determinate-nix.customSettings = {
+    experimental-features = "nix-command flakes";
+    lazy-trees = true;
+    extra-substituters = "https://nix-community.cachix.org https://cache.iog.io";
+    fallback = true;
+    max-jobs = "auto";
+    cores = 0;
+    connect-timeout = 5;
+    "!include" = "nix.secrets.conf";
+  };
+
   environment.shells = [
     pkgs.bashInteractive
     pkgs.nushell
