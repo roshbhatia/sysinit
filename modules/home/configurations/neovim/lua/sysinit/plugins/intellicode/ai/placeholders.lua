@@ -94,7 +94,7 @@ local PLACEHOLDERS = {
     provider = context.get_all_buffers_summary,
   },
   {
-    token = "!cursor",
+    token = "@cursor",
     description = "Cursor position (file:line)",
     provider = function(state)
       local path = get_relative_path(state)
