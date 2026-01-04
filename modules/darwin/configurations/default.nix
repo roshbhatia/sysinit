@@ -9,6 +9,7 @@
     ./environment
     ./finder
     ./hostname
+    ./karabiner-elements
     ./keyboard
     ./nix
     ./ollama
