@@ -9,7 +9,6 @@ let
     inherit lib;
     inherit (inputs) nixpkgs;
     inherit inputs;
-    inherit (inputs) determinate;
   };
   outputBuilders = import ./output-builders.nix { inherit lib; };
 
