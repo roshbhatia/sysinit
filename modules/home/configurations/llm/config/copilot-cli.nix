@@ -1,11 +1,10 @@
 {
   lib,
-  pkgs,
   values,
   ...
 }:
 let
-  mcpServers = import ../shared/mcp.nix { inherit lib pkgs values; };
+  mcpServers = import ../shared/mcp.nix { inherit lib values; };
   cfg = values.llm.copilot or { };
 
   formatMcpForCopilot =

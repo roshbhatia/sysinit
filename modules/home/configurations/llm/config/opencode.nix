@@ -7,7 +7,7 @@
 let
   agents = import ../shared/agents.nix;
   lsp = import ../shared/lsp.nix;
-  mcpServers = import ../shared/mcp.nix { inherit lib pkgs values; };
+  mcpServers = import ../shared/mcp.nix { inherit lib values; };
   skills = import ../shared/skills.nix { inherit lib pkgs; };
 
   formatMcpForOpencode =
