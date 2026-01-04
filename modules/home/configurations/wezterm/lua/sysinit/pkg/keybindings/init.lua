@@ -71,26 +71,15 @@ local function get_pane_keys()
   }
 
   for _, key in ipairs({ "h", "j", "k", "l" }) do
-    table.insert(
-      keys,
-      { key = key, mods = "CTRL", action = create_pane_action("move", key, "CTRL") }
-    )
-    table.insert(
-      keys,
-      { key = key, mods = "CTRL|SHIFT", action = create_pane_action("resize", key, "CTRL|SHIFT") }
-    )
+    table.insert(keys, { key = key, mods = "CTRL", action = create_pane_action("move", key, "CTRL") })
+    table.insert(keys, { key = key, mods = "CTRL|SHIFT", action = create_pane_action("resize", key, "CTRL|SHIFT") })
   end
 
   for _, mods in ipairs({ "CTRL", "SUPER" }) do
     table.insert(keys, {
       key = "w",
       mods = mods,
-      action = create_passthrough_action(
-        "w",
-        mods,
-        act.CloseCurrentPane({ confirm = true }),
-        VIM_PROCESSES
-      ),
+      action = create_passthrough_action("w", mods, act.CloseCurrentPane({ confirm = true }), VIM_PROCESSES),
     })
   end
 
@@ -134,16 +123,12 @@ local function get_tab_keys()
     { key = "o", mods = "CTRL|SHIFT", action = act.ActivateLastTab },
   }
 
-  for _, binding in
-    ipairs(create_multi_bindings("t", { "CTRL", "SUPER" }, act.SpawnTab("CurrentPaneDomain")))
-  do
+  for _, binding in ipairs(create_multi_bindings("t", { "CTRL", "SUPER" }, act.SpawnTab("CurrentPaneDomain"))) do
     table.insert(keys, binding)
   end
 
   for i = 1, 8 do
-    for _, binding in
-      ipairs(create_multi_bindings(tostring(i), { "CTRL", "SUPER" }, act.ActivateTab(i - 1)))
-    do
+    for _, binding in ipairs(create_multi_bindings(tostring(i), { "CTRL", "SUPER" }, act.ActivateTab(i - 1))) do
       table.insert(keys, binding)
     end
   end

@@ -23,27 +23,18 @@ function M.setup()
           vim.fn.delete(socket_path)
         end)
         if not ok then
-          vim.notify(
-            string.format("Warning: Could not remove stale socket at %s", socket_path),
-            vim.log.levels.WARN
-          )
+          vim.notify(string.format("Warning: Could not remove stale socket at %s", socket_path), vim.log.levels.WARN)
         end
       end
 
       local result = vim.fn.serverstart(socket_path)
       if not result or result == "" then
-        vim.notify(
-          string.format("ERROR: Failed to start RPC server on %s", socket_path),
-          vim.log.levels.ERROR
-        )
+        vim.notify(string.format("ERROR: Failed to start RPC server on %s", socket_path), vim.log.levels.ERROR)
         return
       end
 
       if vim.fn.filereadable(socket_path) ~= 1 then
-        vim.notify(
-          string.format("ERROR: RPC socket created but not found at %s", socket_path),
-          vim.log.levels.ERROR
-        )
+        vim.notify(string.format("ERROR: RPC socket created but not found at %s", socket_path), vim.log.levels.ERROR)
         return
       end
 
@@ -62,10 +53,7 @@ function M.setup()
           end
         end)
         if not ok then
-          vim.notify(
-            string.format("Warning: Could not clean up socket at %s", socket_path),
-            vim.log.levels.WARN
-          )
+          vim.notify(string.format("Warning: Could not clean up socket at %s", socket_path), vim.log.levels.WARN)
         end
       end
     end,

@@ -55,11 +55,7 @@ function M.pick_agent()
           if selection then
             ai_manager.activate(selection.value.agent.name)
             vim.notify(
-              string.format(
-                "%s %s activated",
-                selection.value.agent.icon,
-                selection.value.agent.label
-              ),
+              string.format("%s %s activated", selection.value.agent.icon, selection.value.agent.label),
               vim.log.levels.INFO
             )
           end

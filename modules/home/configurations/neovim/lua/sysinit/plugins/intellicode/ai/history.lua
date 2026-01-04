@@ -104,10 +104,7 @@ function M.create_history_picker(termname)
           local selection = action_state.get_selected_entry()
           if selection then
             vim.fn.setreg("+", selection.value.prompt)
-            vim.notify(
-              "Copied to clipboard: " .. selection.value.prompt:sub(1, 50) .. "...",
-              vim.log.levels.INFO
-            )
+            vim.notify("Copied to clipboard: " .. selection.value.prompt:sub(1, 50) .. "...", vim.log.levels.INFO)
           end
         end)
         return true

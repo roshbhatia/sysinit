@@ -1,8 +1,7 @@
 local json_loader = require("sysinit.utils.json_loader")
 local highlight_gen = require("sysinit.utils.highlight_generator")
 
-local theme_config =
-  json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
+local theme_config = json_loader.load_json_file(json_loader.get_config_path("theme_config.json"), "theme_config")
 
 local c = theme_config.semanticColors
 local M = {}

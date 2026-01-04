@@ -61,9 +61,7 @@ local function find_existing_session(termname, cwd)
 end
 
 local function tmux_session_exists(session_name)
-  vim.fn.system(
-    string.format("tmux has-session -t %s 2>/dev/null", vim.fn.shellescape(session_name))
-  )
+  vim.fn.system(string.format("tmux has-session -t %s 2>/dev/null", vim.fn.shellescape(session_name)))
   return vim.v.shell_error == 0
 end
 
@@ -121,10 +119,7 @@ function M.setup(opts)
 
   parent_pane_id = get_current_pane_id()
   if not parent_pane_id then
-    vim.notify(
-      "Warning: Not running inside WezTerm. AI terminal features disabled.",
-      vim.log.levels.WARN
-    )
+    vim.notify("Warning: Not running inside WezTerm. AI terminal features disabled.", vim.log.levels.WARN)
     return
   end
 
@@ -158,10 +153,7 @@ end
 function M.open(termname)
   local agent_config = config.terminals[termname]
   if not agent_config then
-    vim.notify(
-      string.format("Unknown terminal: %s. Check ai_manager.setup() config", termname),
-      vim.log.levels.ERROR
-    )
+    vim.notify(string.format("Unknown terminal: %s. Check ai_manager.setup() config", termname), vim.log.levels.ERROR)
     return
   end
 
@@ -193,8 +185,7 @@ function M.open(termname)
   end
 
   if vim.env.NVIM_SOCKET_PATH then
-    env_str = env_str
-      .. string.format("export NVIM_SOCKET_PATH=%s; ", vim.fn.shellescape(vim.env.NVIM_SOCKET_PATH))
+    env_str = env_str .. string.format("export NVIM_SOCKET_PATH=%s; ", vim.fn.shellescape(vim.env.NVIM_SOCKET_PATH))
   end
 
   local tmux_cmd
@@ -258,18 +249,12 @@ function M.focus(termname)
   local term_data = terminals[termname]
 
   if not term_data then
-    vim.notify(
-      string.format("Terminal not found: %s. Use open() first", termname),
-      vim.log.levels.WARN
-    )
+    vim.notify(string.format("Terminal not found: %s. Use open() first", termname), vim.log.levels.WARN)
     return
   end
 
   if not term_data.pane_id or not pane_exists(term_data.pane_id) then
-    vim.notify(
-      string.format("Pane no longer exists for %s. Reopening...", termname),
-      vim.log.levels.WARN
-    )
+    vim.notify(string.format("Pane no longer exists for %s. Reopening...", termname), vim.log.levels.WARN)
     term_data.pane_id = nil
     M.open(termname)
     return
@@ -308,10 +293,7 @@ function M.show(termname)
   end
 
   if not tmux_session_exists(term_data.session_name) then
-    vim.notify(
-      string.format("Session no longer exists for %s. Reopening...", termname),
-      vim.log.levels.WARN
-    )
+    vim.notify(string.format("Session no longer exists for %s. Reopening...", termname), vim.log.levels.WARN)
     terminals[termname] = nil
     M.open(termname)
     return
@@ -322,8 +304,7 @@ function M.show(termname)
     return
   end
 
-  local tmux_cmd =
-    string.format("tmux attach-session -t %s", vim.fn.shellescape(term_data.session_name))
+  local tmux_cmd = string.format("tmux attach-session -t %s", vim.fn.shellescape(term_data.session_name))
 
   local spawn_cmd = string.format(
     "wezterm cli split-pane --pane-id %d --right --percent 50 --cwd %s -- %s 2>/dev/null",
@@ -362,10 +343,7 @@ function M.send(termname, text, opts)
   local term_data = terminals[termname]
 
   if not term_data then
-    vim.notify(
-      string.format("Terminal not found: %s. Open it first", termname),
-      vim.log.levels.ERROR
-    )
+    vim.notify(string.format("Terminal not found: %s. Open it first", termname), vim.log.levels.ERROR)
     return
   end
 
@@ -374,17 +352,12 @@ function M.send(termname, text, opts)
     return
   end
 
-  local send_cmd = string.format(
-    "tmux send-keys -t %s %s",
-    vim.fn.shellescape(term_data.session_name),
-    vim.fn.shellescape(text)
-  )
+  local send_cmd =
+    string.format("tmux send-keys -t %s %s", vim.fn.shellescape(term_data.session_name), vim.fn.shellescape(text))
   vim.fn.system(send_cmd)
 
   if opts.submit then
-    vim.fn.system(
-      string.format("tmux send-keys -t %s Enter", vim.fn.shellescape(term_data.session_name))
-    )
+    vim.fn.system(string.format("tmux send-keys -t %s Enter", vim.fn.shellescape(term_data.session_name)))
   end
 end
 
@@ -433,9 +406,7 @@ function M.close(termname)
   end
 
   if tmux_session_exists(term_data.session_name) then
-    vim.fn.system(
-      string.format("tmux kill-session -t %s", vim.fn.shellescape(term_data.session_name))
-    )
+    vim.fn.system(string.format("tmux kill-session -t %s", vim.fn.shellescape(term_data.session_name)))
   end
 
   terminals[termname] = nil

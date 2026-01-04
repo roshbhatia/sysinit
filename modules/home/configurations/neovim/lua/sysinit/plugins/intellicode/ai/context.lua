@@ -284,9 +284,7 @@ function M.get_git_status()
   end
 
   local result = vim.fn.system(
-    "git -C "
-      .. vim.fn.shellescape(vim.fn.fnamemodify(filepath, ":h"))
-      .. " status --short --branch 2>/dev/null"
+    "git -C " .. vim.fn.shellescape(vim.fn.fnamemodify(filepath, ":h")) .. " status --short --branch 2>/dev/null"
   )
 
   if vim.v.shell_error ~= 0 then
@@ -321,11 +319,7 @@ function M.get_git_diff()
   local rel_path = filepath:sub(#repo_root + 2)
 
   local result = vim.fn.system(
-    "git -C "
-      .. vim.fn.shellescape(repo_root)
-      .. " diff "
-      .. vim.fn.shellescape(rel_path)
-      .. " 2>/dev/null"
+    "git -C " .. vim.fn.shellescape(repo_root) .. " diff " .. vim.fn.shellescape(rel_path) .. " 2>/dev/null"
   )
 
   if vim.v.shell_error ~= 0 or result == "" then
