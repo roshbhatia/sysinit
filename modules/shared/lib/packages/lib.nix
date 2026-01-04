@@ -38,10 +38,6 @@ in
         fi
       '';
 
-  mkPackageActivationScript =
-    manager: packages: config:
-    mkPackageManagerScript config manager packages;
-
   mkPackageManagerScript =
     config: manager: packages:
     let
@@ -82,4 +78,8 @@ in
                   fi
                 fi
       '';
+
+  mkPackageActivationScript =
+    manager: packages: config:
+    mkPackageManagerScript config manager packages;
 }
