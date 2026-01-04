@@ -105,8 +105,8 @@ local PLACEHOLDERS = {
     end,
   },
   {
-    token = "@diagnostic",
-    description = "Diagnostics for the current line",
+    token = "@diagnostics",
+    description = "Diagnostics for the current buffer",
     provider = function(state)
       if not validate_state(state) or not state.line then
         return ""
@@ -122,31 +122,6 @@ local PLACEHOLDERS = {
       for _, diag in ipairs(diags) do
         local severity = severity_names[diag.severity] or tostring(diag.severity)
         table.insert(lines, string.format("[%s] %s", severity, diag.message))
-      end
-      return table.concat(lines, "\n")
-    end,
-  },
-  {
-    token = "@diagnostics",
-    description = "All diagnostics in the current buffer",
-    provider = function(state)
-      if not validate_state(state) then
-        return ""
-      end
-      local diags = vim.diagnostic.get(state.buf)
-      local severity_names = {
-        [vim.diagnostic.severity.ERROR] = "ERROR",
-        [vim.diagnostic.severity.WARN] = "WARN",
-        [vim.diagnostic.severity.INFO] = "INFO",
-        [vim.diagnostic.severity.HINT] = "HINT",
-      }
-      local lines = {}
-      for _, diag in ipairs(diags) do
-        local severity = severity_names[diag.severity] or tostring(diag.severity)
-        table.insert(
-          lines,
-          string.format("[%d:%d %s] %s", diag.lnum + 1, diag.col + 1, severity, diag.message)
-        )
       end
       return table.concat(lines, "\n")
     end,
