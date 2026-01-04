@@ -26,5 +26,7 @@ let
   ++ (values.go.additionalPackages or [ ]);
 in
 {
-  home.activation.goPackages = utils.packages.mkPackageActivation "go" goPackages config;
+  home.activation.goPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+    utils.packages.mkPackageActivationScript "go" goPackages config
+  );
 }

@@ -10,6 +10,8 @@ let
 in
 {
   home.activation = {
-    vetPackages = utils.packages.mkPackageActivation "vet" vetPackages config;
+    vetPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+      utils.packages.mkPackageActivationScript "vet" vetPackages config
+    );
   };
 }

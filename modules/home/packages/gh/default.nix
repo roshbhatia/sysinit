@@ -12,5 +12,7 @@ let
   ++ (values.gh.additionalPackages or [ ]);
 in
 {
-  home.activation.ghPackages = utils.packages.mkPackageActivation "gh" ghPackages config;
+  home.activation.ghPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+    utils.packages.mkPackageActivationScript "gh" ghPackages config
+  );
 }

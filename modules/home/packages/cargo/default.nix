@@ -10,6 +10,8 @@ let
 in
 {
   home.activation = {
-    cargoPackages = utils.packages.mkPackageActivation "cargo" cargoPackages config;
+    cargoPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+      utils.packages.mkPackageActivationScript "cargo" cargoPackages config
+    );
   };
 }
