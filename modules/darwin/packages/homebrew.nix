@@ -31,7 +31,6 @@ let
     "luarocks"
     "lunchy"
     "ollama"
-    "opencode"
     "osx-cross/arm/arm-none-eabi-binutils"
     "osx-cross/arm/arm-none-eabi-gcc@8"
     "slp/krunkit/krunkit"
