@@ -15,6 +15,5 @@ _: {
       colorscheme = "catppuccin-mocha";
       variant = "mocha";
     };
-
   };
 }

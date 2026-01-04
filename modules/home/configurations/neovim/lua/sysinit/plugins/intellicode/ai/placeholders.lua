@@ -101,7 +101,7 @@ local PLACEHOLDERS = {
       if not state or not state.line then
         return ""
       end
-      return path ~= "" and string.format("!%s :%d", path, state.line) or ""
+      return path ~= "" and string.format("@%s:%d", path, state.line) or ""
     end,
   },
   {
