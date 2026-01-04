@@ -1,176 +1,213 @@
 local M = {}
 local context = require("sysinit.plugins.intellicode.ai.context")
 
-local function get_relative_path(state)
-  if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
-    return ""
+-- Cache git root to avoid repeated syscalls
+local git_root_cache = {}
+
+local function get_git_root()
+  local cwd = vim.fn.getcwd()
+  if git_root_cache[cwd] then
+    return git_root_cache[cwd]
+  end
+
+  local handle = io.popen("git rev-parse --show-toplevel 2>/dev/null")
+  if not handle then
+    return nil
+  end
+
+  local root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
+  handle:close()
+
+  git_root_cache[cwd] = (root and root ~= "") and root or nil
+  return git_root_cache[cwd]
+end
+
+local function validate_state(state)
+  return state and state.buf and vim.api.nvim_buf_is_valid(state.buf)
+end
+
+local function get_buffer_path(state)
+  if not validate_state(state) then
+    return nil
   end
 
   local path = vim.api.nvim_buf_get_name(state.buf)
-  if path == "" then
+  return (path and path ~= "") and path or nil
+end
+
+local function normalize_path(path, strip_root)
+  if not path or path == "" then
     return ""
   end
 
-  local handle = io.popen("git rev-parse --show-toplevel")
-  local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
-  handle:close()
+  if not strip_root then
+    return path
+  end
 
-  if repo_root and repo_root ~= "" then
-    path = path:sub(#repo_root + 2)
+  local git_root = get_git_root()
+  if not git_root then
+    return path
+  end
+
+  -- Handle trailing slash properly
+  local git_root_normalized = git_root:gsub("/$", "")
+  if path:sub(1, #git_root_normalized) == git_root_normalized then
+    local remainder = path:sub(#git_root_normalized + 1)
+    return remainder:sub(1, 1) == "/" and remainder:sub(2) or remainder
   end
 
   return path
+end
+
+local function get_relative_path(state)
+  local path = get_buffer_path(state)
+  if not path then
+    return ""
+  end
+  return normalize_path(path, true)
 end
 
 local function escape_lua_pattern(s)
   return (s:gsub("(%W)", "%%%1"))
 end
 
--- Get the current folder path
 local function get_folder_context(state)
-  if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
+  local path = get_buffer_path(state)
+  if not path then
     return ""
   end
 
-  local path = vim.api.nvim_buf_get_name(state.buf)
-  if path == "" then
-    return ""
-  end
-
-  local handle = io.popen("git rev-parse --show-toplevel")
-  local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
-  handle:close()
-
-  -- Get directory path
   local dir = vim.fn.fnamemodify(path, ":h")
-
-  if repo_root and repo_root ~= "" then
-    dir = dir:sub(#repo_root + 2)
-  end
-
-  return "+" .. dir
+  return normalize_path(dir, true)
 end
 
 local PLACEHOLDERS = {
   {
-    token = "+buffer",
+    token = "!buffer",
     description = "Current buffer's file path",
     provider = function(state)
       local path = get_relative_path(state)
-      return path ~= "" and "+" .. path or ""
+      return path ~= "" and "!" .. path or ""
     end,
   },
   {
-    token = "+buffers",
+    token = "!buffers",
     description = "List of open buffers",
     provider = context.get_all_buffers_summary,
   },
   {
-    token = "+changes",
+    token = "!changes",
     description = "Recent changes in buffer",
     provider = context.get_recent_changes,
   },
   {
-    token = "+clipboard",
+    token = "!clipboard",
     description = "System clipboard content",
     provider = function()
       return context.get_clipboard()
     end,
   },
   {
-    token = "+context",
+    token = "!context",
     description = "Lines surrounding cursor (5 before/after)",
     provider = context.get_surrounding_lines,
   },
   {
-    token = "+cursor",
+    token = "!cursor",
     description = "Cursor position (file:line)",
     provider = function(state)
-      return string.format("+%s :%d", get_relative_path(state), state.line)
+      local path = get_relative_path(state)
+      if not state or not state.line then
+        return ""
+      end
+      return path ~= "" and string.format("!%s :%d", path, state.line) or ""
     end,
   },
   {
-    token = "+diagnostic",
+    token = "!diagnostic",
     description = "Diagnostics for the current line",
     provider = function(state)
       return context.get_line_diagnostics(state)
     end,
   },
   {
-    token = "+diagnostics",
+    token = "!diagnostics",
     description = "All diagnostics in the current buffer",
     provider = function(state)
       return context.get_all_diagnostics(state)
     end,
   },
   {
-    token = "+diff",
+    token = "!diff",
     description = "Git diff for current file",
     provider = function()
       return context.get_git_diff()
     end,
   },
   {
-    token = "+docs",
+    token = "!docs",
     description = "LSP hover documentation at cursor",
     provider = context.get_hover_docs,
   },
   {
-    token = "+filetype",
+    token = "!filetype",
     description = "Current buffer's filetype",
     provider = context.get_filetype,
   },
   {
-    token = "+folder",
+    token = "!folder",
     description = "Current folder path",
-    provider = get_folder_context,
+    provider = function(state)
+      local dir = get_folder_context(state)
+      return dir ~= "" and "!" .. dir or ""
+    end,
   },
   {
-    token = "+git",
+    token = "!git",
     description = "Git status for current repository",
     provider = function()
       return context.get_git_status()
     end,
   },
   {
-    token = "+imports",
+    token = "!imports",
     description = "Import statements in current file",
     provider = context.get_imports,
   },
   {
-    token = "+loclist",
+    token = "!loclist",
     description = "Location list entries",
     provider = context.get_location_list,
   },
   {
-    token = "+marks",
+    token = "!marks",
     description = "Marks set in buffer",
     provider = context.get_marks,
   },
   {
-    token = "+qflist",
+    token = "!qflist",
     description = "Quickfix list entries",
     provider = context.get_quickfix_list,
   },
   {
-    token = "+search",
+    token = "!search",
     description = "Current search pattern",
     provider = function()
       return context.get_search_pattern()
     end,
   },
   {
-    token = "+selection",
+    token = "!selection",
     description = "Selected text",
     provider = context.get_visual_selection,
   },
   {
-    token = "+visible",
+    token = "!visible",
     description = "Visible text in the current window",
     provider = context.get_visible_content,
   },
   {
-    token = "+word",
+    token = "!word",
     description = "Word under cursor",
     provider = context.get_word_under_cursor,
   },

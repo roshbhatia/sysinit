@@ -35,9 +35,14 @@ function M.get_all_diagnostics(state)
     return ""
   end
   local grouped = {}
-  for _, d in ipairs(diags) do
+  local max_diags = 5
+  for i = 1, math.min(#diags, max_diags) do
+    local d = diags[i]
     local severity = vim.diagnostic.severity[d.severity] or "INFO"
     table.insert(grouped, string.format("[%s] Line %d: %s", severity, d.lnum + 1, d.message))
+  end
+  if #diags > max_diags then
+    table.insert(grouped, string.format("... and %d more diagnostics", #diags - max_diags))
   end
   return table.concat(grouped, "\n")
 end

@@ -215,6 +215,7 @@ with lib;
             description = "MCP servers configuration";
           };
         };
+
       };
 
       uvx = {

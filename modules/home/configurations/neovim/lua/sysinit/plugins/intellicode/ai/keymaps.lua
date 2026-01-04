@@ -68,7 +68,7 @@ function M.generate_all_keymaps()
 
   table.insert(keymaps, {
     "<leader>ja",
-    create_mode_context_input("Ask", " @cursor: ", " @selection: "),
+    create_mode_context_input("Ask", " !cursor: ", " !selection: "),
     mode = { "n", "v" },
     desc = "AI: Ask active",
   })
@@ -89,7 +89,7 @@ function M.generate_all_keymaps()
 
       input.create_input(active, agent.icon, {
         action = "Fix diagnostics",
-        default = " Fix @diagnostic: ",
+        default = " Fix !diagnostic: ",
         on_confirm = function(text)
           ai_manager.ensure_active_and_send(text)
         end,
@@ -100,7 +100,7 @@ function M.generate_all_keymaps()
 
   table.insert(keymaps, {
     "<leader>jk",
-    create_mode_context_input("Comment", " Comment @this: ", " Comment @selection: "),
+    create_mode_context_input("Comment", " Comment !this: ", " Comment !selection: "),
     mode = { "n", "v" },
     desc = "AI: Comment (active)",
   })
@@ -121,7 +121,7 @@ function M.generate_all_keymaps()
 
       input.create_input(active, agent.icon, {
         action = "Analyze quickfix list",
-        default = " Analyze @qflist: ",
+        default = " Analyze !qflist: ",
         on_confirm = function(text)
           ai_manager.ensure_active_and_send(text)
         end,
@@ -146,7 +146,7 @@ function M.generate_all_keymaps()
 
       input.create_input(active, agent.icon, {
         action = "Analyze location list",
-        default = " Analyze @loclist: ",
+        default = " Analyze !loclist: ",
         on_confirm = function(text)
           ai_manager.ensure_active_and_send(text)
         end,
@@ -204,7 +204,7 @@ function M.generate_all_keymaps()
 
       input.create_input(active, agent.icon, {
         action = "Review git changes",
-        default = " Review @git and @diff: ",
+        default = " Review !git and !diff: ",
         on_confirm = function(text)
           ai_manager.ensure_active_and_send(text)
         end,
@@ -229,7 +229,7 @@ function M.generate_all_keymaps()
 
       input.create_input(active, agent.icon, {
         action = "Explain imports",
-        default = " Explain @imports: ",
+        default = " Explain !imports: ",
         on_confirm = function(text)
           ai_manager.ensure_active_and_send(text)
         end,
@@ -254,7 +254,7 @@ function M.generate_all_keymaps()
 
       input.create_input(active, agent.icon, {
         action = "Analyze clipboard",
-        default = " Analyze @clipboard: ",
+        default = " Analyze !clipboard: ",
         on_confirm = function(text)
           ai_manager.ensure_active_and_send(text)
         end,

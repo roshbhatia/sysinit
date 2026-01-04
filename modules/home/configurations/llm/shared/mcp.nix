@@ -1,6 +1,5 @@
 {
   lib,
-  # ^ Optional parameter for clients that pass pkgs (opencode, copilot-cli)
   values,
 }:
 
@@ -16,8 +15,12 @@ let
         "git+https://github.com/oraios/serena"
         "serena"
         "start-mcp-server"
-        "--enable-web-dashboard"
+        "--web-dashboard"
+        "true"
+        "--web-dashboard-open-on-launch"
         "false"
+        "--excluded-tools"
+        "serena_jet_brains_find_referencing_symbols,serena_jet_brains_find_symbol,serena_jet_brains_get_symbols_overview,serena_delete_memory,serena_read_memory,serena_write_memory,serena_list_memories,serena_edit_memory,serena_insert_after_symbol,serena_insert_at_line,serena_insert_before_symbol,serena_replace_lines,serena_replace_content,serena_replace_symbol_body,serena_delete_lines,serena_rename_symbol,serena_create_text_file,serena_remove_project"
         "--context"
         "claude-code"
       ];
@@ -77,7 +80,6 @@ let
       "kubectl top*"
     ];
 
-    # For reading/exploring project structure and code
     filesystem = [
       "ls*"
       "cat*"
@@ -88,6 +90,7 @@ let
     ];
 
     nix = [
+      "nh*"
       "nix-shell --run*"
       "nix eval*"
       "nix show-config"
@@ -141,18 +144,14 @@ let
       "whoami"
       "cd*"
       "mkdir*"
-      "make*"
       "bd*"
     ];
 
     crossplane = [
-      "crossplane --version"
-      "crossplane xpkg*"
-      "crossplane beta trace*"
-      "crossplane beta validate*"
+      "crossplane*"
+      "up*"
     ];
 
-    # MCP servers for code understanding
     serena = [
       "serena_get_symbols_overview"
       "serena_find_symbol"
