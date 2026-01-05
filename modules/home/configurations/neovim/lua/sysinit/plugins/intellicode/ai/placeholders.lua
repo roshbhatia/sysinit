@@ -29,16 +29,14 @@ local function get_buffer_path(state)
   if not validate_state(state) then
     return nil
   end
-
   local path = vim.api.nvim_buf_get_name(state.buf)
-  return (path and path ~= "") and path or nil
+  return path ~= "" and path or nil
 end
 
 local function normalize_path(path, strip_root)
   if not path or path == "" then
     return ""
   end
-
   if not strip_root then
     return path
   end
@@ -51,7 +49,7 @@ local function normalize_path(path, strip_root)
   local git_root_normalized = git_root:gsub("/$", "")
   if path:sub(1, #git_root_normalized) == git_root_normalized then
     local remainder = path:sub(#git_root_normalized + 1)
-    return remainder:sub(1, 1) == "/" and remainder:sub(2) or remainder
+    return remainder:match("^/(.*)$") or remainder
   end
 
   return path
@@ -98,10 +96,10 @@ local PLACEHOLDERS = {
     description = "Cursor position (file:line)",
     provider = function(state)
       local path = get_relative_path(state)
-      if not state or not state.line then
+      if not state or not state.line or path == "" then
         return ""
       end
-      return path ~= "" and string.format("@%s:%d", path, state.line) or ""
+      return string.format("@%s:%d", path, state.line)
     end,
   },
   {
@@ -129,9 +127,7 @@ local PLACEHOLDERS = {
   {
     token = "@diff",
     description = "Git diff for current file",
-    provider = function()
-      return context.get_git_diff()
-    end,
+    provider = context.get_git_diff,
   },
   {
     token = "@folder",
@@ -144,9 +140,7 @@ local PLACEHOLDERS = {
   {
     token = "@git",
     description = "Git status for current repository",
-    provider = function()
-      return context.get_git_status()
-    end,
+    provider = context.get_git_status,
   },
   {
     token = "@loclist",
@@ -166,9 +160,7 @@ local PLACEHOLDERS = {
   {
     token = "@search",
     description = "Current search pattern",
-    provider = function()
-      return context.get_search_pattern()
-    end,
+    provider = context.get_search_pattern,
   },
   {
     token = "@selection",
@@ -186,14 +178,14 @@ function M.apply_placeholders(input, state)
   if not input or input == "" then
     return input
   end
+
   state = state or context.current_position()
   local result = input
 
   for _, ph in ipairs(PLACEHOLDERS) do
     if result:find(ph.token, 1, true) then
       local ok, value = pcall(ph.provider, state)
-      value = ok and value or ""
-      result = result:gsub(escape_lua_pattern(ph.token), value)
+      result = result:gsub(escape_lua_pattern(ph.token), ok and value or "")
     end
   end
 

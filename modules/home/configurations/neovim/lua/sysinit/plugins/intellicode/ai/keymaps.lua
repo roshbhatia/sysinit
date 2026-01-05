@@ -6,29 +6,40 @@ local input = require("sysinit.plugins.intellicode.ai.input")
 local picker = require("sysinit.plugins.intellicode.ai.picker")
 local history = require("sysinit.plugins.intellicode.ai.history")
 
+local function ensure_active_terminal()
+  local active = ai_manager.get_active()
+  if not active then
+    vim.notify("No active AI terminal. Select one with <leader>jj", vim.log.levels.WARN)
+    return nil
+  end
+  return active
+end
+
+local function create_context_input(action, default_text)
+  local active = ensure_active_terminal()
+  if not active then
+    return
+  end
+
+  local agent = agents.get_by_name(active)
+  if not agent then
+    return
+  end
+
+  input.create_input(active, agent.icon, {
+    action = action,
+    default = default_text,
+    on_confirm = function(text)
+      ai_manager.ensure_active_and_send(text)
+    end,
+  })
+end
+
 local function create_mode_context_input(action, normal_default, visual_default)
   return function()
-    local active = ai_manager.get_active()
-    if not active then
-      vim.notify("No active AI terminal. Select one with <leader>jj", vim.log.levels.WARN)
-      return
-    end
-
-    local agent = agents.get_by_name(active)
-    if not agent then
-      return
-    end
-
     local mode = vim.fn.mode()
     local default_text = mode:match("[vV]") and visual_default or normal_default
-
-    input.create_input(active, agent.icon, {
-      action = action,
-      default = default_text,
-      on_confirm = function(text)
-        ai_manager.ensure_active_and_send(text)
-      end,
-    })
+    create_context_input(action, default_text)
   end
 end
 
@@ -68,7 +79,7 @@ function M.generate_all_keymaps()
 
   table.insert(keymaps, {
     "<leader>ja",
-    create_mode_context_input("Ask", " !cursor: ", " !selection: "),
+    create_mode_context_input("Ask", " @cursor: ", " @selection: "),
     mode = { "n", "v" },
     desc = "AI: Ask active",
   })
@@ -76,31 +87,14 @@ function M.generate_all_keymaps()
   table.insert(keymaps, {
     "<leader>jf",
     function()
-      local active = ai_manager.get_active()
-      if not active then
-        vim.notify("No active AI terminal. Select one with <leader>jj", vim.log.levels.WARN)
-        return
-      end
-
-      local agent = agents.get_by_name(active)
-      if not agent then
-        return
-      end
-
-      input.create_input(active, agent.icon, {
-        action = "Fix diagnostics",
-        default = " Fix !diagnostic: ",
-        on_confirm = function(text)
-          ai_manager.ensure_active_and_send(text)
-        end,
-      })
+      create_context_input("Fix diagnostics", " Fix @diagnostics: ")
     end,
     desc = "AI: Fix diagnostics (active)",
   })
 
   table.insert(keymaps, {
     "<leader>jk",
-    create_mode_context_input("Comment", " Comment !this: ", " Comment !selection: "),
+    create_mode_context_input("Comment", " Comment @cursor: ", " Comment @selection: "),
     mode = { "n", "v" },
     desc = "AI: Comment (active)",
   })
@@ -108,24 +102,7 @@ function M.generate_all_keymaps()
   table.insert(keymaps, {
     "<leader>jq",
     function()
-      local active = ai_manager.get_active()
-      if not active then
-        vim.notify("No active AI terminal. Select one with <leader>jj", vim.log.levels.WARN)
-        return
-      end
-
-      local agent = agents.get_by_name(active)
-      if not agent then
-        return
-      end
-
-      input.create_input(active, agent.icon, {
-        action = "Analyze quickfix list",
-        default = " Analyze !qflist: ",
-        on_confirm = function(text)
-          ai_manager.ensure_active_and_send(text)
-        end,
-      })
+      create_context_input("Analyze quickfix list", " Analyze @qflist: ")
     end,
     desc = "AI: Send quickfix (active)",
   })
@@ -133,24 +110,7 @@ function M.generate_all_keymaps()
   table.insert(keymaps, {
     "<leader>jl",
     function()
-      local active = ai_manager.get_active()
-      if not active then
-        vim.notify("No active AI terminal. Select one with <leader>jj", vim.log.levels.WARN)
-        return
-      end
-
-      local agent = agents.get_by_name(active)
-      if not agent then
-        return
-      end
-
-      input.create_input(active, agent.icon, {
-        action = "Analyze location list",
-        default = " Analyze !loclist: ",
-        on_confirm = function(text)
-          ai_manager.ensure_active_and_send(text)
-        end,
-      })
+      create_context_input("Analyze location list", " Analyze @loclist: ")
     end,
     desc = "AI: Send location list (active)",
   })
@@ -158,9 +118,8 @@ function M.generate_all_keymaps()
   table.insert(keymaps, {
     "<leader>jv",
     function()
-      local active = ai_manager.get_active()
+      local active = ensure_active_terminal()
       if not active then
-        vim.notify("No active AI terminal. Select one with <leader>jj", vim.log.levels.WARN)
         return
       end
 
@@ -178,12 +137,7 @@ function M.generate_all_keymaps()
   table.insert(keymaps, {
     "<leader>jr",
     function()
-      local active = ai_manager.get_active()
-      if not active then
-        history.create_history_picker(nil)
-      else
-        history.create_history_picker(active)
-      end
+      history.create_history_picker(ai_manager.get_active())
     end,
     desc = "AI: Browse history (active or all)",
   })
@@ -191,24 +145,7 @@ function M.generate_all_keymaps()
   table.insert(keymaps, {
     "<leader>jg",
     function()
-      local active = ai_manager.get_active()
-      if not active then
-        vim.notify("No active AI terminal. Select one with <leader>jj", vim.log.levels.WARN)
-        return
-      end
-
-      local agent = agents.get_by_name(active)
-      if not agent then
-        return
-      end
-
-      input.create_input(active, agent.icon, {
-        action = "Review git changes",
-        default = " Review !git and !diff: ",
-        on_confirm = function(text)
-          ai_manager.ensure_active_and_send(text)
-        end,
-      })
+      create_context_input("Review git changes", " Review @git and @diff: ")
     end,
     desc = "AI: Review git changes (active)",
   })
@@ -216,24 +153,7 @@ function M.generate_all_keymaps()
   table.insert(keymaps, {
     "<leader>ji",
     function()
-      local active = ai_manager.get_active()
-      if not active then
-        vim.notify("No active AI terminal. Select one with <leader>jj", vim.log.levels.WARN)
-        return
-      end
-
-      local agent = agents.get_by_name(active)
-      if not agent then
-        return
-      end
-
-      input.create_input(active, agent.icon, {
-        action = "Explain imports",
-        default = " Explain !imports: ",
-        on_confirm = function(text)
-          ai_manager.ensure_active_and_send(text)
-        end,
-      })
+      create_context_input("Explain imports", " Explain @buffer: ")
     end,
     desc = "AI: Explain imports (active)",
   })
@@ -241,24 +161,7 @@ function M.generate_all_keymaps()
   table.insert(keymaps, {
     "<leader>jp",
     function()
-      local active = ai_manager.get_active()
-      if not active then
-        vim.notify("No active AI terminal. Select one with <leader>jj", vim.log.levels.WARN)
-        return
-      end
-
-      local agent = agents.get_by_name(active)
-      if not agent then
-        return
-      end
-
-      input.create_input(active, agent.icon, {
-        action = "Analyze clipboard",
-        default = " Analyze !clipboard: ",
-        on_confirm = function(text)
-          ai_manager.ensure_active_and_send(text)
-        end,
-      })
+      create_context_input("Analyze clipboard", " Analyze @buffer: ")
     end,
     desc = "AI: Analyze clipboard (active)",
   })
