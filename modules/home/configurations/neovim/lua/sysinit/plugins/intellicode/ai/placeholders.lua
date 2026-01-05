@@ -138,7 +138,7 @@ local PLACEHOLDERS = {
     description = "Current folder path",
     provider = function(state)
       local dir = get_folder_context(state)
-      return dir ~= "" and "!" .. dir or ""
+      return dir ~= "" and "@" .. dir or ""
     end,
   },
   {
