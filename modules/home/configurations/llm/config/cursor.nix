@@ -25,6 +25,9 @@ let
 in
 {
   home.file = {
-    ".cursor/cli-config.json".text = cursorConfig;
+    ".cursor/cli-config.json" = {
+      text = cursorConfig;
+      force = true;
+    };
   };
 }
