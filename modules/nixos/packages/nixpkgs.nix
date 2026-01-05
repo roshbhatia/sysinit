@@ -25,7 +25,6 @@ let
     grim
     jq
     lua54Packages.cjson
-    menus
     mesa-demos
     networkmanager
     sbarlua
