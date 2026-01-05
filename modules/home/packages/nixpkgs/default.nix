@@ -37,6 +37,7 @@ let
     direnv
     macchina
     oh-my-posh
+    opencode
     tmux
     wezterm
     zoxide

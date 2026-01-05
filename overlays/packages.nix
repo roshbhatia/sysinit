@@ -47,8 +47,6 @@ in
     };
   });
 
-  opencode = inputs.opencode.packages.${system}.default;
-
   inherit (crossplane-1-17-1) crossplane-cli;
   inherit (stable) awscli2;
   inherit (stable) fish;

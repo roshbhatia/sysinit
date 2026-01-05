@@ -38,7 +38,6 @@
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay/master";
     nix-gaming.url = "github:fufexan/nix-gaming";
     nur.url = "github:nix-community/NUR";
-    opencode.url = "github:anomalyco/opencode";
   };
 
   outputs =
