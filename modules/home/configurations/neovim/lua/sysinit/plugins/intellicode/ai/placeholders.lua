@@ -85,7 +85,7 @@ local PLACEHOLDERS = {
     description = "Current buffer's file path",
     provider = function(state)
       local path = get_relative_path(state)
-      return path ~= "" and "!" .. path or ""
+      return path ~= "" and "@" .. path or ""
     end,
   },
   {
