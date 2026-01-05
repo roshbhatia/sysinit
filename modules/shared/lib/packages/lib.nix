@@ -14,29 +14,6 @@ let
     // (import ../../../home/packages/go/lib.nix { inherit pkgs; })
     // (import ../../../home/packages/gh/lib.nix { inherit pkgs; })
     // (import ../../../home/packages/vet/lib.nix { });
-in
-
-{
-  inherit defaultManagers;
-
-  mkPackageManagerCleanup =
-    config: manager:
-    let
-      managers = config.packages.managers or defaultManagers;
-      m = managers.${manager} or null;
-    in
-    if m == null || !(m ? cleanupCmd) then
-      ""
-    else
-      ''
-        managed_pkg_file="$HOME/.config/home-manager/managed-${manager}-packages"
-        MANAGER_CMD=${m.bin}
-        ${m.env}
-        if command -v "$MANAGER_CMD" >/dev/null 2>&1 && [ -f "$managed_pkg_file" ]; then
-          echo "Cleaning up ${manager} packages not in configuration..."
-          ${m.cleanupCmd}
-        fi
-      '';
 
   mkPackageManagerScript =
     config: manager: packages:
@@ -82,4 +59,27 @@ in
   mkPackageActivationScript =
     manager: packages: config:
     mkPackageManagerScript config manager packages;
+in
+
+{
+  inherit defaultManagers mkPackageManagerScript mkPackageActivationScript;
+
+  mkPackageManagerCleanup =
+    config: manager:
+    let
+      managers = config.packages.managers or defaultManagers;
+      m = managers.${manager} or null;
+    in
+    if m == null || !(m ? cleanupCmd) then
+      ""
+    else
+      ''
+        managed_pkg_file="$HOME/.config/home-manager/managed-${manager}-packages"
+        MANAGER_CMD=${m.bin}
+        ${m.env}
+        if command -v "$MANAGER_CMD" >/dev/null 2>&1 && [ -f "$managed_pkg_file" ]; then
+          echo "Cleaning up ${manager} packages not in configuration..."
+          ${m.cleanupCmd}
+        fi
+      '';
 }
