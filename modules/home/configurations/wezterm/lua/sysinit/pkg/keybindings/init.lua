@@ -5,6 +5,7 @@ local M = {}
 
 local PASSTHROUGH_PROCESSES = { "nvim", "vim", "hx", "k9s" }
 local VIM_PROCESSES = { "nvim", "vim" }
+local GOOSE_PROCESS = "goose"
 
 local function get_process_name(pane)
   local proc = pane:get_foreground_process_name()
@@ -100,6 +101,15 @@ local function get_system_keys()
       key = "k",
       mods = "SUPER",
       action = create_passthrough_action("k", "CTRL", act.ClearScrollback("ScrollbackAndViewport")),
+    },
+    {
+      key = "Enter",
+      mods = "SHIFT",
+      action = wezterm.action_callback(function(win, pane)
+        if is_process_in_list(pane, { GOOSE_PROCESS }) then
+          win:perform_action({ SendKey = { key = "j", mods = "CTRL" } }, pane)
+        end
+      end),
     },
   }
 end
