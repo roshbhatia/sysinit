@@ -54,6 +54,7 @@ let
     caddy
     chafa
     crush
+    delta
     devbox
     diffnav
     duf
