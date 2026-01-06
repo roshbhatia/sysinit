@@ -36,18 +36,35 @@ __setup_completions() {
   }
 
   _evalcache uv generate-shell-completion zsh
-  _evalcache kubecolor completion zsh
   _evalcache nix-your-shell zsh
 
-  compdef _kubectl kubectl
-  compdef _kubectl k
-  compdef _kubectl kg
-  compdef _kubectl kd
-  compdef _kubectl ke
-  compdef _kubectl ka
-  compdef _kubectl kpf
-  compdef _kubectl kdel
-  compdef _kubectl klog
+  # Setup kubectl completion - prefer kubectl, fallback to kubecolor
+  if command -v kubectl > /dev/null; then
+    _evalcache kubectl completion zsh
+  fi
+  if command -v kubecolor > /dev/null; then
+    _evalcache kubecolor completion zsh
+  fi
+
+  # Setup kubectl aliases completion - check for both _kubectl and _kubecolor
+  local kubectl_compfunc="_kubectl"
+  if (($ + functions[_kubectl])); then
+    kubectl_compfunc="_kubectl"
+  elif (($ + functions[_kubecolor])); then
+    kubectl_compfunc="_kubecolor"
+  fi
+
+  if (($ + functions[$kubectl_compfunc])); then
+    compdef $kubectl_compfunc kubectl
+    compdef $kubectl_compfunc k
+    compdef $kubectl_compfunc kg
+    compdef $kubectl_compfunc kd
+    compdef $kubectl_compfunc ke
+    compdef $kubectl_compfunc ka
+    compdef $kubectl_compfunc kpf
+    compdef $kubectl_compfunc kdel
+    compdef $kubectl_compfunc klog
+  fi
 
   enable-fzf-tab
 }
