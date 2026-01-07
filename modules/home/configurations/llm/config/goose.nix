@@ -188,7 +188,10 @@ in
 {
   xdg.configFile = lib.mkMerge [
     {
-      "goose/config.yaml".text = gooseConfig;
+      "goose/config.yaml" = {
+        text = gooseConfig;
+        force = true;
+      };
       "goose/goosehints.md".text = gooseHintsMd;
     }
     subagentRecipeLinksGoose
