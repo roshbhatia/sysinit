@@ -12,6 +12,7 @@ let
     "@fission-ai/openspec@latest"
     "@github/copilot"
     "@sourcegraph/amp@latest"
+    "opencode-ai@latest"
   ]
   ++ (values.yarn.additionalPackages or [ ]);
 
