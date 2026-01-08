@@ -1,5 +1,5 @@
 local M = {}
-local context = require("sysinit.plugins.intellicode.ai.completion.context")
+local context = require("sysinit.plugins.intellicode.ai.context")
 
 local blink_source = {}
 local blink_source_setup_done = false
@@ -16,7 +16,8 @@ function M.setup()
     "ai_placeholders",
     { module = "sysinit.plugins.intellicode.ai.completion", name = "ai_placeholders" }
   )
-  blink.add_filetype_source("ai_terminals_input", "ai_placeholders")
+
+  blink.add_filetype_source("snacks_input", "ai_placeholders")
   blink_source_setup_done = true
 end
 
