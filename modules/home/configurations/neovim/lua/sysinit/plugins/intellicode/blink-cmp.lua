@@ -21,7 +21,7 @@ M.plugins = {
           ---@diagnostic disable-next-line: unused-local
           transform_items = function(ctx, items)
             for _, item in ipairs(items) do
-              item.kind_icon = " Buffer "
+              item.kind_icon = " "
               item.kind_name = "Buffer"
             end
             return items
@@ -40,7 +40,7 @@ M.plugins = {
           ---@diagnostic disable-next-line: unused-local
           transform_items = function(ctx, items)
             for _, item in ipairs(items) do
-              item.kind_icon = "󰘧 LSP "
+              item.kind_icon = "󰘧 "
               item.kind_name = "LSP"
             end
             return items
@@ -51,7 +51,7 @@ M.plugins = {
           ---@diagnostic disable-next-line: unused-local
           transform_items = function(ctx, items)
             for _, item in ipairs(items) do
-              item.kind_icon = " Path "
+              item.kind_icon = " "
               item.kind_name = "Path"
             end
             return items
@@ -65,7 +65,7 @@ M.plugins = {
           ---@diagnostic disable-next-line: unused-local
           transform_items = function(ctx, items)
             for _, item in ipairs(items) do
-              item.kind_icon = "󰩫 Snippets "
+              item.kind_icon = "󰩫 "
               item.kind_name = "Snippets"
             end
             return items
@@ -79,7 +79,7 @@ M.plugins = {
           ---@diagnostic disable-next-line: unused-local
           transform_items = function(ctx, items)
             for _, item in ipairs(items) do
-              item.kind_icon = " Copilot "
+              item.kind_icon = " "
               item.kind_name = "Copilot"
             end
             return items
@@ -120,8 +120,15 @@ M.plugins = {
             },
             draw = function(opts)
               if opts.item and opts.item.documentation then
-                local out = require("pretty_hover.parser").parse(opts.item.documentation.value)
-                opts.item.documentation.value = out:string()
+                local doc = opts.item.documentation
+                local doc_value = type(doc) == "string" and doc or (doc.value or "")
+                local out = require("pretty_hover.parser").parse(doc_value)
+
+                if type(doc) == "string" then
+                  opts.item.documentation = out:string()
+                else
+                  opts.item.documentation.value = out:string()
+                end
               end
 
               opts.default_implementation(opts)
@@ -132,12 +139,11 @@ M.plugins = {
           },
           list = {
             selection = {
-              preselect = false,
+              preselect = true,
               auto_insert = false,
             },
           },
           menu = {
-            max_height = 15,
             border = "rounded",
             draw = {
               columns = {

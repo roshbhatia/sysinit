@@ -5,6 +5,7 @@ local terminals = {}
 local active_terminal = nil
 local augroup = nil
 local parent_pane_id = nil
+local last_prompts = {}
 
 local function get_current_pane_id()
   return tonumber(vim.env.WEZTERM_PANE)
@@ -119,7 +120,6 @@ function M.setup(opts)
 
   parent_pane_id = get_current_pane_id()
   if not parent_pane_id then
-    vim.notify("Warning: Not running inside WezTerm. AI terminal features disabled.", vim.log.levels.WARN)
     return
   end
 
@@ -151,9 +151,12 @@ function M.setup(opts)
 end
 
 function M.open(termname)
+  if not config.terminals then
+    return
+  end
+
   local agent_config = config.terminals[termname]
   if not agent_config then
-    vim.notify(string.format("Unknown terminal: %s. Check ai_manager.setup() config", termname), vim.log.levels.ERROR)
     return
   end
 
@@ -163,7 +166,6 @@ function M.open(termname)
   end
 
   if not parent_pane_id then
-    vim.notify("Cannot spawn AI terminal: parent pane ID not available", vim.log.levels.ERROR)
     return
   end
 
@@ -190,13 +192,14 @@ function M.open(termname)
 
   local tmux_cmd
   if is_new_session then
+    local cmd_escaped = agent_config.cmd:gsub("'", "'\\''")
     tmux_cmd = string.format(
       "tmux new-session -s %s -c %s 'tmux set-option -t %s status off; %s%s'",
       vim.fn.shellescape(session_name),
       vim.fn.shellescape(cwd),
       vim.fn.shellescape(session_name),
       env_str,
-      agent_config.cmd
+      cmd_escaped
     )
   else
     tmux_cmd = string.format("tmux attach-session -t %s", vim.fn.shellescape(session_name))
@@ -218,7 +221,6 @@ function M.open(termname)
 
   local pane_id = tonumber(vim.trim(result))
   if not pane_id then
-    vim.notify("Failed to parse pane ID from wezterm", vim.log.levels.ERROR)
     return
   end
 
@@ -249,12 +251,10 @@ function M.focus(termname)
   local term_data = terminals[termname]
 
   if not term_data then
-    vim.notify(string.format("Terminal not found: %s. Use open() first", termname), vim.log.levels.WARN)
     return
   end
 
   if not term_data.pane_id or not pane_exists(term_data.pane_id) then
-    vim.notify(string.format("Pane no longer exists for %s. Reopening...", termname), vim.log.levels.WARN)
     term_data.pane_id = nil
     M.open(termname)
     return
@@ -288,12 +288,10 @@ function M.show(termname)
   local term_data = terminals[termname]
 
   if not term_data then
-    vim.notify(string.format("Terminal not found: %s", termname), vim.log.levels.WARN)
     return
   end
 
   if not tmux_session_exists(term_data.session_name) then
-    vim.notify(string.format("Session no longer exists for %s. Reopening...", termname), vim.log.levels.WARN)
     terminals[termname] = nil
     M.open(termname)
     return
@@ -322,7 +320,6 @@ function M.show(termname)
 
   local pane_id = tonumber(vim.trim(result))
   if not pane_id then
-    vim.notify("Failed to parse pane ID from wezterm", vim.log.levels.ERROR)
     return
   end
 
@@ -343,12 +340,10 @@ function M.send(termname, text, opts)
   local term_data = terminals[termname]
 
   if not term_data then
-    vim.notify(string.format("Terminal not found: %s. Open it first", termname), vim.log.levels.ERROR)
     return
   end
 
   if not tmux_session_exists(term_data.session_name) then
-    vim.notify(string.format("Session no longer exists for %s", termname), vim.log.levels.ERROR)
     return
   end
 
@@ -457,9 +452,11 @@ end
 
 function M.ensure_active_and_send(text)
   if not active_terminal then
-    vim.notify("No active AI terminal. Select one with <leader>jj", vim.log.levels.WARN)
+    vim.notify("No active AI terminal.", vim.log.levels.WARN)
     return
   end
+
+  last_prompts[active_terminal] = text
 
   local term_info = M.get_info(active_terminal)
   if not term_info or not M.exists(active_terminal) then
@@ -479,6 +476,14 @@ function M.ensure_active_and_send(text)
     end
     M.send(active_terminal, text, { submit = true })
   end
+end
+
+function M.get_last_prompt(termname)
+  return last_prompts[termname]
+end
+
+function M.set_last_prompt(termname, prompt)
+  last_prompts[termname] = prompt
 end
 
 return M

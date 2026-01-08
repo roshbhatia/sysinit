@@ -5,19 +5,15 @@ function M.pick_agent()
   local ai_manager = require("sysinit.plugins.intellicode.ai.ai_manager")
   local active = ai_manager.get_active()
 
-  -- If there's an active terminal and its tmux session exists, toggle visibility
   if active and ai_manager.exists(active) then
     if ai_manager.is_visible(active) then
-      -- Pane is visible -> hide it (kill WezTerm pane, keep tmux session)
       ai_manager.hide(active)
     else
-      -- Pane is hidden but session exists -> bring it back
       ai_manager.activate(active)
     end
     return
   end
 
-  -- Otherwise show picker to select an agent
   local items = {}
   for _, agent in ipairs(agents.get_all()) do
     local is_active = agent.name == active
@@ -36,7 +32,7 @@ function M.pick_agent()
 
   pickers
     .new(themes.get_dropdown({}), {
-      prompt_title = "Select AI Agent",
+      prompt_title = "",
       finder = finders.new_table({
         results = items,
         entry_maker = function(item)
@@ -54,10 +50,6 @@ function M.pick_agent()
           local selection = action_state.get_selected_entry()
           if selection then
             ai_manager.activate(selection.value.agent.name)
-            vim.notify(
-              string.format("%s %s activated", selection.value.agent.icon, selection.value.agent.label),
-              vim.log.levels.INFO
-            )
           end
         end)
         return true
@@ -82,12 +74,10 @@ function M.kill_active()
   local active = ai_manager.get_active()
 
   if not active then
-    vim.notify("No active AI session", vim.log.levels.WARN)
     return
   end
 
   ai_manager.close(active)
-  vim.notify("AI session killed", vim.log.levels.INFO)
 end
 
 return M

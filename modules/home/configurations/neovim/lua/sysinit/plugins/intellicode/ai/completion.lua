@@ -1,5 +1,5 @@
 local M = {}
-local placeholders = require("sysinit.plugins.intellicode.ai.placeholders")
+local context = require("sysinit.plugins.intellicode.ai.context")
 
 local blink_source = {}
 local blink_source_setup_done = false
@@ -34,7 +34,7 @@ function blink_source:enabled()
 end
 
 function blink_source:get_trigger_characters()
-  return { "+" }
+  return { "@" }
 end
 
 function blink_source:get_completions(_, callback)
@@ -44,7 +44,7 @@ function blink_source:get_completions(_, callback)
     callback({ items = {}, is_incomplete_forward = false, is_incomplete_backward = false })
     return function() end
   end
-  for _, p in ipairs(placeholders.placeholder_descriptions) do
+  for _, p in ipairs(context.placeholder_descriptions) do
     table.insert(items, {
       label = p.token,
       kind = types.CompletionItemKind.Enum,
