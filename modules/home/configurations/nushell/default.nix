@@ -85,10 +85,11 @@ in
     extraConfig = ''
       use std/dirs shells-aliases *
 
-      $env.NU_LIB_DIRS = [
-        ($nu.env.NU_LIB_DIRS | split row (char esac) | get 0)
-        "${config.xdg.configHome}/nushell/lib"
-      ]
+      $env.NU_LIB_DIRS = (
+        $nu.env.NU_LIB_DIRS 
+        | split row (char esac) 
+        | prepend "${config.xdg.configHome}/nushell"
+      )
 
       use lib/init.nu *
 
