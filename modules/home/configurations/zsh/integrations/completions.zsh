@@ -41,9 +41,7 @@ __setup_completions() {
   _evalcache kubecolor completion zsh
   alias k="kubecolor"
   alias kubectl="kubecolor"
-  compdef _kubectl=k
-  compdef _kubectl=kubecolor
-  compdef _kubectl=kubectl
+  compdef k=_kubectl
 
   enable-fzf-tab
 }
