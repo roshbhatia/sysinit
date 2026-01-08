@@ -2,10 +2,16 @@ local M = {}
 
 local username = os.getenv("USER") or ""
 local nix_bin = "/etc/profiles/per-user/" .. username .. "/bin"
+local json_loader = require("sysinit.pkg.utils.json_loader")
 
 local function get_basic_config()
+  -- Load shared PATH configuration from Nix-generated config.json
+  local config_data = json_loader.load_json_file(json_loader.get_config_path("config.json"))
+  local configured_path = table.concat(config_data.paths or {}, ":")
+
+  -- Fallback to basic PATH if config doesn't have paths
   local current_path = os.getenv("PATH") or ""
-  local path_with_nix = nix_bin .. ":" .. current_path
+  local final_path = configured_path ~= "" and configured_path or (nix_bin .. ":" .. current_path)
 
   return {
     enable_kitty_keyboard = true,
@@ -18,7 +24,7 @@ local function get_basic_config()
       -- "-l",
     },
     set_environment_variables = {
-      PATH = path_with_nix,
+      PATH = final_path,
     },
   }
 end
