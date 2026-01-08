@@ -219,12 +219,6 @@ M.plugins = {
         },
       }
     end,
-    config = function(_, opts)
-      require("blink.cmp").setup(opts)
-      vim.defer_fn(function()
-        require("sysinit.plugins.intellicode.ai.completion").setup()
-      end, 100)
-    end,
     opts_extend = {
       "sources.default",
     },
