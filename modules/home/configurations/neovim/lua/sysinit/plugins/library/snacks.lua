@@ -173,10 +173,7 @@ M.plugins = {
 
       local agents = require("sysinit.plugins.intellicode.agents")
       local ai_manager = require("sysinit.plugins.intellicode.ai.ai_manager")
-      local completion = require("sysinit.plugins.intellicode.ai.completion")
       local file_refresh = require("sysinit.plugins.intellicode.ai.file_refresh")
-
-      completion.setup()
 
       local terminals_config = {}
       for _, agent in ipairs(agents.get_all()) do

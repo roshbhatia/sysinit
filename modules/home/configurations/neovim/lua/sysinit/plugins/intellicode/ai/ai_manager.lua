@@ -152,6 +152,11 @@ function M.setup(opts)
 end
 
 function M.open(termname)
+  if not config.terminals then
+    vim.notify("AI manager not initialized. Call ai_manager.setup() first", vim.log.levels.ERROR)
+    return
+  end
+
   local agent_config = config.terminals[termname]
   if not agent_config then
     vim.notify(string.format("Unknown terminal: %s. Check ai_manager.setup() config", termname), vim.log.levels.ERROR)
