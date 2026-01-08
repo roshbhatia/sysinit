@@ -26,7 +26,6 @@ let
     cat = "bat -pp";
   };
   listingAliases = builtins.removeAttrs sharedAliases.listing [ "ls" ];
-  kubernetesAliases = sharedAliases.kubernetes;
 
   keybindingsConfig = builtins.readFile ./ui/keybindings.nu;
   wezTermConfig = builtins.readFile ./integrations/wezterm.nu;
@@ -44,7 +43,6 @@ in
     shellAliases = lib.mkForce (
       toolAliases
       // listingAliases
-      // kubernetesAliases
       // {
         sg = "ast-grep";
       }
