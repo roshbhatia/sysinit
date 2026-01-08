@@ -106,7 +106,6 @@ function M.create_input(termname, agent_icon, opts)
 
   local hist = load_history(termname)
   local current_index = #hist + 1
-  current_history_index[termname] = current_index
 
   vim.ui.input({
     prompt = prompt,
@@ -125,8 +124,6 @@ function M.create_input(termname, agent_icon, opts)
 
     if vim.api.nvim_buf_is_valid(buf) and (buftype == "prompt" or ft == "snacks_input") then
       vim.bo[buf].filetype = "ai_terminals_input"
-      vim.wo.relativenumber = true
-      vim.wo.number = true
 
       vim.api.nvim_buf_call(buf, function()
         vim.fn.matchadd("Special", "[@!]\\w\\+")

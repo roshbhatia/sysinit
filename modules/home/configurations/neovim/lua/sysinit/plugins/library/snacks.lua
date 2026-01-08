@@ -142,6 +142,20 @@ M.plugins = {
             height = 0,
             backdrop = false,
           },
+          input = {
+            relative = "cursor",
+            row = 1,
+            col = 0,
+            width = 80,
+            border = "rounded",
+            title_pos = "center",
+            wo = {
+              wrap = true,
+              linebreak = true,
+              relativenumber = true,
+              number = true,
+            },
+          },
         },
       })
 

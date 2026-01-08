@@ -1,23 +1,44 @@
 local M = {}
+local context = require("sysinit.plugins.intellicode.ai.context")
 
-function M.new(opts)
-  local context = require("sysinit.plugins.intellicode.ai.context")
+local blink_source = {}
+local blink_source_setup_done = false
 
-  local self = setmetatable({}, { __index = M })
-  self.opts = opts or {}
-  self.context = context
+function M.setup()
+  if blink_source_setup_done then
+    return
+  end
+  local ok, blink = pcall(require, "blink.cmp")
+  if not ok then
+    return
+  end
+  blink.add_source_provider("ai_placeholders", {
+    module = "sysinit.plugins.intellicode.ai.completion",
+    name = "ai_placeholders",
+  })
+  blink.add_filetype_source("ai_terminals_input", "ai_placeholders")
+  blink_source_setup_done = true
+end
+
+function blink_source.new(opts)
+  return setmetatable({}, { __index = blink_source }):init(opts or {})
+end
+
+function blink_source:init(opts)
+  self.opts = opts
   return self
 end
 
-function M:enabled()
-  return vim.bo.filetype == "ai_terminals_input"
+function blink_source:enabled()
+  local ft = vim.bo.filetype
+  return ft == "ai_terminals_input" or ft == "snacks_input" or vim.bo.buftype == "prompt"
 end
 
-function M:get_trigger_characters()
+function blink_source:get_trigger_characters()
   return { "@" }
 end
 
-function M:get_completions(ctx, callback)
+function blink_source:get_completions(ctx, callback)
   local items = {}
   local types_ok, types = pcall(require, "blink.cmp.types")
   if not types_ok then
@@ -25,7 +46,7 @@ function M:get_completions(ctx, callback)
     return function() end
   end
 
-  for _, p in ipairs(self.context.placeholder_descriptions) do
+  for _, p in ipairs(context.placeholder_descriptions) do
     table.insert(items, {
       label = p.token,
       kind = types.CompletionItemKind.Enum,
@@ -43,8 +64,10 @@ function M:get_completions(ctx, callback)
   return function() end
 end
 
-function M:resolve(item, callback)
+function blink_source:resolve(item, callback)
   callback(item)
 end
+
+M.new = blink_source.new
 
 return M
