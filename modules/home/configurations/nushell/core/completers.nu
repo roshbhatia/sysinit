@@ -13,7 +13,7 @@ let z_completer = {|spans|
       value: $path
       description: $"󠀠 $path"
       span: {
-        start: ($spans.0 | str length) + 1
+        start: (($spans.0 | str length) + 1)
         end: (($spans | str join " ") | str length)
       }
     }
