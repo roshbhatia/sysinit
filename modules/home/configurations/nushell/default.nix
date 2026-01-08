@@ -31,7 +31,6 @@ let
   weztermConfig = builtins.readFile ./integrations/wezterm.nu;
   zoxideConfig = builtins.readFile ./integrations/zoxide.nu;
   k8sConfig = builtins.readFile ./integrations/k8s.nu;
-  functionsConfig = builtins.readFile ./core/functions.nu;
   completersConfig = builtins.readFile ./core/completers.nu;
   hooksConfig = builtins.readFile ./core/hooks.nu;
 in
@@ -74,15 +73,13 @@ in
     extraEnv = ''
       use std/util "path add"
 
-      # Core environment
       $env.LANG = "en_US.UTF-8"
       $env.LC_ALL = "en_US.UTF-8"
-      $env.EDITOR = "nvim"
       $env.VISUAL = "nvim"
+      $env.EDITOR = "nvim"
       $env.SUDO_EDITOR = "nvim"
+      $env.config.buffer_editor= "nvim"
 
-      # XDG Base Directory - critical for scripts to find configs
-      $env.HOME = "${config.home.homeDirectory}"
       $env.XDG_CACHE_HOME = "${config.xdg.cacheHome}"
       $env.XDG_CONFIG_HOME = "${config.xdg.configHome}"
       $env.XDG_DATA_HOME = "${config.xdg.dataHome}"
@@ -92,16 +89,12 @@ in
       $env.XDA = "${config.xdg.dataHome}"
       $env.XST = "${config.xdg.stateHome}"
 
-      # Application-specific
       $env.GIT_DISCOVERY_ACROSS_FILESYSTEM = "1"
       $env.FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules"
       $env.VIVID_THEME = "${appTheme}"
-      $env.ZK_NOTEBOOK_DIR = "${config.home.homeDirectory}/github/personal/roshbhatia/zeek/notes"
 
-      # PATH configuration
       ${lib.concatMapStringsSep "\n" (path: "path add \"${path}\"") pathsList}
 
-      # Navigation commands - these need to be def --env, not aliases
       ${lib.concatStringsSep "\n" (
         lib.mapAttrsToList (
           name: value:
@@ -118,11 +111,11 @@ in
       ${weztermConfig}
       ${zoxideConfig}
       ${k8sConfig}
-      ${functionsConfig}
       ${completersConfig}
       ${hooksConfig}
-
       use std/dirs shells-aliases *
+
+      oh-my-posh init nu --config $env.XDG_CONFIG_HOME/oh-my-posh/themes/sysinit.omp.json
     '';
   };
 }
