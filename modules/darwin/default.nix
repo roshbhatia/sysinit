@@ -2,7 +2,6 @@
 {
   imports = [
     ./home-manager.nix
-    ejfiejfij
     ./configurations
     ./packages
   ];
