@@ -207,7 +207,7 @@ function M.open(termname)
     "wezterm cli split-pane --pane-id %d --right --percent 50 --cwd %s -- %s 2>/dev/null",
     parent_pane_id,
     vim.fn.shellescape(cwd),
-    vim.fn.shellescape(tmux_cmd)
+    tmux_cmd
   )
 
   local result = vim.fn.system(spawn_cmd)
