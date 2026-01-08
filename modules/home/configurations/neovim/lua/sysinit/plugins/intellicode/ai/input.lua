@@ -97,20 +97,16 @@ function M.create_history_picker(termname)
 end
 
 function M.create_input(termname, agent_icon, opts)
-  opts = opts or {}
-  local action_name = opts.action or "Ask"
-  local prompt = string.format("%s  %s: ", agent_icon, action_name)
-
+  local prompt = string.format("%s  %s: ", agent_icon, opts.action)
   local initial_state = context.current_position()
-
   local hist = load_history(termname)
   local current_index = #hist + 1
 
   vim.ui.input({
     prompt = prompt,
-    default = opts.default or "",
+    default = opts.default,
   }, function(value)
-    if opts.on_confirm and value and value ~= "" then
+    if value and value ~= "" then
       save_to_history(termname, value)
       opts.on_confirm(context.apply_placeholders(value, initial_state))
     end
@@ -125,6 +121,10 @@ function M.create_input(termname, agent_icon, opts)
       vim.bo[buf].filetype = "ai_terminals_input"
       vim.wo.relativenumber = true
       vim.wo.number = true
+      vim.wo.wrap = true
+      vim.wo.linebreak = true
+      vim.opt_local.textwidth = 80
+      vim.opt_local.columns = 80
 
       vim.api.nvim_buf_call(buf, function()
         vim.fn.matchadd("Special", "[@!]\\w\\+")
