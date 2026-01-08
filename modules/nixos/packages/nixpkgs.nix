@@ -71,7 +71,7 @@ let
   ];
 
   # Development and virtualization
-  devPkgs = with pkgs; [
+  devPkgs = [
     fhsEnv
   ];
 

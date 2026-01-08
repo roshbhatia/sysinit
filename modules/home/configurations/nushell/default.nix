@@ -23,7 +23,6 @@ let
     "grep"
   ];
   toolAliases = builtins.removeAttrs sharedAliases.tools nushellBuiltins;
-  # Replace $HOME with ~ for nushell compatibility in alias values
   nuShortcuts = lib.mapAttrs (
     _: value: lib.replaceStrings [ "$HOME" ] [ "~" ] value
   ) sharedAliases.shortcuts;
@@ -69,6 +68,7 @@ in
       GIT_DISCOVERY_ACROSS_FILESYSTEM = "1";
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
       VIVID_THEME = appTheme;
+      CARAPACE_BRIDGES = "zsh,fish,bash";
     };
 
     extraEnv = ''
@@ -84,6 +84,9 @@ in
       $env.XST = "${config.xdg.stateHome}"
 
       ${lib.concatMapStringsSep "\n" (path: "path add \"${path}\"") pathsList}
+
+      mkdir $"($nu.cache-dir)"
+      carapace _carapace nushell | save --force $"($nu.cache-dir)/carapace.nu"
     '';
 
     extraConfig = ''
@@ -165,44 +168,7 @@ in
         alias open = ^open
       ''}
 
-      # External completions
-      def --wrapped carapace_completer [...args] {
-        carapace ...$args | from json
-      }
-
-      let external_completer = {|spans|
-        # Handle alias expansion
-        let expanded_alias = (scope aliases | where name == $spans.0 | get -o 0 | get -o expansion)
-        let spans = if $expanded_alias != null {
-          $spans | skip 1 | prepend ($expanded_alias | split row " " | take 1)
-        } else {
-          $spans
-        }
-
-        match $spans.0 {
-          nu | git | kubectl | k => {
-            fish --command $"complete '--do-complete=($spans | str replace --all "'" "\\'" | str join ' ')'"
-              | from tsv --flexible --noheaders --no-infer
-              | rename value description
-              | update value {|row|
-                let value = $row.value
-                let need_quote = ['\' ',' '[' ']' '(' ')' ' ' '\t' "'" '"' "`"] | any {$in in $value}
-                if ($need_quote and ($value | path exists)) {
-                  let expanded_path = if ($value starts-with ~) {$value | path expand --no-symlink} else {$value}
-                  $'"($expanded_path | str replace --all "\"" "\\\"")"'
-                } else {$value}
-              }
-          }
-          _ => {
-            carapace_completer ...$spans | if ($in | default [] | any {|| $in.display | str starts-with "ERR"}) { null } else { $in }
-          }
-        }
-      }
-
-      $env.config.completions.external = {
-        enable: true
-        completer: $external_completer
-      }
+      source $"($nu.cache-dir)/carapace.nu"
 
       oh-my-posh init nu --config ${config.xdg.configHome}/oh-my-posh/themes/sysinit.omp.json
     '';
