@@ -10,10 +10,11 @@ local function get_basic_config()
   return {
     enable_kitty_keyboard = true,
     pane_focus_follows_mouse = false,
-    -- We use a nix-installed zsh as the default shell.
-    -- On darwin there's a /bin/zsh that we choose to not mess with
+    -- On darwin there's a /bin/zsh and /bin/bash that we choose to not mess with
     default_prog = {
-      nix_bin .. "/zsh",
+      nix_bin .. "bash",
+      nix_bin .. "nu",
+      "-l",
     },
     set_environment_variables = {
       PATH = path_with_nix,
