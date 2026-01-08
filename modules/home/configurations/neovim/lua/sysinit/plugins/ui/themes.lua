@@ -74,7 +74,7 @@ local function get_catppuccin_config()
     flavour = theme_config.variant,
     show_end_of_buffer = false,
     transparent_background = true,
-    float = { transparent = true, solid = false },
+    float = { transparent = false, solid = true },
     styles = styles,
     integrations = {
       cmp = true,
@@ -291,10 +291,10 @@ local function apply_global_overrides()
     DiffChange = { bg = c.diff.change_bg },
     DiffDelete = { bg = c.diff.delete_bg },
 
-    FloatBorder = { bg = "NONE", fg = c.syntax.comment },
-    FloatTitle = { bg = "NONE", fg = c.accent.primary, bold = true },
-    NormalFloat = { bg = "NONE", fg = c.foreground.primary },
-    DropBarMenuFloatBorder = { bg = "NONE", fg = c.foreground.subtle },
+    FloatBorder = { bg = c.background.secondary, fg = c.syntax.comment },
+    FloatTitle = { bg = c.background.secondary, fg = c.accent.primary, bold = true },
+    NormalFloat = { bg = c.background.secondary, fg = c.foreground.primary },
+    DropBarMenuFloatBorder = { bg = c.background.secondary, fg = c.foreground.subtle },
 
     Search = { bg = c.plugins.search.match_bg, fg = c.plugins.search.match_fg, bold = true },
     IncSearch = {
