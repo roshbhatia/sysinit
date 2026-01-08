@@ -171,29 +171,6 @@ function M.get_filetype(state)
   return vim.api.nvim_buf_get_option(state.buf, "filetype")
 end
 
-function M.get_surrounding_lines(state, before, after)
-  before = before or 5
-  after = after or 5
-
-  if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
-    return ""
-  end
-
-  local start_line = math.max(0, state.line - 1 - before)
-  local end_line = math.min(vim.api.nvim_buf_line_count(state.buf), state.line + after)
-
-  local lines = vim.api.nvim_buf_get_lines(state.buf, start_line, end_line, false)
-
-  local result = {}
-  for i, line in ipairs(lines) do
-    local line_num = start_line + i
-    local marker = (line_num == state.line) and ">>> " or "    "
-    table.insert(result, string.format("%s%d: %s", marker, line_num, line))
-  end
-
-  return table.concat(result, "\n")
-end
-
 function M.get_word_under_cursor(state)
   if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
     return ""
@@ -209,35 +186,6 @@ function M.get_word_under_cursor(state)
   local after = line:sub(col + 1):match("^[%w_]*") or ""
 
   return before .. after
-end
-
-function M.get_recent_changes(state)
-  if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
-    return ""
-  end
-
-  local changes = vim.fn.getchangelist(state.buf)
-  if not changes or not changes[1] or #changes[1] == 0 then
-    return "No recent changes"
-  end
-
-  local result = {}
-  local max_changes = 10
-  local changelist = changes[1]
-  local start_idx = math.max(1, #changelist - max_changes + 1)
-
-  for i = start_idx, #changelist do
-    local change = changelist[i]
-    if change.lnum and change.lnum > 0 then
-      table.insert(result, string.format("Line %d", change.lnum))
-    end
-  end
-
-  if #result == 0 then
-    return "No recent changes"
-  end
-
-  return table.concat(result, ", ")
 end
 
 function M.get_marks(state)
@@ -327,58 +275,6 @@ function M.get_git_diff()
   end
 
   return vim.trim(result)
-end
-
-function M.get_imports(state)
-  if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
-    return ""
-  end
-
-  local filetype = vim.api.nvim_buf_get_option(state.buf, "filetype")
-  local lines = vim.api.nvim_buf_get_lines(state.buf, 0, 100, false) -- Check first 100 lines
-  local imports = {}
-
-  -- Pattern matching based on filetype
-  local patterns = {
-    python = "^import%s+.+$|^from%s+.+import",
-    javascript = "^import%s+.+$|^const%s+.+%s*=%s*require",
-    typescript = "^import%s+.+$|^const%s+.+%s*=%s*require",
-    lua = "^local%s+.+%s*=%s*require",
-    go = "^import%s+",
-    rust = "^use%s+",
-    java = "^import%s+",
-  }
-
-  local pattern = patterns[filetype]
-  if not pattern then
-    return ""
-  end
-
-  -- Split pattern by | and check each
-  for pat in vim.gsplit(pattern, "|", { plain = true }) do
-    for _, line in ipairs(lines) do
-      if line:match(pat) then
-        table.insert(imports, line)
-      end
-    end
-  end
-
-  if #imports == 0 then
-    return "No imports found"
-  end
-
-  return table.concat(imports, "\n")
-end
-
-function M.get_clipboard()
-  local clipboard = vim.fn.getreg("+")
-  if not clipboard or clipboard == "" then
-    clipboard = vim.fn.getreg("*")
-  end
-  if not clipboard or clipboard == "" then
-    return "Clipboard empty"
-  end
-  return clipboard
 end
 
 return M

@@ -80,13 +80,4 @@ function M.setup(config)
   end
 end
 
---- Clean up the file refresh functionality (stop the timer)
-function M.cleanup()
-  if refresh_timer then
-    refresh_timer:stop()
-    refresh_timer:close()
-    refresh_timer = nil
-  end
-end
-
 return M

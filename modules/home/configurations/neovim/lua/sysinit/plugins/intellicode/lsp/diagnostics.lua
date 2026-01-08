@@ -5,7 +5,9 @@ function M.configure()
 
   vim.diagnostic.config({
     severity_sort = true,
-    virtual_lines = true,
+    virtual_lines = {
+      current_line = true,
+    },
     virtual_text = false,
     update_in_insert = false,
     float = {
