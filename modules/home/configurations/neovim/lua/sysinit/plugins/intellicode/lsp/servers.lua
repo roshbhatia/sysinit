@@ -6,7 +6,7 @@ function M.get_builtin_configs()
   local configs = {
     copilot_ls = {
       on_attach = function(client, bufnr)
-        require("sysinit.plugins.intellicode.lsp.copilot").setup(client, bufnr)
+        require("sysinit.plugins.intellicode.completion.copilot").setup(client, bufnr)
       end,
     },
     eslint = {},
@@ -73,7 +73,7 @@ end
 function M.setup_configs()
   local capabilities = require("blink.cmp").get_lsp_capabilities()
 
-  require("sysinit.plugins.intellicode.lsp.copilot").suppress_limit_notifications()
+  require("sysinit.plugins.intellicode.completion.copilot").suppress_limit_notifications()
 
   for server, cfg in pairs(M.get_builtin_configs()) do
     cfg.capabilities = capabilities
