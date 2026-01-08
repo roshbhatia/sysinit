@@ -1,7 +1,6 @@
 local wezterm = require("wezterm")
 local platform = require("sysinit.pkg.utils.platform")
 local json_loader = require("sysinit.pkg.utils.json_loader")
-local uri_handler = require("sysinit.pkg.utils.uri_handler")
 
 local bar = wezterm.plugin.require("https://github.com/hikarisakamoto/bar.wezterm")
 
@@ -37,7 +36,7 @@ function M.setup(config)
   })
 
   config.adjust_window_size_when_changing_font_size = not platform.is_darwin()
-  config.animation_fps = 60
+  config.animation_fps = 120
   config.color_scheme = config_data.color_scheme
   config.cursor_blink_rate = 320
   config.cursor_thickness = 1
@@ -67,51 +66,6 @@ function M.setup(config)
     fade_out_duration_ms = 100,
   }
 
-  -- Configure hyperlink rules for file paths and URIs
-  config.hyperlink_rules = {
-    -- URL with a protocol
-    {
-      regex = "\\b\\w+://(?:[\\w.-]+)\\.[a-z]{2,15}\\S*\\b",
-      format = "$0",
-    },
-
-    -- implicit mailto link
-    {
-      regex = "\\b\\w+@[\\w-]+(\\.[\\w-]+)+\\b",
-      format = "mailto:$0",
-    },
-
-    -- file:// URIs
-    {
-      regex = "\\bfile://\\S*\\b",
-      format = "$0",
-    },
-
-    -- Absolute paths (starting with /)
-    {
-      regex = "/[\\w./_-]+",
-      format = "$EDITOR:$0",
-    },
-
-    -- Relative paths with ./ or ../
-    {
-      regex = "\\.[./][\\w./_-]+",
-      format = "$EDITOR:$0",
-    },
-
-    -- Filenames with known extensions
-    {
-      regex = "[\\w.-]+\\.(?:rs|ts|js|py|go|c|h|cpp|java|rb|lua|vim|nix|sh|bash|zsh|sql|json|yaml|yml|toml|xml|html|css|md|txt|log|env)",
-      format = "$EDITOR:$0",
-    },
-
-    -- Directories (ending with /)
-    {
-      regex = "[\\w./_-]+/",
-      format = "$EDITOR:$0",
-    },
-  }
-
   bar.apply_to_config(config, {
     padding = {
       tabs = {
@@ -134,8 +88,29 @@ function M.setup(config)
     },
   })
 
-  -- Setup URI handler for file editing and previewing
-  uri_handler.setup(config)
+  -- Configure hyperlink rules for file paths and URIs
+  config.hyperlink_rules = {
+    { regex = "\\b\\w+://(?:[\\w.-]+)\\.[a-z]{2,15}\\S*\\b", format = "$0" },
+    { regex = "\\b\\w+@[\\w-]+(\\.[\\w-]+)+\\b", format = "mailto:$0" },
+    { regex = "\\bfile://\\S*\\b", format = "$0" },
+    { regex = "/[\\w./_-]+", format = "$EDITOR:$0" },
+    { regex = "\\.[./][\\w./_-]+", format = "$EDITOR:$0" },
+    {
+      regex = "[\\w.-]+\\.(?:rs|ts|js|py|go|c|h|cpp|java|rb|lua|vim|nix|sh|bash|zsh|sql|json|yaml|yml|toml|xml|html|css|md|txt|log|env)",
+      format = "$EDITOR:$0",
+    },
+    { regex = "[\\w./_-]+/", format = "$EDITOR:$0" },
+  }
+
+  local username = os.getenv("USER") or ""
+  local nix_bin = "/etc/profiles/per-user/" .. username .. "/bin"
+  wezterm.on("open-uri", function(window, pane, uri)
+    if uri:sub(1, 8) == "$EDITOR:" then
+      window:perform_action(wezterm.action.SpawnCommandInNewWindow({ args = { nix_bin .. "/nvim", uri:sub(9) } }), pane)
+      return false
+    end
+    return true
+  end)
 
   wezterm.on("update-status", function(window, pane)
     local tab = pane:tab()
