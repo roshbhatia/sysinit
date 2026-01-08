@@ -101,8 +101,6 @@ M.plugins = {
         "copilot",
         per_filetype = {
           org = { "orgmode" },
-          ai_terminals_input = { "ai_placeholders", "lsp", "path" },
-          snacks_input = { "ai_placeholders", "lsp", "path" },
         },
       }
 
