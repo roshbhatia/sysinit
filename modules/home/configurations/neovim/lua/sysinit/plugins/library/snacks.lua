@@ -192,8 +192,15 @@ M.plugins = {
         },
       })
 
-      local completion = require("sysinit.plugins.intellicode.ai.completion")
-      completion.setup()
+      vim.defer_fn(function()
+        local blink_ok, blink = pcall(require, "blink.cmp")
+        if blink_ok then
+          blink.add_source_provider("ai_placeholders", {
+            module = "sysinit.plugins.intellicode.ai.completion",
+          })
+          blink.add_filetype_source("ai_terminals_input", "ai_placeholders")
+        end
+      end, 100)
     end,
     keys = function()
       local keymaps = require("sysinit.plugins.intellicode.ai.keymaps")

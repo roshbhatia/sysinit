@@ -1,50 +1,31 @@
 local M = {}
-local context = require("sysinit.plugins.intellicode.ai.context")
 
-local blink_source = {}
-local blink_source_setup_done = false
+function M.new(opts)
+  local context = require("sysinit.plugins.intellicode.ai.context")
 
-function M.setup()
-  if blink_source_setup_done then
-    return
-  end
-  local ok, blink = pcall(require, "blink.cmp")
-  if not ok then
-    return
-  end
-  blink.add_source_provider(
-    "ai_placeholders",
-    { module = "sysinit.plugins.intellicode.ai.completion", name = "ai_placeholders" }
-  )
-  blink.add_filetype_source("ai_terminals_input", "ai_placeholders")
-  blink_source_setup_done = true
-end
-
-function blink_source.new(opts)
-  return setmetatable({}, { __index = blink_source }):init(opts or {})
-end
-
-function blink_source:init(opts)
-  self.opts = opts
+  local self = setmetatable({}, { __index = M })
+  self.opts = opts or {}
+  self.context = context
   return self
 end
 
-function blink_source:enabled()
+function M:enabled()
   return vim.bo.filetype == "ai_terminals_input"
 end
 
-function blink_source:get_trigger_characters()
+function M:get_trigger_characters()
   return { "@" }
 end
 
-function blink_source:get_completions(ctx, callback)
+function M:get_completions(ctx, callback)
   local items = {}
   local types_ok, types = pcall(require, "blink.cmp.types")
   if not types_ok then
     callback({ items = {}, is_incomplete_forward = false, is_incomplete_backward = false })
     return function() end
   end
-  for _, p in ipairs(context.placeholder_descriptions) do
+
+  for _, p in ipairs(self.context.placeholder_descriptions) do
     table.insert(items, {
       label = p.token,
       kind = types.CompletionItemKind.Enum,
@@ -57,14 +38,13 @@ function blink_source:get_completions(ctx, callback)
       },
     })
   end
+
   callback({ items = items, is_incomplete_forward = false, is_incomplete_backward = false })
   return function() end
 end
 
-function blink_source:resolve(item, callback)
+function M:resolve(item, callback)
   callback(item)
 end
-
-M.new = blink_source.new
 
 return M
