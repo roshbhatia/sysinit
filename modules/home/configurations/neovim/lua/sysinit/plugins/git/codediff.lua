@@ -10,6 +10,7 @@ M.plugins = {
     config = function()
       require("codediff").setup({
         explorer = {
+          position = "bottom",
           view_mode = "tree",
         },
         keymaps = {
