@@ -115,7 +115,7 @@ in
       ${hooksConfig}
       use std/dirs shells-aliases *
 
-      oh-my-posh init nu --config $env.XDG_CONFIG_HOME/oh-my-posh/themes/sysinit.omp.json
+      oh-my-posh init nu --config ${config.xdg.configHome}/oh-my-posh/themes/sysinit.omp.json
     '';
   };
 }
