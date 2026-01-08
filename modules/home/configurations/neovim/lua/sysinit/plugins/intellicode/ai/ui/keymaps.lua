@@ -1,9 +1,9 @@
 local M = {}
 
-local ai_manager = require("sysinit.plugins.intellicode.ai.ai_manager")
+local ai_manager = require("sysinit.plugins.intellicode.ai.terminals.manager")
 local agents = require("sysinit.plugins.intellicode.agents")
-local input = require("sysinit.plugins.intellicode.ai.input")
-local picker = require("sysinit.plugins.intellicode.ai.picker")
+local input = require("sysinit.plugins.intellicode.ai.terminals.input")
+local picker = require("sysinit.plugins.intellicode.ai.ui.picker")
 
 local function ensure_active_terminal()
   local active = ai_manager.get_active()

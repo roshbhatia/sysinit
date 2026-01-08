@@ -1,5 +1,5 @@
 local M = {}
-local context = require("sysinit.plugins.intellicode.ai.context")
+local context = require("sysinit.plugins.intellicode.ai.completion.context")
 
 local blink_source = {}
 local blink_source_setup_done = false
