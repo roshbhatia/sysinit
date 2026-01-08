@@ -73,6 +73,7 @@ in
 
     packages = with pkgs; [
       bashInteractive
+      fish
     ];
 
     activation.setBash = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
