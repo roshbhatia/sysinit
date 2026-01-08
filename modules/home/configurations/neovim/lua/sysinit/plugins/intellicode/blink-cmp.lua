@@ -114,7 +114,7 @@ M.plugins = {
         "copilot",
         per_filetype = {
           org = { "orgmode" },
-          snacks_input = { "ai_placeholders", "lsp", "path" },
+          ai_terminals_input = { "ai_placeholders", "lsp", "path" },
         },
       }
 
@@ -158,6 +158,7 @@ M.plugins = {
             },
           },
           menu = {
+            border = "rounded",
             draw = {
               columns = {
                 {
@@ -231,6 +232,12 @@ M.plugins = {
           preset = "luasnip",
         },
       }
+    end,
+    config = function(_, opts)
+      require("blink.cmp").setup(opts)
+      vim.defer_fn(function()
+        require("sysinit.plugins.intellicode.ai.completion").setup()
+      end, 100)
     end,
     opts_extend = {
       "sources.default",
