@@ -120,7 +120,6 @@ function M.setup(opts)
 
   parent_pane_id = get_current_pane_id()
   if not parent_pane_id then
-    vim.notify("AI terminal features disabled.", vim.log.levels.WARN)
     return
   end
 
@@ -153,13 +152,11 @@ end
 
 function M.open(termname)
   if not config.terminals then
-    vim.notify("AI manager not initialized. Call ai_manager.setup() first", vim.log.levels.ERROR)
     return
   end
 
   local agent_config = config.terminals[termname]
   if not agent_config then
-    vim.notify(string.format("Unknown terminal: %s. Check ai_manager.setup() config", termname), vim.log.levels.ERROR)
     return
   end
 
@@ -169,7 +166,6 @@ function M.open(termname)
   end
 
   if not parent_pane_id then
-    vim.notify("Cannot spawn AI terminal: parent pane ID not available", vim.log.levels.ERROR)
     return
   end
 
@@ -255,7 +251,6 @@ function M.focus(termname)
   local term_data = terminals[termname]
 
   if not term_data then
-    vim.notify(string.format("Terminal not found: %s. Use open() first", termname), vim.log.levels.WARN)
     return
   end
 
@@ -345,7 +340,6 @@ function M.send(termname, text, opts)
   local term_data = terminals[termname]
 
   if not term_data then
-    vim.notify(string.format("Terminal not found: %s. Open it first", termname), vim.log.levels.ERROR)
     return
   end
 

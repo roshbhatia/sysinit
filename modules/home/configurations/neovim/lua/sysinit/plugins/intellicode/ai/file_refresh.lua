@@ -46,16 +46,6 @@ function M.setup(config)
     )
   end
 
-  if refresh_config.show_notifications then
-    vim.api.nvim_create_autocmd("FileChangedShellPost", {
-      group = augroup,
-      pattern = "*",
-      callback = function()
-        vim.notify("File changed on disk. Buffer reloaded.", vim.log.levels.INFO)
-      end,
-    })
-  end
-
   if refresh_config.updatetime then
     vim.o.updatetime = refresh_config.updatetime
   end

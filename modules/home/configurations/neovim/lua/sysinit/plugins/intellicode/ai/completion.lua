@@ -12,10 +12,10 @@ function M.setup()
   if not ok then
     return
   end
-  blink.add_source_provider("ai_placeholders", {
-    module = "sysinit.plugins.intellicode.ai.completion",
-    name = "ai_placeholders",
-  })
+  blink.add_source_provider(
+    "ai_placeholders",
+    { module = "sysinit.plugins.intellicode.ai.completion", name = "ai_placeholders" }
+  )
   blink.add_filetype_source("ai_terminals_input", "ai_placeholders")
   blink_source_setup_done = true
 end
@@ -37,14 +37,13 @@ function blink_source:get_trigger_characters()
   return { "@" }
 end
 
-function blink_source:get_completions(ctx, callback)
+function blink_source:get_completions(_, callback)
   local items = {}
   local types_ok, types = pcall(require, "blink.cmp.types")
   if not types_ok then
     callback({ items = {}, is_incomplete_forward = false, is_incomplete_backward = false })
     return function() end
   end
-
   for _, p in ipairs(context.placeholder_descriptions) do
     table.insert(items, {
       label = p.token,
@@ -58,7 +57,6 @@ function blink_source:get_completions(ctx, callback)
       },
     })
   end
-
   callback({ items = items, is_incomplete_forward = false, is_incomplete_backward = false })
   return function() end
 end

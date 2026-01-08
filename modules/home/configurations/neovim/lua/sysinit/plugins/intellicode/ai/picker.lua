@@ -50,7 +50,6 @@ function M.pick_agent()
           local selection = action_state.get_selected_entry()
           if selection then
             ai_manager.activate(selection.value.agent.name)
-            vim.notify(vim.log.levels.INFO)
           end
         end)
         return true

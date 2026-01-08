@@ -160,7 +160,6 @@ M.plugins = {
       })
 
       vim.notify = function(msg, level, opts)
-        -- Ensure msg is always a string
         if type(msg) ~= "string" then
           msg = vim.inspect(msg)
         end
@@ -183,6 +182,8 @@ M.plugins = {
       local agents = require("sysinit.plugins.intellicode.agents")
       local ai_manager = require("sysinit.plugins.intellicode.ai.ai_manager")
       local file_refresh = require("sysinit.plugins.intellicode.ai.file_refresh")
+      local completion = require("sysinit.plugins.intellicode.ai.completion")
+      completion.setup()
 
       local terminals_config = {}
       for _, agent in ipairs(agents.get_all()) do
@@ -203,12 +204,8 @@ M.plugins = {
           enable = true,
           timer_interval = 1000,
           updatetime = 100,
-          show_notifications = true,
         },
       })
-
-      local completion = require("sysinit.plugins.intellicode.ai.completion")
-      completion.setup()
     end,
     keys = function()
       local keymaps = require("sysinit.plugins.intellicode.ai.keymaps")
