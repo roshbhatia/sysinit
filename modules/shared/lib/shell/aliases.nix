@@ -30,18 +30,6 @@
     sg = "ast-grep";
   };
 
-  kubernetes = {
-    kubectl = "kubecolor";
-    k = "kubecolor";
-    kg = "kubecolor get";
-    kd = "kubecolor describe";
-    ke = "kubecolor edit";
-    ka = "kubecolor apply";
-    kpf = "kubecolor port-forward";
-    kdel = "kubecolor delete";
-    klog = "kubecolor logs";
-  };
-
   shortcuts = {
     dl = "cd $HOME/Downloads";
     docs = "cd $HOME/Documents";

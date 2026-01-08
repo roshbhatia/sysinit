@@ -89,20 +89,25 @@ function M.setup(config)
 
     -- Absolute paths (starting with /)
     {
-      regex = "\\b/[^\\s]*\\b",
+      regex = "/[\\w./_-]+",
       format = "$EDITOR:$0",
     },
 
     -- Relative paths with ./ or ../
     {
-      regex = "\\b\\.{1,2}/[^\\s]*\\b",
+      regex = "\\.[./][\\w./_-]+",
       format = "$EDITOR:$0",
     },
 
-    -- Catch-all for other whitespace-delimited sequences
-    -- (including filenames without path separators)
+    -- Filenames with known extensions
     {
-      regex = "\\b\\S+\\b",
+      regex = "[\\w.-]+\\.(?:rs|ts|js|py|go|c|h|cpp|java|rb|lua|vim|nix|sh|bash|zsh|sql|json|yaml|yml|toml|xml|html|css|md|txt|log|env)",
+      format = "$EDITOR:$0",
+    },
+
+    -- Directories (ending with /)
+    {
+      regex = "[\\w./_-]+/",
       format = "$EDITOR:$0",
     },
   }
