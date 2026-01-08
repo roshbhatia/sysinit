@@ -1,14 +1,11 @@
-# Helper to expand aliases
 let get_alias = {|cmd|
   scope aliases | where name == $cmd | get -o 0.expansion
 }
 
-# Zoxide completions
 let zoxide_completer = {|spans|
   $spans | skip 1 | zoxide query -l ...$in | lines | where {|x| $x != $env.PWD}
 }
 
-# Carapace completions
 let carapace_completer = {|spans|
   let expanded_alias = ($get_alias | do $in $spans.0)
   let spans = (if $expanded_alias != null {
@@ -19,7 +16,6 @@ let carapace_completer = {|spans|
   carapace $spans.0 nushell ...$spans | from json
 }
 
-# External completer with fallback chain
 let external_completer = {|spans|
   let expanded_alias = ($get_alias | do $in $spans.0)
   let spans = if $expanded_alias != null {
