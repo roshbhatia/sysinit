@@ -134,8 +134,15 @@ M.plugins = {
             },
             draw = function(opts)
               if opts.item and opts.item.documentation then
-                local out = require("pretty_hover.parser").parse(opts.item.documentation.value)
-                opts.item.documentation.value = out:string()
+                local doc = opts.item.documentation
+                local doc_value = type(doc) == "string" and doc or (doc.value or "")
+                local out = require("pretty_hover.parser").parse(doc_value)
+
+                if type(doc) == "string" then
+                  opts.item.documentation = out:string()
+                else
+                  opts.item.documentation.value = out:string()
+                end
               end
 
               opts.default_implementation(opts)
@@ -146,12 +153,11 @@ M.plugins = {
           },
           list = {
             selection = {
-              preselect = false,
+              preselect = true,
               auto_insert = false,
             },
           },
           menu = {
-            max_height = 15,
             draw = {
               columns = {
                 {
