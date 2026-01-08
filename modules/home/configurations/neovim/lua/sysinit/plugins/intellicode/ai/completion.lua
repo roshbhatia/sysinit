@@ -22,11 +22,6 @@ function blink_source:get_trigger_characters()
   return { "@" }
 end
 
-function blink_source:should_show_items(ctx)
-  local line_before_cursor = ctx.line:sub(1, ctx.cursor[2])
-  return line_before_cursor:match("@%w*$") ~= nil
-end
-
 function blink_source:get_completions(ctx, callback)
   local items = {}
   local types_ok, types = pcall(require, "blink.cmp.types")

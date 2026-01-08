@@ -74,7 +74,7 @@ local function get_catppuccin_config()
     flavour = theme_config.variant,
     show_end_of_buffer = false,
     transparent_background = true,
-    float = { transparent = false, solid = true },
+    float = { transparent = true, solid = false },
     styles = styles,
     integrations = {
       cmp = true,
@@ -291,10 +291,10 @@ local function apply_global_overrides()
     DiffChange = { bg = c.diff.change_bg },
     DiffDelete = { bg = c.diff.delete_bg },
 
-    FloatBorder = { bg = c.background.secondary, fg = c.syntax.comment },
-    FloatTitle = { bg = c.background.secondary, fg = c.accent.primary, bold = true },
-    NormalFloat = { bg = c.background.secondary, fg = c.foreground.primary },
-    DropBarMenuFloatBorder = { bg = c.background.secondary, fg = c.foreground.subtle },
+    FloatBorder = { bg = "NONE", fg = c.syntax.comment },
+    FloatTitle = { bg = "NONE", fg = c.accent.primary, bold = true },
+    NormalFloat = { bg = "NONE", fg = c.foreground.primary },
+    DropBarMenuFloatBorder = { bg = "NONE", fg = c.foreground.subtle },
 
     Search = { bg = c.plugins.search.match_bg, fg = c.plugins.search.match_fg, bold = true },
     IncSearch = {
@@ -315,12 +315,22 @@ local function apply_global_overrides()
     StatusLineNC = { bg = "NONE", fg = c.plugins.window.statusline_inactive },
 
     TelescopeBorder = { bg = "NONE", fg = c.plugins.telescope.border },
+    TelescopeNormal = { bg = "NONE", fg = c.foreground.primary },
     TelescopeSelection = {
-      bg = c.plugins.telescope.selection_bg,
+      bg = c.background.secondary,
       fg = c.plugins.telescope.selection_fg,
       bold = true,
     },
     TelescopeTitle = { bg = "NONE", fg = c.plugins.telescope.title, bold = true },
+    TelescopePromptNormal = { bg = "NONE", fg = c.foreground.primary },
+    TelescopePromptBorder = { bg = "NONE", fg = c.plugins.telescope.border },
+    TelescopePromptTitle = { bg = "NONE", fg = c.plugins.telescope.title, bold = true },
+    TelescopeResultsNormal = { bg = "NONE", fg = c.foreground.primary },
+    TelescopeResultsBorder = { bg = "NONE", fg = c.plugins.telescope.border },
+    TelescopeResultsTitle = { bg = "NONE", fg = c.plugins.telescope.title, bold = true },
+    TelescopePreviewNormal = { bg = "NONE", fg = c.foreground.primary },
+    TelescopePreviewBorder = { bg = "NONE", fg = c.plugins.telescope.border },
+    TelescopePreviewTitle = { bg = "NONE", fg = c.plugins.telescope.title, bold = true },
 
     WinBar = { bg = "NONE", fg = c.plugins.window.winbar_active },
     WinBarNC = { bg = "NONE", fg = c.plugins.window.winbar_inactive },
