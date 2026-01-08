@@ -12,9 +12,10 @@ local function get_basic_config()
     pane_focus_follows_mouse = false,
     -- On darwin there's a /bin/zsh and /bin/bash that we choose to not mess with
     default_prog = {
-      "/bin/sh",
-      "-c",
-      nix_bin .. "/nu -l",
+      -- "/bin/sh",
+      -- "-c",
+      -- nix_bin .. "/nu -l",
+      nix_bin .. "/zsh -l",
     },
     set_environment_variables = {
       PATH = path_with_nix,
