@@ -78,7 +78,7 @@ in
       $env.VISUAL = "nvim"
       $env.EDITOR = "nvim"
       $env.SUDO_EDITOR = "nvim"
-      $env.config.buffer_editor= "nvim"
+      $env.config.buffer_editor = "nvim"
 
       $env.XDG_CACHE_HOME = "${config.xdg.cacheHome}"
       $env.XDG_CONFIG_HOME = "${config.xdg.configHome}"
