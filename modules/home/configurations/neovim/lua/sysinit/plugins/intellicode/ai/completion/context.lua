@@ -33,6 +33,9 @@ function M.current_position()
   local buf = vim.api.nvim_get_current_buf()
   local file = vim.api.nvim_buf_get_name(buf)
   local handle = io.popen("git rev-parse --show-toplevel")
+  if not handle then
+    return { buf = buf, file = file, line = 1, col = 0 }
+  end
   local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
   handle:close()
 
@@ -86,6 +89,9 @@ function M.get_buffer_path(state)
   end
 
   local handle = io.popen("git rev-parse --show-toplevel")
+  if not handle then
+    return ""
+  end
   local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
   handle:close()
 
@@ -98,6 +104,9 @@ end
 
 function M.get_all_buffers_summary()
   local handle = io.popen("git rev-parse --show-toplevel")
+  if not handle then
+    return ""
+  end
   local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
   handle:close()
 
@@ -334,6 +343,9 @@ function M.get_git_diff()
   end
 
   local handle = io.popen("git rev-parse --show-toplevel 2>/dev/null")
+  if not handle then
+    return "Not in a git repository"
+  end
   local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
   handle:close()
 
