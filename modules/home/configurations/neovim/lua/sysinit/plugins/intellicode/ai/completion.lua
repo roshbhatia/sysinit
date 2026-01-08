@@ -31,14 +31,20 @@ end
 
 function blink_source:enabled()
   local ft = vim.bo.filetype
-  return ft == "snacks_input" or vim.api.nvim_get_option_value("buftype", { buf = 0 }) == "prompt"
+  local buftype = vim.api.nvim_get_option_value("buftype", { buf = 0 })
+  return ft == "snacks_input" or buftype == "prompt"
 end
 
 function blink_source:get_trigger_characters()
   return { "@" }
 end
 
-function blink_source:get_completions(_, callback)
+function blink_source:should_show_items(ctx)
+  local line_before_cursor = ctx.line:sub(1, ctx.cursor[2])
+  return line_before_cursor:match("@%w*$") ~= nil
+end
+
+function blink_source:get_completions(ctx, callback)
   local items = {}
   local types_ok, types = pcall(require, "blink.cmp.types")
   if not types_ok then
