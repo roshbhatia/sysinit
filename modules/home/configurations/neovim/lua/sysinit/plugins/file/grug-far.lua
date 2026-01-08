@@ -6,6 +6,10 @@ M.plugins = {
     config = function()
       require("grug-far").setup({
         normalModeSearch = true,
+        windowCreationCommand = "aboveleft vsplit | wincmd H | silent! Neotree close",
+        openTargetWindow = {
+          preferredLocation = "right",
+        },
         searchOnInsertLeave = true,
         resultLocation = {
           showNumberLabel = false,
