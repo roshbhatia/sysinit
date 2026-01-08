@@ -99,9 +99,6 @@ M.plugins = {
             title = " Terminal ",
             title_pos = "center",
             backdrop = 80,
-            wo = {
-              winblend = 10,
-            },
           },
           bo = {
             filetype = "snacks_terminal",
@@ -144,9 +141,6 @@ M.plugins = {
             width = 0,
             height = 0,
             backdrop = false,
-            wo = {
-              winblend = 0,
-            },
           },
         },
       })
@@ -236,7 +230,6 @@ M.plugins = {
                 title = " GitHub CLI ",
                 title_pos = "center",
                 backdrop = 80,
-                wo = { winblend = 10 },
               },
             })
           end,

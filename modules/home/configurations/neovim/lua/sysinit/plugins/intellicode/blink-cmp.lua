@@ -23,7 +23,7 @@ M.plugins = {
           ---@diagnostic disable-next-line: unused-local
           transform_items = function(ctx, items)
             for _, item in ipairs(items) do
-              item.kind_icon = "@ AI "
+              item.kind_icon = "󱚞 "
               item.kind_name = "AI"
             end
             return items
@@ -34,7 +34,7 @@ M.plugins = {
           ---@diagnostic disable-next-line: unused-local
           transform_items = function(ctx, items)
             for _, item in ipairs(items) do
-              item.kind_icon = " Buffer "
+              item.kind_icon = " "
               item.kind_name = "Buffer"
             end
             return items
@@ -53,7 +53,7 @@ M.plugins = {
           ---@diagnostic disable-next-line: unused-local
           transform_items = function(ctx, items)
             for _, item in ipairs(items) do
-              item.kind_icon = "󰘧 LSP "
+              item.kind_icon = "󰘧 "
               item.kind_name = "LSP"
             end
             return items
@@ -64,7 +64,7 @@ M.plugins = {
           ---@diagnostic disable-next-line: unused-local
           transform_items = function(ctx, items)
             for _, item in ipairs(items) do
-              item.kind_icon = " Path "
+              item.kind_icon = " "
               item.kind_name = "Path"
             end
             return items
@@ -78,7 +78,7 @@ M.plugins = {
           ---@diagnostic disable-next-line: unused-local
           transform_items = function(ctx, items)
             for _, item in ipairs(items) do
-              item.kind_icon = "󰩫 Snippets "
+              item.kind_icon = "󰩫 "
               item.kind_name = "Snippets"
             end
             return items
@@ -92,7 +92,7 @@ M.plugins = {
           ---@diagnostic disable-next-line: unused-local
           transform_items = function(ctx, items)
             for _, item in ipairs(items) do
-              item.kind_icon = " Copilot "
+              item.kind_icon = " "
               item.kind_name = "Copilot"
             end
             return items
@@ -152,7 +152,6 @@ M.plugins = {
           },
           menu = {
             max_height = 15,
-            border = "rounded",
             draw = {
               columns = {
                 {
@@ -211,6 +210,10 @@ M.plugins = {
             "snippet_backward",
             "fallback",
           },
+        },
+        documentation = {
+          auto_show = true,
+          auto_show_delay_ms = 500,
         },
         signature = {
           enabled = true,

@@ -17,9 +17,6 @@ M.plugins = {
         notify = false,
         win = {
           border = "rounded",
-          wo = {
-            winblend = 0,
-          },
         },
         layout = {
           spacing = 6,

@@ -15,9 +15,6 @@ M.plugins = {
           tabc = "",
           vsplit = "<localleader>v",
         },
-        preview = {
-          winblend = 0,
-        },
         show_title = {
           description = [[Show the window title]],
           default = false,
