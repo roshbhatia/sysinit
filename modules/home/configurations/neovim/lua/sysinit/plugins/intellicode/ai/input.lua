@@ -3,7 +3,6 @@ local context = require("sysinit.plugins.intellicode.ai.context")
 
 local history_dir = "/tmp"
 local history_files = {}
-local current_history_index = {}
 
 local function get_history_file(termname)
   if not history_files[termname] then
