@@ -14,8 +14,10 @@ local function get_basic_config()
     default_prog = {
       -- "/bin/sh",
       -- "-c",
-      -- nix_bin .. "/nu -l",
+      -- nix_bin .. "/nu",
+      -- "-l",
       nix_bin .. "/zsh -l",
+      "-l",
     },
     set_environment_variables = {
       PATH = path_with_nix,
