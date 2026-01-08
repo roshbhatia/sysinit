@@ -20,16 +20,18 @@ function M.create_input(termname, agent_icon, opts)
     icon = agent_icon,
     default = opts.default or "",
     win = {
-      b = { completion = true },
-      bo = { filetype = "ai_terminals_input" },
-      wo = { wrap = false },
+      b = {
+        completion = true,
+      },
+      bo = {
+        filetype = "ai_terminals_input",
+      },
+      wo = {
+        wrap = true,
+      },
       relative = "cursor",
       style = "minimal",
       border = "rounded",
-      width = 60,
-      height = 1,
-      row = 1,
-      col = 0,
     },
   }, function(value)
     if opts.on_confirm and value and value ~= "" then

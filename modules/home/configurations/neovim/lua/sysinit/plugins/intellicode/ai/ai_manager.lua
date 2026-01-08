@@ -190,13 +190,14 @@ function M.open(termname)
 
   local tmux_cmd
   if is_new_session then
+    local cmd_escaped = agent_config.cmd:gsub("'", "'\\''")
     tmux_cmd = string.format(
       "tmux new-session -s %s -c %s 'tmux set-option -t %s status off; %s%s'",
       vim.fn.shellescape(session_name),
       vim.fn.shellescape(cwd),
       vim.fn.shellescape(session_name),
       env_str,
-      agent_config.cmd
+      cmd_escaped
     )
   else
     tmux_cmd = string.format("tmux attach-session -t %s", vim.fn.shellescape(session_name))
@@ -206,7 +207,7 @@ function M.open(termname)
     "wezterm cli split-pane --pane-id %d --right --percent 50 --cwd %s -- %s 2>/dev/null",
     parent_pane_id,
     vim.fn.shellescape(cwd),
-    tmux_cmd
+    vim.fn.shellescape(tmux_cmd)
   )
 
   local result = vim.fn.system(spawn_cmd)
