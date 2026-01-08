@@ -16,7 +16,7 @@ local function get_basic_config()
       -- "-c",
       -- nix_bin .. "/nu",
       -- "-l",
-      nix_bin .. "/zsh -l",
+      nix_bin .. "/zsh",
       "-l",
     },
     set_environment_variables = {
