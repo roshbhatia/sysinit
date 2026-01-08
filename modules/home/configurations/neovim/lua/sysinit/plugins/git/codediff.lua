@@ -9,9 +9,12 @@ M.plugins = {
     cmd = "CodeDiff",
     config = function()
       require("codediff").setup({
+        explorer = {
+          view_mode = "tree",
+        },
         keymaps = {
           view = {
-            toggle_explorer = "<localleader>et", -- Toggle explorer visibility (explorer mode only)
+            toggle_explorer = "<localleader>e", -- Toggle explorer visibility (explorer mode only)
           },
           explorer = {
             toggle_view_mode = "t",
