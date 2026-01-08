@@ -23,6 +23,10 @@ let
     "grep"
   ];
   toolAliases = builtins.removeAttrs sharedAliases.tools nushellBuiltins;
+  # Replace $HOME with ~ for nushell compatibility in alias values
+  nuShortcuts = lib.mapAttrs (
+    _: value: lib.replaceStrings [ "$HOME" ] [ "~" ] value
+  ) sharedAliases.shortcuts;
 in
 {
   programs.nushell = {
@@ -32,7 +36,7 @@ in
     };
 
     shellAliases = lib.mkForce (
-      toolAliases // sharedAliases.listing // sharedAliases.navigation // sharedAliases.shortcuts
+      toolAliases // sharedAliases.listing // sharedAliases.navigation // nuShortcuts
     );
 
     settings = {

@@ -1,7 +1,7 @@
 def "nu-complete zoxide path" [context: string] {
   # Handle alias expansion for z
   let parts_raw = $context | str trim --left | split row " "
-  let expanded_alias = (scope aliases | where name == $parts_raw.0 | get -i 0 | get -i expansion)
+  let expanded_alias = (scope aliases | where name == $parts_raw.0 | get -o 0 | get -o expansion)
   let parts = (
     if $expanded_alias != null {
       $parts_raw | skip 1 | prepend ($expanded_alias | split row " " | take 1) | drop 1 | each { str downcase }
@@ -58,7 +58,7 @@ let carapace_completer = {|spans: list<string>|
 }
 
 let external_completer = {|spans|
-  let expanded_alias = (scope aliases | where name == $spans.0 | get -i 0 | get -i expansion)
+  let expanded_alias = (scope aliases | where name == $spans.0 | get -o 0 | get -o expansion)
   let spans = (if $expanded_alias != null {
     $spans | skip 1 | prepend ($expanded_alias | split row " " | take 1)
   } else {
