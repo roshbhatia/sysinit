@@ -5,7 +5,6 @@ M.plugins = {
     "NeogitOrg/neogit",
     dependencies = {
       "nvim-lua/plenary.nvim",
-      "sindrets/diffview.nvim",
       "nvim-telescope/telescope.nvim",
     },
     lazy = false,
@@ -13,7 +12,6 @@ M.plugins = {
       require("neogit").setup({
         graph_style = "kitty",
         process_spinner = true,
-        use_per_project_settings = false,
         commit_editor = {
           staged_diff_split_kind = "auto",
         },

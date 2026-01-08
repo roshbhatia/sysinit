@@ -119,7 +119,7 @@ function M.setup(opts)
 
   parent_pane_id = get_current_pane_id()
   if not parent_pane_id then
-    vim.notify("Warning: Not running inside WezTerm. AI terminal features disabled.", vim.log.levels.WARN)
+    vim.notify("AI terminal features disabled.", vim.log.levels.WARN)
     return
   end
 
@@ -218,7 +218,6 @@ function M.open(termname)
 
   local pane_id = tonumber(vim.trim(result))
   if not pane_id then
-    vim.notify("Failed to parse pane ID from wezterm", vim.log.levels.ERROR)
     return
   end
 
@@ -288,12 +287,10 @@ function M.show(termname)
   local term_data = terminals[termname]
 
   if not term_data then
-    vim.notify(string.format("Terminal not found: %s", termname), vim.log.levels.WARN)
     return
   end
 
   if not tmux_session_exists(term_data.session_name) then
-    vim.notify(string.format("Session no longer exists for %s. Reopening...", termname), vim.log.levels.WARN)
     terminals[termname] = nil
     M.open(termname)
     return
@@ -322,7 +319,6 @@ function M.show(termname)
 
   local pane_id = tonumber(vim.trim(result))
   if not pane_id then
-    vim.notify("Failed to parse pane ID from wezterm", vim.log.levels.ERROR)
     return
   end
 
@@ -348,7 +344,6 @@ function M.send(termname, text, opts)
   end
 
   if not tmux_session_exists(term_data.session_name) then
-    vim.notify(string.format("Session no longer exists for %s", termname), vim.log.levels.ERROR)
     return
   end
 
@@ -457,7 +452,7 @@ end
 
 function M.ensure_active_and_send(text)
   if not active_terminal then
-    vim.notify("No active AI terminal. Select one with <leader>jj", vim.log.levels.WARN)
+    vim.notify("No active AI terminal.", vim.log.levels.WARN)
     return
   end
 
