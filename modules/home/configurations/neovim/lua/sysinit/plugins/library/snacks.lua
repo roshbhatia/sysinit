@@ -206,6 +206,9 @@ M.plugins = {
           show_notifications = true,
         },
       })
+
+      local completion = require("sysinit.plugins.intellicode.ai.completion")
+      completion.setup()
     end,
     keys = function()
       local keymaps = require("sysinit.plugins.intellicode.ai.keymaps")

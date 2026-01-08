@@ -260,7 +260,6 @@ function M.focus(termname)
   end
 
   if not term_data.pane_id or not pane_exists(term_data.pane_id) then
-    vim.notify(string.format("Pane no longer exists for %s. Reopening...", termname), vim.log.levels.WARN)
     term_data.pane_id = nil
     M.open(termname)
     return

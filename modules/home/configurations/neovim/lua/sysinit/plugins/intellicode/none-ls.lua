@@ -184,7 +184,6 @@ M.plugins = {
                 title = "Copy hex color to clipboard",
                 action = function()
                   vim.fn.setreg("+", hex_color)
-                  vim.notify("Copied " .. hex_color .. " to clipboard")
                 end,
               })
 
