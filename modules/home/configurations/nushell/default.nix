@@ -22,17 +22,7 @@ let
     "diff"
     "grep"
   ];
-  toolAliases = builtins.removeAttrs sharedAliases.tools nushellBuiltins // {
-    cat = "bat -pp";
-  };
-  listingAliases = builtins.removeAttrs sharedAliases.listing [ "ls" ];
-
-  keybindingsConfig = builtins.readFile ./ui/keybindings.nu;
-  weztermConfig = builtins.readFile ./integrations/wezterm.nu;
-  zoxideConfig = builtins.readFile ./integrations/zoxide.nu;
-  k8sConfig = builtins.readFile ./integrations/k8s.nu;
-  completersConfig = builtins.readFile ./core/completers.nu;
-  hooksConfig = builtins.readFile ./core/hooks.nu;
+  toolAliases = builtins.removeAttrs sharedAliases.tools nushellBuiltins;
 in
 {
   programs.nushell = {
@@ -42,11 +32,7 @@ in
     };
 
     shellAliases = lib.mkForce (
-      toolAliases
-      // listingAliases
-      // {
-        sg = "ast-grep";
-      }
+      toolAliases // sharedAliases.listing // sharedAliases.navigation // sharedAliases.shortcuts
     );
 
     settings = {
@@ -59,7 +45,7 @@ in
         algorithm = "fuzzy";
       };
       cursor_shape = {
-        vi_insert = "underscore";
+        vi_insert = "line";
         vi_normal = "block";
       };
       history = {
@@ -70,15 +56,19 @@ in
       };
     };
 
+    environmentVariables = {
+      LANG = "en_US.UTF-8";
+      LC_ALL = "en_US.UTF-8";
+      VISUAL = "nvim";
+      EDITOR = "nvim";
+      SUDO_EDITOR = "nvim";
+      GIT_DISCOVERY_ACROSS_FILESYSTEM = "1";
+      FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
+      VIVID_THEME = appTheme;
+    };
+
     extraEnv = ''
       use std/util "path add"
-
-      $env.LANG = "en_US.UTF-8"
-      $env.LC_ALL = "en_US.UTF-8"
-      $env.VISUAL = "nvim"
-      $env.EDITOR = "nvim"
-      $env.SUDO_EDITOR = "nvim"
-      $env.config.buffer_editor = "nvim"
 
       $env.XDG_CACHE_HOME = "${config.xdg.cacheHome}"
       $env.XDG_CONFIG_HOME = "${config.xdg.configHome}"
@@ -89,33 +79,30 @@ in
       $env.XDA = "${config.xdg.dataHome}"
       $env.XST = "${config.xdg.stateHome}"
 
-      $env.GIT_DISCOVERY_ACROSS_FILESYSTEM = "1"
-      $env.FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules"
-      $env.VIVID_THEME = "${appTheme}"
-
       ${lib.concatMapStringsSep "\n" (path: "path add \"${path}\"") pathsList}
-
-      ${lib.concatStringsSep "\n" (
-        lib.mapAttrsToList (
-          name: value:
-          let
-            nuValue = lib.replaceStrings [ "$HOME" ] [ "$env.HOME" ] value;
-          in
-          "def --env ${name} [] { ${nuValue} }"
-        ) (sharedAliases.navigation // sharedAliases.shortcuts)
-      )}
     '';
 
     extraConfig = ''
-      ${keybindingsConfig}
-      ${weztermConfig}
-      ${zoxideConfig}
-      ${k8sConfig}
-      ${completersConfig}
-      ${hooksConfig}
       use std/dirs shells-aliases *
+
+      $env.NU_LIB_DIRS = [
+        ($nu.env.NU_LIB_DIRS | split row (char esac) | get 0)
+        "${config.xdg.configHome}/nushell/lib"
+      ]
+
+      use lib/init.nu *
 
       oh-my-posh init nu --config ${config.xdg.configHome}/oh-my-posh/themes/sysinit.omp.json
     '';
+  };
+
+  home.file = {
+    "${config.xdg.configHome}/nushell/lib/keybindings.nu".source = ./ui/keybindings.nu;
+    "${config.xdg.configHome}/nushell/lib/wezterm.nu".source = ./integrations/wezterm.nu;
+    "${config.xdg.configHome}/nushell/lib/zoxide.nu".source = ./integrations/zoxide.nu;
+    "${config.xdg.configHome}/nushell/lib/k8s.nu".source = ./integrations/k8s.nu;
+    "${config.xdg.configHome}/nushell/lib/completers.nu".source = ./core/completers.nu;
+    "${config.xdg.configHome}/nushell/lib/hooks.nu".source = ./core/hooks.nu;
+    "${config.xdg.configHome}/nushell/lib/init.nu".source = ./lib/init.nu;
   };
 }

@@ -21,7 +21,7 @@
     diff = "diff --color";
     grep = "grep -s --color=auto";
     watch = "watch --quiet";
-    cat = "bat";
+    cat = "bat -pp";
     find = "fd";
     sg = "ast-grep";
   };
