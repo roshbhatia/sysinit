@@ -31,7 +31,6 @@ let
   weztermConfig = builtins.readFile ./integrations/wezterm.nu;
   zoxideConfig = builtins.readFile ./integrations/zoxide.nu;
   k8sConfig = builtins.readFile ./integrations/k8s.nu;
-  extrasConfig = builtins.readFile ./integrations/extras.nu;
   functionsConfig = builtins.readFile ./core/functions.nu;
   completersConfig = builtins.readFile ./core/completers.nu;
   hooksConfig = builtins.readFile ./core/hooks.nu;
@@ -122,7 +121,6 @@ in
       ${functionsConfig}
       ${completersConfig}
       ${hooksConfig}
-      ${extrasConfig}
 
       use std/dirs shells-aliases *
     '';
