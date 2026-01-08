@@ -4,12 +4,19 @@ local username = os.getenv("USER") or ""
 local nix_bin = "/etc/profiles/per-user/" .. username .. "/bin"
 
 local function get_basic_config()
+  local current_path = os.getenv("PATH") or ""
+  local path_with_nix = nix_bin .. ":" .. current_path
+
   return {
+    enable_kitty_keyboard = true,
     pane_focus_follows_mouse = false,
     -- We use a nix-installed zsh as the default shell.
     -- On darwin there's a /bin/zsh that we choose to not mess with
     default_prog = {
       nix_bin .. "/zsh",
+    },
+    set_environment_variables = {
+      PATH = path_with_nix,
     },
   }
 end

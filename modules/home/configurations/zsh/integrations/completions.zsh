@@ -38,9 +38,28 @@ __setup_completions() {
   _evalcache uv generate-shell-completion zsh
   _evalcache nix-your-shell zsh
 
-  # Setup kubectl/kubecolor completion
-  _evalcache kubecolor completion zsh
-  compdef _kubectl k kg kd ke ka kpf kdel klog
+  # kubectl aliases
+  alias k='kubectl'
+  alias kg='kubectl get'
+  alias kd='kubectl describe'
+  alias ke='kubectl edit'
+  alias ka='kubectl apply'
+  alias kpf='kubectl port-forward'
+  alias kdel='kubectl delete'
+  alias klog='kubectl logs'
+
+  # Setup kubectl/kubecolor completion (eval directly to ensure function is available)
+  eval "$(kubecolor completion zsh)"
+
+  # Setup completions for aliases after the _kubectl function is loaded
+  compdef _kubectl=k
+  compdef _kubectl=kg
+  compdef _kubectl=kd
+  compdef _kubectl=ke
+  compdef _kubectl=ka
+  compdef _kubectl=kpf
+  compdef _kubectl=kdel
+  compdef _kubectl=klog
 
   enable-fzf-tab
 }
