@@ -5,6 +5,7 @@ local terminals = {}
 local active_terminal = nil
 local augroup = nil
 local parent_pane_id = nil
+local last_prompts = {}
 
 local function get_current_pane_id()
   return tonumber(vim.env.WEZTERM_PANE)
@@ -457,6 +458,8 @@ function M.ensure_active_and_send(text)
     return
   end
 
+  last_prompts[active_terminal] = text
+
   local term_info = M.get_info(active_terminal)
   if not term_info or not M.exists(active_terminal) then
     M.open(active_terminal)
@@ -475,6 +478,14 @@ function M.ensure_active_and_send(text)
     end
     M.send(active_terminal, text, { submit = true })
   end
+end
+
+function M.get_last_prompt(termname)
+  return last_prompts[termname]
+end
+
+function M.set_last_prompt(termname, prompt)
+  last_prompts[termname] = prompt
 end
 
 return M

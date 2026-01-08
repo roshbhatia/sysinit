@@ -1,5 +1,5 @@
 local M = {}
-local placeholders = require("sysinit.plugins.intellicode.ai.placeholders")
+local context = require("sysinit.plugins.intellicode.ai.context")
 
 local blink_source = {}
 local blink_source_setup_done = false
@@ -16,7 +16,7 @@ function M.setup()
     "ai_placeholders",
     { module = "sysinit.plugins.intellicode.ai.completion", name = "ai_placeholders" }
   )
-  blink.add_filetype_source("ai_terminals_input", "ai_placeholders")
+  blink.add_filetype_source("snacks_input", "ai_placeholders")
   blink_source_setup_done = true
 end
 
@@ -30,11 +30,12 @@ function blink_source:init(opts)
 end
 
 function blink_source:enabled()
-  return vim.bo.filetype == "ai_terminals_input"
+  local ft = vim.bo.filetype
+  return ft == "snacks_input" or vim.api.nvim_get_option_value("buftype", { buf = 0 }) == "prompt"
 end
 
 function blink_source:get_trigger_characters()
-  return { "+" }
+  return { "@" }
 end
 
 function blink_source:get_completions(_, callback)
@@ -44,7 +45,7 @@ function blink_source:get_completions(_, callback)
     callback({ items = {}, is_incomplete_forward = false, is_incomplete_backward = false })
     return function() end
   end
-  for _, p in ipairs(placeholders.placeholder_descriptions) do
+  for _, p in ipairs(context.placeholder_descriptions) do
     table.insert(items, {
       label = p.token,
       kind = types.CompletionItemKind.Enum,

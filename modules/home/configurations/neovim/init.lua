@@ -88,7 +88,6 @@ require("sysinit.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.orgmode.nvim-orgmode"),
   require("sysinit.plugins.ui.alpha"),
   require("sysinit.plugins.ui.devicons"),
-  require("sysinit.plugins.ui.dressing"),
   require("sysinit.plugins.ui.live-command"),
   require("sysinit.plugins.ui.scrollview"),
   require("sysinit.plugins.ui.smart-splits"),
