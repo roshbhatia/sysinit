@@ -99,6 +99,9 @@ M.plugins = {
             title = " Terminal ",
             title_pos = "center",
             backdrop = 80,
+            wo = {
+              winblend = 10,
+            },
           },
           bo = {
             filetype = "snacks_terminal",
@@ -141,19 +144,8 @@ M.plugins = {
             width = 0,
             height = 0,
             backdrop = false,
-          },
-          input = {
-            relative = "cursor",
-            row = 1,
-            col = 0,
-            width = 80,
-            border = "rounded",
-            title_pos = "center",
             wo = {
-              wrap = true,
-              linebreak = true,
-              relativenumber = true,
-              number = true,
+              winblend = 0,
             },
           },
         },
@@ -161,7 +153,7 @@ M.plugins = {
 
       vim.notify = function(msg, level, opts)
         if type(msg) ~= "string" then
-          msg = vim.inspect(msg)
+          return Snacks.notifier.notify(msg, level, opts or {})
         end
 
         local ignore_patterns = {
@@ -180,9 +172,10 @@ M.plugins = {
       end
 
       local agents = require("sysinit.plugins.intellicode.agents")
-      local ai_manager = require("sysinit.plugins.intellicode.ai.terminals.manager")
-      local file_refresh = require("sysinit.plugins.intellicode.ai.terminals.file-watcher")
-      local completion = require("sysinit.plugins.intellicode.ai.completion.provider")
+      local ai_manager = require("sysinit.plugins.intellicode.ai.ai_manager")
+      local completion = require("sysinit.plugins.intellicode.ai.completion")
+      local file_refresh = require("sysinit.plugins.intellicode.ai.file_refresh")
+
       completion.setup()
 
       local terminals_config = {}
@@ -204,11 +197,12 @@ M.plugins = {
           enable = true,
           timer_interval = 1000,
           updatetime = 100,
+          show_notifications = true,
         },
       })
     end,
     keys = function()
-      local keymaps = require("sysinit.plugins.intellicode.ai.ui.keymaps")
+      local keymaps = require("sysinit.plugins.intellicode.ai.keymaps")
       local ai_keys = keymaps.generate_all_keymaps()
 
       local default_keys = {
@@ -245,6 +239,7 @@ M.plugins = {
                 title = " GitHub CLI ",
                 title_pos = "center",
                 backdrop = 80,
+                wo = { winblend = 10 },
               },
             })
           end,
