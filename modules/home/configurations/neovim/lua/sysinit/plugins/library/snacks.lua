@@ -160,8 +160,9 @@ M.plugins = {
       })
 
       vim.notify = function(msg, level, opts)
+        -- Ensure msg is always a string
         if type(msg) ~= "string" then
-          return Snacks.notifier.notify(msg, level, opts or {})
+          msg = vim.inspect(msg)
         end
 
         local ignore_patterns = {
@@ -205,16 +206,6 @@ M.plugins = {
           show_notifications = true,
         },
       })
-
-      vim.defer_fn(function()
-        local blink_ok, blink = pcall(require, "blink.cmp")
-        if blink_ok then
-          blink.add_source_provider("ai_placeholders", {
-            module = "sysinit.plugins.intellicode.ai.completion",
-          })
-          blink.add_filetype_source("ai_terminals_input", "ai_placeholders")
-        end
-      end, 100)
     end,
     keys = function()
       local keymaps = require("sysinit.plugins.intellicode.ai.keymaps")

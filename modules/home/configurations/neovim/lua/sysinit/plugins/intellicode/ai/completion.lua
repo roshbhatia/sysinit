@@ -2,23 +2,6 @@ local M = {}
 local context = require("sysinit.plugins.intellicode.ai.context")
 
 local blink_source = {}
-local blink_source_setup_done = false
-
-function M.setup()
-  if blink_source_setup_done then
-    return
-  end
-  local ok, blink = pcall(require, "blink.cmp")
-  if not ok then
-    return
-  end
-  blink.add_source_provider("ai_placeholders", {
-    module = "sysinit.plugins.intellicode.ai.completion",
-    name = "ai_placeholders",
-  })
-  blink.add_filetype_source("ai_terminals_input", "ai_placeholders")
-  blink_source_setup_done = true
-end
 
 function blink_source.new(opts)
   return setmetatable({}, { __index = blink_source }):init(opts or {})

@@ -16,6 +16,19 @@ M.plugins = {
     },
     opts = function()
       local providers = {
+        ai_placeholders = {
+          name = "AI Placeholders",
+          module = "sysinit.plugins.intellicode.ai.completion",
+          score_offset = 10,
+          ---@diagnostic disable-next-line: unused-local
+          transform_items = function(ctx, items)
+            for _, item in ipairs(items) do
+              item.kind_icon = "󱚞 "
+              item.kind_name = "AI"
+            end
+            return items
+          end,
+        },
         buffer = {
           score_offset = 3,
           ---@diagnostic disable-next-line: unused-local
@@ -101,6 +114,8 @@ M.plugins = {
         "copilot",
         per_filetype = {
           org = { "orgmode" },
+          ai_terminals_input = { "ai_placeholders", "lsp", "path" },
+          snacks_input = { "ai_placeholders", "lsp", "path" },
         },
       }
 
