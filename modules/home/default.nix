@@ -54,15 +54,10 @@ in
     stateVersion = "23.11";
 
     sessionVariables = {
-      HOME = config.home.homeDirectory;
-      XCA = config.xdg.cacheHome;
-      XCO = config.xdg.configHome;
-      XDA = config.xdg.dataHome;
       XDG_CACHE_HOME = config.xdg.cacheHome;
       XDG_CONFIG_HOME = config.xdg.configHome;
       XDG_DATA_HOME = config.xdg.dataHome;
       XDG_STATE_HOME = config.xdg.stateHome;
-      XST = config.xdg.stateHome;
 
       NODE_NO_WARNINGS = 1;
       NODE_TLS_REJECT_UNAUTHORIZED = 0;
@@ -70,11 +65,6 @@ in
     // shellEnv;
 
     shellAliases = allAliases;
-
-    packages = with pkgs; [
-      bashInteractive
-      fish
-    ];
 
     activation.setBash = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
       export PATH="${pkgs.bashInteractive}/bin:$PATH"

@@ -74,15 +74,6 @@ in
     extraEnv = ''
       use std/util "path add"
 
-      $env.XDG_CACHE_HOME = "${config.xdg.cacheHome}"
-      $env.XDG_CONFIG_HOME = "${config.xdg.configHome}"
-      $env.XDG_DATA_HOME = "${config.xdg.dataHome}"
-      $env.XDG_STATE_HOME = "${config.xdg.stateHome}"
-      $env.XCA = "${config.xdg.cacheHome}"
-      $env.XCO = "${config.xdg.configHome}"
-      $env.XDA = "${config.xdg.dataHome}"
-      $env.XST = "${config.xdg.stateHome}"
-
       ${lib.concatMapStringsSep "\n" (path: "path add \"${path}\"") pathsList}
 
       mkdir $"($nu.cache-dir)"
@@ -150,6 +141,7 @@ in
 
       # Kubernetes
       alias kubectl = kubecolor
+      alias k = kubecolor
 
       # WezTerm integration
       if (which wezterm | is-not-empty) {
