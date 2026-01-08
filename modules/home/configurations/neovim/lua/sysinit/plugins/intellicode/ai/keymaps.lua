@@ -4,6 +4,7 @@ local ai_manager = require("sysinit.plugins.intellicode.ai.ai_manager")
 local agents = require("sysinit.plugins.intellicode.agents")
 local input = require("sysinit.plugins.intellicode.ai.input")
 local picker = require("sysinit.plugins.intellicode.ai.picker")
+local history = require("sysinit.plugins.intellicode.ai.history")
 
 local function ensure_active_terminal()
   local active = ai_manager.get_active()
@@ -63,12 +64,14 @@ function M.generate_all_keymaps()
     desc = "AI: Kill active session",
   })
 
+  -- Direct agent activation keymaps (leader j + priority number)
   local all_agents = agents.get_all()
   for _, agent in ipairs(all_agents) do
     table.insert(keymaps, {
       "<leader>j" .. agent.priority,
       function()
         ai_manager.activate(agent.name)
+        vim.notify(string.format("%s %s activated", agent.icon, agent.label), vim.log.levels.INFO)
       end,
       desc = string.format("AI: Activate %s", agent.label),
     })
@@ -120,7 +123,8 @@ function M.generate_all_keymaps()
         return
       end
 
-      local last_prompt = ai_manager.get_last_prompt(active)
+      local terminal = require("sysinit.plugins.intellicode.ai.terminal")
+      local last_prompt = terminal.get_last_prompt(active)
       if last_prompt and last_prompt ~= "" then
         ai_manager.ensure_active_and_send(last_prompt)
       else
@@ -133,7 +137,7 @@ function M.generate_all_keymaps()
   table.insert(keymaps, {
     "<leader>jr",
     function()
-      input.create_history_picker(ai_manager.get_active())
+      history.create_history_picker(ai_manager.get_active())
     end,
     desc = "AI: Browse history (active or all)",
   })

@@ -1,13 +1,13 @@
 local M = {}
 
 M.priorities = {
-  goose = 0,
   opencode = 1,
   amp = 2,
-  claude = 3,
-  cursor = 4,
-  copilot = 5,
-  crush = 6,
+  goose = 3,
+  claude = 4,
+  cursor = 5,
+  copilot = 6,
+  crush = 7,
 }
 
 return M

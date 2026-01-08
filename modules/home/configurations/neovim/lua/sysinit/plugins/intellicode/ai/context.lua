@@ -1,33 +1,5 @@
 local M = {}
-
-local nio_available, nio = pcall(require, "nio")
-
-function M.request(method, params, timeout)
-  if nio_available and nio.lsp then
-    local clients = nio.lsp.get_clients({ bufnr = 0, method = method })
-    if #clients == 0 then
-      return nil
-    end
-
-    local err, result =
-      clients[1].request[method:gsub("/", "_"):gsub("$", "__")](params, 0, { timeout = timeout or 500 })
-    if err or not result then
-      return nil
-    end
-    return result
-  end
-
-  local ok, result = pcall(vim.lsp.buf_request_sync, 0, method, params, timeout or 500)
-  if not ok or not result then
-    return nil
-  end
-  for _, res in pairs(result) do
-    if res.result then
-      return res.result
-    end
-  end
-  return nil
-end
+local lsp = require("sysinit.plugins.intellicode.ai.lsp")
 
 function M.current_position()
   local buf = vim.api.nvim_get_current_buf()
@@ -136,7 +108,7 @@ end
 
 function M.get_hover_docs()
   local params = vim.lsp.util.make_position_params()
-  local result = M.request("textDocument/hover", params)
+  local result = lsp.request("textDocument/hover", params)
   if not result then
     return ""
   end
@@ -303,6 +275,7 @@ function M.get_search_pattern()
 end
 
 function M.get_git_status()
+  -- Get git status for current buffer's file
   local buf = vim.api.nvim_get_current_buf()
   local filepath = vim.api.nvim_buf_get_name(buf)
 
@@ -326,6 +299,7 @@ function M.get_git_status()
 end
 
 function M.get_git_diff()
+  -- Get git diff for current buffer's file
   local buf = vim.api.nvim_get_current_buf()
   local filepath = vim.api.nvim_buf_get_name(buf)
 
@@ -341,6 +315,7 @@ function M.get_git_diff()
     return "Not in a git repository"
   end
 
+  -- Get relative path from repo root
   local rel_path = filepath:sub(#repo_root + 2)
 
   local result = vim.fn.system(
@@ -360,9 +335,10 @@ function M.get_imports(state)
   end
 
   local filetype = vim.api.nvim_buf_get_option(state.buf, "filetype")
-  local lines = vim.api.nvim_buf_get_lines(state.buf, 0, 100, false)
+  local lines = vim.api.nvim_buf_get_lines(state.buf, 0, 100, false) -- Check first 100 lines
   local imports = {}
 
+  -- Pattern matching based on filetype
   local patterns = {
     python = "^import%s+.+$|^from%s+.+import",
     javascript = "^import%s+.+$|^const%s+.+%s*=%s*require",
@@ -378,6 +354,7 @@ function M.get_imports(state)
     return ""
   end
 
+  -- Split pattern by | and check each
   for pat in vim.gsplit(pattern, "|", { plain = true }) do
     for _, line in ipairs(lines) do
       if line:match(pat) then
@@ -403,200 +380,5 @@ function M.get_clipboard()
   end
   return clipboard
 end
-
-local git_root_cache = {}
-
-local function get_git_root()
-  local cwd = vim.fn.getcwd()
-  if git_root_cache[cwd] then
-    return git_root_cache[cwd]
-  end
-
-  local handle = io.popen("git rev-parse --show-toplevel 2>/dev/null")
-  if not handle then
-    return nil
-  end
-
-  local root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
-  handle:close()
-
-  git_root_cache[cwd] = (root and root ~= "") and root or nil
-  return git_root_cache[cwd]
-end
-
-local function validate_state(state)
-  return state and state.buf and vim.api.nvim_buf_is_valid(state.buf)
-end
-
-local function get_buffer_path_internal(state)
-  if not validate_state(state) then
-    return nil
-  end
-  local path = vim.api.nvim_buf_get_name(state.buf)
-  return path ~= "" and path or nil
-end
-
-local function normalize_path(path, strip_root)
-  if not path or path == "" then
-    return ""
-  end
-  if not strip_root then
-    return path
-  end
-
-  local git_root = get_git_root()
-  if not git_root then
-    return path
-  end
-
-  local git_root_normalized = git_root:gsub("/$", "")
-  if path:sub(1, #git_root_normalized) == git_root_normalized then
-    local remainder = path:sub(#git_root_normalized + 1)
-    return remainder:match("^/(.*)$") or remainder
-  end
-
-  return path
-end
-
-local function get_relative_path(state)
-  local path = get_buffer_path_internal(state)
-  if not path then
-    return ""
-  end
-  return normalize_path(path, true)
-end
-
-local function escape_lua_pattern(s)
-  return (s:gsub("(%W)", "%%%1"))
-end
-
-local function get_folder_context(state)
-  local path = get_buffer_path_internal(state)
-  if not path then
-    return ""
-  end
-
-  local dir = vim.fn.fnamemodify(path, ":h")
-  return normalize_path(dir, true)
-end
-
-local PLACEHOLDERS = {
-  {
-    token = "@buffer",
-    description = "Current buffer's file path",
-    provider = function(state)
-      local path = get_relative_path(state)
-      return path ~= "" and "@" .. path or ""
-    end,
-  },
-  {
-    token = "@buffers",
-    description = "List of open buffers",
-    provider = M.get_all_buffers_summary,
-  },
-  {
-    token = "@cursor",
-    description = "Cursor position (file:line)",
-    provider = function(state)
-      local path = get_relative_path(state)
-      if not state or not state.line or path == "" then
-        return ""
-      end
-      return string.format("@%s:%d", path, state.line)
-    end,
-  },
-  {
-    token = "@diagnostics",
-    description = "Diagnostics for the current buffer",
-    provider = function(state)
-      if not validate_state(state) or not state.line then
-        return ""
-      end
-      local diags = vim.diagnostic.get(state.buf, { lnum = state.line - 1 })
-      local severity_names = {
-        [vim.diagnostic.severity.ERROR] = "ERROR",
-        [vim.diagnostic.severity.WARN] = "WARN",
-        [vim.diagnostic.severity.INFO] = "INFO",
-        [vim.diagnostic.severity.HINT] = "HINT",
-      }
-      local lines = {}
-      for _, diag in ipairs(diags) do
-        local severity = severity_names[diag.severity] or tostring(diag.severity)
-        table.insert(lines, string.format("[%s] %s", severity, diag.message))
-      end
-      return table.concat(lines, "\n")
-    end,
-  },
-  {
-    token = "@diff",
-    description = "Git diff for current file",
-    provider = M.get_git_diff,
-  },
-  {
-    token = "@folder",
-    description = "Current folder path",
-    provider = function(state)
-      local dir = get_folder_context(state)
-      return dir ~= "" and "@" .. dir or ""
-    end,
-  },
-  {
-    token = "@git",
-    description = "Git status for current repository",
-    provider = M.get_git_status,
-  },
-  {
-    token = "@loclist",
-    description = "Location list entries",
-    provider = M.get_location_list,
-  },
-  {
-    token = "@marks",
-    description = "Marks set in buffer",
-    provider = M.get_marks,
-  },
-  {
-    token = "@qflist",
-    description = "Quickfix list entries",
-    provider = M.get_quickfix_list,
-  },
-  {
-    token = "@search",
-    description = "Current search pattern",
-    provider = M.get_search_pattern,
-  },
-  {
-    token = "@selection",
-    description = "Selected text",
-    provider = M.get_visual_selection,
-  },
-  {
-    token = "@word",
-    description = "Word under cursor",
-    provider = M.get_word_under_cursor,
-  },
-}
-
-function M.apply_placeholders(input, state)
-  if not input or input == "" then
-    return input
-  end
-
-  state = state or M.current_position()
-  local result = input
-
-  for _, ph in ipairs(PLACEHOLDERS) do
-    if result:find(ph.token, 1, true) then
-      local ok, value = pcall(ph.provider, state)
-      result = result:gsub(escape_lua_pattern(ph.token), ok and value or "")
-    end
-  end
-
-  return result
-end
-
-M.placeholder_descriptions = vim.tbl_map(function(p)
-  return { token = p.token, description = p.description }
-end, PLACEHOLDERS)
 
 return M

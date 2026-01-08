@@ -41,11 +41,13 @@ function M.get_keymaps()
     {
       "<leader>ca",
       vim.lsp.buf.code_action,
+      mode = "v",
       desc = "Code action",
     },
     {
       "gra",
       vim.lsp.buf.code_action,
+      mode = "v",
       desc = "Code action",
     },
     {
