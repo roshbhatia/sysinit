@@ -38,10 +38,10 @@ __setup_completions() {
   _evalcache uv generate-shell-completion zsh
   _evalcache nix-your-shell zsh
 
-  _evalcache kubecolor completion zsh
+  source <(kubecolor completion zsh)
   alias k="kubecolor"
   alias kubectl="kubecolor"
-  compdef k=_kubectl
+  compdef k=kubectl
 
   enable-fzf-tab
 }
