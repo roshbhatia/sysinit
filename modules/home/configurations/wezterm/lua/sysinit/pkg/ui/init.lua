@@ -27,7 +27,7 @@ function M.setup(config)
     dwell_threshold = 80,
     distance_threshold = 5,
     duration = 80,
-    spread = 1,
+    spread = 1.1,
     opacity = 0.8,
   }
 
