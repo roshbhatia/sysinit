@@ -67,14 +67,6 @@ in
     extraConfig = ''
       use std/dirs shells-aliases *
 
-      # External completers (carapace)
-      $env.config.completions.external.completer = {|spans: list<string>|
-        carapace $spans.0 nushell ...$spans
-        | from json
-        | if ($in | default [] | any {|| $in.display | str starts-with "ERR"}) { null } else { $in }
-      }
-
-      # Keybindings
       $env.config.keybindings = [
         {
           name: completion_menu
@@ -91,7 +83,6 @@ in
         }
       ]
 
-      # Zoxide integration
       export-env {
         $env.config = (
           $env.config?
