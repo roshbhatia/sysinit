@@ -18,6 +18,5 @@
     ./system
     ./tailscale
     ./user
-    ./wezterm
   ];
 }

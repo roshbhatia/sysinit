@@ -26,9 +26,9 @@ function M.setup(config)
     enabled = true,
     dwell_threshold = 80,
     distance_threshold = 5,
-    duration = 300,
+    duration = 125,
     spread = 2,
-    opacity = 0.6,
+    opacity = 0.8,
   }
 
   local config_data = json_loader.load_json_file(json_loader.get_config_path("config.json"))

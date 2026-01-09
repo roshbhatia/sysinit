@@ -34,7 +34,6 @@
     };
 
     bv.url = "github:Dicklesworthstone/beads_viewer";
-    darwin-custom-icons.url = "github:ryanccn/nix-darwin-custom-icons";
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay/master";
     nix-gaming.url = "github:fufexan/nix-gaming";
     nur.url = "github:nix-community/NUR";

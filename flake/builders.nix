@@ -43,7 +43,6 @@
       stylix,
       nix-homebrew,
       onepassword-shell-plugins,
-      darwin-custom-icons,
       mkPkgs,
       mkUtils,
       mkOverlays,
@@ -102,7 +101,6 @@
           home-manager.darwinModules.home-manager
           stylix.darwinModules.stylix
           nix-homebrew.darwinModules.nix-homebrew
-          darwin-custom-icons.darwinModules.default
           {
             _module.args.utils = utils;
             home-manager.sharedModules = [

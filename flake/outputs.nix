@@ -22,7 +22,6 @@ let
       stylix
       nix-homebrew
       onepassword-shell-plugins
-      darwin-custom-icons
       ;
     inherit (builders) mkPkgs;
     inherit (builders) mkUtils;
