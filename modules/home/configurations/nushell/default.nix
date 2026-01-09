@@ -40,7 +40,6 @@ in
         algorithm = "fuzzy";
         external = {
           enable = true;
-          completer = "external_completer";
         };
       };
       cursor_shape = {
@@ -89,10 +88,10 @@ in
         | if ($in | default [] | any {|| $in.display | str starts-with "ERR"}) { null } else { $in }
       }
 
-      let external_completer = {|spans|
+      $env.config.completions.external.completer = {|spans|
         let expanded_alias = scope aliases
         | where name == $spans.0
-        | get -i 0.expansion
+        | get -o 0.expansion
 
         let spans = if $expanded_alias != null {
           $spans
@@ -109,8 +108,6 @@ in
           _ => $carapace_completer
         } | do $in $spans
       }
-
-      $env.config.completions.external.completer = $external_completer
 
       # Keybindings
       $env.config.keybindings = [
