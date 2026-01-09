@@ -55,12 +55,6 @@ in
 
   bv = inputs.bv.packages.${system}.default;
 
-  wezterm = _prev.wezterm.overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [
-      ../patch/wezterm-cursor-trail.diff
-    ];
-  });
-
   kubernetes-zeitgeist = final.buildGoModule rec {
     pname = "kubernetes-zeitgeist";
     version = "0.5.3";

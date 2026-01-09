@@ -20,17 +20,6 @@ local function should_be_opaque(tab)
 end
 
 function M.setup(config)
-  -- https://github.com/wezterm/wezterm/pull/7420
-  -- Patch used in the nixpkgs overlay during the build here to support cursor trail
-  config.cursor_trail = {
-    enabled = true,
-    dwell_threshold = 80,
-    distance_threshold = 5,
-    duration = 120,
-    spread = 2,
-    opacity = 0.8,
-  }
-
   local config_data = json_loader.load_json_file(json_loader.get_config_path("config.json"))
   local font = wezterm.font_with_fallback({
     {
