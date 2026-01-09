@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  values,
   pkgs,
   ...
 }:
@@ -9,11 +8,8 @@
 with lib;
 let
   shell = import ../../../shared/lib/shell { inherit lib; };
-  themes = import ../../../shared/lib/theme { inherit lib; };
   paths_lib = import ../../../shared/lib/paths { inherit config lib; };
 
-  validatedTheme = values.theme;
-  appTheme = themes.getAppTheme "vivid" validatedTheme.colorscheme validatedTheme.variant;
   sharedAliases = shell.aliases;
   pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;
 
@@ -60,14 +56,6 @@ in
     };
 
     environmentVariables = {
-      LANG = "en_US.UTF-8";
-      LC_ALL = "en_US.UTF-8";
-      VISUAL = "nvim";
-      EDITOR = "nvim";
-      SUDO_EDITOR = "nvim";
-      GIT_DISCOVERY_ACROSS_FILESYSTEM = "1";
-      FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git --exclude node_modules";
-      VIVID_THEME = appTheme;
       CARAPACE_BRIDGES = "zsh,fish,bash";
     };
 

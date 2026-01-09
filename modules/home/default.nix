@@ -18,23 +18,17 @@ let
   shellEnv = shellLib.env {
     inherit colors appTheme;
   };
-  allAliases =
-    (shellLib.aliases.navigation or { })
-    // (shellLib.aliases.listing or { })
-    // (shellLib.aliases.tools or { })
-    // (shellLib.aliases.kubernetes or { })
-    // (shellLib.aliases.shortcuts or { })
-    // {
-      h = "hx";
-      f = "yazi";
-      tree = "eza --tree --icons=never";
-      zi = "__zoxide_zi";
-      org = "nvim ~/org/notes";
-      cat = "bat -pp";
-      ll = "eza --icons=always -l -a";
-      kgA = "kubectl get -A";
-      kgN = "kubectl get -n";
-    };
+  allAliases = shellLib.aliases // {
+    h = "hx";
+    f = "yazi";
+    tree = "eza --tree --icons=never";
+    zi = "__zoxide_zi";
+    org = "nvim ~/org/notes";
+    cat = "bat -pp";
+    ll = "eza --icons=always -l -a";
+    kgA = "kubectl get -A";
+    kgN = "kubectl get -n";
+  };
 in
 {
   imports = [
