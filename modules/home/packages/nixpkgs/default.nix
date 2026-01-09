@@ -35,7 +35,6 @@ let
     bash
     bashInteractive
     direnv
-    fish
     macchina
     oh-my-posh
     tmux

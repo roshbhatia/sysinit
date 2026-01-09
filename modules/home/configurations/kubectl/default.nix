@@ -5,7 +5,6 @@
     ".local/bin/k".source = "${pkgs.kubecolor}/bin/kubecolor";
     ".local/bin/kubectl".source = "${pkgs.kubecolor}/bin/kubecolor";
 
-    # https://kubernetes.io/docs/reference/kubectl/kuberc/
     ".kube/kuberc".text = ''
       apiVersion: kubectl.config.k8s.io/v1beta1
       kind: Preference
