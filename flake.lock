@@ -123,21 +123,6 @@
         "url": "https://flakehub.com/f/nix-darwin/nix-darwin/0"
       }
     },
-    "darwin-custom-icons": {
-      "locked": {
-        "lastModified": 1719071371,
-        "narHash": "sha256-SPazmoL3Pls4QTiZ2CRtavecNJgzpL4GeiwafTmtdJ8=",
-        "owner": "ryanccn",
-        "repo": "nix-darwin-custom-icons",
-        "rev": "ad3e8cf49ef0b276ccf67410f544ff33d965d821",
-        "type": "github"
-      },
-      "original": {
-        "owner": "ryanccn",
-        "repo": "nix-darwin-custom-icons",
-        "type": "github"
-      }
-    },
     "determinate": {
       "inputs": {
         "determinate-nixd-aarch64-darwin": "determinate-nixd-aarch64-darwin",
@@ -768,7 +753,6 @@
       "inputs": {
         "bv": "bv",
         "darwin": "darwin",
-        "darwin-custom-icons": "darwin-custom-icons",
         "determinate": "determinate",
         "firefox-addons": "firefox-addons",
         "home-manager": "home-manager",
