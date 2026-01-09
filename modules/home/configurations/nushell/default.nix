@@ -165,10 +165,6 @@ in
       alias z = __zoxide_z
       alias zi = __zoxide_zi
 
-      # Kubernetes
-      alias kubectl = kubecolor
-      alias k = kubecolor
-
       # WezTerm integration
       if (which wezterm | is-not-empty) {
         $env.config.hooks.env_change.PWD = (
