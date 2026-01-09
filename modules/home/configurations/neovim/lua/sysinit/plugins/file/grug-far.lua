@@ -5,6 +5,7 @@ M.plugins = {
     "MagicDuck/grug-far.nvim",
     config = function()
       require("grug-far").setup({
+        showEngineInfo = false,
         normalModeSearch = true,
         windowCreationCommand = "aboveleft vsplit | wincmd H | silent! Neotree close",
         openTargetWindow = {
@@ -30,20 +31,6 @@ M.plugins = {
             })
           end,
           desc = "Find: Grep",
-        },
-        {
-          "<leader>fs",
-          function()
-            require("grug-far").toggle_instance({
-              instanceName = "far-global",
-              staticTitle = "Global Search",
-              engine = "ast-grep",
-              prefills = {
-                search = vim.fn.expand("<cword>"),
-              },
-            })
-          end,
-          desc = "Find: Grep (ast-grep)",
         },
         {
           "<leader>fi",

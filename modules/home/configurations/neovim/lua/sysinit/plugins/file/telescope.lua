@@ -6,7 +6,10 @@ M.plugins = {
     branch = "master",
     dependencies = {
       "nvim-lua/plenary.nvim",
-      "nvim-telescope/telescope-fzy-native.nvim",
+      {
+        "nvim-telescope/telescope-fzf-native.nvim",
+        run = "make",
+      },
       "nvim-telescope/telescope-ui-select.nvim",
       "nvim-tree/nvim-web-devicons",
       "nvim-treesitter/nvim-treesitter",
@@ -167,10 +170,6 @@ M.plugins = {
           ["ui-select"] = {
             themes.get_ivy(),
           },
-          fzy_native = {
-            override_generic_sorter = true,
-            override_file_sorter = true,
-          },
         },
         pickers = {
           find_files = {
@@ -180,10 +179,8 @@ M.plugins = {
         },
       })
 
-      local exts = { "fzy_native", "ui-select" }
-      for _, ext in ipairs(exts) do
-        pcall(telescope.load_extension, ext)
-      end
+      require("telescope").load_extension("fzf")
+      require("telescope").load_extension("ui-select")
     end,
     keys = function()
       local tbuiltin = require("telescope.builtin")
@@ -199,7 +196,7 @@ M.plugins = {
           "<leader>fb",
           function()
             tbuiltin.buffers(require("telescope.themes").get_ivy({
-              previewer = true,
+              previewer = false,
               sort_mru = true,
               ignore_current_buffer = false,
               show_all_buffers = false,
@@ -218,7 +215,7 @@ M.plugins = {
         {
           "<leader>ff",
           function()
-            tbuiltin.find_files({ hidden = true })
+            tbuiltin.find_files()
           end,
           desc = "Find: Files",
         },

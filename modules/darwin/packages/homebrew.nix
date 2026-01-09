@@ -47,7 +47,6 @@ let
     "mediosz/tap/swipeaerospace"
     "raycast"
     "slack"
-    "wezterm@nightly"
   ];
 
   allTaps = baseTaps ++ additionalTaps;
