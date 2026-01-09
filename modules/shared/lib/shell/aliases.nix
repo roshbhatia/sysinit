@@ -2,7 +2,7 @@
   cat = "bat -pp";
   diff = "diff --color";
   find = "fd";
-  grep = "rgb -s --color=auto";
+  grep = "rg -s --color=auto";
   kk = "k9s";
   sg = "ast-grep";
   sudo = "sudo -E";
