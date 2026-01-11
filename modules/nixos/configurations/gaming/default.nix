@@ -24,6 +24,8 @@
   # Gaming packages
   environment.systemPackages = with pkgs; [
     mangohud
+    protonup-qt
+    lutris
     vulkan-validation-layers
   ];
 }
