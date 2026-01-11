@@ -133,7 +133,6 @@
           home-manager.nixosModules.home-manager
 
           stylix.nixosModules.stylix
-          pkgs.nur.repos.charmbracelet.modules.nixos.crush
           (import ../modules/nixos/home-manager.nix {
             inherit values inputs;
             inherit utils;
