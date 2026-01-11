@@ -1,4 +1,4 @@
-{ ... }:
+{ lib, values, ... }:
 
 {
   imports = [
@@ -7,7 +7,6 @@
     ./firewall
     ./gpu
     ./audio
-    ./gaming
     ./hostname
     ./security
     ./tailscale
@@ -20,5 +19,6 @@
     ./stylix
     ./hardware
     ./user
-  ];
+  ]
+  ++ lib.optionals values.nix.gaming.enable [ ./gaming ];
 }

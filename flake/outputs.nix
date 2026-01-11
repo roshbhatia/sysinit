@@ -20,6 +20,7 @@ let
       darwin
       home-manager
       stylix
+      nix-gaming
       nix-homebrew
       onepassword-shell-plugins
       ;

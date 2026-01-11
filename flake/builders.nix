@@ -41,6 +41,7 @@
       darwin,
       home-manager,
       stylix,
+      nix-gaming,
       nix-homebrew,
       onepassword-shell-plugins,
       mkPkgs,
@@ -132,6 +133,7 @@
           home-manager.nixosModules.home-manager
 
           stylix.nixosModules.stylix
+          nix-gaming.nixosModules.default
           pkgs.nur.repos.charmbracelet.modules.nixos.crush
           (import ../modules/nixos/home-manager.nix {
             inherit values inputs;
