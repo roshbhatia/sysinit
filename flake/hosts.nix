@@ -33,6 +33,7 @@ common:
     platform = "linux";
     inherit (common) username;
     values = common.values // {
+      nix.gaming.enable = true;
       theme = {
         colorscheme = "gruvbox";
         variant = "dark";

@@ -57,6 +57,8 @@ let
     (heroic.override {
       extraPkgs = pkgs: [ pkgs.gamescope ];
     })
+    gamescope
+    goverlay
     mangohud
     vkbasalt
     vulkan-extension-layer
