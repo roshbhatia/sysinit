@@ -74,6 +74,14 @@ with lib;
           default = [ ];
           description = "Additional Nix packages";
         };
+
+        gaming = {
+          enable = mkOption {
+            type = types.bool;
+            default = false;
+            description = "Enable gaming configuration (Proton, Lutris, gamescope)";
+          };
+        };
       };
 
       darwin = {

@@ -120,6 +120,7 @@ task: Available tasks for this project:
 | `llm.mcp.type` |  | "local" |  | MCP server type |
 | `llm.mcp.url` | string? | null |  | HTTP server URL (if type = http) |
 | `nix.additionalPackages` | list(string) | [] |  | Additional Nix packages |
+| `nix.gaming.enable` | boolean | false |  | Enable gaming configuration (Proton, Lutris, gamescope) |
 | `npm.additionalPackages` | list(string) | [] |  | Additional global npm packages |
 | `pipx.additionalPackages` | list(string) | [] |  | Additional global pipx packages |
 | `tailscale.enable` | boolean | true |  | Enable Tailscale |
