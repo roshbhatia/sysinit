@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   values,
   ...
@@ -13,21 +14,23 @@ let
   );
 
   # Core system utilities
-  basePkgs = with pkgs; [
-    coreutils
-    curl
-    findutils
-    gettext
-    gnugrep
-    gnused
-    jq
-    lua54Packages.cjson
-    sbarlua
-    socat
-    watch
-    wget
-    which
-  ];
+  basePkgs =
+    with pkgs;
+    [
+      coreutils
+      curl
+      findutils
+      gettext
+      gnugrep
+      gnused
+      jq
+      lua54Packages.cjson
+      socat
+      watch
+      wget
+      which
+    ]
+    ++ lib.optionals pkgs.stdenv.isDarwin [ sbarlua ];
 
   # Terminal and shells
   terminalPkgs = with pkgs; [
