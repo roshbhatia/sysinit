@@ -5,12 +5,12 @@
 {
   hardware.graphics = {
     enable = true;
+    enable32bit = true;
   };
 
   hardware.opengl = {
     enable = true;
     driSupport = true;
-    driSupport32bit = true;
   };
 
   services.xserver.videoDrivers = [ "nvidia" ];
