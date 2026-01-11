@@ -41,8 +41,8 @@ in
         gaps_in = 4;
         gaps_out = 8;
         border_size = 1;
-        "col.active_border" = semanticColors.accent.primary;
-        "col.inactive_border" = semanticColors.background.secondary;
+        "col.active_border" = lib.mkForce semanticColors.accent.primary;
+        "col.inactive_border" = lib.mkForce semanticColors.background.secondary;
         resize_on_border = "false";
         layout = "dwindle";
       };

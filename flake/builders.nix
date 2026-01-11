@@ -145,7 +145,6 @@
         ++ lib.optionals values.nix.gaming.enable [
           nix-gaming.nixosModules.pipewireLowLatency
           nix-gaming.nixosModules.platformOptimizations
-          nix-gaming.nixosModules.steamCompat
         ];
       };
 }
