@@ -133,7 +133,6 @@
           home-manager.nixosModules.home-manager
 
           stylix.nixosModules.stylix
-          nix-gaming.nixosModules.default
           pkgs.nur.repos.charmbracelet.modules.nixos.crush
           (import ../modules/nixos/home-manager.nix {
             inherit values inputs;
@@ -142,6 +141,11 @@
           {
             documentation.enable = false;
           }
+        ]
+        ++ lib.optionals values.nix.gaming.enable [
+          nix-gaming.nixosModules.pipewireLowLatency
+          nix-gaming.nixosModules.platformOptimizations
+          nix-gaming.nixosModules.steamCompat
         ];
       };
 }
