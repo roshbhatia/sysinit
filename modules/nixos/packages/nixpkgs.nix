@@ -27,7 +27,6 @@ let
     lua54Packages.cjson
     mesa-demos
     networkmanager
-    sbarlua
     slurp
     wl-clipboard
     xclip
