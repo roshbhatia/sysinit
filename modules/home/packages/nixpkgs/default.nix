@@ -207,7 +207,7 @@ let
 
   # Project management and collaboration
   projectPkgs = with pkgs; [
-    bv
+    # bv
     jira-cli-go
     mermaid-cli
   ];
