@@ -7,7 +7,7 @@ M.plugins = {
     keys = function()
       return {
         {
-          "<leader>ced",
+          "<leader>cee",
           function()
             vim.cmd("DapViewToggle")
           end,
