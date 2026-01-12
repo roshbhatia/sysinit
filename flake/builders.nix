@@ -41,7 +41,7 @@
       darwin,
       home-manager,
       stylix,
-      nix-gaming,
+      nix-gaming ? null,
       nix-homebrew,
       onepassword-shell-plugins,
       mkPkgs,
@@ -141,7 +141,7 @@
             documentation.enable = false;
           }
         ]
-        ++ lib.optionals values.nix.gaming.enable [
+        ++ lib.optionals (values.nix.gaming.enable && nix-gaming != null) [
           nix-gaming.nixosModules.pipewireLowLatency
           nix-gaming.nixosModules.platformOptimizations
         ];
