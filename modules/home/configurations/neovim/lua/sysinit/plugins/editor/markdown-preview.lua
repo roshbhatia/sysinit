@@ -3,19 +3,19 @@ local M = {}
 M.plugins = {
   {
     "iamcco/markdown-preview.nvim",
-    cmd = {
-      "MarkdownPreviewToggle",
-      "MarkdownPreview",
-      "MarkdownPreviewStop",
-    },
+    cmd = { "MarkdownPreviewToggle" },
     build = "cd app && yarn install --force --pure-lockfile",
     init = function()
-      vim.g.mkdp_filetypes = {
-        "markdown",
-      }
+      vim.g.mkdp_filetypes = { "markdown" }
     end,
-    ft = {
-      "markdown",
+    ft = { "markdown" },
+    keys = {
+      {
+        "<localleader>p",
+        "<cmd>MarkdownPreviewToggle<cr>",
+        desc = "Toggle preview",
+        ft = "markdown",
+      },
     },
   },
 }

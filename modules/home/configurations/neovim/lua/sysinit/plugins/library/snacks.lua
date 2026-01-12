@@ -243,7 +243,7 @@ M.plugins = {
               },
             })
           end,
-          desc = "GitHub: Toggle",
+          desc = "Toggle",
         },
       }
       for _, key in ipairs(ai_keys) do

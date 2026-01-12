@@ -30,7 +30,7 @@ M.plugins = {
               },
             })
           end,
-          desc = "Find: Grep",
+          desc = "Grep",
         },
         {
           "<leader>fi",
@@ -44,7 +44,7 @@ M.plugins = {
               },
             })
           end,
-          desc = "Find: Grep in Buffer",
+          desc = "Grep in buffer",
         },
       }
     end,

@@ -67,7 +67,7 @@ M.plugins = {
         function()
           require("neogit").open()
         end,
-        desc = "Git: Toggle",
+        desc = "Toggle",
         mode = "n",
       },
       {
@@ -75,7 +75,7 @@ M.plugins = {
         function()
           require("neogit").open({ "commit" })
         end,
-        desc = "Git: Commit",
+        desc = "Commit",
         mode = "n",
       },
       {
@@ -83,7 +83,7 @@ M.plugins = {
         function()
           require("neogit").open({ "push" })
         end,
-        desc = "Git: Push",
+        desc = "Push",
         mode = "n",
       },
       {
@@ -91,7 +91,7 @@ M.plugins = {
         function()
           require("neogit").open({ "pull" })
         end,
-        desc = "Git: Pull",
+        desc = "Pull",
         mode = "n",
       },
       {
@@ -99,7 +99,7 @@ M.plugins = {
         function()
           require("neogit").open({ "branch" })
         end,
-        desc = "Git: Branch",
+        desc = "Branch",
         mode = "n",
       },
       {
@@ -107,7 +107,7 @@ M.plugins = {
         function()
           require("neogit").open({ "log" })
         end,
-        desc = "Git: Log",
+        desc = "Log",
         mode = "n",
       },
     },

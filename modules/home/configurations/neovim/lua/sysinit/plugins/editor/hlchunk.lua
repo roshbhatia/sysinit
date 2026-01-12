@@ -13,7 +13,7 @@ M.plugins = {
   {
     "shellRaining/hlchunk.nvim",
     event = {
-      "BufReadPost",
+      "VeryLazy",
     },
     config = function()
       local colors = get_palette_colors()

@@ -6,7 +6,7 @@ function M.setup()
   end, {
     noremap = true,
     silent = true,
-    desc = "Force Quit",
+    desc = "Force quit",
   })
 end
 

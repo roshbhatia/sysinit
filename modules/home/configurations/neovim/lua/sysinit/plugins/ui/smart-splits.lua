@@ -48,7 +48,7 @@ M.plugins = {
             smart_splits.move_cursor_right()
           end,
           mode = { "n", "i", "v", "t" },
-          desc = "Move right pane",
+          desc = "Move to right pane",
         },
         {
           "<C-S-h>",

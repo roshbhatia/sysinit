@@ -28,7 +28,7 @@ M.plugins = {
               require("gitsigns").nav_hunk("next")
             end
           end,
-          desc = "Git: Next hunk",
+          desc = "Next hunk",
           mode = "n",
         },
         {
@@ -40,7 +40,7 @@ M.plugins = {
               require("gitsigns").nav_hunk("prev")
             end
           end,
-          desc = "Git: Previous hunk",
+          desc = "Previous hunk",
           mode = "n",
         },
         {
@@ -48,7 +48,7 @@ M.plugins = {
           function()
             require("gitsigns").stage_hunk()
           end,
-          desc = "Git: Stage hunk",
+          desc = "Stage hunk",
           mode = "n",
         },
         {
@@ -56,7 +56,7 @@ M.plugins = {
           function()
             require("gitsigns").stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
           end,
-          desc = "Git: Stage hunk",
+          desc = "Stage hunk",
           mode = "v",
         },
         {
@@ -64,7 +64,7 @@ M.plugins = {
           function()
             require("gitsigns").reset_hunk()
           end,
-          desc = "Git: Reset hunk",
+          desc = "Reset hunk",
           mode = "n",
         },
         {
@@ -72,7 +72,7 @@ M.plugins = {
           function()
             require("gitsigns").reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
           end,
-          desc = "Git: Reset hunk",
+          desc = "Reset hunk",
           mode = "v",
         },
         {
@@ -80,7 +80,7 @@ M.plugins = {
           function()
             require("gitsigns").stage_buffer()
           end,
-          desc = "Git: Stage buffer",
+          desc = "Stage buffer",
           mode = "n",
         },
         {
@@ -88,7 +88,7 @@ M.plugins = {
           function()
             require("gitsigns").reset_buffer()
           end,
-          desc = "Git: Reset buffer",
+          desc = "Reset buffer",
           mode = "n",
         },
         {
@@ -96,7 +96,7 @@ M.plugins = {
           function()
             require("gitsigns").undo_stage_hunk()
           end,
-          desc = "Git: Undo stage hunk",
+          desc = "Undo stage hunk",
           mode = "n",
         },
         {
@@ -104,7 +104,7 @@ M.plugins = {
           function()
             require("gitsigns").preview_hunk_inline()
           end,
-          desc = "Diff: Preview hunk",
+          desc = "Preview hunk",
           mode = "n",
         },
         {
@@ -112,7 +112,7 @@ M.plugins = {
           function()
             require("gitsigns").setqflist("all")
           end,
-          desc = "Diff: Quickfix hunks",
+          desc = "Quickfix hunks",
           mode = "n",
         },
       }

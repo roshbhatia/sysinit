@@ -190,7 +190,7 @@ M.plugins = {
           function()
             tbuiltin.commands(require("telescope.themes").get_ivy({ previewer = false }))
           end,
-          desc = "Find: Commands",
+          desc = "Commands",
         },
         {
           "<leader>fb",
@@ -203,28 +203,28 @@ M.plugins = {
               only_cwd = false,
             }))
           end,
-          desc = "Find: Buffers",
+          desc = "Buffers",
         },
         {
           "<leader>fd",
           function()
             tbuiltin.diagnostics(require("telescope.themes").get_ivy())
           end,
-          desc = "Find: Diagnostics",
+          desc = "Diagnostics",
         },
         {
           "<leader>ff",
           function()
             tbuiltin.find_files()
           end,
-          desc = "Find: Files",
+          desc = "Files",
         },
         {
           "<leader>fj",
           function()
             tbuiltin.jumplist(require("telescope.themes").get_ivy())
           end,
-          desc = "Find: Jumplist",
+          desc = "Jumplist",
         },
       }
     end,

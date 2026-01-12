@@ -47,14 +47,14 @@ M.plugins = {
           function()
             vim.cmd("Oil --preview")
           end,
-          desc = "Toggle explore in filesystem buffer",
+          desc = "Explore current directory",
         },
         {
           "<leader>eE",
           function()
             vim.cmd("Oil --preview .")
           end,
-          desc = "Toggle explore in filesystem buffer in project root",
+          desc = "Explore project root",
         },
       }
     end,

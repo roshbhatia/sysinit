@@ -49,19 +49,19 @@ function M.generate_all_keymaps()
   table.insert(keymaps, {
     "<leader>jj",
     picker.pick_agent,
-    desc = "AI: Toggle/Pick agent",
+    desc = "Toggle/Pick agent",
   })
 
   table.insert(keymaps, {
     "<leader>jJ",
     picker.kill_and_pick,
-    desc = "AI: Kill session and pick new",
+    desc = "Kill session and pick new",
   })
 
   table.insert(keymaps, {
     "<leader>jx",
     picker.kill_active,
-    desc = "AI: Kill active session",
+    desc = "Kill active session",
   })
 
   -- Direct agent activation keymaps (leader j + priority number)
@@ -81,7 +81,7 @@ function M.generate_all_keymaps()
     "<leader>ja",
     create_mode_context_input("Ask", " @cursor: ", " @selection: "),
     mode = { "n", "v" },
-    desc = "AI: Ask active",
+    desc = "Ask active",
   })
 
   table.insert(keymaps, {
@@ -89,14 +89,14 @@ function M.generate_all_keymaps()
     function()
       create_context_input("Fix diagnostics", " Fix @diagnostics: ")
     end,
-    desc = "AI: Fix diagnostics (active)",
+    desc = "Fix diagnostics (active)",
   })
 
   table.insert(keymaps, {
     "<leader>jk",
     create_mode_context_input("Comment", " Comment @cursor: ", " Comment @selection: "),
     mode = { "n", "v" },
-    desc = "AI: Comment (active)",
+    desc = "Comment (active)",
   })
 
   table.insert(keymaps, {
@@ -104,7 +104,7 @@ function M.generate_all_keymaps()
     function()
       create_context_input("Analyze quickfix list", " Analyze @qflist: ")
     end,
-    desc = "AI: Send quickfix (active)",
+    desc = "Send quickfix (active)",
   })
 
   table.insert(keymaps, {
@@ -112,7 +112,7 @@ function M.generate_all_keymaps()
     function()
       create_context_input("Analyze location list", " Analyze @loclist: ")
     end,
-    desc = "AI: Send location list (active)",
+    desc = "Send location list (active)",
   })
 
   table.insert(keymaps, {
@@ -131,7 +131,7 @@ function M.generate_all_keymaps()
         vim.notify("No previous prompt found for active terminal", vim.log.levels.WARN)
       end
     end,
-    desc = "AI: Resend previous (active)",
+    desc = "Resend previous (active)",
   })
 
   table.insert(keymaps, {
@@ -139,7 +139,7 @@ function M.generate_all_keymaps()
     function()
       history.create_history_picker(ai_manager.get_active())
     end,
-    desc = "AI: Browse history (active or all)",
+    desc = "Browse history (active or all)",
   })
 
   table.insert(keymaps, {
@@ -147,7 +147,7 @@ function M.generate_all_keymaps()
     function()
       create_context_input("Review git changes", " Review @git and @diff: ")
     end,
-    desc = "AI: Review git changes (active)",
+    desc = "Review git changes (active)",
   })
 
   table.insert(keymaps, {
@@ -155,7 +155,7 @@ function M.generate_all_keymaps()
     function()
       create_context_input("Explain imports", " Explain @buffer: ")
     end,
-    desc = "AI: Explain imports (active)",
+    desc = "Explain imports (active)",
   })
 
   table.insert(keymaps, {
@@ -163,7 +163,7 @@ function M.generate_all_keymaps()
     function()
       create_context_input("Analyze clipboard", " Analyze @buffer: ")
     end,
-    desc = "AI: Analyze clipboard (active)",
+    desc = "Analyze clipboard (active)",
   })
 
   return keymaps

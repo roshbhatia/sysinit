@@ -35,14 +35,14 @@ M.plugins = {
         function()
           vim.cmd("CodeDiff")
         end,
-        desc = "Diff: Toggle (HEAD)",
+        desc = "Toggle (HEAD)",
       },
       {
         "<leader>dm",
         function()
           vim.cmd("CodeDiff main")
         end,
-        desc = "Diff: Main",
+        desc = "Main",
       },
     },
   },
