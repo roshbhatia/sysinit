@@ -100,19 +100,19 @@ M.plugins = {
           mode = "n",
         },
         {
-          "<leader>ghp",
+          "<leader>dh",
           function()
             require("gitsigns").preview_hunk_inline()
           end,
-          desc = "Git: Preview hunk",
+          desc = "Diff: Preview hunk",
           mode = "n",
         },
         {
-          "<leader>ghq",
+          "<leader>dq",
           function()
             require("gitsigns").setqflist("all")
           end,
-          desc = "Git: Quickfix hunks",
+          desc = "Diff: Quickfix hunks",
           mode = "n",
         },
       }
