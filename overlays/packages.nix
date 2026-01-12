@@ -49,6 +49,7 @@ in
 
   inherit (crossplane-1-17-1) crossplane-cli;
   inherit (stable) awscli2;
+  inherit (stable) llvm;
   inherit (stable) ollama;
 
   neovim = inputs.neovim-nightly-overlay.packages.${system}.default;
