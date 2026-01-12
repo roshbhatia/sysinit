@@ -14,6 +14,7 @@ in
 {
   stylix.targets.helix = {
     enable = true;
+    opacity.enable = false;
   };
 
   programs.helix = {
