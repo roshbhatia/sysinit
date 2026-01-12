@@ -62,6 +62,7 @@ let
     duf
     fd
     glow
+    gnumake
     gum
     lazygit
     libgit2
