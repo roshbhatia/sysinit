@@ -55,15 +55,16 @@ in
 
   bv = inputs.bv.packages.${system}.default;
 
-  llvm = _prev.llvm.override {
+  llvm = _prev.llvm.overrideAttrs (_old: {
     doCheck = false;
-  };
+    doInstallCheck = false;
+  });
 
   llvmPackages = _prev.llvmPackages // {
-    inherit (final) llvm;
-    libllvm = _prev.llvmPackages.libllvm.override {
+    libllvm = _prev.llvmPackages.libllvm.overrideAttrs (_old: {
       doCheck = false;
-    };
+      doInstallCheck = false;
+    });
   };
 
   kubernetes-zeitgeist = final.buildGoModule rec {
