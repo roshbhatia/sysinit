@@ -209,30 +209,6 @@ function M.setup(config)
 
   config.keys = all_keys
   config.key_tables = wezterm.gui and wezterm.gui.default_key_tables() or {}
-  config.mouse_bindings = {
-    {
-      event = { Up = { streak = 1, button = "Left" } },
-      mods = "CTRL",
-      action = act.OpenLinkAtMouseCursor,
-    },
-
-    {
-      event = { Up = { streak = 1, button = "Left" } },
-      mods = "SUPER",
-      action = act.OpenLinkAtMouseCursor,
-    },
-    {
-      event = { Down = { streak = 1, button = "Left" } },
-      mods = "CTRL",
-      action = act.Nop,
-    },
-
-    {
-      event = { Down = { streak = 1, button = "Left" } },
-      mods = "SUPER",
-      action = act.Nop,
-    },
-  }
 end
 
 return M

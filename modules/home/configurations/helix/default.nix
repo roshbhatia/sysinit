@@ -21,7 +21,7 @@ in
     settings = {
       editor = {
         line-number = "relative";
-        mouse = false;
+        mouse = true;
         auto-save = true;
         bufferline = "multiple";
         true-color = true;
@@ -73,10 +73,10 @@ in
             "position"
             "file-line-ending"
           ];
-          separator = " ";
+          separator = " | ";
           mode = {
-            normal = "  ";
-            insert = " 󰘧 ";
+            normal = " 󰘧 ";
+            insert = "  ";
             select = " 󰈈 ";
           };
         };
