@@ -14,7 +14,7 @@ case "${config}" in
     task nix:refresh:work
     ;;
   arrakis)
-    nh os switch ".#nixosConfigurations.${config}" --commit-lock-file --fallback --quiet
+    sudo nixos-rebuild switch --flake ".#${config}"
     ;;
   lv426)
     nh darwin switch ".#darwinConfigurations.${config}" --commit-lock-file --fallback --quiet
