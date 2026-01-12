@@ -28,25 +28,25 @@ let
     in
     colorMap.${cleanHex} or cleanHex;
 
-  # Wrapper script for Sway with debugging output
-  swayWrapper = pkgs.writeShellScriptBin "sway-wrapped" ''
+  # Wrapper script for Hyprland with debugging output
+  hyprlandWrapper = pkgs.writeShellScriptBin "hyprland-wrapped" ''
     set -euo pipefail
 
     # Log all output for debugging over SSH
-    LOG_FILE="$HOME/.local/state/sway-debug.log"
+    LOG_FILE="$HOME/.local/state/hyprland-debug.log"
     mkdir -p "$(dirname "$LOG_FILE")"
 
     {
-      echo "=== Sway session started at $(date) ==="
+      echo "=== Hyprland session started at $(date) ==="
       echo "Environment:"
       env | grep -E "(WAYLAND|XDG_SESSION|DISPLAY)" || true
       echo ""
-      echo "=== Sway output ==="
+      echo "=== Hyprland output ==="
     } >> "$LOG_FILE" 2>&1
 
-    ${pkgs.sway}/bin/sway "''${@}" >> "$LOG_FILE" 2>&1 || {
+    ${pkgs.hyprland}/bin/Hyprland "''${@}" >> "$LOG_FILE" 2>&1 || {
       EXIT_CODE=$?
-      echo "Sway exited with code $EXIT_CODE at $(date)" >> "$LOG_FILE" 2>&1
+      echo "Hyprland exited with code $EXIT_CODE at $(date)" >> "$LOG_FILE" 2>&1
       exit $EXIT_CODE
     }
   '';
@@ -68,7 +68,7 @@ in
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --time-format '%R' --user-menu --remember  --theme '${tuigreetTheme}' --cmd ${swayWrapper}/bin/sway-wrapped";
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --time-format '%R' --user-menu --remember  --theme '${tuigreetTheme}' --cmd ${hyprlandWrapper}/bin/hyprland-wrapped";
         user = "greeter";
       };
     };
