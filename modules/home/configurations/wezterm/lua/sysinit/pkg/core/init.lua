@@ -11,6 +11,26 @@ local function get_basic_config()
     default_prog = {
       nix_bin .. "/zsh",
     },
+    -- Will only work when connected to the tailnet.
+    -- As such, can safely ignore this when we're on the work machine.
+    -- I'm fine hardcoding the list of systems here for now.
+    ssh_domains = {
+      {
+        name = "arrakis",
+        remote_address = "arrakis",
+        username = username,
+      },
+      {
+        name = "varre",
+        remote_address = "varre",
+        username = username,
+      },
+      {
+        name = "lv426",
+        remote_address = "lv426",
+        username = username,
+      },
+    },
   }
 end
 

@@ -23,6 +23,8 @@
       X11Forwarding = false;
       PrintMotd = false;
       AllowUsers = [ values.user.username ];
+      # Accept environment variables from wezterm and other terminal emulators
+      AcceptEnv = "TERM_PROGRAM TERM_PROGRAM_VERSION WEZTERM_*";
     };
   };
 
