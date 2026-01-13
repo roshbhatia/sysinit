@@ -91,11 +91,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1768252015,
-        "narHash": "sha256-UNtVIcd50ZZKHSwnlu1v/gTJZiPREpiG+MHsgoht3XE=",
+        "lastModified": 1768288677,
+        "narHash": "sha256-vmwjRbuJpI0eDkwhFxpa+YMIZ5xXcP3zXbN4Sb1/57M=",
         "owner": "Dicklesworthstone",
         "repo": "beads_viewer",
-        "rev": "47adaeb8b2933e918510f8f2f4fa3641f25797a6",
+        "rev": "3d393e05a13003071d9598e122512a01d971ce41",
         "type": "github"
       },
       "original": {
@@ -188,11 +188,11 @@
       },
       "locked": {
         "dir": "repos/rycee/pkgs/firefox-addons",
-        "lastModified": 1768278781,
-        "narHash": "sha256-eMzSvUxRCsxB9Ju3M4Y0G+L6U5xn/2cD+nQ7lzw4mtQ=",
+        "lastModified": 1768342621,
+        "narHash": "sha256-rn4ZXJ28skD44oN2zoL7TdwFq3nqfhfpk85S6XNhyHg=",
         "owner": "nix-community",
         "repo": "nur-combined",
-        "rev": "795472a8210e7fe4bf43f5d7f1e86bde7581b7c0",
+        "rev": "53a884d4b4cbba61e0453e6c7b4b64413908cf3f",
         "type": "github"
       },
       "original": {
@@ -422,11 +422,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1768271922,
-        "narHash": "sha256-zmFw7AtcmfMxW3vR7AiGeQQeHhdrd2x7a3hxzd6vJYI=",
+        "lastModified": 1768325819,
+        "narHash": "sha256-mBKqOJkxCRwEhIXfq93WTcDXsBlJ/f1Dfv9thJxrDPs=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "fbd566923adcfa67be512a14a79467e2ab8a5777",
+        "rev": "b1fa714d6cd656e3105d1965637be6ab7541d7d7",
         "type": "github"
       },
       "original": {
@@ -656,12 +656,12 @@
     },
     "nixpkgs_6": {
       "locked": {
-        "lastModified": 1768028080,
-        "narHash": "sha256-50aDK+8eLvsLK39TzQhKNq50/HcXyP4hyxOYoPoVxjo=",
-        "rev": "d03088749a110d52a4739348f39a63f84bb0be14",
-        "revCount": 905522,
+        "lastModified": 1768242861,
+        "narHash": "sha256-F4IIxa5xDHjtrmMcayM8lHctUq1oGltfBQu2+oqDWP4=",
+        "rev": "1327e798cb055f96f92685df444e9a2c326ab5ed",
+        "revCount": 905687,
         "type": "tarball",
-        "url": "https://api.flakehub.com/f/pinned/NixOS/nixpkgs/0.2511.905522%2Brev-d03088749a110d52a4739348f39a63f84bb0be14/019bae23-3da0-759f-a5ad-f5a7a6122394/source.tar.gz"
+        "url": "https://api.flakehub.com/f/pinned/NixOS/nixpkgs/0.2511.905687%2Brev-1327e798cb055f96f92685df444e9a2c326ab5ed/019bb874-9b65-73ec-9dd5-8f14598e59e0/source.tar.gz"
       },
       "original": {
         "type": "tarball",
@@ -690,11 +690,11 @@
         "nixpkgs": "nixpkgs_7"
       },
       "locked": {
-        "lastModified": 1768278445,
-        "narHash": "sha256-yXZsCNXbuU6nAopSherGSuF5XqWHRmViNCdozN6qeu8=",
+        "lastModified": 1768342295,
+        "narHash": "sha256-MxvvvERy8WT4cngas/7OunBOqkiS+k8xyZsW/y2Tk6Q=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "039a09a6b2a19666c346952909d4c2e714bc949f",
+        "rev": "c3134e7b6dcc29feb0bc207aed9a7dcdb7bd96b2",
         "type": "github"
       },
       "original": {
