@@ -135,7 +135,6 @@ let
     rustc
     rustup
     typescript
-    zig
   ];
 
   # Language servers
@@ -202,7 +201,6 @@ let
     nix-prefetch-github
     nix-tree
     nix-your-shell
-    nixd
   ];
 
   # Project management and collaboration

@@ -26,7 +26,6 @@ function M.get_builtin_configs()
         },
       },
     },
-    nixd = {},
     openscad_lsp = {},
     pyright = {},
     terraformls = {},
