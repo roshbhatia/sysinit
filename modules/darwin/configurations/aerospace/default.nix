@@ -151,13 +151,13 @@
             alt-k = "focus up";
             alt-l = "focus right";
 
-            alt-cmd-h = "move left";
-            alt-cmd-j = "move down";
-            alt-cmd-k = "move up";
-            alt-cmd-l = "move right";
+            alt-shift-h = "move left";
+            alt-shift-j = "move down";
+            alt-shift-k = "move up";
+            alt-shift-l = "move right";
 
-            alt-shift-j = "resize smart -72";
-            alt-shift-k = "resize smart +72";
+            alt-minus = "resize smart -72";
+            alt-plus = "resize smart +72";
 
             alt-1 = "workspace 1";
             alt-2 = "workspace 2";
@@ -167,7 +167,7 @@
 
             alt-tab = "workspace --wrap-around next";
             alt-shift-tab = "workspace --wrap-around prev";
-            alt-space = "workspace-back-and-forth";
+            alt-p = "workspace-back-and-forth";
 
             alt-shift-1 = "move-node-to-workspace 1 --focus-follows-window";
             alt-shift-2 = "move-node-to-workspace 2 --focus-follows-window";
