@@ -127,6 +127,11 @@ let
       extensions = [ ".java" ];
     };
 
+    zls = {
+      command = "zls";
+      extensions = [ ".zig" ];
+    };
+
     bash-language-server = {
       command = "bash-language-server";
       args = [ "start" ];
