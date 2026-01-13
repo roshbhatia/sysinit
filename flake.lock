@@ -91,11 +91,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1768252015,
-        "narHash": "sha256-UNtVIcd50ZZKHSwnlu1v/gTJZiPREpiG+MHsgoht3XE=",
+        "lastModified": 1768285936,
+        "narHash": "sha256-wxsGrpYYPGZuASIr9s0Cr2wpuvrK3ZW8Rh0TT5BOkMs=",
         "owner": "Dicklesworthstone",
         "repo": "beads_viewer",
-        "rev": "47adaeb8b2933e918510f8f2f4fa3641f25797a6",
+        "rev": "c1c5c40ea8888cacde879bdcbde8fcabd7b3bee8",
         "type": "github"
       },
       "original": {
