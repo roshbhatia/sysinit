@@ -55,7 +55,7 @@ let
     cachix
     caddy
     chafa
-    crush
+    # crush
     delta
     devbox
     diffnav
