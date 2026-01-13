@@ -151,13 +151,15 @@
             alt-k = "focus up";
             alt-l = "focus right";
 
-            alt-shift-h = "move left";
-            alt-shift-j = "move down";
-            alt-shift-k = "move up";
-            alt-shift-l = "move right";
+            alt-cmd-h = "move left";
+            alt-cmd-j = "move down";
+            alt-cmd-k = "move up";
+            alt-cmd-l = "move right";
 
-            alt-minus = "resize smart -72";
-            alt-plus = "resize smart +72";
+            alt-shift-h = "resize width -72";
+            alt-shift-j = "resize height -72";
+            alt-shift-k = "resize height +72";
+            alt-shift-l = "resize width +72";
 
             alt-1 = "workspace 1";
             alt-2 = "workspace 2";
