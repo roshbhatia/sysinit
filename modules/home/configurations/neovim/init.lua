@@ -46,8 +46,8 @@ require("sysinit.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.editor.hop"),
   require("sysinit.plugins.editor.markdown-preview"),
   require("sysinit.plugins.editor.markview"),
-
   require("sysinit.plugins.editor.move"),
+  require("sysinit.plugins.editor.recall"),
   require("sysinit.plugins.editor.surround"),
   require("sysinit.plugins.file.neo-tree"),
   require("sysinit.plugins.file.grug-far"),
@@ -100,5 +100,7 @@ require("sysinit.utils.plugin_manager").setup_plugins({
 })
 
 require("sysinit.config.keybindings.lists").setup()
+require("sysinit.config.keybindings.marks").setup()
+require("sysinit.config.keybindings.super").setup()
 require("sysinit.config.keybindings.undo").setup()
 require("sysinit.config.keybindings.visual").setup()

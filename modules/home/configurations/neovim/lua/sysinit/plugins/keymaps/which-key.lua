@@ -33,6 +33,7 @@ M.plugins = {
         { "<leader>f", group = "Find" },
         { "<leader>g", group = "Git" },
         { "<leader>j", group = "AI Agents" },
+        { "<leader>m", group = "Marks" },
         { "<leader>n", group = "Notifications" },
         { "<leader>q", group = "Qflist/Loclist" },
         { "<leader>r", group = "Refresh" },
