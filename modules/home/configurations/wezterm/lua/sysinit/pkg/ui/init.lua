@@ -122,9 +122,11 @@ function M.setup(config)
     local should_switch = should_apply_nvim_overrides(tab)
     local overrides = window:get_config_overrides() or {}
     if should_switch then
+      overrides.line_height = 1.1
       overrides.enable_scroll_bar = false
       overrides.window_background_opacity = 1.0
     else
+      overrides.line_height = nil
       overrides.enable_scroll_bar = nil
       overrides.window_background_opacity = nil
     end
