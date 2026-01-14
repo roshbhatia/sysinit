@@ -3,34 +3,6 @@ local theme_config = json_loader.load_json_file(json_loader.get_config_path("the
 
 local M = {}
 
-local function get_git_blame_text()
-  local ok, git_blame = pcall(require, "gitblame")
-  if not ok then
-    return ""
-  end
-
-  if git_blame.is_blame_text_available and git_blame.is_blame_text_available() then
-    local text = git_blame.get_current_blame_text()
-    local by_index = string.find(text, " by ")
-    if by_index then
-      local msg = string.sub(text, 1, by_index - 1)
-      local rest = string.sub(text, by_index)
-      if #msg > 32 then
-        msg = string.sub(msg, 1, 29) .. "..."
-      end
-      return msg .. rest
-    else
-      if #text > 32 then
-        return string.sub(text, 1, 29) .. "..."
-      else
-        return text
-      end
-    end
-  else
-    return ""
-  end
-end
-
 M.plugins = {
   {
     "tamton-aquib/staline.nvim",
@@ -42,19 +14,15 @@ M.plugins = {
       require("staline").setup({
         sections = {
           left = {
-            "-mode",
-            "-branch",
-            "-lsp",
+            "mode",
+            "branch",
           },
           mid = {
-            {
-              "DiagnosticsInfo",
-              get_git_blame_text,
-            },
+            "lsp",
           },
           right = {
-            "-line_column",
-            "-file_size",
+            "line_column",
+            "file_size",
           },
         },
         defaults = {
