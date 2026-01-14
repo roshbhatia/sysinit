@@ -44,7 +44,6 @@ function M.setup(config)
   config.enable_scroll_bar = true
   config.font = font
   config.font_size = 13.0
-  config.line_height = 1.2
   config.macos_window_background_blur = platform.is_darwin() and config_data.transparency.blur or 0
   config.max_fps = 240
   config.quick_select_alphabet = "fjdkslaghrueiwoncmv"
@@ -57,8 +56,8 @@ function M.setup(config)
     font_size = 13.0,
   }
   config.window_padding = {
-    left = "2cell",
-    right = "2cell",
+    left = "1cell",
+    right = "1cell",
     top = "1cell",
   }
   config.visual_bell = {
@@ -119,11 +118,19 @@ function M.setup(config)
     local should_switch = should_apply_nvim_overrides(tab)
     local overrides = window:get_config_overrides() or {}
     if should_switch then
+      overrides.enable_scroll_bar = false
+      overrides.line_height = 1.2
       overrides.window_background_opacity = 1.0
-      overrides.config.enable_scroll_bar = false
+      overrides.window_padding = {
+        left = "2cell",
+        right = "2cell",
+        top = "1cell",
+      }
     else
+      overrides.enable_scroll_bar = nil
+      overrides.line_height = nil
       overrides.window_background_opacity = nil
-      overrides.config.enable_scroll_bar = nil
+      overrides.window_padding = nil
     end
     window:set_config_overrides(overrides)
   end)
