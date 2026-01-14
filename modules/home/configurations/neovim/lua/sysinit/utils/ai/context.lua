@@ -1,5 +1,18 @@
 local M = {}
-local lsp = require("sysinit.plugins.intellicode.ai.lsp")
+
+-- LSP request helper (inlined from former lsp.lua)
+local function lsp_request(method, params, timeout)
+  local ok, result = pcall(vim.lsp.buf_request_sync, 0, method, params, timeout or 500)
+  if not ok or not result then
+    return nil
+  end
+  for _, res in pairs(result) do
+    if res.result then
+      return res.result
+    end
+  end
+  return nil
+end
 
 function M.current_position()
   local buf = vim.api.nvim_get_current_buf()
@@ -108,7 +121,7 @@ end
 
 function M.get_hover_docs()
   local params = vim.lsp.util.make_position_params()
-  local result = lsp.request("textDocument/hover", params)
+  local result = lsp_request("textDocument/hover", params)
   if not result then
     return ""
   end

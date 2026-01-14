@@ -1,4 +1,4 @@
----@mod sysinit.plugins.intellicode.ai.file_refresh File refresh functionality for AI terminals
+---@mod sysinit.utils.ai.file_refresh File refresh functionality for AI terminals
 ---@brief [[
 --- This module provides file refresh functionality to detect and reload files
 --- that have been modified by AI terminals (opencode, claude, cursor, etc.).

@@ -1,8 +1,8 @@
 local M = {}
 
 function M.pick_agent()
-  local agents = require("sysinit.plugins.intellicode.agents")
-  local ai_manager = require("sysinit.plugins.intellicode.ai.ai_manager")
+  local agents = require("sysinit.utils.agents")
+  local ai_manager = require("sysinit.utils.ai.ai_manager")
   local active = ai_manager.get_active()
 
   -- If there's an active terminal and its tmux session exists, toggle visibility
@@ -67,7 +67,7 @@ function M.pick_agent()
 end
 
 function M.kill_and_pick()
-  local ai_manager = require("sysinit.plugins.intellicode.ai.ai_manager")
+  local ai_manager = require("sysinit.utils.ai.ai_manager")
   local active = ai_manager.get_active()
 
   if active then
@@ -78,7 +78,7 @@ function M.kill_and_pick()
 end
 
 function M.kill_active()
-  local ai_manager = require("sysinit.plugins.intellicode.ai.ai_manager")
+  local ai_manager = require("sysinit.utils.ai.ai_manager")
   local active = ai_manager.get_active()
 
   if not active then

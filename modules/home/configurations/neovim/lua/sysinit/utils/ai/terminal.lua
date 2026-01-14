@@ -6,7 +6,7 @@ local last_prompts = {}
 function M.ensure_terminal_and_send(termname, text)
   last_prompts[termname] = text
 
-  local ai_manager = require("sysinit.plugins.intellicode.ai.ai_manager")
+  local ai_manager = require("sysinit.utils.ai.ai_manager")
   local term_info = ai_manager.get_info(termname)
 
   if not term_info or not term_info.visible then

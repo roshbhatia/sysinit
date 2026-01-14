@@ -1,6 +1,6 @@
-local servers = require("sysinit.plugins.intellicode.lsp.servers")
-local diagnostics = require("sysinit.plugins.intellicode.lsp.diagnostics")
-local keymaps = require("sysinit.plugins.intellicode.lsp.keymaps")
+local servers = require("sysinit.utils.lsp.servers")
+local diagnostics = require("sysinit.utils.lsp.diagnostics")
+local keymaps = require("sysinit.utils.lsp.keymaps")
 
 local M = {}
 

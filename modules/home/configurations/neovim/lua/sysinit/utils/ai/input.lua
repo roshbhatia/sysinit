@@ -1,6 +1,6 @@
 local M = {}
-local history = require("sysinit.plugins.intellicode.ai.history")
-local placeholders = require("sysinit.plugins.intellicode.ai.placeholders")
+local history = require("sysinit.utils.ai.history")
+local placeholders = require("sysinit.utils.ai.placeholders")
 
 function M.create_input(termname, agent_icon, opts)
   opts = opts or {}
@@ -8,7 +8,7 @@ function M.create_input(termname, agent_icon, opts)
   local prompt = string.format("%s  %s", agent_icon, action_name)
   local title = string.format("%s  %s", agent_icon or "", action_name)
 
-  local initial_state = require("sysinit.plugins.intellicode.ai.context").current_position()
+  local initial_state = require("sysinit.utils.ai.context").current_position()
 
   local snacks = require("snacks")
   local hist = history.load_history(termname)

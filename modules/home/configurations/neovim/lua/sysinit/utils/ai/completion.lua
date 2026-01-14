@@ -1,5 +1,5 @@
 local M = {}
-local placeholders = require("sysinit.plugins.intellicode.ai.placeholders")
+local placeholders = require("sysinit.utils.ai.placeholders")
 
 local blink_source = {}
 local blink_source_setup_done = false
@@ -12,10 +12,7 @@ function M.setup()
   if not ok then
     return
   end
-  blink.add_source_provider(
-    "ai_placeholders",
-    { module = "sysinit.plugins.intellicode.ai.completion", name = "ai_placeholders" }
-  )
+  blink.add_source_provider("ai_placeholders", { module = "sysinit.utils.ai.completion", name = "ai_placeholders" })
   blink.add_filetype_source("ai_terminals_input", "ai_placeholders")
   blink_source_setup_done = true
 end

@@ -212,7 +212,7 @@ M.plugins = {
         method = null_ls.methods.CODE_ACTION,
         filetypes = { "yaml", "yml" },
         generator = {
-          fn = function()
+          fn = function(context)
             local actions = {}
 
             table.insert(actions, {
@@ -223,16 +223,40 @@ M.plugins = {
             })
 
             table.insert(actions, {
-              title = "Validate YAML syntax",
+              title = "Sort YAML keys",
               action = function()
-                vim.cmd("!yq eval '.' % > /dev/null && echo 'Valid YAML' || echo 'Invalid YAML'")
+                vim.cmd("%!yq eval 'sort_keys(..)' -")
               end,
             })
 
             table.insert(actions, {
-              title = "Convert to JSON",
+              title = "Validate YAML syntax",
               action = function()
-                vim.cmd("!yq eval -o=json '%' %")
+                local lines = vim.api.nvim_buf_get_lines(context.bufnr, 0, -1, false)
+                local content = table.concat(lines, "\n")
+                local result = vim.fn.system("yq eval '.' - 2>&1", content)
+                if vim.v.shell_error == 0 then
+                  vim.notify("Valid YAML", vim.log.levels.INFO)
+                else
+                  vim.notify("Invalid YAML: " .. result, vim.log.levels.ERROR)
+                end
+              end,
+            })
+
+            table.insert(actions, {
+              title = "Convert YAML to JSON",
+              action = function()
+                local lines = vim.api.nvim_buf_get_lines(context.bufnr, 0, -1, false)
+                local content = table.concat(lines, "\n")
+                local result = vim.fn.system("yq eval -o=json '.' -", content)
+                if vim.v.shell_error == 0 then
+                  vim.cmd("enew")
+                  vim.bo.filetype = "json"
+                  vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(result, "\n"))
+                  vim.notify("Converted to JSON in new buffer", vim.log.levels.INFO)
+                else
+                  vim.notify("Conversion failed: " .. result, vim.log.levels.ERROR)
+                end
               end,
             })
 
@@ -246,34 +270,72 @@ M.plugins = {
         method = null_ls.methods.CODE_ACTION,
         filetypes = { "json" },
         generator = {
-          fn = function()
+          fn = function(context)
             local actions = {}
 
             table.insert(actions, {
               title = "Format JSON with jq",
               action = function()
-                vim.cmd("%!jq .")
+                vim.cmd("%!jq '.'")
               end,
             })
 
             table.insert(actions, {
               title = "Compact JSON",
               action = function()
-                vim.cmd("%!jq -c .")
+                vim.cmd("%!jq -c '.'")
+              end,
+            })
+
+            table.insert(actions, {
+              title = "Sort JSON keys",
+              action = function()
+                vim.cmd("%!jq -S '.'")
               end,
             })
 
             table.insert(actions, {
               title = "Validate JSON syntax",
               action = function()
-                vim.cmd("!jq empty % && echo 'Valid JSON' || echo 'Invalid JSON'")
+                local lines = vim.api.nvim_buf_get_lines(context.bufnr, 0, -1, false)
+                local content = table.concat(lines, "\n")
+                local result = vim.fn.system("jq empty 2>&1", content)
+                if vim.v.shell_error == 0 then
+                  vim.notify("Valid JSON", vim.log.levels.INFO)
+                else
+                  vim.notify("Invalid JSON: " .. result, vim.log.levels.ERROR)
+                end
               end,
             })
 
             table.insert(actions, {
-              title = "Show JSON keys",
+              title = "Show JSON keys (top level)",
               action = function()
-                vim.cmd("!jq 'keys' %")
+                local lines = vim.api.nvim_buf_get_lines(context.bufnr, 0, -1, false)
+                local content = table.concat(lines, "\n")
+                local result = vim.fn.system("jq 'keys'", content)
+                if vim.v.shell_error == 0 then
+                  vim.notify("Keys: " .. result, vim.log.levels.INFO)
+                else
+                  vim.notify("Failed to get keys: " .. result, vim.log.levels.ERROR)
+                end
+              end,
+            })
+
+            table.insert(actions, {
+              title = "Convert JSON to YAML",
+              action = function()
+                local lines = vim.api.nvim_buf_get_lines(context.bufnr, 0, -1, false)
+                local content = table.concat(lines, "\n")
+                local result = vim.fn.system("yq eval -P '.' -", content)
+                if vim.v.shell_error == 0 then
+                  vim.cmd("enew")
+                  vim.bo.filetype = "yaml"
+                  vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(result, "\n"))
+                  vim.notify("Converted to YAML in new buffer", vim.log.levels.INFO)
+                else
+                  vim.notify("Conversion failed: " .. result, vim.log.levels.ERROR)
+                end
               end,
             })
 

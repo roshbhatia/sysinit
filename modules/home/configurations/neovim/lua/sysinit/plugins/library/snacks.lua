@@ -171,10 +171,10 @@ M.plugins = {
         return Snacks.notifier.notify(msg, level, opts or {})
       end
 
-      local agents = require("sysinit.plugins.intellicode.agents")
-      local ai_manager = require("sysinit.plugins.intellicode.ai.ai_manager")
-      local completion = require("sysinit.plugins.intellicode.ai.completion")
-      local file_refresh = require("sysinit.plugins.intellicode.ai.file_refresh")
+      local agents = require("sysinit.utils.agents")
+      local ai_manager = require("sysinit.utils.ai.ai_manager")
+      local completion = require("sysinit.utils.ai.completion")
+      local file_refresh = require("sysinit.utils.ai.file_refresh")
 
       completion.setup()
 
@@ -202,7 +202,7 @@ M.plugins = {
       })
     end,
     keys = function()
-      local keymaps = require("sysinit.plugins.intellicode.ai.keymaps")
+      local keymaps = require("sysinit.utils.ai.keymaps")
       local ai_keys = keymaps.generate_all_keymaps()
 
       local default_keys = {
