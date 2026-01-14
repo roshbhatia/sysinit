@@ -1,7 +1,7 @@
 local M = {}
 
 function M.setup()
-  vim.api.nvim_create_user_command("wpatch", function()
+  vim.api.nvim_create_user_command("Wpatch", function()
     local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
     local fn = vim.api.nvim_buf_get_name(0)
     vim.system({ "git", "diff", "--no-index", fn, "-" }, { text = true, stdin = lines }, function(out)
