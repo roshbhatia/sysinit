@@ -122,12 +122,27 @@ function M.setup(config)
     local should_switch = should_apply_nvim_overrides(tab)
     local overrides = window:get_config_overrides() or {}
     if should_switch then
-      overrides.line_height = 1.1
       overrides.enable_scroll_bar = false
+      overrides.font = wezterm.font_with_fallback({
+        {
+          family = "JetBrains Mono",
+          weight = "Thin",
+          harfbuzz_features = {
+            "calt",
+            "liga",
+            "ss01",
+            "ss02",
+            "zero",
+          },
+        },
+        config_data.font.symbols,
+      })
+      overrides.line_height = 1.2
       overrides.window_background_opacity = 1.0
     else
-      overrides.line_height = nil
       overrides.enable_scroll_bar = nil
+      overrides.font = nil
+      overrides.line_height = nil
       overrides.window_background_opacity = nil
     end
     window:set_config_overrides(overrides)
