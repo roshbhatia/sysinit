@@ -15,7 +15,12 @@
       config = {
         allowUnfree = true;
         allowUnsupportedSystem = true;
-        allowUnfreePredicate = pkg: builtins.elem (nixpkgs.lib.getName pkg) [ "_1password-gui" ];
+        allowUnfreePredicate =
+          pkg:
+          builtins.elem (nixpkgs.lib.getName pkg) [
+            "_1password-gui"
+            "crush"
+          ];
       };
     };
 
