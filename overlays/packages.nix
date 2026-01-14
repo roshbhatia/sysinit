@@ -55,10 +55,6 @@ in
 
   bv = inputs.bv.packages.${system}.default;
 
-  llvm_20 = _prev.llvm_20.overrideAttrs (_old: {
-    doCheck = false;
-  });
-
   kubernetes-zeitgeist = final.buildGoModule rec {
     pname = "kubernetes-zeitgeist";
     version = "0.5.3";
