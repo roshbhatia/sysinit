@@ -19,7 +19,6 @@
     stalled-download-timeout = 300;
     download-attempts = 3;
     builders-use-substitutes = true;
-    "!include" = "nix.secrets.conf";
   };
 
   environment.shells = [
