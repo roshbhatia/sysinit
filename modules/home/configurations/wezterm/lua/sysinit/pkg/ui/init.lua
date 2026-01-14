@@ -2,7 +2,7 @@ local wezterm = require("wezterm")
 local platform = require("sysinit.pkg.utils.platform")
 local json_loader = require("sysinit.pkg.utils.json_loader")
 
-local bar = wezterm.plugin.require("https://github.com/hikarisakamoto/bar.wezterm")
+local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
 
 local M = {}
 
@@ -67,27 +67,43 @@ function M.setup(config)
     fade_out_duration_ms = 100,
   }
 
-  bar.apply_to_config(config, {
-    padding = {
-      tabs = {
-        left = 1,
+  tabline.setup({
+    options = {
+      icons_enabled = true,
+      tabs_enabled = true,
+      theme_overrides = {},
+      section_separators = {
+        left = "",
+        right = "",
+      },
+      component_separators = {
+        left = "",
+        right = "",
+      },
+      tab_separators = {
+        left = "",
+        right = "",
       },
     },
-    modules = {
-      clock = {
-        enabled = false,
+    sections = {
+      tabline_a = { "mode" },
+      tabline_b = { "workspace" },
+      tabline_c = { " " },
+      tab_active = {
+        "index",
+        { "parent", padding = 0 },
+        "/",
+        { "cwd", padding = { left = 0, right = 1 } },
+        { "zoomed", padding = 0 },
       },
-      leader = {
-        enabled = false,
-      },
-      username = {
-        enabled = false,
-      },
-      workspace = {
-        enabled = false,
-      },
+      tab_inactive = { "index", { "process", padding = { left = 0, right = 1 } } },
+      tabline_x = {},
+      tabline_y = {},
+      tabline_z = { "domain" },
     },
+    extensions = {},
   })
+  tabline.apply_to_config(config)
 
   -- Configure hyperlink rules for file paths and URIs
   config.hyperlink_rules = {
