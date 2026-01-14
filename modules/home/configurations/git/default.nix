@@ -77,7 +77,7 @@ in
         [includeIf "gitdir:~/github/personal/"]
           path = ~/.gitconfig.personal
 
-        [includeIf "gitdir:~/org/"]
+        [includeIf "gitdir:~/orgfiles/"]
           path = ~/.gitconfig.personal
 
         [includeIf "gitdir:~/.local/share/"]
