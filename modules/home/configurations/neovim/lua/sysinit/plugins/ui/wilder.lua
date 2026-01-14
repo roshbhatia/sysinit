@@ -98,9 +98,10 @@ M.plugins = {
 
       local wildmenu_renderer = wilder.wildmenu_renderer({
         highlights = {
-          default = "StatusLine",
-          selected = "WilderWildmenuSelected",
-          accent = "WilderWildmenuAccent",
+          default = "Pmenu",
+          selected = "WilderSelected",
+          border = "FloatBorder",
+          accent = "WilderAccent",
         },
         separator = " · ",
         left = {
