@@ -42,24 +42,19 @@ M.plugins = {
       require("staline").setup({
         sections = {
           left = {
-            "-",
             "-mode",
             "-branch",
             "-lsp",
-            "-",
           },
           mid = {
-            "-",
             {
               "DiagnosticsInfo",
               get_git_blame_text,
             },
-            "-",
           },
           right = {
             "-line_column",
             "-file_size",
-            "-",
           },
         },
         defaults = {
