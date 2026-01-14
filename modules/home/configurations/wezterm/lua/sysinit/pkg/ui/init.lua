@@ -56,11 +56,6 @@ function M.setup(config)
     font = font,
     font_size = 13.0,
   }
-  config.window_padding = {
-    left = "2cell",
-    right = "2cell",
-    top = "2cell",
-  }
   config.visual_bell = {
     fade_in_function = "EaseIn",
     fade_in_duration_ms = 70,
@@ -91,6 +86,12 @@ function M.setup(config)
     extensions = {},
   })
   tabline.apply_to_config(config)
+
+  config.window_padding = {
+    left = "1cell",
+    right = "1cell",
+    top = "1cell",
+  }
 
   -- Configure hyperlink rules for file paths and URIs
   config.hyperlink_rules = {
