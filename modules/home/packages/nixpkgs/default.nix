@@ -147,7 +147,6 @@ let
     gopls
     jq-lsp
     lua-language-server
-    # marksman # Temporarily disabled: dotnet 8.0.22 not in cache, build fails
     nil
     openscad-lsp
     pyright
