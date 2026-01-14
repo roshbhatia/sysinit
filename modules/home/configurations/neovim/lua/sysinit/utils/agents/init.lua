@@ -1,47 +1,45 @@
 local M = {}
 
--- Agent definitions with their configurations
--- Priority determines order in picker and keymap assignment (1 = highest)
 local all_agents = {
   {
     name = "opencode",
     label = "OpenCode",
-    icon = "  ",
+    icon = " 󰫼 ",
     cmd = "opencode",
     priority = 1,
   },
   {
     name = "amp",
     label = "Amp",
-    icon = "  ",
+    icon = " 󰫤 ",
     cmd = "amp --ide",
     priority = 2,
   },
   {
     name = "goose",
     label = "Goose",
-    icon = "  ",
+    icon = "   ",
     cmd = "goose",
     priority = 3,
   },
   {
     name = "claude",
     label = "Claude",
-    icon = "  ",
+    icon = "  ",
     cmd = "claude --permission-mode plan",
     priority = 4,
   },
   {
     name = "cursor",
     label = "Cursor",
-    icon = "  ",
+    icon = "  ",
     cmd = "cursor-agent",
     priority = 5,
   },
   {
     name = "copilot",
     label = "Copilot",
-    icon = "  ",
+    icon = "   ",
     cmd = "copilot --allow-all-paths",
     priority = 6,
   },
