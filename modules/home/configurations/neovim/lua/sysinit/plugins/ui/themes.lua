@@ -355,6 +355,11 @@ local function apply_global_overrides()
     DiagnosticInfo = { fg = c.semantic.info, bold = true },
     DiagnosticHint = { fg = c.semantic.info, bold = true },
 
+    DiagnosticVirtualLinesError = { fg = c.semantic.error, bold = true },
+    DiagnosticVirtualLinesWarn = { fg = c.semantic.warning, bold = true },
+    DiagnosticVirtualLinesInfo = { fg = c.semantic.info, bold = true },
+    DiagnosticVirtualLinesHint = { fg = c.semantic.info, bold = true },
+
     WilderSelected = {
       fg = c.plugins.completion.selection_fg,
       bold = true,
