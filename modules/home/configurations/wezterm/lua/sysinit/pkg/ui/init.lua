@@ -57,9 +57,9 @@ function M.setup(config)
     font_size = 13.0,
   }
   config.window_padding = {
-    left = "1cell",
-    right = "1cell",
-    top = "1cell",
+    left = "2cell",
+    right = "2cell",
+    top = "2cell",
   }
   config.visual_bell = {
     fade_in_function = "EaseIn",
