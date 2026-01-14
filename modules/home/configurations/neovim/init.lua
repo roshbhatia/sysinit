@@ -16,7 +16,6 @@ require("sysinit.config.opts.editor").setup()
 require("sysinit.config.opts.search").setup()
 require("sysinit.config.opts.indentation").setup()
 require("sysinit.config.opts.wrapping").setup()
-require("sysinit.config.opts.split_behavior").setup()
 require("sysinit.config.opts.performance").setup()
 require("sysinit.config.opts.ui").setup()
 require("sysinit.config.opts.folding").setup()
@@ -27,6 +26,8 @@ require("sysinit.config.opts.undo").setup()
 require("sysinit.config.autocmds.buf").setup()
 require("sysinit.config.autocmds.msg-dump").setup()
 require("sysinit.config.autocmds.nvim-rpc").setup()
+
+require("sysinit.config.usercmds.sudo").setup()
 
 require("sysinit.utils.plugin_manager").setup_package_manager()
 require("sysinit.utils.plugin_manager").setup_plugins({

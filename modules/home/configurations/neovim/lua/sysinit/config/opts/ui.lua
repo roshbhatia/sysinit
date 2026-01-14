@@ -8,7 +8,6 @@ function M.setup()
   vim.opt.showmode = false
   vim.opt.showtabline = 0
   vim.opt.sidescrolloff = 0
-  vim.opt.splitkeep = "topline"
   vim.opt.termguicolors = true
 end
 
