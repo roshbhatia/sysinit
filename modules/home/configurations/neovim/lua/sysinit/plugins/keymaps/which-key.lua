@@ -35,6 +35,7 @@ M.plugins = {
         { "<leader>j", group = "AI Agents" },
         { "<leader>m", group = "Marks" },
         { "<leader>n", group = "Notifications" },
+        { "<leader>o", group = "Orgmode" },
         { "<leader>q", group = "Qflist/Loclist" },
         { "<leader>r", group = "Refresh" },
         { "<localleader>m", group = "Markdown", ft = "markdown" },
