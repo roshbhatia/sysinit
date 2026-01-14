@@ -1,4 +1,4 @@
----@mod sysinit.plugins.intellicode.lsp_lines_wrapper LSP Lines error handling wrapper
+---@mod sysinit.utils.lsp_lines_wrapper LSP Lines error handling wrapper
 ---@brief [[
 --- This module provides error handling wrapper for lsp_lines.nvim to prevent
 --- "Invalid buffer id" errors from hanging the UI by using vim.notify instead.
