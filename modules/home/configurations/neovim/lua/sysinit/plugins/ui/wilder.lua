@@ -81,7 +81,6 @@ M.plugins = {
             "WilderSeparator",
           },
         },
-
         right = {
           " ",
           wilder.popupmenu_scrollbar({
@@ -89,17 +88,57 @@ M.plugins = {
             scrollbar_char = "░",
           }),
         },
-
         empty_message = wilder.popupmenu_empty_message_with_spinner({
           message = " No matches found ",
           spinner_hl = "WilderSpinner",
         }),
       }))
 
+      local wildmenu_renderer = wilder.wildmenu_renderer({
+        highlights = {
+          default = "StatusLine",
+          selected = "WilderWildmenuSelected",
+          accent = "WilderWildmenuAccent",
+        },
+        separator = " · ",
+        left = {
+          " ",
+          wilder.wildmenu_spinner({
+            frames = {
+              "⠋",
+              "⠙",
+              "⠹",
+              "⠸",
+              "⠼",
+              "⠴",
+              "⠦",
+              "⠧",
+              "⠇",
+              "⠏",
+            },
+            done = "●",
+            delay = 15,
+            interval = 20,
+          }),
+          " ",
+        },
+        right = {
+          " ",
+          wilder.wildmenu_index(),
+          " ",
+        },
+        highlighter = {
+          wilder.lua_fzy_highlighter(),
+        },
+      })
+
       wilder.set_option(
         "renderer",
         wilder.renderer_mux({
           [":"] = popupmenu_renderer,
+          ["/"] = wildmenu_renderer,
+          ["?"] = wildmenu_renderer,
+          substitute = wildmenu_renderer,
         })
       )
     end,
