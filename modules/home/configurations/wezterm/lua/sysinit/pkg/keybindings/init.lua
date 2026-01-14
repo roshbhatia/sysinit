@@ -159,6 +159,11 @@ local function get_search_keys()
     { key = "Escape", mods = "CTRL", action = act.ActivateCopyMode },
     { key = "/", mods = "CTRL", action = act.Search("CurrentSelectionOrEmptyString") },
     { key = "f", mods = "CTRL", action = act.PaneSelect },
+    {
+      key = "r",
+      mods = "CTRL",
+      action = create_passthrough_action("r", "CTRL", act.ReloadConfiguration, VIM_PROCESSES),
+    },
   }
 end
 
