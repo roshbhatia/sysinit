@@ -66,14 +66,14 @@ function M.create_history_picker(termname)
       })
     end
   else
-    local agents = { "opencode", "goose", "claude", "cursor" }
-    for _, agent in ipairs(agents) do
-      local history = M.load_history(agent)
+    local agents_module = require("sysinit.utils.agents")
+    for _, agent in ipairs(agents_module.get_all()) do
+      local history = M.load_history(agent.name)
       for _, entry in ipairs(history) do
         table.insert(history_data, {
-          display = string.format("[%s] %s: %s", agent, entry.timestamp, entry.prompt),
+          display = string.format("[%s] %s: %s", agent.name, entry.timestamp, entry.prompt),
           prompt = entry.prompt,
-          terminal = agent,
+          terminal = agent.name,
           timestamp = entry.timestamp,
         })
       end

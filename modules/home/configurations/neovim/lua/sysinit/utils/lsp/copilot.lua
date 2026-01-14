@@ -47,8 +47,8 @@ local function sign_in(bufnr, client)
             vim.notify(cmd_err.message, vim.log.levels.ERROR)
             return
           end
-          if cmd_result.status == "OK" then
-            vim.notify("Signed in as " .. cmd_result.user .. ".")
+          if cmd_result and cmd_result.status == "OK" then
+            vim.notify("Signed in as " .. (cmd_result.user or "unknown") .. ".")
           end
         end)
       end

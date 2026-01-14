@@ -1,5 +1,47 @@
 local M = {}
 
+-- Git root cache with invalidation on directory change
+local git_root_cache = {}
+
+vim.api.nvim_create_autocmd("DirChanged", {
+  callback = function()
+    git_root_cache = {}
+  end,
+})
+
+-- Get git root directory with caching
+local function get_git_root()
+  local cwd = vim.fn.getcwd()
+  if git_root_cache[cwd] ~= nil then
+    return git_root_cache[cwd]
+  end
+
+  local handle = io.popen("git rev-parse --show-toplevel 2>/dev/null")
+  if not handle then
+    git_root_cache[cwd] = false
+    return nil
+  end
+
+  local repo_root = handle:read("*a")
+  handle:close()
+
+  if repo_root then
+    repo_root = repo_root:gsub("^%s*(.-)%s*$", "%1")
+  end
+
+  git_root_cache[cwd] = (repo_root and repo_root ~= "") and repo_root or false
+  return git_root_cache[cwd] or nil
+end
+
+-- Strip git root from path
+local function strip_git_root(path)
+  local repo_root = get_git_root()
+  if repo_root and path:sub(1, #repo_root) == repo_root then
+    return path:sub(#repo_root + 2)
+  end
+  return path
+end
+
 -- LSP request helper (inlined from former lsp.lua)
 local function lsp_request(method, params, timeout)
   local ok, result = pcall(vim.lsp.buf_request_sync, 0, method, params, timeout or 500)
@@ -17,13 +59,7 @@ end
 function M.current_position()
   local buf = vim.api.nvim_get_current_buf()
   local file = vim.api.nvim_buf_get_name(buf)
-  local handle = io.popen("git rev-parse --show-toplevel")
-  local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
-  handle:close()
-
-  if repo_root and repo_root ~= "" then
-    file = file:sub(#repo_root + 2)
-  end
+  file = strip_git_root(file)
 
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
   return { buf = buf, file = file, line = line, col = col }
@@ -70,32 +106,17 @@ function M.get_buffer_path(state)
     return ""
   end
 
-  local handle = io.popen("git rev-parse --show-toplevel")
-  local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
-  handle:close()
-
-  if repo_root and repo_root ~= "" then
-    path = path:sub(#repo_root + 2)
-  end
-
-  return "@" .. path
+  return "@" .. strip_git_root(path)
 end
 
 function M.get_all_buffers_summary()
-  local handle = io.popen("git rev-parse --show-toplevel")
-  local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
-  handle:close()
-
   local bufs = vim.api.nvim_list_bufs()
   local items = {}
   for _, b in ipairs(bufs) do
-    if vim.api.nvim_buf_is_loaded(b) and vim.api.nvim_buf_get_option(b, "buflisted") then
+    if vim.api.nvim_buf_is_loaded(b) and vim.bo[b].buflisted then
       local name = vim.api.nvim_buf_get_name(b)
       if name ~= "" then
-        if repo_root and repo_root ~= "" and name:sub(1, #repo_root) == repo_root then
-          name = name:sub(#repo_root + 2)
-        end
-        table.insert(items, name)
+        table.insert(items, strip_git_root(name))
       end
     end
   end
@@ -181,7 +202,7 @@ function M.get_filetype(state)
   if not state or not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then
     return ""
   end
-  return vim.api.nvim_buf_get_option(state.buf, "filetype")
+  return vim.bo[state.buf].filetype
 end
 
 function M.get_word_under_cursor(state)
@@ -268,16 +289,13 @@ function M.get_git_diff()
     return "No file"
   end
 
-  local handle = io.popen("git rev-parse --show-toplevel 2>/dev/null")
-  local repo_root = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
-  handle:close()
-
-  if repo_root == "" then
+  local repo_root = get_git_root()
+  if not repo_root then
     return "Not in a git repository"
   end
 
   -- Get relative path from repo root
-  local rel_path = filepath:sub(#repo_root + 2)
+  local rel_path = strip_git_root(filepath)
 
   local result = vim.fn.system(
     "git -C " .. vim.fn.shellescape(repo_root) .. " diff " .. vim.fn.shellescape(rel_path) .. " 2>/dev/null"
