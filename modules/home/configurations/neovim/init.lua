@@ -53,7 +53,6 @@ require("sysinit.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.file.oil"),
   require("sysinit.plugins.file.persisted"),
   require("sysinit.plugins.file.telescope"),
-  require("sysinit.plugins.git.blamer"),
   require("sysinit.plugins.git.gitsigns"),
   require("sysinit.plugins.git.octo"),
   require("sysinit.plugins.git.codediff"),

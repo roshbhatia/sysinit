@@ -206,7 +206,20 @@ M.plugins = {
       local ai_keys = keymaps.generate_all_keymaps()
 
       local default_keys = {
-
+        {
+          "<leader>fr",
+          function()
+            Snacks.picker.grep()
+          end,
+          desc = "Grep (alt.)",
+        },
+        {
+          "<leader>fu",
+          function()
+            Snacks.picker.undo()
+          end,
+          desc = "Undo history",
+        },
         {
           "<leader>ns",
           function()
