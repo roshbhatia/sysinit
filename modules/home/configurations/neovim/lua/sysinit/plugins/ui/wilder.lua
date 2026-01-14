@@ -97,12 +97,7 @@ M.plugins = {
       }))
 
       local wildmenu_renderer = wilder.wildmenu_renderer({
-        highlights = {
-          default = "Pmenu",
-          selected = "WilderSelected",
-          border = "FloatBorder",
-          accent = "WilderAccent",
-        },
+        highlighter = wilder.lua_fzy_highlighter(),
         separator = " · ",
         left = {
           " ",
@@ -129,9 +124,6 @@ M.plugins = {
           " ",
           wilder.wildmenu_index(),
           " ",
-        },
-        highlighter = {
-          wilder.lua_fzy_highlighter(),
         },
       })
 
