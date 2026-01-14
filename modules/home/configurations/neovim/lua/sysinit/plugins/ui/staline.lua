@@ -37,13 +37,14 @@ M.plugins = {
     dependencies = {
       "nvim-tree/nvim-web-devicons",
     },
-    event = "VeryLazy",
+    lazy = false,
     config = function()
       require("staline").setup({
         sections = {
           left = {
+            "- ",
             "-mode",
-            "-",
+            "branch",
             "lsp",
           },
           mid = {
@@ -55,7 +56,6 @@ M.plugins = {
           right = {
             "line_column",
             "file_size",
-            "branch",
           },
         },
         defaults = {
