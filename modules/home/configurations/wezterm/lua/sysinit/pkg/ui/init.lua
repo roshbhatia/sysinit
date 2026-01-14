@@ -6,19 +6,6 @@ local bar = wezterm.plugin.require("https://github.com/hikarisakamoto/bar.wezter
 
 local M = {}
 
-local function should_be_opaque(tab)
-  for _, pane in ipairs(tab:panes()) do
-    local info = pane:get_foreground_process_info()
-    if info then
-      local executable = string.gsub(info.executable, "(.*[/\\])(.*)", "%2")
-      if executable == "nvim" or executable == "tmux" or executable == "hx" then
-        return true
-      end
-    end
-  end
-  return false
-end
-
 function M.setup(config)
   local config_data = json_loader.load_json_file(json_loader.get_config_path("config.json"))
   local font = wezterm.font_with_fallback({
@@ -43,6 +30,7 @@ function M.setup(config)
   config.dpi = 144
   config.font = font
   config.font_size = 13.0
+  config.line_height = 1.2
   config.macos_window_background_blur = platform.is_darwin() and config_data.transparency.blur or 0
   config.max_fps = 240
   config.quick_select_alphabet = "fjdkslaghrueiwoncmv"
@@ -110,18 +98,6 @@ function M.setup(config)
       return false
     end
     return true
-  end)
-
-  wezterm.on("update-status", function(window, pane)
-    local tab = pane:tab()
-    local should_switch = should_be_opaque(tab)
-    local overrides = window:get_config_overrides() or {}
-    if should_switch then
-      overrides.window_background_opacity = 1.0
-    else
-      overrides.window_background_opacity = nil
-    end
-    window:set_config_overrides(overrides)
   end)
 end
 
