@@ -39,6 +39,23 @@ in
     };
   };
 
+  # Fix setproctitle test failures on macOS with Python 3.13
+  python313 = _prev.python313.override {
+    packageOverrides = _pythonFinal: pythonPrev: {
+      setproctitle = pythonPrev.setproctitle.overridePythonAttrs (_old: {
+        doCheck = false;
+      });
+    };
+  };
+
+  python311 = _prev.python311.override {
+    packageOverrides = _pythonFinal: pythonPrev: {
+      setproctitle = pythonPrev.setproctitle.overridePythonAttrs (_old: {
+        doCheck = false;
+      });
+    };
+  };
+
   karabiner-elements = _prev.karabiner-elements.overrideAttrs (old: {
     version = "14.13.0";
     src = _prev.fetchurl {
