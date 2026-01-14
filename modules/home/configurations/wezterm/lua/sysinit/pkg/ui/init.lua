@@ -48,6 +48,7 @@ function M.setup(config)
   config.max_fps = 240
   config.quick_select_alphabet = "fjdkslaghrueiwoncmv"
   config.scrollback_lines = 20000
+  config.tab_bar_at_bottom = true
   config.text_min_contrast_ratio = 4.5
   config.window_background_opacity = config_data.transparency.opacity
   config.window_decorations = platform.is_darwin() and "RESIZE|MACOS_FORCE_ENABLE_SHADOW" or "RESIZE"
@@ -69,9 +70,7 @@ function M.setup(config)
 
   tabline.setup({
     options = {
-      icons_enabled = true,
-      tabs_enabled = true,
-      theme_overrides = {},
+      theme = config.colors,
       section_separators = {
         left = "",
         right = "",
@@ -86,20 +85,8 @@ function M.setup(config)
       },
     },
     sections = {
-      tabline_a = { "mode" },
-      tabline_b = { "workspace" },
-      tabline_c = { " " },
-      tab_active = {
-        "index",
-        { "parent", padding = 0 },
-        "/",
-        { "cwd", padding = { left = 0, right = 1 } },
-        { "zoomed", padding = 0 },
-      },
-      tab_inactive = { "index", { "process", padding = { left = 0, right = 1 } } },
       tabline_x = {},
       tabline_y = {},
-      tabline_z = { "domain" },
     },
     extensions = {},
   })
