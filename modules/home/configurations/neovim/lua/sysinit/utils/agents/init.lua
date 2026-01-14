@@ -4,15 +4,15 @@ local all_agents = {
   {
     name = "opencode",
     label = "OpenCode",
-    icon = " 󰫼 ",
+    icon = "  ",
     cmd = "opencode",
     priority = 1,
   },
   {
-    name = "amp",
-    label = "Amp",
-    icon = " 󰫤 ",
-    cmd = "amp --ide",
+    name = "claude",
+    label = "Claude",
+    icon = "  ",
+    cmd = "claude --permission-mode plan",
     priority = 2,
   },
   {
@@ -23,10 +23,10 @@ local all_agents = {
     priority = 3,
   },
   {
-    name = "claude",
-    label = "Claude",
-    icon = "  ",
-    cmd = "claude --permission-mode plan",
+    name = "amp",
+    label = "Amp",
+    icon = " 󰫤 ",
+    cmd = "amp --ide",
     priority = 4,
   },
   {
@@ -39,7 +39,7 @@ local all_agents = {
   {
     name = "copilot",
     label = "Copilot",
-    icon = "   ",
+    icon = "  ",
     cmd = "copilot --allow-all-paths",
     priority = 6,
   },
