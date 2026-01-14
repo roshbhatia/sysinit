@@ -96,17 +96,10 @@ M.plugins = {
         }),
       }))
 
-      local wildmenu_renderer = wilder.wildmenu_renderer({
-        highlighter = wilder.basic_highlighter(),
-      })
-
       wilder.set_option(
         "renderer",
         wilder.renderer_mux({
           [":"] = popupmenu_renderer,
-          ["/"] = wildmenu_renderer,
-          ["?"] = wildmenu_renderer,
-          substitute = wildmenu_renderer,
         })
       )
     end,
