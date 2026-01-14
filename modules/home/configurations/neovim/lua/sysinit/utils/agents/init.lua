@@ -18,7 +18,7 @@ local all_agents = {
   {
     name = "goose",
     label = "Goose",
-    icon = "   ",
+    icon = "  ",
     cmd = "goose",
     priority = 3,
   },
