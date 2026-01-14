@@ -44,8 +44,8 @@ M.plugins = {
           left = {
             "- ",
             "-mode",
-            "branch",
-            "lsp",
+            "-branch",
+            "-lsp",
           },
           mid = {
             {
@@ -54,8 +54,8 @@ M.plugins = {
             },
           },
           right = {
-            "line_column",
-            "file_size",
+            "-line_column",
+            "-file_size",
           },
         },
         defaults = {
