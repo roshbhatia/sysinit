@@ -33,7 +33,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    bv.url = "github:Dicklesworthstone/beads_viewer";
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay/master";
     nix-gaming.url = "github:fufexan/nix-gaming";
     nur.url = "github:nix-community/NUR";

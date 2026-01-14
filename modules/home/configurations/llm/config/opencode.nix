@@ -52,20 +52,28 @@ let
     "$schema" = "https://opencode.ai/config.json";
     autoupdate = false;
     share = "disabled";
+
     theme = "system";
+
     mcp = formatMcpForOpencode mcpServers.servers;
     lsp = formatLspForOpencode lsp.lsp;
+
     instructions = [
-      "**/CONTRIBUTING.md"
-      "**/docs/guidelines.md"
-      "**/.cursor/rules/*.md"
-      "**/COPILOT.md"
+      "**/.cursorrules"
+      "**/AGENTS.md"
+      "**/CLAUDE.md"
       "**/CLAUDE.md"
       "**/CONSTITUTION.md"
+      "**/CONTRIBUTING.md"
+      "**/COPILOT.md"
+      "**/docs/guidelines.md"
+      ".cursor/rules"
     ];
+
     keybinds = {
       leader = "ctrl+a";
     };
+
     permission = {
       webfetch = "allow";
       grep = "allow";
@@ -74,6 +82,7 @@ let
         "*" = "allow";
       };
     };
+
     formatter = {
       deadnix = {
         command = [
@@ -86,8 +95,10 @@ let
     };
 
     plugin = [
-      "opencode-beads"
-      "opencode-pty"
+      "@mohak34/opencode-notifier@latest"
+      "@zenobius/opencode-background"
+      "opencode-handoff"
+      "opencode-websearch-cited@1.2.0"
     ];
   };
 

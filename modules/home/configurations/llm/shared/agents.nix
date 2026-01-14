@@ -18,8 +18,6 @@ in
     MUST use serena_get_symbols_overview first when exploring files.
     MUST use serena and astgrep over internal tools exploring files and editing files.
     NEVER use emojis in code.
-
-    ALWAYS use beads (bd) for tracking issues, memory, and task planning.
   '';
 
   inherit subagents;
