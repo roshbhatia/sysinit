@@ -97,34 +97,7 @@ M.plugins = {
       }))
 
       local wildmenu_renderer = wilder.wildmenu_renderer({
-        highlighter = wilder.lua_fzy_highlighter(),
-        separator = " · ",
-        left = {
-          " ",
-          wilder.wildmenu_spinner({
-            frames = {
-              "⠋",
-              "⠙",
-              "⠹",
-              "⠸",
-              "⠼",
-              "⠴",
-              "⠦",
-              "⠧",
-              "⠇",
-              "⠏",
-            },
-            done = "●",
-            delay = 15,
-            interval = 20,
-          }),
-          " ",
-        },
-        right = {
-          " ",
-          wilder.wildmenu_index(),
-          " ",
-        },
+        highlighter = wilder.basic_highlighter(),
       })
 
       wilder.set_option(
