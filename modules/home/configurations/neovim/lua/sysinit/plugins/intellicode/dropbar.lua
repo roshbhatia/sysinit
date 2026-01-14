@@ -5,10 +5,6 @@ M.plugins = {
     "Bekaboo/dropbar.nvim",
     branch = "master",
     event = "BufReadPost",
-    dependencies = {
-      "nvim-telescope/telescope-fzf-native.nvim",
-      build = "make",
-    },
     config = function()
       require("dropbar").setup({
         icons = {
@@ -24,23 +20,7 @@ M.plugins = {
             enable = false,
           },
         },
-        bar = {
-          pick = {
-            pivots = "fjdkslaghrueiwoncmv",
-          },
-        },
       })
-    end,
-    keys = function()
-      local dropbar_api = require("dropbar.api")
-      return {
-        {
-          "<leader>cx",
-          dropbar_api.pick,
-          mode = "n",
-          desc = "Pick from winbar symbols",
-        },
-      }
     end,
   },
 }
