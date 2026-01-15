@@ -32,7 +32,7 @@ in
 
       opacity = mkOption {
         type = types.float;
-        default = 0.85;
+        default = 0.9;
         description = "Opacity level for transparency effects";
       };
 
