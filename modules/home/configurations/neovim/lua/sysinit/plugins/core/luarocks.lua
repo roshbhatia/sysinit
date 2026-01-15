@@ -24,7 +24,6 @@ M.plugins = {
       },
       show_progress = true,
       rocks = {
-        "magick",
         "prec2",
         "tiktoken_core",
         "wezterm-types",
