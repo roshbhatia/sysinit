@@ -11,7 +11,7 @@
     package = if pkgs.stdenv.isDarwin then null else pkgs.ghostty;
 
     settings = {
-      macos-hidden = true;
+      macos-hidden = "always";
       macos-window-shadow = false;
 
       quick-terminal-position = "center";
