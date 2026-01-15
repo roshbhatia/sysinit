@@ -4,7 +4,7 @@ M.plugins = {
   {
     "Bekaboo/dropbar.nvim",
     branch = "master",
-    event = "BufReadPost",
+    event = "VeryLazy",
     config = function()
       require("dropbar").setup({
         icons = {
