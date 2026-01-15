@@ -15,8 +15,8 @@ function M.setup()
     corner_radius = 10,
     margin = 16,
     y_offset = display.get_y_offset(),
-    padding_left = 16,
-    padding_right = 16,
+    padding_left = 8,
+    padding_right = 8,
   })
 
   sbar.default({
