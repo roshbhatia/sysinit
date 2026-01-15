@@ -75,7 +75,7 @@ in
           enabled = true;
           range = 20;
           render_power = 3;
-          color = hexToHyprlandAlpha semanticColors.background.primary "99";
+          color = lib.mkForce (hexToHyprlandAlpha semanticColors.background.primary "99");
         };
       };
 
