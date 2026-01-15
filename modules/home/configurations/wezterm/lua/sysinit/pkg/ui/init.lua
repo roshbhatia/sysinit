@@ -64,7 +64,7 @@ function M.setup(config)
 
   tabline.setup({
     options = {
-      theme = config.colors,
+      theme = config_data.color_scheme,
       section_separators = {
         left = "",
         right = "",
