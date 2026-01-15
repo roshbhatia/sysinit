@@ -192,8 +192,7 @@ in
       exec-once = [
         # Set solid color wallpaper from theme
         "${pkgs.swaybg}/bin/swaybg -c '${semanticColors.background.primary}'"
-        # Notification daemon
-        "${pkgs.mako}/bin/mako"
+        # Note: waybar and mako are started via systemd user services
       ];
     };
   };
