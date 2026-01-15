@@ -145,7 +145,7 @@ with lib;
 
       opacity = mkOption {
         type = types.float;
-        default = 0.85;
+        default = 0.7;
         description = "Opacity level (0.0 - 1.0)";
       };
 
