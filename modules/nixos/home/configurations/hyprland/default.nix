@@ -15,6 +15,9 @@ let
 
 in
 {
+  # Disable Stylix's Hyprland theming - using custom theme colors
+  stylix.targets.hyprland.enable = false;
+
   wayland.windowManager.hyprland = {
     enable = true;
     xwayland.enable = true;

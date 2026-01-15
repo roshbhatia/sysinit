@@ -48,7 +48,6 @@ in
 
     targets = {
       gtk.enable = true;
-      hyprland.enable = false; # Using custom theming
     };
   };
 }
