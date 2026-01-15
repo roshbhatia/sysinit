@@ -151,7 +151,7 @@ with lib;
 
       blur = mkOption {
         type = types.int;
-        default = 0;
+        default = 64;
         description = "Blur amount for background";
       };
     };

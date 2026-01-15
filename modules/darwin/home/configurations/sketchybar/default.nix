@@ -47,8 +47,6 @@ in
 
     "sketchybar/lua".source = ./lua;
 
-    "sketchybar/theme_config.json".text = builtins.toJSON (
-      themes.generateAppJSON "sketchybar" themeConfig
-    );
+    "sketchybar/config.json".text = builtins.toJSON (themes.generateAppJSON "sketchybar" themeConfig);
   };
 }

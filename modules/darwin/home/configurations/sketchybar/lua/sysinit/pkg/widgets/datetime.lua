@@ -1,6 +1,7 @@
 local sbar = require("sketchybar")
 local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
+local utils = require("sysinit.pkg.utils")
 
 local M = {}
 
@@ -18,18 +19,20 @@ local function get_time()
         return
       end
 
-      local local_time = local_result:gsub("%s+", " "):gsub("^%s*", ""):gsub("%s*$", "")
-      local utc_time = utc_result:gsub("%s+", " "):gsub("^%s*", ""):gsub("%s*$", "")
+      local local_time = utils.trim(local_result)
+      local utc_time = utils.trim(utc_result)
 
-      clock:set({
-        icon = { string = " " },
-        label = { string = local_time },
-      })
+      utils.animate(function()
+        clock:set({
+          icon = { string = " " },
+          label = { string = local_time },
+        })
 
-      utc_clock:set({
-        icon = { string = "󰖟 " },
-        label = { string = utc_time },
-      })
+        utc_clock:set({
+          icon = { string = "󰖟 " },
+          label = { string = utc_time },
+        })
+      end)
     end)
   end)
 end
@@ -37,16 +40,12 @@ end
 function M.setup()
   clock = sbar.add("item", "clock", {
     position = "right",
-    icon = {
-      font = settings.fonts.icons.regular,
-    },
-    label = {
-      font = settings.fonts.text.regular,
-    },
+    icon = { font = settings.fonts.icons.regular },
+    label = { font = settings.fonts.text.regular },
     background = { drawing = false },
     padding_left = settings.spacing.widget_spacing,
     padding_right = settings.spacing.widget_spacing,
-    update_freq = 60,
+    update_freq = 10,
   })
 
   clock:subscribe("routine", get_time)
@@ -56,7 +55,7 @@ function M.setup()
     icon = {
       string = "•",
       font = settings.fonts.text.regular,
-      color = colors.semantic_success,
+      color = colors.foreground_muted,
     },
     background = { drawing = false },
     label = { drawing = false },
@@ -66,12 +65,8 @@ function M.setup()
 
   utc_clock = sbar.add("item", "utc_clock", {
     position = "right",
-    icon = {
-      font = settings.fonts.icons.regular,
-    },
-    label = {
-      font = settings.fonts.text.regular,
-    },
+    icon = { font = settings.fonts.icons.regular },
+    label = { font = settings.fonts.text.regular },
     background = { drawing = false },
     padding_left = settings.spacing.widget_spacing,
     padding_right = settings.spacing.widget_spacing,
@@ -80,18 +75,7 @@ function M.setup()
 
   utc_clock:subscribe("routine", get_time)
 
-  sbar.add("item", "clock_separator", {
-    position = "right",
-    icon = {
-      string = "|",
-      font = settings.fonts.separators.bold,
-      color = colors.white,
-    },
-    background = { drawing = false },
-    label = { drawing = false },
-    padding_left = settings.spacing.separator_spacing,
-    padding_right = settings.spacing.separator_spacing,
-  })
+  utils.separator("clock_separator", "right")
 
   get_time()
 end

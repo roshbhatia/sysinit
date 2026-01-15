@@ -1,6 +1,7 @@
 local sbar = require("sketchybar")
 local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
+local utils = require("sysinit.pkg.utils")
 
 local M = {}
 
@@ -30,7 +31,7 @@ for i = 1, max_items, 1 do
     },
     label = {
       font = settings.fonts.text.regular,
-      color = colors.white,
+      color = colors.foreground_primary,
       padding_left = 6,
       padding_right = 6,
     },
@@ -42,7 +43,7 @@ for i = 1, max_items, 1 do
 end
 
 sbar.add("bracket", { "/menu\\..*/" }, {
-  background = { color = colors.bg },
+  background = { color = colors.background_primary },
 })
 
 local menu_padding = sbar.add("item", "menu.padding", {
@@ -57,7 +58,9 @@ local function update_menus()
     local id = 1
     for menu in string.gmatch(menus, "[^\r\n]+") do
       if id < max_items then
-        menu_items[id]:set({ label = menu, drawing = true })
+        utils.animate(function()
+          menu_items[id]:set({ label = menu, drawing = true })
+        end)
       else
         break
       end
@@ -75,13 +78,17 @@ function M.setup()
     local drawing = menu_items[1]:query().geometry.drawing == "on"
     if drawing then
       menu_watcher:set({ updates = false })
-      sbar.set("/menu\\..*/", { drawing = false })
-      sbar.set("/space\\..*/", { drawing = true })
-      sbar.set("front_app", { drawing = true })
+      utils.animate(function()
+        sbar.set("/menu\\..*/", { drawing = false })
+        sbar.set("/space\\..*/", { drawing = true })
+        sbar.set("front_app", { drawing = true })
+      end)
     else
       menu_watcher:set({ updates = true })
-      sbar.set("/space\\..*/", { drawing = false })
-      sbar.set("front_app", { drawing = false })
+      utils.animate(function()
+        sbar.set("/space\\..*/", { drawing = false })
+        sbar.set("front_app", { drawing = false })
+      end)
       update_menus()
     end
   end)

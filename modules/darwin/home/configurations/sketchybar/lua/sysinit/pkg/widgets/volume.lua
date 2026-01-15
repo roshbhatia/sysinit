@@ -1,6 +1,7 @@
 local sbar = require("sketchybar")
 local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
+local utils = require("sysinit.pkg.utils")
 
 local M = {}
 
@@ -64,7 +65,7 @@ local function get_volume()
       return
     end
 
-    local icon = ""
+    local icon
     if volume > 60 then
       icon = "󰕾"
     elseif volume > 30 then
@@ -77,17 +78,11 @@ local function get_volume()
       icon = "󰸈"
     end
 
-    volume_icon:set({ icon = { string = icon } })
-    volume_percent:set({
-      label = {
-        string = (
-          volume >= 100 and tostring(volume) .. "%"
-          or volume >= 10 and " " .. tostring(volume) .. "%"
-          or "  " .. tostring(volume) .. "%"
-        ),
-      },
-    })
-    volume_slider:set({ slider = { percentage = volume } })
+    utils.animate(function()
+      volume_icon:set({ icon = { string = icon } })
+      volume_percent:set({ label = { string = utils.format_percent(volume) } })
+      volume_slider:set({ slider = { percentage = volume } })
+    end)
   end)
 end
 
@@ -97,52 +92,26 @@ local function show_volume_slider()
     hide_timer = nil
   end
   volume_group_active = true
-  sbar.animate("sin", 15, function()
-    volume_slider:set({ drawing = true })
-  end)
+  utils.animate_visibility(volume_slider, true)
 end
 
 local function hide_volume_slider()
   volume_group_active = false
   hide_timer = sbar.exec("sleep 0.3", function()
     if not volume_group_active then
-      sbar.animate("sin", 15, function()
-        volume_slider:set({ drawing = false })
-      end)
+      utils.animate_visibility(volume_slider, false)
     end
     hide_timer = nil
   end)
 end
 
 function M.setup()
-  sbar.add("item", "volume_separator", {
-    position = "right",
-    icon = {
-      string = "|",
-      font = settings.fonts.separators.bold,
-      color = colors.foreground_primary,
-    },
-    background = { drawing = false },
-    label = { drawing = false },
-    padding_left = settings.spacing.separator_spacing,
-    padding_right = settings.spacing.separator_spacing,
-  })
+  utils.separator("volume_separator", "right")
 
-  volume_icon:subscribe("mouse.entered", function()
-    show_volume_slider()
-  end)
-
-  volume_icon:subscribe("mouse.exited", function()
-    hide_volume_slider()
-  end)
-
-  volume_slider:subscribe("mouse.entered", function()
-    show_volume_slider()
-  end)
-
-  volume_slider:subscribe("mouse.exited", function()
-    hide_volume_slider()
-  end)
+  volume_icon:subscribe("mouse.entered", show_volume_slider)
+  volume_icon:subscribe("mouse.exited", hide_volume_slider)
+  volume_slider:subscribe("mouse.entered", show_volume_slider)
+  volume_slider:subscribe("mouse.exited", hide_volume_slider)
 
   volume_icon:subscribe("mouse.scrolled", function(env)
     local direction = env.SCROLL_DIRECTION
@@ -154,17 +123,9 @@ function M.setup()
     get_volume()
   end)
 
-  volume_percent:subscribe("volume_change", function()
-    get_volume()
-  end)
-
-  volume_percent:subscribe("routine", function()
-    get_volume()
-  end)
-
-  volume_slider:subscribe("volume_change", function()
-    get_volume()
-  end)
+  volume_percent:subscribe("volume_change", get_volume)
+  volume_percent:subscribe("routine", get_volume)
+  volume_slider:subscribe("volume_change", get_volume)
 
   volume_slider:subscribe("mouse.clicked", function(env)
     local percentage = env.PERCENTAGE

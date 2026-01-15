@@ -1,50 +1,51 @@
 local sbar = require("sketchybar")
 local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
+local utils = require("sysinit.pkg.utils")
 
 local M = {}
 
 local front_app
 
 local app_icons = {
-  [".firefox-old"] = "",
-  ["Activity Monitor"] = "",
-  ["App Store"] = "",
+  [".firefox-old"] = "",
+  ["Activity Monitor"] = "",
+  ["App Store"] = "",
   ["Arc"] = "󰄦",
   ["Books"] = "󱉟",
   ["Calculator"] = "󰪚",
   ["Calendar"] = "󰸘",
-  ["Claude"] = "",
+  ["Claude"] = "",
   ["Code - Insiders"] = "󰨞",
   ["Code"] = "󰨞",
   ["Discord"] = "󰙯",
-  ["Electron"] = "",
+  ["Electron"] = "",
   ["Ferdium"] = "󰙯",
   ["Finder"] = "󰀶",
-  ["Firefox"] = "",
+  ["Firefox"] = "",
   ["Google Chrome"] = "󰊯",
-  ["Goose"] = "",
+  ["Goose"] = "",
   ["Mail"] = "󰇰",
   ["Messages"] = "󰍡",
-  ["Messenger"] = "",
+  ["Messenger"] = "",
   ["MicrosoftOutlook"] = "󰴢",
-  ["Music"] = "",
+  ["Music"] = "",
   ["Notes"] = "󰎞",
   ["Outlook"] = "󰴢",
-  ["Podcasts"] = "",
+  ["Podcasts"] = "",
   ["Safari"] = "󰀹",
   ["Slack"] = "󰒱",
-  ["System Preferences"] = "",
-  ["SystemSettings"] = "",
-  ["Terminal"] = "",
+  ["System Preferences"] = "",
+  ["SystemSettings"] = "",
+  ["Terminal"] = "",
   ["Visual Studio Code - Insiders"] = "󰨞",
   ["Visual Studio Code"] = "󰨞",
-  ["Wezterm"] = "",
-  ["Xcode"] = "",
+  ["Wezterm"] = "",
+  ["Xcode"] = "",
   ["Zoom"] = "󰍫",
-  ["firefox"] = "",
-  ["iTerm2"] = "",
-  ["wezterm-gui"] = "",
+  ["firefox"] = "",
+  ["iTerm2"] = "",
+  ["wezterm-gui"] = "",
   ["zoom.us"] = "󰍫",
 }
 
@@ -69,26 +70,28 @@ local function get_front_app()
         return
       end
 
-      local app = result:gsub("%s+", "")
+      local app = utils.trim(result)
       if app == "" then
-        front_app:set({ drawing = false })
+        utils.animate_visibility(front_app, false)
         return
       end
 
       local display_name = app_display_names[app] or app
-      front_app:set({
-        icon = {
-          string = app_icons[app] or "󰘔",
-          font = settings.fonts.icons.regular,
-          color = colors.white,
-        },
-        label = {
-          string = display_name,
-          font = settings.fonts.text.regular,
-          color = colors.white,
-        },
-        drawing = true,
-      })
+      utils.animate(function()
+        front_app:set({
+          icon = {
+            string = app_icons[app] or "󰘔",
+            font = settings.fonts.icons.regular,
+            color = colors.foreground_primary,
+          },
+          label = {
+            string = display_name,
+            font = settings.fonts.text.regular,
+            color = colors.foreground_primary,
+          },
+          drawing = true,
+        })
+      end)
     end
   )
 end
@@ -98,31 +101,18 @@ function M.setup()
     position = "left",
     icon = {
       font = settings.fonts.icons.regular,
-      color = colors.white,
+      color = colors.foreground_primary,
     },
     label = {
       font = settings.fonts.text.regular,
-      color = colors.white,
+      color = colors.foreground_primary,
     },
-    background = {
-      drawing = false,
-    },
+    background = { drawing = false },
     padding_left = settings.spacing.widget_spacing,
     padding_right = settings.spacing.widget_spacing,
   })
 
-  sbar.add("item", "front_app_seperator", {
-    position = "left",
-    icon = {
-      string = "|",
-      font = settings.fonts.separators.bold,
-      color = colors.white,
-    },
-    background = { drawing = false },
-    label = { drawing = false },
-    padding_left = settings.spacing.separator_spacing,
-    padding_right = settings.spacing.separator_spacing,
-  })
+  utils.separator("front_app_separator", "left")
 
   front_app:subscribe("front_app_switched", function()
     get_front_app()

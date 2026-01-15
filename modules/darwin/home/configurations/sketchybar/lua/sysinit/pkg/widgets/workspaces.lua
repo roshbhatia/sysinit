@@ -1,6 +1,7 @@
 local sbar = require("sketchybar")
 local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
+local utils = require("sysinit.pkg.utils")
 
 local M = {}
 
@@ -27,18 +28,7 @@ function M.setup()
 
     sbar.add("event", "aerospace_workspace_change")
 
-    sbar.add("item", "workspace_left_sep", {
-      position = "center",
-      icon = {
-        string = "|",
-        font = settings.fonts.separators.bold,
-        color = colors.white,
-      },
-      background = { drawing = false },
-      label = { drawing = false },
-      padding_left = settings.spacing.separator_spacing,
-      padding_right = settings.spacing.separator_spacing,
-    })
+    utils.separator("workspace_left_sep", "center")
 
     for _, workspace in ipairs(workspace_group) do
       local item_name = "space." .. workspace
@@ -55,13 +45,11 @@ function M.setup()
 
       space:subscribe("aerospace_workspace_change", function(env)
         local focused_workspace = env.FOCUSED
-
         local is_focused = (workspace == focused_workspace)
-
         local label_config = make_label(workspace, is_focused)
 
         if is_focused then
-          sbar.animate("circ", 10, function()
+          utils.animate(function()
             space:set({
               label = label_config,
               icon = { highlight = true },
@@ -78,28 +66,17 @@ function M.setup()
       spaces[workspace] = space
     end
 
-    sbar.add("item", "workspace_right_sep", {
-      position = "center",
-      icon = {
-        string = "|",
-        font = settings.fonts.separators.bold,
-        color = colors.white,
-      },
-      background = { drawing = false },
-      label = { drawing = false },
-      padding_left = settings.spacing.separator_spacing,
-      padding_right = settings.spacing.separator_spacing,
-    })
+    utils.separator("workspace_right_sep", "center")
 
     sbar.exec("aerospace list-workspaces --focused", function(focused_output, initial_exit_code)
       if initial_exit_code == 0 then
-        local focused_workspace = focused_output:gsub("%s+", "")
+        local focused_workspace = utils.trim(focused_output)
 
         for ws, space_item in pairs(spaces) do
           local is_focused = (ws == focused_workspace)
           local label_config = make_label(ws, is_focused)
           if is_focused then
-            sbar.animate("circ", 10, function()
+            utils.animate(function()
               space_item:set({
                 label = label_config,
                 icon = { highlight = true },

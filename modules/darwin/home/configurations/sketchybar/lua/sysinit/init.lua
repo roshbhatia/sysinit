@@ -6,6 +6,7 @@ sbar.add("event", "aerospace_workspace_change")
 
 require("sysinit.pkg.widgets.logo").setup()
 require("sysinit.pkg.widgets.front_app").setup()
+require("sysinit.pkg.widgets.music").setup()
 require("sysinit.pkg.widgets.workspaces").setup()
 require("sysinit.pkg.widgets.menu").setup()
 

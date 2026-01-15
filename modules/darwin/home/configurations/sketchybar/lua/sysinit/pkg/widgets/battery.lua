@@ -1,6 +1,7 @@
 local sbar = require("sketchybar")
 local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
+local utils = require("sysinit.pkg.utils")
 
 local M = {}
 local battery
@@ -34,29 +35,25 @@ local function get_battery_info()
       icon, color = "󰁺", colors.semantic_error
     end
 
-    battery:set({
-      icon = {
-        string = icon,
-        color = color,
-      },
-      label = {
-        string = (
-          percent >= 100 and tostring(percent) .. "%"
-          or percent >= 10 and " " .. tostring(percent) .. "%"
-          or "  " .. tostring(percent) .. "%"
-        ),
-        color = color,
-      },
-    })
+    utils.animate(function()
+      battery:set({
+        icon = {
+          string = icon,
+          color = color,
+        },
+        label = {
+          string = utils.format_percent(percent),
+          color = color,
+        },
+      })
+    end)
   end)
 end
 
 function M.setup()
   battery = sbar.add("item", "battery", {
     position = "right",
-    icon = {
-      font = settings.fonts.icons.regular,
-    },
+    icon = { font = settings.fonts.icons.regular },
     label = {
       font = settings.fonts.text.regular,
       width = 40,
@@ -64,30 +61,19 @@ function M.setup()
     background = { drawing = false },
     padding_left = settings.spacing.widget_spacing,
     padding_right = settings.spacing.widget_spacing,
-    update_freq = 120,
+    update_freq = 10,
     click_script = "open /System/Library/PreferencePanes/Battery.prefPane",
   })
 
-  battery:subscribe("system_woke", function(env)
+  battery:subscribe("system_woke", function()
     get_battery_info()
   end)
 
-  battery:subscribe("power_source_change", function(env)
+  battery:subscribe("power_source_change", function()
     get_battery_info()
   end)
 
-  sbar.add("item", "battery_separator", {
-    position = "right",
-    icon = {
-      string = "|",
-      font = settings.fonts.separators.bold,
-      color = colors.foreground_primary,
-    },
-    background = { drawing = false },
-    label = { drawing = false },
-    padding_left = settings.spacing.separator_spacing,
-    padding_right = settings.spacing.separator_spacing,
-  })
+  utils.separator("battery_separator", "right")
 
   get_battery_info()
 end

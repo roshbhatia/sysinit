@@ -1,26 +1,6 @@
-local function load_theme_config()
-  local config_path = os.getenv("HOME") .. "/.config/sketchybar/theme_config.json"
-  local file = io.open(config_path, "r")
-  if not file then
-    return {}
-  end
-  local content = file:read("*all")
-  file:close()
+local config = require("sysinit.pkg.config")
 
-  local cjson = require("cjson")
-  local success, result = pcall(function()
-    return cjson.decode(content)
-  end)
-
-  if success and result then
-    return result
-  else
-    return {}
-  end
-end
-
-local theme_config = load_theme_config()
-local monospace_font = (theme_config.font and type(theme_config.font) == "table" and theme_config.font.monospace)
+local monospace_font = config.font.monospace
 
 return {
   fonts = {

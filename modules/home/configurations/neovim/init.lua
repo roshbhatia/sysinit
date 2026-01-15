@@ -45,6 +45,7 @@ require("sysinit.utils.plugin_manager").setup_plugins({
   require("sysinit.plugins.editor.guess-indent"),
   require("sysinit.plugins.editor.hlchunk"),
   require("sysinit.plugins.editor.hop"),
+  require("sysinit.plugins.editor.image"),
   require("sysinit.plugins.editor.markdown-preview"),
   require("sysinit.plugins.editor.markview"),
   require("sysinit.plugins.editor.move"),
