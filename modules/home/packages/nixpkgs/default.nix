@@ -64,7 +64,6 @@ let
     glow
     gnumake
     gum
-    imagemagick
     lazygit
     libgit2
     meld

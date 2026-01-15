@@ -8,7 +8,9 @@ M.plugins = {
     init = function()
       vim.g.mkdp_filetypes = { "markdown" }
     end,
-    ft = { "markdown" },
+    ft = {
+      "markdown",
+    },
     keys = {
       {
         "<localleader>p",

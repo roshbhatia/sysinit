@@ -5,11 +5,16 @@ M.plugins = {
     "3rd/image.nvim",
     ft = {
       "markdown",
-      "norg",
-      "typst",
+      "org",
     },
     opts = {
       backend = "sixel",
+      processor = "magick_rock",
+      neorg = {
+        filetypes = {
+          "org",
+        },
+      },
     },
   },
 }
