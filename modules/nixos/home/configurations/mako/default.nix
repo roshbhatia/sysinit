@@ -15,29 +15,28 @@ in
 
   services.mako = {
     enable = true;
-    font = "${values.theme.font.monospace} 11";
-    backgroundColor = semanticColors.background.primary;
-    textColor = semanticColors.foreground.primary;
-    borderColor = semanticColors.accent.primary;
-    borderSize = 2;
-    borderRadius = 10;
-    padding = "15";
-    margin = "10";
-    width = 350;
-    height = 100;
-    defaultTimeout = 5000;
-    layer = "overlay";
+    settings = {
+      font = "${values.theme.font.monospace} 11";
+      background-color = semanticColors.background.primary;
+      text-color = semanticColors.foreground.primary;
+      border-color = semanticColors.accent.primary;
+      border-size = 2;
+      border-radius = 10;
+      padding = "15";
+      margin = "10";
+      width = 350;
+      height = 100;
+      default-timeout = 5000;
+      layer = "overlay";
 
-    extraConfig = ''
-      [urgency=low]
-      border-color=${semanticColors.foreground.muted}
+      "[urgency=low]" = {
+        border-color = semanticColors.foreground.muted;
+      };
 
-      [urgency=normal]
-      border-color=${semanticColors.accent.primary}
-
-      [urgency=high]
-      border-color=${semanticColors.semantic.error}
-      default-timeout=0
-    '';
+      "[urgency=high]" = {
+        border-color = semanticColors.semantic.error;
+        default-timeout = 0;
+      };
+    };
   };
 }
