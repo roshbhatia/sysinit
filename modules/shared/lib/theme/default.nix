@@ -18,6 +18,8 @@ let
   everforest = import ./palettes/everforest.nix { inherit lib; };
   blackMetal = import ./palettes/black-metal.nix { inherit lib; };
   tokyonight = import ./palettes/tokyonight.nix { inherit lib; };
+  monokai = import ./palettes/monokai.nix { inherit lib; };
+  retroism = import ./palettes/retroism.nix { inherit lib; };
 
   adapterBase = import ./core/adapter-base.nix { inherit lib utils; };
   weztermAdapter = import ./adapters/wezterm.nix { inherit lib utils adapterBase; };
@@ -36,6 +38,8 @@ let
     inherit everforest;
     black-metal = blackMetal;
     inherit tokyonight;
+    inherit monokai;
+    inherit retroism;
   };
 
   getTheme =

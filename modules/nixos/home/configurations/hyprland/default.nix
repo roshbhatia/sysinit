@@ -79,7 +79,11 @@ in
         "$mainMod, 3, workspace, 3"
         "$mainMod, 4, workspace, 4"
 
-        # Move to workspace
+        # Move window to workspace
+        "$mainMod SHIFT, 1, movetoworkspace, 1"
+        "$mainMod SHIFT, 2, movetoworkspace, 2"
+        "$mainMod SHIFT, 3, movetoworkspace, 3"
+        "$mainMod SHIFT, 4, movetoworkspace, 4"
 
         # Fullscreen
         "$mainMod, F, fullscreen, 0"

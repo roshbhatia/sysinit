@@ -27,7 +27,7 @@ _:
         };
       };
       # Gaming: Real-time priority for better audio performance
-      pipewire = {
+      "99-realtime.conf" = {
         "context.modules" = [
           {
             name = "libpipewire-module-rt";
