@@ -122,10 +122,8 @@ function M.setup(config)
     local overrides = window:get_config_overrides() or {}
     if should_switch then
       overrides.enable_scroll_bar = false
-      overrides.window_background_opacity = 1.0
     else
       overrides.enable_scroll_bar = nil
-      overrides.window_background_opacity = nil
     end
     window:set_config_overrides(overrides)
   end)
