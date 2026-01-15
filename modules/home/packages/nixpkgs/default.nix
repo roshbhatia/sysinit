@@ -230,6 +230,7 @@ let
   # Fonts
   fontPkgs = with pkgs; [
     nerd-fonts.monaspace
+    nerd-fonts.agave
   ];
 
   # Debug tools

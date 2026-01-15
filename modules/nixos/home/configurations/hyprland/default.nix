@@ -83,7 +83,7 @@ in
 
         # Workspace switch (wrap)
         "$mainMod, TAB, workspace, e+1"
-        "$mainMod SHIFT TAB, workspace, e-1"
+        "$mainMod SHIFT, TAB, workspace, e-1"
 
         # Reload config
         "$mainMod, ESC, exec, ${pkgs.hyprland}/bin/hyprctl reload"
@@ -93,6 +93,10 @@ in
 
         # Kill active window
         "$mainMod SHIFT, Q, killactive,"
+      ];
+
+      exec-once = [
+        "${pkgs.waybar}/bin/waybar"
       ];
     };
   };
