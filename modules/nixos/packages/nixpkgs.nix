@@ -36,12 +36,12 @@ let
 
   # Display and compositor
   displayPkgs = with pkgs; [
-    dmenu
-    dmenu-wayland
-    swaybg
-    waybar
-    wlr-randr
-    xwayland
+    fuzzel # Application launcher
+    mako # Notification daemon
+    swaybg # Wallpaper
+    waybar # Status bar
+    wlr-randr # Display configuration
+    xwayland # X11 compatibility
   ];
 
   # Audio
