@@ -9,6 +9,9 @@ let
   themes = import ../../../../shared/lib/theme { inherit lib; };
   semanticColors = themes.getSemanticColors values.theme.colorscheme values.theme.variant;
 
+  # Convert #rrggbb to rgb(rrggbb) format for Hyprland
+  hexToHyprland = color: "rgb(${lib.removePrefix "#" color})";
+
 in
 {
   wayland.windowManager.hyprland = {
@@ -41,8 +44,8 @@ in
         gaps_in = 4;
         gaps_out = 8;
         border_size = 1;
-        "col.active_border" = lib.mkForce semanticColors.accent.primary;
-        "col.inactive_border" = lib.mkForce semanticColors.background.secondary;
+        "col.active_border" = lib.mkForce (hexToHyprland semanticColors.accent.primary);
+        "col.inactive_border" = lib.mkForce (hexToHyprland semanticColors.background.secondary);
         resize_on_border = "false";
         layout = "dwindle";
       };
