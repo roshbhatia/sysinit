@@ -1,11 +1,6 @@
-{
-  ...
-}:
-{
-  services = {
-    xserver.enable = false;
-    displayManager.sddm.wayland.enable = true;
-  };
+_: {
+  services.xserver.enable = false;
+  # Login managed by greetd in login.nix
 
   programs.hyprland = {
     enable = true;

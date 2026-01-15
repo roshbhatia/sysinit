@@ -38,7 +38,7 @@ let
   displayPkgs = with pkgs; [
     fuzzel # Application launcher
     mako # Notification daemon
-    swaybg # Wallpaper
+    swww # Dynamic wallpaper daemon
     waybar # Status bar
     wlr-randr # Display configuration
     xwayland # X11 compatibility

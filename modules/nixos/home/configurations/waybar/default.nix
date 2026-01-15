@@ -26,23 +26,41 @@ in
         layer = "top";
         position = "top";
         height = 32;
-        spacing = 8;
-        margin-top = 6;
-        margin-left = 10;
-        margin-right = 10;
+        spacing = 0;
+        margin-top = 8;
+        margin-left = 16;
+        margin-right = 16;
+        margin-bottom = 0;
 
         modules-left = [
-          "hyprland/workspaces"
+          "custom/logo"
           "hyprland/window"
         ];
-        modules-center = [ "clock" ];
+        modules-center = [ "hyprland/workspaces" ];
         modules-right = [
           "pulseaudio"
+          "custom/sep"
           "network"
+          "custom/sep"
           "cpu"
+          "custom/sep"
           "memory"
+          "custom/sep"
+          "clock"
+          "custom/sep"
+          "clock#utc"
           "tray"
         ];
+
+        "custom/logo" = {
+          format = "󰣇";
+          tooltip = false;
+        };
+
+        "custom/sep" = {
+          format = "•";
+          tooltip = false;
+        };
 
         "hyprland/workspaces" = {
           format = "{icon}";
@@ -51,22 +69,33 @@ in
             "2" = "2";
             "3" = "3";
             "4" = "4";
+            "5" = "5";
+            "6" = "6";
+            "7" = "7";
+            "8" = "8";
+            "9" = "9";
+            active = "{id}";
             urgent = "!";
-            default = "-";
+            default = "{id}";
           };
           on-click = "activate";
           sort-by-number = true;
+          active-only = false;
+          all-outputs = true;
         };
 
         "hyprland/window" = {
           format = "{}";
-          max-length = 50;
+          max-length = 40;
           separate-outputs = true;
+          rewrite = {
+            "(.*) — Mozilla Firefox" = "Firefox";
+            "(.*) - Visual Studio Code" = "VSCode";
+          };
         };
 
         clock = {
           format = "{:%H:%M}";
-          format-alt = "{:%Y-%m-%d %H:%M}";
           tooltip-format = "<tt>{calendar}</tt>";
           calendar = {
             mode = "month";
@@ -76,21 +105,28 @@ in
           };
         };
 
+        "clock#utc" = {
+          format = "{:%H:%M UTC}";
+          timezone = "UTC";
+          tooltip = false;
+        };
+
         cpu = {
           format = "CPU {usage}%";
           interval = 2;
         };
 
         memory = {
-          format = "MEM {}%";
+          format = "MEM {percentage}%";
           interval = 2;
         };
 
         network = {
-          format-wifi = "WiFi {signalStrength}%";
+          format-wifi = "WiFi";
           format-ethernet = "ETH";
           format-disconnected = "OFF";
-          tooltip-format = "{ifname}: {ipaddr}";
+          tooltip-format-wifi = "{essid} ({signalStrength}%)";
+          tooltip-format-ethernet = "{ifname}: {ipaddr}";
         };
 
         pulseaudio = {
@@ -108,34 +144,49 @@ in
     style = ''
       * {
         font-family: "${values.theme.font.monospace}", monospace;
-        font-size: 13px;
+        font-size: 12px;
         min-height: 0;
+        padding: 0;
+        margin: 0;
       }
 
       window#waybar {
-        background: transparent;
+        background: #${c semanticColors.background.primary};
         color: #${c semanticColors.foreground.primary};
+        border-radius: 10px;
+        border: 1px solid #${c semanticColors.background.secondary};
       }
 
       window#waybar.hidden {
         opacity: 0.2;
       }
 
+      /* All modules get consistent styling */
+      #custom-logo,
       #workspaces,
       #window,
       #clock,
+      #clock.utc,
       #cpu,
       #memory,
       #network,
       #pulseaudio,
       #tray {
-        background: #${c semanticColors.background.primary};
-        padding: 0 12px;
-        margin: 0 2px;
-        border-radius: 8px;
-        border: 1px solid #${c semanticColors.background.secondary};
+        padding: 0 10px;
       }
 
+      #custom-logo {
+        color: #${c semanticColors.accent.primary};
+        font-size: 14px;
+        padding-left: 12px;
+      }
+
+      #custom-sep {
+        color: #${c semanticColors.foreground.muted};
+        padding: 0 4px;
+      }
+
+      /* Workspaces */
       #workspaces {
         padding: 0 4px;
       }
@@ -147,10 +198,12 @@ in
         border: none;
         border-radius: 6px;
         margin: 4px 2px;
+        min-width: 20px;
       }
 
       #workspaces button:hover {
         background: #${c semanticColors.background.secondary};
+        color: #${c semanticColors.foreground.primary};
       }
 
       #workspaces button.active {
@@ -162,20 +215,27 @@ in
         color: #${c semanticColors.semantic.error};
       }
 
+      /* Window title */
       #window {
         color: #${c semanticColors.foreground.secondary};
       }
 
+      /* Clock */
       #clock {
         color: #${c semanticColors.foreground.primary};
-        font-weight: bold;
       }
 
+      #clock.utc {
+        color: #${c semanticColors.foreground.muted};
+      }
+
+      /* System monitors */
       #cpu,
       #memory {
         color: #${c semanticColors.foreground.muted};
       }
 
+      /* Network */
       #network {
         color: #${c semanticColors.semantic.success};
       }
@@ -184,16 +244,19 @@ in
         color: #${c semanticColors.semantic.error};
       }
 
+      /* Audio */
       #pulseaudio {
-        color: #${c semanticColors.semantic.info};
+        color: #${c semanticColors.foreground.primary};
       }
 
       #pulseaudio.muted {
         color: #${c semanticColors.foreground.muted};
       }
 
+      /* Tray */
       #tray {
         padding: 0 8px;
+        padding-right: 12px;
       }
 
       #tray > .passive {
@@ -204,6 +267,7 @@ in
         -gtk-icon-effect: highlight;
       }
 
+      /* Tooltips */
       tooltip {
         background: #${c semanticColors.background.primary};
         border: 1px solid #${c semanticColors.accent.primary};
@@ -212,6 +276,7 @@ in
 
       tooltip label {
         color: #${c semanticColors.foreground.primary};
+        padding: 4px;
       }
     '';
   };

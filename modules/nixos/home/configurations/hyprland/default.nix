@@ -22,177 +22,142 @@ in
     enable = true;
     xwayland.enable = true;
     settings = {
-      "$mainMod" = "ALT";
+      # Use SUPER (Windows/Command key) like macOS
+      "$mod" = "SUPER";
 
-      # Monitor config - auto-detect with good defaults
-      monitor = [
-        ",preferred,auto,auto"
-      ];
+      # Monitor - auto-detect
+      monitor = [ ",preferred,auto,auto" ];
 
       input = {
         kb_layout = "us";
         repeat_rate = 50;
         repeat_delay = 300;
         follow_mouse = 1;
-        sensitivity = 0;
         touchpad = {
           natural_scroll = true;
           disable_while_typing = true;
-          tap-to-click = false;
         };
       };
 
       gestures = {
         workspace_swipe = true;
         workspace_swipe_fingers = 3;
-        workspace_swipe_distance = 300;
-        workspace_swipe_cancel_ratio = 0.5;
       };
 
       general = {
-        gaps_in = 5;
-        gaps_out = 10;
+        gaps_in = 4;
+        gaps_out = 8;
         border_size = 2;
         "col.active_border" = hexToHyprland semanticColors.accent.primary;
         "col.inactive_border" = hexToHyprland semanticColors.background.secondary;
-        resize_on_border = true;
         layout = "dwindle";
-        allow_tearing = false;
       };
 
       decoration = {
         rounding = 10;
-
         active_opacity = 1.0;
         inactive_opacity = 0.95;
 
         blur = {
           enabled = true;
           size = 5;
-          passes = 3;
-          new_optimizations = true;
-          ignore_opacity = true;
+          passes = 2;
         };
 
         shadow = {
           enabled = true;
-          range = 20;
-          render_power = 3;
-          color = hexToHyprlandAlpha semanticColors.background.primary "99";
+          range = 15;
+          color = hexToHyprlandAlpha semanticColors.background.primary "80";
         };
       };
 
       animations = {
         enabled = true;
-        bezier = [
-          "ease,0.25,0.1,0.25,1"
-          "easeOut,0,0,0.2,1"
-          "easeInOut,0.42,0,0.58,1"
-        ];
+        bezier = [ "ease,0.25,0.1,0.25,1" ];
         animation = [
-          "windows,1,4,ease,slide"
-          "windowsOut,1,4,easeOut,slide"
-          "fade,1,4,ease"
-          "workspaces,1,4,easeInOut,slide"
-          "border,1,4,ease"
+          "windows,1,3,ease,slide"
+          "fade,1,3,ease"
+          "workspaces,1,3,ease,slide"
         ];
       };
 
       dwindle = {
-        pseudotile = true;
         preserve_split = true;
         force_split = 2;
-        smart_split = false;
-        smart_resizing = true;
-      };
-
-      master = {
-        new_status = "master";
       };
 
       misc = {
         force_default_wallpaper = 0;
         disable_hyprland_logo = true;
         disable_splash_rendering = true;
-        mouse_move_enables_dpms = true;
-        key_press_enables_dpms = true;
         background_color = hexToHyprland semanticColors.background.primary;
       };
 
-      # Window rules for cleaner look
+      # Window rules
       windowrulev2 = [
-        "opacity 0.95 0.85,class:^(wezterm)$"
+        "opacity 0.95 0.90,class:^(wezterm)$"
         "float,class:^(pavucontrol)$"
         "float,title:^(Picture-in-Picture)$"
-        "pin,title:^(Picture-in-Picture)$"
       ];
 
       bind = [
-        # Focus with ALT + H/J/K/L (vim-style)
-        "$mainMod, H, movefocus, l"
-        "$mainMod, J, movefocus, d"
-        "$mainMod, K, movefocus, u"
-        "$mainMod, L, movefocus, r"
+        # ===== Applications (macOS-like) =====
+        "$mod, RETURN, exec, ${pkgs.wezterm}/bin/wezterm"
+        "$mod, SPACE, exec, ${pkgs.fuzzel}/bin/fuzzel"
+        "$mod, E, exec, ${pkgs.nemo}/bin/nemo"
 
-        # Move windows with ALT + SHIFT + H/J/K/L
-        "$mainMod SHIFT, H, movewindow, l"
-        "$mainMod SHIFT, J, movewindow, d"
-        "$mainMod SHIFT, K, movewindow, u"
-        "$mainMod SHIFT, L, movewindow, r"
+        # ===== Window Focus (vim-style) =====
+        "$mod, H, movefocus, l"
+        "$mod, J, movefocus, d"
+        "$mod, K, movefocus, u"
+        "$mod, L, movefocus, r"
 
-        # Resize windows with ALT + CTRL + H/J/K/L
-        "$mainMod CTRL, H, resizeactive, -50 0"
-        "$mainMod CTRL, J, resizeactive, 0 50"
-        "$mainMod CTRL, K, resizeactive, 0 -50"
-        "$mainMod CTRL, L, resizeactive, 50 0"
+        # ===== Move Windows =====
+        "$mod SHIFT, H, movewindow, l"
+        "$mod SHIFT, J, movewindow, d"
+        "$mod SHIFT, K, movewindow, u"
+        "$mod SHIFT, L, movewindow, r"
 
-        # Workspaces 1-4
-        "$mainMod, 1, workspace, 1"
-        "$mainMod, 2, workspace, 2"
-        "$mainMod, 3, workspace, 3"
-        "$mainMod, 4, workspace, 4"
+        # ===== Resize Windows =====
+        "$mod CTRL, H, resizeactive, -40 0"
+        "$mod CTRL, J, resizeactive, 0 40"
+        "$mod CTRL, K, resizeactive, 0 -40"
+        "$mod CTRL, L, resizeactive, 40 0"
 
-        # Move window to workspace
-        "$mainMod SHIFT, 1, movetoworkspace, 1"
-        "$mainMod SHIFT, 2, movetoworkspace, 2"
-        "$mainMod SHIFT, 3, movetoworkspace, 3"
-        "$mainMod SHIFT, 4, movetoworkspace, 4"
+        # ===== Workspaces =====
+        "$mod, 1, workspace, 1"
+        "$mod, 2, workspace, 2"
+        "$mod, 3, workspace, 3"
+        "$mod, 4, workspace, 4"
+        "$mod, TAB, workspace, e+1"
+        "$mod SHIFT, TAB, workspace, e-1"
 
-        # Workspace cycling
-        "$mainMod, TAB, workspace, e+1"
-        "$mainMod SHIFT, TAB, workspace, e-1"
+        # ===== Move to Workspace =====
+        "$mod SHIFT, 1, movetoworkspace, 1"
+        "$mod SHIFT, 2, movetoworkspace, 2"
+        "$mod SHIFT, 3, movetoworkspace, 3"
+        "$mod SHIFT, 4, movetoworkspace, 4"
 
-        # Window management
-        "$mainMod, F, fullscreen, 0"
-        "$mainMod, M, fullscreen, 1"
-        "$mainMod, V, togglefloating,"
-        "$mainMod, P, pseudo,"
-        "$mainMod, S, togglesplit,"
+        # ===== Window Management =====
+        "$mod, F, fullscreen, 0"
+        "$mod, V, togglefloating,"
+        "$mod SHIFT, Q, killactive,"
 
-        # Applications
-        "$mainMod, RETURN, exec, ${pkgs.wezterm}/bin/wezterm"
-        "$mainMod, D, exec, ${pkgs.fuzzel}/bin/fuzzel"
-        "$mainMod, E, exec, ${pkgs.nemo}/bin/nemo"
-
-        # Kill and reload
-        "$mainMod SHIFT, Q, killactive,"
-        "$mainMod, ESC, exec, ${pkgs.hyprland}/bin/hyprctl reload"
-
-        # Screenshot
-        ", Print, exec, ${pkgs.grim}/bin/grim -g \"$(${pkgs.slurp}/bin/slurp)\" - | ${pkgs.wl-clipboard}/bin/wl-copy"
-        "SHIFT, Print, exec, ${pkgs.grim}/bin/grim - | ${pkgs.wl-clipboard}/bin/wl-copy"
+        # ===== System =====
+        "$mod, ESC, exec, ${pkgs.hyprland}/bin/hyprctl reload"
       ];
 
       # Mouse bindings
       bindm = [
-        "$mainMod, mouse:272, movewindow"
-        "$mainMod, mouse:273, resizewindow"
+        "$mod, mouse:272, movewindow"
+        "$mod, mouse:273, resizewindow"
       ];
 
+      # Startup
       exec-once = [
-        # Set solid color wallpaper from theme
-        "${pkgs.swaybg}/bin/swaybg -c '${semanticColors.background.primary}'"
-        # Note: waybar and mako are started via systemd user services
+        # Wallpaper - use swww for dynamic wallpapers
+        "${pkgs.swww}/bin/swww-daemon"
+        "${pkgs.swww}/bin/swww img ${pkgs.writeText "blank" ""} --transition-type none || ${pkgs.swww}/bin/swww clear ${lib.removePrefix "#" semanticColors.background.primary}"
       ];
     };
   };

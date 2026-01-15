@@ -8,7 +8,19 @@ let
   themeConfig = values.theme;
   polarityValue = themeConfig.appearance;
   monospaceFontName = themeConfig.font.monospace;
-  base16Scheme = "catppuccin-mocha";
+  # Map custom colorschemes to base16-schemes equivalents for GTK theming
+  # Most apps use custom theming, so this is just for GTK apps
+  base16Scheme =
+    if themeConfig.colorscheme == "black-metal" then
+      "black-metal"
+    else if themeConfig.colorscheme == "rose-pine" then
+      "rose-pine-moon"
+    else if themeConfig.colorscheme == "gruvbox" then
+      "gruvbox-dark-hard"
+    else if themeConfig.colorscheme == "catppuccin" then
+      "catppuccin-mocha"
+    else
+      "default-dark";
 in
 {
   stylix = {

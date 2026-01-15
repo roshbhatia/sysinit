@@ -35,8 +35,8 @@ common:
     values = common.values // {
       nix.gaming.enable = true;
       theme = {
-        colorscheme = "gruvbox";
-        variant = "dark";
+        colorscheme = "black-metal";
+        variant = "gorgoroth";
         font = {
           monospace = "Agave Nerd Font";
         };
