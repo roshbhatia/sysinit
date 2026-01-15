@@ -14,9 +14,6 @@
       macos-hidden = "always";
       macos-window-shadow = false;
 
-      quick-terminal-position = "center";
-      quick-terminal-size = "60%";
-
       window-padding-x = 2;
       window-padding-y = 2;
 
