@@ -26,12 +26,12 @@
           left = [
             { monitor."LG HDR 4K" = 400; }
             { monitor."DELL U3824DW" = 326; }
-            12
+            16
           ];
           right = [
             { monitor."LG HDR 4K" = 400; }
             { monitor."DELL U3824DW" = 326; }
-            12
+            16
           ];
           top = [
             { monitor."LG HDR 4K" = 200; }
