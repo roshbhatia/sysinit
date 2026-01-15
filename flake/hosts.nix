@@ -14,7 +14,7 @@ common:
       ];
       theme = {
         colorscheme = "rose-pine";
-        variant = "moon";
+        variant = "dawn";
       };
       llm.mcp.additionalServers = {
         playwright = {
