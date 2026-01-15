@@ -38,7 +38,7 @@ common:
         colorscheme = "gruvbox";
         variant = "dark";
         font = {
-          monospace = "MonaspiceKr Nerd Font Mono";
+          monospace = "Agave Nerd Font";
         };
       };
     };

@@ -31,6 +31,7 @@ let
     wl-clipboard
     xclip
     xsel
+    nerd-fonts.agave
   ];
 
   # Display and compositor
