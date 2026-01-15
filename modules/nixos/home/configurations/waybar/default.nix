@@ -14,6 +14,9 @@ let
 
 in
 {
+  # Disable Stylix's waybar theming - using custom theme colors
+  stylix.targets.waybar.enable = false;
+
   programs.waybar = {
     enable = true;
     systemd.enable = true;

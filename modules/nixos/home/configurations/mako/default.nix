@@ -10,6 +10,9 @@ let
 
 in
 {
+  # Disable Stylix's mako theming - using custom theme colors
+  stylix.targets.mako.enable = false;
+
   services.mako = {
     enable = true;
     font = "${values.theme.font.monospace} 11";

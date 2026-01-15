@@ -13,6 +13,9 @@ let
 
 in
 {
+  # Disable Stylix's fuzzel theming - using custom theme colors
+  stylix.targets.fuzzel.enable = false;
+
   programs.fuzzel = {
     enable = true;
     settings = {
