@@ -69,7 +69,7 @@ function M.setup()
     background = { drawing = false },
     padding_left = settings.spacing.widget_spacing,
     padding_right = settings.spacing.widget_spacing,
-    update_freq = 5,
+    update_freq = 1,
     drawing = false,
   })
 
