@@ -7,9 +7,6 @@ M.plugins = {
     priority = 1000,
     config = function()
       require("smart-splits").setup({
-        ignored_buftypes = {
-          "terminal",
-        },
         cursor_follows_swapped_bufs = true,
         float_win_behavior = "mux",
         at_edge = "stop",
@@ -19,68 +16,68 @@ M.plugins = {
       local smart_splits = require("smart-splits")
       return {
         {
-          "<C-h>",
+          "<C-a>h",
           function()
             smart_splits.move_cursor_left()
           end,
-          mode = { "n", "i", "v", "t" },
-          desc = "Move to left pane",
+          mode = { "n", "v" },
+          desc = "Move left",
         },
         {
-          "<C-j>",
+          "<C-a>j",
           function()
             smart_splits.move_cursor_down()
           end,
-          mode = { "n", "i", "v", "t" },
-          desc = "Move to bottom pane",
+          mode = { "n", "v" },
+          desc = "Move down",
         },
         {
-          "<C-k>",
+          "<C-a>k",
           function()
             smart_splits.move_cursor_up()
           end,
-          mode = { "n", "i", "v", "t" },
-          desc = "Move to top pane",
+          mode = { "n", "v" },
+          desc = "Move up",
         },
         {
-          "<C-l>",
+          "<C-a>l",
           function()
             smart_splits.move_cursor_right()
           end,
-          mode = { "n", "i", "v", "t" },
-          desc = "Move to right pane",
+          mode = { "n", "v" },
+          desc = "Move right",
         },
         {
-          "<C-S-h>",
+          "<C-a>H",
           function()
             smart_splits.resize_left()
           end,
-          mode = { "n", "i", "v", "t" },
-          desc = "Decrease pane width",
+          mode = { "n" },
+          desc = "Resize left",
         },
         {
-          "<C-S-j>",
+          "<C-a>J",
           function()
             smart_splits.resize_down()
           end,
-          mode = { "n", "i", "v", "t" },
-          desc = "Decrease pane height",
+          mode = { "n" },
+          desc = "Resize down",
         },
         {
-          "<C-S-k>",
+          "<C-a>K",
           function()
             smart_splits.resize_up()
           end,
-          mode = { "n", "i", "v", "t" },
-          desc = "Increase pane height",
+          mode = { "n" },
+          desc = "Resize up",
         },
         {
-          "<C-S-l>",
+          "<C-a>L",
           function()
             smart_splits.resize_right()
           end,
-          mode = { "n", "i", "v", "t" },
-          desc = "Increase pane width",
+          mode = { "n" },
+          desc = "Resize right",
         },
         {
           "<leader>v",
@@ -88,7 +85,7 @@ M.plugins = {
             vim.cmd("vsplit")
           end,
           mode = { "n" },
-          desc = "Split pane vertically",
+          desc = "Split vertical",
         },
         {
           "<leader>s",
@@ -96,10 +93,10 @@ M.plugins = {
             vim.cmd("split")
           end,
           mode = { "n" },
-          desc = "Split pane horizontally",
+          desc = "Split horizontal",
         },
         {
-          "<C-w>",
+          "<leader>x",
           function()
             vim.cmd("xit")
           end,

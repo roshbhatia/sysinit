@@ -23,8 +23,8 @@ in
     mako.enable = false;
   };
 
-  # === Mangowc Window Manager ===
-  programs.mango = {
+  # === Mangowc Window Manager (home-manager module) ===
+  wayland.windowManager.mango = {
     enable = true;
     systemd.enable = true;
 
