@@ -31,11 +31,6 @@
     };
   };
 
-  # SSH authorized keys
-  users.users.${values.user.username}.openssh.authorizedKeys.keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIWYK84u+ZlSasw3Z7LwsA2eT9S7xDXKVj61xOqAubKe rshnbhatia@lv426"
-  ];
-
   # User account
   programs.zsh.enable = true;
 
@@ -54,6 +49,9 @@
     ]
     ++ lib.optionals config.programs.gamemode.enable [ "gamemode" ];
     description = values.git.name;
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIWYK84u+ZlSasw3Z7LwsA2eT9S7xDXKVj61xOqAubKe rshnbhatia@lv426"
+    ];
   };
 
   users.groups.${values.user.username} = { };
