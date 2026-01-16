@@ -45,13 +45,12 @@ local DIRECTION_KEYS = {
   l = "Right",
 }
 
-local function create_pane_action(action_type, key)
+local function create_pane_action(action_type, key, mods)
   return wezterm.action_callback(function(win, pane)
     if is_process_in_list(pane, PASSTHROUGH_PROCESSES) then
-      win:perform_action({ SendKey = { key = "a", mods = "CTRL" } }, pane)
-      win:perform_action({ SendKey = { key = key } }, pane)
+      win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
     else
-      local action = action_type == "resize" and { AdjustPaneSize = { DIRECTION_KEYS[key:lower()], 3 } }
+      local action = action_type == "resize" and { AdjustPaneSize = { DIRECTION_KEYS[key], 3 } }
         or { ActivatePaneDirection = DIRECTION_KEYS[key] }
       win:perform_action(action, pane)
     end
@@ -68,15 +67,13 @@ end
 
 local function get_pane_keys()
   local keys = {
-    { key = "s", mods = "LEADER", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
-    { key = "v", mods = "LEADER", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
-    { key = "x", mods = "LEADER", action = act.CloseCurrentPane({ confirm = true }) },
-    { key = "z", mods = "LEADER", action = act.TogglePaneZoomState },
+    { key = "s", mods = "CTRL", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
+    { key = "v", mods = "CTRL", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
   }
 
   for _, key in ipairs({ "h", "j", "k", "l" }) do
-    table.insert(keys, { key = key, mods = "LEADER", action = create_pane_action("move", key) })
-    table.insert(keys, { key = key:upper(), mods = "LEADER|SHIFT", action = create_pane_action("resize", key:upper()) })
+    table.insert(keys, { key = key, mods = "CTRL", action = create_pane_action("move", key, "CTRL") })
+    table.insert(keys, { key = key, mods = "CTRL|SHIFT", action = create_pane_action("resize", key, "CTRL|SHIFT") })
   end
 
   for _, mods in ipairs({ "CTRL", "SUPER" }) do
@@ -97,9 +94,9 @@ local function get_system_keys()
     { key = "m", mods = "SUPER", action = act.Hide },
     { key = "h", mods = "SUPER", action = act.HideApplication },
     { key = "q", mods = "SUPER", action = act.QuitApplication },
-    { key = ";", mods = "LEADER", action = act.ActivateCommandPalette },
-    { key = "l", mods = "LEADER", action = act.ShowDebugOverlay },
-    { key = "r", mods = "LEADER", action = act.ReloadConfiguration },
+    { key = ";", mods = "CTRL|SHIFT", action = act.ActivateCommandPalette },
+    { key = "l", mods = "CTRL|SHIFT", action = act.ShowDebugOverlay },
+    { key = "r", mods = "CTRL|SHIFT", action = act.ReloadConfiguration },
     {
       key = "k",
       mods = "SUPER",
@@ -130,16 +127,24 @@ end
 
 local function get_tab_keys()
   local keys = {
-    { key = "w", mods = "LEADER", action = act.CloseCurrentTab({ confirm = true }) },
-    { key = "t", mods = "LEADER", action = act.SpawnTab("CurrentPaneDomain") },
+    { key = "w", mods = "CTRL|SHIFT", action = act.CloseCurrentTab({ confirm = true }) },
+    { key = "Tab", mods = "CTRL", action = act.ActivateTabRelative(1) },
+    { key = "Tab", mods = "CTRL|SHIFT", action = act.ActivateTabRelative(-1) },
+    { key = "o", mods = "CTRL|SHIFT", action = act.ActivateLastTab },
   }
 
-  for i = 1, 9 do
-    table.insert(keys, {
-      key = tostring(i),
-      mods = "LEADER",
-      action = act.ActivateTab(i - 1),
-    })
+  for _, binding in ipairs(create_multi_bindings("t", { "CTRL", "SUPER" }, act.SpawnTab("CurrentPaneDomain"))) do
+    table.insert(keys, binding)
+  end
+
+  for i = 1, 8 do
+    for _, binding in ipairs(create_multi_bindings(tostring(i), { "CTRL", "SUPER" }, act.ActivateTab(i - 1))) do
+      table.insert(keys, binding)
+    end
+  end
+
+  for _, binding in ipairs(create_multi_bindings("9", { "CTRL", "SUPER" }, act.ActivateTab(-1))) do
+    table.insert(keys, binding)
   end
 
   return keys
@@ -154,6 +159,11 @@ local function get_search_keys()
     { key = "Escape", mods = "CTRL", action = act.ActivateCopyMode },
     { key = "/", mods = "CTRL", action = act.Search("CurrentSelectionOrEmptyString") },
     { key = "f", mods = "CTRL", action = act.PaneSelect },
+    {
+      key = "r",
+      mods = "CTRL",
+      action = create_passthrough_action("r", "CTRL", act.ReloadConfiguration, VIM_PROCESSES),
+    },
   }
 end
 
@@ -184,12 +194,8 @@ end
 
 function M.setup(config)
   config.disable_default_key_bindings = true
-  config.leader = { key = "a", mods = "CTRL", timeout_milliseconds = 1000 }
 
-  local all_keys = {
-    { key = "a", mods = "LEADER|CTRL", action = act.SendKey({ key = "a", mods = "CTRL" }) },
-  }
-
+  local all_keys = {}
   local key_groups = {
     get_system_keys(),
     get_font_keys(),
