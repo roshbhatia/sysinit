@@ -1,0 +1,293 @@
+{
+  pkgs,
+  ...
+}:
+
+let
+  zjstatusWasm = pkgs.fetchurl {
+    url = "https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm";
+    sha256 = "0lyxah0pzgw57wbrvfz2y0bjrna9bgmsw9z9f898dgqw1g92dr2d";
+    name = "zjstatus.wasm";
+  };
+
+  vimZellijNavigatorWasm = pkgs.fetchurl {
+    url = "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm";
+    sha256 = "13f54hf77bwcqhsbmkvpv07pwn3mblyljx15my66j6kw5zva5rbp";
+    name = "vim-zellij-navigator.wasm";
+  };
+
+  defaultLayoutContent = ''
+    layout {
+        default_tab_template {
+            children
+            pane size=1 borderless=true {
+                plugin location="file:~/.config/zellij/plugins/zjstatus.wasm" {
+                    format_left  "#[fg=0,bg=10]{mode} [{session}]  {tabs}"
+                    format_right "#[fg=0,bg=10]{datetime}"
+                    format_space "#[bg=10]"
+
+                    hide_frame_for_single_pane "true"
+
+                    mode_normal        ""
+                    mode_locked        "#[fg=0,bg=1,bold] LOCKED "
+                    mode_resize        "#[fg=0,bg=3,bold] RESIZE "
+                    mode_pane          "#[fg=0,bg=4,bold] PANE "
+                    mode_tab           "#[fg=0,bg=5,bold] TAB "
+                    mode_scroll        "#[fg=0,bg=6,bold] SCROLL "
+                    mode_enter_search  "#[fg=0,bg=7,bold] SEARCH "
+                    mode_search        "#[fg=0,bg=7,bold] SEARCH "
+                    mode_rename_tab    "#[fg=0,bg=8,bold] RENAME "
+                    mode_rename_pane   "#[fg=0,bg=9,bold] RENAME "
+                    mode_session       "#[fg=0,bg=13,bold] SESSION "
+                    mode_move          "#[fg=0,bg=14,bold] MOVE "
+                    mode_prompt        "#[fg=0,bg=15,bold] PROMPT "
+                    mode_tmux          "#[fg=0,bg=11,bold] TMUX "
+
+                    tab_normal   "{index}:{name}  "
+                    tab_active   "{index}:{name}* "
+
+                    datetime          " {format} "
+                    datetime_format   "%H:%M %d-%b-%y"
+                    datetime_timezone "America/Los_Angeles"
+                }
+            }
+        }
+    }
+  '';
+
+  configContent = ''
+    default_shell "zsh"
+    copy_clipboard "primary"
+    copy_command "pbcopy"
+    copy_on_select true
+
+    mouse_mode true
+    on_force_close "detach"
+    simplified_ui false
+    auto_layout true
+    session_serialization false
+    show_startup_tips false
+
+    scroll_buffer_size 100000
+    scrollback_editor "$EDITOR"
+
+    pane_frames true
+    default_mode "normal"
+
+    plugins {
+        about location="zellij:about"
+        compact-bar location="zellij:compact-bar"
+        configuration location="zellij:configuration"
+        filepicker location="zellij:strider" {
+            cwd "/"
+        }
+        plugin-manager location="zellij:plugin-manager"
+        session-manager location="zellij:session-manager"
+        status-bar location="zellij:status-bar"
+        strider location="zellij:strider"
+        tab-bar location="zellij:tab-bar"
+        welcome-screen location="zellij:session-manager" {
+            welcome_screen true
+        }
+    }
+
+    keybinds clear-defaults=true {
+        normal {
+            bind "Ctrl /" { SwitchToMode "entersearch"; SearchInput 0; }
+            bind "Ctrl 1" { GoToTab 1; }
+            bind "Ctrl 2" { GoToTab 2; }
+            bind "Ctrl 3" { GoToTab 3; }
+            bind "Ctrl 4" { GoToTab 4; }
+            bind "Ctrl 5" { GoToTab 5; }
+            bind "Ctrl 6" { GoToTab 6; }
+            bind "Ctrl 7" { GoToTab 7; }
+            bind "Ctrl 8" { GoToTab 8; }
+            bind "Ctrl 9" { GoToTab 9; }
+            bind "Ctrl ;" { SwitchToMode "session"; }
+            bind "Ctrl D" { Detach; }
+            bind "Ctrl O" { ToggleTab; }
+            bind "Ctrl W" { CloseTab; }
+            bind "Ctrl [" { SwitchToMode "scroll"; }
+            bind "Ctrl f" { ToggleFloatingPanes; }
+            bind "Ctrl o" { SwitchToMode "session"; }
+            bind "Ctrl s" { NewPane "down"; }
+            bind "Ctrl t" { NewTab; }
+            bind "Ctrl v" { NewPane "right"; }
+            bind "Ctrl w" { CloseFocus; }
+            bind "Ctrl tab" { GoToNextTab; }
+            bind "Ctrl Shift tab" { GoToPreviousTab; }
+        }
+
+        locked {
+            bind "Ctrl g" { SwitchToMode "normal"; }
+        }
+
+        pane {
+            bind "f" { ToggleFloatingPanes; SwitchToMode "normal"; }
+            bind "h" { MoveFocus "left"; }
+            bind "j" { MoveFocus "down"; }
+            bind "k" { MoveFocus "up"; }
+            bind "l" { MoveFocus "right"; }
+            bind "s" { NewPane "down"; SwitchToMode "normal"; }
+            bind "v" { NewPane "right"; SwitchToMode "normal"; }
+            bind "x" { CloseFocus; SwitchToMode "normal"; }
+        }
+
+        scroll {
+            bind "left" { PageScrollUp; }
+            bind "down" { ScrollDown; }
+            bind "up" { ScrollUp; }
+            bind "right" { PageScrollDown; }
+            bind "/" { SwitchToMode "entersearch"; SearchInput 0; }
+            bind "Ctrl /" { SwitchToMode "search"; SearchInput 0; }
+            bind "e" { EditScrollback; SwitchToMode "normal"; }
+        }
+
+        search {
+            bind "N" { Search "up"; }
+            bind "c" { SearchToggleOption "CaseSensitivity"; }
+            bind "n" { Search "down"; }
+            bind "o" { SearchToggleOption "Wrap"; }
+            bind "p" { Search "up"; }
+            bind "w" { SearchToggleOption "WholeWord"; }
+        }
+
+        session {
+            bind "c" {
+                LaunchOrFocusPlugin "configuration" {
+                    floating true
+                    move_to_focused_tab true
+                }
+                SwitchToMode "normal"
+            }
+            bind "d" { Detach; }
+            bind "p" {
+                LaunchOrFocusPlugin "plugin-manager" {
+                    floating true
+                    move_to_focused_tab true
+                }
+                SwitchToMode "normal"
+            }
+            bind "w" {
+                LaunchOrFocusPlugin "session-manager" {
+                    floating true
+                    move_to_focused_tab true
+                }
+                SwitchToMode "normal"
+            }
+        }
+
+        shared_except "locked" {
+            bind "Ctrl H" {
+                MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
+                    name "resize"
+                    payload "left"
+                    floating false
+                }
+            }
+            bind "Ctrl J" {
+                MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
+                    name "resize"
+                    payload "down"
+                    floating false
+                }
+            }
+            bind "Ctrl K" {
+                MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
+                    name "resize"
+                    payload "up"
+                    floating false
+                }
+            }
+            bind "Ctrl L" {
+                MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
+                    name "resize"
+                    payload "right"
+                    floating false
+                }
+            }
+            bind "Ctrl h" {
+                MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
+                    name "move_focus"
+                    payload "left"
+                    floating false
+                }
+            }
+            bind "Ctrl j" {
+                MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
+                    name "move_focus"
+                    payload "down"
+                    floating false
+                }
+            }
+            bind "Ctrl k" {
+                MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
+                    name "move_focus"
+                    payload "up"
+                    floating false
+                }
+            }
+            bind "Ctrl l" {
+                MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
+                    name "move_focus"
+                    payload "right"
+                    floating false
+                }
+            }
+        }
+
+        shared_except "locked" "resize" "tab" "move" "prompt" "tmux" {
+            bind "Ctrl g" { SwitchToMode "locked"; }
+        }
+
+        shared_among "pane" "renametab" "renamepane" {
+            bind "enter" { SwitchToMode "normal"; }
+        }
+
+        shared_among "pane" "renametab" "renamepane" "session" {
+            bind "Ctrl c" { SwitchToMode "normal"; }
+        }
+
+        shared_among "pane" "session" {
+            bind "esc" { SwitchToMode "normal"; }
+        }
+
+        shared_among "scroll" "search" {
+            bind "PageDown" { PageScrollDown; }
+            bind "PageUp" { PageScrollUp; }
+            bind "Ctrl c" { ScrollToBottom; SwitchToMode "normal"; }
+            bind "d" { HalfPageScrollDown; }
+            bind "j" { ScrollDown; }
+            bind "k" { ScrollUp; }
+            bind "u" { HalfPageScrollUp; }
+            bind "esc" { ScrollToBottom; SwitchToMode "normal"; }
+            bind "enter" { ScrollToBottom; SwitchToMode "normal"; }
+        }
+
+        entersearch {
+            bind "Ctrl c" { SwitchToMode "scroll"; }
+            bind "esc" { SwitchToMode "scroll"; }
+            bind "enter" { SwitchToMode "search"; }
+        }
+
+        renametab {
+            bind "esc" { UndoRenameTab; SwitchToMode "normal"; }
+        }
+
+        renamepane {
+            bind "esc" { UndoRenamePane; SwitchToMode "normal"; }
+        }
+    }
+  '';
+in
+{
+  stylix.targets.zellij.enable = true;
+
+  home.packages = [ pkgs.zellij ];
+
+  xdg.configFile."zellij/plugins/zjstatus.wasm".source = zjstatusWasm;
+  xdg.configFile."zellij/plugins/vim-zellij-navigator.wasm".source = vimZellijNavigatorWasm;
+
+  xdg.configFile."zellij/config.kdl".text = configContent;
+  xdg.configFile."zellij/layouts/default.kdl".text = defaultLayoutContent;
+}
