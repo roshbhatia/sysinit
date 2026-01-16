@@ -62,6 +62,7 @@ function M.setup(config)
     fade_out_duration_ms = 100,
   }
 
+  tabline.apply_to_config(config)
   tabline.setup({
     options = {
       theme = config_data.color_scheme,
@@ -84,7 +85,6 @@ function M.setup(config)
     },
     extensions = {},
   })
-  tabline.apply_to_config(config)
 
   config.window_padding = {
     left = "1cell",
