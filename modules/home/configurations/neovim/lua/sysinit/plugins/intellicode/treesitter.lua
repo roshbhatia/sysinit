@@ -166,10 +166,7 @@ M.plugins = {
               vim.b[buf].treesitter_highlight_fixed = true
 
               -- Reload the buffer to trigger treesitter
-              local ok = pcall(vim.cmd.edit)
-              if not ok then
-                vim.notify("Failed to reload buffer for treesitter", vim.log.levels.WARN)
-              end
+              pcall(vim.cmd.edit)
             else
               -- Highlighting is active, mark as fixed to skip future checks
               vim.b[buf].treesitter_highlight_fixed = true

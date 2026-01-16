@@ -62,18 +62,6 @@ function M.setup(config)
     )
   end
 
-  -- Notify when a file has been changed externally
-  if refresh_config.show_notifications then
-    vim.api.nvim_create_autocmd("FileChangedShellPost", {
-      group = augroup,
-      pattern = "*",
-      callback = function()
-        vim.notify("File changed on disk. Buffer reloaded.", vim.log.levels.INFO)
-      end,
-      desc = "Notify when a file is changed externally",
-    })
-  end
-
   -- Set a shorter updatetime for more responsive file change detection
   if refresh_config.updatetime then
     vim.o.updatetime = refresh_config.updatetime
