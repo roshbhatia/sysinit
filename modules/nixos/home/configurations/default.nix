@@ -1,7 +1,7 @@
 {
   imports = [
     ./nemo # File manager configuration
-    ./hyprland # Window manager
+    ./mangowc # Window manager (replaced Hyprland)
     ./waybar # Status bar
     ./fuzzel # Application launcher
     ./mako # Notification daemon

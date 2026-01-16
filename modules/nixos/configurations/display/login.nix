@@ -2,6 +2,7 @@
   pkgs,
   lib,
   values,
+  inputs,
   ...
 }:
 
@@ -28,25 +29,27 @@ let
     in
     colorMap.${cleanHex} or cleanHex;
 
-  # Wrapper script for Hyprland with debugging output
-  hyprlandWrapper = pkgs.writeShellScriptBin "hyprland-wrapped" ''
+  mangoPackage = inputs.mangowc.packages.${pkgs.system}.default;
+
+  # Wrapper script for mangowc with debugging output
+  mangoWrapper = pkgs.writeShellScriptBin "mango-wrapped" ''
     set -euo pipefail
 
     # Log all output for debugging over SSH
-    LOG_FILE="$HOME/.local/state/hyprland-debug.log"
+    LOG_FILE="$HOME/.local/state/mango-debug.log"
     mkdir -p "$(dirname "$LOG_FILE")"
 
     {
-      echo "=== Hyprland session started at $(date) ==="
+      echo "=== Mangowc session started at $(date) ==="
       echo "Environment:"
       env | grep -E "(WAYLAND|XDG_SESSION|DISPLAY)" || true
       echo ""
-      echo "=== Hyprland output ==="
+      echo "=== Mangowc output ==="
     } >> "$LOG_FILE" 2>&1
 
-    ${pkgs.hyprland}/bin/Hyprland "''${@}" >> "$LOG_FILE" 2>&1 || {
+    ${mangoPackage}/bin/mango "''${@}" >> "$LOG_FILE" 2>&1 || {
       EXIT_CODE=$?
-      echo "Hyprland exited with code $EXIT_CODE at $(date)" >> "$LOG_FILE" 2>&1
+      echo "Mangowc exited with code $EXIT_CODE at $(date)" >> "$LOG_FILE" 2>&1
       exit $EXIT_CODE
     }
   '';
@@ -68,7 +71,7 @@ in
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --time-format '%R' --user-menu --remember  --theme '${tuigreetTheme}' --cmd ${hyprlandWrapper}/bin/hyprland-wrapped";
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --time-format '%R' --user-menu --remember --theme '${tuigreetTheme}' --cmd ${mangoWrapper}/bin/mango-wrapped";
         user = "greeter";
       };
     };

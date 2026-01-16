@@ -19,7 +19,7 @@ in
 
   programs.waybar = {
     enable = true;
-    systemd.enable = true;
+    systemd.enable = false; # Started by mangowc autostart
 
     settings = {
       mainBar = {
@@ -34,9 +34,9 @@ in
 
         modules-left = [
           "custom/logo"
-          "hyprland/window"
+          "dwl/window#window"
         ];
-        modules-center = [ "hyprland/workspaces" ];
+        modules-center = [ "dwl/tags" ];
         modules-right = [
           "pulseaudio"
           "custom/sep"
@@ -53,45 +53,31 @@ in
         ];
 
         "custom/logo" = {
-          format = "󰣇";
+          format = "";
           tooltip = false;
         };
 
         "custom/sep" = {
-          format = "•";
+          format = "|";
           tooltip = false;
         };
 
-        "hyprland/workspaces" = {
-          format = "{icon}";
-          format-icons = {
-            "1" = "1";
-            "2" = "2";
-            "3" = "3";
-            "4" = "4";
-            "5" = "5";
-            "6" = "6";
-            "7" = "7";
-            "8" = "8";
-            "9" = "9";
-            active = "{id}";
-            urgent = "!";
-            default = "{id}";
-          };
-          on-click = "activate";
-          sort-by-number = true;
-          active-only = false;
-          all-outputs = true;
+        # DWL/Mango tags (workspaces)
+        "dwl/tags" = {
+          num-tags = 5;
+          tag-labels = [
+            "1"
+            "2"
+            "C"
+            "E"
+            "M"
+          ];
         };
 
-        "hyprland/window" = {
+        # DWL/Mango window title
+        "dwl/window#window" = {
           format = "{}";
           max-length = 40;
-          separate-outputs = true;
-          rewrite = {
-            "(.*) — Mozilla Firefox" = "Firefox";
-            "(.*) - Visual Studio Code" = "VSCode";
-          };
         };
 
         clock = {
@@ -163,7 +149,7 @@ in
 
       /* All modules get consistent styling */
       #custom-logo,
-      #workspaces,
+      #tags,
       #window,
       #clock,
       #clock.utc,
@@ -186,33 +172,46 @@ in
         padding: 0 4px;
       }
 
-      /* Workspaces */
-      #workspaces {
+      /* Tags (workspaces) - sketchybar style */
+      #tags {
         padding: 0 4px;
       }
 
-      #workspaces button {
+      #tags button {
         padding: 0 8px;
         color: #${c semanticColors.foreground.muted};
         background: transparent;
         border: none;
         border-radius: 6px;
         margin: 4px 2px;
-        min-width: 20px;
+        min-width: 24px;
       }
 
-      #workspaces button:hover {
+      #tags button:hover {
         background: #${c semanticColors.background.secondary};
         color: #${c semanticColors.foreground.primary};
       }
 
-      #workspaces button.active {
+      /* Focused tag - {1} style like sketchybar */
+      #tags button.focused {
         color: #${c semanticColors.accent.primary};
         background: #${c semanticColors.background.secondary};
       }
 
-      #workspaces button.urgent {
+      #tags button.focused::before {
+        content: "{";
+      }
+
+      #tags button.focused::after {
+        content: "}";
+      }
+
+      #tags button.urgent {
         color: #${c semanticColors.semantic.error};
+      }
+
+      #tags button.occupied {
+        color: #${c semanticColors.foreground.primary};
       }
 
       /* Window title */

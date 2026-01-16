@@ -1,7 +1,7 @@
 {
   imports = [
     ./compositor.nix
-    ./hyprland.nix
+    ./mangowc.nix
     ./login.nix
   ];
 }

@@ -138,12 +138,16 @@
           home-manager.nixosModules.home-manager
 
           stylix.nixosModules.stylix
+          inputs.mangowc.nixosModules.mango
           (import ../modules/nixos/home-manager.nix {
             inherit values inputs;
             inherit utils;
           })
           {
             documentation.enable = false;
+            home-manager.sharedModules = [
+              inputs.mangowc.hmModules.mango
+            ];
           }
         ]
         ++ lib.optionals (values.nix.gaming.enable && nix-gaming != null) [
