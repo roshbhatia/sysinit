@@ -17,7 +17,6 @@ in
 {
   # Disable Stylix for apps using custom theming
   stylix.targets = {
-    mango.enable = lib.mkDefault false;
     waybar.enable = false;
     fuzzel.enable = false;
     mako.enable = false;
