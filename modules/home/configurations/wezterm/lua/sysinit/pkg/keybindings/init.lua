@@ -96,7 +96,6 @@ local function get_system_keys()
     { key = "q", mods = "SUPER", action = act.QuitApplication },
     { key = ";", mods = "CTRL", action = act.ActivateCommandPalette },
     { key = "l", mods = "CTRL|SHIFT", action = act.ShowDebugOverlay },
-    { key = "r", mods = "CTRL|SHIFT", action = act.ReloadConfiguration },
     {
       key = "k",
       mods = "SUPER",
@@ -159,11 +158,6 @@ local function get_search_keys()
     { key = "Escape", mods = "CTRL", action = act.ActivateCopyMode },
     { key = "/", mods = "CTRL", action = act.Search("CurrentSelectionOrEmptyString") },
     { key = "f", mods = "CTRL", action = act.PaneSelect },
-    {
-      key = "r",
-      mods = "CTRL",
-      action = create_passthrough_action("r", "CTRL", act.ReloadConfiguration, VIM_PROCESSES),
-    },
   }
 end
 
