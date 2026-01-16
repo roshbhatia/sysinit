@@ -4,8 +4,8 @@ let
   appMetadata = {
     wezterm = {
       catppuccin = {
-        latte = "Catppuccin Latte (Gogh)";
-        macchiato = "Catppuccin Macchiato (Gogh)";
+        latte = "Catppuccin Latte";
+        macchiato = "Catppuccin Macchiato";
       };
       "rose-pine" = {
         dawn = "Rosé Pine Dawn (base16)";
