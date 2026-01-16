@@ -16,6 +16,7 @@
     ./eza
     ./fd
     ./fzf
+    ./ghostty
     ./git
     ./helix
     ./hushlogin
