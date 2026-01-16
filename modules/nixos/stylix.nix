@@ -1,15 +1,10 @@
-{
-  pkgs,
-  values,
-  ...
-}:
+# Theming: Stylix configuration with centralized target management
+{ pkgs, values, ... }:
 
 let
   themeConfig = values.theme;
-  polarityValue = themeConfig.appearance;
-  monospaceFontName = themeConfig.font.monospace;
-  # Map custom colorschemes to base16-schemes equivalents for GTK theming
-  # Most apps use custom theming, so this is just for GTK apps
+
+  # Map custom colorschemes to base16-schemes for GTK
   base16Scheme =
     if themeConfig.colorscheme == "black-metal" then
       "black-metal"
@@ -28,13 +23,11 @@ in
     autoEnable = true;
     enableReleaseChecks = false;
 
-    polarity = polarityValue;
+    polarity = themeConfig.appearance;
     base16Scheme = "${pkgs.base16-schemes}/share/themes/${base16Scheme}.yaml";
 
     fonts = {
-      monospace = {
-        name = monospaceFontName;
-      };
+      monospace.name = themeConfig.font.monospace;
       sansSerif = {
         name = "DejaVu Sans";
         package = pkgs.dejavu_fonts;
@@ -58,8 +51,7 @@ in
       popups = themeConfig.transparency.opacity;
     };
 
-    targets = {
-      gtk.enable = true;
-    };
+    # Only enable GTK theming - disable others (we use custom theming)
+    targets.gtk.enable = true;
   };
 }

@@ -1,3 +1,4 @@
+# Audio: PipeWire, Bluetooth, real-time scheduling
 _:
 
 {
@@ -26,7 +27,6 @@ _:
           "resample.quality" = 7;
         };
       };
-      # Gaming: Real-time priority for better audio performance
       "99-realtime.conf" = {
         "context.modules" = [
           {
@@ -47,8 +47,13 @@ _:
     };
   };
 
+  # Disable PulseAudio (using PipeWire)
+  services.pulseaudio.enable = false;
+
+  # Real-time scheduling
   security.rtkit.enable = true;
 
+  # Bluetooth
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
 

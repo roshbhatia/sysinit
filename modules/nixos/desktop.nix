@@ -1,3 +1,4 @@
+# Desktop: display manager, Wayland, XDG portals, mangowc
 {
   pkgs,
   lib,
@@ -7,14 +8,12 @@
 }:
 
 let
-  themes = import ../../../shared/lib/theme { inherit lib; };
+  themes = import ../shared/lib/theme { inherit lib; };
   semanticColors = themes.getSemanticColors values.theme.colorscheme values.theme.variant;
 
-  # Convert hex to color name or fallback to hex
   colorToTuigreetTheme =
     color:
     let
-      # Map hex colors to common ANSI color names
       colorMap = {
         "000000" = "black";
         "ffffff" = "white";
@@ -31,30 +30,17 @@ let
 
   mangoPackage = inputs.mangowc.packages.${pkgs.system}.default;
 
-  # Wrapper script for mangowc with debugging output
   mangoWrapper = pkgs.writeShellScriptBin "mango-wrapped" ''
     set -euo pipefail
-
-    # Log all output for debugging over SSH
     LOG_FILE="$HOME/.local/state/mango-debug.log"
     mkdir -p "$(dirname "$LOG_FILE")"
-
     {
       echo "=== Mangowc session started at $(date) ==="
-      echo "Environment:"
       env | grep -E "(WAYLAND|XDG_SESSION|DISPLAY)" || true
-      echo ""
-      echo "=== Mangowc output ==="
     } >> "$LOG_FILE" 2>&1
-
-    ${mangoPackage}/bin/mango "''${@}" >> "$LOG_FILE" 2>&1 || {
-      EXIT_CODE=$?
-      echo "Mangowc exited with code $EXIT_CODE at $(date)" >> "$LOG_FILE" 2>&1
-      exit $EXIT_CODE
-    }
+    ${mangoPackage}/bin/mango "''${@}" >> "$LOG_FILE" 2>&1 || exit $?
   '';
 
-  # Build tuigreet theme string from semantic colors
   tuigreetTheme =
     "text=${colorToTuigreetTheme semanticColors.foreground.primary};"
     + "container=${colorToTuigreetTheme semanticColors.background.primary};"
@@ -67,13 +53,45 @@ let
     + "greet=${colorToTuigreetTheme semanticColors.foreground.primary}";
 in
 {
+  # Disable X server, enable dbus
+  services.xserver.enable = false;
+  services.dbus.enable = true;
+
+  # Mangowc compositor
+  programs.mango.enable = true;
+
+  environment.sessionVariables = {
+    WLR_NO_HARDWARE_CURSORS = "1";
+    XDG_CURRENT_DESKTOP = "mango";
+  };
+
+  # Login manager (greetd + tuigreet)
   services.greetd = {
     enable = true;
-    settings = {
-      default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --time-format '%R' --user-menu --remember --theme '${tuigreetTheme}' --cmd ${mangoWrapper}/bin/mango-wrapped";
-        user = "greeter";
-      };
+    settings.default_session = {
+      command = "${pkgs.tuigreet}/bin/tuigreet --time --time-format '%R' --user-menu --remember --theme '${tuigreetTheme}' --cmd ${mangoWrapper}/bin/mango-wrapped";
+      user = "greeter";
     };
+  };
+
+  # XDG portals for Wayland
+  xdg.terminal-exec = {
+    enable = true;
+    package = pkgs.xdg-terminal-exec-mkhl;
+    settings.default = [ "org.wezfurlong.wezterm.desktop" ];
+  };
+
+  xdg.portal = {
+    enable = true;
+    xdgOpenUsePortal = true;
+    wlr.enable = true;
+    config.common.default = [
+      "wlr"
+      "gtk"
+    ];
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-gtk
+      xdg-desktop-portal-wlr
+    ];
   };
 }

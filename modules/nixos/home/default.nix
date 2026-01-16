@@ -1,5 +1,4 @@
+# NixOS home-manager configuration
 {
-  imports = [
-    ./configurations
-  ];
+  imports = [ ./desktop.nix ];
 }
