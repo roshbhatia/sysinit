@@ -101,7 +101,7 @@ M.plugins = {
         {
           "<leader>x",
           function()
-            vim.cmd("xit")
+            vim.cmd("!silent xit")
           end,
           mode = { "n" },
           desc = "Close pane",
