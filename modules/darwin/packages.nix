@@ -1,7 +1,5 @@
-{
-  values,
-  ...
-}:
+# Darwin packages: Homebrew
+{ values, ... }:
 
 let
   additionalTaps = values.darwin.homebrew.additionalPackages.taps;
@@ -48,10 +46,6 @@ let
     "raycast"
     "slack"
   ];
-
-  allTaps = baseTaps ++ additionalTaps;
-  allBrews = baseBrews ++ additionalBrews;
-  allCasks = baseCasks ++ additionalCasks;
 in
 {
   nix-homebrew = {
@@ -74,9 +68,8 @@ in
       lockfiles = true;
       autoUpdate = true;
     };
-
-    taps = allTaps;
-    brews = allBrews;
-    casks = allCasks;
+    taps = baseTaps ++ additionalTaps;
+    brews = baseBrews ++ additionalBrews;
+    casks = baseCasks ++ additionalCasks;
   };
 }

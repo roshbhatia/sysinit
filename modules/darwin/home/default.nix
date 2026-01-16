@@ -1,5 +1,7 @@
+# Darwin home-manager configuration
 {
   imports = [
-    ./configurations
+    ./desktop.nix
+    ./configurations/firefox # Keep firefox separate - it's large
   ];
 }

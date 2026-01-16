@@ -1,9 +1,17 @@
+# Darwin configuration entry point
 { pkgs, config, ... }:
+
 {
   imports = [
+    ./system.nix
+    ./desktop.nix
+    ./security.nix
+    ./services.nix
+    ./aerospace.nix
+    ./sketchybar.nix
+    ./stylix.nix
+    ./packages.nix
     ./home-manager.nix
-    ./configurations
-    ./packages
   ];
 
   system.build.applications = pkgs.buildEnv {

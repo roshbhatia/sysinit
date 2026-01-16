@@ -1,7 +1,6 @@
-{
-  pkgs,
-  ...
-}:
+# Darwin aerospace: tiling window manager
+{ pkgs, ... }:
+
 {
   services.aerospace = {
     enable = true;
@@ -133,58 +132,41 @@
           run = [ "layout floating" ];
         }
       ];
-      mode = {
-        main = {
-          binding = {
-            alt-enter = ''
-              exec-and-forget osascript -e '
-                tell application "WezTerm"
-                  activate
-                end tell'
-            '';
 
-            alt-t = "layout tiles horizontal vertical";
-            alt-a = "layout accordion horizontal vertical";
-
-            alt-h = "focus left";
-            alt-j = "focus down";
-            alt-k = "focus up";
-            alt-l = "focus right";
-
-            alt-cmd-h = "move left";
-            alt-cmd-j = "move down";
-            alt-cmd-k = "move up";
-            alt-cmd-l = "move right";
-
-            alt-shift-h = "resize width -72";
-            alt-shift-j = "resize height -72";
-            alt-shift-k = "resize height +72";
-            alt-shift-l = "resize width +72";
-
-            alt-1 = "workspace 1";
-            alt-2 = "workspace 2";
-            alt-c = "workspace C";
-            alt-e = "workspace E";
-            alt-m = "workspace M";
-
-            alt-tab = "workspace --wrap-around next";
-            alt-shift-tab = "workspace --wrap-around prev";
-            alt-p = "workspace-back-and-forth";
-
-            alt-shift-1 = "move-node-to-workspace 1 --focus-follows-window";
-            alt-shift-2 = "move-node-to-workspace 2 --focus-follows-window";
-            alt-shift-c = "move-node-to-workspace C --focus-follows-window";
-            alt-shift-e = "move-node-to-workspace E --focus-follows-window";
-            alt-shift-m = "move-node-to-workspace M --focus-follows-window";
-
-            alt-f = "fullscreen";
-
-            alt-esc = [
-              "reload-config"
-              "mode main"
-            ];
-          };
-        };
+      mode.main.binding = {
+        alt-enter = ''exec-and-forget osascript -e 'tell application "WezTerm" to activate' '';
+        alt-t = "layout tiles horizontal vertical";
+        alt-a = "layout accordion horizontal vertical";
+        alt-h = "focus left";
+        alt-j = "focus down";
+        alt-k = "focus up";
+        alt-l = "focus right";
+        alt-cmd-h = "move left";
+        alt-cmd-j = "move down";
+        alt-cmd-k = "move up";
+        alt-cmd-l = "move right";
+        alt-shift-h = "resize width -72";
+        alt-shift-j = "resize height -72";
+        alt-shift-k = "resize height +72";
+        alt-shift-l = "resize width +72";
+        alt-1 = "workspace 1";
+        alt-2 = "workspace 2";
+        alt-c = "workspace C";
+        alt-e = "workspace E";
+        alt-m = "workspace M";
+        alt-tab = "workspace --wrap-around next";
+        alt-shift-tab = "workspace --wrap-around prev";
+        alt-p = "workspace-back-and-forth";
+        alt-shift-1 = "move-node-to-workspace 1 --focus-follows-window";
+        alt-shift-2 = "move-node-to-workspace 2 --focus-follows-window";
+        alt-shift-c = "move-node-to-workspace C --focus-follows-window";
+        alt-shift-e = "move-node-to-workspace E --focus-follows-window";
+        alt-shift-m = "move-node-to-workspace M --focus-follows-window";
+        alt-f = "fullscreen";
+        alt-esc = [
+          "reload-config"
+          "mode main"
+        ];
       };
     };
   };

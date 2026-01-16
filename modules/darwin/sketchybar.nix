@@ -1,16 +1,11 @@
-{
-  pkgs,
-  ...
-}:
+# Darwin sketchybar: status bar service and monitor reload
+{ pkgs, ... }:
+
 let
   menus = pkgs.stdenv.mkDerivation {
     name = "menus";
-    src = ../../../darwin/home/configurations/sketchybar/helpers/menus;
-
-    buildPhase = ''
-      make
-    '';
-
+    src = ./home/configurations/sketchybar/helpers/menus;
+    buildPhase = "make";
     installPhase = ''
       mkdir -p $out/bin
       cp ./bin/menus $out/bin/
@@ -19,7 +14,6 @@ let
 
   monitor-reload-script = pkgs.writeShellScript "sketchybar-monitor-reload" ''
     set -euo pipefail
-
     HOME="''${HOME:-/Users/$(whoami)}"
     CACHE_DIR="''${XDG_CACHE_HOME:-$HOME/.cache}/sketchybar"
     PREV_HASH_FILE="$CACHE_DIR/monitor-hash"
@@ -42,17 +36,8 @@ let
 
     if [ "$current_hash" != "$prev_hash" ]; then
         echo "[$(${pkgs.coreutils}/bin/date '+%Y-%m-%d %H:%M:%S')] Monitor configuration changed" >> "$LOG_FILE"
-        echo "Previous hash: $prev_hash" >> "$LOG_FILE"
-        echo "Current hash:  $current_hash" >> "$LOG_FILE"
-        echo "Monitor list:" >> "$LOG_FILE"
-        echo "$current_monitors" | ${pkgs.gnused}/bin/sed 's/^/  /' >> "$LOG_FILE"
-
         if ${pkgs.sketchybar}/bin/sketchybar --reload 2>>"$LOG_FILE"; then
-            echo "[$(${pkgs.coreutils}/bin/date '+%Y-%m-%d %H:%M:%S')] Sketchybar reload successful" >> "$LOG_FILE"
             echo "$current_hash" > "$PREV_HASH_FILE"
-        else
-            echo "[$(${pkgs.coreutils}/bin/date '+%Y-%m-%d %H:%M:%S')] ERROR: Sketchybar reload failed" >> "$LOG_FILE"
-            exit 1
         fi
     fi
   '';
@@ -74,22 +59,20 @@ in
       StartInterval = 5;
       StandardOutPath = "/tmp/sketchybar-reload.log";
       StandardErrorPath = "/tmp/sketchybar-reload.error.log";
-      EnvironmentVariables = {
-        PATH = "${
-          pkgs.lib.makeBinPath [
-            pkgs.aerospace
-            pkgs.sketchybar
-            pkgs.coreutils
-            pkgs.gnused
-          ]
-        }:/usr/bin:/bin";
-      };
+      EnvironmentVariables.PATH = "${
+        pkgs.lib.makeBinPath [
+          pkgs.aerospace
+          pkgs.sketchybar
+          pkgs.coreutils
+          pkgs.gnused
+        ]
+      }:/usr/bin:/bin";
     };
   };
 
-  environment.systemPackages = with pkgs; [
-    sbarlua
-    lua54Packages.cjson
+  environment.systemPackages = [
+    pkgs.sbarlua
+    pkgs.lua54Packages.cjson
     menus
   ];
 }

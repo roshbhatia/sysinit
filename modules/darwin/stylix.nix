@@ -1,15 +1,19 @@
-{
-  pkgs,
-  values,
-  ...
-}:
+# Darwin stylix: theming
+{ pkgs, values, ... }:
 
 let
   themeConfig = values.theme;
-  polarityValue = themeConfig.appearance;
-  monospaceFontName = themeConfig.font.monospace;
-  base16Scheme = "catppuccin-mocha";
-
+  base16Scheme =
+    if themeConfig.colorscheme == "black-metal" then
+      "black-metal"
+    else if themeConfig.colorscheme == "rose-pine" then
+      "rose-pine-moon"
+    else if themeConfig.colorscheme == "gruvbox" then
+      "gruvbox-dark-hard"
+    else if themeConfig.colorscheme == "catppuccin" then
+      "catppuccin-mocha"
+    else
+      "default-dark";
 in
 {
   stylix = {
@@ -17,13 +21,11 @@ in
     autoEnable = true;
     enableReleaseChecks = false;
 
-    polarity = polarityValue;
+    polarity = themeConfig.appearance;
     base16Scheme = "${pkgs.base16-schemes}/share/themes/${base16Scheme}.yaml";
 
     fonts = {
-      monospace = {
-        name = monospaceFontName;
-      };
+      monospace.name = themeConfig.font.monospace;
       sansSerif = {
         name = "DejaVu Sans";
         package = pkgs.dejavu_fonts;
@@ -47,8 +49,6 @@ in
       popups = themeConfig.transparency.opacity;
     };
 
-    targets = {
-      jankyborders.enable = true;
-    };
+    targets.jankyborders.enable = true;
   };
 }
