@@ -29,19 +29,16 @@ with lib;
                   "light"
                 ]
               );
-              default = [ "dark" ];
               description = "Supported appearance modes";
             };
 
             author = mkOption {
               type = types.str;
-              default = "";
               description = "Theme author";
             };
 
             homepage = mkOption {
               type = types.str;
-              default = "";
               description = "Theme homepage URL";
             };
           };
@@ -129,7 +126,6 @@ with lib;
 
       extended = mkOption {
         type = types.attrsOf types.str;
-        default = { };
         description = "Theme-specific extended colors";
       };
     };
@@ -139,19 +135,16 @@ with lib;
     options = {
       enable = mkOption {
         type = types.bool;
-        default = false;
         description = "Enable transparency effects";
       };
 
       opacity = mkOption {
         type = types.float;
-        default = 0.7;
         description = "Opacity level (0.0 - 1.0)";
       };
 
       blur = mkOption {
         type = types.int;
-        default = 64;
         description = "Blur amount for background";
       };
     };
@@ -171,19 +164,16 @@ with lib;
 
       transparency = mkOption {
         type = transparencyType;
-        default = { };
         description = "Transparency configuration";
       };
 
       presets = mkOption {
         type = types.listOf types.str;
-        default = [ ];
         description = "Applied theme presets";
       };
 
       overrides = mkOption {
         type = types.attrs;
-        default = { };
         description = "User-defined color overrides";
       };
     };

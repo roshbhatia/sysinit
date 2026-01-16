@@ -128,8 +128,8 @@ task: Available tasks for this project:
 | `theme.colorscheme` | string | - | ✓ | Theme colorscheme |
 | `theme.font.monospace` | string | "TX-02" |  | Monospace font for terminal and editor |
 | `theme.font.symbols` | string | "Symbols Nerd Font" |  | Fallback font for nerd font glyphs |
-| `theme.transparency.blur` | integer | `65` |  | Background blur amount |
-| `theme.transparency.opacity` | float | `0.775` |  | Transparency opacity level |
+| `theme.transparency.blur` | integer | `70` |  | Background blur amount |
+| `theme.transparency.opacity` | float | `0.8` |  | Transparency opacity level |
 | `theme.variant` | string | - | ✓ | Theme variant |
 | `user.username` | string | "user" |  | Username for the system user |
 | `uvx.additionalPackages` | list(string) | [] |  | Additional global uvx packages |
