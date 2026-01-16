@@ -1,14 +1,9 @@
 {
   pkgs,
+  values,
   ...
 }:
 
-let
-  cursorTailShader = pkgs.fetchurl {
-    url = "https://raw.githubusercontent.com/sahaj-b/ghostty-cursor-shaders/main/cursor_tail.glsl";
-    sha256 = "1g9vsbsxnvcj0y6rzdkxrd4mj0ldl9aha7381g8nfs3bz829y46w";
-  };
-in
 {
   stylix.targets.ghostty.enable = true;
 
@@ -23,13 +18,12 @@ in
       window-padding-x = 2;
       window-padding-y = 2;
 
-      custom-shader = "${cursorTailShader}";
+      background-blur = values.theme.transparency.blur;
 
       keybind = [
         "clear"
+        "ctrl+shift+;=toggle_command_palette"
         "global:alt+enter=toggle_quick_terminal"
-        "super+;=toggle_command_palette"
-        "super+a=select_all"
         "super+c=copy_to_clipboard"
         "super+minus=decrease_font_size:1"
         "super+plus=increase_font_size:1"
