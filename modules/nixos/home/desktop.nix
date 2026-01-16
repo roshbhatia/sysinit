@@ -341,7 +341,10 @@ in
   };
 
   # === Wallpaper ===
-  home.file.".background-image".source = wallpaper;
+  home.file.".background-image" = {
+    source = wallpaper;
+    force = true;
+  };
 
   # === Nemo File Manager ===
   home.file.".local/share/nemo/actions/open-terminal.nemo_action".text = ''
