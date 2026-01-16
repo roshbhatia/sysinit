@@ -94,7 +94,7 @@ local function get_system_keys()
     { key = "m", mods = "SUPER", action = act.Hide },
     { key = "h", mods = "SUPER", action = act.HideApplication },
     { key = "q", mods = "SUPER", action = act.QuitApplication },
-    { key = ";", mods = "CTRL|SHIFT", action = act.ActivateCommandPalette },
+    { key = ";", mods = "CTRL", action = act.ActivateCommandPalette },
     { key = "l", mods = "CTRL|SHIFT", action = act.ShowDebugOverlay },
     { key = "r", mods = "CTRL|SHIFT", action = act.ReloadConfiguration },
     {
