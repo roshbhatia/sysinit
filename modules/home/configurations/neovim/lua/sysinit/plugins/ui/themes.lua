@@ -242,7 +242,7 @@ local function get_everforest_config()
   return {}
 end
 
-local function convert_styles_for_tokyonight(styles)
+local function convert_styles_for_tokyonight()
   -- TokyoNight only supports these style keys
   local supported_keys = {
     comments = true,
@@ -276,7 +276,7 @@ local function get_tokyonight_config()
     style = theme_config.variant,
     transparent = true,
     terminal_colors = true,
-    styles = convert_styles_for_tokyonight(styles),
+    styles = convert_styles_for_tokyonight(),
   }
 end
 

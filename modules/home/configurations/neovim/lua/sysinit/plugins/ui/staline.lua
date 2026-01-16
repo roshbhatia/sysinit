@@ -25,16 +25,16 @@ M.plugins = {
             "file_size",
           },
         },
+        lsp_symbols = {
+          Error = "󰅙 ",
+          Info = "󰋼 ",
+          Warn = "󰀨 ",
+          Hint = " ",
+        },
         defaults = {
           expand_null_ls = false,
           true_colors = true,
           line_column = ":%c [%l/%L]",
-          lsp_symbols = {
-            Error = "󰅙 ",
-            Info = "󰋼 ",
-            Warn = "󰀨 ",
-            Hint = " ",
-          },
           lsp_client_character_length = 40,
           file_size_suffix = true,
           branch_symbol = " ",
