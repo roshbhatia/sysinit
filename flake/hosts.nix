@@ -35,10 +35,11 @@ common:
     values = common.values // {
       nix.gaming.enable = true;
       theme = {
-        colorscheme = "black-metal";
-        variant = "gorgoroth";
+        colorscheme = "rose-pine";
+        variant = "dawn";
+        appearance = "light";
         font = {
-          monospace = "Agave Nerd Font";
+          monospace = "Iosevka Nerd Font";
         };
       };
     };

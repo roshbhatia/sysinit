@@ -33,6 +33,8 @@ in
 
     # Fonts
     nerd-fonts.agave
+    nerd-fonts.iosevka
+    nerd-fonts.symbols-only
 
     # Desktop environment
     fuzzel

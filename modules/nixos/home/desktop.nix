@@ -13,6 +13,11 @@ let
   hexToMango = color: "0x${c color}ff";
   hexToMangoAlpha = color: alpha: "0x${c color}${alpha}";
   inherit (values.theme.transparency) opacity;
+
+  wallpaper = pkgs.fetchurl {
+    url = "https://preview.redd.it/58ugyimgkj661.jpg?auto=webp&s=5db2c277e7e8e8fe7389ff64ea1b9c252fca7e01";
+    sha256 = "1v2yn0aan04rqp70ybv1485isgk9jq0gv5r6lqv1hin6y279pf83";
+  };
 in
 {
   # Disable Stylix for apps using custom theming
@@ -30,7 +35,7 @@ in
     autostart_sh = ''
       ${pkgs.swww}/bin/swww-daemon &
       sleep 1
-      ${pkgs.swww}/bin/swww clear ${c semanticColors.background.primary}
+      ${pkgs.swww}/bin/swww img $HOME/.background-image --transition-type fade --transition-duration 1
       ${pkgs.waybar}/bin/waybar &
       ${pkgs.mako}/bin/mako &
     '';
@@ -61,9 +66,11 @@ in
       focused_opacity = 1.0
       unfocused_opacity = ${toString opacity}
 
-      border_width = 2
-      border_focus_color = ${hexToMango semanticColors.accent.primary}
-      border_normal_color = ${hexToMango semanticColors.background.secondary}
+      borderpx = 2
+      focuscolor = ${hexToMango semanticColors.accent.primary}
+      bordercolor = ${hexToMango semanticColors.background.secondary}
+      rootcolor = ${hexToMango semanticColors.background.primary}
+      urgentcolor = ${hexToMango semanticColors.semantic.error}
 
       # Animation
       animation_type = zoom
@@ -213,8 +220,8 @@ in
         ];
       };
       "dwl/window#window" = {
-        format = "{}";
-        max-length = 40;
+        format = "{title}";
+        max-length = 50;
       };
       clock = {
         format = "{:%H:%M}";
@@ -332,6 +339,9 @@ in
       };
     };
   };
+
+  # === Wallpaper ===
+  home.file.".background-image".source = wallpaper;
 
   # === Nemo File Manager ===
   home.file.".local/share/nemo/actions/open-terminal.nemo_action".text = ''

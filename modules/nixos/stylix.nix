@@ -8,6 +8,8 @@ let
   base16Scheme =
     if themeConfig.colorscheme == "black-metal" then
       "black-metal"
+    else if themeConfig.colorscheme == "rose-pine" && themeConfig.variant == "dawn" then
+      "rose-pine-dawn"
     else if themeConfig.colorscheme == "rose-pine" then
       "rose-pine-moon"
     else if themeConfig.colorscheme == "gruvbox" then
