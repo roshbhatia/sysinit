@@ -11,7 +11,6 @@ M.plugins = {
           "terminal",
         },
         cursor_follows_swapped_bufs = true,
-        float_win_behavior = "mux",
         at_edge = "stop",
       })
     end,
