@@ -3,7 +3,7 @@ local M = {}
 M.plugins = {
   {
     "olimorris/persisted.nvim",
-    event = "VimEnter",
+    event = "BufReadPre",
     config = function()
       vim.o.sessionoptions = "curdir,folds,globals,tabpages,winpos,winsize"
 
