@@ -14,55 +14,53 @@ local function get_music_info()
       return
     end
 
-    sbar.exec("osascript -e 'tell application \"Music\" to get player state as text'", function(state, state_exit)
-      if state_exit ~= 0 then
-        utils.animate_visibility({ music, music_separator }, false)
-        sbar.refresh("music")
-        return
-      end
-
-      local player_state = utils.trim(state)
-      if player_state ~= "playing" then
-        utils.animate_visibility({ music, music_separator }, false)
-        sbar.refresh("music")
-        return
-      end
-
-      sbar.exec(
-        [[osascript -e 'tell application "Music"
-        set trackName to name of current track
-        set trackArtist to artist of current track
-        return trackName & "|" & trackArtist
+    sbar.exec(
+      [[osascript -e 'tell application "Music"
+        set playerState to player state as text
+        try
+          set trackName to name of current track
+          set trackArtist to artist of current track
+          return trackName & "|" & trackArtist & "|" & playerState
+        on error
+          return "||stopped"
+        end try
       end tell']],
-        function(result, info_exit)
-          if info_exit ~= 0 or not result then
-            utils.animate_visibility({ music, music_separator }, false)
-            sbar.refresh("music")
-            return
-          end
-
-          local title, artist = result:match("([^|]+)|([^|]+)")
-          if not title then
-            utils.animate_visibility({ music, music_separator }, false)
-            sbar.refresh("music")
-            return
-          end
-
-          title = utils.truncate(utils.trim(title), 25)
-          artist = utils.truncate(utils.trim(artist), 25)
-
-          utils.animate(function()
-            music:set({
-              icon = { string = "󰐊", color = colors.foreground_primary },
-              label = { string = title .. " x " .. artist, color = colors.foreground_primary },
-              drawing = true,
-            })
-            music_separator:set({ drawing = true })
-            sbar.refresh("music")
-          end)
+      function(result, info_exit)
+        if info_exit ~= 0 or not result then
+          utils.animate_visibility({ music, music_separator }, false)
+          return
         end
-      )
-    end)
+
+        local title, artist, state = result:match("([^|]*)|([^|]*)|([^|]*)")
+        if not title or title == "" then
+          utils.animate_visibility({ music, music_separator }, false)
+          return
+        end
+
+        title = utils.truncate(utils.trim(title), 25)
+        artist = utils.truncate(utils.trim(artist), 25)
+
+        local icon = "󰐊"
+        local label = title .. "  " .. artist
+
+        if state == "paused" then
+          icon = "󰏤"
+          label = title .. "  " .. artist .. " (paused)"
+        elseif state == "stopped" then
+          utils.animate_visibility({ music, music_separator }, false)
+          return
+        end
+
+        utils.animate(function()
+          music:set({
+            icon = { string = icon, color = colors.foreground_primary },
+            label = { string = label, color = colors.foreground_primary },
+            drawing = true,
+          })
+          music_separator:set({ drawing = true })
+        end)
+      end
+    )
   end)
 end
 
@@ -74,7 +72,7 @@ function M.setup()
     background = { drawing = false },
     padding_left = settings.spacing.widget_spacing,
     padding_right = settings.spacing.widget_spacing,
-    update_freq = 0.5,
+    update_freq = 2,
     drawing = false,
   })
 
@@ -86,7 +84,7 @@ function M.setup()
 
   music:subscribe("mouse.clicked", function()
     sbar.exec("osascript -e 'tell application \"Music\" to playpause'")
-    sbar.refresh("music")
+    get_music_info()
   end)
 
   music:subscribe("mouse.scrolled", function(env)
@@ -96,7 +94,7 @@ function M.setup()
     elseif direction == "down" then
       os.execute('osascript -e "tell application \\"Music\\" to set sound volume to (get sound volume) - 10"')
     end
-    sbar.refresh("music")
+    get_music_info()
   end)
 
   music:subscribe("system_woke", function()

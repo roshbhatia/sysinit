@@ -35,7 +35,7 @@ local app_icons = {
   ["Slack"] = "󰒱",
   ["System Preferences"] = "",
   ["System Settings"] = "",
-  ["Terminal"] = "󱅾",
+  ["Wezterm"] = "󱅾",
   ["Xcode"] = "",
   ["Zoom"] = "󰍫",
   ["firefox"] = "",
@@ -49,7 +49,7 @@ local app_display_names = {
   ["MicrosoftOutlook"] = "Outlook",
   ["Visual Studio Code"] = "VS Code",
   ["firefox"] = "Firefox",
-  ["wezterm-gui"] = "Terminal",
+  ["wezterm-gui"] = "Wezterm",
   ["zoom.us"] = "Zoom",
 }
 
