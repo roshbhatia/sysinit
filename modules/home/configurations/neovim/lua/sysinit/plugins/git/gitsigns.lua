@@ -100,7 +100,7 @@ M.plugins = {
           mode = "n",
         },
         {
-          "<leader>dh",
+          "<leader>ghp",
           function()
             require("gitsigns").preview_hunk_inline()
           end,
@@ -108,7 +108,7 @@ M.plugins = {
           mode = "n",
         },
         {
-          "<leader>dq",
+          "<leader>ghq",
           function()
             require("gitsigns").setqflist("all")
           end,

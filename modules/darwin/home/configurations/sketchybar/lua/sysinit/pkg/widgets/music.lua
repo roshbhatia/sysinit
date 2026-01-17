@@ -17,12 +17,14 @@ local function get_music_info()
     sbar.exec("osascript -e 'tell application \"Music\" to get player state as text'", function(state, state_exit)
       if state_exit ~= 0 then
         utils.animate_visibility({ music, music_separator }, false)
+        sbar.refresh("music")
         return
       end
 
       local player_state = utils.trim(state)
       if player_state ~= "playing" then
         utils.animate_visibility({ music, music_separator }, false)
+        sbar.refresh("music")
         return
       end
 
@@ -35,12 +37,14 @@ local function get_music_info()
         function(result, info_exit)
           if info_exit ~= 0 or not result then
             utils.animate_visibility({ music, music_separator }, false)
+            sbar.refresh("music")
             return
           end
 
           local title, artist = result:match("([^|]+)|([^|]+)")
           if not title then
             utils.animate_visibility({ music, music_separator }, false)
+            sbar.refresh("music")
             return
           end
 
@@ -54,6 +58,7 @@ local function get_music_info()
               drawing = true,
             })
             music_separator:set({ drawing = true })
+            sbar.refresh("music")
           end)
         end
       )
@@ -69,7 +74,7 @@ function M.setup()
     background = { drawing = false },
     padding_left = settings.spacing.widget_spacing,
     padding_right = settings.spacing.widget_spacing,
-    update_freq = 1,
+    update_freq = 0.5,
     drawing = false,
   })
 
@@ -77,6 +82,21 @@ function M.setup()
 
   music:subscribe("routine", function()
     get_music_info()
+  end)
+
+  music:subscribe("mouse.clicked", function()
+    sbar.exec("osascript -e 'tell application \"Music\" to playpause'")
+    sbar.refresh("music")
+  end)
+
+  music:subscribe("mouse.scrolled", function(env)
+    local direction = env.SCROLL_DIRECTION
+    if direction == "up" then
+      os.execute('osascript -e "tell application \\"Music\\" to set sound volume to (get sound volume) + 10"')
+    elseif direction == "down" then
+      os.execute('osascript -e "tell application \\"Music\\" to set sound volume to (get sound volume) - 10"')
+    end
+    sbar.refresh("music")
   end)
 
   music:subscribe("system_woke", function()
