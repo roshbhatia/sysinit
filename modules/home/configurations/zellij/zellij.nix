@@ -51,7 +51,7 @@ in
 
       keybinds clear-defaults=true {
           normal {
-              bind "Super k" { Clear; }
+              bind "Super k" { Write 12; }
               bind "Ctrl /" { SwitchToMode "entersearch"; SearchInput 0; }
               bind "Ctrl 1" { GoToTab 1; }
               bind "Ctrl 2" { GoToTab 2; }
