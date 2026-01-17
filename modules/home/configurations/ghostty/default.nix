@@ -26,13 +26,16 @@
         "clear"
         "global:alt+enter=toggle_quick_terminal"
         "super+;=toggle_command_palette"
+        "super+a=select_all"
         "super+c=copy_to_clipboard"
         "super+minus=decrease_font_size:1"
+        "super+n=new_window"
         "super+plus=increase_font_size:1"
         "super+q=quit"
-        "super+n=new_window"
         "super+v=paste_from_clipboard"
         "super+w=close_surface"
+        "super+z=undo"
+        "super+shift+z=redo"
       ];
     };
   };

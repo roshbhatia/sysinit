@@ -24,11 +24,12 @@ in
 
     settings = {
       copy_on_select = true;
+      default_mode = "normal";
       mouse_mode = true;
-      show_startup_tips = false;
+      pane_frames = false;
       scroll_buffer_size = 100000;
       scrollback_editor = "${pkgs.neovim}/bin/nvim";
-      default_mode = "normal";
+      show_startup_tips = false;
     };
 
     extraConfig = ''
@@ -40,7 +41,7 @@ in
               bind "Super k" { Write 12; }
 
               bind "Ctrl /" { SwitchToMode "entersearch"; SearchInput 0; }
-              bind "Ctrl [" { SwitchToMode "scroll"; }
+              bind "Ctrl Esc" { EditScrollback; SwitchToMode "normal"; }
               bind "Ctrl ;" {
                   LaunchOrFocusPlugin "session-manager" {
                       floating true
@@ -92,22 +93,17 @@ in
               bind "Ctrl g" { SwitchToMode "normal"; }
           }
 
-          scroll {
-              bind "g" { ScrollToTop; }
-              bind "Shift g" { ScrollToBottom; }
-              bind "j" { ScrollDown; }
-              bind "k" { ScrollUp; }
-              bind "/" { SwitchToMode "entersearch"; SearchInput 0; }
-              bind "Ctrl /" { SwitchToMode "search"; SearchInput 0; }
-              bind "e" { EditScrollback; SwitchToMode "normal"; }
-          }
-
           search {
               bind "Shift n" { Search "up"; }
-              bind "n" { Search "down"; }
               bind "c" { SearchToggleOption "CaseSensitivity"; }
+              bind "d" { HalfPageScrollDown; }
+              bind "esc" { ScrollToBottom; SwitchToMode "normal"; }
+              bind "j" { ScrollDown; }
+              bind "k" { ScrollUp; }
+              bind "n" { Search "down"; }
               bind "o" { SearchToggleOption "Wrap"; }
               bind "p" { Search "up"; }
+              bind "u" { HalfPageScrollUp; }
               bind "w" { SearchToggleOption "WholeWord"; }
           }
 
@@ -168,14 +164,6 @@ in
                       floating false
                   }
               }
-          }
-
-          shared_among "scroll" "search" {
-              bind "d" { HalfPageScrollDown; }
-              bind "j" { ScrollDown; }
-              bind "k" { ScrollUp; }
-              bind "u" { HalfPageScrollUp; }
-              bind "esc" { ScrollToBottom; SwitchToMode "normal"; }
           }
       }
     '';
