@@ -13,14 +13,14 @@
 
     settings = {
       background-blur = values.theme.transparency.blur;
-      window-padding-x = 2;
+      window-padding-x = 4;
       window-padding-y = 2;
       window-padding-balance = true;
 
       macos-hidden = "always";
       macos-titlebar-style = "hidden";
 
-      command = "${pkgs.zellij}/bin/zellij attach -c --index 0";
+      command = "${pkgs.zellij}/bin/zellij";
 
       keybind = [
         "clear"
