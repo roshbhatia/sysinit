@@ -189,7 +189,7 @@ in
                     plugin location="file:${zjstatusWasm}" {
                         format_left   "#[fg=4,bold]{session} #[fg=8]{tabs}"
                         format_center "{mode}"
-                        format_right  "#[fg=8]"󰄚 {command_hostname}{"
+                        format_right  "#[fg=8]"󰄚 {command_hostname}"
                         format_space  ""
 
                         mode_normal        "#[fg=2]NORMAL"
