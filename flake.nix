@@ -24,7 +24,7 @@
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
 
     stylix = {
-      url = "github:danth/stylix";
+      url = "github:nix-community/stylix/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
