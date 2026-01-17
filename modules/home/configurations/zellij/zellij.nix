@@ -187,16 +187,16 @@ in
                 children
                 pane size=1 borderless=true {
                     plugin location="file:${zjstatusWasm}" {
-                        format_left   "#[fg=4,bold]{session} #[fg=8]{tabs}"
+                        format_left   "#[fg=4,bold]󰓥 {session} #[fg=8]{tabs}"
                         format_center "{mode}"
-                        format_right  "#[fg=8]"󰄚 {command_hostname}"
+                        format_right  "#[fg=8]󰄚 {command_hostname}"
                         format_space  ""
 
-                        mode_normal        "#[fg=2]NORMAL"
-                        mode_locked        "#[fg=1,bold]│ LOCKED│"
-                        mode_scroll        "#[fg=5,bold]│ SCROLL│"
-                        mode_enter_search  "#[fg=4,bold]│ SEARCH│"
-                        mode_search        "#[fg=4,bold]│ SEARCH│"
+                        mode_normal        "#[fg=2]│ NORMAL │"
+                        mode_locked        "#[fg=1,bold]│  LOCKED │"
+                        mode_scroll        "#[fg=5,bold]│  SCROLL │"
+                        mode_enter_search  "#[fg=4,bold]│  SEARCH │"
+                        mode_search        "#[fg=4,bold]│  SEARCH │"
 
                         tab_normal              "#[fg=8] {name}{fullscreen_indicator}{floating_indicator}{sync_indicator}"
                         tab_active              "#[fg=4,bold] {name}{fullscreen_indicator}{floating_indicator}{sync_indicator}"
