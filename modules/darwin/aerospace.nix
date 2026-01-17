@@ -131,15 +131,10 @@
           };
           run = [ "layout floating" ];
         }
-        {
-          "if" = {
-            app-id = "com.mitchellh.ghostty";
-          };
-          run = [ "layout tiling" ];
-        }
       ];
 
       mode.main.binding = {
+        alt-enter = ''exec-and-forget osascript -e 'tell application "WezTerm" to activate' '';
         alt-t = "layout tiles horizontal vertical";
         alt-a = "layout accordion horizontal vertical";
         alt-h = "focus left";

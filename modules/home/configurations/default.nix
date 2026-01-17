@@ -16,7 +16,6 @@
     ./eza
     ./fd
     ./fzf
-    ./ghostty
     ./git
     ./helix
     ./hushlogin
@@ -32,7 +31,6 @@
     ./vivid
     ./wezterm
     ./yazi
-    ./zellij
     ./zoxide
     ./zsh
   ];
