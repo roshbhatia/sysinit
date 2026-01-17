@@ -258,11 +258,6 @@ in
                         format_right  "#[bg=2,fg=0] {swap_layout} │ {datetime} "
                         format_space  "#[bg=2]"
 
-                        border_enabled  "true"
-                        border_char     "─"
-                        border_format   "#[fg=3]"
-                        border_position "top"
-
                         mode_normal        "#[bg=2,fg=2]│#[bg=2,fg=0] NORMAL "
                         mode_locked        "#[bg=2,fg=2]│#[bg=1,fg=0] LOCKED "
                         mode_resize        "#[bg=2,fg=2]│#[bg=5,fg=0] RESIZE "
