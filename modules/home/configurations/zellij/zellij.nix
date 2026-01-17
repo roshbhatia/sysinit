@@ -187,6 +187,12 @@ in
                 children
                 pane size=1 borderless=true {
                     plugin location="file:${zjstatusWasm}" {
+
+                        border_enabled  "true"
+                        border_char     "─"
+                        border_format   "#[fg=2]{char}"
+                        border_position "top"
+
                         format_left   "#[fg=4,bold]󰓥 {session} #[fg=8]{tabs}"
                         format_center "{mode}"
                         format_right  "#[fg=8]󰄚 {command_hostname}"
