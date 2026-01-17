@@ -96,8 +96,7 @@ in
               bind "Shift n" { Search "up"; }
               bind "c" { SearchToggleOption "CaseSensitivity"; }
               bind "d" { HalfPageScrollDown; }
-              bind "esc" { ScrollToBottom; SwitchToMode "normal"; }
-              bind "Ctrl c" { ScrollToBottom; SwitchToMode "normal"; }
+              bind "esc" { SwitchToMode "normal"; }
               bind "j" { ScrollDown; }
               bind "k" { ScrollUp; }
               bind "n" { Search "down"; }
