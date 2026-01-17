@@ -51,8 +51,25 @@ in
 
       keybinds clear-defaults=true {
           normal {
+              # Like sending "Ctrl l" instead of normal clear
               bind "Super k" { Write 12; }
+
               bind "Ctrl /" { SwitchToMode "entersearch"; SearchInput 0; }
+              bind "Ctrl [" { SwitchToMode "scroll"; }
+              bind "Ctrl ;" {
+                  LaunchOrFocusPlugin "session-manager" {
+                      floating true
+                      move_to_focused_tab true
+                  }
+                  SwitchToMode "normal"
+              }
+
+              bind "Ctrl f" { ToggleFloatingPanes; }
+              bind "Ctrl s" { NewPane "down"; }
+              bind "Ctrl v" { NewPane "right"; }
+
+              bind "Ctrl t" { NewTab; }
+              bind "Super t" { NewTab; }
               bind "Ctrl 1" { GoToTab 1; }
               bind "Ctrl 2" { GoToTab 2; }
               bind "Ctrl 3" { GoToTab 3; }
@@ -62,36 +79,32 @@ in
               bind "Ctrl 7" { GoToTab 7; }
               bind "Ctrl 8" { GoToTab 8; }
               bind "Ctrl 9" { GoToTab 9; }
-              bind "Ctrl ;" { SwitchToMode "session"; }
+              bind "Super 1" { GoToTab 1; }
+              bind "Super 2" { GoToTab 2; }
+              bind "Super 3" { GoToTab 3; }
+              bind "Super 4" { GoToTab 4; }
+              bind "Super 5" { GoToTab 5; }
+              bind "Super 6" { GoToTab 6; }
+              bind "Super 7" { GoToTab 7; }
+              bind "Super 8" { GoToTab 8; }
+              bind "Super 9" { GoToTab 9; }
+
               bind "Ctrl d" { ScrollDown; }
               bind "Ctrl u" { ScrollUp; }
+
               bind "Ctrl Shift d" { Detach; }
-              bind "Ctrl Shift t" { ToggleTab; }
-              bind "Ctrl w" { CloseTab; }
-              bind "Ctrl [" { SwitchToMode "scroll"; }
-              bind "Ctrl f" { ToggleFloatingPanes; }
-              bind "Ctrl o" { SwitchToMode "session"; }
-              bind "Ctrl s" { NewPane "down"; }
-              bind "Ctrl t" { NewTab; }
-              bind "Ctrl v" { NewPane "right"; }
+
               bind "Ctrl w" { CloseFocus; }
+              bind "Super w" { CloseFocus; }
+
               bind "Ctrl tab" { GoToNextTab; }
+              bind "Super tab" { GoToNextTab; }
               bind "Ctrl Shift tab" { GoToPreviousTab; }
+              bind "Super Shift tab" { GoToPreviousTab; }
           }
 
           locked {
               bind "Ctrl g" { SwitchToMode "normal"; }
-          }
-
-          pane {
-              bind "f" { ToggleFloatingPanes; SwitchToMode "normal"; }
-              bind "h" { MoveFocus "left"; }
-              bind "j" { MoveFocus "down"; }
-              bind "k" { MoveFocus "up"; }
-              bind "l" { MoveFocus "right"; }
-              bind "s" { NewPane "down"; SwitchToMode "normal"; }
-              bind "v" { NewPane "right"; SwitchToMode "normal"; }
-              bind "x" { CloseFocus; SwitchToMode "normal"; }
           }
 
           scroll {
@@ -111,31 +124,6 @@ in
               bind "o" { SearchToggleOption "Wrap"; }
               bind "p" { Search "up"; }
               bind "w" { SearchToggleOption "WholeWord"; }
-          }
-
-          session {
-              bind "c" {
-                  LaunchOrFocusPlugin "configuration" {
-                      floating true
-                      move_to_focused_tab true
-                  }
-                  SwitchToMode "normal"
-              }
-              bind "d" { Detach; }
-              bind "p" {
-                  LaunchOrFocusPlugin "plugin-manager" {
-                      floating true
-                      move_to_focused_tab true
-                  }
-                  SwitchToMode "normal"
-              }
-              bind "w" {
-                  LaunchOrFocusPlugin "session-manager" {
-                      floating true
-                      move_to_focused_tab true
-                  }
-                  SwitchToMode "normal"
-              }
           }
 
           shared_except "locked" {
@@ -197,22 +185,6 @@ in
               }
           }
 
-          shared_except "locked" "resize" "tab" "move" "prompt" "tmux" {
-              bind "Ctrl g" { SwitchToMode "locked"; }
-          }
-
-          shared_among "pane" "renametab" "renamepane" {
-              bind "enter" { SwitchToMode "normal"; }
-          }
-
-          shared_among "pane" "renametab" "renamepane" "session" {
-              bind "Ctrl c" { SwitchToMode "normal"; }
-          }
-
-          shared_among "pane" "session" {
-              bind "esc" { SwitchToMode "normal"; }
-          }
-
           shared_among "scroll" "search" {
               bind "PageDown" { PageScrollDown; }
               bind "PageUp" { PageScrollUp; }
@@ -230,14 +202,6 @@ in
               bind "esc" { SwitchToMode "scroll"; }
               bind "enter" { SwitchToMode "search"; }
           }
-
-          renametab {
-              bind "esc" { UndoRenameTab; SwitchToMode "normal"; }
-          }
-
-          renamepane {
-              bind "esc" { UndoRenamePane; SwitchToMode "normal"; }
-          }
       }
     '';
 
@@ -248,25 +212,16 @@ in
                 children
                 pane size=1 borderless=true {
                     plugin location="file:${zjstatusWasm}" {
-                        format_left   "#[bg=2,fg=0] {command_host_os_icon} {session} {mode}"
+                        format_left   "#[bg=2,fg=0] {session} {mode}"
                         format_center "{tabs}"
                         format_right  "#[bg=2,fg=0] {swap_layout} │ {datetime} "
                         format_space  "#[bg=2]"
 
                         mode_normal        "#[bg=2,fg=2]│#[bg=2,fg=0] NORMAL "
                         mode_locked        "#[bg=2,fg=2]│#[bg=1,fg=0] LOCKED "
-                        mode_resize        "#[bg=2,fg=2]│#[bg=5,fg=0] RESIZE "
-                        mode_pane          "#[bg=2,fg=2]│#[bg=5,fg=0] PANE "
-                        mode_tab           "#[bg=2,fg=2]│#[bg=5,fg=0] TAB "
                         mode_scroll        "#[bg=2,fg=2]│#[bg=5,fg=0] SCROLL "
                         mode_enter_search  "#[bg=2,fg=2]│#[bg=5,fg=0] SEARCH "
                         mode_search        "#[bg=2,fg=2]│#[bg=5,fg=0] SEARCH "
-                        mode_rename_tab    "#[bg=2,fg=2]│#[bg=5,fg=0] RENAME_TAB "
-                        mode_rename_pane   "#[bg=2,fg=2]│#[bg=5,fg=0] RENAME_PANE "
-                        mode_session       "#[bg=2,fg=2]│#[bg=5,fg=0] SESSION "
-                        mode_move          "#[bg=2,fg=2]│#[bg=5,fg=0] MOVE "
-                        mode_prompt        "#[bg=2,fg=2]│#[bg=5,fg=0] PROMPT "
-                        mode_tmux          "#[bg=2,fg=2]│#[bg=4,fg=0] TMUX "
 
                         tab_normal "#[bg=2,fg=0] {name} {sync_indicator}{fullscreen_indicator}{floating_indicator}#[bg=2,fg=0]"
                         tab_active "#[bg=0,fg=2] {name} {sync_indicator}{fullscreen_indicator}{floating_indicator}#[bg=0,fg=2]"
@@ -275,7 +230,6 @@ in
                         tab_fullscreen_indicator "󱟱 "
                         tab_floating_indicator   "󰉈 "
 
-                        command_host_os_icon_command "echo 󱄅"
                         command_host_os_icon_format "{stdout}"
                         command_host_os_icon_interval "0"
                         command_host_os_icon_rendermode "static"
