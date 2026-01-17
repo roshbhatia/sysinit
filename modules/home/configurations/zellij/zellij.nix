@@ -27,7 +27,7 @@ in
       mouse_mode = true;
       show_startup_tips = false;
       scroll_buffer_size = 100000;
-      scrollback_editor = "${pkgs.helix}/bin/hx";
+      scrollback_editor = "${pkgs.neovim}/bin/nvim";
       default_mode = "normal";
     };
 
@@ -192,11 +192,11 @@ in
                         format_right  "#[fg=8]󰄚 {command_hostname}"
                         format_space  ""
 
-                        mode_normal        "#[fg=2]│ NORMAL │"
-                        mode_locked        "#[fg=1,bold]│  LOCKED │"
-                        mode_scroll        "#[fg=5,bold]│  SCROLL │"
-                        mode_enter_search  "#[fg=4,bold]│  SEARCH │"
-                        mode_search        "#[fg=4,bold]│  SEARCH │"
+                        mode_normal        "#[fg=2]<  NORMAL >"
+                        mode_locked        "#[fg=1,bold]<  LOCKED >"
+                        mode_scroll        "#[fg=5,bold]<  SCROLL >"
+                        mode_enter_search  "#[fg=4,bold]<  SEARCH >"
+                        mode_search        "#[fg=4,bold]<  SEARCH >"
 
                         tab_normal              "#[fg=8] {name}{fullscreen_indicator}{floating_indicator}{sync_indicator}"
                         tab_active              "#[fg=4,bold] {name}{fullscreen_indicator}{floating_indicator}{sync_indicator}"
