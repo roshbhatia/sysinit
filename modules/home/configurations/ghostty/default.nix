@@ -16,8 +16,8 @@
       macos-titlebar-style = "hidden";
       macos-window-shadow = false;
 
-      window-padding-x = 4;
-      window-padding-y = 4;
+      window-padding-x = 8;
+      window-padding-y = 3;
 
       background-blur = values.theme.transparency.blur;
 

@@ -59,6 +59,7 @@ in
 
       keybinds clear-defaults=true {
           normal {
+              bind "Super k" { Clear; }
               bind "Ctrl /" { SwitchToMode "entersearch"; SearchInput 0; }
               bind "Ctrl 1" { GoToTab 1; }
               bind "Ctrl 2" { GoToTab 2; }
@@ -100,10 +101,10 @@ in
           }
 
           scroll {
-              bind "left" { PageScrollUp; }
-              bind "down" { ScrollDown; }
-              bind "up" { ScrollUp; }
-              bind "right" { PageScrollDown; }
+              bind "g" { ScrollToTop; }
+              bind "G" { ScrollToBottom; }
+              bind "j" { ScrollDown; }
+              bind "k" { ScrollUp; }
               bind "/" { SwitchToMode "entersearch"; SearchInput 0; }
               bind "Ctrl /" { SwitchToMode "search"; SearchInput 0; }
               bind "e" { EditScrollback; SwitchToMode "normal"; }
