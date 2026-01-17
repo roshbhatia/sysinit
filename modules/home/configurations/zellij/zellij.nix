@@ -180,9 +180,9 @@ in
                         border_format   "#[fg=2]{char}"
                         border_position "top"
 
-                        format_left   "#[fg=4,bold]󰓥 {session} #[fg=8]{tabs}"
+                        format_left   "#[fg=4]󰄚 {command_hostname} #[fg=8]{tabs}"
                         format_center "{mode}"
-                        format_right  "#[fg=8]󰄚 {command_hostname}"
+                        format_right  "#[fg=4,bold]󰓥 {session}"
                         format_space  ""
 
                         mode_normal        "#[fg=2]<  NORMAL >"
