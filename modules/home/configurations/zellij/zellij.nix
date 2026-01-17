@@ -51,6 +51,8 @@ in
 
       keybinds clear-defaults=true {
           normal {
+              bind "Ctrl g" { SwitchToMode "locked"; }
+
               // Like sending "Ctrl l" instead of normal clear
               bind "Super k" { Write 12; }
 
@@ -89,8 +91,8 @@ in
               bind "Super 8" { GoToTab 8; }
               bind "Super 9" { GoToTab 9; }
 
-              bind "Ctrl d" { ScrollDown; }
-              bind "Ctrl u" { ScrollUp; }
+              bind "Ctrl d" { HalfPageScrollDown; }
+              bind "Ctrl u" { HalfPageScrollUp; }
 
               bind "Ctrl Shift d" { Detach; }
 
@@ -186,21 +188,11 @@ in
           }
 
           shared_among "scroll" "search" {
-              bind "PageDown" { PageScrollDown; }
-              bind "PageUp" { PageScrollUp; }
-              bind "Ctrl c" { ScrollToBottom; SwitchToMode "normal"; }
               bind "d" { HalfPageScrollDown; }
               bind "j" { ScrollDown; }
               bind "k" { ScrollUp; }
               bind "u" { HalfPageScrollUp; }
               bind "esc" { ScrollToBottom; SwitchToMode "normal"; }
-              bind "enter" { ScrollToBottom; SwitchToMode "normal"; }
-          }
-
-          entersearch {
-              bind "Ctrl c" { SwitchToMode "scroll"; }
-              bind "esc" { SwitchToMode "scroll"; }
-              bind "enter" { SwitchToMode "search"; }
           }
       }
     '';
