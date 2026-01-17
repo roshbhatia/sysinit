@@ -27,7 +27,7 @@ in
       mouse_mode = true;
       show_startup_tips = false;
       scroll_buffer_size = 100000;
-      scrollback_editor = pkgs.nvim;
+      scrollback_editor = pkgs.helix;
       default_mode = "normal";
     };
 
