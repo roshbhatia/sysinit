@@ -187,28 +187,27 @@ in
                 children
                 pane size=1 borderless=true {
                     plugin location="file:${zjstatusWasm}" {
-                        format_left   "#[bg=2,fg=0] {mode}#[bg=2,fg=0,bold] {session}"
-                        format_center ""
-                        format_right  "{tabs} #[bg=2,fg=5]{command_git_branch}"
-                        format_space  "#[bg=2]"
+                        format_left   "{tabs}"
+                        format_center "{mode}"
+                        format_right  "#[fg=8]{command_hostname}"
+                        format_space  ""
 
-                        mode_normal        "#[bg=2,fg=0] NORMAL "
-                        mode_locked        "#[bg=1,fg=0] LOCKED "
-                        mode_scroll        "#[bg=5,fg=0] SCROLL "
-                        mode_enter_search  "#[bg=5,fg=0] SEARCH "
-                        mode_search        "#[bg=5,fg=0] SEARCH "
+                        mode_normal        ""
+                        mode_locked        "#[fg=1,bold]LOCKED"
+                        mode_scroll        "#[fg=5,bold]SCROLL"
+                        mode_enter_search  "#[fg=4,bold]SEARCH"
+                        mode_search        "#[fg=4,bold]SEARCH"
 
-                        tab_normal "#[bg=2,fg=0] {name} {sync_indicator}{fullscreen_indicator}{floating_indicator}"
-                        tab_active "#[bg=0,fg=2,bold,italic] {name} {sync_indicator}{fullscreen_indicator}{floating_indicator}"
+                        tab_normal              "#[fg=8] {name}{fullscreen_indicator}{floating_indicator}{sync_indicator}"
+                        tab_active              "#[fg=4,bold] {name}{fullscreen_indicator}{floating_indicator}{sync_indicator}"
+                        tab_fullscreen_indicator " 󱟱"
+                        tab_floating_indicator   " 󰉈"
+                        tab_sync_indicator       " 󰓦"
 
-                        tab_sync_indicator       "󰓦 "
-                        tab_fullscreen_indicator "󱟱 "
-                        tab_floating_indicator   "󰉈 "
-
-                        command_git_branch_command     "git rev-parse --abbrev-ref HEAD"
-                        command_git_branch_format      " {stdout} "
-                        command_git_branch_interval    "10"
-                        command_git_branch_rendermode  "static"
+                        command_hostname_command     "hostname"
+                        command_hostname_format      "{stdout}"
+                        command_hostname_interval    "0"
+                        command_hostname_rendermode  "static"
                     }
                 }
             }
