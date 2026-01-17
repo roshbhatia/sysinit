@@ -3,15 +3,12 @@ local M = {}
 M.plugins = {
   {
     "mrjones2014/smart-splits.nvim",
-    lazy = false,
-    priority = 1000,
+    event = "VeryLazy",
     config = function()
       require("smart-splits").setup({
-        ignored_buftypes = {
-          "terminal",
-        },
         cursor_follows_swapped_bufs = true,
         at_edge = "stop",
+        multiplexer_integration = "zellij",
       })
     end,
     keys = function()
