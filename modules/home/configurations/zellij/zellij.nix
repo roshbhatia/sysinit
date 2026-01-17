@@ -29,6 +29,7 @@ in
       scroll_buffer_size = 100000;
       scrollback_editor = "$EDITOR";
       default_mode = "normal";
+      pane_frames = true;
     };
 
     extraConfig = ''
@@ -244,7 +245,7 @@ in
         layout {
             default_tab_template {
                 children
-                pane size=2 borderless=false {
+                pane size=1 borderless=true {
                     plugin location="file:${zjstatusWasm}" {
                         format_left   "#[bg=2,fg=0] {command_host_os_icon} {session} {mode}"
                         format_center "{tabs}"
