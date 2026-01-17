@@ -51,7 +51,7 @@ in
 
       keybinds clear-defaults=true {
           normal {
-              # Like sending "Ctrl l" instead of normal clear
+              // Like sending "Ctrl l" instead of normal clear
               bind "Super k" { Write 12; }
 
               bind "Ctrl /" { SwitchToMode "entersearch"; SearchInput 0; }
