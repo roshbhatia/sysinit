@@ -23,19 +23,12 @@ in
     enable = true;
 
     settings = {
-      default_shell = "zsh";
-      copy_clipboard = "primary";
-      copy_command = "pbcopy";
+      default_shell = pkgs.zsh;
       copy_on_select = true;
       mouse_mode = true;
-      on_force_close = "detach";
-      simplified_ui = false;
-      auto_layout = true;
-      session_serialization = false;
       show_startup_tips = false;
       scroll_buffer_size = 100000;
       scrollback_editor = "$EDITOR";
-      pane_frames = false;
       default_mode = "normal";
     };
 
@@ -252,7 +245,7 @@ in
         layout {
             default_tab_template {
                 children
-                pane size=2 borderless=true {
+                pane size=2 borderless=false {
                     plugin location="file:${zjstatusWasm}" {
                         format_left   "#[bg=2,fg=0] {command_host_os_icon} {session} {mode}"
                         format_center "{tabs}"
