@@ -23,7 +23,6 @@ in
     enable = true;
 
     settings = {
-      default_shell = pkgs.zsh;
       copy_on_select = true;
       mouse_mode = true;
       show_startup_tips = false;
