@@ -110,7 +110,7 @@ in
               bind "w" { SearchToggleOption "WholeWord"; }
           }
 
-          shared_except "locked" {
+          shared {
               bind "Ctrl Shift h" {
                   MessagePlugin "file:${vimZellijNavigatorWasm}" {
                       name "resize"
