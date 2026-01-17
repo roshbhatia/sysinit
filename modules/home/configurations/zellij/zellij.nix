@@ -34,7 +34,7 @@ in
     extraConfig = ''
       keybinds clear-defaults=true {
           normal {
-              bind "Ctrl g" { SwitchToMode "locked"; }
+              bind "Ctrl g" { SwitchToMode "Locked"; }
 
               // Like sending "Ctrl l" instead of normal clear
               bind "Super k" { Write 12; }
@@ -46,7 +46,7 @@ in
                       floating true
                       move_to_focused_tab true
                   }
-                  SwitchToMode "normal"
+                  SwitchToMode "Normal"
               }
 
               bind "Ctrl f" { ToggleFloatingPanes; }
@@ -89,14 +89,18 @@ in
           }
 
           locked {
-              bind "Ctrl g" { SwitchToMode "normal"; }
+              bind "Ctrl g" { SwitchToMode "Normal"; }
           }
 
+          entersearch {
+              bind "Esc" { SwitchToMode "Normal"; }
+              bind "Enter" { SwitchToMode "Search"; }
+          }
           search {
               bind "Shift n" { Search "up"; }
               bind "c" { SearchToggleOption "CaseSensitivity"; }
               bind "d" { HalfPageScrollDown; }
-              bind "esc" { SwitchToMode "normal"; }
+              bind "Esc" { SwitchToMode "Normal";  }
               bind "j" { ScrollDown; }
               bind "k" { ScrollUp; }
               bind "n" { Search "down"; }
