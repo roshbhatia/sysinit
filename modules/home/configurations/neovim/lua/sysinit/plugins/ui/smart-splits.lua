@@ -8,7 +8,6 @@ M.plugins = {
       require("smart-splits").setup({
         cursor_follows_swapped_bufs = true,
         at_edge = "stop",
-        multiplexer_integration = "zellij",
       })
     end,
     keys = function()
@@ -95,7 +94,7 @@ M.plugins = {
           desc = "Split pane horizontally",
         },
         {
-          "<leader>x",
+          "<C-w>",
           function()
             vim.cmd("silent! xit")
           end,
