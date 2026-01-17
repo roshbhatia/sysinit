@@ -251,14 +251,17 @@ in
         layout {
             default_tab_template {
                 children
-                pane size=1 borderless=true {
+                pane size=2 borderless=true {
                     plugin location="file:${zjstatusWasm}" {
                         format_left   "#[bg=2,fg=0] {command_host_os_icon} {session} {mode}"
                         format_center "{tabs}"
                         format_right  "#[bg=2,fg=0] {swap_layout} │ {datetime} "
                         format_space  "#[bg=2]"
 
-                        hide_frame_for_single_pane "true"
+                        border_enabled  "true"
+                        border_char     "─"
+                        border_format   "#[fg=3]"
+                        border_position "top"
 
                         mode_normal        "#[bg=2,fg=2]│#[bg=2,fg=0] NORMAL "
                         mode_locked        "#[bg=2,fg=2]│#[bg=1,fg=0] LOCKED "
