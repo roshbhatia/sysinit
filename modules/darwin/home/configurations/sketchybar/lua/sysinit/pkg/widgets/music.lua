@@ -84,7 +84,7 @@ function M.setup()
 
   music:subscribe("mouse.clicked", function()
     sbar.exec("osascript -e 'tell application \"Music\" to playpause'")
-    get_music_info()
+    sbar.exec("sleep 0.3 && sketchybar -m --trigger music_update", function() end)
   end)
 
   music:subscribe("mouse.scrolled", function(env)

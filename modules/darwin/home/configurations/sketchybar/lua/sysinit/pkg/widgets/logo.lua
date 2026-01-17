@@ -12,7 +12,7 @@ function M.setup()
     position = "left",
     icon = {
       font = settings.fonts.icons.regular,
-      string = "󱄅",
+      string = " 󱄅",
       padding_left = settings.spacing.section_spacing,
       color = colors.foreground_primary,
     },

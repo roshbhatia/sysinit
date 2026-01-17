@@ -48,7 +48,7 @@ local volume_slider = sbar.add("slider", "volume.slider", 80, {
   background = { drawing = false },
   padding_left = 6,
   padding_right = 6,
-  drawing = false,
+  drawing = true,
 })
 
 local volume_group_active = false
@@ -97,7 +97,7 @@ end
 
 local function hide_volume_slider()
   volume_group_active = false
-  hide_timer = sbar.exec("sleep 0.3", function()
+  hide_timer = sbar.exec("sleep 0.5", function()
     if not volume_group_active then
       utils.animate_visibility(volume_slider, false)
     end
