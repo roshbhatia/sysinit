@@ -68,7 +68,7 @@ in
   inherit (stable) awscli2;
   inherit (stable) ollama;
 
-  neovim = inputs.neovim-nightly-overlay.packages.${system}.default;
+  # neovim = inputs.neovim-nightly-overlay.packages.${system}.default;
 
   bv = inputs.bv.packages.${system}.default;
 
