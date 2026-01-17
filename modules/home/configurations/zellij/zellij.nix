@@ -32,23 +32,6 @@ in
     };
 
     extraConfig = ''
-      plugins {
-          about location="zellij:about"
-          compact-bar location="zellij:compact-bar"
-          configuration location="zellij:configuration"
-          filepicker location="zellij:strider" {
-              cwd "/"
-          }
-          plugin-manager location="zellij:plugin-manager"
-          session-manager location="zellij:session-manager"
-          status-bar location="zellij:status-bar"
-          strider location="zellij:strider"
-          tab-bar location="zellij:tab-bar"
-          welcome-screen location="zellij:session-manager" {
-              welcome_screen true
-          }
-      }
-
       keybinds clear-defaults=true {
           normal {
               bind "Ctrl g" { SwitchToMode "locked"; }
