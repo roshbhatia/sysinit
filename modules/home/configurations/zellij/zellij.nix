@@ -26,7 +26,6 @@ in
       copy_on_select = true;
       default_mode = "normal";
       mouse_mode = true;
-      pane_frames = false;
       scroll_buffer_size = 100000;
       scrollback_editor = "${pkgs.neovim}/bin/nvim";
       show_startup_tips = false;
