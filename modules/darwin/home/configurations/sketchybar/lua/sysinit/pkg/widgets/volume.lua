@@ -48,7 +48,7 @@ local volume_slider = sbar.add("slider", "volume.slider", 80, {
   background = { drawing = false },
   padding_left = 6,
   padding_right = 6,
-  drawing = true,
+  drawing = false,
 })
 
 local volume_group_active = false

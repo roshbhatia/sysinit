@@ -45,7 +45,7 @@ local function get_music_info()
 
         if state == "paused" then
           icon = "󰏤"
-          label = title .. "  " .. artist .. " (paused)"
+          label = title .. "  " .. artist
         elseif state == "stopped" then
           utils.animate_visibility({ music, music_separator }, false)
           return
@@ -72,7 +72,7 @@ function M.setup()
     background = { drawing = false },
     padding_left = settings.spacing.widget_spacing,
     padding_right = settings.spacing.widget_spacing,
-    update_freq = 2,
+    update_freq = 1,
     drawing = false,
   })
 
@@ -84,7 +84,7 @@ function M.setup()
 
   music:subscribe("mouse.clicked", function()
     sbar.exec("osascript -e 'tell application \"Music\" to playpause'")
-    sbar.exec("sleep 0.3 && sketchybar -m --trigger music_update", function() end)
+    sbar.exec("sleep 0.2 && sketchybar -m --trigger music_update", function() end)
   end)
 
   music:subscribe("mouse.scrolled", function(env)
@@ -94,7 +94,6 @@ function M.setup()
     elseif direction == "down" then
       os.execute('osascript -e "tell application \\"Music\\" to set sound volume to (get sound volume) - 10"')
     end
-    get_music_info()
   end)
 
   music:subscribe("system_woke", function()
@@ -102,6 +101,20 @@ function M.setup()
   end)
 
   get_music_info()
+
+  sbar.exec(
+    [[osascript -e '
+    repeat 3 times
+      tell application "System Events" to tell application process "Music" to set frontmost to true
+      delay 0.1
+    end repeat
+  ]],
+    function() end
+  )
+
+  for _, delay in ipairs({ 0.2, 0.5, 1, 2 }) do
+    sbar.exec("sleep " .. delay .. " && sketchybar -m --trigger music_update", function() end)
+  end
 end
 
 return M

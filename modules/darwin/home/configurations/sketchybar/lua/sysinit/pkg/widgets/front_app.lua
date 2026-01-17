@@ -36,6 +36,7 @@ local app_icons = {
   ["System Preferences"] = "",
   ["System Settings"] = "",
   ["Wezterm"] = " ",
+  ["wezterm-gui"] = " ",
   ["Xcode"] = "",
   ["Zoom"] = "󰍫",
   ["firefox"] = "",
