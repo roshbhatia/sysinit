@@ -244,7 +244,7 @@ in
         layout {
             default_tab_template {
                 children
-                pane size=1 {
+                pane size=1 borderless=true {
                     plugin location="file:${zjstatusWasm}" {
                         format_left   "#[bg=2,fg=0] {command_host_os_icon} {session} {mode}"
                         format_center "{tabs}"
