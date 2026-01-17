@@ -19,7 +19,7 @@
       macos-hidden = "always";
       macos-titlebar-style = "hidden";
 
-      intial-command = "zellij attach || zellij";
+      command = "zellij attach -c --index 0";
 
       keybind = [
         "clear"
