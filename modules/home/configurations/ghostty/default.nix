@@ -14,8 +14,7 @@
     settings = {
       background-blur = values.theme.transparency.blur;
       window-padding-x = 4;
-      window-padding-y = "2,3";
-      window-padding-balance = true;
+      window-padding-y = "2,4";
       font-size = 13;
 
       macos-hidden = "always";

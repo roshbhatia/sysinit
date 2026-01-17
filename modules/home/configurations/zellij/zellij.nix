@@ -63,9 +63,11 @@ in
               bind "Ctrl 8" { GoToTab 8; }
               bind "Ctrl 9" { GoToTab 9; }
               bind "Ctrl ;" { SwitchToMode "session"; }
-              bind "Ctrl D" { Detach; }
-              bind "Ctrl O" { ToggleTab; }
-              bind "Ctrl W" { CloseTab; }
+              bind "Ctrl d" { ScrollDown; }
+              bind "Ctrl u" { ScrollUp; }
+              bind "Ctrl Shift d" { Detach; }
+              bind "Ctrl Shift t" { ToggleTab; }
+              bind "Ctrl w" { CloseTab; }
               bind "Ctrl [" { SwitchToMode "scroll"; }
               bind "Ctrl f" { ToggleFloatingPanes; }
               bind "Ctrl o" { SwitchToMode "session"; }
