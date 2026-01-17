@@ -94,7 +94,7 @@ in
 
           scroll {
               bind "g" { ScrollToTop; }
-              bind "G" { ScrollToBottom; }
+              bind "Shift g" { ScrollToBottom; }
               bind "j" { ScrollDown; }
               bind "k" { ScrollUp; }
               bind "/" { SwitchToMode "entersearch"; SearchInput 0; }
@@ -103,37 +103,37 @@ in
           }
 
           search {
-              bind "N" { Search "up"; }
-              bind "c" { SearchToggleOption "CaseSensitivity"; }
+              bind "Shift n" { Search "up"; }
               bind "n" { Search "down"; }
+              bind "c" { SearchToggleOption "CaseSensitivity"; }
               bind "o" { SearchToggleOption "Wrap"; }
               bind "p" { Search "up"; }
               bind "w" { SearchToggleOption "WholeWord"; }
           }
 
           shared_except "locked" {
-              bind "Ctrl H" {
+              bind "Ctrl Shift h" {
                   MessagePlugin "file:${vimZellijNavigatorWasm}" {
                       name "resize"
                       payload "left"
                       floating false
                   }
               }
-              bind "Ctrl J" {
+              bind "Ctrl shift j" {
                   MessagePlugin "file:${vimZellijNavigatorWasm}" {
                       name "resize"
                       payload "down"
                       floating false
                   }
               }
-              bind "Ctrl K" {
+              bind "Ctrl shift k" {
                   MessagePlugin "file:${vimZellijNavigatorWasm}" {
                       name "resize"
                       payload "up"
                       floating false
                   }
               }
-              bind "Ctrl L" {
+              bind "Ctrl Shift l" {
                   MessagePlugin "file:${vimZellijNavigatorWasm}" {
                       name "resize"
                       payload "right"
@@ -187,31 +187,28 @@ in
                 children
                 pane size=1 borderless=true {
                     plugin location="file:${zjstatusWasm}" {
-                        format_left   "#[bg=2,fg=0] {session} {mode}"
-                        format_center "{tabs}"
-                        format_right  "#[bg=2,fg=0] {swap_layout} │ {datetime} "
+                        format_left   "#[bg=2,fg=0] {mode}#[bg=2,fg=0,bold] {session}"
+                        format_center ""
+                        format_right  "{tabs} #[bg=2,fg=5]{command_git_branch}"
                         format_space  "#[bg=2]"
 
-                        mode_normal        "#[bg=2,fg=2]│#[bg=2,fg=0] NORMAL "
-                        mode_locked        "#[bg=2,fg=2]│#[bg=1,fg=0] LOCKED "
-                        mode_scroll        "#[bg=2,fg=2]│#[bg=5,fg=0] SCROLL "
-                        mode_enter_search  "#[bg=2,fg=2]│#[bg=5,fg=0] SEARCH "
-                        mode_search        "#[bg=2,fg=2]│#[bg=5,fg=0] SEARCH "
+                        mode_normal        "#[bg=2,fg=0] NORMAL "
+                        mode_locked        "#[bg=1,fg=0] LOCKED "
+                        mode_scroll        "#[bg=5,fg=0] SCROLL "
+                        mode_enter_search  "#[bg=5,fg=0] SEARCH "
+                        mode_search        "#[bg=5,fg=0] SEARCH "
 
-                        tab_normal "#[bg=2,fg=0] {name} {sync_indicator}{fullscreen_indicator}{floating_indicator}#[bg=2,fg=0]"
-                        tab_active "#[bg=0,fg=2] {name} {sync_indicator}{fullscreen_indicator}{floating_indicator}#[bg=0,fg=2]"
+                        tab_normal "#[bg=2,fg=0] {name} {sync_indicator}{fullscreen_indicator}{floating_indicator}"
+                        tab_active "#[bg=0,fg=2,bold,italic] {name} {sync_indicator}{fullscreen_indicator}{floating_indicator}"
 
                         tab_sync_indicator       "󰓦 "
                         tab_fullscreen_indicator "󱟱 "
                         tab_floating_indicator   "󰉈 "
 
-                        command_host_os_icon_format "{stdout}"
-                        command_host_os_icon_interval "0"
-                        command_host_os_icon_rendermode "static"
-
-                        datetime          "{format}"
-                        datetime_format   "%H:%M %d-%b-%y"
-                        datetime_timezone "America/Los_Angeles"
+                        command_git_branch_command     "git rev-parse --abbrev-ref HEAD"
+                        command_git_branch_format      " {stdout} "
+                        command_git_branch_interval    "10"
+                        command_git_branch_rendermode  "static"
                     }
                 }
             }
