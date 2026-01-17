@@ -12,14 +12,13 @@
     package = if pkgs.stdenv.isDarwin then null else pkgs.ghostty;
 
     settings = {
+      background-blur = values.theme.transparency.blur;
+
       macos-hidden = "always";
       macos-titlebar-style = "hidden";
-      macos-window-shadow = false;
 
-      window-padding-x = 8;
-      window-padding-y = 3;
-
-      background-blur = values.theme.transparency.blur;
+      window-padding-x = 2;
+      window-padding-y = 2;
 
       keybind = [
         "clear"
@@ -29,6 +28,7 @@
         "super+minus=decrease_font_size:1"
         "super+plus=increase_font_size:1"
         "super+q=quit"
+        "super+n=new_window"
         "super+v=paste_from_clipboard"
         "super+w=close_surface"
       ];
