@@ -24,7 +24,7 @@ in
 
     settings = {
       env = {
-        "PATH" = "${pkgs.zellij}/bin:''$PATH";
+        "PATH" = "${pkgs.zellij}/bin";
       };
       copy_on_select = true;
       default_mode = "normal";
