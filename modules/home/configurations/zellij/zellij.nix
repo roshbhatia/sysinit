@@ -185,11 +185,11 @@ in
                         format_right  "#[fg=4,bold]󰓥 {session}  "
                         format_space  ""
 
-                        mode_normal        "#[fg=2]<  NORMAL >"
+                        mode_enter_search  "#[fg=2,bold]<  SEARCH >"
                         mode_locked        "#[fg=1,bold]<  LOCKED >"
+                        mode_normal        "#[fg=4]<  NORMAL >"
                         mode_scroll        "#[fg=5,bold]<  SCROLL >"
-                        mode_enter_search  "#[fg=4,bold]<  SEARCH >"
-                        mode_search        "#[fg=4,bold]<  SEARCH >"
+                        mode_search        "#[fg=2,bold]<  SEARCH >"
 
                         tab_normal              "#[fg=8] {name}{fullscreen_indicator}{floating_indicator}{sync_indicator}"
                         tab_active              "#[fg=4,bold] {name}{fullscreen_indicator}{floating_indicator}{sync_indicator}"
