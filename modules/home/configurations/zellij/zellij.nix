@@ -35,7 +35,7 @@ in
       show_startup_tips = false;
       scroll_buffer_size = 100000;
       scrollback_editor = "$EDITOR";
-      pane_frames = true;
+      pane_frames = false;
       default_mode = "normal";
     };
 
