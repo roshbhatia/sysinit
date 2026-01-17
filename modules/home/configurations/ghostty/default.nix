@@ -20,7 +20,7 @@
       macos-hidden = "always";
       macos-titlebar-style = "hidden";
 
-      command = "sh -c 'PATH=$PATH:${pkgs.zellij}/bin ${pkgs.zellij}/bin/zellij'";
+      command = "/bin/sh -c 'PATH=$PATH:${pkgs.zellij}/bin ${pkgs.zellij}/bin/zellij'";
 
       keybind = [
         "clear"
