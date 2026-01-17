@@ -2,47 +2,32 @@ local M = {}
 
 M.plugins = {
   {
-    "esmuellert/codediff.nvim",
+    "sindrets/diffview.nvim",
     dependencies = {
-      "MunifTanjim/nui.nvim",
+      "nvim-lua/plenary.nvim",
     },
-    cmd = "CodeDiff",
-    config = function()
-      require("codediff").setup({
-        explorer = {
-          position = "bottom",
-          view_mode = "tree",
-        },
-        keymaps = {
-          view = {
-            toggle_explorer = "<localleader>e", -- Toggle explorer visibility (explorer mode only)
-          },
-          explorer = {
-            toggle_view_mode = "t",
-          },
-          conflict = {
-            accept_incoming = "<localleader>i", -- Accept incoming (theirs/left) change
-            accept_current = "<localleader>c", -- Accept current (ours/right) change
-            accept_both = "<localleader>b", -- Accept both changes (incoming first)
-            discard = "<localleader>x", -- Discard both, keep base
-          },
-        },
-      })
-    end,
+    cmd = { "DiffviewOpen", "DiffviewClose", "DiffviewToggleFiles", "DiffviewFocusFiles" },
     keys = {
       {
         "<leader>dd",
         function()
-          vim.cmd("CodeDiff")
+          vim.cmd("DiffviewOpen")
         end,
-        desc = "Toggle (HEAD)",
+        desc = "DiffviewOpen",
       },
       {
-        "<leader>dm",
+        "<leader>dc",
         function()
-          vim.cmd("CodeDiff main")
+          vim.cmd("DiffviewClose")
         end,
-        desc = "Main",
+        desc = "DiffviewClose",
+      },
+      {
+        "<leader>dh",
+        function()
+          vim.cmd("DiffviewOpen HEAD")
+        end,
+        desc = "DiffviewOpen HEAD",
       },
     },
   },
