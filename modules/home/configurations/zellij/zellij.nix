@@ -39,8 +39,8 @@ in
               // Like sending "Ctrl l" instead of normal clear
               bind "Super k" { Write 12; }
 
-              bind "Ctrl /" { SwitchToMode "entersearch"; SearchInput 0; }
-              bind "Ctrl Esc" { EditScrollback; SwitchToMode "normal"; }
+              bind "Ctrl /" { SwitchToMode "Entersearch"; SearchInput 0; }
+              bind "Ctrl Esc" { EditScrollback; SwitchToMode "Normal"; }
               bind "Ctrl ;" {
                   LaunchOrFocusPlugin "session-manager" {
                       floating true
@@ -100,7 +100,7 @@ in
               bind "Shift n" { Search "up"; }
               bind "c" { SearchToggleOption "CaseSensitivity"; }
               bind "d" { HalfPageScrollDown; }
-              bind "Esc" { SwitchToMode "Normal";  }
+              bind "Esc" { SwitchToMode "Entersearch";  }
               bind "j" { ScrollDown; }
               bind "k" { ScrollUp; }
               bind "n" { Search "down"; }
