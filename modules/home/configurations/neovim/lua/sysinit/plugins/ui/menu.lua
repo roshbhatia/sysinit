@@ -24,29 +24,23 @@ M.plugins = {
               vim.lsp.buf.format()
             end
           end,
-          rtxt = "<leader>fm",
         },
-
         {
           name = "Code Actions",
           cmd = vim.lsp.buf.code_action,
           rtxt = "<leader>ca",
         },
-
-        { name = "separator" },
-
         {
-          name = "  Lsp Actions",
+          name = "Lsp Actions",
           hl = "Exblue",
           items = "lsp",
         },
-
+        { name = "separator" },
         {
           name = "Copy Content",
           cmd = "%y+",
           rtxt = "<C-c>",
         },
-
         {
           name = "Delete Content",
           cmd = "%d",
@@ -92,9 +86,7 @@ M.plugins = {
           name = "Show References",
           cmd = vim.lsp.buf.references,
         },
-
         { name = "separator" },
-
         {
           name = "Format Buffer",
           cmd = function()
@@ -107,7 +99,6 @@ M.plugins = {
             end
           end,
         },
-
         {
           name = "Code Actions",
           cmd = vim.lsp.buf.code_action,
@@ -199,35 +190,20 @@ M.plugins = {
         end
       end
 
-      local function open_in_terminal()
-        return function()
-          local node = get_state().tree:get_node()
-          if node.type == "message" then
-            return
-          end
-          local path = node.path
-          local node_type = vim.uv.fs_stat(path).type
-          local dir = node_type == "directory" and path or vim.fn.fnamemodify(path, ":h")
-          vim.cmd("enew")
-          vim.fn.termopen({ vim.o.shell, "-c", "cd " .. dir .. " ; " .. vim.o.shell })
-        end
-      end
-
       package.loaded["menus.neo-tree"] = {
-        { name = "  Open in window", cmd = call("open") },
-        { name = "  Open in vertical split", cmd = call("open_vsplit") },
-        { name = "  Open in horizontal split", cmd = call("open_split") },
-        { name = "󰓪  Open in new tab", cmd = call("open_tabnew") },
+        { name = "Open in window", cmd = call("open") },
+        { name = "Open in vertical split", cmd = call("open_vsplit") },
+        { name = "Open in horizontal split", cmd = call("open_split") },
         { name = "separator" },
-        { name = "  New file", cmd = call("add") },
-        { name = "  New folder", cmd = call("add_directory") },
-        { name = "  Delete", hl = "ExRed", cmd = call("Delete") },
-        { name = "   File details", cmd = call("show_file_details") },
-        { name = "  Rename", cmd = call("rename") },
-        { name = "  Rename basename", cmd = call("rename") },
-        { name = "  Copy", cmd = call("copy_to_clipboard") },
-        { name = "  Cut", cmd = call("cut_to_clipboard") },
-        { name = "  Paste", cmd = call("paste_from_clipboard") },
+        { name = "New file", cmd = call("add") },
+        { name = "New folder", cmd = call("add_directory") },
+        { name = "Delete", hl = "ExRed", cmd = call("Delete") },
+        { name = "File details", cmd = call("show_file_details") },
+        { name = "Rename", cmd = call("rename") },
+        { name = "Rename basename", cmd = call("rename") },
+        { name = "Copy", cmd = call("copy_to_clipboard") },
+        { name = "Cut", cmd = call("cut_to_clipboard") },
+        { name = "Paste", cmd = call("paste_from_clipboard") },
         { name = "separator" },
         { name = "Toggle hidden", cmd = call("toggle_hidden") },
         { name = "Refresh", cmd = call("refresh") },
@@ -247,9 +223,8 @@ M.plugins = {
         { name = "Fuzzy finder directory", cmd = call("fuzzy_finder_directory") },
         { name = "Fuzzy sorter", cmd = call("fuzzy_sorter") },
         { name = "separator" },
-        { name = "󰴠  Copy absolute path", cmd = copy_path(":p") },
-        { name = "  Copy relative path", cmd = copy_path(":~:.") },
-        { name = "  Open in terminal", hl = "ExBlue", cmd = open_in_terminal() },
+        { name = "Copy absolute path", cmd = copy_path(":p") },
+        { name = "Copy relative path", cmd = copy_path(":~:.") },
       }
 
       vim.keymap.set("n", "<C-t>", function()
