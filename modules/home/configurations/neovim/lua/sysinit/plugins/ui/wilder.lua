@@ -101,27 +101,6 @@ M.plugins = {
           accent = "WilderWildmenuAccent",
         },
         separator = " · ",
-        left = {
-          " ",
-          wilder.wildmenu_spinner({
-            frames = {
-              "⠋",
-              "⠙",
-              "⠹",
-              "⠸",
-              "⠼",
-              "⠴",
-              "⠦",
-              "⠧",
-              "⠇",
-              "⠏",
-            },
-            done = "●",
-            delay = 15,
-            interval = 20,
-          }),
-          " ",
-        },
         right = {
           " ",
           wilder.wildmenu_index(),
