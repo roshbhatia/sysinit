@@ -2,12 +2,8 @@ local M = {}
 
 M.plugins = {
   {
-    "nvzone/volt",
-    lazy = true,
-  },
-  {
     "nvzone/menu",
-    lazy = true,
+    event = "VeryLazy",
     dependencies = { "nvzone/volt" },
     config = function()
       vim.keymap.set("n", "<C-t>", function()
